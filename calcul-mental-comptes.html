@@ -893,6 +893,7 @@ async function saveAndShow(testId){
 
 /* ---------- Test 3 : fractions décimales ---------- */
 function isPow10(x){ if(!Number.isInteger(x)||x<1)return false; while(x%10===0)x/=10; return x===1; }
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
 function fracToDec(num,d){
   const k=String(d).length-1, intPart=Math.floor(num/d);
   let dec=String(num%d).padStart(k,'0').replace(/0+$/,'');
@@ -909,8 +910,20 @@ function parseDecToFrac(str){
 function fracBox(n,d){ return `<span class="fr"><span class="fn">${n}</span><span class="fb"></span><span class="fd">${d}</span></span>`; }
 function genFrac(level){
   if(level==='frac-n1'){
-    const d=pick([10,100,1000]); const maxNum=Math.min(9999,d*100-1);
-    let num; do{ num=rand(1,maxNum); }while(num%d===0 && rand(0,4)!==0);
+    const d=pick([10,10,10,100,100,1000]);   // 1000 plus rare -> moins de grands nombres
+    let num; const r=rand(0,99);
+    if(r<50){
+      // « zéros qui tombent » souvent : chiffres significatifs suivis de zéros finaux
+      if(rand(0,1)===0){ num=rand(1,9)*pick([10,100]); }   // 1 chiffre + 1 ou 2 zéros (10..900)
+      else            { num=rand(11,99)*10; }              // 2 chiffres + 1 zéro (110..990)
+    } else if(r<85){
+      // décimal court : petit numérateur, 1 ou 2 chiffres
+      num=(rand(0,1)===0)?rand(1,9):rand(10,99);
+    } else {
+      // plus rare : nombre à 3 ou 4 chiffres
+      num=(d===1000)?rand(101,9999):rand(101,999);
+    }
+    num=Math.min(9999,Math.max(1,num));
     return {level,num,d,qtext:`${num}/${d}`,atext:fracToDec(num,d)};
   }
   if(level==='frac-n2'){
@@ -969,8 +982,17 @@ function checkFAnswer(){
   const q=test.questions[test.idx];
   let correct=false, given=null;
   if(q.level==='frac-n1'){
-    const el=$('fDec'), v=el.value.trim(), fr=parseDecToFrac(v);
+    const el=$('fDec'), v=el.value.trim();
     given=v===''?null:v.replace('.', ',');
+    let fr=null;
+    if(v.includes('/')){
+      // forme fractionnaire : acceptée si la valeur est juste ET la fraction est irréductible (ex : 20/1, pas 200/10)
+      const p=v.replace(/\s/g,'').split('/');
+      if(p.length===2){ const fn=parseInt(p[0],10), fd=parseInt(p[1],10);
+        if(!isNaN(fn)&&!isNaN(fd)&&fd>0&&gcd(fn,fd)===1) fr={n:fn,d:fd}; }
+    } else {
+      fr=parseDecToFrac(v);   // formes décimales : 20, 20,0, 20,00 ...
+    }
     correct=!!fr && fr.n*q.d===q.num*fr.d;
     el.classList.remove('ok','bad'); el.classList.add(correct?'ok':'bad'); el.disabled=true;
   } else {
