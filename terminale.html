@@ -309,6 +309,152 @@
 .expr-help button{font-family:'Fredoka',sans-serif;font-size:1.05rem;min-width:46px;padding:9px 12px;border:2px solid var(--line);background:var(--surface);border-radius:12px;cursor:pointer;color:var(--ink);font-weight:600;line-height:1;box-shadow:var(--shadow-sm);}
 .expr-help button:active{transform:translateY(1px);}
 .expr-help button.del{color:var(--red);border-color:var(--red-soft);}
+
+/* --- Test TVI : tableau de variation + justification à compléter --- */
+.tvi-card{max-width:560px;margin:0 auto;}
+.tvi-prompt{font-size:1rem;line-height:1.5;color:var(--ink);background:var(--green-soft);border-radius:14px;padding:12px 14px;margin:0 0 14px;}
+.tvi-table{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px 6px;margin:0 0 16px;overflow-x:auto;}
+.tvi-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
+.tvi-t{font-family:'Nunito',sans-serif;font-size:14px;fill:var(--ink);}
+.tvi-it{font-style:italic;}
+.tvi-vr{font-size:12px;fill:var(--ink-soft);}
+.tvi-al{font-weight:800;}
+.tvi-v{font-weight:600;}
+.tvi-k{font-weight:700;fill:var(--blue);}
+.tvi-instr{font-weight:700;color:var(--ink);margin:0 0 8px;}
+.tvi-fill{font-size:1.04rem;line-height:2.1;color:var(--ink);}
+.tvi-fill b{color:var(--blue-dark);}
+.tvi-fill i{font-style:italic;}
+.tvi-int{white-space:nowrap;}
+.tvi-sel{width:auto;max-width:100%;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235C668A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-size:9px 6px;border:2px solid var(--grid);border-radius:9px;padding:4px 21px 4px 8px;margin:0 1px;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.tvi-sel.ok{border-color:var(--green);background-color:var(--green-soft);color:var(--green);}
+.tvi-sel.bad{border-color:var(--red);background-color:var(--red-soft);color:var(--red);}
+.tvi-sel:disabled{opacity:1;}
+
+/* --- Test TVI rédigé : zone de saisie + analyse de la justification --- */
+.tvi-textarea{width:100%;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:1rem;line-height:1.55;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:12px;padding:12px 14px;resize:vertical;min-height:118px;}
+.tvi-textarea:focus{outline:none;border-color:var(--blue);background:var(--surface);}
+.tvi-check{margin:14px 0 4px;display:flex;flex-direction:column;gap:6px;}
+.just-item{font-size:.93rem;line-height:1.35;display:flex;gap:9px;align-items:flex-start;}
+.just-item span{font-weight:800;flex:none;}
+.just-item.ok{color:var(--green);}
+.just-item.no{color:var(--ink-soft);}
+.just-item.miss{color:var(--red);}
+.tvi-model{margin-top:9px;padding:11px 13px;background:var(--surface);border-left:3px solid var(--green);border-radius:8px;font-size:.95rem;line-height:1.55;color:var(--ink);font-weight:600;}
+
+
+/* --- Test dérivée exponentielle : étapes u/v + facteur factorisé --- */
+.dexp-body{font-size:1.05rem;color:var(--ink);line-height:1.9;}
+.dexp-pose{font-weight:700;margin:2px 0 10px;}
+.dexp-hint{font-weight:600;font-size:.82rem;color:var(--ink-soft);}
+.dexp-row{display:flex;flex-wrap:wrap;gap:14px 28px;margin:0 0 14px;}
+.dexp-row>span{display:inline-flex;align-items:center;gap:6px;}
+.dexp-row span.dexp-ce{display:inline-block;gap:0;}
+.dexp-row i,.dexp-formula i,.dexp-fac i{font-style:italic;}
+.dexp-formula{margin:14px 0 6px;padding:10px 12px;background:var(--paper);border-radius:10px;font-size:1.02rem;color:var(--ink-soft);text-align:center;}
+.dexp-fac{margin:12px 0 2px;line-height:2.4;}
+.dexp-steprow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:4px 0;font-size:1.05rem;}
+.dexp-steprow .eq{font-weight:700;margin-right:2px;}
+.dexp-steprow .op{font-weight:700;color:var(--ink-soft);}
+.dexp-stepfac{margin-top:4px;}
+.dexp-pwrap{display:inline-flex;align-items:center;gap:1px;}
+.dexp-pwrap .par{display:none;font-weight:700;font-size:1.3rem;color:var(--ink-soft);}
+.dexp-pwrap.show-paren .par{display:inline-block;}
+.dexp-fac sup,.tvi-prompt sup{font-size:.7em;}
+.dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
+.dexp-hint sup{font-size:.7em;}
+/* Champs : input simple (u, u', facteur) + champ éditable avec exposant surélevé (v, v') */
+.dexp-in{display:inline-block;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:9px;padding:6px 10px;text-align:center;vertical-align:middle;}
+.dexp-ce{display:inline-block;min-width:96px;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:9px;padding:6px 10px;min-height:1.5em;vertical-align:middle;line-height:1.4;}
+.dexp-ce sup{font-size:.72em;vertical-align:super;line-height:0;}
+.dexp-ek{display:inline-block;font-weight:700;}
+.dexp-ek sup{font-size:.72em;vertical-align:super;line-height:0;}
+.dexp-in:focus,.dexp-ce:focus{outline:none;border-color:var(--blue);background:var(--surface);}
+.dexp-in.ok,.dexp-ce.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.dexp-in.bad,.dexp-ce.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+.dexp-in.sol,.dexp-ce.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
+.dexp-in:disabled{opacity:1;}
+.expr-help{display:flex;gap:8px;margin:10px 0 0;}
+.expr-help button{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:var(--ink);background:var(--surface);border:2px solid var(--grid);border-radius:9px;padding:7px 16px;cursor:pointer;}
+.expr-help button:hover{border-color:var(--blue);}
+.expr-help .sup-btn{color:var(--blue);}
+.expr-help .sup-btn sup{font-size:.62em;}
+.expr-help .del{color:var(--red);}
+
+/* --- Test Signes & variations : lecture graphique + tableaux à compléter --- */
+.sv-card{max-width:560px;margin:0 auto;}
+.sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
+.sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
+.sv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.sv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
+.sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
+.sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
+.sv-tbl{width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;table-layout:fixed;}
+.sv-tbl td{border:1.5px solid var(--grid);padding:7px 5px;text-align:center;vertical-align:middle;font-size:.95rem;}
+.sv-tbl td.lab{text-align:right;font-weight:700;color:var(--ink);background:var(--paper);white-space:nowrap;width:39%;font-size:.9rem;}
+.sv-tbl td.bnd{font-weight:700;color:var(--ink-soft);}
+.sv-tbl td.sv-zero{font-weight:800;color:var(--ink);}
+.sv-tbl i{font-style:italic;}
+.sv-mid-dot{display:inline-block;width:0;height:20px;border-left:2px dotted var(--ink-soft);vertical-align:middle;}
+.sv-tbl .tvi-sel{font-size:.9rem;max-width:100%;}
+/* ---- Test : équation de tangente ---- */
+.tg-card{max-width:600px;margin:0 auto;}
+.tg-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
+.tg-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
+.tg-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.tg-albl{font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;fill:var(--ink);}
+.tg-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
+.tg-tan{fill:none;stroke:var(--ink-soft);stroke-width:1.7;stroke-dasharray:6 4;stroke-linecap:round;}
+.tg-form{font-family:'Nunito',sans-serif;color:var(--ink);font-size:1rem;}
+.tg-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0;font-weight:600;}
+.tg-coef{display:inline-flex;align-items:center;gap:3px;}
+.tg-read{gap:10px 28px;margin-bottom:4px;}
+.tg-eq,.tg-gap{font-weight:700;}
+.tg-form i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.tg-imp{color:var(--ink-soft);font-weight:700;font-size:1.05rem;}
+.tg-sub{font-weight:700;color:var(--ink);margin:14px 0 4px;}
+.tg-in{width:46px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
+.tg-in:focus{outline:none;border-color:var(--green);}
+.tg-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.tg-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+.tg-in:disabled{opacity:1;}
+/* ---- Test : signe du 1er degré ---- */
+.s1-card{max-width:560px;margin:0 auto;}
+.s1-card i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.s1-tbl td.lab{width:32%;text-align:center;}
+.s1-tbl td.s1-bl{text-align:left;padding-left:10px;}
+.s1-tbl td.s1-br{text-align:right;padding-right:10px;}
+.s1-res{margin:2px 0 16px;}
+.s1-line{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:7px 0;font-weight:600;font-size:1.05rem;color:var(--ink);}
+.s1-imp{color:var(--ink-soft);font-weight:700;font-size:1.05rem;}
+.s1-eqlbl{font-weight:700;}
+.s1-in{width:66px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
+.s1-in.sm{width:50px;}
+.s1-solve{display:inline-flex;align-items:center;gap:6px;margin-left:22px;}
+.s1-frac-stack{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;gap:3px;}
+.s1-fbar{align-self:stretch;height:2px;background:var(--ink);border-radius:1px;margin:1px 0;}
+.s1-rule{font-weight:600;color:var(--ink);margin:6px 0;line-height:2.1;}
+.s1-place-sel{display:inline-block;width:auto;vertical-align:middle;margin:0 4px;font-size:.92rem;}
+.s1lvl-grid{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+.s1lvl-btn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;font-family:inherit;width:100%;transition:border-color .15s,transform .1s,box-shadow .15s;}
+.s1lvl-btn:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px);box-shadow:0 4px 14px rgba(30,42,74,.08);}
+.s1lvl-btn b{font-size:1.05rem;color:var(--ink);}
+.s1lvl-btn span{font-size:.85rem;color:var(--ink-soft);}
+.s1lvl-btn:disabled{opacity:.55;cursor:not-allowed;}
+.s2-tbl td.lab{width:24%;}
+.s2-ends{display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--ink-soft);font-weight:700;}
+.s2-hint{color:var(--ink-soft);font-style:italic;background:var(--paper);border:1px dashed var(--grid);border-radius:12px;padding:14px 16px;margin:4px 0;}
+/* ---- Tableaux de signe (1er & 2nd degré) : trait vertical uniquement aux racines (avec le 0 dessus), bornes ±∞ ouvertes ---- */
+.sv-tbl.s1-tbl td{border:none;border-bottom:1.6px solid var(--grid);padding:11px 5px;}
+.sv-tbl.s1-tbl tr:first-child td{border-top:1.6px solid var(--grid);}
+.sv-tbl.s1-tbl td.lab{border-right:1.6px solid var(--grid);}
+.sv-tbl.s1-tbl td.s-rootcol{background:linear-gradient(var(--ink-soft),var(--ink-soft)) center/2px 100% no-repeat;}
+.sv-tbl.s1-tbl td.sv-zero span{display:inline-block;background:var(--surface);padding:2px 7px;}
+.s2-calc{color:var(--ink-soft);font-size:.85rem;margin-left:8px;white-space:nowrap;}
+.s1-in:focus{outline:none;border-color:var(--green);}
+.s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+.s1-in:disabled{opacity:1;}
 </style>
 
 <div class="wrap">
@@ -316,7 +462,7 @@
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année</p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp21</b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -473,6 +619,151 @@
     </div>
   </section>
 
+  <!-- TEST : TVI -->
+  <section class="screen" id="scr-tvi">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tviModeTag"></span><span class="q-idx" id="tviQIdx">Question 1 / 6</span></span>
+      <span class="score-tag">Score&nbsp;<b id="tviLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card">
+      <p class="tvi-prompt" id="tviPrompt"></p>
+      <div class="tvi-table" id="tviTable"></div>
+      <p class="tvi-instr">Complète la justification :</p>
+      <div class="tvi-fill" id="tviFill"></div>
+      <div class="mp-feedback" id="tviFeedback"></div>
+      <div class="mp-actions" id="tviActions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : TVI RÉDIGÉ -->
+  <section class="screen" id="scr-tvi2">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvi2ModeTag"></span><span class="q-idx" id="tvi2QIdx">Question 1 / 6</span></span>
+      <span class="score-tag">Score&nbsp;<b id="tvi2LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card">
+      <p class="tvi-prompt" id="tvi2Prompt"></p>
+      <div class="tvi-table" id="tvi2Table"></div>
+      <p class="tvi-instr">Rédige la justification :</p>
+      <textarea class="tvi-textarea" id="tvi2Input" rows="5" placeholder="Explique pourquoi l'équation admet une unique solution (continuité, sens de variation, théorème, encadrement, unicité…)" autocomplete="off"></textarea>
+      <div class="tvi-check" id="tvi2Check"></div>
+      <div class="mp-feedback" id="tvi2Feedback"></div>
+      <div class="mp-actions" id="tvi2Actions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : DÉRIVÉE EXPONENTIELLE -->
+  <section class="screen" id="scr-dexp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="dexpModeTag"></span><span class="q-idx" id="dexpQIdx">Question 1 / 8</span></span>
+      <span class="score-tag">Score&nbsp;<b id="dexpLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card">
+      <p class="tvi-prompt" id="dexpEnonce"></p>
+      <p class="tvi-instr">Calcule la dérivée en complétant :</p>
+      <div class="dexp-body" id="dexpBody"></div>
+      <div class="expr-help" id="dexpHelp" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault()">
+        <button type="button" class="sup-btn" onclick="dexpSup()">x<sup>n</sup>&nbsp;exposant</button>
+        <button type="button" class="del" onclick="dexpDel()">&#9003;</button>
+      </div>
+      <p class="dexp-hint">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>n</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).</p>
+      <div class="mp-feedback" id="dexpFeedback"></div>
+      <div class="mp-actions" id="dexpActions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : SIGNES & VARIATIONS -->
+  <section class="screen" id="scr-sv">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="svModeTag"></span><span class="q-idx" id="svQIdx">Question 1 / 4</span></span>
+      <span class="score-tag">Score&nbsp;<b id="svLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="svPrompt"></p>
+      <div class="sv-graph" id="svGraph"></div>
+      <p class="tvi-instr">À l&rsquo;aide du graphique, complète les pointillés et les cases :</p>
+      <div class="sv-tables" id="svTables"></div>
+      <div class="mp-feedback" id="svFeedback"></div>
+      <div class="mp-actions" id="svActions"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-tg">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tgModeTag"></span><span class="q-idx" id="tgQIdx">Question 1 / 4</span></span>
+      <span class="score-tag">Score&nbsp;<b id="tgLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="tvi-prompt" id="tgPrompt"></p>
+      <div class="tg-graph" id="tgGraph"></div>
+      <p class="tvi-instr">À l&rsquo;aide du graphique, complète&nbsp;:</p>
+      <div id="tgForm"></div>
+      <div class="mp-feedback" id="tgFeedback"></div>
+      <div class="mp-actions" id="tgActions"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-s1lvl">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">Signe du 1er degré</h2>
+        <button class="btn-link" onclick="show('choose');renderChooser()">Retour</button>
+      </div>
+      <p class="lead">Choisis ton niveau&nbsp;:</p>
+      <div class="s1lvl-grid">
+        <button class="s1lvl-btn" onclick="startS1Run(1)"><b>Niveau 1</b><span>Équation simple, sans fraction (ex.&nbsp;<i>x</i> − 3 = 0)</span></button>
+        <button class="s1lvl-btn" onclick="startS1Run(2)"><b>Niveau 2</b><span>Avec la fraction −b/a (ex.&nbsp;2<i>x</i> − 6 = 0)</span></button>
+        <button class="s1lvl-btn" onclick="startS1Run(3)"><b>Niveau 3</b><span>Coefficient décimal ou négatif, parfois <i>ax</i> = 0 (ex.&nbsp;0,1<i>x</i> = 0)</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-s1">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="s1ModeTag"></span><span class="q-idx" id="s1QIdx">Question 1 / 4</span></span>
+      <span class="score-tag">Score&nbsp;<b id="s1LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="s1Prompt"></p>
+      <div id="s1Res"></div>
+      <p class="tvi-instr">Complète ensuite le tableau de signe&nbsp;:</p>
+      <p class="s1-rule" id="s1Phrase"></p>
+      <div id="s1Table"></div>
+      <div class="mp-feedback" id="s1Feedback"></div>
+      <div class="mp-actions" id="s1Actions"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-s2lvl">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">Signe du 2nd degré</h2>
+        <button class="btn-link" onclick="show('choose');renderChooser()">Retour</button>
+      </div>
+      <p class="lead">Choisis ton niveau&nbsp;:</p>
+      <div class="s1lvl-grid">
+        <button class="s1lvl-btn" onclick="startS2Run(1)"><b>Niveau 1</b><span>Nombre de racines, signe de <i>a</i> et tableau (calculatrice autorisée)</span></button>
+        <button class="s1lvl-btn" disabled><b>Niveau 2</b><span>Bientôt disponible</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-s2">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="s2ModeTag"></span><span class="q-idx" id="s2QIdx">Question 1 / 4</span></span>
+      <span class="score-tag">Score&nbsp;<b id="s2LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="s2Prompt"></p>
+      <div id="s2Res"></div>
+      <p class="s1-rule" id="s2Phrase"></p>
+      <p class="tvi-instr" id="s2Instr" hidden>Complète le tableau de signe&nbsp;:</p>
+      <div id="s2Table"></div>
+      <div class="mp-feedback" id="s2Feedback"></div>
+      <div class="mp-actions" id="s2Actions"></div>
+    </div>
+  </section>
+
   <!-- RÉSULTATS -->
   <section class="screen" id="scr-results">
     <div class="card">
@@ -609,13 +900,27 @@ const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:n
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
   'derivees': { name:'Dérivées',  icon:'📈', desc:'Dérive des polynômes et des monômes, puis écris l\u2019expression de f\u2009\u2032(x).', start:()=>startDerivees() },
-  'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() }
+  'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
+  'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
+  'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
+  'derivee-exp': { name:'Dérivée × exp', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
+  'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
+  'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
+  'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
+  'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() }
 };
-const TEST_ORDER=['derivees','suites'];
+const TEST_ORDER=['derivees','suites','tvi','tvi-redaction','derivee-exp','signes-variations','equation-tangente','signe-premier-degre','signe-second-degre'];
 /* Menu élève */
 const MENU=[
   {kind:'test', id:'derivees'},
-  {kind:'test', id:'suites'}
+  {kind:'test', id:'suites'},
+  {kind:'test', id:'tvi'},
+  {kind:'test', id:'tvi-redaction'},
+  {kind:'test', id:'derivee-exp'},
+  {kind:'test', id:'signes-variations'},
+  {kind:'test', id:'equation-tangente'},
+  {kind:'test', id:'signe-premier-degre'},
+  {kind:'test', id:'signe-second-degre'}
 ];
 let teacherFilter='all';
 let teacherMode='eval';
@@ -1073,7 +1378,7 @@ function submitAnswer(timedOut){
   if(isSoutien() && !correct){
     const mark=$('mark');mark.textContent='\u2717';mark.className='mark bad show';
     ai.classList.remove('good');ai.classList.add('bad');
-    $('correction').textContent='Pas tout \u00e0 fait \u2014 corrige et rev\u00e9rifie.';
+    $('correction').textContent='Pas tout à fait \u2014 corrige et rev\u00e9rifie.';
     return;
   }
   test.locked=true; clearTimeout(test.qTimer);
@@ -1110,6 +1415,8 @@ function showResults(r){
     if(a.type==='expr'){
       body=`${esc(a.q)} \u2192 ${a.correct?esc(String(a.answer)):given}`;
       if(!a.correct) fix=`<span class="fix">\u2192 ${esc(String(a.answer))}</span>`;
+    } else if(a.type==='tvi'){
+      body=esc(a.q);
     } else {
       body=`${esc(a.q)} <b>${a.correct?esc(String(a.answer)):given}</b>`;
       if(!a.correct) fix=`<span class="fix">\u2192 ${esc(String(a.answer))}</span>`;
@@ -1121,6 +1428,1262 @@ function showResults(r){
   if(ring){ring.style.animation='none';void ring.offsetWidth;ring.style.animation='';}
   show('results');
 }
+/* ====================== TEST : TVI (théorème des valeurs intermédiaires) ====================== */
+function numFmt(x){ return String(x).replace('.', ',').replace('-', '\u2212'); }
+function vlabel(x){ if(x===Infinity) return '+\u221e'; if(x===-Infinity) return '\u2212\u221e'; return numFmt(x); }
+function tviNumKey(s){ if(s==='\u2212\u221e') return -1e9; if(s==='+\u221e') return 1e9; return parseFloat(s.replace(',', '.').replace('\u2212', '-')); }
+
+/* Génère un cas : intervalle, sens, valeurs aux bornes, valeur cible k (strictement encadrée). */
+function genTVI(){
+  const v = rand(0,1) ? 't' : 'x';
+  const fname = pick(['f','g']);
+  const croissante = rand(0,1)===1;
+  const sens = croissante ? 'croissante' : 'd\u00e9croissante';
+
+  // bornes de l'intervalle (affichage + crochets)
+  let aLabel, leftBrk;
+  if(rand(0,2)===0){ aLabel='\u2212\u221e'; leftBrk=']'; }
+  else { aLabel=numFmt(rand(-4,3)); leftBrk='['; }
+  let bLabel, rightBrk;
+  if(rand(0,2)===0){ bLabel='+\u221e'; rightBrk='['; }
+  else { bLabel=numFmt(rand(4,12)); rightBrk=']'; }
+
+  // valeurs (limites/valeurs) aux bornes, cohérentes avec le sens
+  let vG, vD;
+  const gInf = rand(0,2)===0, dInf = rand(0,2)===0;
+  if(croissante){
+    vG = gInf ? -Infinity : rand(-8,2);
+    vD = dInf ? Infinity  : rand((isFinite(vG)?vG+3:-5), 9);
+    if(isFinite(vG)&&isFinite(vD)&&vD-vG<3) vD=vG+rand(3,6);
+  } else {
+    vG = gInf ? Infinity  : rand(2,9);
+    vD = dInf ? -Infinity : rand(-8,(isFinite(vG)?vG-3:8));
+    if(isFinite(vG)&&isFinite(vD)&&vG-vD<3) vD=vG-rand(3,6);
+  }
+
+  // valeur cible k, strictement comprise entre les deux valeurs
+  const lo = croissante ? vG : vD, hi = croissante ? vD : vG;
+  const loF=isFinite(lo), hiF=isFinite(hi); let k;
+  if(loF && hiF){
+    if(lo<0 && hi>0 && rand(0,1)===0) k=0;
+    else { const c=[]; for(let t=Math.floor(lo)+1; t<=Math.ceil(hi)-1; t++) c.push(t); k=c.length?pick(c):Math.round((lo+hi)/2); }
+  } else if(loF && !hiF){ k=(lo<0&&rand(0,1)===0)?0:lo+rand(1,4); }
+  else if(!loF && hiF){ k=(hi>0&&rand(0,1)===0)?0:hi-rand(1,4); }
+  else { k=pick([0,1,2,-1,-2,3]); }
+
+  return {
+    type:'tvi', v, fname, croissante, sens,
+    leftBrk, rightBrk, aLabel, bLabel,
+    vGL:vlabel(vG), vDL:vlabel(vD), kL:numFmt(k),
+    _vG:vG, _vD:vD, _k:k,
+    ans:{ bg:aLabel, bd:bLabel, cont:'continue', sens:sens, vg:vlabel(vG), vd:vlabel(vD), tvi:'TVI', k:numFmt(k), uniq:'unique', enck:numFmt(k), enclo:vlabel(Math.min(vG,vD)), enchi:vlabel(Math.max(vG,vD)) }
+  };
+}
+
+/* Tableau de variation en SVG, dans l'esprit du document. */
+function tviSVG(c){
+  const y1 = c.croissante ? 118 : 60;
+  const y2 = c.croissante ? 60 : 118;
+  const xL=116, xR=314, xMid=215;
+  const yMid = y1 + (y2-y1)*((xMid-xL)/(xR-xL));
+  const vgY = c.croissante ? 133 : 53;
+  const vdY = c.croissante ? 53  : 133;
+  return `<svg viewBox="0 0 340 152" xmlns="http://www.w3.org/2000/svg" class="tvi-svg">
+    <defs><marker id="tviAh" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--blue)"/></marker></defs>
+    <line x1="96" y1="6" x2="96" y2="148" stroke="var(--line)" stroke-width="1.5"/>
+    <line x1="2" y1="40" x2="338" y2="40" stroke="var(--line)" stroke-width="1.5"/>
+    <text x="48" y="28" class="tvi-t tvi-it" text-anchor="middle">${c.v}</text>
+    <text x="${xL}" y="28" class="tvi-t" text-anchor="middle">${c.aLabel}</text>
+    <text x="${xMid}" y="28" class="tvi-t tvi-al" text-anchor="middle">\u03b1</text>
+    <text x="330" y="28" class="tvi-t" text-anchor="end">${c.bLabel}</text>
+    <text x="48" y="92" class="tvi-t tvi-vr" text-anchor="middle">Variation</text>
+    <text x="48" y="106" class="tvi-t tvi-vr" text-anchor="middle">de ${c.fname}(${c.v})</text>
+    <line x1="${xMid}" y1="40" x2="${xMid}" y2="${yMid.toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1" stroke-dasharray="3 3"/>
+    <line x1="${xL}" y1="${y1}" x2="${xR-4}" y2="${y2}" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#tviAh)"/>
+    <text x="${xL}" y="${vgY}" class="tvi-t tvi-v" text-anchor="middle">${c.vGL}</text>
+    <text x="${xR}" y="${vdY}" class="tvi-t tvi-v" text-anchor="middle">${c.vDL}</text>
+    <text x="${xMid}" y="${(yMid+17).toFixed(1)}" class="tvi-t tvi-k" text-anchor="middle">${c.kL}</text>
+  </svg>`;
+}
+
+/* Justification à compléter (menus déroulants). */
+function tviSentence(c){
+  const words=['continue','croissante','d\u00e9croissante','TVI','unique'];
+  // pool de valeurs proposées (bonnes réponses + quelques distracteurs)
+  const pool=new Set([c.aLabel,c.bLabel,c.vGL,c.vDL,c.kL]);
+  [c._k+1,c._k-1,0,c._vG,c._vD].forEach(x=>{ if(isFinite(x)) pool.add(numFmt(x)); });
+  pool.add('\u2212\u221e'); pool.add('+\u221e');
+  const vals=[...pool].sort((a,b)=>tviNumKey(a)-tviNumKey(b));
+  const selW=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2014</option>${words.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}</select>`;
+  const selV=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2014</option>${vals.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}</select>`;
+  const fn=`<i>${c.fname}</i>(${c.v})`;
+  return `Sur <span class="tvi-int"><b>${c.leftBrk}</b> ${selV('tvi-bg')} ; ${selV('tvi-bd')} <b>${c.rightBrk}</b></span> , ${fn} est ${selW('tvi-cont')} et elle est strictement ${selW('tvi-sens')}, elle varie de ${selV('tvi-vg')} à ${selV('tvi-vd')}.<br>
+  De plus, ${selV('tvi-enc-k')} est compris entre ${selV('tvi-enc-lo')} et ${selV('tvi-enc-hi')}.<br>
+  D\u2019apr\u00e8s le ${selW('tvi-tvi')}, ${fn} = ${selV('tvi-k')} admet une ${selW('tvi-uniq')} solution.`;
+}
+
+const TVI_IDS=['tvi-bg','tvi-bd','tvi-cont','tvi-sens','tvi-vg','tvi-vd','tvi-tvi','tvi-k','tvi-uniq','tvi-enc-k','tvi-enc-lo','tvi-enc-hi'];
+
+async function startTVI(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=true;            // pas de brouillon de reprise pour le TVI
+  cfg=await loadConfig();
+  currentTestId='tvi'; test.kind='tvi';
+  const n=Math.min(cfg.count||10, 6);
+  test.questions=Array.from({length:n}, genTVI);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('tvi'); renderTVI();
+}
+function renderTVI(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('tviQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('tviModeTag').innerHTML=modeTagHTML();
+  $('tviLiveScore').textContent=test.score;
+  $('tviFeedback').textContent=''; $('tviFeedback').className='mp-feedback';
+  $('tviActions').innerHTML='<button class="btn btn-primary" onclick="checkTVI()">V\u00e9rifier</button>';
+  $('tviPrompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur \u211d.`;
+  $('tviTable').innerHTML=tviSVG(c);
+  $('tviFill').innerHTML=tviSentence(c);
+  if(isSoutien()){
+    TVI_IDS.forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',()=>checkTVI(true)); });
+  }
+}
+function checkTVI(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx], a=c.ans;
+  const map=[['tvi-bg',a.bg],['tvi-bd',a.bd],['tvi-cont',a.cont],['tvi-sens',a.sens],['tvi-vg',a.vg],['tvi-vd',a.vd],['tvi-tvi',a.tvi],['tvi-k',a.k],['tvi-uniq',a.uniq],['tvi-enc-k',a.enck],['tvi-enc-lo',a.enclo],['tvi-enc-hi',a.enchi]];
+  let allOk=true;
+  map.forEach(([id,good])=>{
+    const el=$(id); if(!el) return; const val=el.value; const ok=(val===good);
+    el.classList.remove('ok','bad');
+    if(live){ if(val!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false;
+    el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
+  });
+  if(live) return;
+  if(!allOk && isSoutien()){
+    $('tviFeedback').textContent='Presque ! Corrige les menus en rouge, puis rev\u00e9rifie.';
+    $('tviFeedback').className='mp-feedback bad';
+    $('tviActions').innerHTML='<button class="btn btn-primary" onclick="checkTVI()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('tviLiveScore').textContent=test.score;
+    $('tviFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, justification compl\u00e8te !']);
+    $('tviFeedback').className='mp-feedback good';
+  } else {
+    $('tviFeedback').textContent='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.';
+    $('tviFeedback').className='mp-feedback bad';
+    map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+  }
+  test.answers.push({q:`${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('tviActions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
+}
+function nextTVI(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI(); } else finishTest(); }
+
+/* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
+/* Normalisation : minuscules, sans accents, espaces compactés. */
+function jNorm(s){
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\u0153/g,'oe').replace(/[\u2212]/g,'-').replace(/\s+/g,' ').trim();
+}
+/* Cherche une valeur (nombre ou \u00b1\u221e) dans le texte normalis\u00e9. */
+function jHasVal(n, label){
+  const L=String(label).replace(/[\u2212]/g,'-');
+  if(L.indexOf('\u221e')>=0) return /infini|\u221e/.test(n);
+  const num=L.replace(',','.');
+  const body=num.replace('-','').replace('.','[.,]');
+  try{ return new RegExp('(^|[^0-9.,])-?\\s?'+body+'(?![.,]?[0-9])').test(n); }catch(e){ return false; }
+}
+/* Analyse la justification \u00e9crite et renvoie le détail des éléments présents. */
+function evalJustif(c, raw){
+  const n=jNorm(raw);
+  const hasStrict=/strict/.test(n);
+  const hasCroiss=/\bcroissant/.test(n);          // ne matche pas "decroissant" (fronti\u00e8re de mot)
+  const hasDecroiss=/\bdecroissant/.test(n);
+  const sensOk = hasStrict && (c.croissante ? (hasCroiss && !hasDecroiss) : (hasDecroiss && !hasCroiss));
+  const contOk = /continu/.test(n);
+  const thmOk  = /valeurs intermediaires/.test(n) || /\btvi\b/.test(n) || /\bt\.?v\.?i\b/.test(n);
+  const uniqOk = /unique/.test(n) || /une seule/.test(n) || /exactement une/.test(n) || /qu'?une/.test(n);
+  const kOk = jHasVal(n, c.kL);
+  const intervalleOk = (jHasVal(n,c.aLabel) && jHasVal(n,c.bLabel)) || /sur r\b|reels|l'intervalle/.test(n);
+  const varOk = jHasVal(n, c.vGL) && jHasVal(n, c.vDL);
+  const encadreOk = /compris|entre|encadr|inferieur|superieur|appartient/.test(n) || /[<>]/.test(raw);
+  const allEssential = contOk && sensOk && thmOk && uniqOk && intervalleOk;
+  return { contOk, sensOk, thmOk, uniqOk, kOk, intervalleOk, varOk, encadreOk, allEssential };
+}
+/* Justification mod\u00e8le, affich\u00e9e en correction. */
+function modelJustif(c){
+  const I=`${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`;
+  return `Sur ${I}, ${c.fname}(${c.v}) est continue et strictement ${c.sens}, elle varie de ${c.vGL} à ${c.vDL}. D\u2019apr\u00e8s le th\u00e9or\u00e8me des valeurs interm\u00e9diaires, l\u2019\u00e9quation ${c.fname}(${c.v}) = ${c.kL} admet une unique solution \u03b1.`;
+}
+function renderJustifCheck(r){
+  const ess=(lab,ok)=>`<div class="just-item ${ok?'ok':'miss'}"><span>${ok?'\u2713':'\u2717'}</span> ${esc(lab)}</div>`;
+  const ind=(lab,ok)=>`<div class="just-item ${ok?'ok':'no'}"><span>${ok?'\u2713':'\u25cb'}</span> ${esc(lab)}</div>`;
+  $('tvi2Check').innerHTML =
+    ess('Continuit\u00e9 de la fonction', r.contOk) +
+    ess('Stricte monotonie (bon sens de variation)', r.sensOk) +
+    ess('Th\u00e9or\u00e8me des valeurs interm\u00e9diaires cit\u00e9', r.thmOk) +
+    ess('Unicit\u00e9 de la solution', r.uniqOk) +
+    ess('Intervalle d\u2019\u00e9tude pr\u00e9cis\u00e9', r.intervalleOk) +
+    ind('Valeurs de variation indiqu\u00e9es', r.varOk);
+}
+
+async function startTVI2(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=true;
+  cfg=await loadConfig();
+  currentTestId='tvi-redaction'; test.kind='tvi2';
+  const n=Math.min(cfg.count||10, 6);
+  test.questions=Array.from({length:n}, genTVI);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('tvi2'); renderTVI2();
+}
+function renderTVI2(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('tvi2QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('tvi2ModeTag').innerHTML=modeTagHTML();
+  $('tvi2LiveScore').textContent=test.score;
+  $('tvi2Check').innerHTML=''; $('tvi2Feedback').textContent=''; $('tvi2Feedback').className='mp-feedback';
+  $('tvi2Actions').innerHTML='<button class="btn btn-primary" onclick="checkTVI2()">V\u00e9rifier ma justification</button>';
+  $('tvi2Prompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur \u211d.`;
+  $('tvi2Table').innerHTML=tviSVG(c);
+  const ta=$('tvi2Input'); ta.value=''; ta.disabled=false;
+  setTimeout(()=>ta.focus(),60);
+}
+function checkTVI2(){
+  if(test.locked) return;
+  const c=test.questions[test.idx], raw=$('tvi2Input').value;
+  if(raw.trim().length<10){ toast('\u00c9cris ta justification d\u2019abord'); return; }
+  const r=evalJustif(c, raw);
+  renderJustifCheck(r);
+  if(!r.allEssential && isSoutien()){
+    $('tvi2Feedback').textContent='Il manque des \u00e9l\u00e9ments essentiels (en rouge). Compl\u00e8te ta justification, puis rev\u00e9rifie.';
+    $('tvi2Feedback').className='mp-feedback bad';
+    $('tvi2Actions').innerHTML='<button class="btn btn-primary" onclick="checkTVI2()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(r.allEssential){
+    test.score++; $('tvi2LiveScore').textContent=test.score;
+    $('tvi2Feedback').textContent=pick(['Justification compl\u00e8te, bravo !','Tr\u00e8s bien r\u00e9dig\u00e9 !','Parfait, tous les arguments y sont !']);
+    $('tvi2Feedback').className='mp-feedback good';
+  } else {
+    $('tvi2Feedback').innerHTML='Il manque des arguments essentiels. Une justification correcte :<div class="tvi-model">'+esc(modelJustif(c))+'</div>';
+    $('tvi2Feedback').className='mp-feedback bad';
+    $('tvi2Input').disabled=true;
+  }
+  test.answers.push({q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:r.allEssential?'\u2713':'incompl\u00e8te', correct:r.allEssential, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('tvi2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI2()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
+}
+function nextTVI2(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI2(); } else finishTest(); }
+
+/* ====================== TEST : Dérivée d'un produit (polynôme × exponentielle) ====================== */
+function expCore(k){ return k===1 ? 'x' : (k===-1 ? '\u2212x' : numFmt(k)+'x'); }
+function expMenu(k){ const c=expCore(k); return c==='x' ? 'e^x' : 'e^('+c+')'; }
+function vprimeMenu(k){ const cf = k===1 ? '' : (k===-1 ? '\u2212' : numFmt(k)); return cf+expMenu(k); }
+function polyFr(coeffs){
+  let out='', first=true;
+  for(let p=coeffs.length-1;p>=0;p--){
+    let c=Math.round(coeffs[p]*1000)/1000; if(Math.abs(c)<1e-9) continue;
+    const neg=c<0, abs=Math.abs(c);
+    const sign = first ? (neg?'\u2212':'') : (neg?' \u2212 ':' + ');
+    const coefPart = (Math.abs(abs-1)<1e-9 && p>0) ? '' : numFmt(abs);
+    const varPart  = p===0 ? '' : (p===1 ? 'x' : 'x'+supPow(p));
+    out += sign+coefPart+varPart; first=false;
+  }
+  return first ? '0' : out;
+}
+/* Convertit une expression texte en HTML avec exposants surélevés (pour les corrections). */
+function exprToHtml(str){
+  let s=esc(String(str));
+  s=s.replace(/\^\(([^)]*)\)/g,'<sup>$1</sup>');
+  s=s.replace(/\^([0-9x\u2212-]+)/g,'<sup>$1</sup>');
+  return s;
+}
+
+/* Évaluateur d'expressions gérant l'exponentielle e^(...) — renvoie une fonction ou null. */
+function compileExprExp(raw){
+  let s=String(raw).toLowerCase().trim();
+  if(s==='') return null;
+  s=s.replace(/,/g,'.');
+  const sup='\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079';
+  s=s.replace(/[\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079]/g,c=>'^'+sup.indexOf(c));
+  s=s.replace(/\u2212/g,'-');
+  s=s.replace(/\s+/g,'');
+  s=s.replace(/exp\(/g,'\u00a7(');
+  s=s.replace(/e\^\(/g,'\u00a7(');
+  s=s.replace(/e\^(-?[^+\-*/()^]+)/g,'\u00a7($1)');
+  s=s.replace(/(\d)([x(\u00a7])/g,'$1*$2');
+  s=s.replace(/([0-9x)])\u00a7/g,'$1*\u00a7');
+  s=s.replace(/x\(/g,'x*(');
+  s=s.replace(/\)\(/g,')*(');
+  s=s.replace(/\)([0-9x])/g,')*$1');
+  s=s.replace(/\^/g,'**');
+  s=s.replace(/\u00a7/g,'exp');
+  if(!/^(?:[0-9x+\-*/().]|exp)*$/.test(s)) return null;
+  if(/\*\*\*/.test(s)) return null;
+  try{ return new Function('x','var exp=Math.exp; return ('+s+');'); }catch(e){ return null; }
+}
+function checkExprFn(raw, refFn){
+  const f=compileExprExp(raw); if(!f) return false;
+  const pts=[0.37,1.13,-1.5,2.71,-0.8,3.33,0.05];
+  for(const x of pts){
+    let v; try{ v=f(x); }catch(e){ return false; }
+    if(typeof v!=='number' || !isFinite(v)) return false;
+    const t=refFn(x);
+    if(Math.abs(v-t) > 1e-6*(1+Math.abs(t))) return false;
+  }
+  return true;
+}
+
+function genDexp(){
+  const a=pickNonZero(-3,3), b=rand(-3,3), k=pick([-2,-1,1,2,3,0.5]);
+  return {
+    type:'dexp', a, b, k,
+    uStr:polyToStr([b,a]), vTxt:expMenu(k), duTxt:numFmt(a), dvTxt:vprimeMenu(k),
+    dcoef:[a+b*k, a*k], facAns:polyFr([a+b*k, a*k]), expHtml:expCore(k)
+  };
+}
+
+/* --- Saisie avec exposant surélevé (zone éditable) --- */
+/* Saisie de l'exposant : la touche ² (ou ^), ou le bouton xⁿ, crée un exposant surélevé avec le curseur dedans */
+/* Saisie de l'exposant pilotée par un MODÈLE en mémoire (pas par le curseur du navigateur, trop fragile
+   selon les OS/navigateurs). Chaque case garde {base, exp, inExp}. On ré-affiche à chaque frappe et le
+   bouton/touche ne fait que basculer "on écrit l'exposant". Saisie de gauche à droite, ⌫ pour corriger. */
+let dexpActive=null;
+function dexpState(ce){ if(!ce._st) ce._st={base:'',exp:'',inExp:false}; return ce._st; }
+function dexpFocus(el){ dexpActive=el; dexpState(el); }
+function dexpEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* Une "somme" = il reste un + ou un − après le 1er caractère (un signe initial seul ne compte pas). */
+function dexpIsSum(s){ return !!s && /[+\-\u2212]/.test(s.slice(1)); }
+function dexpRender(ce){
+  const st=dexpState(ce);
+  let html=dexpEsc(st.base);
+  if(st.inExp || st.exp) html += '<sup>'+(dexpEsc(st.exp)||'\u200b')+'</sup>';
+  ce.innerHTML=html;
+  dexpCaret(ce);
+  const wrap=ce.parentElement;
+  if(wrap && wrap.classList.contains('dexp-pwrap')) wrap.classList.toggle('show-paren', dexpIsSum(st.base));
+}
+function dexpCaret(ce){
+  ce.focus();
+  const st=dexpState(ce); const sel=window.getSelection(); const r=document.createRange();
+  const sup=ce.querySelector('sup');
+  if((st.inExp||st.exp) && sup && sup.firstChild){ r.setStart(sup.firstChild, sup.firstChild.length); r.collapse(true); }
+  else { r.selectNodeContents(ce); r.collapse(false); }
+  sel.removeAllRanges(); sel.addRange(r);
+}
+function dexpSup(){ const ce=dexpActive; if(!ce) return; dexpState(ce).inExp=true; dexpRender(ce); }
+function dexpDel(){
+  const ce=dexpActive; if(!ce) return; const st=dexpState(ce);
+  if(st.inExp){ if(st.exp) st.exp=st.exp.slice(0,-1); else st.inExp=false; }
+  else if(st.base) st.base=st.base.slice(0,-1);
+  dexpRender(ce);
+}
+function dexpReadValue(ce){
+  const st=dexpState(ce);
+  let out=st.base; if(st.exp) out+='^('+st.exp+')';
+  return out.replace(/\u200b/g,'').trim();
+}
+document.addEventListener('keydown',function(ev){
+  const el=document.activeElement;
+  if(!el||!el.classList||!el.classList.contains('dexp-ce'))return;
+  if(ev.key==='Dead'||ev.key==='^'){ ev.preventDefault(); dexpActive=el; dexpState(el).inExp=true; dexpRender(el); }
+});
+document.addEventListener('beforeinput',function(ev){
+  const el=ev.target;
+  if(!el||!el.classList||!el.classList.contains('dexp-ce'))return;
+  ev.preventDefault();
+  dexpActive=el; const st=dexpState(el); const ty=ev.inputType||'';
+  if((ty==='insertText'||ty==='insertFromPaste') && ev.data!=null){
+    if(ev.data==='\u00b2'||ev.data==='^'){ st.inExp=true; }
+    else { const c=ev.data.replace(/-/g,'\u2212'); if(st.inExp) st.exp+=c; else st.base+=c; }
+  } else if(ty.indexOf('delete')===0){
+    if(st.inExp){ if(st.exp) st.exp=st.exp.slice(0,-1); else st.inExp=false; }
+    else if(st.base) st.base=st.base.slice(0,-1);
+  }
+  dexpRender(el);
+});
+
+async function startDexp(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=true;
+  cfg=await loadConfig();
+  currentTestId='derivee-exp'; test.kind='dexp';
+  test.questions=Array.from({length:Math.min(cfg.count||10,8)}, genDexp);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('dexp'); renderDexp();
+}
+function renderDexp(){
+  const c=test.questions[test.idx]; test.locked=false; test.dexpWrong={}; test.dexpLastWrong={};
+  $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('dexpModeTag').innerHTML=modeTagHTML();
+  $('dexpLiveScore').textContent=test.score;
+  $('dexpFeedback').textContent=''; $('dexpFeedback').className='mp-feedback';
+  $('dexpActions').innerHTML='<button class="btn btn-primary" onclick="checkDexp()">Vérifier</button>';
+  const e=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
+  $('dexpEnonce').innerHTML=`<i>f</i>(x) = (${esc(c.uStr)})${e}`;
+  const A='autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text"';
+  const inp=(id,w)=>`<input class="dexp-in" id="${id}" ${A} style="width:${w||104}px" onblur="dexpLiveCheck('${id}')">`;
+  const ce=id=>`<span class="dexp-ce" id="${id}" contenteditable="true" onfocus="dexpFocus(this)" onblur="dexpLiveCheck('${id}')"></span>`;
+  const cep=id=>`<span class="dexp-pwrap"><span class="par">(</span>${ce(id)}<span class="par">)</span></span>`;
+  $('dexpBody').innerHTML=
+    `<div class="dexp-pose">On pose <span class="dexp-hint">(u et v dans l'ordre que tu veux)</span> :</div>
+     <div class="dexp-row"><span><i>u</i> = ${ce('dexp-u')}</span><span><i>v</i> = ${ce('dexp-v')}</span></div>
+     <div class="dexp-row"><span><i>u\u2032</i> = ${ce('dexp-du')}</span><span><i>v\u2032</i> = ${ce('dexp-dv')}</span></div>
+     <div class="dexp-formula"><i>f\u2032</i>(x) = <i>u\u2032</i>\u00d7<i>v</i> + <i>u</i>\u00d7<i>v\u2032</i></div>
+     <div class="dexp-steprow"><span class="eq">=</span>${cep('dexp-s2a')}<span class="op">\u00d7</span>${cep('dexp-s2b')}<span class="op">+</span>${cep('dexp-s2c')}<span class="op">\u00d7</span>${cep('dexp-s2d')}</div>
+     <div class="dexp-steprow"><span class="eq">=</span>${inp('dexp-s3a',58)}${e}<span class="op">+</span>${inp('dexp-s3b',58)}${e}<span class="op">+</span>${inp('dexp-s3c',58)}${e}</div>
+     <div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>${e} ( ${inp('dexp-fac')} )</div>`;
+  setTimeout(()=>{const el=$('dexp-u');if(el)el.focus();},30);
+}
+/* Compare deux fonctions numériques sur plusieurs points (même tolérance que checkExprFn). */
+function cmpFns(f, ref){
+  const pts=[0.37,1.13,-1.5,2.71,-0.8,3.33,0.05];
+  for(const x of pts){ let v; try{v=f(x);}catch(e){return false;} if(typeof v!=='number'||!isFinite(v))return false; const t=ref(x); if(Math.abs(v-t)>1e-6*(1+Math.abs(t)))return false; }
+  return true;
+}
+function dexpCompile(id){ const raw=dexpCellValue(id); return raw===''?null:compileExprExp(raw); }
+/* Verdict par case en acceptant LES DEUX ordres de décomposition :
+   - ordre 1 : u = polynôme, v = exponentielle
+   - ordre 2 : u = exponentielle, v = polynôme
+   On retient l'ordre qui correspond le mieux à ce que l'élève a écrit, et on juge chaque case
+   selon cet ordre (cohérence d'ensemble). Le facteur final est identique dans les deux cas.
+   Étape 2 (substitution) : [c1]×[c2]+[c3]×[c4] doit valoir f'(x).
+   Étape 3 (développement) : ([c1]+[c2]+[c3])·e^(kx) doit valoir f'(x). */
+function dexpVerdicts(){
+  const c=test.questions[test.idx];
+  const poly=x=>c.a*x+c.b, dpoly=x=>c.a, expf=x=>Math.exp(c.k*x), dexpf=x=>c.k*Math.exp(c.k*x);
+  const fprime=x=>c.a*Math.exp(c.k*x)+(c.a*x+c.b)*c.k*Math.exp(c.k*x);
+  const U=dexpCellValue('dexp-u'), DU=dexpCellValue('dexp-du'), V=dexpCellValue('dexp-v'), DV=dexpCellValue('dexp-dv');
+  const o1={'dexp-u':checkExprFn(U,poly),'dexp-du':checkExprFn(DU,dpoly),'dexp-v':checkExprFn(V,expf),'dexp-dv':checkExprFn(DV,dexpf)};
+  const o2={'dexp-u':checkExprFn(U,expf),'dexp-du':checkExprFn(DU,dexpf),'dexp-v':checkExprFn(V,poly),'dexp-dv':checkExprFn(DV,dpoly)};
+  const n1=Object.values(o1).filter(Boolean).length, n2=Object.values(o2).filter(Boolean).length;
+  const order = n2>n1 ? 2 : 1;
+  const verdicts = order===2 ? o2 : o1;
+  const f1=dexpCompile('dexp-s2a'),f2=dexpCompile('dexp-s2b'),f3=dexpCompile('dexp-s2c'),f4=dexpCompile('dexp-s2d');
+  const s2ok=!!(f1&&f2&&f3&&f4)&&cmpFns(x=>f1(x)*f2(x)+f3(x)*f4(x), fprime);
+  verdicts['dexp-s2a']=verdicts['dexp-s2b']=verdicts['dexp-s2c']=verdicts['dexp-s2d']=s2ok;
+  const g1=dexpCompile('dexp-s3a'),g2=dexpCompile('dexp-s3b'),g3=dexpCompile('dexp-s3c');
+  const s3ok=!!(g1&&g2&&g3)&&cmpFns(x=>(g1(x)+g2(x)+g3(x))*Math.exp(c.k*x), fprime);
+  verdicts['dexp-s3a']=verdicts['dexp-s3b']=verdicts['dexp-s3c']=s3ok;
+  verdicts['dexp-fac']=checkExprFn(dexpCellValue('dexp-fac'), x=>polyEval(c.dcoef,x));
+  return {verdicts, order};
+}
+function dexpCellValue(id){
+  const el=$(id); if(!el) return '';
+  return el.classList.contains('dexp-ce') ? dexpReadValue(el) : el.value.trim();
+}
+/* Cases regroupées : les étapes 2 et 3 ne se vérifient qu'en bloc (par résultat). */
+const DEXP_S2=['dexp-s2a','dexp-s2b','dexp-s2c','dexp-s2d'];
+const DEXP_S3=['dexp-s3a','dexp-s3b','dexp-s3c'];
+function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.includes(id))return DEXP_S3; return null; }
+/* Mode soutien : dès que l'élève quitte une case (passe à une autre), on la teste et on la
+   colore vert/rouge. Pour les étapes 2 et 3, on colore tout le groupe une fois toutes ses cases remplies.
+   On ignore une case vide, et un blur "interne" dû au ré-affichage de l'exposant.
+   Après 2 essais faux successifs (valeurs distinctes) sur une même case, on donne la solution. */
+function dexpLiveCheck(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el) return;
+    if(document.activeElement===el) return;            // toujours dans la case (ré-affichage) : on ignore
+    if(el.classList.contains('sol')) return;           // solution déjà donnée : on ne touche plus
+    const grp=dexpGroupOf(id);
+    if(grp){
+      if(!grp.every(g=>dexpCellValue(g)!=='')) return;  // étape incomplète : on attend
+      const ok=!!dexpVerdicts().verdicts[id];
+      grp.forEach(g=>{const e2=$(g); if(e2){e2.classList.remove('ok','bad'); e2.classList.add(ok?'ok':'bad');}});
+      dexpCountWrong(grp[0], ok, grp.map(g=>dexpCellValue(g)).join('|'));
+      return;
+    }
+    const raw=dexpCellValue(id);
+    if(raw===''){ el.classList.remove('ok','bad'); return; }  // case vide : pas de verdict
+    const ok=!!dexpVerdicts().verdicts[id];
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad');
+    dexpCountWrong(id, ok, raw);
+  }, 0);
+}
+/* Compte les essais faux successifs (valeurs distinctes) sur une case/un groupe.
+   Clé = l'id de la case, ou la 1re case du groupe. Au 2e essai faux, on révèle la solution. */
+function dexpCountWrong(key, ok, val){
+  if(!test.dexpWrong){ test.dexpWrong={}; test.dexpLastWrong={}; }
+  if(ok) return;
+  if(test.dexpLastWrong[key]!==val){
+    test.dexpWrong[key]=(test.dexpWrong[key]||0)+1;
+    test.dexpLastWrong[key]=val;
+  }
+  if(test.dexpWrong[key]>=2) dexpRevealSolution(key);
+}
+/* Valeurs correctes de chaque case (format base/exposant), selon l'ordre u/v retenu. */
+function dexpSolveData(){
+  const c=test.questions[test.idx];
+  const order=dexpVerdicts().order;
+  const kc=numFmt(c.k); const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':kc));
+  return {
+    order,
+    poly:{base:c.uStr, exp:'', sum:dexpIsSum(c.uStr)},
+    dpoly:{base:c.duTxt, exp:'', sum:false},
+    exp:{base:'e', exp:c.expHtml, sum:false},
+    dexp:{base:coefDisp+'e', exp:c.expHtml, sum:false},
+    s3a:numFmt(c.a), s3b:polyFr([0,c.a*c.k]), s3c:numFmt(c.b*c.k), facAns:c.facAns
+  };
+}
+/* Donne la solution d'une case (ou d'un groupe) : on la remplit, on la met en bleu et on la verrouille. */
+function dexpRevealSolution(key){
+  const d=dexpSolveData();
+  const setCe=(cid,o)=>{const el=$(cid);if(!el)return;el._st={base:o.base,exp:o.exp,inExp:false};el.innerHTML=dexpEsc(o.base)+(o.exp?'<sup>'+dexpEsc(o.exp)+'</sup>':'');el.classList.remove('ok','bad');el.classList.add('sol');el.contentEditable='false';const w=el.parentElement;if(w&&w.classList.contains('dexp-pwrap'))w.classList.toggle('show-paren',!!o.sum);};
+  const setIn=(cid,val)=>{const el=$(cid);if(!el)return;el.value=val;el.classList.remove('ok','bad');el.classList.add('sol');el.disabled=true;};
+  if(key==='dexp-s2a'){
+    if(d.order===2){ setCe('dexp-s2a',d.dexp); setCe('dexp-s2b',d.poly); setCe('dexp-s2c',d.exp); setCe('dexp-s2d',d.dpoly); }
+    else { setCe('dexp-s2a',d.dpoly); setCe('dexp-s2b',d.exp); setCe('dexp-s2c',d.poly); setCe('dexp-s2d',d.dexp); }
+  } else if(key==='dexp-s3a'){
+    setIn('dexp-s3a',d.s3a); setIn('dexp-s3b',d.s3b); setIn('dexp-s3c',d.s3c);
+  } else if(key==='dexp-fac'){
+    setIn('dexp-fac',d.facAns);
+  } else {
+    const m = d.order===2
+      ? {'dexp-u':d.exp,'dexp-du':d.dexp,'dexp-v':d.poly,'dexp-dv':d.dpoly}
+      : {'dexp-u':d.poly,'dexp-du':d.dpoly,'dexp-v':d.exp,'dexp-dv':d.dexp};
+    if(m[key]) setCe(key, m[key]);
+  }
+  $('dexpFeedback').textContent='Voici la solution de cette case pour t\u2019aider \u2014 continue avec le reste.';
+  $('dexpFeedback').className='mp-feedback';
+}
+function checkDexp(){
+  if(test.locked) return;
+  const c=test.questions[test.idx];
+  const {verdicts:tests, order}=dexpVerdicts();
+  const setEdit=(el,on)=>{ if(el.tagName==='INPUT')el.disabled=!on; else el.contentEditable=on?'true':'false'; };
+  const mark=(id,ok)=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add(ok?'ok':'bad');setEdit(el, !ok && isSoutien());}};
+  Object.keys(tests).forEach(id=>mark(id,tests[id]));
+  const allOk=Object.values(tests).every(Boolean);
+  if(!allOk && isSoutien()){
+    $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
+    $('dexpFeedback').className='mp-feedback bad';
+    $('dexpActions').innerHTML='<button class="btn btn-primary" onclick="checkDexp()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  Object.keys(tests).forEach(id=>{const el=$(id);if(el)setEdit(el,false);});
+  if(allOk){
+    test.score++; $('dexpLiveScore').textContent=test.score;
+    $('dexpFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo !']);
+    $('dexpFeedback').className='mp-feedback good';
+  } else {
+    // On NE remplace PAS les réponses de l'élève : les cases justes restent vertes,
+    // les fausses restent rouges avec ce qu'il a écrit. La bonne démarche est montrée en dessous.
+    const kc=numFmt(c.k); const coefDisp=(c.k===1?'':(c.k===-1?'\u2212':kc));
+    const polyH=esc(c.uStr), dpolyH=esc(c.duTxt);
+    const expH='e<sup>'+esc(c.expHtml)+'</sup>', dexpH=esc(coefDisp)+'e<sup>'+esc(c.expHtml)+'</sup>';
+    const s3a=esc(numFmt(c.a)), s3b=esc(polyFr([0,c.a*c.k])), s3c=esc(numFmt(c.b*c.k));
+    $('dexpFeedback').innerHTML=
+      '<div style="text-align:left;display:inline-block;line-height:1.9">'+
+      '<b>La bonne d\u00e9marche :</b><br>'+
+      '<i>u</i> = '+polyH+' \u00a0\u00a0 <i>v</i> = '+expH+' \u00a0\u00a0 <i>u\u2032</i> = '+dpolyH+' \u00a0\u00a0 <i>v\u2032</i> = '+dexpH+'<br>'+
+      '<i>f\u2032</i>(x) = '+dpolyH+'\u00d7'+expH+' + ('+polyH+')\u00d7('+dexpH+')<br>'+
+      '\u00a0\u00a0\u00a0\u00a0= '+(s3a+expH+' + '+s3b+expH+' + '+s3c+expH).replace(/ \+ \u2212/g,' \u2212 ')+'<br>'+
+      '\u00a0\u00a0\u00a0\u00a0= '+expH+' ( '+exprToHtml(c.facAns)+' )'+
+      '</div>';
+    $('dexpFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({q:`D\u00e9riv\u00e9e de (${c.uStr})e^(${c.expHtml})`, answer:'e^('+c.expHtml+')('+c.facAns+')', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('dexpActions').innerHTML=`<button class="btn btn-primary" onclick="nextDexp()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
+}
+function nextDexp(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexp(); } else finishTest(); }
+
+/* ====================== TEST : Signes & variations (lecture graphique) ====================== */
+/* Banque de fonctions : chacune a UNE racine simple (changement de signe de f) et UN
+   extrémum (changement de signe de f' et de variation), comme dans le document.
+   Avec u = x − r et un paramètre d ∈ {1,2,3} (écart racine ↔ extrémum) :
+     'maxRight' : f = (x−r)·e^(−u/d)   → racine r, MAX en r+d ; signe f : − | 0 | + ; var ↗ | ↘
+     'minRight' : f = −(x−r)·e^(−u/d)  → racine r, MIN en r+d ; signe f : + | 0 | − ; var ↘ | ↗
+     'maxLeft'  : f = (r−x)·e^( u/d)   → racine r, MAX en r−d ; signe f : + | 0 | − ; var ↗ | ↘
+     'minLeft'  : f = (x−r)·e^( u/d)   → racine r, MIN en r−d ; signe f : − | 0 | + ; var ↘ | ↗
+   La racine et l'extrémum sont des entiers distincts : c'est le piège pédagogique du
+   document (ne pas confondre « où f s'annule » et « où f admet un extrémum »). */
+const SV_MINUS='\u2212';
+const SV_IDS=['sv-rootx','sv-extrx','sv-fl','sv-fr','sv-dl','sv-dr','sv-al','sv-ar'];
+function svShuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=rand(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function svOpp(s){ return s===SV_MINUS?'+':SV_MINUS; }
+/* Valeurs proposées dans les menus « pointillés » : la racine, l'extrémum et quelques
+   distracteurs entiers proches (les deux bonnes réponses sont dans le même menu). */
+function svValueOptions(root,extr){
+  const lo=Math.min(root,extr), hi=Math.max(root,extr);
+  const mid=Math.round((root+extr)/2);
+  const set=new Set([root,extr,mid,lo-1,hi+1]);
+  return [...set].sort((a,b)=>a-b);
+}
+function svBuild(kind,r,d,fname){
+  let f,fLeft,extrType,e;
+  if(kind==='maxRight'){ e=r+d; f=x=>(x-r)*Math.exp(-(x-r)/d); fLeft=SV_MINUS; extrType='max'; }
+  else if(kind==='minRight'){ e=r+d; f=x=>-(x-r)*Math.exp(-(x-r)/d); fLeft='+'; extrType='min'; }
+  else if(kind==='maxLeft'){ e=r-d; f=x=>(r-x)*Math.exp((x-r)/d); fLeft='+'; extrType='max'; }
+  else { e=r-d; f=x=>(x-r)*Math.exp((x-r)/d); fLeft=SV_MINUS; extrType='min'; }
+  const lo=Math.min(r,e), hi=Math.max(r,e);
+  const ans={
+    rootx:numFmt(r), extrx:numFmt(e),
+    fl:fLeft, fr:svOpp(fLeft),
+    dl:(extrType==='max'?'+':SV_MINUS), dr:(extrType==='max'?SV_MINUS:'+'),
+    al:(extrType==='max'?'up':'down'), ar:(extrType==='max'?'down':'up')
+  };
+  return { fname:fname||'f', v:'x', f, xmin:lo-3, xmax:hi+4, root:r, extr:e, extrType, ans, valOpts:svValueOptions(r,e) };
+}
+function genSVCase(i,kinds){
+  const kind=kinds[i%kinds.length];
+  return svBuild(kind, rand(-2,3), pick([1,2,3]), pick(['f','g']));
+}
+/* Tracé de la courbe : on échantillonne f et on découpe le trait aux bords de la fenêtre
+   (la courbe « sort » du cadre du côté qui part vers ±∞, comme dans le document). */
+function svPath(c,sx,sy,ymin,ymax){
+  const N=300, xmin=c.xmin, xmax=c.xmax;
+  let d='', pen=false, prev=null;
+  const clip=(p,x,y,yb)=>{ const t=(yb-p.y)/(y-p.y); return p.x+(x-p.x)*t; };
+  for(let i=0;i<=N;i++){
+    const x=xmin+(xmax-xmin)*i/N, y=c.f(x);
+    const inside = y>=ymin && y<=ymax;
+    if(inside){
+      if(!pen){
+        if(prev){ const yb=prev.y>ymax?ymax:ymin; const xb=clip(prev,x,y,yb); d+=`M${sx(xb).toFixed(1)},${sy(yb).toFixed(1)} `; }
+        else { d+=`M${sx(x).toFixed(1)},${sy(y).toFixed(1)} `; }
+        pen=true;
+      }
+      d+=`L${sx(x).toFixed(1)},${sy(y).toFixed(1)} `;
+    } else if(pen && prev){
+      const yb=y>ymax?ymax:ymin; const xb=clip(prev,x,y,yb); d+=`L${sx(xb).toFixed(1)},${sy(yb).toFixed(1)} `; pen=false;
+    }
+    prev={x,y};
+  }
+  return d.trim();
+}
+function svGraphSVG(c){
+  const L=40,R=346,T=14,Bm=190;
+  const xmin=c.xmin, xmax=c.xmax;
+  const V=c.f(c.extr), B=Math.max(0.9, Math.abs(V)*1.9);
+  const ymin=-B, ymax=B;
+  const sx=x=> L + (x-xmin)/(xmax-xmin)*(R-L);
+  const sy=y=> T + (ymax-y)/(ymax-ymin)*(Bm-T);
+  const y0=sy(0);
+  let grid='';
+  for(let gx=Math.ceil(xmin); gx<=Math.floor(xmax); gx++){ const X=sx(gx).toFixed(1); grid+=`<line x1="${X}" y1="${T}" x2="${X}" y2="${Bm}" stroke="var(--grid)" stroke-width="1" opacity=".55"/>`; }
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++){ const Y=sy(gy).toFixed(1); grid+=`<line x1="${L}" y1="${Y}" x2="${R}" y2="${Y}" stroke="var(--grid)" stroke-width="1" opacity=".55"/>`; }
+  const hasY = xmin<=0 && xmax>=0;
+  const yAxis = hasY ? `<line x1="${sx(0).toFixed(1)}" y1="${T}" x2="${sx(0).toFixed(1)}" y2="${Bm}" stroke="var(--ink-soft)" stroke-width="1.4"/>` : '';
+  const xAxis = `<line x1="${L}" y1="${y0.toFixed(1)}" x2="${R}" y2="${y0.toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
+  let labels='';
+  for(let gx=Math.ceil(xmin); gx<=Math.floor(xmax); gx++){ if(gx===0) continue; labels+=`<text x="${sx(gx).toFixed(1)}" y="${(y0+12).toFixed(1)}" class="sv-ax" text-anchor="middle">${numFmt(gx)}</text>`; }
+  if(hasY){ const lx=(sx(0)-6).toFixed(1); for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++){ if(gy===0) continue; labels+=`<text x="${lx}" y="${(sy(gy)+3.5).toFixed(1)}" class="sv-ax" text-anchor="end">${numFmt(gy)}</text>`; } }
+  // étiquette C_f près de l'extrémum
+  let lx=sx(c.extr); lx = lx>R-58 ? lx-46 : lx+10;
+  let ly = c.extrType==='max' ? sy(V)-8 : sy(V)+18;
+  ly = Math.max(T+13, Math.min(Bm-5, ly));
+  const cf = `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" class="sv-cf">C<tspan dy="3" font-size="11" font-style="normal">${esc(c.fname)}</tspan></text>`;
+  return `<svg viewBox="0 0 360 204" xmlns="http://www.w3.org/2000/svg" class="sv-svg">
+    ${grid}${yAxis}${xAxis}
+    <path class="sv-curve" d="${svPath(c,sx,sy,ymin,ymax)}"/>
+    ${labels}${cf}
+  </svg>`;
+}
+function svTablesHTML(c){
+  const valOpt=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2026</option>${c.valOpts.map(v=>{const t=numFmt(v);return `<option value="${esc(t)}">${esc(t)}</option>`;}).join('')}</select>`;
+  const signOpt=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2026</option><option value="+">+</option><option value="${SV_MINUS}">${SV_MINUS}</option></select>`;
+  const arrowOpt=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2026</option><option value="up">\u2197 croissante</option><option value="down">\u2198 décroissante</option></select>`;
+  const fn=`<i>${esc(c.fname)}</i>\u00a0(<i>${esc(c.v)}</i>)`;
+  const fpn=`<i>${esc(c.fname)}</i>\u00a0\u2032\u00a0(<i>${esc(c.v)}</i>)`;
+  return `
+  <table class="sv-tbl"><tbody>
+    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd">${SV_MINUS}\u221e</td><td>${valOpt('sv-rootx')}</td><td class="bnd">+\u221e</td></tr>
+    <tr><td class="lab">Signe de ${fn}</td><td>${signOpt('sv-fl')}</td><td class="sv-zero">0</td><td>${signOpt('sv-fr')}</td></tr>
+  </tbody></table>
+  <table class="sv-tbl"><tbody>
+    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd">${SV_MINUS}\u221e</td><td>${valOpt('sv-extrx')}</td><td class="bnd">+\u221e</td></tr>
+    <tr><td class="lab">Signe de ${fpn}</td><td>${signOpt('sv-dl')}</td><td class="sv-zero">0</td><td>${signOpt('sv-dr')}</td></tr>
+    <tr><td class="lab">Variation de ${fn}</td><td>${arrowOpt('sv-al')}</td><td class="bnd"><span class="sv-mid-dot"></span></td><td>${arrowOpt('sv-ar')}</td></tr>
+  </tbody></table>`;
+}
+async function startSV(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=true;            // pas de brouillon de reprise
+  cfg=await loadConfig();
+  currentTestId='signes-variations'; test.kind='sv';
+  const n=Math.min(cfg.count||10, 6);
+  const kinds=svShuffle(['maxRight','minRight','maxLeft','minLeft']);
+  test.questions=Array.from({length:n}, (_,i)=>genSVCase(i,kinds));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('sv'); renderSV();
+}
+function renderSV(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('svQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('svModeTag').innerHTML=modeTagHTML();
+  $('svLiveScore').textContent=test.score;
+  $('svFeedback').textContent=''; $('svFeedback').className='mp-feedback';
+  $('svActions').innerHTML='<button class="btn btn-primary" onclick="checkSV()">V\u00e9rifier</button>';
+  $('svPrompt').innerHTML=`On donne la courbe repr\u00e9sentative d\u2019une fonction <i>${esc(c.fname)}</i> sur ]${SV_MINUS}\u221e\u00a0; +\u221e[.`;
+  $('svGraph').innerHTML=svGraphSVG(c);
+  $('svTables').innerHTML=svTablesHTML(c);
+  if(isSoutien()){
+    SV_IDS.forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',()=>checkSV(true)); });
+  }
+}
+function checkSV(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx], a=c.ans;
+  const map=[['sv-rootx',a.rootx],['sv-extrx',a.extrx],['sv-fl',a.fl],['sv-fr',a.fr],['sv-dl',a.dl],['sv-dr',a.dr],['sv-al',a.al],['sv-ar',a.ar]];
+  let allOk=true;
+  map.forEach(([id,good])=>{
+    const el=$(id); if(!el) return; const v=el.value; const ok=(v===good);
+    el.classList.remove('ok','bad');
+    if(live){ if(v!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false;
+    el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
+  });
+  if(live) return;
+  if(!allOk && isSoutien()){
+    $('svFeedback').textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    $('svFeedback').className='mp-feedback bad';
+    $('svActions').innerHTML='<button class="btn btn-primary" onclick="checkSV()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('svLiveScore').textContent=test.score;
+    $('svFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, tableaux complets !']);
+    $('svFeedback').className='mp-feedback good';
+  } else {
+    $('svFeedback').textContent='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.';
+    $('svFeedback').className='mp-feedback bad';
+    map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+  }
+  test.answers.push({q:`Graphique ${test.idx+1} \u2014 tableaux de signes et de variation`, answer:'tableaux complets', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('svActions').innerHTML=`<button class="btn btn-primary" onclick="nextSV()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
+}
+function nextSV(){ if(test.idx<test.questions.length-1){ test.idx++; renderSV(); } else finishTest(); }
+
+/* ====================== TEST : Équation de tangente (lecture graphique) ====================== */
+/* Pour chaque cas on choisit des entiers a (abscisse du point A), fa = f(a) et m = f'(a) (la pente),
+   puis une parabole  f(x) = c(x−a)² + m(x−a) + fa  qui passe par A(a ; fa) avec la pente m.
+   La tangente en A est  y = m(x−a) + fa  =  m·x + (fa − m·a)  une fois réduite.
+   L'élève lit f(a) et f'(a) sur le graphique puis complète et réduit l'équation, étape par étape,
+   exactement comme dans le document. */
+const TG_IDS=['tg-fa','tg-m','tg-a1','tg-a2','tg-a3','tg-m1','tg-a4','tg-fa2','tg-m2','tg-t1','tg-t2','tg-m3','tg-b'];
+function tgParse(s){
+  if(s==null) return null;
+  s=String(s).replace(/\s+/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(s==='') return null;
+  if(s[0]==='+') s=s.slice(1);
+  if(!/^-?\d+$/.test(s)) return null;
+  return parseInt(s,10);
+}
+/* Comme tgParse, mais accepte aussi la forme fractionnaire p/q (lecture d'une pente par
+   rise/run). Renvoie la valeur numérique (entière ou décimale). Utilisé pour la dérivée f'(a). */
+function tgParseFrac(s){
+  if(s==null) return null;
+  s=String(s).replace(/\s+/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+  if(s==='') return null;
+  const m=s.match(/^([+-]?\d+)\/([+-]?\d+)$/);
+  if(m){ const p=parseInt(m[1],10), q=parseInt(m[2],10); if(q===0) return null; return p/q; }
+  let t=s; if(t[0]==='+') t=t.slice(1);
+  if(!/^-?\d+$/.test(t)) return null;
+  return parseInt(t,10);
+}
+function tgBuild(a,fa,m,curv,fname){
+  const f=x=>curv*(x-a)*(x-a)+m*(x-a)+fa;      // f(a)=fa, f'(a)=m
+  const tan=x=>m*(x-a)+fa;
+  const H=Math.max(3, Math.abs(m)+1);
+  const ans={ fa:fa, m:m, a1:a, a2:a, a3:a, m1:m, a4:a, fa2:fa, m2:m, t1:-m*a, t2:fa, m3:m, b:fa-m*a };
+  return { fname:fname||'f', a:a, fa:fa, m:m, f:f, tan:tan,
+           xmin:a-4, xmax:a+4, ymin:fa-H, ymax:fa+H, ans:ans };
+}
+function genTGCase(i){
+  const a=pick([-2,-1,1,2,3]);
+  const fa=rand(-2,2);
+  const m=pick([-3,-2,-1,1,2,3]);
+  const curv=pick([0.4,0.5,0.6])*(rand(0,1)?1:-1);
+  return tgBuild(a,fa,m,curv,pick(['f','g']));
+}
+/* Tracé échantillonné, découpé aux bords haut/bas de la fenêtre (la courbe et la tangente
+   « sortent » du cadre, comme dans le document). */
+function tgTrace(fn,c,sx,sy){
+  const N=240, xmin=c.xmin, xmax=c.xmax, ymin=c.ymin, ymax=c.ymax;
+  let d='', pen=false, prev=null;
+  const clip=(p,x,y,yb)=>{ const t=(yb-p.y)/(y-p.y); return p.x+(x-p.x)*t; };
+  for(let i=0;i<=N;i++){
+    const x=xmin+(xmax-xmin)*i/N, y=fn(x);
+    const inside = y>=ymin && y<=ymax;
+    if(inside){
+      if(!pen){
+        if(prev){ const yb=prev.y>ymax?ymax:ymin; const xb=clip(prev,x,y,yb); d+=`M${sx(xb).toFixed(1)},${sy(yb).toFixed(1)} `; }
+        else { d+=`M${sx(x).toFixed(1)},${sy(y).toFixed(1)} `; }
+        pen=true;
+      }
+      d+=`L${sx(x).toFixed(1)},${sy(y).toFixed(1)} `;
+    } else if(pen && prev){
+      const yb=y>ymax?ymax:ymin; const xb=clip(prev,x,y,yb); d+=`L${sx(xb).toFixed(1)},${sy(yb).toFixed(1)} `; pen=false;
+    }
+    prev={x,y};
+  }
+  return d.trim();
+}
+function tgGraphSVG(c){
+  const U=37, ML=30, MR=14, MT=14, MB=18;
+  const xmin=c.xmin, xmax=c.xmax, ymin=c.ymin, ymax=c.ymax;
+  const Wpx=(xmax-xmin)*U+ML+MR, Hpx=(ymax-ymin)*U+MT+MB;
+  const Rpx=ML+(xmax-xmin)*U, Bpx=MT+(ymax-ymin)*U;
+  const sx=x=>ML+(x-xmin)*U, sy=y=>MT+(ymax-y)*U;
+  const x0=sx(0), y0=sy(0);
+  let grid='';
+  for(let gx=Math.ceil(xmin); gx<=Math.floor(xmax); gx++){ const X=sx(gx).toFixed(1); grid+=`<line x1="${X}" y1="${MT}" x2="${X}" y2="${Bpx.toFixed(1)}" stroke="var(--grid)" stroke-width="1" opacity=".55"/>`; }
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++){ const Y=sy(gy).toFixed(1); grid+=`<line x1="${ML}" y1="${Y}" x2="${Rpx.toFixed(1)}" y2="${Y}" stroke="var(--grid)" stroke-width="1" opacity=".55"/>`; }
+  const xAxis=`<line x1="${ML}" y1="${y0.toFixed(1)}" x2="${Rpx.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
+  const yAxis=(xmin<=0&&xmax>=0)?`<line x1="${x0.toFixed(1)}" y1="${MT}" x2="${x0.toFixed(1)}" y2="${Bpx.toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`:'';
+  let labels='';
+  for(let gx=Math.ceil(xmin); gx<=Math.floor(xmax); gx++){ if(gx===0) continue; labels+=`<text x="${sx(gx).toFixed(1)}" y="${(y0+12).toFixed(1)}" class="tg-ax" text-anchor="middle">${numFmt(gx)}</text>`; }
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++){ if(gy===0) continue; labels+=`<text x="${(x0-6).toFixed(1)}" y="${(sy(gy)+3.5).toFixed(1)}" class="tg-ax" text-anchor="end">${numFmt(gy)}</text>`; }
+  labels+=`<text x="${(x0-5).toFixed(1)}" y="${(y0+12).toFixed(1)}" class="tg-ax" text-anchor="end">0</text>`;
+  const tanPath=tgTrace(c.tan,c,sx,sy), curvePath=tgTrace(c.f,c,sx,sy);
+  const ax=sx(c.a), ay=sy(c.fa), rr=5.2;
+  const cross=`<line x1="${(ax-rr).toFixed(1)}" y1="${(ay-rr).toFixed(1)}" x2="${(ax+rr).toFixed(1)}" y2="${(ay+rr).toFixed(1)}" stroke="var(--ink)" stroke-width="2.3" stroke-linecap="round"/><line x1="${(ax-rr).toFixed(1)}" y1="${(ay+rr).toFixed(1)}" x2="${(ax+rr).toFixed(1)}" y2="${(ay-rr).toFixed(1)}" stroke="var(--ink)" stroke-width="2.3" stroke-linecap="round"/>`;
+  let alx=ax+9, aly=ay-8; if(alx>Rpx-12) alx=ax-16; if(aly<MT+11) aly=ay+18;
+  const aLbl=`<text x="${alx.toFixed(1)}" y="${aly.toFixed(1)}" class="tg-albl">A</text>`;
+  return `<svg viewBox="0 0 ${Math.round(Wpx)} ${Math.round(Hpx)}" xmlns="http://www.w3.org/2000/svg" class="tg-svg">
+    ${grid}${xAxis}${yAxis}
+    <path class="tg-tan" d="${tanPath}"/>
+    <path class="tg-curve" d="${curvePath}"/>
+    ${cross}${aLbl}${labels}
+  </svg>`;
+}
+function tgFormHTML(c){
+  const A=esc(numFmt(c.a));
+  const inp=(id)=>`<input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" class="tg-in" id="${id}">`;
+  const f=`<i>${esc(c.fname)}</i>`;
+  return `
+  <div class="tg-form">
+    <div class="tg-line tg-read">
+      <span>${f}\u00a0(${A}) = ${inp('tg-fa')}</span>
+      <span>${f}\u00a0\u2032(${A}) = ${inp('tg-m')}</span>
+    </div>
+    <p class="tg-sub">Complète puis réduis l\u2019équation de la tangente au point d\u2019abscisse <i>a</i>\u00a0=\u00a0${A}\u00a0:</p>
+    <div class="tg-line"><span class="tg-eq">y =</span> ${f}\u00a0\u2032(\u00a0${inp('tg-a1')}\u00a0)(\u00a0<i>x</i> \u2212 ${inp('tg-a2')}\u00a0) + ${f}(\u00a0${inp('tg-a3')}\u00a0)</div>
+    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> ${inp('tg-m1')} (\u00a0<i>x</i> \u2212 ${inp('tg-a4')}\u00a0) + ${inp('tg-fa2')}</div>
+    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m2')}<i>x</i></span> ${inp('tg-t1')} ${inp('tg-t2')}</div>
+    <div class="tg-line"><span class="tg-imp">\u27fa</span> <span class="tg-eq">y =</span> <span class="tg-coef">${inp('tg-m3')}<i>x</i></span> ${inp('tg-b')}</div>
+  </div>`;
+}
+async function startTG(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=true;
+  cfg=await loadConfig();
+  currentTestId='equation-tangente'; test.kind='tg';
+  const n=Math.min(cfg.count||10, 6);
+  test.questions=Array.from({length:n}, (_,i)=>genTGCase(i));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('tg'); renderTG();
+}
+function renderTG(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('tgQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('tgModeTag').innerHTML=modeTagHTML();
+  $('tgLiveScore').textContent=test.score;
+  $('tgFeedback').textContent=''; $('tgFeedback').className='mp-feedback';
+  $('tgActions').innerHTML='<button class="btn btn-primary" onclick="checkTG()">Vérifier</button>';
+  $('tgPrompt').innerHTML=`On donne la courbe représentative d\u2019une fonction <i>${esc(c.fname)}</i> et l\u2019une de ses tangentes (en pointillés), tangente au point <b>A</b>.`;
+  $('tgGraph').innerHTML=tgGraphSVG(c);
+  $('tgForm').innerHTML=tgFormHTML(c);
+  if(isSoutien()){
+    TG_IDS.forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>checkTG(true)); });
+  }
+}
+function checkTG(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx], a=c.ans;
+  const fixed=[['tg-fa',a.fa,0],['tg-m',a.m,1],['tg-a1',a.a1,0],['tg-a2',a.a2,0],['tg-a3',a.a3,0],['tg-m1',a.m1,1],['tg-a4',a.a4,0],['tg-fa2',a.fa2,0],['tg-m2',a.m2,1],['tg-m3',a.m3,1],['tg-b',a.b,0]];
+  let allOk=true, anyFilled=false;
+  fixed.forEach(([id,good,frac])=>{
+    const el=$(id); if(!el) return;
+    const raw=el.value, v=(frac?tgParseFrac(raw):tgParse(raw)), ok=(v!==null && (frac?Math.abs(v-good)<1e-9:v===good));
+    if(raw.trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad');
+    if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false;
+    el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
+  });
+  /* Ligne développée : les deux constantes (−m·a et f(a)) sont acceptées dans n'importe quel ordre. */
+  const e1=$('tg-t1'), e2=$('tg-t2');
+  if(e1&&e2){
+    const r1=e1.value, r2=e2.value, v1=tgParse(r1), v2=tgParse(r2);
+    if(r1.trim()!=='') anyFilled=true; if(r2.trim()!=='') anyFilled=true;
+    const left=[a.t1,a.t2];
+    const take=(v)=>{ const i=(v===null)?-1:left.indexOf(v); if(i>=0){ left.splice(i,1); return true; } return false; };
+    const ok1=take(v1), ok2=take(v2);
+    e1.classList.remove('ok','bad'); e2.classList.remove('ok','bad');
+    if(live){ if(r1.trim()!=='') e1.classList.add(ok1?'ok':'bad'); if(r2.trim()!=='') e2.classList.add(ok2?'ok':'bad'); }
+    else { e1.classList.add(ok1?'ok':'bad'); e1.disabled=ok1||!isSoutien(); e2.classList.add(ok2?'ok':'bad'); e2.disabled=ok2||!isSoutien(); }
+    if(!(ok1&&ok2)) allOk=false;
+  }
+  if(live) return;
+  if(!anyFilled){ $('tgFeedback').textContent='Complète au moins une case avant de vérifier.'; $('tgFeedback').className='mp-feedback'; TG_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
+  if(!allOk && isSoutien()){
+    $('tgFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('tgFeedback').className='mp-feedback bad';
+    $('tgActions').innerHTML='<button class="btn btn-primary" onclick="checkTG()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('tgLiveScore').textContent=test.score;
+    $('tgFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tangente exacte !']);
+    $('tgFeedback').className='mp-feedback good';
+  } else {
+    const bTxt = a.b===0 ? '' : (a.b>0?` + ${a.b}`:` \u2212 ${Math.abs(a.b)}`);
+    $('tgFeedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br>Tangente : <b>y = ${numFmt(a.m)}\u00a0x${bTxt}</b>&nbsp; (avec <i>f</i>(${numFmt(c.a)}) = ${numFmt(c.fa)} et <i>f</i>\u00a0\u2032(${numFmt(c.a)}) = ${numFmt(c.m)}).`;
+    $('tgFeedback').className='mp-feedback bad';
+    const reveal=fixed.concat([['tg-t1',a.t1],['tg-t2',a.t2]]);
+    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+  }
+  const bRev = a.b===0 ? '' : (a.b>0?'+ '+a.b:'\u2212 '+Math.abs(a.b));
+  test.answers.push({q:`Graphique ${test.idx+1} \u2014 tangente en a = ${numFmt(c.a)} : y = ${numFmt(a.m)} x ${bRev}`, answer:'tangente', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('tgActions').innerHTML=`<button class="btn btn-primary" onclick="nextTG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextTG(){ if(test.idx<test.questions.length-1){ test.idx++; renderTG(); } else finishTest(); }
+
+/* ====================== TEST : Signe d'une expression du premier degré ====================== */
+/* On donne f(x) = a·x + b (a ≠ 0, b ≠ 0). L'élève complète le tableau de signe :
+   la racine  r = −b/a  (acceptée en entier OU en fraction p/q), puis le signe de ax+b de part
+   et d'autre de la racine. Règle : à droite de la racine, f est du signe de a ; à gauche, du
+   signe contraire de a. */
+let s1Level=2;
+const S1_IDS=['s1-num','s1-den','s1-val','s1-place','s1-root','s1-sl','s1-sr'];
+function s1Coef(a){ return a===1?'<i>x</i>' : a===-1?('\u2212<i>x</i>') : (numFmt(a)+'<i>x</i>'); }
+function s1ExprHTML(a,b){ let s = s1Coef(a); if(b>0) s+=' + '+b; else if(b<0) s+=' \u2212 '+Math.abs(b); return s; }
+function s1ExprText(a,b){ let s = a===1?'x' : a===-1?'\u2212x' : (numFmt(a)+'x'); if(b>0) s+=' + '+b; else if(b<0) s+=' \u2212 '+Math.abs(b); return s; }
+function genS1Case(i){
+  /* NIVEAU 2 : a (|a|>=2) et racine entière : b = -a*racine, donc -b/a = racine, et la fraction -b/a se simplifie. */
+  const a=pick([-3,-2,2,3]);
+  const root=pick([-4,-3,-2,-1,1,2,3,4]);
+  const b=-a*root;
+  return { level:2, a, b, root, rootVal:root, rootStr:numFmt(root), negb:-b, coefHtml:s1Coef(a),
+           exprHtml:s1ExprHTML(a,b), exprText:s1ExprText(a,b), sl:(a>0?'\u2212':'+'), sr:(a>0?'+':'\u2212') };
+}
+function genS1L1(i){
+  /* NIVEAU 1 : coefficient = 1 (pas de fraction). f(x) = x + b avec b entier, ou x seul (b=0), ou x ± e / x ± π. */
+  const k=pick(['int','int','int','int','zero','e','e','pi','pi']);
+  let exprHtml, exprText, rootKind='num', rootVal=null, rootStr, rootAccept=null;
+  if(k==='zero'){
+    exprHtml='<i>x</i>'; exprText='x'; rootVal=0; rootStr='0';
+  } else if(k==='e' || k==='pi'){
+    const sym = k==='e' ? {h:'<i>e</i>', t:'e', acc:['e']} : {h:'\u03c0', t:'\u03c0', acc:['\u03c0','pi']};
+    const sign=pick([1,-1]);
+    if(sign===1){ exprHtml=`<i>x</i> \u2212 ${sym.h}`; exprText=`x - ${sym.t}`; rootStr=sym.t; rootAccept=sym.acc; }
+    else { exprHtml=`<i>x</i> + ${sym.h}`; exprText=`x + ${sym.t}`; rootStr='\u2212'+sym.t; rootAccept=sym.acc.map(s=>'-'+s); }
+    rootKind='sym';
+  } else {
+    const b=pick([-9,-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8,9]);
+    exprHtml=`<i>x</i> ${b>0?'+ '+b:'\u2212 '+Math.abs(b)}`; exprText=`x ${b>0?'+ '+b:'- '+Math.abs(b)}`;
+    rootVal=-b; rootStr=numFmt(-b);
+  }
+  return { level:1, a:1, coefHtml:'<i>x</i>', exprHtml, exprText, rootKind, rootVal, rootStr, rootAccept, sl:'\u2212', sr:'+' };
+}
+function genS1L3(i){
+  /* NIVEAU 3 : coefficient décimal (0,1…) ou entier négatif/−1, souvent sans constante (ax = 0, racine 0). Même fraction empilée que le niveau 2. */
+  const opts=[
+    {a:0.1, nz:[10,20,30,-10,-20,-30]},
+    {a:0.2, nz:[5,10,15,-5,-10,-15]},
+    {a:0.5, nz:[2,4,6,-2,-4,-6]},
+    {a:-1,  nz:[1,2,3,4,5,-1,-2,-3,-4,-5]},
+    {a:-2,  nz:[1,2,3,4,-1,-2,-3,-4]},
+    {a:-3,  nz:[1,2,3,-1,-2,-3]},
+    {a:2,   nz:[1,2,3,4,-1,-2,-3,-4]},
+    {a:3,   nz:[1,2,3,-1,-2,-3]}
+  ];
+  const o=pick(opts), a=o.a;
+  const root = Math.random()<0.35 ? 0 : pick(o.nz);
+  let negb=Math.round(a*root*100)/100; if(Object.is(negb,-0)) negb=0;  /* negb = -b = a*root (entier par construction) */
+  const b=-negb;
+  return { level:3, a, b, root, rootVal:root, rootStr:numFmt(root), negb, coefHtml:s1Coef(a),
+           exprHtml:s1ExprHTML(a,b), exprText:s1ExprText(a,b), sl:(a>0?'\u2212':'+'), sr:(a>0?'+':'\u2212') };
+}
+/* racine correcte : numérique (entier/fraction ≈ rootVal) ou symbolique (e, π…) */
+function s1RootOK(raw, c){
+  if(c.rootKind==='sym'){
+    const n=String(raw).trim().toLowerCase().replace(/\s+/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+    return (c.rootAccept||[]).some(s=>s.toLowerCase()===n);
+  }
+  const v=tgParseFrac(raw); return v!==null && Math.abs(v-c.rootVal)<1e-9;
+}
+function s1Box(id,sm){ return `<input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in${sm?' sm':''}" id="${id}">`; }
+function s1ResHTML(c){
+  if(c.level===1){
+    return `
+  <div class="s1-res">
+    <div class="s1-line"><span class="s1-eqlbl">${c.exprHtml} = 0</span><span class="s1-solve"><i>x</i> = ${s1Box('s1-val')}</span></div>
+  </div>`;
+  }
+  return `
+  <div class="s1-res">
+    <div class="s1-line"><span class="s1-eqlbl">${c.exprHtml} = 0</span><span class="s1-solve"><i>x</i> = <span class="s1-frac-stack">${s1Box('s1-num',1)}<span class="s1-fbar"></span>${s1Box('s1-den',1)}</span> = ${s1Box('s1-val')}</span></div>
+  </div>`;
+}
+function s1TableHTML(c){
+  const sign=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2026</option><option value="+">+</option><option value="\u2212">\u2212</option></select>`;
+  return `
+  <table class="sv-tbl s1-tbl"><tbody>
+    <tr><td class="lab"><i>x</i></td><td class="bnd s1-bl">\u2212\u221e</td><td>${s1Box('s1-root')}</td><td class="bnd s1-br">+\u221e</td></tr>
+    <tr><td class="lab">Signe de <i>f</i>\u00a0(<i>x</i>)</td><td>${sign('s1-sl')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${sign('s1-sr')}</td></tr>
+  </tbody></table>`;
+}
+async function startS1(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  show('s1lvl');
+}
+async function startS1Run(level){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  s1Level=level;
+  recoveryRowId=null; recoveryClosed=true;
+  cfg=await loadConfig();
+  currentTestId='signe-premier-degre'; test.kind='s1';
+  const n=Math.min(cfg.count||10, 6);
+  const gen = level===1 ? genS1L1 : level===3 ? genS1L3 : genS1Case;
+  test.questions=Array.from({length:n}, (_,i)=>gen(i));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('s1'); renderS1();
+}
+function renderS1(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('s1QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('s1ModeTag').innerHTML=modeTagHTML();
+  $('s1LiveScore').textContent=test.score;
+  $('s1Feedback').textContent=''; $('s1Feedback').className='mp-feedback';
+  $('s1Actions').innerHTML='<button class="btn btn-primary" onclick="checkS1()">Vérifier</button>';
+  $('s1Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>. R\u00e9sous d\u2019abord l\u2019\u00e9quation <i>f</i>\u00a0(<i>x</i>) = 0 :`;
+  $('s1Res').innerHTML=s1ResHTML(c);
+  $('s1Phrase').innerHTML=`Le signe du coefficient de <i>x</i> qui est <b>${numFmt(c.a)}</b> est placé <select class="tvi-sel s1-place-sel" id="s1-place"><option value="">\u2026</option><option value="debut">au début</option><option value="fin">à la fin</option><option value="debutfin">au début et à la fin</option></select> du tableau.`;
+  $('s1Table').innerHTML=s1TableHTML(c);
+  if(isSoutien()){
+    const inputs = c.level===1 ? ['s1-val','s1-root'] : ['s1-num','s1-den','s1-val','s1-root'];
+    inputs.forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',()=>checkS1(true)); });
+    ['s1-place','s1-sl','s1-sr'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',()=>checkS1(true)); });
+  }
+}
+function checkS1(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx];
+  /* niveau 1 : x = racine (entier OU symbole e/π) ; niveau 3 : fraction décimale tolérée ; niveau 2 : fraction num=−b / den=a, puis valeur. */
+  const specs = c.level===1
+    ? [['s1-val','rootl1',null],['s1-place','sign','fin'],['s1-root','rootl1',null],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]]
+    : c.level===3
+    ? [['s1-num','frac',c.negb],['s1-den','frac',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]]
+    : [['s1-num','int',c.negb],['s1-den','int',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]];
+  let allOk=true, anyFilled=false;
+  specs.forEach(([id,type,good])=>{
+    const el=$(id); if(!el) return;
+    const raw=el.value; let ok;
+    if(type==='sign'){ ok=(raw===good); }
+    else if(type==='rootl1'){ ok=s1RootOK(raw,c); }
+    else { const v=(type==='frac'?tgParseFrac(raw):tgParse(raw)); ok=(v!==null && (type==='frac'?Math.abs(v-good)<1e-9:v===good)); }
+    if(raw.trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad');
+    if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+  });
+  if(live) return;
+  if(!anyFilled){ $('s1Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s1Feedback').className='mp-feedback'; S1_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
+  if(!allOk && isSoutien()){
+    $('s1Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('s1Feedback').className='mp-feedback bad';
+    $('s1Actions').innerHTML='<button class="btn btn-primary" onclick="checkS1()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('s1LiveScore').textContent=test.score;
+    $('s1Feedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tableau complet !']);
+    $('s1Feedback').className='mp-feedback good';
+  } else {
+    const aPos=c.a>0;
+    $('s1Feedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
+    $('s1Feedback').className='mp-feedback bad';
+    const setOK=(id,val)=>{ const el=$(id); if(el){ el.value=val; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } };
+    if(c.level!==1){ setOK('s1-num',numFmt(c.negb)); setOK('s1-den',numFmt(c.a)); }
+    setOK('s1-val',c.rootStr); setOK('s1-place','fin'); setOK('s1-root',c.rootStr); setOK('s1-sl',c.sl); setOK('s1-sr',c.sr);
+  }
+  test.answers.push({q:`${c.exprText} = 0 \u2192 x = ${c.rootStr} \u2014 signe de f : ${c.sl} puis ${c.sr}`, answer:'tableau de signe', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('s1Actions').innerHTML=`<button class="btn btn-primary" onclick="nextS1()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextS1(){ if(test.idx<test.questions.length-1){ test.idx++; renderS1(); } else finishTest(); }
+
+/* ====================== TEST : Signe du second degré ====================== */
+/* NIVEAU 1 : f(x) = a x² + b x + c. L'élève donne le nombre de racines (0, 1 ou 2 —
+   calculatrice autorisée), où est placé le signe de a (toujours « au début ET à la fin »
+   pour un trinôme), puis complète le tableau de signe (structure selon le nombre de racines). */
+let s2Level=1;
+let s2Revealed=false;
+const S2_IDS=['s2-nroots','s2-place','s2-r1','s2-r2','s2-s1','s2-s2','s2-s3'];
+function s2Coef2(a){ return a===1?'<i>x</i><sup>2</sup>' : a===-1?'\u2212<i>x</i><sup>2</sup>' : (numFmt(a)+'<i>x</i><sup>2</sup>'); }
+function s2ExprHTML(a,b,c){
+  let s=s2Coef2(a);
+  if(b!==0){ const k=Math.abs(b)===1?'':Math.abs(b); s+=(b>0?' + ':' \u2212 ')+k+'<i>x</i>'; }
+  if(c!==0){ s+=(c>0?' + ':' \u2212 ')+Math.abs(c); }
+  return s;
+}
+function s2ExprText(a,b,c){
+  let s=a===1?'x\u00b2':a===-1?'\u2212x\u00b2':(numFmt(a)+'x\u00b2');
+  if(b!==0){ const k=Math.abs(b)===1?'':Math.abs(b); s+=(b>0?' + ':' \u2212 ')+k+'x'; }
+  if(c!==0){ s+=(c>0?' + ':' \u2212 ')+Math.abs(c); }
+  return s;
+}
+function mkS2(a,b,c,nroots,roots){
+  return { level:1, a, b, c, nroots, roots, sa:(a>0?'+':'\u2212'), opp:(a>0?'\u2212':'+'),
+           exprHtml:s2ExprHTML(a,b,c), exprText:s2ExprText(a,b,c) };
+}
+function genS2L1(i){
+  const nroots=pick([2,2,2,1,0]);
+  if(nroots===2){
+    const a=pick([-1,1]);
+    let r1,r2; do{ r1=rand(-4,4); r2=rand(-4,4); }while(r1===r2); if(r1>r2){const t=r1;r1=r2;r2=t;}
+    return mkS2(a, -a*(r1+r2), a*r1*r2, 2, [r1,r2]);
+  } else if(nroots===1){
+    const a=pick([-3,-2,-1,1,2,3]); const r0=rand(-2,2);
+    return mkS2(a, -2*a*r0, a*r0*r0, 1, [r0]);
+  }
+  const a=pick([-3,-2,-1,1,2,3]); const bb=rand(-2,2);
+  const m=Math.floor(bb*bb/(4*Math.abs(a)))+rand(1,3);  /* Δ = b² − 4|a|m < 0 */
+  return mkS2(a, bb, Math.sign(a)*m, 0, []);
+}
+function s2Sign(id){ return `<select class="tvi-sel" id="${id}"><option value="">\u2026</option><option value="+">+</option><option value="\u2212">\u2212</option></select>`; }
+function s2ResHTML(c){
+  return `<div class="s1-res"><div class="s1-line">Nombre de racines de <i>f</i>\u00a0(<i>x</i>) = 0 :&nbsp; ${s1Box('s2-nroots',1)}<span class="s2-calc">(calculatrice autorisée)</span></div></div>`;
+}
+function s2TableHTML(c){
+  if(c.nroots===2){
+    return `<table class="sv-tbl s1-tbl s2-tbl"><tbody>
+      <tr><td class="lab"><i>x</i></td><td class="bnd s1-bl">\u2212\u221e</td><td>${s1Box('s2-r1',1)}</td><td></td><td>${s1Box('s2-r2',1)}</td><td class="bnd s1-br">+\u221e</td></tr>
+      <tr><td class="lab">Signe de <i>f</i>\u00a0(<i>x</i>)</td><td>${s2Sign('s2-s1')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${s2Sign('s2-s2')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${s2Sign('s2-s3')}</td></tr>
+    </tbody></table>`;
+  } else if(c.nroots===1){
+    return `<table class="sv-tbl s1-tbl s2-tbl"><tbody>
+      <tr><td class="lab"><i>x</i></td><td class="bnd s1-bl">\u2212\u221e</td><td>${s1Box('s2-r1',1)}</td><td class="bnd s1-br">+\u221e</td></tr>
+      <tr><td class="lab">Signe de <i>f</i>\u00a0(<i>x</i>)</td><td>${s2Sign('s2-s1')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${s2Sign('s2-s2')}</td></tr>
+    </tbody></table>`;
+  }
+  return `<table class="sv-tbl s1-tbl s2-tbl s2-noroot"><tbody>
+    <tr><td class="lab"><i>x</i></td><td><div class="s2-ends"><span>\u2212\u221e</span><span>+\u221e</span></div></td></tr>
+    <tr><td class="lab">Signe de <i>f</i>\u00a0(<i>x</i>)</td><td>${s2Sign('s2-s1')}</td></tr>
+  </tbody></table>`;
+}
+async function startS2(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  show('s2lvl');
+}
+async function startS2Run(level){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  s2Level=level;
+  recoveryRowId=null; recoveryClosed=true;
+  cfg=await loadConfig();
+  currentTestId='signe-second-degre'; test.kind='s2';
+  const n=Math.min(cfg.count||10, 6);
+  test.questions=Array.from({length:n}, (_,i)=>genS2L1(i));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('s2'); renderS2();
+}
+function renderS2(){
+  const c=test.questions[test.idx]; test.locked=false; s2Revealed=false;
+  $('s2QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('s2ModeTag').innerHTML=modeTagHTML();
+  $('s2LiveScore').textContent=test.score;
+  $('s2Feedback').textContent=''; $('s2Feedback').className='mp-feedback';
+  $('s2Actions').innerHTML='<button class="btn btn-primary" onclick="checkS2()">Vérifier</button>';
+  $('s2Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>.`;
+  $('s2Res').innerHTML=s2ResHTML(c);
+  $('s2Phrase').innerHTML=`Le coefficient de <i>x</i><sup>2</sup> est <b>${numFmt(c.a)}</b>. Il faut placer son signe <select class="tvi-sel s1-place-sel" id="s2-place"><option value="">\u2026</option><option value="debut">au début</option><option value="fin">à la fin</option><option value="debutfin">au début et à la fin</option></select> du tableau.`;
+  $('s2Instr').hidden=true;
+  $('s2Table').innerHTML='<p class="s2-hint">Indique d\u2019abord le <b>nombre de racines</b> ci-dessus : le tableau de signe apparaîtra ensuite.</p>';
+  const nb=$('s2-nroots'); if(nb) nb.addEventListener('input',s2GateRoots);
+  if(isSoutien()){ const p=$('s2-place'); if(p) p.addEventListener('change',()=>checkS2(true)); }
+}
+function s2GateRoots(){
+  const c=test.questions[test.idx];
+  const el=$('s2-nroots'); if(!el) return;
+  const v=tgParse(el.value);
+  if(v===c.nroots){
+    if(s2Revealed) return;
+    s2Revealed=true;
+    el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true;
+    $('s2Instr').hidden=false;
+    $('s2Table').innerHTML=s2TableHTML(c);
+    if(isSoutien()){
+      ['s2-r1','s2-r2'].forEach(id=>{const e=$(id); if(e) e.addEventListener('input',()=>checkS2(true));});
+      ['s2-s1','s2-s2','s2-s3'].forEach(id=>{const e=$(id); if(e) e.addEventListener('change',()=>checkS2(true));});
+    }
+  } else {
+    if(isSoutien() && el.value.trim()!=='' ){ el.classList.remove('ok'); el.classList.add('bad'); }
+    else { el.classList.remove('ok','bad'); }
+  }
+}
+function checkS2(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx]; const sa=c.sa, opp=c.opp;
+  if(!live && !s2Revealed){
+    $('s2Feedback').textContent='Indique d\u2019abord le bon nombre de racines : le tableau de signe apparaîtra, puis tu pourras le compléter.';
+    $('s2Feedback').className='mp-feedback';
+    const nb=$('s2-nroots'); if(nb && nb.value.trim()!=='') nb.classList.add('bad');
+    return;
+  }
+  let specs=[['s2-nroots','int',c.nroots],['s2-place','sign','debutfin']];
+  if(c.nroots===2) specs.push(['s2-r1','int',c.roots[0]],['s2-r2','int',c.roots[1]],['s2-s1','sign',sa],['s2-s2','sign',opp],['s2-s3','sign',sa]);
+  else if(c.nroots===1) specs.push(['s2-r1','int',c.roots[0]],['s2-s1','sign',sa],['s2-s2','sign',sa]);
+  else specs.push(['s2-s1','sign',sa]);
+  let allOk=true, anyFilled=false;
+  specs.forEach(([id,type,good])=>{
+    const el=$(id); if(!el) return;
+    const raw=el.value; let ok;
+    if(type==='sign'){ ok=(raw===good); }
+    else { const v=tgParse(raw); ok=(v!==null && v===good); }
+    if(raw.trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad');
+    if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+  });
+  if(live) return;
+  if(!anyFilled){ $('s2Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s2Feedback').className='mp-feedback'; S2_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
+  if(!allOk && isSoutien()){
+    $('s2Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('s2Feedback').className='mp-feedback bad';
+    $('s2Actions').innerHTML='<button class="btn btn-primary" onclick="checkS2()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('s2LiveScore').textContent=test.score;
+    $('s2Feedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tableau complet !']);
+    $('s2Feedback').className='mp-feedback good';
+  } else {
+    const aPos=c.a>0;
+    const nr=c.nroots===0?'aucune racine':c.nroots===1?'une racine double':'deux racines';
+    $('s2Feedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br><i>f</i>\u00a0(<i>x</i>) = 0 a <b>${nr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0 (parabole vers le haut)':'&lt; 0 (parabole vers le bas)'}, le signe de <i>a</i> (${sa}) est au début et à la fin${c.nroots===2?', et le signe contraire entre les racines':''}.`;
+    $('s2Feedback').className='mp-feedback bad';
+    const setOK=(id,v)=>{ const el=$(id); if(el){ el.value=v; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } };
+    setOK('s2-nroots',String(c.nroots)); setOK('s2-place','debutfin');
+    if(c.nroots>=1) setOK('s2-r1',numFmt(c.roots[0]));
+    if(c.nroots===2){ setOK('s2-r2',numFmt(c.roots[1])); setOK('s2-s1',sa); setOK('s2-s2',opp); setOK('s2-s3',sa); }
+    else if(c.nroots===1){ setOK('s2-s1',sa); setOK('s2-s2',sa); }
+    else { setOK('s2-s1',sa); }
+  }
+  const rootsTxt=c.nroots===0?'pas de racine':c.roots.map(r=>numFmt(r)).join(' et ');
+  test.answers.push({q:`${c.exprText} : ${c.nroots} racine(s)${c.nroots?' ('+rootsTxt+')':''} \u2014 signe de a : ${sa} au début et à la fin`, answer:'signe du 2nd degré', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('s2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextS2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextS2(){ if(test.idx<test.questions.length-1){ test.idx++; renderS2(); } else finishTest(); }
+
 /* ---------- Professeur ---------- */
 function teacherLogin(){
   if(val('teacherPass')!==MOT_DE_PASSE_PROF){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
