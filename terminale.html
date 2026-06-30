@@ -266,11 +266,13 @@
   .mode-tag.train{color:var(--blue-dark);background:#EAF1FF;border:1.5px solid #c9d8fb}
   .mode-tag.eval{color:#a8631c;background:#FCEFD8;border:1.5px solid #f1d199}
   .mode-tag.soutien{color:#1f7a6b;background:#E3F6F1;border:1.5px solid #a9e3d6}
-  #pauseBtn{position:fixed;right:16px;bottom:16px;z-index:60;border:none;cursor:pointer;
-    background:#5a4632;color:#fff;font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;
+  #testCtrls{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;gap:10px;}
+  #testCtrls button{border:none;cursor:pointer;font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;
     padding:11px 16px;border-radius:30px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
-  #pauseBtn:active{transform:translateY(1px)}
-  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest{padding-bottom:84px}
+  #testCtrls button:active{transform:translateY(1px)}
+  #pauseBtn{background:#5a4632;color:#fff}
+  #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -877,7 +879,7 @@
 </div>
 
 <div id="toast"></div>
-<button id="pauseBtn" hidden onclick="pauseTest()">⏸ Mettre en pause</button>
+<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
 /* ---------- Raccourcis ---------- */
@@ -961,12 +963,24 @@ function snapshotTest(){
 // lit ce que l'élève a déjà saisi dans les cases de la question en cours
 function captureBoxes(){
   const scr=document.querySelector('.screen.on'); if(!scr) return {};
-  const m={}; scr.querySelectorAll('input[id]').forEach(el=>{ const v=el.value; if(v!=='') m[el.id]=v; }); return m;
+  const m={}; scr.querySelectorAll('input[id],select[id]').forEach(el=>{ const v=el.value; if(v!=='') m[el.id]=v; }); return m;
 }
 // remet les saisies dans les cases après réaffichage de la question
 function restoreBoxes(boxes){
   if(!boxes) return;
-  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && el.tagName==='INPUT'){ el.value=boxes[id]; } });
+  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT')){ el.value=boxes[id]; } });
+}
+// reconstruit la fonction d'une question « signes & variations » (perdue par la sérialisation JSON)
+function svFnFrom(r,e,extrType){
+  const d=Math.abs(e-r)||1, right=e>r, max=extrType==='max';
+  if(right) return max ? (x=>(x-r)*Math.exp(-(x-r)/d)) : (x=>-(x-r)*Math.exp(-(x-r)/d));
+  return max ? (x=>(r-x)*Math.exp((x-r)/d)) : (x=>(x-r)*Math.exp((x-r)/d));
+}
+// après une reprise, recrée les fonctions (graphes) que JSON ne peut pas enregistrer
+function rehydrateQuestions(){
+  if(!Array.isArray(test.questions)) return;
+  if(test.kind==='sv'){ test.questions.forEach(q=>{ if(typeof q.f!=='function') q.f=svFnFrom(q.root,q.extr,q.extrType); }); }
+  else if(test.kind==='tg'){ test.questions.forEach(q=>{ if(typeof q.f!=='function'){ const a=q.a,m=q.m,fa=q.fa,c=q.curv||0; q.f=x=>c*(x-a)*(x-a)+m*(x-a)+fa; q.tan=x=>m*(x-a)+fa; } }); }
 }
 /* ---------- Enregistrement automatique du travail en cours (silencieux) ---------- */
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
@@ -1038,10 +1052,19 @@ async function openTest(testId){
 async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
-  $('pauseBtn').hidden=true;
+  $('testCtrls').hidden=true;
   try{ await doRecoverySave(); toast('Mis en pause — tu pourras reprendre plus tard ✓','ok'); }
   catch(e){ toast('Pause non enregistrée (connexion)','err'); }
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
+  renderChooser(); show('choose');
+}
+async function abandonTest(){
+  if(!currentEleve) return;
+  if(!confirm('Abandonner cet exercice ? Ta progression ne sera pas enregistrée.')) return;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  $('testCtrls').hidden=true;
+  try{ await clearRecovery(); }catch(e){}
+  toast('Exercice abandonné','ok');
   renderChooser(); show('choose');
 }
 async function resumeTest(mode){
@@ -1057,7 +1080,11 @@ async function resumeTest(mode){
   test.locked=false;
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
-  show('test'); renderQuestion();
+  rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], dexp:['dexp',renderDexp], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const disp=DISPATCH[test.kind];
+  if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
+  show(disp[0]); disp[1]();
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
 }
 
@@ -1074,9 +1101,9 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','mtest','ftest','ptest','mdtest','utest','atest','dtest'];
+  const testScreens=['test','tvi','tvi2','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
-  $('pauseBtn').hidden=!canPause;
+  $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
   if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
     pill.hidden=false;
@@ -1526,7 +1553,7 @@ const TVI_IDS=['tvi-bg','tvi-bd','tvi-cont','tvi-sens','tvi-vg','tvi-vd','tvi-tv
 
 async function startTVI(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  recoveryRowId=null; recoveryClosed=true;            // pas de brouillon de reprise pour le TVI
+  recoveryRowId=null; recoveryClosed=false;            // reprise activée (pause/abandon)
   cfg=await loadConfig();
   currentTestId='tvi'; test.kind='tvi';
   const n=Math.min(cfg.count||10, 6);
@@ -1633,7 +1660,7 @@ function renderJustifCheck(r){
 
 async function startTVI2(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  recoveryRowId=null; recoveryClosed=true;
+  recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='tvi-redaction'; test.kind='tvi2';
   const n=Math.min(cfg.count||10, 6);
@@ -1811,7 +1838,7 @@ document.addEventListener('beforeinput',function(ev){
 
 async function startDexp(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  recoveryRowId=null; recoveryClosed=true;
+  recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivee-exp'; test.kind='dexp';
   test.questions=Array.from({length:Math.min(cfg.count||10,8)}, genDexp);
@@ -2108,7 +2135,7 @@ function svTablesHTML(c){
 }
 async function startSV(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  recoveryRowId=null; recoveryClosed=true;            // pas de brouillon de reprise
+  recoveryRowId=null; recoveryClosed=false;            // reprise activée (pause/abandon)
   cfg=await loadConfig();
   currentTestId='signes-variations'; test.kind='sv';
   const n=Math.min(cfg.count||10, 6);
@@ -2198,7 +2225,7 @@ function tgBuild(a,fa,m,curv,fname){
   const tan=x=>m*(x-a)+fa;
   const H=Math.max(3, Math.abs(m)+1);
   const ans={ fa:fa, m:m, a1:a, a2:a, a3:a, m1:m, a4:a, fa2:fa, m2:m, t1:-m*a, t2:fa, m3:m, b:fa-m*a };
-  return { fname:fname||'f', a:a, fa:fa, m:m, f:f, tan:tan,
+  return { fname:fname||'f', a:a, fa:fa, m:m, curv:curv, f:f, tan:tan,
            xmin:a-4, xmax:a+4, ymin:fa-H, ymax:fa+H, ans:ans };
 }
 function genTGCase(i){
@@ -2278,7 +2305,7 @@ function tgFormHTML(c){
 }
 async function startTG(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  recoveryRowId=null; recoveryClosed=true;
+  recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='equation-tangente'; test.kind='tg';
   const n=Math.min(cfg.count||10, 6);
@@ -2446,7 +2473,7 @@ async function startS1(){
 async function startS1Run(level){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   s1Level=level;
-  recoveryRowId=null; recoveryClosed=true;
+  recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-premier-degre'; test.kind='s1';
   const n=Math.min(cfg.count||10, 6);
@@ -2526,7 +2553,7 @@ function nextS1(){ if(test.idx<test.questions.length-1){ test.idx++; renderS1();
    pour un trinôme), puis complète le tableau de signe (structure selon le nombre de racines). */
 let s2Level=1;
 let s2Revealed=false;
-const S2_IDS=['s2-nroots','s2-place','s2-r1','s2-r2','s2-s1','s2-s2','s2-s3'];
+const S2_IDS=['s2-nroots','s2-place','s2-acoef','s2-r1','s2-r2','s2-s1','s2-s2','s2-s3'];
 function s2Coef2(a){ return a===1?'<i>x</i><sup>2</sup>' : a===-1?'\u2212<i>x</i><sup>2</sup>' : (numFmt(a)+'<i>x</i><sup>2</sup>'); }
 function s2ExprHTML(a,b,c){
   let s=s2Coef2(a);
@@ -2544,8 +2571,7 @@ function mkS2(a,b,c,nroots,roots){
   return { level:1, a, b, c, nroots, roots, sa:(a>0?'+':'\u2212'), opp:(a>0?'\u2212':'+'),
            exprHtml:s2ExprHTML(a,b,c), exprText:s2ExprText(a,b,c) };
 }
-function genS2L1(i){
-  const nroots=pick([2,2,2,1,0]);
+function genS2Root(nroots){
   if(nroots===2){
     const a=pick([-1,1]);
     let r1,r2; do{ r1=rand(-4,4); r2=rand(-4,4); }while(r1===r2); if(r1>r2){const t=r1;r1=r2;r2=t;}
@@ -2558,6 +2584,7 @@ function genS2L1(i){
   const m=Math.floor(bb*bb/(4*Math.abs(a)))+rand(1,3);  /* Δ = b² − 4|a|m < 0 */
   return mkS2(a, bb, Math.sign(a)*m, 0, []);
 }
+function genS2L1(i){ return genS2Root(pick([2,2,2,1,0])); }
 function s2Sign(id){ return `<select class="tvi-sel" id="${id}"><option value="">\u2026</option><option value="+">+</option><option value="\u2212">\u2212</option></select>`; }
 function s2ResHTML(c){
   return `<div class="s1-res"><div class="s1-line">Nombre de racines de <i>f</i>\u00a0(<i>x</i>) = 0 :&nbsp; ${s1Box('s2-nroots',1)}<span class="s2-calc">(calculatrice autorisée)</span></div></div>`;
@@ -2586,11 +2613,14 @@ async function startS2(){
 async function startS2Run(level){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   s2Level=level;
-  recoveryRowId=null; recoveryClosed=true;
+  recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-second-degre'; test.kind='s2';
-  const n=Math.min(cfg.count||10, 6);
-  test.questions=Array.from({length:n}, (_,i)=>genS2L1(i));
+  const n=6;                                  // 6 exercices fixes pour le niveau 1
+  const plan=[0,1,2];                          // au moins un cas de chaque (0, 1 et 2 racines)
+  while(plan.length<n) plan.push(pick([2,2,1,0]));
+  for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t=plan[i]; plan[i]=plan[j]; plan[j]=t; }  // mélange
+  test.questions=plan.map(nr=>genS2Root(nr));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('s2'); renderS2();
 }
@@ -2603,11 +2633,18 @@ function renderS2(){
   $('s2Actions').innerHTML='<button class="btn btn-primary" onclick="checkS2()">Vérifier</button>';
   $('s2Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>.`;
   $('s2Res').innerHTML=s2ResHTML(c);
-  $('s2Phrase').innerHTML=`Le coefficient de <i>x</i><sup>2</sup> est <b>${numFmt(c.a)}</b>. Il faut placer son signe <select class="tvi-sel s1-place-sel" id="s2-place"><option value="">\u2026</option><option value="debut">au début</option><option value="fin">à la fin</option><option value="debutfin">au début et à la fin</option></select> du tableau.`;
+  if(c.nroots===0){
+    $('s2Phrase').innerHTML=`Le coefficient de <i>x</i><sup>2</sup> est ${s1Box('s2-acoef',1)}.`;
+  } else {
+    $('s2Phrase').innerHTML=`Le coefficient de <i>x</i><sup>2</sup> est <b>${numFmt(c.a)}</b>. Il faut placer son signe <select class="tvi-sel s1-place-sel" id="s2-place"><option value="">\u2026</option><option value="debut">au début</option><option value="fin">à la fin</option><option value="debutfin">au début et à la fin</option></select> du tableau.`;
+  }
   $('s2Instr').hidden=true;
   $('s2Table').innerHTML='<p class="s2-hint">Indique d\u2019abord le <b>nombre de racines</b> ci-dessus : le tableau de signe apparaîtra ensuite.</p>';
   const nb=$('s2-nroots'); if(nb) nb.addEventListener('input',s2GateRoots);
-  if(isSoutien()){ const p=$('s2-place'); if(p) p.addEventListener('change',()=>checkS2(true)); }
+  if(isSoutien()){
+    if(c.nroots===0){ const p=$('s2-acoef'); if(p) p.addEventListener('input',()=>checkS2(true)); }
+    else { const p=$('s2-place'); if(p) p.addEventListener('change',()=>checkS2(true)); }
+  }
 }
 function s2GateRoots(){
   const c=test.questions[test.idx];
@@ -2637,10 +2674,13 @@ function checkS2(live){
     const nb=$('s2-nroots'); if(nb && nb.value.trim()!=='') nb.classList.add('bad');
     return;
   }
-  let specs=[['s2-nroots','int',c.nroots],['s2-place','sign','debutfin']];
-  if(c.nroots===2) specs.push(['s2-r1','int',c.roots[0]],['s2-r2','int',c.roots[1]],['s2-s1','sign',sa],['s2-s2','sign',opp],['s2-s3','sign',sa]);
-  else if(c.nroots===1) specs.push(['s2-r1','int',c.roots[0]],['s2-s1','sign',sa],['s2-s2','sign',sa]);
-  else specs.push(['s2-s1','sign',sa]);
+  let specs=[['s2-nroots','int',c.nroots]];
+  if(c.nroots===0){ specs.push(['s2-acoef','int',c.a],['s2-s1','sign',sa]); }
+  else {
+    specs.push(['s2-place','sign','debutfin']);
+    if(c.nroots===2) specs.push(['s2-r1','int',c.roots[0]],['s2-r2','int',c.roots[1]],['s2-s1','sign',sa],['s2-s2','sign',opp],['s2-s3','sign',sa]);
+    else specs.push(['s2-r1','int',c.roots[0]],['s2-s1','sign',sa],['s2-s2','sign',sa]);
+  }
   let allOk=true, anyFilled=false;
   specs.forEach(([id,type,good])=>{
     const el=$(id); if(!el) return;
@@ -2668,17 +2708,21 @@ function checkS2(live){
   } else {
     const aPos=c.a>0;
     const nr=c.nroots===0?'aucune racine':c.nroots===1?'une racine double':'deux racines';
-    $('s2Feedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br><i>f</i>\u00a0(<i>x</i>) = 0 a <b>${nr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0 (parabole vers le haut)':'&lt; 0 (parabole vers le bas)'}, le signe de <i>a</i> (${sa}) est au début et à la fin${c.nroots===2?', et le signe contraire entre les racines':''}.`;
+    const tail=c.nroots===0?`le signe de <i>a</i> (${sa}) est le même partout (pas de racine)`:(c.nroots===2?`le signe de <i>a</i> (${sa}) est au début et à la fin, et le signe contraire entre les racines`:`le signe de <i>a</i> (${sa}) est au début et à la fin`);
+    $('s2Feedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br><i>f</i>\u00a0(<i>x</i>) = 0 a <b>${nr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0 (parabole vers le haut)':'&lt; 0 (parabole vers le bas)'}, ${tail}.`;
     $('s2Feedback').className='mp-feedback bad';
     const setOK=(id,v)=>{ const el=$(id); if(el){ el.value=v; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } };
-    setOK('s2-nroots',String(c.nroots)); setOK('s2-place','debutfin');
-    if(c.nroots>=1) setOK('s2-r1',numFmt(c.roots[0]));
-    if(c.nroots===2){ setOK('s2-r2',numFmt(c.roots[1])); setOK('s2-s1',sa); setOK('s2-s2',opp); setOK('s2-s3',sa); }
-    else if(c.nroots===1){ setOK('s2-s1',sa); setOK('s2-s2',sa); }
-    else { setOK('s2-s1',sa); }
+    setOK('s2-nroots',String(c.nroots));
+    if(c.nroots===0){ setOK('s2-acoef',numFmt(c.a)); setOK('s2-s1',sa); }
+    else {
+      setOK('s2-place','debutfin'); setOK('s2-r1',numFmt(c.roots[0]));
+      if(c.nroots===2){ setOK('s2-r2',numFmt(c.roots[1])); setOK('s2-s1',sa); setOK('s2-s2',opp); setOK('s2-s3',sa); }
+      else { setOK('s2-s1',sa); setOK('s2-s2',sa); }
+    }
   }
   const rootsTxt=c.nroots===0?'pas de racine':c.roots.map(r=>numFmt(r)).join(' et ');
-  test.answers.push({q:`${c.exprText} : ${c.nroots} racine(s)${c.nroots?' ('+rootsTxt+')':''} \u2014 signe de a : ${sa} au début et à la fin`, answer:'signe du 2nd degré', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const placeTxt=c.nroots===0?`${sa} partout`:`${sa} au début et à la fin`;
+  test.answers.push({q:`${c.exprText} : ${c.nroots} racine(s)${c.nroots?' ('+rootsTxt+')':''} \u2014 signe de a : ${placeTxt}`, answer:'signe du 2nd degré', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('s2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextS2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
