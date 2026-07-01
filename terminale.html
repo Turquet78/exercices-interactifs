@@ -82,6 +82,49 @@
   .choice .ds{color:var(--ink-soft);font-size:.88rem;font-weight:600}
   .choice.eleve{border-color:#c9d4f3}.choice.eleve:hover{border-color:var(--blue)}
   .choice.prof{border-color:#cfe6db}.choice.prof:hover{border-color:var(--green)}
+  /* Regroupement par thèmes (menu élève) */
+  .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
+  .theme-block{display:flex;flex-direction:column;gap:14px}
+  .theme-head{display:flex;align-items:baseline;gap:11px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+  .theme-num{font-family:"Fredoka";font-weight:600;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
+  .theme-name{font-family:"Fredoka";font-weight:600;font-size:1.4rem;color:var(--ink);line-height:1.1}
+  /* ----- Devoir à la maison (élève) ----- */
+  .dm-panel{border:2px solid var(--blue);background:linear-gradient(180deg,#EEF2FE,#fff);border-radius:18px;padding:18px 20px;margin:6px 0 18px}
+  .dm-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .dm-badge{font-family:"Fredoka";font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
+  .dm-title{font-family:"Fredoka";font-weight:600;font-size:1.3rem;color:var(--ink);margin:0}
+  .dm-cours{color:var(--ink);font-weight:600;font-size:.95rem;line-height:1.55;background:#fff;border:1.5px solid #d8e0fb;border-radius:12px;padding:13px 15px;margin:13px 0 0}
+  .dm-tasks{display:grid;gap:10px;margin-top:13px}
+  .dm-task{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .dm-task-h{display:flex;align-items:center;gap:10px;min-width:0}
+  .dm-task-ic{font-size:22px;line-height:1}
+  .dm-task-name{font-family:"Fredoka";font-weight:600;font-size:1.05rem;color:var(--ink)}
+  .dm-task-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .dm-go{font-family:"Fredoka";font-weight:600;font-size:.92rem;cursor:pointer;border:1.5px solid var(--blue);color:var(--blue);background:#fff;border-radius:999px;padding:8px 15px}
+  .dm-go:hover{background:var(--blue);color:#fff}
+  .dm-go.ok{border-color:var(--green);color:#fff;background:var(--green)}
+  .dm-go.ok:hover{background:var(--green)}
+  /* ----- Devoir à la maison (prof) ----- */
+  .dm-switch{display:inline-flex;align-items:center;gap:9px;font-weight:700;cursor:pointer;font-size:.98rem}
+  .dm-switch input{width:18px;height:18px}
+  textarea.dm-area{width:100%;font-family:"Nunito";font-weight:600;font-size:1rem;line-height:1.5;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;resize:vertical}
+  .dm-exo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:9px}
+  .dm-exo-name{font-family:"Fredoka";font-weight:600;flex:1;min-width:150px}
+  .dm-mode{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;color:var(--ink-soft);cursor:pointer}
+  .dm-mode input{width:16px;height:16px}
+  .dm-rescard{border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:10px}
+  .dm-resname{font-family:"Fredoka";font-weight:600;font-size:1.05rem;display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .dm-prog{font-size:.8rem;font-weight:700;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);padding:2px 9px;border-radius:999px}
+  .dm-cells{display:flex;flex-wrap:wrap;gap:8px}
+  .dm-cell{font-size:.86rem;font-weight:600;border-radius:9px;padding:6px 11px}
+  .dm-cell.done{color:#157a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
+  .dm-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .dm-tab{font-family:"Fredoka";font-weight:600;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;color:var(--ink-soft);font-size:.92rem}
+  .dm-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .dm-tab:hover:not(.on){border-color:#cdd3e0;color:var(--ink)}
+  .dm-tab.add{border-style:dashed;color:var(--blue)}
+  .dm-numrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 2px}
 
   .field{margin:0 0 14px}
   label.lab{display:block;font-weight:700;margin:0 0 7px;font-size:.95rem}
@@ -266,7 +309,8 @@
   .mode-tag.train{color:var(--blue-dark);background:#EAF1FF;border:1.5px solid #c9d8fb}
   .mode-tag.eval{color:#a8631c;background:#FCEFD8;border:1.5px solid #f1d199}
   .mode-tag.soutien{color:#1f7a6b;background:#E3F6F1;border:1.5px solid #a9e3d6}
-  #testCtrls{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;gap:10px;}
+  #testCtrls{position:fixed;right:16px;bottom:16px;z-index:60;gap:10px;}
+  #testCtrls:not([hidden]){display:flex;}
   #testCtrls button{border:none;cursor:pointer;font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;
     padding:11px 16px;border-radius:30px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
   #testCtrls button:active{transform:translateY(1px)}
@@ -553,6 +597,7 @@
     <div class="card">
       <h2 class="hello" id="spaceHello">Bonjour !</h2>
       <p class="muted" id="spaceSub"></p>
+      <div id="dmPanel" hidden></div>
       <div class="stats">
         <div class="stat blue"><div class="k">Tests passés</div><div class="v" id="sNb">0</div></div>
         <div class="stat green"><div class="k">Moyenne</div><div class="v" id="sAvg">—</div></div>
@@ -580,7 +625,7 @@
         <button class="btn-link" onclick="ouvrirEspace()">Mon espace</button>
       </div>
       <p class="lead">Sélectionne l'exercice que tu veux faire aujourd'hui.</p>
-      <div class="choices" id="testChoices"></div>
+      <div class="theme-list" id="testChoices"></div>
     </div>
   </section>
 
@@ -815,6 +860,7 @@
         <button class="tab" data-tab="eval" onclick="teacherTab('eval')">Mode évaluation</button>
         <button class="tab" data-tab="students" onclick="teacherTab('students')">Comptes élèves</button>
         <button class="tab" data-tab="settings" onclick="teacherTab('settings')">Réglages des tests</button>
+        <button class="tab" data-tab="devoir" onclick="teacherTab('devoir')">Devoir maison</button>
       </div>
 
       <!-- suivi -->
@@ -874,6 +920,31 @@
           <span class="saved" id="savedMsg">Enregistré ✓</span>
         </div>
       </div>
+
+      <!-- devoir maison -->
+      <div class="tpane" id="pane-devoir">
+        <div class="set-h first">Mes devoirs à la maison</div>
+        <div class="dm-tabs" id="dmSelector"></div>
+        <div id="dmEditor">
+          <div class="dm-numrow">
+            <label class="lab" for="dmNum" style="margin:0">Numéro</label>
+            <input class="text-input" id="dmNum" type="number" min="1" inputmode="numeric" style="width:88px;text-align:center">
+            <label class="dm-switch" style="margin-left:auto"><input type="checkbox" id="dmActif"> Afficher aux élèves</label>
+          </div>
+          <label class="lab" for="dmTitre" style="margin-top:14px">Titre</label>
+          <input class="text-input" id="dmTitre" maxlength="80" placeholder="Devoir à la maison" autocomplete="off">
+          <label class="lab" for="dmCours" style="margin-top:14px">Cours <span style="font-weight:600;color:var(--ink-soft)">(laisse vide pour n'afficher que les exercices)</span></label>
+          <textarea class="dm-area" id="dmCours" rows="7" placeholder="Rappels, consignes…"></textarea>
+          <label class="lab" style="margin-top:16px">Exercices du devoir <span style="font-weight:600;color:var(--ink-soft)">(coche les modes proposés à l'élève)</span></label>
+          <div id="dmExos"></div>
+          <div class="row" style="margin-top:16px;justify-content:space-between;align-items:center">
+            <span><button class="btn btn-primary" onclick="saveDevoir()">Enregistrer ce devoir</button> <span class="saved" id="dmSaved">Enregistré ✓</span></span>
+            <button class="btn btn-danger btn-sm" onclick="deleteDevoir()">Supprimer</button>
+          </div>
+        </div>
+        <div class="set-h">Résultats <span id="dmResTitle" style="font-weight:600;color:var(--ink-soft)"></span></div>
+        <div id="dmResults"></div>
+      </div>
     </div>
   </section>
 </div>
@@ -895,7 +966,46 @@ function pctClass(p){return p>=70?'hi':p>=50?'mid':'lo';}
 function toast(msg,type){const t=$('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2600);}
 
 /* ---------- État ---------- */
+const DEFAULT_DEVOIR={
+  id:'dm_1', num:1,
+  actif:true,
+  titre:'Devoir à la maison',
+  cours:`Rappels pour ce devoir :
+
+• TVI (3.1) : si f est continue et strictement monotone sur [a ; b], alors pour tout k compris entre f(a) et f(b), l'équation f(x) = k admet une unique solution dans [a ; b].
+
+• Signe du 1er degré (4.1) : ax + b s'annule en x = −b/a. Après cette racine, ax + b est du signe de a ; avant, du signe opposé.
+
+Fais chaque exercice en mode Soutien, puis en mode Entraînement.`,
+  exercices:[
+    {id:'tvi', modes:['soutien','train']},
+    {id:'signe-premier-degre', modes:['soutien','train']}
+  ]
+};
 const DEFAULT_CFG={count:10,secondsPerQuestion:0,locks:{}};
+/* Identifiant stable d'un devoir : les résultats s'y rattachent, donc renuméroter ne casse rien. */
+function newDevoirId(){ return 'dm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function ensureDevoir(d,i){
+  return {
+    id: d.id || newDevoirId(),
+    num: (typeof d.num==='number'? d.num : (i+1)),
+    actif: d.actif!==false,
+    titre: d.titre || 'Devoir à la maison',
+    cours: (typeof d.cours==='string')? d.cours : '',
+    exercices: Array.isArray(d.exercices)? d.exercices : []
+  };
+}
+/* Garantit une LISTE de devoirs et migre l'ancien format « devoir » unique le cas échéant. */
+function normalizeCfg(cfg){
+  let ds=cfg.devoirs;
+  if(!Array.isArray(ds)){
+    if(cfg.devoir && typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)];
+    else ds=[Object.assign({},DEFAULT_DEVOIR)];
+  }
+  cfg.devoirs = ds.map((d,i)=>ensureDevoir(d,i));
+  delete cfg.devoir;
+  return cfg;
+}
 let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
 
@@ -911,28 +1021,34 @@ const TESTS={
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() }
 };
-const TEST_ORDER=['derivees','suites','tvi','tvi-redaction','derivee-exp','signes-variations','equation-tangente','signe-premier-degre','signe-second-degre'];
-/* Menu élève */
-const MENU=[
-  {kind:'test', id:'derivees'},
-  {kind:'test', id:'suites'},
-  {kind:'test', id:'tvi'},
-  {kind:'test', id:'tvi-redaction'},
-  {kind:'test', id:'derivee-exp'},
-  {kind:'test', id:'signes-variations'},
-  {kind:'test', id:'equation-tangente'},
-  {kind:'test', id:'signe-premier-degre'},
-  {kind:'test', id:'signe-second-degre'}
+/* ---------- Thèmes : regroupement + numérotation des exercices ----------
+   Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
+   simplement de la position dans la liste « ids ». Pour reclasser un exercice,
+   il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
+   toute seule, partout dans l'app (menu élève + tableau de bord prof). */
+const THEMES=[
+  { num:1, nom:'Dérivation',         ids:['derivee-exp','equation-tangente','derivees'] },
+  { num:2, nom:'Suites',             ids:['suites'] },
+  { num:3, nom:'Continuité & TVI',   ids:['tvi','tvi-redaction'] },
+  { num:4, nom:'Signe & variations', ids:['signe-premier-degre','signe-second-degre','signes-variations'] }
 ];
+/* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
+const TEST_NUM={};
+THEMES.forEach(t=>{ t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); }); });
+/* Ordre global des tests (suit l'ordre des thèmes) — utilisé côté prof */
+const TEST_ORDER=THEMES.reduce((a,t)=>a.concat(t.ids),[]);
 let teacherFilter='all';
 let teacherMode='eval';
 let currentTestId=null, currentMode='train';
+let currentDM=null;   // marque qu'un exercice est lancé depuis le devoir maison
 function pick(a){return a[rand(0,a.length-1)];}
 function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) return d.test; return 'derivees'; }
 function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) return d.mode; return 'eval'; }
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
+function testNum(id){ return TEST_NUM[id]||''; }
+function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); else startDerivees(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
@@ -953,7 +1069,51 @@ function cardHTML(icon,title,desc,onclick,extraClass,lockMsg){
     <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(desc)}</span>${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 function renderChooser(){
-  $('testChoices').innerHTML=MENU.map(m=>{ const t=TESTS[m.id]; return cardHTML(t.icon,t.name,t.desc,`openTest('${m.id}')`); }).join('');
+  $('testChoices').innerHTML=THEMES.map(th=>{
+    const cards=th.ids.map((id,i)=>{
+      const t=TESTS[id]; if(!t) return '';
+      const num=th.num+'.'+(i+1);
+      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`);
+    }).join('');
+    if(!cards) return '';
+    return `<div class="theme-block">
+      <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
+      <div class="choices">${cards}</div>
+    </div>`;
+  }).join('');
+}
+/* ---------- Devoir à la maison (élève) ---------- */
+function lancerDevoir(devoirId, id, mode){
+  const t=TESTS[id]; if(!t||!t.start) return;
+  currentDM=devoirId||true;                    // la tentative est étiquetée avec l'id du devoir
+  currentMode=(mode==='train')?'train':'soutien';
+  currentTestId=id;
+  t.start();
+}
+async function renderDM(results){
+  const host=$('dmPanel'); if(!host) return;
+  let devoirs;
+  try{ devoirs=(await loadConfig()).devoirs||[]; }catch(e){ host.hidden=true; host.innerHTML=''; return; }
+  const actifs=devoirs.filter(d=>d.actif && (d.exercices||[]).length).sort((a,b)=>(a.num||0)-(b.num||0));
+  if(!actifs.length){ host.hidden=true; host.innerHTML=''; return; }
+  const done=(did,id,m)=>(results||[]).some(r=>!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did);
+  host.innerHTML=actifs.map(dev=>{
+    const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
+    const tasks=(dev.exercices||[]).map(ex=>{
+      const t=TESTS[ex.id]; if(!t) return '';
+      const btns=(ex.modes||[]).map(m=>{
+        const lbl=m==='train'?'Entraînement':'Soutien'; const ok=done(dev.id,ex.id,m);
+        return `<button class="dm-go ${ok?'ok':''}" onclick="lancerDevoir('${dev.id}','${ex.id}','${m}')">${ok?'✓ ':''}${lbl}</button>`;
+      }).join('');
+      return `<div class="dm-task"><div class="dm-task-h"><span class="dm-task-ic">${t.icon}</span><span class="dm-task-name">${esc(testLabel(ex.id))}</span></div><div class="dm-task-btns">${btns}</div></div>`;
+    }).join('');
+    return `<div class="dm-panel">
+      <div class="dm-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
+      ${cours}
+      <div class="dm-tasks">${tasks}</div>
+    </div>`;
+  }).join('');
+  host.hidden=false;
 }
 let pausedRows={};
 function snapshotTest(){
@@ -987,6 +1147,7 @@ let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=
 function recoveryPayload(){
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, snapshotTest());
+  if(currentDM) details.dm=currentDM;
   details._boxes=captureBoxes();            // saisies en cours de la question affichée
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
@@ -1025,8 +1186,9 @@ async function clearRecovery(){
 }
 async function openTest(testId){
   currentTestId=testId;
+  currentDM=null;            // lancement normal (hors devoir)
   const t=TESTS[testId];
-  $('modeTitle').textContent=t.name;
+  $('modeTitle').textContent=testLabel(testId);
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
   show('mode');
   cfg=await loadConfig();
@@ -1072,6 +1234,7 @@ async function resumeTest(mode){
   const d=row&&row.details;
   if(!d || !Array.isArray(d.questions) || !d.questions.length){ toast('Reprise impossible — on recommence.','err'); currentMode=mode; recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   currentMode=mode; currentTestId=d.test;
+  currentDM=d.dm||null;            // conserve l'id du devoir à la reprise
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
@@ -1186,10 +1349,11 @@ async function ouvrirEspace(){
     const recent=[...data].reverse().slice(0,6);
     $('spaceHist').innerHTML=recent.length?recent.map(r=>{
       const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
-      return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testName(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
+      return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
         <span class="sc">${r.score} / ${r.total}</span>
         <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
       :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
+    renderDM(data);
   }catch(e){ toast('Impossible de charger ton espace','err'); }
 }
 
@@ -1217,9 +1381,9 @@ function lineChart(values){
 async function loadConfig(){
   try{
     const {data,error}=await sb.from('parametres').select('valeurs').eq('id',1).single();
-    if(error||!data) return {...DEFAULT_CFG};
-    return Object.assign({},DEFAULT_CFG,data.valeurs);
-  }catch(e){ return {...DEFAULT_CFG}; }
+    if(error||!data) return normalizeCfg({...DEFAULT_CFG});
+    return normalizeCfg(Object.assign({},DEFAULT_CFG,data.valeurs));
+  }catch(e){ return normalizeCfg({...DEFAULT_CFG}); }
 }
 
 /* ---------- Génération des questions (Terminale) ---------- */
@@ -1424,15 +1588,16 @@ async function finishTest(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  const fdetails={test:currentTestId,mode:currentMode,misses}; if(currentDM) fdetails.dm=currentDM;
   try{
-    await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:currentTestId,mode:currentMode,misses}});
+    await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:fdetails});
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
 function showResults(r){
   const msg=r.percent>=90?'Excellent !':r.percent>=70?'Bravo !':r.percent>=50?'Bien jou\u00e9 !':'Continue, tu progresses !';
   $('resultMsg').textContent=msg;
-  $('resultSub').textContent=`${esc(currentEleve.prenom)} \u2022 ${modeName(currentMode)} \u2022 ${fmtDur(r.durationSec)}`;
+  $('resultSub').textContent=`${testLabel(currentTestId)} \u2022 ${esc(currentEleve.prenom)} \u2022 ${modeName(currentMode)} \u2022 ${fmtDur(r.durationSec)}`;
   $('resultScore').textContent=`${r.score} / ${r.total}`;$('resultPct').textContent=`${r.percent} %`;
   const ul=$('review');ul.innerHTML='';
   test.answers.forEach(a=>{
@@ -2740,6 +2905,7 @@ function teacherTab(name){
   if(name==='results'){$('studentDetail').innerHTML='';renderClassTable();}
   else if(name==='students')renderRoster();
   else if(name==='eval')renderEvalLocks();
+  else if(name==='devoir')loadDevoirTab();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
 function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }
@@ -2768,14 +2934,14 @@ async function renderClassTable(){
       const right = isSout
         ? `<span class="badge ${list.length?'mid':''}">${list.length?fmtDurLong(sumDur(list)):'—'}</span>`
         : (()=>{ const avg=list.length?Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length):null; return `<span class="badge ${avg===null?'':pctClass(avg)}">${avg===null?'—':avg+' %'}</span>`; })();
-      return `<li><span style="font-weight:700">${esc(testName(id))}</span>
+      return `<li><span style="font-weight:700">${esc(testLabel(id))}</span>
         <span class="sc">${list.length} ${noun}${list.length>1?'s':''}</span>${right}</li>`;
     }).join('');
     const bdTitle=isEval?'Vue d\'ensemble par test':(isSout?'Temps de soutien par test':'Entraînements par test');
     $('testBreakdown').innerHTML=`<div class="panel"><h3>${bdTitle}</h3><ul class="histlist">${bd}</ul></div>`;
 
     // filtre par test
-    const chips=[{id:'all',name:'Tous les tests'}].concat(TEST_ORDER.map(id=>({id,name:testName(id)})));
+    const chips=[{id:'all',name:'Tous les tests'}].concat(TEST_ORDER.map(id=>({id,name:testLabel(id)})));
     $('testFilter').innerHTML=chips.map(c=>`<button class="chip ${teacherFilter===c.id?'sel':''}" onclick="setTeacherFilter('${c.id}')">${esc(c.name)}</button>`).join('');
 
     if(!eleves.length){ wrap.innerHTML='<div class="empty">Aucun compte élève. Ajoute-les dans « Comptes élèves » ou laisse-les créer le leur.</div>'; return; }
@@ -2808,7 +2974,7 @@ async function renderClassTable(){
         return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${list.length}</td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${best} %</td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     }
-    const flabel=teacherFilter==='all'?'tous les tests':('« '+testName(teacherFilter)+' »');
+    const flabel=teacherFilter==='all'?'tous les tests':('« '+testLabel(teacherFilter)+' »');
     const lead=isEval?'Évaluations':(isSout?'Soutien — temps de travail':'Entraînements');
     wrap.innerHTML=`<p class="muted" style="font-size:.85rem;margin:0 0 8px">${lead} · ${esc(flabel)} — clique sur un élève pour le détail.</p>
       <table class="tbl"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
@@ -2824,7 +2990,7 @@ async function renderEvalLocks(){
     box.innerHTML=TEST_ORDER.map(id=>{
       const open=!!locks[id];
       return `<div class="lock-card ${open?'open':''}">
-        <span class="li">${esc(testName(id))}</span>
+        <span class="li">${esc(testLabel(id))}</span>
         <span class="st ${open?'open':'closed'}">${open?'🔓 Déverrouillé':'🔒 Verrouillé'}</span>
         <button class="btn ${open?'btn-danger':'btn-primary'} btn-sm" onclick="toggleLock('${id}')">${open?'Verrouiller':'Déverrouiller'}</button>
       </div>`;
@@ -2836,7 +3002,7 @@ async function toggleLock(id){
     cfg=await loadConfig();
     const locks=Object.assign({},cfg.locks||{}); locks[id]=!locks[id];
     const {error}=await saveConfig(Object.assign({},cfg,{locks})); if(error)throw error;
-    toast(locks[id]?`${testName(id)} déverrouillé`:`${testName(id)} verrouillé`, locks[id]?'ok':null);
+    toast(locks[id]?`${testLabel(id)} déverrouillé`:`${testLabel(id)} verrouillé`, locks[id]?'ok':null);
     renderEvalLocks();
   }catch(e){ toast('Action impossible','err'); }
 }
@@ -2854,12 +3020,12 @@ async function showStudentDetail(id,prenom){
     if(isSout){
       const tot=data.reduce((s,r)=>s+(r.duration_sec||0),0);
       inner+=`<p class="muted" style="margin:0 0 10px">${data.length} séance(s) · temps total <b style="color:var(--ink)">${fmtDurLong(tot)}</b> · moyenne ${fmtDur(tot/data.length)}</p>`;
-      const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testName(testIdOf(r)))}</span>
+      const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))}</span>
         <span class="badge mid">${fmtDur(r.duration_sec)}</span></li>`).join('');
       inner+=`<ul class="histlist">${rows}</ul></div>`;
     } else {
       inner+=lineChart(data.map(r=>r.percent));
-      const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testName(testIdOf(r)))}</span>
+      const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))}</span>
         <span class="sc">${r.score} / ${r.total}</span><span class="badge ${pctClass(r.percent)}">${r.percent} %</span>
         <span class="d" style="margin-left:8px">${fmtDur(r.duration_sec)}</span></li>`).join('');
       inner+=`<ul class="histlist" style="margin-top:14px">${rows}</ul></div>`;
@@ -2926,15 +3092,120 @@ async function loadSettingsIntoForm(){
   $('setCount').value=String(c.count);$('setTime').value=String(c.secondsPerQuestion);
 }
 async function saveSettings(){
-  const valeurs={
-    count:parseInt(val('setCount'),10)||10, secondsPerQuestion:parseInt(val('setTime'),10)||0
-  };
   try{
-    const cur=await loadConfig(); valeurs.locks=cur.locks||{};
+    const cur=await loadConfig();
+    const valeurs=Object.assign({},cur,{
+      count:parseInt(val('setCount'),10)||10,
+      secondsPerQuestion:parseInt(val('setTime'),10)||0
+    });
     const {error}=await sb.from('parametres').upsert({id:1,valeurs}); if(error)throw error;
     const m=$('savedMsg');m.classList.add('show');setTimeout(()=>m.classList.remove('show'),1800);
   }catch(e){ toast('Enregistrement impossible','err'); }
 }
+
+/* ---------- Devoirs à la maison (prof) ---------- */
+let dmList=[], dmSelId=null;
+async function loadDevoirTab(){
+  try{ dmList=(await loadConfig()).devoirs||[]; }catch(e){ dmList=[]; }
+  if(!dmList.length) dmList=[ensureDevoir(Object.assign({},DEFAULT_DEVOIR),0)];
+  if(!dmSelId || !dmList.some(d=>d.id===dmSelId)) dmSelId=dmList[0].id;
+  renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+}
+function selectedDevoir(){ return dmList.find(d=>d.id===dmSelId)||dmList[0]; }
+function renderDevoirSelector(){
+  const chips=dmList.slice().sort((a,b)=>(a.num||0)-(b.num||0)).map(d=>
+    `<button class="dm-tab ${d.id===dmSelId?'on':''}" onclick="selectDevoir('${d.id}')">Devoir n°${esc(String(d.num))}${d.actif?'':' · masqué'}</button>`).join('');
+  $('dmSelector').innerHTML=chips+`<button class="dm-tab add" onclick="addDevoir()">＋ Nouveau devoir</button>`;
+}
+function selectDevoir(id){ readEditorIntoDevoir(); dmSelId=id; renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats(); }
+async function addDevoir(){
+  readEditorIntoDevoir();
+  const maxNum=dmList.reduce((m,d)=>Math.max(m,d.num||0),0);
+  const d=ensureDevoir({num:maxNum+1, actif:true, titre:'Devoir à la maison', cours:'', exercices:[]}, dmList.length);
+  dmList.push(d); dmSelId=d.id;
+  try{ await persistDevoirs(); }catch(e){}
+  renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+  toast('Devoir n°'+d.num+' ajouté','ok');
+}
+function renderDevoirEditor(){
+  const dev=selectedDevoir(); if(!dev){ $('dmEditor').style.display='none'; return; }
+  $('dmEditor').style.display='';
+  $('dmNum').value=dev.num; $('dmActif').checked=!!dev.actif;
+  $('dmTitre').value=dev.titre||''; $('dmCours').value=dev.cours||'';
+  const byId={}; (dev.exercices||[]).forEach(e=>{ byId[e.id]=e.modes||[]; });
+  $('dmExos').innerHTML=TEST_ORDER.map(id=>{
+    const modes=byId[id]||[]; const s=modes.includes('soutien'), t=modes.includes('train');
+    return `<div class="dm-exo">
+      <span class="dm-exo-name">${esc(testLabel(id))}</span>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''}> Soutien</label>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''}> Entraînement</label>
+    </div>`;
+  }).join('');
+}
+/* Lit le formulaire dans le devoir sélectionné (en mémoire), sans écrire en base. */
+function readEditorIntoDevoir(){
+  const dev=dmList.find(d=>d.id===dmSelId); if(!dev || !$('dmNum')) return;
+  const map={};
+  document.querySelectorAll('#dmExos input[type=checkbox]').forEach(cb=>{ if(cb.checked){ (map[cb.dataset.ex]=map[cb.dataset.ex]||[]).push(cb.dataset.mode); } });
+  dev.num=parseInt(val('dmNum'),10)||dev.num||1;
+  dev.actif=$('dmActif').checked;
+  dev.titre=val('dmTitre').trim()||'Devoir à la maison';
+  dev.cours=$('dmCours').value;
+  dev.exercices=TEST_ORDER.filter(id=>map[id]&&map[id].length).map(id=>({id,modes:map[id]}));
+}
+async function persistDevoirs(){
+  const cur=await loadConfig();
+  const {error}=await sb.from('parametres').upsert({id:1,valeurs:Object.assign({},cur,{devoirs:dmList})});
+  if(error)throw error;
+}
+async function saveDevoir(){
+  readEditorIntoDevoir();
+  try{
+    await persistDevoirs();
+    const m=$('dmSaved'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1800);
+    toast('Devoir enregistré ✓','ok');
+    renderDevoirSelector(); renderDevoirResultats();
+  }catch(e){ toast('Enregistrement impossible','err'); }
+}
+async function deleteDevoir(){
+  const dev=selectedDevoir(); if(!dev) return;
+  if(!confirm(`Supprimer le Devoir n°${dev.num} ? Les résultats déjà enregistrés ne sont pas effacés.`)) return;
+  dmList=dmList.filter(d=>d.id!==dev.id);
+  if(!dmList.length) dmList=[ensureDevoir(Object.assign({},DEFAULT_DEVOIR),0)];
+  dmSelId=dmList[0].id;
+  try{ await persistDevoirs(); toast('Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible','err'); }
+  renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+}
+async function renderDevoirResultats(){
+  const box=$('dmResults'); const dev=selectedDevoir();
+  if($('dmResTitle')) $('dmResTitle').textContent = dev? ('du Devoir n°'+dev.num) : '';
+  if(!dev){ box.innerHTML=''; return; }
+  const exos=dev.exercices||[];
+  if(!exos.length){ box.innerHTML='<div class="empty">Ajoute au moins un exercice à ce devoir (et enregistre) pour suivre les résultats.</div>'; return; }
+  box.innerHTML='<p class="muted">Chargement…</p>';
+  try{
+    const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
+      sb.from('eleves').select('*').order('prenom'),
+      sb.from('resultats').select('*')
+    ]);
+    if(e1)throw e1; if(e2)throw e2;
+    if(!eleves||!eleves.length){ box.innerHTML='<div class="empty">Aucun compte élève.</div>'; return; }
+    const dmRes=(res||[]).filter(r=>!isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm===dev.id);
+    const k=(eid,tid,m)=>eid+'|'+tid+'|'+m;
+    const best={}; dmRes.forEach(r=>{ const key=k(r.eleve_id,testIdOf(r),modeOf(r)); if(!best[key]||r.percent>best[key].percent) best[key]=r; });
+    const total=exos.reduce((n,ex)=>n+(ex.modes||[]).length,0);
+    box.innerHTML=eleves.map(e=>{
+      let fait=0;
+      const cells=exos.map(ex=>(ex.modes||[]).map(m=>{
+        const r=best[k(e.id,ex.id,m)]; const mlbl=m==='train'?'Entraînement':'Soutien';
+        if(r){ fait++; return `<span class="dm-cell done">${esc(testNum(ex.id))} · ${mlbl} <b>${r.score}/${r.total}</b></span>`; }
+        return `<span class="dm-cell todo">${esc(testNum(ex.id))} · ${mlbl} — à faire</span>`;
+      }).join('')).join('');
+      return `<div class="dm-rescard"><div class="dm-resname">${esc(e.prenom)} <span class="dm-prog">${fait}/${total}</span></div><div class="dm-cells">${cells}</div></div>`;
+    }).join('');
+  }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+}
+
 
 /* export CSV */
 async function exportCSV(){
@@ -2943,9 +3214,9 @@ async function exportCSV(){
     if(error)throw error;
     const data=(rawCsv||[]).filter(r=>!isPaused(r));
     if(!data.length){ toast('Aucun résultat à exporter'); return; }
-    const head=['Eleve','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date'];
+    const head=['Eleve','Numero','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date'];
     const lines=data.map(r=>[
-      (r.eleves&&r.eleves.prenom)||'?', testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
+      (r.eleves&&r.eleves.prenom)||'?', testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
       Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')
     ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
     const csv='\uFEFF'+[head.join(','),...lines].join('\n');
