@@ -104,7 +104,25 @@
   .dm-go:hover{background:var(--blue);color:#fff}
   .dm-go.ok{border-color:var(--green);color:#fff;background:var(--green)}
   .dm-go.ok:hover{background:var(--green)}
-  /* ----- Devoir à la maison (prof) ----- */
+  /* Badge bilan sur les cartes d'exercice + liste des devoirs (élève) */
+  .ex-bilan{align-self:flex-start;margin-top:4px;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px}
+  .ex-bilan.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .ex-bilan.todo{color:var(--ink-soft);background:var(--paper);border:1px solid var(--line)}
+  .dl-card{width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;background:#fff;border:2px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;transition:transform .14s,border-color .14s,box-shadow .14s}
+  .dl-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--blue)}
+  .dl-card.last{border-color:var(--blue);background:linear-gradient(180deg,#EEF2FE,#fff)}
+  .dl-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .dl-prog{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--ink-soft)}
+  .dl-title{font-family:"Fredoka";font-weight:600;font-size:1.12rem}
+  .dl-exos{display:flex;flex-direction:column;gap:8px}
+  .dl-ex{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:9px 12px}
+  .dl-ex-name{font-weight:700;font-size:.92rem}
+  .dl-ex-cells{display:flex;gap:6px;flex-wrap:wrap}
+  .dm-cell{font-size:.76rem;font-weight:700;padding:2px 9px;border-radius:999px}
+  .dm-cell.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.todo{color:var(--ink-soft);background:#fff;border:1px solid var(--line)}
+  .dl-go{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--blue);align-self:flex-end}
+  .dl-list{display:flex;flex-direction:column;gap:14px}
   .dm-switch{display:inline-flex;align-items:center;gap:9px;font-weight:700;cursor:pointer;font-size:.98rem}
   .dm-switch input{width:18px;height:18px}
   textarea.dm-area{width:100%;font-family:"Nunito";font-weight:600;font-size:1rem;line-height:1.5;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;resize:vertical}
@@ -119,6 +137,12 @@
   .dm-cell{font-size:.86rem;font-weight:600;border-radius:9px;padding:6px 11px}
   .dm-cell.done{color:#157a52;background:var(--green-soft);border:1px solid #b6e6d2}
   .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
+  .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
+  .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  .dm-exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 0;border-top:1px dashed var(--line)}
+  .dm-exrow:first-child{border-top:none;padding-top:1px}
+  .dm-exname{font-weight:700;font-size:.9rem;color:var(--ink)}
+  .dm-exdetail{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .dm-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
   .dm-tab{font-family:"Fredoka";font-weight:600;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;color:var(--ink-soft);font-size:.92rem}
   .dm-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -599,18 +623,35 @@
   <section class="screen" id="scr-space">
     <div class="card">
       <h2 class="hello" id="spaceHello">Bonjour !</h2>
-      <p class="muted" id="spaceSub"></p>
-      <div id="dmPanel" hidden></div>
+      <p class="muted" id="spaceSub">Que veux-tu faire aujourd'hui ?</p>
+      <div class="choices" style="margin-top:16px">
+        <button class="choice eleve" onclick="openThemes()">
+          <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
+          <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
+        </button>
+        <button class="choice prof" onclick="openDevoirsEleve()">
+          <span class="ic">📌</span><span class="ttl">Voir les devoirs à la maison</span>
+          <span class="ds">Le dernier devoir, les exercices à faire et tes résultats.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHOIX DU TEST -->
+  <section class="screen" id="scr-choose">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">Exercices par thème</h2>
+        <button class="btn-link" onclick="ouvrirEspace()">← Accueil</button>
+      </div>
       <div class="stats">
         <div class="stat blue"><div class="k">Tests passés</div><div class="v" id="sNb">0</div></div>
-        <div class="stat green"><div class="k">Moyenne</div><div class="v" id="sAvg">—</div></div>
-        <div class="stat gold"><div class="k">Meilleur</div><div class="v" id="sBest">—</div></div>
+        <div class="stat green"><div class="k">Note moyenne</div><div class="v" id="sAvg">—</div></div>
+        <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
       </div>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0 16px">
-        <button class="btn btn-primary" style="font-size:1.1rem;padding:15px 32px" onclick="show('choose');renderChooser()">Commencer un test</button>
-        <button class="btn btn-ghost" style="font-size:1.05rem;padding:15px 26px" onclick="ouvrirDevoirs()">📌 Devoirs à la maison</button>
-      </div>
-      <div class="panel">
+      <p class="lead">Choisis un exercice. Ta note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="theme-list" id="testChoices"></div>
+      <div class="panel" style="margin-top:20px">
         <h3>Ma progression</h3>
         <div id="spaceChart"></div>
       </div>
@@ -621,15 +662,14 @@
     </div>
   </section>
 
-  <!-- CHOIX DU TEST -->
-  <section class="screen" id="scr-choose">
+  <!-- DEVOIRS À LA MAISON (élève) -->
+  <section class="screen" id="scr-devoirs">
     <div class="card">
       <div class="topbar">
-        <h2 class="title" style="margin:0">Choisis ton test</h2>
-        <button class="btn-link" onclick="ouvrirEspace()">Mon espace</button>
+        <h2 class="title" id="devoirsTitle" style="margin:0">Devoirs à la maison</h2>
+        <button class="btn-link" onclick="ouvrirEspace()">← Accueil</button>
       </div>
-      <p class="lead">Sélectionne l'exercice que tu veux faire aujourd'hui.</p>
-      <div class="theme-list" id="testChoices"></div>
+      <div id="devoirsBody"></div>
     </div>
   </section>
 
@@ -638,7 +678,7 @@
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0" id="modeTitle">Test</h2>
-        <button class="btn-link" onclick="show('choose');renderChooser()">Retour</button>
+        <button class="btn-link" onclick="retourChoix()">Retour</button>
       </div>
       <p class="lead">Comment veux-tu faire ce test ?</p>
       <div class="choices" id="modeChoices"></div>
@@ -758,7 +798,7 @@
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0">Signe du 1er degré</h2>
-        <button class="btn-link" onclick="show('choose');renderChooser()">Retour</button>
+        <button class="btn-link" onclick="retourChoix()">Retour</button>
       </div>
       <p class="lead">Choisis ton niveau&nbsp;:</p>
       <div class="s1lvl-grid">
@@ -789,7 +829,7 @@
     <div class="card">
       <div class="topbar">
         <h2 class="title" style="margin:0">Signe du 2nd degré</h2>
-        <button class="btn-link" onclick="show('choose');renderChooser()">Retour</button>
+        <button class="btn-link" onclick="retourChoix()">Retour</button>
       </div>
       <p class="lead">Choisis ton niveau&nbsp;:</p>
       <div class="s1lvl-grid">
@@ -829,7 +869,7 @@
       <ul class="review" id="review"></ul>
       <div class="row" style="margin-top:22px;justify-content:center">
         <button class="btn btn-primary" onclick="restartCurrentTest()">Recommencer</button>
-        <button class="btn btn-ghost" onclick="show('choose');renderChooser()">Autre test</button>
+        <button class="btn btn-ghost" onclick="retourChoix()">Autre test</button>
         <button class="btn btn-ghost" onclick="ouvrirEspace()">Mon espace</button>
       </div>
       <p class="note" style="text-align:center">Ce test a été ajouté à ton historique.</p>
@@ -1068,16 +1108,30 @@ function modeTagHTML(){
   if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
   return '<span class="mode-tag train">✏️ Entraînement</span>';
 }
-function cardHTML(icon,title,desc,onclick,extraClass,lockMsg){
+function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
   return `<button class="choice eleve ${extraClass||''}" ${onclick?`onclick="${onclick}"`:'disabled'}>
-    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(desc)}</span>${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
+    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(desc)}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
-function renderChooser(){
+let mesResultats=[], mesDevoirs=[];
+function bestModeExo(id, modes){
+  let b=null;
+  (mesResultats||[]).forEach(r=>{ if(isPaused(r)||testIdOf(r)!==id||modes.indexOf(modeOf(r))<0) return; if(b==null||r.percent>b.percent) b=r; });
+  return b;
+}
+/* Note /10 d'un exercice travaillé par thème, avec la règle des devoirs :
+   soutien = 5 points max, entraînement (ou évaluation) = 10 points max. */
+function noteThemeExo(id){
+  return noteDevoirExo(bestModeExo(id,['soutien']), bestModeExo(id,['train','eval']));
+}
+function renderChooser(results){
+  results=results||mesResultats||[];
   $('testChoices').innerHTML=THEMES.map(th=>{
     const cards=th.ids.map((id,i)=>{
       const t=TESTS[id]; if(!t) return '';
       const num=th.num+'.'+(i+1);
-      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`);
+      const nd=noteThemeExo(id);
+      const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
     }).join('');
     if(!cards) return '';
     return `<div class="theme-block">
@@ -1218,25 +1272,48 @@ async function openTest(testId){
     : cardHTML('🔒','Évaluation','','',`locked`,'Déverrouillé par le professeur pendant l\u2019évaluation.');
   $('modeChoices').innerHTML=trainCard+soutienCard+evalCard;
 }
+/* En contexte devoir : enregistre la note de l'exercice sur la progression actuelle.
+   Score = bonnes réponses validées, sur le nombre total de questions (le reste compte comme faux).
+   Ne fait rien si aucune question n'a été répondue. */
+async function enregistrerNotePartielle(){
+  if(!currentDM || !currentEleve) return;
+  if(!(currentMode==='train'||currentMode==='soutien')) return;
+  if(!test.questions || !test.questions.length) return;
+  if(!(test.answers||[]).length) return;                 // rien de validé : pas de note
+  const total=test.questions.length, score=test.score||0, pct=Math.round(score/total*100);
+  const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
+  const details={test:currentTestId,mode:currentMode,partiel:true,dm:currentDM};
+  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details}); }catch(e){}
+}
 async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
-  try{ await doRecoverySave(); toast('Mis en pause — tu pourras reprendre plus tard ✓','ok'); }
+  try{
+    await doRecoverySave();                           // session reprenable (ligne « en pause »)
+    if(currentDM) await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
+    toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  }
   catch(e){ toast('Pause non enregistrée (connexion)','err'); }
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
-  if(currentDM){ currentDM=null; ouvrirEspace(); }   // devoir : retour sur « Mon espace »
-  else { renderChooser(); show('choose'); }
+  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
+  else { openThemes(); }
 }
 async function abandonTest(){
   if(!currentEleve) return;
-  if(!confirm('Abandonner cet exercice ? Ta progression ne sera pas enregistrée.')) return;
+  const msg = currentDM
+    ? 'Abandonner cet exercice ? Ta note sera calculée sur ce que tu as déjà fait.'
+    : 'Abandonner cet exercice ? Ta progression ne sera pas enregistrée.';
+  if(!confirm(msg)) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
-  try{ await clearRecovery(); }catch(e){}
-  toast('Exercice abandonné','ok');
-  if(currentDM){ currentDM=null; ouvrirEspace(); }   // devoir : retour sur « Mon espace »
-  else { renderChooser(); show('choose'); }
+  try{
+    if(currentDM) await enregistrerNotePartielle();   // note du devoir sur la progression
+    await clearRecovery();
+  }catch(e){}
+  toast(currentDM?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
+  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
+  else { openThemes(); }
 }
 async function resumeTest(mode){
   const row=pausedRows&&pausedRows[mode];
@@ -1337,33 +1414,147 @@ async function creerCompte(){
 }
 
 /* ---------- Espace élève ---------- */
-async function ouvrirEspace(){
+function ouvrirEspace(){
   $('spaceHello').textContent=`Bonjour, ${esc(currentEleve.prenom)} !`;
+  $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
   show('space');
-  $('sNb').textContent='…'; $('sAvg').textContent='…'; $('sBest').textContent='…';
-  $('spaceChart').innerHTML='<span class="muted">Chargement…</span>'; $('spaceHist').innerHTML='';
+}
+async function chargerMesResultats(){
   try{
-    const {data:all,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
-    if(error)throw error;
-    const data=(all||[]).filter(r=>!isPaused(r));
-    const n=data.length;
-    $('sNb').textContent=n;
-    $('spaceSub').textContent=n?`${n} test(s) cette année`:`Prêt pour ton premier test`;
-    if(n){
-      const avg=Math.round(data.reduce((s,r)=>s+r.percent,0)/n);
-      const best=Math.max(...data.map(r=>r.percent));
-      $('sAvg').textContent=avg+' %'; $('sBest').textContent=best+' %';
-    }else{ $('sAvg').textContent='—'; $('sBest').textContent='—'; }
-    $('spaceChart').innerHTML=lineChart(data.map(r=>r.percent));
-    const recent=[...data].reverse().slice(0,6);
-    $('spaceHist').innerHTML=recent.length?recent.map(r=>{
-      const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
-      return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
-        <span class="sc">${r.score} / ${r.total}</span>
-        <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
-      :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
-    renderDM(data);
-  }catch(e){ toast('Impossible de charger ton espace','err'); }
+    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    mesResultats=(data||[]).filter(r=>!isPaused(r));
+  }catch(e){ mesResultats=[]; }
+  return mesResultats;
+}
+async function openThemes(){
+  show('choose');
+  $('testChoices').innerHTML='<p class="muted">Chargement…</p>';
+  $('sNb').textContent='…';$('sAvg').textContent='…';$('sBest').textContent='…';
+  $('spaceChart').innerHTML='<span class="muted">Chargement…</span>';$('spaceHist').innerHTML='';
+  await chargerMesResultats();
+  renderChooser(mesResultats);
+  renderBilan(mesResultats);
+}
+function renderBilan(results){
+  const data=results||mesResultats||[];
+  $('sNb').textContent=data.length;
+  const ids=[...new Set(data.map(r=>testIdOf(r)))].filter(id=>TESTS[id]);
+  const notes=ids.map(id=>noteThemeExo(id)).filter(nd=>nd.fait).map(nd=>nd.note);
+  if(notes.length){
+    const moy=notes.reduce((s,x)=>s+x,0)/notes.length;
+    const meil=Math.max(...notes);
+    $('sAvg').textContent=fmtNote(moy)+' / 10'; $('sBest').textContent=fmtNote(meil)+' / 10';
+  }else{ $('sAvg').textContent='—'; $('sBest').textContent='—'; }
+  $('spaceChart').innerHTML=lineChart(data.map(r=>r.percent));
+  const recent=[...data].reverse().slice(0,6);
+  $('spaceHist').innerHTML=recent.length?recent.map(r=>{
+    const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
+    return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
+      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
+    :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
+}
+function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes(); } }
+
+/* ---------- Devoirs à la maison (élève) ---------- */
+async function openDevoirsEleve(){
+  show('devoirs');
+  $('devoirsTitle').textContent='Devoirs à la maison';
+  $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
+  try{ mesDevoirs=(await loadConfig()).devoirs||[]; }catch(e){ mesDevoirs=[]; }
+  await chargerMesResultats();
+  renderDevoirsList();
+}
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
+/* Note d'un exercice de devoir. Soutien vaut 5 pts (5×%), entraînement vaut 10 pts (10×%).
+   Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
+   sinon points du soutien (au max 5). */
+function noteDevoirExo(bestSoutien, bestEntrain){
+  const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
+  const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
+  const soutienFait = !!bestSoutien;
+  const note = (e > s || !soutienFait) ? e : s;
+  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
+}
+function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
+function renderDevoirsList(){
+  const actifs=(mesDevoirs||[]).filter(d=>d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
+  if(!actifs.length){ $('devoirsBody').innerHTML='<div class="empty">Aucun devoir à la maison pour l\'instant.</div>'; return; }
+  $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
+    const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
+    const lignes=exos.map(ex=>{
+      const bs=dmBest(dev.id,ex.id,'soutien'), be=dmBest(dev.id,ex.id,'train');
+      const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) faitQqch=true;
+      const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
+      const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
+      return `<div class="dl-ex"><span class="dl-ex-name">${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
+    }).join('');
+    const totMax=exos.length*10;
+    const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
+    return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${dev.id}')">
+      <div class="dl-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}${isLast?' · le plus récent':''}</span><span class="dl-prog">${totLbl}</span></div>
+      <div class="dl-title">${esc(dev.titre||'')}</div>
+      <div class="dl-exos">${lignes}</div>
+      <div class="dl-go">Ouvrir le devoir →</div>
+    </button>`;
+  }).join('')+'</div>';
+}
+async function ouvrirDevoirDetail(devoirId){
+  show('devoirs');
+  $('devoirsTitle').textContent='Devoirs à la maison';
+  $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
+  try{ mesDevoirs=(await loadConfig()).devoirs||[]; }catch(e){}
+  await chargerMesResultats();
+  renderDevoirDetail(devoirId);
+}
+function renderDevoirDetail(devoirId){
+  const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  if(!dev){ renderDevoirsList(); return; }
+  const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
+  const exos=dev.exercices||[]; let somme=0, faitQqch=false;
+  const cards=exos.map(ex=>{
+    const t=TESTS[ex.id]; if(!t) return '';
+    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'));
+    somme+=nd.note; if(nd.fait) faitQqch=true;
+    const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+    return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
+  }).join('');
+  const totMax=exos.length*10;
+  const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
+  $('devoirsBody').innerHTML=`
+    <button class="btn-link" onclick="renderDevoirsList()">← Tous les devoirs</button>
+    <div class="dm-head" style="margin-top:8px"><span class="dm-badge">Devoir n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
+    <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
+    ${cours}
+    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <div class="choices">${cards}</div>`;
+}
+async function openTestDevoir(devoirId, testId){
+  currentTestId=testId; currentDM=devoirId;
+  const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  const ex=dev?dev.exercices.find(e=>e.id===testId):null;
+  const allowed=(ex&&ex.modes&&ex.modes.length)?ex.modes:['soutien','train'];
+  $('modeTitle').textContent=testLabel(testId);
+  $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
+  show('mode');
+  pausedRows={};
+  try{
+    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
+  }catch(e){}
+  const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
+  let cards='';
+  if(allowed.includes('soutien')){
+    cards += pausedRows.soutien
+      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue !`,`resumeTest('soutien')`,'resume')
+      : cardHTML('🛟','Mode soutien','On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir.',`currentMode='soutien';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+  }
+  if(allowed.includes('train')){
+    cards += pausedRows.train
+      ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue !`,`resumeTest('train')`,'resume')
+      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux.',`currentMode='train';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+  }
+  $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
 }
 
 /* ---------- Petit graphique de progression (SVG) ---------- */
@@ -1753,9 +1944,16 @@ function checkTVI(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], a=c.ans;
   const map=[['tvi-bg',a.bg],['tvi-bd',a.bd],['tvi-cont',a.cont],['tvi-sens',a.sens],['tvi-vg',a.vg],['tvi-vd',a.vd],['tvi-tvi',a.tvi],['tvi-k',a.k],['tvi-uniq',a.uniq],['tvi-enc-k',a.enck],['tvi-enc-lo',a.enclo],['tvi-enc-hi',a.enchi]];
+  // Les deux bornes de l'encadrement de k sont acceptées dans n'importe quel ordre.
+  const encLo=($('tvi-enc-lo')||{}).value||'', encHi=($('tvi-enc-hi')||{}).value||'';
+  const encPairOk = (encLo===a.enclo && encHi===a.enchi) || (encLo===a.enchi && encHi===a.enclo);
+  const encValide = v => (v===a.enclo || v===a.enchi);
   let allOk=true;
   map.forEach(([id,good])=>{
-    const el=$(id); if(!el) return; const val=el.value; const ok=(val===good);
+    const el=$(id); if(!el) return; const val=el.value;
+    let ok;
+    if(id==='tvi-enc-lo'||id==='tvi-enc-hi'){ ok = live ? encValide(val) : encPairOk; }
+    else { ok=(val===good); }
     el.classList.remove('ok','bad');
     if(live){ if(val!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
     if(!ok) allOk=false;
@@ -2297,13 +2495,13 @@ function svTablesHTML(c){
   const fn=`<i>${esc(c.fname)}</i>\u00a0(<i>${esc(c.v)}</i>)`;
   const fpn=`<i>${esc(c.fname)}</i>\u00a0\u2032\u00a0(<i>${esc(c.v)}</i>)`;
   return `
-  <table class="sv-tbl"><tbody>
-    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd">${SV_MINUS}\u221e</td><td>${valOpt('sv-rootx')}</td><td class="bnd">+\u221e</td></tr>
-    <tr><td class="lab">Signe de ${fn}</td><td>${signOpt('sv-fl')}</td><td class="sv-zero">0</td><td>${signOpt('sv-fr')}</td></tr>
+  <table class="sv-tbl s1-tbl"><tbody>
+    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd s1-bl">${SV_MINUS}\u221e</td><td>${valOpt('sv-rootx')}</td><td class="bnd s1-br">+\u221e</td></tr>
+    <tr><td class="lab">Signe de ${fn}</td><td>${signOpt('sv-fl')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${signOpt('sv-fr')}</td></tr>
   </tbody></table>
-  <table class="sv-tbl"><tbody>
-    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd">${SV_MINUS}\u221e</td><td>${valOpt('sv-extrx')}</td><td class="bnd">+\u221e</td></tr>
-    <tr><td class="lab">Signe de ${fpn}</td><td>${signOpt('sv-dl')}</td><td class="sv-zero">0</td><td>${signOpt('sv-dr')}</td></tr>
+  <table class="sv-tbl s1-tbl"><tbody>
+    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd s1-bl">${SV_MINUS}\u221e</td><td>${valOpt('sv-extrx')}</td><td class="bnd s1-br">+\u221e</td></tr>
+    <tr><td class="lab">Signe de ${fpn}</td><td>${signOpt('sv-dl')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${signOpt('sv-dr')}</td></tr>
     <tr><td class="lab">Variation de ${fn}</td><td>${arrowOpt('sv-al')}</td><td class="bnd"><span class="sv-mid-dot"></span></td><td>${arrowOpt('sv-ar')}</td></tr>
   </tbody></table>`;
 }
@@ -3202,15 +3400,18 @@ async function renderDevoirResultats(){
     const dmRes=(res||[]).filter(r=>!isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm===dev.id);
     const k=(eid,tid,m)=>eid+'|'+tid+'|'+m;
     const best={}; dmRes.forEach(r=>{ const key=k(r.eleve_id,testIdOf(r),modeOf(r)); if(!best[key]||r.percent>best[key].percent) best[key]=r; });
-    const total=exos.reduce((n,ex)=>n+(ex.modes||[]).length,0);
+    const totMax=exos.length*10;
     box.innerHTML=eleves.map(e=>{
-      let fait=0;
-      const cells=exos.map(ex=>(ex.modes||[]).map(m=>{
-        const r=best[k(e.id,ex.id,m)]; const mlbl=m==='train'?'Entraînement':'Soutien';
-        if(r){ fait++; return `<span class="dm-cell done">${esc(testNum(ex.id))} · ${mlbl} <b>${r.score}/${r.total}</b></span>`; }
-        return `<span class="dm-cell todo">${esc(testNum(ex.id))} · ${mlbl} — à faire</span>`;
-      }).join('')).join('');
-      return `<div class="dm-rescard"><div class="dm-resname">${esc(e.prenom)} <span class="dm-prog">${fait}/${total}</span></div><div class="dm-cells">${cells}</div></div>`;
+      let somme=0, faitQqch=false;
+      const rows=exos.map(ex=>{
+        const bs=best[k(e.id,ex.id,'soutien')], be=best[k(e.id,ex.id,'train')];
+        const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) faitQqch=true;
+        const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
+        const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
+        return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
+      }).join('');
+      const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
+      return `<div class="dm-rescard"><div class="dm-resname">${esc(e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
   }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
