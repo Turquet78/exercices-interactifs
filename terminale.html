@@ -3191,6 +3191,34 @@ function teacherTab(name){
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
 function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }
+/* Notes /10 de la classe pour un test : note officielle par élève
+   (meilleur soutien = 5 pts max ; meilleur entraînement/évaluation = 10 pts max ; on garde la plus haute). */
+function notesClassePanel(eleves, resAll, id){
+  const allU=(resAll||[]).filter(r=>!isPaused(r));
+  const rows=(eleves||[]).map(e=>{
+    let bs=null, be=null;
+    allU.forEach(r=>{ if(r.eleve_id!==e.id || testIdOf(r)!==id) return; const m=modeOf(r);
+      if(m==='soutien'){ if(!bs||r.percent>bs.percent) bs=r; } else { if(!be||r.percent>be.percent) be=r; } });
+    return { prenom:e.prenom, nd:noteDevoirExo(bs,be), bs, be };
+  });
+  const done=rows.filter(r=>r.nd.fait);
+  const avg=done.length? done.reduce((s,r)=>s+r.nd.note,0)/done.length : null;
+  const trs=rows.map(r=>{
+    const note=r.nd.fait?`<span class="badge ${pctClass(Math.round(r.nd.note*10))}">${fmtNote(r.nd.note)} / 10</span>`:`<span class="badge">\u2014 / 10</span>`;
+    const det=r.nd.fait
+      ? `${r.be?('entr./\u00e9val '+r.be.percent+'\u2009%'):''}${(r.be&&r.bs)?' \u00b7 ':''}${r.bs?('soutien '+r.bs.percent+'\u2009%'):''}`
+      : 'pas encore fait';
+    return `<tr><td class="name">${esc(r.prenom)}</td><td>${note}</td><td class="muted" style="font-size:.82rem">${det}</td></tr>`;
+  }).join('');
+  return `<div class="panel">
+    <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Notes /10 de la classe</h3>
+      <button class="btn-link" onclick="setTeacherFilter('all')">\u2190 Tous les tests</button></div>
+    <div class="row" style="gap:10px;margin:2px 0 8px;flex-wrap:wrap"><span style="font-weight:700">${esc(testLabel(id))}</span>
+      <span class="badge ${avg===null?'':pctClass(Math.round(avg*10))}">${avg===null?'Moyenne : \u2014':('Moyenne classe : '+fmtNote(avg)+' / 10')}</span></div>
+    <p class="note" style="margin:0 0 10px">Note officielle : meilleur soutien (5 pts max) ou meilleur entra\u00eenement/\u00e9valuation (10 pts max), la plus haute des deux.</p>
+    <table class="tbl"><thead><tr><th>\u00c9l\u00e8ve</th><th>Note</th><th>D\u00e9tail</th></tr></thead><tbody>${trs}</tbody></table>
+  </div>`;
+}
 async function renderClassTable(){
   const wrap=$('classTableWrap'); wrap.innerHTML='<p class="muted">Chargement…</p>';
   $('testBreakdown').innerHTML=''; $('testFilter').innerHTML='';
@@ -3216,11 +3244,13 @@ async function renderClassTable(){
       const right = isSout
         ? `<span class="badge ${list.length?'mid':''}">${list.length?fmtDurLong(sumDur(list)):'—'}</span>`
         : (()=>{ const avg=list.length?Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length):null; return `<span class="badge ${avg===null?'':pctClass(avg)}">${avg===null?'—':avg+' %'}</span>`; })();
-      return `<li><span style="font-weight:700">${esc(testLabel(id))}</span>
+      return `<li class="clickable" onclick="setTeacherFilter('${id}')" style="cursor:pointer" title="Voir les notes /10 de la classe pour ce test"><span style="font-weight:700">${esc(testLabel(id))}</span>
         <span class="sc">${list.length} ${noun}${list.length>1?'s':''}</span>${right}</li>`;
     }).join('');
     const bdTitle=isEval?'Vue d\'ensemble par test':(isSout?'Temps de soutien par test':'Entraînements par test');
-    $('testBreakdown').innerHTML=`<div class="panel"><h3>${bdTitle}</h3><ul class="histlist">${bd}</ul></div>`;
+    $('testBreakdown').innerHTML = (teacherFilter==='all')
+      ? `<div class="panel"><h3>${bdTitle}</h3><p class="note" style="margin:-2px 0 10px">Clique sur un test pour voir les notes /10 de la classe.</p><ul class="histlist">${bd}</ul></div>`
+      : notesClassePanel(eleves, resAll, teacherFilter);
 
     // filtre par test
     const chips=[{id:'all',name:'Tous les tests'}].concat(TEST_ORDER.map(id=>({id,name:testLabel(id)})));
@@ -3475,18 +3505,41 @@ async function renderDevoirResultats(){
     const k=(eid,tid,m)=>eid+'|'+tid+'|'+m;
     const best={}; dmRes.forEach(r=>{ const key=k(r.eleve_id,testIdOf(r),modeOf(r)); if(!best[key]||r.percent>best[key].percent) best[key]=r; });
     const totMax=exos.length*10;
-    box.innerHTML=eleves.map(e=>{
-      let somme=0, faitQqch=false;
-      const rows=exos.map(ex=>{
+    // synthèse par élève (note du devoir + nombre d'exercices faits)
+    const synth=eleves.map(e=>{
+      let somme=0, nbFait=0;
+      const exd=exos.map(ex=>{
         const bs=best[k(e.id,ex.id,'soutien')], be=best[k(e.id,ex.id,'train')];
-        const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) faitQqch=true;
+        const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) nbFait++;
+        return {ex,nd,bs,be};
+      });
+      return {e,somme,nbFait,exd,fait:nbFait>0};
+    });
+    const actifs=synth.filter(x=>x.fait);
+    const moy=actifs.length? actifs.reduce((a,x)=>a+x.somme,0)/actifs.length : null;
+    // 1) Bilan de la classe (tableau récapitulatif par élève)
+    const bilanRows=synth.map(x=>{
+      const nb=x.fait?`<span class="dm-note">${fmtNote(x.somme)} / ${totMax}</span>`:`<span class="dm-note none">— / ${totMax}</span>`;
+      const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
+      return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
+    }).join('');
+    const bilan=`<div class="panel">
+      <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
+        <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(moy)+' / '+totMax)}</span></div>
+      <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5). « Exercices faits » = nombre d'exercices commencés sur ${exos.length}.</p>
+      <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
+    </div>`;
+    // 2) Détail par élève
+    const cards=synth.map(x=>{
+      const rows=x.exd.map(({ex,nd,bs,be})=>{
         const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
         const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
       }).join('');
-      const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
-      return `<div class="dm-rescard"><div class="dm-resname">${esc(e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
+      const totLbl=x.fait?`Note : ${fmtNote(x.somme)} / ${totMax}`:`Note : — / ${totMax}`;
+      return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
+    box.innerHTML=bilan+'<div class="set-h">Détail par élève</div>'+cards;
   }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
 
