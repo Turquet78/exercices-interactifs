@@ -1,0 +1,1890 @@
+<!-- Calcul mental — version "comptes à l'année" (base de données Supabase). -->
+<!-- ========================================================================= -->
+<!--  ⚙️  À CONFIGURER : remplace les 3 valeurs ci-dessous (voir le guide).     -->
+<!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
+<!-- ========================================================================= -->
+<script>
+  const SUPABASE_URL      = "https://VOTRE-PROJET.supabase.co";   // ← ton URL de projet (nouveau projet Supabase seconde)
+  const SUPABASE_ANON_KEY = "VOTRE-CLE-ANON-PUBLIC";              // ← ta clé "anon public"
+  const MOT_DE_PASSE_PROF = "2709";                          // ← le mot de passe de ton tableau de bord
+</script>
+<!-- ========================================================================= -->
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maths Seconde — comptes de la classe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{
+    --paper:#F7F6F1; --grid:#CBD8EC; --ink:#1E2A4A; --ink-soft:#5C668A;
+    --blue:#2B50C8; --blue-dark:#1E3CA0;
+    --green:#1FA971; --green-soft:#E4F5EE;
+    --red:#E23D52; --red-soft:#FCE7EA;
+    --gold:#F2A93B;
+    --slate:#2E4039; --slate-2:#26352D; --chalk:#F4F3EC; --chalk-soft:#AFC0B5;
+    --line:#E6E3D8; --surface:#FFFFFF;
+    --radius:20px;
+    --shadow:0 14px 34px rgba(30,42,74,.10), 0 3px 10px rgba(30,42,74,.06);
+    --shadow-sm:0 4px 14px rgba(30,42,74,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink); background-color:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:28px 28px; background-position:-1px -1px;
+    -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
+
+  .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
+  .mast h1{font-family:"Fredoka";font-weight:600;font-size:1.35rem;margin:0;letter-spacing:.2px}
+  .mast .sub{margin:0;color:var(--ink-soft);font-size:.86rem;font-weight:600}
+  .mast .spacer{flex:1}
+  .pill{font-family:"Fredoka";font-weight:500;font-size:.82rem;color:var(--blue-dark);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;display:inline-flex;align-items:center;gap:8px}
+  .pill button{background:none;border:none;color:var(--ink-soft);cursor:pointer;font:inherit;padding:0 0 0 4px;border-left:1px solid var(--line);margin-left:4px}
+  .pill button:hover{color:var(--red)}
+
+  .screen{display:none;animation:rise .35s ease both}
+  .screen.on{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}
+  h2.title{font-family:"Fredoka";font-weight:600;font-size:1.5rem;margin:0 0 6px}
+  p.lead{color:var(--ink-soft);margin:0 0 22px;font-weight:600}
+  .muted{color:var(--ink-soft);font-weight:600}
+
+  .btn{font-family:"Fredoka";font-weight:600;font-size:1rem;cursor:pointer;border:none;border-radius:14px;padding:13px 22px;transition:transform .12s ease,box-shadow .12s ease,background .15s ease}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 6px 0 var(--blue-dark)}
+  .btn-primary:hover{background:#3158d6}
+  .btn-primary:active{box-shadow:0 2px 0 var(--blue-dark);transform:translateY(3px)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{border-color:#cdd3e0}
+  .btn-link{background:none;border:none;color:var(--blue-dark);font-weight:700;font-family:"Nunito";cursor:pointer;font-size:.92rem;padding:8px}
+  .btn-link:hover{text-decoration:underline}
+  .btn-danger{background:#fff;color:var(--red);border:1.5px solid #f2c6cd}
+  .btn-danger:hover{background:var(--red-soft)}
+  .btn-sm{padding:8px 14px;font-size:.9rem;border-radius:11px}
+  .btn:focus-visible,input:focus-visible,select:focus-visible,.choice:focus-visible,.chip:focus-visible{outline:3px solid #b9c6f5;outline-offset:2px}
+
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+  .choice{text-align:left;cursor:pointer;background:#fff;border:2px solid var(--line);border-radius:18px;padding:22px;transition:transform .14s,border-color .14s,box-shadow .14s;display:flex;flex-direction:column;gap:8px;font:inherit;color:inherit}
+  .choice:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .choice .ic{font-size:30px;line-height:1}
+  .choice .ttl{font-family:"Fredoka";font-weight:600;font-size:1.18rem}
+  .choice .ds{color:var(--ink-soft);font-size:.88rem;font-weight:600}
+  .choice.eleve{border-color:#c9d4f3}.choice.eleve:hover{border-color:var(--blue)}
+  .choice.prof{border-color:#cfe6db}.choice.prof:hover{border-color:var(--green)}
+  .choice.rattrapage{border-color:#f1d199}.choice.rattrapage:hover{border-color:#d98f2a}
+  /* Regroupement par thèmes (menu élève) */
+  .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
+  .theme-block{display:flex;flex-direction:column;gap:14px}
+  .theme-head{display:flex;align-items:baseline;gap:11px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+  .theme-num{font-family:"Fredoka";font-weight:600;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
+  .theme-name{font-family:"Fredoka";font-weight:600;font-size:1.4rem;color:var(--ink);line-height:1.1}
+  /* ----- Devoir à la maison (élève) ----- */
+  .dm-panel{border:2px solid var(--blue);background:linear-gradient(180deg,#EEF2FE,#fff);border-radius:18px;padding:18px 20px;margin:6px 0 18px}
+  .dm-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .dm-badge{font-family:"Fredoka";font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
+  .dm-title{font-family:"Fredoka";font-weight:600;font-size:1.3rem;color:var(--ink);margin:0}
+  .dm-cours{color:var(--ink);font-weight:600;font-size:.95rem;line-height:1.55;background:#fff;border:1.5px solid #d8e0fb;border-radius:12px;padding:13px 15px;margin:13px 0 0}
+  .dm-tasks{display:grid;gap:10px;margin-top:13px}
+  .dm-task{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .dm-task-h{display:flex;align-items:center;gap:10px;min-width:0}
+  .dm-task-ic{font-size:22px;line-height:1}
+  .dm-task-name{font-family:"Fredoka";font-weight:600;font-size:1.05rem;color:var(--ink)}
+  .dm-task-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .dm-go{font-family:"Fredoka";font-weight:600;font-size:.92rem;cursor:pointer;border:1.5px solid var(--blue);color:var(--blue);background:#fff;border-radius:999px;padding:8px 15px}
+  .dm-go:hover{background:var(--blue);color:#fff}
+  .dm-go.ok{border-color:var(--green);color:#fff;background:var(--green)}
+  .dm-go.ok:hover{background:var(--green)}
+  /* Badge bilan sur les cartes d'exercice + liste des devoirs (élève) */
+  .ex-bilan{align-self:flex-start;margin-top:4px;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px}
+  .ex-bilan.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .ex-bilan.todo{color:var(--ink-soft);background:var(--paper);border:1px solid var(--line)}
+  .notes-modal{position:fixed;inset:0;background:rgba(20,26,44,.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:18px}
+  .notes-modal[hidden]{display:none}
+  .notes-card{max-width:460px;width:100%;max-height:82vh;overflow:auto}
+  .notes-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .notes-head h3{margin:0;font-family:"Fredoka",sans-serif;font-size:1.15rem;color:var(--ink)}
+  .prog-total{padding:2px 0}
+  .prog-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .prog-pts{font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.5rem;color:var(--ink)}
+  .prog-max{font-size:.9rem;font-weight:600;color:var(--ink-soft)}
+  .prog-pct{font-family:"Fredoka",sans-serif;font-weight:600;font-size:1.05rem;color:var(--blue)}
+  .prog-track{height:14px;background:rgba(30,42,74,.09);border-radius:999px;overflow:hidden}
+  .prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:999px;transition:width .4s}
+  .prog-sub{margin-top:7px;font-size:.82rem;color:var(--ink-soft)}
+  .dl-card{width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;background:#fff;border:2px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;transition:transform .14s,border-color .14s,box-shadow .14s}
+  .dl-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--blue)}
+  .dl-card.last{border-color:var(--blue);background:linear-gradient(180deg,#EEF2FE,#fff)}
+  .dl-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .dl-prog{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--ink-soft)}
+  .dl-title{font-family:"Fredoka";font-weight:600;font-size:1.12rem}
+  .dl-exos{display:flex;flex-direction:column;gap:8px}
+  .dl-ex{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:9px 12px}
+  .dl-ex-name{font-weight:700;font-size:.92rem}
+  .dl-ex-cells{display:flex;gap:6px;flex-wrap:wrap}
+  .dm-cell{font-size:.76rem;font-weight:700;padding:2px 9px;border-radius:999px}
+  .dm-cell.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.todo{color:var(--ink-soft);background:#fff;border:1px solid var(--line)}
+  .dl-go{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--blue);align-self:flex-end}
+  .dl-list{display:flex;flex-direction:column;gap:14px}
+  .dm-switch{display:inline-flex;align-items:center;gap:9px;font-weight:700;cursor:pointer;font-size:.98rem}
+  .dm-switch input{width:18px;height:18px}
+  textarea.dm-area{width:100%;font-family:"Nunito";font-weight:600;font-size:1rem;line-height:1.5;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;resize:vertical}
+  .dm-exo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:9px}
+  .dm-exo-name{font-family:"Fredoka";font-weight:600;flex:1;min-width:150px}
+  .dm-mode{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;color:var(--ink-soft);cursor:pointer}
+  .dm-mode input{width:16px;height:16px}
+  .dm-rescard{border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:10px}
+  .dm-resname{font-family:"Fredoka";font-weight:600;font-size:1.05rem;display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .dm-prog{font-size:.8rem;font-weight:700;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);padding:2px 9px;border-radius:999px}
+  .dm-cells{display:flex;flex-wrap:wrap;gap:8px}
+  .dm-cell{font-size:.86rem;font-weight:600;border-radius:9px;padding:6px 11px}
+  .dm-cell.done{color:#157a52;background:var(--green-soft);border:1px solid #b6e6d2}
+  .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
+  .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
+  .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  .dm-exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 0;border-top:1px dashed var(--line)}
+  .dm-exrow:first-child{border-top:none;padding-top:1px}
+  .dm-exname{font-weight:700;font-size:.9rem;color:var(--ink)}
+  .dm-exdetail{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .dm-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .dm-tab{font-family:"Fredoka";font-weight:600;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:8px 15px;color:var(--ink-soft);font-size:.92rem}
+  .dm-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .dm-tab:hover:not(.on){border-color:#cdd3e0;color:var(--ink)}
+  .dm-tab.add{border-style:dashed;color:var(--blue)}
+  .dm-numrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 2px}
+
+  .field{margin:0 0 14px}
+  label.lab{display:block;font-weight:700;margin:0 0 7px;font-size:.95rem}
+  .text-input{width:100%;font-family:"Fredoka";font-weight:500;font-size:1.15rem;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .note{color:var(--ink-soft);font-size:.85rem;font-weight:600;margin-top:10px}
+
+  .seg{display:inline-flex;background:#f0eee5;border-radius:12px;padding:4px;margin-bottom:18px;gap:4px}
+  .seg button{font-family:"Fredoka";font-weight:500;border:none;background:none;cursor:pointer;padding:8px 16px;border-radius:9px;color:var(--ink-soft)}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm)}
+  #modeSeg{display:flex;flex-wrap:wrap;max-width:100%}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+  .chip{font-family:"Fredoka";font-weight:500;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;font-size:1rem;color:var(--ink)}
+  .chip:hover{border-color:#cdd3e0}
+  .chip.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .pin-input{width:170px;text-align:center;letter-spacing:.4em;font-family:"Fredoka";font-weight:600;font-size:1.5rem;border:1.5px solid var(--line);border-radius:13px;padding:11px 12px;background:#fff;color:var(--ink)}
+
+  .hello{font-family:"Fredoka";font-weight:600;font-size:1.7rem;margin:0 0 2px}
+  .stats{display:flex;gap:12px;margin:16px 0;flex-wrap:wrap}
+  .stat{flex:1;min-width:110px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat .k{color:var(--ink-soft);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.4px}
+  .stat .v{font-family:"Fredoka";font-weight:700;font-size:1.7rem;line-height:1.1;margin-top:4px}
+  .stat.green .v{color:var(--green)} .stat.gold .v{color:var(--gold)} .stat.blue .v{color:var(--blue)}
+
+  .panel{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}
+  .panel h3{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:0 0 10px}
+  .chart{width:100%;height:auto;display:block}
+
+  .histlist{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+  .histlist li{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:11px;padding:9px 13px;font-weight:600;font-size:.95rem}
+  .histlist li .d{color:var(--ink-soft)}
+  .histlist li .sc{margin-left:auto;font-family:"Fredoka";font-weight:600}
+  .badge{display:inline-block;font-family:"Fredoka";font-weight:600;font-size:.85rem;padding:3px 10px;border-radius:999px}
+  .badge.hi{background:var(--green-soft);color:#157a52}
+  .badge.mid{background:#fdf3e0;color:#b9791b}
+  .badge.lo{background:var(--red-soft);color:#bf2c3e}
+
+  .test-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-family:"Fredoka";font-weight:500}
+  .test-top .q-idx{color:var(--ink-soft)}
+  .score-tag{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px}
+  .score-tag b{color:var(--green);font-weight:700}
+  .ardoise{position:relative;border-radius:18px;padding:38px 24px;text-align:center;background:radial-gradient(120% 120% at 30% 20%,#36493f 0%,var(--slate) 55%,var(--slate-2) 100%);box-shadow:inset 0 0 0 7px rgba(244,243,236,.10),inset 0 0 0 9px rgba(0,0,0,.25),var(--shadow);border:2px solid #1c2a23}
+  .ardoise .equation{font-family:"Fredoka";font-weight:500;color:var(--chalk);font-size:clamp(2.4rem,9vw,4.4rem);letter-spacing:2px;text-shadow:0 1px 0 rgba(0,0,0,.3)}
+  .ardoise .equation .blank{color:var(--chalk-soft)}
+  .answer-zone{position:relative;margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  .answer-input{width:min(260px,80%);text-align:center;font-family:"Fredoka";font-weight:600;font-size:2.4rem;color:var(--ink);background:transparent;border:none;border-bottom:3px solid var(--blue);padding:6px 8px 10px;caret-color:var(--blue)}
+  .answer-input::placeholder{color:#c2c7d6}
+  .answer-input:focus{outline:none;border-bottom-color:var(--blue-dark)}
+  .answer-input.good{border-bottom-color:var(--green);color:var(--green)}
+  .answer-input.bad{border-bottom-color:var(--red);color:var(--red)}
+  .mark{position:absolute;top:-6px;right:max(8%,18px);font-family:"Fredoka";font-weight:700;font-size:3.2rem;opacity:0;pointer-events:none}
+  .mark.show{animation:stamp .45s cubic-bezier(.2,1.4,.4,1) forwards}
+  .mark.good{color:var(--green)}.mark.bad{color:var(--red)}
+  @keyframes stamp{0%{opacity:0;transform:scale(.4) rotate(-18deg)}60%{opacity:1;transform:scale(1.15) rotate(-8deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+  .correction{min-height:26px;font-weight:700;color:var(--red);text-align:center}
+  .timerbar{height:8px;width:min(260px,80%);background:#eceadf;border-radius:999px;overflow:hidden;margin:2px auto 0}
+  .timerbar>i{display:block;height:100%;background:var(--gold);border-radius:999px;transition:width .25s linear}
+  .timerbar.low>i{background:var(--red)}
+
+  .result-head{text-align:center;margin-bottom:18px}
+  .result-head h2{font-family:"Fredoka";font-weight:600;font-size:1.7rem;margin:0 0 4px}
+  .result-head p{margin:0;color:var(--ink-soft);font-weight:600}
+  .score-circle{position:relative;width:170px;height:130px;margin:8px auto 4px}
+  .score-circle svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .score-circle .ring{fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round;stroke-dasharray:430;stroke-dashoffset:430;animation:draw 1s ease .25s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .score-circle .val{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .score-circle .big{font-family:"Fredoka";font-weight:700;font-size:2.6rem;line-height:1}
+  .score-circle .pct{color:var(--ink-soft);font-weight:700;font-size:.95rem;margin-top:2px}
+  .review{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:8px}
+  .review li{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;font-family:"Fredoka";font-weight:500}
+  .review li .rmark{font-weight:700;font-size:1.2rem;width:22px;text-align:center;flex:none}
+  .review li.ok .rmark{color:var(--green)}.review li.ko .rmark{color:var(--red)}
+  .review li .exp{font-size:1.05rem}
+  .review li .fix{margin-left:auto;color:var(--red);font-weight:600;font-size:.92rem;font-family:"Nunito"}
+
+  .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  .tab{font-family:"Fredoka";font-weight:500;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:9px 18px;color:var(--ink-soft);font-size:.95rem}
+  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tab:hover:not(.on){border-color:#cdd3e0;color:var(--ink)}
+  .tpane{display:none}.tpane.on{display:block}
+  .tbl{width:100%;border-collapse:collapse;background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+  .tbl th,.tbl td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);font-size:.95rem}
+  .tbl th{font-family:"Fredoka";font-weight:500;color:var(--ink-soft);background:#fbfaf6;font-size:.8rem;text-transform:uppercase;letter-spacing:.3px}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tr.clickable{cursor:pointer}.tbl tr.clickable:hover td{background:#fbfaf6}
+  .tbl td.name{font-weight:700}
+  .empty{text-align:center;color:var(--ink-soft);font-weight:600;padding:34px 10px;background:#fff;border:1.5px dashed var(--line);border-radius:14px}
+  .toggles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 18px}
+  .toggle{display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:12px 14px;cursor:pointer}
+  .toggle input{width:20px;height:20px;accent-color:var(--blue);cursor:pointer}
+  .toggle .tl{font-family:"Fredoka";font-weight:500}
+  .toggle .op{display:inline-block;width:26px;color:var(--blue);font-weight:700;font-family:"Fredoka";text-align:center}
+  .setrow{display:grid;grid-template-columns:1fr 150px;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .setrow:last-of-type{border-bottom:none}
+  .setrow label{font-weight:700}
+  .setrow .hint{display:block;color:var(--ink-soft);font-weight:600;font-size:.82rem;margin-top:2px}
+  select{font-family:"Fredoka";font-weight:500;font-size:1rem;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;background:#fff;color:var(--ink);width:100%}
+  .saved{color:var(--green);font-weight:700;font-size:.9rem;opacity:0;transition:opacity .2s}.saved.show{opacity:1}
+  .roster{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}
+  .roster li{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;flex-wrap:wrap}
+  .roster li .av{width:32px;height:32px;border-radius:50%;background:#e9eefb;color:var(--blue-dark);display:grid;place-items:center;font-family:"Fredoka";font-weight:600;flex:none}
+  .roster li .nm{font-weight:700}
+  .roster li .code{font-family:"Fredoka";color:var(--ink-soft);font-size:.9rem;background:#f4f3ec;padding:2px 9px;border-radius:8px}
+  .roster li .acts{margin-left:auto;display:flex;gap:6px}
+  .add-form{display:grid;grid-template-columns:1fr 130px auto;gap:10px;margin-bottom:16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+
+  .setup-steps{counter-reset:s;list-style:none;padding:0;margin:8px 0 0;display:grid;gap:12px}
+  .setup-steps li{position:relative;padding-left:42px;font-weight:600}
+  .setup-steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:-2px;width:28px;height:28px;background:var(--blue);color:#fff;border-radius:50%;display:grid;place-items:center;font-family:"Fredoka";font-weight:600}
+  code.inline{background:#f4f3ec;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90vw;text-align:center;z-index:50}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.err{background:var(--red)} #toast.ok{background:var(--green)}
+
+  @media (max-width:560px){
+    .choices{grid-template-columns:1fr}
+    .toggles{grid-template-columns:1fr}
+    .setrow{grid-template-columns:1fr 120px}
+    .add-form{grid-template-columns:1fr 1fr}
+    .card{padding:20px}
+    .tbl th:nth-child(4),.tbl td:nth-child(4){display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
+
+  /* ===== Test 2 : multiplication posée ===== */
+  .mp-instr{font-weight:700;text-align:center;margin:0 0 16px;font-size:.98rem}
+  .mp-instr b{color:var(--red)}
+  .mp-stage{display:flex;justify-content:center;padding:22px 8px 14px;border-radius:18px;border:1.5px solid var(--line);
+    background-color:#fff;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:30px 30px;background-position:-1px -1px}
+  .mp-op{display:flex;flex-direction:column;align-items:flex-end}
+  .mp-row,.mp-lrow{display:flex;align-items:center}
+  .mp-cl{width:52px;height:52px;display:flex;align-items:center;justify-content:center;position:relative}
+  .mp-cl.op{width:34px}
+  .mp-digit{font-family:"Fredoka";font-weight:500;font-size:2rem;color:var(--ink)}
+  .mp-sign{font-family:"Fredoka";font-weight:500;font-size:1.8rem;color:var(--ink)}
+  .mp-line{height:4px;width:156px;background:var(--ink);border-radius:3px;margin:5px 0}
+  .mp-box{width:44px;height:44px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--blue-dark);
+    background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none;padding:0;-moz-appearance:textfield}
+  .mp-box::-webkit-outer-spin-button,.mp-box::-webkit-inner-spin-button,.mp-carry::-webkit-outer-spin-button,.mp-carry::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .mp-box:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .mp-carry{width:32px;height:32px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--red);
+    background:var(--red-soft);border:2px dashed #f0b3bb;border-radius:9px;outline:none;padding:0;-moz-appearance:textfield}
+  .mp-carry:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(226,61,82,.16)}
+  .mp-box.ok,.mp-carry.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
+  .mp-box.bad,.mp-carry.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb;border-style:solid}
+  .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
+  .mp-tag.ok{background:var(--green)}.mp-tag.bad{background:var(--red)}
+  .mp-fix{position:absolute;bottom:-15px;left:0;right:0;text-align:center;font-family:"Fredoka";font-weight:600;font-size:.8rem;color:var(--green)}
+  .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
+  .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
+  .set-h{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:20px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+  .set-h.first{border-top:none;padding-top:0;margin-top:2px}
+
+  /* ===== Test 3 : fractions décimales ===== */
+  .f-wrap{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:6px 0}
+  .f-eq{font-family:"Fredoka";font-weight:500;font-size:2rem;color:var(--ink)}
+  .f-times{font-family:"Fredoka";font-weight:500;font-size:1.7rem;color:var(--ink);margin:0 2px}
+  .f-whole,.f-dec-q{font-family:"Fredoka";font-weight:500;font-size:2rem;color:var(--ink)}
+  .fr{display:inline-flex;flex-direction:column;align-items:center;line-height:1}
+  .fr .fn,.fr .fd{font-family:"Fredoka";font-weight:500;font-size:1.7rem;color:var(--ink);padding:1px 9px}
+  .fr .fb{height:3px;align-self:stretch;background:var(--ink);border-radius:2px;margin:3px 0}
+  .f-dec{width:120px;height:50px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.6rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none}
+  .f-dec:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .f-frac-input{display:inline-flex;flex-direction:column;align-items:center;gap:5px}
+  .f-num,.f-den{width:76px;height:46px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none}
+  .f-num:focus,.f-den:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .f-fbar{width:82px;height:3px;background:var(--ink);border-radius:2px}
+  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .f-dec.bad,.f-num.bad,.f-den.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  /* Niveau 5 : multiplication de décimaux, 2 étapes */
+  .f5{display:flex;flex-direction:column;gap:16px;width:100%;align-items:center}
+  .f5-prod{font-family:"Fredoka";font-weight:600;font-size:2rem;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .f5-step{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
+  .f5-lab{font-family:"Nunito";font-weight:700;font-size:.95rem;color:var(--ink-soft);text-align:center}
+  .f5-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  /* ===== Modes entraînement / évaluation ===== */
+  .mode-tag{font-family:"Fredoka";font-weight:600;font-size:.8rem;padding:4px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
+  .mode-tag.train{color:var(--blue-dark);background:#EAF1FF;border:1.5px solid #c9d8fb}
+  .mode-tag.eval{color:#a8631c;background:#FCEFD8;border:1.5px solid #f1d199}
+  .mode-tag.soutien{color:#1f7a6b;background:#E3F6F1;border:1.5px solid #a9e3d6}
+  #testCtrls{position:fixed;right:16px;bottom:16px;z-index:60;gap:10px;}
+  #testCtrls:not([hidden]){display:flex;}
+  #testCtrls button{border:none;cursor:pointer;font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;
+    padding:11px 16px;border-radius:30px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+  #testCtrls button:active{transform:translateY(1px)}
+  #pauseBtn{background:#5a4632;color:#fff}
+  #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
+  #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
+  .step-hidden{display:none}
+  .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
+  .choice.resume{border-color:#5cc4ad;background:linear-gradient(180deg,#F0FBF8,#fff)}
+  .lock-card{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;flex-wrap:wrap}
+  .lock-card .li{font-family:"Fredoka";font-weight:600;font-size:1.05rem;flex:1;min-width:140px}
+  .lock-card .st{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:4px 11px;border-radius:999px}
+  .lock-card .st.open{color:#157a52;background:var(--green-soft)}
+  .lock-card .st.closed{color:#8a6d12;background:#FCEFD8}
+  .lock-card.open{border-color:#9bdcc1;background:#F4FBF8}
+  .choice.locked{opacity:.6;cursor:not-allowed}
+  .choice.locked:hover{transform:none;box-shadow:none;border-color:var(--line)}
+  .choice .lockmsg{font-size:.82rem;color:#a8631c;font-weight:700;margin-top:2px}
+
+  /* ===== Test 4 : pourcentage d'un nombre (3 étapes) ===== */
+  .pt-step{width:100%;margin:4px 0 16px}
+  .pt-lab{font-family:"Nunito";font-weight:800;font-size:.9rem;color:var(--ink-soft);margin-bottom:9px;text-align:center}
+  .pt-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+  .pt-opt{position:relative;border:2px dashed #c2cdf2;background:#fafbff;border-radius:16px;padding:30px 14px 14px;margin:6px 0 18px}
+  .pt-opt .pt-lab{margin-top:2px}
+  .pt-opt::before{content:"✦ Facultatif";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Fredoka";font-weight:600;font-size:.74rem;color:var(--blue-dark);background:#fff;border:1.5px solid #c2cdf2;border-radius:999px;padding:3px 13px;white-space:nowrap}
+  /* étape 2 du test « nombres en 1,… » : pose compacte (tient en 3×3 sur mobile) */
+  .u-mul .mp-cl{width:38px;height:40px}
+  .u-mul .mp-cl.op{width:24px}
+  .u-mul .mp-digit{font-size:1.55rem}
+  .u-mul .mp-sign{font-size:1.4rem}
+  .u-mul .mp-box{width:32px;height:36px;font-size:1.35rem;border-radius:8px}
+  .u-mul .mp-carry{width:26px;height:28px;font-size:1rem;border-radius:7px}
+  .u-mul .mp-tag{width:16px;height:16px;font-size:10px;top:-7px}
+  .u-mul .mp-fix{font-size:.68rem;bottom:-13px}
+
+/* --- Aide à la saisie (dérivées) + invite f'(x) --- */
+.equation .ask{display:block;margin-top:10px;font-size:.5em;color:var(--chalk-soft);font-weight:600;letter-spacing:.02em;}
+.expr-help{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:2px 0 10px;}
+.expr-help button{font-family:'Fredoka',sans-serif;font-size:1.05rem;min-width:46px;padding:9px 12px;border:2px solid var(--line);background:var(--surface);border-radius:12px;cursor:pointer;color:var(--ink);font-weight:600;line-height:1;box-shadow:var(--shadow-sm);}
+.expr-help button:active{transform:translateY(1px);}
+.expr-help button.del{color:var(--red);border-color:var(--red-soft);}
+
+/* --- Test TVI : tableau de variation + justification à compléter --- */
+.tvi-card{max-width:560px;margin:0 auto;}
+.tvi-prompt{font-size:1rem;line-height:1.5;color:var(--ink);background:var(--green-soft);border-radius:14px;padding:12px 14px;margin:0 0 14px;}
+.tvi-table{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px 6px;margin:0 0 16px;overflow-x:auto;}
+.tvi-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
+.tvi-t{font-family:'Nunito',sans-serif;font-size:14px;fill:var(--ink);}
+.tvi-it{font-style:italic;}
+.tvi-vr{font-size:12px;fill:var(--ink-soft);}
+.tvi-al{font-weight:800;}
+.tvi-v{font-weight:600;}
+.tvi-k{font-weight:700;fill:var(--blue);}
+.tvi-instr{font-weight:700;color:var(--ink);margin:0 0 8px;}
+.tvi-fill{font-size:1.04rem;line-height:2.1;color:var(--ink);}
+.tvi-fill b{color:var(--blue-dark);}
+.tvi-fill i{font-style:italic;}
+.tvi-int{white-space:nowrap;}
+.tvi-sel{width:auto;max-width:100%;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235C668A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-size:9px 6px;border:2px solid var(--grid);border-radius:9px;padding:4px 21px 4px 8px;margin:0 1px;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.tvi-sel.ok{border-color:var(--green);background-color:var(--green-soft);color:var(--green);}
+.tvi-sel.bad{border-color:var(--red);background-color:var(--red-soft);color:var(--red);}
+.tvi-sel:disabled{opacity:1;}
+
+/* --- Test TVI rédigé : zone de saisie + analyse de la justification --- */
+.tvi-textarea{width:100%;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:1rem;line-height:1.55;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:12px;padding:12px 14px;resize:vertical;min-height:118px;}
+.tvi-textarea:focus{outline:none;border-color:var(--blue);background:var(--surface);}
+.tvi-check{margin:14px 0 4px;display:flex;flex-direction:column;gap:6px;}
+.just-item{font-size:.93rem;line-height:1.35;display:flex;gap:9px;align-items:flex-start;}
+.just-item span{font-weight:800;flex:none;}
+.just-item.ok{color:var(--green);}
+.just-item.no{color:var(--ink-soft);}
+.just-item.miss{color:var(--red);}
+.tvi-model{margin-top:9px;padding:11px 13px;background:var(--surface);border-left:3px solid var(--green);border-radius:8px;font-size:.95rem;line-height:1.55;color:var(--ink);font-weight:600;}
+
+
+/* --- Test dérivée exponentielle : étapes u/v + facteur factorisé --- */
+.dexp-body{font-size:1.05rem;color:var(--ink);line-height:1.9;}
+.dexp-pose{font-weight:700;margin:2px 0 10px;}
+.dexp-hint{font-weight:600;font-size:.82rem;color:var(--ink-soft);}
+.dexp-row{display:flex;flex-wrap:wrap;gap:14px 28px;margin:0 0 14px;}
+.dexp-row>span{display:inline-flex;align-items:center;gap:6px;}
+.dexp-row span.dexp-ce{display:inline-block;gap:0;}
+.dexp-row i,.dexp-formula i,.dexp-fac i{font-style:italic;}
+.dexp-formula{margin:14px 0 6px;padding:10px 12px;background:var(--paper);border-radius:10px;font-size:1.02rem;color:var(--ink-soft);text-align:center;}
+.dexp-fac{margin:12px 0 2px;line-height:2.4;}
+.dexp-steprow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:4px 0;font-size:1.05rem;}
+.dexp-steprow .eq{font-weight:700;margin-right:2px;}
+.dexp-steprow .op{font-weight:700;color:var(--ink-soft);}
+.dexp-stepfac{margin-top:4px;}
+.dexp-pwrap{display:inline-flex;align-items:center;gap:1px;}
+.dexp-pwrap .par{display:none;font-weight:700;font-size:1.3rem;color:var(--ink-soft);}
+.dexp-pwrap.show-paren .par{display:inline-block;}
+.dexp-fac sup,.tvi-prompt sup{font-size:.7em;}
+.dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
+.dexp-hint sup{font-size:.7em;}
+/* Champs : input simple (u, u', facteur) + champ éditable avec exposant surélevé (v, v') */
+.dexp-in{display:inline-block;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:9px;padding:6px 10px;text-align:center;vertical-align:middle;}
+.dexp-ce{display:inline-block;min-width:96px;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:9px;padding:6px 10px;min-height:1.5em;vertical-align:middle;line-height:1.4;}
+.dexp-ce sup{font-size:.72em;vertical-align:super;line-height:0;}
+.dexp-ek{display:inline-block;font-weight:700;}
+.dexp-ek sup{font-size:.72em;vertical-align:super;line-height:0;}
+.dexp-in:focus,.dexp-ce:focus{outline:none;border-color:var(--blue);background:var(--surface);}
+.dexp-in.ok,.dexp-ce.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.dexp-in.bad,.dexp-ce.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+.dexp-in.sol,.dexp-ce.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
+.dexp-in:disabled{opacity:1;}
+.expr-help{display:flex;gap:8px;margin:10px 0 0;}
+.expr-help button{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:var(--ink);background:var(--surface);border:2px solid var(--grid);border-radius:9px;padding:7px 16px;cursor:pointer;}
+.expr-help button:hover{border-color:var(--blue);}
+.expr-help .sup-btn{color:var(--blue);}
+.expr-help .sup-btn sup{font-size:.62em;}
+.expr-help .del{color:var(--red);}
+
+/* --- Test Signes & variations : lecture graphique + tableaux à compléter --- */
+.sv-card{max-width:560px;margin:0 auto;}
+.sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
+.sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
+.sv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.sv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:16px;fill:var(--green);}
+.sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
+.sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
+.sv-tbl{width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;table-layout:fixed;}
+.sv-tbl td{border:1.5px solid var(--grid);padding:7px 5px;text-align:center;vertical-align:middle;font-size:.95rem;}
+.sv-tbl td.lab{text-align:right;font-weight:700;color:var(--ink);background:var(--paper);white-space:nowrap;width:39%;font-size:.9rem;}
+.sv-tbl td.bnd{font-weight:700;color:var(--ink-soft);}
+.sv-tbl td.sv-zero{font-weight:800;color:var(--ink);}
+.sv-tbl i{font-style:italic;}
+.sv-mid-dot{display:inline-block;width:0;height:20px;border-left:2px dotted var(--ink-soft);vertical-align:middle;}
+.sv-tbl .tvi-sel{font-size:.9rem;max-width:100%;}
+/* ---- Test : équation de tangente ---- */
+.tg-card{max-width:600px;margin:0 auto;}
+.tg-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
+.tg-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
+.tg-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
+.tg-albl{font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;fill:var(--ink);}
+.tg-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
+.tg-tan{fill:none;stroke:var(--ink-soft);stroke-width:1.7;stroke-dasharray:6 4;stroke-linecap:round;}
+.tg-form{font-family:'Nunito',sans-serif;color:var(--ink);font-size:1rem;}
+.tg-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0;font-weight:600;}
+.tg-coef{display:inline-flex;align-items:center;gap:3px;}
+.tg-read{gap:10px 28px;margin-bottom:4px;}
+.tg-eq,.tg-gap{font-weight:700;}
+.tg-form i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.tg-imp{color:var(--ink-soft);font-weight:700;font-size:1.05rem;}
+.tg-sub{font-weight:700;color:var(--ink);margin:14px 0 4px;}
+.tg-in{width:46px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
+.tg-in:focus{outline:none;border-color:var(--green);}
+.tg-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.tg-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+.tg-in:disabled{opacity:1;}
+/* ---- Test : signe du 1er degré ---- */
+.s1-card{max-width:560px;margin:0 auto;}
+.s1-card i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
+.s1-tbl td.lab{width:32%;text-align:center;}
+.s1-tbl td.s1-bl{text-align:left;padding-left:10px;}
+.s1-tbl td.s1-br{text-align:right;padding-right:10px;}
+.s1-res{margin:2px 0 16px;}
+.s1-line{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:7px 0;font-weight:600;font-size:1.05rem;color:var(--ink);}
+.s1-imp{color:var(--ink-soft);font-weight:700;font-size:1.05rem;}
+.s1-eqlbl{font-weight:700;}
+.s1-in{width:66px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
+.s1-in.sm{width:50px;}
+.s1-solve{display:inline-flex;align-items:center;gap:6px;margin-left:22px;}
+.s1-frac-stack{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;gap:3px;}
+.s1-fbar{align-self:stretch;height:2px;background:var(--ink);border-radius:1px;margin:1px 0;}
+.s1-rule{font-weight:600;color:var(--ink);margin:6px 0;line-height:2.1;}
+.s1-place-sel{display:inline-block;width:auto;vertical-align:middle;margin:0 4px;font-size:.92rem;}
+.s1lvl-grid{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+.s1lvl-btn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;font-family:inherit;width:100%;transition:border-color .15s,transform .1s,box-shadow .15s;}
+.s1lvl-btn:hover:not(:disabled){border-color:var(--ink);transform:translateY(-1px);box-shadow:0 4px 14px rgba(30,42,74,.08);}
+.s1lvl-btn b{font-size:1.05rem;color:var(--ink);}
+.s1lvl-btn span{font-size:.85rem;color:var(--ink-soft);}
+.s1lvl-btn:disabled{opacity:.55;cursor:not-allowed;}
+.s2-tbl td.lab{width:24%;}
+.s2-ends{display:flex;justify-content:space-between;align-items:center;padding:0 12px;color:var(--ink-soft);font-weight:700;}
+.s2-hint{color:var(--ink-soft);font-style:italic;background:var(--paper);border:1px dashed var(--grid);border-radius:12px;padding:14px 16px;margin:4px 0;}
+/* ---- Tableaux de signe (1er & 2nd degré) : trait vertical uniquement aux racines (avec le 0 dessus), bornes ±∞ ouvertes ---- */
+.sv-tbl.s1-tbl td{border:none;border-bottom:1.6px solid var(--grid);padding:11px 5px;}
+.sv-tbl.s1-tbl tr:first-child td{border-top:1.6px solid var(--grid);}
+.sv-tbl.s1-tbl td.lab{border-right:1.6px solid var(--grid);}
+.sv-tbl.s1-tbl td.s-rootcol{background:linear-gradient(var(--ink-soft),var(--ink-soft)) center/2px 100% no-repeat;}
+.sv-tbl.s1-tbl td.sv-zero span{display:inline-block;background:var(--surface);padding:2px 7px;}
+.s2-calc{color:var(--ink-soft);font-size:.85rem;margin-left:8px;white-space:nowrap;}
+.s1-in:focus{outline:none;border-color:var(--green);}
+.s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+.s1-in:disabled{opacity:1;}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="logo">ƒ</div>
+    <div>
+      <h1>Maths Seconde</h1>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp21</b></p>
+    </div>
+    <div class="spacer"></div>
+    <span class="pill" id="userPill" hidden></span>
+  </header>
+
+  <!-- À CONFIGURER -->
+  <section class="screen" id="scr-setup">
+    <div class="card">
+      <h2 class="title">Presque prêt — configuration à terminer</h2>
+      <p class="lead">L'application n'est pas encore reliée à ta base de données.</p>
+      <ol class="setup-steps">
+        <li>Crée un compte gratuit sur <code class="inline">supabase.com</code> et un nouveau projet.</li>
+        <li>Dans <b>SQL Editor</b>, colle le contenu du fichier <code class="inline">schema.sql</code> et clique sur <b>Run</b>.</li>
+        <li>Dans <b>Project Settings → API</b>, copie l'<b>URL</b> et la clé <b>anon public</b>.</li>
+        <li>Ouvre ce fichier <code class="inline">.html</code> et colle-les tout en haut, à la place de <code class="inline">VOTRE-PROJET</code> et <code class="inline">VOTRE-CLE-ANON-PUBLIC</code>.</li>
+        <li>Choisis aussi un mot de passe professeur, puis enregistre et rouvre la page.</li>
+      </ol>
+      <p class="note">Le guide pas-à-pas détaillé est fourni à côté de ce fichier.</p>
+    </div>
+  </section>
+
+  <!-- ACCUEIL -->
+  <section class="screen" id="scr-home">
+    <div class="card">
+      <h2 class="title">Bienvenue</h2>
+      <p class="lead">Choisis ton rôle pour commencer.</p>
+      <div class="choices">
+        <button class="choice eleve" onclick="show('login');renderLoginNames()">
+          <span class="ic">✏️</span><span class="ttl">Je suis élève</span>
+          <span class="ds">Je me connecte et je choisis un test.</span>
+        </button>
+        <button class="choice prof" onclick="show('teacher-login');setTimeout(()=>$('teacherPass').focus(),100)">
+          <span class="ic">📋</span><span class="ttl">Je suis le professeur</span>
+          <span class="ds">Je gère les comptes et je suis la progression.</span>
+        </button>
+      </div>
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn btn-ghost" onclick="ouvrirDevoirs()">📌 Devoirs à la maison</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONNEXION ÉLÈVE -->
+  <section class="screen" id="scr-login">
+    <div class="card">
+      <h2 class="title">Espace élève</h2>
+      <div class="seg">
+        <button id="segCo" class="on" onclick="loginMode('co')">Se connecter</button>
+        <button id="segCr" onclick="loginMode('cr')">Créer mon compte</button>
+      </div>
+
+      <div id="modeCo">
+        <label class="lab">Choisis ton prénom</label>
+        <div class="chips" id="nameChips"></div>
+        <div id="pinRow" hidden style="margin-top:14px">
+          <label class="lab" for="loginPin">Ton code à 4 chiffres</label>
+          <div class="row">
+            <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+            <button class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modeCr" hidden>
+        <div class="field">
+          <label class="lab" for="newPrenom">Ton prénom</label>
+          <input class="text-input" id="newPrenom" maxlength="24" placeholder="Ex. : Léa" autocomplete="off">
+        </div>
+        <div class="row" style="align-items:flex-start">
+          <div class="field" style="flex:1;min-width:140px">
+            <label class="lab" for="newPin">Choisis un code (4 chiffres)</label>
+            <input class="text-input" id="newPin" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+          </div>
+          <div class="field" style="flex:1;min-width:140px">
+            <label class="lab" for="newPin2">Retape ton code</label>
+            <input class="text-input" id="newPin2" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="creerCompte()">Créer mon compte</button>
+        <p class="note">Choisis un code facile à retenir. En cas d'oubli, ton professeur peut le réinitialiser.</p>
+      </div>
+
+      <div style="margin-top:16px"><button class="btn-link" onclick="show('home')">Retour</button></div>
+    </div>
+  </section>
+
+  <!-- ESPACE ÉLÈVE -->
+  <section class="screen" id="scr-space">
+    <div class="card">
+      <h2 class="hello" id="spaceHello">Bonjour !</h2>
+      <p class="muted" id="spaceSub">Que veux-tu faire aujourd'hui ?</p>
+      <div class="choices" style="margin-top:16px">
+        <button class="choice eleve" onclick="openThemes()">
+          <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
+          <span class="ds">Tous les thèmes et les exercices, avec ton bilan de travail.</span>
+        </button>
+        <button class="choice prof" onclick="openDevoirsEleve()">
+          <span class="ic">📌</span><span class="ttl">Voir les devoirs à la maison</span>
+          <span class="ds">Le dernier devoir, les exercices à faire et tes résultats.</span>
+        </button>
+        <button class="choice rattrapage" onclick="openRattrapage()">
+          <span class="ic">🎯</span><span class="ttl">Reprendre les exercices à améliorer</span>
+          <span class="ds">Tes 5 tests avec la moins bonne note, à retravailler pour progresser.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHOIX DU TEST -->
+  <section class="screen" id="scr-rattrapage">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">À retravailler</h2>
+        <button class="btn-link" onclick="ouvrirEspace()">← Accueil</button>
+      </div>
+      <p class="lead">Tes 5 tests avec la moins bonne note (on garde la meilleure note obtenue à chaque test). Clique sur un test pour le refaire et améliorer ton score.</p>
+      <div class="theme-list" id="rattrapageList"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-choose">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">Exercices par thème</h2>
+        <button class="btn-link" onclick="ouvrirEspace()">← Accueil</button>
+      </div>
+      <div class="stats">
+        <div class="stat blue"><div class="k">Tests passés</div><div class="v" id="sNb">0</div></div>
+        <div class="stat green"><div class="k">Note moyenne</div><div class="v" id="sAvg">—</div></div>
+        <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
+      </div>
+      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="theme-list" id="testChoices"></div>
+      <div class="panel" style="margin-top:20px">
+        <h3>Ma progression</h3>
+        <div id="spaceChart"></div>
+      </div>
+      <div class="panel">
+        <h3>Mes derniers tests</h3>
+        <ul class="histlist" id="spaceHist"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVOIRS À LA MAISON (élève) -->
+  <div id="notesModal" class="notes-modal" hidden onclick="if(event.target===this)fermerNotes()">
+    <div class="card notes-card">
+      <div class="notes-head">
+        <h3 id="notesTitle">Notes</h3>
+        <button class="btn-link" onclick="fermerNotes()">Fermer</button>
+      </div>
+      <ul class="histlist" id="notesList"></ul>
+    </div>
+  </div>
+
+  <section class="screen" id="scr-devoirs">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" id="devoirsTitle" style="margin:0">Devoirs à la maison</h2>
+        <button class="btn-link" onclick="ouvrirEspace()">← Accueil</button>
+      </div>
+      <div id="devoirsBody"></div>
+    </div>
+  </section>
+
+  <!-- CHOIX DU MODE -->
+  <section class="screen" id="scr-mode">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="modeTitle">Test</h2>
+        <button class="btn-link" onclick="retourChoix()">Retour</button>
+      </div>
+      <p class="lead">Comment veux-tu faire ce test ?</p>
+      <div class="choices" id="modeChoices"></div>
+    </div>
+  </section>
+
+  <!-- TEST -->
+  <!-- Écrans d'exercices : ajoutés ici quand des exercices seront créés. -->
+
+  <section class="screen" id="scr-teacher-login">
+    <div class="card">
+      <h2 class="title">Espace professeur</h2>
+      <p class="lead">Entre le mot de passe pour accéder au tableau de bord.</p>
+      <div class="field">
+        <label class="lab" for="teacherPass">Mot de passe</label>
+        <input class="text-input" id="teacherPass" type="password" autocomplete="off">
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" onclick="teacherLogin()">Entrer</button>
+        <button class="btn-link" onclick="show('home')">Retour</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLEAU DE BORD PROF -->
+  <section class="screen" id="scr-teacher">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">Tableau de bord</h2>
+        <button class="btn-link" onclick="quitToHome()">Quitter</button>
+      </div>
+      <div class="tabs">
+        <button class="tab on" data-tab="results" onclick="teacherTab('results')">Suivi de la classe</button>
+        <button class="tab" data-tab="eval" onclick="teacherTab('eval')">Mode évaluation</button>
+        <button class="tab" data-tab="students" onclick="teacherTab('students')">Comptes élèves</button>
+        <button class="tab" data-tab="settings" onclick="teacherTab('settings')">Réglages des tests</button>
+        <button class="tab" data-tab="devoir" onclick="teacherTab('devoir')">Devoir maison</button>
+      </div>
+
+      <!-- suivi -->
+      <div class="tpane on" id="pane-results">
+        <div class="seg" id="modeSeg" style="margin-bottom:16px">
+          <button id="segEval" class="on" onclick="setTeacherMode('eval')">Évaluations</button>
+          <button id="segTrain" onclick="setTeacherMode('train')">Entraînements</button>
+          <button id="segSoutien" onclick="setTeacherMode('soutien')">Soutien</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Élèves</div><div class="v" id="stCount">0</div></div>
+          <div class="stat"><div class="k" id="stTestsK">Évaluations</div><div class="v" id="stTests">0</div></div>
+          <div class="stat green"><div class="k" id="stAvgK">Moyenne classe</div><div class="v" id="stAvg">—</div></div>
+        </div>
+        <div id="testBreakdown"></div>
+        <div class="chips" id="testFilter" style="margin:6px 0 14px"></div>
+        <div class="row" style="justify-content:space-between;margin-bottom:10px">
+          <span class="muted" style="font-size:.9rem">Clique sur un élève pour voir le détail.</span>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Exporter en CSV</button>
+        </div>
+        <div id="classTableWrap"></div>
+        <div id="studentDetail"></div>
+      </div>
+
+      <!-- mode évaluation : verrous -->
+      <div class="tpane" id="pane-eval">
+        <p class="lead">Déverrouille un test pour l'évaluation en classe. Les élèves voient alors le mode « Évaluation ». Reverrouille-le après : seul l'entraînement reste accessible.</p>
+        <div id="lockList"></div>
+        <p class="note">L'entraînement reste toujours ouvert aux élèves, dans tous les cas.</p>
+      </div>
+
+      <!-- comptes -->
+      <div class="tpane" id="pane-students">
+        <label class="lab">Ajouter un élève</label>
+        <div class="add-form">
+          <input class="text-input" id="addPrenom" placeholder="Prénom" maxlength="24" autocomplete="off">
+          <input class="text-input" id="addPin" placeholder="Code (4 chiffres)" inputmode="numeric" maxlength="4" autocomplete="off">
+          <button class="btn btn-primary" onclick="addStudent()">Ajouter</button>
+        </div>
+        <ul class="roster" id="rosterList"></ul>
+        <div class="row" style="margin-top:6px">
+          <button class="btn btn-danger" onclick="resetYear()">Réinitialiser pour une nouvelle année</button>
+        </div>
+        <p class="note">« Réinitialiser » supprime tous les comptes et tout l'historique. À utiliser à la rentrée.</p>
+      </div>
+
+      <!-- réglages -->
+      <div class="tpane" id="pane-settings">
+        <div class="set-h first">Réglages des exercices</div>
+        <div class="setrow"><label for="setTime">Temps par question</label>
+          <select id="setTime"><option value="0">Sans limite</option><option value="10">10 s</option><option value="20">20 s</option><option value="30">30 s</option><option value="45">45 s</option><option value="60">60 s</option><option value="90">90 s</option></select></div>
+        <p class="note" style="margin:8px 0 0">Ces réglages s’appliquent aux deux exercices (Dérivées et Suites). Le mode Évaluation s’ouvre test par test dans l’onglet « Mode évaluation ».</p>
+        <div class="row" style="margin-top:18px">
+          <button class="btn btn-primary" onclick="saveSettings()">Enregistrer les réglages</button>
+          <span class="saved" id="savedMsg">Enregistré ✓</span>
+        </div>
+      </div>
+
+      <!-- devoir maison -->
+      <div class="tpane" id="pane-devoir">
+        <div class="set-h first">Mes devoirs à la maison</div>
+        <div class="dm-tabs" id="dmSelector"></div>
+        <div id="dmEditor">
+          <div class="dm-numrow">
+            <label class="lab" for="dmNum" style="margin:0">Numéro</label>
+            <input class="text-input" id="dmNum" type="number" min="1" inputmode="numeric" style="width:88px;text-align:center">
+            <label class="dm-switch" style="margin-left:auto"><input type="checkbox" id="dmActif"> Afficher aux élèves</label>
+          </div>
+          <label class="lab" for="dmTitre" style="margin-top:14px">Titre</label>
+          <input class="text-input" id="dmTitre" maxlength="80" placeholder="Devoir à la maison" autocomplete="off">
+          <label class="lab" for="dmCours" style="margin-top:14px">Cours <span style="font-weight:600;color:var(--ink-soft)">(laisse vide pour n'afficher que les exercices)</span></label>
+          <textarea class="dm-area" id="dmCours" rows="7" placeholder="Rappels, consignes…"></textarea>
+          <label class="lab" style="margin-top:16px">Exercices du devoir <span style="font-weight:600;color:var(--ink-soft)">(coche les modes proposés à l'élève)</span></label>
+          <div id="dmExos"></div>
+          <div class="row" style="margin-top:16px;justify-content:space-between;align-items:center">
+            <span><button class="btn btn-primary" onclick="saveDevoir()">Enregistrer ce devoir</button> <span class="saved" id="dmSaved">Enregistré ✓</span></span>
+            <button class="btn btn-danger btn-sm" onclick="deleteDevoir()">Supprimer</button>
+          </div>
+        </div>
+        <div class="set-h">Résultats <span id="dmResTitle" style="font-weight:600;color:var(--ink-soft)"></span></div>
+        <div id="dmResults"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+
+<script>
+/* ---------- Raccourcis ---------- */
+const $=id=>document.getElementById(id);
+const val=id=>$(id).value;
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function initials(n){return (String(n).trim()[0]||'?').toUpperCase();}
+function fmtDur(s){s=Math.round(s||0);const m=Math.floor(s/60),sec=s%60;return m>0?`${m} min ${String(sec).padStart(2,'0')}`:`${sec} s`;}
+function fmtDurLong(s){s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>0)return `${h} h ${String(m).padStart(2,'0')} min`;if(m>0)return `${m} min ${String(sec).padStart(2,'0')}`;return `${sec} s`;}
+function fmtDate(ts){return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
+function pctClass(p){return p>=70?'hi':p>=50?'mid':'lo';}
+function toast(msg,type){const t=$('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2600);}
+
+/* ---------- État ---------- */
+const DEFAULT_DEVOIR={
+  id:'dm_1', num:1,
+  actif:true,
+  titre:'Devoir à la maison',
+  cours:`Rappels pour ce devoir :
+
+• TVI (3.1) : si f est continue et strictement monotone sur [a ; b], alors pour tout k compris entre f(a) et f(b), l'équation f(x) = k admet une unique solution dans [a ; b].
+
+• Signe du 1er degré (4.1) : ax + b s'annule en x = −b/a. Après cette racine, ax + b est du signe de a ; avant, du signe opposé.
+
+Fais chaque exercice en mode Soutien, puis en mode Entraînement.`,
+  exercices:[
+    {id:'tvi', modes:['soutien','train']},
+    {id:'signe-premier-degre', modes:['soutien','train']}
+  ]
+};
+const DEFAULT_CFG={count:10,secondsPerQuestion:0,locks:{}};
+/* Identifiant stable d'un devoir : les résultats s'y rattachent, donc renuméroter ne casse rien. */
+function newDevoirId(){ return 'dm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function ensureDevoir(d,i){
+  return {
+    id: d.id || newDevoirId(),
+    num: (typeof d.num==='number'? d.num : (i+1)),
+    actif: d.actif!==false,
+    titre: d.titre || 'Devoir à la maison',
+    cours: (typeof d.cours==='string')? d.cours : '',
+    exercices: Array.isArray(d.exercices)? d.exercices : []
+  };
+}
+/* Garantit une LISTE de devoirs et migre l'ancien format « devoir » unique le cas échéant. */
+function normalizeCfg(cfg){
+  let ds=cfg.devoirs;
+  if(!Array.isArray(ds)){
+    if(cfg.devoir && typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)];
+    else ds=[Object.assign({},DEFAULT_DEVOIR)];
+  }
+  cfg.devoirs = ds.map((d,i)=>ensureDevoir(d,i));
+  delete cfg.devoir;
+  return cfg;
+}
+let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
+const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
+
+/* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
+const TESTS={};
+/* ---------- Thèmes : regroupement + numérotation des exercices ----------
+   Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
+   simplement de la position dans la liste « ids ». Pour reclasser un exercice,
+   il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
+   toute seule, partout dans l'app (menu élève + tableau de bord prof). */
+const THEMES=[];
+/* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
+const TEST_NUM={};
+THEMES.forEach(t=>{ t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); }); });
+/* Ordre global des tests (suit l'ordre des thèmes) — utilisé côté prof */
+const TEST_ORDER=THEMES.reduce((a,t)=>a.concat(t.ids),[]);
+let teacherFilter='all';
+let teacherMode='eval';
+let currentTestId=null, currentMode='train';
+let currentDM=null;   // marque qu'un exercice est lancé depuis le devoir maison
+function pick(a){return a[rand(0,a.length-1)];}
+function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) return d.test; return 'derivees'; }
+function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) return d.mode; return 'eval'; }
+function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
+function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
+function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
+function testNum(id){ return TEST_NUM[id]||''; }
+function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
+function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); }
+function isSoutien(){ return currentMode==='soutien'; }
+function soutienAgain(fbId, actionsId, fn, host){
+  $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+  $(fbId).className='mp-feedback bad';
+  $(actionsId).innerHTML=`<button class="btn btn-primary" onclick="${fn}()">Revérifier</button>`;
+  if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
+}
+/* ---------- (soutien simplifié : géré directement dans submitAnswer) ---------- */
+function liveCheckCurrent(){ /* le moteur générique gère le soutien dans submitAnswer */ }
+function modeTagHTML(){
+  if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
+  if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
+  return '<span class="mode-tag train">✏️ Entraînement</span>';
+}
+function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
+  return `<button class="choice eleve ${extraClass||''}" ${onclick?`onclick="${onclick}"`:'disabled'}>
+    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(desc)}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
+}
+let mesResultats=[], mesDevoirs=[];
+function bestModeExo(id, modes){
+  let b=null;
+  (mesResultats||[]).forEach(r=>{ if(isPaused(r)||testIdOf(r)!==id||modes.indexOf(modeOf(r))<0) return; if(b==null||r.percent>b.percent) b=r; });
+  return b;
+}
+/* Note /10 d'un exercice travaillé par thème, avec la règle des devoirs :
+   soutien = 5 points max, entraînement (ou évaluation) = 10 points max. */
+function noteThemeExo(id){
+  return noteDevoirExo(bestModeExo(id,['soutien']), bestModeExo(id,['train','eval']));
+}
+/* Note du DERNIER passage d'un exercice (soutien : 5 pts max ; entraînement/éval : 10 pts). */
+function derniereNoteExo(id){
+  let last=null;
+  (mesResultats||[]).forEach(r=>{ if(isPaused(r)||testIdOf(r)!==id) return; if(last==null || new Date(r.created_at)>new Date(last.created_at)) last=r; });
+  if(!last) return { note:0, fait:false };
+  const soutien = modeOf(last)==='soutien';
+  return noteDevoirExo(soutien?last:null, soutien?null:last);
+}
+/* Note /10 d'un passage (soutien : 5 pts max ; entraînement/éval : 10 pts). */
+function noteAttempt(r){ const s=modeOf(r)==='soutien'; return noteDevoirExo(s?r:null, s?null:r).note; }
+/* Modale : toutes les notes d'un exercice (clic sur le badge). */
+function voirNotesExo(id){
+  const rows=(mesResultats||[]).filter(r=>!isPaused(r) && testIdOf(r)===id)
+    .sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  $('notesTitle').textContent='Notes \u2014 '+testName(id);
+  if(!rows.length){ $('notesList').innerHTML='<li class="muted" style="border:none">Aucune note pour l\u2019instant.</li>'; }
+  else { $('notesList').innerHTML=rows.map(r=>{
+    const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
+    return `<li><span class="d">${fmtDate(r.created_at)} <span class="mode-tag ${cls}" style="font-size:.72rem;padding:2px 8px">${lbl}</span></span>
+      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="badge ${pctClass(r.percent)}">${fmtNote(noteAttempt(r))} / 10</span></li>`; }).join(''); }
+  $('notesModal').hidden=false;
+}
+function fermerNotes(){ const m=$('notesModal'); if(m) m.hidden=true; }
+/* Progression globale : points obtenus (meilleure note par test) sur le total possible (nb tests × 10). */
+function progressionTotale(){
+  const ids=[]; THEMES.forEach(th=>th.ids.forEach(id=>{ if(TESTS[id]) ids.push(id); }));
+  let pts=0; ids.forEach(id=>{ const nd=noteThemeExo(id); if(nd.fait) pts+=nd.note; });
+  return { pts, maxTotal:ids.length*10, nbTests:ids.length };
+}
+function progBarHTML(){
+  const p=progressionTotale(); const pct=p.maxTotal? Math.round(p.pts/p.maxTotal*100):0;
+  return `<div class="prog-total">
+    <div class="prog-head"><span class="prog-pts">${fmtNote(p.pts)} <span class="prog-max">/ ${p.maxTotal} points</span></span><span class="prog-pct">${pct}\u00a0%</span></div>
+    <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+    <div class="prog-sub">Points obtenus sur l'ensemble des ${p.nbTests} tests (chacun sur 10, meilleure note conservée).</div>
+  </div>`;
+}
+function renderChooser(results){
+  results=results||mesResultats||[];
+  if(!THEMES.length){ $('testChoices').innerHTML='<div class="empty">Aucun exercice pour le moment. Reviens bientôt !</div>'; return; }
+  $('testChoices').innerHTML=THEMES.map(th=>{
+    const cards=th.ids.map((id,i)=>{
+      const t=TESTS[id]; if(!t) return '';
+      const num=th.num+'.'+(i+1);
+      const nd=derniereNoteExo(id);
+      const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
+    }).join('');
+    if(!cards) return '';
+    return `<div class="theme-block">
+      <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
+      <div class="choices">${cards}</div>
+    </div>`;
+  }).join('');
+}
+/* ---------- Devoir à la maison (élève) ---------- */
+function lancerDevoir(devoirId, id, mode){
+  const t=TESTS[id]; if(!t||!t.start) return;
+  currentDM=devoirId||true;                    // la tentative est étiquetée avec l'id du devoir
+  currentMode=(mode==='train')?'train':'soutien';
+  currentTestId=id;
+  t.start();
+}
+/* Ouvre la page « Devoirs à la maison » du portail (adresse à ajuster si besoin). */
+const PAGE_DEVOIRS_URL='https://turquet-math974.netlify.app/#/seconde/devoirs';
+function ouvrirDevoirs(){ window.open(PAGE_DEVOIRS_URL,'_blank','noopener'); }
+async function renderDM(results){
+  const host=$('dmPanel'); if(!host) return;
+  let devoirs;
+  try{ devoirs=(await loadConfig()).devoirs||[]; }catch(e){ host.hidden=true; host.innerHTML=''; return; }
+  const actifs=devoirs.filter(d=>d.actif && (d.exercices||[]).length).sort((a,b)=>(a.num||0)-(b.num||0));
+  if(!actifs.length){ host.hidden=true; host.innerHTML=''; return; }
+  const done=(did,id,m)=>(results||[]).some(r=>!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did);
+  host.innerHTML=actifs.map(dev=>{
+    const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
+    const tasks=(dev.exercices||[]).map(ex=>{
+      const t=TESTS[ex.id]; if(!t) return '';
+      const btns=(ex.modes||[]).map(m=>{
+        const lbl=m==='train'?'Entraînement':'Soutien'; const ok=done(dev.id,ex.id,m);
+        return `<button class="dm-go ${ok?'ok':''}" onclick="lancerDevoir('${dev.id}','${ex.id}','${m}')">${ok?'✓ ':''}${lbl}</button>`;
+      }).join('');
+      return `<div class="dm-task"><div class="dm-task-h"><span class="dm-task-ic">${t.icon}</span><span class="dm-task-name">${esc(testLabel(ex.id))}</span></div><div class="dm-task-btns">${btns}</div></div>`;
+    }).join('');
+    return `<div class="dm-panel">
+      <div class="dm-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
+      ${cours}
+      <div class="dm-tasks">${tasks}</div>
+    </div>`;
+  }).join('');
+  host.hidden=false;
+}
+let pausedRows={};
+function snapshotTest(){
+  const skip={qTimer:1,qDeadline:1,qTotal:1,fbTimer:1,locked:1,startTime:1,_boxes:1};
+  const snap={}; Object.keys(test).forEach(k=>{ if(!skip[k]) snap[k]=test[k]; }); return snap;
+}
+// lit ce que l'élève a déjà saisi dans les cases de la question en cours
+function captureBoxes(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return {};
+  const m={}; scr.querySelectorAll('input[id],select[id]').forEach(el=>{ const v=el.value; if(v!=='') m[el.id]=v; }); return m;
+}
+// remet les saisies dans les cases après réaffichage de la question
+function restoreBoxes(boxes){
+  if(!boxes) return;
+  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT')){ el.value=boxes[id]; } });
+}
+// reconstruit la fonction d'une question « signes & variations » (perdue par la sérialisation JSON)
+function svFnFrom(r,e,extrType){
+  const d=Math.abs(e-r)||1, right=e>r, max=extrType==='max';
+  if(right) return max ? (x=>(x-r)*Math.exp(-(x-r)/d)) : (x=>-(x-r)*Math.exp(-(x-r)/d));
+  return max ? (x=>(r-x)*Math.exp((x-r)/d)) : (x=>(x-r)*Math.exp((x-r)/d));
+}
+// après une reprise, recrée les fonctions (graphes) que JSON ne peut pas enregistrer
+function rehydrateQuestions(){ /* aucun exercice pour l'instant */ }
+/* ---------- Enregistrement automatique du travail en cours (silencieux) ---------- */
+let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
+function recoveryPayload(){
+  const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
+  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, snapshotTest());
+  if(currentDM) details.dm=currentDM;
+  details._boxes=captureBoxes();            // saisies en cours de la question affichée
+  const total=Array.isArray(test.questions)?test.questions.length:0;
+  return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
+}
+async function doRecoverySave(){
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
+  const payload=recoveryPayload();
+  if(recoveryRowId){
+    await sb.from('resultats').update(payload).eq('id',recoveryRowId);
+  } else {
+    const {data}=await sb.from('resultats').insert(payload).select('id').single();
+    if(data&&data.id){
+      if(recoveryClosed) sb.from('resultats').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
+      else recoveryRowId=data.id;
+    }
+  }
+}
+// appelé après chaque réponse — ne bloque jamais l'élève, réessaie si une sauvegarde est déjà en cours
+function autoSave(){
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
+  if(recoveryBusy){ recoveryDirty=true; return; }
+  recoveryBusy=true;
+  doRecoverySave().catch(()=>{}).finally(()=>{ recoveryBusy=false; if(recoveryDirty && !recoveryClosed){ recoveryDirty=false; autoSave(); } });
+}
+// supprime le brouillon de reprise quand le test est terminé
+async function clearRecovery(){
+  recoveryClosed=true; recoveryDirty=false;
+  const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
+  recoveryRowId=null;
+  try{
+    if(id) await sb.from('resultats').delete().eq('id',id);
+    if(eid){ const {data}=await sb.from('resultats').select('id,details').eq('eleve_id',eid);
+      const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
+      for(const r of old){ await sb.from('resultats').delete().eq('id',r.id); } }
+  }catch(e){}
+}
+async function openTest(testId){
+  currentTestId=testId;
+  currentDM=null;            // lancement normal (hors devoir)
+  const t=TESTS[testId];
+  $('modeTitle').textContent=testLabel(testId);
+  $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
+  show('mode');
+  cfg=await loadConfig();
+  const unlocked=!!(cfg.locks && cfg.locks[testId]);
+  // chercher une session mise en pause pour ce test (entraînement / soutien)
+  pausedRows={};
+  try{
+    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
+  }catch(e){}
+  const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
+  const trainCard = pausedRows.train
+    ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
+    : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';TESTS['${testId}'].start()`);
+  const soutienCard = pausedRows.soutien
+    ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
+    : cardHTML('🛟','Mode soutien','À chaque étape, on me dit si c\u2019est juste ou faux, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';TESTS['${testId}'].start()`);
+  const evalCard= unlocked
+    ? cardHTML('🔓','Évaluation','Mode noté, ouvert par le professeur.',`currentMode='eval';TESTS['${testId}'].start()`)
+    : cardHTML('🔒','Évaluation','','',`locked`,'Déverrouillé par le professeur pendant l\u2019évaluation.');
+  $('modeChoices').innerHTML=trainCard+soutienCard+evalCard;
+}
+/* En contexte devoir : enregistre la note de l'exercice sur la progression actuelle.
+   Score = bonnes réponses validées, sur le nombre total de questions (le reste compte comme faux).
+   Ne fait rien si aucune question n'a été répondue. */
+async function enregistrerNotePartielle(){
+  if(!currentEleve) return false;
+  if(!(currentMode==='train'||currentMode==='soutien')) return false;
+  if(!test.questions || !test.questions.length) return false;
+  if(!(test.answers||[]).length) return false;            // rien de validé : pas de note
+  const total=test.questions.length, score=test.score||0, pct=Math.round(score/total*100);
+  const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
+  const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
+  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details}); return true; }catch(e){ return false; }
+}
+async function pauseTest(){
+  if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  $('testCtrls').hidden=true;
+  try{
+    await doRecoverySave();                           // session reprenable (ligne « en pause »)
+    if(currentDM) await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
+    toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  }
+  catch(e){ toast('Pause non enregistrée (connexion)','err'); }
+  recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
+  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
+  else { openThemes(); }
+}
+async function abandonTest(){
+  if(!currentEleve) return;
+  if(!confirm('Abandonner cet exercice ? Ta note sera calculée sur ce que tu as déjà fait.')) return;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  $('testCtrls').hidden=true;
+  let noted=false;
+  try{
+    noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
+    await clearRecovery();
+  }catch(e){}
+  toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
+  if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
+  else { openThemes(); }
+}
+async function resumeTest(mode){
+  const row=pausedRows&&pausedRows[mode];
+  const d=row&&row.details;
+  if(!d || !Array.isArray(d.questions) || !d.questions.length){ toast('Reprise impossible — on recommence.','err'); currentMode=mode; recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
+  currentMode=mode; currentTestId=d.test;
+  currentDM=d.dm||null;            // conserve l'id du devoir à la reprise
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
+  const skip={state:1,test:1,mode:1,_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  test.startTime=Date.now()-((row.duration_sec||0)*1000);
+  test.locked=false;
+  recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
+  const draft=d._boxes;          // saisies en cours à remettre dans les cases
+  rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
+  const DISPATCH={};
+  const disp=DISPATCH[test.kind];
+  if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
+  show(disp[0]); disp[1]();
+  restoreBoxes(draft);   // et on recolore les cases déjà complètes
+}
+
+/* ---------- Connexion à Supabase ---------- */
+function configReady(){
+  return SUPABASE_URL && SUPABASE_ANON_KEY
+    && !SUPABASE_URL.includes('VOTRE-PROJET')
+    && !SUPABASE_ANON_KEY.includes('VOTRE-CLE')
+    && typeof window.supabase!=='undefined';
+}
+function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
+
+/* ---------- Navigation ---------- */
+function show(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $('scr-'+name).classList.add('on');
+  const testScreens=['test','tvi','tvi2','dexp','sv','tg','s1','s2'];
+  const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
+  $('testCtrls').hidden=!canPause;
+  const pill=$('userPill');
+  if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
+    pill.hidden=false;
+    pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
+  }else if(name==='teacher'){
+    pill.hidden=false; pill.innerHTML=`Professeur <button onclick="quitToHome()">Quitter</button>`;
+  }else{ pill.hidden=true; }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function quitToHome(){ currentEleve=null; show('home'); }
+function logout(){ currentEleve=null; show('home'); }
+
+/* ---------- Connexion élève ---------- */
+function loginMode(m){
+  $('segCo').classList.toggle('on',m==='co');
+  $('segCr').classList.toggle('on',m==='cr');
+  $('modeCo').hidden=(m!=='co');
+  $('modeCr').hidden=(m!=='cr');
+}
+async function renderLoginNames(){
+  loginMode('co'); selectedEleve=null; $('pinRow').hidden=true;
+  const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
+  try{
+    const {data,error}=await sb.from('eleves').select('*').order('prenom');
+    if(error)throw error;
+    if(!data.length){ box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return; }
+    box.innerHTML='';
+    data.forEach(e=>{
+      const b=document.createElement('button');
+      b.className='chip'; b.textContent=e.prenom;
+      b.onclick=()=>{ selectedEleve=e;
+        document.querySelectorAll('#nameChips .chip').forEach(c=>c.classList.remove('sel'));
+        b.classList.add('sel'); $('pinRow').hidden=false; $('loginPin').value=''; setTimeout(()=>$('loginPin').focus(),60);
+      };
+      box.appendChild(b);
+    });
+  }catch(e){ box.innerHTML='<span class="muted">Connexion impossible. Vérifie ta configuration.</span>'; }
+}
+async function connexionEleve(){
+  if(!selectedEleve){ toast('Choisis ton prénom'); return; }
+  const pin=val('loginPin').trim();
+  if(pin!==selectedEleve.pin){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
+  currentEleve=selectedEleve; await ouvrirEspace();
+}
+async function creerCompte(){
+  const prenom=val('newPrenom').trim(), pin=val('newPin').trim(), pin2=val('newPin2').trim();
+  if(!prenom){ toast('Écris ton prénom'); return; }
+  if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
+  if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
+  try{
+    const {data:exist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
+    if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
+    const {data,error}=await sb.from('eleves').insert({prenom,pin}).select().single();
+    if(error)throw error;
+    currentEleve=data; toast('Compte créé !','ok');
+    $('newPrenom').value='';$('newPin').value='';$('newPin2').value='';
+    await ouvrirEspace();
+  }catch(e){ toast('Création impossible. Vérifie ta configuration.','err'); }
+}
+
+/* ---------- Espace élève ---------- */
+function ouvrirEspace(){
+  $('spaceHello').textContent=`Bonjour, ${esc(currentEleve.prenom)} !`;
+  $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
+  show('space');
+}
+async function chargerMesResultats(){
+  try{
+    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    mesResultats=(data||[]).filter(r=>!isPaused(r));
+  }catch(e){ mesResultats=[]; }
+  return mesResultats;
+}
+async function openThemes(){
+  show('choose');
+  $('testChoices').innerHTML='<p class="muted">Chargement…</p>';
+  $('sNb').textContent='…';$('sAvg').textContent='…';$('sBest').textContent='…';
+  $('spaceChart').innerHTML='<span class="muted">Chargement…</span>';$('spaceHist').innerHTML='';
+  await chargerMesResultats();
+  renderChooser(mesResultats);
+  renderBilan(mesResultats);
+}
+async function openRattrapage(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  currentDM=null;
+  show('rattrapage');
+  $('rattrapageList').innerHTML='<p class="muted">Chargement…</p>';
+  await chargerMesResultats();
+  renderRattrapage();
+}
+/* Les 5 tests avec la plus basse « meilleure note » (parmi ceux déjà travaillés). */
+function renderRattrapage(){
+  const scored=[];
+  THEMES.forEach(th=>th.ids.forEach(id=>{ if(!TESTS[id]) return; const nd=noteThemeExo(id); if(nd.fait) scored.push({id, note:nd.note}); }));
+  scored.sort((a,b)=> a.note-b.note || testNum(a.id).localeCompare(testNum(b.id)));
+  const worst=scored.slice(0,5);
+  if(!worst.length){ $('rattrapageList').innerHTML='<p class="muted">Fais d\u2019abord quelques tests : tu verras ici ceux à retravailler en priorité.</p>'; return; }
+  $('rattrapageList').innerHTML=worst.map(w=>{
+    const t=TESTS[w.id], num=testNum(w.id);
+    const badge=`<span class="ex-bilan done">Meilleure note : ${fmtNote(w.note)} / 10</span>`;
+    return cardHTML(t.icon, (num?num+' · ':'')+t.name, t.desc, `openTest('${w.id}')`, '', '', badge);
+  }).join('');
+}
+function renderBilan(results){
+  const data=results||mesResultats||[];
+  $('sNb').textContent=data.length;
+  const ids=[...new Set(data.map(r=>testIdOf(r)))].filter(id=>TESTS[id]);
+  const notes=ids.map(id=>noteThemeExo(id)).filter(nd=>nd.fait).map(nd=>nd.note);
+  if(notes.length){
+    const moy=notes.reduce((s,x)=>s+x,0)/notes.length;
+    const meil=Math.max(...notes);
+    $('sAvg').textContent=fmtNote(moy)+' / 10'; $('sBest').textContent=fmtNote(meil)+' / 10';
+  }else{ $('sAvg').textContent='—'; $('sBest').textContent='—'; }
+  $('spaceChart').innerHTML=progBarHTML();
+  const recent=[...data].reverse().slice(0,6);
+  $('spaceHist').innerHTML=recent.length?recent.map(r=>{
+    const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
+    return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
+      <span class="sc">${r.score} / ${r.total}</span>
+      <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
+    :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
+}
+function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes(); } }
+
+/* ---------- Devoirs à la maison (élève) ---------- */
+async function openDevoirsEleve(){
+  show('devoirs');
+  $('devoirsTitle').textContent='Devoirs à la maison';
+  $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
+  try{ mesDevoirs=(await loadConfig()).devoirs||[]; }catch(e){ mesDevoirs=[]; }
+  await chargerMesResultats();
+  renderDevoirsList();
+}
+function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
+/* Note d'un exercice de devoir. Soutien vaut 5 pts (5×%), entraînement vaut 10 pts (10×%).
+   Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
+   sinon points du soutien (au max 5). */
+function noteDevoirExo(bestSoutien, bestEntrain){
+  const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
+  const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
+  const soutienFait = !!bestSoutien;
+  const note = (e > s || !soutienFait) ? e : s;
+  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
+}
+function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
+function renderDevoirsList(){
+  const actifs=(mesDevoirs||[]).filter(d=>d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
+  if(!actifs.length){ $('devoirsBody').innerHTML='<div class="empty">Aucun devoir à la maison pour l\'instant.</div>'; return; }
+  $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
+    const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
+    const lignes=exos.map(ex=>{
+      const bs=dmBest(dev.id,ex.id,'soutien'), be=dmBest(dev.id,ex.id,'train');
+      const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) faitQqch=true;
+      const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
+      const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
+      return `<div class="dl-ex"><span class="dl-ex-name">${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
+    }).join('');
+    const totMax=exos.length*10;
+    const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
+    return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${dev.id}')">
+      <div class="dl-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}${isLast?' · le plus récent':''}</span><span class="dl-prog">${totLbl}</span></div>
+      <div class="dl-title">${esc(dev.titre||'')}</div>
+      <div class="dl-exos">${lignes}</div>
+      <div class="dl-go">Ouvrir le devoir →</div>
+    </button>`;
+  }).join('')+'</div>';
+}
+async function ouvrirDevoirDetail(devoirId){
+  show('devoirs');
+  $('devoirsTitle').textContent='Devoirs à la maison';
+  $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
+  try{ mesDevoirs=(await loadConfig()).devoirs||[]; }catch(e){}
+  await chargerMesResultats();
+  renderDevoirDetail(devoirId);
+}
+function renderDevoirDetail(devoirId){
+  const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  if(!dev){ renderDevoirsList(); return; }
+  const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
+  const exos=dev.exercices||[]; let somme=0, faitQqch=false;
+  const cards=exos.map(ex=>{
+    const t=TESTS[ex.id]; if(!t) return '';
+    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'));
+    somme+=nd.note; if(nd.fait) faitQqch=true;
+    const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+    return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
+  }).join('');
+  const totMax=exos.length*10;
+  const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
+  $('devoirsBody').innerHTML=`
+    <button class="btn-link" onclick="renderDevoirsList()">← Tous les devoirs</button>
+    <div class="dm-head" style="margin-top:8px"><span class="dm-badge">Devoir n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
+    <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
+    ${cours}
+    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <div class="choices">${cards}</div>`;
+}
+async function openTestDevoir(devoirId, testId){
+  currentTestId=testId; currentDM=devoirId;
+  const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  const ex=dev?dev.exercices.find(e=>e.id===testId):null;
+  const allowed=(ex&&ex.modes&&ex.modes.length)?ex.modes:['soutien','train'];
+  $('modeTitle').textContent=testLabel(testId);
+  $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
+  show('mode');
+  pausedRows={};
+  try{
+    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
+  }catch(e){}
+  const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
+  let cards='';
+  if(allowed.includes('soutien')){
+    cards += pausedRows.soutien
+      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
+      : cardHTML('🛟','Mode soutien','On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+  }
+  if(allowed.includes('train')){
+    cards += pausedRows.train
+      ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
+      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+  }
+  $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
+}
+
+/* ---------- Petit graphique de progression (SVG) ---------- */
+function lineChart(values){
+  if(!values.length) return '<p class="muted">Fais un test pour voir ta courbe apparaître.</p>';
+  const W=320,H=120,pad=8, n=values.length;
+  const x=i=> n===1? W/2 : pad + i*(W-2*pad)/(n-1);
+  const y=v=> (H-pad) - (v/100)*(H-2*pad);
+  if(n===1){
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}"><circle cx="${x(0)}" cy="${y(values[0])}" r="5" fill="var(--blue)"/>
+      <text x="${W/2}" y="${y(values[0])-12}" text-anchor="middle" font-family="Fredoka" font-size="14" fill="var(--ink-soft)">${values[0]} %</text></svg>`;
+  }
+  const pts=values.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+  const area=`${pad},${H-pad} ${pts} ${W-pad},${H-pad}`;
+  const dots=values.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="var(--blue)"/>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="aspect-ratio:${W}/${H}">
+    <line x1="${pad}" y1="${y(50)}" x2="${W-pad}" y2="${y(50)}" stroke="var(--line)" stroke-dasharray="3 4"/>
+    <polygon points="${area}" fill="var(--blue)" opacity="0.08"/>
+    <polyline points="${pts}" fill="none" stroke="var(--blue)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}</svg>`;
+}
+
+/* ---------- Réglages : chargement ---------- */
+async function loadConfig(){
+  try{
+    const {data,error}=await sb.from('parametres').select('valeurs').eq('id',1).single();
+    if(error||!data) return normalizeCfg({...DEFAULT_CFG});
+    return normalizeCfg(Object.assign({},DEFAULT_CFG,data.valeurs));
+  }catch(e){ return normalizeCfg({...DEFAULT_CFG}); }
+}
+
+/* ============================================================
+   EXERCICES — aucun pour le moment.
+   Pour ajouter un exercice : écris ici son générateur + son rendu,
+   ajoute une entrée dans TESTS et range-le dans un thème (THEMES).
+   Le moteur d'exercice (rendu des questions, validation, écran de
+   résultats, reprise) sera ajouté ici avec les premiers exercices.
+   ============================================================ */
+function teacherLogin(){
+  if(val('teacherPass')!==MOT_DE_PASSE_PROF){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
+  $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
+}
+function teacherTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
+  document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
+  $('pane-'+name).classList.add('on');
+  if(name==='results'){$('studentDetail').innerHTML='';renderClassTable();}
+  else if(name==='students')renderRoster();
+  else if(name==='eval')renderEvalLocks();
+  else if(name==='devoir')loadDevoirTab();
+}
+function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
+function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }
+/* Notes /10 de la classe pour un test : note officielle par élève
+   (meilleur soutien = 5 pts max ; meilleur entraînement/évaluation = 10 pts max ; on garde la plus haute). */
+function notesClassePanel(eleves, resAll, id){
+  const allU=(resAll||[]).filter(r=>!isPaused(r));
+  const rows=(eleves||[]).map(e=>{
+    let bs=null, be=null;
+    allU.forEach(r=>{ if(r.eleve_id!==e.id || testIdOf(r)!==id) return; const m=modeOf(r);
+      if(m==='soutien'){ if(!bs||r.percent>bs.percent) bs=r; } else { if(!be||r.percent>be.percent) be=r; } });
+    return { prenom:e.prenom, nd:noteDevoirExo(bs,be), bs, be };
+  });
+  const done=rows.filter(r=>r.nd.fait);
+  const avg=done.length? done.reduce((s,r)=>s+r.nd.note,0)/done.length : null;
+  const trs=rows.map(r=>{
+    const note=r.nd.fait?`<span class="badge ${pctClass(Math.round(r.nd.note*10))}">${fmtNote(r.nd.note)} / 10</span>`:`<span class="badge">\u2014 / 10</span>`;
+    const det=r.nd.fait
+      ? `${r.be?('entr./\u00e9val '+r.be.percent+'\u2009%'):''}${(r.be&&r.bs)?' \u00b7 ':''}${r.bs?('soutien '+r.bs.percent+'\u2009%'):''}`
+      : 'pas encore fait';
+    return `<tr><td class="name">${esc(r.prenom)}</td><td>${note}</td><td class="muted" style="font-size:.82rem">${det}</td></tr>`;
+  }).join('');
+  return `<div class="panel">
+    <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Notes /10 de la classe</h3>
+      <button class="btn-link" onclick="setTeacherFilter('all')">\u2190 Tous les tests</button></div>
+    <div class="row" style="gap:10px;margin:2px 0 8px;flex-wrap:wrap"><span style="font-weight:700">${esc(testLabel(id))}</span>
+      <span class="badge ${avg===null?'':pctClass(Math.round(avg*10))}">${avg===null?'Moyenne : \u2014':('Moyenne classe : '+fmtNote(avg)+' / 10')}</span></div>
+    <p class="note" style="margin:0 0 10px">Note officielle : meilleur soutien (5 pts max) ou meilleur entra\u00eenement/\u00e9valuation (10 pts max), la plus haute des deux.</p>
+    <table class="tbl"><thead><tr><th>\u00c9l\u00e8ve</th><th>Note</th><th>D\u00e9tail</th></tr></thead><tbody>${trs}</tbody></table>
+  </div>`;
+}
+async function renderClassTable(){
+  const wrap=$('classTableWrap'); wrap.innerHTML='<p class="muted">Chargement…</p>';
+  $('testBreakdown').innerHTML=''; $('testFilter').innerHTML='';
+  const isTrain=teacherMode==='train', isSout=teacherMode==='soutien', isEval=teacherMode==='eval';
+  $('stTestsK').textContent= isEval?'Évaluations':(isSout?'Séances de soutien':'Entraînements');
+  $('stAvgK').textContent= isSout?'Temps total':'Moyenne classe';
+  const sumDur=l=>l.reduce((s,r)=>s+(r.duration_sec||0),0);
+  try{
+    const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
+      sb.from('eleves').select('*').order('prenom'),
+      sb.from('resultats').select('*')
+    ]);
+    if(e1)throw e1; if(e2)throw e2;
+    const res=resAll.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
+    $('stCount').textContent=eleves.length;
+    $('stTests').textContent=res.length;
+    $('stAvg').textContent= isSout ? (res.length?fmtDurLong(sumDur(res)):'—') : (res.length?Math.round(res.reduce((s,r)=>s+r.percent,0)/res.length)+' %':'—');
+
+    // vue d'ensemble par test (selon le mode)
+    const bd=TEST_ORDER.map(id=>{
+      const list=res.filter(r=>testIdOf(r)===id);
+      const noun=isEval?'test':(isSout?'séance':'entraînement');
+      const right = isSout
+        ? `<span class="badge ${list.length?'mid':''}">${list.length?fmtDurLong(sumDur(list)):'—'}</span>`
+        : (()=>{ const avg=list.length?Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length):null; return `<span class="badge ${avg===null?'':pctClass(avg)}">${avg===null?'—':avg+' %'}</span>`; })();
+      return `<li class="clickable" onclick="setTeacherFilter('${id}')" style="cursor:pointer" title="Voir les notes /10 de la classe pour ce test"><span style="font-weight:700">${esc(testLabel(id))}</span>
+        <span class="sc">${list.length} ${noun}${list.length>1?'s':''}</span>${right}</li>`;
+    }).join('');
+    const bdTitle=isEval?'Vue d\'ensemble par test':(isSout?'Temps de soutien par test':'Entraînements par test');
+    $('testBreakdown').innerHTML = !TEST_ORDER.length
+      ? '<div class="empty">Aucun exercice pour le moment. Ajoute des exercices à l\u2019application pour suivre la classe.</div>'
+      : (teacherFilter==='all')
+      ? `<div class="panel"><h3>${bdTitle}</h3><p class="note" style="margin:-2px 0 10px">Clique sur un test pour voir les notes /10 de la classe.</p><ul class="histlist">${bd}</ul></div>`
+      : notesClassePanel(eleves, resAll, teacherFilter);
+
+    // filtre par test
+    const chips=[{id:'all',name:'Tous les tests'}].concat(TEST_ORDER.map(id=>({id,name:testLabel(id)})));
+    $('testFilter').innerHTML=chips.map(c=>`<button class="chip ${teacherFilter===c.id?'sel':''}" onclick="setTeacherFilter('${c.id}')">${esc(c.name)}</button>`).join('');
+
+    if(!eleves.length){ wrap.innerHTML='<div class="empty">Aucun compte élève. Ajoute-les dans « Comptes élèves » ou laisse-les créer le leur.</div>'; return; }
+
+    const fres=teacherFilter==='all'?res:res.filter(r=>testIdOf(r)===teacherFilter);
+    const byId={}; fres.forEach(r=>{(byId[r.eleve_id]=byId[r.eleve_id]||[]).push(r);});
+    let head, rows;
+    if(isSout){
+      head='<tr><th>Élève</th><th>Séances</th><th>Temps total</th><th>Temps moyen</th><th>Dernière</th></tr>';
+      rows=eleves.map(e=>{
+        const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td class="muted">—</td><td class="muted">—</td><td class="muted">jamais</td></tr>`;
+        const tot=sumDur(list), moy=tot/list.length, last=list[list.length-1];
+        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><b>${fmtDurLong(tot)}</b></td><td>${fmtDur(moy)}</td><td>${fmtDate(last.created_at)}</td></tr>`;
+      }).join('');
+    } else if(isTrain){
+      head='<tr><th>Élève</th><th>Entraînements</th><th>Moyenne</th><th>Dernier</th></tr>';
+      rows=eleves.map(e=>{
+        const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td class="muted">jamais</td></tr>`;
+        const avg=Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length), last=list[list.length-1];
+        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${fmtDate(last.created_at)}</td></tr>`;
+      }).join('');
+    } else {
+      head='<tr><th>Élève</th><th>Évaluations</th><th>Moyenne</th><th>Meilleur</th><th>Dernier</th></tr>';
+      rows=eleves.map(e=>{
+        const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td>—</td><td class="muted">jamais</td></tr>`;
+        const avg=Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length), best=Math.max(...list.map(r=>r.percent)), last=list[list.length-1];
+        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${list.length}</td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${best} %</td><td>${fmtDate(last.created_at)}</td></tr>`;
+      }).join('');
+    }
+    const flabel=teacherFilter==='all'?'tous les tests':('« '+testLabel(teacherFilter)+' »');
+    const lead=isEval?'Évaluations':(isSout?'Soutien — temps de travail':'Entraînements');
+    wrap.innerHTML=`<p class="muted" style="font-size:.85rem;margin:0 0 8px">${lead} · ${esc(flabel)} — clique sur un élève pour le détail.</p>
+      <table class="tbl"><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+  }catch(e){ wrap.innerHTML='<div class="empty">Connexion impossible. Vérifie la configuration.</div>'; }
+}
+
+/* ---------- Mode évaluation : verrous ---------- */
+function saveConfig(valeurs){ return sb.from('parametres').upsert({id:1,valeurs}); }
+async function renderEvalLocks(){
+  const box=$('lockList'); box.innerHTML='<p class="muted">Chargement…</p>';
+  try{
+    cfg=await loadConfig(); const locks=cfg.locks||{};
+    box.innerHTML=TEST_ORDER.length?TEST_ORDER.map(id=>{
+      const open=!!locks[id];
+      return `<div class="lock-card ${open?'open':''}">
+        <span class="li">${esc(testLabel(id))}</span>
+        <span class="st ${open?'open':'closed'}">${open?'🔓 Déverrouillé':'🔒 Verrouillé'}</span>
+        <button class="btn ${open?'btn-danger':'btn-primary'} btn-sm" onclick="toggleLock('${id}')">${open?'Verrouiller':'Déverrouiller'}</button>
+      </div>`;
+    }).join('') : '<div class="empty">Aucun exercice pour le moment. Ajoute des exercices à l\u2019application pour pouvoir ouvrir des évaluations.</div>';
+  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+}
+async function toggleLock(id){
+  try{
+    cfg=await loadConfig();
+    const locks=Object.assign({},cfg.locks||{}); locks[id]=!locks[id];
+    const {error}=await saveConfig(Object.assign({},cfg,{locks})); if(error)throw error;
+    toast(locks[id]?`${testLabel(id)} déverrouillé`:`${testLabel(id)} verrouillé`, locks[id]?'ok':null);
+    renderEvalLocks();
+  }catch(e){ toast('Action impossible','err'); }
+}
+async function showStudentDetail(id,prenom){
+  const box=$('studentDetail'); box.innerHTML='<div class="panel"><span class="muted">Chargement…</span></div>';
+  const isTrain=teacherMode==='train', isSout=teacherMode==='soutien';
+  const label=isSout?'soutien':(isTrain?'entraînements':'évaluations');
+  try{
+    const {data:all,error}=await sb.from('resultats').select('*').eq('eleve_id',id).order('created_at',{ascending:true});
+    if(error)throw error;
+    const data=all.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
+    let inner=`<div class="panel"><div class="topbar"><h3 style="margin:0">${esc(prenom)} · ${label}</h3>
+      <button class="btn-link" onclick="$('studentDetail').innerHTML=''">Fermer</button></div>`;
+    if(!data.length){ inner+=`<p class="muted">Aucune ${isSout?'séance de soutien':(isTrain?'séance d\'entraînement':'évaluation')} pour l'instant.</p></div>`; box.innerHTML=inner; return; }
+    if(isSout){
+      const tot=data.reduce((s,r)=>s+(r.duration_sec||0),0);
+      inner+=`<p class="muted" style="margin:0 0 10px">${data.length} séance(s) · temps total <b style="color:var(--ink)">${fmtDurLong(tot)}</b> · moyenne ${fmtDur(tot/data.length)}</p>`;
+      const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))}</span>
+        <span class="badge mid">${fmtDur(r.duration_sec)}</span></li>`).join('');
+      inner+=`<ul class="histlist">${rows}</ul></div>`;
+    } else {
+      inner+=lineChart(data.map(r=>r.percent));
+      const rows=[...data].reverse().map(r=>`<li><span class="d">${fmtDate(r.created_at)} · ${esc(testLabel(testIdOf(r)))}</span>
+        <span class="sc">${r.score} / ${r.total}</span><span class="badge ${pctClass(r.percent)}">${r.percent} %</span>
+        <span class="d" style="margin-left:8px">${fmtDur(r.duration_sec)}</span></li>`).join('');
+      inner+=`<ul class="histlist" style="margin-top:14px">${rows}</ul></div>`;
+    }
+    box.innerHTML=inner; box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){ box.innerHTML='<div class="panel"><span class="muted">Erreur de chargement.</span></div>'; }
+}
+
+/* comptes */
+async function renderRoster(){
+  const ul=$('rosterList'); ul.innerHTML='<li class="muted" style="border:none">Chargement…</li>';
+  try{
+    const {data,error}=await sb.from('eleves').select('*').order('prenom');
+    if(error)throw error;
+    if(!data.length){ ul.innerHTML='<div class="empty">Aucun compte pour l\'instant.</div>'; return; }
+    ul.innerHTML=data.map(e=>`<li>
+      <span class="av">${esc(initials(e.prenom))}</span>
+      <span class="nm">${esc(e.prenom)}</span>
+      <span class="code">code : ${esc(e.pin)}</span>
+      <span class="acts">
+        <button class="btn btn-ghost btn-sm" onclick="resetPin('${e.id}','${esc(e.prenom)}')">Nouveau code</button>
+        <button class="btn btn-danger btn-sm" onclick="removeStudent('${e.id}','${esc(e.prenom)}')">Retirer</button>
+      </span></li>`).join('');
+  }catch(e){ ul.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+}
+async function addStudent(){
+  const prenom=val('addPrenom').trim(),pin=val('addPin').trim();
+  if(!prenom){ toast('Écris un prénom'); return; }
+  if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
+  try{
+    const {data:exist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
+    if(exist&&exist.length){ toast('Ce prénom existe déjà','err'); return; }
+    const {error}=await sb.from('eleves').insert({prenom,pin}); if(error)throw error;
+    $('addPrenom').value='';$('addPin').value=''; toast('Élève ajouté','ok'); renderRoster();
+  }catch(e){ toast('Ajout impossible','err'); }
+}
+async function resetPin(id,prenom){
+  const np=prompt(`Nouveau code à 4 chiffres pour ${prenom} :`);
+  if(np===null)return;
+  if(!/^\d{4}$/.test(np.trim())){ toast('Le code doit avoir 4 chiffres','err'); return; }
+  try{ const {error}=await sb.from('eleves').update({pin:np.trim()}).eq('id',id); if(error)throw error;
+    toast('Code mis à jour','ok'); renderRoster();
+  }catch(e){ toast('Échec de la mise à jour','err'); }
+}
+async function removeStudent(id,prenom){
+  if(!confirm(`Retirer ${prenom} et tout son historique ? Cette action est définitive.`))return;
+  try{ const {error}=await sb.from('eleves').delete().eq('id',id); if(error)throw error;
+    toast('Élève retiré','ok'); renderRoster();
+  }catch(e){ toast('Suppression impossible','err'); }
+}
+async function resetYear(){
+  if(!confirm('Supprimer TOUS les comptes et TOUT l\'historique ? À ne faire qu\'à la rentrée.'))return;
+  if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
+  try{
+    await sb.from('resultats').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    await sb.from('eleves').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    toast('Classe réinitialisée','ok'); renderRoster();
+  }catch(e){ toast('Réinitialisation impossible','err'); }
+}
+
+/* réglages */
+async function loadSettingsIntoForm(){
+  const c=await loadConfig();
+  $('setTime').value=String(c.secondsPerQuestion);
+}
+async function saveSettings(){
+  try{
+    const cur=await loadConfig();
+    const valeurs=Object.assign({},cur,{
+      secondsPerQuestion:parseInt(val('setTime'),10)||0
+    });
+    const {error}=await sb.from('parametres').upsert({id:1,valeurs}); if(error)throw error;
+    const m=$('savedMsg');m.classList.add('show');setTimeout(()=>m.classList.remove('show'),1800);
+  }catch(e){ toast('Enregistrement impossible','err'); }
+}
+
+/* ---------- Devoirs à la maison (prof) ---------- */
+let dmList=[], dmSelId=null;
+async function loadDevoirTab(){
+  try{ dmList=(await loadConfig()).devoirs||[]; }catch(e){ dmList=[]; }
+  if(!dmList.length) dmList=[ensureDevoir(Object.assign({},DEFAULT_DEVOIR),0)];
+  if(!dmSelId || !dmList.some(d=>d.id===dmSelId)) dmSelId=dmList[0].id;
+  renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+}
+function selectedDevoir(){ return dmList.find(d=>d.id===dmSelId)||dmList[0]; }
+function renderDevoirSelector(){
+  const chips=dmList.slice().sort((a,b)=>(a.num||0)-(b.num||0)).map(d=>
+    `<button class="dm-tab ${d.id===dmSelId?'on':''}" onclick="selectDevoir('${d.id}')">Devoir n°${esc(String(d.num))}${d.actif?'':' · masqué'}</button>`).join('');
+  $('dmSelector').innerHTML=chips+`<button class="dm-tab add" onclick="addDevoir()">＋ Nouveau devoir</button>`;
+}
+function selectDevoir(id){ readEditorIntoDevoir(); dmSelId=id; renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats(); }
+async function addDevoir(){
+  readEditorIntoDevoir();
+  const maxNum=dmList.reduce((m,d)=>Math.max(m,d.num||0),0);
+  const d=ensureDevoir({num:maxNum+1, actif:true, titre:'Devoir à la maison', cours:'', exercices:[]}, dmList.length);
+  dmList.push(d); dmSelId=d.id;
+  try{ await persistDevoirs(); }catch(e){}
+  renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+  toast('Devoir n°'+d.num+' ajouté','ok');
+}
+function renderDevoirEditor(){
+  const dev=selectedDevoir(); if(!dev){ $('dmEditor').style.display='none'; return; }
+  $('dmEditor').style.display='';
+  $('dmNum').value=dev.num; $('dmActif').checked=!!dev.actif;
+  $('dmTitre').value=dev.titre||''; $('dmCours').value=dev.cours||'';
+  const byId={}; (dev.exercices||[]).forEach(e=>{ byId[e.id]=e.modes||[]; });
+  $('dmExos').innerHTML=TEST_ORDER.length?TEST_ORDER.map(id=>{
+    const modes=byId[id]||[]; const s=modes.includes('soutien'), t=modes.includes('train');
+    return `<div class="dm-exo">
+      <span class="dm-exo-name">${esc(testLabel(id))}</span>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''}> Soutien</label>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''}> Entraînement</label>
+    </div>`;
+  }).join('') : '<div class="empty">Ajoute d\u2019abord des exercices à l\u2019application pour pouvoir les mettre dans un devoir.</div>';
+}
+/* Lit le formulaire dans le devoir sélectionné (en mémoire), sans écrire en base. */
+function readEditorIntoDevoir(){
+  const dev=dmList.find(d=>d.id===dmSelId); if(!dev || !$('dmNum')) return;
+  const map={};
+  document.querySelectorAll('#dmExos input[type=checkbox]').forEach(cb=>{ if(cb.checked){ (map[cb.dataset.ex]=map[cb.dataset.ex]||[]).push(cb.dataset.mode); } });
+  dev.num=parseInt(val('dmNum'),10)||dev.num||1;
+  dev.actif=$('dmActif').checked;
+  dev.titre=val('dmTitre').trim()||'Devoir à la maison';
+  dev.cours=$('dmCours').value;
+  dev.exercices=TEST_ORDER.filter(id=>map[id]&&map[id].length).map(id=>({id,modes:map[id]}));
+}
+async function persistDevoirs(){
+  const cur=await loadConfig();
+  const {error}=await sb.from('parametres').upsert({id:1,valeurs:Object.assign({},cur,{devoirs:dmList})});
+  if(error)throw error;
+}
+async function saveDevoir(){
+  readEditorIntoDevoir();
+  try{
+    await persistDevoirs();
+    const m=$('dmSaved'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1800);
+    toast('Devoir enregistré ✓','ok');
+    renderDevoirSelector(); renderDevoirResultats();
+  }catch(e){ toast('Enregistrement impossible','err'); }
+}
+async function deleteDevoir(){
+  const dev=selectedDevoir(); if(!dev) return;
+  if(!confirm(`Supprimer le Devoir n°${dev.num} ? Les résultats déjà enregistrés ne sont pas effacés.`)) return;
+  dmList=dmList.filter(d=>d.id!==dev.id);
+  if(!dmList.length) dmList=[ensureDevoir(Object.assign({},DEFAULT_DEVOIR),0)];
+  dmSelId=dmList[0].id;
+  try{ await persistDevoirs(); toast('Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible','err'); }
+  renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
+}
+async function renderDevoirResultats(){
+  const box=$('dmResults'); const dev=selectedDevoir();
+  if($('dmResTitle')) $('dmResTitle').textContent = dev? ('du Devoir n°'+dev.num) : '';
+  if(!dev){ box.innerHTML=''; return; }
+  const exos=dev.exercices||[];
+  if(!exos.length){ box.innerHTML='<div class="empty">Ajoute au moins un exercice à ce devoir (et enregistre) pour suivre les résultats.</div>'; return; }
+  box.innerHTML='<p class="muted">Chargement…</p>';
+  try{
+    const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
+      sb.from('eleves').select('*').order('prenom'),
+      sb.from('resultats').select('*')
+    ]);
+    if(e1)throw e1; if(e2)throw e2;
+    if(!eleves||!eleves.length){ box.innerHTML='<div class="empty">Aucun compte élève.</div>'; return; }
+    const dmRes=(res||[]).filter(r=>!isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm===dev.id);
+    const k=(eid,tid,m)=>eid+'|'+tid+'|'+m;
+    const best={}; dmRes.forEach(r=>{ const key=k(r.eleve_id,testIdOf(r),modeOf(r)); if(!best[key]||r.percent>best[key].percent) best[key]=r; });
+    const totMax=exos.length*10;
+    // synthèse par élève (note du devoir + nombre d'exercices faits)
+    const synth=eleves.map(e=>{
+      let somme=0, nbFait=0;
+      const exd=exos.map(ex=>{
+        const bs=best[k(e.id,ex.id,'soutien')], be=best[k(e.id,ex.id,'train')];
+        const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) nbFait++;
+        return {ex,nd,bs,be};
+      });
+      return {e,somme,nbFait,exd,fait:nbFait>0};
+    });
+    const actifs=synth.filter(x=>x.fait);
+    const moy=actifs.length? actifs.reduce((a,x)=>a+x.somme,0)/actifs.length : null;
+    // 1) Bilan de la classe (tableau récapitulatif par élève)
+    const bilanRows=synth.map(x=>{
+      const nb=x.fait?`<span class="dm-note">${fmtNote(x.somme)} / ${totMax}</span>`:`<span class="dm-note none">— / ${totMax}</span>`;
+      const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
+      return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
+    }).join('');
+    const bilan=`<div class="panel">
+      <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
+        <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(moy)+' / '+totMax)}</span></div>
+      <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5). « Exercices faits » = nombre d'exercices commencés sur ${exos.length}.</p>
+      <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
+    </div>`;
+    // 2) Détail par élève
+    const cards=synth.map(x=>{
+      const rows=x.exd.map(({ex,nd,bs,be})=>{
+        const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
+        const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
+        return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
+      }).join('');
+      const totLbl=x.fait?`Note : ${fmtNote(x.somme)} / ${totMax}`:`Note : — / ${totMax}`;
+      return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
+    }).join('');
+    box.innerHTML=bilan+'<div class="set-h">Détail par élève</div>'+cards;
+  }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+}
+
+
+/* export CSV */
+async function exportCSV(){
+  try{
+    const {data:rawCsv,error}=await sb.from('resultats').select('*, eleves(prenom)').order('created_at',{ascending:true});
+    if(error)throw error;
+    const data=(rawCsv||[]).filter(r=>!isPaused(r));
+    if(!data.length){ toast('Aucun résultat à exporter'); return; }
+    const head=['Eleve','Numero','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date'];
+    const lines=data.map(r=>[
+      (r.eleves&&r.eleves.prenom)||'?', testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
+      Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')
+    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+    const csv='\uFEFF'+[head.join(','),...lines].join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='tests-resultats.csv';a.click();URL.revokeObjectURL(a.href);
+  }catch(e){ toast('Export impossible','err'); }
+}
+
+/* clavier */
+{ const _ai=$('answerInput'); if(_ai) _ai.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAnswer();}}); }
+/* mode soutien : couleur immédiate case par case */
+/* (plus de coloration case-par-case : le moteur générique gère le feedback) */
+/* enregistrement différé du travail en cours (entraînement & soutien) : protège même en cas de fermeture/plantage */
+let _draftSaveTimer=null;
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(!currentEleve||!(currentMode==='train'||currentMode==='soutien')||!t||t.tagName!=='INPUT'||!t.closest('.screen.on')) return;
+  clearTimeout(_draftSaveTimer); _draftSaveTimer=setTimeout(autoSave,1200);
+});
+$('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
+$('teacherPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();teacherLogin();}});
+$('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();creerCompte();}});
+
+/* démarrage */
+if(configReady()){ initSupabase(); show('home'); }
+else { show('setup'); }
+</script>
