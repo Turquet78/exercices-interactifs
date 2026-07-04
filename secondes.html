@@ -539,6 +539,83 @@
 .s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .s1-in:disabled{opacity:1;}
+    /* ---- Exercice Lecture graphique — variations ---- */
+    #scr-lv{padding-bottom:84px}
+    .lv-card{max-width:600px;margin:0 auto}
+    .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
+    .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
+    .lv-instr{font-weight:600;margin:0 0 12px}
+    .lv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 16px;overflow-x:auto}
+    .lv-svg{display:block;width:100%;max-width:460px;height:auto;margin:0 auto}
+    .lv-grid{stroke:var(--grid);stroke-width:1}
+    .lv-axis{stroke:var(--ink-soft);stroke-width:1.4}
+    .lv-axfill{fill:var(--ink-soft)}
+    .lv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft)}
+    .lv-curve{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+    .lv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:15px;fill:var(--blue)}
+    .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
+    .lv-vtbl,.lv-vartbl{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif}
+    .lv-vtbl td,.lv-vartbl td{border:1.5px solid var(--grid);padding:6px 4px;text-align:center;min-width:34px;font-size:.95rem}
+    .lv-vtbl td.lab,.lv-vartbl td.lab{background:var(--paper);font-weight:700;min-width:46px}
+    .lv-vartbl td.arrowcol{border:none;background:transparent;min-width:46px}
+    .lv-vartbl td.xv{font-weight:700;color:var(--ink)}
+    .lv-in{width:42px;border:1.6px solid var(--line);border-radius:8px;padding:5px 2px;text-align:center;font-family:inherit;font-size:.95rem;background:var(--surface);color:var(--ink)}
+    .lv-in.sm{width:40px}
+    .lv-in:focus{outline:none;border-color:var(--blue)}
+    .lv-in.good,.lv-sel.good{border-color:var(--green);background:var(--green-soft)}
+    .lv-in.bad,.lv-sel.bad{border-color:var(--red);background:#fdeaea}
+    .lv-blist{display:flex;flex-direction:column;gap:14px}
+    .lv-brow{font-weight:600;line-height:2}
+    .lv-int{font-weight:800;color:var(--ink)}
+    .lv-sel{border:1.6px solid var(--line);border-radius:8px;padding:5px 6px;font-family:inherit;font-size:.92rem;background:var(--surface);color:var(--ink)}
+    .lv-sel.arr{padding:4px 4px;font-size:1.05rem;min-width:54px;text-align:center}
+    .lv-feedback{min-height:26px;margin-top:14px;text-align:center}
+    .lv-feedback .mark{position:static;display:inline-block;vertical-align:middle;font-size:1.3rem;font-weight:800;opacity:0;transition:opacity .2s}
+    .lv-feedback .mark.show{opacity:1}
+    .lv-feedback .mark.good{color:var(--green)}
+    .lv-feedback .mark.bad{color:var(--red)}
+    .lv-ok{color:var(--green);font-weight:700}
+    /* ---- Tableau de variation (format escalier) ---- */
+    .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
+    .lv-vartbl2 td{border:none;text-align:center;padding:0}
+    .lv-vartbl2 .vlab{background:var(--paper);font-weight:700;padding:8px 10px;min-width:46px;border-right:1.6px solid var(--grid)}
+    .lv-vartbl2 tr.vt-xr td{padding:7px 6px;font-weight:700;color:var(--ink);border-bottom:1.6px solid var(--grid)}
+    .lv-vartbl2 .vnx{min-width:40px}
+    .vnx .xv-in{width:42px;padding:3px 2px;text-align:center;font-weight:600}
+    .lv-vartbl2 .vax,.lv-vartbl2 .vaf{border-left:none;border-right:none}
+    .lv-vartbl2 tr.vt-fr td{height:96px;position:relative;vertical-align:middle}
+    .lv-vartbl2 .vnf{min-width:44px}
+    .vnf .vv{position:absolute;left:50%;width:40px;margin:0;transition:top .22s ease,bottom .22s ease}
+    .vnf .vv.at-top{top:6px;transform:translateX(-50%)}
+    .vnf .vv.at-bot{bottom:6px;transform:translateX(-50%)}
+    .vnf .vv.at-mid{top:50%;transform:translate(-50%,-50%)}
+    .vaf{min-width:60px}
+    .vaf .vt-arrow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+    .vaf .vt-shaft{stroke:var(--blue);stroke-width:3;stroke-linecap:round}
+    .vaf .vt-head{fill:none;stroke:var(--blue);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+    .vaf .vt-sel{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:.8rem;padding:1px 6px;border:1.3px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;opacity:.92}
+    .vaf .vt-sel:focus{outline:none;border-color:var(--blue)}
+    .vnf .vv.good{border-color:var(--green);background:var(--green-soft)}
+    .vnf .vv.bad{border-color:var(--red);background:#fdeaea}
+    .vt-sel.good{border-color:var(--green);background:var(--green-soft)}
+    .vt-sel.bad{border-color:var(--red);background:#fdeaea}
+    /* ---- Tableau de variation : flèches reliant les valeurs ---- */
+    .lv-vartbl2 .vfcell{position:relative;padding:0;border:none;vertical-align:middle}
+    .vfcell .vt-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+    .vfcell .vv{position:absolute;transform:translate(-50%,-50%);width:38px;margin:0;transition:top .2s ease;z-index:2;text-align:center}
+    .vfcell .vt-sel{position:absolute;bottom:3px;transform:translateX(-50%);font-size:.8rem;padding:1px 6px;border:1.3px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;opacity:.92;z-index:3}
+    .vt-shaft{stroke:var(--blue);stroke-width:3;stroke-linecap:round;fill:none}
+    .vt-head{fill:none;stroke:var(--blue);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+    /* ---- Menus de sens des flèches, sous le tableau ---- */
+    .lv-arrows{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 16px;margin:16px 0 2px}
+    .lv-arrows-lab{font-weight:600;font-size:.9rem;width:100%;text-align:center;margin-bottom:2px}
+    .lv-arrow-ctrl{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+    .lv-arrow-ctrl b{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;border-radius:50%;background:var(--blue);color:#fff;font-size:.82rem;flex:none}
+    /* ---- Menu de sens, dans le tableau, au milieu de chaque flèche ---- */
+    .vfcell .vt-sel2{position:absolute;transform:translate(-50%,-50%);width:48px;box-sizing:border-box;font-size:.98rem;padding:2px 0;border:1.4px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;z-index:3;cursor:pointer;box-shadow:0 0 0 3px var(--surface)}
+    .vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
+    .vfcell .vt-sel2.good{border-color:var(--green);background:var(--green-soft)}
+    .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
 </style>
 
 <div class="wrap">
@@ -725,7 +802,81 @@
   </section>
 
   <!-- TEST -->
-  <!-- Écrans d'exercices : ajoutés ici quand des exercices seront créés. -->
+  <section class="screen" id="scr-lv">
+    <div class="card lv-card">
+      <div class="q-head"><span id="lvIdx" class="q-idx">Question 1 / 3</span><span id="lvModeTag"></span></div>
+      <p class="lv-sub" id="lvSub"></p>
+      <p class="lv-instr" id="lvInstr"></p>
+      <div class="lv-graph" id="lvGraph"></div>
+      <div id="lvBody"></div>
+      <div class="lv-feedback"><span id="lvMark" class="mark"></span> <span id="lvCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-results">
+    <div class="card">
+      <div class="result-head"><h2 id="resultMsg">Bravo !</h2><p id="resultSub"></p></div>
+      <div class="score-circle">
+        <svg viewBox="0 0 170 130" aria-hidden="true"><ellipse class="ring" cx="85" cy="65" rx="74" ry="52" transform="rotate(-4 85 65)"/></svg>
+        <div class="val"><span class="big" id="resultScore">0 / 10</span><span class="pct" id="resultPct">0 %</span></div>
+      </div>
+      <ul class="review" id="review"></ul>
+      <div class="row" style="margin-top:22px;justify-content:center">
+        <button class="btn btn-primary" onclick="restartCurrentTest()">Recommencer</button>
+        <button class="btn btn-ghost" onclick="retourChoix()">Autre exercice</button>
+        <button class="btn btn-ghost" onclick="ouvrirEspace()">Mon espace</button>
+      </div>
+      <p class="note" style="text-align:center">Ce test a été ajouté à ton historique.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-ptest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagP"></span><span class="q-idx" id="pqIdx">Question 1 / 8</span></span>
+      <span class="score-tag">Réussies&nbsp;<b id="pLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pPrompt">Prendre un pourcentage.</p>
+      <div class="mp-stage"><div style="width:100%" id="pHost"></div></div>
+      <div class="mp-feedback" id="pFeedback"></div>
+      <div class="row" style="justify-content:center" id="pActions">
+        <button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEST : MULTIPLIER DES DÉCIMAUX -->
+
+  <section class="screen" id="scr-atest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagA"></span><span class="q-idx" id="aqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag">Réussies&nbsp;<b id="aLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="aPrompt">Augmenter d'un pourcentage.</p>
+      <div class="mp-stage"><div style="width:100%" id="aHost"></div></div>
+      <div class="mp-feedback" id="aFeedback"></div>
+      <div class="row" style="justify-content:center" id="aActions">
+        <button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-dtest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagD"></span><span class="q-idx" id="dqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag">Réussies&nbsp;<b id="dLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="dPrompt">Diminuer d'un pourcentage.</p>
+      <div class="mp-stage"><div style="width:100%" id="dHost"></div></div>
+      <div class="mp-feedback" id="dFeedback"></div>
+      <div class="row" style="justify-content:center" id="dActions">
+        <button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
 
   <section class="screen" id="scr-teacher-login">
     <div class="card">
@@ -902,13 +1053,21 @@ let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
-const TESTS={};
+const TESTS={
+  'lecture-variations': { name:'Lecture graphique \u2014 variations', icon:'\ud83d\udcc8', desc:'Lis une courbe : complète le tableau de valeurs, le sens de variation et le tableau de variation.', start:()=>startLV() },
+  'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
+  'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
+  'diminuer-pourcentage': { name:'Diminuer d\u2019un pourcentage', icon:'\ud83d\udcc9', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() }
+};
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
    simplement de la position dans la liste « ids ». Pour reclasser un exercice,
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
-const THEMES=[];
+const THEMES=[
+  { num:1, nom:'Fonctions', ids:['lecture-variations'] },
+  { num:2, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] }
+];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
 THEMES.forEach(t=>{ t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); }); });
@@ -935,7 +1094,13 @@ function soutienAgain(fbId, actionsId, fn, host){
   if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
 }
 /* ---------- (soutien simplifié : géré directement dans submitAnswer) ---------- */
-function liveCheckCurrent(){ /* le moteur générique gère le soutien dans submitAnswer */ }
+function liveCheckCurrent(){
+  if(!isSoutien()||test.locked) return;
+  const k=test.kind;
+  if(k==='pct') checkPAnswer(true);
+  else if(k==='aug') checkAAnswer(true);
+  else if(k==='dim') checkDAnswer(true);
+}
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
   if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
@@ -1148,7 +1313,7 @@ async function enregistrerNotePartielle(){
   if(!(currentMode==='train'||currentMode==='soutien')) return false;
   if(!test.questions || !test.questions.length) return false;
   if(!(test.answers||[]).length) return false;            // rien de validé : pas de note
-  const total=test.questions.length, score=test.score||0, pct=Math.round(score/total*100);
+  const total=test.maxScore||test.questions.length, score=test.score||0, pct=Math.min(100,Math.round(score/total*100));
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
   try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details}); return true; }catch(e){ return false; }
@@ -1196,7 +1361,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={};
+  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest]};
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1216,11 +1381,11 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','dexp','sv','tg','s1','s2'];
+  const testScreens=['lv','ptest','atest','dtest'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -1357,8 +1522,8 @@ function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPau
    Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
    sinon points du soutien (au max 5). */
 function noteDevoirExo(bestSoutien, bestEntrain){
-  const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
-  const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
+  const s = bestSoutien ? Math.min(5, bestSoutien.percent/100*5) : 0;
+  const e = bestEntrain ? Math.min(10, bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
   const note = (e > s || !soutienFait) ? e : s;
   return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
@@ -1473,13 +1638,314 @@ async function loadConfig(){
   }catch(e){ return normalizeCfg({...DEFAULT_CFG}); }
 }
 
-/* ============================================================
-   EXERCICES — aucun pour le moment.
-   Pour ajouter un exercice : écris ici son générateur + son rendu,
-   ajoute une entrée dans TESTS et range-le dans un thème (THEMES).
-   Le moteur d'exercice (rendu des questions, validation, écran de
-   résultats, reprise) sera ajouté ici avec les premiers exercices.
-   ============================================================ */
+/* ================= Exercice Seconde : Lecture graphique — variations (kind 'lv') ================= */
+function numFmt(n){ return n<0 ? '\u2212'+Math.abs(n) : String(n); }
+
+function lvPickSubset(arr, m){
+  if(m<=0) return [];
+  if(m>=arr.length) return arr.slice();
+  const idx=arr.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=idx[i]; idx[i]=idx[j]; idx[j]=t; }
+  return idx.slice(0,m).sort((a,b)=>a-b).map(i=>arr[i]);
+}
+
+/* Génère 9 valeurs entières f(-4..4) formant k segments monotones (k=2 ou 3),
+   valeurs dans [-3,3], changements de sens à des abscisses entières. */
+function lvGenPts(k){
+  const FALL2=[[-3,-1,1,3,1,-1,-3],[3,1,-1,-3,-1,1,3],[-2,0,2,3,2,0,-2]];
+  const FALL3=[[-3,-1,2,0,-2,0,2],[2,0,-2,0,2,0,-2],[-2,0,3,1,-1,1,3]];
+  for(let att=0; att<600; att++){
+    let turns;
+    if(k===2){ turns=[pick([1,2,3,4,5])]; }
+    else{ const a=pick([1,2,3]); const opts=[a+2,a+3,a+4].filter(v=>v<=5); if(!opts.length) continue; turns=[a,pick(opts)]; }
+    const nodeIdx=[0].concat(turns,[6]);
+    const d0=pick([1,-1]);
+    const segDir=[]; for(let s=0;s<nodeIdx.length-1;s++) segDir.push(d0*(s%2===0?1:-1));
+    const y=new Array(7);
+    y[0] = d0>0 ? pick([-3,-2,-1]) : pick([1,2,3]);
+    let ok=true;
+    for(let s=0;s<nodeIdx.length-1 && ok;s++){
+      const ai=nodeIdx[s], bi=nodeIdx[s+1], dir=segDir[s], len=bi-ai, cur=y[ai];
+      const cands=[]; for(let v=-3; v<=3; v++){ if(dir>0 ? (v-cur>=len) : (cur-v>=len)) cands.push(v); }
+      if(!cands.length){ ok=false; break; }
+      const end=pick(cands);
+      const lo=Math.min(cur,end), hi=Math.max(cur,end);
+      const inner=[]; for(let v=lo+1; v<=hi-1; v++) inner.push(v);
+      if(inner.length < len-1){ ok=false; break; }
+      const chosen=lvPickSubset(inner, len-1);
+      const seq = dir>0 ? chosen : chosen.slice().reverse();
+      for(let t=1;t<len;t++) y[ai+t]=seq[t-1];
+      y[bi]=end;
+    }
+    if(!ok) continue;
+    const mn=Math.min.apply(null,y), mx=Math.max.apply(null,y);
+    if(mx-mn<4 || mn<-3 || mx>3) continue;
+    if(lvAnalyze(y).segments.length!==k) continue;
+    return {pts:y};
+  }
+  const fb = k===2?pick(FALL2):pick(FALL3);
+  return {pts:fb.slice()};
+}
+
+/* À partir des 9 valeurs, retrouve nœuds (bornes + sommets) et segments avec leur sens. */
+function lvAnalyze(pts){
+  const xs=[-3,-2,-1,0,1,2,3];
+  const d=[]; for(let i=0;i<6;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+  const turnIdx=[]; for(let i=1;i<=5;i++){ if(d[i-1]!==d[i]) turnIdx.push(i); }
+  const nodeIdx=[0].concat(turnIdx,[6]);
+  const nodes=nodeIdx.map(i=>({x:xs[i], y:pts[i]}));
+  const segments=[]; for(let s=0;s<nodeIdx.length-1;s++){ const a=nodeIdx[s], b=nodeIdx[s+1]; segments.push({fromX:xs[a], toX:xs[b], dir: pts[b]>pts[a]?'croissante':'décroissante'}); }
+  return {xs, dir:d, turnIdx, nodeIdx, nodes, segments};
+}
+
+/* Spline cubique monotone (Fritsch–Carlson), tangente nulle aux sommets -> jolis extrema arrondis. */
+function lvTangents(pts){
+  const n=pts.length, d=[];
+  for(let i=0;i<n-1;i++) d.push(pts[i+1]-pts[i]);
+  const m=new Array(n); m[0]=d[0]; m[n-1]=d[n-2];
+  for(let i=1;i<n-1;i++){ m[i] = (Math.sign(d[i-1])!==Math.sign(d[i])) ? 0 : (d[i-1]+d[i])/2; }
+  for(let i=0;i<n-1;i++){
+    if(d[i]===0){ m[i]=0; m[i+1]=0; continue; }
+    const a=m[i]/d[i], b=m[i+1]/d[i], s=a*a+b*b;
+    if(s>9){ const t=3/Math.sqrt(s); m[i]=t*a*d[i]; m[i+1]=t*b*d[i]; }
+  }
+  return m;
+}
+function lvPath(pts, sx, sy){
+  const xs=[-3,-2,-1,0,1,2,3], m=lvTangents(pts);
+  let d='M '+sx(xs[0]).toFixed(1)+' '+sy(pts[0]).toFixed(1);
+  for(let i=0;i<6;i++){
+    const x0=xs[i],x1=xs[i+1],y0=pts[i],y1=pts[i+1];
+    d+=' C '+sx(x0+1/3).toFixed(1)+' '+sy(y0+m[i]/3).toFixed(1)+' '+sx(x1-1/3).toFixed(1)+' '+sy(y1-m[i+1]/3).toFixed(1)+' '+sx(x1).toFixed(1)+' '+sy(y1).toFixed(1);
+  }
+  return d;
+}
+function lvGraphSVG(pts){
+  const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
+  const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
+  const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
+  let grid='';
+  for(let x=-3;x<=3;x++) grid+='<line x1="'+sx(x).toFixed(1)+'" y1="'+PT+'" x2="'+sx(x).toFixed(1)+'" y2="'+PB+'" class="lv-grid"/>';
+  for(let y=-3;y<=3;y++) grid+='<line x1="'+PL+'" y1="'+sy(y).toFixed(1)+'" x2="'+PR+'" y2="'+sy(y).toFixed(1)+'" class="lv-grid"/>';
+  const y0=sy(0), x0=sx(0);
+  const axes='<line x1="'+PL+'" y1="'+y0.toFixed(1)+'" x2="'+(PR+6)+'" y2="'+y0.toFixed(1)+'" class="lv-axis"/>'
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+(PB)+'" x2="'+x0.toFixed(1)+'" y2="'+(PT-6)+'" class="lv-axis"/>'
+    +'<polygon points="'+(PR+8)+','+y0.toFixed(1)+' '+(PR)+','+(y0-3.5).toFixed(1)+' '+(PR)+','+(y0+3.5).toFixed(1)+'" class="lv-axfill"/>'
+    +'<polygon points="'+x0.toFixed(1)+','+(PT-8)+' '+(x0-3.5).toFixed(1)+','+(PT)+' '+(x0+3.5).toFixed(1)+','+(PT)+'" class="lv-axfill"/>'
+    +'<text x="'+(PR+6)+'" y="'+(y0+15).toFixed(1)+'" class="lv-ax" text-anchor="middle">x</text>';
+  let labels='';
+  for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
+  for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
+  const cf='<text x="'+sx(-2.7).toFixed(1)+'" y="'+(sy(pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy)+'"/>'+cf+'</svg>';
+}
+
+/* ---- Cycle de l'exercice ---- */
+function lvPartLabel(q){ return q.part==='a'?'Tableau de valeurs':(q.part==='b'?'Sens de variation':'Tableau de variation'); }
+function lvSubCount(q){ const a=lvAnalyze(q.pts); if(q.part==='a') return a.xs.length; if(q.part==='b') return a.segments.length; return (a.nodes.length-2) + a.nodes.length + a.segments.length; }
+function lvBuildQuestions(nGraphs, mode){
+  const out=[];
+  for(let g=0; g<nGraphs; g++){
+    const k = (mode==='soutien') ? 2 : pick([2,2,3]);
+    const pts = lvGenPts(k).pts;
+    ['a','b','c'].forEach(part=>{ out.push({pts:pts, part:part, gnum:g+1, gtot:nGraphs}); });
+  }
+  return out;
+}
+function startLV(){
+  const mode=currentMode;
+  const nGraphs = (mode==='soutien') ? 1 : 2;
+  const qs = lvBuildQuestions(nGraphs, mode);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'lv', questions:qs, idx:0, score:0, maxScore:qs.reduce((n,q)=>n+lvSubCount(q),0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('lv'); renderLV();
+}
+function renderLV(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  const a=lvAnalyze(q.pts);
+  $('lvIdx').textContent = 'Question '+(test.idx+1)+' / '+test.questions.length;
+  $('lvModeTag').innerHTML = modeTagHTML();
+  $('lvSub').textContent = 'Graphique '+q.gnum+' / '+q.gtot+' \u2014 '+lvPartLabel(q);
+  $('lvGraph').innerHTML = lvGraphSVG(q.pts);
+  let instr='', body='';
+  if(q.part==='a'){
+    instr='À l\u2019aide du graphique, complète le tableau de valeurs de la fonction f.';
+    let head='', row='';
+    a.xs.forEach((x,i)=>{ head+='<td>'+numFmt(x)+'</td>'; row+='<td><input id="lv-a-'+i+'" class="lv-in" inputmode="numeric" autocomplete="off"></td>'; });
+    body='<div class="lv-tblwrap"><table class="lv-vtbl"><tbody><tr><td class="lab"><i>x</i></td>'+head+'</tr><tr><td class="lab"><i>f</i>(<i>x</i>)</td>'+row+'</tr></tbody></table></div>';
+  } else if(q.part==='b'){
+    instr='Pour chaque intervalle, indique si la fonction f est croissante ou décroissante.';
+    body='<div class="lv-blist">'+a.segments.map((s,i)=>
+      '<div class="lv-brow">Sur l\u2019intervalle <span class="lv-int">[\u2009'+numFmt(s.fromX)+'\u2009;\u2009'+numFmt(s.toX)+'\u2009]</span>, f est '
+      +'<select id="lv-b-'+i+'" class="lv-sel"><option value="">\u2014</option><option value="croissante">croissante</option><option value="décroissante">décroissante</option></select>.</div>'
+    ).join('')+'</div>';
+  } else {
+    instr='Complète le tableau de variation : indique les abscisses des changements de sens, la valeur de f à chaque étape, puis choisis le sens (↗ ou ↘) au milieu de chaque flèche. Les valeurs se placent à ses extrémités.';
+    const K=a.segments.length, N=a.nodes.length;
+    const LVWL=44, LVWN=52, LVWS=78, LVH=120, vTop=22, vBot=70, selY=100;
+    const innerW=N*LVWN + K*LVWS;
+    let xrow='<td class="vlab" style="width:'+LVWL+'px"><i>x</i></td>';
+    a.nodes.forEach((nd,j)=>{
+      const isEnd=(j===0||j===N-1);
+      xrow+= '<td class="vnx" style="width:'+LVWN+'px">'+ (isEnd ? numFmt(nd.x) : '<input id="lv-c-x-'+j+'" class="lv-in xv-in" inputmode="numeric" autocomplete="off">') +'</td>';
+      if(j<K) xrow+='<td class="vax" style="width:'+LVWS+'px"></td>';
+    });
+    const ncx=j=> (j*(LVWN+LVWS) + LVWN/2);
+    const scx=i=> (i*(LVWN+LVWS) + LVWN + LVWS/2);
+    let inner='<svg class="vt-overlay" id="lv-c-ov" viewBox="0 0 '+innerW+' '+LVH+'" preserveAspectRatio="none"></svg>';
+    a.nodes.forEach((nd,j)=>{ inner+='<input id="lv-c-val-'+j+'" class="lv-in sm vv" inputmode="numeric" autocomplete="off" style="left:'+ncx(j)+'px;top:'+((vTop+vBot)/2)+'px">'; });
+    a.segments.forEach((seg,i)=>{ inner+='<select id="lv-c-arr-'+i+'" class="vt-sel2" onchange="lvArrowChange()" style="left:'+scx(i)+'px;top:'+selY+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; });
+    const frow='<td class="vlab" style="width:'+LVWL+'px"><i>f</i>(<i>x</i>)</td><td class="vfcell" colspan="'+(N+K)+'" style="height:'+LVH+'px">'+inner+'</td>';
+    const table='<table class="lv-vartbl2" style="width:'+(LVWL+innerW)+'px"><tbody><tr class="vt-xr">'+xrow+'</tr><tr class="vt-fr">'+frow+'</tr></tbody></table>';
+    body='<div class="lv-tblwrap">'+table+'</div>';
+    setTimeout(lvArrowChange,0);
+  }
+  $('lvInstr').textContent=instr;
+  $('lvBody').innerHTML=body;
+  $('lvBody').querySelectorAll('input,select').forEach(el=>{ el.addEventListener('input',lvLive); el.addEventListener('change',lvLive); });
+  $('lvMark').className='mark'; $('lvMark').textContent=''; $('lvCorr').innerHTML=''; $('lvValidate').disabled=false;
+  setTimeout(lvLive,0);
+}
+
+/* Construit une flèche dessinée (trait + pointe) d'un coin à l'autre de la case. */
+function lvArrowSVG(x0,y0,x1,y1){
+  const dx=x1-x0, dy=y1-y0, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len, m=22;
+  const sx=x0+m*ux, sy=y0+m*uy, ex=x1-m*ux, ey=y1-m*uy;
+  const hl=13, a=Math.PI*0.82, c=Math.cos(a), sn=Math.sin(a);
+  const b1x=(ex+hl*(ux*c-uy*sn)).toFixed(1), b1y=(ey+hl*(ux*sn+uy*c)).toFixed(1);
+  const b2x=(ex+hl*(ux*c+uy*sn)).toFixed(1), b2y=(ey+hl*(-ux*sn+uy*c)).toFixed(1);
+  const tip=ex.toFixed(1)+','+ey.toFixed(1);
+  return '<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+ex.toFixed(1)+'" y2="'+ey.toFixed(1)+'" class="vt-shaft"/><polyline points="'+b1x+','+b1y+' '+tip+' '+b2x+','+b2y+'" class="vt-head"/>';
+}
+/* Place les valeurs aux extrémités des flèches selon le sens choisi (tableau de variation). */
+function lvArrowChange(){
+  if(test.kind!=='lv') return;
+  const q=test.questions[test.idx]; if(!q||q.part!=='c') return;
+  const a=lvAnalyze(q.pts), N=a.nodes.length, K=a.segments.length;
+  const LVWN=52, LVWS=78, LVH=120, vT=22, vB=70;
+  const ncx=j=> (j*(LVWN+LVWS) + LVWN/2);
+  const posY=new Array(N);
+  for(let j=0;j<N;j++){
+    const right = $('lv-c-arr-'+j) ? $('lv-c-arr-'+j).value : '';
+    const left  = (j>0 && $('lv-c-arr-'+(j-1))) ? $('lv-c-arr-'+(j-1)).value : '';
+    let y=(vT+vB)/2;
+    if(right==='up') y=vB; else if(right==='down') y=vT;
+    else if(left==='up') y=vT; else if(left==='down') y=vB;
+    posY[j]=y;
+    const inp=$('lv-c-val-'+j); if(inp) inp.style.top=y+'px';
+  }
+  const ov=$('lv-c-ov');
+  if(ov){
+    let g='';
+    for(let i=0;i<K;i++){
+      const v=$('lv-c-arr-'+i) ? $('lv-c-arr-'+i).value : ''; if(!v) continue;
+      const y0=(v==='up')?vB:vT, y1=(v==='up')?vT:vB;
+      g+=lvArrowSVG(ncx(i),y0,ncx(i+1),y1);
+    }
+    ov.innerHTML=g;
+  }
+}
+
+/* ---- Validation ---- */
+function lvReadInt(id){ const el=$(id); if(!el) return null; const v=(el.value||'').trim().replace(',','.'); if(v==='') return null; const n=parseFloat(v); return isNaN(n)?null:n; }
+function lvCheckPart(q){
+  const a=lvAnalyze(q.pts); const subs=[];
+  if(q.part==='a'){
+    a.xs.forEach((x,i)=>{ subs.push({id:'lv-a-'+i, ok: lvReadInt('lv-a-'+i)===q.pts[i]}); });
+  } else if(q.part==='b'){
+    a.segments.forEach((s,i)=>{ const el=$('lv-b-'+i); subs.push({id:'lv-b-'+i, ok: !!el && el.value===s.dir}); });
+  } else {
+    a.nodes.forEach((nd,j)=>{ if(j!==0 && j!==a.nodes.length-1){ subs.push({id:'lv-c-x-'+j, ok: lvReadInt('lv-c-x-'+j)===nd.x}); } subs.push({id:'lv-c-val-'+j, ok: lvReadInt('lv-c-val-'+j)===nd.y}); });
+    a.segments.forEach((s,i)=>{ const el=$('lv-c-arr-'+i); const exp=(s.dir==='croissante')?'up':'down'; subs.push({id:'lv-c-arr-'+i, ok: !!el && el.value===exp}); });
+  }
+  const nCorrect=subs.filter(s=>s.ok).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+function lvMarkFields(res, final){
+  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('good','bad'); el.classList.add(s.ok?'good':'bad'); });
+}
+/* Mode soutien : contrôle chaque case au fur et à mesure (vert = juste, rouge = faux, rien si vide). */
+function lvLive(){
+  if(test.kind!=='lv' || !isSoutien()) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const a=lvAnalyze(q.pts);
+  const mk=(id, filled, good)=>{ const el=$(id); if(!el) return; el.classList.remove('good','bad'); if(filled) el.classList.add(good?'good':'bad'); };
+  const filledTxt=id=>{ const el=$(id); return !!el && (el.value||'').trim()!==''; };
+  const filledSel=id=>{ const el=$(id); return !!el && el.value!==''; };
+  if(q.part==='a'){
+    a.xs.forEach((x,i)=>{ mk('lv-a-'+i, filledTxt('lv-a-'+i), lvReadInt('lv-a-'+i)===q.pts[i]); });
+  } else if(q.part==='b'){
+    a.segments.forEach((seg,i)=>{ const el=$('lv-b-'+i); mk('lv-b-'+i, filledSel('lv-b-'+i), !!el && el.value===seg.dir); });
+  } else {
+    a.nodes.forEach((nd,j)=>{
+      if(j!==0 && j!==a.nodes.length-1){ mk('lv-c-x-'+j, filledTxt('lv-c-x-'+j), lvReadInt('lv-c-x-'+j)===nd.x); }
+      mk('lv-c-val-'+j, filledTxt('lv-c-val-'+j), lvReadInt('lv-c-val-'+j)===nd.y);
+    });
+    a.segments.forEach((seg,i)=>{ const el=$('lv-c-arr-'+i); const exp=(seg.dir==='croissante')?'up':'down'; mk('lv-c-arr-'+i, filledSel('lv-c-arr-'+i), !!el && el.value===exp); });
+  }
+}
+function lvCorrectionHTML(q){
+  const a=lvAnalyze(q.pts);
+  if(q.part==='a') return 'Valeurs : '+a.xs.map((x,i)=>'f('+numFmt(x)+')\u2009=\u2009'+numFmt(q.pts[i])).join('\u2003');
+  if(q.part==='b') return 'Réponses : '+a.segments.map(s=>s.dir+' sur [\u2009'+numFmt(s.fromX)+'\u2009;\u2009'+numFmt(s.toX)+'\u2009]').join('\u2003');
+  const _t=a.nodes.slice(1,-1).map(nd=>numFmt(nd.x)).join(' ; ');
+  return (_t?'Changements de sens en x = '+_t+'.  ':'')+'Extremums : '+a.nodes.map(nd=>'f('+numFmt(nd.x)+')\u2009=\u2009'+numFmt(nd.y)).join('\u2003')+'\u2003\u2003Sens : '+a.segments.map(s=>s.dir==='croissante'?'\u2197':'\u2198').join('\u2009');
+}
+function submitLV(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=lvCheckPart(q);
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const mk=$('lvMark'); mk.textContent='\u2717'; mk.className='mark bad show';
+    $('lvCorr').textContent='Pas tout à fait \u2014 corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  const mk=$('lvMark'); mk.textContent=res.allOk?'\u2713':'\u2717'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('lvValidate').disabled=true;
+  if(!res.allOk) $('lvCorr').innerHTML=lvCorrectionHTML(q);
+  else $('lvCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
+  test.answers.push({correct:res.allOk, q:lvPartLabel(q)+' (graph. '+q.gnum+') \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'lv'});
+  test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderLV(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
+}
+
+/* ---- Moteur : fin de test + écran de résultats (réintégrés) ---- */
+async function finishTest(){
+  clearRecovery();
+  const total = test.maxScore || test.questions.length;
+  const score = test.score;
+  const pct = total ? Math.round(score/total*100) : 0;
+  const durationSec = (Date.now()-test.startTime)/1000;
+  const misses = test.answers.filter(a=>!a.correct).map(a=>({q:a.q, donne:a.given, bon:a.answer}));
+  const fdetails = {test:currentTestId, mode:currentMode, misses:misses}; if(currentDM) fdetails.dm=currentDM;
+  try{
+    await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id, score:score, total:total, percent:pct, duration_sec:durationSec, details:fdetails});
+  }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score:score, total:total, percent:pct, durationSec:durationSec});
+}
+function showResults(r){
+  const msg = r.percent>=90?'Excellent !':r.percent>=70?'Bravo !':r.percent>=50?'Bien joué !':'Continue, tu progresses !';
+  $('resultMsg').textContent=msg;
+  $('resultSub').textContent = testLabel(currentTestId)+' \u2022 '+esc(currentEleve.prenom)+' \u2022 '+modeName(currentMode)+' \u2022 '+fmtDur(r.durationSec);
+  $('resultScore').textContent = r.score+' / '+r.total;
+  $('resultPct').textContent = r.percent+' %';
+  const ul=$('review'); ul.innerHTML='';
+  test.answers.forEach(a=>{
+    const li=document.createElement('li'); li.className=a.correct?'ok':'ko';
+    li.innerHTML='<span class="rmark">'+(a.correct?'\u2713':'\u2717')+'</span><span class="exp">'+esc(a.q)+'</span>';
+    ul.appendChild(li);
+  });
+  const ring=document.querySelector('.score-circle .ring');
+  if(ring){ ring.style.animation='none'; void ring.offsetWidth; ring.style.animation=''; }
+  show('results');
+}
+
 function teacherLogin(){
   if(val('teacherPass')!==MOT_DE_PASSE_PROF){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
@@ -1873,11 +2339,475 @@ async function exportCSV(){
 { const _ai=$('answerInput'); if(_ai) _ai.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAnswer();}}); }
 /* mode soutien : couleur immédiate case par case */
 /* (plus de coloration case-par-case : le moteur générique gère le feedback) */
+/* ===== Exercices Pourcentages (portés depuis Première) ===== */
+/* ===== Helpers portés depuis Première (exercices pourcentage) ===== */
+function liveColorExp(el){              // case à valeur exacte (chiffre posé / retenue)
+  if(!el||el.disabled) return; const v=el.value.trim();
+  const cl=el.parentElement; if(cl) cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+  el.classList.remove('ok','bad'); if(v==='') return;
+  el.classList.add(v===el.dataset.exp?'ok':'bad');
+}
+function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénominateur (toute fraction égale)
+  const en=$(idn), ed=$(idd); if(!en) return;
+  const vn=en.value.trim(), vd=ed?ed.value.trim():'';
+  if(!en.disabled) en.classList.remove('ok','bad'); if(ed&&!ed.disabled) ed.classList.remove('ok','bad');
+  if(vn===''||vd==='') return;                       // fraction incomplète : aucune couleur
+  const n=parseInt(vn,10), d=parseInt(vd,10);
+  const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
+  if(!en.disabled) en.classList.add(ok?'ok':'bad'); if(ed&&!ed.disabled) ed.classList.add(ok?'ok':'bad');
+}
+function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
+  const en=$(idn), ed=$(idd); if(!en||!ed) return;
+  const vn=en.value.trim(), vd=ed.value.trim();
+  if(!en.disabled) en.classList.remove('ok','bad'); if(!ed.disabled) ed.classList.remove('ok','bad');
+  if(vn===''||vd==='') return;
+  const n=parseInt(vn,10), d=parseInt(vd,10);
+  const ok = !isNaN(n)&&!isNaN(d)&&d>0&&isPow10(d)&&n*td===tn*d;
+  if(!en.disabled) en.classList.add(ok?'ok':'bad'); if(!ed.disabled) ed.classList.add(ok?'ok':'bad');
+}
+function liveColorDec(id,tn,td){                       // case décimale
+  const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
+  el.classList.remove('ok','bad'); if(v==='') return;
+  const fr=parseDecToFrac(v); const ok=!!fr && fr.n*td===tn*fr.d;
+  el.classList.add(ok?'ok':'bad');
+}
+function liveColorDecCoef(id,coef){                    // coefficient décimal saisi après « 1, »
+  const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
+  el.classList.remove('ok','bad'); if(v==='') return;
+  const fr=parseDecToFrac('1,'+v);
+  el.classList.add(!!fr && fr.n*100===coef*fr.d ? 'ok':'bad');
+}
+function isPow10(x){ if(!Number.isInteger(x)||x<1)return false; while(x%10===0)x/=10; return x===1; }
+function parseDecToFrac(str){
+  let s=String(str).trim().replace(/\s/g,'').replace(',', '.');
+  if(s===''||!(/^\d+(\.\d+)?$/.test(s)||/^\.\d+$/.test(s))) return null;
+  let intp='0',frac='';
+  if(s.includes('.')){ const p=s.split('.'); intp=p[0]||'0'; frac=p[1]||''; } else intp=s;
+  const d=Math.pow(10,frac.length), n=parseInt((intp+frac)||'0',10);
+  return isNaN(n)?null:{n,d};
+}
+/* ---------- Test 4 : pourcentage d'un nombre (méthode en 3 étapes) ---------- */
+function genPercent(){
+  const units=['€','litres','km','kg','élèves','minutes','g'];
+  let P,N,prod;
+  do{
+    P=pick([10,20,30,40,50,60,70,80,90]);                 // % : un seul chiffre non nul
+    const dN=rand(1,9), k=pick([1,2]);
+    N=dN*Math.pow(10,k);                                   // nombre : un seul chiffre non nul
+    prod=P*N;                                              // numérateur de l'étape 2
+  } while(prod>9999);                                      // calculs intermédiaires : 4 chiffres max
+  const unit=pick(units);
+  const result=prod/100;                                  // résultat (étape 3), toujours entier
+  return {P,N,unit,prod,result};
+}
+async function startPercent(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='pct';
+  test.questions=Array.from({length:8},genPercent);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('ptest'); renderPTest();
+}
+function renderPTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('pqIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagP').innerHTML=modeTagHTML();
+  $('pLiveScore').textContent=test.score;
+  $('pFeedback').textContent=''; $('pFeedback').className='mp-feedback';
+  $('pActions').innerHTML='<button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>';
+  $('pPrompt').innerHTML=`Prendre <b>${q.P}%</b> de <b>${q.N} ${esc(q.unit)}</b>, c'est calculer :`;
+  const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
+  $('pHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">① Transformer le % en fraction décimale</div>
+       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span></div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Multiplier les fractions</div>
+       <div class="pt-row"><span class="f-eq">=</span>${frac('p2n','p2d')}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">③ Écrire le résultat sous forme décimale</div>
+       <div class="pt-row"><span class="f-eq">=</span><input class="f-dec" id="p3" type="text" inputmode="decimal" autocomplete="off" aria-label="résultat"><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+  const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
+  order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkPAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(live){ liveColorFrac('p1n','p1d',q.P,100,false); liveColorFrac('p2n','p2d',q.prod,100,false); liveColorDec('p3',q.result,1); return; }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt($(id).value.trim(),10);
+  // étape 1 : toute fraction égale à P/100
+  const f1n=iv('p1n'), f1d=iv('p1d');
+  const ok1 = v('p1n')!=='' && v('p1d')!=='' && !isNaN(f1n) && !isNaN(f1d) && f1d!==0 && f1n*100===q.P*f1d;
+  // étape 2 : toute fraction égale à (P×N)/100
+  const f2n=iv('p2n'), f2d=iv('p2d');
+  const ok2 = v('p2n')!=='' && v('p2d')!=='' && !isNaN(f2n) && !isNaN(f2d) && f2d!==0 && f2n*100===q.prod*f2d;
+  // étape 3 : décimale égale au résultat
+  const fr=parseDecToFrac(v('p3'));
+  const ok3 = !!fr && fr.n===q.result*fr.d;
+  // les 2 cases d'une même étape partagent le même état (l'égalité porte sur la fraction entière)
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
+  mark('p1n',ok1); mark('p1d',ok1); mark('p2n',ok2); mark('p2d',ok2); mark('p3',ok3);
+  const allOk=ok1&&ok2&&ok3;
+  if(!allOk && isSoutien()){ soutienAgain('pFeedback','pActions','checkPAnswer','pHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('pLiveScore').textContent=test.score;
+    $('pFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('pFeedback').className='mp-feedback good';
+  } else {
+    $('pFeedback').textContent=`Réponse : ${q.P}/100 × ${q.N} = ${q.prod}/100 = ${q.result} ${q.unit} (toute fraction égale est acceptée)`; $('pFeedback').className='mp-feedback bad';
+  }
+  const given=v('p3')===''?null:(v('p3').replace('.', ',')+' '+q.unit);
+  test.answers.push({q:`${q.P} % de ${q.N} ${q.unit}`, answer:`${q.result} ${q.unit}`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('pActions').innerHTML=`<button class="btn btn-primary" id="pNext" onclick="nextPQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('pNext').focus();
+}
+function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTest(); autoSave(); } else finishPercent(); }
+async function finishPercent(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=(Date.now()-test.startTime)/1000;
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Test 7 : augmenter d'un pourcentage (méthode en 4 étapes) ---------- */
+const AUG_THEMES=[
+  {intro:'Un prix de', unit:'€'},
+  {intro:'L\u2019effectif d\u2019une classe de', unit:'élèves'},
+  {intro:'Un poids de', unit:'kg'},
+  {intro:'Une durée de', unit:'min'},
+  {intro:'Une longueur de', unit:'cm'},
+  {intro:'Une surface de', unit:'m²'},
+  {intro:'Une distance de', unit:'km'},
+  {intro:'Un salaire de', unit:'€'}
+];
+function genAug(){
+  const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);  // multiple de 10 (<100) OU un chiffre
+  const dN=rand(1,9), k=pick([1,2,3]);
+  const N=dN*Math.pow(10,k);                                                       // un seul chiffre non nul, 2 à 4 chiffres
+  const coef=100+P, prodNum=N*coef, result=prodNum/100;
+  const th=pick(AUG_THEMES);
+  return {P,N,coef,prodNum,result,
+    decStr:String(result).replace('.', ','),
+    coefDec:String(coef/100).replace('.', ','),
+    intro:th.intro, unit:th.unit};
+}
+async function startAug(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='aug';
+  test.questions=Array.from({length:6},genAug);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('atest'); renderATest();
+}
+function renderATest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('aqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagA').innerHTML=modeTagHTML();
+  $('aLiveScore').textContent=test.score;
+  $('aFeedback').textContent=''; $('aFeedback').className='mp-feedback';
+  $('aActions').innerHTML='<button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>';
+  $('aPrompt').innerHTML=`${q.intro} <b>${q.N} ${esc(q.unit)}</b> augmente de <b>${q.P} %</b>. Quelle est la nouvelle valeur ?`;
+  const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
+  // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
+  const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
+  const aPosed=buildPose(stripZ(q.coef),stripZ(q.N),'aMul');
+  $('aHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><input class="f-dec" id="a1dec" type="text" inputmode="numeric" autocomplete="off" style="width:58px" aria-label="coefficient en écriture décimale"><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
+       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><input class="f-dec" id="a3v" type="text" inputmode="numeric" autocomplete="off" data-exp="${q.N}" aria-label="valeur de départ"></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
+       <div class="pt-row"><span class="f-eq">=</span>${frac('a4n','a4d')}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
+       <div class="pt-row"><span class="f-eq">=</span><input class="f-dec" id="a5" type="text" inputmode="decimal" autocomplete="off" aria-label="résultat"><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+  const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('a1n'),$('a1d'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),...posedIns,$('a4n'),$('a4d'),$('a5')];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;                  // visible et modifiable
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['a3n','a3d','a3v'].includes(el.id)){ el.addEventListener('input',updateAStep3); el.addEventListener('focusout',updateAStep3); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkAAnswer();} });
+  });
+  updateAStep3();                                                                 // étape ③ cachée tant que l'étape ② n'est pas écrite
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function updateAStep3(){
+  const s=$('aStep3'); if(!s) return;
+  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
+  s.classList.toggle('step-hidden', !(ok('a3n')&&ok('a3d')&&ok('a3v')));          // visible seulement quand la multiplication fraction × nombre est écrite
+}
+function checkAAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorFrac('a1n','a1d',q.P,100);
+    liveColorDecCoef('a1dec',q.coef);
+    liveColorFrac('a2n','a2d',q.coef,100);
+    liveColorFrac('a3n','a3d',q.coef,100);
+    liveColorExp($('a3v'));
+    [...$('aMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('a4n','a4d',q.prodNum,100);
+    liveColorDec('a5',q.prodNum,100);
+    return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const soutien=isSoutien();
+  // ① 1 + P/100 = 1,… = (100+P)/100 (toute fraction égale acceptée)
+  const ok1 = v('a1n')!=='' && v('a1d')!=='' && fracEqual(iv('a1n'),iv('a1d'),q.P,100);
+  const frC = parseDecToFrac('1,'+v('a1dec'));
+  const okC = v('a1dec')!=='' && !!frC && frC.n*100===q.coef*frC.d;     // coefficient en décimal
+  const ok2 = v('a2n')!=='' && v('a2d')!=='' && fracEqual(iv('a2n'),iv('a2d'),q.coef,100);
+  // ② opération : coefficient × valeur
+  const ok3 = v('a3n')!=='' && v('a3d')!=='' && fracEqual(iv('a3n'),iv('a3d'),q.coef,100);
+  const okV = v('a3v')===String(q.N);
+  // ③ FACULTATIVE : pose des numérateurs sans zéros — feedback seulement, n'entre PAS dans allOk
+  const aMulHost=$('aMul');
+  const aBoxes=[...aMulHost.querySelectorAll('.mp-box')];
+  const aCarries=[...aMulHost.querySelectorAll('.mp-carry')];
+  const engaged=[...aBoxes,...aCarries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    aBoxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    aCarries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv===''){return;}
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...aBoxes,...aCarries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  // ④ produit en fraction
+  const ok4 = v('a4n')!=='' && v('a4d')!=='' && fracEqual(iv('a4n'),iv('a4d'),q.prodNum,100);
+  // ⑤ résultat décimal
+  const fr=parseDecToFrac(v('a5'));
+  const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('a1n',ok1); mark('a1d',ok1); mark('a1dec',okC); mark('a2n',ok2); mark('a2d',ok2);
+  mark('a3n',ok3); mark('a3d',ok3); mark('a3v',okV);
+  mark('a4n',ok4); mark('a4d',ok4); mark('a5',ok5);
+  const allOk=ok1&&okC&&ok2&&ok3&&okV&&ok4&&ok5;                        // étape ③ facultative non comptée
+  if(!allOk && soutien){ soutienAgain('aFeedback','aActions','checkAAnswer','aHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('aLiveScore').textContent=test.score;
+    $('aFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('aFeedback').className='mp-feedback good';
+  } else {
+    $('aFeedback').textContent=`Méthode : 1 + ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('aFeedback').className='mp-feedback bad';
+  }
+  const given=v('a5')===''?null:(v('a5').replace('.', ',')+' '+q.unit);
+  test.answers.push({q:`${q.N} ${q.unit} augmenté de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('aActions').innerHTML=`<button class="btn btn-primary" id="aNext" onclick="nextAQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('aNext').focus();
+}
+function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderATest(); autoSave(); } else finishAug(); }
+async function finishAug(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=(Date.now()-test.startTime)/1000;
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Pose générale (numérateurs sans zéros) : (1 à 3 chiffres) × (1 chiffre) ---------- */
+function buildPose(mTop, mBot, hostId){
+  const mProd=mTop*mBot;
+  const mU=mProd%10, mT=Math.floor(mProd/10)%10, mH=Math.floor(mProd/100)%10;
+  const tU=mTop%10, tT=Math.floor(mTop/10)%10, tH=Math.floor(mTop/100)%10;
+  const tDig=String(mTop).length, rDig=String(mProd).length;
+  const c1=Math.floor((tU*mBot)/10);
+  const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
+  const dg=x=>`<span class="mp-digit">${x}</span>`;
+  const box=(exp,tab,cls)=>`<input class="${cls||'mp-box'}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
+  const rowCarry=`<div class="mp-row">${cell('op')}${cell('')}${rDig>=2?cell('',box(c1,2,'mp-carry')):cell('')}${cell('')}</div>`;
+  const rowTop  =`<div class="mp-row">${cell('op')}${tDig>=3?cell('',dg(tH)):cell('')}${tDig>=2?cell('',dg(tT)):cell('')}${cell('',dg(tU))}</div>`;
+  const rowMul  =`<div class="mp-row">${cell('op',`<span class="mp-sign">×</span>`)}${cell('')}${cell('')}${cell('',dg(mBot))}</div>`;
+  const rowLine =`<div class="mp-lrow">${cell('op')}<div class="mp-line"></div></div>`;
+  const rowRes  =`<div class="mp-row">${cell('op')}${rDig>=3?cell('',box(mH,4)):cell('')}${rDig>=2?cell('',box(mT,3)):cell('')}${cell('',box(mU,1))}</div>`;
+  return `<div class="mp-op" id="${hostId}">${rowCarry+rowTop+rowMul+rowLine+rowRes}</div>`;
+}
+function liveColorDecCoef0(id,coef){                    // coefficient décimal saisi après « 0, »
+  const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
+  el.classList.remove('ok','bad'); if(v==='') return;
+  const fr=parseDecToFrac('0,'+v);
+  el.classList.add(!!fr && fr.n*100===coef*fr.d ? 'ok':'bad');
+}
+
+/* ---------- Test 8 : diminuer d'un pourcentage (même méthode, coefficient (100−P)/100) ---------- */
+function genDim(){
+  const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);  // multiple de 10 (<100) OU un chiffre
+  const dN=rand(1,9), k=pick([1,2,3]);
+  const N=dN*Math.pow(10,k);                                                       // un seul chiffre non nul, 2 à 4 chiffres
+  const coef=100-P, prodNum=N*coef, result=prodNum/100;
+  const th=pick(AUG_THEMES);
+  return {P,N,coef,prodNum,result,
+    decStr:String(result).replace('.', ','),
+    coefDec:String(coef/100).replace('.', ','),
+    intro:th.intro, unit:th.unit};
+}
+async function startDim(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='dim';
+  test.questions=Array.from({length:6},genDim);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('dtest'); renderDTest();
+}
+function renderDTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('dqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagD').innerHTML=modeTagHTML();
+  $('dLiveScore').textContent=test.score;
+  $('dFeedback').textContent=''; $('dFeedback').className='mp-feedback';
+  $('dActions').innerHTML='<button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>';
+  $('dPrompt').innerHTML=`${q.intro} <b>${q.N} ${esc(q.unit)}</b> diminue de <b>${q.P} %</b>. Quelle est la nouvelle valeur ?`;
+  const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
+  // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
+  const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
+  const dPosed=buildPose(stripZ(q.coef),stripZ(q.N),'dMul');
+  $('dHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><input class="f-dec" id="d1dec" type="text" inputmode="numeric" autocomplete="off" style="width:58px" aria-label="coefficient en écriture décimale"><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
+       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><input class="f-dec" id="d3v" type="text" inputmode="numeric" autocomplete="off" data-exp="${q.N}" aria-label="valeur de départ"></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
+       <div class="pt-row"><span class="f-eq">=</span>${frac('d4n','d4d')}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
+       <div class="pt-row"><span class="f-eq">=</span><input class="f-dec" id="d5" type="text" inputmode="decimal" autocomplete="off" aria-label="résultat"><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+  const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('d1n'),$('d1d'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),...posedIns,$('d4n'),$('d4d'),$('d5')];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['d3n','d3d','d3v'].includes(el.id)){ el.addEventListener('input',updateDStep3); el.addEventListener('focusout',updateDStep3); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkDAnswer();} });
+  });
+  updateDStep3();
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function updateDStep3(){
+  const s=$('dStep3'); if(!s) return;
+  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
+  s.classList.toggle('step-hidden', !(ok('d3n')&&ok('d3d')&&ok('d3v')));
+}
+function checkDAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorFrac('d1n','d1d',q.P,100);
+    liveColorDecCoef0('d1dec',q.coef);
+    liveColorFrac('d2n','d2d',q.coef,100);
+    liveColorFrac('d3n','d3d',q.coef,100);
+    liveColorExp($('d3v'));
+    [...$('dMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('d4n','d4d',q.prodNum,100);
+    liveColorDec('d5',q.prodNum,100);
+    return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const soutien=isSoutien();
+  // ① 1 − P/100 = 0,… = (100−P)/100 (toute fraction égale acceptée)
+  const ok1 = v('d1n')!=='' && v('d1d')!=='' && fracEqual(iv('d1n'),iv('d1d'),q.P,100);
+  const frC = parseDecToFrac('0,'+v('d1dec'));
+  const okC = v('d1dec')!=='' && !!frC && frC.n*100===q.coef*frC.d;
+  const ok2 = v('d2n')!=='' && v('d2d')!=='' && fracEqual(iv('d2n'),iv('d2d'),q.coef,100);
+  // ② opération : coefficient × valeur
+  const ok3 = v('d3n')!=='' && v('d3d')!=='' && fracEqual(iv('d3n'),iv('d3d'),q.coef,100);
+  const okV = v('d3v')===String(q.N);
+  // ③ FACULTATIVE : pose des numérateurs sans zéros — feedback seulement, n'entre PAS dans allOk
+  const dMulHost=$('dMul');
+  const dBoxes=[...dMulHost.querySelectorAll('.mp-box')];
+  const dCarries=[...dMulHost.querySelectorAll('.mp-carry')];
+  const engaged=[...dBoxes,...dCarries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    dBoxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    dCarries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv===''){return;}
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...dBoxes,...dCarries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  // ④ produit en fraction
+  const ok4 = v('d4n')!=='' && v('d4d')!=='' && fracEqual(iv('d4n'),iv('d4d'),q.prodNum,100);
+  // ⑤ résultat décimal
+  const fr=parseDecToFrac(v('d5'));
+  const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('d1n',ok1); mark('d1d',ok1); mark('d1dec',okC); mark('d2n',ok2); mark('d2d',ok2);
+  mark('d3n',ok3); mark('d3d',ok3); mark('d3v',okV);
+  mark('d4n',ok4); mark('d4d',ok4); mark('d5',ok5);
+  const allOk=ok1&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
+  if(!allOk && soutien){ soutienAgain('dFeedback','dActions','checkDAnswer','dHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('dLiveScore').textContent=test.score;
+    $('dFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('dFeedback').className='mp-feedback good';
+  } else {
+    $('dFeedback').textContent=`Méthode : 1 − ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('dFeedback').className='mp-feedback bad';
+  }
+  const given=v('d5')===''?null:(v('d5').replace('.', ',')+' '+q.unit);
+  test.answers.push({q:`${q.N} ${q.unit} diminué de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('dActions').innerHTML=`<button class="btn btn-primary" id="dNext" onclick="nextDQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('dNext').focus();
+}
+function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDTest(); autoSave(); } else finishDim(); }
+async function finishDim(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=(Date.now()-test.startTime)/1000;
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Test 5 : multiplier des décimaux (méthode en 4 étapes) ---------- */
+function fracEqual(n,d,N,D){ return !isNaN(n)&&!isNaN(d)&&d!==0 && n*D===N*d; }   // n/d == N/D
+function twoNZ(){ return rand(1,9)*10+rand(1,9); }                                // 11-99, deux chiffres non nuls
+
 /* enregistrement différé du travail en cours (entraînement & soutien) : protège même en cas de fermeture/plantage */
 let _draftSaveTimer=null;
 document.addEventListener('input',e=>{
   const t=e.target;
   if(!currentEleve||!(currentMode==='train'||currentMode==='soutien')||!t||t.tagName!=='INPUT'||!t.closest('.screen.on')) return;
+  if(isSoutien()) liveCheckCurrent();
   clearTimeout(_draftSaveTimer); _draftSaveTimer=setTimeout(autoSave,1200);
 });
 $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
