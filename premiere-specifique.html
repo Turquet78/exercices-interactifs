@@ -349,6 +349,36 @@
   .dl-list{display:flex;flex-direction:column;gap:14px}
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  /* ----- éditeur de devoirs (prof) ----- */
+  .dm-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:6px 0 18px}
+  .dm-tab{font-family:"Fredoka";font-weight:500;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--ink-soft);font-size:.95rem}
+  .dm-tab:hover{border-color:#cdd3e0}
+  .dm-tab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .dm-tab.add{color:var(--blue-dark);border-style:dashed;border-color:#b9c6f2;font-weight:600}
+  .dm-tab.add:hover{background:#eef2fe}
+  .dm-ed{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+  .dm-ta{width:100%;min-height:90px;resize:vertical;font-family:"Nunito",sans-serif;font-weight:600;font-size:1rem;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:12px 14px;line-height:1.5}
+  .dm-switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-weight:700;font-size:.95rem}
+  .dm-switch input{position:absolute;opacity:0;width:0;height:0}
+  .dm-switch .track{width:46px;height:26px;border-radius:999px;background:#d7dae4;position:relative;transition:background .18s;flex:none}
+  .dm-switch .track::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .18s}
+  .dm-switch input:checked+.track{background:var(--green)}
+  .dm-switch input:checked+.track::after{left:23px}
+  .dm-switch .sw-lbl{color:var(--ink-soft)}
+  .dm-switch input:checked~.sw-lbl{color:var(--green)}
+  .dm-pick-h{font-family:"Fredoka";font-weight:600;font-size:1rem;margin:2px 0 10px}
+  .dm-grp{margin:0 0 16px}
+  .dm-grp-h{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+  .dm-exo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 13px;margin-bottom:8px;transition:border-color .14s,background .14s}
+  .dm-exo.pick{border-color:#9bdcc1;background:#F4FBF8}
+  .dm-exo-num{font-family:"Fredoka";font-weight:600;font-size:.72rem;color:#fff;background:var(--blue);padding:3px 9px;border-radius:999px;white-space:nowrap;flex:none}
+  .dm-exo-name{font-weight:700;font-size:.95rem;flex:1;min-width:120px}
+  .dm-modes{display:flex;gap:8px;flex-wrap:wrap}
+  .dm-mode{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;font-family:"Fredoka";font-weight:500;font-size:.85rem;color:var(--ink-soft);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px}
+  .dm-mode input{accent-color:var(--blue);width:15px;height:15px;margin:0}
+  .dm-mode.on{color:var(--blue-dark);border-color:var(--blue);background:#eef2fe}
+  .dm-ed-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .dm-empty{color:var(--ink-soft);background:var(--paper);border:1.5px dashed var(--line);border-radius:14px;padding:26px 18px;text-align:center;font-weight:600}
 </style>
 
 <div class="wrap">
@@ -707,6 +737,7 @@
         <button class="tab on" data-tab="results" onclick="teacherTab('results')">Suivi de la classe</button>
         <button class="tab" data-tab="eval" onclick="teacherTab('eval')">Mode évaluation</button>
         <button class="tab" data-tab="students" onclick="teacherTab('students')">Comptes élèves</button>
+        <button class="tab" data-tab="devoirs" onclick="teacherTab('devoirs')">Devoir maison</button>
         <button class="tab" data-tab="settings" onclick="teacherTab('settings')">Réglages des tests</button>
       </div>
 
@@ -752,6 +783,14 @@
           <button class="btn btn-danger" onclick="resetYear()">Réinitialiser pour une nouvelle année</button>
         </div>
         <p class="note">« Réinitialiser » supprime tous les comptes et tout l'historique. À utiliser à la rentrée.</p>
+      </div>
+
+      <!-- devoir maison -->
+      <div class="tpane" id="pane-devoirs">
+        <p class="lead">Crée et gère les devoirs à la maison. Chaque devoir <b>affiché</b> apparaît dans « Voir les devoirs à la maison » de l'espace élève.</p>
+        <div class="dm-tabs" id="dmTabs"></div>
+        <div id="dmEditor"></div>
+        <div id="dmResults"></div>
       </div>
 
       <!-- réglages -->
@@ -2737,6 +2776,7 @@ function teacherTab(name){
   if(name==='results'){$('studentDetail').innerHTML='';renderClassTable();}
   else if(name==='students')renderRoster();
   else if(name==='eval')renderEvalLocks();
+  else if(name==='devoirs')renderDevoirsAdmin();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
 function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }
@@ -2814,6 +2854,188 @@ async function renderClassTable(){
 
 /* ---------- Mode évaluation : verrous ---------- */
 function saveConfig(valeurs){ return sb.from('parametres').upsert({id:1,valeurs}); }
+
+/* ---------- Devoir maison (prof) ---------- */
+let dmAdminList=[], dmSelId=null, dmResRows=[];
+function dmCur(){ return dmAdminList.find(x=>x.id===dmSelId); }
+async function renderDevoirsAdmin(){
+  $('dmTabs').innerHTML='<span class="muted">Chargement…</span>';
+  $('dmEditor').innerHTML=''; $('dmResults').innerHTML='';
+  try{ cfg=await loadConfig(); dmAdminList=(cfg.devoirs||[]).slice(); }
+  catch(e){ dmAdminList=[]; $('dmTabs').innerHTML='<div class="empty">Connexion impossible. Vérifie la configuration.</div>'; return; }
+  dmAdminList.sort((a,b)=>(a.num||0)-(b.num||0));
+  if(dmSelId && !dmAdminList.some(d=>d.id===dmSelId)) dmSelId=null;
+  if(!dmSelId && dmAdminList.length) dmSelId=dmAdminList[dmAdminList.length-1].id;
+  renderDmTabs(); renderDmEditor(); renderDmResults();
+}
+function renderDmTabs(){
+  const tabs=dmAdminList.map(d=>{
+    const on=d.id===dmSelId, masq=d.actif?'':' · masqué';
+    return `<button class="dm-tab ${on?'on':''}" onclick="selectDM('${d.id}')">Devoir n°${esc(String(d.num))}${masq}</button>`;
+  }).join('');
+  $('dmTabs').innerHTML=tabs+`<button class="dm-tab add" onclick="newDM()">＋ Nouveau devoir</button>`;
+}
+function selectDM(id){ dmSelId=id; renderDmTabs(); renderDmEditor(); renderDmResults(); }
+async function newDM(){
+  const maxNum=dmAdminList.reduce((m,d)=>Math.max(m,d.num||0),0);
+  const nd={ id:newDevoirId(), num:maxNum+1, actif:true, titre:'Devoir à la maison', cours:'', exercices:[] };
+  try{
+    cfg=await loadConfig();
+    const arr=(cfg.devoirs||[]).slice(); arr.push(nd);
+    const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
+    dmSelId=nd.id; toast('Nouveau devoir créé','ok'); renderDevoirsAdmin();
+  }catch(e){ toast('Création impossible','err'); }
+}
+function renderDmEditor(){
+  const box=$('dmEditor');
+  if(!dmSelId){ box.innerHTML='<div class="dm-empty">Aucun devoir pour l\'instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.</div>'; return; }
+  const d=dmCur(); if(!d){ box.innerHTML=''; return; }
+  const chosen={}; (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; });
+  const groups=THEMES.map(th=>{
+    const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
+      const modes=chosen[id]||[], picked=modes.length>0;
+      const mk=(m,lbl)=>{ const on=modes.includes(m); return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${id}','${m}',this.checked)"> ${lbl}</label>`; };
+      return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
+        <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
+        <span class="dm-exo-name">${esc(testName(id))}</span>
+        <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
+      </div>`;
+    }).join('');
+    if(!rows) return '';
+    return `<div class="dm-grp"><div class="dm-grp-h">Thème ${th.num} · ${esc(th.nom)}</div>${rows}</div>`;
+  }).join('');
+  box.innerHTML=`<div class="dm-ed">
+    <div class="dm-head" style="justify-content:space-between;margin-bottom:16px">
+      <span class="dm-badge">Devoir n°${esc(String(d.num))}</span>
+      <label class="dm-switch"><input type="checkbox" id="dmActif" ${d.actif?'checked':''} onchange="dmToggleActif(this.checked)"><span class="track"></span><span class="sw-lbl">${d.actif?'Affiché aux élèves':'Masqué'}</span></label>
+    </div>
+    <div class="add-form" style="grid-template-columns:120px 1fr">
+      <div class="field" style="margin:0"><label class="lab" for="dmNum">Numéro</label><input class="text-input" id="dmNum" type="number" min="1" value="${esc(String(d.num))}"></div>
+      <div class="field" style="margin:0"><label class="lab" for="dmTitre">Titre</label><input class="text-input" id="dmTitre" value="${esc(d.titre||'')}" maxlength="80"></div>
+    </div>
+    <div class="field" style="margin-top:14px"><label class="lab" for="dmCours">Cours / consignes <span class="muted" style="font-weight:600;font-size:.85rem">(facultatif)</span></label><textarea class="dm-ta" id="dmCours" placeholder="Rappel de cours, consignes… (laisse vide pour n'afficher que les exercices)">${esc(d.cours||'')}</textarea></div>
+    <div class="dm-pick-h" style="margin-top:6px">Exercices du devoir</div>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Coche les modes proposés pour chaque exercice. En soutien l'élève peut obtenir jusqu'à 5/10, en entraînement jusqu'à 10/10.</p>
+    ${groups}
+    <div class="dm-ed-acts">
+      <button class="btn btn-primary" onclick="saveDM()">Enregistrer ce devoir</button>
+      <button class="btn btn-danger" onclick="deleteDM('${d.id}')">Supprimer ce devoir</button>
+    </div>
+  </div>`;
+}
+function dmToggleMode(id,m,checked){
+  const d=dmCur(); if(!d) return;
+  d.exercices=d.exercices||[];
+  let ex=d.exercices.find(e=>e.id===id);
+  if(!ex){ ex={id,modes:[]}; d.exercices.push(ex); }
+  ex.modes=ex.modes||[];
+  if(checked){ if(!ex.modes.includes(m)) ex.modes.push(m); }
+  else { ex.modes=ex.modes.filter(x=>x!==m); }
+  if(!ex.modes.length) d.exercices=d.exercices.filter(e=>e.id!==id);
+  const row=$('dmx-'+id);
+  if(row){
+    const still=(d.exercices.find(e=>e.id===id)||{modes:[]}).modes.length>0;
+    row.classList.toggle('pick',still);
+    row.querySelectorAll('.dm-mode').forEach(lbl=>{ const cb=lbl.querySelector('input'); lbl.classList.toggle('on',cb.checked); });
+  }
+}
+function dmToggleActif(checked){
+  const d=dmCur(); if(!d) return; d.actif=checked;
+  const lbl=document.querySelector('#dmEditor .dm-switch .sw-lbl'); if(lbl) lbl.textContent=checked?'Affiché aux élèves':'Masqué';
+}
+async function saveDM(){
+  const d=dmCur(); if(!d){ toast('Aucun devoir sélectionné','err'); return; }
+  const numV=parseInt(val('dmNum'),10);
+  d.num=(Number.isFinite(numV)&&numV>0)?numV:d.num;
+  d.titre=(val('dmTitre')||'').trim()||'Devoir à la maison';
+  d.cours=$('dmCours').value;
+  d.actif=$('dmActif').checked;
+  d.exercices=(d.exercices||[]).filter(ex=>(ex.modes||[]).length);
+  try{
+    cfg=await loadConfig();
+    const arr=(cfg.devoirs||[]).slice();
+    const clean={ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices };
+    const i=arr.findIndex(x=>x.id===d.id);
+    if(i>=0) arr[i]=clean; else arr.push(clean);
+    const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
+    dmSelId=d.id; toast('Devoir enregistré','ok'); renderDevoirsAdmin();
+  }catch(e){ toast('Enregistrement impossible','err'); }
+}
+async function deleteDM(id){
+  const d=dmAdminList.find(x=>x.id===id);
+  if(!confirm(`Supprimer le devoir n°${d?d.num:''} ? Les résultats déjà enregistrés par les élèves sont conservés.`)) return;
+  try{
+    cfg=await loadConfig();
+    const arr=(cfg.devoirs||[]).filter(x=>x.id!==id);
+    const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
+    if(dmSelId===id) dmSelId=null;
+    toast('Devoir supprimé','ok'); renderDevoirsAdmin();
+  }catch(e){ toast('Suppression impossible','err'); }
+}
+function dmBestFor(rows,eid,did,id,m){
+  let b=null;
+  (rows||[]).forEach(r=>{
+    if(r.eleve_id!==eid||isPaused(r)||testIdOf(r)!==id||modeOf(r)!==m) return;
+    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==did) return;
+    if(b==null||r.percent>b.percent) b=r;
+  });
+  return b;
+}
+async function renderDmResults(){
+  const box=$('dmResults');
+  if(!dmSelId){ box.innerHTML=''; return; }
+  const d=dmCur(); if(!d){ box.innerHTML=''; return; }
+  const exos=(d.exercices||[]);
+  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats du devoir n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; return; }
+  box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><p class="muted">Chargement…</p></div>';
+  try{
+    const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
+      sb.from('eleves').select('*').order('prenom'),
+      sb.from('resultats').select('*')
+    ]);
+    if(e1)throw e1; if(e2)throw e2;
+    dmResRows=rows||[];
+    const totMax=exos.length*10;
+    let sommeClasse=0, nbActifs=0;
+    const bilanRows=(eleves||[]).map(e=>{
+      let somme=0, faits=0, started=false;
+      exos.forEach(ex=>{
+        const nd=noteDevoirExo(dmBestFor(rows,e.id,d.id,ex.id,'soutien'), dmBestFor(rows,e.id,d.id,ex.id,'train'));
+        somme+=nd.note; if(nd.fait){ faits++; started=true; }
+      });
+      if(started){ sommeClasse+=somme; nbActifs++; }
+      const badge=started?`<span class="badge ${pctClass(Math.round(somme/totMax*100))}">${fmtNote(somme)} / ${totMax}</span>`:`<span class="badge">— / ${totMax}</span>`;
+      return `<tr class="clickable" onclick="dmStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${exos.length}</td></tr>`;
+    }).join('');
+    const moy=nbActifs?fmtNote(sommeClasse/nbActifs):'—';
+    box.innerHTML=`
+      <div class="panel">
+        <h3>Bilan de la classe — devoir n°${esc(String(d.num))}</h3>
+        <div class="stats" style="margin-bottom:12px">
+          <div class="stat"><div class="k">Ont commencé</div><div class="v">${nbActifs} / ${(eleves||[]).length}</div></div>
+          <div class="stat green"><div class="k">Moyenne de la classe</div><div class="v">${moy}${nbActifs?' / '+totMax:''}</div></div>
+        </div>
+        <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows||''}</tbody></table>
+        <p class="muted" style="font-size:.85rem;margin:10px 0 0">Clique sur un élève pour le détail par exercice. La note ne prend en compte que les essais faits <b>depuis ce devoir</b>.</p>
+      </div>
+      <div id="dmStudentDetail"></div>`;
+  }catch(e){ box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><div class="empty">Connexion impossible.</div></div>'; }
+}
+function dmStudentDetail(eid,prenom){
+  const d=dmCur(); if(!d) return;
+  const exos=(d.exercices||[]);
+  const rows=exos.map(ex=>{
+    const bs=dmBestFor(dmResRows,eid,d.id,ex.id,'soutien'), be=dmBestFor(dmResRows,eid,d.id,ex.id,'train');
+    const nd=noteDevoirExo(bs,be);
+    const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${lbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
+    const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
+    return `<tr><td class="name">${esc(testLabel(ex.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
+  }).join('');
+  const el=$('dmStudentDetail');
+  el.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Détail — ${esc(prenom)}</h3><button class="btn-link" onclick="$('dmStudentDetail').innerHTML=''">Fermer</button></div>
+    <table class="tbl"><thead><tr><th>Exercice</th><th>Modes</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 async function renderEvalLocks(){
   const box=$('lockList'); box.innerHTML='<p class="muted">Chargement…</p>';
   try{
