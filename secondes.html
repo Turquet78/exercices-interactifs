@@ -392,6 +392,14 @@
   .def-tab{font-family:"Fredoka";font-weight:600;font-size:1.3rem;min-width:52px;height:46px;color:var(--blue-dark);background:#fff;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
   .def-tab:hover{border-color:var(--blue)}
   .def-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .pge-num{font-family:"Fredoka";font-weight:600;color:var(--blue-dark);font-size:2rem;display:inline-flex;align-items:center}
+  .pge-opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0 4px}
+  .pge-opt{font-family:"Fredoka";font-weight:600;font-size:1.7rem;min-width:64px;height:58px;color:var(--blue-dark);background:#fff;border:2px solid #BBD0F7;border-radius:14px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+  .pge-opt:hover:not(:disabled){border-color:var(--blue);background:#EEF3FF}
+  .pge-opt:disabled{cursor:default}
+  .pge-opt.good{color:#fff;background:var(--green);border-color:var(--green)}
+  .pge-opt.bad{color:#fff;background:var(--red);border-color:var(--red)}
+  .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
   .def-prompt{font-weight:600;margin:0 0 12px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
@@ -934,6 +942,7 @@
       <div class="mp-feedback" id="ensFeedback"></div>
       <div class="row" style="justify-content:center">
         <button id="ensBilanBtn" class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()" hidden>Rappels</button>
+        <button id="ensConseilBtn" class="btn btn-ghost" type="button" onclick="conseilEns()" hidden>💡 Un conseil</button>
         <span id="ensActions" style="display:inline-flex;gap:12px"><button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button></span>
       </div>
     </div>
@@ -953,6 +962,21 @@
         <button class="btn btn-primary" onclick="checkDef()">Vérifier</button>
       </div>
       <p class="note" style="text-align:center;margin-top:8px">En soutien, corrige ta phrase jusqu'à ce qu'elle soit juste. La note suit les règles du site.</p>
+    </div>
+  </section>
+
+  <!-- LE PLUS PETIT ENSEMBLE (QCM auto-corrigé) -->
+  <section class="screen" id="scr-pge">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPge"></span><span class="q-idx" id="pgeIdx">Question 1 / 10</span></span>
+      <span class="score-tag">Réussies&nbsp;<b id="pgeScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Quel est le plus petit ensemble qui contient ce nombre ?</p>
+      <div class="mp-stage"><div class="pge-num" id="pgeNum"></div></div>
+      <div class="pge-opts" id="pgeOpts"></div>
+      <div class="mp-feedback" id="pgeFeedback"></div>
+      <div class="row" style="justify-content:center" id="pgeActions"></div>
     </div>
   </section>
 
@@ -1135,6 +1159,7 @@ const TESTS={
   'ensembles-nombres': { name:'Ensembles de nombres — niveau 1', icon:'🔢', desc:'ℕ, ℤ, 𝔻, ℚ, ℝ : complète avec ∈ ou ∉. Le résultat de la division ou de la racine est affiché (bloc qui se répète souligné).', start:()=>startEns1() },
   'ensembles-nombres-2': { name:'Ensembles de nombres — niveau 2', icon:'🔢', desc:'ℕ, ℤ, 𝔻, ℚ, ℝ : complète avec ∈ ou ∉. Le résultat n’est pas affiché : à toi de le trouver.', start:()=>startEns2() },
   'definitions-ensembles': { name:'Définitions des ensembles', icon:'✍️', desc:'Écris la définition de chaque ensemble (ℕ, ℤ, 𝔻, ℚ, ℝ), corrigée par IA. En soutien, corrige jusqu’à ce que ce soit juste.', start:()=>startDef() },
+  'plus-petit-ensemble': { name:'Le plus petit ensemble', icon:'🎯', desc:'Pour un nombre donné, trouve le plus petit ensemble qui le contient (ℕ, ℤ, 𝔻, ℚ, ℝ). En soutien : bouton Rappels du cours.', start:()=>startPge() },
   'lecture-variations': { name:'Lecture graphique \u2014 variations', icon:'\ud83d\udcc8', desc:'Lis une courbe : complète le tableau de valeurs, le sens de variation et le tableau de variation.', start:()=>startLV() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -1146,7 +1171,7 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles'] },
+  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble'] },
   { num:2, nom:'Fonctions', ids:['lecture-variations'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] }
 ];
@@ -1287,6 +1312,99 @@ async function checkDef(){
   const nb=$('defNext'); if(nb) nb.focus();
 }
 function nextDefQ(){ if(test.idx<test.questions.length-1){ test.idx++; renderDefQ(); autoSave(); } else finishTest(); }
+
+/* ===== Le plus petit ensemble contenant le nombre (QCM) ===== */
+const PGE_ORDER=['N','Z','D','Q','R'];
+const PGE_SYM={N:'ℕ',Z:'ℤ',D:'𝔻',Q:'ℚ',R:'ℝ'};
+function pgeSmallest(q){ return PGE_ORDER.find(k=>q.sets[k]) || 'R'; }
+function pgeWhy(q,bon,correct){ return (correct?'Bravo ! ':'')+'Le plus petit ensemble est '+PGE_SYM[bon]+'. '+(q.why||''); }
+function pgeHint(q,k){ if(q.sets[k]) return 'Ce nombre est bien dans '+PGE_SYM[k]+', mais un ensemble plus petit le contient aussi.'; return 'Ce nombre n’appartient pas à '+PGE_SYM[k]+'. Regarde bien sa valeur (le bouton Rappels peut aider).'; }
+function startPge(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  const qs=ensBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'pge', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pge'); renderPgeQ();
+}
+function pgeRappelBtn(withConseil){
+  if(!isSoutien()) return '';
+  let h='<button class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()">Rappels</button>';
+  if(withConseil) h+='<button class="btn btn-ghost" type="button" onclick="conseilPge()">💡 Un conseil</button>';
+  return h;
+}
+let conseilBusy=false;
+async function lancerConseil(nombre, contexte, fb){
+  if(conseilBusy||!fb) return;
+  conseilBusy=true;
+  fb.textContent='Je réfléchis à un indice…'; fb.className='mp-feedback muted';
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', nombre:nombre, contexte:contexte } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; }
+    else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
+    else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
+  }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
+  finally{ conseilBusy=false; }
+}
+function conseilPge(){
+  const q=test.questions[test.idx], bon=pgeSmallest(q);
+  const wrong=[...document.querySelectorAll('#pgeOpts .pge-opt.bad')].map(b=>b.dataset.k);
+  let contexte='L’élève doit trouver le plus petit ensemble (parmi ℕ, ℤ, 𝔻, ℚ, ℝ, du plus petit au plus grand) qui contient le nombre. Le bon ensemble est '+PGE_SYM[bon]+'.';
+  if(wrong.length) contexte+=' Il a déjà proposé (à tort) : '+wrong.map(k=>PGE_SYM[k]).join(', ')+'.';
+  lancerConseil(q.plain, contexte, $('pgeFeedback'));
+}
+function conseilEns(){
+  const q=test.questions[test.idx];
+  const bon=ENS_SETS_ORDER.map(k=>ENS_SYM[k]+':'+(q.sets[k]?'∈':'∉')).join(' ');
+  const faux=ENS_SETS_ORDER.filter(k=>{ const sel=$('ens-s-'+k); const v=sel?sel.value:''; return v!=='' && v!==(q.sets[k]?'in':'out'); }).map(k=>ENS_SYM[k]);
+  let contexte='L’élève doit dire, pour ce nombre, s’il appartient (∈) ou non (∉) à chacun des ensembles ℕ, ℤ, 𝔻, ℚ, ℝ. Les appartenances correctes sont : '+bon+'.';
+  if(faux.length) contexte+=' Il s’est trompé sur : '+faux.join(', ')+'.';
+  lancerConseil(q.plain, contexte, $('ensFeedback'));
+}
+function renderPgeQ(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('pgeIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPge').innerHTML=modeTagHTML();
+  $('pgeScore').textContent=test.score;
+  $('pgeNum').innerHTML=q.inner;
+  $('pgeFeedback').textContent=''; $('pgeFeedback').className='mp-feedback';
+  $('pgeOpts').innerHTML=PGE_ORDER.map(k=>'<button type="button" class="pge-opt" data-k="'+k+'">'+PGE_SYM[k]+'</button>').join('');
+  document.querySelectorAll('#pgeOpts .pge-opt').forEach(btn=>btn.addEventListener('click', ()=>choisirPge(btn.dataset.k)));
+  $('pgeActions').innerHTML=pgeRappelBtn(true);
+}
+function ajouterSuivantPge(){
+  const last=test.idx===test.questions.length-1;
+  $('pgeActions').innerHTML=pgeRappelBtn(false)+'<button class="btn btn-primary" id="pgeNext" onclick="nextPgeQ()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('pgeNext'); if(nb) nb.focus();
+}
+function choisirPge(k){
+  if(test.locked) return;
+  const q=test.questions[test.idx], bon=pgeSmallest(q);
+  const btns=[...document.querySelectorAll('#pgeOpts .pge-opt')];
+  const clicked=btns.find(b=>b.dataset.k===k);
+  if(k===bon){
+    if(clicked){ clicked.classList.remove('bad'); clicked.classList.add('good'); }
+    btns.forEach(b=>b.disabled=true);
+    test.locked=true; test.score++; $('pgeScore').textContent=test.score;
+    $('pgeFeedback').textContent=pgeWhy(q,bon,true); $('pgeFeedback').className='mp-feedback good';
+    test.answers.push({correct:true, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
+    ajouterSuivantPge();
+  } else if(isSoutien()){
+    if(clicked){ clicked.classList.add('bad'); clicked.disabled=true; }
+    $('pgeFeedback').textContent='Ce n’est pas le plus petit. '+pgeHint(q,k); $('pgeFeedback').className='mp-feedback bad';
+  } else {
+    if(clicked) clicked.classList.add('bad');
+    btns.forEach(b=>{ b.disabled=true; if(b.dataset.k===bon) b.classList.add('good'); });
+    test.locked=true;
+    $('pgeFeedback').textContent=pgeWhy(q,bon,false); $('pgeFeedback').className='mp-feedback bad';
+    test.answers.push({correct:false, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
+    ajouterSuivantPge();
+  }
+}
+function nextPgeQ(){ if(test.idx<test.questions.length-1){ test.idx++; renderPgeQ(); autoSave(); } else finishTest(); }
 /* Progression globale : points obtenus (meilleure note par test) sur le total possible (nb tests × 10). */
 function progressionTotale(){
   const ids=[]; THEMES.forEach(th=>th.ids.forEach(id=>{ if(TESTS[id]) ids.push(id); }));
@@ -1503,7 +1621,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ]};
+  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ]};
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1523,11 +1641,11 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ptest','atest','dtest','ens','def'];
+  const testScreens=['lv','ptest','atest','dtest','ens','def','pge'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -3082,6 +3200,7 @@ function renderEnsTest(){
   $('ensIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagEns').innerHTML=modeTagHTML();
   { const bb=$('ensBilanBtn'); if(bb) bb.hidden=(currentMode==='eval' || test.ensLevel===2); }   // bilan : entraînement/soutien du niveau 1
+  { const cb=$('ensConseilBtn'); if(cb) cb.hidden=(currentMode!=='soutien'); }   // conseil IA : soutien uniquement
   $('ensLiveScore').textContent=test.score;
   $('ensFeedback').textContent=''; $('ensFeedback').className='mp-feedback';
   $('ensActions').innerHTML='<button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button>';
