@@ -388,6 +388,11 @@
   .def-feedback.good{color:var(--ink);background:var(--green-soft);border:1.5px solid #bfe6d5;border-radius:12px;padding:14px 16px}
   .def-feedback.bad{color:var(--red);font-weight:600}
   .def-feedback.muted{color:var(--ink-soft)}
+  .def-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:6px 0 14px}
+  .def-tab{font-family:"Fredoka";font-weight:600;font-size:1.3rem;min-width:52px;height:46px;color:var(--blue-dark);background:#fff;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+  .def-tab:hover{border-color:var(--blue)}
+  .def-tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .def-prompt{font-weight:600;margin:0 0 12px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
   .choice.resume{border-color:#5cc4ad;background:linear-gradient(180deg,#F0FBF8,#fff)}
@@ -936,18 +941,18 @@
 
   <!-- ÉCRIRE SA DÉFINITION (corrigée par IA) -->
   <section class="screen" id="scr-def">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagDef"></span><span class="q-idx" id="defIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Réussies&nbsp;<b id="defScore">0</b></span>
+    </div>
     <div class="card">
-      <div class="topbar">
-        <h2 class="title" style="margin:0">Ma définition — entiers naturels</h2>
-        <button class="btn-link" onclick="retourChoix()">← Retour</button>
-      </div>
-      <p class="lead">Écris, avec tes mots, ce qu'est un <b>entier naturel</b> (l'ensemble ℕ).</p>
-      <textarea id="defText" class="def-text" rows="4" maxlength="800" placeholder="Un entier naturel, c'est…"></textarea>
-      <div class="row" style="justify-content:center;margin-top:12px">
-        <button class="btn btn-primary" id="defBtn" type="button" onclick="corrigerDefinition()">Corriger ma définition</button>
-      </div>
+      <p class="mp-instr" id="defPrompt">Définis un ensemble.</p>
+      <textarea id="defText" class="def-text" rows="4" maxlength="800" placeholder="Écris ta définition ici…"></textarea>
       <div id="defFeedback" class="def-feedback"></div>
-      <p class="note" style="text-align:center;margin-top:14px">Ta réponse est corrigée automatiquement pour t'aider — elle n'est pas notée.</p>
+      <div class="row" style="justify-content:center" id="defActions">
+        <button class="btn btn-primary" onclick="checkDef()">Vérifier</button>
+      </div>
+      <p class="note" style="text-align:center;margin-top:8px">En soutien, corrige ta phrase jusqu'à ce qu'elle soit juste. La note suit les règles du site.</p>
     </div>
   </section>
 
@@ -1129,6 +1134,7 @@ const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:n
 const TESTS={
   'ensembles-nombres': { name:'Ensembles de nombres — niveau 1', icon:'🔢', desc:'ℕ, ℤ, 𝔻, ℚ, ℝ : complète avec ∈ ou ∉. Le résultat de la division ou de la racine est affiché (bloc qui se répète souligné).', start:()=>startEns1() },
   'ensembles-nombres-2': { name:'Ensembles de nombres — niveau 2', icon:'🔢', desc:'ℕ, ℤ, 𝔻, ℚ, ℝ : complète avec ∈ ou ∉. Le résultat n’est pas affiché : à toi de le trouver.', start:()=>startEns2() },
+  'definitions-ensembles': { name:'Définitions des ensembles', icon:'✍️', desc:'Écris la définition de chaque ensemble (ℕ, ℤ, 𝔻, ℚ, ℝ), corrigée par IA. En soutien, corrige jusqu’à ce que ce soit juste.', start:()=>startDef() },
   'lecture-variations': { name:'Lecture graphique \u2014 variations', icon:'\ud83d\udcc8', desc:'Lis une courbe : complète le tableau de valeurs, le sens de variation et le tableau de variation.', start:()=>startLV() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -1140,7 +1146,7 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2'] },
+  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles'] },
   { num:2, nom:'Fonctions', ids:['lecture-variations'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] }
 ];
@@ -1224,34 +1230,63 @@ function voirNotesExo(id){
 function fermerNotes(){ const m=$('notesModal'); if(m) m.hidden=true; }
 function ouvrirBilanEns(){ const m=$('bilanModal'); if(m) m.hidden=false; }
 function fermerBilanEns(){ const m=$('bilanModal'); if(m) m.hidden=true; }
-function ouvrirDefinition(){
+const DEF_SETS={N:{sym:'ℕ',nom:'entiers naturels'},Z:{sym:'ℤ',nom:'entiers relatifs'},D:{sym:'𝔻',nom:'nombres décimaux'},Q:{sym:'ℚ',nom:'nombres rationnels'},R:{sym:'ℝ',nom:'nombres réels'}};
+const DEF_ORDER=['N','Z','D','Q','R'];
+let defBusy=false;
+async function startDef(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  currentDM=null;
-  const t=$('defText'), fb=$('defFeedback'), b=$('defBtn');
-  if(t) t.value=''; if(fb){ fb.textContent=''; fb.className='def-feedback'; }
-  if(b){ b.disabled=false; b.textContent='Corriger ma définition'; }
-  show('def');
-  setTimeout(()=>{ const el=$('defText'); if(el) el.focus(); },80);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'def', questions:DEF_ORDER.slice(), idx:0, score:0, maxScore:DEF_ORDER.length, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false; defBusy=false;
+  show('def'); renderDefQ();
 }
-async function corrigerDefinition(){
-  const t=$('defText'), fb=$('defFeedback'), b=$('defBtn');
-  if(!t||!fb||!b) return;
+function renderDefQ(){
+  const k=test.questions[test.idx], sx=DEF_SETS[k]||DEF_SETS.N; test.locked=false; defBusy=false;
+  $('defIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagDef').innerHTML=modeTagHTML();
+  $('defScore').textContent=test.score;
+  $('defPrompt').innerHTML='Écris la définition de <b>'+sx.sym+'</b> ('+sx.nom+').';
+  const t=$('defText'); if(t){ t.value=''; t.disabled=false; t.setAttribute('placeholder','Un nombre de '+sx.sym+', c’est…'); }
+  $('defFeedback').textContent=''; $('defFeedback').className='def-feedback';
+  $('defActions').innerHTML='<button class="btn btn-primary" onclick="checkDef()">Vérifier</button>';
+  setTimeout(()=>{ const el=$('defText'); if(el) el.focus(); },70);
+}
+async function checkDef(){
+  if(test.locked||defBusy) return;
+  const k=test.questions[test.idx], t=$('defText'), fb=$('defFeedback');
   const texte=(t.value||'').trim();
-  if(texte.length<10){ fb.textContent='Écris d’abord ta définition (au moins quelques mots).'; fb.className='def-feedback bad'; t.focus(); return; }
-  b.disabled=true; b.textContent='Correction en cours…'; fb.textContent='J’analyse ta réponse…'; fb.className='def-feedback muted';
+  if(texte.length<10){ fb.textContent='Écris d’abord ta définition (quelques mots).'; fb.className='def-feedback bad'; t.focus(); return; }
+  defBusy=true;
+  $('defActions').innerHTML='<button class="btn btn-primary" disabled>Correction en cours…</button>';
+  fb.textContent='J’analyse ta réponse…'; fb.className='def-feedback muted';
+  let res=null;
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, ensemble:'N', texte:texte } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, ensemble:k, texte:texte } });
     if(r.error) throw r.error;
-    const data=r.data;
-    if(data && data.error){ fb.textContent=data.error; fb.className='def-feedback bad'; }
-    else if(data && data.feedback){ fb.textContent=data.feedback; fb.className='def-feedback good'; }
-    else { fb.textContent='Réponse inattendue du correcteur. Réessaie dans un instant.'; fb.className='def-feedback bad'; }
-  }catch(e){
-    fb.textContent='La correction est indisponible pour le moment (connexion ou service). Réessaie plus tard.'; fb.className='def-feedback bad';
-  }finally{
-    b.disabled=false; b.textContent='Corriger ma définition';
+    res=r.data;
+  }catch(e){ res=null; }
+  defBusy=false;
+  if(!res || res.error){
+    fb.textContent=(res&&res.error)||'La correction est indisponible pour le moment. Réessaie.'; fb.className='def-feedback bad';
+    $('defActions').innerHTML='<button class="btn btn-primary" onclick="checkDef()">Vérifier</button>';
+    return;
   }
+  const correct = res.correct===true;
+  fb.textContent=res.feedback||''; fb.className='def-feedback '+(correct?'good':'bad');
+  if(isSoutien() && !correct){
+    $('defActions').innerHTML='<button class="btn btn-primary" onclick="checkDef()">Revérifier</button>';
+    if(t) t.focus();
+    return;
+  }
+  test.locked=true; if(t) t.disabled=true;
+  if(correct){ test.score++; $('defScore').textContent=test.score; }
+  test.answers.push({correct:correct, q:(DEF_SETS[k]||{sym:k}).sym+' — '+(correct?'juste':'à revoir'), answer:'', given:''});
+  const last=test.idx===test.questions.length-1;
+  $('defActions').innerHTML='<button class="btn btn-primary" id="defNext" onclick="nextDefQ()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('defNext'); if(nb) nb.focus();
 }
+function nextDefQ(){ if(test.idx<test.questions.length-1){ test.idx++; renderDefQ(); autoSave(); } else finishTest(); }
 /* Progression globale : points obtenus (meilleure note par test) sur le total possible (nb tests × 10). */
 function progressionTotale(){
   const ids=[]; THEMES.forEach(th=>th.ids.forEach(id=>{ if(TESTS[id]) ids.push(id); }));
@@ -1277,14 +1312,10 @@ function renderChooser(results){
       const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
       return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
     }).join('');
-    let extra='';
-    if(th.ids.includes('ensembles-nombres')){
-      extra=cardHTML('✍️','Ma définition — entiers naturels','Écris ta définition de ℕ avec tes mots : elle est corrigée automatiquement.','ouvrirDefinition()','','','<span class="ex-bilan todo">À toi d’écrire</span>');
-    }
-    if(!cards && !extra) return '';
+    if(!cards) return '';
     return `<div class="theme-block">
       <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
-      <div class="choices">${cards}${extra}</div>
+      <div class="choices">${cards}</div>
     </div>`;
   }).join('');
 }
@@ -1472,7 +1503,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest]};
+  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ]};
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1492,7 +1523,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ptest','atest','dtest','ens'];
+  const testScreens=['lv','ptest','atest','dtest','ens','def'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
