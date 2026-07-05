@@ -382,6 +382,12 @@
   .ens-eq{color:var(--ink-soft);font-weight:500}
   .ens-resv{color:var(--blue-dark)}
   .ens-rep{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+  .def-text{width:100%;box-sizing:border-box;font-family:"Nunito",sans-serif;font-size:1rem;color:var(--ink);padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;resize:vertical;min-height:96px;outline:none;background:#fff}
+  .def-text:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(43,80,200,.14)}
+  .def-feedback{margin-top:16px;white-space:pre-wrap;line-height:1.55;font-size:1rem;min-height:8px}
+  .def-feedback.good{color:var(--ink);background:var(--green-soft);border:1.5px solid #bfe6d5;border-radius:12px;padding:14px 16px}
+  .def-feedback.bad{color:var(--red);font-weight:600}
+  .def-feedback.muted{color:var(--ink-soft)}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
   .choice.resume{border-color:#5cc4ad;background:linear-gradient(180deg,#F0FBF8,#fff)}
@@ -913,7 +919,7 @@
   <!-- TEST : ENSEMBLES DE NOMBRES -->
   <section class="screen" id="scr-ens">
     <div class="test-top">
-      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEns"></span><span class="q-idx" id="ensIdx">Question 1 / 6</span></span>
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEns"></span><span class="q-idx" id="ensIdx">Question 1 / 10</span></span>
       <span class="score-tag">Réussies&nbsp;<b id="ensLiveScore">0</b></span>
     </div>
     <div class="card">
@@ -925,6 +931,23 @@
         <button id="ensBilanBtn" class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()" hidden>Rappels</button>
         <span id="ensActions" style="display:inline-flex;gap:12px"><button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button></span>
       </div>
+    </div>
+  </section>
+
+  <!-- ÉCRIRE SA DÉFINITION (corrigée par IA) -->
+  <section class="screen" id="scr-def">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0">Ma définition — entiers naturels</h2>
+        <button class="btn-link" onclick="retourChoix()">← Retour</button>
+      </div>
+      <p class="lead">Écris, avec tes mots, ce qu'est un <b>entier naturel</b> (l'ensemble ℕ).</p>
+      <textarea id="defText" class="def-text" rows="4" maxlength="800" placeholder="Un entier naturel, c'est…"></textarea>
+      <div class="row" style="justify-content:center;margin-top:12px">
+        <button class="btn btn-primary" id="defBtn" type="button" onclick="corrigerDefinition()">Corriger ma définition</button>
+      </div>
+      <div id="defFeedback" class="def-feedback"></div>
+      <p class="note" style="text-align:center;margin-top:14px">Ta réponse est corrigée automatiquement pour t'aider — elle n'est pas notée.</p>
     </div>
   </section>
 
@@ -1201,6 +1224,34 @@ function voirNotesExo(id){
 function fermerNotes(){ const m=$('notesModal'); if(m) m.hidden=true; }
 function ouvrirBilanEns(){ const m=$('bilanModal'); if(m) m.hidden=false; }
 function fermerBilanEns(){ const m=$('bilanModal'); if(m) m.hidden=true; }
+function ouvrirDefinition(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  currentDM=null;
+  const t=$('defText'), fb=$('defFeedback'), b=$('defBtn');
+  if(t) t.value=''; if(fb){ fb.textContent=''; fb.className='def-feedback'; }
+  if(b){ b.disabled=false; b.textContent='Corriger ma définition'; }
+  show('def');
+  setTimeout(()=>{ const el=$('defText'); if(el) el.focus(); },80);
+}
+async function corrigerDefinition(){
+  const t=$('defText'), fb=$('defFeedback'), b=$('defBtn');
+  if(!t||!fb||!b) return;
+  const texte=(t.value||'').trim();
+  if(texte.length<10){ fb.textContent='Écris d’abord ta définition (au moins quelques mots).'; fb.className='def-feedback bad'; t.focus(); return; }
+  b.disabled=true; b.textContent='Correction en cours…'; fb.textContent='J’analyse ta réponse…'; fb.className='def-feedback muted';
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, ensemble:'N', texte:texte } });
+    if(r.error) throw r.error;
+    const data=r.data;
+    if(data && data.error){ fb.textContent=data.error; fb.className='def-feedback bad'; }
+    else if(data && data.feedback){ fb.textContent=data.feedback; fb.className='def-feedback good'; }
+    else { fb.textContent='Réponse inattendue du correcteur. Réessaie dans un instant.'; fb.className='def-feedback bad'; }
+  }catch(e){
+    fb.textContent='La correction est indisponible pour le moment (connexion ou service). Réessaie plus tard.'; fb.className='def-feedback bad';
+  }finally{
+    b.disabled=false; b.textContent='Corriger ma définition';
+  }
+}
 /* Progression globale : points obtenus (meilleure note par test) sur le total possible (nb tests × 10). */
 function progressionTotale(){
   const ids=[]; THEMES.forEach(th=>th.ids.forEach(id=>{ if(TESTS[id]) ids.push(id); }));
@@ -1226,10 +1277,14 @@ function renderChooser(results){
       const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
       return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
     }).join('');
-    if(!cards) return '';
+    let extra='';
+    if(th.ids.includes('ensembles-nombres')){
+      extra=cardHTML('✍️','Ma définition — entiers naturels','Écris ta définition de ℕ avec tes mots : elle est corrigée automatiquement.','ouvrirDefinition()','','','<span class="ex-bilan todo">À toi d’écrire</span>');
+    }
+    if(!cards && !extra) return '';
     return `<div class="theme-block">
       <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
-      <div class="choices">${cards}</div>
+      <div class="choices">${cards}${extra}</div>
     </div>`;
   }).join('');
 }
@@ -1441,7 +1496,7 @@ function show(name){
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -2971,7 +3026,13 @@ function ensGenIrr(){
 }
 function ensShuffle(a){ for(let i=a.length-1;i>0;i--){ const j=rand(0,i), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 function ensBuildQuestions(){
-  return ensShuffle([ensGenPosInt(),ensGenNegInt(),ensGenDec(false),ensGenDec(true),ensGenFrac(),ensGenIrr()]);
+  // 10 exemples couvrant les 6 catégories (entiers +/-, décimaux +/-, rationnel non décimal, irrationnel)
+  const gens=[ensGenPosInt, ensGenPosInt, ensGenNegInt,
+    ()=>ensGenDec(false), ()=>ensGenDec(false), ()=>ensGenDec(true),
+    ensGenFrac, ensGenFrac, ensGenIrr, ensGenIrr];
+  const qs=[], seen={};
+  for(const gen of gens){ let q, t=0; do{ q=gen(); t++; }while(seen[q.plain] && t<25); seen[q.plain]=true; qs.push(q); }
+  return ensShuffle(qs);
 }
 /* ---- Cycle de vie de l'exercice ---- */
 async function startEns(level){
