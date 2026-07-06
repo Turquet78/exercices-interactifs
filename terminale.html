@@ -805,7 +805,7 @@
         <button type="button" class="sup-btn" onclick="dexpSup()">x<sup>n</sup>&nbsp;exposant</button>
         <button type="button" class="del" onclick="dexpDel()">&#9003;</button>
       </div>
-      <p class="dexp-hint">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>n</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).</p>
+      <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>n</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).</p>
       <div class="mp-feedback" id="dexpFeedback"></div>
       <div class="mp-actions" id="dexpActions"></div>
     </div>
@@ -1090,7 +1090,8 @@ const TESTS={
   'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
-  'derivee-exp': { name:'Dérivée × exp', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
+  'derivee-exp': { name:'Dérivée × exp \u2014 niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
+  'derivee-exp-2': { name:'Dérivée × exp \u2014 niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
   'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
@@ -1102,7 +1103,7 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Dérivation',         ids:['derivee-exp','equation-tangente','derivees'] },
+  { num:1, nom:'Dérivation',         ids:['derivee-exp','derivee-exp-2','equation-tangente','derivees'] },
   { num:2, nom:'Suites',             ids:['suites'] },
   { num:3, nom:'Continuité & TVI',   ids:['tvi','tvi-redaction'] },
   { num:4, nom:'Signe & variations', ids:['signe-premier-degre','signe-second-degre','signes-variations'] }
@@ -2258,6 +2259,15 @@ function checkExprFn(raw, refFn){
   return true;
 }
 
+function dexpNb(x){ return Number.isInteger(x)? String(x) : String(x).replace('.',','); }
+function dexpPoly1(cx,c0){
+  const t=[];
+  if(cx!==0){ if(cx===1)t.push('x'); else if(cx===-1)t.push('-x'); else t.push(dexpNb(cx)+'x'); }
+  if(c0!==0){ if(t.length && c0>0) t.push('+ '+dexpNb(c0)); else if(t.length) t.push('- '+dexpNb(-c0)); else t.push(dexpNb(c0)); }
+  return t.length? t.join(' ') : '0';
+}
+function dexpFxPlain(c){ return '('+c.uStr+')·e^('+c.expHtml+')'; }
+function dexpDfPlain(c){ return '('+dexpPoly1(c.a*c.k, c.a+c.b*c.k)+')·e^('+c.expHtml+')'; }
 function genDexp(){
   const a=pickNonZero(-3,3), b=rand(-3,3), k=pick([-2,-1,1,2,3,0.5]);
   return {
@@ -2331,12 +2341,62 @@ async function startDexp(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
-  currentTestId='derivee-exp'; test.kind='dexp';
+  currentTestId='derivee-exp'; test.kind='dexp'; test.dexpLevel=1;
   test.questions=Array.from({length:5}, genDexp);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('dexp'); renderDexp();
 }
+function startDexp2(){
+  currentTestId='derivee-exp-2'; test.kind='dexp'; test.dexpLevel=2;
+  test.questions=Array.from({length:5}, genDexp);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('dexp'); renderDexp2();
+}
+function renderDexp2(){
+  const c=test.questions[test.idx]; test.locked=false; test.dexpBusy=false;
+  $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('dexpModeTag').innerHTML=modeTagHTML();
+  $('dexpLiveScore').textContent=test.score;
+  $('dexpFeedback').textContent=''; $('dexpFeedback').className='mp-feedback';
+  if($('dexpHelp')) $('dexpHelp').hidden=true;
+  if($('dexpHintP')) $('dexpHintP').style.display='none';
+  const e=`e<sup>${esc(c.expHtml)}</sup>`;
+  $('dexpEnonce').innerHTML=`<i>f</i>(x) = (${esc(c.uStr)})${e}`;
+  $('dexpBody').innerHTML=`<p class="tvi-instr">Écris l'expression de <i>f</i>\u2032(x) :</p><textarea class="tvi-textarea" id="dexp2Input" rows="2" placeholder="f'(x) = …" autocomplete="off" autocapitalize="none" spellcheck="false"></textarea>`;
+  $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>';
+  setTimeout(()=>{const el=$('dexp2Input');if(el)el.focus();},30);
+}
+async function checkDexp2(){
+  if(test.locked||test.dexpBusy) return;
+  const c=test.questions[test.idx], t=$('dexp2Input'), fb=$('dexpFeedback');
+  const rep=(t.value||'').trim();
+  if(rep.length<2){ fb.textContent='Écris d\u2019abord l\u2019expression de f\u2032(x).'; fb.className='mp-feedback bad'; t.focus(); return; }
+  test.dexpBusy=true;
+  $('dexpActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.textContent='Je vérifie ta dérivée…'; fb.className='mp-feedback muted';
+  const question=dexpFxPlain(c), attendu=dexpDfPlain(c);
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attendu, reponse:rep } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  test.dexpBusy=false;
+  if(!res || res.error){ fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>'; return; }
+  const correct=res.correct===true;
+  fb.textContent=res.feedback||''; fb.className='mp-feedback '+(correct?'good':'bad');
+  if(isSoutien() && !correct){ $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Revérifier</button>'; if(t) t.focus(); return; }
+  test.locked=true; if(t) t.disabled=true;
+  if(correct){ test.score++; $('dexpLiveScore').textContent=test.score; }
+  test.answers.push({q:`Dérivée de (${c.uStr})e^(${c.expHtml})`, answer:attendu, given:rep, correct:correct, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('dexpActions').innerHTML=`<button class="btn btn-primary" id="dexp2Next" onclick="nextDexp2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  const nb=$('dexp2Next'); if(nb) nb.focus();
+}
+function nextDexp2(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexp2(); } else finishTest(); }
 function renderDexp(){
+  if(test.dexpLevel===2) return renderDexp2();
+  if($('dexpHelp')) $('dexpHelp').hidden=false;
+  if($('dexpHintP')) $('dexpHintP').style.display='';
   const c=test.questions[test.idx]; test.locked=false; test.dexpWrong={}; test.dexpLastWrong={};
   $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
   $('dexpModeTag').innerHTML=modeTagHTML();
