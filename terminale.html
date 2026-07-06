@@ -317,6 +317,9 @@
   .mp-fix{position:absolute;bottom:-15px;left:0;right:0;text-align:center;font-family:"Fredoka";font-weight:600;font-size:.8rem;color:var(--green)}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
+  .mp-feedback.muted{color:var(--ink-soft)}
+  .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
+  .conseil-card{max-width:min(520px,94vw);width:100%}
   .set-h{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:20px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
   .set-h.first{border-top:none;padding-top:0;margin-top:2px}
 
@@ -689,6 +692,15 @@
   </section>
 
   <!-- DEVOIRS À LA MAISON (élève) -->
+  <div id="conseilModal" class="notes-modal" hidden onclick="if(event.target===this)fermerConseil()">
+    <div class="card conseil-card">
+      <div class="notes-head">
+        <h3>💡 Conseil</h3>
+        <button class="btn-link" onclick="fermerConseil()">Fermer</button>
+      </div>
+      <div id="conseilBody" class="mp-feedback"></div>
+    </div>
+  </div>
   <div id="notesModal" class="notes-modal" hidden onclick="if(event.target===this)fermerNotes()">
     <div class="card notes-card">
       <div class="notes-head">
@@ -742,7 +754,7 @@
       <span class="mark" id="mark"></span>
       <div class="timerbar" id="timerBar" hidden><i id="timerFill"></i></div>
       <div class="correction" id="correction"></div>
-      <button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button>
+      <button id="cmConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button>
     </div>
   </section>
 
@@ -1114,6 +1126,37 @@ function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); else startDerivees(); }
 function isSoutien(){ return currentMode==='soutien'; }
+function conseilInlineBtn(){ return isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : ''; }
+function ctxVisible(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return '';
+  const parts=[];
+  const p=scr.querySelector('.tvi-prompt'); if(p && p.textContent.trim()) parts.push('Énoncé : '+p.textContent.trim());
+  const ins=scr.querySelector('.tvi-instr'); if(ins && ins.textContent.trim()) parts.push('Consigne affichée : '+ins.textContent.trim());
+  const eq=scr.querySelector('#equation'); if(eq){ const t=eq.textContent.replace(/\s+/g,' ').trim(); if(t && t!=='— — —') parts.push('Expression / calcul demandé : '+t); }
+  return parts.join(' ');
+}
+let conseilBusy=false;
+async function lancerConseil(contexte, fb){
+  if(conseilBusy||!fb) return;
+  conseilBusy=true;
+  fb.textContent='Je réfléchis à un indice…'; fb.className='mp-feedback muted';
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', contexte:contexte } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; }
+    else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
+    else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
+  }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
+  finally{ conseilBusy=false; }
+}
+function conseilCourant(){
+  let c=ctxVisible();
+  if(!c) c='L’élève est en difficulté sur un exercice de mathématiques de Terminale.';
+  const m=$('conseilModal'); if(m) m.hidden=false;
+  lancerConseil(c, $('conseilBody'));
+}
+function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
   $(fbId).className='mp-feedback bad';
@@ -1797,7 +1840,7 @@ function renderQuestion(){
     ai.inputMode='numeric'; ai.removeAttribute('autocapitalize'); ai.placeholder='?';
     if(help) help.hidden=true;
   }
-  $('mark').className='mark';$('mark').textContent='';$('correction').textContent='';$('validateBtn').disabled=false;
+  $('mark').className='mark';$('mark').textContent='';$('correction').textContent='';$('validateBtn').disabled=false; { const cb=$('cmConseilBtn'); if(cb) cb.hidden=!isSoutien(); }
   setTimeout(()=>ai.focus(),60);
   if(cfg.secondsPerQuestion>0 && !isSoutien()) startQTimer(cfg.secondsPerQuestion); else $('timerBar').hidden=true;
 }
@@ -2008,7 +2051,7 @@ function renderTVI(){
   $('tviModeTag').innerHTML=modeTagHTML();
   $('tviLiveScore').textContent=test.score;
   $('tviFeedback').textContent=''; $('tviFeedback').className='mp-feedback';
-  $('tviActions').innerHTML='<button class="btn btn-primary" onclick="checkTVI()">V\u00e9rifier</button>';
+  $('tviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI()">V\u00e9rifier</button>';
   $('tviPrompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur \u211d.`;
   $('tviTable').innerHTML=tviSVG(c);
   $('tviFill').innerHTML=tviSentence(c);
@@ -2039,7 +2082,7 @@ function checkTVI(live){
   if(!allOk && isSoutien()){
     $('tviFeedback').textContent='Presque ! Corrige les menus en rouge, puis rev\u00e9rifie.';
     $('tviFeedback').className='mp-feedback bad';
-    $('tviActions').innerHTML='<button class="btn btn-primary" onclick="checkTVI()">Rev\u00e9rifier</button>';
+    $('tviActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
@@ -2122,7 +2165,7 @@ function renderTVI2(){
   $('tvi2ModeTag').innerHTML=modeTagHTML();
   $('tvi2LiveScore').textContent=test.score;
   $('tvi2Check').innerHTML=''; $('tvi2Feedback').textContent=''; $('tvi2Feedback').className='mp-feedback';
-  $('tvi2Actions').innerHTML='<button class="btn btn-primary" onclick="checkTVI2()">V\u00e9rifier ma justification</button>';
+  $('tvi2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI2()">V\u00e9rifier ma justification</button>';
   $('tvi2Prompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur \u211d.`;
   $('tvi2Table').innerHTML=tviSVG(c);
   const ta=$('tvi2Input'); ta.value=''; ta.disabled=false;
@@ -2137,7 +2180,7 @@ function checkTVI2(){
   if(!r.allEssential && isSoutien()){
     $('tvi2Feedback').textContent='Il manque des \u00e9l\u00e9ments essentiels (en rouge). Compl\u00e8te ta justification, puis rev\u00e9rifie.';
     $('tvi2Feedback').className='mp-feedback bad';
-    $('tvi2Actions').innerHTML='<button class="btn btn-primary" onclick="checkTVI2()">Rev\u00e9rifier</button>';
+    $('tvi2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI2()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
@@ -2299,7 +2342,7 @@ function renderDexp(){
   $('dexpModeTag').innerHTML=modeTagHTML();
   $('dexpLiveScore').textContent=test.score;
   $('dexpFeedback').textContent=''; $('dexpFeedback').className='mp-feedback';
-  $('dexpActions').innerHTML='<button class="btn btn-primary" onclick="checkDexp()">Vérifier</button>';
+  $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp()">Vérifier</button>';
   const e=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
   $('dexpEnonce').innerHTML=`<i>f</i>(x) = (${esc(c.uStr)})${e}`;
   const A='autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text"';
@@ -2440,7 +2483,7 @@ function checkDexp(){
   if(!allOk && isSoutien()){
     $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
     $('dexpFeedback').className='mp-feedback bad';
-    $('dexpActions').innerHTML='<button class="btn btn-primary" onclick="checkDexp()">Rev\u00e9rifier</button>';
+    $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
@@ -2598,7 +2641,7 @@ function renderSV(){
   $('svModeTag').innerHTML=modeTagHTML();
   $('svLiveScore').textContent=test.score;
   $('svFeedback').textContent=''; $('svFeedback').className='mp-feedback';
-  $('svActions').innerHTML='<button class="btn btn-primary" onclick="checkSV()">V\u00e9rifier</button>';
+  $('svActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSV()">V\u00e9rifier</button>';
   $('svPrompt').innerHTML=`On donne la courbe repr\u00e9sentative d\u2019une fonction <i>${esc(c.fname)}</i> sur ]${SV_MINUS}\u221e\u00a0; +\u221e[.`;
   $('svGraph').innerHTML=svGraphSVG(c);
   $('svTables').innerHTML=svTablesHTML(c);
@@ -2622,7 +2665,7 @@ function checkSV(live){
   if(!allOk && isSoutien()){
     $('svFeedback').textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
     $('svFeedback').className='mp-feedback bad';
-    $('svActions').innerHTML='<button class="btn btn-primary" onclick="checkSV()">Rev\u00e9rifier</button>';
+    $('svActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSV()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
@@ -2775,7 +2818,7 @@ function renderTG(){
   $('tgModeTag').innerHTML=modeTagHTML();
   $('tgLiveScore').textContent=test.score;
   $('tgFeedback').textContent=''; $('tgFeedback').className='mp-feedback';
-  $('tgActions').innerHTML='<button class="btn btn-primary" onclick="checkTG()">Vérifier</button>';
+  $('tgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTG()">Vérifier</button>';
   $('tgPrompt').innerHTML=`On donne la courbe représentative d\u2019une fonction <i>${esc(c.fname)}</i> et l\u2019une de ses tangentes (en pointillés), tangente au point <b>A</b>.`;
   $('tgGraph').innerHTML=tgGraphSVG(c);
   $('tgForm').innerHTML=tgFormHTML(c);
@@ -2817,7 +2860,7 @@ function checkTG(live){
   if(!allOk && isSoutien()){
     $('tgFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
     $('tgFeedback').className='mp-feedback bad';
-    $('tgActions').innerHTML='<button class="btn btn-primary" onclick="checkTG()">Revérifier</button>';
+    $('tgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTG()">Revérifier</button>';
     return;
   }
   test.locked=true;
@@ -2932,7 +2975,7 @@ function renderS1(){
   $('s1ModeTag').innerHTML=modeTagHTML();
   $('s1LiveScore').textContent=test.score;
   $('s1Feedback').textContent=''; $('s1Feedback').className='mp-feedback';
-  $('s1Actions').innerHTML='<button class="btn btn-primary" onclick="checkS1()">Vérifier</button>';
+  $('s1Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS1()">Vérifier</button>';
   $('s1Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>. R\u00e9sous d\u2019abord l\u2019\u00e9quation <i>f</i>\u00a0(<i>x</i>) = 0 :`;
   $('s1Res').innerHTML=s1ResHTML(c);
   $('s1Phrase').innerHTML=`Le signe du coefficient de <i>x</i> qui est <b>${numFmt(c.a)}</b> est placé <select class="tvi-sel s1-place-sel" id="s1-place"><option value="">\u2026</option><option value="debut">au début</option><option value="fin">à la fin</option><option value="debutfin">au début et à la fin</option></select> du tableau.`;
@@ -2969,7 +3012,7 @@ function checkS1(live){
   if(!allOk && isSoutien()){
     $('s1Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
     $('s1Feedback').className='mp-feedback bad';
-    $('s1Actions').innerHTML='<button class="btn btn-primary" onclick="checkS1()">Revérifier</button>';
+    $('s1Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS1()">Revérifier</button>';
     return;
   }
   test.locked=true;
@@ -3074,7 +3117,7 @@ function renderS2(){
   $('s2ModeTag').innerHTML=modeTagHTML();
   $('s2LiveScore').textContent=test.score;
   $('s2Feedback').textContent=''; $('s2Feedback').className='mp-feedback';
-  $('s2Actions').innerHTML='<button class="btn btn-primary" onclick="checkS2()">Vérifier</button>';
+  $('s2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS2()">Vérifier</button>';
   $('s2Prompt').innerHTML=`Soit la fonction <i>f</i> définie sur ]\u2212\u221e\u00a0; +\u221e[ par&nbsp; <b><i>f</i>\u00a0(<i>x</i>) = ${c.exprHtml}</b>.`;
   $('s2Res').innerHTML=s2ResHTML(c);
   if(c.nroots===0){
@@ -3141,7 +3184,7 @@ function checkS2(live){
   if(!allOk && isSoutien()){
     $('s2Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
     $('s2Feedback').className='mp-feedback bad';
-    $('s2Actions').innerHTML='<button class="btn btn-primary" onclick="checkS2()">Revérifier</button>';
+    $('s2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkS2()">Revérifier</button>';
     return;
   }
   test.locked=true;
