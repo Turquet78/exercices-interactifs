@@ -400,6 +400,7 @@
   .pge-opt.good{color:#fff;background:var(--green);border-color:var(--green)}
   .pge-opt.bad{color:#fff;background:var(--red);border-color:var(--red)}
   .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
+  .conseil-card{max-width:min(520px,94vw);width:100%}
   .def-prompt{font-weight:600;margin:0 0 12px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
@@ -820,6 +821,15 @@
     </div>
   </div>
 
+  <div id="conseilModal" class="notes-modal" hidden onclick="if(event.target===this)fermerConseil()">
+    <div class="card conseil-card">
+      <div class="notes-head">
+        <h3>💡 Conseil</h3>
+        <button class="btn-link" onclick="fermerConseil()">Fermer</button>
+      </div>
+      <div id="conseilBody" class="mp-feedback"></div>
+    </div>
+  </div>
   <div id="bilanModal" class="notes-modal" hidden onclick="if(event.target===this)fermerBilanEns()">
     <div class="card bilan-card">
       <div class="notes-head">
@@ -861,7 +871,7 @@
       <div class="lv-graph" id="lvGraph"></div>
       <div id="lvBody"></div>
       <div class="lv-feedback"><span id="lvMark" class="mark"></span> <span id="lvCorr" class="correction"></span></div>
-      <div class="row" style="justify-content:center;margin-top:16px"><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="lvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
     </div>
   </section>
 
@@ -942,7 +952,6 @@
       <div class="mp-feedback" id="ensFeedback"></div>
       <div class="row" style="justify-content:center">
         <button id="ensBilanBtn" class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()" hidden>Rappels</button>
-        <button id="ensConseilBtn" class="btn btn-ghost" type="button" onclick="conseilEns()" hidden>💡 Un conseil</button>
         <span id="ensActions" style="display:inline-flex;gap:12px"><button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button></span>
       </div>
     </div>
@@ -1197,7 +1206,7 @@ function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
   $(fbId).className='mp-feedback bad';
-  $(actionsId).innerHTML=`<button class="btn btn-primary" onclick="${fn}()">Revérifier</button>`;
+  $(actionsId).innerHTML=conseilInlineBtn()+`<button class="btn btn-primary" onclick="${fn}()">Revérifier</button>`;
   if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
 }
 /* ---------- (soutien simplifié : géré directement dans submitAnswer) ---------- */
@@ -1274,7 +1283,7 @@ function renderDefQ(){
   $('defPrompt').innerHTML='Écris la définition de <b>'+sx.sym+'</b> ('+sx.nom+').';
   const t=$('defText'); if(t){ t.value=''; t.disabled=false; t.setAttribute('placeholder','Un nombre de '+sx.sym+', c’est…'); }
   $('defFeedback').textContent=''; $('defFeedback').className='def-feedback';
-  $('defActions').innerHTML='<button class="btn btn-primary" onclick="checkDef()">Vérifier</button>';
+  $('defActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDef()">Vérifier</button>';
   setTimeout(()=>{ const el=$('defText'); if(el) el.focus(); },70);
 }
 async function checkDef(){
@@ -1294,13 +1303,13 @@ async function checkDef(){
   defBusy=false;
   if(!res || res.error){
     fb.textContent=(res&&res.error)||'La correction est indisponible pour le moment. Réessaie.'; fb.className='def-feedback bad';
-    $('defActions').innerHTML='<button class="btn btn-primary" onclick="checkDef()">Vérifier</button>';
+    $('defActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDef()">Vérifier</button>';
     return;
   }
   const correct = res.correct===true;
   fb.textContent=res.feedback||''; fb.className='def-feedback '+(correct?'good':'bad');
   if(isSoutien() && !correct){
-    $('defActions').innerHTML='<button class="btn btn-primary" onclick="checkDef()">Revérifier</button>';
+    $('defActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDef()">Revérifier</button>';
     if(t) t.focus();
     return;
   }
@@ -1331,7 +1340,7 @@ function startPge(){
 function pgeRappelBtn(withConseil){
   if(!isSoutien()) return '';
   let h='<button class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()">Rappels</button>';
-  if(withConseil) h+='<button class="btn btn-ghost" type="button" onclick="conseilPge()">💡 Un conseil</button>';
+  if(withConseil) h+='<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>';
   return h;
 }
 let conseilBusy=false;
@@ -1349,20 +1358,41 @@ async function lancerConseil(nombre, contexte, fb){
   }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
   finally{ conseilBusy=false; }
 }
-function conseilPge(){
-  const q=test.questions[test.idx], bon=pgeSmallest(q);
+function ctxPge(q){
+  const bon=pgeSmallest(q);
   const wrong=[...document.querySelectorAll('#pgeOpts .pge-opt.bad')].map(b=>b.dataset.k);
-  let contexte='L’élève doit trouver le plus petit ensemble (parmi ℕ, ℤ, 𝔻, ℚ, ℝ, du plus petit au plus grand) qui contient le nombre. Le bon ensemble est '+PGE_SYM[bon]+'.';
-  if(wrong.length) contexte+=' Il a déjà proposé (à tort) : '+wrong.map(k=>PGE_SYM[k]).join(', ')+'.';
-  lancerConseil(q.plain, contexte, $('pgeFeedback'));
+  let c='L’élève doit trouver le plus petit ensemble (parmi ℕ, ℤ, 𝔻, ℚ, ℝ, du plus petit au plus grand) qui contient le nombre. Le bon ensemble est '+PGE_SYM[bon]+'.';
+  if(wrong.length) c+=' Il a déjà proposé (à tort) : '+wrong.map(k=>PGE_SYM[k]).join(', ')+'.';
+  return {nombre:q.plain, contexte:c};
 }
-function conseilEns(){
-  const q=test.questions[test.idx];
+function ctxVisible(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return '';
+  const parts=[];
+  const instr=scr.querySelector('.mp-instr, .lv-instr'); if(instr && instr.textContent.trim()) parts.push('Question posée à l’élève : '+instr.textContent.trim());
+  const stage=scr.querySelector('.mp-stage'); if(stage){ const t=stage.textContent.replace(/\s+/g,' ').trim(); if(t) parts.push('Éléments affichés : '+t); }
+  return parts.join(' ');
+}
+function conseilCourant(){
+  const q=(test&&test.questions&&test.questions[test.idx])||null;
+  let b={nombre:'', contexte:''};
+  if(test.kind==='ens' && q) b=ctxEns(q);
+  else if(test.kind==='pge' && q) b=ctxPge(q);
+  else b={nombre:'', contexte:ctxVisible()};
+  if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
+  demanderConseilModal(b.nombre, b.contexte);
+}
+function demanderConseilModal(nombre, contexte){
+  const m=$('conseilModal'); if(m) m.hidden=false;
+  lancerConseil(nombre, contexte, $('conseilBody'));
+}
+function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; }
+function conseilInlineBtn(){ return isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : ''; }
+function ctxEns(q){
   const bon=ENS_SETS_ORDER.map(k=>ENS_SYM[k]+':'+(q.sets[k]?'∈':'∉')).join(' ');
   const faux=ENS_SETS_ORDER.filter(k=>{ const sel=$('ens-s-'+k); const v=sel?sel.value:''; return v!=='' && v!==(q.sets[k]?'in':'out'); }).map(k=>ENS_SYM[k]);
-  let contexte='L’élève doit dire, pour ce nombre, s’il appartient (∈) ou non (∉) à chacun des ensembles ℕ, ℤ, 𝔻, ℚ, ℝ. Les appartenances correctes sont : '+bon+'.';
-  if(faux.length) contexte+=' Il s’est trompé sur : '+faux.join(', ')+'.';
-  lancerConseil(q.plain, contexte, $('ensFeedback'));
+  let c='L’élève doit dire, pour ce nombre, s’il appartient (∈) ou non (∉) à chacun des ensembles ℕ, ℤ, 𝔻, ℚ, ℝ. Les appartenances correctes sont : '+bon+'.';
+  if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
+  return {nombre:q.plain, contexte:c};
 }
 function renderPgeQ(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -2028,6 +2058,7 @@ function renderLV(){
   const a=lvAnalyze(q.pts);
   $('lvIdx').textContent = 'Question '+(test.idx+1)+' / '+test.questions.length;
   $('lvModeTag').innerHTML = modeTagHTML();
+  { const cb=$('lvConseilBtn'); if(cb) cb.hidden=!isSoutien(); }
   $('lvSub').textContent = 'Graphique '+q.gnum+' / '+q.gtot+' \u2014 '+lvPartLabel(q);
   $('lvGraph').innerHTML = lvGraphSVG(q.pts);
   let instr='', body='';
@@ -2674,7 +2705,7 @@ function renderPTest(){
   $('modeTagP').innerHTML=modeTagHTML();
   $('pLiveScore').textContent=test.score;
   $('pFeedback').textContent=''; $('pFeedback').className='mp-feedback';
-  $('pActions').innerHTML='<button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>';
+  $('pActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>';
   $('pPrompt').innerHTML=`Prendre <b>${q.P}%</b> de <b>${q.N} ${esc(q.unit)}</b>, c'est calculer :`;
   const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
   $('pHost').innerHTML=
@@ -2766,7 +2797,7 @@ function renderATest(){
   $('modeTagA').innerHTML=modeTagHTML();
   $('aLiveScore').textContent=test.score;
   $('aFeedback').textContent=''; $('aFeedback').className='mp-feedback';
-  $('aActions').innerHTML='<button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>';
+  $('aActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>';
   $('aPrompt').innerHTML=`${q.intro} <b>${q.N} ${esc(q.unit)}</b> augmente de <b>${q.P} %</b>. Quelle est la nouvelle valeur ?`;
   const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
   // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
@@ -2937,7 +2968,7 @@ function renderDTest(){
   $('modeTagD').innerHTML=modeTagHTML();
   $('dLiveScore').textContent=test.score;
   $('dFeedback').textContent=''; $('dFeedback').className='mp-feedback';
-  $('dActions').innerHTML='<button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>';
+  $('dActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>';
   $('dPrompt').innerHTML=`${q.intro} <b>${q.N} ${esc(q.unit)}</b> diminue de <b>${q.P} %</b>. Quelle est la nouvelle valeur ?`;
   const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
   // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
@@ -3200,10 +3231,9 @@ function renderEnsTest(){
   $('ensIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagEns').innerHTML=modeTagHTML();
   { const bb=$('ensBilanBtn'); if(bb) bb.hidden=(currentMode==='eval' || test.ensLevel===2); }   // bilan : entraînement/soutien du niveau 1
-  { const cb=$('ensConseilBtn'); if(cb) cb.hidden=(currentMode!=='soutien'); }   // conseil IA : soutien uniquement
   $('ensLiveScore').textContent=test.score;
   $('ensFeedback').textContent=''; $('ensFeedback').className='mp-feedback';
-  $('ensActions').innerHTML='<button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button>';
+  $('ensActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button>';
   let rows='';
   ENS_SETS_ORDER.forEach(k=>{
     rows+='<span class="ens-num">'+q.inner+'</span>'
