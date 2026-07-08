@@ -471,7 +471,8 @@
 .expr-help button:hover{border-color:var(--blue);}
 .expr-help .sup-btn{color:var(--blue);}
 .expr-help .sup-btn.active{background:var(--blue);color:#fff;border-radius:8px;}
-.dexp2-btn{display:inline-flex;align-items:center;color:var(--blue);background:#fff;border:1.5px solid var(--blue);border-radius:8px;padding:6px 12px;font:600 .95rem 'Nunito',sans-serif;cursor:pointer;user-select:none;}
+.dexp2-btn{display:inline-block;color:var(--blue);background:#fff;border:1.5px solid var(--blue);border-radius:8px;padding:6px 12px;font:600 .95rem 'Nunito',sans-serif;cursor:pointer;user-select:none;}
+.dexp2-btn sup{font-size:.7em;vertical-align:super;line-height:0;}
 .dexp2-btn:hover{background:#eef2ff;}
 .dexp2-btn.active{background:var(--blue);color:#fff;}
 .expr-help .sup-btn sup{font-size:.62em;}
@@ -811,10 +812,10 @@
       <p class="tvi-instr">Calcule la dérivée en complétant :</p>
       <div class="dexp-body" id="dexpBody"></div>
       <div class="expr-help" id="dexpHelp" onmousedown="event.preventDefault()" ontouchstart="event.preventDefault()">
-        <button type="button" class="sup-btn" onclick="dexpSup()">x<sup>n</sup>&nbsp;exposant</button>
+        <button type="button" class="sup-btn" onclick="dexpSup()">x<sup>y</sup>&nbsp;exposant</button>
         <button type="button" class="del" onclick="dexpDel()">&#9003;</button>
       </div>
-      <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>n</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).</p>
+      <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>y</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).</p>
       <div class="mp-feedback" id="dexpFeedback"></div>
       <div class="mp-actions" id="dexpActions"></div>
     </div>
@@ -1099,8 +1100,8 @@ const TESTS={
   'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
-  'derivee-exp': { name:'Dérivée × exp \u2014 niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
-  'derivee-exp-2': { name:'Dérivée × exp \u2014 niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
+  'derivee-exp': { name:'Dérivée avec exponentielle \u2014 niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
+  'derivee-exp-2': { name:'Dérivée avec exponentielle \u2014 niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
   'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
@@ -2360,6 +2361,7 @@ document.addEventListener('beforeinput',function(ev){
   ev.preventDefault();
   const ty=ev.inputType||'';
   if((ty==='insertText'||ty==='insertFromPaste'||ty==='insertCompositionText') && ev.data!=null){ dexp2Type(ev.data); }
+  else if(ty==='insertParagraph'||ty==='insertLineBreak'){ dexp2Newline(); }
   else if(ty.indexOf('delete')===0){ dexp2Del(); }
 });
 document.addEventListener('keydown',function(ev){
@@ -2398,10 +2400,10 @@ function renderDexp2(){
   if($('dexpHintP')) $('dexpHintP').style.display='none';
   const e=`e<sup>${esc(c.expHtml)}</sup>`;
   $('dexpEnonce').innerHTML=`<i>f</i>(x) = (${esc(c.uStr)})${e}`;
-  $('dexpBody').innerHTML=`<p class="tvi-instr">Écris l'expression de <i>f</i>′(x) :</p>
+  $('dexpBody').innerHTML=`<p class="tvi-instr">Déterminer la dérivée sous la forme factorisée :</p>
      <div class="dexp2-in" id="dexp2Input" contenteditable="true"></div>
-     <div class="expr-help"><span id="dexp2SupBtn" class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Sup()">x<sup>n</sup>&nbsp;exposant</span><span class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Base()">→&nbsp;revenir en bas</span></div>
-     <p class="dexp-hint">Tape « e », clique sur <b>x<sup>n</sup> exposant</b>, tape l'exposant (ex. 5x), puis <b>→ revenir en bas</b> pour continuer normalement.</p>`;
+     <div class="expr-help"><span id="dexp2SupBtn" class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Sup()">x<sup>y</sup>&nbsp;exposant</span><span class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Base()">→&nbsp;revenir en bas</span></div>
+     <p class="dexp-hint">Tape « e », clique sur <b>x<sup>y</sup> exposant</b>, tape l'exposant (ex. 5x), puis <b>→ revenir en bas</b> pour continuer normalement.</p>`;
   $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>';
   setTimeout(()=>{const el=$('dexp2Input');if(el)el.focus();},30);
 }
@@ -2438,9 +2440,10 @@ function dexp2Sup(){ const f=$('dexp2Input'); if(f) f.focus(); dexp2EnterExp(); 
 function dexp2Base(){ const f=$('dexp2Input'); if(f) f.focus(); dexp2ExitExp(); dexp2Render(); }
 function dexp2Type(str){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; for(const ch of str){ if(ch==='^'){ dexp2EnterExp(); } else { const c = ch==='*' ? '\u00d7' : ch; test.dexp2Parts[test.dexp2Parts.length-1].text += c; } } dexp2Render(); }
 function dexp2Del(){ if(!test.dexp2Parts) return; const p=test.dexp2Parts, l=p[p.length-1]; if(l.text) l.text=l.text.slice(0,-1); else if(p.length>1) p.pop(); dexp2Render(); }
+function dexp2Newline(){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; const p=test.dexp2Parts; if(p[p.length-1].exp) p.push({text:'',exp:false}); p[p.length-1].text+='\n'; dexp2Render(); }
 function dexp2Esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function dexp2WrapX(t){ return dexp2Esc(t).replace(/x/g,'<i class="mvar">x</i>'); }
-function dexp2Render(){ const f=$('dexp2Input'); if(!f) return; const p=test.dexp2Parts||[{text:'',exp:false}]; let h=''; p.forEach(x=>{ const inner=dexp2WrapX(x.text); h += x.exp ? ('<sup>'+(inner||'\u200b')+'</sup>') : inner; }); const last=p[p.length-1]; const inExp=!!(last&&last.exp); if(!inExp && p.length>1 && last && last.text==='') h+='\u200b'; f.innerHTML=h; const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.toggle('active', inExp); dexp2CaretEnd(f); }
+function dexp2WrapX(t){ return dexp2Esc(t).replace(/x/g,'<i class="mvar">x</i>').replace(/\n/g,'<br>'); }
+function dexp2Render(){ const f=$('dexp2Input'); if(!f) return; const p=test.dexp2Parts||[{text:'',exp:false}]; let h=''; p.forEach(x=>{ const inner=dexp2WrapX(x.text); h += x.exp ? ('<sup>'+(inner||'\u200b')+'</sup>') : inner; }); const last=p[p.length-1]; const inExp=!!(last&&last.exp); if(!inExp){ if(h.endsWith('<br>')) h+='\u200b'; else if(p.length>1 && last && last.text==='') h+='\u200b'; } f.innerHTML=h; const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.toggle('active', inExp); dexp2CaretEnd(f); }
 function dexp2CaretEnd(f){ const p=test.dexp2Parts||[]; const sel=window.getSelection(); if(!sel) return; const r=document.createRange(); if(p.length && p[p.length-1].exp){ const sups=f.querySelectorAll('sup'); const sup=sups[sups.length-1]; if(sup){ r.selectNodeContents(sup); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); return; } } r.selectNodeContents(f); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); }
 function dexp2Read(){ const p=test.dexp2Parts||[]; let out=''; p.forEach(x=>{ if(x.exp){ if(x.text) out+='^('+x.text+')'; } else out+=x.text; }); return out.trim(); }
 function renderDexp(){
