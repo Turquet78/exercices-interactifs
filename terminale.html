@@ -461,10 +461,19 @@
 .dexp-in.bad,.dexp-ce.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .dexp-in.sol,.dexp-ce.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .dexp-in:disabled{opacity:1;}
+.dexp2-in{display:block;min-height:2.4em;width:100%;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:10px;padding:9px 12px;text-align:left;line-height:1.7;margin:8px 0;}
+.dexp2-in .mvar{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
+.dexp2-in:focus{outline:none;border-color:var(--blue);background:var(--surface);}
+.dexp2-in sup{font-size:.72em;vertical-align:super;line-height:0;}
+.dexp2-in:empty:before{content:"f'(x) = \2026";color:var(--ink-soft);font-weight:600;}
 .expr-help{display:flex;gap:8px;margin:10px 0 0;}
 .expr-help button{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:var(--ink);background:var(--surface);border:2px solid var(--grid);border-radius:9px;padding:7px 16px;cursor:pointer;}
 .expr-help button:hover{border-color:var(--blue);}
 .expr-help .sup-btn{color:var(--blue);}
+.expr-help .sup-btn.active{background:var(--blue);color:#fff;border-radius:8px;}
+.dexp2-btn{display:inline-flex;align-items:center;color:var(--blue);background:#fff;border:1.5px solid var(--blue);border-radius:8px;padding:6px 12px;font:600 .95rem 'Nunito',sans-serif;cursor:pointer;user-select:none;}
+.dexp2-btn:hover{background:#eef2ff;}
+.dexp2-btn.active{background:var(--blue);color:#fff;}
 .expr-help .sup-btn sup{font-size:.62em;}
 .expr-help .del{color:var(--red);}
 
@@ -2337,6 +2346,22 @@ document.addEventListener('beforeinput',function(ev){
   dexpRender(el);
 });
 
+document.addEventListener('beforeinput',function(ev){
+  const el=ev.target;
+  if(!el||!el.classList||!el.classList.contains('dexp2-in'))return;
+  ev.preventDefault();
+  const ty=ev.inputType||'';
+  if((ty==='insertText'||ty==='insertFromPaste'||ty==='insertCompositionText') && ev.data!=null){ dexp2Type(ev.data); }
+  else if(ty.indexOf('delete')===0){ dexp2Del(); }
+});
+document.addEventListener('keydown',function(ev){
+  const el=ev.target;
+  if(!el||!el.classList||!el.classList.contains('dexp2-in'))return;
+  const p=test.dexp2Parts, inExp=!!(p&&p.length&&p[p.length-1].exp);
+  if(ev.key==='ArrowUp'||ev.key==='^'||ev.key==='Dead'){ ev.preventDefault(); dexp2Sup(); }
+  else if((ev.key==='ArrowDown'||ev.key==='ArrowRight') && inExp){ ev.preventDefault(); dexp2Base(); }
+});
+
 async function startDexp(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -2346,30 +2371,36 @@ async function startDexp(){
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('dexp'); renderDexp();
 }
-function startDexp2(){
+async function startDexp2(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
   currentTestId='derivee-exp-2'; test.kind='dexp'; test.dexpLevel=2;
   test.questions=Array.from({length:5}, genDexp);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('dexp'); renderDexp2();
 }
 function renderDexp2(){
-  const c=test.questions[test.idx]; test.locked=false; test.dexpBusy=false;
+  const c=test.questions[test.idx]; test.locked=false; test.dexpBusy=false; test.dexp2Parts=[{text:'',exp:false}];
   $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
   $('dexpModeTag').innerHTML=modeTagHTML();
   $('dexpLiveScore').textContent=test.score;
   $('dexpFeedback').textContent=''; $('dexpFeedback').className='mp-feedback';
-  if($('dexpHelp')) $('dexpHelp').hidden=true;
+  if($('dexpHelp')) $('dexpHelp').style.display='none';
   if($('dexpHintP')) $('dexpHintP').style.display='none';
   const e=`e<sup>${esc(c.expHtml)}</sup>`;
   $('dexpEnonce').innerHTML=`<i>f</i>(x) = (${esc(c.uStr)})${e}`;
-  $('dexpBody').innerHTML=`<p class="tvi-instr">Écris l'expression de <i>f</i>\u2032(x) :</p><textarea class="tvi-textarea" id="dexp2Input" rows="2" placeholder="f'(x) = …" autocomplete="off" autocapitalize="none" spellcheck="false"></textarea>`;
+  $('dexpBody').innerHTML=`<p class="tvi-instr">Écris l'expression de <i>f</i>′(x) :</p>
+     <div class="dexp2-in" id="dexp2Input" contenteditable="true"></div>
+     <div class="expr-help"><span id="dexp2SupBtn" class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Sup()">x<sup>n</sup>&nbsp;exposant</span><span class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Base()">→&nbsp;revenir en bas</span></div>
+     <p class="dexp-hint">Tape « e », clique sur <b>x<sup>n</sup> exposant</b>, tape l'exposant (ex. 5x), puis <b>→ revenir en bas</b> pour continuer normalement.</p>`;
   $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>';
   setTimeout(()=>{const el=$('dexp2Input');if(el)el.focus();},30);
 }
 async function checkDexp2(){
   if(test.locked||test.dexpBusy) return;
   const c=test.questions[test.idx], t=$('dexp2Input'), fb=$('dexpFeedback');
-  const rep=(t.value||'').trim();
+  const rep=dexp2Read().trim();
   if(rep.length<2){ fb.textContent='Écris d\u2019abord l\u2019expression de f\u2032(x).'; fb.className='mp-feedback bad'; t.focus(); return; }
   test.dexpBusy=true;
   $('dexpActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
@@ -2385,7 +2416,7 @@ async function checkDexp2(){
   const correct=res.correct===true;
   fb.textContent=res.feedback||''; fb.className='mp-feedback '+(correct?'good':'bad');
   if(isSoutien() && !correct){ $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Revérifier</button>'; if(t) t.focus(); return; }
-  test.locked=true; if(t) t.disabled=true;
+  test.locked=true; if(t) t.contentEditable='false';
   if(correct){ test.score++; $('dexpLiveScore').textContent=test.score; }
   test.answers.push({q:`Dérivée de (${c.uStr})e^(${c.expHtml})`, answer:attendu, given:rep, correct:correct, type:'tvi'});
   const last=test.idx===test.questions.length-1;
@@ -2393,9 +2424,20 @@ async function checkDexp2(){
   const nb=$('dexp2Next'); if(nb) nb.focus();
 }
 function nextDexp2(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexp2(); } else finishTest(); }
+function dexp2EnterExp(){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; const p=test.dexp2Parts, l=p[p.length-1]; if(!(l.exp&&l.text==='')) p.push({text:'',exp:true}); }
+function dexp2ExitExp(){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; const p=test.dexp2Parts, l=p[p.length-1]; if(l.exp) p.push({text:'',exp:false}); }
+function dexp2Sup(){ const f=$('dexp2Input'); if(f) f.focus(); dexp2EnterExp(); dexp2Render(); }
+function dexp2Base(){ const f=$('dexp2Input'); if(f) f.focus(); dexp2ExitExp(); dexp2Render(); }
+function dexp2Type(str){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; for(const ch of str){ if(ch==='^'){ dexp2EnterExp(); } else { const c = ch==='*' ? '\u00d7' : ch; test.dexp2Parts[test.dexp2Parts.length-1].text += c; } } dexp2Render(); }
+function dexp2Del(){ if(!test.dexp2Parts) return; const p=test.dexp2Parts, l=p[p.length-1]; if(l.text) l.text=l.text.slice(0,-1); else if(p.length>1) p.pop(); dexp2Render(); }
+function dexp2Esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function dexp2WrapX(t){ return dexp2Esc(t).replace(/x/g,'<i class="mvar">x</i>'); }
+function dexp2Render(){ const f=$('dexp2Input'); if(!f) return; const p=test.dexp2Parts||[{text:'',exp:false}]; let h=''; p.forEach(x=>{ const inner=dexp2WrapX(x.text); h += x.exp ? ('<sup>'+(inner||'\u200b')+'</sup>') : inner; }); const last=p[p.length-1]; const inExp=!!(last&&last.exp); if(!inExp && p.length>1 && last && last.text==='') h+='\u200b'; f.innerHTML=h; const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.toggle('active', inExp); dexp2CaretEnd(f); }
+function dexp2CaretEnd(f){ const p=test.dexp2Parts||[]; const sel=window.getSelection(); if(!sel) return; const r=document.createRange(); if(p.length && p[p.length-1].exp){ const sups=f.querySelectorAll('sup'); const sup=sups[sups.length-1]; if(sup){ r.selectNodeContents(sup); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); return; } } r.selectNodeContents(f); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); }
+function dexp2Read(){ const p=test.dexp2Parts||[]; let out=''; p.forEach(x=>{ if(x.exp){ if(x.text) out+='^('+x.text+')'; } else out+=x.text; }); return out.trim(); }
 function renderDexp(){
   if(test.dexpLevel===2) return renderDexp2();
-  if($('dexpHelp')) $('dexpHelp').hidden=false;
+  if($('dexpHelp')) $('dexpHelp').style.display='';
   if($('dexpHintP')) $('dexpHintP').style.display='';
   const c=test.questions[test.idx]; test.locked=false; test.dexpWrong={}; test.dexpLastWrong={};
   $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
