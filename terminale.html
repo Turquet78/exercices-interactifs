@@ -1161,7 +1161,15 @@ async function lancerConseil(contexte, fb){
   finally{ conseilBusy=false; }
 }
 function conseilCourant(){
-  let c=ctxVisible();
+  let c;
+  if(test && test.kind==='dexp' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
+    const q=test.questions[test.idx], rep=dexp2Read();
+    c='Exercice : dériver f(x) = '+dexpFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur), en appliquant la formule (u·v)' = u'·v + v'·u. La dérivée correcte factorisée est : "+dexpDfPlain(q)+'.';
+    if(rep) c+=" Voici ce que l'élève a écrit pour l'instant (éventuellement incomplet ou faux) : « "+rep+" ». Analyse SON écriture : repère précisément son erreur ou ce qui manque (signe, coefficient, règle u'v+v'u, oubli de factoriser par e^(kx)…) et oriente-le pour corriger CETTE étape, sans donner la réponse.";
+    else c+=" L'élève n'a encore rien écrit : aide-le à démarrer (poser u, v, puis u' et v').";
+  } else {
+    c=ctxVisible();
+  }
   if(!c) c='L’élève est en difficulté sur un exercice de mathématiques de Terminale.';
   const m=$('conseilModal'); if(m) m.hidden=false;
   lancerConseil(c, $('conseilBody'));
