@@ -1370,6 +1370,10 @@ function ctxVisible(){
   const parts=[];
   const instr=scr.querySelector('.mp-instr, .lv-instr'); if(instr && instr.textContent.trim()) parts.push('Question posée à l’élève : '+instr.textContent.trim());
   const stage=scr.querySelector('.mp-stage'); if(stage){ const t=stage.textContent.replace(/\s+/g,' ').trim(); if(t) parts.push('Éléments affichés : '+t); }
+  const vals=[];
+  scr.querySelectorAll('input, textarea').forEach(el=>{ const v=(el.value||'').trim(); if(v) vals.push(v); });
+  scr.querySelectorAll('[contenteditable="true"]').forEach(el=>{ const v=(el.textContent||'').replace(/\u200b/g,'').trim(); if(v) vals.push(v); });
+  if(vals.length) parts.push('Réponse actuelle de l’élève (éventuellement incomplète ou fausse) : '+vals.join(' | ')+'. Appuie ton indice sur ce qu’il a écrit et son erreur éventuelle, sans donner la réponse.');
   return parts.join(' ');
 }
 function conseilCourant(){
