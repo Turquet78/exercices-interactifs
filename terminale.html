@@ -2358,18 +2358,35 @@ document.addEventListener('beforeinput',function(ev){
 document.addEventListener('beforeinput',function(ev){
   const el=ev.target;
   if(!el||!el.classList||!el.classList.contains('dexp2-in'))return;
-  ev.preventDefault();
   const ty=ev.inputType||'';
-  if((ty==='insertText'||ty==='insertFromPaste'||ty==='insertCompositionText') && ev.data!=null){ dexp2Type(ev.data); }
-  else if(ty==='insertParagraph'||ty==='insertLineBreak'){ dexp2Newline(); }
-  else if(ty.indexOf('delete')===0){ dexp2Del(); }
+  if(ty==='insertText' && ev.data!=null && /[x*^]/.test(ev.data)){
+    ev.preventDefault();
+    for(const ch of ev.data){
+      if(ch==='x'){ if(dexp2InSup()) dexp2Insert(dexp2MakeX()); else document.execCommand('insertHTML', false, '<span class="mvar">x</span>\u200b'); }
+      else if(ch==='*') dexp2Insert(document.createTextNode('\u00d7'));
+      else if(ch==='^') dexp2Sup();
+      else dexp2Insert(document.createTextNode(ch));
+    }
+  }
 });
 document.addEventListener('keydown',function(ev){
   const el=ev.target;
   if(!el||!el.classList||!el.classList.contains('dexp2-in'))return;
-  const p=test.dexp2Parts, inExp=!!(p&&p.length&&p[p.length-1].exp);
-  if(ev.key==='ArrowUp'||ev.key==='^'||ev.key==='Dead'){ ev.preventDefault(); dexp2Sup(); }
-  else if((ev.key==='ArrowDown'||ev.key==='ArrowRight') && inExp){ ev.preventDefault(); dexp2Base(); }
+  if(ev.key==='^'||ev.key==='Dead'){ ev.preventDefault(); dexp2Sup(); }
+  else if(ev.key==='ArrowRight' && dexp2InSup()){ ev.preventDefault(); dexp2Base(); }
+});
+document.addEventListener('selectionchange',function(){ const f=$('dexp2Input'); if(!f||document.activeElement!==f) return; const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.toggle('active', !!dexp2InSup()); });
+document.addEventListener('input',function(ev){
+  const el=ev.target;
+  if(!el||!el.classList||!el.classList.contains('dexp2-in'))return;
+  el.querySelectorAll('sup').forEach(function(sup){
+    if(sup.textContent.replace(/\u200b/g,'')===''){
+      const inThis = dexp2InSup()===sup;
+      const parent=sup.parentNode, before=sup.previousSibling;
+      parent.removeChild(sup);
+      if(inThis){ const sel=window.getSelection(); const r=document.createRange(); if(before){ r.setStartAfter(before); } else { r.setStart(parent,0); } r.collapse(true); sel.removeAllRanges(); sel.addRange(r); }
+    }
+  });
 });
 
 async function startDexp(){
@@ -2391,7 +2408,7 @@ async function startDexp2(){
   show('dexp'); renderDexp2();
 }
 function renderDexp2(){
-  const c=test.questions[test.idx]; test.locked=false; test.dexpBusy=false; test.dexp2Parts=[{text:'',exp:false}];
+  const c=test.questions[test.idx]; test.locked=false; test.dexpBusy=false;
   $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
   $('dexpModeTag').innerHTML=modeTagHTML();
   $('dexpLiveScore').textContent=test.score;
@@ -2402,8 +2419,8 @@ function renderDexp2(){
   $('dexpEnonce').innerHTML=`<i>f</i>(x) = (${esc(c.uStr)})${e}`;
   $('dexpBody').innerHTML=`<p class="tvi-instr">Déterminer la dérivée sous la forme factorisée :</p>
      <div class="dexp2-in" id="dexp2Input" contenteditable="true"></div>
-     <div class="expr-help"><span id="dexp2SupBtn" class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Sup()">x<sup>y</sup>&nbsp;exposant</span><span class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Base()">→&nbsp;revenir en bas</span></div>
-     <p class="dexp-hint">Tape « e », clique sur <b>x<sup>y</sup> exposant</b>, tape l'exposant (ex. 5x), puis <b>→ revenir en bas</b> pour continuer normalement.</p>`;
+     <div class="expr-help"><span id="dexp2SupBtn" class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Sup()">^&nbsp;: exposant</span><span class="dexp2-btn" role="button" onmousedown="event.preventDefault()" onclick="dexp2Base()">→&nbsp;revenir en bas</span></div>
+     <p class="dexp-hint">Tape « e », clique sur <b>^ : exposant</b> (ou tape « ^ »), tape l'exposant (ex. 5x), puis <b>→ revenir en bas</b> pour continuer normalement.</p>`;
   $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>';
   setTimeout(()=>{const el=$('dexp2Input');if(el)el.focus();},30);
 }
@@ -2434,18 +2451,13 @@ async function checkDexp2(){
   const nb=$('dexp2Next'); if(nb) nb.focus();
 }
 function nextDexp2(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexp2(); } else finishTest(); }
-function dexp2EnterExp(){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; const p=test.dexp2Parts, l=p[p.length-1]; if(!(l.exp&&l.text==='')) p.push({text:'',exp:true}); }
-function dexp2ExitExp(){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; const p=test.dexp2Parts, l=p[p.length-1]; if(l.exp) p.push({text:'',exp:false}); }
-function dexp2Sup(){ const f=$('dexp2Input'); if(f) f.focus(); dexp2EnterExp(); dexp2Render(); }
-function dexp2Base(){ const f=$('dexp2Input'); if(f) f.focus(); dexp2ExitExp(); dexp2Render(); }
-function dexp2Type(str){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; for(const ch of str){ if(ch==='^'){ dexp2EnterExp(); } else { const c = ch==='*' ? '\u00d7' : ch; test.dexp2Parts[test.dexp2Parts.length-1].text += c; } } dexp2Render(); }
-function dexp2Del(){ if(!test.dexp2Parts) return; const p=test.dexp2Parts, l=p[p.length-1]; if(l.text) l.text=l.text.slice(0,-1); else if(p.length>1) p.pop(); dexp2Render(); }
-function dexp2Newline(){ if(!test.dexp2Parts) test.dexp2Parts=[{text:'',exp:false}]; const p=test.dexp2Parts; if(p[p.length-1].exp) p.push({text:'',exp:false}); p[p.length-1].text+='\n'; dexp2Render(); }
-function dexp2Esc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function dexp2WrapX(t){ return dexp2Esc(t).replace(/x/g,'<i class="mvar">x</i>').replace(/\n/g,'<br>'); }
-function dexp2Render(){ const f=$('dexp2Input'); if(!f) return; const p=test.dexp2Parts||[{text:'',exp:false}]; let h=''; p.forEach(x=>{ const inner=dexp2WrapX(x.text); h += x.exp ? ('<sup>'+(inner||'\u200b')+'</sup>') : inner; }); const last=p[p.length-1]; const inExp=!!(last&&last.exp); if(!inExp){ if(h.endsWith('<br>')) h+='\u200b'; else if(p.length>1 && last && last.text==='') h+='\u200b'; } f.innerHTML=h; const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.toggle('active', inExp); dexp2CaretEnd(f); }
-function dexp2CaretEnd(f){ const p=test.dexp2Parts||[]; const sel=window.getSelection(); if(!sel) return; const r=document.createRange(); if(p.length && p[p.length-1].exp){ const sups=f.querySelectorAll('sup'); const sup=sups[sups.length-1]; if(sup){ r.selectNodeContents(sup); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); return; } } r.selectNodeContents(f); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); }
-function dexp2Read(){ const p=test.dexp2Parts||[]; let out=''; p.forEach(x=>{ if(x.exp){ if(x.text) out+='^('+x.text+')'; } else out+=x.text; }); return out.trim(); }
+function dexp2MakeX(){ const s=document.createElement('span'); s.className='mvar'; s.textContent='x'; return s; }
+function dexp2Insert(node){ const f=$('dexp2Input'); if(!f) return; const sel=window.getSelection(); if(!sel.rangeCount){ const r0=document.createRange(); r0.selectNodeContents(f); r0.collapse(false); sel.removeAllRanges(); sel.addRange(r0); } const r=sel.getRangeAt(0); r.deleteContents(); r.insertNode(node); const rr=document.createRange(); let next=node.nextSibling; if(!next){ next=document.createTextNode('\u200b'); node.parentNode.appendChild(next); rr.setStart(next,1); } else if(next.nodeType===3){ rr.setStart(next,0); } else { rr.setStartBefore(next); } rr.collapse(true); sel.removeAllRanges(); sel.addRange(rr); }
+function dexp2InSup(){ const sel=window.getSelection(); if(!sel.rangeCount) return null; const f=$('dexp2Input'); let n=sel.getRangeAt(0).startContainer; while(n && n!==f){ if(n.nodeName==='SUP') return n; n=n.parentNode; } return null; }
+function dexp2Sup(){ const f=$('dexp2Input'); if(!f) return; f.focus(); if(dexp2InSup()) return; const sel=window.getSelection(); if(!sel.rangeCount) return; const sup=document.createElement('sup'); sup.appendChild(document.createTextNode('\u200b')); const r=sel.getRangeAt(0); r.deleteContents(); r.insertNode(sup); const rr=document.createRange(); rr.setStart(sup.firstChild, sup.firstChild.length); rr.collapse(true); sel.removeAllRanges(); sel.addRange(rr); const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.add('active'); }
+function dexp2Base(){ const f=$('dexp2Input'); if(!f) return; f.focus(); const sup=dexp2InSup(); if(!sup) return; const sel=window.getSelection(); const r=document.createRange(); r.setStartAfter(sup); r.collapse(true); sel.removeAllRanges(); sel.addRange(r); try{ document.execCommand('insertText', false, '\u200b'); }catch(e){} const bt=document.getElementById('dexp2SupBtn'); if(bt) bt.classList.remove('active'); }
+function dexp2Serialize(node){ let out=''; node.childNodes.forEach(n=>{ if(n.nodeType===3) out+=n.textContent; else if(n.nodeType===1){ const t=n.tagName; if(t==='SUP'){ const inner=dexp2Serialize(n).replace(/\u200b/g,'').trim(); if(inner) out+='^('+inner+')'; } else if(t==='BR') out+='\n'; else if(t==='DIV'||t==='P'){ if(out && !out.endsWith('\n')) out+='\n'; out+=dexp2Serialize(n); } else out+=dexp2Serialize(n); } }); return out; }
+function dexp2Read(){ const f=$('dexp2Input'); return f? dexp2Serialize(f).replace(/\u200b/g,'').replace(/\u00a0/g,' ').trim() : ''; }
 function renderDexp(){
   if(test.dexpLevel===2) return renderDexp2();
   if($('dexpHelp')) $('dexpHelp').style.display='';
