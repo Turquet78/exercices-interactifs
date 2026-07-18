@@ -493,7 +493,7 @@
 .dexp2-prefix i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
 .dexp2-sheet math-field.dexp-mf{border:none;outline:none;box-shadow:none;background:transparent;flex:1 0 auto;min-width:6ch;min-height:1.9em;font-size:1.3rem;padding:2px 0;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf:focus-within{border:none;background:transparent;box-shadow:none;}
-/* ===== Exercice 1.5 — quotient : affichage en fraction ===== */
+/* ===== Exercice 2.4 — quotient : affichage en fraction ===== */
 .dq-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:2px 4px;max-width:100%;}
 .dq-num,.dq-den{display:flex;align-items:center;gap:6px;padding:3px 8px;flex-wrap:wrap;justify-content:center;}
 .dq-bar{align-self:stretch;height:2px;background:var(--ink);border-radius:1px;min-width:60px;}
@@ -566,6 +566,22 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .sv-curve{fill:none;stroke:var(--green);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;}
 .sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
 .sv-tbl{width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;table-layout:fixed;}
+/* ---- Tableau de variation « escalier » (même construction que l'exercice 2.1c de Seconde) ---- */
+.lv-tblwrap{overflow-x:auto;margin:0 0 4px}
+.lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
+.lv-vartbl2 td{border:none;text-align:center;padding:0}
+.lv-vartbl2 .vlab{background:var(--paper);font-weight:700;padding:8px 10px;min-width:46px;border-right:1.6px solid var(--grid)}
+.lv-vartbl2 tr.vt-xr td{padding:7px 6px;font-weight:700;color:var(--ink);border-bottom:1.6px solid var(--grid)}
+.lv-vartbl2 tr.vt-fr td{height:120px;position:relative;vertical-align:middle}
+.lv-vartbl2 .vfcell{position:relative;padding:0;border:none;vertical-align:middle}
+.vfcell .vt-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.vt-shaft{stroke:var(--blue);stroke-width:3;stroke-linecap:round;fill:none}
+.vt-head{fill:none;stroke:var(--blue);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.vt-node{fill:var(--blue);transition:cy .2s ease}
+.vfcell .vt-sel2{position:absolute;transform:translate(-50%,-50%);width:48px;box-sizing:border-box;font-size:.98rem;padding:2px 0;border:1.4px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;z-index:3;cursor:pointer;box-shadow:0 0 0 3px var(--surface)}
+.vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
+.vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft)}
+.vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
 .sv-tbl td{border:1.5px solid var(--grid);padding:7px 5px;text-align:center;vertical-align:middle;font-size:.95rem;}
 .sv-tbl td.lab{text-align:right;font-weight:700;color:var(--ink);background:var(--paper);white-space:nowrap;width:39%;font-size:.9rem;}
 .sv-tbl td.bnd{font-weight:700;color:var(--ink-soft);}
@@ -1193,6 +1209,7 @@ const TESTS={
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
+  'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
   'derivee-exp-quotient': { name:'Dérivée d\u2019un quotient avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un quotient e^(kx)/(ax+b) avec la méthode u/v, puis factorise le numérateur par e^(kx).', start:()=>startDexpQ() },
   'derivee-exp-quotient-2': { name:'Dérivée d\u2019un quotient avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes quotients, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexpQ2() },
   'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
@@ -1206,10 +1223,9 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Dérivation',         ids:['derivee-exp','derivee-exp-2','equation-tangente','derivees','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:2, nom:'Suites',             ids:['suites'] },
-  { num:3, nom:'Continuité & TVI',   ids:['tvi','tvi-redaction'] },
-  { num:4, nom:'Signe & variations', ids:['signe-premier-degre','signe-second-degre','signes-variations'] }
+  { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
+  { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
+  { num:3, nom:'Étude de fonction',  ids:['equation-tangente','tvi','tvi-redaction'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1312,7 +1328,7 @@ function conseilCourant(){
     if(rep) c+=" Voici ce que l'élève a écrit pour l'instant (éventuellement incomplet ou faux) : « "+rep+" ». Analyse SON écriture : repère précisément son erreur ou ce qui manque (signe, coefficient, règle u'v+v'u, développement non effectué, oubli de factoriser par e^(kx)…) et oriente-le pour corriger CETTE étape, sans donner la réponse.";
     else c+=" L'élève n'a encore rien écrit : aide-le à démarrer (poser u, v, puis u' et v').";
   } else if(test && test.kind==='dexpq' && test.questions && test.questions[test.idx]){
-    /* ---- 1.5 — quotient guidé (niveau 1) ---- */
+    /* ---- quotient guidé (niveau 1) ---- */
     const q=test.questions[test.idx], ek='e^('+q.expHtml+')';
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+" (un QUOTIENT : "+ek+" au numérateur, le polynôme ("+q.vStr+") au dénominateur), en complétant un tableau guidé ligne par ligne avec la formule (u/v)' = (u'·v − u·v')/v². Lignes à remplir, dans l'ordre : (1) poser u = numérateur, v = dénominateur, puis u' et v' ; (2) écrire (u'·v − u·v')/v² en plaçant les quatre facteurs et le dénominateur ; (3) DÉVELOPPER et réduire le numérateur, chaque terme étant écrit sous la forme (coefficient)·"+ek+" ; (4) factoriser le numérateur par "+ek+". La dérivée correcte factorisée est : "+dqDfPlain(q)+" (le dénominateur peut rester ("+q.vStr+")^2 ou être développé : les deux sont justes).";
     c+=dexpFeuilleCtx([
@@ -1321,8 +1337,19 @@ function conseilCourant(){
       ['Ligne du num\u00e9rateur d\u00e9velopp\u00e9 (chaque coefficient est multipli\u00e9 par '+ek+')', (q.b===0?['dq-s3a','dq-s3c']:['dq-s3a','dq-s3b','dq-s3c']).map((id,i)=>['coefficient du terme '+(i+1),id]).concat([['d\u00e9nominateur','dq-s3d']])],
       ['Ligne factoris\u00e9e '+ek+'×( … ) / ( … )', [['facteur entre parenth\u00e8ses','dq-fac'],['d\u00e9nominateur','dq-facd']]]
     ]);
+  } else if(test && test.kind==='dexp' && test.dexpLevel===3 && test.questions && test.questions[test.idx]){
+    /* ---- somme monôme + produit guidé (niveau 3) ---- */
+    const q=test.questions[test.idx], ek='e^('+q.expHtml+')';
+    c='Exercice : dériver f(x) = '+d3FxPlain(q)+" (une SOMME : le monôme "+q.aStr+" plus le produit "+q.bxStr+"·"+ek+"), en complétant un tableau guidé. Méthode : (1) pour le produit, poser u = "+q.bxStr+" et v = "+ek+" (ordre libre), puis u' et v' ; (2) écrire f'(x) = (monôme)' + u'·v + u·v' — la dérivée du monôme se calcule directement et s'écrit dans la première case ; (3) DÉVELOPPER le produit dérivé, chaque terme sous la forme (coefficient)·"+ek+" ; (4) factoriser ces termes par "+ek+" — le monôme dérivé reste devant, HORS de la parenthèse. La dérivée correcte est : "+d3DfPlain(q)+".";
+    c+=dexpFeuilleCtx([
+      ['Ce qu\'il a pos\u00e9 pour le produit', [['u','d3-u'],['v','d3-v'],["u'",'d3-du'],["v'",'d3-dv']]],
+      ['D\u00e9riv\u00e9e du mon\u00f4me '+q.aStr, [["(mon\u00f4me)'",'d3-da']]],
+      ['Ligne u\'×v + u×v\'', [['1er facteur','d3-s2a'],['2e facteur','d3-s2b'],['3e facteur','d3-s2c'],['4e facteur','d3-s2d']]],
+      ['Ligne d\u00e9velopp\u00e9e (chaque coefficient est multipli\u00e9 par '+ek+')', [['coefficient du terme 1','d3-s3a'],['coefficient du terme 2','d3-s3b']]],
+      ['Ligne factoris\u00e9e '+ek+'×( … )', [['facteur entre parenth\u00e8ses','d3-fac']]]
+    ]);
   } else if(test && test.kind==='dexp' && test.questions && test.questions[test.idx]){
-    /* ---- 1.1 — produit guidé (niveau 1) ---- */
+    /* ---- produit guidé (niveau 1) ---- */
     const q=test.questions[test.idx], ek='e^('+q.expHtml+')';
     c='Exercice : dériver f(x) = '+dexpFxPlain(q)+" (un PRODUIT du polynôme ("+q.uStr+") par "+ek+"), en complétant un tableau guidé ligne par ligne avec la formule (u·v)' = u'·v + u·v'. Lignes à remplir, dans l'ordre : (1) poser u et v (ordre libre), puis u' et v' ; (2) écrire u'·v + u·v' en plaçant les quatre facteurs ; (3) DÉVELOPPER et réduire, chaque terme étant écrit sous la forme (coefficient)·"+ek+" ; (4) factoriser par "+ek+". La dérivée correcte factorisée est : "+dexpDfPlain(q)+".";
     c+=dexpFeuilleCtx([
@@ -2486,16 +2513,15 @@ function dexpFocus(el){ dexpActive=el; dexpState(el); }
 function dexpEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 /* Une "somme" = il reste un + ou un − après le 1er caractère (un signe initial seul ne compte pas). */
 function dexpIsSum(s){ return !!s && /[+\-\u2212]/.test(s.slice(1)); }
-/* Parenthèses nécessaires autour d'une case ? L'intérieur des exposants ne compte pas
-   (e^(−2x) n'est pas une somme) ; un − de tête n'en demande que hors première position. */
+/* Parenthèses nécessaires autour d'une case ? UNIQUEMENT si son contenu est une somme.
+   L'intérieur des exposants ne compte pas (e^(−2x) n'est pas une somme) ; un − de tête
+   seul ne déclenche plus rien (choix pédagogique : « −5 » s'affiche sans parenthèses). */
 function dexpNeedParens(s, first){
   if(!s) return false;
   let t=String(s).trim();
   t=t.replace(/e\^\(([^)]*)\)/g,'E');
   t=t.replace(/\^[0-9]+/g,'');
-  const inner=/[+\-\u2212]/.test(t.slice(1));
-  const neg=/^[\-\u2212]/.test(t);
-  return inner || (neg && !first);
+  return /[+\-\u2212]/.test(t.slice(1));
 }
 const DEXP_FIRSTS=['dexp-s2a','dq-s2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
 function dexpRender(ce){
@@ -2710,7 +2736,7 @@ function dexp2AddLine(afterIdx){
   dexp2Lines.splice(i,0,L);
   const ref=sheet.children[i]||null;
   sheet.insertBefore(L.line, ref);
-  if(window.mlDexp) window.mlDexp.upgrade(L.line);   /* correctif ^ + clavier Terminale, identique a l'exercice 1.1 */
+  if(window.mlDexp) window.mlDexp.upgrade(L.line);   /* correctif ^ + clavier Terminale, identique a l'exercice 2.1 */
   L.mf.addEventListener('input', ()=>{ dexp2KeepCaret(L.mf); dexp2AlignPrefix(L); });
   L.mf.addEventListener('keydown', ()=>dexp2KeepCaret(L.mf));
   function addAfterL(){ const now=Date.now(); if(L.lastAdd && now-L.lastAdd<350) return; L.lastAdd=now; dexp2AddLine(dexp2Lines.indexOf(L)); }
@@ -2752,6 +2778,7 @@ function dexp2ReadSheet(){
 }
 function renderDexp(){
   if(test.dexpLevel===2) return renderDexp2();
+  if(test.dexpLevel===3) return renderDexp3();
   if($('dexpHelp')) $('dexpHelp').style.display='none';   /* saisie MathLive : bouton exposant obsolète */
   if($('dexpHintP')) $('dexpHintP').style.display='none';
   const c=test.questions[test.idx]; test.locked=false; test.dexpWrong={}; test.dexpLastWrong={};
@@ -2855,6 +2882,7 @@ function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.inc
    Après 2 essais faux successifs (valeurs distinctes) sur une même case, on donne la solution. */
 function dexpLiveCheck(id){
   if(test && test.kind==='dexpq') return dqLiveCheck(id);
+  if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
   if(!isSoutien() || test.locked) return;
   setTimeout(()=>{
     if(test.locked) return;
@@ -3006,6 +3034,231 @@ function checkDexp(){
   $('dexpActions').innerHTML=`<button class="btn btn-primary" onclick="nextDexp()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
 function nextDexp(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexp(); } else finishTest(); }
+
+/* ====================== TEST : produit avec exponentielle NIVEAU 3 — f(x) = a + b·x·e^(cx) ======================
+   a : monôme de degré 0 à 2 (coefficient entier non nul de −5 à 5) ;
+   b : entier non nul de −5 à 5 ; c : ±0,5 / ±1 / ±1,5 / ±2 (une décimale max).
+   f'(x) = a' + (b + b·c·x)·e^(cx) — le monôme se dérive à part, le produit b·x·e^(cx) par (u·v)'. */
+function d3Mon(k,deg){ const c=(k===1?'':(k===-1?'\u2212':numFmt(k))); return deg===0?numFmt(k):(deg===1?c+'x':c+'x\u00b2'); }
+function genDexp3(){
+  const deg=rand(0,2), ka=pickNonZero(-5,5), b=pickNonZero(-5,5), k=pick([-2,-1.5,-1,-0.5,0.5,1,1.5,2]);
+  const aStr=d3Mon(ka,deg), daTxt=(deg===0?'0':(deg===1?numFmt(ka):d3Mon(2*ka,1)));
+  return { type:'dexp3', deg, ka, b, k,
+    aStr, daTxt, bxStr:d3Mon(b,1),
+    expHtml:expCore(k), dvTxt:vprimeMenu(k),
+    dcoef:[b, b*k], facAns:polyFr([b, b*k]) };
+}
+function d3FxPlain(c){ return (c.aStr+' + '+c.bxStr+'\u00b7e^('+c.expHtml+')').replace(' + \u2212',' \u2212 '); }
+function d3DfPlain(c){ return c.deg===0 ? '('+c.facAns+')\u00b7e^('+c.expHtml+')' : c.daTxt+' + ('+c.facAns+')\u00b7e^('+c.expHtml+')'; }
+function d3ATex(c){ return mlTexN(c.aStr).replace('x\u00b2','x^{2}'); }
+async function startDexp3(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='derivee-exp-3'; test.kind='dexp'; test.dexpLevel=3;
+  test.questions=Array.from({length:5}, genDexp3);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('dexp'); renderDexp3();
+}
+function renderDexp3(){
+  if($('dexpHelp')) $('dexpHelp').style.display='none';
+  if($('dexpHintP')) $('dexpHintP').style.display='none';
+  const c=test.questions[test.idx]; test.locked=false; test.dexpWrong={}; test.dexpLastWrong={};
+  $('dexpQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('dexpModeTag').innerHTML=modeTagHTML();
+  $('dexpLiveScore').textContent=test.score;
+  $('dexpFeedback').textContent=''; $('dexpFeedback').className='mp-feedback';
+  $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp3()">Vérifier</button>';
+  const eOld=`<span class="dexp-ek">e<sup>${esc(c.expHtml)}</sup></span>`;
+  const eTex='e^{'+mlTexN(c.expHtml)+'}';
+  const e=mlTex(eTex, eOld);
+  const aTex=d3ATex(c), sgn=(c.b>0?'+':'-'), babs=(Math.abs(c.b)===1?'':numFmt(Math.abs(c.b)));
+  const aHtml=esc(c.aStr), bxAbsHtml=esc(babs)+'x';
+  $('dexpEnonce').innerHTML=mlTex('f(x)='+aTex+sgn+mlTexN(babs)+'x'+eTex,
+    `<i>f</i>(x) = ${aHtml} ${sgn==='+'?'+':'\u2212'} ${bxAbsHtml}${eOld}`);
+  const ce=id=>`<math-field class="dexp-mf" id="${id}"></math-field>`;
+  const cep=id=>`<span class="dexp-pwrap"><span class="par">(</span>${ce(id)}<span class="par">)</span></span>`;
+  const s3cell=id=>`<math-field class="dexp-mf dexp-mf-slim" id="${id}"></math-field>${e}`;
+  const mir=id=>`<math-field class="dexp-mf dexp-mf-slim" id="${id}"></math-field>`;
+  $('dexpBody').innerHTML=
+    `<div class="dexp-pose">Pour le 2\u1d49 terme (le produit), on pose <span class="dexp-hint">(u et v dans l'ordre que tu veux)</span> :</div>
+     <div class="dexp-row"><span>${mlTex('u=','<i>u</i> = ')}${ce('d3-u')}</span><span>${mlTex('v=','<i>v</i> = ')}${ce('d3-v')}</span></div>
+     <div class="dexp-row"><span>${mlTex("u'=",'<i>u\u2032</i> = ')}${ce('d3-du')}</span><span>${mlTex("v'=",'<i>v\u2032</i> = ')}${ce('d3-dv')}</span></div>
+     <div class="dexp-formula">${mlTex("f\\;{}'(x)=\\left("+aTex+"\\right)'+u'\\times v+u\\times v'", "<i>f</i>\u00a0\u2032(x) = ("+aHtml+")\u2032 + <i>u\u2032</i>\u00d7<i>v</i> + <i>u</i>\u00d7<i>v\u2032</i>")}</div>
+     <div class="dexp-steprow"><span class="eq">=</span>${mir('d3-da')}<span class="op">+</span>${cep('d3-s2a')}<span class="op">\u00d7</span>${cep('d3-s2b')}<span class="op">+</span>${cep('d3-s2c')}<span class="op">\u00d7</span>${cep('d3-s2d')}</div>
+     <div class="dexp-steprow"><span class="eq">=</span>${mir('d3-da3')}<span class="op">+</span>${s3cell('d3-s3a')}<span class="op">+</span>${s3cell('d3-s3b')}</div>
+     <div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>${mir('d3-da4')}<span class="op">+</span>${e} ( <math-field class="dexp-mf dexp-mf-wide" id="d3-fac"></math-field> )</div>`;
+  if(window.mlDexp) window.mlDexp.upgrade($('dexpBody'));
+  /* la dérivée du monôme se saisit UNE fois (1re ligne) puis se recopie dans les lignes suivantes */
+  ['d3-da3','d3-da4'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
+  { const da=$('d3-da'); if(da) da.addEventListener('input', d3SyncDa); }
+  setTimeout(()=>{const el=$('d3-u');if(el)el.focus();},30);
+}
+function d3SyncDa(){
+  const src=$('d3-da'); if(!src) return;
+  const v=src.getValue ? src.getValue() : src.value;
+  ['d3-da3','d3-da4'].forEach(id=>{ const el=$(id); if(!el) return;
+    const cur=el.getValue ? el.getValue() : el.value;
+    if(cur!==v){ try{ el.setValue ? el.setValue(v) : (el.value=v); }catch(e){} el.classList.remove('ok','bad','sol'); } });
+}
+const D3_S2=['d3-s2a','d3-s2b','d3-s2c','d3-s2d'];
+const D3_S3=['d3-s3a','d3-s3b'];
+function d3GroupOf(id){ if(D3_S2.includes(id))return D3_S2; if(D3_S3.includes(id))return D3_S3; return null; }
+function d3Verdicts(){
+  const c=test.questions[test.idx];
+  const daF=x=>(c.deg===0?0:(c.deg===1?c.ka:2*c.ka*x));
+  const polyB=x=>c.b*x, dpolyB=x=>c.b, expf=x=>Math.exp(c.k*x), dexpf=x=>c.k*Math.exp(c.k*x);
+  const fpProd=x=>c.b*Math.exp(c.k*x)*(1+c.k*x);
+  const U=dexpCellValue('d3-u'), DU=dexpCellValue('d3-du'), V=dexpCellValue('d3-v'), DV=dexpCellValue('d3-dv');
+  const o1={'d3-u':checkExprFn(U,polyB),'d3-du':checkExprFn(DU,dpolyB),'d3-v':checkExprFn(V,expf),'d3-dv':checkExprFn(DV,dexpf)};
+  const o2={'d3-u':checkExprFn(U,expf),'d3-du':checkExprFn(DU,dexpf),'d3-v':checkExprFn(V,polyB),'d3-dv':checkExprFn(DV,dpolyB)};
+  const n1=Object.values(o1).filter(Boolean).length, n2=Object.values(o2).filter(Boolean).length;
+  const order = n2>n1 ? 2 : (n1>n2 ? 1 : (o2['d3-u']&&!o1['d3-u'] ? 2 : 1));
+  const verdicts = order===2 ? o2 : o1;
+  verdicts['d3-da']=checkExprFn(dexpCellValue('d3-da'), daF);
+  const f1=dexpCompile1('d3-s2a'),f2=dexpCompile1('d3-s2b'),f3=dexpCompile1('d3-s2c'),f4=dexpCompile1('d3-s2d');
+  const s2ok=!!(f1&&f2&&f3&&f4)&&cmpFns(x=>f1(x)*f2(x)+f3(x)*f4(x), fpProd);
+  const eqF=(f,g)=>!!f&&!!g&&cmpFns(f,g);
+  const bestPair=(A,B,fa,fb)=>{ const d1=(eqF(A,fa)?1:0)+(eqF(B,fb)?1:0), d2=(eqF(A,fb)?1:0)+(eqF(B,fa)?1:0);
+    return d2>d1 ? {v:[eqF(A,fb),eqF(B,fa)],n:d2} : {v:[eqF(A,fa),eqF(B,fb)],n:d1}; };
+  if(s2ok){ D3_S2.forEach(id=>verdicts[id]=true); }
+  else{
+    const RA1=bestPair(f1,f2,dpolyB,expf), RB1=bestPair(f3,f4,dexpf,polyB);
+    const RA2=bestPair(f1,f2,dexpf,polyB), RB2=bestPair(f3,f4,dpolyB,expf);
+    const un=(RA1.n+RB1.n)>=(RA2.n+RB2.n);
+    const va=un?RA1.v:RA2.v, vb=un?RB1.v:RB2.v;
+    verdicts['d3-s2a']=va[0]; verdicts['d3-s2b']=va[1]; verdicts['d3-s2c']=vb[0]; verdicts['d3-s2d']=vb[1];
+  }
+  const g1=dexpCompile0('d3-s3a'), g2=dexpCompile0('d3-s3b');
+  const s3ok=!!(g1&&g2)&&cmpFns(x=>(g1(x)+g2(x))*Math.exp(c.k*x), fpProd);
+  if(s3ok){ D3_S3.forEach(id=>verdicts[id]=true); }
+  else{
+    const terms=[x=>c.b, x=>c.b*c.k*x]; const used=[false,false];
+    const pass=lst=>lst.forEach(id=>{ const f=dexpCompile0(id); let ok=false;
+      for(let i=0;i<2;i++){ if(!used[i]&&eqF(f,terms[i])){ used[i]=true; ok=true; break; } }
+      verdicts[id]=ok; });
+    pass(D3_S3.filter(id=>dexpCellValue(id)!==''));
+    pass(D3_S3.filter(id=>dexpCellValue(id)===''));
+  }
+  verdicts['d3-fac']=checkExprFn(dexpCellValue('d3-fac'), x=>polyEval(c.dcoef,x));
+  return {verdicts, order, groups:{s2:s2ok, s3:s3ok}};
+}
+function d3LiveCheck(id){
+  if(!isSoutien() || test.locked) return;
+  if(id==='d3-da3'||id==='d3-da4') return;   /* miroirs en lecture seule */
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el) return;
+    if(document.activeElement===el) return;
+    if(el.classList.contains('sol')) return;
+    if(id==='d3-da'){ d3SyncDa(); }
+    const grp=d3GroupOf(id);
+    if(grp){
+      const filled=grp.every(g=>dexpCellValue(g)!=='');
+      const r=d3Verdicts();
+      const gok=(grp===D3_S2)?r.groups.s2:r.groups.s3;
+      grp.forEach(g=>{const e2=$(g); if(e2){ e2.classList.remove('ok','bad');
+        if(gok){ e2.classList.add('ok'); }
+        else if(dexpCellValue(g)!==''){ e2.classList.add(r.verdicts[g]?'ok':'bad'); }
+      }});
+      if(!filled && !gok) return;
+      d3CountWrong(grp[0], gok, grp.map(g=>dexpCellValue(g)).join('|'));
+      return;
+    }
+    const raw=dexpCellValue(id);
+    if(raw===''){ el.classList.remove('ok','bad'); return; }
+    const r2=d3Verdicts();
+    const ok=!!r2.verdicts[id];
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad');
+    const DEC=['d3-u','d3-v','d3-du','d3-dv'];
+    if(DEC.includes(id)){
+      DEC.forEach(g=>{ if(g===id) return; const e2=$(g); if(!e2||e2.classList.contains('sol')||document.activeElement===e2) return;
+        e2.classList.remove('ok','bad');
+        if(dexpCellValue(g)!=='') e2.classList.add(r2.verdicts[g]?'ok':'bad');
+      });
+    }
+    d3CountWrong(id, ok, raw);
+  }, 0);
+}
+function d3CountWrong(key, ok, val){
+  if(!test.dexpWrong){ test.dexpWrong={}; test.dexpLastWrong={}; }
+  if(ok) return;
+  if(test.dexpLastWrong[key]!==val){
+    test.dexpWrong[key]=(test.dexpWrong[key]||0)+1;
+    test.dexpLastWrong[key]=val;
+  }
+  if(test.dexpWrong[key]>=2) d3RevealSolution(key);
+}
+function d3RevealSolution(key){
+  const c=test.questions[test.idx];
+  const order=d3Verdicts().order;
+  const uS=c.bxStr, vS='e^('+c.expHtml+')', duS=numFmt(c.b), dvS=c.dvTxt;
+  const setIn=(cid,val)=>{const el=$(cid);if(!el)return;
+    if(el.tagName==='MATH-FIELD'){ if(window.mlDexp) el.setValue(window.mlDexp.plainToML(val)); el.classList.remove('ok','bad'); el.classList.add('sol'); el.readOnly=true; return; }
+    el.value=val;el.classList.remove('ok','bad');el.classList.add('sol');el.disabled=true;};
+  if(key==='d3-s2a'){
+    if(order===2){ setIn('d3-s2a',dvS); setIn('d3-s2b',uS); setIn('d3-s2c',vS); setIn('d3-s2d',duS); }
+    else { setIn('d3-s2a',duS); setIn('d3-s2b',vS); setIn('d3-s2c',uS); setIn('d3-s2d',dvS); }
+  } else if(key==='d3-s3a'){
+    setIn('d3-s3a',numFmt(c.b)); setIn('d3-s3b',polyFr([0,c.b*c.k]));
+  } else if(key==='d3-fac'){ setIn('d3-fac',c.facAns); }
+  else if(key==='d3-da'){ setIn('d3-da',c.daTxt); d3SyncDa(); }
+  else {
+    const m = order===2
+      ? {'d3-u':vS,'d3-du':dvS,'d3-v':uS,'d3-dv':duS}
+      : {'d3-u':uS,'d3-du':duS,'d3-v':vS,'d3-dv':dvS};
+    if(m[key]) setIn(key, m[key]);
+  }
+  $('dexpFeedback').textContent='Voici la solution de cette case pour t\u2019aider \u2014 continue avec le reste.';
+  $('dexpFeedback').className='mp-feedback';
+}
+function checkDexp3(){
+  if(test.locked) return;
+  const c=test.questions[test.idx];
+  const {verdicts:tests}=d3Verdicts();
+  const setEdit=(el,on)=>{ if(el.tagName==='MATH-FIELD'){ el.readOnly=!on; } else if(el.tagName==='INPUT') el.disabled=!on; };
+  const mark=(id,ok)=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add(ok?'ok':'bad');setEdit(el, !ok && isSoutien());}};
+  Object.keys(tests).forEach(id=>mark(id,tests[id]));
+  const allOk=Object.values(tests).every(Boolean);
+  if(!allOk && isSoutien()){
+    $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
+    $('dexpFeedback').className='mp-feedback bad';
+    $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp3()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  Object.keys(tests).forEach(id=>{const el=$(id);if(el)setEdit(el,false);});
+  ['d3-da3','d3-da4'].forEach(id=>{const el=$(id);if(el&&el.tagName==='MATH-FIELD')el.readOnly=true;});
+  if(allOk){
+    test.score++; $('dexpLiveScore').textContent=test.score;
+    $('dexpFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo !']);
+    $('dexpFeedback').className='mp-feedback good';
+  } else {
+    const eT='e^{'+mlTexN(c.expHtml)+'}', aT=d3ATex(c), daT=mlTexN(c.daTxt);
+    const uT=mlTexN(c.bxStr), duT=mlTexN(numFmt(c.b)), dvT=mlTexN(c.dvTxt).replace('e^(','e^{').replace(')','}');
+    let texHtml=null;
+    if(window.mlDexp && window.mlDexp.tex){
+      const L=lx=>window.mlDexp.tex(lx)||'';
+      const dev=(daT+'+'+mlTexN(numFmt(c.b))+eT+'+'+mlTexN(polyFr([0,c.b*c.k]))+eT).replace(/\+\-/g,'-');
+      texHtml=
+        '<div style="text-align:left;display:inline-block;line-height:2.1">'+
+        '<b>La bonne démarche :</b><br>'+
+        L('u='+uT)+' \u00a0\u00a0 '+L('v='+eT)+' \u00a0\u00a0 '+L("u'="+duT)+' \u00a0\u00a0 '+L("v'="+dvT)+'<br>'+
+        L("f\\;{}'(x)=\\left("+aT+"\\right)'+u'\\times v+u\\times v'")+'<br>'+
+        '\u00a0\u00a0\u00a0\u00a0'+L('='+dev)+'<br>'+
+        '\u00a0\u00a0\u00a0\u00a0'+L('='+(c.deg===0?'':daT+'+')+eT+'\\left('+mlTexN(c.facAns)+'\\right)')+
+        '</div>';
+    }
+    const oldHtml='<div style="text-align:left;display:inline-block;line-height:1.9"><b>La bonne démarche :</b><br>'+
+      esc(d3DfPlain(c)).replace(/\^/g,'^')+'</div>';
+    $('dexpFeedback').innerHTML = texHtml || oldHtml;
+    $('dexpFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({q:'Dérivée de '+d3FxPlain(c), answer:d3DfPlain(c), given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('dexpActions').innerHTML=`<button class="btn btn-primary" onclick="nextDexp3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextDexp3(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexp3(); } else finishTest(); }
 
 /* ====================== TEST : Dérivée d'un quotient (exponentielle / polynôme) ====================== */
 /* Points d'évaluation éloignés de toute racine possible du dénominateur (-b/a, a∈±1..3, b∈-3..3). */
@@ -3443,16 +3696,62 @@ function svTablesHTML(c){
   const arrowOpt=(id)=>`<select class="tvi-sel" id="${id}"><option value="">\u2026</option><option value="up">\u2197 croissante</option><option value="down">\u2198 décroissante</option></select>`;
   const fn=`<i>${esc(c.fname)}</i>\u00a0(<i>${esc(c.v)}</i>)`;
   const fpn=`<i>${esc(c.fname)}</i>\u00a0\u2032\u00a0(<i>${esc(c.v)}</i>)`;
+  /* --- 2e table : escalier, construit comme le 2.1c de Seconde (colonnes alternees noeud/segment,
+         fleches SVG redessinees a chaque choix, menus \u2197/\u2198 au milieu de chaque fleche) --- */
+  const SVWL=110, SVWN=64, SVWS=96, SVH=120, SEL_Y=SVH/2;
+  const innerW=3*SVWN+2*SVWS;
+  const ncx=j=>(j*(SVWN+SVWS)+SVWN/2), scx=i=>(i*(SVWN+SVWS)+SVWN+SVWS/2);
+  const arrowSel=(id,x)=>`<select id="${id}" class="vt-sel2" onchange="svArrowChange()" style="left:${x}px;top:${SEL_Y}px"><option value="">\u2014</option><option value="up">\u2197</option><option value="down">\u2198</option></select>`;
+  const xrow=`<td class="vlab" style="width:${SVWL}px"><i>${esc(c.v)}</i></td>`
+    +`<td class="vnx" style="width:${SVWN}px">${SV_MINUS}\u221e</td><td class="vax" style="width:${SVWS}px"></td>`
+    +`<td class="vnx" style="width:${SVWN}px">${valOpt('sv-extrx')}</td>`
+    +`<td class="vax" style="width:${SVWS}px"></td><td class="vnx" style="width:${SVWN}px">+\u221e</td>`;
+  const drow=`<td class="vlab">Signe de ${fpn}</td><td></td><td>${signOpt('sv-dl')}</td><td><b>0</b></td><td>${signOpt('sv-dr')}</td><td></td>`;
+  const inner=`<svg class="vt-overlay" id="sv-var-ov" viewBox="0 0 ${innerW} ${SVH}" preserveAspectRatio="none"></svg>`
+    +arrowSel('sv-al',scx(0))+arrowSel('sv-ar',scx(1));
+  const frow=`<td class="vlab">Variation de ${fn}</td><td class="vfcell" colspan="5" style="height:${SVH}px">${inner}</td>`;
   return `
   <table class="sv-tbl s1-tbl"><tbody>
     <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd s1-bl">${SV_MINUS}\u221e</td><td>${valOpt('sv-rootx')}</td><td class="bnd s1-br">+\u221e</td></tr>
     <tr><td class="lab">Signe de ${fn}</td><td>${signOpt('sv-fl')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${signOpt('sv-fr')}</td></tr>
   </tbody></table>
-  <table class="sv-tbl s1-tbl"><tbody>
-    <tr><td class="lab"><i>${esc(c.v)}</i></td><td class="bnd s1-bl">${SV_MINUS}\u221e</td><td>${valOpt('sv-extrx')}</td><td class="bnd s1-br">+\u221e</td></tr>
-    <tr><td class="lab">Signe de ${fpn}</td><td>${signOpt('sv-dl')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${signOpt('sv-dr')}</td></tr>
-    <tr><td class="lab">Variation de ${fn}</td><td>${arrowOpt('sv-al')}</td><td class="bnd"><span class="sv-mid-dot"></span></td><td>${arrowOpt('sv-ar')}</td></tr>
-  </tbody></table>`;
+  <div class="lv-tblwrap"><table class="lv-vartbl2" style="width:${SVWL+innerW}px"><tbody>
+    <tr class="vt-xr">${xrow}</tr>
+    <tr class="vt-xr">${drow}</tr>
+    <tr class="vt-fr">${frow}</tr>
+  </tbody></table></div>`;
+}
+/* Fleche dessinee (trait + pointe) d'un coin a l'autre \u2014 copie de lvArrowSVG (Seconde). */
+function svArrowSVG(x0,y0,x1,y1){
+  const dx=x1-x0, dy=y1-y0, len=Math.hypot(dx,dy)||1, ux=dx/len, uy=dy/len, m=22;
+  const sx=x0+m*ux, sy=y0+m*uy, ex=x1-m*ux, ey=y1-m*uy;
+  const hl=13, a=Math.PI*0.82, co=Math.cos(a), sn=Math.sin(a);
+  const b1x=(ex+hl*(ux*co-uy*sn)).toFixed(1), b1y=(ey+hl*(ux*sn+uy*co)).toFixed(1);
+  const b2x=(ex+hl*(ux*co+uy*sn)).toFixed(1), b2y=(ey+hl*(-ux*sn+uy*co)).toFixed(1);
+  const tip=ex.toFixed(1)+','+ey.toFixed(1);
+  return '<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+ex.toFixed(1)+'" y2="'+ey.toFixed(1)+'" class="vt-shaft"/><polyline points="'+b1x+','+b1y+' '+tip+' '+b2x+','+b2y+'" class="vt-head"/>';
+}
+/* Redessine fleches et points selon les sens choisis \u2014 meme logique que lvArrowChange (Seconde). */
+function svArrowChange(){
+  if(test.kind!=='sv') return;
+  const ov=$('sv-var-ov'); if(!ov) return;
+  const SVWN=64, SVWS=96, vT=22, vB=98;
+  const ncx=j=>(j*(SVWN+SVWS)+SVWN/2);
+  const dirs=[($('sv-al')||{}).value||'', ($('sv-ar')||{}).value||''];
+  const posY=[0,1,2].map(j=>{
+    const right=dirs[j]||'', left=(j>0?dirs[j-1]:'')||'';
+    let y=(vT+vB)/2;
+    if(right==='up') y=vB; else if(right==='down') y=vT;
+    else if(left==='up') y=vT; else if(left==='down') y=vB;
+    return y;
+  });
+  let g='';
+  for(let i=0;i<2;i++){ if(!dirs[i]) continue;
+    const y0=(dirs[i]==='up')?vB:vT, y1=(dirs[i]==='up')?vT:vB;
+    g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1);
+  }
+  [0,1,2].forEach(j=>{ g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+posY[j]+'" r="4.5"/>'; });
+  ov.innerHTML=g;
 }
 async function startSV(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
@@ -3475,6 +3774,7 @@ function renderSV(){
   $('svPrompt').innerHTML=`On donne la courbe repr\u00e9sentative d\u2019une fonction <i>${esc(c.fname)}</i> sur ]${SV_MINUS}\u221e\u00a0; +\u221e[.`;
   $('svGraph').innerHTML=svGraphSVG(c);
   $('svTables').innerHTML=svTablesHTML(c);
+  setTimeout(svArrowChange,0);   /* points au centre au depart ; redessin apres une reprise (restoreBoxes) */
   if(isSoutien()){
     SV_IDS.forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',()=>checkSV(true)); });
   }
@@ -3507,6 +3807,7 @@ function checkSV(live){
     $('svFeedback').textContent='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.';
     $('svFeedback').className='mp-feedback bad';
     map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+    svArrowChange();   /* la correction vient de changer les sens : on redessine l'escalier */
   }
   test.answers.push({q:`Graphique ${test.idx+1} \u2014 tableaux de signes et de variation`, answer:'tableaux complets', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
@@ -4453,7 +4754,7 @@ if(configReady()){ initSupabase(); show('home'); }
 else { show('setup'); }
 </script>
 
-<!-- ===== Saisie mathématique MathLive (exercice 1.1) ===== -->
+<!-- ===== Saisie mathématique MathLive (exercice 2.1) ===== -->
 <script type="module">
 import "https://esm.run/mathlive@0.110.0";
 import { MathfieldElement, convertLatexToMarkup } from "https://esm.run/mathlive@0.110.0";
