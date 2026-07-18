@@ -71,6 +71,9 @@
   .tvi-tools{display:flex;align-items:center;gap:10px;margin:10px 0 6px}
   .tvi-inf{font-size:1.35rem;line-height:1;padding:6px 16px;font-weight:700}
   .tvi-inf:disabled{opacity:.45;cursor:default}
+  /* Boutons d'action (Conseil / Vérifier / Suivant) : une ligne, centrés, espacés ;
+     le retour à la ligne reste possible sur petit écran, avec le même écart vertical */
+  .mp-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
   .btn-link{background:none;border:none;color:var(--blue-dark);font-weight:700;font-family:"Nunito";cursor:pointer;font-size:.92rem;padding:8px}
   .btn-link:hover{text-decoration:underline}
   .btn-danger{background:#fff;color:var(--red);border:1.5px solid #f2c6cd}
@@ -874,7 +877,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <span class="mark" id="mark"></span>
       <div class="timerbar" id="timerBar" hidden><i id="timerFill"></i></div>
       <div class="correction" id="correction"></div>
-      <button id="cmConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button>
+      <div class="mp-actions"><button id="cmConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button></div>
     </div>
   </section>
 
@@ -1286,7 +1289,12 @@ async function lancerConseil(contexte, fb){
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', contexte:String(contexte||'')+CONSEIL_FORMAT, balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback){ fb.innerHTML='💡 '+conseilHTML(d.feedback); fb.className='mp-feedback conseil'; }
+    if(d && d.feedback){
+      fb.innerHTML='💡 '+conseilHTML(d.feedback); fb.className='mp-feedback conseil';
+      /* garde anti-recopie : on retient les conseils donnés pour détecter un collage tel quel */
+      const cs=(window.__conseilsDonnes=window.__conseilsDonnes||[]);
+      cs.push(String(d.feedback)); if(cs.length>20) cs.shift();
+    }
     else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
     else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
   }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
@@ -1338,10 +1346,11 @@ function conseilCourant(){
     const iv=tvi2Intervalle(q);
     c="Exercice de RÉDACTION : démontrer que l'équation "+q.fname+"("+q.v+") = "+q.kL+" admet une unique solution sur "+iv+". "
      +"Données vraies : "+q.fname+" est continue sur "+iv+", strictement "+q.sens+", et varie de "+q.vGL+" à "+q.vDL+". "
-     +"Le barème exige QUATRE idées : (1) "+q.fname+" varie de "+q.vGL+" à "+q.vDL+" — les deux valeurs, dans n'importe quel ordre ; la notation "+q.fname+"("+q.v+") ∈ [… ; …] compte aussi ; (2) continuité ; (3) strictement monotone — ou strictement "+q.sens+" ; (4) l'équation admet UNE UNIQUE solution. "
+     +"Le barème exige QUATRE idées : (1) indiquer les deux valeurs entre lesquelles "+q.fname+" varie (elles sont dans les données ci-dessus ; ordre libre, la notation "+q.fname+"("+q.v+") ∈ [… ; …] compte aussi) ; (2) la continuité ; (3) la stricte monotonie ; (4) la conclusion sur le nombre de solutions. "
      +"L'intervalle et la citation du théorème des valeurs intermédiaires sont facultatifs : ne les exige pas — mais si l'élève a écrit un intervalle FAUX (par exemple les valeurs de f en guise de bornes), corrige-le. Ne parle JAMAIS de l'encadrement de k : ni pour le demander, ni pour le corriger, ni même pour expliquer qu'une idée manque. "
-     +(txt ? "Texte actuel de l'élève : « "+txt+" ». Dis-lui laquelle des quatre idées manque ou est mal formulée, sans rédiger la phrase à sa place."
-           : "L'élève n'a encore rien écrit : aide-le à démarrer en lui rappelant la première idée à poser, sans rédiger à sa place.");
+     +"CONTRAINTE ANTI-RECOPIE (essentielle : l'élève peut coller ton conseil dans sa rédaction) : ta réponse ne doit contenir NI les deux valeurs de variation de cet exercice, NI aucune phrase collable telle quelle dans une rédaction. Désigne chaque idée manquante par son RÔLE — par exemple « il manque la phrase donnant les deux valeurs entre lesquelles "+q.fname+" varie : lis-les dans le tableau » ou « il manque la conclusion sur le nombre de solutions ». Si une valeur écrite par l'élève est fausse, dis LAQUELLE est fausse sans donner la bonne. "
+     +(txt ? "Texte actuel de l'élève : « "+txt+" ». Dis-lui laquelle des quatre idées manque ou est mal formulée."
+           : "L'élève n'a encore rien écrit : aide-le à démarrer en lui indiquant le rôle de la première idée à poser.");
   } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
     /* ---- 1.3 lecture graphique : l'IA ne voit PAS l'image, on lui decrit la courbe
             et l'etat des deux tableaux a partir des donnees de la question ---- */
@@ -2421,6 +2430,7 @@ async function startTVI2(){
 }
 function renderTVI2(){
   const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];   /* les conseils de la question précédente ne concernent plus celle-ci */
   $('tvi2QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
   $('tvi2ModeTag').innerHTML=modeTagHTML();
   $('tvi2LiveScore').textContent=test.score;
@@ -2438,11 +2448,32 @@ function tvi2Intervalle(c){
   if(infG && infD) return '\u211d';
   return c.leftBrk+c.aLabel+'\u00a0; '+c.bLabel+c.rightBrk;
 }
+/* Recopie d'un conseil ? On compare les MOTS (≥ 3 lettres, normalisés) de la rédaction à ceux
+   des conseils donnés sur CETTE question : si plus de 65 % s'y retrouvent, c'est un collage,
+   pas une rédaction — on refuse de noter, sans consommer d'appel IA. Une vraie rédaction
+   partage peu de mots avec un conseil (qui désigne les idées sans donner les phrases). */
+function tvi2CopieConseil(raw){
+  const cs=window.__conseilsDonnes||[]; if(!cs.length) return false;
+  const toks=t=>jNorm(t).split(/[^a-z0-9]+/).filter(w=>w.length>=3);
+  const st=toks(raw); if(st.length<8) return false;
+  for(const cTxt of cs){
+    const set=new Set(toks(String(cTxt).replace(/\[\/?(?:OK|KO)\]/gi,' ')));
+    if(set.size<6) continue;
+    const commun=st.filter(w=>set.has(w)).length;
+    if(commun/st.length>=0.65) return true;
+  }
+  return false;
+}
 let tvi2Busy=false;
 async function checkTVI2(){
   if(test.locked||tvi2Busy) return;
   const c=test.questions[test.idx], raw=$('tvi2Input').value;
   if(raw.trim().length<10){ toast('\u00c9cris ta justification d\u2019abord'); return; }
+  if(tvi2CopieConseil(raw)){
+    $('tvi2Feedback').textContent='On dirait le texte du conseil recopi\u00e9 tel quel. Le conseil te dit QUOI \u00e9crire \u2014 \u00e0 toi de le r\u00e9diger avec tes propres mots, en lisant les valeurs dans le tableau. Cette tentative n\u2019est pas compt\u00e9e.';
+    $('tvi2Feedback').className='mp-feedback bad';
+    return;
+  }
   tvi2Busy=true;
   $('tvi2Actions').innerHTML='<button class="btn btn-primary" disabled>V\u00e9rification\u2026</button>';
   $('tvi2Feedback').textContent='L\u2019IA relit ta r\u00e9daction\u2026'; $('tvi2Feedback').className='mp-feedback muted';
