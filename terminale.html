@@ -1338,8 +1338,8 @@ function conseilCourant(){
     const iv=tvi2Intervalle(q);
     c="Exercice de RÉDACTION : démontrer que l'équation "+q.fname+"("+q.v+") = "+q.kL+" admet une unique solution sur "+iv+". "
      +"Données vraies : "+q.fname+" est continue sur "+iv+", strictement "+q.sens+", et varie de "+q.vGL+" à "+q.vDL+". "
-     +"Le barème exige QUATRE idées : (1) "+q.fname+" varie de "+q.vGL+" à "+q.vDL+" (les deux valeurs) ; (2) continuité ; (3) strictement monotone — ou strictement "+q.sens+" ; (4) l'équation admet UNE UNIQUE solution. "
-     +"L'intervalle et la citation du théorème des valeurs intermédiaires sont facultatifs : ne les exige pas — mais si l'élève a écrit un intervalle FAUX (par exemple les valeurs de f en guise de bornes), corrige-le. Ne parle JAMAIS de l'encadrement de k : ni pour le demander, ni pour le corriger. "
+     +"Le barème exige QUATRE idées : (1) "+q.fname+" varie de "+q.vGL+" à "+q.vDL+" — les deux valeurs, dans n'importe quel ordre ; la notation "+q.fname+"("+q.v+") ∈ [… ; …] compte aussi ; (2) continuité ; (3) strictement monotone — ou strictement "+q.sens+" ; (4) l'équation admet UNE UNIQUE solution. "
+     +"L'intervalle et la citation du théorème des valeurs intermédiaires sont facultatifs : ne les exige pas — mais si l'élève a écrit un intervalle FAUX (par exemple les valeurs de f en guise de bornes), corrige-le. Ne parle JAMAIS de l'encadrement de k : ni pour le demander, ni pour le corriger, ni même pour expliquer qu'une idée manque. "
      +(txt ? "Texte actuel de l'élève : « "+txt+" ». Dis-lui laquelle des quatre idées manque ou est mal formulée, sans rédiger la phrase à sa place."
            : "L'élève n'a encore rien écrit : aide-le à démarrer en lui rappelant la première idée à poser, sans rédiger à sa place.");
   } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
@@ -2207,14 +2207,16 @@ function genTVI(){
   // bornes de l'intervalle (affichage + crochets)
   let aLabel, leftBrk;
   if(rand(0,2)===0){ aLabel='\u2212\u221e'; leftBrk=']'; }
-  else { aLabel=numFmt(rand(-4,3)); leftBrk='['; }
+  else { aLabel=numFmt(rand(-4,3)); leftBrk=(rand(0,2)===0?']':'['); }   /* borne finie ouverte possible : ]2 ; … */
   let bLabel, rightBrk;
   if(rand(0,2)===0){ bLabel='+\u221e'; rightBrk='['; }
-  else { bLabel=numFmt(rand(4,12)); rightBrk=']'; }
+  else { bLabel=numFmt(rand(4,12)); rightBrk=(rand(0,2)===0?'[':']'); }   /* … ; 7[ : limite possible en 7 */
 
   // valeurs (limites/valeurs) aux bornes, cohérentes avec le sens
   let vG, vD;
-  const gInf = rand(0,2)===0, dInf = rand(0,2)===0;
+  /* une valeur infinie n'a de sens qu'à une borne OUVERTE (c'est une limite), que la borne soit
+     finie ou non : ]2 ; 7[ autorise une limite infinie en 7 ; à une borne FERMÉE la valeur est atteinte, donc finie */
+  const gInf = leftBrk===']' && rand(0,2)===0, dInf = rightBrk==='[' && rand(0,2)===0;
   if(croissante){
     vG = gInf ? -Infinity : rand(-8,2);
     vD = dInf ? Infinity  : rand((isFinite(vG)?vG+3:-5), 9);
