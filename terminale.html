@@ -79,6 +79,7 @@
   .choice{text-align:left;cursor:pointer;background:#fff;border:2px solid var(--line);border-radius:18px;padding:22px;transition:transform .14s,border-color .14s,box-shadow .14s;display:flex;flex-direction:column;gap:8px;font:inherit;color:inherit}
   .choice:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
   .choice .ic{font-size:30px;line-height:1}
+  .choice.themecard .ic.theme-ic{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--blue);background:#EAF0FF;border-radius:12px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;}
   .choice .ttl{font-family:"Fredoka";font-weight:600;font-size:1.18rem}
   .choice .ds{color:var(--ink-soft);font-size:.88rem;font-weight:600}
   .choice.eleve{border-color:#c9d4f3}.choice.eleve:hover{border-color:var(--blue)}
@@ -762,7 +763,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
         <div class="stat green"><div class="k">Note moyenne</div><div class="v" id="sAvg">—</div></div>
         <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
       </div>
-      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <p class="lead">Choisis un thème pour ouvrir la page de ses exercices interactifs.</p>
       <div class="theme-list" id="testChoices"></div>
       <div class="panel" style="margin-top:20px">
         <h3>Ma progression</h3>
@@ -772,6 +773,18 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
         <h3>Mes derniers tests</h3>
         <ul class="histlist" id="spaceHist"></ul>
       </div>
+    </div>
+  </section>
+
+  <!-- EXERCICES D'UN THÈME -->
+  <section class="screen" id="scr-theme">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="themeTitle">Thème</h2>
+        <button class="btn-link" onclick="show('choose')">← Thèmes</button>
+      </div>
+      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="choices" id="themeChoices"></div>
     </div>
   </section>
 
@@ -1386,24 +1399,36 @@ function progBarHTML(){
 }
 function renderChooser(results){
   results=results||mesResultats||[];
-  $('testChoices').innerHTML=THEMES.map(th=>{
-    const cards=th.ids.map((id,i)=>{
-      const t=TESTS[id]; if(!t) return '';
-      const num=th.num+'.'+(i+1);
-      const nd=derniereNoteExo(id);
-      const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
-    }).join('');
-    if(!cards) return '';
-    return `<div class="theme-block">
-      <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
-      <div class="choices">${cards}</div>
-    </div>`;
+  const cards=THEMES.map(th=>{
+    const ids=th.ids.filter(id=>TESTS[id]);
+    if(!ids.length) return '';
+    const faits=ids.filter(id=>derniereNoteExo(id).fait).length;
+    const badge=faits>0?`<span class="ex-bilan done">${faits} / ${ids.length} travaillé${faits>1?'s':''}</span>`:`<span class="ex-bilan todo">À découvrir</span>`;
+    return `<button class="choice eleve themecard" onclick="openTheme(${th.num})">
+      <span class="ic theme-ic">${th.num}</span><span class="ttl">Thème ${th.num} · ${esc(th.nom)}</span><span class="ds">${ids.length} exercice${ids.length>1?'s':''} interactif${ids.length>1?'s':''}</span>${badge}</button>`;
   }).join('');
+  $('testChoices').innerHTML='<div class="choices">'+cards+'</div>';
+}
+let currentThemeNum=null;
+function themeOfTest(id){ const th=THEMES.find(t=>t.ids.includes(id)); return th?th.num:null; }
+/* Ouvre la page des exercices interactifs du thème choisi. */
+function openTheme(num){
+  const th=THEMES.find(t=>t.num===num); if(!th) return;
+  currentThemeNum=num;
+  $('themeTitle').textContent='Thème '+th.num+' · '+th.nom;
+  $('themeChoices').innerHTML=th.ids.map((id,i)=>{
+    const t=TESTS[id]; if(!t) return '';
+    const num2=th.num+'.'+(i+1);
+    const nd=derniereNoteExo(id);
+    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+    return cardHTML(t.icon, num2+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
+  }).join('');
+  show('theme');
 }
 /* ---------- Devoir à la maison (élève) ---------- */
 function lancerDevoir(devoirId, id, mode){
   const t=TESTS[id]; if(!t||!t.start) return;
+  currentThemeNum=themeOfTest(id)||currentThemeNum;
   currentDM=devoirId||true;                    // la tentative est étiquetée avec l'id du devoir
   currentMode=(mode==='train')?'train':'soutien';
   currentTestId=id;
@@ -1508,6 +1533,7 @@ async function clearRecovery(){
 }
 async function openTest(testId){
   currentTestId=testId;
+  currentThemeNum=themeOfTest(testId)||currentThemeNum;
   currentDM=null;            // lancement normal (hors devoir)
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
@@ -1734,7 +1760,7 @@ function renderBilan(results){
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
-function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes(); } }
+function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes().then(()=>{ if(currentThemeNum) openTheme(currentThemeNum); }); } }
 
 /* ---------- Devoirs à la maison (élève) ---------- */
 async function openDevoirsEleve(){
