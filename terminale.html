@@ -1229,8 +1229,8 @@ function conseilCourant(){
   let c;
   if(test && test.kind==='dexp' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
-    c='Exercice : dériver f(x) = '+dexpFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur), en appliquant la formule (u·v)' = u'·v + v'·u. La dérivée correcte factorisée est : "+dexpDfPlain(q)+'.';
-    if(rep) c+=" Voici ce que l'élève a écrit pour l'instant (éventuellement incomplet ou faux) : « "+rep+" ». Analyse SON écriture : repère précisément son erreur ou ce qui manque (signe, coefficient, règle u'v+v'u, oubli de factoriser par e^(kx)…) et oriente-le pour corriger CETTE étape, sans donner la réponse.";
+    c='Exercice : dériver f(x) = '+dexpFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur), en appliquant la formule (u·v)' = u'·v + v'·u. Démarche attendue à conseiller : poser u, v, u', v' ; écrire u'·v + v'·u ; DÉVELOPPER cette expression et réduire ; puis factoriser par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou donne une forme factorisée dont le polynôme n'est pas réduit, ce n'est PAS une erreur — ne le lui reproche pas. La dérivée correcte factorisée est : "+dexpDfPlain(q)+" ou, de façon équivalente, "+dexpDfPlainAlt(q)+" (l'ordre des facteurs est indifférent : ne signale PAS comme erreur le fait d'écrire l'exponentielle en premier).";
+    if(rep) c+=" Voici ce que l'élève a écrit pour l'instant (éventuellement incomplet ou faux) : « "+rep+" ». Analyse SON écriture : repère précisément son erreur ou ce qui manque (signe, coefficient, règle u'v+v'u, développement non effectué, oubli de factoriser par e^(kx)…) et oriente-le pour corriger CETTE étape, sans donner la réponse.";
     else c+=" L'élève n'a encore rien écrit : aide-le à démarrer (poser u, v, puis u' et v').";
   } else {
     c=ctxVisible();
@@ -2352,6 +2352,7 @@ function dexpPoly1(cx,c0){
 }
 function dexpFxPlain(c){ return '('+c.uStr+')·e^('+c.expHtml+')'; }
 function dexpDfPlain(c){ return '('+dexpPoly1(c.a*c.k, c.a+c.b*c.k)+')·e^('+c.expHtml+')'; }
+function dexpDfPlainAlt(c){ return 'e^('+c.expHtml+')·('+dexpPoly1(c.a*c.k, c.a+c.b*c.k)+')'; }
 function genDexp(){
   const a=pickNonZero(-3,3), b=rand(-3,3), k=pick([-2,-1,1,2,3,0.5]);
   return {
@@ -2501,9 +2502,10 @@ async function checkDexp2(){
   $('dexpActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   fb.textContent='Je vérifie ta dérivée…'; fb.className='mp-feedback muted';
   const question=dexpFxPlain(c), attendu=dexpDfPlain(c);
+  const attenduIA=attendu+" — ÉGALEMENT CORRECT dans l'autre ordre : "+dexpDfPlainAlt(c)+" (l'ordre des facteurs d'un produit est indifférent ; toute écriture équivalente de ce produit factorisé est juste).";
   let res=null;
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attendu, reponse:rep } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:question, attendu:attenduIA, reponse:rep } });
     if(r.error) throw r.error; res=r.data;
   }catch(e){ res=null; }
   test.dexpBusy=false;
