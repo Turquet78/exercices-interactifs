@@ -904,7 +904,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <p class="tvi-prompt" id="tvi2Prompt"></p>
       <div class="tvi-table" id="tvi2Table"></div>
       <p class="tvi-instr">Rédige la justification :</p>
-      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi2InfBtn" onclick="tvi2InsertInf()" title="Insérer le symbole infini — raccourci : Ctrl + I (⌘ + I sur Mac)">∞</button><span class="muted">insère ∞ — raccourci Ctrl + I</span></div>
+      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi2InfBtn" onclick="tvi2Insert('∞')" title="Insérer ∞ — tapez « inf » puis un espace ou une ponctuation, ou Ctrl + I (⌘ + I sur Mac)">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi2AlphaBtn" onclick="tvi2Insert('α')" title="Insérer α — tapez « alp » puis un espace ou une ponctuation, ou Ctrl + B (⌘ + B sur Mac)">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi2AppBtn" onclick="tvi2Insert('∈')" title="Insérer ∈ (appartient) — tapez « app » puis un espace ou une ponctuation">∈</button><span class="muted">tapez inf / alp / app puis espace → ∞ / α / ∈</span></div>
       <textarea class="tvi-textarea" id="tvi2Input" rows="5" placeholder="Explique pourquoi l'équation admet une unique solution (f varie de … à …, continuité, strictement croissante ou décroissante, unique solution…)" autocomplete="off"></textarea>
       <div class="tvi-check" id="tvi2Check"></div>
       <div class="mp-feedback" id="tvi2Feedback"></div>
@@ -2374,7 +2374,11 @@ function evalJustif(c, raw){
   const hasStrict=/strict/.test(n);
   const hasCroiss=/\bcroissant/.test(n);          // ne matche pas "decroissant" (fronti\u00e8re de mot)
   const hasDecroiss=/\bdecroissant/.test(n);
-  const sensOk = hasStrict && (c.croissante ? (hasCroiss && !hasDecroiss) : (hasDecroiss && !hasCroiss));
+  const hasMono=/\bmonotone/.test(n);
+  /* « strictement monotone » suffit, sans préciser le sens ; affirmer le sens CONTRAIRE invalide. */
+  const wrongDir = c.croissante ? hasDecroiss : hasCroiss;
+  const rightDir = c.croissante ? hasCroiss : hasDecroiss;
+  const sensOk = hasStrict && !wrongDir && (rightDir || hasMono);
   const contOk = /continu/.test(n);
   const thmOk  = /valeurs intermediaires/.test(n) || /\btvi\b/.test(n) || /\bt\.?v\.?i\b/.test(n);
   const uniqOk = /unique/.test(n) || /une seule/.test(n) || /exactement une/.test(n) || /qu'?une/.test(n);
@@ -2397,7 +2401,7 @@ function renderJustifCheck(r){
   $('tvi2Check').innerHTML =
     ess('f varie de \u2026 \u00e0 \u2026 (les deux valeurs)', r.variation) +
     ess('Continuit\u00e9 de la fonction', r.continuite) +
-    ess('Strictement monotone (bon sens)', r.monotonie) +
+    ess('Strictement monotone (sens correct s\u2019il est pr\u00e9cis\u00e9)', r.monotonie) +
     ess('Une UNIQUE solution', r.unicite) +
     ind('Th\u00e9or\u00e8me des valeurs interm\u00e9diaires cit\u00e9 (facultatif)', r.thmOk) +
     ind('Intervalle pr\u00e9cis\u00e9 (facultatif)', r.intervalleOk);
@@ -2423,7 +2427,7 @@ function renderTVI2(){
   $('tvi2Prompt').innerHTML=`D\u00e9montrer que l\u2019\u00e9quation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution, not\u00e9e \u03b1, sur ${esc(tvi2Intervalle(c))}.`;
   $('tvi2Table').innerHTML=tviSVG(c);
   const ta=$('tvi2Input'); ta.value=''; ta.disabled=false;
-  { const ib=$('tvi2InfBtn'); if(ib) ib.disabled=false; }
+  ['tvi2InfBtn','tvi2AlphaBtn','tvi2AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=false; });
   setTimeout(()=>ta.focus(),60);
 }
 /* Intervalle d'énoncé du 3.3 : celui de la question ; « \u211d » quand les deux bornes sont infinies. */
@@ -2441,7 +2445,7 @@ async function checkTVI2(){
   $('tvi2Actions').innerHTML='<button class="btn btn-primary" disabled>V\u00e9rification\u2026</button>';
   $('tvi2Feedback').textContent='L\u2019IA relit ta r\u00e9daction\u2026'; $('tvi2Feedback').className='mp-feedback muted';
   const local=evalJustif(c, raw);
-  let crit=null, fb='', viaIA=false;
+  let crit=null, fb='', errMsg='';
   try{
     const I=tvi2Intervalle(c);
     const donnees='montrer que l\u2019\u00e9quation '+c.fname+'('+c.v+') = '+c.kL+' admet une unique solution sur '+I+'. '
@@ -2451,16 +2455,24 @@ async function checkTVI2(){
     if(r.error) throw r.error;
     const d=r.data;
     if(d && d.error) throw new Error(d.error);
-    if(d && d.criteres){ crit=d.criteres; fb=d.feedback||''; viaIA=true; }
-  }catch(e){ /* IA injoignable : on retombe sur l'analyse locale par mots-cl\u00e9s */ }
+    if(d && d.criteres){ crit=d.criteres; fb=d.feedback||''; }
+    else throw new Error('R\u00e9ponse du service incompl\u00e8te.');
+  }catch(e){ errMsg=(e&&e.message)?String(e.message):'Impossible de joindre l'+String.fromCharCode(8217)+'IA.'; }
   tvi2Busy=false;
-  if(!crit) crit={ variation:local.varOk, continuite:local.contOk, monotonie:local.sensOk, unicite:local.uniqOk };
+  /* Pas de correcteur de secours : sans l'IA on ne note pas (deux correcteurs = deux bar\u00e8mes).
+     La tentative n'est ni compt\u00e9e ni verrouill\u00e9e, l'\u00e9l\u00e8ve r\u00e9essaie quand le service r\u00e9pond. */
+  if(!crit){
+    $('tvi2Feedback').textContent='Correction impossible pour le moment '+String.fromCharCode(8212)+' '+errMsg
+      +' Ta r\u00e9ponse n'+String.fromCharCode(8217)+'est pas compt\u00e9e : tu peux r\u00e9essayer.';
+    $('tvi2Feedback').className='mp-feedback bad';
+    $('tvi2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI2()">R\u00e9essayer</button>';
+    return;
+  }
   renderJustifCheck({ ...crit, thmOk:local.thmOk, intervalleOk:local.intervalleOk });
   const allOk = crit.variation && crit.continuite && crit.monotonie && crit.unicite;
-  const fbHTML = viaIA && fb ? conseilHTML(fb) : '';
-  const localNote = viaIA ? '' : '<div class="muted" style="margin-top:6px">IA indisponible : v\u00e9rification simplifi\u00e9e par mots-cl\u00e9s.</div>';
+  const fbHTML = fb ? conseilHTML(fb) : '';
   if(!allOk && isSoutien()){
-    $('tvi2Feedback').innerHTML=(fbHTML || 'Il manque des \u00e9l\u00e9ments requis (en rouge). Compl\u00e8te ta justification, puis rev\u00e9rifie.')+localNote;
+    $('tvi2Feedback').innerHTML=(fbHTML || 'Il manque des \u00e9l\u00e9ments requis (en rouge). Compl\u00e8te ta justification, puis rev\u00e9rifie.');
     $('tvi2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
     $('tvi2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI2()">Rev\u00e9rifier</button>';
     return;
@@ -2468,37 +2480,66 @@ async function checkTVI2(){
   test.locked=true;
   if(allOk){
     test.score++; $('tvi2LiveScore').textContent=test.score;
-    $('tvi2Feedback').innerHTML=(fbHTML || esc(pick(['Justification compl\u00e8te, bravo !','Tr\u00e8s bien r\u00e9dig\u00e9 !','Parfait, tous les arguments y sont !'])))+localNote;
+    $('tvi2Feedback').innerHTML=(fbHTML || esc(pick(['Justification compl\u00e8te, bravo !','Tr\u00e8s bien r\u00e9dig\u00e9 !','Parfait, tous les arguments y sont !'])));
     $('tvi2Feedback').className='mp-feedback '+(fbHTML?'iafb':'good');
   } else {
-    $('tvi2Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Il manque des arguments requis. ')+'Une justification correcte :<div class="tvi-model">'+esc(modelJustif(c))+'</div>'+localNote;
+    $('tvi2Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Il manque des arguments requis. ')+'Une justification correcte :<div class="tvi-model">'+esc(modelJustif(c))+'</div>';
     $('tvi2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
     $('tvi2Input').disabled=true;
-    { const ib=$('tvi2InfBtn'); if(ib) ib.disabled=true; }
+    ['tvi2InfBtn','tvi2AlphaBtn','tvi2AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=true; });
   }
   test.answers.push({q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incompl\u00e8te', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tvi2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI2()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
 function nextTVI2(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI2(); } else finishTest(); }
-/* Bouton ∞ du 3.3 : insertion à la position du curseur, en préservant l'annulation (Ctrl+Z)
-   quand le navigateur le permet, sinon repli setRangeText + événement input. */
-function tvi2InsertInf(){
+/* Boutons de symboles du 3.3 : insertion à la position du curseur, en préservant
+   l'annulation (Ctrl+Z) quand le navigateur le permet, sinon repli setRangeText + input. */
+function tvi2Insert(ch){
   const ta=$('tvi2Input'); if(!ta||ta.disabled) return;
   ta.focus();
   let done=false;
-  try{ done=document.execCommand && document.execCommand('insertText', false, '\u221e'); }catch(e){ done=false; }
+  try{ done=document.execCommand && document.execCommand('insertText', false, ch); }catch(e){ done=false; }
   if(done) return;
   const st=(ta.selectionStart!=null?ta.selectionStart:ta.value.length), en=(ta.selectionEnd!=null?ta.selectionEnd:st);
-  ta.setRangeText('\u221e', st, en, 'end');
+  ta.setRangeText(ch, st, en, 'end');
   ta.dispatchEvent(new Event('input',{bubbles:true}));
 }
-/* Raccourci : Ctrl+I (⌘+I sur Mac) quand la zone de rédaction a le focus.
-   Ctrl+I n'a aucune action par défaut dans un textarea, on peut l'intercepter sans rien casser. */
+/* Raccourcis quand la zone de rédaction a le focus : Ctrl+I → ∞, Ctrl+B → α (⌘ sur Mac).
+   Ni Ctrl+I ni Ctrl+B n'ont d'action par défaut dans un textarea — interception sans rien casser.
+   (Ctrl+A reste la sélection de tout le texte, on n'y touche pas.) */
+const TVI2_KEYS={ i:'\u221e', b:'\u03b1' };
+/* Expansion à la frappe : « inf » / « alp » / « app » tapés comme MOT ENTIER puis suivis d'un espace,
+   d'une ponctuation ou d'un retour à la ligne deviennent ∞ / α (la frontière tapée est conservée).
+   Le déclenchement n'a lieu QUE sur la frontière : « infini », « inférieur »… restent intacts,
+   et un token collé à un mot (« binf ») n'est pas transformé. Le collage est ignoré. */
+const TVI2_TOKENS={ inf:'\u221e', alp:'\u03b1', app:'\u2208' };
+function tvi2AutoSymbol(e){
+  const ta=e.target; if(!ta||ta.disabled) return;
+  let bc=null;
+  if(e.inputType==='insertLineBreak') bc='\n';
+  else if(e.inputType==='insertText' && typeof e.data==='string' && /^[ \u00a0.,;:!?)\]]$/.test(e.data)) bc=e.data;
+  if(bc===null) return;
+  const pos=ta.selectionStart; if(pos==null) return;
+  const before=ta.value.slice(0,pos);
+  const m=/(^|[^A-Za-z\u00c0-\u00ff])(inf|alp|app)([ \u00a0.,;:!?)\]\n])$/i.exec(before);
+  if(!m) return;
+  const sym=TVI2_TOKENS[m[2].toLowerCase()];
+  const start=pos-m[2].length-1;
+  ta.setSelectionRange(start,pos);
+  let done=false;
+  try{ done=document.execCommand && document.execCommand('insertText', false, sym+m[3]); }catch(err){ done=false; }
+  if(!done){
+    ta.setRangeText(sym+m[3], start, pos, 'end');
+    ta.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+}
+document.addEventListener('input', e=>{ if(e.target && e.target.id==='tvi2Input') tvi2AutoSymbol(e); });
 document.addEventListener('keydown', e=>{
-  if((e.key==='i'||e.key==='I') && (e.ctrlKey||e.metaKey) && !e.altKey && !e.shiftKey
+  const ch=TVI2_KEYS[String(e.key).toLowerCase()];
+  if(ch && (e.ctrlKey||e.metaKey) && !e.altKey && !e.shiftKey
      && document.activeElement && document.activeElement.id==='tvi2Input'){
-    e.preventDefault(); tvi2InsertInf();
+    e.preventDefault(); tvi2Insert(ch);
   }
 });
 
