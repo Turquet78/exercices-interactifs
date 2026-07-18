@@ -1327,6 +1327,22 @@ function conseilCourant(){
     if(_po.length) c+=" L'élève a posé (champs facultatifs) : "+_po.map(p=>p.n+' = '+p.v).join(' ; ')+". Si l'un de ces posés est faux et explique son blocage, signale-le gentiment.";
     if(rep) c+=" Voici ce que l'élève a écrit pour l'instant (éventuellement incomplet ou faux) : « "+rep+" ». Analyse SON écriture : repère précisément son erreur ou ce qui manque (signe, coefficient, règle u'v+v'u, développement non effectué, oubli de factoriser par e^(kx)…) et oriente-le pour corriger CETTE étape, sans donner la réponse.";
     else c+=" L'élève n'a encore rien écrit : aide-le à démarrer (poser u, v, puis u' et v').";
+  } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
+    /* ---- 1.3 lecture graphique : l'IA ne voit PAS l'image, on lui decrit la courbe
+            et l'etat des deux tableaux a partir des donnees de la question ---- */
+    const q=test.questions[test.idx], a=q.ans, g=q.fname, mx=(q.extrType==='max');
+    const sensG=mx?'croissante (\u2197)':'d\u00e9croissante (\u2198)', sensD=mx?'d\u00e9croissante (\u2198)':'croissante (\u2197)';
+    c="Exercice de LECTURE GRAPHIQUE (tu ne vois pas l'image, mais en voici la description exacte, \u00e0 utiliser comme si tu regardais la courbe avec l'\u00e9l\u00e8ve) : la courbe d'une fonction "+g+" est trac\u00e9e sur ]\u2212\u221e;+\u221e[. "
+     +"Elle est "+sensG+" jusqu'\u00e0 x = "+a.extrx+", o\u00f9 "+g+" admet un "+(mx?'MAXIMUM':'MINIMUM')+", puis "+sensD+" ensuite. "
+     +"Elle coupe l'axe des abscisses UNE seule fois, en x = "+a.rootx+" : "+g+" est de signe "+(a.fl===SV_MINUS?'n\u00e9gatif':'positif')+" avant, "+(a.fr===SV_MINUS?'n\u00e9gatif':'positif')+" apr\u00e8s. "
+     +"L'\u00e9l\u00e8ve doit compl\u00e9ter deux tableaux avec des menus d\u00e9roulants. Tableau 1 \u2014 signe de "+g+"(x) : la valeur o\u00f9 "+g+" s'annule (attendu "+a.rootx+"), puis le signe avant (attendu "+a.fl+") et apr\u00e8s (attendu "+a.fr+"). "
+     +"Tableau 2 \u2014 signe de "+g+"'(x) et variations : l'abscisse de l'extremum (attendu "+a.extrx+"), le signe de "+g+"' avant (attendu "+a.dl+") et apr\u00e8s (attendu "+a.dr+"), puis les deux fl\u00e8ches de variation (attendu "+(mx?'\u2197 puis \u2198':'\u2198 puis \u2197')+"). "
+     +"Rappels de cours \u00e0 mobiliser si besoin : "+g+" s'annule l\u00e0 o\u00f9 la courbe coupe l'axe des abscisses ; "+g+"' est positive quand "+g+" est croissante, n\u00e9gative quand elle est d\u00e9croissante, et s'annule \u00e0 l'extremum. "
+     +"Codes des cases ci-dessous : + / \u2212 = signes ; up = fl\u00e8che \u2197 (croissante) ; down = fl\u00e8che \u2198 (d\u00e9croissante).";
+    c+=dexpFeuilleCtx([
+      ['Tableau 1 \u2014 signe de '+g+'(x)', [['valeur o\u00f9 '+g+' s\'annule','sv-rootx'],['signe avant','sv-fl'],['signe apr\u00e8s','sv-fr']]],
+      ['Tableau 2 \u2014 signe de '+g+'\' et variations', [['abscisse de l\'extremum','sv-extrx'],['signe de '+g+'\' avant','sv-dl'],['signe apr\u00e8s','sv-dr'],['1re fl\u00e8che','sv-al'],['2e fl\u00e8che','sv-ar']]]
+    ]);
   } else if(test && test.kind==='dexpq' && test.questions && test.questions[test.idx]){
     /* ---- quotient guidé (niveau 1) ---- */
     const q=test.questions[test.idx], ek='e^('+q.expHtml+')';
@@ -2513,15 +2529,16 @@ function dexpFocus(el){ dexpActive=el; dexpState(el); }
 function dexpEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 /* Une "somme" = il reste un + ou un − après le 1er caractère (un signe initial seul ne compte pas). */
 function dexpIsSum(s){ return !!s && /[+\-\u2212]/.test(s.slice(1)); }
-/* Parenthèses nécessaires autour d'une case ? UNIQUEMENT si son contenu est une somme.
-   L'intérieur des exposants ne compte pas (e^(−2x) n'est pas une somme) ; un − de tête
-   seul ne déclenche plus rien (choix pédagogique : « −5 » s'affiche sans parenthèses). */
+/* Parenthèses nécessaires autour d'une case ? L'intérieur des exposants ne compte pas
+   (e^(−2x) n'est pas une somme) ; un − de tête n'en demande que hors première position. */
 function dexpNeedParens(s, first){
   if(!s) return false;
   let t=String(s).trim();
   t=t.replace(/e\^\(([^)]*)\)/g,'E');
   t=t.replace(/\^[0-9]+/g,'');
-  return /[+\-\u2212]/.test(t.slice(1));
+  const inner=/[+\-\u2212]/.test(t.slice(1));
+  const neg=/^[\-\u2212]/.test(t);
+  return inner || (neg && !first);
 }
 const DEXP_FIRSTS=['dexp-s2a','dq-s2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
 function dexpRender(ce){
