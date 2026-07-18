@@ -901,7 +901,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <p class="tvi-prompt" id="tvi2Prompt"></p>
       <div class="tvi-table" id="tvi2Table"></div>
       <p class="tvi-instr">Rédige la justification :</p>
-      <textarea class="tvi-textarea" id="tvi2Input" rows="5" placeholder="Explique pourquoi l'équation admet une unique solution (continuité, sens de variation, théorème, encadrement, unicité…)" autocomplete="off"></textarea>
+      <textarea class="tvi-textarea" id="tvi2Input" rows="5" placeholder="Explique pourquoi l'équation admet une unique solution (f varie de … à …, continuité, strictement croissante ou décroissante, unique solution…)" autocomplete="off"></textarea>
       <div class="tvi-check" id="tvi2Check"></div>
       <div class="mp-feedback" id="tvi2Feedback"></div>
       <div class="mp-actions" id="tvi2Actions"></div>
@@ -1327,6 +1327,16 @@ function conseilCourant(){
     if(_po.length) c+=" L'élève a posé (champs facultatifs) : "+_po.map(p=>p.n+' = '+p.v).join(' ; ')+". Si l'un de ces posés est faux et explique son blocage, signale-le gentiment.";
     if(rep) c+=" Voici ce que l'élève a écrit pour l'instant (éventuellement incomplet ou faux) : « "+rep+" ». Analyse SON écriture : repère précisément son erreur ou ce qui manque (signe, coefficient, règle u'v+v'u, développement non effectué, oubli de factoriser par e^(kx)…) et oriente-le pour corriger CETTE étape, sans donner la réponse.";
     else c+=" L'élève n'a encore rien écrit : aide-le à démarrer (poser u, v, puis u' et v').";
+  } else if(test && test.kind==='tvi2' && test.questions && test.questions[test.idx]){
+    /* ---- 3.3 rédaction TVI : criteres du bareme + texte en cours ---- */
+    const q=test.questions[test.idx];
+    const txt=($('tvi2Input')&&$('tvi2Input').value||'').trim().slice(0,900);
+    c="Exercice de RÉDACTION : démontrer que l'équation "+q.fname+"("+q.v+") = "+q.kL+" admet une unique solution sur \u211d. "
+     +"Données vraies : "+q.fname+" est continue sur \u211d, strictement "+q.sens+", et varie de "+q.vGL+" à "+q.vDL+". "
+     +"Le barème exige QUATRE idées : (1) "+q.fname+" varie de "+q.vGL+" à "+q.vDL+" (les deux valeurs) ; (2) continuité ; (3) strictement monotone — ou strictement "+q.sens+" ; (4) l'équation admet UNE UNIQUE solution. "
+     +"NE demande PAS d'encadrer k, NI de préciser l'intervalle, NI de citer le théorème des valeurs intermédiaires : ces éléments sont facultatifs. "
+     +(txt ? "Texte actuel de l'élève : « "+txt+" ». Dis-lui laquelle des quatre idées manque ou est mal formulée, sans rédiger la phrase à sa place."
+           : "L'élève n'a encore rien écrit : aide-le à démarrer en lui rappelant la première idée à poser, sans rédiger à sa place.");
   } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
     /* ---- 1.3 lecture graphique : l'IA ne voit PAS l'image, on lui decrit la courbe
             et l'etat des deux tableaux a partir des donnees de la question ---- */
@@ -2367,7 +2377,9 @@ function evalJustif(c, raw){
   const intervalleOk = (jHasVal(n,c.aLabel) && jHasVal(n,c.bLabel)) || /sur r\b|reels|l'intervalle/.test(n);
   const varOk = jHasVal(n, c.vGL) && jHasVal(n, c.vDL);
   const encadreOk = /compris|entre|encadr|inferieur|superieur|appartient/.test(n) || /[<>]/.test(raw);
-  const allEssential = contOk && sensOk && thmOk && uniqOk && intervalleOk;
+  /* Critères requis (choix pédagogique) : valeurs de variation, continuité, stricte monotonie,
+     unicité. Citer le TVI, préciser l'intervalle ou encadrer k restent facultatifs. */
+  const allEssential = contOk && sensOk && uniqOk && varOk;
   return { contOk, sensOk, thmOk, uniqOk, kOk, intervalleOk, varOk, encadreOk, allEssential };
 }
 /* Justification mod\u00e8le, affich\u00e9e en correction. */
@@ -2379,12 +2391,13 @@ function renderJustifCheck(r){
   const ess=(lab,ok)=>`<div class="just-item ${ok?'ok':'miss'}"><span>${ok?'\u2713':'\u2717'}</span> ${esc(lab)}</div>`;
   const ind=(lab,ok)=>`<div class="just-item ${ok?'ok':'no'}"><span>${ok?'\u2713':'\u25cb'}</span> ${esc(lab)}</div>`;
   $('tvi2Check').innerHTML =
-    ess('Continuit\u00e9 de la fonction', r.contOk) +
-    ess('Stricte monotonie (bon sens de variation)', r.sensOk) +
-    ess('Th\u00e9or\u00e8me des valeurs interm\u00e9diaires cit\u00e9', r.thmOk) +
-    ess('Unicit\u00e9 de la solution', r.uniqOk) +
-    ess('Intervalle d\u2019\u00e9tude pr\u00e9cis\u00e9', r.intervalleOk) +
-    ind('Valeurs de variation indiqu\u00e9es', r.varOk);
+    ess('f varie de \u2026 \u00e0 \u2026 (les deux valeurs)', r.variation) +
+    ess('Continuit\u00e9 de la fonction', r.continuite) +
+    ess('Strictement monotone (bon sens)', r.monotonie) +
+    ess('Une UNIQUE solution', r.unicite) +
+    ind('Th\u00e9or\u00e8me des valeurs interm\u00e9diaires cit\u00e9 (facultatif)', r.thmOk) +
+    ind('Intervalle pr\u00e9cis\u00e9 (facultatif)', r.intervalleOk) +
+    ind('k encadr\u00e9 (facultatif)', r.encadreOk);
 }
 
 async function startTVI2(){
@@ -2409,29 +2422,48 @@ function renderTVI2(){
   const ta=$('tvi2Input'); ta.value=''; ta.disabled=false;
   setTimeout(()=>ta.focus(),60);
 }
-function checkTVI2(){
-  if(test.locked) return;
+let tvi2Busy=false;
+async function checkTVI2(){
+  if(test.locked||tvi2Busy) return;
   const c=test.questions[test.idx], raw=$('tvi2Input').value;
   if(raw.trim().length<10){ toast('\u00c9cris ta justification d\u2019abord'); return; }
-  const r=evalJustif(c, raw);
-  renderJustifCheck(r);
-  if(!r.allEssential && isSoutien()){
-    $('tvi2Feedback').textContent='Il manque des \u00e9l\u00e9ments essentiels (en rouge). Compl\u00e8te ta justification, puis rev\u00e9rifie.';
-    $('tvi2Feedback').className='mp-feedback bad';
+  tvi2Busy=true;
+  $('tvi2Actions').innerHTML='<button class="btn btn-primary" disabled>V\u00e9rification\u2026</button>';
+  $('tvi2Feedback').textContent='L\u2019IA relit ta r\u00e9daction\u2026'; $('tvi2Feedback').className='mp-feedback muted';
+  const local=evalJustif(c, raw);
+  let crit=null, fb='', viaIA=false;
+  try{
+    const donnees='montrer que l\u2019\u00e9quation '+c.fname+'('+c.v+') = '+c.kL+' admet une unique solution. '
+      +'f est continue sur \u211d, strictement '+c.sens+', et varie de '+c.vGL+' \u00e0 '+c.vDL+'.';
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'redaction', question:donnees, reponse:raw, balises:true } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.error) throw new Error(d.error);
+    if(d && d.criteres){ crit=d.criteres; fb=d.feedback||''; viaIA=true; }
+  }catch(e){ /* IA injoignable : on retombe sur l'analyse locale par mots-cl\u00e9s */ }
+  tvi2Busy=false;
+  if(!crit) crit={ variation:local.varOk, continuite:local.contOk, monotonie:local.sensOk, unicite:local.uniqOk };
+  renderJustifCheck({ ...crit, thmOk:local.thmOk, intervalleOk:local.intervalleOk, encadreOk:local.encadreOk });
+  const allOk = crit.variation && crit.continuite && crit.monotonie && crit.unicite;
+  const fbHTML = viaIA && fb ? conseilHTML(fb) : '';
+  const localNote = viaIA ? '' : '<div class="muted" style="margin-top:6px">IA indisponible : v\u00e9rification simplifi\u00e9e par mots-cl\u00e9s.</div>';
+  if(!allOk && isSoutien()){
+    $('tvi2Feedback').innerHTML=(fbHTML || 'Il manque des \u00e9l\u00e9ments requis (en rouge). Compl\u00e8te ta justification, puis rev\u00e9rifie.')+localNote;
+    $('tvi2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
     $('tvi2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI2()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
-  if(r.allEssential){
+  if(allOk){
     test.score++; $('tvi2LiveScore').textContent=test.score;
-    $('tvi2Feedback').textContent=pick(['Justification compl\u00e8te, bravo !','Tr\u00e8s bien r\u00e9dig\u00e9 !','Parfait, tous les arguments y sont !']);
-    $('tvi2Feedback').className='mp-feedback good';
+    $('tvi2Feedback').innerHTML=(fbHTML || esc(pick(['Justification compl\u00e8te, bravo !','Tr\u00e8s bien r\u00e9dig\u00e9 !','Parfait, tous les arguments y sont !'])))+localNote;
+    $('tvi2Feedback').className='mp-feedback '+(fbHTML?'iafb':'good');
   } else {
-    $('tvi2Feedback').innerHTML='Il manque des arguments essentiels. Une justification correcte :<div class="tvi-model">'+esc(modelJustif(c))+'</div>';
-    $('tvi2Feedback').className='mp-feedback bad';
+    $('tvi2Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Il manque des arguments requis. ')+'Une justification correcte :<div class="tvi-model">'+esc(modelJustif(c))+'</div>'+localNote;
+    $('tvi2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
     $('tvi2Input').disabled=true;
   }
-  test.answers.push({q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:r.allEssential?'\u2713':'incompl\u00e8te', correct:r.allEssential, type:'tvi'});
+  test.answers.push({q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incompl\u00e8te', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tvi2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI2()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
