@@ -1334,7 +1334,7 @@ function conseilCourant(){
     c="Exercice de RÉDACTION : démontrer que l'équation "+q.fname+"("+q.v+") = "+q.kL+" admet une unique solution sur \u211d. "
      +"Données vraies : "+q.fname+" est continue sur \u211d, strictement "+q.sens+", et varie de "+q.vGL+" à "+q.vDL+". "
      +"Le barème exige QUATRE idées : (1) "+q.fname+" varie de "+q.vGL+" à "+q.vDL+" (les deux valeurs) ; (2) continuité ; (3) strictement monotone — ou strictement "+q.sens+" ; (4) l'équation admet UNE UNIQUE solution. "
-     +"NE demande PAS d'encadrer k, NI de préciser l'intervalle, NI de citer le théorème des valeurs intermédiaires : ces éléments sont facultatifs. "
+     +"L'intervalle et la citation du théorème des valeurs intermédiaires sont facultatifs : ne les exige pas — mais si l'élève a écrit un intervalle FAUX (par exemple les valeurs de f en guise de bornes), corrige-le. Ne parle JAMAIS de l'encadrement de k : ni pour le demander, ni pour le corriger. "
      +(txt ? "Texte actuel de l'élève : « "+txt+" ». Dis-lui laquelle des quatre idées manque ou est mal formulée, sans rédiger la phrase à sa place."
            : "L'élève n'a encore rien écrit : aide-le à démarrer en lui rappelant la première idée à poser, sans rédiger à sa place.");
   } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
@@ -2376,11 +2376,10 @@ function evalJustif(c, raw){
   const kOk = jHasVal(n, c.kL);
   const intervalleOk = (jHasVal(n,c.aLabel) && jHasVal(n,c.bLabel)) || /sur r\b|reels|l'intervalle/.test(n);
   const varOk = jHasVal(n, c.vGL) && jHasVal(n, c.vDL);
-  const encadreOk = /compris|entre|encadr|inferieur|superieur|appartient/.test(n) || /[<>]/.test(raw);
   /* Critères requis (choix pédagogique) : valeurs de variation, continuité, stricte monotonie,
      unicité. Citer le TVI, préciser l'intervalle ou encadrer k restent facultatifs. */
   const allEssential = contOk && sensOk && uniqOk && varOk;
-  return { contOk, sensOk, thmOk, uniqOk, kOk, intervalleOk, varOk, encadreOk, allEssential };
+  return { contOk, sensOk, thmOk, uniqOk, kOk, intervalleOk, varOk, allEssential };
 }
 /* Justification mod\u00e8le, affich\u00e9e en correction. */
 function modelJustif(c){
@@ -2396,8 +2395,7 @@ function renderJustifCheck(r){
     ess('Strictement monotone (bon sens)', r.monotonie) +
     ess('Une UNIQUE solution', r.unicite) +
     ind('Th\u00e9or\u00e8me des valeurs interm\u00e9diaires cit\u00e9 (facultatif)', r.thmOk) +
-    ind('Intervalle pr\u00e9cis\u00e9 (facultatif)', r.intervalleOk) +
-    ind('k encadr\u00e9 (facultatif)', r.encadreOk);
+    ind('Intervalle pr\u00e9cis\u00e9 (facultatif)', r.intervalleOk);
 }
 
 async function startTVI2(){
@@ -2433,8 +2431,10 @@ async function checkTVI2(){
   const local=evalJustif(c, raw);
   let crit=null, fb='', viaIA=false;
   try{
+    const I=c.leftBrk+c.aLabel+' ; '+c.bLabel+c.rightBrk;
     const donnees='montrer que l\u2019\u00e9quation '+c.fname+'('+c.v+') = '+c.kL+' admet une unique solution. '
-      +'f est continue sur \u211d, strictement '+c.sens+', et varie de '+c.vGL+' \u00e0 '+c.vDL+'.';
+      +'Intervalle d\u2019\u00e9tude de r\u00e9f\u00e9rence : '+I+' (l\u2019\u00e9nonc\u00e9 dit aussi \u00ab sur \u211d \u00bb : les deux sont admis si l\u2019\u00e9l\u00e8ve en \u00e9crit un). '
+      +'Sur cet intervalle, '+c.fname+' est continue, strictement '+c.sens+', et varie de '+c.vGL+' \u00e0 '+c.vDL+'.';
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'redaction', question:donnees, reponse:raw, balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
@@ -2443,7 +2443,7 @@ async function checkTVI2(){
   }catch(e){ /* IA injoignable : on retombe sur l'analyse locale par mots-cl\u00e9s */ }
   tvi2Busy=false;
   if(!crit) crit={ variation:local.varOk, continuite:local.contOk, monotonie:local.sensOk, unicite:local.uniqOk };
-  renderJustifCheck({ ...crit, thmOk:local.thmOk, intervalleOk:local.intervalleOk, encadreOk:local.encadreOk });
+  renderJustifCheck({ ...crit, thmOk:local.thmOk, intervalleOk:local.intervalleOk });
   const allOk = crit.variation && crit.continuite && crit.monotonie && crit.unicite;
   const fbHTML = viaIA && fb ? conseilHTML(fb) : '';
   const localNote = viaIA ? '' : '<div class="muted" style="margin-top:6px">IA indisponible : v\u00e9rification simplifi\u00e9e par mots-cl\u00e9s.</div>';
