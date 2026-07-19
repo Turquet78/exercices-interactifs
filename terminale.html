@@ -369,7 +369,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -915,6 +915,23 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     </div>
   </section>
 
+  <!-- TEST : TVI — CONTRE-EXEMPLES -->
+  <section class="screen" id="scr-tvi3">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvi3ModeTag"></span><span class="q-idx" id="tvi3QIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="tvi3LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card">
+      <p class="tvi-prompt" id="tvi3Prompt"></p>
+      <div class="tvi-table" id="tvi3Table"></div>
+      <p class="tvi-instr">Rédige ton explication :</p>
+      <div class="tvi-tools"><button type="button" class="btn btn-ghost tvi-inf" id="tvi3InfBtn" onclick="tvi3Insert('∞')" title="Insérer ∞ — tapez « inf » puis un espace ou une ponctuation, ou Ctrl + I (⌘ + I sur Mac)">∞</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AlphaBtn" onclick="tvi3Insert('α')" title="Insérer α — tapez « alp » puis un espace ou une ponctuation, ou Ctrl + B (⌘ + B sur Mac)">α</button><button type="button" class="btn btn-ghost tvi-inf" id="tvi3AppBtn" onclick="tvi3Insert('∈')" title="Insérer ∈ (appartient) — tapez « app » puis un espace ou une ponctuation">∈</button><span class="muted">tapez inf / alp / app puis espace → ∞ / α / ∈</span></div>
+      <textarea class="tvi-textarea" id="tvi3Input" rows="4" placeholder="Explique pourquoi on ne peut pas appliquer le TVI ici (encadrement de la valeur cherchée, stricte monotonie, continuité / valeur interdite…)" autocomplete="off"></textarea>
+      <div class="mp-feedback" id="tvi3Feedback"></div>
+      <div class="mp-actions" id="tvi3Actions"></div>
+    </div>
+  </section>
+
   <!-- TEST : DÉRIVÉE EXPONENTIELLE -->
   <section class="screen" id="scr-dexp">
     <div class="test-top">
@@ -1214,6 +1231,7 @@ const TESTS={
   'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
+  'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
@@ -1232,7 +1250,7 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'Étude de fonction',  ids:['equation-tangente','tvi','tvi-redaction'] }
+  { num:3, nom:'Étude de fonction',  ids:['equation-tangente','tvi','tvi-redaction','tvi-contre-exemples'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1351,6 +1369,18 @@ function conseilCourant(){
      +"CONTRAINTE ANTI-RECOPIE (essentielle : l'élève peut coller ton conseil dans sa rédaction) : ta réponse ne doit contenir NI les deux valeurs de variation de cet exercice, NI aucune phrase collable telle quelle dans une rédaction. Désigne chaque idée manquante par son RÔLE — par exemple « il manque la phrase donnant les deux valeurs entre lesquelles "+q.fname+" varie : lis-les dans le tableau » ou « il manque la conclusion sur le nombre de solutions ». Si une valeur écrite par l'élève est fausse, dis LAQUELLE est fausse sans donner la bonne. "
      +(txt ? "Texte actuel de l'élève : « "+txt+" ». Dis-lui laquelle des quatre idées manque ou est mal formulée."
            : "L'élève n'a encore rien écrit : aide-le à démarrer en lui indiquant le rôle de la première idée à poser.");
+  } else if(test && test.kind==='tvi3' && test.questions && test.questions[test.idx]){
+    /* ---- 3.4 contre-exemples TVI : rédaction courte ; l'IA guide sans donner la phrase ---- */
+    const q=test.questions[test.idx];
+    const txt=($('tvi3Input')&&$('tvi3Input').value||'').trim().slice(0,600);
+    const dsc=tvi3TableTexte(q);
+    const attendu=(q.raison==='horsbornes')?(q.kL+' n’est pas compris entre '+q.vGL+' et '+q.vDL)
+      :(q.raison==='nonmonotone')?(q.fname+' n’est pas strictement monotone : l’équation '+q.fname+'('+q.v+') = '+q.kL+' admet DEUX solutions')
+      :(q.fname+' n’est pas continue ('+q.v+' = '+q.cLabel+' est une valeur interdite)');
+    c='Exercice : expliquer en une ou deux phrases pourquoi le théorème des valeurs intermédiaires ne permet PAS d’affirmer que '+q.fname+'('+q.v+') = '+q.kL+' admet une unique solution sur '+tvi3Intervalle(q)+'. Description exacte du tableau de variation (tu ne vois pas l’image) : '+dsc
+     +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
+     +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
+     +(txt ? ' Texte actuel de l’élève : « '+txt+' ». Dis-lui ce qui manque ou ce qui est faux, par son rôle, sans écrire la phrase attendue.' : ' L’élève n’a encore rien écrit : aide-le à démarrer en lui demandant de vérifier une à une les hypothèses du théorème sur le tableau.');
   } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
     /* ---- 1.3 lecture graphique : l'IA ne voit PAS l'image, on lui decrit la courbe
             et l'etat des deux tableaux a partir des donnees de la question ---- */
@@ -1690,7 +1720,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1710,7 +1740,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -2365,6 +2395,262 @@ function checkTVI(live){
 }
 function nextTVI(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI(); } else finishTest(); }
 
+/* ====================== TEST : TVI — contre-exemples (le TVI ne conclut pas) ====================== */
+/* D’après le document « Test TVI 2 » : 3 familles de tableaux où le TVI ne permet PAS
+   d’affirmer que f(x) = k admet une unique solution. L’énoncé donne l’intervalle d’étude
+   (avec, le cas échéant, une valeur interdite) et l’élève RÉDIGE son explication (champ du 3.3).
+   - 'horsbornes'  : f continue et strictement monotone… mais k n’est pas compris entre les valeurs de f ;
+   - 'nonmonotone' : f continue mais change de sens (V ou Λ) : f(x) = k admet DEUX solutions ;
+   - 'noncontinue' : VALEUR INTERDITE (double barre). Les images à gauche et à droite de la barre ne sont
+     PAS affichées, et k est compris entre la première et la dernière image du tableau : la seule
+     hypothèse en défaut est la continuité.
+   Un test = 5 essais avec AU MOINS une question de chaque famille (même principe que le 2nd degré niv. 1). */
+function tvi3Bornes(interieur){
+  const aInf=rand(0,2)===0, bInf=rand(0,2)===0;
+  const a0=aInf?null:rand(-4,1);
+  let c0=null,b0=null;
+  if(interieur){ c0=(a0===null?rand(-2,2):a0+rand(2,4)); b0=bInf?null:c0+rand(2,5); }
+  else { b0=bInf?null:(a0===null?rand(2,6):a0+rand(4,8)); }
+  return { aLabel:aInf?'−∞':numFmt(a0), leftBrk:aInf?']':(rand(0,1)?'[':']'),
+           bLabel:bInf?'+∞':numFmt(b0), rightBrk:bInf?'[':(rand(0,1)?']':'['),
+           cLabel:(c0===null?'':numFmt(c0)) };
+}
+/* f continue, strictement monotone… mais k HORS des valeurs prises par f (exemples 1 et 2 du document) */
+function genTVI3Hors(){
+  const v=rand(0,1)?'t':'x', fname=pick(['f','g']);
+  const croissante=rand(0,1)===1;
+  const B=tvi3Bornes(false);
+  let gInf=B.leftBrk===']'&&rand(0,2)===0, dInf=B.rightBrk==='['&&rand(0,2)===0;
+  if(gInf&&dInf){ if(rand(0,1)) gInf=false; else dInf=false; }   /* au moins une valeur finie, sinon k serait toujours encadré */
+  let vG,vD;
+  if(croissante){ vG=gInf?-Infinity:rand(-6,2); vD=dInf?Infinity:(isFinite(vG)?vG:-3)+rand(3,7); }
+  else          { vG=gInf?Infinity:rand(2,8);  vD=dInf?-Infinity:(isFinite(vG)?vG:3)-rand(3,7); }
+  const lo=Math.min(vG,vD), hi=Math.max(vG,vD);
+  const cotes=[]; if(isFinite(lo)) cotes.push('bas'); if(isFinite(hi)) cotes.push('haut');
+  const k=(pick(cotes)==='bas')?lo-rand(1,4):hi+rand(1,4);
+  return { type:'tvi3', shape:'mono', raison:'horsbornes', v, fname, croissante,
+    aLabel:B.aLabel,leftBrk:B.leftBrk,bLabel:B.bLabel,rightBrk:B.rightBrk,cLabel:'',
+    vGL:vlabel(vG), vDL:vlabel(vD), kL:numFmt(k) };
+}
+/* f continue mais change de sens (V ou Λ) : k est atteint DEUX fois (exemple 3 du document) */
+function genTVI3Mono(){
+  const v=rand(0,1)?'t':'x', fname=pick(['f','g']);
+  const extr=pick(['min','max']);
+  const B=tvi3Bornes(true);
+  const gInf=B.leftBrk===']'&&rand(0,2)===0, dInf=B.rightBrk==='['&&rand(0,2)===0;
+  let vM,vG,vD,k;
+  if(extr==='min'){
+    vM=rand(-4,1);
+    vG=gInf?Infinity:vM+rand(2,6);
+    vD=dInf?Infinity:vM+rand(2,6);
+    const haut=Math.min(isFinite(vG)?vG:1e9, isFinite(vD)?vD:1e9);
+    k=(haut>=1e9)?vM+rand(1,4):vM+rand(1,haut-vM-1);
+  } else {
+    vM=rand(0,5);
+    vG=gInf?-Infinity:vM-rand(2,6);
+    vD=dInf?-Infinity:vM-rand(2,6);
+    const bas=Math.max(isFinite(vG)?vG:-1e9, isFinite(vD)?vD:-1e9);
+    k=(bas<=-1e9)?vM-rand(1,4):vM-rand(1,vM-bas-1);
+  }
+  return { type:'tvi3', shape:'v', raison:'nonmonotone', v, fname, extr,
+    aLabel:B.aLabel,leftBrk:B.leftBrk,bLabel:B.bLabel,rightBrk:B.rightBrk,cLabel:B.cLabel,
+    vGL:vlabel(vG), vML:vlabel(vM), vDL:vlabel(vD), kL:numFmt(k) };
+}
+/* Valeur interdite (double barre) : f non continue. k est choisi STRICTEMENT entre la première et la
+   dernière image du tableau — et même dans le « saut » (aucune solution), invisible puisque les
+   images autour de la barre ne sont pas affichées. Flèches de même sens : la monotonie tient. */
+function genTVI3Cont(){
+  const v=rand(0,1)?'t':'x', fname=pick(['f','g']);
+  const croissante=rand(0,1)===1;
+  const B=tvi3Bornes(true);
+  const gInf=B.leftBrk===']'&&rand(0,2)===0, dInf=B.rightBrk==='['&&rand(0,2)===0;
+  let L1,L2,vG,vD,k;
+  if(croissante){
+    L1=rand(-2,2); L2=L1+rand(2,5); k=L1+rand(1,L2-L1-1);
+    vG=gInf?-Infinity:L1-rand(2,6); vD=dInf?Infinity:L2+rand(2,6);
+  } else {
+    L1=rand(2,6); L2=L1-rand(2,5); k=L2+rand(1,L1-L2-1);
+    vG=gInf?Infinity:L1+rand(2,6); vD=dInf?-Infinity:L2-rand(2,6);
+  }
+  return { type:'tvi3', shape:'saut', raison:'noncontinue', v, fname, croissante,
+    aLabel:B.aLabel,leftBrk:B.leftBrk,bLabel:B.bLabel,rightBrk:B.rightBrk,cLabel:B.cLabel,
+    vGL:vlabel(vG), l1L:vlabel(L1), l2L:vlabel(L2), vDL:vlabel(vD), kL:numFmt(k) };
+}
+function genTVI3(genre){
+  if(genre==='horsbornes') return genTVI3Hors();
+  if(genre==='nonmonotone') return genTVI3Mono();
+  return genTVI3Cont();
+}
+/* Intervalle d’étude affiché dans l’énoncé ; ℝ si les deux bornes sont infinies ;
+   la valeur interdite est retirée avec la notation « \ {c} ». */
+function tvi3Intervalle(c){
+  const infG=String(c.aLabel).indexOf('∞')>=0, infD=String(c.bLabel).indexOf('∞')>=0;
+  let I=(infG&&infD)?'ℝ':(c.leftBrk+c.aLabel+' ; '+c.bLabel+c.rightBrk);
+  if(c.shape==='saut') I+=' \\ {'+c.cLabel+'}';
+  return I;
+}
+/* Tableau de variation SVG : monotone, en V/Λ, ou avec double barre (valeur interdite).
+   Cas « saut » : les images à gauche et à droite de la barre ne sont PAS écrites. */
+function tvi3SVG(c){
+  const fleche=(x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#tvi3Ah)"/>`;
+  const t=(x,y,txt,cls,anc)=>`<text x="${x}" y="${y}" class="tvi-t ${cls||''}" text-anchor="${anc||'middle'}">${txt}</text>`;
+  let corps='';
+  if(c.shape==='mono'){
+    const y1=c.croissante?118:60, y2=c.croissante?60:118;
+    corps=t(116,28,c.aLabel)+t(330,28,c.bLabel,'','end')
+      +fleche(116,y1,310,y2)
+      +t(116,(c.croissante?133:53),c.vGL,'tvi-v')+t(314,(c.croissante?53:133),c.vDL,'tvi-v');
+  } else if(c.shape==='v'){
+    corps=t(116,28,c.aLabel)+t(215,28,c.cLabel)+t(330,28,c.bLabel,'','end');
+    if(c.extr==='min') corps+=fleche(116,64,203,112)+fleche(227,112,310,64)
+      +t(116,53,c.vGL,'tvi-v')+t(215,133,c.vML,'tvi-v')+t(314,53,c.vDL,'tvi-v');
+    else corps+=fleche(116,112,203,64)+fleche(227,64,310,112)
+      +t(116,133,c.vGL,'tvi-v')+t(215,53,c.vML,'tvi-v')+t(314,133,c.vDL,'tvi-v');
+  } else {
+    corps=t(116,28,c.aLabel)+t(215,28,c.cLabel)+t(330,28,c.bLabel,'','end')
+      +`<line x1="212" y1="40" x2="212" y2="148" stroke="var(--ink)" stroke-width="1.5"/>`
+      +`<line x1="218" y1="40" x2="218" y2="148" stroke="var(--ink)" stroke-width="1.5"/>`;
+    if(c.croissante) corps+=fleche(116,114,200,64)+fleche(230,114,310,64)
+      +t(116,133,c.vGL,'tvi-v')+t(314,53,c.vDL,'tvi-v');
+    else corps+=fleche(116,64,200,114)+fleche(230,64,310,114)
+      +t(116,53,c.vGL,'tvi-v')+t(314,133,c.vDL,'tvi-v');
+  }
+  return `<svg viewBox="0 0 340 152" xmlns="http://www.w3.org/2000/svg" class="tvi-svg">
+    <defs><marker id="tvi3Ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="var(--blue)"/></marker></defs>
+    <line x1="96" y1="6" x2="96" y2="148" stroke="var(--line)" stroke-width="1.5"/>
+    <line x1="2" y1="40" x2="338" y2="40" stroke="var(--line)" stroke-width="1.5"/>
+    <text x="48" y="28" class="tvi-t tvi-it" text-anchor="middle">${c.v}</text>
+    <text x="48" y="92" class="tvi-t tvi-vr" text-anchor="middle">Variation</text>
+    <text x="48" y="106" class="tvi-t tvi-vr" text-anchor="middle">de ${c.fname}(${c.v})</text>
+    ${corps}
+  </svg>`;
+}
+/* Description textuelle exacte du tableau (partagée : vérification IA + conseil IA). */
+function tvi3TableTexte(c){
+  if(c.shape==='mono') return c.fname+' est continue et strictement '+(c.croissante?'croissante':'décroissante')+' : elle varie de '+c.vGL+' à '+c.vDL+' sur '+tvi3Intervalle(c)+'.';
+  if(c.shape==='v') return c.fname+' est continue sur '+tvi3Intervalle(c)+' mais change de sens en '+c.v+' = '+c.cLabel+' : elle '+(c.extr==='min'?('décroît de '+c.vGL+' à '+c.vML+' puis croît jusqu’à '+c.vDL):('croît de '+c.vGL+' à '+c.vML+' puis décroît jusqu’à '+c.vDL))+'.';
+  return 'le tableau a une DOUBLE BARRE en '+c.v+' = '+c.cLabel+' (valeur interdite : '+c.fname+' n’est pas continue). Les images autour de la barre ne sont pas affichées ; la première image est '+c.vGL+', la dernière '+c.vDL+', et '+c.kL+' est compris entre les deux.';
+}
+/* Question et attendu envoyés à l’IA (action 'verif', comme les niveaux 2 du thème 2) :
+   le barème de chaque famille vit dans l’attendu, l’IA renvoie { correct, feedback }. */
+function tvi3QuestionIA(c){
+  return 'Expliquer pourquoi le théorème des valeurs intermédiaires (TVI) ne permet PAS d’affirmer que l’équation '
+    +c.fname+'('+c.v+') = '+c.kL+' admet une unique solution sur '+tvi3Intervalle(c)
+    +'. Tableau de variation (description exacte) : '+tvi3TableTexte(c)
+    +' [La réponse de l’élève est une ou deux phrases en français, pas un calcul.]';
+}
+function tvi3AttenduIA(c){
+  if(c.raison==='horsbornes'){
+    const loL=(tviNumKey(c.vGL)<tviNumKey(c.vDL))?c.vGL:c.vDL, hiL=(loL===c.vGL)?c.vDL:c.vGL;
+    return c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL+' (les valeurs prises par '+c.fname+'). '
+      +'ÉGALEMENT CORRECT, toute formulation équivalente : « '+c.kL+' n’est pas entre '+c.vGL+' et '+c.vDL+' », '
+      +'« '+c.kL+' ∉ ['+loL+' ; '+hiL+'] », « '+c.kL+' dépasse le maximum / est sous le minimum de '+c.fname+' ». '
+      +'EXIGENCE : la valeur '+c.kL+' ET les deux valeurs '+c.vGL+' et '+c.vDL+' doivent être citées (ordre libre). '
+      +'FAUX si l’élève invoque la continuité ou la monotonie (elles sont vérifiées ici) ou cite d’autres valeurs.';
+  }
+  if(c.raison==='nonmonotone'){
+    return c.fname+' n’est pas strictement monotone (elle change de sens) — OU, autre réponse correcte : '
+      +'l’équation '+c.fname+'('+c.v+') = '+c.kL+' admet deux solutions. '
+      +'Toute formulation équivalente est correcte (« pas strictement croissante », « pas strictement décroissante », « change de variation ») ; citer des valeurs n’est pas exigé. '
+      +'FAUX si l’élève invoque la continuité, ou dit que '+c.kL+' n’est pas encadré (il l’est).';
+  }
+  return c.fname+' n’est pas continue : '+c.v+' = '+c.cLabel+' est une valeur interdite (double barre du tableau). '
+    +'ÉGALEMENT CORRECT : « '+c.fname+' est discontinue », « il y a une valeur interdite en '+c.cLabel+' ». '
+    +'FAUX si l’élève invoque la monotonie (les flèches vont dans le même sens) ou l’encadrement de '+c.kL+' (il est bien compris entre la première et la dernière image).';
+}
+/* Réponse modèle, affichée en correction. */
+function tvi3Model(c){
+  const I=tvi3Intervalle(c);
+  if(c.raison==='horsbornes') return 'Le TVI ne permet pas de conclure car '+c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL+'.';
+  if(c.raison==='nonmonotone') return 'Le TVI ne permet pas de conclure car '+c.fname+' n’est pas strictement monotone sur '+I+' (elle change de sens) : l’équation '+c.fname+'('+c.v+') = '+c.kL+' admet en fait deux solutions.';
+  return 'Le TVI ne permet pas de conclure car '+c.fname+' n’est pas continue sur son ensemble de définition ('+c.v+' = '+c.cLabel+' est une valeur interdite).';
+}
+/* Texte de la raison attendue, pour la page de résultats et le tableau de bord. */
+function tvi3RaisonTexte(c){
+  if(c.raison==='horsbornes') return c.kL+' n’est pas compris entre '+c.vGL+' et '+c.vDL;
+  if(c.raison==='nonmonotone') return c.fname+' n’est pas strictement monotone ('+c.fname+'('+c.v+') = '+c.kL+' admet deux solutions)';
+  return c.fname+' n’est pas continue ('+c.v+' = '+c.cLabel+' est une valeur interdite)';
+}
+async function startTVI3(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='tvi-contre-exemples'; test.kind='tvi3';
+  const n=5;                                                         /* 5 essais pour valider l’exercice */
+  const plan=['horsbornes','nonmonotone','noncontinue'];             /* les 3 types de réponses sont garantis */
+  while(plan.length<n) plan.push(pick(['horsbornes','nonmonotone','noncontinue']));
+  for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const tmp=plan[i]; plan[i]=plan[j]; plan[j]=tmp; }
+  test.questions=plan.map(g=>genTVI3(g));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('tvi3'); renderTVI3();
+}
+function renderTVI3(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];   /* les conseils de la question précédente ne concernent plus celle-ci */
+  $('tvi3QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('tvi3ModeTag').innerHTML=modeTagHTML();
+  $('tvi3LiveScore').textContent=test.score;
+  $('tvi3Feedback').textContent=''; $('tvi3Feedback').className='mp-feedback';
+  $('tvi3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI3()">Vérifier mon explication</button>';
+  const vi=(c.shape==='saut')?` (${c.v} = ${c.cLabel} est une valeur interdite)`:'';
+  $('tvi3Prompt').innerHTML=`Soit <i>${c.fname}</i> définie sur ${esc(tvi3Intervalle(c))}${vi}, dont le tableau de variation est donné ci-dessous. Explique pourquoi le TVI ne permet <b>pas</b> d’affirmer que l’équation <i>${c.fname}</i>(${c.v}) = ${c.kL} admet une <b>unique</b> solution.`;
+  $('tvi3Table').innerHTML=tvi3SVG(c);
+  const ta=$('tvi3Input'); ta.value=''; ta.disabled=false;
+  ['tvi3InfBtn','tvi3AlphaBtn','tvi3AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=false; });
+  setTimeout(()=>ta.focus(),60);
+}
+let tvi3Busy=false;
+async function checkTVI3(){
+  if(test.locked||tvi3Busy) return;
+  const c=test.questions[test.idx], raw=$('tvi3Input').value;
+  if(raw.trim().length<5){ toast('Écris ton explication d’abord'); return; }
+  if(tvi2CopieConseil(raw)){
+    $('tvi3Feedback').textContent='On dirait le texte du conseil recopié tel quel. Le conseil te dit QUOI regarder — à toi de rédiger l’explication avec tes propres mots, en lisant le tableau. Cette tentative n’est pas comptée.';
+    $('tvi3Feedback').className='mp-feedback bad';
+    return;
+  }
+  tvi3Busy=true;
+  $('tvi3Actions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  $('tvi3Feedback').textContent='L’IA relit ton explication…'; $('tvi3Feedback').className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvi3QuestionIA(c), attendu:tvi3AttenduIA(c), reponse:raw, balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  tvi3Busy=false;
+  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
+     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
+  if(!res || res.error){
+    $('tvi3Feedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
+    $('tvi3Feedback').className='mp-feedback bad';
+    $('tvi3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI3()">Réessayer</button>';
+    return;
+  }
+  const correct=res.correct===true;
+  const fbHTML=conseilHTML(res.feedback||'');
+  if(!correct && isSoutien()){
+    $('tvi3Feedback').innerHTML=(fbHTML||'Ce n’est pas encore la bonne explication. Relis le tableau : parmi les hypothèses du TVI (continuité, stricte monotonie, encadrement de la valeur), laquelle est en défaut ? Corrige puis revérifie.');
+    $('tvi3Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('tvi3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVI3()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(correct){
+    test.score++; $('tvi3LiveScore').textContent=test.score;
+    $('tvi3Feedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien vu !','Excellent !','Exactement !'])));
+    $('tvi3Feedback').className='mp-feedback '+(fbHTML?'iafb':'good');
+  } else {
+    $('tvi3Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas la bonne explication. ')+'Une réponse correcte :<div class="tvi-model">'+esc(tvi3Model(c))+'</div>';
+    $('tvi3Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('tvi3Input').disabled=true;
+    ['tvi3InfBtn','tvi3AlphaBtn','tvi3AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=true; });
+  }
+  test.answers.push({q:'Explication : '+c.fname+'('+c.v+') = '+c.kL+' sur '+tvi3Intervalle(c)+' — attendu : '+tvi3RaisonTexte(c), answer:'explication', given:correct?'✓':'incomplet', correct:correct, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('tvi3Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextTVI3(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI3(); } else finishTest(); }
+
 /* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
 /* Normalisation : minuscules, sans accents, espaces compactés. */
 function jNorm(s){
@@ -2528,8 +2814,8 @@ async function checkTVI2(){
 function nextTVI2(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI2(); } else finishTest(); }
 /* Boutons de symboles du 3.3 : insertion à la position du curseur, en préservant
    l'annulation (Ctrl+Z) quand le navigateur le permet, sinon repli setRangeText + input. */
-function tvi2Insert(ch){
-  const ta=$('tvi2Input'); if(!ta||ta.disabled) return;
+function tviInsertIn(taId, ch){
+  const ta=$(taId); if(!ta||ta.disabled) return;
   ta.focus();
   let done=false;
   try{ done=document.execCommand && document.execCommand('insertText', false, ch); }catch(e){ done=false; }
@@ -2538,6 +2824,8 @@ function tvi2Insert(ch){
   ta.setRangeText(ch, st, en, 'end');
   ta.dispatchEvent(new Event('input',{bubbles:true}));
 }
+function tvi2Insert(ch){ tviInsertIn('tvi2Input', ch); }
+function tvi3Insert(ch){ tviInsertIn('tvi3Input', ch); }
 /* Raccourcis quand la zone de rédaction a le focus : Ctrl+I → ∞, Ctrl+B → α (⌘ sur Mac).
    Ni Ctrl+I ni Ctrl+B n'ont d'action par défaut dans un textarea — interception sans rien casser.
    (Ctrl+A reste la sélection de tout le texte, on n'y touche pas.) */
@@ -2567,12 +2855,12 @@ function tvi2AutoSymbol(e){
     ta.dispatchEvent(new Event('input',{bubbles:true}));
   }
 }
-document.addEventListener('input', e=>{ if(e.target && e.target.id==='tvi2Input') tvi2AutoSymbol(e); });
+document.addEventListener('input', e=>{ if(e.target && (e.target.id==='tvi2Input'||e.target.id==='tvi3Input')) tvi2AutoSymbol(e); });
 document.addEventListener('keydown', e=>{
   const ch=TVI2_KEYS[String(e.key).toLowerCase()];
   if(ch && (e.ctrlKey||e.metaKey) && !e.altKey && !e.shiftKey
-     && document.activeElement && document.activeElement.id==='tvi2Input'){
-    e.preventDefault(); tvi2Insert(ch);
+     && document.activeElement && (document.activeElement.id==='tvi2Input'||document.activeElement.id==='tvi3Input')){
+    e.preventDefault(); tviInsertIn(document.activeElement.id, ch);
   }
 });
 
