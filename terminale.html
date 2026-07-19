@@ -369,7 +369,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -472,6 +472,19 @@
 .tvg-vide:disabled{opacity:.5;cursor:default;}
 .tvg-hint{color:var(--ink-soft);font-size:.85rem;font-weight:600;white-space:nowrap;}
 .tvg-hint kbd{font-family:inherit;background:#eef2fa;border:1px solid #c9d3e8;border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-weight:800;color:var(--ink);}
+
+/* --- Test Équation de droite horizontale ou verticale --- */
+.dhv-q{margin:12px 0;font-weight:700;color:var(--ink);line-height:2.4;}
+.dhv-in{width:52px;padding:7px 6px;border:2px solid #c9d3e8;border-radius:9px;font:inherit;font-weight:700;text-align:center;color:var(--ink);background:var(--surface);}
+.dhv-in:focus{outline:none;border-color:var(--blue);}
+.dhv-in.ok{border-color:var(--green);background:var(--green-soft);}
+.dhv-in.bad{border-color:var(--red);background:#fdecee;}
+.dhv-in:disabled{opacity:.95;}
+.dhv-var{width:44px;font-style:italic;}
+.dhv-q .dhv-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 9px;font-weight:800;font-size:.9rem;margin-left:2px;}
+.dhv-lab{font-size:13px;font-weight:700;fill:#111827;}
+.dhv-svg{max-width:380px;}
+.dhv-eqgrp{white-space:nowrap;}
 .tvg-solzone .tvg-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.92rem;}
 
 
@@ -693,7 +706,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp28</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp30</b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -994,6 +1007,21 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <div class="tvg-solzone" id="tvgSolZone"></div>
       <div class="mp-feedback" id="tvgFeedback"></div>
       <div class="mp-actions" id="tvgActions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : ÉQUATION DE DROITE HORIZONTALE OU VERTICALE -->
+  <section class="screen" id="scr-dhv">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="dhvModeTag"></span><span class="q-idx" id="dhvQIdx">Question 1 / 2</span></span>
+      <span class="score-tag">Score&nbsp;<b id="dhvLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="dhvPrompt"></p>
+      <div class="sv-graph" id="dhvGraph"></div>
+      <div id="dhvBlocs"></div>
+      <div class="mp-feedback" id="dhvFeedback"></div>
+      <div class="mp-actions" id="dhvActions"></div>
     </div>
   </section>
 
@@ -1299,6 +1327,7 @@ const TESTS={
   'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
   'tvi-lecture-graphique': { name:'TVI — solutions sur le graphique', icon:'📍', desc:'Clique sur la courbe le ou les points vérifiant f(x) = k, puis sur l’axe des abscisses les solutions, puis écris-les ; l’IA vérifie tes réponses.', start:()=>startTVG() },
+  'equation-droite-h-v': { name:'Équation de droite horizontale ou verticale', icon:'📏', desc:'Lis les droites tracées dans le repère et écris leurs équations (y = … ou x = …) ; l’IA vérifie tes réponses.', start:()=>startDHV() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
@@ -1317,8 +1346,9 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
-  { num:4, nom:'Étude de fonction',  ids:['equation-tangente'] }
+  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v'] },
+  { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
+  { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1449,6 +1479,14 @@ function conseilCourant(){
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
      +(txt ? ' Texte actuel de l’élève : « '+txt+' ». Dis-lui ce qui manque ou ce qui est faux, par son rôle, sans écrire la phrase attendue.' : ' L’élève n’a encore rien écrit : aide-le à démarrer en lui demandant de vérifier une à une les hypothèses du théorème sur le tableau.');
+  } else if(test && test.kind==='dhv' && test.questions && test.questions[test.idx]){
+    /* ---- 3.1 équations de droites horizontales / verticales ---- */
+    const q=test.questions[test.idx];
+    const valsC={}; dhvAttentes(q).forEach(a=>{ const el=document.getElementById(a[0]); valsC[a[0]]=el?String(el.value||'').trim():''; });
+    c='Exercice de lecture de repère (tu ne vois pas l’image ; description exacte) : '+dhvQuestionIA(q)
+     +' Réponses attendues (à ne JAMAIS révéler) : '+dhvAttentes(q).map(a=>a[3]+' = '+(a[2]==='var'?a[1]:numFmt(a[1]))).join(' ; ')+'. '
+     +'Saisies actuelles de l’élève : '+dhvReponseTxt(valsC)+' '
+     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE valeur correcte. Méthode à faire appliquer : une droite horizontale relie des points qui ont tous la même ordonnée, son équation est y = cette ordonnée ; une droite verticale : x = l’abscisse commune ; l’axe des abscisses est la droite y = 0 et l’axe des ordonnées la droite x = 0. Guide case par case sans donner les nombres.';
   } else if(test && test.kind==='tvg' && test.questions && test.questions[test.idx]){
     /* ---- 3.6 solutions sur le graphique : l'IA guide sans donner les coordonnées ---- */
     const q=test.questions[test.idx];
@@ -1456,7 +1494,7 @@ function conseilCourant(){
     const elS=document.getElementById('tvgSol'), ecrS=elS?String(elS.value||'').trim():'';
     c='Exercice de LECTURE GRAPHIQUE (tu ne vois pas l’image ; description exacte de la courbe) : '+q.desc
      +' L’équation étudiée est '+q.fname+'(x) = '+q.kL+'. L’élève doit : a) cliquer sur la courbe le ou les points vérifiant l’équation ; b) cliquer sur les solutions sur l’axe des abscisses ; c) écrire les solutions séparées par des points-virgules (∅ si aucune). '
-     +'Réponses attendues (à ne JAMAIS révéler, ni coordonnées ni nombre de solutions) : points '+q.sols.map(s=>'('+numFmt(s)+' ; '+q.kL+')').join(', ')+' ; abscisses '+q.sols.map(s=>numFmt(s)).join(', ')+'. '
+     +'Réponses attendues (à ne JAMAIS révéler, ni coordonnées ni nombre de solutions) : '+(q.sols.length?('points '+q.sols.map(s=>'('+numFmt(s)+' ; '+q.kL+')').join(', ')+' ; abscisses '+q.sols.map(s=>numFmt(s)).join(', ')):'aucune solution — la bonne réponse est de ne RIEN sélectionner et d’écrire ∅ à la question c')+'. '
      +'Sélections actuelles de l’élève : points de la courbe d’abscisses ['+(selP.map(n=>numFmt(n)).join(', ')||'aucun')+'] ; abscisses ['+(selX.map(n=>numFmt(n)).join(', ')||'aucune')+'] ; écriture actuelle à la question c : « '+ecrS+' ». '
      +'CONTRAINTE ANTI-RECOPIE : ta réponse ne doit citer AUCUNE coordonnée ni aucun nombre de solutions. Méthode à faire appliquer : imaginer la droite horizontale y = '+q.kL+', repérer chaque endroit où la courbe la touche ou la traverse, puis descendre verticalement sur l’axe des abscisses pour lire chaque solution. Signale s’il a des sélections en trop ou s’il en manque (côté courbe ou côté axe), sans dire où.';
   } else if(test && test.kind==='tvins' && test.questions && test.questions[test.idx]){
@@ -1817,7 +1855,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1837,7 +1875,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -3044,7 +3082,7 @@ function tvgHermite(xs,ys){
 /* Reconstruit la fonction depuis les données de la question (rien de non sérialisable n’est stocké). */
 function tvgFn(q){
   if(q.family==='droite'){ const p=q.p,s0=q.s0,k=q.k; return x=>k+p*(x-s0); }
-  if(q.family==='par1'||q.family==='par2'){ const s=q.s,a=q.a,m=q.m,v=q.v; return x=>s*a*(x-m)*(x-m)+v; }
+  if(q.family==='par1'||q.family==='par2'||q.family==='par0'){ const s=q.s,a=q.a,m=q.m,v=q.v; return x=>s*a*(x-m)*(x-m)+v; }
   return tvgHermite(q.xs,q.ys);
 }
 /* Densification : insère un nœud à CHAQUE abscisse entière entre deux nœuds structurels,
@@ -3100,6 +3138,23 @@ function genTVGParabole(tangent){
     yMin:Math.min(Math.min(v,k)-(s===1?2:4),-1), yMax:Math.max(Math.max(v,k)+(s===1?4:2),1),
     desc:'la courbe est une parabole de sommet ('+numFmt(m)+' ; '+numFmt(v)+'), tournée vers le '+(s===1?'haut':'bas')+', d’équation y = '+aS+xmS+vS+'.' };
 }
+/* Parabole avec k au-delà du sommet : l’équation n’a AUCUNE solution (réponse ∅). */
+function genTVGPar0(){
+  const fname=pick(['f','g']);
+  const s=pick([1,-1]);
+  const a=pick([0.5,1]);
+  const m=rand(-2,2);
+  let v=rand(-2,2);
+  let k=v-s*rand(1,2);          /* k strictement du côté opposé à l’ouverture */
+  if(k===0){ v+=1; k+=1; }
+  const xmS=(m===0?'x²':'(x '+(m>0?'− '+numFmt(m):'+ '+numFmt(-m))+')²');
+  const aS=(s===-1?'−':'')+(a===1?'':'0,5·');
+  const vS=(v===0?'':(v>0?' + '+numFmt(v):' − '+numFmt(-v)));
+  return { type:'tvg', family:'par0', familleTxt:'parabole — aucune solution', fname,
+    k, kL:numFmt(k), s, a, m, v, sols:[], selPts:[], selXs:[],
+    yMin:Math.min(Math.min(v,k)-(s===1?2:4),-1), yMax:Math.max(Math.max(v,k)+(s===1?4:2),1),
+    desc:'la courbe est une parabole de sommet ('+numFmt(m)+' ; '+numFmt(v)+'), tournée vers le '+(s===1?'haut':'bas')+', d’équation y = '+aS+xmS+vS+'.' };
+}
 /* Courbe à deux extremums (exemples 4 et 5) : 3 solutions, ou 2 si k est la valeur d’un extremum. */
 function genTVGCubique(tangent){
   const fname=pick(['f','g']);
@@ -3149,6 +3204,7 @@ function genTVG(fm){
   if(fm==='droite') return genTVGDroite();
   if(fm==='par2') return genTVGParabole(false);
   if(fm==='par1') return genTVGParabole(true);
+  if(fm==='par0') return genTVGPar0();
   if(fm==='cub3') return genTVGCubique(false);
   return genTVGCubique(true);
 }
@@ -3239,7 +3295,7 @@ function tvgFinal(c){
     if(tvgSolOK(c,si.value)) si.classList.add('ok');
     else { si.classList.add('bad');
       const fx=document.createElement('span'); fx.className='tvg-fix';
-      fx.textContent='→ '+c.sols.map(s=>numFmt(s)).join(' ; ');
+      fx.textContent='→ '+(c.sols.length?c.sols.map(s=>numFmt(s)).join(' ; '):'∅');
       si.insertAdjacentElement('afterend', fx); } }
   const vb=document.querySelector('.tvg-vide'); if(vb) vb.disabled=true;
 }
@@ -3252,6 +3308,9 @@ function tvgQuestionIA(c){
     +'[La réponse de l’élève liste les points et les abscisses qu’il a cliqués.]';
 }
 function tvgAttenduIA(c){
+  if(!c.sols.length){
+    return 'Cette équation n’a AUCUNE solution : la droite horizontale y = '+c.kL+' ne rencontre jamais la courbe. Réponse attendue : AUCUN point sélectionné sur la courbe, AUCUNE abscisse sélectionnée sur l’axe, et l’écriture « ∅ » (ensemble vide) à la question c. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI l’élève n’a rien sélectionné (ni point ni abscisse) ET a écrit ∅ à la question c (le mot « vide » est aussi accepté) ; sinon correct = false. FEEDBACK COURT — 4 phrases maximum : fais-lui imaginer la droite horizontale y = '+c.kL+' et se demander si elle rencontre la courbe, SANS JAMAIS dire s’il y a ou non des solutions ni en donner le nombre ; si des points ou des abscisses sont sélectionnés, signale qu’ils ne vérifient pas l’équation, sans donner de valeurs.';
+  }
   return 'Points corrects sur la courbe : '+c.sols.map(s=>'('+numFmt(s)+' ; '+c.kL+')').join(', ')
     +'. Abscisses solutions correctes : '+c.sols.map(s=>numFmt(s)).join(', ')
     +'. Écriture attendue à la question c : '+c.sols.map(s=>numFmt(s)).join(' ; ')+' (solutions séparées par des points-virgules, ordre libre, espaces sans importance ; un tiret simple « - » vaut le signe moins « − » ; « ∅ » signifie aucune solution et serait donc FAUX ici). '
@@ -3270,7 +3329,7 @@ async function startTVG(){
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='tvi-lecture-graphique'; test.kind='tvg';
-  const plan=['droite','par2','par1','cub3','cub2'];   /* les 5 familles du document, une chacune */
+  const plan=['droite', pick(['par2','par1']), 'par0', 'cub3', 'cub2'];   /* par0 (aucune solution, réponse ∅) toujours présent ; l’une des deux paraboles à solutions complète */
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
   test.questions=plan.map(fm=>genTVG(fm));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
@@ -3318,9 +3377,10 @@ let tvgBusy=false;
 async function checkTVG(){
   if(test.locked||tvgBusy) return;
   const c=test.questions[test.idx];
-  if(!c.selPts.length || !c.selXs.length){ toast('Sélectionne au moins un point sur la courbe et une abscisse sur l’axe'); return; }
   const siC=$('tvgSol'), solTxt=siC?String(siC.value||'').trim():'';
   if(!solTxt){ toast('Écris les solutions à la question c) — ou ∅ s’il n’y en a aucune'); return; }
+  const estVide=(solTxt==='∅'||solTxt.toLowerCase()==='vide');
+  if(!estVide && (!c.selPts.length || !c.selXs.length)){ toast('Sélectionne les points sur la courbe et les abscisses sur l’axe — ou écris ∅ si l’équation n’a pas de solution'); return; }
   tvgBusy=true;
   $('tvgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   $('tvgFeedback').textContent='L’IA relit tes réponses…'; $('tvgFeedback').className='mp-feedback muted';
@@ -3369,6 +3429,198 @@ async function checkTVG(){
   $('tvgActions').innerHTML=`<button class="btn btn-primary" onclick="nextTVG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
 function nextTVG(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVG(); } else finishTest(); }
+
+/* ============ TEST : Équation de droite horizontale ou verticale (thème Limites de fonctions) ============ */
+/* D’après la feuille « limite_1 » : un repère contient deux droites horizontales — (AB), avec
+   les points A et B marqués, et d1 — et deux droites verticales — (CD), avec C et D, et d2.
+   L’élève complète : a) les coordonnées de A et B puis l’équation de (AB) ; b) celles de C et D
+   puis l’équation de (CD) ; c) l’équation COMPLÈTE de d1 (lettre et valeur) ; d) celle de d2.
+   Sur les 2 essais du test, les équations y = 0 (axe des abscisses) et x = 0 (axe des
+   ordonnées) apparaissent chacune au moins une fois, indépendamment l’une de l’autre.
+   La vérification est faite par l’IA (fonction Edge « corriger-definition », action verif). */
+const DHV_XMIN=-4, DHV_XMAX=4, DHV_YMIN=-3, DHV_YMAX=4;
+function genDHVQ(forceY0, forceX0){
+  let yd1, yAB, xd2, xCD;
+  if(forceY0){ yd1=0; yAB=pick([-2,-1,1,2,3]); }
+  else { yd1=rand(-2,3); do{ yAB=rand(-2,3); }while(yAB===yd1); }
+  if(forceX0){ xd2=0; xCD=pick([-3,-2,-1,1,2,3]); }
+  else { xd2=rand(-3,3); do{ xCD=rand(-3,3); }while(xCD===xd2); }
+  /* A et B sur (AB) : abscisses distinctes (écart ≥ 2), hors des deux droites verticales */
+  const xsOK=[]; for(let v=-3;v<=3;v++){ if(v!==xCD && v!==xd2) xsOK.push(v); }
+  let xa=pick(xsOK), xb; do{ xb=pick(xsOK); }while(Math.abs(xb-xa)<2);
+  if(xa>xb){ const t=xa; xa=xb; xb=t; }
+  /* C et D sur (CD) : ordonnées distinctes (écart ≥ 2), hors des deux droites horizontales */
+  const ysOK=[]; for(let v=-2;v<=3;v++){ if(v!==yAB && v!==yd1) ysOK.push(v); }
+  let yc=pick(ysOK), yd; do{ yd=pick(ysOK); }while(Math.abs(yd-yc)<2);
+  if(yc<yd){ const t=yc; yc=yd; yd=t; }        /* C au-dessus de D, comme sur la feuille */
+  return { type:'dhv', xa, xb, yAB, yc, yd, xCD, yd1, xd2 };
+}
+/* Rendu du repère : grille, axes, les 4 droites épaisses, croix et noms des points, étiquettes d1 et d2. */
+function dhvSVG(c){
+  const u=40, padL=26, padR=14, padT=12, padB=20;
+  const W=padL+padR+(DHV_XMAX-DHV_XMIN)*u, H=padT+padB+(DHV_YMAX-DHV_YMIN)*u;
+  const X=x=>padL+(x-DHV_XMIN)*u, Y=y=>padT+(DHV_YMAX-y)*u;
+  let g='';
+  for(let n=DHV_XMIN;n<=DHV_XMAX;n++) g+=`<line x1="${X(n)}" y1="${Y(DHV_YMAX)}" x2="${X(n)}" y2="${Y(DHV_YMIN)}" stroke="var(--grid)" stroke-width="0.8"/>`;
+  for(let n=DHV_YMIN;n<=DHV_YMAX;n++) g+=`<line x1="${X(DHV_XMIN)}" y1="${Y(n)}" x2="${X(DHV_XMAX)}" y2="${Y(n)}" stroke="var(--grid)" stroke-width="0.8"/>`;
+  g+=`<line x1="${X(DHV_XMIN)}" y1="${Y(0)}" x2="${X(DHV_XMAX)}" y2="${Y(0)}" stroke="var(--ink-soft)" stroke-width="1.3"/>`;
+  g+=`<line x1="${X(0)}" y1="${Y(DHV_YMAX)}" x2="${X(0)}" y2="${Y(DHV_YMIN)}" stroke="var(--ink-soft)" stroke-width="1.3"/>`;
+  let lab='';
+  const halo=(x,y,anch,txt)=>`<text x="${x}" y="${y}" class="sv-ax" text-anchor="${anch}" stroke="#fff" stroke-width="3.4" fill="#fff">${txt}</text><text x="${x}" y="${y}" class="sv-ax" text-anchor="${anch}">${txt}</text>`;
+  for(let n=DHV_XMIN;n<=DHV_XMAX;n++){ if(n!==0) lab+=halo(X(n), Y(0)+15, 'middle', numFmt(n)); }
+  for(let n=DHV_YMIN;n<=DHV_YMAX;n++){ if(n!==0) lab+=halo(X(0)-5, Y(n)+3, 'end', numFmt(n)); }
+  lab+=halo(X(0)-5, Y(0)+13, 'end', '0');
+  const dr=(x1,y1,x2,y2)=>`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="#33415c" stroke-width="2.6"/>`;
+  g+=dr(DHV_XMIN,c.yAB,DHV_XMAX,c.yAB)+dr(DHV_XMIN,c.yd1,DHV_XMAX,c.yd1);
+  g+=dr(c.xCD,DHV_YMIN,c.xCD,DHV_YMAX)+dr(c.xd2,DHV_YMIN,c.xd2,DHV_YMAX);
+  const cross=(x,y)=>{ const s=5, cx=X(x), cy=Y(y);
+    return `<line x1="${cx-s}" y1="${cy-s}" x2="${cx+s}" y2="${cy+s}" stroke="#111827" stroke-width="2.4"/><line x1="${cx-s}" y1="${cy+s}" x2="${cx+s}" y2="${cy-s}" stroke="#111827" stroke-width="2.4"/>`; };
+  g+=cross(c.xa,c.yAB)+`<text x="${X(c.xa)-7}" y="${Y(c.yAB)-9}" class="dhv-lab" text-anchor="middle">A</text>`;
+  g+=cross(c.xb,c.yAB)+`<text x="${X(c.xb)-7}" y="${Y(c.yAB)-9}" class="dhv-lab" text-anchor="middle">B</text>`;
+  g+=cross(c.xCD,c.yc)+`<text x="${X(c.xCD)+9}" y="${Y(c.yc)+4}" class="dhv-lab">C</text>`;
+  g+=cross(c.xCD,c.yd)+`<text x="${X(c.xCD)+9}" y="${Y(c.yd)+4}" class="dhv-lab">D</text>`;
+  g+=`<text x="${X(DHV_XMIN+0.3)}" y="${Y(c.yd1)-7}" class="dhv-lab"><tspan font-style="italic">d</tspan><tspan font-size="9" dy="3">1</tspan></text>`;
+  g+=`<text x="${X(c.xd2)+7}" y="${Y(DHV_YMAX)+14}" class="dhv-lab"><tspan font-style="italic">d</tspan><tspan font-size="9" dy="3">2</tspan></text>`;
+  g+=lab;                                          /* graduations par-dessus les droites, avec halo blanc */
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" class="sv-svg dhv-svg">${g}</svg>`;
+}
+/* Les 14 cases attendues : [id, réponse, type ('num' ou 'var'), libellé pour l’IA]. */
+function dhvAttentes(c){
+  return [
+    ['dhv-xa', c.xa, 'num', 'abscisse de A'], ['dhv-ya', c.yAB, 'num', 'ordonnée de A'],
+    ['dhv-xb', c.xb, 'num', 'abscisse de B'], ['dhv-yb', c.yAB, 'num', 'ordonnée de B'],
+    ['dhv-ab', c.yAB, 'num', 'équation de (AB) : y = …'],
+    ['dhv-xc', c.xCD, 'num', 'abscisse de C'], ['dhv-yc', c.yc, 'num', 'ordonnée de C'],
+    ['dhv-xd', c.xCD, 'num', 'abscisse de D'], ['dhv-yd', c.yd, 'num', 'ordonnée de D'],
+    ['dhv-cd', c.xCD, 'num', 'équation de (CD) : x = …'],
+    ['dhv-v1', 'y', 'var', 'lettre de l’équation de d1'], ['dhv-n1', c.yd1, 'num', 'valeur de l’équation de d1'],
+    ['dhv-v2', 'x', 'var', 'lettre de l’équation de d2'], ['dhv-n2', c.xd2, 'num', 'valeur de l’équation de d2']
+  ];
+}
+function dhvChampOK(att, raw){
+  const t=String(raw==null?'':raw).trim();
+  if(t==='') return false;
+  if(att[2]==='var') return t.toLowerCase()===att[1];
+  const v=Number(t.replace(/−/g,'-').replace(/,/g,'.'));
+  return isFinite(v) && Math.abs(v-att[1])<1e-9;
+}
+function dhvQuestionIA(c){
+  return 'Exercice de lecture de repère : deux droites horizontales — (AB) qui passe par les points A('+numFmt(c.xa)+' ; '+numFmt(c.yAB)+') et B('+numFmt(c.xb)+' ; '+numFmt(c.yAB)+'), et d1 d’équation y = '+numFmt(c.yd1)+' — et deux droites verticales — (CD) qui passe par C('+numFmt(c.xCD)+' ; '+numFmt(c.yc)+') et D('+numFmt(c.xCD)+' ; '+numFmt(c.yd)+'), et d2 d’équation x = '+numFmt(c.xd2)+'. Consignes : a) lire les coordonnées de A et B puis donner l’équation de la droite horizontale (AB) ; b) lire C et D puis l’équation de la droite verticale (CD) ; c) écrire l’équation complète de d1 (lettre et valeur) ; d) écrire l’équation complète de d2.';
+}
+function dhvAttenduIA(c){
+  const L=dhvAttentes(c).map((a,i)=>'('+(i+1)+') '+a[3]+' = '+(a[2]==='var'?a[1]:numFmt(a[1]))).join(' ; ');
+  return 'Réponses attendues, case par case : '+L
+    +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI les 14 cases sont exactes — les coordonnées des quatre points, la valeur de l’équation de (AB), celle de (CD), et les équations complètes de d1 et de d2 (la LETTRE et la VALEUR) ; sinon correct = false. Tolérances : majuscule acceptée pour la lettre (X, Y) ; un tiret simple « - » vaut le signe moins « − ».'
+    +' FEEDBACK COURT — 4 phrases maximum : commente UNIQUEMENT les cases fausses en rappelant la règle (une droite horizontale relie des points qui ont tous la MÊME ordonnée : son équation est y = cette ordonnée ; une droite verticale : x = l’abscisse commune ; l’axe des abscisses est la droite y = 0 et l’axe des ordonnées la droite x = 0) SANS JAMAIS donner les valeurs correctes, puis valide le reste en une seule courte phrase.';
+}
+function dhvReponseTxt(vals){
+  return 'A('+vals['dhv-xa']+' ; '+vals['dhv-ya']+') et B('+vals['dhv-xb']+' ; '+vals['dhv-yb']+') ; équation de (AB) : y = '+vals['dhv-ab']
+    +'. C('+vals['dhv-xc']+' ; '+vals['dhv-yc']+') et D('+vals['dhv-xd']+' ; '+vals['dhv-yd']+') ; équation de (CD) : x = '+vals['dhv-cd']
+    +'. Équation de d1 : « '+vals['dhv-v1']+' = '+vals['dhv-n1']+' ». Équation de d2 : « '+vals['dhv-v2']+' = '+vals['dhv-n2']+' ».';
+}
+async function startDHV(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='equation-droite-h-v'; test.kind='dhv';
+  /* Sur les 2 essais : y = 0 apparaît sur l’une des droites d1, et x = 0 sur l’une des
+     droites d2 — l’essai qui porte chaque cas est tiré au hasard, indépendamment. */
+  const iH=rand(0,1), iV=rand(0,1);
+  test.questions=[genDHVQ(iH===0,iV===0), genDHVQ(iH===1,iV===1)];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('dhv'); renderDHV();
+}
+function renderDHV(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];   /* les conseils de la question précédente ne concernent plus celle-ci */
+  $('dhvQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('dhvModeTag').innerHTML=modeTagHTML();
+  $('dhvLiveScore').textContent=test.score;
+  $('dhvFeedback').textContent=''; $('dhvFeedback').className='mp-feedback';
+  $('dhvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDHV()">Vérifier mes réponses</button>';
+  $('dhvPrompt').innerHTML='Dans le repère ci-dessous, deux droites <b>horizontales</b> — (AB) et <i>d</i><sub>1</sub> — et deux droites <b>verticales</b> — (CD) et <i>d</i><sub>2</sub> — sont tracées.';
+  $('dhvGraph').innerHTML=dhvSVG(c);
+  const inp=id=>'<input class="dhv-in" id="'+id+'" type="text" maxlength="4" autocomplete="off" autocapitalize="off" spellcheck="false">';
+  const inpV=id=>'<input class="dhv-in dhv-var" id="'+id+'" type="text" maxlength="2" autocomplete="off" autocapitalize="off" spellcheck="false">';
+  $('dhvBlocs').innerHTML=
+    '<div class="dhv-q"><b>a)</b> Complète : A ( '+inp('dhv-xa')+' ; '+inp('dhv-ya')+' ) et B ( '+inp('dhv-xb')+' ; '+inp('dhv-yb')+' )<br>'
+    +'L’équation de la droite <b>horizontale</b> (AB) : <span class="dhv-eqgrp"><i>y</i> = '+inp('dhv-ab')+'</span></div>'
+    +'<div class="dhv-q"><b>b)</b> Complète : C ( '+inp('dhv-xc')+' ; '+inp('dhv-yc')+' ) et D ( '+inp('dhv-xd')+' ; '+inp('dhv-yd')+' )<br>'
+    +'L’équation de la droite <b>verticale</b> (CD) est : <span class="dhv-eqgrp"><i>x</i> = '+inp('dhv-cd')+'</span></div>'
+    +'<div class="dhv-q"><b>c)</b> L’équation de la droite <b>horizontale</b> <i>d</i><sub>1</sub> est : <span class="dhv-eqgrp">'+inpV('dhv-v1')+' = '+inp('dhv-n1')+'</span></div>'
+    +'<div class="dhv-q"><b>d)</b> L’équation de la droite <b>verticale</b> <i>d</i><sub>2</sub> est : <span class="dhv-eqgrp">'+inpV('dhv-v2')+' = '+inp('dhv-n2')+'</span></div>';
+}
+/* Soutien : cases justes en vert et verrouillées, cases fausses en rouge et modifiables. */
+function dhvMarqueSoutien(c){
+  dhvAttentes(c).forEach(a=>{ const el=$(a[0]); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(dhvChampOK(a, el.value)){ el.classList.add('ok'); el.disabled=true; }
+    else el.classList.add('bad'); });
+}
+/* Correction finale : tout verrouiller, GARDER l’erreur en rouge, bonne réponse en badge vert. */
+function dhvFinal(c){
+  dhvAttentes(c).forEach(a=>{ const el=$(a[0]); if(!el) return;
+    el.disabled=true; el.classList.remove('ok','bad');
+    if(dhvChampOK(a, el.value)) el.classList.add('ok');
+    else { el.classList.add('bad');
+      const fx=document.createElement('span'); fx.className='dhv-fix';
+      fx.textContent='→ '+(a[2]==='var'?a[1]:numFmt(a[1]));
+      el.insertAdjacentElement('afterend', fx); } });
+}
+let dhvBusy=false;
+async function checkDHV(){
+  if(test.locked||dhvBusy) return;
+  const c=test.questions[test.idx];
+  const atts=dhvAttentes(c);
+  const vals={}; let manque=false;
+  atts.forEach(a=>{ const el=$(a[0]); const v=el?String(el.value||'').trim():''; vals[a[0]]=v; if(!v) manque=true; });
+  if(manque){ toast('Complète toutes les cases avant de vérifier'); return; }
+  dhvBusy=true;
+  $('dhvActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  $('dhvFeedback').textContent='L’IA relit tes réponses…'; $('dhvFeedback').className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:dhvQuestionIA(c), attendu:dhvAttenduIA(c), reponse:dhvReponseTxt(vals), balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  dhvBusy=false;
+  res=iaNettoie(res);
+  /* Pas de correcteur de secours : sans l’IA on ne note pas — tentative ni comptée ni verrouillée. */
+  if(!res || res.error){
+    $('dhvFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
+    $('dhvFeedback').className='mp-feedback bad';
+    $('dhvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDHV()">Réessayer</button>';
+    return;
+  }
+  const correct=res.correct===true;
+  const fbHTML=conseilHTML(res.feedback||'');
+  if(!correct && isSoutien()){
+    dhvMarqueSoutien(c);
+    $('dhvFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Rappel : une droite horizontale a une équation de la forme y = constante, une droite verticale x = constante. Corrige les cases en rouge puis revérifie.');
+    $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('dhvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDHV()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  dhvFinal(c);
+  if(correct){
+    test.score++; $('dhvLiveScore').textContent=test.score;
+    $('dhvFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
+    $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'good');
+  } else {
+    $('dhvFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : chaque bonne réponse est indiquée en vert à côté des cases fausses.';
+    $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+  }
+  test.answers.push({
+    q:'Équations des droites du repère (essai '+(test.idx+1)+')',
+    answer:'A('+numFmt(c.xa)+' ; '+numFmt(c.yAB)+'), B('+numFmt(c.xb)+' ; '+numFmt(c.yAB)+'), (AB) : y = '+numFmt(c.yAB)+' | C('+numFmt(c.xCD)+' ; '+numFmt(c.yc)+'), D('+numFmt(c.xCD)+' ; '+numFmt(c.yd)+'), (CD) : x = '+numFmt(c.xCD)+' | d1 : y = '+numFmt(c.yd1)+' | d2 : x = '+numFmt(c.xd2),
+    given:'A('+vals['dhv-xa']+' ; '+vals['dhv-ya']+'), B('+vals['dhv-xb']+' ; '+vals['dhv-yb']+'), (AB) : y = '+vals['dhv-ab']+' | C('+vals['dhv-xc']+' ; '+vals['dhv-yc']+'), D('+vals['dhv-xd']+' ; '+vals['dhv-yd']+'), (CD) : x = '+vals['dhv-cd']+' | d1 : '+vals['dhv-v1']+' = '+vals['dhv-n1']+' | d2 : '+vals['dhv-v2']+' = '+vals['dhv-n2'],
+    correct:correct
+  });
+  const last=test.idx===test.questions.length-1;
+  $('dhvActions').innerHTML=`<button class="btn btn-primary" onclick="nextDHV()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextDHV(){ if(test.idx<test.questions.length-1){ test.idx++; renderDHV(); } else finishTest(); }
 
 /* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
 /* Normalisation : minuscules, sans accents, espaces compactés. */
