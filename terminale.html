@@ -369,7 +369,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -447,6 +447,32 @@
 .tvins-eq .eqn{font-weight:800;min-width:118px;}
 .tvins-eq i{font-style:italic;}
 .tvins-eq .lbl{color:var(--ink-soft);font-weight:600;}
+.tvins-eq .tvins-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.92rem;}
+
+/* --- Test TVI — solutions sur le graphique : cibles cliquables (ronds = courbe, carrés = axe) --- */
+.tvg-svg .tvg-t{cursor:pointer;}
+.tvg-svg .tvg-t .hit{fill:transparent;}
+.tvg-svg .tvg-t .dot{fill:var(--surface);stroke:#b9c2d8;stroke-width:1.6;}
+.tvg-svg .tvg-t:hover .dot{stroke:var(--blue);stroke-width:2.2;}
+.tvg-svg .tvg-t.sel .dot{fill:var(--blue);stroke:var(--blue-dark);}
+.tvg-svg .tvg-t.okc .dot{fill:var(--green);stroke:#137a52;}
+.tvg-svg .tvg-t.badc .dot{fill:var(--red);stroke:#bf2c3e;}
+.tvg-svg .tvg-t.missc .dot{fill:var(--green-soft);stroke:var(--green);stroke-width:2.4;}
+.tvg-svg .tvg-t.off{pointer-events:none;}
+#tvgConsignes{line-height:2;}
+#tvgConsignes i{font-style:italic;}
+.tvg-solzone{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 12px;}
+.tvg-sollbl{font-weight:800;color:var(--ink);font-size:1.05rem;}
+.tvg-solin{width:190px;padding:8px 10px;border:2px solid #c9d3e8;border-radius:10px;font:inherit;font-weight:700;color:var(--ink);background:var(--surface);}
+.tvg-solin:focus{outline:none;border-color:var(--blue);}
+.tvg-solin.ok{border-color:var(--green);background:var(--green-soft);}
+.tvg-solin.bad{border-color:var(--red);background:#fdecee;}
+.tvg-vide{border:2px solid #c9d3e8;background:var(--surface);border-radius:10px;padding:6px 13px;font-size:1.05rem;font-weight:800;color:var(--ink);cursor:pointer;}
+.tvg-vide:hover{border-color:var(--blue);color:var(--blue);}
+.tvg-vide:disabled{opacity:.5;cursor:default;}
+.tvg-hint{color:var(--ink-soft);font-size:.85rem;font-weight:600;white-space:nowrap;}
+.tvg-hint kbd{font-family:inherit;background:#eef2fa;border:1px solid #c9d3e8;border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-weight:800;color:var(--ink);}
+.tvg-solzone .tvg-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.92rem;}
 
 
 /* --- Test dérivée exponentielle : étapes u/v + facteur factorisé --- */
@@ -667,7 +693,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp22</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp28</b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -952,6 +978,22 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <div class="tvins-eqs" id="tvinsEqs"></div>
       <div class="mp-feedback" id="tvinsFeedback"></div>
       <div class="mp-actions" id="tvinsActions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : TVI — SOLUTIONS SUR LE GRAPHIQUE -->
+  <section class="screen" id="scr-tvg">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvgModeTag"></span><span class="q-idx" id="tvgQIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="tvgLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="tvgPrompt"></p>
+      <div class="sv-graph" id="tvgGraph"></div>
+      <div class="tvi-instr" id="tvgConsignes"></div>
+      <div class="tvg-solzone" id="tvgSolZone"></div>
+      <div class="mp-feedback" id="tvgFeedback"></div>
+      <div class="mp-actions" id="tvgActions"></div>
     </div>
   </section>
 
@@ -1256,6 +1298,7 @@ const TESTS={
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
   'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
+  'tvi-lecture-graphique': { name:'TVI — solutions sur le graphique', icon:'📍', desc:'Clique sur la courbe le ou les points vérifiant f(x) = k, puis sur l’axe des abscisses les solutions, puis écris-les ; l’IA vérifie tes réponses.', start:()=>startTVG() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
@@ -1274,7 +1317,8 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'Étude de fonction',  ids:['equation-tangente','tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions'] }
+  { num:3, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
+  { num:4, nom:'Étude de fonction',  ids:['equation-tangente'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1405,6 +1449,16 @@ function conseilCourant(){
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
      +(txt ? ' Texte actuel de l’élève : « '+txt+' ». Dis-lui ce qui manque ou ce qui est faux, par son rôle, sans écrire la phrase attendue.' : ' L’élève n’a encore rien écrit : aide-le à démarrer en lui demandant de vérifier une à une les hypothèses du théorème sur le tableau.');
+  } else if(test && test.kind==='tvg' && test.questions && test.questions[test.idx]){
+    /* ---- 3.6 solutions sur le graphique : l'IA guide sans donner les coordonnées ---- */
+    const q=test.questions[test.idx];
+    const selP=(q.selPts||[]).slice().sort((a,b)=>a-b), selX=(q.selXs||[]).slice().sort((a,b)=>a-b);
+    const elS=document.getElementById('tvgSol'), ecrS=elS?String(elS.value||'').trim():'';
+    c='Exercice de LECTURE GRAPHIQUE (tu ne vois pas l’image ; description exacte de la courbe) : '+q.desc
+     +' L’équation étudiée est '+q.fname+'(x) = '+q.kL+'. L’élève doit : a) cliquer sur la courbe le ou les points vérifiant l’équation ; b) cliquer sur les solutions sur l’axe des abscisses ; c) écrire les solutions séparées par des points-virgules (∅ si aucune). '
+     +'Réponses attendues (à ne JAMAIS révéler, ni coordonnées ni nombre de solutions) : points '+q.sols.map(s=>'('+numFmt(s)+' ; '+q.kL+')').join(', ')+' ; abscisses '+q.sols.map(s=>numFmt(s)).join(', ')+'. '
+     +'Sélections actuelles de l’élève : points de la courbe d’abscisses ['+(selP.map(n=>numFmt(n)).join(', ')||'aucun')+'] ; abscisses ['+(selX.map(n=>numFmt(n)).join(', ')||'aucune')+'] ; écriture actuelle à la question c : « '+ecrS+' ». '
+     +'CONTRAINTE ANTI-RECOPIE : ta réponse ne doit citer AUCUNE coordonnée ni aucun nombre de solutions. Méthode à faire appliquer : imaginer la droite horizontale y = '+q.kL+', repérer chaque endroit où la courbe la touche ou la traverse, puis descendre verticalement sur l’axe des abscisses pour lire chaque solution. Signale s’il a des sélections en trop ou s’il en manque (côté courbe ou côté axe), sans dire où.';
   } else if(test && test.kind==='tvins' && test.questions && test.questions[test.idx]){
     /* ---- 3.5 nombre de solutions : lecture du tableau ; l'IA guide sans donner les nombres ---- */
     const q=test.questions[test.idx];
@@ -1730,6 +1784,7 @@ async function pauseTest(){
   catch(e){ toast('Pause non enregistrée (connexion)','err'); }
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
+  else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice (avec « Reprendre »)
   else { openThemes(); }
 }
 async function abandonTest(){
@@ -1744,6 +1799,7 @@ async function abandonTest(){
   }catch(e){}
   toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
+  else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice
   else { openThemes(); }
 }
 async function resumeTest(mode){
@@ -1761,7 +1817,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1781,7 +1837,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -2827,7 +2883,7 @@ function tvinsAttenduIA(c){
   return 'Nombres de solutions exacts, position par position : '
     +c.eqs.map((e,i)=>'('+(i+1)+') '+e.n).join(' ; ')
     +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI chaque nombre donné par l’élève est exactement celui attendu, à la même position ; la moindre différence donne correct = false. '
-    +'FEEDBACK : pour chaque équation fausse, explique la LECTURE du tableau (suivre chaque flèche et compter les passages par k ; une valeur aux bornes ne compte que si elle est ATTEINTE — une limite, borne infinie ou asymptote, n’est jamais atteinte ; le sommet ne compte qu’une fois) SANS JAMAIS écrire le nombre correct de solutions. Valide brièvement les équations justes.';
+    +'FEEDBACK COURT — 4 phrases maximum au total : commente UNIQUEMENT les équations fausses (une phrase chacune) en expliquant la lecture du tableau (suivre la flèche et compter les passages par k ; une valeur aux bornes ne compte que si elle est ATTEINTE — une limite, borne infinie ou asymptote, n’est jamais atteinte ; le sommet ne compte qu’une fois) SANS JAMAIS écrire le nombre correct de solutions, puis valide les équations justes en une seule courte phrase.';
 }
 function tvinsReponseTxt(vals){ return vals.map((x,i)=>'('+(i+1)+') '+x).join(' ; '); }
 async function startTVINS(){
@@ -2857,6 +2913,35 @@ function renderTVINS(){
     `<div class="tvins-eq"><span class="eqn"><i>${c.fname}</i>(${c.v}) = ${e.k}</span><span class="lbl">nombre de solutions&nbsp;:</span><select class="tvi-sel" id="tvins-eq${i}"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>`
   ).join('');
 }
+/* La fonction Edge renvoie parfois, quand la réponse du modèle est trop longue ou mal
+   formée, le texte JSON BRUT (souvent tronqué) en guise de feedback — c’est ce texte
+   qui s’affichait tel quel (« json "correct": false, "feedback": … »). On récupère
+   alors le vrai verdict et le texte utile, on retire les artefacts (```json, guillemets)
+   et on coupe proprement un feedback tronqué à la dernière phrase complète. */
+function iaNettoie(res){
+  if(!res || typeof res.feedback!=='string') return res;
+  let t=res.feedback;
+  const brut=/"\s*feedback\s*"\s*:\s*"/.test(t);
+  if(!brut && t.indexOf('```')<0) return res;
+  const out={ correct:res.correct, feedback:t };
+  if(brut){
+    const mc=/"\s*correct\s*"\s*:\s*(true|false)/i.exec(t);
+    if(mc) out.correct=(mc[1].toLowerCase()==='true');
+    const mf=/"\s*feedback\s*"\s*:\s*"([\s\S]*)$/.exec(t);
+    if(mf){
+      let f=mf[1];
+      const fin=f.search(/"\s*[,}]/);
+      if(fin>=0) f=f.slice(0,fin);
+      out.feedback=f.replace(/\\n/g,'\n').replace(/\\"/g,'"');
+    }
+  }
+  out.feedback=String(out.feedback).replace(/```[a-zA-Z]*\n?/g,'').trim();
+  if(out.feedback.length>40 && !/[.!?…»]\s*$/.test(out.feedback)){
+    const cut=Math.max(out.feedback.lastIndexOf('.'), out.feedback.lastIndexOf('!'), out.feedback.lastIndexOf('?'));
+    if(cut>30) out.feedback=out.feedback.slice(0,cut+1);
+  }
+  return out;
+}
 let tvinsBusy=false;
 async function checkTVINS(){
   if(test.locked||tvinsBusy) return;
@@ -2872,6 +2957,7 @@ async function checkTVINS(){
     if(r.error) throw r.error; res=r.data;
   }catch(e){ res=null; }
   tvinsBusy=false;
+  res=iaNettoie(res);
   /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
      la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
   if(!res || res.error){
@@ -2901,9 +2987,12 @@ async function checkTVINS(){
     $('tvinsFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
     $('tvinsFeedback').className='mp-feedback '+(fbHTML?'iafb':'good');
   } else {
-    $('tvinsFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Les bonnes réponses sont affichées en vert.';
+    $('tvinsFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : la bonne réponse est indiquée en vert à côté de chaque équation fausse.';
     $('tvinsFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
-    c.eqs.forEach((e,i)=>{ const el=$('tvins-eq'+i); if(el){ el.value=String(e.n); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+    /* on NE remplace PAS la réponse de l’élève : la case fausse reste en rouge avec son erreur,
+       et la bonne réponse s’affiche à côté dans un badge vert */
+    c.eqs.forEach((e,i)=>{ const el=$('tvins-eq'+i); if(!el) return; el.disabled=true;
+      if(vals[i]!==String(e.n)){ const fx=document.createElement('span'); fx.className='tvins-fix'; fx.textContent='→ '+e.n; el.insertAdjacentElement('afterend', fx); } });
   }
   test.answers.push({
     q:'Nombre de solutions — '+tvinsListeEq(c)+' sur '+tvi3Intervalle(c),
@@ -2915,6 +3004,371 @@ async function checkTVINS(){
   $('tvinsActions').innerHTML=`<button class="btn btn-primary" onclick="nextTVINS()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
 function nextTVINS(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVINS(); } else finishTest(); }
+
+/* ====================== TEST : TVI — solutions sur le graphique ====================== */
+/* D’après le document « Test TVI 4 » : une courbe est tracée dans un repère ; pour une
+   valeur k donnée, l’élève clique a) le ou les POINTS de la courbe vérifiant f(x) = k,
+   puis b) sur l’axe des abscisses la ou les SOLUTIONS de l’équation.
+   Les courbes sont construites pour que toutes les solutions tombent sur des abscisses
+   ENTIÈRES (cibles cliquables), et pour qu’aucun autre point entier de la courbe ne
+   frôle la hauteur k (pas d’ambiguïté visuelle). Familles générées, fidèles aux 5
+   exemples du document : droite (1 solution), parabole (2 solutions), parabole tangente
+   au sommet (1), courbe à deux extremums (3), courbe tangente à un extremum (2).
+   Les solutions calculées à la génération font foi ; l’IA (fonction Edge
+   « corriger-definition », action verif) rend le verdict et rédige le retour. */
+const TVG_XMIN=-5, TVG_XMAX=5;
+/* Spline de Hermite monotone par morceaux (Fritsch–Carlson) : la courbe passe
+   EXACTEMENT par les nœuds et reste strictement monotone entre deux nœuds. */
+function tvgHermite(xs,ys){
+  const n=xs.length, d=[], m=[];
+  for(let i=0;i<n-1;i++) d[i]=(ys[i+1]-ys[i])/(xs[i+1]-xs[i]);
+  for(let i=0;i<n;i++){
+    if(i===0) m[i]=d[0];
+    else if(i===n-1) m[i]=d[n-2];
+    else if(d[i-1]*d[i]<=0) m[i]=0;
+    else m[i]=(d[i-1]+d[i])/2;
+  }
+  for(let i=0;i<n-1;i++){
+    if(d[i]===0){ m[i]=0; m[i+1]=0; continue; }
+    const a=m[i]/d[i], b=m[i+1]/d[i], s2=a*a+b*b;
+    if(s2>9){ const t3=3/Math.sqrt(s2); m[i]=t3*a*d[i]; m[i+1]=t3*b*d[i]; }
+  }
+  return function(x){
+    if(x<=xs[0]) return ys[0]+m[0]*(x-xs[0]);
+    if(x>=xs[n-1]) return ys[n-1]+m[n-1]*(x-xs[n-1]);
+    let i=0; while(x>xs[i+1]) i++;
+    const h=xs[i+1]-xs[i], t=(x-xs[i])/h, u=1-t;
+    return (1+2*t)*u*u*ys[i] + t*u*u*h*m[i] + t*t*(3-2*t)*ys[i+1] + t*t*(t-1)*h*m[i+1];
+  };
+}
+/* Reconstruit la fonction depuis les données de la question (rien de non sérialisable n’est stocké). */
+function tvgFn(q){
+  if(q.family==='droite'){ const p=q.p,s0=q.s0,k=q.k; return x=>k+p*(x-s0); }
+  if(q.family==='par1'||q.family==='par2'){ const s=q.s,a=q.a,m=q.m,v=q.v; return x=>s*a*(x-m)*(x-m)+v; }
+  return tvgHermite(q.xs,q.ys);
+}
+/* Densification : insère un nœud à CHAQUE abscisse entière entre deux nœuds structurels,
+   avec des valeurs strictement monotones tenues à distance ≥ 0,9 de k (hors solutions) :
+   aucune cible « distractrice » ne frôle la hauteur k. */
+function tvgDensifie(X,Y,k){
+  const xs=[],ys=[];
+  for(let i=0;i<X.length-1;i++){
+    const xa=X[i], xb=X[i+1], ya=Y[i], yb=Y[i+1];
+    xs.push(xa); ys.push(ya);
+    const sa=ya-k, sb=yb-k;
+    for(let n=xa+1;n<xb;n++){
+      let v;
+      if(sb===0){ const cible=k+0.9*(sa>0?1:-1); v=ya+(n-xa)*(cible-ya)/(xb-1-xa); }
+      else if(sa===0){ const cible=k+0.9*(sb>0?1:-1); v=cible+(n-xa-1)*(yb-cible)/(xb-xa-1); }
+      else { v=ya+(n-xa)*(yb-ya)/(xb-xa); }
+      xs.push(n); ys.push(v);
+    }
+  }
+  xs.push(X[X.length-1]); ys.push(Y[Y.length-1]);
+  return {xs,ys};
+}
+/* Droite (exemple 1) : 1 solution. */
+function genTVGDroite(){
+  const fname=pick(['f','g']);
+  const p=pick([0.5,-0.5,1,-1]);
+  const s0=rand(-3,3);
+  let k=rand(-2,3); if(k===0) k=pick([-2,-1,1,2,3]);
+  const b=k-p*s0;
+  const pxS=(p===1?'x':(p===-1?'−x':numFmt(p)+'x'));
+  const bS=(b===0?'':(b>0?' + '+numFmt(b):' − '+numFmt(-b)));
+  return { type:'tvg', family:'droite', familleTxt:'droite', fname,
+    k, kL:numFmt(k), p, s0, sols:[s0], selPts:[], selXs:[],
+    yMin:Math.min(k-4,-1), yMax:Math.max(k+4,1),
+    desc:'la courbe est la droite d’équation y = '+pxS+bS+' (strictement '+(p>0?'croissante':'décroissante')+', de pente '+numFmt(p)+').' };
+}
+/* Parabole (exemples 2 et 3) : 2 solutions, ou 1 seule si k est la valeur du sommet. */
+function genTVGParabole(tangent){
+  const fname=pick(['f','g']);
+  const s=pick([1,-1]);                                     /* +1 : tournée vers le haut */
+  const combo=tangent?pick([[1,2],[0.5,2]]):pick([[0.5,2],[1,2],[1/3,3]]);
+  const a=combo[0], dd=combo[1];
+  const m=rand(TVG_XMIN+dd+1, TVG_XMAX-dd-1);
+  let v=(s===1)?rand(-3,1):rand(-1,3);
+  let k=tangent? v : v+s*a*dd*dd;
+  if(k===0){ v+=1; k+=1; }                                  /* k jamais nul : l’axe reste dégagé */
+  const sols=tangent?[m]:[m-dd,m+dd];
+  const xmS=(m===0?'x²':'(x '+(m>0?'− '+numFmt(m):'+ '+numFmt(-m))+')²');
+  const aS=(s===-1?'−':'')+(a===1?'':(a===0.5?'0,5·':'(1/3)·'));
+  const vS=(v===0?'':(v>0?' + '+numFmt(v):' − '+numFmt(-v)));
+  return { type:'tvg', family:tangent?'par1':'par2', familleTxt:'parabole', fname,
+    k, kL:numFmt(k), s, a, m, v, sols, selPts:[], selXs:[],
+    yMin:Math.min(Math.min(v,k)-(s===1?2:4),-1), yMax:Math.max(Math.max(v,k)+(s===1?4:2),1),
+    desc:'la courbe est une parabole de sommet ('+numFmt(m)+' ; '+numFmt(v)+'), tournée vers le '+(s===1?'haut':'bas')+', d’équation y = '+aS+xmS+vS+'.' };
+}
+/* Courbe à deux extremums (exemples 4 et 5) : 3 solutions, ou 2 si k est la valeur d’un extremum. */
+function genTVGCubique(tangent){
+  const fname=pick(['f','g']);
+  const sens=pick([1,-1]);                                  /* 1 : croît, décroît, croît */
+  let k=rand(-2,2); if(k===0) k=pick([-2,-1,1,2]);
+  const bg=rand(2,3), bd=rand(2,3);
+  let X,Y,sols,xE1,yE1,xE2,yE2;
+  if(!tangent){
+    const e0=rand(1,2), e1=rand(1,2), e2=rand(1,2), e3=rand(1,2);
+    const s1=rand(-4, 4-(e0+e1+e2+e3));
+    const x1=s1+e0, s2=x1+e1, x2=s2+e2, s3=x2+e3;
+    const h1=rand(2,3), h2=rand(1,3);
+    X=[TVG_XMIN,s1,x1,s2,x2,s3,TVG_XMAX];
+    Y=[k-sens*bg, k, k+sens*h1, k, k-sens*h2, k, k+sens*bd];
+    sols=[s1,s2,s3];
+    xE1=x1; yE1=k+sens*h1; xE2=x2; yE2=k-sens*h2;
+  } else if(rand(0,1)===0){
+    /* tangence au 2e extremum : solutions s1 (traversée) et x2 (point de contact) */
+    const e0=rand(1,2), e1=rand(2,3);
+    const s1=rand(-4, 4-(e0+e1));
+    const x1=s1+e0, x2=x1+e1;
+    const h1=rand(2,3);
+    X=[TVG_XMIN,s1,x1,x2,TVG_XMAX];
+    Y=[k-sens*bg, k, k+sens*h1, k, k+sens*bd];
+    sols=[s1,x2];
+    xE1=x1; yE1=k+sens*h1; xE2=x2; yE2=k;
+  } else {
+    /* tangence au 1er extremum : solutions x1 (point de contact) et s3 (traversée) */
+    const e1=rand(2,3), e2=rand(1,2);
+    const x1=rand(-4, 4-(e1+e2));
+    const x2=x1+e1, s3=x2+e2;
+    const h2=rand(2,3);
+    X=[TVG_XMIN,x1,x2,s3,TVG_XMAX];
+    Y=[k-sens*bg, k, k-sens*h2, k, k+sens*bd];
+    sols=[x1,s3];
+    xE1=x1; yE1=k; xE2=x2; yE2=k-sens*h2;
+  }
+  const D=tvgDensifie(X,Y,k);
+  const t1=(sens===1?'maximum':'minimum'), t2=(sens===1?'minimum':'maximum');
+  const c1=(sens===1?'croissante':'décroissante'), c2=(sens===1?'décroissante':'croissante');
+  return { type:'tvg', family:tangent?'cub2':'cub3', familleTxt:'courbe avec deux extremums', fname,
+    k, kL:numFmt(k), xs:D.xs, ys:D.ys, sols, selPts:[], selXs:[],
+    yMin:Math.min(Math.min.apply(null,Y)-1,-1), yMax:Math.max(Math.max.apply(null,Y)+1,1),
+    desc:'la courbe entre à gauche au point ('+numFmt(TVG_XMIN)+' ; '+numFmt(Y[0])+'), est '+c1+' jusqu’à un '+t1+' local en ('+numFmt(xE1)+' ; '+numFmt(yE1)+'), puis '+c2+' jusqu’à un '+t2+' local en ('+numFmt(xE2)+' ; '+numFmt(yE2)+'), puis '+c1+' jusqu’au point ('+numFmt(TVG_XMAX)+' ; '+numFmt(Y[Y.length-1])+').' };
+}
+function genTVG(fm){
+  if(fm==='droite') return genTVGDroite();
+  if(fm==='par2') return genTVGParabole(false);
+  if(fm==='par1') return genTVGParabole(true);
+  if(fm==='cub3') return genTVGCubique(false);
+  return genTVGCubique(true);
+}
+/* Rendu du repère : grille, axes, courbe (clippée), étiquette Cf, droite y = k (cachée,
+   révélée à la correction) et cibles cliquables — ronds sur la courbe, carrés sur l’axe. */
+function tvgSVG(c){
+  const f=tvgFn(c);
+  const W=440, padL=26, padR=10, padT=8, padB=8;
+  const ux=(W-padL-padR)/(TVG_XMAX-TVG_XMIN), uy=24;
+  const H=padT+padB+(c.yMax-c.yMin)*uy;
+  const X=x=>padL+(x-TVG_XMIN)*ux, Y=y=>padT+(c.yMax-y)*uy;
+  let g='';
+  for(let n=TVG_XMIN;n<=TVG_XMAX;n++) g+=`<line x1="${X(n).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(n).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="var(--grid)" stroke-width="0.8"/>`;
+  for(let n=Math.ceil(c.yMin);n<=Math.floor(c.yMax);n++) g+=`<line x1="${X(TVG_XMIN).toFixed(1)}" y1="${Y(n).toFixed(1)}" x2="${X(TVG_XMAX).toFixed(1)}" y2="${Y(n).toFixed(1)}" stroke="var(--grid)" stroke-width="0.8"/>`;
+  g+=`<line x1="${X(TVG_XMIN).toFixed(1)}" y1="${Y(0).toFixed(1)}" x2="${X(TVG_XMAX).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
+  g+=`<line x1="${X(0).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(0).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
+  for(let n=TVG_XMIN;n<=TVG_XMAX;n++){ if(n!==0) g+=`<text x="${X(n).toFixed(1)}" y="${(Y(0)+16).toFixed(1)}" class="sv-ax" text-anchor="middle">${numFmt(n)}</text>`; }
+  for(let n=Math.ceil(c.yMin);n<=Math.floor(c.yMax);n++){ if(n!==0) g+=`<text x="${(X(0)-5).toFixed(1)}" y="${(Y(n)+3).toFixed(1)}" class="sv-ax" text-anchor="end">${numFmt(n)}</text>`; }
+  let d='';
+  for(let i=0;i<=110;i++){ const x=TVG_XMIN+i*0.1; d+=(d?'L':'M')+X(x).toFixed(1)+' '+Y(f(x)).toFixed(1); }
+  g+=`<path d="${d}" class="sv-curve" clip-path="url(#tvgClip)"/>`;
+  let lx=TVG_XMAX-0.4, ly=f(lx), tries=0;
+  while((ly>c.yMax-0.7||ly<c.yMin+0.7)&&tries<40){ lx-=0.25; ly=f(lx); tries++; }
+  const cfy=Math.min(Math.max(ly+((ly>(c.yMin+c.yMax)/2)?-0.9:0.9), c.yMin+0.5), c.yMax-0.4);
+  g+=`<text x="${X(lx).toFixed(1)}" y="${Y(cfy).toFixed(1)}" class="sv-cf">C<tspan font-size="11" dy="4">${c.fname}</tspan></text>`;
+  g+=`<g id="tvgKgrp" style="display:none"><line x1="${X(TVG_XMIN).toFixed(1)}" y1="${Y(c.k).toFixed(1)}" x2="${X(TVG_XMAX).toFixed(1)}" y2="${Y(c.k).toFixed(1)}" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="6 4"/><text x="${(X(TVG_XMAX)-4).toFixed(1)}" y="${(Y(c.k)-6).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800">y = ${c.kL}</text></g>`;
+  for(let n=TVG_XMIN;n<=TVG_XMAX;n++){
+    const idx=n-TVG_XMIN, yv=f(n);
+    if(yv>=c.yMin+0.2 && yv<=c.yMax-0.2){
+      const sel=(c.selPts.indexOf(n)>=0)?' sel':'';
+      g+=`<g class="tvg-t${sel}" id="tvgp${idx}" onclick="tvgTogglePt(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="12"/><circle class="dot" cx="${X(n).toFixed(1)}" cy="${Y(yv).toFixed(1)}" r="4.6"/></g>`;
+    }
+    const selx=(c.selXs.indexOf(n)>=0)?' sel':'';
+    g+=`<g class="tvg-t${selx}" id="tvgx${idx}" onclick="tvgToggleX(${n})"><circle class="hit" cx="${X(n).toFixed(1)}" cy="${Y(0).toFixed(1)}" r="12"/><rect class="dot" x="${(X(n)-4.4).toFixed(1)}" y="${(Y(0)-4.4).toFixed(1)}" width="8.8" height="8.8" rx="2"/></g>`;
+  }
+  return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg tvg-svg"><defs><clipPath id="tvgClip"><rect x="${X(TVG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(TVG_XMAX)-X(TVG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
+}
+/* Sélections : cliquer une cible l’ajoute/la retire ; l’état vit dans la question
+   (q.selPts / q.selXs), donc il est sauvegardé et restauré avec la pause/reprise. */
+function tvgTogglePt(n){
+  if(test.locked||tvgBusy) return;
+  const c=test.questions[test.idx]; if(!c||c.type!=='tvg') return;
+  const el=$('tvgp'+(n-TVG_XMIN)); if(!el||el.classList.contains('off')) return;
+  const i=c.selPts.indexOf(n);
+  if(i>=0){ c.selPts.splice(i,1); el.classList.remove('sel','badc'); }
+  else { c.selPts.push(n); el.classList.add('sel'); el.classList.remove('badc'); }
+}
+function tvgToggleX(n){
+  if(test.locked||tvgBusy) return;
+  const c=test.questions[test.idx]; if(!c||c.type!=='tvg') return;
+  const el=$('tvgx'+(n-TVG_XMIN)); if(!el||el.classList.contains('off')) return;
+  const i=c.selXs.indexOf(n);
+  if(i>=0){ c.selXs.splice(i,1); el.classList.remove('sel','badc'); }
+  else { c.selXs.push(n); el.classList.add('sel'); el.classList.remove('badc'); }
+}
+/* Soutien : colore les sélections (justes en vert et verrouillées, fausses en rouge à retirer),
+   sans jamais révéler les cibles manquantes. */
+function tvgMarqueSoutien(c){
+  for(let n=TVG_XMIN;n<=TVG_XMAX;n++){
+    const good=c.sols.indexOf(n)>=0;
+    const p=$('tvgp'+(n-TVG_XMIN)), x=$('tvgx'+(n-TVG_XMIN));
+    if(p){ p.classList.remove('badc');
+      if(c.selPts.indexOf(n)>=0){ if(good){ p.classList.add('okc','off'); p.classList.remove('sel'); } else p.classList.add('badc'); } }
+    if(x){ x.classList.remove('badc');
+      if(c.selXs.indexOf(n)>=0){ if(good){ x.classList.add('okc','off'); x.classList.remove('sel'); } else x.classList.add('badc'); } }
+  }
+  const si=$('tvgSol');
+  if(si){ si.classList.remove('ok','bad');
+    if(tvgSolOK(c,si.value)){ si.classList.add('ok'); si.disabled=true; }
+    else si.classList.add('bad'); }
+}
+/* Correction finale : tout verrouiller, colorer (vert = juste, rouge = en trop,
+   vert clair = oublié) et révéler la droite y = k. */
+function tvgFinal(c){
+  const kg=$('tvgKgrp'); if(kg) kg.style.display='';
+  for(let n=TVG_XMIN;n<=TVG_XMAX;n++){
+    const good=c.sols.indexOf(n)>=0;
+    const p=$('tvgp'+(n-TVG_XMIN)), x=$('tvgx'+(n-TVG_XMIN));
+    if(p){ p.classList.add('off'); p.classList.remove('sel','badc');
+      if(good) p.classList.add(c.selPts.indexOf(n)>=0?'okc':'missc');
+      else if(c.selPts.indexOf(n)>=0) p.classList.add('badc'); }
+    if(x){ x.classList.add('off'); x.classList.remove('sel','badc');
+      if(good) x.classList.add(c.selXs.indexOf(n)>=0?'okc':'missc');
+      else if(c.selXs.indexOf(n)>=0) x.classList.add('badc'); }
+  }
+  const si=$('tvgSol');
+  if(si){ si.disabled=true; si.classList.remove('ok','bad');
+    if(tvgSolOK(c,si.value)) si.classList.add('ok');
+    else { si.classList.add('bad');
+      const fx=document.createElement('span'); fx.className='tvg-fix';
+      fx.textContent='→ '+c.sols.map(s=>numFmt(s)).join(' ; ');
+      si.insertAdjacentElement('afterend', fx); } }
+  const vb=document.querySelector('.tvg-vide'); if(vb) vb.disabled=true;
+}
+/* Question, attendu et réponse envoyés à l’IA (action verif) : les solutions calculées
+   à la génération font foi, l’IA vérifie les deux ensembles et rédige le retour. */
+function tvgQuestionIA(c){
+  return 'Exercice de lecture graphique : '+c.desc
+    +' Consignes : a) cliquer sur la courbe le ou les points vérifiant '+c.fname+'(x) = '+c.kL
+    +' ; b) cliquer sur l’axe des abscisses la ou les solutions de cette équation. '
+    +'[La réponse de l’élève liste les points et les abscisses qu’il a cliqués.]';
+}
+function tvgAttenduIA(c){
+  return 'Points corrects sur la courbe : '+c.sols.map(s=>'('+numFmt(s)+' ; '+c.kL+')').join(', ')
+    +'. Abscisses solutions correctes : '+c.sols.map(s=>numFmt(s)).join(', ')
+    +'. Écriture attendue à la question c : '+c.sols.map(s=>numFmt(s)).join(' ; ')+' (solutions séparées par des points-virgules, ordre libre, espaces sans importance ; un tiret simple « - » vaut le signe moins « − » ; « ∅ » signifie aucune solution et serait donc FAUX ici). '
+    +'RÈGLE STRICTE : correct = true SI ET SEULEMENT SI (a) l’ensemble des points cliqués est EXACTEMENT l’ensemble des points corrects (mêmes abscisses, ni oubli ni point en trop — les ordonnées relevées peuvent différer de quelques centièmes, c’est normal), ET (b) l’ensemble des abscisses cliquées est EXACTEMENT l’ensemble des abscisses solutions, ET (c) l’ensemble des solutions écrites est EXACTEMENT l’ensemble des solutions ; sinon correct = false. '
+    +'FEEDBACK COURT — 4 phrases maximum : explique la méthode (imaginer la droite horizontale y = '+c.kL+', repérer chaque point où la courbe la touche ou la traverse, lire l’abscisse juste en dessous sur l’axe, puis écrire ces abscisses séparées par des points-virgules) ; signale ce qui manque ou ce qui est en trop (courbe, axe ou écriture) SANS JAMAIS donner de coordonnée correcte ni le nombre de solutions, puis valide brièvement ce qui est juste.';
+}
+function tvgReponseTxt(c){
+  const f=tvgFn(c);
+  const P=c.selPts.slice().sort((a,b)=>a-b), Xs=c.selXs.slice().sort((a,b)=>a-b);
+  const pts=P.map(n=>'('+numFmt(n)+' ; '+numFmt(Math.round(f(n)*100)/100)+')').join(', ');
+  const siR=$('tvgSol'), ecr=siR?String(siR.value||'').trim():'';
+  return 'Points cliqués sur la courbe : '+(pts||'aucun')+'. Abscisses cliquées sur l’axe : '+(Xs.map(n=>numFmt(n)).join(', ')||'aucune')+'. Solutions écrites à la question c : « '+ecr+' ».';
+}
+async function startTVG(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='tvi-lecture-graphique'; test.kind='tvg';
+  const plan=['droite','par2','par1','cub3','cub2'];   /* les 5 familles du document, une chacune */
+  for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
+  test.questions=plan.map(fm=>genTVG(fm));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('tvg'); renderTVG();
+}
+function renderTVG(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];   /* les conseils de la question précédente ne concernent plus celle-ci */
+  if(!Array.isArray(c.selPts)) c.selPts=[];
+  if(!Array.isArray(c.selXs)) c.selXs=[];
+  $('tvgQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('tvgModeTag').innerHTML=modeTagHTML();
+  $('tvgLiveScore').textContent=test.score;
+  $('tvgFeedback').textContent=''; $('tvgFeedback').className='mp-feedback';
+  $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Vérifier mes réponses</button>';
+  $('tvgPrompt').innerHTML=`Soit <i>${c.fname}</i> une fonction dont la courbe est tracée ci-dessous. On s’intéresse à l’équation <i>${c.fname}</i>(x) = ${c.kL}.`;
+  $('tvgGraph').innerHTML=tvgSVG(c);
+  $('tvgConsignes').innerHTML='<b>a)</b> Clique sur la courbe le ou les <b>points</b> (ronds) vérifiant <i>'+c.fname+'</i>(x) = '+c.kL+'.<br><b>b)</b> Clique sur les solutions de l’axe des abscisses de <i>'+c.fname+'</i>(x) = '+c.kL+' (carrés).<br><b>c)</b> Écris les solutions de l’équation <i>'+c.fname+'</i>(x) = '+c.kL+' en les séparant par un point-virgule s’il y en a plusieurs.';
+  $('tvgSolZone').innerHTML='<span class="tvg-sollbl"><i>x</i>&nbsp;=</span><input class="tvg-solin" id="tvgSol" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="…"><button type="button" class="tvg-vide" onclick="tvgVide()" title="Aucune solution (∅) — raccourci clavier : tape vid">∅</button><span class="tvg-hint">raccourci clavier : <kbd>vid</kbd></span>';
+  const si=$('tvgSol');
+  si.oninput=function(){ const av=this.value; if(/vid/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/vid/gi,'∅'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } };
+}
+/* Question c : écriture des solutions (« 2 ; 5 », ou ∅ si aucune — raccourci clavier vid). */
+function tvgVide(){ if(test.locked||tvgBusy) return; const si=$('tvgSol'); if(si && !si.disabled){ si.value='∅'; si.focus(); } }
+function tvgParseSol(t){
+  t=String(t==null?'':t).trim();
+  if(t==='∅'||t.toLowerCase()==='vide') return [];
+  const parts=t.split(';').map(s=>s.trim()).filter(s=>s.length);
+  if(!parts.length) return null;
+  const out=[];
+  for(const p of parts){
+    const v=Number(p.replace(/−/g,'-').replace(/,/g,'.'));
+    if(!isFinite(v)) return null;
+    out.push(v);
+  }
+  return out;
+}
+function tvgSolOK(c,t){
+  const arr=tvgParseSol(t);
+  if(arr===null||arr.length!==c.sols.length) return false;
+  const a=arr.slice().sort((x,y)=>x-y), b=c.sols.slice().sort((x,y)=>x-y);
+  return a.every((v,i)=>Math.abs(v-b[i])<1e-9);
+}
+let tvgBusy=false;
+async function checkTVG(){
+  if(test.locked||tvgBusy) return;
+  const c=test.questions[test.idx];
+  if(!c.selPts.length || !c.selXs.length){ toast('Sélectionne au moins un point sur la courbe et une abscisse sur l’axe'); return; }
+  const siC=$('tvgSol'), solTxt=siC?String(siC.value||'').trim():'';
+  if(!solTxt){ toast('Écris les solutions à la question c) — ou ∅ s’il n’y en a aucune'); return; }
+  tvgBusy=true;
+  $('tvgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  $('tvgFeedback').textContent='L’IA relit tes réponses…'; $('tvgFeedback').className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvgQuestionIA(c), attendu:tvgAttenduIA(c), reponse:tvgReponseTxt(c), balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  tvgBusy=false;
+  res=iaNettoie(res);
+  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
+     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
+  if(!res || res.error){
+    $('tvgFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
+    $('tvgFeedback').className='mp-feedback bad';
+    $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Réessayer</button>';
+    return;
+  }
+  const correct=res.correct===true;
+  const fbHTML=conseilHTML(res.feedback||'');
+  if(!correct && isSoutien()){
+    tvgMarqueSoutien(c);
+    $('tvgFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Imagine la droite horizontale y = '+c.kL+' : où touche-t-elle la courbe ? Retire les sélections en rouge, complète ce qui manque, puis revérifie.');
+    $('tvgFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('tvgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVG()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  tvgFinal(c);
+  if(correct){
+    test.score++; $('tvgLiveScore').textContent=test.score;
+    $('tvgFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
+    $('tvgFeedback').className='mp-feedback '+(fbHTML?'iafb':'good');
+  } else {
+    $('tvgFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Les bonnes réponses sont en vert — la droite y = '+c.kL+' est tracée en pointillés.';
+    $('tvgFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+  }
+  const P=c.selPts.slice().sort((a,b)=>a-b), Xs=c.selXs.slice().sort((a,b)=>a-b);
+  test.answers.push({
+    q:'Solutions de '+c.fname+'(x) = '+c.kL+' sur le graphique ('+c.familleTxt+')',
+    answer:'points '+c.sols.map(s=>'('+numFmt(s)+' ; '+c.kL+')').join(', ')+' — abscisses '+c.sols.map(s=>numFmt(s)).join(', ')+' — écriture : x = '+c.sols.map(s=>numFmt(s)).join(' ; '),
+    given:'points en x = ['+P.map(n=>numFmt(n)).join(', ')+'] — abscisses ['+Xs.map(n=>numFmt(n)).join(', ')+'] — écriture : « '+solTxt+' »',
+    correct:correct
+  });
+  const last=test.idx===test.questions.length-1;
+  $('tvgActions').innerHTML=`<button class="btn btn-primary" onclick="nextTVG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextTVG(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVG(); } else finishTest(); }
 
 /* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
 /* Normalisation : minuscules, sans accents, espaces compactés. */
