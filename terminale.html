@@ -369,7 +369,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -481,7 +481,19 @@
 .dhv-in.bad{border-color:var(--red);background:#fdecee;}
 .dhv-in:disabled{opacity:.95;}
 .dhv-var{width:44px;font-style:italic;}
-.dhv-q .dhv-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 9px;font-weight:800;font-size:.9rem;margin-left:2px;}
+.dhv-q .dhv-fix,.lg-sub .dhv-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 9px;font-weight:800;font-size:.9rem;margin-left:2px;}
+
+/* --- Test Conjecturer graphiquement les limites --- */
+.lg-sub{margin:13px 0;font-weight:700;color:var(--ink);line-height:2.35;padding:10px 12px;border:1.5px solid var(--grid);border-radius:12px;background:var(--surface);}
+.lg-quand{margin-right:6px;}
+.lg-sel{padding:7px 9px;border:2px solid #c9d3e8;border-radius:9px;font:inherit;font-weight:700;color:var(--ink);background:var(--surface);max-width:100%;}
+.lg-sel.ok{border-color:var(--green);background:var(--green-soft);}
+.lg-sel.bad{border-color:var(--red);background:#fdecee;}
+.lg-lim{width:66px;}
+.lg-play{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:34px;height:34px;font-size:.9rem;font-weight:800;color:var(--blue);cursor:pointer;vertical-align:middle;margin-left:4px;}
+.lg-play:hover{border-color:var(--blue);color:var(--blue-dark);}
+.lg-dot{fill:var(--blue);stroke:#fff;stroke-width:2;}
+#lgHint{margin:2px 0 8px;}
 .dhv-lab{font-size:13px;font-weight:700;fill:#111827;}
 .dhv-svg{max-width:380px;}
 .dhv-eqgrp{white-space:nowrap;}
@@ -706,7 +718,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp30</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp32</b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -1025,6 +1037,22 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     </div>
   </section>
 
+  <!-- TEST : CONJECTURER GRAPHIQUEMENT LES LIMITES -->
+  <section class="screen" id="scr-lg">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lgModeTag"></span><span class="q-idx" id="lgQIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="lgLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="lgPrompt"></p>
+      <div class="sv-graph" id="lgGraph"></div>
+      <div id="lgHint"></div>
+      <div id="lgSubs"></div>
+      <div class="mp-feedback" id="lgFeedback"></div>
+      <div class="mp-actions" id="lgActions"></div>
+    </div>
+  </section>
+
   <!-- TEST : DÉRIVÉE EXPONENTIELLE -->
   <section class="screen" id="scr-dexp">
     <div class="test-top">
@@ -1328,6 +1356,7 @@ const TESTS={
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
   'tvi-lecture-graphique': { name:'TVI — solutions sur le graphique', icon:'📍', desc:'Clique sur la courbe le ou les points vérifiant f(x) = k, puis sur l’axe des abscisses les solutions, puis écris-les ; l’IA vérifie tes réponses.', start:()=>startTVG() },
   'equation-droite-h-v': { name:'Équation de droite horizontale ou verticale', icon:'📏', desc:'Lis les droites tracées dans le repère et écris leurs équations (y = … ou x = …) ; l’IA vérifie tes réponses.', start:()=>startDHV() },
+  'limites-graphiques': { name:'Conjecturer graphiquement les limites', icon:'🔭', desc:'Lis chaque limite sur le graphique — un point ▶ se déplace sur la courbe pour t’aider — puis repère l’asymptote éventuelle ; l’IA vérifie tes réponses.', start:()=>startLG() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
@@ -1346,7 +1375,7 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v'] },
+  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] }
 ];
@@ -1479,6 +1508,14 @@ function conseilCourant(){
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
      +(txt ? ' Texte actuel de l’élève : « '+txt+' ». Dis-lui ce qui manque ou ce qui est faux, par son rôle, sans écrire la phrase attendue.' : ' L’élève n’a encore rien écrit : aide-le à démarrer en lui demandant de vérifier une à une les hypothèses du théorème sur le tableau.');
+  } else if(test && test.kind==='lg' && test.questions && test.questions[test.idx]){
+    /* ---- 3.2 conjecturer graphiquement les limites ---- */
+    const q=test.questions[test.idx];
+    c='Exercice de LIMITES par lecture graphique (tu ne vois pas l’image ; description exacte) : '+q.desc
+     +' Cas étudiés : '+q.subs.map(s=>s.lab+') x → '+s.cibleTxt).join(' ; ')+'. '
+     +'Réponses attendues (à ne JAMAIS révéler) : '+q.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim); return '('+s.lab+') limite '+lt+', '+(s.typ==='ah'?'asymptote horizontale y = '+numFmt(s.eq):(s.typ==='av'?'asymptote verticale x = '+numFmt(s.eq):'pas d’asymptote')); }).join(' ; ')+'. '
+     +'Saisies actuelles de l’élève : '+lgReponseTxt(q)+' '
+     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE valeur ni aucun bon choix. Méthode : suggère d’utiliser le bouton ▶ qui fait apparaître un point se déplaçant sur la courbe vers la cible, et de se demander vers quelle hauteur (ou quel infini) il se dirige — limite finie L en ±∞ ⇒ asymptote horizontale y = L ; limite infinie en un réel a ⇒ asymptote verticale x = a ; sinon pas d’asymptote. Guide cas par cas sans donner les réponses.';
   } else if(test && test.kind==='dhv' && test.questions && test.questions[test.idx]){
     /* ---- 3.1 équations de droites horizontales / verticales ---- */
     const q=test.questions[test.idx];
@@ -1855,7 +1892,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1875,7 +1912,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -3437,7 +3474,8 @@ function nextTVG(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVG(
    puis l’équation de (CD) ; c) l’équation COMPLÈTE de d1 (lettre et valeur) ; d) celle de d2.
    Sur les 2 essais du test, les équations y = 0 (axe des abscisses) et x = 0 (axe des
    ordonnées) apparaissent chacune au moins une fois, indépendamment l’une de l’autre.
-   La vérification est faite par l’IA (fonction Edge « corriger-definition », action verif). */
+   CORRECTION LOCALE exacte (les 14 cases) ; l’IA (fonction Edge « corriger-definition »)
+   rédige seulement le commentaire des erreurs, écarté s’il contredit le verdict local. */
 const DHV_XMIN=-4, DHV_XMAX=4, DHV_YMIN=-3, DHV_YMAX=4;
 function genDHVQ(forceY0, forceX0){
   let yd1, yAB, xd2, xCD;
@@ -3505,13 +3543,13 @@ function dhvChampOK(att, raw){
   return isFinite(v) && Math.abs(v-att[1])<1e-9;
 }
 function dhvQuestionIA(c){
-  return 'Exercice de lecture de repère : deux droites horizontales — (AB) qui passe par les points A('+numFmt(c.xa)+' ; '+numFmt(c.yAB)+') et B('+numFmt(c.xb)+' ; '+numFmt(c.yAB)+'), et d1 d’équation y = '+numFmt(c.yd1)+' — et deux droites verticales — (CD) qui passe par C('+numFmt(c.xCD)+' ; '+numFmt(c.yc)+') et D('+numFmt(c.xCD)+' ; '+numFmt(c.yd)+'), et d2 d’équation x = '+numFmt(c.xd2)+'. Consignes : a) lire les coordonnées de A et B puis donner l’équation de la droite horizontale (AB) ; b) lire C et D puis l’équation de la droite verticale (CD) ; c) écrire l’équation complète de d1 (lettre et valeur) ; d) écrire l’équation complète de d2.';
+  return 'IMPORTANT : corrige UNIQUEMENT l’exercice décrit ici (lecture de repère — équations de droites) ; il n’y a AUCUNE fonction à dériver ni aucun autre exercice : ignore tout autre contexte et ne demande aucune donnée supplémentaire. Exercice : deux droites horizontales — (AB) qui passe par les points A('+numFmt(c.xa)+' ; '+numFmt(c.yAB)+') et B('+numFmt(c.xb)+' ; '+numFmt(c.yAB)+'), et d1 d’équation y = '+numFmt(c.yd1)+' — et deux droites verticales — (CD) qui passe par C('+numFmt(c.xCD)+' ; '+numFmt(c.yc)+') et D('+numFmt(c.xCD)+' ; '+numFmt(c.yd)+'), et d2 d’équation x = '+numFmt(c.xd2)+'. Consignes : a) lire les coordonnées de A et B puis donner l’équation de la droite horizontale (AB) ; b) lire C et D puis l’équation de la droite verticale (CD) ; c) écrire l’équation complète de d1 (lettre et valeur) ; d) écrire l’équation complète de d2.';
 }
 function dhvAttenduIA(c){
   const L=dhvAttentes(c).map((a,i)=>'('+(i+1)+') '+a[3]+' = '+(a[2]==='var'?a[1]:numFmt(a[1]))).join(' ; ');
   return 'Réponses attendues, case par case : '+L
     +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI les 14 cases sont exactes — les coordonnées des quatre points, la valeur de l’équation de (AB), celle de (CD), et les équations complètes de d1 et de d2 (la LETTRE et la VALEUR) ; sinon correct = false. Tolérances : majuscule acceptée pour la lettre (X, Y) ; un tiret simple « - » vaut le signe moins « − ».'
-    +' FEEDBACK COURT — 4 phrases maximum : commente UNIQUEMENT les cases fausses en rappelant la règle (une droite horizontale relie des points qui ont tous la MÊME ordonnée : son équation est y = cette ordonnée ; une droite verticale : x = l’abscisse commune ; l’axe des abscisses est la droite y = 0 et l’axe des ordonnées la droite x = 0) SANS JAMAIS donner les valeurs correctes, puis valide le reste en une seule courte phrase.';
+    +' FEEDBACK COURT — 4 phrases maximum : commente UNIQUEMENT les cases fausses en rappelant la règle (une droite horizontale relie des points qui ont tous la MÊME ordonnée : son équation est y = cette ordonnée ; une droite verticale : x = l’abscisse commune ; l’axe des abscisses est la droite y = 0 et l’axe des ordonnées la droite x = 0) SANS JAMAIS donner les valeurs correctes, puis valide le reste en une seule courte phrase. Ne pose AUCUNE question et ne demande AUCUNE autre donnée : réponds uniquement ton verdict et ton commentaire.';
 }
 function dhvReponseTxt(vals){
   return 'A('+vals['dhv-xa']+' ; '+vals['dhv-ya']+') et B('+vals['dhv-xb']+' ; '+vals['dhv-yb']+') ; équation de (AB) : y = '+vals['dhv-ab']
@@ -3575,28 +3613,31 @@ async function checkDHV(){
   const vals={}; let manque=false;
   atts.forEach(a=>{ const el=$(a[0]); const v=el?String(el.value||'').trim():''; vals[a[0]]=v; if(!v) manque=true; });
   if(manque){ toast('Complète toutes les cases avant de vérifier'); return; }
-  dhvBusy=true;
-  $('dhvActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
-  $('dhvFeedback').textContent='L’IA relit tes réponses…'; $('dhvFeedback').className='mp-feedback muted';
-  let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:dhvQuestionIA(c), attendu:dhvAttenduIA(c), reponse:dhvReponseTxt(vals), balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  dhvBusy=false;
-  res=iaNettoie(res);
-  /* Pas de correcteur de secours : sans l’IA on ne note pas — tentative ni comptée ni verrouillée. */
-  if(!res || res.error){
-    $('dhvFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
-    $('dhvFeedback').className='mp-feedback bad';
-    $('dhvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDHV()">Réessayer</button>';
-    return;
+  /* VERDICT LOCAL : les 14 cases se vérifient exactement ici (mêmes tolérances que l’IA :
+     majuscules X/Y, tiret = signe moins, virgule décimale). L’IA ne décide plus du score :
+     elle rédige seulement le commentaire des erreurs, et son texte n’est conservé que s’il
+     est d’accord avec ce verdict (sinon il est écarté : prompt parasite côté serveur). */
+  const fautes=atts.filter(a=>!dhvChampOK(a, vals[a[0]]));
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    dhvBusy=true;
+    $('dhvActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('dhvFeedback').textContent='L’IA relit tes réponses…'; $('dhvFeedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:dhvQuestionIA(c),
+        attendu:dhvAttenduIA(c)+' Cases actuellement fausses (verdict local certain) : '+fautes.map(a=>a[3]).join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces cases-là.',
+        reponse:dhvReponseTxt(vals), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    dhvBusy=false;
   }
-  const correct=res.correct===true;
-  const fbHTML=conseilHTML(res.feedback||'');
   if(!correct && isSoutien()){
     dhvMarqueSoutien(c);
-    $('dhvFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Rappel : une droite horizontale a une équation de la forme y = constante, une droite verticale x = constante. Corrige les cases en rouge puis revérifie.');
+    $('dhvFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Rappel : une droite horizontale a une équation de la forme y = constante, une droite verticale x = constante — l’axe des abscisses est la droite y = 0 et l’axe des ordonnées la droite x = 0. Corrige les cases en rouge puis revérifie.');
     $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
     $('dhvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDHV()">Revérifier</button>';
     return;
@@ -3605,8 +3646,8 @@ async function checkDHV(){
   dhvFinal(c);
   if(correct){
     test.score++; $('dhvLiveScore').textContent=test.score;
-    $('dhvFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
-    $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'good');
+    $('dhvFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('dhvFeedback').className='mp-feedback good';
   } else {
     $('dhvFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : chaque bonne réponse est indiquée en vert à côté des cases fausses.';
     $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
@@ -3621,6 +3662,390 @@ async function checkDHV(){
   $('dhvActions').innerHTML=`<button class="btn btn-primary" onclick="nextDHV()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
 function nextDHV(){ if(test.idx<test.questions.length-1){ test.idx++; renderDHV(); } else finishTest(); }
+
+/* ============ TEST : Conjecturer graphiquement les limites (thème Limites de fonctions) ============ */
+/* D’après la feuille « limite_2 » : une courbe est tracée (asymptotes en pointillés, bords −∞/+∞,
+   marques a⁻|a⁺ sous l’axe) ; pour chaque cas « Quand x → … », l’élève écrit la limite de f(x)
+   (raccourci clavier : inf → ∞), choisit dans un menu « asymptote horizontale / verticale / pas
+   d’asymptote » et complète l’équation (y = … ou x = …) qui apparaît selon son choix.
+   AIDE VISUELLE : le bouton ▶ de chaque cas anime un POINT qui se déplace sur la courbe vers la
+   cible (il file vers l’asymptote, plonge le long d’une verticale, ou s’arrête sur la valeur finie).
+   5 essais tirés parmi 6 familles : hyperbole, deux branches de même côté, cloche, logarithme,
+   exponentielle, degré 3. CORRECTION LOCALE exacte (limite, choix, équation) ; l’IA rédige
+   seulement le commentaire des erreurs, écarté s’il contredit le verdict local. */
+const LG_XMIN=-5, LG_XMAX=5, LG_W=440, LG_PADL=26, LG_PADR=12, LG_PADT=8, LG_PADB=8, LG_UY=24;
+const LG_UX=(LG_W-LG_PADL-LG_PADR)/(LG_XMAX-LG_XMIN);
+function lgX(x){ return LG_PADL+(x-LG_XMIN)*LG_UX; }
+function lgY(c,y){ return LG_PADT+(c.yMax-y)*LG_UY; }
+/* Reconstruit la fonction depuis les paramètres (rien de non sérialisable n’est stocké). */
+function lgFn(q){
+  const c=q.c;
+  if(q.family==='homo'){ const a=q.a,s=q.s; return x=>c+s/(x-a); }
+  if(q.family==='homo2'){ const a=q.a,s=q.s; return x=>c-s/((x-a)*(x-a)); }
+  if(q.family==='cloche'){ const m=q.m,h=q.h; return x=>c+h/(1+(x-m)*(x-m)); }
+  if(q.family==='ln'){ const a=q.a; return x=>c+2*Math.log(x-a); }
+  if(q.family==='exp'){ const s=q.s,d=q.d; return x=>c+s*Math.exp(0.9*d*x); }
+  const s=q.s; return x=>c+s*(0.12*x*x*x-0.9*x);
+}
+/* Une sous-question : lab a/b/c/d ; kind pinf/minf/plus/moins ; lim '+∞', '−∞' ou nombre ;
+   typ 'ah'/'av'/'rien' ; eq nombre ou null ; dep/dep0 : paramètres du point animé. */
+function lgSub(lab,kind,a,lim,typ,eq,dep,dep0){
+  const o={lab,kind,lim,typ,eq};
+  if(a!=null) o.a=a;
+  if(dep!=null) o.dep=dep;
+  if(dep0!=null) o.dep0=dep0;
+  if(kind==='pinf'){ o.cibleTxt='+∞'; o.cibleHTML='+∞'; }
+  else if(kind==='minf'){ o.cibleTxt='−∞'; o.cibleHTML='−∞'; }
+  else { o.cibleTxt=numFmt(a)+(kind==='plus'?'⁺':'⁻'); o.cibleHTML=numFmt(a)+'<sup>'+(kind==='plus'?'+':'−')+'</sup>'; }
+  return o;
+}
+function lgParen(a){ return a===0?'x':'(x '+(a>0?'− '+numFmt(a):'+ '+numFmt(-a))+')'; }
+/* Hyperbole (exemple 1) : AV en a (limites latérales opposées) + AH y = c. */
+function genLGHomo(){
+  const a=rand(-2,2), c=rand(-2,2), s=pick([1,-1]);
+  const li=s>0?'+∞':'−∞', lo=s>0?'−∞':'+∞';
+  return { type:'lg', family:'homo', familleTxt:'hyperbole', c, a, s,
+    yMin:Math.min(c-4,-1), yMax:Math.max(c+4,1),
+    av:a, ahs:[c], skipX:a, segs:[[LG_XMIN,a-0.04],[a+0.04,LG_XMAX]],
+    subs:[ lgSub('a','pinf',null,c,'ah',c, Math.min(a+1.1,LG_XMAX-1.6), null),
+           lgSub('b','minf',null,c,'ah',c, Math.max(a-1.1,LG_XMIN+1.6), null),
+           lgSub('c','plus',a, li,'av',a, null, Math.min(2.6, LG_XMAX-a-0.3)),
+           lgSub('d','moins',a, lo,'av',a, null, Math.min(2.6, a-LG_XMIN-0.3)) ],
+    desc:'la courbe est l’hyperbole d’équation y = '+numFmt(c)+' '+(s>0?'+':'−')+' 1/'+lgParen(a)+' : asymptote verticale x = '+numFmt(a)+' (branche vers '+li+' quand x → '+numFmt(a)+'⁺, vers '+lo+' quand x → '+numFmt(a)+'⁻) et asymptote horizontale y = '+numFmt(c)+' aux deux infinis.' };
+}
+/* Deux branches du même côté (exemple 2) : f = c − s/(x−a)². */
+function genLGHomo2(){
+  const a=rand(-2,2), c=rand(-2,2), s=pick([1,-1]);
+  const li=s>0?'−∞':'+∞';
+  return { type:'lg', family:'homo2', familleTxt:'courbe à deux branches', c, a, s,
+    yMin:(s>0?Math.min(c-4,-1):Math.min(c-2,-1)), yMax:(s>0?Math.max(c+2,1):Math.max(c+4,1)),
+    av:a, ahs:[c], skipX:a, segs:[[LG_XMIN,a-0.04],[a+0.04,LG_XMAX]],
+    subs:[ lgSub('a','pinf',null,c,'ah',c, Math.min(a+1.1,LG_XMAX-1.6), null),
+           lgSub('b','minf',null,c,'ah',c, Math.max(a-1.1,LG_XMIN+1.6), null),
+           lgSub('c','plus',a, li,'av',a, null, Math.min(2.6, LG_XMAX-a-0.3)),
+           lgSub('d','moins',a, li,'av',a, null, Math.min(2.6, a-LG_XMIN-0.3)) ],
+    desc:'la courbe a pour équation y = '+numFmt(c)+' '+(s>0?'−':'+')+' 1/'+lgParen(a)+'² : asymptote verticale x = '+numFmt(a)+' (les DEUX branches partent vers '+li+' de part et d’autre) et asymptote horizontale y = '+numFmt(c)+' aux deux infinis.' };
+}
+/* Cloche (exemple 3) : AH y = c, PAS d’asymptote verticale ; en x = b la limite est la valeur finie f(b). */
+function genLGCloche(){
+  const m=rand(-1,1), h=pick([-4,-2,2,4]), c=rand(-1,2);
+  const b=m+pick([-1,1]), L=c+h/2;
+  const lo=Math.min(Math.min(c,c+h)-1,-1), hi=Math.max(Math.max(c,c+h)+1,1);
+  return { type:'lg', family:'cloche', familleTxt:'courbe en cloche', c, m, h, b, L,
+    yMin:lo, yMax:hi, av:null, ahs:[c], skipX:b, segs:[[LG_XMIN,LG_XMAX]],
+    subs:[ lgSub('a','pinf',null,c,'ah',c, m+1.3, null),
+           lgSub('b','minf',null,c,'ah',c, m-1.3, null),
+           lgSub('c','plus',b, L,'rien',null, null, Math.min(2.4, LG_XMAX-b-0.3)),
+           lgSub('d','moins',b, L,'rien',null, null, Math.min(2.4, b-LG_XMIN-0.3)) ],
+    desc:'la courbe est une « cloche » d’équation y = '+numFmt(c)+' + '+numFmt(h)+'/(1+(x '+(m>=0?'− '+numFmt(m):'+ '+numFmt(-m))+')²) : asymptote horizontale y = '+numFmt(c)+' aux deux infinis, AUCUNE asymptote verticale ; en x = '+numFmt(b)+', la fonction est définie et f('+numFmt(b)+') = '+numFmt(L)+' : la limite quand x → '+numFmt(b)+'⁺ ou '+numFmt(b)+'⁻ est cette valeur finie, sans asymptote.' };
+}
+/* Logarithme (exemple 4) : AV en a (x → a⁺ : −∞), branche vers +∞ sans asymptote. */
+function genLGLn(){
+  const a=rand(-2,1), c=rand(-2,1);
+  return { type:'lg', family:'ln', familleTxt:'type logarithme', c, a,
+    yMin:Math.min(c-4,-1), yMax:Math.max(Math.ceil(c+2*Math.log(LG_XMAX-a))+1,1),
+    av:a, ahs:[], skipX:a, segs:[[a+0.02,LG_XMAX]],
+    subs:[ lgSub('a','pinf',null,'+∞','rien',null, a+1.2, null),
+           lgSub('b','plus',a,'−∞','av',a, null, Math.min(2.6, LG_XMAX-a-0.3)) ],
+    desc:'la courbe est celle de f(x) = '+numFmt(c)+' + 2·ln'+lgParen(a)+', définie seulement pour x > '+numFmt(a)+' : asymptote verticale x = '+numFmt(a)+' (f plonge vers −∞ quand x → '+numFmt(a)+'⁺) ; quand x → +∞, f tend vers +∞ SANS asymptote.' };
+}
+/* Exponentielle (exemple 5) : AH y = c d’un seul côté, branche infinie de l’autre. */
+function genLGExp(){
+  const c=rand(-2,2), s=pick([1,-1]), d=pick([1,-1]);
+  const li=s>0?'+∞':'−∞';
+  const subs = (d===1)
+    ? [ lgSub('a','pinf',null, li,'rien',null, -0.6, null), lgSub('b','minf',null, c,'ah',c, 1.4, null) ]
+    : [ lgSub('a','pinf',null, c,'ah',c, -1.4, null), lgSub('b','minf',null, li,'rien',null, 0.6, null) ];
+  return { type:'lg', family:'exp', familleTxt:'type exponentielle', c, s, d,
+    yMin:(s>0?Math.min(c-2,-1):Math.min(c-4,-1)), yMax:(s>0?Math.max(c+4,1):Math.max(c+2,1)),
+    av:null, ahs:[c], skipX:null, segs:[[LG_XMIN,LG_XMAX]], subs,
+    desc:'la courbe est de type exponentielle, d’équation y = '+numFmt(c)+' '+(s>0?'+':'−')+' e^('+(d>0?'':'−')+'0,9x) : asymptote horizontale y = '+numFmt(c)+' quand x → '+(d>0?'−∞':'+∞')+' (l’exponentielle s’écrase) ; de l’autre côté, f part vers '+li+' SANS asymptote.' };
+}
+/* Degré 3 (exemple 6) : aucune asymptote, branches infinies opposées. */
+function genLGCub(){
+  const s=pick([1,-1]), c=rand(-1,1);
+  const li=s>0?'+∞':'−∞', lo=s>0?'−∞':'+∞';
+  return { type:'lg', family:'cub', familleTxt:'polynôme de degré 3', c, s,
+    yMin:Math.min(c-3,-1), yMax:Math.max(c+3,1),
+    av:null, ahs:[], skipX:null, segs:[[LG_XMIN,LG_XMAX]],
+    subs:[ lgSub('a','pinf',null, li,'rien',null, 0.8, null),
+           lgSub('b','minf',null, lo,'rien',null, -0.8, null) ],
+    desc:'la courbe est celle d’une fonction polynôme de degré 3 (y = '+numFmt(c)+' + '+(s>0?'':'−')+'(0,12x³ − 0,9x)) : AUCUNE asymptote ; f part vers '+li+' quand x → +∞ et vers '+lo+' quand x → −∞.' };
+}
+function genLG(fm){
+  if(fm==='homo') return genLGHomo();
+  if(fm==='homo2') return genLGHomo2();
+  if(fm==='cloche') return genLGCloche();
+  if(fm==='ln') return genLGLn();
+  if(fm==='exp') return genLGExp();
+  return genLGCub();
+}
+/* Rendu : grille, axes (labels x avec halo), bords −∞/+∞, marques a⁻|a⁺, asymptotes en
+   pointillés (étiquettes y = …, x = … cachées, révélées à la correction), courbe, point animé. */
+function lgSVG(c){
+  const f=lgFn(c);
+  const H=LG_PADT+LG_PADB+(c.yMax-c.yMin)*LG_UY;
+  const X=lgX, Y=y=>lgY(c,y);
+  let g='';
+  for(let n=LG_XMIN;n<=LG_XMAX;n++) g+=`<line x1="${X(n).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(n).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="var(--grid)" stroke-width="0.8"/>`;
+  for(let n=Math.ceil(c.yMin);n<=Math.floor(c.yMax);n++) g+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(n).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(n).toFixed(1)}" stroke="var(--grid)" stroke-width="0.8"/>`;
+  g+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(0).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
+  g+=`<line x1="${X(0).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(0).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
+  /* asymptotes en pointillés + étiquettes cachées (révélées à la correction) */
+  let asyLab='';
+  c.ahs.forEach(v=>{
+    g+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(v).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
+    asyLab+=`<text x="${(X(LG_XMAX)-4).toFixed(1)}" y="${(Y(v)-5).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800">y = ${numFmt(v)}</text>`;
+  });
+  if(c.av!=null){
+    g+=`<line x1="${X(c.av).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(c.av).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
+    asyLab+=`<text x="${(X(c.av)+5).toFixed(1)}" y="${(Y(c.yMax)+12).toFixed(1)}" class="sv-ax" fill="var(--blue)" font-weight="800">x = ${numFmt(c.av)}</text>`;
+  }
+  g+=`<g id="lgAsyLabs" style="display:none">${asyLab}</g>`;
+  /* courbe (par segments, clippée) */
+  c.segs.forEach((sg,si)=>{
+    let d2='';
+    const N=Math.max(2,Math.round((sg[1]-sg[0])/0.04));
+    for(let i2=0;i2<=N;i2++){ const x=sg[0]+i2*(sg[1]-sg[0])/N; d2+=(d2?'L':'M')+X(x).toFixed(1)+' '+Y(f(x)).toFixed(1); }
+    g+=`<path d="${d2}" class="sv-curve" clip-path="url(#lgClip)"/>`;
+  });
+  /* étiquette f(x) près de la courbe */
+  let lx=LG_XMAX-0.6, ly=f(lx), tries=0;
+  while((ly>c.yMax-0.8||ly<c.yMin+0.8)&&tries<60){ lx-=0.22; ly=f(lx); tries++; }
+  const fy=Math.min(Math.max(ly+((ly>(c.yMin+c.yMax)/2)?-0.9:0.9), c.yMin+0.5), c.yMax-0.4);
+  g+=`<text x="${X(lx).toFixed(1)}" y="${Y(fy).toFixed(1)}" class="sv-cf">f(x)</text>`;
+  /* graduations x (halo, par-dessus), bords −∞ / +∞, marques a⁻|a⁺ */
+  const halo=(x2,y2,anch,txt)=>`<text x="${x2}" y="${y2}" class="sv-ax" text-anchor="${anch}" stroke="#fff" stroke-width="3.4" fill="#fff">${txt}</text><text x="${x2}" y="${y2}" class="sv-ax" text-anchor="${anch}">${txt}</text>`;
+  for(let n=LG_XMIN+1;n<=LG_XMAX-1;n++){ if(n!==0 && n!==c.skipX) g+=halo(X(n).toFixed(1), (Y(0)+15).toFixed(1), 'middle', numFmt(n)); }
+  for(let n=Math.ceil(c.yMin);n<=Math.floor(c.yMax);n++){ if(n!==0) g+=`<text x="${(X(0)-5).toFixed(1)}" y="${(Y(n)+3).toFixed(1)}" class="sv-ax" text-anchor="end">${numFmt(n)}</text>`; }
+  g+=halo((X(LG_XMIN)+3).toFixed(1), (Y(0)+15).toFixed(1), 'start', '−∞');
+  g+=halo((X(LG_XMAX)-3).toFixed(1), (Y(0)+15).toFixed(1), 'end', '+∞');
+  if(c.skipX!=null){
+    g+=halo((X(c.skipX)-3).toFixed(1), (Y(0)+15).toFixed(1), 'end', numFmt(c.skipX)+'⁻');
+    g+=halo((X(c.skipX)+3).toFixed(1), (Y(0)+15).toFixed(1), 'start', numFmt(c.skipX)+'⁺');
+  }
+  /* point animé (bouton ▶) */
+  g+=`<circle id="lgDot" class="lg-dot" r="5.2" cx="-20" cy="-20" style="display:none"/>`;
+  return `<svg viewBox="0 0 ${LG_W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg lg-svg"><defs><clipPath id="lgClip"><rect x="${X(LG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(LG_XMAX)-X(LG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
+}
+/* Position du point animé au temps t ∈ [0,1] : vers ±∞ il glisse jusqu’au bord ;
+   vers a± il s’approche géométriquement (il ralentit, pendant que f explose ou se stabilise). */
+function lgAnimePos(sub,t){
+  const e=1-Math.pow(1-t,3);
+  if(sub.kind==='pinf') return sub.dep+(LG_XMAX-0.15-sub.dep)*e;
+  if(sub.kind==='minf') return sub.dep+(LG_XMIN+0.15-sub.dep)*e;
+  const d0=sub.dep0, r=Math.pow(0.05/d0, e);
+  return sub.a+(sub.kind==='plus'?1:-1)*d0*r;
+}
+let lgAnimRaf=null;
+function lgAnime(i){
+  const c=test.questions[test.idx]; if(!c||c.type!=='lg') return;
+  const sub=c.subs[i]; if(!sub) return;
+  const dot=$('lgDot'); if(!dot) return;
+  if(lgAnimRaf){ cancelAnimationFrame(lgAnimRaf); lgAnimRaf=null; }
+  const f=lgFn(c), DUR=2800;
+  const t0=(window.performance&&performance.now)?performance.now():Date.now();
+  dot.style.display='';
+  const step=now=>{
+    const t=Math.min(1,(now-t0)/DUR);
+    const x=lgAnimePos(sub,t);
+    dot.setAttribute('cx', lgX(x).toFixed(1));
+    dot.setAttribute('cy', lgY(c,f(x)).toFixed(1));
+    if(t<1) lgAnimRaf=requestAnimationFrame(step);
+    else { lgAnimRaf=null; setTimeout(()=>{ if(!lgAnimRaf && $('lgDot')) $('lgDot').style.display='none'; }, 1400); }
+  };
+  lgAnimRaf=requestAnimationFrame(step);
+}
+/* Comparaisons locales (le verdict IA reste autoritaire pour le score). */
+function lgLimOK(sub, raw){
+  const brut=String(raw==null?'':raw).trim();
+  if(brut==='') return false;
+  const t=brut.replace(/\s+/g,'').replace(/inf/gi,'∞').replace(/-/g,'−');
+  if(sub.lim==='+∞') return t==='+∞'||t==='∞';
+  if(sub.lim==='−∞') return t==='−∞';
+  const v=Number(brut.replace(/−/g,'-').replace(/,/g,'.'));
+  return isFinite(v)&&Math.abs(v-sub.lim)<1e-9;
+}
+function lgEqOK(sub, raw){
+  const t=String(raw==null?'':raw).trim();
+  if(t==='') return false;
+  const v=Number(t.replace(/−/g,'-').replace(/,/g,'.'));
+  return isFinite(v)&&sub.eq!=null&&Math.abs(v-sub.eq)<1e-9;
+}
+function lgQuestionIA(c){
+  return 'IMPORTANT : corrige UNIQUEMENT l’exercice décrit ici (conjecture graphique de limites et d’asymptotes) ; il n’y a AUCUNE dérivée à calculer ni aucun autre exercice : ignore tout autre contexte et ne demande aucune donnée supplémentaire. Exercice « conjecturer graphiquement les limites » : '+c.desc
+    +' Pour chaque cas ('+c.subs.map(s=>s.lab+' : x → '+s.cibleTxt).join(' ; ')+'), l’élève écrit la limite de f(x), choisit « une asymptote horizontale », « une asymptote verticale » ou « pas d’asymptote horizontale ou verticale », et donne l’équation de l’asymptote le cas échéant.';
+}
+function lgAttenduIA(c){
+  const L=c.subs.map(s=>{
+    const limTxt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
+    return '('+s.lab+') limite = '+limTxt+' ; choix = '+(s.typ==='ah'?'une asymptote horizontale, d’équation y = '+numFmt(s.eq):(s.typ==='av'?'une asymptote verticale, d’équation x = '+numFmt(s.eq):'pas d’asymptote horizontale ou verticale'));
+  }).join(' ; ');
+  return 'Réponses attendues, cas par cas : '+L
+    +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI, pour CHAQUE cas, la limite est exacte ET le bon choix est fait ET l’équation d’asymptote est exacte quand il y en a une ; sinon correct = false. Tolérances : « ∞ » sans signe vaut +∞ ; un tiret simple « - » vaut le signe moins « − » ; la virgule décimale vaut le point. '
+    +'FEEDBACK COURT — 4 phrases maximum : commente UNIQUEMENT les cas faux, en faisant imaginer un point qui se déplace sur la courbe vers la cible (vers quelle hauteur ou vers quel infini se dirige-t-il ?) et en rappelant la règle : limite FINIE L quand x tend vers ±∞ ⇒ asymptote horizontale y = L ; limite INFINIE quand x tend vers un réel a ⇒ asymptote verticale x = a ; sinon pas d’asymptote. NE DONNE JAMAIS les valeurs correctes ni les bons choix, puis valide le reste en une seule courte phrase. Ne pose AUCUNE question et ne demande AUCUNE autre donnée : réponds uniquement ton verdict et ton commentaire.';
+}
+function lgReponseTxt(c){
+  const TL={ah:'une asymptote horizontale',av:'une asymptote verticale',rien:'pas d’asymptote'};
+  return c.subs.map((s,i)=>{
+    const lv=String(($('lg-lim'+i)||{}).value||'').trim();
+    const tv=String(($('lg-typ'+i)||{}).value||'');
+    const z=$('lg-eqz'+i), zvis=z&&z.style.display!=='none';
+    const ev=zvis?String(($('lg-eq'+i)||{}).value||'').trim():'';
+    return s.lab+') x → '+s.cibleTxt+' : f(x) → « '+lv+' » ; choix : '+(TL[tv]||'(non choisi)')+(zvis?(' ; équation '+(tv==='ah'?'y':'x')+' = « '+ev+' »'):'');
+  }).join('. ')+'.';
+}
+async function startLG(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='limites-graphiques'; test.kind='lg';
+  const fams=['homo','homo2','cloche','ln','exp','cub'];
+  for(let i=fams.length-1;i>0;i--){ const j=rand(0,i); const t2=fams[i]; fams[i]=fams[j]; fams[j]=t2; }
+  test.questions=fams.slice(0,5).map(fm=>genLG(fm));   /* 5 essais parmi les 6 familles */
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('lg'); renderLG();
+}
+function renderLG(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];
+  $('lgQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('lgModeTag').innerHTML=modeTagHTML();
+  $('lgLiveScore').textContent=test.score;
+  $('lgFeedback').textContent=''; $('lgFeedback').className='mp-feedback';
+  $('lgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG()">Vérifier mes réponses</button>';
+  $('lgPrompt').innerHTML='Voici la courbe d’une fonction <i>f</i>. Complète à l’aide du graphique.';
+  $('lgGraph').innerHTML=lgSVG(c);
+  const aide=(currentMode!=='eval');
+  $('lgHint').innerHTML=(aide?'<span class="tvg-hint">▶ fait apparaître un point qui se déplace sur la courbe&nbsp;·&nbsp;</span>':'')+'<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
+  $('lgSubs').innerHTML=c.subs.map((s,i)=>
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → <input class="dhv-in lg-lim" id="lg-lim'+i+'" type="text" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"></span>'
+    +(aide?' <button type="button" class="lg-play" onclick="lgAnime('+i+')" title="Voir un point se déplacer sur la courbe vers cette cible">▶</button>':'')
+    +'<br>il y a donc <select class="lg-sel" id="lg-typ'+i+'" onchange="lgSync('+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
+    +' <span class="dhv-eqgrp" id="lg-eqz'+i+'" style="display:none">, d’équation <span id="lg-pre'+i+'"></span> = <input class="dhv-in" id="lg-eq'+i+'" type="text" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
+  ).join('');
+  c.subs.forEach((s,i)=>{ const el=$('lg-lim'+i); if(!el) return;
+    el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
+  setTimeout(lgSyncAll,0);   /* après restoreBoxes en cas de reprise */
+}
+function lgSync(i){
+  const ty=$('lg-typ'+i), z=$('lg-eqz'+i), pre=$('lg-pre'+i);
+  if(!ty||!z||!pre) return;
+  if(ty.value==='ah'){ z.style.display=''; pre.innerHTML='<i>y</i>'; }
+  else if(ty.value==='av'){ z.style.display=''; pre.innerHTML='<i>x</i>'; }
+  else z.style.display='none';
+}
+function lgSyncAll(){
+  const c=test.questions&&test.questions[test.idx];
+  if(!c||c.type!=='lg') return;
+  c.subs.forEach((s,i)=>lgSync(i));
+}
+/* Soutien : champs justes verrouillés en vert, faux en rouge modifiables. */
+function lgMarqueSoutien(c){
+  c.subs.forEach((s,i)=>{
+    const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
+    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,li.value)){ li.classList.add('ok'); li.disabled=true; } else li.classList.add('bad'); }
+    if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
+    if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
+  });
+}
+/* Correction finale : erreurs conservées en rouge, bonnes réponses en badges verts,
+   étiquettes des asymptotes (y = …, x = …) révélées sur le graphique. */
+function lgFinal(c){
+  const labs=$('lgAsyLabs'); if(labs) labs.style.display='';
+  c.subs.forEach((s,i)=>{
+    const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
+    const limTxt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
+    if(li){ li.disabled=true; li.classList.remove('ok','bad');
+      if(lgLimOK(s,li.value)) li.classList.add('ok');
+      else { li.classList.add('bad'); const fx=document.createElement('span'); fx.className='dhv-fix'; fx.textContent='→ '+limTxt; li.insertAdjacentElement('afterend',fx); } }
+    if(ty){ ty.disabled=true; ty.classList.remove('ok','bad');
+      if(ty.value===s.typ) ty.classList.add('ok');
+      else { ty.classList.add('bad'); const fx2=document.createElement('span'); fx2.className='dhv-fix';
+        fx2.textContent='→ '+(s.typ==='ah'?'asymptote horizontale (y = '+numFmt(s.eq)+')':(s.typ==='av'?'asymptote verticale (x = '+numFmt(s.eq)+')':'pas d’asymptote'));
+        ty.insertAdjacentElement('afterend',fx2); } }
+    if(eq){ eq.disabled=true; eq.classList.remove('ok','bad');
+      const z=$('lg-eqz'+i);
+      if(z && z.style.display!=='none'){
+        if(ty && ty.value===s.typ && s.typ!=='rien'){
+          if(lgEqOK(s,eq.value)) eq.classList.add('ok');
+          else { eq.classList.add('bad'); const fx3=document.createElement('span'); fx3.className='dhv-fix'; fx3.textContent='→ '+numFmt(s.eq); eq.insertAdjacentElement('afterend',fx3); }
+        } else eq.classList.add('bad');
+      } }
+  });
+}
+let lgBusy=false;
+async function checkLG(){
+  if(test.locked||lgBusy) return;
+  const c=test.questions[test.idx];
+  let manque=false;
+  c.subs.forEach((s,i)=>{
+    const lv=String(($('lg-lim'+i)||{}).value||'').trim();
+    const tv=String(($('lg-typ'+i)||{}).value||'');
+    const ev=String(($('lg-eq'+i)||{}).value||'').trim();
+    if(!lv||!tv) manque=true;
+    if((tv==='ah'||tv==='av')&&!ev) manque=true;
+  });
+  if(manque){ toast('Complète chaque cas : la limite, le choix, et l’équation s’il y a une asymptote'); return; }
+  /* VERDICT LOCAL exact (limite, choix, équation — mêmes tolérances que l’IA : ∞ sans signe,
+     tiret, virgule). L’IA rédige seulement le commentaire des erreurs, conservé uniquement
+     s’il est d’accord avec ce verdict. */
+  const fautes=[];
+  c.subs.forEach((s,i)=>{
+    if(!lgLimOK(s, ($('lg-lim'+i)||{}).value)) fautes.push('limite du cas '+s.lab);
+    if(String(($('lg-typ'+i)||{}).value||'')!==s.typ) fautes.push('choix d’asymptote du cas '+s.lab);
+    else if(s.typ!=='rien' && !lgEqOK(s, ($('lg-eq'+i)||{}).value)) fautes.push('équation d’asymptote du cas '+s.lab);
+  });
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    lgBusy=true;
+    $('lgActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('lgFeedback').textContent='L’IA relit tes réponses…'; $('lgFeedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:lgQuestionIA(c),
+        attendu:lgAttenduIA(c)+' Cases actuellement fausses (verdict local certain) : '+fautes.join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces cases-là.',
+        reponse:lgReponseTxt(c), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    lgBusy=false;
+  }
+  if(!correct && isSoutien()){
+    lgMarqueSoutien(c);
+    $('lgFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Utilise ▶ : imagine le point qui se déplace vers la cible — vers quelle hauteur (ou quel infini) va-t-il ? Corrige les cases en rouge puis revérifie.');
+    $('lgFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('lgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  lgFinal(c);
+  if(correct){
+    test.score++; $('lgLiveScore').textContent=test.score;
+    $('lgFeedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('lgFeedback').className='mp-feedback good';
+  } else {
+    $('lgFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts, et les asymptotes sont maintenant étiquetées sur le graphique.';
+    $('lgFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+  }
+  const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
+  test.answers.push({
+    q:'Limites et asymptotes ('+c.familleTxt+')',
+    answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
+      return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | '),
+    given:c.subs.map((s,i)=>{ const lv=String(($('lg-lim'+i)||{}).value||'').trim();
+      const tv=String(($('lg-typ'+i)||{}).value||'');
+      const z=$('lg-eqz'+i), zvis=z&&z.style.display!=='none';
+      const ev=zvis?String(($('lg-eq'+i)||{}).value||'').trim():'';
+      return s.lab+') '+lv+', '+(TL[tv]||'—')+(zvis?(' ('+(tv==='ah'?'y':'x')+' = '+ev+')'):''); }).join(' | '),
+    correct:correct
+  });
+  const last=test.idx===test.questions.length-1;
+  $('lgActions').innerHTML=`<button class="btn btn-primary" onclick="nextLG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextLG(){ if(test.idx<test.questions.length-1){ test.idx++; renderLG(); } else finishTest(); }
 
 /* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
 /* Normalisation : minuscules, sans accents, espaces compactés. */
