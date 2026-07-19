@@ -369,7 +369,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -440,6 +440,13 @@
 .just-item.no{color:var(--ink-soft);}
 .just-item.miss{color:var(--red);}
 .tvi-model{margin-top:9px;padding:11px 13px;background:var(--surface);border-left:3px solid var(--green);border-radius:8px;font-size:.95rem;line-height:1.55;color:var(--ink);font-weight:600;}
+
+/* --- Test TVI — nombre de solutions : liste d'équations avec menus déroulants --- */
+.tvins-eqs{display:flex;flex-direction:column;gap:11px;margin:0 0 8px;}
+.tvins-eq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:1.05rem;color:var(--ink);}
+.tvins-eq .eqn{font-weight:800;min-width:118px;}
+.tvins-eq i{font-style:italic;}
+.tvins-eq .lbl{color:var(--ink-soft);font-weight:600;}
 
 
 /* --- Test dérivée exponentielle : étapes u/v + facteur factorisé --- */
@@ -660,7 +667,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp21</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp22</b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -929,6 +936,22 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <textarea class="tvi-textarea" id="tvi3Input" rows="4" placeholder="Explique pourquoi on ne peut pas appliquer le TVI ici (encadrement de la valeur cherchée, stricte monotonie, continuité / valeur interdite…)" autocomplete="off"></textarea>
       <div class="mp-feedback" id="tvi3Feedback"></div>
       <div class="mp-actions" id="tvi3Actions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : TVI — NOMBRE DE SOLUTIONS -->
+  <section class="screen" id="scr-tvins">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvinsModeTag"></span><span class="q-idx" id="tvinsQIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="tvinsLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card">
+      <p class="tvi-prompt" id="tvinsPrompt"></p>
+      <div class="tvi-table" id="tvinsTable"></div>
+      <p class="tvi-instr">À l&rsquo;aide du tableau, donne le nombre de solutions de chaque équation&nbsp;:</p>
+      <div class="tvins-eqs" id="tvinsEqs"></div>
+      <div class="mp-feedback" id="tvinsFeedback"></div>
+      <div class="mp-actions" id="tvinsActions"></div>
     </div>
   </section>
 
@@ -1232,6 +1255,7 @@ const TESTS={
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
   'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
+  'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
@@ -1250,7 +1274,7 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'Étude de fonction',  ids:['equation-tangente','tvi','tvi-redaction','tvi-contre-exemples'] }
+  { num:3, nom:'Étude de fonction',  ids:['equation-tangente','tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1381,6 +1405,23 @@ function conseilCourant(){
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
      +(txt ? ' Texte actuel de l’élève : « '+txt+' ». Dis-lui ce qui manque ou ce qui est faux, par son rôle, sans écrire la phrase attendue.' : ' L’élève n’a encore rien écrit : aide-le à démarrer en lui demandant de vérifier une à une les hypothèses du théorème sur le tableau.');
+  } else if(test && test.kind==='tvins' && test.questions && test.questions[test.idx]){
+    /* ---- 3.5 nombre de solutions : lecture du tableau ; l'IA guide sans donner les nombres ---- */
+    const q=test.questions[test.idx];
+    const etat=q.eqs.map((e,i)=>{ const el=$('tvins-eq'+i); const val=(el&&el.value)||'';
+      let st=val?('réponse actuelle « '+val+' »'):'(pas encore répondu)';
+      if(el&&el.classList.contains('bad')) st+=' [signalée FAUSSE]';
+      else if(el&&el.classList.contains('ok')) st+=' [déjà juste]';
+      return '('+(i+1)+') '+q.fname+'('+q.v+') = '+e.k+' : '+st; }).join(' ; ');
+    c='Exercice : à l’aide d’un tableau de variation, donner le NOMBRE de solutions de chaque équation. '
+     +'Description exacte du tableau (tu ne vois pas l’image) : '+q.desc
+     +' Équations et nombres attendus (à ne JAMAIS écrire à l’élève) : '
+     +q.eqs.map((e,i)=>'('+(i+1)+') '+q.fname+'('+q.v+') = '+e.k+' → '+e.n+' solution(s)').join(' ; ')+'. '
+     +'État des réponses de l’élève : '+etat+'. '
+     +'CONTRAINTE ANTI-RECOPIE : ta réponse ne doit contenir AUCUN nombre de solutions. '
+     +'Méthode à faire appliquer : suivre chaque flèche du tableau et compter les passages par la valeur k ; '
+     +'une valeur aux bornes ne compte que si elle est ATTEINTE (borne fermée) — une limite (borne infinie ou asymptote) n’est jamais atteinte ; '
+     +'le sommet du tableau ne compte qu’une seule fois. Aide l’élève sur la PREMIÈRE équation fausse ou vide, sans donner le nombre.';
   } else if(test && test.kind==='sv' && test.questions && test.questions[test.idx]){
     /* ---- 1.3 lecture graphique : l'IA ne voit PAS l'image, on lui decrit la courbe
             et l'etat des deux tableaux a partir des donnees de la question ---- */
@@ -1720,7 +1761,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1740,7 +1781,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -2650,6 +2691,230 @@ async function checkTVI3(){
   $('tvi3Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
 function nextTVI3(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI3(); } else finishTest(); }
+
+/* ====================== TEST : TVI — nombre de solutions ====================== */
+/* D’après le document « Test TVI 3 » : un tableau de variation est donné (monotone,
+   ou en V/Λ avec un extremum), et l’élève indique le NOMBRE de solutions de f(x) = k
+   pour plusieurs valeurs de k. Conventions de lecture (fidèles aux exemples) :
+   - borne finie FERMÉE « [ » ou « ] » : la valeur est ATTEINTE ;
+   - borne infinie, ou borne finie OUVERTE (asymptote verticale) : la valeur affichée
+     est une LIMITE, jamais atteinte ;
+   - le sommet du V/Λ est toujours atteint, et ne compte qu’UNE fois.
+   Le nombre de solutions est calculé à la GÉNÉRATION (source de vérité) ; l’IA
+   (fonction Edge « corriger-definition », action verif) confronte les réponses de
+   l’élève à ces nombres et rédige le retour pédagogique. */
+/* 1 solution sur une branche monotone si k est strictement entre les deux valeurs,
+   ou égal à une valeur ATTEINTE (u/w : valeurs aux extrémités ; uAtt/wAtt : atteintes ?). */
+function tvinsBranche(u,uAtt,w,wAtt,k){
+  const lo=Math.min(u,w), hi=Math.max(u,w);
+  const loAtt=(lo===u)?uAtt:wAtt, hiAtt=(hi===u)?uAtt:wAtt;
+  if(k>lo && k<hi) return 1;
+  if(k===lo && loAtt) return 1;
+  if(k===hi && hiAtt) return 1;
+  return 0;
+}
+/* Somme sur les branches ; le sommet vM (partagé par les deux branches d’un V/Λ)
+   ne compte qu’une seule fois. br = [{u,uAtt,w,wAtt}], vM = valeur du sommet (ou null). */
+function tvinsCount(br,vM,k){
+  let n=0; br.forEach(b=>{ n+=tvinsBranche(b.u,b.uAtt,b.w,b.wAtt,k); });
+  if(vM!==null && k===vM && n>1) n=1;
+  return n;
+}
+/* Bornes de l’intervalle : 0 = infinie, 1 = finie fermée (valeur atteinte),
+   2 = finie ouverte = asymptote verticale (au plus une par tableau). */
+function tvinsBornes(interieur){
+  let tg=pick([0,0,1,1,2]), td=pick([0,0,1,1,2]);
+  if(tg===2 && td===2) td=pick([0,1]);
+  const a0=(tg===0)?null:rand(-4,1);
+  let c0=null,b0=null;
+  if(interieur){ c0=(a0===null?rand(-2,2):a0+rand(2,4)); b0=(td===0)?null:c0+rand(2,5); }
+  else { b0=(td===0)?null:(a0===null?rand(2,6):a0+rand(3,7)); }
+  return { tg, td,
+    aLabel:(tg===0)?'−∞':numFmt(a0), leftBrk:(tg===1)?'[':']',
+    bLabel:(td===0)?'+∞':numFmt(b0), rightBrk:(td===1)?']':'[',
+    cLabel:(c0===null?'':numFmt(c0)) };
+}
+/* Étiquette « valeur atteinte / limite » pour la description envoyée à l’IA. */
+function tvinsLim(vl,xl,att,v){
+  return vl+(att?' (valeur atteinte en '+v+' = '+xl+')':' (limite en '+xl+', jamais atteinte)');
+}
+/* Tableau monotone : 2 équations (une valeur intérieure, une extérieure ou sur une borne — piège atteint/limite). */
+function genTVINSMono(){
+  const v=rand(0,1)?'t':'x', fname=pick(['f','g']);
+  const croissante=rand(0,1)===1;
+  const B=tvinsBornes(false);
+  let vG,vD,gAtt,dAtt;
+  if(B.tg===1){ vG=croissante?rand(-6,0):rand(3,9); gAtt=true; }
+  else if(B.tg===2){ vG=croissante?-Infinity:Infinity; gAtt=false; }
+  else { vG=(rand(0,2)===0)?(croissante?-Infinity:Infinity):(croissante?rand(-6,0):rand(3,9)); gAtt=false; }
+  if(B.td===1){ vD=croissante?(isFinite(vG)?vG+rand(4,8):rand(2,8)):(isFinite(vG)?vG-rand(4,8):rand(-6,1)); dAtt=true; }
+  else if(B.td===2){ vD=croissante?Infinity:-Infinity; dAtt=false; }
+  else { vD=(rand(0,2)===0)?(croissante?Infinity:-Infinity):(croissante?(isFinite(vG)?vG+rand(4,8):rand(2,8)):(isFinite(vG)?vG-rand(4,8):rand(-6,1))); dAtt=false; }
+  if(!isFinite(vG)&&!isFinite(vD)){          /* garde : au moins une valeur finie, sinon toutes les équations ont 1 solution */
+    if(B.tg!==2){ vG=croissante?rand(-6,0):rand(3,9); }
+    else { vD=croissante?rand(2,8):rand(-6,1); }
+  }
+  const lo=Math.min(vG,vD), hi=Math.max(vG,vD);
+  const br=[{u:vG,uAtt:gAtt,w:vD,wAtt:dAtt}];
+  const inCands=[];
+  const li=isFinite(lo)?Math.floor(lo)+1:Math.ceil(hi)-4, hs=isFinite(hi)?Math.ceil(hi)-1:Math.floor(lo)+4;
+  for(let t=li;t<=hs;t++) inCands.push(t);
+  const kIn=inCands.length?pick(inCands):Math.round(((isFinite(lo)?lo:hi-4)+(isFinite(hi)?hi:lo+4))/2);
+  const outCands=[];
+  if(isFinite(hi)){ outCands.push(hi+rand(1,3)); outCands.push(hi); }
+  if(isFinite(lo)){ outCands.push(lo-rand(1,3)); outCands.push(lo); }
+  let kOut=pick(outCands);
+  if(kOut===kIn) kOut=isFinite(hi)?hi+rand(1,3):lo-rand(1,3);
+  const ks=[kIn,kOut];
+  if(rand(0,1)) ks.reverse();
+  const eqs=ks.map(k=>({k:numFmt(k), n:tvinsCount(br,null,k)}));
+  const o={ type:'tvins', shape:'mono', v, fname, croissante,
+    aLabel:B.aLabel,leftBrk:B.leftBrk,bLabel:B.bLabel,rightBrk:B.rightBrk,cLabel:'',
+    vGL:vlabel(vG), vDL:vlabel(vD), eqs };
+  o.desc=fname+' est continue et strictement '+(croissante?'croissante':'décroissante')+' sur '+tvi3Intervalle(o)
+    +' : elle '+(croissante?'croît':'décroît')+' de '+tvinsLim(o.vGL,B.aLabel,gAtt,v)+' à '+tvinsLim(o.vDL,B.bLabel,dAtt,v)+'.';
+  return o;
+}
+/* Tableau en V/Λ : 4 équations (sommet → 1 ; entre le sommet et le plus bas des côtés → 2 ;
+   pièges : valeur d’un côté (atteinte ou limite), au-delà des côtés, ou de l’autre côté du sommet → 0). */
+function genTVINSV(){
+  const v=rand(0,1)?'t':'x', fname=pick(['f','g']);
+  const extr=pick(['min','max']);
+  const s=(extr==='min')?1:-1;                       /* les côtés sont à vM + s×hauteur */
+  const B=tvinsBornes(true);
+  const vM=rand(-3,3);                                /* sommet, toujours atteint */
+  let vG,vD,gAtt,dAtt;
+  if(B.tg===1){ vG=vM+s*rand(3,7); gAtt=true; }
+  else if(B.tg===2){ vG=s*Infinity; gAtt=false; }
+  else { vG=(rand(0,2)===0)?s*Infinity:vM+s*rand(3,7); gAtt=false; }
+  if(B.td===1){ vD=vM+s*rand(3,7); dAtt=true; }
+  else if(B.td===2){ vD=s*Infinity; dAtt=false; }
+  else { vD=(rand(0,2)===0)?s*Infinity:vM+s*rand(3,7); dAtt=false; }
+  const br=[{u:vG,uAtt:gAtt,w:vM,wAtt:true},{u:vM,uAtt:true,w:vD,wAtt:dAtt}];
+  const hG=Math.abs(vG-vM), hD=Math.abs(vD-vM);
+  const tLo=Math.min(hG,hD), tHi=Math.max(hG,hD);
+  const cand=[vM, vM+s*rand(1,Math.min(tLo-1,5))];
+  if(isFinite(tLo)) cand.push(vM+s*tLo);
+  if(isFinite(tHi)) cand.push(vM+s*(tHi+rand(1,3)));
+  cand.push(vM-s*rand(1,4));
+  const seen={}, ks=[];
+  cand.forEach(k=>{ if(!seen[k]){ seen[k]=1; ks.push(k); } });
+  let pad=1;
+  while(ks.length<4){ const k=vM-s*pad; if(!seen[k]){ seen[k]=1; ks.push(k); } pad++; }
+  while(ks.length>4){ ks.splice(rand(2,ks.length-1),1); }   /* on garde toujours le sommet et la valeur à 2 solutions */
+  for(let i=ks.length-1;i>0;i--){ const j=rand(0,i); const t2=ks[i]; ks[i]=ks[j]; ks[j]=t2; }
+  const eqs=ks.map(k=>({k:numFmt(k), n:tvinsCount(br,vM,k)}));
+  const o={ type:'tvins', shape:'v', v, fname, extr,
+    aLabel:B.aLabel,leftBrk:B.leftBrk,bLabel:B.bLabel,rightBrk:B.rightBrk,cLabel:B.cLabel,
+    vGL:vlabel(vG), vML:vlabel(vM), vDL:vlabel(vD), eqs };
+  o.desc=fname+' est continue sur '+tvi3Intervalle(o)+' : elle '+(extr==='min'
+    ?('décroît de '+tvinsLim(o.vGL,B.aLabel,gAtt,v)+' jusqu’à son minimum '+o.vML+' (valeur atteinte en '+v+' = '+B.cLabel+'), puis croît jusqu’à '+tvinsLim(o.vDL,B.bLabel,dAtt,v))
+    :('croît de '+tvinsLim(o.vGL,B.aLabel,gAtt,v)+' jusqu’à son maximum '+o.vML+' (valeur atteinte en '+v+' = '+B.cLabel+'), puis décroît jusqu’à '+tvinsLim(o.vDL,B.bLabel,dAtt,v)))+'.';
+  return o;
+}
+function genTVINS(sh){ return sh==='v'?genTVINSV():genTVINSMono(); }
+/* Liste des équations, côté IA. */
+function tvinsListeEq(c){ return c.eqs.map((e,i)=>'('+(i+1)+') '+c.fname+'('+c.v+') = '+e.k).join(' ; '); }
+/* Question et attendu envoyés à l’IA (action verif) : les nombres calculés font foi,
+   l’IA vérifie position par position et rédige le retour sans jamais donner les nombres. */
+function tvinsQuestionIA(c){
+  return 'À l’aide d’un tableau de variation, donner le NOMBRE de solutions de chaque équation. '
+    +'Tableau de variation (description exacte, tu ne vois pas l’image) : '+c.desc
+    +' Équations posées : '+tvinsListeEq(c)
+    +'. [L’élève répond, pour chaque équation et dans l’ordre, par un nombre entier de solutions.]';
+}
+function tvinsAttenduIA(c){
+  return 'Nombres de solutions exacts, position par position : '
+    +c.eqs.map((e,i)=>'('+(i+1)+') '+e.n).join(' ; ')
+    +'. RÈGLE STRICTE : correct = true SI ET SEULEMENT SI chaque nombre donné par l’élève est exactement celui attendu, à la même position ; la moindre différence donne correct = false. '
+    +'FEEDBACK : pour chaque équation fausse, explique la LECTURE du tableau (suivre chaque flèche et compter les passages par k ; une valeur aux bornes ne compte que si elle est ATTEINTE — une limite, borne infinie ou asymptote, n’est jamais atteinte ; le sommet ne compte qu’une fois) SANS JAMAIS écrire le nombre correct de solutions. Valide brièvement les équations justes.';
+}
+function tvinsReponseTxt(vals){ return vals.map((x,i)=>'('+(i+1)+') '+x).join(' ; '); }
+async function startTVINS(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='tvi-nombre-solutions'; test.kind='tvins';
+  const n=5;                                           /* 5 tableaux, formes mono et V/Λ garanties */
+  const plan=['mono','v',pick(['mono','v','v'])];
+  while(plan.length<n) plan.push(pick(['mono','v']));
+  for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
+  test.questions=plan.map(sh=>genTVINS(sh));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('tvins'); renderTVINS();
+}
+function renderTVINS(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];   /* les conseils de la question précédente ne concernent plus celle-ci */
+  $('tvinsQIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('tvinsModeTag').innerHTML=modeTagHTML();
+  $('tvinsLiveScore').textContent=test.score;
+  $('tvinsFeedback').textContent=''; $('tvinsFeedback').className='mp-feedback';
+  $('tvinsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVINS()">Vérifier mes réponses</button>';
+  $('tvinsPrompt').innerHTML=`Soit <i>${c.fname}</i> définie sur ${esc(tvi3Intervalle(c))}, dont le tableau de variation est donné ci-dessous.`;
+  $('tvinsTable').innerHTML=tvi3SVG(c);
+  $('tvinsEqs').innerHTML=c.eqs.map((e,i)=>
+    `<div class="tvins-eq"><span class="eqn"><i>${c.fname}</i>(${c.v}) = ${e.k}</span><span class="lbl">nombre de solutions&nbsp;:</span><select class="tvi-sel" id="tvins-eq${i}"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>`
+  ).join('');
+}
+let tvinsBusy=false;
+async function checkTVINS(){
+  if(test.locked||tvinsBusy) return;
+  const c=test.questions[test.idx];
+  const vals=c.eqs.map((e,i)=>(($('tvins-eq'+i)||{}).value||''));
+  if(vals.some(x=>x==='')){ toast('Réponds à toutes les équations d’abord'); return; }
+  tvinsBusy=true;
+  $('tvinsActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  $('tvinsFeedback').textContent='L’IA relit tes réponses…'; $('tvinsFeedback').className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:tvinsQuestionIA(c), attendu:tvinsAttenduIA(c), reponse:tvinsReponseTxt(vals), balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  tvinsBusy=false;
+  /* Pas de correcteur de secours (deux correcteurs = deux barèmes) : sans l’IA on ne note pas,
+     la tentative n’est ni comptée ni verrouillée, l’élève réessaie quand le service répond. */
+  if(!res || res.error){
+    $('tvinsFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
+    $('tvinsFeedback').className='mp-feedback bad';
+    $('tvinsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVINS()">Réessayer</button>';
+    return;
+  }
+  const correct=res.correct===true;
+  const fbHTML=conseilHTML(res.feedback||'');
+  /* coloration locale d’après les nombres calculés (les mêmes que ceux envoyés à l’IA) */
+  c.eqs.forEach((e,i)=>{
+    const el=$('tvins-eq'+i); if(!el) return;
+    const ok=(vals[i]===String(e.n));
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad');
+    el.disabled = ok || !isSoutien();
+  });
+  if(!correct && isSoutien()){
+    $('tvinsFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Suis chaque flèche du tableau : la valeur est-elle atteinte, ou seulement une limite ? Corrige les cases en rouge, puis revérifie.');
+    $('tvinsFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('tvinsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTVINS()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(correct){
+    test.score++; $('tvinsLiveScore').textContent=test.score;
+    $('tvinsFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !'])));
+    $('tvinsFeedback').className='mp-feedback '+(fbHTML?'iafb':'good');
+  } else {
+    $('tvinsFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Les bonnes réponses sont affichées en vert.';
+    $('tvinsFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    c.eqs.forEach((e,i)=>{ const el=$('tvins-eq'+i); if(el){ el.value=String(e.n); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+  }
+  test.answers.push({
+    q:'Nombre de solutions — '+tvinsListeEq(c)+' sur '+tvi3Intervalle(c),
+    answer:c.eqs.map((e,i)=>'('+(i+1)+') '+e.n).join(' ; '),
+    given:tvinsReponseTxt(vals),
+    correct:correct
+  });
+  const last=test.idx===test.questions.length-1;
+  $('tvinsActions').innerHTML=`<button class="btn btn-primary" onclick="nextTVINS()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextTVINS(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVINS(); } else finishTest(); }
 
 /* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
 /* Normalisation : minuscules, sans accents, espaces compactés. */
