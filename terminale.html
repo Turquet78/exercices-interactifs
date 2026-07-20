@@ -545,6 +545,7 @@
 #conseilModal{background:transparent;pointer-events:none}
 #conseilModal .conseil-card{pointer-events:auto;border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(15,23,42,.25)}
 #qiaOverlay .qia-head,#conseilModal .notes-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+.qia-headbtns{display:flex;align-items:center;gap:2px}
 @keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
 
 /* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
@@ -948,6 +949,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="card conseil-card">
       <div class="notes-head">
         <h3>🎓 Soutien</h3>
+        <button class="btn-link qia-detach" onclick="detacherSoutien()" title="Détacher dans une fenêtre indépendante">⧉ Détacher</button>
         <button class="btn-link" onclick="fermerConseil()">Fermer</button>
       </div>
       <div id="conseilBody" class="mp-feedback"></div>
@@ -1395,7 +1397,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 <!-- Fenêtre « Poser une question à l'IA » (flottante, déplaçable) -->
 <div id="qiaOverlay" class="qia-overlay">
   <div class="qia-card">
-    <div class="qia-head"><b>💬 Poser une question à l’IA</b><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></div>
+    <div class="qia-head"><b>💬 Poser une question à l’IA</b><span class="qia-headbtns"><button type="button" class="qia-close qia-detach" onclick="detacherQIA()" title="Détacher dans une fenêtre indépendante">⧉</button><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></span></div>
     <div class="qia-sugg" id="qiaSugg"></div>
     <div class="qia-dialog" id="qiaDialog"></div>
     <div class="qia-inputrow">
@@ -1409,7 +1411,17 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 
 <script>
 /* ---------- Raccourcis ---------- */
-const $=id=>document.getElementById(id);
+/* $ cherche d'abord dans la page, puis dans les fenêtres détachées (Soutien / Question à l'IA). */
+function $(id){
+  let el=document.getElementById(id);
+  if(!el && window.__fenetresDetachees){
+    for(let i=0;i<window.__fenetresDetachees.length;i++){
+      const p=window.__fenetresDetachees[i];
+      try{ if(p && !p.closed){ el=p.document.getElementById(id); if(el) break; } }catch(e){}
+    }
+  }
+  return el;
+}
 const val=id=>$(id).value;
 const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1890,7 +1902,13 @@ function conseilCourant(){
   ouvrirSoutien();
   lancerConseil(c, $('conseilBody'));
 }
-function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; }
+function fermerConseil(){
+  const m=document.getElementById('conseilModal');
+  if(m){
+    (window.__fenetresDetachees||[]).slice().forEach(function(p){ if(p.__origine===m){ try{ p.close(); }catch(e){} } });
+    m.hidden=true;
+  }
+}
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
   $(fbId).className='mp-feedback bad';
@@ -7473,6 +7491,9 @@ const QIA_SUGG={
 function qiaSuggestions(){ return (test && QIA_SUGG[test.kind]) || QIA_SUGG.gen; }
 function ouvrirQIA(){
   const ov=$('qiaOverlay'); if(!ov) return;
+  const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===ov && !p.closed; });
+  if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
   $('qiaSugg').innerHTML=qiaSuggestions().map(t=>'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(t)+'</button>').join('');
   const mic=$('qiaMic');
@@ -7485,7 +7506,14 @@ function ouvrirQIA(){
   ov.classList.add('on');
   try{ if(!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) $('qiaInput').focus(); }catch(e){}
 }
-function fermerQIA(){ const ov=$('qiaOverlay'); if(ov) ov.classList.remove('on'); qiaMicStop(); }
+function fermerQIA(){
+  const ov=document.getElementById('qiaOverlay');
+  if(ov){
+    (window.__fenetresDetachees||[]).slice().forEach(function(p){ if(p.__origine===ov){ try{ p.close(); }catch(e){} } });
+    ov.classList.remove('on');
+  }
+  qiaMicStop();
+}
 function qiaPoser(t){ const inp=$('qiaInput'); if(inp) inp.value=String(t||''); qiaEnvoyer(); }
 let qiaBusy=false;
 async function qiaEnvoyer(){
@@ -7652,9 +7680,74 @@ function qiaIlluSVG(id){
   }
   return '';
 }
+/* --- Détachement : chaque fenêtre d'aide peut devenir une vraie fenêtre indépendante du
+   système (window.open), déplaçable partout sur l'écran de l'ordinateur, second moniteur compris.
+   Les deux fenêtres peuvent être détachées en même temps. Bureau uniquement ; repli = flottantes. --- */
+window.__fenetresDetachees = window.__fenetresDetachees || [];
+function detachementPossible(){
+  try{ return !!window.open && window.matchMedia && window.matchMedia('(pointer: fine)').matches; }
+  catch(e){ return false; }
+}
+function detacherFenetre(conteneur, carte, titre, nom, larg, haut){
+  if(!conteneur || !carte) return null;
+  const L=window.__fenetresDetachees;
+  for(let i=0;i<L.length;i++){ if(L[i] && L[i].__origine===conteneur && !L[i].closed){ try{ L[i].focus(); }catch(e){} return L[i]; } }
+  let pop=null;
+  const gauche=Math.max(0, ((window.screen&&window.screen.width)||1280)-larg-60);
+  try{ pop=window.open('', nom, 'width='+larg+',height='+haut+',left='+gauche+',top=90'); }catch(e){ pop=null; }
+  if(!pop){ toast('Fenêtre bloquée par le navigateur — autorise les pop-ups pour ce site.'); return null; }
+  const pd=pop.document;
+  try{ pd.title=titre; }catch(e){}
+  try{
+    const me=pd.createElement('meta'); me.setAttribute('charset','utf-8'); pd.head.appendChild(me);
+    const st=pd.createElement('style');
+    st.textContent=Array.prototype.map.call(document.querySelectorAll('style'),function(x){ return x.textContent; }).join('\n')
+      +'\nbody{margin:0;background:var(--surface);font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}'
+      +'\n.qia-card,.conseil-card{position:static!important;left:auto!important;top:auto!important;width:100%!important;max-width:none!important;height:100vh;max-height:100vh!important;margin:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}'
+      +'\n.qia-detach{display:none!important}';
+    pd.head.appendChild(st);
+  }catch(e){}
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+  pop.__carte=carte; pop.__origine=conteneur;
+  pd.body.appendChild(pd.adoptNode(carte));
+  L.push(pop);
+  try{ pop.addEventListener('pagehide', function(){ rapatrierFenetre(pop); }); }catch(e){}
+  try{ pop.focus(); }catch(e){}
+  return pop;
+}
+function rapatrierFenetre(pop){
+  try{
+    if(pop && pop.__carte && pop.__carte.ownerDocument!==document && pop.__origine){
+      pop.__origine.appendChild(document.adoptNode(pop.__carte));
+    }
+  }catch(e){}
+  const i=window.__fenetresDetachees.indexOf(pop);
+  if(i>=0) window.__fenetresDetachees.splice(i,1);
+}
+function reattacherFenetres(){
+  window.__fenetresDetachees.slice().forEach(function(pop){
+    rapatrierFenetre(pop);
+    try{ pop.close(); }catch(e){}
+  });
+}
+function detacherQIA(){
+  const ov=document.getElementById('qiaOverlay'); if(!ov) return;
+  const carte=ov.querySelector('.qia-card'); if(!carte) return;
+  const pop=detacherFenetre(ov, carte, 'Poser une question à l’IA', 'fenQIA', 430, 560);
+  if(pop) ov.classList.remove('on');
+}
+function detacherSoutien(){
+  const m=document.getElementById('conseilModal'); if(!m) return;
+  const carte=m.querySelector('.conseil-card'); if(!carte) return;
+  const pop=detacherFenetre(m, carte, 'Soutien', 'fenSoutien', 400, 480);
+  if(pop) m.hidden=true;
+}
 /* --- Fenêtre « Soutien » : conseil sur l'essai en cours, dans sa propre fenêtre flottante. --- */
 function ouvrirSoutien(){
   const m=$('conseilModal'); if(!m) return;
+  const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===m && !p.closed; });
+  if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  const bd=m.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   m.hidden=false;
   rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
 }
@@ -7672,6 +7765,7 @@ function rendreDeplacable(carte, poignee){
   const debut=function(e){
     if(e.button!==undefined && e.button!==0 && !e.touches) return;      /* clic gauche ou doigt uniquement */
     if(e.target && e.target.closest && e.target.closest('button')) return;   /* ✕ / Fermer restent cliquables */
+    if(carte.ownerDocument!==document) return;                /* détachée : le système gère la fenêtre */
     const r=carte.getBoundingClientRect();
     carte.style.position='fixed';
     carte.style.left=r.left+'px'; carte.style.top=r.top+'px';
@@ -7700,6 +7794,7 @@ function rendreDeplacable(carte, poignee){
 }
 /* --- Fermer (et vider) les fenêtres d'aide à chaque changement d'écran : quitter l'exercice les fait disparaître. --- */
 function fermerFenetresIA(vider){
+  reattacherFenetres();
   fermerQIA(); fermerConseil();
   if(!vider) return;
   const d=$('qiaDialog'); if(d) d.innerHTML='';
