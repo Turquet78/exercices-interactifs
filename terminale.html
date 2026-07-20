@@ -42,6 +42,8 @@
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
+/* Sur écran d'ordinateur, le cadre blanc prend plus de largeur ; téléphones inchangés. */
+@media (min-width:1080px){ .wrap{max-width:1200px} }
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -369,7 +371,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -492,8 +494,41 @@
 .lg-lim{width:66px;}
 .lg-play{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:34px;height:34px;font-size:.9rem;font-weight:800;color:var(--blue);cursor:pointer;vertical-align:middle;margin-left:4px;}
 .lg-play:hover{border-color:var(--blue);color:var(--blue-dark);}
+.lg-inf{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:34px;height:34px;font-size:1.05rem;font-weight:800;color:var(--ink);cursor:pointer;vertical-align:middle;margin-left:6px;line-height:1;}
+.lg-inf:hover{border-color:var(--blue);color:var(--blue);}
+.lg-inf:disabled{opacity:.45;cursor:default;}
 .lg-dot{fill:var(--blue);stroke:#fff;stroke-width:2;}
 #lgHint{margin:2px 0 8px;}
+#lg2Hint{margin:2px 0 8px;}
+#lg3Hint{margin:6px 0 8px;}
+#lg3TVzone{margin-top:6px;}
+.vfcell .lg3-val{position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:.98rem;color:var(--ink);background:var(--surface);padding:1px 6px;border-radius:6px;white-space:nowrap;}
+
+/* --- Fenêtre « Poser une question à l'IA » --- */
+.qia-overlay{position:fixed;inset:0;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:14px;box-sizing:border-box}
+.qia-overlay.on{display:flex}
+.qia-card{background:var(--surface);border-radius:16px;max-width:600px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(15,23,42,.25);overflow:hidden}
+.qia-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1.5px solid var(--line);font-size:1.02rem}
+.qia-close{border:none;background:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft);padding:4px 8px}
+.qia-sugg{padding:10px 14px 2px}
+.qia-chip{display:inline-block;margin:0 8px 8px 0;padding:7px 11px;border:1.5px solid #c9d3e8;border-radius:999px;background:var(--paper);font-weight:700;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left}
+.qia-chip:hover{border-color:var(--blue);color:var(--blue)}
+.qia-dialog{flex:1;overflow-y:auto;padding:6px 14px;min-height:56px}
+.qia-q,.qia-r{margin:8px 0;padding:9px 12px;border-radius:12px;line-height:1.5;font-size:.95rem}
+.qia-q{background:#e8eefb;margin-left:14%}
+.qia-r{background:var(--paper);border:1.5px solid var(--line);margin-right:6%}
+.qia-inputrow{display:flex;gap:8px;padding:10px 14px;border-top:1.5px solid var(--line);align-items:flex-end}
+.qia-inputrow textarea{flex:1;resize:none;border:2px solid #c9d3e8;border-radius:10px;padding:8px 10px;font:inherit;min-height:44px;box-sizing:border-box}
+.qia-mic{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:44px;height:44px;font-size:1.1rem;cursor:pointer;flex:none}
+.qia-mic.on{border-color:#d94859;background:#fdecee;animation:qiaPulse 1s infinite}
+@keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
+
+/* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
+.vfcell .lg2-vin{position:absolute;transform:translate(-50%,-50%);width:54px;padding:5px 4px;font-size:.95rem;transition:top .2s ease;}
+.vt-dbar{stroke:var(--ink);stroke-width:2;}
+.vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft);}
+.vfcell .vt-sel2.bad{border-color:var(--red);background:#fdecee;}
+.vfcell .lg2-fix{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:.82rem;z-index:3;}
 .dhv-lab{font-size:13px;font-weight:700;fill:#111827;}
 .dhv-svg{max-width:380px;}
 .dhv-eqgrp{white-space:nowrap;}
@@ -623,6 +658,16 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 
 /* --- Test Signes & variations : lecture graphique + tableaux à compléter --- */
 .sv-card{max-width:560px;margin:0 auto;}
+/* Sur écran d'ordinateur, le cadre blanc des exercices prend plus de largeur ; téléphones inchangés. */
+@media (min-width:860px){ .tvi-card,.sv-card{max-width:780px} }
+@media (min-width:1080px){ .tvi-card,.sv-card{max-width:1040px} .sv-svg{max-width:560px} }
+@media (min-width:1400px){ .tvi-card,.sv-card{max-width:1200px} }
+/* Quand le cadre est plus grand : les cas des exercices de limites en deux colonnes.
+   (inline-block + calc plutôt que grid : compatible aussi avec les vieux navigateurs.) */
+@media (min-width:860px){
+  #lgSubs .lg-sub,#lg2Subs .lg-sub,#lg3Subs .lg-sub{display:inline-block;width:calc(50% - 10px);vertical-align:top;box-sizing:border-box;margin:8px 0}
+  #lgSubs .lg-sub:nth-child(odd),#lg2Subs .lg-sub:nth-child(odd),#lg3Subs .lg-sub:nth-child(odd){margin-right:16px}
+}
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
 .sv-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
@@ -638,7 +683,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .lv-vartbl2 tr.vt-xr td{padding:7px 6px;font-weight:700;color:var(--ink);border-bottom:1.6px solid var(--grid)}
 .lv-vartbl2 tr.vt-fr td{height:120px;position:relative;vertical-align:middle}
 .lv-vartbl2 .vfcell{position:relative;padding:0;border:none;vertical-align:middle}
-.vfcell .vt-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.vfcell .vt-overlay{position:absolute;inset:0;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .vt-shaft{stroke:var(--blue);stroke-width:3;stroke-linecap:round;fill:none}
 .vt-head{fill:none;stroke:var(--blue);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
 .vt-node{fill:var(--blue);transition:cy .2s ease}
@@ -718,7 +763,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp32</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp46</b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -1053,6 +1098,39 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     </div>
   </section>
 
+  <!-- TEST : CONJECTURER GRAPHIQUEMENT LES LIMITES — NIVEAU 2 -->
+  <section class="screen" id="scr-lg2">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lg2ModeTag"></span><span class="q-idx" id="lg2QIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="lg2LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="lg2Prompt"></p>
+      <div class="sv-graph" id="lg2Graph"></div>
+      <div id="lg2Hint"></div>
+      <div id="lg2Subs"></div>
+      <div id="lg2TVzone"></div>
+      <div class="mp-feedback" id="lg2Feedback"></div>
+      <div class="mp-actions" id="lg2Actions"></div>
+    </div>
+  </section>
+
+  <!-- TEST : CONJECTURER LES LIMITES — NIVEAU 3 (TABLEAU DONNÉ) -->
+  <section class="screen" id="scr-lg3">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lg3ModeTag"></span><span class="q-idx" id="lg3QIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="lg3LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="lg3Prompt"></p>
+      <div id="lg3TVzone"></div>
+      <div id="lg3Hint"></div>
+      <div id="lg3Subs"></div>
+      <div class="mp-feedback" id="lg3Feedback"></div>
+      <div class="mp-actions" id="lg3Actions"></div>
+    </div>
+  </section>
+
   <!-- TEST : DÉRIVÉE EXPONENTIELLE -->
   <section class="screen" id="scr-dexp">
     <div class="test-top">
@@ -1287,7 +1365,21 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 </div>
 
 <div id="toast"></div>
-<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+
+<!-- Fenêtre « Poser une question à l'IA » -->
+<div id="qiaOverlay" class="qia-overlay">
+  <div class="qia-card">
+    <div class="qia-head"><b>💬 Poser une question à l’IA</b><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></div>
+    <div class="qia-sugg" id="qiaSugg"></div>
+    <div class="qia-dialog" id="qiaDialog"></div>
+    <div class="qia-inputrow">
+      <textarea id="qiaInput" rows="2" placeholder="Écris ta question ici… (ou dicte-la avec le micro)" maxlength="300"></textarea>
+      <button type="button" class="qia-mic" id="qiaMic" onclick="qiaMicToggle()" title="Dicter la question au micro">🎤</button>
+      <button type="button" class="btn btn-primary" id="qiaSend" onclick="qiaEnvoyer()">Envoyer</button>
+    </div>
+  </div>
+</div>
+<div id="testCtrls" hidden><button id="qiaBtn" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
 /* ---------- Raccourcis ---------- */
@@ -1356,7 +1448,9 @@ const TESTS={
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
   'tvi-lecture-graphique': { name:'TVI — solutions sur le graphique', icon:'📍', desc:'Clique sur la courbe le ou les points vérifiant f(x) = k, puis sur l’axe des abscisses les solutions, puis écris-les ; l’IA vérifie tes réponses.', start:()=>startTVG() },
   'equation-droite-h-v': { name:'Équation de droite horizontale ou verticale', icon:'📏', desc:'Lis les droites tracées dans le repère et écris leurs équations (y = … ou x = …) ; l’IA vérifie tes réponses.', start:()=>startDHV() },
-  'limites-graphiques': { name:'Conjecturer graphiquement les limites', icon:'🔭', desc:'Lis chaque limite sur le graphique — un point ▶ se déplace sur la courbe pour t’aider — puis repère l’asymptote éventuelle ; l’IA vérifie tes réponses.', start:()=>startLG() },
+  'limites-graphiques': { name:'Conjecturer graphiquement les limites niveau 1', icon:'🔭', desc:'Lis chaque limite sur le graphique — un point ▶ se déplace sur la courbe pour t’aider — puis repère l’asymptote éventuelle ; l’IA vérifie tes réponses.', start:()=>startLG() },
+  'limites-graphiques-2': { name:'Conjecturer graphiquement les limites niveau 2', icon:'🔭', desc:'Sans les asymptotes tracées ni le point animé : lis les limites, puis complète le tableau de variation de f (flèches et limites aux extrémités) ; l’IA vérifie tes réponses.', start:()=>startLG2() },
+  'limites-graphiques-3': { name:'Conjecturer les limites d’après un tableau niveau 3', icon:'🔭', desc:'Le tableau de variation est donné, déjà complété : déduis-en chaque limite et l’asymptote éventuelle ; l’IA vérifie tes réponses.', start:()=>startLG3() },
   'derivee-exp': { name:'Dérivée d\u2019un produit avec exponentielle niveau 1', icon:'eˣ', desc:'Dérive un produit (ax+b)·e^(kx) avec la méthode u·v, puis factorise par e^(kx).', start:()=>startDexp() },
   'derivee-exp-2': { name:'Dérivée d\u2019un produit avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes fonctions, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexp2() },
   'derivee-exp-3': { name:'Dérivée d\u2019un produit avec exponentielle niveau 3', icon:'eˣ', desc:'Dérive f(x) = a + b·x·e^(cx) : dérivée du monôme, règle du produit, puis factorisation par e^(cx).', start:()=>startDexp3() },
@@ -1375,7 +1469,7 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques'] },
+  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] }
 ];
@@ -1399,6 +1493,95 @@ function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):te
 function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); else startDerivees(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function conseilInlineBtn(){ return isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : ''; }
+
+/* ===== Navigation au clavier entre les cases — tous les exercices =====
+   Flèche → quand le curseur est en FIN de saisie (ou sur un menu déroulant) : passe à la
+   case suivante dans l'ordre de lecture (à droite, sinon la première de la ligne suivante),
+   curseur placé AU DÉBUT. Flèche ← au DÉBUT d'une saisie (ou sur un menu) : passe à la
+   case précédente, curseur placé À LA FIN. Au milieu d'une saisie, ou avec une sélection
+   de texte, ou avec Maj/Ctrl/Alt : comportement natif. Les menus gardent ↑/↓ pour choisir
+   l'option. Les zones de rédaction (textarea) ne sont pas concernées. Les cases masquées
+   ou verrouillées (grisées) sont sautées. Depuis la DERNIÈRE case, → met le focus sur le
+   bouton de vérification (← depuis ce bouton revient à la dernière case). La touche Entrée,
+   depuis n'importe quelle case, déclenche le bouton principal de l'écran (Vérifier /
+   Revérifier) ; il est inopérant pendant « Vérification… » (bouton grisé). */
+function navCasesListe(){
+  const scr=document.querySelector('.screen.on');
+  if(!scr) return [];
+  const out=[];
+  scr.querySelectorAll('input, select').forEach(el=>{
+    if(el.disabled) return;
+    if(el.tagName==='INPUT'){
+      const t=(el.getAttribute('type')||'text').toLowerCase();
+      if(t!=='text' && t!=='number') return;
+    }
+    let a=el, cache=false;
+    while(a && a!==scr){ if(a.style && a.style.display==='none'){ cache=true; break; } a=a.parentElement; }
+    if(!cache) out.push(el);
+  });
+  return out;
+}
+function boutonVerif(){
+  const scr=document.querySelector('.screen.on');
+  return scr ? scr.querySelector('.mp-actions .btn-primary:not([disabled])') : null;
+}
+function navCases(e){
+  if(e.shiftKey||e.ctrlKey||e.altKey||e.metaKey) return;
+  const el=document.activeElement;
+  if(e.key==='Enter'){
+    /* Entrée depuis une case de saisie ou un menu : lance l'action principale */
+    if(!el || (el.tagName!=='INPUT' && el.tagName!=='SELECT')) return;
+    if(el.tagName==='INPUT'){
+      const t=(el.getAttribute('type')||'text').toLowerCase();
+      if(t!=='text' && t!=='number') return;
+    }
+    const btn=boutonVerif();
+    if(btn){ e.preventDefault(); btn.click(); }
+    return;
+  }
+  if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
+  if(!el) return;
+  if(el.tagName==='BUTTON'){
+    /* ← depuis le bouton de vérification : retour à la dernière case */
+    if(e.key!=='ArrowLeft' || el!==boutonVerif()) return;
+    const liste0=navCasesListe(), der=liste0[liste0.length-1];
+    if(!der) return;
+    e.preventDefault(); der.focus();
+    if(der.tagName==='INPUT'){ const L=(der.value||'').length; try{ der.setSelectionRange(L,L); }catch(err){} }
+    return;
+  }
+  if(el.tagName!=='INPUT' && el.tagName!=='SELECT') return;
+  if(el.tagName==='INPUT'){
+    const t=(el.getAttribute('type')||'text').toLowerCase();
+    if(t!=='text' && t!=='number') return;
+    let p0=null, p1=null;
+    try{ p0=el.selectionStart; p1=el.selectionEnd; }catch(err){ p0=null; }
+    if(p0!==null && p1!==null){
+      const L=(el.value||'').length;
+      if(p0!==p1) return;                                  /* sélection en cours : natif */
+      if(e.key==='ArrowRight' && p0!==L) return;           /* pas en fin : natif */
+      if(e.key==='ArrowLeft'  && p0!==0) return;           /* pas au début : natif */
+    }
+  }
+  const liste=navCasesListe();
+  const i=liste.indexOf(el);
+  if(i<0) return;
+  const cible=liste[i+(e.key==='ArrowRight'?1:-1)];
+  if(!cible){
+    if(e.key==='ArrowRight'){
+      const btn=boutonVerif();
+      if(btn){ e.preventDefault(); btn.focus(); }
+    }
+    return;
+  }
+  e.preventDefault();
+  cible.focus();
+  if(cible.tagName==='INPUT'){
+    const L2=(cible.value||'').length, pos=(e.key==='ArrowRight')?0:L2;
+    try{ cible.setSelectionRange(pos,pos); }catch(err){}
+  }
+}
+document.addEventListener('keydown', navCases);
 function ctxVisible(){
   const scr=document.querySelector('.screen.on'); if(!scr) return '';
   const parts=[];
@@ -1508,6 +1691,24 @@ function conseilCourant(){
      +' La bonne explication, à faire trouver SANS jamais la donner ni la reformuler : '+attendu+'. '
      +'CONTRAINTE ANTI-RECOPIE (l’élève peut coller ton conseil dans sa réponse) : ne cite NI la raison en toutes lettres, NI les valeurs à écrire. Guide par des questions : les trois hypothèses du corollaire du TVI (continuité, stricte monotonie, valeur k comprise entre les deux images du tableau) sont-elles toutes vérifiées ici ? Laquelle est en défaut ?'
      +(txt ? ' Texte actuel de l’élève : « '+txt+' ». Dis-lui ce qui manque ou ce qui est faux, par son rôle, sans écrire la phrase attendue.' : ' L’élève n’a encore rien écrit : aide-le à démarrer en lui demandant de vérifier une à une les hypothèses du théorème sur le tableau.');
+  } else if(test && test.kind==='lg3' && test.questions && test.questions[test.idx]){
+    /* ---- 3.4 limites niveau 3 : lecture d'un tableau de variation donné ---- */
+    const q=test.questions[test.idx];
+    c='Exercice de LIMITES niveau 3 : l’élève dispose UNIQUEMENT d’un tableau de variation, déjà complété (aucune courbe). Description exacte du tableau : '+lg2TableTexte(q)+'. '
+     +'Cas étudiés : '+q.subs.map(s=>s.lab+') x → '+s.cibleTxt).join(' ; ')+'. '
+     +'Réponses attendues (à ne JAMAIS révéler) : '+q.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim); return '('+s.lab+') limite '+lt+', '+(s.typ==='ah'?'asymptote horizontale y = '+numFmt(s.eq):(s.typ==='av'?'asymptote verticale x = '+numFmt(s.eq):'pas d’asymptote')); }).join(' ; ')+'. '
+     +'Saisies actuelles de l’élève : '+lgSubsReponseTxt(q,'lg3')+' '
+     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE valeur ni aucun choix corrects. Méthode : la limite de chaque cas se LIT à l’extrémité de la flèche correspondante du tableau ; une valeur finie aux bornes −∞ ou +∞ signale une asymptote horizontale (y = cette valeur) ; des flèches qui partent vers l’infini de part et d’autre d’une double barre signalent une asymptote verticale (x = la valeur interdite). Guide cas par cas sans donner les réponses.';
+  } else if(test && test.kind==='lg2' && test.questions && test.questions[test.idx]){
+    /* ---- 3.3 limites niveau 2 : limites + tableau de variation ---- */
+    const q=test.questions[test.idx];
+    c='Exercice de LIMITES par lecture graphique NIVEAU 2 (tu ne vois pas l’image ; description exacte ; les asymptotes ne sont PAS tracées pour l’élève) : '+q.desc
+     +' Cas étudiés : '+q.subs.map(s=>s.lab+') x → '+s.cibleTxt).join(' ; ')+'. '
+     +'L’élève complète AUSSI le tableau de variation de f sur son domaine. '
+     +'Réponses attendues (à ne JAMAIS révéler) : '+q.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim); return '('+s.lab+') limite '+lt+', '+(s.typ==='ah'?'asymptote horizontale y = '+numFmt(s.eq):(s.typ==='av'?'asymptote verticale x = '+numFmt(s.eq):'pas d’asymptote')); }).join(' ; ')
+     +' ; tableau : flèches '+q.tv.fleches.map(f2=>f2==='up'?'↗':'↘').join(' puis ')+' ; '+q.tv.vals.map((v,k)=>lg2ValLabel(q,k)+' = '+((v.att==='+∞'||v.att==='−∞')?v.att:numFmt(v.att))).join(' ; ')+'. '
+     +'Saisies actuelles de l’élève : '+lg2ReponseTxt(q)+' '
+     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE valeur, aucun choix ni aucun sens de flèche corrects. Méthode : faire imaginer un point qui glisse sur la courbe vers chaque cible (vers quelle hauteur ou quel infini va-t-il ?) ; pour le tableau : les flèches suivent la montée/descente de la courbe sur chaque intervalle, les limites se placent aux extrémités des flèches, et une double barre marque chaque valeur interdite. Guide cas par cas sans donner les réponses.';
   } else if(test && test.kind==='lg' && test.questions && test.questions[test.idx]){
     /* ---- 3.2 conjecturer graphiquement les limites ---- */
     const q=test.questions[test.idx];
@@ -1892,7 +2093,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -1912,7 +2113,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -3685,6 +3886,7 @@ function lgFn(q){
   if(q.family==='cloche'){ const m=q.m,h=q.h; return x=>c+h/(1+(x-m)*(x-m)); }
   if(q.family==='ln'){ const a=q.a; return x=>c+2*Math.log(x-a); }
   if(q.family==='exp'){ const s=q.s,d=q.d; return x=>c+s*Math.exp(0.9*d*x); }
+  if(q.family==='cubv'){ const s=q.s; return x=>c+s*(x*x*x-3*x)/2; }
   const s=q.s; return x=>c+s*(0.12*x*x*x-0.9*x);
 }
 /* Une sous-question : lab a/b/c/d ; kind pinf/minf/plus/moins ; lim '+∞', '−∞' ou nombre ;
@@ -3696,6 +3898,7 @@ function lgSub(lab,kind,a,lim,typ,eq,dep,dep0){
   if(dep0!=null) o.dep0=dep0;
   if(kind==='pinf'){ o.cibleTxt='+∞'; o.cibleHTML='+∞'; }
   else if(kind==='minf'){ o.cibleTxt='−∞'; o.cibleHTML='−∞'; }
+  else if(kind==='fini'){ o.cibleTxt=numFmt(a); o.cibleHTML=numFmt(a); }
   else { o.cibleTxt=numFmt(a)+(kind==='plus'?'⁺':'⁻'); o.cibleHTML=numFmt(a)+'<sup>'+(kind==='plus'?'+':'−')+'</sup>'; }
   return o;
 }
@@ -3731,13 +3934,17 @@ function genLGCloche(){
   const m=rand(-1,1), h=pick([-4,-2,2,4]), c=rand(-1,2);
   const b=m+pick([-1,1]), L=c+h/2;
   const lo=Math.min(Math.min(c,c+h)-1,-1), hi=Math.max(Math.max(c,c+h)+1,1);
+  /* b n'est PAS une valeur interdite : UNE seule limite « x → b » (pas de b⁺ / b⁻).
+     Le point animé s'approche du côté le plus dégagé et se pose exactement sur (b ; L). */
+  const app=(b<=0)?'plus':'moins';
+  const d0=(app==='plus')?Math.min(2.4, LG_XMAX-b-0.3):Math.min(2.4, b-LG_XMIN-0.3);
+  const subFini=lgSub('c','fini',b, L,'rien',null, null, d0); subFini.approche=app;
   return { type:'lg', family:'cloche', familleTxt:'courbe en cloche', c, m, h, b, L,
-    yMin:lo, yMax:hi, av:null, ahs:[c], skipX:b, segs:[[LG_XMIN,LG_XMAX]],
+    yMin:lo, yMax:hi, av:null, ahs:[c], skipX:null, segs:[[LG_XMIN,LG_XMAX]],
     subs:[ lgSub('a','pinf',null,c,'ah',c, m+1.3, null),
            lgSub('b','minf',null,c,'ah',c, m-1.3, null),
-           lgSub('c','plus',b, L,'rien',null, null, Math.min(2.4, LG_XMAX-b-0.3)),
-           lgSub('d','moins',b, L,'rien',null, null, Math.min(2.4, b-LG_XMIN-0.3)) ],
-    desc:'la courbe est une « cloche » d’équation y = '+numFmt(c)+' + '+numFmt(h)+'/(1+(x '+(m>=0?'− '+numFmt(m):'+ '+numFmt(-m))+')²) : asymptote horizontale y = '+numFmt(c)+' aux deux infinis, AUCUNE asymptote verticale ; en x = '+numFmt(b)+', la fonction est définie et f('+numFmt(b)+') = '+numFmt(L)+' : la limite quand x → '+numFmt(b)+'⁺ ou '+numFmt(b)+'⁻ est cette valeur finie, sans asymptote.' };
+           subFini ],
+    desc:'la courbe est une « cloche » d’équation y = '+numFmt(c)+' + '+numFmt(h)+'/(1+(x '+(m>=0?'− '+numFmt(m):'+ '+numFmt(-m))+')²) : asymptote horizontale y = '+numFmt(c)+' aux deux infinis, AUCUNE asymptote verticale ; en x = '+numFmt(b)+', qui n’est PAS une valeur interdite, la fonction est définie et f('+numFmt(b)+') = '+numFmt(L)+' : la limite quand x → '+numFmt(b)+' est cette valeur finie, sans asymptote.' };
 }
 /* Logarithme (exemple 4) : AV en a (x → a⁺ : −∞), branche vers +∞ sans asymptote. */
 function genLGLn(){
@@ -3782,7 +3989,9 @@ function genLG(fm){
 }
 /* Rendu : grille, axes (labels x avec halo), bords −∞/+∞, marques a⁻|a⁺, asymptotes en
    pointillés (étiquettes y = …, x = … cachées, révélées à la correction), courbe, point animé. */
-function lgSVG(c){
+function lgSVG(c, opts){
+  const pfx=(opts&&opts.pfx)||'lg';
+  const asyCachees=!!(opts&&opts.asyCachees);
   const f=lgFn(c);
   const H=LG_PADT+LG_PADB+(c.yMax-c.yMin)*LG_UY;
   const X=lgX, Y=y=>lgY(c,y);
@@ -3791,23 +4000,25 @@ function lgSVG(c){
   for(let n=Math.ceil(c.yMin);n<=Math.floor(c.yMax);n++) g+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(n).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(n).toFixed(1)}" stroke="var(--grid)" stroke-width="0.8"/>`;
   g+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(0).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
   g+=`<line x1="${X(0).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(0).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="var(--ink-soft)" stroke-width="1.4"/>`;
-  /* asymptotes en pointillés + étiquettes cachées (révélées à la correction) */
-  let asyLab='';
+  /* asymptotes en pointillés + étiquettes cachées (révélées à la correction).
+     Niveau 2 (asyCachees) : les pointillés eux-mêmes sont cachés jusqu'à la correction. */
+  let asyLignes='', asyLab='';
   c.ahs.forEach(v=>{
-    g+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(v).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
+    asyLignes+=`<line x1="${X(LG_XMIN).toFixed(1)}" y1="${Y(v).toFixed(1)}" x2="${X(LG_XMAX).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
     asyLab+=`<text x="${(X(LG_XMAX)-4).toFixed(1)}" y="${(Y(v)-5).toFixed(1)}" class="sv-ax" text-anchor="end" fill="var(--blue)" font-weight="800">y = ${numFmt(v)}</text>`;
   });
   if(c.av!=null){
-    g+=`<line x1="${X(c.av).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(c.av).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
+    asyLignes+=`<line x1="${X(c.av).toFixed(1)}" y1="${Y(c.yMax).toFixed(1)}" x2="${X(c.av).toFixed(1)}" y2="${Y(c.yMin).toFixed(1)}" stroke="#5b6b8c" stroke-width="1.3" stroke-dasharray="6 4"/>`;
     asyLab+=`<text x="${(X(c.av)+5).toFixed(1)}" y="${(Y(c.yMax)+12).toFixed(1)}" class="sv-ax" fill="var(--blue)" font-weight="800">x = ${numFmt(c.av)}</text>`;
   }
-  g+=`<g id="lgAsyLabs" style="display:none">${asyLab}</g>`;
+  if(asyCachees) g+=`<g id="${pfx}AsyLabs" style="display:none">${asyLignes}${asyLab}</g>`;
+  else g+=`${asyLignes}<g id="${pfx}AsyLabs" style="display:none">${asyLab}</g>`;
   /* courbe (par segments, clippée) */
   c.segs.forEach((sg,si)=>{
     let d2='';
     const N=Math.max(2,Math.round((sg[1]-sg[0])/0.04));
     for(let i2=0;i2<=N;i2++){ const x=sg[0]+i2*(sg[1]-sg[0])/N; d2+=(d2?'L':'M')+X(x).toFixed(1)+' '+Y(f(x)).toFixed(1); }
-    g+=`<path d="${d2}" class="sv-curve" clip-path="url(#lgClip)"/>`;
+    g+=`<path d="${d2}" class="sv-curve" clip-path="url(#${pfx}Clip)"/>`;
   });
   /* étiquette f(x) près de la courbe */
   let lx=LG_XMAX-0.6, ly=f(lx), tries=0;
@@ -3825,8 +4036,8 @@ function lgSVG(c){
     g+=halo((X(c.skipX)+3).toFixed(1), (Y(0)+15).toFixed(1), 'start', numFmt(c.skipX)+'⁺');
   }
   /* point animé (bouton ▶) */
-  g+=`<circle id="lgDot" class="lg-dot" r="5.2" cx="-20" cy="-20" style="display:none"/>`;
-  return `<svg viewBox="0 0 ${LG_W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg lg-svg"><defs><clipPath id="lgClip"><rect x="${X(LG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(LG_XMAX)-X(LG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
+  g+=`<circle id="${pfx}Dot" class="lg-dot" r="5.2" cx="-20" cy="-20" style="display:none"/>`;
+  return `<svg viewBox="0 0 ${LG_W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" class="sv-svg lg-svg"><defs><clipPath id="${pfx}Clip"><rect x="${X(LG_XMIN).toFixed(1)}" y="${Y(c.yMax).toFixed(1)}" width="${(X(LG_XMAX)-X(LG_XMIN)).toFixed(1)}" height="${(Y(c.yMin)-Y(c.yMax)).toFixed(1)}"/></clipPath></defs>${g}</svg>`;
 }
 /* Position du point animé au temps t ∈ [0,1] : vers ±∞ il glisse jusqu’au bord ;
    vers a± il s’approche géométriquement (il ralentit, pendant que f explose ou se stabilise). */
@@ -3834,6 +4045,7 @@ function lgAnimePos(sub,t){
   const e=1-Math.pow(1-t,3);
   if(sub.kind==='pinf') return sub.dep+(LG_XMAX-0.15-sub.dep)*e;
   if(sub.kind==='minf') return sub.dep+(LG_XMIN+0.15-sub.dep)*e;
+  if(sub.kind==='fini'){ const d0=sub.dep0; return sub.a+(sub.approche==='plus'?1:-1)*d0*(1-e); }
   const d0=sub.dep0, r=Math.pow(0.05/d0, e);
   return sub.a+(sub.kind==='plus'?1:-1)*d0*r;
 }
@@ -3919,7 +4131,7 @@ function renderLG(){
   const aide=(currentMode!=='eval');
   $('lgHint').innerHTML=(aide?'<span class="tvg-hint">▶ fait apparaître un point qui se déplace sur la courbe&nbsp;·&nbsp;</span>':'')+'<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
   $('lgSubs').innerHTML=c.subs.map((s,i)=>
-    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → <input class="dhv-in lg-lim" id="lg-lim'+i+'" type="text" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"></span>'
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → <input class="dhv-in lg-lim" id="lg-lim'+i+'" type="text" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"> <button type="button" class="lg-inf" id="lg-inf'+i+'" onclick="lgInsInf('+i+')" title="Insérer le symbole ∞">∞</button></span>'
     +(aide?' <button type="button" class="lg-play" onclick="lgAnime('+i+')" title="Voir un point se déplacer sur la courbe vers cette cible">▶</button>':'')
     +'<br>il y a donc <select class="lg-sel" id="lg-typ'+i+'" onchange="lgSync('+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
     +' <span class="dhv-eqgrp" id="lg-eqz'+i+'" style="display:none">, d’équation <span id="lg-pre'+i+'"></span> = <input class="dhv-in" id="lg-eq'+i+'" type="text" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
@@ -3927,6 +4139,16 @@ function renderLG(){
   c.subs.forEach((s,i)=>{ const el=$('lg-lim'+i); if(!el) return;
     el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
   setTimeout(lgSyncAll,0);   /* après restoreBoxes en cas de reprise */
+}
+/* Bouton ∞ : insère le symbole à la position du curseur (l’élève tape « − » puis ∞ pour −∞).
+   Un seul ∞ par champ ; inerte quand la case est verrouillée. */
+function lgInsInf(i){
+  const el=$('lg-lim'+i); if(!el||el.disabled) return;
+  if(el.value.indexOf('∞')>=0){ el.focus(); return; }
+  const p=(typeof el.selectionStart==='number')?el.selectionStart:el.value.length;
+  el.value=el.value.slice(0,p)+'∞'+el.value.slice(p);
+  try{ el.setSelectionRange(p+1,p+1); }catch(err){}
+  el.focus();
 }
 function lgSync(i){
   const ty=$('lg-typ'+i), z=$('lg-eqz'+i), pre=$('lg-pre'+i);
@@ -3944,7 +4166,7 @@ function lgSyncAll(){
 function lgMarqueSoutien(c){
   c.subs.forEach((s,i)=>{
     const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
-    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,li.value)){ li.classList.add('ok'); li.disabled=true; } else li.classList.add('bad'); }
+    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,li.value)){ li.classList.add('ok'); li.disabled=true; const bi=$('lg-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
     if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
     if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
   });
@@ -3955,6 +4177,7 @@ function lgFinal(c){
   const labs=$('lgAsyLabs'); if(labs) labs.style.display='';
   c.subs.forEach((s,i)=>{
     const li=$('lg-lim'+i), ty=$('lg-typ'+i), eq=$('lg-eq'+i);
+    const bi=$('lg-inf'+i); if(bi) bi.disabled=true;
     const limTxt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
     if(li){ li.disabled=true; li.classList.remove('ok','bad');
       if(lgLimOK(s,li.value)) li.classList.add('ok');
@@ -4046,6 +4269,516 @@ async function checkLG(){
   $('lgActions').innerHTML=`<button class="btn btn-primary" onclick="nextLG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
 function nextLG(){ if(test.idx<test.questions.length-1){ test.idx++; renderLG(); } else finishTest(); }
+/* ============ TEST : Conjecturer graphiquement les limites — NIVEAU 2 ============ */
+/* Comme le niveau 1 (mêmes familles de courbes, mêmes questions de limites), mais :
+   PAS de bouton ▶ (point animé), et les asymptotes NE SONT PAS tracées — elles se
+   révèlent (pointillés + équations) à la correction. En plus, sous les limites,
+   l'élève complète le TABLEAU DE VARIATION de f sur son domaine de définition —
+   même composant que la fin du 1.3, SANS la ligne du signe de f' : flèches ↗/↘ à
+   choisir, et les LIMITES (et valeurs) à PLACER aux extrémités des flèches ; double
+   barre aux valeurs interdites. Correction locale exacte ; l'IA rédige le commentaire. */
+/* La cubique du niveau 2 a des extremums ENTIERS (x = ±1, valeurs c ± 1) pour le tableau. */
+function genLGCubV(){
+  const s=pick([1,-1]), c=rand(-1,1);
+  const li=s>0?'+∞':'−∞', lo=s>0?'−∞':'+∞';
+  return { type:'lg', family:'cubv', familleTxt:'polynôme de degré 3', c, s,
+    yMin:Math.min(c-3,-1), yMax:Math.max(c+3,1),
+    av:null, ahs:[], skipX:null, segs:[[LG_XMIN,LG_XMAX]],
+    subs:[ lgSub('a','pinf',null, li,'rien',null, 0.8, null),
+           lgSub('b','minf',null, lo,'rien',null, -0.8, null) ],
+    desc:'la courbe est celle d’une fonction polynôme de degré 3 (y = '+numFmt(c)+' + '+(s>0?'':'−')+'(x³ − 3x)/2), avec deux extremums locaux en x = −1 (valeur '+numFmt(c+s)+') et x = 1 (valeur '+numFmt(c-s)+') : AUCUNE asymptote ; f part vers '+li+' quand x → +∞ et vers '+lo+' quand x → −∞.' };
+}
+/* Modèle du tableau de variation : ligne x (libellés donnés, pole = double barre),
+   flèches attendues, cases de valeurs [{k:'n'|'g'|'d', j: colonne, att: valeur}]. */
+function lg2Table(q){
+  const F=q.family;
+  if(F==='homo'){
+    return { xs:[{t:'−∞'},{t:numFmt(q.a),pole:true},{t:'+∞'}],
+      fleches:[q.s>0?'down':'up', q.s>0?'down':'up'],
+      vals:[ {k:'n',j:0,att:q.c}, {k:'g',j:1,att:q.s>0?'−∞':'+∞'}, {k:'d',j:1,att:q.s>0?'+∞':'−∞'}, {k:'n',j:2,att:q.c} ] };
+  }
+  if(F==='homo2'){
+    const inf=q.s>0?'−∞':'+∞';
+    return { xs:[{t:'−∞'},{t:numFmt(q.a),pole:true},{t:'+∞'}],
+      fleches:[q.s>0?'down':'up', q.s>0?'up':'down'],
+      vals:[ {k:'n',j:0,att:q.c}, {k:'g',j:1,att:inf}, {k:'d',j:1,att:inf}, {k:'n',j:2,att:q.c} ] };
+  }
+  if(F==='cloche'){
+    return { xs:[{t:'−∞'},{t:numFmt(q.m)},{t:'+∞'}],
+      fleches:[q.h>0?'up':'down', q.h>0?'down':'up'],
+      vals:[ {k:'n',j:0,att:q.c}, {k:'n',j:1,att:q.c+q.h}, {k:'n',j:2,att:q.c} ] };
+  }
+  if(F==='ln'){
+    return { xs:[{t:numFmt(q.a)},{t:'+∞'}],
+      fleches:['up'],
+      vals:[ {k:'n',j:0,att:'−∞'}, {k:'n',j:1,att:'+∞'} ] };
+  }
+  if(F==='exp'){
+    const li=q.s>0?'+∞':'−∞';
+    if(q.d===1) return { xs:[{t:'−∞'},{t:'+∞'}], fleches:[q.s>0?'up':'down'],
+      vals:[ {k:'n',j:0,att:q.c}, {k:'n',j:1,att:li} ] };
+    return { xs:[{t:'−∞'},{t:'+∞'}], fleches:[q.s>0?'down':'up'],
+      vals:[ {k:'n',j:0,att:li}, {k:'n',j:1,att:q.c} ] };
+  }
+  /* cubv */
+  if(q.s>0) return { xs:[{t:'−∞'},{t:'−1'},{t:'1'},{t:'+∞'}], fleches:['up','down','up'],
+    vals:[ {k:'n',j:0,att:'−∞'}, {k:'n',j:1,att:q.c+1}, {k:'n',j:2,att:q.c-1}, {k:'n',j:3,att:'+∞'} ] };
+  return { xs:[{t:'−∞'},{t:'−1'},{t:'1'},{t:'+∞'}], fleches:['down','up','down'],
+    vals:[ {k:'n',j:0,att:'+∞'}, {k:'n',j:1,att:q.c-1}, {k:'n',j:2,att:q.c+1}, {k:'n',j:3,att:'−∞'} ] };
+}
+/* Géométrie du tableau (mêmes cotes que le 1.3). */
+const LG2WL=96, LG2WN=64, LG2WS=96, LG2H=120, LG2T=22, LG2B=98;
+function lg2ncx(j){ return j*(LG2WN+LG2WS)+LG2WN/2; }
+function lg2TableHTML(c){
+  const tv=c.tv, n=tv.xs.length;
+  const innerW=n*LG2WN+(n-1)*LG2WS;
+  let xrow='<td class="vlab" style="width:'+LG2WL+'px"><i>x</i></td>';
+  tv.xs.forEach((xx,j)=>{
+    xrow+='<td class="vnx" style="width:'+LG2WN+'px">'+esc(xx.t)+'</td>';
+    if(j<n-1) xrow+='<td class="vax" style="width:'+LG2WS+'px"></td>';
+  });
+  let inner='<svg class="vt-overlay" id="lg2-var-ov" viewBox="0 0 '+innerW+' '+LG2H+'" preserveAspectRatio="none"></svg>';
+  tv.fleches.forEach((f2,i)=>{ const x=i*(LG2WN+LG2WS)+LG2WN+LG2WS/2;
+    inner+='<select id="lg2-f'+i+'" class="vt-sel2" onchange="lg2ArrowChange()" style="left:'+x+'px;top:'+(LG2H/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; });
+  tv.vals.forEach((v,k)=>{
+    const x=lg2ncx(v.j)+(v.k==='g'?-26:(v.k==='d'?26:0));
+    inner+='<input class="dhv-in lg2-vin" id="lg2-v'+k+'" type="text" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false" style="left:'+x+'px;top:'+(LG2H/2)+'px">';
+  });
+  const frow='<td class="vlab">Variation de <i>f</i></td><td class="vfcell" colspan="'+(2*n-1)+'" style="height:'+LG2H+'px">'+inner+'</td>';
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(LG2WL+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xrow+'</tr>'
+    +'<tr class="vt-fr">'+frow+'</tr>'
+    +'</tbody></table></div>';
+}
+/* Redessin : doubles barres, flèches entre les cases, et cases placées au bout des flèches. */
+function lg2ArrowChange(){
+  if(test.kind!=='lg2') return;
+  const c=test.questions[test.idx]; if(!c||!c.tv) return;
+  const ov=$('lg2-var-ov'); if(!ov) return;
+  const tv=c.tv;
+  const dirs=tv.fleches.map((f2,i)=>String(($('lg2-f'+i)||{}).value||''));
+  const geo=lg2Geo(tv,dirs);
+  let g=lg2DBarres(tv);
+  geo.arr.forEach(a2=>{ g+=svArrowSVG(a2.xg,a2.y0,a2.xd,a2.y1); });
+  ov.innerHTML=g;
+  tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(el) el.style.top=geo.ys[k]+'px'; });
+}
+/* Géométrie pure du tableau : flèches (segments choisis) et hauteur de chaque valeur. */
+function lg2Geo(tv,dirs){
+  const arr=[];
+  for(let i=0;i<tv.fleches.length;i++){
+    if(!dirs[i]) continue;
+    const y0=(dirs[i]==='up')?LG2B:LG2T, y1=(dirs[i]==='up')?LG2T:LG2B;
+    const xg=lg2ncx(i)+(tv.xs[i].pole?26:0)+18;
+    const xd=lg2ncx(i+1)-(tv.xs[i+1].pole?26:0)-18;
+    arr.push({xg,y0,xd,y1});
+  }
+  const ys=tv.vals.map(v=>{
+    let y=(LG2T+LG2B)/2;
+    if(v.k==='g'){ const d2=dirs[v.j-1]; if(d2==='up') y=LG2T; else if(d2==='down') y=LG2B; }
+    else if(v.k==='d'){ const d2=dirs[v.j]; if(d2==='up') y=LG2B; else if(d2==='down') y=LG2T; }
+    else {
+      const right=dirs[v.j]||'', left=(v.j>0?dirs[v.j-1]:'')||'';
+      if(right==='up') y=LG2B; else if(right==='down') y=LG2T;
+      else if(left==='up') y=LG2T; else if(left==='down') y=LG2B;
+    }
+    return y;
+  });
+  return {arr, ys};
+}
+function lg2DBarres(tv){
+  let g='';
+  tv.xs.forEach((xx,j)=>{ if(xx.pole){ const x=lg2ncx(j);
+    const DB='class="vt-dbar" stroke="#0f172a" stroke-width="2"';
+    g+='<line x1="'+(x-4)+'" y1="6" x2="'+(x-4)+'" y2="'+(LG2H-6)+'" '+DB+'/><line x1="'+(x+4)+'" y1="6" x2="'+(x+4)+'" y2="'+(LG2H-6)+'" '+DB+'/>'; } });
+  return g;
+}
+/* --- Sous-questions de limites (partagées niveaux 2 et 3) : préfixe d'ids paramétré --- */
+function lgSubsHTML(c,pfx){
+  return c.subs.map((s,i)=>
+    '<div class="lg-sub"><span class="lg-quand"><b>'+s.lab+')</b> Quand <i>x</i> → <b>'+s.cibleHTML+'</b> :</span> <span class="dhv-eqgrp"><i>f</i>(x) → <input class="dhv-in lg-lim" id="'+pfx+'-lim'+i+'" type="text" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false"> <button type="button" class="lg-inf" id="'+pfx+'-inf'+i+'" onclick="lgSubsInsInf(\''+pfx+'\','+i+')" title="Insérer le symbole ∞">∞</button></span>'
+    +'<br>il y a donc <select class="lg-sel" id="'+pfx+'-typ'+i+'" onchange="lgSubsSync(\''+pfx+'\','+i+')"><option value="">—</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'
+    +' <span class="dhv-eqgrp" id="'+pfx+'-eqz'+i+'" style="display:none">, d’équation <span id="'+pfx+'-pre'+i+'"></span> = <input class="dhv-in" id="'+pfx+'-eq'+i+'" type="text" maxlength="4" autocomplete="off" spellcheck="false"></span></div>'
+  ).join('');
+}
+function lgSubsBind(c,pfx){
+  c.subs.forEach((s,i)=>{ const el=$(pfx+'-lim'+i); if(!el) return;
+    el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
+}
+function lgSubsSync(pfx,i){
+  const ty=$(pfx+'-typ'+i), z=$(pfx+'-eqz'+i), pre=$(pfx+'-pre'+i);
+  if(!ty||!z||!pre) return;
+  if(ty.value==='ah'){ z.style.display=''; pre.innerHTML='<i>y</i>'; }
+  else if(ty.value==='av'){ z.style.display=''; pre.innerHTML='<i>x</i>'; }
+  else z.style.display='none';
+}
+function lgSubsInsInf(pfx,i){
+  const el=$(pfx+'-lim'+i); if(!el||el.disabled) return;
+  if(el.value.indexOf('∞')>=0){ el.focus(); return; }
+  const p=(typeof el.selectionStart==='number')?el.selectionStart:el.value.length;
+  el.value=el.value.slice(0,p)+'∞'+el.value.slice(p);
+  try{ el.setSelectionRange(p+1,p+1); }catch(err){}
+  el.focus();
+}
+function lg2Sync(i){ lgSubsSync('lg2',i); }
+function lg2SyncAll(){
+  const c=test.questions&&test.questions[test.idx];
+  if(!c||test.kind!=='lg2') return;
+  c.subs.forEach((s,i)=>lg2Sync(i));
+}
+function lg2InsInf(i){ lgSubsInsInf('lg2',i); }
+async function startLG2(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='limites-graphiques-2'; test.kind='lg2';
+  const fams=['homo','homo2','cloche','ln','exp','cubv'];
+  for(let i=fams.length-1;i>0;i--){ const j=rand(0,i); const t2=fams[i]; fams[i]=fams[j]; fams[j]=t2; }
+  test.questions=fams.slice(0,5).map(fm=>{ const q=(fm==='cubv')?genLGCubV():genLG(fm); q.tv=lg2Table(q); return q; });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('lg2'); renderLG2();
+}
+function renderLG2(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];
+  $('lg2QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('lg2ModeTag').innerHTML=modeTagHTML();
+  $('lg2LiveScore').textContent=test.score;
+  $('lg2Feedback').textContent=''; $('lg2Feedback').className='mp-feedback';
+  $('lg2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG2()">Vérifier mes réponses</button>';
+  $('lg2Prompt').innerHTML='Voici la courbe d’une fonction <i>f</i> — les asymptotes ne sont <b>pas</b> tracées. Complète les limites, puis le <b>tableau de variation</b> de <i>f</i> sur son domaine de définition (flèches, et limites ou valeurs aux extrémités).';
+  $('lg2Graph').innerHTML=lgSVG(c,{ pfx:'lg2', asyCachees:true });
+  $('lg2Hint').innerHTML='<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
+  $('lg2Subs').innerHTML=lgSubsHTML(c,'lg2');
+  lgSubsBind(c,'lg2');
+  $('lg2TVzone').innerHTML='<p class="tvi-prompt" style="margin-top:14px">Tableau de variation de <i>f</i> :</p>'+lg2TableHTML(c);
+  c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
+    el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
+  setTimeout(function(){ lg2SyncAll(); lg2ArrowChange(); }, 0);   /* après restoreBoxes en reprise */
+}
+/* ---- validation locale ---- */
+function lgSubsFautes(c,pfx){
+  const fautes=[];
+  c.subs.forEach((s,i)=>{
+    if(!lgLimOK(s, ($(pfx+'-lim'+i)||{}).value)) fautes.push('limite du cas '+s.lab);
+    if(String(($(pfx+'-typ'+i)||{}).value||'')!==s.typ) fautes.push('choix d’asymptote du cas '+s.lab);
+    else if(s.typ!=='rien' && !lgEqOK(s, ($(pfx+'-eq'+i)||{}).value)) fautes.push('équation d’asymptote du cas '+s.lab);
+  });
+  return fautes;
+}
+function lg2FautesSubs(c){ return lgSubsFautes(c,'lg2'); }
+function lg2ValLabel(c,k){
+  const v=c.tv.vals[k], t=c.tv.xs[v.j].t;
+  if(v.k==='g') return 'valeur du tableau juste à gauche de '+t;
+  if(v.k==='d') return 'valeur du tableau juste à droite de '+t;
+  return 'valeur du tableau en '+t;
+}
+function lg2FautesTV(c){
+  const fautes=[];
+  c.tv.fleches.forEach((f2,i)=>{ if(String(($('lg2-f'+i)||{}).value||'')!==f2) fautes.push('flèche n°'+(i+1)+' du tableau'); });
+  c.tv.vals.forEach((v,k)=>{ if(!lgLimOK({lim:v.att}, ($('lg2-v'+k)||{}).value)) fautes.push(lg2ValLabel(c,k)); });
+  return fautes;
+}
+function lg2QuestionIA(c){
+  return lgQuestionIA(c)+' ENSUITE, l’élève complète le tableau de variation de f sur son domaine de définition (mêmes informations que le graphique) : il choisit les flèches ↗/↘ et place les limites (et valeurs) aux extrémités ; une double barre marque chaque valeur interdite.';
+}
+function lg2TableTexte(c){
+  const fl=c.tv.fleches.map(f2=>f2==='up'?'↗':'↘').join(' puis ');
+  const vals=c.tv.vals.map((v,k)=>lg2ValLabel(c,k)+' = '+((v.att==='+∞'||v.att==='−∞')?v.att:numFmt(v.att))).join(' ; ');
+  return 'ligne x : '+c.tv.xs.map(x=>x.t).join(' | ')+' ; flèches (de gauche à droite) : '+fl+' ; '+vals
+    +(c.tv.xs.some(x=>x.pole)?' ; double barre à chaque valeur interdite':'');
+}
+function lg2AttenduIA(c){
+  return lgAttenduIA(c)
+    +' TABLEAU DE VARIATION attendu — '+lg2TableTexte(c)
+    +'. La RÈGLE STRICTE s’applique aussi au tableau : correct = true seulement si, EN PLUS des cas de limites, toutes les flèches ET toutes les valeurs du tableau sont exactes.';
+}
+function lgSubsReponseTxt(c,pfx){
+  const TL={ah:'une asymptote horizontale',av:'une asymptote verticale',rien:'pas d’asymptote'};
+  return c.subs.map((s,i)=>{
+    const lv=String(($(pfx+'-lim'+i)||{}).value||'').trim();
+    const tv=String(($(pfx+'-typ'+i)||{}).value||'');
+    const z=$(pfx+'-eqz'+i), zvis=z&&z.style.display!=='none';
+    const ev=zvis?String(($(pfx+'-eq'+i)||{}).value||'').trim():'';
+    return s.lab+') x → '+s.cibleTxt+' : f(x) → « '+lv+' » ; choix : '+(TL[tv]||'(non choisi)')+(zvis?(' ; équation '+(tv==='ah'?'y':'x')+' = « '+ev+' »'):'');
+  }).join('. ');
+}
+function lg2ReponseTxt(c){
+  const subs=lgSubsReponseTxt(c,'lg2');
+  const fl=c.tv.fleches.map((f2,i)=>{ const d2=String(($('lg2-f'+i)||{}).value||''); return d2==='up'?'↗':(d2==='down'?'↘':'(non choisie)'); }).join(' puis ');
+  const vals=c.tv.vals.map((v,k)=>lg2ValLabel(c,k)+' = « '+String(($('lg2-v'+k)||{}).value||'').trim()+' »').join(' ; ');
+  return subs+'. Tableau — flèches : '+fl+' ; '+vals+'.';
+}
+/* Soutien : justes verrouillés en vert, faux rouges modifiables (cases ET tableau). */
+function lgSubsMarqueSoutien(c,pfx){
+  c.subs.forEach((s,i)=>{
+    const li=$(pfx+'-lim'+i), ty=$(pfx+'-typ'+i), eq=$(pfx+'-eq'+i);
+    if(li){ li.classList.remove('ok','bad'); if(lgLimOK(s,li.value)){ li.classList.add('ok'); li.disabled=true; const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true; } else li.classList.add('bad'); }
+    if(ty){ ty.classList.remove('ok','bad'); if(ty.value===s.typ){ ty.classList.add('ok'); ty.disabled=true; } else ty.classList.add('bad'); }
+    if(eq && ty && ty.value===s.typ && s.typ!=='rien'){ eq.classList.remove('ok','bad'); if(lgEqOK(s,eq.value)){ eq.classList.add('ok'); eq.disabled=true; } else eq.classList.add('bad'); }
+  });
+}
+function lg2MarqueSoutien(c){
+  lgSubsMarqueSoutien(c,'lg2');
+  c.tv.fleches.forEach((f2,i)=>{ const el=$('lg2-f'+i); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(el.value===f2){ el.classList.add('ok'); el.disabled=true; } else el.classList.add('bad'); });
+  c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(lgLimOK({lim:v.att}, el.value)){ el.classList.add('ok'); el.disabled=true; } else el.classList.add('bad'); });
+}
+/* Correction finale : tout verrouillé, erreurs en rouge + badges verts (sous les éléments
+   du tableau), asymptotes (pointillés + équations) révélées sur le graphique. */
+function lgSubsFinal(c,pfx){
+  c.subs.forEach((s,i)=>{
+    const li=$(pfx+'-lim'+i), ty=$(pfx+'-typ'+i), eq=$(pfx+'-eq'+i);
+    const bi=$(pfx+'-inf'+i); if(bi) bi.disabled=true;
+    const limTxt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
+    if(li){ li.disabled=true; li.classList.remove('ok','bad');
+      if(lgLimOK(s,li.value)) li.classList.add('ok');
+      else { li.classList.add('bad'); const fx=document.createElement('span'); fx.className='dhv-fix'; fx.textContent='→ '+limTxt; li.insertAdjacentElement('afterend',fx); } }
+    if(ty){ ty.disabled=true; ty.classList.remove('ok','bad');
+      if(ty.value===s.typ) ty.classList.add('ok');
+      else { ty.classList.add('bad'); const fx2=document.createElement('span'); fx2.className='dhv-fix';
+        fx2.textContent='→ '+(s.typ==='ah'?'asymptote horizontale (y = '+numFmt(s.eq)+')':(s.typ==='av'?'asymptote verticale (x = '+numFmt(s.eq)+')':'pas d’asymptote'));
+        ty.insertAdjacentElement('afterend',fx2); } }
+    if(eq){ eq.disabled=true; eq.classList.remove('ok','bad');
+      const z=$(pfx+'-eqz'+i);
+      if(z && z.style.display!=='none'){
+        if(ty && ty.value===s.typ && s.typ!=='rien'){
+          if(lgEqOK(s,eq.value)) eq.classList.add('ok');
+          else { eq.classList.add('bad'); const fx3=document.createElement('span'); fx3.className='dhv-fix'; fx3.textContent='→ '+numFmt(s.eq); eq.insertAdjacentElement('afterend',fx3); }
+        } else eq.classList.add('bad');
+      } }
+  });
+}
+function lg2Final(c){
+  const labs=$('lg2AsyLabs'); if(labs) labs.style.display='';
+  const cell=document.querySelector('#lg2TVzone .vfcell');
+  lgSubsFinal(c,'lg2');
+  const fixAbs=(x,y,txt)=>{ if(!cell) return;
+    const sp=document.createElement('span'); sp.className='dhv-fix lg2-fix';
+    sp.style.left=x+'px'; sp.style.top=y+'px'; sp.textContent=txt; cell.appendChild(sp); };
+  c.tv.fleches.forEach((f2,i)=>{ const el=$('lg2-f'+i); if(!el) return;
+    el.disabled=true; el.classList.remove('ok','bad');
+    if(el.value===f2) el.classList.add('ok');
+    else { el.classList.add('bad'); fixAbs(i*(LG2WN+LG2WS)+LG2WN+LG2WS/2, LG2H/2+27, '→ '+(f2==='up'?'↗':'↘')); } });
+  c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
+    el.disabled=true; el.classList.remove('ok','bad');
+    if(lgLimOK({lim:v.att}, el.value)) el.classList.add('ok');
+    else { el.classList.add('bad');
+      const attTxt=(v.att==='+∞'||v.att==='−∞')?v.att:numFmt(v.att);
+      const x=lg2ncx(v.j)+(v.k==='g'?-26:(v.k==='d'?26:0));
+      const y0=parseFloat(el.style.top||String(LG2H/2));
+      const y=(y0>=LG2H/2)? y0-27 : y0+27;               /* case en bas : badge au-dessus (reste dans la cellule) */
+      fixAbs(x, y, '→ '+attTxt); } });
+}
+let lg2Busy=false;
+async function checkLG2(){
+  if(test.locked||lg2Busy) return;
+  const c=test.questions[test.idx];
+  let manque=false;
+  c.subs.forEach((s,i)=>{
+    const lv=String(($('lg2-lim'+i)||{}).value||'').trim();
+    const tv=String(($('lg2-typ'+i)||{}).value||'');
+    const ev=String(($('lg2-eq'+i)||{}).value||'').trim();
+    if(!lv||!tv) manque=true;
+    if((tv==='ah'||tv==='av')&&!ev) manque=true;
+  });
+  c.tv.fleches.forEach((f2,i)=>{ if(!String(($('lg2-f'+i)||{}).value||'')) manque=true; });
+  c.tv.vals.forEach((v,k)=>{ if(!String(($('lg2-v'+k)||{}).value||'').trim()) manque=true; });
+  if(manque){ toast('Complète chaque cas (limite, choix, équation si asymptote) et tout le tableau (flèches et valeurs)'); return; }
+  const fautes=lg2FautesSubs(c).concat(lg2FautesTV(c));
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    lg2Busy=true;
+    $('lg2Actions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('lg2Feedback').textContent='L’IA relit tes réponses…'; $('lg2Feedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:lg2QuestionIA(c),
+        attendu:lg2AttenduIA(c)+' Cases actuellement fausses (verdict local certain) : '+fautes.join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces cases-là.',
+        reponse:lg2ReponseTxt(c), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    lg2Busy=false;
+  }
+  if(!correct && isSoutien()){
+    lg2MarqueSoutien(c);
+    $('lg2Feedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Imagine un point qui se déplace sur la courbe vers chaque cible, puis relis ton tableau : les flèches suivent la courbe, et les limites se placent aux extrémités des flèches. Corrige les cases en rouge puis revérifie.');
+    $('lg2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('lg2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG2()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  lg2Final(c);
+  if(correct){
+    test.score++; $('lg2LiveScore').textContent=test.score;
+    $('lg2Feedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('lg2Feedback').className='mp-feedback good';
+  } else {
+    $('lg2Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts, et les asymptotes sont maintenant tracées et étiquetées sur le graphique.';
+    $('lg2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+  }
+  const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
+  test.answers.push({
+    q:'Limites, asymptotes et tableau de variation ('+c.familleTxt+')',
+    answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
+      return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | ')
+      +' | tableau : '+c.tv.fleches.map(f2=>f2==='up'?'↗':'↘').join(' ')+' ; '+c.tv.vals.map(v=>(v.att==='+∞'||v.att==='−∞')?v.att:numFmt(v.att)).join(' ; '),
+    given:lg2ReponseTxt(c),
+    correct:correct
+  });
+  const last=test.idx===test.questions.length-1;
+  $('lg2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextLG2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextLG2(){ if(test.idx<test.questions.length-1){ test.idx++; renderLG2(); } else finishTest(); }
+
+/* ============ TEST : Conjecturer les limites — NIVEAU 3 (lecture de tableau) ============ */
+/* Le TABLEAU DE VARIATION est DONNÉ, déjà complété (même présentation que le niveau 2 :
+   flèches dessinées, valeurs placées aux extrémités, double barre aux valeurs interdites)
+   — rien à compléter dedans, et AUCUNE courbe. L'élève en déduit, pour chaque cas, la
+   limite et l'asymptote éventuelle avec son équation, comme au niveau 2. Correction
+   locale exacte ; l'IA rédige le commentaire des erreurs. */
+function lg3TableHTML(c){
+  const tv=c.tv, n=tv.xs.length;
+  const innerW=n*LG2WN+(n-1)*LG2WS;
+  let xrow='<td class="vlab" style="width:'+LG2WL+'px"><i>x</i></td>';
+  tv.xs.forEach((xx,j)=>{
+    xrow+='<td class="vnx" style="width:'+LG2WN+'px">'+esc(xx.t)+'</td>';
+    if(j<n-1) xrow+='<td class="vax" style="width:'+LG2WS+'px"></td>';
+  });
+  const geo=lg2Geo(tv, tv.fleches);            /* directions correctes : tableau résolu */
+  let g=lg2DBarres(tv);
+  geo.arr.forEach(a2=>{ g+=svArrowSVG(a2.xg,a2.y0,a2.xd,a2.y1); });
+  let spans='';
+  tv.vals.forEach((v,k)=>{
+    const x=lg2ncx(v.j)+(v.k==='g'?-26:(v.k==='d'?26:0));
+    const txt=(v.att==='+∞'||v.att==='−∞')?v.att:numFmt(v.att);
+    spans+='<span class="lg3-val" style="left:'+x+'px;top:'+geo.ys[k]+'px">'+esc(txt)+'</span>';
+  });
+  const inner='<svg class="vt-overlay" viewBox="0 0 '+innerW+' '+LG2H+'" preserveAspectRatio="none">'+g+'</svg>'+spans;
+  const frow='<td class="vlab">Variation de <i>f</i></td><td class="vfcell" colspan="'+(2*n-1)+'" style="height:'+LG2H+'px">'+inner+'</td>';
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(LG2WL+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xrow+'</tr>'
+    +'<tr class="vt-fr">'+frow+'</tr>'
+    +'</tbody></table></div>';
+}
+async function startLG3(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
+  cfg=await loadConfig();
+  currentTestId='limites-graphiques-3'; test.kind='lg3';
+  const fams=['homo','homo2','cloche','ln','exp','cubv'];
+  for(let i=fams.length-1;i>0;i--){ const j=rand(0,i); const t2=fams[i]; fams[i]=fams[j]; fams[j]=t2; }
+  test.questions=fams.slice(0,5).map(fm=>lg3Question(fm));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('lg3'); renderLG3();
+}
+/* Niveau 3 : on ne demande PAS de limite finie quand x tend vers une valeur finie
+   INTÉRIEURE au domaine (elle ne se lit pas dans un tableau de variation : ce point
+   n'apparaît pas dans la ligne x). On retire donc le cas « x → b » de la cloche.
+   Les bornes du domaine restent demandées : latérales aux valeurs interdites
+   (hyperboles) et borne du logarithme. */
+function lg3Question(fm){
+  const q=(fm==='cubv')?genLGCubV():genLG(fm);
+  q.subs=q.subs.filter(s2=>s2.kind!=='fini');
+  q.tv=lg2Table(q);
+  return q;
+}
+function lg3SyncAll(){
+  const c=test.questions&&test.questions[test.idx];
+  if(!c||test.kind!=='lg3') return;
+  c.subs.forEach((s,i)=>lgSubsSync('lg3',i));
+}
+function renderLG3(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];
+  $('lg3QIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('lg3ModeTag').innerHTML=modeTagHTML();
+  $('lg3LiveScore').textContent=test.score;
+  $('lg3Feedback').textContent=''; $('lg3Feedback').className='mp-feedback';
+  $('lg3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG3()">Vérifier mes réponses</button>';
+  $('lg3Prompt').innerHTML='On donne le <b>tableau de variation</b> d’une fonction <i>f</i> sur son domaine de définition (aucune courbe). Déduis-en chaque limite, et l’asymptote éventuelle.';
+  $('lg3TVzone').innerHTML=lg3TableHTML(c);
+  $('lg3Hint').innerHTML='<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
+  $('lg3Subs').innerHTML=lgSubsHTML(c,'lg3');
+  lgSubsBind(c,'lg3');
+  setTimeout(lg3SyncAll,0);                            /* zones « y = … » après une reprise */
+}
+function lg3QuestionIA(c){
+  return 'IMPORTANT : corrige UNIQUEMENT l’exercice décrit ici (lecture de limites et d’asymptotes dans un tableau de variation) ; il n’y a AUCUNE dérivée à calculer ni aucun autre exercice : ignore tout autre contexte et ne demande aucune donnée supplémentaire. '
+    +'Exercice « conjecturer les limites d’après un tableau » : l’élève dispose UNIQUEMENT du tableau de variation suivant (aucune courbe) — '+lg2TableTexte(c)+'. '
+    +'Pour chaque cas ('+c.subs.map(s=>s.lab+' : x → '+s.cibleTxt).join(' ; ')+'), l’élève écrit la limite de f(x), choisit « une asymptote horizontale », « une asymptote verticale » ou « pas d’asymptote horizontale ou verticale », et donne l’équation de l’asymptote le cas échéant.';
+}
+function lg3AttenduIA(c){
+  return lgAttenduIA(c)
+    +' CONTEXTE : l’élève lit un TABLEAU DE VARIATION (pas de courbe) : dans ton feedback, fais LIRE le tableau — les limites sont les valeurs aux extrémités des flèches, une double barre signale une valeur interdite — plutôt que d’imaginer une courbe.';
+}
+let lg3Busy=false;
+async function checkLG3(){
+  if(test.locked||lg3Busy) return;
+  const c=test.questions[test.idx];
+  let manque=false;
+  c.subs.forEach((s,i)=>{
+    const lv=String(($('lg3-lim'+i)||{}).value||'').trim();
+    const tv=String(($('lg3-typ'+i)||{}).value||'');
+    const ev=String(($('lg3-eq'+i)||{}).value||'').trim();
+    if(!lv||!tv) manque=true;
+    if((tv==='ah'||tv==='av')&&!ev) manque=true;
+  });
+  if(manque){ toast('Complète chaque cas : limite, choix, et équation s’il y a une asymptote'); return; }
+  const fautes=lgSubsFautes(c,'lg3');
+  const correct=fautes.length===0;
+  let fbHTML='';
+  if(!correct){
+    lg3Busy=true;
+    $('lg3Actions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+    $('lg3Feedback').textContent='L’IA relit tes réponses…'; $('lg3Feedback').className='mp-feedback muted';
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:lg3QuestionIA(c),
+        attendu:lg3AttenduIA(c)+' Cases actuellement fausses (verdict local certain) : '+fautes.join(', ')+'. Réponds correct = false et commente UNIQUEMENT ces cases-là.',
+        reponse:lgSubsReponseTxt(c,'lg3'), balises:true } });
+      if(!r.error && r.data){ const res=iaNettoie(r.data);
+        if(res && !res.error && res.correct===false && res.feedback) fbHTML=conseilHTML(res.feedback);
+      }
+    }catch(e){ fbHTML=''; }
+    lg3Busy=false;
+  }
+  if(!correct && isSoutien()){
+    lgSubsMarqueSoutien(c,'lg3');
+    $('lg3Feedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Relis le tableau : la limite de chaque cas est la valeur écrite à l’extrémité de la flèche correspondante ; une valeur finie aux bornes infinies donne une asymptote horizontale, et des flèches qui filent vers l’infini de part et d’autre d’une double barre donnent une asymptote verticale. Corrige les cases en rouge puis revérifie.');
+    $('lg3Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('lg3Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLG3()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  lgSubsFinal(c,'lg3');
+  if(correct){
+    test.score++; $('lg3LiveScore').textContent=test.score;
+    $('lg3Feedback').innerHTML=esc(pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']));
+    $('lg3Feedback').className='mp-feedback good';
+  } else {
+    $('lg3Feedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : les bonnes réponses sont en badges verts.';
+    $('lg3Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+  }
+  const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
+  test.answers.push({
+    q:'Limites et asymptotes d’après le tableau de variation ('+c.familleTxt+')',
+    answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
+      return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | '),
+    given:lgSubsReponseTxt(c,'lg3'),
+    correct:correct
+  });
+  const last=test.idx===test.questions.length-1;
+  $('lg3Actions').innerHTML=`<button class="btn btn-primary" onclick="nextLG3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+}
+function nextLG3(){ if(test.idx<test.questions.length-1){ test.idx++; renderLG3(); } else finishTest(); }
+
 
 /* ====================== TEST : TVI rédigé (justification libre, évaluée) ====================== */
 /* Normalisation : minuscules, sans accents, espaces compactés. */
@@ -6588,6 +7321,138 @@ document.addEventListener('input',e=>{
 $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
 $('teacherPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();teacherLogin();}});
 $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();creerCompte();}});
+
+/* ===== Focus automatique : à chaque question, la première case est activée =====
+   La première case de saisie (ou le premier menu, ou la zone de rédaction) reçoit le
+   focus à l'affichage de chaque question — l'élève tape directement, sans souris.
+   Sur écran tactile (pointer: coarse), rien n'est activé pour ne pas ouvrir le clavier
+   virtuel par-dessus le graphique. En reprise après pause, le curseur se place en fin
+   du texte restauré. */
+function focusPremiereCase(){
+  setTimeout(function(){
+    try{ if(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return; }catch(err){}
+    const l=navCasesListe();
+    let el=l[0];
+    if(!el){
+      const scr=document.querySelector('.screen.on');
+      el=scr ? scr.querySelector('textarea:not([disabled])') : null;   /* rédaction (4.2) */
+    }
+    if(!el) return;
+    el.focus();
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA'){
+      const L=(el.value||'').length;
+      try{ el.setSelectionRange(L,L); }catch(err){}
+    }
+  }, 0);
+}
+['renderQuestion','renderTVI','renderTVI2','renderTVI3','renderTVINS','renderTVG','renderDHV','renderLG','renderLG2','renderLG3',
+ 'renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderSV','renderTG','renderS1','renderS2'
+].forEach(function(n){
+  const f=window[n];
+  if(typeof f==='function'){
+    window[n]=function(){ const r=f.apply(this,arguments); focusPremiereCase(); return r; };
+  }
+});
+/* la table de reprise a capturé les fonctions d'origine : on la resynchronise */
+try{
+  Object.keys(DISPATCH).forEach(function(k){
+    const f0=DISPATCH[k][1];
+    if(f0 && f0.name && typeof window[f0.name]==='function' && window[f0.name]!==f0) DISPATCH[k][1]=window[f0.name];
+  });
+}catch(err){}
+
+
+/* ===== « Poser une question à l'IA » : questions de cours pendant un exercice =====
+   Disponible en entraînement et en soutien (le bandeau est masqué en évaluation).
+   Suggestions adaptées à l'exercice courant, saisie libre ou dictée au micro
+   (reconnaissance vocale du navigateur, en français). Les réponses passent par la
+   fonction Edge (action « conseil ») avec une mission dédiée : professeur simple et
+   imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
+   jamais les valeurs de l'exercice en cours. */
+const QIA_SUGG={
+  lg:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment lire une limite sur un graphique ?","À quoi servent les limites ?"],
+  lg2:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment remplir un tableau de variation ?","Que veut dire la double barre dans un tableau ?"],
+  lg3:["Comment lire les limites dans un tableau de variation ?","Que veut dire la double barre ?","Comment trouver une asymptote à partir du tableau ?","C’est quoi, une limite ?"],
+  dhv:["C’est quoi, l’équation d’une droite horizontale ?","Pourquoi une droite verticale s’écrit x = … ?","Comment trouver l’équation d’une droite sur un graphique ?"],
+  tvi:["C’est quoi, le théorème des valeurs intermédiaires ?","Que veut dire « continue » ?","Que veut dire « strictement monotone » ?"],
+  tvi2:["C’est quoi, le théorème des valeurs intermédiaires ?","Comment rédiger une justification avec le TVI ?","Que veut dire « continue » ?"],
+  tvi3:["Pourquoi le TVI ne suffit pas toujours pour l’unicité ?","Que veut dire « strictement monotone » ?","C’est quoi, le théorème des valeurs intermédiaires ?"],
+  tvins:["Comment compter le nombre de solutions avec un tableau de variation ?","C’est quoi, le théorème des valeurs intermédiaires ?","Que veut dire « solution de f(x) = k » ?"],
+  tvg:["Comment résoudre f(x) = k avec un graphique ?","Pourquoi parfois il n’y a aucune solution ?","Que représente la droite y = k ?"],
+  dexp:["Comment dériver un produit ?","C’est quoi, la fonction exponentielle ?","Pourquoi la dérivée de eˣ est eˣ ?"],
+  dexpq:["Comment dériver un quotient ?","C’est quoi, la fonction exponentielle ?","Comment factoriser avec eˣ ?"],
+  sv:["Quel est le lien entre le signe de f′ et les variations de f ?","Comment lire le signe de f sur un graphique ?","C’est quoi, un extremum ?"],
+  tg:["C’est quoi, une tangente ?","Comment trouver l’équation d’une tangente ?","Que représente f′(a) sur le graphique ?"],
+  gen:["Explique-moi simplement la notion principale de cet exercice.","Donne-moi un exemple simple pour comprendre.","Quelles sont les erreurs classiques à éviter ici ?"]
+};
+function qiaSuggestions(){ return (test && QIA_SUGG[test.kind]) || QIA_SUGG.gen; }
+function ouvrirQIA(){
+  const ov=$('qiaOverlay'); if(!ov) return;
+  $('qiaSugg').innerHTML=qiaSuggestions().map(t=>'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(t)+'</button>').join('');
+  const mic=$('qiaMic');
+  if(mic) mic.style.display=(window.SpeechRecognition||window.webkitSpeechRecognition)?'':'none';
+  ov.classList.add('on');
+  try{ if(!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) $('qiaInput').focus(); }catch(e){}
+}
+function fermerQIA(){ const ov=$('qiaOverlay'); if(ov) ov.classList.remove('on'); qiaMicStop(); }
+function qiaPoser(t){ const inp=$('qiaInput'); if(inp) inp.value=String(t||''); qiaEnvoyer(); }
+let qiaBusy=false;
+async function qiaEnvoyer(){
+  if(qiaBusy) return;
+  const inp=$('qiaInput'), dlg=$('qiaDialog');
+  const q=String((inp&&inp.value)||'').trim().slice(0,300);
+  if(!q||!dlg) return;
+  qiaBusy=true; if(inp) inp.value='';
+  const bq=document.createElement('div'); bq.className='qia-q'; bq.textContent=q; dlg.appendChild(bq);
+  const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je réfléchis…'; dlg.appendChild(br);
+  dlg.scrollTop=dlg.scrollHeight;
+  const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Texte brut, sans titre ni markdown.";
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.feedback) br.innerHTML=conseilHTML(d.feedback);
+    else if(d && d.error) br.textContent=d.error;
+    else br.textContent='Je n’ai pas de réponse pour le moment. Réessaie.';
+  }catch(e){ br.textContent='L’IA est indisponible pour le moment. Réessaie dans un instant.'; }
+  dlg.scrollTop=dlg.scrollHeight;
+  qiaBusy=false;
+}
+/* Micro : reconnaissance vocale du navigateur (français). Bouton masqué si non disponible. */
+let qiaRec=null;
+function qiaMicStop(){ try{ if(qiaRec) qiaRec.stop(); }catch(e){} qiaRec=null; const b=$('qiaMic'); if(b) b.classList.remove('on'); }
+function qiaMicToggle(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast('Le micro n’est pas disponible sur ce navigateur'); return; }
+  if(qiaRec){ qiaMicStop(); return; }
+  const rec=new SR(); qiaRec=rec;
+  rec.lang='fr-FR'; rec.interimResults=false; rec.maxAlternatives=1;
+  const b=$('qiaMic'); if(b) b.classList.add('on');
+  rec.onresult=function(ev){
+    try{
+      const t=ev.results[0][0].transcript;
+      const inp=$('qiaInput');
+      if(inp) inp.value=(inp.value?inp.value+' ':'')+t;
+    }catch(e){}
+  };
+  rec.onerror=qiaMicStop;
+  rec.onend=qiaMicStop;
+  try{ rec.start(); }catch(e){ qiaMicStop(); }
+}
+/* Entrée = envoyer ; Échap ou clic hors de la carte = fermer. */
+(function(){
+  const inp=$('qiaInput');
+  if(inp) inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); qiaEnvoyer(); }
+  });
+  document.addEventListener('keydown', function(e){
+    const ov=$('qiaOverlay');
+    if(e.key==='Escape' && ov && ov.classList.contains('on')) fermerQIA();
+  });
+  const ov=$('qiaOverlay');
+  if(ov) ov.addEventListener('mousedown', function(e){ if(e.target===ov) fermerQIA(); });
+})();
 
 /* démarrage */
 if(configReady()){ initSupabase(); show('home'); }
