@@ -557,6 +557,15 @@
 .lr-in:disabled{background:var(--paper);color:var(--ink-soft)}
 .lr-outils{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ink-soft);font-size:.95rem;margin:2px 0 6px;flex-wrap:wrap}
 .lr-ins{padding:7px 13px}
+.lr-astuce{font-size:.9rem}
+#lrGraph{text-align:center;margin:8px 0 4px}
+.lr-svg{width:100%;max-width:470px;background:var(--surface);border:1.5px solid var(--grid);border-radius:12px;display:inline-block}
+.lr-svg .lr-grid{stroke:#E4EAF4;stroke-width:1}
+.lr-svg .lr-axis{stroke:#5C668A;stroke-width:1.4;fill:none}
+.lr-svg .lr-flh{fill:#5C668A}
+.lr-svg .lr-num{font-size:10.5px;font-weight:700;fill:#8A93B4}
+.lr-svg .lr-curve{stroke:#2B50C8;stroke-width:2.6;fill:none;stroke-linecap:round}
+.lr-svg .lr-asym{stroke:#E23D52;stroke-width:1.5;stroke-dasharray:6 4}
 @keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
 
 /* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
@@ -1129,12 +1138,13 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="lrPrompt"></p>
-      <p class="tvi-instr">Écris les <b>deux</b> limites de <i>f</i> aux bornes de son ensemble de définition — une ligne par borne, sur le modèle : <span class="lr-modele">quand x → … &nbsp;:&nbsp; f(x) → …</span></p>
+      <div class="sv-graph" id="lrGraph"></div>
+      <p class="tvi-instr">Lis la courbe et <b>conjecture</b> les deux limites de <i>f</i> aux bornes de son ensemble de définition (aucune justification demandée) — une ligne par borne, présentée sous la forme : <span class="lr-modele">quand x tend vers … , f(x) tend vers …</span> &nbsp;ou&nbsp; <span class="lr-modele">quand x → … , f(x) → …</span></p>
       <div class="lr-lignes">
         <input type="text" class="lr-in" id="lrL1" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
         <input type="text" class="lr-in" id="lrL2" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
       </div>
-      <div class="lr-outils"><span>Insérer :</span><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('→')">→</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('+∞')">+∞</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('−∞')">−∞</button></div>
+      <div class="lr-outils"><span>Insérer :</span><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('→')">→</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('∞')">∞</button><span class="lr-astuce">— au clavier : tape <b>va</b> pour → et <b>inf</b> pour ∞</span></div>
       <div class="mp-feedback" id="lrFeedback"></div>
       <div class="mp-actions" id="lrActions"></div>
     </div>
@@ -1510,7 +1520,7 @@ const TESTS={
   'derivees': { name:'Dérivées',  icon:'📈', desc:'Dérive des polynômes et des monômes, puis écris l\u2019expression de f\u2009\u2032(x).', start:()=>startDerivees() },
   'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
-  'limites-redaction': { name:'Limites — rédaction', icon:'✏️', desc:'Une fonction, un seul intervalle : écris toi-même les deux limites aux bornes du domaine, sous la forme « quand x → … , f(x) → … » (vérifiées par l’IA).', start:()=>startLR() },
+  'limites-redaction': { name:'Limites — rédaction', icon:'✏️', desc:'La courbe d’une fonction sur un seul intervalle : conjecture graphiquement ses deux limites aux bornes et rédige-les toi-même — « quand x tend vers … , f(x) tend vers … » (vérifiées par l’IA).', start:()=>startLR() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
   'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
@@ -1931,7 +1941,7 @@ function conseilCourant(){
       +'. Réponses attendues : quand x tend vers '+q.b1.x+(q.b1.cote?' (côté '+q.b1.cote+')':'')+', f(x) tend vers '+q.b1.lim
       +' ; quand x tend vers '+q.b2.x+(q.b2.cote?' (côté '+q.b2.cote+')':'')+', f(x) tend vers '+q.b2.lim
       +'. Ce que l’élève a écrit pour l’instant — ligne 1 : « '+(($('lrL1')&&$('lrL1').value)||'')+' » ; ligne 2 : « '+(($('lrL2')&&$('lrL2').value)||'')+' »'
-      +'. Rappelle la limite usuelle utile ('+q.usuel+') et guide-le vers la bonne écriture, SANS rédiger les deux lignes finales à sa place.';
+      +'. IMPORTANT : l’élève ne voit QUE la courbe (jamais de formule — n’en mentionne aucune). Guide-le pour LIRE le graphique : suivre la courbe vers chaque borne du domaine et regarder vers quelle hauteur elle se stabilise (les pointillés aident) ou si elle monte/descend sans limite ; puis l’aider à l’écrire « quand x tend vers … , f(x) tend vers … », SANS donner les valeurs finales à sa place.';
   } else {
     c=ctxVisible();
   }
@@ -3220,7 +3230,7 @@ function lrModele(c){
        + 'quand x → '+c.b2.x+lrCote(c.b2)+' , f(x) → '+c.b2.lim;
 }
 function lrQuestionIA(c){
-  return 'Donner les limites de f aux DEUX bornes de son ensemble de définition. f(x) = '+c.fPlain+', définie sur '+c.dom+'. L’élève écrit deux lignes, une par borne, de la forme « quand x → … , f(x) → … ».';
+  return 'Conjecturer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée). Il écrit deux lignes, une par borne, sous la forme « quand x tend vers … , f(x) tend vers … » ou « quand x → … , f(x) → … ».';
 }
 function lrAttenduIA(c){
   const cote=b=>b.cote?(' (limite '+(b.cote==='+'?'à droite, côté '+b.x+'⁺':'à gauche, côté '+b.x+'⁻')+')'):'';
@@ -3243,12 +3253,85 @@ function lrInserer(t){
   el.value=el.value.slice(0,s)+t+el.value.slice(e2);
   const p=s+t.length; try{ el.setSelectionRange(p,p); }catch(err){}
 }
+/* Courbe de la question, tracée sur le domaine seulement, à partir des données (fam,k,c,a). */
+function lrF(q,x){
+  if(q.fam==='expP') return q.k*Math.exp(x)+q.c;
+  if(q.fam==='expM') return q.k*Math.exp(-x)+q.c;
+  if(q.fam==='invD'||q.fam==='invG') return q.c+q.k/(x-q.a);
+  if(q.fam==='cube') return q.k*x*x*x+q.c;
+  return q.k*x*x+q.c;
+}
+function lrSVG(q){
+  const W=460,H=320;
+  let x0,x1,y0,y1;
+  if(q.fam==='invD'){ x0=q.a-1.6; x1=q.a+7.6; y0=q.c-6; y1=q.c+6; }
+  else if(q.fam==='invG'){ x0=q.a-7.6; x1=q.a+1.6; y0=q.c-6; y1=q.c+6; }
+  else if(q.fam==='carre'){ if(q.k>0){ y0=Math.min(q.c-2,-1); y1=y0+12; } else { y1=Math.max(q.c+2,1); y0=y1-12; } x0=-3.6; x1=3.6; }
+  else { x0=-4.6; x1=4.6; y0=-6.5; y1=6.5; }
+  const X=x=>((x-x0)/(x1-x0))*(W-2)+1;
+  const Y=y=>H-1-((y-y0)/(y1-y0))*(H-2);
+  let out='<svg class="lr-svg" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img">';
+  /* grille */
+  for(let gx=Math.ceil(x0); gx<=Math.floor(x1); gx++) out+='<line class="lr-grid" x1="'+X(gx).toFixed(1)+'" y1="1" x2="'+X(gx).toFixed(1)+'" y2="'+(H-1)+'"/>';
+  for(let gy=Math.ceil(y0); gy<=Math.floor(y1); gy++) out+='<line class="lr-grid" x1="1" y1="'+Y(gy).toFixed(1)+'" x2="'+(W-1)+'" y2="'+Y(gy).toFixed(1)+'"/>';
+  /* axes + flèches + graduations chiffrées — si un axe sort de la fenêtre, les nombres
+     se placent le long du bord (indispensable pour lire l'asymptote, ex. domaine ]3 ; +∞[) */
+  const fl=(x2,y2,dx,dy)=>'<polygon class="lr-flh" points="'+x2+','+y2+' '+(x2-7*dx+3.4*dy)+','+(y2-7*dy-3.4*dx)+' '+(x2-7*dx-3.4*dy)+','+(y2-7*dy+3.4*dx)+'"/>';
+  const axeX=(y0<0 && y1>0), axeY=(x0<0 && x1>0);
+  if(axeX) out+='<line class="lr-axis" x1="1" y1="'+Y(0).toFixed(1)+'" x2="'+(W-3)+'" y2="'+Y(0).toFixed(1)+'"/>'+fl(W-3,+Y(0).toFixed(1),1,0);
+  if(axeY) out+='<line class="lr-axis" x1="'+X(0).toFixed(1)+'" y1="'+(H-1)+'" x2="'+X(0).toFixed(1)+'" y2="3"/>'+fl(+X(0).toFixed(1),3,0,-1);
+  const pasY=(y1-y0)>10?2:1;
+  const yEtiqX=axeX?(Y(0)+13):(H-6);
+  for(let gx=Math.ceil(x0); gx<=Math.floor(x1); gx++){
+    const px=X(gx); if(gx===0 || px<14 || px>W-14) continue;
+    out+='<text class="lr-num" text-anchor="middle" x="'+px.toFixed(1)+'" y="'+yEtiqX.toFixed(1)+'">'+(gx<0?'−':'')+Math.abs(gx)+'</text>';
+  }
+  const xEtiqY=axeY?(X(0)-4):32;
+  for(let gy=Math.ceil(y0/pasY)*pasY; gy<=Math.floor(y1); gy+=pasY){
+    const py=Y(gy); if(gy===0 || py<13 || py>H-9) continue;
+    out+='<text class="lr-num" text-anchor="end" x="'+xEtiqY.toFixed(1)+'" y="'+(py+3.6).toFixed(1)+'">'+(gy<0?'−':'')+Math.abs(gy)+'</text>';
+  }
+  if(axeX && axeY) out+='<text class="lr-num" text-anchor="end" x="'+(X(0)-4).toFixed(1)+'" y="'+(Y(0)+13).toFixed(1)+'">0</text>';
+  /* asymptotes en pointillés (aide de lecture) */
+  if(q.fam==='invD'||q.fam==='invG'){
+    out+='<line class="lr-asym" x1="'+X(q.a).toFixed(1)+'" y1="2" x2="'+X(q.a).toFixed(1)+'" y2="'+(H-2)+'"/>';
+    out+='<line class="lr-asym" x1="2" y1="'+Y(q.c).toFixed(1)+'" x2="'+(W-2)+'" y2="'+Y(q.c).toFixed(1)+'"/>';
+  } else if(q.fam==='expP'||q.fam==='expM'){
+    out+='<line class="lr-asym" x1="2" y1="'+Y(q.c).toFixed(1)+'" x2="'+(W-2)+'" y2="'+Y(q.c).toFixed(1)+'"/>';
+  }
+  /* courbe restreinte au domaine (le viewBox coupe ce qui déborde) */
+  let dA,dB;
+  if(q.fam==='invD'){ dA=q.a+0.004; dB=x1; } else if(q.fam==='invG'){ dA=x0; dB=q.a-0.004; } else { dA=x0; dB=x1; }
+  let d='';
+  for(let i=0;i<=420;i++){
+    const x=dA+(dB-dA)*i/420, y=lrF(q,x);
+    if(!isFinite(y)||Math.abs(y)>1e4){ continue; }
+    const px=X(x), py=Y(Math.max(Math.min(y, y1+40), y0-40));
+    d+=(d?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)+' ';
+  }
+  out+='<path class="lr-curve" d="'+d+'"/>';
+  return out+'</svg>';
+}
+/* Raccourcis clavier dans les deux lignes : « va » → flèche, « inf » → ∞ (au fil de la frappe). */
+function lrRaccourcis(e){
+  const el=e.target; if(!el||el.disabled) return;
+  const pos=(el.selectionStart!=null?el.selectionStart:el.value.length);
+  const avant=el.value.slice(0,pos);
+  let rem=0, sym='';
+  if(/inf$/i.test(avant)){ rem=3; sym='∞'; }
+  else if(/va$/i.test(avant)){ rem=2; sym='→'; }
+  if(!rem) return;
+  el.value=avant.slice(0,avant.length-rem)+sym+el.value.slice(pos);
+  const p=pos-rem+1; try{ el.setSelectionRange(p,p); }catch(err){}
+}
+(function(){ ['lrL1','lrL2'].forEach(function(id){ const el=document.getElementById(id); if(el) el.addEventListener('input', lrRaccourcis); }); })();
 function renderLR(){
   const c=test.questions[test.idx]; test.locked=false;
   window.__conseilsDonnes=[];
   $('lrQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('lrModeTag').innerHTML=modeTagHTML();
-  $('lrPrompt').innerHTML='Soit <i>f</i> la fonction définie sur <b>'+esc(c.dom)+'</b> par&nbsp;: <span class="lr-f">f(x) = '+c.fHTML+'</span>';
+  $('lrPrompt').innerHTML='Soit <i>f</i> une fonction définie sur <b>'+esc(c.dom)+'</b>, dont la courbe représentative est tracée ci-dessous.';
+  $('lrGraph').innerHTML=lrSVG(c);
   ['lrL1','lrL2'].forEach(function(id){ const el=$(id); el.value=''; el.disabled=false; });
   lrCible='lrL1';
   $('lrFeedback').textContent=''; $('lrFeedback').className='mp-feedback';
@@ -3300,7 +3383,7 @@ async function checkLR(){
     $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
     ['lrL1','lrL2'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
   }
-  test.answers.push({q:'Limites de f(x) = '+c.fPlain+' sur '+c.dom+' — attendu : '+lrModele(c).replace('\n',' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
+  test.answers.push({q:'Limites (lecture graphique) sur '+c.dom+' — attendu : '+lrModele(c).replace('\n',' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
   const last=test.idx===test.questions.length-1;
   $('lrActions').innerHTML='<button class="btn btn-primary" onclick="nextLR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
