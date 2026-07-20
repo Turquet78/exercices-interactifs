@@ -521,6 +521,24 @@
 .qia-inputrow textarea{flex:1;resize:none;border:2px solid #c9d3e8;border-radius:10px;padding:8px 10px;font:inherit;min-height:44px;box-sizing:border-box}
 .qia-mic{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:44px;height:44px;font-size:1.1rem;cursor:pointer;flex:none}
 .qia-mic.on{border-color:#d94859;background:#fdecee;animation:qiaPulse 1s infinite}
+.qia-mic.off{opacity:.4;filter:grayscale(1);cursor:not-allowed}
+/* --- Illustrations génériques de la fenêtre QIA (thème limites) : dessins de la plateforme, choisis par l'IA --- */
+.qia-illu{margin-top:9px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:6px 4px 0;text-align:center;}
+.qia-illu svg{display:block;margin:0 auto;max-width:250px;width:100%;height:auto;}
+.qia-illu-leg{font-size:.8rem;font-weight:700;color:var(--ink-soft);padding:3px 8px 6px;}
+.qia-illu .qi-ax{stroke:#5C668A;stroke-width:1.3;fill:none;}
+.qia-illu .qi-fl{fill:#5C668A;}
+.qia-illu .qi-flb{fill:#2B50C8;}
+.qia-illu .qi-cb{stroke:#2B50C8;stroke-width:2.4;fill:none;stroke-linecap:round;}
+.qia-illu .qi-as{stroke:#E23D52;stroke-width:1.7;stroke-dasharray:6 4;fill:none;}
+.qia-illu .qi-gd{stroke:#8A93B4;stroke-width:1.1;stroke-dasharray:3 3;fill:none;}
+.qia-illu .qi-tx{font-size:12.5px;font-weight:700;fill:#1E2A4A;}
+.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#E23D52;}
+.qia-illu .qi-tb{font-size:12.5px;font-weight:800;fill:#2B50C8;}
+.qia-illu .qi-pt{fill:#2B50C8;stroke:#fff;stroke-width:1.4;}
+.qia-illu .qi-po{fill:#FFFFFF;stroke:#2B50C8;stroke-width:2;}
+.qia-illu .qi-cadre{stroke:#1E2A4A;stroke-width:1.4;fill:#FFFFFF;}
+.qia-illu .qi-trait{stroke:#1E2A4A;stroke-width:1.2;}
 @keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
 
 /* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
@@ -662,11 +680,13 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 @media (min-width:860px){ .tvi-card,.sv-card{max-width:780px} }
 @media (min-width:1080px){ .tvi-card,.sv-card{max-width:1040px} .sv-svg{max-width:560px} }
 @media (min-width:1400px){ .tvi-card,.sv-card{max-width:1200px} }
-/* Quand le cadre est plus grand : les cas des exercices de limites en deux colonnes.
+/* Quand le cadre est plus grand : les cas des exercices de limites, les questions du 3.1 et les équations du 4.4 en deux colonnes.
    (inline-block + calc plutôt que grid : compatible aussi avec les vieux navigateurs.) */
 @media (min-width:860px){
-  #lgSubs .lg-sub,#lg2Subs .lg-sub,#lg3Subs .lg-sub{display:inline-block;width:calc(50% - 10px);vertical-align:top;box-sizing:border-box;margin:8px 0}
-  #lgSubs .lg-sub:nth-child(odd),#lg2Subs .lg-sub:nth-child(odd),#lg3Subs .lg-sub:nth-child(odd){margin-right:16px}
+  #lgSubs .lg-sub,#lg2Subs .lg-sub,#lg3Subs .lg-sub,#dhvBlocs .dhv-q{display:inline-block;width:calc(50% - 10px);vertical-align:top;box-sizing:border-box;margin:8px 0}
+  #lgSubs .lg-sub:nth-child(odd),#lg2Subs .lg-sub:nth-child(odd),#lg3Subs .lg-sub:nth-child(odd),#dhvBlocs .dhv-q:nth-child(odd){margin-right:16px}
+  #tvinsEqs{flex-flow:row wrap}
+  #tvinsEqs .tvins-eq{width:calc(50% - 6px);box-sizing:border-box}
 }
 .sv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .sv-svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;}
@@ -1502,9 +1522,10 @@ function conseilInlineBtn(){ return isSoutien() ? '<button class="btn btn-ghost"
    de texte, ou avec Maj/Ctrl/Alt : comportement natif. Les menus gardent ↑/↓ pour choisir
    l'option. Les zones de rédaction (textarea) ne sont pas concernées. Les cases masquées
    ou verrouillées (grisées) sont sautées. Depuis la DERNIÈRE case, → met le focus sur le
-   bouton de vérification (← depuis ce bouton revient à la dernière case). La touche Entrée,
-   depuis n'importe quelle case, déclenche le bouton principal de l'écran (Vérifier /
-   Revérifier) ; il est inopérant pendant « Vérification… » (bouton grisé). */
+   bouton de vérification (← depuis ce bouton revient à la dernière case). La touche Entrée passe à la case suivante
+   comme → (quelle que soit la position du curseur) ; depuis la DERNIÈRE case, Entrée
+   déclenche le bouton principal de l'écran (Vérifier / Revérifier), inopérant pendant
+   « Vérification… » (bouton grisé). */
 function navCasesListe(){
   const scr=document.querySelector('.screen.on');
   if(!scr) return [];
@@ -1529,11 +1550,19 @@ function navCases(e){
   if(e.shiftKey||e.ctrlKey||e.altKey||e.metaKey) return;
   const el=document.activeElement;
   if(e.key==='Enter'){
-    /* Entrée depuis une case de saisie ou un menu : lance l'action principale */
+    /* Entrée depuis une case : passe à la case suivante (comme →), curseur au début.
+       Depuis la DERNIÈRE case, Entrée déclenche le bouton principal (Vérifier / Revérifier). */
     if(!el || (el.tagName!=='INPUT' && el.tagName!=='SELECT')) return;
     if(el.tagName==='INPUT'){
       const t=(el.getAttribute('type')||'text').toLowerCase();
       if(t!=='text' && t!=='number') return;
+    }
+    const liste=navCasesListe(), i=liste.indexOf(el);
+    if(i>=0 && i<liste.length-1){
+      const cible=liste[i+1];
+      e.preventDefault(); cible.focus();
+      if(cible.tagName==='INPUT'){ try{ cible.setSelectionRange(0,0); }catch(err){} }
+      return;
     }
     const btn=boutonVerif();
     if(btn){ e.preventDefault(); btn.click(); }
@@ -7370,9 +7399,9 @@ try{
    imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
    jamais les valeurs de l'exercice en cours. */
 const QIA_SUGG={
-  lg:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment lire une limite sur un graphique ?","À quoi servent les limites ?"],
-  lg2:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment remplir un tableau de variation ?","Que veut dire la double barre dans un tableau ?"],
-  lg3:["Comment lire les limites dans un tableau de variation ?","Que veut dire la double barre ?","Comment trouver une asymptote à partir du tableau ?","C’est quoi, une limite ?"],
+  lg:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment lire une limite sur un graphique ?","À quoi servent les limites ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
+  lg2:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment remplir un tableau de variation ?","Que veut dire la double barre dans un tableau ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
+  lg3:["Comment lire les limites dans un tableau de variation ?","Que veut dire la double barre ?","Comment trouver une asymptote à partir du tableau ?","C’est quoi, une limite ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   dhv:["C’est quoi, l’équation d’une droite horizontale ?","Pourquoi une droite verticale s’écrit x = … ?","Comment trouver l’équation d’une droite sur un graphique ?"],
   tvi:["C’est quoi, le théorème des valeurs intermédiaires ?","Que veut dire « continue » ?","Que veut dire « strictement monotone » ?"],
   tvi2:["C’est quoi, le théorème des valeurs intermédiaires ?","Comment rédiger une justification avec le TVI ?","Que veut dire « continue » ?"],
@@ -7390,7 +7419,12 @@ function ouvrirQIA(){
   const ov=$('qiaOverlay'); if(!ov) return;
   $('qiaSugg').innerHTML=qiaSuggestions().map(t=>'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(t)+'</button>').join('');
   const mic=$('qiaMic');
-  if(mic) mic.style.display=(window.SpeechRecognition||window.webkitSpeechRecognition)?'':'none';
+  if(mic){
+    const dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+    mic.style.display='';
+    if(dispo){ mic.classList.remove('off'); mic.title='Dicter la question au micro'; }
+    else{ mic.classList.add('off'); mic.title='Dictée non disponible sur ce navigateur'; }
+  }
   ov.classList.add('on');
   try{ if(!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) $('qiaInput').focus(); }catch(e){}
 }
@@ -7407,24 +7441,24 @@ async function qiaEnvoyer(){
   const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je réfléchis…'; dlg.appendChild(br);
   dlg.scrollTop=dlg.scrollHeight;
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Texte brut, sans titre ni markdown.";
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Texte brut, sans titre ni markdown."+qiaIlluMission();
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback) br.innerHTML=conseilHTML(d.feedback);
+    if(d && d.feedback){ const p=qiaIlluExtrait(d.feedback); br.innerHTML=conseilHTML(p.texte)+p.illus.map(qiaIlluHTML).join(''); }
     else if(d && d.error) br.textContent=d.error;
     else br.textContent='Je n’ai pas de réponse pour le moment. Réessaie.';
   }catch(e){ br.textContent='L’IA est indisponible pour le moment. Réessaie dans un instant.'; }
   dlg.scrollTop=dlg.scrollHeight;
   qiaBusy=false;
 }
-/* Micro : reconnaissance vocale du navigateur (français). Bouton masqué si non disponible. */
+/* Micro : reconnaissance vocale du navigateur (français). Bouton grisé (infobulle + toast au clic) si non disponible. */
 let qiaRec=null;
 function qiaMicStop(){ try{ if(qiaRec) qiaRec.stop(); }catch(e){} qiaRec=null; const b=$('qiaMic'); if(b) b.classList.remove('on'); }
 function qiaMicToggle(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){ toast('Le micro n’est pas disponible sur ce navigateur'); return; }
+  if(!SR){ toast('Dictée non disponible sur ce navigateur'); return; }
   if(qiaRec){ qiaMicStop(); return; }
   const rec=new SR(); qiaRec=rec;
   rec.lang='fr-FR'; rec.interimResults=false; rec.maxAlternatives=1;
@@ -7439,6 +7473,127 @@ function qiaMicToggle(){
   rec.onerror=qiaMicStop;
   rec.onend=qiaMicStop;
   try{ rec.start(); }catch(e){ qiaMicStop(); }
+}
+/* --- Illustrations génériques du thème « limites » : la plateforme dessine (SVG exact),
+   l'IA se contente de CHOISIR une figure via une balise [ILLU:id] en toute fin de réponse. --- */
+const QIA_ILLUS={
+  'asymptote-h':'Limite finie en +∞ : la courbe vient se coller à la droite — asymptote horizontale y = 2.',
+  'limite-infinie':'Limite infinie : quand x grandit, f(x) finit par dépasser n’importe quelle barrière.',
+  'asymptote-v':'Valeur interdite en a : les branches filent vers ±∞ — asymptote verticale x = a.',
+  'limites-laterales':'En b, la limite à gauche (L₁) et la limite à droite (L₂) ne sont pas les mêmes.',
+  'point-regulier':'Point régulier : en b, la limite vaut simplement f(b) = L.',
+  'approche-point':'Un point qui glisse le long de la courbe : sa hauteur s’approche de L d’aussi près qu’on veut.',
+  'tv-limites':'Dans un tableau de variation, les limites se lisent au bout des flèches, aux bords du tableau.',
+  'tv-double-barre':'La double barre marque la valeur interdite a : de part et d’autre, les flèches partent vers ±∞.',
+  'pas-asymptote-h':'Pas d’asymptote horizontale : la courbe ne se stabilise vers aucune hauteur — elle franchit toutes les barrières.',
+  'pas-asymptote-v':'Pas d’asymptote verticale : aucune valeur interdite — en chaque point la courbe passe tranquillement, sans filer vers ±∞.'
+};
+function qiaIlluMission(){
+  if(!(test && ['dhv','lg','lg2','lg3'].indexOf(test.kind)>=0)) return '';
+  return ' ILLUSTRATION FACULTATIVE : si (et seulement si) un petit dessin générique aiderait vraiment, termine ta réponse par UNE balise (ou DEUX au maximum, séparées par un espace, si tu compares deux situations) choisies EXACTEMENT dans cette liste, en toute fin : [ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale : f file vers ±∞ au lieu de se stabiliser ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale : aucune valeur interdite. La plateforme dessinera la figure elle-même (dessin générique, jamais celui de l’exercice en cours). N’invente JAMAIS d’autre balise ; si aucun dessin ne convient, n’en mets pas.';
+}
+function qiaIlluExtrait(t){
+  const illus=[];
+  const texte=String(t==null?'':t).replace(/\[\s*ILLU\s*:\s*([a-zA-Z0-9-]+)\s*\]/g,function(m,id){
+    id=String(id).toLowerCase();
+    if(QIA_ILLUS[id] && illus.indexOf(id)<0 && illus.length<2) illus.push(id);
+    return '';
+  }).replace(/[ \t]+\n/g,'\n').trim();
+  return { texte:texte, illus:illus };
+}
+function qiaIlluHTML(id){
+  if(!id || !QIA_ILLUS[id]) return '';
+  return '<div class="qia-illu">'+qiaIlluSVG(id)+'<div class="qia-illu-leg">'+esc(QIA_ILLUS[id])+'</div></div>';
+}
+function qiaIlluSVG(id){
+  const X=x=>130+x*27, Y=y=>92-y*27;
+  const P=(f,a,b)=>{ let d=''; for(let i=0;i<=48;i++){ const x=a+(b-a)*i/48; d+=(i?'L':'M')+X(x).toFixed(1)+' '+Y(f(x)).toFixed(1)+' '; } return '<path class="qi-cb" d="'+d+'"/>'; };
+  const fl=(x1,y1,x2,y2,cl,cf)=>{ const dx=x2-x1,dy=y2-y1,L=Math.sqrt(dx*dx+dy*dy)||1,ux=dx/L,uy=dy/L,px=-uy,py=ux;
+    return '<line class="'+cl+'" x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'"/>'
+      +'<polygon class="'+(cf||'qi-fl')+'" points="'+x2.toFixed(1)+','+y2.toFixed(1)+' '+(x2-6*ux+3.4*px).toFixed(1)+','+(y2-6*uy+3.4*py).toFixed(1)+' '+(x2-6*ux-3.4*px).toFixed(1)+','+(y2-6*uy-3.4*py).toFixed(1)+'"/>'; };
+  const axes=fl(X(-4.4),Y(0),X(4.4),Y(0),'qi-ax')+fl(X(0),Y(-2.9),X(0),Y(3.1),'qi-ax')
+    +'<text class="qi-tx" x="'+(X(0)-13)+'" y="'+(Y(0)+15)+'">O</text>';
+  const deb='<svg viewBox="0 0 260 176" xmlns="http://www.w3.org/2000/svg" role="img">', fin='</svg>';
+  if(id==='asymptote-h'){
+    const f=x=>2-5/(x+5.5);
+    return deb+axes+'<line class="qi-as" x1="'+X(-4.3)+'" y1="'+Y(2)+'" x2="'+X(4.3)+'" y2="'+Y(2)+'"/>'
+      +P(f,-4.2,4.2)+'<text class="qi-tr" x="'+X(-4.1)+'" y="'+(Y(2)-7)+'">y = 2</text>'
+      +'<text class="qi-tx" x="'+X(2.1)+'" y="'+(Y(-0.9))+'">x → +∞</text>'+fin;
+  }
+  if(id==='limite-infinie'){
+    const f=x=>0.14*(x+2.1)*(x+2.1)-2.3, xe=4.02;
+    return deb+axes+P(f,-4.2,xe)+fl(X(xe-0.35),Y(f(xe-0.35)),X(xe),Y(f(xe)),'qi-cb','qi-flb')
+      +'<text class="qi-tb" x="'+X(0.35)+'" y="'+Y(2.75)+'">f(x) → +∞</text>'
+      +'<text class="qi-tx" x="'+X(2.1)+'" y="'+(Y(0)+16)+'">x → +∞</text>'+fin;
+  }
+  if(id==='asymptote-v'){
+    const f=x=>1.3/(x-1);
+    return deb+axes+'<line class="qi-as" x1="'+X(1)+'" y1="'+Y(-2.85)+'" x2="'+X(1)+'" y2="'+Y(3.05)+'"/>'
+      +P(f,-4.2,0.544)+P(f,1.434,4.2)
+      +'<text class="qi-tr" x="'+(X(1)+10)+'" y="'+Y(2.4)+'">x = a</text>'
+      +'<text class="qi-tx" x="'+(X(1)-16)+'" y="'+(Y(0)+15)+'">a</text>'+fin;
+  }
+  if(id==='limites-laterales'){
+    const b=0.6, fL=x=>2+0.3*(x-b)-0.06*(x-b)*(x-b), fR=x=>-1+0.25*(x-b)+0.05*(x-b)*(x-b);
+    return deb+axes
+      +'<line class="qi-gd" x1="'+X(0)+'" y1="'+Y(2)+'" x2="'+X(b)+'" y2="'+Y(2)+'"/>'
+      +'<line class="qi-gd" x1="'+X(0)+'" y1="'+Y(-1)+'" x2="'+X(b)+'" y2="'+Y(-1)+'"/>'
+      +P(fL,-4.2,b-0.07)+P(fR,b+0.07,4.2)
+      +'<circle class="qi-po" cx="'+X(b)+'" cy="'+Y(2)+'" r="4"/><circle class="qi-po" cx="'+X(b)+'" cy="'+Y(-1)+'" r="4"/>'
+      +'<text class="qi-tb" x="'+(X(0)-24)+'" y="'+(Y(2)+4)+'">L₁</text>'
+      +'<text class="qi-tb" x="'+(X(0)-24)+'" y="'+(Y(-1)+4)+'">L₂</text>'
+      +'<text class="qi-tx" x="'+(X(b)+6)+'" y="'+(Y(0)+15)+'">b</text>'+fin;
+  }
+  if(id==='point-regulier'){
+    const bb=0.4, f=x=>2.3*Math.exp(-(x-bb)*(x-bb)/2.2)-0.3;
+    return deb+axes
+      +'<line class="qi-gd" x1="'+X(0)+'" y1="'+Y(2)+'" x2="'+X(bb)+'" y2="'+Y(2)+'"/>'
+      +'<line class="qi-gd" x1="'+X(bb)+'" y1="'+Y(0)+'" x2="'+X(bb)+'" y2="'+Y(2)+'"/>'
+      +P(f,-4.2,4.2)+'<circle class="qi-pt" cx="'+X(bb)+'" cy="'+Y(2)+'" r="4.4"/>'
+      +'<text class="qi-tb" x="'+(X(0)-58)+'" y="'+(Y(2)+4)+'">f(b) = L</text>'
+      +'<text class="qi-tx" x="'+(X(bb)+6)+'" y="'+(Y(0)+15)+'">b</text>'+fin;
+  }
+  if(id==='approche-point'){
+    const f=x=>1.8-3.6/(x+5.2), xp=1.2;
+    return deb+axes+'<line class="qi-as" x1="'+X(-4.3)+'" y1="'+Y(1.8)+'" x2="'+X(4.3)+'" y2="'+Y(1.8)+'"/>'
+      +P(f,-4.2,4.2)+fl(X(1.5),Y(f(1.5))-8,X(2.6),Y(f(2.6))-8,'qi-gd','qi-flb')
+      +'<circle class="qi-pt" cx="'+X(xp)+'" cy="'+Y(f(xp))+'" r="4.4"/>'
+      +'<text class="qi-tr" x="'+(X(0)-20)+'" y="'+(Y(1.8)-7)+'">L</text>'+fin;
+  }
+  if(id==='tv-limites'){
+    return deb+'<rect class="qi-cadre" x="18" y="30" width="224" height="120" rx="8"/>'
+      +'<line class="qi-trait" x1="18" y1="62" x2="242" y2="62"/><line class="qi-trait" x1="68" y1="30" x2="68" y2="150"/>'
+      +'<text class="qi-tx" x="43" y="51" text-anchor="middle" font-style="italic">x</text>'
+      +'<text class="qi-tx" x="84" y="51">−∞</text><text class="qi-tx" x="238" y="51" text-anchor="end">+∞</text>'
+      +'<text class="qi-tx" x="43" y="112" text-anchor="middle" font-style="italic">f</text>'
+      +fl(90,136,224,84,'qi-trait')
+      +'<text class="qi-tb" x="84" y="147">−1</text><text class="qi-tb" x="236" y="76" text-anchor="end">+∞</text>'+fin;
+  }
+  if(id==='pas-asymptote-h'){
+    const f=x=>0.12*Math.exp(0.8*x)-1.0, xe=4.2;
+    return deb+axes
+      +'<line class="qi-gd" x1="'+X(-4.3)+'" y1="'+Y(1)+'" x2="'+X(4.3)+'" y2="'+Y(1)+'"/>'
+      +'<line class="qi-gd" x1="'+X(-4.3)+'" y1="'+Y(2)+'" x2="'+X(4.3)+'" y2="'+Y(2)+'"/>'
+      +P(f,-4.2,xe)+fl(X(xe-0.22),Y(f(xe-0.22)),X(xe),Y(f(xe)),'qi-cb','qi-flb')
+      +'<text class="qi-tb" x="'+X(-3.9)+'" y="'+Y(2.75)+'">f(x) → +∞</text>'+fin;
+  }
+  if(id==='pas-asymptote-v'){
+    const f=x=>0.05*x*x*x-0.4*x;
+    return deb+axes+P(f,-4.2,4.2)
+      +'<text class="qi-tx" x="'+X(0.6)+'" y="'+Y(-2.35)+'">définie partout</text>'+fin;
+  }
+  if(id==='tv-double-barre'){
+    return deb+'<rect class="qi-cadre" x="18" y="30" width="224" height="120" rx="8"/>'
+      +'<line class="qi-trait" x1="18" y1="62" x2="242" y2="62"/><line class="qi-trait" x1="68" y1="30" x2="68" y2="150"/>'
+      +'<text class="qi-tx" x="43" y="51" text-anchor="middle" font-style="italic">x</text>'
+      +'<text class="qi-tx" x="84" y="51">−∞</text><text class="qi-tr" x="155" y="51" text-anchor="middle">a</text>'
+      +'<text class="qi-tx" x="238" y="51" text-anchor="end">+∞</text>'
+      +'<text class="qi-tx" x="43" y="112" text-anchor="middle" font-style="italic">f</text>'
+      +'<line class="qi-trait" x1="152" y1="62" x2="152" y2="150"/><line class="qi-trait" x1="158" y1="62" x2="158" y2="150"/>'
+      +fl(80,80,142,138,'qi-trait')+fl(172,80,232,134,'qi-trait')
+      +'<text class="qi-tb" x="138" y="148" text-anchor="end">−∞</text><text class="qi-tb" x="176" y="78">+∞</text>'+fin;
+  }
+  return '';
 }
 /* Entrée = envoyer ; Échap ou clic hors de la carte = fermer. */
 (function(){
