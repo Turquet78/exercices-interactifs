@@ -1139,10 +1139,11 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="card tvi-card">
       <p class="tvi-prompt" id="lrPrompt"></p>
       <div class="sv-graph" id="lrGraph"></div>
-      <p class="tvi-instr">Lis la courbe et <b>conjecture</b> les deux limites de <i>f</i> aux bornes de son ensemble de définition (aucune justification demandée) — une ligne par borne, présentée sous la forme : <span class="lr-modele">quand x tend vers … , f(x) tend vers …</span> &nbsp;ou&nbsp; <span class="lr-modele">quand x → … , f(x) → …</span></p>
+      <p class="tvi-instr">Lis la courbe et <b>conjecture</b> les deux limites de <i>f</i> aux bornes de son ensemble de définition (aucune justification demandée) — une ligne par borne, présentée sous la forme : <span class="lr-modele">quand x tend vers … , f(x) tend vers …</span> &nbsp;ou&nbsp; <span class="lr-modele">quand x → … , f(x) → …</span>. Puis, sur la <b>troisième ligne</b>, précise s’il y a une ou des <b>asymptotes horizontales ou verticales</b> et donne leur équation — écris « aucune asymptote » s’il n’y en a pas.</p>
       <div class="lr-lignes">
         <input type="text" class="lr-in" id="lrL1" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
         <input type="text" class="lr-in" id="lrL2" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
+        <input type="text" class="lr-in" id="lrL3" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="asymptote(s) ? nature + équation — ou « aucune asymptote »">
       </div>
       <div class="lr-outils"><span>Insérer :</span><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('→')">→</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('∞')">∞</button><span class="lr-astuce">— au clavier : tape <b>va</b> pour → et <b>inf</b> pour ∞</span></div>
       <div class="mp-feedback" id="lrFeedback"></div>
@@ -1520,7 +1521,7 @@ const TESTS={
   'derivees': { name:'Dérivées',  icon:'📈', desc:'Dérive des polynômes et des monômes, puis écris l\u2019expression de f\u2009\u2032(x).', start:()=>startDerivees() },
   'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
-  'limites-redaction': { name:'Limites — rédaction', icon:'✏️', desc:'La courbe d’une fonction sur un seul intervalle : conjecture graphiquement ses deux limites aux bornes et rédige-les toi-même — « quand x tend vers … , f(x) tend vers … » (vérifiées par l’IA).', start:()=>startLR() },
+  'limites-redaction': { name:'Limites — rédaction', icon:'✏️', desc:'La courbe d’une fonction sur un seul intervalle : conjecture ses deux limites aux bornes (« quand x tend vers … , f(x) tend vers … »), puis les éventuelles asymptotes avec leur équation — rédaction libre vérifiée par l’IA.', start:()=>startLR() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
   'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
@@ -1939,9 +1940,9 @@ function conseilCourant(){
     const q=test.questions[test.idx];
     c='Exercice : donner les limites de f aux deux bornes de son ensemble de définition. f(x) = '+q.fPlain+', définie sur '+q.dom
       +'. Réponses attendues : quand x tend vers '+q.b1.x+(q.b1.cote?' (côté '+q.b1.cote+')':'')+', f(x) tend vers '+q.b1.lim
-      +' ; quand x tend vers '+q.b2.x+(q.b2.cote?' (côté '+q.b2.cote+')':'')+', f(x) tend vers '+q.b2.lim
-      +'. Ce que l’élève a écrit pour l’instant — ligne 1 : « '+(($('lrL1')&&$('lrL1').value)||'')+' » ; ligne 2 : « '+(($('lrL2')&&$('lrL2').value)||'')+' »'
-      +'. IMPORTANT : l’élève ne voit QUE la courbe (jamais de formule — n’en mentionne aucune). Guide-le pour LIRE le graphique : suivre la courbe vers chaque borne du domaine et regarder vers quelle hauteur elle se stabilise (les pointillés aident) ou si elle monte/descend sans limite ; puis l’aider à l’écrire « quand x tend vers … , f(x) tend vers … », SANS donner les valeurs finales à sa place.';
+      +' ; quand x tend vers '+q.b2.x+(q.b2.cote?' (côté '+q.b2.cote+')':'')+', f(x) tend vers '+q.b2.lim+' ; asymptotes attendues : '+lrAsymTexte(q)
+      +'. Ce que l’élève a écrit pour l’instant — ligne 1 : « '+(($('lrL1')&&$('lrL1').value)||'')+' » ; ligne 2 : « '+(($('lrL2')&&$('lrL2').value)||'')+' » ; ligne 3 (asymptotes) : « '+(($('lrL3')&&$('lrL3').value)||'')+' »'
+      +'. IMPORTANT : l’élève ne voit QUE la courbe (jamais de formule — n’en mentionne aucune). Guide-le pour LIRE le graphique : suivre la courbe vers chaque borne du domaine et regarder vers quelle hauteur elle se stabilise (les pointillés rouges sont les asymptotes : leur équation se lit sur les axes, x = … pour une verticale, y = … pour une horizontale) ou si elle monte/descend sans limite ; puis l’aider à rédiger les trois lignes, SANS donner les valeurs finales ni les équations à sa place.';
   } else {
     c=ctxVisible();
   }
@@ -3193,44 +3194,55 @@ function genLR(fam){
     q.fHTML=lrKdev(k,'e<sup>x</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'e^x')+lrTerme(c);
     q.b1={x:MNF,cote:'',lim:lrNum(c)}; q.b2={x:INF,cote:'',lim:(k>0?INF:MNF)};
     q.usuel='e^x tend vers 0 en −∞ et vers +∞ en +∞';
+    q.asym=[{t:'H',eq:'y = '+lrNum(c)}];
   } else if(fam==='expM'){
     q.dom=']'+MNF+' ; '+INF+'[';
     q.fHTML=lrKdev(k,'e<sup>−x</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'e^(−x)')+lrTerme(c);
     q.b1={x:MNF,cote:'',lim:(k>0?INF:MNF)}; q.b2={x:INF,cote:'',lim:lrNum(c)};
     q.usuel='e^(−x) tend vers +∞ en −∞ et vers 0 en +∞';
+    q.asym=[{t:'H',eq:'y = '+lrNum(c)}];
   } else if(fam==='invD'){
     q.dom=']'+lrNum(a)+' ; '+INF+'[';
     q.fHTML=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+lrFracHTML(Math.abs(k),a);
     q.fPlain=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+Math.abs(k)+'/'+lrDenPlain(a);
     q.b1={x:lrNum(a),cote:'+',lim:(k>0?INF:MNF)}; q.b2={x:INF,cote:'',lim:lrNum(c)};
+    q.asym=[{t:'V',eq:'x = '+lrNum(a)},{t:'H',eq:'y = '+lrNum(c)}];
     q.usuel='1/X tend vers 0 quand X tend vers ±∞, et vers ±∞ quand X tend vers 0 (selon le côté)';
   } else if(fam==='invG'){
     q.dom=']'+MNF+' ; '+lrNum(a)+'[';
     q.fHTML=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+lrFracHTML(Math.abs(k),a);
     q.fPlain=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+Math.abs(k)+'/'+lrDenPlain(a);
     q.b1={x:MNF,cote:'',lim:lrNum(c)}; q.b2={x:lrNum(a),cote:'-',lim:(k>0?MNF:INF)};
+    q.asym=[{t:'V',eq:'x = '+lrNum(a)},{t:'H',eq:'y = '+lrNum(c)}];
     q.usuel='1/X tend vers 0 quand X tend vers ±∞, et vers ±∞ quand X tend vers 0 (selon le côté)';
   } else if(fam==='cube'){
     q.dom=']'+MNF+' ; '+INF+'[';
     q.fHTML=lrKdev(k,'x<sup>3</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'x^3')+lrTerme(c);
     q.b1={x:MNF,cote:'',lim:(k>0?MNF:INF)}; q.b2={x:INF,cote:'',lim:(k>0?INF:MNF)};
     q.usuel='x^3 tend vers −∞ en −∞ et vers +∞ en +∞';
+    q.asym=[];
   } else {
     q.fam='carre';
     q.dom=']'+MNF+' ; '+INF+'[';
     q.fHTML=lrKdev(k,'x<sup>2</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'x^2')+lrTerme(c);
     q.b1={x:MNF,cote:'',lim:(k>0?INF:MNF)}; q.b2={x:INF,cote:'',lim:(k>0?INF:MNF)};
     q.usuel='x^2 tend vers +∞ en −∞ comme en +∞';
+    q.asym=[];
   }
   return q;
 }
 function lrCote(b){ return b.cote==='+'?'⁺':(b.cote==='-'?'⁻':''); }
+function lrAsymTexte(c){
+  if(!c.asym || !c.asym.length) return 'aucune asymptote';
+  return c.asym.map(function(a){ return 'asymptote '+(a.t==='V'?'verticale':'horizontale')+' d’équation '+a.eq; }).join(' ; ');
+}
 function lrModele(c){
   return 'quand x → '+c.b1.x+lrCote(c.b1)+' , f(x) → '+c.b1.lim+'\n'
-       + 'quand x → '+c.b2.x+lrCote(c.b2)+' , f(x) → '+c.b2.lim;
+       + 'quand x → '+c.b2.x+lrCote(c.b2)+' , f(x) → '+c.b2.lim+'\n'
+       + lrAsymTexte(c);
 }
 function lrQuestionIA(c){
-  return 'Conjecturer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée). Il écrit deux lignes, une par borne, sous la forme « quand x tend vers … , f(x) tend vers … » ou « quand x → … , f(x) → … ».';
+  return 'Conjecturer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée). Il écrit deux lignes, une par borne, sous la forme « quand x tend vers … , f(x) tend vers … » ou « quand x → … , f(x) → … », puis précise sur une troisième ligne s’il existe une ou des asymptotes horizontales ou verticales avec leur(s) équation(s), ou écrit qu’il n’y en a aucune.';
 }
 function lrAttenduIA(c){
   const cote=b=>b.cote?(' (limite '+(b.cote==='+'?'à droite, côté '+b.x+'⁺':'à gauche, côté '+b.x+'⁻')+')'):'';
@@ -3242,9 +3254,10 @@ function lrAttenduIA(c){
     +'Le petit signe de côté sur une borne finie (exposant + ou −) est FACULTATIF ; s’il est écrit, il doit être du bon côté. '
     +'Une limite infinie doit être SIGNÉE : « ∞ » sans signe est insuffisant. Accepter +inf, +infini, « plus l’infini » (idem en négatif). '
     +'Chacune des deux bornes doit apparaître exactement une fois sur l’ensemble des deux lignes. '
-    +'Répondre correct:true UNIQUEMENT si les deux limites sont justes et bien associées à leur borne ; sinon correct:false, avec un feedback bref qui dit ce qui cloche SANS donner la ligne correcte.';
+    +'TROISIÈME LIGNE — asymptotes attendues : '+lrAsymTexte(c)+'. Règles : la nature (horizontale/verticale) doit être précisée — abréviations AH/AV acceptées — avec l’équation exacte (x = … pour une verticale, y = … pour une horizontale ; espaces facultatifs ; signe moins écrit - ou − ; formulation et ordre libres). S’il n’y a aucune asymptote, l’élève doit le dire (« aucune asymptote », « pas d’asymptote »…). En inventer une = faux ; en oublier une = faux ; nature ou équation fausse = faux. '
+    +'Répondre correct:true UNIQUEMENT si les deux limites ET la ligne des asymptotes sont justes ; sinon correct:false, avec un feedback bref qui dit ce qui cloche (limites ? asymptotes ?) SANS donner les réponses correctes.';
 }
-function lrReponseTxt(){ return 'Ligne 1 : « '+($('lrL1')?$('lrL1').value:'')+' » — Ligne 2 : « '+($('lrL2')?$('lrL2').value:'')+' »'; }
+function lrReponseTxt(){ return 'Ligne 1 : « '+($('lrL1')?$('lrL1').value:'')+' » — Ligne 2 : « '+($('lrL2')?$('lrL2').value:'')+' » — Ligne 3 (asymptotes) : « '+($('lrL3')?$('lrL3').value:'')+' »'; }
 let lrCible='lrL1';
 function lrInserer(t){
   const el=$(lrCible)||$('lrL1'); if(!el||el.disabled) return;
@@ -3324,7 +3337,7 @@ function lrRaccourcis(e){
   el.value=avant.slice(0,avant.length-rem)+sym+el.value.slice(pos);
   const p=pos-rem+1; try{ el.setSelectionRange(p,p); }catch(err){}
 }
-(function(){ ['lrL1','lrL2'].forEach(function(id){ const el=document.getElementById(id); if(el) el.addEventListener('input', lrRaccourcis); }); })();
+(function(){ ['lrL1','lrL2','lrL3'].forEach(function(id){ const el=document.getElementById(id); if(el) el.addEventListener('input', lrRaccourcis); }); })();
 function renderLR(){
   const c=test.questions[test.idx]; test.locked=false;
   window.__conseilsDonnes=[];
@@ -3332,7 +3345,7 @@ function renderLR(){
   $('lrModeTag').innerHTML=modeTagHTML();
   $('lrPrompt').innerHTML='Soit <i>f</i> une fonction définie sur <b>'+esc(c.dom)+'</b>, dont la courbe représentative est tracée ci-dessous.';
   $('lrGraph').innerHTML=lrSVG(c);
-  ['lrL1','lrL2'].forEach(function(id){ const el=$(id); el.value=''; el.disabled=false; });
+  ['lrL1','lrL2','lrL3'].forEach(function(id){ const el=$(id); el.value=''; el.disabled=false; });
   lrCible='lrL1';
   $('lrFeedback').textContent=''; $('lrFeedback').className='mp-feedback';
   $('lrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLR()">Vérifier mes limites</button>';
@@ -3342,9 +3355,9 @@ let lrBusy=false;
 async function checkLR(){
   if(test.locked||lrBusy) return;
   const c=test.questions[test.idx];
-  const l1=String(($('lrL1')&&$('lrL1').value)||'').trim(), l2=String(($('lrL2')&&$('lrL2').value)||'').trim();
-  if(l1.length<3 || l2.length<3){ toast('Écris tes deux lignes de limites d’abord'); return; }
-  if(tvi2CopieConseil(l1+'\n'+l2)){
+  const l1=String(($('lrL1')&&$('lrL1').value)||'').trim(), l2=String(($('lrL2')&&$('lrL2').value)||'').trim(), l3=String(($('lrL3')&&$('lrL3').value)||'').trim();
+  if(l1.length<3 || l2.length<3 || l3.length<3){ toast('Écris tes deux limites et la ligne des asymptotes'); return; }
+  if(tvi2CopieConseil(l1+'\n'+l2+'\n'+l3)){
     $('lrFeedback').textContent='On dirait le texte du conseil recopié tel quel. Le conseil te guide — à toi d’écrire les deux limites avec tes propres mots. Cette tentative n’est pas comptée.';
     $('lrFeedback').className='mp-feedback bad';
     return;
@@ -3381,9 +3394,9 @@ async function checkLR(){
     $('lrFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce ne sont pas les bonnes limites. ')
       +'Réponse correcte :<div class="tvi-model">'+esc(lrModele(c)).replace(/\n/g,'<br>')+'</div>';
     $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
-    ['lrL1','lrL2'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
+    ['lrL1','lrL2','lrL3'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
   }
-  test.answers.push({q:'Limites (lecture graphique) sur '+c.dom+' — attendu : '+lrModele(c).replace('\n',' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
+  test.answers.push({q:'Limites (lecture graphique) sur '+c.dom+' — attendu : '+lrModele(c).replace(/\n/g,' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
   const last=test.idx===test.questions.length-1;
   $('lrActions').innerHTML='<button class="btn btn-primary" onclick="nextLR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
@@ -7749,7 +7762,7 @@ const QIA_SUGG={
   lg:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment lire une limite sur un graphique ?","À quoi servent les limites ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   lg2:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment remplir un tableau de variation ?","Que veut dire la double barre dans un tableau ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   lg3:["Comment lire les limites dans un tableau de variation ?","Que veut dire la double barre ?","Comment trouver une asymptote à partir du tableau ?","C’est quoi, une limite ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
-  lr:["Quelles sont les limites usuelles à connaître ?","Comment trouver la limite de eˣ en −∞ ?","Comment rédiger proprement une limite ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
+  lr:["Comment lire une limite sur une courbe ?","Comment écrire l’équation d’une asymptote ?","C’est quoi, une asymptote horizontale ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   dhv:["C’est quoi, l’équation d’une droite horizontale ?","Pourquoi une droite verticale s’écrit x = … ?","Comment trouver l’équation d’une droite sur un graphique ?"],
   tvi:["C’est quoi, le théorème des valeurs intermédiaires ?","Que veut dire « continue » ?","Que veut dire « strictement monotone » ?"],
   tvi2:["C’est quoi, le théorème des valeurs intermédiaires ?","Comment rédiger une justification avec le TVI ?","Que veut dire « continue » ?"],
@@ -7776,6 +7789,15 @@ function ouvrirQIA(){
     mic.style.display='';
     if(dispo){ mic.classList.remove('off'); mic.title='Dicter la question au micro'; }
     else{ mic.classList.add('off'); mic.title='Dictée non disponible sur ce navigateur'; }
+  }
+  /* Sur ordinateur : ouverture directe en fenêtre indépendante (le contenu vient d'être
+     préparé, $ le retrouvera dans la fenêtre détachée). Repli en page si pop-up bloquée. */
+  if(detachementPossible()){
+    detacherQIA();
+    if((window.__fenetresDetachees||[]).some(function(p){ return p.__origine===ov && !p.closed; })){
+      try{ const qi=$('qiaInput'); if(qi) qi.focus(); }catch(e){}
+      return;
+    }
   }
   ov.classList.add('on');
   try{ if(!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) $('qiaInput').focus(); }catch(e){}
@@ -7956,7 +7978,8 @@ function qiaIlluSVG(id){
 }
 /* --- Détachement : chaque fenêtre d'aide peut devenir une vraie fenêtre indépendante du
    système (window.open), déplaçable partout sur l'écran de l'ordinateur, second moniteur compris.
-   Les deux fenêtres peuvent être détachées en même temps. Bureau uniquement ; repli = flottantes. --- */
+   Les deux fenêtres peuvent être détachées en même temps. Sur ordinateur le détachement est
+   AUTOMATIQUE à l'ouverture ; repli = fenêtres flottantes en page (tablettes, pop-ups bloquées). --- */
 window.__fenetresDetachees = window.__fenetresDetachees || [];
 function detachementPossible(){
   try{ return !!window.open && window.matchMedia && window.matchMedia('(pointer: fine)').matches; }
@@ -8022,6 +8045,10 @@ function ouvrirSoutien(){
   const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===m && !p.closed; });
   if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
   const bd=m.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
+  if(detachementPossible()){
+    detacherSoutien();
+    if((window.__fenetresDetachees||[]).some(function(p){ return p.__origine===m && !p.closed; })) return;
+  }
   m.hidden=false;
   rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
 }
