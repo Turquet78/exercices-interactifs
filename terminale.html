@@ -546,6 +546,17 @@
 #conseilModal .conseil-card{pointer-events:auto;border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(15,23,42,.25)}
 #qiaOverlay .qia-head,#conseilModal .notes-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
 .qia-headbtns{display:flex;align-items:center;gap:2px}
+/* --- 3.5 Limites — rédaction aux bornes --- */
+.lr-f{font-weight:800;font-size:1.08rem;white-space:nowrap}
+.lr-frac{display:inline-block;text-align:center;vertical-align:middle;margin:0 2px}
+.lr-frac>span{display:block;padding:0 5px;line-height:1.25}
+.lr-frac>span:first-child{border-bottom:1.6px solid currentColor}
+.lr-modele{font-weight:800;color:var(--blue);white-space:nowrap}
+.lr-lignes{display:flex;flex-direction:column;gap:10px;margin:12px auto;max-width:640px}
+.lr-in{font:inherit;font-weight:700;font-size:1.05rem;padding:11px 13px;border:2px solid #c9d3e8;border-radius:11px;color:var(--ink);background:var(--surface)}
+.lr-in:disabled{background:var(--paper);color:var(--ink-soft)}
+.lr-outils{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ink-soft);font-size:.95rem;margin:2px 0 6px;flex-wrap:wrap}
+.lr-ins{padding:7px 13px}
 @keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
 
 /* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
@@ -1111,6 +1122,24 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
   </section>
 
   <!-- TEST : CONJECTURER GRAPHIQUEMENT LES LIMITES -->
+  <section class="screen" id="scr-lr">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lrModeTag"></span><span class="q-idx" id="lrQIdx">Question 1 / 5</span></span>
+      <span class="score-tag">Score&nbsp;<b id="lrLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card">
+      <p class="tvi-prompt" id="lrPrompt"></p>
+      <p class="tvi-instr">Écris les <b>deux</b> limites de <i>f</i> aux bornes de son ensemble de définition — une ligne par borne, sur le modèle : <span class="lr-modele">quand x → … &nbsp;:&nbsp; f(x) → …</span></p>
+      <div class="lr-lignes">
+        <input type="text" class="lr-in" id="lrL1" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
+        <input type="text" class="lr-in" id="lrL2" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
+      </div>
+      <div class="lr-outils"><span>Insérer :</span><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('→')">→</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('+∞')">+∞</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('−∞')">−∞</button></div>
+      <div class="mp-feedback" id="lrFeedback"></div>
+      <div class="mp-actions" id="lrActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-lg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lgModeTag"></span><span class="q-idx" id="lgQIdx">Question 1 / 5</span></span>
@@ -1481,6 +1510,7 @@ const TESTS={
   'derivees': { name:'Dérivées',  icon:'📈', desc:'Dérive des polynômes et des monômes, puis écris l\u2019expression de f\u2009\u2032(x).', start:()=>startDerivees() },
   'suites':   { name:'Suites',    icon:'🔢', desc:'Suites arithmétiques, géométriques et récurrentes : calcule le bon terme.', start:()=>startSuites() },
   'tvi':      { name:'TVI', icon:'🎯', desc:'Lis le tableau de variation et complète la justification (théorème des valeurs intermédiaires).', start:()=>startTVI() },
+  'limites-redaction': { name:'Limites — rédaction', icon:'✏️', desc:'Une fonction, un seul intervalle : écris toi-même les deux limites aux bornes du domaine, sous la forme « quand x → … , f(x) → … » (vérifiées par l’IA).', start:()=>startLR() },
   'tvi-redaction': { name:'TVI rédigé', icon:'✍️', desc:'Mêmes tableaux que le TVI, mais tu rédiges toi-même la justification (évaluée automatiquement).', start:()=>startTVI2() },
   'tvi-contre-exemples': { name:'TVI — contre-exemples', icon:'🚫', desc:'Le TVI ne permet pas de conclure : lis le tableau (intervalle donné, parfois une valeur interdite) et rédige toi-même l’explication.', start:()=>startTVI3() },
   'tvi-nombre-solutions': { name:'TVI — nombre de solutions', icon:'🧮', desc:'Lis le tableau de variation et donne le nombre de solutions de chaque équation f(x) = k ; l’IA vérifie tes réponses.', start:()=>startTVINS() },
@@ -1507,7 +1537,7 @@ const TESTS={
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
-  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3'] },
+  { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] }
 ];
@@ -1641,7 +1671,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-dexp'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-dexp','scr-lr'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -1895,6 +1925,13 @@ function conseilCourant(){
       ['Ligne d\u00e9velopp\u00e9e (chaque coefficient est multipli\u00e9 par '+ek+')', (q.b===0?['dexp-s3a','dexp-s3b']:['dexp-s3a','dexp-s3b','dexp-s3c']).map((id,i)=>['coefficient du terme '+(i+1),id])],
       ['Ligne factoris\u00e9e '+ek+'×( … )', [['facteur entre parenth\u00e8ses','dexp-fac']]]
     ]);
+  } else if(test && test.kind==='lr' && test.questions && test.questions[test.idx]){
+    const q=test.questions[test.idx];
+    c='Exercice : donner les limites de f aux deux bornes de son ensemble de définition. f(x) = '+q.fPlain+', définie sur '+q.dom
+      +'. Réponses attendues : quand x tend vers '+q.b1.x+(q.b1.cote?' (côté '+q.b1.cote+')':'')+', f(x) tend vers '+q.b1.lim
+      +' ; quand x tend vers '+q.b2.x+(q.b2.cote?' (côté '+q.b2.cote+')':'')+', f(x) tend vers '+q.b2.lim
+      +'. Ce que l’élève a écrit pour l’instant — ligne 1 : « '+(($('lrL1')&&$('lrL1').value)||'')+' » ; ligne 2 : « '+(($('lrL2')&&$('lrL2').value)||'')+' »'
+      +'. Rappelle la limite usuelle utile ('+q.usuel+') et guide-le vers la bonne écriture, SANS rédiger les deux lignes finales à sa place.';
   } else {
     c=ctxVisible();
   }
@@ -2195,7 +2232,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], lr:['lr',renderLR] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -2216,7 +2253,7 @@ function show(name){
   fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','lr'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -3126,6 +3163,159 @@ async function checkTVI3(){
   $('tvi3Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
 function nextTVI3(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVI3(); } else finishTest(); }
+
+/* ====================== TEST : Limites — rédaction aux bornes (3.5) ====================== */
+/* Une fonction définie sur UN SEUL intervalle ; l'élève écrit lui-même les deux limites aux
+   bornes du domaine (« quand x → … , f(x) → … », une ligne par borne). Vérification par
+   l'IA (action 'verif') : seul le contenu mathématique compte — mots, ponctuation, style de
+   flèche et ordre des lignes sont ignorés ; l'infini doit être signé. */
+function lrNum(n){ return (n<0?'−':'')+Math.abs(n); }
+function lrTerme(c){ if(c===0) return ''; return ' '+(c<0?'−':'+')+' '+Math.abs(c); }
+function lrKdev(k, corps){ return (k===1?'':(k===-1?'−':lrNum(k)))+corps; }
+function lrFracHTML(num, a){ return '<span class="lr-frac"><span>'+num+'</span><span>'+(a===0?'x':'x '+(a<0?'+ ':'− ')+Math.abs(a))+'</span></span>'; }
+function lrDenPlain(a){ return a===0?'x':'(x '+(a<0?'+ ':'− ')+Math.abs(a)+')'; }
+function genLR(fam){
+  const INF='+∞', MNF='−∞';
+  const k=pick([-3,-2,-1,1,2,3]), c=rand(-4,4), a=rand(-4,4);
+  const q={ type:'lr', fam:fam, k:k, c:c, a:a };
+  if(fam==='expP'){
+    q.dom=']'+MNF+' ; '+INF+'['; 
+    q.fHTML=lrKdev(k,'e<sup>x</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'e^x')+lrTerme(c);
+    q.b1={x:MNF,cote:'',lim:lrNum(c)}; q.b2={x:INF,cote:'',lim:(k>0?INF:MNF)};
+    q.usuel='e^x tend vers 0 en −∞ et vers +∞ en +∞';
+  } else if(fam==='expM'){
+    q.dom=']'+MNF+' ; '+INF+'[';
+    q.fHTML=lrKdev(k,'e<sup>−x</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'e^(−x)')+lrTerme(c);
+    q.b1={x:MNF,cote:'',lim:(k>0?INF:MNF)}; q.b2={x:INF,cote:'',lim:lrNum(c)};
+    q.usuel='e^(−x) tend vers +∞ en −∞ et vers 0 en +∞';
+  } else if(fam==='invD'){
+    q.dom=']'+lrNum(a)+' ; '+INF+'[';
+    q.fHTML=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+lrFracHTML(Math.abs(k),a);
+    q.fPlain=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+Math.abs(k)+'/'+lrDenPlain(a);
+    q.b1={x:lrNum(a),cote:'+',lim:(k>0?INF:MNF)}; q.b2={x:INF,cote:'',lim:lrNum(c)};
+    q.usuel='1/X tend vers 0 quand X tend vers ±∞, et vers ±∞ quand X tend vers 0 (selon le côté)';
+  } else if(fam==='invG'){
+    q.dom=']'+MNF+' ; '+lrNum(a)+'[';
+    q.fHTML=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+lrFracHTML(Math.abs(k),a);
+    q.fPlain=(c!==0?lrNum(c)+' '+(k>0?'+':'−')+' ':(k<0?'− ':''))+Math.abs(k)+'/'+lrDenPlain(a);
+    q.b1={x:MNF,cote:'',lim:lrNum(c)}; q.b2={x:lrNum(a),cote:'-',lim:(k>0?MNF:INF)};
+    q.usuel='1/X tend vers 0 quand X tend vers ±∞, et vers ±∞ quand X tend vers 0 (selon le côté)';
+  } else if(fam==='cube'){
+    q.dom=']'+MNF+' ; '+INF+'[';
+    q.fHTML=lrKdev(k,'x<sup>3</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'x^3')+lrTerme(c);
+    q.b1={x:MNF,cote:'',lim:(k>0?MNF:INF)}; q.b2={x:INF,cote:'',lim:(k>0?INF:MNF)};
+    q.usuel='x^3 tend vers −∞ en −∞ et vers +∞ en +∞';
+  } else {
+    q.fam='carre';
+    q.dom=']'+MNF+' ; '+INF+'[';
+    q.fHTML=lrKdev(k,'x<sup>2</sup>')+lrTerme(c); q.fPlain=lrKdev(k,'x^2')+lrTerme(c);
+    q.b1={x:MNF,cote:'',lim:(k>0?INF:MNF)}; q.b2={x:INF,cote:'',lim:(k>0?INF:MNF)};
+    q.usuel='x^2 tend vers +∞ en −∞ comme en +∞';
+  }
+  return q;
+}
+function lrCote(b){ return b.cote==='+'?'⁺':(b.cote==='-'?'⁻':''); }
+function lrModele(c){
+  return 'quand x → '+c.b1.x+lrCote(c.b1)+' , f(x) → '+c.b1.lim+'\n'
+       + 'quand x → '+c.b2.x+lrCote(c.b2)+' , f(x) → '+c.b2.lim;
+}
+function lrQuestionIA(c){
+  return 'Donner les limites de f aux DEUX bornes de son ensemble de définition. f(x) = '+c.fPlain+', définie sur '+c.dom+'. L’élève écrit deux lignes, une par borne, de la forme « quand x → … , f(x) → … ».';
+}
+function lrAttenduIA(c){
+  const cote=b=>b.cote?(' (limite '+(b.cote==='+'?'à droite, côté '+b.x+'⁺':'à gauche, côté '+b.x+'⁻')+')'):'';
+  return 'Réponses attendues — borne '+c.b1.x+cote(c.b1)+' : f(x) tend vers '+c.b1.lim
+    +' ; borne '+c.b2.x+cote(c.b2)+' : f(x) tend vers '+c.b2.lim+'. '
+    +'RÈGLES DE CORRECTION (à suivre STRICTEMENT) : ne juger QUE le contenu mathématique de chaque ligne — la valeur de la borne et la valeur de la limite, correctement associées. '
+    +'IGNORER TOTALEMENT : les mots employés (quand, lorsque, alors, on a…), la ponctuation (deux-points, virgules, points-virgules), le style de flèche (→, ->, ⟶, « tend vers »), les espaces, les majuscules et l’ORDRE des deux lignes. '
+    +'Accepter aussi la notation « lim … = … », et « y » à la place de f(x). '
+    +'Le petit signe de côté sur une borne finie (exposant + ou −) est FACULTATIF ; s’il est écrit, il doit être du bon côté. '
+    +'Une limite infinie doit être SIGNÉE : « ∞ » sans signe est insuffisant. Accepter +inf, +infini, « plus l’infini » (idem en négatif). '
+    +'Chacune des deux bornes doit apparaître exactement une fois sur l’ensemble des deux lignes. '
+    +'Répondre correct:true UNIQUEMENT si les deux limites sont justes et bien associées à leur borne ; sinon correct:false, avec un feedback bref qui dit ce qui cloche SANS donner la ligne correcte.';
+}
+function lrReponseTxt(){ return 'Ligne 1 : « '+($('lrL1')?$('lrL1').value:'')+' » — Ligne 2 : « '+($('lrL2')?$('lrL2').value:'')+' »'; }
+let lrCible='lrL1';
+function lrInserer(t){
+  const el=$(lrCible)||$('lrL1'); if(!el||el.disabled) return;
+  el.focus();
+  const s=(el.selectionStart!=null?el.selectionStart:el.value.length), e2=(el.selectionEnd!=null?el.selectionEnd:s);
+  el.value=el.value.slice(0,s)+t+el.value.slice(e2);
+  const p=s+t.length; try{ el.setSelectionRange(p,p); }catch(err){}
+}
+function renderLR(){
+  const c=test.questions[test.idx]; test.locked=false;
+  window.__conseilsDonnes=[];
+  $('lrQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('lrModeTag').innerHTML=modeTagHTML();
+  $('lrPrompt').innerHTML='Soit <i>f</i> la fonction définie sur <b>'+esc(c.dom)+'</b> par&nbsp;: <span class="lr-f">f(x) = '+c.fHTML+'</span>';
+  ['lrL1','lrL2'].forEach(function(id){ const el=$(id); el.value=''; el.disabled=false; });
+  lrCible='lrL1';
+  $('lrFeedback').textContent=''; $('lrFeedback').className='mp-feedback';
+  $('lrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLR()">Vérifier mes limites</button>';
+  setTimeout(function(){ const el=$('lrL1'); if(el) el.focus(); },60);
+}
+let lrBusy=false;
+async function checkLR(){
+  if(test.locked||lrBusy) return;
+  const c=test.questions[test.idx];
+  const l1=String(($('lrL1')&&$('lrL1').value)||'').trim(), l2=String(($('lrL2')&&$('lrL2').value)||'').trim();
+  if(l1.length<3 || l2.length<3){ toast('Écris tes deux lignes de limites d’abord'); return; }
+  if(tvi2CopieConseil(l1+'\n'+l2)){
+    $('lrFeedback').textContent='On dirait le texte du conseil recopié tel quel. Le conseil te guide — à toi d’écrire les deux limites avec tes propres mots. Cette tentative n’est pas comptée.';
+    $('lrFeedback').className='mp-feedback bad';
+    return;
+  }
+  lrBusy=true;
+  $('lrActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  $('lrFeedback').textContent='L’IA relit tes deux limites…'; $('lrFeedback').className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif', question:lrQuestionIA(c), attendu:lrAttenduIA(c), reponse:lrReponseTxt(), balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  lrBusy=false;
+  if(!res || res.error){
+    $('lrFeedback').textContent=(res&&res.error)||'Vérification indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.';
+    $('lrFeedback').className='mp-feedback bad';
+    $('lrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLR()">Réessayer</button>';
+    return;
+  }
+  const correct=res.correct===true;
+  const fbHTML=conseilHTML(res.feedback||'');
+  if(!correct && isSoutien()){
+    $('lrFeedback').innerHTML=(fbHTML||'Ce n’est pas encore ça. Vérifie chaque ligne : d’abord la borne, puis la limite — pense aux limites usuelles. Corrige puis revérifie.');
+    $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    $('lrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLR()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(correct){
+    test.score++; $('lrLiveScore').textContent=test.score;
+    $('lrFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien rédigé !','Excellent !','Exactement !'])));
+    $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'good');
+  } else {
+    $('lrFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce ne sont pas les bonnes limites. ')
+      +'Réponse correcte :<div class="tvi-model">'+esc(lrModele(c)).replace(/\n/g,'<br>')+'</div>';
+    $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
+    ['lrL1','lrL2'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
+  }
+  test.answers.push({q:'Limites de f(x) = '+c.fPlain+' sur '+c.dom+' — attendu : '+lrModele(c).replace('\n',' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
+  const last=test.idx===test.questions.length-1;
+  $('lrActions').innerHTML='<button class="btn btn-primary" onclick="nextLR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextLR(){ if(test.idx<test.questions.length-1){ test.idx++; renderLR(); } else finishTest(); }
+async function startLR(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='limites-redaction'; test.kind='lr';
+  const plan=['invD','invG','expP','expM',pick(['cube','carre'])];
+  for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
+  test.questions=plan.map(function(f){ return genLR(f); });
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  show('lr'); renderLR();
+}
 
 /* ====================== TEST : TVI — nombre de solutions ====================== */
 /* D’après le document « Test TVI 3 » : un tableau de variation est donné (monotone,
@@ -7476,6 +7666,7 @@ const QIA_SUGG={
   lg:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment lire une limite sur un graphique ?","À quoi servent les limites ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   lg2:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment remplir un tableau de variation ?","Que veut dire la double barre dans un tableau ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   lg3:["Comment lire les limites dans un tableau de variation ?","Que veut dire la double barre ?","Comment trouver une asymptote à partir du tableau ?","C’est quoi, une limite ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
+  lr:["Quelles sont les limites usuelles à connaître ?","Comment trouver la limite de eˣ en −∞ ?","Comment rédiger proprement une limite ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   dhv:["C’est quoi, l’équation d’une droite horizontale ?","Pourquoi une droite verticale s’écrit x = … ?","Comment trouver l’équation d’une droite sur un graphique ?"],
   tvi:["C’est quoi, le théorème des valeurs intermédiaires ?","Que veut dire « continue » ?","Que veut dire « strictement monotone » ?"],
   tvi2:["C’est quoi, le théorème des valeurs intermédiaires ?","Comment rédiger une justification avec le TVI ?","Que veut dire « continue » ?"],
@@ -7574,7 +7765,7 @@ const QIA_ILLUS={
   'pas-asymptote-v':'Pas d’asymptote verticale : aucune valeur interdite — en chaque point la courbe passe tranquillement, sans filer vers ±∞.'
 };
 function qiaIlluMission(){
-  if(!(test && ['dhv','lg','lg2','lg3'].indexOf(test.kind)>=0)) return '';
+  if(!(test && ['dhv','lg','lg2','lg3','lr'].indexOf(test.kind)>=0)) return '';
   return ' ILLUSTRATION FACULTATIVE : si (et seulement si) un petit dessin générique aiderait vraiment, termine ta réponse par UNE balise (ou DEUX au maximum, séparées par un espace, si tu compares deux situations) choisies EXACTEMENT dans cette liste, en toute fin : [ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale : f file vers ±∞ au lieu de se stabiliser ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale : aucune valeur interdite. La plateforme dessinera la figure elle-même (dessin générique, jamais celui de l’exercice en cours). N’invente JAMAIS d’autre balise ; si aucun dessin ne convient, n’en mets pas.';
 }
 function qiaIlluExtrait(t){
