@@ -504,7 +504,7 @@
 #lg3TVzone{margin-top:6px;}
 .vfcell .lg3-val{position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:.98rem;color:var(--ink);background:var(--surface);padding:1px 6px;border-radius:6px;white-space:nowrap;}
 
-/* --- Fenêtre « Poser une question à l'IA » --- */
+/* --- Fenêtre « Aide de l'IA » : conseils + questions libres --- */
 .qia-overlay{position:fixed;inset:0;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:14px;box-sizing:border-box}
 .qia-overlay.on{display:flex}
 .qia-card{background:var(--surface);border-radius:16px;max-width:600px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(15,23,42,.25);overflow:hidden}
@@ -1000,7 +1000,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <span class="mark" id="mark"></span>
       <div class="timerbar" id="timerBar" hidden><i id="timerFill"></i></div>
       <div class="correction" id="correction"></div>
-      <div class="mp-actions"><button id="cmConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button></div>
+      <div class="mp-actions"><button id="cmConseilBtn" class="btn btn-ghost" type="button" onclick="ouvrirAideIA()" hidden>💬 Demander de l’aide à l’IA</button><button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button></div>
     </div>
   </section>
 
@@ -1386,10 +1386,10 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 
 <div id="toast"></div>
 
-<!-- Fenêtre « Poser une question à l'IA » -->
+<!-- Fenêtre « Aide de l'IA » : conseils + questions libres -->
 <div id="qiaOverlay" class="qia-overlay">
   <div class="qia-card">
-    <div class="qia-head"><b>💬 Poser une question à l’IA</b><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></div>
+    <div class="qia-head"><b>💬 Aide de l’IA</b><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></div>
     <div class="qia-sugg" id="qiaSugg"></div>
     <div class="qia-dialog" id="qiaDialog"></div>
     <div class="qia-inputrow">
@@ -1399,7 +1399,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     </div>
   </div>
 </div>
-<div id="testCtrls" hidden><button id="qiaBtn" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
 /* ---------- Raccourcis ---------- */
@@ -1512,7 +1512,12 @@ function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); else startDerivees(); }
 function isSoutien(){ return currentMode==='soutien'; }
-function conseilInlineBtn(){ return isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : ''; }
+function conseilInlineBtn(){ return currentMode!=='eval' ? '<button class="btn btn-ghost" type="button" onclick="ouvrirAideIA()">💬 Demander de l’aide à l’IA</button>' : ''; }
+/* Bouton unique d’aide : ouvre la fenêtre de l’IA ; en soutien, demande aussitôt un conseil sur l’essai en cours. */
+function ouvrirAideIA(){
+  ouvrirQIA();
+  if(isSoutien()) conseilCourant();
+}
 
 /* ===== Navigation au clavier entre les cases — tous les exercices =====
    Flèche → quand le curseur est en FIN de saisie (ou sur un menu déroulant) : passe à la
@@ -1641,20 +1646,24 @@ let conseilBusy=false;
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
   conseilBusy=true;
-  fb.textContent='Je réfléchis à un indice…'; fb.className='mp-feedback muted';
+  const dansDialogue=!!(fb.closest && fb.closest('#qiaDialog'));
+  const cls=x=>{ if(!dansDialogue) fb.className=x; };
+  const roule=()=>{ if(dansDialogue && fb.parentElement) fb.parentElement.scrollTop=fb.parentElement.scrollHeight; };
+  fb.textContent='Je réfléchis à un indice…'; cls('mp-feedback muted'); roule();
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', contexte:String(contexte||'')+CONSEIL_FORMAT, balises:true } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', contexte:String(contexte||'')+CONSEIL_FORMAT+qiaIlluMission(), balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
     if(d && d.feedback){
-      fb.innerHTML='💡 '+conseilHTML(d.feedback); fb.className='mp-feedback conseil';
+      const p=qiaIlluExtrait(d.feedback);
+      fb.innerHTML='💡 '+conseilHTML(p.texte)+p.illus.map(qiaIlluHTML).join(''); cls('mp-feedback conseil'); roule();
       /* garde anti-recopie : on retient les conseils donnés pour détecter un collage tel quel */
       const cs=(window.__conseilsDonnes=window.__conseilsDonnes||[]);
       cs.push(String(d.feedback)); if(cs.length>20) cs.shift();
     }
-    else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
-    else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
-  }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
+    else if(d && d.error){ fb.textContent=d.error; cls('mp-feedback bad'); roule(); }
+    else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; cls('mp-feedback bad'); roule(); }
+  }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; cls('mp-feedback bad'); roule(); }
   finally{ conseilBusy=false; }
 }
 /* --- État de la feuille de l'élève, en texte brut, pour le conseil IA ---------------
@@ -1832,8 +1841,11 @@ function conseilCourant(){
     c=ctxVisible();
   }
   if(!c) c='L’élève est en difficulté sur un exercice de mathématiques de Terminale.';
-  const m=$('conseilModal'); if(m) m.hidden=false;
-  lancerConseil(c, $('conseilBody'));
+  if(conseilBusy) return;
+  const dlg=$('qiaDialog'); if(!dlg) return;
+  const br=document.createElement('div'); br.className='qia-r'; dlg.appendChild(br);
+  dlg.scrollTop=dlg.scrollHeight;
+  lancerConseil(c, br);
 }
 function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; }
 function soutienAgain(fbId, actionsId, fn, host){
@@ -2534,7 +2546,7 @@ function renderQuestion(){
     ai.inputMode='numeric'; ai.removeAttribute('autocapitalize'); ai.placeholder='?';
     if(help) help.hidden=true;
   }
-  $('mark').className='mark';$('mark').textContent='';$('correction').textContent='';$('validateBtn').disabled=false; { const cb=$('cmConseilBtn'); if(cb) cb.hidden=!isSoutien(); }
+  $('mark').className='mark';$('mark').textContent='';$('correction').textContent='';$('validateBtn').disabled=false; { const cb=$('cmConseilBtn'); if(cb) cb.hidden=(currentMode==='eval'); }
   setTimeout(()=>ai.focus(),60);
   if(cfg.secondsPerQuestion>0 && !isSoutien()) startQTimer(cfg.secondsPerQuestion); else $('timerBar').hidden=true;
 }
