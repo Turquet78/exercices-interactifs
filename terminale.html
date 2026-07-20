@@ -7993,24 +7993,50 @@ function detacherFenetre(conteneur, carte, titre, nom, larg, haut){
   const gauche=Math.max(0, ((window.screen&&window.screen.width)||1280)-larg-60);
   try{ pop=window.open('', nom, 'width='+larg+',height='+haut+',left='+gauche+',top=90'); }catch(e){ pop=null; }
   if(!pop){ toast('Fenêtre bloquée par le navigateur — autorise les pop-ups pour ce site.'); return null; }
+  /* Firefox recharge about:blank après window.open('') et REMPLACE le document initial,
+     balayant ce qu'on y a mis. Un document.write immédiat annule ce chargement en attente. */
+  try{
+    pop.document.open();
+    pop.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"></head><body></body></html>');
+    pop.document.close();
+  }catch(e){}
+  garnirFenetre(pop, titre);
+  pop.__carte=carte; pop.__origine=conteneur;
+  try{ pop.document.body.appendChild(pop.document.adoptNode(carte)); }catch(e){ toast('Détachement impossible sur ce navigateur.'); try{ pop.close(); }catch(_e){} return null; }
+  L.push(pop);
+  /* pagehide : fermeture réelle → rapatriement ; remplacement de document (vieux Firefox
+     malgré le write) → on regarnit le nouveau document et on ré-adopte la carte. */
+  try{
+    pop.addEventListener('pagehide', function(){
+      setTimeout(function(){
+        if(pop.closed){ rapatrierFenetre(pop); return; }
+        if(pop.__carte && pop.__carte.ownerDocument!==pop.document){
+          try{
+            garnirFenetre(pop, titre);
+            pop.document.body.appendChild(pop.document.adoptNode(pop.__carte));
+          }catch(e){ rapatrierFenetre(pop); try{ pop.close(); }catch(_e){} }
+        }
+      },0);
+    });
+  }catch(e){}
+  try{ pop.focus(); }catch(e){}
+  return pop;
+}
+/* Prépare (ou re-prépare) le document d'une fenêtre détachée : titre, styles, ponts onclick. */
+function garnirFenetre(pop, titre){
   const pd=pop.document;
   try{ pd.title=titre; }catch(e){}
   try{
-    const me=pd.createElement('meta'); me.setAttribute('charset','utf-8'); pd.head.appendChild(me);
-    const st=pd.createElement('style');
-    st.textContent=Array.prototype.map.call(document.querySelectorAll('style'),function(x){ return x.textContent; }).join('\n')
-      +'\nbody{margin:0;background:var(--surface);font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}'
-      +'\n.qia-card,.conseil-card{position:static!important;left:auto!important;top:auto!important;width:100%!important;max-width:none!important;height:100vh;max-height:100vh!important;margin:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}'
-      +'\n.qia-detach{display:none!important}';
-    pd.head.appendChild(st);
+    if(!pd.getElementById('fenStyle')){
+      const st=pd.createElement('style'); st.id='fenStyle';
+      st.textContent=Array.prototype.map.call(document.querySelectorAll('style'),function(x){ return x.textContent; }).join('\n')
+        +'\nbody{margin:0;background:var(--surface);font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}'
+        +'\n.qia-card,.conseil-card{position:static!important;left:auto!important;top:auto!important;width:100%!important;max-width:none!important;height:100vh;max-height:100vh!important;margin:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}'
+        +'\n.qia-detach{display:none!important}';
+      pd.head.appendChild(st);
+    }
   }catch(e){}
   ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
-  pop.__carte=carte; pop.__origine=conteneur;
-  pd.body.appendChild(pd.adoptNode(carte));
-  L.push(pop);
-  try{ pop.addEventListener('pagehide', function(){ rapatrierFenetre(pop); }); }catch(e){}
-  try{ pop.focus(); }catch(e){}
-  return pop;
 }
 function rapatrierFenetre(pop){
   try{
