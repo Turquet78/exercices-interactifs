@@ -1622,6 +1622,46 @@ function navCases(e){
   }
 }
 document.addEventListener('keydown', navCases);
+/* --- Anti-triche « coller » : dans les cases des exercices, seul un coller provenant d'une copie
+   faite DANS la page est accepté ; tout coller venu de l'extérieur (autre site, autre application)
+   est bloqué, ainsi que le glisser-déposer. Limite assumée : aucun navigateur n'expose le site
+   d'origine d'un presse-papiers ; le critère fiable est donc « copié ici ou pas ».
+   Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
+let dernierCopieInterne='';
+(function(){
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-dexp'];
+  function texteCopie(){
+    const el=document.activeElement;
+    if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
+      try{ if(el.selectionStart!=null) return String(el.value||'').substring(el.selectionStart, el.selectionEnd); }catch(e){}
+    }
+    try{ return String(window.getSelection ? window.getSelection().toString() : ''); }catch(e){ return ''; }
+  }
+  document.addEventListener('copy', function(){ const t=texteCopie(); if(t) dernierCopieInterne=t; });
+  document.addEventListener('cut',  function(){ const t=texteCopie(); if(t) dernierCopieInterne=t; });
+  function normalise(t){ return String(t||'').replace(/\s+/g,' ').trim(); }
+  function caseExercice(el){
+    if(!el || !el.closest) return false;
+    if(el.closest('#qiaOverlay') || el.closest('#conseilModal')) return false;
+    const sec=el.closest('section.screen');
+    if(!sec || ECRANS_TEST.indexOf(sec.id)<0) return false;
+    const tn=el.tagName;
+    return tn==='INPUT' || tn==='TEXTAREA' || tn==='SELECT';
+  }
+  document.addEventListener('paste', function(e){
+    if(!caseExercice(e.target)) return;
+    let t='';
+    try{ t=(e.clipboardData||window.clipboardData).getData('text/plain')||''; }catch(err){}
+    if(t && dernierCopieInterne && normalise(t)===normalise(dernierCopieInterne)) return;  /* copie interne : autorisée */
+    e.preventDefault();
+    toast('Coller depuis l’extérieur est désactivé dans les exercices — écris ta réponse toi-même 😉');
+  }, true);
+  document.addEventListener('drop', function(e){
+    if(!caseExercice(e.target)) return;
+    e.preventDefault();
+    toast('Le glisser-déposer est désactivé dans les cases des exercices.');
+  }, true);
+})();
 function ctxVisible(){
   const scr=document.querySelector('.screen.on'); if(!scr) return '';
   const parts=[];
@@ -7618,38 +7658,45 @@ function ouvrirSoutien(){
   m.hidden=false;
   rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
 }
-/* --- Fenêtres flottantes : déplaçables par leur barre de titre (souris + tactile via Pointer Events). --- */
+/* --- Fenêtres flottantes : déplaçables par leur barre de titre, sur tout l'écran.
+   Pointer Events quand ils existent ; sinon repli souris + tactile (vieux navigateurs). --- */
 function rendreDeplacable(carte, poignee){
   if(!carte || !poignee || poignee.__deplacable) return;
   poignee.__deplacable=true;
   poignee.style.cursor='move';
   poignee.style.touchAction='none';
-  poignee.addEventListener('pointerdown', function(e){
-    if(e.button!==undefined && e.button!==0) return;
+  const EVT=window.PointerEvent
+    ? { debut:['pointerdown'], bouge:['pointermove'], fin:['pointerup','pointercancel'] }
+    : { debut:['mousedown','touchstart'], bouge:['mousemove','touchmove'], fin:['mouseup','touchend','touchcancel'] };
+  const pointDe=function(e){ return (e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e; };
+  const debut=function(e){
+    if(e.button!==undefined && e.button!==0 && !e.touches) return;      /* clic gauche ou doigt uniquement */
     if(e.target && e.target.closest && e.target.closest('button')) return;   /* ✕ / Fermer restent cliquables */
     const r=carte.getBoundingClientRect();
     carte.style.position='fixed';
     carte.style.left=r.left+'px'; carte.style.top=r.top+'px';
     carte.style.width=r.width+'px';
     carte.style.margin='0'; carte.style.transform='none';
-    const dx=e.clientX-r.left, dy=e.clientY-r.top;
+    const p0=pointDe(e);
+    const dx=p0.clientX-r.left, dy=p0.clientY-r.top;
     const bouge=function(ev){
+      const p=pointDe(ev);
       const W=window.innerWidth, H=window.innerHeight;
-      let x=ev.clientX-dx, y=ev.clientY-dy;
-      x=Math.max(80-r.width, Math.min(x, W-80));
-      y=Math.max(0, Math.min(y, H-48));
+      let x=p.clientX-dx, y=p.clientY-dy;
+      x=Math.max(80-r.width, Math.min(x, W-80));   /* toute la largeur, en gardant 80 px attrapables */
+      y=Math.max(0, Math.min(y, H-48));            /* toute la hauteur, barre de titre jamais perdue */
       carte.style.left=x+'px'; carte.style.top=y+'px';
+      if(ev.cancelable && ev.preventDefault) ev.preventDefault();      /* pas de défilement pendant le glisser */
     };
     const fin=function(){
-      document.removeEventListener('pointermove',bouge);
-      document.removeEventListener('pointerup',fin);
-      document.removeEventListener('pointercancel',fin);
+      EVT.bouge.forEach(function(n){ document.removeEventListener(n,bouge); });
+      EVT.fin.forEach(function(n){ document.removeEventListener(n,fin); });
     };
-    document.addEventListener('pointermove',bouge);
-    document.addEventListener('pointerup',fin);
-    document.addEventListener('pointercancel',fin);
-    if(e.preventDefault) e.preventDefault();
-  });
+    EVT.bouge.forEach(function(n){ document.addEventListener(n,bouge,{passive:false}); });
+    EVT.fin.forEach(function(n){ document.addEventListener(n,fin); });
+    if(e.cancelable && e.preventDefault) e.preventDefault();
+  };
+  EVT.debut.forEach(function(n){ poignee.addEventListener(n,debut,{passive:false}); });
 }
 /* --- Fermer (et vider) les fenêtres d'aide à chaque changement d'écran : quitter l'exercice les fait disparaître. --- */
 function fermerFenetresIA(vider){
