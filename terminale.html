@@ -810,6 +810,28 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .s1-in:disabled{opacity:1;}
+/* ---- Suites : type, raison et formule explicite ---- */
+.su-en{line-height:2.1;}
+.su-en b{white-space:nowrap;}
+.su-s{margin:12px 0;font-weight:600;font-size:1.05rem;color:var(--ink);line-height:2.4;}
+.su-u{white-space:nowrap;}
+.su-q{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0;font-weight:600;font-size:1.05rem;color:var(--ink);line-height:2.2;}
+.su-lab{font-weight:800;color:var(--ink-soft);}
+.su-hint{color:var(--ink-soft);font-style:italic;background:var(--paper);border:1px dashed var(--grid);border-radius:12px;padding:13px 15px;margin:4px 0;}
+math-field.su-mf{min-width:80px;font-size:1.02rem;}
+math-field.su-mf-f{flex:1 1 250px;min-width:220px;font-size:1.12rem;}
+.su-q .su-eq{font-weight:800;}
+.su-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.86em;line-height:1.2;margin:0 3px;}
+.su-frac .fb{align-self:stretch;height:1.8px;background:currentColor;border-radius:1px;margin:1px 0;}
+/* ---- Rappel de cours (fenêtre Soutien + fenêtre « question à l'IA ») ---- */
+.rap-row{padding:6px 14px 0;}
+.rap{background:#F2F6FF;border:1.5px solid #C6D7F5;border-radius:12px;padding:12px 14px;margin:8px 0;color:var(--ink);font-size:.92rem;line-height:1.6;text-align:left;}
+.rap h4{margin:0 0 8px;font-size:.97rem;color:var(--blue);}
+.rap p{margin:4px 0;}
+.rap .rap-t{font-weight:800;margin:11px 0 3px;color:var(--ink);}
+.rap ul{margin:2px 0 4px;padding-left:17px;}
+.rap li{margin:3px 0;}
+.rap i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 </style>
 
 <div class="wrap">
@@ -979,6 +1001,8 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
         <button class="btn-link qia-detach" onclick="detacherSoutien()" title="Détacher dans une fenêtre indépendante">⧉ Détacher</button>
         <button class="btn-link" onclick="fermerConseil()">Fermer</button>
       </div>
+      <div id="conseilRappelRow" class="rap-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="conseilRappelBtn" onclick="basculerRappel()">📘 Voir le rappel de cours</button></div>
+      <div id="conseilRappel" hidden></div>
       <div id="conseilBody" class="mp-feedback"></div>
     </div>
   </div>
@@ -1300,6 +1324,21 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     </div>
   </section>
 
+  <section class="screen" id="scr-su">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="suModeTag"></span><span class="q-idx" id="suQIdx">Question 1 / 6</span></span>
+      <span class="score-tag">Score&nbsp;<b id="suLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt su-en" id="suPrompt"></p>
+      <div class="su-s" id="suQa"></div>
+      <p class="tvi-instr"><span class="su-lab">b)</span> La formule explicite en fonction de <i>n</i> est&nbsp;:</p>
+      <div id="suQb"></div>
+      <div class="mp-feedback" id="suFeedback"></div>
+      <div class="mp-actions" id="suActions"></div>
+    </div>
+  </section>
+
   <!-- RÉSULTATS -->
   <section class="screen" id="scr-results">
     <div class="card">
@@ -1542,7 +1581,8 @@ const TESTS={
   'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
   'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
-  'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() }
+  'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
+  'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
@@ -1554,7 +1594,8 @@ const THEMES=[
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
-  { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] }
+  { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] },
+  { num:6, nom:'Suites',             ids:['suite-explicite'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1686,7 +1727,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-dexp','scr-lr'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-dexp','scr-lr'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -1794,7 +1835,8 @@ function dexpFeuilleCtx(blocs){
 }
 function conseilCourant(){
   let c;
-  if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
+  if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
+  else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
     const _po=['u','v',"u'","v'"].map((n,i)=>({n, v:dexpCellValue(['dq-u','dq-v','dq-du','dq-dv'][i])})).filter(p=>p.v!=='');
@@ -2100,12 +2142,16 @@ function snapshotTest(){
 // lit ce que l'élève a déjà saisi dans les cases de la question en cours
 function captureBoxes(){
   const scr=document.querySelector('.screen.on'); if(!scr) return {};
-  const m={}; scr.querySelectorAll('input[id],select[id]').forEach(el=>{ const v=el.value; if(v!=='') m[el.id]=v; }); return m;
+  const m={}; scr.querySelectorAll('input[id],select[id],math-field[id]').forEach(el=>{
+    let v; if(el.tagName==='MATH-FIELD'){ try{ v=el.getValue(); }catch(e){ v=''; } } else v=el.value;
+    if(v!=null && v!=='') m[el.id]=v; }); return m;
 }
 // remet les saisies dans les cases après réaffichage de la question
 function restoreBoxes(boxes){
   if(!boxes) return;
-  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT')){ el.value=boxes[id]; } });
+  Object.keys(boxes).forEach(id=>{ const el=$(id); if(!el) return;
+    if(el.tagName==='INPUT'||el.tagName==='SELECT'){ el.value=boxes[id]; }
+    else if(el.tagName==='MATH-FIELD'){ try{ if(el.setValue) el.setValue(boxes[id]); }catch(e){} } });
 }
 // reconstruit la fonction d'une question « signes & variations » (perdue par la sérialisation JSON)
 function svFnFrom(r,e,extrType){
@@ -2247,7 +2293,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], lr:['lr',renderLR] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], lr:['lr',renderLR] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -2268,7 +2314,7 @@ function show(name){
   fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','lr'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','lr'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -5931,6 +5977,7 @@ function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.inc
    On ignore une case vide, et un blur "interne" dû au ré-affichage de l'exposant.
    Après 2 essais faux successifs (valeurs distinctes) sur une même case, on donne la solution. */
 function dexpLiveCheck(id){
+  if(test && test.kind==='su') return suLiveCheck(id);
   if(test && test.kind==='dexpq') return dqLiveCheck(id);
   if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
   if(!isSoutien() || test.locked) return;
@@ -7396,6 +7443,286 @@ function checkS2(live){
 }
 function nextS2(){ if(test.idx<test.questions.length-1){ test.idx++; renderS2(); } else finishTest(); }
 
+/* ====================== RAPPELS DE COURS ======================
+   Un rappel = le cours dont l'élève a besoin pour l'exercice en cours. Il est accessible
+   à deux endroits : le bouton « Rappel de cours » de la fenêtre Soutien, et la question
+   « Faire un rappel de cours pour cet exercice. » de la fenêtre « Poser une question à
+   l'IA » — dans ce cas la plateforme répond elle-même (texte exact du cours, sans IA).
+   Ajouter un rappel = une ligne dans RAPPELS, indexée par test.kind. */
+const RAP_SUITES=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 suites arithm\u00e9tiques et g\u00e9om\u00e9triques</h4>'
++'<div class="rap-t">Suite arithm\u00e9tique</div>'
++'<p>La formule de r\u00e9currence <b><i>U</i><sub><i>n</i>+1</sub> = <i>U</i><sub><i>n</i></sub> + <i>r</i></b> d\u00e9finit une suite arithm\u00e9tique de raison <i>r</i> '
++'(on <b>ajoute</b> toujours le m\u00eame nombre).</p>'
++'<p>Formule explicite d\u2019une suite arithm\u00e9tique :</p><ul>'
++'<li>de premier terme <i>U</i><sub>0</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>0</sub> + <i>r</i> \u00d7 <i>n</i></li>'
++'<li>de premier terme <i>U</i><sub>1</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>1</sub> + <i>r</i> \u00d7 (<i>n</i> \u2212 1)</li>'
++'<li>de premier terme <i>U</i><sub>2</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>2</sub> + <i>r</i> \u00d7 (<i>n</i> \u2212 2)</li></ul>'
++'<div class="rap-t">Suite g\u00e9om\u00e9trique</div>'
++'<p>La formule de r\u00e9currence <b><i>U</i><sub><i>n</i>+1</sub> = <i>U</i><sub><i>n</i></sub> \u00d7 <i>q</i></b> d\u00e9finit une suite g\u00e9om\u00e9trique de raison <i>q</i> '
++'(on <b>multiplie</b> toujours par le m\u00eame nombre).</p>'
++'<p>Formule explicite d\u2019une suite g\u00e9om\u00e9trique :</p><ul>'
++'<li>de premier terme <i>U</i><sub>0</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup></li>'
++'<li>de premier terme <i>U</i><sub>1</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>1</sub> \u00d7 <i>q</i><sup><i>n</i>\u22121</sup></li>'
++'<li>de premier terme <i>U</i><sub>2</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>2</sub> \u00d7 <i>q</i><sup><i>n</i>\u22122</sup></li></ul></div>';
+const RAPPELS={ su:RAP_SUITES };
+function rappelDispo(){ return !!(test && RAPPELS[test.kind]); }
+function rappelHTML(){ return (test && RAPPELS[test.kind]) || ''; }
+/* question de l'élève portant sur le cours (chip « Faire un rappel de cours pour cet exercice. ») */
+function rappelDemande(t){ const s=String(t||''); return /rappel/i.test(s) && /cours|le\u00e7on|lecon/i.test(s); }
+function masquerRappel(){
+  const box=$('conseilRappel'); if(box){ box.hidden=true; box.innerHTML=''; }
+  const b=$('conseilRappelBtn'); if(b) b.textContent='\ud83d\udcd8 Voir le rappel de cours';
+}
+function basculerRappel(){
+  const box=$('conseilRappel'); if(!box) return;
+  if(box.hidden){ box.innerHTML=rappelHTML(); box.hidden=false; const b=$('conseilRappelBtn'); if(b) b.textContent='\ud83d\udcd8 Masquer le rappel de cours'; }
+  else masquerRappel();
+}
+
+/* ====================== TEST : Suites \u2014 type, raison et formule explicite ======================
+   Chaque question reprend la structure de la fiche : (Un) est d\u00e9finie par une relation de
+   r\u00e9currence et un premier terme Up (p = 0, 1 ou 2).
+     a) suite arithm\u00e9tique ou g\u00e9om\u00e9trique ? + raison ;
+     b) formule explicite : premier terme, raison, et d\u00e9calage (n, n\u22121 ou n\u22122) selon p.
+   Saisie MathLive (comme l'exercice 2.1) : la raison de a) et la formule de b) se tapent dans des
+   champs mathématiques ; b) est UNE SEULE case où l'élève écrit toute la formule.
+   Vérification numérique locale : toute écriture correcte équivalente est acceptée
+   (0,25 = 1/4 ; forme développée de la formule, facteur 1 omis, etc.). */
+const SU_IDS=['su-type','su-raison','su-formule'];
+const SU_SHIFT=['n','n1','n2'];
+/* une valeur = { v : valeur num\u00e9rique, s : \u00e9criture affich\u00e9e, frac : [num,den] si fraction } */
+function suNb(v,s,frac){ return { v:v, s:s, frac:frac||null }; }
+function suNum(x){ return suNb(x, numFmt(x)); }
+function suFr(a,b){ return suNb(a/b, numFmt(a)+'/'+numFmt(b), [a,b]); }
+function suHtml(x){ return x.frac ? '<span class="su-frac"><span>'+numFmt(x.frac[0])+'</span><span class="fb"></span><span>'+numFmt(x.frac[1])+'</span></span>' : x.s; }
+function suPlain(x){ return x.frac ? (x.frac[0]+'/'+x.frac[1]) : String(x.v).replace('.',','); }
+/* accepte 3 ; 3,5 ; 3.5 ; \u22120,5 ; 3/4 ; -1/2 */
+function suParse(t){
+  let x=String(t==null?'':t).replace(/\s+/g,'').replace(/[\u2212\u2013\u2014]/g,'-').replace(/,/g,'.');
+  if(x==='') return null;
+  if(x[0]==='+') x=x.slice(1);
+  const m=x.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(m){ const d=parseFloat(m[2]); if(!d) return null; return parseFloat(m[1])/d; }
+  if(!/^-?\d+(?:\.\d+)?$/.test(x)) return null;
+  return parseFloat(x);
+}
+const SU_RA=[2,3,4,5,6,7,-1,-2,-3,-4,-5,0.5,-0.5,1.5,-1.5,2.5,-2.5,3.5];      /* raisons arithm\u00e9tiques (jamais 0) */
+const SU_RG_FR=[[1,2],[1,3],[1,4],[1,5],[2,3],[3,4],[2,5],[3,2],[5,2],[4,3]];  /* raisons g\u00e9om\u00e9triques fractionnaires (jamais 1) */
+function suRaison(kind){
+  if(kind==='arith') return suNum(pick(SU_RA));
+  const r=rand(1,10);
+  if(r<=4) return suNum(pick([2,3,4,5,10]));
+  if(r<=8){ const f=pick(SU_RG_FR); return suFr(f[0],f[1]); }
+  return suNum(pick([0.5,1.5,0.1,0.2,0.25]));
+}
+function suPremier(){                       /* premier terme : jamais 0 (sinon le type serait ambigu) */
+  const r=rand(1,12);
+  if(r===1) return suFr(3,4);
+  if(r===2) return suFr(1,2);
+  if(r===3) return suFr(2,3);
+  if(r===4) return suNum(pick([1.5,-0.5,2.5,0.5]));
+  let n=0; while(n===0) n=rand(-8,12);
+  return suNum(n);
+}
+function genSU(kind,p){ return { kind:kind, p:p, raison:suRaison(kind), up:suPremier(), shift:SU_SHIFT[p] }; }
+function suU(sub){ return '<span class="su-u"><i>U</i><sub>'+sub+'</sub></span>'; }
+function suRecHTML(c){
+  if(c.kind==='arith'){
+    const neg=c.raison.v<0, abs=suNum(Math.abs(c.raison.v));
+    return suU('<i>n</i>+1')+' = '+suU('<i>n</i>')+' '+(neg?'\u2212':'+')+' '+suHtml(abs);
+  }
+  return suU('<i>n</i>+1')+' = '+suHtml(c.raison)+'\u00a0'+suU('<i>n</i>');
+}
+function suRecPlain(c){
+  if(c.kind==='arith'){ const neg=c.raison.v<0; return 'U(n+1) = U(n) '+(neg?'- ':'+ ')+String(Math.abs(c.raison.v)).replace('.',','); }
+  return 'U(n+1) = '+suPlain(c.raison)+' x U(n)';
+}
+function suFormulePlain(c){
+  const sh=c.p===0?'n':('(n-'+c.p+')');
+  return c.kind==='arith' ? ('U(n) = '+suPlain(c.up)+' + '+suPlain(c.raison)+' x '+sh)
+                          : ('U(n) = '+suPlain(c.up)+' x ('+suPlain(c.raison)+')^'+sh);
+}
+/* --- validation num\u00e9rique des champs MathLive (m\u00eame principe que l'exercice 2.1) --- */
+function suCompileN(plain){
+  let x=String(plain==null?'':plain).replace(/\u2212/g,'-').replace(/,/g,'.').replace(/\s+/g,'');
+  if(x==='') return null;
+  if(!/^[0-9n+\-*/().^]+$/.test(x)) return null;      /* uniquement des nombres et la variable n */
+  return compileExprExp(x.replace(/n/g,'x'));
+}
+function suRefFn(c){
+  return c.kind==='arith' ? (x=>c.up.v + c.raison.v*(x-c.p)) : (x=>c.up.v*Math.pow(c.raison.v, x-c.p));
+}
+/* points de comparaison : des rangs entiers (une suite est d\u00e9finie sur les entiers) */
+function suPts(c){ const p=c.p; return [p,p+1,p+2,p+3,p+5,p+8,p+11]; }
+function suValNum(plain, target){                     /* la raison : un nombre (sans n), \u00e9gal \u00e0 la valeur attendue */
+  const f=suCompileN(plain); if(!f) return false;
+  let a,b; try{ a=f(1.37); b=f(2.71); }catch(e){ return false; }
+  if(typeof a!=='number'||!isFinite(a)||typeof b!=='number'||!isFinite(b)) return false;
+  if(Math.abs(a-b)>1e-9*(1+Math.abs(a))) return false;
+  return Math.abs(a-target)<=1e-6*(1+Math.abs(target));
+}
+function suFormOk(plain, c){                          /* la formule : m\u00eame valeur que la suite \u00e0 chaque rang test\u00e9 */
+  const f=suCompileN(plain); if(!f) return false;
+  const ref=suRefFn(c);
+  for(const x of suPts(c)){
+    let v; try{ v=f(x); }catch(e){ return false; }
+    if(typeof v!=='number'||!isFinite(v)) return false;
+    const t=ref(x);
+    if(Math.abs(v-t)>1e-6*(1+Math.abs(t))) return false;
+  }
+  return true;
+}
+/* --- \u00e9criture LaTeX des corrections dans les champs --- */
+function suLatexNum(x){
+  return x.frac ? '\\frac{'+numFmt(x.frac[0])+'}{'+numFmt(x.frac[1])+'}'
+                : String(x.s).replace(/\u2212/g,'-').replace(/,/g,'{,}');
+}
+function suLatexFormule(c){
+  const U=suLatexNum(c.up);
+  if(c.kind==='arith'){
+    const neg=c.raison.v<0, R=suLatexNum(neg?suNum(Math.abs(c.raison.v)):c.raison);
+    return U+(neg?'-':'+')+R+'\\times '+(c.p===0?'n':'\\left(n-'+c.p+'\\right)');
+  }
+  const wrap=!!c.raison.frac || !Number.isInteger(c.raison.v);
+  const Q=suLatexNum(c.raison);
+  return U+'\\times '+(wrap?('\\left('+Q+'\\right)'):Q)+'^{n'+(c.p===0?'':('-'+c.p))+'}';
+}
+function suMF(id,cls){ return '<math-field class="dexp-mf '+(cls||'')+'" id="'+id+'"></math-field>'; }
+function suQaHTML(){
+  return '<span class="su-lab">a)</span> '+suU('<i>n</i>')+' est une suite '
+   +'<select class="tvi-sel" id="su-type"><option value="">\u2026</option><option value="arith">arithm\u00e9tique</option><option value="geo">g\u00e9om\u00e9trique</option></select>'
+   +' de raison '+suMF('su-raison','su-mf')+'.';
+}
+function suQbHTML(){
+  return '<div class="su-q">'+suU('<i>n</i>')+' <span class="su-eq">=</span> '+suMF('su-formule','dexp-mf-wide su-mf-f')+'</div>'
+   +'<p class="dexp-hint">Tape la formule compl\u00e8te, avec des nombres et la lettre <i>n</i>. Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>barre d\u2019espace</b> (ou la touche <b>sortir</b> du clavier \u00e0 l\u2019\u00e9cran) pour sortir d\u2019une fraction ou d\u2019un exposant.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier \u00e0 l\u2019\u00e9cran et raccourcis clavier.</span></p>';
+}
+async function startSU(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-explicite'; test.kind='su';
+  /* 6 questions : les 6 cas de la fiche (arithm\u00e9tique / g\u00e9om\u00e9trique \u00d7 premier terme U0, U1, U2), m\u00e9lang\u00e9s */
+  const plan=[['arith',0],['geo',0],['arith',1],['geo',1],['arith',2],['geo',2]];
+  for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t=plan[i]; plan[i]=plan[j]; plan[j]=t; }
+  test.questions=plan.map(p=>genSU(p[0],p[1]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('su'); renderSU();
+}
+function renderSU(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('suQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('suModeTag').innerHTML=modeTagHTML();
+  $('suLiveScore').textContent=test.score;
+  $('suFeedback').textContent=''; $('suFeedback').className='mp-feedback';
+  $('suActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSU()">V\u00e9rifier</button>';
+  $('suPrompt').innerHTML='('+suU('<i>n</i>')+') est une suite d\u00e9finie par&nbsp; <b>'+suRecHTML(c)+'</b> &nbsp;avec&nbsp; <b>'+suU(c.p)+' = '+suHtml(c.up)+'</b>.';
+  $('suQa').innerHTML=suQaHTML();
+  $('suQb').innerHTML=suQbHTML();
+  if(window.mlDexp) window.mlDexp.upgrade($('scr-su'));   /* clavier Terminale + correctifs, comme en 2.1 */
+  const ts=$('su-type');
+  if(ts) ts.addEventListener('change',()=>{
+    if(!isSoutien()||test.locked) return;
+    ts.classList.remove('ok','bad');
+    if(ts.value!=='') ts.classList.add(ts.value===c.kind?'ok':'bad');
+  });
+}
+function checkSU(){
+  if(test.locked) return;
+  const c=test.questions[test.idx], fb=$('suFeedback');
+  const type=($('su-type')&&$('su-type').value)||'';
+  const rRaw=dexpCellValue('su-raison'), fRaw=dexpCellValue('su-formule');
+  if(type==='' && rRaw==='' && fRaw===''){
+    fb.textContent='Compl\u00e8te au moins une case avant de v\u00e9rifier.'; fb.className='mp-feedback'; return;
+  }
+  if(type===''){
+    fb.textContent='Indique d\u2019abord en a) si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique.';
+    fb.className='mp-feedback';
+    const ts=$('su-type'); if(ts) ts.classList.add('bad');
+    return;
+  }
+  const v={ 'su-type': type===c.kind, 'su-raison': suValNum(rRaw,c.raison.v), 'su-formule': suFormOk(fRaw,c) };
+  const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
+  SU_IDS.forEach(id=>{ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad','sol'); el.classList.add(v[id]?'ok':'bad');
+    setEdit(el, !v[id] && isSoutien()); });
+  const allOk=v['su-type']&&v['su-raison']&&v['su-formule'];
+  if(!allOk && isSoutien()){
+    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.className='mp-feedback bad';
+    $('suActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSU()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('suLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, formule correcte !']);
+    fb.className='mp-feedback good';
+  } else {
+    const arith=c.kind==='arith', neg=c.raison.v<0, absS=numFmt(Math.abs(c.raison.v));
+    const geste=arith
+      ? (neg?('retranchant toujours <b>'+absS+'</b> : la suite est <b>arithm\u00e9tique</b> de raison '+c.raison.s)
+            :('ajoutant toujours <b>'+absS+'</b> : la suite est <b>arithm\u00e9tique</b> de raison '+c.raison.s))
+      : ('multipliant toujours par <b>'+suHtml(c.raison)+'</b> : la suite est <b>g\u00e9om\u00e9trique</b> de raison '+suHtml(c.raison));
+    const sh=c.p===0?'<i>n</i>':('(<i>n</i> \u2212 '+c.p+')');
+    const form=arith ? (suU('<i>n</i>')+' = '+suU(c.p)+' + <i>r</i> \u00d7 '+sh)
+                     : (suU('<i>n</i>')+' = '+suU(c.p)+' \u00d7 <i>q</i><sup>'+(c.p===0?'<i>n</i>':('<i>n</i>\u2212'+c.p))+'</sup>');
+    fb.innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.<br>'
+      +'On passe de '+suU('<i>n</i>')+' \u00e0 '+suU('<i>n</i>+1')+' en '+geste+'.<br>'
+      +'Le premier terme donn\u00e9 est '+suU(c.p)+', donc la formule explicite s\u2019\u00e9crit '+form+'.';
+    fb.className='mp-feedback bad';
+    const ts=$('su-type');
+    if(ts){ if(!v['su-type']){ ts.value=c.kind; ts.classList.remove('bad'); ts.classList.add('ok'); } ts.disabled=true; }
+    const fill=(id,lx)=>{ const el=$(id); if(!el) return;
+      try{ if(el.setValue) el.setValue(window.mlDexp?window.mlDexp.plainToML(lx):lx); }catch(e){}
+      el.classList.remove('bad'); el.classList.add('ok'); try{ el.readOnly=true; }catch(e){} };
+    if(!v['su-raison']) fill('su-raison', suLatexNum(c.raison));
+    if(!v['su-formule']) fill('su-formule', suLatexFormule(c));
+  }
+  test.answers.push({q:suRecPlain(c)+' avec U'+c.p+' = '+suPlain(c.up)+' \u2014 suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison '+suPlain(c.raison)+' ; '+suFormulePlain(c), answer:'formule explicite', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('suActions').innerHTML='<button class="btn btn-primary" onclick="nextSU()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+/* Mode soutien : quand l'\u00e9l\u00e8ve quitte un champ math\u00e9matique, on le colore vert/rouge (comme en 2.1). */
+function suLiveCheck(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el || el.classList.contains('sol')) return;
+    if(document.activeElement===el) return;
+    const c=test.questions[test.idx]; let ok;
+    if(id==='su-raison') ok=suValNum(dexpCellValue(id), c.raison.v);
+    else if(id==='su-formule') ok=suFormOk(dexpCellValue(id), c);
+    else return;
+    el.classList.remove('ok','bad');
+    if(dexpCellValue(id)!=='') el.classList.add(ok?'ok':'bad');
+  },0);
+}
+function nextSU(){ if(test.idx<test.questions.length-1){ test.idx++; renderSU(); } else finishTest(); }
+/* \u00c9tat des cases, en texte, pour le conseil de l'IA */
+function suLu(id){
+  const el=$(id); if(!el) return '(vide)';
+  if(id==='su-type'){ const v=String(el.value||''); return v===''?'(vide)':(v==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique'); }
+  const v=String(dexpCellValue(id)||'').trim();
+  return v===''?'(vide)':v;
+}
+function suConseilCtx(){
+  const c=test.questions[test.idx];
+  return 'Exercice sur les SUITES. La suite (Un) est d\u00e9finie par la relation de r\u00e9currence '+suRecPlain(c)+', avec le premier terme U'+c.p+' = '+suPlain(c.up)+'. '
+   +'Deux questions : a) dire si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique (menu d\u00e9roulant) et donner sa raison (champ math\u00e9matique) ; '
+   +'b) \u00e9crire TOUTE la formule explicite Un = \u2026 dans une seule case de saisie math\u00e9matique, avec des nombres et la lettre n (le d\u00e9calage vaut n, n-1 ou n-2 selon le premier terme donn\u00e9). Toute \u00e9criture correcte \u00e9quivalente est accept\u00e9e. '
+   +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+', raison '+suPlain(c.raison)+', formule '+suFormulePlain(c)+'. '
+   +'Saisies actuelles de l\u2019\u00e9l\u00e8ve : a) type \u00ab '+suLu('su-type')+' \u00bb, raison \u00ab '+suLu('su-raison')+' \u00bb ; b) formule \u00ab '+suLu('su-formule')+' \u00bb. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne NI le type de la suite, NI la raison, NI la formule, ni aucun nombre de cet exercice. '
+   +'M\u00e9thode \u00e0 faire appliquer : regarder ce que l\u2019on fait \u00e0 Un pour obtenir Un+1 \u2014 si on lui AJOUTE toujours le m\u00eame nombre, la suite est arithm\u00e9tique et ce nombre est la raison r ; '
+   +'si on le MULTIPLIE toujours par le m\u00eame nombre, elle est g\u00e9om\u00e9trique et ce nombre est la raison q. Ensuite, la formule explicite part du premier terme donn\u00e9 : '
+   +'le d\u00e9calage vaut n si le premier terme est U0, n-1 si c\u2019est U1, n-2 si c\u2019est U2. '
+   +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
+   +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
+}
+
+
 /* ---------- Professeur ---------- */
 function teacherLogin(){
   if(val('teacherPass')!==MOT_DE_PASSE_PROF){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
@@ -7861,6 +8188,7 @@ const QIA_SUGG={
   dexpq:["Comment dériver un quotient ?","C’est quoi, la fonction exponentielle ?","Comment factoriser avec eˣ ?"],
   sv:["Quel est le lien entre le signe de f′ et les variations de f ?","Comment lire le signe de f sur un graphique ?","C’est quoi, un extremum ?"],
   tg:["C’est quoi, une tangente ?","Comment trouver l’équation d’une tangente ?","Que représente f′(a) sur le graphique ?"],
+  su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Donne-moi un exemple simple pour comprendre.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 const QIA_REDAC="Peux-tu me montrer un exemple de rédaction pour cet exercice ?";
@@ -7922,6 +8250,8 @@ async function qiaEnvoyer(){
   const bq=document.createElement('div'); bq.className='qia-q'; bq.textContent=q; dlg.appendChild(bq);
   const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je réfléchis…'; dlg.appendChild(br);
   dlg.scrollTop=dlg.scrollHeight;
+  /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
+  if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
   const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Texte brut, sans titre ni markdown."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
   try{
@@ -8149,7 +8479,7 @@ function garnirFenetre(pop, titre){
       pd.head.appendChild(st);
     }
   }catch(e){}
-  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
 }
 function rapatrierFenetre(pop){
   try{
@@ -8181,6 +8511,8 @@ function detacherSoutien(){
 /* --- Fenêtre « Soutien » : conseil sur l'essai en cours, dans sa propre fenêtre flottante. --- */
 function ouvrirSoutien(){
   const m=$('conseilModal'); if(!m) return;
+  masquerRappel();
+  const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
   const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===m && !p.closed; });
   if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
   const bd=m.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
@@ -8239,6 +8571,7 @@ function fermerFenetresIA(vider){
   if(!vider) return;
   const d=$('qiaDialog'); if(d) d.innerHTML='';
   const b=$('conseilBody'); if(b){ b.innerHTML=''; b.className='mp-feedback'; }
+  masquerRappel();
   [['#qiaOverlay','.qia-card'],['#conseilModal','.conseil-card']].forEach(function(p){
     const c=document.querySelector(p[0]+' '+p[1]);
     if(c){ c.style.position=''; c.style.left=''; c.style.top=''; c.style.width=''; c.style.margin=''; c.style.transform=''; }
