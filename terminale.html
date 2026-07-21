@@ -3264,7 +3264,8 @@ function lrAttenduIA(c){
     +'L’élève peut répondre LIMITE PAR LIMITE : indiquer l’asymptote et son équation pour une limite, et écrire qu’il n’y en a pas pour l’autre. Ces deux mentions dans une même réponse ne se contredisent PAS et ne doivent JAMAIS être comptées fausses à ce titre. '
     +'Pour juger chaque mention : une limite finie L en ±∞ donne l’asymptote horizontale y = L ; une limite infinie en une borne finie a donne l’asymptote verticale x = a ; une limite infinie en ±∞ n’en donne aucune. '
     +'Toutes les formulations d’absence sont acceptées : « pas asymptote », « pas d’asymptote », « aucune asymptote », « sans asymptote », « non ». '
-    +'Est FAUX uniquement : oublier une asymptote de la liste ci-dessus (ou écrire qu’il n’y en a pas là où il y en a une), en inventer une, ou donner une équation fausse. '
+    +'MENTION OBLIGATOIRE : la réponse doit TOUJOURS parler des asymptotes. Une réponse qui se contente des limites, sans aucune mention d’asymptote (ni équation, ni « aucune asymptote »), est FAUSSE même si les deux limites sont justes ; le feedback doit alors dire que les asymptotes manquent. '
+    +'Est FAUX : ne rien dire des asymptotes ; oublier une asymptote de la liste ci-dessus (ou écrire qu’il n’y en a pas là où il y en a une) ; en inventer une ; donner une équation fausse. En dehors de ces cas, ne pas pénaliser la formulation. '
     +'Répondre correct:true UNIQUEMENT si les deux limites ET les asymptotes sont justes ; sinon correct:false, avec un feedback bref qui dit ce qui cloche (limites ? asymptotes ?) SANS donner les réponses correctes.';
 }
 function lrReponseTxt(){ return lrsRead(); }
