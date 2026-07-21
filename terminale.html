@@ -7863,7 +7863,20 @@ const QIA_SUGG={
   tg:["C’est quoi, une tangente ?","Comment trouver l’équation d’une tangente ?","Que représente f′(a) sur le graphique ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Donne-moi un exemple simple pour comprendre.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
-function qiaSuggestions(){ return (test && QIA_SUGG[test.kind]) || QIA_SUGG.gen; }
+const QIA_REDAC="Peux-tu me montrer un exemple de rédaction pour cet exercice ?";
+/* champ d'ecriture libre a l'ecran : feuille multi-lignes (injectee par JS dans le 2.2) ou zone de texte */
+function qiaRedactionPresente(){
+  try{
+    const scr=document.querySelector('.screen.on');
+    if(!scr || scr.id==='scr-teacher') return false;
+    return !!(scr.querySelector('.dexp2-sheet') || scr.querySelector('textarea'));
+  }catch(e){ return false; }
+}
+function qiaSuggestions(){
+  const base=(test && QIA_SUGG[test.kind]) || QIA_SUGG.gen;
+  if(!qiaRedactionPresente()) return base;
+  return [QIA_REDAC].concat(base.filter(function(t){ return t!==QIA_REDAC; }));
+}
 function ouvrirQIA(){
   const ov=$('qiaOverlay'); if(!ov) return;
   const dejaPop=(window.__fenetresDetachees||[]).find(function(p){ return p.__origine===ov && !p.closed; });
@@ -7910,7 +7923,7 @@ async function qiaEnvoyer(){
   const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je réfléchis…'; dlg.appendChild(br);
   dlg.scrollTop=dlg.scrollHeight;
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Texte brut, sans titre ni markdown."+qiaIlluMission();
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, avec des pointillés à la place des valeurs — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Texte brut, sans titre ni markdown."+qiaIlluMission();
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
@@ -7959,7 +7972,7 @@ const QIA_ILLUS={
 };
 function qiaIlluMission(){
   if(!(test && ['dhv','lg','lg2','lg3','lr'].indexOf(test.kind)>=0)) return '';
-  return ' ILLUSTRATION FACULTATIVE : si (et seulement si) un petit dessin générique aiderait vraiment, termine ta réponse par UNE balise (ou DEUX au maximum, séparées par un espace, si tu compares deux situations) choisies EXACTEMENT dans cette liste, en toute fin : [ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale : f file vers ±∞ au lieu de se stabiliser ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale : aucune valeur interdite. La plateforme dessinera la figure elle-même (dessin générique, jamais celui de l’exercice en cours). N’invente JAMAIS d’autre balise ; si aucun dessin ne convient, n’en mets pas.';
+  return ' ILLUSTRATION FACULTATIVE : si (et seulement si) un petit dessin générique aiderait vraiment, termine ta réponse par UNE balise (ou DEUX au maximum, séparées par un espace, si tu compares deux situations) choisies EXACTEMENT dans cette liste, en toute fin : [ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale : f file vers ±∞ au lieu de se stabiliser ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale : aucune valeur interdite. La plateforme dessinera la figure elle-même (dessin générique, jamais celui de l’exercice en cours). N’invente JAMAIS d’autre balise ; si aucun dessin ne convient, n’en mets pas. Si la question porte sur la rédaction, le dessin reste facultatif et ne dispense JAMAIS du modèle de phrase.';
 }
 function qiaIlluExtrait(t){
   const illus=[];
