@@ -603,6 +603,8 @@
 .dexp-pwrap.show-paren .par{display:inline-block;}
 .dexp-fac sup,.tvi-prompt sup{font-size:.7em;}
 .dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
+.lr-exemple{font-size:.88rem;color:var(--ink-soft);background:var(--paper);border-left:3px solid var(--grid);border-radius:0 8px 8px 0;padding:6px 10px;margin:0 0 8px;}
+.lr-exemple b{color:var(--ink);}
 .hint-souris{display:none;}
 @media (hover: hover) and (pointer: fine){.hint-souris{display:inline;}}
 .dexp-hint sup{font-size:.7em;}
@@ -1145,8 +1147,9 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
       <p class="tvi-prompt" id="lrPrompt"></p>
       <div class="sv-graph" id="lrGraph"></div>
       <p class="tvi-instr">Déterminer les <b>limites</b> de la fonction aux <b>bornes de son ensemble de définition</b>, et préciser s’il y a des <b>asymptotes horizontales ou verticales</b> avec leur <b>équation</b> — écris « aucune asymptote » s’il n’y en a pas.</p>
+      <p class="lr-exemple"><b>Exemple de rédaction :</b> « quand <i>x</i> → … , on a <i>f</i>(<i>x</i>) → … » ou « quand <i>x</i> tend vers … , <i>f</i>(<i>x</i>) tend vers … »</p>
       <div class="dexp2-sheet" id="lrSheet"></div>
-      <p class="dexp-hint">Écris tout dans ce champ, une information par ligne. <b>Entrée</b> (ou la touche <b>⏎</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>va</b> → flèche « tend vers », <b>inf</b> → ∞. La touche <b>sortir</b> du clavier à l’écran quitte un exposant ou un indice.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
+      <p class="dexp-hint">Au clavier : <b>va</b> → flèche « tend vers », <b>inf</b> → ∞.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="mp-feedback" id="lrFeedback"></div>
       <div class="mp-actions" id="lrActions"></div>
     </div>
@@ -3243,7 +3246,7 @@ function lrModele(c){
        + lrAsymTexte(c);
 }
 function lrQuestionIA(c){
-  return 'Déterminer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée), puis préciser s’il existe une ou des asymptotes horizontales ou verticales avec leur(s) équation(s), ou écrire qu’il n’y en a aucune. L’élève écrit tout librement dans un même champ mathématique multi-lignes (nombre, ordre et découpage des lignes libres).';
+  return 'Déterminer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée), puis préciser s’il existe une ou des asymptotes horizontales ou verticales avec leur(s) équation(s), ou écrire qu’il n’y en a aucune (il peut répondre globalement ou limite par limite). L’élève écrit tout librement dans un même champ mathématique multi-lignes (nombre, ordre et découpage des lignes libres).';
 }
 function lrAttenduIA(c){
   const cote=b=>b.cote?(' (limite '+(b.cote==='+'?'à droite, côté '+b.x+'⁺':'à gauche, côté '+b.x+'⁻')+')'):'';
@@ -3255,7 +3258,13 @@ function lrAttenduIA(c){
     +'Le petit signe de côté sur une borne finie (exposant + ou −) est FACULTATIF ; s’il est écrit, il doit être du bon côté. '
     +'Une limite infinie doit être SIGNÉE : « ∞ » sans signe est insuffisant. Accepter +inf, +infini, « plus l’infini » (idem en négatif). '
     +'Chacune des deux bornes doit apparaître exactement une fois sur l’ensemble de la réponse. '
-    +'ASYMPTOTES attendues : '+lrAsymTexte(c)+'. Règles : la nature (horizontale/verticale) doit être précisée — abréviations AH/AV acceptées — avec l’équation exacte (x = … pour une verticale, y = … pour une horizontale ; espaces facultatifs ; signe moins écrit - ou − ; formulation et ordre libres). S’il n’y a aucune asymptote, l’élève doit le dire (« aucune asymptote », « pas d’asymptote »…). En inventer une = faux ; en oublier une = faux ; nature ou équation fausse = faux. '
+    +'ASYMPTOTES attendues pour toute la courbe : '+lrAsymTexte(c)+'. '
+    +'L’équation exacte est obligatoire (x = … pour une verticale, y = … pour une horizontale ; espaces facultatifs ; signe moins écrit - ou − ; formulation et ordre libres). '
+    +'La NATURE en toutes lettres est FACULTATIVE : « asymptote y = 2 » vaut « asymptote horizontale d’équation y = 2 », l’équation suffisant à la déterminer ; abréviations AH/AV acceptées ; si la nature est écrite, elle doit correspondre à l’équation. '
+    +'L’élève peut répondre LIMITE PAR LIMITE : indiquer l’asymptote et son équation pour une limite, et écrire qu’il n’y en a pas pour l’autre. Ces deux mentions dans une même réponse ne se contredisent PAS et ne doivent JAMAIS être comptées fausses à ce titre. '
+    +'Pour juger chaque mention : une limite finie L en ±∞ donne l’asymptote horizontale y = L ; une limite infinie en une borne finie a donne l’asymptote verticale x = a ; une limite infinie en ±∞ n’en donne aucune. '
+    +'Toutes les formulations d’absence sont acceptées : « pas asymptote », « pas d’asymptote », « aucune asymptote », « sans asymptote », « non ». '
+    +'Est FAUX uniquement : oublier une asymptote de la liste ci-dessus (ou écrire qu’il n’y en a pas là où il y en a une), en inventer une, ou donner une équation fausse. '
     +'Répondre correct:true UNIQUEMENT si les deux limites ET les asymptotes sont justes ; sinon correct:false, avec un feedback bref qui dit ce qui cloche (limites ? asymptotes ?) SANS donner les réponses correctes.';
 }
 function lrReponseTxt(){ return lrsRead(); }
