@@ -603,6 +603,8 @@
 .dexp-pwrap.show-paren .par{display:inline-block;}
 .dexp-fac sup,.tvi-prompt sup{font-size:.7em;}
 .dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
+.hint-souris{display:none;}
+@media (hover: hover) and (pointer: fine){.hint-souris{display:inline;}}
 .dexp-hint sup{font-size:.7em;}
 /* Champs : input simple (u, u', facteur) + champ éditable avec exposant surélevé (v, v') */
 .dexp-in{display:inline-block;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:9px;padding:6px 10px;text-align:center;vertical-align:middle;}
@@ -689,10 +691,13 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .kbwin-bar:active{cursor:grabbing}
 .kbwin-close{border:none;background:transparent;cursor:pointer;color:var(--ink-soft);font-size:14px;padding:2px 6px}
 #kbwin .ML__keyboard{position:relative !important;transform:none !important;height:var(--_keyboard-height,auto);}
-#kbhelp{position:fixed;right:24px;top:24px;z-index:3200;width:360px;display:none;background:#fff;
+#kbhelp{position:fixed;right:24px;top:24px;z-index:3200;width:360px;max-width:calc(100vw - 32px);display:none;background:#fff;
+  max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);
   border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
-#kbhelp.open{display:block}
-.kbhelp-body{padding:10px 14px 14px;font:500 .92rem 'Nunito',sans-serif;color:var(--ink);}
+#kbhelp.open{display:flex;flex-direction:column;}
+#kbhelp .kbwin-bar{flex:0 0 auto;}
+.kbhelp-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;
+  padding:10px 14px 14px;font:500 .92rem 'Nunito',sans-serif;color:var(--ink);}
 .kbhelp-t{border-collapse:collapse;width:100%;}
 .kbhelp-t td{padding:5px 6px;vertical-align:top;line-height:1.5;}
 .kbhelp-t td:first-child{white-space:nowrap;text-align:right;color:var(--ink-soft);}
@@ -1139,13 +1144,9 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
     <div class="card tvi-card">
       <p class="tvi-prompt" id="lrPrompt"></p>
       <div class="sv-graph" id="lrGraph"></div>
-      <p class="tvi-instr">Lis la courbe et <b>conjecture</b> les deux limites de <i>f</i> aux bornes de son ensemble de définition (aucune justification demandée) — une ligne par borne, présentée sous la forme : <span class="lr-modele">quand x tend vers … , f(x) tend vers …</span> &nbsp;ou&nbsp; <span class="lr-modele">quand x → … , f(x) → …</span>. Puis, sur la <b>troisième ligne</b>, précise s’il y a une ou des <b>asymptotes horizontales ou verticales</b> et donne leur équation — écris « aucune asymptote » s’il n’y en a pas.</p>
-      <div class="lr-lignes">
-        <input type="text" class="lr-in" id="lrL1" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
-        <input type="text" class="lr-in" id="lrL2" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="quand x → …  :  f(x) → …">
-        <input type="text" class="lr-in" id="lrL3" autocomplete="off" spellcheck="false" onfocus="lrCible=this.id" placeholder="asymptote(s) ? nature + équation — ou « aucune asymptote »">
-      </div>
-      <div class="lr-outils"><span>Insérer :</span><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('→')">→</button><button type="button" class="btn btn-ghost lr-ins" onclick="lrInserer('∞')">∞</button><span class="lr-astuce">— au clavier : tape <b>va</b> pour → et <b>inf</b> pour ∞</span></div>
+      <p class="tvi-instr">Déterminer les <b>limites</b> de la fonction aux <b>bornes de son ensemble de définition</b>, et préciser s’il y a des <b>asymptotes horizontales ou verticales</b> avec leur <b>équation</b> — écris « aucune asymptote » s’il n’y en a pas.</p>
+      <div class="dexp2-sheet" id="lrSheet"></div>
+      <p class="dexp-hint">Écris tout dans ce champ, une information par ligne. <b>Entrée</b> (ou la touche <b>⏎</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>va</b> → flèche « tend vers », <b>inf</b> → ∞. La touche <b>sortir</b> du clavier à l’écran quitte un exposant ou un indice.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="mp-feedback" id="lrFeedback"></div>
       <div class="mp-actions" id="lrActions"></div>
     </div>
@@ -1213,7 +1214,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
         <button type="button" class="sup-btn" onclick="dexpSup()">x<sup>y</sup>&nbsp;exposant</button>
         <button type="button" class="del" onclick="dexpDel()">&#9003;</button>
       </div>
-      <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>y</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).</p>
+      <p class="dexp-hint" id="dexpHintP">Pour <i>v</i> et <i>v'</i> : tape « e », puis appuie sur la touche <b>²</b> (en haut à gauche du clavier, à gauche du « 1 ») ou le bouton <b>x<sup>y</sup></b> pour monter en exposant, puis tape l'exposant (ex. « 2x »).<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>
       <div class="mp-feedback" id="dexpFeedback"></div>
       <div class="mp-actions" id="dexpActions"></div>
     </div>
@@ -1941,8 +1942,8 @@ function conseilCourant(){
     c='Exercice : donner les limites de f aux deux bornes de son ensemble de définition. f(x) = '+q.fPlain+', définie sur '+q.dom
       +'. Réponses attendues : quand x tend vers '+q.b1.x+(q.b1.cote?' (côté '+q.b1.cote+')':'')+', f(x) tend vers '+q.b1.lim
       +' ; quand x tend vers '+q.b2.x+(q.b2.cote?' (côté '+q.b2.cote+')':'')+', f(x) tend vers '+q.b2.lim+' ; asymptotes attendues : '+lrAsymTexte(q)
-      +'. Ce que l’élève a écrit pour l’instant — ligne 1 : « '+(($('lrL1')&&$('lrL1').value)||'')+' » ; ligne 2 : « '+(($('lrL2')&&$('lrL2').value)||'')+' » ; ligne 3 (asymptotes) : « '+(($('lrL3')&&$('lrL3').value)||'')+' »'
-      +'. IMPORTANT : l’élève ne voit QUE la courbe (jamais de formule — n’en mentionne aucune). Guide-le pour LIRE le graphique : suivre la courbe vers chaque borne du domaine et regarder vers quelle hauteur elle se stabilise (les pointillés rouges sont les asymptotes : leur équation se lit sur les axes, x = … pour une verticale, y = … pour une horizontale) ou si elle monte/descend sans limite ; puis l’aider à rédiger les trois lignes, SANS donner les valeurs finales ni les équations à sa place.';
+      +'. Ce que l’élève a écrit pour l’instant dans son champ multi-lignes : « '+(typeof lrsRead==='function'?lrsRead():'')+' »'
+      +'. IMPORTANT : l’élève ne voit QUE la courbe (jamais de formule — n’en mentionne aucune). Guide-le pour LIRE le graphique : suivre la courbe vers chaque borne du domaine et regarder vers quelle hauteur elle se stabilise (les pointillés rouges sont les asymptotes : leur équation se lit sur les axes, x = … pour une verticale, y = … pour une horizontale) ou si elle monte/descend sans limite ; puis l’aider à rédiger sa réponse, SANS donner les valeurs finales ni les équations à sa place.';
   } else {
     c=ctxVisible();
   }
@@ -3242,30 +3243,118 @@ function lrModele(c){
        + lrAsymTexte(c);
 }
 function lrQuestionIA(c){
-  return 'Conjecturer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée). Il écrit deux lignes, une par borne, sous la forme « quand x tend vers … , f(x) tend vers … » ou « quand x → … , f(x) → … », puis précise sur une troisième ligne s’il existe une ou des asymptotes horizontales ou verticales avec leur(s) équation(s), ou écrit qu’il n’y en a aucune.';
+  return 'Déterminer GRAPHIQUEMENT les limites de f aux DEUX bornes de son ensemble de définition '+c.dom+', à partir de sa courbe (l’élève ne connaît pas la formule ; aucune justification n’est demandée), puis préciser s’il existe une ou des asymptotes horizontales ou verticales avec leur(s) équation(s), ou écrire qu’il n’y en a aucune. L’élève écrit tout librement dans un même champ mathématique multi-lignes (nombre, ordre et découpage des lignes libres).';
 }
 function lrAttenduIA(c){
   const cote=b=>b.cote?(' (limite '+(b.cote==='+'?'à droite, côté '+b.x+'⁺':'à gauche, côté '+b.x+'⁻')+')'):'';
   return 'Réponses attendues — borne '+c.b1.x+cote(c.b1)+' : f(x) tend vers '+c.b1.lim
     +' ; borne '+c.b2.x+cote(c.b2)+' : f(x) tend vers '+c.b2.lim+'. '
     +'RÈGLES DE CORRECTION (à suivre STRICTEMENT) : ne juger QUE le contenu mathématique de chaque ligne — la valeur de la borne et la valeur de la limite, correctement associées. '
-    +'IGNORER TOTALEMENT : les mots employés (quand, lorsque, alors, on a…), la ponctuation (deux-points, virgules, points-virgules), le style de flèche (→, ->, ⟶, « tend vers »), les espaces, les majuscules et l’ORDRE des deux lignes. '
+    +'IGNORER TOTALEMENT : les mots employés (quand, lorsque, alors, on a…), la ponctuation (deux-points, virgules, points-virgules), le style de flèche (→, ->, ⟶, « tend vers »), les espaces, les majuscules, l’ORDRE et le DÉCOUPAGE des lignes (champ libre multi-lignes). '
     +'Accepter aussi la notation « lim … = … », et « y » à la place de f(x). '
     +'Le petit signe de côté sur une borne finie (exposant + ou −) est FACULTATIF ; s’il est écrit, il doit être du bon côté. '
     +'Une limite infinie doit être SIGNÉE : « ∞ » sans signe est insuffisant. Accepter +inf, +infini, « plus l’infini » (idem en négatif). '
-    +'Chacune des deux bornes doit apparaître exactement une fois sur l’ensemble des deux lignes. '
-    +'TROISIÈME LIGNE — asymptotes attendues : '+lrAsymTexte(c)+'. Règles : la nature (horizontale/verticale) doit être précisée — abréviations AH/AV acceptées — avec l’équation exacte (x = … pour une verticale, y = … pour une horizontale ; espaces facultatifs ; signe moins écrit - ou − ; formulation et ordre libres). S’il n’y a aucune asymptote, l’élève doit le dire (« aucune asymptote », « pas d’asymptote »…). En inventer une = faux ; en oublier une = faux ; nature ou équation fausse = faux. '
-    +'Répondre correct:true UNIQUEMENT si les deux limites ET la ligne des asymptotes sont justes ; sinon correct:false, avec un feedback bref qui dit ce qui cloche (limites ? asymptotes ?) SANS donner les réponses correctes.';
+    +'Chacune des deux bornes doit apparaître exactement une fois sur l’ensemble de la réponse. '
+    +'ASYMPTOTES attendues : '+lrAsymTexte(c)+'. Règles : la nature (horizontale/verticale) doit être précisée — abréviations AH/AV acceptées — avec l’équation exacte (x = … pour une verticale, y = … pour une horizontale ; espaces facultatifs ; signe moins écrit - ou − ; formulation et ordre libres). S’il n’y a aucune asymptote, l’élève doit le dire (« aucune asymptote », « pas d’asymptote »…). En inventer une = faux ; en oublier une = faux ; nature ou équation fausse = faux. '
+    +'Répondre correct:true UNIQUEMENT si les deux limites ET les asymptotes sont justes ; sinon correct:false, avec un feedback bref qui dit ce qui cloche (limites ? asymptotes ?) SANS donner les réponses correctes.';
 }
-function lrReponseTxt(){ return 'Ligne 1 : « '+($('lrL1')?$('lrL1').value:'')+' » — Ligne 2 : « '+($('lrL2')?$('lrL2').value:'')+' » — Ligne 3 (asymptotes) : « '+($('lrL3')?$('lrL3').value:'')+' »'; }
-let lrCible='lrL1';
-function lrInserer(t){
-  const el=$(lrCible)||$('lrL1'); if(!el||el.disabled) return;
-  el.focus();
-  const s=(el.selectionStart!=null?el.selectionStart:el.value.length), e2=(el.selectionEnd!=null?el.selectionEnd:s);
-  el.value=el.value.slice(0,s)+t+el.value.slice(e2);
-  const p=s+t.length; try{ el.setSelectionRange(p,p); }catch(err){}
+function lrReponseTxt(){ return lrsRead(); }
+/* ==================== Feuille multi-lignes MathLive commune ====================
+   Un seul composant pour tous les exercices a saisie multi-lignes. Le 2.2 reste
+   GELE sur son code dexp2* d'origine ; cette feuille sert le 3.5 et les futurs.
+   mode 'redaction' : lignes libres sans prefixe, barre d'espace active
+     (mathModeSpace), raccourcis reduits a la liste blanche (drapeau _motsFR,
+     lu par tuneShortcuts dans le module MathLive).
+   mode 'calcul'    : prefixe affiche sur la premiere ligne puis « = » ; espace
+     et raccourcis standard MathLive (comportement du 2.2).
+   API : F = mlFeuille({ conteneur:'idOuElement', mode:'redaction'|'calcul',
+           prefixes:{premiere:'<i>f</i> \u2032(x) =', suite:'='},      affichage, HTML permis
+           prefixesTexte:{premiere:"f'(x) =", suite:'='} })            version texte pour lire()
+   F.lignes | F.ajouterLigne(apresIdx) | F.retirerLigne(L) | F.lire() | F.verrouiller() */
+function mlFeuille(opts){
+  const sheet=(typeof opts.conteneur==='string')?$(opts.conteneur):opts.conteneur;
+  const mode=opts.mode||'redaction';
+  const pfx=(mode==='calcul')?(opts.prefixes||{premiere:'',suite:'='}):null;
+  const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
+  const pft=(mode==='calcul')?(opts.prefixesTexte||{premiere:strip(pfx.premiere),suite:strip(pfx.suite)}):null;
+  const F={lignes:[],mode:mode};
+  if(!sheet){ F.ajouterLigne=function(){return null;}; F.retirerLigne=function(){}; F.lire=function(){return '';}; F.verrouiller=function(){}; return F; }
+  sheet.innerHTML='';
+  function faireLigne(){
+    const line=document.createElement('div'); line.className='dexp2-line';
+    let pref=null;
+    if(pfx){ pref=document.createElement('span'); pref.className='dexp2-prefix'; line.appendChild(pref); }
+    const mf=document.createElement('math-field'); mf.className='dexp-mf dexp2-mf';
+    line.appendChild(mf);
+    return {line, mf, pref};
+  }
+  function majPrefixes(){ if(!pfx) return; F.lignes.forEach(function(L,i){ if(L.pref) L.pref.innerHTML=(i===0?pfx.premiere:pfx.suite); }); }
+  function tenirCurseur(mf){
+    requestAnimationFrame(()=>{
+      let x=null;
+      try{ const cc=mf.shadowRoot&&mf.shadowRoot.querySelector('.ML__caret'); if(cc) x=cc.getBoundingClientRect().x; }catch(e){}
+      if(x==null){ try{ const info=mf.getElementInfo(mf.position); if(info&&info.bounds) x=info.bounds.x+info.bounds.width; }catch(e){} }
+      if(x==null) return;
+      const r=sheet.getBoundingClientRect(), m=30;
+      if(x>r.right-m) sheet.scrollLeft+=Math.ceil(x-(r.right-m));
+      else if(x<r.left+m) sheet.scrollLeft-=Math.ceil((r.left+m)-x);
+    });
+  }
+  F.ajouterLigne=function(apresIdx){
+    const L=faireLigne();
+    const i=(apresIdx==null)?F.lignes.length:apresIdx+1;
+    F.lignes.splice(i,0,L);
+    const ref=sheet.children[i]||null;
+    sheet.insertBefore(L.line, ref);
+    if(mode==='redaction') L.mf._motsFR=true;   /* redaction en francais : liste blanche des raccourcis */
+    if(window.mlDexp) window.mlDexp.upgrade(L.line);   /* clavier Terminale + correctifs communs */
+    if(mode==='redaction'){ try{ L.mf.mathModeSpace='\\;'; }catch(e){} }   /* barre d'espace = vraie espace */
+    L.mf.addEventListener('input', ()=>tenirCurseur(L.mf));
+    function ajouterApres(){ const now=Date.now(); if(L.lastAdd && now-L.lastAdd<350) return; L.lastAdd=now; F.ajouterLigne(F.lignes.indexOf(L)); }
+    L.mf.addEventListener('change', ()=>{ if(L.mf.hasFocus && L.mf.hasFocus()) ajouterApres(); });
+    L.mf.addEventListener('keydown', (e)=>{
+      tenirCurseur(L.mf);
+      if(test.locked) return;
+      if(e.key==='Enter'){ e.preventDefault(); ajouterApres(); }
+    });
+    /* meme raison que dans le 2.2 : le bouton effacer du clavier a l'ecran n'emet pas de keydown */
+    L.mf.addEventListener('beforeinput', (e)=>{
+      if(test.locked) return;
+      if(e.inputType!=='deleteContentBackward') return;
+      if((L.mf.value!==''&&L.mf.getValue()!=='')||F.lignes.length<=1) return;
+      e.preventDefault();
+      const idx=F.lignes.indexOf(L);
+      const prev=F.lignes[Math.max(0,idx-1)];
+      F.retirerLigne(L);
+      if(prev){ const p=prev.mf;
+        const place=()=>{ try{ p.focus(); }catch(_){} try{ p.executeCommand('moveToMathfieldEnd'); }catch(_){} try{ p.position=p.lastOffset; }catch(_){} tenirCurseur(p); };
+        place();
+        requestAnimationFrame(place); setTimeout(place,60); setTimeout(place,180); }
+    });
+    majPrefixes();
+    setTimeout(()=>{ L.mf.focus(); },0);
+    return L;
+  };
+  F.retirerLigne=function(L){
+    if(F.lignes.length<=1) return;
+    const i=F.lignes.indexOf(L); if(i<0) return;
+    F.lignes.splice(i,1); L.line.remove();
+    majPrefixes();
+  };
+  F.lire=function(){
+    if(!F.lignes.length) return '';
+    const parts=F.lignes.map(function(L){ try{ return (window.mlDexp?window.mlDexp.toPlain(L.mf.getValue()):'').trim(); }catch(e){ return ''; } }).filter(function(s){ return s!==''; });
+    if(!parts.length) return '';
+    if(pft) return parts.map(function(p,i){ const t=(i===0?pft.premiere:pft.suite); return (t?t+' ':'')+p; }).join('\n');
+    return parts.join('\n');
+  };
+  F.verrouiller=function(){ F.lignes.forEach(function(L){ try{ L.mf.readOnly=true; }catch(e){} }); };
+  F.ajouterLigne();
+  return F;
 }
+/* ---- liaison de l'exercice 3.5 (limites-redaction) a la feuille commune ---- */
+let lrFeuille=null;
+function lrsRead(){ return lrFeuille?lrFeuille.lire():''; }
 /* Courbe de la question, tracée sur le domaine seulement, à partir des données (fam,k,c,a). */
 function lrF(q,x){
   if(q.fam==='expP') return q.k*Math.exp(x)+q.c;
@@ -3325,19 +3414,7 @@ function lrSVG(q){
   out+='<path class="lr-curve" d="'+d+'"/>';
   return out+'</svg>';
 }
-/* Raccourcis clavier dans les deux lignes : « va » → flèche, « inf » → ∞ (au fil de la frappe). */
-function lrRaccourcis(e){
-  const el=e.target; if(!el||el.disabled) return;
-  const pos=(el.selectionStart!=null?el.selectionStart:el.value.length);
-  const avant=el.value.slice(0,pos);
-  let rem=0, sym='';
-  if(/inf$/i.test(avant)){ rem=3; sym='∞'; }
-  else if(/va$/i.test(avant)){ rem=2; sym='→'; }
-  if(!rem) return;
-  el.value=avant.slice(0,avant.length-rem)+sym+el.value.slice(pos);
-  const p=pos-rem+1; try{ el.setSelectionRange(p,p); }catch(err){}
-}
-(function(){ ['lrL1','lrL2','lrL3'].forEach(function(id){ const el=document.getElementById(id); if(el) el.addEventListener('input', lrRaccourcis); }); })();
+/* Les raccourcis « va » / « inf » (et « int ») sont fournis par le champ MathLive — voir configureField. */
 function renderLR(){
   const c=test.questions[test.idx]; test.locked=false;
   window.__conseilsDonnes=[];
@@ -3345,19 +3422,18 @@ function renderLR(){
   $('lrModeTag').innerHTML=modeTagHTML();
   $('lrPrompt').innerHTML='Soit <i>f</i> une fonction définie sur <b>'+esc(c.dom)+'</b>, dont la courbe représentative est tracée ci-dessous.';
   $('lrGraph').innerHTML=lrSVG(c);
-  ['lrL1','lrL2','lrL3'].forEach(function(id){ const el=$(id); el.value=''; el.disabled=false; });
-  lrCible='lrL1';
+  lrFeuille=mlFeuille({ conteneur:'lrSheet', mode:'redaction' });
   $('lrFeedback').textContent=''; $('lrFeedback').className='mp-feedback';
   $('lrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLR()">Vérifier mes limites</button>';
-  setTimeout(function(){ const el=$('lrL1'); if(el) el.focus(); },60);
+  setTimeout(function(){ if(lrFeuille&&lrFeuille.lignes[0]) lrFeuille.lignes[0].mf.focus(); },60);
 }
 let lrBusy=false;
 async function checkLR(){
   if(test.locked||lrBusy) return;
   const c=test.questions[test.idx];
-  const l1=String(($('lrL1')&&$('lrL1').value)||'').trim(), l2=String(($('lrL2')&&$('lrL2').value)||'').trim(), l3=String(($('lrL3')&&$('lrL3').value)||'').trim();
-  if(l1.length<3 || l2.length<3 || l3.length<3){ toast('Écris tes deux limites et la ligne des asymptotes'); return; }
-  if(tvi2CopieConseil(l1+'\n'+l2+'\n'+l3)){
+  const rep=lrsRead().trim();
+  if(rep.replace(/\s/g,'').length<8){ toast('Écris tes deux limites et la ou les asymptotes'); return; }
+  if(tvi2CopieConseil(rep)){
     $('lrFeedback').textContent='On dirait le texte du conseil recopié tel quel. Le conseil te guide — à toi d’écrire les deux limites avec tes propres mots. Cette tentative n’est pas comptée.';
     $('lrFeedback').className='mp-feedback bad';
     return;
@@ -3386,6 +3462,7 @@ async function checkLR(){
     return;
   }
   test.locked=true;
+  if(lrFeuille) lrFeuille.verrouiller();
   if(correct){
     test.score++; $('lrLiveScore').textContent=test.score;
     $('lrFeedback').innerHTML=(fbHTML||esc(pick(['Parfait !','Très bien rédigé !','Excellent !','Exactement !'])));
@@ -3394,7 +3471,6 @@ async function checkLR(){
     $('lrFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce ne sont pas les bonnes limites. ')
       +'Réponse correcte :<div class="tvi-model">'+esc(lrModele(c)).replace(/\n/g,'<br>')+'</div>';
     $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
-    ['lrL1','lrL2','lrL3'].forEach(function(id){ const el=$(id); if(el) el.disabled=true; });
   }
   test.answers.push({q:'Limites (lecture graphique) sur '+c.dom+' — attendu : '+lrModele(c).replace(/\n/g,' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
   const last=test.idx===test.questions.length-1;
@@ -5606,7 +5682,7 @@ function renderDexp2(){
      </div>
      <p class="tvi-instr">Déterminer la dérivée sous la forme factorisée :</p>
      <div class="dexp2-sheet" id="dexp2Sheet"></div>
-     <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> (ou la touche <b>⏎</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>→</b> pour sortir d’une fraction, d’une racine ou de l’exposant.</p>`;
+     <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> (ou la touche <b>⏎</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>barre d’espace</b> (ou la touche <b>sortir</b> du clavier à l’écran) pour sortir d’une fraction, d’une racine, d’un exposant ou d’un indice.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>`;
   $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp2()">Vérifier</button>';
   if(window.mlDexp) window.mlDexp.upgrade($('dexpBody'));
   dexp2Lines=[];
@@ -6283,7 +6359,7 @@ function renderDexpQ2(){
      </div>
      <p class="tvi-instr">Déterminer la dérivée sous la forme factorisée :</p>
      <div class="dexp2-sheet" id="dexp2Sheet"></div>
-     <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> (ou la touche <b>\u23ce</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>\u2192</b> pour sortir d\u2019une fraction, d\u2019une racine ou de l\u2019exposant.</p>`;
+     <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> (ou la touche <b>\u23ce</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>barre d\u2019espace</b> (ou la touche <b>sortir</b> du clavier \u00e0 l\u2019\u00e9cran) pour sortir d\u2019une fraction, d\u2019une racine, d\u2019un exposant ou d\u2019un indice.<span class="hint-souris"> <b>Clic droit</b> sur le champ : clavier à l’écran et raccourcis clavier.</span></p>`;
   $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexpQ2()">Vérifier</button>';
   if(window.mlDexp) window.mlDexp.upgrade($('dexpBody'));
   dexp2Lines=[];
@@ -8163,22 +8239,41 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
 /* ---- clavier Terminale : / (fraction) e ln x π ---- */
 const KB_TERM = {
   label: "Terminale",
-  rows: [
-    [ {latex:"7"},{latex:"8"},{latex:"9"},
-      {label:"/",insert:"\\frac{#@}{#?}"},
-      {latex:"e"},
-      {latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},
-      {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
-    [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},
-      {label:"xⁿ",command:["performWithFeedback","moveToSuperscript"]},
-      {label:"ln",insert:"\\ln\\left(#0\\right)"},
-      {label:"(", key:"("} ],
-    [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},
-      {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
-      {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
-      {label:")", key:")"} ],
-    [ {latex:"0",width:1.5},{latex:","},{latex:"x"},{latex:"\\pi"},{latex:"+"},
-      {label:"⏎", class:"action", width:1.5, command:["performWithFeedback","commit"]} ]
+  layers: [
+    { id: "term-base", rows: [   /* couche classique */
+      [ {latex:"\\int",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"\\infty"},{latex:"\\longrightarrow"},
+        {label:"espace",width:2,key:" "},
+        {label:"sortir",class:"action",width:1.5,command:["performWithFeedback","moveAfterParent"]},
+        {label:"fn",class:"action",width:1,command:["switchKeyboardLayer","term-fn"]} ],
+      [ {latex:"7"},{latex:"8"},{latex:"9"},
+        {label:"/",insert:"\\frac{#@}{#?}"},
+        {latex:"e"},
+        {latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},
+        {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
+      [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},
+        {label:"xⁿ",command:["performWithFeedback","moveToSuperscript"]},
+        {label:"ln",insert:"\\ln\\left(#0\\right)"},
+        {label:"(", key:"("} ],
+      [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},
+        {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
+        {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
+        {label:")", key:")"} ],
+      [ {latex:"0",width:1.5},{latex:","},{latex:"x"},{latex:"\\pi"},{latex:"+"},
+        {label:"⏎", class:"action", width:1.5, command:["performWithFeedback","commit"]} ]
+    ]},
+    { id: "term-fn", rows: [   /* couche secondaire : fonctions, appartenance, indice, espace */
+      [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},
+        {latex:"\\in"},
+        {label:"xₙ",command:["performWithFeedback","moveToSubscript"]},
+        {label:"sortir",class:"action",width:1.5,command:["performWithFeedback","moveAfterParent"]} ],
+      [ {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},{label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},{label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"},
+        {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
+      [ {label:"123",class:"action",width:1.5,command:["switchKeyboardLayer","term-base"]},
+        {label:"espace",width:2,key:" "},
+        {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
+        {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
+        {label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+    ]}
   ]
 };
 
@@ -8213,6 +8308,13 @@ function configureField(mf){
     let ch = false;
     if(sc["xx"] !== "xx"){ sc["xx"] = "xx"; ch = true; }
     if(sc["*"] !== "\\times"){ sc["*"] = "\\times"; ch = true; }   /* '*' au clavier -> croix × (multiplication) */
+    if(sc["va"] !== "\\longrightarrow"){ sc["va"] = "\\longrightarrow"; ch = true; }   /* 'va' -> fleche « tend vers » */
+    if(sc["inf"] !== "\\infty"){ sc["inf"] = "\\infty"; ch = true; }   /* 'inf' -> infini */
+    if(sc["int"] !== "\\int_{#?}^{#?}#?\\,dx"){ sc["int"] = "\\int_{#?}^{#?}#?\\,dx"; ch = true; }   /* 'int' -> integrale complete bornes + dx, comme la touche ecran */
+    if(mf._motsFR){   /* champ redaction (3.5) : l'eleve tape des mots francais -> liste blanche ("or"->\lor casse "horizontale", "and" casse "quand", "in" casse "moins", "lim" casse "limite"...) */
+      const garder = ["xx","*","va","inf","int","ln","sqrt","pi","->","-->",">=","<=","!="];
+      Object.keys(sc).forEach(k => { if(garder.indexOf(k) === -1){ delete sc[k]; ch = true; } });
+    }
     if(ch) mf.inlineShortcuts = sc;
   } catch(e) {} };
   tuneShortcuts(); setTimeout(tuneShortcuts, 0); setTimeout(tuneShortcuts, 350);
@@ -8237,6 +8339,16 @@ function configureField(mf){
   /* AZERTY : ^ est une touche morte (key='Dead', code='BracketLeft') que MathLive
      interprete mal -> on force nous-memes l'exposant, comme la touche x^n */
   mf.addEventListener("keydown", (ev)=>{
+    /* AZERTY : la touche morte reste en attente au niveau du systeme. La barre d'espace
+       la resout en un ^ litteral, qui arrive avec key="^" mais code="Space" : on avale ce
+       residu et on joue l'espace attendue, sinon un 2e exposant nait au-dessus du premier. */
+    if(ev.key === "^" && ev.code === "Space" && !ev.isComposing){
+      ev.preventDefault(); ev.stopPropagation();
+      mf._mlBusy = true;
+      try { mf.executeCommand(mf.mathModeSpace ? ["insert", mf.mathModeSpace] : "moveAfterParent"); } catch(e) {}
+      setTimeout(()=>{ mf._mlBusy = false; }, 0);
+      return;
+    }
     const circo = ev.key === "^" ||
       (ev.key === "Dead" && ev.code === "BracketLeft" && !ev.shiftKey && !ev.altKey && !ev.ctrlKey && !ev.metaKey);
     if(!circo || ev.isComposing) return;
@@ -8252,7 +8364,7 @@ function configureField(mf){
     const ty = ev.inputType || "";
     if(ty !== "insertText" && ty !== "insertCompositionText") return;
     const d = ev.data;
-    if(typeof d !== "string" || d.indexOf("^") === -1) return;
+    if(typeof d !== "string" || d.indexOf("^") === -1 || d.indexOf("\\") !== -1 || d.length > 4) return;   /* residus de touche morte uniquement ("^3", "^x") : jamais une insertion LaTeX programmatique (touche ecran integrale, etc.) */
     ev.preventDefault(); ev.stopImmediatePropagation();
     const rest = d.replace(/\^/g, "").replace(/[\\{}#$]/g, "");
     if(rest){
@@ -8269,10 +8381,26 @@ function configureField(mf){
       w.classList.toggle("show-paren", window.dexpIsSum(toPlain(mf.getValue())));
     }
   });
-  mf.addEventListener("pointerdown", ()=>{
+  mf.addEventListener("pointerdown", (ev)=>{
     if(lastMf && lastMf !== mf && lastMf.id && typeof window.dexpLiveCheck === "function") window.dexpLiveCheck(lastMf.id);
     lastMf = mf;
-    keepVisible(mf);
+    const annuler = keepVisible(mf);
+    /* Si l'eleve glisse pour selectionner, on annule les ajustements de defilement : sinon la page
+       bouge sous le curseur en plein glisser et la selection est perdue. Cela se voyait surtout sur
+       les lignes contenant une puissance ou un indice, plus hautes, donc les seules a declencher
+       l'ajustement. Un simple clic (sans deplacement) garde le comportement d'origine. */
+    const x0 = ev && ev.clientX || 0, y0 = ev && ev.clientY || 0;
+    function bouge(e){
+      if(Math.abs((e.clientX||0) - x0) + Math.abs((e.clientY||0) - y0) > 6){ annuler(); nettoyer(); }
+    }
+    function nettoyer(){
+      window.removeEventListener("pointermove", bouge, true);
+      window.removeEventListener("pointerup", nettoyer, true);
+      window.removeEventListener("pointercancel", nettoyer, true);
+    }
+    window.addEventListener("pointermove", bouge, true);
+    window.addEventListener("pointerup", nettoyer, true);
+    window.addEventListener("pointercancel", nettoyer, true);
   });
 }
 document.addEventListener("focusout", (ev)=>{
@@ -8303,6 +8431,9 @@ function struct(s){
     } else if(s[i] === "^" && s[i+1] === "{"){
       let a, j; [a, j] = readArg(s, i+1);
       out += "^(" + struct(a) + ")"; i = j;
+    } else if(s[i] === "_" && s[i+1] === "{"){
+      let a, j; [a, j] = readArg(s, i+1);
+      out += "_(" + struct(a) + ")"; i = j;   /* indices : u_{n+1} -> u_(n+1), leve l'ambiguite u_n+1 (recurrence, suites) */
     } else { out += s[i]; i++; }
   }
   return out;
@@ -8313,12 +8444,14 @@ function toPlain(latex){
   s = s.replace(/\\times|\\cdot/g, "*");
   s = s.replace(/\\placeholder\{([^{}]*)\}/g, "$1");
   s = s.replace(/\{,\}/g, ".");
-  s = s.replace(/\\pi/g, "pi").replace(/\\ln/g, "ln");
-  s = s.replace(/\\[,;!]/g, "").replace(/~/g, "");
+  s = s.replace(/\\pi/g, "pi").replace(/\\ln/g, "ln").replace(/\\arccos/g, "arccos").replace(/\\arcsin/g, "arcsin").replace(/\\arctan/g, "arctan").replace(/\\cos/g, "cos").replace(/\\sin/g, "sin").replace(/\\tan/g, "tan");
+  s = s.replace(/\\longrightarrow|\\rightarrow|\\to(?![a-zA-Z])/g, "\u2192").replace(/\\infty/g, "\u221e").replace(/\\int(?![a-zA-Z])/g, "\u222b").replace(/\\lim(?![a-zA-Z])/g, "lim").replace(/\\in(?![a-zA-Z])/g, "\u2208");
+  s = s.replace(/\\[,;:]|\\ |~/g, "\u0001").replace(/\\!/g, "");   /* espaces LaTeX -> marqueur, restaure en une espace apres le nettoyage */
   s = struct(s);
   s = s.replace(/[{}]/g, "");
   s = s.replace(/\u2212/g, "-");
   s = s.replace(/\s+/g, "");
+  s = s.replace(/\u0001+/g, " ");
   return s.trim();
 }
 function plainToML(o){
@@ -8357,7 +8490,8 @@ function keepVisible(el){
     if(r.bottom > limit) window.scrollBy(0, Math.ceil(r.bottom - limit));
     else if(r.top < top) window.scrollBy(0, Math.floor(r.top - top));
   };
-  requestAnimationFrame(adjust); setTimeout(adjust, 260); setTimeout(adjust, 620);
+  const a0 = requestAnimationFrame(adjust), t1 = setTimeout(adjust, 260), t2 = setTimeout(adjust, 620);
+  return ()=>{ cancelAnimationFrame(a0); clearTimeout(t1); clearTimeout(t2); };   /* permet d'annuler les ajustements en attente */
 }
 function setupKeyboard(){
   if(window.__mlKbSetup) return; window.__mlKbSetup = true;
@@ -8399,12 +8533,17 @@ function setupKeyboard(){
     helpWin.innerHTML = '<div class="kbwin-bar"><span>Raccourcis clavier — glisser pour déplacer</span>'+
       '<button type="button" class="kbwin-close" aria-label="Fermer">✕</button></div>'+
       '<div class="kbhelp-body"><table class="kbhelp-t">'+
-      "<tr><td><kbd>^</kbd></td><td>puissance — le curseur va dans la case de l’exposant</td></tr>"+
-      "<tr><td><kbd>e</kbd></td><td>le nombre e (exponentielle : <kbd>e</kbd> puis <kbd>^</kbd>)</td></tr>"+
+      "<tr><td><kbd>^</kbd></td><td>puissance</td></tr>"+
+      "<tr><td><kbd>e</kbd></td><td>le nombre e</td></tr>"+
       "<tr><td><kbd>ln</kbd></td><td>logarithme népérien ln(…)</td></tr>"+
       "<tr><td><kbd>sqrt</kbd></td><td>racine carrée √…</td></tr>"+
-      "<tr><td><kbd>int</kbd></td><td>intégrale ∫</td></tr>"+
+      "<tr><td><kbd>int</kbd></td><td>l’intégrale ∫</td></tr>"+
       "<tr><td><kbd>pi</kbd></td><td>le nombre π</td></tr>"+
+      "<tr><td><kbd>va</kbd></td><td>la flèche « tend vers » ⟶</td></tr>"+
+      "<tr><td><kbd>inf</kbd></td><td>l’infini ∞</td></tr>"+
+      "<tr><td><kbd>sin</kbd></td><td>fonctions trigonométriques (aussi cos, tan, arcsin, arccos, arctan)</td></tr>"+
+      "<tr><td><kbd>in</kbd></td><td>∈ (appartient)</td></tr>"+
+      "<tr><td><kbd>_</kbd></td><td>indice u<sub>n</sub></td></tr>"+
       '</table></div>';
     document.body.appendChild(helpWin);
     helpWin.addEventListener("pointerdown", (e)=>{ e.preventDefault(); });  /* ne vole jamais le focus */
@@ -8420,12 +8559,19 @@ function setupKeyboard(){
     });
     hbar.addEventListener("pointermove", (e)=>{
       if(!hdrag) return;
-      const x = Math.min(Math.max(0, e.clientX - hdrag.dx), window.innerWidth - 80);
-      const y = Math.min(Math.max(0, e.clientY - hdrag.dy), window.innerHeight - 40);
+      const x = Math.min(Math.max(0, e.clientX - hdrag.dx), Math.max(0, window.innerWidth - helpWin.offsetWidth - 8));
+      const y = Math.min(Math.max(0, e.clientY - hdrag.dy), Math.max(0, window.innerHeight - helpWin.offsetHeight - 8));
       helpWin.style.left = x + "px"; helpWin.style.top = y + "px";
     });
     hbar.addEventListener("pointerup", ()=>{ hdrag = null; });
     helpWin.querySelector(".kbwin-close").addEventListener("click", ()=>helpWin.classList.remove("open"));
+    window.addEventListener("resize", ()=>{   /* apres rotation du telephone, la fenetre reste entierement visible */
+      if(!helpWin || !helpWin.style.top) return;
+      const my = Math.max(0, window.innerHeight - helpWin.offsetHeight - 8);
+      const mx = Math.max(0, window.innerWidth - helpWin.offsetWidth - 8);
+      helpWin.style.top = Math.min(parseFloat(helpWin.style.top) || 0, my) + "px";
+      helpWin.style.left = Math.min(parseFloat(helpWin.style.left) || 0, mx) + "px";
+    });
   }
   function pin(){
     if(window.__kbFloating) return;
