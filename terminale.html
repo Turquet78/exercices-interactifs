@@ -1875,7 +1875,7 @@ function ctxVisible(){
 function iaMathAuto(s, maths){
   s=String(s==null?'':s);
   const seed=/\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))/g;
-  const tokRe=/^(?:\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|\\(?:times|cdot|div|pm|leq|geq|neq|le|ge|ne)(?![A-Za-z])|\\[,;!]|\d+(?:[.,]\d+)?|[=+\-\u2212\u00d7\u00b7\/()]|\*(?!\*)|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))?)/;
+  const tokRe=/^(?:\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|\\(?:times|cdot|infty|div|ell|pi|pm|to|leq|geq|neq|le|ge|ne)(?![A-Za-z])|\\[,;!]|\d+(?:[.,]\d+)?|[=+\-\u2212\u00d7\u00b7\/()]|\*(?!\*)|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))?)/;
   const bareOK=/^[UVWNQRKXnqrkxb]$/;
   const lettre=c=>!!c && /[A-Za-z\u00c0-\u00ff]/.test(c);
   let m, out='', last=0;
@@ -1886,8 +1886,9 @@ function iaMathAuto(s, maths){
       let p=b; if(s[p]===' ') p++;
       const t=tokRe.exec(s.slice(p)); if(!t) break;
       const tok=t[0], fin=p+tok.length;
-      /* un identifiant/nombre colle a des lettres = debut de mot francais ; un operateur suivi d'une lettre est normal (3*U_n) */
-      if(/[A-Za-z0-9})]$/.test(tok) && (lettre(s[fin])||s[fin]==="'"||s[fin]==='\u2019')) break;
+      /* un identifiant fini par une LETTRE colle a d'autres lettres = debut de mot francais ;
+         un chiffre ou un operateur suivi d'une lettre est du calcul normal (2u_n, 3*U_n) */
+      if(/[A-Za-z]$/.test(tok) && (lettre(s[fin])||s[fin]==="'"||s[fin]==='\u2019')) break;
       if(/^[A-Za-z]$/.test(tok) && !bareOK.test(tok)) break;
       b=fin;
     }
@@ -1900,12 +1901,14 @@ function iaMathAuto(s, maths){
       }
       if(!best) break;
       const deb=p-best.length;
-      if(/^[A-Za-z0-9({]/.test(best) && deb>0 && (lettre(s[deb-1])||s[deb-1]==="'"||s[deb-1]==='\u2019')) break;
+      if(deb<last) break;   /* verrou : jamais mordre sur la zone deja emise (sinon un morceau sortirait deux fois) */
+      if(/^[A-Za-z]/.test(best) && deb>0 && (lettre(s[deb-1])||s[deb-1]==="'"||s[deb-1]==='\u2019')) break;
       if(/^[A-Za-z]$/.test(best) && !bareOK.test(best)) break;
       if(best==='*' && (s[p]==='*'||s[deb-1]==='*')) break;   /* '**' (gras Markdown) : frontiere, jamais dans une formule */
       a=deb;
     }
-    if(a>0 && s[a]==='\\' && /[A-Za-z]/.test(s[a-1]) && !/[A-Za-z\u00c0-\u00ff'\u2019]/.test(s[a-2]||'')) a--;   /* coefficient colle : a\,U_n */
+    if(a>last && s[a]==='\\' && /[A-Za-z]/.test(s[a-1]) && !/[A-Za-z\u00c0-\u00ff'\u2019]/.test(s[a-2]||'')) a--;   /* coefficient colle : a\,U_n */
+    if(a<last) a=last;   /* ceinture du verrou anti-chevauchement */
     while(a<b && /[ =+\u00d7\u00b7*\/,)]/.test(s[a])) a++;                    /* nettoyage des bords */
     while(b>a && /[ =+\-\u2212\u00d7\u00b7*\/,(]/.test(s[b-1])) b--;
     let run=s.slice(a,b);
@@ -1926,7 +1929,9 @@ function iaMathAuto(s, maths){
   /* commandes LaTeX restees seules dans le texte (hors formule detectee) : converties en glyphes lisibles */
   out=out.replace(/\\times(?![A-Za-z])/g,'\u00d7').replace(/\\cdot(?![A-Za-z])/g,'\u00b7').replace(/\\div(?![A-Za-z])/g,'\u00f7')
          .replace(/\\pm(?![A-Za-z])/g,'\u00b1').replace(/\\leq?(?![A-Za-z])/g,'\u2264').replace(/\\geq?(?![A-Za-z])/g,'\u2265')
-         .replace(/\\neq?(?![A-Za-z])/g,'\u2260').replace(/\\[,;!]/g,'\u2009');
+         .replace(/\\neq?(?![A-Za-z])/g,'\u2260').replace(/\\ell(?![A-Za-z])/g,'\u2113')
+         .replace(/\\pi(?![A-Za-z])/g,'\u03c0').replace(/\\infty(?![A-Za-z])/g,'\u221e')
+         .replace(/\\to(?![A-Za-z])/g,'\u2192').replace(/\\[,;!]/g,'\u2009');
   return out;
 }
 function conseilHTML(t){
@@ -1960,7 +1965,7 @@ const CONSEIL_FORMAT=" — FORMAT DE TA RÉPONSE : 2 à 4 phrases maximum, "
   +"sans titre ni markdown (pas de « # », pas de « ** »), tutoiement, et ne donne JAMAIS "
   +"la réponse finale — seulement la prochaine étape à faire. "
   +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3V_n\\) ou \\(\\frac{b}{a}\\) — "
-  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »).";
+  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »).";
 let conseilBusy=false;
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
@@ -9110,7 +9115,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell »."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
