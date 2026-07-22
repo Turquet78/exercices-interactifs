@@ -44,6 +44,16 @@
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
 /* Sur écran d'ordinateur, le cadre blanc prend plus de largeur ; téléphones inchangés. */
 @media (min-width:1080px){ .wrap{max-width:1200px} }
+/* ---- Largeur des cartes d'exercice : UNE seule source de vérité ----
+   Toute carte d'exercice écrit max-width:var(--card-max) et hérite des paliers
+   ci-dessous. Nouvel exercice -> <div class="card tvi-card"> suffit.
+   Ne JAMAIS redéclarer un max-width en dur sur une classe de carte : c'était
+   la cause du bug « cadre plus étroit » (règle tardive écrasant les media
+   queries dans la cascade, thèmes 1, 5 et 6). */
+:root{--card-max:560px}
+@media (min-width:860px){ :root{--card-max:780px} }
+@media (min-width:1080px){ :root{--card-max:1040px} }
+@media (min-width:1400px){ :root{--card-max:1200px} }
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -412,7 +422,7 @@
 .expr-help button.del{color:var(--red);border-color:var(--red-soft);}
 
 /* --- Test TVI : tableau de variation + justification à compléter --- */
-.tvi-card{max-width:560px;margin:0 auto;}
+.tvi-card{max-width:var(--card-max);margin:0 auto;}
 .tvi-prompt{font-size:1rem;line-height:1.5;color:var(--ink);background:var(--green-soft);border-radius:14px;padding:12px 14px;margin:0 0 14px;}
 .tvi-table{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px 6px;margin:0 0 16px;overflow-x:auto;}
 .tvi-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
@@ -709,11 +719,9 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .expr-help .del{color:var(--red);}
 
 /* --- Test Signes & variations : lecture graphique + tableaux à compléter --- */
-.sv-card{max-width:560px;margin:0 auto;}
+.sv-card{max-width:var(--card-max);margin:0 auto;}
 /* Sur écran d'ordinateur, le cadre blanc des exercices prend plus de largeur ; téléphones inchangés. */
-@media (min-width:860px){ .tvi-card,.sv-card{max-width:780px} }
-@media (min-width:1080px){ .tvi-card,.sv-card{max-width:1040px} .sv-svg{max-width:560px} }
-@media (min-width:1400px){ .tvi-card,.sv-card{max-width:1200px} }
+@media (min-width:1080px){ .sv-svg{max-width:560px} }
 /* Quand le cadre est plus grand : les cas des exercices de limites, les questions du 3.1 et les équations du 4.4 en deux colonnes.
    (inline-block + calc plutôt que grid : compatible aussi avec les vieux navigateurs.) */
 @media (min-width:860px){
@@ -753,7 +761,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .sv-mid-dot{display:inline-block;width:0;height:20px;border-left:2px dotted var(--ink-soft);vertical-align:middle;}
 .sv-tbl .tvi-sel{font-size:.9rem;max-width:100%;}
 /* ---- Test : équation de tangente ---- */
-.tg-card{max-width:600px;margin:0 auto;}
+.tg-card{max-width:var(--card-max);margin:0 auto;}
 .tg-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 14px;overflow-x:auto;}
 .tg-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
 .tg-ax{font-family:'Nunito',sans-serif;font-size:10px;fill:var(--ink-soft);}
@@ -774,7 +782,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .tg-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .tg-in:disabled{opacity:1;}
 /* ---- Test : signe du 1er degré ---- */
-.s1-card{max-width:560px;margin:0 auto;}
+.s1-card{max-width:var(--card-max);margin:0 auto;}
 .s1-card i{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;}
 .s1-tbl td.lab{width:32%;text-align:center;}
 .s1-tbl td.s1-bl{text-align:left;padding-left:10px;}
@@ -820,6 +828,40 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .su-hint{color:var(--ink-soft);font-style:italic;background:var(--paper);border:1px dashed var(--grid);border-radius:12px;padding:13px 15px;margin:4px 0;}
 math-field.su-mf{min-width:80px;font-size:1.02rem;}
 math-field.su-mf-f{flex:1 1 250px;min-width:220px;font-size:1.12rem;}
+/* ---- 6.2 Suites : suite auxiliaire géométrique ---- */
+.sa-aux{background:#EEF2FE;border:1.5px solid #d8e0fb;border-radius:12px;padding:10px 14px;margin:10px 0 0;font-size:1.02rem}
+.sa-jetons{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
+.sa-jlab{font-size:.82rem;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.sa-jsp{flex:1}
+.sa-jeton{font-family:"Nunito";font-weight:800;font-size:.95rem;border:1.5px solid #c9d4f3;background:#fff;color:var(--blue-dark);border-radius:10px;padding:6px 12px;cursor:pointer;transition:background .12s,border-color .12s}
+.sa-jeton:hover{border-color:var(--blue);background:#EAF0FF}
+.sa-jeton:focus-visible{outline:3px solid #b9c6f5;outline-offset:2px}
+.sa-jeton-ic{min-width:44px;text-align:center;font-size:1.05rem;padding:6px 10px;line-height:1.3}
+.sa-part{margin-top:22px;padding-top:16px;border-top:2px solid var(--line)}
+.sa-plab{font-family:"Fredoka";font-weight:600;color:var(--blue-dark);margin-right:6px}
+.sa-ptitle{font-weight:800;margin:0 0 6px}
+.sa-goalrow{margin:2px 0 14px}
+.sa-gtxt{color:var(--ink-soft);font-weight:700;font-size:.95rem;white-space:nowrap}
+.sa-goald{color:var(--ink-soft);font-weight:700;margin:2px 0 10px;font-size:.95rem}
+.sa-goald .sa-m{color:var(--ink)}
+.sa-ladder{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.sa-lrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sa-inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.sa-inline .sa-txt{font-weight:700}
+.sa-lstat{font-weight:800;font-size:1.05rem;white-space:nowrap}
+.sa-lstat.blue{color:var(--blue-dark)}
+.sa-leq{min-width:78px;text-align:right}
+.sa-lnote{margin-left:auto;color:var(--ink-soft);font-style:italic;font-size:.84rem;font-weight:600;text-align:right}
+@media (max-width:640px){ .sa-lnote{flex-basis:100%;margin-left:88px;text-align:left} }
+math-field.sa-mf{min-width:92px;font-size:1.08rem}
+math-field.sa-mf-w{flex:1 1 240px;min-width:220px;max-width:430px}
+math-field.sa-mf-sm{min-width:88px;max-width:150px}
+.sa-vfrac{display:inline-flex;flex-direction:column;align-items:center;gap:3px;vertical-align:middle}
+.sa-vfrac .bar{height:2px;background:var(--ink);width:100%;border-radius:2px;min-width:60px}
+.sa-vfrac .den{font-weight:800}
+.sa-pstretch{align-self:stretch;position:relative;width:11px;flex:none;color:var(--ink);min-height:1.6em}
+.sa-pstretch svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sa-pgrp{display:inline-flex;align-items:center;gap:10px}
 .su-q .su-eq{font-weight:800;}
 .su-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.86em;line-height:1.2;margin:0 3px;}
 .su-frac .fb{align-self:stretch;height:1.8px;background:currentColor;border-radius:1px;margin:1px 0;}
@@ -1339,6 +1381,54 @@ math-field.su-mf-f{flex:1 1 250px;min-width:220px;font-size:1.12rem;}
     </div>
   </section>
 
+  <!-- 6.2 SUITES — SUITE AUXILIAIRE GÉOMÉTRIQUE -->
+  <section class="screen" id="scr-sa">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="saModeTag"></span><span class="q-idx" id="saQIdx">Question 1 / 2</span></span>
+      <span class="score-tag">Score&nbsp;<b id="saLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="saPrompt"></p>
+      <p class="sa-aux" id="saAux"></p>
+
+      <div class="sa-jetons">
+        <span class="sa-jlab">Insérer&nbsp;:</span>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="saInsert('U_{n+1}')"><i>U</i><sub><i>n</i>+1</sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="saInsert('U_n')"><i>U</i><sub><i>n</i></sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="saInsert('U_0')"><i>U</i><sub>0</sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="saInsert('V_n')"><i>V</i><sub><i>n</i></sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="saInsert('V_0')"><i>V</i><sub>0</sub></button>
+        <button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="saInsert('n')"><i>n</i></button>
+        <span class="sa-jsp"></span>
+        <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="saKB()" title="Clavier mathématique à l'écran" aria-label="Afficher ou masquer le clavier mathématique">⌨️</button>
+        <button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="saMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">☰</button>
+      </div>
+
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">a)</span> <span id="saTitreA"></span></p>
+        <div class="sa-lrow sa-goalrow" id="saGoalA"></div>
+        <div class="sa-ladder" id="saLadderA"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">b)</span> Déterminer <i>V</i><sub>0</sub>.</p>
+        <div class="sa-ladder" id="saLadderB"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">c)</span> En déduire <i>V<sub>n</sub></i> en fonction de <i>n</i>.</p>
+        <div class="sa-inline" id="saRowC1"></div>
+        <div class="sa-inline" id="saRowC2"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">d)</span> En déduire <i>U<sub>n</sub></i> en fonction de <i>V<sub>n</sub></i>, puis de <i>n</i>.</p>
+        <p class="sa-goald" id="saGoalD"></p>
+        <div class="sa-ladder" id="saLadderD"></div>
+      </div>
+
+      <div class="mp-feedback" id="saFeedback"></div>
+      <div class="mp-actions" id="saActions"></div>
+    </div>
+  </section>
+
   <!-- RÉSULTATS -->
   <section class="screen" id="scr-results">
     <div class="card">
@@ -1582,7 +1672,8 @@ const TESTS={
   'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
-  'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() }
+  'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
+  'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
@@ -1595,7 +1686,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1727,7 +1818,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-dexp','scr-lr'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-dexp','scr-lr'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -1836,6 +1927,7 @@ function dexpFeuilleCtx(blocs){
 function conseilCourant(){
   let c;
   if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
+  else if(test && test.kind==='sa' && test.questions && test.questions[test.idx]){ c=saConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -2293,7 +2385,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], lr:['lr',renderLR] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], lr:['lr',renderLR] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -2314,7 +2406,7 @@ function show(name){
   fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','lr'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','lr'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -7465,7 +7557,18 @@ const RAP_SUITES=
 +'<li>de premier terme <i>U</i><sub>0</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup></li>'
 +'<li>de premier terme <i>U</i><sub>1</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>1</sub> \u00d7 <i>q</i><sup><i>n</i>\u22121</sup></li>'
 +'<li>de premier terme <i>U</i><sub>2</sub> : &nbsp;<i>U</i><sub><i>n</i></sub> = <i>U</i><sub>2</sub> \u00d7 <i>q</i><sup><i>n</i>\u22122</sup></li></ul></div>';
-const RAPPELS={ su:RAP_SUITES };
+const RAP_SA=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 suite auxiliaire g\u00e9om\u00e9trique</h4>'
++'<p>On part d\u2019une suite (<i>U<sub>n</sub></i>) d\u00e9finie par <b><i>U</i><sub><i>n</i>+1</sub> = <i>a</i>\u2009<i>U<sub>n</sub></i> + <i>b</i></b> (ni arithm\u00e9tique, ni g\u00e9om\u00e9trique) et d\u2019une <b>suite auxiliaire</b> (<i>V<sub>n</sub></i>) donn\u00e9e par l\u2019\u00e9nonc\u00e9.</p>'
++'<div class="rap-t">D\u00e9montrer que (V<sub>n</sub>) est g\u00e9om\u00e9trique</div>'
++'<p>1. Exprimer <i>V</i><sub><i>n</i>+1</sub> avec la d\u00e9finition de <i>V<sub>n</sub></i>, o\u00f9 l\u2019on remplace <i>n</i> par <i>n</i>+1.</p>'
++'<p>2. Remplacer <i>U</i><sub><i>n</i>+1</sub> gr\u00e2ce \u00e0 la relation de r\u00e9currence, puis <b>r\u00e9duire</b>.</p>'
++'<p>3. <b>Factoriser par la raison</b> pour faire appara\u00eetre <i>V<sub>n</sub></i> : on obtient <i>V</i><sub><i>n</i>+1</sub> = <i>q</i>\u2009<i>V<sub>n</sub></i>.</p>'
++'<div class="rap-t">En d\u00e9duire V<sub>n</sub> puis U<sub>n</sub></div>'
++'<p><i>V</i><sub>0</sub> se calcule avec la d\u00e9finition de <i>V<sub>n</sub></i> et la valeur de <i>U</i><sub>0</sub>.</p>'
++'<p>Formule du cours : <b><i>V<sub>n</sub></i> = <i>V</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup></b>.</p>'
++'<p>Retour \u00e0 <i>U<sub>n</sub></i> : isoler <i>U<sub>n</sub></i> dans la d\u00e9finition de <i>V<sub>n</sub></i>, puis remplacer <i>V<sub>n</sub></i> par son expression en fonction de <i>n</i>.</p></div>';
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA };
 function rappelDispo(){ return !!(test && RAPPELS[test.kind]); }
 function rappelHTML(){ return (test && RAPPELS[test.kind]) || ''; }
 /* question de l'élève portant sur le cours (chip « Faire un rappel de cours pour cet exercice. ») */
@@ -7722,6 +7825,520 @@ function suConseilCtx(){
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
 
+
+/* ====================== TEST 6.2 : Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique ======================
+   Reprend la fiche \u00ab d\u00e9montrer qu'une suite auxiliaire est g\u00e9om\u00e9trique \u00bb : \u00e9chelle de calcul
+   guid\u00e9e en a) (avec fraction de factorisation et parenth\u00e8ses \u00e9tirables), V\u2080 en deux \u00e9tapes,
+   formule explicite de V\u2099, retour \u00e0 U\u2099. Saisie MathLive (clavier Terminale via mlDexp) ;
+   v\u00e9rification num\u00e9rique locale par \u00e9quivalence : toute \u00e9criture correcte est accept\u00e9e, et
+   U\u2099\u208a\u2081 (indice complet) est distingu\u00e9 de U\u2099 + 1. */
+/* SA-CORE-START */
+const SA=(function(){
+  /* --- LaTeX -> expression arithm\u00e9tique (variables internes : w=U(n+1), x=U(n), y=U(0), v=V(n), z=V(0), n) --- */
+  function convertFrac(s){
+    let out='', i=0;
+    while(i<s.length){
+      if(s.startsWith('\\frac',i)){
+        i+=5;
+        while(s[i]===' ') i++;
+        const A=readBrace(s,i); i=A.end;
+        while(s[i]===' ') i++;
+        const B=readBrace(s,i); i=B.end;
+        out+='(('+convertFrac(A.body)+')/('+convertFrac(B.body)+'))';
+      } else { out+=s[i]; i++; }
+    }
+    return out;
+  }
+  function readBrace(s,i){
+    if(s[i]!=='{') return {body:s[i]||'', end:i+1};
+    let depth=0, j=i, body='';
+    for(; j<s.length; j++){
+      const c=s[j];
+      if(c==='{'){ if(depth>0) body+=c; depth++; }
+      else if(c==='}'){ depth--; if(depth===0){ j++; break; } body+=c; }
+      else body+=c;
+    }
+    return {body, end:j};
+  }
+  function latexToArith(src){
+    let s=String(src==null?'':src);
+    s=s.replace(/U_\{\s*n\s*\+\s*1\s*\}/g,'w')
+       .replace(/U_\{\s*n\s*\}/g,'x')
+       .replace(/U_n(?![A-Za-z0-9])/g,'x')
+       .replace(/U_\{\s*0\s*\}/g,'y')
+       .replace(/U_0(?![A-Za-z0-9])/g,'y')
+       .replace(/V_\{\s*n\s*\}/g,'v')
+       .replace(/V_n(?![A-Za-z0-9])/g,'v')
+       .replace(/V_\{\s*0\s*\}/g,'z')
+       .replace(/V_0(?![A-Za-z0-9])/g,'z');
+    s=s.replace(/\\cdot|\\times|\\ast/g,'*');
+    s=s.replace(/\\left/g,'').replace(/\\right/g,'');
+    s=convertFrac(s);
+    s=s.replace(/\^\{([^{}]*)\}/g,'^($1)');
+    s=s.replace(/\^([A-Za-z0-9])/g,'^($1)');
+    s=s.replace(/\{,\}/g,'.').replace(/(\d)\s*,\s*(\d)/g,'$1.$2');
+    s=s.replace(/\u2212/g,'-');
+    s=s.replace(/[{]/g,'(').replace(/[}]/g,')');
+    s=s.replace(/\\[A-Za-z]+/g,'').replace(/\\[,;!:> ]/g,'').replace(/~/g,'').replace(/\s+/g,'');
+    return s;
+  }
+  function parseExpr(str){
+    let i=0;
+    const s=str;
+    const peek=()=>s[i];
+    const eof=()=>i>=s.length;
+    function isDigit(c){ return c>='0'&&c<='9'; }
+    function isAlpha(c){ return c==='x'||c==='v'||c==='w'||c==='z'||c==='y'||c==='n'; }
+    function number(){
+      let j=i;
+      while(!eof()&&(isDigit(peek())||peek()==='.')) i++;
+      const t=s.slice(j,i);
+      if(t===''||t==='.') throw new Error('nombre invalide');
+      return {t:'num', v:parseFloat(t)};
+    }
+    function base(){
+      let c=peek();
+      if(c==='+' ){ i++; return base(); }
+      if(c==='-' ){ i++; return {t:'neg', a:base()}; }
+      if(c==='('){ i++; const e=expr(); if(peek()!==')') throw new Error('parenthese'); i++; return e; }
+      if(isDigit(c)||c==='.') return number();
+      if(isAlpha(c)){ i++; return {t:'var', name:c}; }
+      throw new Error('symbole inattendu: '+c);
+    }
+    function power(){
+      let b=base();
+      if(peek()==='^'){ i++; const e=power(); return {t:'pow', a:b, b:e}; }
+      return b;
+    }
+    function startsFactor(){
+      const c=peek();
+      return c==='('||isDigit(c)||c==='.'||isAlpha(c);
+    }
+    function term(){
+      let node=power();
+      for(;;){
+        const c=peek();
+        if(c==='*'){ i++; node={t:'mul',a:node,b:power()}; }
+        else if(c==='/'){ i++; node={t:'div',a:node,b:power()}; }
+        else if(!eof()&&startsFactor()){ node={t:'mul',a:node,b:power()}; }
+        else break;
+      }
+      return node;
+    }
+    function expr(){
+      let node=term();
+      for(;;){
+        const c=peek();
+        if(c==='+'){ i++; node={t:'add',a:node,b:term()}; }
+        else if(c==='-'){ i++; node={t:'sub',a:node,b:term()}; }
+        else break;
+      }
+      return node;
+    }
+    const ast=expr();
+    if(!eof()) throw new Error('reste: '+s.slice(i));
+    return ast;
+  }
+  function usedVars(ast, set){
+    set=set||new Set();
+    if(!ast) return set;
+    if(ast.t==='var') set.add(ast.name);
+    ['a','b'].forEach(k=>{ if(ast[k]) usedVars(ast[k],set); });
+    return set;
+  }
+  function evalAst(ast, env){
+    switch(ast.t){
+      case 'num': return ast.v;
+      case 'var': return env[ast.name];
+      case 'neg': return -evalAst(ast.a,env);
+      case 'add': return evalAst(ast.a,env)+evalAst(ast.b,env);
+      case 'sub': return evalAst(ast.a,env)-evalAst(ast.b,env);
+      case 'mul': return evalAst(ast.a,env)*evalAst(ast.b,env);
+      case 'div': return evalAst(ast.a,env)/evalAst(ast.b,env);
+      case 'pow': return Math.pow(evalAst(ast.a,env),evalAst(ast.b,env));
+    }
+    throw new Error('noeud inconnu');
+  }
+  function compile(latex){
+    const a=latexToArith(latex);
+    if(a==='') return null;
+    if(!/^[0-9xvwzyn+\-*/().^]+$/.test(a)) return null;
+    try{ const ast=parseExpr(a); return {ast, vars:usedVars(ast), arith:a}; }
+    catch(e){ return null; }
+  }
+  const EPS=(t)=>1e-6*(1+Math.abs(t));
+  function checkFn(latex, refFn, envs, allow){
+    const c=compile(latex); if(!c) return false;
+    for(const v of c.vars){ if(!allow.includes(v)) return false; }
+    for(const env of envs){
+      let val; try{ val=evalAst(c.ast,env); }catch(e){ return false; }
+      if(typeof val!=='number'||!isFinite(val)) return false;
+      const t=refFn(env);
+      if(Math.abs(val-t)>EPS(t)) return false;
+    }
+    return true;
+  }
+  function checkConst(latex, target){
+    const c=compile(latex); if(!c) return false;
+    if(c.vars.size>0) return false;
+    let val; try{ val=evalAst(c.ast,{}); }catch(e){ return false; }
+    return typeof val==='number'&&isFinite(val)&&Math.abs(val-target)<=EPS(target);
+  }
+  const XS=[1.37,2.71,-0.9,3.5,0.13];
+  const WS=[0.7,-1.3,2.2,4.1,-3.6];
+  const VSET=[1.1,-2.4,3.3,0.5,-0.7];
+  const NS=[0,1,2,3,5,8];
+  const envsXW=()=>XS.map((x,i)=>({x, w:WS[i]}));
+  const envsX=()=>XS.map(x=>({x}));
+  const envsV=()=>VSET.map(v=>({v}));
+  const envsY=()=>XS.map(y=>({y}));
+  const envsN=()=>NS.map(n=>({n}));
+  /* --- nombres --- */
+  function saRand(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function saPick(arr){ return arr[saRand(0,arr.length-1)]; }
+  function r6(x){ return Math.round(x*1e6)/1e6; }
+  function numStr(x){
+    let v=r6(x), s=String(v);
+    if(s.includes('e')) s=v.toFixed(6);
+    if(s.includes('.')) s=s.replace(/0+$/,'').replace(/\.$/,'');
+    return s.replace('.',',');
+  }
+  function fmtH(x){
+    let s=numStr(x), neg=s.startsWith('-');
+    if(neg) s=s.slice(1);
+    let parts=s.split(','), int=parts[0], dec=parts[1];
+    if(int.length>=5) int=int.replace(/\B(?=(\d{3})+(?!\d))/g,'\u202F');
+    return (neg?'\u2212':'')+int+(dec?','+dec:'');
+  }
+  function lx(x){ return numStr(x).replace(',','{,}'); }
+  function sgnH(x){ return (x<0?' \u2212 ':' + ')+fmtH(Math.abs(x)); }
+  function sgnLx(x){ return (x<0?'-':'+')+lx(Math.abs(x)); }
+  /* --- g\u00e9n\u00e9ration : U(n+1)=a\u00b7U(n)+b, V(n)=U(n)+k avec k=b/(a\u22121) donc b=k(a\u22121) --- */
+  function mk(a,k,u0){
+    const b=r6(k*(a-1));
+    return { a, b, k, u0, bk:r6(b+k), V0:r6(u0+k) };
+  }
+  function genInt(){
+    const a=saPick([2,3,4,5]);
+    let k=saPick([-5,-4,-3,-2,-1,1,2,3,4,5]);
+    let u0=saRand(1,9);
+    if(u0+k===0) u0++;
+    return mk(a,k,u0);
+  }
+  const POOL_QUART=[[4,-0.25,10000],[4,0.25,1],[2,-0.5,3],[2,0.5,1],[5,-0.25,2]];
+  const POOL_MODEL=[[0.5,8,1],[0.5,16,2],[0.5,2000,500],[0.95,4000,10000],[0.95,2000,12000],[0.9,2500,10000],[0.9,1500,8000],[0.8,500,2000],[0.75,400,1000]];
+  function genSession(){
+    /* 2 questions : un cas \u00e0 raison enti\u00e8re, puis un cas quart/demi ou un mod\u00e8le type 0,95U\u2099+200 */
+    const second = (saRand(1,3)===1)
+      ? (function(){ const p=saPick(POOL_QUART); return mk(p[0],p[1],p[2]); })()
+      : (function(){ const p=saPick(POOL_MODEL); return mk(p[0],-p[1],p[2]); })();
+    return [ genInt(), second ];
+  }
+  /* --- solutions LaTeX (index\u00e9es par id DOM) --- */
+  function sols(q){
+    const aPow=(Number.isInteger(q.a)&&q.a>0) ? lx(q.a) : '\\left('+lx(q.a)+'\\right)';
+    const c2=lx(q.V0)+'\\times '+aPow+'^{n}';
+    return {
+      'sa-r0': lx(q.a),
+      'sa-f1': 'U_{n+1}'+sgnLx(q.k),
+      'sa-f2': lx(q.a)+'U_n'+sgnLx(q.b)+sgnLx(q.k),
+      'sa-f3': lx(q.a)+'U_n'+sgnLx(q.bk),
+      'sa-f4': lx(q.bk),
+      'sa-f5': lx(q.k),
+      'sa-b1a': 'U_0'+sgnLx(q.k),
+      'sa-b1b': lx(q.V0),
+      'sa-c1': lx(q.a),
+      'sa-c2': c2,
+      'sa-d1': 'V_n'+sgnLx(-q.k),
+      'sa-d2': c2+sgnLx(-q.k)
+    };
+  }
+  /* --- validateurs (index\u00e9s par id DOM ; sa-ctype g\u00e9r\u00e9 \u00e0 part) --- */
+  function validators(q){
+    return {
+      'sa-r0': raw=>checkConst(raw,q.a),
+      'sa-f1': raw=>checkFn(raw, e=>e.w+q.k, envsXW(), ['w']),
+      'sa-f2': raw=>checkFn(raw, e=>q.a*e.x+q.bk, envsX(), ['x']),
+      'sa-f3': raw=>checkFn(raw, e=>q.a*e.x+q.bk, envsX(), ['x']),
+      'sa-f4': raw=>checkConst(raw,q.bk),
+      'sa-f5': raw=>checkConst(raw,q.k),
+      'sa-b1a': raw=>checkFn(raw, e=>e.y+q.k, envsY(), ['y']),
+      'sa-b1b': raw=>checkConst(raw,q.V0),
+      'sa-c1': raw=>checkConst(raw,q.a),
+      'sa-c2': raw=>checkFn(raw, e=>q.V0*Math.pow(q.a,e.n), envsN(), ['n']),
+      'sa-d1': raw=>checkFn(raw, e=>e.v-q.k, envsV(), ['v']),
+      'sa-d2': raw=>checkFn(raw, e=>q.V0*Math.pow(q.a,e.n)-q.k, envsN(), ['n'])
+    };
+  }
+  return { genSession, sols, validators, fmtH, numStr, sgnH, lx,
+           _t:{ latexToArith, parseExpr, evalAst, compile, checkFn, checkConst,
+                envsXW, envsX, envsV, envsY, envsN, mk } };
+})();
+/* SA-CORE-END */
+const SA_ORDER=['sa-r0','sa-f1','sa-f2','sa-f3','sa-f4','sa-f5','sa-b1a','sa-b1b','sa-ctype','sa-c1','sa-c2','sa-d1','sa-d2'];
+const saUH=s=>'<i>U</i><sub>'+s+'</sub>', saVH=s=>'<i>V</i><sub>'+s+'</sub>';
+const SA_UN=saUH('<i>n</i>'), SA_UN1=saUH('<i>n</i>+1'), SA_VN=saVH('<i>n</i>'), SA_VN1=saVH('<i>n</i>+1'), SA_V0=saVH('0');
+let saLastMF=null;
+function saStat(html,cls){ const s=document.createElement('span'); s.className='sa-lstat'+(cls?' '+cls:''); s.innerHTML=html; return s; }
+function saNote(txt){ const s=document.createElement('span'); s.className='sa-lnote'; s.innerHTML=txt; return s; }
+function saRow(){ const d=document.createElement('div'); d.className='sa-lrow'; return d; }
+function saParen(close){   /* parenth\u00e8se \u00e9tirable : suit la hauteur de la ligne (fraction comprise) */
+  const s=document.createElement('span'); s.className='sa-pstretch'; s.setAttribute('aria-hidden','true');
+  s.innerHTML='<svg viewBox="0 0 10 100" preserveAspectRatio="none"><path d="'
+    +(close?'M1.5 2 Q8.5 50 1.5 98':'M8.5 2 Q1.5 50 8.5 98')
+    +'" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg>';
+  return s;
+}
+function saMF(id, wide){
+  const el=document.createElement('math-field');
+  el.className='dexp-mf sa-mf'+(wide==='w'?' sa-mf-w':wide==='sm'?' sa-mf-sm':'');
+  el.id=id;
+  el.setAttribute('aria-label','r\u00e9ponse');
+  el.addEventListener('focusin',()=>{ saLastMF=el; });
+  el.addEventListener('focusout',()=>saLiveCheck(id));
+  return el;
+}
+function saRawId(id){
+  const el=$(id); if(!el) return '';
+  if(id==='sa-ctype') return el.value||'';
+  try{ return String(el.getValue?el.getValue():el.value||'').trim(); }catch(e){ return ''; }
+}
+function saOk(id){
+  const q=test.questions[test.idx];
+  if(id==='sa-ctype') return saRawId(id)==='geo';
+  return SA.validators(q)[id](saRawId(id));
+}
+function saActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD') return a;
+  if(saLastMF && document.contains(saLastMF)) return saLastMF;
+  return document.querySelector('#scr-sa math-field.sa-mf');
+}
+function saInsert(lxTok){
+  let t=document.activeElement;
+  if(!t || t.tagName!=='MATH-FIELD') t=saActiveMF();
+  if(!t || t.readOnly) return;
+  try{ t.executeCommand(['insert', lxTok]); t.focus(); }catch(e){}
+}
+function saKB(){
+  const vk=window.mathVirtualKeyboard;
+  if(!vk) return;
+  if(vk.visible){
+    vk.hide();
+    const ae=document.activeElement;
+    if(ae && ae.tagName==='MATH-FIELD') ae.blur();
+    return;
+  }
+  const t=saActiveMF();
+  if(t && !t.readOnly){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function saMenu(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;   /* ordinateur : fenetre des raccourcis clavier ; tactile : menu du champ ci-dessous */
+  const t=saActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+  try{
+    const r=t.getBoundingClientRect();
+    t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
+      clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
+  }catch(e){}
+}
+async function startSA(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-auxiliaire'; test.kind='sa';
+  test.questions=SA.genSession();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('sa'); renderSA();
+}
+function renderSA(){
+  const q=test.questions[test.idx]; test.locked=false;
+  saLastMF=null;
+  $('saQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('saModeTag').innerHTML=modeTagHTML();
+  $('saLiveScore').textContent=test.score;
+  $('saFeedback').textContent=''; $('saFeedback').className='mp-feedback';
+  $('saActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSA()">V\u00e9rifier</button>';
+  const F=SA.fmtH;
+  const recur=F(q.a)+'\u202F'+SA_UN+SA.sgnH(q.b);
+  $('saPrompt').innerHTML='Soit <b>('+SA_UN+')</b> la suite d\u00e9finie par&nbsp;: <b>'+saUH('0')+' = '+F(q.u0)+'</b> et, pour tout entier naturel <i>n</i>, <b>'+SA_UN1+' = '+recur+'</b>.';
+  $('saAux').innerHTML='On consid\u00e8re la <b>suite auxiliaire ('+SA_VN+')</b> d\u00e9finie par&nbsp;: <b>'+SA_VN+' = '+SA_UN+SA.sgnH(q.k)+'</b>.';
+  $('saTitreA').innerHTML='Montrer que la suite ('+SA_VN+') est <b>g\u00e9om\u00e9trique de raison '+F(q.a)+'</b>.';
+  /* a) \u00ab On doit montrer que : V\u2099\u208a\u2081 = \u25a1 \u00d7 V\u2099 \u00bb sur une seule ligne */
+  const G=$('saGoalA'); G.innerHTML='';
+  const gt=document.createElement('span'); gt.className='sa-gtxt';
+  gt.innerHTML='On doit montrer que&nbsp;:'; G.appendChild(gt);
+  G.appendChild(saStat(SA_VN1+' ='));
+  G.appendChild(saMF('sa-r0','sm'));
+  G.appendChild(saStat('\u00d7 '+SA_VN));
+  G.appendChild(saNote('la raison attendue'));
+  /* a) l'\u00e9chelle de calcul \u2014 tous les \u00ab = \u00bb align\u00e9s (colonne sa-leq) */
+  const L=$('saLadderA'); L.innerHTML='';
+  const r1=saRow(); r1.appendChild(saStat(SA_VN1+' =','sa-leq'));
+  r1.appendChild(saMF('sa-f1','w'));
+  r1.appendChild(saNote('exprimer en fonction de '+SA_UN1));
+  L.appendChild(r1);
+  const r2=saRow(); r2.appendChild(saStat('=','sa-leq'));
+  r2.appendChild(saMF('sa-f2','w'));
+  r2.appendChild(saNote('exprimer en fonction de '+SA_UN+' (relation de r\u00e9currence)'));
+  L.appendChild(r2);
+  const r3=saRow(); r3.appendChild(saStat('=','sa-leq'));
+  r3.appendChild(saMF('sa-f3','w'));
+  r3.appendChild(saNote('r\u00e9duire l\u2019expression'));
+  L.appendChild(r3);
+  const r4=saRow(); r4.appendChild(saStat('=','sa-leq'));
+  r4.appendChild(saStat(F(q.a)));
+  const grp=document.createElement('span'); grp.className='sa-pgrp';
+  grp.appendChild(saParen(false));
+  grp.appendChild(saStat(SA_UN+' +'));
+  const fr=document.createElement('span'); fr.className='sa-vfrac';
+  fr.appendChild(saMF('sa-f4','sm'));
+  const bar=document.createElement('span'); bar.className='bar'; fr.appendChild(bar);
+  const den=document.createElement('span'); den.className='den'; den.innerHTML=F(q.a); fr.appendChild(den);
+  grp.appendChild(fr);
+  grp.appendChild(saParen(true));
+  r4.appendChild(grp);
+  r4.appendChild(saNote('factoriser par '+F(q.a)));
+  L.appendChild(r4);
+  const r5=saRow(); r5.appendChild(saStat('=','sa-leq'));
+  r5.appendChild(saStat(F(q.a)));
+  const grp5=document.createElement('span'); grp5.className='sa-pgrp';
+  grp5.appendChild(saParen(false));
+  grp5.appendChild(saStat(SA_UN+' +'));
+  grp5.appendChild(saMF('sa-f5','sm'));
+  grp5.appendChild(saParen(true));
+  r5.appendChild(grp5);
+  r5.appendChild(saNote('simplifier la fraction'));
+  L.appendChild(r5);
+  const r6=saRow(); r6.appendChild(saStat('=','sa-leq'));
+  r6.appendChild(saStat(F(q.a)+'\u00a0'+SA_VN,'blue'));
+  r6.appendChild(saNote('c\u2019est la forme attendue&nbsp;: ('+SA_VN+') est g\u00e9om\u00e9trique de raison '+F(q.a)));
+  L.appendChild(r6);
+  /* b) deux \u00e9tapes : expression avec U\u2080, puis calcul effectif */
+  const B=$('saLadderB'); B.innerHTML='';
+  const rb1=saRow(); rb1.appendChild(saStat(SA_V0+' =','sa-leq'));
+  rb1.appendChild(saMF('sa-b1a','w'));
+  rb1.appendChild(saNote('exprimer en fonction de '+saUH('0')));
+  B.appendChild(rb1);
+  const rb2=saRow(); rb2.appendChild(saStat('=','sa-leq'));
+  rb2.appendChild(saMF('sa-b1b','sm'));
+  rb2.appendChild(saNote('calculer la valeur de '+SA_V0));
+  B.appendChild(rb2);
+  /* c) */
+  const C1=$('saRowC1'); C1.innerHTML='';
+  const t1=document.createElement('span'); t1.className='sa-txt';
+  t1.innerHTML='Comme ('+SA_VN+') est&nbsp;'; C1.appendChild(t1);
+  const sel=document.createElement('select'); sel.className='tvi-sel'; sel.id='sa-ctype';
+  sel.innerHTML='<option value="">\u2026</option><option value="arith">arithm\u00e9tique</option><option value="geo">g\u00e9om\u00e9trique</option>';
+  sel.addEventListener('change',()=>{
+    if(!isSoutien()||test.locked) return;
+    sel.classList.remove('ok','bad');
+    if(sel.value!=='') sel.classList.add(sel.value==='geo'?'ok':'bad');
+  });
+  C1.appendChild(sel);
+  const t2=document.createElement('span'); t2.className='sa-txt'; t2.innerHTML='&nbsp;de raison&nbsp;'; C1.appendChild(t2);
+  C1.appendChild(saMF('sa-c1','sm'));
+  const t3=document.createElement('span'); t3.className='sa-txt'; t3.innerHTML='&nbsp;:'; C1.appendChild(t3);
+  const C2=$('saRowC2'); C2.innerHTML='';
+  C2.appendChild(saStat(SA_VN+' = '+SA_V0+' \u00d7 <i>q</i><sup><i>n</i></sup> ='));
+  C2.appendChild(saMF('sa-c2','w'));
+  C2.appendChild(saNote('remplacer '+SA_V0+' et q par leurs valeurs'));
+  /* d) */
+  $('saGoalD').innerHTML='Comme <span class="sa-m">'+SA_VN+' = '+SA_UN+SA.sgnH(q.k)+'</span>, on a&nbsp;:';
+  const D=$('saLadderD'); D.innerHTML='';
+  const d1=saRow(); d1.appendChild(saStat(SA_UN+' =','sa-leq'));
+  d1.appendChild(saMF('sa-d1','w'));
+  d1.appendChild(saNote('exprimer en fonction de '+SA_VN));
+  D.appendChild(d1);
+  const d2=saRow(); d2.appendChild(saStat('=','sa-leq'));
+  d2.appendChild(saMF('sa-d2','w'));
+  d2.appendChild(saNote('exprimer en fonction de <i>n</i>'));
+  D.appendChild(d2);
+  if(window.mlDexp) window.mlDexp.upgrade($('scr-sa'));   /* clavier Terminale + correctifs, comme en 2.1 et 3.5 */
+}
+function checkSA(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], fb=$('saFeedback');
+  let empty=0;
+  SA_ORDER.forEach(id=>{ if(saRawId(id)==='') empty++; });
+  if(empty===SA_ORDER.length){
+    fb.textContent='Compl\u00e8te au moins une case avant de v\u00e9rifier.'; fb.className='mp-feedback'; return;
+  }
+  const v={}; let allOk=true;
+  SA_ORDER.forEach(id=>{ v[id]=saOk(id); if(!v[id]) allOk=false; });
+  const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
+  SA_ORDER.forEach(id=>{ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad','sol'); el.classList.add(v[id]?'ok':'bad');
+    setEdit(el, !v[id] && isSoutien()); });
+  if(!allOk && isSoutien()){
+    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.className='mp-feedback bad';
+    $('saActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSA()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('saLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Excellent !','Tr\u00e8s bien, d\u00e9monstration compl\u00e8te !','Bravo !']);
+    fb.className='mp-feedback good';
+  } else {
+    const F=SA.fmtH;
+    fb.innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses ont \u00e9t\u00e9 inscrites en vert.<br>'
+      +'M\u00e9thode : partir de '+SA_VN1+' = '+SA_UN1+SA.sgnH(q.k)+', remplacer '+SA_UN1+' par '+F(q.a)+'\u202F'+SA_UN+SA.sgnH(q.b)+', r\u00e9duire, puis factoriser par '+F(q.a)+' pour retrouver '+F(q.a)+'\u00a0'+SA_VN+'.<br>'
+      +'Ensuite '+SA_V0+' se calcule avec '+saUH('0')+', la formule du cours donne '+SA_VN+' = '+SA_V0+' \u00d7 q\u207f, et on isole '+SA_UN+' dans la d\u00e9finition de '+SA_VN+'.';
+    fb.className='mp-feedback bad';
+    const sel=$('sa-ctype');
+    if(sel){ if(!v['sa-ctype']){ sel.value='geo'; sel.classList.remove('bad'); sel.classList.add('ok'); } sel.disabled=true; }
+    const sols=SA.sols(q);
+    SA_ORDER.forEach(id=>{
+      if(id==='sa-ctype') return;
+      const el=$(id); if(!el) return;
+      if(!v[id]){
+        try{ if(el.setValue) el.setValue(sols[id]); }catch(e){}
+        el.classList.remove('bad'); el.classList.add('ok');
+      }
+      try{ el.readOnly=true; }catch(e){}
+    });
+  }
+  test.answers.push({q:'U(n+1) = '+SA.numStr(q.a)+'\u00b7U(n) '+(q.b<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.b))+' avec U0 = '+SA.numStr(q.u0)+' ; V(n) = U(n) '+(q.k<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.k))+' \u2014 (Vn) g\u00e9om\u00e9trique de raison '+SA.numStr(q.a)+', V0 = '+SA.numStr(q.V0)+', V(n) = '+SA.numStr(q.V0)+'\u00d7('+SA.numStr(q.a)+')^n, U(n) = '+SA.numStr(q.V0)+'\u00d7('+SA.numStr(q.a)+')^n '+(-q.k<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.k)), answer:'d\u00e9monstration suite auxiliaire', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('saActions').innerHTML='<button class="btn btn-primary" onclick="nextSA()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+/* Mode soutien : coloration verte/rouge quand l'\u00e9l\u00e8ve quitte un champ (comme en 2.1 et 6.1). */
+function saLiveCheck(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el || el.classList.contains('sol')) return;
+    if(document.activeElement===el) return;
+    el.classList.remove('ok','bad');
+    if(saRawId(id)!=='') el.classList.add(saOk(id)?'ok':'bad');
+  },0);
+}
+function nextSA(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA(); } else finishTest(); }
+/* \u00c9tat des cases, en clair, pour le conseil de l'IA */
+function saLu(id){
+  if(id==='sa-ctype'){ const el=$(id); const v=String((el&&el.value)||''); return v===''?'(vide)':(v==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique'); }
+  const s=dexpCellCtx(id);
+  return s===null?'(vide)':s;
+}
+function saConseilCtx(){
+  const q=test.questions[test.idx], N=SA.numStr;
+  const sg=(x)=>(x<0?'- ':'+ ')+N(Math.abs(x));
+  const rec='U(n+1) = '+N(q.a)+'\u00b7U(n) '+sg(q.b)+', U0 = '+N(q.u0)+', V(n) = U(n) '+sg(q.k);
+  const labels=[['a) raison attendue (V(n+1) = \u2026 V(n))','sa-r0'],['a) ligne 1 (en fonction de U(n+1))','sa-f1'],['a) ligne 2 (en fonction de U(n))','sa-f2'],['a) ligne 3 (r\u00e9duite)','sa-f3'],['a) num\u00e9rateur de la factorisation','sa-f4'],['a) terme simplifi\u00e9 dans la parenth\u00e8se','sa-f5'],['b) V0 en fonction de U0','sa-b1a'],['b) valeur de V0','sa-b1b'],['c) type de suite','sa-ctype'],['c) raison','sa-c1'],['c) V(n) en fonction de n','sa-c2'],['d) U(n) en fonction de V(n)','sa-d1'],['d) U(n) en fonction de n','sa-d2']];
+  const etat=labels.map(p=>p[0]+' : '+saLu(p[1])).join(' ; ');
+  return 'Exercice sur les SUITES AUXILIAIRES. \u00c9nonc\u00e9 : '+rec+'. '
+   +'Structure (fiche \u00e0 trous, chaque case est un champ math\u00e9matique) : a) d\u00e9montrer que (V(n)) est g\u00e9om\u00e9trique de raison '+N(q.a)+' \u2014 \u00e9chelle de calcul V(n+1) exprim\u00e9 en fonction de U(n+1), puis en fonction de U(n) via la r\u00e9currence, puis forme r\u00e9duite, puis factorisation par '+N(q.a)+' (num\u00e9rateur de la fraction sur '+N(q.a)+', puis terme simplifi\u00e9) ; b) V0 en deux \u00e9tapes (expression avec U0, puis valeur) ; c) type + raison + formule V(n) = V0 \u00d7 q^n en nombres ; d) U(n) en fonction de V(n), puis de n. Toute \u00e9criture correcte \u00e9quivalente est accept\u00e9e ; l\u2019indice complet U(n+1) est distingu\u00e9 de U(n)+1 (jetons d\u2019insertion disponibles au-dessus de l\u2019exercice). '
+   +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler (ni valeurs ni formules) : V(n+1) = U(n+1) '+sg(q.k)+' = '+N(q.a)+'\u00b7U(n) '+sg(q.b)+' '+sg(q.k)+' = '+N(q.a)+'\u00b7U(n) '+sg(q.bk)+' = '+N(q.a)+'(U(n) + ('+N(q.bk)+')/'+N(q.a)+') = '+N(q.a)+'(U(n) '+sg(q.k)+') = '+N(q.a)+'\u00b7V(n) ; V0 = U0 '+sg(q.k)+' = '+N(q.V0)+' ; V(n) = '+N(q.V0)+' \u00d7 ('+N(q.a)+')^n ; U(n) = V(n) '+sg(-q.k)+' = '+N(q.V0)+' \u00d7 ('+N(q.a)+')^n '+sg(-q.k)+'. '
+   +'Saisies actuelles de l\u2019\u00e9l\u00e8ve (\u00ab (vide) \u00bb = case non remplie) : '+etat+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne NI la raison, NI aucun nombre de cet exercice, NI aucune ligne toute faite. '
+   +'M\u00e9thode \u00e0 faire appliquer : \u00e9crire la d\u00e9finition de V(n) au rang n+1 ; remplacer U(n+1) par son expression donn\u00e9e dans l\u2019\u00e9nonc\u00e9 ; regrouper les nombres seuls ; factoriser par la raison (le num\u00e9rateur de la fraction est le nombre seul de la ligne pr\u00e9c\u00e9dente, et la fraction se simplifie en retombant sur le nombre de la d\u00e9finition de V(n)) ; pour b), \u00e9crire d\u2019abord la d\u00e9finition avec n = 0 AVANT de calculer ; pour c), appliquer V(n) = V0 \u00d7 q^n en rempla\u00e7ant par les valeurs trouv\u00e9es ; pour d), isoler U(n) dans la d\u00e9finition puis substituer. '
+   +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
+   +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
+}
 
 /* ---------- Professeur ---------- */
 function teacherLogin(){
@@ -8607,45 +9224,51 @@ try { MathfieldElement.locale = "fr"; } catch(e) {}
 try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/"; } catch(e) {}
 
 /* ---- clavier Terminale : / (fraction) e ln x π ---- */
-const KB_TERM = {
-  label: "Terminale",
-  layers: [
-    { id: "term-base", rows: [   /* couche classique */
-      [ {latex:"\\int",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"\\infty"},{latex:"\\longrightarrow"},
-        {label:"espace",width:2,key:" "},
-        {label:"sortir",class:"action",width:1.5,command:["performWithFeedback","moveAfterParent"]},
-        {label:"fn",class:"action",width:1,command:["switchKeyboardLayer","term-fn"]} ],
-      [ {latex:"7"},{latex:"8"},{latex:"9"},
-        {label:"/",insert:"\\frac{#@}{#?}"},
-        {latex:"e"},
-        {latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},
-        {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
-      [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},
-        {label:"xⁿ",command:["performWithFeedback","moveToSuperscript"]},
-        {label:"ln",insert:"\\ln\\left(#0\\right)"},
-        {label:"(", key:"("} ],
-      [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},
-        {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
-        {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
-        {label:")", key:")"} ],
-      [ {latex:"0",width:1.5},{latex:","},{latex:"x"},{latex:"\\pi"},{latex:"+"},
-        {label:"⏎", class:"action", width:1.5, command:["performWithFeedback","commit"]} ]
-    ]},
-    { id: "term-fn", rows: [   /* couche secondaire : fonctions, appartenance, indice, espace */
-      [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},
-        {latex:"\\in"},
-        {label:"xₙ",command:["performWithFeedback","moveToSubscript"]},
-        {label:"sortir",class:"action",width:1.5,command:["performWithFeedback","moveAfterParent"]} ],
-      [ {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},{label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},{label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"},
-        {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
-      [ {label:"123",class:"action",width:1.5,command:["switchKeyboardLayer","term-base"]},
-        {label:"espace",width:2,key:" "},
-        {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
-        {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
-        {label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
-    ]}
-  ]
-};
+/* ---- Clavier « Terminale » : construit dynamiquement selon l'exercice ----
+   1re ligne : touches variables contextuelles (fonctions -> f, x ; suites -> n, Uₙ, Vₙ)
+   puis ∞, → (tend vers) et « fn ». Opérateurs +, −, ×, / alignés en colonne.
+   π est sur la 2e couche. Plus de touche « sortir » : la barre d'espace sort
+   d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
+const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
+const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
+function buildKbTerm(vars){
+  const V = (vars && vars.length) ? vars : [];
+  return {
+    label: "Terminale",
+    layers: [
+      { id: "term-base", rows: [
+        V.concat([ {latex:"\\infty"},{latex:"\\longrightarrow"},{label:"fn",class:"action",command:["switchKeyboardLayer","term-fn"]} ]),
+        [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{latex:"e"},{latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
+        [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},{label:"ln",insert:"\\ln\\left(#0\\right)"},{label:"(",key:"("},{label:")",key:")"} ],
+        [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},KB_EXP,{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
+        [ {latex:"0"},{latex:","},{latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"+"},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+      ]},
+      { id: "term-fn", rows: [
+        [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},{latex:"\\pi"},{latex:"\\in"},KB_IDX ],
+        [ {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},{label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},{label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
+        [ {label:"123",class:"action",width:1.5,command:["switchKeyboardLayer","term-base"]},{label:"espace",width:2,key:" "},{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+      ]}
+    ]
+  };
+}
+/* Touches variables selon l'exercice courant. Fonctions -> f, x (défaut).
+   Suites -> n, Uₙ (, Vₙ). Table simple à étendre au besoin. */
+const KB_VN = {label:"Vₙ",insert:"V_n"}, KB_UN = {label:"Uₙ",insert:"U_n"}, KB_N = {latex:"n"};
+function kbVarsFor(id){
+  if(id === 'suite-auxiliaire') return [KB_N, KB_UN, KB_VN];
+  if(id === 'suite-explicite' || id === 'suites') return [KB_N, KB_UN];
+  return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
+}
+let __kbVarsKey = null;
+function applyKbLayout(){
+  const vk = window.mathVirtualKeyboard; if(!vk) return;
+  let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
+  const vars = kbVarsFor(id);
+  const key = JSON.stringify(vars.map(v => v.insert || v.latex || v.label));
+  if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
+  __kbVarsKey = key;
+  try { vk.layouts = [ buildKbTerm(vars) ]; } catch(e) {}
+}
 
 const FIELD_FIX_CSS =
   ".ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}" +
@@ -8867,7 +9490,7 @@ function setupKeyboard(){
   if(window.__mlKbSetup) return; window.__mlKbSetup = true;
   const vk = window.mathVirtualKeyboard;
   if(!vk) return;
-  try { vk.layouts = [KB_TERM]; } catch(e) {}
+  applyKbLayout();   /* couche selon l'exercice courant */
   if(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches){
     const win = document.createElement("div");
     win.id = "kbwin";
@@ -8977,8 +9600,10 @@ window.mlDexp = {
   tex(lx){ try{ return '<span class="ml-static">'+convertLatexToMarkup(lx)+'</span>'; }catch(e){ return null; } },
   upgrade(root){
     setupKeyboard();
+    applyKbLayout();
     (root || document).querySelectorAll("math-field.dexp-mf").forEach(configureField);
-  }
+  },
+  showShortcuts(){ if(!helpWin) return false; helpWin.classList.toggle("open"); return true; }
 };
 customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
 </script>
