@@ -1705,7 +1705,7 @@ function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) ret
 function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) return d.mode; return 'eval'; }
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
-function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
+function testName(id){ return (TESTS[id]&&TESTS[id].name) || ((typeof FRAC_INFO!=='undefined'&&FRAC_INFO[id])?('Fractions — '+FRAC_INFO[id].name):'Test'); }   /* garde : FRAC_INFO n'existe pas dans ce fichier (vestige) ; sans elle, un id inconnu jetait une ReferenceError */
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); else startDerivees(); }
@@ -1768,7 +1768,9 @@ function navCases(e){
       return;
     }
     const btn=boutonVerif();
-    if(btn){ e.preventDefault(); btn.click(); }
+    /* regle commune a tous les exercices (comme le 6.2) : on ARRIVE sur le bouton ;
+       c'est un second Entree (activation native) ou un clic qui lance la verification. */
+    if(btn){ e.preventDefault(); btn.focus(); }
     return;
   }
   if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
@@ -1872,8 +1874,8 @@ function ctxVisible(){
    (U V W n q r k x b…), jamais des mots francais (« il y a », « arrives-tu » restent du texte). */
 function iaMathAuto(s, maths){
   s=String(s==null?'':s);
-  const seed=/[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))/g;
-  const tokRe=/^(?:\d+(?:[.,]\d+)?|[=+\-\u2212\u00d7\u00b7*\/()]|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))?)/;
+  const seed=/\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))/g;
+  const tokRe=/^(?:\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|\\(?:times|cdot|div|pm|leq|geq|neq|le|ge|ne)(?![A-Za-z])|\\[,;!]|\d+(?:[.,]\d+)?|[=+\-\u2212\u00d7\u00b7\/()]|\*(?!\*)|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))?)/;
   const bareOK=/^[UVWNQRKXnqrkxb]$/;
   const lettre=c=>!!c && /[A-Za-z\u00c0-\u00ff]/.test(c);
   let m, out='', last=0;
@@ -1900,15 +1902,17 @@ function iaMathAuto(s, maths){
       const deb=p-best.length;
       if(/^[A-Za-z0-9({]/.test(best) && deb>0 && (lettre(s[deb-1])||s[deb-1]==="'"||s[deb-1]==='\u2019')) break;
       if(/^[A-Za-z]$/.test(best) && !bareOK.test(best)) break;
+      if(best==='*' && (s[p]==='*'||s[deb-1]==='*')) break;   /* '**' (gras Markdown) : frontiere, jamais dans une formule */
       a=deb;
     }
+    if(a>0 && s[a]==='\\' && /[A-Za-z]/.test(s[a-1]) && !/[A-Za-z\u00c0-\u00ff'\u2019]/.test(s[a-2]||'')) a--;   /* coefficient colle : a\,U_n */
     while(a<b && /[ =+\u00d7\u00b7*\/,)]/.test(s[a])) a++;                    /* nettoyage des bords */
     while(b>a && /[ =+\-\u2212\u00d7\u00b7*\/,(]/.test(s[b-1])) b--;
     let run=s.slice(a,b);
     const nb=(t,c)=>t.split(c).length-1;
     while(run && run[run.length-1]===')' && nb(run,')')>nb(run,'(')){ b--; run=s.slice(a,b); }
     while(run && run[0]==='(' && nb(run,'(')>nb(run,')')){ a++; run=s.slice(a,b); }
-    if(b-a<2 || !/[_^]/.test(run)){ seed.lastIndex=Math.max(seed.lastIndex,b); continue; }
+    if(b-a<2 || !/[_^]|\\(?:d?frac|sqrt)/.test(run)){ seed.lastIndex=Math.max(seed.lastIndex,b); continue; }
     out+=s.slice(last,a);
     const lx=run
       .replace(/_\(([^()\s]{1,14})\)/g,'_{$1}').replace(/\^\(([^()\s]{1,14})\)/g,'^{$1}')
@@ -1919,6 +1923,10 @@ function iaMathAuto(s, maths){
     last=b; seed.lastIndex=b;
   }
   out+=s.slice(last);
+  /* commandes LaTeX restees seules dans le texte (hors formule detectee) : converties en glyphes lisibles */
+  out=out.replace(/\\times(?![A-Za-z])/g,'\u00d7').replace(/\\cdot(?![A-Za-z])/g,'\u00b7').replace(/\\div(?![A-Za-z])/g,'\u00f7')
+         .replace(/\\pm(?![A-Za-z])/g,'\u00b1').replace(/\\leq?(?![A-Za-z])/g,'\u2264').replace(/\\geq?(?![A-Za-z])/g,'\u2265')
+         .replace(/\\neq?(?![A-Za-z])/g,'\u2260').replace(/\\[,;!]/g,'\u2009');
   return out;
 }
 function conseilHTML(t){
@@ -1951,7 +1959,7 @@ function conseilHTML(t){
 const CONSEIL_FORMAT=" — FORMAT DE TA RÉPONSE : 2 à 4 phrases maximum, "
   +"sans titre ni markdown (pas de « # », pas de « ** »), tutoiement, et ne donne JAMAIS "
   +"la réponse finale — seulement la prochaine étape à faire. "
-  +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3\\,V_n\\) ou \\(\\frac{b}{a}\\) — "
+  +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3V_n\\) ou \\(\\frac{b}{a}\\) — "
   +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »).";
 let conseilBusy=false;
 async function lancerConseil(contexte, fb){
@@ -7943,6 +7951,7 @@ function suConseilCtx(){
      });
      ligne.appendChild( FICHE_XY.mf('xy-a1','dexp-mf xy-mf') );   // case equipee
      FICHE_XY.brancherSelect(monSelect);                          // menus de la fiche
+     FICHE_XY.equiper();     // variante : equiper des cases DEJA rendues (voir FICHE_ECRANS)
    ===================================================================================== */
 const ficheLive={};   /* kind -> correction en direct ; rempli par creerFicheCases, lu par dexpLiveCheck */
 function ficheLireCase(id){   /* lecture par defaut d'une case : menu -> valeur ; math-field -> LaTeX nettoye (saClean) */
@@ -8010,6 +8019,16 @@ function creerFicheCases(o){
   F.brancherSelect=function(sel){
     sel.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); F.navSuiv(sel,1); } });
   };
+  F.equiper=function(){   /* rattrapage : ajoute la navigation (Entree, fleches, bouton) a des cases DEJA rendues */
+    const ids=(typeof o.ordre==='function'?o.ordre():o.ordre)||[];
+    ids.forEach(id=>{
+      const el=$(id); if(!el || el.__ficheNav) return; el.__ficheNav=1;
+      if(el.tagName==='SELECT'){ F.brancherSelect(el); return; }
+      if(el.tagName!=='MATH-FIELD') return;
+      el.addEventListener('change',()=>{ if(el.hasFocus && el.hasFocus()) F.navSuiv(el,1); });
+      el.addEventListener('move-out',(ev)=>{ const d=ev.detail&&ev.detail.direction; if(ev.cancelable) ev.preventDefault(); F.navSuiv(el,(d==='backward'||d==='upward')?-1:1); });
+    });
+  };
   if(o.actions){
     const za=document.querySelector(o.actions);
     if(za) za.addEventListener('keydown',(e)=>{   /* <- depuis le bouton : retour a la derniere case */
@@ -8023,6 +8042,27 @@ function creerFicheCases(o){
   if(o.kind) ficheLive[o.kind]=F.liveCheck;
   return F;
 }
+/* Equipement automatique des exercices EXISTANTS a cases math-field : au premier focus dans
+   l'ecran, la fiche est equipee (Entree, fleches, dernier -> bouton, <- depuis le bouton).
+   L'ordre des cases est deduit du DOM (= ordre de lecture). Les couleurs du soutien de ces
+   exercices restent gerees par leurs correcteurs en direct existants (su/dq/d3/dexp).
+   Exclusions : les editeurs « ligne par ligne » (classe dexp2-mf, ou Entree = nouvelle ligne)
+   et le 6.2 (deja equipe a la creation via FICHE_SA). */
+const FICHE_ECRANS={
+  'scr-dexp':{actions:'#dexpActions'},   /* derivees niveaux 1-2-3 + quotient niveau 1 */
+  'scr-su':{actions:'#suActions'}        /* 6.1 suites arithmetiques / geometriques */
+};
+document.addEventListener('focusin',(e)=>{
+  const el=e.target;
+  if(!el || (el.tagName!=='MATH-FIELD' && el.tagName!=='SELECT')) return;
+  const scr=el.closest && el.closest('.screen'); if(!scr) return;
+  const conf=FICHE_ECRANS[scr.id]; if(!conf) return;
+  if(!conf.F) conf.F=creerFicheCases({
+    ordre:()=>Array.from(scr.querySelectorAll('math-field.dexp-mf[id]:not(.dexp2-mf), select[id]')).map(x=>x.id),
+    actions:conf.actions
+  });
+  conf.F.equiper();
+});
 /* SA-CORE-START */
 const SA=(function(){
   /* --- LaTeX -> expression arithm\u00e9tique (variables internes : w=U(n+1), x=U(n), y=U(0), v=V(n), z=V(0), n) --- */
@@ -9070,7 +9110,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3\\,U_n+2\\) — jamais en texte brut."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
