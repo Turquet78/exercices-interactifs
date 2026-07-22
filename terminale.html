@@ -1867,71 +1867,93 @@ function ctxVisible(){
 /* L'IA renvoie parfois du markdown (« # Titre », « **gras** ») : affiché par
    textContent, il apparaissait tel quel à l'écran. On le convertit en HTML simple
    (le texte est échappé AVANT toute conversion : aucune injection possible). */
-/* Ecritures mathematiques en CLAIR dans les textes IA — V_(n+1), U_n, q^n, V_n = U_n - 1… —
-   detectees et rendues en vraies maths, meme quand le modele n'a pas utilise \( \).
-   Prudence maximale : une suite de jetons n'est retenue que si elle contient un indice ou un
-   exposant ; les lettres seules ne sont acceptees que si ce sont des variables plausibles
-   (U V W n q r k x b…), jamais des mots francais (« il y a », « arrives-tu » restent du texte). */
+/* Ecritures mathematiques en CLAIR dans les textes IA — detecteur complet (programme de Terminale).
+   Trois familles de graines declenchent une formule :
+     - indices/exposants sur toute base : u_{n+1}, 2^n, (1+q)^n, 10^{-3}, \frac{1}{2}^n ;
+     - commandes LaTeX ecrites nues : \frac \sqrt \lim \ln \log \exp \cos \sin \tan ;
+     - derivees f'(x) u''(x), fonctions nues ln( exp( cos( …, racine unicode √.
+   La formule s'etend ensuite jeton par jeton (nombres, operateurs, = + − × · / < > ≤ ≥ ≠ ≈,
+   commandes \times \cdot \in \mathbb{R} \Delta α λ …, \left \right \text{…}), sans JAMAIS :
+   avaler un mot francais (lettres seules limitees aux variables plausibles, apostrophes = mur),
+   franchir un gras Markdown (**), ni mordre la zone deja emise (verrou anti-doublon).
+   Toute commande restee seule hors formule devient un glyphe lisible (\le → ≤, \pi → π…) :
+   aucun backslash ne peut atteindre l'ecran. */
 function iaMathAuto(s, maths){
   s=String(s==null?'':s);
-  const seed=/\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|[A-Za-z0-9)}](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))/g;
-  const tokRe=/^(?:\\(?:d?frac)\{[^{}]{0,20}\}\{[^{}]{0,20}\}|\\sqrt\{[^{}]{0,20}\}|\\(?:times|cdot|infty|div|ell|pi|pm|to|leq|geq|neq|le|ge|ne)(?![A-Za-z])|\\[,;!]|[_^](?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\d+(?:[.,]\d+)?|[=+\-\u2212\u00d7\u00b7\/()]|\*(?!\*)|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))?)/;
+  const CMD='(?:Leftrightarrow|Rightarrow|leqslant|geqslant|implies|approx|infty|times|lambda|Delta|alpha|gamma|delta|notin|left|right|cdot|beta|iff|div|ell|exp|cos|sin|tan|lim|ln|log|mu|pm|to|in|pi|leq|geq|neq|le|ge|ne|e)';
+  const BRACE='\\{[^{}]{1,24}\\}', PAR='\\(([^()]{1,24})\\)';
+  const SUFF='(?:_(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|[A-Za-z0-9])|\\^(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|[A-Za-z0-9]))';
+  const seed=new RegExp('\\\\(?:d?frac)'+BRACE+BRACE+'|\\\\sqrt'+BRACE+'|\\\\(?:lim|ln|log|exp)(?![A-Za-z])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\u221a|[A-Za-z0-9)}]'+SUFF,'g');
+  const tokRe=new RegExp('^(?:\\\\(?:d?frac)'+BRACE+BRACE+'|\\\\sqrt'+BRACE+'|\\\\text'+BRACE+'|\\\\mathbb\\{[A-Z]\\}|\\\\'+CMD+'(?![A-Za-z])|\\\\[,;!]|[_^](?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|[A-Za-z0-9])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\d+(?:[.,]\\d+)?|[=+\\-\\u2212\\u00d7\\u00b7\\/()<>\\u2264\\u2265\\u2260\\u2248\\u00b1\\u221a\\u2192\\u221e\\u03c0\\u2113]|\\*(?!\\*)|[A-Za-z]'+SUFF+'?)');
   const bareOK=/^[UVWNQRKXnqrkxb]$/;
   const lettre=c=>!!c && /[A-Za-z\u00c0-\u00ff]/.test(c);
   let m, out='', last=0;
   while((m=seed.exec(s))){
     let a=m.index, b=seed.lastIndex;
-    if(a>0 && /[A-Za-z0-9]/.test(s[a]) && (lettre(s[a-1])||s[a-1]==="'"||s[a-1]==='\u2019')) continue;   /* base lettre/chiffre collee a un mot : on n'y touche pas ; une base ')' ou '}' a naturellement du contenu a sa gauche */
-    for(;;){   /* extension a droite, jeton par jeton */
+    if(a>0 && /[A-Za-z0-9]/.test(s[a]) && (lettre(s[a-1])||s[a-1]==="'"||s[a-1]==='\u2019')) continue;   /* base lettre/chiffre collee a un mot */
+    for(;;){   /* extension a droite */
       let p=b; if(s[p]===' ') p++;
       const t=tokRe.exec(s.slice(p)); if(!t) break;
       const tok=t[0], fin=p+tok.length;
-      /* un identifiant fini par une LETTRE colle a d'autres lettres = debut de mot francais ;
-         un chiffre ou un operateur suivi d'une lettre est du calcul normal (2u_n, 3*U_n) */
-      if(/[A-Za-z]$/.test(tok) && (lettre(s[fin])||s[fin]==="'"||s[fin]==='\u2019')) break;
+      if(/[A-Za-z]$/.test(tok) && (lettre(s[fin])||s[fin]==="'"||s[fin]==='\u2019')) break;   /* identifiant colle a un mot */
       if(/^[A-Za-z]$/.test(tok) && !bareOK.test(tok)) break;
       b=fin;
     }
     for(;;){   /* extension a gauche */
       let p=a; if(p>0 && s[p-1]===' ') p--;
       let best=null;
-      for(let L=Math.min(18,p); L>=1; L--){
+      for(let L=Math.min(30,p); L>=1; L--){
         const cand=s.slice(p-L,p), t2=tokRe.exec(cand);
         if(t2 && t2[0].length===cand.length){ best=cand; break; }
       }
       if(!best) break;
       const deb=p-best.length;
-      if(deb<last) break;   /* verrou : jamais mordre sur la zone deja emise (sinon un morceau sortirait deux fois) */
+      if(deb<last) break;   /* verrou : jamais mordre la zone deja emise */
       if(/^[A-Za-z]/.test(best) && deb>0 && (lettre(s[deb-1])||s[deb-1]==="'"||s[deb-1]==='\u2019')) break;
       if(/^[A-Za-z]$/.test(best) && !bareOK.test(best)) break;
-      if(best==='*' && (s[p]==='*'||s[deb-1]==='*')) break;   /* '**' (gras Markdown) : frontiere, jamais dans une formule */
+      if(best==='*' && (s[p]==='*'||s[deb-1]==='*')) break;   /* '**' : frontiere */
       a=deb;
     }
     if(a>last && s[a]==='\\' && /[A-Za-z]/.test(s[a-1]) && !/[A-Za-z\u00c0-\u00ff'\u2019]/.test(s[a-2]||'')) a--;   /* coefficient colle : a\,U_n */
-    if(a<last) a=last;   /* ceinture du verrou anti-chevauchement */
-    while(a<b && /[ =+\u00d7\u00b7*\/,)]/.test(s[a])) a++;                    /* nettoyage des bords */
-    while(b>a && /[ =+\-\u2212\u00d7\u00b7*\/,(]/.test(s[b-1])) b--;
+    if(a<last) a=last;
+    while(a<b && /[ =+\u00d7\u00b7*\/,)<>\u2264\u2265\u2260\u2248]/.test(s[a])) a++;
+    while(b>a && /[ =+\-\u2212\u00d7\u00b7*\/,(<>\u2264\u2265\u2260\u2248]/.test(s[b-1])) b--;
     let run=s.slice(a,b);
     const nb=(t,c)=>t.split(c).length-1;
     while(run && run[run.length-1]===')' && nb(run,')')>nb(run,'(')){ b--; run=s.slice(a,b); }
     while(run && run[0]==='(' && nb(run,'(')>nb(run,')')){ a++; run=s.slice(a,b); }
-    if(b-a<2 || !/[_^]|\\(?:d?frac|sqrt)/.test(run)){ seed.lastIndex=Math.max(seed.lastIndex,b); continue; }
+    if(b-a<2 || !/[_^\u221a\u2192\u221e\u03c0\u2113]|\\(?:d?frac|sqrt|lim|ln|log|exp|text|mathbb)|[A-Za-z]'{1,2}\(|(?:ln|log|exp|cos|sin|tan)\s?\(/.test(run)){
+      seed.lastIndex=Math.max(seed.lastIndex,b); continue;
+    }
     out+=s.slice(last,a);
     const lx=run
-      .replace(/_\(([^()\s]{1,14})\)/g,'_{$1}').replace(/\^\(([^()\s]{1,14})\)/g,'^{$1}')
+      .replace(/_\(([^()]{1,24})\)/g,'_{$1}').replace(/\^\(([^()]{1,24})\)/g,'^{$1}')
       .replace(/_([A-Za-z0-9])/g,'_{$1}').replace(/\^([A-Za-z0-9])/g,'^{$1}')
-      .replace(/\u00d7/g,'\\times ').replace(/\u00b7/g,'\\cdot ').replace(/\*/g,'\\times ').replace(/\u2212/g,'-');
+      .replace(/(^|[^\\A-Za-z])(ln|log|exp|cos|sin|tan)(?=\s?\()/g,'$1\\$2 ')
+      .replace(/\u221a\(([^()]{1,24})\)/g,'\\sqrt{$1}').replace(/\u221a([A-Za-z0-9])/g,'\\sqrt{$1}')
+      .replace(/\u00d7/g,'\\times ').replace(/\u00b7/g,'\\cdot ').replace(/\*/g,'\\times ').replace(/\u2212/g,'-')
+      .replace(/\u2264/g,'\\le ').replace(/\u2265/g,'\\ge ').replace(/\u2260/g,'\\ne ').replace(/\u2248/g,'\\approx ')
+      .replace(/\u2192/g,'\\to ').replace(/\u221e/g,'\\infty ').replace(/\u03c0/g,'\\pi ').replace(/\u2113/g,'\\ell ').replace(/\u00b1/g,'\\pm ');
     maths.push(lx);
     out+='\uE000'+(maths.length-1)+'\uE001';
     last=b; seed.lastIndex=b;
   }
   out+=s.slice(last);
-  /* commandes LaTeX restees seules dans le texte (hors formule detectee) : converties en glyphes lisibles */
-  out=out.replace(/\\times(?![A-Za-z])/g,'\u00d7').replace(/\\cdot(?![A-Za-z])/g,'\u00b7').replace(/\\div(?![A-Za-z])/g,'\u00f7')
+  /* commandes LaTeX restees seules dans le texte : converties en glyphes lisibles */
+  out=out.replace(/\\text\{([^{}]{0,30})\}/g,'$1')
+         .replace(/\\mathbb\{R\}/g,'\u211d').replace(/\\mathbb\{N\}/g,'\u2115').replace(/\\mathbb\{Z\}/g,'\u2124').replace(/\\mathbb\{Q\}/g,'\u211a')
+         .replace(/\\(?:Leftrightarrow|iff)(?![A-Za-z])/g,'\u21d4').replace(/\\(?:Rightarrow|implies)(?![A-Za-z])/g,'\u21d2')
+         .replace(/\\leqslant(?![A-Za-z])/g,'\u2264').replace(/\\geqslant(?![A-Za-z])/g,'\u2265')
+         .replace(/\\approx(?![A-Za-z])/g,'\u2248').replace(/\\notin(?![A-Za-z])/g,'\u2209').replace(/\\in(?![A-Za-z])/g,'\u2208')
+         .replace(/\\Delta(?![A-Za-z])/g,'\u0394').replace(/\\alpha(?![A-Za-z])/g,'\u03b1').replace(/\\beta(?![A-Za-z])/g,'\u03b2')
+         .replace(/\\gamma(?![A-Za-z])/g,'\u03b3').replace(/\\delta(?![A-Za-z])/g,'\u03b4').replace(/\\lambda(?![A-Za-z])/g,'\u03bb').replace(/\\mu(?![A-Za-z])/g,'\u03bc')
+         .replace(/\\times(?![A-Za-z])/g,'\u00d7').replace(/\\cdot(?![A-Za-z])/g,'\u00b7').replace(/\\div(?![A-Za-z])/g,'\u00f7')
          .replace(/\\pm(?![A-Za-z])/g,'\u00b1').replace(/\\leq?(?![A-Za-z])/g,'\u2264').replace(/\\geq?(?![A-Za-z])/g,'\u2265')
          .replace(/\\neq?(?![A-Za-z])/g,'\u2260').replace(/\\ell(?![A-Za-z])/g,'\u2113')
          .replace(/\\pi(?![A-Za-z])/g,'\u03c0').replace(/\\infty(?![A-Za-z])/g,'\u221e')
-         .replace(/\\to(?![A-Za-z])/g,'\u2192').replace(/\\[,;!]/g,'\u2009');
+         .replace(/\\to(?![A-Za-z])/g,'\u2192').replace(/\\(?:lim|ln|log|exp|cos|sin|tan)(?![A-Za-z])/g,x=>x.slice(1))
+         .replace(/\\(?:left|right)(?![A-Za-z])/g,'').replace(/\\e(?![A-Za-z])/g,'e')
+         .replace(/\\[,;!]/g,'\u2009');
   return out;
 }
 function conseilHTML(t){
@@ -7666,9 +7688,97 @@ const RAP_SA=
 +'<p><i>V</i><sub>0</sub> se calcule avec la d\u00e9finition de <i>V<sub>n</sub></i> et la valeur de <i>U</i><sub>0</sub>.</p>'
 +'<p>Formule du cours : <b><i>V<sub>n</sub></i> = <i>V</i><sub>0</sub> \u00d7 <i>q</i><sup><i>n</i></sup></b>.</p>'
 +'<p>Retour \u00e0 <i>U<sub>n</sub></i> : isoler <i>U<sub>n</sub></i> dans la d\u00e9finition de <i>V<sub>n</sub></i>, puis remplacer <i>V<sub>n</sub></i> par son expression en fonction de <i>n</i>.</p></div>';
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA };
-function rappelDispo(){ return !!(test && RAPPELS[test.kind]); }
-function rappelHTML(){ return (test && RAPPELS[test.kind]) || ''; }
+const RAP_DER=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9riv\u00e9es usuelles</h4>'
++'<p>D\u00e9riv\u00e9es \u00e0 conna\u00eetre :</p><ul>'
++'<li>(<i>x</i><sup><i>n</i></sup>)\u2032 = <i>n</i>\u2009<i>x</i><sup><i>n</i>\u22121</sup> &nbsp;;&nbsp; (<i>k</i>)\u2032 = 0 &nbsp;;&nbsp; (<i>kx</i>)\u2032 = <i>k</i></li>'
++'<li>(e<sup><i>x</i></sup>)\u2032 = e<sup><i>x</i></sup> &nbsp;;&nbsp; (1/<i>x</i>)\u2032 = \u22121/<i>x</i><sup>2</sup> &nbsp;;&nbsp; (\u221a<i>x</i>)\u2032 = 1/(2\u221a<i>x</i>)</li></ul>'
++'<div class="rap-t">Op\u00e9rations</div>'
++'<p>(<i>u</i> + <i>v</i>)\u2032 = <i>u</i>\u2032 + <i>v</i>\u2032 &nbsp;;&nbsp; (<i>k\u2009u</i>)\u2032 = <i>k\u2009u</i>\u2032. On d\u00e9rive terme \u00e0 terme, puis on r\u00e9duit.</p></div>';
+const RAP_LR=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 r\u00e9diger une limite</h4>'
++'<p>Une limite s\u2019\u00e9crit : <b>quand <i>x</i> \u2192 \u2026 , <i>f</i>(<i>x</i>) \u2192 \u2026</b> ou <b>lim <i>f</i>(<i>x</i>) = \u2026</b> (avec la valeur vers laquelle <i>x</i> tend sous \u00ab lim \u00bb).</p>'
++'<div class="rap-t">Limites usuelles en \u00b1\u221e</div>'
++'<ul><li><i>x</i><sup><i>n</i></sup> \u2192 +\u221e en +\u221e &nbsp;;&nbsp; 1/<i>x</i> \u2192 0</li>'
++'<li>e<sup><i>x</i></sup> \u2192 +\u221e en +\u221e &nbsp;et&nbsp; e<sup><i>x</i></sup> \u2192 0 en \u2212\u221e</li></ul>'
++'<p>On r\u00e9dige une ligne par \u00e9tape : limite de chaque morceau, puis conclusion par somme, produit ou quotient.</p></div>';
+const RAP_TVI=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 th\u00e9or\u00e8me des valeurs interm\u00e9diaires</h4>'
++'<p>Si <i>f</i> est <b>continue</b> sur [<i>a</i>\u2009;\u2009<i>b</i>] et si <i>k</i> est <b>compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>)</b>, alors l\u2019\u00e9quation <i>f</i>(<i>x</i>) = <i>k</i> admet <b>au moins une</b> solution dans [<i>a</i>\u2009;\u2009<i>b</i>].</p>'
++'<div class="rap-t">Corollaire (unicit\u00e9)</div>'
++'<p>Si de plus <i>f</i> est <b>strictement monotone</b> sur [<i>a</i>\u2009;\u2009<i>b</i>], la solution est <b>unique</b>.</p>'
++'<div class="rap-t">R\u00e9daction attendue</div>'
++'<p>Citer les trois points : continuit\u00e9, stricte monotonie, et <i>k</i> compris entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>) \u2014 puis conclure.</p></div>';
+const RAP_TVICE=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 les hypoth\u00e8ses du TVI</h4>'
++'<p>Chaque hypoth\u00e8se est indispensable :</p><ul>'
++'<li>sans <b>continuit\u00e9</b>, la courbe peut \u00ab sauter \u00bb par-dessus <i>k</i> : aucune solution ;</li>'
++'<li>sans <b>stricte monotonie</b>, la courbe peut recouper <i>k</i> : plusieurs solutions ;</li>'
++'<li>si <i>k</i> n\u2019est <b>pas entre <i>f</i>(<i>a</i>) et <i>f</i>(<i>b</i>)</b>, le th\u00e9or\u00e8me ne dit rien.</li></ul>'
++'<p>Un contre-exemple montre une hypoth\u00e8se qui manque et la conclusion qui tombe.</p></div>';
+const RAP_TVINS=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 nombre de solutions de f(x) = k</h4>'
++'<p>On d\u00e9coupe gr\u00e2ce au <b>tableau de variations</b> : sur chaque intervalle o\u00f9 <i>f</i> est strictement monotone, on applique le corollaire du TVI.</p>'
++'<ul><li>si <i>k</i> est compris entre les valeurs (ou limites) aux bornes de l\u2019intervalle : <b>une</b> solution ;</li>'
++'<li>sinon : <b>aucune</b> sur cet intervalle.</li></ul>'
++'<p>Le nombre total de solutions est la somme sur tous les intervalles. Attention aux extremums : si <i>k</i> vaut exactement un maximum ou un minimum, la solution est au sommet.</p></div>';
+const RAP_TVG=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 solutions sur le graphique</h4>'
++'<p>R\u00e9soudre <i>f</i>(<i>x</i>) = <i>k</i> graphiquement, c\u2019est chercher les <b>intersections</b> de la courbe avec la droite horizontale <b><i>y</i> = <i>k</i></b>.</p>'
++'<ul><li>les <b>solutions</b> sont les <b>abscisses</b> (les <i>x</i>) de ces points ;</li>'
++'<li>le <b>nombre</b> de solutions = le nombre de points d\u2019intersection.</li></ul>'
++'<p>On lit toujours les solutions sur l\u2019axe des abscisses, jamais sur l\u2019axe des ordonn\u00e9es.</p></div>';
+const RAP_DHV=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 droites horizontales et verticales</h4>'
++'<ul><li>Droite <b>horizontale</b> : tous les points ont la m\u00eame <b>ordonn\u00e9e</b> \u2192 \u00e9quation <b><i>y</i> = <i>k</i></b> ;</li>'
++'<li>droite <b>verticale</b> : tous les points ont la m\u00eame <b>abscisse</b> \u2192 \u00e9quation <b><i>x</i> = <i>k</i></b>.</li></ul>'
++'<p>L\u2019\u00e9quation ne contient <b>que</b> la variable qui reste fixe : <i>y</i> = 3 est horizontale (passe par l\u2019ordonn\u00e9e 3), <i>x</i> = \u22122 est verticale (passe par l\u2019abscisse \u22122).</p></div>';
+const RAP_LIM=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 limites et asymptotes</h4>'
++'<ul><li>si <i>f</i>(<i>x</i>) \u2192 <i>L</i> quand <i>x</i> \u2192 \u00b1\u221e : asymptote <b>horizontale</b> <i>y</i> = <i>L</i> ;</li>'
++'<li>si <i>f</i>(<i>x</i>) \u2192 \u00b1\u221e quand <i>x</i> \u2192 <i>a</i> : asymptote <b>verticale</b> <i>x</i> = <i>a</i>.</li></ul>'
++'<div class="rap-t">Lecture</div>'
++'<p>Sur la courbe : suivre la branche et regarder vers quoi elle se stabilise ou s\u2019envole. Dans un tableau de variations : les valeurs \u00e9crites aux <b>bouts des fl\u00e8ches</b> sont exactement les limites.</p></div>';
+const RAP_DEXP=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9riv\u00e9e d\u2019un produit avec exponentielle</h4>'
++'<p>R\u00e8gle du produit : <b>(<i>u\u2009v</i>)\u2032 = <i>u</i>\u2032<i>v</i> + <i>u\u2009v</i>\u2032</b>.</p>'
++'<p>Exponentielle compos\u00e9e : <b>(e<sup><i>ax</i>+<i>b</i></sup>)\u2032 = <i>a</i>\u2009e<sup><i>ax</i>+<i>b</i></sup></b>.</p>'
++'<div class="rap-t">M\u00e9thode</div>'
++'<p>1. Poser <i>u</i>, <i>v</i>, puis <i>u</i>\u2032, <i>v</i>\u2032. &nbsp;2. Appliquer la formule. &nbsp;3. <b>Factoriser par l\u2019exponentielle</b> (elle ne s\u2019annule jamais) pour obtenir la forme r\u00e9duite.</p></div>';
+const RAP_DEXPQ=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9riv\u00e9e d\u2019un quotient</h4>'
++'<p>R\u00e8gle du quotient : <b>(<i>u</i>/<i>v</i>)\u2032 = (<i>u</i>\u2032<i>v</i> \u2212 <i>u\u2009v</i>\u2032)\u2009/\u2009<i>v</i><sup>2</sup></b> &nbsp;(attention au signe <b>moins</b> et \u00e0 l\u2019<b>ordre</b>).</p>'
++'<div class="rap-t">M\u00e9thode</div>'
++'<p>1. Poser <i>u</i>, <i>v</i>, <i>u</i>\u2032, <i>v</i>\u2032. &nbsp;2. \u00c9crire le num\u00e9rateur <i>u</i>\u2032<i>v</i> \u2212 <i>u\u2009v</i>\u2032 et le d\u00e9nominateur <i>v</i><sup>2</sup>. &nbsp;3. Factoriser le num\u00e9rateur par e<sup><i>kx</i></sup> puis simplifier.</p></div>';
+const RAP_SV=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signes et variations</h4>'
++'<ul><li><b>Signe de <i>f</i></b> : courbe <b>au-dessus</b> de l\u2019axe des abscisses \u2192 <i>f</i>(<i>x</i>) &gt; 0 ; en dessous \u2192 <i>f</i>(<i>x</i>) &lt; 0 ; elle coupe l\u2019axe l\u00e0 o\u00f9 <i>f</i>(<i>x</i>) = 0.</li>'
++'<li><b>Lien <i>f</i>\u2032 / <i>f</i></b> : <i>f</i>\u2032 &gt; 0 sur I \u21d4 <i>f</i> <b>croissante</b> sur I ; <i>f</i>\u2032 &lt; 0 \u21d4 d\u00e9croissante.</li>'
++'<li>En un <b>extremum</b>, <i>f</i>\u2032 s\u2019annule en changeant de signe.</li></ul></div>';
+const RAP_TG=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 \u00e9quation de la tangente</h4>'
++'<p>La tangente \u00e0 la courbe de <i>f</i> au point d\u2019abscisse <i>a</i> a pour \u00e9quation :</p>'
++'<p><b><i>y</i> = <i>f</i>\u2032(<i>a</i>)\u2009(<i>x</i> \u2212 <i>a</i>) + <i>f</i>(<i>a</i>)</b></p>'
++'<div class="rap-t">Sur un graphique</div>'
++'<p><i>f</i>(<i>a</i>) est l\u2019<b>ordonn\u00e9e du point de contact</b> ; <i>f</i>\u2032(<i>a</i>) est la <b>pente</b> de la tangente trac\u00e9e (lue avec un petit triangle : variation verticale / variation horizontale). On d\u00e9veloppe ensuite pour r\u00e9duire en <i>y</i> = <i>mx</i> + <i>p</i>.</p></div>';
+const RAP_S1=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe de <i>ax</i> + <i>b</i></h4>'
++'<p><i>ax</i> + <i>b</i> s\u2019annule en <b><i>x</i><sub>0</sub> = \u2212<i>b</i>/<i>a</i></b>.</p>'
++'<p>Dans le tableau de signe : <b>signe de <i>a</i> \u00e0 droite</b> de la racine, signe oppos\u00e9 \u00e0 gauche (\u00ab signe de <i>a</i> apr\u00e8s la racine \u00bb).</p></div>';
+const RAP_S2=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe de <i>ax</i><sup>2</sup> + <i>bx</i> + <i>c</i></h4>'
++'<p>Discriminant : <b>\u0394 = <i>b</i><sup>2</sup> \u2212 4<i>ac</i></b>.</p>'
++'<ul><li>\u0394 &gt; 0 : deux racines <i>x</i><sub>1,2</sub> = (\u2212<i>b</i> \u00b1 \u221a\u0394)/(2<i>a</i>) ; <b>signe de <i>a</i> \u00e0 l\u2019ext\u00e9rieur</b> des racines, signe oppos\u00e9 entre elles ;</li>'
++'<li>\u0394 = 0 : une racine double \u2212<i>b</i>/(2<i>a</i>) ; signe de <i>a</i> partout ailleurs ;</li>'
++'<li>\u0394 &lt; 0 : aucune racine ; <b>toujours du signe de <i>a</i></b>.</li></ul></div>';
+/* Carte des rappels : par identifiant d'exercice d'abord (le kind « gen » sert deux exercices), puis par kind. */
+const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER };
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, lr:RAP_LR,
+  tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
+  lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
+  dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, s1:RAP_S1, s2:RAP_S2 };
+function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
+function rappelHTML(){ return RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''; }
 /* question de l'élève portant sur le cours (chip « Faire un rappel de cours pour cet exercice. ») */
 function rappelDemande(t){ const s=String(t||''); return /rappel/i.test(s) && /cours|le\u00e7on|lecon/i.test(s); }
 function masquerRappel(){
@@ -9073,7 +9183,8 @@ function ouvrirQIA(){
   if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
   const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
   rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
-  $('qiaSugg').innerHTML=qiaSuggestions().map(t=>'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(t)+'</button>').join('');
+  $('qiaSugg').innerHTML=(rappelDispo()?'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">\ud83d\udcd8 Faire un rappel de cours pour cet exercice.</button>':'')
+    +qiaSuggestions().map(t=>'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(t)+'</button>').join('');
   const mic=$('qiaMic');
   if(mic){
     const dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
