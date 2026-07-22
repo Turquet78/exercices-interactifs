@@ -8386,8 +8386,30 @@ function saNavSuiv(el,dir){
   if(i<0) return;
   const cible=L[i+dir];
   if(cible){ try{ cible.focus(); }catch(e){} return; }
-  if(dir>0){ const btn=document.querySelector('#saActions .btn-primary'); if(btn){ try{ el.blur(); }catch(e){} btn.click(); } }
+  if(dir>0){
+    const btn=document.querySelector('#saActions .btn-primary');
+    if(btn){
+      /* on ARRIVE sur Verifier ; c'est un second Entree (ou un clic) qui lance la verification.
+         MathLive termine son traitement (commit d'Entree, jonglage de focus interne) APRES nous :
+         un focus immediat serait repris. On le pose donc au tour suivant, avec 2 relances de secours. */
+      const pose=(n)=>{ try{ btn.focus(); }catch(e){} if(n>0 && document.activeElement!==btn) setTimeout(()=>pose(n-1),40); };
+      setTimeout(()=>pose(2),0);
+    }
+  }
 }
+/* Depuis le bouton Verifier, la fleche gauche ramene a la derniere case de la fiche
+   (navCases ne connait pas les math-field). Delegation sur #saActions : survit aux
+   recreations du bouton (Verifier / Reverifier / Suivant). */
+(function(){
+  const za=$('saActions'); if(!za) return;
+  za.addEventListener('keydown',(e)=>{
+    if(e.key!=='ArrowLeft') return;
+    const b=e.target && e.target.closest && e.target.closest('.btn-primary'); if(!b) return;
+    const L=saNavListe(), der=L[L.length-1]; if(!der) return;
+    e.preventDefault(); e.stopPropagation();
+    try{ der.focus(); }catch(err){}
+  });
+})();
 function nextSA(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA(); } else finishTest(); }
 /* \u00c9tat des cases, en clair, pour le conseil de l'IA */
 function saLu(id){
