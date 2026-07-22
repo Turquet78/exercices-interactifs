@@ -6079,9 +6079,11 @@ function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.inc
    On ignore une case vide, et un blur "interne" dû au ré-affichage de l'exposant.
    Après 2 essais faux successifs (valeurs distinctes) sur une même case, on donne la solution. */
 function dexpLiveCheck(id){
+  if(test && test.kind==='sa') return saLiveCheck(id);   /* 6.2 : la correction en direct de la suite auxiliaire, pas celle des derivees */
   if(test && test.kind==='su') return suLiveCheck(id);
   if(test && test.kind==='dexpq') return dqLiveCheck(id);
   if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
+  if(!(test && test.kind==='dexp')) return;   /* garde-fou : seule la fiche derivees utilise la logique ci-dessous ; sans elle, tout exercice a champs math non liste ci-dessus serait juge avec les verdicts des derivees (case rouge a tort) */
   if(!isSoutien() || test.locked) return;
   setTimeout(()=>{
     if(test.locked) return;
@@ -8106,6 +8108,18 @@ function saMF(id, wide){
   el.setAttribute('aria-label','r\u00e9ponse');
   el.addEventListener('focusin',()=>{ saLastMF=el; });
   el.addEventListener('focusout',()=>saLiveCheck(id));
+  el.addEventListener('input',()=>{   /* soutien : une case deja jugee est re-jugee a chaque modification -> le rouge disparait des que la correction arrive, meme si le contenu est insere apres coup (clavier ecran) */
+    if(!isSoutien() || test.locked || el.classList.contains('sol')) return;
+    if(!el.classList.contains('ok') && !el.classList.contains('bad')) return;
+    el.classList.remove('ok','bad');
+    const r=saRawId(id); if(r!=='') el.classList.add(saOk(id)?'ok':'bad');
+  });
+  el.addEventListener('change',()=>{ if(el.hasFocus && el.hasFocus()) saNavSuiv(el,1); });   /* Entree (clavier physique ou touche retour du clavier ecran) : case suivante ; depuis la derniere, Verifier */
+  el.addEventListener('move-out',(ev)=>{   /* fleches au bord de la case : case precedente / suivante */
+    const d=ev.detail && ev.detail.direction;
+    if(ev.cancelable) ev.preventDefault();
+    saNavSuiv(el, (d==='backward'||d==='upward')?-1:1);
+  });
   return el;
 }
 /* saClean : retire les residus MathLive incomplets en fin de saisie (exposant/indice vide, \placeholder{}, operateur isole) qui s'affichent comme le nombre mais ne se lisent pas — sans quoi une bonne reponse comme « 3 » est comptee fausse. Hors moteur SA-CORE. */
@@ -8261,6 +8275,7 @@ function renderSA(){
     sel.classList.remove('ok','bad');
     if(sel.value!=='') sel.classList.add(sel.value==='geo'?'ok':'bad');
   });
+  sel.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); saNavSuiv(sel,1); } });   /* Entree : case suivante, comme dans le reste de la fiche */
   C1.appendChild(sel);
   const t2=document.createElement('span'); t2.className='sa-txt'; t2.innerHTML='&nbsp;de raison&nbsp;'; C1.appendChild(t2);
   C1.appendChild(saMF('sa-c1','sm'));
@@ -8340,6 +8355,21 @@ function saLiveCheck(id){
     el.classList.remove('ok','bad');
     if(saRawId(id)!=='') el.classList.add(saOk(id)?'ok':'bad');
   },0);
+}
+/* Navigation entre les cases du 6.2 : les cases sont des math-field, invisibles pour navCases (qui ne connait que input/select). */
+function saNavListe(){
+  return SA_ORDER.map(i=>$(i)).filter(e=>{
+    if(!e || !e.offsetParent) return false;
+    if(e.tagName==='SELECT') return !e.disabled;
+    return !e.readOnly;
+  });
+}
+function saNavSuiv(el,dir){
+  const L=saNavListe(), i=L.indexOf(el);
+  if(i<0) return;
+  const cible=L[i+dir];
+  if(cible){ try{ cible.focus(); }catch(e){} return; }
+  if(dir>0){ const btn=document.querySelector('#saActions .btn-primary'); if(btn){ try{ el.blur(); }catch(e){} btn.click(); } }
 }
 function nextSA(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA(); } else finishTest(); }
 /* \u00c9tat des cases, en clair, pour le conseil de l'IA */
