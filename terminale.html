@@ -224,6 +224,9 @@
   .test-top .q-idx{color:var(--ink-soft)}
   .score-tag{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px}
   .score-tag b{color:var(--green);font-weight:700}
+  .exo-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 14px;font-family:"Fredoka"}
+  .exo-title .exo-num{font-weight:700;color:#fff;background:var(--blue);border-radius:999px;padding:3px 12px;font-size:.95rem;line-height:1.35}
+  .exo-title .exo-name{font-weight:600;color:var(--ink);font-size:1.12rem}
   .ardoise{position:relative;border-radius:18px;padding:38px 24px;text-align:center;background:radial-gradient(120% 120% at 30% 20%,#36493f 0%,var(--slate) 55%,var(--slate-2) 100%);box-shadow:inset 0 0 0 7px rgba(244,243,236,.10),inset 0 0 0 9px rgba(0,0,0,.25),var(--shadow);border:2px solid #1c2a23}
   .ardoise .equation{font-family:"Fredoka";font-weight:500;color:var(--chalk);font-size:clamp(2.4rem,9vw,4.4rem);letter-spacing:2px;text-shadow:0 1px 0 rgba(0,0,0,.3)}
   .ardoise .equation .blank{color:var(--chalk-soft)}
@@ -2407,6 +2410,13 @@ function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','lr'];
+  if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
+    const sec=$('scr-'+name);
+    let t=sec.querySelector('.exo-title');
+    if(!t){ t=document.createElement('div'); t.className='exo-title'; sec.insertBefore(t, sec.firstChild); }
+    const num=testNum(currentTestId);
+    t.innerHTML=(num?'<span class="exo-num">'+esc(num)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>';
+  }
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
@@ -8098,10 +8108,24 @@ function saMF(id, wide){
   el.addEventListener('focusout',()=>saLiveCheck(id));
   return el;
 }
+/* saClean : retire les residus MathLive incomplets en fin de saisie (exposant/indice vide, \placeholder{}, operateur isole) qui s'affichent comme le nombre mais ne se lisent pas — sans quoi une bonne reponse comme « 3 » est comptee fausse. Hors moteur SA-CORE. */
+function saClean(s){
+  s=String(s==null?'':s);
+  s=s.replace(/\\placeholder\{\}/g,'');
+  var prev;
+  do{ prev=s;
+    s=s.replace(/\s+$/,'');
+    s=s.replace(/\{\s*\}$/,'');
+    s=s.replace(/[\^_]$/,'');
+    s=s.replace(/(\\times|\\cdot|\\div|\\,)$/,'');
+    s=s.replace(/[+\/]$/,'');
+  }while(s!==prev);
+  return s.trim();
+}
 function saRawId(id){
   const el=$(id); if(!el) return '';
   if(id==='sa-ctype') return el.value||'';
-  try{ return String(el.getValue?el.getValue():el.value||'').trim(); }catch(e){ return ''; }
+  try{ return saClean(String(el.getValue?el.getValue():el.value||'')); }catch(e){ return ''; }
 }
 function saOk(id){
   const q=test.questions[test.idx];
