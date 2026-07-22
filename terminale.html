@@ -1865,6 +1865,62 @@ function ctxVisible(){
 /* L'IA renvoie parfois du markdown (« # Titre », « **gras** ») : affiché par
    textContent, il apparaissait tel quel à l'écran. On le convertit en HTML simple
    (le texte est échappé AVANT toute conversion : aucune injection possible). */
+/* Ecritures mathematiques en CLAIR dans les textes IA — V_(n+1), U_n, q^n, V_n = U_n - 1… —
+   detectees et rendues en vraies maths, meme quand le modele n'a pas utilise \( \).
+   Prudence maximale : une suite de jetons n'est retenue que si elle contient un indice ou un
+   exposant ; les lettres seules ne sont acceptees que si ce sont des variables plausibles
+   (U V W n q r k x b…), jamais des mots francais (« il y a », « arrives-tu » restent du texte). */
+function iaMathAuto(s, maths){
+  s=String(s==null?'':s);
+  const seed=/[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))/g;
+  const tokRe=/^(?:\d+(?:[.,]\d+)?|[=+\-\u2212\u00d7\u00b7*\/()]|[A-Za-z](?:_(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9])|\^(?:\([^()\s]{1,14}\)|\{[^{}\s]{1,14}\}|[A-Za-z0-9]))?)/;
+  const bareOK=/^[UVWNQRKXnqrkxb]$/;
+  const lettre=c=>!!c && /[A-Za-z\u00c0-\u00ff]/.test(c);
+  let m, out='', last=0;
+  while((m=seed.exec(s))){
+    let a=m.index, b=seed.lastIndex;
+    if(a>0 && (lettre(s[a-1])||s[a-1]==="'"||s[a-1]==='\u2019')) continue;   /* colle a un mot : on n'y touche pas */
+    for(;;){   /* extension a droite, jeton par jeton */
+      let p=b; if(s[p]===' ') p++;
+      const t=tokRe.exec(s.slice(p)); if(!t) break;
+      const tok=t[0], fin=p+tok.length;
+      /* un identifiant/nombre colle a des lettres = debut de mot francais ; un operateur suivi d'une lettre est normal (3*U_n) */
+      if(/[A-Za-z0-9})]$/.test(tok) && (lettre(s[fin])||s[fin]==="'"||s[fin]==='\u2019')) break;
+      if(/^[A-Za-z]$/.test(tok) && !bareOK.test(tok)) break;
+      b=fin;
+    }
+    for(;;){   /* extension a gauche */
+      let p=a; if(p>0 && s[p-1]===' ') p--;
+      let best=null;
+      for(let L=Math.min(18,p); L>=1; L--){
+        const cand=s.slice(p-L,p), t2=tokRe.exec(cand);
+        if(t2 && t2[0].length===cand.length){ best=cand; break; }
+      }
+      if(!best) break;
+      const deb=p-best.length;
+      if(/^[A-Za-z0-9({]/.test(best) && deb>0 && (lettre(s[deb-1])||s[deb-1]==="'"||s[deb-1]==='\u2019')) break;
+      if(/^[A-Za-z]$/.test(best) && !bareOK.test(best)) break;
+      a=deb;
+    }
+    while(a<b && /[ =+\u00d7\u00b7*\/,)]/.test(s[a])) a++;                    /* nettoyage des bords */
+    while(b>a && /[ =+\-\u2212\u00d7\u00b7*\/,(]/.test(s[b-1])) b--;
+    let run=s.slice(a,b);
+    const nb=(t,c)=>t.split(c).length-1;
+    while(run && run[run.length-1]===')' && nb(run,')')>nb(run,'(')){ b--; run=s.slice(a,b); }
+    while(run && run[0]==='(' && nb(run,'(')>nb(run,')')){ a++; run=s.slice(a,b); }
+    if(b-a<2 || !/[_^]/.test(run)){ seed.lastIndex=Math.max(seed.lastIndex,b); continue; }
+    out+=s.slice(last,a);
+    const lx=run
+      .replace(/_\(([^()\s]{1,14})\)/g,'_{$1}').replace(/\^\(([^()\s]{1,14})\)/g,'^{$1}')
+      .replace(/_([A-Za-z0-9])/g,'_{$1}').replace(/\^([A-Za-z0-9])/g,'^{$1}')
+      .replace(/\u00d7/g,'\\times ').replace(/\u00b7/g,'\\cdot ').replace(/\*/g,'\\times ').replace(/\u2212/g,'-');
+    maths.push(lx);
+    out+='\uE000'+(maths.length-1)+'\uE001';
+    last=b; seed.lastIndex=b;
+  }
+  out+=s.slice(last);
+  return out;
+}
 function conseilHTML(t){
   /* 1) extraire les ecritures mathematiques AVANT echappement : \( … \), \[ … \] ou $ … $
         (des caracteres comme < > doivent survivre dans le LaTeX). Chaque segment devient un
@@ -1875,7 +1931,7 @@ function conseilHTML(t){
     if(c!=null && (/^\s|\s$/.test(c))) return m;   /* $ isole (prix, texte) : on ne touche pas */
     maths.push(lx); return '\uE000'+(maths.length-1)+'\uE001';
   });
-  let x=esc(brut);
+  let x=esc(iaMathAuto(brut,maths));   /* + ecritures en clair (V_(n+1), q^n, equations…) */
   x=x.replace(/^[ \t]*#{1,6}[ \t]*(.+)$/gm,'<b>$1</b>');
   x=x.replace(/\*\*([^*\n]+?)\*\*/g,'<b>$1</b>');
   x=x.replace(/`([^`\n]+)`/g,'$1');
@@ -6096,7 +6152,7 @@ function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.inc
    On ignore une case vide, et un blur "interne" dû au ré-affichage de l'exposant.
    Après 2 essais faux successifs (valeurs distinctes) sur une même case, on donne la solution. */
 function dexpLiveCheck(id){
-  if(test && test.kind==='sa') return saLiveCheck(id);   /* 6.2 : la correction en direct de la suite auxiliaire, pas celle des derivees */
+  const fReg=(test && ficheLive[test.kind]); if(fReg) return fReg(id);   /* fiches a cases enregistrees par creerFicheCases : le 6.2 et tous les exercices futurs du meme style */
   if(test && test.kind==='su') return suLiveCheck(id);
   if(test && test.kind==='dexpq') return dqLiveCheck(id);
   if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
@@ -7861,6 +7917,112 @@ function suConseilCtx(){
    formule explicite de V\u2099, retour \u00e0 U\u2099. Saisie MathLive (clavier Terminale via mlDexp) ;
    v\u00e9rification num\u00e9rique locale par \u00e9quivalence : toute \u00e9criture correcte est accept\u00e9e, et
    U\u2099\u208a\u2081 (indice complet) est distingu\u00e9 de U\u2099 + 1. */
+/* =====================================================================================
+   KIT « FICHE A CASES » — comportements communs a tout exercice construit comme le 6.2
+   (cases de reponse math-field alignees dans une fiche a trous).
+   Chaque case creee par ce kit possede TOUTES les proprietes du 6.2 :
+     - mode soutien : verdict vert/rouge des qu'on quitte la case, et re-jugement a
+       chaque modification (le rouge s'efface des que la correction arrive, meme si le
+       contenu est insere apres coup par le clavier a l'ecran) ;
+     - touche Entree (physique ou retour du clavier ecran) : case suivante ; depuis la
+       DERNIERE case, le focus se pose sur le bouton Verifier — un second Entree ou un
+       clic lance la verification ;
+     - fleches gauche/droite aux bords de la case : case precedente / suivante ;
+     - Entree sur un menu deroulant de la fiche : case suivante (brancherSelect) ;
+     - fleche gauche depuis le bouton Verifier : retour a la derniere case.
+   La correction en direct est routee automatiquement : le repartiteur dexpLiveCheck
+   consulte ficheLive[test.kind] avant toute autre logique.
+
+   MODE D'EMPLOI pour un futur exercice (kind « xy », cases XY_ORDER, bouton #xyActions) :
+     const FICHE_XY = creerFicheCases({
+       kind:'xy',                        // test.kind de l'exercice
+       ordre: ()=>XY_ORDER,              // ids des cases, dans l'ordre de lecture
+       ok:    id=>xyOk(id),              // true/false : la case id est-elle juste ?
+       brut:  id=>xyRaw(id),             // texte saisi ('' si vide) ; defaut : ficheLireCase
+       actions:'#xyActions'              // conteneur du bouton .btn-primary (Verifier)
+     });
+     ligne.appendChild( FICHE_XY.mf('xy-a1','dexp-mf xy-mf') );   // case equipee
+     FICHE_XY.brancherSelect(monSelect);                          // menus de la fiche
+   ===================================================================================== */
+const ficheLive={};   /* kind -> correction en direct ; rempli par creerFicheCases, lu par dexpLiveCheck */
+function ficheLireCase(id){   /* lecture par defaut d'une case : menu -> valeur ; math-field -> LaTeX nettoye (saClean) */
+  const el=$(id); if(!el) return '';
+  if(el.tagName==='SELECT') return el.value||'';
+  try{ return saClean(String(el.getValue?el.getValue():el.value||'').trim()); }catch(e){ return ''; }
+}
+function creerFicheCases(o){
+  const F={};
+  const lire=o.brut||ficheLireCase;
+  F.navListe=function(){
+    const ids=(typeof o.ordre==='function'?o.ordre():o.ordre)||[];
+    return ids.map(i=>$(i)).filter(e=>{
+      if(!e || !e.offsetParent) return false;
+      if(e.tagName==='SELECT') return !e.disabled;
+      return !e.readOnly;
+    });
+  };
+  F.navSuiv=function(el,dir){
+    const L=F.navListe(), i=L.indexOf(el);
+    if(i<0) return;
+    const cible=L[i+dir];
+    if(cible){ try{ cible.focus(); }catch(e){} return; }
+    if(dir>0){
+      const btn=document.querySelector((o.actions||'')+' .btn-primary');
+      if(btn){
+        /* on ARRIVE sur Verifier ; second Entree (ou clic) pour verifier. MathLive termine son
+           traitement APRES nous et reprendrait un focus immediat : pose au tour suivant + relances. */
+        const pose=(n)=>{ try{ btn.focus(); }catch(e){} if(n>0 && document.activeElement!==btn) setTimeout(()=>pose(n-1),40); };
+        setTimeout(()=>pose(2),0);
+      }
+    }
+  };
+  F.liveCheck=function(id){
+    if(!isSoutien() || test.locked) return;
+    setTimeout(()=>{
+      if(test.locked) return;
+      const el=$(id); if(!el || el.classList.contains('sol')) return;
+      if(document.activeElement===el) return;
+      el.classList.remove('ok','bad');
+      if(lire(id)!=='') el.classList.add(o.ok(id)?'ok':'bad');
+    },0);
+  };
+  F.mf=function(id, cls){
+    const el=document.createElement('math-field');
+    el.className=cls||'dexp-mf';
+    el.id=id;
+    el.setAttribute('aria-label','r\u00e9ponse');
+    el.addEventListener('focusin',()=>{ if(o.suivreFocus) o.suivreFocus(el); });
+    el.addEventListener('focusout',()=>F.liveCheck(id));
+    el.addEventListener('input',()=>{   /* re-jugement en direct d'une case deja marquee */
+      if(!isSoutien() || test.locked || el.classList.contains('sol')) return;
+      if(!el.classList.contains('ok') && !el.classList.contains('bad')) return;
+      el.classList.remove('ok','bad');
+      if(lire(id)!=='') el.classList.add(o.ok(id)?'ok':'bad');
+    });
+    el.addEventListener('change',()=>{ if(el.hasFocus && el.hasFocus()) F.navSuiv(el,1); });   /* Entree : case suivante */
+    el.addEventListener('move-out',(ev)=>{   /* fleches aux bords */
+      const d=ev.detail && ev.detail.direction;
+      if(ev.cancelable) ev.preventDefault();
+      F.navSuiv(el,(d==='backward'||d==='upward')?-1:1);
+    });
+    return el;
+  };
+  F.brancherSelect=function(sel){
+    sel.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); F.navSuiv(sel,1); } });
+  };
+  if(o.actions){
+    const za=document.querySelector(o.actions);
+    if(za) za.addEventListener('keydown',(e)=>{   /* <- depuis le bouton : retour a la derniere case */
+      if(e.key!=='ArrowLeft') return;
+      const b=e.target && e.target.closest && e.target.closest('.btn-primary'); if(!b) return;
+      const L=F.navListe(), der=L[L.length-1]; if(!der) return;
+      e.preventDefault(); e.stopPropagation();
+      try{ der.focus(); }catch(err){}
+    });
+  }
+  if(o.kind) ficheLive[o.kind]=F.liveCheck;
+  return F;
+}
 /* SA-CORE-START */
 const SA=(function(){
   /* --- LaTeX -> expression arithm\u00e9tique (variables internes : w=U(n+1), x=U(n), y=U(0), v=V(n), z=V(0), n) --- */
@@ -8108,6 +8270,12 @@ const SA_ORDER=['sa-r0','sa-f1','sa-f2','sa-f3','sa-f4','sa-f5','sa-b1a','sa-b1b
 const saUH=s=>'<i>U</i><sub>'+s+'</sub>', saVH=s=>'<i>V</i><sub>'+s+'</sub>';
 const SA_UN=saUH('<i>n</i>'), SA_UN1=saUH('<i>n</i>+1'), SA_VN=saVH('<i>n</i>'), SA_VN1=saVH('<i>n</i>+1'), SA_V0=saVH('0');
 let saLastMF=null;
+/* Le 6.2 est le client de reference du kit « fiche a cases » : tout son comportement
+   (couleurs en direct, Entree, fleches, bouton Verifier) vient de creerFicheCases. */
+const FICHE_SA=creerFicheCases({
+  kind:'sa', ordre:()=>SA_ORDER, ok:id=>saOk(id), brut:id=>saRawId(id),
+  actions:'#saActions', suivreFocus:el=>{ saLastMF=el; }
+});
 function saStat(html,cls){ const s=document.createElement('span'); s.className='sa-lstat'+(cls?' '+cls:''); s.innerHTML=html; return s; }
 function saNote(txt){ const s=document.createElement('span'); s.className='sa-lnote'; s.innerHTML=txt; return s; }
 function saRow(){ const d=document.createElement('div'); d.className='sa-lrow'; return d; }
@@ -8118,26 +8286,8 @@ function saParen(close){   /* parenth\u00e8se \u00e9tirable : suit la hauteur de
     +'" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg>';
   return s;
 }
-function saMF(id, wide){
-  const el=document.createElement('math-field');
-  el.className='dexp-mf sa-mf'+(wide==='w'?' sa-mf-w':wide==='sm'?' sa-mf-sm':'');
-  el.id=id;
-  el.setAttribute('aria-label','r\u00e9ponse');
-  el.addEventListener('focusin',()=>{ saLastMF=el; });
-  el.addEventListener('focusout',()=>saLiveCheck(id));
-  el.addEventListener('input',()=>{   /* soutien : une case deja jugee est re-jugee a chaque modification -> le rouge disparait des que la correction arrive, meme si le contenu est insere apres coup (clavier ecran) */
-    if(!isSoutien() || test.locked || el.classList.contains('sol')) return;
-    if(!el.classList.contains('ok') && !el.classList.contains('bad')) return;
-    el.classList.remove('ok','bad');
-    const r=saRawId(id); if(r!=='') el.classList.add(saOk(id)?'ok':'bad');
-  });
-  el.addEventListener('change',()=>{ if(el.hasFocus && el.hasFocus()) saNavSuiv(el,1); });   /* Entree (clavier physique ou touche retour du clavier ecran) : case suivante ; depuis la derniere, Verifier */
-  el.addEventListener('move-out',(ev)=>{   /* fleches au bord de la case : case precedente / suivante */
-    const d=ev.detail && ev.detail.direction;
-    if(ev.cancelable) ev.preventDefault();
-    saNavSuiv(el, (d==='backward'||d==='upward')?-1:1);
-  });
-  return el;
+function saMF(id, wide){   /* case entierement equipee par le kit */
+  return FICHE_SA.mf(id, 'dexp-mf sa-mf'+(wide==='w'?' sa-mf-w':wide==='sm'?' sa-mf-sm':''));
 }
 /* saClean : retire les residus MathLive incomplets en fin de saisie (exposant/indice vide, \placeholder{}, operateur isole) qui s'affichent comme le nombre mais ne se lisent pas — sans quoi une bonne reponse comme « 3 » est comptee fausse. Hors moteur SA-CORE. */
 function saClean(s){
@@ -8292,7 +8442,7 @@ function renderSA(){
     sel.classList.remove('ok','bad');
     if(sel.value!=='') sel.classList.add(sel.value==='geo'?'ok':'bad');
   });
-  sel.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); saNavSuiv(sel,1); } });   /* Entree : case suivante, comme dans le reste de la fiche */
+  FICHE_SA.brancherSelect(sel);   /* Entree sur le menu : case suivante, comme dans le reste de la fiche */
   C1.appendChild(sel);
   const t2=document.createElement('span'); t2.className='sa-txt'; t2.innerHTML='&nbsp;de raison&nbsp;'; C1.appendChild(t2);
   C1.appendChild(saMF('sa-c1','sm'));
@@ -8363,53 +8513,10 @@ function checkSA(){
   $('saActions').innerHTML='<button class="btn btn-primary" onclick="nextSA()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
 }
 /* Mode soutien : coloration verte/rouge quand l'\u00e9l\u00e8ve quitte un champ (comme en 2.1 et 6.1). */
-function saLiveCheck(id){
-  if(!isSoutien() || test.locked) return;
-  setTimeout(()=>{
-    if(test.locked) return;
-    const el=$(id); if(!el || el.classList.contains('sol')) return;
-    if(document.activeElement===el) return;
-    el.classList.remove('ok','bad');
-    if(saRawId(id)!=='') el.classList.add(saOk(id)?'ok':'bad');
-  },0);
-}
-/* Navigation entre les cases du 6.2 : les cases sont des math-field, invisibles pour navCases (qui ne connait que input/select). */
-function saNavListe(){
-  return SA_ORDER.map(i=>$(i)).filter(e=>{
-    if(!e || !e.offsetParent) return false;
-    if(e.tagName==='SELECT') return !e.disabled;
-    return !e.readOnly;
-  });
-}
-function saNavSuiv(el,dir){
-  const L=saNavListe(), i=L.indexOf(el);
-  if(i<0) return;
-  const cible=L[i+dir];
-  if(cible){ try{ cible.focus(); }catch(e){} return; }
-  if(dir>0){
-    const btn=document.querySelector('#saActions .btn-primary');
-    if(btn){
-      /* on ARRIVE sur Verifier ; c'est un second Entree (ou un clic) qui lance la verification.
-         MathLive termine son traitement (commit d'Entree, jonglage de focus interne) APRES nous :
-         un focus immediat serait repris. On le pose donc au tour suivant, avec 2 relances de secours. */
-      const pose=(n)=>{ try{ btn.focus(); }catch(e){} if(n>0 && document.activeElement!==btn) setTimeout(()=>pose(n-1),40); };
-      setTimeout(()=>pose(2),0);
-    }
-  }
-}
-/* Depuis le bouton Verifier, la fleche gauche ramene a la derniere case de la fiche
-   (navCases ne connait pas les math-field). Delegation sur #saActions : survit aux
-   recreations du bouton (Verifier / Reverifier / Suivant). */
-(function(){
-  const za=$('saActions'); if(!za) return;
-  za.addEventListener('keydown',(e)=>{
-    if(e.key!=='ArrowLeft') return;
-    const b=e.target && e.target.closest && e.target.closest('.btn-primary'); if(!b) return;
-    const L=saNavListe(), der=L[L.length-1]; if(!der) return;
-    e.preventDefault(); e.stopPropagation();
-    try{ der.focus(); }catch(err){}
-  });
-})();
+function saLiveCheck(id){ return FICHE_SA.liveCheck(id); }   /* delegue au kit */
+/* Navigation du 6.2 : entierement deleguee au kit (voir FICHE_SA ci-dessus). */
+function saNavListe(){ return FICHE_SA.navListe(); }
+function saNavSuiv(el,dir){ return FICHE_SA.navSuiv(el,dir); }
 function nextSA(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA(); } else finishTest(); }
 /* \u00c9tat des cases, en clair, pour le conseil de l'IA */
 function saLu(id){
