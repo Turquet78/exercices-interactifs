@@ -987,7 +987,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 157</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 158</p>
     </div>
   </section>
 
@@ -2013,7 +2013,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v157 */ try{ console.info('terminale v157'); }catch(e){}
+/* v158 */ try{ console.info('terminale v158'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -11449,6 +11449,40 @@ function pinKbToViewport(){
     el.style.setProperty("max-width", "100vw", "important");
     el.style.setProperty("left",   Math.round(vv.offsetLeft || 0) + "px", "important");
   }catch(e){}
+  kbObserve();
+}
+/* Si MathLive reecrit la largeur en pixels (son propre gestionnaire de resize), on re-epingle
+   aussitot ; garde anti-boucle : nos propres ecritures laissent la largeur deja au bon niveau. */
+function kbObserve(){
+  const el = document.querySelector("body > .ML__keyboard");
+  if(!el || el.__pinObs || !window.MutationObserver) return;
+  el.__pinObs = 1;
+  new MutationObserver(()=>{
+    if(window.__kbFloating) return;
+    const vv = window.visualViewport; if(!vv || !vv.width) return;
+    if(el.style.width !== Math.round(vv.width) + "px") pinKbToViewport();
+  }).observe(el, { attributes:true, attributeFilter:["style"] });
+}
+/* Rotation du telephone : iOS met du temps a stabiliser ses dimensions et MathLive ne se
+   reconstruit pas. Apres tassement (200 ms), on RECONSTRUIT le clavier ancre s'il est visible
+   (hide -> show a la nouvelle taille : largeur, hauteur, touches ET rembourrage de page
+   remis a neuf), focus preserve, puis on re-epingle. */
+let kbRotTimer = null;
+function kbOnRotate(){
+  clearTimeout(kbRotTimer);
+  kbRotTimer = setTimeout(()=>{
+    pinKbToViewport();
+    const vk = window.mathVirtualKeyboard;
+    if(!vk || !vk.visible || window.__kbFloating) return;
+    const ae = document.activeElement;
+    try{ vk.hide(); }catch(e){}
+    requestAnimationFrame(()=>{
+      try{ if(ae && ae.isConnected && ae.tagName === "MATH-FIELD") ae.focus(); }catch(e){}
+      try{ vk.show(); }catch(e){}
+      setTimeout(pinKbToViewport, 80);
+      setTimeout(pinKbToViewport, 300);
+    });
+  }, 200);
 }
 function setupKeyboard(){
   if(window.__mlKbSetup) return; window.__mlKbSetup = true;
@@ -11461,6 +11495,8 @@ function setupKeyboard(){
     visualViewport.addEventListener("resize", pinKbToViewport);
     visualViewport.addEventListener("scroll", pinKbToViewport);
   }
+  window.addEventListener("orientationchange", kbOnRotate);
+  window.addEventListener("resize", kbOnRotate);
   if(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches){
     const win = document.createElement("div");
     win.id = "kbwin";
