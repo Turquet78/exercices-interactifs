@@ -1885,14 +1885,50 @@ function ctxVisible(){
    franchir un gras Markdown (**), ni mordre la zone deja emise (verrou anti-doublon).
    Toute commande restee seule hors formule devient un glyphe lisible (\le → ≤, \pi → π…) :
    aucun backslash ne peut atteindre l'ecran. */
+/* Toute division devient une fraction empilee \frac{..}{..} : a/b, (A)/(B), u'(x)/v(x), 1/2, ÷…
+   Numerateur = l'atome qui precede la barre (avec ses exposants/indices, un nombre juxtapose,
+   un nom de fonction colle a sa parenthese) ; denominateur = un atome (signe − admis).
+   Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
+   n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
+   comme aux formules detectees en clair — memes fractions partout. */
+function fracAuto(s){
+  s=String(s==null?'':s);
+  s=s.replace(/\\div(?![A-Za-z])/g,'/').replace(/\u00f7/g,'/');
+  if(s.indexOf('/')<0) return s;
+  const T=[]; s=s.replace(/\\text\{[^{}]{0,60}\}/g,function(m){T.push(m);return '\uE010'+(T.length-1)+'\uE011';});
+  var NUM='\\d+(?:[.,]\\d+)?';
+  var SUF='(?:[_^](?:\\{(?:[^{}]|\\{[^{}]{0,24}\\}){0,40}\\}|'+NUM+'|[A-Za-z]))*';
+  var GRP='\\((?:[^()]|\\([^()]{0,30}\\)){0,80}\\)';
+  var FRC='\\\\(?:d?frac|sqrt)(?:\\{(?:[^{}]|\\{[^{}]{0,30}\\}){0,80}\\}){1,2}';
+  var FUN="(?:\\\\?[A-Za-z]{1,6}(?:'{1,2}|\u2032{1,2})?)?"+GRP;
+  var VAR="(?:\\\\[A-Za-z]{1,12}|[A-Za-z])(?:'{1,2}|\u2032{1,2})?";
+  var ATOM='(?:'+FRC+'|'+FUN+'|'+VAR+'|'+NUM+')'+SUF;
+  var RX=new RegExp('((?:'+NUM+'\\s?)?'+ATOM+')\\s*\\/\\s*(-?'+ATOM+')');
+  var OP=/^-?\\(?:cdot|times|div|to(?![A-Za-z])|left|right|ldots|cdots|ddots|vdots|quad|qquad|text|mathbb|lim(?![A-Za-z])|le(?:q(?:slant)?)?(?![A-Za-z])|ge(?:q(?:slant)?)?(?![A-Za-z])|ne(?:q)?(?![A-Za-z])|approx|pm|mp|in(?![A-Za-z])|notin|iff|implies|Rightarrow|Leftrightarrow|infty)/;
+  var nue=function(x){ x=x.trim(); return /^\((?:[^()]|\([^()]*\))*\)$/.test(x) ? x.slice(1,-1) : x; };
+  var garde=0, idx=0;
+  while(garde++<10){
+    var m=RX.exec(s.slice(idx));
+    if(!m) break;
+    var abs=idx+m.index, nu=m[1], de=m[2], avant=abs>0?s[abs-1]:'';
+    if(OP.test(nu)||OP.test(de)||avant==='\\'||(/[A-Za-z]/.test(avant)&&/^[A-Za-z]/.test(nu))||/^[VvOo]$/.test(nu)&&/^[FfNn]$/.test(de)){
+      idx=abs+m[0].indexOf('/')+1; continue;   /* operande suspect ou mot colle : cette barre reste une barre */
+    }
+    s=s.slice(0,abs)+'\\frac{'+nue(nu)+'}{'+nue(de)+'}'+s.slice(abs+m[0].length);
+    idx=0;   /* la fraction creee devient un atome pour les barres suivantes (a/b/c) */
+  }
+  s=s.replace(/\uE010(\d+)\uE011/g,function(m,i){return T[+i]||'';});
+  return s;
+}
 function iaMathAuto(s, maths){
   s=String(s==null?'':s);
+  s=s.replace(/\\d?frac(?!\s?\{)/g,'');   /* \frac malforme (\frace^(0,5x)…, \frac x/y) : la commande cassee disparait, la suite reste detectable puis fracAuto empile la division si elle existe */
   const CMD='(?:Leftrightarrow|Rightarrow|leqslant|geqslant|implies|approx|infty|times|lambda|Delta|alpha|gamma|delta|notin|ldots|cdots|ddots|vdots|left|right|cdot|dots|beta|iff|div|ell|exp|cos|sin|tan|lim|ln|log|mu|pm|to|in|pi|leq|geq|neq|le|ge|ne|e)';
-  const BRACE='\\{(?:[^{}]|\\{[^{}]{0,24}\\}){1,40}\\}';   /* accolades imbriquees (1 niveau) : \frac{e^{-2x}}{3x+3} */
+  const BRACE='\\{(?:[^{}]|\\{(?:[^{}]|\\{[^{}]{0,16}\\}){0,32}\\}){1,48}\\}';   /* accolades imbriquees (2 niveaux) : \frac{e^{0{,}5x}}{3x+3} */
   const SUFF='(?:_(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9])|\\^(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9]))';
-  const seed=new RegExp('\\\\(?:d?frac)'+BRACE+BRACE+'|\\\\sqrt'+BRACE+'|\\\\(?:lim|ln|log|exp)(?![A-Za-z])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\u221a|[A-Za-z0-9)}]'+SUFF,'g');
-  const tokRe=new RegExp('^(?:\\\\(?:d?frac)'+BRACE+BRACE+'|\\\\sqrt'+BRACE+'|\\\\text'+BRACE+'|\\\\mathbb\\{[A-Z]\\}|\\\\'+CMD+'(?![A-Za-z])|\\\\[,;!]|[_^](?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\d+(?:[.,]\\d+)?|[=+\\-\\u2212\\u00d7\\u00b7\\/()<>\\u2264\\u2265\\u2260\\u2248\\u00b1\\u221a\\u2192\\u221e\\u03c0\\u2113]|\\*(?!\\*)|[A-Za-z]'+SUFF+'?)');
-  const bareOK=/^[UVWNQRKXnqrkxb]$/;
+  const seed=new RegExp('\\\\(?:d?frac)'+BRACE+'\\s?'+BRACE+'|\\\\sqrt'+BRACE+'|\\\\(?:lim|ln|log|exp)(?![A-Za-z])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\u221a|[A-Za-z0-9)][\/\u00f7](?=\\s?[A-Za-z0-9(\u2212-])|[A-Za-z0-9)}]'+SUFF,'g');
+  const tokRe=new RegExp('^(?:\\\\(?:d?frac)'+BRACE+'\\s?'+BRACE+'|\\\\sqrt'+BRACE+'|\\\\text'+BRACE+'|\\\\mathbb\\{[A-Z]\\}|\\\\'+CMD+'(?![A-Za-z])|\\\\[,;!]|d[xt](?![A-Za-z])|[_^](?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\d+(?:[.,]\\d+)?|[=+\\-\\u2212\\u00d7\\u00b7\\/\\u00f7()<>\\u2264\\u2265\\u2260\\u2248\\u00b1\\u221a\\u2192\\u221e\\u03c0\\u2113]|\\*(?!\\*)|[A-Za-z]'+SUFF+'?)');
+  const bareOK=/^[A-Znqrkxbuvwdfgh]$/;   /* jamais a e i l o s t y : lettres-mots du francais */
   const lettre=c=>!!c && /[A-Za-z\u00c0-\u00ff]/.test(c);
   let m, out='', last=0;
   while((m=seed.exec(s))){
@@ -1929,7 +1965,7 @@ function iaMathAuto(s, maths){
     const nb=(t,c)=>t.split(c).length-1;
     while(run && run[run.length-1]===')' && nb(run,')')>nb(run,'(')){ b--; run=s.slice(a,b); }
     while(run && run[0]==='(' && nb(run,'(')>nb(run,')')){ a++; run=s.slice(a,b); }
-    if(b-a<2 || !/[_^\u221a\u2192\u221e\u03c0\u2113]|\\(?:d?frac|sqrt|lim|ln|log|exp|text|mathbb)|[A-Za-z]'{1,2}\(|(?:ln|log|exp|cos|sin|tan)\s?\(/.test(run)){
+    if(b-a<2 || !/[_^\u221a\u2192\u221e\u03c0\u2113]|[A-Za-z0-9)]\s?[\/\u00f7]|\\(?:d?frac|sqrt|lim|ln|log|exp|text|mathbb)|[A-Za-z]'{1,2}\(|(?:ln|log|exp|cos|sin|tan)\s?\(/.test(run)){
       seed.lastIndex=Math.max(seed.lastIndex,b); continue;
     }
     out+=s.slice(last,a);
@@ -1941,7 +1977,7 @@ function iaMathAuto(s, maths){
       .replace(/\u00d7/g,'\\times ').replace(/\u00b7/g,'\\cdot ').replace(/\*/g,'\\times ').replace(/\u2212/g,'-')
       .replace(/\u2264/g,'\\le ').replace(/\u2265/g,'\\ge ').replace(/\u2260/g,'\\ne ').replace(/\u2248/g,'\\approx ')
       .replace(/\u2192/g,'\\to ').replace(/\u221e/g,'\\infty ').replace(/\u03c0/g,'\\pi ').replace(/\u2113/g,'\\ell ').replace(/\u00b1/g,'\\pm ');
-    maths.push(lx);
+    maths.push(fracAuto(lx));
     out+='\uE000'+(maths.length-1)+'\uE001';
     last=b; seed.lastIndex=b;
   }
@@ -1977,7 +2013,7 @@ function conseilHTML(t){
   const brut=String(t==null?'':t).replace(/\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^$\n]+?)\$/g,(m,a,b,c)=>{
     const lx=(a!=null?a:(b!=null?b:c));
     if(c!=null && (/^\s|\s$/.test(c))) return m;   /* $ isole (prix, texte) : on ne touche pas */
-    maths.push(lx); return '\uE000'+(maths.length-1)+'\uE001';
+    maths.push(fracAuto(lx)); return '\uE000'+(maths.length-1)+'\uE001';
   });
   let x=esc(iaMathAuto(brut,maths));   /* + ecritures en clair (V_(n+1), q^n, equations…) */
   x=x.replace(/^[ \t]*#{1,6}[ \t]*(.+)$/gm,'<b>$1</b>');
@@ -2000,7 +2036,7 @@ const CONSEIL_FORMAT=" — FORMAT DE TA RÉPONSE : 2 à 4 phrases maximum, "
   +"sans titre ni markdown (pas de « # », pas de « ** »), tutoiement, et ne donne JAMAIS "
   +"la réponse finale — seulement la prochaine étape à faire. "
   +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3V_n\\) ou \\(\\frac{b}{a}\\) — "
-  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots.";
+  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades.";
 let conseilBusy=false;
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
@@ -9251,7 +9287,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
