@@ -1887,7 +1887,7 @@ function ctxVisible(){
    aucun backslash ne peut atteindre l'ecran. */
 function iaMathAuto(s, maths){
   s=String(s==null?'':s);
-  const CMD='(?:Leftrightarrow|Rightarrow|leqslant|geqslant|implies|approx|infty|times|lambda|Delta|alpha|gamma|delta|notin|left|right|cdot|beta|iff|div|ell|exp|cos|sin|tan|lim|ln|log|mu|pm|to|in|pi|leq|geq|neq|le|ge|ne|e)';
+  const CMD='(?:Leftrightarrow|Rightarrow|leqslant|geqslant|implies|approx|infty|times|lambda|Delta|alpha|gamma|delta|notin|ldots|cdots|ddots|vdots|left|right|cdot|dots|beta|iff|div|ell|exp|cos|sin|tan|lim|ln|log|mu|pm|to|in|pi|leq|geq|neq|le|ge|ne|e)';
   const BRACE='\\{(?:[^{}]|\\{[^{}]{0,24}\\}){1,40}\\}';   /* accolades imbriquees (1 niveau) : \frac{e^{-2x}}{3x+3} */
   const SUFF='(?:_(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9])|\\^(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9]))';
   const seed=new RegExp('\\\\(?:d?frac)'+BRACE+BRACE+'|\\\\sqrt'+BRACE+'|\\\\(?:lim|ln|log|exp)(?![A-Za-z])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\u221a|[A-Za-z0-9)}]'+SUFF,'g');
@@ -1958,6 +1958,11 @@ function iaMathAuto(s, maths){
          .replace(/\\pm(?![A-Za-z])/g,'\u00b1').replace(/\\leq?(?![A-Za-z])/g,'\u2264').replace(/\\geq?(?![A-Za-z])/g,'\u2265')
          .replace(/\\neq?(?![A-Za-z])/g,'\u2260').replace(/\\ell(?![A-Za-z])/g,'\u2113')
          .replace(/\\pi(?![A-Za-z])/g,'\u03c0').replace(/\\infty(?![A-Za-z])/g,'\u221e')
+         .replace(/\\(?:ldots|dots)(?![A-Za-z])/g,'\u2026').replace(/\\cdots(?![A-Za-z])/g,'\u22ef')
+         .replace(/\\ddots(?![A-Za-z])/g,'\u22f1').replace(/\\vdots(?![A-Za-z])/g,'\u22ee')
+         .replace(/\\qquad(?![A-Za-z])/g,'\u2003\u2003').replace(/\\quad(?![A-Za-z])/g,'\u2003')
+         .replace(/\\Longrightarrow(?![A-Za-z])/g,'\u27f9').replace(/\\longrightarrow(?![A-Za-z])/g,'\u27f6')
+         .replace(/\\math(?:rm|bf|it)\{([^{}]{0,30})\}/g,'$1')
          .replace(/\\to(?![A-Za-z])/g,'\u2192').replace(/\\(?:lim|ln|log|exp|cos|sin|tan)(?![A-Za-z])/g,x=>x.slice(1))
          .replace(/\\(?:left|right)(?![A-Za-z])/g,'').replace(/\\e(?![A-Za-z])/g,'e')
          .replace(/\\[,;!]/g,'\u2009')
@@ -1995,7 +2000,7 @@ const CONSEIL_FORMAT=" — FORMAT DE TA RÉPONSE : 2 à 4 phrases maximum, "
   +"sans titre ni markdown (pas de « # », pas de « ** »), tutoiement, et ne donne JAMAIS "
   +"la réponse finale — seulement la prochaine étape à faire. "
   +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3V_n\\) ou \\(\\frac{b}{a}\\) — "
-  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}.";
+  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots.";
 let conseilBusy=false;
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
@@ -9246,7 +9251,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
@@ -9303,6 +9308,7 @@ function qiaConsigneRedaction(){
     + 'aucune équation complétée, pas même à titre d’exemple. Seule la structure reste (les lettres x, y, f(x), le mot lim, les flèches et les mots) : '
     + 'quand x → … , f(x) → … / asymptote horizontale d’équation y = … / asymptote verticale d’équation x = … . '
     + 'Donne ce modèle AVANT toute explication, puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). '
+    + 'Les pointillés sont TOUJOURS le caractère « … » lui-même, jamais une commande comme \\ldots, \\dots ou \\cdots. '
     + 'N’utilise AUCUN dessin et AUCUNE balise [ILLU:…] : ici c’est le texte à recopier qui aide l’élève, pas une figure.';
 }
 function qiaIlluMission(){
