@@ -949,7 +949,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 127</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 131</p>
     </div>
   </section>
 
@@ -1929,7 +1929,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v127 */ try{ console.info('terminale v127'); }catch(e){}
+/* v131 */ try{ console.info('terminale v131'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -2163,7 +2163,7 @@ const CONSEIL_FORMAT=" — FORMAT DE TA RÉPONSE : 2 à 4 phrases maximum, "
   +"sans titre ni markdown (pas de « # », pas de « ** »), tutoiement, et ne donne JAMAIS "
   +"la réponse finale — seulement la prochaine étape à faire. "
   +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3V_n\\) ou \\(\\frac{b}{a}\\) — "
-  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). N'utilise JAMAIS d'environnement LaTeX (\\begin{array}, \\begin{tabular}, matrices) ni de tableau : pour d\u00e9crire un tableau de variation ou de signe, \u00e9cris-le ligne par ligne, en mots et petites formules \u2014 par exemple : sur [0 ; 2], f'(x) est positive donc f est croissante de f(0) \u00e0 f(2).";
+  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre.";
 let conseilBusy=false;
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
@@ -2178,7 +2178,7 @@ async function lancerConseil(contexte, fb){
     const d=r.data;
     if(d && d.feedback){
       const p=qiaIlluExtrait(d.feedback);
-      fb.innerHTML='💡 '+conseilHTML(p.texte)+p.illus.map(qiaIlluHTML).join(''); cls('mp-feedback conseil'); roule();
+      fb.innerHTML='💡 '+conseilHTML(p.texte)+p.illus.map(qiaIlluHTML).join('')+(p.courbes||[]).map(qiaCourbeHTML).join(''); cls('mp-feedback conseil'); roule();
       /* garde anti-recopie : on retient les conseils donnés pour détecter un collage tel quel */
       const cs=(window.__conseilsDonnes=window.__conseilsDonnes||[]);
       cs.push(String(d.feedback)); if(cs.length>20) cs.shift();
@@ -8717,27 +8717,34 @@ function encVal(v){ return { v:v, s:numFmt(v), lat:String(v).replace('.','{,}') 
 function encFrac(p,q){ return { v:p/q, s:p+'/'+q, lat:'\\frac{'+p+'}{'+q+'}' }; }
 function encMel(a){ const t=a.slice(); for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const x=t[i]; t[i]=t[j]; t[j]=x; } return t; }
 function encOpts(ok,d1,d2){ const o=encMel([{t:ok,ok:true},{t:d1,ok:false},{t:d2,ok:false}]); o.okIdx=o.findIndex(x=>x.ok); return o; }
+function encQ(p,q){ const g=(function pg(a,b){ return b?pg(b,a%b):a; })(p,q); p/=g; q/=g; return q===1?encVal(p):encFrac(p,q); }
+/* Viviers d'instances (valeurs toujours simples a saisir) :
+   - affine  f(x) = a·x + b, 0 < a < 1, M point fixe (f(M) = M) : les deux bornes de chaque
+     etape sont des entiers ou des demis/quarts exacts ;
+   - racine  f(x) = \u221a(x + c) : carres parfaits aux deux bornes ;
+   - inverse f(x) = k/(x + c) sur [0 ; k/c] : sommes entieres, fractions reduites (encQ). */
 function genENC(fam){
   if(fam==='aff'){
-    const b=pick([2,3,4,5]), m=2*b-2, M=2*b, bS=String(b);
-    return { fam:fam, m:m, M:M,
-      fTex:'f(x) = 0{,}5x + '+bS, fPlain:'f(x) = 0,5x + '+bS, dom:'\u211d',
+    const I=pick([[0.5,2,2,4],[0.5,3,4,6],[0.5,4,6,8],[0.5,5,8,10],[0.25,3,2,4],[0.25,6,4,8],[0.25,6,0,8],[0.75,2,4,8],[0.75,1,0,4],[0.2,4,0,5],[0.2,8,5,10]]);
+    const a=I[0], b=I[1], m=I[2], M=I[3], aS=numFmt(a), aT=String(a).replace('.','{,}'), bS=String(b);
+    return { fam:fam, a:a, b:b, m:m, M:M,
+      fTex:'f(x) = '+aT+'x + '+bS, fPlain:'f(x) = '+aS+'x + '+bS, dom:'\u211d',
       lignes:[
-        { tex:'0{,}5x', plain:'0,5x', lo:encVal(0.5*m), hi:encVal(0.5*M),
-          opts:encOpts('on multiplie par 0,5, qui est positif : l\u2019ordre est conserv\u00e9',
-                       'on multiplie par 0,5 : l\u2019ordre change',
-                       'on ajoute 0,5 : l\u2019ordre est conserv\u00e9') },
-        { tex:'0{,}5x + '+bS, plain:'0,5x + '+bS, lo:encVal(2*b-1), hi:encVal(M),
+        { tex:aT+'x', plain:aS+'x', lo:encVal(a*m), hi:encVal(a*M),
+          opts:encOpts('on multiplie par '+aS+', qui est positif : l\u2019ordre est conserv\u00e9',
+                       'on multiplie par '+aS+' : l\u2019ordre change',
+                       'on ajoute '+aS+' : l\u2019ordre est conserv\u00e9') },
+        { tex:aT+'x + '+bS, plain:aS+'x + '+bS, lo:encVal(a*m+b), hi:encVal(M),
           opts:encOpts('on ajoute '+bS+' : l\u2019ordre est conserv\u00e9',
                        'on ajoute '+bS+' : l\u2019ordre change',
                        'on multiplie par '+bS+' : l\u2019ordre est conserv\u00e9') }
       ],
-      concl:{ lo:encVal(2*b-1), hi:encVal(M), hiEstM:true } };
+      concl:{ lo:encVal(a*m+b), hi:encVal(M), hiEstM:true } };
   }
   if(fam==='rac'){
-    const inst=pick([[2,2,7],[3,1,6],[1,0,3],[6,3,10]]), c=inst[0], m=inst[1], M=inst[2];
+    const inst=pick([[2,2,7],[3,1,6],[1,0,3],[6,3,10],[8,1,8],[4,0,5],[7,2,9],[9,0,7]]), c=inst[0], m=inst[1], M=inst[2];
     const lo=Math.sqrt(m+c), hi=Math.sqrt(M+c), cS=String(c);
-    return { fam:fam, m:m, M:M,
+    return { fam:fam, cc:c, m:m, M:M,
       fTex:'f(x) = \\sqrt{x + '+cS+'}', fPlain:'f(x) = \u221a(x + '+cS+')', dom:'\u211d\u207a',
       lignes:[
         { tex:'x + '+cS, plain:'x + '+cS, lo:encVal(m+c), hi:encVal(M+c),
@@ -8751,24 +8758,25 @@ function genENC(fam){
       ],
       concl:{ lo:encVal(lo), hi:encVal(hi), hiEstM:(hi===M) } };
   }
-  const k=pick([2,3,4]), m=0, M=k, kS=String(k);
-  return { fam:'inv', m:m, M:M,
-    fTex:'f(x) = \\frac{'+kS+'}{x + 1}', fPlain:'f(x) = '+kS+'/(x + 1)', dom:'\u211d\u207a',
+  const I=pick([[2,1],[3,1],[4,1],[4,2],[6,2],[8,2],[6,3],[9,3],[8,4]]);
+  const k=I[0], cc=I[1], M=k/cc, m=0, kS=String(k), cS=String(cc);
+  return { fam:'inv', k:k, cc:cc, m:m, M:M,
+    fTex:'f(x) = \\frac{'+kS+'}{x + '+cS+'}', fPlain:'f(x) = '+kS+'/(x + '+cS+')', dom:'\u211d\u207a',
     lignes:[
-      { tex:'x + 1', plain:'x + 1', lo:encVal(1), hi:encVal(k+1),
-        opts:encOpts('on ajoute 1 : l\u2019ordre est conserv\u00e9',
-                     'on ajoute 1 : l\u2019ordre change',
-                     'on multiplie par 1 : les bornes ne changent pas') },
-      { tex:'\\frac{1}{x + 1}', plain:'1/(x + 1)', lo:encFrac(1,k+1), hi:encVal(1),
+      { tex:'x + '+cS, plain:'x + '+cS, lo:encVal(cc), hi:encVal(M+cc),
+        opts:encOpts('on ajoute '+cS+' : l\u2019ordre est conserv\u00e9',
+                     'on ajoute '+cS+' : l\u2019ordre change',
+                     'on multiplie par '+cS+' : l\u2019ordre est conserv\u00e9') },
+      { tex:'\\frac{1}{x + '+cS+'}', plain:'1/(x + '+cS+')', lo:encQ(1,M+cc), hi:encQ(1,cc),
         opts:encOpts('la fonction inverse est d\u00e9croissante sur ]0 ; +\u221e[ : l\u2019ordre CHANGE (les bornes s\u2019\u00e9changent)',
                      'la fonction inverse est croissante : l\u2019ordre est conserv\u00e9',
                      'passer \u00e0 l\u2019inverse conserve toujours l\u2019ordre') },
-      { tex:'\\frac{'+kS+'}{x + 1}', plain:kS+'/(x + 1)', lo:encFrac(k,k+1), hi:encVal(k),
+      { tex:'\\frac{'+kS+'}{x + '+cS+'}', plain:kS+'/(x + '+cS+')', lo:encQ(k,M+cc), hi:encVal(M),
         opts:encOpts('on multiplie par '+kS+', qui est positif : l\u2019ordre est conserv\u00e9',
                      'on multiplie par '+kS+' : l\u2019ordre change',
                      'on ajoute '+kS+' : l\u2019ordre est conserv\u00e9') }
     ],
-    concl:{ lo:encFrac(k,k+1), hi:encVal(k), hiEstM:true } };
+    concl:{ lo:encQ(k,M+cc), hi:encVal(M), hiEstM:true } };
 }
 function encTD(cl,inner){ return '<span class="enc-td'+(cl?' '+cl:'')+'">'+(inner||'')+'</span>'; }
 function encTR(cl,cells){ return '<span class="enc-tr'+(cl?' '+cl:'')+'">'+cells.join('')+'</span>'; }
@@ -9648,13 +9656,13 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). N'utilise JAMAIS d'environnement LaTeX (\\begin{array}, \\begin{tabular}, matrices) ni de tableau : pour d\u00e9crire un tableau de variation ou de signe, \u00e9cris-le ligne par ligne, en mots et petites formules \u2014 par exemple : sur [0 ; 2], f'(x) est positive donc f est croissante de f(0) \u00e0 f(2)."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback){ const p=qiaIlluExtrait(d.feedback); const illus=qiaEstRedaction(q)?[]:p.illus;   /* filet : meme si l'IA invente une balise, aucune figure ici */
-      br.innerHTML=conseilHTML(p.texte)+illus.map(qiaIlluHTML).join(''); }
+    if(d && d.feedback){ const p=qiaIlluExtrait(d.feedback); const illus=qiaEstRedaction(q)?[]:p.illus, crb=qiaEstRedaction(q)?[]:(p.courbes||[]);   /* filet : meme si l'IA invente une balise, aucune figure ici */
+      br.innerHTML=conseilHTML(p.texte)+illus.map(qiaIlluHTML).join('')+crb.map(qiaCourbeHTML).join(''); }
     else if(d && d.error) br.textContent=d.error;
     else br.textContent='Je n’ai pas de réponse pour le moment. Réessaie.';
   }catch(e){ br.textContent='L’IA est indisponible pour le moment. Réessaie dans un instant.'; }
@@ -9694,7 +9702,13 @@ const QIA_ILLUS={
   'tv-limites':'Dans un tableau de variation, les limites se lisent au bout des flèches, aux bords du tableau.',
   'tv-double-barre':'La double barre marque la valeur interdite a : de part et d’autre, les flèches partent vers ±∞.',
   'pas-asymptote-h':'Pas d’asymptote horizontale : la courbe ne se stabilise vers aucune hauteur — elle franchit toutes les barrières.',
-  'pas-asymptote-v':'Pas d’asymptote verticale : aucune valeur interdite — en chaque point la courbe passe tranquillement, sans filer vers ±∞.'
+  'pas-asymptote-v':'Pas d’asymptote verticale : aucune valeur interdite — en chaque point la courbe passe tranquillement, sans filer vers ±∞.',
+  'coeff-directeur':'Coefficient directeur : quand x augmente de 1, y augmente de a — c’est la pente de la droite.',
+  'fonction-croissante':'Fonction croissante : si x₁ < x₂ alors f(x₁) < f(x₂) — la courbe monte.',
+  'fonction-decroissante':'Fonction décroissante : si x₁ < x₂ alors f(x₁) > f(x₂) — la courbe descend.',
+  'tvi-unique':'TVI : f continue et strictement croissante de f(a) à f(b), et k entre les deux ⇒ une unique solution α.',
+  'signe-variations':'Le signe de f′ donne les variations de f : f′ > 0 ⇒ f croît, f′ < 0 ⇒ f décroît.',
+  'tangente':'La tangente en A frôle la courbe ; sa pente vaut f′(a), le nombre dérivé.'
 };
 /* Question portant sur la maniere d'ecrire la reponse : on ne propose alors AUCUN dessin
    a l'IA (pas de liste de balises) et on exige un modele de phrase. */
@@ -9709,22 +9723,79 @@ function qiaConsigneRedaction(){
     + 'Les pointillés du modèle sont TOUJOURS le caractère « … » lui-même, jamais une commande comme \\ldots, \\dots ou \\cdots. '
     + 'N’utilise AUCUN dessin et AUCUNE balise [ILLU:…] : ici c’est le texte à recopier qui aide l’élève, pas une figure.';
 }
+function qiaCourbeMission(){
+  return " COURBE D\u2019ILLUSTRATION : si (et seulement si) une courbe \u00e9clairerait vraiment ta r\u00e9ponse \u2014 pour illustrer une notion du cours ou ton exemple num\u00e9rique \u2014 termine TOUTE ta r\u00e9ponse par UNE balise [COURBE:expression] (ou DEUX au maximum, l\u2019une apr\u00e8s l\u2019autre, si tu compares deux fonctions), chacune contenant l\u2019expression d\u2019une fonction INVENT\u00c9E simple, \u00e9crite uniquement avec des nombres, la lettre x, + - * / ^ et des parenth\u00e8ses (exp(\u2026) autoris\u00e9 ; PAS de racine, de ln ni de \\\\frac dans la balise : \u00e9cris par exemple (2x+1)/(x-3) ou exp(-x)) \u2014 la plateforme trace elle-m\u00eame la courbe sur [\u22125 ; 5]. De m\u00eame, un tableau de variation ou de signe invent\u00e9 peut illustrer ta r\u00e9ponse (format \\\\begin{array} impos\u00e9 plus haut). Jamais la fonction ni les valeurs de l\u2019exercice en cours ; si aucune figure n\u2019aide, n\u2019en mets pas."
+}
 function qiaIlluMission(){
-  if(!(test && ['dhv','lg','lg2','lg3','lr'].indexOf(test.kind)>=0)) return '';
-  return ' ILLUSTRATION FACULTATIVE : si (et seulement si) un petit dessin générique aiderait vraiment, termine ta réponse par UNE balise (ou DEUX au maximum, séparées par un espace, si tu compares deux situations) choisies EXACTEMENT dans cette liste, en toute fin : [ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale : f file vers ±∞ au lieu de se stabiliser ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale : aucune valeur interdite. La plateforme dessinera la figure elle-même (dessin générique, jamais celui de l’exercice en cours). N’invente JAMAIS d’autre balise ; si aucun dessin ne convient, n’en mets pas. Si la question porte sur la rédaction, le dessin reste facultatif et ne dispense JAMAIS du modèle de phrase.';
+  const lim=!!(test && ['dhv','lg','lg2','lg3','lr'].indexOf(test.kind)>=0);
+  const lst=lim ? '[ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale ; [ILLU:fonction-croissante] définition d’une fonction croissante ; [ILLU:fonction-decroissante] définition d’une fonction décroissante' : '[ILLU:coeff-directeur] coefficient directeur / pente d’une droite ; [ILLU:fonction-croissante] définition d’une fonction croissante ; [ILLU:fonction-decroissante] définition d’une fonction décroissante ; [ILLU:tvi-unique] théorème des valeurs intermédiaires (unique solution) ; [ILLU:signe-variations] tableau reliant le signe de f′ aux variations de f ; [ILLU:tangente] tangente en un point et sa pente f′(a)';
+  return ' ILLUSTRATION \u2014 D\u00c8S QUE ta r\u00e9ponse peut \u00eatre illustr\u00e9e par une figure (coefficient directeur, croissance ou d\u00e9croissance d\u2019une fonction, TVI, tableau de signe ou de variation, tangente, limite, asymptote\u2026), AJOUTE-EN une : termine ta r\u00e9ponse par UNE balise (ou DEUX au maximum, s\u00e9par\u00e9es par un espace, si tu compares deux situations) choisie EXACTEMENT dans cette liste : '+lst+'. La plateforme dessinera la figure elle-m\u00eame (dessin g\u00e9n\u00e9rique, jamais celui de l\u2019exercice en cours). N\u2019invente JAMAIS d\u2019autre balise [ILLU:\u2026] ; si aucune figure de la liste ne convient mais qu\u2019une courbe aiderait, utilise [COURBE:expression] ; pour un tableau chiffr\u00e9, l\u2019environnement \\\\begin{array}. Seule une r\u00e9ponse purement calculatoire, sans notion \u00e0 visualiser, peut rester sans figure. Si la question porte sur la r\u00e9daction, le dessin reste facultatif et ne dispense JAMAIS du mod\u00e8le de phrase.';
 }
 function qiaIlluExtrait(t){
-  const illus=[];
-  const texte=String(t==null?'':t).replace(/\[\s*ILLU\s*:\s*([a-zA-Z0-9-]+)\s*\]/g,function(m,id){
+  const illus=[], courbes=[];
+  let texte=String(t==null?'':t).replace(/\[\s*COURBE\s*:\s*([^\]\n]{1,60})\]/gi,function(m,e){
+    if(courbes.length<2) courbes.push(e.trim());
+    return '';
+  });
+  texte=texte.replace(/\[\s*ILLU\s*:\s*([a-zA-Z0-9-]+)\s*\]/g,function(m,id){
     id=String(id).toLowerCase();
     if(QIA_ILLUS[id] && illus.indexOf(id)<0 && illus.length<2) illus.push(id);
     return '';
   }).replace(/[ \t]+\n/g,'\n').trim();
-  return { texte:texte, illus:illus };
+  return { texte:texte, illus:illus, courbes:courbes };
 }
 function qiaIlluHTML(id){
   if(!id || !QIA_ILLUS[id]) return '';
   return '<div class="qia-illu">'+qiaIlluSVG(id)+'<div class="qia-illu-leg">'+esc(QIA_ILLUS[id])+'</div></div>';
+}
+/* Courbe d'un EXEMPLE de l'IA : balise [COURBE:expression]. L'expression (nombres, x,
+   + - * / ^, parentheses, exp) est compilee par compileExprExp (jeu de caracteres verrouille,
+   aucun code libre) puis tracee sur [-5 ; 5] : fenetre en y robuste (quantiles), axes flechés,
+   graduations entieres, chemin coupe aux poles et hors fenetre. Expression illisible : rien. */
+function qiaCourbeSVG(expr){
+  let src=String(expr==null?'':expr).trim().replace(/\u221a\(([^()]{1,24})\)/g,'(($1)^(1/2))');
+  const f=compileExprExp(src);
+  if(!f) return '';
+  const N=240, pts=[], finis=[];
+  for(let i=0;i<=N;i++){
+    const x=-5+10*i/N; let y;
+    try{ y=f(x); }catch(e){ y=NaN; }
+    if(typeof y!=='number') y=NaN;
+    pts.push([x,y]); if(isFinite(y)) finis.push(y);
+  }
+  if(finis.length<24) return '';
+  finis.sort(function(a,b){ return a-b; });
+  let y0=finis[Math.floor((finis.length-1)*0.06)], y1=finis[Math.floor((finis.length-1)*0.94)];
+  if(!(y1-y0>1e-9)){ y0-=1; y1+=1; }
+  const g=(y1-y0)*0.18; y0-=g; y1+=g;
+  if(y0>0 && y0<(y1-y0)) y0=0;
+  if(y1<0 && -y1<(y1-y0)) y1=0;
+  y0=Math.max(y0,-40); y1=Math.min(y1,40);
+  const X=x=>22+(x+5)*22.6, Y=y=>158-(y-y0)*(140/(y1-y0));
+  const fl=(x1,ya,x2,yb)=>{ const dx=x2-x1,dy=yb-ya,L=Math.sqrt(dx*dx+dy*dy)||1,ux=dx/L,uy=dy/L,px=-uy,py=ux;
+    return '<line class="qi-ax" x1="'+x1.toFixed(1)+'" y1="'+ya.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+yb.toFixed(1)+'"/>'
+      +'<polygon class="qi-fl" points="'+x2.toFixed(1)+','+yb.toFixed(1)+' '+(x2-6*ux+3.4*px).toFixed(1)+','+(yb-6*uy+3.4*py).toFixed(1)+' '+(x2-6*ux-3.4*px).toFixed(1)+','+(yb-6*uy-3.4*py).toFixed(1)+'"/>'; };
+  const enY=(y0<0 && y1>0), yAxe=enY?Y(0):Y(y0)+0.001;
+  let axes=fl(X(0),Y(y0),X(0),Y(y1));
+  if(enY) axes=fl(X(-5),Y(0),X(5),Y(0))+axes+'<text class="qi-tx" x="'+(X(0)-13)+'" y="'+(Y(0)+15)+'">O</text>';
+  let grad='';
+  for(let k=-5;k<=5;k++){ if(k===0) continue;
+    grad+='<line class="qi-ax" x1="'+X(k).toFixed(1)+'" y1="'+(yAxe-3).toFixed(1)+'" x2="'+X(k).toFixed(1)+'" y2="'+(yAxe+3).toFixed(1)+'"/>'; }
+  const saut=(y1-y0);
+  let d='', dedans=false, prev=null, seg=0;
+  pts.forEach(function(pt){
+    const x=pt[0], y=pt[1];
+    const ok=isFinite(y) && y>=y0-saut*0.2 && y<=y1+saut*0.2 && (prev==null || Math.abs(y-prev)<=saut*1.2);
+    if(ok){ d+=(dedans?'L':'M')+X(x).toFixed(1)+' '+Y(Math.max(y0,Math.min(y1,y))).toFixed(1)+' '; if(!dedans) seg++; dedans=true; }
+    else dedans=false;
+    prev=isFinite(y)?y:null;
+  });
+  if(!seg) return '';
+  return '<svg viewBox="0 0 260 176" xmlns="http://www.w3.org/2000/svg" role="img">'+axes+grad+'<path class="qi-cb" d="'+d+'"/></svg>';
+}
+function qiaCourbeHTML(expr){
+  const svg=qiaCourbeSVG(expr); if(!svg) return '';
+  return '<div class="qia-illu">'+svg+'<div class="qia-illu-leg">Courbe de l\u2019exemple : y = '+esc(String(expr))+'</div></div>';
 }
 function qiaIlluSVG(id){
   const X=x=>130+x*27, Y=y=>92-y*27;
@@ -9813,6 +9884,65 @@ function qiaIlluSVG(id){
       +'<line class="qi-trait" x1="152" y1="62" x2="152" y2="150"/><line class="qi-trait" x1="158" y1="62" x2="158" y2="150"/>'
       +fl(80,80,142,138,'qi-trait')+fl(172,80,232,134,'qi-trait')
       +'<text class="qi-tb" x="138" y="148" text-anchor="end">−∞</text><text class="qi-tb" x="176" y="78">+∞</text>'+fin;
+  }
+  if(id==='coeff-directeur'){
+    const f=x=>0.6*x+0.3, x0=0.6, x1=x0+1;
+    return deb+axes+P(f,-4.2,4.2)
+      +'<line class="qi-trait" x1="'+X(x0)+'" y1="'+Y(f(x0))+'" x2="'+X(x1)+'" y2="'+Y(f(x0))+'"/>'
+      +'<line class="qi-trait" x1="'+X(x1)+'" y1="'+Y(f(x0))+'" x2="'+X(x1)+'" y2="'+Y(f(x1))+'"/>'
+      +'<circle class="qi-pt" cx="'+X(x0)+'" cy="'+Y(f(x0))+'" r="3.6"/>'
+      +'<text class="qi-tx" x="'+(X(x0)+8)+'" y="'+(Y(f(x0))+16)+'">+1</text>'
+      +'<text class="qi-tb" x="'+(X(x1)+6)+'" y="'+((Y(f(x0))+Y(f(x1)))/2+4)+'">+a</text>'
+      +'<text class="qi-tb" x="'+X(-4)+'" y="'+Y(2.6)+'">pente = a</text>'+fin;
+  }
+  if(id==='fonction-croissante' || id==='fonction-decroissante'){
+    const cr=(id==='fonction-croissante');
+    const f=cr ? (x=>0.06*(x+5)*(x+5)-2.3) : (x=>2.3-0.06*(x+5)*(x+5));
+    const x1=-2, x2=2;
+    const gd=(x,y)=>'<line class="qi-gd" x1="'+X(x)+'" y1="'+Y(0)+'" x2="'+X(x)+'" y2="'+Y(y)+'"/>'
+      +'<line class="qi-gd" x1="'+X(0)+'" y1="'+Y(y)+'" x2="'+X(x)+'" y2="'+Y(y)+'"/>';
+    return deb+axes+P(f,-4.2,4.2)
+      +gd(x1,f(x1))+gd(x2,f(x2))
+      +'<circle class="qi-pt" cx="'+X(x1)+'" cy="'+Y(f(x1))+'" r="3.6"/><circle class="qi-pt" cx="'+X(x2)+'" cy="'+Y(f(x2))+'" r="3.6"/>'
+      +'<text class="qi-tx" x="'+X(x1)+'" y="'+(Y(0)+15)+'" text-anchor="middle">x\u2081</text>'
+      +'<text class="qi-tx" x="'+X(x2)+'" y="'+(Y(0)+15)+'" text-anchor="middle">x\u2082</text>'
+      +'<text class="qi-tb" x="'+X(cr?-4.05:0.35)+'" y="'+Y(2.72)+'">'+(cr?'x\u2081 &lt; x\u2082 \u21d2 f(x\u2081) &lt; f(x\u2082)':'x\u2081 &lt; x\u2082 \u21d2 f(x\u2081) &gt; f(x\u2082)')+'</text>'+fin;
+  }
+  if(id==='tvi-unique'){
+    const f=x=>0.06*(x+5)*(x+5)-2.3, a=-3, b=3, k=0.4;
+    const al=Math.sqrt((k+2.3)/0.06)-5;
+    return deb+axes+P(f,a,b)
+      +'<line class="qi-as" x1="'+X(-4.3)+'" y1="'+Y(k)+'" x2="'+X(4.3)+'" y2="'+Y(k)+'"/>'
+      +'<line class="qi-gd" x1="'+X(al)+'" y1="'+Y(k)+'" x2="'+X(al)+'" y2="'+Y(0)+'"/>'
+      +'<circle class="qi-pt" cx="'+X(a)+'" cy="'+Y(f(a))+'" r="3.6"/><circle class="qi-pt" cx="'+X(b)+'" cy="'+Y(f(b))+'" r="3.6"/>'
+      +'<circle class="qi-po" cx="'+X(al)+'" cy="'+Y(k)+'" r="4"/>'
+      +'<text class="qi-tr" x="'+X(-4.1)+'" y="'+(Y(k)-6)+'">y = k</text>'
+      +'<text class="qi-tx" x="'+X(al)+'" y="'+(Y(0)+15)+'" text-anchor="middle">\u03b1</text>'
+      +'<text class="qi-tx" x="'+(X(a)-8)+'" y="'+(Y(f(a))+16)+'">f(a)</text>'
+      +'<text class="qi-tx" x="'+(X(b)+7)+'" y="'+(Y(f(b))-6)+'">f(b)</text>'
+      +'<text class="qi-tb" x="'+X(-4.05)+'" y="'+Y(2.72)+'">une unique solution \u03b1</text>'+fin;
+  }
+  if(id==='tangente'){
+    const f=x=>0.18*x*x-1, a=1.6, fa=f(a), m=0.36*a, t=x=>fa+m*(x-a);
+    return deb+axes+P(f,-4.2,4.2)
+      +'<line class="qi-as" x1="'+X(-1.4)+'" y1="'+Y(t(-1.4))+'" x2="'+X(4.2)+'" y2="'+Y(t(4.2))+'"/>'
+      +'<line class="qi-gd" x1="'+X(a)+'" y1="'+Y(fa)+'" x2="'+X(a)+'" y2="'+Y(0)+'"/>'
+      +'<circle class="qi-pt" cx="'+X(a)+'" cy="'+Y(fa)+'" r="4"/>'
+      +'<text class="qi-tx" x="'+(X(a)+7)+'" y="'+(Y(fa)+16)+'">A</text>'
+      +'<text class="qi-tx" x="'+X(a)+'" y="'+(Y(0)+15)+'" text-anchor="middle">a</text>'
+      +'<text class="qi-tr" x="'+X(1.2)+'" y="'+Y(1.8)+'">pente = f\u2032(a)</text>'+fin;
+  }
+  if(id==='signe-variations'){
+    return deb+'<rect class="qi-cadre" x="18" y="26" width="224" height="128" rx="8"/>'
+      +'<line class="qi-trait" x1="18" y1="58" x2="242" y2="58"/><line class="qi-trait" x1="18" y1="96" x2="242" y2="96"/>'
+      +'<line class="qi-trait" x1="68" y1="26" x2="68" y2="154"/>'
+      +'<text class="qi-tx" x="43" y="47" text-anchor="middle" font-style="italic">x</text>'
+      +'<text class="qi-tx" x="84" y="47">a</text><text class="qi-tx" x="155" y="47" text-anchor="middle">x\u2080</text><text class="qi-tx" x="238" y="47" text-anchor="end">b</text>'
+      +'<text class="qi-tx" x="43" y="82" text-anchor="middle" font-style="italic">f\u2032</text>'
+      +'<text class="qi-tb" x="110" y="82" text-anchor="middle">+</text><text class="qi-tx" x="155" y="82" text-anchor="middle">0</text><text class="qi-tb" x="200" y="82" text-anchor="middle">\u2212</text>'
+      +'<text class="qi-tx" x="43" y="130" text-anchor="middle" font-style="italic">f</text>'
+      +fl(80,146,148,108,'qi-trait')+fl(162,108,230,146,'qi-trait')
+      +'<text class="qi-tb" x="155" y="105" text-anchor="middle">max</text>'+fin;
   }
   return '';
 }
