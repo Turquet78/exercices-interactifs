@@ -928,6 +928,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 121</p>
     </div>
   </section>
 
@@ -1891,6 +1892,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
+/* v121 */ try{ console.info('terminale v121'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -1913,6 +1915,7 @@ function latexRepare(s, dansFormule){
     var T=[];
     s=s.replace(/\\(?:text|mathrm)\{[^{}]{0,80}\}/g,function(m){T.push(m);return '\uE012'+(T.length-1)+'\uE013';});
     s=s.replace(new RegExp('(^|[^\\\\A-Za-z])('+LTX_MOT+')(?![A-Za-z])','g'),'$1\\$2');
+    s=s.replace(/([_^])\(([^()]{1,24})\)/g,'$1{$2}');   /* e^(-x), u_(n+1) : parentheses -> accolades, sinon MathLive ne met que « ( » en exposant */
     s=s.replace(/\uE012(\d+)\uE013/g,function(m,i){return T[+i]||'';});
     s=s.replace(/\\+$/,'');
   }
