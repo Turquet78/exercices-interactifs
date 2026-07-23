@@ -888,6 +888,20 @@ math-field.enc-mf{min-width:74px;max-width:130px;font-size:1.02rem;}
 .rc-fix{font-weight:700;}
 math-field.rc-mf{min-width:64px;max-width:120px;}
 .rc-ccl{margin-top:12px;}
+/* ---- Clavier ancré du téléphone en PAYSAGE : touches et symboles réduits, clavier moins haut.
+   Variables officielles MathLive, lues par .MLK__rows ; la fenêtre flottante de l'ordinateur
+   (imbriquée dans #kbwin, pas enfant direct du body) n'est pas concernée. ---- */
+@media (orientation:landscape) and (max-height:500px){
+  body > .ML__keyboard{
+    --keycap-height:30px;
+    --keycap-max-width:46px;
+    --keycap-gap:3px;
+    --keycap-font-size:15px;
+    --keycap-small-font-size:10px;
+    --keycap-extra-small-font-size:8px;
+  }
+  body > .ML__keyboard .MLK__rows > .MLK__row > div > small{font-size:10px;}
+}
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
 .rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
 .rc-uwrap{display:inline-flex;align-items:flex-end;gap:1px;}
@@ -989,7 +1003,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 159</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 160</p>
     </div>
   </section>
 
@@ -2015,7 +2029,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v159 */ try{ console.info('terminale v159'); }catch(e){}
+/* v160 */ try{ console.info('terminale v160'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
