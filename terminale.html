@@ -987,7 +987,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 156</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 157</p>
     </div>
   </section>
 
@@ -2013,7 +2013,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v156 */ try{ console.info('terminale v156'); }catch(e){}
+/* v157 */ try{ console.info('terminale v157'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -11433,11 +11433,34 @@ function keepVisible(el){
   const a0 = requestAnimationFrame(adjust), t1 = setTimeout(adjust, 260), t2 = setTimeout(adjust, 620);
   return ()=>{ cancelAnimationFrame(a0); clearTimeout(t1); clearTimeout(t2); };   /* permet d'annuler les ajustements en attente */
 }
+/* Sur telephone, MathLive fige la largeur du clavier en pixels d'apres le body au moment de
+   l'ouverture, sans tenir compte du zoom de la page (persistant d'un onglet a l'autre) ni d'un
+   eventuel elargissement du document : touches geantes et partie droite inaccessible. On
+   epingle donc le clavier ancre a la FENETRE VISUELLE (visualViewport : largeur et decalage
+   reellement affiches, zoom compris), a l'ouverture et a chaque variation. La fenetre
+   flottante de l'ordinateur (kbwin) n'est pas concernee. */
+function pinKbToViewport(){
+  if(window.__kbFloating) return;
+  const el = document.querySelector("body > .ML__keyboard");
+  const vv = window.visualViewport;
+  if(!el || !vv || !vv.width) return;
+  try{
+    el.style.setProperty("width",  Math.round(vv.width) + "px", "important");
+    el.style.setProperty("max-width", "100vw", "important");
+    el.style.setProperty("left",   Math.round(vv.offsetLeft || 0) + "px", "important");
+  }catch(e){}
+}
 function setupKeyboard(){
   if(window.__mlKbSetup) return; window.__mlKbSetup = true;
   const vk = window.mathVirtualKeyboard;
   if(!vk) return;
   applyKbLayout();   /* couche selon l'exercice courant */
+  try{ vk.addEventListener("virtual-keyboard-toggle", ()=>{ requestAnimationFrame(pinKbToViewport); setTimeout(pinKbToViewport, 120); }); }catch(e){}
+  try{ vk.addEventListener("geometrychange", ()=>requestAnimationFrame(pinKbToViewport)); }catch(e){}
+  if(window.visualViewport){
+    visualViewport.addEventListener("resize", pinKbToViewport);
+    visualViewport.addEventListener("scroll", pinKbToViewport);
+  }
   if(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches){
     const win = document.createElement("div");
     win.id = "kbwin";
