@@ -889,8 +889,9 @@ math-field.rc-mf{min-width:64px;max-width:120px;}
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
 .rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
 .rc-uwrap{display:inline-flex;align-items:flex-end;gap:1px;}
-math-field.rc-mf-idx{min-width:26px;max-width:38px;font-size:.8em;position:relative;top:.42em;padding:0 3px;--_padding:0;}
-body math-field.dexp-mf.rc-mf-idx{border-width:1.5px;border-radius:7px;min-height:1.5em;}
+/* police 1rem = 16 px EXACTEMENT : en dessous, Safari iOS zoome la page au focus et le clavier écran déborde */
+math-field.rc-mf-idx{min-width:26px;max-width:42px;font-size:1rem;position:relative;top:.38em;padding:0 3px;--_padding:0;}
+body math-field.dexp-mf.rc-mf-idx{border-width:1.5px;border-radius:7px;min-height:1.35em;}
 .eq-frac-in{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px;}
 .eq-frac-in .eq-fbar{display:block;width:100%;min-width:46px;height:2px;background:var(--ink);margin:3px 0;}
 .lv-vartbl2 td.ef-node .eq-db{display:inline-block;width:8px;height:34px;border-left:2.5px solid var(--ink);border-right:2.5px solid var(--ink);vertical-align:middle;}
@@ -986,7 +987,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 155</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 156</p>
     </div>
   </section>
 
@@ -2012,7 +2013,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v155 */ try{ console.info('terminale v155'); }catch(e){}
+/* v156 */ try{ console.info('terminale v156'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
