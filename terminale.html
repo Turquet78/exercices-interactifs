@@ -859,6 +859,27 @@ math-field.su-mf-f{flex:1 1 250px;min-width:220px;font-size:1.12rem;}
 .enc-donc{color:var(--ink-soft);}
 .enc-sel{max-width:min(340px,58vw);}
 math-field.enc-mf{min-width:74px;max-width:130px;font-size:1.02rem;}
+/* ---- 5.2 Étude de fonction : tableau combiné signes + variations ---- */
+.ef-synt{margin-top:14px;}
+.ef-ginstr{margin-top:16px;}
+.ef-graphs{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;}
+.ef-g{flex:1 1 300px;max-width:360px;}
+.ef-gnum{font-weight:700;margin:2px 0 4px;}
+.ef-gsel{margin-top:4px;}
+.ef-pt{fill:var(--green);stroke:var(--card);stroke-width:1.6;}
+.ef-extlab{font-weight:800;font-size:12.5px;fill:var(--green);display:none;}
+.ef-revele .ef-extlab{display:initial;}
+/* ---- 5.3 Fonction quotient ---- */
+.eq-part{margin-top:18px;}
+.eq-part>b{font-size:1.05rem;}
+.eq-synt{margin-top:12px;}
+.eq-devhint{margin-top:2px;}
+.eq-asym{stroke:var(--ink-soft);stroke-width:1.6;}
+.eq-frac-in{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px;}
+.eq-frac-in .eq-fbar{display:block;width:100%;min-width:46px;height:2px;background:var(--ink);margin:3px 0;}
+.lv-vartbl2 td.ef-node .eq-db{display:inline-block;width:8px;height:34px;border-left:2.5px solid var(--ink);border-right:2.5px solid var(--ink);vertical-align:middle;}
+.vt-overlay .eq-dbl{stroke:var(--ink);stroke-width:2.5;}
+.lv-vartbl2 td.ef-node{width:64px;text-align:center;font-weight:700;}
 /* ---- 6.2 Suites : suite auxiliaire géométrique ---- */
 .sa-aux{background:#EEF2FE;border:1.5px solid #d8e0fb;border-radius:12px;padding:10px 14px;margin:10px 0 0;font-size:1.02rem}
 .sa-jetons{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
@@ -949,7 +970,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 131</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 147</p>
     </div>
   </section>
 
@@ -1337,6 +1358,35 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <!-- 5.2 ÉTUDE DE FONCTION — signe de f' et variations -->
+  <section class="screen" id="scr-ef">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="efModeTag"></span><span class="q-idx" id="efQIdx">Question 1 / 4</span></span>
+      <span class="score-tag">Score&nbsp;<b id="efLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="efPrompt"></p>
+      <div class="sv-tables" id="efTable"></div>
+      <p class="dexp-hint">Racines et abscisses : entiers, décimaux (0,5) ou fractions (1/2) acceptés.</p>
+      <div class="mp-feedback" id="efFeedback"></div>
+      <div class="mp-actions" id="efActions"></div>
+    </div>
+  </section>
+
+  <!-- 5.3 FONCTION QUOTIENT — domaine, dérivée et variations -->
+  <section class="screen" id="scr-eq">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="eqModeTag"></span><span class="q-idx" id="eqQIdx">Question 1 / 2</span></span>
+      <span class="score-tag">Score&nbsp;<b id="eqLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="eqPrompt"></p>
+      <div class="sv-tables" id="eqBody"></div>
+      <div class="mp-feedback" id="eqFeedback"></div>
+      <div class="mp-actions" id="eqActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-tg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tgModeTag"></span><span class="q-idx" id="tgQIdx">Question 1 / 4</span></span>
@@ -1717,6 +1767,8 @@ const TESTS={
   'derivee-exp-quotient-2': { name:'Dérivée d\u2019un quotient avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes quotients, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexpQ2() },
   'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
   'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
+  'etude-quotient': { name:'Fonction quotient \u2014 domaine, d\u00e9riv\u00e9e et variations', icon:'u/v', desc:'Une fonction f(x) = (ax+b)/(cx+d) : trouve la valeur interdite et l\u2019ensemble de d\u00e9finition, d\u00e9montre la d\u00e9riv\u00e9e avec la formule du quotient (champs math, clavier \u00e9cran en option), puis dresse le tableau de signes et de variations avec la double barre.', start:()=>startEQ() },
+  'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
@@ -1733,7 +1785,7 @@ const THEMES=[
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
-  { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] },
+  { num:5, nom:'Étude de fonction',  ids:['equation-tangente','etude-fonction','etude-quotient'] },
   { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suites-encadrement'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
@@ -1868,7 +1920,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-enc','scr-dexp','scr-lr'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-enc','scr-ef','scr-eq','scr-dexp','scr-lr'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -1929,7 +1981,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v131 */ try{ console.info('terminale v131'); }catch(e){}
+/* v147 */ try{ console.info('terminale v147'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -2216,6 +2268,8 @@ function conseilCourant(){
   if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
   else if(test && test.kind==='sa' && test.questions && test.questions[test.idx]){ c=saConseilCtx(); }
   else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
+  else if(test && test.kind==='ef' && test.questions && test.questions[test.idx]){ c=efConseilCtx(); }
+  else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -2673,7 +2727,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], lr:['lr',renderLR] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], ef:['ef',renderEF], eq:['eq',renderEQ], lr:['lr',renderLR] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -2694,7 +2748,7 @@ function show(name){
   fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','enc','lr'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','enc','ef','eq','lr'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -7306,6 +7360,649 @@ function checkSV(live){
 }
 function nextSV(){ if(test.idx<test.questions.length-1){ test.idx++; renderSV(); } else finishTest(); }
 
+/* ===== 5.2 ÉTUDE DE FONCTION — signe de f' et variations (fiche « fonction_1 ») =====
+   On donne f'(x) sous forme de PRODUIT (polynôme)·e^(kx) ou de QUOTIENT e^x(x−r)/(x+b)² :
+   l'élève trouve la ou les racines, complète le signe de CHAQUE facteur (l'exponentielle
+   et le carré n'ont pas de zéro), le signe de f'(x), puis les variations de f (flèches
+   dessinées comme au 1.3) et la phrase d'extremum. Un SEUL tableau combiné, fidèle au PDF.
+   Briques réutilisées : s1Box (cases texte), menus tvi-sel, table lv-vartbl2 + svArrowSVG. */
+const EF_WN=64, EF_WS=92, EF_H=120, EF_T=22, EF_B=98;
+function efParse(s){
+  if(s==null) return null;
+  s=String(s).replace(/\s+/g,'').replace(/[\u2212\u2013\u2014]/g,'-').replace(/,/g,'.');
+  if(s==='') return null;
+  const m=s.match(/^([+-]?\d+)\/([+-]?\d+)$/);
+  if(m){ const q=parseInt(m[2],10); if(!q) return null; return parseInt(m[1],10)/q; }
+  if(!/^[+-]?\d+(?:\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+function efNum(v){ return { v:v, str:numFmt(v) }; }
+function efExpKHtml(k,kd){   /* e^(k\u00b7x) ou e^(k\u00b7x\u00b2) */
+  const co=(k===1?'':k===-1?'\u2212':numFmt(k));
+  return '<i>e</i><sup>'+co+'<i>x</i>'+(kd===2?'\u00b2':'')+'</sup>';
+}
+function efAffHtml(a,b){
+  let h=(a===1?'':a===-1?'\u2212':numFmt(a))+'<i>x</i>';
+  if(b!==0) h+=(b>0?' + ':' \u2212 ')+numFmt(Math.abs(b));
+  return h;
+}
+function efExpBHtml(rr){   /* e^(\u2212x\u00b2/(2r\u00b2)) : \u2212x\u00b2/2, \u2212x\u00b2/8, \u2212x\u00b2/18 */
+  return '<i>e</i><sup>\u2212<i>x</i>\u00b2/'+(2*rr*rr)+'</sup>';
+}
+/* ---- Premier degre EXACT : f(x) = (ax+b)e^(cx) avec a = mc et b = \u2212m(1+rc), d'ou
+   f'(x) = (dx+e)e^(cx) avec d = mc\u00b2 et e = \u2212mrc\u00b2 : \u2212e/d = r ENTIER, choisi. Le signe
+   de m impose celui de d (type a1 : d > 0, type a2 : d < 0). f et f' ont leurs formules. */
+function efGenAff(sg){
+  const m=sg*pick([1,2]), cc=pick([-2,-1,1,2]), r=pick([-3,-2,-1,0,1,2,3]);
+  const fa=m*cc, fb=-m*(1+r*cc), d=m*cc*cc, e=-m*r*cc*cc;
+  const E=efExpKHtml(cc,1), poly=efAffHtml(d,e);
+  const sL=(m>0)?'\u2212':'+', sR=(m>0)?'+':'\u2212';
+  return { fam:(m>0?'a1':'a2'), m:m, k:cc, kd:1, fa:fa, fb:fb, d:d, e:e,
+    enonce:'Soit <i>f</i> d\u00e9finie et d\u00e9rivable sur \u211d par&nbsp; <b><i>f</i>(<i>x</i>) = ('+efAffHtml(fa,fb)+')\u2009'+E+'</b>. On admet que sa d\u00e9riv\u00e9e est&nbsp; <b><i>f</i>\u2009\u2032(<i>x</i>) = ('+poly+')\u2009'+E+'</b>.',
+    bornes:['\u2212\u221e','+\u221e'], roots:[efNum(r)],
+    lignes:[ {lab:'Signe de '+poly, zero:[true],  s:[sL,sR]},
+             {lab:'Signe de '+E,    zero:[false], s:['+','+']},
+             {lab:'Signe de <i>f</i>\u2009\u2032(<i>x</i>)', zero:[true], s:[sL,sR]} ],
+    fleches:[(m>0)?'down':'up', (m>0)?'up':'down'],
+    synth:{mode:'sel', t:(m>0)?'min':'max', x:efNum(r)} };
+}
+/* ---- Exposant en x\u00b2 EXACT, sans cubique : f(x) = a\u00b7x\u00b7e^(bx\u00b2) donne
+   f'(x) = a(1+2bx\u00b2)e^(bx\u00b2) = (dx\u00b2+e)e^(bx\u00b2), un PUR second degre. Racines
+   enti\u00e8res \u00b1r  \u21d4  b = \u22121/(2r\u00b2)  (b < 0 obligatoire, sinon f' ne s'annule jamais),
+   et coefficients entiers avec a = m\u00b7r\u00b2 : d = \u2212m, e = m\u00b7r\u00b2, \u2212e/d = r\u00b2 ENTIER.
+   L'exposant vaut toujours \u22121/2 aux racines : les extremums de f restent parfaitement
+   visibles \u00e0 l'\u00e9cran quel que soit r. */
+function efGenP2(){
+  const m=pick([-2,-1,1,2]), r=pick([1,2,3]);
+  const b=-1/(2*r*r), fa=m*r*r, d=-m, e=m*r*r;
+  const E=efExpBHtml(r), poly=s2ExprHTML(d,0,e);
+  const sOut=(m>0)?'\u2212':'+', sMid=(m>0)?'+':'\u2212';
+  return { fam:'p2', m:m, rr:r, k:b, kd:2, fa:fa, d:d, e:e,
+    enonce:'Soit <i>f</i> d\u00e9finie et d\u00e9rivable sur \u211d par&nbsp; <b><i>f</i>(<i>x</i>) = '+efAffHtml(fa,0)+'\u2009'+E+'</b>. On admet que sa d\u00e9riv\u00e9e est&nbsp; <b><i>f</i>\u2009\u2032(<i>x</i>) = ('+poly+')\u2009'+E+'</b>.',
+    bornes:['\u2212\u221e','+\u221e'], roots:[efNum(-r),efNum(r)],
+    lignes:[ {lab:'Signe de '+poly, zero:[true,true],   s:[sOut,sMid,sOut]},
+             {lab:'Signe de '+E,    zero:[false,false], s:['+','+','+']},
+             {lab:'Signe de <i>f</i>\u2009\u2032(<i>x</i>)', zero:[true,true], s:[sOut,sMid,sOut]} ],
+    fleches:(m>0)?['down','up','down']:['up','down','up'],
+    synth:{mode:'multi', xs:(m>0)?[{t:'min',x:efNum(-r)},{t:'max',x:efNum(r)}]
+                                 :[{t:'max',x:efNum(-r)},{t:'min',x:efNum(r)}]} };
+}
+function genEF(fam){
+  const c=(fam==='a1')?efGenAff(1):(fam==='a2')?efGenAff(-1):efGenP2();
+  c.gOrder=(rand(0,1)===0)?['f','fp']:['fp','f'];   /* ordre d'affichage des 2 courbes, melange */
+  return c;
+}
+/* ---- Courbes EXACTES de f et f', calculees depuis leurs FORMULES, en echelle LINEAIRE
+   realiste : la fenetre verticale est calee sur les valeurs pres des racines (la ou tout se
+   joue : croisements de f', bosses de f), et la courbe SORT du cadre la ou l'exponentielle
+   explose — comme sur l'ecran d'une calculatrice. Aucune deformation d'echelle. ---- */
+function efFpFn(c){
+  const e=x=>Math.exp(Math.max(-60,Math.min(60,c.k*Math.pow(x,c.kd))));
+  return (c.fam==='p2') ? (x=>(c.d*x*x+c.e)*e(x)) : (x=>(c.d*x+c.e)*e(x));
+}
+function efFFn(c){
+  const e=x=>Math.exp(Math.max(-60,Math.min(60,c.k*Math.pow(x,c.kd))));
+  return (c.fam==='p2') ? (x=>(c.fa*x)*e(x)) : (x=>(c.fa*x+c.fb)*e(x));
+}
+function efCourbes(c){
+  const xs=c.roots.map(R=>R.v);
+  const lo=Math.min.apply(null,xs)-2, hi=Math.max.apply(null,xs)+2, N=240;
+  const fp=efFpFn(c), ff=efFFn(c), X=[], FP=[], F=[];
+  for(let i=0;i<=N;i++){ const x=lo+(hi-lo)*i/N; X.push(x); FP.push(fp(x)); F.push(ff(x)); }
+  return { X:X, F:F, FP:FP, lo:lo, hi:hi };
+}
+/* Fenetre verticale : min/max des valeurs a moins de 0,9 des racines ET sur tout l'intervalle
+   entre les racines extremes (sinon le sommet central de la cloche de f' sort du cadre),
+   marge 30 %, axe des x inclus. */
+function efFenetre(X,Y,roots){
+  let mn=Infinity, mx=-Infinity;
+  const rmin=Math.min.apply(null,roots), rmax=Math.max.apply(null,roots);
+  for(let i=0;i<X.length;i++){
+    const x=X[i];
+    if((x>=rmin && x<=rmax) || roots.some(function(r){ return Math.abs(x-r)<=0.9; })){ if(Y[i]<mn) mn=Y[i]; if(Y[i]>mx) mx=Y[i]; }
+  }
+  if(!(isFinite(mn)&&isFinite(mx))){ mn=-1; mx=1; }
+  if(mx-mn<1e-9){ mn-=1; mx+=1; }
+  const pad=(mx-mn)*0.30; mn-=pad; mx+=pad;
+  if(mn>0) mn=-0.06*mx;
+  if(mx<0) mx=-0.06*mn;
+  return { ymin:mn, ymax:mx };
+}
+/* Trace avec decoupe aux bords de la fenetre (la courbe « sort du cadre », patron de svPath). */
+function efTrace(X,Y,sx,sy,ymin,ymax){
+  let d='', pen=false, prev=null;
+  const clip=function(x0,y0,x1,y1,yb){ return x0+(x1-x0)*(yb-y0)/(y1-y0); };
+  for(let i=0;i<X.length;i++){
+    const x=X[i], y=Y[i], dedans=(y>=ymin && y<=ymax);
+    if(dedans){
+      if(!pen){
+        if(prev && isFinite(prev.y)){ const yb=prev.y>ymax?ymax:ymin; const xb=clip(prev.x,prev.y,x,y,yb); d+='M'+sx(xb).toFixed(1)+','+sy(yb).toFixed(1)+' '; }
+        else d+='M'+sx(x).toFixed(1)+','+sy(y).toFixed(1)+' ';
+        pen=true;
+      }
+      d+='L'+sx(x).toFixed(1)+','+sy(y).toFixed(1)+' ';
+    } else if(pen && prev){
+      const yb=y>ymax?ymax:ymin; const xb=clip(prev.x,prev.y,x,y,yb);
+      d+='L'+sx(xb).toFixed(1)+','+sy(yb).toFixed(1)+' '; pen=false;
+    }
+    prev={x:x,y:y};
+  }
+  return d.trim();
+}
+function efGraphSVG(X,Y,lo,hi,roots,pts){
+  const L=34,R=316,T=12,Bm=158;
+  const fen=efFenetre(X,Y,roots), ymin=fen.ymin, ymax=fen.ymax;
+  const sx=x=>L+(x-lo)/(hi-lo)*(R-L), sy=y=>T+(ymax-y)/(ymax-ymin)*(Bm-T);
+  let grid=''; for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++){ const q=sx(gx).toFixed(1);
+    grid+='<line x1="'+q+'" y1="'+T+'" x2="'+q+'" y2="'+Bm+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>'; }
+  const y0=sy(0).toFixed(1);
+  let ax='<line x1="'+L+'" y1="'+y0+'" x2="'+R+'" y2="'+y0+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  if(lo<=0 && hi>=0) ax+='<line x1="'+sx(0).toFixed(1)+'" y1="'+T+'" x2="'+sx(0).toFixed(1)+'" y2="'+Bm+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  let lab=''; for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++){ if(gx===0 && lo<=0 && hi>=0) continue;
+    lab+='<text x="'+sx(gx).toFixed(1)+'" y="'+(parseFloat(y0)+12).toFixed(1)+'" class="sv-ax" text-anchor="middle">'+numFmt(gx)+'</text>'; }
+  /* points remarquables : extremums sur f (etiquette max/min revelee a la verification),
+     passages par zero sur f' — memes abscisses, le lien visuel entre les deux courbes. */
+  let rq='';
+  (pts||[]).forEach(function(p){
+    const i=Math.max(0,Math.min(X.length-1,Math.round((p.x-lo)/(hi-lo)*(X.length-1))));
+    const y=Y[i]; if(!(y>=ymin && y<=ymax)) return;
+    const cx=sx(p.x).toFixed(1), cy=sy(y);
+    rq+='<circle class="ef-pt" cx="'+cx+'" cy="'+cy.toFixed(1)+'" r="4"/>';
+    if(p.t){
+      let ly=(p.t==='max')?cy-9:cy+17;
+      ly=Math.max(T+11,Math.min(Bm-4,ly));
+      rq+='<text class="ef-extlab" x="'+cx+'" y="'+ly.toFixed(1)+'" text-anchor="middle">'+p.t+'</text>';
+    }
+  });
+  return '<svg viewBox="0 0 330 172" xmlns="http://www.w3.org/2000/svg" class="sv-svg">'+grid+ax+'<path class="sv-curve" d="'+efTrace(X,Y,sx,sy,ymin,ymax)+'"/>'+rq+lab+'</svg>';
+}
+function efGraphHTML(c){
+  const cb=efCourbes(c), rts=c.roots.map(function(R){ return R.v; });
+  const par={ f:cb.F, fp:cb.FP };
+  const ptsF=(c.synth.mode==='sel')?[{x:c.synth.x.v,t:c.synth.t}]:c.synth.xs.map(function(e){ return {x:e.x.v,t:e.t}; });
+  const pts={ f:ptsF, fp:rts.map(function(v){ return {x:v,t:null}; }) };
+  const sel=id=>'<select class="tvi-sel" id="'+id+'"><option value="">\u2026</option><option value="f"><i>f</i></option><option value="fp">f\u2009\u2032</option></select>'
+    .replace('<i>f</i>','f');   /* les <option> ne rendent pas le HTML */
+  let h='<p class="tvi-instr ef-ginstr">Voici les courbes de <i>f</i> et de <i>f</i>\u2009\u2032, dans le d\u00e9sordre \u2014 associe chacune :</p><div class="ef-graphs">';
+  c.gOrder.forEach(function(who,i){
+    h+='<div class="ef-g"><div class="ef-gnum">Courbe '+(i+1)+'</div>'+efGraphSVG(cb.X,par[who],cb.lo,cb.hi,rts,pts[who])
+      +'<div class="ef-gsel">Cette courbe repr\u00e9sente '+sel('ef-g'+i)+'</div></div>';
+  });
+  return h+'</div>';
+}
+/* Toutes les cases de la question : racines (texte), signes (menus), fl\u00e8ches, synth\u00e8se. */
+function efCases(c){
+  const out=[];
+  c.roots.forEach((R,i)=>out.push({id:'ef-r'+i, type:'num', good:R.v}));
+  c.lignes.forEach((L,li)=>L.s.forEach((sg,si)=>out.push({id:'ef-l'+li+'s'+si, type:'sel', good:sg})));
+  c.fleches.forEach((d,i)=>out.push({id:'ef-a'+i, type:'sel', good:d}));
+  if(c.synth.mode==='sel'){ out.push({id:'ef-e0t', type:'sel', good:c.synth.t}, {id:'ef-e0x', type:'num', good:c.synth.x.v}); }
+  else c.synth.xs.forEach((e,i)=>out.push({id:'ef-e'+i+'x', type:'num', good:e.x.v}));
+  (c.gOrder||[]).forEach((who,i)=>out.push({id:'ef-g'+i, type:'sel', good:who}));
+  return out;
+}
+function efSign(id){ return '<select class="tvi-sel" id="'+id+'"><option value="">\u2026</option><option value="+">+</option><option value="\u2212">\u2212</option></select>'; }
+function efArrowSel(id,x){ return '<select id="'+id+'" class="vt-sel2" onchange="efArrowChange()" style="left:'+x+'px;top:'+(EF_H/2)+'px"><option value="">\u2014</option><option value="up">\u2197</option><option value="down">\u2198</option></select>'; }
+function efTableHTML(c){
+  const nR=c.roots.length, nN=nR+2, nS=nR+1, innerW=nN*EF_WN+nS*EF_WS;
+  const ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2), scx=i=>(i*(EF_WN+EF_WS)+EF_WN+EF_WS/2);
+  let xr='<td class="vlab" style="width:176px"><i>x</i></td>'
+    +'<td class="vnx" style="width:'+EF_WN+'px">'+c.bornes[0]+'</td>';
+  for(let i=0;i<nR;i++) xr+='<td class="vax" style="width:'+EF_WS+'px"></td><td class="vnx" style="width:'+EF_WN+'px">'+s1Box('ef-r'+i,1)+'</td>';
+  xr+='<td class="vax" style="width:'+EF_WS+'px"></td><td class="vnx" style="width:'+EF_WN+'px">'+c.bornes[1]+'</td>';
+  let rows='<tr class="vt-xr">'+xr+'</tr>';
+  c.lignes.forEach((L,li)=>{
+    let r='<td class="vlab">'+L.lab+'</td><td></td>';
+    for(let i=0;i<nS;i++){
+      r+='<td>'+efSign('ef-l'+li+'s'+i)+'</td>';
+      if(i<nR) r+='<td class="ef-node">'+(L.zero[i]?'<b>0</b>':'')+'</td>';
+    }
+    r+='<td></td>';
+    rows+='<tr class="vt-xr">'+r+'</tr>';
+  });
+  const inner='<svg class="vt-overlay" id="ef-var-ov" viewBox="0 0 '+innerW+' '+EF_H+'" preserveAspectRatio="none"></svg>'
+    + c.fleches.map((d,i)=>efArrowSel('ef-a'+i,scx(i))).join('');
+  rows+='<tr class="vt-fr"><td class="vlab">Variation de <i>f</i></td><td class="vfcell" colspan="'+(2*nN-1)+'" style="height:'+EF_H+'px">'+inner+'</td></tr>';
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(176+innerW)+'px"><tbody>'+rows+'</tbody></table></div>';
+}
+function efSyntHTML(c){
+  const typeSel='<select class="tvi-sel" id="ef-e0t"><option value="">\u2026</option><option value="min">minimum</option><option value="max">maximum</option></select>';
+  if(c.synth.mode==='sel')
+    return '<div class="s1-res ef-synt"><div class="s1-line">Sur cet intervalle, <i>f</i> admet un '+typeSel+' atteint en <i>x</i> = '+s1Box('ef-e0x',1)+'.</div></div>';
+  const nom=t=>t==='min'?'minimum':'maximum';
+  return '<div class="s1-res ef-synt"><div class="s1-line"><i>f</i> admet '
+    +c.synth.xs.map(function(e,i){ return 'un <b>'+nom(e.t)+'</b> atteint en <i>x</i> = '+s1Box('ef-e'+i+'x',1); }).join(',&nbsp; puis ')
+    +'.</div></div>';
+}
+/* Fl\u00e8ches et points de l'escalier — g\u00e9n\u00e9ralisation de svArrowChange \u00e0 n fl\u00e8ches. */
+function efArrowChange(){
+  if(test.kind!=='ef') return;
+  const ov=$('ef-var-ov'); if(!ov) return;
+  const c=test.questions[test.idx]; if(!c) return;
+  const nA=c.fleches.length, ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
+  const dirs=[]; for(let i=0;i<nA;i++) dirs.push(($('ef-a'+i)||{}).value||'');
+  const posY=[];
+  for(let j=0;j<=nA;j++){
+    const right=dirs[j]||'', left=(j>0?dirs[j-1]:'')||'';
+    let y=(EF_T+EF_B)/2;
+    if(right==='up') y=EF_B; else if(right==='down') y=EF_T;
+    else if(left==='up') y=EF_T; else if(left==='down') y=EF_B;
+    posY.push(y);
+  }
+  let g='';
+  for(let i=0;i<nA;i++){ if(!dirs[i]) continue;
+    const y0=(dirs[i]==='up')?EF_B:EF_T, y1=(dirs[i]==='up')?EF_T:EF_B;
+    g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1);
+  }
+  posY.forEach((y,j)=>{ g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4.5"/>'; });
+  ov.innerHTML=g;
+}
+async function startEF(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='etude-fonction'; test.kind='ef';
+  /* 3 types \u00e9valu\u00e9s sur 4 questions : f' = (dx+e)e^(cx) avec d > 0, puis d < 0, puis
+     f(x) = ax\u00b7e^(bx\u00b2) dont f' = (dx\u00b2+e)e^(bx\u00b2) (racines \u00b1r) \u2014 et une 4e au hasard. */
+  test.questions=[genEF('a1'),genEF('a2'),genEF('p2'),genEF(pick(['a1','a2','p2']))];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('ef'); renderEF();
+}
+function renderEF(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('efQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('efModeTag').innerHTML=modeTagHTML();
+  $('efLiveScore').textContent=test.score;
+  $('efFeedback').textContent=''; $('efFeedback').className='mp-feedback';
+  $('efActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEF()">V\u00e9rifier</button>';
+  $('efPrompt').innerHTML=c.enonce+' Compl\u00e8te le tableau (racines, signes de chaque facteur, signe de <i>f</i>\u2009\u2032, variations) :';
+  $('efTable').classList.remove('ef-revele');
+  $('efTable').innerHTML=efTableHTML(c)+efSyntHTML(c)+efGraphHTML(c);
+  setTimeout(efArrowChange,0);
+  if(isSoutien()){
+    efCases(c).forEach(x=>{ const el=$(x.id); if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkEF(true)); });
+  }
+}
+function checkEF(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx], cases=efCases(c);
+  let allOk=true, anyFilled=false;
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    const raw=String(el.value||''); let ok;
+    if(x.type==='sel'){ ok=(raw===x.good); }
+    else { const v=efParse(raw); ok=(v!==null && Math.abs(v-x.good)<1e-9); }
+    if(raw.trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad');
+    if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false;
+    el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
+  });
+  if(live) return;
+  if(!anyFilled){ $('efFeedback').textContent='Compl\u00e8te au moins une case avant de v\u00e9rifier.'; $('efFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    $('efFeedback').textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    $('efFeedback').className='mp-feedback bad';
+    $('efActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEF()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  $('efTable').classList.add('ef-revele');   /* les etiquettes max/min apparaissent sur la courbe de f */
+  if(allOk){
+    test.score++; $('efLiveScore').textContent=test.score;
+    $('efFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, \u00e9tude compl\u00e8te !']);
+    $('efFeedback').className='mp-feedback good';
+  } else {
+    $('efFeedback').innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.<br>'
+      +'Retiens : une <b>exponentielle</b> est toujours strictement positive, un <b>carr\u00e9</b> aussi (hors de son z\u00e9ro) \u2014 '
+      +'le signe de <i>f</i>\u2009\u2032 est donc celui du facteur polyn\u00f4me, et <i>f</i> <b>cro\u00eet quand <i>f</i>\u2009\u2032 &gt; 0</b>, d\u00e9cro\u00eet quand <i>f</i>\u2009\u2032 &lt; 0.<br>'
+      +'Pour les courbes : <i>f</i>\u2009\u2032 <b>coupe l\u2019axe des abscisses</b> exactement l\u00e0 o\u00f9 <i>f</i> a un <b>extremum</b> (sommet ou creux).';
+    $('efFeedback').className='mp-feedback bad';
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+      el.value=(x.type==='sel')?x.good:numFmt(x.good);
+      el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; });
+    efArrowChange();
+  }
+  const rs=c.roots.map(R=>R.str).join(' ; ');
+  test.answers.push({q:'f\u2032 donn\u00e9e ('+c.fam+') \u2014 racine(s) : '+rs+' \u2014 tableau signes + variations', answer:'\u00e9tude de fonction', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('efActions').innerHTML='<button class="btn btn-primary" onclick="nextEF()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+function nextEF(){ if(test.idx<test.questions.length-1){ test.idx++; renderEF(); } else finishTest(); }
+function efLu(id){ const el=$(id); if(!el) return '(vide)'; const v=String(el.value||'').trim(); return v===''?'(vide)':'\u00ab '+v+' \u00bb'; }
+function efConseilCtx(){
+  const c=test.questions[test.idx], cases=efCases(c);
+  return 'Exercice 5.2 : \u00c9TUDE DE FONCTION \u2014 signe de f\u2032 et variations. '+c.enonce.replace(/<[^>]*>/g,'')+' '
+   +'L\u2019\u00e9l\u00e8ve compl\u00e8te UN tableau : la ou les racines du facteur polyn\u00f4me (cases texte), le signe de CHAQUE facteur sur chaque intervalle (menus + / \u2212 ; l\u2019exponentielle et le carr\u00e9 n\u2019ont pas de z\u00e9ro), le signe de f\u2032, les fl\u00e8ches de variation de f, puis la phrase d\u2019extremum. '
+   +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : racine(s) '+c.roots.map(R=>R.str).join(' ; ')+' ; '
+   +c.lignes.map(L=>L.lab.replace(/<[^>]*>/g,'')+' : '+L.s.join(' puis ')).join(' ; ')
+   +' ; variations : '+c.fleches.map(d=>d==='up'?'croissante':'d\u00e9croissante').join(' puis ')
+   +' ; extremum : '+(c.synth.mode==='sel'?(c.synth.t==='min'?'minimum':'maximum')+' en x = '+c.synth.x.str:c.synth.xs.map(function(e){ return (e.t==='min'?'minimum':'maximum')+' en x = '+e.x.str; }).join(' puis '))
+   +' ; association des courbes (ordre affich\u00e9) : courbe 1 = '+(c.gOrder[0]==='f'?'f':'f\u2032')+', courbe 2 = '+(c.gOrder[1]==='f'?'f':'f\u2032')+'. '
+   +'Saisies actuelles : '+cases.map(x=>x.id.replace('ef-','')+' '+efLu(x.id)).join(' ; ')+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE racine, AUCUN signe ni sens de variation de cet exercice. '
+   +'M\u00e9thode \u00e0 faire appliquer : pour associer les deux courbes affich\u00e9es, f\u2032 est celle qui COUPE l\u2019axe des abscisses aux racines, l\u00e0 o\u00f9 l\u2019autre (f) a un sommet ou un creux ; r\u00e9soudre facteur = 0 pour la racine ; une exponentielle est TOUJOURS strictement positive, un carr\u00e9 aussi (sauf en son z\u00e9ro) ; le signe d\u2019un produit ou d\u2019un quotient se lit facteur par facteur ; f cro\u00eet quand f\u2032 > 0 et d\u00e9cro\u00eet quand f\u2032 < 0 ; l\u2019extremum est atteint l\u00e0 o\u00f9 f\u2032 s\u2019annule EN CHANGEANT de signe. '
+   +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
+   +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
+}
+/* ===== 5.3 FONCTION QUOTIENT — domaine, dérivée et variations (fiche « fraction_etude_de_variations ») =====
+   f(x) = (ax+b)/(cx+d) avec valeur interdite SIMPLE (entiere). Trois parties par question :
+   a) ensemble de definition (resoudre denominateur = 0 : champ math + cases nombres),
+   b) demontrer f'(x) = k/(cx+d)^2 en completant la formule du quotient comme au 2.4
+      (champs math-field, clavier ecran en option, denominateur recopie automatiquement),
+   c) tableau signes + variations comme au 5.2, avec la DOUBLE BARRE a la valeur interdite.
+   Deux questions imposees : une f croissante (k = ad-cb > 0), une decroissante (k < 0). */
+function genEQ(mode){
+  let a,b,cd,dd,v,k,gd=0;
+  do{
+    cd=pick([2,3]); v=pick([-2,-1,1,2]); dd=-cd*v;
+    a=pick([1,2,3]); b=pick([-4,-3,-2,-1,1,2,3,4]);
+    k=a*dd-cd*b;
+  }while(k===0 || (mode==='croi'? k<0 : k>0) || Math.abs(k)>14);
+  const numStr=polyToStr([b,a]), denStr=polyToStr([dd,cd]);
+  return { fam:mode, a:a, b:b, cd:cd, dd:dd, v:v, k:k, numStr:numStr, denStr:denStr,
+    fleches:(k>0)?['up','up']:['down','down'],
+    gOrder:(rand(0,1)===0)?['f','fp']:['fp','f'] };
+}
+function eqDenTex(c){ return mlTexN(c.denStr); }
+function eqFxTex(c){ return 'f(x)=\\frac{'+mlTexN(c.numStr)+'}{'+eqDenTex(c)+'}'; }
+function eqFpTex(c){ return "f\\;{}'(x)=\\frac{"+mlTexN(numFmt(c.k))+'}{\\left('+eqDenTex(c)+'\\right)^2}'; }
+/* references numeriques (DQ_PTS evite toutes les valeurs interdites possibles v = -2..2) */
+function eqFns(c){
+  const u=x=>c.a*x+c.b, vf=x=>c.cd*x+c.dd;
+  return { u:u, v:vf, du:x=>c.a, dv:x=>c.cd, v2:x=>vf(x)*vf(x), kf:x=>c.k,
+           fp:x=>c.k/Math.pow(vf(x),2) };
+}
+const EQ_S2=['eq-s2a','eq-s2b','eq-s2c','eq-s2d','eq-s2e'];
+const EQ_D=['eq-d1','eq-d2','eq-d3','eq-d4'];
+function eqVerdicts(c){
+  const R=eqFns(c);
+  const verdicts={
+    'eq-den':checkExprFnAt(dexpCellValue('eq-den'),R.v,DQ_PTS),
+    'eq-u':checkExprFnAt(dexpCellValue('eq-u'),R.u,DQ_PTS),
+    'eq-v':checkExprFnAt(dexpCellValue('eq-v'),R.v,DQ_PTS),
+    'eq-du':checkExprFnAt(dexpCellValue('eq-du'),R.du,DQ_PTS),
+    'eq-dv':checkExprFnAt(dexpCellValue('eq-dv'),R.dv,DQ_PTS)
+  };
+  const cf1=id=>{ const raw=dexpCellValue(id); return raw===''?(x=>1):compileExprExp(raw); };
+  const f1=cf1('eq-s2a'),f2=cf1('eq-s2b'),f3=cf1('eq-s2c'),f4=cf1('eq-s2d'),f5=cf1('eq-s2e');
+  const s2ok=!!(f1&&f2&&f3&&f4&&f5)&&cmpFnsAt(x=>(f1(x)*f2(x)-f3(x)*f4(x))/f5(x), R.fp, DQ_PTS);
+  const eqF=(f,g)=>!!f&&!!g&&cmpFnsAt(f,g,DQ_PTS);
+  if(s2ok){ EQ_S2.forEach(id=>{ verdicts[id]=true; }); }
+  else{
+    const bestPair=(A,B,fa,fb)=>{ const d1=(eqF(A,fa)?1:0)+(eqF(B,fb)?1:0), d2=(eqF(A,fb)?1:0)+(eqF(B,fa)?1:0);
+      return d2>d1 ? [eqF(A,fb),eqF(B,fa)] : [eqF(A,fa),eqF(B,fb)]; };
+    const va=bestPair(f1,f2,R.du,R.v), vb=bestPair(f3,f4,R.u,R.dv);
+    verdicts['eq-s2a']=va[0]; verdicts['eq-s2b']=va[1]; verdicts['eq-s2c']=vb[0]; verdicts['eq-s2d']=vb[1];
+    verdicts['eq-s2e']=eqF(cf1('eq-s2e'), R.v2);
+  }
+  /* ligne de developpement : u'v - uv' = a(cx+d) - c(ax+b) = [acx] + [ad] + [-acx] + [-cb].
+     Ligne globalement juste (somme = constante k) => tout vert ; sinon chaque case est
+     appariee a un terme attendu encore libre (les cases saisies choisissent d'abord). */
+  const cf0=id=>{ const raw=dexpCellValue(id); return raw===''?(x=>0):compileExprExp(raw); };
+  const g=EQ_D.map(cf0);
+  const dok=g.every(Boolean)&&cmpFnsAt(x=>g[0](x)+g[1](x)+g[2](x)+g[3](x), R.kf, DQ_PTS);
+  if(dok){ EQ_D.forEach(id=>{ verdicts[id]=true; }); }
+  else{
+    const terms=[x=>c.a*c.cd*x, x=>c.a*c.dd, x=>-c.a*c.cd*x, x=>-c.cd*c.b];
+    const used=terms.map(()=>false);
+    const passe=lst=>lst.forEach(id=>{ const f=cf0(id); let ok=false;
+      for(let i=0;i<terms.length;i++){ if(!used[i]&&eqF(f,terms[i])){ used[i]=true; ok=true; break; } }
+      verdicts[id]=ok; });
+    passe(EQ_D.filter(id=>dexpCellValue(id)!==''));
+    passe(EQ_D.filter(id=>dexpCellValue(id)===''));
+  }
+  verdicts['eq-num']=checkExprFnAt(dexpCellValue('eq-num'), R.kf, DQ_PTS);
+  return { verdicts:verdicts, s2:s2ok, d:dok };
+}
+/* ---- Courbes EXACTES de f (hyperbole, deux branches) et f' (un seul signe), echelle
+   lineaire realiste : fenetre verticale calee sur la zone lisible 0,6 <= |x - v| <= 3
+   (l'explosion au pole reste hors calage), branches decoupees aux bords par efTrace,
+   ASYMPTOTE VERTICALE en pointilles sur les deux courbes (identique : aucun indice). ---- */
+function eqCourbes(c){
+  const lo=c.v-3, hi=c.v+3, N=240, X=[], F=[], FP=[];
+  for(let i=0;i<=N;i++){
+    const x=lo+(hi-lo)*i/N, den=c.cd*x+c.dd;
+    X.push(x); F.push((c.a*x+c.b)/den); FP.push(c.k/(den*den));
+  }
+  return { X:X, F:F, FP:FP, lo:lo, hi:hi };
+}
+function eqFenetre(X,Y,v){
+  let mn=Infinity, mx=-Infinity;
+  for(let i=0;i<X.length;i++){
+    const t=Math.abs(X[i]-v);
+    if(t>=0.6 && t<=3 && isFinite(Y[i])){ if(Y[i]<mn) mn=Y[i]; if(Y[i]>mx) mx=Y[i]; }
+  }
+  if(!(isFinite(mn)&&isFinite(mx))){ mn=-1; mx=1; }
+  if(mx-mn<1e-9){ mn-=1; mx+=1; }
+  const pad=(mx-mn)*0.30; mn-=pad; mx+=pad;
+  if(mn>0) mn=-0.06*mx;
+  if(mx<0) mx=-0.06*mn;
+  return { ymin:mn, ymax:mx };
+}
+function eqGraphSVG(X,Y,lo,hi,v){
+  const L=34,R=316,T=12,Bm=158;
+  const fen=eqFenetre(X,Y,v), ymin=fen.ymin, ymax=fen.ymax;
+  const sx=x=>L+(x-lo)/(hi-lo)*(R-L), sy=y=>T+(ymax-y)/(ymax-ymin)*(Bm-T);
+  let grid=''; for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++){ const q=sx(gx).toFixed(1);
+    grid+='<line x1="'+q+'" y1="'+T+'" x2="'+q+'" y2="'+Bm+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>'; }
+  const y0=sy(0).toFixed(1);
+  let ax='<line x1="'+L+'" y1="'+y0+'" x2="'+R+'" y2="'+y0+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  if(lo<=0 && hi>=0) ax+='<line x1="'+sx(0).toFixed(1)+'" y1="'+T+'" x2="'+sx(0).toFixed(1)+'" y2="'+Bm+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  ax+='<line class="eq-asym" x1="'+sx(v).toFixed(1)+'" y1="'+T+'" x2="'+sx(v).toFixed(1)+'" y2="'+Bm+'" stroke-dasharray="5 4"/>';
+  let lab=''; for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++){ if(gx===0 && lo<=0 && hi>=0) continue;
+    lab+='<text x="'+sx(gx).toFixed(1)+'" y="'+(parseFloat(y0)+12).toFixed(1)+'" class="sv-ax" text-anchor="middle">'+numFmt(gx)+'</text>'; }
+  return '<svg viewBox="0 0 330 172" xmlns="http://www.w3.org/2000/svg" class="sv-svg">'+grid+ax+'<path class="sv-curve" d="'+efTrace(X,Y,sx,sy,ymin,ymax)+'"/>'+lab+'</svg>';
+}
+function eqGraphHTML(c){
+  const cb=eqCourbes(c), par={ f:cb.F, fp:cb.FP };
+  const sel=id=>'<select class="tvi-sel" id="'+id+'"><option value="">\u2026</option><option value="f">f</option><option value="fp">f\u2009\u2032</option></select>';
+  let h='<p class="tvi-instr ef-ginstr">Voici les courbes de <i>f</i> et de <i>f</i>\u2009\u2032, dans le d\u00e9sordre \u2014 associe chacune :</p><div class="ef-graphs">';
+  c.gOrder.forEach(function(who,i){
+    h+='<div class="ef-g"><div class="ef-gnum">Courbe '+(i+1)+'</div>'+eqGraphSVG(cb.X,par[who],cb.lo,cb.hi,c.v)
+      +'<div class="ef-gsel">Cette courbe repr\u00e9sente '+sel('eq-g'+i)+'</div></div>';
+  });
+  return h+'</div>';
+}
+/* Toutes les cases de la question, dans l'ordre de lecture (a, b puis c). */
+function eqCases(c){
+  const out=[];
+  out.push({id:'eq-den', type:'mf'});
+  out.push({id:'eq-fn', type:'num', good:-c.dd}, {id:'eq-fd', type:'num', good:c.cd},
+           {id:'eq-fv', type:'num', good:c.v},  {id:'eq-dom', type:'num', good:c.v});
+  ['eq-u','eq-v','eq-du','eq-dv','eq-s2a','eq-s2b','eq-s2c','eq-s2d','eq-s2e','eq-d1','eq-d2','eq-d3','eq-d4','eq-num'].forEach(id=>out.push({id:id, type:'mf'}));
+  out.push({id:'eq-x0', type:'num', good:c.v});
+  const sK=(c.k>0)?'+':'\u2212';
+  [[sK,sK],['+','+'],[sK,sK]].forEach((L,li)=>L.forEach((sg,si)=>out.push({id:'eq-l'+li+'s'+si, type:'sel', good:sg})));
+  c.fleches.forEach((d,i)=>out.push({id:'eq-a'+i, type:'sel', good:d}));
+  out.push({id:'eq-syn', type:'sel', good:c.fam});
+  (c.gOrder||[]).forEach((who,i)=>out.push({id:'eq-g'+i, type:'sel', good:who}));
+  return out;
+}
+function eqTableHTML(c){
+  const innerW=3*EF_WN+2*EF_WS;
+  const scx=i=>(i*(EF_WN+EF_WS)+EF_WN+EF_WS/2);
+  const den2='('+esc(c.denStr)+')<sup>2</sup>';
+  const xr='<td class="vlab" style="width:176px"><i>x</i></td>'
+    +'<td class="vnx" style="width:'+EF_WN+'px">\u2212\u221e</td><td class="vax" style="width:'+EF_WS+'px"></td>'
+    +'<td class="vnx" style="width:'+EF_WN+'px">'+s1Box('eq-x0',1)+'</td>'
+    +'<td class="vax" style="width:'+EF_WS+'px"></td><td class="vnx" style="width:'+EF_WN+'px">+\u221e</td>';
+  const ligne=(lab,li,node)=>'<tr class="vt-xr"><td class="vlab">'+lab+'</td><td></td>'
+    +'<td>'+efSign('eq-l'+li+'s0')+'</td><td class="ef-node">'+node+'</td><td>'+efSign('eq-l'+li+'s1')+'</td><td></td></tr>';
+  const arrowSel=(id,x)=>'<select id="'+id+'" class="vt-sel2" onchange="eqArrowChange()" style="left:'+x+'px;top:'+(EF_H/2)+'px"><option value="">\u2014</option><option value="up">\u2197</option><option value="down">\u2198</option></select>';
+  const inner='<svg class="vt-overlay" id="eq-var-ov" viewBox="0 0 '+innerW+' '+EF_H+'" preserveAspectRatio="none"></svg>'
+    +arrowSel('eq-a0',scx(0))+arrowSel('eq-a1',scx(1));
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(176+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xr+'</tr>'
+    +ligne('Signe de '+numFmt(c.k),0,'')
+    +ligne('Signe de '+den2,1,'<b>0</b>')
+    +ligne('Signe de <i>f</i>\u2009\u2032(<i>x</i>)',2,'<span class="eq-db"></span>')
+    +'<tr class="vt-fr"><td class="vlab">Variation de <i>f</i></td><td class="vfcell" colspan="5" style="height:'+EF_H+'px">'+inner+'</td></tr>'
+    +'</tbody></table></div>';
+}
+/* Fleches independantes de part et d'autre de la DOUBLE BARRE (pas de continuite au milieu). */
+function eqArrowChange(){
+  if(test.kind!=='eq') return;
+  const ov=$('eq-var-ov'); if(!ov) return;
+  const ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
+  const dirs=[($('eq-a0')||{}).value||'', ($('eq-a1')||{}).value||''];
+  let g='';
+  for(let i=0;i<2;i++){ if(!dirs[i]) continue;
+    const y0=(dirs[i]==='up')?EF_B:EF_T, y1=(dirs[i]==='up')?EF_T:EF_B;
+    g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1);
+  }
+  [0,2].forEach(j=>{ const d=(j===0)?dirs[0]:dirs[1];
+    const y=(j===0)?(d==='up'?EF_B:d==='down'?EF_T:(EF_T+EF_B)/2):(d==='up'?EF_T:d==='down'?EF_B:(EF_T+EF_B)/2);
+    g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4.5"/>'; });
+  const bx=ncx(1);
+  g+='<line class="eq-dbl" x1="'+(bx-3)+'" y1="4" x2="'+(bx-3)+'" y2="'+(EF_H-4)+'"/><line class="eq-dbl" x1="'+(bx+3)+'" y1="4" x2="'+(bx+3)+'" y2="'+(EF_H-4)+'"/>';
+  ov.innerHTML=g;
+}
+function eqSyncDen(){
+  const src=$('eq-s2e'); if(!src) return;
+  const v=src.getValue();
+  ['eq-ddev','eq-dend'].forEach(id=>{
+    const el=$(id); if(!el) return;
+    if(el.getValue()!==v){ try{ el.setValue(v); }catch(e){} el.classList.remove('ok','bad','sol'); }
+  });
+}
+async function startEQ(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='etude-quotient'; test.kind='eq';
+  ficheLive['eq']=eqLiveMf;   /* inscription ICI (pas au chargement : const ficheLive est d\u00e9clar\u00e9e plus bas dans le script \u2014 y toucher avant sa ligne fige toute la page) */
+  const modes=(rand(0,1)===0)?['croi','decr']:['decr','croi'];   /* une croissante ET une decroissante, ordre melange */
+  test.questions=[genEQ(modes[0]),genEQ(modes[1])];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('eq'); renderEQ();
+}
+function renderEQ(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('eqQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('eqModeTag').innerHTML=modeTagHTML();
+  $('eqLiveScore').textContent=test.score;
+  $('eqFeedback').textContent=''; $('eqFeedback').className='mp-feedback';
+  $('eqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEQ()">V\u00e9rifier</button>';
+  $('eqPrompt').innerHTML='On consid\u00e8re la fonction '+mlTex(eqFxTex(c), '<i>f</i>(x) = ('+esc(c.numStr)+') / ('+esc(c.denStr)+')')+'.';
+  const ce=id=>'<math-field class="dexp-mf" id="'+id+'"></math-field>';
+  const cep=id=>'<span class="dexp-pwrap"><span class="par">(</span>'+ce(id)+'<span class="par">)</span></span>';
+  $('eqBody').innerHTML=
+    '<div class="eq-part"><b>a) Ensemble de d\u00e9finition.</b>'
+    +'<div class="s1-res"><div class="s1-line">Pour trouver la ou les valeurs interdites, on r\u00e9sout :&nbsp; '+ce('eq-den')+' <span class="op">= 0</span></div>'
+    +'<div class="s1-line">Donc&nbsp; <i>x</i> = <span class="eq-frac-in">'+s1Box('eq-fn',1)+'<span class="eq-fbar"></span>'+s1Box('eq-fd',1)+'</span> = '+s1Box('eq-fv',1)+'</div>'
+    +'<div class="s1-line">Donc l\u2019ensemble de d\u00e9finition de <i>f</i> est&nbsp; \u211d\u2009\\\u2009{ '+s1Box('eq-dom',1)+' }</div></div></div>'
+    +'<div class="eq-part"><b>b) D\u00e9montrer que</b> '+mlTex(eqFpTex(c), '<i>f</i>\u2009\u2032(x) = '+numFmt(c.k)+' / ('+esc(c.denStr)+')\u00b2')+'.'
+    +'<div class="dexp-pose">On pose <span class="dexp-hint">(u = num\u00e9rateur, v = d\u00e9nominateur)</span> :</div>'
+    +'<div class="dexp-row"><span>'+mlTex('u=','<i>u</i> = ')+ce('eq-u')+'</span><span>'+mlTex('v=','<i>v</i> = ')+ce('eq-v')+'</span></div>'
+    +'<div class="dexp-row"><span>'+mlTex("u'=",'<i>u\u2032</i> = ')+ce('eq-du')+'</span><span>'+mlTex("v'=",'<i>v\u2032</i> = ')+ce('eq-dv')+'</span></div>'
+    +'<div class="dexp-formula">'+mlTex("f\\;{}'(x)=\\frac{u'\\times v-u\\times v'}{v^2}", "<i>f</i>\u00a0\u2032(x) = (<i>u\u2032</i>\u00d7<i>v</i> \u2212 <i>u</i>\u00d7<i>v\u2032</i>) / <i>v</i>\u00b2")+'</div>'
+    +'<div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">'+cep('eq-s2a')+'<span class="op">\u00d7</span>'+cep('eq-s2b')+'<span class="op">\u2212</span>'+cep('eq-s2c')+'<span class="op">\u00d7</span>'+cep('eq-s2d')+'</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide" id="eq-s2e"></math-field></span></span></div>'
+    +'<div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num">'+['eq-d1','eq-d2','eq-d3','eq-d4'].map(id=>'<math-field class="dexp-mf dexp-mf-slim" id="'+id+'"></math-field>').join('<span class="op">+</span>')+'</span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide dq-mirror" id="eq-ddev"></math-field></span></span></div>'
+    +'<p class="dexp-hint eq-devhint">On d\u00e9veloppe d\u2019abord : un terme par case, avec son signe (les deux termes en <i>x</i> se compensent).</p>'
+    +'<div class="dexp-steprow"><span class="eq">=</span><span class="dq-frac"><span class="dq-num"><math-field class="dexp-mf dexp-mf-wide" id="eq-num"></math-field></span><span class="dq-bar"></span><span class="dq-den"><math-field class="dexp-mf dexp-mf-wide dq-mirror" id="eq-dend"></math-field></span></span></div>'
+    +'<p class="dexp-hint">Au clavier : <b>^</b> exposant, <b>/</b> fraction, <b>barre d\u2019espace</b> pour sortir d\u2019une fraction ou d\u2019un exposant.<span class="hint-souris"> <b>Clic droit</b> sur un champ : clavier \u00e0 l\u2019\u00e9cran et raccourcis clavier.</span></p></div>'
+    +'<div class="eq-part"><b>c) \u00c9tudier les variations de <i>f</i>.</b>'
+    +'<div class="s1-res"><div class="s1-line">Comme&nbsp; '+mlTex(eqFpTex(c), '<i>f</i>\u2009\u2032(x) = '+numFmt(c.k)+' / ('+esc(c.denStr)+')\u00b2')+'&nbsp;, compl\u00e8te le tableau (valeur interdite, signes, variations) :</div></div>'
+    +eqTableHTML(c)
+    +'<div class="s1-res eq-synt"><div class="s1-line">Sur chacun de ses deux intervalles de d\u00e9finition, <i>f</i> est <select class="tvi-sel" id="eq-syn"><option value="">\u2026</option><option value="croi">croissante</option><option value="decr">d\u00e9croissante</option></select>.</div></div>'+eqGraphHTML(c)+'</div>';
+  if(window.mlDexp) window.mlDexp.upgrade($('eqBody'));
+  ['eq-ddev','eq-dend'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
+  const s2e=$('eq-s2e'); if(s2e) s2e.addEventListener('input', eqSyncDen);
+  setTimeout(eqArrowChange,0);
+  if(isSoutien()){
+    eqCases(c).forEach(x=>{ const el=$(x.id); if(!el || el.tagName==='MATH-FIELD') return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkEQ(true)); });
+  }
+  setTimeout(()=>{ const el=$('eq-den'); if(el) el.focus(); },30);
+}
+/* Jugement en direct des champs math (via ficheLive) : la case quittee est coloree ; une
+   ligne u'v-uv' enti\u00e8rement juste passe toute verte d'un coup. */
+function eqLiveMf(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el || el.classList.contains('sol')) return;
+    if(document.activeElement===el) return;
+    const c=test.questions[test.idx]; if(!c) return;
+    const r=eqVerdicts(c);
+    if(EQ_S2.includes(id) && r.s2){ EQ_S2.forEach(g=>{ const e2=$(g); if(e2){ e2.classList.remove('ok','bad'); e2.classList.add('ok'); } }); return; }
+    if(EQ_D.includes(id) && r.d){ EQ_D.forEach(g=>{ const e2=$(g); if(e2){ e2.classList.remove('ok','bad'); e2.classList.add('ok'); } }); return; }
+    el.classList.remove('ok','bad');
+    if(dexpCellValue(id)!=='') el.classList.add(r.verdicts[id]?'ok':'bad');
+  },0);
+}
+function checkEQ(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx], cases=eqCases(c), r=eqVerdicts(c);
+  let allOk=true, anyFilled=false;
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    let raw, ok;
+    if(x.type==='mf'){ raw=dexpCellValue(x.id); ok=!!r.verdicts[x.id]; }
+    else if(x.type==='sel'){ raw=String(el.value||''); ok=(raw===x.good); }
+    else { raw=String(el.value||''); const v=efParse(raw); ok=(v!==null && Math.abs(v-x.good)<1e-9); }
+    if(raw.trim()!=='') anyFilled=true;
+    if(x.type==='mf' && live) return;   /* en direct, les champs math sont juges par eqLiveMf a la sortie de case */
+    el.classList.remove('ok','bad');
+    if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false;
+    el.classList.add(ok?'ok':'bad');
+    if(el.tagName==='MATH-FIELD') el.readOnly=(ok||!isSoutien()); else el.disabled=(ok||!isSoutien());
+  });
+  if(live) return;
+  if(!anyFilled){ $('eqFeedback').textContent='Compl\u00e8te au moins une case avant de v\u00e9rifier.'; $('eqFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    $('eqFeedback').textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    $('eqFeedback').className='mp-feedback bad';
+    $('eqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEQ()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('eqLiveScore').textContent=test.score;
+    $('eqFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, \u00e9tude compl\u00e8te !']);
+    $('eqFeedback').className='mp-feedback good';
+  } else {
+    $('eqFeedback').innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.<br>'
+      +'Retiens : la <b>valeur interdite</b> annule le d\u00e9nominateur ; <b>(u/v)\u2009\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2</b> ; '
+      +'un <b>carr\u00e9</b> est positif, donc le signe de <i>f</i>\u2009\u2032 est celui de son num\u00e9rateur constant \u2014 '
+      +'<i>f</i> est monotone <b>sur chacun</b> des deux intervalles, avec une <b>double barre</b> \u00e0 la valeur interdite.<br>'
+      +'Pour les courbes : <i>f</i>\u2009\u2032 reste <b>d\u2019un seul c\u00f4t\u00e9 de l\u2019axe</b> (m\u00eame signe partout), tandis que <i>f</i> a <b>deux branches</b> de part et d\u2019autre de l\u2019asymptote en pointill\u00e9s.';
+    $('eqFeedback').className='mp-feedback bad';
+    const sol={'eq-den':c.denStr,'eq-u':c.numStr,'eq-v':c.denStr,'eq-du':String(c.a),'eq-dv':String(c.cd),
+      'eq-s2a':String(c.a),'eq-s2b':c.denStr,'eq-s2c':c.numStr,'eq-s2d':String(c.cd),
+      'eq-s2e':'('+c.denStr+')^2','eq-num':numFmt(c.k),
+      'eq-d1':(c.a*c.cd)+'x','eq-d2':String(c.a*c.dd),'eq-d3':(-c.a*c.cd)+'x','eq-d4':String(-c.cd*c.b)};
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+      if(x.type==='mf'){ try{ el.setValue(String(sol[x.id]).replace(/\u2212/g,'-')); }catch(e){} el.readOnly=true; }
+      else { el.value=(x.type==='sel')?x.good:numFmt(x.good); el.disabled=true; }
+      el.classList.remove('bad'); el.classList.add('ok'); });
+    eqSyncDen(); ['eq-ddev','eq-dend'].forEach(id=>{ const dd2=$(id); if(dd2){ dd2.classList.remove('bad'); dd2.classList.add('ok'); } });
+    eqArrowChange();
+  }
+  test.answers.push({q:'f(x) = ('+c.numStr+')/('+c.denStr+') \u2014 domaine, d\u00e9riv\u00e9e '+numFmt(c.k)+'/('+c.denStr+')\u00b2, variations ('+(c.fam==='croi'?'croissante':'d\u00e9croissante')+')', answer:'\u00e9tude compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('eqActions').innerHTML='<button class="btn btn-primary" onclick="nextEQ()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+function nextEQ(){ if(test.idx<test.questions.length-1){ test.idx++; renderEQ(); } else finishTest(); }
+function eqLu(id){ const el=$(id); if(!el) return '(vide)';
+  const v=(el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim();
+  return v===''?'(vide)':'\u00ab '+v+' \u00bb'; }
+function eqConseilCtx(){
+  const c=test.questions[test.idx], cases=eqCases(c);
+  return 'Exercice 5.3 : FONCTION QUOTIENT \u2014 domaine, d\u00e9riv\u00e9e et variations. f(x) = ('+c.numStr+')/('+c.denStr+'). '
+   +'a) L\u2019\u00e9l\u00e8ve r\u00e9sout d\u00e9nominateur = 0 (champ math), puis x = fraction = valeur, puis \u211d priv\u00e9 de la valeur interdite. '
+   +'b) Il d\u00e9montre f\u2032(x) = '+numFmt(c.k)+'/('+c.denStr+')\u00b2 en posant u, v, u\u2032, v\u2032, en compl\u00e9tant (u\u2032\u00d7v \u2212 u\u00d7v\u2032)/v\u00b2 case par case, puis en D\u00c9VELOPPANT le num\u00e9rateur (quatre cases reli\u00e9es par +, un terme AVEC SON SIGNE par case) avant de r\u00e9duire \u00e0 la constante (les d\u00e9nominateurs des lignes suivantes se recopient tout seuls). '
+   +'c) La phrase \u00ab Comme f\u2032(x) = \u2026 \u00bb RAPPELLE la formule d\u00e9montr\u00e9e en b (affich\u00e9e, rien \u00e0 saisir), puis le tableau : valeur interdite dans la ligne x, signe du num\u00e9rateur constant (PAS de z\u00e9ro), signe du carr\u00e9 (z\u00e9ro en la valeur interdite), signe de f\u2032 avec DOUBLE BARRE, fl\u00e8ches de variation ind\u00e9pendantes de part et d\u2019autre, et la phrase de synth\u00e8se ; enfin deux courbes affich\u00e9es dans un ordre m\u00e9lang\u00e9, \u00e0 associer \u00e0 f ou f\u2032 (l\u2019asymptote verticale en pointill\u00e9s figure sur les deux). '
+   +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : valeur interdite x = '+numFmt(c.v)+' (fraction '+numFmt(-c.dd)+'/'+numFmt(c.cd)+') ; u = '+c.numStr+', v = '+c.denStr+', u\u2032 = '+numFmt(c.a)+', v\u2032 = '+numFmt(c.cd)+' ; d\u00e9veloppement '+(c.a*c.cd)+'x + '+numFmt(c.a*c.dd)+' + '+numFmt(-c.a*c.cd)+'x + '+numFmt(-c.cd*c.b)+' (les termes en x se compensent) ; num\u00e9rateur final '+numFmt(c.k)+' ; signes '+((c.k>0)?'+':'\u2212')+' partout pour f\u2032 ; f '+(c.fam==='croi'?'croissante':'d\u00e9croissante')+' sur chaque intervalle ; association des courbes (ordre affich\u00e9) : courbe 1 = '+(c.gOrder[0]==='f'?'f':'f\u2032')+', courbe 2 = '+(c.gOrder[1]==='f'?'f':'f\u2032')+'. '
+   +'Saisies actuelles : '+cases.map(x=>x.id.replace('eq-','')+' '+eqLu(x.id)).join(' ; ')+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, aucun signe ni sens de variation. '
+   +'M\u00e9thode \u00e0 faire appliquer : valeur interdite en r\u00e9solvant '+'d\u00e9nominateur = 0 ; formule (u/v)\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2 ; DISTRIBUER d\u2019abord a(cx+d) puis \u2212c(ax+b) terme \u00e0 terme, chaque case re\u00e7oit un terme avec son signe ; les termes en x se compensent et le num\u00e9rateur se r\u00e9duit \u00e0 une CONSTANTE ; un carr\u00e9 est toujours positif ; f\u2032 garde donc un signe constant et f est monotone sur CHACUN des deux intervalles (double barre \u00e0 la valeur interdite, jamais de z\u00e9ro pour f\u2032) ; pour associer les courbes : f\u2032 reste d\u2019un seul c\u00f4t\u00e9 de l\u2019axe des abscisses, f a deux branches s\u00e9par\u00e9es par l\u2019asymptote. '
+   +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
+   +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
+}
 /* ====================== TEST : Équation de tangente (lecture graphique) ====================== */
 /* Pour chaque cas on choisit des entiers a (abscisse du point A), fa = f(a) et m = f'(a) (la pente),
    puis une parabole  f(x) = c(x−a)² + m(x−a) + fa  qui passe par A(a ; fa) avec la pente m.
@@ -7969,9 +8666,21 @@ const RAP_ENC=
 +'<li>passer \u00e0 l\u2019<b>inverse</b> (d\u00e9croissante sur ]0\u2009;\u2009+\u221e[) : l\u2019ordre <b>change</b>, les bornes s\u2019\u00e9changent.</li></ul>'
 +'<p>Si on arrive \u00e0 <i>m</i> \u2264 \u2026 \u2264 <i>f</i>(<i>x</i>) \u2264 \u2026 \u2264 <i>M</i>, alors <b><i>f</i>(<i>x</i>) \u2208 [<i>m</i>\u2009;\u2009<i>M</i>]</b> : '
 +'l\u2019intervalle est <b>stable</b>. C\u2019est exactement l\u2019<b>h\u00e9r\u00e9dit\u00e9</b> d\u2019une r\u00e9currence \u00ab U<sub><i>n</i></sub> \u2208 [<i>m</i>\u2009;\u2009<i>M</i>] \u00bb avec U<sub><i>n</i>+1</sub> = <i>f</i>(U<sub><i>n</i></sub>).</p></div>';
+const RAP_EF=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe de f\u2009\u2032 et variations de f</h4>'
++'<ul><li>Une <b>exponentielle</b> e<sup>X</sup> est <b>toujours strictement positive</b> ; un <b>carr\u00e9</b> est positif (nul seulement en son z\u00e9ro, jamais l\u00e0 o\u00f9 il est interdit).</li>'
++'<li>Le signe d\u2019un <b>produit</b> ou d\u2019un <b>quotient</b> se lit <b>facteur par facteur</b> dans un tableau : une ligne par facteur, puis la ligne de f\u2009\u2032.</li>'
++'<li>Racine d\u2019un facteur affine : on r\u00e9sout facteur = 0 (ex. x + 2 = 0 donne x = \u22122) ; pour dx\u00b2 + e, les racines sont \u00b1\u221a(\u2212e/d).</li>'
++'<li><b>f cro\u00eet</b> l\u00e0 o\u00f9 <b>f\u2009\u2032 &gt; 0</b>, <b>f d\u00e9cro\u00eet</b> l\u00e0 o\u00f9 <b>f\u2009\u2032 &lt; 0</b> ; f admet un <b>extremum</b> l\u00e0 o\u00f9 f\u2009\u2032 s\u2019annule <b>en changeant de signe</b> (minimum si \u2212 puis +, maximum si + puis \u2212).</li></ul></div>';
+const RAP_EQ=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 fonction quotient : domaine, d\u00e9riv\u00e9e, variations</h4>'
++'<ul><li><b>Valeur interdite</b> : celle qui annule le <b>d\u00e9nominateur</b> ; on r\u00e9sout cx + d = 0, soit x = \u2212d/c. L\u2019ensemble de d\u00e9finition est \u211d priv\u00e9 de cette valeur.</li>'
++'<li><b>D\u00e9riv\u00e9e d\u2019un quotient</b> : (u/v)\u2009\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2. Pour f(x) = (ax+b)/(cx+d), on <b>d\u00e9veloppe</b> le num\u00e9rateur : a(cx+d) \u2212 c(ax+b) = acx + ad \u2212 acx \u2212 cb \u2014 les termes en x <b>se compensent</b>, il reste la <b>constante</b> ad \u2212 cb.</li>'
++'<li>Un <b>carr\u00e9</b> est toujours positif (nul seulement en la valeur interdite) : le signe de f\u2009\u2032 est donc celui de sa constante, le <b>m\u00eame des deux c\u00f4t\u00e9s</b> \u2014 f\u2009\u2032 ne s\u2019annule jamais.</li>'
++'<li>Dans le tableau, on place une <b>double barre</b> \u2551 \u00e0 la valeur interdite (f n\u2019y existe pas) : f est <b>monotone sur chacun</b> des deux intervalles \u2014 croissante si la constante est positive, d\u00e9croissante sinon \u2014 mais on ne compare JAMAIS les deux c\u00f4t\u00e9s entre eux.</li></ul></div>';
 /* Carte des rappels : par identifiant d'exercice d'abord (le kind « gen » sert deux exercices), puis par kind. */
 const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER };
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, lr:RAP_LR,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, s1:RAP_S1, s2:RAP_S2 };
@@ -8365,7 +9074,8 @@ function creerFicheCases(o){
 const FICHE_ECRANS={
   'scr-dexp':{actions:'#dexpActions'},   /* derivees niveaux 1-2-3 + quotient niveau 1 */
   'scr-su':{actions:'#suActions'},       /* 6.1 suites arithmetiques / geometriques */
-  'scr-enc':{actions:'#encActions'}      /* 6.3 suites : encadrements (recurrence) */
+  'scr-enc':{actions:'#encActions'},     /* 6.3 suites : encadrements (recurrence) */
+  'scr-eq':{actions:'#eqActions'}        /* 5.3 fonction quotient : domaine, derivee, variations */
 };
 document.addEventListener('focusin',(e)=>{
   const el=e.target;
@@ -9583,6 +10293,8 @@ const QIA_SUGG={
   sv:["Quel est le lien entre le signe de f′ et les variations de f ?","Comment lire le signe de f sur un graphique ?","C’est quoi, un extremum ?"],
   tg:["C’est quoi, une tangente ?","Comment trouver l’équation d’une tangente ?","Que représente f′(a) sur le graphique ?"],
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
+  eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi f\u2032 garde-t-elle le m\u00eame signe des deux c\u00f4t\u00e9s ?","Que signifie la double barre dans le tableau ?"],
+  ef:["Pourquoi e\u02e3 est-il toujours strictement positif ?","Comment trouver le signe d\u2019un produit ?","Quel est le lien entre le signe de f\u2032 et les variations de f ?","O\u00f9 f admet-elle un extremum ?"],
   enc:["Faire un rappel de cours pour cet exercice.","Que devient un encadrement quand on multiplie par un nombre positif ?","Pourquoi l\u2019ordre change-t-il quand on passe \u00e0 l\u2019inverse ?","\u00c0 quoi sert un encadrement pour une r\u00e9currence ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
@@ -9708,7 +10420,8 @@ const QIA_ILLUS={
   'fonction-decroissante':'Fonction décroissante : si x₁ < x₂ alors f(x₁) > f(x₂) — la courbe descend.',
   'tvi-unique':'TVI : f continue et strictement croissante de f(a) à f(b), et k entre les deux ⇒ une unique solution α.',
   'signe-variations':'Le signe de f′ donne les variations de f : f′ > 0 ⇒ f croît, f′ < 0 ⇒ f décroît.',
-  'tangente':'La tangente en A frôle la courbe ; sa pente vaut f′(a), le nombre dérivé.'
+  'tangente':'La tangente en A frôle la courbe ; sa pente vaut f′(a), le nombre dérivé.',
+  'tableau-signe':'Tableau de signe : f s’annule en x₀ et change de signe — un signe avant, l’autre après.'
 };
 /* Question portant sur la maniere d'ecrire la reponse : on ne propose alors AUCUN dessin
    a l'IA (pas de liste de balises) et on exige un modele de phrase. */
@@ -9727,9 +10440,37 @@ function qiaCourbeMission(){
   return " COURBE D\u2019ILLUSTRATION : si (et seulement si) une courbe \u00e9clairerait vraiment ta r\u00e9ponse \u2014 pour illustrer une notion du cours ou ton exemple num\u00e9rique \u2014 termine TOUTE ta r\u00e9ponse par UNE balise [COURBE:expression] (ou DEUX au maximum, l\u2019une apr\u00e8s l\u2019autre, si tu compares deux fonctions), chacune contenant l\u2019expression d\u2019une fonction INVENT\u00c9E simple, \u00e9crite uniquement avec des nombres, la lettre x, + - * / ^ et des parenth\u00e8ses (exp(\u2026) autoris\u00e9 ; PAS de racine, de ln ni de \\\\frac dans la balise : \u00e9cris par exemple (2x+1)/(x-3) ou exp(-x)) \u2014 la plateforme trace elle-m\u00eame la courbe sur [\u22125 ; 5]. De m\u00eame, un tableau de variation ou de signe invent\u00e9 peut illustrer ta r\u00e9ponse (format \\\\begin{array} impos\u00e9 plus haut). Jamais la fonction ni les valeurs de l\u2019exercice en cours ; si aucune figure n\u2019aide, n\u2019en mets pas."
 }
 function qiaIlluMission(){
-  const lim=!!(test && ['dhv','lg','lg2','lg3','lr'].indexOf(test.kind)>=0);
-  const lst=lim ? '[ILLU:asymptote-h] limite finie en ±∞ / asymptote horizontale ; [ILLU:limite-infinie] limite infinie quand x tend vers ±∞ ; [ILLU:asymptote-v] valeur interdite / asymptote verticale ; [ILLU:limites-laterales] limites à gauche et à droite différentes en un point ; [ILLU:point-regulier] limite en un point égale à f(b) ; [ILLU:approche-point] l’image du point qui glisse le long de la courbe vers sa limite ; [ILLU:tv-limites] lire des limites aux bords d’un tableau de variation ; [ILLU:tv-double-barre] double barre (valeur interdite) dans un tableau de variation ; [ILLU:pas-asymptote-h] courbe SANS asymptote horizontale ; [ILLU:pas-asymptote-v] courbe SANS asymptote verticale ; [ILLU:fonction-croissante] définition d’une fonction croissante ; [ILLU:fonction-decroissante] définition d’une fonction décroissante' : '[ILLU:coeff-directeur] coefficient directeur / pente d’une droite ; [ILLU:fonction-croissante] définition d’une fonction croissante ; [ILLU:fonction-decroissante] définition d’une fonction décroissante ; [ILLU:tvi-unique] théorème des valeurs intermédiaires (unique solution) ; [ILLU:signe-variations] tableau reliant le signe de f′ aux variations de f ; [ILLU:tangente] tangente en un point et sa pente f′(a)';
-  return ' ILLUSTRATION \u2014 D\u00c8S QUE ta r\u00e9ponse peut \u00eatre illustr\u00e9e par une figure (coefficient directeur, croissance ou d\u00e9croissance d\u2019une fonction, TVI, tableau de signe ou de variation, tangente, limite, asymptote\u2026), AJOUTE-EN une : termine ta r\u00e9ponse par UNE balise (ou DEUX au maximum, s\u00e9par\u00e9es par un espace, si tu compares deux situations) choisie EXACTEMENT dans cette liste : '+lst+'. La plateforme dessinera la figure elle-m\u00eame (dessin g\u00e9n\u00e9rique, jamais celui de l\u2019exercice en cours). N\u2019invente JAMAIS d\u2019autre balise [ILLU:\u2026] ; si aucune figure de la liste ne convient mais qu\u2019une courbe aiderait, utilise [COURBE:expression] ; pour un tableau chiffr\u00e9, l\u2019environnement \\\\begin{array}. Seule une r\u00e9ponse purement calculatoire, sans notion \u00e0 visualiser, peut rester sans figure. Si la question porte sur la r\u00e9daction, le dessin reste facultatif et ne dispense JAMAIS du mod\u00e8le de phrase.';
+  /* Descriptions courtes des figures, reutilisees par les catalogues */
+  const TXT={
+    'asymptote-h':'limite finie en \u00b1\u221e / asymptote horizontale','limite-infinie':'limite infinie quand x tend vers \u00b1\u221e',
+    'asymptote-v':'valeur interdite / asymptote verticale','limites-laterales':'limites \u00e0 gauche et \u00e0 droite diff\u00e9rentes en un point',
+    'point-regulier':'limite en un point \u00e9gale \u00e0 f(b)','approche-point':'l\u2019image du point qui glisse le long de la courbe vers sa limite',
+    'tv-limites':'lire des limites aux bords d\u2019un tableau de variation','tv-double-barre':'double barre (valeur interdite) dans un tableau de variation',
+    'pas-asymptote-h':'courbe SANS asymptote horizontale','pas-asymptote-v':'courbe SANS asymptote verticale',
+    'coeff-directeur':'coefficient directeur / pente d\u2019une droite','fonction-croissante':'d\u00e9finition d\u2019une fonction croissante',
+    'fonction-decroissante':'d\u00e9finition d\u2019une fonction d\u00e9croissante','tvi-unique':'th\u00e9or\u00e8me des valeurs interm\u00e9diaires (unique solution)',
+    'signe-variations':'tableau reliant le signe de f\u2032 aux variations de f','tangente':'tangente en un point et sa pente f\u2032(a)',
+    'tableau-signe':'tableau de signe d\u2019une fonction (racine x\u2080, un signe avant, l\u2019autre apr\u00e8s)'
+  };
+  /* Catalogue par exercice : UNIQUEMENT les figures qui collent \u00e0 sa notion */
+  const LIM=['asymptote-h','limite-infinie','asymptote-v','limites-laterales','point-regulier','approche-point','tv-limites','tv-double-barre','pas-asymptote-h','pas-asymptote-v','fonction-croissante','fonction-decroissante'];
+  const CAT={
+    dhv:LIM, lg:LIM, lg2:LIM, lg3:LIM, lr:LIM,
+    s1:['tableau-signe','coeff-directeur'],
+    s2:['tableau-signe'],
+    sv:['signe-variations','tableau-signe','fonction-croissante','fonction-decroissante'],
+    ef:['signe-variations','tableau-signe','fonction-croissante','fonction-decroissante'],
+    tg:['tangente','coeff-directeur'],
+    tvi:['tvi-unique','fonction-croissante','fonction-decroissante'], tvi2:['tvi-unique','fonction-croissante','fonction-decroissante'],
+    tvi3:['tvi-unique','fonction-croissante','fonction-decroissante'], tvins:['tvi-unique','fonction-croissante','fonction-decroissante'],
+    tvg:['tvi-unique','fonction-croissante','fonction-decroissante'],
+    dexp:['tangente','signe-variations'], dexpq:['tangente','signe-variations'],
+    eq:['tv-double-barre','asymptote-v','tableau-signe','signe-variations'],
+    su:['fonction-croissante','fonction-decroissante'], sa:['fonction-croissante','fonction-decroissante'], enc:['fonction-croissante','fonction-decroissante']
+  };
+  const ids=(test && CAT[test.kind]) || ['coeff-directeur','fonction-croissante','fonction-decroissante','tvi-unique','signe-variations','tangente','tableau-signe'];
+  const lst=ids.map(function(id){ return '[ILLU:'+id+'] '+TXT[id]; }).join(' ; ');
+  return ' ILLUSTRATION \u2014 D\u00c8S QUE ta r\u00e9ponse peut \u00eatre illustr\u00e9e par une figure de la liste ci-dessous, AJOUTE-EN une : termine ta r\u00e9ponse par UNE balise (ou DEUX au maximum, s\u00e9par\u00e9es par un espace, si tu compares deux situations) choisie EXACTEMENT dans cette liste : '+lst+'. La plateforme dessinera la figure elle-m\u00eame (dessin g\u00e9n\u00e9rique, jamais celui de l\u2019exercice en cours). Choisis UNIQUEMENT une figure qui illustre la notion pr\u00e9cise de TA r\u00e9ponse \u2014 une figure hors sujet est PIRE que pas de figure. N\u2019invente JAMAIS d\u2019autre balise [ILLU:\u2026] ; si aucune figure de la liste ne convient mais qu\u2019une courbe aiderait, utilise [COURBE:expression] ; pour un tableau chiffr\u00e9, l\u2019environnement \\\\begin{array}. Une r\u00e9ponse purement calculatoire peut rester sans figure. Si la question porte sur la r\u00e9daction, le dessin reste facultatif et ne dispense JAMAIS du mod\u00e8le de phrase.';
 }
 function qiaIlluExtrait(t){
   const illus=[], courbes=[];
@@ -9943,6 +10684,14 @@ function qiaIlluSVG(id){
       +'<text class="qi-tx" x="43" y="130" text-anchor="middle" font-style="italic">f</text>'
       +fl(80,146,148,108,'qi-trait')+fl(162,108,230,146,'qi-trait')
       +'<text class="qi-tb" x="155" y="105" text-anchor="middle">max</text>'+fin;
+  }
+  if(id==='tableau-signe'){
+    return deb+'<rect class="qi-cadre" x="18" y="30" width="224" height="120" rx="8"/>'
+      +'<line class="qi-trait" x1="18" y1="62" x2="242" y2="62"/><line class="qi-trait" x1="68" y1="30" x2="68" y2="150"/>'
+      +'<text class="qi-tx" x="43" y="51" text-anchor="middle" font-style="italic">x</text>'
+      +'<text class="qi-tx" x="84" y="51">\u2212\u221e</text><text class="qi-tr" x="155" y="51" text-anchor="middle">x\u2080</text><text class="qi-tx" x="238" y="51" text-anchor="end">+\u221e</text>'
+      +'<text class="qi-tx" x="43" y="112" text-anchor="middle" font-style="italic">f\u2009(x)</text>'
+      +'<text class="qi-tb" x="110" y="112" text-anchor="middle">\u2212</text><text class="qi-tx" x="155" y="112" text-anchor="middle">0</text><text class="qi-tb" x="200" y="112" text-anchor="middle">+</text>'+fin;
   }
   return '';
 }
