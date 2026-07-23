@@ -1891,6 +1891,33 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
+/* ===== Reparation des ecritures LaTeX abimees par le modele =====
+   Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
+   Deux accidents possibles, tous deux traites ici AVANT le rendu :
+     - antislash double (\\frac) : MathLive lit « \\ » comme un retour a la ligne, puis
+       ecrit « frac » en toutes lettres, les accolades etant invisibles ;
+     - antislash disparu (frac{..}{..}) : la commande n'est plus reconnue, meme resultat.
+   On retablit l'antislash unique. A l'interieur d'une formule seulement, on retablit
+   aussi les noms de commandes restes nus (cdot, sqrt, infty…) ; le contenu d'un
+   \text{…} n'est jamais touche, et un antislash orphelin en fin de formule disparait. */
+var LTX_ACC='(?:d?frac|tfrac|sqrt|text|mathbb|mathrm|mathbf|overline|underline|overrightarrow|widehat|binom|vec)';
+var LTX_MOT='(?:Leftrightarrow|longrightarrow|rightarrow|Rightarrow|leqslant|geqslant|approx|lambda|infty|times|ldots|cdots|qquad|alpha|gamma|delta|theta|Delta|cdot|quad|beta|left|right|sqrt|frac|ell|div|lim|log|exp|cos|sin|tan|neq|leq|geq|ln|pm|pi|to)';
+function latexRepare(s, dansFormule){
+  s=String(s==null?'':s);
+  if(s.indexOf('\\')>=0){
+    s=s.replace(/\\{2,}(?=[A-Za-z()[\]])/g,'\\');   /* \\frac, \\( , \\) … : un seul antislash */
+    s=s.replace(/\\{2,}/g,'');                   /* \\ isole : retour a la ligne LaTeX parasite */
+  }
+  s=s.replace(new RegExp('(^|[^\\\\A-Za-z])('+LTX_ACC+')\\s*(?=\\{)','g'),'$1\\$2');
+  if(dansFormule){
+    var T=[];
+    s=s.replace(/\\(?:text|mathrm)\{[^{}]{0,80}\}/g,function(m){T.push(m);return '\uE012'+(T.length-1)+'\uE013';});
+    s=s.replace(new RegExp('(^|[^\\\\A-Za-z])('+LTX_MOT+')(?![A-Za-z])','g'),'$1\\$2');
+    s=s.replace(/\uE012(\d+)\uE013/g,function(m,i){return T[+i]||'';});
+    s=s.replace(/\\+$/,'');
+  }
+  return s;
+}
 function fracAuto(s){
   s=String(s==null?'':s);
   s=s.replace(/\\div(?![A-Za-z])/g,'/').replace(/\u00f7/g,'/');
@@ -1977,7 +2004,7 @@ function iaMathAuto(s, maths){
       .replace(/\u00d7/g,'\\times ').replace(/\u00b7/g,'\\cdot ').replace(/\*/g,'\\times ').replace(/\u2212/g,'-')
       .replace(/\u2264/g,'\\le ').replace(/\u2265/g,'\\ge ').replace(/\u2260/g,'\\ne ').replace(/\u2248/g,'\\approx ')
       .replace(/\u2192/g,'\\to ').replace(/\u221e/g,'\\infty ').replace(/\u03c0/g,'\\pi ').replace(/\u2113/g,'\\ell ').replace(/\u00b1/g,'\\pm ');
-    maths.push(fracAuto(lx));
+    maths.push(fracAuto(latexRepare(lx,true)));
     out+='\uE000'+(maths.length-1)+'\uE001';
     last=b; seed.lastIndex=b;
   }
@@ -2010,10 +2037,10 @@ function conseilHTML(t){
         (des caracteres comme < > doivent survivre dans le LaTeX). Chaque segment devient un
         jeton prive \uE000n\uE001, remplace a la fin par le rendu MathLive (mlDexp.tex). */
   const maths=[];
-  const brut=String(t==null?'':t).replace(/\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^$\n]+?)\$/g,(m,a,b,c)=>{
+  const brut=latexRepare(t,false).replace(/\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^$\n]+?)\$/g,(m,a,b,c)=>{
     const lx=(a!=null?a:(b!=null?b:c));
     if(c!=null && (/^\s|\s$/.test(c))) return m;   /* $ isole (prix, texte) : on ne touche pas */
-    maths.push(fracAuto(lx)); return '\uE000'+(maths.length-1)+'\uE001';
+    maths.push(fracAuto(latexRepare(lx,true))); return '\uE000'+(maths.length-1)+'\uE001';
   });
   let x=esc(iaMathAuto(brut,maths));   /* + ecritures en clair (V_(n+1), q^n, equations…) */
   x=x.replace(/^[ \t]*#{1,6}[ \t]*(.+)$/gm,'<b>$1</b>');
@@ -2028,7 +2055,9 @@ function conseilHTML(t){
   x=x.replace(/\uE000(\d+)\uE001/g,(m,i)=>{
     const lx=maths[+i]||'';
     const r=(window.mlDexp && mlDexp.tex) ? mlDexp.tex(lx) : null;
-    return (r!=null) ? r : esc(lx);
+    if(r!=null) return r;
+    let clair=lx; try{ if(window.mlDexp && mlDexp.toPlain) clair=mlDexp.toPlain(lx); }catch(e){}
+    return esc(clair);   /* rendu indisponible : ecriture en clair ((a)/(b)), jamais de \\frac a l'ecran */
   });
   return x;
 }
@@ -2036,7 +2065,7 @@ const CONSEIL_FORMAT=" — FORMAT DE TA RÉPONSE : 2 à 4 phrases maximum, "
   +"sans titre ni markdown (pas de « # », pas de « ** »), tutoiement, et ne donne JAMAIS "
   +"la réponse finale — seulement la prochaine étape à faire. "
   +"Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(V_{n+1}=3V_n\\) ou \\(\\frac{b}{a}\\) — "
-  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades.";
+  +"jamais en texte brut (pas de « Un+1 », « 3*Un+2 », « b/a »). Constantes et inconnues : une seule lettre, par exemple k ou c (jamais un nom epele comme « ell »). Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, e^{0,5x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux).";
 let conseilBusy=false;
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
@@ -9287,7 +9316,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum, en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et petits exemples génériques du cours — c’est le but. Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, entièrement en pointillés « … » à la place de TOUTE valeur et de TOUT symbole chiffré (aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …). Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux)."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
