@@ -838,6 +838,15 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .su-hint{color:var(--ink-soft);font-style:italic;background:var(--paper);border:1px dashed var(--grid);border-radius:12px;padding:13px 15px;margin:4px 0;}
 math-field.su-mf{min-width:80px;font-size:1.02rem;}
 math-field.su-mf-f{flex:1 1 250px;min-width:220px;font-size:1.12rem;}
+/* ---- 6.3 Suites : encadrements (préparer la récurrence) ---- */
+.enc-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:11px 0;}
+.enc-row.enc-fixe{font-weight:700;}
+.enc-le{font-weight:700;color:var(--ink);}
+.enc-expr{font-weight:600;}
+.enc-car{color:var(--ink-soft);font-style:italic;}
+.enc-donc{color:var(--ink-soft);margin-left:6px;}
+.enc-row .enc-sel{max-width:100%;}
+math-field.enc-mf{min-width:74px;max-width:130px;font-size:1.02rem;}
 /* ---- 6.2 Suites : suite auxiliaire géométrique ---- */
 .sa-aux{background:#EEF2FE;border:1.5px solid #d8e0fb;border-radius:12px;padding:10px 14px;margin:10px 0 0;font-size:1.02rem}
 .sa-jetons{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px}
@@ -928,7 +937,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 122</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 124</p>
     </div>
   </section>
 
@@ -1392,6 +1401,21 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <!-- 6.3 SUITES — ENCADREMENTS (préparer la récurrence) -->
+  <section class="screen" id="scr-enc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="encModeTag"></span><span class="q-idx" id="encQIdx">Question 1 / 3</span></span>
+      <span class="score-tag">Score&nbsp;<b id="encLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="encPrompt"></p>
+      <div id="encChaine"></div>
+      <p class="dexp-hint">Chaque borne accepte toute écriture équivalente (par exemple 3/4 ou 0,75). Au clavier : <b>/</b> fraction, <b>barre d’espace</b> pour sortir d’une fraction.<span class="hint-souris"> <b>Clic droit</b> sur une case : clavier à l’écran.</span></p>
+      <div class="mp-feedback" id="encFeedback"></div>
+      <div class="mp-actions" id="encActions"></div>
+    </div>
+  </section>
+
   <!-- 6.2 SUITES — SUITE AUXILIAIRE GÉOMÉTRIQUE -->
   <section class="screen" id="scr-sa">
     <div class="test-top">
@@ -1684,7 +1708,8 @@ const TESTS={
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
-  'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() }
+  'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
+  'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c) ou k/(x + 1), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
@@ -1697,7 +1722,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suites-encadrement'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1831,7 +1856,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-dexp','scr-lr'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-enc','scr-dexp','scr-lr'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -1892,7 +1917,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v122 */ try{ console.info('terminale v122'); }catch(e){}
+/* v124 */ try{ console.info('terminale v124'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -2035,12 +2060,34 @@ function iaMathAuto(s, maths){
          .replace(/\\([A-Za-z]+)/g,'$1');   /* filet ultime : toute commande inconnue perd sa barre (le mot reste lisible), zero backslash a l'ecran */
   return out;
 }
+/* Reponse de l'IA coupee en plein vol (limite de longueur cote serveur) : un \\( ouvert
+   sans \\) fermant, ou des accolades jamais refermees en fin de texte, laisseraient un
+   fragment illisible (« \\(= frac{3e^x (x + »). On retire le fragment inacheve, on efface
+   un antislash orphelin, et on termine par « … » pour signaler la coupure. */
+function iaCoupe(t){
+  let s=String(t==null?'':t), coupe=false;
+  const s2=s.replace(/\\+\s*$/,''); if(s2!==s){ s=s2; coupe=true; }   /* antislash orphelin final : troncature aussi */
+  const oP=s.lastIndexOf('\\('), cP=s.lastIndexOf('\\)');
+  if(oP>=0 && oP>cP){ s=s.slice(0,oP); coupe=true; }
+  const oC=s.lastIndexOf('\\['), cC=s.lastIndexOf('\\]');
+  if(oC>=0 && oC>cC){ s=s.slice(0,oC); coupe=true; }
+  const pile=[];   /* accolades restees ouvertes : positions des « { » jamais refermes */
+  for(let i=0;i<s.length;i++){ const ch=s[i]; if(ch==='{') pile.push(i); else if(ch==='}') pile.pop(); }
+  if(pile.length){
+    let p=pile[0];
+    const av=s.slice(0,p).match(/\\[A-Za-z]{1,12}\s?$/);   /* la commande collee devant (« \\frac ») part avec */
+    if(av) p-=av[0].length;
+    s=s.slice(0,p); coupe=true;
+  }
+  if(coupe){ s=s.replace(/[\s:.,;=+\-\u00d7\u00b7]+$/,''); if(s) s+=' \u2026'; }
+  return s;
+}
 function conseilHTML(t){
   /* 1) extraire les ecritures mathematiques AVANT echappement : \( … \), \[ … \] ou $ … $
         (des caracteres comme < > doivent survivre dans le LaTeX). Chaque segment devient un
         jeton prive \uE000n\uE001, remplace a la fin par le rendu MathLive (mlDexp.tex). */
   const maths=[];
-  const brut=latexRepare(t,false).replace(/\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^$\n]+?)\$/g,(m,a,b,c)=>{
+  const brut=latexRepare(iaCoupe(t),false).replace(/\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^$\n]+?)\$/g,(m,a,b,c)=>{
     const lx=(a!=null?a:(b!=null?b:c));
     if(c!=null && (/^\s|\s$/.test(c))) return m;   /* $ isole (prix, texte) : on ne touche pas */
     maths.push(fracAuto(latexRepare(lx,true))); return '\uE000'+(maths.length-1)+'\uE001';
@@ -2120,6 +2167,7 @@ function conseilCourant(){
   let c;
   if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
   else if(test && test.kind==='sa' && test.questions && test.questions[test.idx]){ c=saConseilCtx(); }
+  else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -2577,7 +2625,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], lr:['lr',renderLR] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], lr:['lr',renderLR] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -2598,7 +2646,7 @@ function show(name){
   fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','lr'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','enc','lr'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -6274,6 +6322,7 @@ function dexpGroupOf(id){ if(DEXP_S2.includes(id))return DEXP_S2; if(DEXP_S3.inc
 function dexpLiveCheck(id){
   const fReg=(test && ficheLive[test.kind]); if(fReg) return fReg(id);   /* fiches a cases enregistrees par creerFicheCases : le 6.2 et tous les exercices futurs du meme style */
   if(test && test.kind==='su') return suLiveCheck(id);
+  if(test && test.kind==='enc') return encLiveCheck(id);
   if(test && test.kind==='dexpq') return dqLiveCheck(id);
   if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
   if(!(test && test.kind==='dexp')) return;   /* garde-fou : seule la fiche derivees utilise la logique ci-dessous ; sans elle, tout exercice a champs math non liste ci-dessus serait juge avec les verdicts des derivees (case rouge a tort) */
@@ -7863,9 +7912,18 @@ const RAP_S2=
 +'<ul><li>\u0394 &gt; 0 : deux racines <i>x</i><sub>1,2</sub> = (\u2212<i>b</i> \u00b1 \u221a\u0394)/(2<i>a</i>) ; <b>signe de <i>a</i> \u00e0 l\u2019ext\u00e9rieur</b> des racines, signe oppos\u00e9 entre elles ;</li>'
 +'<li>\u0394 = 0 : une racine double \u2212<i>b</i>/(2<i>a</i>) ; signe de <i>a</i> partout ailleurs ;</li>'
 +'<li>\u0394 &lt; 0 : aucune racine ; <b>toujours du signe de <i>a</i></b>.</li></ul></div>';
+const RAP_ENC=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 op\u00e9rations sur un encadrement</h4>'
++'<p>On part de <b><i>m</i> \u2264 <i>x</i> \u2264 <i>M</i></b> et on transforme les <b>deux bornes en m\u00eame temps</b> que <i>x</i>, \u00e9tape par \u00e9tape :</p>'
++'<ul><li><b>ajouter</b> (ou retrancher) un nombre : l\u2019ordre est <b>conserv\u00e9</b> ;</li>'
++'<li><b>multiplier par un nombre positif</b> : l\u2019ordre est <b>conserv\u00e9</b> (par un nombre n\u00e9gatif, il change) ;</li>'
++'<li>appliquer la <b>racine carr\u00e9e</b> (croissante sur [0\u2009;\u2009+\u221e[) : l\u2019ordre est <b>conserv\u00e9</b> ;</li>'
++'<li>passer \u00e0 l\u2019<b>inverse</b> (d\u00e9croissante sur ]0\u2009;\u2009+\u221e[) : l\u2019ordre <b>change</b>, les bornes s\u2019\u00e9changent.</li></ul>'
++'<p>Si on arrive \u00e0 <i>m</i> \u2264 \u2026 \u2264 <i>f</i>(<i>x</i>) \u2264 \u2026 \u2264 <i>M</i>, alors <b><i>f</i>(<i>x</i>) \u2208 [<i>m</i>\u2009;\u2009<i>M</i>]</b> : '
++'l\u2019intervalle est <b>stable</b>. C\u2019est exactement l\u2019<b>h\u00e9r\u00e9dit\u00e9</b> d\u2019une r\u00e9currence \u00ab U<sub><i>n</i></sub> \u2208 [<i>m</i>\u2009;\u2009<i>M</i>] \u00bb avec U<sub><i>n</i>+1</sub> = <i>f</i>(U<sub><i>n</i></sub>).</p></div>';
 /* Carte des rappels : par identifiant d'exercice d'abord (le kind « gen » sert deux exercices), puis par kind. */
 const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER };
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, lr:RAP_LR,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, lr:RAP_LR,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, s1:RAP_S1, s2:RAP_S2 };
@@ -8258,7 +8316,8 @@ function creerFicheCases(o){
    et le 6.2 (deja equipe a la creation via FICHE_SA). */
 const FICHE_ECRANS={
   'scr-dexp':{actions:'#dexpActions'},   /* derivees niveaux 1-2-3 + quotient niveau 1 */
-  'scr-su':{actions:'#suActions'}        /* 6.1 suites arithmetiques / geometriques */
+  'scr-su':{actions:'#suActions'},       /* 6.1 suites arithmetiques / geometriques */
+  'scr-enc':{actions:'#encActions'}      /* 6.3 suites : encadrements (recurrence) */
 };
 document.addEventListener('focusin',(e)=>{
   const el=e.target;
@@ -8596,6 +8655,202 @@ function saMenu(){
     t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
       clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
   }catch(e){}
+}
+/* ===== 6.3 SUITES — ENCADREMENTS (préparer la récurrence) =====================
+   D'après la fiche « recurrence_1 » : à partir de m ≤ x ≤ M, encadrer pas à pas
+   0,5x + b, √(x + c) ou k/(x + 1), justifier chaque étape (menu « car … »),
+   puis conclure m ≤ … ≤ f(x) ≤ … : f(x) ∈ [m ; M]. C'est l'hérédité d'une
+   récurrence. 3 questions dans l'ordre de la fiche : affine, racine, inverse
+   (l'exercice 3 de la fiche est corrigé : 2/(x+1) est stable sur [0 ; 2]).
+   Chaque borne à saisir = valeur numérique (équivalence : 0,75 = 3/4 = 6/8),
+   validée par suValNum ; la justification = menu déroulant (bonne réponse +
+   deux pièges mélangés). Patron identique au 6.1 (startSU/checkSU). */
+function encVal(v){ return { v:v, s:numFmt(v), lat:String(v).replace('.','{,}') }; }
+function encFrac(p,q){ return { v:p/q, s:p+'/'+q, lat:'\\frac{'+p+'}{'+q+'}' }; }
+function encMel(a){ const t=a.slice(); for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const x=t[i]; t[i]=t[j]; t[j]=x; } return t; }
+function encOpts(ok,d1,d2){ const o=encMel([{t:ok,ok:true},{t:d1,ok:false},{t:d2,ok:false}]); o.okIdx=o.findIndex(x=>x.ok); return o; }
+function genENC(fam){
+  if(fam==='aff'){
+    const b=pick([2,3,4,5]), m=2*b-2, M=2*b, bS=String(b);
+    return { fam:fam, m:m, M:M,
+      fTex:'f(x) = 0{,}5x + '+bS, fPlain:'f(x) = 0,5x + '+bS, dom:'\u211d',
+      lignes:[
+        { tex:'0{,}5x', plain:'0,5x', lo:encVal(0.5*m), hi:encVal(0.5*M),
+          opts:encOpts('on multiplie par 0,5, qui est positif : l\u2019ordre est conserv\u00e9',
+                       'on multiplie par 0,5 : l\u2019ordre change',
+                       'on ajoute 0,5 : l\u2019ordre est conserv\u00e9') },
+        { tex:'0{,}5x + '+bS, plain:'0,5x + '+bS, lo:encVal(2*b-1), hi:encVal(M),
+          opts:encOpts('on ajoute '+bS+' : l\u2019ordre est conserv\u00e9',
+                       'on ajoute '+bS+' : l\u2019ordre change',
+                       'on multiplie par '+bS+' : l\u2019ordre est conserv\u00e9') }
+      ],
+      concl:{ lo:encVal(2*b-1), hi:encVal(M), hiEstM:true } };
+  }
+  if(fam==='rac'){
+    const inst=pick([[2,2,7],[3,1,6],[1,0,3],[6,3,10]]), c=inst[0], m=inst[1], M=inst[2];
+    const lo=Math.sqrt(m+c), hi=Math.sqrt(M+c), cS=String(c);
+    return { fam:fam, m:m, M:M,
+      fTex:'f(x) = \\sqrt{x + '+cS+'}', fPlain:'f(x) = \u221a(x + '+cS+')', dom:'\u211d\u207a',
+      lignes:[
+        { tex:'x + '+cS, plain:'x + '+cS, lo:encVal(m+c), hi:encVal(M+c),
+          opts:encOpts('on ajoute '+cS+' : l\u2019ordre est conserv\u00e9',
+                       'on ajoute '+cS+' : l\u2019ordre change',
+                       'on multiplie par '+cS+' : l\u2019ordre est conserv\u00e9') },
+        { tex:'\\sqrt{x + '+cS+'}', plain:'\u221a(x + '+cS+')', lo:encVal(lo), hi:encVal(hi),
+          opts:encOpts('la fonction racine carr\u00e9e est croissante sur [0 ; +\u221e[ : l\u2019ordre est conserv\u00e9',
+                       'la fonction racine carr\u00e9e est d\u00e9croissante : l\u2019ordre change',
+                       'on ne peut pas encadrer une racine carr\u00e9e') }
+      ],
+      concl:{ lo:encVal(lo), hi:encVal(hi), hiEstM:(hi===M) } };
+  }
+  const k=pick([2,3,4]), m=0, M=k, kS=String(k);
+  return { fam:'inv', m:m, M:M,
+    fTex:'f(x) = \\frac{'+kS+'}{x + 1}', fPlain:'f(x) = '+kS+'/(x + 1)', dom:'\u211d\u207a',
+    lignes:[
+      { tex:'x + 1', plain:'x + 1', lo:encVal(1), hi:encVal(k+1),
+        opts:encOpts('on ajoute 1 : l\u2019ordre est conserv\u00e9',
+                     'on ajoute 1 : l\u2019ordre change',
+                     'on multiplie par 1 : les bornes ne changent pas') },
+      { tex:'\\frac{1}{x + 1}', plain:'1/(x + 1)', lo:encFrac(1,k+1), hi:encVal(1),
+        opts:encOpts('la fonction inverse est d\u00e9croissante sur ]0 ; +\u221e[ : l\u2019ordre CHANGE (les bornes s\u2019\u00e9changent)',
+                     'la fonction inverse est croissante : l\u2019ordre est conserv\u00e9',
+                     'passer \u00e0 l\u2019inverse conserve toujours l\u2019ordre') },
+      { tex:'\\frac{'+kS+'}{x + 1}', plain:kS+'/(x + 1)', lo:encFrac(k,k+1), hi:encVal(k),
+        opts:encOpts('on multiplie par '+kS+', qui est positif : l\u2019ordre est conserv\u00e9',
+                     'on multiplie par '+kS+' : l\u2019ordre change',
+                     'on ajoute '+kS+' : l\u2019ordre est conserv\u00e9') }
+    ],
+    concl:{ lo:encFrac(k,k+1), hi:encVal(k), hiEstM:true } };
+}
+function encTex(lx, plain){ const r=(window.mlDexp&&mlDexp.tex)?mlDexp.tex(lx):null; return (r!=null)?r:esc(plain); }
+function encMF(id){ return '<math-field class="dexp-mf enc-mf" id="'+id+'"></math-field>'; }
+function encSel(id,opts){
+  return '<select class="tvi-sel enc-sel" id="'+id+'"><option value="">\u2026</option>'
+    + opts.map((o,i)=>'<option value="'+i+'">'+esc(o.t)+'</option>').join('') + '</select>';
+}
+/* liste des cases de la question courante : bornes (math-fields) et justifications (selects) */
+function encCases(c){
+  const out=[];
+  c.lignes.forEach((L,i)=>{ out.push({id:'enc-l'+i+'a',cible:L.lo},{id:'enc-l'+i+'b',cible:L.hi},{id:'enc-j'+i,okIdx:L.opts.okIdx}); });
+  out.push({id:'enc-c0',cible:encVal(c.m)},{id:'enc-c1',cible:c.concl.lo},{id:'enc-c2',cible:c.concl.hi});
+  if(!c.concl.hiEstM) out.push({id:'enc-c3',cible:encVal(c.M)});
+  return out;
+}
+async function startENC(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suites-encadrement'; test.kind='enc';
+  /* 3 questions dans l'ordre de la fiche : affine, racine carree, inverse (difficulte croissante) */
+  test.questions=[genENC('aff'),genENC('rac'),genENC('inv')];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('enc'); renderENC();
+}
+function renderENC(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('encQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('encModeTag').innerHTML=modeTagHTML();
+  $('encLiveScore').textContent=test.score;
+  $('encFeedback').textContent=''; $('encFeedback').className='mp-feedback';
+  $('encActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkENC()">V\u00e9rifier</button>';
+  $('encPrompt').innerHTML='Soit &nbsp;<b>'+encTex(c.fTex,c.fPlain)+'</b>&nbsp; d\u00e9finie sur '+c.dom+'.<br>'
+    +'Montrer que si &nbsp;<b>'+encTex('x \\in ['+c.m+'\\,;'+c.M+']','x \u2208 ['+c.m+' ; '+c.M+']')+'</b>&nbsp; alors &nbsp;<b>'
+    +encTex('f(x) \\in ['+c.m+'\\,;'+c.M+']','f(x) \u2208 ['+c.m+' ; '+c.M+']')+'</b>.&nbsp; Compl\u00e8te :';
+  let h='<div class="enc-row enc-fixe">'+encTex(String(c.m),String(c.m))+' <span class="enc-le">\u2264</span> '+encTex('x','x')+' <span class="enc-le">\u2264</span> '+encTex(String(c.M),String(c.M))+'</div>';
+  c.lignes.forEach((L,i)=>{
+    h+='<div class="enc-row">'+encMF('enc-l'+i+'a')+' <span class="enc-le">\u2264</span> <span class="enc-expr">'+encTex(L.tex,L.plain)+'</span> <span class="enc-le">\u2264</span> '+encMF('enc-l'+i+'b')
+      +' <span class="enc-car">car</span> '+encSel('enc-j'+i,L.opts)+'</div>';
+  });
+  h+='<div class="enc-row enc-conc">'+encMF('enc-c0')+' <span class="enc-le">\u2264</span> '+encMF('enc-c1')
+    +' <span class="enc-le">\u2264</span> <span class="enc-expr">'+encTex('f(x)','f(x)')+'</span> <span class="enc-le">\u2264</span> '+encMF('enc-c2')
+    +(c.concl.hiEstM?'':' <span class="enc-le">\u2264</span> '+encMF('enc-c3'))
+    +' <span class="enc-donc">donc '+encTex('f(x) \\in ['+c.m+'\\,;'+c.M+']','f(x) \u2208 ['+c.m+' ; '+c.M+']')+'</span></div>';
+  $('encChaine').innerHTML=h;
+  if(window.mlDexp) window.mlDexp.upgrade($('scr-enc'));
+  /* soutien : coloration immediate des menus « car … », comme le menu du 6.1 */
+  c.lignes.forEach((L,i)=>{
+    const sel=$('enc-j'+i); if(!sel) return;
+    sel.addEventListener('change',()=>{
+      if(!isSoutien()||test.locked) return;
+      sel.classList.remove('ok','bad');
+      if(sel.value!=='') sel.classList.add(+sel.value===L.opts.okIdx?'ok':'bad');
+    });
+  });
+}
+function checkENC(){
+  if(test.locked) return;
+  const c=test.questions[test.idx], fb=$('encFeedback'), cases=encCases(c);
+  const lu=x=>{ const el=$(x.id); if(!el) return ''; return el.tagName==='SELECT' ? String(el.value||'') : String(dexpCellValue(x.id)||'').trim(); };
+  if(cases.every(x=>lu(x)==='')){ fb.textContent='Compl\u00e8te au moins une case avant de v\u00e9rifier.'; fb.className='mp-feedback'; return; }
+  const v={};
+  cases.forEach(x=>{ const s=lu(x); v[x.id]=(x.okIdx!=null) ? (s!=='' && +s===x.okIdx) : suValNum(s, x.cible.v); });
+  const setEdit=(el,on)=>{ if(!el) return; if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=!on; }catch(e){} } else el.disabled=!on; };
+  cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad','sol'); el.classList.add(v[x.id]?'ok':'bad');
+    setEdit(el, !v[x.id] && isSoutien()); });
+  const allOk=cases.every(x=>v[x.id]);
+  if(!allOk && isSoutien()){
+    fb.textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    fb.className='mp-feedback bad';
+    $('encActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkENC()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('encLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, encadrement complet !']);
+    fb.className='mp-feedback good';
+  } else {
+    cases.forEach(x=>{ if(v[x.id]) return; const el=$(x.id); if(!el) return;
+      if(x.okIdx!=null){ el.value=String(x.okIdx); }
+      else { try{ if(el.setValue) el.setValue(x.cible.lat); }catch(e){} }
+      el.classList.remove('bad'); el.classList.add('ok');
+      if(el.tagName==='SELECT') el.disabled=true; else try{ el.readOnly=true; }catch(e){} });
+    fb.innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.<br>'
+      +'Retiens : <b>ajouter</b> un nombre ou <b>multiplier par un nombre positif</b> conserve l\u2019ordre ; '
+      +'la <b>racine carr\u00e9e</b> (croissante sur [0 ; +\u221e[) le conserve ; '
+      +'l\u2019<b>inverse</b> (d\u00e9croissante sur ]0 ; +\u221e[) l\u2019<b>\u00e9change</b>.';
+    fb.className='mp-feedback bad';
+  }
+  test.answers.push({ q:c.fPlain+' \u2014 montrer que x \u2208 ['+c.m+' ; '+c.M+'] \u21d2 f(x) \u2208 ['+c.m+' ; '+c.M+'] (encadrements en cha\u00eene)',
+    answer:'encadrement complet', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi' });
+  const last=test.idx===test.questions.length-1;
+  $('encActions').innerHTML='<button class="btn btn-primary" onclick="nextENC()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+/* soutien : quand l'eleve quitte une case borne, on la colore vert/rouge (patron 6.1) */
+function encLiveCheck(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el || el.classList.contains('sol')) return;
+    if(document.activeElement===el) return;
+    const c=test.questions[test.idx]; if(!c) return;
+    const x=encCases(c).find(y=>y.id===id); if(!x || x.okIdx!=null) return;
+    const s=String(dexpCellValue(id)||'').trim();
+    el.classList.remove('ok','bad');
+    if(s!=='') el.classList.add(suValNum(s,x.cible.v)?'ok':'bad');
+  },0);
+}
+function nextENC(){ if(test.idx<test.questions.length-1){ test.idx++; renderENC(); } else finishTest(); }
+/* Etat des cases + attendus, pour le conseil IA (soutien) */
+function encConseilCtx(){
+  const c=test.questions[test.idx], cases=encCases(c);
+  const etat=cases.map(x=>{ const el=$(x.id); if(!el) return x.id+' : (vide)';
+    if(x.okIdx!=null){ const i=String(el.value||''); return 'justification ligne '+(1+ +x.id.slice(5))+' : '+(i===''?'(vide)':'\u00ab '+c.lignes[+x.id.slice(5)].opts[+i].t+' \u00bb'); }
+    const s=String(dexpCellValue(x.id)||'').trim(); return 'borne '+x.id.replace('enc-','')+' : '+(s===''?'(vide)':'\u00ab '+s+' \u00bb'); }).join(' ; ');
+  return 'Exercice sur les SUITES : ENCADREMENTS pour pr\u00e9parer la r\u00e9currence. Fonction : '+c.fPlain+' d\u00e9finie sur '+(c.fam==='aff'?'R':'R+')+'. '
+   +'On part de '+c.m+' \u2264 x \u2264 '+c.M+' et on encadre pas \u00e0 pas chaque expression interm\u00e9diaire ('+c.lignes.map(L=>L.plain).join(', ')+'), '
+   +'chaque ligne avec ses deux bornes (cases math\u00e9matiques) et sa justification (menu \u00ab car \u2026 \u00bb : op\u00e9ration et effet sur l\u2019ordre), '
+   +'puis on conclut '+c.m+' \u2264 \u2026 \u2264 f(x) \u2264 \u2026 pour montrer f(x) \u2208 ['+c.m+' ; '+c.M+']. '
+   +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : '+c.lignes.map((L,i)=>'ligne '+(i+1)+' : '+L.lo.s+' \u2264 '+L.plain+' \u2264 '+L.hi.s+' (car '+L.opts[L.opts.okIdx].t+')').join(' ; ')
+   +' ; conclusion : '+c.m+' \u2264 '+c.concl.lo.s+' \u2264 f(x) \u2264 '+c.concl.hi.s+(c.concl.hiEstM?'':' \u2264 '+c.M)+'. '
+   +'Saisies actuelles de l\u2019\u00e9l\u00e8ve : '+etat+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE des bornes ni des justifications de cet exercice. '
+   +'M\u00e9thode \u00e0 faire appliquer : on transforme les DEUX bornes en m\u00eame temps que x, \u00e9tape par \u00e9tape ; '
+   +'ajouter un nombre ou multiplier par un nombre POSITIF conserve l\u2019ordre ; la racine carr\u00e9e (croissante sur [0 ; +\u221e[) le conserve ; '
+   +'la fonction inverse (d\u00e9croissante sur ]0 ; +\u221e[) \u00c9CHANGE les deux bornes. '
+   +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
+   +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
 async function startSA(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
@@ -9254,6 +9509,7 @@ const QIA_SUGG={
   sv:["Quel est le lien entre le signe de f′ et les variations de f ?","Comment lire le signe de f sur un graphique ?","C’est quoi, un extremum ?"],
   tg:["C’est quoi, une tangente ?","Comment trouver l’équation d’une tangente ?","Que représente f′(a) sur le graphique ?"],
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
+  enc:["Faire un rappel de cours pour cet exercice.","Que devient un encadrement quand on multiplie par un nombre positif ?","Pourquoi l\u2019ordre change-t-il quand on passe \u00e0 l\u2019inverse ?","\u00c0 quoi sert un encadrement pour une r\u00e9currence ?","Montre-moi un exemple complet, avec tous les calculs."],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Montre-moi un exemple complet, avec tous les calculs.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 const QIA_REDAC="Peux-tu me montrer un exemple de rédaction pour cet exercice ?";
