@@ -875,6 +875,22 @@ math-field.enc-mf{min-width:74px;max-width:130px;font-size:1.02rem;}
 .eq-synt{margin-top:12px;}
 .eq-devhint{margin-top:2px;}
 .eq-asym{stroke:var(--ink-soft);stroke-width:1.6;}
+/* ---- 6.4 Récurrence : chaînes d'inégalités alignées ---- */
+.rc-tab{display:table;border-collapse:separate;border-spacing:0 6px;min-width:100%;}
+.rc-tr{display:table-row;}
+.rc-lab,.rc-td,.rc-op,.rc-suite{display:table-cell;vertical-align:middle;white-space:nowrap;}
+.rc-lab{text-align:left;padding-right:12px;}
+.rc-td{text-align:center;padding:2px 2px;}
+.rc-op{padding:0 8px;font-weight:800;}
+.rc-suite{padding-left:16px;}
+.rc-fix{font-weight:700;}
+math-field.rc-mf{min-width:64px;max-width:120px;}
+.rc-ccl{margin-top:12px;}
+.rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
+.rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
+.rc-uwrap{display:inline-flex;align-items:flex-end;gap:1px;}
+math-field.rc-mf-idx{min-width:26px;max-width:38px;font-size:.8em;position:relative;top:.42em;padding:0 3px;--_padding:0;}
+body math-field.dexp-mf.rc-mf-idx{border-width:1.5px;border-radius:7px;min-height:1.5em;}
 .eq-frac-in{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px;}
 .eq-frac-in .eq-fbar{display:block;width:100%;min-width:46px;height:2px;background:var(--ink);margin:3px 0;}
 .lv-vartbl2 td.ef-node .eq-db{display:inline-block;width:8px;height:34px;border-left:2.5px solid var(--ink);border-right:2.5px solid var(--ink);vertical-align:middle;}
@@ -970,7 +986,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Je gère les comptes et je suis la progression.</span>
         </button>
       </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 147</p>
+      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 155</p>
     </div>
   </section>
 
@@ -1387,6 +1403,20 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <!-- 6.4 RÉCURRENCE — encadrement de Un -->
+  <section class="screen" id="scr-rc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="rcModeTag"></span><span class="q-idx" id="rcQIdx">Question 1 / 2</span></span>
+      <span class="score-tag">Score&nbsp;<b id="rcLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="rcPrompt"></p>
+      <div class="sv-tables" id="rcBody"></div>
+      <div class="mp-feedback" id="rcFeedback"></div>
+      <div class="mp-actions" id="rcActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-tg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tgModeTag"></span><span class="q-idx" id="tgQIdx">Question 1 / 4</span></span>
@@ -1767,6 +1797,7 @@ const TESTS={
   'derivee-exp-quotient-2': { name:'Dérivée d\u2019un quotient avec exponentielle niveau 2', icon:'eˣ', desc:'Mêmes quotients, mais tu écris toi-même f\u2032(x) ; l\u2019IA vérifie ton résultat.', start:()=>startDexpQ2() },
   'signes-variations': { name:'Signes & variations', icon:'📊', desc:'Lis la courbe et complète les tableaux : signe de f, signe de f\u2032 et variation de f.', start:()=>startSV() },
   'equation-tangente': { name:'\u00c9quation de tangente', icon:'📐', desc:'Lis f(a) et f\u2032(a) sur le graphique, puis \u00e9cris et r\u00e9duis l\u2019\u00e9quation de la tangente au point A.', start:()=>startTG() },
+  'recurrence-encadrement': { name:'R\u00e9currence \u2014 encadrement de U\u2099', icon:'n+1', desc:'D\u00e9montre par r\u00e9currence que m \u2264 U\u2099 \u2264 M : initialisation au rang 0 ou 1, h\u00e9r\u00e9dit\u00e9 en appliquant f croissante \u00e0 l\u2019encadrement, puis \u00e9largissement \u2014 cha\u00eenes d\u2019in\u00e9galit\u00e9s align\u00e9es, cases math avec clavier \u00e9cran.', start:()=>startRC() },
   'etude-quotient': { name:'Fonction quotient \u2014 domaine, d\u00e9riv\u00e9e et variations', icon:'u/v', desc:'Une fonction f(x) = (ax+b)/(cx+d) : trouve la valeur interdite et l\u2019ensemble de d\u00e9finition, d\u00e9montre la d\u00e9riv\u00e9e avec la formule du quotient (champs math, clavier \u00e9cran en option), puis dresse le tableau de signes et de variations avec la double barre.', start:()=>startEQ() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
@@ -1786,7 +1817,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','etude-fonction','etude-quotient'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suites-encadrement'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suites-encadrement','recurrence-encadrement'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -1920,7 +1951,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-enc','scr-ef','scr-eq','scr-dexp','scr-lr'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-s1','scr-s2','scr-su','scr-sa','scr-enc','scr-ef','scr-eq','scr-rc','scr-dexp','scr-lr'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -1981,7 +2012,7 @@ function ctxVisible(){
    Un operateur LaTeX (\cdot, \to…) n'est jamais pris pour un operande, un mot francais colle
    n'est jamais mordu, et \text{…} est intouchable. S'applique aux ecritures \( … \) du modele
    comme aux formules detectees en clair — memes fractions partout. */
-/* v147 */ try{ console.info('terminale v147'); }catch(e){}
+/* v155 */ try{ console.info('terminale v155'); }catch(e){}
 /* ===== Reparation des ecritures LaTeX abimees par le modele =====
    Symptome vu a l'ecran : « fracu' · v - u · v' v² » au lieu d'une vraie fraction.
    Deux accidents possibles, tous deux traites ici AVANT le rendu :
@@ -2270,6 +2301,7 @@ function conseilCourant(){
   else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
   else if(test && test.kind==='ef' && test.questions && test.questions[test.idx]){ c=efConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
+  else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -2727,7 +2759,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], ef:['ef',renderEF], eq:['eq',renderEQ], lr:['lr',renderLR] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR] };
   const disp=DISPATCH[test.kind];
   if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   show(disp[0]); disp[1]();
@@ -2748,7 +2780,7 @@ function show(name){
   fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','enc','ef','eq','lr'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','su','sa','enc','ef','eq','rc','lr'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -8001,6 +8033,251 @@ function eqConseilCtx(){
    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, aucun signe ni sens de variation. '
    +'M\u00e9thode \u00e0 faire appliquer : valeur interdite en r\u00e9solvant '+'d\u00e9nominateur = 0 ; formule (u/v)\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2 ; DISTRIBUER d\u2019abord a(cx+d) puis \u2212c(ax+b) terme \u00e0 terme, chaque case re\u00e7oit un terme avec son signe ; les termes en x se compensent et le num\u00e9rateur se r\u00e9duit \u00e0 une CONSTANTE ; un carr\u00e9 est toujours positif ; f\u2032 garde donc un signe constant et f est monotone sur CHACUN des deux intervalles (double barre \u00e0 la valeur interdite, jamais de z\u00e9ro pour f\u2032) ; pour associer les courbes : f\u2032 reste d\u2019un seul c\u00f4t\u00e9 de l\u2019axe des abscisses, f a deux branches s\u00e9par\u00e9es par l\u2019asymptote. '
    +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
+   +'QUESTIONS DE COURS : si l\u2019\u00e9l\u00e8ve demande pourquoi f\u2032 garde le m\u00eame signe (ou pourquoi son signe est celui du num\u00e9rateur), r\u00e9ponds par la STRUCTURE de cette d\u00e9riv\u00e9e : le num\u00e9rateur est une CONSTANTE et le d\u00e9nominateur est un CARR\u00c9, strictement positif partout sauf en la valeur interdite \u2014 donc le signe de f\u2032 est celui de sa constante, identique des deux c\u00f4t\u00e9s. N\u2019invoque JAMAIS la continuit\u00e9 ni \u00ab f\u2032 doit passer par z\u00e9ro pour changer de signe \u00bb : ici f\u2032 ne s\u2019annule jamais et n\u2019est pas d\u00e9finie \u00e0 la valeur interdite, cet argument est hors sujet. '
+   +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
+}
+/* ===== 6.4 RÉCURRENCE — encadrement de Un (fiche « recurrence_2 ») =====
+   Demonstration COMPLETE par recurrence de  m <= Un <= M  pour n >= n0, avec les deux
+   modeles de la fiche : f affine contractante (f(x) = ax + b, 0 < a < 1) et f homographique
+   (f(x) = px/(x+q)), croissantes sur un intervalle STABLE [m ; M] (m pas forcement 0).
+   Les rangs de depart 0 ET 1 sont tous deux evalues (un par question, ordre melange).
+   Toutes les cases sont des champs mathematiques (clavier ecran en option) ; les chaines
+   d'inegalites sont ALIGNEES verticalement par un tableau a colonnes partagees (comme au 6.3). */
+function rcNum(raw){
+  if(raw==null) return null;
+  raw=String(raw).replace(/\s+/g,'').replace(/[\u2212\u2013\u2014]/g,'-').replace(/,/g,'.');
+  if(raw==='') return null;
+  const f=compileExprExp(raw); if(!f) return null;
+  let a,b; try{ a=f(0); b=f(1); }catch(e){ return null; }
+  if(typeof a!=='number'||!isFinite(a)||Math.abs(a-b)>1e-9*(1+Math.abs(a))) return null;   /* constante exigee */
+  return a;
+}
+function rcSym(raw){   /* normalisation des symboles U_n / U_{n+1} saisis */
+  return String(raw||'').toLowerCase().replace(/[\s\\{}()]/g,'').replace(/[\u2212\u2013\u2014]/g,'-');
+}
+const RC_UN=['u_n','un'], RC_UN1=['u_n+1','un+1'];
+/* --- modele affine : f(x) = ax + b, point fixe x* = b/(1-a) ; [m ; M] stable avec m <= x* <= M --- */
+function genRCA(n0){
+  const A=pick([[0.5,[4,6,8]],[0.25,[4,8]],[0.75,[4,8]]]);
+  const a=A[0], xs=pick(A[1]), b=(1-a)*xs;
+  const M=pick([xs, xs+(a===0.5?2:4)]);
+  const pool=(a===0.25)?[0,2]:(a===0.75)?[0,4]:[0,1,2];
+  const m=pick(pool.filter(v=>v<xs && v<M));
+  const u0=rand(m,M);
+  const fm=a*m+b, fM=a*M+b;
+  const aS=numFmt(a), fTx=aS+'x + '+numFmt(b);
+  return { fam:'aff', n0:n0, a:a, b:b, m:m, M:M, u0:u0, fm:fm, fM:fM,
+    fTex:mlTexN(aS)+'x+'+numFmt(b),
+    recTex:mlTexN(aS)+'U_{n}+'+numFmt(b),
+    fPlain:fTx, recPlain:aS+'U\u2099 + '+numFmt(b) };
+}
+/* --- modele homographique : f(x) = px/(x+q), point fixe p - q ; vivier de couples verifies
+       (valeurs f(m) et f(M) simples, intervalle stable, m parfois non nul) --- */
+const RC_H=[[2,2,0,2],[2,2,0,6],[3,3,0,3],[3,3,0,6],[4,4,0,4],[3,1,1,4],[3,1,2,4],[4,1,1,3],[6,2,1,6]];
+function genRCH(n0){
+  const t=pick(RC_H), p=t[0], q=t[1], m=t[2], M=t[3];
+  const u0=rand(m,M);
+  const fm=p*m/(m+q), fM=p*M/(M+q);
+  return { fam:'hom', n0:n0, p:p, q:q, m:m, M:M, u0:u0, fm:fm, fM:fM,
+    fTex:'\\frac{'+(p===1?'':p)+'x}{x+'+q+'}',
+    recTex:'\\frac{'+(p===1?'':p)+'U_{n}}{U_{n}+'+q+'}',
+    fPlain:(p===1?'':p)+'x/(x + '+q+')', recPlain:(p===1?'':p)+'U\u2099/(U\u2099 + '+q+')' };
+}
+/* Toutes les cases, dans l'ordre de lecture. */
+function rcCases(c){
+  return [
+    {id:'rc-n0', type:'num', good:c.n0},
+    {id:'rc-i1', type:'num', good:c.m}, {id:'rc-i2', type:'num', good:c.n0}, {id:'rc-i3', type:'num', good:c.M},
+    {id:'rc-i4', type:'num', good:c.n0}, {id:'rc-i5', type:'num', good:c.u0},
+    {id:'rc-h1', type:'num', good:c.m}, {id:'rc-h2', type:'sym', goods:RC_UN},  {id:'rc-h3', type:'num', good:c.M},
+    {id:'rc-m1', type:'num', good:c.m}, {id:'rc-m2', type:'sym', goods:RC_UN1}, {id:'rc-m3', type:'num', good:c.M},
+    {id:'rc-f1', type:'num', good:c.m}, {id:'rc-f2', type:'sym', goods:RC_UN},  {id:'rc-f3', type:'num', good:c.M},
+    {id:'rc-mono', type:'sel', good:'croissante'},
+    {id:'rc-b1', type:'num', good:c.m}, {id:'rc-b2', type:'num', good:c.M},
+    {id:'rc-c1', type:'num', good:c.fm}, {id:'rc-c2', type:'num', good:c.fM},
+    {id:'rc-d1', type:'num', good:c.m}, {id:'rc-d2', type:'num', good:c.fM}, {id:'rc-d3', type:'num', good:c.M}
+  ];
+}
+function rcOkCase(c,x,raw){
+  if(x.type==='sel') return raw===x.good;
+  if(x.type==='sym') return x.goods.includes(rcSym(raw));
+  const v=rcNum(raw); return v!==null && Math.abs(v-x.good)<1e-6*(1+Math.abs(x.good));
+}
+function rcMf(id){ return '<math-field class="dexp-mf rc-mf" id="'+id+'"></math-field>'; }
+function rcMfIdx(id){ return '<math-field class="dexp-mf rc-mf rc-mf-idx" id="'+id+'"></math-field>'; }
+function rcUidx(id){ return '<span class="rc-uwrap"><i>U</i>'+rcMfIdx(id)+'</span>'; }
+let rcLastMF=null;
+function rcActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && a.classList.contains('rc-mf')) return a;
+  if(rcLastMF && document.contains(rcLastMF) && !rcLastMF.readOnly) return rcLastMF;
+  return document.querySelector('#scr-rc math-field.rc-mf:not([readonly])');
+}
+function rcInsert(lx){
+  const el=rcActiveMF(); if(!el || el.readOnly) return;
+  try{ el.focus(); }catch(e){}
+  try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }
+}
+function rcMenu(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;   /* ordinateur : fenetre des raccourcis ; tactile : menu du champ ci-dessous */
+  const t=rcActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+  try{
+    const r=t.getBoundingClientRect();
+    t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
+      clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
+  }catch(e){}
+}
+function rcKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=rcActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function rcJetonsHTML(){
+  const J=[['U\u2099','U_n'],['U\u2099\u208a\u2081','U_{n+1}']];
+  return '<div class="rc-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
+    +J.map(t=>'<button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rcInsert(\''+t[1]+'\')">'+t[0]+'</button>').join('')
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rcKB()" title="Clavier math\u00e9matique \u00e0 l\u2019\u00e9cran" aria-label="Afficher ou masquer le clavier math\u00e9matique">\u2328\ufe0f</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rcMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">\u2630</button></div>';
+}
+function rcUn(sub){ return '<i>U</i><sub>'+sub+'</sub>'; }
+/* Tableau a colonnes partagees : [libelle][t1][<=][t2][<=][t3][<=][t4][suite] — 9 cellules par
+   ligne, cellules vides en remplissage : tous les <= et tous les termes s'alignent verticalement. */
+function rcRow(lab, t1,t2,t3,t4, suite){
+  const op='<span class="rc-le">\u2264</span>';
+  return '<div class="rc-tr"><div class="rc-lab">'+lab+'</div>'
+    +'<div class="rc-td">'+(t1||'')+'</div><div class="rc-op">'+(t1&&t2?op:'')+'</div>'
+    +'<div class="rc-td">'+(t2||'')+'</div><div class="rc-op">'+(t2&&t3?op:'')+'</div>'
+    +'<div class="rc-td">'+(t3||'')+'</div><div class="rc-op">'+(t3&&t4?op:'')+'</div>'
+    +'<div class="rc-td">'+(t4||'')+'</div><div class="rc-suite">'+(suite||'')+'</div></div>';
+}
+function rcFicheHTML(c){
+  const sel='<select class="tvi-sel" id="rc-mono"><option value="">\u2026</option><option value="croissante">croissante</option><option value="decroissante">d\u00e9croissante</option></select>';
+  return '<div class="enc-scroll"><div class="rc-tab">'
+    + rcRow('<b>Initialisation</b> \u2014 vrai pour <i>n</i> = '+rcMf('rc-n0')+'&nbsp;:', rcMf('rc-i1'), rcUidx('rc-i2'), rcMf('rc-i3'), '',
+        'car '+rcUidx('rc-i4')+' = '+rcMf('rc-i5'))
+    + rcRow('<b>H\u00e9r\u00e9dit\u00e9</b> \u2014 on suppose que c\u2019est vrai pour <i>n</i>&nbsp;:', rcMf('rc-h1'), rcMf('rc-h2'), rcMf('rc-h3'))
+    + rcRow('Montrons que c\u2019est vrai pour <i>n</i> + 1&nbsp;:', rcMf('rc-m1'), rcMf('rc-m2'), rcMf('rc-m3'))
+    + rcRow('', '<span class="rc-fix">'+numFmt(c.m)+'</span>', '<span class="rc-fix">'+rcUn('n')+'</span>', '<span class="rc-fix">'+numFmt(c.M)+'</span>')
+    + rcRow('', '<i>f</i>\u2009(&nbsp;'+rcMf('rc-f1')+'&nbsp;)', '<i>f</i>\u2009(&nbsp;'+rcMf('rc-f2')+'&nbsp;)', '<i>f</i>\u2009(&nbsp;'+rcMf('rc-f3')+'&nbsp;)', '',
+        'car <i>f</i>\u2009(<i>x</i>) est '+sel+' sur [&nbsp;'+rcMf('rc-b1')+'&nbsp;;&nbsp;'+rcMf('rc-b2')+'&nbsp;]')
+    + rcRow('', rcMf('rc-c1'), '<span class="rc-fix">'+rcUn('n+1')+'</span>', rcMf('rc-c2'))
+    + rcRow('', rcMf('rc-d1'), '<span class="rc-fix">'+rcUn('n+1')+'</span>', rcMf('rc-d2'), rcMf('rc-d3'))
+    +'</div></div>'
+    +'<div class="s1-res rc-ccl"><div class="s1-line">Conclusion : la propri\u00e9t\u00e9 est vraie pour <i>n</i> = '+numFmt(c.n0)+' et h\u00e9r\u00e9ditaire \u2014 donc, pour tout entier <i>n</i> \u2265 '+numFmt(c.n0)+',&nbsp; '+numFmt(c.m)+' \u2264 '+rcUn('n')+' \u2264 '+numFmt(c.M)+'.</div></div>';
+}
+async function startRC(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='recurrence-encadrement'; test.kind='rc';
+  ficheLive['rc']=rcLiveMf;   /* inscription ICI (jamais au chargement : const ficheLive est declaree plus bas) */
+  const n0s=(rand(0,1)===0)?[0,1]:[1,0];   /* les DEUX rangs de depart evalues, ordre melange */
+  test.questions=[genRCA(n0s[0]), genRCH(n0s[1])];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('rc'); renderRC();
+}
+function renderRC(){
+  const c=test.questions[test.idx]; test.locked=false;
+  $('rcQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('rcModeTag').innerHTML=modeTagHTML();
+  $('rcLiveScore').textContent=test.score;
+  $('rcFeedback').textContent=''; $('rcFeedback').className='mp-feedback';
+  $('rcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRC()">V\u00e9rifier</button>';
+  const sub='<i>n</i> \u2265 '+numFmt(c.n0);
+  $('rcPrompt').innerHTML='On prend la suite ('+rcUn('n')+')<sub>'+sub+'</sub> telle que&nbsp;: '
+    +rcUn(numFmt(c.n0))+' = <b>'+numFmt(c.u0)+'</b> &nbsp;et&nbsp; '
+    +mlTex('U_{n+1}='+c.recTex+'=f(U_n)', rcUn('n+1')+' = '+esc(c.recPlain)+' = <i>f</i>\u2009('+rcUn('n')+')')
+    +' &nbsp;avec&nbsp; '+mlTex('f(x)='+c.fTex, '<i>f</i>\u2009(<i>x</i>) = '+esc(c.fPlain))+'.'
+    +'<br>On admet que <i>f</i>\u2009(<i>x</i>) est <b>croissante</b> sur [&nbsp;'+numFmt(c.m)+'&nbsp;;&nbsp;'+numFmt(c.M)+'&nbsp;].'
+    +'<br><b>D\u00e9montrer par r\u00e9currence que&nbsp;: '+numFmt(c.m)+' \u2264 '+rcUn('n')+' \u2264 '+numFmt(c.M)+'&nbsp; pour tout entier '+sub+'.</b>';
+  $('rcBody').innerHTML=rcJetonsHTML()+rcFicheHTML(c)
+    +'<p class="dexp-hint">Les boutons ci-dessus ins\u00e8rent le symbole dans la case en cours ; au clavier, <b>_</b> donne un indice (U_n). <span class="hint-souris"><b>Clic droit</b> sur un champ : clavier \u00e0 l\u2019\u00e9cran (touche U\u25ab pour \u00e9crire U avec son indice).</span></p>';
+  if(window.mlDexp) window.mlDexp.upgrade($('rcBody'));
+  $('rcBody').addEventListener('focusin',e=>{ if(e.target && e.target.tagName==='MATH-FIELD' && e.target.classList.contains('rc-mf')) rcLastMF=e.target; });
+  if(isSoutien()){
+    const sel=$('rc-mono'); if(sel) sel.addEventListener('change',()=>checkRC(true));
+  }
+  setTimeout(()=>{ const el=$('rc-n0'); if(el) el.focus(); },30);
+}
+function rcLiveMf(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el || el.classList.contains('sol')) return;
+    if(document.activeElement===el) return;
+    const c=test.questions[test.idx]; if(!c) return;
+    const x=rcCases(c).find(k=>k.id===id); if(!x) return;
+    const raw=dexpCellValue(id);
+    el.classList.remove('ok','bad');
+    if(raw!=='') el.classList.add(rcOkCase(c,x,raw)?'ok':'bad');
+  },0);
+}
+function checkRC(live){
+  if(test.locked && !live) return;
+  const c=test.questions[test.idx], cases=rcCases(c);
+  let allOk=true, anyFilled=false;
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    const raw=(x.type==='sel')?String(el.value||''):dexpCellValue(x.id);
+    const ok=rcOkCase(c,x,raw);
+    if(String(raw).trim()!=='') anyFilled=true;
+    if(x.type!=='sel' && live) return;   /* en direct, les champs math sont juges a la sortie de case */
+    el.classList.remove('ok','bad');
+    if(live){ if(String(raw).trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false;
+    el.classList.add(ok?'ok':'bad');
+    if(el.tagName==='MATH-FIELD') el.readOnly=(ok||!isSoutien()); else el.disabled=(ok||!isSoutien());
+  });
+  if(live) return;
+  if(!anyFilled){ $('rcFeedback').textContent='Compl\u00e8te au moins une case avant de v\u00e9rifier.'; $('rcFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    $('rcFeedback').textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
+    $('rcFeedback').className='mp-feedback bad';
+    $('rcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRC()">Rev\u00e9rifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('rcLiveScore').textContent=test.score;
+    $('rcFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, r\u00e9currence compl\u00e8te !']);
+    $('rcFeedback').className='mp-feedback good';
+  } else {
+    $('rcFeedback').innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.<br>'
+      +'Retiens le sch\u00e9ma : <b>initialisation</b> \u2014 le rang '+numFmt(c.n0)+' s\u2019\u00e9crit en indice de U et on justifie \u00ab car U'+numFmt(c.n0)+' = '+numFmt(c.u0)+' \u00bb, <b>h\u00e9r\u00e9dit\u00e9</b> \u2014 on applique <i>f</i>, <b>croissante</b>, \u00e0 l\u2019encadrement (les in\u00e9galit\u00e9s sont conserv\u00e9es), puis on <b>\u00e9largit</b> : '+numFmt(c.m)+' \u2264 '+rcUn('n+1')+' \u2264 '+numFmt(c.fM)+' \u2264 '+numFmt(c.M)+'.';
+    $('rcFeedback').className='mp-feedback bad';
+    const solNum=v=>mlTexN(numFmt(v));
+    const sol={'rc-n0':solNum(c.n0),'rc-i1':solNum(c.m),'rc-i2':solNum(c.n0),'rc-i3':solNum(c.M),'rc-i4':solNum(c.n0),'rc-i5':solNum(c.u0),
+      'rc-h1':solNum(c.m),'rc-h2':'U_n','rc-h3':solNum(c.M),
+      'rc-m1':solNum(c.m),'rc-m2':'U_{n+1}','rc-m3':solNum(c.M),
+      'rc-f1':solNum(c.m),'rc-f2':'U_n','rc-f3':solNum(c.M),
+      'rc-b1':solNum(c.m),'rc-b2':solNum(c.M),
+      'rc-c1':solNum(c.fm),'rc-c2':solNum(c.fM),
+      'rc-d1':solNum(c.m),'rc-d2':solNum(c.fM),'rc-d3':solNum(c.M)};
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+      if(x.type==='sel'){ el.value=x.good; el.disabled=true; }
+      else { try{ el.setValue(sol[x.id]); }catch(e){} el.readOnly=true; }
+      el.classList.remove('bad'); el.classList.add('ok'); });
+  }
+  test.answers.push({q:'R\u00e9currence ('+(c.fam==='aff'?'affine':'quotient')+', n \u2265 '+numFmt(c.n0)+') : '+numFmt(c.m)+' \u2264 Un \u2264 '+numFmt(c.M), answer:'d\u00e9monstration compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('rcActions').innerHTML='<button class="btn btn-primary" onclick="nextRC()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+function nextRC(){ if(test.idx<test.questions.length-1){ test.idx++; renderRC(); } else finishTest(); }
+function rcLu(id){ const el=$(id); if(!el) return '(vide)';
+  const v=(el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim();
+  return v===''?'(vide)':'\u00ab '+v+' \u00bb'; }
+function rcConseilCtx(){
+  const c=test.questions[test.idx], cases=rcCases(c);
+  return 'Exercice 6.4 : R\u00c9CURRENCE \u2014 encadrement de Un. Suite ('+ 'U_n)_{n>='+numFmt(c.n0)+'}, U_'+numFmt(c.n0)+' = '+numFmt(c.u0)+', U_{n+1} = f(U_n) avec f(x) = '+c.fPlain+', croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+']. On d\u00e9montre '+numFmt(c.m)+' \u2264 U_n \u2264 '+numFmt(c.M)+' pour n \u2265 '+numFmt(c.n0)+'. '
+   +'La fiche suit les \u00e9tapes : initialisation \u2014 la cha\u00eene m \u2264 U \u2264 M s\u2019\u00e9crit avec le RANG en indice de U (cases d\u2019indice), puis on justifie \u00ab car U_rang = valeur \u00bb en fin de ligne, hypoth\u00e8se pour n, but pour n+1, puis on applique f \u00e0 l\u2019encadrement (f croissante conserve les in\u00e9galit\u00e9s), on remplace f(U_n) par U_{n+1}, et on \u00e9largit \u00e0 droite pour retrouver M. '
+   +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : rang '+numFmt(c.n0)+' ; encadrements '+numFmt(c.m)+' \u2264 \u2026 \u2264 '+numFmt(c.M)+' ; f('+numFmt(c.m)+') = '+numFmt(c.fm)+' et f('+numFmt(c.M)+') = '+numFmt(c.fM)+' ; derni\u00e8re ligne '+numFmt(c.m)+' \u2264 U_{n+1} \u2264 '+numFmt(c.fM)+' \u2264 '+numFmt(c.M)+' ; le mot attendu est \u00ab croissante \u00bb. '
+   +'Saisies actuelles : '+cases.map(x=>x.id.replace('rc-','')+' '+rcLu(x.id)).join(' ; ')+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUN de ces nombres ni le mot du menu. '
+   +'M\u00e9thode \u00e0 faire appliquer : \u00e0 l\u2019initialisation, \u00e9crire le RANG dans les indices de U et la VALEUR dans la justification \u00ab car \u00bb ; recopier l\u2019hypoth\u00e8se telle quelle ; appliquer f aux trois membres SANS changer le sens (f croissante) ; calculer f(m) et f(M) avec la formule ; conclure en ins\u00e9rant f(M) entre U_{n+1} et M. '
+   +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
 /* ====================== TEST : Équation de tangente (lecture graphique) ====================== */
@@ -8678,9 +8955,15 @@ const RAP_EQ=
 +'<li><b>D\u00e9riv\u00e9e d\u2019un quotient</b> : (u/v)\u2009\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2. Pour f(x) = (ax+b)/(cx+d), on <b>d\u00e9veloppe</b> le num\u00e9rateur : a(cx+d) \u2212 c(ax+b) = acx + ad \u2212 acx \u2212 cb \u2014 les termes en x <b>se compensent</b>, il reste la <b>constante</b> ad \u2212 cb.</li>'
 +'<li>Un <b>carr\u00e9</b> est toujours positif (nul seulement en la valeur interdite) : le signe de f\u2009\u2032 est donc celui de sa constante, le <b>m\u00eame des deux c\u00f4t\u00e9s</b> \u2014 f\u2009\u2032 ne s\u2019annule jamais.</li>'
 +'<li>Dans le tableau, on place une <b>double barre</b> \u2551 \u00e0 la valeur interdite (f n\u2019y existe pas) : f est <b>monotone sur chacun</b> des deux intervalles \u2014 croissante si la constante est positive, d\u00e9croissante sinon \u2014 mais on ne compare JAMAIS les deux c\u00f4t\u00e9s entre eux.</li></ul></div>';
+const RAP_RC=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9montrer un encadrement par r\u00e9currence</h4>'
++'<ul><li><b>Initialisation</b> : on v\u00e9rifie la propri\u00e9t\u00e9 au rang de d\u00e9part (0 ou 1) en rempla\u00e7ant U par sa <b>valeur</b>.</li>'
++'<li><b>H\u00e9r\u00e9dit\u00e9</b> : on suppose m \u2264 U\u2099 \u2264 M, puis on applique <i>f</i> aux trois membres. Comme <i>f</i> est <b>croissante</b> sur [m\u2009;\u2009M], les in\u00e9galit\u00e9s sont <b>conserv\u00e9es</b> : f(m) \u2264 f(U\u2099) \u2264 f(M), c\u2019est-\u00e0-dire f(m) \u2264 U\u2099\u208a\u2081 \u2264 f(M).</li>'
++'<li>L\u2019intervalle est <b>stable</b> : m \u2264 f(m) et f(M) \u2264 M. On \u00e9largit donc l\u2019encadrement : m \u2264 U\u2099\u208a\u2081 \u2264 f(M) \u2264 M.</li>'
++'<li><b>Conclusion</b> : vraie au d\u00e9part et h\u00e9r\u00e9ditaire \u2192 vraie pour tout n \u2265 n\u2080 (principe de r\u00e9currence).</li></ul></div>';
 /* Carte des rappels : par identifiant d'exercice d'abord (le kind « gen » sert deux exercices), puis par kind. */
 const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER };
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, s1:RAP_S1, s2:RAP_S2 };
@@ -9075,7 +9358,8 @@ const FICHE_ECRANS={
   'scr-dexp':{actions:'#dexpActions'},   /* derivees niveaux 1-2-3 + quotient niveau 1 */
   'scr-su':{actions:'#suActions'},       /* 6.1 suites arithmetiques / geometriques */
   'scr-enc':{actions:'#encActions'},     /* 6.3 suites : encadrements (recurrence) */
-  'scr-eq':{actions:'#eqActions'}        /* 5.3 fonction quotient : domaine, derivee, variations */
+  'scr-eq':{actions:'#eqActions'},       /* 5.3 fonction quotient : domaine, derivee, variations */
+  'scr-rc':{actions:'#rcActions'}        /* 6.4 recurrence : encadrement de Un */
 };
 document.addEventListener('focusin',(e)=>{
   const el=e.target;
@@ -10293,7 +10577,8 @@ const QIA_SUGG={
   sv:["Quel est le lien entre le signe de f′ et les variations de f ?","Comment lire le signe de f sur un graphique ?","C’est quoi, un extremum ?"],
   tg:["C’est quoi, une tangente ?","Comment trouver l’équation d’une tangente ?","Que représente f′(a) sur le graphique ?"],
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
-  eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi f\u2032 garde-t-elle le m\u00eame signe des deux c\u00f4t\u00e9s ?","Que signifie la double barre dans le tableau ?"],
+  rc:["Quelles sont les \u00e9tapes d\u2019une r\u00e9currence ?","Pourquoi f croissante conserve-t-elle les in\u00e9galit\u00e9s ?","Comment conclure quand f(M) est plus petit que M ?","\u00c0 quoi sert l\u2019initialisation ?"],
+  eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi le signe de f\u2032 est-il celui de son num\u00e9rateur ?","Que signifie la double barre dans le tableau ?"],
   ef:["Pourquoi e\u02e3 est-il toujours strictement positif ?","Comment trouver le signe d\u2019un produit ?","Quel est le lien entre le signe de f\u2032 et les variations de f ?","O\u00f9 f admet-elle un extremum ?"],
   enc:["Faire un rappel de cours pour cet exercice.","Que devient un encadrement quand on multiplie par un nombre positif ?","Pourquoi l\u2019ordre change-t-il quand on passe \u00e0 l\u2019inverse ?","\u00c0 quoi sert un encadrement pour une r\u00e9currence ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
@@ -10466,7 +10751,8 @@ function qiaIlluMission(){
     tvg:['tvi-unique','fonction-croissante','fonction-decroissante'],
     dexp:['tangente','signe-variations'], dexpq:['tangente','signe-variations'],
     eq:['tv-double-barre','asymptote-v','tableau-signe','signe-variations'],
-    su:['fonction-croissante','fonction-decroissante'], sa:['fonction-croissante','fonction-decroissante'], enc:['fonction-croissante','fonction-decroissante']
+    su:['fonction-croissante','fonction-decroissante'], sa:['fonction-croissante','fonction-decroissante'], enc:['fonction-croissante','fonction-decroissante'],
+    rc:['fonction-croissante','fonction-decroissante']
   };
   const ids=(test && CAT[test.kind]) || ['coeff-directeur','fonction-croissante','fonction-decroissante','tvi-unique','signe-variations','tangente','tableau-signe'];
   const lst=ids.map(function(id){ return '[ILLU:'+id+'] '+TXT[id]; }).join(' ; ');
@@ -10912,10 +11198,11 @@ function buildKbTerm(vars){
 }
 /* Touches variables selon l'exercice courant. Fonctions -> f, x (défaut).
    Suites -> n, Uₙ (, Vₙ). Table simple à étendre au besoin. */
-const KB_VN = {label:"Vₙ",insert:"V_n"}, KB_UN = {label:"Uₙ",insert:"U_n"}, KB_N = {latex:"n"};
+const KB_N = {latex:"n"};
+const KB_USQ = {tooltip:"U indice", insert:"U_{#0}",
+  label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><text x="3.5" y="16.5" style="font:italic 700 18px KaTeX_Math,Georgia,serif;fill:currentColor">U</text><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>'};
 function kbVarsFor(id){
-  if(id === 'suite-auxiliaire') return [KB_N, KB_UN, KB_VN];
-  if(id === 'suite-explicite' || id === 'suites') return [KB_N, KB_UN];
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
