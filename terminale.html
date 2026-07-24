@@ -992,7 +992,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Terminale</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp46</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800" id="appVer"></b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -1792,6 +1792,15 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
 <div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
+/* ============================================================================
+   NUMÉRO DE VERSION DE LA LIVRAISON — À INCRÉMENTER À CHAQUE FICHIER LIVRÉ
+   (= le NNN du fichier terminale_NNN_.html). Il s'affiche dans l'en-tête,
+   visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
+   est ouverte (fichier local ou site en ligne).
+   ============================================================================ */
+const APP_VERSION=179;
+(function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
+try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
 /* $ cherche d'abord dans la page, puis dans les fenêtres détachées (Soutien / Question à l'IA). */
 function $(id){
@@ -10555,7 +10564,7 @@ function recBuild(kind,n0Force,sensForce){
     const u=[u0,f(u0),f(f(u0))];
     let prog=[],x=u[2]; for(let i=0;i<8;i++){ x=f(x); prog.push(x); }
     const aT=String(a).replace('.','{,}'), aP=numFmt(a);
-    return { kind, n0, de, m, M, L:(de?m:M), u, prog,
+    return { kind, n0, de, m, M, L:(de?m:M), u, prog, dern:Math.trunc(prog[7]*1000)/1000,
       defTex:'U_{'+n0+'} = '+u0+' \\quad\\text{et}\\quad U_{n+1} = '+aT+'\\,U_n + '+b,
       defPlain:'U'+n0+' = '+u0+' et U(n+1) = '+aP+'\u00b7U(n) + '+b,
       ch:recBrandU(encInstAff(a,b,m,M)), sens, v1, v2 };
@@ -10566,7 +10575,7 @@ function recBuild(kind,n0Force,sensForce){
   const u0=de?M:m, f=x=>A-B/(x+c);
   const u=[u0,f(u0),f(f(u0))];
   let prog=[],x=u[2]; for(let i=0;i<8;i++){ x=f(x); prog.push(x); }
-  return { kind:'quo', n0, de, m, M, L:(de?m:M), u, prog,
+  return { kind:'quo', n0, de, m, M, L:(de?m:M), u, prog, dern:Math.trunc(prog[7]*1000)/1000,
     defTex:'U_{'+n0+'} = '+u0+' \\quad\\text{et}\\quad U_{n+1} = '+A+' - \\frac{'+B+'}{U_n + '+c+'}',
     defPlain:'U'+n0+' = '+u0+' et U(n+1) = '+A+' \u2212 '+B+'/(U(n)+'+c+')',
     ch:recBrandU(encInstQuo(A,B,c,m,M)), sens, v1, v2 };
@@ -10587,7 +10596,12 @@ function recCases(q){
   const out=[
     num('rec-t0', q.u[0]), num('rec-t1', q.u[1]), num('rec-t2', q.u[2]),
     {id:'rec-sens', okIdx:optsOkIdx(q.sens), opts:q.sens},
-    num('rec-lim', q.L),
+    /* limite conjecturee : TOUTE valeur entre le dernier terme AFFICHE par le programme
+       (U_{n0+10}, tronque au millieme) et la vraie limite est acceptee, bornes incluses —
+       c'est exactement ce que les termes affiches permettent de conjecturer. La correction
+       canonique reste la vraie limite. */
+    {id:'rec-lim', cond:v=> v>=Math.min(q.L,q.dern)-1e-9 && v<=Math.max(q.L,q.dern)+1e-9,
+     lat:String(q.L), s:String(q.L), attend:'la limite (entre '+numFmt(Math.min(q.L,q.dern))+' et '+numFmt(Math.max(q.L,q.dern))+')'},
     {id:'rec-maj', cond:v=>v>=q.M-1e-9, lat:String(q.M), s:String(q.M), attend:'un majorant (\u2265 '+numFmt(q.M)+')'},
     {id:'rec-min', cond:v=>v<=q.m+1e-9, lat:String(q.m), s:String(q.m), attend:'un minorant (\u2264 '+numFmt(q.m)+')'},
     sym('rec-n0', [String(q.n0)]),
@@ -10792,7 +10806,7 @@ function recConseilCtx(){
   const etat=cases.map(x=>x.id.replace('rec-','')+' : '+lu(x)).join(' ; ');
   return 'Exercice « R\u00e9currence \u2014 conjecturer puis d\u00e9montrer » (fiche compl\u00e8te). Suite : '+q.defPlain+'. '
    +'a) calcul de '+3+' premiers termes AU DIXI\u00c8ME PR\u00c8S (toute valeur approch\u00e9e au dixi\u00e8me est accept\u00e9e) ; '
-   +'b) huit termes affich\u00e9s (tronqu\u00e9s au milli\u00e8me), puis conjectures : sens (menu), limite (case, dixi\u00e8me pr\u00e8s), '
+   +'b) huit termes affich\u00e9s (tronqu\u00e9s au milli\u00e8me), puis conjectures : sens (menu), limite (case : toute valeur entre le dernier terme affich\u00e9 et la vraie limite, bornes incluses, est accept\u00e9e), '
    +'majorant et minorant (TOUTE valeur correcte est accept\u00e9e : majorant \u2265 '+q.M+', minorant \u2264 '+q.m+') ; '
    +'c) r\u00e9currence pour '+q.m+' \u2264 U(n) \u2264 '+q.M+' (n \u2265 '+q.n0+') : initialisation (rang '+q.n0+', encadrement, U'+q.n0+' = '+q.u[0]+'), '
    +'h\u00e9r\u00e9dit\u00e9 (\u00ab on SUPPOSE pour n \u2026 on MONTRE pour n+1 \u00bb, menus + cases de rang), puis cha\u00eene d\u2019encadrements comme au 6.3 '
