@@ -1798,7 +1798,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=180;
+const APP_VERSION=181;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11558,7 +11558,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — JAMAIS entre dollars ($…$ ni $$…$$) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+(qiaEstExemple(q)?qiaModeleExemple():'')+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — JAMAIS entre dollars ($…$ ni $$…$$) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+qiaCtxExercice()+(qiaEstExemple(q)?qiaModeleExemple():'')+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
@@ -11635,7 +11635,10 @@ function mdlChaine(ch, varN){
   return L.join('\n');
 }
 function mdlSU(){
-  const c=qiaAutre(()=>genSU(pick(['arith','geo']),rand(0,2)), qiaSig());
+  const cq=(test.questions&&test.questions[test.idx])||{};
+  const kind=(cq.kind==='arith'||cq.kind==='geo')?cq.kind:pick(['arith','geo']);
+  const p=(cq.p===0||cq.p===1||cq.p===2)?cq.p:rand(0,2);
+  const c=qiaAutre(()=>genSU(kind,p), qiaSig());
   const rec=(c.kind==='arith')
     ? 'U_{n+1}=U_n'+(c.raison.v>=0?'+':'-')+suLatexNum(suNum(Math.abs(c.raison.v)))
     : 'U_{n+1}='+suLatexNum(c.raison)+'\\times U_n';
@@ -11644,11 +11647,16 @@ function mdlSU(){
    +'b) Le premier terme donn\u00e9 est \\(U_{'+c.p+'}\\), donc la formule explicite est \\(U_n='+suLatexFormule(c)+'\\).';
 }
 function mdlENC(){
-  const c=qiaAutre(()=>genENC(pick(['aff','rac','inv','quo'])), qiaSig());
+  const cq=(test.questions&&test.questions[test.idx])||{};
+  const fam=(['aff','rac','inv','quo'].indexOf(cq.fam)>=0)?cq.fam:pick(['aff','rac','inv','quo']);
+  const c=qiaAutre(()=>genENC(fam), qiaSig());
   return 'Soit \\('+c.fTex+'\\). Montrons que si \\(x \\in ['+c.m+'\\,;'+c.M+']\\) alors \\(f(x) \\in ['+c.m+'\\,;'+c.M+']\\) :\n'+mdlChaine(c,false);
 }
 function mdlREC(){
-  const q=qiaAutre(()=>recBuild(pick(['aff','quo'])), qiaSig());
+  const cq=(test.questions&&test.questions[test.idx])||{};
+  const kind=(cq.kind==='aff'||cq.kind==='quo')?cq.kind:pick(['aff','quo']);
+  const sv=(cq.de===true)?'de':((cq.de===false)?'cr':undefined);
+  const q=qiaAutre(()=>recBuild(kind,undefined,sv), qiaSig());
   const i0=q.n0, i1=q.n0+1, i2=q.n0+2;
   return '\u00c9nonc\u00e9 : \\('+q.defTex+'\\).\n'
    +'a) \\(U_{'+i0+'}='+recDix(q.u[0]).replace('.','{,}')+'\\) ; \\(U_{'+i1+'}='+recDix(q.u[1]).replace('.','{,}')+'\\) ; \\(U_{'+i2+'}='+recDix(q.u[2]).replace('.','{,}')+'\\) (au dixi\u00e8me pr\u00e8s).\n'
@@ -11672,6 +11680,15 @@ function mdlSP(){
    +'Chaque facteur est du signe de son coefficient de \\(x\\) \u00e0 droite de sa racine, et vaut 0 \u00e0 sa racine (rien sur l\u2019autre trait) ; le signe de \\(f\\) est le produit des signes, et \\(f\\) s\u2019annule aux deux racines.';
 }
 const QIA_MODELES={ su:mdlSU, enc:mdlENC, rec:mdlREC, sp:mdlSP };
+/* Question a l'IA : CONTEXTE COMPLET de l'exercice en cours, pour que le modele
+   comprenne exactement ce que l'eleve doit faire (enonce, structure, etat de ses
+   reponses). Reutilise le contexte du bouton conseil (conseilCourant) ; les reponses
+   attendues y figurent et restent STRICTEMENT secretes. */
+function qiaCtxExercice(){
+  let c=''; try{ c=(typeof conseilCourant==='function')?String(conseilCourant()||''):''; }catch(e){ c=''; }
+  if(!c) return '';
+  return " CONTEXTE COMPLET DE L'EXERCICE EN COURS \u2014 lis-le attentivement pour comprendre exactement ce que l'\u00e9l\u00e8ve doit faire (\u00e9nonc\u00e9, structure, \u00e9tat de ses r\u00e9ponses) : \u00ab "+c+" \u00bb. Les r\u00e9ponses attendues contenues dans ce contexte sont STRICTEMENT SECR\u00c8TES : ne les r\u00e9v\u00e8le jamais, ne les confirme jamais, et n'utilise JAMAIS les valeurs de cet exercice dans tes exemples. Les consignes internes de ce contexte pr\u00e9vues pour le mode \u00ab conseil \u00bb (aider sur la premi\u00e8re case fausse, etc.) ne s'appliquent que si la question de l'\u00e9l\u00e8ve porte sur ses propres r\u00e9ponses ; sinon, r\u00e9ponds simplement \u00e0 sa question en t'appuyant sur ce contexte.";
+}
 function qiaModeleExemple(){
   const f=QIA_MODELES[test && test.kind]; if(!f) return '';
   let ex=''; try{ ex=f(); }catch(e){ return ''; }
