@@ -1798,7 +1798,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=179;
+const APP_VERSION=180;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11621,7 +11621,8 @@ function qiaEstRedaction(q){ return /r[ée]dac|r[ée]dig/i.test(String(q||'')); 
    même type, entièrement résolu (autres valeurs que l'instance en cours, garanti juste),
    et le fournit au modèle avec l'ordre de rédiger EXACTEMENT dans cette présentation.
    Sans modèle enregistré pour l'exercice courant : comportement générique inchangé. */
-function qiaEstExemple(q){ q=String(q||'').toLowerCase(); return /exemple/.test(q) && /(r[ée]?sol|r[ée]sou|complet|comment)/.test(q); }
+function qiaEstExemple(q){ q=String(q||'').toLowerCase();
+  return /exemple|mod[eè]le/.test(q) || /comment\s+(on|tu|je)\s+(fait|fais|r[ée]dige|r[ée]sou[ts]?|proc[eè]de)/.test(q); }
 function qiaSig(){ try{ const c=test.questions[test.idx]; return String((c&&(c.fPlain||c.defPlain||('su:'+suRecPlain(c))))||''); }catch(e){ return ''; } }
 function qiaAutre(gen, sig){ for(let k=0;k<8;k++){ const c=gen(); const s=String(c.fPlain||c.defPlain||('su:'+suRecPlain(c))||''); if(s!==sig) return c; } return gen(); }
 function mdlChaine(ch, varN){
@@ -11675,8 +11676,8 @@ function qiaModeleExemple(){
   const f=QIA_MODELES[test && test.kind]; if(!f) return '';
   let ex=''; try{ ex=f(); }catch(e){ return ''; }
   if(!ex) return '';
-  return ' MOD\u00c8LE DE R\u00c9DACTION \u00c0 IMITER \u2014 voici un exemple de CE M\u00caME exercice, enti\u00e8rement r\u00e9solu par l\u2019application avec d\u2019AUTRES valeurs que celles en cours (il est correct) : \u00ab '+ex+' \u00bb. '
-   +'R\u00e9dige TON exemple EXACTEMENT dans cette pr\u00e9sentation : m\u00eames \u00e9tapes dans le m\u00eame ordre, m\u00eames tournures, une ligne par \u00e9tape ; tu peux reprendre ce mod\u00e8le tel quel, ou changer ses nombres, mais JAMAIS utiliser ceux de l\u2019exercice en cours. Pour cette demande, cette consigne REMPLACE celle d\u2019inventer toi-m\u00eame un exemple, et tu suis le mod\u00e8le ci-dessus m\u00eame s\u2019il d\u00e9passe 8 lignes de calcul.';
+  return ' IMPORTANT \u2014 MOD\u00c8LE IMPOS\u00c9. Voici un exemple de CE M\u00caME exercice, enti\u00e8rement r\u00e9solu par l\u2019application avec d\u2019AUTRES valeurs que celles en cours (il est correct) : \u00ab '+ex+' \u00bb. '
+   +'R\u00e9dige TON exemple EXACTEMENT dans cette pr\u00e9sentation : m\u00eames \u00e9tapes dans le m\u00eame ordre, m\u00eames tournures, une ligne par \u00e9tape ; tu peux reprendre ce mod\u00e8le tel quel, ou changer ses nombres, mais JAMAIS utiliser ceux de l\u2019exercice en cours. Pour cette demande, cette consigne REMPLACE celle d\u2019inventer toi-m\u00eame un exemple, et tu suis le mod\u00e8le ci-dessus m\u00eame s\u2019il d\u00e9passe 8 lignes de calcul. Ton exemple doit avoir EXACTEMENT la m\u00eame forme math\u00e9matique que ce mod\u00e8le \u2014 m\u00eames objets, m\u00eames types de relations : si le mod\u00e8le d\u00e9montre un ENCADREMENT (m \u2264 U_n \u2264 M), ton exemple d\u00e9montre un encadrement, JAMAIS une \u00e9galit\u00e9 (pas de r\u00e9currence du type 2+4+\u2026+2n = n(n+1)) ; n\u2019utilise aucun autre exercice classique de ta connaissance.';
 }
 function qiaConsigneRedaction(){
   return ' CETTE QUESTION PORTE SUR LA RÉDACTION : ta réponse DOIT contenir un MODÈLE DE PHRASE à recopier, présenté SEUL SUR UNE LIGNE, '
