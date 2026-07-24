@@ -478,6 +478,11 @@ math-field.sp-mf{min-width:52px;max-width:84px;font-size:.98rem;}
 .sp-tbl td.sp-barcol .sp-selz{min-width:60px;background-color:var(--surface);position:relative;z-index:1;}
 .sp-tbl td.sp-xroot{overflow:visible;}
 .sp-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px;}
+/* question a) : deux colonnes equation/calcul separees par « ou » */
+.sp-eqcols{display:flex;align-items:flex-start;justify-content:flex-start;gap:16px;flex-wrap:wrap;margin:6px 0 10px;}
+.sp-eqcol{display:flex;flex-direction:column;align-items:center;gap:9px;padding:10px 12px;border:1.6px solid var(--grid);border-radius:12px;background:var(--paper);}
+.sp-eqline{display:inline-flex;align-items:center;gap:4px;font-weight:700;}
+.sp-ou{align-self:center;font-family:"Nunito";font-weight:800;color:var(--ink-soft);padding:0 2px;}
 .tvi-sel:disabled{opacity:1;}
 
 /* --- Test TVI rédigé : zone de saisie + analyse de la justification --- */
@@ -1530,10 +1535,12 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="spPrompt"></p>
       <div id="spJetons"></div>
+      <div id="spQa"></div>
+      <p class="tvi-prompt s1-prompt" id="spTitreB" hidden style="margin:14px 0 6px"></p>
       <div id="spQ1"></div>
       <div id="spQ2"></div>
       <div id="spTabWrap"></div>
-      <p class="dexp-hint" id="spHint" hidden>Toutes les cases doivent être complétées pour terminer. Les racines acceptent toute écriture équivalente ou une valeur approchée au dixième près.<span class="hint-souris"> <b>Clic droit</b> sur une case racine : clavier à l’écran.</span></p>
+      <p class="dexp-hint" id="spHint" hidden>Toutes les cases doivent être complétées pour terminer. Les racines et valeurs acceptent toute écriture équivalente (fraction ou décimal) ou une valeur approchée au dixième près.<span class="hint-souris"> <b>Clic droit</b> sur une case racine : clavier à l’écran.</span></p>
       <div class="mp-feedback" id="spFeedback"></div>
       <div class="mp-actions" id="spActions"></div>
     </div>
@@ -1798,7 +1805,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=181;
+const APP_VERSION=185;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -1905,7 +1912,7 @@ const TESTS={
   'etude-quotient': { name:'Fonction quotient \u2014 domaine, d\u00e9riv\u00e9e et variations', icon:'u/v', desc:'Une fonction f(x) = (ax+b)/(cx+d) : trouve la valeur interdite et l\u2019ensemble de d\u00e9finition, d\u00e9montre la d\u00e9riv\u00e9e avec la formule du quotient (champs math, clavier \u00e9cran en option), puis dresse le tableau de signes et de variations avec la double barre.', start:()=>startEQ() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
-  'signe-produit': { name:'Signe d\u2019un produit (ax+b)(cx+d)', icon:'\u00d7', desc:'\u00c9tudie le signe de f(x) = (ax+b)(cx+d) en construisant toi-m\u00eame le tableau : nombre de facteurs, nombre de racines, puis racines, z\u00e9ros et signes \u2014 le tableau s\u2019adapte \u00e0 tes r\u00e9ponses.', start:()=>startSP() },
+  'signe-produit': { name:'Signe d\u2019un produit (ax+b)(cx+d)', icon:'\u00d7', desc:'a) R\u00e9sous f(x) = 0 (chaque facteur nul, comme au 1.1 niveau 2), puis b) construis toi-m\u00eame le tableau de signes : nombre de facteurs, nombre de racines, racines, z\u00e9ros et signes \u2014 le tableau s\u2019adapte \u00e0 tes r\u00e9ponses.', start:()=>startSP() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
@@ -2413,7 +2420,9 @@ function dexpFeuilleCtx(blocs){
   return " État actuel de sa feuille (« (vide) » = case non remplie) : "+out.join(' | ')
     +". Analyse SES écritures : trouve la PREMIÈRE ligne où quelque chose cloche, dis-lui précisément ce qui ne va pas (signe, coefficient, exposant, formule, développement non effectué, carré du dénominateur oublié…) et oriente-le pour corriger CETTE étape, sans lui donner la réponse. Ne lui reproche pas les cases « (vide) » situées après : il n'y est pas encore.";
 }
-function conseilCourant(){
+/* Constructeur PUR du contexte de l'exercice en cours (aucun effet de bord).
+   Utilise par le bouton « Un conseil » ET par la fenetre « Question a l'IA ». */
+function conseilCtxCourant(){
   let c;
   if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
   else if(test && test.kind==='sa' && test.questions && test.questions[test.idx]){ c=saConseilCtx(); }
@@ -2580,8 +2589,13 @@ function conseilCourant(){
     c=ctxVisible();
   }
   if(!c) c='L’élève est en difficulté sur un exercice de mathématiques de Terminale.';
+  return c;
+}
+/* Gestionnaire du bouton « Un conseil » : ouvre la fenetre soutien puis lance le conseil.
+   NE PAS l'appeler pour simplement LIRE le contexte (utiliser conseilCtxCourant). */
+function conseilCourant(){
   ouvrirSoutien();
-  lancerConseil(c, $('conseilBody'));
+  lancerConseil(conseilCtxCourant(), $('conseilBody'));
 }
 function fermerConseil(){
   const m=document.getElementById('conseilModal');
@@ -9081,7 +9095,8 @@ const RAP_ENC=
 +'l\u2019intervalle est <b>stable</b>. C\u2019est exactement l\u2019<b>h\u00e9r\u00e9dit\u00e9</b> d\u2019une r\u00e9currence \u00ab U<sub><i>n</i></sub> \u2208 [<i>m</i>\u2009;\u2009<i>M</i>] \u00bb avec U<sub><i>n</i>+1</sub> = <i>f</i>(U<sub><i>n</i></sub>).</p></div>';
 const RAP_SP=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe d\u2019un produit de deux facteurs affines</h4>'
-+'<ul><li>Un produit (ax+b)(cx+d) a <b>2 facteurs</b> ; chacun s\u2019annule en sa racine (ax+b = 0 donne x = \u2212b/a) : au total <b>2 racines</b> si elles sont distinctes.</li>'
++'<ul><li>R\u00e9soudre f(x) = 0 : un produit est nul si et seulement si <b>l\u2019un de ses facteurs est nul</b>. On r\u00e9sout donc ax+b = 0 <b>ou</b> cx+d = 0, chaque \u00e9quation du premier degr\u00e9 donnant x = \u2212b/a (comme au 1.1 niveau 2).</li>'
++'<li>Un produit (ax+b)(cx+d) a <b>2 facteurs</b> ; chacun s\u2019annule en sa racine : au total <b>2 racines</b> si elles sont distinctes.</li>'
 +'<li>Dans le tableau : une ligne par facteur, puis la ligne de f. Chaque facteur affine est du <b>signe de a</b> \u00e0 droite de sa racine, du signe oppos\u00e9 \u00e0 gauche, et vaut <b>0</b> \u00e0 sa racine.</li>'
 +'<li>Sur un trait vertical, on \u00e9crit <b>0</b> sur la ligne du facteur qui s\u2019annule L\u00c0 (et sur la ligne de f) ; sur les autres lignes, <b>rien</b>.</li>'
 +'<li>Le signe de <b>f</b> sur chaque intervalle est le <b>produit des signes</b> des facteurs (r\u00e8gle des signes : deux signes identiques donnent +, deux signes contraires donnent \u2212), et f s\u2019annule \u00e0 chaque racine.</li></ul></div>';
@@ -9278,7 +9293,7 @@ function genSP(){
   const rs=[F1.r,F2.r];
   const mids=[rs[0]-1, (rs[0]+rs[1])/2, rs[1]+1];
   const sg=v=>v>0?'+':'\u2212';
-  const fac=[F1,F2].map(F=>({ labTex:F.tex, labPlain:F.plain, root:F.r,
+  const fac=[F1,F2].map(F=>({ labTex:F.tex, labPlain:F.plain, root:F.r, a:F.a, b:-F.a*F.r,
     signs:mids.map(x=>sg(F.a*x+(-F.a*F.r))), zeros:rs.map(r=>r===F.r) }));
   const frow={ signs:mids.map(x=>sg((F1.a*x-F1.a*F1.r)*(F2.a*x-F2.a*F2.r))), zeros:[true,true] };
   return { nFvrai:2, nRvrai:2, roots:rs, fac:fac, frow:frow, nF:null, nR:null,
@@ -9288,6 +9303,68 @@ function spBox(id){ return '<input type="text" inputmode="numeric" autocomplete=
 function spMF(id){ return '<math-field class="dexp-mf sp-mf" id="'+id+'"></math-field>'; }
 function spSelPM(id){ return '<select class="tvi-sel sp-sel" id="'+id+'"><option value="">\u2026</option><option value="+">+</option><option value="\u2212">\u2212</option></select>'; }
 function spSelZ(id){ return '<select class="tvi-sel sp-sel sp-selz" id="'+id+'"><option value="">\u2026</option><option value="rien">rien</option><option value="0">0</option></select>'; }
+/* ===== question a) : « Resous f(x) = 0 » =====
+   1) rappel : « on doit resoudre [__] = 0 ou [__] = 0 » — deux math-fields ou l'eleve
+      recrit les DEUX facteurs (ordre libre, toute ecriture equivalente : parentheses,
+      termes commutes, espaces, signe unicode) ;
+   2) puis CHAQUE equation du premier degre est resolue comme au 1.1 niveau 2 :
+      x = [−b]/[a] = [valeur], avec la meme pile de fraction et les memes tolerances.
+   Les questions a) et b) sont visibles ENSEMBLE et verifiees d'un seul coup (les gardes
+   internes de b) — comptes de facteurs et de racines exacts — restent actives). */
+function spNorm(t){
+  let x=String(t==null?'':t).toLowerCase();
+  x=x.replace(/\u2212/g,'-').replace(/\s+/g,'').replace(/\\,/g,'');
+  while(/^\((.*)\)$/.test(x)){ const y=x.slice(1,-1); let d=0,ok=true;
+    for(const ch of y){ if(ch==='(')d++; else if(ch===')'){d--; if(d<0){ok=false;break;}} }
+    if(!ok||d!==0) break; x=y; }
+  return x;
+}
+function spFactForms(F){
+  const ax=(F.a===1?'x':(F.a===-1?'-x':F.a+'x'));
+  const bA=Math.abs(F.b), sg=F.b>=0?'+':'-';
+  const forms=[ax+sg+bA];
+  forms.push(F.b>=0 ? bA+'+'+ax : '-'+bA+'+'+ax);
+  return forms.map(spNorm);
+}
+function spMatchFact(q, plain){
+  const n=spNorm(plain); if(n==='') return -1;
+  for(let k=0;k<2;k++) if(spFactForms(q.fac[k]).indexOf(n)>=0) return k;
+  return -1;
+}
+function spResAHTML(q){
+  /* Les deux equations sont ecrites PAR L'ELEVE (les facteurs ne sont jamais affiches
+     en clair ici, sinon la reponse serait donnee). Chaque colonne empile son equation
+     « [case] = 0 » et, dessous, le calcul de x ; les colonnes sont separees par « ou ».
+     La validation d'une colonne suit le facteur que l'eleve y a ecrit (ordre libre). */
+  const col=k=>'<div class="sp-eqcol">'
+    +'<span class="sp-eqline">'+spMF('sp-f'+k)+'&nbsp;= 0</span>'
+    +'<span class="s1-solve"><i>x</i> = <span class="s1-frac-stack">'+spBoxN('sp-n'+k)+'<span class="s1-fbar"></span>'+spBoxN('sp-d'+k)+'</span> = '+spBoxN('sp-v'+k)+'</span>'
+    +'</div>';
+  return '<p class="tvi-prompt s1-prompt" style="margin-bottom:6px"><b>a)</b> R\u00e9sous <b><i>f</i>\u00a0(<i>x</i>) = 0</b>.</p>'
+    +'<div class="rec-ligne" style="margin-bottom:2px">On doit r\u00e9soudre&nbsp;:</div>'
+    +'<div class="sp-eqcols">'+col(0)+'<span class="sp-ou">ou</span>'+col(1)+'</div>';
+}
+function spBoxN(id){ return '<input type="text" inputmode="text" autocomplete="off" class="s1-in sm" id="'+id+'">'; }
+function spColFact(q,k){
+  const m0=spMatchFact(q, mfPlainClean('sp-f0')), m1=spMatchFact(q, mfPlainClean('sp-f1'));
+  const mk=(k===0)?m0:m1, mo=(k===0)?m1:m0;
+  if(mk>=0) return mk;
+  if(mo>=0) return 1-mo;
+  return k;
+}
+function spPartA(q){
+  const out=[{id:'sp-f0',fact:true},{id:'sp-f1',fact:true}];
+  for(let k=0;k<2;k++){
+    out.push({id:'sp-n'+k, calc:'n', col:k});
+    out.push({id:'sp-d'+k, calc:'d', col:k});
+    out.push({id:'sp-v'+k, calc:'v', col:k});
+  }
+  return out;
+}
+function spCalcCible(q,x){
+  const F=q.fac[spColFact(q,x.col)];
+  return x.calc==='n' ? -F.b : (x.calc==='d' ? F.a : F.root);
+}
 function spRowLab(i,q){
   if(i==='f') return 'Signe de <i>f</i>\u00a0(<i>x</i>)';
   return (i<2) ? ('Signe de '+encTex(q.fac[i].labTex,q.fac[i].labPlain)) : '\u2026';
@@ -9324,7 +9401,7 @@ function spTableHTML(q){
     +'<tr><td class="lab"><i>x</i></td>'+xtds+'</tr>'+rows+'</tbody></table>';
 }
 function spCases(q){
-  const out=[];
+  const out=spPartA(q);
   out.push({id:'sp-nf', count:q.nFvrai});
   if(q.nF!=null){
     out.push({id:'sp-nr', count:q.nRvrai});
@@ -9350,12 +9427,34 @@ function spVide(x){
 }
 function spCaseOk(q,x){
   const el=$(x.id); if(!el) return false;
+  if(x.fact){
+    const autre=(x.id==='sp-f0')?'sp-f1':'sp-f0';
+    const me=spMatchFact(q, mfPlainClean(x.id));
+    if(me<0) return false;
+    const oi=spMatchFact(q, mfPlainClean(autre));
+    return oi<0 || oi!==me;   /* les deux cases doivent designer des facteurs DIFFERENTS */
+  }
+  if(x.calc){
+    const good=spCalcCible(q,x);
+    const v=(x.calc==='d')?tgParseCoef(el.value):(x.calc==='v'?tgParseFrac(el.value):tgParse(el.value));
+    return numOkTol(v,good);
+  }
   if(x.count!=null){ const v=tgParse(el.value); return v!==null && v===x.count; }   /* comptage : EXACT */
   if(x.num!==undefined){ if(x.num===null) return false; return suValNum(mfPlainClean(x.id), x.num, TOL_NUM); }
   if(x.pm!==undefined){ const s=String(el.value||''); return x.pm!=null && s===x.pm; }
   const s=String(el.value||''); return x.z!=null && s===x.z;
 }
-function spCorr(x){
+function spCorr(x,q){
+  if(x.fact){
+    const autre=(x.id==='sp-f0')?'sp-f1':'sp-f0';
+    const oi=q?spMatchFact(q, mfPlainClean(autre)):-1;
+    const k=(oi===0)?1:(oi===1?0:(x.id==='sp-f0'?0:1));
+    return {lat:q?q.fac[k].labTex:'', s:q?q.fac[k].labPlain:''};
+  }
+  if(x.calc){
+    const good=q?spCalcCible(q,x):0;
+    return {lat:String(good).replace('.','{,}'), s:numFmt(good)};
+  }
   if(x.count!=null) return {lat:String(x.count), s:String(x.count)};
   if(x.num!==undefined) return {lat:String(x.num).replace('.','{,}'), s:numFmt(x.num)};
   if(x.pm!==undefined) return {lat:x.pm, s:x.pm};
@@ -9415,15 +9514,27 @@ function renderSP(){
   $('spLiveScore').textContent=test.score;
   $('spFeedback').textContent=''; $('spFeedback').className='mp-feedback';
   $('spActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSP()">V\u00e9rifier</button>';
-  $('spPrompt').innerHTML='Soit &nbsp;<b>'+encTex(q.fTex,q.fPlain)+'</b>.&nbsp; \u00c9tudie le <b>signe de f</b> \u00e0 l\u2019aide d\u2019un tableau, que tu vas construire.';
+  $('spPrompt').innerHTML='Soit &nbsp;<b>'+encTex(q.fTex,q.fPlain)+'</b>.';
   $('spJetons').innerHTML=spJetonsHTML();
+  $('spQa').innerHTML=spResAHTML(q);
+  $('spTitreB').hidden=false;
+  $('spTitreB').innerHTML='<b>b)</b> D\u00e9termine le <b>signe de <i>f</i>\u00a0(<i>x</i>)</b> \u00e0 l\u2019aide d\u2019un tableau, que tu vas construire.';
   $('spQ1').innerHTML='<div class="rec-ligne">Combien de <b>facteurs</b> dans ce tableau de signe (entre 1 et 4)&nbsp;? '+spBox('sp-nf')+'</div>';
   if(q.nF!=null && $('sp-nf')) $('sp-nf').value=String(q.nF);
   spRenderTable(q);
+  if(window.mlDexp) window.mlDexp.upgrade($('scr-sp'));
+  if(isSoutien()){
+    spPartA(q).forEach(x=>{ const el=$(x.id); if(!el || el.tagName!=='INPUT') return;
+      el.addEventListener('input',()=>{ if(test.locked) return;
+        el.classList.remove('ok','bad');
+        if(String(el.value).trim()!=='') el.classList.add(spCaseOk(q,x)?'ok':'bad'); });
+    });
+  }
 }
 function checkSP(){
   if(test.locked) return;
-  const q=test.questions[test.idx], fb=$('spFeedback'), cases=spCases(q);
+  const q=test.questions[test.idx], fb=$('spFeedback');
+  const cases=spCases(q);
   /* 1) tout doit etre rempli */
   const vides=cases.filter(x=>spVide(x));
   if(vides.length){
@@ -9462,7 +9573,7 @@ function checkSP(){
     fb.className='mp-feedback good';
   } else {
     cases.forEach(x=>{ if(v[x.id]) return; const el=$(x.id); if(!el) return;
-      const c=spCorr(x);
+      const c=spCorr(x,q);
       el.insertAdjacentHTML('afterend','<span class="mf-cor">'+encTex(c.lat,c.s)+'</span>');
       if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=true; }catch(e){} } else el.disabled=true; });
     fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9.<br>'
@@ -9482,7 +9593,7 @@ function spLiveCheck(id){
     const el=$(id); if(!el || el.classList.contains('sol')) return;
     if(document.activeElement===el) return;
     const q=test.questions[test.idx]; if(!q) return;
-    const x=spCases(q).find(y=>y.id===id); if(!x || x.num===undefined) return;
+    const x=spCases(q).find(y=>y.id===id); if(!x || (x.num===undefined && !x.fact)) return;
     el.classList.remove('ok','bad');
     if(!spVide(x)) el.classList.add(spCaseOk(q,x)?'ok':'bad');
   },0);
@@ -9534,7 +9645,10 @@ function spConseilCtx(){
     const s=(el.tagName==='MATH-FIELD')?mfPlainClean(x.id):String(el.value||'').trim();
     return s===''?'(vide)':'\u00ab '+s+' \u00bb'; };
   const etat=cases.map(x=>x.id.replace('sp-','')+' : '+lu(x)).join(' ; ');
-  return 'Exercice \u00ab Signe d\u2019un produit \u00bb : '+q.fPlain+'. L\u2019\u00e9l\u00e8ve CONSTRUIT le tableau : '
+  const A=spPartA(q);
+  const luA=A.map(x=>x.id.replace('sp-','')+' : '+lu(x)).join(' ; ');
+  return 'Exercice \u00ab Signe d\u2019un produit \u00bb : '+q.fPlain+'. QUESTION a) : r\u00e9soudre f(x)=0 \u2014 l\u2019\u00e9l\u00e8ve \u00e9crit lui-m\u00eame les deux \u00e9quations \u00ab \u2026 = 0 \u00bb dans deux colonnes s\u00e9par\u00e9es par \u00ab ou \u00bb (les facteurs ne sont JAMAIS affich\u00e9s en clair ; ordre libre, \u00e9critures \u00e9quivalentes accept\u00e9es), puis r\u00e9sout CHAQUE \u00e9quation SOUS sa colonne comme au 1.1 niveau 2 (x = \u2212b/a : num\u00e9rateur \u2212b, d\u00e9nominateur a, puis la valeur, dixi\u00e8me accept\u00e9) \u2014 la validation d\u2019une colonne suit le facteur que l\u2019\u00e9l\u00e8ve y a \u00e9crit. R\u00e9ponses attendues de a), \u00e0 ne JAMAIS r\u00e9v\u00e9ler : facteurs '+q.fac[0].labPlain+' et '+q.fac[1].labPlain+' ; x = '+(-q.fac[0].b)+'/'+q.fac[0].a+' = '+q.fac[0].root+' et x = '+(-q.fac[1].b)+'/'+q.fac[1].a+' = '+q.fac[1].root+'. Saisies a) : '+luA+'. '+'Les questions a) et b) sont visibles ensemble et v\u00e9rifi\u00e9es d\u2019un seul coup. '
+   +'QUESTION b) : l\u2019\u00e9l\u00e8ve CONSTRUIT le tableau : '
    +'1) nombre de facteurs (r\u00e9ponse attendue : 2) \u2014 le tableau affiche autant de lignes qu\u2019il en demande ; '
    +'2) nombre de racines au total (r\u00e9ponse attendue : 2) \u2014 autant de traits verticaux apparaissent ; '
    +'3) il place les racines (ordre croissant) au-dessus des traits, choisit \u00ab rien \u00bb ou \u00ab 0 \u00bb \u00e0 chaque croisement, et \u00ab + \u00bb ou \u00ab \u2212 \u00bb dans chaque intervalle. '
@@ -11671,9 +11785,11 @@ function mdlSP(){
   const q=qiaAutre(genSP, qiaSig());
   const F1=q.fac[0], F2=q.fac[1], r1=q.roots[0], r2=q.roots[1];
   const row=(lab,info)=>lab+' & '+info.signs[0]+' & '+(info.zeros[0]?'0':'')+' & '+info.signs[1]+' & '+(info.zeros[1]?'0':'')+' & '+info.signs[2];
-  return 'Soit \\('+q.fTex+'\\). \u00c9tudions le signe de \\(f\\).\n'
-   +'Il y a 2 facteurs, donc 2 lignes de facteurs puis la ligne de \\(f\\).\n'
-   +'Racines : \\('+F1.labTex+'=0\\) donne \\(x='+r1+'\\) et \\('+F2.labTex+'=0\\) donne \\(x='+r2+'\\) : 2 racines au total, plac\u00e9es en ordre croissant.\n'
+  return 'Soit \\\\('+q.fTex+'\\\\).\n'
+   +'a) Résolvons \\\\(f(x)=0\\\\) : un produit est nul si l’un de ses facteurs est nul, donc on doit résoudre \\\\('+F1.labTex+'=0\\\\) ou \\\\('+F2.labTex+'=0\\\\).\n'
+   +'\\\\('+F1.labTex+'=0\\\\) donne \\\\(x=\\\\frac{'+(-q.fac[0].b)+'}{'+q.fac[0].a+'}='+r1+'\\\\) ; \\\\('+F2.labTex+'=0\\\\) donne \\\\(x=\\\\frac{'+(-q.fac[1].b)+'}{'+q.fac[1].a+'}='+r2+'\\\\).\n'
+   +'b) Déterminons le signe de \\\\(f\\\\) à l’aide d’un tableau.\n'
+   +'Il y a 2 facteurs, donc 2 lignes de facteurs puis la ligne de \\\\(f\\\\) ; les 2 racines trouvées en a) sont placées en ordre croissant.\n'
    +'\\begin{array}{c|ccccc} x & -\\infty\\; & '+r1+' & & '+r2+' & \\;+\\infty \\\\\\\\ \\hline '
    +row(F1.labTex,F1)+' \\\\\\\\ \\hline '+row(F2.labTex,F2)+' \\\\\\\\ \\hline '+row('f(x)',q.frow)
    +' \\end{array}\n'
@@ -11685,7 +11801,7 @@ const QIA_MODELES={ su:mdlSU, enc:mdlENC, rec:mdlREC, sp:mdlSP };
    reponses). Reutilise le contexte du bouton conseil (conseilCourant) ; les reponses
    attendues y figurent et restent STRICTEMENT secretes. */
 function qiaCtxExercice(){
-  let c=''; try{ c=(typeof conseilCourant==='function')?String(conseilCourant()||''):''; }catch(e){ c=''; }
+  let c=''; try{ c=(typeof conseilCtxCourant==='function')?String(conseilCtxCourant()||''):''; }catch(e){ c=''; }
   if(!c) return '';
   return " CONTEXTE COMPLET DE L'EXERCICE EN COURS \u2014 lis-le attentivement pour comprendre exactement ce que l'\u00e9l\u00e8ve doit faire (\u00e9nonc\u00e9, structure, \u00e9tat de ses r\u00e9ponses) : \u00ab "+c+" \u00bb. Les r\u00e9ponses attendues contenues dans ce contexte sont STRICTEMENT SECR\u00c8TES : ne les r\u00e9v\u00e8le jamais, ne les confirme jamais, et n'utilise JAMAIS les valeurs de cet exercice dans tes exemples. Les consignes internes de ce contexte pr\u00e9vues pour le mode \u00ab conseil \u00bb (aider sur la premi\u00e8re case fausse, etc.) ne s'appliquent que si la question de l'\u00e9l\u00e8ve porte sur ses propres r\u00e9ponses ; sinon, r\u00e9ponds simplement \u00e0 sa question en t'appuyant sur ce contexte.";
 }
