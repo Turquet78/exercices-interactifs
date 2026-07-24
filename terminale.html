@@ -10210,12 +10210,12 @@ function encInstAff(a,b,m,M){
           opts:encOpts('on multiplie par '+aS+', qui est positif : l\u2019ordre est conserv\u00e9',
                        'on multiplie par '+aS+' : l\u2019ordre change',
                        'on ajoute '+aS+' : l\u2019ordre est conserv\u00e9') },
-        { tex:aT+'x + '+bS, plain:aS+'x + '+bS, lo:encVal(a*m+b), hi:encVal(M),
+        { tex:aT+'x + '+bS, plain:aS+'x + '+bS, lo:encVal(a*m+b), hi:encVal(a*M+b),
           opts:encOpts('on ajoute '+bS+' : l\u2019ordre est conserv\u00e9',
                        'on ajoute '+bS+' : l\u2019ordre change',
                        'on multiplie par '+bS+' : l\u2019ordre est conserv\u00e9') }
       ],
-      concl:{ lo:encVal(a*m+b), hi:encVal(M), hiEstM:true } };
+      concl:{ lo:encVal(a*m+b), hi:encVal(a*M+b), hiEstM:Math.abs(a*M+b-M)<1e-9 } };
 }
 function encInstRac(c,m,M){
     const lo=Math.sqrt(m+c), hi=Math.sqrt(M+c), cS=String(c), fam='rac';
@@ -10261,12 +10261,12 @@ function encInstQuo(A,B,c,m,M){
           opts:encOpts('on multiplie par \u22121, qui est n\u00e9gatif : l\u2019ordre CHANGE (les bornes s\u2019\u00e9changent)',
                        'on multiplie par \u22121 : l\u2019ordre est conserv\u00e9',
                        'on ajoute \u22121 : l\u2019ordre est conserv\u00e9') },
-        { tex:AS+' - \\frac{'+BS+'}{'+denT+'}', plain:AS+' \u2212 '+BS+'/('+den+')', lo:encQ(A*d0-B,d0), hi:encVal(M),
+        { tex:AS+' - \\frac{'+BS+'}{'+denT+'}', plain:AS+' \u2212 '+BS+'/('+den+')', lo:encQ(A*d0-B,d0), hi:encQ(A*d1-B,d1),
           opts:encOpts('on ajoute '+AS+' : l\u2019ordre est conserv\u00e9',
                        'on ajoute '+AS+' : l\u2019ordre change',
                        'on multiplie par '+AS+' : l\u2019ordre est conserv\u00e9') }
       ],
-      concl:{ lo:encQ(A*d0-B,d0), hi:encVal(M), hiEstM:true } };
+      concl:{ lo:encQ(A*d0-B,d0), hi:encQ(A*d1-B,d1), hiEstM:(A*d1-B===M*d1) } };
 }
 function encInstInv(k,cc){
   const M=k/cc, m=0, kS=String(k), cS=String(cc);
@@ -10519,8 +10519,9 @@ function encConseilCtx(){
    Deux questions par session, DIFFICULTE CROISSANTE et EXEMPLES VARIABLES :
    1) famille affine a\u00b7Un + b (instance tiree de ENC_POOL_AFF, ex. 0,25\u00b7Un + 3 sur [0 ; 4]) ;
    2) famille A \u2212 B/(Un + c) (instance tiree de ENC_POOL_QUO, ex. 2 \u2212 3/(Un+2) sur [0 ; 1]).
-   Toujours U(depart) = m (donc suite croissante vers M, point fixe), une des deux suites commence a
-   n = 0 et l'autre a n = 1 (attribution au hasard) ; les corrections des termes s'affichent arrondies au dixieme (recDix). */
+   L'UNE des deux suites est CROISSANTE (U0 = borne basse, point fixe = M) et l'AUTRE
+   DECROISSANTE (intervalle decale au-dessus du point fixe, U0 = borne haute) ; une des
+   deux commence a n = 0 et l'autre a n = 1 (attributions independantes, au hasard) ; les corrections des termes s'affichent arrondies au dixieme (recDix). */
 function recBrandU(ch){
   ch.varTex='U_n'; ch.varPlain='U\u2099';
   ch.resTex='U_{n+1}'; ch.resPlain='U\u2099\u208a\u2081';
@@ -10534,25 +10535,38 @@ function recSub(n){ return '<span class="rec-u"><i>U</i><sub>'+n+'</sub></span>'
 /* arrondi AU DIXIEME pour l'affichage des corrections des termes (fidele a la consigne
    « au dixieme pres » de la fiche) ; les entiers restent sans virgule. */
 function recDix(v){ const r=Math.round(v*10)/10; return Number.isInteger(r)?String(r):r.toFixed(1); }
-function recBuild(kind,n0Force){
+function recBuild(kind,n0Force,sensForce){
   const n0=(n0Force===0||n0Force===1)?n0Force:rand(0,1);
-  const sens=encOpts('croissante','d\u00e9croissante','ni croissante ni d\u00e9croissante');
+  /* sens : 'cr' = croissante (U0 = borne basse, point fixe = borne HAUTE M) ;
+     'de' = decroissante (intervalle DECALE au-dessus du point fixe : la borne BASSE
+     devient le point fixe, la borne haute = point fixe + largeur, U0 = borne haute).
+     Dans les deux cas l'intervalle est stable, la limite est le point fixe, le
+     majorant canonique reste M et le minorant canonique reste m. */
+  const de=(sensForce==='de')||(sensForce!=='cr' && rand(0,1)===1);
+  const sens=de?encOpts('d\u00e9croissante','croissante','ni croissante ni d\u00e9croissante')
+              :encOpts('croissante','d\u00e9croissante','ni croissante ni d\u00e9croissante');
   const v1=encOpts('suppose','montre','v\u00e9rifie');
   const v2=encOpts('montre','suppose','admet');
   if(kind==='aff'){
-    const I=pick(ENC_POOL_AFF), a=I[0], b=I[1], m=I[2], M=I[3], u0=m, f=x=>a*x+b;
+    const I=pick(ENC_POOL_AFF), a=I[0], b=I[1];
+    let m=I[2], M=I[3];
+    if(de){ const d=M-m; m=M; M=M+d; }
+    const u0=de?M:m, f=x=>a*x+b;
     const u=[u0,f(u0),f(f(u0))];
     let prog=[],x=u[2]; for(let i=0;i<8;i++){ x=f(x); prog.push(x); }
     const aT=String(a).replace('.','{,}'), aP=numFmt(a);
-    return { kind, n0, m, M, L:M, u, prog,
+    return { kind, n0, de, m, M, L:(de?m:M), u, prog,
       defTex:'U_{'+n0+'} = '+u0+' \\quad\\text{et}\\quad U_{n+1} = '+aT+'\\,U_n + '+b,
       defPlain:'U'+n0+' = '+u0+' et U(n+1) = '+aP+'\u00b7U(n) + '+b,
       ch:recBrandU(encInstAff(a,b,m,M)), sens, v1, v2 };
   }
-  const I=pick(ENC_POOL_QUO), A=I[0], B=I[1], c=I[2], m=I[3], M=I[4], u0=m, f=x=>A-B/(x+c);
+  const I=pick(ENC_POOL_QUO), A=I[0], B=I[1], c=I[2];
+  let m=I[3], M=I[4];
+  if(de){ const d=M-m; m=M; M=M+d; }
+  const u0=de?M:m, f=x=>A-B/(x+c);
   const u=[u0,f(u0),f(f(u0))];
   let prog=[],x=u[2]; for(let i=0;i<8;i++){ x=f(x); prog.push(x); }
-  return { kind:'quo', n0, m, M, L:M, u, prog,
+  return { kind:'quo', n0, de, m, M, L:(de?m:M), u, prog,
     defTex:'U_{'+n0+'} = '+u0+' \\quad\\text{et}\\quad U_{n+1} = '+A+' - \\frac{'+B+'}{U_n + '+c+'}',
     defPlain:'U'+n0+' = '+u0+' et U(n+1) = '+A+' \u2212 '+B+'/(U(n)+'+c+')',
     ch:recBrandU(encInstQuo(A,B,c,m,M)), sens, v1, v2 };
@@ -10574,8 +10588,8 @@ function recCases(q){
     num('rec-t0', q.u[0]), num('rec-t1', q.u[1]), num('rec-t2', q.u[2]),
     {id:'rec-sens', okIdx:optsOkIdx(q.sens), opts:q.sens},
     num('rec-lim', q.L),
-    {id:'rec-maj', cond:v=>v>=q.L-1e-9, lat:String(q.M), s:String(q.M), attend:'un majorant (\u2265 '+numFmt(q.L)+')'},
-    {id:'rec-min', cond:v=>v<=q.u[0]+1e-9, lat:String(q.m), s:String(q.m), attend:'un minorant (\u2264 '+numFmt(q.u[0])+')'},
+    {id:'rec-maj', cond:v=>v>=q.M-1e-9, lat:String(q.M), s:String(q.M), attend:'un majorant (\u2265 '+numFmt(q.M)+')'},
+    {id:'rec-min', cond:v=>v<=q.m+1e-9, lat:String(q.m), s:String(q.m), attend:'un minorant (\u2264 '+numFmt(q.m)+')'},
     sym('rec-n0', [String(q.n0)]),
     num('rec-i-m', q.m), sym('rec-i-i', [String(q.n0)]), num('rec-i-M', q.M),
     sym('rec-i-i2', [String(q.n0)]), num('rec-i-v', q.u[0]),
@@ -10615,9 +10629,10 @@ async function startREC(){
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='recurrence-complete'; test.kind='rec';
-  /* une des deux suites commence a n = 0 et l'autre a n = 1, attribution au hasard */
-  const a0=rand(0,1);
-  test.questions=[recBuild('aff',a0),recBuild('quo',1-a0)];
+  /* une des deux suites commence a n = 0 et l'autre a n = 1 ; et l'une est CROISSANTE,
+     l'autre DECROISSANTE — les deux attributions sont tirees independamment au hasard */
+  const a0=rand(0,1), s0=rand(0,1);
+  test.questions=[recBuild('aff',a0,s0?'cr':'de'),recBuild('quo',1-a0,s0?'de':'cr')];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('rec'); renderREC();
 }
@@ -10778,13 +10793,13 @@ function recConseilCtx(){
   return 'Exercice « R\u00e9currence \u2014 conjecturer puis d\u00e9montrer » (fiche compl\u00e8te). Suite : '+q.defPlain+'. '
    +'a) calcul de '+3+' premiers termes AU DIXI\u00c8ME PR\u00c8S (toute valeur approch\u00e9e au dixi\u00e8me est accept\u00e9e) ; '
    +'b) huit termes affich\u00e9s (tronqu\u00e9s au milli\u00e8me), puis conjectures : sens (menu), limite (case, dixi\u00e8me pr\u00e8s), '
-   +'majorant et minorant (TOUTE valeur correcte est accept\u00e9e : majorant \u2265 '+q.L+', minorant \u2264 '+q.u[0]+') ; '
+   +'majorant et minorant (TOUTE valeur correcte est accept\u00e9e : majorant \u2265 '+q.M+', minorant \u2264 '+q.m+') ; '
    +'c) r\u00e9currence pour '+q.m+' \u2264 U(n) \u2264 '+q.M+' (n \u2265 '+q.n0+') : initialisation (rang '+q.n0+', encadrement, U'+q.n0+' = '+q.u[0]+'), '
    +'h\u00e9r\u00e9dit\u00e9 (\u00ab on SUPPOSE pour n \u2026 on MONTRE pour n+1 \u00bb, menus + cases de rang), puis cha\u00eene d\u2019encadrements comme au 6.3 '
    +'('+q.ch.lignes.map(L=>L.plain).join(', ')+'), chaque ligne avec ses deux bornes et sa justification. '
    +'Les bornes acceptent toute \u00e9criture \u00e9quivalente ET toute valeur approch\u00e9e au dixi\u00e8me pr\u00e8s. '
    +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : termes '+q.u.map((t,i)=>'U'+(q.n0+i)+' = '+numFmt(Math.round(t*100)/100)).join(', ')+' ; '
-   +'sens croissante ; limite '+q.L+' ; cha\u00eene : '+q.ch.lignes.map((L,i)=>'ligne '+(i+1)+' : '+L.lo.s+' \u2264 '+L.plain+' \u2264 '+L.hi.s).join(' ; ')
+   +'sens '+(q.de?'d\u00e9croissante':'croissante')+' ; limite '+q.L+' ; cha\u00eene : '+q.ch.lignes.map((L,i)=>'ligne '+(i+1)+' : '+L.lo.s+' \u2264 '+L.plain+' \u2264 '+L.hi.s).join(' ; ')
    +' ; conclusion '+q.m+' \u2264 '+q.ch.concl.lo.s+' \u2264 U(n+1) \u2264 '+q.ch.concl.hi.s+'. '
    +'Saisies actuelles de l\u2019\u00e9l\u00e8ve : '+etat+'. '
    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs ni justifications. '
@@ -11622,7 +11637,7 @@ function mdlREC(){
   const i0=q.n0, i1=q.n0+1, i2=q.n0+2;
   return '\u00c9nonc\u00e9 : \\('+q.defTex+'\\).\n'
    +'a) \\(U_{'+i0+'}='+recDix(q.u[0]).replace('.','{,}')+'\\) ; \\(U_{'+i1+'}='+recDix(q.u[1]).replace('.','{,}')+'\\) ; \\(U_{'+i2+'}='+recDix(q.u[2]).replace('.','{,}')+'\\) (au dixi\u00e8me pr\u00e8s).\n'
-   +'b) La suite semble croissante ; sa limite semble \u00eatre \\('+q.L+'\\). Un majorant semble \u00eatre \\('+q.M+'\\) et un minorant \\('+q.m+'\\).\n'
+   +'b) La suite semble '+(q.de?'d\u00e9croissante':'croissante')+' ; sa limite semble \u00eatre \\('+q.L+'\\). Un majorant semble \u00eatre \\('+q.M+'\\) et un minorant \\('+q.m+'\\).\n'
    +'c) Initialisation (au d\u00e9part \\(n='+q.n0+'\\)) : \\('+q.m+' \\le U_{'+q.n0+'} \\le '+q.M+'\\), vrai car \\(U_{'+q.n0+'}='+q.u[0]+'\\).\n'
    +'H\u00e9r\u00e9dit\u00e9 : on suppose que c\u2019est vrai pour \\(n\\) : \\('+q.m+' \\le U_n \\le '+q.M+'\\).\n'
    +'On montre que c\u2019est vrai pour \\(n+1\\) : \\('+q.m+' \\le U_{n+1} \\le '+q.M+'\\).\n'
@@ -11647,7 +11662,7 @@ function qiaModeleExemple(){
   let ex=''; try{ ex=f(); }catch(e){ return ''; }
   if(!ex) return '';
   return ' MOD\u00c8LE DE R\u00c9DACTION \u00c0 IMITER \u2014 voici un exemple de CE M\u00caME exercice, enti\u00e8rement r\u00e9solu par l\u2019application avec d\u2019AUTRES valeurs que celles en cours (il est correct) : \u00ab '+ex+' \u00bb. '
-   +'R\u00e9dige TON exemple EXACTEMENT dans cette pr\u00e9sentation : m\u00eames \u00e9tapes dans le m\u00eame ordre, m\u00eames tournures, une ligne par \u00e9tape ; tu peux reprendre ce mod\u00e8le tel quel, ou changer ses nombres, mais JAMAIS utiliser ceux de l\u2019exercice en cours. Pour cette demande, suis le mod\u00e8le ci-dessus m\u00eame s\u2019il d\u00e9passe 8 lignes de calcul.';
+   +'R\u00e9dige TON exemple EXACTEMENT dans cette pr\u00e9sentation : m\u00eames \u00e9tapes dans le m\u00eame ordre, m\u00eames tournures, une ligne par \u00e9tape ; tu peux reprendre ce mod\u00e8le tel quel, ou changer ses nombres, mais JAMAIS utiliser ceux de l\u2019exercice en cours. Pour cette demande, cette consigne REMPLACE celle d\u2019inventer toi-m\u00eame un exemple, et tu suis le mod\u00e8le ci-dessus m\u00eame s\u2019il d\u00e9passe 8 lignes de calcul.';
 }
 function qiaConsigneRedaction(){
   return ' CETTE QUESTION PORTE SUR LA RÉDACTION : ta réponse DOIT contenir un MODÈLE DE PHRASE à recopier, présenté SEUL SUR UNE LIGNE, '
