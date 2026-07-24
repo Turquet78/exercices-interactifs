@@ -11529,7 +11529,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — JAMAIS entre dollars ($…$ ni $$…$$) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Terminale, spécialité mathématiques (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes (un point qui glisse le long de la courbe, une valeur dont on s’approche d’aussi près qu’on veut, une barrière qu’on ne franchit pas…). Reste dans le cadre du programme de Terminale spécialité mathématiques (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — JAMAIS entre dollars ($…$ ni $$…$$) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+(qiaEstExemple(q)?qiaModeleExemple():'')+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
@@ -11587,6 +11587,68 @@ const QIA_ILLUS={
 /* Question portant sur la maniere d'ecrire la reponse : on ne propose alors AUCUN dessin
    a l'IA (pas de liste de balises) et on exige un modele de phrase. */
 function qiaEstRedaction(q){ return /r[ée]dac|r[ée]dig/i.test(String(q||'')); }
+/* ===== « Montre-moi un exemple de résolution » : MODÈLE RÉDIGÉ PAR L'APPLICATION =====
+   Pour les exercices à rédaction canonique, l'application GÉNÈRE elle-même un exemple du
+   même type, entièrement résolu (autres valeurs que l'instance en cours, garanti juste),
+   et le fournit au modèle avec l'ordre de rédiger EXACTEMENT dans cette présentation.
+   Sans modèle enregistré pour l'exercice courant : comportement générique inchangé. */
+function qiaEstExemple(q){ q=String(q||'').toLowerCase(); return /exemple/.test(q) && /(r[ée]?sol|r[ée]sou|complet|comment)/.test(q); }
+function qiaSig(){ try{ const c=test.questions[test.idx]; return String((c&&(c.fPlain||c.defPlain||('su:'+suRecPlain(c))))||''); }catch(e){ return ''; } }
+function qiaAutre(gen, sig){ for(let k=0;k<8;k++){ const c=gen(); const s=String(c.fPlain||c.defPlain||('su:'+suRecPlain(c))||''); if(s!==sig) return c; } return gen(); }
+function mdlChaine(ch, varN){
+  /* la chaîne du 6.3 / 6.5, une ligne par étape, en LaTeX \( … \) */
+  const L=[];
+  L.push('\\('+ch.m+' \\le '+(varN?'U_n':'x')+' \\le '+ch.M+'\\)');
+  ch.lignes.forEach(x=>{ L.push('\\('+x.lo.lat+' \\le '+x.tex+' \\le '+x.hi.lat+'\\) car '+x.opts[optsOkIdx(x.opts)].t); });
+  const res=varN?'U_{n+1}':'f(x)';
+  L.push('donc \\('+ch.m+' \\le '+ch.concl.lo.lat+' \\le '+res+' \\le '+ch.concl.hi.lat+(ch.concl.hiEstM?'':(' \\le '+ch.M))+'\\), c\u2019est-\u00e0-dire \\('+res+' \\in ['+ch.m+'\\,;'+ch.M+']\\).');
+  return L.join('\n');
+}
+function mdlSU(){
+  const c=qiaAutre(()=>genSU(pick(['arith','geo']),rand(0,2)), qiaSig());
+  const rec=(c.kind==='arith')
+    ? 'U_{n+1}=U_n'+(c.raison.v>=0?'+':'-')+suLatexNum(suNum(Math.abs(c.raison.v)))
+    : 'U_{n+1}='+suLatexNum(c.raison)+'\\times U_n';
+  return 'Soit \\((U_n)\\) d\u00e9finie par \\(U_{'+c.p+'}='+suLatexNum(c.up)+'\\) et \\('+rec+'\\).\n'
+   +'a) \\((U_n)\\) est une suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison \\('+suLatexNum(c.raison)+'\\), car pour passer de \\(U_n\\) \u00e0 \\(U_{n+1}\\) on '+(c.kind==='arith'?'ajoute toujours':'multiplie toujours par')+' \\('+suLatexNum(c.kind==='arith'?suNum(Math.abs(c.raison.v)):c.raison)+'\\).\n'
+   +'b) Le premier terme donn\u00e9 est \\(U_{'+c.p+'}\\), donc la formule explicite est \\(U_n='+suLatexFormule(c)+'\\).';
+}
+function mdlENC(){
+  const c=qiaAutre(()=>genENC(pick(['aff','rac','inv','quo'])), qiaSig());
+  return 'Soit \\('+c.fTex+'\\). Montrons que si \\(x \\in ['+c.m+'\\,;'+c.M+']\\) alors \\(f(x) \\in ['+c.m+'\\,;'+c.M+']\\) :\n'+mdlChaine(c,false);
+}
+function mdlREC(){
+  const q=qiaAutre(()=>recBuild(pick(['aff','quo'])), qiaSig());
+  const i0=q.n0, i1=q.n0+1, i2=q.n0+2;
+  return '\u00c9nonc\u00e9 : \\('+q.defTex+'\\).\n'
+   +'a) \\(U_{'+i0+'}='+recDix(q.u[0]).replace('.','{,}')+'\\) ; \\(U_{'+i1+'}='+recDix(q.u[1]).replace('.','{,}')+'\\) ; \\(U_{'+i2+'}='+recDix(q.u[2]).replace('.','{,}')+'\\) (au dixi\u00e8me pr\u00e8s).\n'
+   +'b) La suite semble croissante ; sa limite semble \u00eatre \\('+q.L+'\\). Un majorant semble \u00eatre \\('+q.M+'\\) et un minorant \\('+q.m+'\\).\n'
+   +'c) Initialisation (au d\u00e9part \\(n='+q.n0+'\\)) : \\('+q.m+' \\le U_{'+q.n0+'} \\le '+q.M+'\\), vrai car \\(U_{'+q.n0+'}='+q.u[0]+'\\).\n'
+   +'H\u00e9r\u00e9dit\u00e9 : on suppose que c\u2019est vrai pour \\(n\\) : \\('+q.m+' \\le U_n \\le '+q.M+'\\).\n'
+   +'On montre que c\u2019est vrai pour \\(n+1\\) : \\('+q.m+' \\le U_{n+1} \\le '+q.M+'\\).\n'
+   +mdlChaine(q.ch,true)+'\n'
+   +'Conclusion : vraie au rang '+q.n0+' et h\u00e9r\u00e9ditaire, donc vraie pour tout \\(n \\ge '+q.n0+'\\) (principe de r\u00e9currence).';
+}
+function mdlSP(){
+  const q=qiaAutre(genSP, qiaSig());
+  const F1=q.fac[0], F2=q.fac[1], r1=q.roots[0], r2=q.roots[1];
+  const row=(lab,info)=>lab+' & '+info.signs[0]+' & '+(info.zeros[0]?'0':'')+' & '+info.signs[1]+' & '+(info.zeros[1]?'0':'')+' & '+info.signs[2];
+  return 'Soit \\('+q.fTex+'\\). \u00c9tudions le signe de \\(f\\).\n'
+   +'Il y a 2 facteurs, donc 2 lignes de facteurs puis la ligne de \\(f\\).\n'
+   +'Racines : \\('+F1.labTex+'=0\\) donne \\(x='+r1+'\\) et \\('+F2.labTex+'=0\\) donne \\(x='+r2+'\\) : 2 racines au total, plac\u00e9es en ordre croissant.\n'
+   +'\\begin{array}{c|ccccc} x & -\\infty\\; & '+r1+' & & '+r2+' & \\;+\\infty \\\\\\\\ \\hline '
+   +row(F1.labTex,F1)+' \\\\\\\\ \\hline '+row(F2.labTex,F2)+' \\\\\\\\ \\hline '+row('f(x)',q.frow)
+   +' \\end{array}\n'
+   +'Chaque facteur est du signe de son coefficient de \\(x\\) \u00e0 droite de sa racine, et vaut 0 \u00e0 sa racine (rien sur l\u2019autre trait) ; le signe de \\(f\\) est le produit des signes, et \\(f\\) s\u2019annule aux deux racines.';
+}
+const QIA_MODELES={ su:mdlSU, enc:mdlENC, rec:mdlREC, sp:mdlSP };
+function qiaModeleExemple(){
+  const f=QIA_MODELES[test && test.kind]; if(!f) return '';
+  let ex=''; try{ ex=f(); }catch(e){ return ''; }
+  if(!ex) return '';
+  return ' MOD\u00c8LE DE R\u00c9DACTION \u00c0 IMITER \u2014 voici un exemple de CE M\u00caME exercice, enti\u00e8rement r\u00e9solu par l\u2019application avec d\u2019AUTRES valeurs que celles en cours (il est correct) : \u00ab '+ex+' \u00bb. '
+   +'R\u00e9dige TON exemple EXACTEMENT dans cette pr\u00e9sentation : m\u00eames \u00e9tapes dans le m\u00eame ordre, m\u00eames tournures, une ligne par \u00e9tape ; tu peux reprendre ce mod\u00e8le tel quel, ou changer ses nombres, mais JAMAIS utiliser ceux de l\u2019exercice en cours. Pour cette demande, suis le mod\u00e8le ci-dessus m\u00eame s\u2019il d\u00e9passe 8 lignes de calcul.';
+}
 function qiaConsigneRedaction(){
   return ' CETTE QUESTION PORTE SUR LA RÉDACTION : ta réponse DOIT contenir un MODÈLE DE PHRASE à recopier, présenté SEUL SUR UNE LIGNE, '
     + 'où chaque valeur est remplacée par « … » — dans le MODÈLE seulement : aucun nombre, aucun +∞ ni −∞, aucune borne ; seule la structure reste (les lettres x, y, f(x), le mot lim, les flèches et les mots) : '
