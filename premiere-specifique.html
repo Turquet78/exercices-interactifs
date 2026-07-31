@@ -652,7 +652,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <p class="tm-tour" id="tmTour"></p>
     <div class="ardoise"><div class="equation" id="tmEq">— — —</div></div>
     <div class="answer-zone">
-      <input class="answer-input" id="tmInput" inputmode="numeric" pattern="[0-9]*" placeholder="?" autocomplete="off">
+      <input class="answer-input" id="tmInput" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next">
       <span class="mark" id="tmMark"></span>
       <div class="timerbar" id="tmTimerBar" hidden><i id="tmTimerFill"></i></div>
       <div class="correction" id="tmCorrection"></div>
@@ -918,7 +919,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=20;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=21;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1954,6 +1955,16 @@ async function startTM(){
   show('tm'); tmRender();
 }
 function tmAcquis(){ return test.items.filter(it=>it.acquis).length; }
+/* Sur iPad et t\u00e9l\u00e9phone, le clavier ne s'ouvre QUE si le focus est demand\u00e9 pendant le
+   geste de l'\u00e9l\u00e8ve (clic ou touche). On focalise donc de mani\u00e8re SYNCHRONE, sans passer
+   par un setTimeout qui romprait la cha\u00eene du geste, et on garde le champ actif pendant
+   la correction pour que le clavier ne se referme pas entre deux calculs. */
+function tmFocus(){
+  const ai=$('tmInput'); if(!ai) return;
+  ai.disabled=false; ai.readOnly=false;
+  try{ ai.focus({preventScroll:true}); }catch(e){ try{ ai.focus(); }catch(e2){} }
+  try{ const n=(ai.value||'').length; ai.setSelectionRange(n,n); }catch(e){}
+}
 function tmDemarrer(){
   if(test.demarre) return;
   test.demarre=true;
@@ -1987,12 +1998,13 @@ function tmRender(){
     ? 'Tour 1 — <b>'+TM_NB+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
     : 'Reprise n\u00b0'+(test.tour-1)+' — on refait les <b>'+test.file.length+'</b> calcul'+(test.file.length>1?'s':'')+' rat\u00e9'+(test.file.length>1?'s':'')+'.';
   $('tmEq').innerHTML=esc(it.text)+' = <span class="blank">?</span>';
-  const ai=$('tmInput'); ai.value=''; ai.className='answer-input'; ai.disabled=false;
+  const ai=$('tmInput'); ai.value=''; ai.className='answer-input'; ai.disabled=false; ai.readOnly=false;
   $('tmMark').className='mark'; $('tmMark').textContent='';
   $('tmCorrection').textContent='';
   $('tmFeedback').textContent=''; $('tmFeedback').className='mp-feedback';
   $('tmActions').innerHTML='';
-  setTimeout(()=>ai.focus(),60);
+  tmFocus();                       /* immediat : indispensable pour le clavier mobile */
+  setTimeout(tmFocus,60);          /* filet de securite sur ordinateur */
   tmTimer();
 }
 /* La correction s'affiche EN GRAND : c'est elle que l'eleve doit retenir. */
@@ -2025,7 +2037,8 @@ function tmValider(tempsEcoule){
      compte, meme si l'eleve n'a pas eu le temps d'appuyer sur Entree. */
   const juste=(donne===it.answer);
   it.essais++; if(it.premiere===null) it.premiere=donne;
-  ai.disabled=true; ai.classList.remove('good','bad'); ai.classList.add(juste?'good':'bad');
+  ai.readOnly=true;                /* on empeche la saisie sans fermer le clavier mobile */
+  ai.classList.remove('good','bad'); ai.classList.add(juste?'good':'bad');
   $('tmMark').textContent=juste?'\u2713':'\u2717';
   $('tmMark').className='mark '+(juste?'good':'bad')+' show';
   $('tmTimerBar').hidden=true;
