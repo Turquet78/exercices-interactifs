@@ -380,53 +380,28 @@
   .dm-ed-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
   .dm-empty{color:var(--ink-soft);background:var(--paper);border:1.5px dashed var(--line);border-radius:14px;padding:26px 18px;text-align:center;font-weight:600}
 
-/* ===================== GREFFE TERMINALE : cases mathematiques ===================== */
-body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;
-  --contains-highlight-background-color:transparent;border-radius:10px;background:var(--surface);
-  padding:2px 8px;min-height:1.9em;font-size:1.05rem;}
+/* ===================== GREFFE TERMINALE : cases mathematiques, jetons,
+   fenetres flottantes du clavier et des raccourcis, notation. Regles reprises
+   INTEGRALEMENT de terminale.html (une regle tronquee bloquerait le navigateur
+   dans une declaration ouverte et ferait ignorer tout ce qui suit). ===================== */
+body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;  --contains-highlight-background-color:transparent;}
 body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
-body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;
 math-field.dexp-mf.ok{border-color:var(--green);background:var(--green-soft);}
 math-field.dexp-mf.bad{border-color:var(--red);background:var(--red-soft);}
 math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
-body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
 .mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
 .sel-cor{display:block;margin-top:4px;color:var(--blue);font-weight:600;white-space:normal;}
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
 .rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
 .sa-jeton{font-family:"Nunito";font-weight:800;font-size:.95rem;border:1.5px solid #c9d4f3;background:#fff;color:var(--blue-dark);border-radius:10px;padding:6px 12px;cursor:pointer;transition:background .12s,border-color .12s}
+.sa-jeton:hover{border-color:var(--blue);background:#EAF0FF}
 .sa-jeton-ic{min-width:44px;text-align:center;font-size:1.05rem;padding:6px 10px;line-height:1.3}
 .note-exo{margin-top:9px;padding-top:8px;border-top:1.5px dashed var(--grid);font-weight:800;font-size:.95rem;}
 .note-exo.parfait{color:var(--green);}
-.note-exo .note-det{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
-.rpart{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
+.note-exo .note-det{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);  border:1.4px solid var(--grid);font-size:.82rem;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
+.rpart{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);  border:1.4px solid var(--grid);font-size:.82rem;font-weight:800;color:var(--ink-soft);white-space:nowrap;}
 #review li.part .rmark{color:var(--blue);}
-math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
-math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
-math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
-.rc-jetons{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
-.rc-jlbl{font-weight:800;color:var(--ink-soft);font-size:.9rem;}
-.sa-jeton{border:1.6px solid var(--line);background:#fff;border-radius:10px;padding:5px 11px;font-weight:800;
-  font-family:"Nunito",system-ui,sans-serif;cursor:pointer;color:var(--ink);line-height:1.2;}
-.sa-jeton:hover{border-color:var(--blue);color:var(--blue);}
-.sa-jeton-ic{min-width:40px;display:inline-flex;align-items:center;justify-content:center;}
-.note-exo{margin-top:9px;padding-top:8px;border-top:1.5px dashed var(--grid);font-weight:800;font-size:.95rem;}
-.note-exo.parfait{color:var(--green);}
-.note-exo .note-det{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
-  border:1.4px solid var(--grid);font-size:.82rem;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
-.score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700}
-@media(max-width:520px){ .score-tag{padding:5px 10px} .score-tag .score-lbl{font-size:.78rem} }
-
-/* ----- Tables de multiplication : bandeau du tour en cours ----- */
-.tm-tour{text-align:center;font-weight:800;color:var(--ink-soft);margin:2px 0 10px;font-size:.95rem;}
-.tm-tour b{color:var(--blue);}
-.tm-tour.reprise{color:var(--red);}
-.tm-tour.reprise b{color:var(--red);}
-
-
-/* ----- Fenetres flottantes du clavier et des raccourcis (module MathLive) -----
-   Sans ces regles, les deux panneaux s'affichent en permanence sur toutes les pages :
-   ils sont masques par defaut et ne s'ouvrent qu'a la demande (classe « open »). */
+.ml-static{display:inline-block;vertical-align:middle;}
 #kbwin{position:fixed;right:24px;bottom:24px;z-index:3200;width:460px;display:none;background:#fff;
   border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
 #kbwin.open{display:block}
@@ -446,9 +421,28 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .kbhelp-t{border-collapse:collapse;width:100%;}
 .kbhelp-t td{padding:5px 6px;vertical-align:top;line-height:1.5;}
 
-/* rendu statique des formules (mlDexp.tex) */
-.ml-static{display:inline-block;vertical-align:middle;}
+/* --- cases de reponse (dimensions propres a ce fichier) --- */
+body math-field.dexp-mf{border-radius:10px;background:var(--surface);padding:2px 8px;min-height:1.9em;font-size:1.05rem;}
+math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
+math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
+math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
+.score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700;}
+@media(max-width:520px){ .score-tag{padding:5px 10px;} .score-tag .score-lbl{font-size:.78rem;} }
 
+.btn.pm-pret{outline:3px solid #b9c6f5;outline-offset:2px;box-shadow:0 0 0 5px rgba(58,90,214,.18);}
+/* --- Tables de multiplication : bandeau du tour en cours --- */
+.depart-titre{font-weight:800;color:var(--blue);}
+.depart-note{font-weight:700;color:var(--ink-soft);font-size:1rem;line-height:1.5;}
+.tm-corr{display:inline-block;margin:8px auto 4px;padding:12px 26px;border-radius:16px;
+  background:var(--red-soft);border:2.5px solid var(--red);color:var(--red);
+  font-weight:800;font-size:2.1rem;line-height:1.2;letter-spacing:.5px;}
+.tm-corr b{font-size:2.6rem;}
+.tm-corr-note{font-weight:800;color:var(--red);font-size:.95rem;margin:2px 0;}
+@media(max-width:520px){ .tm-corr{font-size:1.6rem;padding:10px 18px;} .tm-corr b{font-size:2rem;} }
+.tm-tour{text-align:center;font-weight:800;color:var(--ink-soft);margin:2px 0 10px;font-size:.95rem;}
+.tm-tour b{color:var(--blue);}
+.tm-tour.reprise{color:var(--red);}
+.tm-tour.reprise b{color:var(--red);}
 </style>
 
 <div class="wrap">
@@ -924,12 +918,62 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=5;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=20;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
     return String(el.getValue?el.getValue():'').trim();
   }catch(e){ return ''; }
+}
+
+/* ---- Navigation entre les cases, comme en terminale ----
+   Entree passe a la case suivante ; les fleches gauche/droite font de meme quand on
+   sort d'une case par son bord (evenement « move-out » de MathLive). Sur la derniere
+   case, Entree amene sur le bouton principal : un second Entree valide. La liste suit
+   l'ordre d'affichage et melange sans probleme cases mathematiques, champs simples et
+   menus deroulants. */
+/* Le bouton principal est SURLIGNE quand on l'atteint par Entree : on ne se fie pas a
+   :focus-visible, dont l'application apres un focus donne par le code varie d'un
+   navigateur a l'autre. Un second Entree declenche alors la verification (comportement
+   natif d'un bouton ayant le focus). Le surlignage dispara\u00eet des qu'on le quitte. */
+function pmBoutonPret(btn){
+  if(!btn) return;
+  btn.classList.add('pm-pret');
+  if(!btn.__pmPret){
+    btn.__pmPret=true;
+    btn.addEventListener('blur',()=>btn.classList.remove('pm-pret'));
+    btn.addEventListener('click',()=>btn.classList.remove('pm-pret'));
+  }
+}
+function pmNavListe(){
+  const scr=document.querySelector('.screen.on'); if(!scr) return [];
+  const els=scr.querySelectorAll('math-field.pm-mf, input[inputmode], input[type="text"], select');
+  return Array.prototype.filter.call(els, el=>{
+    if(!el.offsetParent) return false;                 /* case masquee : on la saute */
+    if(el.tagName==='MATH-FIELD') return !el.readOnly;
+    return !el.disabled;
+  });
+}
+function pmNavSuiv(el, dir){
+  const L=pmNavListe(), i=L.indexOf(el);
+  if(i<0) return;
+  const cible=L[i+dir];
+  if(cible){
+    try{ cible.focus(); if(cible.tagName==='INPUT' && cible.select) cible.select(); }catch(e){}
+    return;
+  }
+  if(dir>0){                                            /* apres la derniere case : le bouton */
+    const scr=document.querySelector('.screen.on');
+    const btn=scr && scr.querySelector('.btn-primary');
+    if(btn){                                            /* MathLive rend le focus apres nous : on insiste */
+      const pose=n=>{
+        try{ btn.focus(); }catch(e){}
+        if(document.activeElement===btn) pmBoutonPret(btn);
+        else if(n>0) setTimeout(()=>pose(n-1),40);
+      };
+      setTimeout(()=>pose(2),0);
+    }
+  }
 }
 function pmAdapter(el){
   if(!el || el.__pmAdapt) return; el.__pmAdapt=true;
@@ -941,6 +985,12 @@ function pmAdapter(el){
       get(){ return !!el.readOnly; },
       set(v){ try{ el.readOnly=!!v; }catch(e){} } });
   }catch(e){}
+    el.addEventListener('change',()=>{ if(el.hasFocus && el.hasFocus()) pmNavSuiv(el,1); });      /* Entree */
+    el.addEventListener('move-out',ev=>{                                                          /* fleches */
+      const d=ev.detail && ev.detail.direction;
+      if(ev.cancelable) ev.preventDefault();
+      pmNavSuiv(el,(d==='backward'||d==='upward')?-1:1);
+    });
 }
 /* a appeler apres chaque rendu : transforme et adapte toutes les cases de l'ecran */
 function pmUpgrade(scope){
@@ -1078,7 +1128,7 @@ const TESTS={
   'mult-dec-un':         { name:'Multiplier des décimaux (1,…)', icon:'1️⃣', desc:'Multiplie deux nombres qui commencent par 1, avec la multiplication posée.', start:()=>startU() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'diminuer-pourcentage':{ name:'Diminuer d\u2019un pourcentage', icon:'📉', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() },
-  'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:'10 produits des tables de 2 à 9 (résultats à deux chiffres), 2 secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() }
+  'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:'10 produits des tables de 2 à 9 (résultats à deux chiffres), 3 secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() }
 };
 const TEST_ORDER=['calcul-mental','tables-multiplication','multiplication-posee','fractions-decimales','pourcentage','mult-decimaux','mult-dec-un','augmenter-pourcentage','diminuer-pourcentage'];
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -1103,7 +1153,7 @@ const MENU=[
 ];
 /* ---------- Thèmes : regroupement + numérotation (menu élève) ---------- */
 const THEMES=[
-  { num:1, nom:'Calcul et multiplication', ids:['calcul-mental','multiplication-posee','mult-decimaux','mult-dec-un'] },
+  { num:1, nom:'Calcul et multiplication', ids:['calcul-mental','tables-multiplication','multiplication-posee','mult-decimaux','mult-dec-un'] },
   { num:2, nom:'Fractions et décimaux',    ids:['fractions-decimales'] },
   { num:3, nom:'Pourcentages',             ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] }
 ];
@@ -1333,18 +1383,24 @@ async function openTest(testId){
   try{
     const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
+    if(testId==='tables-multiplication') pausedRows.soutien=null;   /* plus de soutien ici */
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   const trainCard = pausedRows.train
     ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
     : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';TESTS['${testId}'].start()`);
-  const soutienCard = pausedRows.soutien
+  /* Les tables de multiplication sont un exercice de rapidite : le mode soutien,
+     qui laisse corriger sans limite de temps, n'y a pas de sens. */
+  const sansSoutien = (testId==='tables-multiplication');
+  const soutienCard = sansSoutien ? '' : pausedRows.soutien
     ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
     : cardHTML('🛟','Mode soutien','À chaque étape, on me dit si c\u2019est juste ou faux, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';TESTS['${testId}'].start()`);
   const evalCard= unlocked
     ? cardHTML('🔓','Évaluation','Mode noté, ouvert par le professeur.',`currentMode='eval';TESTS['${testId}'].start()`)
     : cardHTML('🔒','Évaluation','','',`locked`,'Déverrouillé par le professeur pendant l\u2019évaluation.');
   $('modeChoices').innerHTML=trainCard+soutienCard+evalCard;
+  if(sansSoutien) $('modeChoices').insertAdjacentHTML('beforeend',
+    '<p class="muted" style="grid-column:1/-1;text-align:center;margin-top:6px">Le mode soutien n\u2019existe pas pour cet exercice de rapidit\u00e9.</p>');
 }
 async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
@@ -1358,6 +1414,12 @@ async function pauseTest(){
 }
 async function abandonTest(){
   if(!currentEleve) return;
+  /* Tables de multiplication : arreter enregistre la note des calculs deja sus. */
+  if(test && test.kind==='tm' && test.demarre){
+    if(!confirm('Arr\u00eater cet exercice ? Ta note sera celle des calculs d\u00e9j\u00e0 sus.')) return;
+    const tc0=$('testCtrls'); if(tc0) tc0.hidden=true;
+    tmAbandon(); return;
+  }
   if(!confirm('Abandonner cet exercice ? Ta progression n\u2019est pas modifiée.')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   const tc=$('testCtrls'); if(tc) tc.hidden=true;
@@ -1369,7 +1431,7 @@ async function abandonTest(){
 function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','mtest','ftest','ptest','mdtest','utest','atest','dtest'];
+  const testScreens=['test','tm','mtest','ftest','ptest','mdtest','utest','atest','dtest'];
   const canPause = testScreens.indexOf(name)>=0 && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   const tc=$('testCtrls'); if(tc) tc.hidden=!canPause;
   const pill=$('userPill');
@@ -1592,6 +1654,8 @@ async function resumeTest(mode){
   else if(k==='u'){ show('utest'); renderUTest(); }
   else if(k==='aug'){ show('atest'); renderATest(); }
   else if(k==='dim'){ show('dtest'); renderDTest(); }
+  else if(k==='tm'){ tmReprise(); show('tm'); tmRender();
+    setTimeout(()=>{ const ai=$('tmInput'); if(ai){ ai.value=''; try{ ai.focus(); }catch(e){} } },0); }
   else { show('test'); renderQuestion(); }
   restoreBoxes(draft);           // on remet ce que l'élève avait déjà écrit
   updateAStep3(); updateDStep3();                 // réaffiche l'étape facultative si l'étape précédente est déjà écrite
@@ -1752,11 +1816,34 @@ async function startTest(){
   test.kind='cm';
   test.questions=Array.from({length:cfg.count},()=>genQuestion(cfg));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.demarre=false;                                  /* l'eleve lance lui-meme le test */
   show('test'); renderQuestion();
+}
+/* ===== Ecran de depart =====
+   Le chronometre ne demarre qu'au signal de l'eleve : il a le temps de s'installer,
+   d'activer le micro s'il le souhaite, puis lance lui-meme le test (Entree ou bouton). */
+function cmDemarrer(){
+  if(test.demarre) return;
+  test.demarre=true;
+  renderQuestion();
 }
 function renderQuestion(){
   clearTimeout(test.fbTimer);clearTimeout(test.qTimer);
   const q=test.questions[test.idx]; test.locked=false;
+  if(!test.demarre){                                   /* on n'affiche pas encore le calcul */
+    $('qIdx').textContent='Question 1 / '+test.questions.length;
+    $('modeTagCm').innerHTML=modeTagHTML();
+    $('liveScore').textContent=test.score;
+    $('equation').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
+    const ai0=$('answerInput'); ai0.value=''; ai0.className='answer-input'; ai0.disabled=true;
+    $('mark').className='mark'; $('mark').textContent='';
+    $('timerBar').hidden=true;
+    $('correction').innerHTML='<div class="depart-note">Appuie sur <b>Entr\u00e9e</b> ou clique sur <b>Commencer</b> pour lancer le test.</div>';
+    const vb0=$('validateBtn'); vb0.disabled=false; vb0.textContent='Commencer'; vb0.onclick=cmDemarrer;
+    setTimeout(()=>{ try{ vb0.focus(); }catch(e){} },60);
+    return;
+  }
+  const vbq=$('validateBtn'); vbq.textContent='Valider'; vbq.onclick=()=>submitAnswer();
   $('qIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
   $('modeTagCm').innerHTML=modeTagHTML();
   $('liveScore').textContent=test.score;
@@ -1764,6 +1851,7 @@ function renderQuestion(){
   const ai=$('answerInput'); ai.value='';ai.className='answer-input';ai.disabled=false;
   $('mark').className='mark';$('mark').textContent='';$('correction').textContent='';$('validateBtn').disabled=false;
   setTimeout(()=>ai.focus(),60);
+  /* dictee vocale : bouton propose seulement si le navigateur sait faire */
   if(cfg.secondsPerQuestion>0 && !isSoutien()) startQTimer(cfg.secondsPerQuestion); else $('timerBar').hidden=true;
 }
 function startQTimer(sec){
@@ -1827,14 +1915,14 @@ function showResults(r){
 }
 
 /* ================= Tables de multiplication (rapidité) =================
-   10 produits des tables de 2 à 9 dont le résultat a DEUX chiffres. Deux secondes
+   10 produits des tables de 2 à 9 dont le résultat a DEUX chiffres. Trois secondes
    par calcul : au-delà, c'est faux. La réponse est jugée immédiatement (juste, ou
    faux avec la correction) ; Entrée efface et affiche le calcul suivant.
    À la fin du tour, les calculs ratés reviennent dans un nouveau tour, et ainsi de
    suite jusqu'à ce que les 10 soient sus.
    NOTE : un point par calcul finalement su, sur 10. Aller au bout donne donc 10/10 ;
    abandonner en cours de route donne le nombre de calculs déjà acquis. */
-const TM_SECONDES = 2;        /* temps de réponse accordé */
+const TM_SECONDES = 3;        /* temps de réponse accordé */
 const TM_NB       = 10;       /* nombre de calculs du premier tour */
 
 /* toutes les paires 2..9 dont le produit a deux chiffres (10 à 81) */
@@ -1858,15 +1946,38 @@ async function startTM(){
   cfg=await loadConfig();
   test.kind='tm';
   test.items=tmTirage(TM_NB);                   /* les 10 calculs de reference */
+  test.questions=test.items;                    /* meme tableau : la sauvegarde de reprise l'exige */
   test.tour=1;
   test.file=test.items.slice();                 /* ce qu'il reste a faire dans ce tour */
   test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.demarre=false;                                  /* l'eleve lance lui-meme le test */
   show('tm'); tmRender();
 }
 function tmAcquis(){ return test.items.filter(it=>it.acquis).length; }
+function tmDemarrer(){
+  if(test.demarre) return;
+  test.demarre=true;
+  tmRender();
+}
 function tmRender(){
   clearTimeout(test.qTimer);
   const it=test.file[test.idx];
+  if(!test.demarre){                                   /* depart au signal de l'eleve */
+    test.phase='depart'; test.locked=false;
+    $('modeTagTm').innerHTML=modeTagHTML();
+    $('tmIdx').textContent='Calcul 1 / '+test.file.length;
+    $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+    $('tmTour').className='tm-tour';
+    $('tmTour').innerHTML='<b>'+TM_NB+' calculs</b>, <b>'+TM_SECONDES+' secondes</b> chacun.';    $('tmEq').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
+    const ai0=$('tmInput'); ai0.value=''; ai0.className='answer-input'; ai0.disabled=true;
+    $('tmMark').className='mark'; $('tmMark').textContent='';
+    $('tmTimerBar').hidden=true; $('tmCorrection').innerHTML='';
+    $('tmFeedback').innerHTML='<div class="depart-note">Appuie sur <b>Entr\u00e9e</b> ou clique sur <b>Commencer</b> pour lancer le test.</div>';
+    $('tmFeedback').className='mp-feedback';
+    $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmDemarrer()">Commencer</button>';
+    setTimeout(()=>{ const b=document.querySelector('#scr-tm .btn-primary'); if(b){ try{ b.focus(); }catch(e){} } },60);
+    return;
+  }
   test.phase='saisie'; test.locked=false;
   $('modeTagTm').innerHTML=modeTagHTML();
   $('tmIdx').textContent='Calcul '+(test.idx+1)+' / '+test.file.length;
@@ -1880,9 +1991,15 @@ function tmRender(){
   $('tmMark').className='mark'; $('tmMark').textContent='';
   $('tmCorrection').textContent='';
   $('tmFeedback').textContent=''; $('tmFeedback').className='mp-feedback';
-  $('tmActions').innerHTML='<button class="btn btn-ghost" onclick="tmAbandon()">Arr\u00eater et voir ma note</button>';
+  $('tmActions').innerHTML='';
   setTimeout(()=>ai.focus(),60);
   tmTimer();
+}
+/* La correction s'affiche EN GRAND : c'est elle que l'eleve doit retenir. */
+function tmCorrHTML(it, tempsEcoule){
+  return (tempsEcoule?'<div class="tm-corr-note">Temps \u00e9coul\u00e9</div>':'')
+    +'<div class="tm-corr">'+esc(it.text)+' = <b>'+it.answer+'</b></div>'
+    +'<div class="tm-corr-note">\u00c0 retenir\u00a0: '+esc(it.text)+' = '+it.answer+'</div>';
 }
 function tmTimer(){
   const bar=$('tmTimerBar'), fill=$('tmTimerFill');
@@ -1901,10 +2018,12 @@ function tmTick(){
 }
 function tmValider(tempsEcoule){
   if(test.phase!=='saisie') return;
-  test.phase='correction'; clearTimeout(test.qTimer);
   const it=test.file[test.idx], ai=$('tmInput');
   const brut=ai.value.trim(), donne=(brut===''?null:parseInt(brut,10));
-  const juste=(donne===it.answer) && !tempsEcoule;
+  test.phase='correction'; clearTimeout(test.qTimer);
+  /* A la fin du temps, on juge ce qui est ECRIT dans la case : une reponse deja saisie
+     compte, meme si l'eleve n'a pas eu le temps d'appuyer sur Entree. */
+  const juste=(donne===it.answer);
   it.essais++; if(it.premiere===null) it.premiere=donne;
   ai.disabled=true; ai.classList.remove('good','bad'); ai.classList.add(juste?'good':'bad');
   $('tmMark').textContent=juste?'\u2713':'\u2717';
@@ -1913,27 +2032,44 @@ function tmValider(tempsEcoule){
   if(juste){
     it.acquis=true;
     $('tmCorrection').textContent='';
-    $('tmFeedback').textContent=pick(['Juste !','Bravo !','Parfait !','Tr\u00e8s bien !']);
+    $('tmFeedback').textContent=pick(['Juste !','Bravo !','Parfait !','Tr\u00e8s bien !'])
+      +(tempsEcoule?' (valid\u00e9 \u00e0 la fin du temps)':'');
     $('tmFeedback').className='mp-feedback good';
   } else {
-    $('tmCorrection').textContent=(tempsEcoule && donne===null ? 'Temps \u00e9coul\u00e9 \u2014 ' : '')+it.text+' = '+it.answer;
-    $('tmFeedback').textContent=tempsEcoule?'Trop lent : ce calcul reviendra.':'Pas encore \u2014 ce calcul reviendra.';
+    $('tmCorrection').innerHTML=tmCorrHTML(it, tempsEcoule && donne===null);
+    $('tmFeedback').textContent=(tempsEcoule && donne===null)
+      ? 'Rien d\u2019\u00e9crit dans les temps : ce calcul reviendra.'
+      : 'Pas encore \u2014 ce calcul reviendra.';
     $('tmFeedback').className='mp-feedback bad';
   }
   $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
   $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmSuivant()">'
-    +(test.idx<test.file.length-1?'Calcul suivant':'Continuer')+'</button>'
-    +' <button class="btn btn-ghost" onclick="tmAbandon()">Arr\u00eater et voir ma note</button>';
+    +(test.idx<test.file.length-1?'Calcul suivant':'Continuer')+'</button>';
 }
 function tmSuivant(){
   if(test.phase!=='correction') return;
-  if(test.idx < test.file.length-1){ test.idx++; tmRender(); return; }
+  if(test.idx < test.file.length-1){ test.idx++; tmRender(); autoSave(); return; }
   /* fin du tour : on repart avec les calculs rates */
   const restants=test.file.filter(it=>!it.acquis);
   if(!restants.length){ tmFinir(false); return; }
   test.tour++; test.file=restants; test.idx=0;
-  tmRender();
+  tmRender(); autoSave();
 }
+/* Apres une reprise, « file » et « items » ont ete recrees separement par la sauvegarde :
+   on rebranche chaque calcul restant sur SON objet de reference, sinon les reussites ne
+   seraient plus comptees. */
+function tmReprise(){
+  test.demarre=false;                                  /* apres une pause, on redemarre au signal */
+  if(!Array.isArray(test.items)) return;
+  test.questions=test.items;
+  test.file=(Array.isArray(test.file)?test.file:test.items.slice())
+    .map(f=>test.items.find(it=>it.a===f.a && it.b===f.b) || f);
+  if(!test.file.length) test.file=test.items.filter(it=>!it.acquis);
+  if(test.idx>=test.file.length) test.idx=0;
+  if(!test.tour) test.tour=1;
+}
+/* Arret en cours de route : la note vaut les calculs deja sus (10 si tout est acquis).
+   Appele par le bouton « \u2715 Abandonner » de l'en-tete, propre a cet exercice. */
 function tmAbandon(){
   clearTimeout(test.qTimer); test.phase='fini';
   tmFinir(true);
@@ -1943,7 +2079,8 @@ document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
   const scr=$('scr-tm'); if(!scr || !scr.classList.contains('on')) return;
   e.preventDefault();
-  if(test.phase==='saisie') tmValider(false);
+  if(test.phase==='depart') tmDemarrer();
+  else if(test.phase==='saisie') tmValider(false);
   else if(test.phase==='correction') tmSuivant();
 });
 async function tmFinir(abandon){
@@ -3543,6 +3680,12 @@ async function exportCSV(){
 
 /* clavier */
 $('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAnswer();}});
+document.addEventListener('keydown',e=>{                     /* Entree sur l'ecran de depart */
+  if(e.key!=='Enter') return;
+  const scr=$('scr-test'); if(!scr || !scr.classList.contains('on')) return;
+  if(test.demarre) return;
+  e.preventDefault(); cmDemarrer();
+});
 /* mode soutien : couleur immédiate case par case */
 document.addEventListener('input',e=>{
   const t=e.target;
