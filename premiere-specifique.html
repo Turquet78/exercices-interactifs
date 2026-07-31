@@ -919,7 +919,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=21;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=22;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1314,6 +1314,17 @@ function ouvrirEspace(){
   $('spaceHello').textContent=`Bonjour, ${esc(currentEleve.prenom)} !`;
   $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
   show('space');
+}
+/* Enregistrement d'un resultat. IMPORTANT : supabase-js ne LANCE pas d'exception en cas
+   d'erreur, il la RETOURNE — un try/catch seul laisserait donc passer un echec sans un
+   mot, et la note n'apparaitrait jamais dans la liste des exercices. */
+async function enregistrerResultat(payload){
+  try{
+    const {error}=await sb.from('resultats_1ere').insert(payload);
+    if(error){ console.warn('resultat non enregistre :', error.message||error); 
+      toast('R\u00e9sultat non enregistr\u00e9 : '+(error.message||'erreur'),'err'); return false; }
+    return true;
+  }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); return false; }
 }
 async function chargerMesResultats(){
   try{
@@ -1890,10 +1901,10 @@ function submitAnswer(timedOut){
 async function finishTest(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{
-    await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'calcul-mental',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+    await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'calcul-mental',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2099,12 +2110,12 @@ document.addEventListener('keydown',e=>{
 async function tmFinir(abandon){
   clearTimeout(test.qTimer); clearRecovery();
   const score=tmAcquis(), total=TM_NB, pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   test.answers=test.items.map(it=>({ q:it.text, answer:it.answer,
     given:(it.acquis?it.answer:it.premiere), correct:it.acquis, essais:it.essais }));
   const misses=test.items.filter(it=>!it.acquis).map(it=>({q:it.text,donne:it.premiere,bon:it.answer}));
   try{
-    await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,
+    await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,
       duration_sec:durationSec,
       details:{test:'tables-multiplication',mode:currentMode,tours:test.tour,abandon:!!abandon,misses,
         ...(currentDM?{dm:currentDM}:{})}});
@@ -2202,9 +2213,9 @@ function nextMQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishMTest(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2212,9 +2223,9 @@ async function finishMTest(){
 /* ---------- Sauvegarde générique d'un résultat ---------- */
 async function saveAndShow(testId){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:testId,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:testId,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2537,11 +2548,11 @@ function goNextLevel(){
 async function finishParcours(){
   clearRecovery();
   const total=test.answers.length, score=test.score, pct=total?Math.round(score/total*100):0;
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   let reached=0; for(const r of test.results){ if(r.passed) reached++; else break; }
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   const perLevel=test.results.map(r=>({lvl:r.level,score:r.score,total:r.total,passed:r.passed}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   const allPassed=test.results.length===test.levels.length && test.results.every(r=>r.passed);
   $('resultMsg').textContent= allPassed?'Parcours réussi ! 🎉':(reached>0?`Tu as validé le niveau ${reached}`:'Continue à t\u2019entraîner !');
@@ -2641,9 +2652,9 @@ function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishPercent(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2798,9 +2809,9 @@ function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishAug(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2969,9 +2980,9 @@ function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishDim(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3105,9 +3116,9 @@ function nextMDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
 async function finishMultDec(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3267,9 +3278,9 @@ function nextUQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishU(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
