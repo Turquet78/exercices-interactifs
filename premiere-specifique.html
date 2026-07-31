@@ -4,8 +4,8 @@
 <!--      Elles se trouvent dans Supabase > Project Settings > API.            -->
 <!-- ========================================================================= -->
 <script>
-  const SUPABASE_URL      = "https://slekpucupsdxcrojnklo.supabase.co";   // ← ton URL de projet
-  const SUPABASE_ANON_KEY = "sb_publishable_SdfQsmFsRbO1PQoARg1mxQ_gI3_DYdE";              // ← ta clé "anon public"
+  const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← projet Supabase commun (celui de terminale)
+  const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← clé "anon public" du projet commun
   const MOT_DE_PASSE_PROF = "2709";                          // ← le mot de passe de ton tableau de bord
 </script>
 <!-- ========================================================================= -->
@@ -874,7 +874,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=1;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=3;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1214,7 +1214,7 @@ function ouvrirEspace(){
 }
 async function chargerMesResultats(){
   try{
-    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
   return mesResultats;
@@ -1279,7 +1279,7 @@ async function openTest(testId){
   const unlocked=!!(cfg.locks && cfg.locks[testId]);
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -1409,7 +1409,7 @@ async function openTestDevoir(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -1455,11 +1455,11 @@ async function doRecoverySave(){
   if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   const payload=recoveryPayload();
   if(recoveryRowId){
-    await sb.from('resultats').update(payload).eq('id',recoveryRowId);
+    await sb.from('resultats_1ere').update(payload).eq('id',recoveryRowId);
   } else {
-    const {data}=await sb.from('resultats').insert(payload).select('id').single();
+    const {data}=await sb.from('resultats_1ere').insert(payload).select('id').single();
     if(data&&data.id){
-      if(recoveryClosed) sb.from('resultats').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
+      if(recoveryClosed) sb.from('resultats_1ere').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
       else recoveryRowId=data.id;
     }
   }
@@ -1477,10 +1477,10 @@ async function clearRecovery(){
   const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
   recoveryRowId=null;
   try{
-    if(id) await sb.from('resultats').delete().eq('id',id);
-    if(eid){ const {data}=await sb.from('resultats').select('id,details').eq('eleve_id',eid);
+    if(id) await sb.from('resultats_1ere').delete().eq('id',id);
+    if(eid){ const {data}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
       const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
-      for(const r of old){ await sb.from('resultats').delete().eq('id',r.id); } }
+      for(const r of old){ await sb.from('resultats_1ere').delete().eq('id',r.id); } }
   }catch(e){}
 }
 async function openTest_OLD(testId){
@@ -1494,7 +1494,7 @@ async function openTest_OLD(testId){
   // chercher une session mise en pause pour ce test (entraînement / soutien)
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
+    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -1585,7 +1585,7 @@ async function renderLoginNames(){
   loginMode('co'); selectedEleve=null; $('pinRow').hidden=true;
   const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
   try{
-    const {data,error}=await sb.from('eleves').select('*').order('prenom');
+    const {data,error}=await sb.from('eleves_1ere').select('*').order('prenom');
     if(error)throw error;
     if(!data.length){ box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return; }
     box.innerHTML='';
@@ -1612,9 +1612,9 @@ async function creerCompte(){
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
-    const {data:exist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
+    const {data:exist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
     if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
-    const {data,error}=await sb.from('eleves').insert({prenom,pin}).select().single();
+    const {data,error}=await sb.from('eleves_1ere').insert({prenom,pin}).select().single();
     if(error)throw error;
     currentEleve=data; toast('Compte créé !','ok');
     $('newPrenom').value='';$('newPin').value='';$('newPin2').value='';
@@ -1629,7 +1629,7 @@ async function ouvrirEspace_OLD(){
   $('sNb').textContent='…'; $('sAvg').textContent='…'; $('sBest').textContent='…';
   $('spaceChart').innerHTML='<span class="muted">Chargement…</span>'; $('spaceHist').innerHTML='';
   try{
-    const {data:all,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data:all,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
     if(error)throw error;
     const data=(all||[]).filter(r=>!isPaused(r));
     const n=data.length;
@@ -1674,7 +1674,7 @@ function lineChart(values){
 /* ---------- Réglages : chargement ---------- */
 async function loadConfig(){
   try{
-    const {data,error}=await sb.from('parametres').select('valeurs').eq('id',1).single();
+    const {data,error}=await sb.from('parametres_1ere').select('valeurs').eq('id',1).single();
     if(error||!data) return {...DEFAULT_CFG};
     return normalizeCfg(Object.assign({},DEFAULT_CFG,data.valeurs));
   }catch(e){ return {...DEFAULT_CFG}; }
@@ -1752,7 +1752,7 @@ async function finishTest(){
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{
-    await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'calcul-mental',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+    await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'calcul-mental',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -1866,7 +1866,7 @@ async function finishMTest(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'multiplication-posee',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -1876,7 +1876,7 @@ async function saveAndShow(testId){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:testId,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:testId,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2203,7 +2203,7 @@ async function finishParcours(){
   let reached=0; for(const r of test.results){ if(r.passed) reached++; else break; }
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   const perLevel=test.results.map(r=>({lvl:r.level,score:r.score,total:r.total,passed:r.passed}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fractions-decimales',mode:currentMode,reached,perLevel,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   const allPassed=test.results.length===test.levels.length && test.results.every(r=>r.passed);
   $('resultMsg').textContent= allPassed?'Parcours réussi ! 🎉':(reached>0?`Tu as validé le niveau ${reached}`:'Continue à t\u2019entraîner !');
@@ -2305,7 +2305,7 @@ async function finishPercent(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2462,7 +2462,7 @@ async function finishAug(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2633,7 +2633,7 @@ async function finishDim(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2769,7 +2769,7 @@ async function finishMultDec(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-decimaux',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2931,7 +2931,7 @@ async function finishU(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'mult-dec-un',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -2961,8 +2961,8 @@ async function renderClassTable(){
   const sumDur=l=>l.reduce((s,r)=>s+(r.duration_sec||0),0);
   try{
     const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
-      sb.from('eleves').select('*').order('prenom'),
-      sb.from('resultats').select('*')
+      sb.from('eleves_1ere').select('*').order('prenom'),
+      sb.from('resultats_1ere').select('*')
     ]);
     if(e1)throw e1; if(e2)throw e2;
     const res=resAll.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
@@ -3025,7 +3025,7 @@ async function renderClassTable(){
 }
 
 /* ---------- Mode évaluation : verrous ---------- */
-function saveConfig(valeurs){ return sb.from('parametres').upsert({id:1,valeurs}); }
+function saveConfig(valeurs){ return sb.from('parametres_1ere').upsert({id:1,valeurs}); }
 
 /* ---------- Devoir maison (prof) ---------- */
 let dmAdminList=[], dmSelId=null, dmResRows=[];
@@ -3162,8 +3162,8 @@ async function renderDmResults(){
   box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><p class="muted">Chargement…</p></div>';
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
-      sb.from('eleves').select('*').order('prenom'),
-      sb.from('resultats').select('*')
+      sb.from('eleves_1ere').select('*').order('prenom'),
+      sb.from('resultats_1ere').select('*')
     ]);
     if(e1)throw e1; if(e2)throw e2;
     dmResRows=rows||[];
@@ -3236,7 +3236,7 @@ async function showStudentDetail(id,prenom){
   const isTrain=teacherMode==='train', isSout=teacherMode==='soutien';
   const label=isSout?'soutien':(isTrain?'entraînements':'évaluations');
   try{
-    const {data:all,error}=await sb.from('resultats').select('*').eq('eleve_id',id).order('created_at',{ascending:true});
+    const {data:all,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',id).order('created_at',{ascending:true});
     if(error)throw error;
     const data=all.filter(r=>!isPaused(r)&&modeOf(r)===teacherMode);
     let inner=`<div class="panel"><div class="topbar"><h3 style="margin:0">${esc(prenom)} · ${label}</h3>
@@ -3263,7 +3263,7 @@ async function showStudentDetail(id,prenom){
 async function renderRoster(){
   const ul=$('rosterList'); ul.innerHTML='<li class="muted" style="border:none">Chargement…</li>';
   try{
-    const {data,error}=await sb.from('eleves').select('*').order('prenom');
+    const {data,error}=await sb.from('eleves_1ere').select('*').order('prenom');
     if(error)throw error;
     if(!data.length){ ul.innerHTML='<div class="empty">Aucun compte pour l\'instant.</div>'; return; }
     ul.innerHTML=data.map(e=>`<li>
@@ -3281,9 +3281,9 @@ async function addStudent(){
   if(!prenom){ toast('Écris un prénom'); return; }
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   try{
-    const {data:exist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
+    const {data:exist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
     if(exist&&exist.length){ toast('Ce prénom existe déjà','err'); return; }
-    const {error}=await sb.from('eleves').insert({prenom,pin}); if(error)throw error;
+    const {error}=await sb.from('eleves_1ere').insert({prenom,pin}); if(error)throw error;
     $('addPrenom').value='';$('addPin').value=''; toast('Élève ajouté','ok'); renderRoster();
   }catch(e){ toast('Ajout impossible','err'); }
 }
@@ -3291,13 +3291,13 @@ async function resetPin(id,prenom){
   const np=prompt(`Nouveau code à 4 chiffres pour ${prenom} :`);
   if(np===null)return;
   if(!/^\d{4}$/.test(np.trim())){ toast('Le code doit avoir 4 chiffres','err'); return; }
-  try{ const {error}=await sb.from('eleves').update({pin:np.trim()}).eq('id',id); if(error)throw error;
+  try{ const {error}=await sb.from('eleves_1ere').update({pin:np.trim()}).eq('id',id); if(error)throw error;
     toast('Code mis à jour','ok'); renderRoster();
   }catch(e){ toast('Échec de la mise à jour','err'); }
 }
 async function removeStudent(id,prenom){
   if(!confirm(`Retirer ${prenom} et tout son historique ? Cette action est définitive.`))return;
-  try{ const {error}=await sb.from('eleves').delete().eq('id',id); if(error)throw error;
+  try{ const {error}=await sb.from('eleves_1ere').delete().eq('id',id); if(error)throw error;
     toast('Élève retiré','ok'); renderRoster();
   }catch(e){ toast('Suppression impossible','err'); }
 }
@@ -3305,8 +3305,8 @@ async function resetYear(){
   if(!confirm('Supprimer TOUS les comptes et TOUT l\'historique ? À ne faire qu\'à la rentrée.'))return;
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
-    await sb.from('resultats').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    await sb.from('eleves').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    await sb.from('resultats_1ere').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    await sb.from('eleves_1ere').delete().neq('id','00000000-0000-0000-0000-000000000000');
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
@@ -3329,7 +3329,7 @@ async function saveSettings(){
   if(!valeurs.ops.add&&!valeurs.ops.sub&&!valeurs.ops.mul&&!valeurs.ops.div){valeurs.ops.add=true;$('opAdd').checked=true;}
   try{
     const cur=await loadConfig(); valeurs.locks=cur.locks||{};
-    const {error}=await sb.from('parametres').upsert({id:1,valeurs}); if(error)throw error;
+    const {error}=await sb.from('parametres_1ere').upsert({id:1,valeurs}); if(error)throw error;
     const m=$('savedMsg');m.classList.add('show');setTimeout(()=>m.classList.remove('show'),1800);
   }catch(e){ toast('Enregistrement impossible','err'); }
 }
@@ -3337,7 +3337,7 @@ async function saveSettings(){
 /* export CSV */
 async function exportCSV(){
   try{
-    const {data:rawCsv,error}=await sb.from('resultats').select('*, eleves(prenom)').order('created_at',{ascending:true});
+    const {data:rawCsv,error}=await sb.from('resultats_1ere').select('*, eleves_1ere(prenom)').order('created_at',{ascending:true});
     if(error)throw error;
     const data=(rawCsv||[]).filter(r=>!isPaused(r));
     if(!data.length){ toast('Aucun résultat à exporter'); return; }
