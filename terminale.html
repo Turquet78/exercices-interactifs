@@ -231,7 +231,9 @@
 
   .test-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-family:"Fredoka";font-weight:500}
   .test-top .q-idx{color:var(--ink-soft)}
-  .score-tag{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px}
+  .score-tag{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px}
+  .score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700}
+  @media(max-width:520px){ .score-tag{padding:5px 10px} .score-tag .score-lbl{font-size:.78rem} }
   .score-tag b{color:var(--green);font-weight:700}
   .exo-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 14px;font-family:"Fredoka"}
   .exo-title .exo-num{font-weight:700;color:#fff;background:var(--blue);border-radius:999px;padding:3px 12px;font-size:.95rem;line-height:1.35}
@@ -474,9 +476,33 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:1.3em;border-radius:6px;}
 /* 1.4 signe d'un produit : tableau construit par l'eleve */
 .sp-tbl td.lab{width:30%;}
 math-field.sp-mf{min-width:52px;max-width:84px;font-size:.98rem;}
+/* Cases des equations de la question a) : elles contiennent une expression entiere
+   (ex. (2x+3), et meme (2x+3)^2), il leur faut donc bien plus de place que les cases
+   « racine » du tableau. Hauteur augmentee pour que l'exposant reste visible. */
+.sp-eqcol math-field.sp-mf{min-width:104px;max-width:200px;}
+.sp-eqcol math-field.sp-mfq{min-width:132px;max-width:240px;}
+body .sp-eqcol math-field.dexp-mf{min-height:2.05em;padding:2px 6px;}
+body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .sp-tbl .sp-sel{font-size:.9rem;min-width:54px;}
-.sp-tbl td.sp-barcol .sp-selz{min-width:60px;background-color:var(--surface);position:relative;z-index:1;}
-.sp-tbl td.sp-xroot{overflow:visible;}
+/* Le trait vertical du tableau est dessine AU CENTRE de la colonne (.s-rootcol).
+   Les menus posés dessus doivent donc afficher leur symbole (| , 0 , ‖) exactement au
+   centre : on supprime la flèche native (qui décalait le glyphe vers la gauche), on
+   centre le texte (text-align-last, indispensable pour un <select>) et on annule les
+   marges laterales de la cellule. Idem pour la valeur de x, centrée sur le même trait. */
+.note-exo{margin-top:9px;padding-top:8px;border-top:1.5px dashed var(--grid);font-weight:800;font-size:.95rem;}
+.note-exo.parfait{color:var(--green);}
+.note-exo .note-det{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
+  border:1.4px solid var(--grid);font-size:.82rem;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
+.rpart{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
+  border:1.4px solid var(--grid);font-size:.82rem;font-weight:800;color:var(--ink-soft);white-space:nowrap;}
+#review li.part .rmark{color:var(--blue);}
+.sp-tbl td.sp-barcol{padding-left:0;padding-right:0;}
+.sp-tbl td.sp-barcol .sp-selz{-webkit-appearance:none;-moz-appearance:none;appearance:none;
+  background-image:none;text-align:center;text-align-last:center;-moz-text-align-last:center;
+  min-width:0;width:40px;padding:2px 0;font-weight:800;line-height:1.25;
+  background-color:var(--surface);position:relative;z-index:1;cursor:pointer;}
+.sp-tbl td.sp-xroot{overflow:visible;padding-left:0;padding-right:0;text-align:center;}
+.sp-tbl td.sp-xroot math-field.sp-mf{display:inline-block;text-align:center;margin:0 auto;}
 .sp-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px;}
 /* question a) : deux colonnes equation/calcul separees par « ou » */
 .sp-eqcols{display:flex;align-items:flex-start;justify-content:flex-start;gap:16px;flex-wrap:wrap;margin:6px 0 10px;}
@@ -1201,7 +1227,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-test">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCm"></span><span class="q-idx" id="qIdx">Question 1 / 10</span></span>
-      <span class="score-tag">Score&nbsp;<b id="liveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="liveScore">0</b></span>
     </div>
     <div class="ardoise"><div class="equation" id="equation">— — —</div></div>
     <div class="answer-zone">
@@ -1226,7 +1252,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-tvi">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tviModeTag"></span><span class="q-idx" id="tviQIdx">Question 1 / 6</span></span>
-      <span class="score-tag">Score&nbsp;<b id="tviLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tviLiveScore">0</b></span>
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="tviPrompt"></p>
@@ -1242,7 +1268,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-tvi2">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvi2ModeTag"></span><span class="q-idx" id="tvi2QIdx">Question 1 / 6</span></span>
-      <span class="score-tag">Score&nbsp;<b id="tvi2LiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tvi2LiveScore">0</b></span>
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="tvi2Prompt"></p>
@@ -1260,7 +1286,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-tvi3">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvi3ModeTag"></span><span class="q-idx" id="tvi3QIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="tvi3LiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tvi3LiveScore">0</b></span>
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="tvi3Prompt"></p>
@@ -1277,7 +1303,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-tvins">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvinsModeTag"></span><span class="q-idx" id="tvinsQIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="tvinsLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tvinsLiveScore">0</b></span>
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="tvinsPrompt"></p>
@@ -1293,7 +1319,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-tvg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tvgModeTag"></span><span class="q-idx" id="tvgQIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="tvgLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tvgLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="tvgPrompt"></p>
@@ -1309,7 +1335,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-dhv">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="dhvModeTag"></span><span class="q-idx" id="dhvQIdx">Question 1 / 2</span></span>
-      <span class="score-tag">Score&nbsp;<b id="dhvLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="dhvLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="dhvPrompt"></p>
@@ -1324,7 +1350,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-lr">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lrModeTag"></span><span class="q-idx" id="lrQIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="lrLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="lrLiveScore">0</b></span>
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="lrPrompt"></p>
@@ -1341,7 +1367,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-lg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lgModeTag"></span><span class="q-idx" id="lgQIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="lgLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="lgLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="lgPrompt"></p>
@@ -1357,7 +1383,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-lg2">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lg2ModeTag"></span><span class="q-idx" id="lg2QIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="lg2LiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="lg2LiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="lg2Prompt"></p>
@@ -1374,7 +1400,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-lg3">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lg3ModeTag"></span><span class="q-idx" id="lg3QIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Score&nbsp;<b id="lg3LiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="lg3LiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="lg3Prompt"></p>
@@ -1390,7 +1416,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-dexp">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="dexpModeTag"></span><span class="q-idx" id="dexpQIdx">Question 1 / 8</span></span>
-      <span class="score-tag">Score&nbsp;<b id="dexpLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="dexpLiveScore">0</b></span>
     </div>
     <div class="card tvi-card">
       <p class="tvi-prompt" id="dexpEnonce"></p>
@@ -1410,7 +1436,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-sv">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="svModeTag"></span><span class="q-idx" id="svQIdx">Question 1 / 4</span></span>
-      <span class="score-tag">Score&nbsp;<b id="svLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="svLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="svPrompt"></p>
@@ -1426,7 +1452,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-ef">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="efModeTag"></span><span class="q-idx" id="efQIdx">Question 1 / 4</span></span>
-      <span class="score-tag">Score&nbsp;<b id="efLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="efLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="efPrompt"></p>
@@ -1441,7 +1467,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-eq">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="eqModeTag"></span><span class="q-idx" id="eqQIdx">Question 1 / 2</span></span>
-      <span class="score-tag">Score&nbsp;<b id="eqLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="eqLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="eqPrompt"></p>
@@ -1455,7 +1481,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-rc">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="rcModeTag"></span><span class="q-idx" id="rcQIdx">Question 1 / 2</span></span>
-      <span class="score-tag">Score&nbsp;<b id="rcLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rcLiveScore">0</b></span>
     </div>
     <div class="card tvi-card sv-card">
       <p class="tvi-prompt" id="rcPrompt"></p>
@@ -1468,7 +1494,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-tg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tgModeTag"></span><span class="q-idx" id="tgQIdx">Question 1 / 4</span></span>
-      <span class="score-tag">Score&nbsp;<b id="tgLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tgLiveScore">0</b></span>
     </div>
     <div class="card tvi-card tg-card">
       <p class="tvi-prompt" id="tgPrompt"></p>
@@ -1483,7 +1509,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-s1">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="s1ModeTag"></span><span class="q-idx" id="s1QIdx">Question 1 / 4</span></span>
-      <span class="score-tag">Score&nbsp;<b id="s1LiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="s1LiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="s1Prompt"></p>
@@ -1513,7 +1539,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-s2">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="s2ModeTag"></span><span class="q-idx" id="s2QIdx">Question 1 / 4</span></span>
-      <span class="score-tag">Score&nbsp;<b id="s2LiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="s2LiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="s2Prompt"></p>
@@ -1530,7 +1556,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-sp">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="spModeTag"></span><span class="q-idx" id="spQIdx">Question 1 / 3</span></span>
-      <span class="score-tag">Score&nbsp;<b id="spLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="spLiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="spPrompt"></p>
@@ -1540,7 +1566,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <div id="spQ1"></div>
       <div id="spQ2"></div>
       <div id="spTabWrap"></div>
-      <p class="dexp-hint" id="spHint" hidden>Toutes les cases doivent être complétées pour terminer. Les racines et valeurs acceptent toute écriture équivalente (fraction ou décimal) ou une valeur approchée au dixième près.<span class="hint-souris"> <b>Clic droit</b> sur une case racine : clavier à l’écran.</span></p>
+      <p class="dexp-hint" id="spHint" hidden>Toutes les cases doivent être complétées pour terminer — sauf le dénominateur d’une fraction égal à 1, qu’on peut laisser vide. La case du carré affiche déjà <b>( )²</b> : écris simplement l’expression <b>à l’intérieur des parenthèses</b> (le bouton <b>□²</b> permet d’ajouter un carré si besoin). Les racines et valeurs acceptent toute écriture équivalente (fraction ou décimal) ou une valeur approchée au dixième près.<span class="hint-souris"> <b>Clic droit</b> sur une case racine : clavier à l’écran.</span></p>
       <div class="mp-feedback" id="spFeedback"></div>
       <div class="mp-actions" id="spActions"></div>
     </div>
@@ -1549,7 +1575,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-su">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="suModeTag"></span><span class="q-idx" id="suQIdx">Question 1 / 6</span></span>
-      <span class="score-tag">Score&nbsp;<b id="suLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="suLiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt su-en" id="suPrompt"></p>
@@ -1565,7 +1591,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-enc">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="encModeTag"></span><span class="q-idx" id="encQIdx">Question 1 / 4</span></span>
-      <span class="score-tag">Score&nbsp;<b id="encLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="encLiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="encPrompt"></p>
@@ -1581,7 +1607,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-rec">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="recModeTag"></span><span class="q-idx" id="recQIdx">Question 1 / 2</span></span>
-      <span class="score-tag">Score&nbsp;<b id="recLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="recLiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="recPrompt"></p>
@@ -1601,7 +1627,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
   <section class="screen" id="scr-sa">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="saModeTag"></span><span class="q-idx" id="saQIdx">Question 1 / 2</span></span>
-      <span class="score-tag">Score&nbsp;<b id="saLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="saLiveScore">0</b></span>
     </div>
     <div class="card tvi-card s1-card">
       <p class="tvi-prompt s1-prompt" id="saPrompt"></p>
@@ -1805,7 +1831,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=185;
+const APP_VERSION=200;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -1912,7 +1938,10 @@ const TESTS={
   'etude-quotient': { name:'Fonction quotient \u2014 domaine, d\u00e9riv\u00e9e et variations', icon:'u/v', desc:'Une fonction f(x) = (ax+b)/(cx+d) : trouve la valeur interdite et l\u2019ensemble de d\u00e9finition, d\u00e9montre la d\u00e9riv\u00e9e avec la formule du quotient (champs math, clavier \u00e9cran en option), puis dresse le tableau de signes et de variations avec la double barre.', start:()=>startEQ() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
-  'signe-produit': { name:'Signe d\u2019un produit (ax+b)(cx+d)', icon:'\u00d7', desc:'a) R\u00e9sous f(x) = 0 (chaque facteur nul, comme au 1.1 niveau 2), puis b) construis toi-m\u00eame le tableau de signes : nombre de facteurs, nombre de racines, racines, z\u00e9ros et signes \u2014 le tableau s\u2019adapte \u00e0 tes r\u00e9ponses.', start:()=>startSP() },
+  'signe-quotient-carre': { name:'Signe de (ax+b)/(cx+d)\u00b2', icon:'\u00f7',
+    desc:'Deux exemples avec un carr\u00e9 au d\u00e9nominateur : a) r\u00e9sous f(x) = 0 et cherche la valeur interdite \u2014 (cx+d)\u00b2 \u2260 0 signifie cx+d \u2260 0 \u2014 puis b) construis le tableau de signes. Un carr\u00e9 \u00e9tant toujours positif, f a le signe du num\u00e9rateur.',
+    start:()=>startSPC() },
+  'signe-produit': { name:'Signe d\u2019un produit ou d\u2019un quotient', icon:'\u00d7', desc:'Produit (ax+b)(cx+d) ou quotient (ax+b)/(cx+d) : a) r\u00e9sous f(x) = 0 \u2014 et, pour un quotient, cherche la valeur interdite \u2014 comme au 1.1 niveau 2 ; puis b) construis toi-m\u00eame le tableau de signes (lignes, traits, z\u00e9ros, double barre et signes).', start:()=>startSP() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
@@ -1925,7 +1954,7 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations','signe-produit'] },
+  { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations','signe-produit','signe-quotient-carre'] },
   { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
@@ -3377,28 +3406,95 @@ function submitAnswer(timedOut){
     const pre=(timedOut&&given===null)?'Temps \u00e9coul\u00e9 \u2014 ':'';
     $('correction').innerHTML=pre+'R\u00e9ponse : '+(q.type==='expr'?'f\u2009\u2032(x) = ':'')+esc(String(q.answer));
   }
-  test.answers.push({q:q.text,answer:q.answer,given,correct,type:q.type});
+  test.answers.push({...(ptsExo()||{}),q:q.text,answer:q.answer,given,correct,type:q.type});
   test.fbTimer=setTimeout(()=>{ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); },correct?850:1600);
 }
+/* ================== NOTE AVEC CREDIT PARTIEL ==================
+   Un exercice qui comporte plusieurs cases ne vaut plus 0 des la premiere erreur : au
+   moment ou il est verrouille, on compte les cases corrigees a l'ecran (vertes = justes,
+   rouges ou bleues = ratees) et l'exercice rapporte cette FRACTION de point. Les
+   exercices a reponse unique gardent naturellement 0 ou 1. Si le comptage est impossible
+   (aucune case coloree), on retombe sur l'ancien tout-ou-rien. */
+function ptsEcran(){
+  try{
+    const scr=document.querySelector('.screen.on'); if(!scr) return null;
+    const els=scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
+      +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol');
+    if(!els.length) return null;
+    let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
+    return {pts:ok/els.length, justes:ok, cases:els.length};
+  }catch(e){ return null; }
+}
+/* valeur d'un exercice : sa fraction si elle a pu etre mesuree, sinon 0 ou 1 */
+/* Apres chaque verification en ENTRAINEMENT, l'eleve voit ce que l'exercice lui rapporte :
+   sa fraction de point et le detail des cases justes. */
+function afficherNoteExo(){
+  try{
+    if(typeof currentMode==='undefined' || currentMode!=='train') return;
+    const a=(test.answers&&test.answers.length)?test.answers[test.answers.length-1]:null;
+    if(!a || typeof a.cases!=='number') return;
+    const scr=document.querySelector('.screen.on'); if(!scr) return;
+    const fb=scr.querySelector('.mp-feedback'); if(!fb) return;
+    if(fb.querySelector('.note-exo')) return;                     /* une seule fois */
+    const p=ptsRep(a), tot=a.cases, n=Math.round(p*tot);
+    const d=document.createElement('div');
+    const parfait=!!a.correct;                                   /* coherent avec le message */
+    d.className='note-exo'+(parfait?' parfait':'');
+    d.innerHTML='Note de cet exercice\u00a0: <b>'+fmtNote(p)+'</b> / 1'
+      +' <span class="note-det">'+n+' case'+(n>1?'s':'')+' juste'+(n>1?'s':'')+' sur '+tot+'</span>'
+      +(parfait?' <span class="note-det">exercice parfait \u2714</span>':'');
+    fb.appendChild(d);
+  }catch(e){}
+}
+/* mesure + affichage : appele au moment ou l'exercice est enregistre */
+function ptsExo(){
+  const m=ptsEcran();
+  setTimeout(afficherNoteExo,0);      /* lit l'enregistrement une fois qu'il est pousse */
+  return m;
+}
+function ptsRep(a){
+  if(!a) return 0;
+  if(a.correct) return 1;                                   /* tout juste = 1 point */
+  let p=(typeof a.pts==='number'&&isFinite(a.pts))?Math.max(0,Math.min(1,a.pts)):0;
+  /* garde-fou : si l'exercice n'est PAS entierement juste, il ne peut pas valoir 1 point
+     (cas d'un ecran qui afficherait la correction \u00e0 la place de la reponse de l'eleve). */
+  if(p>=1) p=(a.cases>1)?(a.cases-1)/a.cases:0;
+  return p;
+}
+function fmtNote(v){ const r=Math.round(v*100)/100; return numFmt(Number.isInteger(r)?r:Math.round(r*10)/10); }
 async function finishTest(){
   clearRecovery();
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const total=test.questions.length, score=test.score;
+  const acquis=test.answers.reduce((s,a)=>s+ptsRep(a),0);
+  const note=Math.round(acquis*100)/100;          /* note en exercices, au centieme */
+  const note10=Math.round((acquis/total)*100)/10;  /* note sur 10, au dixieme */
+  const pct=Math.round(note/total*100);
   const durationSec=(Date.now()-test.startTime)/1000;
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  const fdetails={test:currentTestId,mode:currentMode,misses}; if(currentDM) fdetails.dm=currentDM;
+  const fdetails={test:currentTestId,mode:currentMode,misses,note:note,parfaits:score};
+  if(currentDM) fdetails.dm=currentDM;
   try{
     await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:fdetails});
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
+  showResults({score,total,percent:pct,durationSec,note,note10});
 }
 function showResults(r){
   const msg=r.percent>=90?'Excellent !':r.percent>=70?'Bravo !':r.percent>=50?'Bien jou\u00e9 !':'Continue, tu progresses !';
   $('resultMsg').textContent=msg;
   $('resultSub').textContent=`${testLabel(currentTestId)} \u2022 ${esc(currentEleve.prenom)} \u2022 ${modeName(currentMode)} \u2022 ${fmtDur(r.durationSec)}`;
-  $('resultScore').textContent=`${r.score} / ${r.total}`;$('resultPct').textContent=`${r.percent} %`;
+  const note=(typeof r.note==='number')?r.note:r.score;
+  $('resultScore').textContent=`${fmtNote(note)} / ${r.total}`;
+  /* En entrainement et en soutien, l'eleve voit une NOTE SUR 10 (plus parlante qu'un
+     pourcentage) ; les autres modes gardent le pourcentage. */
+  const sur10=(currentMode==='train'||currentMode==='soutien');
+  const n10=(typeof r.note10==='number')?r.note10:Math.round((note/r.total)*100)/10;
+  $('resultPct').textContent = sur10 ? `${numFmt(n10)} / 10` : `${r.percent} %`;
+  $('resultPct').title = sur10 ? 'Note sur 10 (les exercices partiellement r\u00e9ussis comptent)' : '';
   const ul=$('review');ul.innerHTML='';
   test.answers.forEach(a=>{
+    const part=(!a.correct && ptsRep(a)>0);                 /* exercice partiellement reussi */
     const li=document.createElement('li');li.className=a.correct?'ok':'ko';
+    if(part) li.classList.add('part');
     const given=(a.given===null||a.given==='')?'\u2205':esc(String(a.given));
     let body, fix='';
     if(a.type==='expr'){
@@ -3410,7 +3506,8 @@ function showResults(r){
       body=`${esc(a.q)} <b>${a.correct?esc(String(a.answer)):given}</b>`;
       if(!a.correct) fix=`<span class="fix">\u2192 ${esc(String(a.answer))}</span>`;
     }
-    li.innerHTML=`<span class="rmark">${a.correct?'\u2713':'\u2717'}</span><span class="exp">${body}</span>${fix}`;
+    if(part && a.cases) body+=` <span class="rpart">${a.justes} / ${a.cases} cases justes \u2014 ${fmtNote(ptsRep(a))} pt</span>`;
+    li.innerHTML=`<span class="rmark">${a.correct?'\u2713':(part?'\u2248':'\u2717')}</span><span class="exp">${body}</span>${fix}`;
     ul.appendChild(li);
   });
   const ring=document.querySelector('.score-circle .ring');
@@ -3575,7 +3672,7 @@ function checkTVI(live){
     $('tviFeedback').className='mp-feedback bad';
     map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
   }
-  test.answers.push({q:`${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tviActions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
@@ -3831,7 +3928,7 @@ async function checkTVI3(){
     $('tvi3Input').disabled=true;
     ['tvi3InfBtn','tvi3AlphaBtn','tvi3AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=true; });
   }
-  test.answers.push({q:'Explication : '+c.fname+'('+c.v+') = '+c.kL+' sur '+tvi3Intervalle(c)+' — attendu : '+tvi3RaisonTexte(c), answer:'explication', given:correct?'✓':'incomplet', correct:correct, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:'Explication : '+c.fname+'('+c.v+') = '+c.kL+' sur '+tvi3Intervalle(c)+' — attendu : '+tvi3RaisonTexte(c), answer:'explication', given:correct?'✓':'incomplet', correct:correct, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tvi3Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
@@ -4142,7 +4239,7 @@ async function checkLR(){
       +'Réponse correcte :<div class="tvi-model">'+esc(lrModele(c)).replace(/\n/g,'<br>')+'</div>';
     $('lrFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
   }
-  test.answers.push({q:'Limites (lecture graphique) sur '+c.dom+' — attendu : '+lrModele(c).replace(/\n/g,' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
+  test.answers.push({...(ptsExo()||{}),q:'Limites (lecture graphique) sur '+c.dom+' — attendu : '+lrModele(c).replace(/\n/g,' ; '), answer:'rédaction', given:correct?'✓':'incomplet', correct:correct, type:'lr'});
   const last=test.idx===test.questions.length-1;
   $('lrActions').innerHTML='<button class="btn btn-primary" onclick="nextLR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
@@ -4405,7 +4502,7 @@ async function checkTVINS(){
     c.eqs.forEach((e,i)=>{ const el=$('tvins-eq'+i); if(!el) return; el.disabled=true;
       if(vals[i]!==String(e.n)){ const fx=document.createElement('span'); fx.className='tvins-fix'; fx.textContent='→ '+e.n; el.insertAdjacentElement('afterend', fx); } });
   }
-  test.answers.push({
+  test.answers.push({...(ptsExo()||{}),
     q:'Nombre de solutions — '+tvinsListeEq(c)+' sur '+tvi3Intervalle(c),
     answer:c.eqs.map((e,i)=>'('+(i+1)+') '+e.n).join(' ; '),
     given:tvinsReponseTxt(vals),
@@ -4792,7 +4889,7 @@ async function checkTVG(){
     $('tvgFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
   }
   const P=c.selPts.slice().sort((a,b)=>a-b), Xs=c.selXs.slice().sort((a,b)=>a-b);
-  test.answers.push({
+  test.answers.push({...(ptsExo()||{}),
     q:'Solutions de '+c.fname+'(x) = '+c.kL+' sur le graphique ('+c.familleTxt+')',
     answer:'points '+c.sols.map(s=>'('+numFmt(s)+' ; '+c.kL+')').join(', ')+' — abscisses '+c.sols.map(s=>numFmt(s)).join(', ')+' — écriture : x = '+c.sols.map(s=>numFmt(s)).join(' ; '),
     given:'points en x = ['+P.map(n=>numFmt(n)).join(', ')+'] — abscisses ['+Xs.map(n=>numFmt(n)).join(', ')+'] — écriture : « '+solTxt+' »',
@@ -4988,7 +5085,7 @@ async function checkDHV(){
     $('dhvFeedback').innerHTML=(fbHTML?fbHTML+'<br>':'Ce n’est pas ça. ')+'Tes réponses restent affichées : chaque bonne réponse est indiquée en vert à côté des cases fausses.';
     $('dhvFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
   }
-  test.answers.push({
+  test.answers.push({...(ptsExo()||{}),
     q:'Équations des droites du repère (essai '+(test.idx+1)+')',
     answer:'A('+numFmt(c.xa)+' ; '+numFmt(c.yAB)+'), B('+numFmt(c.xb)+' ; '+numFmt(c.yAB)+'), (AB) : y = '+numFmt(c.yAB)+' | C('+numFmt(c.xCD)+' ; '+numFmt(c.yc)+'), D('+numFmt(c.xCD)+' ; '+numFmt(c.yd)+'), (CD) : x = '+numFmt(c.xCD)+' | d1 : y = '+numFmt(c.yd1)+' | d2 : x = '+numFmt(c.xd2),
     given:'A('+vals['dhv-xa']+' ; '+vals['dhv-ya']+'), B('+vals['dhv-xb']+' ; '+vals['dhv-yb']+'), (AB) : y = '+vals['dhv-ab']+' | C('+vals['dhv-xc']+' ; '+vals['dhv-yc']+'), D('+vals['dhv-xd']+' ; '+vals['dhv-yd']+'), (CD) : x = '+vals['dhv-cd']+' | d1 : '+vals['dhv-v1']+' = '+vals['dhv-n1']+' | d2 : '+vals['dhv-v2']+' = '+vals['dhv-n2'],
@@ -5389,7 +5486,7 @@ async function checkLG(){
     $('lgFeedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
   }
   const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
-  test.answers.push({
+  test.answers.push({...(ptsExo()||{}),
     q:'Limites et asymptotes ('+c.familleTxt+')',
     answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
       return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | '),
@@ -5759,7 +5856,7 @@ async function checkLG2(){
     $('lg2Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
   }
   const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
-  test.answers.push({
+  test.answers.push({...(ptsExo()||{}),
     q:'Limites, asymptotes et tableau de variation ('+c.familleTxt+')',
     answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
       return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | ')
@@ -5902,7 +5999,7 @@ async function checkLG3(){
     $('lg3Feedback').className='mp-feedback '+(fbHTML?'iafb':'bad');
   }
   const TL={ah:'asymptote horizontale',av:'asymptote verticale',rien:'pas d’asymptote'};
-  test.answers.push({
+  test.answers.push({...(ptsExo()||{}),
     q:'Limites et asymptotes d’après le tableau de variation ('+c.familleTxt+')',
     answer:c.subs.map(s=>{ const lt=(s.lim==='+∞'||s.lim==='−∞')?s.lim:numFmt(s.lim);
       return s.lab+') '+lt+', '+TL[s.typ]+(s.eq!=null?(' ('+(s.typ==='ah'?'y':'x')+' = '+numFmt(s.eq)+')'):''); }).join(' | '),
@@ -6071,7 +6168,7 @@ async function checkTVI2(){
     $('tvi2Input').disabled=true;
     ['tvi2InfBtn','tvi2AlphaBtn','tvi2AppBtn'].forEach(id=>{ const ib=$(id); if(ib) ib.disabled=true; });
   }
-  test.answers.push({q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incompl\u00e8te', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`R\u00e9daction : ${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incompl\u00e8te', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tvi2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextTVI2()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
@@ -6388,7 +6485,7 @@ async function checkDexp2(){
   test.locked=true; dexp2Lines.forEach(L=>{ try{ L.mf.readOnly=true; }catch(e){} });
   ['dexp-u','dexp-v','dexp-du','dexp-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
   if(correct){ test.score++; $('dexpLiveScore').textContent=test.score; }
-  test.answers.push({q:`Dérivée de (${c.uStr})e^(${c.expHtml})`, answer:attendu, given:rep, correct:correct, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`Dérivée de (${c.uStr})e^(${c.expHtml})`, answer:attendu, given:rep, correct:correct, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('dexpActions').innerHTML=`<button class="btn btn-primary" id="dexp2Next" onclick="nextDexp2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   const nb=$('dexp2Next'); if(nb) nb.focus();
@@ -6754,7 +6851,7 @@ function checkDexp(){
     $('dexpFeedback').innerHTML = texHtml || oldHtml;
     $('dexpFeedback').className='mp-feedback bad';
   }
-  test.answers.push({q:`D\u00e9riv\u00e9e de (${c.uStr})e^(${c.expHtml})`, answer:'e^('+c.expHtml+')('+c.facAns+')', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`D\u00e9riv\u00e9e de (${c.uStr})e^(${c.expHtml})`, answer:'e^('+c.expHtml+')('+c.facAns+')', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('dexpActions').innerHTML=`<button class="btn btn-primary" onclick="nextDexp()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
@@ -6979,7 +7076,7 @@ function checkDexp3(){
     $('dexpFeedback').innerHTML = texHtml || oldHtml;
     $('dexpFeedback').className='mp-feedback bad';
   }
-  test.answers.push({q:'Dérivée de '+d3FxPlain(c), answer:d3DfPlain(c), given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:'Dérivée de '+d3FxPlain(c), answer:d3DfPlain(c), given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('dexpActions').innerHTML=`<button class="btn btn-primary" onclick="nextDexp3()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
@@ -7082,7 +7179,7 @@ async function checkDexpQ2(){
   test.locked=true; dexp2Lines.forEach(L=>{ try{ L.mf.readOnly=true; }catch(e){} });
   ['dq-u','dq-v','dq-du','dq-dv'].forEach(id=>{ const el=$(id); if(el) el.readOnly=true; });
   if(correct){ test.score++; $('dexpLiveScore').textContent=test.score; }
-  test.answers.push({q:`Dérivée de e^(${c.expHtml})/(${c.vStr})`, answer:attendu, given:rep, correct:correct, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`Dérivée de e^(${c.expHtml})/(${c.vStr})`, answer:attendu, given:rep, correct:correct, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('dexpActions').innerHTML=`<button class="btn btn-primary" id="dexp2Next" onclick="nextDexpQ2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   const nb=$('dexp2Next'); if(nb) nb.focus();
@@ -7317,7 +7414,7 @@ function checkDexpQ(){
     $('dexpFeedback').innerHTML = texHtml || oldHtml;
     $('dexpFeedback').className='mp-feedback bad';
   }
-  test.answers.push({q:`D\u00e9riv\u00e9e de e^(${c.expHtml})/(${c.vStr})`, answer:'e^('+c.expHtml+')('+c.facAns+') / ('+c.vStr+')\u00b2', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`D\u00e9riv\u00e9e de e^(${c.expHtml})/(${c.vStr})`, answer:'e^('+c.expHtml+')('+c.facAns+') / ('+c.vStr+')\u00b2', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('dexpActions').innerHTML=`<button class="btn btn-primary" onclick="nextDexpQ()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
@@ -7534,7 +7631,7 @@ function checkSV(live){
     map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
     svArrowChange();   /* la correction vient de changer les sens : on redessine l'escalier */
   }
-  test.answers.push({q:`Graphique ${test.idx+1} \u2014 tableaux de signes et de variation`, answer:'tableaux complets', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tableaux de signes et de variation`, answer:'tableaux complets', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('svActions').innerHTML=`<button class="btn btn-primary" onclick="nextSV()">${last?'Voir mes r\u00e9sultats':'Question suivante'}</button>`;
 }
@@ -7845,7 +7942,7 @@ function checkEF(live){
     efArrowChange();
   }
   const rs=c.roots.map(R=>R.str).join(' ; ');
-  test.answers.push({q:'f\u2032 donn\u00e9e ('+c.fam+') \u2014 racine(s) : '+rs+' \u2014 tableau signes + variations', answer:'\u00e9tude de fonction', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:'f\u2032 donn\u00e9e ('+c.fam+') \u2014 racine(s) : '+rs+' \u2014 tableau signes + variations', answer:'\u00e9tude de fonction', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('efActions').innerHTML='<button class="btn btn-primary" onclick="nextEF()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
 }
@@ -8162,7 +8259,7 @@ function checkEQ(live){
     eqSyncDen(); ['eq-ddev','eq-dend'].forEach(id=>{ const dd2=$(id); if(dd2){ dd2.classList.remove('bad'); dd2.classList.add('ok'); } });
     eqArrowChange();
   }
-  test.answers.push({q:'f(x) = ('+c.numStr+')/('+c.denStr+') \u2014 domaine, d\u00e9riv\u00e9e '+numFmt(c.k)+'/('+c.denStr+')\u00b2, variations ('+(c.fam==='croi'?'croissante':'d\u00e9croissante')+')', answer:'\u00e9tude compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:'f(x) = ('+c.numStr+')/('+c.denStr+') \u2014 domaine, d\u00e9riv\u00e9e '+numFmt(c.k)+'/('+c.denStr+')\u00b2, variations ('+(c.fam==='croi'?'croissante':'d\u00e9croissante')+')', answer:'\u00e9tude compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('eqActions').innerHTML='<button class="btn btn-primary" onclick="nextEQ()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
 }
@@ -8409,7 +8506,7 @@ function checkRC(live){
       else { try{ el.setValue(sol[x.id]); }catch(e){} el.readOnly=true; }
       el.classList.remove('bad'); el.classList.add('ok'); });
   }
-  test.answers.push({q:'R\u00e9currence ('+(c.fam==='aff'?'affine':'quotient')+', n \u2265 '+numFmt(c.n0)+') : '+numFmt(c.m)+' \u2264 Un \u2264 '+numFmt(c.M), answer:'d\u00e9monstration compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:'R\u00e9currence ('+(c.fam==='aff'?'affine':'quotient')+', n \u2265 '+numFmt(c.n0)+') : '+numFmt(c.m)+' \u2264 Un \u2264 '+numFmt(c.M), answer:'d\u00e9monstration compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('rcActions').innerHTML='<button class="btn btn-primary" onclick="nextRC()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
 }
@@ -8621,7 +8718,7 @@ function checkTG(live){
     reveal.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
   }
   const bRev = a.b===0 ? '' : (a.b>0?'+ '+a.b:'\u2212 '+Math.abs(a.b));
-  test.answers.push({q:`Graphique ${test.idx+1} \u2014 tangente en a = ${numFmt(c.a)} : y = ${numFmt(a.m)} x ${bRev}`, answer:'tangente', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tangente en a = ${numFmt(c.a)} : y = ${numFmt(a.m)} x ${bRev}`, answer:'tangente', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('tgActions').innerHTML=`<button class="btn btn-primary" onclick="nextTG()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
@@ -8731,6 +8828,27 @@ function renderS1(){
     ['s1-place','s1-sl','s1-sr'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('change',()=>checkS1(true)); });
   }
 }
+/* Correction d'une case (convention commune \u00e0 tous les exercices) :
+   \u2022 case JUSTE  -> reste verte ;
+   \u2022 case FAUSSE -> reste ROUGE avec la saisie de l'eleve, la bonne reponse s'affiche
+                      en BLEU juste \u00e0 c\u00f4t\u00e9 (jamais d'ecrasement : l'eleve doit voir son erreur) ;
+   \u2022 case VIDE   -> completee en BLEU.
+   C'est aussi ce qui rend la note fiable : une case fausse garde la classe « bad ». */
+function corrCase(id, val, ok){
+  const el=$(id); if(!el) return;
+  const libelle=(el.tagName==='SELECT' && el.options)
+    ? ((Array.prototype.find.call(el.options, o=>o.value===val)||{}).textContent||val) : val;
+  const vide=String(el.value==null?'':el.value).trim()==='';
+  el.classList.remove('ok','bad','sol');
+  if(ok){ el.classList.add('ok'); }
+  else if(vide){ el.value=val; el.classList.add('sol'); }
+  else {
+    el.classList.add('bad');
+    if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+esc(libelle)+'</span>');
+  }
+  el.disabled=true;
+}
 function checkS1(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx];
@@ -8740,7 +8858,7 @@ function checkS1(live){
     : c.level===3
     ? [['s1-num','frac',c.negb],['s1-den','frac',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]]
     : [['s1-num','int',c.negb],['s1-den','int',c.a],['s1-val','frac',c.rootVal],['s1-place','sign','fin'],['s1-root','frac',c.rootVal],['s1-sl','sign',c.sl],['s1-sr','sign',c.sr]];
-  let allOk=true, anyFilled=false;
+  let allOk=true, anyFilled=false; const verd={};
   specs.forEach(([id,type,good])=>{
     const el=$(id); if(!el) return;
     const raw=el.value; let ok;
@@ -8750,7 +8868,7 @@ function checkS1(live){
     if(raw.trim()!=='') anyFilled=true;
     el.classList.remove('ok','bad');
     if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
-    if(!ok) allOk=false; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+    if(!ok) allOk=false; verd[id]=ok; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
   });
   if(live) return;
   if(!anyFilled){ $('s1Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s1Feedback').className='mp-feedback'; S1_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
@@ -8767,13 +8885,13 @@ function checkS1(live){
     $('s1Feedback').className='mp-feedback good';
   } else {
     const aPos=c.a>0;
-    $('s1Feedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
+    $('s1Feedback').innerHTML=`Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne réponse en <b>bleu</b> juste à côté.<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
     $('s1Feedback').className='mp-feedback bad';
-    const setOK=(id,val)=>{ const el=$(id); if(el){ el.value=val; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } };
-    if(c.level!==1){ setOK('s1-num',numFmt(c.negb)); setOK('s1-den',numFmt(c.a)); }
-    setOK('s1-val',c.rootStr); setOK('s1-place','fin'); setOK('s1-root',c.rootStr); setOK('s1-sl',c.sl); setOK('s1-sr',c.sr);
+    const corr=(id,val)=>corrCase(id,val,verd[id]===true);
+    if(c.level!==1){ corr('s1-num',numFmt(c.negb)); corr('s1-den',numFmt(c.a)); }
+    corr('s1-val',c.rootStr); corr('s1-place','fin'); corr('s1-root',c.rootStr); corr('s1-sl',c.sl); corr('s1-sr',c.sr);
   }
-  test.answers.push({q:`${c.exprText} = 0 \u2192 x = ${c.rootStr} \u2014 signe de f : ${c.sl} puis ${c.sr}`, answer:'tableau de signe', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`${c.exprText} = 0 \u2192 x = ${c.rootStr} \u2014 signe de f : ${c.sl} puis ${c.sr}`, answer:'tableau de signe', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('s1Actions').innerHTML=`<button class="btn btn-primary" onclick="nextS1()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
@@ -8914,6 +9032,7 @@ function checkS2(live){
     else specs.push(['s2-r1','int',c.roots[0]],['s2-s1','sign',sa],['s2-s2','sign',sa]);
   }
   let allOk=true, anyFilled=false;
+  const verdS2={};
   specs.forEach(([id,type,good])=>{
     const el=$(id); if(!el) return;
     const raw=el.value; let ok;
@@ -8921,8 +9040,8 @@ function checkS2(live){
     else { const v=tgParse(raw); ok=(id==='s2-nroots') ? (v!==null && v===good) /* comptage : EXACT */ : numOkTol(v,good); }   /* racine : valeur approchée au dixième acceptée */
     if(raw.trim()!=='') anyFilled=true;
     el.classList.remove('ok','bad');
-    if(live){ if(raw.trim()!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
-    if(!ok) allOk=false; el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien();
+    if(live){ if(raw.trim()!=='') (verdS2[id]=ok, el.classList.add(ok?'ok':'bad')); if(!ok) allOk=false; return; }
+    if(!ok) allOk=false; (verdS2[id]=ok, el.classList.add(ok?'ok':'bad')); el.disabled=ok||!isSoutien();
   });
   if(live) return;
   if(!anyFilled){ $('s2Feedback').textContent='Complète au moins une case avant de vérifier.'; $('s2Feedback').className='mp-feedback'; S2_IDS.forEach(id=>{const el=$(id); if(el) el.classList.remove('ok','bad');}); return; }
@@ -8943,7 +9062,7 @@ function checkS2(live){
     const tail=c.nroots===0?`le signe de <i>a</i> (${sa}) est le même partout (pas de racine)`:(c.nroots===2?`le signe de <i>a</i> (${sa}) est au début et à la fin, et le signe contraire entre les racines`:`le signe de <i>a</i> (${sa}) est au début et à la fin`);
     $('s2Feedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br><i>f</i>\u00a0(<i>x</i>) = 0 a <b>${nr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0 (parabole vers le haut)':'&lt; 0 (parabole vers le bas)'}, ${tail}.`;
     $('s2Feedback').className='mp-feedback bad';
-    const setOK=(id,v)=>{ const el=$(id); if(el){ el.value=v; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } };
+    const setOK=(id,v)=>corrCase(id,v,(typeof verdS2!=='undefined' && verdS2[id]===true));
     setOK('s2-nroots',String(c.nroots));
     if(c.nroots===0){ setOK('s2-acoef',numFmt(c.a)); setOK('s2-s1',sa); }
     else {
@@ -8954,7 +9073,7 @@ function checkS2(live){
   }
   const rootsTxt=c.nroots===0?'pas de racine':c.roots.map(r=>numFmt(r)).join(' et ');
   const placeTxt=c.nroots===0?`${sa} partout`:`${sa} au début et à la fin`;
-  test.answers.push({q:`${c.exprText} : ${c.nroots} racine(s)${c.nroots?' ('+rootsTxt+')':''} \u2014 signe de a : ${placeTxt}`, answer:'signe du 2nd degré', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:`${c.exprText} : ${c.nroots} racine(s)${c.nroots?' ('+rootsTxt+')':''} \u2014 signe de a : ${placeTxt}`, answer:'signe du 2nd degré', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('s2Actions').innerHTML=`<button class="btn btn-primary" onclick="nextS2()">${last?'Voir mes résultats':'Question suivante'}</button>`;
 }
@@ -9098,8 +9217,10 @@ const RAP_SP=
 +'<ul><li>R\u00e9soudre f(x) = 0 : un produit est nul si et seulement si <b>l\u2019un de ses facteurs est nul</b>. On r\u00e9sout donc ax+b = 0 <b>ou</b> cx+d = 0, chaque \u00e9quation du premier degr\u00e9 donnant x = \u2212b/a (comme au 1.1 niveau 2).</li>'
 +'<li>Un produit (ax+b)(cx+d) a <b>2 facteurs</b> ; chacun s\u2019annule en sa racine : au total <b>2 racines</b> si elles sont distinctes.</li>'
 +'<li>Dans le tableau : une ligne par facteur, puis la ligne de f. Chaque facteur affine est du <b>signe de a</b> \u00e0 droite de sa racine, du signe oppos\u00e9 \u00e0 gauche, et vaut <b>0</b> \u00e0 sa racine.</li>'
-+'<li>Sur un trait vertical, on \u00e9crit <b>0</b> sur la ligne du facteur qui s\u2019annule L\u00c0 (et sur la ligne de f) ; sur les autres lignes, <b>rien</b>.</li>'
-+'<li>Le signe de <b>f</b> sur chaque intervalle est le <b>produit des signes</b> des facteurs (r\u00e8gle des signes : deux signes identiques donnent +, deux signes contraires donnent \u2212), et f s\u2019annule \u00e0 chaque racine.</li></ul></div>';
++'<li>Sur un trait vertical, on \u00e9crit <b>0</b> sur la ligne du facteur qui s\u2019annule L\u00c0 (et sur la ligne de f) ; sur les autres lignes, on laisse le <b>trait seul</b> (symbole |).</li>'
++'<li>Le signe de <b>f</b> sur chaque intervalle est le <b>produit des signes</b> des facteurs (r\u00e8gle des signes : deux signes identiques donnent +, deux signes contraires donnent \u2212), et f s\u2019annule \u00e0 chaque racine.</li>'
++'<li><b>Quotient</b> (ax+b)/(cx+d) : on \u00e9tudie <b>2 expressions</b> \u2014 le num\u00e9rateur et le d\u00e9nominateur. On r\u00e9sout ax+b = 0 (qui donne la racine de f) <b>et</b> on \u00e9crit la condition cx+d <b>\u2260</b> 0, d\u2019o\u00f9 x \u2260 \u2212d/c : c\u2019est la <b>valeur interdite</b>, o\u00f9 f n\u2019existe pas.</li>'
++'<li>Dans le tableau d\u2019un quotient : le num\u00e9rateur et le d\u00e9nominateur portent <b>0</b> \u00e0 leur propre racine ; sur la ligne de <b>f</b>, on \u00e9crit <b>0</b> \u00e0 la racine du num\u00e9rateur et une <b>double barre \u2016</b> \u00e0 la valeur interdite. Le signe de f suit la m\u00eame r\u00e8gle des signes que pour un produit.</li></ul></div>';
 const RAP_REC=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 conjecturer puis d\u00e9montrer par r\u00e9currence</h4>'
 +'<ul><li><b>Conjecturer</b> avec les termes affich\u00e9s : si chaque terme d\u00e9passe le pr\u00e9c\u00e9dent, la suite semble <b>croissante</b> ; la valeur dont les termes se rapprochent est la <b>limite</b> conjectur\u00e9e. Un <b>majorant</b> est un nombre \u2265 \u00e0 TOUS les termes, un <b>minorant</b> un nombre \u2264 \u00e0 tous les termes.</li>'
@@ -9126,7 +9247,13 @@ const RAP_RC=
 +'<li>L\u2019intervalle est <b>stable</b> : m \u2264 f(m) et f(M) \u2264 M. On \u00e9largit donc l\u2019encadrement : m \u2264 U\u2099\u208a\u2081 \u2264 f(M) \u2264 M.</li>'
 +'<li><b>Conclusion</b> : vraie au d\u00e9part et h\u00e9r\u00e9ditaire \u2192 vraie pour tout n \u2265 n\u2080 (principe de r\u00e9currence).</li></ul></div>';
 /* Carte des rappels : par identifiant d'exercice d'abord (le kind « gen » sert deux exercices), puis par kind. */
-const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER };
+const RAP_SPC=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe de (ax+b)/(cx+d)\u00b2</h4>'
++'<ul><li>R\u00e9soudre f(x) = 0 : une fraction est nulle quand son <b>num\u00e9rateur</b> est nul (et son d\u00e9nominateur non nul). On r\u00e9sout donc ax+b = 0.</li>'
++'<li>Valeur interdite : il faut (cx+d)<sup>2</sup> <b>\u2260</b> 0. Or un carr\u00e9 est nul seulement si sa base l\u2019est : (cx+d)<sup>2</sup> \u2260 0 <b>signifie</b> cx+d \u2260 0, d\u2019o\u00f9 x \u2260 \u2212d/c.</li>'
++'<li>Dans le tableau : la ligne de (cx+d)<sup>2</sup> est <b>toujours +</b> (un carr\u00e9 est positif), avec un <b>0</b> \u00e0 sa racine ; la ligne de f porte <b>0</b> \u00e0 la racine du num\u00e9rateur et une <b>double barre \u2016</b> \u00e0 la valeur interdite.</li>'
++'<li>Conclusion utile : comme on divise par une quantit\u00e9 <b>positive</b>, <b>f a exactement le signe du num\u00e9rateur</b> (sauf en la valeur interdite, o\u00f9 f n\u2019existe pas).</li></ul></div>';
+const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER, 'signe-quotient-carre':RAP_SPC };
 const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
@@ -9282,27 +9409,73 @@ function suQbHTML(){
 function spFacteur(){
   const a=pick([-3,-2,-1,1,2,3]); const r=rand(-4,4); const b=-a*r;
   const ax=(a===1?'x':(a===-1?'-x':a+'x'));
-  const tex='\\left('+ax+(b>=0?'+':'-')+Math.abs(b)+'\\right)';
-  const plain='('+ax.replace('-','\u2212')+(b>=0?' + ':' \u2212 ')+Math.abs(b)+')';
-  return {a:a, r:r, tex:tex, plain:plain};
+  const texB=ax+(b>=0?'+':'-')+Math.abs(b);
+  const plainB=ax.replace('-','\u2212')+(b>=0?' + ':' \u2212 ')+Math.abs(b);
+  return {a:a, r:r, texB:texB, plainB:plainB, tex:'\\left('+texB+'\\right)', plain:'('+plainB+')'};
 }
-function genSP(){
+function spDeuxFacteurs(){
   let F1=spFacteur(), F2=spFacteur();
   let tries=0; while(F2.r===F1.r && tries++<50) F2=spFacteur();
+  return [F1,F2];
+}
+/* Une ligne du tableau : signes sur les 3 intervalles + zv = ce qu'on ecrit SUR chaque
+   trait ('rien', '0', ou '\u2016' double barre pour f a une valeur interdite). */
+function spLigne(F,rs,mids,sg){
+  return { labTex:F.tex, labPlain:F.plain, root:F.r, a:F.a, b:-F.a*F.r,
+    signs:mids.map(x=>sg(F.a*x-F.a*F.r)),
+    zv:rs.map(r=>r===F.r?'0':'|') };
+}
+function genSP(){            /* PRODUIT f(x) = (ax+b)(cx+d) */
+  let FF=spDeuxFacteurs(), F1=FF[0], F2=FF[1];
   if(F1.r>F2.r){ const t=F1; F1=F2; F2=t; }
   const rs=[F1.r,F2.r];
-  const mids=[rs[0]-1, (rs[0]+rs[1])/2, rs[1]+1];
+  const mids=[rs[0]-1,(rs[0]+rs[1])/2,rs[1]+1];
   const sg=v=>v>0?'+':'\u2212';
-  const fac=[F1,F2].map(F=>({ labTex:F.tex, labPlain:F.plain, root:F.r, a:F.a, b:-F.a*F.r,
-    signs:mids.map(x=>sg(F.a*x+(-F.a*F.r))), zeros:rs.map(r=>r===F.r) }));
-  const frow={ signs:mids.map(x=>sg((F1.a*x-F1.a*F1.r)*(F2.a*x-F2.a*F2.r))), zeros:[true,true] };
-  return { nFvrai:2, nRvrai:2, roots:rs, fac:fac, frow:frow, nF:null, nR:null,
+  const fac=[spLigne(F1,rs,mids,sg), spLigne(F2,rs,mids,sg)];
+  const frow={ signs:mids.map(x=>sg((F1.a*x-F1.a*F1.r)*(F2.a*x-F2.a*F2.r))), zv:['0','0'] };
+  return { kind:'pro', quo:false, nFvrai:2, nRvrai:2, roots:rs, fac:fac, frow:frow, nF:null, nR:null,
     fTex:'f(x) = '+F1.tex+'\\,'+F2.tex, fPlain:'f(x) = '+F1.plain+'\u00b7'+F2.plain };
 }
+function genSPC(){          /* QUOTIENT A DENOMINATEUR CARRE f(x) = (ax+b)/(cx+d)^2 :
+                               (cx+d)^2 est TOUJOURS positif (nul seulement en sa racine),
+                               donc f a exactement le signe du numerateur. */
+  const FF=spDeuxFacteurs(), N=FF[0], D=FF[1];
+  const rs=[N.r,D.r].slice().sort((a,b)=>a-b);
+  const mids=[rs[0]-1,(rs[0]+rs[1])/2,rs[1]+1];
+  const sg=v=>v>0?'+':'\u2212';
+  const lnum=spLigne(N,rs,mids,sg);
+  const lden={ labTex:'\\left('+D.texB+'\\right)^{2}', labPlain:'('+D.plainB+')\u00b2',
+    affTex:D.tex, affPlain:D.plain,          /* l'affine interne : ce qu'on ecrit en a) */
+    root:D.r, a:D.a, b:-D.a*D.r,
+    signs:['+','+','+'],                     /* un carre est toujours positif */
+    zv:rs.map(r=>r===D.r?'0':'|') };
+  const frow={ signs:lnum.signs.slice(), zv:rs.map(r=>r===N.r?'0':'\u2016') };
+  return { kind:'car', quo:true, carre:true, nFvrai:2, nRvrai:2, roots:rs, fac:[lnum,lden], frow:frow,
+    nF:null, nR:null, vi:D.r, rNum:N.r,
+    fTex:'f(x) = \\frac{'+N.texB+'}{\\left('+D.texB+'\\right)^{2}}',
+    fPlain:'f(x) = ('+N.plainB+')/('+D.plainB+')\u00b2' };
+}
+function genSPQ(){           /* QUOTIENT f(x) = (ax+b)/(cx+d) : ligne du numerateur, du
+                                denominateur, puis f ; DOUBLE BARRE a la valeur interdite */
+  const FF=spDeuxFacteurs(), N=FF[0], D=FF[1];
+  const rs=[N.r,D.r].slice().sort((a,b)=>a-b);
+  const mids=[rs[0]-1,(rs[0]+rs[1])/2,rs[1]+1];
+  const sg=v=>v>0?'+':'\u2212';
+  const fac=[spLigne(N,rs,mids,sg), spLigne(D,rs,mids,sg)];
+  const frow={ signs:mids.map(x=>sg((N.a*x-N.a*N.r)*(D.a*x-D.a*D.r))),
+    zv:rs.map(r=>r===N.r?'0':'\u2016') };
+  return { kind:'quo', quo:true, nFvrai:2, nRvrai:2, roots:rs, fac:fac, frow:frow, nF:null, nR:null,
+    vi:D.r, rNum:N.r,
+    fTex:'f(x) = \\frac{'+N.texB+'}{'+D.texB+'}', fPlain:'f(x) = ('+N.plainB+')/('+D.plainB+')' };
+}
+
 function spBox(id){ return '<input type="text" inputmode="numeric" autocomplete="off" class="s1-in sm" id="'+id+'" oninput="spCount(\''+id+'\')">'; }
-function spMF(id){ return '<math-field class="dexp-mf sp-mf" id="'+id+'"></math-field>'; }
+function spMF(id,cls){ return '<math-field class="dexp-mf sp-mf'+(cls?' '+cls:'')+'" id="'+id+'"></math-field>'; }
 function spSelPM(id){ return '<select class="tvi-sel sp-sel" id="'+id+'"><option value="">\u2026</option><option value="+">+</option><option value="\u2212">\u2212</option></select>'; }
-function spSelZ(id){ return '<select class="tvi-sel sp-sel sp-selz" id="'+id+'"><option value="">\u2026</option><option value="rien">rien</option><option value="0">0</option></select>'; }
+/* Sur un trait : le 1er choix (donc l'affichage par defaut) est le TRAIT VERTICAL seul,
+   qui remplace l'ancienne option « rien » ; viennent ensuite 0, et la double barre pour
+   un quotient. Les questions mises en pause avant ce changement ('rien') sont tolerees. */
+function spSelZ(id,quo){ return '<select class="tvi-sel sp-sel sp-selz" id="'+id+'"><option value="|">|</option><option value="0">0</option>'+(quo?'<option value="\u2016">\u2016</option>':'')+'</select>'; }
 /* ===== question a) : « Resous f(x) = 0 » =====
    1) rappel : « on doit resoudre [__] = 0 ou [__] = 0 » — deux math-fields ou l'eleve
       recrit les DEUX facteurs (ordre libre, toute ecriture equivalente : parentheses,
@@ -9326,6 +9499,14 @@ function spFactForms(F){
   forms.push(F.b>=0 ? bA+'+'+ax : '-'+bA+'+'+ax);
   return forms.map(spNorm);
 }
+/* accepte (cx+d)^2, (cx+d)^{2}, (cx+d)\u00b2 \u2014 base reconnue comme n'importe quelle
+   ecriture equivalente de l'affine interne */
+function spCarreOk(F, plain){
+  let x=String(plain==null?'':plain).toLowerCase().replace(/\u2212/g,'-').replace(/\s+/g,'').replace(/\\,/g,'');
+  x=x.replace(/\u00b2/g,'^2').replace(/\{/g,'').replace(/\}/g,'');
+  if(!/\^2$/.test(x)) return false;
+  return spFactForms(F).indexOf(spNorm(x.slice(0,-2)))>=0;
+}
 function spMatchFact(q, plain){
   const n=spNorm(plain); if(n==='') return -1;
   for(let k=0;k<2;k++) if(spFactForms(q.fac[k]).indexOf(n)>=0) return k;
@@ -9336,16 +9517,32 @@ function spResAHTML(q){
      en clair ici, sinon la reponse serait donnee). Chaque colonne empile son equation
      « [case] = 0 » et, dessous, le calcul de x ; les colonnes sont separees par « ou ».
      La validation d'une colonne suit le facteur que l'eleve y a ecrit (ordre libre). */
+  /* colonne « = 0 » : produit (les deux colonnes) et numerateur d'un quotient */
   const col=k=>'<div class="sp-eqcol">'
     +'<span class="sp-eqline">'+spMF('sp-f'+k)+'&nbsp;= 0</span>'
     +'<span class="s1-solve"><i>x</i> = <span class="s1-frac-stack">'+spBoxN('sp-n'+k)+'<span class="s1-fbar"></span>'+spBoxN('sp-d'+k)+'</span> = '+spBoxN('sp-v'+k)+'</span>'
     +'</div>';
-  return '<p class="tvi-prompt s1-prompt" style="margin-bottom:6px"><b>a)</b> R\u00e9sous <b><i>f</i>\u00a0(<i>x</i>) = 0</b>.</p>'
+  /* colonne du DENOMINATEUR CARRE : « (cx+d)\u00b2 \u2260 0 », donc « cx+d \u2260 0 », puis x \u2260 \u2026 */
+  const colCar=()=>'<div class="sp-eqcol">'
+    +'<span class="sp-eqline">'+spMF('sp-fq','sp-mfq')+'&nbsp;\u2260&nbsp;'+spBoxN('sp-zq')+'</span>'
+    +'<span class="sp-eqline">donc&nbsp;'+spMF('sp-f1')+'&nbsp;\u2260&nbsp;'+spBoxN('sp-z1')+'</span>'
+    +'<span class="s1-solve"><i>x</i> \u2260 <span class="s1-frac-stack">'+spBoxN('sp-n1')+'<span class="s1-fbar"></span>'+spBoxN('sp-d1')+'</span></span>'
+    +'<span class="s1-solve"><i>x</i> \u2260 '+spBoxN('sp-v1')+'</span>'
+    +'</div>';
+  /* colonne du DENOMINATEUR (quotient) : trois lignes avec le symbole \u2260 */
+  const colDen=()=>'<div class="sp-eqcol">'
+    +'<span class="sp-eqline">'+spMF('sp-f1')+'&nbsp;\u2260&nbsp;'+spBoxN('sp-z1')+'</span>'
+    +'<span class="s1-solve"><i>x</i> \u2260 <span class="s1-frac-stack">'+spBoxN('sp-n1')+'<span class="s1-fbar"></span>'+spBoxN('sp-d1')+'</span></span>'
+    +'<span class="s1-solve"><i>x</i> \u2260 '+spBoxN('sp-v1')+'</span>'
+    +'</div>';
+  return '<p class="tvi-prompt s1-prompt" style="margin-bottom:6px"><b>a)</b> R\u00e9sous <b><i>f</i>\u00a0(<i>x</i>) = 0</b>'
+    +(q.quo?' et cherche la <b>valeur interdite</b>.':'.')+'</p>'
     +'<div class="rec-ligne" style="margin-bottom:2px">On doit r\u00e9soudre&nbsp;:</div>'
-    +'<div class="sp-eqcols">'+col(0)+'<span class="sp-ou">ou</span>'+col(1)+'</div>';
+    +'<div class="sp-eqcols">'+col(0)+'<span class="sp-ou">'+(q.quo?'et':'ou')+'</span>'+(q.carre?colCar():(q.quo?colDen():col(1)))+'</div>';
 }
 function spBoxN(id){ return '<input type="text" inputmode="text" autocomplete="off" class="s1-in sm" id="'+id+'">'; }
 function spColFact(q,k){
+  if(q.quo) return k;   /* quotient : colonne 0 = numerateur, colonne 1 = denominateur */
   const m0=spMatchFact(q, mfPlainClean('sp-f0')), m1=spMatchFact(q, mfPlainClean('sp-f1'));
   const mk=(k===0)?m0:m1, mo=(k===0)?m1:m0;
   if(mk>=0) return mk;
@@ -9354,6 +9551,8 @@ function spColFact(q,k){
 }
 function spPartA(q){
   const out=[{id:'sp-f0',fact:true},{id:'sp-f1',fact:true}];
+  if(q.carre){ out.push({id:'sp-fq', carre:true}, {id:'sp-zq', zero:true}); }  /* (cx+d)\u00b2 \u2260 0 */
+  if(q.quo) out.push({id:'sp-z1', zero:true});   /* le 0 de « d\u00e9nominateur \u2260 0 » */
   for(let k=0;k<2;k++){
     out.push({id:'sp-n'+k, calc:'n', col:k});
     out.push({id:'sp-d'+k, calc:'d', col:k});
@@ -9374,7 +9573,7 @@ function spSignRowHTML(i,q){
   const nR=q.nR||0; let tds='';
   for(let j=0;j<=nR;j++){
     tds+='<td>'+spSelPM('sp-g'+i+'-'+j)+'</td>';
-    if(j<nR) tds+='<td class="s-rootcol sp-barcol">'+spSelZ('sp-b'+i+'-'+j)+'</td>';
+    if(j<nR) tds+='<td class="s-rootcol sp-barcol">'+spSelZ('sp-b'+i+'-'+j, q.quo)+'</td>';
   }
   return '<tr><td class="lab">'+spRowLab(i,q)+'</td>'+tds+'</tr>';
 }
@@ -9411,7 +9610,9 @@ function spCases(q){
       const ligne=(i,info)=>{
         for(let j=0;j<=nR;j++){
           out.push({id:'sp-g'+i+'-'+j, pm:(info&&j<info.signs.length)?info.signs[j]:null});
-          if(j<nR) out.push({id:'sp-b'+i+'-'+j, z:(info&&j<info.zeros.length)?(info.zeros[j]?'0':'rien'):null});
+          if(j<nR){ let zz=(info&&info.zv&&j<info.zv.length)?info.zv[j]:null;
+            if(zz==='rien') zz='|';                    /* compat. sessions en pause */
+            out.push({id:'sp-b'+i+'-'+j, z:zz}); }
         }
       };
       for(let i=0;i<nF;i++) ligne(i, i<2?q.fac[i]:null);
@@ -9420,22 +9621,32 @@ function spCases(q){
   }
   return out;
 }
-function spVide(x){
+/* Le denominateur de x = \u2212b/a vaut parfois 1 : ecrire \u00ab 1 \u00bb est alors FACULTATIF,
+   la case peut rester vide (elle n'est ni signalee vide, ni comptee fausse). */
+function spFacultatif(q,x){ return !!(q && x && x.calc==='d' && spCalcCible(q,x)===1); }
+function spVide(x,q){
   const el=$(x.id); if(!el) return true;
-  if(el.tagName==='MATH-FIELD') return mfPlainClean(x.id)==='';
-  return String(el.value||'').trim()==='';
+  const v=(el.tagName==='MATH-FIELD') ? mfPlainClean(x.id) : String(el.value||'').trim();
+  if(x.carre && spCarreNu(v)) return true;        /* seul l'exposant : rien n'est ecrit */
+  if(v==='' && spFacultatif(q,x)) return false;
+  return v==='';
 }
 function spCaseOk(q,x){
   const el=$(x.id); if(!el) return false;
   if(x.fact){
-    const autre=(x.id==='sp-f0')?'sp-f1':'sp-f0';
     const me=spMatchFact(q, mfPlainClean(x.id));
     if(me<0) return false;
+    /* quotient : la colonne est imposee (num\u00e9rateur \u00e0 gauche, d\u00e9nominateur \u00e0 droite) */
+    if(q.quo) return me===((x.id==='sp-f0')?0:1);
+    const autre=(x.id==='sp-f0')?'sp-f1':'sp-f0';
     const oi=spMatchFact(q, mfPlainClean(autre));
-    return oi<0 || oi!==me;   /* les deux cases doivent designer des facteurs DIFFERENTS */
+    return oi<0 || oi!==me;   /* produit : ordre libre, mais deux facteurs DIFFERENTS */
   }
+  if(x.carre) return spCarreOk(q.fac[1], mfPlainClean(x.id));
+  if(x.zero) return numOkTol(tgParse(el.value), 0);
   if(x.calc){
     const good=spCalcCible(q,x);
+    if(String(el.value||'').trim()==='') return spFacultatif(q,x);   /* d\u00e9nominateur 1 : vide accept\u00e9 */
     const v=(x.calc==='d')?tgParseCoef(el.value):(x.calc==='v'?tgParseFrac(el.value):tgParse(el.value));
     return numOkTol(v,good);
   }
@@ -9445,12 +9656,19 @@ function spCaseOk(q,x){
   const s=String(el.value||''); return x.z!=null && s===x.z;
 }
 function spCorr(x,q){
+  if(x.carre) return {lat:q?q.fac[1].labTex:'', s:q?q.fac[1].labPlain:''};
   if(x.fact){
-    const autre=(x.id==='sp-f0')?'sp-f1':'sp-f0';
-    const oi=q?spMatchFact(q, mfPlainClean(autre)):-1;
-    const k=(oi===0)?1:(oi===1?0:(x.id==='sp-f0'?0:1));
-    return {lat:q?q.fac[k].labTex:'', s:q?q.fac[k].labPlain:''};
+    let k=(x.id==='sp-f0')?0:1;
+    if(q && !q.quo){
+      const autre=(x.id==='sp-f0')?'sp-f1':'sp-f0';
+      const oi=spMatchFact(q, mfPlainClean(autre));
+      k=(oi===0)?1:(oi===1?0:k);
+    }
+    const F=q?q.fac[k]:null;
+    /* en a) on attend l'affine interne (cx+d), pas le carre affiche dans le tableau */
+    return {lat:F?(F.affTex||F.labTex):'', s:F?(F.affPlain||F.labPlain):''};
   }
+  if(x.zero) return {lat:'0', s:'0'};
   if(x.calc){
     const good=q?spCalcCible(q,x):0;
     return {lat:String(good).replace('.','{,}'), s:numFmt(good)};
@@ -9458,6 +9676,8 @@ function spCorr(x,q){
   if(x.count!=null) return {lat:String(x.count), s:String(x.count)};
   if(x.num!==undefined) return {lat:String(x.num).replace('.','{,}'), s:numFmt(x.num)};
   if(x.pm!==undefined) return {lat:x.pm, s:x.pm};
+  if(x.z==='\u2016') return {lat:'\\|', s:'\u2016'};
+  if(x.z==='|'||x.z==='rien') return {lat:'|', s:'|'};
   return {lat:x.z, s:x.z};
 }
 /* Comptes : saisis ici, memorises SUR LA QUESTION, et le tableau se reconstruit */
@@ -9480,7 +9700,7 @@ function spCount(id){
 }
 function spRenderTable(q, focusKeep){
   $('spQ2').innerHTML = (q.nF==null) ? '' :
-    '<div class="rec-ligne">Combien de <b>racines</b> au total (entre 0 et 4)&nbsp;? '+spBox('sp-nr')
+    '<div class="rec-ligne">Combien de <b>'+(q.quo?'valeurs':'racines')+'</b> '+(q.quo?'faut-il placer dans le tableau (racine et valeur interdite)':'au total')+' (entre 0 et 4)&nbsp;? '+spBox('sp-nr')
     +(q.nR==null?'':'')+'</div>';
   if(q.nF!=null && $('sp-nr')) $('sp-nr').value = (q.nR==null?'':String(q.nR));
   $('spTabWrap').innerHTML = spTableHTML(q);
@@ -9497,12 +9717,23 @@ function spRenderTable(q, focusKeep){
   });
   if(focusKeep){ const el=$(focusKeep); if(el){ try{ el.focus(); const L=(el.value||'').length; el.setSelectionRange(L,L); }catch(e){} } }
 }
+/* 1.5 : deux exemples de la forme (ax+b)/(cx+d)^2 \u2014 meme ecran, meme mecanique */
+async function startSPC(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='signe-quotient-carre'; test.kind='sp';
+  test.questions=[genSPC(),genSPC()];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('sp'); renderSP();
+}
 async function startSP(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-produit'; test.kind='sp';
-  test.questions=[genSP(),genSP(),genSP()];
+  /* progression : d'abord un produit, puis un quotient, puis l'un des deux au hasard */
+  test.questions=[genSP(),genSPQ(),(rand(0,1)?genSP():genSPQ())];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('sp'); renderSP();
 }
@@ -9515,14 +9746,21 @@ function renderSP(){
   $('spFeedback').textContent=''; $('spFeedback').className='mp-feedback';
   $('spActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSP()">V\u00e9rifier</button>';
   $('spPrompt').innerHTML='Soit &nbsp;<b>'+encTex(q.fTex,q.fPlain)+'</b>.';
-  $('spJetons').innerHTML=spJetonsHTML();
+  $('spJetons').innerHTML=spJetonsHTML(q);
   $('spQa').innerHTML=spResAHTML(q);
   $('spTitreB').hidden=false;
   $('spTitreB').innerHTML='<b>b)</b> D\u00e9termine le <b>signe de <i>f</i>\u00a0(<i>x</i>)</b> \u00e0 l\u2019aide d\u2019un tableau, que tu vas construire.';
-  $('spQ1').innerHTML='<div class="rec-ligne">Combien de <b>facteurs</b> dans ce tableau de signe (entre 1 et 4)&nbsp;? '+spBox('sp-nf')+'</div>';
+  $('spQ1').innerHTML='<div class="rec-ligne">Combien de <b>'+(q.quo?'expressions':'facteurs')+'</b> '+(q.quo?'faut-il \u00e9tudier (num\u00e9rateur, d\u00e9nominateur)':'dans ce tableau de signe')+' (entre 1 et 4)&nbsp;? '+spBox('sp-nf')+'</div>';
   if(q.nF!=null && $('sp-nf')) $('sp-nf').value=String(q.nF);
   spRenderTable(q);
   if(window.mlDexp) window.mlDexp.upgrade($('scr-sp'));
+  if(q.carre){
+    spPrefillCarre();
+    const fq=$('sp-fq');
+    if(fq) fq.addEventListener('focusin',()=>{
+      try{ if(spCarreNu(String(fq.getValue?fq.getValue():''))) spCarreCurseur(fq); }catch(e){}
+    });
+  }
   if(isSoutien()){
     spPartA(q).forEach(x=>{ const el=$(x.id); if(!el || el.tagName!=='INPUT') return;
       el.addEventListener('input',()=>{ if(test.locked) return;
@@ -9536,7 +9774,7 @@ function checkSP(){
   const q=test.questions[test.idx], fb=$('spFeedback');
   const cases=spCases(q);
   /* 1) tout doit etre rempli */
-  const vides=cases.filter(x=>spVide(x));
+  const vides=cases.filter(x=>spVide(x,q));
   if(vides.length){
     fb.textContent='Compl\u00e8te toutes les cases pour terminer ('+vides.length+' case'+(vides.length>1?'s':'')+' vide'+(vides.length>1?'s':'')+').';
     fb.className='mp-feedback bad';
@@ -9576,11 +9814,17 @@ function checkSP(){
       const c=spCorr(x,q);
       el.insertAdjacentHTML('afterend','<span class="mf-cor">'+encTex(c.lat,c.s)+'</span>');
       if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=true; }catch(e){} } else el.disabled=true; });
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9.<br>'
-      +'Retiens : chaque facteur est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour le facteur qui s\u2019annule l\u00e0 (et pour f) ; le signe de f est le <b>produit des signes</b>.';
+    /* le rappel doit coller a la VARIANTE : produit, quotient, ou quotient a carre */
+    const aide = q.carre
+      ? 'Retiens : <b>(cx+d)\u00b2 est un carr\u00e9, donc toujours positif</b> \u2014 sa ligne est <b>+</b> partout, avec <b>0</b> \u00e0 sa racine. '
+        +'Comme on divise par une quantit\u00e9 positive, <b>f a exactement le signe du num\u00e9rateur</b> ; \u00e0 la valeur interdite f n\u2019existe pas : <b>double barre \u2016</b>.'
+      : (q.quo
+      ? 'Retiens : chaque expression affine est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour celle qui s\u2019annule l\u00e0 ; le signe de f suit la <b>r\u00e8gle des signes</b>, et \u00e0 la valeur interdite f n\u2019existe pas : <b>double barre \u2016</b>.'
+      : 'Retiens : chaque facteur est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour le facteur qui s\u2019annule l\u00e0 (et pour f) ; le signe de f est le <b>produit des signes</b>.');
+    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9.<br>'+aide;
     fb.className='mp-feedback bad';
   }
-  test.answers.push({ q:q.fPlain+' \u2014 tableau de signe construit (facteurs, racines, z\u00e9ros et signes)',
+  test.answers.push({...(ptsExo()||{}), q:q.fPlain+' \u2014 tableau de signe construit (facteurs, racines, z\u00e9ros et signes)',
     answer:'tableau complet', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi' });
   const last=test.idx===test.questions.length-1;
   $('spActions').innerHTML='<button class="btn btn-primary" onclick="nextSP()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
@@ -9595,7 +9839,7 @@ function spLiveCheck(id){
     const q=test.questions[test.idx]; if(!q) return;
     const x=spCases(q).find(y=>y.id===id); if(!x || (x.num===undefined && !x.fact)) return;
     el.classList.remove('ok','bad');
-    if(!spVide(x)) el.classList.add(spCaseOk(q,x)?'ok':'bad');
+    if(!spVide(x,q)) el.classList.add(spCaseOk(q,x)?'ok':'bad');
   },0);
 }
 /* jetons : signe moins, fraction, clavier ecran, raccourcis (convention) */
@@ -9609,6 +9853,46 @@ function spActiveMF(){
   if(a && a.tagName==='MATH-FIELD' && a.classList.contains('sp-mf')) return a;
   if(spLastMF && document.contains(spLastMF) && !spLastMF.readOnly) return spLastMF;
   return document.querySelector('#scr-sp math-field.sp-mf:not([readonly])');
+}
+/* Le carre : sur un clavier fran\u00e7ais, « ^ » est une touche MORTE (elle attend une
+   voyelle), taper ^2 ne donne donc rien. Le jeton \u25a1\u00b2 doit fonctionner \u00e0 coup s\u00fbr :
+   on tente l'insertion LaTeX, puis la commande d'exposant de MathLive, et en dernier
+   recours on ecrit directement dans le champ. */
+/* La case de la 1re ligne affiche d'emblee le squelette \u00ab ( )\u00b2 \u00bb : l'eleve n'a plus qu'a
+   ecrire (cx+d) A L'INTERIEUR des parentheses (le clavier francais ne permet pas de taper
+   l'exposant facilement). Tant que le squelette est vide, la case est consideree comme
+   VIDE : elle est signalee \u00e0 remplir, jamais comptee fausse. */
+const SP_CARRE_SQ='()^{2}';
+function spCarreNu(t){
+  const x=String(t==null?'':t).replace(/\s+/g,'').replace(/[{}]/g,'')
+    .replace(/\\placeholder/g,'').replace(/\\left/g,'').replace(/\\right/g,'');
+  return x===''||x==='^2'||x==='2'||x==='\u00b2'||x==='()^2'||x==='()\u00b2'||x==='()';
+}
+/* curseur ENTRE les parentheses (position 1 : juste apres la parenthese ouvrante) */
+function spCarreCurseur(el){
+  try{ el.position=1; return; }catch(e){}
+  try{ el.executeCommand('moveToMathfieldStart'); el.executeCommand('moveToNextChar'); }catch(e){}
+}
+function spPrefillCarre(essai){
+  const el=$('sp-fq'); if(!el) return;
+  let pret=false;
+  try{
+    if(typeof el.getValue==='function' && typeof el.setValue==='function'){
+      pret=true;
+      if(String(el.getValue()||'').trim()===''){ el.setValue(SP_CARRE_SQ); spCarreCurseur(el); }   /* jamais d'ecrasement */
+    }
+  }catch(e){}
+  if(!pret && (essai||0)<6) setTimeout(()=>spPrefillCarre((essai||0)+1),120);
+}
+function spInsertCarre(){
+  const el=spActiveMF(); if(!el || el.readOnly) return;
+  try{ el.focus(); }catch(e){}
+  const lire=()=>{ try{ return String(el.getValue?el.getValue():''); }catch(e){ return ''; } };
+  const avant=lire();
+  try{ el.executeCommand(['insert','^{2}']); }catch(e){}
+  if(lire()===avant){ try{ el.executeCommand('moveToSuperscript'); el.executeCommand(['insert','2']); }catch(e){} }
+  if(lire()===avant){ try{ el.setValue(avant+'^{2}'); }catch(e){} }
+  try{ el.focus(); }catch(e){}
 }
 function spInsert(lx){
   const el=spActiveMF(); if(!el || el.readOnly) return;
@@ -9632,8 +9916,9 @@ function spKB(){
   const t=spActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
   try{ vk.show(); }catch(e){}
 }
-function spJetonsHTML(){
+function spJetonsHTML(q){
   return '<div class="rc-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
+    +((q&&q.carre)?'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="spInsertCarre()" title="Mettre au carr\u00e9 (la touche ^ d\u2019un clavier fran\u00e7ais ne suffit pas)" aria-label="Ins\u00e9rer un carr\u00e9">\u25a1\u00b2</button>':'')
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="spInsert(\'-\')" title="Signe moins" aria-label="Ins\u00e9rer un signe moins">\u2212</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="spInsert(\'\\\\frac{#0}{#?}\')" title="Fraction" aria-label="Ins\u00e9rer une fraction">'+ENC_ICO_FRAC+'</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="spKB()" title="Clavier math\u00e9matique \u00e0 l\u2019\u00e9cran" aria-label="Afficher ou masquer le clavier math\u00e9matique">\u2328\ufe0f</button>'
@@ -9647,20 +9932,23 @@ function spConseilCtx(){
   const etat=cases.map(x=>x.id.replace('sp-','')+' : '+lu(x)).join(' ; ');
   const A=spPartA(q);
   const luA=A.map(x=>x.id.replace('sp-','')+' : '+lu(x)).join(' ; ');
-  return 'Exercice \u00ab Signe d\u2019un produit \u00bb : '+q.fPlain+'. QUESTION a) : r\u00e9soudre f(x)=0 \u2014 l\u2019\u00e9l\u00e8ve \u00e9crit lui-m\u00eame les deux \u00e9quations \u00ab \u2026 = 0 \u00bb dans deux colonnes s\u00e9par\u00e9es par \u00ab ou \u00bb (les facteurs ne sont JAMAIS affich\u00e9s en clair ; ordre libre, \u00e9critures \u00e9quivalentes accept\u00e9es), puis r\u00e9sout CHAQUE \u00e9quation SOUS sa colonne comme au 1.1 niveau 2 (x = \u2212b/a : num\u00e9rateur \u2212b, d\u00e9nominateur a, puis la valeur, dixi\u00e8me accept\u00e9) \u2014 la validation d\u2019une colonne suit le facteur que l\u2019\u00e9l\u00e8ve y a \u00e9crit. R\u00e9ponses attendues de a), \u00e0 ne JAMAIS r\u00e9v\u00e9ler : facteurs '+q.fac[0].labPlain+' et '+q.fac[1].labPlain+' ; x = '+(-q.fac[0].b)+'/'+q.fac[0].a+' = '+q.fac[0].root+' et x = '+(-q.fac[1].b)+'/'+q.fac[1].a+' = '+q.fac[1].root+'. Saisies a) : '+luA+'. '+'Les questions a) et b) sont visibles ensemble et v\u00e9rifi\u00e9es d\u2019un seul coup. '
+  return 'Exercice \u00ab Signe d\u2019un produit ou d\u2019un quotient \u00bb \u2014 variante en cours : '+(q.carre?'QUOTIENT A DENOMINATEUR CARRE (ax+b)/(cx+d)\u00b2':(q.quo?'QUOTIENT (ax+b)/(cx+d)':'PRODUIT (ax+b)(cx+d)'))+' : '+q.fPlain+'. QUESTION a) : r\u00e9soudre f(x)=0 \u2014 l\u2019\u00e9l\u00e8ve \u00e9crit lui-m\u00eame les deux \u00e9quations \u00ab \u2026 = 0 \u00bb dans deux colonnes s\u00e9par\u00e9es par \u00ab '+(q.quo?'et':'ou')+' \u00bb (les expressions ne sont JAMAIS affich\u00e9es en clair ; \u00e9critures \u00e9quivalentes accept\u00e9es)'+(q.quo?' \u2014 pour un QUOTIENT l\u2019ordre est IMPOS\u00c9 : colonne de gauche le NUM\u00c9RATEUR (\u2026 = 0, puis x = \u2212b/a, puis la valeur), colonne de droite le D\u00c9NOMINATEUR \u00e9crit avec le symbole \u2260'+(q.carre?' : \u00ab (cx+d)\u00b2 \u2260 0 \u00bb, DONC \u00ab cx+d \u2260 0 \u00bb (un carr\u00e9 est nul seulement si sa base l\u2019est), puis \u00ab x \u2260 \u2212d/c \u00bb, puis \u00ab x \u2260 valeur interdite \u00bb':' : \u00ab \u2026 \u2260 0 \u00bb, puis \u00ab x \u2260 \u2212d/c \u00bb, puis \u00ab x \u2260 valeur interdite \u00bb'):' \u2014 ordre des colonnes libre')+', puis r\u00e9sout CHAQUE \u00e9quation SOUS sa colonne comme au 1.1 niveau 2 (x = \u2212b/a : num\u00e9rateur \u2212b, d\u00e9nominateur a, puis la valeur, dixi\u00e8me accept\u00e9) \u2014 la validation d\u2019une colonne suit le facteur que l\u2019\u00e9l\u00e8ve y a \u00e9crit. R\u00e9ponses attendues de a), \u00e0 ne JAMAIS r\u00e9v\u00e9ler : facteurs '+q.fac[0].labPlain+' et '+q.fac[1].labPlain+' ; x = '+(-q.fac[0].b)+'/'+q.fac[0].a+' = '+q.fac[0].root+' et x = '+(-q.fac[1].b)+'/'+q.fac[1].a+' = '+q.fac[1].root+'. Saisies a) : '+luA+'. '+'Les questions a) et b) sont visibles ensemble et v\u00e9rifi\u00e9es d\u2019un seul coup. '
    +'QUESTION b) : l\u2019\u00e9l\u00e8ve CONSTRUIT le tableau : '
-   +'1) nombre de facteurs (r\u00e9ponse attendue : 2) \u2014 le tableau affiche autant de lignes qu\u2019il en demande ; '
-   +'2) nombre de racines au total (r\u00e9ponse attendue : 2) \u2014 autant de traits verticaux apparaissent ; '
-   +'3) il place les racines (ordre croissant) au-dessus des traits, choisit \u00ab rien \u00bb ou \u00ab 0 \u00bb \u00e0 chaque croisement, et \u00ab + \u00bb ou \u00ab \u2212 \u00bb dans chaque intervalle. '
+   +'1) nombre de '+(q.quo?'expressions \u00e0 \u00e9tudier (num\u00e9rateur et d\u00e9nominateur)':'facteurs')+' (r\u00e9ponse attendue : 2) \u2014 le tableau affiche autant de lignes qu\u2019il en demande ; '
+   +'2) nombre de '+(q.quo?'valeurs \u00e0 placer (racine du num\u00e9rateur et valeur interdite)':'racines au total')+' (r\u00e9ponse attendue : 2) \u2014 autant de traits verticaux apparaissent ; '
+   +'3) il place ces valeurs (ordre croissant) au-dessus des traits, choisit \u00ab | \u00bb (trait seul, choix par d\u00e9faut), \u00ab 0 \u00bb'+(q.quo?' ou \u00ab \u2016 \u00bb (double barre)':'')+' \u00e0 chaque croisement, et \u00ab + \u00bb ou \u00ab \u2212 \u00bb dans chaque intervalle. '
    +'Les racines acceptent toute \u00e9criture \u00e9quivalente et toute valeur approch\u00e9e au dixi\u00e8me pr\u00e8s ; TOUTES les cases doivent \u00eatre remplies. '
    +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : racines '+q.roots.join(' puis ')+' ; '
-   +q.fac.map((F,i)=>'ligne '+F.labPlain+' : signes '+F.signs.join(', ')+' (z\u00e9ro au trait '+(F.zeros[0]?'1':'2')+')').join(' ; ')
-   +' ; ligne f : signes '+q.frow.signs.join(', ')+', z\u00e9ro aux deux traits. '
+   +q.fac.map((F,i)=>'ligne '+F.labPlain+' : signes '+F.signs.join(', ')+' (z\u00e9ro au trait '+(F.zv[0]==='0'?'1':'2')+')').join(' ; ')
+   +' ; ligne f : signes '+q.frow.signs.join(', ')+', '+(q.quo?'z\u00e9ro au trait de la racine du num\u00e9rateur et DOUBLE BARRE \u2016 \u00e0 la valeur interdite':'z\u00e9ro aux deux traits')+'. '
    +'Saisies actuelles : '+etat+'. '
-   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE racine, AUCUN signe, AUCUN \u00ab 0/rien \u00bb de cet exercice. '
-   +'M\u00e9thode : un produit de deux facteurs affines a 2 facteurs et (racines distinctes) 2 racines ; '
-   +'chaque facteur s\u2019annule en \u2212b/a et est du signe de a \u00e0 droite ; sur un trait, 0 seulement pour le facteur qui s\u2019annule l\u00e0 (et pour f) ; '
-   +'le signe de f est le produit des signes (r\u00e8gle des signes). '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE racine, AUCUN signe, AUCUN contenu de trait (0, |, \u2016) de cet exercice. '
+   +'M\u00e9thode : '+(q.quo
+      ? (q.carre?'le d\u00e9nominateur est un CARRE : il est toujours POSITIF (nul seulement en sa racine), donc f a exactement le signe du num\u00e9rateur ; 2 lignes et 2 valeurs \u00e0 placer ; ':'')
+        +'un quotient de deux expressions affines a 2 lignes (num\u00e9rateur, d\u00e9nominateur) et 2 valeurs \u00e0 placer ; f est nulle quand le NUM\u00c9RATEUR est nul, et n\u2019existe pas quand le d\u00e9nominateur est nul (valeur interdite, double barre sur la ligne de f) ; '
+      : 'un produit de deux facteurs affines a 2 facteurs et (racines distinctes) 2 racines ; sur un trait, 0 seulement pour le facteur qui s\u2019annule l\u00e0 (et pour f), trait seul | ailleurs ; ')
+   +'chaque expression affine s\u2019annule en \u2212b/a et est du signe de a \u00e0 droite de sa racine ; '
+   +'le signe de f suit la r\u00e8gle des signes. '
    +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
@@ -9752,7 +10040,7 @@ function checkSU(){
     if(!v['su-raison']){ if(rRaw==='') fillVide('su-raison', suLatexNum(c.raison)); else corCote('su-raison', suLatexNum(c.raison), suPlain(c.raison)); }
     if(!v['su-formule']){ if(fRaw==='') fillVide('su-formule', suLatexFormule(c)); else corCote('su-formule', suLatexFormule(c), suFormulePlain(c)); }
   }
-  test.answers.push({q:suRecPlain(c)+' avec U'+c.p+' = '+suPlain(c.up)+' \u2014 suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison '+suPlain(c.raison)+' ; '+suFormulePlain(c), answer:'formule explicite', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:suRecPlain(c)+' avec U'+c.p+' = '+suPlain(c.up)+' \u2014 suite '+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+' de raison '+suPlain(c.raison)+' ; '+suFormulePlain(c), answer:'formule explicite', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('suActions').innerHTML='<button class="btn btn-primary" onclick="nextSU()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
 }
@@ -10589,7 +10877,7 @@ function checkENC(){
       +'l\u2019<b>inverse</b> (d\u00e9croissante sur ]0 ; +\u221e[) et la <b>multiplication par un nombre n\u00e9gatif</b> (l\u2019<b>oppos\u00e9</b>) l\u2019<b>\u00e9changent</b>.';
     fb.className='mp-feedback bad';
   }
-  test.answers.push({ q:c.fPlain+' \u2014 montrer que x \u2208 ['+c.m+' ; '+c.M+'] \u21d2 f(x) \u2208 ['+c.m+' ; '+c.M+'] (encadrements en cha\u00eene)',
+  test.answers.push({...(ptsExo()||{}), q:c.fPlain+' \u2014 montrer que x \u2208 ['+c.m+' ; '+c.M+'] \u21d2 f(x) \u2208 ['+c.m+' ; '+c.M+'] (encadrements en cha\u00eene)',
     answer:'encadrement complet', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi' });
   const last=test.idx===test.questions.length-1;
   $('encActions').innerHTML='<button class="btn btn-primary" onclick="nextENC()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
@@ -10850,7 +11138,7 @@ function checkREC(){
       +'Retiens : on <b>suppose</b> pour <i>n</i>, on <b>montre</b> pour <i>n</i>+1, en reconstruisant le calcul de U<sub><i>n</i>+1</sub> \u00e9tape par \u00e9tape.';
     fb.className='mp-feedback bad';
   }
-  test.answers.push({ q:q.defPlain+' \u2014 conjectures puis r\u00e9currence '+q.m+' \u2264 U(n) \u2264 '+q.M+' (n \u2265 '+q.n0+')',
+  test.answers.push({...(ptsExo()||{}), q:q.defPlain+' \u2014 conjectures puis r\u00e9currence '+q.m+' \u2264 U(n) \u2264 '+q.M+' (n \u2265 '+q.n0+')',
     answer:'fiche compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi' });
   const last=test.idx===test.questions.length-1;
   $('recActions').innerHTML='<button class="btn btn-primary" onclick="nextREC()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
@@ -11096,7 +11384,7 @@ function checkSA(){
       try{ el.readOnly=true; }catch(e){}
     });
   }
-  test.answers.push({q:'U(n+1) = '+SA.numStr(q.a)+'\u00b7U(n) '+(q.b<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.b))+' avec U0 = '+SA.numStr(q.u0)+' ; V(n) = U(n) '+(q.k<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.k))+' \u2014 (Vn) g\u00e9om\u00e9trique de raison '+SA.numStr(q.a)+', V0 = '+SA.numStr(q.V0)+', V(n) = '+SA.numStr(q.V0)+'\u00d7('+SA.numStr(q.a)+')^n, U(n) = '+SA.numStr(q.V0)+'\u00d7('+SA.numStr(q.a)+')^n '+(-q.k<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.k)), answer:'d\u00e9monstration suite auxiliaire', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  test.answers.push({...(ptsExo()||{}),q:'U(n+1) = '+SA.numStr(q.a)+'\u00b7U(n) '+(q.b<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.b))+' avec U0 = '+SA.numStr(q.u0)+' ; V(n) = U(n) '+(q.k<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.k))+' \u2014 (Vn) g\u00e9om\u00e9trique de raison '+SA.numStr(q.a)+', V0 = '+SA.numStr(q.V0)+', V(n) = '+SA.numStr(q.V0)+'\u00d7('+SA.numStr(q.a)+')^n, U(n) = '+SA.numStr(q.V0)+'\u00d7('+SA.numStr(q.a)+')^n '+(-q.k<0?'\u2212 ':'+ ')+SA.numStr(Math.abs(q.k)), answer:'d\u00e9monstration suite auxiliaire', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('saActions').innerHTML='<button class="btn btn-primary" onclick="nextSA()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
 }
@@ -11781,19 +12069,24 @@ function mdlREC(){
    +mdlChaine(q.ch,true)+'\n'
    +'Conclusion : vraie au rang '+q.n0+' et h\u00e9r\u00e9ditaire, donc vraie pour tout \\(n \\ge '+q.n0+'\\) (principe de r\u00e9currence).';
 }
+/* cellule « sur le trait » du modele : rien, 0, ou double barre (quotient) */
+function spZmdl(z){ return z==='\u2016' ? '\\|' : (z==='0' ? '0' : ''); }   /* trait seul : cellule vide */
 function mdlSP(){
-  const q=qiaAutre(genSP, qiaSig());
+  const cq=(test.questions&&test.questions[test.idx])||{};
+  const gen=(cq.kind==='car')?genSPC:((cq.kind==='quo')?genSPQ:genSP);   /* calque sur la variante */
+  const q=qiaAutre(gen, qiaSig());
+  const quo=!!q.quo, car=!!q.carre;
   const F1=q.fac[0], F2=q.fac[1], r1=q.roots[0], r2=q.roots[1];
-  const row=(lab,info)=>lab+' & '+info.signs[0]+' & '+(info.zeros[0]?'0':'')+' & '+info.signs[1]+' & '+(info.zeros[1]?'0':'')+' & '+info.signs[2];
+  const row=(lab,info)=>lab+' & '+info.signs[0]+' & '+spZmdl(info.zv[0])+' & '+info.signs[1]+' & '+spZmdl(info.zv[1])+' & '+info.signs[2];
   return 'Soit \\\\('+q.fTex+'\\\\).\n'
-   +'a) Résolvons \\\\(f(x)=0\\\\) : un produit est nul si l’un de ses facteurs est nul, donc on doit résoudre \\\\('+F1.labTex+'=0\\\\) ou \\\\('+F2.labTex+'=0\\\\).\n'
-   +'\\\\('+F1.labTex+'=0\\\\) donne \\\\(x=\\\\frac{'+(-q.fac[0].b)+'}{'+q.fac[0].a+'}='+r1+'\\\\) ; \\\\('+F2.labTex+'=0\\\\) donne \\\\(x=\\\\frac{'+(-q.fac[1].b)+'}{'+q.fac[1].a+'}='+r2+'\\\\).\n'
+   +'a) Résolvons \\\\(f(x)=0\\\\) : '+(quo?'un quotient est nul quand son NUMÉRATEUR est nul, et son dénominateur ne doit jamais s’annuler ; on écrit donc \\\\('+F1.labTex+' = 0\\\\) et \\\\('+F2.labTex+' \\\\neq 0\\\\).':'un produit est nul si l’un de ses facteurs est nul, donc on doit résoudre \\\\('+F1.labTex+'=0\\\\) ou \\\\('+F2.labTex+'=0\\\\).')+'\n'
+   +'\\\\('+F1.labTex+'=0\\\\) donne \\\\(x=\\\\frac{'+(-q.fac[0].b)+'}{'+q.fac[0].a+'}='+q.fac[0].root+'\\\\)'+(quo?' ; et \\\\(x \\\\neq \\\\frac{'+(-q.fac[1].b)+'}{'+q.fac[1].a+'}\\\\), c’est-à-dire \\\\(x \\\\neq '+q.fac[1].root+'\\\\) : c’est la valeur interdite.':' ; \\\\('+F2.labTex+'=0\\\\) donne \\\\(x=\\\\frac{'+(-q.fac[1].b)+'}{'+q.fac[1].a+'}='+q.fac[1].root+'\\\\).')+'\n'
    +'b) Déterminons le signe de \\\\(f\\\\) à l’aide d’un tableau.\n'
-   +'Il y a 2 facteurs, donc 2 lignes de facteurs puis la ligne de \\\\(f\\\\) ; les 2 racines trouvées en a) sont placées en ordre croissant.\n'
+   +''+(quo?'Il y a 2 expressions à étudier (numérateur et dénominateur), donc 2 lignes puis la ligne de ':'Il y a 2 facteurs, donc 2 lignes de facteurs puis la ligne de ')+'\\\\(f\\\\)'+(quo?' ; la racine et la valeur interdite trouvées en a) sont placées en ordre croissant.':' ; les 2 racines trouvées en a) sont placées en ordre croissant.')+'\n'
    +'\\begin{array}{c|ccccc} x & -\\infty\\; & '+r1+' & & '+r2+' & \\;+\\infty \\\\\\\\ \\hline '
    +row(F1.labTex,F1)+' \\\\\\\\ \\hline '+row(F2.labTex,F2)+' \\\\\\\\ \\hline '+row('f(x)',q.frow)
    +' \\end{array}\n'
-   +'Chaque facteur est du signe de son coefficient de \\(x\\) \u00e0 droite de sa racine, et vaut 0 \u00e0 sa racine (rien sur l\u2019autre trait) ; le signe de \\(f\\) est le produit des signes, et \\(f\\) s\u2019annule aux deux racines.';
+   +''+(quo?'Chaque expression est du signe de son coefficient de ':'Chaque facteur est du signe de son coefficient de ')+'\\(x\\) \u00e0 droite de sa racine, et vaut 0 \u00e0 sa racine (trait seul sur l\u2019autre) ; le signe de \\(f\\) '+(quo?'suit la règle des signes appliquée au quotient, et ':'est le produit des signes, et ')+'\\(f\\) '+(quo?'s\u2019annule \u00e0 la racine du num\u00e9rateur ; \u00e0 la valeur interdite, f n\u2019existe pas, d\u2019o\u00f9 la double barre sur sa ligne.':'s\u2019annule aux deux racines.')+'';
 }
 const QIA_MODELES={ su:mdlSU, enc:mdlENC, rec:mdlREC, sp:mdlSP };
 /* Question a l'IA : CONTEXTE COMPLET de l'exercice en cours, pour que le modele
