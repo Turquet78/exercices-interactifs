@@ -699,6 +699,32 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700}
 @media(max-width:520px){ .score-tag{padding:5px 10px} .score-tag .score-lbl{font-size:.78rem} }
 
+
+/* ----- Fenetres flottantes du clavier et des raccourcis (module MathLive) -----
+   Sans ces regles, les deux panneaux s'affichent en permanence sur toutes les pages :
+   ils sont masques par defaut et ne s'ouvrent qu'a la demande (classe « open »). */
+#kbwin{position:fixed;right:24px;bottom:24px;z-index:3200;width:460px;display:none;background:#fff;
+  border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
+#kbwin.open{display:block}
+.kbwin-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:grab;
+  user-select:none;touch-action:none;background:var(--paper);border-bottom:1px solid var(--grid);
+  font:600 13px 'Nunito',sans-serif;color:var(--ink-soft);}
+.kbwin-bar:active{cursor:grabbing}
+.kbwin-close{border:none;background:transparent;cursor:pointer;color:var(--ink-soft);font-size:14px;padding:2px 6px}
+#kbwin .ML__keyboard{position:relative !important;transform:none !important;height:var(--_keyboard-height,auto);}
+#kbhelp{position:fixed;right:24px;top:24px;z-index:3200;width:360px;max-width:calc(100vw - 32px);display:none;background:#fff;
+  max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);
+  border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
+#kbhelp.open{display:flex;flex-direction:column;}
+#kbhelp .kbwin-bar{flex:0 0 auto;}
+.kbhelp-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;
+  padding:10px 14px 14px;font:500 .92rem 'Nunito',sans-serif;color:var(--ink);}
+.kbhelp-t{border-collapse:collapse;width:100%;}
+.kbhelp-t td{padding:5px 6px;vertical-align:top;line-height:1.5;}
+
+/* rendu statique des formules (mlDexp.tex) */
+.ml-static{display:inline-block;vertical-align:middle;}
+
 </style>
 
 <div class="wrap">
@@ -1152,7 +1178,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=3;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=4;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
