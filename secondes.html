@@ -661,6 +661,44 @@
     .vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
     .vfcell .vt-sel2.good{border-color:var(--green);background:var(--green-soft)}
     .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
+
+/* ===================== GREFFE TERMINALE : cases mathematiques ===================== */
+body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;
+  --contains-highlight-background-color:transparent;border-radius:10px;background:var(--surface);
+  padding:2px 8px;min-height:1.9em;font-size:1.05rem;}
+body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
+body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;
+math-field.dexp-mf.ok{border-color:var(--green);background:var(--green-soft);}
+math-field.dexp-mf.bad{border-color:var(--red);background:var(--red-soft);}
+math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
+body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+.sel-cor{display:block;margin-top:4px;color:var(--blue);font-weight:600;white-space:normal;}
+.rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
+.rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
+.sa-jeton{font-family:"Nunito";font-weight:800;font-size:.95rem;border:1.5px solid #c9d4f3;background:#fff;color:var(--blue-dark);border-radius:10px;padding:6px 12px;cursor:pointer;transition:background .12s,border-color .12s}
+.sa-jeton-ic{min-width:44px;text-align:center;font-size:1.05rem;padding:6px 10px;line-height:1.3}
+.note-exo{margin-top:9px;padding-top:8px;border-top:1.5px dashed var(--grid);font-weight:800;font-size:.95rem;}
+.note-exo.parfait{color:var(--green);}
+.note-exo .note-det{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
+.rpart{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
+#review li.part .rmark{color:var(--blue);}
+math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
+math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
+math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
+.rc-jetons{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
+.rc-jlbl{font-weight:800;color:var(--ink-soft);font-size:.9rem;}
+.sa-jeton{border:1.6px solid var(--line);background:#fff;border-radius:10px;padding:5px 11px;font-weight:800;
+  font-family:"Nunito",system-ui,sans-serif;cursor:pointer;color:var(--ink);line-height:1.2;}
+.sa-jeton:hover{border-color:var(--blue);color:var(--blue);}
+.sa-jeton-ic{min-width:40px;display:inline-flex;align-items:center;justify-content:center;}
+.note-exo{margin-top:9px;padding-top:8px;border-top:1.5px dashed var(--grid);font-weight:800;font-size:.95rem;}
+.note-exo.parfait{color:var(--green);}
+.note-exo .note-det{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--paper);
+  border:1.4px solid var(--grid);font-size:.82rem;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
+.score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700}
+@media(max-width:520px){ .score-tag{padding:5px 10px} .score-tag .score-lbl{font-size:.78rem} }
+
 </style>
 
 <div class="wrap">
@@ -668,7 +706,7 @@
     <div class="logo">ƒ</div>
     <div>
       <h1>Maths Seconde</h1>
-      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800">· build&nbsp;exp21</b></p>
+      <p class="sub">Tous les exercices de la classe, toute l'année <b style="color:var(--blue);font-weight:800" id="appVer"></b></p>
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
@@ -895,7 +933,7 @@
   <section class="screen" id="scr-ptest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagP"></span><span class="q-idx" id="pqIdx">Question 1 / 8</span></span>
-      <span class="score-tag">Réussies&nbsp;<b id="pLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr" id="pPrompt">Prendre un pourcentage.</p>
@@ -912,7 +950,7 @@
   <section class="screen" id="scr-atest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagA"></span><span class="q-idx" id="aqIdx">Calcul 1 / 6</span></span>
-      <span class="score-tag">Réussies&nbsp;<b id="aLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="aLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr" id="aPrompt">Augmenter d'un pourcentage.</p>
@@ -927,7 +965,7 @@
   <section class="screen" id="scr-dtest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagD"></span><span class="q-idx" id="dqIdx">Calcul 1 / 6</span></span>
-      <span class="score-tag">Réussies&nbsp;<b id="dLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="dLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr" id="dPrompt">Diminuer d'un pourcentage.</p>
@@ -943,7 +981,7 @@
   <section class="screen" id="scr-ens">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEns"></span><span class="q-idx" id="ensIdx">Question 1 / 10</span></span>
-      <span class="score-tag">Réussies&nbsp;<b id="ensLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ensLiveScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr">Complète chaque ligne avec <b>∈</b> (appartient) ou <b>∉</b> (n'appartient pas).</p>
@@ -961,7 +999,7 @@
   <section class="screen" id="scr-def">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagDef"></span><span class="q-idx" id="defIdx">Question 1 / 5</span></span>
-      <span class="score-tag">Réussies&nbsp;<b id="defScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="defScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr" id="defPrompt">Définis un ensemble.</p>
@@ -978,7 +1016,7 @@
   <section class="screen" id="scr-pge">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPge"></span><span class="q-idx" id="pgeIdx">Question 1 / 10</span></span>
-      <span class="score-tag">Réussies&nbsp;<b id="pgeScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pgeScore">0</b></span>
     </div>
     <div class="card">
       <p class="mp-instr">Quel est le plus petit ensemble qui contient ce nombre ?</p>
@@ -1109,6 +1147,139 @@
 <script>
 /* ---------- Raccourcis ---------- */
 const $=id=>document.getElementById(id);
+
+/* ================== GREFFE TERMINALE : cases mathematiques ==================
+   Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
+   reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
+   texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
+const APP_VERSION=3;                       /* numero de version affiche dans l'en-tete */
+function pmPlain(el){
+  try{
+    if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
+    return String(el.getValue?el.getValue():'').trim();
+  }catch(e){ return ''; }
+}
+function pmAdapter(el){
+  if(!el || el.__pmAdapt) return; el.__pmAdapt=true;
+  try{
+    Object.defineProperty(el,'value',{ configurable:true,
+      get(){ return pmPlain(el); },
+      set(v){ try{ el.setValue(String(v==null?'':v)); }catch(e){} } });
+    Object.defineProperty(el,'disabled',{ configurable:true,
+      get(){ return !!el.readOnly; },
+      set(v){ try{ el.readOnly=!!v; }catch(e){} } });
+  }catch(e){}
+}
+/* a appeler apres chaque rendu : transforme et adapte toutes les cases de l'ecran */
+function pmUpgrade(scope){
+  const root=scope||document;
+  try{ if(window.mlDexp && window.mlDexp.upgrade) window.mlDexp.upgrade(root); }catch(e){}
+  const fin=()=>{ try{ root.querySelectorAll('math-field.pm-mf').forEach(pmAdapter); }catch(e){} };
+  fin(); setTimeout(fin,60); setTimeout(fin,200);
+}
+/* fabrique une case mathematique (remplace les anciens <input>) */
+function pmMF(cls,id,extra){
+  return '<math-field class="dexp-mf pm-mf '+(cls||'')+'" id="'+id+'"'+(extra||'')+'></math-field>';
+}
+/* ---- rangee de jetons + clavier a l'ecran (convention terminale) ---- */
+let pmLastMF=null;
+document.addEventListener('focusin',e=>{
+  const el=e.target;
+  if(el && el.tagName==='MATH-FIELD' && el.classList && el.classList.contains('pm-mf')) pmLastMF=el;
+});
+function pmActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && a.classList && a.classList.contains('pm-mf')) return a;
+  if(pmLastMF && document.contains(pmLastMF) && !pmLastMF.readOnly) return pmLastMF;
+  return document.querySelector('.screen.on math-field.pm-mf:not([readonly])');
+}
+function pmInsert(lx){
+  const el=pmActiveMF(); if(!el || el.readOnly) return;
+  try{ el.focus(); }catch(e){}
+  try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }
+}
+function pmKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=pmActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function pmMenuKb(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;
+  const t=pmActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+  try{
+    const r=t.getBoundingClientRect();
+    t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
+      clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
+  }catch(e){}
+}
+const PM_ICO_FRAC='<svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="true">'
+ +'<rect x="4" y="2" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+ +'<line x1="2" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.8"/>'
+ +'<rect x="4" y="12" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+function pmJetonsHTML(){
+  return '<div class="rc-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\',\')" title="Virgule d\u00e9cimale" aria-label="Ins\u00e9rer une virgule">,</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'-\')" title="Signe moins" aria-label="Ins\u00e9rer un signe moins">\u2212</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'\\\\frac{#0}{#?}\')" title="Fraction" aria-label="Ins\u00e9rer une fraction">'+PM_ICO_FRAC+'</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmKB()" title="Clavier math\u00e9matique \u00e0 l\u2019\u00e9cran" aria-label="Afficher ou masquer le clavier">\u2328\ufe0f</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmMenuKb()" title="Raccourcis clavier" aria-label="Afficher les raccourcis">\u2630</button></div>';
+}
+/* ---- correction : vert / rouge + bonne reponse en bleu / bleu si vide ---- */
+function corrCase(id, val, ok){
+  const el=$(id); if(!el) return;
+  const libelle=(el.tagName==='SELECT' && el.options)
+    ? ((Array.prototype.find.call(el.options, o=>o.value===val)||{}).textContent||val) : val;
+  const vide=String(el.value==null?'':el.value).trim()==='';
+  el.classList.remove('ok','bad','sol');
+  if(ok){ el.classList.add('ok'); }
+  else if(vide){ el.value=val; el.classList.add('sol'); }
+  else {
+    el.classList.add('bad');
+    if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+String(libelle)+'</span>');
+  }
+  el.disabled=true;
+}
+/* ---- notation : credit partiel + note de chaque exercice ---- */
+function ptsEcran(){
+  try{
+    const scr=document.querySelector('.screen.on'); if(!scr) return null;
+    const els=scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
+      +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol');
+    if(!els.length) return null;
+    let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
+    return {pts:ok/els.length, justes:ok, cases:els.length};
+  }catch(e){ return null; }
+}
+function ptsRep(a){
+  if(!a) return 0;
+  if(a.correct) return 1;
+  let p=(typeof a.pts==='number'&&isFinite(a.pts))?Math.max(0,Math.min(1,a.pts)):0;
+  if(p>=1) p=(a.cases>1)?(a.cases-1)/a.cases:0;
+  return p;
+}
+function pmFmtNote(v){ const r=Math.round(v*100)/100; return String(Number.isInteger(r)?r:Math.round(r*10)/10).replace('.',','); }
+function afficherNoteExo(){
+  try{
+    if(typeof currentMode==='undefined' || currentMode!=='train') return;
+    const a=(typeof test!=='undefined' && test.answers && test.answers.length)?test.answers[test.answers.length-1]:null;
+    if(!a || typeof a.cases!=='number') return;
+    const scr=document.querySelector('.screen.on'); if(!scr) return;
+    const fb=scr.querySelector('.mp-feedback'); if(!fb) return;
+    if(fb.querySelector('.note-exo')) return;
+    const p=ptsRep(a), tot=a.cases, n=Math.round(p*tot), parfait=!!a.correct;
+    const d=document.createElement('div');
+    d.className='note-exo'+(parfait?' parfait':'');
+    d.innerHTML='Note de cet exercice\u00a0: <b>'+pmFmtNote(p)+'</b> / 1'
+      +' <span class="note-det">'+n+' case'+(n>1?'s':'')+' juste'+(n>1?'s':'')+' sur '+tot+'</span>'
+      +(parfait?' <span class="note-det">exercice parfait \u2714</span>':'');
+    fb.appendChild(d);
+  }catch(e){}
+}
+function ptsExo(){ const m=ptsEcran(); setTimeout(afficherNoteExo,0); return m; }
 const val=id=>$(id).value;
 const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1315,7 +1486,7 @@ async function checkDef(){
   }
   test.locked=true; if(t) t.disabled=true;
   if(correct){ test.score++; $('defScore').textContent=test.score; }
-  test.answers.push({correct:correct, q:(DEF_SETS[k]||{sym:k}).sym+' — '+(correct?'juste':'à revoir'), answer:'', given:''});
+  test.answers.push({...(ptsExo()||{}),correct:correct, q:(DEF_SETS[k]||{sym:k}).sym+' — '+(correct?'juste':'à revoir'), answer:'', given:''});
   const last=test.idx===test.questions.length-1;
   $('defActions').innerHTML='<button class="btn btn-primary" id="defNext" onclick="nextDefQ()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('defNext'); if(nb) nb.focus();
@@ -1372,6 +1543,7 @@ function ctxVisible(){
   const stage=scr.querySelector('.mp-stage'); if(stage){ const t=stage.textContent.replace(/\s+/g,' ').trim(); if(t) parts.push('Éléments affichés : '+t); }
   const vals=[];
   scr.querySelectorAll('input, textarea').forEach(el=>{ const v=(el.value||'').trim(); if(v) vals.push(v); });
+  scr.querySelectorAll('math-field').forEach(el=>{ const v=pmPlain(el); if(v) vals.push(v); });   /* cases mathematiques */
   scr.querySelectorAll('[contenteditable="true"]').forEach(el=>{ const v=(el.textContent||'').replace(/\u200b/g,'').trim(); if(v) vals.push(v); });
   if(vals.length) parts.push('Réponse actuelle de l’élève (éventuellement incomplète ou fausse) : '+vals.join(' | ')+'. Appuie ton indice sur ce qu’il a écrit et son erreur éventuelle, sans donner la réponse.');
   return parts.join(' ');
@@ -1424,7 +1596,7 @@ function choisirPge(k){
     btns.forEach(b=>b.disabled=true);
     test.locked=true; test.score++; $('pgeScore').textContent=test.score;
     $('pgeFeedback').textContent=pgeWhy(q,bon,true); $('pgeFeedback').className='mp-feedback good';
-    test.answers.push({correct:true, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
+    test.answers.push({...(ptsExo()||{}),correct:true, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
     ajouterSuivantPge();
   } else if(isSoutien()){
     if(clicked){ clicked.classList.add('bad'); clicked.disabled=true; }
@@ -1434,7 +1606,7 @@ function choisirPge(k){
     btns.forEach(b=>{ b.disabled=true; if(b.dataset.k===bon) b.classList.add('good'); });
     test.locked=true;
     $('pgeFeedback').textContent=pgeWhy(q,bon,false); $('pgeFeedback').className='mp-feedback bad';
-    test.answers.push({correct:false, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
+    test.answers.push({...(ptsExo()||{}),correct:false, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
     ajouterSuivantPge();
   }
 }
@@ -2206,7 +2378,7 @@ function submitLV(){
   $('lvValidate').disabled=true;
   if(!res.allOk) $('lvCorr').innerHTML=lvCorrectionHTML(q);
   else $('lvCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
-  test.answers.push({correct:res.allOk, q:lvPartLabel(q)+' (graph. '+q.gnum+') \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'lv'});
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:lvPartLabel(q)+' (graph. '+q.gnum+') \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'lv'});
   test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderLV(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
 }
 
@@ -2711,14 +2883,14 @@ function renderPTest(){
   $('pFeedback').textContent=''; $('pFeedback').className='mp-feedback';
   $('pActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>';
   $('pPrompt').innerHTML=`Prendre <b>${q.P}%</b> de <b>${q.N} ${esc(q.unit)}</b>, c'est calculer :`;
-  const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   $('pHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Transformer le % en fraction décimale</div>
        <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span></div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Multiplier les fractions</div>
        <div class="pt-row"><span class="f-eq">=</span>${frac('p2n','p2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">③ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><input class="f-dec" id="p3" type="text" inputmode="decimal" autocomplete="off" aria-label="résultat"><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -2749,7 +2921,7 @@ function checkPAnswer(live){
     $('pFeedback').textContent=`Réponse : ${q.P}/100 × ${q.N} = ${q.prod}/100 = ${q.result} ${q.unit} (toute fraction égale est acceptée)`; $('pFeedback').className='mp-feedback bad';
   }
   const given=v('p3')===''?null:(v('p3').replace('.', ',')+' '+q.unit);
-  test.answers.push({q:`${q.P} % de ${q.N} ${q.unit}`, answer:`${q.result} ${q.unit}`, given, correct:allOk});
+  test.answers.push({...(ptsExo()||{}),q:`${q.P} % de ${q.N} ${q.unit}`, answer:`${q.result} ${q.unit}`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('pActions').innerHTML=`<button class="btn btn-primary" id="pNext" onclick="nextPQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   $('pNext').focus();
@@ -2803,21 +2975,21 @@ function renderATest(){
   $('aFeedback').textContent=''; $('aFeedback').className='mp-feedback';
   $('aActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>';
   $('aPrompt').innerHTML=`${q.intro} <b>${q.N} ${esc(q.unit)}</b> augmente de <b>${q.P} %</b>. Quelle est la nouvelle valeur ?`;
-  const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
   const aPosed=buildPose(stripZ(q.coef),stripZ(q.N),'aMul');
   $('aHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><input class="f-dec" id="a1dec" type="text" inputmode="numeric" autocomplete="off" style="width:58px" aria-label="coefficient en écriture décimale"><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale" style="width:58px"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><input class="f-dec" id="a3v" type="text" inputmode="numeric" autocomplete="off" data-exp="${q.N}" aria-label="valeur de départ"></div></div>`+
+       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
        <div class="pt-row"><span class="f-eq">=</span>${frac('a4n','a4d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><input class="f-dec" id="a5" type="text" inputmode="decimal" autocomplete="off" aria-label="résultat"><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('a1n'),$('a1d'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),...posedIns,$('a4n'),$('a4d'),$('a5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;                  // visible et modifiable
@@ -2906,7 +3078,7 @@ function checkAAnswer(live){
     $('aFeedback').textContent=`Méthode : 1 + ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('aFeedback').className='mp-feedback bad';
   }
   const given=v('a5')===''?null:(v('a5').replace('.', ',')+' '+q.unit);
-  test.answers.push({q:`${q.N} ${q.unit} augmenté de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
+  test.answers.push({...(ptsExo()||{}),q:`${q.N} ${q.unit} augmenté de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('aActions').innerHTML=`<button class="btn btn-primary" id="aNext" onclick="nextAQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
   $('aNext').focus();
@@ -2974,21 +3146,21 @@ function renderDTest(){
   $('dFeedback').textContent=''; $('dFeedback').className='mp-feedback';
   $('dActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDAnswer()">Vérifier</button>';
   $('dPrompt').innerHTML=`${q.intro} <b>${q.N} ${esc(q.unit)}</b> diminue de <b>${q.P} %</b>. Quelle est la nouvelle valeur ?`;
-  const frac=(n,d)=>`<span class="f-frac-input"><input class="f-num" id="${n}" type="text" inputmode="numeric" autocomplete="off" aria-label="numérateur"><span class="f-fbar"></span><input class="f-den" id="${d}" type="text" inputmode="numeric" autocomplete="off" aria-label="dénominateur"></span>`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
   const dPosed=buildPose(stripZ(q.coef),stripZ(q.N),'dMul');
   $('dHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><input class="f-dec" id="d1dec" type="text" inputmode="numeric" autocomplete="off" style="width:58px" aria-label="coefficient en écriture décimale"><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale" style="width:58px"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><input class="f-dec" id="d3v" type="text" inputmode="numeric" autocomplete="off" data-exp="${q.N}" aria-label="valeur de départ"></div></div>`+
+       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
        <div class="pt-row"><span class="f-eq">=</span>${frac('d4n','d4d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><input class="f-dec" id="d5" type="text" inputmode="decimal" autocomplete="off" aria-label="résultat"><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('d1n'),$('d1d'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),...posedIns,$('d4n'),$('d4d'),$('d5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
@@ -3077,7 +3249,7 @@ function checkDAnswer(live){
     $('dFeedback').textContent=`Méthode : 1 − ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('dFeedback').className='mp-feedback bad';
   }
   const given=v('d5')===''?null:(v('d5').replace('.', ',')+' '+q.unit);
-  test.answers.push({q:`${q.N} ${q.unit} diminué de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
+  test.answers.push({...(ptsExo()||{}),q:`${q.N} ${q.unit} diminué de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('dActions').innerHTML=`<button class="btn btn-primary" id="dNext" onclick="nextDQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
   $('dNext').focus();
@@ -3279,7 +3451,7 @@ function checkEnsAnswer(live){
   else { $('ensFeedback').textContent=q.why; $('ensFeedback').className='mp-feedback bad'; }
   const given=ENS_SETS_ORDER.map(k=>{ const sel=$('ens-s-'+k), v=sel?sel.value:''; return ENS_SYM[k]+':'+(v==='in'?'\u2208':v==='out'?'\u2209':'?'); }).join('  ');
   const answer=ENS_SETS_ORDER.map(k=>ENS_SYM[k]+':'+(q.sets[k]?'\u2208':'\u2209')).join('  ');
-  test.answers.push({correct:allOk, q:q.plain+' \u2014 '+nCorrect+'/5 justes', answer, given});
+  test.answers.push({...(ptsExo()||{}),correct:allOk, q:q.plain+' \u2014 '+nCorrect+'/5 justes', answer, given});
   const last=test.idx===test.questions.length-1;
   $('ensActions').innerHTML='<button class="btn btn-primary" id="ensNext" onclick="nextEnsQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('ensNext'); if(nb) nb.focus();
@@ -3305,4 +3477,471 @@ $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault
 /* démarrage */
 if(configReady()){ initSupabase(); show('home'); }
 else { show('setup'); }
+
+/* ============ GREFFE TERMINALE : activation apres chaque rendu ============ */
+function pmJetons(scr){
+  const s=scr||document.querySelector('.screen.on'); if(!s) return;
+  if(!s.querySelector('math-field.pm-mf')) return;
+  if(s.querySelector('.rc-jetons')) return;
+  const fb=s.querySelector('.mp-feedback');
+  if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
+}
+(function(){
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest'];
+  noms.forEach(n=>{
+    const f=window[n]; if(typeof f!=='function') return;
+    window[n]=function(){ const r=f.apply(this,arguments);
+      try{ pmUpgrade(document); pmJetons(); }catch(e){}
+      return r; };
+  });
+  try{ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; }catch(e){}
+  try{ console.log('Secondes \u2014 version', APP_VERSION); }catch(e){}
+})();
+</script>
+<script type="module">
+import "https://esm.run/mathlive@0.110.0";
+import { MathfieldElement, convertLatexToMarkup } from "https://esm.run/mathlive@0.110.0";
+
+try { MathfieldElement.decimalSeparator = ","; } catch(e) {}
+try { MathfieldElement.locale = "fr"; } catch(e) {}
+try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/"; } catch(e) {}
+
+/* ---- clavier Terminale : / (fraction) e ln x π ---- */
+/* ---- Clavier « Terminale » : construit dynamiquement selon l'exercice ----
+   1re ligne : touches variables contextuelles (fonctions -> f, x ; suites -> n, Uₙ, Vₙ)
+   puis ∞, → (tend vers) et « fn ». Opérateurs +, −, ×, / alignés en colonne.
+   π est sur la 2e couche. Plus de touche « sortir » : la barre d'espace sort
+   d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
+const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
+const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
+function buildKbTerm(vars){
+  /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
+     pourcentage (pas de variables f/x, inutiles ici). */
+  return {
+    label: "Calcul",
+    layers: [
+      { id: "prem-base", rows: [
+        [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{label:"\u232b",class:"action",command:["performWithFeedback","deleteBackward"]} ],
+        [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"\u00d7",latex:"\\times"},{label:"(",key:"("},{label:")",key:")"} ],
+        [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"\u2212",latex:"-"},{label:"+",latex:"+"},
+          {label:"\u2190",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
+          {label:"\u2192",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
+        [ {latex:"0"},{label:",",key:","},{label:"%",latex:"\\%"},
+          {label:"\u2713",class:"action",command:["hideVirtualKeyboard"]} ]
+      ] }
+    ]
+  };
+}
+
+function kbVarsFor(id){
+  return [];   /* Premiere : clavier purement numerique */
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
+}
+let __kbVarsKey = null;
+function applyKbLayout(){
+  const vk = window.mathVirtualKeyboard; if(!vk) return;
+  let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
+  const vars = kbVarsFor(id);
+  const key = JSON.stringify(vars.map(v => v.insert || v.latex || v.label));
+  if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
+  __kbVarsKey = key;
+  try { vk.layouts = [ buildKbTerm(vars) ]; } catch(e) {}
+}
+
+const FIELD_FIX_CSS =
+  ".ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}" +
+  ".ML__virtual-keyboard-toggle,.ML__menu-toggle{display:none !important;}" +
+  ".ML__contains-highlight{background:transparent !important;}" +
+  ".ML__cmr{font-family:'Nunito',ui-rounded,system-ui,sans-serif !important;font-weight:700;}" +
+  "textarea{font-size:16px !important;}";
+
+let lastMf = null;
+function configureField(mf){
+  if(mf._mlInit) return; mf._mlInit = true;
+  mf.mathVirtualKeyboardPolicy = "auto";
+  try { mf.smartMode = false; } catch(e) {}
+  try { mf.smartFence = true; } catch(e) {}
+  try { mf.smartSuperscript = false; } catch(e) {}
+  try {
+    if(mf.shadowRoot && !mf.shadowRoot.getElementById("mlfix")){
+      const st = document.createElement("style");
+      st.id = "mlfix"; st.textContent = FIELD_FIX_CSS;
+      mf.shadowRoot.appendChild(st);
+    }
+  } catch(e) {}
+  const sink = ()=>{ try{
+    const el = mf.shadowRoot && mf.shadowRoot.querySelector("[inputmode]");
+    if(el){ el.setAttribute("inputmode","none"); el.setAttribute("virtualkeyboardpolicy","manual"); }
+  }catch(e){} };
+  sink(); setTimeout(sink, 300);
+  const tuneShortcuts = ()=>{ try {
+    const sc = { ...mf.inlineShortcuts };
+    let ch = false;
+    if(sc["xx"] !== "xx"){ sc["xx"] = "xx"; ch = true; }
+    if(sc["*"] !== "\\times"){ sc["*"] = "\\times"; ch = true; }   /* '*' au clavier -> croix × (multiplication) */
+    if(sc["va"] !== "\\longrightarrow"){ sc["va"] = "\\longrightarrow"; ch = true; }   /* 'va' -> fleche « tend vers » */
+    if(sc["inf"] !== "\\infty"){ sc["inf"] = "\\infty"; ch = true; }   /* 'inf' -> infini */
+    if(sc["int"] !== "\\int_{#?}^{#?}#?\\,dx"){ sc["int"] = "\\int_{#?}^{#?}#?\\,dx"; ch = true; }   /* 'int' -> integrale complete bornes + dx, comme la touche ecran */
+    if(mf._motsFR){   /* champ redaction (3.5) : l'eleve tape des mots francais -> liste blanche ("or"->\lor casse "horizontale", "and" casse "quand", "in" casse "moins", "lim" casse "limite"...) */
+      const garder = ["xx","*","va","inf","int","ln","sqrt","pi","->","-->",">=","<=","!="];
+      Object.keys(sc).forEach(k => { if(garder.indexOf(k) === -1){ delete sc[k]; ch = true; } });
+    }
+    if(ch) mf.inlineShortcuts = sc;
+  } catch(e) {} };
+  tuneShortcuts(); setTimeout(tuneShortcuts, 0); setTimeout(tuneShortcuts, 350);
+  const tuneMenu = ()=>{ try {
+    const items = mf.menuItems;
+    if(Array.isArray(items) && items.some(it => it && it.id === "insert-matrix")){
+      const items2 = [
+        { label: "Couper",  onMenuSelect: () => mf.executeCommand("cutToClipboard") },
+        { label: "Copier",  onMenuSelect: () => mf.executeCommand("copyToClipboard") },
+        { label: "Coller",  onMenuSelect: () => mf.executeCommand("pasteFromClipboard") },
+        { label: "Tout sélectionner", onMenuSelect: () => mf.executeCommand("selectAll") },
+        { type: "divider" },
+        { label: "Clavier à l’écran", onMenuSelect: () => toggleKB() }
+      ];
+      if(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches){
+        items2.push({ label: "Raccourcis clavier", onMenuSelect: () => toggleHelp() });
+      }
+      mf.menuItems = items2;
+    }
+  } catch(e) {} };
+  tuneMenu(); setTimeout(tuneMenu, 0); setTimeout(tuneMenu, 350);
+  /* AZERTY : ^ est une touche morte (key='Dead', code='BracketLeft') que MathLive
+     interprete mal -> on force nous-memes l'exposant, comme la touche x^n */
+  mf.addEventListener("keydown", (ev)=>{
+    /* AZERTY : la touche morte reste en attente au niveau du systeme. La barre d'espace
+       la resout en un ^ litteral, qui arrive avec key="^" mais code="Space" : on avale ce
+       residu et on joue l'espace attendue, sinon un 2e exposant nait au-dessus du premier. */
+    if(ev.key === "^" && ev.code === "Space" && !ev.isComposing){
+      ev.preventDefault(); ev.stopPropagation();
+      mf._mlBusy = true;
+      try { mf.executeCommand(mf.mathModeSpace ? ["insert", mf.mathModeSpace] : "moveAfterParent"); } catch(e) {}
+      setTimeout(()=>{ mf._mlBusy = false; }, 0);
+      return;
+    }
+    const circo = ev.key === "^" ||
+      (ev.key === "Dead" && ev.code === "BracketLeft" && !ev.shiftKey && !ev.altKey && !ev.ctrlKey && !ev.metaKey);
+    if(!circo || ev.isComposing) return;
+    ev.preventDefault(); ev.stopPropagation();
+    mf._mlBusy = true;
+    try { mf.executeCommand(["insert", "#@^{#?}"]); } catch(e) {}
+    setTimeout(()=>{ mf._mlBusy = false; }, 0);
+  }, true);
+  /* la touche morte laisse aussi un residu de composition ("^3", "^x", ...) :
+     on retire le ^ et on tape le reste normalement, dans la case exposant */
+  mf.addEventListener("beforeinput", (ev)=>{
+    if(mf._mlBusy) return;              /* nos propres insertions passent sans filtre */
+    const ty = ev.inputType || "";
+    if(ty !== "insertText" && ty !== "insertCompositionText") return;
+    const d = ev.data;
+    if(typeof d !== "string" || d.indexOf("^") === -1 || d.indexOf("\\") !== -1 || d.length > 4) return;   /* residus de touche morte uniquement ("^3", "^x") : jamais une insertion LaTeX programmatique (touche ecran integrale, etc.) */
+    ev.preventDefault(); ev.stopImmediatePropagation();
+    const rest = d.replace(/\^/g, "").replace(/[\\{}#$]/g, "");
+    if(rest){
+      mf._mlBusy = true;
+      try { mf.executeCommand(["typedText", rest]); } catch(e) { try{ mf.executeCommand(["insert", rest]); }catch(e2){} }
+      setTimeout(()=>{ mf._mlBusy = false; }, 0);
+    }
+  }, true);
+  mf.addEventListener("input", ()=>{
+    const w = mf.closest(".dexp-pwrap");
+    if(w && typeof window.dexpNeedParens === "function"){
+      w.classList.toggle("show-paren", window.dexpNeedParens(toPlain(mf.getValue()), (window.DEXP_FIRSTS||[]).includes(mf.id)));
+    } else if(w && typeof window.dexpIsSum === "function"){
+      w.classList.toggle("show-paren", window.dexpIsSum(toPlain(mf.getValue())));
+    }
+  });
+  mf.addEventListener("pointerdown", (ev)=>{
+    if(lastMf && lastMf !== mf && lastMf.id && typeof window.dexpLiveCheck === "function") window.dexpLiveCheck(lastMf.id);
+    lastMf = mf;
+    const annuler = keepVisible(mf);
+    /* Si l'eleve glisse pour selectionner, on annule les ajustements de defilement : sinon la page
+       bouge sous le curseur en plein glisser et la selection est perdue. Cela se voyait surtout sur
+       les lignes contenant une puissance ou un indice, plus hautes, donc les seules a declencher
+       l'ajustement. Un simple clic (sans deplacement) garde le comportement d'origine. */
+    const x0 = ev && ev.clientX || 0, y0 = ev && ev.clientY || 0;
+    function bouge(e){
+      if(Math.abs((e.clientX||0) - x0) + Math.abs((e.clientY||0) - y0) > 6){ annuler(); nettoyer(); }
+    }
+    function nettoyer(){
+      window.removeEventListener("pointermove", bouge, true);
+      window.removeEventListener("pointerup", nettoyer, true);
+      window.removeEventListener("pointercancel", nettoyer, true);
+    }
+    window.addEventListener("pointermove", bouge, true);
+    window.addEventListener("pointerup", nettoyer, true);
+    window.addEventListener("pointercancel", nettoyer, true);
+  });
+}
+document.addEventListener("focusout", (ev)=>{
+  const el = ev.target;
+  if(el && el.tagName === "MATH-FIELD" && el.classList.contains("dexp-mf") && el.id &&
+     typeof window.dexpLiveCheck === "function") window.dexpLiveCheck(el.id);
+});
+
+/* ---- LaTeX -> grammaire de l'exercice ---- */
+function readArg(s, i){
+  if(s[i] === "{"){
+    let d = 0, j = i;
+    for(; j < s.length; j++){ const c = s[j]; if(c === "{") d++; else if(c === "}"){ d--; if(d === 0) break; } }
+    return [s.slice(i+1, j), j+1];
+  }
+  return [s[i] || "", i+1];
+}
+function struct(s){
+  let out = "", i = 0;
+  while(i < s.length){
+    if(s.startsWith("\\frac", i)){
+      let a, b, j = i + 5;
+      [a, j] = readArg(s, j); [b, j] = readArg(s, j);
+      out += "(" + struct(a) + ")/(" + struct(b) + ")"; i = j;
+    } else if(s.startsWith("\\sqrt", i)){
+      let a, j = i + 5; [a, j] = readArg(s, j);
+      out += "((" + struct(a) + ")^(1/2))"; i = j;
+    } else if(s[i] === "^" && s[i+1] === "{"){
+      let a, j; [a, j] = readArg(s, i+1);
+      out += "^(" + struct(a) + ")"; i = j;
+    } else if(s[i] === "_" && s[i+1] === "{"){
+      let a, j; [a, j] = readArg(s, i+1);
+      out += "_(" + struct(a) + ")"; i = j;   /* indices : u_{n+1} -> u_(n+1), leve l'ambiguite u_n+1 (recurrence, suites) */
+    } else { out += s[i]; i++; }
+  }
+  return out;
+}
+function toPlain(latex){
+  let s = String(latex || "");
+  s = s.replace(/\\left|\\right/g, "");
+  s = s.replace(/\\times|\\cdot/g, "*");
+  s = s.replace(/\\placeholder\{([^{}]*)\}/g, "$1");
+  s = s.replace(/\{,\}/g, ".");
+  s = s.replace(/\\pi/g, "pi").replace(/\\ln/g, "ln").replace(/\\arccos/g, "arccos").replace(/\\arcsin/g, "arcsin").replace(/\\arctan/g, "arctan").replace(/\\cos/g, "cos").replace(/\\sin/g, "sin").replace(/\\tan/g, "tan");
+  s = s.replace(/\\longrightarrow|\\rightarrow|\\to(?![a-zA-Z])/g, "\u2192").replace(/\\infty/g, "\u221e").replace(/\\int(?![a-zA-Z])/g, "\u222b").replace(/\\lim(?![a-zA-Z])/g, "lim").replace(/\\in(?![a-zA-Z])/g, "\u2208");
+  s = s.replace(/\\[,;:]|\\ |~/g, "\u0001").replace(/\\!/g, "");   /* espaces LaTeX -> marqueur, restaure en une espace apres le nettoyage */
+  s = struct(s);
+  s = s.replace(/[{}]/g, "");
+  s = s.replace(/\u2212/g, "-");
+  s = s.replace(/\s+/g, "");
+  s = s.replace(/\u0001+/g, " ");
+  return s.trim();
+}
+function plainToML(o){
+  const fix = t => String(t == null ? "" : t).replace(/\u2212/g, "-").replace(/\^\(([^)]*)\)/g, "^{$1}");
+  if(o && typeof o === "object") {
+    const b = fix(o.base), e = fix(o.exp);
+    return e ? b + "^{" + e + "}" : b;
+  }
+  return fix(o);
+}
+
+/* ---- clavier : ancré (tactile) / fenêtre flottante (ordinateur) ---- */
+let helpWin = null;
+function toggleHelp(){ if(helpWin) helpWin.classList.toggle("open"); }
+function toggleKB(){
+  const vk = window.mathVirtualKeyboard;
+  if(!vk) return;
+  if(vk.visible){
+    vk.hide();
+    const ae = document.activeElement;
+    if(ae && ae.tagName === "MATH-FIELD") ae.blur();
+  } else { vk.show(); }
+}
+function keepVisible(el){
+  const adjust = ()=>{
+    if(!el || !el.isConnected) return;
+    const r = el.getBoundingClientRect();
+    const vv = window.visualViewport;
+    const vt = vv ? vv.offsetTop : 0;
+    const vh = vv ? vv.height : window.innerHeight;
+    let kbH = 0;
+    if(!window.__kbFloating){
+      try{ const vk = window.mathVirtualKeyboard; if(vk && vk.visible && vk.boundingRect) kbH = vk.boundingRect.height; }catch(e){}
+    }
+    const limit = vt + vh - kbH - 14, top = vt + 8;
+    if(r.bottom > limit) window.scrollBy(0, Math.ceil(r.bottom - limit));
+    else if(r.top < top) window.scrollBy(0, Math.floor(r.top - top));
+  };
+  const a0 = requestAnimationFrame(adjust), t1 = setTimeout(adjust, 260), t2 = setTimeout(adjust, 620);
+  return ()=>{ cancelAnimationFrame(a0); clearTimeout(t1); clearTimeout(t2); };   /* permet d'annuler les ajustements en attente */
+}
+/* Sur telephone, MathLive fige la largeur du clavier en pixels d'apres le body au moment de
+   l'ouverture, sans tenir compte du zoom de la page (persistant d'un onglet a l'autre) ni d'un
+   eventuel elargissement du document : touches geantes et partie droite inaccessible. On
+   epingle donc le clavier ancre a la FENETRE VISUELLE (visualViewport : largeur et decalage
+   reellement affiches, zoom compris), a l'ouverture et a chaque variation. La fenetre
+   flottante de l'ordinateur (kbwin) n'est pas concernee. */
+function pinKbToViewport(){
+  if(window.__kbFloating) return;
+  const el = document.querySelector("body > .ML__keyboard");
+  const vv = window.visualViewport;
+  if(!el || !vv || !vv.width) return;
+  try{
+    el.style.setProperty("width",  Math.round(vv.width) + "px", "important");
+    el.style.setProperty("max-width", "100vw", "important");
+    el.style.setProperty("left",   Math.round(vv.offsetLeft || 0) + "px", "important");
+  }catch(e){}
+  kbObserve();
+}
+/* Si MathLive reecrit la largeur en pixels (son propre gestionnaire de resize), on re-epingle
+   aussitot ; garde anti-boucle : nos propres ecritures laissent la largeur deja au bon niveau. */
+function kbObserve(){
+  const el = document.querySelector("body > .ML__keyboard");
+  if(!el || el.__pinObs || !window.MutationObserver) return;
+  el.__pinObs = 1;
+  new MutationObserver(()=>{
+    if(window.__kbFloating) return;
+    const vv = window.visualViewport; if(!vv || !vv.width) return;
+    if(el.style.width !== Math.round(vv.width) + "px") pinKbToViewport();
+  }).observe(el, { attributes:true, attributeFilter:["style"] });
+}
+/* Rotation du telephone : iOS met du temps a stabiliser ses dimensions et MathLive ne se
+   reconstruit pas. Apres tassement (200 ms), on RECONSTRUIT le clavier ancre s'il est visible
+   (hide -> show a la nouvelle taille : largeur, hauteur, touches ET rembourrage de page
+   remis a neuf), focus preserve, puis on re-epingle. */
+let kbRotTimer = null;
+function kbOnRotate(){
+  clearTimeout(kbRotTimer);
+  kbRotTimer = setTimeout(()=>{
+    pinKbToViewport();
+    const vk = window.mathVirtualKeyboard;
+    if(!vk || !vk.visible || window.__kbFloating) return;
+    const ae = document.activeElement;
+    try{ vk.hide(); }catch(e){}
+    requestAnimationFrame(()=>{
+      try{ if(ae && ae.isConnected && ae.tagName === "MATH-FIELD") ae.focus(); }catch(e){}
+      try{ vk.show(); }catch(e){}
+      setTimeout(pinKbToViewport, 80);
+      setTimeout(pinKbToViewport, 300);
+    });
+  }, 200);
+}
+function setupKeyboard(){
+  if(window.__mlKbSetup) return; window.__mlKbSetup = true;
+  const vk = window.mathVirtualKeyboard;
+  if(!vk) return;
+  applyKbLayout();   /* couche selon l'exercice courant */
+  try{ vk.addEventListener("virtual-keyboard-toggle", ()=>{ requestAnimationFrame(pinKbToViewport); setTimeout(pinKbToViewport, 120); }); }catch(e){}
+  try{ vk.addEventListener("geometrychange", ()=>requestAnimationFrame(pinKbToViewport)); }catch(e){}
+  if(window.visualViewport){
+    visualViewport.addEventListener("resize", pinKbToViewport);
+    visualViewport.addEventListener("scroll", pinKbToViewport);
+  }
+  window.addEventListener("orientationchange", kbOnRotate);
+  window.addEventListener("resize", kbOnRotate);
+  if(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches){
+    const win = document.createElement("div");
+    win.id = "kbwin";
+    win.innerHTML = '<div class="kbwin-bar"><span>Clavier — glisser pour déplacer</span>'+
+      '<button type="button" class="kbwin-close" aria-label="Fermer">✕</button></div><div class="kbwin-body"></div>';
+    document.body.appendChild(win);
+    try { vk.container = win.querySelector(".kbwin-body"); window.__kbFloating = true; } catch(e) { win.remove(); }
+    if(window.__kbFloating){
+      const bar = win.querySelector(".kbwin-bar");
+      let drag = null;
+      bar.addEventListener("pointerdown", (e)=>{
+        e.preventDefault();
+        if(e.target.closest(".kbwin-close")) return;
+        const r = win.getBoundingClientRect();
+        win.style.left = r.left + "px"; win.style.top = r.top + "px";
+        win.style.right = "auto"; win.style.bottom = "auto";
+        drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+        bar.setPointerCapture(e.pointerId);
+      });
+      bar.addEventListener("pointermove", (e)=>{
+        if(!drag) return;
+        const x = Math.min(Math.max(0, e.clientX - drag.dx), window.innerWidth - 80);
+        const y = Math.min(Math.max(0, e.clientY - drag.dy), window.innerHeight - 40);
+        win.style.left = x + "px"; win.style.top = y + "px";
+      });
+      bar.addEventListener("pointerup", ()=>{ drag = null; });
+      win.querySelector(".kbwin-close").addEventListener("click", toggleKB);
+      vk.addEventListener("virtual-keyboard-toggle", ()=>{ win.classList.toggle("open", vk.visible); });
+    }
+    /* fenetre independante : raccourcis clavier */
+    helpWin = document.createElement("div");
+    helpWin.id = "kbhelp";
+    helpWin.innerHTML = '<div class="kbwin-bar"><span>Raccourcis clavier — glisser pour déplacer</span>'+
+      '<button type="button" class="kbwin-close" aria-label="Fermer">✕</button></div>'+
+      '<div class="kbhelp-body"><table class="kbhelp-t">'+
+      "<tr><td><kbd>^</kbd></td><td>puissance</td></tr>"+
+      "<tr><td><kbd>e</kbd></td><td>le nombre e</td></tr>"+
+      "<tr><td><kbd>ln</kbd></td><td>logarithme népérien ln(…)</td></tr>"+
+      "<tr><td><kbd>sqrt</kbd></td><td>racine carrée √…</td></tr>"+
+      "<tr><td><kbd>int</kbd></td><td>l’intégrale ∫</td></tr>"+
+      "<tr><td><kbd>pi</kbd></td><td>le nombre π</td></tr>"+
+      "<tr><td><kbd>va</kbd></td><td>la flèche « tend vers » ⟶</td></tr>"+
+      "<tr><td><kbd>inf</kbd></td><td>l’infini ∞</td></tr>"+
+      "<tr><td><kbd>sin</kbd></td><td>fonctions trigonométriques (aussi cos, tan, arcsin, arccos, arctan)</td></tr>"+
+      "<tr><td><kbd>in</kbd></td><td>∈ (appartient)</td></tr>"+
+      "<tr><td><kbd>_</kbd></td><td>indice u<sub>n</sub></td></tr>"+
+      '</table></div>';
+    document.body.appendChild(helpWin);
+    helpWin.addEventListener("pointerdown", (e)=>{ e.preventDefault(); });  /* ne vole jamais le focus */
+    const hbar = helpWin.querySelector(".kbwin-bar");
+    let hdrag = null;
+    hbar.addEventListener("pointerdown", (e)=>{
+      if(e.target.closest(".kbwin-close")) return;
+      const r = helpWin.getBoundingClientRect();
+      helpWin.style.left = r.left + "px"; helpWin.style.top = r.top + "px";
+      helpWin.style.right = "auto"; helpWin.style.bottom = "auto";
+      hdrag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+      hbar.setPointerCapture(e.pointerId);
+    });
+    hbar.addEventListener("pointermove", (e)=>{
+      if(!hdrag) return;
+      const x = Math.min(Math.max(0, e.clientX - hdrag.dx), Math.max(0, window.innerWidth - helpWin.offsetWidth - 8));
+      const y = Math.min(Math.max(0, e.clientY - hdrag.dy), Math.max(0, window.innerHeight - helpWin.offsetHeight - 8));
+      helpWin.style.left = x + "px"; helpWin.style.top = y + "px";
+    });
+    hbar.addEventListener("pointerup", ()=>{ hdrag = null; });
+    helpWin.querySelector(".kbwin-close").addEventListener("click", ()=>helpWin.classList.remove("open"));
+    window.addEventListener("resize", ()=>{   /* apres rotation du telephone, la fenetre reste entierement visible */
+      if(!helpWin || !helpWin.style.top) return;
+      const my = Math.max(0, window.innerHeight - helpWin.offsetHeight - 8);
+      const mx = Math.max(0, window.innerWidth - helpWin.offsetWidth - 8);
+      helpWin.style.top = Math.min(parseFloat(helpWin.style.top) || 0, my) + "px";
+      helpWin.style.left = Math.min(parseFloat(helpWin.style.left) || 0, mx) + "px";
+    });
+  }
+  function pin(){
+    if(window.__kbFloating) return;
+    const el = document.querySelector(".ML__keyboard");
+    if(!el) return;
+    const vv = window.visualViewport;
+    if(!vv){ el.style.transform = ""; return; }
+    const offY = Math.round(Math.max(0, window.innerHeight - (vv.offsetTop + vv.height)));
+    const offX = Math.round(vv.offsetLeft || 0);
+    const zoomed = typeof vv.scale === "number" && vv.scale > 1.02;
+    el.style.width = zoomed ? vv.width + "px" : "";
+    el.style.right = zoomed ? "auto" : "";
+    el.style.transform = "translate(" + offX + "px, " + (-offY) + "px)";
+  }
+  vk.addEventListener("geometrychange", pin);
+  vk.addEventListener("virtual-keyboard-toggle", ()=>{
+    setTimeout(pin, 60);
+    setTimeout(()=>{ if(!vk.visible && !window.__kbFloating) document.body.style.paddingBottom = ""; }, 380);
+    setTimeout(()=>{
+      const ae = document.activeElement;
+      if(vk.visible && ae && ae.tagName === "MATH-FIELD") keepVisible(ae);
+    }, 380);
+  });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", ()=>{ pin(); });
+    window.visualViewport.addEventListener("scroll", pin);
+  }
+  window.addEventListener("scroll", ()=>{ requestAnimationFrame(pin); }, { passive: true });
+}
+
+window.mlDexp = {
+  toPlain, plainToML,
+  tex(lx){ try{ return '<span class="ml-static">'+convertLatexToMarkup(lx)+'</span>'; }catch(e){ return null; } },
+  upgrade(root){
+    setupKeyboard();
+    applyKbLayout();
+    (root || document).querySelectorAll("math-field.dexp-mf").forEach(configureField);
+  },
+  showShortcuts(){ if(!helpWin) return false; helpWin.classList.toggle("open"); return true; }
+};
+customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
 </script>
