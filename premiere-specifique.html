@@ -417,6 +417,38 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700}
 @media(max-width:520px){ .score-tag{padding:5px 10px} .score-tag .score-lbl{font-size:.78rem} }
 
+/* ----- Tables de multiplication : bandeau du tour en cours ----- */
+.tm-tour{text-align:center;font-weight:800;color:var(--ink-soft);margin:2px 0 10px;font-size:.95rem;}
+.tm-tour b{color:var(--blue);}
+.tm-tour.reprise{color:var(--red);}
+.tm-tour.reprise b{color:var(--red);}
+
+
+/* ----- Fenetres flottantes du clavier et des raccourcis (module MathLive) -----
+   Sans ces regles, les deux panneaux s'affichent en permanence sur toutes les pages :
+   ils sont masques par defaut et ne s'ouvrent qu'a la demande (classe « open »). */
+#kbwin{position:fixed;right:24px;bottom:24px;z-index:3200;width:460px;display:none;background:#fff;
+  border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
+#kbwin.open{display:block}
+.kbwin-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;cursor:grab;
+  user-select:none;touch-action:none;background:var(--paper);border-bottom:1px solid var(--grid);
+  font:600 13px 'Nunito',sans-serif;color:var(--ink-soft);}
+.kbwin-bar:active{cursor:grabbing}
+.kbwin-close{border:none;background:transparent;cursor:pointer;color:var(--ink-soft);font-size:14px;padding:2px 6px}
+#kbwin .ML__keyboard{position:relative !important;transform:none !important;height:var(--_keyboard-height,auto);}
+#kbhelp{position:fixed;right:24px;top:24px;z-index:3200;width:360px;max-width:calc(100vw - 32px);display:none;background:#fff;
+  max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);
+  border:1px solid var(--grid);border-radius:12px;box-shadow:0 18px 50px -18px rgba(15,23,42,.45);overflow:hidden;}
+#kbhelp.open{display:flex;flex-direction:column;}
+#kbhelp .kbwin-bar{flex:0 0 auto;}
+.kbhelp-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;
+  padding:10px 14px 14px;font:500 .92rem 'Nunito',sans-serif;color:var(--ink);}
+.kbhelp-t{border-collapse:collapse;width:100%;}
+.kbhelp-t td{padding:5px 6px;vertical-align:top;line-height:1.5;}
+
+/* rendu statique des formules (mlDexp.tex) */
+.ml-static{display:inline-block;vertical-align:middle;}
+
 </style>
 
 <div class="wrap">
@@ -614,6 +646,24 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="timerbar" id="timerBar" hidden><i id="timerFill"></i></div>
       <div class="correction" id="correction"></div>
       <button class="btn btn-primary" id="validateBtn" onclick="submitAnswer()">Valider</button>
+    </div>
+  </section>
+
+  <!-- TABLES DE MULTIPLICATION (rapidité) -->
+  <section class="screen" id="scr-tm">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagTm"></span><span class="q-idx" id="tmIdx">Calcul 1 / 10</span></span>
+      <span class="score-tag"><span class="score-lbl">Tables sues</span>&nbsp;<b id="tmLiveScore">0</b></span>
+    </div>
+    <p class="tm-tour" id="tmTour"></p>
+    <div class="ardoise"><div class="equation" id="tmEq">— — —</div></div>
+    <div class="answer-zone">
+      <input class="answer-input" id="tmInput" inputmode="numeric" pattern="[0-9]*" placeholder="?" autocomplete="off">
+      <span class="mark" id="tmMark"></span>
+      <div class="timerbar" id="tmTimerBar" hidden><i id="tmTimerFill"></i></div>
+      <div class="correction" id="tmCorrection"></div>
+      <div class="mp-feedback" id="tmFeedback"></div>
+      <div class="mp-actions" id="tmActions"></div>
     </div>
   </section>
 
@@ -874,7 +924,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=3;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=5;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1027,9 +1077,10 @@ const TESTS={
   'mult-decimaux':       { name:'Multiplier des décimaux', icon:'🟰', desc:'Multiplie deux nombres décimaux en suivant les 4 étapes.', start:()=>startMultDec() },
   'mult-dec-un':         { name:'Multiplier des décimaux (1,…)', icon:'1️⃣', desc:'Multiplie deux nombres qui commencent par 1, avec la multiplication posée.', start:()=>startU() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
-  'diminuer-pourcentage':{ name:'Diminuer d\u2019un pourcentage', icon:'📉', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() }
+  'diminuer-pourcentage':{ name:'Diminuer d\u2019un pourcentage', icon:'📉', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() },
+  'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:'10 produits des tables de 2 à 9 (résultats à deux chiffres), 2 secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() }
 };
-const TEST_ORDER=['calcul-mental','multiplication-posee','fractions-decimales','pourcentage','mult-decimaux','mult-dec-un','augmenter-pourcentage','diminuer-pourcentage'];
+const TEST_ORDER=['calcul-mental','tables-multiplication','multiplication-posee','fractions-decimales','pourcentage','mult-decimaux','mult-dec-un','augmenter-pourcentage','diminuer-pourcentage'];
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
   'frac-n1':{name:'Fraction → décimal'},
@@ -1041,6 +1092,7 @@ const FRAC_INFO={
 /* Menu élève */
 const MENU=[
   {kind:'test', id:'calcul-mental'},
+  {kind:'test', id:'tables-multiplication'},
   {kind:'test', id:'multiplication-posee'},
   {kind:'test', id:'fractions-decimales'},
   {kind:'test', id:'pourcentage'},
@@ -1772,6 +1824,142 @@ function showResults(r){
   const ring=document.querySelector('.score-circle .ring');
   if(ring){ring.style.animation='none';void ring.offsetWidth;ring.style.animation='';}
   show('results');
+}
+
+/* ================= Tables de multiplication (rapidité) =================
+   10 produits des tables de 2 à 9 dont le résultat a DEUX chiffres. Deux secondes
+   par calcul : au-delà, c'est faux. La réponse est jugée immédiatement (juste, ou
+   faux avec la correction) ; Entrée efface et affiche le calcul suivant.
+   À la fin du tour, les calculs ratés reviennent dans un nouveau tour, et ainsi de
+   suite jusqu'à ce que les 10 soient sus.
+   NOTE : un point par calcul finalement su, sur 10. Aller au bout donne donc 10/10 ;
+   abandonner en cours de route donne le nombre de calculs déjà acquis. */
+const TM_SECONDES = 2;        /* temps de réponse accordé */
+const TM_NB       = 10;       /* nombre de calculs du premier tour */
+
+/* toutes les paires 2..9 dont le produit a deux chiffres (10 à 81) */
+function tmPairesPossibles(){
+  const out=[];
+  for(let a=2;a<=9;a++) for(let b=a;b<=9;b++) if(a*b>=10) out.push([a,b]);
+  return out;
+}
+function tmTirage(n){
+  const pool=tmPairesPossibles();
+  for(let i=pool.length-1;i>0;i--){ const j=rand(0,i); const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+  return pool.slice(0,n).map(([a,b])=>{
+    const inv=rand(0,1)===1;                    /* 6×7 ou 7×6, au hasard */
+    const x=inv?b:a, y=inv?a:b;
+    return { a:x, b:y, text:x+' × '+y, answer:x*y, acquis:false, essais:0, premiere:null };
+  });
+}
+async function startTM(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  test.kind='tm';
+  test.items=tmTirage(TM_NB);                   /* les 10 calculs de reference */
+  test.tour=1;
+  test.file=test.items.slice();                 /* ce qu'il reste a faire dans ce tour */
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  show('tm'); tmRender();
+}
+function tmAcquis(){ return test.items.filter(it=>it.acquis).length; }
+function tmRender(){
+  clearTimeout(test.qTimer);
+  const it=test.file[test.idx];
+  test.phase='saisie'; test.locked=false;
+  $('modeTagTm').innerHTML=modeTagHTML();
+  $('tmIdx').textContent='Calcul '+(test.idx+1)+' / '+test.file.length;
+  $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+  $('tmTour').className='tm-tour'+(test.tour>1?' reprise':'');
+  $('tmTour').innerHTML = test.tour===1
+    ? 'Tour 1 — <b>'+TM_NB+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
+    : 'Reprise n\u00b0'+(test.tour-1)+' — on refait les <b>'+test.file.length+'</b> calcul'+(test.file.length>1?'s':'')+' rat\u00e9'+(test.file.length>1?'s':'')+'.';
+  $('tmEq').innerHTML=esc(it.text)+' = <span class="blank">?</span>';
+  const ai=$('tmInput'); ai.value=''; ai.className='answer-input'; ai.disabled=false;
+  $('tmMark').className='mark'; $('tmMark').textContent='';
+  $('tmCorrection').textContent='';
+  $('tmFeedback').textContent=''; $('tmFeedback').className='mp-feedback';
+  $('tmActions').innerHTML='<button class="btn btn-ghost" onclick="tmAbandon()">Arr\u00eater et voir ma note</button>';
+  setTimeout(()=>ai.focus(),60);
+  tmTimer();
+}
+function tmTimer(){
+  const bar=$('tmTimerBar'), fill=$('tmTimerFill');
+  bar.hidden=false; bar.classList.remove('low');
+  fill.style.transition='none'; fill.style.width='100%';
+  test.qTotal=TM_SECONDES*1000; test.qDeadline=Date.now()+test.qTotal;
+  requestAnimationFrame(()=>{ fill.style.transition='width .1s linear'; tmTick(); });
+}
+function tmTick(){
+  if(test.phase!=='saisie') return;
+  const left=test.qDeadline-Date.now(), fill=$('tmTimerFill'), bar=$('tmTimerBar');
+  const pct=Math.max(0,left/test.qTotal*100); fill.style.width=pct+'%';
+  if(pct<30) bar.classList.add('low');
+  if(left<=0){ tmValider(true); return; }
+  test.qTimer=setTimeout(tmTick,80);
+}
+function tmValider(tempsEcoule){
+  if(test.phase!=='saisie') return;
+  test.phase='correction'; clearTimeout(test.qTimer);
+  const it=test.file[test.idx], ai=$('tmInput');
+  const brut=ai.value.trim(), donne=(brut===''?null:parseInt(brut,10));
+  const juste=(donne===it.answer) && !tempsEcoule;
+  it.essais++; if(it.premiere===null) it.premiere=donne;
+  ai.disabled=true; ai.classList.remove('good','bad'); ai.classList.add(juste?'good':'bad');
+  $('tmMark').textContent=juste?'\u2713':'\u2717';
+  $('tmMark').className='mark '+(juste?'good':'bad')+' show';
+  $('tmTimerBar').hidden=true;
+  if(juste){
+    it.acquis=true;
+    $('tmCorrection').textContent='';
+    $('tmFeedback').textContent=pick(['Juste !','Bravo !','Parfait !','Tr\u00e8s bien !']);
+    $('tmFeedback').className='mp-feedback good';
+  } else {
+    $('tmCorrection').textContent=(tempsEcoule && donne===null ? 'Temps \u00e9coul\u00e9 \u2014 ' : '')+it.text+' = '+it.answer;
+    $('tmFeedback').textContent=tempsEcoule?'Trop lent : ce calcul reviendra.':'Pas encore \u2014 ce calcul reviendra.';
+    $('tmFeedback').className='mp-feedback bad';
+  }
+  $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+  $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmSuivant()">'
+    +(test.idx<test.file.length-1?'Calcul suivant':'Continuer')+'</button>'
+    +' <button class="btn btn-ghost" onclick="tmAbandon()">Arr\u00eater et voir ma note</button>';
+}
+function tmSuivant(){
+  if(test.phase!=='correction') return;
+  if(test.idx < test.file.length-1){ test.idx++; tmRender(); return; }
+  /* fin du tour : on repart avec les calculs rates */
+  const restants=test.file.filter(it=>!it.acquis);
+  if(!restants.length){ tmFinir(false); return; }
+  test.tour++; test.file=restants; test.idx=0;
+  tmRender();
+}
+function tmAbandon(){
+  clearTimeout(test.qTimer); test.phase='fini';
+  tmFinir(true);
+}
+/* Entrée : valide pendant la saisie, passe au calcul suivant pendant la correction */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  const scr=$('scr-tm'); if(!scr || !scr.classList.contains('on')) return;
+  e.preventDefault();
+  if(test.phase==='saisie') tmValider(false);
+  else if(test.phase==='correction') tmSuivant();
+});
+async function tmFinir(abandon){
+  clearTimeout(test.qTimer); clearRecovery();
+  const score=tmAcquis(), total=TM_NB, pct=Math.round(score/total*100);
+  const durationSec=(Date.now()-test.startTime)/1000;
+  test.answers=test.items.map(it=>({ q:it.text, answer:it.answer,
+    given:(it.acquis?it.answer:it.premiere), correct:it.acquis, essais:it.essais }));
+  const misses=test.items.filter(it=>!it.acquis).map(it=>({q:it.text,donne:it.premiere,bon:it.answer}));
+  try{
+    await sb.from('resultats_1ere').insert({eleve_id:currentEleve.id,score,total,percent:pct,
+      duration_sec:durationSec,
+      details:{test:'tables-multiplication',mode:currentMode,tours:test.tour,abandon:!!abandon,misses,
+        ...(currentDM?{dm:currentDM}:{})}});
+  }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
 }
 
 /* ---------- Test 2 : multiplication posée ---------- */
