@@ -281,7 +281,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest{padding-bottom:84px}
+  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest,#scr-vtest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -533,7 +533,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .tm-tour.reprise{color:var(--red);}
 .tm-tour.reprise b{color:var(--red);}
 
-/* --- Pourcentages (pHost, aHost, dHost) ---
+/* --- Pourcentages (pHost, qHost, aHost, dHost, vHost) ---
    1) Les cases s'ecrivent dans la meme taille que les nombres qui les entourent
       (.f-whole et .f-eq sont a 2rem) : la reponse de l'eleve ne doit pas paraitre
       secondaire par rapport a l'enonce.
@@ -545,21 +545,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den{
+#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* La case decimale du coefficient ne recoit que les decimales de « 1,… » : plus courte. */
-#a1dec,#d1dec{min-width:82px;}
+#a1dec,#d1dec,#v1dec{min-width:82px;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
 @media(max-width:520px){
-  #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf{font-size:1.5rem;}
-  #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den{min-width:78px;max-width:200px;}
-  #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec{min-width:96px;max-width:200px;}
+  #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf{font-size:1.5rem;}
+  #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den{min-width:78px;max-width:200px;}
+  #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec{min-width:96px;max-width:200px;}
   .pt-choix-btn .valeur{font-size:1.2rem}
-  #a1dec,#d1dec{min-width:66px;}
+  #a1dec,#d1dec,#v1dec{min-width:66px;}
 }
 </style>
 
@@ -1119,7 +1119,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=48;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=49;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
