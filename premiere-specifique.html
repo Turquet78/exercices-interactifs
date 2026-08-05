@@ -1119,7 +1119,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=46;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=47;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1457,6 +1457,15 @@ function liveColorN1(id,cn,cd){                        // niveau 1 : décimal OU
   else fr=parseDecToFrac(v);
   el.classList.add(!!fr && fr.n*cd===cn*fr.d ? 'ok':'bad');
 }
+/* Mode soutien : dès que l'élève quitte une case, elle est jugée et colorée en vert
+   ou en rouge. Les champs mathématiques préviennent par « dexpLiveCheck » (deux
+   points d'appel plus bas dans la greffe MathLive) ; les cases à un chiffre passent
+   par l'écouteur « focusout » générique. Une fraction n'est jugée qu'une fois SES
+   DEUX cases écrites : liveColorFrac ne colore rien tant qu'il manque le numérateur
+   ou le dénominateur, puis colore les deux d'un coup.
+   Sans cette fonction, les deux appels de la greffe ne trouvaient personne et aucune
+   case ne se colorait jamais en direct. */
+window.dexpLiveCheck=function(){ liveCheckCurrent(); };
 function liveCheckCurrent(){
   if(!isSoutien()||test.locked) return;
   const k=test.kind;
