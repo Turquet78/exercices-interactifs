@@ -1092,13 +1092,26 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 
 <script>
 /* ---------- Raccourcis ---------- */
-const $=id=>document.getElementById(id);
+/* Quand une fenêtre d'aide est détachée, sa carte est DÉPLACÉE dans le document de
+   la fenêtre indépendante : document.getElementById ne la trouve plus, et tout le
+   code qui lit $('qiaInput') ou $('conseilBody') recevait null, sans rien dire.
+   $ cherche donc d'abord dans la page, puis dans les fenêtres détachées. */
+function $(id){
+  let el=document.getElementById(id);
+  if(!el && window.__fenetresDetachees){
+    for(let i=0;i<window.__fenetresDetachees.length;i++){
+      const p=window.__fenetresDetachees[i];
+      try{ if(p && !p.closed){ el=p.document.getElementById(id); if(el) break; } }catch(e){}
+    }
+  }
+  return el;
+}
 
 /* ================== GREFFE TERMINALE : cases mathematiques ==================
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=43;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=44;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
