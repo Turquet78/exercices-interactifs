@@ -913,6 +913,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- AUGMENTER : EXERCICES À PROPOSITIONS -->
+  <section class="screen" id="scr-vtest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagV"></span><span class="q-idx" id="vqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="vLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="vPrompt">Retrouver la valeur initiale.</p>
+      <div class="mp-stage"><div style="width:100%" id="vHost"></div></div>
+      <div class="mp-feedback" id="vFeedback"></div>
+      <div class="row" style="justify-content:center" id="vActions">
+        <button class="btn btn-primary" onclick="checkVAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-atest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagA"></span><span class="q-idx" id="aqIdx">Calcul 1 / 6</span></span>
@@ -1082,7 +1098,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=41;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=43;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1291,6 +1307,8 @@ const TESTS={
   'mult-decimaux':       { name:'Multiplier des décimaux', icon:'🟰', desc:'Multiplie deux nombres décimaux en suivant les 4 étapes.', start:()=>startMultDec() },
   'mult-dec-un':         { name:'Multiplier des décimaux (1,…)', icon:'1️⃣', desc:'Multiplie deux nombres qui commencent par 1, avec la multiplication posée.', start:()=>startU() },
   'augmenter-pourcentage':{ name:'Augmenter d\u2019un pourcentage', icon:'📈', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
+  'augmenter-depart':    { name:'Augmenter \u2014 retrouver la valeur initiale', icon:'🔁', desc:'On donne le pourcentage d\u2019augmentation et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie-la avec les 5 \u00e9tapes de l\u2019exercice 3.2.1.', start:()=>startAugDepart() },
+  'augmenter-taux':      { name:'Augmenter \u2014 retrouver le pourcentage', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis v\u00e9rifie-le avec les 5 \u00e9tapes de l\u2019exercice 3.2.1.', start:()=>startAugTaux() },
   'diminuer-pourcentage':{ name:'Diminuer d\u2019un pourcentage', icon:'📉', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() },
   'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:'10 produits des tables de 2 à 9 (résultats à deux chiffres), 3 secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
   'pourcentage-depart':  { name:'Retrouver la valeur initiale', icon:'🔎', desc:'On donne le pourcentage et le r\u00e9sultat : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice 3.1.1.', start:()=>startPctDepart() },
@@ -1318,7 +1336,9 @@ const MENU=[
   {kind:'test', id:'augmenter-pourcentage'},
   {kind:'test', id:'diminuer-pourcentage'},
   {kind:'test', id:'pourcentage-depart'},
-  {kind:'test', id:'pourcentage-taux'}
+  {kind:'test', id:'pourcentage-taux'},
+  {kind:'test', id:'augmenter-depart'},
+  {kind:'test', id:'augmenter-taux'}
 ];
 /* ---------- Thèmes : regroupement + numérotation (menu élève) ---------- */
 const THEMES=[
@@ -1329,7 +1349,7 @@ const THEMES=[
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:3, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['pourcentage','pourcentage-depart','pourcentage-taux'] },
-      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage'] },
+      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-depart','augmenter-taux'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage'] },
       { num:4, nom:'Synth\u00e8se sur les pourcentages', ids:[] }
   ] }
@@ -1363,7 +1383,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='dim') startDim(); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (test.qId==='augmenter-taux'?startAugTaux():startAugDepart()); else if(test.kind==='dim') startDim(); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1426,6 +1446,7 @@ function liveCheckCurrent(){
   else if(k==='md') checkMDAnswer(true);
   else if(k==='u') checkUAnswer(true);
   else if(k==='aug') checkAAnswer(true);
+  else if(k==='augq') checkVAnswer(true);
   else if(k==='dim') checkDAnswer(true);
 }
 function modeTagHTML(){
@@ -1653,7 +1674,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','dtest'];
+  const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','vtest','dtest'];
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
        Invisible pour l'élève, impossible à oublier en silence pour nous. */
@@ -1888,12 +1909,13 @@ async function resumeTest(mode){
   else if(k==='md'){ show('mdtest'); renderMDTest(); }
   else if(k==='u'){ show('utest'); renderUTest(); }
   else if(k==='aug'){ show('atest'); renderATest(); }
+  else if(k==='augq'){ show('vtest'); renderVTest(); }
   else if(k==='dim'){ show('dtest'); renderDTest(); }
   else if(k==='tm'){ tmReprise(); show('tm'); tmRender();
     setTimeout(()=>{ const ai=$('tmInput'); if(ai){ ai.value=''; try{ ai.focus(); }catch(e){} } },0); }
   else { show('test'); renderQuestion(); }
   restoreBoxes(draft);           // on remet ce que l'élève avait déjà écrit
-  updateAStep3(); updateDStep3();                 // réaffiche l'étape facultative si l'étape précédente est déjà écrite
+  updateAStep3(); updateDStep3(); try{ updateVStep3(); }catch(e){}                 // réaffiche l'étape facultative si l'étape précédente est déjà écrite
   if(isSoutien()) liveCheckCurrent();   // et on recolore les cases déjà complètes
 }
 
@@ -3628,6 +3650,275 @@ function liveColorDecCoef0(id,coef){                    // coefficient décimal 
   el.classList.add(!!fr && fr.n*100===coef*fr.d ? 'ok':'bad');
 }
 
+/* ============ Augmenter : deux exercices à propositions ============
+   Même principe que 3.1.2 et 3.1.3, transposé à l'augmentation. On connaît deux des
+   trois nombres de « valeur initiale, pourcentage, valeur finale », l'élève choisit le
+   troisième parmi quatre propositions, puis il DOIT le vérifier en refaisant les
+   5 étapes de l'exercice 3.2.1 — mêmes cases, même présentation, y compris la pose
+   facultative des numérateurs.
+     type 'val' — on donne le pourcentage et la valeur finale, il retrouve la valeur initiale ;
+     type 'pct' — on donne la valeur initiale et la valeur finale, il retrouve le pourcentage.
+   Comme en 3.1.x, le calcul est jugé par rapport à la proposition CHOISIE : c'est la
+   vérification qui révèle qu'une proposition ne convient pas, pas une croix arbitraire. */
+const AUGQ_NB=6;
+const AUGQ_PCTS=[10,20,30,40,50,60,70,80,90,1,2,3,4,5,6,7,8,9];
+/* Sujets utilisables quand un des deux nombres est caché : contrairement aux contextes
+   de 3.2.1, l'énoncé ne peut pas annoncer « Un prix de 80 € » puisque 80 est justement
+   ce qu'on cherche. On garde donc le sujet seul. */
+const AUGQ_CTX=[
+  {s:'Un prix', u:'€', g:'m', nOk:x=>x>=20&&x<=990},
+  {s:'Un salaire', u:'€', g:'m', nOk:x=>x>=900},
+  {s:'Un loyer', u:'€', g:'m', nOk:x=>x>=200&&x<=2200},
+  {s:'La population d’une ville', u:'habitants', g:'f', nOk:x=>x>=1000},
+  {s:'L’effectif d’un club', u:'licenciés', g:'m', nOk:x=>x>=50&&x<=990},
+  {s:'La production d’une usine', u:'pièces', g:'f', nOk:x=>x>=100},
+  {s:'La fréquentation d’un musée', u:'visiteurs', g:'f', nOk:x=>x>=100},
+  {s:'Une surface cultivée', u:'hectares', g:'f', nOk:x=>x>=20&&x<=990},
+  {s:'La capacité d’une salle', u:'places', g:'f', nOk:x=>x>=50&&x<=990},
+  /* sans condition : garantit qu'un sujet convient toujours */
+  {s:'Un stock', u:'articles', g:'m'}
+];
+/* Le sujet est choisi d'après le nombre que l'énoncé AFFICHE : la valeur finale
+   quand on cherche la valeur initiale, la valeur initiale quand on cherche le %. */
+function augqTirerCtx(ref){
+  const ok=[]; AUGQ_CTX.forEach((c,i)=>{ if(!c.nOk || c.nOk(ref)) ok.push(i); });
+  return pick(ok.length?ok:[AUGQ_CTX.length-1]);
+}
+function augqCtx(q){ return AUGQ_CTX[q.ci]||AUGQ_CTX[0]; }
+function augqIl(q){ return augqCtx(q).g==='f'?'elle':'il'; }
+function augqE(q){ return augqCtx(q).g==='f'?'e':''; }
+function augqMin(q){ const s=augqCtx(q).s; return s.charAt(0).toLowerCase()+s.slice(1); }
+/* Énoncés — on cherche la valeur initiale */
+const AUGQ_EN_VAL=[
+  q=>`${augqCtx(q).s} augmente de <b>${q.P} %</b> et atteint <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`Après une hausse de <b>${q.P} %</b>, ${augqMin(q)} vaut <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`${augqCtx(q).s} a augmenté de <b>${q.P} %</b> : ${augqIl(q)} vaut maintenant <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`${augqCtx(q).s}, augmenté${augqE(q)} de <b>${q.P} %</b>, donne <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`Une hausse de <b>${q.P} %</b> porte ${augqMin(q)} à <b>${q.decStr} ${esc(q.unit)}</b>.`
+];
+/* Énoncés — on cherche le pourcentage d'augmentation */
+const AUGQ_EN_PCT=[
+  q=>`${augqCtx(q).s} passe de <b>${q.N} ${esc(q.unit)}</b> à <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`${augqCtx(q).s} valait <b>${q.N} ${esc(q.unit)}</b> ; ${augqIl(q)} vaut maintenant <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`${augqCtx(q).s} est passé${augqE(q)} de <b>${q.N} ${esc(q.unit)}</b> à <b>${q.decStr} ${esc(q.unit)}</b> après une augmentation.`,
+  q=>`De <b>${q.N} ${esc(q.unit)}</b>, ${augqMin(q)} est monté${augqE(q)} à <b>${q.decStr} ${esc(q.unit)}</b>.`,
+  q=>`${augqCtx(q).s} augmente : de <b>${q.N} ${esc(q.unit)}</b>, ${augqIl(q)} atteint <b>${q.decStr} ${esc(q.unit)}</b>.`
+];
+function augqValeurs(){ const t=[]; for(let k=1;k<=3;k++) for(let d=1;d<=9;d++) t.push(d*Math.pow(10,k)); return t; }
+function augqFin(N,P){ return N*(100+P)/100; }
+function augqQuoi(q){ return q.type==='pct'?'le pourcentage d’augmentation':'la valeur initiale'; }
+function augqLabel(q,v){ return q.type==='pct' ? (v+'\u00a0%') : (v+' '+q.unit); }
+function augqCouple(q){
+  if(q.choisi==null) return null;
+  const v=q.opts[q.choisi];
+  const P=(q.type==='pct')?v:q.P, N=(q.type==='pct')?q.N:v;
+  const coef=100+P, prodNum=N*coef;
+  return {P,N,coef,prodNum, coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',',')};
+}
+function genAugDepart(){
+  const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
+  const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
+  const leurres=qdMelanger(augqValeurs().filter(v=>v!==N)).slice(0,3);
+  const opts=qdMelanger(leurres.concat([N]));
+  const coef=100+P, prodNum=N*coef;
+  const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
+  const q={type:'val',P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
+    coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
+    opts,bon:opts.indexOf(N),choisi:null};
+  q.v=rand(0,AUGQ_EN_VAL.length-1);
+  return q;
+}
+function genAugTaux(){
+  const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
+  const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
+  const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
+  const opts=qdMelanger(leurres.concat([P]));
+  const coef=100+P, prodNum=N*coef;
+  const ci=augqTirerCtx(N);                      /* c'est la valeur initiale qui est affichée */
+  const q={type:'pct',P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
+    coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
+    opts,bon:opts.indexOf(P),choisi:null};
+  q.v=rand(0,AUGQ_EN_PCT.length-1);
+  return q;
+}
+async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart); }
+async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
+async function startAUGQ(id, gen){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='augq'; test.qId=id;
+  test.questions=Array.from({length:AUGQ_NB},gen);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('vtest'); renderVTest();
+}
+/* Changer de proposition remet les cases à zéro : le coefficient et le produit changent. */
+function choisirV(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.choisi===i) return;
+  q.choisi=i; renderVTest(); autoSave();
+}
+function updateVStep3(){
+  const s=$('vStep3'); if(!s) return;
+  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
+  s.classList.toggle('step-hidden', !(ok('v3n')&&ok('v3d')&&ok('v3v')));
+}
+function renderVTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('vqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagV').innerHTML=modeTagHTML();
+  $('vLiveScore').textContent=test.score;
+  $('vFeedback').textContent=''; $('vFeedback').className='mp-feedback';
+  $('vActions').innerHTML='<button class="btn btn-primary" onclick="checkVAnswer()">Vérifier</button>';
+  const tab=(q.type==='pct')?AUGQ_EN_PCT:AUGQ_EN_VAL;
+  $('vPrompt').innerHTML=(tab[q.v]||tab[0])(q)+` Retrouve ${augqQuoi(q)} et vérifie ta réponse en écrivant les étapes des calculs.`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="vc${i}" onclick="choisirV(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(augqLabel(q,v))}</span></button>`).join('');
+  const c=augqCouple(q), cache=(c===null)?' step-hidden':'';
+  const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
+  const pose=c?buildPose(stripZ(c.coef),stripZ(c.N),'vMul'):'<div class="mp-op" id="vMul"></div>';
+  $('vHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
+       <div class="pt-choix" id="vChoix">${choix}</div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 Le coefficient : augmenter de ${c?c.P:'…'} %, c'est multiplier par 1 + ${c?c.P:'…'}/100</div>
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('v1n','v1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('v2n','v2d')}</div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2461 Écris l'opération : coefficient × valeur de départ</div>
+       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${c?c.N:''}"></math-field></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="vStep3"><div class="pt-lab">\u2462 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2463 Multiplier les fractions</div>
+       <div class="pt-row"><span class="f-eq">=</span>${frac('v4n','v4d')}</div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2464 Écrire le résultat sous forme décimale</div>
+       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<p class="pt-aide">${c===null
+        ? 'Choisis une proposition, puis écris les étapes du calcul pour la vérifier.'
+        : 'Vérifie ta proposition\u00a0: augmente '+c.N+' de '+c.P+'\u00a0%. Tu dois retrouver '+q.decStr+'\u00a0'+esc(q.unit)+'.'}</p>`;
+  const posedIns=[...$('vMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('v1n'),$('v1d'),$('v1dec'),$('v2n'),$('v2d'),$('v3n'),$('v3d'),$('v3v'),...posedIns,$('v4n'),$('v4d'),$('v5')];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['v3n','v3d','v3v'].includes(el.id)){ el.addEventListener('input',updateVStep3); el.addEventListener('focusout',updateVStep3); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkVAnswer();} });
+  });
+  updateVStep3();
+  if(c!==null) setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkVAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(q.choisi==null){
+    if(live) return;
+    $('vFeedback').textContent='Choisis d’abord une proposition (a, b, c ou d).';
+    $('vFeedback').className='mp-feedback bad'; return;
+  }
+  const c=augqCouple(q);
+  if(live){
+    liveColorFrac('v1n','v1d',c.P,100);
+    liveColorDecCoef('v1dec',c.coef);
+    liveColorFrac('v2n','v2d',c.coef,100);
+    liveColorFrac('v3n','v3d',c.coef,100);
+    liveColorExp($('v3v'));
+    [...$('vMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('v4n','v4d',c.prodNum,100);
+    liveColorDec('v5',c.prodNum,100);
+    return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const soutien=isSoutien();
+  const ok1 = v('v1n')!=='' && v('v1d')!=='' && fracEqual(iv('v1n'),iv('v1d'),c.P,100);
+  const frC = parseDecToFrac('1,'+v('v1dec'));
+  const okC = v('v1dec')!=='' && !!frC && frC.n*100===c.coef*frC.d;
+  const ok2 = v('v2n')!=='' && v('v2d')!=='' && fracEqual(iv('v2n'),iv('v2d'),c.coef,100);
+  const ok3 = v('v3n')!=='' && v('v3d')!=='' && fracEqual(iv('v3n'),iv('v3d'),c.coef,100);
+  const okV = v('v3v')===String(c.N);
+  /* étape ③ facultative : mêmes règles qu'en 3.2.1, elle n'entre pas dans la note */
+  const host=$('vMul');
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  const ok4 = v('v4n')!=='' && v('v4d')!=='' && fracEqual(iv('v4n'),iv('v4d'),c.prodNum,100);
+  const fr=parseDecToFrac(v('v5'));
+  const ok5 = !!fr && fr.n*100===c.prodNum*fr.d;
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('v1n',ok1); mark('v1d',ok1); mark('v1dec',okC); mark('v2n',ok2); mark('v2d',ok2);
+  mark('v3n',ok3); mark('v3d',ok3); mark('v3v',okV);
+  mark('v4n',ok4); mark('v4d',ok4); mark('v5',ok5);
+  const calculOk=ok1&&okC&&ok2&&ok3&&okV&&ok4&&ok5;      /* étape ③ facultative non comptée */
+  const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
+  const btn=$('vc'+q.choisi);
+  if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
+  if(!allOk && soutien){
+    if(calculOk){
+      /* Calcul juste, proposition fausse : on rouvre le choix. */
+      $('vFeedback').innerHTML=`Ton calcul est juste\u00a0: ${c.N} augmenté de ${c.P}\u00a0% donne <b>${c.decStr} ${esc(q.unit)}</b>, et non ${q.decStr}. Ce n’est donc pas ${augqQuoi(q)} \u2014 essaie une autre proposition.`;
+      $('vFeedback').className='mp-feedback bad';
+      $('vActions').innerHTML='<button class="btn btn-primary" onclick="checkVAnswer()">Vérifier</button>';
+      setTimeout(()=>{ const z=$('vChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
+      return;
+    }
+    soutienAgain('vFeedback','vActions','checkVAnswer','vHost'); return;
+  }
+  test.locked=true;
+  const cx=$('vChoix'); if(cx) cx.classList.add('locked');
+  if(!okChoix){ const bon=$('vc'+q.bon); if(bon) bon.classList.add('sol'); }
+  const bonLbl=`<b>${QLET[q.bon]}) ${esc(augqLabel(q,q.opts[q.bon]))}</b>`;
+  const preuve=`1 + ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`;
+  if(allOk){ test.score++; $('vLiveScore').textContent=test.score;
+    $('vFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('vFeedback').className='mp-feedback good';
+  } else if(calculOk){
+    $('vFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: ${c.N} augmenté de ${c.P}\u00a0% donne ${c.decStr} ${esc(q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('vFeedback').className='mp-feedback bad';
+  } else {
+    $('vFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
+    $('vFeedback').className='mp-feedback bad';
+  }
+  const enonce=(q.type==='pct')
+    ? `${q.N} ${q.unit} passe à ${q.decStr} ${q.unit}`
+    : `augmenté de ${q.P} %, on obtient ${q.decStr} ${q.unit}`;
+  test.answers.push({...(ptsExo()||{}), q:enonce,
+    answer:augqLabel(q,q.opts[q.bon]), given:augqLabel(q,q.opts[q.choisi]), correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('vActions').innerHTML=`<button class="btn btn-primary" id="vNext" onclick="nextVQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('vNext').focus();
+}
+function nextVQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderVTest(); autoSave(); } else finishAUGQ(); }
+async function finishAUGQ(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
+    details:{test:(test.qId||'augmenter-depart'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
 /* ---------- Test 8 : diminuer d'un pourcentage (même méthode, coefficient (100−P)/100) ---------- */
 async function startDim(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
@@ -4912,6 +5203,7 @@ function fermerQIA(){
 /*### qiaPoser ###*/
 function qiaPoser(t){ const inp=$('qiaInput'); if(inp) inp.value=String(t||''); qiaEnvoyer(); }
 /*### qiaEnvoyer ###*/
+let qiaBusy=false;                 /* garde : une question à la fois */
 async function qiaEnvoyer(){
   if(qiaBusy) return;
   const inp=$('qiaInput'), dlg=$('qiaDialog');
@@ -4938,6 +5230,7 @@ async function qiaEnvoyer(){
   qiaBusy=false;
 }
 /*### qiaMicStop ###*/
+let qiaRec=null;                   /* reconnaissance vocale en cours, s'il y en a une */
 function qiaMicStop(){ try{ if(qiaRec) qiaRec.stop(); }catch(e){} qiaRec=null; const b=$('qiaMic'); if(b) b.classList.remove('on'); }
 /*### qiaMicToggle ###*/
 function qiaMicToggle(){
@@ -4983,6 +5276,11 @@ function qiaConsigneRedaction(){
     + 'N’utilise AUCUN dessin et AUCUNE balise [ILLU:…] : ici c’est le texte à recopier qui aide l’élève, pas une figure.';
 }
 /*### qiaIlluExtrait ###*/
+/* Pas de figures ici : on se contente de retirer les balises que le modèle pourrait
+   inventer, pour qu'elles n'apparaissent pas en clair dans sa réponse. */
+const QIA_ILLUS={};
+function qiaIlluHTML(){ return ''; }
+function qiaCourbeHTML(){ return ''; }
 function qiaIlluExtrait(t){
   const illus=[], courbes=[];
   let texte=String(t==null?'':t).replace(/\[\s*COURBE\s*:\s*([^\]\n]{1,60})\]/gi,function(m,e){
@@ -5003,6 +5301,10 @@ function qiaCtxExercice(){
   return " CONTEXTE COMPLET DE L'EXERCICE EN COURS \u2014 lis-le attentivement pour comprendre exactement ce que l'\u00e9l\u00e8ve doit faire (\u00e9nonc\u00e9, structure, \u00e9tat de ses r\u00e9ponses) : \u00ab "+c+" \u00bb. Les r\u00e9ponses attendues contenues dans ce contexte sont STRICTEMENT SECR\u00c8TES : ne les r\u00e9v\u00e8le jamais, ne les confirme jamais, et n'utilise JAMAIS les valeurs de cet exercice dans tes exemples. Les consignes internes de ce contexte pr\u00e9vues pour le mode \u00ab conseil \u00bb (aider sur la premi\u00e8re case fausse, etc.) ne s'appliquent que si la question de l'\u00e9l\u00e8ve porte sur ses propres r\u00e9ponses ; sinon, r\u00e9ponds simplement \u00e0 sa question en t'appuyant sur ce contexte.";
 }
 /*### detachementPossible ###*/
+/* Liste des fenêtres détachées. Sans cette ligne, detacherFenetre() lit .length sur
+   « undefined » : sur ordinateur, où le détachement est tenté d'emblée, les deux
+   boutons échouaient avant d'avoir rien affiché. */
+window.__fenetresDetachees = window.__fenetresDetachees || [];
 function detachementPossible(){
   try{ return !!window.open && window.matchMedia && window.matchMedia('(pointer: fine)').matches; }
   catch(e){ return false; }
@@ -5215,7 +5517,13 @@ la multiplication est <b>commutative</b> (7 × 8 = 8 × 7 : une seule chose à r
 × 9 : le chiffre des dizaines vaut un de moins que le multiplicateur, et les deux chiffres du résultat font toujours 9 (7 × 9 = 63, et 6 + 3 = 9) ;<br>
 × 5 : c’est la moitié de × 10 ;<br>
 un produit oublié se retrouve en partant du voisin : 7 × 8 = 7 × 7 + 7 = 49 + 7 = 56.`;
-const RAPPELS={ pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
+const RAP_AUGQ=`<b>Retrouver la valeur initiale ou le pourcentage d\u2019une augmentation</b><br>
+Une augmentation relie trois nombres par une seule \u00e9galit\u00e9\u00a0:<br>
+<b>(valeur initiale) \u00d7 (1 + P/100) = (valeur finale)</b>.<br>
+D\u00e8s qu\u2019on en conna\u00eet deux, le troisi\u00e8me est d\u00e9termin\u00e9. Plut\u00f4t que de le calculer directement, on <b>teste une proposition</b>\u00a0: on refait l\u2019augmentation avec elle, exactement comme dans l\u2019exercice 3.2.1, et on regarde si l\u2019on retombe sur la valeur finale annonc\u00e9e.<br>
+Si le calcul est juste mais que le r\u00e9sultat ne correspond pas, c\u2019est la proposition qui est mauvaise, pas le calcul.<br>
+Piège classique\u00a0: passer de 80 \u00e0 96, ce n\u2019est pas «\u00a0+16\u00a0%\u00a0» mais +20\u00a0%, car on compare l\u2019augmentation \u00e0 la valeur de DÉPART.`;
+const RAPPELS={ augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM };
 const RAPPELS_ID={};
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -5232,6 +5540,7 @@ const QIA_SUGG={
   u:["Pourquoi décale-t-on le deuxième produit partiel ?","Multiplier par 1, qu’est-ce que ça change ?","Comment placer la virgule à la fin ?"],
   fracp:["C’est quoi, une fraction décimale ?","Comment passer d’une fraction décimale à un nombre à virgule ?","Pourquoi les zéros finaux disparaissent-ils ?"],
   tm:["Comment retenir la table de 7 ?","Y a-t-il une astuce pour la table de 9 ?","Pourquoi 7 × 8 et 8 × 7 donnent-ils le même résultat ?"],
+  augq:["Pourquoi compare-t-on l\u2019augmentation \u00e0 la valeur de d\u00e9part\u00a0?","C\u2019est quoi, un coefficient multiplicateur\u00a0?","Comment tester une proposition\u00a0?","Pourquoi passer de 80 \u00e0 96 fait +20 % et non +16 %\u00a0?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 
@@ -5301,6 +5610,18 @@ function conseilCtxCourant(){
         +ch.P+'/100, puis '+(ch.P*ch.N)+'/100, puis '+(ch.P*ch.N/100)+' '+q.unit+'. '
         +'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c’est justement la vérification qui doit lui révéler que la proposition ne convient pas.')
       : 'L’élève n’a pas encore choisi de proposition : aide-le à comprendre comment tester une proposition, sans lui dire laquelle est la bonne.';
+  } else if(k==='augq' && q){
+    const lettres=['a','b','c','d'];
+    const ch=augqCouple(q);
+    att='Exercice \u00e0 propositions sur l\u2019augmentation : l\u2019\u00e9l\u00e8ve choisit '
+      +(q.type==='pct'?'le pourcentage d\u2019augmentation':'la valeur initiale')+' parmi quatre, puis DOIT v\u00e9rifier son choix '
+      +'en refaisant les 5 \u00e9tapes de l\u2019exercice 3.2.1 (coefficient, op\u00e9ration, pose facultative, produit, r\u00e9sultat d\u00e9cimal). '
+      +'Bonne proposition, STRICTEMENT SECR\u00c8TE : '+lettres[q.bon]+') '+augqLabel(q,q.opts[q.bon])+'. '
+      +'\u00c9galit\u00e9 qui relie les trois nombres : '+q.N+' \u00d7 '+q.coefDec+' = '+q.decStr+' '+q.unit+'. ';
+    att+= ch ? ('L\u2019\u00e9l\u00e8ve a choisi '+lettres[q.choisi]+') '+augqLabel(q,q.opts[q.choisi])+' : les \u00e9tapes doivent donc donner '
+        +'coefficient '+ch.coef+'/100 = '+ch.coefDec+', op\u00e9ration '+ch.coef+'/100 \u00d7 '+ch.N+', produit '+ch.prodNum+'/100, r\u00e9sultat '+ch.decStr+' '+q.unit+'. '
+        +'Juge son CALCUL par rapport \u00e0 CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c\u2019est la v\u00e9rification qui doit lui r\u00e9v\u00e9ler que la proposition ne convient pas.')
+      : 'L\u2019\u00e9l\u00e8ve n\u2019a pas encore choisi : aide-le \u00e0 comprendre comment tester une proposition, sans lui dire laquelle est la bonne.';
   } else if((k==='aug'||k==='dim') && q){
     const sens=(k==='aug')?'augmenter':'diminuer';
     att='Exercice : '+sens+' '+q.N+' de '+q.P+' %. Réponses attendues, STRICTEMENT SECRÈTES : '
@@ -5381,6 +5702,15 @@ const QIA_MODELES={
       String(q.tens)+' \u00d7 '+q.m+' = '+(q.tens*q.m)+', plus la retenue '+q.carry1+', cela fait '+(q.tens*q.m+q.carry1)+'.',
       'R\u00e9sultat : '+q.result+'.'].join('\n');
   },
+  augq:function(){
+    const q=qdmAutre(genAugTaux, c=>c.P+'x'+c.N);
+    return ['\u00c9nonc\u00e9 : un prix passe de '+q.N+' \u20ac \u00e0 '+q.decStr+' \u20ac. On teste la proposition '+q.P+' %.',
+      'Coefficient multiplicateur : \\\\(1 + '+qdmFrac(q.P,100)+' = '+qdmFrac(q.coef,100)+' = '+q.coefDec+'\\\\)',
+      '\\\\('+qdmFrac(q.coef,100)+' \\\\times '+q.N+'\\\\)',
+      '\\\\(= '+qdmFrac(q.prodNum,100)+'\\\\)',
+      '\\\\(= '+q.decStr+'\\\\) \u20ac',
+      'On retrouve bien '+q.decStr+' \u20ac : la proposition '+q.P+' % est donc la bonne.'].join('\\n');
+  },
   md:function(){
     const q=qdmAutre(genMultDec, c=>c.aStr+'x'+c.bStr);
     return ['Calculer '+q.aStr+' \u00d7 '+q.bStr+' :',
@@ -5429,7 +5759,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderMDTest','renderUTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
