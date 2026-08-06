@@ -1202,7 +1202,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=61;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=62;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3502,8 +3502,11 @@ function genEvolAdd(sens){
 function genAugAdd(){ return genEvolAdd(1); }
 function genDimSub(){ return genEvolAdd(-1); }
 /* Pose d'une addition en colonnes : mêmes conventions que la pose de
-   multiplication (résultat obligatoire si la pose est engagée, retenues
-   facultatives jugées seulement si écrites). */
+   multiplication — résultat obligatoire si la pose est engagée, retenues
+   facultatives jugées seulement si écrites. Une case de retenue n'apparaît
+   QUE là où une retenue existe vraiment, au-dessus de la colonne où on
+   l'AJOUTE : sa position enseigne la convention, et il n'y a aucune case
+   « à zéro » qui sème le doute. */
 function buildPoseAdd(hTop, hBot, hostId){
   const somme=hTop+hBot, nCol=String(somme).length;
   const dg10=(x,i)=>Math.floor(x/Math.pow(10,i))%10;
@@ -3513,15 +3516,16 @@ function buildPoseAdd(hTop, hBot, hostId){
   const box=(exp,tab,cls)=>`<input class="${cls||'mp-box'}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
   const carry=[]; let c=0;
   for(let i=0;i<nCol;i++){ carry[i]=c; const s2=dg10(hTop,i)+dg10(hBot,i)+c; c=s2>=10?1:0; }
+  const desRetenues=carry.some(x=>x===1);
   let rowCarry='',rowTop='',rowBot='',rowRes='';
   for(let i=nCol-1;i>=0;i--){
-    rowCarry += (i>=1)?cell('',box(carry[i],2*i,'mp-carry')):cell('');
+    rowCarry += (i>=1 && carry[i]===1)?cell('',box(1,2*i,'mp-carry')):cell('');
     rowTop   += has(hTop,i)?cell('',dg(dg10(hTop,i))):cell('');
     rowBot   += has(hBot,i)?cell('',dg(dg10(hBot,i))):cell('');
     rowRes   += cell('',box(dg10(somme,i),2*i+1));
   }
   return `<div class="mp-op" id="${hostId}">`
-    +`<div class="mp-row">${cell('op')}${rowCarry}</div>`
+    +(desRetenues?`<div class="mp-row">${cell('op')}${rowCarry}</div>`:'')
     +`<div class="mp-row">${cell('op')}${rowTop}</div>`
     +`<div class="mp-row">${cell('op',`<span class="mp-sign">+</span>`)}${rowBot}</div>`
     +`<div class="mp-lrow">${cell('op')}<div class="mp-line" style="width:${nCol*52}px"></div></div>`
