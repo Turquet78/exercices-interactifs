@@ -119,7 +119,7 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 
 ```bash
 npm install     # une seule fois
-npm test        # premiere-specifique.html, 38 contrôles
+npm test        # premiere-specifique.html, 39 contrôles
 ```
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui

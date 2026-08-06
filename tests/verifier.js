@@ -122,7 +122,7 @@ function interface_(suite){
       /* contexte envoyé au modèle, pour chaque type d'exercice */
       const kinds = [['pct','genPercent()'],['pctq','genPctTaux()'],['aug','genAug()'],
                      ['augq','genAugTaux()'],['dim','genDim()'],['mp','genMultPosee()'],
-                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()'],['ag2','genAugAdd()'],['ag2q','genDimTauxSub()']];
+                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()'],['ag2','genAugAdd()'],['ag2q','genDimTauxSub()'],['syn','genSyn()']];
       let bons = 0;
       kinds.forEach(([k, gen]) => {
         try {
@@ -241,6 +241,28 @@ function exercices(suite){
     })()`);
     verifier('g\u00e9n\u00e9rateur genDimSub : 5000 questions conformes', di2Pb === 0, di2Pb + ' anomalies');
 
+    /* synth\u00e8se : 4 propositions distinctes, bonne r\u00e9ponse index\u00e9e, et le calcul
+       reste ENTIER pour chacune des quatre propositions, quelle que soit l'inconnue */
+    const synPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<8000;k++){
+        const q=genSyn();
+        if(q.opts.length!==4 || new Set(q.opts).size!==4) pb++;
+        if(q.opts.indexOf(q.bonV)!==q.bon) pb++;
+        if(q.unit===undefined||q.unit==='') pb++;
+        if(typeof q.v!=='number') pb++;
+        for(let i=0;i<4;i++){
+          if(q.inc==='fin') break;                    /* les propositions sont le r\u00e9sultat lui-m\u00eame */
+          const P=(q.inc==='pct')?q.opts[i]:q.P, N=(q.inc==='ini')?q.opts[i]:q.N;
+          const a=P*N/100;
+          if(a!==Math.round(a)) pb++;
+          if(q.sens===-1 && N-a<0) pb++;
+        }
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genSyn : 8000 questions conformes', synPb === 0, synPb + ' anomalies');
+
     /* propositions v\u00e9rifi\u00e9es par le calcul direct : l'augmentation (ou la baisse)
        doit rester ENTI\u00c8RE pour chacune des quatre propositions */
     const a2qAudit = w.eval(`(function(){
@@ -275,7 +297,7 @@ function exercices(suite){
         const k={ 'pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
                   'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
                   'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
-                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q',
+                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn',
                   'tables-multiplication':'tm','tables-multiplication-2':'tm' }[id];
         if(k && !RAPPELS[k]) manquants.push(id);
       });
