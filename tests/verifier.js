@@ -122,7 +122,7 @@ function interface_(suite){
       /* contexte envoyé au modèle, pour chaque type d'exercice */
       const kinds = [['pct','genPercent()'],['pctq','genPctTaux()'],['aug','genAug()'],
                      ['augq','genAugTaux()'],['dim','genDim()'],['mp','genMultPosee()'],
-                     ['md','genMultDec()'],['u','genU()']];
+                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()']];
       let bons = 0;
       kinds.forEach(([k, gen]) => {
         try {
@@ -195,6 +195,22 @@ function exercices(suite){
     Object.keys(bilan).forEach(nom =>
       verifier('g\u00e9n\u00e9rateur ' + nom + ' : 5000 questions conformes', bilan[nom] === 0, bilan[nom] + ' anomalies'));
 
+    /* fraction et pourcentage : a < b, b divise 100, pourcentage multiple de 5,
+       s\u00e9lections \u00e0 z\u00e9ro (elles vivent dans la question pour la reprise) */
+    const fpPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genFP();
+        if([2,4,5,10].indexOf(q.b)<0) pb++;
+        if(!(q.a>=1 && q.a<q.b)) pb++;
+        if(q.pct!==q.a*100/q.b || q.pct%5!==0) pb++;
+        if(q.selL!==0 || q.selR!==0) pb++;
+        if(typeof q.v!=='number') pb++;
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
+
     /* chaque exercice doit fournir son rappel de cours */
     const sansRappel = w.eval(`(function(){
       const manquants=[];
@@ -202,7 +218,7 @@ function exercices(suite){
         const k={ 'pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
                   'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
                   'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
-                  'mult-dec-un':'u','fractions-decimales':'fracp',
+                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp',
                   'tables-multiplication':'tm','tables-multiplication-2':'tm' }[id];
         if(k && !RAPPELS[k]) manquants.push(id);
       });
