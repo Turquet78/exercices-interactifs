@@ -49,6 +49,11 @@
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
+  /* Sur un écran d'exercice, le cadre blanc prend toute la largeur de l'appareil :
+     les égalités à compléter tiennent sur une ligne dès que l'écran le permet.
+     Les menus, l'accueil et le tableau du professeur gardent leur largeur de
+     lecture. La classe est posée par show(). */
+  body.plein-ecran .wrap{max-width:none;}
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -281,7 +286,7 @@
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest,#scr-vtest{padding-bottom:84px}
+  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest,#scr-vtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -545,25 +550,50 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den{
+#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
-#a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p{min-width:82px;}
+#a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec{min-width:82px;}
+/* Retenues de soustraction (méthode par compensation) : un petit « 1 » devant le
+   chiffre du haut (il fait 10), un petit « 1 » en bas de la colonne suivante
+   (ajouté au chiffre du bas). Petites cases en coin, facultatives. */
+.mp-cl .sub-ret,.mp-cl .sub-retb{position:absolute;left:-4px;width:24px;height:24px;font-size:.95rem;border-radius:7px;}
+.mp-cl .sub-ret{top:-3px;}
+.mp-cl .sub-retb{bottom:-3px;}
 /* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
 .mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
+/* --- 3.1.4 Fraction et pourcentage : deux colonnes a colorier --- */
+.fp-zone{display:flex;justify-content:center;align-items:flex-start;gap:64px;padding:12px 0 4px;flex-wrap:wrap;}
+.fp-bloc{display:flex;flex-direction:column;align-items:center;gap:10px;}
+/* column-reverse : le premier segment est en BAS, on colorie du bas vers le haut.
+   « fp-seg » et non « seg » : la page possède déjà une classe .seg (marges,
+   coins arrondis) qui écarterait les cases — ici elles doivent se toucher. */
+.fp-col{position:relative;display:flex;flex-direction:column-reverse;width:104px;height:320px;
+  border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface);}
+.fp-col .fp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;}
+.fp-col .fp-seg+.fp-seg{border-bottom:2px solid var(--ink);}
+.fp-colr .fp-seg+.fp-seg{border-bottom:1px solid var(--grid);}
+.fp-col .fp-seg.on{background:#BBD0F7;}
+.fp-col.ok{border-color:var(--green);} .fp-col.ok .fp-seg.on{background:var(--green-soft);}
+.fp-col.bad{border-color:var(--red);} .fp-col.bad .fp-seg.on{background:var(--red-soft);}
+/* correction du mode entrainement : trait bleu a la bonne hauteur */
+.fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none;}
+.fp-val{min-height:2.2em;display:flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);}
+.fp-lab{font-weight:800;color:var(--ink-soft);font-size:.92rem;}
+@media(max-width:520px){ .fp-zone{gap:34px;} .fp-col{width:84px;height:260px;} }
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
 @media(max-width:520px){
-  #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf{font-size:1.5rem;}
-  #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den{min-width:78px;max-width:200px;}
-  #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec{min-width:96px;max-width:200px;}
+  #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf{font-size:1.5rem;}
+  #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den{min-width:78px;max-width:200px;}
+  #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec{min-width:96px;max-width:200px;}
   .pt-choix-btn .valeur{font-size:1.2rem}
-  #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p{min-width:66px;}
+  #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec{min-width:66px;}
 }
 </style>
 
@@ -893,6 +923,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-fptest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagFP"></span><span class="q-idx" id="fpqIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="fpLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="fpPrompt">Fraction et pourcentage.</p>
+      <div class="mp-stage"><div style="width:100%" id="fpHost"></div></div>
+      <div class="mp-feedback" id="fpFeedback"></div>
+      <div class="row" style="justify-content:center" id="fpActions">
+        <button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : MULTIPLIER DES DÉCIMAUX -->
   <section class="screen" id="scr-mdtest">
     <div class="test-top">
@@ -941,6 +986,36 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-a2qtest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagW"></span><span class="q-idx" id="wqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="wLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="wPrompt">Vérifier une proposition par le calcul direct.</p>
+      <div class="mp-stage"><div style="width:100%" id="a2qHost"></div></div>
+      <div class="mp-feedback" id="wFeedback"></div>
+      <div class="row" style="justify-content:center" id="wActions">
+        <button class="btn btn-primary" onclick="checkWAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-syntest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagSY"></span><span class="q-idx" id="syqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="syLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="syPrompt">Synthèse sur les pourcentages.</p>
+      <div class="mp-stage"><div style="width:100%" id="synHost"></div></div>
+      <div class="mp-feedback" id="syFeedback"></div>
+      <div class="row" style="justify-content:center" id="syActions">
+        <button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-atest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagA"></span><span class="q-idx" id="aqIdx">Calcul 1 / 6</span></span>
@@ -952,6 +1027,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-feedback" id="aFeedback"></div>
       <div class="row" style="justify-content:center" id="aActions">
         <button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-ag2test">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagAG2"></span><span class="q-idx" id="ag2qIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ag2LiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="ag2Prompt">Augmenter d'un pourcentage — calculer l'augmentation.</p>
+      <div class="mp-stage"><div style="width:100%" id="ag2Host"></div></div>
+      <div class="mp-feedback" id="ag2Feedback"></div>
+      <div class="row" style="justify-content:center" id="ag2Actions">
+        <button class="btn btn-primary" onclick="checkAG2Answer()">Vérifier</button>
       </div>
     </div>
   </section>
@@ -1123,7 +1213,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=52;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=66;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1340,6 +1430,14 @@ const TESTS={
   'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:'10 produits des tables de 2 à 9 (résultats à deux chiffres), 3 secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
   'pourcentage-depart':  { name:'Retrouver la valeur initiale', icon:'🔎', desc:'On donne le pourcentage et le r\u00e9sultat : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice 3.1.1.', start:()=>startPctDepart() },
   'pourcentage-taux':    { name:'Retrouver le pourcentage', icon:'🧮', desc:'On donne la valeur initiale et le r\u00e9sultat : choisis le bon pourcentage parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice 3.1.1.', start:()=>startPctTaux() },
+  'augmenter-taux-addition':{ name:'Augmenter — retrouver le pourcentage (par l\u2019augmentation)', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis vérifie-le en calculant l\u2019augmentation et en l\u2019ajoutant à la valeur de départ.', start:()=>startAugTauxAdd() },
+  'diminuer-soustraction':{ name:'Diminuer — calculer la baisse', icon:'➖', desc:'Calcule d\u2019abord la baisse (le pourcentage de la valeur, comme en 3.1.1), puis retire-la de la valeur de départ — sans coefficient multiplicateur.', start:()=>startDimSub() },
+  'diminuer-depart-soustraction':{ name:'Diminuer — retrouver la valeur initiale (par la baisse)', icon:'🔁', desc:'On donne le pourcentage de baisse et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimDepSub() },
+  'augmenter-depart-addition':{ name:'Augmenter — retrouver la valeur initiale (par l\u2019augmentation)', icon:'🔁', desc:'On donne le pourcentage d\u2019augmentation et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant l\u2019augmentation comme en 3.2.4, sans coefficient.', start:()=>startAugDepAdd() },
+  'diminuer-taux-soustraction':{ name:'Diminuer — retrouver le pourcentage (par la baisse)', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage de baisse parmi quatre, puis vérifie-le en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimTauxSub() },
+  'augmenter-addition':  { name:'Augmenter — calculer l\u2019augmentation', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en 3.1.1), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
+  'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
+  'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les 10 produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : 3 secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -1367,7 +1465,15 @@ const MENU=[
   {kind:'test', id:'augmenter-depart'},
   {kind:'test', id:'augmenter-taux'},
   {kind:'test', id:'diminuer-depart'},
-  {kind:'test', id:'diminuer-taux'}
+  {kind:'test', id:'diminuer-taux'},
+  {kind:'test', id:'fraction-pourcentage'},
+  {kind:'test', id:'augmenter-addition'},
+  {kind:'test', id:'augmenter-depart-addition'},
+  {kind:'test', id:'diminuer-taux-soustraction'},
+  {kind:'test', id:'augmenter-taux-addition'},
+  {kind:'test', id:'diminuer-soustraction'},
+  {kind:'test', id:'diminuer-depart-soustraction'},
+  {kind:'test', id:'synthese-pourcentages'}
 ];
 /* ---------- Thèmes : regroupement + numérotation (menu élève) ---------- */
 const THEMES=[
@@ -1377,10 +1483,10 @@ const THEMES=[
      sur trois niveaux — 3.2.1 = thème 3, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:3, nom:'Pourcentages', sous:[
-      { num:1, nom:'Prendre un pourcentage',           ids:['pourcentage','pourcentage-depart','pourcentage-taux'] },
-      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-depart','augmenter-taux'] },
-      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-depart','diminuer-taux'] },
-      { num:4, nom:'Synth\u00e8se sur les pourcentages', ids:[] }
+      { num:1, nom:'Prendre un pourcentage',           ids:['pourcentage','pourcentage-depart','pourcentage-taux','fraction-pourcentage'] },
+      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-depart','augmenter-taux','augmenter-addition','augmenter-depart-addition','augmenter-taux-addition'] },
+      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-depart','diminuer-taux','diminuer-taux-soustraction','diminuer-soustraction','diminuer-depart-soustraction'] },
+      { num:4, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -1412,7 +1518,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1486,6 +1592,10 @@ function liveCheckCurrent(){
   else if(k==='aug') checkAAnswer(true);
   else if(k==='augq') checkVAnswer(true);
   else if(k==='dim') checkDAnswer(true);
+  else if(k==='fp') checkFPAnswer(true);
+  else if(k==='ag2') checkAG2Answer(true);
+  else if(k==='ag2q') checkWAnswer(true);
+  else if(k==='syn') checkSynAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -1712,7 +1822,8 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','vtest','dtest'];
+  const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
+  document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
        Invisible pour l'élève, impossible à oublier en silence pour nous. */
@@ -1949,6 +2060,10 @@ async function resumeTest(mode){
   else if(k==='aug'){ show('atest'); renderATest(); }
   else if(k==='augq'){ show('vtest'); renderVTest(); }
   else if(k==='dim'){ show('dtest'); renderDTest(); }
+  else if(k==='fp'){ show('fptest'); renderFPTest(); }
+  else if(k==='ag2'){ show('ag2test'); renderAG2Test(); }
+  else if(k==='ag2q'){ show('a2qtest'); renderWTest(); }
+  else if(k==='syn'){ show('syntest'); renderSynTest(); }
   else if(k==='tm'){ tmReprise(); show('tm'); tmRender();
     setTimeout(()=>{ const ai=$('tmInput'); if(ai){ ai.value=''; try{ ai.focus(); }catch(e){} } },0); }
   else { show('test'); renderQuestion(); }
@@ -1970,7 +2085,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 function show_OLD(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','mtest','ftest','ptest','mdtest','utest','atest','dtest'];
+  const testScreens=['test','mtest','ftest','ptest','mdtest','utest','atest','dtest','fptest','ag2test','a2qtest','syntest'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   $('pauseBtn').hidden=!canPause;
   const pill=$('userPill');
@@ -3203,12 +3318,8 @@ function renderPTest(){
   $('pPrompt').innerHTML=variante(PCT_ENONCES,q);
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   $('pHost').innerHTML=
-    `<div class="pt-step"><div class="pt-lab">① Transformer le % en fraction décimale</div>
-       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span></div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('p2n','p2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">③ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">① le % en fraction décimale&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('p2n','p2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -3258,6 +3369,993 @@ async function finishPercent(){
 }
 
 
+
+/* ============ 3.1.4 Fraction et pourcentage : deux colonnes ============
+   Une fraction a/b (a < b, b divise 100 : 2, 4, 5 ou 10). L'élève colorie a
+   parts d'une colonne divisée en b, puis choisit la même hauteur sur une
+   colonne graduée de 5 en 5 %. La sélection vit DANS la question (q.selL,
+   q.selR) : du JSON, donc la pause et la reprise la conservent telle quelle. */
+const FP_DENS=[2,4,5,10];
+const FP_ENONCES=[
+  q=>`Colorie <b>${q.a}/${q.b}</b> de la colonne de gauche, puis choisis dans la colonne de droite le pourcentage égal à cette fraction.`,
+  q=>`Représente la fraction <b>${q.a}/${q.b}</b> en coloriant la colonne de gauche, puis retrouve la même hauteur en pourcentage dans la colonne de droite.`,
+  q=>`Quelle hauteur représente <b>${q.a}/${q.b}</b> ? Colorie-la à gauche, puis choisis le pourcentage qui lui est égal à droite.`
+];
+function genFP(){
+  const b=pick(FP_DENS), a=rand(1,b-1);
+  const q={a,b,pct:a*100/b,selL:0,selR:0};
+  q.v=tirerVariante(FP_ENONCES,q);
+  return q;
+}
+function fpFracHTML(n,d){ return mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d); }
+async function startFP(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='fp';
+  test.questions=Array.from({length:6},genFP);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('fptest'); renderFPTest();
+}
+function renderFPTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('fpqIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagFP').innerHTML=modeTagHTML();
+  $('fpLiveScore').textContent=test.score;
+  $('fpFeedback').textContent=''; $('fpFeedback').className='mp-feedback';
+  $('fpActions').innerHTML='<button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>';
+  $('fpPrompt').innerHTML=variante(FP_ENONCES,q);
+  const segsL=Array.from({length:q.b},(_,i)=>`<div class="fp-seg${i<q.selL?' on':''}" onclick="fpClickL(${i+1})"></div>`).join('');
+  const segsR=Array.from({length:20},(_,i)=>`<div class="fp-seg${i<q.selR?' on':''}" onclick="fpClickR(${i+1})"></div>`).join('');
+  $('fpHost').innerHTML=
+    `<div class="fp-zone">`+
+      `<div class="fp-bloc"><div class="fp-col" id="fpColL">${segsL}</div>`+
+        `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div>`+
+        `<div class="fp-lab">la fraction</div></div>`+
+      `<div class="fp-bloc"><div class="fp-col fp-colr" id="fpColR">${segsR}</div>`+
+        `<div class="fp-val" id="fpValR">${q.selR?(q.selR*5+' %'):'… %'}</div>`+
+        `<div class="fp-lab">le pourcentage</div></div>`+
+    `</div>`;
+}
+/* Cliquer sur un segment colorie jusqu'à lui ; recliquer le dernier efface d'un cran. */
+function fpMaj(){
+  const q=test.questions[test.idx];
+  const L=$('fpColL'), R=$('fpColR'); if(!L||!R) return;
+  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
+  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
+  L.classList.remove('ok','bad'); R.classList.remove('ok','bad');
+  $('fpValL').innerHTML = q.selL ? fpFracHTML(q.selL,q.b) : '…';
+  $('fpValR').textContent = q.selR ? (q.selR*5)+' %' : '… %';
+}
+function fpClickL(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  q.selL=(q.selL===i?i-1:i);
+  fpMaj(); autoSave();
+  if(isSoutien()) checkFPAnswer(true);
+}
+function fpClickR(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  q.selR=(q.selR===i?i-1:i);
+  fpMaj(); autoSave();
+  if(isSoutien()) checkFPAnswer(true);
+}
+function checkFPAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const colL=$('fpColL'), colR=$('fpColR'); if(!colL||!colR) return;
+  const okL=(q.selL===q.a), okR=(q.selR*5===q.pct);
+  if(live){   /* soutien : on ne juge une colonne que si l'élève y a choisi quelque chose */
+    colL.classList.remove('ok','bad'); if(q.selL>0) colL.classList.add(okL?'ok':'bad');
+    colR.classList.remove('ok','bad'); if(q.selR>0) colR.classList.add(okR?'ok':'bad');
+    return;
+  }
+  if(q.selL===0 || q.selR===0){
+    $('fpFeedback').textContent='Colorie la colonne de gauche ET choisis une hauteur à droite avant de vérifier.';
+    $('fpFeedback').className='mp-feedback bad'; return;
+  }
+  colL.classList.remove('ok','bad'); colL.classList.add(okL?'ok':'bad');
+  colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
+  const allOk=okL&&okR;
+  if(!allOk && isSoutien()){ soutienAgain('fpFeedback','fpActions','checkFPAnswer','fpHost'); return; }
+  test.locked=true;
+  const egal=fpFracHTML(q.a,q.b)+' = <b>'+q.pct+'\u00a0%</b>';
+  if(allOk){ test.score++; $('fpLiveScore').textContent=test.score;
+    $('fpFeedback').innerHTML=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !'])+' '+egal;
+    $('fpFeedback').className='mp-feedback good';
+  } else {
+    $('fpFeedback').innerHTML='Réponse : '+egal+' — la même hauteur dans les deux colonnes.';
+    $('fpFeedback').className='mp-feedback bad';
+    /* mode entraînement : la bonne hauteur apparaît en bleu sur chaque colonne fausse */
+    if(currentMode==='train'){
+      [[colL,okL],[colR,okR]].forEach(p=>{ if(!p[1] && !p[0].querySelector('.fp-cible'))
+        p[0].insertAdjacentHTML('beforeend','<div class="fp-cible" style="bottom:'+q.pct+'%"></div>'); });
+    }
+  }
+  test.answers.push({...(ptsExo()||{}), q:q.a+'/'+q.b+' en pourcentage',
+    answer:q.a+'/'+q.b+' = '+q.pct+' %', given:q.selL+'/'+q.b+' et '+(q.selR*5)+' %', correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('fpActions').innerHTML='<button class="btn btn-primary" id="fpNext" onclick="nextFPQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  $('fpNext').focus();
+}
+function nextFPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderFPTest(); autoSave(); } else finishFP(); }
+async function finishFP(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fraction-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+
+/* ============ 3.2.4 Augmenter : par le calcul de l'augmentation ============
+   Même situation que 3.2.1, autre méthode : pas de coefficient multiplicateur.
+   On calcule l'augmentation comme en 3.1.1 (P/100 × N, produit, décimal), puis
+   on AJOUTE la valeur de départ à l'augmentation — avec une pose de l'addition
+   en colonnes, facultative comme la pose de multiplication de 3.2.1.
+   Génération sous la contrainte de 3.1.1 (P multiple de 10, P×N divisible par
+   100) : l'augmentation est entière, l'addition se pose proprement. */
+function genEvolAdd(sens){
+  let P,N;
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  const aug=P*N/100, fin=N+sens*aug;
+  const ci=tirerContexte(AUG_THEMES,N,sens<0?'poidsBaisse':'poidsHausse');
+  const th=AUG_THEMES[ci];
+  const q={sens,P,N,aug,fin,prod:P*N,intro:th.intro,unit:th.unit,g:th.g,ci};
+  q.v=tirerVariante(sens>0?AUG_ENONCES:DIM_ENONCES,q);
+  return q;
+}
+function genAugAdd(){ return genEvolAdd(1); }
+function genDimSub(){ return genEvolAdd(-1); }
+/* Pose d'une addition en colonnes : mêmes conventions que la pose de
+   multiplication — résultat obligatoire si la pose est engagée, retenues
+   facultatives jugées seulement si écrites. Une case de retenue n'apparaît
+   QUE là où une retenue existe vraiment, au-dessus de la colonne où on
+   l'AJOUTE : sa position enseigne la convention, et il n'y a aucune case
+   « à zéro » qui sème le doute. */
+function buildPoseAdd(hTop, hBot, hostId){
+  const somme=hTop+hBot, nCol=String(somme).length;
+  const dg10=(x,i)=>Math.floor(x/Math.pow(10,i))%10;
+  const has=(x,i)=>i<String(x).length;
+  const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
+  const dg=x=>`<span class="mp-digit">${x}</span>`;
+  const box=(exp,tab,cls)=>`<input class="${cls||'mp-box'}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
+  const carry=[]; let c=0;
+  for(let i=0;i<nCol;i++){ carry[i]=c; const s2=dg10(hTop,i)+dg10(hBot,i)+c; c=s2>=10?1:0; }
+  const desRetenues=carry.some(x=>x===1);
+  let rowCarry='',rowTop='',rowBot='',rowRes='';
+  for(let i=nCol-1;i>=0;i--){
+    rowCarry += (i>=1 && carry[i]===1)?cell('',box(1,2*i,'mp-carry')):cell('');
+    rowTop   += has(hTop,i)?cell('',dg(dg10(hTop,i))):cell('');
+    rowBot   += has(hBot,i)?cell('',dg(dg10(hBot,i))):cell('');
+    rowRes   += cell('',box(dg10(somme,i),2*i+1));
+  }
+  return `<div class="mp-op" id="${hostId}">`
+    +(desRetenues?`<div class="mp-row">${cell('op')}${rowCarry}</div>`:'')
+    +`<div class="mp-row">${cell('op')}${rowTop}</div>`
+    +`<div class="mp-row">${cell('op',`<span class="mp-sign">+</span>`)}${rowBot}</div>`
+    +`<div class="mp-lrow">${cell('op')}<div class="mp-line" style="width:${nCol*52}px"></div></div>`
+    +`<div class="mp-row">${cell('op')}${rowRes}</div>`
+    +`</div>`;
+}
+/* Pose d'une soustraction en colonnes, retenues par compensation : quand le
+   chiffre du haut est trop petit, un petit « 1 » devant lui (il devient 1x),
+   et un petit « 1 » en bas de la colonne SUIVANTE, ajouté au chiffre du bas.
+   Les petites cases n'apparaissent que là où l'emprunt existe vraiment, et
+   restent facultatives — jugées seulement si écrites. */
+function buildPoseSub(hTop, hBot, hostId){
+  const diff=hTop-hBot, nCol=String(hTop).length;
+  const dg10=(x,i)=>Math.floor(x/Math.pow(10,i))%10;
+  const has=(x,i)=>i<String(x).length;
+  const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
+  const dg=x=>`<span class="mp-digit">${x}</span>`;
+  const box=(exp,tab)=>`<input class="mp-box" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
+  const ret=(tab,cls)=>`<input class="mp-carry ${cls}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="1" data-mtab="${tab}" aria-label="retenue">`;
+  /* emprunts : la colonne i emprunte si son chiffre du haut est plus petit que
+     (chiffre du bas + compensation reçue de la colonne précédente) */
+  const emp=[]; let comp=0;
+  for(let i=0;i<nCol;i++){ const t=dg10(hTop,i), bb=dg10(hBot,i)+comp; if(t<bb){ emp[i]=1; comp=1; } else { emp[i]=0; comp=0; } }
+  const nRes=String(diff).length;
+  let rowTop='',rowBot='',rowRes='';
+  for(let i=nCol-1;i>=0;i--){
+    rowTop += cell('',(emp[i]?ret(3*i+1,'sub-ret'):'')+dg(dg10(hTop,i)));
+    rowBot += cell('',(i>0&&emp[i-1]?ret(3*(i-1)+2,'sub-retb'):'')+(has(hBot,i)?dg(dg10(hBot,i)):''));
+    rowRes += (i<nRes)?cell('',box(dg10(diff,i),3*i+3)):cell('');
+  }
+  return `<div class="mp-op" id="${hostId}">`
+    +`<div class="mp-row">${cell('op')}${rowTop}</div>`
+    +`<div class="mp-row">${cell('op',`<span class="mp-sign">\u2212</span>`)}${rowBot}</div>`
+    +`<div class="mp-lrow">${cell('op')}<div class="mp-line" style="width:${nCol*52}px"></div></div>`
+    +`<div class="mp-row">${cell('op')}${rowRes}</div>`
+    +`</div>`;
+}
+async function startEvolAdd(id, gen){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='ag2'; test.qId=id;
+  test.questions=Array.from({length:6},gen);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('ag2test'); renderAG2Test();
+}
+async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd); }
+async function startDimSub(){ return startEvolAdd('diminuer-soustraction', genDimSub); }
+function updateAG2Step5(){
+  const st=$('ag2Step5'); if(!st) return;
+  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
+  st.classList.toggle('step-hidden', !(ok('g4a')&&ok('g4b')));
+}
+function renderAG2Test(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ag2qIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagAG2').innerHTML=modeTagHTML();
+  $('ag2LiveScore').textContent=test.score;
+  $('ag2Feedback').textContent=''; $('ag2Feedback').className='mp-feedback';
+  $('ag2Actions').innerHTML='<button class="btn btn-primary" onclick="checkAG2Answer()">Vérifier</button>';
+  const neg=augqSens(q)<0;
+  $('ag2Prompt').innerHTML=variante(neg?DIM_ENONCES:AUG_ENONCES,q)+(neg
+    ?' Calcule d\u2019abord la baisse, puis retire-la de la valeur de d\u00e9part.'
+    :' Calcule d\u2019abord l\u2019augmentation, puis ajoute-la \u00e0 la valeur de d\u00e9part.');
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const pose=neg?buildPoseSub(q.N,q.aug,'ag2Mul'):buildPoseAdd(q.N,q.aug,'ag2Mul');
+  $('ag2Host').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : ${q.P} % de ${q.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
+       <div class="pt-row">${frac('g1n','g1d')}<span class="f-times">\u00d7</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('g2n','g2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="g3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
+       <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="g4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="g4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="g4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="ag2Step5"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
+       <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
+  const posedIns=[...$('ag2Mul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('g1n'),$('g1d'),$('g2n'),$('g2d'),$('g3'),$('g4a'),$('g4b'),$('g4r'),...posedIns];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['g4a','g4b'].includes(el.id)){ el.addEventListener('input',updateAG2Step5); el.addEventListener('focusout',updateAG2Step5); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkAG2Answer();} });
+  });
+  updateAG2Step5();
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Addition : les deux sens acceptés. Soustraction : valeur de départ \u2212 baisse, dans cet ordre. */
+function liveColorAG2op(q){
+  const neg=augqSens(q)<0;
+  ['g4a','g4b'].forEach((id,ix)=>{
+    const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
+    el.classList.remove('ok','bad'); if(v==='') return;
+    const fr=parseDecToFrac(v);
+    const ok = neg ? (!!fr && fr.n===(ix===0?q.N:q.aug)*fr.d)
+                   : (!!fr && (fr.n===q.N*fr.d || fr.n===q.aug*fr.d));
+    el.classList.add(ok?'ok':'bad');
+  });
+}
+function checkAG2Answer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(live){
+    liveColorFrac('g1n','g1d',q.P,100,false);
+    liveColorFrac('g2n','g2d',q.prod,100,false);
+    liveColorDec('g3',q.aug,1);
+    liveColorAG2op(q);
+    [...$('ag2Mul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorDec('g4r',q.fin,1);
+    return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const soutien=isSoutien();
+  const ok1 = v('g1n')!=='' && v('g1d')!=='' && fracEqual(iv('g1n'),iv('g1d'),q.P,100);
+  const ok2 = v('g2n')!=='' && v('g2d')!=='' && fracEqual(iv('g2n'),iv('g2d'),q.prod,100);
+  const f3=parseDecToFrac(v('g3'));
+  const ok3 = !!f3 && f3.n===q.aug*f3.d;
+  /* l'addition s'écrit dans les deux sens ; les deux cases partagent le même état,
+     comme les deux cases d'une fraction */
+  const fa=parseDecToFrac(v('g4a')), fb=parseDecToFrac(v('g4b'));
+  const est=(fr,c)=>!!fr&&fr.n===c*fr.d;
+  const neg=augqSens(q)<0;
+  const okA = neg ? (est(fa,q.N)&&est(fb,q.aug))
+                  : ((est(fa,q.N)&&est(fb,q.aug))||(est(fa,q.aug)&&est(fb,q.N)));
+  const f5=parseDecToFrac(v('g4r'));
+  const ok5 = !!f5 && f5.n===q.fin*f5.d;
+  /* pose facultative : mêmes règles que la pose de multiplication de 3.2.1 */
+  const host=$('ag2Mul');
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
+      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
+      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('g1n',ok1); mark('g1d',ok1); mark('g2n',ok2); mark('g2d',ok2); mark('g3',ok3);
+  mark('g4a',okA); mark('g4b',okA); mark('g4r',ok5);
+  const allOk=ok1&&ok2&&ok3&&okA&&ok5;                     /* pose facultative non comptée */
+  if(!allOk && soutien){ soutienAgain('ag2Feedback','ag2Actions','checkAG2Answer','ag2Host'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('ag2LiveScore').textContent=test.score;
+    $('ag2Feedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('ag2Feedback').className='mp-feedback good';
+  } else {
+    $('ag2Feedback').textContent=`Méthode : ${q.P}/100 × ${q.N} = ${q.prod}/100 = ${q.aug} ${q.unit} ${neg?'de baisse':'d\u2019augmentation'}, puis ${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.fin} ${q.unit}`; $('ag2Feedback').className='mp-feedback bad';
+    corTrainFrac('g1n','g1d',q.P,100); corTrainFrac('g2n','g2d',q.prod,100); corTrainDec('g3',q.aug);
+    if(!okA){
+      /* addition : on respecte l'ordre déjà choisi ; soustraction : l'ordre est imposé */
+      let expA=q.N, expB=q.aug;
+      if(!neg && (est(fa,q.aug)||est(fb,q.N))){ expA=q.aug; expB=q.N; }
+      corTrainDec('g4a',expA); corTrainDec('g4b',expB);
+    }
+    corTrainDec('g4r',q.fin);
+  }
+  test.answers.push({...(ptsExo()||{}), q:`${neg?'diminuer':'augmenter'} ${q.N} ${q.unit} de ${q.P} %`,
+    answer:`${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.fin} ${q.unit}`, given:(v('g4r')===''?null:v('g4r').replace('.',',')), correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('ag2Actions').innerHTML=`<button class="btn btn-primary" id="ag2Next" onclick="nextAG2Question()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('ag2Next').focus();
+}
+function nextAG2Question(){ if(test.idx<test.questions.length-1){ test.idx++; renderAG2Test(); autoSave(); } else finishAugAdd(); }
+async function finishAugAdd(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'augmenter-addition'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+
+/* ============ 3.2.5 et 3.3.4 : propositions vérifiées par le calcul direct ============
+   Mêmes situations que 3.2.2 (retrouver la valeur initiale d'une hausse) et 3.3.3
+   (retrouver le pourcentage d'une baisse), mais la vérification suit la méthode de
+   3.2.4 : calculer l'augmentation (ou la baisse) P/100 × N comme en 3.1.1, puis
+   AJOUTER (ou RETIRER) la valeur de départ — sans coefficient multiplicateur.
+   N est un multiple de 100 (2 ou 3 zéros) : l'augmentation testée reste entière
+   pour toutes les propositions, l'addition et la soustraction tombent juste. */
+function genAugDepAdd(){
+  const P = pick([10,20,30,40,50,60,70,80,90]);   /* multiples de 10 : entier même sur les leurres 50…90 */
+  const N = rand(1,9)*Math.pow(10,pick([2,3]));
+  const leurres=leurresProches(N);
+  const opts=qdMelanger(leurres.concat([N]));
+  const aug=P*N/100, fin=N+aug;
+  const ci=augqTirerCtx(fin);
+  const q={type:'val',sens:1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
+    decStr:String(fin).replace('.',','),
+    opts,bon:opts.indexOf(N),choisi:null};
+  q.v=rand(0,AUGQ_EN_VAL.length-1);
+  return q;
+}
+function genDimTauxSub(){
+  const N = rand(1,9)*Math.pow(10,pick([2,3]));   /* multiple de 100 : P×N/100 entier pour tout P proposé */
+  const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
+  const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
+  const opts=qdMelanger(leurres.concat([P]));
+  const aug=P*N/100, fin=N-aug;
+  const ci=augqTirerCtx(N);
+  const q={type:'pct',sens:-1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
+    decStr:String(fin).replace('.',','),
+    opts,bon:opts.indexOf(P),choisi:null};
+  q.v=rand(0,DIMQ_EN_PCT.length-1);
+  return q;
+}
+/* Le couple réellement testé dépend de la proposition choisie. */
+function a2qCouple(q){
+  if(q.choisi==null) return null;
+  const v=q.opts[q.choisi];
+  const P=(q.type==='pct')?v:q.P, N=(q.type==='pct')?q.N:v;
+  const aug=P*N/100, fin=N+augqSens(q)*aug;
+  return {P,N,prod:P*N,aug,fin,
+    augStr:String(aug).replace('.',','), finStr:String(fin).replace('.',',')};
+}
+async function startA2Q(id, gen){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='ag2q'; test.qId=id;
+  test.questions=Array.from({length:AUGQ_NB},gen);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('a2qtest'); renderWTest();
+}
+function genAugTauxAdd(){
+  const N = rand(1,9)*Math.pow(10,pick([2,3]));   /* multiple de 100 : P×N/100 entier pour tout P proposé */
+  const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
+  const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
+  const opts=qdMelanger(leurres.concat([P]));
+  const aug=P*N/100, fin=N+aug;
+  const ci=augqTirerCtx(N);
+  const q={type:'pct',sens:1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
+    decStr:String(fin).replace('.',','),
+    opts,bon:opts.indexOf(P),choisi:null};
+  q.v=rand(0,AUGQ_EN_PCT.length-1);
+  return q;
+}
+function genDimDepSub(){
+  const P = pick([10,20,30,40,50,60,70,80,90]);   /* multiples de 10 : entier même sur les leurres 50…90 */
+  const N = rand(1,9)*Math.pow(10,pick([2,3]));
+  const leurres=leurresProches(N);
+  const opts=qdMelanger(leurres.concat([N]));
+  const aug=P*N/100, fin=N-aug;
+  const ci=augqTirerCtx(fin);
+  const q={type:'val',sens:-1,P,N,aug,fin,unit:AUGQ_CTX[ci].u,ci,
+    decStr:String(fin).replace('.',','),
+    opts,bon:opts.indexOf(N),choisi:null};
+  q.v=rand(0,DIMQ_EN_VAL.length-1);
+  return q;
+}
+async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd); }
+async function startDimTauxSub(){ return startA2Q('diminuer-taux-soustraction', genDimTauxSub); }
+async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd); }
+async function startDimDepSub(){ return startA2Q('diminuer-depart-soustraction', genDimDepSub); }
+function choisirW(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.choisi===i) return;
+  q.choisi=i; renderWTest(); autoSave();
+}
+function updateWPose(){
+  const st=$('wPose'); if(!st) return;
+  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
+  st.classList.toggle('step-hidden', !(ok('w4a')&&ok('w4b')));
+}
+function renderWTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('wqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagW').innerHTML=modeTagHTML();
+  $('wLiveScore').textContent=test.score;
+  $('wFeedback').textContent=''; $('wFeedback').className='mp-feedback';
+  $('wActions').innerHTML='<button class="btn btn-primary" onclick="checkWAnswer()">Vérifier</button>';
+  const neg=augqSens(q)<0;
+  const tab=(q.type==='pct')?(neg?DIMQ_EN_PCT:AUGQ_EN_PCT):(neg?DIMQ_EN_VAL:AUGQ_EN_VAL);
+  $('wPrompt').innerHTML=(tab[q.v]||tab[0])(q)+` Retrouve ${augqQuoi(q)} et vérifie ta réponse en calculant ${neg?'la baisse':'l\u2019augmentation'}, puis en ${neg?'la retirant de la valeur de départ':'l\u2019ajoutant à la valeur de départ'}.`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="wc${i}" onclick="choisirW(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(augqLabel(q,v))}</span></button>`).join('');
+  const c=a2qCouple(q), cache=(c===null)?' step-hidden':'';
+  /* la pose facultative est celle de l'opération FINALE de la méthode directe :
+     l'addition (hausse) ou la soustraction (baisse) — jamais la multiplication */
+  const pose=c?(neg?buildPoseSub(c.N,c.aug,'wMul'):buildPoseAdd(c.N,c.aug,'wMul')):'<div class="mp-op" id="wMul"></div>';
+  $('a2qHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
+       <div class="pt-choix" id="wChoix">${choix}</div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${c?c.P:'…'} % de ${c?c.N:'…'}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
+       <div class="pt-row">${frac('w1n','w1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="w1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('w2n','w2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="w3" aria-label="en écriture décimale"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
+       <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="w4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="w4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="w4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="wPose"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
+       <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
+    `<p class="pt-aide">${c===null
+        ? 'Choisis une proposition, puis vérifie-la en calculant '+(neg?'la baisse':'l\u2019augmentation')+'.'
+        : 'Vérifie ta proposition\u00a0: tu dois retrouver '+q.decStr+'\u00a0'+esc(q.unit)+'.'}</p>`;
+  const posedIns=[...$('wMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('w1n'),$('w1d'),$('w1v'),$('w2n'),$('w2d'),$('w3'),$('w4a'),$('w4b'),$('w4r'),...posedIns];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['w4a','w4b'].includes(el.id)){ el.addEventListener('input',updateWPose); el.addEventListener('focusout',updateWPose); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkWAnswer();} });
+  });
+  updateWPose();
+  if(c!==null) setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkWAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(q.choisi==null){
+    if(live) return;
+    $('wFeedback').textContent='Choisis d\u2019abord une proposition (a, b, c ou d).';
+    $('wFeedback').className='mp-feedback bad'; return;
+  }
+  const c=a2qCouple(q), neg=augqSens(q)<0;
+  if(live){
+    liveColorFrac('w1n','w1d',c.P,100);
+    liveColorDec('w1v',c.N,1);
+    [...$('wMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('w2n','w2d',c.prod,100);
+    liveColorDec('w3',c.aug,1);
+    /* addition : les deux sens ; soustraction : l'ordre compte */
+    ['w4a','w4b'].forEach((id,ix)=>{
+      const el=$(id); if(!el||el.disabled) return; const vv=el.value.trim();
+      el.classList.remove('ok','bad'); if(vv==='') return;
+      const fr=parseDecToFrac(vv);
+      const ok = neg ? (!!fr && fr.n===(ix===0?c.N:c.aug)*fr.d)
+                     : (!!fr && (fr.n===c.N*fr.d || fr.n===c.aug*fr.d));
+      el.classList.add(ok?'ok':'bad');
+    });
+    liveColorDec('w4r',c.fin,1);
+    return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const soutien=isSoutien();
+  const ok1 = v('w1n')!=='' && v('w1d')!=='' && fracEqual(iv('w1n'),iv('w1d'),c.P,100);
+  const fv=parseDecToFrac(v('w1v'));
+  const okV = !!fv && fv.n===c.N*fv.d;
+  const ok2 = v('w2n')!=='' && v('w2d')!=='' && fracEqual(iv('w2n'),iv('w2d'),c.prod,100);
+  const f3=parseDecToFrac(v('w3'));
+  const ok3 = !!f3 && f3.n===c.aug*f3.d;
+  const fa=parseDecToFrac(v('w4a')), fb=parseDecToFrac(v('w4b'));
+  const est=(fr,val)=>!!fr&&fr.n===val*fr.d;
+  /* addition : N + aug dans les deux sens ; soustraction : N \u2212 baisse, dans cet ordre */
+  const okA = neg ? (est(fa,c.N)&&est(fb,c.aug))
+                  : ((est(fa,c.N)&&est(fb,c.aug))||(est(fa,c.aug)&&est(fb,c.N)));
+  const f5=parseDecToFrac(v('w4r'));
+  const ok5 = !!f5 && f5.n===c.fin*f5.d;
+  const host=$('wMul');
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engaged){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
+      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
+      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('w1n',ok1); mark('w1d',ok1); mark('w1v',okV); mark('w2n',ok2); mark('w2d',ok2);
+  mark('w3',ok3); mark('w4a',okA); mark('w4b',okA); mark('w4r',ok5);
+  const calculOk=ok1&&okV&&ok2&&ok3&&okA&&ok5;             /* pose facultative non comptée */
+  const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
+  const btn=$('wc'+q.choisi);
+  if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
+  if(!allOk && soutien){
+    if(calculOk){
+      $('wFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${c.finStr} ${esc(q.unit)}</b>, et non ${q.decStr}. Ce n\u2019est donc pas ${augqQuoi(q)} \u2014 essaie une autre proposition.`;
+      $('wFeedback').className='mp-feedback bad';
+      $('wActions').innerHTML='<button class="btn btn-primary" onclick="checkWAnswer()">Vérifier</button>';
+      setTimeout(()=>{ const z=$('wChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
+      return;
+    }
+    soutienAgain('wFeedback','wActions','checkWAnswer','a2qHost'); return;
+  }
+  test.locked=true;
+  const cx=$('wChoix'); if(cx) cx.classList.add('locked');
+  if(!okChoix){ const bon=$('wc'+q.bon); if(bon) bon.classList.add('sol'); }
+  const bonLbl=`<b>${QLET[q.bon]}) ${esc(augqLabel(q,q.opts[q.bon]))}</b>`;
+  const preuve=`${q.P}/100 \u00d7 ${q.N} = ${q.aug} ${q.unit} ${neg?'de baisse':'d\u2019augmentation'}, puis ${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.decStr} ${q.unit}`;
+  if(allOk){ test.score++; $('wLiveScore').textContent=test.score;
+    $('wFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('wFeedback').className='mp-feedback good';
+  } else if(calculOk){
+    $('wFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${c.finStr} ${esc(q.unit)}, et non ${q.decStr}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('wFeedback').className='mp-feedback bad';
+  } else {
+    $('wFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
+    $('wFeedback').className='mp-feedback bad';
+    /* corrections calculées sur la proposition CHOISIE : c'est son calcul qu'on corrige */
+    corTrainFrac('w1n','w1d',c.P,100); corTrainDec('w1v',c.N);
+    corTrainFrac('w2n','w2d',c.prod,100); corTrainDec('w3',c.augStr);
+    if(!okA){
+      let expA=c.N, expB=c.augStr;
+      if(!neg && (est(fa,c.aug)||est(fb,c.N))){ expA=c.augStr; expB=c.N; }
+      corTrainDec('w4a',expA); corTrainDec('w4b',expB);
+    }
+    corTrainDec('w4r',c.finStr);
+  }
+  const enonce=(q.type==='pct')
+    ? `${q.N} ${q.unit} passe à ${q.decStr} ${q.unit}`
+    : `${neg?'diminué':'augmenté'} de ${q.P} %, on obtient ${q.decStr} ${q.unit}`;
+  test.answers.push({...(ptsExo()||{}), q:enonce,
+    answer:augqLabel(q,q.opts[q.bon]), given:augqLabel(q,q.opts[q.choisi]), correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('wActions').innerHTML=`<button class="btn btn-primary" id="wNext" onclick="nextWQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('wNext').focus();
+}
+function nextWQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderWTest(); autoSave(); } else finishA2Q(); }
+async function finishA2Q(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
+    details:{test:(test.qId||'augmenter-depart-addition'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+
+/* ============ 3.4.1 Synthèse sur les pourcentages ============
+   Un énoncé tiré des trois familles (prendre, augmenter, diminuer), une
+   inconnue tirée des trois possibles (valeur finale, valeur initiale,
+   pourcentage), quatre propositions construites comme dans les exercices
+   correspondants. L'élève choisit, puis VÉRIFIE : pour « prendre », les trois
+   étapes de 3.1.1 ; pour une évolution, il choisit sa méthode — coefficient
+   multiplicateur (comme 3.2.1) ou calcul direct de l'augmentation/la baisse
+   (comme 3.2.4) — chacune présentée exactement comme dans ces exercices. */
+const SYN_NB=6;
+function genSyn(){
+  const fam=pick(['pct','aug','dim']);
+  const inc=pick(['fin','ini','pct']);
+  let q;
+  if(fam==='pct'){
+    if(inc==='pct'){
+      let N,admis;
+      do{ N=pick(PCT_VALEURS); admis=PCT_PCTS.filter(x=>pctCoupleOk(x,N)); } while(admis.length<4);
+      const P=pick(admis);
+      const res=P*N/100, ci=tirerContexte(CTX_PART,N);
+      const opts=qdMelanger(qdMelanger(admis.filter(x=>x!==P)).slice(0,3).concat([P]));
+      q={fam,inc,sens:0,P,N,res,result:res,unit:CTX_PART[ci].u,ci,bonV:P,opts};
+      q.v=tirerVariante(QD_ENONCES_PCT,q);
+    } else {
+      let P,N;
+      do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); }
+      while(!pctCoupleOk(P,N) || (inc==='fin' && P*N/100<10) || (inc==='ini' && N<100));
+      const res=P*N/100, ci=tirerContexte(CTX_PART,N);
+      q={fam,inc,sens:0,P,N,res,result:res,unit:CTX_PART[ci].u,ci};
+      if(inc==='fin'){ q.bonV=res; q.opts=qdMelanger(leurresProches(res).concat([res])); q.v=tirerVariante(PCT_ENONCES,q); }
+      else { q.bonV=N; q.opts=qdMelanger(leurresProches(N).concat([N])); q.v=tirerVariante(QD_ENONCES_VAL,q); }
+    }
+  } else {
+    const sens=(fam==='aug')?1:-1;
+    let P,N;
+    if(inc==='ini'){ P=pick([10,20,30,40,50,60,70,80,90]); }   /* leurres fins : multiples de 10 */
+    else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }
+    N=rand(1,9)*Math.pow(10,pick([2,3]));                      /* multiple de 100 : tout tombe juste */
+    const aug=P*N/100, fin=N+sens*aug;
+    q={fam,inc,sens,P,N,aug,fin,decStr:String(fin).replace('.',',')};
+    if(inc==='fin'){
+      const ci=tirerContexte(AUG_THEMES,N,sens<0?'poidsBaisse':'poidsHausse');
+      const th=AUG_THEMES[ci];
+      Object.assign(q,{intro:th.intro,unit:th.unit,g:th.g,ci,bonV:fin,
+        opts:qdMelanger(leurresProches(fin).concat([fin]))});
+      q.v=tirerVariante(sens>0?AUG_ENONCES:DIM_ENONCES,q);
+    } else if(inc==='ini'){
+      const ci=augqTirerCtx(fin);
+      Object.assign(q,{unit:AUGQ_CTX[ci].u,ci,bonV:N,opts:qdMelanger(leurresProches(N).concat([N]))});
+      q.v=rand(0,(sens>0?AUGQ_EN_VAL:DIMQ_EN_VAL).length-1);
+    } else {
+      const ci=augqTirerCtx(N);
+      Object.assign(q,{unit:AUGQ_CTX[ci].u,ci,bonV:P,
+        opts:qdMelanger(qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3).concat([P]))});
+      q.v=rand(0,(sens>0?AUGQ_EN_PCT:DIMQ_EN_PCT).length-1);
+    }
+  }
+  q.bon=q.opts.indexOf(q.bonV);
+  q.choisi=null;
+  q.meth=(q.fam==='pct')?'pct':null;   /* les évolutions choisissent leur méthode */
+  return q;
+}
+/* Le couple réellement testé : la proposition remplace l'inconnue. */
+function synCouple(q){
+  if(q.choisi==null) return null;
+  const v=q.opts[q.choisi];
+  const P=(q.inc==='pct')?v:q.P, N=(q.inc==='ini')?v:q.N;
+  const res=P*N/100, coef=100+(q.sens||0)*P, prodNum=N*coef;
+  const c={P,N,prod:P*N,res,coef,prodNum,fin:N+(q.sens||0)*res,
+    coefDec:String(coef/100).replace('.',','), resStr:String(res).replace('.',',')};
+  c.finStr=String(c.fin).replace('.',','); c.prodFinStr=String(prodNum/100).replace('.',',');
+  return c;
+}
+function synQuoi(q){
+  if(q.inc==='fin') return (q.fam==='pct')?'le résultat':'la nouvelle valeur';
+  if(q.inc==='ini') return 'la valeur initiale';
+  return (q.fam==='dim')?'le pourcentage de baisse':(q.fam==='aug'?'le pourcentage d\u2019augmentation':'le pourcentage');
+}
+function synLabel(q,v){ return (q.inc==='pct') ? (v+'\u00a0%') : (v+' '+q.unit); }
+async function startSyn(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='syn';
+  test.questions=Array.from({length:SYN_NB},genSyn);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('syntest'); renderSynTest();
+}
+function choisirSy(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.choisi===i) return;
+  q.choisi=i; renderSynTest(); autoSave();
+}
+function choisirSyMeth(m){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.meth===m) return;
+  q.meth=m; renderSynTest(); autoSave();
+}
+function updateSynPose(){
+  const st=$('syPose'); if(!st) return;
+  const q=test.questions[test.idx];
+  /* méthode coefficient : pose de la multiplication, ouverte quand l'opération est écrite ;
+     méthode directe : pose de l'addition/la soustraction, ouverte quand ses termes sont écrits */
+  const ids=(q.meth==='coef')?['y3n','y3d','y3v']:['y4a','y4b'];
+  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
+  st.classList.toggle('step-hidden', !ids.every(ok));
+}
+function renderSynTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('syqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagSY').innerHTML=modeTagHTML();
+  $('syLiveScore').textContent=test.score;
+  $('syFeedback').textContent=''; $('syFeedback').className='mp-feedback';
+  $('syActions').innerHTML='<button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>';
+  const neg=q.sens<0, evol=(q.fam!=='pct');
+  const tab=(q.fam==='pct')
+    ? (q.inc==='fin'?PCT_ENONCES:(q.inc==='ini'?QD_ENONCES_VAL:QD_ENONCES_PCT))
+    : (q.inc==='fin'?(neg?DIM_ENONCES:AUG_ENONCES):(q.inc==='ini'?(neg?DIMQ_EN_VAL:AUGQ_EN_VAL):(neg?DIMQ_EN_PCT:AUGQ_EN_PCT)));
+  $('syPrompt').innerHTML=(tab[q.v]||tab[0])(q)+` Choisis ${synQuoi(q)}, puis vérifie ta réponse en écrivant les étapes des calculs.`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="sc${i}" onclick="choisirSy(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(synLabel(q,v))}</span></button>`).join('');
+  const c=synCouple(q);
+  const pretE=(c!==null)&&(!evol||q.meth);           /* étapes visibles : choix fait, méthode choisie */
+  const cache=pretE?'':' step-hidden';
+  const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
+  let methHTML='';
+  if(evol && c!==null){
+    methHTML=`<div class="pt-step"><div class="pt-lab">Ⓜ Choisis ta méthode de vérification</div>
+       <div class="pt-choix" id="syMeth">
+         <button type="button" class="pt-choix-btn${q.meth==='coef'?' sel':''}" id="sm0" onclick="choisirSyMeth('coef')"><span class="valeur">Avec le coefficient multiplicateur</span></button>
+         <button type="button" class="pt-choix-btn${q.meth==='dir'?' sel':''}" id="sm1" onclick="choisirSyMeth('dir')"><span class="valeur">En calculant ${neg?'la baisse':'l\u2019augmentation'}</span></button>
+       </div></div>`;
+  }
+  let etapes='';
+  if(!pretE){
+    etapes='';
+  } else if(q.fam==='pct'){
+    etapes=
+      `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction décimale : ${c.P} % de ${c.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le résultat en écriture décimale</div>
+         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><span class="f-whole">${c.N}</span><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+  } else if(q.meth==='coef'){
+    const pose=buildPose(stripZ(c.coef),stripZ(c.N),'syMul');
+    etapes=
+      `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${c.P} %, c'est multiplier par 1 ${neg?'\u2212':'+'} ${c.P}/100</div>
+         <div class="pt-row"><span class="f-whole">1 ${neg?'\u2212':'+'}</span>${frac('y1n','y1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'\u2212':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="y1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="y1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}</div></div>`+
+      `<div class="pt-step"><div class="pt-lab">\u2461 coefficient \u00d7 valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
+         <div class="pt-row">${frac('y3n','y3d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y3v" aria-label="valeur de départ"></math-field><span class="f-eq">=</span>${frac('y4n','y4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+      `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+         <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
+  } else {
+    /* la pose facultative de la méthode directe est l'addition ou la soustraction */
+    const pose=neg?buildPoseSub(c.N,c.res,'syMul'):buildPoseAdd(c.N,c.res,'syMul');
+    etapes=
+      `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${c.P} % de ${c.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
+         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+      `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
+         <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="y4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="y4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+      `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
+         <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
+  }
+  $('synHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${synQuoi(q)}</div>
+       <div class="pt-choix" id="syChoix">${choix}</div></div>`+
+    methHTML+etapes+
+    `<p class="pt-aide">${c===null
+        ? 'Choisis une proposition'+(evol?', puis ta méthode de vérification':'')+'.'
+        : (evol&&!q.meth) ? 'Choisis maintenant ta méthode de vérification : les deux donnent le même résultat.'
+        : (q.inc==='fin' ? 'Écris les étapes du calcul : tu dois retrouver la proposition choisie.'
+                         : 'Vérifie ta proposition\u00a0: tu dois retrouver '+((q.fam==='pct')?q.result:q.decStr)+'\u00a0'+esc(q.unit)+'.')}</p>`;
+  if(!pretE) return;
+  const posedIns=$('syMul')?[...$('syMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab)):[];
+  const order=(q.fam==='pct')
+    ? [$('y1n'),$('y1d'),$('y2n'),$('y2d'),$('y3')]
+    : (q.meth==='coef')
+      ? [$('y1n'),$('y1d'),$('y1p'),$('y1dec'),$('y2n'),$('y2d'),$('y3n'),$('y3d'),$('y3v'),...posedIns,$('y4n'),$('y4d'),$('y5')]
+      : [$('y1n'),$('y1d'),$('y1v'),$('y2n'),$('y2d'),$('y3'),$('y4a'),$('y4b'),$('y4r'),...posedIns];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(!el) return;
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(['y3n','y3d','y3v','y4a','y4b'].includes(el.id)){ el.addEventListener('input',updateSynPose); el.addEventListener('focusout',updateSynPose); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkSynAnswer();} });
+  });
+  updateSynPose();
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkSynAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  if(q.choisi==null){
+    if(live) return;
+    $('syFeedback').textContent='Choisis d\u2019abord une proposition (a, b, c ou d).';
+    $('syFeedback').className='mp-feedback bad'; return;
+  }
+  const evol=(q.fam!=='pct'), neg=q.sens<0;
+  if(evol && !q.meth){
+    if(live) return;
+    $('syFeedback').textContent='Choisis ta méthode de vérification : coefficient multiplicateur, ou calcul '+(neg?'de la baisse':'de l\u2019augmentation')+'.';
+    $('syFeedback').className='mp-feedback bad'; return;
+  }
+  const c=synCouple(q);
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const soutien=isSoutien();
+  const est=(fr,val)=>!!fr&&fr.n===val*fr.d;
+  let oks={}, ids=[], calculOk=false;
+  if(live){
+    if(q.fam==='pct'){
+      liveColorFrac('y1n','y1d',c.P,100,false);
+      liveColorFrac('y2n','y2d',c.prod,100,false);
+      liveColorDec('y3',c.res,1);
+    } else if(q.meth==='coef'){
+      liveColorFrac('y1n','y1d',c.P,100);
+      liveColorDecCoef0('y1p',c.P);
+      (neg?liveColorDecCoef0:liveColorDecCoef)('y1dec',c.coef);
+      liveColorFrac('y2n','y2d',c.coef,100);
+      liveColorFrac('y3n','y3d',c.coef,100);
+      liveColorDec('y3v',c.N,1);
+      if($('syMul')) [...$('syMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+      liveColorFrac('y4n','y4d',c.prodNum,100);
+      liveColorDec('y5',c.prodNum,100);
+    } else {
+      liveColorFrac('y1n','y1d',c.P,100);
+      liveColorDec('y1v',c.N,1);
+      if($('syMul')) [...$('syMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+      liveColorFrac('y2n','y2d',c.prod,100);
+      liveColorDec('y3',c.res,1);
+      ['y4a','y4b'].forEach((id,ix)=>{
+        const el=$(id); if(!el||el.disabled) return; const vv=el.value.trim();
+        el.classList.remove('ok','bad'); if(vv==='') return;
+        const fr=parseDecToFrac(vv);
+        const ok = neg ? (!!fr && fr.n===(ix===0?c.N:c.res)*fr.d)
+                       : (!!fr && (fr.n===c.N*fr.d || fr.n===c.res*fr.d));
+        el.classList.add(ok?'ok':'bad');
+      });
+      liveColorDec('y4r',c.fin,1);
+    }
+    return;
+  }
+  const mark=(id,ok)=>{const el=$(id);if(!el)return;el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  const jugePose=()=>{
+    const host=$('syMul'); if(!host) return;
+    const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+    const engaged=[...boxes,...carries].some(el=>el.value.trim()!=='');
+    if(!engaged){ [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); }); return; }
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
+      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
+      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+    });
+  };
+  if(q.fam==='pct'){
+    const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
+    const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.prod,100);
+    const f3=parseDecToFrac(v('y3')); const ok3=est(f3,c.res);
+    mark('y1n',ok1);mark('y1d',ok1);mark('y2n',ok2);mark('y2d',ok2);mark('y3',ok3);
+    calculOk=ok1&&ok2&&ok3;
+  } else if(q.meth==='coef'){
+    const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
+    const frP=parseDecToFrac('0,'+v('y1p'));
+    const okP=v('y1p')!=='' && !!frP && frP.n*100===c.P*frP.d;
+    const frC=parseDecToFrac((neg?'0,':'1,')+v('y1dec'));
+    const okC=v('y1dec')!=='' && !!frC && frC.n*100===c.coef*frC.d;
+    const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.coef,100);
+    const ok3=v('y3n')!=='' && v('y3d')!=='' && fracEqual(iv('y3n'),iv('y3d'),c.coef,100);
+    const fV=parseDecToFrac(v('y3v')); const okV=est(fV,c.N);
+    jugePose();
+    const ok4=v('y4n')!=='' && v('y4d')!=='' && fracEqual(iv('y4n'),iv('y4d'),c.prodNum,100);
+    const f5=parseDecToFrac(v('y5')); const ok5=!!f5 && f5.n*100===c.prodNum*f5.d;
+    mark('y1n',ok1);mark('y1d',ok1);mark('y1p',okP);mark('y1dec',okC);mark('y2n',ok2);mark('y2d',ok2);
+    mark('y3n',ok3);mark('y3d',ok3);mark('y3v',okV);mark('y4n',ok4);mark('y4d',ok4);mark('y5',ok5);
+    calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
+  } else {
+    const ok1=v('y1n')!=='' && v('y1d')!=='' && fracEqual(iv('y1n'),iv('y1d'),c.P,100);
+    const fV=parseDecToFrac(v('y1v')); const okV=est(fV,c.N);
+    jugePose();
+    const ok2=v('y2n')!=='' && v('y2d')!=='' && fracEqual(iv('y2n'),iv('y2d'),c.prod,100);
+    const f3=parseDecToFrac(v('y3')); const ok3=est(f3,c.res);
+    const fa=parseDecToFrac(v('y4a')), fb=parseDecToFrac(v('y4b'));
+    const okA = neg ? (est(fa,c.N)&&est(fb,c.res))
+                    : ((est(fa,c.N)&&est(fb,c.res))||(est(fa,c.res)&&est(fb,c.N)));
+    const f5=parseDecToFrac(v('y4r')); const ok5=est(f5,c.fin);
+    mark('y1n',ok1);mark('y1d',ok1);mark('y1v',okV);mark('y2n',ok2);mark('y2d',ok2);
+    mark('y3',ok3);mark('y4a',okA);mark('y4b',okA);mark('y4r',ok5);
+    calculOk=ok1&&okV&&ok2&&ok3&&okA&&ok5;
+  }
+  const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
+  const btn=$('sc'+q.choisi);
+  if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
+  const attendu=(q.fam==='pct')?String(q.result):q.decStr;
+  const obtenu=(q.fam==='pct')?String(c.res).replace('.',','):(q.meth==='coef'?c.prodFinStr:c.finStr);
+  if(!allOk && soutien){
+    if(calculOk){
+      $('syFeedback').innerHTML=`Ton calcul est juste\u00a0: on obtient <b>${obtenu} ${esc(q.unit)}</b>${q.inc==='fin'?', ce qui ne correspond pas à ta proposition':', et non '+attendu+' '+esc(q.unit)}. Essaie une autre proposition.`;
+      $('syFeedback').className='mp-feedback bad';
+      $('syActions').innerHTML='<button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>';
+      setTimeout(()=>{ const z=$('syChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
+      return;
+    }
+    soutienAgain('syFeedback','syActions','checkSynAnswer','synHost'); return;
+  }
+  test.locked=true;
+  const cx=$('syChoix'); if(cx) cx.classList.add('locked');
+  const mx=$('syMeth'); if(mx) mx.classList.add('locked');
+  if(!okChoix){ const bon=$('sc'+q.bon); if(bon) bon.classList.add('sol'); }
+  const bonLbl=`<b>${QLET[q.bon]}) ${esc(synLabel(q,q.opts[q.bon]))}</b>`;
+  const preuve=(q.fam==='pct')
+    ? `${q.P}/100 \u00d7 ${q.N} = ${q.P*q.N}/100 = ${q.result} ${q.unit}`
+    : (q.meth==='coef'
+      ? `1 ${neg?'\u2212':'+'} ${q.P}/100 = ${String((100+q.sens*q.P)/100).replace('.',',')} = ${100+q.sens*q.P}/100, puis ${100+q.sens*q.P}/100 \u00d7 ${q.N} = ${q.N*(100+q.sens*q.P)}/100 = ${q.decStr} ${q.unit}`
+      : `${q.P}/100 \u00d7 ${q.N} = ${q.aug} ${q.unit} ${neg?'de baisse':'d\u2019augmentation'}, puis ${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.decStr} ${q.unit}`);
+  if(allOk){ test.score++; $('syLiveScore').textContent=test.score;
+    $('syFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('syFeedback').className='mp-feedback good';
+  } else if(calculOk){
+    $('syFeedback').innerHTML=`Calcul juste, mais mauvaise proposition\u00a0: on obtient ${obtenu} ${esc(q.unit)}. La bonne réponse était ${bonLbl}, car ${preuve}.`;
+    $('syFeedback').className='mp-feedback bad';
+  } else {
+    $('syFeedback').innerHTML=`Réponse\u00a0: ${bonLbl}, car ${preuve}.`;
+    $('syFeedback').className='mp-feedback bad';
+    /* corrections calculées sur la proposition CHOISIE, dans la méthode choisie */
+    if(q.fam==='pct'){
+      corTrainFrac('y1n','y1d',c.P,100); corTrainFrac('y2n','y2d',c.prod,100); corTrainDec('y3',c.resStr);
+    } else if(q.meth==='coef'){
+      corTrainFrac('y1n','y1d',c.P,100); corTrainDec('y1p',pDecStr(c.P).slice(2));
+      corTrainDec('y1dec',neg?String(c.coef).padStart(2,'0'):String(c.coef).slice(1));
+      corTrainFrac('y2n','y2d',c.coef,100); corTrainFrac('y3n','y3d',c.coef,100); corTrainDec('y3v',c.N);
+      corTrainFrac('y4n','y4d',c.prodNum,100); corTrainDec('y5',c.prodFinStr);
+    } else {
+      corTrainFrac('y1n','y1d',c.P,100); corTrainDec('y1v',c.N);
+      corTrainFrac('y2n','y2d',c.prod,100); corTrainDec('y3',c.resStr);
+      const fa2=parseDecToFrac(v('y4a')), fb2=parseDecToFrac(v('y4b'));
+      let expA=c.N, expB=c.resStr;
+      if(!neg && (est(fa2,c.res)||est(fb2,c.N))){ expA=c.resStr; expB=c.N; }
+      corTrainDec('y4a',expA); corTrainDec('y4b',expB);
+      corTrainDec('y4r',c.finStr);
+    }
+  }
+  const famTxt=(q.fam==='pct')?'prendre un pourcentage':(q.fam==='aug'?'augmentation':'baisse');
+  test.answers.push({...(ptsExo()||{}), q:`synthèse (${famTxt}, ${synQuoi(q)})`,
+    answer:synLabel(q,q.opts[q.bon]), given:synLabel(q,q.opts[q.choisi]), correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('syActions').innerHTML=`<button class="btn btn-primary" id="syNext" onclick="nextSynQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('syNext').focus();
+}
+function nextSynQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSynTest(); autoSave(); } else finishSyn(); }
+async function finishSyn(){
+  clearRecovery();
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-pourcentages',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
 /* ============ Tests \u00e0 propositions : QCM + v\u00e9rification chiffr\u00e9e ============
    Deux exercices partagent ce moteur. Dans les deux cas on conna\u00eet deux des trois
    nombres de « P % de N = R » et l'\u00e9l\u00e8ve choisit le troisi\u00e8me parmi quatre
@@ -3291,14 +4389,34 @@ const QD_PCTS=PCT_PCTS;
 const QD_UNITS=['\u20ac','\u20ac','litres','km','kg','\u00e9l\u00e8ves','minutes','g'];
 function qdMelanger(t){ for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const x=t[i]; t[i]=t[j]; t[j]=x; } return t; }
 
+/* Leurres au pas de la bonne réponse (dizaine, centaine, millier…) : celui
+   juste en dessous, celui juste au-dessus, et un troisième à deux pas —
+   au-dessus ou en dessous, au hasard. 500 → 400, 600 et 700 (ou 300).
+   Des propositions proches obligent à calculer : éloignées, le QCM se
+   résoudrait à vue. Il faut TOUJOURS une valeur en dessous : quand le pas
+   ne le permet pas (100 → 0), on descend d'un cran et on tire entre la
+   moitié et le pas inférieur — 100 → 90, 80, … ou 50. */
+function leurresProches(N){
+  const pas=Math.pow(10,Math.floor(Math.log10(N)));
+  const out=[];
+  if(N-pas>0){
+    out.push(N-pas, N+pas);
+    const deux=[]; if(N-2*pas>0) deux.push(N-2*pas); deux.push(N+2*pas);
+    out.push(pick(deux));
+  } else {
+    out.push(N - (pas/10)*rand(1,5));   /* 100 → 90…50 ; 1000 → 900…500 ; 10 → 9…5 */
+    out.push(N+pas, N+2*pas);
+  }
+  return out;
+}
 /* --- Retrouver la valeur initiale : P et R donn\u00e9s, N \u00e0 choisir --- */
 function genPctDepart(){
   let P,N;
   do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
   const prod=P*N;
-  /* Les leurres sont des valeurs de départ tout aussi plausibles : même plage, même
-     contrainte. Sans cela le QCM se résoudrait à vue, sans calculer. */
-  const leurres=qdMelanger(PCT_VALEURS.filter(v=>v!==N && pctCoupleOk(P,v))).slice(0,3);
+  /* P est un multiple de 10 et les leurres des multiples de 10 : P×leurre reste
+     divisible par 100, la vérification d'une mauvaise proposition tombe juste. */
+  const leurres=leurresProches(N);
   const opts=qdMelanger(leurres.concat([N]));
   const ci=tirerContexte(CTX_PART,N);
   const q={type:'val',P,N,unit:CTX_PART[ci].u,prod,result:prod/100,opts,bon:opts.indexOf(N),choisi:null,ci};
@@ -3365,12 +4483,8 @@ function renderQTest(){
   $('qHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="qChoix">${choix}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 Transformer le % en fraction d\u00e9cimale</div>
-       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span><span class="f-whole">${c?c.N:''}</span></div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2461 Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('q2n','q2d')}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2462 \u00c9crire le r\u00e9sultat sous forme d\u00e9cimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
+       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span><span class="f-whole">${c?c.N:''}</span><span class="f-eq">=</span>${frac('q2n','q2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<p class="pt-aide">${c===null
         ? 'Choisis une proposition, puis \u00e9cris les \u00e9tapes du calcul pour la v\u00e9rifier.'
         : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+q.result+'\u00a0'+esc(q.unit)+'.'}</p>`;
@@ -3557,16 +4671,12 @@ function renderATest(){
   $('aHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
        <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span><math-field class="dexp-mf pm-mf f-dec" id="a1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
-    `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
-       <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('a4n','a4d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('a4n','a4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`;
   const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('a1n'),$('a1d'),$('a1p'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),...posedIns,$('a4n'),$('a4d'),$('a5')];
+  const order=[$('a1n'),$('a1d'),$('a1p'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),$('a4n'),$('a4d'),$('a5'),...posedIns];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;                  // visible et modifiable
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -3800,7 +4910,6 @@ const DIMQ_EN_PCT=[
   q=>`De <b>${q.N} ${esc(q.unit)}</b>, ${augqMin(q)} est descendu${augqE(q)} à <b>${q.decStr} ${esc(q.unit)}</b>.`,
   q=>`${augqCtx(q).s} diminue : de <b>${q.N} ${esc(q.unit)}</b>, ${augqIl(q)} tombe à <b>${q.decStr} ${esc(q.unit)}</b>.`
 ];
-function augqValeurs(){ const t=[]; for(let k=1;k<=3;k++) for(let d=1;d<=9;d++) t.push(d*Math.pow(10,k)); return t; }
 function augqFin(N,P){ return N*(100+P)/100; }
 /* Les questions enregistrées avant l'ajout des baisses n'ont pas de champ sens : +1. */
 function augqSens(q){ return (q&&q.sens===-1)?-1:1; }
@@ -3816,7 +4925,7 @@ function augqCouple(q){
 function genAugDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
-  const leurres=qdMelanger(augqValeurs().filter(v=>v!==N)).slice(0,3);
+  const leurres=leurresProches(N);          /* au pas de N : voir leurresProches */
   const opts=qdMelanger(leurres.concat([N]));
   const coef=100+P, prodNum=N*coef;
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
@@ -3845,7 +4954,7 @@ async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
 function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
-  const leurres=qdMelanger(augqValeurs().filter(v=>v!==N)).slice(0,3);
+  const leurres=leurresProches(N);          /* au pas de N : voir leurresProches */
   const opts=qdMelanger(leurres.concat([N]));
   const coef=100-P, prodNum=N*coef;
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
@@ -3910,19 +5019,15 @@ function renderVTest(){
        <div class="pt-choix" id="vChoix">${choix}</div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${c?c.P:'…'} %, c'est multiplier par 1 ${neg?'−':'+'} ${c?c.P:'…'}/100</div>
        <div class="pt-row"><span class="f-whole">1 ${neg?'−':'+'}</span>${frac('v1n','v1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'−':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="v1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('v2n','v2d')}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2461 Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${c?c.N:''}"></math-field></div></div>`+
-    `<div class="pt-step pt-opt step-hidden" id="vStep3"><div class="pt-lab">\u2462 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2461 coefficient × valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${c?c.N:''}"></math-field><span class="f-eq">=</span>${frac('v4n','v4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="vStep3"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2463 Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('v4n','v4d')}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2464 Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<p class="pt-aide">${c===null
         ? 'Choisis une proposition, puis écris les étapes du calcul pour la vérifier.'
         : 'Vérifie ta proposition\u00a0: '+(neg?'diminue':'augmente')+' '+c.N+' de '+c.P+'\u00a0%. Tu dois retrouver '+q.decStr+'\u00a0'+esc(q.unit)+'.'}</p>`;
   const posedIns=[...$('vMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('v1n'),$('v1d'),$('v1p'),$('v1dec'),$('v2n'),$('v2d'),$('v3n'),$('v3d'),$('v3v'),...posedIns,$('v4n'),$('v4d'),$('v5')];
+  const order=[$('v1n'),$('v1d'),$('v1p'),$('v1dec'),$('v2n'),$('v2d'),$('v3n'),$('v3d'),$('v3v'),$('v4n'),$('v4d'),$('v5'),...posedIns];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -4079,16 +5184,12 @@ function renderDTest(){
   $('dHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
        <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
-    `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
-       <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('d4n','d4d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('d4n','d4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`;
   const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('d1n'),$('d1d'),$('d1p'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),...posedIns,$('d4n'),$('d4d'),$('d5')];
+  const order=[$('d1n'),$('d1d'),$('d1p'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),$('d4n'),$('d4d'),$('d5'),...posedIns];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -4243,16 +5344,13 @@ function renderMDTest(){
   const rowRes  =`<div class="mp-row">${cell('op')}${hCell}${cell('',mInp('mp-box',q.t,3))}${cell('',mInp('mp-box',q.u,1))}</div>`;
   const posed   =`<div class="mp-op" id="mdMul">${rowCarry+rowTop+rowMul+rowLine+rowRes}</div>`;
   $('mdHost').innerHTML=
-    `<div class="pt-step"><div class="pt-lab">① Écris les fractions décimales</div>
-       <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Pose la multiplication des numérateurs et complète-la <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:8px 0 14px">${posed}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">③ Multiplie les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('md3n','md3d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Écris le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}<span class="f-eq">=</span>${frac('md3n','md3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field></div></div>`+
+    `<div class="pt-step"><div class="pt-lab">④ Pose la multiplication des numérateurs et complète-la <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
+       <div class="pt-row" style="padding:8px 0 14px">${posed}</div></div>`;
   const posedIns=[...$('mdMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('md1n'),$('md1d'),$('md2n'),$('md2d'),...posedIns,$('md3n'),$('md3d'),$('mdDec')];
+  /* la pose reste dans l'ordre de saisie : fractions, pose, produit, décimal */
   order.forEach((el,i)=>{
     if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
       el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i<order.length-1)order[i+1].focus(); });
@@ -4404,14 +5502,10 @@ function renderUTest(){
   const rowSum =rowFrom(boxMap(q.prodNum,0,'us'),'');
   const posed=`<div class="mp-op u-mul" id="uMul">${rowCarryPP+rowTop+rowMul+rowL1+rowPP1+rowPP2+rowL2+rowCarrySum+rowSum}</div>`;
   $('uHost').innerHTML=
-    `<div class="pt-step"><div class="pt-lab">① Écris les fractions décimales</div>
-       <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Pose la multiplication des numérateurs (le plus court en bas) et complète chaque ligne <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:6px 0 14px">${posed}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">③ Multiplie les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('u3n','u3d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Écris le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}<span class="f-eq">=</span>${frac('u3n','u3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field></div></div>`+
+    `<div class="pt-step"><div class="pt-lab">④ Pose la multiplication des numérateurs (le plus court en bas) et complète chaque ligne <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
+       <div class="pt-row" style="padding:6px 0 14px">${posed}</div></div>`;
   const collect=(pref,V)=>{ const a=[],L=String(V).length; for(let j=0;j<L;j++)a.push($(pref+j)); return a; };
   const order=[$('u1n'),$('u1d'),$('u2n'),$('u2d'),...collect('ua',q.v1),...collect('ub',q.v2),...collect('us',q.prodNum),$('u3n'),$('u3d'),$('uDec')];
   order.forEach((el,i)=>{
@@ -5677,9 +6771,40 @@ Une diminution relie trois nombres par une seule égalité :<br>
 Dès qu’on en connaît deux, le troisième est déterminé. Plutôt que de le calculer directement, on <b>teste une proposition</b> : on refait la baisse avec elle, exactement comme dans l’exercice 3.3.1, et on regarde si l’on retombe sur la valeur finale annoncée.<br>
 Si le calcul est juste mais que le résultat ne correspond pas, c’est la proposition qui est mauvaise, pas le calcul.<br>
 Piège classique : une baisse de 20 % ne s’annule pas par une hausse de 20 % — on compare toujours à la valeur de DÉPART.`;
+const RAP_FP=`<b>Fraction et pourcentage</b><br>
+Un pourcentage est une fraction de dénominateur 100 : <b>x % = x/100</b>.<br>
+Quand le dénominateur divise 100, la conversion est directe : on partage 100 % en b parts égales, chaque part vaut 100/b %.<br>
+Exemple : la colonne divisée en 4 → chaque part vaut 25 %, donc 3/4 = 3 × 25 % = 75 %.<br>
+À la même hauteur correspondent la fraction ET le pourcentage : deux écritures d’une seule quantité.<br>
+À retenir : 1/2 = 50 %, 1/4 = 25 %, 3/4 = 75 %, 1/5 = 20 %, 1/10 = 10 %.`;
+const RAP_AG2=`<b>Augmenter en calculant l\u2019augmentation</b><br>
+Augmenter de <b>P %</b>, c\u2019est ajouter P % de la valeur : on calcule d\u2019abord <b>l\u2019augmentation</b> elle-même, P/100 × valeur, exactement comme en 3.1.1.<br>
+Puis on <b>ajoute</b> : nouvelle valeur = valeur de départ + augmentation.<br>
+Exemple : augmenter 300 de 20 %. L\u2019augmentation vaut 20/100 × 300 = 60, et 300 + 60 = 360.<br>
+C\u2019est la même réponse qu\u2019avec le coefficient (300 × 1,2 = 360) : deux chemins, un seul résultat.<br>
+Piège classique : ne pas oublier d\u2019ajouter la valeur de départ — l\u2019augmentation seule (60) n\u2019est pas la réponse.`;
+const RAP_AG2Q=`<b>Tester une proposition par le calcul direct</b><br>
+Une évolution relie trois nombres : <b>valeur initiale, pourcentage, valeur finale</b>. Dès qu\u2019on en connaît deux, on peut tester une proposition pour le troisième.<br>
+On calcule <b>l\u2019augmentation ou la baisse</b> : P/100 × valeur initiale, comme en 3.1.1 — sans coefficient multiplicateur.<br>
+Puis on <b>ajoute</b> (hausse) ou on <b>retire</b> (baisse) : si l\u2019on retombe sur la valeur finale annoncée, la proposition est la bonne.<br>
+Attention au sens de la soustraction : c\u2019est valeur de départ − baisse, jamais l\u2019inverse.<br>
+Si le calcul est juste mais que le résultat ne correspond pas, c\u2019est la proposition qui est mauvaise, pas le calcul.`;
+const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
+<b>Prendre P %</b> d\u2019un nombre : P/100 × valeur, comme en 3.1.1.<br>
+<b>Augmenter ou diminuer de P %</b> : deux méthodes, un seul résultat.<br>
+\u2014 avec le <b>coefficient multiplicateur</b> : 1 ± P/100, puis coefficient × valeur de départ ;<br>
+\u2014 en calculant <b>l\u2019augmentation ou la baisse</b> : P/100 × valeur, puis on l\u2019ajoute ou on la retire.<br>
+Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
+Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
 const RAPPELS={ augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM };
-const RAPPELS_ID={ 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN };
+const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
+Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, P/100 × valeur, exactement comme en 3.1.1.<br>
+Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
+Exemple : diminuer 300 de 20 %. La baisse vaut 20/100 × 300 = 60, et 300 \u2212 60 = 240.<br>
+C\u2019est la même réponse qu\u2019avec le coefficient (300 × 0,8 = 240) : deux chemins, un seul résultat.<br>
+Piège classique : la baisse seule (60) n\u2019est pas la réponse — et c\u2019est bien la valeur de départ qui perd, jamais l\u2019inverse.`;
+const RAPPELS_ID={ 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 function rappelHTML(){ return RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''; }
 
@@ -5696,6 +6821,10 @@ const QIA_SUGG={
   tm:["Comment retenir la table de 7 ?","Y a-t-il une astuce pour la table de 9 ?","Pourquoi 7 × 8 et 8 × 7 donnent-ils le même résultat ?"],
   augq:["Pourquoi compare-t-on l\u2019augmentation \u00e0 la valeur de d\u00e9part\u00a0?","C\u2019est quoi, un coefficient multiplicateur\u00a0?","Comment tester une proposition\u00a0?","Pourquoi passer de 80 \u00e0 96 fait +20 % et non +16 %\u00a0?"],
   dimq:["Pourquoi compare-t-on la baisse à la valeur de départ ?","C’est quoi, un coefficient multiplicateur ?","Comment tester une proposition ?","Pourquoi une baisse de 20 % ne s’annule-t-elle pas par une hausse de 20 % ?"],
+  syn:["Quelle méthode choisir : coefficient ou calcul direct ?","Comment reconnaître s\u2019il s\u2019agit de prendre, d\u2019augmenter ou de diminuer ?","Comment tester une proposition ?","Pourquoi les deux méthodes donnent-elles le même résultat ?"],
+  ag2q:["Comment tester une proposition sans coefficient ?","Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ou la baisse ?","Dans quel sens écrire la soustraction ?","Que conclure si mon calcul est juste mais ne retombe pas sur la valeur finale ?"],
+  ag2:["Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ?","Quelle différence avec la méthode du coefficient ?","Pourquoi faut-il ajouter la valeur de départ à la fin ?","Comment calculer 20 % de 300 ?"],
+  fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 
@@ -5785,6 +6914,54 @@ function conseilCtxCourant(){
       +'Méthode enseignée : écrire '+q.P+'/100 en écriture décimale ('+pDecStr(q.P)+'), '
       +(k==='aug'?'l’ajouter à 1':'la retirer de 1')+' pour obtenir le coefficient, le réécrire en fraction sur 100, '
       +'multiplier la valeur de départ par ce coefficient, puis diviser par 100.';
+  } else if(k==='syn' && q){
+    const lettres=['a','b','c','d'];
+    const famS=(q.fam==='pct')?'prendre un pourcentage':(q.fam==='aug'?'une augmentation':'une baisse');
+    const cs=synCouple(q);
+    att='Exercice de synthèse : '+famS+', on cherche '+synQuoi(q)+' parmi quatre propositions. '
+      +'Bonne proposition, STRICTEMENT SECRÈTE : '+lettres[q.bon]+') '+synLabel(q,q.opts[q.bon])+'. '
+      +(q.fam==='pct'
+        ? ('Vérification comme en 3.1.1 : P/100 × valeur. ')
+        : ('L\u2019élève choisit sa méthode de vérification : coefficient multiplicateur (comme 3.2.1/3.3.1) ou calcul direct de l\u2019augmentation/la baisse (comme 3.2.4). Méthode actuellement choisie : '+(q.meth==='coef'?'coefficient':(q.meth==='dir'?'calcul direct':'aucune encore'))+'. '));
+    if(cs){
+      let suite='';
+      if(q.fam!=='pct'){
+        suite=(q.meth==='coef')
+          ? (', puis coefficient '+cs.coefDec+' = '+cs.coef+'/100 et '+cs.coef+'/100 × '+cs.N+' = '+cs.prodFinStr)
+          : (', puis '+cs.N+' '+(q.sens<0?'\u2212':'+')+' '+cs.resStr+' = '+cs.finStr);
+      }
+      att+='Proposition choisie : '+lettres[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' ; les étapes doivent donner '
+        +cs.P+'/100 × '+cs.N+' = '+cs.prod+'/100 = '+cs.resStr+suite+' '+q.unit+'. '
+        +'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste correct, c\u2019est la vérification qui doit lui révéler que la proposition ne convient pas.';
+    } else {
+      att+='L\u2019élève n\u2019a pas encore choisi de proposition.';
+    }
+  } else if(k==='ag2q' && q){
+    const lettres=['a','b','c','d'];
+    const cq=a2qCouple(q); const negq=augqSens(q)<0;
+    att='Exercice à propositions sur '+(negq?'la baisse':'l\u2019augmentation')+', vérifié par le CALCUL DIRECT (sans coefficient) : l\u2019élève choisit '
+      +(q.type==='pct'?(negq?'le pourcentage de baisse':'le pourcentage d\u2019augmentation'):'la valeur initiale')+' parmi quatre, calcule '
+      +(negq?'la baisse':'l\u2019augmentation')+' (P/100 × valeur, comme en 3.1.1), puis '
+      +(negq?'la retire de la valeur de départ':'l\u2019ajoute à la valeur de départ')+'. '
+      +'Bonne proposition, STRICTEMENT SECRÈTE : '+lettres[q.bon]+') '+augqLabel(q,q.opts[q.bon])+'. '
+      +'Égalité qui relie les trois nombres : '+q.N+' '+(negq?'\u2212':'+')+' '+q.aug+' = '+q.decStr+' '+q.unit+'. ';
+    att+= cq ? ('L\u2019élève a choisi '+lettres[q.choisi]+') '+augqLabel(q,q.opts[q.choisi])+' : les étapes doivent donc donner '
+        +cq.P+'/100 × '+cq.N+', produit '+cq.prod+'/100, '+(negq?'baisse':'augmentation')+' '+cq.augStr+', puis '+cq.N+' '+(negq?'\u2212':'+')+' '+cq.augStr+' = '+cq.finStr+' '+q.unit+'. '
+        +'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c\u2019est la vérification qui doit lui révéler que la proposition ne convient pas.')
+      : 'L\u2019élève n\u2019a pas encore choisi : aide-le à comprendre comment tester une proposition, sans lui dire laquelle est la bonne.';
+  } else if(k==='ag2' && q){
+    const ng2=augqSens(q)<0;
+    att='Exercice : '+(ng2?'diminuer':'augmenter')+' '+q.N+' '+q.unit+' de '+q.P+' % par la méthode '+(ng2?'de la baisse':'de l\u2019augmentation')+' (sans coefficient). '
+      +'Réponses attendues, STRICTEMENT SECRÈTES : étape \u2460 la fraction '+q.P+'/100 (toute fraction égale convient) ; '
+      +'étape \u2461 '+q.prod+'/100 ; étape \u2462 '+(ng2?'baisse':'augmentation')+' '+q.aug+' '+q.unit+' ; '
+      +'étape \u2463 '+(ng2?('la soustraction '+q.N+' \u2212 '+q.aug+' (dans cet ordre)'):('l\u2019addition '+q.N+' + '+q.aug+' (les deux termes dans n\u2019importe quel ordre)'))+', pose en colonnes facultative ; '
+      +'étape \u2465 nouvelle valeur '+q.fin+' '+q.unit+'. '
+      +'Méthode enseignée : calculer '+(ng2?'la baisse':'l\u2019augmentation')+' comme en 3.1.1 (P/100 × valeur), puis '+(ng2?'la RETIRER de':'l\u2019AJOUTER à')+' la valeur de départ — sans coefficient multiplicateur.';
+  } else if(k==='fp' && q){
+    att='Exercice visuel : colorier '+q.a+'/'+q.b+' d\u2019une colonne divis\u00e9e en '+q.b+' parts \u00e9gales, puis choisir la m\u00eame hauteur sur une colonne gradu\u00e9e de 5 en 5 %. '
+      +'R\u00e9ponses attendues, STRICTEMENT SECR\u00c8TES : '+q.a+' parts colori\u00e9es \u00e0 gauche, '+q.pct+' % \u00e0 droite. '
+      +'L\u2019\u00e9l\u00e8ve a colori\u00e9 '+(q.selL||0)+' part(s) et choisi '+((q.selR||0)*5)+' %. '
+      +'M\u00e9thode enseign\u00e9e : 100 % partag\u00e9 en '+q.b+' parts \u00e9gales donne '+(100/q.b)+' % par part ; '+q.a+' parts font '+q.a+' \u00d7 '+(100/q.b)+' % = '+q.pct+' %.';
   } else if(k==='mp' && q){
     att='Multiplication posée : '+q.a+' × '+q.m+'. Réponses attendues, STRICTEMENT SECRÈTES : retenue '+q.carry1+', résultat '+q.result+'. '
       +'Méthode : multiplier d’abord les unités, écrire le chiffre des unités du produit et retenir les dizaines, puis multiplier les dizaines et AJOUTER la retenue. La case de retenue est facultative, mais si elle est écrite elle doit être juste.';
@@ -5870,6 +7047,43 @@ const QIA_MODELES={
       '\\\\(= '+q.decStr+'\\\\) \u20ac',
       'On retrouve bien '+q.decStr+' \u20ac : la proposition '+q.P+' % est donc la bonne.'].join('\\n');
   },
+  syn:function(){
+    const act=(test && test.questions && test.questions[test.idx]) || null;
+    const q=act||genSyn();
+    if(q.fam==='pct'){
+      return ['Prendre '+q.P+' % de '+q.N+' '+q.unit+' :',
+        '\\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+qdmFrac(q.P*q.N,100)+' = '+q.result+'\\) '+q.unit+'.'].join('\n');
+    }
+    const ngs=q.sens<0;
+    return [(ngs?'Diminuer ':'Augmenter ')+q.N+' '+q.unit+' de '+q.P+' % — deux méthodes, un seul résultat :',
+      'Avec le coefficient : \\(1 '+(ngs?'-':'+')+' '+qdmFrac(q.P,100)+' = '+qdmFrac(100+q.sens*q.P,100)+'\\), puis \\('+qdmFrac(100+q.sens*q.P,100)+' \\times '+q.N+' = '+q.decStr.replace(',','{,}')+'\\) '+q.unit+'.',
+      'En calculant '+(ngs?'la baisse':'l\u2019augmentation')+' : \\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+q.aug+'\\) '+q.unit+', puis '+q.N+' '+(ngs?'\u2212':'+')+' '+q.aug+' = '+q.decStr+' '+q.unit+'.'].join('\n');
+  },
+  ag2q:function(){
+    const act=(test && test.questions && test.questions[test.idx]) || null;
+    const negm=!!(act && act.sens===-1);
+    const q=qdmAutre(negm?genDimTauxSub:genAugDepAdd, c=>c.P+'x'+c.N);
+    return ['Énoncé : on doit retrouver '+(q.type==='pct'?'le pourcentage':'la valeur initiale')+'. On teste la proposition '+(q.type==='pct'?(q.P+' %'):(q.N+' '+q.unit))+'.',
+      (negm?'La baisse':'L\u2019augmentation')+' : \\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+qdmFrac(q.P*q.N,100)+' = '+q.aug+'\\) '+q.unit+'.',
+      'Puis : '+q.N+' '+(negm?'\u2212':'+')+' '+q.aug+' = '+q.decStr+' '+q.unit+'.',
+      'On retrouve bien '+q.decStr+' '+q.unit+' : la proposition est donc la bonne.'].join('\n');
+  },
+  ag2:function(){
+    const act=(test && test.questions && test.questions[test.idx]) || null;
+    const nm=!!(act && act.sens===-1);
+    const q=qdmAutre(nm?genDimSub:genAugAdd, c=>c.P+'x'+c.N);
+    return [(nm?'Diminuer ':'Augmenter ')+q.N+' '+q.unit+' de '+q.P+' %, par la méthode '+(nm?'de la baisse':'de l\u2019augmentation')+' :',
+      (nm?'La baisse':'L\u2019augmentation')+' : \\('+qdmFrac(q.P,100)+' \\times '+q.N+' = '+qdmFrac(q.prod,100)+' = '+q.aug+'\\) '+q.unit+'.',
+      (nm?'Puis on la retire de la valeur de départ : '+q.N+' \u2212 '+q.aug:'Puis on ajoute la valeur de départ : '+q.N+' + '+q.aug)+' = '+q.fin+' '+q.unit+'.',
+      'Donc la nouvelle valeur est '+q.fin+' '+q.unit+'.'].join('\n');
+  },
+  fp:function(){
+    const q=qdmAutre(genFP, c=>c.a+'/'+c.b);
+    return ['Convertir '+q.a+'/'+q.b+' en pourcentage :',
+      'La colonne est divis\u00e9e en '+q.b+' parts \u00e9gales, et 100 % \u00f7 '+q.b+' = '+(100/q.b)+' % : chaque part vaut '+(100/q.b)+' %.',
+      'On colorie '+q.a+' part'+(q.a>1?'s':'')+', soit '+q.a+' \u00d7 '+(100/q.b)+' % = '+q.pct+' %.',
+      'Donc \\('+qdmFrac(q.a,q.b)+' = '+q.pct+'\\, \\%\\).'].join('\n');
+  },
   md:function(){
     const q=qdmAutre(genMultDec, c=>c.aStr+'x'+c.bStr);
     return ['Calculer '+q.aStr+' \u00d7 '+q.bStr+' :',
@@ -5918,7 +7132,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderAG2Test','renderWTest','renderSynTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

@@ -122,7 +122,7 @@ function interface_(suite){
       /* contexte envoyé au modèle, pour chaque type d'exercice */
       const kinds = [['pct','genPercent()'],['pctq','genPctTaux()'],['aug','genAug()'],
                      ['augq','genAugTaux()'],['dim','genDim()'],['mp','genMultPosee()'],
-                     ['md','genMultDec()'],['u','genU()']];
+                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()'],['ag2','genAugAdd()'],['ag2q','genDimTauxSub()'],['syn','genSyn()']];
       let bons = 0;
       kinds.forEach(([k, gen]) => {
         try {
@@ -195,6 +195,101 @@ function exercices(suite){
     Object.keys(bilan).forEach(nom =>
       verifier('g\u00e9n\u00e9rateur ' + nom + ' : 5000 questions conformes', bilan[nom] === 0, bilan[nom] + ' anomalies'));
 
+    /* fraction et pourcentage : a < b, b divise 100, pourcentage multiple de 5,
+       s\u00e9lections \u00e0 z\u00e9ro (elles vivent dans la question pour la reprise) */
+    const fpPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genFP();
+        if([2,4,5,10].indexOf(q.b)<0) pb++;
+        if(!(q.a>=1 && q.a<q.b)) pb++;
+        if(q.pct!==q.a*100/q.b || q.pct%5!==0) pb++;
+        if(q.selL!==0 || q.selR!==0) pb++;
+        if(typeof q.v!=='number') pb++;
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
+
+    /* augmenter par l'addition : augmentation enti\u00e8re (P\u00d7N divisible par 100),
+       somme coh\u00e9rente, contexte et variante pr\u00e9sents */
+    const agPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genAugAdd();
+        if(q.P*q.N%100!==0) pb++;
+        if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
+        if(q.fin!==q.N+q.aug) pb++;
+        if(q.unit===undefined||q.unit==='') pb++;
+        if(typeof q.v!=='number') pb++;
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genAugAdd : 5000 questions conformes', agPb === 0, agPb + ' anomalies');
+
+    const di2Pb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genDimSub();
+        if(q.P*q.N%100!==0) pb++;
+        if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
+        if(q.fin!==q.N-q.aug || q.fin<0) pb++;
+        if(q.unit===undefined||q.unit==='') pb++;
+        if(typeof q.v!=='number') pb++;
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genDimSub : 5000 questions conformes', di2Pb === 0, di2Pb + ' anomalies');
+
+    /* synth\u00e8se : 4 propositions distinctes, bonne r\u00e9ponse index\u00e9e, et le calcul
+       reste ENTIER pour chacune des quatre propositions, quelle que soit l'inconnue */
+    const synPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<8000;k++){
+        const q=genSyn();
+        if(q.opts.length!==4 || new Set(q.opts).size!==4) pb++;
+        if(q.opts.indexOf(q.bonV)!==q.bon) pb++;
+        if(q.unit===undefined||q.unit==='') pb++;
+        if(typeof q.v!=='number') pb++;
+        for(let i=0;i<4;i++){
+          if(q.inc==='fin') break;                    /* les propositions sont le r\u00e9sultat lui-m\u00eame */
+          const P=(q.inc==='pct')?q.opts[i]:q.P, N=(q.inc==='ini')?q.opts[i]:q.N;
+          const a=P*N/100;
+          if(a!==Math.round(a)) pb++;
+          if(q.sens===-1 && N-a<0) pb++;
+        }
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genSyn : 8000 questions conformes', synPb === 0, synPb + ' anomalies');
+
+    /* propositions v\u00e9rifi\u00e9es par le calcul direct : l'augmentation (ou la baisse)
+       doit rester ENTI\u00c8RE pour chacune des quatre propositions */
+    const a2qAudit = w.eval(`(function(){
+      const bilan={};
+      [['genAugDepAdd'],['genDimTauxSub'],['genAugTauxAdd'],['genDimDepSub']].forEach(function(p){
+        const nom=p[0]; let pb=0;
+        for(let k=0;k<5000;k++){
+          const q=window[nom]();
+          if(q.opts.length!==4 || new Set(q.opts).size!==4) pb++;
+          if(q.opts.indexOf(q.type==='pct'?q.P:q.N)!==q.bon) pb++;
+          if(q.aug!==q.P*q.N/100 || q.fin!==q.N+(q.sens===-1?-1:1)*q.aug) pb++;
+          if(q.unit===undefined||q.unit==='') pb++;
+          for(let i=0;i<4;i++){
+            const P=(q.type==='pct')?q.opts[i]:q.P, N=(q.type==='pct')?q.N:q.opts[i];
+            const a=P*N/100;
+            if(a!==Math.round(a)) pb++;
+            if(q.sens===-1 && N-a<0) pb++;
+          }
+        }
+        bilan[nom]=pb;
+      });
+      return JSON.stringify(bilan);
+    })()`);
+    const a2qB = JSON.parse(a2qAudit);
+    Object.keys(a2qB).forEach(nom =>
+      verifier('g\u00e9n\u00e9rateur ' + nom + ' : 5000 questions conformes', a2qB[nom] === 0, a2qB[nom] + ' anomalies'));
+
     /* chaque exercice doit fournir son rappel de cours */
     const sansRappel = w.eval(`(function(){
       const manquants=[];
@@ -202,7 +297,7 @@ function exercices(suite){
         const k={ 'pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
                   'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
                   'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
-                  'mult-dec-un':'u','fractions-decimales':'fracp',
+                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn',
                   'tables-multiplication':'tm','tables-multiplication-2':'tm' }[id];
         if(k && !RAPPELS[k]) manquants.push(id);
       });
