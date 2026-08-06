@@ -48,9 +48,12 @@
     background-size:28px 28px; background-position:-1px -1px;
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
-  /* Le cadre blanc occupe toute la largeur de l'appareil, sur toutes les pages :
-     les égalités à compléter tiennent sur une ligne dès que l'écran le permet. */
-  .wrap{max-width:none;margin:0 auto;padding:26px 20px 60px}
+  .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
+  /* Sur un écran d'exercice, le cadre blanc prend toute la largeur de l'appareil :
+     les égalités à compléter tiennent sur une ligne dès que l'écran le permet.
+     Les menus, l'accueil et le tableau du professeur gardent leur largeur de
+     lecture. La classe est posée par show(). */
+  body.plein-ecran .wrap{max-width:none;}
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -1210,7 +1213,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=65;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=66;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1820,6 +1823,7 @@ function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
+  document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
        Invisible pour l'élève, impossible à oublier en silence pour nous. */
