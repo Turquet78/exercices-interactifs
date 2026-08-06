@@ -1119,7 +1119,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=49;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=50;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -5917,6 +5917,11 @@ function applyKbLayout(){
 }
 
 const FIELD_FIX_CSS =
+  /* Case vide : MathLive pose un etai a hauteur nulle (ML__strut height:0) et le
+     trait du curseur flotte plus haut que la ligne ou s'ecrira le texte ; une
+     espace de largeur nulle redonne a la ligne vide la meme ossature — donc la
+     meme ligne de base — qu'une ligne remplie, et le trait ne saute plus. */
+  ".ML__latex::before{content:'\\200B';}" +
   ".ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}" +
   ".ML__virtual-keyboard-toggle,.ML__menu-toggle{display:none !important;}" +
   ".ML__contains-highlight{background:transparent !important;}" +
