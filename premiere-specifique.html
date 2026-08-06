@@ -1123,7 +1123,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=52;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=53;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3291,14 +3291,30 @@ const QD_PCTS=PCT_PCTS;
 const QD_UNITS=['\u20ac','\u20ac','litres','km','kg','\u00e9l\u00e8ves','minutes','g'];
 function qdMelanger(t){ for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const x=t[i]; t[i]=t[j]; t[j]=x; } return t; }
 
+/* Leurres au pas de la bonne réponse (dizaine, centaine, millier…) : celui
+   juste en dessous, celui juste au-dessus, et un troisième à deux pas —
+   au-dessus ou en dessous, au hasard. 500 → 400, 600 et 700 (ou 300).
+   Des propositions proches obligent à calculer : éloignées, le QCM se
+   résoudrait à vue. Si le « juste en dessous » n'existe pas (100 → 0),
+   on complète vers le haut : 100 → 200, 300, 400. */
+function leurresProches(N){
+  const pas=Math.pow(10,Math.floor(Math.log10(N)));
+  const out=[];
+  if(N-pas>0) out.push(N-pas);
+  out.push(N+pas);
+  const deux=[]; if(N-2*pas>0) deux.push(N-2*pas); deux.push(N+2*pas);
+  out.push(pick(deux));
+  for(let k=3; out.length<3; k++) out.push(N+k*pas);
+  return out;
+}
 /* --- Retrouver la valeur initiale : P et R donn\u00e9s, N \u00e0 choisir --- */
 function genPctDepart(){
   let P,N;
   do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
   const prod=P*N;
-  /* Les leurres sont des valeurs de départ tout aussi plausibles : même plage, même
-     contrainte. Sans cela le QCM se résoudrait à vue, sans calculer. */
-  const leurres=qdMelanger(PCT_VALEURS.filter(v=>v!==N && pctCoupleOk(P,v))).slice(0,3);
+  /* P est un multiple de 10 et les leurres des multiples de 10 : P×leurre reste
+     divisible par 100, la vérification d'une mauvaise proposition tombe juste. */
+  const leurres=leurresProches(N);
   const opts=qdMelanger(leurres.concat([N]));
   const ci=tirerContexte(CTX_PART,N);
   const q={type:'val',P,N,unit:CTX_PART[ci].u,prod,result:prod/100,opts,bon:opts.indexOf(N),choisi:null,ci};
@@ -3800,7 +3816,6 @@ const DIMQ_EN_PCT=[
   q=>`De <b>${q.N} ${esc(q.unit)}</b>, ${augqMin(q)} est descendu${augqE(q)} à <b>${q.decStr} ${esc(q.unit)}</b>.`,
   q=>`${augqCtx(q).s} diminue : de <b>${q.N} ${esc(q.unit)}</b>, ${augqIl(q)} tombe à <b>${q.decStr} ${esc(q.unit)}</b>.`
 ];
-function augqValeurs(){ const t=[]; for(let k=1;k<=3;k++) for(let d=1;d<=9;d++) t.push(d*Math.pow(10,k)); return t; }
 function augqFin(N,P){ return N*(100+P)/100; }
 /* Les questions enregistrées avant l'ajout des baisses n'ont pas de champ sens : +1. */
 function augqSens(q){ return (q&&q.sens===-1)?-1:1; }
@@ -3816,7 +3831,7 @@ function augqCouple(q){
 function genAugDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
-  const leurres=qdMelanger(augqValeurs().filter(v=>v!==N)).slice(0,3);
+  const leurres=leurresProches(N);          /* au pas de N : voir leurresProches */
   const opts=qdMelanger(leurres.concat([N]));
   const coef=100+P, prodNum=N*coef;
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
@@ -3845,7 +3860,7 @@ async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
 function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
   const N = rand(1,9)*Math.pow(10,pick([1,2,3]));
-  const leurres=qdMelanger(augqValeurs().filter(v=>v!==N)).slice(0,3);
+  const leurres=leurresProches(N);          /* au pas de N : voir leurresProches */
   const opts=qdMelanger(leurres.concat([N]));
   const coef=100-P, prodNum=N*coef;
   const ci=augqTirerCtx(prodNum/100);            /* c'est la valeur finale qui est affichée */
