@@ -551,15 +551,16 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   width:auto;min-width:96px;max-width:320px;}
 #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec{width:auto;min-width:120px;max-width:320px;}
 #pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar{width:auto;align-self:stretch;height:4px;}
-/* La case decimale du coefficient ne recoit que les decimales de « 1,… » : plus courte. */
-#a1dec,#d1dec,#v1dec{min-width:82px;}
+/* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
+   (apres « 1, », « 0, ») : plus courtes. */
+#a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p{min-width:82px;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
 @media(max-width:520px){
   #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf{font-size:1.5rem;}
   #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den{min-width:78px;max-width:200px;}
   #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec{min-width:96px;max-width:200px;}
   .pt-choix-btn .valeur{font-size:1.2rem}
-  #a1dec,#d1dec,#v1dec{min-width:66px;}
+  #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p{min-width:66px;}
 }
 </style>
 
@@ -1119,7 +1120,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=50;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=51;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3548,7 +3549,7 @@ function renderATest(){
   const aPosed=buildPose(stripZ(q.coef),stripZ(q.N),'aMul');
   $('aHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span><math-field class="dexp-mf pm-mf f-dec" id="a1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
        <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
@@ -3558,7 +3559,7 @@ function renderATest(){
     `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
        <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('a1n'),$('a1d'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),...posedIns,$('a4n'),$('a4d'),$('a5')];
+  const order=[$('a1n'),$('a1d'),$('a1p'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),...posedIns,$('a4n'),$('a4d'),$('a5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;                  // visible et modifiable
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -3583,6 +3584,7 @@ function checkAAnswer(live){
   const q=test.questions[test.idx];
   if(live){
     liveColorFrac('a1n','a1d',q.P,100);
+    liveColorDecCoef0('a1p',q.P);
     liveColorDecCoef('a1dec',q.coef);
     liveColorFrac('a2n','a2d',q.coef,100);
     liveColorFrac('a3n','a3d',q.coef,100);
@@ -3596,6 +3598,8 @@ function checkAAnswer(live){
   const soutien=isSoutien();
   // ① 1 + P/100 = 1,… = (100+P)/100 (toute fraction égale acceptée)
   const ok1 = v('a1n')!=='' && v('a1d')!=='' && fracEqual(iv('a1n'),iv('a1d'),q.P,100);
+  const frP = parseDecToFrac('0,'+v('a1p'));
+  const okP = v('a1p')!=='' && !!frP && frP.n*100===q.P*frP.d;          // P/100 en décimal
   const frC = parseDecToFrac('1,'+v('a1dec'));
   const okC = v('a1dec')!=='' && !!frC && frC.n*100===q.coef*frC.d;     // coefficient en décimal
   const ok2 = v('a2n')!=='' && v('a2d')!=='' && fracEqual(iv('a2n'),iv('a2d'),q.coef,100);
@@ -3633,16 +3637,16 @@ function checkAAnswer(live){
   const fr=parseDecToFrac(v('a5'));
   const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('a1n',ok1); mark('a1d',ok1); mark('a1dec',okC); mark('a2n',ok2); mark('a2d',ok2);
+  mark('a1n',ok1); mark('a1d',ok1); mark('a1p',okP); mark('a1dec',okC); mark('a2n',ok2); mark('a2d',ok2);
   mark('a3n',ok3); mark('a3d',ok3); mark('a3v',okV);
   mark('a4n',ok4); mark('a4d',ok4); mark('a5',ok5);
-  const allOk=ok1&&okC&&ok2&&ok3&&okV&&ok4&&ok5;                        // étape ③ facultative non comptée
+  const allOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;                   // étape ③ facultative non comptée
   if(!allOk && soutien){ soutienAgain('aFeedback','aActions','checkAAnswer','aHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('aLiveScore').textContent=test.score;
     $('aFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('aFeedback').className='mp-feedback good';
   } else {
-    $('aFeedback').textContent=`Méthode : 1 + ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('aFeedback').className='mp-feedback bad';
+    $('aFeedback').textContent=`Méthode : 1 + ${q.P}/100 = 1 + ${pDecStr(q.P)} = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('aFeedback').className='mp-feedback bad';
   }
   const given=v('a5')===''?null:(v('a5').replace('.', ',')+' '+q.unit);
   test.answers.push({...(ptsExo()||{}),q:`${q.N} ${q.unit} augmenté de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
@@ -3678,6 +3682,8 @@ function buildPose(mTop, mBot, hostId){
   const rowRes  =`<div class="mp-row">${cell('op')}${rDig>=3?cell('',box(mH,4)):cell('')}${rDig>=2?cell('',box(mT,3)):cell('')}${cell('',box(mU,1))}</div>`;
   return `<div class="mp-op" id="${hostId}">${rowCarry+rowTop+rowMul+rowLine+rowRes}</div>`;
 }
+/* P/100 en écriture décimale, pour les textes : 5 → « 0,05 », 40 → « 0,40 ». */
+function pDecStr(P){ return P<10 ? '0,0'+P : '0,'+P; }
 function liveColorDecCoef0(id,coef){                    // coefficient décimal saisi après « 0, »
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
   el.classList.remove('ok','bad'); if(v==='') return;
@@ -3864,7 +3870,7 @@ function renderVTest(){
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="vChoix">${choix}</div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${c?c.P:'…'} %, c'est multiplier par 1 ${neg?'−':'+'} ${c?c.P:'…'}/100</div>
-       <div class="pt-row"><span class="f-whole">1 ${neg?'−':'+'}</span>${frac('v1n','v1d')}<span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('v2n','v2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 ${neg?'−':'+'}</span>${frac('v1n','v1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'−':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="v1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('v2n','v2d')}</div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">\u2461 Écris l'opération : coefficient × valeur de départ</div>
        <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${c?c.N:''}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="vStep3"><div class="pt-lab">\u2462 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
@@ -3877,7 +3883,7 @@ function renderVTest(){
         ? 'Choisis une proposition, puis écris les étapes du calcul pour la vérifier.'
         : 'Vérifie ta proposition\u00a0: '+(neg?'diminue':'augmente')+' '+c.N+' de '+c.P+'\u00a0%. Tu dois retrouver '+q.decStr+'\u00a0'+esc(q.unit)+'.'}</p>`;
   const posedIns=[...$('vMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('v1n'),$('v1d'),$('v1dec'),$('v2n'),$('v2d'),$('v3n'),$('v3d'),$('v3v'),...posedIns,$('v4n'),$('v4d'),$('v5')];
+  const order=[$('v1n'),$('v1d'),$('v1p'),$('v1dec'),$('v2n'),$('v2d'),$('v3n'),$('v3d'),$('v3v'),...posedIns,$('v4n'),$('v4d'),$('v5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -3904,6 +3910,7 @@ function checkVAnswer(live){
   const c=augqCouple(q);
   if(live){
     liveColorFrac('v1n','v1d',c.P,100);
+    liveColorDecCoef0('v1p',c.P);
     (augqSens(q)<0?liveColorDecCoef0:liveColorDecCoef)('v1dec',c.coef);
     liveColorFrac('v2n','v2d',c.coef,100);
     liveColorFrac('v3n','v3d',c.coef,100);
@@ -3916,6 +3923,8 @@ function checkVAnswer(live){
   const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
   const soutien=isSoutien(), neg=augqSens(q)<0;
   const ok1 = v('v1n')!=='' && v('v1d')!=='' && fracEqual(iv('v1n'),iv('v1d'),c.P,100);
+  const frP = parseDecToFrac('0,'+v('v1p'));
+  const okP = v('v1p')!=='' && !!frP && frP.n*100===c.P*frP.d;          // P/100 en décimal
   const frC = parseDecToFrac((neg?'0,':'1,')+v('v1dec'));
   const okC = v('v1dec')!=='' && !!frC && frC.n*100===c.coef*frC.d;
   const ok2 = v('v2n')!=='' && v('v2d')!=='' && fracEqual(iv('v2n'),iv('v2d'),c.coef,100);
@@ -3949,10 +3958,10 @@ function checkVAnswer(live){
   const fr=parseDecToFrac(v('v5'));
   const ok5 = !!fr && fr.n*100===c.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('v1n',ok1); mark('v1d',ok1); mark('v1dec',okC); mark('v2n',ok2); mark('v2d',ok2);
+  mark('v1n',ok1); mark('v1d',ok1); mark('v1p',okP); mark('v1dec',okC); mark('v2n',ok2); mark('v2d',ok2);
   mark('v3n',ok3); mark('v3d',ok3); mark('v3v',okV);
   mark('v4n',ok4); mark('v4d',ok4); mark('v5',ok5);
-  const calculOk=ok1&&okC&&ok2&&ok3&&okV&&ok4&&ok5;      /* étape ③ facultative non comptée */
+  const calculOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5; /* étape ③ facultative non comptée */
   const okChoix=(q.choisi===q.bon), allOk=calculOk&&okChoix;
   const btn=$('vc'+q.choisi);
   if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
@@ -4025,7 +4034,7 @@ function renderDTest(){
   const dPosed=buildPose(stripZ(q.coef),stripZ(q.N),'dMul');
   $('dHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
        <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
@@ -4035,7 +4044,7 @@ function renderDTest(){
     `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
        <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('d1n'),$('d1d'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),...posedIns,$('d4n'),$('d4d'),$('d5')];
+  const order=[$('d1n'),$('d1d'),$('d1p'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),...posedIns,$('d4n'),$('d4d'),$('d5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -4060,6 +4069,7 @@ function checkDAnswer(live){
   const q=test.questions[test.idx];
   if(live){
     liveColorFrac('d1n','d1d',q.P,100);
+    liveColorDecCoef0('d1p',q.P);
     liveColorDecCoef0('d1dec',q.coef);
     liveColorFrac('d2n','d2d',q.coef,100);
     liveColorFrac('d3n','d3d',q.coef,100);
@@ -4073,6 +4083,8 @@ function checkDAnswer(live){
   const soutien=isSoutien();
   // ① 1 − P/100 = 0,… = (100−P)/100 (toute fraction égale acceptée)
   const ok1 = v('d1n')!=='' && v('d1d')!=='' && fracEqual(iv('d1n'),iv('d1d'),q.P,100);
+  const frP = parseDecToFrac('0,'+v('d1p'));
+  const okP = v('d1p')!=='' && !!frP && frP.n*100===q.P*frP.d;          // P/100 en décimal
   const frC = parseDecToFrac('0,'+v('d1dec'));
   const okC = v('d1dec')!=='' && !!frC && frC.n*100===q.coef*frC.d;
   const ok2 = v('d2n')!=='' && v('d2d')!=='' && fracEqual(iv('d2n'),iv('d2d'),q.coef,100);
@@ -4110,16 +4122,16 @@ function checkDAnswer(live){
   const fr=parseDecToFrac(v('d5'));
   const ok5 = !!fr && fr.n*100===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('d1n',ok1); mark('d1d',ok1); mark('d1dec',okC); mark('d2n',ok2); mark('d2d',ok2);
+  mark('d1n',ok1); mark('d1d',ok1); mark('d1p',okP); mark('d1dec',okC); mark('d2n',ok2); mark('d2d',ok2);
   mark('d3n',ok3); mark('d3d',ok3); mark('d3v',okV);
   mark('d4n',ok4); mark('d4d',ok4); mark('d5',ok5);
-  const allOk=ok1&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
+  const allOk=ok1&&okP&&okC&&ok2&&ok3&&okV&&ok4&&ok5;
   if(!allOk && soutien){ soutienAgain('dFeedback','dActions','checkDAnswer','dHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('dLiveScore').textContent=test.score;
     $('dFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('dFeedback').className='mp-feedback good';
   } else {
-    $('dFeedback').textContent=`Méthode : 1 − ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('dFeedback').className='mp-feedback bad';
+    $('dFeedback').textContent=`Méthode : 1 − ${q.P}/100 = 1 − ${pDecStr(q.P)} = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('dFeedback').className='mp-feedback bad';
   }
   const given=v('d5')===''?null:(v('d5').replace('.', ',')+' '+q.unit);
   test.answers.push({...(ptsExo()||{}),q:`${q.N} ${q.unit} diminué de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
@@ -5712,14 +5724,15 @@ function conseilCtxCourant(){
       +'Bonne proposition, STRICTEMENT SECR\u00c8TE : '+lettres[q.bon]+') '+augqLabel(q,q.opts[q.bon])+'. '
       +'\u00c9galit\u00e9 qui relie les trois nombres : '+q.N+' \u00d7 '+q.coefDec+' = '+q.decStr+' '+q.unit+'. ';
     att+= ch ? ('L\u2019\u00e9l\u00e8ve a choisi '+lettres[q.choisi]+') '+augqLabel(q,q.opts[q.choisi])+' : les \u00e9tapes doivent donc donner '
-        +'coefficient '+ch.coef+'/100 = '+ch.coefDec+', op\u00e9ration '+ch.coef+'/100 \u00d7 '+ch.N+', produit '+ch.prodNum+'/100, r\u00e9sultat '+ch.decStr+' '+q.unit+'. '
+        +'pourcentage en d\u00e9cimal '+ch.P+'/100 = '+pDecStr(ch.P)+', coefficient '+ch.coefDec+' = '+ch.coef+'/100, op\u00e9ration '+ch.coef+'/100 \u00d7 '+ch.N+', produit '+ch.prodNum+'/100, r\u00e9sultat '+ch.decStr+' '+q.unit+'. '
         +'Juge son CALCUL par rapport \u00e0 CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c\u2019est la v\u00e9rification qui doit lui r\u00e9v\u00e9ler que la proposition ne convient pas.')
       : 'L\u2019\u00e9l\u00e8ve n\u2019a pas encore choisi : aide-le \u00e0 comprendre comment tester une proposition, sans lui dire laquelle est la bonne.';
   } else if((k==='aug'||k==='dim') && q){
     const sens=(k==='aug')?'augmenter':'diminuer';
     att='Exercice : '+sens+' '+q.N+' de '+q.P+' %. Réponses attendues, STRICTEMENT SECRÈTES : '
-      +'coefficient multiplicateur '+q.coef+'/100 = '+q.coefDec+' ; produit des numérateurs '+q.prodNum+' ; résultat '+q.decStr+'. '
-      +'Méthode enseignée : écrire 1 '+(k==='aug'?'+':'−')+' '+q.P+'/100 sous forme d’une seule fraction, la convertir en écriture décimale, '
+      +'pourcentage en décimal '+q.P+'/100 = '+pDecStr(q.P)+' ; coefficient multiplicateur '+q.coefDec+' = '+q.coef+'/100 ; produit des numérateurs '+q.prodNum+' ; résultat '+q.decStr+'. '
+      +'Méthode enseignée : écrire '+q.P+'/100 en écriture décimale ('+pDecStr(q.P)+'), '
+      +(k==='aug'?'l’ajouter à 1':'la retirer de 1')+' pour obtenir le coefficient, le réécrire en fraction sur 100, '
       +'multiplier la valeur de départ par ce coefficient, puis diviser par 100.';
   } else if(k==='mp' && q){
     att='Multiplication posée : '+q.a+' × '+q.m+'. Réponses attendues, STRICTEMENT SECRÈTES : retenue '+q.carry1+', résultat '+q.result+'. '
@@ -5775,7 +5788,7 @@ const QIA_MODELES={
   aug:function(){
     const q=qdmAutre(genAug, c=>c.P+'x'+c.N);
     return ['Augmenter '+q.N+' '+q.unit+' de '+q.P+' % :',
-      'Coefficient multiplicateur : \\(1 + '+qdmFrac(q.P,100)+' = '+qdmFrac(q.coef,100)+' = '+q.coefDec+'\\)',
+      'Coefficient multiplicateur : \\(1 + '+qdmFrac(q.P,100)+' = 1 + '+pDecStr(q.P)+' = '+q.coefDec+' = '+qdmFrac(q.coef,100)+'\\)',
       '\\('+qdmFrac(q.coef,100)+' \\times '+q.N+'\\)',
       '\\(= '+qdmFrac(q.prodNum,100)+'\\)',
       '\\(= '+q.decStr+'\\) '+q.unit].join('\n');
@@ -5783,7 +5796,7 @@ const QIA_MODELES={
   dim:function(){
     const q=qdmAutre(genDim, c=>c.P+'x'+c.N);
     return ['Diminuer '+q.N+' '+q.unit+' de '+q.P+' % :',
-      'Coefficient multiplicateur : \\(1 - '+qdmFrac(q.P,100)+' = '+qdmFrac(q.coef,100)+' = '+q.coefDec+'\\)',
+      'Coefficient multiplicateur : \\(1 - '+qdmFrac(q.P,100)+' = 1 - '+pDecStr(q.P)+' = '+q.coefDec+' = '+qdmFrac(q.coef,100)+'\\)',
       '\\('+qdmFrac(q.coef,100)+' \\times '+q.N+'\\)',
       '\\(= '+qdmFrac(q.prodNum,100)+'\\)',
       '\\(= '+q.decStr+'\\) '+q.unit].join('\n');
@@ -5800,7 +5813,7 @@ const QIA_MODELES={
     const neg=!!(act && act.sens===-1);
     const q=qdmAutre(neg?genDimTaux:genAugTaux, c=>c.P+'x'+c.N);
     return ['\u00c9nonc\u00e9 : un prix passe de '+q.N+' \u20ac \u00e0 '+q.decStr+' \u20ac. On teste la proposition '+q.P+' %.',
-      'Coefficient multiplicateur : \\\\(1 '+(neg?'-':'+')+' '+qdmFrac(q.P,100)+' = '+qdmFrac(q.coef,100)+' = '+q.coefDec+'\\\\)',
+      'Coefficient multiplicateur : \\\\(1 '+(neg?'-':'+')+' '+qdmFrac(q.P,100)+' = 1 '+(neg?'-':'+')+' '+pDecStr(q.P)+' = '+q.coefDec+' = '+qdmFrac(q.coef,100)+'\\\\)',
       '\\\\('+qdmFrac(q.coef,100)+' \\\\times '+q.N+'\\\\)',
       '\\\\(= '+qdmFrac(q.prodNum,100)+'\\\\)',
       '\\\\(= '+q.decStr+'\\\\) \u20ac',
