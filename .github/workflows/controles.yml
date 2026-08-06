@@ -1,0 +1,22 @@
+# Rejoue le banc de contrôles sur chaque pull request et chaque poussée sur main.
+# La fusion vers main (= mise en ligne, GitHub Pages) exige que ce contrôle soit vert.
+# Les fichiers de Seconde et Terminale n'ont que les familles 1-2 du banc (structure
+# et démarrage) : les familles 3-4 sont propres à premiere-specifique.html.
+name: Contrôles
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  controles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: premiere-specifique.html — banc complet
+        run: npm test

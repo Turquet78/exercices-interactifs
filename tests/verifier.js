@@ -173,7 +173,8 @@ function exercices(suite){
     const audit = w.eval(`(function(){
       const bilan={};
       [['genPercent',5000],['genPctDepart',5000],['genPctTaux',5000],
-       ['genAugDepart',5000],['genAugTaux',5000]].forEach(function(p){
+       ['genAugDepart',5000],['genAugTaux',5000],
+       ['genDimDepart',5000],['genDimTaux',5000]].forEach(function(p){
         const nom=p[0], n=p[1]; let pb=0;
         for(let k=0;k<n;k++){
           const q=window[nom]();
