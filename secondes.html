@@ -708,6 +708,9 @@ body math-field.dexp-mf{border-radius:10px;background:var(--surface);padding:2px
 math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
 math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
 math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
+/* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+.pt-row .mf-cor{font-size:1.2rem;align-self:center;}
 /* --- Pourcentages (pHost, aHost, dHost) — même traitement qu'en Première ---
    1) Les cases s'ecrivent dans la meme taille que les nombres qui les entourent
       (.f-whole et .f-eq sont a 2rem) : la reponse de l'eleve ne doit pas paraitre
@@ -1191,7 +1194,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=8;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=9;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2990,6 +2993,35 @@ function renderPTest(){
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
+/* ---- Mode entraînement : corrections en bleu après la vérification ----
+   Convention de terminale : une case fausse garde la réponse de l'élève et la
+   bonne réponse s'affiche en bleu juste à côté ; une case laissée vide est
+   complétée en bleu. Uniquement en entraînement — en soutien l'élève corrige
+   lui-même, en évaluation seul le message de méthode s'affiche. */
+function corTrainDec(id,attendu){
+  if(currentMode!=='train') return;
+  const el=$(id); if(!el||el.classList.contains('ok')) return;
+  if(String(el.value||'').trim()===''){ el.value=String(attendu); el.classList.remove('bad'); el.classList.add('sol'); el.disabled=true; return; }
+  el.disabled=true;
+  const s=el.nextElementSibling;
+  if(!(s&&s.classList&&s.classList.contains('mf-cor')))
+    el.insertAdjacentHTML('afterend','<span class="mf-cor">'+esc(String(attendu))+'</span>');
+}
+function corTrainFrac(idN,idD,n,d){
+  if(currentMode!=='train') return;
+  const eN=$(idN), eD=$(idD); if(!eN||!eD) return;
+  if(eN.classList.contains('ok')&&eD.classList.contains('ok')) return;
+  let rouge=false;
+  [[eN,n],[eD,d]].forEach(p=>{ const el=p[0];
+    if(String(el.value||'').trim()===''){ el.value=String(p[1]); el.classList.remove('bad'); el.classList.add('sol'); }
+    else if(el.classList.contains('bad')) rouge=true;
+    el.disabled=true;
+  });
+  const wrap=eN.closest('.f-frac-input');
+  if(rouge&&wrap){ const s=wrap.nextElementSibling;
+    if(!(s&&s.classList&&s.classList.contains('mf-cor')))
+      wrap.insertAdjacentHTML('afterend','<span class="mf-cor">'+esc(String(n))+'/'+esc(String(d))+'</span>'); }
+}
 function checkPAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
@@ -3014,6 +3046,8 @@ function checkPAnswer(live){
     $('pFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('pFeedback').className='mp-feedback good';
   } else {
     $('pFeedback').textContent=`Réponse : ${q.P}/100 × ${q.N} = ${q.prod}/100 = ${q.result} ${q.unit} (toute fraction égale est acceptée)`; $('pFeedback').className='mp-feedback bad';
+    corTrainFrac('p1n','p1d',q.P,100); corTrainFrac('p2n','p2d',q.prod,100);
+    corTrainDec('p3',String(q.result).replace('.',','));
   }
   const given=v('p3')===''?null:(v('p3').replace('.', ',')+' '+q.unit);
   test.answers.push({...(ptsExo()||{}),q:`${q.P} % de ${q.N} ${q.unit}`, answer:`${q.result} ${q.unit}`, given, correct:allOk});
@@ -3171,6 +3205,9 @@ function checkAAnswer(live){
     $('aFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('aFeedback').className='mp-feedback good';
   } else {
     $('aFeedback').textContent=`Méthode : 1 + ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('aFeedback').className='mp-feedback bad';
+    corTrainFrac('a1n','a1d',q.P,100); corTrainDec('a1dec',String(q.coef).slice(1));
+    corTrainFrac('a2n','a2d',q.coef,100); corTrainFrac('a3n','a3d',q.coef,100); corTrainDec('a3v',q.N);
+    corTrainFrac('a4n','a4d',q.prodNum,100); corTrainDec('a5',q.decStr);
   }
   const given=v('a5')===''?null:(v('a5').replace('.', ',')+' '+q.unit);
   test.answers.push({...(ptsExo()||{}),q:`${q.N} ${q.unit} augmenté de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
@@ -3342,6 +3379,9 @@ function checkDAnswer(live){
     $('dFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('dFeedback').className='mp-feedback good';
   } else {
     $('dFeedback').textContent=`Méthode : 1 − ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`; $('dFeedback').className='mp-feedback bad';
+    corTrainFrac('d1n','d1d',q.P,100); corTrainDec('d1dec',String(q.coef).padStart(2,'0'));
+    corTrainFrac('d2n','d2d',q.coef,100); corTrainFrac('d3n','d3d',q.coef,100); corTrainDec('d3v',q.N);
+    corTrainFrac('d4n','d4d',q.prodNum,100); corTrainDec('d5',q.decStr);
   }
   const given=v('d5')===''?null:(v('d5').replace('.', ',')+' '+q.unit);
   test.answers.push({...(ptsExo()||{}),q:`${q.N} ${q.unit} diminué de ${q.P} %`, answer:`${q.decStr} ${q.unit}`, given, correct:allOk});
