@@ -554,6 +554,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec{min-width:82px;}
+/* Retenues de soustraction (méthode par compensation) : un petit « 1 » devant le
+   chiffre du haut (il fait 10), un petit « 1 » en bas de la colonne suivante
+   (ajouté au chiffre du bas). Petites cases en coin, facultatives. */
+.mp-cl .sub-ret,.mp-cl .sub-retb{position:absolute;left:-4px;width:24px;height:24px;font-size:.95rem;border-radius:7px;}
+.mp-cl .sub-ret{top:-3px;}
+.mp-cl .sub-retb{bottom:-3px;}
 /* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
 .mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
@@ -1202,7 +1208,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=62;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=63;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3532,8 +3538,11 @@ function buildPoseAdd(hTop, hBot, hostId){
     +`<div class="mp-row">${cell('op')}${rowRes}</div>`
     +`</div>`;
 }
-/* Pose d'une soustraction en colonnes : seulement les chiffres du résultat —
-   les conventions de retenue varient d'une classe à l'autre, on n'en impose pas. */
+/* Pose d'une soustraction en colonnes, retenues par compensation : quand le
+   chiffre du haut est trop petit, un petit « 1 » devant lui (il devient 1x),
+   et un petit « 1 » en bas de la colonne SUIVANTE, ajouté au chiffre du bas.
+   Les petites cases n'apparaissent que là où l'emprunt existe vraiment, et
+   restent facultatives — jugées seulement si écrites. */
 function buildPoseSub(hTop, hBot, hostId){
   const diff=hTop-hBot, nCol=String(hTop).length;
   const dg10=(x,i)=>Math.floor(x/Math.pow(10,i))%10;
@@ -3541,12 +3550,17 @@ function buildPoseSub(hTop, hBot, hostId){
   const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
   const dg=x=>`<span class="mp-digit">${x}</span>`;
   const box=(exp,tab)=>`<input class="mp-box" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
+  const ret=(tab,cls)=>`<input class="mp-carry ${cls}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="1" data-mtab="${tab}" aria-label="retenue">`;
+  /* emprunts : la colonne i emprunte si son chiffre du haut est plus petit que
+     (chiffre du bas + compensation reçue de la colonne précédente) */
+  const emp=[]; let comp=0;
+  for(let i=0;i<nCol;i++){ const t=dg10(hTop,i), bb=dg10(hBot,i)+comp; if(t<bb){ emp[i]=1; comp=1; } else { emp[i]=0; comp=0; } }
   const nRes=String(diff).length;
   let rowTop='',rowBot='',rowRes='';
   for(let i=nCol-1;i>=0;i--){
-    rowTop += cell('',dg(dg10(hTop,i)));
-    rowBot += has(hBot,i)?cell('',dg(dg10(hBot,i))):cell('');
-    rowRes += (i<nRes)?cell('',box(dg10(diff,i),i+1)):cell('');
+    rowTop += cell('',(emp[i]?ret(3*i+1,'sub-ret'):'')+dg(dg10(hTop,i)));
+    rowBot += cell('',(i>0&&emp[i-1]?ret(3*(i-1)+2,'sub-retb'):'')+(has(hBot,i)?dg(dg10(hBot,i)):''));
+    rowRes += (i<nRes)?cell('',box(dg10(diff,i),3*i+3)):cell('');
   }
   return `<div class="mp-op" id="${hostId}">`
     +`<div class="mp-row">${cell('op')}${rowTop}</div>`
