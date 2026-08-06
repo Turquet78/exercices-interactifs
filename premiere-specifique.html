@@ -560,15 +560,17 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* --- 3.1.4 Fraction et pourcentage : deux colonnes a colorier --- */
 .fp-zone{display:flex;justify-content:center;align-items:flex-start;gap:64px;padding:12px 0 4px;flex-wrap:wrap;}
 .fp-bloc{display:flex;flex-direction:column;align-items:center;gap:10px;}
-/* column-reverse : le premier segment est en BAS, on colorie du bas vers le haut */
+/* column-reverse : le premier segment est en BAS, on colorie du bas vers le haut.
+   « fp-seg » et non « seg » : la page possède déjà une classe .seg (marges,
+   coins arrondis) qui écarterait les cases — ici elles doivent se toucher. */
 .fp-col{position:relative;display:flex;flex-direction:column-reverse;width:104px;height:320px;
   border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface);}
-.fp-col .seg{flex:1 1 0;cursor:pointer;}
-.fp-col .seg+.seg{border-bottom:2px solid var(--ink);}
-.fp-colr .seg+.seg{border-bottom:1px solid var(--grid);}
-.fp-col .seg.on{background:#BBD0F7;}
-.fp-col.ok{border-color:var(--green);} .fp-col.ok .seg.on{background:var(--green-soft);}
-.fp-col.bad{border-color:var(--red);} .fp-col.bad .seg.on{background:var(--red-soft);}
+.fp-col .fp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;}
+.fp-col .fp-seg+.fp-seg{border-bottom:2px solid var(--ink);}
+.fp-colr .fp-seg+.fp-seg{border-bottom:1px solid var(--grid);}
+.fp-col .fp-seg.on{background:#BBD0F7;}
+.fp-col.ok{border-color:var(--green);} .fp-col.ok .fp-seg.on{background:var(--green-soft);}
+.fp-col.bad{border-color:var(--red);} .fp-col.bad .fp-seg.on{background:var(--red-soft);}
 /* correction du mode entrainement : trait bleu a la bonne hauteur */
 .fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none;}
 .fp-val{min-height:2.2em;display:flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);}
@@ -1155,7 +1157,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=55;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=56;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3329,8 +3331,8 @@ function renderFPTest(){
   $('fpFeedback').textContent=''; $('fpFeedback').className='mp-feedback';
   $('fpActions').innerHTML='<button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>';
   $('fpPrompt').innerHTML=variante(FP_ENONCES,q);
-  const segsL=Array.from({length:q.b},(_,i)=>`<div class="seg${i<q.selL?' on':''}" onclick="fpClickL(${i+1})"></div>`).join('');
-  const segsR=Array.from({length:20},(_,i)=>`<div class="seg${i<q.selR?' on':''}" onclick="fpClickR(${i+1})"></div>`).join('');
+  const segsL=Array.from({length:q.b},(_,i)=>`<div class="fp-seg${i<q.selL?' on':''}" onclick="fpClickL(${i+1})"></div>`).join('');
+  const segsR=Array.from({length:20},(_,i)=>`<div class="fp-seg${i<q.selR?' on':''}" onclick="fpClickR(${i+1})"></div>`).join('');
   $('fpHost').innerHTML=
     `<div class="fp-zone">`+
       `<div class="fp-bloc"><div class="fp-col" id="fpColL">${segsL}</div>`+
@@ -3345,8 +3347,8 @@ function renderFPTest(){
 function fpMaj(){
   const q=test.questions[test.idx];
   const L=$('fpColL'), R=$('fpColR'); if(!L||!R) return;
-  [...L.querySelectorAll('.seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
-  [...R.querySelectorAll('.seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
+  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
+  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
   L.classList.remove('ok','bad'); R.classList.remove('ok','bad');
   $('fpValL').innerHTML = q.selL ? fpFracHTML(q.selL,q.b) : '…';
   $('fpValR').textContent = q.selR ? (q.selR*5)+' %' : '… %';
