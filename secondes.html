@@ -708,6 +708,33 @@ body math-field.dexp-mf{border-radius:10px;background:var(--surface);padding:2px
 math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
 math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
 math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
+/* --- Pourcentages (pHost, aHost, dHost) — même traitement qu'en Première ---
+   1) Les cases s'ecrivent dans la meme taille que les nombres qui les entourent
+      (.f-whole et .f-eq sont a 2rem) : la reponse de l'eleve ne doit pas paraitre
+      secondaire par rapport a l'enonce.
+   2) Aucune largeur fixe : une case a largeur imposee coupe la reponse et n'en
+      montre qu'un morceau, l'eleve ne peut plus se relire. Les cases sont donc en
+      width:auto et grandissent avec ce qui est ecrit ; min-width garde une case
+      lisible quand elle est vide, max-width evite qu'une saisie absurde ne fasse
+      deborder la carte (au-dela, .pt-row passe a la ligne).
+   3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
+      large (flex column + align-items:stretch), sinon numerateur et denominateur
+      ne seraient plus alignes des que l'un des deux s'allonge. --- */
+#pHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
+#pHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den{
+  width:auto;min-width:96px;max-width:320px;}
+#pHost .f-dec,#aHost .f-dec,#dHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+/* La case decimale du coefficient ne recoit que les decimales de « 1,… » : plus courte. */
+#a1dec,#d1dec{min-width:82px;}
+/* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
+@media(max-width:520px){
+  #pHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf{font-size:1.5rem;}
+  #pHost .f-num,#pHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den{min-width:78px;max-width:200px;}
+  #pHost .f-dec,#aHost .f-dec,#dHost .f-dec{min-width:96px;max-width:200px;}
+  #a1dec,#d1dec{min-width:66px;}
+}
 .score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700;}
 @media(max-width:520px){ .score-tag{padding:5px 10px;} .score-tag .score-lbl{font-size:.78rem;} }
 .btn.pm-pret{outline:3px solid #b9c6f5;outline-offset:2px;box-shadow:0 0 0 5px rgba(58,90,214,.18);}
@@ -1164,7 +1191,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=7;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=8;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3049,7 +3076,7 @@ function renderATest(){
   const aPosed=buildPose(stripZ(q.coef),stripZ(q.N),'aMul');
   $('aHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale" style="width:58px"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
        <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
@@ -3220,7 +3247,7 @@ function renderDTest(){
   const dPosed=buildPose(stripZ(q.coef),stripZ(q.N),'dMul');
   $('dHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale" style="width:58px"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
        <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
@@ -3618,6 +3645,11 @@ function applyKbLayout(){
 }
 
 const FIELD_FIX_CSS =
+  /* Case vide : MathLive pose un etai a hauteur nulle (ML__strut height:0) et le
+     trait du curseur flotte plus haut que la ligne ou s'ecrira le texte ; une
+     espace de largeur nulle redonne a la ligne vide la meme ossature — donc la
+     meme ligne de base — qu'une ligne remplie, et le trait ne saute plus. */
+  ".ML__latex::before{content:'\\200B';}" +
   ".ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}" +
   ".ML__virtual-keyboard-toggle,.ML__menu-toggle{display:none !important;}" +
   ".ML__contains-highlight{background:transparent !important;}" +
