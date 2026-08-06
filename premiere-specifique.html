@@ -1123,7 +1123,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=53;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=54;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3295,16 +3295,20 @@ function qdMelanger(t){ for(let i=t.length-1;i>0;i--){ const j=rand(0,i); const 
    juste en dessous, celui juste au-dessus, et un troisième à deux pas —
    au-dessus ou en dessous, au hasard. 500 → 400, 600 et 700 (ou 300).
    Des propositions proches obligent à calculer : éloignées, le QCM se
-   résoudrait à vue. Si le « juste en dessous » n'existe pas (100 → 0),
-   on complète vers le haut : 100 → 200, 300, 400. */
+   résoudrait à vue. Il faut TOUJOURS une valeur en dessous : quand le pas
+   ne le permet pas (100 → 0), on descend d'un cran et on tire entre la
+   moitié et le pas inférieur — 100 → 90, 80, … ou 50. */
 function leurresProches(N){
   const pas=Math.pow(10,Math.floor(Math.log10(N)));
   const out=[];
-  if(N-pas>0) out.push(N-pas);
-  out.push(N+pas);
-  const deux=[]; if(N-2*pas>0) deux.push(N-2*pas); deux.push(N+2*pas);
-  out.push(pick(deux));
-  for(let k=3; out.length<3; k++) out.push(N+k*pas);
+  if(N-pas>0){
+    out.push(N-pas, N+pas);
+    const deux=[]; if(N-2*pas>0) deux.push(N-2*pas); deux.push(N+2*pas);
+    out.push(pick(deux));
+  } else {
+    out.push(N - (pas/10)*rand(1,5));   /* 100 → 90…50 ; 1000 → 900…500 ; 10 → 9…5 */
+    out.push(N+pas, N+2*pas);
+  }
   return out;
 }
 /* --- Retrouver la valeur initiale : P et R donn\u00e9s, N \u00e0 choisir --- */
