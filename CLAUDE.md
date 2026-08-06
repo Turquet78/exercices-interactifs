@@ -17,13 +17,19 @@ Les trois partagent un seul projet Supabase et la même fonction Edge
 
 ## Règles absolues
 
-**1. Ne jamais pousser sur `main`.** Le site est en production, des élèves
-l'utilisent. Toute modification passe par une branche, que Turquet relit et
-fusionne lui-même. Même un correctif qui paraît urgent : proposer, ne pas
-publier.
+**1. `main` publie immédiatement.** GitHub Pages sert `main` : toute fusion met
+le site sous les yeux des élèves dans la minute. Le travail se fait toujours sur
+une branche, puis passe par une pull request. Depuis août 2026 (décision de
+Turquet), la fusion peut être faite par Claude **à condition que** l'action
+GitHub « Contrôles » soit verte **et** que la modification ait été réellement
+exécutée (règle 3). Jamais de poussée directe sur `main` sans pull request. En
+cas de doute — modification structurelle, toucher à Supabase, comportement
+inattendu — demander à Turquet avant de fusionner.
 
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
-les contrôles échouent. Voir `tests/LISEZMOI.md`.
+les contrôles échouent. L'action GitHub `.github/workflows/controles.yml`
+rejoue ces contrôles sur chaque pull request : elle doit être verte avant
+fusion. Voir `tests/LISEZMOI.md`.
 
 **3. Ne jamais livrer sans avoir exécuté.** Une vérification de syntaxe ne prouve
 rien. Trois pannes en production sont passées à travers des contrôles statiques
