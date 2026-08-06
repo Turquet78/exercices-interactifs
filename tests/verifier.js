@@ -122,7 +122,7 @@ function interface_(suite){
       /* contexte envoyé au modèle, pour chaque type d'exercice */
       const kinds = [['pct','genPercent()'],['pctq','genPctTaux()'],['aug','genAug()'],
                      ['augq','genAugTaux()'],['dim','genDim()'],['mp','genMultPosee()'],
-                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()']];
+                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()'],['ag2','genAugAdd()']];
       let bons = 0;
       kinds.forEach(([k, gen]) => {
         try {
@@ -211,6 +211,22 @@ function exercices(suite){
     })()`);
     verifier('g\u00e9n\u00e9rateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
 
+    /* augmenter par l'addition : augmentation enti\u00e8re (P\u00d7N divisible par 100),
+       somme coh\u00e9rente, contexte et variante pr\u00e9sents */
+    const agPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genAugAdd();
+        if(q.P*q.N%100!==0) pb++;
+        if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
+        if(q.fin!==q.N+q.aug) pb++;
+        if(q.unit===undefined||q.unit==='') pb++;
+        if(typeof q.v!=='number') pb++;
+      }
+      return pb;
+    })()`);
+    verifier('g\u00e9n\u00e9rateur genAugAdd : 5000 questions conformes', agPb === 0, agPb + ' anomalies');
+
     /* chaque exercice doit fournir son rappel de cours */
     const sansRappel = w.eval(`(function(){
       const manquants=[];
@@ -218,7 +234,7 @@ function exercices(suite){
         const k={ 'pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
                   'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
                   'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
-                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp',
+                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2',
                   'tables-multiplication':'tm','tables-multiplication-2':'tm' }[id];
         if(k && !RAPPELS[k]) manquants.push(id);
       });
