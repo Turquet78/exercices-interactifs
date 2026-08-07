@@ -211,6 +211,19 @@ function exercices(suite){
     })()`);
     verifier('g\u00e9n\u00e9rateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
 
+    /* s\u00e9rie du 3.1.4 : les six fractions d'un m\u00eame test sont toutes diff\u00e9rentes */
+    const fpSeriePb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<3000;k++){
+        const qs=genFPSerie(6);
+        if(qs.length!==6) pb++;
+        const sigs=qs.map(q=>q.a+'/'+q.b);
+        if(new Set(sigs).size!==6) pb++;
+      }
+      return pb;
+    })()`);
+    verifier('s\u00e9rie genFPSerie : 3000 tests de 6 fractions sans r\u00e9p\u00e9tition', fpSeriePb === 0, fpSeriePb + ' anomalies');
+
     /* augmenter par l'addition : augmentation enti\u00e8re (P\u00d7N divisible par 100),
        somme coh\u00e9rente, contexte et variante pr\u00e9sents */
     const agPb = w.eval(`(function(){

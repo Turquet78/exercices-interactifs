@@ -1234,7 +1234,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=71;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=72;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3409,11 +3409,25 @@ function genFP(){
   return q;
 }
 function fpFracHTML(n,d){ return mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d); }
+/* Série sans répétition : les 6 fractions d'un même test sont toutes différentes
+   (17 fractions possibles, donc toujours réalisable). Le garde-fou évite toute
+   boucle infinie si le vivier venait à rétrécir. */
+function genFPSerie(n){
+  const vus=new Set(), qs=[];
+  let garde=400;
+  while(qs.length<n && garde-->0){
+    const q=genFP(), s=q.a+'/'+q.b;
+    if(vus.has(s)) continue;
+    vus.add(s); qs.push(q);
+  }
+  while(qs.length<n) qs.push(genFP());
+  return qs;
+}
 async function startFP(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='fp';
-  test.questions=Array.from({length:6},genFP);
+  test.questions=genFPSerie(6);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('fptest'); renderFPTest();
 }
