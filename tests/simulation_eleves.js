@@ -44,13 +44,13 @@ const SUPABASE_URL = html.match(/SUPABASE_URL\s*=\s*['"]([^'"]+)/)[1];
 const KEY = html.match(/SUPABASE_ANON_KEY\s*=\s*['"]([^'"]+)/)[1];
 
 /* ---- relais curl : le navigateur ne sort jamais lui-même ---- */
-function curlJSON(method, chemin, corps, prefer) {
+function curlJSON(method, chemin, corps, entetes) {
   const args = ['-sS', '--max-time', '30', '-X', method,
     SUPABASE_URL + chemin,
     '-H', 'apikey: ' + KEY, '-H', 'Authorization: Bearer ' + KEY,
     '-H', 'Content-Type: application/json',
     '-w', '\n%{http_code}'];
-  if (prefer) args.push('-H', 'Prefer: ' + prefer);
+  for (const [nom, v] of Object.entries(entetes || {})) args.push('-H', nom + ': ' + v);
   if (corps !== undefined) args.push('--data', JSON.stringify(corps));
   const brut = execFileSync('curl', args, { encoding: 'utf8' });
   const idx = brut.lastIndexOf('\n');
@@ -105,13 +105,18 @@ const ELEVES = [
         return route.fulfill({ contentType: 'text/javascript', body: fs.readFileSync(SUPA_UMD, 'utf8') });
       }
       if (u.startsWith(SUPABASE_URL)) {
-        /* relais réel : méthode, chemin, en-têtes Prefer et corps sont transmis */
+        /* relais réel : méthode, chemin, corps et en-têtes PostgREST transmis.
+           Accept est indispensable : .single() n'obtient un objet que par lui */
         const req = route.request();
         const chemin = u.slice(SUPABASE_URL.length);
-        const prefer = await req.headerValue('prefer');
+        const tous = await req.allHeaders();
+        const entetes = {};
+        for (const nom of ['accept', 'prefer', 'range', 'content-profile', 'accept-profile']) {
+          if (tous[nom]) entetes[nom] = tous[nom];
+        }
         const corps = req.postData();
         try {
-          const r = curlJSON(req.method(), chemin, corps === null ? undefined : JSON.parse(corps), prefer || undefined);
+          const r = curlJSON(req.method(), chemin, corps === null ? undefined : JSON.parse(corps), entetes);
           return route.fulfill({ status: r.status, contentType: 'application/json', body: r.body || '[]' });
         } catch (e) {
           return route.fulfill({ status: 502, contentType: 'application/json', body: JSON.stringify({ message: String(e.message) }) });
@@ -128,12 +133,24 @@ const ELEVES = [
   const crees = [];   /* ids créés ici — seuls candidats au nettoyage */
 
   /* ---------- helpers de jeu, exécutés DANS la page ---------- */
+  /* après un clic « suivant », attendre que la question change ou que l'écran se
+     ferme : la clôture insère en base (~1 s via le relais) avant de basculer
+     l'écran, et recliquer le bouton resté affiché rejouerait la clôture —
+     l'appli n'a pas de garde-fou de réentrance, chaque clic ferait un doublon */
+  async function attendreTransition(page, ecran, idxAvant) {
+    try {
+      await page.waitForFunction(([ecran, idxAvant]) =>
+        !document.getElementById(ecran).classList.contains('on') || test.idx !== idxAvant,
+        [ecran, idxAvant], { timeout: 15000, polling: 200 });
+    } catch (e) { /* la boucle constatera l'état au tour suivant */ }
+  }
   const JOUER = {
     /* remplit et valide l'exercice 2.1 (pourcentage) jusqu'au bout ou jusqu'à nStop questions */
     pct: async (page, { faux = false, nStop = 99 } = {}) => {
       for (let k = 0; k < nStop; k++) {
         const fini = await page.evaluate(() => !document.getElementById('scr-ptest').classList.contains('on'));
         if (fini) break;
+        const idx = await page.evaluate(() => test.idx);
         await page.evaluate((faux) => {
           const q = test.questions[test.idx];
           document.getElementById('p1n').value = String(q.P);
@@ -145,7 +162,7 @@ const ELEVES = [
         }, faux && k === 0);           /* au plus la première question fausse */
         await page.waitForTimeout(250);
         const next = await page.$('#pNext');
-        if (next) { await page.evaluate(() => document.getElementById('pNext').click()); await page.waitForTimeout(350); }
+        if (next) { await page.evaluate(() => document.getElementById('pNext').click()); await attendreTransition(page, 'scr-ptest', idx); }
         else break;                     /* mode soutien : boucle de correction */
       }
     },
@@ -153,6 +170,7 @@ const ELEVES = [
       for (let k = 0; k < 99; k++) {
         const fini = await page.evaluate(() => !document.getElementById('scr-mtest').classList.contains('on'));
         if (fini) break;
+        const idx = await page.evaluate(() => test.idx);
         await page.evaluate((faux) => {
           document.querySelectorAll('#mpHost .mp-box').forEach((b, i) => {
             const exp = b.dataset.exp;
@@ -162,13 +180,14 @@ const ELEVES = [
         }, fauxPremiere && k === 0);
         await page.waitForTimeout(250);
         const next = await page.$('#mpNext');
-        if (next) { await page.evaluate(() => document.getElementById('mpNext').click()); await page.waitForTimeout(350); }
+        if (next) { await page.evaluate(() => document.getElementById('mpNext').click()); await attendreTransition(page, 'scr-mtest', idx); }
       }
     },
     pctq: async (page, { mauvaisChoix = false } = {}) => {
       for (let k = 0; k < 99; k++) {
         const fini = await page.evaluate(() => !document.getElementById('scr-qtest').classList.contains('on'));
         if (fini) break;
+        const idx = await page.evaluate(() => test.idx);
         await page.evaluate((mauvais) => {
           const q = test.questions[test.idx];
           const choix = mauvais ? (q.bon + 1) % 4 : q.bon;
@@ -191,8 +210,8 @@ const ELEVES = [
           const n = document.getElementById('qNext'); if (n) { n.click(); return false; }
           return document.getElementById('scr-qtest').classList.contains('on');
         });
+        if (!encore) { await attendreTransition(page, 'scr-qtest', idx); continue; }
         await page.waitForTimeout(350);
-        if (!encore) continue;
       }
     },
   };
@@ -215,20 +234,22 @@ const ELEVES = [
     const id = await page.evaluate(() => currentEleve.id);
     crees.push({ id, prenom: e.prenom });
 
+    /* poser currentTestId comme le fait openTest() : pauseTest() et les rappels
+       en dépendent — sans lui, le brouillon de pause part avec test: null */
     if (e.plan === 'pct-train-juste') {
-      await page.evaluate(() => { currentMode = 'train'; TESTS['pourcentage'].start(); });
+      await page.evaluate(() => { currentTestId = 'pourcentage'; currentMode = 'train'; TESTS['pourcentage'].start(); });
       await page.waitForTimeout(600);
       await JOUER.pct(page, {});
     } else if (e.plan === 'mp-train-erreurs') {
-      await page.evaluate(() => { currentMode = 'train'; TESTS['multiplication-posee'].start(); });
+      await page.evaluate(() => { currentTestId = 'multiplication-posee'; currentMode = 'train'; TESTS['multiplication-posee'].start(); });
       await page.waitForTimeout(600);
       await JOUER.mp(page, { fauxPremiere: true });
     } else if (e.plan === 'pctq-soutien') {
-      await page.evaluate(() => { currentMode = 'soutien'; TESTS['pourcentage-taux'].start(); });
+      await page.evaluate(() => { currentTestId = 'pourcentage-taux'; currentMode = 'soutien'; TESTS['pourcentage-taux'].start(); });
       await page.waitForTimeout(600);
       await JOUER.pctq(page, {});
     } else if (e.plan === 'pct-pause-reprise') {
-      await page.evaluate(() => { currentMode = 'train'; TESTS['pourcentage'].start(); });
+      await page.evaluate(() => { currentTestId = 'pourcentage'; currentMode = 'train'; TESTS['pourcentage'].start(); });
       await page.waitForTimeout(600);
       await JOUER.pct(page, { nStop: 2 });                    /* 2 questions puis pause */
       await page.evaluate(() => pauseTest());
@@ -245,13 +266,19 @@ const ELEVES = [
       await page.waitForTimeout(900);
       const relog = await page.evaluate(() => currentEleve && currentEleve.prenom);
       dit('reconnexion par prénom + code', relog === e.prenom, String(relog));
-      await page.evaluate(() => { currentTestId = 'pourcentage'; resumeTest('train'); });
+      /* vrai parcours de reprise : openTest() recharge les brouillons depuis la
+         base et propose la carte « Reprendre », qui appelle resumeTest() */
+      await page.evaluate(() => openTest('pourcentage'));
+      await page.waitForTimeout(600);
+      const carte = await page.evaluate(() => !!(pausedRows && pausedRows.train));
+      dit('brouillon retrouvé — carte « Reprendre » proposée', carte);
+      await page.evaluate(() => resumeTest('train'));
       await page.waitForTimeout(900);
       const repris = await page.evaluate(() => test.idx);
       dit('reprise à la question ' + (repris + 1) + ' (attendu ≥ 2)', repris >= 1, String(repris));
       await JOUER.pct(page, {});
     } else if (e.plan === 'pctq-eval-erreur') {
-      await page.evaluate(() => { currentMode = 'eval'; TESTS['pourcentage-depart'].start(); });
+      await page.evaluate(() => { currentTestId = 'pourcentage-depart'; currentMode = 'eval'; TESTS['pourcentage-depart'].start(); });
       await page.waitForTimeout(600);
       await JOUER.pctq(page, { mauvaisChoix: true });
     }
@@ -286,9 +313,12 @@ const ELEVES = [
   }
   const verif = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id&id=in.(' + crees.map(c => c.id).join(',') + ')').body);
   const verifR = JSON.parse(curlJSON('GET', '/rest/v1/resultats_1ere?select=id&eleve_id=in.(' + crees.map(c => c.id).join(',') + ')').body);
-  console.log('Comptes de test restants : ' + verif.length + ' | résultats de test restants : ' + verifR.length + (verif.length + verifR.length === 0 ? '  → base propre ✓' : '  → NETTOYAGE INCOMPLET ✗'));
   const apres = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id').body);
-  console.log('Comptes en base après simulation : ' + apres.length + ' (avant : ' + avant.length + ')');
+  /* comparer avant/après fait partie du verdict : une inscription passée
+     inaperçue (crees vide) ne doit plus produire un « base propre » à tort */
+  const propre = verif.length + verifR.length === 0 && apres.length === avant.length;
+  console.log('Comptes de test restants : ' + verif.length + ' | résultats de test restants : ' + verifR.length);
+  console.log('Comptes en base après simulation : ' + apres.length + ' (avant : ' + avant.length + ')' + (propre ? '  → base propre ✓' : '  → NETTOYAGE INCOMPLET ✗ — supprimer à la main les comptes Test-*'));
 
   console.log('\nErreurs JavaScript pendant toute la simulation : ' + (erreursJS.length === 0 ? 'aucune ✓' : erreursJS.join(' | ')));
   await browser.close();
