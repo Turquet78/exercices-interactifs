@@ -597,7 +597,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* correction du mode entrainement : trait bleu a la bonne hauteur */
 .fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none;}
 .fp-val{min-height:2.2em;display:flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);}
-.fp-lab{font-weight:800;color:var(--ink-soft);font-size:.92rem;}
+.fp-lab{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);font-size:1.4rem;}
 @media(max-width:520px){ .fp-zone{gap:34px;} .fp-col{width:84px;height:260px;} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
@@ -1234,7 +1234,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=70;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=71;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3430,12 +3430,12 @@ function renderFPTest(){
   $('fpHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">Méthode 1 : colorie, puis choisis la même hauteur</div>
     <div class="fp-zone">`+
-      `<div class="fp-bloc"><div class="fp-col" id="fpColL">${segsL}</div>`+
-        `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div>`+
-        `<div class="fp-lab">pour 1</div></div>`+
-      `<div class="fp-bloc"><div class="fp-col fp-colr" id="fpColR">${segsR}</div>`+
-        `<div class="fp-val" id="fpValR">${q.selR?(q.selR*5+' %'):'… %'}</div>`+
-        `<div class="fp-lab">pour 100</div></div>`+
+      `<div class="fp-bloc"><div class="fp-lab">pour 1</div>`+
+        `<div class="fp-col" id="fpColL">${segsL}</div>`+
+        `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div></div>`+
+      `<div class="fp-bloc"><div class="fp-lab">pour 100</div>`+
+        `<div class="fp-col fp-colr" id="fpColR">${segsR}</div>`+
+        `<div class="fp-val" id="fpValR">${q.selR?(q.selR*5+' %'):'… %'}</div></div>`+
     `</div></div>`+
     `<div class="pt-step"><div class="pt-lab">Méthode 2 : rends le dénominateur égal à 100</div>
        <div class="pt-row">`+
