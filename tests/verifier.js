@@ -446,6 +446,40 @@ function exercices(suite){
     verifier('QCM : pas de surlignage bleu en évaluation', qcmSol.split('|')[0] === '0', qcmSol);
     verifier('QCM : bonne proposition surlignée en entraînement', Number(qcmSol.split('|')[1]) > 0, qcmSol);
 
+    /* Clôture unique : pendant l'enregistrement (une seconde ou plus sur réseau
+       lent), « Voir mes résultats » reste cliquable — chaque clic rejouait la
+       clôture et le résultat partait en double en base (trouvé par la
+       simulation d'élèves du 7 août 2026). Le verrou doit bloquer les clics en
+       trop, puis se rouvrir à l'exercice suivant : coincé, il serait pire que
+       le bug — plus aucun résultat ne s'enregistrerait. */
+    const cloture = w.eval(`(function(){
+      window.__inserts=0;
+      function chaine(){
+        const o={ then:function(res){ res({data:[],error:null}); } };
+        ['select','insert','update','eq','neq','order','single'].forEach(function(k){
+          o[k]=function(){ if(k==='insert') window.__inserts++; return chaine(); };
+        });
+        o['delete']=function(){ return chaine(); };
+        return o;
+      }
+      sb={ from:function(){ return chaine(); } };
+      showResults=function(){};              /* seul le verrou est testé, pas l'écran de fin */
+      currentEleve={id:'test',prenom:'Test'}; currentMode='train'; currentTestId='pourcentage';
+      test.kind='pct'; test.idx=0; test.score=1; test.answers=[];
+      test.questions=[{P:30,N:40,unit:'€',prod:1200,result:12,ci:0,v:0}];
+      test.startTime=Date.now();
+      show('ptest');
+      finishPercent(); finishPercent(); finishPercent();   /* triple clic impatient */
+      const apresTriple=window.__inserts;
+      show('ptest'); test.startTime=Date.now();            /* exercice suivant */
+      finishPercent();
+      return apresTriple+'|'+window.__inserts;
+    })()`);
+    verifier('un triple clic sur « Voir mes résultats » n’enregistre qu’un résultat',
+      cloture.split('|')[0] === '1', cloture + ' insertion(s)');
+    verifier('le verrou de clôture se rouvre à l’exercice suivant',
+      cloture.split('|')[1] === '2', cloture + ' insertion(s)');
+
     suite();
   });
 }

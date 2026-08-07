@@ -1235,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=75;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=76;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1718,6 +1718,18 @@ function ouvrirEspace(){
   $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
   show('space');
 }
+/* Une seule clôture par exercice. Pendant l'enregistrement (une seconde ou plus
+   sur un réseau lent), le bouton « Voir mes résultats » reste affiché : chaque
+   clic de plus rejouerait la clôture et le résultat partirait en double en base.
+   Le verrou se rouvre dans show(), à l'entrée d'un écran d'exercice. */
+let testCloture=false;
+function clotureUnique(){
+  if(testCloture) return false;
+  testCloture=true;
+  const b=document.activeElement;
+  if(b && b.tagName==='BUTTON') b.disabled=true;
+  return true;
+}
 /* Enregistrement d'un resultat. IMPORTANT : supabase-js ne LANCE pas d'exception en cas
    d'erreur, il la RETOURNE — un try/catch seul laisserait donc passer un echec sans un
    mot, et la note n'apparaitrait jamais dans la liste des exercices. */
@@ -1853,6 +1865,7 @@ function show(name){
   const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
+    testCloture=false;                       /* nouvel exercice affiché : clôture de nouveau permise */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
        Invisible pour l'élève, impossible à oublier en silence pour nous. */
     if(typeof rappelDispo==='function' && !rappelDispo() && window.console && console.warn)
@@ -2264,6 +2277,7 @@ function submitAnswer(timedOut){
   test.fbTimer=setTimeout(()=>{ if(test.idx<test.questions.length-1){test.idx++;renderQuestion();autoSave();} else finishTest(); },correct?850:1500);
 }
 async function finishTest(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -2577,6 +2591,7 @@ document.addEventListener('keydown',e=>{
   else if(test.phase==='correction') tmSuivant();
 });
 async function tmFinir(abandon){
+  if(!clotureUnique()) return;
   clearTimeout(test.qTimer); clearRecovery();
   const score=tmAcquis(), total=TM_NB, pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -2685,6 +2700,7 @@ function checkMAnswer(live){
 }
 function nextMQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMTest(); autoSave(); } else finishMTest(); }
 async function finishMTest(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -3021,6 +3037,7 @@ function goNextLevel(){
   renderFTest(); autoSave();
 }
 async function finishParcours(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.answers.length, score=test.score, pct=total?Math.round(score/total*100):0;
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -3328,6 +3345,7 @@ function checkPAnswer(live){
 }
 function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTest(); autoSave(); } else finishPercent(); }
 async function finishPercent(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -3491,6 +3509,7 @@ function checkFPAnswer(live){
 }
 function nextFPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderFPTest(); autoSave(); } else finishFP(); }
 async function finishFP(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -3724,6 +3743,7 @@ function checkAG2Answer(live){
 }
 function nextAG2Question(){ if(test.idx<test.questions.length-1){ test.idx++; renderAG2Test(); autoSave(); } else finishAugAdd(); }
 async function finishAugAdd(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -3986,6 +4006,7 @@ function checkWAnswer(live){
 }
 function nextWQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderWTest(); autoSave(); } else finishA2Q(); }
 async function finishA2Q(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -4358,6 +4379,7 @@ function checkSynAnswer(live){
 }
 function nextSynQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSynTest(); autoSave(); } else finishSyn(); }
 async function finishSyn(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -4569,6 +4591,7 @@ function checkQAnswer(live){
 }
 function nextQQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderQTest(); autoSave(); } else finishQCM(); }
 async function finishQCM(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -4789,6 +4812,7 @@ function checkAAnswer(live){
 }
 function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderATest(); autoSave(); } else finishAug(); }
 async function finishAug(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -5169,6 +5193,7 @@ function checkVAnswer(live){
 }
 function nextVQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderVTest(); autoSave(); } else finishAUGQ(); }
 async function finishAUGQ(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -5308,6 +5333,7 @@ function checkDAnswer(live){
 }
 function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDTest(); autoSave(); } else finishDim(); }
 async function finishDim(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -5444,6 +5470,7 @@ function checkMDAnswer(live){
 }
 function nextMDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMDTest(); autoSave(); } else finishMultDec(); }
 async function finishMultDec(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
@@ -5605,6 +5632,7 @@ function checkUAnswer(live){
 }
 function nextUQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderUTest(); autoSave(); } else finishU(); }
 async function finishU(){
+  if(!clotureUnique()) return;
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
