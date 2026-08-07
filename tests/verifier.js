@@ -36,6 +36,11 @@ function structure(){
   /* sans lui, le navigateur passe en mode quirks et la mise en page casse sur mobile */
   verifier('<!DOCTYPE html> en première ligne', /^<!DOCTYPE html>/i.test(s));
 
+  /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit
+     destructurer error — sinon l'échec est silencieux (piège documenté) */
+  const sansError = [...s.matchAll(/const \{data(?::[A-Za-z_$][\w$]*)?\}=await sb/g)].length;
+  verifier('chaque appel Supabase destructure error', sansError === 0, sansError + ' appel(s) l’ignorent');
+
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
     const o = (css.match(/\{/g)||[]).length, f = (css.match(/\}/g)||[]).length;
@@ -310,7 +315,7 @@ function exercices(suite){
     const sansRappel = w.eval(`(function(){
       const manquants=[];
       Object.keys(TESTS).forEach(function(id){
-        const k={ 'pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
+        const k={ 'calcul-mental':'cm','pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
                   'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
                   'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
                   'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn',
@@ -356,6 +361,40 @@ function exercices(suite){
       return pb;
     })()`);
     verifier('2.2 : les 4 propositions donnent toutes un calcul entier', qdPb === 0, qdPb + ' anomalies');
+
+    /* convention des modes dans les poses en colonnes : en ÉVALUATION, aucune
+       correction révélée ; en ENTRAÎNEMENT, la case vide est complétée en bleu */
+    const modesPose = w.eval(`(function(){
+      currentMode='eval';
+      test.kind='mp'; test.questions=[genMultPosee()]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+      show('mtest'); renderMTest();
+      checkMAnswer();
+      const host=document.getElementById('mpHost');
+      const fuites=[...host.querySelectorAll('.mp-box')].filter(b=>b.value.trim()!=='').length
+                  + host.querySelectorAll('.mp-fix').length;
+      currentMode='train'; test.locked=false; test.answers=[]; renderMTest();
+      checkMAnswer();
+      const bleues=[...document.getElementById('mpHost').querySelectorAll('.mp-box')]
+        .filter(b=>b.classList.contains('sol') && b.value.trim()!=='').length;
+      return fuites+'|'+bleues;
+    })()`);
+    const [fuites, bleues] = modesPose.split('|').map(Number);
+    verifier('en évaluation, la pose ne révèle rien', fuites === 0, fuites + ' case(s) révélée(s)');
+    verifier('en entraînement, la case vide est complétée en bleu', bleues > 0, 'aucune case .sol');
+
+    /* la pause doit capturer les saisies en cours, y compris les math-field
+       (elles étaient perdues : seuls les input à id étaient sauvés) */
+    const boxes = w.eval(`(function(){
+      currentMode='train'; test.kind='pct'; test.locked=false;
+      test.questions=[{P:30,N:40,unit:'€',prod:1200,result:12,ci:0,v:0}]; test.idx=0;
+      show('ptest'); renderPTest();
+      document.getElementById('p1n').value='30';
+      const m=captureBoxes();
+      document.getElementById('p1n').value='';
+      restoreBoxes(m);
+      return document.getElementById('p1n').value;
+    })()`);
+    verifier('la pause capture et restaure les saisies math-field', boxes === '30', 'restauré : « ' + boxes + ' »');
 
     /* pas de « 52,5 licenciés » : une valeur finale décimale interdit les
        contextes dénombrables (ent:true) dans les quatre générateurs augq */
