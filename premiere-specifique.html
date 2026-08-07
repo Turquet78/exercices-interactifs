@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!-- Calcul mental — version "comptes à l'année" (base de données Supabase). -->
 <!-- ========================================================================= -->
 <!--  ⚙️  À CONFIGURER : remplace les 3 valeurs ci-dessous (voir le guide).     -->
@@ -1234,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=72;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=73;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1539,7 +1540,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1985,7 +1986,7 @@ function restoreBoxes(boxes){
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
 function recoveryPayload(){
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
-  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, snapshotTest());
+  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, currentDM?{dm:currentDM}:{}, snapshotTest());
   details._boxes=captureBoxes();            // saisies en cours de la question affichée
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
@@ -4475,7 +4476,9 @@ function leurresProches(N){
 /* --- Retrouver la valeur initiale : P et R donn\u00e9s, N \u00e0 choisir --- */
 function genPctDepart(){
   let P,N;
-  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  /* N=10 est exclu : leurresProches(10) donnerait 5…9, pas des multiples de 10,
+     et la vérification d'une mauvaise proposition tomberait sur un décimal. */
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || N===10);
   const prod=P*N;
   /* P est un multiple de 10 et les leurres des multiples de 10 : P×leurre reste
      divisible par 100, la vérification d'une mauvaise proposition tombe juste. */
@@ -4573,7 +4576,7 @@ function checkQAnswer(live){
   const f2n=iv('q2n'), f2d=iv('q2d');
   const ok2 = v('q2n')!=='' && v('q2d')!=='' && !isNaN(f2n) && !isNaN(f2d) && f2d!==0 && f2n*100===prod*f2d;
   const fr=parseDecToFrac(v('q3'));
-  const ok3 = !!fr && fr.n===res*fr.d;
+  const ok3 = !!fr && fr.n*100===prod*fr.d;      /* tout en entiers : jamais de flottant */
   const okChoix=(q.choisi===q.bon), calculOk=ok1&&ok2&&ok3, allOk=calculOk&&okChoix;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
   mark('q1n',ok1); mark('q1d',ok1); mark('q2n',ok2); mark('q2d',ok2); mark('q3',ok3);
@@ -4922,20 +4925,26 @@ const AUGQ_CTX=[
   {s:'Un prix', u:'€', g:'m', nOk:x=>x>=20&&x<=990},
   {s:'Un salaire', u:'€', g:'m', nOk:x=>x>=900},
   {s:'Un loyer', u:'€', g:'m', nOk:x=>x>=200&&x<=2200},
-  {s:'La population d’une ville', u:'habitants', g:'f', nOk:x=>x>=1000},
-  {s:'L’effectif d’un club', u:'licenciés', g:'m', nOk:x=>x>=50&&x<=990},
-  {s:'La production d’une usine', u:'pièces', g:'f', nOk:x=>x>=100},
-  {s:'La fréquentation d’un musée', u:'visiteurs', g:'f', nOk:x=>x>=100},
+  {s:'La population d’une ville', u:'habitants', g:'f', ent:true, nOk:x=>x>=1000},
+  {s:'L’effectif d’un club', u:'licenciés', g:'m', ent:true, nOk:x=>x>=50&&x<=990},
+  {s:'La production d’une usine', u:'pièces', g:'f', ent:true, nOk:x=>x>=100},
+  {s:'La fréquentation d’un musée', u:'visiteurs', g:'f', ent:true, nOk:x=>x>=100},
   {s:'Une surface cultivée', u:'hectares', g:'f', nOk:x=>x>=20&&x<=990},
-  {s:'La capacité d’une salle', u:'places', g:'f', nOk:x=>x>=50&&x<=990},
+  {s:'La capacité d’une salle', u:'places', g:'f', ent:true, nOk:x=>x>=50&&x<=990},
   /* sans condition : garantit qu'un sujet convient toujours */
-  {s:'Un stock', u:'articles', g:'m'}
+  {s:'Un stock', u:'articles', g:'m', ent:true}
 ];
 /* Le sujet est choisi d'après le nombre que l'énoncé AFFICHE : la valeur finale
-   quand on cherche la valeur initiale, la valeur initiale quand on cherche le %. */
-function augqTirerCtx(ref){
-  const ok=[]; AUGQ_CTX.forEach((c,i)=>{ if(!c.nOk || c.nOk(ref)) ok.push(i); });
-  return pick(ok.length?ok:[AUGQ_CTX.length-1]);
+   quand on cherche la valeur initiale, la valeur initiale quand on cherche le %.
+   Les contextes ent:true (unités dénombrables) sont écartés dès que la valeur
+   finale n'est pas entière : pas de « 52,5 licenciés ». Les euros et hectares
+   acceptent les décimaux. entier se déduit de ref, sauf indication contraire
+   (les générateurs « taux » affichent N entier ET une finale parfois décimale). */
+function augqTirerCtx(ref, entier){
+  if(entier===undefined) entier=Number.isInteger(ref);
+  const ok=[]; AUGQ_CTX.forEach((c,i)=>{ if((entier||!c.ent) && (!c.nOk || c.nOk(ref))) ok.push(i); });
+  if(ok.length) return pick(ok);
+  return entier ? AUGQ_CTX.length-1 : 0;    /* replis : le stock, ou un prix en euros */
 }
 function augqCtx(q){ return AUGQ_CTX[q.ci]||AUGQ_CTX[0]; }
 function augqIl(q){ return augqCtx(q).g==='f'?'elle':'il'; }
@@ -5004,7 +5013,7 @@ function genAugTaux(){
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
   const coef=100+P, prodNum=N*coef;
-  const ci=augqTirerCtx(N);                      /* c'est la valeur initiale qui est affichée */
+  const ci=augqTirerCtx(N, prodNum%100===0);     /* N est affiché, mais la finale aussi */
   const q={type:'pct',P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
     opts,bon:opts.indexOf(P),choisi:null};
@@ -5033,7 +5042,7 @@ function genDimTaux(){
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
   const coef=100-P, prodNum=N*coef;
-  const ci=augqTirerCtx(N);                      /* c'est la valeur initiale qui est affichée */
+  const ci=augqTirerCtx(N, prodNum%100===0);     /* N est affiché, mais la finale aussi */
   const q={type:'pct',sens:-1,P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
     opts,bon:opts.indexOf(P),choisi:null};

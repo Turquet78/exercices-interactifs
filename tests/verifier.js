@@ -33,6 +33,9 @@ function structure(){
   titre('1. STRUCTURE DU FICHIER');
   const s = lire(CIBLE);
 
+  /* sans lui, le navigateur passe en mode quirks et la mise en page casse sur mobile */
+  verifier('<!DOCTYPE html> en première ligne', /^<!DOCTYPE html>/i.test(s));
+
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
     const o = (css.match(/\{/g)||[]).length, f = (css.match(/\}/g)||[]).length;
@@ -317,6 +320,56 @@ function exercices(suite){
       return manquants.join(', ');
     })()`);
     verifier('chaque exercice a son rappel de cours', sansRappel === '', sansRappel);
+
+    /* « Recommencer » doit relancer le MÊME exercice — le kind tm retombait sur
+       le calcul mental */
+    const relance = w.eval(`(function(){
+      let lance='';
+      const sauve={tm:startTM, tm2:startTM2, cm:startTest};
+      startTM=function(){lance='tm';}; startTM2=function(){lance='tm2';}; startTest=function(){lance='cm';};
+      test.kind='tm'; test.tmId='tables-multiplication';   restartCurrentTest(); const a=lance;
+      test.tmId='tables-multiplication-2';                 restartCurrentTest(); const b=lance;
+      startTM=sauve.tm; startTM2=sauve.tm2; startTest=sauve.cm;
+      return a+'/'+b;
+    })()`);
+    verifier('« Recommencer » relance bien chacune des deux tables', relance === 'tm/tm2', relance);
+
+    /* la pause doit conserver le devoir en cours, sinon la reprise ne crédite
+       jamais le devoir maison */
+    const dmGarde = w.eval(`(function(){
+      currentEleve={id:1,nom:'Contrôle'}; currentTestId='pourcentage'; currentDM='dm-controle';
+      test.kind='pct'; test.questions=[genPercent()]; test.idx=0; test.startTime=Date.now();
+      const d=recoveryPayload().details; currentDM=null;
+      return d.dm===\'dm-controle\' && d.state===\'paused\';
+    })()`);
+    verifier('la pause conserve le devoir maison en cours', dmGarde === true);
+
+    /* 2.2 : chaque proposition, bonne ou fausse, doit donner un calcul ENTIER
+       (N=10 produisait des leurres 5…9 et des vérifications décimales) */
+    const qdPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genPctDepart();
+        if(q.N===10) pb++;
+        q.opts.forEach(function(o){ if(o<=0 || o%10!==0 || (q.P*o)%100!==0) pb++; });
+      }
+      return pb;
+    })()`);
+    verifier('2.2 : les 4 propositions donnent toutes un calcul entier', qdPb === 0, qdPb + ' anomalies');
+
+    /* pas de « 52,5 licenciés » : une valeur finale décimale interdit les
+       contextes dénombrables (ent:true) dans les quatre générateurs augq */
+    const ctxPb = w.eval(`(function(){
+      let pb=0;
+      ['genAugDepart','genAugTaux','genDimDepart','genDimTaux'].forEach(function(nom){
+        for(let k=0;k<5000;k++){
+          const q=window[nom]();
+          if(q.prodNum%100!==0 && AUGQ_CTX[q.ci].ent) pb++;
+        }
+      });
+      return pb;
+    })()`);
+    verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
 
     suite();
   });
