@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!-- Calcul mental — version "comptes à l'année" (base de données Supabase). -->
 <!-- ========================================================================= -->
 <!--  ⚙️  À CONFIGURER : remplace les 3 valeurs ci-dessous (voir le guide).     -->
@@ -565,6 +566,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .mp-cl .sub-ret,.mp-cl .sub-retb{position:absolute;left:-4px;width:24px;height:24px;font-size:.95rem;border-radius:7px;}
 .mp-cl .sub-ret{top:-3px;}
 .mp-cl .sub-retb{bottom:-3px;}
+/* La pose en colonnes de 1.5 et 1.6 est un OUTIL au service d'une case
+   intermédiaire (le numérateur du produit), pas une étape finale : son cadre
+   pointillé la met à part, sa note renvoie vers la case qu'elle remplit. */
+.pt-outil{border:1.5px dashed var(--grid);border-radius:14px;padding:10px 12px 6px;margin-top:4px;background:rgba(0,0,0,.015);}
+.pt-pose-note{text-align:center;font-weight:800;color:var(--ink-soft);font-size:.92rem;margin:2px 0 6px;}
+/* Sur écran large, la pose-outil se range à DROITE des étapes, alignée en haut ;
+   sur écran étroit elle repasse naturellement dessous. */
+@media(min-width:1100px){
+  #mdHost,#uHost{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:30px;align-items:start;}
+  #mdHost .pt-step:not(.pt-outil),#uHost .pt-step:not(.pt-outil){grid-column:1;}
+  #mdHost .pt-outil,#uHost .pt-outil{grid-column:2;grid-row:1;margin-top:0;}
+}
 /* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
 .mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
@@ -585,8 +598,17 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* correction du mode entrainement : trait bleu a la bonne hauteur */
 .fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none;}
 .fp-val{min-height:2.2em;display:flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);}
-.fp-lab{font-weight:800;color:var(--ink-soft);font-size:.92rem;}
+.fp-lab{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);font-size:1.4rem;}
 @media(max-width:520px){ .fp-zone{gap:34px;} .fp-col{width:84px;height:260px;} }
+/* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
+   « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
+#fpHost math-field.pm-mf{font-size:1.5rem;line-height:1.15;}
+#fpHost .f-frac-input{align-items:stretch;}
+#fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
+#fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
+#fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+.fpm-ligne{display:flex;align-items:center;justify-content:center;gap:8px;}
+.fpm-const{font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--ink);white-space:nowrap;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
 @media(max-width:520px){
   #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf{font-size:1.5rem;}
@@ -1213,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=66;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=74;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1518,7 +1540,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1537,10 +1559,14 @@ function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénom
   const en=$(idn), ed=$(idd); if(!en) return;
   const vn=en.value.trim(), vd=ed?ed.value.trim():'';
   if(!en.disabled) en.classList.remove('ok','bad'); if(ed&&!ed.disabled) ed.classList.remove('ok','bad');
-  if(vn===''||vd==='') return;                       // fraction incomplète : aucune couleur
-  const n=parseInt(vn,10), d=parseInt(vd,10);
+  if(vn==='') return;
+  /* dénominateur vide : aucune couleur, sauf si denOptional (un facteur entier
+     est accepté : vide vaut 1, comme au contrôle final de md et u) */
+  if(vd===''&&!denOptional) return;                  // fraction incomplète : aucune couleur
+  const n=parseInt(vn,10), d=vd===''?1:parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
-  if(!en.disabled) en.classList.add(ok?'ok':'bad'); if(ed&&!ed.disabled) ed.classList.add(ok?'ok':'bad');
+  if(!en.disabled) en.classList.add(ok?'ok':'bad');
+  if(ed&&!ed.disabled&&vd!=='') ed.classList.add(ok?'ok':'bad');
 }
 function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
   const en=$(idn), ed=$(idd); if(!en||!ed) return;
@@ -1705,7 +1731,8 @@ async function enregistrerResultat(payload){
 }
 async function chargerMesResultats(){
   try{
-    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
   return mesResultats;
@@ -1771,7 +1798,8 @@ async function openTest(testId){
   const unlocked=!!(cfg.locks && cfg.locks[testId]);
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
+    if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
     if(TM_IDS.indexOf(testId)>=0) pausedRows.soutien=null;   /* plus de soutien ici */
   }catch(e){}
@@ -1927,7 +1955,8 @@ async function openTestDevoir(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
+    if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -1953,18 +1982,28 @@ function snapshotTest(){
 // lit ce que l'élève a déjà saisi dans les cases de la question en cours
 function captureBoxes(){
   const scr=document.querySelector('.screen.on'); if(!scr) return {};
-  const m={}; scr.querySelectorAll('input[id]').forEach(el=>{ const v=el.value; if(v!=='') m[el.id]=v; }); return m;
+  const m={};
+  scr.querySelectorAll('input[id], math-field[id]').forEach(el=>{ const v=el.value; if(v!==''&&v!==undefined&&v!==null) m[el.id]=String(v); });
+  /* cases sans id (poses en colonnes, retenues) : clé = position dans l'écran,
+     le rendu d'une question étant déterministe */
+  [...scr.querySelectorAll('input:not([id])')].forEach((el,i)=>{ const v=el.value; if(v!=='') m['#'+i]=v; });
+  return m;
 }
 // remet les saisies dans les cases après réaffichage de la question
 function restoreBoxes(boxes){
   if(!boxes) return;
-  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && el.tagName==='INPUT'){ el.value=boxes[id]; } });
+  const scr=document.querySelector('.screen.on');
+  const sansId=scr?[...scr.querySelectorAll('input:not([id])')]:[];
+  Object.keys(boxes).forEach(id=>{
+    if(id.charAt(0)==='#'){ const el=sansId[parseInt(id.slice(1),10)]; if(el) el.value=boxes[id]; return; }
+    const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='MATH-FIELD')){ el.value=boxes[id]; }
+  });
 }
 /* ---------- Enregistrement automatique du travail en cours (silencieux) ---------- */
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
 function recoveryPayload(){
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
-  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, snapshotTest());
+  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, currentDM?{dm:currentDM}:{}, snapshotTest());
   details._boxes=captureBoxes();            // saisies en cours de la question affichée
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
@@ -1973,9 +2012,11 @@ async function doRecoverySave(){
   if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   const payload=recoveryPayload();
   if(recoveryRowId){
-    await sb.from('resultats_1ere').update(payload).eq('id',recoveryRowId);
+    const {error}=await sb.from('resultats_1ere').update(payload).eq('id',recoveryRowId);
+    if(error){ recoveryDirty=true; console.warn('Brouillon non sauvegardé :', error.message); }
   } else {
-    const {data}=await sb.from('resultats_1ere').insert(payload).select('id').single();
+    const {data,error}=await sb.from('resultats_1ere').insert(payload).select('id').single();
+    if(error) console.warn('Brouillon non créé :', error.message);
     if(data&&data.id){
       if(recoveryClosed) sb.from('resultats_1ere').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
       else recoveryRowId=data.id;
@@ -1995,46 +2036,13 @@ async function clearRecovery(){
   const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
   recoveryRowId=null;
   try{
-    if(id) await sb.from('resultats_1ere').delete().eq('id',id);
-    if(eid){ const {data}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
+    if(id){ const {error}=await sb.from('resultats_1ere').delete().eq('id',id);
+      if(error) console.warn('Brouillon non supprimé :', error.message); }
+    if(eid){ const {data,error}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
+      if(error) console.warn('Recherche des brouillons impossible :', error.message);
       const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
       for(const r of old){ await sb.from('resultats_1ere').delete().eq('id',r.id); } }
   }catch(e){}
-}
-async function openTest_OLD(testId){
-  currentTestId=testId;
-  const t=TESTS[testId];
-  $('modeTitle').textContent=t.name;
-  $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
-  show('mode');
-  cfg=await loadConfig();
-  const unlocked=!!(cfg.locks && cfg.locks[testId]);
-  // chercher une session mise en pause pour ce test (entraînement / soutien)
-  pausedRows={};
-  try{
-    const {data}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
-  }catch(e){}
-  const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
-  const trainCard = pausedRows.train
-    ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue !`,`resumeTest('train')`,'resume')
-    : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux.',`currentMode='train';TESTS['${testId}'].start()`);
-  const soutienCard = pausedRows.soutien
-    ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue !`,`resumeTest('soutien')`,'resume')
-    : cardHTML('🛟','Mode soutien','À chaque étape, on me dit si c\u2019est juste ou faux, et je corrige jusqu\u2019à réussir.',`currentMode='soutien';TESTS['${testId}'].start()`);
-  const evalCard= unlocked
-    ? cardHTML('🔓','Évaluation','Mode noté, ouvert par le professeur.',`currentMode='eval';TESTS['${testId}'].start()`)
-    : cardHTML('🔒','Évaluation','','',`locked`,'Déverrouillé par le professeur pendant l\u2019évaluation.');
-  $('modeChoices').innerHTML=trainCard+soutienCard+evalCard;
-}
-async function pauseTest_OLD(){
-  if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
-  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
-  $('pauseBtn').hidden=true;
-  try{ await doRecoverySave(); toast('Mis en pause — tu pourras reprendre plus tard ✓','ok'); }
-  catch(e){ toast('Pause non enregistrée (connexion)','err'); }
-  recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
-  renderChooser(); show('choose');
 }
 async function resumeTest(mode){
   const row=pausedRows&&pausedRows[mode];
@@ -2082,21 +2090,6 @@ function configReady(){
 function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
 
 /* ---------- Navigation ---------- */
-function show_OLD(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  $('scr-'+name).classList.add('on');
-  const testScreens=['test','mtest','ftest','ptest','mdtest','utest','atest','dtest','fptest','ag2test','a2qtest','syntest'];
-  const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
-  $('pauseBtn').hidden=!canPause;
-  const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
-    pill.hidden=false;
-    pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
-  }else if(name==='teacher'){
-    pill.hidden=false; pill.innerHTML=`Professeur <button onclick="quitToHome()">Quitter</button>`;
-  }else{ pill.hidden=true; }
-  window.scrollTo({top:0,behavior:'smooth'});
-}
 function quitToHome(){ currentEleve=null; show('home'); }
 function logout(){ currentEleve=null; show('home'); }
 
@@ -2138,7 +2131,8 @@ async function creerCompte(){
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
-    const {data:exist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
+    const {data:exist,error:errExist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
+    if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
     const {data,error}=await sb.from('eleves_1ere').insert({prenom,pin}).select().single();
     if(error)throw error;
@@ -2149,33 +2143,6 @@ async function creerCompte(){
 }
 
 /* ---------- Espace élève ---------- */
-async function ouvrirEspace_OLD(){
-  $('spaceHello').textContent=`Bonjour, ${esc(currentEleve.prenom)} !`;
-  show('space');
-  $('sNb').textContent='…'; $('sAvg').textContent='…'; $('sBest').textContent='…';
-  $('spaceChart').innerHTML='<span class="muted">Chargement…</span>'; $('spaceHist').innerHTML='';
-  try{
-    const {data:all,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
-    if(error)throw error;
-    const data=(all||[]).filter(r=>!isPaused(r));
-    const n=data.length;
-    $('sNb').textContent=n;
-    $('spaceSub').textContent=n?`${n} test(s) cette année`:`Prêt pour ton premier test`;
-    if(n){
-      const avg=Math.round(data.reduce((s,r)=>s+r.percent,0)/n);
-      const best=Math.max(...data.map(r=>r.percent));
-      $('sAvg').textContent=avg+' %'; $('sBest').textContent=best+' %';
-    }else{ $('sAvg').textContent='—'; $('sBest').textContent='—'; }
-    $('spaceChart').innerHTML=lineChart(data.map(r=>r.percent));
-    const recent=[...data].reverse().slice(0,6);
-    $('spaceHist').innerHTML=recent.length?recent.map(r=>{
-      const m=modeOf(r), cls=m==='train'?'train':(m==='soutien'?'soutien':'eval'), lbl=m==='train'?'entraînement':(m==='soutien'?'soutien':'éval');
-      return `<li><span class="d">${fmtDate(r.created_at)} · ${esc(testName(testIdOf(r)))} <span class="mode-tag ${cls}" style="font-size:.7rem;padding:1px 7px">${lbl}</span></span>
-        <span class="sc">${r.score} / ${r.total}</span>
-        <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
-      :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
-  }catch(e){ toast('Impossible de charger ton espace','err'); }
-}
 
 /* ---------- Petit graphique de progression (SVG) ---------- */
 function lineChart(values){
@@ -2687,7 +2654,7 @@ function checkMAnswer(live){
     el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
     const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
     if(!ok){ resultOk=false;
-      if(!soutien){ if(v===''){ el.value=exp; } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+      if(currentMode==='train'){ if(v===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
     }
   });
   // 2) Retenue : facultative — ignorée si vide, mais doit être juste si elle est écrite
@@ -2698,7 +2665,7 @@ function checkMAnswer(live){
     if(v===''){ return; }                       // non utilisée : on ne l'évalue pas
     const ok=(v===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
     const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-    if(!ok){ carryOk=false; if(!soutien){ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
   });
   const allOk = resultOk && carryOk;
   if(!allOk && soutien){ soutienAgain('mpFeedback','mpActions','checkMAnswer','mpHost'); return; }
@@ -2727,14 +2694,6 @@ async function finishMTest(){
 }
 
 /* ---------- Sauvegarde générique d'un résultat ---------- */
-async function saveAndShow(testId){
-  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
-  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:testId,misses,...(currentDM?{dm:currentDM}:{})}}); }
-  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
-  showResults({score,total,percent:pct,durationSec});
-}
 
 /* ---------- Test 3 : fractions décimales ---------- */
 function isPow10(x){ if(!Number.isInteger(x)||x<1)return false; while(x%10===0)x/=10; return x===1; }
@@ -3388,11 +3347,25 @@ function genFP(){
   return q;
 }
 function fpFracHTML(n,d){ return mlTex('\\frac{'+n+'}{'+d+'}', n+'/'+d); }
+/* Série sans répétition : les 6 fractions d'un même test sont toutes différentes
+   (17 fractions possibles, donc toujours réalisable). Le garde-fou évite toute
+   boucle infinie si le vivier venait à rétrécir. */
+function genFPSerie(n){
+  const vus=new Set(), qs=[];
+  let garde=400;
+  while(qs.length<n && garde-->0){
+    const q=genFP(), s=q.a+'/'+q.b;
+    if(vus.has(s)) continue;
+    vus.add(s); qs.push(q);
+  }
+  while(qs.length<n) qs.push(genFP());
+  return qs;
+}
 async function startFP(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='fp';
-  test.questions=Array.from({length:6},genFP);
+  test.questions=genFPSerie(6);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('fptest'); renderFPTest();
 }
@@ -3403,18 +3376,28 @@ function renderFPTest(){
   $('fpLiveScore').textContent=test.score;
   $('fpFeedback').textContent=''; $('fpFeedback').className='mp-feedback';
   $('fpActions').innerHTML='<button class="btn btn-primary" onclick="checkFPAnswer()">Vérifier</button>';
-  $('fpPrompt').innerHTML=variante(FP_ENONCES,q);
+  $('fpPrompt').innerHTML=variante(FP_ENONCES,q)+' Termine par la méthode 2 : la même fraction, avec un dénominateur de 100.';
   const segsL=Array.from({length:q.b},(_,i)=>`<div class="fp-seg${i<q.selL?' on':''}" onclick="fpClickL(${i+1})"></div>`).join('');
   const segsR=Array.from({length:20},(_,i)=>`<div class="fp-seg${i<q.selR?' on':''}" onclick="fpClickR(${i+1})"></div>`).join('');
   $('fpHost').innerHTML=
-    `<div class="fp-zone">`+
-      `<div class="fp-bloc"><div class="fp-col" id="fpColL">${segsL}</div>`+
-        `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div>`+
-        `<div class="fp-lab">la fraction</div></div>`+
-      `<div class="fp-bloc"><div class="fp-col fp-colr" id="fpColR">${segsR}</div>`+
-        `<div class="fp-val" id="fpValR">${q.selR?(q.selR*5+' %'):'… %'}</div>`+
-        `<div class="fp-lab">le pourcentage</div></div>`+
-    `</div>`;
+    `<div class="pt-step"><div class="pt-lab">Méthode 1 : colorie, puis choisis la même hauteur</div>
+    <div class="fp-zone">`+
+      `<div class="fp-bloc"><div class="fp-lab">pour 1</div>`+
+        `<div class="fp-col" id="fpColL">${segsL}</div>`+
+        `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div></div>`+
+      `<div class="fp-bloc"><div class="fp-lab">pour 100</div>`+
+        `<div class="fp-col fp-colr" id="fpColR">${segsR}</div>`+
+        `<div class="fp-val" id="fpValR">${q.selR?(q.selR*5+' %'):'… %'}</div></div>`+
+    `</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">Méthode 2 : rends le dénominateur égal à 100</div>
+       <div class="pt-row">`+
+         `<span class="f-frac-input"><span class="fpm-ligne"><span class="fpm-const">${q.a} ×</span><math-field class="dexp-mf pm-mf f-num" id="fm1n" aria-label="multiplicateur du numérateur"></math-field></span><span class="f-fbar"></span><span class="fpm-ligne"><span class="fpm-const">${q.b} ×</span><math-field class="dexp-mf pm-mf f-den" id="fm1d" aria-label="multiplicateur du dénominateur"></math-field></span></span>`+
+         `<span class="f-eq">=</span>`+
+         `<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="fm2n" aria-label="numérateur sur 100"></math-field><span class="f-fbar"></span><span class="fpm-ligne"><span class="fpm-const">100</span></span></span>`+
+         `<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="fm3" aria-label="le pourcentage"></math-field><span class="f-whole">%</span>`+
+       `</div></div>`;
+  const ordre=['fm1n','fm1d','fm2n','fm3'].map(id=>$(id));
+  ordre.forEach((el,i)=>{ if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<ordre.length-1)ordre[i+1].focus(); else checkFPAnswer();} }); });
 }
 /* Cliquer sur un segment colorie jusqu'à lui ; recliquer le dernier efface d'un cran. */
 function fpMaj(){
@@ -3444,10 +3427,19 @@ function checkFPAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   const colL=$('fpColL'), colR=$('fpColR'); if(!colL||!colR) return;
+  const k=100/q.b;                                   /* le multiplicateur qui amène le dénominateur à 100 */
   const okL=(q.selL===q.a), okR=(q.selR*5===q.pct);
-  if(live){   /* soutien : on ne juge une colonne que si l'élève y a choisi quelque chose */
+  const v=id=>{const e=$(id);return e?String(e.value||'').trim():'';};
+  if(live){   /* soutien : on ne juge que ce qui est déjà choisi ou écrit */
     colL.classList.remove('ok','bad'); if(q.selL>0) colL.classList.add(okL?'ok':'bad');
     colR.classList.remove('ok','bad'); if(q.selR>0) colR.classList.add(okR?'ok':'bad');
+    /* chaque multiplicateur doit valoir exactement 100/b : « 3/3 » agrandirait
+       la fraction sans amener le dénominateur à 100 */
+    ['fm1n','fm1d'].forEach(id=>{ const el=$(id); if(!el||el.disabled) return;
+      const vv=String(el.value||'').trim(); el.classList.remove('ok','bad');
+      if(vv!=='') el.classList.add(parseInt(vv,10)===k?'ok':'bad'); });
+    liveColorDec('fm2n',q.pct,1);
+    liveColorDec('fm3',q.pct,1);
     return;
   }
   if(q.selL===0 || q.selR===0){
@@ -3456,24 +3448,33 @@ function checkFPAnswer(live){
   }
   colL.classList.remove('ok','bad'); colL.classList.add(okL?'ok':'bad');
   colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
-  const allOk=okL&&okR;
-  if(!allOk && isSoutien()){ soutienAgain('fpFeedback','fpActions','checkFPAnswer','fpHost'); return; }
+  /* méthode 2 : a×n / b×d = pct/100 exige n = d = 100/b, exactement */
+  const okE = v('fm1n')!=='' && v('fm1d')!=='' && parseInt(v('fm1n'),10)===k && parseInt(v('fm1d'),10)===k;
+  const f2=parseDecToFrac(v('fm2n')); const okN = !!f2 && f2.n===q.pct*f2.d;
+  const f3=parseDecToFrac(v('fm3'));  const okP = !!f3 && f3.n===q.pct*f3.d;
+  const soutien=isSoutien();
+  const mark=(id,ok)=>{const el=$(id);if(!el)return;el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('fm1n',okE); mark('fm1d',okE); mark('fm2n',okN); mark('fm3',okP);
+  const allOk=okL&&okR&&okE&&okN&&okP;
+  if(!allOk && soutien){ soutienAgain('fpFeedback','fpActions','checkFPAnswer','fpHost'); return; }
   test.locked=true;
-  const egal=fpFracHTML(q.a,q.b)+' = <b>'+q.pct+'\u00a0%</b>';
+  const egal=fpFracHTML(q.a,q.b)+' = '+fpFracHTML(q.a*k,100)+' = <b>'+q.pct+'\u00a0%</b>';
   if(allOk){ test.score++; $('fpLiveScore').textContent=test.score;
     $('fpFeedback').innerHTML=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !'])+' '+egal;
     $('fpFeedback').className='mp-feedback good';
   } else {
-    $('fpFeedback').innerHTML='Réponse : '+egal+' — la même hauteur dans les deux colonnes.';
+    $('fpFeedback').innerHTML='Réponse : '+egal+' — on multiplie le numérateur ET le dénominateur par '+k+'.';
     $('fpFeedback').className='mp-feedback bad';
-    /* mode entraînement : la bonne hauteur apparaît en bleu sur chaque colonne fausse */
+    /* mode entraînement : la bonne hauteur apparaît en bleu sur chaque colonne fausse,
+       et les cases de la méthode 2 reçoivent leurs corrections bleues */
     if(currentMode==='train'){
       [[colL,okL],[colR,okR]].forEach(p=>{ if(!p[1] && !p[0].querySelector('.fp-cible'))
         p[0].insertAdjacentHTML('beforeend','<div class="fp-cible" style="bottom:'+q.pct+'%"></div>'); });
     }
+    corTrainDec('fm1n',k); corTrainDec('fm1d',k); corTrainDec('fm2n',q.pct); corTrainDec('fm3',q.pct);
   }
   test.answers.push({...(ptsExo()||{}), q:q.a+'/'+q.b+' en pourcentage',
-    answer:q.a+'/'+q.b+' = '+q.pct+' %', given:q.selL+'/'+q.b+' et '+(q.selR*5)+' %', correct:allOk});
+    answer:q.a+'/'+q.b+' = '+(q.a*k)+'/100 = '+q.pct+' %', given:q.selL+'/'+q.b+', '+(q.selR*5)+' % et '+(v('fm3')||'—')+' %', correct:allOk});
   const last=test.idx===test.questions.length-1;
   $('fpActions').innerHTML='<button class="btn btn-primary" id="fpNext" onclick="nextFPQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   $('fpNext').focus();
@@ -3672,7 +3673,7 @@ function checkAG2Answer(live){
       const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
       el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
     });
     carries.forEach(el=>{
       const exp=el.dataset.exp, vv=el.value.trim();
@@ -3681,7 +3682,7 @@ function checkAG2Answer(live){
       if(vv==='') return;
       const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
     });
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
@@ -3910,7 +3911,7 @@ function checkWAnswer(live){
       const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
       el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
     });
     carries.forEach(el=>{
       const exp=el.dataset.exp, vv=el.value.trim();
@@ -3919,7 +3920,7 @@ function checkWAnswer(live){
       if(vv==='') return;
       const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
     });
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
@@ -4240,7 +4241,7 @@ function checkSynAnswer(live){
       const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
       el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
     });
     carries.forEach(el=>{
       const exp=el.dataset.exp, vv=el.value.trim();
@@ -4249,7 +4250,7 @@ function checkSynAnswer(live){
       if(vv==='') return;
       const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'\u2713':'\u2717'; cl.appendChild(tag);
-      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
     });
   };
   if(q.fam==='pct'){
@@ -4412,7 +4413,9 @@ function leurresProches(N){
 /* --- Retrouver la valeur initiale : P et R donn\u00e9s, N \u00e0 choisir --- */
 function genPctDepart(){
   let P,N;
-  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  /* N=10 est exclu : leurresProches(10) donnerait 5…9, pas des multiples de 10,
+     et la vérification d'une mauvaise proposition tomberait sur un décimal. */
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || N===10);
   const prod=P*N;
   /* P est un multiple de 10 et les leurres des multiples de 10 : P×leurre reste
      divisible par 100, la vérification d'une mauvaise proposition tombe juste. */
@@ -4510,7 +4513,7 @@ function checkQAnswer(live){
   const f2n=iv('q2n'), f2d=iv('q2d');
   const ok2 = v('q2n')!=='' && v('q2d')!=='' && !isNaN(f2n) && !isNaN(f2d) && f2d!==0 && f2n*100===prod*f2d;
   const fr=parseDecToFrac(v('q3'));
-  const ok3 = !!fr && fr.n===res*fr.d;
+  const ok3 = !!fr && fr.n*100===prod*fr.d;      /* tout en entiers : jamais de flottant */
   const okChoix=(q.choisi===q.bon), calculOk=ok1&&ok2&&ok3, allOk=calculOk&&okChoix;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
   mark('q1n',ok1); mark('q1d',ok1); mark('q2n',ok2); mark('q2d',ok2); mark('q3',ok3);
@@ -4734,7 +4737,7 @@ function checkAAnswer(live){
       const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
       el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
     });
     aCarries.forEach(el=>{
       const exp=el.dataset.exp, vv=el.value.trim();
@@ -4743,7 +4746,7 @@ function checkAAnswer(live){
       if(vv===''){return;}
       const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
     });
   } else {
     [...aBoxes,...aCarries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
@@ -4859,20 +4862,26 @@ const AUGQ_CTX=[
   {s:'Un prix', u:'€', g:'m', nOk:x=>x>=20&&x<=990},
   {s:'Un salaire', u:'€', g:'m', nOk:x=>x>=900},
   {s:'Un loyer', u:'€', g:'m', nOk:x=>x>=200&&x<=2200},
-  {s:'La population d’une ville', u:'habitants', g:'f', nOk:x=>x>=1000},
-  {s:'L’effectif d’un club', u:'licenciés', g:'m', nOk:x=>x>=50&&x<=990},
-  {s:'La production d’une usine', u:'pièces', g:'f', nOk:x=>x>=100},
-  {s:'La fréquentation d’un musée', u:'visiteurs', g:'f', nOk:x=>x>=100},
+  {s:'La population d’une ville', u:'habitants', g:'f', ent:true, nOk:x=>x>=1000},
+  {s:'L’effectif d’un club', u:'licenciés', g:'m', ent:true, nOk:x=>x>=50&&x<=990},
+  {s:'La production d’une usine', u:'pièces', g:'f', ent:true, nOk:x=>x>=100},
+  {s:'La fréquentation d’un musée', u:'visiteurs', g:'f', ent:true, nOk:x=>x>=100},
   {s:'Une surface cultivée', u:'hectares', g:'f', nOk:x=>x>=20&&x<=990},
-  {s:'La capacité d’une salle', u:'places', g:'f', nOk:x=>x>=50&&x<=990},
+  {s:'La capacité d’une salle', u:'places', g:'f', ent:true, nOk:x=>x>=50&&x<=990},
   /* sans condition : garantit qu'un sujet convient toujours */
-  {s:'Un stock', u:'articles', g:'m'}
+  {s:'Un stock', u:'articles', g:'m', ent:true}
 ];
 /* Le sujet est choisi d'après le nombre que l'énoncé AFFICHE : la valeur finale
-   quand on cherche la valeur initiale, la valeur initiale quand on cherche le %. */
-function augqTirerCtx(ref){
-  const ok=[]; AUGQ_CTX.forEach((c,i)=>{ if(!c.nOk || c.nOk(ref)) ok.push(i); });
-  return pick(ok.length?ok:[AUGQ_CTX.length-1]);
+   quand on cherche la valeur initiale, la valeur initiale quand on cherche le %.
+   Les contextes ent:true (unités dénombrables) sont écartés dès que la valeur
+   finale n'est pas entière : pas de « 52,5 licenciés ». Les euros et hectares
+   acceptent les décimaux. entier se déduit de ref, sauf indication contraire
+   (les générateurs « taux » affichent N entier ET une finale parfois décimale). */
+function augqTirerCtx(ref, entier){
+  if(entier===undefined) entier=Number.isInteger(ref);
+  const ok=[]; AUGQ_CTX.forEach((c,i)=>{ if((entier||!c.ent) && (!c.nOk || c.nOk(ref))) ok.push(i); });
+  if(ok.length) return pick(ok);
+  return entier ? AUGQ_CTX.length-1 : 0;    /* replis : le stock, ou un prix en euros */
 }
 function augqCtx(q){ return AUGQ_CTX[q.ci]||AUGQ_CTX[0]; }
 function augqIl(q){ return augqCtx(q).g==='f'?'elle':'il'; }
@@ -4941,7 +4950,7 @@ function genAugTaux(){
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
   const coef=100+P, prodNum=N*coef;
-  const ci=augqTirerCtx(N);                      /* c'est la valeur initiale qui est affichée */
+  const ci=augqTirerCtx(N, prodNum%100===0);     /* N est affiché, mais la finale aussi */
   const q={type:'pct',P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
     opts,bon:opts.indexOf(P),choisi:null};
@@ -4970,7 +4979,7 @@ function genDimTaux(){
   const leurres=qdMelanger(AUGQ_PCTS.filter(x=>x!==P)).slice(0,3);
   const opts=qdMelanger(leurres.concat([P]));
   const coef=100-P, prodNum=N*coef;
-  const ci=augqTirerCtx(N);                      /* c'est la valeur initiale qui est affichée */
+  const ci=augqTirerCtx(N, prodNum%100===0);     /* N est affiché, mais la finale aussi */
   const q={type:'pct',sens:-1,P,N,coef,prodNum,unit:AUGQ_CTX[ci].u,ci,
     coefDec:String(coef/100).replace('.',','), decStr:String(prodNum/100).replace('.',','),
     opts,bon:opts.indexOf(P),choisi:null};
@@ -5084,7 +5093,7 @@ function checkVAnswer(live){
       const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
       el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
     });
     carries.forEach(el=>{
       const exp=el.dataset.exp, vv=el.value.trim();
@@ -5093,7 +5102,7 @@ function checkVAnswer(live){
       if(vv==='') return;
       const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
     });
   } else {
     [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
@@ -5247,7 +5256,7 @@ function checkDAnswer(live){
       const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
       el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && !soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} }
     });
     dCarries.forEach(el=>{
       const exp=el.dataset.exp, vv=el.value.trim();
@@ -5256,7 +5265,7 @@ function checkDAnswer(live){
       if(vv===''){return;}
       const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
       const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && !soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
+      if(!ok && currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); }
     });
   } else {
     [...dBoxes,...dCarries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
@@ -5346,8 +5355,9 @@ function renderMDTest(){
   $('mdHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
        <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}<span class="f-eq">=</span>${frac('md3n','md3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field></div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Pose la multiplication des numérateurs et complète-la <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:8px 0 14px">${posed}</div></div>`;
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
+       <div class="pt-row" style="padding:8px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
   const posedIns=[...$('mdMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('md1n'),$('md1d'),$('md2n'),$('md2d'),...posedIns,$('md3n'),$('md3d'),$('mdDec')];
   /* la pose reste dans l'ordre de saisie : fractions, pose, produit, décimal */
@@ -5386,7 +5396,7 @@ function checkMDAnswer(live){
     const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
     el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
     const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-    if(!ok){ resultOk=false; if(!soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
+    if(!ok){ resultOk=false; if(currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
   });
   carries.forEach(el=>{
     const exp=el.dataset.exp, vv=el.value.trim();
@@ -5395,7 +5405,7 @@ function checkMDAnswer(live){
     if(vv===''){return;}                       // retenue non écrite : ignorée
     const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
     const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-    if(!ok){ carryOk=false; if(!soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); } }
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); } }
   });
   const okP = resultOk && carryOk;
   // étape 3 : fraction produit (toute fraction égale au résultat)
@@ -5504,8 +5514,9 @@ function renderUTest(){
   $('uHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
        <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}<span class="f-eq">=</span>${frac('u3n','u3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field></div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Pose la multiplication des numérateurs (le plus court en bas) et complète chaque ligne <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:6px 0 14px">${posed}</div></div>`;
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, le plus court en bas <span style="font-weight:600;color:var(--red)">(retenues facultatives)</span></div>
+       <div class="pt-row" style="padding:6px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
   const collect=(pref,V)=>{ const a=[],L=String(V).length; for(let j=0;j<L;j++)a.push($(pref+j)); return a; };
   const order=[$('u1n'),$('u1d'),$('u2n'),$('u2d'),...collect('ua',q.v1),...collect('ub',q.v2),...collect('us',q.prodNum),$('u3n'),$('u3d'),$('uDec')];
   order.forEach((el,i)=>{
@@ -5543,7 +5554,7 @@ function checkUAnswer(live){
     const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
     el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
     const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-    if(!ok){ resultOk=false; if(!soutien){ if(vv===''){el.value=exp;} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
+    if(!ok){ resultOk=false; if(currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f);} } }
   });
   // retenues : facultatives — ignorées si vides, mais justes si écrites
   const carries=[...mulHost.querySelectorAll('.mp-carry')];
@@ -5555,7 +5566,7 @@ function checkUAnswer(live){
     if(vv===''){return;}
     const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
     const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-    if(!ok){ carryOk=false; if(!soutien){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); } }
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span');f.className='mp-fix';f.textContent=exp;cl.appendChild(f); } }
   });
   const okP=resultOk&&carryOk;
   // étape 3 : fraction produit (toute fraction égale)
@@ -5938,7 +5949,8 @@ async function addStudent(){
   if(!prenom){ toast('Écris un prénom'); return; }
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   try{
-    const {data:exist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
+    const {data:exist,error:errExist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
+    if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà','err'); return; }
     const {error}=await sb.from('eleves_1ere').insert({prenom,pin}); if(error)throw error;
     $('addPrenom').value='';$('addPin').value=''; toast('Élève ajouté','ok'); renderRoster();
@@ -5962,8 +5974,12 @@ async function resetYear(){
   if(!confirm('Supprimer TOUS les comptes et TOUT l\'historique ? À ne faire qu\'à la rentrée.'))return;
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
-    await sb.from('resultats_1ere').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    await sb.from('eleves_1ere').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    /* supabase-js ne lève pas d'exception : il faut tester error, sinon le
+       toast « réinitialisée » s'afficherait même si rien n'a été supprimé */
+    const r1=await sb.from('resultats_1ere').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(r1.error){ toast('Réinitialisation impossible : '+r1.error.message,'err'); return; }
+    const r2=await sb.from('eleves_1ere').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(r2.error){ toast('Comptes non supprimés : '+r2.error.message,'err'); return; }
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
@@ -6753,6 +6769,13 @@ Une <b>fraction décimale</b> a pour dénominateur 10, 100, 1000…<br>
 Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : 47/100 = 0,47.<br>
 Inversement, 0,058 = 58/1000, car il y a trois chiffres après la virgule.<br>
 À retenir : les zéros finaux d’un numérateur « tombent » contre les zéros du dénominateur — 300/100 = 3.`;
+const RAP_CM=`<b>Le calcul mental</b><br>
+Quatre opérations, et pour chacune un réflexe qui simplifie le calcul de tête :<br>
+<b>addition</b> — compléter d’abord à la dizaine : 47 + 28 = 47 + 3 + 25 = 50 + 25 = 75 ;<br>
+<b>soustraction</b> — c’est un écart : pour 62 − 47, avancer de 47 à 50 (3) puis de 50 à 62 (12), soit 15 ;<br>
+<b>multiplication</b> — découper : 7 × 16 = 7 × 10 + 7 × 6 = 70 + 42 = 112 ;<br>
+<b>division</b> — chercher « combien de fois » : 72 ÷ 8, c’est trouver le nombre qui, multiplié par 8, donne 72.<br>
+Et toujours : un ordre de grandeur d’abord — si 47 + 28 doit faire environ 75, une réponse à 615 saute aux yeux.`;
 const RAP_TM=`<b>Les tables de multiplication</b><br>
 Une table connue par cœur libère la tête pour raisonner. Quelques appuis utiles :<br>
 la multiplication est <b>commutative</b> (7 × 8 = 8 × 7 : une seule chose à retenir pour deux calculs) ;<br>
@@ -6773,9 +6796,9 @@ Si le calcul est juste mais que le résultat ne correspond pas, c’est la propo
 Piège classique : une baisse de 20 % ne s’annule pas par une hausse de 20 % — on compare toujours à la valeur de DÉPART.`;
 const RAP_FP=`<b>Fraction et pourcentage</b><br>
 Un pourcentage est une fraction de dénominateur 100 : <b>x % = x/100</b>.<br>
-Quand le dénominateur divise 100, la conversion est directe : on partage 100 % en b parts égales, chaque part vaut 100/b %.<br>
-Exemple : la colonne divisée en 4 → chaque part vaut 25 %, donc 3/4 = 3 × 25 % = 75 %.<br>
-À la même hauteur correspondent la fraction ET le pourcentage : deux écritures d’une seule quantité.<br>
+<b>Méthode 1, avec les colonnes</b> : on partage 100 % en b parts égales, chaque part vaut 100/b % — à la même hauteur correspondent la fraction ET le pourcentage.<br>
+<b>Méthode 2, par le calcul</b> : on multiplie le numérateur ET le dénominateur par le même nombre pour amener le dénominateur à 100 : 3/4 = (3 × 25)/(4 × 25) = 75/100 = 75 %.<br>
+Les deux méthodes donnent le même pourcentage : deux écritures d’une seule quantité.<br>
 À retenir : 1/2 = 50 %, 1/4 = 25 %, 3/4 = 75 %, 1/5 = 20 %, 1/10 = 10 %.`;
 const RAP_AG2=`<b>Augmenter en calculant l\u2019augmentation</b><br>
 Augmenter de <b>P %</b>, c\u2019est ajouter P % de la valeur : on calcule d\u2019abord <b>l\u2019augmentation</b> elle-même, P/100 × valeur, exactement comme en 3.1.1.<br>
@@ -6796,7 +6819,7 @@ const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
 \u2014 en calculant <b>l\u2019augmentation ou la baisse</b> : P/100 × valeur, puis on l\u2019ajoute ou on la retire.<br>
 Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
 Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
-const RAPPELS={ augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
+const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, P/100 × valeur, exactement comme en 3.1.1.<br>
@@ -6958,10 +6981,12 @@ function conseilCtxCourant(){
       +'étape \u2465 nouvelle valeur '+q.fin+' '+q.unit+'. '
       +'Méthode enseignée : calculer '+(ng2?'la baisse':'l\u2019augmentation')+' comme en 3.1.1 (P/100 × valeur), puis '+(ng2?'la RETIRER de':'l\u2019AJOUTER à')+' la valeur de départ — sans coefficient multiplicateur.';
   } else if(k==='fp' && q){
-    att='Exercice visuel : colorier '+q.a+'/'+q.b+' d\u2019une colonne divis\u00e9e en '+q.b+' parts \u00e9gales, puis choisir la m\u00eame hauteur sur une colonne gradu\u00e9e de 5 en 5 %. '
-      +'R\u00e9ponses attendues, STRICTEMENT SECR\u00c8TES : '+q.a+' parts colori\u00e9es \u00e0 gauche, '+q.pct+' % \u00e0 droite. '
+    const kf=100/q.b;
+    att='Exercice en deux m\u00e9thodes. M\u00e9thode 1, visuelle : colorier '+q.a+'/'+q.b+' d\u2019une colonne divis\u00e9e en '+q.b+' parts \u00e9gales, puis choisir la m\u00eame hauteur sur une colonne gradu\u00e9e de 5 en 5 %. '
+      +'M\u00e9thode 2, par le calcul : compl\u00e9ter '+q.a+' \u00d7 \u25a2 / '+q.b+' \u00d7 \u25a2 = \u25a2/100 = \u25a2 %. '
+      +'R\u00e9ponses attendues, STRICTEMENT SECR\u00c8TES : '+q.a+' parts colori\u00e9es et '+q.pct+' % choisis (m\u00e9thode 1) ; multiplicateur '+kf+' dans les DEUX cases, num\u00e9rateur '+(q.a*kf)+', pourcentage '+q.pct+' % (m\u00e9thode 2). '
       +'L\u2019\u00e9l\u00e8ve a colori\u00e9 '+(q.selL||0)+' part(s) et choisi '+((q.selR||0)*5)+' %. '
-      +'M\u00e9thode enseign\u00e9e : 100 % partag\u00e9 en '+q.b+' parts \u00e9gales donne '+(100/q.b)+' % par part ; '+q.a+' parts font '+q.a+' \u00d7 '+(100/q.b)+' % = '+q.pct+' %.';
+      +'M\u00e9thode enseign\u00e9e : chaque part vaut '+kf+' % ; multiplier num\u00e9rateur ET d\u00e9nominateur par '+kf+' am\u00e8ne le d\u00e9nominateur \u00e0 100 sans changer la fraction.';
   } else if(k==='mp' && q){
     att='Multiplication posée : '+q.a+' × '+q.m+'. Réponses attendues, STRICTEMENT SECRÈTES : retenue '+q.carry1+', résultat '+q.result+'. '
       +'Méthode : multiplier d’abord les unités, écrire le chiffre des unités du produit et retenir les dizaines, puis multiplier les dizaines et AJOUTER la retenue. La case de retenue est facultative, mais si elle est écrite elle doit être juste.';
@@ -7079,10 +7104,11 @@ const QIA_MODELES={
   },
   fp:function(){
     const q=qdmAutre(genFP, c=>c.a+'/'+c.b);
+    const kf=100/q.b;
     return ['Convertir '+q.a+'/'+q.b+' en pourcentage :',
-      'La colonne est divis\u00e9e en '+q.b+' parts \u00e9gales, et 100 % \u00f7 '+q.b+' = '+(100/q.b)+' % : chaque part vaut '+(100/q.b)+' %.',
-      'On colorie '+q.a+' part'+(q.a>1?'s':'')+', soit '+q.a+' \u00d7 '+(100/q.b)+' % = '+q.pct+' %.',
-      'Donc \\('+qdmFrac(q.a,q.b)+' = '+q.pct+'\\, \\%\\).'].join('\n');
+      'M\u00e9thode 1 : la colonne est divis\u00e9e en '+q.b+' parts \u00e9gales, chaque part vaut 100 \u00f7 '+q.b+' = '+kf+' %. On colorie '+q.a+' part'+(q.a>1?'s':'')+', soit '+q.a+' \u00d7 '+kf+' % = '+q.pct+' %.',
+      'M\u00e9thode 2 : \\('+qdmFrac(q.a,q.b)+' = '+qdmFrac(q.a+' \\times '+kf, q.b+' \\times '+kf)+' = '+qdmFrac(q.a*kf,100)+' = '+q.pct+'\\, \\%\\).',
+      'Les deux m\u00e9thodes donnent le m\u00eame r\u00e9sultat : '+q.a+'/'+q.b+' = '+q.pct+' %.'].join('\n');
   },
   md:function(){
     const q=qdmAutre(genMultDec, c=>c.aStr+'x'+c.bStr);

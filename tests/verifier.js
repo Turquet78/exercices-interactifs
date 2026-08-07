@@ -33,6 +33,14 @@ function structure(){
   titre('1. STRUCTURE DU FICHIER');
   const s = lire(CIBLE);
 
+  /* sans lui, le navigateur passe en mode quirks et la mise en page casse sur mobile */
+  verifier('<!DOCTYPE html> en première ligne', /^<!DOCTYPE html>/i.test(s));
+
+  /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit
+     destructurer error — sinon l'échec est silencieux (piège documenté) */
+  const sansError = [...s.matchAll(/const \{data(?::[A-Za-z_$][\w$]*)?\}=await sb/g)].length;
+  verifier('chaque appel Supabase destructure error', sansError === 0, sansError + ' appel(s) l’ignorent');
+
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
     const o = (css.match(/\{/g)||[]).length, f = (css.match(/\}/g)||[]).length;
@@ -211,6 +219,19 @@ function exercices(suite){
     })()`);
     verifier('g\u00e9n\u00e9rateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
 
+    /* s\u00e9rie du 3.1.4 : les six fractions d'un m\u00eame test sont toutes diff\u00e9rentes */
+    const fpSeriePb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<3000;k++){
+        const qs=genFPSerie(6);
+        if(qs.length!==6) pb++;
+        const sigs=qs.map(q=>q.a+'/'+q.b);
+        if(new Set(sigs).size!==6) pb++;
+      }
+      return pb;
+    })()`);
+    verifier('s\u00e9rie genFPSerie : 3000 tests de 6 fractions sans r\u00e9p\u00e9tition', fpSeriePb === 0, fpSeriePb + ' anomalies');
+
     /* augmenter par l'addition : augmentation enti\u00e8re (P\u00d7N divisible par 100),
        somme coh\u00e9rente, contexte et variante pr\u00e9sents */
     const agPb = w.eval(`(function(){
@@ -294,7 +315,7 @@ function exercices(suite){
     const sansRappel = w.eval(`(function(){
       const manquants=[];
       Object.keys(TESTS).forEach(function(id){
-        const k={ 'pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
+        const k={ 'calcul-mental':'cm','pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
                   'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
                   'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
                   'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn',
@@ -304,6 +325,90 @@ function exercices(suite){
       return manquants.join(', ');
     })()`);
     verifier('chaque exercice a son rappel de cours', sansRappel === '', sansRappel);
+
+    /* « Recommencer » doit relancer le MÊME exercice — le kind tm retombait sur
+       le calcul mental */
+    const relance = w.eval(`(function(){
+      let lance='';
+      const sauve={tm:startTM, tm2:startTM2, cm:startTest};
+      startTM=function(){lance='tm';}; startTM2=function(){lance='tm2';}; startTest=function(){lance='cm';};
+      test.kind='tm'; test.tmId='tables-multiplication';   restartCurrentTest(); const a=lance;
+      test.tmId='tables-multiplication-2';                 restartCurrentTest(); const b=lance;
+      startTM=sauve.tm; startTM2=sauve.tm2; startTest=sauve.cm;
+      return a+'/'+b;
+    })()`);
+    verifier('« Recommencer » relance bien chacune des deux tables', relance === 'tm/tm2', relance);
+
+    /* la pause doit conserver le devoir en cours, sinon la reprise ne crédite
+       jamais le devoir maison */
+    const dmGarde = w.eval(`(function(){
+      currentEleve={id:1,nom:'Contrôle'}; currentTestId='pourcentage'; currentDM='dm-controle';
+      test.kind='pct'; test.questions=[genPercent()]; test.idx=0; test.startTime=Date.now();
+      const d=recoveryPayload().details; currentDM=null;
+      return d.dm===\'dm-controle\' && d.state===\'paused\';
+    })()`);
+    verifier('la pause conserve le devoir maison en cours', dmGarde === true);
+
+    /* 2.2 : chaque proposition, bonne ou fausse, doit donner un calcul ENTIER
+       (N=10 produisait des leurres 5…9 et des vérifications décimales) */
+    const qdPb = w.eval(`(function(){
+      let pb=0;
+      for(let k=0;k<5000;k++){
+        const q=genPctDepart();
+        if(q.N===10) pb++;
+        q.opts.forEach(function(o){ if(o<=0 || o%10!==0 || (q.P*o)%100!==0) pb++; });
+      }
+      return pb;
+    })()`);
+    verifier('2.2 : les 4 propositions donnent toutes un calcul entier', qdPb === 0, qdPb + ' anomalies');
+
+    /* convention des modes dans les poses en colonnes : en ÉVALUATION, aucune
+       correction révélée ; en ENTRAÎNEMENT, la case vide est complétée en bleu */
+    const modesPose = w.eval(`(function(){
+      currentMode='eval';
+      test.kind='mp'; test.questions=[genMultPosee()]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+      show('mtest'); renderMTest();
+      checkMAnswer();
+      const host=document.getElementById('mpHost');
+      const fuites=[...host.querySelectorAll('.mp-box')].filter(b=>b.value.trim()!=='').length
+                  + host.querySelectorAll('.mp-fix').length;
+      currentMode='train'; test.locked=false; test.answers=[]; renderMTest();
+      checkMAnswer();
+      const bleues=[...document.getElementById('mpHost').querySelectorAll('.mp-box')]
+        .filter(b=>b.classList.contains('sol') && b.value.trim()!=='').length;
+      return fuites+'|'+bleues;
+    })()`);
+    const [fuites, bleues] = modesPose.split('|').map(Number);
+    verifier('en évaluation, la pose ne révèle rien', fuites === 0, fuites + ' case(s) révélée(s)');
+    verifier('en entraînement, la case vide est complétée en bleu', bleues > 0, 'aucune case .sol');
+
+    /* la pause doit capturer les saisies en cours, y compris les math-field
+       (elles étaient perdues : seuls les input à id étaient sauvés) */
+    const boxes = w.eval(`(function(){
+      currentMode='train'; test.kind='pct'; test.locked=false;
+      test.questions=[{P:30,N:40,unit:'€',prod:1200,result:12,ci:0,v:0}]; test.idx=0;
+      show('ptest'); renderPTest();
+      document.getElementById('p1n').value='30';
+      const m=captureBoxes();
+      document.getElementById('p1n').value='';
+      restoreBoxes(m);
+      return document.getElementById('p1n').value;
+    })()`);
+    verifier('la pause capture et restaure les saisies math-field', boxes === '30', 'restauré : « ' + boxes + ' »');
+
+    /* pas de « 52,5 licenciés » : une valeur finale décimale interdit les
+       contextes dénombrables (ent:true) dans les quatre générateurs augq */
+    const ctxPb = w.eval(`(function(){
+      let pb=0;
+      ['genAugDepart','genAugTaux','genDimDepart','genDimTaux'].forEach(function(nom){
+        for(let k=0;k<5000;k++){
+          const q=window[nom]();
+          if(q.prodNum%100!==0 && AUGQ_CTX[q.ci].ent) pb++;
+        }
+      });
+      return pb;
+    })()`);
+    verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
 
     suite();
   });

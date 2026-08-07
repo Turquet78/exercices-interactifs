@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!-- Calcul mental — version "comptes à l'année" (base de données Supabase). -->
 <!-- ========================================================================= -->
 <!--  ⚙️  À CONFIGURER : remplace les 3 valeurs ci-dessous (voir le guide).     -->
@@ -1194,7 +1195,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=9;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=10;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
