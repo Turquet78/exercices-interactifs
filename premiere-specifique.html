@@ -570,6 +570,13 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    pointillé la met à part, sa note renvoie vers la case qu'elle remplit. */
 .pt-outil{border:1.5px dashed var(--grid);border-radius:14px;padding:10px 12px 6px;margin-top:4px;background:rgba(0,0,0,.015);}
 .pt-pose-note{text-align:center;font-weight:800;color:var(--ink-soft);font-size:.92rem;margin:2px 0 6px;}
+/* Sur écran large, la pose-outil se range à DROITE des étapes, alignée en haut ;
+   sur écran étroit elle repasse naturellement dessous. */
+@media(min-width:1100px){
+  #mdHost,#uHost{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:30px;align-items:start;}
+  #mdHost .pt-step:not(.pt-outil),#uHost .pt-step:not(.pt-outil){grid-column:1;}
+  #mdHost .pt-outil,#uHost .pt-outil{grid-column:2;grid-row:1;margin-top:0;}
+}
 /* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
 .mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
@@ -1218,7 +1225,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=67;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=68;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
