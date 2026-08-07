@@ -8,7 +8,14 @@
    PRÉPARATION (une seule fois, depuis la racine du dépôt) :
      npm install --no-save playwright-core mathlive @supabase/supabase-js
    LANCEMENT :
-     node tests/simulation_eleves.js
+     node tests/simulation_eleves.js             simulation puis nettoyage
+     node tests/simulation_eleves.js --garder    conserve comptes et résultats
+                                                 en base pour les consulter
+     node tests/simulation_eleves.js --nettoyer  retire les comptes Test-* d'une
+                                                 exécution --garder (obligatoire
+                                                 avant de relancer la simulation :
+                                                 un prénom déjà pris fait échouer
+                                                 l'inscription)
    Nécessite un environnement dont la politique réseau autorise *.supabase.co
    (le script s'arrête proprement avec un message clair sinon).
    ========================================================================== */
@@ -57,6 +64,9 @@ function curlJSON(method, chemin, corps, entetes) {
   return { status: Number(brut.slice(idx + 1)), body: brut.slice(0, idx) };
 }
 
+const GARDER = process.argv.includes('--garder');
+const NETTOYER_SEUL = process.argv.includes('--nettoyer');
+
 const ELEVES = [
   { prenom: 'Test-Lea',  pin: '1111', plan: 'pct-train-juste' },
   { prenom: 'Test-Tom',  pin: '2222', plan: 'mp-train-erreurs' },
@@ -76,6 +86,23 @@ const ELEVES = [
     console.log('  → Ouvrir la politique réseau de l’environnement à *.supabase.co, puis relancer.');
     process.exit(2);
   }
+  /* --nettoyer : retirer les comptes Test-* d'une exécution --garder, sans simuler */
+  if (NETTOYER_SEUL) {
+    console.log('✓ Base joignable. Retrait des comptes de test.\n');
+    for (const e of ELEVES) {
+      const rows = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id&prenom=eq.' + encodeURIComponent(e.prenom)).body);
+      for (const r of rows) {
+        curlJSON('DELETE', '/rest/v1/resultats_1ere?eleve_id=eq.' + r.id);
+        curlJSON('DELETE', '/rest/v1/eleves_1ere?id=eq.' + r.id);
+        console.log('  ✓ ' + e.prenom + ' supprimé, résultats compris');
+      }
+      if (!rows.length) console.log('  · ' + e.prenom + ' : déjà absent');
+    }
+    const reste = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id,prenom').body);
+    console.log('\nComptes restants en base : ' + reste.length + ' → ' + reste.map(x => x.prenom).join(', '));
+    process.exit(0);
+  }
+
   console.log('✓ Base joignable (HTTP 200). Démarrage de la simulation.\n');
 
   /* garde-fou : on note les prénoms déjà présents pour ne JAMAIS y toucher */
@@ -178,7 +205,8 @@ const ELEVES = [
           });
           document.querySelector('#mpActions button').click();
         }, fauxPremiere && k === 0);
-        await page.waitForTimeout(250);
+        /* attendre le bouton plutôt qu'un délai fixe : 250 ms ont déjà manqué */
+        await page.waitForSelector('#mpNext', { timeout: 3000 }).catch(() => {});
         const next = await page.$('#mpNext');
         if (next) { await page.evaluate(() => document.getElementById('mpNext').click()); await attendreTransition(page, 'scr-mtest', idx); }
       }
@@ -220,6 +248,9 @@ const ELEVES = [
   for (const e of ELEVES) {
     console.log('\n— ' + e.prenom + ' (' + e.plan + ')');
     const page = await nouvellePage();
+    /* un incident chez un élève ne doit ni arrêter les suivants ni sauter le
+       nettoyage final : un arrêt brutal ici laisserait la base sale */
+    try {
 
     /* inscription par le vrai formulaire */
     await page.evaluate(() => { show('login'); loginMode('cr'); });
@@ -256,10 +287,13 @@ const ELEVES = [
       await page.waitForTimeout(900);
       /* déconnexion puis vraie reconnexion par prénom + code */
       await page.evaluate(() => { currentEleve = null; show('login'); renderLoginNames(); });
-      await page.waitForTimeout(700);
+      /* la liste des prénoms arrive de la base : attendre la pastille du bon
+         prénom plutôt qu'un délai fixe — le délai a déjà trahi une fois */
+      await page.waitForFunction((prenom) =>
+        [...document.querySelectorAll('#nameChips .chip')].some(c => c.textContent === prenom),
+        e.prenom, { timeout: 15000, polling: 200 });
       await page.evaluate((prenom) => {
-        const chip = [...document.querySelectorAll('#nameChips .chip')].find(c => c.textContent === prenom);
-        chip.click();
+        [...document.querySelectorAll('#nameChips .chip')].find(c => c.textContent === prenom).click();
       }, e.prenom);
       await page.fill('#loginPin', e.pin);
       await page.evaluate(() => connexionEleve());
@@ -285,6 +319,10 @@ const ELEVES = [
 
     const resultats = await page.evaluate(() => document.getElementById('scr-results').classList.contains('on'));
     dit('écran de résultats atteint', resultats);
+
+    } catch (err) {
+      console.log('  ✗ incident de simulation — parcours interrompu : ' + String(err.message || err).split('\n')[0]);
+    }
     await page.close();
   }
 
@@ -306,19 +344,26 @@ const ELEVES = [
 
   /* ---------- nettoyage : UNIQUEMENT les ids créés par cette simulation ---------- */
   console.log('\n══ NETTOYAGE ══');
-  for (const c of crees) {
-    if (dejaLa.has(c.id)) { console.log('  ⚠ ' + c.prenom + ' existait avant : non touché'); continue; }
-    curlJSON('DELETE', '/rest/v1/resultats_1ere?eleve_id=eq.' + c.id);
-    curlJSON('DELETE', '/rest/v1/eleves_1ere?id=eq.' + c.id);
+  if (GARDER) {
+    console.log('--garder : comptes et résultats de test CONSERVÉS en base pour consultation.');
+    console.log('Tant qu\'ils y restent, les prénoms Test-* apparaissent sur l\'écran de');
+    console.log('connexion du site et l\'inscription de la prochaine simulation échouerait.');
+    console.log('Les retirer : node tests/simulation_eleves.js --nettoyer');
+  } else {
+    for (const c of crees) {
+      if (dejaLa.has(c.id)) { console.log('  ⚠ ' + c.prenom + ' existait avant : non touché'); continue; }
+      curlJSON('DELETE', '/rest/v1/resultats_1ere?eleve_id=eq.' + c.id);
+      curlJSON('DELETE', '/rest/v1/eleves_1ere?id=eq.' + c.id);
+    }
+    const verif = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id&id=in.(' + crees.map(c => c.id).join(',') + ')').body);
+    const verifR = JSON.parse(curlJSON('GET', '/rest/v1/resultats_1ere?select=id&eleve_id=in.(' + crees.map(c => c.id).join(',') + ')').body);
+    const apres = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id').body);
+    /* comparer avant/après fait partie du verdict : une inscription passée
+       inaperçue (crees vide) ne doit plus produire un « base propre » à tort */
+    const propre = verif.length + verifR.length === 0 && apres.length === avant.length;
+    console.log('Comptes de test restants : ' + verif.length + ' | résultats de test restants : ' + verifR.length);
+    console.log('Comptes en base après simulation : ' + apres.length + ' (avant : ' + avant.length + ')' + (propre ? '  → base propre ✓' : '  → NETTOYAGE INCOMPLET ✗ — supprimer à la main les comptes Test-*'));
   }
-  const verif = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id&id=in.(' + crees.map(c => c.id).join(',') + ')').body);
-  const verifR = JSON.parse(curlJSON('GET', '/rest/v1/resultats_1ere?select=id&eleve_id=in.(' + crees.map(c => c.id).join(',') + ')').body);
-  const apres = JSON.parse(curlJSON('GET', '/rest/v1/eleves_1ere?select=id').body);
-  /* comparer avant/après fait partie du verdict : une inscription passée
-     inaperçue (crees vide) ne doit plus produire un « base propre » à tort */
-  const propre = verif.length + verifR.length === 0 && apres.length === avant.length;
-  console.log('Comptes de test restants : ' + verif.length + ' | résultats de test restants : ' + verifR.length);
-  console.log('Comptes en base après simulation : ' + apres.length + ' (avant : ' + avant.length + ')' + (propre ? '  → base propre ✓' : '  → NETTOYAGE INCOMPLET ✗ — supprimer à la main les comptes Test-*'));
 
   console.log('\nErreurs JavaScript pendant toute la simulation : ' + (erreursJS.length === 0 ? 'aucune ✓' : erreursJS.join(' | ')));
   await browser.close();
