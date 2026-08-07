@@ -1234,7 +1234,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=69;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=70;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3432,10 +3432,10 @@ function renderFPTest(){
     <div class="fp-zone">`+
       `<div class="fp-bloc"><div class="fp-col" id="fpColL">${segsL}</div>`+
         `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div>`+
-        `<div class="fp-lab">la fraction</div></div>`+
+        `<div class="fp-lab">pour 1</div></div>`+
       `<div class="fp-bloc"><div class="fp-col fp-colr" id="fpColR">${segsR}</div>`+
         `<div class="fp-val" id="fpValR">${q.selR?(q.selR*5+' %'):'… %'}</div>`+
-        `<div class="fp-lab">le pourcentage</div></div>`+
+        `<div class="fp-lab">pour 100</div></div>`+
     `</div></div>`+
     `<div class="pt-step"><div class="pt-lab">Méthode 2 : rends le dénominateur égal à 100</div>
        <div class="pt-row">`+
