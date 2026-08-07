@@ -32,9 +32,11 @@ Trois pannes ont motivé leur écriture, toutes invisibles à la relecture :
 | v43 | les boutons d'aide ne faisaient rien | `window.__fenetresDetachees` non initialisé |
 | v44 | les fenêtres s'ouvraient, puis plus rien | `$` ignorait les fenêtres détachées |
 | v46 | `25/100` s'affichait « 10025 » | la feuille de styles MathLive |
+| v75 | un double clic sur « Voir mes résultats » enregistrait le résultat en double | un verrou de réentrance sur les clôtures |
 
 Chacune passait la vérification de syntaxe sans broncher. Le banc de test les
-détecte toutes les trois.
+détecte toutes — la quatrième a été trouvée par la simulation d'élèves
+ci-dessous avant qu'un élève ne tombe dessus.
 
 ## Ce qui est contrôlé
 
@@ -55,6 +57,27 @@ existe pour les huit exercices, et les styles de fraction sont présents.
 fraction attend ses deux parties), rien ne se colore en entraînement, les cinq
 générateurs de pourcentage produisent 5 000 questions conformes chacun, et
 chaque exercice possède son rappel de cours.
+
+## Simulation en conditions réelles
+
+`tests/simulation_eleves.js` va plus loin que le banc : cinq élèves fictifs
+(Test-Lea, Test-Tom, Test-Zoe, Test-Max, Test-Eva) déroulent de vrais parcours
+— inscription, exercices, erreurs, pause et reprise, évaluation — dans un vrai
+navigateur, contre la **vraie base Supabase**. C'est elle qui a trouvé la panne
+v75. Comme elle écrit en base, elle ne tourne **pas** dans l'action GitHub :
+on la lance à la main, depuis un environnement dont le réseau autorise
+`*.supabase.co`.
+
+```bash
+npm install --no-save playwright-core mathlive @supabase/supabase-js   # une fois
+node tests/simulation_eleves.js             # simule puis nettoie tout
+node tests/simulation_eleves.js --garder    # conserve comptes et résultats
+node tests/simulation_eleves.js --nettoyer  # retire les comptes Test-*
+```
+
+Après `--garder`, les cinq comptes restent visibles sur l'écran de connexion du
+site et dans le tableau du professeur ; lancer `--nettoyer` avant toute
+nouvelle simulation, sinon les inscriptions échouent (prénoms déjà pris).
 
 ## Ajouter un contrôle
 

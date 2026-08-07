@@ -410,6 +410,76 @@ function exercices(suite){
     })()`);
     verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
 
+    /* 1.3 : la convention des corrections vaut aussi pour le parcours fractions —
+       bleu .sol en entraînement, rien de révélé en évaluation */
+    const fracpCor = w.eval(`(function(){
+      currentMode='train'; test.kind='fracp';
+      test.levels=['frac-n2']; test.perLevel=1; test.passNeeded=1;
+      test.levelIdx=0; test.level='frac-n2'; test.levelScore=0;
+      test.idx=0; test.score=0; test.answers=[]; test.results=[]; test.locked=false;
+      test.questions=[genFrac('frac-n2')];
+      show('ftest'); renderFTest();
+      checkFAnswer();
+      const num=document.getElementById('fNum'), den=document.getElementById('fDen');
+      const train=(num.classList.contains('sol') && String(num.value)!=='' && String(den.value)!=='');
+      currentMode='eval'; test.locked=false; test.answers=[]; renderFTest();
+      checkFAnswer();
+      const evalMuet=(String(document.getElementById('fNum').value||'')==='' &&
+                      document.querySelectorAll('#scr-ftest .mf-cor').length===0);
+      return train+'|'+evalMuet;
+    })()`);
+    verifier('1.3 : correction bleue en entraînement', fracpCor.split('|')[0] === 'true', fracpCor);
+    verifier('1.3 : rien de révélé en évaluation', fracpCor.split('|')[1] === 'true', fracpCor);
+
+    /* QCM : la bonne proposition n'est surlignée en bleu qu'en entraînement */
+    const qcmSol = w.eval(`(function(){
+      function jouer(mode){
+        currentMode=mode; test.kind='pctq'; test.locked=false; test.answers=[];
+        test.questions=[genPctTaux()]; test.idx=0; test.score=0;
+        test.questions[0].choisi=(test.questions[0].bon+1)%4;   /* mauvaise proposition */
+        show('qtest'); renderQTest();
+        checkQAnswer();
+        return document.querySelectorAll("#scr-qtest [id^='qc'].sol").length;
+      }
+      return jouer('eval')+'|'+jouer('train');
+    })()`);
+    verifier('QCM : pas de surlignage bleu en évaluation', qcmSol.split('|')[0] === '0', qcmSol);
+    verifier('QCM : bonne proposition surlignée en entraînement', Number(qcmSol.split('|')[1]) > 0, qcmSol);
+
+    /* Clôture unique : pendant l'enregistrement (une seconde ou plus sur réseau
+       lent), « Voir mes résultats » reste cliquable — chaque clic rejouait la
+       clôture et le résultat partait en double en base (trouvé par la
+       simulation d'élèves du 7 août 2026). Le verrou doit bloquer les clics en
+       trop, puis se rouvrir à l'exercice suivant : coincé, il serait pire que
+       le bug — plus aucun résultat ne s'enregistrerait. */
+    const cloture = w.eval(`(function(){
+      window.__inserts=0;
+      function chaine(){
+        const o={ then:function(res){ res({data:[],error:null}); } };
+        ['select','insert','update','eq','neq','order','single'].forEach(function(k){
+          o[k]=function(){ if(k==='insert') window.__inserts++; return chaine(); };
+        });
+        o['delete']=function(){ return chaine(); };
+        return o;
+      }
+      sb={ from:function(){ return chaine(); } };
+      showResults=function(){};              /* seul le verrou est testé, pas l'écran de fin */
+      currentEleve={id:'test',prenom:'Test'}; currentMode='train'; currentTestId='pourcentage';
+      test.kind='pct'; test.idx=0; test.score=1; test.answers=[];
+      test.questions=[{P:30,N:40,unit:'€',prod:1200,result:12,ci:0,v:0}];
+      test.startTime=Date.now();
+      show('ptest');
+      finishPercent(); finishPercent(); finishPercent();   /* triple clic impatient */
+      const apresTriple=window.__inserts;
+      show('ptest'); test.startTime=Date.now();            /* exercice suivant */
+      finishPercent();
+      return apresTriple+'|'+window.__inserts;
+    })()`);
+    verifier('un triple clic sur « Voir mes résultats » n’enregistre qu’un résultat',
+      cloture.split('|')[0] === '1', cloture + ' insertion(s)');
+    verifier('le verrou de clôture se rouvre à l’exercice suivant',
+      cloture.split('|')[1] === '2', cloture + ' insertion(s)');
+
     suite();
   });
 }
