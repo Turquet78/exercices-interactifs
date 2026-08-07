@@ -565,6 +565,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .mp-cl .sub-ret,.mp-cl .sub-retb{position:absolute;left:-4px;width:24px;height:24px;font-size:.95rem;border-radius:7px;}
 .mp-cl .sub-ret{top:-3px;}
 .mp-cl .sub-retb{bottom:-3px;}
+/* La pose en colonnes de 1.5 et 1.6 est un OUTIL au service d'une case
+   intermédiaire (le numérateur du produit), pas une étape finale : son cadre
+   pointillé la met à part, sa note renvoie vers la case qu'elle remplit. */
+.pt-outil{border:1.5px dashed var(--grid);border-radius:14px;padding:10px 12px 6px;margin-top:4px;background:rgba(0,0,0,.015);}
+.pt-pose-note{text-align:center;font-weight:800;color:var(--ink-soft);font-size:.92rem;margin:2px 0 6px;}
 /* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
 .mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
@@ -1213,7 +1218,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=66;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=67;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -5346,8 +5351,9 @@ function renderMDTest(){
   $('mdHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
        <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}<span class="f-eq">=</span>${frac('md3n','md3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field></div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Pose la multiplication des numérateurs et complète-la <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:8px 0 14px">${posed}</div></div>`;
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
+       <div class="pt-row" style="padding:8px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
   const posedIns=[...$('mdMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('md1n'),$('md1d'),$('md2n'),$('md2d'),...posedIns,$('md3n'),$('md3d'),$('mdDec')];
   /* la pose reste dans l'ordre de saisie : fractions, pose, produit, décimal */
@@ -5504,8 +5510,9 @@ function renderUTest(){
   $('uHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
        <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}<span class="f-eq">=</span>${frac('u3n','u3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field></div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Pose la multiplication des numérateurs (le plus court en bas) et complète chaque ligne <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:6px 0 14px">${posed}</div></div>`;
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, le plus court en bas <span style="font-weight:600;color:var(--red)">(retenues facultatives)</span></div>
+       <div class="pt-row" style="padding:6px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
   const collect=(pref,V)=>{ const a=[],L=String(V).length; for(let j=0;j<L;j++)a.push($(pref+j)); return a; };
   const order=[$('u1n'),$('u1d'),$('u2n'),$('u2d'),...collect('ua',q.v1),...collect('ub',q.v2),...collect('us',q.prodNum),$('u3n'),$('u3d'),$('uDec')];
   order.forEach((el,i)=>{
