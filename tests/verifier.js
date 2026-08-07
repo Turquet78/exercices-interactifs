@@ -410,6 +410,42 @@ function exercices(suite){
     })()`);
     verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
 
+    /* 1.3 : la convention des corrections vaut aussi pour le parcours fractions —
+       bleu .sol en entraînement, rien de révélé en évaluation */
+    const fracpCor = w.eval(`(function(){
+      currentMode='train'; test.kind='fracp';
+      test.levels=['frac-n2']; test.perLevel=1; test.passNeeded=1;
+      test.levelIdx=0; test.level='frac-n2'; test.levelScore=0;
+      test.idx=0; test.score=0; test.answers=[]; test.results=[]; test.locked=false;
+      test.questions=[genFrac('frac-n2')];
+      show('ftest'); renderFTest();
+      checkFAnswer();
+      const num=document.getElementById('fNum'), den=document.getElementById('fDen');
+      const train=(num.classList.contains('sol') && String(num.value)!=='' && String(den.value)!=='');
+      currentMode='eval'; test.locked=false; test.answers=[]; renderFTest();
+      checkFAnswer();
+      const evalMuet=(String(document.getElementById('fNum').value||'')==='' &&
+                      document.querySelectorAll('#scr-ftest .mf-cor').length===0);
+      return train+'|'+evalMuet;
+    })()`);
+    verifier('1.3 : correction bleue en entraînement', fracpCor.split('|')[0] === 'true', fracpCor);
+    verifier('1.3 : rien de révélé en évaluation', fracpCor.split('|')[1] === 'true', fracpCor);
+
+    /* QCM : la bonne proposition n'est surlignée en bleu qu'en entraînement */
+    const qcmSol = w.eval(`(function(){
+      function jouer(mode){
+        currentMode=mode; test.kind='pctq'; test.locked=false; test.answers=[];
+        test.questions=[genPctTaux()]; test.idx=0; test.score=0;
+        test.questions[0].choisi=(test.questions[0].bon+1)%4;   /* mauvaise proposition */
+        show('qtest'); renderQTest();
+        checkQAnswer();
+        return document.querySelectorAll("#scr-qtest [id^='qc'].sol").length;
+      }
+      return jouer('eval')+'|'+jouer('train');
+    })()`);
+    verifier('QCM : pas de surlignage bleu en évaluation', qcmSol.split('|')[0] === '0', qcmSol);
+    verifier('QCM : bonne proposition surlignée en entraînement', Number(qcmSol.split('|')[1]) > 0, qcmSol);
+
     suite();
   });
 }
