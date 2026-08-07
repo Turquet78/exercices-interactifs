@@ -1235,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=74;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=75;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2510,7 +2510,8 @@ function tmTick(){
 function tmValider(tempsEcoule){
   if(test.phase!=='saisie') return;
   const it=test.file[test.idx], ai=$('tmInput');
-  const brut=ai.value.trim(), donne=(brut===''?null:parseInt(brut,10));
+  const brut=ai.value.trim(), n=parseInt(brut,10);
+  const donne=(brut===''||isNaN(n))?null:n;      /* jamais NaN : JSON le changerait en null en base */
   test.phase='correction'; clearTimeout(test.qTimer);
   /* A la fin du temps, on juge ce qui est ECRIT dans la case : une reponse deja saisie
      compte, meme si l'eleve n'a pas eu le temps d'appuyer sur Entree. */
@@ -2978,6 +2979,15 @@ function checkFAnswer(live){
   } else {
     const extra=q.level==='frac-n3'?' (ou une fraction égale)':'';
     $('fFeedback').textContent=`Réponse : ${q.atext}${extra}`; $('fFeedback').className='mp-feedback bad';
+  }
+  /* en entraînement : mêmes corrections bleues que partout ailleurs —
+     case vide complétée en .sol, bonne réponse en .mf-cor à côté du faux */
+  if(!correct){
+    if(q.level==='frac-n5'){ corTrainFrac('f5an','f5ad',q.fnA,q.fdA); corTrainFrac('f5bn','f5bd',q.fnB,q.fdB); corTrainFrac('f5pn','f5pd',q.pn,q.pd); corTrainDec('fDec',String(q.atext)); }
+    else if(q.level==='frac-n4'){ corTrainFrac('f5n','f5d',q.pn,q.pd); corTrainDec('fDec',String(q.atext)); }
+    else if(q.level==='frac-n1'){ corTrainDec('fDec',String(q.atext)); }
+    else if(q.level==='frac-n2'){ corTrainFrac('fNum','fDen',q.numer,q.denom); }
+    else { corTrainFrac('fNum','fDen',q.pn,q.pd); }
   }
   test.answers.push({...(ptsExo()||{}),q:q.qtext,answer:q.atext,given,correct});
   const lastInLevel=test.idx===test.perLevel-1;
@@ -3944,7 +3954,7 @@ function checkWAnswer(live){
   }
   test.locked=true;
   const cx=$('wChoix'); if(cx) cx.classList.add('locked');
-  if(!okChoix){ const bon=$('wc'+q.bon); if(bon) bon.classList.add('sol'); }
+  if(!okChoix && currentMode==='train'){ const bon=$('wc'+q.bon); if(bon) bon.classList.add('sol'); }
   const bonLbl=`<b>${QLET[q.bon]}) ${esc(augqLabel(q,q.opts[q.bon]))}</b>`;
   const preuve=`${q.P}/100 \u00d7 ${q.N} = ${q.aug} ${q.unit} ${neg?'de baisse':'d\u2019augmentation'}, puis ${q.N} ${neg?'\u2212':'+'} ${q.aug} = ${q.decStr} ${q.unit}`;
   if(allOk){ test.score++; $('wLiveScore').textContent=test.score;
@@ -4306,7 +4316,7 @@ function checkSynAnswer(live){
   test.locked=true;
   const cx=$('syChoix'); if(cx) cx.classList.add('locked');
   const mx=$('syMeth'); if(mx) mx.classList.add('locked');
-  if(!okChoix){ const bon=$('sc'+q.bon); if(bon) bon.classList.add('sol'); }
+  if(!okChoix && currentMode==='train'){ const bon=$('sc'+q.bon); if(bon) bon.classList.add('sol'); }
   const bonLbl=`<b>${QLET[q.bon]}) ${esc(synLabel(q,q.opts[q.bon]))}</b>`;
   const preuve=(q.fam==='pct')
     ? `${q.P}/100 \u00d7 ${q.N} = ${q.P*q.N}/100 = ${q.result} ${q.unit}`
@@ -4534,7 +4544,7 @@ function checkQAnswer(live){
   }
   test.locked=true;
   const cx=$('qChoix'); if(cx) cx.classList.add('locked');
-  if(!okChoix){ const bon=$('qc'+q.bon); if(bon) bon.classList.add('sol'); }
+  if(!okChoix && currentMode==='train'){ const bon=$('qc'+q.bon); if(bon) bon.classList.add('sol'); }
   const bonLbl=`<b>${QLET[q.bon]}) ${esc(qdLabel(q,q.opts[q.bon]))}</b>`;
   const preuve=`${q.P}/100 \u00d7 ${q.N} = ${q.prod}/100 = ${q.result}`;
   if(allOk){ test.score++; $('qLiveScore').textContent=test.score;
@@ -5131,7 +5141,7 @@ function checkVAnswer(live){
   }
   test.locked=true;
   const cx=$('vChoix'); if(cx) cx.classList.add('locked');
-  if(!okChoix){ const bon=$('vc'+q.bon); if(bon) bon.classList.add('sol'); }
+  if(!okChoix && currentMode==='train'){ const bon=$('vc'+q.bon); if(bon) bon.classList.add('sol'); }
   const bonLbl=`<b>${QLET[q.bon]}) ${esc(augqLabel(q,q.opts[q.bon]))}</b>`;
   const preuve=`1 ${neg?'−':'+'} ${q.P}/100 = ${q.coefDec} = ${q.coef}/100, puis ${q.coef}/100 × ${q.N} = ${q.prodNum}/100 = ${q.decStr} ${q.unit}`;
   if(allOk){ test.score++; $('vLiveScore').textContent=test.score;

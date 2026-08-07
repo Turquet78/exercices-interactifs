@@ -1195,7 +1195,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=10;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=11;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -4076,7 +4076,8 @@ function setupKeyboard(){
 
 window.mlDexp = {
   toPlain, plainToML,
-  tex(lx){ try{ return '<span class="ml-static">'+convertLatexToMarkup(lx)+'</span>'; }catch(e){ return null; } },
+  /* tex() supprimé : jamais appelé, et sans la feuille ml-static-css il aurait
+     affiché les fractions dénominateur d'abord (piège documenté) */
   upgrade(root){
     setupKeyboard();
     applyKbLayout();
