@@ -1,13 +1,25 @@
 /* ============================================================================
-   VÉRIFICATIONS — à lancer avant toute mise en ligne :  node tests/verifier.js
+   VÉRIFICATIONS — à lancer avant toute mise en ligne :
+       node tests/verifier.js <fichier.html>
    ============================================================================
    Quatre familles de contrôles, du moins au plus coûteux :
 
      1. STRUCTURE   syntaxe JS, accolades CSS, écrans et fonctions référencés
      2. DÉMARRAGE   la page se charge-t-elle sans erreur JavaScript ?
-     3. INTERFACE   les boutons d'aide s'ouvrent-ils, y compris en fenêtre
+     3. AIDE        les boutons d'aide répondent-ils, y compris en fenêtre
                     détachée (le cas qui a échoué trois fois de suite) ?
-     4. EXERCICES   les générateurs et la correction en direct tiennent-ils ?
+     4. EXERCICES   l'exercice témoin, la pause, les générateurs
+
+   Les familles 1 et 2 sont les mêmes pour les trois niveaux. Les familles 3
+   et 4 dépendent de ce que le fichier sait faire : c'est tests/profils.js qui
+   le déclare. Un contrôle inapplicable s'affiche « ○ non applicable » avec sa
+   raison — il n'est jamais retiré en silence, et les manques de chaque fichier
+   sont récapitulés à la fin.
+
+   Une erreur JavaScript imprévue fait ÉCHOUER un contrôle ; elle n'interrompt
+   plus le banc. Auparavant un ReferenceError parti d'un setTimeout tuait le
+   processus avant tout verdict, et les deux fichiers autres que la Première
+   n'ont ainsi jamais pu être vérifiés jusqu'au bout.
 
    Sortie 0 si tout passe, 1 sinon — utilisable tel quel dans une action GitHub.
    ========================================================================== */
@@ -17,34 +29,82 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { JSDOM } = require('jsdom');
 const { charger, lire, preparer, couleur } = require('./harnais');
+const PROFILS = require('./profils');
 
 const CIBLE = process.argv[2] || 'premiere-specifique.html';
-let echecs = 0, controles = 0;
+const P = PROFILS[CIBLE];
+if(!P){
+  console.error('Aucun profil pour « ' + CIBLE +' ». Fichiers connus : ' + Object.keys(PROFILS).join(', '));
+  console.error('Ajoutez son profil dans tests/profils.js avant de le contrôler.');
+  process.exit(2);
+}
+
+let echecs = 0, controles = 0, ignores = 0;
 
 function verifier(intitule, condition, detail){
   controles++;
-  if(condition){ console.log('   \u2713 ' + intitule); }
-  else { echecs++; console.log('   \u2717 ' + intitule + (detail ? '  \u2192 ' + detail : '')); }
+  if(condition){ console.log('   ✓ ' + intitule); }
+  else { echecs++; console.log('   ✗ ' + intitule + (detail ? '  → ' + detail : '')); }
+}
+function ignorer(intitule, raison){
+  ignores++;
+  console.log('   ○ ' + intitule + '  — non applicable : ' + raison);
 }
 function titre(t){ console.log('\n' + t); }
+
+/* Un contrôle ne doit jamais tuer le banc : toute exception devient un échec. */
+function evaluer(w, code){
+  try { return { ok:true, valeur: w.eval(code) }; }
+  catch(e){ return { ok:false, erreur: e.message }; }
+}
+function verifierEval(w, intitule, code, juge, detail){
+  const r = evaluer(w, code);
+  if(!r.ok){ verifier(intitule, false, 'erreur JavaScript : ' + r.erreur); return undefined; }
+  verifier(intitule, juge ? juge(r.valeur) : r.valeur === true, detail);
+  return r.valeur;
+}
+
+/* Dernier filet : une exception échappée (rappel de setTimeout, promesse) doit
+   faire échouer le banc proprement, pas afficher une pile et sortir sans verdict. */
+process.on('uncaughtException', e => {
+  console.log('\n   ✗ erreur JavaScript non rattrapée  → ' + e.message);
+  console.log('\n' + '─'.repeat(58));
+  console.log('✗ Le banc s\'est interrompu sur ' + CIBLE + '. NE PAS mettre en ligne.');
+  process.exit(1);
+});
 
 /* ---------- 1. Structure ---------- */
 function structure(){
   titre('1. STRUCTURE DU FICHIER');
   const s = lire(CIBLE);
+  const ligneDe = i => s.slice(0, i).split('\n').length;
 
   /* sans lui, le navigateur passe en mode quirks et la mise en page casse sur mobile */
   verifier('<!DOCTYPE html> en première ligne', /^<!DOCTYPE html>/i.test(s));
 
-  /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit
-     destructurer error — sinon l'échec est silencieux (piège documenté) */
-  const sansError = [...s.matchAll(/const \{data(?::[A-Za-z_$][\w$]*)?\}=await sb/g)].length;
-  verifier('chaque appel Supabase destructure error', sansError === 0, sansError + ' appel(s) l’ignorent');
+  /* Supabase renvoie ses erreurs sans lever d'exception : tout appel doit les
+     examiner. Deux façons de passer à côté, et le banc ne voyait que la
+     première — l'insertion de la note de fin de test échappait au compte. */
+  const sansError = [...s.matchAll(/const \{data(?::[A-Za-z_$][\w$]*)?\}\s*=\s*await sb/g)].map(m => ligneDe(m.index));
+  const nus = [];
+  [...s.matchAll(/await sb\./g)].forEach(m => {
+    const avant = s.slice(Math.max(0, m.index - 60), m.index).replace(/\s+$/, '');
+    if(!/=$/.test(avant)) nus.push(ligneDe(m.index));       /* appel dont le retour n'est même pas recueilli */
+  });
+  const fautifs = [...new Set([...sansError, ...nus])].sort((a,b) => a-b);
+  verifier('chaque appel Supabase examine error', fautifs.length === 0,
+    fautifs.length + ' appel(s) l’ignorent, ligne(s) ' + fautifs.join(', '));
+
+  /* les colonnes integer refusent une durée décimale, et le refus est muet */
+  const durees = [...s.matchAll(/const durationSec\s*=\s*([^;\n]+);/g)]
+    .filter(m => !/Math\.round/.test(m[1])).map(m => ligneDe(m.index));
+  verifier('les durées partent arrondies vers la base', durees.length === 0,
+    durees.length + ' durée(s) décimale(s), ligne(s) ' + durees.join(', '));
 
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
     const o = (css.match(/\{/g)||[]).length, f = (css.match(/\}/g)||[]).length;
-    verifier('bloc <style> n\u00b0' + (i+1) + ' \u00e9quilibr\u00e9', o === f, o + ' ouvrantes / ' + f + ' fermantes');
+    verifier('bloc <style> n°' + (i+1) + ' équilibré', o === f, o + ' ouvrantes / ' + f + ' fermantes');
   });
 
   const scripts = [...s.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
@@ -55,13 +115,13 @@ function structure(){
     try { execFileSync('node', ['--check', f], { stdio:'pipe' }); }
     catch(e){ ok = false; err = String(e.stderr).split('\n')[1] || ''; }
     fs.unlinkSync(f);
-    verifier('script n\u00b0' + (i+1) + ' syntaxiquement valide', ok, err);
+    verifier('script n°' + (i+1) + ' syntaxiquement valide', ok, err);
   });
 
   const ecrans = new Set([...s.matchAll(/<section class="screen" id="scr-([a-z0-9-]+)"/g)].map(m => m[1]));
   const demandes = new Set([...s.matchAll(/show\('([a-z0-9-]+)'\)/g)].map(m => m[1]));
   const manquants = [...demandes].filter(x => !ecrans.has(x));
-  verifier('chaque show() vise un \u00e9cran existant', manquants.length === 0, manquants.join(', '));
+  verifier('chaque show() vise un écran existant', manquants.length === 0, manquants.join(', '));
 
   const principal = scripts.reduce((a,b) => a.length > b.length ? a : b, '');
   const definis = new Set();
@@ -72,80 +132,102 @@ function structure(){
   const html = s.replace(/<script[\s\S]*?<\/script>/g, '');
   const appeles = new Set([...html.matchAll(/on(?:click|mousedown|change|input)="([A-Za-z_$][\w$]*)\(/g)].map(m => m[1]));
   const orphelins = [...appeles].filter(f => !definis.has(f) && f !== 'if');
-  verifier('chaque bouton appelle une fonction d\u00e9finie', orphelins.length === 0, orphelins.join(', '));
+  verifier('chaque bouton appelle une fonction définie', orphelins.length === 0, orphelins.join(', '));
 }
 
 /* ---------- 2. Démarrage ---------- */
 function demarrage(suite){
-  titre('2. D\u00c9MARRAGE DE LA PAGE');
+  titre('2. DÉMARRAGE DE LA PAGE');
   charger(CIBLE, (w, erreurs) => {
     const reelles = erreurs.filter(e => !/Not implemented/.test(e));   /* limites de jsdom, pas de l'appli */
     verifier('aucune erreur JavaScript au chargement', reelles.length === 0, reelles.join(' | '));
-    verifier('num\u00e9ro de version lisible', /^\d+$/.test(String(w.eval('APP_VERSION'))), 'APP_VERSION = ' + w.eval('APP_VERSION'));
+    verifier('numéro de version lisible', /^\d+$/.test(String(w.eval('APP_VERSION'))), 'APP_VERSION = ' + w.eval('APP_VERSION'));
+    verifierEval(w, 'chaque exercice de TESTS a une fonction de démarrage', `(function(){
+      const sans=[];
+      Object.keys(TESTS).forEach(function(id){ if(typeof TESTS[id].start!=='function') sans.push(id); });
+      return sans.join(', ');
+    })()`, v => v === '', 'exercice(s) sans start()');
     suite();
   });
 }
 
-/* ---------- 3. Fenêtres d'aide ---------- */
-function interface_(suite){
-  titre('3. BOUTONS D\'AIDE (Soutien et Question \u00e0 l\'IA)');
+/* ---------- 3. Boutons d'aide ---------- */
+function aide(suite){
+  titre('3. BOUTONS D\'AIDE');
+  const a = P.aide, t = P.temoin;
   charger(CIBLE, w => {
-    preparer(w, { testId:'pourcentage', kind:'pct', question:'genPercent()', ecran:'ptest', rendu:'renderPTest' });
-    w.eval('iaBoutons();');
-    const rangee = w.document.querySelector('#scr-ptest .ia-row');
-    verifier('la rang\u00e9e de boutons appara\u00eet en soutien', !!rangee && rangee.querySelectorAll('button').length === 2);
+    const pret = evaluer(w, `currentEleve={id:'test',prenom:'Test'}; currentMode='soutien'; currentTestId='${t.testId}';`
+      + `test.kind='${t.kind}'; test.idx=0; test.questions=[${t.generateur}]; test.locked=false;`
+      + `show('${t.ecran}'); ${t.rendu}();` + (a.amorce ? ' ' + a.amorce : ''));
+    verifier('l\'exercice témoin (' + t.testId + ') s\'affiche sans erreur', pret.ok, pret.erreur);
 
-    /* le cas qui a échoué trois fois : sur ordinateur, la fenêtre se détache */
+    if(a.rangee){
+      const boutons = w.document.querySelectorAll(a.rangee.selecteur);
+      verifier('les boutons d\'aide apparaissent en soutien', boutons.length >= a.rangee.attendus,
+        boutons.length + ' bouton(s) pour ' + a.rangee.attendus + ' attendu(s) sur ' + a.rangee.selecteur);
+    } else {
+      ignorer('les boutons d\'aide apparaissent en soutien', 'ce niveau n\'a pas de rangée de boutons d\'aide');
+    }
+
+    /* Question à l'IA : sur ordinateur la fenêtre se détache, et c'est ce chemin
+       — le chemin par défaut — qui a échoué trois fois de suite. */
     const fenetres = [];
     w.__nouvelleFenetre = function(){
       const p = new JSDOM('<!doctype html><html><head></head><body></body></html>', { pretendToBeVisual:true }).window;
-      p.closed = false; fenetres.push(p); return p;
+      p.closed = false; p.focus = function(){}; fenetres.push(p); return p;
     };
-    w.eval("detachementPossible=function(){return true;}; window.open=function(){ return window.__nouvelleFenetre(); };");
-    w.eval("sb={functions:{invoke:function(){ return Promise.resolve({data:{feedback:'Indice de test.'}}); }}};");
+    evaluer(w, "sb={functions:{invoke:function(){ return Promise.resolve({data:{feedback:'Indice de test.'}}); }}};");
 
-    let ouvre = true, err = '';
-    try { w.eval('ouvrirQIA()'); } catch(e){ ouvre = false; err = e.message; }
-    verifier('la fen\u00eatre Question s\'ouvre d\u00e9tach\u00e9e', ouvre, err);
-    verifier('sa carte est bien dans la fen\u00eatre ind\u00e9pendante',
-      fenetres.some(p => p.document.querySelector('.qia-card')));
+    if(a.qiaDetachee){
+      evaluer(w, "detachementPossible=function(){return true;}; window.open=function(){ return window.__nouvelleFenetre(); };");
+      const ouvre = evaluer(w, 'ouvrirQIA()');
+      verifier('la fenêtre Question s\'ouvre détachée', ouvre.ok, ouvre.erreur);
+      verifier('sa carte est bien dans la fenêtre indépendante',
+        fenetres.some(p => p.document.querySelector('.qia-card')),
+        'window.__fenetresDetachees doit être initialisé');
+      const poser = evaluer(w, "qiaPoser('Question de test.')");
+      verifier('poser une question ne lève pas d\'erreur', poser.ok, poser.erreur);
+    } else {
+      ignorer('la fenêtre Question à l\'IA', 'ce niveau n\'a pas de fenêtre détachable');
+    }
 
-    let poser = true; err = '';
-    try { w.eval("qiaPoser('Question de test.')"); } catch(e){ poser = false; err = e.message; }
-    verifier('poser une question ne l\u00e8ve pas d\'erreur', poser, err);
-
-    let soutien = true; err = '';
-    try { w.eval('conseilCourant()'); } catch(e){ soutien = false; err = e.message; }
-    verifier('le bouton Soutien r\u00e9pond', soutien, err);
+    const soutien = evaluer(w, 'conseilCourant()');
+    verifier('le bouton Soutien répond', soutien.ok, soutien.erreur);
 
     setTimeout(() => {
       const chercher = id => { for(const p of fenetres){ const e = p.document.getElementById(id); if(e) return e; }
                                return w.document.getElementById(id); };
-      const dlg = chercher('qiaDialog');
-      verifier('la r\u00e9ponse s\'affiche dans le dialogue', !!dlg && dlg.querySelectorAll('.qia-q, .qia-r').length >= 2,
-        'une fen\u00eatre d\u00e9tach\u00e9e exige que $ cherche aussi dans les fen\u00eatres d\u00e9tach\u00e9es');
+      if(a.qiaDetachee){
+        const dlg = chercher('qiaDialog');
+        verifier('la réponse s\'affiche dans le dialogue', !!dlg && dlg.querySelectorAll('.qia-q, .qia-r').length >= 2,
+          'une fenêtre détachée exige que $ cherche aussi dans les fenêtres détachées');
+      }
       const corps = chercher('conseilBody');
       verifier('le conseil du Soutien s\'affiche', !!corps && corps.textContent.trim().length > 0);
 
       /* contexte envoyé au modèle, pour chaque type d'exercice */
-      const kinds = [['pct','genPercent()'],['pctq','genPctTaux()'],['aug','genAug()'],
-                     ['augq','genAugTaux()'],['dim','genDim()'],['mp','genMultPosee()'],
-                     ['md','genMultDec()'],['u','genU()'],['fp','genFP()'],['ag2','genAugAdd()'],['ag2q','genDimTauxSub()'],['syn','genSyn()']];
-      let bons = 0;
-      kinds.forEach(([k, gen]) => {
-        try {
-          w.eval("test.kind='" + k + "'; test.questions=[" + gen + "]; test.idx=0;");
-          if(k === 'pctq' || k === 'augq') w.eval('test.questions[0].choisi=0;');
-          if(String(w.eval('conseilCtxCourant()')).length > 80) bons++;
-        } catch(e){}
-      });
-      verifier('le contexte IA existe pour les ' + kinds.length + ' exercices', bons === kinds.length, bons + ' sur ' + kinds.length);
+      if(a.ctx){
+        let bons = 0; const rates = [];
+        a.ctx.kinds.forEach(([k, gen]) => {
+          const r = evaluer(w, `test.kind='${k}'; test.questions=[${gen}]; test.idx=0;`
+            + (a.ctx.prepare[k] || '') + ` String(${a.ctx.appel}).length`);
+          if(r.ok && r.valeur > a.ctx.seuil) bons++; else rates.push(k);
+        });
+        verifier('le contexte IA existe pour les ' + a.ctx.kinds.length + ' exercices contrôlés',
+          bons === a.ctx.kinds.length, 'manque : ' + rates.join(', '));
+      } else {
+        ignorer('le contexte IA de chaque exercice', 'ce niveau construit son contexte depuis l\'écran affiché');
+      }
 
       /* la feuille de styles MathLive, sans laquelle les fractions s'aplatissent */
       const css = [...w.document.querySelectorAll('style')].map(x => x.textContent).join('\n');
-      verifier('les styles de fraction MathLive sont pr\u00e9sents',
-        css.includes('.ML__mfrac') && css.includes('.ML__frac-line'),
-        'sans eux, 25/100 s\'affiche \u00ab 10025 \u00bb');
+      if(a.mlStatic){
+        verifier('les styles de fraction MathLive sont présents',
+          css.includes('.ML__mfrac') && css.includes('.ML__frac-line'),
+          'sans eux, 25/100 s\'affiche « 10025 »');
+      } else {
+        ignorer('les styles de fraction MathLive', 'feuille ml-static-css absente de ce niveau (voir les manques)');
+      }
       suite();
     }, 400);
   });
@@ -154,273 +236,307 @@ function interface_(suite){
 /* ---------- 4. Exercices ---------- */
 function exercices(suite){
   titre('4. EXERCICES');
+  const t = P.temoin;
   charger(CIBLE, w => {
+
     /* correction en direct : une fraction n'est jugée qu'une fois complète */
-    preparer(w, { testId:'pourcentage', kind:'pct', ecran:'ptest', rendu:'renderPTest',
-      question:"{P:30,N:40,unit:'\u20ac',prod:1200,result:12,ci:0,v:0}" });
-    const ecrire = (id, v) => { w.document.getElementById(id).value = v; };
-    const quitter = () => { try { w.eval("window.dexpLiveCheck && window.dexpLiveCheck('x')"); } catch(e){} };
+    if(P.liveCheck){
+      const lc = P.liveCheck, c = lc.cases;
+      preparer(w, { testId:t.testId, kind:t.kind, ecran:t.ecran, rendu:t.rendu, question:t.question });
+      const ecrire = (id, v) => { const e = w.document.getElementById(id); if(e) e.value = v; };
+      const quitter = () => { evaluer(w, lc.amorce); };
 
-    ecrire('p1n', '30'); quitter();
-    verifier('num\u00e9rateur seul : aucune couleur', couleur(w,'p1n') === 'neutre');
-    ecrire('p1d', '100'); quitter();
-    verifier('fraction compl\u00e8te et juste : les deux cases en vert',
-      couleur(w,'p1n') === 'VERT' && couleur(w,'p1d') === 'VERT');
-    ecrire('p2n', '1200'); ecrire('p2d', '10'); quitter();
-    verifier('fraction fausse : les deux cases en rouge',
-      couleur(w,'p2n') === 'ROUGE' && couleur(w,'p2d') === 'ROUGE');
-    ecrire('p3', '12'); quitter();
-    verifier('r\u00e9sultat d\u00e9cimal juste : case en vert', couleur(w,'p3') === 'VERT');
+      ecrire(c.n1, lc.justes.n1); quitter();
+      verifier('numérateur seul : aucune couleur', couleur(w, c.n1) === 'neutre');
+      ecrire(c.d1, lc.justes.d1); quitter();
+      verifier('fraction complète et juste : les deux cases en vert',
+        couleur(w, c.n1) === 'VERT' && couleur(w, c.d1) === 'VERT');
+      ecrire(c.n2, lc.faux.n2); ecrire(c.d2, lc.faux.d2); quitter();
+      verifier('fraction fausse : les deux cases en rouge',
+        couleur(w, c.n2) === 'ROUGE' && couleur(w, c.d2) === 'ROUGE');
+      ecrire(c.res, lc.justes.res); quitter();
+      verifier('résultat décimal juste : case en vert', couleur(w, c.res) === 'VERT');
 
-    w.eval("currentMode='train'; test.locked=false; renderPTest();");
-    ecrire('p1n', '30'); ecrire('p1d', '100'); quitter();
-    verifier('en entra\u00eenement : aucune coloration', couleur(w,'p1n') === 'neutre');
+      evaluer(w, `currentMode='train'; test.locked=false; ${t.rendu}();`);
+      ecrire(c.n1, lc.justes.n1); ecrire(c.d1, lc.justes.d1); quitter();
+      verifier('en entraînement : aucune coloration', couleur(w, c.n1) === 'neutre');
+      evaluer(w, "currentMode='soutien';");
+    } else {
+      ignorer('la correction en direct colore les cases', 'ce niveau corrige à la validation, pas à la frappe');
+    }
 
-    /* générateurs : mêmes invariants que ceux vérifiés à la main jusqu'ici */
-    w.eval("currentMode='soutien';");
-    const audit = w.eval(`(function(){
-      const bilan={};
-      [['genPercent',5000],['genPctDepart',5000],['genPctTaux',5000],
-       ['genAugDepart',5000],['genAugTaux',5000],
-       ['genDimDepart',5000],['genDimTaux',5000]].forEach(function(p){
-        const nom=p[0], n=p[1]; let pb=0;
-        for(let k=0;k<n;k++){
-          const q=window[nom]();
-          if(q.opts){
-            if(q.opts.length!==4) pb++;
-            if(new Set(q.opts).size!==4) pb++;
-            if(q.bon<0||q.bon>3) pb++;
-          }
-          if(q.prod!==undefined && q.prod!==q.P*q.N) pb++;
-          if(q.result!==undefined && q.result!==Math.round(q.result)) pb++;
-          if(q.unit===undefined||q.unit==='') pb++;
+    /* la pause doit conserver le devoir en cours, sinon la reprise ne crédite
+       jamais le devoir maison — et sa durée doit partir entière */
+    if(P.pause.dm){
+      verifierEval(w, 'la pause conserve le devoir maison en cours', `(function(){
+        currentEleve={id:1,prenom:'Contrôle'}; currentTestId='${t.testId}'; currentDM='dm-controle';
+        test.kind='${t.kind}'; test.questions=[${t.generateur}]; test.idx=0; test.startTime=Date.now()-1500;
+        const p=recoveryPayload(); currentDM=null;
+        window.__pauseDuree=p.duration_sec;
+        return p.details.dm==='dm-controle' && p.details.state==='paused';
+      })()`);
+      verifierEval(w, 'la durée de la pause part entière', 'Number.isInteger(window.__pauseDuree)',
+        v => v === true, 'durée décimale : la colonne integer la refuserait');
+    }
+
+    /* la pause doit capturer les saisies en cours, y compris les math-field
+       (elles étaient perdues : seuls les input à id étaient sauvés) */
+    if(P.pause.boxes){
+      const b = P.pause.boxes;
+      verifierEval(w, 'la pause capture et restaure les saisies math-field', `(function(){
+        currentMode='train'; test.kind='${t.kind}'; test.locked=false;
+        test.questions=[${t.question}]; test.idx=0;
+        show('${t.ecran}'); ${t.rendu}();
+        const champ=document.getElementById('${b.champ}');
+        if(!champ) return 'champ ${b.champ} absent';
+        champ.value='${b.valeur}';
+        const m=captureBoxes();
+        champ.value='';
+        restoreBoxes(m);
+        return document.getElementById('${b.champ}').value;
+      })()`, v => v === b.valeur, 'restauré : « ' + b.champ + ' »');
+    } else {
+      ignorer('la pause capture et restaure les saisies math-field', 'captureBoxes ne lit pas les math-field sur ce niveau (voir les manques)');
+    }
+
+    /* « Recommencer » doit relancer le MÊME exercice */
+    if(P.relance){
+      const r = P.relance;
+      verifierEval(w, '« Recommencer » relance bien l\'exercice en cours', `(function(){
+        currentTestId='${r.testId}'; test.kind='${r.kind}';
+        let lance=false;
+        const parTests=TESTS['${r.testId}'] && TESTS['${r.testId}'].start;
+        const parNom=typeof ${r.fonction}==='function' ? ${r.fonction} : null;
+        if(parTests) TESTS['${r.testId}'].start=function(){ lance=true; };
+        if(parNom) ${r.fonction}=function(){ lance=true; };
+        try{ restartCurrentTest(); }catch(e){}
+        if(parTests) TESTS['${r.testId}'].start=parTests;
+        if(parNom) ${r.fonction}=parNom;
+        return lance;
+      })()`);
+    }
+
+    /* chaque exercice doit fournir son rappel de cours */
+    if(P.rappels){
+      verifierEval(w, 'chaque exercice a son rappel de cours', P.rappels, v => v === '', undefined);
+    } else {
+      ignorer('chaque exercice a son rappel de cours', 'ce niveau n\'a pas encore de table RAPPELS (voir les manques)');
+    }
+
+    if(P.specifique === 'premiere') premiere(w);
+    suite();
+  });
+}
+
+/* ---------- 4 bis. Contrôles propres à la Première ---------- */
+function premiere(w){
+  /* générateurs : mêmes invariants que ceux vérifiés à la main jusqu'ici */
+  const audit = w.eval(`(function(){
+    const bilan={};
+    [['genPercent',5000],['genPctDepart',5000],['genPctTaux',5000],
+     ['genAugDepart',5000],['genAugTaux',5000],
+     ['genDimDepart',5000],['genDimTaux',5000]].forEach(function(p){
+      const nom=p[0], n=p[1]; let pb=0;
+      for(let k=0;k<n;k++){
+        const q=window[nom]();
+        if(q.opts){
+          if(q.opts.length!==4) pb++;
+          if(new Set(q.opts).size!==4) pb++;
+          if(q.bon<0||q.bon>3) pb++;
         }
-        bilan[nom]=pb;
-      });
-      return JSON.stringify(bilan);
-    })()`);
-    const bilan = JSON.parse(audit);
-    Object.keys(bilan).forEach(nom =>
-      verifier('g\u00e9n\u00e9rateur ' + nom + ' : 5000 questions conformes', bilan[nom] === 0, bilan[nom] + ' anomalies'));
-
-    /* fraction et pourcentage : a < b, b divise 100, pourcentage multiple de 5,
-       s\u00e9lections \u00e0 z\u00e9ro (elles vivent dans la question pour la reprise) */
-    const fpPb = w.eval(`(function(){
-      let pb=0;
-      for(let k=0;k<5000;k++){
-        const q=genFP();
-        if([2,4,5,10].indexOf(q.b)<0) pb++;
-        if(!(q.a>=1 && q.a<q.b)) pb++;
-        if(q.pct!==q.a*100/q.b || q.pct%5!==0) pb++;
-        if(q.selL!==0 || q.selR!==0) pb++;
-        if(typeof q.v!=='number') pb++;
-      }
-      return pb;
-    })()`);
-    verifier('g\u00e9n\u00e9rateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
-
-    /* s\u00e9rie du 3.1.4 : les six fractions d'un m\u00eame test sont toutes diff\u00e9rentes */
-    const fpSeriePb = w.eval(`(function(){
-      let pb=0;
-      for(let k=0;k<3000;k++){
-        const qs=genFPSerie(6);
-        if(qs.length!==6) pb++;
-        const sigs=qs.map(q=>q.a+'/'+q.b);
-        if(new Set(sigs).size!==6) pb++;
-      }
-      return pb;
-    })()`);
-    verifier('s\u00e9rie genFPSerie : 3000 tests de 6 fractions sans r\u00e9p\u00e9tition', fpSeriePb === 0, fpSeriePb + ' anomalies');
-
-    /* augmenter par l'addition : augmentation enti\u00e8re (P\u00d7N divisible par 100),
-       somme coh\u00e9rente, contexte et variante pr\u00e9sents */
-    const agPb = w.eval(`(function(){
-      let pb=0;
-      for(let k=0;k<5000;k++){
-        const q=genAugAdd();
-        if(q.P*q.N%100!==0) pb++;
-        if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
-        if(q.fin!==q.N+q.aug) pb++;
+        if(q.prod!==undefined && q.prod!==q.P*q.N) pb++;
+        if(q.result!==undefined && q.result!==Math.round(q.result)) pb++;
         if(q.unit===undefined||q.unit==='') pb++;
-        if(typeof q.v!=='number') pb++;
       }
-      return pb;
-    })()`);
-    verifier('g\u00e9n\u00e9rateur genAugAdd : 5000 questions conformes', agPb === 0, agPb + ' anomalies');
+      bilan[nom]=pb;
+    });
+    return JSON.stringify(bilan);
+  })()`);
+  const bilan = JSON.parse(audit);
+  Object.keys(bilan).forEach(nom =>
+    verifier('générateur ' + nom + ' : 5000 questions conformes', bilan[nom] === 0, bilan[nom] + ' anomalies'));
 
-    const di2Pb = w.eval(`(function(){
-      let pb=0;
+  /* fraction et pourcentage : a < b, b divise 100, pourcentage multiple de 5,
+     sélections à zéro (elles vivent dans la question pour la reprise) */
+  const fpPb = w.eval(`(function(){
+    let pb=0;
+    for(let k=0;k<5000;k++){
+      const q=genFP();
+      if([2,4,5,10].indexOf(q.b)<0) pb++;
+      if(!(q.a>=1 && q.a<q.b)) pb++;
+      if(q.pct!==q.a*100/q.b || q.pct%5!==0) pb++;
+      if(q.selL!==0 || q.selR!==0) pb++;
+      if(typeof q.v!=='number') pb++;
+    }
+    return pb;
+  })()`);
+  verifier('générateur genFP : 5000 questions conformes', fpPb === 0, fpPb + ' anomalies');
+
+  /* série du 3.1.4 : les six fractions d'un même test sont toutes différentes */
+  const fpSeriePb = w.eval(`(function(){
+    let pb=0;
+    for(let k=0;k<3000;k++){
+      const qs=genFPSerie(6);
+      if(qs.length!==6) pb++;
+      const sigs=qs.map(q=>q.a+'/'+q.b);
+      if(new Set(sigs).size!==6) pb++;
+    }
+    return pb;
+  })()`);
+  verifier('série genFPSerie : 3000 tests de 6 fractions sans répétition', fpSeriePb === 0, fpSeriePb + ' anomalies');
+
+  /* augmenter par l'addition : augmentation entière (P×N divisible par 100),
+     somme cohérente, contexte et variante présents */
+  const agPb = w.eval(`(function(){
+    let pb=0;
+    for(let k=0;k<5000;k++){
+      const q=genAugAdd();
+      if(q.P*q.N%100!==0) pb++;
+      if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
+      if(q.fin!==q.N+q.aug) pb++;
+      if(q.unit===undefined||q.unit==='') pb++;
+      if(typeof q.v!=='number') pb++;
+    }
+    return pb;
+  })()`);
+  verifier('générateur genAugAdd : 5000 questions conformes', agPb === 0, agPb + ' anomalies');
+
+  const di2Pb = w.eval(`(function(){
+    let pb=0;
+    for(let k=0;k<5000;k++){
+      const q=genDimSub();
+      if(q.P*q.N%100!==0) pb++;
+      if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
+      if(q.fin!==q.N-q.aug || q.fin<0) pb++;
+      if(q.unit===undefined||q.unit==='') pb++;
+      if(typeof q.v!=='number') pb++;
+    }
+    return pb;
+  })()`);
+  verifier('générateur genDimSub : 5000 questions conformes', di2Pb === 0, di2Pb + ' anomalies');
+
+  /* synthèse : 4 propositions distinctes, bonne réponse indexée, et le calcul
+     reste ENTIER pour chacune des quatre propositions, quelle que soit l'inconnue */
+  const synPb = w.eval(`(function(){
+    let pb=0;
+    for(let k=0;k<8000;k++){
+      const q=genSyn();
+      if(q.opts.length!==4 || new Set(q.opts).size!==4) pb++;
+      if(q.opts.indexOf(q.bonV)!==q.bon) pb++;
+      if(q.unit===undefined||q.unit==='') pb++;
+      if(typeof q.v!=='number') pb++;
+      for(let i=0;i<4;i++){
+        if(q.inc==='fin') break;                    /* les propositions sont le résultat lui-même */
+        const P=(q.inc==='pct')?q.opts[i]:q.P, N=(q.inc==='ini')?q.opts[i]:q.N;
+        const a=P*N/100;
+        if(a!==Math.round(a)) pb++;
+        if(q.sens===-1 && N-a<0) pb++;
+      }
+    }
+    return pb;
+  })()`);
+  verifier('générateur genSyn : 8000 questions conformes', synPb === 0, synPb + ' anomalies');
+
+  /* propositions vérifiées par le calcul direct : l'augmentation (ou la baisse)
+     doit rester ENTIÈRE pour chacune des quatre propositions */
+  const a2qAudit = w.eval(`(function(){
+    const bilan={};
+    [['genAugDepAdd'],['genDimTauxSub'],['genAugTauxAdd'],['genDimDepSub']].forEach(function(p){
+      const nom=p[0]; let pb=0;
       for(let k=0;k<5000;k++){
-        const q=genDimSub();
-        if(q.P*q.N%100!==0) pb++;
-        if(q.aug!==q.P*q.N/100 || q.aug!==Math.round(q.aug)) pb++;
-        if(q.fin!==q.N-q.aug || q.fin<0) pb++;
-        if(q.unit===undefined||q.unit==='') pb++;
-        if(typeof q.v!=='number') pb++;
-      }
-      return pb;
-    })()`);
-    verifier('g\u00e9n\u00e9rateur genDimSub : 5000 questions conformes', di2Pb === 0, di2Pb + ' anomalies');
-
-    /* synth\u00e8se : 4 propositions distinctes, bonne r\u00e9ponse index\u00e9e, et le calcul
-       reste ENTIER pour chacune des quatre propositions, quelle que soit l'inconnue */
-    const synPb = w.eval(`(function(){
-      let pb=0;
-      for(let k=0;k<8000;k++){
-        const q=genSyn();
+        const q=window[nom]();
         if(q.opts.length!==4 || new Set(q.opts).size!==4) pb++;
-        if(q.opts.indexOf(q.bonV)!==q.bon) pb++;
+        if(q.opts.indexOf(q.type==='pct'?q.P:q.N)!==q.bon) pb++;
+        if(q.aug!==q.P*q.N/100 || q.fin!==q.N+(q.sens===-1?-1:1)*q.aug) pb++;
         if(q.unit===undefined||q.unit==='') pb++;
-        if(typeof q.v!=='number') pb++;
         for(let i=0;i<4;i++){
-          if(q.inc==='fin') break;                    /* les propositions sont le r\u00e9sultat lui-m\u00eame */
-          const P=(q.inc==='pct')?q.opts[i]:q.P, N=(q.inc==='ini')?q.opts[i]:q.N;
+          const P=(q.type==='pct')?q.opts[i]:q.P, N=(q.type==='pct')?q.N:q.opts[i];
           const a=P*N/100;
           if(a!==Math.round(a)) pb++;
           if(q.sens===-1 && N-a<0) pb++;
         }
       }
-      return pb;
-    })()`);
-    verifier('g\u00e9n\u00e9rateur genSyn : 8000 questions conformes', synPb === 0, synPb + ' anomalies');
+      bilan[nom]=pb;
+    });
+    return JSON.stringify(bilan);
+  })()`);
+  const a2qB = JSON.parse(a2qAudit);
+  Object.keys(a2qB).forEach(nom =>
+    verifier('générateur ' + nom + ' : 5000 questions conformes', a2qB[nom] === 0, a2qB[nom] + ' anomalies'));
 
-    /* propositions v\u00e9rifi\u00e9es par le calcul direct : l'augmentation (ou la baisse)
-       doit rester ENTI\u00c8RE pour chacune des quatre propositions */
-    const a2qAudit = w.eval(`(function(){
-      const bilan={};
-      [['genAugDepAdd'],['genDimTauxSub'],['genAugTauxAdd'],['genDimDepSub']].forEach(function(p){
-        const nom=p[0]; let pb=0;
-        for(let k=0;k<5000;k++){
-          const q=window[nom]();
-          if(q.opts.length!==4 || new Set(q.opts).size!==4) pb++;
-          if(q.opts.indexOf(q.type==='pct'?q.P:q.N)!==q.bon) pb++;
-          if(q.aug!==q.P*q.N/100 || q.fin!==q.N+(q.sens===-1?-1:1)*q.aug) pb++;
-          if(q.unit===undefined||q.unit==='') pb++;
-          for(let i=0;i<4;i++){
-            const P=(q.type==='pct')?q.opts[i]:q.P, N=(q.type==='pct')?q.N:q.opts[i];
-            const a=P*N/100;
-            if(a!==Math.round(a)) pb++;
-            if(q.sens===-1 && N-a<0) pb++;
-          }
-        }
-        bilan[nom]=pb;
-      });
-      return JSON.stringify(bilan);
-    })()`);
-    const a2qB = JSON.parse(a2qAudit);
-    Object.keys(a2qB).forEach(nom =>
-      verifier('g\u00e9n\u00e9rateur ' + nom + ' : 5000 questions conformes', a2qB[nom] === 0, a2qB[nom] + ' anomalies'));
+  /* « Recommencer » doit relancer le MÊME exercice — le kind tm retombait sur
+     le calcul mental */
+  const relance = w.eval(`(function(){
+    let lance='';
+    const sauve={tm:startTM, tm2:startTM2, cm:startTest};
+    startTM=function(){lance='tm';}; startTM2=function(){lance='tm2';}; startTest=function(){lance='cm';};
+    test.kind='tm'; test.tmId='tables-multiplication';   restartCurrentTest(); const a=lance;
+    test.tmId='tables-multiplication-2';                 restartCurrentTest(); const b=lance;
+    startTM=sauve.tm; startTM2=sauve.tm2; startTest=sauve.cm;
+    return a+'/'+b;
+  })()`);
+  verifier('« Recommencer » relance bien chacune des deux tables', relance === 'tm/tm2', relance);
 
-    /* chaque exercice doit fournir son rappel de cours */
-    const sansRappel = w.eval(`(function(){
-      const manquants=[];
-      Object.keys(TESTS).forEach(function(id){
-        const k={ 'calcul-mental':'cm','pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
-                  'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
-                  'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
-                  'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q','diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q','diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn',
-                  'tables-multiplication':'tm','tables-multiplication-2':'tm' }[id];
-        if(k && !RAPPELS[k]) manquants.push(id);
-      });
-      return manquants.join(', ');
-    })()`);
-    verifier('chaque exercice a son rappel de cours', sansRappel === '', sansRappel);
+  /* 2.2 : chaque proposition, bonne ou fausse, doit donner un calcul ENTIER
+     (N=10 produisait des leurres 5…9 et des vérifications décimales) */
+  const qdPb = w.eval(`(function(){
+    let pb=0;
+    for(let k=0;k<5000;k++){
+      const q=genPctDepart();
+      if(q.N===10) pb++;
+      q.opts.forEach(function(o){ if(o<=0 || o%10!==0 || (q.P*o)%100!==0) pb++; });
+    }
+    return pb;
+  })()`);
+  verifier('2.2 : les 4 propositions donnent toutes un calcul entier', qdPb === 0, qdPb + ' anomalies');
 
-    /* « Recommencer » doit relancer le MÊME exercice — le kind tm retombait sur
-       le calcul mental */
-    const relance = w.eval(`(function(){
-      let lance='';
-      const sauve={tm:startTM, tm2:startTM2, cm:startTest};
-      startTM=function(){lance='tm';}; startTM2=function(){lance='tm2';}; startTest=function(){lance='cm';};
-      test.kind='tm'; test.tmId='tables-multiplication';   restartCurrentTest(); const a=lance;
-      test.tmId='tables-multiplication-2';                 restartCurrentTest(); const b=lance;
-      startTM=sauve.tm; startTM2=sauve.tm2; startTest=sauve.cm;
-      return a+'/'+b;
-    })()`);
-    verifier('« Recommencer » relance bien chacune des deux tables', relance === 'tm/tm2', relance);
+  /* convention des modes dans les poses en colonnes : en ÉVALUATION, aucune
+     correction révélée ; en ENTRAÎNEMENT, la case vide est complétée en bleu */
+  const modesPose = w.eval(`(function(){
+    currentMode='eval';
+    test.kind='mp'; test.questions=[genMultPosee()]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+    show('mtest'); renderMTest();
+    checkMAnswer();
+    const host=document.getElementById('mpHost');
+    const fuites=[...host.querySelectorAll('.mp-box')].filter(b=>b.value.trim()!=='').length
+                + host.querySelectorAll('.mp-fix').length;
+    currentMode='train'; test.locked=false; test.answers=[]; renderMTest();
+    checkMAnswer();
+    const bleues=[...document.getElementById('mpHost').querySelectorAll('.mp-box')]
+      .filter(b=>b.classList.contains('sol') && b.value.trim()!=='').length;
+    return fuites+'|'+bleues;
+  })()`);
+  const [fuites, bleues] = modesPose.split('|').map(Number);
+  verifier('en évaluation, la pose ne révèle rien', fuites === 0, fuites + ' case(s) révélée(s)');
+  verifier('en entraînement, la case vide est complétée en bleu', bleues > 0, 'aucune case .sol');
 
-    /* la pause doit conserver le devoir en cours, sinon la reprise ne crédite
-       jamais le devoir maison */
-    const dmGarde = w.eval(`(function(){
-      currentEleve={id:1,nom:'Contrôle'}; currentTestId='pourcentage'; currentDM='dm-controle';
-      test.kind='pct'; test.questions=[genPercent()]; test.idx=0; test.startTime=Date.now();
-      const d=recoveryPayload().details; currentDM=null;
-      return d.dm===\'dm-controle\' && d.state===\'paused\';
-    })()`);
-    verifier('la pause conserve le devoir maison en cours', dmGarde === true);
-
-    /* 2.2 : chaque proposition, bonne ou fausse, doit donner un calcul ENTIER
-       (N=10 produisait des leurres 5…9 et des vérifications décimales) */
-    const qdPb = w.eval(`(function(){
-      let pb=0;
+  /* pas de « 52,5 licenciés » : une valeur finale décimale interdit les
+     contextes dénombrables (ent:true) dans les quatre générateurs augq */
+  const ctxPb = w.eval(`(function(){
+    let pb=0;
+    ['genAugDepart','genAugTaux','genDimDepart','genDimTaux'].forEach(function(nom){
       for(let k=0;k<5000;k++){
-        const q=genPctDepart();
-        if(q.N===10) pb++;
-        q.opts.forEach(function(o){ if(o<=0 || o%10!==0 || (q.P*o)%100!==0) pb++; });
+        const q=window[nom]();
+        if(q.prodNum%100!==0 && AUGQ_CTX[q.ci].ent) pb++;
       }
-      return pb;
-    })()`);
-    verifier('2.2 : les 4 propositions donnent toutes un calcul entier', qdPb === 0, qdPb + ' anomalies');
-
-    /* convention des modes dans les poses en colonnes : en ÉVALUATION, aucune
-       correction révélée ; en ENTRAÎNEMENT, la case vide est complétée en bleu */
-    const modesPose = w.eval(`(function(){
-      currentMode='eval';
-      test.kind='mp'; test.questions=[genMultPosee()]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
-      show('mtest'); renderMTest();
-      checkMAnswer();
-      const host=document.getElementById('mpHost');
-      const fuites=[...host.querySelectorAll('.mp-box')].filter(b=>b.value.trim()!=='').length
-                  + host.querySelectorAll('.mp-fix').length;
-      currentMode='train'; test.locked=false; test.answers=[]; renderMTest();
-      checkMAnswer();
-      const bleues=[...document.getElementById('mpHost').querySelectorAll('.mp-box')]
-        .filter(b=>b.classList.contains('sol') && b.value.trim()!=='').length;
-      return fuites+'|'+bleues;
-    })()`);
-    const [fuites, bleues] = modesPose.split('|').map(Number);
-    verifier('en évaluation, la pose ne révèle rien', fuites === 0, fuites + ' case(s) révélée(s)');
-    verifier('en entraînement, la case vide est complétée en bleu', bleues > 0, 'aucune case .sol');
-
-    /* la pause doit capturer les saisies en cours, y compris les math-field
-       (elles étaient perdues : seuls les input à id étaient sauvés) */
-    const boxes = w.eval(`(function(){
-      currentMode='train'; test.kind='pct'; test.locked=false;
-      test.questions=[{P:30,N:40,unit:'€',prod:1200,result:12,ci:0,v:0}]; test.idx=0;
-      show('ptest'); renderPTest();
-      document.getElementById('p1n').value='30';
-      const m=captureBoxes();
-      document.getElementById('p1n').value='';
-      restoreBoxes(m);
-      return document.getElementById('p1n').value;
-    })()`);
-    verifier('la pause capture et restaure les saisies math-field', boxes === '30', 'restauré : « ' + boxes + ' »');
-
-    /* pas de « 52,5 licenciés » : une valeur finale décimale interdit les
-       contextes dénombrables (ent:true) dans les quatre générateurs augq */
-    const ctxPb = w.eval(`(function(){
-      let pb=0;
-      ['genAugDepart','genAugTaux','genDimDepart','genDimTaux'].forEach(function(nom){
-        for(let k=0;k<5000;k++){
-          const q=window[nom]();
-          if(q.prodNum%100!==0 && AUGQ_CTX[q.ci].ent) pb++;
-        }
-      });
-      return pb;
-    })()`);
-    verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
-
-    suite();
-  });
+    });
+    return pb;
+  })()`);
+  verifier('finale décimale ⇒ jamais d’unité dénombrable (20000 tirages)', ctxPb === 0, ctxPb + ' anomalies');
 }
 
 /* ---------- enchaînement ---------- */
-console.log('V\u00e9rification de ' + CIBLE);
+console.log('Vérification de ' + CIBLE + '  (' + P.niveau + ')');
 structure();
-demarrage(() => interface_(() => exercices(() => {
-  console.log('\n' + '\u2500'.repeat(58));
+demarrage(() => aide(() => exercices(() => {
+  if(P.lacunes.length){
+    titre('CE QUE CE NIVEAU N\'A PAS ENCORE');
+    P.lacunes.forEach(l => console.log('   · ' + l));
+  }
+  console.log('\n' + '─'.repeat(58));
+  const suffixe = ignores ? ' (' + ignores + ' non applicable' + (ignores > 1 ? 's' : '') + ')' : '';
   console.log(echecs === 0
-    ? '\u2713 ' + controles + ' contr\u00f4les pass\u00e9s. Le fichier peut \u00eatre mis en ligne.'
-    : '\u2717 ' + echecs + ' \u00e9chec(s) sur ' + controles + ' contr\u00f4les. NE PAS mettre en ligne.');
+    ? '✓ ' + controles + ' contrôles passés' + suffixe + '. Le fichier peut être mis en ligne.'
+    : '✗ ' + echecs + ' échec(s) sur ' + controles + ' contrôles' + suffixe + '. NE PAS mettre en ligne.');
   process.exit(echecs ? 1 : 0);
 })));

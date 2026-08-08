@@ -28,9 +28,10 @@ vérifie la publication, et jamais avant (décision de Turquet, août 2026).
 Jamais de poussée directe sur `main`.
 
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
-les contrôles échouent. L'action GitHub `.github/workflows/controles.yml`
-rejoue ces contrôles sur chaque pull request : elle doit être verte avant
-fusion. Voir `tests/LISEZMOI.md`.
+les contrôles échouent. `npm test` contrôle **les trois niveaux**, chacun selon
+son profil (`tests/profils.js`). L'action GitHub `.github/workflows/controles.yml`
+les rejoue tous les trois sur chaque pull request, une étape par fichier : elle
+doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
 
 **3. Ne jamais livrer sans avoir exécuté.** Une vérification de syntaxe ne prouve
 rien. Trois pannes en production sont passées à travers des contrôles statiques
@@ -118,9 +119,16 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 ## Vérifier
 
 ```bash
-npm install     # une seule fois
-npm test        # premiere-specifique.html, 40 contrôles
+npm install          # une seule fois
+npm test             # les trois niveaux
+npm run test:secondes # un seul, quand on travaille dessus
 ```
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui
 ont motivé ce banc de test y sont chacune couvertes par une ligne.
+
+**Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.** Les trois
+fichiers ne savent pas faire les mêmes choses : `tests/profils.js` dit pour
+chacun ce que le banc doit piloter, et la liste `lacunes` de son profil énumère
+ce qui lui manque. Ces manques s'affichent à chaque exécution. Un contrôle
+supprimé en silence rend le banc vert sur un fichier qu'il ne vérifie plus.

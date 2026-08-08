@@ -1235,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=74;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=75;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2041,7 +2041,8 @@ async function clearRecovery(){
     if(eid){ const {data,error}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
       if(error) console.warn('Recherche des brouillons impossible :', error.message);
       const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
-      for(const r of old){ await sb.from('resultats_1ere').delete().eq('id',r.id); } }
+      for(const r of old){ const {error:errSup}=await sb.from('resultats_1ere').delete().eq('id',r.id);
+        if(errSup) console.warn('Ancien brouillon non supprimé :', errSup.message); } }
   }catch(e){}
 }
 async function resumeTest(mode){

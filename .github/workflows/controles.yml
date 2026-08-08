@@ -1,7 +1,8 @@
 # Rejoue le banc de contrôles sur chaque pull request et chaque poussée sur main.
 # La fusion vers main (= mise en ligne, GitHub Pages) exige que ce contrôle soit vert.
-# Les fichiers de Seconde et Terminale n'ont que les familles 1-2 du banc (structure
-# et démarrage) : les familles 3-4 sont propres à premiere-specifique.html.
+# Les TROIS niveaux sont contrôlés. Chacun a son étape, pour que l'action nomme
+# le fichier fautif ; « if: always() » fait tourner les trois même si le premier
+# échoue, sinon un niveau cassé masquerait l'état des deux autres.
 name: Contrôles
 
 on:
@@ -18,5 +19,11 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: premiere-specifique.html — banc complet
-        run: npm test
+      - name: premiere-specifique.html
+        run: npm run test:premiere
+      - name: secondes.html
+        if: always()
+        run: npm run test:secondes
+      - name: terminale.html
+        if: always()
+        run: npm run test:terminale
