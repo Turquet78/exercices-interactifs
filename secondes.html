@@ -1195,7 +1195,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=10;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=11;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1815,9 +1815,11 @@ async function doRecoverySave(){
   if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   const payload=recoveryPayload();
   if(recoveryRowId){
-    await sb.from('resultats_2nde').update(payload).eq('id',recoveryRowId);
+    const {error}=await sb.from('resultats_2nde').update(payload).eq('id',recoveryRowId);
+    if(error){ recoveryDirty=true; console.warn('brouillon non sauvegarde :', error.message||error); }
   } else {
-    const {data}=await sb.from('resultats_2nde').insert(payload).select('id').single();
+    const {data,error}=await sb.from('resultats_2nde').insert(payload).select('id').single();
+    if(error) console.warn('brouillon non cree :', error.message||error);
     if(data&&data.id){
       if(recoveryClosed) sb.from('resultats_2nde').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
       else recoveryRowId=data.id;
@@ -1837,10 +1839,12 @@ async function clearRecovery(){
   const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
   recoveryRowId=null;
   try{
-    if(id) await sb.from('resultats_2nde').delete().eq('id',id);
-    if(eid){ const {data}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+    if(id){ const {error}=await sb.from('resultats_2nde').delete().eq('id',id); if(error) console.warn('brouillon non supprime :', error.message||error); }
+    if(eid){ const {data,error}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+      if(error) console.warn('recherche des brouillons impossible :', error.message||error);
       const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
-      for(const r of old){ await sb.from('resultats_2nde').delete().eq('id',r.id); } }
+      for(const r of old){ const {error:errSup}=await sb.from('resultats_2nde').delete().eq('id',r.id);
+        if(errSup) console.warn('ancien brouillon non supprime :', errSup.message||errSup); } }
   }catch(e){}
 }
 async function openTest(testId){
@@ -1855,7 +1859,8 @@ async function openTest(testId){
   // chercher une session mise en pause pour ce test (entraînement / soutien)
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -1881,7 +1886,9 @@ async function enregistrerNotePartielle(){
   const total=test.maxScore||test.questions.length, score=test.score||0, pct=Math.min(100,Math.round(score/total*100));
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details}); return true; }catch(e){ return false; }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details});
+    if(error){ toast('Note non enregistrée : '+(error.message||'erreur'),'err'); return false; }
+    return true; }catch(e){ return false; }
 }
 async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
@@ -1999,7 +2006,8 @@ async function creerCompte(){
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
-    const {data:exist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
+    const {data:exist,error:errExist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
+    if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
     const {data,error}=await sb.from('eleves_2nde').insert({prenom,pin}).select().single();
     if(error)throw error;
@@ -2017,7 +2025,8 @@ function ouvrirEspace(){
 }
 async function chargerMesResultats(){
   try{
-    const {data}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
   return mesResultats;
@@ -2156,7 +2165,8 @@ async function openTestDevoir(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -2487,11 +2497,12 @@ async function finishTest(){
   const total = test.maxScore || test.questions.length;
   const score = test.score;
   const pct = total ? Math.round(score/total*100) : 0;
-  const durationSec = (Date.now()-test.startTime)/1000;
+  const durationSec = Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses = test.answers.filter(a=>!a.correct).map(a=>({q:a.q, donne:a.given, bon:a.answer}));
   const fdetails = {test:currentTestId, mode:currentMode, misses:misses}; if(currentDM) fdetails.dm=currentDM;
   try{
-    await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id, score:score, total:total, percent:pct, duration_sec:durationSec, details:fdetails});
+    const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id, score:score, total:total, percent:pct, duration_sec:durationSec, details:fdetails});
+    if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score:score, total:total, percent:pct, durationSec:durationSec});
 }
@@ -2706,7 +2717,8 @@ async function addStudent(){
   if(!prenom){ toast('Écris un prénom'); return; }
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   try{
-    const {data:exist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
+    const {data:exist,error:errExist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
+    if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà','err'); return; }
     const {error}=await sb.from('eleves_2nde').insert({prenom,pin}); if(error)throw error;
     $('addPrenom').value='';$('addPin').value=''; toast('Élève ajouté','ok'); renderRoster();
@@ -2730,8 +2742,10 @@ async function resetYear(){
   if(!confirm('Supprimer TOUS les comptes et TOUT l\'historique ? À ne faire qu\'à la rentrée.'))return;
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
-    await sb.from('resultats_2nde').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    await sb.from('eleves_2nde').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    const r1=await sb.from('resultats_2nde').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(r1.error){ toast('Réinitialisation impossible : '+(r1.error.message||'erreur'),'err'); return; }
+    const r2=await sb.from('eleves_2nde').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    if(r2.error){ toast('Comptes non supprimés : '+(r2.error.message||'erreur'),'err'); return; }
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
@@ -3060,9 +3074,10 @@ function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishPercent(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err'); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3220,9 +3235,10 @@ function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishAug(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err'); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3394,9 +3410,10 @@ function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; rend
 async function finishDim(){
   clearRecovery();
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err'); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }

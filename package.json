@@ -3,7 +3,7 @@
   "private": true,
   "description": "Exercices de mathematiques interactifs (Seconde, Premiere, Terminale)",
   "scripts": {
-    "test": "node tests/verifier.js premiere-specifique.html",
+    "test": "node tests/tous.js",
     "test:premiere": "node tests/verifier.js premiere-specifique.html",
     "test:terminale": "node tests/verifier.js terminale.html",
     "test:secondes": "node tests/verifier.js secondes.html"
