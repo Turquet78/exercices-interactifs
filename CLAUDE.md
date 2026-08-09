@@ -36,6 +36,8 @@ doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
 **3. Ne jamais livrer sans avoir exécuté.** Une vérification de syntaxe ne prouve
 rien. Trois pannes en production sont passées à travers des contrôles statiques
 parfaitement verts — leur point commun était que personne n'avait ouvert la page.
+`npm run test:navigateur` ouvre les trois pages dans un vrai Chromium et fait un
+exercice de bout en bout : c'est le seul banc qui voit ce qui s'affiche.
 
 **4. Incrémenter `APP_VERSION`** à chaque modification. Ce numéro s'affiche dans
 l'en-tête et permet de savoir d'un coup d'œil quelle version est ouverte.
@@ -122,6 +124,7 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 npm install          # une seule fois
 npm test             # les trois niveaux
 npm run test:secondes # un seul, quand on travaille dessus
+npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
 ```
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui

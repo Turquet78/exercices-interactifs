@@ -1,8 +1,11 @@
 # Rejoue le banc de contrôles sur chaque pull request et chaque poussée sur main.
-# La fusion vers main (= mise en ligne, GitHub Pages) exige que ce contrôle soit vert.
-# Les TROIS niveaux sont contrôlés. Chacun a son étape, pour que l'action nomme
-# le fichier fautif ; « if: always() » fait tourner les trois même si le premier
-# échoue, sinon un niveau cassé masquerait l'état des deux autres.
+# La fusion vers main (= mise en ligne, GitHub Pages) exige que ces contrôles soient verts.
+#
+# Deux travaux séparés, volontairement :
+#   « controles »  — rapide, sans navigateur : structure, démarrage, exercices (jsdom).
+#   « navigateur » — ouvre un vrai Chromium et fait un exercice de bout en bout.
+# Les séparer garde le verdict structurel rapide, et évite qu'une panne
+# d'installation de navigateur masque l'état réel du code.
 name: Contrôles
 
 on:
@@ -19,6 +22,9 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      # Chaque niveau a son étape, pour que l'action nomme le fichier fautif ;
+      # « if: always() » les fait toutes tourner, sinon un niveau cassé masquerait
+      # l'état des deux autres.
       - name: premiere-specifique.html
         run: npm run test:premiere
       - name: secondes.html
@@ -27,3 +33,22 @@ jobs:
       - name: terminale.html
         if: always()
         run: npm run test:terminale
+
+  navigateur:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
+      - name: premiere-specifique.html — dans un vrai navigateur
+        run: npm run test:navigateur:premiere
+      - name: secondes.html — dans un vrai navigateur
+        if: always()
+        run: npm run test:navigateur:secondes
+      - name: terminale.html — dans un vrai navigateur
+        if: always()
+        run: npm run test:navigateur:terminale

@@ -15,6 +15,13 @@ npm run test:secondes
 npm run test:terminale
 ```
 
+Et dans un **vrai navigateur**, où un élève fictif fait réellement un exercice :
+
+```bash
+npm run test:navigateur              # les trois niveaux
+npm run test:navigateur:secondes     # un seul
+```
+
 La commande affiche une ligne par contrôle et se termine par un verdict. Elle
 renvoie le code 0 si tout passe, 1 sinon — ce qui permet de la brancher sur une
 action GitHub pour bloquer une fusion qui casserait quelque chose.
@@ -86,6 +93,37 @@ présents.
 pause conserve le devoir maison et restaure les saisies, sa durée part entière,
 « Recommencer » relance le bon exercice, chaque exercice possède son rappel de
 cours, et les générateurs produisent des milliers de questions conformes.
+
+## Le banc navigateur
+
+`npm test` charge les pages dans jsdom : un DOM sans mise en page, sans MathLive,
+sans un pixel calculé. Il attrape beaucoup, mais pas ce qui ne se voit qu'à
+l'écran — et c'est précisément ce qui a causé la panne v46, où `25/100`
+s'affichait « 10025 ».
+
+`npm run test:navigateur` (`tests/navigateur.js`) ouvre un vrai Chromium, exécute
+le **vrai** MathLive, connecte un élève en cliquant sur son prénom, fait
+l'exercice question par question et regarde ce qui s'affiche. Il vérifie
+notamment qu'une fraction se rend bien **numérateur au-dessus du dénominateur**,
+en comparant les positions à l'écran : la panne v46 y est enfin couverte pour de
+bon, et non plus par la seule présence de la feuille de styles.
+
+Il vérifie aussi ce que jsdom ne peut pas montrer : qu'un exercice mené jusqu'au
+bout n'écrit **qu'une** note, avec une durée entière et le bon identifiant ; que
+l'élève est **prévenu** quand la base refuse l'enregistrement ; et que la page ne
+déborde pas latéralement sur un écran de téléphone.
+
+**Aucun test ne touche la vraie base.** La requête vers supabase-js est
+interceptée et remplacée par `tests/faux-supabase.js`, qui tient les lignes en
+mémoire et journalise chaque opération. Le projet Supabase des élèves n'est
+jamais contacté, et aucune note fantôme ne peut apparaître dans leur progression.
+Poser `window.__faux.panne = true` fait échouer les écritures suivantes : c'est
+ainsi qu'on vérifie que l'application le dit à l'élève.
+
+MathLive est servi depuis une copie locale (`tests/.cache/`, ignorée par git),
+téléchargée à la première exécution. Si le téléchargement échoue, les contrôles
+de rendu se déclarent « non applicable » au lieu de passer au vert sans rien
+vérifier.
 
 ## Ajouter un contrôle
 

@@ -71,6 +71,15 @@ module.exports = {
   'premiere-specifique.html': {
     niveau: 'Première',
     tableResultats: 'resultats_1ere',
+    tableEleves: 'eleves_1ere',
+    navigateur: {
+      exercice: 'pourcentage', ecran: 'ptest',
+      /* remplit la question courante avec la bonne réponse, dans les vrais champs */
+      repondre: "(function(){ var q=test.questions[test.idx]; function m(i,v){ var e=document.getElementById(i); if(e) e.value=String(v); }"
+              + " m('p1n',q.P); m('p1d',100); m('p2n',q.prod); m('p2d',100); m('p3',q.result); return true; })()",
+      valider: '#pActions button.btn-primary',
+      suivant: '#pNext',
+    },
     temoin: {
       testId: 'pourcentage', kind: 'pct', ecran: 'ptest', rendu: 'renderPTest',
       generateur: 'genPercent()',
@@ -102,6 +111,14 @@ module.exports = {
   'secondes.html': {
     niveau: 'Seconde',
     tableResultats: 'resultats_2nde',
+    tableEleves: 'eleves_2nde',
+    navigateur: {
+      exercice: 'pourcentage', ecran: 'ptest',
+      repondre: "(function(){ var q=test.questions[test.idx]; function m(i,v){ var e=document.getElementById(i); if(e) e.value=String(v); }"
+              + " m('p1n',q.P); m('p1d',100); m('p2n',q.prod); m('p2d',100); m('p3',q.result); return true; })()",
+      valider: '#pActions button.btn-primary',
+      suivant: '#pNext',
+    },
     temoin: {
       testId: 'pourcentage', kind: 'pct', ecran: 'ptest', rendu: 'renderPTest',
       generateur: 'genPercent()',
@@ -134,6 +151,15 @@ module.exports = {
   'terminale.html': {
     niveau: 'Terminale',
     tableResultats: 'resultats',
+    tableEleves: 'eleves',
+    navigateur: {
+      exercice: 'derivees', ecran: 'test',
+      /* le moteur générique enchaîne tout seul après un court délai : pas de bouton « suivant » */
+      repondre: "(function(){ var q=test.questions[test.idx]; var e=document.getElementById('answerInput');"
+              + " if(!e) return false; e.value=String(q.answer); return true; })()",
+      valider: '#validateBtn',
+      suivant: null,
+    },
     temoin: {
       testId: 'derivee-exp', kind: 'dexp', ecran: 'dexp', rendu: 'renderDexp',
       generateur: 'genDexp()',
