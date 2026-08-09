@@ -147,8 +147,8 @@ module.exports = {
     },
     aide: {
       amorce: null,
-      rangee: null,
-      qiaDetachee: false,
+      rangee: { selecteur: '#scr-ptest .mp-actions button, #pActions button', attendus: 3 },
+      qiaDetachee: true,
       conseil: true,
       ctx: null,
       mlStatic: true,
@@ -166,7 +166,7 @@ module.exports = {
     rappelSansIA: { fonction: 'ouvrirRappelSeul', appelIA: 'lancerConseil' },
     specifique: null,
     lacunes: [
-      "pas de fenêtre « Question à l'IA » (ni ouvrirQIA, ni qiaPoser, ni QIA_SUGG) : les élèves de Seconde n'ont pas l'aide par IA des deux autres niveaux, et les 5 contrôles de la fenêtre détachée ne s'appliquent pas",
+      "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
     ],
   },
 

@@ -554,8 +554,22 @@ function exercices(suite){
         if(cadre.innerHTML.length<50) return 'le rappel est vide';
         return true;
       })()`, v => v === true, undefined);
+      verifierEval(w, 'le rappel est offert en entraînement, jamais en évaluation', `(function(){
+        if(typeof rappelInlineBtn!=='function') return 'rappelInlineBtn absente';
+        currentTestId='${t.testId}'; test.kind='${t.kind}';
+        const sauve=currentMode;
+        currentMode='train';   const enTrain=rappelInlineBtn().length>0;
+        currentMode='soutien'; const enSoutien=rappelInlineBtn().length>0;
+        currentMode='eval';    const enEval=rappelInlineBtn().length>0;
+        currentMode=sauve;
+        if(!enTrain)   return 'absent en entraînement';
+        if(!enSoutien) return 'absent en soutien';
+        if(enEval)     return 'présent en évaluation — il ne doit pas l’être';
+        return true;
+      })()`, v => v === true, undefined);
     } else {
       ignorer('le rappel de cours s’affiche sans appeler l’IA', 'ce niveau ouvre son rappel depuis la fenêtre d’aide déjà en place');
+      ignorer('le rappel est offert en entraînement, jamais en évaluation', 'ce niveau n’a pas de bouton de rappel distinct');
     }
 
     /* chaque exercice doit fournir son rappel de cours */

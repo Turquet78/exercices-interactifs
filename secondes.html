@@ -403,6 +403,53 @@
   .pge-opt.bad{color:#fff;background:var(--red);border-color:var(--red)}
   .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
   .conseil-card{max-width:min(520px,94vw);width:100%}
+/* --- Fenêtre « Poser une question à l'IA » (flottante, déplaçable) --- */
+.qia-overlay{position:fixed;inset:0;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:14px;box-sizing:border-box}
+.qia-overlay.on{display:flex}
+.qia-card{background:var(--surface);border-radius:16px;max-width:600px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(15,23,42,.25);overflow:hidden}
+.qia-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1.5px solid var(--line);font-size:1.02rem}
+.qia-close{border:none;background:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft);padding:4px 8px}
+.qia-sugg{padding:10px 14px 2px}
+.qia-chip{display:inline-block;margin:0 8px 8px 0;padding:7px 11px;border:1.5px solid #c9d3e8;border-radius:999px;background:var(--paper);font-weight:700;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left}
+.qia-chip:hover{border-color:var(--blue);color:var(--blue)}
+.qia-dialog{flex:1;overflow-y:auto;padding:6px 14px;min-height:56px}
+.qia-q,.qia-r{margin:8px 0;padding:9px 12px;border-radius:12px;line-height:1.5;font-size:.95rem}
+.qia-q{background:#e8eefb;margin-left:14%}
+.qia-r{background:var(--paper);border:1.5px solid var(--line);margin-right:6%}
+.qia-inputrow{display:flex;gap:8px;padding:10px 14px;border-top:1.5px solid var(--line);align-items:flex-end}
+.qia-inputrow textarea{flex:1;resize:none;border:2px solid #c9d3e8;border-radius:10px;padding:8px 10px;font:inherit;min-height:44px;box-sizing:border-box}
+.qia-mic{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:44px;height:44px;font-size:1.1rem;cursor:pointer;flex:none}
+.qia-mic.on{border-color:#d94859;background:#fdecee;animation:qiaPulse 1s infinite}
+.qia-mic.off{opacity:.4;filter:grayscale(1);cursor:not-allowed}
+/* --- Illustrations génériques de la fenêtre QIA (thème limites) : dessins de la plateforme, choisis par l'IA --- */
+.qia-illu{margin-top:9px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:6px 4px 0;text-align:center;}
+.qia-illu svg{display:block;margin:0 auto;max-width:250px;width:100%;height:auto;}
+.qia-illu-leg{font-size:.8rem;font-weight:700;color:var(--ink-soft);padding:3px 8px 6px;}
+/* tableau (\begin{array}) converti par iaTableau : cellules centrees, \hline = trait haut */
+.qia-arr{border-collapse:collapse;margin:8px 0;background:var(--surface);}
+.qia-arr td{border:1.5px solid var(--line);padding:4px 12px;text-align:center;min-width:36px;}
+.qia-arr tr.qia-arr-h td{border-top:2.5px solid #8A93B4;}
+.qia-illu .qi-ax{stroke:#5C668A;stroke-width:1.3;fill:none;}
+.qia-illu .qi-fl{fill:#5C668A;}
+.qia-illu .qi-flb{fill:#2B50C8;}
+.qia-illu .qi-cb{stroke:#2B50C8;stroke-width:2.4;fill:none;stroke-linecap:round;}
+.qia-illu .qi-as{stroke:#E23D52;stroke-width:1.7;stroke-dasharray:6 4;fill:none;}
+.qia-illu .qi-gd{stroke:#8A93B4;stroke-width:1.1;stroke-dasharray:3 3;fill:none;}
+.qia-illu .qi-tx{font-size:12.5px;font-weight:700;fill:#1E2A4A;}
+.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#E23D52;}
+.qia-illu .qi-tb{font-size:12.5px;font-weight:800;fill:#2B50C8;}
+.qia-illu .qi-pt{fill:#2B50C8;stroke:#fff;stroke-width:1.4;}
+.qia-illu .qi-po{fill:#FFFFFF;stroke:#2B50C8;stroke-width:2;}
+.qia-illu .qi-cadre{stroke:#1E2A4A;stroke-width:1.4;fill:#FFFFFF;}
+.qia-illu .qi-trait{stroke:#1E2A4A;stroke-width:1.2;}
+/* --- Fenêtres d'aide flottantes : pas de voile bloquant, déplaçables par leur barre de titre --- */
+.qia-overlay{background:transparent;pointer-events:none}
+.qia-overlay .qia-card{pointer-events:auto;border:1.5px solid var(--line)}
+#conseilModal{background:transparent;pointer-events:none}
+#conseilModal .conseil-card{pointer-events:auto;border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(15,23,42,.25)}
+#qiaOverlay .qia-head,#conseilModal .notes-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+.qia-headbtns{display:flex;align-items:center;gap:2px}
+@keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
   .rap-row{margin:2px 0 8px;text-align:center}
   #conseilRappel{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;line-height:1.55;font-size:.95rem}
   .def-prompt{font-weight:600;margin:0 0 12px}
@@ -957,7 +1004,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="lv-graph" id="lvGraph"></div>
       <div id="lvBody"></div>
       <div class="lv-feedback"><span id="lvMark" class="mark"></span> <span id="lvCorr" class="correction"></span></div>
-      <div class="row" style="justify-content:center;margin-top:16px"><button id="lvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="lvRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="lvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="lvQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
     </div>
   </section>
 
@@ -1190,17 +1237,48 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 </div>
 
 <div id="toast"></div>
+<!-- Fenêtre « Poser une question à l'IA » (flottante, déplaçable) -->
+<div id="qiaOverlay" class="qia-overlay">
+  <div class="qia-card">
+    <div class="qia-head"><b>💬 Poser une question à l’IA</b><span class="qia-headbtns"><button type="button" class="qia-close qia-detach" onclick="detacherQIA()" title="Détacher dans une fenêtre indépendante">⧉</button><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></span></div>
+    <div class="qia-sugg" id="qiaSugg"></div>
+    <div class="qia-dialog" id="qiaDialog"></div>
+    <div class="qia-inputrow">
+      <textarea id="qiaInput" rows="2" placeholder="Écris ta question ici… (ou dicte-la avec le micro)" maxlength="300"></textarea>
+      <button type="button" class="qia-mic" id="qiaMic" onclick="qiaMicToggle()" title="Dicter la question au micro">🎤</button>
+      <button type="button" class="btn btn-primary" id="qiaSend" onclick="qiaEnvoyer()">Envoyer</button>
+    </div>
+  </div>
+</div>
+<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 <div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
 /* ---------- Raccourcis ---------- */
-const $=id=>document.getElementById(id);
+/* $ cherche d'abord dans la page, PUIS dans chaque fenetre detachee. Sans ce
+   second recours, tout $('qiaInput'), $('qiaDialog'), $('conseilBody') renvoie
+   null des que la carte a quitte le document — silencieusement. C'est la panne
+   v44, et c'est une REDEFINITION : un portage qui ne cherche que les nouvelles
+   declarations ne la voit pas. */
+function $(id){
+  let el=document.getElementById(id);
+  if(!el && window.__fenetresDetachees){
+    for(let i=0;i<window.__fenetresDetachees.length;i++){
+      const p=window.__fenetresDetachees[i];
+      try{ if(p && !p.closed){ el=p.document.getElementById(id); if(el) break; } }catch(e){}
+    }
+  }
+  return el;
+}
+/* Affectation a window, donc invisible a tout filtre function/const/let : c'est
+   l'exemple nomme dans le CLAUDE.md, et son oubli est la panne v43. */
+window.__fenetresDetachees = window.__fenetresDetachees || [];
 
 /* ================== GREFFE TERMINALE : cases mathematiques ==================
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=19;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=20;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1675,6 +1753,252 @@ function conseilCourant(){
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   demanderConseilModal(b.nombre, b.contexte);
 }
+
+/* ================= Fenetre « Question a l'IA » =================
+   Portage reduit depuis terminale.html : la fenetre, son detachement sur
+   ordinateur, les questions suggerees, l'envoi et l'affichage de la reponse.
+   NE SONT PAS portes les illustrations, les courbes SVG et les corriges types :
+   ils sont indexes sur des exercices que la Seconde n'a pas, et la reponse est
+   ici rendue en texte simple, comme le fait deja lancerConseil. */
+function detachementPossible(){
+  try{ return !!window.open && window.matchMedia && window.matchMedia('(pointer: fine)').matches; }
+  catch(e){ return false; }
+}
+function detacherFenetre(conteneur, carte, titre, nom, larg, haut){
+  if(!conteneur || !carte) return null;
+  const L=window.__fenetresDetachees;
+  for(let i=0;i<L.length;i++){ if(L[i] && L[i].__origine===conteneur && !L[i].closed){ try{ L[i].focus(); }catch(e){} return L[i]; } }
+  let pop=null;
+  const gauche=Math.max(0, ((window.screen&&window.screen.width)||1280)-larg-60);
+  try{ pop=window.open('', nom, 'width='+larg+',height='+haut+',left='+gauche+',top=90'); }catch(e){ pop=null; }
+  if(!pop){ toast('Fenêtre bloquée par le navigateur — autorise les pop-ups pour ce site.'); return null; }
+  /* Firefox recharge about:blank après window.open('') et REMPLACE le document initial,
+     balayant ce qu'on y a mis. Un document.write immédiat annule ce chargement en attente. */
+  try{
+    pop.document.open();
+    pop.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"></head><body></body></html>');
+    pop.document.close();
+  }catch(e){}
+  garnirFenetre(pop, titre);
+  pop.__carte=carte; pop.__origine=conteneur;
+  try{ pop.document.body.appendChild(pop.document.adoptNode(carte)); }catch(e){ toast('Détachement impossible sur ce navigateur.'); try{ pop.close(); }catch(_e){} return null; }
+  L.push(pop);
+  /* pagehide : fermeture réelle → rapatriement ; remplacement de document (vieux Firefox
+     malgré le write) → on regarnit le nouveau document et on ré-adopte la carte. */
+  try{
+    pop.addEventListener('pagehide', function(){
+      setTimeout(function(){
+        if(pop.closed){ rapatrierFenetre(pop); return; }
+        if(pop.__carte && pop.__carte.ownerDocument!==pop.document){
+          try{
+            garnirFenetre(pop, titre);
+            pop.document.body.appendChild(pop.document.adoptNode(pop.__carte));
+          }catch(e){ rapatrierFenetre(pop); try{ pop.close(); }catch(_e){} }
+        }
+      },0);
+    });
+  }catch(e){}
+  try{ pop.focus(); }catch(e){}
+  return pop;
+}
+/* Prépare (ou re-prépare) le document d'une fenêtre détachée : titre, styles, ponts onclick. */
+function garnirFenetre(pop, titre){
+  const pd=pop.document;
+  try{ pd.title=titre; }catch(e){}
+  try{
+    if(!pd.getElementById('fenStyle')){
+      const st=pd.createElement('style'); st.id='fenStyle';
+      st.textContent=Array.prototype.map.call(document.querySelectorAll('style'),function(x){ return x.textContent; }).join('\n')
+        +'\nbody{margin:0;background:var(--surface);font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}'
+        +'\n.qia-card,.conseil-card{position:static!important;left:auto!important;top:auto!important;width:100%!important;max-width:none!important;height:100vh;max-height:100vh!important;margin:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}'
+        +'\n.qia-detach{display:none!important}';
+      pd.head.appendChild(st);
+    }
+  }catch(e){}
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+}
+function rapatrierFenetre(pop){
+  try{
+    if(pop && pop.__carte && pop.__carte.ownerDocument!==document && pop.__origine){
+      pop.__origine.appendChild(document.adoptNode(pop.__carte));
+    }
+  }catch(e){}
+  const i=window.__fenetresDetachees.indexOf(pop);
+  if(i>=0) window.__fenetresDetachees.splice(i,1);
+}
+function reattacherFenetres(){
+  window.__fenetresDetachees.slice().forEach(function(pop){
+    rapatrierFenetre(pop);
+    try{ pop.close(); }catch(e){}
+  });
+}
+function detacherQIA(){
+  const ov=document.getElementById('qiaOverlay'); if(!ov) return;
+  const carte=ov.querySelector('.qia-card'); if(!carte) return;
+  const pop=detacherFenetre(ov, carte, 'Poser une question à l’IA', 'fenQIA', 430, 560);
+  if(pop) ov.classList.remove('on');
+}
+function rendreDeplacable(carte, poignee){
+  if(!carte || !poignee || poignee.__deplacable) return;
+  poignee.__deplacable=true;
+  poignee.style.cursor='move';
+  poignee.style.touchAction='none';
+  const EVT=window.PointerEvent
+    ? { debut:['pointerdown'], bouge:['pointermove'], fin:['pointerup','pointercancel'] }
+    : { debut:['mousedown','touchstart'], bouge:['mousemove','touchmove'], fin:['mouseup','touchend','touchcancel'] };
+  const pointDe=function(e){ return (e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e; };
+  const debut=function(e){
+    if(e.button!==undefined && e.button!==0 && !e.touches) return;      /* clic gauche ou doigt uniquement */
+    if(e.target && e.target.closest && e.target.closest('button')) return;   /* ✕ / Fermer restent cliquables */
+    if(carte.ownerDocument!==document) return;                /* détachée : le système gère la fenêtre */
+    const r=carte.getBoundingClientRect();
+    carte.style.position='fixed';
+    carte.style.left=r.left+'px'; carte.style.top=r.top+'px';
+    carte.style.width=r.width+'px';
+    carte.style.margin='0'; carte.style.transform='none';
+    const p0=pointDe(e);
+    const dx=p0.clientX-r.left, dy=p0.clientY-r.top;
+    const bouge=function(ev){
+      const p=pointDe(ev);
+      const W=window.innerWidth, H=window.innerHeight;
+      let x=p.clientX-dx, y=p.clientY-dy;
+      x=Math.max(80-r.width, Math.min(x, W-80));   /* toute la largeur, en gardant 80 px attrapables */
+      y=Math.max(0, Math.min(y, H-48));            /* toute la hauteur, barre de titre jamais perdue */
+      carte.style.left=x+'px'; carte.style.top=y+'px';
+      if(ev.cancelable && ev.preventDefault) ev.preventDefault();      /* pas de défilement pendant le glisser */
+    };
+    const fin=function(){
+      EVT.bouge.forEach(function(n){ document.removeEventListener(n,bouge); });
+      EVT.fin.forEach(function(n){ document.removeEventListener(n,fin); });
+    };
+    EVT.bouge.forEach(function(n){ document.addEventListener(n,bouge,{passive:false}); });
+    EVT.fin.forEach(function(n){ document.addEventListener(n,fin); });
+    if(e.cancelable && e.preventDefault) e.preventDefault();
+  };
+  EVT.debut.forEach(function(n){ poignee.addEventListener(n,debut,{passive:false}); });
+}
+let qiaRec=null;
+function qiaMicStop(){ try{ if(qiaRec) qiaRec.stop(); }catch(e){} qiaRec=null; const b=$('qiaMic'); if(b) b.classList.remove('on'); }
+function qiaMicToggle(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast('Dictée non disponible sur ce navigateur'); return; }
+  if(qiaRec){ qiaMicStop(); return; }
+  const rec=new SR(); qiaRec=rec;
+  rec.lang='fr-FR'; rec.interimResults=false; rec.maxAlternatives=1;
+  const b=$('qiaMic'); if(b) b.classList.add('on');
+  rec.onresult=function(ev){
+    try{
+      const t=ev.results[0][0].transcript;
+      const inp=$('qiaInput');
+      if(inp) inp.value=(inp.value?inp.value+' ':'')+t;
+    }catch(e){}
+  };
+  rec.onerror=qiaMicStop;
+  rec.onend=qiaMicStop;
+  try{ rec.start(); }catch(e){ qiaMicStop(); }
+}
+
+/* Fermer et vider les fenetres d'aide a chaque changement d'ecran. */
+function fermerFenetresIA(vider){
+  reattacherFenetres();
+  fermerQIA(); fermerConseil();
+  if(!vider) return;
+  const d=$('qiaDialog'); if(d) d.innerHTML='';
+  const b=$('conseilBody'); if(b){ b.innerHTML=''; b.className='mp-feedback'; }
+  if(typeof masquerRappel==='function') masquerRappel();
+  [['#qiaOverlay','.qia-card'],['#conseilModal','.conseil-card']].forEach(function(x){
+    const c=document.querySelector(x[0]+' '+x[1]);
+    if(c){ c.style.position=''; c.style.left=''; c.style.top=''; c.style.width=''; c.style.margin=''; c.style.transform=''; }
+  });
+}
+
+const QIA_SUGG={
+  pct:["C\u2019est quoi, un pourcentage ?","Pourquoi on divise par 100 ?","Comment prendre 30 % d\u2019un nombre ?","Donne-moi un exemple complet."],
+  aug:["C\u2019est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient a multiplier par 1,2 ?","Donne-moi un exemple complet."],
+  dim:["Pourquoi une remise de 30 % revient a multiplier par 0,7 ?","Quelle difference entre retirer 30 et retirer 30 % ?","Donne-moi un exemple complet."],
+  ens:["C\u2019est quoi, un nombre decimal ?","C\u2019est quoi, un nombre rationnel ?","Pourquoi 1/3 n\u2019est pas decimal ?","Que veut dire le symbole \u2208 ?"],
+  def:["Comment ecrire une definition d\u2019ensemble ?","Quelle difference entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
+  pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?","Donne-moi un exemple complet."],
+  lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
+  gen:["Explique-moi simplement la notion principale.","Quelles sont les erreurs classiques a eviter ?"],
+};
+function qiaSuggestions(){ return (test && QIA_SUGG[test.kind]) || QIA_SUGG.gen; }
+function rappelDemande(q){ return /rappel de cours/i.test(String(q||'')); }
+
+function ouvrirQIA(){
+  const ov=$('qiaOverlay'); if(!ov) return;
+  const dejaPop=(window.__fenetresDetachees||[]).find(function(x){ return x.__origine===ov && !x.closed; });
+  if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
+  rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
+  $('qiaSugg').innerHTML=((typeof rappelDispo==='function'&&rappelDispo())?'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">\ud83d\udcd8 Faire un rappel de cours pour cet exercice.</button>':'')
+    +qiaSuggestions().map(function(x){ return '<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(x)+'</button>'; }).join('');
+  const mic=$('qiaMic');
+  if(mic){
+    const dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+    mic.style.display='';
+    if(dispo){ mic.classList.remove('off'); mic.title='Dicter la question au micro'; }
+    else{ mic.classList.add('off'); mic.title='Dictee non disponible sur ce navigateur'; }
+  }
+  if(detachementPossible()){
+    detacherQIA();
+    if((window.__fenetresDetachees||[]).some(function(x){ return x.__origine===ov && !x.closed; })){
+      try{ const qi=$('qiaInput'); if(qi) qi.focus(); }catch(e){}
+      return;
+    }
+  }
+  ov.classList.add('on');
+  try{ if(!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) $('qiaInput').focus(); }catch(e){}
+}
+function fermerQIA(){
+  const ov=document.getElementById('qiaOverlay');
+  if(ov){
+    (window.__fenetresDetachees||[]).slice().forEach(function(x){ if(x.__origine===ov){ try{ x.close(); }catch(e){} } });
+    ov.classList.remove('on');
+  }
+  qiaMicStop();
+}
+function qiaPoser(x){ const inp=$('qiaInput'); if(inp) inp.value=String(x||''); qiaEnvoyer(); }
+let qiaBusy=false;
+async function qiaEnvoyer(){
+  if(qiaBusy) return;
+  const inp=$('qiaInput'), dlg=$('qiaDialog');
+  const q=String((inp&&inp.value)||'').trim().slice(0,300);
+  if(!q||!dlg) return;
+  qiaBusy=true; if(inp) inp.value='';
+  const bq=document.createElement('div'); bq.className='qia-q'; bq.textContent=q; dlg.appendChild(bq);
+  const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je reflechis\u2026'; dlg.appendChild(br);
+  dlg.scrollTop=dlg.scrollHeight;
+  /* « Faire un rappel de cours » : la plateforme repond elle-meme, sans appeler le modele. */
+  if(rappelDemande(q) && typeof rappelDispo==='function' && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
+  const nomTest=(TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathematiques';
+  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes du calcul, une par ligne. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s\u2019ecrivent 3/4, les puissances 2^3. Contexte de l\u2019exercice affiche a l\u2019eleve : "+(typeof ctxVisible==='function'?ctxVisible():'');
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.feedback) br.textContent=d.feedback;
+    else if(d && d.error) br.textContent=d.error;
+    else br.textContent='Je n\u2019ai pas de reponse pour le moment. Reessaie.';
+  }catch(e){ br.textContent='L\u2019IA est indisponible pour le moment. Reessaie dans un instant.'; }
+  dlg.scrollTop=dlg.scrollHeight;
+  qiaBusy=false;
+}
+/* Entree = envoyer ; Echap = fermer les fenetres d'aide. */
+(function(){
+  const inp=$('qiaInput');
+  if(inp) inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); qiaEnvoyer(); }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    const ov=$('qiaOverlay');
+    if(ov && ov.classList.contains('on')) fermerQIA();
+    const m=$('conseilModal');
+    if(m && !m.hidden) fermerConseil();
+  });
+})();
+
 /* ---------- Rappels de cours ----------
    Affiches dans la fenetre d'aide, sous le bouton « Voir le rappel de cours ».
    Format : HTML nu, cadre fourni par la regle #conseilRappel — c'est la
@@ -1770,10 +2094,18 @@ function demanderConseilModal(nombre, contexte){
   lancerConseil(nombre, contexte, $('conseilBody'));
 }
 function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; masquerRappel(); }
+/* Le rappel de cours ne coute aucun appel au modele : il est offert en
+   entrainement comme en soutien, jamais pendant une evaluation notee. Le conseil
+   reste reserve au soutien ; la question a l'IA suit la Terminale (hors evaluation). */
+function rappelInlineBtn(){
+  return (currentMode!=='eval' && rappelDispo())
+    ? '<button class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()">📘 Rappel de cours</button>' : '';
+}
 function conseilInlineBtn(){
-  if(!isSoutien()) return '';
-  const rap = rappelDispo() ? '<button class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()">📘 Rappel de cours</button>' : '';
-  return rap + '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>';
+  if(currentMode==='eval') return '';
+  return rappelInlineBtn()
+    + (isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : '')
+    + '<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question \u00e0 l\u2019IA</button>';
 }
 function ctxEns(q){
   const bon=ENS_SETS_ORDER.map(k=>ENS_SYM[k]+':'+(q.sets[k]?'∈':'∉')).join(' ');
@@ -2082,6 +2414,7 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 
 /* ---------- Navigation ---------- */
 function show(name){
+  fermerFenetresIA(true);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['lv','ptest','atest','dtest','ens','def','pge'];
@@ -2479,7 +2812,9 @@ function renderLV(){
   const a=lvAnalyze(q.pts);
   $('lvIdx').textContent = 'Question '+(test.idx+1)+' / '+test.questions.length;
   $('lvModeTag').innerHTML = modeTagHTML();
-  { const cb=$('lvConseilBtn'); if(cb) cb.hidden=!isSoutien(); }
+  { const cb=$('lvConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('lvRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('lvQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
   $('lvSub').textContent = 'Graphique '+q.gnum+' / '+q.gtot+' \u2014 '+lvPartLabel(q);
   $('lvGraph').innerHTML = lvGraphSVG(q.pts);
   let instr='', body='';
