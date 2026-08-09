@@ -72,16 +72,23 @@ function evalPromis(w, code, suite){
                                  e => suite({ ok:false, erreur: e && e.message ? e.message : String(e) }));
 }
 
-/* Corps d'une fonction déclarée en début de ligne : de sa signature jusqu'à la
-   déclaration suivante. Les accolades ne sont pas comptées — une apostrophe dans
-   un message suffirait à fausser le compte, et ces fichiers déclarent toutes
-   leurs fonctions en colonne 0. */
+/* Corps d'une fonction déclarée en début de ligne : de sa signature jusqu'à son
+   accolade fermante en colonne 0, sans dépasser la déclaration suivante. Les
+   accolades ne sont pas comptées — une apostrophe dans un message suffirait à
+   fausser le compte, et ces fichiers déclarent toutes leurs fonctions en
+   colonne 0. Sans la borne « accolade en colonne 0 », le texte débordait sur le
+   code de premier niveau qui suit, et un simple commentaire y mentionnant une
+   fonction faisait entrer la voisine dans le lot. */
 function corpsFonctions(source, motif){
   const suivante = /\n(?:async )?function /g;
+  const fermante = /\n\}/g;
   return [...source.matchAll(motif)].map(m => {
-    suivante.lastIndex = m.index + m[0].length;
-    const fin = suivante.exec(source);
-    return { nom: m[1], texte: source.slice(m.index, fin ? fin.index : source.length) };
+    const depart = m.index + m[0].length;
+    suivante.lastIndex = depart;  const apres = suivante.exec(source);
+    fermante.lastIndex = depart;  const close = fermante.exec(source);
+    const fin = Math.min(apres ? apres.index : source.length,
+                         close ? close.index + 2 : source.length);
+    return { nom: m[1], texte: source.slice(m.index, fin) };
   });
 }
 
@@ -130,9 +137,21 @@ function structure(){
      résultats — et non à son nom. Le premier jet de ce contrôle filtrait sur le
      préfixe « finish » : tmFinir(), qui termine les deux exercices de tables,
      lui était invisible et restait sans verrou. C'est le piège « portage par
-     filtre de nom » du CLAUDE.md, retombé dans le banc lui-même. */
+     filtre de nom » du CLAUDE.md, retombé dans le banc lui-même.
+     Le deuxième jet ne cherchait que « showResults( » : c'était un pivot, pas un
+     élargissement — il gagnait tmFinir mais perdait finishParcours(), qui pose
+     son écran à la main et finit par show('results').
+     Le critère retenu ne dépend donc plus de l'affichage seul : est une fin de
+     test toute fonction qui ÉCRIT une note finale, ou qui affiche l'écran de
+     résultats de l'une ou l'autre façon. Seules les fonctions qui écrivent un
+     brouillon ou une note partielle sont écartées, nommément — elles sont peu
+     nombreuses et stables. Compte obtenu : 15 en Première, 4 en Seconde, 1 en
+     Terminale, soit exactement le nombre de sites d'enregistrement final. */
+  const HORS_FIN = ['showResults','doRecoverySave','enregistrerNotePartielle','enregistrerResultat','clearRecovery','autoSave'];
+  const ecritNote = new RegExp('enregistrerResultat\\(|from\\(\'' + P.tableResultats + '\'\\)\\.insert');
   const fins = corpsFonctions(s, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
-    .filter(f => f.nom !== 'showResults' && f.texte.includes('showResults('));
+    .filter(f => HORS_FIN.indexOf(f.nom) < 0
+              && (ecritNote.test(f.texte) || f.texte.includes('showResults(') || /show\('results'\)/.test(f.texte)));
   if(fins.length){
     const sansVerrou = fins.filter(f => !/^(?:async )?function [A-Za-z_$][\w$]*\s*\([^)]*\)\s*\{\s*\n?\s*if\(!debutFin\(\)\)\s*return;/.test(f.texte)).map(f => f.nom);
     verifier('chaque fin de test est protégée du double-clic', sansVerrou.length === 0,
@@ -388,6 +407,11 @@ function fiabilite(w, suite){
     return premier===true && second===false && suivant===true;
   })()`, v => v === true, 'le double-clic doit être refusé, le test suivant accepté');
 
+  /* Le retour anticipé de doRecoverySave annonçait un succès alors qu'il n'avait
+     rien écrit : atteignable en cliquant sur Pause pendant qu'un test se termine,
+     et la pause affirmait alors « ✓ » sans le moindre brouillon en base. Les deux
+     essais ci-dessous remplacent doRecoverySave par un bouchon et ne peuvent donc
+     pas le voir — celui-ci exerce la vraie fonction. */
   /* « Mis en pause ✓ » ne doit s'afficher que si la sauvegarde a réussi : c'est sur
      la foi de ce message que l'élève ferme son onglet */
   evalPromis(w, `(async function(){
@@ -423,7 +447,16 @@ function fiabilite(w, suite){
       devoir=messages.join(' ¦ ');
     }
     doRecoverySave=vraiSave; if(aNote) enregistrerNotePartielle=vraiNote;
-    return JSON.stringify({echec:echec, succes:succes, devoir:devoir});
+    /* Retour anticipé de la VRAIE doRecoverySave : quand un test est déjà en
+       cours d'enregistrement, elle n'écrit rien. Elle renvoyait « true », si
+       bien que la pause annonçait « ✓ » sans le moindre brouillon en base. Les
+       trois essais ci-dessus la remplacent par un bouchon et ne peuvent donc pas
+       le voir : celui-ci exerce la fonction elle-même. */
+    const sauveClos=recoveryClosed;
+    currentEleve={id:1,prenom:'Contrôle'}; currentMode='train'; recoveryClosed=true;
+    const precoce=await doRecoverySave();
+    recoveryClosed=sauveClos;
+    return JSON.stringify({echec:echec, succes:succes, devoir:devoir, precoce:(precoce===null?'null':String(precoce))});
   })()`, r => {
     if(!r.ok){ verifier('la pause n’annonce « ✓ » que si elle a réussi', false, 'erreur JavaScript : ' + r.erreur); return suite(); }
     let d = {};
@@ -434,6 +467,8 @@ function fiabilite(w, suite){
       'messages affichés : ' + (d.echec || '(aucun)'));
     verifier('la pause réussie confirme bien à l’élève', /✓/.test(d.succes || ''),
       'messages affichés : ' + (d.succes || '(aucun)'));
+    verifier('doRecoverySave ne fait pas passer « rien à enregistrer » pour un succès',
+      d.precoce === 'null', 'retour anticipé : ' + (d.precoce || '(inconnu)') + ' — attendu null');
     if(d.devoir === '(sans objet)'){
       ignorer('un devoir mis en pause avant d’être commencé n’alarme pas', 'ce niveau n’enregistre pas de note partielle');
     } else {

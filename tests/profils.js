@@ -70,6 +70,7 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'premiere-specifique.html': {
     niveau: 'Première',
+    tableResultats: 'resultats_1ere',
     temoin: {
       testId: 'pourcentage', kind: 'pct', ecran: 'ptest', rendu: 'renderPTest',
       generateur: 'genPercent()',
@@ -100,6 +101,7 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'secondes.html': {
     niveau: 'Seconde',
+    tableResultats: 'resultats_2nde',
     temoin: {
       testId: 'pourcentage', kind: 'pct', ecran: 'ptest', rendu: 'renderPTest',
       generateur: 'genPercent()',
@@ -131,6 +133,7 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'terminale.html': {
     niveau: 'Terminale',
+    tableResultats: 'resultats',
     temoin: {
       testId: 'derivee-exp', kind: 'dexp', ecran: 'dexp', rendu: 'renderDexp',
       generateur: 'genDexp()',
