@@ -63,6 +63,27 @@ function verifierEval(w, intitule, code, juge, detail){
   verifier(intitule, juge ? juge(r.valeur) : r.valeur === true, detail);
   return r.valeur;
 }
+/* Même chose pour un code qui rend une promesse — la pause et la fin de test en
+   sont, et il faut les attendre pour savoir ce qu'elles ont vraiment fait. */
+function evalPromis(w, code, suite){
+  const r = evaluer(w, code);
+  if(!r.ok) return suite({ ok:false, erreur: r.erreur });
+  Promise.resolve(r.valeur).then(v => suite({ ok:true, valeur:v }),
+                                 e => suite({ ok:false, erreur: e && e.message ? e.message : String(e) }));
+}
+
+/* Corps d'une fonction déclarée en début de ligne : de sa signature jusqu'à la
+   déclaration suivante. Les accolades ne sont pas comptées — une apostrophe dans
+   un message suffirait à fausser le compte, et ces fichiers déclarent toutes
+   leurs fonctions en colonne 0. */
+function corpsFonctions(source, motif){
+  const suivante = /\n(?:async )?function /g;
+  return [...source.matchAll(motif)].map(m => {
+    suivante.lastIndex = m.index + m[0].length;
+    const fin = suivante.exec(source);
+    return { nom: m[1], texte: source.slice(m.index, fin ? fin.index : source.length) };
+  });
+}
 
 /* Dernier filet : une exception échappée (rappel de setTimeout, promesse) doit
    faire échouer le banc proprement, pas afficher une pile et sortir sans verdict. */
@@ -100,6 +121,27 @@ function structure(){
     .filter(m => !/Math\.round/.test(m[1])).map(m => ligneDe(m.index));
   verifier('les durées partent arrondies vers la base', durees.length === 0,
     durees.length + ' durée(s) décimale(s), ligne(s) ' + durees.join(', '));
+
+  /* Un double-clic sur le bouton de la dernière question lançait deux fois la fin
+     du test : deux lignes en base pour le même exercice. Et le brouillon de
+     reprise était supprimé AVANT l'enregistrement — un échec faisait perdre à la
+     fois la note et la session reprenable. */
+  const fins = corpsFonctions(s, /^async function (finish[A-Za-z0-9]*)\s*\(/gm);
+  if(fins.length){
+    const sansVerrou = fins.filter(f => !/^async function finish[A-Za-z0-9]*\s*\([^)]*\)\s*\{\s*\n?\s*if\(!debutFin\(\)\)\s*return;/.test(f.texte)).map(f => f.nom);
+    verifier('chaque fin de test est protégée du double-clic', sansVerrou.length === 0,
+      sansVerrou.join(', ') + ' — « if(!debutFin()) return; » manque en première ligne');
+
+    const tropTot = fins.filter(f => {
+      const efface = f.texte.indexOf('clearRecovery(');
+      if(efface < 0) return false;
+      const enregistre = Math.min(...['.insert(', 'enregistrerResultat(']
+        .map(x => f.texte.indexOf(x)).filter(i => i >= 0).concat([Infinity]));
+      return enregistre === Infinity ? false : efface < enregistre;
+    }).map(f => f.nom);
+    verifier('le brouillon n’est effacé qu’après l’enregistrement', tropTot.length === 0,
+      tropTot.join(', ') + ' — clearRecovery() passe avant la note');
+  }
 
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
@@ -324,6 +366,53 @@ function exercices(suite){
     }
 
     if(P.specifique === 'premiere') premiere(w);
+    fiabilite(w, suite);
+  });
+}
+
+/* ---------- 4 ter. Ce que l'application dit à l'élève ---------- */
+function fiabilite(w, suite){
+  /* le verrou doit bloquer le second clic du même test, et se rouvrir au suivant */
+  verifierEval(w, 'le verrou ne laisse passer qu’une fin par test', `(function(){
+    if(typeof debutFin!=='function') return 'debutFin absente';
+    test.startTime=Date.now();
+    const premier=debutFin(), second=debutFin();
+    test.startTime=Date.now()+5000;          /* test suivant : startTime toujours réaffecté */
+    const suivant=debutFin();
+    return premier===true && second===false && suivant===true;
+  })()`, v => v === true, 'le double-clic doit être refusé, le test suivant accepté');
+
+  /* « Mis en pause ✓ » ne doit s'afficher que si la sauvegarde a réussi : c'est sur
+     la foi de ce message que l'élève ferme son onglet */
+  evalPromis(w, `(async function(){
+    if(typeof pauseTest!=='function') return JSON.stringify({absent:true});
+    const vraiToast=toast, vraiSave=doRecoverySave;
+    const aNote=(typeof enregistrerNotePartielle==='function');
+    const vraiNote=aNote?enregistrerNotePartielle:null;
+    currentEleve={id:1,prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    async function essai(reussite){
+      const messages=[];
+      toast=function(m,t){ messages.push((t||'ok')+':'+m); };
+      doRecoverySave=function(){ return Promise.resolve(reussite); };
+      if(aNote) enregistrerNotePartielle=function(){ return Promise.resolve(reussite); };
+      try{ await pauseTest(); }catch(e){}
+      toast=vraiToast;
+      return messages.join(' ¦ ');
+    }
+    const echec=await essai(false);
+    const succes=await essai(true);
+    doRecoverySave=vraiSave; if(aNote) enregistrerNotePartielle=vraiNote;
+    return JSON.stringify({echec:echec, succes:succes});
+  })()`, r => {
+    if(!r.ok){ verifier('la pause n’annonce « ✓ » que si elle a réussi', false, 'erreur JavaScript : ' + r.erreur); return suite(); }
+    let d = {};
+    try { d = JSON.parse(r.valeur); } catch(e){ d = {}; }
+    if(d.absent){ ignorer('la pause n’annonce « ✓ » que si elle a réussi', 'ce niveau n’a pas de mise en pause'); return suite(); }
+    verifier('la pause avoue son échec au lieu d’annoncer « ✓ »',
+      /err:/.test(d.echec || '') && !/✓/.test(d.echec || ''),
+      'messages affichés : ' + (d.echec || '(aucun)'));
+    verifier('la pause réussie confirme bien à l’élève', /✓/.test(d.succes || ''),
+      'messages affichés : ' + (d.succes || '(aucun)'));
     suite();
   });
 }

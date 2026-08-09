@@ -1195,7 +1195,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=11;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=12;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1432,6 +1432,12 @@ function normalizeCfg(cfg){
 }
 let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
+/* Un double-clic sur le bouton de la derniere question appelait finish... deux fois :
+   deux lignes en base pour le meme test. Le verrou est cale sur test.startTime, qui
+   est reaffecte a chaque demarrage ET a chaque reprise apres pause : rien a
+   reinitialiser dans les fonctions de demarrage. */
+let finVerrouillee=0;
+function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) return false; finVerrouillee=test.startTime; return true; }
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
@@ -1811,20 +1817,24 @@ function recoveryPayload(){
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
 }
+/* Renvoie true si le brouillon est bien en base, false si une ecriture a echoue :
+   supabase-js ne leve pas, il renvoie ses erreurs — sans ce retour, la pause
+   annoncait « ✓ » meme hors connexion. */
 async function doRecoverySave(){
-  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return true;
   const payload=recoveryPayload();
   if(recoveryRowId){
     const {error}=await sb.from('resultats_2nde').update(payload).eq('id',recoveryRowId);
-    if(error){ recoveryDirty=true; console.warn('brouillon non sauvegarde :', error.message||error); }
+    if(error){ recoveryDirty=true; console.warn('brouillon non sauvegarde :', error.message||error); return false; }
   } else {
     const {data,error}=await sb.from('resultats_2nde').insert(payload).select('id').single();
-    if(error) console.warn('brouillon non cree :', error.message||error);
+    if(error){ console.warn('brouillon non cree :', error.message||error); return false; }
     if(data&&data.id){
       if(recoveryClosed) sb.from('resultats_2nde').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
       else recoveryRowId=data.id;
     }
   }
+  return true;
 }
 // appelé après chaque réponse — ne bloque jamais l'élève, réessaie si une sauvegarde est déjà en cours
 function autoSave(){
@@ -1894,12 +1904,13 @@ async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
+  let okPause=false;
   try{
-    await doRecoverySave();                           // session reprenable (ligne « en pause »)
-    if(currentDM) await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
-    toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
-  }
-  catch(e){ toast('Pause non enregistrée (connexion)','err'); }
+    okPause=await doRecoverySave();                              // session reprenable (ligne « en pause »)
+    if(currentDM && okPause) okPause=await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
+  }catch(e){ okPause=false; }
+  if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
   else { openThemes(); }
@@ -2493,7 +2504,8 @@ function submitLV(){
 
 /* ---- Moteur : fin de test + écran de résultats (réintégrés) ---- */
 async function finishTest(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total = test.maxScore || test.questions.length;
   const score = test.score;
   const pct = total ? Math.round(score/total*100) : 0;
@@ -2503,6 +2515,7 @@ async function finishTest(){
   try{
     const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id, score:score, total:total, percent:pct, duration_sec:durationSec, details:fdetails});
     if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+    else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score:score, total:total, percent:pct, durationSec:durationSec});
 }
@@ -3072,12 +3085,14 @@ function checkPAnswer(live){
 }
 function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTest(); autoSave(); } else finishPercent(); }
 async function finishPercent(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
-      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err'); }
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+      else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3233,12 +3248,14 @@ function checkAAnswer(live){
 }
 function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderATest(); autoSave(); } else finishAug(); }
 async function finishAug(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
-      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err'); }
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+      else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3408,12 +3425,14 @@ function checkDAnswer(live){
 }
 function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDTest(); autoSave(); } else finishDim(); }
 async function finishDim(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
-      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err'); }
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+      else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }

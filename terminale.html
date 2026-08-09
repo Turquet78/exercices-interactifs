@@ -1831,7 +1831,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=201;
+const APP_VERSION=202;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -1912,6 +1912,12 @@ function normalizeCfg(cfg){
 }
 let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
+/* Un double-clic sur le bouton de la derniere question appelait finish... deux fois :
+   deux lignes en base pour le meme test. Le verrou est cale sur test.startTime, qui
+   est reaffecte a chaque demarrage ET a chaque reprise apres pause : rien a
+   reinitialiser dans les fonctions de demarrage. */
+let finVerrouillee=0;
+function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) return false; finVerrouillee=test.startTime; return true; }
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
@@ -2806,19 +2812,20 @@ function recoveryPayload(){
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
 }
 async function doRecoverySave(){
-  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return true;
   const payload=recoveryPayload();
   if(recoveryRowId){
     const {error}=await sb.from('resultats').update(payload).eq('id',recoveryRowId);
-    if(error){ recoveryDirty=true; console.warn('brouillon non sauvegarde :', error.message||error); }
+    if(error){ recoveryDirty=true; console.warn('brouillon non sauvegarde :', error.message||error); return false; }
   } else {
     const {data,error}=await sb.from('resultats').insert(payload).select('id').single();
-    if(error) console.warn('brouillon non cree :', error.message||error);
+    if(error){ console.warn('brouillon non cree :', error.message||error); return false; }
     if(data&&data.id){
       if(recoveryClosed) sb.from('resultats').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
       else recoveryRowId=data.id;
     }
   }
+  return true;
 }
 // appelé après chaque réponse — ne bloque jamais l'élève, réessaie si une sauvegarde est déjà en cours
 function autoSave(){
@@ -2889,12 +2896,13 @@ async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
+  let okPause=false;
   try{
-    await doRecoverySave();                           // session reprenable (ligne « en pause »)
-    if(currentDM) await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
-    toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
-  }
-  catch(e){ toast('Pause non enregistrée (connexion)','err'); }
+    okPause=await doRecoverySave();                           // session reprenable (ligne « en pause »)
+    if(currentDM && okPause) okPause=await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
+  }catch(e){ okPause=false; }
+  if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
   else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice (avec « Reprendre »)
@@ -3473,7 +3481,8 @@ function ptsRep(a){
 }
 function fmtNote(v){ const r=Math.round(v*100)/100; return numFmt(Number.isInteger(r)?r:Math.round(r*10)/10); }
 async function finishTest(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length, score=test.score;
   const acquis=test.answers.reduce((s,a)=>s+ptsRep(a),0);
   const note=Math.round(acquis*100)/100;          /* note en exercices, au centieme */
@@ -3486,6 +3495,7 @@ async function finishTest(){
   try{
     const {error}=await sb.from('resultats').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:fdetails});
     if(error) toast('R\u00e9sultat non enregistr\u00e9 : '+(error.message||'erreur'),'err');
+    else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec,note,note10});
 }
