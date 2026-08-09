@@ -350,6 +350,18 @@ function demarrage(suite){
     const reelles = erreurs.filter(e => !/Not implemented/.test(e));   /* limites de jsdom, pas de l'appli */
     verifier('aucune erreur JavaScript au chargement', reelles.length === 0, reelles.join(' | '));
     verifier('numéro de version lisible', /^\d+$/.test(String(w.eval('APP_VERSION'))), 'APP_VERSION = ' + w.eval('APP_VERSION'));
+    /* testName de la Seconde renvoyait à FRAC_INFO, qui n'existe qu'en Première :
+       tout identifiant hors de TESTS — un devoir pointant un exercice retiré, une
+       vieille ligne de résultat — levait une ReferenceError et cassait la liste
+       entière qui l'affichait. Le nom d'un exercice inconnu doit rester anodin. */
+    verifierEval(w, 'le nom d’un exercice inconnu ne lève pas d’erreur', `(function(){
+      try{
+        if(typeof testName==='function') testName('exercice-absent-du-registre');
+        if(typeof testLabel==='function') testLabel('exercice-absent-du-registre');
+        if(typeof testNum==='function') testNum('exercice-absent-du-registre');
+        return true;
+      }catch(e){ return 'erreur : '+e.message; }
+    })()`, v => v === true, undefined);
     verifierEval(w, 'chaque exercice de TESTS a une fonction de démarrage', `(function(){
       const sans=[];
       Object.keys(TESTS).forEach(function(id){ if(typeof TESTS[id].start!=='function') sans.push(id); });
