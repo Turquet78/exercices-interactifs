@@ -26,6 +26,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const vm = require('vm');
 const { execFileSync } = require('child_process');
 const { JSDOM } = require('jsdom');
 const { charger, lire, preparer, couleur } = require('./harnais');
@@ -111,14 +112,23 @@ function finGabarit(s, i){
   return s.length;
 }
 /* Un « / » ouvre une expression régulière quand il ne peut pas être une division :
-   juste après un opérateur, une parenthèse ouvrante, une virgule, un début de bloc… */
+   après un opérateur, une parenthèse ouvrante, une virgule, un début de bloc —
+   mais aussi après une flèche et après un mot-clé. « return /…/ » figure dix fois
+   dans le code livré : le prendre pour une division fait lire le motif comme du
+   code, et une accolade y suffirait à fausser tout le découpage. */
+const MOTS_AVANT_REGEX = /^(return|typeof|case|in|of|new|delete|void|yield|do|else|instanceof|await)$/;
 function ouvreRegex(s, i){
-  for(let j = i - 1; j >= 0; j--){
-    const c = s[j];
-    if(c === ' ' || c === '\t' || c === '\n' || c === '\r') continue;
-    return '(,=:[!&|?{};+-*%~^'.indexOf(c) >= 0;
+  let j = i - 1;
+  while(j >= 0 && ' \t\n\r'.indexOf(s[j]) >= 0) j--;
+  if(j < 0) return true;
+  const c = s[j];
+  if(c === '>' && s[j-1] === '=') return true;                     /* x => /re/ */
+  if(/[A-Za-z_$]/.test(c)){
+    let k = j;
+    while(k >= 0 && /[\w$]/.test(s[k])) k--;
+    return MOTS_AVANT_REGEX.test(s.slice(k + 1, j + 1));
   }
-  return true;
+  return '(,=:[!&|?{};+-*%~^'.indexOf(c) >= 0;
 }
 function finRegex(s, i){
   let classe = false;
@@ -146,7 +156,18 @@ function sauter(s, i){
 }
 function corpsFonctions(source, motif){
   return [...source.matchAll(motif)].map(m => {
-    let i = source.indexOf('{', m.index + m[0].length - 1);
+    /* La signature d'abord. Une accolade peut s'y trouver — paramètre déstructuré
+       « ({a,b}) », valeur par défaut « (o={}) », rappel « (f=()=>{}) » — et serait
+       prise pour le début du corps : la fonction disparaîtrait du lot en silence. */
+    let i = m.index + m[0].length - 1;                 /* la parenthèse ouvrante */
+    let p = 0;
+    for(; i < source.length; i++){
+      const saut = sauter(source, i);
+      if(saut >= 0){ i = saut; continue; }
+      if(source[i] === '(') p++;
+      else if(source[i] === ')'){ p--; if(p === 0){ i++; break; } }
+    }
+    i = source.indexOf('{', i);
     if(i < 0) return { nom: m[1], texte: m[0] };
     let n = 0, fin = -1;
     for(; i < source.length; i++){
@@ -221,13 +242,34 @@ function structure(){
      tort et devrait être ajoutée ici. C'est le compromis voulu : un faux positif
      est bruyant et bloquant, donc quelqu'un y regarde ; un faux négatif est
      muet, et c'est lui qui met une panne en ligne. */
+  /* Le banc contrôle son propre découpage. Un corps tronqué ne compile pas : il
+     se signale de lui-même, quelle que soit la construction qui l'a causé — y
+     compris celles auxquelles personne n'a pensé. Quatre tours de correction du
+     critère « fin de test » ont montré que c'est le seul garde-fou qui tienne :
+     à chaque fois, une construction plausible faisait disparaître une fonction
+     du lot, en silence, et le banc annonçait « peut être mis en ligne ». */
+  const toutesFonctions = corpsFonctions(s, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const malDecoupees = toutesFonctions.filter(f => {
+    if(!/\}\s*$/.test(f.texte)) return true;
+    try { new vm.Script(f.texte); return false; } catch(e){ return true; }
+  }).map(f => f.nom);
+  verifier('chaque corps de fonction est découpé entier', malDecoupees.length === 0,
+    malDecoupees.length + ' mal découpée(s) : ' + malDecoupees.slice(0, 6).join(', '));
+
+  /* HORS_FIN reste un filtre par nom, mais assumé : il ne porte que sur les
+     quelques fonctions qui écrivent un brouillon ou une note partielle. Une
+     future fonction qui insérerait dans la table sans terminer d'exercice — une
+     saisie de note à la main par le professeur, par exemple — serait signalée à
+     tort et devrait être ajoutée ici. C'est le compromis voulu : un faux positif
+     est bruyant et bloquant, donc quelqu'un y regarde ; un faux négatif est
+     muet, et c'est lui qui met une panne en ligne. */
   const HORS_FIN = ['showResults','doRecoverySave','enregistrerNotePartielle','enregistrerResultat','clearRecovery','autoSave'];
   /* Sans ce champ, la moitié « écrit une note » du critère devenait
      from('undefined').insert — elle ne trouvait plus rien, en silence. */
   verifier('le profil déclare la table de résultats du niveau', !!P.tableResultats,
     'tableResultats manque dans tests/profils.js');
   const ecritNote = new RegExp('enregistrerResultat\\(|from\\(\'' + (P.tableResultats || '\\u0000') + '\'\\)\\.insert');
-  const fins = corpsFonctions(s, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+  const fins = toutesFonctions
     .filter(f => HORS_FIN.indexOf(f.nom) < 0
               && (ecritNote.test(f.texte) || f.texte.includes('showResults(') || /show\('results'\)/.test(f.texte)));
   if(fins.length){
@@ -541,21 +583,35 @@ function fiabilite(w, suite){
        abandonTest délègue à enregistrerNotePartielle, donc les contrôles
        statiques ne voient rien de son corps : il faut l'exercer. */
     let abandon='(sans objet)';
-    if(aNote && typeof abandonTest==='function' && typeof clearRecovery==='function'){
+    if(aNote && typeof abandonTest==='function' && typeof clearRecovery==='function' && typeof debutFin==='function'){
       const vraiClear=clearRecovery, vraiConfirm=window.confirm;
-      window.confirm=function(){ return true; };
-      const essaiAbandon=async function(noteOk){
-        let jete=false;
-        clearRecovery=function(){ jete=true; return Promise.resolve(); };
-        enregistrerNotePartielle=function(){ return Promise.resolve(noteOk); };
+      let repondOui=true, jete=false, notes=0;
+      window.confirm=function(){ return repondOui; };
+      clearRecovery=function(){ jete=true; return Promise.resolve(); };
+      const essaiAbandon=async function(noteOk, depart){
+        jete=false; notes=0;
+        enregistrerNotePartielle=function(){ notes++; return Promise.resolve(noteOk); };
         currentEleve={id:1,prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+        test.startTime=depart;
         try{ await abandonTest(); }catch(e){}
-        return jete;
       };
-      test.startTime=1; const jeteEchec=await essaiAbandon(false);
-      test.startTime=2; const jeteSucces=await essaiAbandon(true);
-      clearRecovery=vraiClear; window.confirm=vraiConfirm;
-      abandon=(jeteEchec?'echec:jette':'echec:garde')+'|'+(jeteSucces?'succes:jette':'succes:garde');
+      await essaiAbandon(false, 101); const aEchec=jete;
+      await essaiAbandon(true,  102); const aSucces=jete;
+      await essaiAbandon(null,  103); const aRien=jete;     /* rien à noter : le brouillon peut partir */
+      /* deuxième clic sur le MÊME test : le verrou doit refuser la seconde note */
+      await essaiAbandon(true,  104);
+      try{ await abandonTest(); }catch(e){}
+      const double=notes;
+      /* « Annuler » dans la boîte de confirmation ne doit PAS consommer le verrou :
+         sinon la fin normale du test serait refusée ensuite, et la note perdue. */
+      repondOui=false; test.startTime=105;
+      try{ await abandonTest(); }catch(e){}
+      repondOui=true;
+      const verrouLibre=debutFin();
+      clearRecovery=vraiClear; window.confirm=vraiConfirm; enregistrerNotePartielle=vraiNote;
+      abandon=[aEchec?'echec:jette':'echec:garde', aSucces?'succes:jette':'succes:garde',
+               aRien?'rien:jette':'rien:garde', 'double:'+double,
+               verrouLibre?'annule:libre':'annule:consomme'].join('|');
     }
     return JSON.stringify({echec:echec, succes:succes, devoir:devoir,
       precoce:(precoce===null?'null':String(precoce)), abandon:abandon});
@@ -575,8 +631,10 @@ function fiabilite(w, suite){
       ignorer('l’abandon ne jette le brouillon que si la note est enregistrée', 'ce niveau n’enregistre pas de note à l’abandon');
     } else {
       verifier('l’abandon ne jette le brouillon que si la note est enregistrée',
-        d.abandon === 'echec:garde|succes:jette',
-        'observé : ' + (d.abandon || '(inconnu)') + ' — une note perdue doit laisser la session reprenable');
+        d.abandon === 'echec:garde|succes:jette|rien:jette|double:1|annule:libre',
+        'observé : ' + (d.abandon || '(inconnu)') + ' — attendu ' +
+        '« echec:garde|succes:jette|rien:jette|double:1|annule:libre » : une note perdue laisse la session ' +
+        'reprenable, un double clic n’écrit qu’une note, et un « Annuler » ne consomme pas le verrou');
     }
     if(d.devoir === '(sans objet)'){
       ignorer('un devoir mis en pause avant d’être commencé n’alarme pas', 'ce niveau n’enregistre pas de note partielle');
