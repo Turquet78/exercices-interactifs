@@ -539,6 +539,25 @@ function exercices(suite){
       })()`);
     }
 
+    /* le rappel de cours doit s'afficher sans consommer un appel au modele */
+    if(P.rappelSansIA){
+      const R = P.rappelSansIA;
+      verifierEval(w, 'le rappel de cours s’affiche sans appeler l’IA', `(function(){
+        if(typeof ${R.fonction}!=='function') return '${R.fonction} absente';
+        let appels=0; const vrai=${R.appelIA}; ${R.appelIA}=function(){ appels++; };
+        currentTestId='${t.testId}'; test.kind='${t.kind}';
+        try{ ${R.fonction}(); }catch(e){ ${R.appelIA}=vrai; return 'erreur : '+e.message; }
+        ${R.appelIA}=vrai;
+        const cadre=document.getElementById('conseilRappel');
+        if(appels!==0) return appels+' appel(s) au modèle';
+        if(!cadre || cadre.hidden) return 'le cadre du rappel reste masqué';
+        if(cadre.innerHTML.length<50) return 'le rappel est vide';
+        return true;
+      })()`, v => v === true, undefined);
+    } else {
+      ignorer('le rappel de cours s’affiche sans appeler l’IA', 'ce niveau ouvre son rappel depuis la fenêtre d’aide déjà en place');
+    }
+
     /* chaque exercice doit fournir son rappel de cours */
     if(P.rappels){
       verifierEval(w, 'chaque exercice a son rappel de cours', P.rappels, v => v === '', undefined);

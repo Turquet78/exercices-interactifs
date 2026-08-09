@@ -65,6 +65,22 @@ const RAPPELS_TERMINALE = `(function(){
   return vides.join(', ');
 })()`;
 
+
+/* En Seconde, un rappel par kind ; RAPPELS_ID distingue les deux niveaux
+   d'ensembles, qui partagent le kind 'ens'. */
+const RAPPELS_SECONDE = `(function(){
+  const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
+               'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
+               'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim' };
+  const manquants=[];
+  Object.keys(TESTS).forEach(function(id){
+    const k=cles[id];
+    if(!k){ manquants.push(id+' (le contrôle ne connaît pas son kind)'); return; }
+    if(!RAPPELS_ID[id] && !RAPPELS[k]) manquants.push(id);
+  });
+  return manquants.join(', ');
+})()`;
+
 module.exports = {
 
   /* ------------------------------------------------------------------ */
@@ -144,11 +160,13 @@ module.exports = {
     },
     pause: { dm: true, boxes: { champ: 'p1n', valeur: '30' } },
     relance: { testId: 'pourcentage', kind: 'pct', fonction: 'startPercent' },
-    rappels: null,
+    rappels: RAPPELS_SECONDE,
+    /* la fenetre d'aide de la Seconde lance l'IA des son ouverture : le rappel a
+       donc son propre chemin, et ce chemin ne doit RIEN appeler */
+    rappelSansIA: { fonction: 'ouvrirRappelSeul', appelIA: 'lancerConseil' },
     specifique: null,
     lacunes: [
       "pas de fenêtre « Question à l'IA » (ni ouvrirQIA, ni qiaPoser, ni QIA_SUGG) : les élèves de Seconde n'ont pas l'aide par IA des deux autres niveaux, et les 5 contrôles de la fenêtre détachée ne s'appliquent pas",
-      "pas de table RAPPELS : quatre exercices proposent le soutien sans rappel de cours",
     ],
   },
 
