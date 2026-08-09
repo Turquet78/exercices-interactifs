@@ -116,13 +116,14 @@ function finGabarit(s, i){
    mais aussi après une flèche et après un mot-clé. « return /…/ » figure dix fois
    dans le code livré : le prendre pour une division fait lire le motif comme du
    code, et une accolade y suffirait à fausser tout le découpage. */
-const MOTS_AVANT_REGEX = /^(return|typeof|case|in|of|new|delete|void|yield|do|else|instanceof|await)$/;
+const MOTS_AVANT_REGEX = /^(return|typeof|case|in|of|new|delete|void|yield|do|else|instanceof|await|throw)$/;
 function ouvreRegex(s, i){
   let j = i - 1;
   while(j >= 0 && ' \t\n\r'.indexOf(s[j]) >= 0) j--;
   if(j < 0) return true;
   const c = s[j];
   if(c === '>' && s[j-1] === '=') return true;                     /* x => /re/ */
+  if((c === '+' || c === '-') && s[j-1] === c) return false;       /* i++ / 2 : une division */
   if(/[A-Za-z_$]/.test(c)){
     let k = j;
     while(k >= 0 && /[\w$]/.test(s[k])) k--;
@@ -168,7 +169,7 @@ function corpsFonctions(source, motif){
       else if(source[i] === ')'){ p--; if(p === 0){ i++; break; } }
     }
     i = source.indexOf('{', i);
-    if(i < 0) return { nom: m[1], texte: m[0] };
+    if(i < 0) return { nom: m[1], debut: m.index, texte: m[0] };
     let n = 0, fin = -1;
     for(; i < source.length; i++){
       const saut = sauter(source, i);
@@ -176,7 +177,7 @@ function corpsFonctions(source, motif){
       if(source[i] === '{') n++;
       else if(source[i] === '}'){ n--; if(n === 0){ fin = i; break; } }
     }
-    return { nom: m[1], texte: source.slice(m.index, fin >= 0 ? fin + 1 : source.length) };
+    return { nom: m[1], debut: m.index, texte: source.slice(m.index, fin >= 0 ? fin + 1 : source.length) };
   });
 }
 
@@ -255,6 +256,26 @@ function structure(){
   }).map(f => f.nom);
   verifier('chaque corps de fonction est découpé entier', malDecoupees.length === 0,
     malDecoupees.length + ' mal découpée(s) : ' + malDecoupees.slice(0, 6).join(', '));
+
+  /* Le contrôle précédent valide ce que le motif a trouvé. Celui-ci vérifie qu'il
+     a tout trouvé — et c'est la couverture, pas le découpage, qui a échoué quatre
+     fois. Deux modifications banales suffisent à faire sortir une fin de test du
+     lot ET du contrôle de découpage : l'indenter de deux espaces, ou l'écrire
+     « const finX = async function(…) ». Plutôt que d'énumérer les formes de
+     déclaration — un jeu qu'on perd toujours — on énonce la propriété qui compte :
+     tout endroit qui écrit une note ou affiche les résultats doit se trouver dans
+     une fonction que le banc sait lire. Peu importe comment elle est déclarée. */
+  const portees = toutesFonctions.map(f => [f.debut, f.debut + f.texte.length]);
+  const horsPortee = [];
+  [/enregistrerResultat\s*\(/g, new RegExp('from\\(\'' + (P.tableResultats || '\\u0000') + '\'\\)\\.insert', 'g'),
+   /showResults\s*\(/g, /show\('results'\)/g].forEach(re => {
+    for(const m of s.matchAll(re)){
+      if(!portees.some(([a, b]) => m.index >= a && m.index < b)) horsPortee.push(ligneDe(m.index));
+    }
+  });
+  verifier('chaque enregistrement de note est dans une fonction que le banc voit',
+    horsPortee.length === 0,
+    horsPortee.length + ' hors de portée, ligne(s) ' + [...new Set(horsPortee)].sort((a,b)=>a-b).join(', '));
 
   /* HORS_FIN reste un filtre par nom, mais assumé : il ne porte que sur les
      quelques fonctions qui écrivent un brouillon ou une note partielle. Une
