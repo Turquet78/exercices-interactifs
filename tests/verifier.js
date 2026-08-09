@@ -72,23 +72,90 @@ function evalPromis(w, code, suite){
                                  e => suite({ ok:false, erreur: e && e.message ? e.message : String(e) }));
 }
 
-/* Corps d'une fonction déclarée en début de ligne : de sa signature jusqu'à son
-   accolade fermante en colonne 0, sans dépasser la déclaration suivante. Les
-   accolades ne sont pas comptées — une apostrophe dans un message suffirait à
-   fausser le compte, et ces fichiers déclarent toutes leurs fonctions en
-   colonne 0. Sans la borne « accolade en colonne 0 », le texte débordait sur le
-   code de premier niveau qui suit, et un simple commentaire y mentionnant une
-   fonction faisait entrer la voisine dans le lot. */
+/* Corps EXACT d'une fonction : accolades appariées, en sautant tout ce qui n'en
+   est pas — chaînes, gabarits et leurs ${}, commentaires, expressions
+   régulières.
+
+   Deux bornes approchées ont été essayées avant celle-ci, et chacune a laissé
+   passer une panne. « Jusqu'à la déclaration suivante » absorbait le code
+   intercalé : une fonction d'une ligne emportait jusqu'à 180 lignes de la
+   section voisine, et un commentaire y mentionnant showResults faisait entrer
+   une fonction innocente dans le lot des fins de test. « Jusqu'à la première
+   accolade en colonne 0 » coupait au beau milieu d'un gabarit contenant du CSS,
+   escamotant la fin de test qui suivait dans le même corps. Approximer la borne
+   ne marche pas : il faut lire le code. */
+function finChaine(s, i, guillemet){
+  for(i++; i < s.length; i++){
+    if(s[i] === '\\'){ i++; continue; }
+    if(s[i] === guillemet) return i;
+    if(s[i] === '\n' && guillemet !== '`') return i;      /* chaîne non terminée : on ne s'égare pas */
+  }
+  return s.length;
+}
+function finGabarit(s, i){
+  for(i++; i < s.length; i++){
+    if(s[i] === '\\'){ i++; continue; }
+    if(s[i] === '`') return i;
+    if(s[i] === '$' && s[i+1] === '{'){                    /* ${ … } peut contenir de tout */
+      let n = 1; i += 2;
+      for(; i < s.length && n > 0; i++){
+        const saut = sauter(s, i);                         /* y compris une expression régulière : le
+                                                              CSV écrit `"${v.replace(/"/g,'""')}"` */
+        if(saut >= 0){ i = saut; continue; }
+        if(s[i] === '{') n++;
+        else if(s[i] === '}') n--;
+      }
+      i--;
+    }
+  }
+  return s.length;
+}
+/* Un « / » ouvre une expression régulière quand il ne peut pas être une division :
+   juste après un opérateur, une parenthèse ouvrante, une virgule, un début de bloc… */
+function ouvreRegex(s, i){
+  for(let j = i - 1; j >= 0; j--){
+    const c = s[j];
+    if(c === ' ' || c === '\t' || c === '\n' || c === '\r') continue;
+    return '(,=:[!&|?{};+-*%~^'.indexOf(c) >= 0;
+  }
+  return true;
+}
+function finRegex(s, i){
+  let classe = false;
+  for(i++; i < s.length; i++){
+    if(s[i] === '\\'){ i++; continue; }
+    if(s[i] === '[') classe = true;
+    else if(s[i] === ']') classe = false;
+    else if(s[i] === '/' && !classe) return i;
+    else if(s[i] === '\n') return i;
+  }
+  return s.length;
+}
+/* Indice du dernier caractère du littéral ou commentaire ouvert en i, ou -1 si i
+   n'ouvre rien de tel. Même logique pour le corps d'une fonction et pour
+   l'intérieur d'un ${ } : c'est en la dédoublant que le premier jet s'est perdu
+   sur exportCSV. */
+function sauter(s, i){
+  const c = s[i];
+  if(c === '/' && s[i+1] === '/'){ const f = s.indexOf('\n', i); return f < 0 ? s.length : f; }
+  if(c === '/' && s[i+1] === '*'){ const f = s.indexOf('*/', i+2); return f < 0 ? s.length : f + 1; }
+  if(c === '/' && ouvreRegex(s, i)) return finRegex(s, i);
+  if(c === '"' || c === "'") return finChaine(s, i, c);
+  if(c === '`') return finGabarit(s, i);
+  return -1;
+}
 function corpsFonctions(source, motif){
-  const suivante = /\n(?:async )?function /g;
-  const fermante = /\n\}/g;
   return [...source.matchAll(motif)].map(m => {
-    const depart = m.index + m[0].length;
-    suivante.lastIndex = depart;  const apres = suivante.exec(source);
-    fermante.lastIndex = depart;  const close = fermante.exec(source);
-    const fin = Math.min(apres ? apres.index : source.length,
-                         close ? close.index + 2 : source.length);
-    return { nom: m[1], texte: source.slice(m.index, fin) };
+    let i = source.indexOf('{', m.index + m[0].length - 1);
+    if(i < 0) return { nom: m[1], texte: m[0] };
+    let n = 0, fin = -1;
+    for(; i < source.length; i++){
+      const saut = sauter(source, i);
+      if(saut >= 0){ i = saut; continue; }
+      if(source[i] === '{') n++;
+      else if(source[i] === '}'){ n--; if(n === 0){ fin = i; break; } }
+    }
+    return { nom: m[1], texte: source.slice(m.index, fin >= 0 ? fin + 1 : source.length) };
   });
 }
 
@@ -147,8 +214,19 @@ function structure(){
      brouillon ou une note partielle sont écartées, nommément — elles sont peu
      nombreuses et stables. Compte obtenu : 15 en Première, 4 en Seconde, 1 en
      Terminale, soit exactement le nombre de sites d'enregistrement final. */
+  /* HORS_FIN reste un filtre par nom, mais assumé : il ne porte que sur les
+     quelques fonctions qui écrivent un brouillon ou une note partielle. Une
+     future fonction qui insérerait dans la table sans terminer d'exercice — une
+     saisie de note à la main par le professeur, par exemple — serait signalée à
+     tort et devrait être ajoutée ici. C'est le compromis voulu : un faux positif
+     est bruyant et bloquant, donc quelqu'un y regarde ; un faux négatif est
+     muet, et c'est lui qui met une panne en ligne. */
   const HORS_FIN = ['showResults','doRecoverySave','enregistrerNotePartielle','enregistrerResultat','clearRecovery','autoSave'];
-  const ecritNote = new RegExp('enregistrerResultat\\(|from\\(\'' + P.tableResultats + '\'\\)\\.insert');
+  /* Sans ce champ, la moitié « écrit une note » du critère devenait
+     from('undefined').insert — elle ne trouvait plus rien, en silence. */
+  verifier('le profil déclare la table de résultats du niveau', !!P.tableResultats,
+    'tableResultats manque dans tests/profils.js');
+  const ecritNote = new RegExp('enregistrerResultat\\(|from\\(\'' + (P.tableResultats || '\\u0000') + '\'\\)\\.insert');
   const fins = corpsFonctions(s, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
     .filter(f => HORS_FIN.indexOf(f.nom) < 0
               && (ecritNote.test(f.texte) || f.texte.includes('showResults(') || /show\('results'\)/.test(f.texte)));
@@ -454,9 +532,33 @@ function fiabilite(w, suite){
        le voir : celui-ci exerce la fonction elle-même. */
     const sauveClos=recoveryClosed;
     currentEleve={id:1,prenom:'Contrôle'}; currentMode='train'; recoveryClosed=true;
-    const precoce=await doRecoverySave();
+    let precoce;
+    try{ precoce=await doRecoverySave(); }catch(e){ precoce='exception : '+e.message; }
     recoveryClosed=sauveClos;
-    return JSON.stringify({echec:echec, succes:succes, devoir:devoir, precoce:(precoce===null?'null':String(precoce))});
+
+    /* Abandon : la note partielle compte comme note. Si elle n'est pas partie,
+       jeter le brouillon fait perdre la note ET la session reprenable d'un coup.
+       abandonTest délègue à enregistrerNotePartielle, donc les contrôles
+       statiques ne voient rien de son corps : il faut l'exercer. */
+    let abandon='(sans objet)';
+    if(aNote && typeof abandonTest==='function' && typeof clearRecovery==='function'){
+      const vraiClear=clearRecovery, vraiConfirm=window.confirm;
+      window.confirm=function(){ return true; };
+      const essaiAbandon=async function(noteOk){
+        let jete=false;
+        clearRecovery=function(){ jete=true; return Promise.resolve(); };
+        enregistrerNotePartielle=function(){ return Promise.resolve(noteOk); };
+        currentEleve={id:1,prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+        try{ await abandonTest(); }catch(e){}
+        return jete;
+      };
+      test.startTime=1; const jeteEchec=await essaiAbandon(false);
+      test.startTime=2; const jeteSucces=await essaiAbandon(true);
+      clearRecovery=vraiClear; window.confirm=vraiConfirm;
+      abandon=(jeteEchec?'echec:jette':'echec:garde')+'|'+(jeteSucces?'succes:jette':'succes:garde');
+    }
+    return JSON.stringify({echec:echec, succes:succes, devoir:devoir,
+      precoce:(precoce===null?'null':String(precoce)), abandon:abandon});
   })()`, r => {
     if(!r.ok){ verifier('la pause n’annonce « ✓ » que si elle a réussi', false, 'erreur JavaScript : ' + r.erreur); return suite(); }
     let d = {};
@@ -469,6 +571,13 @@ function fiabilite(w, suite){
       'messages affichés : ' + (d.succes || '(aucun)'));
     verifier('doRecoverySave ne fait pas passer « rien à enregistrer » pour un succès',
       d.precoce === 'null', 'retour anticipé : ' + (d.precoce || '(inconnu)') + ' — attendu null');
+    if(d.abandon === '(sans objet)'){
+      ignorer('l’abandon ne jette le brouillon que si la note est enregistrée', 'ce niveau n’enregistre pas de note à l’abandon');
+    } else {
+      verifier('l’abandon ne jette le brouillon que si la note est enregistrée',
+        d.abandon === 'echec:garde|succes:jette',
+        'observé : ' + (d.abandon || '(inconnu)') + ' — une note perdue doit laisser la session reprenable');
+    }
     if(d.devoir === '(sans objet)'){
       ignorer('un devoir mis en pause avant d’être commencé n’alarme pas', 'ce niveau n’enregistre pas de note partielle');
     } else {

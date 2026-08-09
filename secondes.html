@@ -1195,7 +1195,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=14;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=15;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1927,12 +1927,13 @@ async function pauseTest(){
 async function abandonTest(){
   if(!currentEleve) return;
   if(!confirm('Abandonner cet exercice ? Ta note sera calculée sur ce que tu as déjà fait.')) return;
+  if(!debutFin()) return;                       // double-clic : un seul abandon, une seule note
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
   let noted=false;
   try{
     noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
-    await clearRecovery();
+    if(noted!==false) await clearRecovery();    // note perdue ? on garde le brouillon, l'élève pourra reprendre
   }catch(e){}
   toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
