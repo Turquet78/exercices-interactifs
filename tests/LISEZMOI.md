@@ -125,6 +125,20 @@ téléchargée à la première exécution. Si le téléchargement échoue, les c
 de rendu se déclarent « non applicable » au lieu de passer au vert sans rien
 vérifier.
 
+## Ce que les bancs ne savent pas faire
+
+Une classe de bug reste mal couverte : **une référence à une globale qui n'existe
+pas**. `testName` de la Seconde renvoyait à `FRAC_INFO`, défini seulement en
+Première ; tout identifiant hors de `TESTS` levait une `ReferenceError` et cassait
+la liste entière qui l'affichait. Le contrôle « les fonctions d'affichage
+encaissent une donnée inconnue » couvre les sept fonctions qu'il nomme, pas la
+classe entière : le même défaut ailleurs lui échapperait.
+
+Le vrai filet est le banc navigateur, qui voit toute erreur JavaScript **sur le
+chemin qu'il parcourt**. Le risque résiduel porte donc sur ce que le parcours ne
+traverse pas : écrans professeur, export CSV, liste des devoirs. En ajouter le
+parcours fermerait ce trou.
+
 ## Ajouter un contrôle
 
 Un bug trouvé devrait toujours devenir un contrôle, sinon il reviendra. Ouvrez

@@ -354,14 +354,17 @@ function demarrage(suite){
        tout identifiant hors de TESTS — un devoir pointant un exercice retiré, une
        vieille ligne de résultat — levait une ReferenceError et cassait la liste
        entière qui l'affichait. Le nom d'un exercice inconnu doit rester anodin. */
-    verifierEval(w, 'le nom d’un exercice inconnu ne lève pas d’erreur', `(function(){
-      try{
-        if(typeof testName==='function') testName('exercice-absent-du-registre');
-        if(typeof testLabel==='function') testLabel('exercice-absent-du-registre');
-        if(typeof testNum==='function') testNum('exercice-absent-du-registre');
-        return true;
-      }catch(e){ return 'erreur : '+e.message; }
-    })()`, v => v === true, undefined);
+    verifierEval(w, 'les fonctions d’affichage encaissent une donnée inconnue', `(function(){
+      const rate=[];
+      const essais=[['testName','exercice-absent-du-registre'],['testLabel','exercice-absent-du-registre'],
+                    ['testNum','exercice-absent-du-registre'],['modeName','mode-inconnu'],
+                    ['testIdOf',{}],['modeOf',{}],['fmtDur',0]];
+      essais.forEach(function(p){
+        if(typeof window[p[0]]!=='function') return;
+        try{ window[p[0]](p[1]); }catch(e){ rate.push(p[0]+' : '+e.message); }
+      });
+      return rate.join(' | ');
+    })()`, v => v === '', 'une référence à une globale inexistante casse la liste entière qui l affiche');
     verifierEval(w, 'chaque exercice de TESTS a une fonction de démarrage', `(function(){
       const sans=[];
       Object.keys(TESTS).forEach(function(id){ if(typeof TESTS[id].start!=='function') sans.push(id); });

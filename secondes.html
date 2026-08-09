@@ -1196,7 +1196,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=17;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=18;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1489,7 +1489,7 @@ function soutienAgain(fbId, actionsId, fn, host){
   $(actionsId).innerHTML=conseilInlineBtn()+`<button class="btn btn-primary" onclick="${fn}()">Revérifier</button>`;
   if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
 }
-/* ---------- (soutien simplifié : géré directement dans submitAnswer) ---------- */
+/* ---------- Correction en direct du mode soutien ---------- */
 /* La greffe MathLive appelle window.dexpLiveCheck quand l'eleve quitte une case.
    Elle n'etait definie nulle part ici : les deux appels ne trouvaient personne et
    AUCUNE case ne se colorait jamais en direct, alors que liveCheckCurrent existe
@@ -2951,7 +2951,10 @@ async function exportCSV(){
 }
 
 /* clavier */
-{ const _ai=$('answerInput'); if(_ai) _ai.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAnswer();}}); }
+/* (l'ecouteur clavier de #answerInput a ete retire : ni cet element ni
+   submitAnswer n'existent en Seconde — residu du portage, meme famille que
+   FRAC_INFO. Il ne s'installait jamais, grace au « if(_ai) », mais un jour ou
+   l'autre quelqu'un aurait ajoute un champ portant cet identifiant.) */
 /* mode soutien : couleur immédiate case par case */
 /* (plus de coloration case-par-case : le moteur générique gère le feedback) */
 /* ===== Exercices Pourcentages (portés depuis Première) ===== */
