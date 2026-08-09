@@ -309,6 +309,17 @@ function structure(){
       tropTot.join(', ') + ' — clearRecovery() passe avant la note');
   }
 
+  /* Le bouton « Poser une question a l'IA » est offert des l'entrainement, alors
+     que le Conseil est reserve au soutien — note moins cher. Si la mission
+     envoyee au modele emportait l'enonce et les reponses de l'eleve, elle
+     ouvrirait par une autre porte l'aide que le bareme reserve au soutien. */
+  if(P.missionSansReponses){
+    const f = toutesFonctions.find(x => x.nom === P.missionSansReponses);
+    const fuite = f ? /ctxVisible\s*\(|conseilCtxCourant\s*\(/.test(f.texte) : false;
+    verifier('la question à l’IA n’emporte pas l’énoncé ni les réponses de l’élève',
+      !!f && !fuite, f ? 'la mission appelle le contexte de l’exercice' : P.missionSansReponses + ' introuvable');
+  }
+
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
     const o = (css.match(/\{/g)||[]).length, f = (css.match(/\}/g)||[]).length;
@@ -354,6 +365,19 @@ function demarrage(suite){
        tout identifiant hors de TESTS — un devoir pointant un exercice retiré, une
        vieille ligne de résultat — levait une ReferenceError et cassait la liste
        entière qui l'affichait. Le nom d'un exercice inconnu doit rester anodin. */
+    /* show() ferme les fenetres d'aide en premier : une exception y figerait toute
+       la navigation, sur l'ecran courant, sans un mot. */
+    verifierEval(w, 'un incident de fenêtre d’aide ne fige pas la navigation', `(function(){
+      if(typeof fermerFenetresIA!=='function') return 'sans objet';
+      const vrai=fermerFenetresIA;
+      fermerFenetresIA=function(){ throw new Error('incident simulé'); };
+      let avant='', apres='';
+      try{ show('home'); avant=((document.querySelector('.screen.on')||{}).id)||''; }catch(e){}
+      try{ show('login'); apres=((document.querySelector('.screen.on')||{}).id)||''; }catch(e){}
+      fermerFenetresIA=vrai;
+      if(!avant) return 'le premier show() n’a rien affiché';
+      return avant!==apres ? true : 'la navigation est restée sur '+avant;
+    })()`, v => v === true || v === 'sans objet', undefined);
     verifierEval(w, 'les fonctions d’affichage encaissent une donnée inconnue', `(function(){
       const rate=[];
       const essais=[['testName','exercice-absent-du-registre'],['testLabel','exercice-absent-du-registre'],

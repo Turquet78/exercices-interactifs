@@ -164,6 +164,10 @@ module.exports = {
     /* la fenetre d'aide de la Seconde lance l'IA des son ouverture : le rappel a
        donc son propre chemin, et ce chemin ne doit RIEN appeler */
     rappelSansIA: { fonction: 'ouvrirRappelSeul', appelIA: 'lancerConseil' },
+    /* la mission envoyee au modele ne doit pas emporter l'enonce ni les reponses
+       de l'eleve : le bouton IA est offert des l'entrainement, alors que le
+       conseil est reserve au soutien, note moins cher */
+    missionSansReponses: 'qiaEnvoyer',
     specifique: null,
     lacunes: [
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",

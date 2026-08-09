@@ -952,7 +952,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </div>
 
-  <div id="conseilModal" class="notes-modal" hidden onclick="if(event.target===this)fermerConseil()">
+  <div id="conseilModal" class="notes-modal" hidden>
     <div class="card conseil-card">
       <div class="notes-head">
         <h3>💡 Conseil</h3>
@@ -1251,7 +1251,6 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   </div>
 </div>
 <div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
-<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
 /* ---------- Raccourcis ---------- */
@@ -1278,7 +1277,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=20;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=21;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1972,7 +1971,7 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme repond elle-meme, sans appeler le modele. */
   if(rappelDemande(q) && typeof rappelDispo==='function' && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathematiques';
-  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes du calcul, une par ligne. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s\u2019ecrivent 3/4, les puissances 2^3. Contexte de l\u2019exercice affiche a l\u2019eleve : "+(typeof ctxVisible==='function'?ctxVisible():'');
+  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes du calcul, une par ligne. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s\u2019ecrivent 3/4, les puissances 2^3.";
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission } });
     if(r.error) throw r.error;
@@ -2082,6 +2081,7 @@ function basculerRappel(){
    au modele pour relire son cours. */
 function ouvrirRappelSeul(){
   const m=$('conseilModal'); if(m) m.hidden=false;
+  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
   const corps=$('conseilBody'); if(corps) corps.innerHTML='';
   masquerRappel();
   const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
@@ -2089,6 +2089,9 @@ function ouvrirRappelSeul(){
 }
 function demanderConseilModal(nombre, contexte){
   const m=$('conseilModal'); if(m) m.hidden=false;
+  /* le CSS porte rend le voile traversant : sans ceci le panneau serait flottant
+     ET immobile, et son curseur « move » promettrait un deplacement inexistant */
+  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
   masquerRappel();
   const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
   lancerConseil(nombre, contexte, $('conseilBody'));
@@ -2414,7 +2417,10 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 
 /* ---------- Navigation ---------- */
 function show(name){
-  fermerFenetresIA(true);
+  /* Une exception ici — un rapatriement de fenetre qui echoue, une fenetre dans
+     un etat batard — figerait toute la navigation : la Premiere protege deja cet
+     appel, la Seconde le fait maintenant aussi. */
+  try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['lv','ptest','atest','dtest','ens','def','pge'];

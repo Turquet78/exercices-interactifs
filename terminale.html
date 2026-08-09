@@ -1831,7 +1831,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=205;
+const APP_VERSION=206;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2965,7 +2965,8 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 
 /* ---------- Navigation ---------- */
 function show(name){
-  fermerFenetresIA(true);
+  /* une exception ici figerait toute la navigation */
+  try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','s1','s2','sp','su','sa','enc','rec','ef','eq','rc','lr'];
