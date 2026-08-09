@@ -1235,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=76;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=77;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1834,7 +1834,8 @@ async function pauseTest(){
   try{
     okPause=await doRecoverySave();
   }catch(e){ okPause=false; }
-  if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  if(okPause===null) toast('Ce test est déjà en cours d\'enregistrement.','err');
+  else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }
@@ -2019,7 +2020,7 @@ function recoveryPayload(){
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
 }
 async function doRecoverySave(){
-  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return true;
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return null;   /* rien a enregistrer : ce n'est ni un succes ni un echec */
   const payload=recoveryPayload();
   if(recoveryRowId){
     const {error}=await sb.from('resultats_1ere').update(payload).eq('id',recoveryRowId);
@@ -2589,7 +2590,10 @@ document.addEventListener('keydown',e=>{
   else if(test.phase==='correction') tmSuivant();
 });
 async function tmFinir(abandon){
-  clearTimeout(test.qTimer); clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  test.phase='fini';                          /* ferme aussi la voie clavier de tmSuivant */
+  clearTimeout(test.qTimer);
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const score=tmAcquis(), total=TM_NB, pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   test.answers=test.items.map(it=>({ q:it.text, answer:it.answer,
@@ -2600,11 +2604,11 @@ async function tmFinir(abandon){
      premier coup vaut donc e=1, ok=true, soit zero echec. */
   const stats=test.items.map(it=>({a:it.a,b:it.b,e:it.essais,ok:!!it.acquis}));
   try{
-    await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,
+    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,
       duration_sec:durationSec,
       details:{test:(test.tmId||'tables-multiplication'),mode:currentMode,tours:test.tour,abandon:!!abandon,misses,stats,
         ...(test.tmId==='tables-multiplication-2'?{tm2Source:test.tm2Source,tm2Seances:test.tm2Seances}:{}),
-        ...(currentDM?{dm:currentDM}:{})}});
+        ...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }

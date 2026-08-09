@@ -1831,7 +1831,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=202;
+const APP_VERSION=203;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2812,7 +2812,7 @@ function recoveryPayload(){
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
 }
 async function doRecoverySave(){
-  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return true;
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return null;   /* rien a enregistrer : ce n'est ni un succes ni un echec */
   const payload=recoveryPayload();
   if(recoveryRowId){
     const {error}=await sb.from('resultats').update(payload).eq('id',recoveryRowId);
@@ -2880,11 +2880,15 @@ async function openTest(testId){
 /* En contexte devoir : enregistre la note de l'exercice sur la progression actuelle.
    Score = bonnes réponses validées, sur le nombre total de questions (le reste compte comme faux).
    Ne fait rien si aucune question n'a été répondue. */
+/* Renvoie true si la note est en base, false si l'ecriture a echoue, et null
+   quand il n'y a RIEN a noter. Sans ce troisieme etat, la pause d'un devoir
+   ouvert mais pas encore commence etait prise pour un echec, et l'eleve lisait
+   « Pause non enregistree » alors que tout s'etait bien passe. */
 async function enregistrerNotePartielle(){
-  if(!currentEleve) return false;
-  if(!(currentMode==='train'||currentMode==='soutien')) return false;
-  if(!test.questions || !test.questions.length) return false;
-  if(!(test.answers||[]).length) return false;            // rien de validé : pas de note
+  if(!currentEleve) return null;
+  if(!(currentMode==='train'||currentMode==='soutien')) return null;
+  if(!test.questions || !test.questions.length) return null;
+  if(!(test.answers||[]).length) return null;             // rien de validé : pas de note
   const total=test.questions.length, score=test.score||0, pct=Math.round(score/total*100);
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
@@ -2899,9 +2903,13 @@ async function pauseTest(){
   let okPause=false;
   try{
     okPause=await doRecoverySave();                           // session reprenable (ligne « en pause »)
-    if(currentDM && okPause) okPause=await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
+    if(okPause===true && currentDM){                          // + note du devoir sur la progression actuelle
+      const note=await enregistrerNotePartielle();
+      if(note===false) okPause=false;                         // « rien à noter » (null) n'est pas un échec
+    }
   }catch(e){ okPause=false; }
-  if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  if(okPause===null) toast('Ce test est déjà en cours d\'enregistrement.','err');
+  else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir

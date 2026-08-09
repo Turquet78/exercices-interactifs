@@ -1195,7 +1195,7 @@ const $=id=>document.getElementById(id);
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=12;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=13;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1817,11 +1817,12 @@ function recoveryPayload(){
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
 }
-/* Renvoie true si le brouillon est bien en base, false si une ecriture a echoue :
+/* Renvoie true si le brouillon est bien en base, false si une ecriture a echoue,
+   null s'il n'y avait rien a enregistrer :
    supabase-js ne leve pas, il renvoie ses erreurs — sans ce retour, la pause
    annoncait « ✓ » meme hors connexion. */
 async function doRecoverySave(){
-  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return true;
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return null;   /* rien a enregistrer : ce n'est ni un succes ni un echec */
   const payload=recoveryPayload();
   if(recoveryRowId){
     const {error}=await sb.from('resultats_2nde').update(payload).eq('id',recoveryRowId);
@@ -1888,11 +1889,15 @@ async function openTest(testId){
 /* En contexte devoir : enregistre la note de l'exercice sur la progression actuelle.
    Score = bonnes réponses validées, sur le nombre total de questions (le reste compte comme faux).
    Ne fait rien si aucune question n'a été répondue. */
+/* Renvoie true si la note est en base, false si l'ecriture a echoue, et null
+   quand il n'y a RIEN a noter. Sans ce troisieme etat, la pause d'un devoir
+   ouvert mais pas encore commence etait prise pour un echec, et l'eleve lisait
+   « Pause non enregistree » alors que tout s'etait bien passe. */
 async function enregistrerNotePartielle(){
-  if(!currentEleve) return false;
-  if(!(currentMode==='train'||currentMode==='soutien')) return false;
-  if(!test.questions || !test.questions.length) return false;
-  if(!(test.answers||[]).length) return false;            // rien de validé : pas de note
+  if(!currentEleve) return null;
+  if(!(currentMode==='train'||currentMode==='soutien')) return null;
+  if(!test.questions || !test.questions.length) return null;
+  if(!(test.answers||[]).length) return null;             // rien de validé : pas de note
   const total=test.maxScore||test.questions.length, score=test.score||0, pct=Math.min(100,Math.round(score/total*100));
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
@@ -1907,9 +1912,13 @@ async function pauseTest(){
   let okPause=false;
   try{
     okPause=await doRecoverySave();                              // session reprenable (ligne « en pause »)
-    if(currentDM && okPause) okPause=await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
+    if(okPause===true && currentDM){                             // + note du devoir sur la progression actuelle
+      const note=await enregistrerNotePartielle();
+      if(note===false) okPause=false;                            // « rien à noter » (null) n'est pas un échec
+    }
   }catch(e){ okPause=false; }
-  if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  if(okPause===null) toast('Ce test est déjà en cours d\'enregistrement.','err');
+  else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
   else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir

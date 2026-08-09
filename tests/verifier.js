@@ -126,9 +126,15 @@ function structure(){
      du test : deux lignes en base pour le même exercice. Et le brouillon de
      reprise était supprimé AVANT l'enregistrement — un échec faisait perdre à la
      fois la note et la session reprenable. */
-  const fins = corpsFonctions(s, /^async function (finish[A-Za-z0-9]*)\s*\(/gm);
+  /* Une fin de test se reconnaît à ce qu'elle fait — elle affiche l'écran de
+     résultats — et non à son nom. Le premier jet de ce contrôle filtrait sur le
+     préfixe « finish » : tmFinir(), qui termine les deux exercices de tables,
+     lui était invisible et restait sans verrou. C'est le piège « portage par
+     filtre de nom » du CLAUDE.md, retombé dans le banc lui-même. */
+  const fins = corpsFonctions(s, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .filter(f => f.nom !== 'showResults' && f.texte.includes('showResults('));
   if(fins.length){
-    const sansVerrou = fins.filter(f => !/^async function finish[A-Za-z0-9]*\s*\([^)]*\)\s*\{\s*\n?\s*if\(!debutFin\(\)\)\s*return;/.test(f.texte)).map(f => f.nom);
+    const sansVerrou = fins.filter(f => !/^(?:async )?function [A-Za-z_$][\w$]*\s*\([^)]*\)\s*\{\s*\n?\s*if\(!debutFin\(\)\)\s*return;/.test(f.texte)).map(f => f.nom);
     verifier('chaque fin de test est protégée du double-clic', sansVerrou.length === 0,
       sansVerrou.join(', ') + ' — « if(!debutFin()) return; » manque en première ligne');
 
@@ -401,8 +407,23 @@ function fiabilite(w, suite){
     }
     const echec=await essai(false);
     const succes=await essai(true);
+    /* Devoir ouvert mais pas encore commencé : il n'y a rien à noter, ce qui
+       n'est pas un échec. La première version de ce correctif lisait ce cas
+       comme une panne et annonçait « Pause non enregistrée » à un élève dont
+       tout avait pourtant été sauvegardé. */
+    let devoir='(sans objet)';
+    if(aNote){
+      const messages=[];
+      toast=function(m,t){ messages.push((t||'ok')+':'+m); };
+      doRecoverySave=function(){ return Promise.resolve(true); };
+      enregistrerNotePartielle=vraiNote;                 /* la vraie fonction, pas un bouchon */
+      currentDM='dm-controle'; test.answers=[]; test.questions=test.questions&&test.questions.length?test.questions:[{}];
+      try{ await pauseTest(); }catch(e){}
+      toast=vraiToast; currentDM=null;
+      devoir=messages.join(' ¦ ');
+    }
     doRecoverySave=vraiSave; if(aNote) enregistrerNotePartielle=vraiNote;
-    return JSON.stringify({echec:echec, succes:succes});
+    return JSON.stringify({echec:echec, succes:succes, devoir:devoir});
   })()`, r => {
     if(!r.ok){ verifier('la pause n’annonce « ✓ » que si elle a réussi', false, 'erreur JavaScript : ' + r.erreur); return suite(); }
     let d = {};
@@ -413,6 +434,12 @@ function fiabilite(w, suite){
       'messages affichés : ' + (d.echec || '(aucun)'));
     verifier('la pause réussie confirme bien à l’élève', /✓/.test(d.succes || ''),
       'messages affichés : ' + (d.succes || '(aucun)'));
+    if(d.devoir === '(sans objet)'){
+      ignorer('un devoir mis en pause avant d’être commencé n’alarme pas', 'ce niveau n’enregistre pas de note partielle');
+    } else {
+      verifier('un devoir mis en pause avant d’être commencé n’alarme pas', /✓/.test(d.devoir || ''),
+        'messages affichés : ' + (d.devoir || '(aucun)') + ' — « rien à noter » n’est pas un échec');
+    }
     suite();
   });
 }
