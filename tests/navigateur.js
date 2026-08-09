@@ -119,8 +119,25 @@ async function ouvrir(chromium, ml, options){
       r.fulfill({ contentType: 'text/javascript; charset=utf-8', body: ml }));
   }
 
+  /* REMPART DUR. Le double ci-dessus suffit tant que l'interception fonctionne ;
+     ce rempart-ci rend l'accident impossible plutôt qu'improbable. Si le motif
+     d'URL cessait un jour de correspondre — changement de CDN, auto-hébergement,
+     autre nom de fichier — le vrai client serait chargé, et le premier clic
+     lirait la liste réelle des élèves avant que quoi que ce soit ne s'en
+     aperçoive. Toute requête vers le projet de production est donc coupée net. */
+  const projet = (fs.readFileSync(path.join(RACINE, CIBLE), 'utf8')
+    .match(/https:\/\/([a-z0-9-]+)\.supabase\.co/) || [])[1];
+  if(projet) await page.route('**' + projet + '.supabase.co**', r => r.abort().catch(() => {}));
+
   await page.goto('file://' + path.join(RACINE, CIBLE), { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(ml ? 3500 : 1500);
+
+  /* Et on refuse de continuer si le double n'est pas en place : mieux vaut ne
+     rien tester que tester en écrivant dans la vraie base. */
+  if(!await page.evaluate(() => !!window.__faux)){
+    await nav.close().catch(() => {});
+    throw new Error('interception de supabase-js échouée — aucun test ne démarre');
+  }
   return { nav, page, erreurs, eleve };
 }
 
@@ -179,8 +196,9 @@ async function parcours(page, N){
 
   /* ===== 1. la page s'ouvre ===== */
   titre('1. OUVERTURE DE LA PAGE');
-  let s = await ouvrir(chromium, ml);
+  let s = null;
   try {
+    s = await ouvrir(chromium, ml);
     const version = await s.page.evaluate(() => (typeof APP_VERSION !== 'undefined') ? APP_VERSION : null);
     verifier('la page s\'ouvre sans erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
     verifier('le numéro de version s\'affiche', /^\d+$/.test(String(version)), 'APP_VERSION = ' + version);
@@ -208,14 +226,15 @@ async function parcours(page, N){
           document.body.appendChild(hote);
           const parties = [...hote.querySelectorAll('.ML__mfrac span')]
             .filter(e => /^(25|100)$/.test(e.textContent.trim()))
-            .map(e => ({ t: e.textContent.trim(), y: e.getBoundingClientRect().top }));
+            .map(e => { const r = e.getBoundingClientRect(); return { t: e.textContent.trim(), y: r.top, l: r.width }; });
           const num = parties.find(p => p.t === '25'), den = parties.find(p => p.t === '100');
           hote.remove();
-          return num && den ? { num: num.y, den: den.y } : null;
+          return num && den ? { num: num.y, den: den.y, ln: num.l, ld: den.l } : null;
         });
         verifier('une fraction s\'affiche numérateur au-dessus du dénominateur',
-          !!frac && frac.num < frac.den,
-          frac ? ('numérateur à ' + Math.round(frac.num) + 'px, dénominateur à ' + Math.round(frac.den) + 'px')
+          !!frac && frac.num < frac.den && frac.ln > 0 && frac.ld > 0,
+          frac ? ('numérateur à ' + Math.round(frac.num) + 'px (large de ' + Math.round(frac.ln) + 'px), '
+                + 'dénominateur à ' + Math.round(frac.den) + 'px (large de ' + Math.round(frac.ld) + 'px)')
                : 'les deux parties de la fraction n\'ont pas été trouvées dans le rendu');
       } else {
         ignorer('une fraction s\'affiche numérateur au-dessus du dénominateur',
@@ -239,6 +258,12 @@ async function parcours(page, N){
         'details.test = ' + JSON.stringify(notes[0].details.test));
       verifier('la durée envoyée est un entier', Number.isInteger(notes[0].duration_sec),
         'duration_sec = ' + notes[0].duration_sec);
+      /* L'élève fictif répond juste à chaque question : la note doit le dire.
+         Sans ce contrôle, une application qui compte toutes les réponses fausses
+         — ou un pilote qui ne remplit plus rien — passait au vert. */
+      verifier('l\'élève qui répond juste obtient toutes ses réponses justes',
+        notes[0].score === notes[0].total && notes[0].percent === 100,
+        'score ' + notes[0].score + '/' + notes[0].total + ', ' + notes[0].percent + ' %');
     }
     verifier('aucune erreur JavaScript pendant l\'exercice', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
     await s.nav.close(); s = null;
@@ -252,25 +277,43 @@ async function parcours(page, N){
     await s.page.click('#modeChoices [onclick*="train"]');
     await s.page.waitForTimeout(600);
     await s.page.evaluate(() => { window.__faux.panne = true; });   /* la base refuse tout, à partir d'ici */
+    /* toast() ne vide jamais son texte : au bout de 2,6 s il retire seulement la
+       classe. Sans ce nettoyage, un vieux message — venu du brouillon, et invisible
+       depuis longtemps — pouvait satisfaire le contrôle à la place de celui qu'on
+       attend. On efface, puis on exige un message VISIBLE et parlant de la note. */
+    await s.page.evaluate(() => { const t = document.getElementById('toast'); if(t){ t.textContent = ''; t.className = ''; } });
     await parcours2(s.page, N);
     const avertissement = await s.page.evaluate(() => {
       const t = document.getElementById('toast');
       return t ? { texte: t.textContent, classe: t.className } : null;
     });
     verifier('l\'élève est prévenu que sa note n\'est pas enregistrée',
-      !!avertissement && /non enregistr/i.test(avertissement.texte),
-      avertissement ? ('message affiché : « ' + avertissement.texte + ' »') : 'aucun message');
+      !!avertissement && /r\u00e9sultat non enregistr/i.test(avertissement.texte)
+        && /show/.test(avertissement.classe) && /err/.test(avertissement.classe),
+      avertissement ? ('message « ' + avertissement.texte + ' », classe « ' + avertissement.classe + ' »') : 'aucun message');
 
     /* ===== 5. sur un téléphone ===== */
     await s.nav.close(); s = null;
     titre('5. SUR UN TÉLÉPHONE');
     s = await ouvrir(chromium, ml, { viewport: { width: 390, height: 844 } });
-    const debord = await s.page.evaluate(() =>
+    const mesurer = () => s.page.evaluate(() =>
       ({ page: document.documentElement.scrollWidth, vue: document.documentElement.clientWidth }));
-    verifier('la page ne déborde pas latéralement', debord.page <= debord.vue + 1,
-      debord.page + 'px de large pour un écran de ' + debord.vue + 'px');
+    const accueil = await mesurer();
+    verifier('l\'accueil ne déborde pas latéralement', accueil.page <= accueil.vue + 1,
+      accueil.page + 'px de large pour un écran de ' + accueil.vue + 'px');
+    /* et surtout l'écran où l'élève passe tout son temps */
+    await connecter(s.page);
+    await s.page.evaluate(id => openTest(id), N.exercice);
+    await s.page.waitForTimeout(400);
+    await s.page.click('#modeChoices [onclick*="train"]');
+    await s.page.waitForTimeout(800);
+    const exercice = await mesurer();
+    verifier('l\'écran de l\'exercice ne déborde pas latéralement', exercice.page <= exercice.vue + 1,
+      exercice.page + 'px de large pour un écran de ' + exercice.vue + 'px');
     await s.nav.close(); s = null;
 
+  } catch(e){
+    verifier('le parcours se déroule sans incident', false, e.message);
   } finally {
     if(s && s.nav) await s.nav.close().catch(() => {});
   }

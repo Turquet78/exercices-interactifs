@@ -33,7 +33,7 @@ window.supabase = {
     const F = window.__faux;
 
     function requete(nom, op, charge){
-      const etat = { filtres: [], unique: false };
+      const etat = { filtres: [], unique: false, tolereVide: false, tri: null };
 
       function correspond(ligne){
         return etat.filtres.every(([type, col, val]) => {
@@ -49,6 +49,17 @@ window.supabase = {
           return { data: null, error: { message: 'panne simulée' } };
         }
         const lignes = F.lignes(nom);
+        if(op === 'upsert'){                           /* remplace la ligne de même id, ne l'empile pas */
+          const donnees = Array.isArray(charge) ? charge : [charge];
+          const posees = donnees.map(p => {
+            const existante = p.id != null && lignes.find(l => l.id === p.id);
+            if(existante){ Object.assign(existante, p); return existante; }
+            const neuve = Object.assign({ id: 'ligne-' + (F.suivant++), created_at: new Date().toISOString() }, p);
+            lignes.push(neuve); return neuve;
+          });
+          F.journal.push({ op: 'upsert', table: nom, lignes: posees });
+          return { data: etat.unique ? posees[0] : posees, error: null };
+        }
         if(op === 'insert'){
           const ajoutees = (Array.isArray(charge) ? charge : [charge]).map(p =>
             Object.assign({ id: 'ligne-' + (F.suivant++), created_at: new Date().toISOString() }, p));
@@ -68,7 +79,14 @@ window.supabase = {
           F.tables[nom] = gardees;
           return { data: null, error: null };
         }
-        const trouvees = lignes.filter(correspond).map(l => Object.assign({}, l));
+        let trouvees = lignes.filter(correspond).map(l => Object.assign({}, l));
+        if(etat.tri){                                  /* supabase-js trie vraiment : le double aussi */
+          const [col, croissant] = etat.tri;
+          trouvees.sort((a, b) => (a[col] > b[col] ? 1 : a[col] < b[col] ? -1 : 0) * (croissant ? 1 : -1));
+        }
+        if(etat.unique && !etat.tolereVide && trouvees.length === 0){   /* .single() sans ligne EST une erreur côté Supabase ; .maybeSingle() non */
+          return { data: null, error: { message: 'aucune ligne', code: 'PGRST116' } };
+        }
         F.journal.push({ op: 'select', table: nom, n: trouvees.length });
         return { data: etat.unique ? (trouvees[0] || null) : trouvees, error: null };
       }
@@ -78,10 +96,10 @@ window.supabase = {
         eq(c, v){ etat.filtres.push(['eq', c, v]); return b; },
         neq(c, v){ etat.filtres.push(['neq', c, v]); return b; },
         ilike(c, v){ etat.filtres.push(['ilike', c, v]); return b; },
-        order(){ return b; },
+        order(col, opts){ etat.tri = [col, !opts || opts.ascending !== false]; return b; },
         limit(){ return b; },
         single(){ etat.unique = true; return b; },
-        maybeSingle(){ etat.unique = true; return b; },
+        maybeSingle(){ etat.unique = true; etat.tolereVide = true; return b; },
         then(ok, ko){ return Promise.resolve().then(executer).then(ok, ko); },
         catch(ko){ return this.then(undefined, ko); },
       };
@@ -95,7 +113,7 @@ window.supabase = {
           insert(charge){ return requete(nom, 'insert', charge); },
           update(charge){ return requete(nom, 'update', charge); },
           delete(){ return requete(nom, 'delete'); },
-          upsert(charge){ return requete(nom, 'insert', charge); },
+          upsert(charge){ return requete(nom, 'upsert', charge); },
         };
       },
       functions: {

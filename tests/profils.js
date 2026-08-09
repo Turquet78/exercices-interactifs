@@ -75,8 +75,10 @@ module.exports = {
     navigateur: {
       exercice: 'pourcentage', ecran: 'ptest',
       /* remplit la question courante avec la bonne réponse, dans les vrais champs */
-      repondre: "(function(){ var q=test.questions[test.idx]; function m(i,v){ var e=document.getElementById(i); if(e) e.value=String(v); }"
-              + " m('p1n',q.P); m('p1d',100); m('p2n',q.prod); m('p2d',100); m('p3',q.result); return true; })()",
+      /* m() rend false si le champ n'existe plus : sans cela, un renommage de
+         champ laissait l'élève fictif ne rien saisir, et le banc restait vert. */
+      repondre: "(function(){ var q=test.questions[test.idx], ok=true; function m(i,v){ var e=document.getElementById(i); if(!e){ ok=false; return; } e.value=String(v); }"
+              + " m('p1n',q.P); m('p1d',100); m('p2n',q.prod); m('p2d',100); m('p3',q.result); return ok; })()",
       valider: '#pActions button.btn-primary',
       suivant: '#pNext',
     },
@@ -114,8 +116,10 @@ module.exports = {
     tableEleves: 'eleves_2nde',
     navigateur: {
       exercice: 'pourcentage', ecran: 'ptest',
-      repondre: "(function(){ var q=test.questions[test.idx]; function m(i,v){ var e=document.getElementById(i); if(e) e.value=String(v); }"
-              + " m('p1n',q.P); m('p1d',100); m('p2n',q.prod); m('p2d',100); m('p3',q.result); return true; })()",
+      /* m() rend false si le champ n'existe plus : sans cela, un renommage de
+         champ laissait l'élève fictif ne rien saisir, et le banc restait vert. */
+      repondre: "(function(){ var q=test.questions[test.idx], ok=true; function m(i,v){ var e=document.getElementById(i); if(!e){ ok=false; return; } e.value=String(v); }"
+              + " m('p1n',q.P); m('p1d',100); m('p2n',q.prod); m('p2d',100); m('p3',q.result); return ok; })()",
       valider: '#pActions button.btn-primary',
       suivant: '#pNext',
     },

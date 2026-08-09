@@ -1235,7 +1235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=79;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=80;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -6046,7 +6046,7 @@ async function exportCSV(){
     if(!data.length){ toast('Aucun résultat à exporter'); return; }
     const head=['Eleve','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date'];
     const lines=data.map(r=>[
-      (r.eleves&&r.eleves.prenom)||'?', testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
+      (r.eleves_1ere&&r.eleves_1ere.prenom)||(r.eleves&&r.eleves.prenom)||'?', testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
       Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')
     ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
     const csv='\uFEFF'+[head.join(','),...lines].join('\n');
