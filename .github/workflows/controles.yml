@@ -34,6 +34,23 @@ jobs:
         if: always()
         run: npm run test:terminale
 
+  # Les deux autres travaux remplacent Supabase par un double en mémoire — exprès,
+  # pour qu'aucun contrôle n'approche les comptes réels. Ils sont donc aveugles
+  # aux règles d'accès de la base, et c'est précisément là qu'étaient les fuites.
+  # Celui-ci lève un PostgreSQL jetable, y rejoue la vraie migration et vérifie
+  # ce que chaque rôle obtient. Il ne touche jamais au projet Supabase.
+  base:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # L'image ubuntu-latest embarque PostgreSQL, mais le service est arrêté :
+      # le banc n'en veut pas, il monte son propre serveur sur un port à lui.
+      - name: Règles d'accès de la base
+        run: npm run test:base
+
   navigateur:
     runs-on: ubuntu-latest
     steps:
