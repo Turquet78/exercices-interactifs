@@ -101,10 +101,24 @@ async function ouvrir(chromium, ml, options){
 
   /* supabase-js remplacé par le double : la vraie base n'est jamais contactée */
   const faux = fs.readFileSync(path.join(__dirname, 'faux-supabase.js'), 'utf8');
-  const eleve = { id: 'eleve-controle', prenom: 'Contrôle', pin: '1234' };
+
+  /* Le code de l'élève ne vit plus dans la table : il vit dans son compte, et
+     c'est le double qui le compare — comme le ferait Supabase. On sème donc les
+     deux, et le prénom seul dans la table.
+     Le domaine est LU dans le fichier contrôlé plutôt que recopié ici : s'il y
+     change, le banc suit. Recopié, il aurait fini par diverger en silence et le
+     banc aurait échoué à se connecter sans que rien n'explique pourquoi. */
+  const source = fs.readFileSync(path.join(RACINE, CIBLE), 'utf8');
+  const domaine = (source.match(/const DOMAINE_COMPTES\s*=\s*'([^']+)'/) || [])[1];
+  if(!domaine) throw new Error('DOMAINE_COMPTES introuvable dans ' + CIBLE + ' — le banc ne peut pas connecter d’élève');
+  const eleve = { id: 'eleve-controle', prenom: 'Contrôle', user_id: 'compte-controle' };
+  const CODE_CONTROLE = '1234';
   await page.route('**/supabase-js**', r => r.fulfill({
     contentType: 'application/javascript',
-    body: faux + '\nwindow.__faux.semer(' + JSON.stringify(P.tableEleves) + ',' + JSON.stringify([eleve]) + ');',
+    body: faux
+      + '\nwindow.__faux.semer(' + JSON.stringify(P.tableEleves) + ',' + JSON.stringify([eleve]) + ');'
+      + '\nwindow.__faux.semerCompte(' + JSON.stringify(eleve.id + '@' + domaine) + ','
+        + JSON.stringify(CODE_CONTROLE) + ',' + JSON.stringify(eleve.user_id) + ');',
   }));
 
   /* MathLive servi depuis le cache ; les polices restent au réseau (elles ne
@@ -157,6 +171,14 @@ async function connecter(page){
 
 async function parcours(page, N){
   const espace = await connecter(page);
+
+  /* Si la connexion n'a pas abouti, continuer ne mesure plus rien : openTest()
+     puis le code de réponse travailleraient sur un état inexistant, et l'échec
+     ressortirait en « Cannot read properties of undefined » à cinquante lignes
+     de sa cause. On s'arrête ici, et les contrôles suivants disent ce qu'il en
+     est. Depuis que le code est vérifié par le serveur, cette voie est bien
+     plus facile à emprunter : une configuration Supabase incomplète suffit. */
+  if(espace !== 'scr-space') return { espace, tours: 0, bloque: true };
 
   await page.evaluate(id => openTest(id), N.exercice);        /* la page des modes de l'exercice */
   await page.waitForTimeout(400);
@@ -244,8 +266,54 @@ async function parcours(page, N){
 
     /* ===== 3. un élève fait l'exercice ===== */
     titre('3. UN ÉLÈVE FAIT UN EXERCICE');
+
+    /* D'abord avec un mauvais code. L'ancienne version refusait aussi les
+       mauvais codes — elle les comparait dans la page. Ce qui change, et que ce
+       contrôle regarde, c'est QUI refuse : le serveur, ou une ligne de
+       JavaScript que n'importe quel élève peut réécrire dans sa console. */
+    await s.page.click('#scr-home button.choice.eleve');
+    await s.page.waitForSelector('#nameChips .chip', { timeout: 15000 });
+    await s.page.click('#nameChips .chip');
+    await s.page.fill('#loginPin', '9999');
+    await s.page.click('#modeCo button.btn-primary');
+    await s.page.waitForTimeout(500);
+    const apresFaux = await ecranVisible(s.page);
+    const tentatives = await s.page.evaluate(() =>
+      window.__faux.operations(null, 'auth').filter(e => e.op === 'signIn'));
+    verifier('un code faux n’ouvre pas l’espace de l’élève', apresFaux !== 'scr-space',
+      'écran atteint : ' + apresFaux);
+    verifier('c’est le serveur qui refuse le code, pas la page',
+      tentatives.length > 0 && tentatives.every(e => e.ok === false),
+      tentatives.length ? JSON.stringify(tentatives)
+                        : 'aucune authentification tentée — le code a été jugé dans la page');
+
+    /* On repart d'une page neuve : le double se resème au chargement. */
+    await s.page.reload({ waitUntil: 'domcontentloaded' });
+    await s.page.waitForTimeout(3500);
+
     const p = await parcours(s.page, N);
     verifier('l\'élève se connecte par l\'interface', p.espace === 'scr-space', 'écran après connexion : ' + p.espace);
+
+    /* Le contrôle ci-dessus dit que l'élève est entré. Il ne dit pas COMMENT.
+       Tant que le code était comparé dans la page, il passait aussi — et deux
+       lignes dans la console suffisaient à entrer sous n'importe quel prénom.
+       Les deux contrôles qui suivent regardent le mécanisme, pas le résultat. */
+    const journalAuth = await s.page.evaluate(() => window.__faux.operations(null, 'auth').map(e => ({ op:e.op, ok:e.ok })));
+    verifier('la connexion est passée par le serveur, pas par une comparaison locale',
+      journalAuth.some(e => e.op === 'signIn' && e.ok),
+      journalAuth.length ? 'opérations vues : ' + JSON.stringify(journalAuth)
+                         : 'aucun appel d’authentification — le code a été jugé dans la page');
+
+    /* La table des élèves ne doit plus jamais être lue en entier : c'est
+       select('*') qui rapportait la colonne des codes, toute la classe d'un
+       coup. Le double consigne les colonnes réellement demandées. */
+    const lectures = await s.page.evaluate(t =>
+      window.__faux.operations('select', t).map(e => e.colonnes), P.tableEleves);
+    const entieres = lectures.filter(c => c === '*');
+    verifier('la table des élèves n’est jamais lue en entier',
+      lectures.length > 0 && entieres.length === 0,
+      lectures.length === 0 ? 'aucune lecture observée — le contrôle ne prouve rien'
+                            : entieres.length + ' lecture(s) select(*) sur ' + lectures.length);
     verifier('l\'exercice se déroule jusqu\'à l\'écran de résultats',
       (await ecranVisible(s.page)) === 'scr-results',
       'écran atteint : ' + (await ecranVisible(s.page)) + ' après ' + p.tours + ' question(s)');

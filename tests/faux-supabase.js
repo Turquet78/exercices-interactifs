@@ -21,8 +21,19 @@ window.__faux = {
   journal: [],
   panne: false,
   suivant: 1,
+  /* Les comptes tiennent le rôle de auth.users : c'est là que vivent les codes
+     depuis qu'ils ont quitté la table des élèves. Le double les compare
+     lui-même, comme le ferait Supabase — un mauvais code doit être refusé ICI,
+     pas dans la page. */
+  comptes: {},
+  session: null,
   lignes(nom){ return this.tables[nom] || (this.tables[nom] = []); },
   semer(nom, lignes){ this.tables[nom] = lignes.map(l => Object.assign({}, l)); },
+  semerCompte(courriel, motDePasse, userId){
+    const id = userId || ('compte-' + (this.suivant++));
+    this.comptes[courriel] = { motDePasse: String(motDePasse), userId: id };
+    return id;
+  },
   operations(op, table){
     return this.journal.filter(e => (!op || e.op === op) && (!table || e.table === table));
   },
@@ -32,8 +43,14 @@ window.supabase = {
   createClient(){
     const F = window.__faux;
 
-    function requete(nom, op, charge){
-      const etat = { filtres: [], unique: false, tolereVide: false, tri: null };
+    function colonnesDe(demandees){
+      return (demandees && String(demandees).trim() !== '*')
+        ? String(demandees).split(',').map(c => c.trim()).filter(Boolean) : null;
+    }
+
+    function requete(nom, op, charge, colonnes){
+      const etat = { filtres: [], unique: false, tolereVide: false, tri: null,
+                     colonnes: colonnesDe(colonnes) };
 
       function correspond(ligne){
         return etat.filtres.every(([type, col, val]) => {
@@ -79,7 +96,16 @@ window.supabase = {
           F.tables[nom] = gardees;
           return { data: null, error: null };
         }
-        let trouvees = lignes.filter(correspond).map(l => Object.assign({}, l));
+        /* Le vrai PostgREST ne rend que les colonnes demandées. Le double le
+           fait aussi, sans quoi un select('id,prenom') et un select('*')
+           seraient indiscernables au banc — et la fuite des codes n'aurait
+           laissé aucune trace observable. */
+        let trouvees = lignes.filter(correspond).map(l => {
+          if(!etat.colonnes) return Object.assign({}, l);
+          const projetee = {};
+          etat.colonnes.forEach(c => { projetee[c] = l[c]; });
+          return projetee;
+        });
         if(etat.tri){                                  /* supabase-js trie vraiment : le double aussi */
           const [col, croissant] = etat.tri;
           trouvees.sort((a, b) => (a[col] > b[col] ? 1 : a[col] < b[col] ? -1 : 0) * (croissant ? 1 : -1));
@@ -87,12 +113,13 @@ window.supabase = {
         if(etat.unique && !etat.tolereVide && trouvees.length === 0){   /* .single() sans ligne EST une erreur côté Supabase ; .maybeSingle() non */
           return { data: null, error: { message: 'aucune ligne', code: 'PGRST116' } };
         }
-        F.journal.push({ op: 'select', table: nom, n: trouvees.length });
+        F.journal.push({ op: 'select', table: nom, n: trouvees.length,
+                         colonnes: etat.colonnes ? etat.colonnes.join(',') : '*' });
         return { data: etat.unique ? (trouvees[0] || null) : trouvees, error: null };
       }
 
       const b = {
-        select(){ return b; },
+        select(colonnes){ etat.colonnes = colonnesDe(colonnes); return b; },
         eq(c, v){ etat.filtres.push(['eq', c, v]); return b; },
         neq(c, v){ etat.filtres.push(['neq', c, v]); return b; },
         ilike(c, v){ etat.filtres.push(['ilike', c, v]); return b; },
@@ -109,12 +136,49 @@ window.supabase = {
     return {
       from(nom){
         return {
-          select(){ return requete(nom, 'select'); },
+          /* La liste des colonnes arrive sur CE select-là, pas sur celui du
+             constructeur de requête : from(x).select('id,prenom'). La première
+             version de ce double la jetait, et rendait la ligne entière. */
+          select(colonnes){ return requete(nom, 'select', undefined, colonnes); },
           insert(charge){ return requete(nom, 'insert', charge); },
           update(charge){ return requete(nom, 'update', charge); },
           delete(){ return requete(nom, 'delete'); },
           upsert(charge){ return requete(nom, 'upsert', charge); },
         };
+      },
+      /* auth reproduit ce que fait Supabase : il détient les codes, il les
+         compare, et il est le seul à pouvoir le faire. La page, elle, ne peut
+         plus que lui demander son avis. */
+      auth: {
+        signInWithPassword(id){
+          const courriel = id && id.email, mdp = id && id.password;
+          const c = F.comptes[courriel];
+          const ok = !!c && c.motDePasse === String(mdp);
+          F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: ok });
+          if(!ok) return Promise.resolve({ data: { user: null, session: null },
+                                           error: { message: 'Invalid login credentials' } });
+          F.session = { user: { id: c.userId, email: courriel } };
+          return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
+        },
+        signUp(id){
+          const courriel = id && id.email, mdp = id && id.password;
+          if(F.comptes[courriel]){
+            F.journal.push({ op: 'signUp', table: 'auth', courriel: courriel, ok: false });
+            return Promise.resolve({ data: { user: null, session: null },
+                                     error: { message: 'User already registered' } });
+          }
+          const userId = F.semerCompte(courriel, mdp);
+          F.journal.push({ op: 'signUp', table: 'auth', courriel: courriel, ok: true });
+          F.session = { user: { id: userId, email: courriel } };
+          return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
+        },
+        signOut(){
+          F.journal.push({ op: 'signOut', table: 'auth' });
+          F.session = null;
+          return Promise.resolve({ error: null });
+        },
+        getUser(){ return Promise.resolve({ data: { user: F.session ? F.session.user : null }, error: null }); },
+        getSession(){ return Promise.resolve({ data: { session: F.session }, error: null }); },
       },
       functions: {
         invoke(nom, opts){

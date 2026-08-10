@@ -67,6 +67,21 @@ exécutait du code. Toute interpolation dans un attribut d'événement passe par
 attributs ordinaires. Deux contrôles le vérifient — l'un que `escJS` est appelé,
 l'autre qu'il protège vraiment.
 
+**L'authentification vit dans Supabase, pas dans la page.** Le code d'un élève
+est haché par Supabase et vérifié par lui : `signInWithPassword`, jamais une
+comparaison en JavaScript. Le mot de passe du professeur est celui d'un compte
+Supabase ordinaire, et l'appartenance à la table `professeurs` est revérifiée
+après la connexion. Ne jamais lire la table des élèves avec `select('*')` : c'est
+ainsi que tous les codes de la classe partaient dans le navigateur. Les gestes
+qui demandent des droits — nouveau code, ajout, retrait — passent par la fonction
+Edge `admin-eleve`. Le socle SQL et sa notice sont dans `supabase/`.
+
+**`DOMAINE_COMPTES` est écrit à deux endroits que rien ne relie** — les trois
+fichiers HTML et `supabase/functions/admin-eleve/index.ts`. S'ils divergent, les
+comptes créés d'un côté deviennent introuvables de l'autre et l'élève reçoit
+« Code incorrect » avec le bon code, sans la moindre erreur. Un contrôle compare
+les deux.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
@@ -134,7 +149,21 @@ npm install          # une seule fois
 npm test             # les trois niveaux
 npm run test:secondes # un seul, quand on travaille dessus
 npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
+npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
 ```
+
+`npm test` et `npm run test:navigateur` remplacent Supabase par un double en
+mémoire — exprès : aucun contrôle ne doit approcher les comptes réels. Ils sont
+donc **aveugles aux règles d'accès de la base**, et c'est là qu'étaient les
+fuites. `npm run test:base` comble ce trou sans jamais toucher au projet : il
+lève un PostgreSQL jetable, y recrée l'état d'avant, y joue la vraie migration,
+puis joue chaque rôle — visiteur, deux élèves, professeur — et vérifie ce que
+chacun obtient. Il exige PostgreSQL installé localement ; à défaut il le dit
+bruyamment plutôt que de passer au vert.
+
+Ce qu'aucun banc ne voit, et qui reste à vérifier à la main sur le projet : le
+réglage de l'authentification Supabase, le déploiement de la fonction Edge, et
+le fait que `COURRIEL_PROF` désigne un compte réel. Voir `supabase/LISEZMOI.md`.
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui
 ont motivé ce banc de test y sont chacune couvertes par une ligne.

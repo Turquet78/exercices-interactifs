@@ -371,6 +371,45 @@ function structure(){
   verifier('toute donnée mise dans un attribut d’événement passe par escJS',
     nonEchappes.length === 0,
     nonEchappes.length + ' interpolation(s) non échappée(s) — ' + nonEchappes.slice(0, 4).join(' , '));
+
+  /* Le mot de passe du tableau de bord était écrit en clair ligne 10, et
+     comparé dans le navigateur. « Afficher la source » ouvrait donc les notes
+     de la classe, les codes, la réinitialisation, la suppression d'élèves et
+     les verrous d'évaluation. */
+  verifier('le mot de passe du professeur n’est plus dans la page',
+    !/MOT_DE_PASSE_PROF/.test(s), 'la constante est encore là');
+  const tl = toutesFonctions.find(f => f.nom === 'teacherLogin');
+  verifier('la connexion du professeur est vérifiée par le serveur',
+    !!tl && /sb\.auth\.signInWithPassword/.test(tl.texte),
+    tl ? 'teacherLogin ne demande son avis à personne' : 'teacherLogin introuvable');
+
+  /* select('*') sur la table des élèves rapportait la colonne des codes : tous
+     ceux de la classe, lisibles dans l'onglet Réseau. La colonne a disparu de
+     la base, mais rien n'empêche d'y remettre un jour une donnée sensible —
+     on ne redemande donc que ce qui s'affiche. */
+  const litEleves = [...s.matchAll(new RegExp(
+    "from\\('" + (P.tableEleves || '\\u0000') + "'\\)\\s*\\.select\\(\\s*'([^']*)'", 'g'))];
+  const enEntier = litEleves.filter(m => m[1].trim() === '*').map(m => ligneDe(m.index));
+  verifier('la table des élèves n’est jamais demandée en entier',
+    !!P.tableEleves && enEntier.length === 0,
+    !P.tableEleves ? 'tableEleves manque dans tests/profils.js'
+                   : enEntier.length + ' select(*), ligne(s) ' + enEntier.join(', '));
+
+  /* L'adresse du compte d'un élève est dérivée de son identifiant. Ce domaine
+     est écrit à DEUX endroits que rien ne relie : cette page et la fonction
+     Edge. S'ils divergent, les comptes créés d'un côté deviennent introuvables
+     de l'autre — et l'élève reçoit « Code incorrect » avec le bon code. Aucune
+     erreur, aucune trace : exactement le genre de panne que ce banc existe pour
+     attraper. */
+  const domPage = (s.match(/const DOMAINE_COMPTES\s*=\s*'([^']+)'/) || [])[1];
+  let domEdge;
+  try{
+    domEdge = (fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/admin-eleve/index.ts'), 'utf8')
+      .match(/const DOMAINE\s*=\s*'([^']+)'/) || [])[1];
+  }catch(e){ domEdge = undefined; }
+  verifier('le domaine des comptes est le même dans la page et dans la fonction Edge',
+    !!domPage && domPage === domEdge,
+    'page : ' + (domPage || '(absent)') + ' — fonction Edge : ' + (domEdge || '(absent)'));
 }
 
 /* ---------- 2. Démarrage ---------- */

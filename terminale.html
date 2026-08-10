@@ -7,7 +7,12 @@
 <script>
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← ton URL de projet (nouveau projet Supabase terminale)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← ta clé "anon public"
-  const MOT_DE_PASSE_PROF = "2709";                          // ← le mot de passe de ton tableau de bord
+  const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
+  /* Le mot de passe du tableau de bord n'est plus dans cette page : il vit dans
+     Supabase, comme celui de n'importe quel compte, et c'est Supabase qui le
+     vérifie. Tant qu'il était écrit ici, « Afficher la source » ouvrait le
+     tableau de bord : notes de la classe, codes, suppression d'élèves,
+     verrous d'évaluation. */
 </script>
 <!-- ========================================================================= -->
 
@@ -1757,7 +1762,6 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <label class="lab">Ajouter un élève</label>
         <div class="add-form">
           <input class="text-input" id="addPrenom" placeholder="Prénom" maxlength="24" autocomplete="off">
-          <input class="text-input" id="addPin" placeholder="Code (4 chiffres)" inputmode="numeric" maxlength="4" autocomplete="off">
           <button class="btn btn-primary" onclick="addStudent()">Ajouter</button>
         </div>
         <ul class="roster" id="rosterList"></ul>
@@ -1831,7 +1835,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=207;
+const APP_VERSION=208;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2981,6 +2985,28 @@ function configReady(){
 }
 function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
 
+/* Chaque élève a désormais un vrai compte Supabase, et c'est Supabase qui
+   hache son code et le vérifie. L'adresse de ce compte est dérivée de son
+   identifiant : on retrouve donc l'un depuis l'autre sans table de
+   correspondance. Aucun courriel n'est jamais envoyé — le domaine est en
+   .invalid, réservé par l'IETF pour ne jamais exister.
+   DOMAINE_COMPTES doit rester IDENTIQUE à celui de la fonction Edge
+   admin-eleve : sinon les comptes créés d'un côté sont introuvables de
+   l'autre, et l'élève reçoit « Code incorrect » avec le bon code. */
+const NIVEAU='terminale';
+const DOMAINE_COMPTES='eleves.exercices-interactifs.invalid';
+function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
+function idAuHasard(){
+  if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
+  /* randomUUID exige une page servie en https ; GitHub Pages l'est, mais un
+     fichier ouvert en local ne l'est pas et la création de compte y échouerait
+     sans ce repli. */
+  const o=crypto.getRandomValues(new Uint8Array(16));
+  o[6]=(o[6]&0x0f)|0x40; o[8]=(o[8]&0x3f)|0x80;
+  const h=[...o].map(b=>b.toString(16).padStart(2,'0')).join('');
+  return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);
+}
+
 /* ---------- Navigation ---------- */
 function show(name){
   /* une exception ici figerait toute la navigation */
@@ -3010,8 +3036,12 @@ function show(name){
   }else{ pill.hidden=true; }
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function quitToHome(){ currentEleve=null; show('home'); }
-function logout(){ currentEleve=null; show('home'); }
+/* Oublier currentEleve ne suffit plus : la session Supabase survit au
+   rechargement de la page. Sans signOut(), l'élève suivant sur le même
+   ordinateur hériterait des droits du précédent. */
+function fermerSession(){ try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
+function quitToHome(){ currentEleve=null; fermerSession(); show('home'); }
+function logout(){ currentEleve=null; fermerSession(); show('home'); }
 
 /* ---------- Connexion élève ---------- */
 function loginMode(m){
@@ -3024,7 +3054,9 @@ async function renderLoginNames(){
   loginMode('co'); selectedEleve=null; $('pinRow').hidden=true;
   const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
   try{
-    const {data,error}=await sb.from('eleves').select('*').order('prenom');
+    /* select('*') rapportait aussi la colonne des codes : toute la classe
+       lisible dans l'onglet Réseau. On ne demande plus que ce qui s'affiche. */
+    const {data,error}=await sb.from('eleves').select('id,prenom').order('prenom');
     if(error)throw error;
     if(!data.length){ box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return; }
     box.innerHTML='';
@@ -3042,7 +3074,12 @@ async function renderLoginNames(){
 async function connexionEleve(){
   if(!selectedEleve){ toast('Choisis ton prénom'); return; }
   const pin=val('loginPin').trim();
-  if(pin!==selectedEleve.pin){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
+  /* Le code n'est plus comparé ici : cette page ne le connaît pas. Supabase
+     le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
+     était faite dans le navigateur, deux lignes dans la console suffisaient à
+     entrer sous n'importe quel prénom. */
+  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.id),password:pin});
+  if(error){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
   currentEleve=selectedEleve; await ouvrirEspace();
 }
 async function creerCompte(){
@@ -3054,8 +3091,17 @@ async function creerCompte(){
     const {data:exist,error:errExist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
     if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
-    const {data,error}=await sb.from('eleves').insert({prenom,pin}).select().single();
-    if(error)throw error;
+    /* L'identifiant est tiré ici : il sert à la fois de clé de la ligne et
+       d'adresse du compte Supabase. */
+    const id=idAuHasard();
+    const {data:inscription,error:errInscr}=await sb.auth.signUp({email:courrielDe(id),password:pin});
+    if(errInscr||!inscription||!inscription.user){ toast('Création impossible — réessaie','err'); return; }
+    /* Sans session, l'insertion qui suit sera refusée par la règle d'accès et
+       l'élève verrait « Création impossible » sans savoir pourquoi. La cause
+       est toujours la même, et elle est réglable en deux clics. */
+    if(!inscription.session){ toast('À régler dans Supabase : désactiver la confirmation par courriel','err'); return; }
+    const {data,error}=await sb.from('eleves').insert({id,prenom,user_id:inscription.user.id}).select().single();
+    if(error){ toast('Création impossible — réessaie','err'); return; }
     currentEleve=data; toast('Compte créé !','ok');
     $('newPrenom').value='';$('newPin').value='';$('newPin2').value='';
     await ouvrirEspace();
@@ -11466,8 +11512,25 @@ function saConseilCtx(){
 }
 
 /* ---------- Professeur ---------- */
-function teacherLogin(){
-  if(val('teacherPass')!==MOT_DE_PASSE_PROF){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
+async function teacherLogin(){
+  const mdp=val('teacherPass');
+  if(!mdp){ toast('Écris ton mot de passe'); return; }
+  /* Le mot de passe n'est plus dans la page : Supabase le vérifie. */
+  const {error}=await sb.auth.signInWithPassword({email:COURRIEL_PROF,password:mdp});
+  if(error){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
+  /* Se connecter ne suffit pas — encore faut-il être inscrit comme
+     professeur. Les règles d'accès de la base s'appuient sur la même table :
+     un compte qui n'y figure pas ne verrait de toute façon rien de plus que
+     ses propres notes. */
+  const {data:prof,error:errProf}=await sb.from('professeurs').select('user_id').maybeSingle();
+  if(errProf||!prof){
+    /* Si la déconnexion échoue, la session reste ouverte : le compte n'a pas
+       les droits du professeur, mais mieux vaut le dire que le taire. */
+    const {error:errSortie}=await sb.auth.signOut();
+    toast(errSortie ? 'Ce compte n’est pas celui du professeur — recharge la page'
+                    : 'Ce compte n’est pas celui du professeur','err');
+    $('teacherPass').value=''; return;
+  }
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
 function teacherTab(name){
@@ -11518,7 +11581,7 @@ async function renderClassTable(){
   const sumDur=l=>l.reduce((s,r)=>s+(r.duration_sec||0),0);
   try{
     const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
-      sb.from('eleves').select('*').order('prenom'),
+      sb.from('eleves').select('id,prenom').order('prenom'),
       sb.from('resultats').select('*')
     ]);
     if(e1)throw e1; if(e2)throw e2;
@@ -11640,13 +11703,16 @@ async function showStudentDetail(id,prenom){
 async function renderRoster(){
   const ul=$('rosterList'); ul.innerHTML='<li class="muted" style="border:none">Chargement…</li>';
   try{
-    const {data,error}=await sb.from('eleves').select('*').order('prenom');
+    const {data,error}=await sb.from('eleves').select('id,prenom').order('prenom');
     if(error)throw error;
     if(!data.length){ ul.innerHTML='<div class="empty">Aucun compte pour l\'instant.</div>'; return; }
+    /* Les codes ne sont plus affichables : Supabase les hache, et un hachage ne
+       se relit pas — pas même par le professeur. « Nouveau code » en tire un
+       autre et le montre une seule fois. */
     ul.innerHTML=data.map(e=>`<li>
       <span class="av">${esc(initials(e.prenom))}</span>
       <span class="nm">${esc(e.prenom)}</span>
-      <span class="code">code : ${esc(e.pin)}</span>
+      <span class="code" title="Les codes sont chiffrés : personne ne peut les relire. « Nouveau code » en tire un nouveau.">code : ••••</span>
       <span class="acts">
         <button class="btn btn-ghost btn-sm" onclick="resetPin('${escJS(e.id)}','${escJS(e.prenom)}')">Nouveau code</button>
         <button class="btn btn-danger btn-sm" onclick="removeStudent('${escJS(e.id)}','${escJS(e.prenom)}')">Retirer</button>
@@ -11654,28 +11720,37 @@ async function renderRoster(){
   }catch(e){ ul.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
 async function addStudent(){
-  const prenom=val('addPrenom').trim(),pin=val('addPin').trim();
+  const prenom=val('addPrenom').trim();
   if(!prenom){ toast('Écris un prénom'); return; }
-  if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   try{
-    const {data:exist,error:errExist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
-    if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
-    if(exist&&exist.length){ toast('Ce prénom existe déjà','err'); return; }
-    const {error}=await sb.from('eleves').insert({prenom,pin}); if(error)throw error;
-    $('addPrenom').value='';$('addPin').value=''; toast('Élève ajouté','ok'); renderRoster();
+    /* Créer un compte pour quelqu'un d'autre demande des droits que le
+       navigateur n'a pas, et ne doit pas avoir : la fonction Edge s'en charge
+       après avoir vérifié que l'appelant est bien le professeur. */
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'ajouter',niveau:NIVEAU,prenom}});
+    if(error||!data||data.erreur){ toast('Ajout impossible : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    $('addPrenom').value='';
+    alert('Code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
+    toast('Élève ajouté','ok'); renderRoster();
   }catch(e){ toast('Ajout impossible','err'); }
 }
 async function resetPin(id,prenom){
-  const np=prompt(`Nouveau code à 4 chiffres pour ${prenom} :`);
-  if(np===null)return;
-  if(!/^\d{4}$/.test(np.trim())){ toast('Le code doit avoir 4 chiffres','err'); return; }
-  try{ const {error}=await sb.from('eleves').update({pin:np.trim()}).eq('id',id); if(error)throw error;
+  if(!confirm('Donner un nouveau code à '+prenom+' ?\n\nL\'ancien cessera aussitôt de fonctionner.'))return;
+  try{
+    /* Le code est tiré par le serveur, jamais par cette page : il n'est
+       stocké nulle part en clair et ne s'affiche qu'une fois, ici. */
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'nouveau-code',niveau:NIVEAU,eleveId:id}});
+    if(error||!data||data.erreur){ toast('Échec : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    alert('Nouveau code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Code mis à jour','ok'); renderRoster();
   }catch(e){ toast('Échec de la mise à jour','err'); }
 }
 async function removeStudent(id,prenom){
   if(!confirm(`Retirer ${prenom} et tout son historique ? Cette action est définitive.`))return;
-  try{ const {error}=await sb.from('eleves').delete().eq('id',id); if(error)throw error;
+  try{
+    /* Supprimer la ligne ne suffit plus : le compte Supabase doit partir avec
+       elle, sinon le prénom reste impossible à réutiliser. */
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'retirer',niveau:NIVEAU,eleveId:id}});
+    if(error||!data||data.erreur){ toast('Suppression impossible','err'); return; }
     toast('Élève retiré','ok'); renderRoster();
   }catch(e){ toast('Suppression impossible','err'); }
 }
@@ -11683,10 +11758,8 @@ async function resetYear(){
   if(!confirm('Supprimer TOUS les comptes et TOUT l\'historique ? À ne faire qu\'à la rentrée.'))return;
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
-    const r1=await sb.from('resultats').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    if(r1.error){ toast('Réinitialisation impossible : '+(r1.error.message||'erreur'),'err'); return; }
-    const r2=await sb.from('eleves').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    if(r2.error){ toast('Comptes non supprimés : '+(r2.error.message||'erreur'),'err'); return; }
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'tout-effacer',niveau:NIVEAU}});
+    if(error||!data||data.erreur){ toast('Réinitialisation impossible : '+((data&&data.erreur)||'erreur'),'err'); return; }
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
@@ -11789,7 +11862,7 @@ async function renderDevoirResultats(){
   box.innerHTML='<p class="muted">Chargement…</p>';
   try{
     const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
-      sb.from('eleves').select('*').order('prenom'),
+      sb.from('eleves').select('id,prenom').order('prenom'),
       sb.from('resultats').select('*')
     ]);
     if(e1)throw e1; if(e2)throw e2;
