@@ -7,7 +7,12 @@
 <script>
   const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← projet Supabase (partagé avec la terminale ; la Seconde utilise des tables séparées « _2nde »)
   const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";              // ← clé "anon public" du projet
-  const MOT_DE_PASSE_PROF = "2709";                          // ← le mot de passe de ton tableau de bord
+  const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";   // ← l'adresse du compte Supabase du professeur
+  /* Le mot de passe du tableau de bord n'est plus dans cette page : il vit dans
+     Supabase, comme celui de n'importe quel compte, et c'est Supabase qui le
+     vérifie. Tant qu'il était écrit ici, « Afficher la source » ouvrait le
+     tableau de bord : notes de la classe, codes, suppression d'élèves,
+     verrous d'évaluation. */
 </script>
 <!-- ========================================================================= -->
 
@@ -19,6 +24,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style id="ml-static-css">/* 0.110.0 */@font-face{font-display:"swap";font-family:KaTeX_AMS;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_AMS-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Caligraphic;font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Caligraphic-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Caligraphic;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Caligraphic-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Fraktur;font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Fraktur-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Fraktur;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Fraktur-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:italic;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-BoldItalic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:italic;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-Italic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Main;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Main-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Math;font-style:italic;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Math-BoldItalic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Math;font-style:italic;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Math-Italic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:"KaTeX_SansSerif";font-style:normal;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_SansSerif-Bold.woff2) format("woff2")}@font-face{font-display:"swap";font-family:"KaTeX_SansSerif";font-style:italic;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_SansSerif-Italic.woff2) format("woff2")}@font-face{font-display:"swap";font-family:"KaTeX_SansSerif";font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_SansSerif-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Script;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Script-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size1;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size1-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size2;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size2-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size3;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size3-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Size4;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Size4-Regular.woff2) format("woff2")}@font-face{font-display:"swap";font-family:KaTeX_Typewriter;font-style:normal;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/mathlive@0.110.0/fonts/KaTeX_Typewriter-Regular.woff2) format("woff2")}:root{--ML__static-fonts:true}.ML__container{min-height:auto!important;--_hue:var(--hue,212);--_placeholder-color:var(--placeholder-color,hsl(var(--_hue),40%,49%));--_placeholder-opacity:var(--placeholder-opacity,0.4);--_text-font-family:var(--text-font-family,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue",sans-serif)}.ML__sr-only{height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;clip:rect(0,0,0,0);border:0;clip-path:inset(50%);white-space:nowrap}.ML__base,.ML__is-inline{display:inline-block}.ML__base{border:0;box-sizing:content-box;cursor:text;font-family:inherit;font-style:inherit;font-weight:inherit;margin:0;outline:0;padding:0;position:relative;text-decoration:none;vertical-align:baseline;visibility:inherit;width:min-content}.ML__strut,.ML__strut--bottom{display:inline-block;min-height:0.5em}.ML__small-delim{font-family:KaTeX_Main}.ML__text{font-family:var(--_text-font-family);white-space:pre}.ML__cmr{font-family:KaTeX_Main;font-style:normal}.ML__mathit{font-family:KaTeX_Math;font-style:italic}.ML__mathbf{font-family:KaTeX_Main;font-weight:700}.ML__mathbfit,.lcGreek.ML__mathbf{font-family:KaTeX_Math}.ML__mathbfit{font-style:italic;font-weight:700}.ML__ams,.ML__bb{font-family:KaTeX_AMS}.ML__cal{font-family:KaTeX_Caligraphic}.ML__frak{font-family:KaTeX_Fraktur}.ML__tt{font-family:KaTeX_Typewriter}.ML__script{font-family:KaTeX_Script}.ML__sans{font-family:KaTeX_SansSerif}.ML__series_el,.ML__series_ul{font-weight:100}.ML__series_l{font-weight:200}.ML__series_sl{font-weight:300}.ML__series_sb{font-weight:500}.ML__bold{font-weight:700}.ML__series_eb{font-weight:800}.ML__series_ub{font-weight:900}.ML__series_uc{font-stretch:ultra-condensed}.ML__series_ec{font-stretch:extra-condensed}.ML__series_c{font-stretch:condensed}.ML__series_sc{font-stretch:semi-condensed}.ML__series_sx{font-stretch:semi-expanded}.ML__series_x{font-stretch:expanded}.ML__series_ex{font-stretch:extra-expanded}.ML__series_ux{font-stretch:ultra-expanded}.ML__it{font-style:italic}.ML__shape_ol{-webkit-text-stroke:1px #000;text-stroke:1px #000;color:transparent}.ML__shape_sc{font-variant:small-caps}.ML__shape_sl{font-style:oblique}.ML__emph{color:#bc2612}.ML__emph .ML__emph{color:#0c7f99}.ML__highlight{background:#edd1b0;color:#007cb2}.ML__center{text-align:center}.ML__left{text-align:left}.ML__right{text-align:right}.ML__label_padding{padding:0 0.5em}.ML__frac-line{min-height:1px;width:100%}.ML__frac-line:after{background:currentColor;box-sizing:content-box;content:"";display:block;forced-color-adjust:preserve-parent-color;margin-top:max(-1px,-0.04em);min-height:max(1px,0.04em);print-color-adjust:exact;transform:translate(0)}@media (forced-colors:active){.ML__frac-line{min-height:0px}}.ML__sqrt,.ML__sqrt-sign{display:inline-block}.ML__sqrt-sign{position:relative}.ML__sqrt-line{display:inline-block;height:max(1px,0.04em);width:100%}.ML__sqrt-line:before{background:currentColor;content:"";display:block;forced-color-adjust:preserve-parent-color;margin-top:min(-1px,-0.04em);min-height:max(1px,0.04em);print-color-adjust:exact;transform:translate(0)}@media (forced-colors:active){.ML__sqrt-line:after{background:#fff!important}}.ML__sqrt-line:after{border-bottom-width:1px;content:" ";display:block;margin-top:-0.1em}.ML__sqrt-index{margin-left:0.27777778em;margin-right:-0.55555556em}.ML__delim-size1{font-family:KaTeX_Size1}.ML__delim-size2{font-family:KaTeX_Size2}.ML__delim-size3{font-family:KaTeX_Size3}.ML__delim-size4{font-family:KaTeX_Size4}.ML__delim-mult .delim-size1>span{font-family:KaTeX_Size1}.ML__delim-mult .delim-size4>span{font-family:KaTeX_Size4}.ML__accent-body{font-family:KaTeX_Main}.ML__accent-combining-char{left:0.24em;position:relative}.ML__latex{direction:ltr;display:inline-block;font-family:inherit;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant-caps:normal;letter-spacing:normal;line-height:1.2;text-align:left;text-indent:0;text-rendering:auto;word-wrap:normal;forced-color-adjust:preserve-parent-color;text-shadow:none;-webkit-user-select:none;user-select:none;white-space:nowrap;width:min-content;word-spacing:normal}.ML__latex .style-wrap{position:relative}.ML__latex .ML__left-right,.ML__latex .ML__mfrac{display:inline-block}.ML__latex .ML__vlist-t{border-collapse:collapse;display:inline-table;table-layout:fixed}.ML__latex .ML__vlist-r{display:table-row}.ML__latex .ML__vlist{display:table-cell;position:relative;vertical-align:bottom}.ML__latex .ML__vlist>span{display:block;height:0;position:relative}.ML__latex .ML__vlist>span>span{display:inline-block}.ML__latex .ML__vlist>span>.ML__pstrut{overflow:hidden;width:0}.ML__latex .ML__vlist-t2{margin-right:-2px}.ML__latex .ML__vlist-s{display:table-cell;font-size:1px;min-width:2px;vertical-align:bottom;width:2px}.ML__latex .ML__msubsup{text-align:left}.ML__latex .ML__negativethinspace{display:inline-block;height:0.71em;margin-left:-0.16667em}.ML__latex .ML__thinspace{display:inline-block;height:0.71em;width:0.16667em}.ML__latex .ML__mediumspace{display:inline-block;height:0.71em;width:0.22222em}.ML__latex .ML__thickspace{display:inline-block;height:0.71em;width:0.27778em}.ML__latex .ML__enspace{display:inline-block;height:0.71em;width:0.5em}.ML__latex .ML__quad{display:inline-block;height:0.71em;width:1em}.ML__latex .ML__qquad{display:inline-block;height:0.71em;width:2em}.ML__latex .ML__llap,.ML__latex .ML__rlap{display:inline-block;position:relative;width:0}.ML__latex .ML__llap>.ML__inner,.ML__latex .ML__rlap>.ML__inner{position:absolute}.ML__latex .ML__llap>.ML__fix,.ML__latex .ML__rlap>.ML__fix{display:inline-block}.ML__latex .ML__llap>.ML__inner{right:0}.ML__latex .ML__rlap>.ML__inner{left:0}.ML__latex .ML__rule{border:0 solid;box-sizing:border-box;display:inline-block;position:relative}.ML__latex .overline .overline-line,.ML__latex .underline .underline-line{width:100%}.ML__latex .overline .overline-line:before,.ML__latex .underline .underline-line:before{border-bottom-style:solid;border-bottom-width:max(1px,0.04em);content:"";display:block;print-color-adjust:exact}.ML__latex .overline .overline-line:after,.ML__latex .underline .underline-line:after{border-bottom-style:solid;border-bottom-width:max(1px,0.04em);content:"";display:block;margin-top:-1px;print-color-adjust:exact}.ML__latex .ML__stretchy{display:block;left:0;overflow:hidden;position:absolute;width:100%}.ML__latex .ML__stretchy:after,.ML__latex .ML__stretchy:before{content:""}.ML__latex .ML__stretchy svg{display:block;fill:currentColor;fill-opacity:1;fill-rule:nonzero;height:inherit;position:absolute;stroke:currentColor;stroke-dasharray:none;stroke-dashoffset:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-width:1;width:100%}.ML__latex .slice-1-of-2{left:0}.ML__latex .slice-1-of-2,.ML__latex .slice-2-of-2{display:inline-flex;overflow:hidden;position:absolute;width:50.2%}.ML__latex .slice-2-of-2{right:0}.ML__latex .slice-1-of-3{left:0;width:25.1%}.ML__latex .slice-1-of-3,.ML__latex .slice-2-of-3{display:inline-flex;overflow:hidden;position:absolute}.ML__latex .slice-2-of-3{left:25%;width:50%}.ML__latex .slice-3-of-3{right:0;width:25.1%}.ML__latex .slice-1-of-1,.ML__latex .slice-3-of-3{display:inline-flex;overflow:hidden;position:absolute}.ML__latex .slice-1-of-1{left:0;width:100%}.ML__latex .ML__nulldelimiter,.ML__latex .ML__op-group{display:inline-block}.ML__latex .ML__op-symbol{position:relative}.ML__latex .ML__op-symbol.ML__small-op{font-family:KaTeX_Size1}.ML__latex .ML__op-symbol.ML__large-op{font-family:KaTeX_Size2}.ML__latex:has(.ML__align_environment),.ML__latex:has(.ML__center_environment),.ML__latex:has(.ML__eqnarray_environment),.ML__latex:has(.ML__gather_environment),.ML__latex:has(.ML__multiline_environment){width:100%}.ML__latex .ML__multiline_environment{display:inline-flex;width:100%}.ML__latex .ML__center_environment{display:inline-flex;justify-content:center;width:100%}.ML__latex .ML__align_environment,.ML__latex .ML__eqnarray_environment,.ML__latex .ML__gather_environment{display:inline-block}.ML__latex .ML__mtable .ML__vertical-separator{box-sizing:border-box;display:inline-block;min-width:1px}.ML__latex .ML__mtable .ML__arraycolsep{display:inline-block}.ML__latex .ML__mtable .col-align-m>.ML__vlist-t{text-align:center}.ML__latex .ML__mtable .col-align-c>.ML__vlist-t{text-align:center}.ML__latex .ML__mtable .col-align-l>.ML__vlist-t{text-align:left}.ML__latex .ML__mtable .col-align-r>.ML__vlist-t{text-align:right}[data-href]{cursor:pointer}.ML__error{background-color:rgba(204,0,65,.1);background-image:radial-gradient(ellipse at center,#cc0041,transparent 70%);background-position:0 100%;background-repeat:repeat-x;background-size:3px 3px;display:inline-block;padding-bottom:3px}.ML__error>.ML__error{background:transparent;padding:0}.ML__placeholder{color:var(--_placeholder-color);font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;opacity:var(--_placeholder-opacity);padding-left:0.4ex;padding-right:0.4ex}.ML__notation{box-sizing:border-box;line-height:0;position:absolute}.ML__tooltip-container{position:relative;transform:scale(0)}.ML__tooltip-container .ML__tooltip-content{background:var(--_tooltip-background-color);border:var(--_tooltip-border);border-radius:var(--_tooltip-border-radius);display:inline-table;max-width:400px;padding:12px;position:fixed;visibility:hidden;width:max-content;z-index:2;--_selection-color:var(--_tooltip-color);box-shadow:var(--_tooltip-box-shadow);color:var(--_tooltip-color);opacity:0;transition:opacity 0.15s cubic-bezier(0.4,0,1,1)}.ML__tooltip-container .ML__tooltip-content .ML__text{white-space:normal}.ML__tooltip-container .ML__tooltip-content .ML__base{display:contents}.ML__tooltip-container:hover .ML__tooltip-content{font-size:0.75em;opacity:1;transform:scale(1) translateY(3em);visibility:visible}.ML__bg{background-color:transparent!important}.ML__bg:before{background-color:var(--bg-color);bottom:0;box-sizing:border-box;content:"";left:0;position:absolute;right:0;top:0;z-index:-1}</style>
 <style>
   :root{
     --paper:#F7F6F1; --grid:#CBD8EC; --ink:#1E2A4A; --ink-soft:#5C668A;
@@ -402,6 +408,55 @@
   .pge-opt.bad{color:#fff;background:var(--red);border-color:var(--red)}
   .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
   .conseil-card{max-width:min(520px,94vw);width:100%}
+/* --- Fenêtre « Poser une question à l'IA » (flottante, déplaçable) --- */
+.qia-overlay{position:fixed;inset:0;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:14px;box-sizing:border-box}
+.qia-overlay.on{display:flex}
+.qia-card{background:var(--surface);border-radius:16px;max-width:600px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(15,23,42,.25);overflow:hidden}
+.qia-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1.5px solid var(--line);font-size:1.02rem}
+.qia-close{border:none;background:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft);padding:4px 8px}
+.qia-sugg{padding:10px 14px 2px}
+.qia-chip{display:inline-block;margin:0 8px 8px 0;padding:7px 11px;border:1.5px solid #c9d3e8;border-radius:999px;background:var(--paper);font-weight:700;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left}
+.qia-chip:hover{border-color:var(--blue);color:var(--blue)}
+.qia-dialog{flex:1;overflow-y:auto;padding:6px 14px;min-height:56px}
+.qia-q,.qia-r{margin:8px 0;padding:9px 12px;border-radius:12px;line-height:1.5;font-size:.95rem}
+.qia-q{background:#e8eefb;margin-left:14%}
+.qia-r{background:var(--paper);border:1.5px solid var(--line);margin-right:6%}
+.qia-inputrow{display:flex;gap:8px;padding:10px 14px;border-top:1.5px solid var(--line);align-items:flex-end}
+.qia-inputrow textarea{flex:1;resize:none;border:2px solid #c9d3e8;border-radius:10px;padding:8px 10px;font:inherit;min-height:44px;box-sizing:border-box}
+.qia-mic{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:44px;height:44px;font-size:1.1rem;cursor:pointer;flex:none}
+.qia-mic.on{border-color:#d94859;background:#fdecee;animation:qiaPulse 1s infinite}
+.qia-mic.off{opacity:.4;filter:grayscale(1);cursor:not-allowed}
+/* --- Illustrations génériques de la fenêtre QIA (thème limites) : dessins de la plateforme, choisis par l'IA --- */
+.qia-illu{margin-top:9px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:6px 4px 0;text-align:center;}
+.qia-illu svg{display:block;margin:0 auto;max-width:250px;width:100%;height:auto;}
+.qia-illu-leg{font-size:.8rem;font-weight:700;color:var(--ink-soft);padding:3px 8px 6px;}
+/* tableau (\begin{array}) converti par iaTableau : cellules centrees, \hline = trait haut */
+.qia-arr{border-collapse:collapse;margin:8px 0;background:var(--surface);}
+.qia-arr td{border:1.5px solid var(--line);padding:4px 12px;text-align:center;min-width:36px;}
+.qia-arr tr.qia-arr-h td{border-top:2.5px solid #8A93B4;}
+.qia-illu .qi-ax{stroke:#5C668A;stroke-width:1.3;fill:none;}
+.qia-illu .qi-fl{fill:#5C668A;}
+.qia-illu .qi-flb{fill:#2B50C8;}
+.qia-illu .qi-cb{stroke:#2B50C8;stroke-width:2.4;fill:none;stroke-linecap:round;}
+.qia-illu .qi-as{stroke:#E23D52;stroke-width:1.7;stroke-dasharray:6 4;fill:none;}
+.qia-illu .qi-gd{stroke:#8A93B4;stroke-width:1.1;stroke-dasharray:3 3;fill:none;}
+.qia-illu .qi-tx{font-size:12.5px;font-weight:700;fill:#1E2A4A;}
+.qia-illu .qi-tr{font-size:12.5px;font-weight:800;fill:#E23D52;}
+.qia-illu .qi-tb{font-size:12.5px;font-weight:800;fill:#2B50C8;}
+.qia-illu .qi-pt{fill:#2B50C8;stroke:#fff;stroke-width:1.4;}
+.qia-illu .qi-po{fill:#FFFFFF;stroke:#2B50C8;stroke-width:2;}
+.qia-illu .qi-cadre{stroke:#1E2A4A;stroke-width:1.4;fill:#FFFFFF;}
+.qia-illu .qi-trait{stroke:#1E2A4A;stroke-width:1.2;}
+/* --- Fenêtres d'aide flottantes : pas de voile bloquant, déplaçables par leur barre de titre --- */
+.qia-overlay{background:transparent;pointer-events:none}
+.qia-overlay .qia-card{pointer-events:auto;border:1.5px solid var(--line)}
+#conseilModal{background:transparent;pointer-events:none}
+#conseilModal .conseil-card{pointer-events:auto;border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(15,23,42,.25)}
+#qiaOverlay .qia-head,#conseilModal .notes-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+.qia-headbtns{display:flex;align-items:center;gap:2px}
+@keyframes qiaPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,72,89,.35)}50%{box-shadow:0 0 0 9px rgba(217,72,89,0)}}
+  .rap-row{margin:2px 0 8px;text-align:center}
+  #conseilRappel{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;line-height:1.55;font-size:.95rem}
   .def-prompt{font-weight:600;margin:0 0 12px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
@@ -902,12 +957,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </div>
 
-  <div id="conseilModal" class="notes-modal" hidden onclick="if(event.target===this)fermerConseil()">
+  <div id="conseilModal" class="notes-modal" hidden>
     <div class="card conseil-card">
       <div class="notes-head">
         <h3>💡 Conseil</h3>
         <button class="btn-link" onclick="fermerConseil()">Fermer</button>
       </div>
+      <div id="conseilRappelRow" class="rap-row" hidden><button class="btn btn-ghost btn-sm" type="button" id="conseilRappelBtn" onclick="basculerRappel()">📘 Voir le rappel de cours</button></div>
+      <div id="conseilRappel" hidden></div>
       <div id="conseilBody" class="mp-feedback"></div>
     </div>
   </div>
@@ -952,7 +1009,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="lv-graph" id="lvGraph"></div>
       <div id="lvBody"></div>
       <div class="lv-feedback"><span id="lvMark" class="mark"></span> <span id="lvCorr" class="correction"></span></div>
-      <div class="row" style="justify-content:center;margin-top:16px"><button id="lvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="lvRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="lvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="lvQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
     </div>
   </section>
 
@@ -1032,7 +1089,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="mp-stage"><div style="width:100%" id="ensHost"></div></div>
       <div class="mp-feedback" id="ensFeedback"></div>
       <div class="row" style="justify-content:center">
-        <button id="ensBilanBtn" class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()" hidden>Rappels</button>
+        <button id="ensBilanBtn" class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()" hidden>🖼 Schéma des ensembles</button>
         <span id="ensActions" style="display:inline-flex;gap:12px"><button class="btn btn-primary" onclick="checkEnsAnswer()">Vérifier</button></span>
       </div>
     </div>
@@ -1134,7 +1191,6 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <label class="lab">Ajouter un élève</label>
         <div class="add-form">
           <input class="text-input" id="addPrenom" placeholder="Prénom" maxlength="24" autocomplete="off">
-          <input class="text-input" id="addPin" placeholder="Code (4 chiffres)" inputmode="numeric" maxlength="4" autocomplete="off">
           <button class="btn btn-primary" onclick="addStudent()">Ajouter</button>
         </div>
         <ul class="roster" id="rosterList"></ul>
@@ -1185,17 +1241,47 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 </div>
 
 <div id="toast"></div>
+<!-- Fenêtre « Poser une question à l'IA » (flottante, déplaçable) -->
+<div id="qiaOverlay" class="qia-overlay">
+  <div class="qia-card">
+    <div class="qia-head"><b>💬 Poser une question à l’IA</b><span class="qia-headbtns"><button type="button" class="qia-close qia-detach" onclick="detacherQIA()" title="Détacher dans une fenêtre indépendante">⧉</button><button type="button" class="qia-close" onclick="fermerQIA()" title="Fermer">✕</button></span></div>
+    <div class="qia-sugg" id="qiaSugg"></div>
+    <div class="qia-dialog" id="qiaDialog"></div>
+    <div class="qia-inputrow">
+      <textarea id="qiaInput" rows="2" placeholder="Écris ta question ici… (ou dicte-la avec le micro)" maxlength="300"></textarea>
+      <button type="button" class="qia-mic" id="qiaMic" onclick="qiaMicToggle()" title="Dicter la question au micro">🎤</button>
+      <button type="button" class="btn btn-primary" id="qiaSend" onclick="qiaEnvoyer()">Envoyer</button>
+    </div>
+  </div>
+</div>
 <div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <script>
 /* ---------- Raccourcis ---------- */
-const $=id=>document.getElementById(id);
+/* $ cherche d'abord dans la page, PUIS dans chaque fenetre detachee. Sans ce
+   second recours, tout $('qiaInput'), $('qiaDialog'), $('conseilBody') renvoie
+   null des que la carte a quitte le document — silencieusement. C'est la panne
+   v44, et c'est une REDEFINITION : un portage qui ne cherche que les nouvelles
+   declarations ne la voit pas. */
+function $(id){
+  let el=document.getElementById(id);
+  if(!el && window.__fenetresDetachees){
+    for(let i=0;i<window.__fenetresDetachees.length;i++){
+      const p=window.__fenetresDetachees[i];
+      try{ if(p && !p.closed){ el=p.document.getElementById(id); if(el) break; } }catch(e){}
+    }
+  }
+  return el;
+}
+/* Affectation a window, donc invisible a tout filtre function/const/let : c'est
+   l'exemple nomme dans le CLAUDE.md, et son oubli est la panne v43. */
+window.__fenetresDetachees = window.__fenetresDetachees || [];
 
 /* ================== GREFFE TERMINALE : cases mathematiques ==================
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=10;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=23;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1382,6 +1468,24 @@ function ptsExo(){ const m=ptsEcran(); setTimeout(afficherNoteExo,0); return m; 
 const val=id=>$(id).value;
 const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+/* Une chaine placee dans un attribut onclick="…" traverse DEUX analyseurs :
+   l'analyseur HTML decode les entites AVANT que l'analyseur JavaScript ne voie
+   le texte. esc() seul ne protege donc rien ici — il ecrit &#39;, l'analyseur
+   HTML le redonne en ', et l'apostrophe ferme la chaine JavaScript.
+   Un eleve choisit librement son prenom a la creation de son compte :
+     « O'Brien »              -> SyntaxError, le bouton du professeur est mort
+     « ',alert(1),' »         -> le code s'execute dans le tableau du professeur
+   escJS() echappe pour JavaScript (\xNN) tout ce qui n'est pas une lettre, un
+   chiffre ou une ponctuation inoffensive. Le resultat ne contient plus ni
+   guillemet, ni apostrophe, ni <, ni & : il traverse les deux analyseurs sans
+   dommage. Les lettres accentuees sont conservees telles quelles. */
+function escJS(s){
+  return String(s).replace(/[^\w .,:;!?@%+=\/\u00C0-\u024F-]/g,function(c){
+    var n=c.charCodeAt(0);
+    return n<256 ? '\\x'+('0'+n.toString(16)).slice(-2)
+                 : '\\u'+('000'+n.toString(16)).slice(-4);
+  });
+}
 function initials(n){return (String(n).trim()[0]||'?').toUpperCase();}
 function fmtDur(s){s=Math.round(s||0);const m=Math.floor(s/60),sec=s%60;return m>0?`${m} min ${String(sec).padStart(2,'0')}`:`${sec} s`;}
 function fmtDurLong(s){s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>0)return `${h} h ${String(m).padStart(2,'0')} min`;if(m>0)return `${m} min ${String(sec).padStart(2,'0')}`;return `${sec} s`;}
@@ -1432,6 +1536,12 @@ function normalizeCfg(cfg){
 }
 let sb=null, currentEleve=null, selectedEleve=null, cfg=null;
 const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false};
+/* Un double-clic sur le bouton de la derniere question appelait finish... deux fois :
+   deux lignes en base pour le meme test. Le verrou est cale sur test.startTime, qui
+   est reaffecte a chaque demarrage ET a chaque reprise apres pause : rien a
+   reinitialiser dans les fonctions de demarrage. */
+let finVerrouillee=0;
+function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) return false; finVerrouillee=test.startTime; return true; }
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
@@ -1468,7 +1578,10 @@ function testIdOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.test) ret
 function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) return d.mode; return 'eval'; }
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
-function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
+/* FRAC_INFO n'existe qu'en Premiere : la mentionner ici levait une ReferenceError
+   des qu'un identifiant sortait de TESTS — un devoir pointant un exercice retire,
+   une vieille ligne de resultat — et cassait la liste entiere qui l'affichait. */
+function testName(id){ return (TESTS[id]&&TESTS[id].name) || 'Test'; }
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 function restartCurrentTest(){ const t=TESTS[currentTestId]; if(t&&t.start) t.start(); }
@@ -1479,7 +1592,12 @@ function soutienAgain(fbId, actionsId, fn, host){
   $(actionsId).innerHTML=conseilInlineBtn()+`<button class="btn btn-primary" onclick="${fn}()">Revérifier</button>`;
   if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
 }
-/* ---------- (soutien simplifié : géré directement dans submitAnswer) ---------- */
+/* ---------- Correction en direct du mode soutien ---------- */
+/* La greffe MathLive appelle window.dexpLiveCheck quand l'eleve quitte une case.
+   Elle n'etait definie nulle part ici : les deux appels ne trouvaient personne et
+   AUCUNE case ne se colorait jamais en direct, alors que liveCheckCurrent existe
+   et sait traiter pct, aug, dim et ens. */
+window.dexpLiveCheck=function(){ liveCheckCurrent(); };
 function liveCheckCurrent(){
   if(!isSoutien()||test.locked) return;
   const k=test.kind;
@@ -1609,7 +1727,7 @@ function startPge(){
 }
 function pgeRappelBtn(withConseil){
   if(!isSoutien()) return '';
-  let h='<button class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()">Rappels</button>';
+  let h='<button class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()">🖼 Schéma des ensembles</button>';
   if(withConseil) h+='<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>';
   return h;
 }
@@ -1656,12 +1774,364 @@ function conseilCourant(){
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   demanderConseilModal(b.nombre, b.contexte);
 }
+
+/* ================= Fenetre « Question a l'IA » =================
+   Portage reduit depuis terminale.html : la fenetre, son detachement sur
+   ordinateur, les questions suggerees, l'envoi et l'affichage de la reponse.
+   NE SONT PAS portes les illustrations, les courbes SVG et les corriges types :
+   ils sont indexes sur des exercices que la Seconde n'a pas, et la reponse est
+   ici rendue en texte simple, comme le fait deja lancerConseil. */
+function detachementPossible(){
+  try{ return !!window.open && window.matchMedia && window.matchMedia('(pointer: fine)').matches; }
+  catch(e){ return false; }
+}
+function detacherFenetre(conteneur, carte, titre, nom, larg, haut){
+  if(!conteneur || !carte) return null;
+  const L=window.__fenetresDetachees;
+  for(let i=0;i<L.length;i++){ if(L[i] && L[i].__origine===conteneur && !L[i].closed){ try{ L[i].focus(); }catch(e){} return L[i]; } }
+  let pop=null;
+  const gauche=Math.max(0, ((window.screen&&window.screen.width)||1280)-larg-60);
+  try{ pop=window.open('', nom, 'width='+larg+',height='+haut+',left='+gauche+',top=90'); }catch(e){ pop=null; }
+  if(!pop){ toast('Fenêtre bloquée par le navigateur — autorise les pop-ups pour ce site.'); return null; }
+  /* Firefox recharge about:blank après window.open('') et REMPLACE le document initial,
+     balayant ce qu'on y a mis. Un document.write immédiat annule ce chargement en attente. */
+  try{
+    pop.document.open();
+    pop.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"></head><body></body></html>');
+    pop.document.close();
+  }catch(e){}
+  garnirFenetre(pop, titre);
+  pop.__carte=carte; pop.__origine=conteneur;
+  try{ pop.document.body.appendChild(pop.document.adoptNode(carte)); }catch(e){ toast('Détachement impossible sur ce navigateur.'); try{ pop.close(); }catch(_e){} return null; }
+  L.push(pop);
+  /* pagehide : fermeture réelle → rapatriement ; remplacement de document (vieux Firefox
+     malgré le write) → on regarnit le nouveau document et on ré-adopte la carte. */
+  try{
+    pop.addEventListener('pagehide', function(){
+      setTimeout(function(){
+        if(pop.closed){ rapatrierFenetre(pop); return; }
+        if(pop.__carte && pop.__carte.ownerDocument!==pop.document){
+          try{
+            garnirFenetre(pop, titre);
+            pop.document.body.appendChild(pop.document.adoptNode(pop.__carte));
+          }catch(e){ rapatrierFenetre(pop); try{ pop.close(); }catch(_e){} }
+        }
+      },0);
+    });
+  }catch(e){}
+  try{ pop.focus(); }catch(e){}
+  return pop;
+}
+/* Prépare (ou re-prépare) le document d'une fenêtre détachée : titre, styles, ponts onclick. */
+function garnirFenetre(pop, titre){
+  const pd=pop.document;
+  try{ pd.title=titre; }catch(e){}
+  try{
+    if(!pd.getElementById('fenStyle')){
+      const st=pd.createElement('style'); st.id='fenStyle';
+      st.textContent=Array.prototype.map.call(document.querySelectorAll('style'),function(x){ return x.textContent; }).join('\n')
+        +'\nbody{margin:0;background:var(--surface);font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}'
+        +'\n.qia-card,.conseil-card{position:static!important;left:auto!important;top:auto!important;width:100%!important;max-width:none!important;height:100vh;max-height:100vh!important;margin:0!important;border:none!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}'
+        +'\n.qia-detach{display:none!important}';
+      pd.head.appendChild(st);
+    }
+  }catch(e){}
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+}
+function rapatrierFenetre(pop){
+  try{
+    if(pop && pop.__carte && pop.__carte.ownerDocument!==document && pop.__origine){
+      pop.__origine.appendChild(document.adoptNode(pop.__carte));
+    }
+  }catch(e){}
+  const i=window.__fenetresDetachees.indexOf(pop);
+  if(i>=0) window.__fenetresDetachees.splice(i,1);
+}
+function reattacherFenetres(){
+  window.__fenetresDetachees.slice().forEach(function(pop){
+    rapatrierFenetre(pop);
+    try{ pop.close(); }catch(e){}
+  });
+}
+function detacherQIA(){
+  const ov=document.getElementById('qiaOverlay'); if(!ov) return;
+  const carte=ov.querySelector('.qia-card'); if(!carte) return;
+  const pop=detacherFenetre(ov, carte, 'Poser une question à l’IA', 'fenQIA', 430, 560);
+  if(pop) ov.classList.remove('on');
+}
+function rendreDeplacable(carte, poignee){
+  if(!carte || !poignee || poignee.__deplacable) return;
+  poignee.__deplacable=true;
+  poignee.style.cursor='move';
+  poignee.style.touchAction='none';
+  const EVT=window.PointerEvent
+    ? { debut:['pointerdown'], bouge:['pointermove'], fin:['pointerup','pointercancel'] }
+    : { debut:['mousedown','touchstart'], bouge:['mousemove','touchmove'], fin:['mouseup','touchend','touchcancel'] };
+  const pointDe=function(e){ return (e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e; };
+  const debut=function(e){
+    if(e.button!==undefined && e.button!==0 && !e.touches) return;      /* clic gauche ou doigt uniquement */
+    if(e.target && e.target.closest && e.target.closest('button')) return;   /* ✕ / Fermer restent cliquables */
+    if(carte.ownerDocument!==document) return;                /* détachée : le système gère la fenêtre */
+    const r=carte.getBoundingClientRect();
+    carte.style.position='fixed';
+    carte.style.left=r.left+'px'; carte.style.top=r.top+'px';
+    carte.style.width=r.width+'px';
+    carte.style.margin='0'; carte.style.transform='none';
+    const p0=pointDe(e);
+    const dx=p0.clientX-r.left, dy=p0.clientY-r.top;
+    const bouge=function(ev){
+      const p=pointDe(ev);
+      const W=window.innerWidth, H=window.innerHeight;
+      let x=p.clientX-dx, y=p.clientY-dy;
+      x=Math.max(80-r.width, Math.min(x, W-80));   /* toute la largeur, en gardant 80 px attrapables */
+      y=Math.max(0, Math.min(y, H-48));            /* toute la hauteur, barre de titre jamais perdue */
+      carte.style.left=x+'px'; carte.style.top=y+'px';
+      if(ev.cancelable && ev.preventDefault) ev.preventDefault();      /* pas de défilement pendant le glisser */
+    };
+    const fin=function(){
+      EVT.bouge.forEach(function(n){ document.removeEventListener(n,bouge); });
+      EVT.fin.forEach(function(n){ document.removeEventListener(n,fin); });
+    };
+    EVT.bouge.forEach(function(n){ document.addEventListener(n,bouge,{passive:false}); });
+    EVT.fin.forEach(function(n){ document.addEventListener(n,fin); });
+    if(e.cancelable && e.preventDefault) e.preventDefault();
+  };
+  EVT.debut.forEach(function(n){ poignee.addEventListener(n,debut,{passive:false}); });
+}
+let qiaRec=null;
+function qiaMicStop(){ try{ if(qiaRec) qiaRec.stop(); }catch(e){} qiaRec=null; const b=$('qiaMic'); if(b) b.classList.remove('on'); }
+function qiaMicToggle(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast('Dictée non disponible sur ce navigateur'); return; }
+  if(qiaRec){ qiaMicStop(); return; }
+  const rec=new SR(); qiaRec=rec;
+  rec.lang='fr-FR'; rec.interimResults=false; rec.maxAlternatives=1;
+  const b=$('qiaMic'); if(b) b.classList.add('on');
+  rec.onresult=function(ev){
+    try{
+      const t=ev.results[0][0].transcript;
+      const inp=$('qiaInput');
+      if(inp) inp.value=(inp.value?inp.value+' ':'')+t;
+    }catch(e){}
+  };
+  rec.onerror=qiaMicStop;
+  rec.onend=qiaMicStop;
+  try{ rec.start(); }catch(e){ qiaMicStop(); }
+}
+
+/* Fermer et vider les fenetres d'aide a chaque changement d'ecran. */
+function fermerFenetresIA(vider){
+  reattacherFenetres();
+  fermerQIA(); fermerConseil();
+  if(!vider) return;
+  const d=$('qiaDialog'); if(d) d.innerHTML='';
+  const b=$('conseilBody'); if(b){ b.innerHTML=''; b.className='mp-feedback'; }
+  if(typeof masquerRappel==='function') masquerRappel();
+  [['#qiaOverlay','.qia-card'],['#conseilModal','.conseil-card']].forEach(function(x){
+    const c=document.querySelector(x[0]+' '+x[1]);
+    if(c){ c.style.position=''; c.style.left=''; c.style.top=''; c.style.width=''; c.style.margin=''; c.style.transform=''; }
+  });
+}
+
+const QIA_SUGG={
+  pct:["C\u2019est quoi, un pourcentage ?","Pourquoi on divise par 100 ?","Comment prendre 30 % d\u2019un nombre ?","Donne-moi un exemple complet."],
+  aug:["C\u2019est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient a multiplier par 1,2 ?","Donne-moi un exemple complet."],
+  dim:["Pourquoi une remise de 30 % revient a multiplier par 0,7 ?","Quelle difference entre retirer 30 et retirer 30 % ?","Donne-moi un exemple complet."],
+  ens:["C\u2019est quoi, un nombre decimal ?","C\u2019est quoi, un nombre rationnel ?","Pourquoi 1/3 n\u2019est pas decimal ?","Que veut dire le symbole \u2208 ?"],
+  def:["Comment ecrire une definition d\u2019ensemble ?","Quelle difference entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
+  pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?","Donne-moi un exemple complet."],
+  lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
+  gen:["Explique-moi simplement la notion principale.","Quelles sont les erreurs classiques a eviter ?"],
+};
+function qiaSuggestions(){ return (test && QIA_SUGG[test.kind]) || QIA_SUGG.gen; }
+function rappelDemande(q){ return /rappel de cours/i.test(String(q||'')); }
+
+function ouvrirQIA(){
+  const ov=$('qiaOverlay'); if(!ov) return;
+  const dejaPop=(window.__fenetresDetachees||[]).find(function(x){ return x.__origine===ov && !x.closed; });
+  if(dejaPop){ try{ dejaPop.focus(); }catch(e){} return; }
+  const bd=ov.querySelector('.qia-detach'); if(bd) bd.style.display=detachementPossible()?'':'none';
+  rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
+  $('qiaSugg').innerHTML=((typeof rappelDispo==='function'&&rappelDispo())?'<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">\ud83d\udcd8 Faire un rappel de cours pour cet exercice.</button>':'')
+    +qiaSuggestions().map(function(x){ return '<button type="button" class="qia-chip" onclick="qiaPoser(this.textContent)">'+esc(x)+'</button>'; }).join('');
+  const mic=$('qiaMic');
+  if(mic){
+    const dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+    mic.style.display='';
+    if(dispo){ mic.classList.remove('off'); mic.title='Dicter la question au micro'; }
+    else{ mic.classList.add('off'); mic.title='Dictee non disponible sur ce navigateur'; }
+  }
+  if(detachementPossible()){
+    detacherQIA();
+    if((window.__fenetresDetachees||[]).some(function(x){ return x.__origine===ov && !x.closed; })){
+      try{ const qi=$('qiaInput'); if(qi) qi.focus(); }catch(e){}
+      return;
+    }
+  }
+  ov.classList.add('on');
+  try{ if(!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches)) $('qiaInput').focus(); }catch(e){}
+}
+function fermerQIA(){
+  const ov=document.getElementById('qiaOverlay');
+  if(ov){
+    (window.__fenetresDetachees||[]).slice().forEach(function(x){ if(x.__origine===ov){ try{ x.close(); }catch(e){} } });
+    ov.classList.remove('on');
+  }
+  qiaMicStop();
+}
+function qiaPoser(x){ const inp=$('qiaInput'); if(inp) inp.value=String(x||''); qiaEnvoyer(); }
+let qiaBusy=false;
+async function qiaEnvoyer(){
+  if(qiaBusy) return;
+  const inp=$('qiaInput'), dlg=$('qiaDialog');
+  const q=String((inp&&inp.value)||'').trim().slice(0,300);
+  if(!q||!dlg) return;
+  qiaBusy=true; if(inp) inp.value='';
+  const bq=document.createElement('div'); bq.className='qia-q'; bq.textContent=q; dlg.appendChild(bq);
+  const br=document.createElement('div'); br.className='qia-r'; br.textContent='Je reflechis\u2026'; dlg.appendChild(br);
+  dlg.scrollTop=dlg.scrollHeight;
+  /* « Faire un rappel de cours » : la plateforme repond elle-meme, sans appeler le modele. */
+  if(rappelDemande(q) && typeof rappelDispo==='function' && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
+  const nomTest=(TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathematiques';
+  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes du calcul, une par ligne. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s\u2019ecrivent 3/4, les puissances 2^3.";
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.feedback) br.textContent=d.feedback;
+    else if(d && d.error) br.textContent=d.error;
+    else br.textContent='Je n\u2019ai pas de reponse pour le moment. Reessaie.';
+  }catch(e){ br.textContent='L\u2019IA est indisponible pour le moment. Reessaie dans un instant.'; }
+  dlg.scrollTop=dlg.scrollHeight;
+  qiaBusy=false;
+}
+/* Entree = envoyer ; Echap = fermer les fenetres d'aide. */
+(function(){
+  const inp=$('qiaInput');
+  if(inp) inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); qiaEnvoyer(); }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    const ov=$('qiaOverlay');
+    if(ov && ov.classList.contains('on')) fermerQIA();
+    const m=$('conseilModal');
+    if(m && !m.hidden) fermerConseil();
+  });
+})();
+
+/* ---------- Rappels de cours ----------
+   Affiches dans la fenetre d'aide, sous le bouton « Voir le rappel de cours ».
+   Format : HTML nu, cadre fourni par la regle #conseilRappel — c'est la
+   convention de premiere-specifique.html, d'ou viennent les trois rappels de
+   pourcentages. Ne PAS y ajouter de <div class="rap"> : ce cadre-la est celui de
+   terminale.html, et les deux ensemble donnent un double encadre. */
+const RAP_PCT=`<b>Prendre un pourcentage d’un nombre</b><br>
+Prendre <b>P %</b> d’un nombre, c’est en prendre <b>P centiemes</b> : on multiplie ce nombre par la fraction <b>P/100</b>.<br>
+<b>① Le pourcentage devient une fraction decimale</b> : 30 % s’ecrit 30/100.<br>
+<b>② On multiplie les numerateurs</b> : 30/100 × 40 = (30 × 40)/100 = 1200/100.<br>
+<b>③ On divise par 100</b>, c’est-a-dire on decale la virgule de deux rangs vers la gauche : 1200/100 = 12.<br>
+A retenir : diviser par 100 ne change pas les chiffres, seulement leur place.`;
+const RAP_AUG=`<b>Augmenter d’un pourcentage</b><br>
+Augmenter de <b>P %</b>, c’est garder le tout (100 %) et y ajouter P % : on multiplie par le <b>coefficient multiplicateur</b><br>
+<b>1 + P/100 = (100 + P)/100</b>.<br>
+Exemple : augmenter de 20 % revient a multiplier par 120/100 = 1,2.<br>
+On multiplie ensuite la valeur de depart par ce coefficient, puis on divise par 100 en decalant la virgule de deux rangs.<br>
+Piege classique : augmenter de 20 % n’est pas ajouter 20, c’est multiplier par 1,2.`;
+const RAP_DIM=`<b>Diminuer d’un pourcentage</b><br>
+Diminuer de <b>P %</b>, c’est garder le tout (100 %) et en retirer P % : on multiplie par le <b>coefficient multiplicateur</b><br>
+<b>1 − P/100 = (100 − P)/100</b>.<br>
+Exemple : une remise de 30 % revient a multiplier par 70/100 = 0,7 — on paie 70 % du prix.<br>
+On multiplie la valeur de depart par ce coefficient, puis on divise par 100.<br>
+Piege classique : apres une remise de 30 %, il reste 70 %, et non 30 %.`;
+const RAP_ENS=`<b>Les ensembles de nombres</b><br>
+Ils sont <b>emboites</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
+<b>ℕ</b> : les entiers positifs — 0, 1, 2, 3…<br>
+<b>ℤ</b> : les entiers, positifs ou negatifs — −5, 0, 7…<br>
+<b>𝔻</b> : les decimaux, ceux qui s’ecrivent avec un nombre <i>fini</i> de chiffres apres la virgule — 2,5 ; −0,75.<br>
+<b>ℚ</b> : les rationnels, ceux qui s’ecrivent comme une fraction de deux entiers — 1/3 ; −7/4.<br>
+<b>ℝ</b> : tous les nombres de la droite graduee, y compris √2 et π.<br>
+Comme les ensembles sont emboites, un nombre de ℕ appartient aussi a ℤ, a 𝔻, a ℚ et a ℝ.<br>
+On ecrit <b>∈</b> pour « appartient a » et <b>∉</b> pour « n’appartient pas a ».`;
+const RAP_ENS2=`<b>Les ensembles de nombres — les cas qui trompent</b><br>
+Rappel : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>, et un nombre appartient a tous les ensembles qui contiennent le plus petit auquel il appartient.<br>
+<b>Une fraction n’est pas forcement en dehors de ℤ</b> : 6/3 = 2, donc 6/3 ∈ ℕ.<br>
+<b>Une ecriture decimale illimitee periodique reste rationnelle</b> : 0,333… = 1/3, donc c’est un element de ℚ mais pas de 𝔻.<br>
+<b>1/3 n’est pas decimal</b> : aucune ecriture finie apres la virgule. 1/3 ∈ ℚ, 1/3 ∉ 𝔻.<br>
+<b>√2 et π ne sont pas rationnels</b> : ils appartiennent a ℝ et a aucun des quatre autres.<br>
+<b>√9 = 3</b> : une racine peut tres bien tomber sur un entier — regarde toujours la valeur, pas l’ecriture.<br>
+Piege classique : juger d’apres la forme ecrite au lieu de calculer la valeur.`;
+const RAP_DEF=`<b>Definir un ensemble de nombres</b><br>
+Une definition dit <i>quels nombres</i> l’ensemble contient, pas des exemples.<br>
+<b>ℕ</b> : l’ensemble des entiers naturels, c’est-a-dire des entiers positifs ou nuls.<br>
+<b>ℤ</b> : l’ensemble des entiers relatifs, c’est-a-dire des entiers positifs, negatifs ou nuls.<br>
+<b>𝔻</b> : l’ensemble des nombres decimaux, ceux qui s’ecrivent avec un nombre fini de chiffres apres la virgule.<br>
+<b>ℚ</b> : l’ensemble des nombres rationnels, ceux qui s’ecrivent comme quotient de deux entiers.<br>
+<b>ℝ</b> : l’ensemble des nombres reels, c’est-a-dire tous les nombres de la droite graduee.<br>
+Piege classique : repondre par un exemple (« 2 ; 3 ; 4 ») au lieu d’une definition.`;
+const RAP_PGE=`<b>Trouver le plus petit ensemble qui contient un nombre</b><br>
+Les ensembles sont emboites : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>. Le « plus petit » est donc le premier de cette liste auquel le nombre appartient.<br>
+<b>① Calcule d’abord la valeur</b> : 6/3 vaut 2, √9 vaut 3. L’ecriture n’est pas la valeur.<br>
+<b>② Puis descends la liste</b> : est-il entier positif ? → ℕ. Sinon entier ? → ℤ. Sinon a-t-il un nombre fini de decimales ? → 𝔻. Sinon s’ecrit-il en fraction d’entiers ? → ℚ. Sinon → ℝ.<br>
+Exemples : −3 → ℤ ; 2,5 → 𝔻 ; 1/3 → ℚ ; π → ℝ.<br>
+Piege classique : repondre ℝ parce que c’est toujours vrai — on demande le <i>plus petit</i>.`;
+const RAP_LV=`<b>Lire les variations d’une courbe</b><br>
+On parcourt la courbe <b>de gauche a droite</b>, dans le sens des x croissants.<br>
+<b>La courbe monte</b> → la fonction est <b>croissante</b> sur cet intervalle → fleche <b>↗</b>.<br>
+<b>La courbe descend</b> → la fonction est <b>decroissante</b> → fleche <b>↘</b>.<br>
+<b>Les changements de sens</b> donnent les bornes du tableau : ce sont les abscisses des sommets et des creux.<br>
+Dans la ligne du haut on ecrit les <b>x</b> des bornes ; dans la ligne du bas, les <b>f(x)</b> correspondants, aux extremites de chaque fleche.<br>
+Piege classique : lire la hauteur de la courbe au lieu de son sens — une courbe peut etre tres haute et pourtant decroissante.`;
+
+/* Un rappel par kind ; RAPPELS_ID l'emporte quand deux exercices partagent un
+   kind (les deux niveaux d'ensembles passent tous deux par kind 'ens'). */
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV };
+const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2 };
+function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
+function rappelHTML(){ return RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''; }
+function masquerRappel(){
+  const box=$('conseilRappel'); if(box){ box.hidden=true; box.innerHTML=''; }
+  const b=$('conseilRappelBtn'); if(b) b.textContent='\u{1F4D8} Voir le rappel de cours';
+}
+function basculerRappel(){
+  const box=$('conseilRappel'); if(!box) return;
+  if(box.hidden){ box.innerHTML=rappelHTML(); box.hidden=false; const b=$('conseilRappelBtn'); if(b) b.textContent='\u{1F4D8} Masquer le rappel de cours'; }
+  else masquerRappel();
+}
+/* Ouvre la fenetre d'aide SUR LE RAPPEL, sans appeler l'IA : demanderConseilModal
+   lance une requete des l'ouverture, et un eleve ne doit pas consommer un appel
+   au modele pour relire son cours. */
+function ouvrirRappelSeul(){
+  const m=$('conseilModal'); if(m) m.hidden=false;
+  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
+  const corps=$('conseilBody'); if(corps) corps.innerHTML='';
+  masquerRappel();
+  const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
+  basculerRappel();
+}
 function demanderConseilModal(nombre, contexte){
   const m=$('conseilModal'); if(m) m.hidden=false;
+  /* le CSS porte rend le voile traversant : sans ceci le panneau serait flottant
+     ET immobile, et son curseur « move » promettrait un deplacement inexistant */
+  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
+  masquerRappel();
+  const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
   lancerConseil(nombre, contexte, $('conseilBody'));
 }
-function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; }
-function conseilInlineBtn(){ return isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : ''; }
+function fermerConseil(){ const m=$('conseilModal'); if(m) m.hidden=true; masquerRappel(); }
+/* Le rappel de cours ne coute aucun appel au modele : il est offert en
+   entrainement comme en soutien, jamais pendant une evaluation notee. Le conseil
+   reste reserve au soutien ; la question a l'IA suit la Terminale (hors evaluation). */
+function rappelInlineBtn(){
+  return (currentMode!=='eval' && rappelDispo())
+    ? '<button class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()">📘 Rappel de cours</button>' : '';
+}
+function conseilInlineBtn(){
+  if(currentMode==='eval') return '';
+  return rappelInlineBtn()
+    + (isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : '')
+    + '<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question \u00e0 l\u2019IA</button>';
+}
 function ctxEns(q){
   const bon=ENS_SETS_ORDER.map(k=>ENS_SYM[k]+':'+(q.sets[k]?'∈':'∉')).join(' ');
   const faux=ENS_SETS_ORDER.filter(k=>{ const sel=$('ens-s-'+k); const v=sel?sel.value:''; return v!=='' && v!==(q.sets[k]?'in':'out'); }).map(k=>ENS_SYM[k]);
@@ -1732,7 +2202,7 @@ function renderChooser(results){
       const t=TESTS[id]; if(!t) return '';
       const num=th.num+'.'+(i+1);
       const nd=derniereNoteExo(id);
-      const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+      const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
       return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
     }).join('');
     if(!cards) return '';
@@ -1766,7 +2236,7 @@ async function renderDM(results){
       const t=TESTS[ex.id]; if(!t) return '';
       const btns=(ex.modes||[]).map(m=>{
         const lbl=m==='train'?'Entraînement':'Soutien'; const ok=done(dev.id,ex.id,m);
-        return `<button class="dm-go ${ok?'ok':''}" onclick="lancerDevoir('${dev.id}','${ex.id}','${m}')">${ok?'✓ ':''}${lbl}</button>`;
+        return `<button class="dm-go ${ok?'ok':''}" onclick="lancerDevoir('${escJS(dev.id)}','${escJS(ex.id)}','${escJS(m)}')">${ok?'✓ ':''}${lbl}</button>`;
       }).join('');
       return `<div class="dm-task"><div class="dm-task-h"><span class="dm-task-ic">${t.icon}</span><span class="dm-task-name">${esc(testLabel(ex.id))}</span></div><div class="dm-task-btns">${btns}</div></div>`;
     }).join('');
@@ -1786,12 +2256,15 @@ function snapshotTest(){
 // lit ce que l'élève a déjà saisi dans les cases de la question en cours
 function captureBoxes(){
   const scr=document.querySelector('.screen.on'); if(!scr) return {};
-  const m={}; scr.querySelectorAll('input[id],select[id]').forEach(el=>{ const v=el.value; if(v!=='') m[el.id]=v; }); return m;
+  /* les math-field manquaient : toutes les cases de calcul en sont, et la pause
+     perdait donc la saisie en cours de l'eleve */
+  const m={}; scr.querySelectorAll('input[id],select[id],math-field[id]').forEach(el=>{
+    const v=el.value; if(v!==''&&v!==undefined&&v!==null) m[el.id]=String(v); }); return m;
 }
 // remet les saisies dans les cases après réaffichage de la question
 function restoreBoxes(boxes){
   if(!boxes) return;
-  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT')){ el.value=boxes[id]; } });
+  Object.keys(boxes).forEach(id=>{ const el=$(id); if(el && (el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='MATH-FIELD')){ el.value=boxes[id]; } });
 }
 // reconstruit la fonction d'une question « signes & variations » (perdue par la sérialisation JSON)
 function svFnFrom(r,e,extrType){
@@ -1811,18 +2284,25 @@ function recoveryPayload(){
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
 }
+/* Renvoie true si le brouillon est bien en base, false si une ecriture a echoue,
+   null s'il n'y avait rien a enregistrer :
+   supabase-js ne leve pas, il renvoie ses erreurs — sans ce retour, la pause
+   annoncait « ✓ » meme hors connexion. */
 async function doRecoverySave(){
-  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
+  if(recoveryClosed || !currentEleve || !(currentMode==='train'||currentMode==='soutien')) return null;   /* rien a enregistrer : ce n'est ni un succes ni un echec */
   const payload=recoveryPayload();
   if(recoveryRowId){
-    await sb.from('resultats_2nde').update(payload).eq('id',recoveryRowId);
+    const {error}=await sb.from('resultats_2nde').update(payload).eq('id',recoveryRowId);
+    if(error){ recoveryDirty=true; console.warn('brouillon non sauvegarde :', error.message||error); return false; }
   } else {
-    const {data}=await sb.from('resultats_2nde').insert(payload).select('id').single();
+    const {data,error}=await sb.from('resultats_2nde').insert(payload).select('id').single();
+    if(error){ console.warn('brouillon non cree :', error.message||error); return false; }
     if(data&&data.id){
       if(recoveryClosed) sb.from('resultats_2nde').delete().eq('id',data.id).then(()=>{},()=>{}); // test terminé entre-temps : on annule le brouillon
       else recoveryRowId=data.id;
     }
   }
+  return true;
 }
 // appelé après chaque réponse — ne bloque jamais l'élève, réessaie si une sauvegarde est déjà en cours
 function autoSave(){
@@ -1837,10 +2317,12 @@ async function clearRecovery(){
   const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
   recoveryRowId=null;
   try{
-    if(id) await sb.from('resultats_2nde').delete().eq('id',id);
-    if(eid){ const {data}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+    if(id){ const {error}=await sb.from('resultats_2nde').delete().eq('id',id); if(error) console.warn('brouillon non supprime :', error.message||error); }
+    if(eid){ const {data,error}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+      if(error) console.warn('recherche des brouillons impossible :', error.message||error);
       const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
-      for(const r of old){ await sb.from('resultats_2nde').delete().eq('id',r.id); } }
+      for(const r of old){ const {error:errSup}=await sb.from('resultats_2nde').delete().eq('id',r.id);
+        if(errSup) console.warn('ancien brouillon non supprime :', errSup.message||errSup); } }
   }catch(e){}
 }
 async function openTest(testId){
@@ -1855,7 +2337,8 @@ async function openTest(testId){
   // chercher une session mise en pause pour ce test (entraînement / soutien)
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -1873,26 +2356,37 @@ async function openTest(testId){
 /* En contexte devoir : enregistre la note de l'exercice sur la progression actuelle.
    Score = bonnes réponses validées, sur le nombre total de questions (le reste compte comme faux).
    Ne fait rien si aucune question n'a été répondue. */
+/* Renvoie true si la note est en base, false si l'ecriture a echoue, et null
+   quand il n'y a RIEN a noter. Sans ce troisieme etat, la pause d'un devoir
+   ouvert mais pas encore commence etait prise pour un echec, et l'eleve lisait
+   « Pause non enregistree » alors que tout s'etait bien passe. */
 async function enregistrerNotePartielle(){
-  if(!currentEleve) return false;
-  if(!(currentMode==='train'||currentMode==='soutien')) return false;
-  if(!test.questions || !test.questions.length) return false;
-  if(!(test.answers||[]).length) return false;            // rien de validé : pas de note
+  if(!currentEleve) return null;
+  if(!(currentMode==='train'||currentMode==='soutien')) return null;
+  if(!test.questions || !test.questions.length) return null;
+  if(!(test.answers||[]).length) return null;             // rien de validé : pas de note
   const total=test.maxScore||test.questions.length, score=test.score||0, pct=Math.min(100,Math.round(score/total*100));
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
   const details={test:currentTestId,mode:currentMode,partiel:true}; if(currentDM) details.dm=currentDM;
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details}); return true; }catch(e){ return false; }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:elapsed,details});
+    if(error){ toast('Note non enregistrée : '+(error.message||'erreur'),'err'); return false; }
+    return true; }catch(e){ return false; }
 }
 async function pauseTest(){
   if(!currentEleve || !(currentMode==='train'||currentMode==='soutien')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
+  let okPause=false;
   try{
-    await doRecoverySave();                           // session reprenable (ligne « en pause »)
-    if(currentDM) await enregistrerNotePartielle();   // + note du devoir sur la progression actuelle
-    toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
-  }
-  catch(e){ toast('Pause non enregistrée (connexion)','err'); }
+    okPause=await doRecoverySave();                              // session reprenable (ligne « en pause »)
+    if(okPause===true && currentDM){                             // + note du devoir sur la progression actuelle
+      const note=await enregistrerNotePartielle();
+      if(note===false) okPause=false;                            // « rien à noter » (null) n'est pas un échec
+    }
+  }catch(e){ okPause=false; }
+  if(okPause===null) toast('Ce test est déjà en cours d\'enregistrement.','err');
+  else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
+  else toast('Pause non enregistrée — reste connecté et réessaie','err');
   recoveryRowId=null;                       // le brouillon reste en base, retrouvé à la reprise
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
   else { openThemes(); }
@@ -1900,12 +2394,13 @@ async function pauseTest(){
 async function abandonTest(){
   if(!currentEleve) return;
   if(!confirm('Abandonner cet exercice ? Ta note sera calculée sur ce que tu as déjà fait.')) return;
+  if(!debutFin()) return;                       // double-clic : un seul abandon, une seule note
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
   let noted=false;
   try{
     noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
-    await clearRecovery();
+    if(noted!==false) await clearRecovery();    // note perdue ? on garde le brouillon, l'élève pourra reprendre
   }catch(e){}
   toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
@@ -1942,12 +2437,43 @@ function configReady(){
 }
 function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
 
+/* Chaque élève a désormais un vrai compte Supabase, et c'est Supabase qui
+   hache son code et le vérifie. L'adresse de ce compte est dérivée de son
+   identifiant : on retrouve donc l'un depuis l'autre sans table de
+   correspondance. Aucun courriel n'est jamais envoyé — le domaine est en
+   .invalid, réservé par l'IETF pour ne jamais exister.
+   DOMAINE_COMPTES doit rester IDENTIQUE à celui de la fonction Edge
+   admin-eleve : sinon les comptes créés d'un côté sont introuvables de
+   l'autre, et l'élève reçoit « Code incorrect » avec le bon code. */
+const NIVEAU='secondes';
+const DOMAINE_COMPTES='eleves.exercices-interactifs.invalid';
+function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
+function idAuHasard(){
+  if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
+  /* randomUUID exige une page servie en https ; GitHub Pages l'est, mais un
+     fichier ouvert en local ne l'est pas et la création de compte y échouerait
+     sans ce repli. */
+  const o=crypto.getRandomValues(new Uint8Array(16));
+  o[6]=(o[6]&0x0f)|0x40; o[8]=(o[8]&0x3f)|0x80;
+  const h=[...o].map(b=>b.toString(16).padStart(2,'0')).join('');
+  return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);
+}
+
 /* ---------- Navigation ---------- */
 function show(name){
+  /* Une exception ici — un rapatriement de fenetre qui echoue, une fenetre dans
+     un etat batard — figerait toute la navigation : la Premiere protege deja cet
+     appel, la Seconde le fait maintenant aussi. */
+  try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['lv','ptest','atest','dtest','ens','def','pge'];
   const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
+  /* un exercice sans rappel de cours ne provoque aucune erreur visible : seul ce
+     message le signale, et le banc le controle exercice par exercice */
+  if(testScreens.includes(name) && currentEleve && typeof rappelDispo==='function' && !rappelDispo()){
+    try{ console.warn('Pas de rappel de cours pour', currentTestId, '(kind', test.kind + ')'); }catch(e){}
+  }
   $('testCtrls').hidden=!canPause;
   const pill=$('userPill');
   if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='results') && currentEleve){
@@ -1958,8 +2484,12 @@ function show(name){
   }else{ pill.hidden=true; }
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function quitToHome(){ currentEleve=null; show('home'); }
-function logout(){ currentEleve=null; show('home'); }
+/* Oublier currentEleve ne suffit plus : la session Supabase survit au
+   rechargement de la page. Sans signOut(), l'élève suivant sur le même
+   ordinateur hériterait des droits du précédent. */
+function fermerSession(){ try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
+function quitToHome(){ currentEleve=null; fermerSession(); show('home'); }
+function logout(){ currentEleve=null; fermerSession(); show('home'); }
 
 /* ---------- Connexion élève ---------- */
 function loginMode(m){
@@ -1972,7 +2502,9 @@ async function renderLoginNames(){
   loginMode('co'); selectedEleve=null; $('pinRow').hidden=true;
   const box=$('nameChips'); box.innerHTML='<span class="muted">Chargement…</span>';
   try{
-    const {data,error}=await sb.from('eleves_2nde').select('*').order('prenom');
+    /* select('*') rapportait aussi la colonne des codes : toute la classe
+       lisible dans l'onglet Réseau. On ne demande plus que ce qui s'affiche. */
+    const {data,error}=await sb.from('eleves_2nde').select('id,prenom').order('prenom');
     if(error)throw error;
     if(!data.length){ box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return; }
     box.innerHTML='';
@@ -1990,7 +2522,12 @@ async function renderLoginNames(){
 async function connexionEleve(){
   if(!selectedEleve){ toast('Choisis ton prénom'); return; }
   const pin=val('loginPin').trim();
-  if(pin!==selectedEleve.pin){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
+  /* Le code n'est plus comparé ici : cette page ne le connaît pas. Supabase
+     le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
+     était faite dans le navigateur, deux lignes dans la console suffisaient à
+     entrer sous n'importe quel prénom. */
+  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.id),password:pin});
+  if(error){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
   currentEleve=selectedEleve; await ouvrirEspace();
 }
 async function creerCompte(){
@@ -1999,10 +2536,20 @@ async function creerCompte(){
   if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
-    const {data:exist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
+    const {data:exist,error:errExist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
+    if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
-    const {data,error}=await sb.from('eleves_2nde').insert({prenom,pin}).select().single();
-    if(error)throw error;
+    /* L'identifiant est tiré ici : il sert à la fois de clé de la ligne et
+       d'adresse du compte Supabase. */
+    const id=idAuHasard();
+    const {data:inscription,error:errInscr}=await sb.auth.signUp({email:courrielDe(id),password:pin});
+    if(errInscr||!inscription||!inscription.user){ toast('Création impossible — réessaie','err'); return; }
+    /* Sans session, l'insertion qui suit sera refusée par la règle d'accès et
+       l'élève verrait « Création impossible » sans savoir pourquoi. La cause
+       est toujours la même, et elle est réglable en deux clics. */
+    if(!inscription.session){ toast('À régler dans Supabase : désactiver la confirmation par courriel','err'); return; }
+    const {data,error}=await sb.from('eleves_2nde').insert({id,prenom,user_id:inscription.user.id}).select().single();
+    if(error){ toast('Création impossible — réessaie','err'); return; }
     currentEleve=data; toast('Compte créé !','ok');
     $('newPrenom').value='';$('newPin').value='';$('newPin2').value='';
     await ouvrirEspace();
@@ -2017,7 +2564,8 @@ function ouvrirEspace(){
 }
 async function chargerMesResultats(){
   try{
-    const {data}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
+    if(error){ toast('Connexion instable : résultats non chargés','err'); mesResultats=[]; return mesResultats; }
     mesResultats=(data||[]).filter(r=>!isPaused(r));
   }catch(e){ mesResultats=[]; }
   return mesResultats;
@@ -2108,7 +2656,7 @@ function renderDevoirsList(){
     }).join('');
     const totMax=exos.length*10;
     const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
-    return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${dev.id}')">
+    return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
       <div class="dl-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}${isLast?' · le plus récent':''}</span><span class="dl-prog">${totLbl}</span></div>
       <div class="dl-title">${esc(dev.titre||'')}</div>
       <div class="dl-exos">${lignes}</div>
@@ -2156,7 +2704,8 @@ async function openTestDevoir(devoirId, testId){
   show('mode');
   pausedRows={};
   try{
-    const {data}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
+    if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -2333,7 +2882,9 @@ function renderLV(){
   const a=lvAnalyze(q.pts);
   $('lvIdx').textContent = 'Question '+(test.idx+1)+' / '+test.questions.length;
   $('lvModeTag').innerHTML = modeTagHTML();
-  { const cb=$('lvConseilBtn'); if(cb) cb.hidden=!isSoutien(); }
+  { const cb=$('lvConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('lvRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('lvQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
   $('lvSub').textContent = 'Graphique '+q.gnum+' / '+q.gtot+' \u2014 '+lvPartLabel(q);
   $('lvGraph').innerHTML = lvGraphSVG(q.pts);
   let instr='', body='';
@@ -2483,15 +3034,18 @@ function submitLV(){
 
 /* ---- Moteur : fin de test + écran de résultats (réintégrés) ---- */
 async function finishTest(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total = test.maxScore || test.questions.length;
   const score = test.score;
   const pct = total ? Math.round(score/total*100) : 0;
-  const durationSec = (Date.now()-test.startTime)/1000;
+  const durationSec = Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses = test.answers.filter(a=>!a.correct).map(a=>({q:a.q, donne:a.given, bon:a.answer}));
   const fdetails = {test:currentTestId, mode:currentMode, misses:misses}; if(currentDM) fdetails.dm=currentDM;
   try{
-    await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id, score:score, total:total, percent:pct, duration_sec:durationSec, details:fdetails});
+    const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id, score:score, total:total, percent:pct, duration_sec:durationSec, details:fdetails});
+    if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+    else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score:score, total:total, percent:pct, durationSec:durationSec});
 }
@@ -2512,8 +3066,25 @@ function showResults(r){
   show('results');
 }
 
-function teacherLogin(){
-  if(val('teacherPass')!==MOT_DE_PASSE_PROF){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
+async function teacherLogin(){
+  const mdp=val('teacherPass');
+  if(!mdp){ toast('Écris ton mot de passe'); return; }
+  /* Le mot de passe n'est plus dans la page : Supabase le vérifie. */
+  const {error}=await sb.auth.signInWithPassword({email:COURRIEL_PROF,password:mdp});
+  if(error){ toast('Mot de passe incorrect','err'); $('teacherPass').value=''; return; }
+  /* Se connecter ne suffit pas — encore faut-il être inscrit comme
+     professeur. Les règles d'accès de la base s'appuient sur la même table :
+     un compte qui n'y figure pas ne verrait de toute façon rien de plus que
+     ses propres notes. */
+  const {data:prof,error:errProf}=await sb.from('professeurs').select('user_id').maybeSingle();
+  if(errProf||!prof){
+    /* Si la déconnexion échoue, la session reste ouverte : le compte n'a pas
+       les droits du professeur, mais mieux vaut le dire que le taire. */
+    const {error:errSortie}=await sb.auth.signOut();
+    toast(errSortie ? 'Ce compte n’est pas celui du professeur — recharge la page'
+                    : 'Ce compte n’est pas celui du professeur','err');
+    $('teacherPass').value=''; return;
+  }
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
 function teacherTab(name){
@@ -2564,7 +3135,7 @@ async function renderClassTable(){
   const sumDur=l=>l.reduce((s,r)=>s+(r.duration_sec||0),0);
   try{
     const [{data:eleves,error:e1},{data:resAll,error:e2}]=await Promise.all([
-      sb.from('eleves_2nde').select('*').order('prenom'),
+      sb.from('eleves_2nde').select('id,prenom').order('prenom'),
       sb.from('resultats_2nde').select('*')
     ]);
     if(e1)throw e1; if(e2)throw e2;
@@ -2580,7 +3151,7 @@ async function renderClassTable(){
       const right = isSout
         ? `<span class="badge ${list.length?'mid':''}">${list.length?fmtDurLong(sumDur(list)):'—'}</span>`
         : (()=>{ const avg=list.length?Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length):null; return `<span class="badge ${avg===null?'':pctClass(avg)}">${avg===null?'—':avg+' %'}</span>`; })();
-      return `<li class="clickable" onclick="setTeacherFilter('${id}')" style="cursor:pointer" title="Voir les notes /10 de la classe pour ce test"><span style="font-weight:700">${esc(testLabel(id))}</span>
+      return `<li class="clickable" onclick="setTeacherFilter('${escJS(id)}')" style="cursor:pointer" title="Voir les notes /10 de la classe pour ce test"><span style="font-weight:700">${esc(testLabel(id))}</span>
         <span class="sc">${list.length} ${noun}${list.length>1?'s':''}</span>${right}</li>`;
     }).join('');
     const bdTitle=isEval?'Vue d\'ensemble par test':(isSout?'Temps de soutien par test':'Entraînements par test');
@@ -2592,7 +3163,7 @@ async function renderClassTable(){
 
     // filtre par test
     const chips=[{id:'all',name:'Tous les tests'}].concat(TEST_ORDER.map(id=>({id,name:testLabel(id)})));
-    $('testFilter').innerHTML=chips.map(c=>`<button class="chip ${teacherFilter===c.id?'sel':''}" onclick="setTeacherFilter('${c.id}')">${esc(c.name)}</button>`).join('');
+    $('testFilter').innerHTML=chips.map(c=>`<button class="chip ${teacherFilter===c.id?'sel':''}" onclick="setTeacherFilter('${escJS(c.id)}')">${esc(c.name)}</button>`).join('');
 
     if(!eleves.length){ wrap.innerHTML='<div class="empty">Aucun compte élève. Ajoute-les dans « Comptes élèves » ou laisse-les créer le leur.</div>'; return; }
 
@@ -2603,25 +3174,25 @@ async function renderClassTable(){
       head='<tr><th>Élève</th><th>Séances</th><th>Temps total</th><th>Temps moyen</th><th>Dernière</th></tr>';
       rows=eleves.map(e=>{
         const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td class="muted">—</td><td class="muted">—</td><td class="muted">jamais</td></tr>`;
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td class="muted">—</td><td class="muted">—</td><td class="muted">jamais</td></tr>`;
         const tot=sumDur(list), moy=tot/list.length, last=list[list.length-1];
-        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><b>${fmtDurLong(tot)}</b></td><td>${fmtDur(moy)}</td><td>${fmtDate(last.created_at)}</td></tr>`;
+        return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><b>${fmtDurLong(tot)}</b></td><td>${fmtDur(moy)}</td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     } else if(isTrain){
       head='<tr><th>Élève</th><th>Entraînements</th><th>Moyenne</th><th>Dernier</th></tr>';
       rows=eleves.map(e=>{
         const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td class="muted">jamais</td></tr>`;
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td class="muted">jamais</td></tr>`;
         const avg=Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length), last=list[list.length-1];
-        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${fmtDate(last.created_at)}</td></tr>`;
+        return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     } else {
       head='<tr><th>Élève</th><th>Évaluations</th><th>Moyenne</th><th>Meilleur</th><th>Dernier</th></tr>';
       rows=eleves.map(e=>{
         const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td>—</td><td class="muted">jamais</td></tr>`;
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td>—</td><td class="muted">jamais</td></tr>`;
         const avg=Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length), best=Math.max(...list.map(r=>r.percent)), last=list[list.length-1];
-        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${list.length}</td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${best} %</td><td>${fmtDate(last.created_at)}</td></tr>`;
+        return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${list.length}</td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${best} %</td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     }
     const flabel=teacherFilter==='all'?'tous les tests':('« '+testLabel(teacherFilter)+' »');
@@ -2642,7 +3213,7 @@ async function renderEvalLocks(){
       return `<div class="lock-card ${open?'open':''}">
         <span class="li">${esc(testLabel(id))}</span>
         <span class="st ${open?'open':'closed'}">${open?'🔓 Déverrouillé':'🔒 Verrouillé'}</span>
-        <button class="btn ${open?'btn-danger':'btn-primary'} btn-sm" onclick="toggleLock('${id}')">${open?'Verrouiller':'Déverrouiller'}</button>
+        <button class="btn ${open?'btn-danger':'btn-primary'} btn-sm" onclick="toggleLock('${escJS(id)}')">${open?'Verrouiller':'Déverrouiller'}</button>
       </div>`;
     }).join('') : '<div class="empty">Aucun exercice pour le moment. Ajoute des exercices à l\u2019application pour pouvoir ouvrir des évaluations.</div>';
   }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
@@ -2688,41 +3259,54 @@ async function showStudentDetail(id,prenom){
 async function renderRoster(){
   const ul=$('rosterList'); ul.innerHTML='<li class="muted" style="border:none">Chargement…</li>';
   try{
-    const {data,error}=await sb.from('eleves_2nde').select('*').order('prenom');
+    const {data,error}=await sb.from('eleves_2nde').select('id,prenom').order('prenom');
     if(error)throw error;
     if(!data.length){ ul.innerHTML='<div class="empty">Aucun compte pour l\'instant.</div>'; return; }
+    /* Les codes ne sont plus affichables : Supabase les hache, et un hachage ne
+       se relit pas — pas même par le professeur. « Nouveau code » en tire un
+       autre et le montre une seule fois. */
     ul.innerHTML=data.map(e=>`<li>
       <span class="av">${esc(initials(e.prenom))}</span>
       <span class="nm">${esc(e.prenom)}</span>
-      <span class="code">code : ${esc(e.pin)}</span>
+      <span class="code" title="Les codes sont chiffrés : personne ne peut les relire. « Nouveau code » en tire un nouveau.">code : ••••</span>
       <span class="acts">
-        <button class="btn btn-ghost btn-sm" onclick="resetPin('${e.id}','${esc(e.prenom)}')">Nouveau code</button>
-        <button class="btn btn-danger btn-sm" onclick="removeStudent('${e.id}','${esc(e.prenom)}')">Retirer</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetPin('${escJS(e.id)}','${escJS(e.prenom)}')">Nouveau code</button>
+        <button class="btn btn-danger btn-sm" onclick="removeStudent('${escJS(e.id)}','${escJS(e.prenom)}')">Retirer</button>
       </span></li>`).join('');
   }catch(e){ ul.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
 async function addStudent(){
-  const prenom=val('addPrenom').trim(),pin=val('addPin').trim();
+  const prenom=val('addPrenom').trim();
   if(!prenom){ toast('Écris un prénom'); return; }
-  if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
   try{
-    const {data:exist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
-    if(exist&&exist.length){ toast('Ce prénom existe déjà','err'); return; }
-    const {error}=await sb.from('eleves_2nde').insert({prenom,pin}); if(error)throw error;
-    $('addPrenom').value='';$('addPin').value=''; toast('Élève ajouté','ok'); renderRoster();
+    /* Créer un compte pour quelqu'un d'autre demande des droits que le
+       navigateur n'a pas, et ne doit pas avoir : la fonction Edge s'en charge
+       après avoir vérifié que l'appelant est bien le professeur. */
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'ajouter',niveau:NIVEAU,prenom}});
+    if(error||!data||data.erreur){ toast('Ajout impossible : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    $('addPrenom').value='';
+    alert('Code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
+    toast('Élève ajouté','ok'); renderRoster();
   }catch(e){ toast('Ajout impossible','err'); }
 }
 async function resetPin(id,prenom){
-  const np=prompt(`Nouveau code à 4 chiffres pour ${prenom} :`);
-  if(np===null)return;
-  if(!/^\d{4}$/.test(np.trim())){ toast('Le code doit avoir 4 chiffres','err'); return; }
-  try{ const {error}=await sb.from('eleves_2nde').update({pin:np.trim()}).eq('id',id); if(error)throw error;
+  if(!confirm('Donner un nouveau code à '+prenom+' ?\n\nL\'ancien cessera aussitôt de fonctionner.'))return;
+  try{
+    /* Le code est tiré par le serveur, jamais par cette page : il n'est
+       stocké nulle part en clair et ne s'affiche qu'une fois, ici. */
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'nouveau-code',niveau:NIVEAU,eleveId:id}});
+    if(error||!data||data.erreur){ toast('Échec : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    alert('Nouveau code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Code mis à jour','ok'); renderRoster();
   }catch(e){ toast('Échec de la mise à jour','err'); }
 }
 async function removeStudent(id,prenom){
   if(!confirm(`Retirer ${prenom} et tout son historique ? Cette action est définitive.`))return;
-  try{ const {error}=await sb.from('eleves_2nde').delete().eq('id',id); if(error)throw error;
+  try{
+    /* Supprimer la ligne ne suffit plus : le compte Supabase doit partir avec
+       elle, sinon le prénom reste impossible à réutiliser. */
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'retirer',niveau:NIVEAU,eleveId:id}});
+    if(error||!data||data.erreur){ toast('Suppression impossible','err'); return; }
     toast('Élève retiré','ok'); renderRoster();
   }catch(e){ toast('Suppression impossible','err'); }
 }
@@ -2730,8 +3314,8 @@ async function resetYear(){
   if(!confirm('Supprimer TOUS les comptes et TOUT l\'historique ? À ne faire qu\'à la rentrée.'))return;
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
-    await sb.from('resultats_2nde').delete().neq('id','00000000-0000-0000-0000-000000000000');
-    await sb.from('eleves_2nde').delete().neq('id','00000000-0000-0000-0000-000000000000');
+    const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'tout-effacer',niveau:NIVEAU}});
+    if(error||!data||data.erreur){ toast('Réinitialisation impossible : '+((data&&data.erreur)||'erreur'),'err'); return; }
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
@@ -2763,7 +3347,7 @@ async function loadDevoirTab(){
 function selectedDevoir(){ return dmList.find(d=>d.id===dmSelId)||dmList[0]; }
 function renderDevoirSelector(){
   const chips=dmList.slice().sort((a,b)=>(a.num||0)-(b.num||0)).map(d=>
-    `<button class="dm-tab ${d.id===dmSelId?'on':''}" onclick="selectDevoir('${d.id}')">Devoir n°${esc(String(d.num))}${d.actif?'':' · masqué'}</button>`).join('');
+    `<button class="dm-tab ${d.id===dmSelId?'on':''}" onclick="selectDevoir('${escJS(d.id)}')">Devoir n°${esc(String(d.num))}${d.actif?'':' · masqué'}</button>`).join('');
   $('dmSelector').innerHTML=chips+`<button class="dm-tab add" onclick="addDevoir()">＋ Nouveau devoir</button>`;
 }
 function selectDevoir(id){ readEditorIntoDevoir(); dmSelId=id; renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats(); }
@@ -2834,7 +3418,7 @@ async function renderDevoirResultats(){
   box.innerHTML='<p class="muted">Chargement…</p>';
   try{
     const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
-      sb.from('eleves_2nde').select('*').order('prenom'),
+      sb.from('eleves_2nde').select('id,prenom').order('prenom'),
       sb.from('resultats_2nde').select('*')
     ]);
     if(e1)throw e1; if(e2)throw e2;
@@ -2891,7 +3475,7 @@ async function exportCSV(){
     if(!data.length){ toast('Aucun résultat à exporter'); return; }
     const head=['Eleve','Numero','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date'];
     const lines=data.map(r=>[
-      (r.eleves&&r.eleves.prenom)||'?', testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
+      (r.eleves_2nde&&r.eleves_2nde.prenom)||(r.eleves&&r.eleves.prenom)||'?', testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
       Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')
     ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
     const csv='\uFEFF'+[head.join(','),...lines].join('\n');
@@ -2902,7 +3486,10 @@ async function exportCSV(){
 }
 
 /* clavier */
-{ const _ai=$('answerInput'); if(_ai) _ai.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAnswer();}}); }
+/* (l'ecouteur clavier de #answerInput a ete retire : ni cet element ni
+   submitAnswer n'existent en Seconde — residu du portage, meme famille que
+   FRAC_INFO. Il ne s'installait jamais, grace au « if(_ai) », mais un jour ou
+   l'autre quelqu'un aurait ajoute un champ portant cet identifiant.) */
 /* mode soutien : couleur immédiate case par case */
 /* (plus de coloration case-par-case : le moteur générique gère le feedback) */
 /* ===== Exercices Pourcentages (portés depuis Première) ===== */
@@ -3058,11 +3645,14 @@ function checkPAnswer(live){
 }
 function nextPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPTest(); autoSave(); } else finishPercent(); }
 async function finishPercent(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+      else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3218,11 +3808,14 @@ function checkAAnswer(live){
 }
 function nextAQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderATest(); autoSave(); } else finishAug(); }
 async function finishAug(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'augmenter-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+      else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3392,11 +3985,14 @@ function checkDAnswer(live){
 }
 function nextDQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderDTest(); autoSave(); } else finishDim(); }
 async function finishDim(){
-  clearRecovery();
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
-  const durationSec=(Date.now()-test.startTime)/1000;
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}}); }
+  try{ const {error}=await sb.from('resultats_2nde').insert({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'diminuer-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}});
+      if(error) toast('Résultat non enregistré : '+(error.message||'erreur'),'err');
+      else await clearRecovery();                /* ...et on ne supprime le brouillon qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }

@@ -28,13 +28,16 @@ vérifie la publication, et jamais avant (décision de Turquet, août 2026).
 Jamais de poussée directe sur `main`.
 
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
-les contrôles échouent. L'action GitHub `.github/workflows/controles.yml`
-rejoue ces contrôles sur chaque pull request : elle doit être verte avant
-fusion. Voir `tests/LISEZMOI.md`.
+les contrôles échouent. `npm test` contrôle **les trois niveaux**, chacun selon
+son profil (`tests/profils.js`). L'action GitHub `.github/workflows/controles.yml`
+les rejoue tous les trois sur chaque pull request, une étape par fichier : elle
+doit être verte avant fusion. Voir `tests/LISEZMOI.md`.
 
 **3. Ne jamais livrer sans avoir exécuté.** Une vérification de syntaxe ne prouve
 rien. Trois pannes en production sont passées à travers des contrôles statiques
 parfaitement verts — leur point commun était que personne n'avait ouvert la page.
+`npm run test:navigateur` ouvre les trois pages dans un vrai Chromium et fait un
+exercice de bout en bout : c'est le seul banc qui voit ce qui s'affiche.
 
 **4. Incrémenter `APP_VERSION`** à chaque modification. Ce numéro s'affiche dans
 l'en-tête et permet de savoir d'un coup d'œil quelle version est ouverte.
@@ -54,6 +57,30 @@ durée décimale : arrondir avant l'envoi.
 
 **`<!DOCTYPE html>`** — son absence déclenche le mode quirks et casse la mise en
 page sur mobile.
+
+**`esc()` ne protège pas un attribut `onclick`.** Une chaîne posée là traverse
+deux analyseurs : l'analyseur HTML décode `&#39;` en `'` *avant* que JavaScript
+ne lise la chaîne, et l'apostrophe la referme. Le prénom étant choisi librement
+par l'élève, « O'Brien » tuait le bouton du professeur et « `',alert(1),'` » y
+exécutait du code. Toute interpolation dans un attribut d'événement passe par
+`escJS()`, jamais `esc()` ; `esc()` reste correct pour le texte et pour les
+attributs ordinaires. Deux contrôles le vérifient — l'un que `escJS` est appelé,
+l'autre qu'il protège vraiment.
+
+**L'authentification vit dans Supabase, pas dans la page.** Le code d'un élève
+est haché par Supabase et vérifié par lui : `signInWithPassword`, jamais une
+comparaison en JavaScript. Le mot de passe du professeur est celui d'un compte
+Supabase ordinaire, et l'appartenance à la table `professeurs` est revérifiée
+après la connexion. Ne jamais lire la table des élèves avec `select('*')` : c'est
+ainsi que tous les codes de la classe partaient dans le navigateur. Les gestes
+qui demandent des droits — nouveau code, ajout, retrait — passent par la fonction
+Edge `admin-eleve`. Le socle SQL et sa notice sont dans `supabase/`.
+
+**`DOMAINE_COMPTES` est écrit à deux endroits que rien ne relie** — les trois
+fichiers HTML et `supabase/functions/admin-eleve/index.ts`. S'ils divergent, les
+comptes créés d'un côté deviennent introuvables de l'autre et l'élève reçoit
+« Code incorrect » avec le bon code, sans la moindre erreur. Un contrôle compare
+les deux.
 
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
@@ -118,9 +145,31 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 ## Vérifier
 
 ```bash
-npm install     # une seule fois
-npm test        # premiere-specifique.html, 40 contrôles
+npm install          # une seule fois
+npm test             # les trois niveaux
+npm run test:secondes # un seul, quand on travaille dessus
+npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
+npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
 ```
+
+`npm test` et `npm run test:navigateur` remplacent Supabase par un double en
+mémoire — exprès : aucun contrôle ne doit approcher les comptes réels. Ils sont
+donc **aveugles aux règles d'accès de la base**, et c'est là qu'étaient les
+fuites. `npm run test:base` comble ce trou sans jamais toucher au projet : il
+lève un PostgreSQL jetable, y recrée l'état d'avant, y joue la vraie migration,
+puis joue chaque rôle — visiteur, deux élèves, professeur — et vérifie ce que
+chacun obtient. Il exige PostgreSQL installé localement ; à défaut il le dit
+bruyamment plutôt que de passer au vert.
+
+Ce qu'aucun banc ne voit, et qui reste à vérifier à la main sur le projet : le
+réglage de l'authentification Supabase, le déploiement de la fonction Edge, et
+le fait que `COURRIEL_PROF` désigne un compte réel. Voir `supabase/LISEZMOI.md`.
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui
 ont motivé ce banc de test y sont chacune couvertes par une ligne.
+
+**Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.** Les trois
+fichiers ne savent pas faire les mêmes choses : `tests/profils.js` dit pour
+chacun ce que le banc doit piloter, et la liste `lacunes` de son profil énumère
+ce qui lui manque. Ces manques s'affichent à chaque exécution. Un contrôle
+supprimé en silence rend le banc vert sur un fichier qu'il ne vérifie plus.

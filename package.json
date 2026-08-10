@@ -3,12 +3,18 @@
   "private": true,
   "description": "Exercices de mathematiques interactifs (Seconde, Premiere, Terminale)",
   "scripts": {
-    "test": "node tests/verifier.js premiere-specifique.html",
+    "test": "node tests/tous.js",
+    "test:base": "node tests/base.js",
     "test:premiere": "node tests/verifier.js premiere-specifique.html",
     "test:terminale": "node tests/verifier.js terminale.html",
-    "test:secondes": "node tests/verifier.js secondes.html"
+    "test:secondes": "node tests/verifier.js secondes.html",
+    "test:navigateur": "node tests/tous-navigateur.js",
+    "test:navigateur:premiere": "node tests/navigateur.js premiere-specifique.html",
+    "test:navigateur:terminale": "node tests/navigateur.js terminale.html",
+    "test:navigateur:secondes": "node tests/navigateur.js secondes.html"
   },
   "devDependencies": {
-    "jsdom": "^24.0.0"
+    "jsdom": "^24.0.0",
+    "playwright": "^1.62.1"
   }
 }

@@ -1,7 +1,11 @@
 # Rejoue le banc de contrôles sur chaque pull request et chaque poussée sur main.
-# La fusion vers main (= mise en ligne, GitHub Pages) exige que ce contrôle soit vert.
-# Les fichiers de Seconde et Terminale n'ont que les familles 1-2 du banc (structure
-# et démarrage) : les familles 3-4 sont propres à premiere-specifique.html.
+# La fusion vers main (= mise en ligne, GitHub Pages) exige que ces contrôles soient verts.
+#
+# Deux travaux séparés, volontairement :
+#   « controles »  — rapide, sans navigateur : structure, démarrage, exercices (jsdom).
+#   « navigateur » — ouvre un vrai Chromium et fait un exercice de bout en bout.
+# Les séparer garde le verdict structurel rapide, et évite qu'une panne
+# d'installation de navigateur masque l'état réel du code.
 name: Contrôles
 
 on:
@@ -18,5 +22,50 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: premiere-specifique.html — banc complet
-        run: npm test
+      # Chaque niveau a son étape, pour que l'action nomme le fichier fautif ;
+      # « if: always() » les fait toutes tourner, sinon un niveau cassé masquerait
+      # l'état des deux autres.
+      - name: premiere-specifique.html
+        run: npm run test:premiere
+      - name: secondes.html
+        if: always()
+        run: npm run test:secondes
+      - name: terminale.html
+        if: always()
+        run: npm run test:terminale
+
+  # Les deux autres travaux remplacent Supabase par un double en mémoire — exprès,
+  # pour qu'aucun contrôle n'approche les comptes réels. Ils sont donc aveugles
+  # aux règles d'accès de la base, et c'est précisément là qu'étaient les fuites.
+  # Celui-ci lève un PostgreSQL jetable, y rejoue la vraie migration et vérifie
+  # ce que chaque rôle obtient. Il ne touche jamais au projet Supabase.
+  base:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # L'image ubuntu-latest embarque PostgreSQL, mais le service est arrêté :
+      # le banc n'en veut pas, il monte son propre serveur sur un port à lui.
+      - name: Règles d'accès de la base
+        run: npm run test:base
+
+  navigateur:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Installer Chromium
+        run: npx playwright install --with-deps chromium
+      - name: premiere-specifique.html — dans un vrai navigateur
+        run: npm run test:navigateur:premiere
+      - name: secondes.html — dans un vrai navigateur
+        if: always()
+        run: npm run test:navigateur:secondes
+      - name: terminale.html — dans un vrai navigateur
+        if: always()
+        run: npm run test:navigateur:terminale
