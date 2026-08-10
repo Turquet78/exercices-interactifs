@@ -58,6 +58,15 @@ durée décimale : arrondir avant l'envoi.
 **`<!DOCTYPE html>`** — son absence déclenche le mode quirks et casse la mise en
 page sur mobile.
 
+**`esc()` ne protège pas un attribut `onclick`.** Une chaîne posée là traverse
+deux analyseurs : l'analyseur HTML décode `&#39;` en `'` *avant* que JavaScript
+ne lise la chaîne, et l'apostrophe la referme. Le prénom étant choisi librement
+par l'élève, « O'Brien » tuait le bouton du professeur et « `',alert(1),'` » y
+exécutait du code. Toute interpolation dans un attribut d'événement passe par
+`escJS()`, jamais `esc()` ; `esc()` reste correct pour le texte et pour les
+attributs ordinaires. Deux contrôles le vérifient — l'un que `escJS` est appelé,
+l'autre qu'il protège vraiment.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.

@@ -1831,7 +1831,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=206;
+const APP_VERSION=207;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -1849,6 +1849,24 @@ function $(id){
 const val=id=>$(id).value;
 const rand=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+/* Une chaine placee dans un attribut onclick="…" traverse DEUX analyseurs :
+   l'analyseur HTML decode les entites AVANT que l'analyseur JavaScript ne voie
+   le texte. esc() seul ne protege donc rien ici — il ecrit &#39;, l'analyseur
+   HTML le redonne en ', et l'apostrophe ferme la chaine JavaScript.
+   Un eleve choisit librement son prenom a la creation de son compte :
+     « O'Brien »              -> SyntaxError, le bouton du professeur est mort
+     « ',alert(1),' »         -> le code s'execute dans le tableau du professeur
+   escJS() echappe pour JavaScript (\xNN) tout ce qui n'est pas une lettre, un
+   chiffre ou une ponctuation inoffensive. Le resultat ne contient plus ni
+   guillemet, ni apostrophe, ni <, ni & : il traverse les deux analyseurs sans
+   dommage. Les lettres accentuees sont conservees telles quelles. */
+function escJS(s){
+  return String(s).replace(/[^\w .,:;!?@%+=\/\u00C0-\u024F-]/g,function(c){
+    var n=c.charCodeAt(0);
+    return n<256 ? '\\x'+('0'+n.toString(16)).slice(-2)
+                 : '\\u'+('000'+n.toString(16)).slice(-4);
+  });
+}
 /* ===== Tolérance des cases de VALEURS NUMÉRIQUES (toutes les fiches) =====
    Règle : la valeur exacte (toute écriture équivalente) OU une valeur approchée au
    DIXIÈME près est acceptée : |saisie − attendu| ≤ 0,1. Une case peut exiger plus
@@ -2728,7 +2746,7 @@ function openTheme(num){
     const t=TESTS[id]; if(!t) return '';
     const num2=th.num+'.'+(i+1);
     const nd=derniereNoteExo(id);
-    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${id}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
     return cardHTML(t.icon, num2+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
   }).join('');
   show('theme');
@@ -2758,7 +2776,7 @@ async function renderDM(results){
       const t=TESTS[ex.id]; if(!t) return '';
       const btns=(ex.modes||[]).map(m=>{
         const lbl=m==='train'?'Entraînement':'Soutien'; const ok=done(dev.id,ex.id,m);
-        return `<button class="dm-go ${ok?'ok':''}" onclick="lancerDevoir('${dev.id}','${ex.id}','${m}')">${ok?'✓ ':''}${lbl}</button>`;
+        return `<button class="dm-go ${ok?'ok':''}" onclick="lancerDevoir('${escJS(dev.id)}','${escJS(ex.id)}','${escJS(m)}')">${ok?'✓ ':''}${lbl}</button>`;
       }).join('');
       return `<div class="dm-task"><div class="dm-task-h"><span class="dm-task-ic">${t.icon}</span><span class="dm-task-name">${esc(testLabel(ex.id))}</span></div><div class="dm-task-btns">${btns}</div></div>`;
     }).join('');
@@ -3144,7 +3162,7 @@ function renderDevoirsList(){
     }).join('');
     const totMax=exos.length*10;
     const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
-    return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${dev.id}')">
+    return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
       <div class="dl-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}${isLast?' · le plus récent':''}</span><span class="dl-prog">${totLbl}</span></div>
       <div class="dl-title">${esc(dev.titre||'')}</div>
       <div class="dl-exos">${lignes}</div>
@@ -11516,7 +11534,7 @@ async function renderClassTable(){
       const right = isSout
         ? `<span class="badge ${list.length?'mid':''}">${list.length?fmtDurLong(sumDur(list)):'—'}</span>`
         : (()=>{ const avg=list.length?Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length):null; return `<span class="badge ${avg===null?'':pctClass(avg)}">${avg===null?'—':avg+' %'}</span>`; })();
-      return `<li class="clickable" onclick="setTeacherFilter('${id}')" style="cursor:pointer" title="Voir les notes /10 de la classe pour ce test"><span style="font-weight:700">${esc(testLabel(id))}</span>
+      return `<li class="clickable" onclick="setTeacherFilter('${escJS(id)}')" style="cursor:pointer" title="Voir les notes /10 de la classe pour ce test"><span style="font-weight:700">${esc(testLabel(id))}</span>
         <span class="sc">${list.length} ${noun}${list.length>1?'s':''}</span>${right}</li>`;
     }).join('');
     const bdTitle=isEval?'Vue d\'ensemble par test':(isSout?'Temps de soutien par test':'Entraînements par test');
@@ -11526,7 +11544,7 @@ async function renderClassTable(){
 
     // filtre par test
     const chips=[{id:'all',name:'Tous les tests'}].concat(TEST_ORDER.map(id=>({id,name:testLabel(id)})));
-    $('testFilter').innerHTML=chips.map(c=>`<button class="chip ${teacherFilter===c.id?'sel':''}" onclick="setTeacherFilter('${c.id}')">${esc(c.name)}</button>`).join('');
+    $('testFilter').innerHTML=chips.map(c=>`<button class="chip ${teacherFilter===c.id?'sel':''}" onclick="setTeacherFilter('${escJS(c.id)}')">${esc(c.name)}</button>`).join('');
 
     if(!eleves.length){ wrap.innerHTML='<div class="empty">Aucun compte élève. Ajoute-les dans « Comptes élèves » ou laisse-les créer le leur.</div>'; return; }
 
@@ -11537,25 +11555,25 @@ async function renderClassTable(){
       head='<tr><th>Élève</th><th>Séances</th><th>Temps total</th><th>Temps moyen</th><th>Dernière</th></tr>';
       rows=eleves.map(e=>{
         const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td class="muted">—</td><td class="muted">—</td><td class="muted">jamais</td></tr>`;
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td class="muted">—</td><td class="muted">—</td><td class="muted">jamais</td></tr>`;
         const tot=sumDur(list), moy=tot/list.length, last=list[list.length-1];
-        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><b>${fmtDurLong(tot)}</b></td><td>${fmtDur(moy)}</td><td>${fmtDate(last.created_at)}</td></tr>`;
+        return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><b>${fmtDurLong(tot)}</b></td><td>${fmtDur(moy)}</td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     } else if(isTrain){
       head='<tr><th>Élève</th><th>Entraînements</th><th>Moyenne</th><th>Dernier</th></tr>';
       rows=eleves.map(e=>{
         const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td class="muted">jamais</td></tr>`;
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td class="muted">jamais</td></tr>`;
         const avg=Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length), last=list[list.length-1];
-        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${fmtDate(last.created_at)}</td></tr>`;
+        return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td><b>${list.length}</b></td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     } else {
       head='<tr><th>Élève</th><th>Évaluations</th><th>Moyenne</th><th>Meilleur</th><th>Dernier</th></tr>';
       rows=eleves.map(e=>{
         const list=(byId[e.id]||[]).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td>—</td><td class="muted">jamais</td></tr>`;
+        if(!list.length) return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td class="muted">0</td><td>—</td><td>—</td><td class="muted">jamais</td></tr>`;
         const avg=Math.round(list.reduce((s,r)=>s+r.percent,0)/list.length), best=Math.max(...list.map(r=>r.percent)), last=list[list.length-1];
-        return `<tr class="clickable" onclick="showStudentDetail('${e.id}','${esc(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${list.length}</td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${best} %</td><td>${fmtDate(last.created_at)}</td></tr>`;
+        return `<tr class="clickable" onclick="showStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${list.length}</td><td><span class="badge ${pctClass(avg)}">${avg} %</span></td><td>${best} %</td><td>${fmtDate(last.created_at)}</td></tr>`;
       }).join('');
     }
     const flabel=teacherFilter==='all'?'tous les tests':('« '+testLabel(teacherFilter)+' »');
@@ -11576,7 +11594,7 @@ async function renderEvalLocks(){
       return `<div class="lock-card ${open?'open':''}">
         <span class="li">${esc(testLabel(id))}</span>
         <span class="st ${open?'open':'closed'}">${open?'🔓 Déverrouillé':'🔒 Verrouillé'}</span>
-        <button class="btn ${open?'btn-danger':'btn-primary'} btn-sm" onclick="toggleLock('${id}')">${open?'Verrouiller':'Déverrouiller'}</button>
+        <button class="btn ${open?'btn-danger':'btn-primary'} btn-sm" onclick="toggleLock('${escJS(id)}')">${open?'Verrouiller':'Déverrouiller'}</button>
       </div>`;
     }).join('');
   }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
@@ -11630,8 +11648,8 @@ async function renderRoster(){
       <span class="nm">${esc(e.prenom)}</span>
       <span class="code">code : ${esc(e.pin)}</span>
       <span class="acts">
-        <button class="btn btn-ghost btn-sm" onclick="resetPin('${e.id}','${esc(e.prenom)}')">Nouveau code</button>
-        <button class="btn btn-danger btn-sm" onclick="removeStudent('${e.id}','${esc(e.prenom)}')">Retirer</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetPin('${escJS(e.id)}','${escJS(e.prenom)}')">Nouveau code</button>
+        <button class="btn btn-danger btn-sm" onclick="removeStudent('${escJS(e.id)}','${escJS(e.prenom)}')">Retirer</button>
       </span></li>`).join('');
   }catch(e){ ul.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
@@ -11700,7 +11718,7 @@ async function loadDevoirTab(){
 function selectedDevoir(){ return dmList.find(d=>d.id===dmSelId)||dmList[0]; }
 function renderDevoirSelector(){
   const chips=dmList.slice().sort((a,b)=>(a.num||0)-(b.num||0)).map(d=>
-    `<button class="dm-tab ${d.id===dmSelId?'on':''}" onclick="selectDevoir('${d.id}')">Devoir n°${esc(String(d.num))}${d.actif?'':' · masqué'}</button>`).join('');
+    `<button class="dm-tab ${d.id===dmSelId?'on':''}" onclick="selectDevoir('${escJS(d.id)}')">Devoir n°${esc(String(d.num))}${d.actif?'':' · masqué'}</button>`).join('');
   $('dmSelector').innerHTML=chips+`<button class="dm-tab add" onclick="addDevoir()">＋ Nouveau devoir</button>`;
 }
 function selectDevoir(id){ readEditorIntoDevoir(); dmSelId=id; renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats(); }

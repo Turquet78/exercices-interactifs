@@ -352,6 +352,25 @@ function structure(){
   const appeles = new Set([...html.matchAll(/on(?:click|mousedown|change|input)="([A-Za-z_$][\w$]*)\(/g)].map(m => m[1]));
   const orphelins = [...appeles].filter(f => !definis.has(f) && f !== 'if');
   verifier('chaque bouton appelle une fonction définie', orphelins.length === 0, orphelins.join(', '));
+
+  /* Une chaîne posée dans un attribut onclick traverse DEUX analyseurs :
+     l'analyseur HTML décode les entités AVANT que JavaScript ne voie le texte.
+     esc() y est donc inopérant — il écrit &#39;, l'analyseur HTML le rend en ',
+     et l'apostrophe ferme la chaîne JavaScript. Le prénom étant choisi
+     librement par l'élève à la création de son compte, « O'Brien » suffisait à
+     tuer le bouton du professeur, et « ',alert(1),' » y exécutait du code.
+     Le contrôle porte sur la propriété, pas sur les emplacements connus : toute
+     interpolation placée entre apostrophes dans un attribut d'événement doit
+     passer par escJS(), y compris celles qui seront écrites demain. */
+  const nonEchappes = [];
+  for(const a of s.matchAll(/on[a-z]+="[^"]*"/g)){
+    for(const m of a[0].matchAll(/'\$\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}'/g)){
+      if(!/^\s*escJS\(/.test(m[1])) nonEchappes.push(ligneDe(a.index) + ' : ' + m[1].trim());
+    }
+  }
+  verifier('toute donnée mise dans un attribut d’événement passe par escJS',
+    nonEchappes.length === 0,
+    nonEchappes.length + ' interpolation(s) non échappée(s) — ' + nonEchappes.slice(0, 4).join(' , '));
 }
 
 /* ---------- 2. Démarrage ---------- */
@@ -389,6 +408,30 @@ function demarrage(suite){
       });
       return rate.join(' | ');
     })()`, v => v === '', 'une référence à une globale inexistante casse la liste entière qui l affiche');
+    /* Le contrôle statique dit que escJS() est appelé. Celui-ci dit qu'il
+       protège : on reconstruit la ligne exacte de renderRoster avec des prénoms
+       hostiles, on la fait analyser par le VRAI analyseur HTML, et on clique
+       dessus. Le prénom doit revenir intact au gestionnaire, et rien d'autre ne
+       doit s'exécuter. Un escJS() affaibli — ou remplacé par esc() — fait virer
+       ce contrôle au rouge alors que le contrôle statique, lui, reste vert. */
+    verifierEval(w, 'un prénom hostile ne s’exécute pas dans le tableau du professeur', `(function(){
+      if(typeof escJS!=='function') return 'escJS() manque';
+      const rate=[];
+      window.__injecte=0; window.__recu=null;
+      window.__cible=function(id,prenom){ window.__recu=prenom; };
+      ["O'Brien", "',window.__injecte=1,'", '<img src=x onerror="window.__injecte=1">',
+       'Zoé"; window.__injecte=1; "', 'a\\\\b', 'saut\\nligne'].forEach(function(p){
+        const d=document.createElement('div');
+        d.innerHTML='<button onclick="__cible(\\''+escJS('id-1')+'\\',\\''+escJS(p)+'\\')"></button>';
+        const b=d.querySelector('button');
+        if(!b){ rate.push(JSON.stringify(p)+' : bouton non construit'); return; }
+        window.__recu=null;
+        try{ b.click(); }catch(e){ rate.push(JSON.stringify(p)+' : '+e.message); return; }
+        if(window.__recu!==p) rate.push(JSON.stringify(p)+' -> reçu '+JSON.stringify(window.__recu));
+      });
+      if(window.__injecte) rate.push('du code injecté s’est exécuté');
+      return rate.join(' | ');
+    })()`, v => v === '', 'l’analyseur HTML décode l’entité avant que JavaScript ne lise la chaîne');
     verifierEval(w, 'chaque exercice de TESTS a une fonction de démarrage', `(function(){
       const sans=[];
       Object.keys(TESTS).forEach(function(id){ if(typeof TESTS[id].start!=='function') sans.push(id); });
