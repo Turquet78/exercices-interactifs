@@ -1132,9 +1132,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
           <span class="ds">Tes 5 tests avec la moins bonne note, à retravailler pour progresser.</span>
         </button>
       </div>
-      <p class="muted" style="margin-top:16px">
-        <button class="btn btn-ghost btn-sm" onclick="changerMonCode()">Changer mon code</button>
-        <span style="margin-left:6px">Si ton professeur t'en a donné un nouveau, tu peux le remplacer par un code que tu retiens.</span>
+      <p class="muted" style="margin-top:16px" id="zoneChangerCode" hidden>
+        <button class="btn btn-ghost btn-sm" onclick="changerMonCode()">Choisir mon code</button>
+        <span style="margin-left:6px">Ton professeur vient de te donner un code provisoire : remplace-le par un code que tu retiens.</span>
       </p>
     </div>
   </section>
@@ -1839,7 +1839,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=215;
+const APP_VERSION=216;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3128,6 +3128,22 @@ async function connexionEleve(){
    L'eleve doit pouvoir le remplacer par le sien. Aucune fonction Edge ici —
    un compte connecte a le droit de changer SON PROPRE mot de passe, et rien
    d'autre : c'est Supabase qui l'impose, pas cette page. */
+/* Le marqueur « code provisoire » est pose par la fonction Edge quand le
+   professeur donne un code, et retire quand l'eleve en choisit un. Il vit dans
+   app_metadata, que le service SEUL peut ecrire : un eleve ne peut donc pas se
+   le redonner pour rouvrir le bouton. C'est un garde-fou d'usage, pas une
+   barriere — un eleve qui changerait son propre code ne nuirait a personne. */
+async function relireMarqueurCode(){
+  try{
+    const {data,error}=await sb.auth.getUser();
+    if(error||!data||!data.user) return false;
+    return !!(data.user.app_metadata && data.user.app_metadata.code_provisoire);
+  }catch(e){ return false; }
+}
+function montrerChangerCode(actif){
+  const z=$('zoneChangerCode'); if(z) z.hidden=!actif;
+}
+
 async function changerMonCode(){
   if(!currentEleve){ toast('Connecte-toi d\'abord'); return; }
   const motif=new RegExp('^\\d{'+CHIFFRES_CODE+'}$');
@@ -3147,6 +3163,12 @@ async function changerMonCode(){
                             : 'Changement impossible : '+(m||'reessaie'),'err');
     return;
   }
+  /* Le marqueur ne se retire pas tout seul : sans cet appel, le bouton
+     resterait offert a chaque connexion. Si la fonction Edge est absente ou
+     refuse, le code EST change quand meme — on le dit, et le bouton reste. */
+  const {error:errMarq}=await sb.functions.invoke('admin-eleve',{body:{action:'code-choisi',niveau:NIVEAU}});
+  if(errMarq){ toast('Ton code est change, mais le bouton restera affiche','ok'); return; }
+  montrerChangerCode(false);
   toast('Ton code a bien ete change','ok');
 }
 
@@ -3179,7 +3201,11 @@ async function creerCompte(){
 }
 
 /* ---------- Espace élève ---------- */
-function ouvrirEspace(){
+async function ouvrirEspace(){
+  montrerChangerCode(await relireMarqueurCode());
+  return ouvrirEspaceSuite();
+}
+function ouvrirEspaceSuite(){
   $('spaceHello').textContent=`Bonjour, ${esc(currentEleve.prenom)} !`;
   $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
   show('space');

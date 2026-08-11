@@ -105,8 +105,23 @@ Deno.serve(async (req) => {
   const { data: { user }, error: errUser } = await commeAppelant.auth.getUser();
   if(errUser || !user) return repondre({ erreur: 'non connecté' }, 401);
 
-  // ---- 2. est-ce bien le professeur ? --------------------------------------
   const admin = createClient(URL_SB, SERVICE, { auth: { persistSession: false } });
+  const action = String(corps?.action ?? '');
+
+  // ---- 1 bis. le seul geste qu'un ÉLÈVE peut demander ----------------------
+  // Il retire le marqueur « code provisoire » de SON PROPRE compte, et de
+  // personne d'autre : l'identifiant visé n'est jamais celui qu'envoie le
+  // client, c'est celui que porte son jeton. Ce geste vient donc AVANT le
+  // contrôle « est-ce le professeur », qui le refuserait.
+  if(action === 'code-choisi'){
+    const { error: errMarq } = await admin.auth.admin.updateUserById(user.id, {
+      app_metadata: { code_provisoire: false },
+    });
+    if(errMarq) return repondre({ erreur: 'marqueur non retiré' }, 500);
+    return repondre({ ok: true });
+  }
+
+  // ---- 2. est-ce bien le professeur ? --------------------------------------
   const { data: prof, error: errProf } = await admin
     .from('professeurs').select('user_id').eq('user_id', user.id).maybeSingle();
   // Supabase rend ses erreurs SANS lever d'exception : les ignorer ferait
@@ -114,8 +129,6 @@ Deno.serve(async (req) => {
   // selon le sens du test. On les traite explicitement.
   if(errProf) return repondre({ erreur: 'vérification impossible' }, 500);
   if(!prof)   return repondre({ erreur: 'réservé au professeur' }, 403);
-
-  const action = String(corps?.action ?? '');
 
   try {
     // ---- créer un compte pour un élève -------------------------------------
@@ -137,6 +150,10 @@ Deno.serve(async (req) => {
         email: `${cle}@${DOMAINE}`,
         password: motDePasseDe(code),
         email_confirm: true,
+        // Un code tiré au hasard ne se retient pas : l'élève doit pouvoir le
+        // remplacer. Le marqueur vit dans app_metadata, que le service seul
+        // peut écrire — un élève ne peut donc pas se le redonner.
+        app_metadata: { code_provisoire: true },
       });
       if(errCompte || !compte?.user) return repondre({ erreur: 'création du compte impossible' }, 500);
 
@@ -161,7 +178,10 @@ Deno.serve(async (req) => {
       if(!eleve.user_id) return repondre({ erreur: 'cet élève n’a pas encore de compte' }, 409);
 
       const code = codeAuHasard();
-      const { error: errMaj } = await admin.auth.admin.updateUserById(eleve.user_id, { password: motDePasseDe(code) });
+      const { error: errMaj } = await admin.auth.admin.updateUserById(eleve.user_id, {
+        password: motDePasseDe(code),
+        app_metadata: { code_provisoire: true },
+      });
       if(errMaj) return repondre({ erreur: 'changement de code impossible' }, 500);
       return repondre({ prenom: eleve.prenom, code });
     }

@@ -187,9 +187,23 @@ moment-là : personne, pas même vous, ne pourra le retrouver ensuite.
 C'est voulu. Un code que le professeur peut relire est un code qu'un autre peut
 lire aussi.
 
-**L'élève peut ensuite le remplacer par le sien.** Un code tiré au hasard ne se
-retient pas : sur son espace, le bouton **« Changer mon code »** lui permet d'en
-choisir un. Aucun droit particulier n'est nécessaire — Supabase autorise un
+**L'élève peut ensuite le remplacer par le sien — mais seulement à ce
+moment-là.** Un code tiré au hasard ne se retient pas. Le bouton **« Choisir
+mon code »** apparaît sur son espace **uniquement** après un code donné par le
+professeur, et disparaît dès qu'il en a choisi un.
+
+Le marqueur qui commande ce bouton (`code_provisoire`) vit dans
+l'`app_metadata` du compte : **seul le service peut l'écrire**. Un élève ne
+peut donc pas se le redonner pour rouvrir le bouton. La fonction Edge le pose
+en donnant un code, et le retire quand l'élève en choisit un — c'est le seul
+geste qu'un élève puisse lui demander, et il ne porte que sur son propre
+compte, jamais sur celui d'un camarade.
+
+> C'est un garde-fou d'usage, pas une barrière de sécurité : un élève qui
+> changerait son propre code ne nuirait à personne. Il évite simplement que les
+> codes bougent sans que le professeur le sache.
+
+Le changement lui-même n'exige aucun droit particulier — Supabase autorise un
 compte connecté à changer son propre mot de passe, et rien d'autre.
 
 ---
