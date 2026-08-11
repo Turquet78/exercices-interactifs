@@ -341,6 +341,41 @@ async function parcours(page, N){
       (await ecranVisible(s.page)) === 'scr-results',
       'écran atteint : ' + (await ecranVisible(s.page)) + ' après ' + p.tours + ' question(s)');
 
+    /* ===== l'élève remplace le code que son professeur lui a donné ===== */
+    /* Un code tiré au hasard ne se retient pas : l'élève doit pouvoir le
+       changer. On l'exerce vraiment — deux prompt(), puis on regarde ce que le
+       double a réellement enregistré, et on se reconnecte avec le nouveau. */
+    const NOUVEAU = '765432'.slice(0, CODE_CONTROLE.length);
+    const repondre = d => d.accept(NOUVEAU);
+    s.page.on('dialog', repondre);
+    await s.page.evaluate(() => { show('space'); });
+    await s.page.waitForTimeout(200);
+    const bouton = await s.page.$('#scr-space button[onclick*="changerMonCode"]');
+    verifier('l’élève trouve le bouton pour changer son code', !!bouton,
+      'aucun bouton « Changer mon code » sur l’espace élève');
+    if(bouton){
+      await bouton.click();
+      await s.page.waitForTimeout(400);
+      const enregistre = await s.page.evaluate(() => {
+        const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
+        return c ? c.motDePasse : null;
+      });
+      const attendu = await s.page.evaluate(n => motDePasseDe(n), NOUVEAU);
+      verifier('le nouveau code est bien celui que Supabase retiendra',
+        enregistre === attendu, 'enregistré : ' + enregistre + ' — attendu : ' + attendu);
+
+      /* Et surtout : l'élève peut-il VRAIMENT se reconnecter avec ? Vérifier
+         l'enregistrement ne suffit pas — c'est le tour complet qui compte. */
+      const rentre = await s.page.evaluate(async n => {
+        await sb.auth.signOut();
+        const { error } = await sb.auth.signInWithPassword({
+          email: courrielDe(selectedEleve.cle), password: motDePasseDe(n) });
+        return !error;
+      }, NOUVEAU);
+      verifier('l’élève se reconnecte avec son nouveau code', rentre);
+    }
+    s.page.off('dialog', repondre);
+
     const notes = await s.page.evaluate(t => window.__faux.operations('insert', t)
       .flatMap(e => e.lignes).filter(l => l.details && !l.details.state && !l.details.partiel), P.tableResultats);
     verifier('une seule note est enregistrée', notes.length === 1, notes.length + ' note(s) écrite(s)');

@@ -187,6 +187,11 @@ moment-là : personne, pas même vous, ne pourra le retrouver ensuite.
 C'est voulu. Un code que le professeur peut relire est un code qu'un autre peut
 lire aussi.
 
+**L'élève peut ensuite le remplacer par le sien.** Un code tiré au hasard ne se
+retient pas : sur son espace, le bouton **« Changer mon code »** lui permet d'en
+choisir un. Aucun droit particulier n'est nécessaire — Supabase autorise un
+compte connecté à changer son propre mot de passe, et rien d'autre.
+
 ---
 
 ## Si quelque chose se passe mal

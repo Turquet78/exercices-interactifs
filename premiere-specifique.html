@@ -732,6 +732,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
           <span class="ds">Tes 5 tests avec la moins bonne note, à retravailler pour progresser.</span>
         </button>
       </div>
+      <p class="muted" style="margin-top:16px">
+        <button class="btn btn-ghost btn-sm" onclick="changerMonCode()">Changer mon code</button>
+        <span style="margin-left:6px">Si ton professeur t'en a donné un nouveau, tu peux le remplacer par un code que tu retiens.</span>
+      </p>
     </div>
   </section>
 
@@ -1239,7 +1243,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=88;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=89;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2231,6 +2235,32 @@ async function connexionEleve(){
   if(error){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
   currentEleve=selectedEleve; await ouvrirEspace();
 }
+/* Un code donne par le professeur est tire au hasard : il ne se retient pas.
+   L'eleve doit pouvoir le remplacer par le sien. Aucune fonction Edge ici —
+   un compte connecte a le droit de changer SON PROPRE mot de passe, et rien
+   d'autre : c'est Supabase qui l'impose, pas cette page. */
+async function changerMonCode(){
+  if(!currentEleve){ toast('Connecte-toi d\'abord'); return; }
+  const motif=new RegExp('^\\d{'+CHIFFRES_CODE+'}$');
+  const n1=prompt('Ton nouveau code a '+CHIFFRES_CODE+' chiffres :');
+  if(n1===null) return;
+  const code=String(n1).trim();
+  if(!motif.test(code)){ toast('Le code doit avoir '+CHIFFRES_CODE+' chiffres','err'); return; }
+  const n2=prompt('Retape-le pour confirmer :');
+  if(n2===null) return;
+  if(String(n2).trim()!==code){ toast('Les deux codes sont differents','err'); return; }
+  const {error}=await sb.auth.updateUser({password:motDePasseDe(code)});
+  if(error){
+    /* Le motif exact vaut mieux qu'un « reessaie » : si le projet exige une
+       reconnexion recente pour changer de mot de passe, seul ce message le dit. */
+    const m=String(error.message||'');
+    toast(/reauth/i.test(m) ? 'Deconnecte-toi, reconnecte-toi, puis reessaie'
+                            : 'Changement impossible : '+(m||'reessaie'),'err');
+    return;
+  }
+  toast('Ton code a bien ete change','ok');
+}
+
 async function creerCompte(){
   const prenom=val('newPrenom').trim(), pin=val('newPin').trim(), pin2=val('newPin2').trim();
   if(!prenom){ toast('Écris ton prénom'); return; }
