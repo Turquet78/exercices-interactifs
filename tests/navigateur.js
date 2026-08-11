@@ -345,70 +345,82 @@ async function parcours(page, N){
     /* Un code tiré au hasard ne se retient pas : l'élève doit pouvoir le
        changer. On l'exerce vraiment — deux prompt(), puis on regarde ce que le
        double a réellement enregistré, et on se reconnecte avec le nouveau. */
-    /* Le bouton ne doit PAS être offert par défaut : un élève qui a choisi son
-       code lui-même n'a rien à changer. Il n'apparaît qu'après un code donné
-       par le professeur — marqueur que seul le service peut écrire. */
-    const offertDAbord = await s.page.evaluate(() => {
-      const z = document.getElementById('zoneChangerCode');
-      return !!z && !z.hidden;
-    });
-    verifier('le bouton « Choisir mon code » reste caché sans code provisoire', !offertDAbord,
-      'il est offert alors que l’élève a choisi son code lui-même');
+    /* ===== le code provisoire s'impose à la connexion ===== */
+    /* Un élève qui a choisi son code lui-même ne doit RIEN se voir demander :
+       la connexion qui vient d'avoir lieu ne devait ouvrir aucune boîte. */
+    let boites = 0;
+    const compter = d => { boites++; d.dismiss(); };
+    s.page.on('dialog', compter);
+    await s.page.evaluate(() => ouvrirEspace());
+    await s.page.waitForTimeout(400);
+    s.page.off('dialog', compter);
+    verifier('sans code provisoire, rien n’est demandé à l’élève', boites === 0,
+      boites + ' boîte(s) ouverte(s) alors que l’élève a choisi son code');
 
-    /* On pose le marqueur comme le ferait la fonction Edge, puis on rouvre
-       l'espace : le bouton doit apparaître. */
-    await s.page.evaluate(() => {
+    /* On pose le marqueur comme le ferait la fonction Edge en donnant un code. */
+    const poser = () => s.page.evaluate(() => {
       const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
       c.app_metadata = { code_provisoire: true };
       window.__faux.session.user.app_metadata = { code_provisoire: true };
     });
-    await s.page.evaluate(() => ouvrirEspace());
-    await s.page.waitForTimeout(300);
-    const offertApres = await s.page.evaluate(() => {
-      const z = document.getElementById('zoneChangerCode');
-      return !!z && !z.hidden;
-    });
-    verifier('il apparaît quand le professeur vient de donner un code', offertApres);
 
+    /* Un élève qui renonce ne doit PAS entrer : la demande barre l'entrée. */
+    await poser();
+    const refuser = d => d.dismiss();
+    s.page.on('dialog', refuser);
+    await s.page.evaluate(() => ouvrirEspace());
+    await s.page.waitForTimeout(500);
+    s.page.off('dialog', refuser);
+    const apresRefus = await ecranVisible(s.page);
+    verifier('un élève qui refuse de choisir un code n’entre pas',
+      apresRefus !== 'scr-space', 'écran atteint : ' + apresRefus);
+
+    /* Et maintenant le tour complet : il choisit, ça change vraiment, et il
+       peut se reconnecter avec.
+       Le refus ci-dessus a appelé logout(), qui vide currentEleve : on remonte
+       la session comme le fait connexionEleve, sans quoi l'espace s'ouvrirait
+       sur un élève inexistant. C'est le banc qui l'a signalé. */
     const NOUVEAU = '765432'.slice(0, CODE_CONTROLE.length);
+    await s.page.evaluate(async (args) => {
+      await sb.auth.signInWithPassword({ email: courrielDe(args.cle),
+                                         password: motDePasseDe(args.c) });
+      selectedEleve = args.eleve;
+      currentEleve  = args.eleve;
+    }, { c: CODE_CONTROLE, cle: s.eleve.cle, eleve: s.eleve });
+    await poser();
     const repondre = d => d.accept(NOUVEAU);
     s.page.on('dialog', repondre);
-    await s.page.evaluate(() => { show('space'); });
-    await s.page.waitForTimeout(200);
-    const bouton = await s.page.$('#scr-space button[onclick*="changerMonCode"]');
-    verifier('l’élève trouve le bouton pour changer son code', !!bouton,
-      'aucun bouton « Changer mon code » sur l’espace élève');
-    if(bouton){
-      await bouton.click();
-      await s.page.waitForTimeout(400);
-      const enregistre = await s.page.evaluate(() => {
-        const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
-        return c ? c.motDePasse : null;
-      });
-      const attendu = await s.page.evaluate(n => motDePasseDe(n), NOUVEAU);
-      verifier('le nouveau code est bien celui que Supabase retiendra',
-        enregistre === attendu, 'enregistré : ' + enregistre + ' — attendu : ' + attendu);
-
-      /* Et surtout : l'élève peut-il VRAIMENT se reconnecter avec ? Vérifier
-         l'enregistrement ne suffit pas — c'est le tour complet qui compte. */
-      const rentre = await s.page.evaluate(async n => {
-        await sb.auth.signOut();
-        const { error } = await sb.auth.signInWithPassword({
-          email: courrielDe(selectedEleve.cle), password: motDePasseDe(n) });
-        return !error;
-      }, NOUVEAU);
-      verifier('l’élève se reconnecte avec son nouveau code', rentre);
-
-      /* Et le bouton doit s'être refermé : sans le retrait du marqueur, il
-         serait réoffert à chaque connexion, indéfiniment. */
-      const marqueur = await s.page.evaluate(() => {
-        const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
-        return c && c.app_metadata ? c.app_metadata.code_provisoire : null;
-      });
-      verifier('le marqueur « code provisoire » est retiré après le changement',
-        marqueur === false, 'marqueur = ' + JSON.stringify(marqueur));
-    }
+    await s.page.evaluate(() => ouvrirEspace());
+    await s.page.waitForTimeout(600);
     s.page.off('dialog', repondre);
+
+    verifier('après avoir choisi son code, l’élève entre dans son espace',
+      (await ecranVisible(s.page)) === 'scr-space',
+      'écran atteint : ' + (await ecranVisible(s.page)));
+
+    const enregistre = await s.page.evaluate(() => {
+      const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
+      return c ? c.motDePasse : null;
+    });
+    const attendu = await s.page.evaluate(n => motDePasseDe(n), NOUVEAU);
+    verifier('le nouveau code est bien celui que Supabase retiendra',
+      enregistre === attendu, 'enregistré : ' + enregistre + ' — attendu : ' + attendu);
+
+    const rentre = await s.page.evaluate(async a => {
+      await sb.auth.signOut();
+      const { error } = await sb.auth.signInWithPassword({
+        email: courrielDe(a.cle), password: motDePasseDe(a.n) });
+      return !error;
+    }, { cle: s.eleve.cle, n: NOUVEAU });
+    verifier('l’élève se reconnecte avec son nouveau code', rentre);
+
+    /* Le marqueur retiré, la demande ne doit plus revenir. */
+    const marqueur = await s.page.evaluate(() => {
+      const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
+      return c && c.app_metadata ? c.app_metadata.code_provisoire : null;
+    });
+    verifier('le code ne lui sera pas redemandé à la prochaine connexion',
+      marqueur === false, 'marqueur = ' + JSON.stringify(marqueur));
 
     const notes = await s.page.evaluate(t => window.__faux.operations('insert', t)
       .flatMap(e => e.lignes).filter(l => l.details && !l.details.state && !l.details.partiel), P.tableResultats);
