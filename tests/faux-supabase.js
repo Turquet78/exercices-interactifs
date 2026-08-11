@@ -172,6 +172,18 @@ window.supabase = {
           F.session = { user: { id: userId, email: courriel } };
           return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
         },
+        /* Un compte connecté change SON mot de passe, et rien d'autre : le
+           double refuse hors session, comme le ferait Supabase. */
+        updateUser(attrs){
+          if(!F.session){
+            F.journal.push({ op: 'updateUser', table: 'auth', ok: false });
+            return Promise.resolve({ data: { user: null }, error: { message: 'Auth session missing!' } });
+          }
+          const courriel = F.session.user.email;
+          if(attrs && attrs.password) F.comptes[courriel].motDePasse = String(attrs.password);
+          F.journal.push({ op: 'updateUser', table: 'auth', courriel: courriel, ok: true });
+          return Promise.resolve({ data: { user: F.session.user }, error: null });
+        },
         signOut(){
           F.journal.push({ op: 'signOut', table: 'auth' });
           F.session = null;

@@ -132,7 +132,7 @@ async function ouvrir(chromium, ml, options){
      passée de 4 à 6 chiffres, et un banc qui aurait gardé « 1234 » en dur
      n'aurait plus rien connecté — ou pire, aurait continué à passer sans
      éprouver la nouvelle longueur. */
-  const nChiffres = parseInt((source.match(/\/\^\\d\{(\d+)\}\$\/\.test\(pin\)/) || [])[1], 10);
+  const nChiffres = parseInt((source.match(/const CHIFFRES_CODE\s*=\s*(\d+)/) || [])[1], 10);
   if(!nChiffres) throw new Error('longueur du code introuvable dans ' + CIBLE);
   CODE_CONTROLE = '123456789'.slice(0, nChiffres);
   CODE_FAUX     = '987654321'.slice(0, nChiffres);
@@ -340,6 +340,41 @@ async function parcours(page, N){
     verifier('l\'exercice se déroule jusqu\'à l\'écran de résultats',
       (await ecranVisible(s.page)) === 'scr-results',
       'écran atteint : ' + (await ecranVisible(s.page)) + ' après ' + p.tours + ' question(s)');
+
+    /* ===== l'élève remplace le code que son professeur lui a donné ===== */
+    /* Un code tiré au hasard ne se retient pas : l'élève doit pouvoir le
+       changer. On l'exerce vraiment — deux prompt(), puis on regarde ce que le
+       double a réellement enregistré, et on se reconnecte avec le nouveau. */
+    const NOUVEAU = '765432'.slice(0, CODE_CONTROLE.length);
+    const repondre = d => d.accept(NOUVEAU);
+    s.page.on('dialog', repondre);
+    await s.page.evaluate(() => { show('space'); });
+    await s.page.waitForTimeout(200);
+    const bouton = await s.page.$('#scr-space button[onclick*="changerMonCode"]');
+    verifier('l’élève trouve le bouton pour changer son code', !!bouton,
+      'aucun bouton « Changer mon code » sur l’espace élève');
+    if(bouton){
+      await bouton.click();
+      await s.page.waitForTimeout(400);
+      const enregistre = await s.page.evaluate(() => {
+        const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
+        return c ? c.motDePasse : null;
+      });
+      const attendu = await s.page.evaluate(n => motDePasseDe(n), NOUVEAU);
+      verifier('le nouveau code est bien celui que Supabase retiendra',
+        enregistre === attendu, 'enregistré : ' + enregistre + ' — attendu : ' + attendu);
+
+      /* Et surtout : l'élève peut-il VRAIMENT se reconnecter avec ? Vérifier
+         l'enregistrement ne suffit pas — c'est le tour complet qui compte. */
+      const rentre = await s.page.evaluate(async n => {
+        await sb.auth.signOut();
+        const { error } = await sb.auth.signInWithPassword({
+          email: courrielDe(selectedEleve.cle), password: motDePasseDe(n) });
+        return !error;
+      }, NOUVEAU);
+      verifier('l’élève se reconnecte avec son nouveau code', rentre);
+    }
+    s.page.off('dialog', repondre);
 
     const notes = await s.page.evaluate(t => window.__faux.operations('insert', t)
       .flatMap(e => e.lignes).filter(l => l.details && !l.details.state && !l.details.partiel), P.tableResultats);

@@ -452,7 +452,7 @@ function structure(){
      l'élève qui choisit le sien, la fonction Edge la produit pour ceux que le
      professeur distribue. Si elles divergent, une moitié de la classe reçoit
      des codes que l'autre moitié ne pourrait pas saisir — et rien ne le dit. */
-  const nPage = parseInt((s.match(/\/\^\\d\{(\d+)\}\$\/\.test\(pin\)/) || [])[1], 10);
+  const nPage = parseInt((s.match(/const CHIFFRES_CODE\s*=\s*(\d+)/) || [])[1], 10);
   let nEdge;
   try{
     nEdge = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/admin-eleve/index.ts'), 'utf8')
@@ -460,6 +460,15 @@ function structure(){
   }catch(e){ nEdge = undefined; }
   verifier('la longueur du code est la même dans la page et dans la fonction Edge',
     !!nPage && nPage === nEdge, 'page : ' + nPage + ' — fonction Edge : ' + nEdge);
+
+  /* Le contrôle ci-dessus compare deux FICHIERS du dépôt. Il ne voit pas ce qui
+     est réellement déployé chez Supabase : la fonction Edge se déploie à la
+     main, et peut donc rester en arrière sans que rien ne le signale. C'est
+     arrivé — le professeur a reçu des codes à 4 chiffres après le passage à 6.
+     Seule la page peut s'en apercevoir, en regardant les codes qu'elle reçoit. */
+  const veille = [...s.matchAll(/String\(data\.code\)\.length\s*!==\s*CHIFFRES_CODE/g)].length;
+  verifier('la page s’aperçoit qu’une fonction Edge déployée est restée en arrière',
+    veille === 2, veille + ' vérification(s) au lieu de 2 (nouveau code, ajout)');
 
   /* Et les champs de saisie doivent laisser entrer cette longueur-là : un
      maxlength resté à 4 tronquerait silencieusement un code à 6 chiffres, et
