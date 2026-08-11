@@ -1281,7 +1281,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=26;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=27;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2461,6 +2461,23 @@ function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
    affiche au professeur ne fonctionne pas, sans la moindre erreur. */
 const PREFIXE_CODE='exo-';
 function motDePasseDe(code){ return PREFIXE_CODE+String(code); }
+
+/* Une fonction Edge qui refuse repond avec un statut non-2xx, et supabase-js
+   range alors TOUT dans error : data vaut null, et le motif que la fonction a
+   pris soin d'ecrire — « reserve au professeur », « eleve introuvable », « ce
+   prenom existe deja » — n'arrive jamais a l'ecran. Le professeur lit
+   « reessaie », ce qui ne lui apprend rien et ne repare rien.
+   Le corps de la reponse est pourtant la, dans error.context. */
+async function motifFonction(error, data){
+  if(data && data.erreur) return data.erreur;
+  try{
+    if(error && error.context && typeof error.context.json === 'function'){
+      const j = await error.context.json();
+      if(j && j.erreur) return j.erreur;
+    }
+  }catch(e){}
+  return '';
+}
 function idAuHasard(){
   if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
   /* randomUUID exige une page servie en https ; GitHub Pages l'est, mais un
@@ -3298,7 +3315,7 @@ async function addStudent(){
        navigateur n'a pas, et ne doit pas avoir : la fonction Edge s'en charge
        après avoir vérifié que l'appelant est bien le professeur. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'ajouter',niveau:NIVEAU,prenom}});
-    if(error||!data||data.erreur){ toast('Ajout impossible : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    if(error||!data||data.erreur){ toast('Ajout impossible : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
     if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
     $('addPrenom').value='';
     alert('Code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
@@ -3311,7 +3328,7 @@ async function resetPin(id,prenom){
     /* Le code est tiré par le serveur, jamais par cette page : il n'est
        stocké nulle part en clair et ne s'affiche qu'une fois, ici. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'nouveau-code',niveau:NIVEAU,eleveId:id}});
-    if(error||!data||data.erreur){ toast('Échec : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    if(error||!data||data.erreur){ toast('Échec : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
     /* Une réponse sans code n'est pas un succès. Sans ce contrôle, la page
        annonçait « Nouveau code de undefined : undefined » — un message qui
        ressemble à une réussite et n'apprend rien. C'est ce qui arrive quand
@@ -3328,7 +3345,7 @@ async function removeStudent(id,prenom){
     /* Supprimer la ligne ne suffit plus : le compte Supabase doit partir avec
        elle, sinon le prénom reste impossible à réutiliser. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'retirer',niveau:NIVEAU,eleveId:id}});
-    if(error||!data||data.erreur){ toast('Suppression impossible','err'); return; }
+    if(error||!data||data.erreur){ toast('Suppression impossible : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
     toast('Élève retiré','ok'); renderRoster();
   }catch(e){ toast('Suppression impossible','err'); }
 }
@@ -3337,7 +3354,7 @@ async function resetYear(){
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'tout-effacer',niveau:NIVEAU}});
-    if(error||!data||data.erreur){ toast('Réinitialisation impossible : '+((data&&data.erreur)||'erreur'),'err'); return; }
+    if(error||!data||data.erreur){ toast('Réinitialisation impossible : '+((await motifFonction(error,data))||'erreur'),'err'); return; }
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
