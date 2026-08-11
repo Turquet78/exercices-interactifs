@@ -401,6 +401,27 @@ function structure(){
      de l'autre — et l'élève reçoit « Code incorrect » avec le bon code. Aucune
      erreur, aucune trace : exactement le genre de panne que ce banc existe pour
      attraper. */
+  /* L'adresse du compte d'un élève ne doit JAMAIS être dérivée de l'identifiant
+     de sa ligne : « id » est un uuid en Terminale et en Seconde, mais un bigint
+     en Première. Le premier jet le faisait, et cassait la création de compte
+     sur ce seul niveau — sans qu'aucun banc ne le voie, parce que le double en
+     mémoire accepte n'importe quel type et que la structure réelle n'avait
+     jamais été relevée. Elle l'est maintenant : tests/base-avant.sql. */
+  const surId = [...s.matchAll(/courrielDe\(([^)]*)\)/g)]
+    .filter(m => /\bid\b/.test(m[1]) && !/\bcle\b/.test(m[1]))
+    .map(m => ligneDe(m.index) + ' : courrielDe(' + m[1].trim() + ')');
+  verifier('l’adresse du compte est dérivée de la clé, jamais de l’identifiant de ligne',
+    surId.length === 0, surId.join(' , '));
+
+  /* Et l'application ne doit pas écrire « id » elle-même : la base le produit,
+     ce qui la rend indifférente au type. */
+  const ecritId = [...s.matchAll(new RegExp(
+    "from\\('" + (P.tableEleves || '\u0000') + "'\\)\\s*\\.insert\\(\\{([^}]*)\\}", 'g'))]
+    .filter(m => /(^|[,{\s])id\s*[,:}]/.test(m[1]))
+    .map(m => ligneDe(m.index));
+  verifier('la création d’un élève laisse la base produire l’identifiant',
+    ecritId.length === 0, 'ligne(s) ' + ecritId.join(', '));
+
   const domPage = (s.match(/const DOMAINE_COMPTES\s*=\s*'([^']+)'/) || [])[1];
   let domEdge;
   try{

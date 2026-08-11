@@ -101,6 +101,29 @@ begin
     execute format(
       'alter table public.%I add column if not exists user_id uuid unique references auth.users(id) on delete cascade', t);
 
+    -- « cle » est l'identifiant du compte Supabase de l'élève : son adresse
+    -- technique en est dérivée. Une colonne à part, et non « id », parce que
+    -- LES TROIS NIVEAUX N'ONT PAS LE MÊME TYPE D'IDENTIFIANT — uuid en
+    -- Terminale et en Seconde, bigint en Première. Dériver l'adresse de « id »
+    -- marchait sur deux niveaux et cassait la création de compte sur le
+    -- troisième. Avec « cle », un seul mécanisme couvre les trois.
+    execute format('alter table public.%I add column if not exists cle text', t);
+    execute format('create unique index if not exists %I on public.%I (cle)', t || '_cle_idx', t);
+
+    -- L'application n'écrit plus « id » elle-même : elle laisse la base le
+    -- produire, ce qui la rend indifférente au type. Encore faut-il qu'une
+    -- valeur par défaut existe. Les colonnes bigint identity en ont une par
+    -- construction ; on s'assure ici que les colonnes uuid en ont une aussi,
+    -- plutôt que de le supposer.
+    if (select data_type from information_schema.columns
+        where table_schema = 'public' and table_name = t and column_name = 'id') = 'uuid'
+       and (select column_default from information_schema.columns
+            where table_schema = 'public' and table_name = t and column_name = 'id') is null
+    then
+      execute format('alter table public.%I alter column id set default gen_random_uuid()', t);
+      raise notice '  %.id reçoit une valeur par défaut (gen_random_uuid)', t;
+    end if;
+
     -- La colonne pin partait en clair vers chaque navigateur : select(''*'')
     -- sur cette table la rapportait, et l''onglet Réseau l''affichait. Les
     -- codes vivent désormais dans auth.users, hachés par Supabase.

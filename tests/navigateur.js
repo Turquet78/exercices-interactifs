@@ -111,13 +111,18 @@ async function ouvrir(chromium, ml, options){
   const source = fs.readFileSync(path.join(RACINE, CIBLE), 'utf8');
   const domaine = (source.match(/const DOMAINE_COMPTES\s*=\s*'([^']+)'/) || [])[1];
   if(!domaine) throw new Error('DOMAINE_COMPTES introuvable dans ' + CIBLE + ' — le banc ne peut pas connecter d’élève');
-  const eleve = { id: 'eleve-controle', prenom: 'Contrôle', user_id: 'compte-controle' };
+  /* « cle » et non « id » : l'adresse du compte en est dérivée, et « id » n'a
+     pas le même type d'un niveau à l'autre — uuid en Terminale et en Seconde,
+     bigint en Première. Le double acceptait n'importe quoi ; la vraie base,
+     non. C'est le banc de la base qui couvre ce point (tests/base.js § 5). */
+  const eleve = { id: 'eleve-controle', prenom: 'Contrôle',
+                  cle: 'cle-controle', user_id: 'compte-controle' };
   const CODE_CONTROLE = '1234';
   await page.route('**/supabase-js**', r => r.fulfill({
     contentType: 'application/javascript',
     body: faux
       + '\nwindow.__faux.semer(' + JSON.stringify(P.tableEleves) + ',' + JSON.stringify([eleve]) + ');'
-      + '\nwindow.__faux.semerCompte(' + JSON.stringify(eleve.id + '@' + domaine) + ','
+      + '\nwindow.__faux.semerCompte(' + JSON.stringify(eleve.cle + '@' + domaine) + ','
         + JSON.stringify(CODE_CONTROLE) + ',' + JSON.stringify(eleve.user_id) + ');',
   }));
 

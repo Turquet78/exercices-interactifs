@@ -96,17 +96,20 @@ Deno.serve(async (req) => {
       if(errDeja) return repondre({ erreur: 'vérification impossible' }, 500);
       if(deja && deja.length) return repondre({ erreur: 'ce prénom existe déjà' }, 409);
 
-      const idEleve = crypto.randomUUID();
+      // Une CLÉ, pas un identifiant de ligne : « id » est un uuid en Terminale
+      // et en Seconde, mais un bigint en Première. Y écrire un uuid échouait
+      // sur ce niveau-là. La base produit « id » elle-même.
+      const cle = crypto.randomUUID();
       const code = codeAuHasard();
       const { data: compte, error: errCompte } = await admin.auth.admin.createUser({
-        email: `${idEleve}@${DOMAINE}`,
+        email: `${cle}@${DOMAINE}`,
         password: code,
         email_confirm: true,
       });
       if(errCompte || !compte?.user) return repondre({ erreur: 'création du compte impossible' }, 500);
 
       const { error: errLigne } = await admin.from(niveau.eleves)
-        .insert({ id: idEleve, prenom, user_id: compte.user.id });
+        .insert({ prenom, cle, user_id: compte.user.id });
       if(errLigne){
         // sans ce rattrapage, un compte orphelin resterait et le prénom
         // deviendrait impossible à réutiliser
