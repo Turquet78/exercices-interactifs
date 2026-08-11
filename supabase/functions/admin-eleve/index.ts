@@ -39,6 +39,15 @@ function repondre(corps: unknown, statut = 200){
   return new Response(JSON.stringify(corps), { status: statut, headers: ENTETES });
 }
 
+// Supabase refuse tout mot de passe de moins de 6 caractères. Le code d'un
+// élève en fait 4 et doit le rester. On stocke donc une chaîne dérivée, avec le
+// MÊME préfixe que les trois fichiers HTML (constante PREFIXE_CODE) : c'est
+// cette fonction qui pose les codes que le professeur distribue, et l'élève les
+// saisit dans la page. S'ils divergent, le code affiché ne fonctionne pas — sans
+// la moindre erreur, ni d'un côté ni de l'autre.
+const PREFIXE_CODE = 'exo-';
+const motDePasseDe = (code: string) => PREFIXE_CODE + code;
+
 /* Un code tiré au sort, sans biais : Math.random() n'est pas fait pour ça, et
    le reste d'une division par 10000 ne tombe pas non plus uniformément. */
 function codeAuHasard(): string {
@@ -117,7 +126,7 @@ Deno.serve(async (req) => {
       const code = codeAuHasard();
       const { data: compte, error: errCompte } = await admin.auth.admin.createUser({
         email: `${cle}@${DOMAINE}`,
-        password: code,
+        password: motDePasseDe(code),
         email_confirm: true,
       });
       if(errCompte || !compte?.user) return repondre({ erreur: 'création du compte impossible' }, 500);
@@ -143,7 +152,7 @@ Deno.serve(async (req) => {
       if(!eleve.user_id) return repondre({ erreur: 'cet élève n’a pas encore de compte' }, 409);
 
       const code = codeAuHasard();
-      const { error: errMaj } = await admin.auth.admin.updateUserById(eleve.user_id, { password: code });
+      const { error: errMaj } = await admin.auth.admin.updateUserById(eleve.user_id, { password: motDePasseDe(code) });
       if(errMaj) return repondre({ erreur: 'changement de code impossible' }, 500);
       return repondre({ prenom: eleve.prenom, code });
     }

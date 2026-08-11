@@ -111,6 +111,11 @@ async function ouvrir(chromium, ml, options){
   const source = fs.readFileSync(path.join(RACINE, CIBLE), 'utf8');
   const domaine = (source.match(/const DOMAINE_COMPTES\s*=\s*'([^']+)'/) || [])[1];
   if(!domaine) throw new Error('DOMAINE_COMPTES introuvable dans ' + CIBLE + ' — le banc ne peut pas connecter d’élève');
+  /* Supabase refuse un mot de passe de moins de 6 caractères : la page envoie
+     donc le code préfixé. Le préfixe est LU ici, jamais recopié — recopié, il
+     aurait fini par diverger et le banc n'aurait plus rien connecté. */
+  const prefixe = (source.match(/const PREFIXE_CODE\s*=\s*'([^']*)'/) || [])[1];
+  if(prefixe === undefined) throw new Error('PREFIXE_CODE introuvable dans ' + CIBLE);
   /* « cle » et non « id » : l'adresse du compte en est dérivée, et « id » n'a
      pas le même type d'un niveau à l'autre — uuid en Terminale et en Seconde,
      bigint en Première. Le double acceptait n'importe quoi ; la vraie base,
@@ -123,7 +128,7 @@ async function ouvrir(chromium, ml, options){
     body: faux
       + '\nwindow.__faux.semer(' + JSON.stringify(P.tableEleves) + ',' + JSON.stringify([eleve]) + ');'
       + '\nwindow.__faux.semerCompte(' + JSON.stringify(eleve.cle + '@' + domaine) + ','
-        + JSON.stringify(CODE_CONTROLE) + ',' + JSON.stringify(eleve.user_id) + ');',
+        + JSON.stringify(prefixe + CODE_CONTROLE) + ',' + JSON.stringify(eleve.user_id) + ');',
   }));
 
   /* MathLive servi depuis le cache ; les polices restent au réseau (elles ne
