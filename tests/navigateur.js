@@ -29,6 +29,12 @@ const { execFileSync } = require('child_process');
 const PROFILS = require('./profils');
 
 const RACINE = path.resolve(__dirname, '..');
+
+/* Le code de l'élève d'essai, et un code faux de même longueur. Les deux sont
+   déduits de la longueur exigée par le fichier contrôlé — elle est passée de 4
+   à 6 chiffres, et un banc qui l'aurait gardée en dur aurait continué à passer
+   sans jamais éprouver la nouvelle. */
+let CODE_CONTROLE = '', CODE_FAUX = '';
 const CACHE = path.join(__dirname, '.cache');
 const ML_FICHIER = path.join(CACHE, 'mathlive-0.110.0.mjs');
 const ML_URL = 'https://cdn.jsdelivr.net/npm/mathlive@0.110.0/mathlive.min.mjs';
@@ -122,7 +128,14 @@ async function ouvrir(chromium, ml, options){
      non. C'est le banc de la base qui couvre ce point (tests/base.js § 5). */
   const eleve = { id: 'eleve-controle', prenom: 'Contrôle',
                   cle: 'cle-controle', user_id: 'compte-controle' };
-  const CODE_CONTROLE = '1234';
+  /* La longueur du code est LUE dans le fichier, jamais recopiée : elle est
+     passée de 4 à 6 chiffres, et un banc qui aurait gardé « 1234 » en dur
+     n'aurait plus rien connecté — ou pire, aurait continué à passer sans
+     éprouver la nouvelle longueur. */
+  const nChiffres = parseInt((source.match(/\/\^\\d\{(\d+)\}\$\/\.test\(pin\)/) || [])[1], 10);
+  if(!nChiffres) throw new Error('longueur du code introuvable dans ' + CIBLE);
+  CODE_CONTROLE = '123456789'.slice(0, nChiffres);
+  CODE_FAUX     = '987654321'.slice(0, nChiffres);
   await page.route('**/supabase-js**', r => r.fulfill({
     contentType: 'application/javascript',
     body: faux
@@ -173,7 +186,7 @@ async function connecter(page){
   await page.click('#scr-home button.choice.eleve');           /* « Je suis élève » */
   await page.waitForSelector('#nameChips .chip', { timeout: 15000 });
   await page.click('#nameChips .chip');                        /* son prénom */
-  await page.fill('#loginPin', '1234');
+  await page.fill('#loginPin', CODE_CONTROLE);
   await page.click('#modeCo button.btn-primary');              /* « Entrer » */
   await page.waitForTimeout(500);
   return ecranVisible(page);
@@ -284,7 +297,7 @@ async function parcours(page, N){
     await s.page.click('#scr-home button.choice.eleve');
     await s.page.waitForSelector('#nameChips .chip', { timeout: 15000 });
     await s.page.click('#nameChips .chip');
-    await s.page.fill('#loginPin', '9999');
+    await s.page.fill('#loginPin', CODE_FAUX);
     await s.page.click('#modeCo button.btn-primary');
     await s.page.waitForTimeout(500);
     const apresFaux = await ecranVisible(s.page);

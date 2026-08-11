@@ -92,11 +92,18 @@ différentes — un correctif qui aurait filtré sur `_all` en aurait raté six.
 `supabase/migrations/002` les retire en les nommant. Le banc le démontre : joué
 après la seule migration 001, le contrôle des rôles **doit échouer**.
 
-**Supabase refuse tout mot de passe de moins de 6 caractères.** Le code d'un
-élève en fait 4 et doit le rester — il faut qu'un élève de seconde le retienne.
-L'application envoie donc `PREFIXE_CODE + code`. Ce préfixe ne protège rien et
-ne prétend pas le faire : il satisfait une longueur minimale. La solidité reste
-celle des 4 chiffres, plus la limitation de cadence de Supabase.
+**Supabase refuse tout mot de passe de moins de 6 caractères.** L'application
+envoie donc `PREFIXE_CODE + code`. Ce préfixe ne protège rien et ne prétend pas
+le faire : il satisfait une longueur minimale.
+
+**Les codes font 6 chiffres, et la limitation de cadence de Supabase est le
+seul rempart.** Il n'existe aucun verrouillage par compte : la limite est par
+adresse IP, et une classe entière partage l'IP de l'établissement. À 200
+tentatives par 5 minutes — le réglage qu'exige une classe de 30 —, un code à 4
+chiffres se devinait en deux heures ; à 6 chiffres il faut des jours. La
+longueur vit à deux endroits : `/^\d{6}$/` dans les trois pages, et
+`CHIFFRES_CODE` dans la fonction Edge. Deux contrôles les comparent, et
+vérifient que les champs de saisie ne tronquent pas.
 
 **`DOMAINE_COMPTES` et `PREFIXE_CODE` sont écrits à deux endroits que rien ne
 relie** — les trois

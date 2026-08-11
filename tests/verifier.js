@@ -448,6 +448,32 @@ function structure(){
     prefPage !== undefined && prefPage === prefEdge,
     'page : ' + JSON.stringify(prefPage) + ' — fonction Edge : ' + JSON.stringify(prefEdge));
 
+  /* La LONGUEUR du code vit elle aussi à deux endroits : la page l'exige de
+     l'élève qui choisit le sien, la fonction Edge la produit pour ceux que le
+     professeur distribue. Si elles divergent, une moitié de la classe reçoit
+     des codes que l'autre moitié ne pourrait pas saisir — et rien ne le dit. */
+  const nPage = parseInt((s.match(/\/\^\\d\{(\d+)\}\$\/\.test\(pin\)/) || [])[1], 10);
+  let nEdge;
+  try{
+    nEdge = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/admin-eleve/index.ts'), 'utf8')
+      .match(/const CHIFFRES_CODE\s*=\s*(\d+)/) || [])[1], 10);
+  }catch(e){ nEdge = undefined; }
+  verifier('la longueur du code est la même dans la page et dans la fonction Edge',
+    !!nPage && nPage === nEdge, 'page : ' + nPage + ' — fonction Edge : ' + nEdge);
+
+  /* Et les champs de saisie doivent laisser entrer cette longueur-là : un
+     maxlength resté à 4 tronquerait silencieusement un code à 6 chiffres, et
+     l'élève lirait « Code incorrect » avec le bon code. */
+  const champs = [...s.matchAll(/<input[^>]*id="(loginPin|newPin|newPin2)"[^>]*>/g)];
+  const troples = champs.filter(m => {
+    const max = (m[0].match(/maxlength="(\d+)"/) || [])[1];
+    return !max || parseInt(max, 10) < nPage;
+  }).map(m => m[1]);
+  verifier('les champs de saisie acceptent un code entier',
+    champs.length === 3 && troples.length === 0,
+    champs.length !== 3 ? champs.length + ' champ(s) trouvé(s) au lieu de 3'
+                        : 'trop court(s) : ' + troples.join(', '));
+
   /* Et le code brut ne doit jamais partir tel quel : il serait refusé. */
   const brut = [...s.matchAll(/sb\.auth\.sign(?:Up|InWithPassword)\(\{([^}]*)\}/g)]
     .filter(m => /password\s*:\s*(pin|code)\b/.test(m[1]))

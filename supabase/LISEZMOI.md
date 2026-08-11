@@ -6,18 +6,16 @@ lui-même.
 
 ---
 
-## Où en est la bascule
+## La bascule est faite
 
-**Le code est en ligne depuis le 10 août 2026** — fusionné sans attendre les
-étapes Supabase, la rentrée étant à huit jours et aucun élève n'étant encore
-inscrit. Tant que les étapes ci-dessous ne sont pas faites, **la connexion et
-la création de compte ne fonctionnent pas** : c'est attendu, et sans
-conséquence puisque personne ne s'en sert.
+**Terminée le 11 août 2026**, et éprouvée de bout en bout sur le projet réel :
+création de compte, connexion, exercice mené jusqu'à la note, tableau de bord
+du professeur, et « Nouveau code ». Les six étapes ci-dessous sont conservées
+comme référence — pour comprendre ce qui a été fait, pour remonter une base
+neuve, ou pour reprendre après un incident.
 
-Compter **une quinzaine de minutes** pour les cinq étapes.
-
-> Si un jour la même bascule devait se refaire avec des élèves en service, elle
-> ne pourrait pas être progressive : SQL appliqué sans le nouveau code, ou
+> Si la même bascule devait se refaire avec des élèves en service, elle ne
+> pourrait pas être progressive : SQL appliqué sans le nouveau code, ou
 > l'inverse, et plus personne ne se connecte. Il faudrait enchaîner les deux
 > dans la même demi-heure, un soir ou pendant des vacances.
 
@@ -211,6 +209,75 @@ where table_schema = 'public'
                      'parametres','parametres_1ere','parametres_2nde')
 order by table_name, ordinal_position;
 ```
+
+---
+
+## La limitation de cadence — à régler avant la rentrée
+
+Supabase **ne verrouille jamais un compte** après des échecs répétés. Sa seule
+protection est une limitation par **adresse IP**, réglable dans
+Authentication → Rate Limits → *sign ups and sign ins*.
+
+Le défaut est de **30 par tranche de 5 minutes**. Or une classe partage l'IP de
+l'établissement : trente élèves qui se connectent au même début d'heure font
+trente requêtes depuis une seule adresse. **Les derniers sont refusés, avec le
+bon code.**
+
+- **Relever à 200.** Une classe de 35, fautes de frappe comprises, tient dedans.
+- **Créer les comptes depuis le tableau de bord** plutôt que de laisser les
+  élèves s'inscrire le premier jour : l'onglet Élèves passe par la fonction
+  Edge, qui ne compte pas dans cette limite.
+
+Relever la limite affaiblit mécaniquement les codes — c'est pourquoi ils font
+**6 chiffres** et non 4 :
+
+| Limite | 4 chiffres | 6 chiffres |
+|---|---|---|
+| 30 / 5 min | une nuit | ~5 ans |
+| 200 / 5 min | **2 heures** | ~9 jours |
+
+Un verrouillage par compte serait possible — une fonction Edge tenant un
+compteur d'échecs — mais il donnerait à chaque élève le moyen de bloquer un
+camarade : le prénom est affiché sur l'écran de connexion, cinq mauvais codes
+volontaires suffiraient. Écarté pour cette raison. Le pas suivant, s'il en faut
+un, est le contrôle anti-robot (Turnstile) que Supabase sait activer.
+
+---
+
+## Les trois pièges rencontrés en vrai
+
+Aucun banc ne pouvait les voir : ce sont des comportements de Supabase, pas du
+code de l'application. Le double de test répond toujours ce qu'on attend de
+lui, et toujours avec un statut de succès. Ils sont consignés ici parce qu'ils
+se représenteront à la prochaine base montée de zéro.
+
+**1. « Création impossible — réessaie » à chaque création de compte.**
+Supabase refuse tout mot de passe de moins de 6 caractères. Le code d'un élève
+en fait 4. L'application envoie donc `PREFIXE_CODE + code` — une chaîne
+dérivée, toujours la même pour un code donné. Ce préfixe ne protège rien : il
+satisfait une longueur minimale. Il doit être **identique** dans les trois
+fichiers HTML et dans la fonction Edge ; un contrôle le vérifie.
+
+**2. « Nouveau code de undefined : undefined ».**
+L'exemple par défaut de Supabase était encore déployé sous le nom
+`admin-eleve` — coller le code dans l'éditeur ne suffit pas, il faut cliquer
+**Deploy**. Pour vérifier ce qui répond vraiment, depuis la console du
+navigateur :
+
+```js
+(async () => {
+  const r = await sb.functions.invoke('admin-eleve', { body:{ action:'ping', niveau:NIVEAU } });
+  console.log('DATA :', JSON.stringify(r.data), 'ERREUR :', JSON.stringify(r.error));
+})()
+```
+
+`{"message":"Hello …"}` = l'exemple par défaut. Une erreur **non-2xx** = la
+bonne fonction, qui refuse une action inconnue.
+
+**3. « Échec : réessaie » sans autre explication.**
+Un refus de fonction Edge est un statut non-2xx, et `supabase-js` range alors
+tout dans `error` : le motif écrit par la fonction restait dans le corps de la
+réponse, que personne ne lisait. `motifFonction()` va l'y chercher.
 
 ---
 

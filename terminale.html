@@ -1082,9 +1082,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <label class="lab">Choisis ton prénom</label>
         <div class="chips" id="nameChips"></div>
         <div id="pinRow" hidden style="margin-top:14px">
-          <label class="lab" for="loginPin">Ton code à 4 chiffres</label>
+          <label class="lab" for="loginPin">Ton code à 6 chiffres</label>
           <div class="row">
-            <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+            <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
             <button class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
           </div>
         </div>
@@ -1097,12 +1097,12 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         </div>
         <div class="row" style="align-items:flex-start">
           <div class="field" style="flex:1;min-width:140px">
-            <label class="lab" for="newPin">Choisis un code (4 chiffres)</label>
-            <input class="text-input" id="newPin" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+            <label class="lab" for="newPin">Choisis un code (6 chiffres)</label>
+            <input class="text-input" id="newPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
           </div>
           <div class="field" style="flex:1;min-width:140px">
             <label class="lab" for="newPin2">Retape ton code</label>
-            <input class="text-input" id="newPin2" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+            <input class="text-input" id="newPin2" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
           </div>
         </div>
         <button class="btn btn-primary" onclick="creerCompte()">Créer mon compte</button>
@@ -1835,7 +1835,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=212;
+const APP_VERSION=213;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3000,9 +3000,9 @@ function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
 /* Supabase refuse tout mot de passe de moins de 6 caracteres — « weak_password ».
    Le code d'un eleve en fait 4, et il doit le rester : il faut qu'un eleve de
    seconde le retienne. On envoie donc a Supabase une chaine DERIVEE du code,
-   toujours la meme pour un code donne. L'eleve, lui, tape toujours 4 chiffres.
+   toujours la meme pour un code donne. L'eleve, lui, tape toujours 6 chiffres.
    Ce prefixe n'est pas un secret et ne protege rien : il satisfait une
-   contrainte de longueur, rien de plus. La solidite reste celle des 4 chiffres,
+   contrainte de longueur, rien de plus. La solidite reste celle des 6 chiffres,
    plus la limitation de cadence de Supabase.
    Il doit rester IDENTIQUE a celui de la fonction Edge admin-eleve : c'est elle
    qui pose les codes que le professeur distribue. S'ils divergent, le code
@@ -3115,7 +3115,7 @@ async function connexionEleve(){
 async function creerCompte(){
   const prenom=val('newPrenom').trim(), pin=val('newPin').trim(), pin2=val('newPin2').trim();
   if(!prenom){ toast('Écris ton prénom'); return; }
-  if(!/^\d{4}$/.test(pin)){ toast('Le code doit avoir 4 chiffres'); return; }
+  if(!/^\d{6}$/.test(pin)){ toast('Le code doit avoir 6 chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
     const {data:exist,error:errExist}=await sb.from('eleves').select('id').ilike('prenom',prenom);
