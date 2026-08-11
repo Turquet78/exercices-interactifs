@@ -159,12 +159,40 @@ const avant = psql('banc', ['-tAc',
   "select count(*) from information_schema.columns where table_schema='public' and column_name='pin'"]).trim();
 bilan('l\'état de départ a bien des codes en clair (' + avant + ' colonnes pin)', avant === '3');
 
+const ouvertes = psql('banc', ['-tAc',
+  "select count(*) from pg_policies where schemaname='public' and policyname not like 'p\\_%' and coalesce(qual,'true')='true'"]).trim();
+bilan('l\'état de départ a bien les 9 politiques grandes ouvertes du projet (' + ouvertes + ')', ouvertes === '9');
+
 let sortie = psql('banc', ['-f', MIG]);
 bilan('elle s\'applique sur les tables telles qu\'elles sont aujourd\'hui', true);
 bilan('elle affiche l\'état antérieur avant d\'y toucher', /ÉTAT AVANT MIGRATION/.test(sortie));
 
 const r2 = psql('banc', ['-f', MIG], true);
 bilan('la rejouer ne casse rien', !r2.erreur, r2.erreur);
+
+/* ---------------------------------------------------------------------------
+   1 bis. La démonstration : 001 SEULE ne protège rien
+   -------------------------------------------------------------------------
+   PostgreSQL combine les politiques permissives par un OU. Les neuf politiques
+   « for all using(true) » que portait le projet annulent donc toutes celles que
+   001 pose à côté. Ce contrôle l'exige plutôt que de l'affirmer : joué après la
+   seule migration 001, le banc des rôles DOIT échouer. S'il passait, c'est que
+   ce banc ne mesure pas ce qu'il croit mesurer. */
+const avec001 = psql('banc', ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
+bilan('avec 001 seule, la protection ne tient PAS (c\'est ce qui justifie 002)',
+  !!avec001.erreur,
+  'le banc des rôles est passé alors que les politiques ouvertes sont encore là');
+
+/* On repart d'une base neuve : le banc des rôles vient d'y écrire. */
+monter('banc');
+psql('banc', ['-f', MIG]);
+const MIG2 = path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql');
+const s2 = psql('banc', ['-f', MIG2]);
+bilan('002 retire les neuf politiques en les nommant une par une',
+  (s2.match(/RETIRÉE/g) || []).length === 9,
+  (s2.match(/RETIRÉE/g) || []).length + ' retirée(s) sur 9');
+const r3 = psql('banc', ['-f', MIG2], true);
+bilan('rejouer 002 ne fait plus rien', !r3.erreur, r3.erreur);
 
 /* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
@@ -206,11 +234,19 @@ const MUTATIONS = [
   ['la liste des élèves redevient lisible en écriture par n’importe qui',
    ['drop policy p_eleves_2nde_prof_suppr on public.eleves_2nde',
     'create policy p_eleves_2nde_prof_suppr on public.eleves_2nde for delete to authenticated using (true)']],
+  /* Le cas réel, trouvé sur le projet le 11 août 2026 : une seule politique
+     « for all using(true) » oubliée suffit à annuler les trente autres, parce
+     que PostgreSQL les combine par un OU. C'est le défaut que 002 corrige, et
+     ce banc doit le voir revenir si jamais une politique de ce genre était
+     recréée un jour dans la console Supabase. */
+  ['une seule politique grande ouverte oubliée annule tout le reste',
+   ['create policy "acces classe - resultats_2nde" on public.resultats_2nde for all to anon using (true) with check (true)']],
 ];
 MUTATIONS.forEach(([nom, sqls], i) => {
   const bd = 'mut' + i;
   monter(bd);
   psql(bd, ['-f', MIG]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql')]);
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
   bilan('détectée : ' + nom, !!r.erreur, r.erreur ? '' : 'le banc est resté vert alors que la base est ouverte');
