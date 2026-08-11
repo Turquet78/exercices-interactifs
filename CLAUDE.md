@@ -112,6 +112,13 @@ comptes créés d'un côté deviennent introuvables de l'autre, ou le code affic
 au professeur ne fonctionne pas : l'élève reçoit « Code incorrect » avec le bon
 code, sans la moindre erreur nulle part. Deux contrôles les comparent.
 
+**La fonction Edge ne se met jamais à jour toute seule.** GitHub Pages publie
+les trois pages à chaque fusion ; `admin-eleve` se déploie à la main chez
+Supabase et peut rester en arrière indéfiniment. Le contrôle qui compare la
+longueur des codes lit les *fichiers du dépôt* — il ne voit pas ce qui tourne.
+Le seul garde-fou qui le voie est dans la page : elle vérifie la longueur des
+codes reçus et avertit. Après toute modification de la fonction, redéployer.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.

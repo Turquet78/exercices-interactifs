@@ -132,7 +132,7 @@ async function ouvrir(chromium, ml, options){
      passée de 4 à 6 chiffres, et un banc qui aurait gardé « 1234 » en dur
      n'aurait plus rien connecté — ou pire, aurait continué à passer sans
      éprouver la nouvelle longueur. */
-  const nChiffres = parseInt((source.match(/\/\^\\d\{(\d+)\}\$\/\.test\(pin\)/) || [])[1], 10);
+  const nChiffres = parseInt((source.match(/const CHIFFRES_CODE\s*=\s*(\d+)/) || [])[1], 10);
   if(!nChiffres) throw new Error('longueur du code introuvable dans ' + CIBLE);
   CODE_CONTROLE = '123456789'.slice(0, nChiffres);
   CODE_FAUX     = '987654321'.slice(0, nChiffres);

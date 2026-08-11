@@ -155,6 +155,26 @@ Aucune variable d'environnement à régler : `SUPABASE_URL`,
 `SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` sont fournies
 automatiquement par Supabase.
 
+> ### ⚠️ Cette fonction ne se met JAMAIS à jour toute seule
+>
+> GitHub Pages publie les trois pages à chaque fusion. La fonction Edge, elle,
+> vit chez Supabase et **se déploie à la main**. Elle peut donc rester en
+> arrière indéfiniment sans que rien ne le signale.
+>
+> C'est arrivé le 11 août 2026 : les codes étaient passés à 6 chiffres, la
+> fonction déployée en produisait encore 4, et « Nouveau code » en distribuait
+> sans broncher.
+>
+> **Chaque fois que `functions/admin-eleve/index.ts` change, redéployez-la.**
+>
+> Le contrôle « la longueur du code est la même dans la page et dans la
+> fonction Edge » compare deux fichiers du dépôt : il ne voit pas ce qui est
+> déployé. Le seul garde-fou qui le voie est dans la page — elle vérifie la
+> longueur des codes qu'elle reçoit et vous avertit :
+> *« Ce code n'a que 4 chiffres : redéployez la fonction admin-eleve »*.
+> Le code est affiché quand même : l'ancien vient d'être invalidé, le taire
+> enfermerait l'élève dehors.
+
 ---
 
 ## 6. Redonner un code à chaque élève
@@ -212,7 +232,7 @@ order by table_name, ordinal_position;
 
 ---
 
-## La limitation de cadence — à régler avant la rentrée
+## La limitation de cadence — réglée à 200 le 11 août 2026
 
 Supabase **ne verrouille jamais un compte** après des échecs répétés. Sa seule
 protection est une limitation par **adresse IP**, réglable dans
@@ -220,10 +240,10 @@ Authentication → Rate Limits → *sign ups and sign ins*.
 
 Le défaut est de **30 par tranche de 5 minutes**. Or une classe partage l'IP de
 l'établissement : trente élèves qui se connectent au même début d'heure font
-trente requêtes depuis une seule adresse. **Les derniers sont refusés, avec le
-bon code.**
+trente requêtes depuis une seule adresse — les derniers auraient été refusés,
+avec le bon code. **Le réglage a donc été porté à 200**, ce qui laisse passer
+une classe de 35 avec ses fautes de frappe.
 
-- **Relever à 200.** Une classe de 35, fautes de frappe comprises, tient dedans.
 - **Créer les comptes depuis le tableau de bord** plutôt que de laisser les
   élèves s'inscrire le premier jour : l'onglet Élèves passe par la fonction
   Edge, qui ne compte pas dans cette limite.

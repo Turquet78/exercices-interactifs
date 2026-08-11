@@ -1281,7 +1281,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=28;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=29;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2459,6 +2459,14 @@ function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
    Il doit rester IDENTIQUE a celui de la fonction Edge admin-eleve : c'est elle
    qui pose les codes que le professeur distribue. S'ils divergent, le code
    affiche au professeur ne fonctionne pas, sans la moindre erreur. */
+/* La longueur du code, en un seul endroit dans cette page. Elle doit rester
+   ACCORDEE avec CHIFFRES_CODE de la fonction Edge — un controle les compare —
+   mais attention : ce controle lit les FICHIERS du depot, pas ce qui est
+   reellement deploye chez Supabase. La fonction Edge se deploie a la main :
+   elle peut donc rester en arriere sans que rien ne le signale. C'est
+   exactement ce qui est arrive le 11 aout 2026, et c'est pourquoi la page
+   verifie desormais la longueur des codes qu'elle recoit. */
+const CHIFFRES_CODE=6;
 const PREFIXE_CODE='exo-';
 function motDePasseDe(code){ return PREFIXE_CODE+String(code); }
 
@@ -2563,7 +2571,7 @@ async function connexionEleve(){
 async function creerCompte(){
   const prenom=val('newPrenom').trim(), pin=val('newPin').trim(), pin2=val('newPin2').trim();
   if(!prenom){ toast('Écris ton prénom'); return; }
-  if(!/^\d{6}$/.test(pin)){ toast('Le code doit avoir 6 chiffres'); return; }
+  if(!new RegExp('^\\d{'+CHIFFRES_CODE+'}$').test(pin)){ toast('Le code doit avoir '+CHIFFRES_CODE+' chiffres'); return; }
   if(pin!==pin2){ toast('Les deux codes sont différents','err'); return; }
   try{
     const {data:exist,error:errExist}=await sb.from('eleves_2nde').select('id').ilike('prenom',prenom);
@@ -3318,6 +3326,12 @@ async function addStudent(){
     if(error||!data||data.erreur){ toast('Ajout impossible : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
     if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
     $('addPrenom').value='';
+    /* Le code est AFFICHE quoi qu'il arrive : l'ancien vient d'etre invalide,
+       le taire enfermerait l'eleve dehors. Mais s'il n'a pas la longueur
+       attendue, c'est que la fonction Edge deployee est plus ancienne que
+       cette page — elle se deploie a la main, et rien d'autre ne le dirait. */
+    if(String(data.code).length!==CHIFFRES_CODE)
+      toast('Ce code n\'a que '+String(data.code).length+' chiffres : redeployez la fonction admin-eleve','err');
     alert('Code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Élève ajouté','ok'); renderRoster();
   }catch(e){ toast('Ajout impossible','err'); }
@@ -3335,6 +3349,12 @@ async function resetPin(id,prenom){
        une AUTRE fonction répond sous le nom admin-eleve : l'exemple par défaut
        de Supabase, par exemple, renvoie « Hello ». */
     if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
+    /* Le code est AFFICHE quoi qu'il arrive : l'ancien vient d'etre invalide,
+       le taire enfermerait l'eleve dehors. Mais s'il n'a pas la longueur
+       attendue, c'est que la fonction Edge deployee est plus ancienne que
+       cette page — elle se deploie a la main, et rien d'autre ne le dirait. */
+    if(String(data.code).length!==CHIFFRES_CODE)
+      toast('Ce code n\'a que '+String(data.code).length+' chiffres : redeployez la fonction admin-eleve','err');
     alert('Nouveau code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Code mis à jour','ok'); renderRoster();
   }catch(e){ toast('Échec de la mise à jour','err'); }
