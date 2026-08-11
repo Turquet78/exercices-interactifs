@@ -907,10 +907,6 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
           <span class="ds">Tes 5 tests avec la moins bonne note, à retravailler pour progresser.</span>
         </button>
       </div>
-      <p class="muted" style="margin-top:16px" id="zoneChangerCode" hidden>
-        <button class="btn btn-ghost btn-sm" onclick="changerMonCode()">Choisir mon code</button>
-        <span style="margin-left:6px">Ton professeur vient de te donner un code provisoire : remplace-le par un code que tu retiens.</span>
-      </p>
     </div>
   </section>
 
@@ -1285,7 +1281,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=31;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=32;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2588,36 +2584,39 @@ async function relireMarqueurCode(){
     return !!(data.user.app_metadata && data.user.app_metadata.code_provisoire);
   }catch(e){ return false; }
 }
-function montrerChangerCode(actif){
-  const z=$('zoneChangerCode'); if(z) z.hidden=!actif;
-}
-
-async function changerMonCode(){
-  if(!currentEleve){ toast('Connecte-toi d\'abord'); return; }
+/* Un code donne par le professeur est provisoire : l'eleve DOIT en choisir un
+   a sa premiere connexion. Pas un bouton qu'il pourrait ignorer — une demande
+   qui barre l'entree tant qu'elle n'a pas abouti.
+   Rend true si le code a bien ete change, false s'il faut refermer la session. */
+async function imposerChoixCode(){
   const motif=new RegExp('^\\d{'+CHIFFRES_CODE+'}$');
-  const n1=prompt('Ton nouveau code a '+CHIFFRES_CODE+' chiffres :');
-  if(n1===null) return;
-  const code=String(n1).trim();
-  if(!motif.test(code)){ toast('Le code doit avoir '+CHIFFRES_CODE+' chiffres','err'); return; }
-  const n2=prompt('Retape-le pour confirmer :');
-  if(n2===null) return;
-  if(String(n2).trim()!==code){ toast('Les deux codes sont differents','err'); return; }
-  const {error}=await sb.auth.updateUser({password:motDePasseDe(code)});
-  if(error){
-    /* Le motif exact vaut mieux qu'un « reessaie » : si le projet exige une
-       reconnexion recente pour changer de mot de passe, seul ce message le dit. */
-    const m=String(error.message||'');
-    toast(/reauth/i.test(m) ? 'Deconnecte-toi, reconnecte-toi, puis reessaie'
-                            : 'Changement impossible : '+(m||'reessaie'),'err');
-    return;
+  while(true){
+    const n1=prompt('Ton professeur t\'a donne un code provisoire.\n\n'
+                   +'Choisis maintenant TON code a '+CHIFFRES_CODE+' chiffres :');
+    if(n1===null) return false;                 /* il renonce : on referme */
+    const code=String(n1).trim();
+    if(!motif.test(code)){ toast('Le code doit avoir '+CHIFFRES_CODE+' chiffres','err'); continue; }
+    const n2=prompt('Retape-le pour confirmer :');
+    if(n2===null) return false;
+    if(String(n2).trim()!==code){ toast('Les deux codes sont differents','err'); continue; }
+
+    const {error}=await sb.auth.updateUser({password:motDePasseDe(code)});
+    if(error){
+      /* Un incident de Supabase ne doit pas empecher l'eleve de travailler :
+         on le laisse entrer, le marqueur reste, et la demande reviendra a la
+         prochaine connexion. Le motif exact vaut mieux qu'un « reessaie ». */
+      const m=String(error.message||'');
+      toast(/reauth/i.test(m) ? 'Reconnecte-toi puis reessaie'
+                              : 'Code non change : '+(m||'reessaie'),'err');
+      return true;
+    }
+    /* Le marqueur ne se retire pas tout seul : sans cet appel, la demande
+       reviendrait a chaque connexion malgre le code choisi. */
+    const {error:errMarq}=await sb.functions.invoke('admin-eleve',{body:{action:'code-choisi',niveau:NIVEAU}});
+    if(errMarq) toast('Ton code est change, mais il te sera redemande','ok');
+    else toast('Ton code est enregistre','ok');
+    return true;
   }
-  /* Le marqueur ne se retire pas tout seul : sans cet appel, le bouton
-     resterait offert a chaque connexion. Si la fonction Edge est absente ou
-     refuse, le code EST change quand meme — on le dit, et le bouton reste. */
-  const {error:errMarq}=await sb.functions.invoke('admin-eleve',{body:{action:'code-choisi',niveau:NIVEAU}});
-  if(errMarq){ toast('Ton code est change, mais le bouton restera affiche','ok'); return; }
-  montrerChangerCode(false);
-  toast('Ton code a bien ete change','ok');
 }
 
 async function creerCompte(){
@@ -2650,7 +2649,12 @@ async function creerCompte(){
 
 /* ---------- Espace élève ---------- */
 async function ouvrirEspace(){
-  montrerChangerCode(await relireMarqueurCode());
+  if(await relireMarqueurCode()){
+    if(!await imposerChoixCode()){
+      toast('Il faut choisir un code pour entrer','err');
+      logout(); return;
+    }
+  }
   return ouvrirEspaceSuite();
 }
 function ouvrirEspaceSuite(){
