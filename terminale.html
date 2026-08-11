@@ -1835,7 +1835,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=210;
+const APP_VERSION=211;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11743,6 +11743,7 @@ async function addStudent(){
        après avoir vérifié que l'appelant est bien le professeur. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'ajouter',niveau:NIVEAU,prenom}});
     if(error||!data||data.erreur){ toast('Ajout impossible : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
     $('addPrenom').value='';
     alert('Code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Élève ajouté','ok'); renderRoster();
@@ -11755,6 +11756,12 @@ async function resetPin(id,prenom){
        stocké nulle part en clair et ne s'affiche qu'une fois, ici. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'nouveau-code',niveau:NIVEAU,eleveId:id}});
     if(error||!data||data.erreur){ toast('Échec : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    /* Une réponse sans code n'est pas un succès. Sans ce contrôle, la page
+       annonçait « Nouveau code de undefined : undefined » — un message qui
+       ressemble à une réussite et n'apprend rien. C'est ce qui arrive quand
+       une AUTRE fonction répond sous le nom admin-eleve : l'exemple par défaut
+       de Supabase, par exemple, renvoie « Hello ». */
+    if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
     alert('Nouveau code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Code mis à jour','ok'); renderRoster();
   }catch(e){ toast('Échec de la mise à jour','err'); }
