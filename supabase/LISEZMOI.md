@@ -327,6 +327,69 @@ réponse, que personne ne lisait. `motifFonction()` va l'y chercher.
 
 ---
 
+## Les sauvegardes
+
+Le plan gratuit de Supabase **ne fait aucune sauvegarde**. L'action
+`.github/workflows/sauvegarde.yml` s'en charge : chaque **nuit du samedi au
+dimanche**, elle exporte les données, les chiffre, et conserve le fichier
+90 jours.
+
+### Les deux secrets à poser une fois
+
+Settings → Secrets and variables → Actions :
+
+| Secret | Ce que c'est |
+|---|---|
+| `SUPABASE_SERVICE_KEY` | la clé **service_role** du projet (Project Settings → API) |
+| `SAUVEGARDE_PASSPHRASE` | une phrase de passe longue, de votre choix |
+
+⚠️ **Sans la phrase de passe, les sauvegardes sont définitivement illisibles.**
+Personne — ni moi, ni GitHub, ni Supabase — ne peut les rouvrir. Rangez-la
+dans votre gestionnaire de mots de passe, pas sur un papier.
+
+Le chiffrement n'est pas un excès de prudence : **ce dépôt est public**, et les
+fichiers produits par une action y sont téléchargeables par n'importe qui. En
+clair, la sauvegarde — des prénoms d'élèves mineurs associés à leurs résultats
+— serait un problème plus grave que celui qu'elle résout.
+
+### Ce qui est sauvegardé, et ce qui ne l'est pas
+
+| | |
+|---|---|
+| prénoms, notes, devoirs, réglages | ✅ sauvegardés |
+| structure des tables et règles d'accès | déjà dans `supabase/migrations/` |
+| **codes des élèves** | ❌ **non** — hachés par Supabase, un hachage ne se restaure pas |
+
+Après une restauration, il faut donc **redonner un code à chaque élève**.
+Quelques minutes ; les notes, elles, sont sauvées.
+
+### Récupérer une sauvegarde
+
+Onglet **Actions** → **Sauvegarde** → une exécution → section **Artifacts** →
+télécharger `sauvegarde-….zip`. Puis, sur votre ordinateur :
+
+```bash
+gpg -d sauvegarde.json.gpg > sauvegarde.json
+```
+
+Il demandera la phrase de passe.
+
+### Restaurer
+
+1. Sur une base neuve, jouer **001** puis **002** (étapes 3 et 3 bis ci-dessus).
+2. Réinsérer les lignes du fichier, table par table — l'objet `donnees`
+   contient un tableau par table, dans l'ordre à respecter : `eleves…` avant
+   `resultats…` (les notes référencent les élèves).
+3. Recréer les comptes et **redonner un code à chaque élève** depuis l'onglet
+   Élèves.
+
+### La lancer à la main
+
+Sans attendre samedi : **Actions** → **Sauvegarde** → **Run workflow**.
+C'est la façon de vérifier que les deux secrets sont bien posés.
+
+---
+
 ## Ce que le banc vérifie, et ce qu'il ne vérifie pas
 
 `npm run test:base` lève un PostgreSQL jetable, y rejoue cette migration et

@@ -119,6 +119,14 @@ longueur des codes lit les *fichiers du dépôt* — il ne voit pas ce qui tourn
 Le seul garde-fou qui le voie est dans la page : elle vérifie la longueur des
 codes reçus et avertit. Après toute modification de la fonction, redéployer.
 
+**Le plan gratuit de Supabase ne sauvegarde rien.** L'action
+`.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
+dimanche, les chiffre et les conserve 90 jours. Le chiffrement est
+obligatoire : le dépôt est public et les artefacts y sont téléchargeables par
+n'importe qui, alors que le fichier contient des prénoms d'élèves mineurs
+associés à leurs résultats. Les codes ne sont pas sauvegardés — ils sont
+hachés — et se redonnent après restauration.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
