@@ -83,7 +83,45 @@ create table if not exists public.parametres_2nde (
   valeurs jsonb
 );
 
--- Les droits que Supabase accorde par défaut : sans RLS, ils suffisent à tout
--- lire et à tout écrire depuis le navigateur. C'est l'état actuel.
 grant select, insert, update, delete on all tables in schema public to anon, authenticated;
 grant usage, select on all sequences in schema public to anon, authenticated;
+
+-- ============================================================================
+--  LES NEUF POLITIQUES GRANDES OUVERTES — relevées sur le projet le 11 août 2026
+-- ============================================================================
+--  La RLS était DÉJÀ active, mais chaque table portait une politique
+--  « for all … using (true) with check (true) » ouverte à anon. PostgreSQL
+--  combine les politiques permissives par un OU : il suffit qu'UNE SEULE
+--  autorise pour que l'accès passe. Une politique pareille annule donc toutes
+--  celles qu'on pourrait ajouter à côté.
+--
+--  La migration 001 se refusait à toucher aux politiques qu'elle n'avait pas
+--  écrites — prudence légitime, mais qui laissait la porte grande ouverte : la
+--  base restait entièrement lisible et modifiable après son passage. C'est ce
+--  que 002 corrige, et c'est ce que ce fichier permet enfin de démontrer.
+--
+--  Les trois niveaux ont trois conventions de nommage différentes. Elles sont
+--  reproduites telles quelles : un correctif qui filtrerait sur « _all » en
+--  raterait six sur neuf.
+-- ============================================================================
+alter table public.eleves           enable row level security;
+alter table public.eleves_1ere      enable row level security;
+alter table public.eleves_2nde      enable row level security;
+alter table public.resultats        enable row level security;
+alter table public.resultats_1ere   enable row level security;
+alter table public.resultats_2nde   enable row level security;
+alter table public.parametres       enable row level security;
+alter table public.parametres_1ere  enable row level security;
+alter table public.parametres_2nde  enable row level security;
+
+create policy "acces classe - eleves"        on public.eleves          for all to anon using (true) with check (true);
+create policy "acces classe - resultats"     on public.resultats       for all to anon using (true) with check (true);
+create policy "acces classe - parametres"    on public.parametres      for all to anon using (true) with check (true);
+
+create policy eleves_1ere_all      on public.eleves_1ere     for all to anon, authenticated using (true) with check (true);
+create policy resultats_1ere_all   on public.resultats_1ere  for all to anon, authenticated using (true) with check (true);
+create policy parametres_1ere_all  on public.parametres_1ere for all to anon, authenticated using (true) with check (true);
+
+create policy acces_appli_eleves_2nde     on public.eleves_2nde     for all to public using (true) with check (true);
+create policy acces_appli_resultats_2nde  on public.resultats_2nde  for all to public using (true) with check (true);
+create policy acces_appli_parametres_2nde on public.parametres_2nde for all to public using (true) with check (true);

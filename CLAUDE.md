@@ -84,6 +84,14 @@ Supabase est dérivée de la colonne `cle`, indépendante du type.
 `tests/base-avant.sql` reproduit la structure **relevée sur le projet**, pas
 supposée : c'est une reconstitution de mémoire qui a laissé passer ce défaut.
 
+**Une politique RLS grande ouverte annule toutes les autres.** PostgreSQL
+combine les politiques permissives par un OU : une seule
+`for all … using (true)` suffit à rendre inutiles les trente qui l'entourent.
+Le projet en portait neuf, une par table, sous trois conventions de nommage
+différentes — un correctif qui aurait filtré sur `_all` en aurait raté six.
+`supabase/migrations/002` les retire en les nommant. Le banc le démontre : joué
+après la seule migration 001, le contrôle des rôles **doit échouer**.
+
 **`DOMAINE_COMPTES` est écrit à deux endroits que rien ne relie** — les trois
 fichiers HTML et `supabase/functions/admin-eleve/index.ts`. S'ils divergent, les
 comptes créés d'un côté deviennent introuvables de l'autre et l'élève reçoit

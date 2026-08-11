@@ -86,6 +86,47 @@ Elle est **idempotente** : la relancer ne casse rien.
 
 ---
 
+## 3 bis. Retirer les politiques grandes ouvertes (2 min) — INDISPENSABLE
+
+**Sans cette étape, la migration 001 ne protège rien.**
+
+Le projet portait neuf politiques de cette forme, une par table :
+
+```sql
+create policy "acces classe - eleves" on public.eleves for all
+  to anon using (true) with check (true);
+```
+
+`using (true)` veut dire : tout le monde, tout le temps, tout. Et PostgreSQL
+combine les politiques permissives par un **OU** — il suffit qu'une seule
+autorise pour que l'accès passe. Ces neuf-là annulent donc les trente que 001
+vient de poser.
+
+001 ne les touche pas volontairement : elle ne défait jamais ce qu'elle n'a pas
+fait. C'est à `002_retirer_politiques_ouvertes.sql` de le faire, explicitement.
+
+Collez **`migrations/002_retirer_politiques_ouvertes.sql`** dans l'éditeur SQL
+et exécutez-le. Il nomme chaque politique retirée, laisse en place tout ce qui
+n'est pas manifestement grand ouvert, et **échoue** s'il en subsiste une.
+
+Pour vérifier :
+
+```sql
+select tablename, policyname from pg_policies
+where schemaname='public' and policyname not like 'p\_%'
+  and tablename in ('eleves','eleves_1ere','eleves_2nde',
+                    'resultats','resultats_1ere','resultats_2nde',
+                    'parametres','parametres_1ere','parametres_2nde');
+```
+
+→ **zéro ligne**.
+
+> `npm run test:base` le démontre plutôt que de l'affirmer : joué après 001
+> seule, le banc des rôles **doit échouer**. S'il passait, c'est qu'il ne
+> mesurerait pas ce qu'il croit mesurer.
+
+---
+
 ## 4. Vous déclarer professeur (1 min)
 
 Toujours dans **SQL Editor**, avec l'UUID de l'étape 2 :
