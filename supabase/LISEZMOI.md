@@ -193,6 +193,12 @@ la page lui demande d'en choisir un **avant de le laisser entrer**. Pas un
 bouton qu'il pourrait ignorer : une demande qui barre l'entrée. S'il renonce,
 la session se referme et il revient à l'accueil.
 
+**Une fois son code choisi, il est renvoyé à l'écran des prénoms** et doit se
+reconnecter avec. C'est voulu : il vérifie ainsi tout de suite qu'il l'a bien
+retenu, au lieu de s'en apercevoir le lendemain, seul devant son écran. La
+session est réellement refermée avant le renvoi — sans quoi l'élève suivant sur
+le même poste hériterait de ses droits.
+
 Le marqueur qui commande ce bouton (`code_provisoire`) vit dans
 l'`app_metadata` du compte : **seul le service peut l'écrire**. Un élève ne
 peut donc pas se le redonner pour rouvrir le bouton. La fonction Edge le pose

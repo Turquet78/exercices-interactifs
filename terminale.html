@@ -1835,7 +1835,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=217;
+const APP_VERSION=218;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3138,8 +3138,15 @@ async function relireMarqueurCode(){
 }
 /* Un code donne par le professeur est provisoire : l'eleve DOIT en choisir un
    a sa premiere connexion. Pas un bouton qu'il pourrait ignorer — une demande
-   qui barre l'entree tant qu'elle n'a pas abouti.
-   Rend true si le code a bien ete change, false s'il faut refermer la session. */
+   qui barre l'entree tant qu'elle n'a pas aboutie.
+   Trois issues, et l'appelant les traite differemment :
+     'reconnexion' le code est change — on le renvoie a l'ecran des prenoms
+                   pour qu'il se reconnecte AVEC. Il verifie ainsi tout de
+                   suite qu'il l'a retenu, plutot que de s'en apercevoir le
+                   lendemain (decision de Turquet, aout 2026).
+     'entrer'      le changement a echoue cote serveur : on le laisse entrer
+                   quand meme, le marqueur reste, la demande reviendra.
+     false         il renonce : on referme la session. */
 async function imposerChoixCode(){
   const motif=new RegExp('^\\d{'+CHIFFRES_CODE+'}$');
   while(true){
@@ -3160,14 +3167,14 @@ async function imposerChoixCode(){
       const m=String(error.message||'');
       toast(/reauth/i.test(m) ? 'Reconnecte-toi puis reessaie'
                               : 'Code non change : '+(m||'reessaie'),'err');
-      return true;
+      return 'entrer';
     }
     /* Le marqueur ne se retire pas tout seul : sans cet appel, la demande
        reviendrait a chaque connexion malgre le code choisi. */
     const {error:errMarq}=await sb.functions.invoke('admin-eleve',{body:{action:'code-choisi',niveau:NIVEAU}});
     if(errMarq) toast('Ton code est change, mais il te sera redemande','ok');
-    else toast('Ton code est enregistre','ok');
-    return true;
+    else toast('Ton code est enregistre. Reconnecte-toi avec !','ok');
+    return 'reconnexion';
   }
 }
 
@@ -3202,9 +3209,24 @@ async function creerCompte(){
 /* ---------- Espace élève ---------- */
 async function ouvrirEspace(){
   if(await relireMarqueurCode()){
-    if(!await imposerChoixCode()){
+    const issue=await imposerChoixCode();
+    if(!issue){
       toast('Il faut choisir un code pour entrer','err');
       logout(); return;
+    }
+    if(issue==='reconnexion'){
+      /* On referme vraiment la session : l'eleve doit se reconnecter AVEC son
+         nouveau code, et decouvrir tout de suite s'il l'a mal note. Le laisser
+         entrer sur la session en cours reporterait la mauvaise surprise au
+         lendemain, quand personne ne serait la pour l'aider. */
+      currentEleve=null;
+      /* Si la fermeture echoue, la session reste ouverte : on l'ecrit plutot
+         que de le taire, sans quoi l'eleve suivant sur le meme poste
+         heriterait des droits du precedent. */
+      const {error:errSortie}=await sb.auth.signOut();
+      if(errSortie) toast('Ferme l\'onglet avant de laisser la place','err');
+      show('login'); renderLoginNames();
+      return;
     }
   }
   return ouvrirEspaceSuite();

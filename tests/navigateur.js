@@ -394,9 +394,19 @@ async function parcours(page, N){
     await s.page.waitForTimeout(600);
     s.page.off('dialog', repondre);
 
-    verifier('après avoir choisi son code, l’élève entre dans son espace',
-      (await ecranVisible(s.page)) === 'scr-space',
+    /* Voulu, et non subi : l'élève est renvoyé à l'écran des prénoms pour se
+       reconnecter AVEC son nouveau code. Il découvre ainsi tout de suite s'il
+       l'a mal noté, plutôt que le lendemain sans personne pour l'aider.
+       (décision de Turquet, août 2026) */
+    verifier('après avoir choisi son code, l’élève est renvoyé aux prénoms',
+      (await ecranVisible(s.page)) === 'scr-login',
       'écran atteint : ' + (await ecranVisible(s.page)));
+
+    /* Et la session doit être vraiment refermée : le renvoi ne servirait à
+       rien si l'élève restait connecté derrière. */
+    const sessionFermee = await s.page.evaluate(() => window.__faux.session === null);
+    verifier('la session est refermée avant le renvoi', sessionFermee,
+      'la session est restée ouverte : l’élève suivant en hériterait');
 
     const enregistre = await s.page.evaluate(() => {
       const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
