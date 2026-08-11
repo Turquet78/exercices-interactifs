@@ -51,9 +51,23 @@ function codeAuHasard(): string {
 Deno.serve(async (req) => {
   if(req.method === 'OPTIONS') return new Response('ok', { headers: ENTETES });
 
-  const URL_SB = Deno.env.get('SUPABASE_URL')!;
-  const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  const ANON    = Deno.env.get('SUPABASE_ANON_KEY')!;
+  // Supabase a deux générations de noms pour ces clés : les anciennes
+  // (ANON / SERVICE_ROLE) et les nouvelles (PUBLISHABLE / SECRET). Un projet
+  // récent peut n'injecter que les secondes. On accepte les deux plutôt que de
+  // parier sur l'une : le mauvais pari se solderait par une fonction qui
+  // échoue au premier appel, avec un message que rien ne relie à sa cause.
+  const URL_SB  = Deno.env.get('SUPABASE_URL');
+  const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+               ?? Deno.env.get('SUPABASE_SECRET_KEY');
+  const ANON    = Deno.env.get('SUPABASE_ANON_KEY')
+               ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+
+  if(!URL_SB || !SERVICE || !ANON){
+    const manque = [!URL_SB && 'SUPABASE_URL',
+                    !SERVICE && 'SUPABASE_SERVICE_ROLE_KEY (ou SUPABASE_SECRET_KEY)',
+                    !ANON && 'SUPABASE_ANON_KEY (ou SUPABASE_PUBLISHABLE_KEY)'].filter(Boolean);
+    return repondre({ erreur: 'variables d’environnement absentes : ' + manque.join(', ') }, 500);
+  }
 
   let corps: any;
   try { corps = await req.json(); }
