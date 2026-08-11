@@ -49,12 +49,21 @@ const PREFIXE_CODE = 'exo-';
 const motDePasseDe = (code: string) => PREFIXE_CODE + code;
 
 /* Un code tiré au sort, sans biais : Math.random() n'est pas fait pour ça, et
-   le reste d'une division par 10000 ne tombe pas non plus uniformément. */
+   le reste d'une division par 1000000 ne tombe pas non plus uniformément — les
+   premières valeurs sortiraient un peu plus souvent que les dernières. On
+   rejette donc la queue qui déborde avant de prendre le reste.
+   SIX chiffres : à quatre, un code se devinait en deux heures au rythme que la
+   limitation de cadence de Supabase autorise. Six le portent à plusieurs
+   jours. Ce nombre doit rester ACCORDÉ avec celui qu'exigent les trois fichiers
+   HTML — un contrôle les compare. */
+const CHIFFRES_CODE = 6;
 function codeAuHasard(): string {
+  const plage = Math.pow(10, CHIFFRES_CODE);          // 1 000 000
+  const plafond = Math.floor(4294967296 / plage) * plage;
   const t = new Uint32Array(1);
   let n: number;
-  do { crypto.getRandomValues(t); n = t[0]; } while (n >= 4294960000);
-  return String(n % 10000).padStart(4, '0');
+  do { crypto.getRandomValues(t); n = t[0]; } while (n >= plafond);
+  return String(n % plage).padStart(CHIFFRES_CODE, '0');
 }
 
 Deno.serve(async (req) => {
