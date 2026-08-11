@@ -29,9 +29,10 @@ window.__faux = {
   session: null,
   lignes(nom){ return this.tables[nom] || (this.tables[nom] = []); },
   semer(nom, lignes){ this.tables[nom] = lignes.map(l => Object.assign({}, l)); },
-  semerCompte(courriel, motDePasse, userId){
+  semerCompte(courriel, motDePasse, userId, meta){
     const id = userId || ('compte-' + (this.suivant++));
-    this.comptes[courriel] = { motDePasse: String(motDePasse), userId: id };
+    this.comptes[courriel] = { motDePasse: String(motDePasse), userId: id,
+                               app_metadata: meta || {} };
     return id;
   },
   operations(op, table){
@@ -157,7 +158,8 @@ window.supabase = {
           F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: ok });
           if(!ok) return Promise.resolve({ data: { user: null, session: null },
                                            error: { message: 'Invalid login credentials' } });
-          F.session = { user: { id: c.userId, email: courriel } };
+          F.session = { user: { id: c.userId, email: courriel,
+                                app_metadata: c.app_metadata || {} } };
           return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
         },
         signUp(id){
@@ -169,7 +171,7 @@ window.supabase = {
           }
           const userId = F.semerCompte(courriel, mdp);
           F.journal.push({ op: 'signUp', table: 'auth', courriel: courriel, ok: true });
-          F.session = { user: { id: userId, email: courriel } };
+          F.session = { user: { id: userId, email: courriel, app_metadata: {} } };
           return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
         },
         /* Un compte connecté change SON mot de passe, et rien d'autre : le
@@ -196,6 +198,15 @@ window.supabase = {
         invoke(nom, opts){
           const action = opts && opts.body && opts.body.action;
           F.journal.push({ op: 'invoke', table: nom, action: action });
+          if(action === 'code-choisi'){
+            /* le service retire le marqueur du compte connecté, et de lui seul */
+            if(F.session){
+              const c = F.comptes[F.session.user.email];
+              if(c){ c.app_metadata = Object.assign({}, c.app_metadata, { code_provisoire: false }); }
+              F.session.user.app_metadata = Object.assign({}, F.session.user.app_metadata, { code_provisoire: false });
+            }
+            return Promise.resolve({ data: { ok: true }, error: null });
+          }
           if(action === 'verif') return Promise.resolve({ data: { correct: false, feedback: 'Réponse de contrôle.' }, error: null });
           return Promise.resolve({ data: { feedback: 'Indice de contrôle.' }, error: null });
         },

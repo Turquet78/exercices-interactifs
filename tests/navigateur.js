@@ -345,6 +345,31 @@ async function parcours(page, N){
     /* Un code tiré au hasard ne se retient pas : l'élève doit pouvoir le
        changer. On l'exerce vraiment — deux prompt(), puis on regarde ce que le
        double a réellement enregistré, et on se reconnecte avec le nouveau. */
+    /* Le bouton ne doit PAS être offert par défaut : un élève qui a choisi son
+       code lui-même n'a rien à changer. Il n'apparaît qu'après un code donné
+       par le professeur — marqueur que seul le service peut écrire. */
+    const offertDAbord = await s.page.evaluate(() => {
+      const z = document.getElementById('zoneChangerCode');
+      return !!z && !z.hidden;
+    });
+    verifier('le bouton « Choisir mon code » reste caché sans code provisoire', !offertDAbord,
+      'il est offert alors que l’élève a choisi son code lui-même');
+
+    /* On pose le marqueur comme le ferait la fonction Edge, puis on rouvre
+       l'espace : le bouton doit apparaître. */
+    await s.page.evaluate(() => {
+      const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
+      c.app_metadata = { code_provisoire: true };
+      window.__faux.session.user.app_metadata = { code_provisoire: true };
+    });
+    await s.page.evaluate(() => ouvrirEspace());
+    await s.page.waitForTimeout(300);
+    const offertApres = await s.page.evaluate(() => {
+      const z = document.getElementById('zoneChangerCode');
+      return !!z && !z.hidden;
+    });
+    verifier('il apparaît quand le professeur vient de donner un code', offertApres);
+
     const NOUVEAU = '765432'.slice(0, CODE_CONTROLE.length);
     const repondre = d => d.accept(NOUVEAU);
     s.page.on('dialog', repondre);
@@ -373,6 +398,15 @@ async function parcours(page, N){
         return !error;
       }, NOUVEAU);
       verifier('l’élève se reconnecte avec son nouveau code', rentre);
+
+      /* Et le bouton doit s'être refermé : sans le retrait du marqueur, il
+         serait réoffert à chaque connexion, indéfiniment. */
+      const marqueur = await s.page.evaluate(() => {
+        const c = window.__faux.comptes[Object.keys(window.__faux.comptes)[0]];
+        return c && c.app_metadata ? c.app_metadata.code_provisoire : null;
+      });
+      verifier('le marqueur « code provisoire » est retiré après le changement',
+        marqueur === false, 'marqueur = ' + JSON.stringify(marqueur));
     }
     s.page.off('dialog', repondre);
 
