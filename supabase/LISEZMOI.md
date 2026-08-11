@@ -6,23 +6,20 @@ lui-même.
 
 ---
 
-## Avant tout : la bascule ne peut pas être progressive
+## Où en est la bascule
 
-Le site ancien parle à une base ancienne, le nouveau à une base nouvelle. Il n'y
-a pas d'état intermédiaire où les deux fonctionnent :
+**Le code est en ligne depuis le 10 août 2026** — fusionné sans attendre les
+étapes Supabase, la rentrée étant à huit jours et aucun élève n'étant encore
+inscrit. Tant que les étapes ci-dessous ne sont pas faites, **la connexion et
+la création de compte ne fonctionnent pas** : c'est attendu, et sans
+conséquence puisque personne ne s'en sert.
 
-| Situation | Ce que voient les élèves |
-|---|---|
-| SQL appliqué, site pas encore fusionné | « Code incorrect » pour tout le monde |
-| Site fusionné, SQL pas encore appliqué | Connexion impossible, création de compte en échec |
-| Les deux faits | Le site marche — avec des codes tout neufs |
+Compter **une quinzaine de minutes** pour les cinq étapes.
 
-**Il faut donc faire les deux dans la même demi-heure**, et les élèves auront de
-toute façon besoin de nouveaux codes. Un soir ou un jour de vacances, pas un
-mardi à 10 h.
-
-Prévoir : **30 minutes** pour les étapes 1 à 6, puis le temps de distribuer les
-codes.
+> Si un jour la même bascule devait se refaire avec des élèves en service, elle
+> ne pourrait pas être progressive : SQL appliqué sans le nouveau code, ou
+> l'inverse, et plus personne ne se connecte. Il faudrait enchaîner les deux
+> dans la même demi-heure, un soir ou pendant des vacances.
 
 ---
 
@@ -47,10 +44,13 @@ Dans Supabase → **Authentication → Sign In / Providers → Email** :
 
 ## 2. Créer votre compte de professeur (3 min)
 
-Dans **Authentication → Users → Add user** :
+Dans **Authentication → Users → Add user → Create new user** :
 
-- adresse : la vôtre, ou n'importe laquelle — elle ne sert qu'à vous identifier ;
-- mot de passe : **un vrai mot de passe**, pas `2709`. Il n'est plus dans la
+- **adresse** : exactement `professeur@exercices-interactifs.invalid`.
+  C'est celle qu'attend le code (`COURRIEL_PROF`, ligne 10 des trois fichiers).
+  En la reprenant telle quelle, aucun fichier n'est à modifier — et votre vraie
+  adresse ne se retrouve pas dans un dépôt public ;
+- **mot de passe** : un vrai mot de passe, pas `2709`. Il n'est plus dans la
   page, donc plus rien ne vous oblige à le garder court ;
 - cochez **Auto Confirm User**.
 
@@ -118,20 +118,7 @@ automatiquement par Supabase.
 
 ---
 
-## 6. Renseigner votre adresse dans les trois fichiers (2 min)
-
-Ligne 10 de `secondes.html`, `premiere-specifique.html` et `terminale.html` :
-
-```js
-const COURRIEL_PROF = "professeur@exercices-interactifs.invalid";
-```
-
-Remplacez par l'adresse du compte créé à l'étape 2, dans **les trois fichiers**.
-Puis fusionnez la pull request.
-
----
-
-## 7. Redonner un code à chaque élève
+## 6. Redonner un code à chaque élève
 
 Les anciens codes n'existent plus — ils ont été supprimés avec la colonne, et un
 hachage ne se relit pas. Dans **Élèves** du tableau de bord, le bouton
@@ -152,6 +139,37 @@ un site ouvert, avec des codes à redistribuer de toute façon — donc si vous 
 êtes là, corriger en avant est presque toujours préférable.
 
 Elle ne retire que les politiques `p_` : les vôtres, s'il y en avait, restent.
+
+---
+
+## Si la structure des tables change
+
+`tests/base-avant.sql` reproduit la structure réelle du projet, **relevée le
+10 août 2026**, et le banc s'en sert comme point de départ. Elle n'est pas la
+même d'un niveau à l'autre :
+
+| | `eleves.id` | `resultats.eleve_id` |
+|---|---|---|
+| Terminale | uuid | uuid |
+| Première | **bigint** | **bigint** |
+| Seconde | uuid | uuid |
+
+Cet écart a coûté un défaut réel : le premier jet dérivait l'adresse du compte
+de `eleves.id`, ce qui marchait en Terminale et en Seconde et cassait la
+création de compte en Première. D'où la colonne `cle`, indépendante du type.
+
+Si vous modifiez la structure, **relevez-la à nouveau** et mettez
+`tests/base-avant.sql` à jour — ne le corrigez pas de mémoire :
+
+```sql
+select table_name as "table", column_name as "colonne", data_type as "type"
+from information_schema.columns
+where table_schema = 'public'
+  and table_name in ('eleves','eleves_1ere','eleves_2nde',
+                     'resultats','resultats_1ere','resultats_2nde',
+                     'parametres','parametres_1ere','parametres_2nde')
+order by table_name, ordinal_position;
+```
 
 ---
 

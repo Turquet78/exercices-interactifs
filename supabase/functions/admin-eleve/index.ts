@@ -51,9 +51,23 @@ function codeAuHasard(): string {
 Deno.serve(async (req) => {
   if(req.method === 'OPTIONS') return new Response('ok', { headers: ENTETES });
 
-  const URL_SB = Deno.env.get('SUPABASE_URL')!;
-  const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  const ANON    = Deno.env.get('SUPABASE_ANON_KEY')!;
+  // Supabase a deux générations de noms pour ces clés : les anciennes
+  // (ANON / SERVICE_ROLE) et les nouvelles (PUBLISHABLE / SECRET). Un projet
+  // récent peut n'injecter que les secondes. On accepte les deux plutôt que de
+  // parier sur l'une : le mauvais pari se solderait par une fonction qui
+  // échoue au premier appel, avec un message que rien ne relie à sa cause.
+  const URL_SB  = Deno.env.get('SUPABASE_URL');
+  const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+               ?? Deno.env.get('SUPABASE_SECRET_KEY');
+  const ANON    = Deno.env.get('SUPABASE_ANON_KEY')
+               ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY');
+
+  if(!URL_SB || !SERVICE || !ANON){
+    const manque = [!URL_SB && 'SUPABASE_URL',
+                    !SERVICE && 'SUPABASE_SERVICE_ROLE_KEY (ou SUPABASE_SECRET_KEY)',
+                    !ANON && 'SUPABASE_ANON_KEY (ou SUPABASE_PUBLISHABLE_KEY)'].filter(Boolean);
+    return repondre({ erreur: 'variables d’environnement absentes : ' + manque.join(', ') }, 500);
+  }
 
   let corps: any;
   try { corps = await req.json(); }
@@ -96,17 +110,20 @@ Deno.serve(async (req) => {
       if(errDeja) return repondre({ erreur: 'vérification impossible' }, 500);
       if(deja && deja.length) return repondre({ erreur: 'ce prénom existe déjà' }, 409);
 
-      const idEleve = crypto.randomUUID();
+      // Une CLÉ, pas un identifiant de ligne : « id » est un uuid en Terminale
+      // et en Seconde, mais un bigint en Première. Y écrire un uuid échouait
+      // sur ce niveau-là. La base produit « id » elle-même.
+      const cle = crypto.randomUUID();
       const code = codeAuHasard();
       const { data: compte, error: errCompte } = await admin.auth.admin.createUser({
-        email: `${idEleve}@${DOMAINE}`,
+        email: `${cle}@${DOMAINE}`,
         password: code,
         email_confirm: true,
       });
       if(errCompte || !compte?.user) return repondre({ erreur: 'création du compte impossible' }, 500);
 
       const { error: errLigne } = await admin.from(niveau.eleves)
-        .insert({ id: idEleve, prenom, user_id: compte.user.id });
+        .insert({ prenom, cle, user_id: compte.user.id });
       if(errLigne){
         // sans ce rattrapage, un compte orphelin resterait et le prénom
         // deviendrait impossible à réutiliser

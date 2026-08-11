@@ -76,6 +76,14 @@ ainsi que tous les codes de la classe partaient dans le navigateur. Les gestes
 qui demandent des droits — nouveau code, ajout, retrait — passent par la fonction
 Edge `admin-eleve`. Le socle SQL et sa notice sont dans `supabase/`.
 
+**Les trois niveaux n'ont pas le même type d'identifiant.** `eleves.id` et
+`eleves_2nde.id` sont des `uuid`, `eleves_1ere.id` est un `bigint`. Un code qui
+écrit un `uuid` dans `id` marche donc sur deux niveaux et casse le troisième.
+L'application n'écrit plus `id` — la base le produit — et l'adresse du compte
+Supabase est dérivée de la colonne `cle`, indépendante du type.
+`tests/base-avant.sql` reproduit la structure **relevée sur le projet**, pas
+supposée : c'est une reconstitution de mémoire qui a laissé passer ce défaut.
+
 **`DOMAINE_COMPTES` est écrit à deux endroits que rien ne relie** — les trois
 fichiers HTML et `supabase/functions/admin-eleve/index.ts`. S'ils divergent, les
 comptes créés d'un côté deviennent introuvables de l'autre et l'élève reçoit

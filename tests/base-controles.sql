@@ -24,17 +24,20 @@ insert into auth.users (id, email) values
   ('99999999-9999-9999-9999-999999999999', 'prof@test')
 on conflict (id) do nothing;
 
-insert into public.eleves_2nde (id, prenom, user_id) values
-  ('aaaaaaaa-0000-0000-0000-000000000001', 'Alice', '11111111-1111-1111-1111-111111111111'),
-  ('bbbbbbbb-0000-0000-0000-000000000002', 'Bob',   '22222222-2222-2222-2222-222222222222')
-on conflict (id) do nothing;
+-- On n'écrit PAS « id » : c'est exactement ce que fait l'application depuis
+-- que les trois niveaux se sont révélés avoir des types d'identifiant
+-- différents. La base le produit ; le jeu d'essai s'en remet à elle.
+insert into public.eleves_2nde (prenom, cle, user_id) values
+  ('Alice', 'cle-alice', '11111111-1111-1111-1111-111111111111'),
+  ('Bob',   'cle-bob',   '22222222-2222-2222-2222-222222222222');
 
 insert into public.professeurs (user_id) values ('99999999-9999-9999-9999-999999999999')
 on conflict do nothing;
 
-insert into public.resultats_2nde (eleve_id, score, total, percent, duration_sec, details) values
-  ('aaaaaaaa-0000-0000-0000-000000000001', 8, 10, 80, 120, '{"test":"pourcentage"}'),
-  ('bbbbbbbb-0000-0000-0000-000000000002', 5, 10, 50, 200, '{"test":"pourcentage"}');
+insert into public.resultats_2nde (eleve_id, score, total, percent, duration_sec, details)
+select e.id, 8, 10, 80, 120, '{"test":"pourcentage"}'::jsonb from public.eleves_2nde e where e.prenom = 'Alice'
+union all
+select e.id, 5, 10, 50, 200, '{"test":"pourcentage"}'::jsonb from public.eleves_2nde e where e.prenom = 'Bob';
 
 insert into public.parametres_2nde (id, valeurs) values (1, '{"devoirs":[]}')
 on conflict (id) do nothing;
@@ -88,7 +91,7 @@ begin
   -- Il ne doit pouvoir écrire nulle part.
   begin
     insert into public.resultats_2nde (eleve_id, score, total)
-      values ('aaaaaaaa-0000-0000-0000-000000000001', 10, 10);
+    select e.id, 10, 10 from public.eleves_2nde e where e.cle = 'cle-alice';
     ok := false;
   exception when insufficient_privilege then ok := true;
   end;
@@ -125,19 +128,20 @@ begin
   select count(*) into n from public.resultats_2nde;
   perform pg_temp.exige('elle voit ses notes, et elles seules (' || n || ')', n = 1);
 
-  select count(*) into n from public.resultats_2nde
-    where eleve_id = 'bbbbbbbb-0000-0000-0000-000000000002';
+  select count(*) into n from public.resultats_2nde r
+    join public.eleves_2nde e on e.id = r.eleve_id where e.prenom = 'Bob';
   perform pg_temp.exige('elle ne voit pas les notes de Bob', n = 0);
 
   -- Elle enregistre sa propre note : c'est le cas normal, il doit marcher.
   insert into public.resultats_2nde (eleve_id, score, total, percent, duration_sec, details)
-    values ('aaaaaaaa-0000-0000-0000-000000000001', 9, 10, 90, 60, '{"test":"pourcentage"}');
+  select e.id, 9, 10, 90, 60, '{"test":"pourcentage"}'::jsonb
+    from public.eleves_2nde e where e.cle = 'cle-alice';
   perform pg_temp.exige('elle enregistre sa propre note', true);
 
   -- Elle ne doit pas pouvoir en poser une sur le compte de Bob.
   begin
     insert into public.resultats_2nde (eleve_id, score, total)
-      values ('bbbbbbbb-0000-0000-0000-000000000002', 0, 10);
+    select e.id, 0, 10 from public.eleves_2nde e where e.cle = 'cle-bob';
     ok := false;
   exception when insufficient_privilege then ok := true;
   end;
@@ -212,6 +216,56 @@ begin
     where relnamespace = 'public'::regnamespace and relkind = 'r' and not relrowsecurity;
   perform pg_temp.exige('aucune table publique sans RLS (' || n || ')', n = 0);
   raise notice '';
+end $$;
+
+-- ==========================================================================
+-- 5. CRÉER UN COMPTE MARCHE SUR LES TROIS NIVEAUX
+-- ==========================================================================
+--  LE contrôle qui manquait. Les trois niveaux n'ont pas le même type
+--  d'identifiant — uuid en Terminale et en Seconde, bigint en Première — et le
+--  code écrivait un uuid dans « id ». Il marchait donc sur deux niveaux et
+--  cassait la création de compte sur le troisième, sans que rien ne le dise :
+--  le banc ne jouait que la Seconde, et son double en mémoire acceptait
+--  n'importe quel type.
+--
+--  On rejoue ici ce que fait exactement l'application : insérer un élève SANS
+--  écrire « id », avec une clé et un compte. Si un niveau exige un id, ou si
+--  la colonne « cle » manque quelque part, ce contrôle le dit.
+do $$
+declare t text; n int; ok bool;
+begin
+  raise notice '';
+  raise notice '5. CRÉATION DE COMPTE, LES TROIS NIVEAUX';
+
+  insert into auth.users (id, email) values
+    ('33333333-3333-3333-3333-333333333333', 'nouveau@eleves.test')
+  on conflict (id) do nothing;
+
+  foreach t in array array['eleves', 'eleves_1ere', 'eleves_2nde'] loop
+    begin
+      execute format(
+        'insert into public.%I (prenom, cle, user_id) values ($1, $2, $3::uuid)', t)
+        using 'Nouveau', 'cle-nouveau-' || t, '33333333-3333-3333-3333-333333333333';
+      ok := true;
+    exception when others then
+      ok := false;
+      raise notice '      (% : %)', t, sqlerrm;
+    end;
+    perform pg_temp.exige('un compte se crée dans ' || t || ' sans écrire id', ok);
+
+    if ok then
+      execute format('delete from public.%I where cle = $1', t) using 'cle-nouveau-' || t;
+    end if;
+  end loop;
+
+  -- Et la clé doit être unique : deux élèves ne peuvent pas partager un compte.
+  begin
+    insert into public.eleves_2nde (prenom, cle, user_id)
+      values ('Doublon', 'cle-alice', null);
+    ok := false;
+  exception when unique_violation then ok := true;
+  end;
+  perform pg_temp.exige('deux élèves ne peuvent pas partager la même clé', ok);
 end $$;
 
 -- --------------------------------------------------------------------------

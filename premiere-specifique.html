@@ -1239,7 +1239,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=82;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=83;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2167,7 +2167,7 @@ async function renderLoginNames(){
   try{
     /* select('*') rapportait aussi la colonne des codes : toute la classe
        lisible dans l'onglet Réseau. On ne demande plus que ce qui s'affiche. */
-    const {data,error}=await sb.from('eleves_1ere').select('id,prenom').order('prenom');
+    const {data,error}=await sb.from('eleves_1ere').select('id,prenom,cle').order('prenom');
     if(error)throw error;
     if(!data.length){ box.innerHTML='<span class="muted">Aucun compte pour l\'instant. Crée le tien avec « Créer mon compte ».</span>'; return; }
     box.innerHTML='';
@@ -2189,7 +2189,7 @@ async function connexionEleve(){
      le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
      était faite dans le navigateur, deux lignes dans la console suffisaient à
      entrer sous n'importe quel prénom. */
-  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.id),password:pin});
+  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.cle),password:pin});
   if(error){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
   currentEleve=selectedEleve; await ouvrirEspace();
 }
@@ -2202,16 +2202,18 @@ async function creerCompte(){
     const {data:exist,error:errExist}=await sb.from('eleves_1ere').select('id').ilike('prenom',prenom);
     if(errExist){ toast('Vérification du prénom impossible — réessaie','err'); return; }
     if(exist&&exist.length){ toast('Ce prénom existe déjà — connecte-toi','err'); return; }
-    /* L'identifiant est tiré ici : il sert à la fois de clé de la ligne et
-       d'adresse du compte Supabase. */
-    const id=idAuHasard();
-    const {data:inscription,error:errInscr}=await sb.auth.signUp({email:courrielDe(id),password:pin});
+    /* On tire une CLÉ, pas un identifiant de ligne : « id » n'a pas le même
+       type d'un niveau à l'autre — uuid ici, bigint en Première — et y écrire
+       un uuid cassait la création de compte là-bas. La base produit « id »
+       elle-même ; la clé, elle, ne sert qu'à retrouver le compte Supabase. */
+    const cle=idAuHasard();
+    const {data:inscription,error:errInscr}=await sb.auth.signUp({email:courrielDe(cle),password:pin});
     if(errInscr||!inscription||!inscription.user){ toast('Création impossible — réessaie','err'); return; }
     /* Sans session, l'insertion qui suit sera refusée par la règle d'accès et
        l'élève verrait « Création impossible » sans savoir pourquoi. La cause
        est toujours la même, et elle est réglable en deux clics. */
     if(!inscription.session){ toast('À régler dans Supabase : désactiver la confirmation par courriel','err'); return; }
-    const {data,error}=await sb.from('eleves_1ere').insert({id,prenom,user_id:inscription.user.id}).select().single();
+    const {data,error}=await sb.from('eleves_1ere').insert({prenom,cle,user_id:inscription.user.id}).select().single();
     if(error){ toast('Création impossible — réessaie','err'); return; }
     currentEleve=data; toast('Compte créé !','ok');
     $('newPrenom').value='';$('newPin').value='';$('newPin2').value='';
