@@ -1,0 +1,90 @@
+# Sauvegarde hebdomadaire de la base — la nuit du samedi au dimanche.
+#
+# Le plan gratuit de Supabase ne fait AUCUNE sauvegarde automatique : si la base
+# est effacée, il n'y a rien à restaurer. Cette action exporte les données une
+# fois par semaine, les CHIFFRE, et conserve le fichier 90 jours.
+#
+# LE CHIFFREMENT N'EST PAS FACULTATIF. Ce dépôt est public, et les artefacts
+# d'une action y sont téléchargeables par n'importe qui. Le fichier contient des
+# prénoms d'élèves mineurs associés à leurs résultats : en clair, la sauvegarde
+# serait un problème plus grave que celui qu'elle résout.
+#
+# DEUX SECRETS À POSER — Settings → Secrets and variables → Actions :
+#   SUPABASE_SERVICE_KEY     la clé « service_role » du projet (Project
+#                            Settings → API). Elle donne tous les droits sur la
+#                            base : elle ne doit vivre QUE dans ce secret.
+#   SAUVEGARDE_PASSPHRASE    une phrase de passe de votre choix, longue, rangée
+#                            dans votre gestionnaire de mots de passe.
+#                            SANS ELLE, LES SAUVEGARDES SONT DÉFINITIVEMENT
+#                            ILLISIBLES — personne, pas même GitHub, ne peut
+#                            les rouvrir.
+
+name: Sauvegarde
+
+on:
+  schedule:
+    # 01:00 UTC le dimanche — soit 03:00 à Paris l'été, 02:00 l'hiver.
+    # Dans les deux cas, la nuit du samedi au dimanche.
+    # GitHub peut décaler une exécution planifiée quand ses serveurs sont
+    # chargés : la sauvegarde peut tomber une heure plus tard, sans dommage.
+    - cron: '0 1 * * 0'
+  # Pour la lancer à la main, sans attendre samedi : onglet Actions →
+  # Sauvegarde → « Run workflow ».
+  workflow_dispatch:
+
+jobs:
+  sauvegarde:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Exporter les données
+        env:
+          SUPABASE_URL: https://rcxenttecucvcebjlmcw.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node supabase/sauvegarde.mjs sauvegarde.json
+
+      - name: Chiffrer
+        env:
+          PASSPHRASE: ${{ secrets.SAUVEGARDE_PASSPHRASE }}
+        run: |
+          if [ -z "$PASSPHRASE" ]; then
+            echo "::error::SAUVEGARDE_PASSPHRASE est absente. Rien ne sera conservé :"
+            echo "::error::déposer une sauvegarde en clair sur un dépôt public est exclu."
+            exit 1
+          fi
+          gpg --batch --yes --passphrase "$PASSPHRASE" \
+              --symmetric --cipher-algo AES256 \
+              -o sauvegarde.json.gpg sauvegarde.json
+          rm -f sauvegarde.json
+
+      # Une sauvegarde qu'on ne sait pas relire n'est pas une sauvegarde. On la
+      # rouvre ici même, et on vérifie qu'elle contient bien ce qu'elle annonce.
+      # Sans ce contrôle, une phrase de passe mal recopiée ne se découvrirait
+      # qu'au moment de restaurer — c'est-à-dire trop tard.
+      - name: Vérifier qu'elle se relit
+        env:
+          PASSPHRASE: ${{ secrets.SAUVEGARDE_PASSPHRASE }}
+        run: |
+          gpg --batch --yes --passphrase "$PASSPHRASE" \
+              -d sauvegarde.json.gpg > verification.json
+          node -e '
+            const j = JSON.parse(require("fs").readFileSync("verification.json","utf8"));
+            if(!j.faite_le || !j.donnees) throw new Error("la sauvegarde relue est incomplète");
+            const t = Object.keys(j.donnees);
+            console.log("relue : " + j.total + " ligne(s) dans " + t.length + " table(s)");
+            console.log("tables : " + t.join(", "));
+          '
+          rm -f verification.json
+
+      - name: Conserver
+        uses: actions/upload-artifact@v4
+        with:
+          name: sauvegarde-${{ github.run_id }}
+          path: sauvegarde.json.gpg
+          # 90 jours est le maximum. Au-delà, télécharger une sauvegarde de
+          # temps en temps et la garder ailleurs.
+          retention-days: 90
