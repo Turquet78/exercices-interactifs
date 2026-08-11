@@ -1835,7 +1835,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=209;
+const APP_VERSION=210;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2996,6 +2996,19 @@ function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_A
 const NIVEAU='terminale';
 const DOMAINE_COMPTES='eleves.exercices-interactifs.invalid';
 function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
+
+/* Supabase refuse tout mot de passe de moins de 6 caracteres — « weak_password ».
+   Le code d'un eleve en fait 4, et il doit le rester : il faut qu'un eleve de
+   seconde le retienne. On envoie donc a Supabase une chaine DERIVEE du code,
+   toujours la meme pour un code donne. L'eleve, lui, tape toujours 4 chiffres.
+   Ce prefixe n'est pas un secret et ne protege rien : il satisfait une
+   contrainte de longueur, rien de plus. La solidite reste celle des 4 chiffres,
+   plus la limitation de cadence de Supabase.
+   Il doit rester IDENTIQUE a celui de la fonction Edge admin-eleve : c'est elle
+   qui pose les codes que le professeur distribue. S'ils divergent, le code
+   affiche au professeur ne fonctionne pas, sans la moindre erreur. */
+const PREFIXE_CODE='exo-';
+function motDePasseDe(code){ return PREFIXE_CODE+String(code); }
 function idAuHasard(){
   if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
   /* randomUUID exige une page servie en https ; GitHub Pages l'est, mais un
@@ -3078,7 +3091,7 @@ async function connexionEleve(){
      le vérifie, et lui seul détient de quoi le faire. Tant que la comparaison
      était faite dans le navigateur, deux lignes dans la console suffisaient à
      entrer sous n'importe quel prénom. */
-  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.cle),password:pin});
+  const {error}=await sb.auth.signInWithPassword({email:courrielDe(selectedEleve.cle),password:motDePasseDe(pin)});
   if(error){ toast('Code incorrect','err'); $('loginPin').value=''; $('loginPin').focus(); return; }
   currentEleve=selectedEleve; await ouvrirEspace();
 }
@@ -3096,7 +3109,7 @@ async function creerCompte(){
        un uuid cassait la création de compte là-bas. La base produit « id »
        elle-même ; la clé, elle, ne sert qu'à retrouver le compte Supabase. */
     const cle=idAuHasard();
-    const {data:inscription,error:errInscr}=await sb.auth.signUp({email:courrielDe(cle),password:pin});
+    const {data:inscription,error:errInscr}=await sb.auth.signUp({email:courrielDe(cle),password:motDePasseDe(pin)});
     if(errInscr||!inscription||!inscription.user){ toast('Création impossible — réessaie','err'); return; }
     /* Sans session, l'insertion qui suit sera refusée par la règle d'accès et
        l'élève verrait « Création impossible » sans savoir pourquoi. La cause

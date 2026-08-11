@@ -431,6 +431,29 @@ function structure(){
   verifier('le domaine des comptes est le même dans la page et dans la fonction Edge',
     !!domPage && domPage === domEdge,
     'page : ' + (domPage || '(absent)') + ' — fonction Edge : ' + (domEdge || '(absent)'));
+
+  /* Supabase refuse tout mot de passe de moins de 6 caractères : le code d'un
+     élève en fait 4, et l'application envoie donc une chaîne dérivée. Le
+     préfixe qui sert à la dériver vit lui aussi à DEUX endroits que rien ne
+     relie — cette page et la fonction Edge, qui pose les codes que le
+     professeur distribue. S'ils divergent, le code affiché au professeur ne
+     fonctionne pas, et personne ne voit d'erreur nulle part. */
+  const prefPage = (s.match(/const PREFIXE_CODE\s*=\s*'([^']*)'/) || [])[1];
+  let prefEdge;
+  try{
+    prefEdge = (fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/admin-eleve/index.ts'), 'utf8')
+      .match(/const PREFIXE_CODE\s*=\s*'([^']*)'/) || [])[1];
+  }catch(e){ prefEdge = undefined; }
+  verifier('le préfixe du code est le même dans la page et dans la fonction Edge',
+    prefPage !== undefined && prefPage === prefEdge,
+    'page : ' + JSON.stringify(prefPage) + ' — fonction Edge : ' + JSON.stringify(prefEdge));
+
+  /* Et le code brut ne doit jamais partir tel quel : il serait refusé. */
+  const brut = [...s.matchAll(/sb\.auth\.sign(?:Up|InWithPassword)\(\{([^}]*)\}/g)]
+    .filter(m => /password\s*:\s*(pin|code)\b/.test(m[1]))
+    .map(m => ligneDe(m.index));
+  verifier('le code de l’élève ne part jamais brut vers Supabase',
+    brut.length === 0, 'ligne(s) ' + brut.join(', ') + ' — Supabase exige 6 caractères');
 }
 
 /* ---------- 2. Démarrage ---------- */

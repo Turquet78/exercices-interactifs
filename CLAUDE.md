@@ -92,11 +92,18 @@ différentes — un correctif qui aurait filtré sur `_all` en aurait raté six.
 `supabase/migrations/002` les retire en les nommant. Le banc le démontre : joué
 après la seule migration 001, le contrôle des rôles **doit échouer**.
 
-**`DOMAINE_COMPTES` est écrit à deux endroits que rien ne relie** — les trois
+**Supabase refuse tout mot de passe de moins de 6 caractères.** Le code d'un
+élève en fait 4 et doit le rester — il faut qu'un élève de seconde le retienne.
+L'application envoie donc `PREFIXE_CODE + code`. Ce préfixe ne protège rien et
+ne prétend pas le faire : il satisfait une longueur minimale. La solidité reste
+celle des 4 chiffres, plus la limitation de cadence de Supabase.
+
+**`DOMAINE_COMPTES` et `PREFIXE_CODE` sont écrits à deux endroits que rien ne
+relie** — les trois
 fichiers HTML et `supabase/functions/admin-eleve/index.ts`. S'ils divergent, les
-comptes créés d'un côté deviennent introuvables de l'autre et l'élève reçoit
-« Code incorrect » avec le bon code, sans la moindre erreur. Un contrôle compare
-les deux.
+comptes créés d'un côté deviennent introuvables de l'autre, ou le code affiché
+au professeur ne fonctionne pas : l'élève reçoit « Code incorrect » avec le bon
+code, sans la moindre erreur nulle part. Deux contrôles les comparent.
 
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
