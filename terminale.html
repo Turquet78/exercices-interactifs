@@ -1835,7 +1835,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=210;
+const APP_VERSION=212;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3009,6 +3009,23 @@ function courrielDe(idEleve){ return idEleve+'@'+DOMAINE_COMPTES; }
    affiche au professeur ne fonctionne pas, sans la moindre erreur. */
 const PREFIXE_CODE='exo-';
 function motDePasseDe(code){ return PREFIXE_CODE+String(code); }
+
+/* Une fonction Edge qui refuse repond avec un statut non-2xx, et supabase-js
+   range alors TOUT dans error : data vaut null, et le motif que la fonction a
+   pris soin d'ecrire — « reserve au professeur », « eleve introuvable », « ce
+   prenom existe deja » — n'arrive jamais a l'ecran. Le professeur lit
+   « reessaie », ce qui ne lui apprend rien et ne repare rien.
+   Le corps de la reponse est pourtant la, dans error.context. */
+async function motifFonction(error, data){
+  if(data && data.erreur) return data.erreur;
+  try{
+    if(error && error.context && typeof error.context.json === 'function'){
+      const j = await error.context.json();
+      if(j && j.erreur) return j.erreur;
+    }
+  }catch(e){}
+  return '';
+}
 function idAuHasard(){
   if(window.crypto&&crypto.randomUUID) return crypto.randomUUID();
   /* randomUUID exige une page servie en https ; GitHub Pages l'est, mais un
@@ -11742,7 +11759,8 @@ async function addStudent(){
        navigateur n'a pas, et ne doit pas avoir : la fonction Edge s'en charge
        après avoir vérifié que l'appelant est bien le professeur. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'ajouter',niveau:NIVEAU,prenom}});
-    if(error||!data||data.erreur){ toast('Ajout impossible : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    if(error||!data||data.erreur){ toast('Ajout impossible : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
+    if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
     $('addPrenom').value='';
     alert('Code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Élève ajouté','ok'); renderRoster();
@@ -11754,7 +11772,13 @@ async function resetPin(id,prenom){
     /* Le code est tiré par le serveur, jamais par cette page : il n'est
        stocké nulle part en clair et ne s'affiche qu'une fois, ici. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'nouveau-code',niveau:NIVEAU,eleveId:id}});
-    if(error||!data||data.erreur){ toast('Échec : '+((data&&data.erreur)||'réessaie'),'err'); return; }
+    if(error||!data||data.erreur){ toast('Échec : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
+    /* Une réponse sans code n'est pas un succès. Sans ce contrôle, la page
+       annonçait « Nouveau code de undefined : undefined » — un message qui
+       ressemble à une réussite et n'apprend rien. C'est ce qui arrive quand
+       une AUTRE fonction répond sous le nom admin-eleve : l'exemple par défaut
+       de Supabase, par exemple, renvoie « Hello ». */
+    if(!data.code){ toast('La fonction admin-eleve a répondu autre chose qu’un code — est-elle bien déployée ?','err'); return; }
     alert('Nouveau code de '+data.prenom+' : '+data.code+'\n\nNote-le maintenant : il ne sera plus jamais affiché.');
     toast('Code mis à jour','ok'); renderRoster();
   }catch(e){ toast('Échec de la mise à jour','err'); }
@@ -11765,7 +11789,7 @@ async function removeStudent(id,prenom){
     /* Supprimer la ligne ne suffit plus : le compte Supabase doit partir avec
        elle, sinon le prénom reste impossible à réutiliser. */
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'retirer',niveau:NIVEAU,eleveId:id}});
-    if(error||!data||data.erreur){ toast('Suppression impossible','err'); return; }
+    if(error||!data||data.erreur){ toast('Suppression impossible : '+((await motifFonction(error,data))||'réessaie'),'err'); return; }
     toast('Élève retiré','ok'); renderRoster();
   }catch(e){ toast('Suppression impossible','err'); }
 }
@@ -11774,7 +11798,7 @@ async function resetYear(){
   if(!confirm('Confirmer la suppression définitive de toute la classe ?'))return;
   try{
     const {data,error}=await sb.functions.invoke('admin-eleve',{body:{action:'tout-effacer',niveau:NIVEAU}});
-    if(error||!data||data.erreur){ toast('Réinitialisation impossible : '+((data&&data.erreur)||'erreur'),'err'); return; }
+    if(error||!data||data.erreur){ toast('Réinitialisation impossible : '+((await motifFonction(error,data))||'erreur'),'err'); return; }
     toast('Classe réinitialisée','ok'); renderRoster();
   }catch(e){ toast('Réinitialisation impossible','err'); }
 }
