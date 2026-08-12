@@ -370,14 +370,27 @@ Quelques minutes ; les notes, elles, sont sauvées.
 
 ### Récupérer une sauvegarde
 
-Onglet **Actions** → **Sauvegarde** → une exécution → section **Artifacts** →
-télécharger `sauvegarde-….zip`. Puis, sur votre ordinateur :
+**Windows n'a pas `gpg`.** Une seule fois, dans PowerShell — puis fermer et
+rouvrir la fenêtre, sinon la commande reste inconnue :
+
+```powershell
+winget install GnuPG.Gpg4win
+```
+
+Ensuite, à chaque fois : onglet **Actions** → **Sauvegarde** → une exécution →
+section **Artifacts**, tout en bas → télécharger `sauvegarde-….zip` → le
+décompresser. Puis, dans le dossier obtenu :
 
 ```bash
 gpg -d sauvegarde.json.gpg > sauvegarde.json
 ```
 
-Il demandera la phrase de passe.
+Il demandera la phrase de passe. Le fichier obtenu s'ouvre dans n'importe quel
+éditeur de texte.
+
+⚠️ Les artefacts GitHub sont conservés **90 jours**, pas davantage : c'est le
+maximum de la plateforme. En télécharger un de temps en temps — une fois par
+trimestre suffit — et le garder ailleurs. Chiffré, il ne craint rien.
 
 ### Restaurer
 
