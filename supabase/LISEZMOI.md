@@ -392,7 +392,71 @@ Il demandera la phrase de passe. Le fichier obtenu s'ouvre dans n'importe quel
 maximum de la plateforme. En télécharger un de temps en temps — une fois par
 trimestre suffit — et le garder ailleurs. Chiffré, il ne craint rien.
 
-### Restaurer
+### Récupérer des notes perdues ou modifiées
+
+C'est le cas courant, et il n'a rien à voir avec un sinistre : la base tourne,
+les élèves travaillent, et une note manque ou paraît fausse. **On ne restaure
+alors pas la base — on compare, puis on corrige ce qui doit l'être.**
+
+**1. Poser les outils.** Coller le contenu de `supabase/restaurer.sql` dans
+l'éditeur SQL de Supabase et l'exécuter. Il ne change rien : il installe trois
+fonctions.
+
+**2. Sortir les notes de la sauvegarde**, dans PowerShell, à côté de
+`sauvegarde.json` :
+
+```powershell
+$s = Get-Content sauvegarde.json -Raw | ConvertFrom-Json
+$s.donnees.resultats_1ere | ConvertTo-Json -Depth 20 | Set-Clipboard
+```
+
+**3. Regarder ce qui diffère** — ce geste ne modifie rien, et c'est souvent le
+seul nécessaire :
+
+```sql
+select * from public.comparer('resultats_1ere', $j$
+-- Ctrl+V ici
+$j$::json);
+```
+
+| Verdict | Ce que ça veut dire |
+|---|---|
+| `MANQUANTE` | la sauvegarde l'a, la base ne l'a plus — note perdue |
+| `DIFFÉRENTE` | les deux l'ont, avec des valeurs qui ne correspondent pas |
+| `EN TROP` | passée après la sauvegarde — **normal**, pas une anomalie |
+
+Les écarts de forme ne sont pas signalés : `8` et `8.0`, ou le même instant
+écrit dans deux fuseaux, comptent pour identiques. Ce qui s'affiche est un vrai
+écart.
+
+⚠️ **`DIFFÉRENTE` ne veut pas dire falsifiée.** La sauvegarde date du dimanche
+précédent : un exercice refait depuis apparaît là, légitimement. Lisez les
+valeurs avant de décider.
+
+**4a. Remettre ce qui manque** — n'écrase rien, ne touche pas au travail fait
+depuis :
+
+```sql
+select public.restaurer('resultats_1ere', $j$   … $j$::json);
+```
+
+**4b. Défaire une modification** — remet les notes à leur valeur de dimanche.
+**Ce geste efface ce qui a été fait depuis** ; c'est pour cela qu'il demande un
+mot de plus :
+
+```sql
+select public.restaurer('resultats_1ere', $j$   … $j$::json, true);
+```
+
+Avant un `true`, lancez une sauvegarde à la main (Actions → Sauvegarde → Run
+workflow) : l'état d'aujourd'hui sera conservé, quoi qu'il arrive ensuite.
+
+**5. Retirer les outils** quand c'est fini (voir la dernière étape ci-dessous).
+
+Les élèves ne sont jamais touchés par cette procédure : seule la table de notes
+nommée dans l'appel est concernée.
+
+### Restaurer entièrement, après un sinistre
 
 Comptez une demi-heure. Rien n'est difficile, mais l'ordre compte.
 
@@ -438,10 +502,12 @@ eleves_2nde  →  resultats_2nde  →  parametres_2nde
 reviennent sans compte Supabase — les anciens ont disparu avec la base — et
 « Nouveau code » leur en recrée un.
 
-**7. Retirer l'outil**, il n'a plus rien à faire dans la base :
+**7. Retirer les outils**, ils n'ont plus rien à faire dans la base :
 
 ```sql
-drop function public.restaurer(text, json);
+drop function public.restaurer(text, json, boolean);
+drop function public.comparer(text, json);
+drop function public.memes_valeurs(jsonb, jsonb);
 ```
 
 Cette marche à suivre est **jouée en entier à chaque `npm run test:base`**, sur

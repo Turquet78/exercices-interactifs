@@ -362,6 +362,94 @@ bilan('« professeurs » est refusée avec le motif, plutôt que restaurée de t
   !!prof.erreur && /identifiant/.test(String(prof.erreur)), prof.erreur ? '' : 'acceptée');
 psql('postgres', ['-c', 'drop database if exists rest']);
 
+/* ---------------------------------------------------------------------------
+   5. Le cas courant : une note perdue, une note falsifiée, base vivante
+   -------------------------------------------------------------------------
+   C'est l'usage réel de la sauvegarde — pas le sinistre total. La base tourne,
+   les élèves travaillent, et une note manque ou paraît fausse. Deux gestes s'y
+   opposent : remettre ce qui manque sans rien écraser, et défaire une valeur
+   modifiée. Les confondre coûterait le travail fait depuis dimanche.
+
+   Le geste est le plus dangereux du dépôt : il écrit dans la base vivante. */
+console.log('\n5. RÉCUPÉRER DES NOTES PERDUES OU FALSIFIÉES, BASE VIVANTE');
+monter('vive');
+psql('vive', ['-f', MIG]);
+psql('vive', ['-f', MIG2]);
+psql('vive', ['-f', path.join(RACINE, 'supabase/restaurer.sql')]);
+
+/* La sauvegarde de dimanche : trois notes. */
+const DIMANCHE = [
+  { id:11, eleve_id:3, score:8,  total:10, percent:80, duration_sec:42,
+    details:{ test:'dexp' }, created_at:'2026-06-03T08:00:00Z' },
+  { id:12, eleve_id:3, score:6,  total:10, percent:60, duration_sec:55,
+    details:{ test:'dexp' }, created_at:'2026-06-04T08:00:00Z' },
+  { id:13, eleve_id:7, score:10, total:10, percent:100, duration_sec:30,
+    details:{ test:'dexp' }, created_at:'2026-06-05T08:00:00Z' },
+];
+restaurer('vive', 'eleves_1ere', SAUVEGARDE.eleves_1ere);
+restaurer('vive', 'resultats_1ere', DIMANCHE);
+
+/* Ce qui s'est passé depuis : la 12 a été effacée, la 13 mise à 20/10 par une
+   main peu scrupuleuse, et la 14 passée normalement lundi. */
+psql('vive', ['-c', 'delete from public.resultats_1ere where id = 12']);
+psql('vive', ['-c', 'update public.resultats_1ere set score = 20, percent = 200 where id = 13']);
+psql('vive', ['-c', "insert into public.resultats_1ere (id, eleve_id, score, total, percent, duration_sec, details) "
+                  + "values (14, 7, 9, 10, 90, 33, '{\"test\":\"dexp\"}')"]);
+
+function comparer(bd, table, lignes){
+  const f = path.join(DOSSIER, 'comparaison.sql');
+  fs.writeFileSync(f, 'select * from public.comparer(' + "'" + table + "'" + ', $j$\n'
+    + JSON.stringify(lignes) + '\n$j$::json);\n');
+  return String(psql(bd, ['-tA', '-f', f]));
+}
+const vu = comparer('vive', 'resultats_1ere', DIMANCHE);
+bilan('la comparaison voit la note effacée', /MANQUANTE\s+id=12/.test(vu), vu);
+bilan('la comparaison voit la note modifiée, et dit en quoi',
+  /DIFFÉRENTE id=13/.test(vu) && /score : base=20 sauvegarde=10/.test(vu), vu);
+bilan('elle signale la note ajoutée depuis, sans en faire une alerte',
+  /EN TROP\s+id=14/.test(vu), vu);
+bilan('elle ne crie pas sur la note intacte (1 identique)', /1 identique/.test(vu), vu);
+
+/* Un score « 8 » relu « 8.0 », un instant écrit dans un autre fuseau : deux
+   écritures de la même valeur. Une comparaison qui les signalerait noierait le
+   vrai écart parmi trente faux — et on cesserait de la lire. */
+psql('vive', ['-c', "update public.resultats_1ere set score = 8.0 where id = 11"]);
+const bruit = comparer('vive', 'resultats_1ere',
+  [Object.assign({}, DIMANCHE[0], { score:8, created_at:'2026-06-03T10:00:00+02:00' })]);
+bilan('8 et 8.0, deux fuseaux pour le même instant : aucun faux écart',
+  /1 identique/.test(bruit) && !/DIFFÉRENTE/.test(bruit), bruit);
+
+/* Le geste no 1 : remettre ce qui manque, sans rien écraser. */
+restaurer('vive', 'resultats_1ere', DIMANCHE);
+const apresDouce = psql('vive', ['-tAc',
+  'select (select count(*) from public.resultats_1ere) || \'/\' || '
+  + '(select score from public.resultats_1ere where id = 13) || \'/\' || '
+  + '(select score from public.resultats_1ere where id = 14)']).trim();
+bilan('la note perdue revient, la note falsifiée et celle de lundi ne bougent pas',
+  apresDouce === '4/20/9', apresDouce);
+
+/* Le geste no 2 : défaire la falsification. */
+const f2 = path.join(DOSSIER, 'ecrasement.sql');
+fs.writeFileSync(f2, 'select public.restaurer(\'resultats_1ere\', $j$\n'
+  + JSON.stringify(DIMANCHE) + '\n$j$::json, true);\n');
+psql('vive', ['-f', f2]);
+const apresDure = psql('vive', ['-tAc',
+  'select (select score from public.resultats_1ere where id = 13) || \'/\' || '
+  + '(select score from public.resultats_1ere where id = 14) || \'/\' || '
+  + '(select count(*) from public.resultats_1ere)']).trim();
+bilan('avec écrasement, la note falsifiée reprend sa valeur d\'origine',
+  apresDure.startsWith('10/'), apresDure);
+bilan('l\'écrasement ne touche pas la note passée depuis la sauvegarde',
+  apresDure === '10/9/4', apresDure);
+
+/* Une note dont l'élève a été supprimé ne peut pas revenir. Le dire à la
+   comparaison, pas au moment où l'insertion échoue. */
+psql('vive', ['-c', 'delete from public.eleves_1ere where id = 7']);
+const orphelin = comparer('vive', 'resultats_1ere', DIMANCHE);
+bilan('une note dont l\'élève a disparu est signalée comme telle',
+  /MANQUANTE\s+id=13.*n'est plus dans la base/.test(orphelin), orphelin);
+psql('postgres', ['-c', 'drop database if exists vive']);
+
 /* ------------------------------------------------------------------------- */
 console.log('\n──────────────────────────────────────────────────────────');
 if(echecs){
