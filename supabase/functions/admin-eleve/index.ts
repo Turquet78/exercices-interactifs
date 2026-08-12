@@ -172,12 +172,39 @@ Deno.serve(async (req) => {
     if(action === 'nouveau-code'){
       const id = String(corps?.eleveId ?? '');
       const { data: eleve, error: errEleve } = await admin
-        .from(niveau.eleves).select('user_id, prenom').eq('id', id).maybeSingle();
+        .from(niveau.eleves).select('user_id, prenom, cle').eq('id', id).maybeSingle();
       if(errEleve) return repondre({ erreur: 'lecture impossible' }, 500);
       if(!eleve)   return repondre({ erreur: 'élève introuvable' }, 404);
-      if(!eleve.user_id) return repondre({ erreur: 'cet élève n’a pas encore de compte' }, 409);
 
       const code = codeAuHasard();
+
+      // Un élève inscrit AVANT la bascule n'a pas de compte : la migration lui
+      // a ajouté la colonne user_id, mais vide. Refuser ici rendait « Nouveau
+      // code » inutilisable pour toute une classe déjà en base — sept élèves
+      // sur huit le 12 août 2026. On lui en crée donc un, ce qui est
+      // exactement ce que « redonner un code à chaque élève » veut dire.
+      if(!eleve.user_id){
+        const cle = eleve.cle || crypto.randomUUID();
+        const { data: compte, error: errCompte } = await admin.auth.admin.createUser({
+          email: `${cle}@${DOMAINE}`,
+          password: motDePasseDe(code),
+          email_confirm: true,
+          app_metadata: { code_provisoire: true },
+        });
+        if(errCompte || !compte?.user)
+          return repondre({ erreur: 'création du compte impossible : ' + (errCompte?.message ?? '') }, 500);
+
+        const { error: errLien } = await admin.from(niveau.eleves)
+          .update({ user_id: compte.user.id, cle }).eq('id', id);
+        if(errLien){
+          // sans ce rattrapage, le compte existerait sans que la ligne le
+          // sache : l'élève aurait un code qui n'ouvre rien
+          await admin.auth.admin.deleteUser(compte.user.id);
+          return repondre({ erreur: 'rattachement impossible' }, 500);
+        }
+        return repondre({ prenom: eleve.prenom, code, compte_cree: true });
+      }
+
       const { error: errMaj } = await admin.auth.admin.updateUserById(eleve.user_id, {
         password: motDePasseDe(code),
         app_metadata: { code_provisoire: true },

@@ -51,6 +51,21 @@ jobs:
       - name: Règles d'accès de la base
         run: npm run test:base
 
+  # La fonction Edge tourne chez Deno, hors de portée des trois autres bancs :
+  # le double du banc navigateur ne l'appelle jamais, et le banc de base ne
+  # connaît que PostgreSQL. Elle n'était donc vérifiée que par la relecture, et
+  # un défaut bloquant y est passé — « Nouveau code » refusait tous les élèves
+  # inscrits avant la bascule. Ce banc la charge dans Node et l'exécute.
+  fonction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fonction Edge admin-eleve
+        run: npm run test:fonction
+
   navigateur:
     runs-on: ubuntu-latest
     steps:
