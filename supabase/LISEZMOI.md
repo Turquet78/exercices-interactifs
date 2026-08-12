@@ -394,12 +394,61 @@ trimestre suffit — et le garder ailleurs. Chiffré, il ne craint rien.
 
 ### Restaurer
 
-1. Sur une base neuve, jouer **001** puis **002** (étapes 3 et 3 bis ci-dessus).
-2. Réinsérer les lignes du fichier, table par table — l'objet `donnees`
-   contient un tableau par table, dans l'ordre à respecter : `eleves…` avant
-   `resultats…` (les notes référencent les élèves).
-3. Recréer les comptes et **redonner un code à chaque élève** depuis l'onglet
-   Élèves.
+Comptez une demi-heure. Rien n'est difficile, mais l'ordre compte.
+
+**1. Une base neuve.** Jouer **001** puis **002** (étapes 3 et 3 bis ci-dessus),
+puis recréer le compte du professeur et sa ligne dans `professeurs`
+(étapes 2 et 5). Ce compte porte un nouvel identifiant : c'est pourquoi la
+table `professeurs` ne se restaure pas depuis la sauvegarde.
+
+**2. Poser l'outil.** Coller le contenu de `supabase/restaurer.sql` dans
+l'éditeur SQL et l'exécuter. Il ne restaure rien — il installe la fonction qui
+va le faire, en désamorçant trois pièges qu'un simple `insert` laisse passer
+(les comptes disparus, la séquence des identifiants, l'ordre des tables). Les
+trois sont détaillés en tête du fichier.
+
+**3. Sortir une table de la sauvegarde.** Dans PowerShell, dans le dossier où
+se trouve `sauvegarde.json` :
+
+```powershell
+$s = Get-Content sauvegarde.json -Raw | ConvertFrom-Json
+$s.donnees.eleves_1ere | ConvertTo-Json -Depth 20 | Set-Clipboard
+```
+
+**4. La remettre en place.** Dans l'éditeur SQL, coller entre les deux `$j$` :
+
+```sql
+select public.restaurer('eleves_1ere', $j$
+-- Ctrl+V ici
+$j$::json);
+```
+
+Il répond `eleves_1ere : 8 ligne(s) restaurée(s), séquence replacée`.
+
+**5. Recommencer pour chaque table**, en respectant cet ordre — les notes
+désignent un élève, elles ne peuvent pas arriver les premières :
+
+```
+eleves  →  resultats  →  parametres
+eleves_1ere  →  resultats_1ere  →  parametres_1ere
+eleves_2nde  →  resultats_2nde  →  parametres_2nde
+```
+
+**6. Redonner un code à chaque élève** depuis l'onglet Élèves. Les élèves
+reviennent sans compte Supabase — les anciens ont disparu avec la base — et
+« Nouveau code » leur en recrée un.
+
+**7. Retirer l'outil**, il n'a plus rien à faire dans la base :
+
+```sql
+drop function public.restaurer(text, json);
+```
+
+Cette marche à suivre est **jouée en entier à chaque `npm run test:base`**, sur
+un PostgreSQL jetable : base neuve, migrations, sauvegarde d'essai remise en
+place, puis vérification que les élèves ont retrouvé leurs identifiants, que
+les notes ont retrouvé leur élève, et qu'un élève ajouté le lendemain ne se
+heurte pas à un identifiant déjà pris.
 
 ### La lancer à la main
 

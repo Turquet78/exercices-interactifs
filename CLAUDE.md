@@ -126,6 +126,16 @@ longueur des codes lit les *fichiers du dépôt* — il ne voit pas ce qui tourn
 Le seul garde-fou qui le voie est dans la page : elle vérifie la longueur des
 codes reçus et avertit. Après toute modification de la fonction, redéployer.
 
+**Une sauvegarde remise en place casse la Première le lendemain.** Réinsérer des
+lignes avec leurs identifiants d'origine ne fait pas avancer la séquence qui les
+produit : elle repart de 1, et c'est le *premier élève ajouté après* la
+restauration qui se heurte à un identifiant déjà pris. Rien ne se voit le jour
+de la restauration. Deux autres pièges du même genre : `user_id` pointe vers des
+comptes Supabase disparus — la clé étrangère refuse la ligne — et les notes
+désignent un élève, donc `eleves…` passe avant `resultats…`. `supabase/restaurer.sql`
+désamorce les trois, et `npm run test:base` rejoue la restauration entière sur
+un PostgreSQL jetable.
+
 **Le plan gratuit de Supabase ne sauvegarde rien.** L'action
 `.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
 dimanche, les chiffre et les conserve 90 jours. Le chiffrement est
