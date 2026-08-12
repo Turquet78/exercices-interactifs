@@ -370,23 +370,151 @@ Quelques minutes ; les notes, elles, sont sauvées.
 
 ### Récupérer une sauvegarde
 
-Onglet **Actions** → **Sauvegarde** → une exécution → section **Artifacts** →
-télécharger `sauvegarde-….zip`. Puis, sur votre ordinateur :
+**Windows n'a pas `gpg`.** Une seule fois, dans PowerShell — puis fermer et
+rouvrir la fenêtre, sinon la commande reste inconnue :
+
+```powershell
+winget install GnuPG.Gpg4win
+```
+
+Ensuite, à chaque fois : onglet **Actions** → **Sauvegarde** → une exécution →
+section **Artifacts**, tout en bas → télécharger `sauvegarde-….zip` → le
+décompresser. Puis, dans le dossier obtenu :
 
 ```bash
 gpg -d sauvegarde.json.gpg > sauvegarde.json
 ```
 
-Il demandera la phrase de passe.
+Il demandera la phrase de passe. Le fichier obtenu s'ouvre dans n'importe quel
+éditeur de texte.
 
-### Restaurer
+⚠️ Les artefacts GitHub sont conservés **90 jours**, pas davantage : c'est le
+maximum de la plateforme. En télécharger un de temps en temps — une fois par
+trimestre suffit — et le garder ailleurs. Chiffré, il ne craint rien.
 
-1. Sur une base neuve, jouer **001** puis **002** (étapes 3 et 3 bis ci-dessus).
-2. Réinsérer les lignes du fichier, table par table — l'objet `donnees`
-   contient un tableau par table, dans l'ordre à respecter : `eleves…` avant
-   `resultats…` (les notes référencent les élèves).
-3. Recréer les comptes et **redonner un code à chaque élève** depuis l'onglet
-   Élèves.
+### Récupérer des notes perdues ou modifiées
+
+C'est le cas courant, et il n'a rien à voir avec un sinistre : la base tourne,
+les élèves travaillent, et une note manque ou paraît fausse. **On ne restaure
+alors pas la base — on compare, puis on corrige ce qui doit l'être.**
+
+**1. Poser les outils.** Coller le contenu de `supabase/restaurer.sql` dans
+l'éditeur SQL de Supabase et l'exécuter. Il ne change rien : il installe trois
+fonctions.
+
+**2. Sortir les notes de la sauvegarde**, dans PowerShell, à côté de
+`sauvegarde.json` :
+
+```powershell
+$s = Get-Content sauvegarde.json -Raw | ConvertFrom-Json
+$s.donnees.resultats_1ere | ConvertTo-Json -Depth 20 | Set-Clipboard
+```
+
+**3. Regarder ce qui diffère** — ce geste ne modifie rien, et c'est souvent le
+seul nécessaire :
+
+```sql
+select * from public.comparer('resultats_1ere', $j$
+-- Ctrl+V ici
+$j$::json);
+```
+
+| Verdict | Ce que ça veut dire |
+|---|---|
+| `MANQUANTE` | la sauvegarde l'a, la base ne l'a plus — note perdue |
+| `DIFFÉRENTE` | les deux l'ont, avec des valeurs qui ne correspondent pas |
+| `EN TROP` | passée après la sauvegarde — **normal**, pas une anomalie |
+
+Les écarts de forme ne sont pas signalés : `8` et `8.0`, ou le même instant
+écrit dans deux fuseaux, comptent pour identiques. Ce qui s'affiche est un vrai
+écart.
+
+⚠️ **`DIFFÉRENTE` ne veut pas dire falsifiée.** La sauvegarde date du dimanche
+précédent : un exercice refait depuis apparaît là, légitimement. Lisez les
+valeurs avant de décider.
+
+**4a. Remettre ce qui manque** — n'écrase rien, ne touche pas au travail fait
+depuis :
+
+```sql
+select public.restaurer('resultats_1ere', $j$   … $j$::json);
+```
+
+**4b. Défaire une modification** — remet les notes à leur valeur de dimanche.
+**Ce geste efface ce qui a été fait depuis** ; c'est pour cela qu'il demande un
+mot de plus :
+
+```sql
+select public.restaurer('resultats_1ere', $j$   … $j$::json, true);
+```
+
+Avant un `true`, lancez une sauvegarde à la main (Actions → Sauvegarde → Run
+workflow) : l'état d'aujourd'hui sera conservé, quoi qu'il arrive ensuite.
+
+**5. Retirer les outils** quand c'est fini (voir la dernière étape ci-dessous).
+
+Les élèves ne sont jamais touchés par cette procédure : seule la table de notes
+nommée dans l'appel est concernée.
+
+### Restaurer entièrement, après un sinistre
+
+Comptez une demi-heure. Rien n'est difficile, mais l'ordre compte.
+
+**1. Une base neuve.** Jouer **001** puis **002** (étapes 3 et 3 bis ci-dessus),
+puis recréer le compte du professeur et sa ligne dans `professeurs`
+(étapes 2 et 5). Ce compte porte un nouvel identifiant : c'est pourquoi la
+table `professeurs` ne se restaure pas depuis la sauvegarde.
+
+**2. Poser l'outil.** Coller le contenu de `supabase/restaurer.sql` dans
+l'éditeur SQL et l'exécuter. Il ne restaure rien — il installe la fonction qui
+va le faire, en désamorçant trois pièges qu'un simple `insert` laisse passer
+(les comptes disparus, la séquence des identifiants, l'ordre des tables). Les
+trois sont détaillés en tête du fichier.
+
+**3. Sortir une table de la sauvegarde.** Dans PowerShell, dans le dossier où
+se trouve `sauvegarde.json` :
+
+```powershell
+$s = Get-Content sauvegarde.json -Raw | ConvertFrom-Json
+$s.donnees.eleves_1ere | ConvertTo-Json -Depth 20 | Set-Clipboard
+```
+
+**4. La remettre en place.** Dans l'éditeur SQL, coller entre les deux `$j$` :
+
+```sql
+select public.restaurer('eleves_1ere', $j$
+-- Ctrl+V ici
+$j$::json);
+```
+
+Il répond `eleves_1ere : 8 ligne(s) restaurée(s), séquence replacée`.
+
+**5. Recommencer pour chaque table**, en respectant cet ordre — les notes
+désignent un élève, elles ne peuvent pas arriver les premières :
+
+```
+eleves  →  resultats  →  parametres
+eleves_1ere  →  resultats_1ere  →  parametres_1ere
+eleves_2nde  →  resultats_2nde  →  parametres_2nde
+```
+
+**6. Redonner un code à chaque élève** depuis l'onglet Élèves. Les élèves
+reviennent sans compte Supabase — les anciens ont disparu avec la base — et
+« Nouveau code » leur en recrée un.
+
+**7. Retirer les outils**, ils n'ont plus rien à faire dans la base :
+
+```sql
+drop function public.restaurer(text, json, boolean);
+drop function public.comparer(text, json);
+drop function public.memes_valeurs(jsonb, jsonb);
+```
+
+Cette marche à suivre est **jouée en entier à chaque `npm run test:base`**, sur
+un PostgreSQL jetable : base neuve, migrations, sauvegarde d'essai remise en
+place, puis vérification que les élèves ont retrouvé leurs identifiants, que
+les notes ont retrouvé leur élève, et qu'un élève ajouté le lendemain ne se
+heurte pas à un identifiant déjà pris.
 
 ### La lancer à la main
 
