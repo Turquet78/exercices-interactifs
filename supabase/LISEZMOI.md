@@ -181,7 +181,12 @@ automatiquement par Supabase.
 
 Les anciens codes n'existent plus — ils ont été supprimés avec la colonne, et un
 hachage ne se relit pas. Dans **Élèves** du tableau de bord, le bouton
-**« Nouveau code »** en tire un et **l'affiche une seule fois**. Notez-le à ce
+**« Nouveau code »** en tire un et **l'affiche une seule fois**.
+
+Il fonctionne aussi pour les élèves **inscrits avant la bascule**, qui n'ont pas
+encore de compte Supabase : la fonction leur en crée un au passage. C'est
+exactement ce que « redonner un code à chaque élève » veut dire — il n'y a rien
+d'autre à faire pour eux. Notez-le à ce
 moment-là : personne, pas même vous, ne pourra le retrouver ensuite.
 
 C'est voulu. Un code que le professeur peut relire est un code qu'un autre peut

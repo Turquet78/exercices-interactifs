@@ -112,6 +112,13 @@ comptes créés d'un côté deviennent introuvables de l'autre, ou le code affic
 au professeur ne fonctionne pas : l'élève reçoit « Code incorrect » avec le bon
 code, sans la moindre erreur nulle part. Deux contrôles les comparent.
 
+**La fonction Edge portait les gestes les plus lourds sans qu'aucun banc ne
+l'exécute.** Elle tient la clé de service. `npm run test:fonction` la charge
+dans Node — trois substitutions seulement : l'import de supabase-js, `Deno.serve`
+et `Deno.env` ; le reste du fichier est exécuté tel quel. C'est ainsi qu'a été
+trouvé le défaut qui rendait « Nouveau code » inutilisable pour tout élève
+inscrit avant la bascule : la migration ajoute `user_id`, mais vide.
+
 **La fonction Edge ne se met jamais à jour toute seule.** GitHub Pages publie
 les trois pages à chaque fusion ; `admin-eleve` se déploie à la main chez
 Supabase et peut rester en arrière indéfiniment. Le contrôle qui compare la
@@ -195,6 +202,7 @@ npm test             # les trois niveaux
 npm run test:secondes # un seul, quand on travaille dessus
 npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
 npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
+npm run test:fonction # la fonction Edge admin-eleve, réellement exécutée
 ```
 
 `npm test` et `npm run test:navigateur` remplacent Supabase par un double en
