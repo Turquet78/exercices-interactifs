@@ -144,6 +144,19 @@ n'importe qui, alors que le fichier contient des prénoms d'élèves mineurs
 associés à leurs résultats. Les codes ne sont pas sauvegardés — ils sont
 hachés — et se redonnent après restauration.
 
+**La classe de l'énoncé pose une étiquette « Énoncé ».** `.enonce`,
+`.mp-instr`, `.lv-instr` et `.tvi-prompt` dessinent un cadre bleu et posent
+l'étiquette en pastille. La mettre sur autre chose — une légende de tableau, la
+partie b) d'une question — affiche donc un deuxième « Énoncé » sur le même
+écran, comme s'il y avait deux exercices. Une **suite** d'énoncé se déclare avec
+`enonce-suite` : même cadre, pas d'étiquette. Une **légende** prend une autre
+classe (`.tvi-legende`, `.tvi-instr`).
+Deux énoncés sont posés depuis des chaînes JavaScript, invisibles à un contrôle
+qui ne lirait que le HTML : le banc compte donc les occurrences dans tout le
+fichier et exige autant d'énoncés étiquetés que d'écrans d'exercice. Le banc
+navigateur, lui, compte les étiquettes réellement affichées sur deux écrans
+choisis pour cela.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
@@ -179,6 +192,9 @@ Quatorze points de branchement. En oublier un ne provoque aucune erreur visible
 12. `conseilCtxCourant()` — description de l'exercice envoyée au modèle
 13. `QIA_MODELES` — corrigé type généré par l'application (facultatif)
 14. `details.test` à l'enregistrement du résultat, avec l'identifiant exact
+15. l'énoncé dans un élément de classe `enonce` — il prend l'encadré et
+    l'étiquette. Deux contrôles l'exigent ; un exercice dont l'énoncé est
+    l'ardoise se déclare dans `tests/profils.js` (`enonce.ardoise`)
 
 Puis `npm test`.
 

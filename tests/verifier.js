@@ -342,6 +342,103 @@ function structure(){
   const manquants = [...demandes].filter(x => !ecrans.has(x));
   verifier('chaque show() vise un écran existant', manquants.length === 0, manquants.join(', '));
 
+  /* ---- L'encadré « Énoncé » ----------------------------------------------
+     Demandé pour TOUS les exercices. Un exercice ajouté demain sans énoncé
+     encadré ne lèverait aucune erreur : il serait simplement moins lisible, et
+     personne ne s'en apercevrait avant qu'un élève s'y perde. C'est
+     exactement le mode de panne que ce fichier existe pour attraper.
+     La liste de référence est « testScreens », celle que show() consulte —
+     pas une liste tenue à la main ici, qui divergerait. */
+  if(P.enonce){
+    const CL = P.enonce.classes;
+    verifier('le CSS pose un cadre autour de l\'énoncé',
+      new RegExp('\\.(?:' + CL.join('|') + ')[^{]*\\{[^}]*border\\s*:\\s*\\d').test(s),
+      'sans cadre, l\'énoncé se confond avec le reste de la page');
+    verifier('l\'encadré porte l\'étiquette « Énoncé »',
+      /::before[^{]*\{[^}]*content\s*:\s*'Énoncé'/.test(s),
+      'le cadre seul ne dit pas à l\'élève ce qu\'il encadre');
+    /* Le vert veut dire « juste » partout ailleurs dans ces pages. Un énoncé
+       sur fond vert se lit comme une réponse déjà validée — c'était le cas en
+       Terminale, et c'est le genre de détail qu'aucune relecture n'attrape. */
+    const regleEnonce = (s.match(new RegExp('\\.(?:' + CL.join('|') + ')[^{]*\\{[^}]*\\}', 'g')) || []).join(' ');
+    verifier('l\'énoncé n\'emprunte pas le vert qui veut dire « juste »',
+      !/green/.test(regleEnonce), 'fond vert : l\'élève lit une réponse validée');
+
+    const brut = (s.match(/const testScreens\s*=\s*\[([^\]]*)\]/) || [])[1] || '';
+    const ecransTest = [...brut.matchAll(/'([^']+)'/g)].map(m => m[1]);
+    verifier('la liste des écrans d\'exercice est lisible par le banc',
+      ecransTest.length > 0, 'testScreens introuvable : le contrôle suivant ne mesure rien');
+
+    const bornes = [...s.matchAll(/<section class="screen"[^>]*id="(scr-[^"]+)"/g)];
+    const blocDe = id => {
+      const k = bornes.findIndex(b => b[1] === id);
+      if(k < 0) return null;
+      return s.slice(bornes[k].index, k + 1 < bornes.length ? bornes[k+1].index : s.length);
+    };
+    /* On lit les classes jeton par jeton : « enonce-suite » contient
+       « enonce », et une comparaison par sous-chaîne compterait la suite d'un
+       énoncé comme un énoncé de plus. */
+    const enoncesDe = bloc => [...bloc.matchAll(/class="([^"]*)"/g)]
+      .map(m => m[1].split(/\s+/))
+      .filter(t => t.some(c => CL.includes(c)));
+
+    const sansEncadre = [], doubleEtiquette = [], introuvables = [];
+    ecransTest.forEach(nom => {
+      if(P.enonce.ardoise.includes(nom)) return;
+      const bloc = blocDe('scr-' + nom);
+      if(!bloc){ introuvables.push(nom); return; }
+      const trouves = enoncesDe(bloc);
+      if(trouves.length === 0) sansEncadre.push(nom);
+      if(trouves.filter(t => !t.includes('enonce-suite')).length > 1) doubleEtiquette.push(nom);
+    });
+    verifier('chaque écran d\'exercice porte un énoncé encadré',
+      sansEncadre.length === 0 && introuvables.length === 0,
+      [sansEncadre.length ? 'sans encadré : ' + sansEncadre.join(', ') : '',
+       introuvables.length ? 'écran absent : ' + introuvables.join(', ') : ''].filter(Boolean).join(' — '));
+    /* Un écran qui affiche son énoncé en deux temps (« a) … » puis « b) … »)
+       montrerait deux fois l'étiquette, comme s'il y avait deux exercices.
+       La suite se déclare avec « enonce-suite ». */
+    verifier('l\'étiquette « Énoncé » n\'apparaît qu\'une fois par écran',
+      doubleEtiquette.length === 0, doubleEtiquette.join(', '));
+
+    /* LE CONTRÔLE QUI A SERVI. Les deux précédents ne lisent que le HTML écrit
+       à la main. Or plusieurs énoncés sont posés par JavaScript, dans des
+       chaînes — et le contrôle par écran ne les voit pas. Deux défauts sont
+       passés ainsi, tous deux visibles à l'écran et invisibles au banc :
+       une légende de tableau (« Tableau de variation de f : ») qui portait la
+       classe des énoncés et s'est retrouvée étiquetée « Énoncé », et la partie
+       a) d'un énoncé en deux temps, qui affichait une deuxième étiquette sur le
+       même écran.
+       Celui-ci compte les occurrences dans TOUT le fichier, chaînes comprises,
+       et exige l'égalité : autant d'énoncés étiquetés que d'écrans d'exercice
+       qui en attendent un. Une classe d'énoncé posée sur autre chose fait donc
+       rougir le banc, où qu'elle soit écrite. */
+    const occurrences = [...s.matchAll(/class="([^"]*)"/g)]
+      .map(m => ({ toks: m[1].split(/\s+/), i: m.index }))
+      .filter(o => o.toks.some(c => CL.includes(c)));
+    const primaires = occurrences.filter(o => !o.toks.includes('enonce-suite'));
+    const attendus = ecransTest.filter(e => !P.enonce.ardoise.includes(e));
+    /* Pour désigner le coupable et non les vingt-trois innocents : les énoncés
+       du HTML des écrans sont, à ce jour, tous légitimes — un par écran. Ceux
+       qui sortent d'une chaîne JavaScript sont les seuls à vérifier. */
+    const zonesJS = [...s.matchAll(/<script[\s\S]*?<\/script>/g)]
+      .map(m => [m.index, m.index + m[0].length]);
+    const parJS = primaires.filter(o => zonesJS.some(z => o.i > z[0] && o.i < z[1]));
+    verifier('autant d\'énoncés étiquetés que d\'écrans qui en attendent un ('
+      + primaires.length + '/' + attendus.length + ')',
+      primaires.length === attendus.length,
+      primaires.length > attendus.length
+        ? (parJS.length
+            ? 'posé(s) par JavaScript, ligne(s) ' + parJS.map(o => ligneDe(o.i)).join(', ')
+              + ' : si c\'est la suite d\'un énoncé, ajouter « enonce-suite » ; '
+              + 'si c\'est une légende, employer une autre classe'
+            : 'un écran porte plus d\'un énoncé étiqueté')
+        : 'un écran d\'exercice n\'a pas d\'énoncé étiqueté');
+    if(P.enonce.ardoise.length)
+      console.log('   · énoncé porté par l\'ardoise, sans encadré : '
+        + P.enonce.ardoise.map(e => 'scr-' + e).join(', '));
+  }
+
   const principal = scripts.reduce((a,b) => a.length > b.length ? a : b, '');
   const definis = new Set();
   principal.split('\n').forEach(l => {

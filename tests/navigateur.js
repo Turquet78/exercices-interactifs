@@ -494,6 +494,53 @@ async function parcours(page, N){
       exercice.page + 'px de large pour un écran de ' + exercice.vue + 'px');
     await s.nav.close(); s = null;
 
+    /* ===== 6. l'encadré « Énoncé », tel qu'il s'affiche ===== */
+    /* Le contrôle structurel lit le fichier ; celui-ci lit l'écran. La
+       différence n'est pas théorique : deux énoncés sont posés par JavaScript,
+       dans des chaînes, et le contrôle structurel a laissé passer une légende
+       de tableau étiquetée « Énoncé » et une deuxième étiquette sur le même
+       écran. Seul le navigateur voit ce que l'élève voit.
+       L'exercice piloté ici est déclaré à part : celui du parcours principal
+       peut être un exercice sur ardoise, sans énoncé texte. */
+    titre('6. L\'ENCADRÉ « ÉNONCÉ »');
+    const AVISITER = (P.enonce && P.enonce.navigateur) || [];
+    if(!AVISITER.length){
+      ignorer('l\'énoncé s\'affiche encadré, avec son étiquette',
+        'aucun exercice à énoncé texte n\'est déclaré pour ce niveau');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      for(const exo of AVISITER){
+        await s.page.evaluate(id => openTest(id), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        const vu = await s.page.evaluate(classes => {
+          const sel = classes.map(c => '.screen.on .' + c).join(',');
+          const el = document.querySelector(sel);
+          const etiquettes = [...document.querySelectorAll('.screen.on *')]
+            .filter(x => (getComputedStyle(x, '::before').content || '').indexOf('Énoncé') >= 0).length;
+          if(!el) return { absent: true, etiquettes };
+          const c = getComputedStyle(el), av = getComputedStyle(el, '::before');
+          return { texte: el.textContent.trim(), bord: parseFloat(c.borderTopWidth) || 0,
+                   fond: c.backgroundColor, etiquette: av.content, etiquettes };
+        }, P.enonce.classes);
+        verifier(exo + ' : l\'énoncé est là, et non vide', !vu.absent && !!vu.texte,
+          vu.absent ? 'aucun élément d\'énoncé sur l\'écran' : 'énoncé vide');
+        verifier(exo + ' : il est encadré', !vu.absent && vu.bord >= 1.5, 'bordure : ' + vu.bord + 'px');
+        verifier(exo + ' : l\'étiquette « Énoncé » s\'affiche',
+          !vu.absent && /Énoncé/.test(String(vu.etiquette)), 'contenu du ::before : ' + vu.etiquette);
+        /* Le vert veut dire « juste » partout ailleurs : un énoncé sur fond vert
+           se lit comme une réponse déjà validée. On mesure la couleur RENDUE,
+           pas la déclaration CSS. */
+        verifier(exo + ' : son fond n\'est pas le vert des réponses justes',
+          !vu.absent && !/228,\s*245,\s*238/.test(String(vu.fond)), 'fond rendu : ' + vu.fond);
+        verifier(exo + ' : une seule étiquette « Énoncé » sur l\'écran', vu.etiquettes === 1,
+          vu.etiquettes + ' étiquette(s) — les parties a)/b) se déclarent « enonce-suite »');
+      }
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

@@ -86,6 +86,12 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'premiere-specifique.html': {
     niveau: 'Première',
+    /* Les classes qui portent l'encadré « Énoncé », et les écrans qui n'en ont
+       pas besoin : leur énoncé EST l'ardoise noire, où le calcul s'affiche en
+       très grand. Les déclarer ici plutôt que de les deviner — un exercice
+       ajouté demain sans encadré doit faire rougir le banc, pas passer. */
+    enonce: { classes: ['enonce', 'mp-instr'], ardoise: ['test', 'tm'],
+              navigateur: ['pourcentage'] },
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
@@ -128,6 +134,10 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'secondes.html': {
     niveau: 'Seconde',
+    /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
+       avant les autres. Elle prend le même encadré. Aucun écran d'ardoise ici. */
+    enonce: { classes: ['enonce', 'mp-instr', 'lv-instr'], ardoise: [],
+              navigateur: ['pourcentage', 'lecture-variations'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
@@ -177,6 +187,15 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'terminale.html': {
     niveau: 'Terminale',
+    /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
+       (« Rédige la justification : »). L'application elle-même les distingue,
+       dans ctxVisible(). Seul .tvi-prompt porte l'énoncé. */
+    /* Deux exercices visités dans un vrai navigateur, choisis pour ce qu'ils
+       exercent : « signe-produit » pose son énoncé en trois morceaux dont deux
+       par JavaScript, et « limites-graphiques-2 » ajoute une légende de tableau
+       qui a porté par erreur la classe des énoncés. */
+    enonce: { classes: ['enonce', 'tvi-prompt'], ardoise: ['test'],
+              navigateur: ['signe-produit', 'limites-graphiques-2'] },
     tableResultats: 'resultats',
     tableEleves: 'eleves',
     navigateur: {
