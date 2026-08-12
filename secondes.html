@@ -303,8 +303,27 @@
   @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
 
   /* ===== Test 2 : multiplication posée ===== */
-  .mp-instr{font-weight:700;text-align:center;margin:0 0 16px;font-size:.98rem}
-  .mp-instr b{color:var(--red)}
+  /* ---- Encadré « Énoncé » ------------------------------------------------
+     L'énoncé se perdait : du texte gras posé au milieu du reste, sans rien
+     qui le sépare de la zone de réponse. Un cadre et une étiquette le
+     détachent.
+     L'étiquette est BLEUE, jamais verte : dans ces pages le vert veut dire
+     « juste » partout ailleurs (.ok, .done, les cases validées), et un
+     énoncé sur fond vert se lit comme une réponse déjà validée.
+     Le « :empty » n'est pas un détail — un exercice qui laisse l'élément
+     vide selon la question afficherait sinon une étiquette flottant
+     au-dessus d'un cadre sans texte.
+     La classe .enonce est le nom à employer pour un nouvel exercice ; les
+     deux autres sont les classes déjà en place, conservées pour ne pas
+     toucher aux trente écrans existants. */
+  .enonce,.mp-instr,.lv-instr{position:relative;text-align:left;font-weight:600;font-size:1.04rem;
+    line-height:1.55;color:var(--ink);background:var(--surface);border:2px solid var(--blue);
+    border-radius:16px;padding:20px 16px 15px;margin:14px 0 18px}
+  .enonce::before,.mp-instr::before,.lv-instr::before{content:'Énoncé';position:absolute;top:-10px;left:14px;
+    background:var(--blue);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.1em;
+    text-transform:uppercase;padding:3px 10px;border-radius:999px}
+  .enonce:empty,.mp-instr:empty,.lv-instr:empty{display:none}
+  .mp-instr b,.lv-instr b,.enonce b{color:var(--red)}
   .mp-stage{display:flex;justify-content:center;padding:22px 8px 14px;border-radius:18px;border:1.5px solid var(--line);
     background-color:#fff;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
     background-size:30px 30px;background-position:-1px -1px}
@@ -645,7 +664,8 @@
     .lv-card{max-width:600px;margin:0 auto}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
-    .lv-instr{font-weight:600;margin:0 0 12px}
+    /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
+       que ce qui lui est propre. */
     .lv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 16px;overflow-x:auto}
     .lv-svg{display:block;width:100%;max-width:460px;height:auto;margin:0 auto}
     .lv-grid{stroke:var(--grid);stroke-width:1}
@@ -1281,7 +1301,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=33;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=34;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();

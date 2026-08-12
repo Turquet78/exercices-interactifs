@@ -442,7 +442,32 @@
 
 /* --- Test TVI : tableau de variation + justification à compléter --- */
 .tvi-card{max-width:var(--card-max);margin:0 auto;}
-.tvi-prompt{font-size:1rem;line-height:1.5;color:var(--ink);background:var(--green-soft);border-radius:14px;padding:12px 14px;margin:0 0 14px;}
+/* ---- Encadré « Énoncé » --------------------------------------------------
+   L'énoncé avait un cadre, mais VERT — la couleur qui, partout ailleurs dans
+   cette page, veut dire « juste » : .ok, .done, les cases validées, les
+   badges de réussite. Un énoncé sur ce fond se lit comme une réponse déjà
+   validée. Il passe au bleu, avec son étiquette.
+   Le « :empty » n'est pas un détail — plusieurs écrans laissent l'élément
+   vide selon la question, et l'étiquette seule flotterait au-dessus d'un
+   cadre sans texte.
+   .enonce est le nom à employer pour un nouvel exercice ; .tvi-prompt est la
+   classe déjà en place, conservée pour ne pas toucher aux vingt-trois écrans
+   existants. */
+.enonce,.tvi-prompt{position:relative;text-align:left;font-weight:600;font-size:1.04rem;
+  line-height:1.55;color:var(--ink);background:var(--surface);border:2px solid var(--blue);
+  border-radius:16px;padding:20px 16px 15px;margin:14px 0 18px;}
+.enonce::before,.tvi-prompt::before{content:'Énoncé';position:absolute;top:-10px;left:14px;
+  background:var(--blue);color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;padding:3px 10px;border-radius:999px;}
+.enonce:empty,.tvi-prompt:empty{display:none;}
+/* La suite d'un énoncé en deux parties (« a) … » puis « b) … ») : même cadre,
+   mais une seule étiquette pour les deux — sinon l'élève lit « Énoncé » deux
+   fois sur le même écran, comme s'il y avait deux exercices. */
+.enonce-suite::before{content:none;}
+.enonce-suite{padding-top:15px;}
+/* Légende d'un tableau ou d'un graphique. Volontairement à l'écart des classes
+   d'énoncé : elle nomme ce qui suit, elle ne pose pas la question. */
+.tvi-legende{font-weight:700;color:var(--ink);margin:14px 0 8px;}
 .tvi-table{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px 6px;margin:0 0 16px;overflow-x:auto;}
 .tvi-svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;}
 .tvi-t{font-family:'Nunito',sans-serif;font-size:14px;fill:var(--ink);}
@@ -1567,7 +1592,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-prompt s1-prompt" id="spPrompt"></p>
       <div id="spJetons"></div>
       <div id="spQa"></div>
-      <p class="tvi-prompt s1-prompt" id="spTitreB" hidden style="margin:14px 0 6px"></p>
+      <p class="tvi-prompt s1-prompt enonce-suite" id="spTitreB" hidden style="margin:14px 0 6px"></p>
       <div id="spQ1"></div>
       <div id="spQ2"></div>
       <div id="spTabWrap"></div>
@@ -1835,7 +1860,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=218;
+const APP_VERSION=219;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -5900,7 +5925,10 @@ function renderLG2(){
   $('lg2Hint').innerHTML='<span class="tvg-hint">raccourci clavier : <kbd>inf</kbd> → ∞</span>';
   $('lg2Subs').innerHTML=lgSubsHTML(c,'lg2');
   lgSubsBind(c,'lg2');
-  $('lg2TVzone').innerHTML='<p class="tvi-prompt" style="margin-top:14px">Tableau de variation de <i>f</i> :</p>'+lg2TableHTML(c);
+  /* .tvi-legende, pas .tvi-prompt : ceci légende le tableau qui suit, ce n'est
+     pas l'énoncé de l'exercice. Depuis que .tvi-prompt porte l'étiquette
+     « Énoncé », le confondre affichait un deuxième énoncé sur cet écran. */
+  $('lg2TVzone').innerHTML='<p class="tvi-legende">Tableau de variation de <i>f</i> :</p>'+lg2TableHTML(c);
   c.tv.vals.forEach((v,k)=>{ const el=$('lg2-v'+k); if(!el) return;
     el.oninput=function(){ const av=this.value; if(/inf/i.test(av)){ const p=this.selectionStart||0; const nv=av.replace(/inf/gi,'∞'); this.value=nv; const d2=av.length-nv.length; try{ this.setSelectionRange(Math.max(0,p-d2),Math.max(0,p-d2)); }catch(err){} } }; });
   setTimeout(function(){ lg2SyncAll(); lg2ArrowChange(); }, 0);   /* après restoreBoxes en reprise */
@@ -9752,7 +9780,10 @@ function spResAHTML(q){
     +'<span class="s1-solve"><i>x</i> \u2260 <span class="s1-frac-stack">'+spBoxN('sp-n1')+'<span class="s1-fbar"></span>'+spBoxN('sp-d1')+'</span></span>'
     +'<span class="s1-solve"><i>x</i> \u2260 '+spBoxN('sp-v1')+'</span>'
     +'</div>';
-  return '<p class="tvi-prompt s1-prompt" style="margin-bottom:6px"><b>a)</b> R\u00e9sous <b><i>f</i>\u00a0(<i>x</i>) = 0</b>'
+  /* \u00ab enonce-suite \u00bb : la partie a) prolonge l'\u00e9nonc\u00e9 pos\u00e9 plus haut par
+     spPrompt. Sans elle, l'\u00e9cran affichait deux \u00e9tiquettes \u00ab \u00c9nonc\u00e9 \u00bb, comme
+     s'il portait deux exercices. */
+  return '<p class="tvi-prompt s1-prompt enonce-suite" style="margin-bottom:6px"><b>a)</b> R\u00e9sous <b><i>f</i>\u00a0(<i>x</i>) = 0</b>'
     +(q.quo?' et cherche la <b>valeur interdite</b>.':'.')+'</p>'
     +'<div class="rec-ligne" style="margin-bottom:2px">On doit r\u00e9soudre&nbsp;:</div>'
     +'<div class="sp-eqcols">'+col(0)+'<span class="sp-ou">'+(q.quo?'et':'ou')+'</span>'+(q.carre?colCar():(q.quo?colDen():col(1)))+'</div>';
