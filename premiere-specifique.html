@@ -991,6 +991,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : PRENDRE UN POURCENTAGE SUR DEUX COLONNES -->
+  <section class="screen" id="scr-pcol">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPC"></span><span class="q-idx" id="pcqIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="pcLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="pcPrompt">Prendre un pourcentage.</p>
+      <div class="mp-stage"><div style="width:100%" id="pcHost"></div></div>
+      <div class="mp-feedback" id="pcFeedback"></div>
+      <div class="row" style="justify-content:center" id="pcActions">
+        <button class="btn btn-primary" onclick="checkPctColAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-fptest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagFP"></span><span class="q-idx" id="fpqIdx">Question 1 / 6</span></span>
@@ -1308,7 +1324,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=98;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=99;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1556,6 +1572,7 @@ const TESTS={
   'diminuer-taux-soustraction':{ name:'Retrouver le pourcentage d\u2019une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage de baisse parmi quatre, puis vérifie-le en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimTauxSub() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
+  'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les 10 produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : 3 secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() }
 };
@@ -1586,6 +1603,7 @@ const MENU=[
   {kind:'test', id:'diminuer-depart'},
   {kind:'test', id:'diminuer-taux'},
   {kind:'test', id:'fraction-pourcentage'},
+  {kind:'test', id:'pourcentage-colonnes'},
   {kind:'test', id:'augmenter-addition'},
   {kind:'test', id:'augmenter-depart-addition'},
   {kind:'test', id:'diminuer-taux-soustraction'},
@@ -1602,7 +1620,7 @@ const THEMES=[
      sur trois niveaux — 3.2.1 = thème 3, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:3, nom:'Pourcentages', sous:[
-      { num:1, nom:'Prendre un pourcentage',           ids:['pourcentage','pourcentage-depart','pourcentage-taux','fraction-pourcentage'] },
+      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction'] },
       { num:4, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages'] }
@@ -1637,7 +1655,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1716,6 +1734,7 @@ function liveCheckCurrent(){
   else if(k==='augq') checkVAnswer(true);
   else if(k==='dim') checkDAnswer(true);
   else if(k==='fp') checkFPAnswer(true);
+  else if(k==='pcol') checkPctColAnswer(true);
   else if(k==='ag2') checkAG2Answer(true);
   else if(k==='ag2q') checkWAnswer(true);
   else if(k==='syn') checkSynAnswer(true);
@@ -2069,7 +2088,7 @@ function afficherEcranDe(k){
     mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest],
     pctq:['qtest',renderQTest], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
-    fp:['fptest',renderFPTest], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
+    fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest]
   };
   const e=table[k];
@@ -2223,7 +2242,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','mtest','ftest','ptest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
+  const testScreens=['test','tm','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
@@ -4031,6 +4050,154 @@ async function finishFP(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'fraction-pourcentage',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+
+/* ============ 3.1.2 Prendre un pourcentage, en le lisant sur deux colonnes ============
+   Le jumeau graphique de « prendre un pourcentage » : MÊME énoncé, tiré dans la
+   MÊME table de tournures et de mises en situation (PCT_ENONCES, CTX_PART), même
+   générateur de couples — mais résolu sans écrire une seule fraction.
+
+   Deux colonnes partagées à l'identique, en dix parts :
+     — celle de gauche vaut 100 %, chaque part vaut donc 10 % ;
+     — celle de droite vaut le nombre de l'énoncé, chaque part vaut donc N/10.
+   L'élève colorie le pourcentage à gauche, reporte LA MÊME HAUTEUR à droite, et
+   écrit dessous ce que cette hauteur représente.
+
+   Pourquoi dix parts : PCT_PCTS ne contient que des multiples de 10, et
+   PCT_VALEURS que des multiples de 10 — chaque part de droite vaut donc un
+   entier, et la hauteur cherchée tombe toujours sur une graduation. Un
+   pourcentage à 25 % n'aurait pas de trait où s'arrêter.
+
+   Les deux colonnes se présentent EXACTEMENT pareil — même largeur, même nombre
+   de parts, une étiquette au-dessus disant ce que vaut le tout. C'est cette
+   symétrie qui fait voir que la hauteur, elle, est la même des deux côtés.
+   Rien n'indique ce que vaut une part de la colonne de droite : ce serait donner
+   la réponse. L'élève la déduit du total, affiché au-dessus. */
+const PCOL_PARTS=10;                    /* les deux colonnes sont partagées pareil */
+function genPctCol(){
+  let P,N;
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
+  const ci=tirerContexte(CTX_PART,N);                      /* le contexte impose l'unité */
+  const q={P,N,unit:CTX_PART[ci].u,prod:P*N,result:P*N/100,ci,selL:0,selR:0};
+  q.v=tirerVariante(PCT_ENONCES,q);        /* la question doit exister avant le tirage */
+  return q;
+}
+async function startPctCol(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='pcol';
+  test.questions=Array.from({length:6},genPctCol);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('pcol'); renderPctCol();
+}
+function renderPctCol(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('pcqIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagPC').innerHTML=modeTagHTML();
+  $('pcLiveScore').textContent=test.score;
+  $('pcFeedback').textContent=''; $('pcFeedback').className='mp-feedback';
+  $('pcActions').innerHTML='<button class="btn btn-primary" onclick="checkPctColAnswer()">Vérifier</button>';
+  $('pcPrompt').innerHTML=variante(PCT_ENONCES,q);
+  const segs=(sel,fn)=>Array.from({length:PCOL_PARTS},(_,i)=>
+    `<div class="fp-seg${i<sel?' on':''}" onclick="${fn}(${i+1})"></div>`).join('');
+  $('pcHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">Colorie le pourcentage à gauche, reporte la même hauteur à droite, puis écris ce qu’elle représente</div>
+    <div class="fp-zone">`+
+      `<div class="fp-bloc"><div class="fp-lab">pour 100</div>`+
+        `<div class="fp-col" id="pcColL">${segs(q.selL,'pcClickL')}</div>`+
+        `<div class="fp-val" id="pcValL">${q.selL?(q.selL*10+' %'):'… %'}</div></div>`+
+      `<div class="fp-bloc"><div class="fp-lab">${esc(String(q.N))} ${esc(q.unit)}</div>`+
+        `<div class="fp-col" id="pcColR">${segs(q.selR,'pcClickR')}</div>`+
+        `<div class="fp-val"><math-field class="dexp-mf pm-mf f-dec" id="pcRes" aria-label="le résultat"></math-field>`+
+          `<span class="f-whole">&nbsp;${esc(q.unit)}</span></div></div>`+
+    `</div></div>`;
+  const r=$('pcRes');
+  if(r) r.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); checkPctColAnswer(); } });
+}
+/* Cliquer sur une part colorie jusqu'à elle ; recliquer la dernière efface d'un cran. */
+function pcMaj(){
+  const q=test.questions[test.idx];
+  const L=$('pcColL'), R=$('pcColR'); if(!L||!R) return;
+  [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
+  [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
+  L.classList.remove('ok','bad'); R.classList.remove('ok','bad');
+  $('pcValL').textContent = q.selL ? (q.selL*10)+' %' : '… %';
+}
+function pcClickL(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  q.selL=(q.selL===i?i-1:i);
+  pcMaj(); autoSave();
+  if(isSoutien()) checkPctColAnswer(true);
+}
+function pcClickR(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  q.selR=(q.selR===i?i-1:i);
+  pcMaj(); autoSave();
+  if(isSoutien()) checkPctColAnswer(true);
+}
+function checkPctColAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const colL=$('pcColL'), colR=$('pcColR'); if(!colL||!colR) return;
+  const parts=q.P/10;                       /* le nombre de parts à colorier, des deux côtés */
+  const okL=(q.selL===parts), okR=(q.selR===parts);
+  const v=id=>{const e=$(id);return e?String(e.value||'').trim():'';};
+  if(live){   /* soutien : on ne juge que ce qui est déjà colorié ou écrit */
+    colL.classList.remove('ok','bad'); if(q.selL>0) colL.classList.add(okL?'ok':'bad');
+    colR.classList.remove('ok','bad'); if(q.selR>0) colR.classList.add(okR?'ok':'bad');
+    liveColorDec('pcRes',q.result,1);
+    return;
+  }
+  if(q.selL===0 || q.selR===0){
+    $('pcFeedback').textContent='Colorie les deux colonnes avant de vérifier.';
+    $('pcFeedback').className='mp-feedback bad'; return;
+  }
+  colL.classList.remove('ok','bad'); colL.classList.add(okL?'ok':'bad');
+  colR.classList.remove('ok','bad'); colR.classList.add(okR?'ok':'bad');
+  const fr=parseDecToFrac(v('pcRes')); const okR2 = !!fr && fr.n===q.result*fr.d;
+  const soutien=isSoutien();
+  const el=$('pcRes');
+  if(el){ el.classList.remove('ok','bad'); el.classList.add(okR2?'ok':'bad'); el.disabled=okR2||!soutien; }
+  const allOk=okL&&okR&&okR2;
+  if(!allOk && soutien){ soutienAgain('pcFeedback','pcActions','checkPctColAnswer','pcHost'); return; }
+  test.locked=true;
+  const part=q.N/PCOL_PARTS;
+  const egal='<b>'+q.P+' %</b> de '+q.N+' '+esc(q.unit)+', c’est '+parts+' part'+(parts>1?'s':'')
+           +' sur '+PCOL_PARTS+' — et chaque part vaut '+part+' '+esc(q.unit)+', donc '
+           +parts+' × '+part+' = <b>'+q.result+' '+esc(q.unit)+'</b>.';
+  if(allOk){ test.score++; $('pcLiveScore').textContent=test.score;
+    $('pcFeedback').innerHTML=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !'])+' '+egal;
+    $('pcFeedback').className='mp-feedback good';
+  } else {
+    $('pcFeedback').innerHTML='Réponse : '+egal;
+    $('pcFeedback').className='mp-feedback bad';
+    /* entraînement : la bonne hauteur apparaît en pointillés bleus sur chaque
+       colonne fausse, et la case reçoit sa correction */
+    if(currentMode==='train'){
+      [[colL,okL],[colR,okR]].forEach(pr=>{ if(!pr[1] && !pr[0].querySelector('.fp-cible'))
+        pr[0].insertAdjacentHTML('beforeend','<div class="fp-cible" style="bottom:'+q.P+'%"></div>'); });
+    }
+    corTrainDec('pcRes',q.result);
+  }
+  test.answers.push({...(ptsExo()||{}), q:q.P+' % de '+q.N+' '+q.unit,
+    answer:String(q.result), given:(q.selL*10)+' %, '+q.selR+' part(s) et '+(v('pcRes')||'—'), correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('pcActions').innerHTML='<button class="btn btn-primary" id="pcNext" onclick="nextPctColQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  $('pcNext').focus();
+}
+function nextPctColQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPctCol(); autoSave(); } else finishPctCol(); }
+async function finishPctCol(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'pourcentage-colonnes',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -7395,6 +7562,16 @@ Une diminution relie trois nombres par une seule égalité :<br>
 Dès qu’on en connaît deux, le troisième est déterminé. Plutôt que de le calculer directement, on <b>teste une proposition</b> : on refait la baisse avec elle, exactement comme dans l’exercice {diminuer-pourcentage}, et on regarde si l’on retombe sur la valeur finale annoncée.<br>
 Si le calcul est juste mais que le résultat ne correspond pas, c’est la proposition qui est mauvaise, pas le calcul.<br>
 Piège classique : une baisse de 20 % ne s’annule pas par une hausse de 20 % — on compare toujours à la valeur de DÉPART.`;
+const RAP_PCOL=`<b>Lire un pourcentage sur une colonne</b><br>
+Un pourcentage est une part du tout. Si l’on partage le tout en <b>10 parts égales</b>,
+chaque part vaut <b>10 %</b> : 30 % en occupent 3, 70 % en occupent 7.<br>
+<b>La même hauteur, sur l’autre colonne.</b> La colonne de droite représente le nombre
+de l’énoncé, partagée exactement pareil : elle a elle aussi 10 parts. Prendre P % de ce
+nombre, c’est donc colorier le MÊME nombre de parts qu’à gauche.<br>
+<b>Ce que vaut une part</b> : le nombre total divisé par 10. Pour 40 €, une part vaut 4 € ;
+30 % en font 3, donc 3 × 4 = <b>12 €</b>.<br>
+À retenir : les deux colonnes ne montrent pas la même chose — l’une compte en pourcents,
+l’autre dans l’unité de l’énoncé — mais la HAUTEUR y est la même.`;
 const RAP_FP=`<b>Fraction et pourcentage</b><br>
 Un pourcentage est une fraction de dénominateur 100 : <b>x % = x/100</b>.<br>
 <b>Méthode 1, avec les colonnes</b> : on partage 100 % en b parts égales, chaque part vaut 100/b % — à la même hauteur correspondent la fraction ET le pourcentage.<br>
@@ -7421,7 +7598,7 @@ const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
 Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
 Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, P/100 × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -7448,6 +7625,7 @@ const QIA_SUGG={
   syn:["Quelle méthode choisir : coefficient ou calcul direct ?","Comment reconnaître s\u2019il s\u2019agit de prendre, d\u2019augmenter ou de diminuer ?","Comment tester une proposition ?","Pourquoi les deux méthodes donnent-elles le même résultat ?"],
   ag2q:["Comment tester une proposition sans coefficient ?","Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ou la baisse ?","Dans quel sens écrire la soustraction ?","Que conclure si mon calcul est juste mais ne retombe pas sur la valeur finale ?"],
   ag2:["Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ?","Quelle différence avec la méthode du coefficient ?","Pourquoi faut-il ajouter la valeur de départ à la fin ?","Comment calculer 20 % de 300 ?"],
+  pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
@@ -7588,6 +7766,15 @@ function conseilCtxCourant(){
       +'R\u00e9ponses attendues, STRICTEMENT SECR\u00c8TES : '+q.a+' parts colori\u00e9es et '+q.pct+' % choisis (m\u00e9thode 1) ; multiplicateur '+kf+' dans les DEUX cases, num\u00e9rateur '+(q.a*kf)+', pourcentage '+q.pct+' % (m\u00e9thode 2). '
       +'L\u2019\u00e9l\u00e8ve a colori\u00e9 '+(q.selL||0)+' part(s) et choisi '+((q.selR||0)*5)+' %. '
       +'M\u00e9thode enseign\u00e9e : chaque part vaut '+kf+' % ; multiplier num\u00e9rateur ET d\u00e9nominateur par '+kf+' am\u00e8ne le d\u00e9nominateur \u00e0 100 sans changer la fraction.';
+  } else if(k==='pcol' && q){
+    const part=q.N/PCOL_PARTS, parts=q.P/10;
+    att='Exercice GRAPHIQUE : prendre '+q.P+' % de '+q.N+' '+q.unit+' en coloriant deux colonnes partag\u00e9es en '+PCOL_PARTS+' parts. '
+      +'Colonne de gauche : le tout vaut 100 %, une part vaut donc 10 %. Colonne de droite : le tout vaut '+q.N+' '+q.unit+', une part vaut donc '+part+' '+q.unit+'. '
+      +'L\u2019\u00e9l\u00e8ve colorie \u00e0 gauche, reporte la M\u00caME HAUTEUR \u00e0 droite, puis \u00e9crit ce qu\u2019elle repr\u00e9sente. '
+      +'R\u00e9ponses attendues, STRICTEMENT SECR\u00c8TES : '+parts+' part(s) colori\u00e9e(s) de chaque c\u00f4t\u00e9, r\u00e9sultat '+q.result+' '+q.unit+'. '
+      +'L\u2019\u00e9l\u00e8ve a colori\u00e9 '+(q.selL||0)+' part(s) \u00e0 gauche et '+(q.selR||0)+' \u00e0 droite. '
+      +'M\u00e9thode enseign\u00e9e : compter les parts, trouver ce que vaut UNE part (le total divis\u00e9 par '+PCOL_PARTS+'), puis multiplier. '
+      +'Ne donne jamais le r\u00e9sultat : fais compter les parts, ou demander ce que vaut une part.';
   } else if(k==='mp' && q){
     att='Multiplication posée : '+q.a+' × '+q.m+'. Réponses attendues, STRICTEMENT SECRÈTES : retenue '+q.carry1+', résultat '+q.result+'. '
       +'Méthode : multiplier d’abord les unités, écrire le chiffre des unités du produit et retenir les dizaines, puis multiplier les dizaines et AJOUTER la retenue. La case de retenue est facultative, mais si elle est écrite elle doit être juste.';
@@ -7761,7 +7948,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderAG2Test','renderWTest','renderSynTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

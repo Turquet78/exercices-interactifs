@@ -24,12 +24,13 @@
    ici, et s'affiche en clair à la fin de chaque exécution.
    ========================================================================== */
 
-/* Les 12 exercices de la Première dont le contexte part au modèle. */
+/* Les 13 exercices de la Première dont le contexte part au modèle. */
 const KINDS_PREMIERE = [
   ['pct','genPercent()'], ['pctq','genPctTaux()'], ['aug','genAug()'],
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
+  ['pcol','genPctCol()'],
 ];
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
@@ -37,7 +38,7 @@ const RAPPELS_PREMIERE = `(function(){
   const cles={ 'calcul-mental':'cm','pourcentage':'pct','pourcentage-depart':'pctq','pourcentage-taux':'pctq',
     'augmenter-pourcentage':'aug','augmenter-depart':'augq','augmenter-taux':'augq',
     'diminuer-pourcentage':'dim','multiplication-posee':'mp','mult-decimaux':'md',
-    'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp',
+    'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn',
@@ -106,7 +107,7 @@ module.exports = {
        très grand. Les déclarer ici plutôt que de les deviner — un exercice
        ajouté demain sans encadré doit faire rougir le banc, pas passer. */
     enonce: { classes: ['enonce', 'mp-instr'], ardoise: ['test', 'tm'],
-              navigateur: ['pourcentage'] },
+              navigateur: ['pourcentage', 'pourcentage-colonnes'] },
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
