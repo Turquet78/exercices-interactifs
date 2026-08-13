@@ -1301,7 +1301,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=34;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=35;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1631,9 +1631,24 @@ function modeTagHTML(){
   if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
   return '<span class="mode-tag train">✏️ Entraînement</span>';
 }
+/* ---------- Les numéros d'exercice ne s'écrivent jamais en toutes lettres ----------
+   Un numéro (2.1) n'existe nulle part : il se déduit de la POSITION dans THEMES.
+   Réordonner un thème les décale donc tous, et une phrase qui en citerait un —
+   « comme en 2.1 » — renverrait l'élève au mauvais exercice sans que rien ne le
+   signale. On écrit donc l'identifiant entre accolades, {pourcentage}, remplacé
+   ici par le numéro du moment.
+   Aucun texte de ce fichier n'en cite un aujourd'hui ; le dispositif est posé
+   pour que le premier qui s'écrira soit juste, et le contrôle du banc interdit
+   qu'un numéro en dur revienne. Deux entonnoirs : les descriptions (cardHTML) et
+   les rappels de cours (rappelHTML).
+   Un identifiant inconnu est laissé tel quel plutôt que d'être effacé. */
+function numeros(txt){
+  return String(txt==null?'':txt).replace(/\{([a-z0-9-]+)\}/g,
+    (tout,id)=> (typeof TESTS!=='undefined' && TESTS[id]) ? (testNum(id) || TESTS[id].name) : tout);
+}
 function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
   return `<button class="choice eleve ${extraClass||''}" ${onclick?`onclick="${onclick}"`:'disabled'}>
-    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(desc)}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
+    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 let mesResultats=[], mesDevoirs=[];
 function bestModeExo(id, modes){
@@ -2108,7 +2123,7 @@ Piege classique : lire la hauteur de la courbe au lieu de son sens — une courb
 const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV };
 const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
-function rappelHTML(){ return RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''; }
+function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
 function masquerRappel(){
   const box=$('conseilRappel'); if(box){ box.hidden=true; box.innerHTML=''; }
   const b=$('conseilRappelBtn'); if(b) b.textContent='\u{1F4D8} Voir le rappel de cours';
