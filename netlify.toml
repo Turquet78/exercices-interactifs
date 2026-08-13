@@ -1,0 +1,47 @@
+# ============================================================================
+#  Netlify — servir les trois pages telles quelles
+# ============================================================================
+#  POURQUOI CE FICHIER EXISTE
+#
+#  Le dépôt était raccordé à Netlify sans qu'aucun réglage ne le suive : le
+#  déploiement échouait en treize secondes sur CHAQUE pull request, et le site
+#  turquet-math.netlify.app rendait 404. Trois contrôles rouges en permanence,
+#  ce qui est pire qu'aucun contrôle : du rouge qui ne veut rien dire apprend à
+#  ignorer le rouge qui, lui, en voudra un jour.
+#
+#  CE QUE NETLIFY APPORTE, ET QUE GITHUB PAGES NE SAIT PAS FAIRE
+#
+#  Une PRÉVISUALISATION par pull request : une adresse temporaire où la page
+#  s'ouvre telle qu'elle sera, avant que les élèves ne l'aient. GitHub Pages ne
+#  publie que « main » — c'est-à-dire déjà en ligne. Et le banc navigateur ne
+#  vérifie que ce qu'on lui a demandé de vérifier : il ne juge pas si une
+#  formulation est claire ni si des cartes sont bien disposées.
+#
+#  CE QU'IL N'APPORTE PAS
+#
+#  Rien pour les élèves : le site qu'ils ouvrent est servi par GitHub Pages, et
+#  lui seul. Ce fichier ne change pas une ligne de ce qu'ils voient.
+#
+#  LE RÉGLAGE
+#
+#  Il n'y a rien à compiler : trois fichiers HTML monolithiques, sans étape de
+#  construction. On sert donc la racine du dépôt telle quelle, avec une commande
+#  de construction VIDE — c'est très probablement une commande devinée par
+#  Netlify (« npm run build », qui n'existe pas ici) qui faisait échouer le
+#  déploiement.
+#
+#  Le dépôt est public : publier sa racine n'expose rien de plus que GitHub.
+#
+#  Il n'y a pas d'index à la racine — sur GitHub Pages non plus, elle rend 404.
+#  Une prévisualisation s'ouvre donc directement sur la page voulue :
+#      https://<adresse-de-prévisualisation>/premiere-specifique.html
+# ============================================================================
+
+[build]
+  publish = "."
+  command = ""
+
+# Les dossiers de travail n'ont rien à faire dans une prévisualisation : ils ne
+# se regardent pas dans un navigateur, et les exclure raccourcit le déploiement.
+[build.processing]
+  skip_processing = true
