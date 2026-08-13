@@ -342,6 +342,31 @@ function structure(){
   const manquants = [...demandes].filter(x => !ecrans.has(x));
   verifier('chaque show() vise un écran existant', manquants.length === 0, manquants.join(', '));
 
+  /* ---- Tout écran d'exercice figure dans testScreens ----------------------
+     testScreens est la liste que show() consulte : elle décide du plein écran,
+     du titre de l'exercice, du bouton de pause — et c'est elle que le contrôle
+     de l'encadré « Énoncé », plus bas, parcourt. Un écran d'exercice absent de
+     testScreens n'y était donc pas SIGNALÉ : il sortait du champ du banc, qui
+     restait vert sur un exercice qu'il ne regardait plus. C'est le point 5 des
+     quinze branchements d'un nouvel exercice, et l'oublier ne coûtait rien.
+     Les écrans de MENU sont déclarés dans tests/profils.js, et tout le reste
+     doit être un écran d'exercice. Déclarer en négatif est délibéré : ajouter
+     un exercice ne demande alors aucune ligne au fichier de profils. L'inverse
+     — déclarer les exercices — aurait fait revenir l'oubli par la fenêtre. */
+  if(P.ecransHorsExercice){
+    const brutTS = (s.match(/const testScreens\s*=\s*\[([^\]]*)\]/) || [])[1] || '';
+    const listeTS = [...brutTS.matchAll(/'([^']+)'/g)].map(m => m[1]);
+    const menus = new Set(P.ecransHorsExercice);
+    const oublies = [...ecrans].filter(e => !menus.has(e) && !listeTS.includes(e));
+    verifier('chaque écran d\'exercice figure dans testScreens', oublies.length === 0,
+      oublies.join(', ') + ' — soit un exercice hors du champ du banc, soit un écran de menu à déclarer dans tests/profils.js');
+    const fantomes = listeTS.filter(e => !ecrans.has(e));
+    verifier('testScreens ne nomme aucun écran disparu', fantomes.length === 0, fantomes.join(', '));
+  } else {
+    ignorer('chaque écran d\'exercice figure dans testScreens',
+      'ce niveau n\'a pas déclaré ses écrans de menu (voir tests/profils.js)');
+  }
+
   /* ---- L'encadré « Énoncé » ----------------------------------------------
      Demandé pour TOUS les exercices. Un exercice ajouté demain sans énoncé
      encadré ne lèverait aucune erreur : il serait simplement moins lisible, et
@@ -860,6 +885,75 @@ function exercices(suite){
     } else {
       ignorer('chaque exercice a son rappel de cours', 'ce niveau n\'a pas encore de table RAPPELS (voir les manques)');
     }
+
+    /* ---- Aucun numéro d'exercice écrit en toutes lettres --------------------
+       Un numéro (3.1.1) n'existe nulle part dans le fichier : il se déduit de la
+       POSITION de l'exercice dans THEMES. Réordonner un thème les décale donc
+       tous — et les phrases qui en citaient un, « les 3 étapes de l'exercice
+       3.1.1 », renvoyaient l'élève au mauvais exercice sans que rien ne bronche.
+       Elles s'écrivent maintenant {identifiant}, résolu à l'affichage par
+       numeros(). Ce contrôle interdit qu'un numéro en dur y revienne : sans lui,
+       la prochaine phrase écrite à la main ramènerait le défaut en silence.
+       On n'inspecte que les DEUX sources de texte pur — descriptions et rappels.
+       Le contexte envoyé au modèle en est exclu : il est truffé de décimales
+       (coordonnées de tracé, bornes d'intervalle) qu'aucune règle ne distingue
+       d'une référence. C'est un manque assumé, pas un oubli. */
+    verifierEval(w, 'aucun numéro d\'exercice écrit en dur dans un texte vu par l\'élève', `(function(){
+      var fautifs=[], suspect=/\\d+\\.\\d+(?:\\.\\d+)?/;
+      Object.keys(TESTS).forEach(function(id){
+        var d=TESTS[id] && TESTS[id].desc;
+        if(d && suspect.test(d)) fautifs.push('description de '+id+' cite '+d.match(suspect)[0]);
+      });
+      [['RAPPELS', typeof RAPPELS!=='undefined'?RAPPELS:null],
+       ['RAPPELS_ID', typeof RAPPELS_ID!=='undefined'?RAPPELS_ID:null]].forEach(function(t){
+        if(!t[1]) return;
+        Object.keys(t[1]).forEach(function(k){
+          var v=t[1][k]; v=String((typeof v==='function'?v():v)||'');
+          if(suspect.test(v)) fautifs.push(t[0]+'.'+k+' cite '+v.match(suspect)[0]);
+        });
+      });
+      return fautifs.join(' | ');
+    })()`, v => v === '', undefined);
+
+    /* Et le remplaçant doit remplacer : un contrôle qui vérifie seulement
+       l'absence de numéros en dur passerait au vert sur un numeros() cassé,
+       qui laisserait « {pourcentage} » s'afficher tel quel à l'élève. */
+    verifierEval(w, 'numeros() rend bien le numéro de l\'exercice cité', `(function(){
+      if(typeof numeros!=='function') return 'numeros() absente';
+      var id=Object.keys(TESTS)[0], attendu=testNum(id)||TESTS[id].name;
+      var rendu=numeros('voir {'+id+'} pour la méthode');
+      if(rendu.indexOf('{')>=0) return 'accolade non résolue : '+rendu;
+      if(rendu.indexOf(attendu)<0) return 'numéro absent du rendu : '+rendu;
+      if(numeros('{exercice-inexistant}')!=='{exercice-inexistant}') return 'un identifiant inconnu devrait rester tel quel';
+      /* La preuve qui compte : le numéro doit SUIVRE une renumérotation. Sans
+         elle, un numeros() qui aurait figé le numéro au chargement passerait au
+         vert — et c'est exactement le défaut qu'on cherche à rendre impossible. */
+      var sauve=TEST_NUM[id]; TEST_NUM[id]='9.9.9';
+      var apres=numeros('voir {'+id+'}'); TEST_NUM[id]=sauve;
+      if(apres.indexOf('9.9.9')<0) return 'le numéro ne suit pas une renumérotation : '+apres;
+      /* Et la carte de l'élève doit être branchée dessus : numeros() juste mais
+         cardHTML non câblée afficherait « {pourcentage} » tel quel sur l'écran. */
+      var cite=null;
+      Object.keys(TESTS).forEach(function(k){ if(!cite && /\\{[a-z0-9-]+\\}/.test(TESTS[k].desc||'')) cite=k; });
+      if(!cite) return '';                    /* aucun texte ne cite d'exercice ici */
+      var carte=cardHTML('x','titre',TESTS[cite].desc,'');
+      if(/\\{[a-z0-9-]+\\}/.test(carte)) return 'la carte affiche encore une accolade : '+cite;
+      /* Tout entonnoir par lequel un texte atteint l'élève — ou le modèle — doit
+         résoudre. Ce contrôle est né d'un défaut réel : les deux citations du
+         contexte de la Terminale avaient été converties en {identifiant} sans que
+         conseilCtxCourant() soit branchée, et elles seraient parties au modèle en
+         accolades. La carte, elle, était juste : rien d'autre ne l'aurait vu. */
+      var debranches=['cardHTML','rappelHTML','conseilCtxCourant'].filter(function(f){
+        var fn=(typeof window!=='undefined')?window[f]:null;
+        if(typeof fn!=='function') return false;
+        /* commentaires retirés d'abord : la première version de ce contrôle lisait
+           le commentaire qui EXPLIQUE l'appel et passait au vert sur une fonction
+           débranchée. Elle a été prise en défaut sur ce cas exact. */
+        var corps=String(fn).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'').replace(/(^|[^:])\\/\\/[^\\n]*/g,'$1');
+        return corps.indexOf('numeros(')<0;
+      });
+      return debranches.length ? 'ces fonctions laissent passer un texte sans le résoudre : '+debranches.join(', ') : '';
+    })()`, v => v === '', undefined);
 
     if(P.specifique === 'premiere') premiere(w);
     fiabilite(w, suite);

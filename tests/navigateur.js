@@ -541,6 +541,74 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 7. le menu en deux étages ===== */
+    /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
+       elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
+       sur la page de la partie choisie. Rien de tout cela ne se voit d'une
+       lecture du fichier : une carte sans onclick, un écran manquant de la
+       liste de show(), un retour qui saute un étage — tout passe au vert. Le
+       banc clique donc les deux étages comme le ferait un élève, et repart
+       en arrière. */
+    titre('7. LE MENU EN DEUX ÉTAGES');
+    if(!P.menu){
+      ignorer('le thème s\'ouvre sur ses parties, puis sur ses exercices',
+        'aucun thème de ce niveau n\'est découpé en parties');
+    } else {
+      s = await ouvrir(chromium, ml);
+      const entre = await connecter(s.page);
+      verifier('l\'élève entre dans son espace', entre === 'scr-space', 'écran : ' + entre);
+
+      await s.page.evaluate(() => openThemes());
+      await s.page.waitForSelector('#testChoices .themecard', { timeout: 10000 });
+      await s.page.click('#testChoices [onclick="openTheme(' + P.menu.theme + ')"]');
+      await s.page.waitForTimeout(300);
+      const etage1 = await s.page.evaluate(() => ({
+        ecran: ([...document.querySelectorAll('section.screen')].find(x => x.classList.contains('on')) || {}).id,
+        parties: [...document.querySelectorAll('#themeChoices .themecard')]
+          .map(b => (b.querySelector('.ttl') || {}).textContent || ''),
+        exercices: document.querySelectorAll('#themeChoices [onclick^="openTest"]').length,
+      }));
+      verifier('la page du thème s\'ouvre', etage1.ecran === 'scr-theme', 'écran : ' + etage1.ecran);
+      verifier('elle montre une carte par partie, et aucun exercice',
+        etage1.parties.length === P.menu.parties && etage1.exercices === 0,
+        etage1.parties.length + ' partie(s) attendues ' + P.menu.parties + ', ' + etage1.exercices + ' exercice(s) affichés');
+      verifier('chaque partie s\'annonce par son numéro',
+        etage1.parties.length > 0 && etage1.parties.every((t, i) => t.indexOf(P.menu.theme + '.' + (i + 1) + ' :') === 0),
+        etage1.parties.join(' | '));
+
+      await s.page.click('#themeChoices .themecard');            /* la partie .1 */
+      await s.page.waitForTimeout(300);
+      const etage2 = await s.page.evaluate(() => ({
+        ecran: ([...document.querySelectorAll('section.screen')].find(x => x.classList.contains('on')) || {}).id,
+        titre: ((document.getElementById('sousThemeTitle') || {}).textContent || ''),
+        exercices: [...document.querySelectorAll('#sousThemeChoices [onclick^="openTest"]')]
+          .map(b => b.getAttribute('onclick')),
+      }));
+      verifier('la page de la partie s\'ouvre', etage2.ecran === 'scr-soustheme', 'écran : ' + etage2.ecran);
+      verifier('elle porte le numéro et le nom de la partie',
+        etage2.titre.indexOf(P.menu.theme + '.1 : ') === 0, 'titre : « ' + etage2.titre + ' »');
+      verifier('elle montre les exercices de cette partie, et eux seuls',
+        etage2.exercices.length > 0 && etage2.exercices.some(o => o.indexOf("'" + P.menu.exercice + "'") >= 0),
+        etage2.exercices.length + ' exercice(s) : ' + etage2.exercices.join(' | '));
+
+      await s.page.click('#sousThemeRetour');                    /* « ← Thème 3 » */
+      await s.page.waitForTimeout(300);
+      verifier('le retour ramène à la page du thème', await ecranVisible(s.page) === 'scr-theme',
+        'écran : ' + await ecranVisible(s.page));
+
+      /* Et une fois l'exercice quitté, l'élève doit retomber sur la page de sa
+         partie — pas sur celle du thème, qui lui redemanderait de choisir. */
+      await s.page.evaluate(id => openTest(id), P.menu.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(() => retourChoix());
+      await s.page.waitForTimeout(1200);
+      verifier('quitter l\'exercice ramène sur la page de sa partie',
+        await ecranVisible(s.page) === 'scr-soustheme', 'écran : ' + await ecranVisible(s.page));
+      verifier('la navigation n\'a levé aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

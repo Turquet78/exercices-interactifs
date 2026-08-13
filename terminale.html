@@ -1860,7 +1860,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=219;
+const APP_VERSION=220;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -1994,11 +1994,11 @@ const TESTS={
   'signe-quotient-carre': { name:'Signe de (ax+b)/(cx+d)\u00b2', icon:'\u00f7',
     desc:'Deux exemples avec un carr\u00e9 au d\u00e9nominateur : a) r\u00e9sous f(x) = 0 et cherche la valeur interdite \u2014 (cx+d)\u00b2 \u2260 0 signifie cx+d \u2260 0 \u2014 puis b) construis le tableau de signes. Un carr\u00e9 \u00e9tant toujours positif, f a le signe du num\u00e9rateur.',
     start:()=>startSPC() },
-  'signe-produit': { name:'Signe d\u2019un produit ou d\u2019un quotient', icon:'\u00d7', desc:'Produit (ax+b)(cx+d) ou quotient (ax+b)/(cx+d) : a) r\u00e9sous f(x) = 0 \u2014 et, pour un quotient, cherche la valeur interdite \u2014 comme au 1.1 niveau 2 ; puis b) construis toi-m\u00eame le tableau de signes (lignes, traits, z\u00e9ros, double barre et signes).', start:()=>startSP() },
+  'signe-produit': { name:'Signe d\u2019un produit ou d\u2019un quotient', icon:'\u00d7', desc:'Produit (ax+b)(cx+d) ou quotient (ax+b)/(cx+d) : a) r\u00e9sous f(x) = 0 \u2014 et, pour un quotient, cherche la valeur interdite \u2014 comme au {signe-premier-degre} niveau 2 ; puis b) construis toi-m\u00eame le tableau de signes (lignes, traits, z\u00e9ros, double barre et signes).', start:()=>startSP() },
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
-  'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au 6.3.', start:()=>startREC() },
+  'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au {suites-encadrement}.', start:()=>startREC() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
@@ -2671,7 +2671,10 @@ function conseilCtxCourant(){
     c=ctxVisible();
   }
   if(!c) c='L’élève est en difficulté sur un exercice de mathématiques de Terminale.';
-  return c;
+  /* numeros() APRÈS l'assemblage, jamais sur le source : elle ne touche qu'aux
+     {identifiants} connus, et laisse les décimales du tracé intactes. Sans elle
+     ici, les deux citations de ce contexte partiraient au modèle en accolades. */
+  return numeros(c);
 }
 /* Gestionnaire du bouton « Un conseil » : ouvre la fenetre soutien puis lance le conseil.
    NE PAS l'appeler pour simplement LIRE le contexte (utiliser conseilCtxCourant). */
@@ -2699,9 +2702,25 @@ function modeTagHTML(){
   if(currentMode==='soutien') return '<span class="mode-tag soutien">🛟 Soutien</span>';
   return '<span class="mode-tag train">✏️ Entraînement</span>';
 }
+/* ---------- Les numéros d'exercice ne s'écrivent jamais en toutes lettres ----------
+   Un numéro (1.1) n'existe nulle part : il se déduit de la POSITION dans THEMES.
+   Réordonner un thème les décale donc tous, et les phrases qui en citaient un
+   — « comme au 1.1 niveau 2 » — renvoyaient l'élève au mauvais exercice sans que
+   rien ne le signale. On écrit donc l'identifiant entre accolades,
+   {signe-premier-degre}, remplacé ici par le numéro du moment.
+   Trois entonnoirs : les descriptions (cardHTML), les rappels de cours
+   (rappelHTML) et le contexte envoyé au modèle (conseilCtxCourant). Ce dernier
+   n'est pas INSPECTÉ par le banc — il est truffé de décimales (coordonnées de
+   tracé, bornes) qu'aucune règle ne distingue d'une référence — mais il est bien
+   résolu : ses citations y ont été converties à la main.
+   Un identifiant inconnu est laissé tel quel plutôt que d'être effacé. */
+function numeros(txt){
+  return String(txt==null?'':txt).replace(/\{([a-z0-9-]+)\}/g,
+    (tout,id)=> (typeof TESTS!=='undefined' && TESTS[id]) ? (testNum(id) || TESTS[id].name) : tout);
+}
 function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
   return `<button class="choice eleve ${extraClass||''}" ${onclick?`onclick="${onclick}"`:'disabled'}>
-    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(desc)}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
+    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 let mesResultats=[], mesDevoirs=[];
 function bestModeExo(id, modes){
@@ -9459,7 +9478,7 @@ const RAP_ENC=
 +'l\u2019intervalle est <b>stable</b>. C\u2019est exactement l\u2019<b>h\u00e9r\u00e9dit\u00e9</b> d\u2019une r\u00e9currence \u00ab U<sub><i>n</i></sub> \u2208 [<i>m</i>\u2009;\u2009<i>M</i>] \u00bb avec U<sub><i>n</i>+1</sub> = <i>f</i>(U<sub><i>n</i></sub>).</p></div>';
 const RAP_SP=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe d\u2019un produit de deux facteurs affines</h4>'
-+'<ul><li>R\u00e9soudre f(x) = 0 : un produit est nul si et seulement si <b>l\u2019un de ses facteurs est nul</b>. On r\u00e9sout donc ax+b = 0 <b>ou</b> cx+d = 0, chaque \u00e9quation du premier degr\u00e9 donnant x = \u2212b/a (comme au 1.1 niveau 2).</li>'
++'<ul><li>R\u00e9soudre f(x) = 0 : un produit est nul si et seulement si <b>l\u2019un de ses facteurs est nul</b>. On r\u00e9sout donc ax+b = 0 <b>ou</b> cx+d = 0, chaque \u00e9quation du premier degr\u00e9 donnant x = \u2212b/a (comme au {signe-premier-degre} niveau 2).</li>'
 +'<li>Un produit (ax+b)(cx+d) a <b>2 facteurs</b> ; chacun s\u2019annule en sa racine : au total <b>2 racines</b> si elles sont distinctes.</li>'
 +'<li>Dans le tableau : une ligne par facteur, puis la ligne de f. Chaque facteur affine est du <b>signe de a</b> \u00e0 droite de sa racine, du signe oppos\u00e9 \u00e0 gauche, et vaut <b>0</b> \u00e0 sa racine.</li>'
 +'<li>Sur un trait vertical, on \u00e9crit <b>0</b> sur la ligne du facteur qui s\u2019annule L\u00c0 (et sur la ligne de f) ; sur les autres lignes, on laisse le <b>trait seul</b> (symbole |).</li>'
@@ -9471,7 +9490,7 @@ const RAP_REC=
 +'<ul><li><b>Conjecturer</b> avec les termes affich\u00e9s : si chaque terme d\u00e9passe le pr\u00e9c\u00e9dent, la suite semble <b>croissante</b> ; la valeur dont les termes se rapprochent est la <b>limite</b> conjectur\u00e9e. Un <b>majorant</b> est un nombre \u2265 \u00e0 TOUS les termes, un <b>minorant</b> un nombre \u2264 \u00e0 tous les termes.</li>'
 +'<li><b>Initialisation</b> : on v\u00e9rifie l\u2019encadrement au rang de d\u00e9part (n = 0 ou n = 1) en rempla\u00e7ant U par sa <b>valeur</b>.</li>'
 +'<li><b>H\u00e9r\u00e9dit\u00e9</b> \u2014 le vocabulaire compte : on <b>suppose</b> que c\u2019est vrai pour <b>n</b> (m \u2264 U\u2099 \u2264 M), puis on <b>montre</b> que c\u2019est vrai pour <b>n + 1</b> (m \u2264 U\u2099\u208a\u2081 \u2264 M).</li>'
-+'<li>Pour cela, on <b>reconstruit le calcul de U\u2099\u208a\u2081</b> par une cha\u00eene d\u2019encadrements (comme au 6.3) : ajouter, multiplier par un positif ou la racine carr\u00e9e <b>conservent</b> l\u2019ordre ; l\u2019inverse et la multiplication par un n\u00e9gatif l\u2019<b>\u00e9changent</b>.</li>'
++'<li>Pour cela, on <b>reconstruit le calcul de U\u2099\u208a\u2081</b> par une cha\u00eene d\u2019encadrements (comme au {suites-encadrement}) : ajouter, multiplier par un positif ou la racine carr\u00e9e <b>conservent</b> l\u2019ordre ; l\u2019inverse et la multiplication par un n\u00e9gatif l\u2019<b>\u00e9changent</b>.</li>'
 +'<li><b>Conclusion</b> : vraie au d\u00e9part et h\u00e9r\u00e9ditaire \u2192 vraie pour tout n \u2265 n\u2080 (principe de r\u00e9currence).</li></ul></div>';
 const RAP_EF=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 signe de f\u2009\u2032 et variations de f</h4>'
@@ -9504,7 +9523,7 @@ const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, r
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, s1:RAP_S1, s2:RAP_S2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
-function rappelHTML(){ return RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''; }
+function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
 /* question de l'élève portant sur le cours (chip « Faire un rappel de cours pour cet exercice. ») */
 function rappelDemande(t){ const s=String(t||''); return /rappel/i.test(s) && /cours|le\u00e7on|lecon/i.test(s); }
 function masquerRappel(){
@@ -10180,7 +10199,7 @@ function spConseilCtx(){
   const etat=cases.map(x=>x.id.replace('sp-','')+' : '+lu(x)).join(' ; ');
   const A=spPartA(q);
   const luA=A.map(x=>x.id.replace('sp-','')+' : '+lu(x)).join(' ; ');
-  return 'Exercice \u00ab Signe d\u2019un produit ou d\u2019un quotient \u00bb \u2014 variante en cours : '+(q.carre?'QUOTIENT A DENOMINATEUR CARRE (ax+b)/(cx+d)\u00b2':(q.quo?'QUOTIENT (ax+b)/(cx+d)':'PRODUIT (ax+b)(cx+d)'))+' : '+q.fPlain+'. QUESTION a) : r\u00e9soudre f(x)=0 \u2014 l\u2019\u00e9l\u00e8ve \u00e9crit lui-m\u00eame les deux \u00e9quations \u00ab \u2026 = 0 \u00bb dans deux colonnes s\u00e9par\u00e9es par \u00ab '+(q.quo?'et':'ou')+' \u00bb (les expressions ne sont JAMAIS affich\u00e9es en clair ; \u00e9critures \u00e9quivalentes accept\u00e9es)'+(q.quo?' \u2014 pour un QUOTIENT l\u2019ordre est IMPOS\u00c9 : colonne de gauche le NUM\u00c9RATEUR (\u2026 = 0, puis x = \u2212b/a, puis la valeur), colonne de droite le D\u00c9NOMINATEUR \u00e9crit avec le symbole \u2260'+(q.carre?' : \u00ab (cx+d)\u00b2 \u2260 0 \u00bb, DONC \u00ab cx+d \u2260 0 \u00bb (un carr\u00e9 est nul seulement si sa base l\u2019est), puis \u00ab x \u2260 \u2212d/c \u00bb, puis \u00ab x \u2260 valeur interdite \u00bb':' : \u00ab \u2026 \u2260 0 \u00bb, puis \u00ab x \u2260 \u2212d/c \u00bb, puis \u00ab x \u2260 valeur interdite \u00bb'):' \u2014 ordre des colonnes libre')+', puis r\u00e9sout CHAQUE \u00e9quation SOUS sa colonne comme au 1.1 niveau 2 (x = \u2212b/a : num\u00e9rateur \u2212b, d\u00e9nominateur a, puis la valeur, dixi\u00e8me accept\u00e9) \u2014 la validation d\u2019une colonne suit le facteur que l\u2019\u00e9l\u00e8ve y a \u00e9crit. R\u00e9ponses attendues de a), \u00e0 ne JAMAIS r\u00e9v\u00e9ler : facteurs '+q.fac[0].labPlain+' et '+q.fac[1].labPlain+' ; x = '+(-q.fac[0].b)+'/'+q.fac[0].a+' = '+q.fac[0].root+' et x = '+(-q.fac[1].b)+'/'+q.fac[1].a+' = '+q.fac[1].root+'. Saisies a) : '+luA+'. '+'Les questions a) et b) sont visibles ensemble et v\u00e9rifi\u00e9es d\u2019un seul coup. '
+  return 'Exercice \u00ab Signe d\u2019un produit ou d\u2019un quotient \u00bb \u2014 variante en cours : '+(q.carre?'QUOTIENT A DENOMINATEUR CARRE (ax+b)/(cx+d)\u00b2':(q.quo?'QUOTIENT (ax+b)/(cx+d)':'PRODUIT (ax+b)(cx+d)'))+' : '+q.fPlain+'. QUESTION a) : r\u00e9soudre f(x)=0 \u2014 l\u2019\u00e9l\u00e8ve \u00e9crit lui-m\u00eame les deux \u00e9quations \u00ab \u2026 = 0 \u00bb dans deux colonnes s\u00e9par\u00e9es par \u00ab '+(q.quo?'et':'ou')+' \u00bb (les expressions ne sont JAMAIS affich\u00e9es en clair ; \u00e9critures \u00e9quivalentes accept\u00e9es)'+(q.quo?' \u2014 pour un QUOTIENT l\u2019ordre est IMPOS\u00c9 : colonne de gauche le NUM\u00c9RATEUR (\u2026 = 0, puis x = \u2212b/a, puis la valeur), colonne de droite le D\u00c9NOMINATEUR \u00e9crit avec le symbole \u2260'+(q.carre?' : \u00ab (cx+d)\u00b2 \u2260 0 \u00bb, DONC \u00ab cx+d \u2260 0 \u00bb (un carr\u00e9 est nul seulement si sa base l\u2019est), puis \u00ab x \u2260 \u2212d/c \u00bb, puis \u00ab x \u2260 valeur interdite \u00bb':' : \u00ab \u2026 \u2260 0 \u00bb, puis \u00ab x \u2260 \u2212d/c \u00bb, puis \u00ab x \u2260 valeur interdite \u00bb'):' \u2014 ordre des colonnes libre')+', puis r\u00e9sout CHAQUE \u00e9quation SOUS sa colonne comme au {signe-premier-degre} niveau 2 (x = \u2212b/a : num\u00e9rateur \u2212b, d\u00e9nominateur a, puis la valeur, dixi\u00e8me accept\u00e9) \u2014 la validation d\u2019une colonne suit le facteur que l\u2019\u00e9l\u00e8ve y a \u00e9crit. R\u00e9ponses attendues de a), \u00e0 ne JAMAIS r\u00e9v\u00e9ler : facteurs '+q.fac[0].labPlain+' et '+q.fac[1].labPlain+' ; x = '+(-q.fac[0].b)+'/'+q.fac[0].a+' = '+q.fac[0].root+' et x = '+(-q.fac[1].b)+'/'+q.fac[1].a+' = '+q.fac[1].root+'. Saisies a) : '+luA+'. '+'Les questions a) et b) sont visibles ensemble et v\u00e9rifi\u00e9es d\u2019un seul coup. '
    +'QUESTION b) : l\u2019\u00e9l\u00e8ve CONSTRUIT le tableau : '
    +'1) nombre de '+(q.quo?'expressions \u00e0 \u00e9tudier (num\u00e9rateur et d\u00e9nominateur)':'facteurs')+' (r\u00e9ponse attendue : 2) \u2014 le tableau affiche autant de lignes qu\u2019il en demande ; '
    +'2) nombre de '+(q.quo?'valeurs \u00e0 placer (racine du num\u00e9rateur et valeur interdite)':'racines au total')+' (r\u00e9ponse attendue : 2) \u2014 autant de traits verticaux apparaissent ; '
@@ -11459,7 +11478,7 @@ function recConseilCtx(){
    +'b) huit termes affich\u00e9s (tronqu\u00e9s au milli\u00e8me), puis conjectures : sens (menu), limite (case : toute valeur entre le dernier terme affich\u00e9 et la vraie limite, bornes incluses, est accept\u00e9e), '
    +'majorant et minorant (TOUTE valeur correcte est accept\u00e9e : majorant \u2265 '+q.M+', minorant \u2264 '+q.m+') ; '
    +'c) r\u00e9currence pour '+q.m+' \u2264 U(n) \u2264 '+q.M+' (n \u2265 '+q.n0+') : initialisation (rang '+q.n0+', encadrement, U'+q.n0+' = '+q.u[0]+'), '
-   +'h\u00e9r\u00e9dit\u00e9 (\u00ab on SUPPOSE pour n \u2026 on MONTRE pour n+1 \u00bb, menus + cases de rang), puis cha\u00eene d\u2019encadrements comme au 6.3 '
+   +'h\u00e9r\u00e9dit\u00e9 (\u00ab on SUPPOSE pour n \u2026 on MONTRE pour n+1 \u00bb, menus + cases de rang), puis cha\u00eene d\u2019encadrements comme au {suites-encadrement} '
    +'('+q.ch.lignes.map(L=>L.plain).join(', ')+'), chaque ligne avec ses deux bornes et sa justification. '
    +'Les bornes acceptent toute \u00e9criture \u00e9quivalente ET toute valeur approch\u00e9e au dixi\u00e8me pr\u00e8s. '
    +'R\u00e9ponses attendues, \u00e0 ne JAMAIS r\u00e9v\u00e9ler : termes '+q.u.map((t,i)=>'U'+(q.n0+i)+' = '+numFmt(Math.round(t*100)/100)).join(', ')+' ; '

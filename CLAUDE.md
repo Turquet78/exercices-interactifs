@@ -157,6 +157,27 @@ fichier et exige autant d'énoncés étiquetés que d'écrans d'exercice. Le ban
 navigateur, lui, compte les étiquettes réellement affichées sur deux écrans
 choisis pour cela.
 
+**Les numéros d'exercice n'existent nulle part.** `3.1.1` se déduit de la
+POSITION dans `THEMES` : réordonner un thème les décale tous. Vingt-cinq phrases
+en citaient un en toutes lettres — « les 3 étapes de l'exercice 3.1.1 » — dans
+les descriptions, les rappels de cours et le contexte envoyé au modèle. Aucune
+ne se recalculait : le jour d'une réorganisation, elles renvoyaient l'élève au
+mauvais exercice, sans erreur nulle part. Elles s'écrivent maintenant
+`{identifiant}`, résolu à l'affichage par `numeros()` dans les trois fichiers —
+deux entonnoirs, `cardHTML` et `rappelHTML`. Un contrôle interdit qu'un numéro
+en dur y revienne, un autre vérifie que le numéro **suit** une renumérotation et
+que la carte de l'élève est bien branchée. Le contexte envoyé au modèle est hors
+de portée du contrôle : il est truffé de décimales — coordonnées de tracé, bornes
+d'intervalle — qu'aucune règle ne distingue d'une référence. Une substitution
+mécanique y avait d'ailleurs transformé 105 décimales en identifiants, dans les
+illustrations de la Terminale.
+
+**Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
+titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
+(`details.test`). Le renommer ferait disparaître toutes les notes passées de cet
+exercice, du bilan de l'élève comme du tableau du professeur — sans rien casser.
+Les noms se changent librement, tout en découle ; les identifiants restent.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
@@ -195,6 +216,13 @@ Quatorze points de branchement. En oublier un ne provoque aucune erreur visible
 15. l'énoncé dans un élément de classe `enonce` — il prend l'encadré et
     l'étiquette. Deux contrôles l'exigent ; un exercice dont l'énoncé est
     l'ardoise se déclare dans `tests/profils.js` (`enonce.ardoise`)
+
+Le point 5 est le seul dont l'oubli rendait le banc **aveugle** au lieu de le
+faire rougir : `testScreens` est la liste que parcourt le contrôle de l'énoncé,
+si bien qu'un écran absent en sortait au lieu d'y être signalé. Un contrôle
+l'exige désormais, à partir des écrans de menu déclarés dans `tests/profils.js`
+(`ecransHorsExercice`) : ajouter un exercice ne demande rien là-bas, ajouter un
+écran de menu si.
 
 Puis `npm test`.
 

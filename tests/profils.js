@@ -85,6 +85,16 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'premiere-specifique.html': {
+
+    /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
+       dans testScreens : c'est cette liste que show() consulte pour passer en
+       plein écran, et c'est elle que le contrôle de l'encadré « Énoncé »
+       parcourt. Un exercice oublié là n'y était donc pas SIGNALÉ, il en était
+       RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
+       Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
+       seul un nouvel écran de menu doit être inscrit. */
+    ecransHorsExercice: ['setup','home','login','space','choose','theme','soustheme','rattrapage',
+                        'devoirs','mode','results','teacher-login','teacher'],
     niveau: 'Première',
     /* Les classes qui portent l'encadré « Énoncé », et les écrans qui n'en ont
        pas besoin : leur énoncé EST l'ardoise noire, où le calcul s'affiche en
@@ -127,12 +137,28 @@ module.exports = {
     pause: { dm: true, boxes: { champ: 'p1n', valeur: '30' } },
     relance: null,          /* couvert par le contrôle des deux tables, ci-dessous */
     rappels: RAPPELS_PREMIERE,
+    /* Le thème 3 est le seul découpé en parties : sa page ne montre QUE les
+       quatre parties (3.1 à 3.4), et les exercices s'ouvrent sur la page de la
+       partie choisie. Le banc navigateur clique ces deux étages comme le ferait
+       un élève — une carte sans onclick ou un écran qui ne change pas ne se
+       voit pas autrement. */
+    menu: { theme: 3, parties: 4, exercice: 'pourcentage' },
     specifique: 'premiere',
     lacunes: [],
   },
 
   /* ------------------------------------------------------------------ */
   'secondes.html': {
+
+    /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
+       dans testScreens : c'est cette liste que show() consulte pour passer en
+       plein écran, et c'est elle que le contrôle de l'encadré « Énoncé »
+       parcourt. Un exercice oublié là n'y était donc pas SIGNALÉ, il en était
+       RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
+       Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
+       seul un nouvel écran de menu doit être inscrit. */
+    ecransHorsExercice: ['setup','home','login','space','rattrapage','choose','devoirs','mode',
+                        'results','teacher-login','teacher'],
     niveau: 'Seconde',
     /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
        avant les autres. Elle prend le même encadré. Aucun écran d'ardoise ici. */
@@ -186,6 +212,18 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'terminale.html': {
+
+    /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
+       dans testScreens : c'est cette liste que show() consulte pour passer en
+       plein écran, et c'est elle que le contrôle de l'encadré « Énoncé »
+       parcourt. Un exercice oublié là n'y était donc pas SIGNALÉ, il en était
+       RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
+       Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
+       seul un nouvel écran de menu doit être inscrit. */
+    ecransHorsExercice: ['setup','home','login','space','rattrapage','choose','theme','devoirs','mode',
+                        'results','teacher-login','teacher',
+                        /* choix du niveau de « Signe du second degré » : un menu, pas un exercice */
+                        's2lvl'],
     niveau: 'Terminale',
     /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
        (« Rédige la justification : »). L'application elle-même les distingue,
