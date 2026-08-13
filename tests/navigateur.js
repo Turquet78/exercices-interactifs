@@ -541,7 +541,75 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 7. le menu en deux étages ===== */
+    /* ===== 7. signaler un problème ===== */
+    /* Le seul retour que la page donne au professeur. Il traverse trois choses
+       qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là
+       PENDANT l'exercice, la modale doit s'ouvrir, et la ligne doit partir dans
+       la bonne table avec l'instantané dedans. Le banc le fait en cliquant. */
+    titre('7. SIGNALER UN PROBLÈME');
+    if(!P.signalement){
+      ignorer('l\'élève signale un problème depuis son exercice',
+        'ce niveau n\'a pas déclaré sa table de signalements');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.signalement.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+
+      const barre = await s.page.evaluate(() => {
+        const b = document.getElementById('signalBtn');
+        if(!b) return { absent: true };
+        const c = getComputedStyle(b);
+        return { visible: c.display !== 'none' && c.visibility !== 'hidden', texte: b.textContent };
+      });
+      verifier('le bouton « Signaler » est là pendant l\'exercice',
+        !barre.absent && barre.visible, barre.absent ? 'bouton absent' : 'bouton masqué');
+
+      await s.page.click('#signalBtn');
+      await s.page.waitForTimeout(250);
+      const modale = await s.page.evaluate(() => {
+        const m = document.getElementById('sigModal');
+        return { ouverte: !!m && !m.hidden, quoi: (document.getElementById('sigQuoi')||{}).textContent || '' };
+      });
+      verifier('la modale s\'ouvre et nomme l\'exercice',
+        modale.ouverte && /\S/.test(modale.quoi), JSON.stringify(modale));
+
+      /* Un message avec une apostrophe : c'est le piège « O'Brien », qui a déjà
+         tué un bouton du professeur en traversant deux analyseurs. */
+      await s.page.fill('#sigInput', "ça dit faux alors que j'ai bon");
+      await s.page.click('#sigSend');
+      await s.page.waitForTimeout(600);
+
+      const parti = await s.page.evaluate(t => {
+        const ops = window.__faux.operations('insert', t);
+        if(!ops.length) return { rien: true };
+        const l = ops[ops.length-1].lignes ? ops[ops.length-1].lignes[0] : ops[ops.length-1].ligne;
+        return { ligne: l || null };
+      }, P.signalement.table);
+      verifier('le signalement part dans sa table', !parti.rien && !!parti.ligne,
+        parti.rien ? 'aucune écriture dans ' + P.signalement.table : 'ligne vide');
+      if(parti.ligne){
+        const l = parti.ligne;
+        verifier('il emporte le message de l\'élève, apostrophe comprise',
+          /j'ai bon/.test(String(l.message||'')), 'message : ' + l.message);
+        verifier('il emporte l\'instantané de l\'exercice',
+          !!l.contexte && !!l.contexte.kind && Array.isArray(l.contexte.questions) && l.contexte.questions.length > 0,
+          'contexte : ' + JSON.stringify(l.contexte).slice(0, 120));
+        verifier('il emporte les saisies en cours et la version',
+          !!l.contexte && !!l.contexte._boxes && typeof l.version === 'number',
+          'boxes/version : ' + JSON.stringify(l.contexte && l.contexte._boxes) + ' / ' + l.version);
+      }
+
+      const aucuneNote = await s.page.evaluate(t => window.__faux.operations('insert', t).length, P.tableResultats);
+      verifier('signaler n\'enregistre aucune note', aucuneNote === 0, aucuneNote + ' note(s) écrite(s)');
+
+      verifier('signaler n\'a levé aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0,2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
        sur la page de la partie choisie. Rien de tout cela ne se voit d'une
@@ -549,7 +617,7 @@ async function parcours(page, N){
        liste de show(), un retour qui saute un étage — tout passe au vert. Le
        banc clique donc les deux étages comme le ferait un élève, et repart
        en arrière. */
-    titre('7. LE MENU EN DEUX ÉTAGES');
+    titre('8. LE MENU EN DEUX ÉTAGES');
     if(!P.menu){
       ignorer('le thème s\'ouvre sur ses parties, puis sur ses exercices',
         'aucun thème de ce niveau n\'est découpé en parties');

@@ -6,9 +6,9 @@ même fichier, sans étape de compilation :
 
 | Fichier | Niveau | Tables Supabase |
 |---|---|---|
-| `secondes.html` | Seconde | `eleves_2nde`, `resultats_2nde` |
-| `premiere-specifique.html` | Première | `eleves_1ere`, `resultats_1ere` |
-| `terminale.html` | Terminale | `eleves`, `resultats` |
+| `secondes.html` | Seconde | `eleves_2nde`, `resultats_2nde`, `signalements_2nde` |
+| `premiere-specifique.html` | Première | `eleves_1ere`, `resultats_1ere`, `signalements_1ere` |
+| `terminale.html` | Terminale | `eleves`, `resultats`, `signalements` |
 
 Les trois partagent un seul projet Supabase et la même fonction Edge
 `corriger-definition` (aide par IA). Communication en français.
@@ -171,6 +171,26 @@ de portée du contrôle : il est truffé de décimales — coordonnées de trac�
 d'intervalle — qu'aucune règle ne distingue d'une référence. Une substitution
 mécanique y avait d'ailleurs transformé 105 décimales en identifiants, dans les
 illustrations de la Terminale.
+
+**Un signalement d'élève est du texte libre tapé par un mineur, et le rejeu se
+fait sous le compte du professeur.** Le bouton « Signaler un problème » envoie
+l'INSTANTANÉ de l'exercice — celui que la pause enregistre — et non une capture
+d'écran : `mailto:` ne sait pas joindre de fichier, et une image ne se rejoue
+pas. Deux pièges en découlent. Le message s'affiche chez le professeur : `esc()`
+pour le texte, `escJS()` près de tout attribut d'événement. Et surtout, le
+professeur qui rejoue l'écran est connecté à SON compte : terminer l'exercice
+poserait une note sur un élève. Le verrou (`REJEU`) est posé sur le client
+Supabase lui-même, dans `poserGardeRejeu()`, et non sur une fonction
+d'enregistrement — la Première en a une, la Seconde écrit ses notes depuis sept
+endroits et la Terminale depuis quatre. Un contrôle par niveau l'exige, et il
+vérifie aussi que le verrou ne bloque RIEN hors rejeu.
+La table écran/rendu (`afficherEcranDe`) est partagée entre la reprise après
+pause et le rejeu : elle était née en double, et la copie du rejeu désignait
+`renderA2QTest`, qui n'existe pas. En Seconde et en Terminale, le rejeu doit
+appeler `rehydrateQuestions()` avant de dessiner — les questions reviennent du
+JSON sans les fonctions de leurs courbes.
+La migration `003` se joue à la main chez Supabase, comme les autres : jouée
+après coup, le bouton renvoie une erreur à l'élève.
 
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées

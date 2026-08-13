@@ -399,6 +399,18 @@
     padding:11px 16px;border-radius:30px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
+  #signalBtn{background:#fff;color:#8a5a00;border:1.5px solid #f0d69a!important}
+  .sig-item{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+  .sig-item.nonlu{border-color:#f0d69a;background:#fffdf6}
+  .sig-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .sig-qui{font-family:"Fredoka",sans-serif;font-weight:600;color:var(--ink)}
+  .sig-quand{font-size:.82rem;color:var(--ink-soft)}
+  .sig-exo{font-size:.78rem;font-weight:700;color:#fff;background:var(--blue);padding:3px 10px;border-radius:999px}
+  .sig-msg{color:var(--ink);line-height:1.5;margin:6px 0 10px;white-space:pre-wrap;word-break:break-word}
+  .sig-meta{font-size:.8rem;color:var(--ink-soft);margin-bottom:10px}
+  .sig-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
+    background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
   #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
@@ -1750,6 +1762,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <button class="tab" data-tab="eval" onclick="teacherTab('eval')">Mode évaluation</button>
         <button class="tab" data-tab="students" onclick="teacherTab('students')">Comptes élèves</button>
         <button class="tab" data-tab="settings" onclick="teacherTab('settings')">Réglages des tests</button>
+        <button class="tab" data-tab="signalements" onclick="teacherTab('signalements')">Signalements<span id="sigPastille"></span></button>
         <button class="tab" data-tab="devoir" onclick="teacherTab('devoir')">Devoir maison</button>
       </div>
 
@@ -1797,6 +1810,15 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       </div>
 
       <!-- réglages -->
+      <div class="tpane" id="pane-signalements">
+        <p class="lead">Ce que les élèves ont signalé depuis leurs exercices. « Rejouer » rouvre l'écran exactement dans l'état où il était : mêmes nombres, mêmes saisies.</p>
+        <div class="row" style="justify-content:space-between;margin-bottom:10px">
+          <span class="muted" style="font-size:.9rem" id="sigCompte"></span>
+          <button class="btn btn-ghost btn-sm" onclick="chargerSignalements()">Rafraîchir</button>
+        </div>
+        <div id="sigListe"></div>
+      </div>
+
       <div class="tpane" id="pane-settings">
         <div class="set-h first">Réglages des exercices</div>
         <div class="setrow"><label for="setTime">Temps par question</label>
@@ -1851,7 +1873,25 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </div>
 </div>
-<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+<div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()">⚑ Signaler un problème</button><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+
+<!-- SIGNALER UN PROBLÈME (élève) -->
+<div id="sigModal" class="notes-modal" hidden onclick="if(event.target===this)fermerSignalement()">
+  <div class="card notes-card">
+    <div class="notes-head">
+      <h3>⚑ Signaler un problème</h3>
+      <button class="btn-link" onclick="fermerSignalement()">Fermer</button>
+    </div>
+    <p class="muted" id="sigQuoi" style="margin:0 0 10px"></p>
+    <textarea id="sigInput" rows="4" maxlength="600" placeholder="Qu'est-ce qui ne va pas ? Par exemple : « ça dit faux alors que j'ai bon »."
+      style="width:100%;font-family:inherit;font-size:1rem;padding:10px;border:1.5px solid var(--line);border-radius:10px;resize:vertical"></textarea>
+    <p class="note" style="margin:8px 0 0">Ton professeur recevra aussi l'exercice et ce que tu as écrit dans les cases, pour pouvoir rouvrir ton écran tel quel. Rien d'autre n'est envoyé.</p>
+    <div class="row" style="margin-top:14px;gap:8px">
+      <button class="btn btn-primary" id="sigSend" onclick="envoyerSignalement()">Envoyer</button>
+      <button class="btn btn-ghost" onclick="fermerSignalement()">Annuler</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ============================================================================
@@ -1860,7 +1900,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=220;
+const APP_VERSION=221;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2998,6 +3038,19 @@ async function abandonTest(){
   else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice
   else { openThemes(); }
 }
+/* La table écran/rendu, sortie de resumeTest() : la reprise après pause et le
+   rejeu d'un signalement font exactement le même geste, et deux listes
+   auraient divergé. En Première, elles avaient d'ailleurs commencé à le faire.
+   rehydrateQuestions() reste à la charge de l'appelant : les questions
+   reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
+   lancé avant elle échoue sur un graphe. */
+function afficherEcranDe(k){
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR] };
+  const disp=DISPATCH[k];
+  if(!disp) return false;
+  show(disp[0]); disp[1]();
+  return true;
+}
 async function resumeTest(mode){
   const row=pausedRows&&pausedRows[mode];
   const d=row&&row.details;
@@ -3013,10 +3066,7 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   rehydrateQuestions();          // recrée les fonctions des graphes (SV, tangente)
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR] };
-  const disp=DISPATCH[test.kind];
-  if(!disp){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
-  show(disp[0]); disp[1]();
+  if(!afficherEcranDe(test.kind)){ toast('Reprise impossible — on recommence.','err'); recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
 }
 
@@ -3027,7 +3077,29 @@ function configReady(){
     && !SUPABASE_ANON_KEY.includes('VOTRE-CLE')
     && typeof window.supabase!=='undefined';
 }
-function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
+
+/* ---------- Le verrou du rejeu ----------
+   Quand le professeur rejoue l'écran d'un signalement, il est connecté à SON
+   compte. Terminer l'exercice rejoué poserait donc une note sur un élève — ou
+   ferait échouer l'écriture, au mieux. Le filtre est posé sur le client
+   lui-même, une seule fois, plutôt qu'à chaque point d'écriture : ce fichier en
+   compte quatre, et le prochain exercice ajouté en aurait un de plus, qu'on
+   aurait oublié. Un contrôle du banc l'exige. */
+function poserGardeRejeu(){
+  if(!sb || sb.__gardeRejeu) return;
+  const brut=sb.from.bind(sb);
+  sb.from=function(t){
+    if(typeof REJEU!=='undefined' && REJEU && t==='resultats'){
+      const refus=function(){ return Promise.resolve({data:null,error:{message:'écran rejoué : aucune note enregistrée'}}); };
+      const chaine={ insert:refus, update:refus, upsert:refus, delete:refus, eq:refus, single:refus,
+                     select:function(){ return chaine; }, order:function(){ return chaine; }, limit:refus };
+      return chaine;
+    }
+    return brut(t);
+  };
+  sb.__gardeRejeu=true;
+}
+function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); poserGardeRejeu(); }
 
 /* Chaque élève a désormais un vrai compte Supabase, et c'est Supabase qui
    hache son code et le vérifie. L'adresse de ce compte est dérivée de son
@@ -3107,8 +3179,16 @@ function show(name){
     if(typeof rappelDispo==='function' && !rappelDispo() && window.console && console.warn)
       console.warn('RÈGLE : aucun rappel de cours pour « '+currentTestId+' » (kind '+(test&&test.kind)+'). Ajouter une entrée dans RAPPELS (ou RAPPELS_ID) — le bouton 📘 du soutien et la pastille de la fenêtre IA se brancheront automatiquement.');
   }
-  const canPause = testScreens.includes(name) && (currentMode==='train'||currentMode==='soutien') && currentEleve;
-  $('testCtrls').hidden=!canPause;
+  /* La barre suit désormais deux règles différentes. Pause et abandon restent
+     réservés à l'entraînement et au soutien — ils n'ont pas de sens en
+     évaluation. « Signaler » doit au contraire y être : c'est justement en
+     évaluation qu'un exercice cassé fait le plus de dégâts, et l'élève n'a
+     alors aucun autre moyen de le dire. */
+  const surExercice = testScreens.includes(name) && !!currentEleve;
+  const canPause = surExercice && (currentMode==='train'||currentMode==='soutien');
+  const pb=$('pauseBtn'); if(pb) pb.hidden=!canPause;
+  const ab=$('abandonBtn'); if(ab) ab.hidden=!canPause;
+  $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
   if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
     pill.hidden=false;
@@ -3280,6 +3360,172 @@ function ouvrirEspaceSuite(){
   $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
   show('space');
 }
+/* ======================= SIGNALER UN PROBLÈME =======================
+   Trois pannes sont passées en production sans qu'un seul contrôle ne rougisse,
+   et aucune n'a été apprise par la page : elles se sont vues en classe, ou pas
+   du tout. Ce bouton est le retour qui manquait.
+   On n'envoie PAS de capture d'écran — mailto ne sait pas joindre de fichier,
+   et une image ne se rejoue pas. On envoie l'INSTANTANÉ de l'exercice, celui-là
+   même que la mise en pause enregistre : le professeur rouvre l'écran à
+   l'identique au lieu de deviner à partir d'une photo. */
+let sigEnvoyes={};                  /* un signalement par exercice et par session */
+
+function ouvrirSignalement(){
+  if(!currentEleve){ toast('Connecte-toi pour signaler un problème','err'); return; }
+  if(sigEnvoyes[currentTestId]){ toast('Tu as déjà signalé cet exercice','err'); return; }
+  $('sigQuoi').textContent='Exercice '+testLabel(currentTestId)+'.';
+  $('sigInput').value='';
+  $('sigModal').hidden=false;
+  setTimeout(()=>{ const e=$('sigInput'); if(e) e.focus(); },50);
+}
+function fermerSignalement(){ const m=$('sigModal'); if(m) m.hidden=true; }
+
+function signalementPayload(message){
+  let contexte=null;
+  try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes()}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
+  return {
+    eleve_id:currentEleve.id,
+    exercice:currentTestId||'inconnu',
+    numero:testNum(currentTestId)||null,
+    mode:currentMode||null,
+    message:message,
+    contexte:contexte,
+    version:APP_VERSION,
+    navigateur:(navigator.userAgent||'').slice(0,300)
+  };
+}
+async function envoyerSignalement(){
+  const champ=$('sigInput'); if(!champ) return;
+  const message=champ.value.trim();
+  if(message.length<5){ toast('Explique en quelques mots ce qui ne va pas','err'); return; }
+  const bouton=$('sigSend'); if(bouton) bouton.disabled=true;
+  try{
+    /* insert SEC : la politique de lecture est réservée au professeur, et
+       demander la ligne en retour ferait échouer l'écriture elle-même. */
+    const {error}=await sb.from('signalements').insert(signalementPayload(message));
+    if(error){ toast('Signalement non envoyé : '+(error.message||'erreur'),'err'); return; }
+    sigEnvoyes[currentTestId]=true;
+    fermerSignalement();
+    toast('Merci ! Ton professeur a reçu le signalement','ok');
+  }catch(e){ toast('Signalement non envoyé (connexion)','err'); }
+  finally{ if(bouton) bouton.disabled=false; }
+}
+
+/* ================== SIGNALEMENTS : CÔTÉ PROFESSEUR ================== */
+let mesSignalements=[];
+
+async function chargerSignalements(){
+  const hote=$('sigListe'); if(!hote) return;
+  hote.innerHTML='<p class="muted">Chargement…</p>';
+  try{
+    /* Deux requêtes plutôt qu'une jointure : le prénom vit dans la table des
+       élèves, et une jointure imbriquée dépendrait du nom que PostgREST donne
+       à la relation — un détail qui se renomme sans prévenir. */
+    const [sig, eleves] = await Promise.all([
+      sb.from('signalements').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('eleves').select('id,prenom')
+    ]);
+    if(sig.error){ hote.innerHTML='<p class="muted">Signalements non chargés : '+esc(sig.error.message||'erreur')+'</p>'; return; }
+    const prenoms={}; (eleves.data||[]).forEach(e=>{ prenoms[e.id]=e.prenom; });
+    mesSignalements=(sig.data||[]).map(r=>Object.assign({}, r, {prenom:prenoms[r.eleve_id]||'élève supprimé'}));
+    renderSignalements();
+  }catch(e){ hote.innerHTML='<p class="muted">Signalements non chargés (connexion).</p>'; }
+}
+
+function majPastilleSignalements(){
+  const n=mesSignalements.filter(r=>!r.lu).length;
+  const p=$('sigPastille'); if(p) p.innerHTML = n ? '<span class="pastille">'+n+'</span>' : '';
+  const c=$('sigCompte');
+  if(c) c.textContent = mesSignalements.length
+    ? (n ? n+' non lu'+(n>1?'s':'')+' sur '+mesSignalements.length : mesSignalements.length+' signalement'+(mesSignalements.length>1?'s':'')+', tous lus')
+    : '';
+}
+
+function renderSignalements(){
+  majPastilleSignalements();
+  const hote=$('sigListe');
+  if(!mesSignalements.length){ hote.innerHTML='<div class="empty">Aucun signalement. C’est plutôt bon signe.</div>'; return; }
+  hote.innerHTML=mesSignalements.map(r=>{
+    /* Le message est TAPÉ PAR UN ÉLÈVE : il passe par esc() pour le texte, et
+       par escJS() partout où il approche un attribut onclick — c'est le piège
+       « O'Brien », qui a déjà tué un bouton du professeur. */
+    const q=r.contexte&&r.contexte.idx!=null ? ' · question '+(r.contexte.idx+1) : '';
+    return `<div class="sig-item ${r.lu?'':'nonlu'}">
+      <div class="sig-head">
+        <span class="sig-exo">${esc((r.numero?r.numero+' · ':'')+testName(r.exercice))}</span>
+        <span class="sig-qui">${esc(r.prenom)}</span>
+        <span class="sig-quand">${esc(fmtDate(r.created_at))}${esc(q)}</span>
+      </div>
+      <div class="sig-msg">${esc(r.message)}</div>
+      <div class="sig-meta">${esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
+      <div class="sig-actions">
+        <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l’écran</button>
+        ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
+        <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* « Mozilla/5.0 (iPhone; CPU iPhone OS 17…) » ne se lit pas. On en tire
+   l'essentiel : ce qui distingue un iPad du lycée d'un Android à la maison. */
+function navigateurCourt(ua){
+  const u=String(ua||'');
+  if(!u) return 'navigateur inconnu';
+  const app = /Edg\//.test(u)?'Edge' : /OPR\//.test(u)?'Opera' : /Firefox\//.test(u)?'Firefox'
+            : /Chrome\//.test(u)?'Chrome' : /Safari\//.test(u)?'Safari' : 'navigateur inconnu';
+  const sys = /iPhone/.test(u)?'iPhone' : /iPad/.test(u)?'iPad' : /Android/.test(u)?'Android'
+            : /Windows/.test(u)?'Windows' : /Mac OS X/.test(u)?'Mac' : /Linux/.test(u)?'Linux' : '';
+  return sys ? app+' sur '+sys : app;
+}
+
+async function marquerSignalementLu(id){
+  try{
+    const {error}=await sb.from('signalements').update({lu:true}).eq('id',id);
+    if(error){ toast('Non enregistré : '+(error.message||'erreur'),'err'); return; }
+    const r=mesSignalements.find(x=>x.id===id); if(r) r.lu=true;
+    renderSignalements();
+  }catch(e){ toast('Non enregistré (connexion)','err'); }
+}
+
+async function supprimerSignalement(id){
+  if(!confirm('Supprimer ce signalement ?')) return;
+  try{
+    const {error}=await sb.from('signalements').delete().eq('id',id);
+    if(error){ toast('Non supprimé : '+(error.message||'erreur'),'err'); return; }
+    mesSignalements=mesSignalements.filter(x=>x.id!==id);
+    renderSignalements();
+  }catch(e){ toast('Non supprimé (connexion)','err'); }
+}
+
+/* ---------- Rejouer l'écran signalé ----------
+   Même chemin que la reprise après pause, à deux différences près :
+   — REJEU verrouille l'écriture des notes, sur le client lui-même
+     (poserGardeRejeu). Le professeur est connecté à SON compte.
+   — rien n'est repris de la reprise elle-même : ni recoveryRowId, ni pausedRows.
+     Le signalement n'est pas un brouillon à poursuivre, c'est une photo à lire. */
+let REJEU=false;
+function rejouerSignalement(id){
+  const r=mesSignalements.find(x=>x.id===id);
+  if(!r || !r.contexte || !r.contexte.kind){ toast('Cet écran ne peut pas être rejoué','err'); return; }
+  const d=r.contexte;
+  REJEU=true;
+  currentTestId=r.exercice; currentMode=r.mode||'train'; currentDM=null;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
+  const skip={_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  test.startTime=Date.now(); test.locked=false;
+  /* Les questions reviennent du JSON sans leurs fonctions — courbes, tangentes.
+     Un rendu lancé avant rehydrateQuestions() échoue sur un exercice à graphe,
+     et ce sont précisément ceux-là qu'on signale. */
+  try{ rehydrateQuestions(); }catch(e){}
+  if(!afficherEcranDe(test.kind)){ REJEU=false; toast('Cet exercice ne sait pas être rejoué','err'); return; }
+  const boxes=d._boxes;
+  setTimeout(()=>{ try{ restoreBoxes(boxes); }catch(e){} }, 60);
+  toast('Écran rejoué — aucune note ne sera enregistrée','ok');
+}
+
 async function chargerMesResultats(){
   try{
     const {data,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id).order('created_at',{ascending:true});
@@ -11713,6 +11959,7 @@ function teacherTab(name){
   else if(name==='students')renderRoster();
   else if(name==='eval')renderEvalLocks();
   else if(name==='devoir')loadDevoirTab();
+  else if(name==='signalements')chargerSignalements();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
 function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }
