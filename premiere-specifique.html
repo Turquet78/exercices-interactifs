@@ -310,6 +310,18 @@
     padding:11px 16px;border-radius:30px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
   #testCtrls button:active{transform:translateY(1px)}
   #pauseBtn{background:#5a4632;color:#fff}
+  #signalBtn{background:#fff;color:#8a5a00;border:1.5px solid #f0d69a!important}
+  .sig-item{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+  .sig-item.nonlu{border-color:#f0d69a;background:#fffdf6}
+  .sig-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .sig-qui{font-family:"Fredoka",sans-serif;font-weight:600;color:var(--ink)}
+  .sig-quand{font-size:.82rem;color:var(--ink-soft)}
+  .sig-exo{font-size:.78rem;font-weight:700;color:#fff;background:var(--blue);padding:3px 10px;border-radius:999px}
+  .sig-msg{color:var(--ink);line-height:1.5;margin:6px 0 10px;white-space:pre-wrap;word-break:break-word}
+  .sig-meta{font-size:.8rem;color:var(--ink-soft);margin-bottom:10px}
+  .sig-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
+    background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
   #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest,#scr-vtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
@@ -1146,6 +1158,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <button class="tab" data-tab="students" onclick="teacherTab('students')">Comptes élèves</button>
         <button class="tab" data-tab="devoirs" onclick="teacherTab('devoirs')">Devoir maison</button>
         <button class="tab" data-tab="settings" onclick="teacherTab('settings')">Réglages des tests</button>
+        <button class="tab" data-tab="signalements" onclick="teacherTab('signalements')">Signalements<span id="sigPastille"></span></button>
       </div>
 
       <!-- suivi -->
@@ -1200,6 +1213,15 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
 
       <!-- réglages -->
+      <div class="tpane" id="pane-signalements">
+        <p class="lead">Ce que les élèves ont signalé depuis leurs exercices. « Rejouer » rouvre l'écran exactement dans l'état où il était : mêmes nombres, mêmes saisies.</p>
+        <div class="row" style="justify-content:space-between;margin-bottom:10px">
+          <span class="muted" style="font-size:.9rem" id="sigCompte"></span>
+          <button class="btn btn-ghost btn-sm" onclick="chargerSignalements()">Rafraîchir</button>
+        </div>
+        <div id="sigListe"></div>
+      </div>
+
       <div class="tpane" id="pane-settings">
         <div class="set-h first">Calcul mental</div>
         <label class="lab">Opérations incluses</label>
@@ -1245,7 +1267,25 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </div>
 </div>
-<div id="testCtrls" hidden><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+<div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()">⚑ Signaler un problème</button><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
+
+<!-- SIGNALER UN PROBLÈME (élève) -->
+<div id="sigModal" class="notes-modal" hidden onclick="if(event.target===this)fermerSignalement()">
+  <div class="card notes-card">
+    <div class="notes-head">
+      <h3>⚑ Signaler un problème</h3>
+      <button class="btn-link" onclick="fermerSignalement()">Fermer</button>
+    </div>
+    <p class="muted" id="sigQuoi" style="margin:0 0 10px"></p>
+    <textarea id="sigInput" rows="4" maxlength="600" placeholder="Qu'est-ce qui ne va pas ? Par exemple : « ça dit faux alors que j'ai bon »."
+      style="width:100%;font-family:inherit;font-size:1rem;padding:10px;border:1.5px solid var(--line);border-radius:10px;resize:vertical"></textarea>
+    <p class="note" style="margin:8px 0 0">Ton professeur recevra aussi l'exercice et ce que tu as écrit dans les cases, pour pouvoir rouvrir ton écran tel quel. Rien d'autre n'est envoyé.</p>
+    <div class="row" style="margin-top:14px;gap:8px">
+      <button class="btn btn-primary" id="sigSend" onclick="envoyerSignalement()">Envoyer</button>
+      <button class="btn btn-ghost" onclick="fermerSignalement()">Annuler</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ---------- Raccourcis ---------- */
@@ -1268,7 +1308,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=95;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=96;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1853,7 +1893,195 @@ function ouvrirEspaceSuite(){
 /* Enregistrement d'un resultat. IMPORTANT : supabase-js ne LANCE pas d'exception en cas
    d'erreur, il la RETOURNE — un try/catch seul laisserait donc passer un echec sans un
    mot, et la note n'apparaitrait jamais dans la liste des exercices. */
+/* ======================= SIGNALER UN PROBLÈME =======================
+   Trois pannes sont passées en production sans qu'un seul contrôle ne rougisse,
+   et aucune n'a été apprise par la page : elles se sont vues en classe, ou pas
+   du tout. Ce bouton est le retour qui manquait.
+   On n'envoie PAS de capture d'écran — mailto ne sait pas joindre de fichier,
+   et une image ne se rejoue pas. On envoie l'INSTANTANÉ de l'exercice, celui-là
+   même que la mise en pause enregistre : le professeur rouvre l'écran à
+   l'identique au lieu de deviner à partir d'une photo. */
+let sigEnvoyes={};                  /* un signalement par exercice et par session */
+
+function ouvrirSignalement(){
+  if(!currentEleve){ toast('Connecte-toi pour signaler un problème','err'); return; }
+  if(sigEnvoyes[currentTestId]){ toast('Tu as déjà signalé cet exercice','err'); return; }
+  $('sigQuoi').textContent='Exercice '+testLabel(currentTestId)+'.';
+  $('sigInput').value='';
+  $('sigModal').hidden=false;
+  setTimeout(()=>{ const e=$('sigInput'); if(e) e.focus(); },50);
+}
+function fermerSignalement(){ const m=$('sigModal'); if(m) m.hidden=true; }
+
+/* Ce qui part : l'exercice, son numéro du moment, le mode, la question telle
+   qu'elle a été tirée et les saisies en cours. Rien de ce qui se passe hors de
+   l'exercice. */
+function signalementPayload(message){
+  let contexte=null;
+  try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes()}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
+  return {
+    eleve_id:currentEleve.id,
+    exercice:currentTestId||'inconnu',
+    numero:testNum(currentTestId)||null,
+    mode:currentMode||null,
+    message:message,
+    contexte:contexte,
+    version:APP_VERSION,
+    navigateur:(navigator.userAgent||'').slice(0,300)
+  };
+}
+async function envoyerSignalement(){
+  const champ=$('sigInput'); if(!champ) return;
+  const message=champ.value.trim();
+  if(message.length<5){ toast('Explique en quelques mots ce qui ne va pas','err'); return; }
+  const bouton=$('sigSend'); if(bouton) bouton.disabled=true;
+  try{
+    /* insert SEC : la politique de lecture est réservée au professeur, et
+       demander la ligne en retour ferait échouer l'écriture elle-même. */
+    const {error}=await sb.from('signalements_1ere').insert(signalementPayload(message));
+    if(error){ toast('Signalement non envoyé : '+(error.message||'erreur'),'err'); return; }
+    sigEnvoyes[currentTestId]=true;
+    fermerSignalement();
+    toast('Merci ! Ton professeur a reçu le signalement','ok');
+  }catch(e){ toast('Signalement non envoyé (connexion)','err'); }
+  finally{ if(bouton) bouton.disabled=false; }
+}
+
+/* ================== SIGNALEMENTS : CÔTÉ PROFESSEUR ================== */
+let mesSignalements=[];
+
+async function chargerSignalements(){
+  const hote=$('sigListe'); if(!hote) return;
+  hote.innerHTML='<p class="muted">Chargement…</p>';
+  try{
+    /* Deux requêtes plutôt qu'une jointure : le prénom vit dans la table des
+       élèves, et une jointure imbriquée dépendrait du nom que PostgREST donne
+       à la relation — un détail qui se renomme sans prévenir. */
+    const [sig, eleves] = await Promise.all([
+      sb.from('signalements_1ere').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('eleves_1ere').select('id,prenom')
+    ]);
+    if(sig.error){ hote.innerHTML='<p class="muted">Signalements non chargés : '+esc(sig.error.message||'erreur')+'</p>'; return; }
+    const prenoms={}; (eleves.data||[]).forEach(e=>{ prenoms[e.id]=e.prenom; });
+    mesSignalements=(sig.data||[]).map(r=>Object.assign({}, r, {prenom:prenoms[r.eleve_id]||'élève supprimé'}));
+    renderSignalements();
+  }catch(e){ hote.innerHTML='<p class="muted">Signalements non chargés (connexion).</p>'; }
+}
+
+function majPastilleSignalements(){
+  const n=mesSignalements.filter(r=>!r.lu).length;
+  const p=$('sigPastille'); if(p) p.innerHTML = n ? '<span class="pastille">'+n+'</span>' : '';
+  const c=$('sigCompte');
+  if(c) c.textContent = mesSignalements.length
+    ? (n ? n+' non lu'+(n>1?'s':'')+' sur '+mesSignalements.length : mesSignalements.length+' signalement'+(mesSignalements.length>1?'s':'')+', tous lus')
+    : '';
+}
+
+function renderSignalements(){
+  majPastilleSignalements();
+  const hote=$('sigListe');
+  if(!mesSignalements.length){ hote.innerHTML='<div class="empty">Aucun signalement. C\u2019est plutôt bon signe.</div>'; return; }
+  hote.innerHTML=mesSignalements.map(r=>{
+    /* Le message est TAPÉ PAR UN ÉLÈVE : il passe par esc() pour le texte, et
+       par escJS() partout où il approche un attribut onclick — c'est le piège
+       « O'Brien », qui a déjà tué un bouton du professeur. Ici seuls des
+       identifiants circulent dans les onclick, mais la règle vaut d'être tenue. */
+    const q=r.contexte&&r.contexte.idx!=null ? ' · question '+(r.contexte.idx+1) : '';
+    return `<div class="sig-item ${r.lu?'':'nonlu'}">
+      <div class="sig-head">
+        <span class="sig-exo">${esc((r.numero?r.numero+' · ':'')+testName(r.exercice))}</span>
+        <span class="sig-qui">${esc(r.prenom)}</span>
+        <span class="sig-quand">${esc(fmtDate(r.created_at))}${esc(q)}</span>
+      </div>
+      <div class="sig-msg">${esc(r.message)}</div>
+      <div class="sig-meta">${esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
+      <div class="sig-actions">
+        <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l\u2019écran</button>
+        ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
+        <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* « Mozilla/5.0 (iPhone; CPU iPhone OS 17…) » ne se lit pas. On en tire
+   l'essentiel : ce qui distingue un iPad du lycée d'un Android à la maison. */
+function navigateurCourt(ua){
+  const u=String(ua||'');
+  if(!u) return 'navigateur inconnu';
+  const app = /Edg\//.test(u)?'Edge' : /OPR\//.test(u)?'Opera' : /Firefox\//.test(u)?'Firefox'
+            : /Chrome\//.test(u)?'Chrome' : /Safari\//.test(u)?'Safari' : 'navigateur inconnu';
+  const sys = /iPhone/.test(u)?'iPhone' : /iPad/.test(u)?'iPad' : /Android/.test(u)?'Android'
+            : /Windows/.test(u)?'Windows' : /Mac OS X/.test(u)?'Mac' : /Linux/.test(u)?'Linux' : '';
+  return sys ? app+' sur '+sys : app;
+}
+
+async function marquerSignalementLu(id){
+  try{
+    const {error}=await sb.from('signalements_1ere').update({lu:true}).eq('id',id);
+    if(error){ toast('Non enregistré : '+(error.message||'erreur'),'err'); return; }
+    const r=mesSignalements.find(x=>x.id===id); if(r) r.lu=true;
+    renderSignalements();
+  }catch(e){ toast('Non enregistré (connexion)','err'); }
+}
+
+async function supprimerSignalement(id){
+  if(!confirm('Supprimer ce signalement ?')) return;
+  try{
+    const {error}=await sb.from('signalements_1ere').delete().eq('id',id);
+    if(error){ toast('Non supprimé : '+(error.message||'erreur'),'err'); return; }
+    mesSignalements=mesSignalements.filter(x=>x.id!==id);
+    renderSignalements();
+  }catch(e){ toast('Non supprimé (connexion)','err'); }
+}
+
+/* ---------- Rejouer l'écran signalé ----------
+   Même chemin que la reprise après pause : l'instantané est remis dans « test »
+   et l'écran redessiné. Deux différences, et elles comptent :
+   — REJEU verrouille l'enregistrement des notes. Le professeur est connecté à
+     son propre compte ; sans ce verrou, terminer l'exercice rejoué poserait une
+     note sur un élève, ou ferait échouer l'écriture au mieux.
+   — rien n'est repris de la reprise elle-même : ni recoveryRowId, ni pausedRows.
+     Le signalement n'est pas un brouillon à poursuivre, c'est une photo à lire. */
+let REJEU=false;
+function rejouerSignalement(id){
+  const r=mesSignalements.find(x=>x.id===id);
+  if(!r || !r.contexte || !r.contexte.kind){ toast('Cet écran ne peut pas être rejoué','err'); return; }
+  const d=r.contexte;
+  REJEU=true;
+  currentTestId=r.exercice; currentMode=r.mode||'train'; currentDM=null;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
+  const skip={_boxes:1}; Object.keys(d).forEach(k=>{ if(!skip[k]) test[k]=d[k]; });
+  test.startTime=Date.now(); test.locked=false;
+  const k=test.kind, boxes=d._boxes;
+  if(!afficherEcranDe(k)){ REJEU=false; toast('Cet exercice ne sait pas être rejoué','err'); return; }
+  setTimeout(()=>{ try{ restoreBoxes(boxes); }catch(e){} }, 60);
+  toast('Écran rejoué — aucune note ne sera enregistrée','ok');
+}
+
+/* La table kind -> (écran, rendu). Elle existait déjà, dispersée dans
+   resumeTest() ; la sortir ici évite qu'elle diverge entre la reprise et le
+   rejeu — deux listes à tenir, c'est une de trop. */
+function afficherEcranDe(k){
+  const table={
+    mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest],
+    pctq:['qtest',renderQTest], md:['mdtest',renderMDTest], u:['utest',renderUTest],
+    aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
+    fp:['fptest',renderFPTest], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
+    syn:['syntest',renderSynTest]
+  };
+  const e=table[k];
+  if(!e) return false;
+  show(e[0]); e[1]();
+  return true;
+}
+
 async function enregistrerResultat(payload){
+  /* Verrou du rejeu : le professeur regarde l'écran d'un élève, il ne passe pas
+     l'exercice. Un contrôle du banc l'exige. */
+  if(REJEU){ toast('Écran rejoué : aucune note enregistrée','ok'); return false; }
   try{
     const {error}=await sb.from('resultats_1ere').insert(payload);
     if(error){ console.warn('resultat non enregistre :', error.message||error); 
@@ -2009,8 +2237,16 @@ function show(name){
     const n=testNum(currentTestId);
     t.innerHTML=(n?'<span class="exo-num">'+esc(n)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>';
   }
-  const canPause = testScreens.indexOf(name)>=0 && (currentMode==='train'||currentMode==='soutien') && currentEleve;
-  const tc=$('testCtrls'); if(tc) tc.hidden=!canPause;
+  /* La barre suit désormais deux règles différentes. Pause et abandon restent
+     réservés à l'entraînement et au soutien — ils n'ont pas de sens en
+     évaluation. « Signaler » doit au contraire y être : c'est justement en
+     évaluation qu'un exercice cassé fait le plus de dégâts, et l'élève n'a
+     alors aucun autre moyen de le dire. */
+  const surExercice = testScreens.indexOf(name)>=0 && !!currentEleve;
+  const canPause = surExercice && (currentMode==='train'||currentMode==='soutien');
+  const tc=$('testCtrls'); if(tc) tc.hidden=!surExercice;
+  const pb=$('pauseBtn'); if(pb) pb.hidden=!canPause;
+  const ab=$('abandonBtn'); if(ab) ab.hidden=!canPause;
   const pill=$('userPill');
   if((name==='space'||name==='choose'||name==='theme'||name==='soustheme'||name==='mode'||name==='devoirs'||name==='rattrapage'||name==='results'||testScreens.indexOf(name)>=0) && currentEleve){
     pill.hidden=false;
@@ -2206,19 +2442,11 @@ async function resumeTest(mode){
   recoveryRowId=row.id; recoveryClosed=false; pausedRows[mode]=null;   // on réutilise cette ligne pour la suite de l'auto-enregistrement
   const draft=d._boxes;          // saisies en cours à remettre dans les cases
   const k=test.kind;
-  if(k==='mp'){ show('mtest'); renderMTest(); }
-  else if(k==='fracp'){ show('ftest'); renderFTest(); }
-  else if(k==='pct'){ show('ptest'); renderPTest(); }
-  else if(k==='pctq'){ show('qtest'); renderQTest(); }
-  else if(k==='md'){ show('mdtest'); renderMDTest(); }
-  else if(k==='u'){ show('utest'); renderUTest(); }
-  else if(k==='aug'){ show('atest'); renderATest(); }
-  else if(k==='augq'){ show('vtest'); renderVTest(); }
-  else if(k==='dim'){ show('dtest'); renderDTest(); }
-  else if(k==='fp'){ show('fptest'); renderFPTest(); }
-  else if(k==='ag2'){ show('ag2test'); renderAG2Test(); }
-  else if(k==='ag2q'){ show('a2qtest'); renderWTest(); }
-  else if(k==='syn'){ show('syntest'); renderSynTest(); }
+  /* La table écran/rendu est tenue à UN SEUL endroit, afficherEcranDe() : la
+     reprise après pause et le rejeu d'un signalement font exactement le même
+     geste, et deux listes auraient divergé. Elles avaient d'ailleurs commencé
+     à le faire — le rejeu était né avec « renderA2QTest », qui n'existe pas. */
+  if(afficherEcranDe(k)){ /* écran posé */ }
   else if(k==='tm'){ tmReprise(); show('tm'); tmRender();
     setTimeout(()=>{ const ai=$('tmInput'); if(ai){ ai.value=''; try{ ai.focus(); }catch(e){} } },0); }
   else { show('test'); renderQuestion(); }
@@ -2234,7 +2462,29 @@ function configReady(){
     && !SUPABASE_ANON_KEY.includes('VOTRE-CLE')
     && typeof window.supabase!=='undefined';
 }
-function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
+
+/* ---------- Le verrou du rejeu ----------
+   Quand le professeur rejoue l'écran d'un signalement, il est connecté à SON
+   compte. Terminer l'exercice rejoué poserait donc une note sur un élève — ou
+   ferait échouer l'écriture, au mieux. Le filtre est posé sur le client
+   lui-même, une seule fois, plutôt qu'à chaque point d'écriture : ce fichier en
+   compte trois, et le prochain exercice ajouté en aurait un de plus, qu'on
+   aurait oublié. Un contrôle du banc l'exige. */
+function poserGardeRejeu(){
+  if(!sb || sb.__gardeRejeu) return;
+  const brut=sb.from.bind(sb);
+  sb.from=function(t){
+    if(typeof REJEU!=='undefined' && REJEU && t==='resultats_1ere'){
+      const refus=function(){ return Promise.resolve({data:null,error:{message:'écran rejoué : aucune note enregistrée'}}); };
+      const chaine={ insert:refus, update:refus, upsert:refus, delete:refus, eq:refus, single:refus,
+                     select:function(){ return chaine; }, order:function(){ return chaine; }, limit:refus };
+      return chaine;
+    }
+    return brut(t);
+  };
+  sb.__gardeRejeu=true;
+}
+function initSupabase(){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); poserGardeRejeu(); }
 
 /* Chaque élève a désormais un vrai compte Supabase, et c'est Supabase qui
    hache son code et le vérifie. L'adresse de ce compte est dérivée de son
@@ -5938,6 +6188,7 @@ function teacherTab(name){
   else if(name==='students')renderRoster();
   else if(name==='eval')renderEvalLocks();
   else if(name==='devoirs')renderDevoirsAdmin();
+  else if(name==='signalements')chargerSignalements();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
 function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }

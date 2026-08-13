@@ -195,6 +195,41 @@ const r3 = psql('banc', ['-f', MIG2], true);
 bilan('rejouer 002 ne fait plus rien', !r3.erreur, r3.erreur);
 
 /* ---------------------------------------------------------------------------
+   1 ter. La migration 003 — les tables de signalements
+   -------------------------------------------------------------------------
+   Elle ne crée pas ses colonnes au hasard : « eleve_id » doit avoir, sur chaque
+   niveau, le type de l'identifiant de ce niveau — uuid en Terminale et en
+   Seconde, bigint en Première. Une colonne écrite en dur marcherait sur deux
+   niveaux et casserait le troisième, exactement comme la création de compte
+   l'avait fait. Le contrôle le vérifie table par table plutôt que de croire la
+   migration sur parole. */
+const MIG3 = path.join(RACINE, 'supabase/migrations/003_signalements.sql');
+const s3 = psql('banc', ['-f', MIG3]);
+bilan('003 crée les trois tables de signalements',
+  (s3.match(/: prête/g) || []).length === 3,
+  (s3.match(/: prête/g) || []).length + ' créée(s) sur 3');
+
+const types = psql('banc', ['-tAc',
+  `select c.relname || '=' || format_type(a.atttypid, a.atttypmod)
+     from pg_attribute a join pg_class c on c.oid = a.attrelid
+     join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname='public' and c.relname like 'signalements%' and a.attname='eleve_id'
+    order by c.relname`]).trim().split('\n').filter(Boolean);
+const attendus = psql('banc', ['-tAc',
+  `select c.relname || '=' || format_type(a.atttypid, a.atttypmod)
+     from pg_attribute a join pg_class c on c.oid = a.attrelid
+     join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname='public' and c.relname like 'resultats%' and a.attname='eleve_id'
+    order by c.relname`]).trim().split('\n').filter(Boolean)
+  .map(l => l.replace(/^resultats/, 'signalements'));
+bilan('eleve_id a partout le type de l\'identifiant de son niveau',
+  types.length === 3 && types.join('|') === attendus.join('|'),
+  types.join(', ') + '  ≠  ' + attendus.join(', '));
+
+const r4 = psql('banc', ['-f', MIG3], true);
+bilan('rejouer 003 ne fait plus rien', !r4.erreur, r4.erreur);
+
+/* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
    ------------------------------------------------------------------------- */
 console.log('\n2. CE QUE CHAQUE RÔLE OBTIENT DE LA BASE');
@@ -241,12 +276,19 @@ const MUTATIONS = [
      recréée un jour dans la console Supabase. */
   ['une seule politique grande ouverte oubliée annule tout le reste',
    ['create policy "acces classe - resultats_2nde" on public.resultats_2nde for all to anon using (true) with check (true)']],
+  /* Un signalement porte le prénom d'un mineur et un texte libre qu'il a tapé.
+     Le rendre lisible par toute la classe est le genre d'erreur qui se commet
+     en voulant « laisser l'élève relire ce qu'il a envoyé ». */
+  ['les signalements deviennent lisibles par toute la classe',
+   ['drop policy p_signalements_2nde_lecture on public.signalements_2nde',
+    'create policy p_signalements_2nde_lecture on public.signalements_2nde for select to authenticated using (true)']],
 ];
 MUTATIONS.forEach(([nom, sqls], i) => {
   const bd = 'mut' + i;
   monter(bd);
   psql(bd, ['-f', MIG]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql')]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
   bilan('détectée : ' + nom, !!r.erreur, r.erreur ? '' : 'le banc est resté vert alors que la base est ouverte');

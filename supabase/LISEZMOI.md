@@ -123,6 +123,46 @@ where schemaname='public' and policyname not like 'p\_%'
 > seule, le banc des rôles **doit échouer**. S'il passait, c'est qu'il ne
 > mesurerait pas ce qu'il croit mesurer.
 
+## 3 ter. Les signalements des élèves (1 min)
+
+Collez **`migrations/003_signalements.sql`** dans l'éditeur SQL et exécutez-le.
+Il crée une table par niveau — `signalements`, `signalements_1ere`,
+`signalements_2nde` — pose leurs règles d'accès et leurs droits.
+
+**À jouer AVANT de mettre en ligne la version qui porte le bouton.** Sans cette
+étape, l'élève qui clique sur « Signaler un problème » reçoit une erreur : la
+page marche, mais le bouton ne mène nulle part.
+
+Ce que ces règles disent :
+
+- l'élève **écrit** un signalement, sous son propre nom et sous aucun autre ;
+- l'élève ne **lit** rien — pas même le sien. Un signalement porte le prénom
+  d'un mineur et un texte libre qu'il a tapé ; il n'a rien à faire sous les yeux
+  des autres, et son auteur n'a pas besoin de le relire ;
+- le professeur lit tout, marque « lu », supprime.
+
+Le type de `eleve_id` n'est pas écrit en dur : il est **recopié** de
+`resultats….eleve_id`, parce que `eleves.id` et `eleves_2nde.id` sont des `uuid`
+alors que `eleves_1ere.id` est un `bigint`. Une colonne écrite en dur aurait
+marché sur deux niveaux et cassé le troisième — c'est déjà arrivé sur la
+création de compte.
+
+Pour vérifier :
+
+```sql
+select tablename, policyname, cmd from pg_policies
+where schemaname='public' and tablename like 'signalements%'
+order by tablename, policyname;
+```
+
+→ **quatre politiques par table** : écriture élève, lecture professeur,
+modification professeur, suppression professeur.
+
+> `npm run test:base` joue la migration sur un PostgreSQL jetable, vérifie le
+> type de `eleve_id` table par table, puis met le banc dans la peau d'Alice et
+> du professeur. Il éprouve aussi la fuite : rendre les signalements lisibles
+> par toute la classe **doit** le faire rougir.
+
 ---
 
 ## 4. Vous déclarer professeur (1 min)

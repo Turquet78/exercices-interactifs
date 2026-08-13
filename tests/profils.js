@@ -86,6 +86,11 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'premiere-specifique.html': {
 
+    /* Le signalement : la table du niveau, et le nom de la fonction de rendu de
+       l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
+       puis le rejoue comme le ferait le professeur. */
+    signalement: { table: 'signalements_1ere', exercice: 'pourcentage' },
+
     /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
        dans testScreens : c'est cette liste que show() consulte pour passer en
        plein écran, et c'est elle que le contrôle de l'encadré « Énoncé »
@@ -150,6 +155,11 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'secondes.html': {
 
+    /* Le signalement : la table du niveau, et le nom de la fonction de rendu de
+       l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
+       puis le rejoue comme le ferait le professeur. */
+    signalement: { table: 'signalements_2nde', exercice: 'pourcentage' },
+
     /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
        dans testScreens : c'est cette liste que show() consulte pour passer en
        plein écran, et c'est elle que le contrôle de l'encadré « Énoncé »
@@ -212,6 +222,11 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'terminale.html': {
+
+    /* Le signalement : la table du niveau, et le nom de la fonction de rendu de
+       l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
+       puis le rejoue comme le ferait le professeur. */
+    signalement: { table: 'signalements', exercice: 'derivee-exp' },
 
     /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
        dans testScreens : c'est cette liste que show() consulte pour passer en

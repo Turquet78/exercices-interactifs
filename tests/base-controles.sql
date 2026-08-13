@@ -171,6 +171,40 @@ begin
   end;
   perform pg_temp.exige('elle ne peut pas toucher aux devoirs', ok);
 
+  -- Les signalements : elle en dépose un sous son nom.
+  -- Le contexte part en jsonb — c'est l'instantané de l'exercice, celui-là même
+  -- que la mise en pause enregistre.
+  if to_regclass('public.signalements_2nde') is not null then
+    insert into public.signalements_2nde (eleve_id, exercice, message, contexte)
+    select e.id, 'pourcentage', 'la case reste rouge alors que j''ai bon', '{"kind":"pct"}'::jsonb
+      from public.eleves_2nde e where e.cle = 'cle-alice';
+    perform pg_temp.exige('elle signale un problème sous son propre nom', true);
+
+    -- mais pas sous celui de Bob.
+    begin
+      insert into public.signalements_2nde (eleve_id, exercice, message)
+      select e.id, 'pourcentage', 'signalement usurpé'
+        from public.eleves_2nde e where e.cle = 'cle-bob';
+      ok := false;
+    exception when insufficient_privilege then ok := true;
+    end;
+    perform pg_temp.exige('elle ne peut pas signaler au nom de Bob', ok);
+
+    -- Et elle ne LIT rien : un signalement porte un prénom et un texte libre
+    -- tapé par un élève. Il n'a rien à faire sous les yeux des autres — pas
+    -- même sous ceux de son auteur, qui n'a pas besoin de le relire.
+    select count(*) into n from public.signalements_2nde;
+    perform pg_temp.exige('elle ne relit aucun signalement, pas même le sien (' || n || ')', n = 0);
+
+    -- Ni effacer celui qu'elle vient de déposer, une fois qu'il est parti.
+    begin
+      delete from public.signalements_2nde;
+      ok := not found;
+    exception when insufficient_privilege then ok := true;
+    end;
+    perform pg_temp.exige('elle ne peut pas effacer un signalement', ok);
+  end if;
+
   reset role;
 end $$;
 
@@ -196,6 +230,17 @@ begin
 
   delete from public.resultats_2nde where score = 5;
   perform pg_temp.exige('il supprime une note', found);
+
+  if to_regclass('public.signalements_2nde') is not null then
+    select count(*) into n from public.signalements_2nde;
+    perform pg_temp.exige('il voit les signalements de la classe (' || n || ')', n = 1);
+
+    update public.signalements_2nde set lu = true;
+    perform pg_temp.exige('il marque un signalement comme lu', found);
+
+    delete from public.signalements_2nde;
+    perform pg_temp.exige('il supprime un signalement traité', found);
+  end if;
 
   reset role;
 end $$;

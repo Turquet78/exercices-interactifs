@@ -829,6 +829,104 @@ function exercices(suite){
       ignorer('la pause capture et restaure les saisies math-field', 'captureBoxes ne lit pas les math-field sur ce niveau (voir les manques)');
     }
 
+    /* ---- Signaler un problème -------------------------------------------
+       Le bouton est le seul retour que la page donne : trois pannes sont
+       passées en production sans qu'aucune ne soit apprise autrement qu'en
+       classe. Trois choses doivent tenir, et chacune a son piège.
+       1. Le signalement emporte l'ÉTAT de l'exercice — sans lui, le professeur
+          reçoit « ça marche pas » et ne peut rien rejouer.
+       2. Il n'emporte PAS de note et n'en écrit pas.
+       3. Le rejeu, côté professeur, n'enregistre AUCUNE note. Le professeur est
+          connecté à son propre compte : sans verrou, terminer l'exercice rejoué
+          poserait une note sur un élève. C'est le défaut le plus coûteux de tout
+          ce dispositif, et le seul qui ne se verrait pas à l'œil nu. */
+    if(P.signalement){
+      const sg = P.signalement;
+      verifierEval(w, 'le signalement emporte l\'état de l\'exercice, pas une image', `(function(){
+        currentEleve={id:1,prenom:'Contrôle'}; currentTestId='${sg.exercice}'; currentMode='train';
+        test.kind='${t.kind}'; test.questions=[${t.generateur}]; test.idx=0;
+        const p=signalementPayload('la case reste rouge');
+        if(p.eleve_id!==1) return 'eleve_id absent';
+        if(p.exercice!=='${sg.exercice}') return 'exercice absent';
+        if(p.message!=='la case reste rouge') return 'message absent';
+        if(!p.contexte || p.contexte.kind!=='${t.kind}') return 'instantané de l\\'exercice absent';
+        if(!p.contexte.questions || !p.contexte.questions.length) return 'la question tirée n\\'est pas jointe';
+        if(!p.contexte._boxes) return 'les saisies ne sont pas jointes';
+        if(p.version!==APP_VERSION) return 'la version n\\'est pas jointe';
+        return '';
+      })()`, v => v === '', undefined);
+
+      /* sb est nul hors navigateur : le banc pose un double qui note les tables
+         touchées. C'est la seule façon de voir OÙ part l'écriture — un contrôle
+         qui se contenterait de lire le code passerait au vert sur un copier-
+         coller qui aurait gardé le nom de la table des notes. */
+      const DOUBLE_SB = `sb={ __vues:[], from:function(t){ this.__vues.push(t); const r={
+          insert:function(){ return Promise.resolve({error:null}); },
+          update:function(){ return r; }, delete:function(){ return r; },
+          select:function(){ return r; }, eq:function(){ return Promise.resolve({error:null}); },
+          order:function(){ return r; }, limit:function(){ return Promise.resolve({data:[],error:null}); } };
+        return r; } };`;
+
+      verifierEval(w, 'un signalement va dans sa table, jamais dans les notes', `(function(){
+        ${DOUBLE_SB}
+        currentEleve={id:1,prenom:'Contrôle'}; currentTestId='${sg.exercice}'; currentMode='train';
+        test.kind='${t.kind}'; test.questions=[${t.generateur}]; test.idx=0;
+        const champ=document.getElementById('sigInput');
+        if(!champ) return 'le champ du signalement est absent de la page';
+        champ.value='la case reste rouge alors que j\\'ai bon';
+        envoyerSignalement();
+        const vues=sb.__vues;
+        if(vues.indexOf('${sg.table}')<0) return 'rien n\\'est parti vers ${sg.table} (vu : '+vues.join(',')+')';
+        if(vues.indexOf('${P.tableResultats}')>=0) return 'il a touché la table des notes';
+        return '';
+      })()`, v => v === '', undefined);
+
+      /* Le verrou est posé sur le CLIENT, pas sur une fonction d'enregistrement :
+         la Première en a une, les deux autres écrivent leurs notes depuis sept et
+         quatre endroits différents. Un verrou par point d'écriture aurait laissé
+         passer le prochain exercice ajouté. */
+      verifierEval(w, 'le rejeu d\'un signalement n\'enregistre aucune note', `(function(){
+        if(typeof REJEU==='undefined') return 'le verrou REJEU n\\'existe pas';
+        if(typeof poserGardeRejeu!=='function') return 'poserGardeRejeu() n\\'existe pas';
+        const arrivees=[];
+        sb={ from:function(t){ return {
+          insert:function(){ arrivees.push(t); return Promise.resolve({error:null}); },
+          update:function(){ arrivees.push(t); return Promise.resolve({error:null}); } }; } };
+        poserGardeRejeu();
+        REJEU=true;
+        window.__rejeuRendu=sb.from('${P.tableResultats}').insert({score:10,total:10});
+        const pendant=arrivees.length;
+        REJEU=false;
+        sb.from('${P.tableResultats}').insert({score:10,total:10});
+        const apres=arrivees.length;
+        if(pendant>0) return 'une note est partie en base pendant un rejeu';
+        if(apres===0) return 'le verrou bloque aussi HORS rejeu : plus aucune note ne s\\'enregistrerait';
+        return '';
+      })()`, v => v === '', undefined);
+
+      /* Et il doit le DIRE : un refus silencieux ferait croire à l'appelant que
+         la note est enregistrée, et le brouillon de reprise serait jeté pour rien. */
+      evalPromis(w, 'window.__rejeuRendu', r => {
+        verifier('et le rejeu rend une erreur plutôt qu\'un succès muet',
+          r.ok && r.valeur && r.valeur.error && /rejou/i.test(String(r.valeur.error.message||'')),
+          r.ok ? ('rendu : ' + JSON.stringify(r.valeur)) : r.erreur);
+      });
+
+      /* La table écran/rendu du rejeu doit désigner des fonctions qui existent.
+         Elle est née fausse — « renderA2QTest » n'a jamais existé — et le défaut
+         ne se serait vu qu'au premier rejeu, chez le professeur. */
+      verifierEval(w, 'chaque écran rejouable désigne une fonction de rendu réelle', `(function(){
+        const src=String(afficherEcranDe);
+        const noms=(src.match(/render[A-Za-z0-9]+/g)||[]);
+        if(!noms.length) return 'aucune fonction de rendu dans la table';
+        const absentes=noms.filter(function(n){ return typeof window[n]!=='function'; });
+        return absentes.length ? absentes.join(', ') : '';
+      })()`, v => v === '', undefined);
+    } else {
+      ignorer('le signalement emporte l\'état de l\'exercice, pas une image',
+        'ce niveau n\'a pas déclaré sa table de signalements (voir tests/profils.js)');
+    }
+
     /* « Recommencer » doit relancer le MÊME exercice */
     if(P.relance){
       const r = P.relance;
