@@ -422,15 +422,13 @@
 .rap-row{margin:2px 0 8px;text-align:center}
 #conseilRappel{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;line-height:1.55;font-size:.95rem}
   .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
-  .theme-block{display:flex;flex-direction:column;gap:14px}
-  .theme-head{display:flex;align-items:baseline;gap:11px;padding-bottom:9px;border-bottom:2px solid var(--line)}
-  .theme-num{font-family:"Fredoka";font-weight:600;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
-  .theme-name{font-family:"Fredoka";font-weight:600;font-size:1.4rem;color:var(--ink);line-height:1.1}
   .dm-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .dm-badge{font-family:"Fredoka";font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
   .dm-title{font-family:"Fredoka";font-weight:600;font-size:1.3rem;color:var(--ink);margin:0}
   .dm-cours{color:var(--ink);font-weight:600;font-size:.95rem;line-height:1.55;background:#fff;border:1.5px solid #d8e0fb;border-radius:12px;padding:13px 15px;margin:13px 0 0}
   .choice.themecard .ic.theme-ic{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--blue);background:#EAF0FF;border-radius:12px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;}
+  /* « 3.1 » tient trois caracteres la ou un numero de theme n'en tient qu'un */
+  .choice.themecard .ic.theme-ic.sous-ic{font-size:1rem;letter-spacing:.01em}
   .ex-bilan{align-self:flex-start;margin-top:4px;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px}
   .ex-bilan.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
   .ex-bilan.todo{color:var(--ink-soft);background:var(--paper);border:1px solid var(--line)}
@@ -786,8 +784,20 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <h2 class="title" style="margin:0" id="themeTitle">Thème</h2>
         <button class="btn-link" onclick="show('choose')">← Thèmes</button>
       </div>
-      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <p class="lead" id="themeLead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
       <div class="theme-list" id="themeChoices"></div>
+    </div>
+  </section>
+
+  <!-- EXERCICES D'UNE PARTIE DE THÈME (sous-thème) -->
+  <section class="screen" id="scr-soustheme">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="sousThemeTitle">Partie</h2>
+        <button class="btn-link" id="sousThemeRetour" onclick="retourTheme()">← Thème</button>
+      </div>
+      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="theme-list" id="sousThemeChoices"></div>
     </div>
   </section>
 
@@ -1258,7 +1268,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=93;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=94;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1682,7 +1692,11 @@ function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
 /* ===================== ARCHITECTURE (portée des terminales) ===================== */
 /* La page « Exercices par thème » ne montre QUE les thèmes : une carte par thème,
    avec le nombre d'exercices et le nombre déjà travaillés. Le détail des exercices
-   est sur sa propre page (scr-theme), ouverte par openTheme(). */
+   est sur sa propre page (scr-theme), ouverte par openTheme().
+   Un thème découpé en sous-thèmes ajoute un étage : scr-theme n'y montre que les
+   parties (3.1, 3.2, 3.3, 3.4), et les exercices de la partie choisie s'ouvrent
+   sur scr-soustheme, par openSousTheme(). Les vingt-quatre exercices des
+   pourcentages tenaient sinon sur une seule page à faire défiler. */
 function renderChooser(results){
   results=results||mesResultats||[];
   const cards=THEMES.map(th=>{
@@ -1695,29 +1709,60 @@ function renderChooser(results){
   }).join('');
   $('testChoices').innerHTML='<div class="choices">'+cards+'</div>';
 }
-let currentThemeNum=null;
+let currentThemeNum=null, currentSousNum=null;
 function themeOfTest(id){ const th=THEMES.find(t=>t.ids.indexOf(id)>=0); return th?th.num:null; }
-/* Ouvre la page des exercices du thème choisi. */
+/* La partie (sous-thème) qui contient l'exercice, ou null : sert à revenir sur la
+   bonne page après un exercice ouvert depuis « À retravailler » ou un devoir. */
+function sousThemeOfTest(id){
+  let trouve=null;
+  THEMES.forEach(t=>{ if(!t.sous) return; t.sous.forEach(st=>{ if(st.ids.indexOf(id)>=0) trouve={theme:t.num, sous:st.num}; }); });
+  return trouve;
+}
+/* Carte d'un exercice : même dessin sur la page d'un thème et sur celle d'une partie. */
+function carteExo(id){
+  const t=TESTS[id]; if(!t) return '';
+  const nd=derniereNoteExo(id);
+  const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+  return cardHTML(t.icon, testNum(id)+' · '+t.name, t.desc, `openTest('${escJS(id)}')`, '', '', badge);
+}
+/* Ouvre la page du thème choisi : ses parties s'il en a, ses exercices sinon. */
 function openTheme(num){
   const th=THEMES.find(t=>t.num===num); if(!th) return;
-  currentThemeNum=num;
+  currentThemeNum=num; currentSousNum=null;
   $('themeTitle').textContent='Thème '+th.num+' · '+th.nom;
-  const carte=id=>{
-    const t=TESTS[id]; if(!t) return '';
-    const nd=derniereNoteExo(id);
-    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, testNum(id)+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
-  };
+  $('themeLead').textContent = th.sous
+    ? 'Choisis la partie que tu veux travailler : ses exercices s’ouvrent ensuite sur leur propre page.'
+    : 'Choisis un exercice. Ta dernière note /10 s’affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l’entraînement pour 10.';
   $('themeChoices').innerHTML = th.sous
-    ? th.sous.map(st=>`<div class="theme-block">
-        <div class="theme-head"><span class="theme-num">${th.num}.${st.num}</span><span class="theme-name">${esc(st.nom)}</span></div>
-        ${st.ids.length
-          ? `<div class="choices">${st.ids.map(carte).join('')}</div>`
-          : `<p class="muted" style="margin:2px 0 0">Exercices \u00e0 venir.</p>`}
-      </div>`).join('')
-    : `<div class="choices">${th.ids.map(carte).join('')}</div>`;
+    ? '<div class="choices">'+th.sous.map(st=>{
+        const ids=st.ids.filter(id=>TESTS[id]);
+        const faits=ids.filter(id=>derniereNoteExo(id).fait).length;
+        const badge=!ids.length
+          ? '<span class="ex-bilan todo">\u00c0 venir</span>'
+          : (faits>0?`<span class="ex-bilan done">${faits} / ${ids.length} travaill\u00e9${faits>1?'s':''}</span>`:'<span class="ex-bilan todo">\u00c0 d\u00e9couvrir</span>');
+        const numero=th.num+'.'+st.num;
+        const desc=ids.length?(ids.length+' exercice'+(ids.length>1?'s':'')+' interactif'+(ids.length>1?'s':'')):'Exercices \u00e0 venir.';
+        return `<button class="choice eleve themecard" onclick="openSousTheme(${th.num},${st.num})">
+          <span class="ic theme-ic sous-ic">${esc(numero)}</span><span class="ttl">${esc(numero+' : '+st.nom)}</span><span class="ds">${esc(desc)}</span>${badge}</button>`;
+      }).join('')+'</div>'
+    : `<div class="choices">${th.ids.map(carteExo).join('')}</div>`;
   show('theme');
 }
+/* Ouvre la page des exercices d'une partie : 3.1, 3.2, \u2026 */
+function openSousTheme(num, snum){
+  const th=THEMES.find(t=>t.num===num); if(!th||!th.sous) return;
+  const st=th.sous.find(s=>s.num===snum); if(!st) return;
+  currentThemeNum=num; currentSousNum=snum;
+  $('sousThemeTitle').textContent=th.num+'.'+st.num+' : '+st.nom;
+  $('sousThemeRetour').textContent='\u2190 Th\u00e8me '+th.num;
+  const ids=st.ids.filter(id=>TESTS[id]);
+  $('sousThemeChoices').innerHTML = ids.length
+    ? `<div class="choices">${ids.map(carteExo).join('')}</div>`
+    : '<p class="muted">Exercices \u00e0 venir.</p>';
+  show('soustheme');
+}
+/* Retour depuis une partie : la page de son th\u00e8me, pas la liste des th\u00e8mes. */
+function retourTheme(){ if(currentThemeNum!=null) openTheme(currentThemeNum); else show('choose'); }
 function bestModeExo(id, modes){
   let b=null;
   (mesResultats||[]).forEach(r=>{ if(isPaused(r)||testIdOf(r)!==id||modes.indexOf(modeOf(r))<0) return; if(b==null||r.percent>b.percent) b=r; });
@@ -1856,10 +1901,18 @@ function renderBilan(results){
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
-function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes().then(()=>{ if(currentThemeNum) openTheme(currentThemeNum); }); } }
+/* On revient là d'où l'on vient : la page de la partie si l'exercice en fait
+   partie, sinon celle du thème. Les deux numéros sont relevés AVANT openTheme(),
+   qui remet currentSousNum à zéro. */
+function retourChoix(){
+  if(currentDM){ ouvrirDevoirDetail(currentDM); return; }
+  const th=currentThemeNum, sous=currentSousNum;
+  openThemes().then(()=>{ if(th!=null){ openTheme(th); if(sous!=null) openSousTheme(th,sous); } });
+}
 async function openTest(testId){
   currentTestId=testId;
-  currentThemeNum=themeOfTest(testId)||currentThemeNum;
+  const stExo=sousThemeOfTest(testId), thExo=themeOfTest(testId);
+  if(thExo!=null){ currentThemeNum=thExo; currentSousNum=stExo?stExo.sous:null; }
   currentDM=null;
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
@@ -1943,7 +1996,7 @@ function show(name){
   const canPause = testScreens.indexOf(name)>=0 && (currentMode==='train'||currentMode==='soutien') && currentEleve;
   const tc=$('testCtrls'); if(tc) tc.hidden=!canPause;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='theme'||name==='mode'||name==='devoirs'||name==='rattrapage'||name==='results'||testScreens.indexOf(name)>=0) && currentEleve){
+  if((name==='space'||name==='choose'||name==='theme'||name==='soustheme'||name==='mode'||name==='devoirs'||name==='rattrapage'||name==='results'||testScreens.indexOf(name)>=0) && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
