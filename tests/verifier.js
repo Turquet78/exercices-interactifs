@@ -984,6 +984,27 @@ function exercices(suite){
       ignorer('chaque exercice a son rappel de cours', 'ce niveau n\'a pas encore de table RAPPELS (voir les manques)');
     }
 
+    /* ---- Deux exercices ne portent jamais le même nom ---------------------
+       Né d'un cas réel : les six exercices d'augmentation ont été renommés pour
+       dire leur méthode — « Retrouver la valeur initiale en calculant le
+       coefficient multiplicateur… » — et le même patron appliqué aux diminutions
+       produisait EXACTEMENT le même nom. Sur la page de sa partie, le contexte
+       lève l'ambiguïté ; dans le tableau du professeur, dans les notes, dans
+       « À retravailler » et dans l'export CSV, les deux exercices devenaient
+       indiscernables. Le sens a donc été ajouté des deux côtés (« après une
+       hausse », « après une baisse »), et ce contrôle interdit que le cas
+       revienne au prochain renommage. */
+    verifierEval(w, 'deux exercices ne portent pas le même nom', `(function(){
+      const vus={}, doublons=[];
+      Object.keys(TESTS).forEach(function(id){
+        const n=String((TESTS[id]&&TESTS[id].name)||'').trim();
+        if(!n) return;
+        if(vus[n]) doublons.push('« '+n+' » : '+vus[n]+' et '+id);
+        else vus[n]=id;
+      });
+      return doublons.join(' | ');
+    })()`, v => v === '', undefined);
+
     /* ---- Aucun numéro d'exercice écrit en toutes lettres --------------------
        Un numéro (3.1.1) n'existe nulle part dans le fichier : il se déduit de la
        POSITION de l'exercice dans THEMES. Réordonner un thème les décale donc
