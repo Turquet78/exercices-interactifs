@@ -192,6 +192,20 @@ JSON sans les fonctions de leurs courbes.
 La migration `003` se joue à la main chez Supabase, comme les autres : jouée
 après coup, le bouton renvoie une erreur à l'élève.
 
+**Un devoir peut demander plusieurs fois le même exercice.** « Trois fois les
+tables niveau 1, puis le niveau 2. » Le verrou n'était pas l'écran mais la NOTE :
+elle porte `{dm, test}` et rien d'autre, si bien que deux passages du même
+exercice y étaient indiscernables. Le numéro du passage s'ajoute donc dans
+`enregistrerResultat()` — l'entonnoir — et non dans les quatorze fins de test,
+dont la quinzième l'aurait oublié. La liste des passages est calculée par
+`passagesDevoir()`, partagée par l'écran de l'élève, le total du devoir et le
+tableau du professeur : deux calculs auraient donné deux totaux. Un exercice
+demandé une seule fois garde `passe: null` et s'enregistre comme avant ; une
+note écrite avant l'existence des passages compte pour le passage 1, sans quoi
+porter un exercice de un à trois passages effacerait les notes déjà obtenues.
+Un exercice peut aussi être `verrou`illé tant que tout ce qui le précède dans le
+devoir n'est pas fait. Quatre contrôles, chacun éprouvé en le cassant.
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet

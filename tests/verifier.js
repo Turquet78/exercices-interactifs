@@ -984,6 +984,81 @@ function exercices(suite){
       ignorer('chaque exercice a son rappel de cours', 'ce niveau n\'a pas encore de table RAPPELS (voir les manques)');
     }
 
+    /* ---- Un devoir qui demande plusieurs fois le même exercice -------------
+       « Trois fois les tables niveau 1, puis le niveau 2. » Le verrou n'est pas
+       l'écran, c'est la NOTE : elle porte {dm, test} et rien d'autre, si bien que
+       deux passages du même exercice y étaient rigoureusement indiscernables.
+       Le numéro du passage s'ajoute donc dans l'entonnoir d'enregistrement — pas
+       dans les quatorze fins de test, dont la quinzième l'aurait oublié.
+       Et une note d'AVANT, écrite sans passage, doit continuer de compter : sans
+       cela, porter un exercice de un à trois passages effacerait de l'écran les
+       notes déjà obtenues. */
+    if(P.devoirPassages){
+      const dp = P.devoirPassages;
+      verifierEval(w, 'un devoir peut demander plusieurs fois le même exercice', `(function(){
+        const dev={id:'dm-ctrl',num:1,actif:true,exercices:[
+          {id:'${dp.exercice}',modes:['train'],rep:3},
+          {id:'${dp.suivant}',modes:['train'],verrou:true}]};
+        const l=passagesDevoir(dev);
+        if(l.length!==4) return 'le devoir compte '+l.length+' passages au lieu de 4';
+        if(!l.slice(0,3).every(function(p,i){ return p.id==='${dp.exercice}' && p.passe===i+1 && p.sur===3; }))
+          return 'les trois passages ne sont pas numérotés 1, 2, 3';
+        /* un exercice demandé UNE fois garde passe:null — sa note s'écrit alors
+           sans ce champ, exactement comme les devoirs déjà rendus */
+        if(l[3].passe!==null) return 'un exercice demandé une seule fois ne doit pas être numéroté';
+        return '';
+      })()`, v => v === '', undefined);
+
+      verifierEval(w, 'un exercice verrouillé attend que TOUS les précédents soient faits', `(function(){
+        const dev={id:'dm-ctrl',num:1,actif:true,exercices:[
+          {id:'${dp.exercice}',modes:['train'],rep:3},
+          {id:'${dp.suivant}',modes:['train'],verrou:true}]};
+        const l=passagesDevoir(dev), fait={};
+        const est=function(px){ return !!fait[px.id+'#'+px.passe]; };
+        if(!passageOuvert(l,0,est)) return 'le premier passage devrait être ouvert';
+        if(passageOuvert(l,3,est)) return 'le verrou ne bloque rien au départ';
+        fait['${dp.exercice}#1']=1; fait['${dp.exercice}#2']=1;
+        if(passageOuvert(l,3,est)) return 'le verrou s\\'ouvre alors qu\\'un passage manque';
+        fait['${dp.exercice}#3']=1;
+        if(!passageOuvert(l,3,est)) return 'le verrou reste fermé alors que tout est fait';
+        return '';
+      })()`, v => v === '', undefined);
+
+      verifierEval(w, 'chaque passage retrouve sa note, et les notes d\'avant comptent', `(function(){
+        mesResultats=[
+          {percent:60,details:{dm:'dm-ctrl',test:'${dp.exercice}',mode:'train',passe:1}},
+          {percent:80,details:{dm:'dm-ctrl',test:'${dp.exercice}',mode:'train',passe:2}}];
+        const n=function(p){ const b=dmBest('dm-ctrl','${dp.exercice}','train',p); return b?b.percent:null; };
+        if(n(1)!==60 || n(2)!==80) return 'les passages se mélangent : '+n(1)+' et '+n(2);
+        if(n(3)!==null) return 'un passage jamais fait rend quand même une note';
+        /* la note d'avant, sans passage : elle doit rester lisible au passage 1 */
+        mesResultats=[{percent:70,details:{dm:'dm-ctrl',test:'${dp.exercice}',mode:'train'}}];
+        if(n(1)!==70) return 'une note écrite avant les passages est perdue';
+        if(n(2)!==null) return 'une note sans passage compte pour tous les passages';
+        mesResultats=[];
+        return '';
+      })()`, v => v === '', undefined);
+
+      verifierEval(w, 'le passage est posé par l\'entonnoir, et seulement dans un devoir', `(function(){
+        const vues=[];
+        sb={ from:function(){ return { insert:function(p){ vues.push(p); return Promise.resolve({error:null}); } }; } };
+        REJEU=false;
+        currentDM='dm-ctrl'; currentPasse=2;
+        enregistrerResultat({eleve_id:1,score:8,total:10,percent:80,duration_sec:9,
+          details:{test:'${dp.exercice}',mode:'train',dm:'dm-ctrl'}});
+        currentDM=null; currentPasse=null;
+        enregistrerResultat({eleve_id:1,score:8,total:10,percent:80,duration_sec:9,
+          details:{test:'${dp.exercice}',mode:'train'}});
+        if(vues.length!==2) return 'les deux notes ne sont pas parties';
+        if(vues[0].details.passe!==2) return 'la note du devoir ne porte pas son passage';
+        if(vues[1].details.passe!==undefined) return 'une note hors devoir a reçu un passage';
+        return '';
+      })()`, v => v === '', undefined);
+    } else {
+      ignorer('un devoir peut demander plusieurs fois le même exercice',
+        'ce niveau n\'a pas l\'éditeur de devoirs qui le permet');
+    }
+
     /* ---- Deux exercices ne portent jamais le même nom ---------------------
        Né d'un cas réel : les six exercices d'augmentation ont été renommés pour
        dire leur méthode — « Retrouver la valeur initiale en calculant le

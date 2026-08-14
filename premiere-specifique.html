@@ -475,6 +475,13 @@
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
   /* ----- éditeur de devoirs (prof) ----- */
+  .dm-rep{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.86rem;color:var(--ink-soft);font-weight:600}
+  .dm-rep label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .dm-rep input[type=number]{width:58px;padding:4px 6px;border:1.5px solid var(--line);border-radius:8px;font:inherit;text-align:center}
+  .dm-verrou.on{color:var(--blue-dark)}
+  .dm-rep.off{opacity:.5}
+  .dm-rep.off label{cursor:default}
+  .dm-rep-hint{font-weight:600;font-style:italic}
   .dm-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:6px 0 18px}
   .dm-tab{font-family:"Fredoka";font-weight:500;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--ink-soft);font-size:.95rem}
   .dm-tab:hover{border-color:#cdd3e0}
@@ -1337,7 +1344,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=101;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=103;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1655,6 +1662,10 @@ THEMES.forEach(t=>{
    de ce que voient les élèves — il l'était déjà. */
 const TEST_ORDER=THEMES.reduce((a,t)=>a.concat(t.ids),[]);
 let currentDM=null;
+/* Le passage en cours, quand un devoir demande plusieurs fois le même exercice.
+   null = passage unique, et la note s'enregistre alors sans « passe » — les
+   devoirs déjà rendus gardent exactement la forme qu'ils avaient. */
+let currentPasse=null;
 let mesResultats=[], mesDevoirs=[];
 const DEFAULT_DEVOIR={id:'dm_1',num:1,actif:true,titre:'Devoir à la maison',cours:'',exercices:[]};
 function newDevoirId(){ return 'dm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
@@ -2084,7 +2095,7 @@ function rejouerSignalement(id){
   if(!r || !r.contexte || !r.contexte.kind){ toast('Cet écran ne peut pas être rejoué','err'); return; }
   const d=r.contexte;
   REJEU=true;
-  currentTestId=r.exercice; currentMode=r.mode||'train'; currentDM=null;
+  currentTestId=r.exercice; currentMode=r.mode||'train'; currentDM=null; currentPasse=null;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
@@ -2117,6 +2128,11 @@ async function enregistrerResultat(payload){
   /* Verrou du rejeu : le professeur regarde l'écran d'un élève, il ne passe pas
      l'exercice. Un contrôle du banc l'exige. */
   if(REJEU){ toast('Écran rejoué : aucune note enregistrée','ok'); return false; }
+  /* Le numéro du passage s'ajoute ICI, dans l'entonnoir, et non dans les quatorze
+     fins de test : le quinzième exercice ajouté l'aurait oublié, et sa note serait
+     tombée dans le mauvais passage sans que rien ne le signale. */
+  if(currentPasse && payload && payload.details && !Array.isArray(payload.details) && payload.details.dm)
+    payload.details.passe=currentPasse;
   try{
     const {error}=await sb.from('resultats_1ere').insert(payload);
     if(error){ console.warn('resultat non enregistre :', error.message||error); 
@@ -2143,7 +2159,7 @@ async function openThemes(){
 }
 async function openRattrapage(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
-  currentDM=null;
+  currentDM=null; currentPasse=null;
   show('rattrapage');
   $('rattrapageList').innerHTML='<p class="muted">Chargement…</p>';
   await chargerMesResultats();
@@ -2192,7 +2208,7 @@ async function openTest(testId){
   currentTestId=testId;
   const stExo=sousThemeOfTest(testId), thExo=themeOfTest(testId);
   if(thExo!=null){ currentThemeNum=thExo; currentSousNum=stExo?stExo.sous:null; }
-  currentDM=null;
+  currentDM=null; currentPasse=null;
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
@@ -2292,7 +2308,38 @@ function show(name){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 /* ---------- Devoirs à la maison (élève) ---------- */
-function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
+/* ---------- Les passages d'un devoir ----------
+   Un devoir peut demander PLUSIEURS fois le même exercice : « trois fois les
+   tables niveau 1, puis le niveau 2 ». La liste des passages est calculée ici,
+   et ici seulement — l'écran de l'élève, le total du devoir et le tableau du
+   professeur la partagent. Deux calculs auraient divergé, et c'est la note de
+   l'élève qui en aurait fait les frais.
+   Un exercice demandé une seule fois garde « passe: null » : sa note s'écrit
+   alors sans ce champ, exactement comme avant, et les devoirs déjà rendus
+   continuent de se lire. */
+function passagesDevoir(dev){
+  const out=[];
+  ((dev&&dev.exercices)||[]).forEach((ex,rang)=>{
+    if(!TESTS[ex.id]) return;
+    const n=Math.max(1, parseInt(ex.rep,10)||1);
+    for(let p=1;p<=n;p++) out.push({id:ex.id, modes:ex.modes||[], passe:(n>1?p:null), sur:n, rang, verrou:!!ex.verrou});
+  });
+  return out;
+}
+/* Un passage verrouillé s'ouvre quand TOUT ce qui le précède dans le devoir est
+   fait. C'est ce qui permet d'exiger les trois passages du niveau 1 avant le
+   niveau 2 — sans verrou déclaré, rien n'est bloqué et le devoir se comporte
+   comme avant. */
+function passageOuvert(liste, i, estFait){
+  if(!liste[i].verrou) return true;
+  for(let k=0;k<i;k++) if(!estFait(liste[k])) return false;
+  return true;
+}
+/* Le passage 1 accepte aussi les notes sans « passe » : ce sont celles d'avant,
+   quand le devoir ne demandait qu'un seul passage. Sans cela, augmenter le
+   nombre de passages effacerait les notes déjà obtenues. */
+function memePassage(dt,p){ return p==null ? dt.passe==null : (dt.passe===p || (p===1 && dt.passe==null)); }
+function dmBest(did,id,m,passe){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did&&memePassage(r.details,passe)){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
 function noteDevoirExo(bestSoutien, bestEntrain){
   const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
   const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
@@ -2343,15 +2390,22 @@ function renderDevoirDetail(devoirId){
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   if(!dev){ renderDevoirsList(); return; }
   const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
-  const exos=dev.exercices||[]; let somme=0, faitQqch=false;
-  const cards=exos.map(ex=>{
-    const t=TESTS[ex.id]; if(!t) return '';
-    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'));
+  const liste=passagesDevoir(dev); let somme=0, faitQqch=false;
+  const notes=liste.map(px=>noteDevoirExo(dmBest(devoirId,px.id,'soutien',px.passe), dmBest(devoirId,px.id,'train',px.passe)));
+  const estFait=px=>notes[liste.indexOf(px)].fait;
+  const cards=liste.map((px,i)=>{
+    const t=TESTS[px.id], nd=notes[i];
     somme+=nd.note; if(nd.fait) faitQqch=true;
-    const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
+    const ouvert=passageOuvert(liste,i,estFait);
+    const titre=testLabel(px.id)+(px.passe?` — passage ${px.passe} sur ${px.sur}`:'');
+    const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`
+      :(ouvert?`<span class="ex-bilan todo">À faire</span>`:`<span class="ex-bilan todo">🔒 Verrouillé</span>`);
+    /* Un passage verrouillé se voit, mais ne s'ouvre pas : la carte est posée
+       sans onclick, donc désactivée par cardHTML, et dit pourquoi. */
+    return cardHTML(t.icon, titre, t.desc, ouvert?`openTestDevoir('${escJS(devoirId)}','${escJS(px.id)}',${px.passe||'null'})`:'', '',
+      ouvert?'':'Termine d\u2019abord les exercices précédents du devoir.', badge);
   }).join('');
-  const totMax=exos.length*10;
+  const totMax=liste.length*10;
   const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
   $('devoirsBody').innerHTML=`
     <button class="btn-link" onclick="renderDevoirsList()">← Tous les devoirs</button>
@@ -2361,31 +2415,32 @@ function renderDevoirDetail(devoirId){
     <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
 }
-async function openTestDevoir(devoirId, testId){
-  currentTestId=testId; currentDM=devoirId;
+async function openTestDevoir(devoirId, testId, passe){
+  currentTestId=testId; currentDM=devoirId; currentPasse=passe||null;
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;
   const allowed=(ex&&ex.modes&&ex.modes.length)?ex.modes:['soutien','train'];
-  $('modeTitle').textContent=testLabel(testId);
+  const nbPasses=Math.max(1,parseInt(ex&&ex.rep,10)||1);
+  $('modeTitle').textContent=testLabel(testId)+(currentPasse?` — passage ${currentPasse} sur ${nbPasses}`:'');
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
   show('mode');
   pausedRows={};
   try{
     const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
+    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId&&memePassage(d,currentPasse)){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   let cards='';
   if(allowed.includes('soutien')){
     cards += pausedRows.soutien
       ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
-      : cardHTML('🛟','Mode soutien','On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+      : cardHTML('🛟','Mode soutien','On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';currentDM='${devoirId}';currentPasse=${passe||'null'};TESTS['${testId}'].start()`);
   }
   if(allowed.includes('train')){
     cards += pausedRows.train
       ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
-      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';currentDM='${devoirId}';currentPasse=${passe||'null'};TESTS['${testId}'].start()`);
   }
   $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
 }
@@ -2419,7 +2474,7 @@ function restoreBoxes(boxes){
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
 function recoveryPayload(){
   const elapsed=test.startTime?Math.round((Date.now()-test.startTime)/1000):0;
-  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, currentDM?{dm:currentDM}:{}, snapshotTest());
+  const details=Object.assign({test:currentTestId,mode:currentMode,state:'paused'}, currentDM?{dm:currentDM}:{}, (currentDM&&currentPasse)?{passe:currentPasse}:{}, snapshotTest());
   details._boxes=captureBoxes();            // saisies en cours de la question affichée
   const total=Array.isArray(test.questions)?test.questions.length:0;
   return {eleve_id:currentEleve.id,score:test.score||0,total,percent:0,duration_sec:elapsed,details};
@@ -2467,7 +2522,7 @@ async function resumeTest(mode){
   const d=row&&row.details;
   if(!d || !Array.isArray(d.questions) || !d.questions.length){ toast('Reprise impossible — on recommence.','err'); currentMode=mode; recoveryRowId=null; recoveryClosed=false; TESTS[currentTestId].start(); return; }
   currentMode=mode; currentTestId=d.test;
-  currentDM=d.dm||null;
+  currentDM=d.dm||null; currentPasse=d.passe||null;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
@@ -6489,15 +6544,30 @@ function renderDmEditor(){
   const box=$('dmEditor');
   if(!dmSelId){ box.innerHTML='<div class="dm-empty">Aucun devoir pour l\'instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
-  const chosen={}; (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; });
+  const chosen={}, reps={}, verrous={};
+  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; reps[ex.id]=Math.max(1,parseInt(ex.rep,10)||1); verrous[ex.id]=!!ex.verrou; });
   const groups=THEMES.map(th=>{
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
       const mk=(m,lbl)=>{ const on=modes.includes(m); return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
+      /* Le nombre de passages et le verrou sont montrés sur TOUTES les lignes,
+         y compris celles qu'on n'a pas encore choisies — grisés tant qu'aucun
+         mode n'est coché, avec le motif écrit à côté.
+         Ils n'apparaissaient d'abord que sur un exercice déjà choisi, pour ne
+         pas charger l'écran de vingt-cinq champs inutiles. Le résultat est
+         qu'on ne les trouvait pas : un réglage qui n'existe nulle part à
+         l'écran tant qu'on n'a pas fait le bon geste est un réglage qu'on ne
+         découvre jamais. Mieux vaut un écran chargé qu'un écran muet. */
+      const extra = `<span class="dm-rep${picked?'':' off'}">
+          <label>Passages <input type="number" min="1" max="10" value="${esc(String(reps[id]||1))}" ${picked?'':'disabled'} onchange="dmSetRep('${escJS(id)}',this.value)"></label>
+          <label class="dm-verrou ${verrous[id]?'on':''}"><input type="checkbox" ${verrous[id]?'checked':''} ${picked?'':'disabled'} onchange="dmSetVerrou('${escJS(id)}',this.checked)">🔒 après les précédents</label>
+          ${picked?'':'<span class="dm-rep-hint">coche un mode pour régler ces deux-là</span>'}
+        </span>`;
       return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
         <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
         <span class="dm-exo-name">${esc(testName(id))}</span>
         <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
+        ${extra}
       </div>`;
     }).join('');
     if(!rows) return '';
@@ -6522,6 +6592,20 @@ function renderDmEditor(){
     </div>
   </div>`;
 }
+/* Le nombre de passages d'un exercice, et son verrou. Tous deux vivent sur
+   l'entrée de l'exercice dans le devoir : un exercice retiré du devoir les
+   emporte avec lui. */
+function dmSetRep(id,v){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  const n=Math.min(10, Math.max(1, parseInt(v,10)||1));
+  if(n>1) ex.rep=n; else delete ex.rep;    /* un seul passage ne s'écrit pas : la forme d'avant */
+}
+function dmSetVerrou(id,checked){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  if(checked) ex.verrou=true; else delete ex.verrou;
+}
 function dmToggleMode(id,m,checked){
   const d=dmCur(); if(!d) return;
   d.exercices=d.exercices||[];
@@ -6531,6 +6615,11 @@ function dmToggleMode(id,m,checked){
   if(checked){ if(!ex.modes.includes(m)) ex.modes.push(m); }
   else { ex.modes=ex.modes.filter(x=>x!==m); }
   if(!ex.modes.length) d.exercices=d.exercices.filter(e=>e.id!==id);
+  else if(checked && !ex.rep && !ex.verrou){ /* premier mode coché : réglages par défaut */ }
+  /* Redessiner l'éditeur entier : les réglages de la ligne passent de grisés à
+     actifs, et l'inverse. Un simple basculement de classe les aurait laissés
+     désactivés alors que l'exercice vient d'être choisi. */
+  renderDmEditor();
   const row=$('dmx-'+id);
   if(row){
     const still=(d.exercices.find(e=>e.id===id)||{modes:[]}).modes.length>0;
@@ -6571,11 +6660,11 @@ async function deleteDM(id){
     toast('Devoir supprimé','ok'); renderDevoirsAdmin();
   }catch(e){ toast('Suppression impossible','err'); }
 }
-function dmBestFor(rows,eid,did,id,m){
+function dmBestFor(rows,eid,did,id,m,passe){
   let b=null;
   (rows||[]).forEach(r=>{
     if(r.eleve_id!==eid||isPaused(r)||testIdOf(r)!==id||modeOf(r)!==m) return;
-    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==did) return;
+    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==did||!memePassage(dt,passe)) return;
     if(b==null||r.percent>b.percent) b=r;
   });
   return b;
@@ -6594,17 +6683,22 @@ async function renderDmResults(){
     ]);
     if(e1)throw e1; if(e2)throw e2;
     dmResRows=rows||[];
-    const totMax=exos.length*10;
+    /* Le devoir se compte en PASSAGES, pas en exercices : trois passages des
+       tables valent trente points, pas dix. La liste vient de passagesDevoir(),
+       la même que celle de l'écran de l'élève — deux calculs auraient donné
+       deux totaux, et c'est la note qui en aurait fait les frais. */
+    const liste=passagesDevoir(d);
+    const totMax=liste.length*10;
     let sommeClasse=0, nbActifs=0;
     const bilanRows=(eleves||[]).map(e=>{
       let somme=0, faits=0, started=false;
-      exos.forEach(ex=>{
-        const nd=noteDevoirExo(dmBestFor(rows,e.id,d.id,ex.id,'soutien'), dmBestFor(rows,e.id,d.id,ex.id,'train'));
+      liste.forEach(px=>{
+        const nd=noteDevoirExo(dmBestFor(rows,e.id,d.id,px.id,'soutien',px.passe), dmBestFor(rows,e.id,d.id,px.id,'train',px.passe));
         somme+=nd.note; if(nd.fait){ faits++; started=true; }
       });
       if(started){ sommeClasse+=somme; nbActifs++; }
       const badge=started?`<span class="badge ${pctClass(Math.round(somme/totMax*100))}">${fmtNote(somme)} / ${totMax}</span>`:`<span class="badge">— / ${totMax}</span>`;
-      return `<tr class="clickable" onclick="dmStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${exos.length}</td></tr>`;
+      return `<tr class="clickable" onclick="dmStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${liste.length}</td></tr>`;
     }).join('');
     const moy=nbActifs?fmtNote(sommeClasse/nbActifs):'—';
     box.innerHTML=`
@@ -6622,13 +6716,12 @@ async function renderDmResults(){
 }
 function dmStudentDetail(eid,prenom){
   const d=dmCur(); if(!d) return;
-  const exos=(d.exercices||[]);
-  const rows=exos.map(ex=>{
-    const bs=dmBestFor(dmResRows,eid,d.id,ex.id,'soutien'), be=dmBestFor(dmResRows,eid,d.id,ex.id,'train');
+  const rows=passagesDevoir(d).map(px=>{
+    const bs=dmBestFor(dmResRows,eid,d.id,px.id,'soutien',px.passe), be=dmBestFor(dmResRows,eid,d.id,px.id,'train',px.passe);
     const nd=noteDevoirExo(bs,be);
-    const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${lbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
+    const cells=(px.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${lbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
     const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
-    return `<tr><td class="name">${esc(testLabel(ex.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
+    return `<tr><td class="name">${esc(testLabel(px.id)+(px.passe?' — passage '+px.passe+' sur '+px.sur:''))}</td><td>${cells}</td><td>${nb}</td></tr>`;
   }).join('');
   const el=$('dmStudentDetail');
   el.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Détail — ${esc(prenom)}</h3><button class="btn-link" onclick="$('dmStudentDetail').innerHTML=''">Fermer</button></div>
