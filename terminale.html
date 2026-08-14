@@ -412,7 +412,12 @@
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
+     #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
+     l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
+     testScreens EXACTEMENT — neuf écrans y manquaient, tous ajoutés après elle.
+     Un contrôle les compare désormais. */
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-lr{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1900,7 +1905,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=221;
+const APP_VERSION=222;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -12449,6 +12454,12 @@ const QIA_SUGG={
   eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi le signe de f\u2032 est-il celui de son num\u00e9rateur ?","Que signifie la double barre dans le tableau ?"],
   ef:["Pourquoi e\u02e3 est-il toujours strictement positif ?","Comment trouver le signe d\u2019un produit ?","Quel est le lien entre le signe de f\u2032 et les variations de f ?","O\u00f9 f admet-elle un extremum ?"],
   sp:["Faire un rappel de cours pour cet exercice.","Comment trouver la racine de ax + b ?","Que met-on sur un trait vertical du tableau ?","Comment trouver le signe du produit sur un intervalle ?"],
+  /* Ces trois-là n'avaient pas d'entrée : l'élève y recevait les questions
+     génériques de « gen », sans rapport avec ce qu'il avait sous les yeux.
+     Un contrôle exige désormais une entrée par écran d'exercice. */
+  s1:["Faire un rappel de cours pour cet exercice.","Comment trouver la racine de ax + b ?","Pourquoi la racine vaut-elle −b/a ?","Comment savoir de quel côté ax + b est positif ?","Que change le signe de a dans le tableau ?"],
+  s2:["Faire un rappel de cours pour cet exercice.","À quoi sert le discriminant ?","Que se passe-t-il quand le discriminant est négatif ?","Que veut dire « du signe de a sauf entre les racines » ?","Comment calculer les deux racines ?"],
+  sa:["Faire un rappel de cours pour cet exercice.","À quoi sert une suite auxiliaire ?","Comment montrer qu’une suite est géométrique ?","Comment trouver la raison et le premier terme de (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   rec:["Faire un rappel de cours pour cet exercice.","Comment conjecturer la limite avec les termes affich\u00e9s ?","Que veut dire \u00ab majorant \u00bb et \u00ab minorant \u00bb ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb dans l\u2019h\u00e9r\u00e9dit\u00e9 ?"],
   enc:["Faire un rappel de cours pour cet exercice.","Que devient un encadrement quand on multiplie par un nombre positif ?","Pourquoi l\u2019ordre change-t-il quand on passe \u00e0 l\u2019inverse ?","Que devient un encadrement quand on prend l\u2019oppos\u00e9 ?","\u00c0 quoi sert un encadrement pour une r\u00e9currence ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]

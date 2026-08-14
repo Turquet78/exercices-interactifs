@@ -362,6 +362,31 @@ function structure(){
       oublies.join(', ') + ' — soit un exercice hors du champ du banc, soit un écran de menu à déclarer dans tests/profils.js');
     const fantomes = listeTS.filter(e => !ecrans.has(e));
     verifier('testScreens ne nomme aucun écran disparu', fantomes.length === 0, fantomes.join(', '));
+
+    /* ---- La réserve du bas, sous les commandes flottantes ---------------
+       #testCtrls — « Pause » et « Abandonner » — est en position fixe, en bas
+       à droite de l'écran. Sans une réserve au bas de la carte, il recouvre la
+       dernière ligne de l'exercice : la case y est toujours là, mais l'élève ne
+       peut plus ni la lire ni la toucher. Rien ne casse, aucune erreur n'est
+       levée, et cela ne se voit qu'en regardant l'écran — c'est exactement ce
+       qui était arrivé à l'exercice en colonnes.
+       La liste est écrite à la main en CSS, à côté de testScreens, sans que
+       rien ne les relie : chacun des trois fichiers avait fini par diverger.
+       La Seconde était le cas extrême — sa règle nommait huit écrans de la
+       Terminale, dont aucun n'existe chez elle. */
+    const reserve = new Set();
+    for(const m of s.matchAll(/(#scr-[^{}]*?)\{([^{}]*)\}/g)){
+      const pb = /padding-bottom\s*:\s*(\d+)px/.exec(m[2]);
+      if(!pb || parseInt(pb[1], 10) < 60) continue;
+      for(const id of m[1].matchAll(/#scr-([a-z0-9-]+)/g)) reserve.add(id[1]);
+    }
+    const decouverts = listeTS.filter(e => !reserve.has(e));
+    verifier('chaque écran d\'exercice réserve la place des commandes flottantes',
+      decouverts.length === 0,
+      decouverts.map(e => '#scr-' + e).join(', ') + ' — le bas de la carte passe sous #testCtrls');
+    const enTrop = [...reserve].filter(e => !ecrans.has(e));
+    verifier('la réserve ne vise aucun écran inexistant', enTrop.length === 0,
+      enTrop.map(e => '#scr-' + e).join(', '));
   } else {
     ignorer('chaque écran d\'exercice figure dans testScreens',
       'ce niveau n\'a pas déclaré ses écrans de menu (voir tests/profils.js)');
@@ -677,8 +702,174 @@ function demarrage(suite){
       Object.keys(TESTS).forEach(function(id){ if(typeof TESTS[id].start!=='function') sans.push(id); });
       return sans.join(', ');
     })()`, v => v === '', 'exercice(s) sans start()');
+    branchements(w);
     suite();
   });
+}
+
+/* ---------- 2 bis. Les branchements d'un nouvel exercice ------------------
+   Ajouter un exercice demande une quinzaine de raccordements, énumérés dans
+   CLAUDE.md. En oublier un ne provoque AUCUNE erreur : l'exercice marche, et
+   c'est l'aide, la correction en direct ou la note qui manquent — chez un
+   élève, un soir, sans que rien ne remonte. Cinq de ces raccordements
+   n'étaient contrôlés nulle part — la place dans THEMES, la réserve du bas en
+   CSS (celle-ci est plus haut, avec le reste du CSS), la correction en direct,
+   les questions à l'IA, et l'identifiant de la note. Chaque contrôle a été
+   éprouvé en le cassant, et trois d'entre eux ont trouvé un manque déjà en
+   place : deux écrans de la Première sans réserve du bas, toute la Seconde
+   dans le même cas, et trois écrans de la Terminale sans questions à l'IA. */
+function branchements(w){
+  const src = lire(CIBLE);
+  const kinds = (() => {
+    const f = evaluer(w, 'String(afficherEcranDe)');
+    if(!f.ok) return null;
+    return [...String(f.valeur).matchAll(/([A-Za-z_$][\w$]*)\s*:\s*\[/g)].map(m => m[1]);
+  })();
+
+  /* ---- Tout exercice de TESTS est rangé dans un thème -------------------
+     TESTS dit ce que l'exercice EST ; THEMES dit OÙ il se trouve — et rien ne
+     les relie. Un exercice absent de THEMES n'apparaît ni dans le menu de
+     l'élève, ni dans le tableau du professeur, ni dans le total d'un devoir :
+     il existe, il démarre, et personne ne peut l'atteindre. Il n'a pas non
+     plus de numéro, puisque le numéro se déduit de la position dans THEMES.
+     L'inverse — un identifiant listé dans THEMES sans exercice derrière —
+     laissait une carte vide dans le menu.
+     C'est ce contrôle qui remplace l'ancien point « MENU » de la liste des
+     branchements : cette constante ne servait plus à rien depuis que le
+     tableau du professeur se construit, lui aussi, à partir de THEMES.
+     Un exercice retiré du menu mais gardé dans TESTS — pour que les notes
+     déjà obtenues gardent un nom — se déclare dans tests/profils.js. */
+  const rangement = evaluer(w, `(function(){
+    const retires=${JSON.stringify(P.horsThemes || [])};
+    const dansThemes=[];
+    THEMES.forEach(function(t){
+      (t.sous||[]).forEach(function(st){ (st.ids||[]).forEach(function(i){ dansThemes.push(i); }); });
+      (t.ids||[]).forEach(function(i){ dansThemes.push(i); });
+    });
+    const orphelins=Object.keys(TESTS).filter(function(i){ return dansThemes.indexOf(i)<0 && retires.indexOf(i)<0; });
+    const fantomes=dansThemes.filter(function(i){ return !TESTS[i]; });
+    const perimes=retires.filter(function(i){ return !TESTS[i]; });
+    return [orphelins.length?'hors de tout thème : '+orphelins.join(', '):'',
+            fantomes.length?'thème citant un exercice inexistant : '+fantomes.join(', '):'',
+            perimes.length?'retrait déclaré dans tests/profils.js sans exercice derrière : '+perimes.join(', '):'']
+           .filter(Boolean).join(' — ');
+  })()`);
+  verifier('chaque exercice de TESTS est rangé dans un thème',
+    rangement.ok && rangement.valeur === '',
+    (rangement.ok ? rangement.valeur : 'erreur JavaScript : ' + rangement.erreur)
+      + ' (un exercice hors de THEMES est inatteignable et sans numéro)');
+
+  /* ---- Le mode soutien corrige en direct sur chaque écran ---------------
+     liveCheckCurrent() est le point 6 des branchements. L'oublier laisse un
+     exercice où le soutien ne corrige plus rien pendant la saisie : l'élève
+     coche tout, ne voit aucune couleur, et croit que l'exercice est cassé.
+     La liste de référence est celle d'afficherEcranDe() — les écrans qui ont
+     leur propre rendu. Un exercice qui corrige autrement se déclare dans
+     tests/profils.js plutôt que d'affaiblir le contrôle pour tout le monde. */
+  if(!kinds){
+    ignorer('le soutien corrige en direct sur chaque écran d’exercice', 'afficherEcranDe() introuvable');
+  } else if(!P.soutienEnDirect){
+    ignorer('le soutien corrige en direct sur chaque écran d’exercice',
+      'ce niveau ne passe pas par liveCheckCurrent() (voir tests/profils.js)');
+  } else {
+    const f = evaluer(w, 'String(liveCheckCurrent)');
+    const corps = f.ok ? String(f.valeur) : '';
+    const dispenses = P.soutienEnDirect.sans || [];
+    const oublies = kinds.filter(k => dispenses.indexOf(k) < 0
+      && !new RegExp('===\\s*[\'"]' + k + '[\'"]').test(corps));
+    verifier('le soutien corrige en direct sur chaque écran d’exercice',
+      f.ok && oublies.length === 0,
+      !f.ok ? 'liveCheckCurrent() introuvable' : oublies.join(', ') + ' — absent(s) de liveCheckCurrent()');
+    const inutiles = dispenses.filter(k => kinds.indexOf(k) < 0);
+    verifier('aucune dispense de soutien ne survit à son écran', inutiles.length === 0,
+      inutiles.join(', ') + ' — écran(s) disparu(s) : à retirer de tests/profils.js');
+  }
+
+  /* ---- Chaque écran a ses propres questions à l'IA ----------------------
+     QIA_SUGG est le point 11. Sans entrée, la fenêtre « Question à l'IA »
+     retombe sur QIA_SUGG.gen — deux questions passe-partout, sans rapport
+     avec ce que l'élève a sous les yeux. Rien ne casse, rien ne s'affiche en
+     rouge : l'aide est simplement devenue inutile pour cet exercice. Trois
+     écrans de la Terminale étaient dans ce cas.
+     Une clé SANS écran est licite en revanche : la Première en a une, « dimq »,
+     choisie à la volée quand une question augq porte une baisse. */
+  if(!kinds){
+    ignorer('chaque écran d’exercice a ses questions à l’IA', 'afficherEcranDe() introuvable');
+  } else {
+    const cles = evaluer(w, 'Object.keys(QIA_SUGG)');
+    const listees = cles.ok ? cles.valeur : [];
+    const sans = kinds.filter(k => listees.indexOf(k) < 0);
+    verifier('chaque écran d’exercice a ses questions à l’IA',
+      cles.ok && sans.length === 0,
+      !cles.ok ? 'QIA_SUGG introuvable' : sans.join(', ') + ' — retombent sur les questions génériques');
+  }
+
+  /* ---- L'identifiant sous lequel la note est enregistrée ----------------
+     Point 14, et le plus coûteux à rater : la note part sous l'identifiant
+     d'un AUTRE exercice, ou sous un identifiant que rien n'affiche. Elle est
+     bien en base, l'élève voit sa note à l'écran — et elle a disparu de son
+     bilan comme du tableau du professeur, sans erreur nulle part. C'est le
+     même identifiant qui ne se renomme jamais : le renommer efface toutes les
+     notes déjà obtenues, du bilan de l'élève comme du tableau du professeur.
+     On ne peut pas le vérifier en exécutant : il faudrait finir chaque
+     exercice. On lit donc le fichier, et on suit les trois chemins par
+     lesquels un identifiant atteint « details.test » :
+       · écrit tel quel                     details:{test:'pourcentage'…
+       · pris dans currentTestId            {test:currentTestId…            (Terminale, Seconde)
+       · rangé dans test.qId / test.tmId    details:{test:(test.qId||'…')…  (Première)
+     Le troisième chemin passe le plus souvent par un démarreur partagé —
+     startA2Q('augmenter-taux-addition', …) — et huit identifiants de la
+     Première ne sont atteignables QUE par là : les chercher comme littéraux
+     en aurait manqué le tiers. On remonte donc jusqu'au paramètre. */
+  const ids = new Set(), props = new Set();
+  let parCurrent = false;
+  for(const m of src.matchAll(/\{\s*test\s*:\s*(?:'([^']+)'|(currentTestId)\b|\(\s*test\.([A-Za-z_$][\w$]*)\s*\|\|\s*'([^']+)'\s*\))/g)){
+    if(m[1]) ids.add(m[1]);
+    if(m[2]) parCurrent = true;
+    if(m[3]){ props.add(m[3]); ids.add(m[4]); }
+  }
+  if(parCurrent) for(const m of src.matchAll(/currentTestId\s*=\s*'([^']+)'/g)) ids.add(m[1]);
+  const fns = corpsFonctions(src, /(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g);
+  props.forEach(p => {
+    for(const m of src.matchAll(new RegExp('test\\.' + p + '\\s*=\\s*\'([^\']+)\'', 'g'))) ids.add(m[1]);
+    /* le démarreur partagé : test.qId = <un de ses paramètres> */
+    fns.forEach(f => {
+      const pose = new RegExp('test\\.' + p + '\\s*=\\s*([A-Za-z_$][\\w$]*)\\b').exec(f.texte);
+      if(!pose) return;
+      const entete = /\(([^)]*)\)/.exec(f.texte);
+      if(!entete || entete[1].split(',').map(x => x.trim()).indexOf(pose[1]) < 0) return;
+      for(const c of src.matchAll(new RegExp('\\b' + f.nom + '\\s*\\(\\s*\'([^\']+)\'', 'g'))) ids.add(c[1]);
+    });
+  });
+  const declares = evaluer(w, 'Object.keys(TESTS)');
+  if(!declares.ok){
+    ignorer('aucune note ne part sous un identifiant inconnu', 'TESTS illisible');
+    ignorer('chaque exercice enregistre sa note sous son identifiant', 'TESTS illisible');
+    return;
+  }
+  /* CE CONTRÔLE-CI VAUT POUR LES TROIS FICHIERS. Tout identifiant écrit en
+     toutes lettres dans une note doit exister dans TESTS : sinon la note part,
+     et rien ne l'affiche jamais. C'est ce qui arriverait au premier renommage
+     d'un identifiant qui oublierait la fin de test. */
+  const inconnus = [...ids].filter(i => declares.valeur.indexOf(i) < 0);
+  verifier('aucune note ne part sous un identifiant inconnu', inconnus.length === 0,
+    inconnus.join(', ') + ' — absent(s) de TESTS : la note serait invisible partout');
+
+  /* CELUI-LÀ NE VAUT QUE POUR LA PREMIÈRE, et il faut dire pourquoi.
+     La Seconde et la Terminale enregistrent leur note sous « currentTestId »,
+     c'est-à-dire l'identifiant choisi dans le menu : tout exercice y est
+     atteignable par construction, et le contrôle ne mesurerait rien. La
+     Première, elle, épingle l'identifiant DANS chacune de ses quatorze fins de
+     test — c'est là qu'un exercice ajouté peut se retrouver sans note, ou avec
+     celle du voisin recopié. */
+  if(!P.noteParExercice){
+    ignorer('chaque exercice enregistre sa note sous son identifiant',
+      'ce niveau enregistre sous currentTestId, l\'identifiant choisi dans le menu');
+  } else {
+    const jamais = declares.valeur.filter(i => !ids.has(i));
+    verifier('chaque exercice enregistre sa note sous son identifiant', jamais.length === 0,
+      jamais.join(', ') + ' — aucune note ne peut leur être rattachée');
+  }
 }
 
 /* ---------- 3. Boutons d'aide ---------- */

@@ -226,21 +226,67 @@ sur `function`, `const` et `let` : les affectations comme
 `window.__fenetresDetachees = […]` et les redéfinitions de `$` sont invisibles à
 ce filtre. Deux pannes sont nées exactement de là.
 
+**Cinq oublis silencieux en ajoutant un exercice.** Cinq des quinze
+branchements n'étaient contrôlés par rien. Aucun ne casse quoi que ce soit : ils
+retirent une aide, une correction ou une note, et personne ne s'en aperçoit
+avant qu'un élève ne bute dessus un soir. Trois d'entre eux avaient déjà laissé
+passer un manque, trouvé le jour où le contrôle a été écrit.
+
+*Hors de `THEMES`, un exercice est inatteignable.* `TESTS` dit ce qu'il est,
+`THEMES` où il se trouve, et rien ne les relie : absent de `THEMES`, il
+n'apparaît ni dans le menu de l'élève, ni dans le tableau du professeur, ni dans
+le total d'un devoir, et il n'a pas de numéro — le numéro EST sa position. Un
+exercice volontairement retiré du menu mais gardé dans `TESTS` pour que ses
+vieilles notes gardent un nom se déclare (`horsThemes` ; la Terminale en a deux).
+
+*La réserve du bas.* `#testCtrls` — « Pause », « Abandonner » — est en position
+fixe en bas de l'écran. Sans `padding-bottom:84px` sur l'écran de l'exercice, il
+recouvre la dernière ligne : la case est là, l'élève ne peut ni la lire ni la
+toucher. La liste des écrans est écrite à la main en CSS, à côté de
+`testScreens`, et les trois fichiers avaient divergé — la Seconde nommait huit
+écrans de la Terminale, dont aucun n'existe chez elle, et ne couvrait donc aucun
+de ses propres exercices.
+
+*`liveCheckCurrent()`.* L'oublier laisse un exercice où le mode soutien ne
+corrige plus rien pendant la saisie : l'élève remplit tout, ne voit aucune
+couleur, et croit l'exercice cassé. Un exercice qui corrige autrement se déclare
+(`soutienEnDirect.sans`) plutôt que d'affaiblir le contrôle pour tout le monde.
+
+*`QIA_SUGG`.* Sans entrée, la fenêtre « Question à l'IA » retombe sur deux
+questions passe-partout, sans rapport avec ce que l'élève a sous les yeux :
+l'aide est là, elle ne sert plus à rien. Trois écrans de la Terminale étaient
+dans ce cas. Une clé sans écran reste licite — la Première en a une, `dimq`,
+choisie à la volée.
+
+*`details.test`.* Le plus coûteux : la note part sous l'identifiant d'un autre
+exercice, ou sous un identifiant que rien n'affiche. Elle est bien en base,
+l'élève voit son résultat, et elle a disparu de son bilan comme du tableau du
+professeur. Un contrôle vaut pour les trois fichiers — aucun identifiant écrit
+dans une note ne doit être étranger à `TESTS` ; l'autre ne vaut que pour la
+Première, seule à épingler l'identifiant dans chacune de ses quatorze fins de
+test (les deux autres enregistrent sous `currentTestId`, celui du menu, où tout
+exercice est atteignable par construction). Huit identifiants de la Première ne
+sont atteignables que par le paramètre d'un démarreur partagé —
+`startA2Q('augmenter-taux-addition', …)` — : les chercher comme littéraux en
+aurait manqué le tiers.
+
 ---
 
 ## Ajouter un exercice
 
-Quatorze points de branchement. En oublier un ne provoque aucune erreur visible
+Quinze points de branchement. En oublier un ne provoque aucune erreur visible
 — l'exercice fonctionne, mais l'aide, la reprise ou la note manquent.
 
 1. `TESTS` — nom, icône, description, fonction de démarrage
-2. `THEMES` — l'identifiant dans le bon sous-thème (la numérotation en découle)
-3. `MENU` — pour le tableau du professeur
-4. l'écran `<section class="screen" id="scr-…">`
-5. `show()` — ajouter l'écran à `testScreens`
+2. `THEMES` — l'identifiant dans le bon sous-thème (la numérotation en découle,
+   et le tableau du professeur en découle aussi)
+3. l'écran `<section class="screen" id="scr-…">`
+4. `show()` — ajouter l'écran à `testScreens`
+5. la réserve du bas en CSS — `#scr-…{padding-bottom:84px}`, sinon les
+   commandes flottantes recouvrent la dernière ligne de l'exercice
 6. `liveCheckCurrent()` — correction en direct du mode soutien
 7. `restartCurrentTest()` — bouton « Recommencer »
-8. `resumeTest()` — reprise après une pause
+8. `resumeTest()` / `afficherEcranDe()` — reprise après une pause, et rejeu
 9. la liste des fonctions de rendu enveloppées en fin de fichier (jetons + boutons IA)
 10. `RAPPELS` — rappel de cours, obligatoire ; un `console.warn` signale l'oubli
 11. `QIA_SUGG` — questions proposées dans la fenêtre d'aide
@@ -251,12 +297,19 @@ Quatorze points de branchement. En oublier un ne provoque aucune erreur visible
     l'étiquette. Deux contrôles l'exigent ; un exercice dont l'énoncé est
     l'ardoise se déclare dans `tests/profils.js` (`enonce.ardoise`)
 
-Le point 5 est le seul dont l'oubli rendait le banc **aveugle** au lieu de le
+Le point 4 est le seul dont l'oubli rendait le banc **aveugle** au lieu de le
 faire rougir : `testScreens` est la liste que parcourt le contrôle de l'énoncé,
 si bien qu'un écran absent en sortait au lieu d'y être signalé. Un contrôle
 l'exige désormais, à partir des écrans de menu déclarés dans `tests/profils.js`
 (`ecransHorsExercice`) : ajouter un exercice ne demande rien là-bas, ajouter un
 écran de menu si.
+
+Les points 2, 5, 6, 11 et 14 n'étaient contrôlés nulle part : les cinq trous ont
+été fermés en août 2026, et trois d'entre eux ont trouvé un manque déjà en place
+(voir « Cinq oublis silencieux » plus haut). Il n'y a plus de constante `MENU` :
+elle listait les exercices pour le tableau du professeur, mais celui-ci se
+construit depuis `THEMES` — elle ne servait plus à rien, et une liste morte qu'on
+croit vivante est pire qu'aucune liste.
 
 Puis `npm test`.
 

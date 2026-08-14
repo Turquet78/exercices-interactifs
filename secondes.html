@@ -397,7 +397,13 @@
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
+     #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
+     l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
+     testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
+     huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
+     aucun exercice de la Seconde. Un contrôle les compare désormais. */
+  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -672,7 +678,8 @@
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .s1-in:disabled{opacity:1;}
     /* ---- Exercice Lecture graphique — variations ---- */
-    #scr-lv{padding-bottom:84px}
+    /* La réserve du bas est tenue avec celle des autres écrans d'exercice, plus
+       haut : deux endroits auraient divergé. */
     .lv-card{max-width:600px;margin:0 auto}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
@@ -1341,7 +1348,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=36;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=37;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
