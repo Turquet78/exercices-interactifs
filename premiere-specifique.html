@@ -323,7 +323,7 @@
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest,#scr-vtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
+  #scr-test,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-mdtest,#scr-utest,#scr-atest,#scr-dtest,#scr-vtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -633,6 +633,19 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none;}
 .fp-val{min-height:2.2em;display:flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);}
 .fp-lab{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);font-size:1.4rem;}
+/* Les deux colonnes sont IDENTIQUES — même largeur, même partage en dix, même
+   dessin. Deux choses seulement les distinguent : leur titre, et le fait que
+   celle du nombre écrit dans CHACUNE de ses parts ce que cette part vaut.
+   L'élève n'a donc rien à deviner de l'échelle : il compte ses parts coloriées
+   et additionne ce qui est écrit dedans.
+   Le résultat s'écrit sous les deux colonnes, dans une phrase à compléter — pas
+   accroché à l'une d'elles : ce qu'on cherche porte sur les deux à la fois. */
+.pcol-part{display:flex;align-items:center;justify-content:center;height:100%;pointer-events:none;
+  font-family:"Fredoka";font-weight:700;font-size:1.1rem;color:var(--blue-dark)}
+.pcol-phrase{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
+  margin-top:22px;font-family:"Fredoka";font-weight:600;font-size:1.35rem;color:var(--ink)}
+.pcol-phrase math-field{min-width:110px;max-width:170px}
+@media(max-width:520px){ .pcol-phrase{font-size:1.15rem} }
 @media(max-width:520px){ .fp-zone{gap:34px;} .fp-col{width:84px;height:260px;} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
@@ -1324,7 +1337,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=99;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=100;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -4101,19 +4114,23 @@ function renderPctCol(){
   $('pcFeedback').textContent=''; $('pcFeedback').className='mp-feedback';
   $('pcActions').innerHTML='<button class="btn btn-primary" onclick="checkPctColAnswer()">Vérifier</button>';
   $('pcPrompt').innerHTML=variante(PCT_ENONCES,q);
-  const segs=(sel,fn)=>Array.from({length:PCOL_PARTS},(_,i)=>
-    `<div class="fp-seg${i<sel?' on':''}" onclick="${fn}(${i+1})"></div>`).join('');
+  /* Sur la colonne du nombre, CHAQUE part écrit ce qu'elle vaut. L'élève n'a
+     donc rien à deviner de l'échelle : il compte les parts qu'il a coloriées et
+     additionne ce qui est écrit dedans. La colonne des pourcentages reste vide —
+     c'est elle qui pose la question, l'autre qui donne la mesure. */
+  const segs=(sel,fn,part)=>Array.from({length:PCOL_PARTS},(_,i)=>
+    `<div class="fp-seg${i<sel?' on':''}" onclick="${fn}(${i+1})">`
+    +(part!=null?`<span class="pcol-part">${esc(String(part))}</span>`:'')+`</div>`).join('');
   $('pcHost').innerHTML=
-    `<div class="pt-step"><div class="pt-lab">Colorie le pourcentage à gauche, reporte la même hauteur à droite, puis écris ce qu’elle représente</div>
+    `<div class="pt-step"><div class="pt-lab">Colorie le pourcentage à gauche, reporte la même hauteur à droite, puis complète la phrase</div>
     <div class="fp-zone">`+
       `<div class="fp-bloc"><div class="fp-lab">pour 100</div>`+
-        `<div class="fp-col" id="pcColL">${segs(q.selL,'pcClickL')}</div>`+
-        `<div class="fp-val" id="pcValL">${q.selL?(q.selL*10+' %'):'… %'}</div></div>`+
+        `<div class="fp-col" id="pcColL">${segs(q.selL,'pcClickL')}</div></div>`+
       `<div class="fp-bloc"><div class="fp-lab">${esc(String(q.N))} ${esc(q.unit)}</div>`+
-        `<div class="fp-col" id="pcColR">${segs(q.selR,'pcClickR')}</div>`+
-        `<div class="fp-val"><math-field class="dexp-mf pm-mf f-dec" id="pcRes" aria-label="le résultat"></math-field>`+
-          `<span class="f-whole">&nbsp;${esc(q.unit)}</span></div></div>`+
-    `</div></div>`;
+        `<div class="fp-col" id="pcColR">${segs(q.selR,'pcClickR',q.N/PCOL_PARTS)}</div></div>`+
+    `</div>`+
+    `<div class="pcol-phrase"><b>${q.P} %</b> de <b>${esc(String(q.N))} ${esc(q.unit)}</b> est`+
+      `<math-field class="dexp-mf pm-mf f-dec" id="pcRes" aria-label="le nombre trouvé"></math-field></div></div>`;
   const r=$('pcRes');
   if(r) r.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); checkPctColAnswer(); } });
 }
@@ -4124,7 +4141,7 @@ function pcMaj(){
   [...L.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
   [...R.querySelectorAll('.fp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
   L.classList.remove('ok','bad'); R.classList.remove('ok','bad');
-  $('pcValL').textContent = q.selL ? (q.selL*10)+' %' : '… %';
+
 }
 function pcClickL(i){
   if(test.locked) return;
