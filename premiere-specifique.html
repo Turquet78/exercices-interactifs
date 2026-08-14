@@ -479,6 +479,9 @@
   .dm-rep label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
   .dm-rep input[type=number]{width:58px;padding:4px 6px;border:1.5px solid var(--line);border-radius:8px;font:inherit;text-align:center}
   .dm-verrou.on{color:var(--blue-dark)}
+  .dm-rep.off{opacity:.5}
+  .dm-rep.off label{cursor:default}
+  .dm-rep-hint{font-weight:600;font-style:italic}
   .dm-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:6px 0 18px}
   .dm-tab{font-family:"Fredoka";font-weight:500;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--ink-soft);font-size:.95rem}
   .dm-tab:hover{border-color:#cdd3e0}
@@ -1341,7 +1344,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=102;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=103;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -6547,13 +6550,19 @@ function renderDmEditor(){
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
       const mk=(m,lbl)=>{ const on=modes.includes(m); return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
-      /* Le nombre de passages et le verrou n'apparaissent que sur un exercice
-         DÉJÀ choisi : sur les vingt-cinq autres, ce seraient vingt-cinq champs
-         inutiles à parcourir des yeux. */
-      const extra = picked ? `<span class="dm-rep">
-          <label>Passages <input type="number" min="1" max="10" value="${esc(String(reps[id]||1))}" onchange="dmSetRep('${escJS(id)}',this.value)"></label>
-          <label class="dm-verrou ${verrous[id]?'on':''}"><input type="checkbox" ${verrous[id]?'checked':''} onchange="dmSetVerrou('${escJS(id)}',this.checked)">🔒 après les précédents</label>
-        </span>` : '';
+      /* Le nombre de passages et le verrou sont montrés sur TOUTES les lignes,
+         y compris celles qu'on n'a pas encore choisies — grisés tant qu'aucun
+         mode n'est coché, avec le motif écrit à côté.
+         Ils n'apparaissaient d'abord que sur un exercice déjà choisi, pour ne
+         pas charger l'écran de vingt-cinq champs inutiles. Le résultat est
+         qu'on ne les trouvait pas : un réglage qui n'existe nulle part à
+         l'écran tant qu'on n'a pas fait le bon geste est un réglage qu'on ne
+         découvre jamais. Mieux vaut un écran chargé qu'un écran muet. */
+      const extra = `<span class="dm-rep${picked?'':' off'}">
+          <label>Passages <input type="number" min="1" max="10" value="${esc(String(reps[id]||1))}" ${picked?'':'disabled'} onchange="dmSetRep('${escJS(id)}',this.value)"></label>
+          <label class="dm-verrou ${verrous[id]?'on':''}"><input type="checkbox" ${verrous[id]?'checked':''} ${picked?'':'disabled'} onchange="dmSetVerrou('${escJS(id)}',this.checked)">🔒 après les précédents</label>
+          ${picked?'':'<span class="dm-rep-hint">coche un mode pour régler ces deux-là</span>'}
+        </span>`;
       return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
         <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
         <span class="dm-exo-name">${esc(testName(id))}</span>
@@ -6607,6 +6616,10 @@ function dmToggleMode(id,m,checked){
   else { ex.modes=ex.modes.filter(x=>x!==m); }
   if(!ex.modes.length) d.exercices=d.exercices.filter(e=>e.id!==id);
   else if(checked && !ex.rep && !ex.verrou){ /* premier mode coché : réglages par défaut */ }
+  /* Redessiner l'éditeur entier : les réglages de la ligne passent de grisés à
+     actifs, et l'inverse. Un simple basculement de classe les aurait laissés
+     désactivés alors que l'exercice vient d'être choisi. */
+  renderDmEditor();
   const row=$('dmx-'+id);
   if(row){
     const still=(d.exercices.find(e=>e.id===id)||{modes:[]}).modes.length>0;
