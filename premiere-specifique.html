@@ -1349,7 +1349,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=105;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=106;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2196,7 +2196,13 @@ async function openTest(testId){
   try{
     const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
+    /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). Ce menu-ci est le menu
+       LIBRE : il ne propose que les pauses prises hors devoir. Il montrait aussi
+       celles d'un devoir, si bien que « Reprendre » y relançait en douce une
+       tentative de devoir, et surtout qu'elle y survivait à un abandon — ce que
+       l'abandon efface et ce que l'écran montre doivent être la même chose. Le
+       travail mis en pause dans un devoir se reprend dans le devoir. */
+    (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
     if(sansSoutien(testId)) pausedRows.soutien=null;   /* plus de soutien ici */
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
@@ -2242,8 +2248,18 @@ async function abandonTest(){
   if(!confirm('Abandonner cet exercice ? Ta progression n\u2019est pas modifiée.')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   const tc=$('testCtrls'); if(tc) tc.hidden=true;
-  try{ await clearRecovery(); }catch(e){}
-  toast('Exercice abandonné','ok');
+  /* Abandonner sort aussi l'exercice de la pause, DANS LES DEUX MODES : l'élève
+     qui abandonne laisse tomber l'EXERCICE, pas seulement la tentative en
+     cours. Sans cela il retrouvait « Reprendre l'entraînement » sur l'écran
+     même où il venait d'abandonner le soutien. */
+  let efface=false;
+  try{ efface=await clearRecovery(true); }catch(e){ efface=false; }
+  /* Et on ne l'assure pas d'un abandon qui n'a pas eu lieu : si la base a
+     refusé, l'exercice est TOUJOURS en pause et il faut le dire. Supabase rend
+     ses erreurs au lieu de les lever — l'élève lisait « Exercice abandonné ✓ »
+     puis retrouvait sa pause intacte. */
+  if(efface) toast('Exercice abandonné','ok');
+  else toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }
   else { retourChoix(); }
 }
@@ -2409,7 +2425,9 @@ async function openTestDevoir(devoirId, testId, passe){
   try{
     const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId&&memePassage(d,currentPasse)){ pausedRows[d.mode]=r; } });
+    /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). L'écran d'un devoir ne
+       propose que les pauses de CE devoir et de CE passage. */
+    (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId,dm:devoirId,passe:currentPasse})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   let cards='';
@@ -2483,20 +2501,47 @@ function autoSave(){
   recoveryBusy=true;
   doRecoverySave().catch(()=>{}).finally(()=>{ recoveryBusy=false; if(recoveryDirty && !recoveryClosed){ recoveryDirty=false; autoSave(); } });
 }
-// supprime le brouillon de reprise quand le test est terminé
-async function clearRecovery(){
+/* CE QU'UN BROUILLON DE PAUSE DÉSIGNE : quatre choses, pas une — l'exercice, le
+   mode, le devoir, et le passage. Trois endroits en avaient chacun leur idée.
+   L'écran des modes en montre DEUX, un par mode ; l'écran d'un devoir n'en
+   montre qu'un, celui de ce devoir et de ce passage ; et clearRecovery()
+   n'en effaçait qu'un, sans jamais regarder le devoir. D'où deux défauts, tous
+   deux reproduits avant d'être corrigés :
+     · abandonner en soutien laissait « Reprendre l'entraînement » sous les yeux
+       de l'élève, sur l'exercice qu'il venait justement d'abandonner ;
+     · abandonner un passage effaçait la pause d'un AUTRE passage du même
+       devoir, ou le travail mis en pause hors devoir.
+   Une seule fonction en décide maintenant, et l'effacement suit ce que l'écran
+   montre. */
+function memeBrouillon(d, cible){
+  if(!d || Array.isArray(d) || d.state!=='paused') return false;
+  if(d.test!==cible.test) return false;
+  if(cible.mode && d.mode!==cible.mode) return false;        /* mode null : les deux modes */
+  if((d.dm||null)!==(cible.dm||null)) return false;          /* un devoir n'efface pas le travail libre */
+  return memePassage(d, cible.passe||null);
+}
+/* Supprime le brouillon de reprise quand le test est terminé.
+   « tousModes » est réservé à l'ABANDON : abandonner, c'est laisser tomber
+   l'EXERCICE, pas la tentative en cours. Terminer un exercice, au contraire, ne
+   doit pas effacer le travail que l'élève a mis en pause dans l'autre mode.
+   Rend vrai si la base a bien tout effacé — abandonTest() en a besoin pour ne
+   pas annoncer un abandon qui n'a pas eu lieu. */
+async function clearRecovery(tousModes){
   recoveryClosed=true; recoveryDirty=false;
-  const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
+  const id=recoveryRowId, eid=currentEleve&&currentEleve.id;
+  const cible={test:currentTestId, mode:tousModes?null:currentMode, dm:currentDM, passe:currentPasse};
   recoveryRowId=null;
+  let ok=true;
   try{
     if(id){ const {error}=await sb.from('resultats_1ere').delete().eq('id',id);
-      if(error) console.warn('Brouillon non supprimé :', error.message); }
+      if(error){ ok=false; console.warn('Brouillon non supprimé :', error.message); } }
     if(eid){ const {data,error}=await sb.from('resultats_1ere').select('id,details').eq('eleve_id',eid);
-      if(error) console.warn('Recherche des brouillons impossible :', error.message);
-      const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
+      if(error){ ok=false; console.warn('Recherche des brouillons impossible :', error.message); }
+      const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats_1ere').delete().eq('id',r.id);
-        if(errSup) console.warn('Ancien brouillon non supprimé :', errSup.message); } }
-  }catch(e){}
+        if(errSup){ ok=false; console.warn('Ancien brouillon non supprimé :', errSup.message); } } }
+  }catch(e){ ok=false; }
+  return ok;
 }
 async function resumeTest(mode){
   const row=pausedRows&&pausedRows[mode];
@@ -3210,8 +3255,12 @@ async function tmFinir(abandon){
       duration_sec:durationSec,
       details:{test:(test.tmId||'tables-multiplication'),mode:currentMode,tours:test.tour,abandon:!!abandon,misses,stats,
         ...(test.tmId==='tables-multiplication-2'?{tm2Source:test.tm2Source,tm2Seances:test.tm2Seances}:{}),
-        ...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
+        ...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(!!abandon);   /* le brouillon ne part qu'une fois la note en base */
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
+  /* Les tables ont leur propre fin : \u00ab \u2715 Abandonner \u00bb y passe par ici, avec une
+     note, au lieu de passer par abandonTest(). C'est un ABANDON quand m\u00eame \u2014 il
+     doit donc sortir l'exercice de la pause dans les deux modes, comme partout
+     ailleurs. Une fin ordinaire (abandon faux) ne touche qu'au mode courant. */
   showResults({score,total,percent:pct,durationSec});
 }
 

@@ -1501,7 +1501,98 @@ function fiabilite(w, suite){
       verifier('un devoir mis en pause avant d’être commencé n’alarme pas', /✓/.test(d.devoir || ''),
         'messages affichés : ' + (d.devoir || '(aucun)') + ' — « rien à noter » n’est pas un échec');
     }
-    suite();
+    abandonSortDePause(w, suite);
+  });
+}
+
+/* ---------- 4 ter. Abandonner sort l'exercice de la pause ------------------
+   Un brouillon de pause désigne QUATRE choses : l'exercice, le mode, le devoir
+   et — en Première — le passage. Trois endroits en avaient chacun leur idée, et
+   l'effacement était le plus étroit des trois : il ne regardait que l'exercice
+   et le mode, jamais le devoir.
+   L'élève mettait l'entraînement en pause, revenait faire le soutien,
+   l'abandonnait — et retrouvait « Reprendre l'entraînement » sur l'écran même
+   où il venait d'abandonner. En Terminale c'était le plus visible : l'abandon
+   RAMÈNE à cet écran-là.
+   Le contraire se contrôle ici aussi : élargir l'effacement à l'autre mode ne
+   doit déborder ni sur un DEVOIR, ni sur un autre exercice, ni sur une fin de
+   test ordinaire — terminer le soutien n'efface pas le travail que l'élève a
+   mis en pause dans l'entraînement.
+   Ce contrôle vient EN DERNIER et rend la main lui-même : son scénario est une
+   suite d'attentes, et le verdict du banc partait avant lui.
+   Le double de la base est chargé pour de bon — un talon qui répond « pas
+   d'erreur » à tout ne prouverait rien de ce qui est écrit là. */
+function abandonSortDePause(w, apres){
+  const exo = P.temoin.testId, TR = P.tableResultats;
+  const SEMER = `window.__faux.tables['${TR}']=[
+    {id:'L1',eleve_id:'e1',details:{state:'paused',test:'${exo}',mode:'train'}},
+    {id:'L2',eleve_id:'e1',details:{state:'paused',test:'${exo}',mode:'soutien'}},
+    {id:'L3',eleve_id:'e1',details:{state:'paused',test:'${exo}',mode:'train',dm:'devoir-1'}},
+    {id:'L4',eleve_id:'e1',details:{state:'paused',test:'autre-exercice',mode:'train'}}];`;
+  const RESTANT = `(window.__faux.tables['${TR}']||[]).filter(function(r){return r.details&&r.details.state==='paused';}).map(function(r){return r.id;}).sort().join(',')`;
+  const POSER = `window.confirm=function(){return true;};
+    currentEleve={id:'e1',prenom:'Contrôle'}; currentTestId='${exo}'; currentDM=null;
+    if(typeof currentPasse!=='undefined') currentPasse=null;
+    recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+    test.questions=[]; test.answers=[]; test.score=0;
+    /* Chaque étape est un test NEUF : debutFin() se verrouille sur startTime, et
+       sans cela la Seconde et la Terminale refusaient d'abandonner une deuxième
+       fois — le contrôle mesurait alors le vide. */
+    test.startTime=Date.now()-1000-(window.__ctrAbandon=(window.__ctrAbandon||0)+1);`;
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const dits=[]; const vraiToast=toast; toast=function(m,k){ dits.push((k||'ok')+':'+m); };
+    const bilan={};
+    try{
+      /* 1. abandon en soutien, hors devoir */
+      ${SEMER} ${POSER} currentMode='soutien';
+      await abandonTest();
+      bilan.abandon=${RESTANT};
+      /* 1 bis. et l'écran où l'élève retombe n'en propose plus AUCUN.
+         C'est le contrôle qui compte vraiment : effacer les bonnes lignes ne
+         sert à rien si le menu, lui, en montre d'autres. Le menu libre montrait
+         les brouillons nés dans un DEVOIR — il proposait donc de reprendre un
+         travail que l'abandon venait de laisser en place, à dessein. */
+      await openTest('${exo}');
+      bilan.menu=(document.getElementById('modeChoices').innerHTML.indexOf('Reprendre')>=0)?'propose encore':'propre';
+      /* 2. abandon DANS le devoir : les brouillons libres ne bougent pas */
+      ${SEMER} ${POSER} currentMode='train'; currentDM='devoir-1';
+      await clearRecovery(true);
+      bilan.devoir=${RESTANT};
+      /* 3. fin de test ordinaire : l'autre mode garde sa pause */
+      ${SEMER} ${POSER} currentMode='soutien';
+      await clearRecovery();
+      bilan.finNormale=${RESTANT};
+      /* 4. la base refuse : l'élève doit l'apprendre, pas être rassuré */
+      ${SEMER} ${POSER} currentMode='soutien';
+      dits.length=0; window.__faux.panne=true;
+      await abandonTest();
+      window.__faux.panne=false;
+      bilan.panne=${RESTANT};
+      bilan.ditsPanne=dits.join(' | ');
+    } finally { toast=vraiToast; window.__faux.panne=false; }
+    return bilan;
+  })()`, r => {
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+    verifier('abandonner sort l’exercice de la pause, dans les deux modes',
+      r.ok && b.abandon === 'L3,L4',
+      souci || 'brouillons restants : ' + b.abandon + ' — attendu L3,L4, le devoir et l’autre exercice');
+    verifier('et l’écran où l’élève retombe ne propose plus de reprendre',
+      r.ok && b.menu === 'propre',
+      souci || 'le menu de l’exercice ' + b.menu + ' « Reprendre » après l’abandon');
+    verifier('abandonner n’efface pas le travail mis en pause ailleurs',
+      r.ok && b.devoir === 'L1,L2,L4',
+      souci || 'brouillons restants : ' + b.devoir + ' — attendu L1,L2,L4 : abandonner dans un devoir ne touche pas au travail libre');
+    verifier('terminer un exercice laisse la pause de l’autre mode',
+      r.ok && b.finNormale === 'L1,L3,L4',
+      souci || 'brouillons restants : ' + b.finNormale + ' — attendu L1,L3,L4 : finir le soutien n’efface pas l’entraînement en pause');
+    verifier('un abandon que la base refuse n’est pas annoncé comme réussi',
+      r.ok && b.panne === 'L1,L2,L3,L4' && /err:/.test(String(b.ditsPanne || '')) && /pause/i.test(String(b.ditsPanne || '')),
+      souci || 'restants : ' + b.panne + ' — l’élève a lu « ' + b.ditsPanne + ' »');
+    apres();
   });
 }
 

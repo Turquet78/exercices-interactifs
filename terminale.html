@@ -1905,7 +1905,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=222;
+const APP_VERSION=223;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2946,18 +2946,47 @@ function autoSave(){
   doRecoverySave().catch(()=>{}).finally(()=>{ recoveryBusy=false; if(recoveryDirty && !recoveryClosed){ recoveryDirty=false; autoSave(); } });
 }
 // supprime le brouillon de reprise quand le test est terminé
-async function clearRecovery(){
+/* CE QU'UN BROUILLON DE PAUSE DÉSIGNE : trois choses, pas une — l'exercice, le
+   mode et le devoir. Trois endroits en avaient chacun leur idée. L'écran des
+   modes en montre DEUX, un par mode ; l'écran d'un devoir n'en montre qu'un,
+   celui de ce devoir ; et clearRecovery() n'en effaçait qu'un, sans jamais
+   regarder le devoir. D'où deux défauts, tous deux reproduits avant d'être
+   corrigés :
+     · abandonner en soutien laissait « Reprendre l'entraînement » sous les yeux
+       de l'élève — et ici l'abandon RAMÈNE à l'écran des modes, donc la carte
+       était là, immédiatement, sur l'exercice qu'il venait d'abandonner ;
+     · abandonner effaçait aussi le travail mis en pause dans un devoir, ou hors
+       devoir.
+   Une seule fonction en décide maintenant, et l'effacement suit ce que l'écran
+   montre. La Première a la même, avec un quatrième critère : le passage. */
+function memeBrouillon(d, cible){
+  if(!d || Array.isArray(d) || d.state!=='paused') return false;
+  if(d.test!==cible.test) return false;
+  if(cible.mode && d.mode!==cible.mode) return false;        /* mode null : les deux modes */
+  return (d.dm||null)===(cible.dm||null);                    /* un devoir n'efface pas le travail libre */
+}
+/* Supprime le brouillon de reprise quand le test est terminé.
+   « tousModes » est réservé à l'ABANDON : abandonner, c'est laisser tomber
+   l'EXERCICE, pas la tentative en cours. Terminer un exercice, au contraire, ne
+   doit pas effacer le travail que l'élève a mis en pause dans l'autre mode.
+   Rend vrai si la base a bien tout effacé — abandonTest() en a besoin pour ne
+   pas annoncer un abandon qui n'a pas eu lieu. */
+async function clearRecovery(tousModes){
   recoveryClosed=true; recoveryDirty=false;
-  const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
+  const id=recoveryRowId, eid=currentEleve&&currentEleve.id;
+  const cible={test:currentTestId, mode:tousModes?null:currentMode, dm:currentDM};
   recoveryRowId=null;
+  let ok=true;
   try{
-    if(id){ const {error}=await sb.from('resultats').delete().eq('id',id); if(error) console.warn('brouillon non supprime :', error.message||error); }
+    if(id){ const {error}=await sb.from('resultats').delete().eq('id',id);
+      if(error){ ok=false; console.warn('brouillon non supprime :', error.message||error); } }
     if(eid){ const {data,error}=await sb.from('resultats').select('id,details').eq('eleve_id',eid);
-      if(error) console.warn('recherche des brouillons impossible :', error.message||error);
-      const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
+      if(error){ ok=false; console.warn('recherche des brouillons impossible :', error.message||error); }
+      const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats').delete().eq('id',r.id);
-        if(errSup) console.warn('ancien brouillon non supprime :', errSup.message||errSup); } }
-  }catch(e){}
+        if(errSup){ ok=false; console.warn('ancien brouillon non supprime :', errSup.message||errSup); } } }
+  }catch(e){ ok=false; }
+  return ok;
 }
 async function openTest(testId){
   currentTestId=testId;
@@ -2974,7 +3003,13 @@ async function openTest(testId){
   try{
     const {data,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
+    /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). Ce menu-ci est le menu
+       LIBRE : il ne propose que les pauses prises hors devoir. Il montrait aussi
+       celles d'un devoir, si bien que « Reprendre » y relançait en douce une
+       tentative de devoir, et surtout qu'elle y survivait à un abandon — ce que
+       l'abandon efface et ce que l'écran montre doivent être la même chose. Le
+       travail mis en pause dans un devoir se reprend dans le devoir. */
+    (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   const trainCard = pausedRows.train
@@ -3033,12 +3068,23 @@ async function abandonTest(){
   if(!debutFin()) return;                       // double-clic : un seul abandon, une seule note
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
-  let noted=false;
+  let noted=false, efface=null;
   try{
     noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
-    if(noted!==false) await clearRecovery();    // note perdue ? on garde le brouillon, l'élève pourra reprendre
+    /* Abandonner sort aussi l'exercice de la pause, DANS LES DEUX MODES : l'élève
+       qui abandonne laisse tomber l'EXERCICE, pas seulement la tentative en
+       cours. Ici l'abandon ramène à l'écran des modes : sans cela, « Reprendre
+       l'entraînement » l'y attendait, sur l'exercice qu'il venait d'abandonner. */
+    if(noted!==false) efface = await clearRecovery(true);   // note perdue ? on garde le brouillon, l'élève pourra reprendre
   }catch(e){}
-  toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
+  /* On ne l'assure pas d'un abandon qui n'a pas eu lieu. Deux façons d'échouer,
+     et chacune laisse l'exercice EN PAUSE : la note n'est pas partie (on garde
+     alors le brouillon exprès), ou la base a refusé de l'effacer. Supabase rend
+     ses erreurs au lieu de les lever : sans ces deux cas, l'élève lisait
+     « Exercice abandonné ✓ » et retrouvait sa pause intacte. */
+  if(noted===false) toast('Note non enregistrée — l’exercice reste en pause, tu pourras reprendre','err');
+  else if(efface===false) toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
+  else toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
   else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice
   else { openThemes(); }
@@ -3675,7 +3721,9 @@ async function openTestDevoir(devoirId, testId){
   try{
     const {data,error}=await sb.from('resultats').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
+    /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). L'écran d'un devoir ne
+       propose que les pauses de CE devoir. */
+    (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId,dm:devoirId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   let cards='';
