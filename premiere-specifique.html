@@ -1337,7 +1337,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=100;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=101;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1627,12 +1627,15 @@ const MENU=[
 ];
 /* ---------- Thèmes : regroupement + numérotation (menu élève) ---------- */
 const THEMES=[
-  { num:1, nom:'Calcul et multiplication', ids:['calcul-mental','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un'] },
-  { num:2, nom:'Fractions et décimaux',    ids:['fractions-decimales'] },
+  /* « Calcul et multiplication » et « Fractions et décimaux » n'en font plus
+     qu'un : le second ne portait qu'un seul exercice, et les deux relèvent du
+     même geste — calculer de tête ou à la main, avant d'entrer dans les
+     pourcentages. */
+  { num:1, nom:'Calcul mental', ids:['calcul-mental','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
-     sur trois niveaux — 3.2.1 = thème 3, sous-thème 2, premier exercice. Un thème
+     sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
-  { num:3, nom:'Pourcentages', sous:[
+  { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction'] },

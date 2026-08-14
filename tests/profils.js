@@ -143,12 +143,12 @@ module.exports = {
     pause: { dm: true, boxes: { champ: 'p1n', valeur: '30' } },
     relance: null,          /* couvert par le contrôle des deux tables, ci-dessous */
     rappels: RAPPELS_PREMIERE,
-    /* Le thème 3 est le seul découpé en parties : sa page ne montre QUE les
-       quatre parties (3.1 à 3.4), et les exercices s'ouvrent sur la page de la
+    /* Le thème des pourcentages est le seul découpé en parties : sa page ne
+       montre QUE les quatre parties, et les exercices s'ouvrent sur la page de la
        partie choisie. Le banc navigateur clique ces deux étages comme le ferait
        un élève — une carte sans onclick ou un écran qui ne change pas ne se
        voit pas autrement. */
-    menu: { theme: 3, parties: 4, exercice: 'pourcentage' },
+    menu: { theme: 2, parties: 4, exercice: 'pourcentage' },
     specifique: 'premiere',
     lacunes: [],
   },
