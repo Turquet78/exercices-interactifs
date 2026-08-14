@@ -1059,6 +1059,35 @@ function exercices(suite){
         'ce niveau n\'a pas l\'éditeur de devoirs qui le permet');
     }
 
+    /* ---- Un mode qui n'existe pas ne se propose nulle part -----------------
+       Les tables de multiplication sont un exercice de rapidité : le mode
+       soutien, qui laisse corriger sans limite de temps, n'y a pas de sens.
+       L'écran des modes le refusait depuis toujours — mais l'éditeur de devoirs
+       l'ignorait et le proposait au professeur, qui pouvait donc composer un
+       devoir offrant à l'élève une carte menant à un exercice sans soutien.
+       La règle vit maintenant dans sansSoutien(), et les trois écrans la
+       consultent. Ce contrôle exige les trois. */
+    if(P.devoirPassages){
+      verifierEval(w, 'un mode inexistant n\'est proposé ni au menu, ni dans un devoir', `(function(){
+        if(typeof sansSoutien!=='function') return 'la règle sansSoutien() n\\'existe pas';
+        const id='${P.devoirPassages.exercice}';
+        if(!sansSoutien(id)) return id+' devrait être déclaré sans soutien';
+        /* l'écran des modes : la carte du soutien ne doit pas être posée */
+        const src=String(openTest);
+        if(src.indexOf('sansSoutien(')<0) return 'l\\'écran des modes ne consulte pas la règle';
+        /* le devoir : même si le professeur l'a coché autrefois, l'élève ne doit
+           pas voir la carte */
+        const sd=String(openTestDevoir);
+        if(sd.indexOf('sansSoutien(')<0) return 'l\\'écran d\\'un devoir ne consulte pas la règle';
+        /* l'éditeur : la case doit être refusée à la composition */
+        const se=String(renderDmEditor);
+        if(se.indexOf('sansSoutien(')<0) return 'l\\'éditeur de devoirs propose encore ce mode';
+        /* et un exercice ordinaire garde son soutien */
+        if(sansSoutien('${P.temoin.testId}')) return 'la règle mord sur un exercice qui a bien un soutien';
+        return '';
+      })()`, v => v === '', undefined);
+    }
+
     /* ---- Deux exercices ne portent jamais le même nom ---------------------
        Né d'un cas réel : les six exercices d'augmentation ont été renommés pour
        dire leur méthode — « Retrouver la valeur initiale en calculant le

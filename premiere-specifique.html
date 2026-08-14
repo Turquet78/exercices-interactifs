@@ -479,6 +479,7 @@
   .dm-rep label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
   .dm-rep input[type=number]{width:58px;padding:4px 6px;border:1.5px solid var(--line);border-radius:8px;font:inherit;text-align:center}
   .dm-verrou.on{color:var(--blue-dark)}
+  .dm-mode.off{opacity:.4;cursor:not-allowed}
   .dm-rep.off{opacity:.5}
   .dm-rep.off label{cursor:default}
   .dm-rep-hint{font-weight:600;font-style:italic}
@@ -1344,7 +1345,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=103;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=104;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2220,7 +2221,7 @@ async function openTest(testId){
     const {data,error}=await sb.from('resultats_1ere').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
     (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
-    if(TM_IDS.indexOf(testId)>=0) pausedRows.soutien=null;   /* plus de soutien ici */
+    if(sansSoutien(testId)) pausedRows.soutien=null;   /* plus de soutien ici */
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   const trainCard = pausedRows.train
@@ -2228,15 +2229,15 @@ async function openTest(testId){
     : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';TESTS['${testId}'].start()`);
   /* Les tables de multiplication sont un exercice de rapidite : le mode soutien,
      qui laisse corriger sans limite de temps, n'y a pas de sens. */
-  const sansSoutien = (TM_IDS.indexOf(testId)>=0);
-  const soutienCard = sansSoutien ? '' : pausedRows.soutien
+  const pasDeSoutien = sansSoutien(testId);
+  const soutienCard = pasDeSoutien ? '' : pausedRows.soutien
     ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
     : cardHTML('🛟','Mode soutien','À chaque étape, on me dit si c\u2019est juste ou faux, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';TESTS['${testId}'].start()`);
   const evalCard= unlocked
     ? cardHTML('🔓','Évaluation','Mode noté, ouvert par le professeur.',`currentMode='eval';TESTS['${testId}'].start()`)
     : cardHTML('🔒','Évaluation','','',`locked`,'Déverrouillé par le professeur pendant l\u2019évaluation.');
   $('modeChoices').innerHTML=trainCard+soutienCard+evalCard;
-  if(sansSoutien) $('modeChoices').insertAdjacentHTML('beforeend',
+  if(pasDeSoutien) $('modeChoices').insertAdjacentHTML('beforeend',
     '<p class="muted" style="grid-column:1/-1;text-align:center;margin-top:6px">Le mode soutien n\u2019existe pas pour cet exercice de rapidit\u00e9.</p>');
 }
 async function pauseTest(){
@@ -2419,7 +2420,11 @@ async function openTestDevoir(devoirId, testId, passe){
   currentTestId=testId; currentDM=devoirId; currentPasse=passe||null;
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;
-  const allowed=(ex&&ex.modes&&ex.modes.length)?ex.modes:['soutien','train'];
+  let allowed=(ex&&ex.modes&&ex.modes.length)?ex.modes:['soutien','train'];
+  /* Un devoir enregistré avant cette règle peut porter « soutien » sur un
+     exercice de rapidité : on le retire ici plutôt que de montrer à l'élève une
+     carte qui ne mène nulle part. */
+  if(sansSoutien(testId)) allowed=allowed.filter(m=>m!=='soutien');
   const nbPasses=Math.max(1,parseInt(ex&&ex.rep,10)||1);
   $('modeTitle').textContent=testLabel(testId)+(currentPasse?` — passage ${currentPasse} sur ${nbPasses}`:'');
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
@@ -2951,6 +2956,13 @@ function tmTirage(n){
    plus de poids aux seances recentes. Faute d'historique exploitable, on retombe
    sur une liste de produits reputes difficiles. */
 const TM_IDS=['tables-multiplication','tables-multiplication-2'];
+/* Les tables de multiplication sont un exercice de RAPIDITÉ : trois secondes par
+   produit. Le mode soutien, qui laisse corriger sans limite de temps jusqu'à
+   réussir, n'y a aucun sens — l'écran des modes l'a toujours refusé.
+   La règle vit désormais ici, et non recopiée à chaque écran : l'éditeur de
+   devoirs l'ignorait, et proposait au professeur un mode que l'élève n'aurait
+   jamais pu ouvrir. Un contrôle du banc l'exige des deux côtés. */
+function sansSoutien(id){ return TM_IDS.indexOf(id)>=0; }
 const TM2_DECROISSANCE=0.85;   /* poids des seances : 1 ; 0,85 ; 0,72... de la plus recente a la plus ancienne */
 /* Produits reputes difficiles, du plus dur au moins dur (filet de securite). */
 const TM2_DURES=[[7,8],[6,7],[7,9],[6,8],[8,9],[6,9],[7,7],[8,8],[4,7],[3,8],
@@ -6549,7 +6561,9 @@ function renderDmEditor(){
   const groups=THEMES.map(th=>{
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
-      const mk=(m,lbl)=>{ const on=modes.includes(m); return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
+      const mk=(m,lbl)=>{ const on=modes.includes(m), interdit=(m==='soutien'&&sansSoutien(id));
+        if(interdit) return `<label class="dm-mode off" title="Exercice de rapidité : le mode soutien n\u2019y existe pas."><input type="checkbox" disabled><span>${esc(lbl)}</span></label>`;
+        return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
       /* Le nombre de passages et le verrou sont montrés sur TOUTES les lignes,
          y compris celles qu'on n'a pas encore choisies — grisés tant qu'aucun
          mode n'est coché, avec le motif écrit à côté.
