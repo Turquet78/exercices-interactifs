@@ -149,6 +149,11 @@ module.exports = {
        un élève — une carte sans onclick ou un écran qui ne change pas ne se
        voit pas autrement. */
     menu: { theme: 2, parties: 4, exercice: 'pourcentage' },
+    /* Un devoir peut demander plusieurs fois le même exercice, et verrouiller un
+       exercice tant que les précédents ne sont pas faits. Seule la Première a
+       cet éditeur de devoirs : les deux autres niveaux construisent les leurs
+       autrement, et n'ont pas ces exercices. */
+    devoirPassages: { exercice: 'tables-multiplication', suivant: 'tables-multiplication-2' },
     specifique: 'premiere',
     lacunes: [],
   },
