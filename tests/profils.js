@@ -108,6 +108,18 @@ module.exports = {
        ajouté demain sans encadré doit faire rougir le banc, pas passer. */
     enonce: { classes: ['enonce', 'mp-instr'], ardoise: ['test', 'tm'],
               navigateur: ['pourcentage', 'pourcentage-colonnes'] },
+    /* La correction en direct du mode soutien passe par liveCheckCurrent(), qui
+       doit aiguiller CHAQUE écran d'exercice. Aucune dispense ici : les
+       quatorze écrans y sont. « sans » existe pour les niveaux où un exercice
+       corrige autrement — le déclarer vaut mieux que d'affaiblir le contrôle. */
+    soutienEnDirect: { sans: [] },
+    /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
+       note part — en toutes lettres, ou par le paramètre d'un démarreur
+       partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
+       un exercice ajouté sans son identifiant enregistrerait sa note sous
+       celle du voisin recopié, ou sous rien. Les deux autres niveaux
+       enregistrent sous currentTestId, et le contrôle n'y mesurerait rien. */
+    noteParExercice: true,
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
@@ -180,6 +192,15 @@ module.exports = {
        avant les autres. Elle prend le même encadré. Aucun écran d'ardoise ici. */
     enonce: { classes: ['enonce', 'mp-instr', 'lv-instr'], ardoise: [],
               navigateur: ['pourcentage', 'lecture-variations'] },
+    /* Trois écrans ne passent pas par liveCheckCurrent(), et c'est voulu :
+         lv  — la lecture graphique a sa propre correction en direct, lvLive(),
+               branchée sur les champs du tableau de variation ;
+         def — la définition est corrigée par le modèle, pas par la page ;
+         pge — le plus petit ensemble se corrige question par question, à la
+               validation, comme le moteur générique.
+       Les nommer les met sous surveillance : si l'un de ces écrans disparaît,
+       le banc réclame le retrait de sa dispense au lieu de l'oublier ici. */
+    soutienEnDirect: { sans: ['lv', 'def', 'pge'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
@@ -233,6 +254,13 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements', exercice: 'derivee-exp' },
+    /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
+       des notes portent encore leur identifiant, et testIdOf() y renvoie même
+       les lignes trop vieilles pour en avoir un. Les supprimer de TESTS ferait
+       disparaître ces notes du bilan comme du tableau du professeur. Ils sont
+       donc hors de THEMES à dessein — déclaré ici plutôt que toléré en
+       silence : si l'un des deux disparaît, le banc réclame cette ligne. */
+    horsThemes: ['derivees', 'suites'],
 
     /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
        dans testScreens : c'est cette liste que show() consulte pour passer en
@@ -284,7 +312,7 @@ module.exports = {
     rappels: RAPPELS_TERMINALE,
     specifique: null,
     lacunes: [
-      "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable",
+      "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
       "le contexte envoyé au modèle n'est vérifié que pour l'exercice témoin (dexp) : la table kind -> générateur des 23 autres exercices reste à écrire",
       "aucun audit de générateur : les 45 générateurs de Terminale n'ont pas d'invariants déclarés (les 15 de la Première en ont)",
       "33 fonctions nommées vivent dans des modules enveloppés en IIFE (le bloc SA-CORE, ligne 10268, et le module de copier-coller ligne 2101) : le banc ne descend pas dedans, donc aucun contrôle de structure ne les voit. Aucune n'enregistre de note aujourd'hui — le contrôle « chaque enregistrement de note est dans une fonction que le banc voit » le vérifie à chaque exécution et virerait au rouge si un exercice y était porté",

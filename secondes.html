@@ -397,7 +397,13 @@
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-dexp,#scr-sv,#scr-tg,#scr-s1,#scr-s2{padding-bottom:84px}
+  /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
+     #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
+     l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
+     testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
+     huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
+     aucun exercice de la Seconde. Un contrôle les compare désormais. */
+  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -672,7 +678,8 @@
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .s1-in:disabled{opacity:1;}
     /* ---- Exercice Lecture graphique — variations ---- */
-    #scr-lv{padding-bottom:84px}
+    /* La réserve du bas est tenue avec celle des autres écrans d'exercice, plus
+       haut : deux endroits auraient divergé. */
     .lv-card{max-width:600px;margin:0 auto}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
@@ -1341,7 +1348,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=36;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=39;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2387,18 +2394,50 @@ function autoSave(){
   doRecoverySave().catch(()=>{}).finally(()=>{ recoveryBusy=false; if(recoveryDirty && !recoveryClosed){ recoveryDirty=false; autoSave(); } });
 }
 // supprime le brouillon de reprise quand le test est terminé
+/* CE QU'UN BROUILLON DE PAUSE DÉSIGNE : trois choses, pas une — l'exercice, le
+   mode et le devoir. Trois endroits en avaient chacun leur idée.
+   L'écran des modes en montre deux, un par mode, et ne regardait pas le
+   devoir ; l'écran d'un devoir n'en montre qu'un, celui de ce devoir ; et l'effacement ne regardait ni l'un ni l'autre. D'où deux défauts,
+   reproduits l'un et l'autre avant d'être corrigés :
+     · un seul abandon effaçait la pause de les autres devoirs et celle du
+       travail libre — du travail en cours perdu, sans
+       le moindre message ;
+     · et le menu libre proposait de reprendre un brouillon né dans un devoir,
+       si bien qu'y « reprendre » relançait en douce une tentative de devoir.
+   Une seule fonction en décide maintenant, et les trois écrans la partagent :
+   ce que l'écran montre et ce que l'effacement retire sont la même chose. La
+   Première a la même, avec un quatrième critère : le passage.
+   LE MODE, LUI, N'EST JAMAIS ÉLARGI. L'entraînement et le soutien sont deux
+   travaux distincts, que l'écran des modes montre côte à côte : abandonner
+   l'entraînement laisse le soutien en pause, et réciproquement. « mode » n'est
+   laissé libre que par les écrans, qui affichent les deux cartes. */
+function memeBrouillon(d, cible){
+  if(!d || Array.isArray(d) || d.state!=='paused') return false;
+  if(d.test!==cible.test) return false;
+  if(cible.mode && d.mode!==cible.mode) return false;        /* mode null : les deux modes */
+  return (d.dm||null)===(cible.dm||null);                    /* un devoir n'efface pas le travail libre */
+}
+/* Supprime le brouillon de reprise quand le test est terminé — ou abandonné.
+   L'effacement porte sur LE MODE COURANT et sur lui seul : abandonner
+   l'entraînement ne touche pas au soutien mis en pause, et réciproquement.
+   Rend vrai si la base a bien tout effacé : abandonTest() en a besoin pour ne
+   pas annoncer un abandon qui n'a pas eu lieu. */
 async function clearRecovery(){
   recoveryClosed=true; recoveryDirty=false;
-  const id=recoveryRowId, tid=currentTestId, mode=currentMode, eid=currentEleve&&currentEleve.id;
+  const id=recoveryRowId, eid=currentEleve&&currentEleve.id;
+  const cible={test:currentTestId, mode:currentMode, dm:currentDM};
   recoveryRowId=null;
+  let ok=true;
   try{
-    if(id){ const {error}=await sb.from('resultats_2nde').delete().eq('id',id); if(error) console.warn('brouillon non supprime :', error.message||error); }
+    if(id){ const {error}=await sb.from('resultats_2nde').delete().eq('id',id);
+      if(error){ ok=false; console.warn('brouillon non supprime :', error.message||error); } }
     if(eid){ const {data,error}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
-      if(error) console.warn('recherche des brouillons impossible :', error.message||error);
-      const old=(data||[]).filter(r=>r.details&&!Array.isArray(r.details)&&r.details.state==='paused'&&r.details.test===tid&&r.details.mode===mode);
+      if(error){ ok=false; console.warn('recherche des brouillons impossible :', error.message||error); }
+      const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats_2nde').delete().eq('id',r.id);
-        if(errSup) console.warn('ancien brouillon non supprime :', errSup.message||errSup); } }
-  }catch(e){}
+        if(errSup){ ok=false; console.warn('ancien brouillon non supprime :', errSup.message||errSup); } } }
+  }catch(e){ ok=false; }
+  return ok;
 }
 async function openTest(testId){
   currentTestId=testId;
@@ -2414,7 +2453,13 @@ async function openTest(testId){
   try{
     const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
+    /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). Ce menu-ci est le menu
+       LIBRE : il ne propose que les pauses prises hors devoir. Il montrait aussi
+       celles d'un devoir, si bien que « Reprendre » y relançait en douce une
+       tentative de devoir, et surtout qu'elle y survivait à un abandon — ce que
+       l'abandon efface et ce que l'écran montre doivent être la même chose. Le
+       travail mis en pause dans un devoir se reprend dans le devoir. */
+    (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   const trainCard = pausedRows.train
@@ -2472,12 +2517,23 @@ async function abandonTest(){
   if(!debutFin()) return;                       // double-clic : un seul abandon, une seule note
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
-  let noted=false;
+  let noted=false, efface=null;
   try{
     noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
-    if(noted!==false) await clearRecovery();    // note perdue ? on garde le brouillon, l'élève pourra reprendre
+    /* Abandonner efface la pause de CE mode, et de lui seul : l'entraînement et
+       le soutien sont deux travaux distincts, que l'écran des modes montre côte
+       à côte. Abandonner l'un ne jette pas l'autre.
+       */
+    if(noted!==false) efface = await clearRecovery();   // note perdue ? on garde le brouillon, l'élève pourra reprendre
   }catch(e){}
-  toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
+  /* On ne l'assure pas d'un abandon qui n'a pas eu lieu. Deux façons d'échouer,
+     et chacune laisse l'exercice EN PAUSE : la note n'est pas partie (on garde
+     alors le brouillon exprès), ou la base a refusé de l'effacer. Supabase rend
+     ses erreurs au lieu de les lever : sans ces deux cas, l'élève lisait
+     « Exercice abandonné ✓ » et retrouvait sa pause intacte. */
+  if(noted===false) toast('Note non enregistrée — l’exercice reste en pause, tu pourras reprendre','err');
+  else if(efface===false) toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
+  else toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
   else { openThemes(); }
 }
@@ -3109,7 +3165,9 @@ async function openTestDevoir(devoirId, testId){
   try{
     const {data,error}=await sb.from('resultats_2nde').select('*').eq('eleve_id',currentEleve.id);
     if(error) toast('Connexion instable : reprise indisponible','err');
-    (data||[]).forEach(r=>{ const d=r.details; if(d&&!Array.isArray(d)&&d.state==='paused'&&d.test===testId&&(d.mode==='train'||d.mode==='soutien')&&d.dm===devoirId){ pausedRows[d.mode]=r; } });
+    /* MÊME DÉFINITION QUE L'EFFACEMENT — memeBrouillon(). L'écran d'un devoir ne
+       propose que les pauses de CE devoir. */
+    (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId,dm:devoirId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   let cards='';
