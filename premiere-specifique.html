@@ -1347,7 +1347,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=113;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=114;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1594,7 +1594,7 @@ const TM_ID_NB = 'tables-multiplication';
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
   'calcul-mental':       { name:'Calcul mental',           icon:'🧮', desc:'Additions, soustractions, multiplications… à calculer de tête.', start:()=>startTest() },
-  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres : une addition sur deux, une soustraction sur deux.', start:()=>startAddSub() },
+  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres : une addition sur deux, une soustraction sur deux. Il y a toujours une retenue.', start:()=>startAddSub() },
   'multiplication-posee':{ name:'Multiplication posée',     icon:'✖️', desc:'Pose la multiplication, complète la retenue et le résultat.',     start:()=>startMultPosee() },
   'fractions-decimales': { name:'Fractions décimales',      icon:'🔢', desc:'Parcours en 5 niveaux : 4 bonnes réponses sur 5 pour passer au niveau suivant.', start:()=>startFracParcours() },
   'pourcentage':         { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
@@ -2866,8 +2866,23 @@ function genQuestion(c){
    La soustraction tombe toujours juste : un nombre à trois chiffres vaut au
    moins 100, un nombre à deux chiffres au plus 99, le résultat est donc
    toujours positif. */
+/* Y a-t-il une retenue ? On regarde les unités ET les dizaines : 380 + 70 ne
+   déborde pas aux unités mais déborde aux dizaines — c'est bien une retenue, et
+   l'exclure retirerait un calcul sur trois sans raison.
+   Aux dizaines, la question ne se pose que si les unités n'ont rien reporté :
+   sinon on a déjà répondu oui. */
+function retenueAddSub(a,b,plus){
+  const ua=a%10, ub=b%10, da=Math.floor(a/10)%10, db=Math.floor(b/10)%10;
+  return plus ? (ua+ub>=10) || (da+db>=10)
+              : (ua<ub)     || (da<db);
+}
+/* Il faut TOUJOURS une retenue : sans elle, 342 + 15 se fait chiffre par
+   chiffre et n'exerce rien. Le tirage recommence tant qu'il n'en a pas — même
+   procédé que la multiplication posée. Une retenue tombe naturellement dans
+   72 % des cas : la boucle passe au premier coup trois fois sur quatre. */
 function genAddSub(plus){
-  const a=rand(100,999), b=rand(10,99);
+  let a,b;
+  do{ a=rand(100,999); b=rand(10,99); }while(!retenueAddSub(a,b,plus));
   return plus ? { text:a+' + '+b, answer:a+b } : { text:a+' \u2212 '+b, answer:a-b };
 }
 function tirageAddSub(n){
@@ -7824,7 +7839,7 @@ Exemple : diminuer 300 de 20 %. La baisse vaut 20/100 × 300 = 60, et 300 \u2212
 C\u2019est la même réponse qu\u2019avec le coefficient (300 × 0,8 = 240) : deux chemins, un seul résultat.<br>
 Piège classique : la baisse seule (60) n\u2019est pas la réponse — et c\u2019est bien la valeur de départ qui perd, jamais l\u2019inverse.`;
 const RAP_ADDSUB=`<b>Additions et soustractions de tête</b><br>
-Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres. Deux r\u00e9flexes suffisent :<br>
+Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres, et <b>toujours une retenue</b> : une colonne d\u00e9borde \u00e0 l\u2019addition, une colonne oblige \u00e0 emprunter \u00e0 la soustraction.<br>Deux r\u00e9flexes \u00e9vitent d\u2019avoir \u00e0 la poser :<br>
 <b>additionner</b> — passer par la dizaine ronde : 347 + 58 = 347 + 3 + 55 = 350 + 55 = 405 ;
 ou d\u00e9couper le petit nombre : 347 + 50 = 397, puis + 8 = 405.<br>
 <b>soustraire</b> — c\u2019est un \u00e9cart, et on avance : pour 432 \u2212 87, aller de 87 \u00e0 100 (13),
@@ -7837,7 +7852,7 @@ function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPP
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
-  'addition-soustraction':["Comment additionner de tête en passant par la dizaine ?","Comment soustraire en avançant plutôt qu'en reculant ?","Pourquoi chercher un ordre de grandeur avant de calculer ?","Comment vérifier une soustraction sans la refaire ?"],
+  'addition-soustraction':["Comment additionner de tête en passant par la dizaine ?","Comment soustraire en avançant plutôt qu'en reculant ?","C'est quoi, une retenue ?","Pourquoi chercher un ordre de grandeur avant de calculer ?","Comment vérifier une soustraction sans la refaire ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
@@ -8020,6 +8035,7 @@ function conseilCtxCourant(){
     att='Calcul mental \u00e0 poser de t\u00eate : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
       +'M\u00e9thode : pour une addition, passer par la dizaine ronde ou ajouter les dizaines puis les unit\u00e9s ; '
       +'pour une soustraction, avancer du petit nombre vers le grand, ou retirer la centaine puis rendre la diff\u00e9rence. '
+      +'Il y a TOUJOURS une retenue dans cet exercice : une colonne d\u00e9borde, ou oblige \u00e0 emprunter. '
       +'Ne donne jamais le r\u00e9sultat : oriente sur le chemin.';
   } else if(k==='tm' && q){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';

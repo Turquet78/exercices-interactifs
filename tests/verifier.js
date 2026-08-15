@@ -1588,7 +1588,7 @@ function premiere(w){
      de ce qu'un élève reçoit un soir. */
   verifierEval(w, 'le tirage additions-soustractions est équilibré et bien formé', `(function(){
     if(typeof tirageAddSub!=='function') return 'tirageAddSub() n\\'existe pas';
-    let plus=0, moins=0, horsFormat=0, faux=0, desequilibres=0;
+    let plus=0, moins=0, horsFormat=0, faux=0, desequilibres=0, sansRetenue=0;
     for(let s=0;s<2000;s++){
       const q=tirageAddSub(10);
       if(q.length!==10){ horsFormat++; continue; }
@@ -1599,6 +1599,12 @@ function premiere(w){
         const a=+m[1], b=+m[3];
         if(a<100||a>999||b<10||b>99) horsFormat++;
         if((m[2]==='+'?a+b:a-b)!==x.answer) faux++;
+        /* Il faut TOUJOURS une retenue : sans elle le calcul se fait chiffre à
+           chiffre et n'exerce rien. Recalculée ici, et non lue sur la fonction
+           de la page : le contrôle doit pouvoir contredire le code. */
+        const ua=a%10, ub=b%10, da=Math.floor(a/10)%10, db=Math.floor(b/10)%10;
+        const aRetenue = (m[2]==='+') ? ((ua+ub>=10)||(da+db>=10)) : ((ua<ub)||(da<db));
+        if(!aRetenue) sansRetenue++;
         if(m[2]==='+'){ plus++; p++; } else moins++;
       });
       if(p!==5) desequilibres++;
@@ -1606,6 +1612,7 @@ function premiere(w){
     const vus=[];
     if(horsFormat) vus.push(horsFormat+' calcul(s) hors du format 3 chiffres ± 2 chiffres');
     if(faux)       vus.push(faux+' réponse(s) fausse(s)');
+    if(sansRetenue) vus.push(sansRetenue+' calcul(s) SANS retenue');
     if(desequilibres) vus.push(desequilibres+' séance(s) sans 5 additions sur 10');
     if(plus!==moins)  vus.push('au total '+plus+' additions pour '+moins+' soustractions');
     return vus.join(' | ');
