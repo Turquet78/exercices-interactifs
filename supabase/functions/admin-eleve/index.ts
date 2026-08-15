@@ -232,12 +232,22 @@ Deno.serve(async (req) => {
       const { data: tous, error: errTous } = await admin.from(niveau.eleves).select('id, user_id');
       if(errTous) return repondre({ erreur: 'lecture impossible' }, 500);
 
+      // « TOUTES LES LIGNES » NE S'ÉCRIT PAS AVEC UN IDENTIFIANT IMPOSSIBLE.
+      // La façon habituelle — neq('id', <un uuid nul>) — compare la colonne à
+      // un uuid. Or « id » est un uuid en Terminale et en Seconde, mais un
+      // BIGINT en Première : PostgreSQL n'y voit pas une ligne qui ne
+      // correspond pas, il y voit une erreur de syntaxe, et le professeur
+      // recevait « suppression des notes impossible » sans autre explication.
+      // C'est le même piège que la création de compte, qui avait déjà marché
+      // sur deux niveaux et cassé le troisième.
+      // « id is not null » est vrai pour toute ligne et ne suppose aucun type :
+      // id est une clé primaire, il n'est jamais nul.
       const { error: errNotes } = await admin.from(niveau.resultats)
-        .delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        .delete().not('id', 'is', null);
       if(errNotes) return repondre({ erreur: 'suppression des notes impossible' }, 500);
 
       const { error: errEleves } = await admin.from(niveau.eleves)
-        .delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        .delete().not('id', 'is', null);
       if(errEleves) return repondre({ erreur: 'suppression des élèves impossible' }, 500);
 
       for(const e of tous ?? []){
