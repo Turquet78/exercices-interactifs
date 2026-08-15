@@ -255,6 +255,23 @@ titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 exercice, du bilan de l'élève comme du tableau du professeur — sans rien casser.
 Les noms se changent librement, tout en découle ; les identifiants restent.
 
+**Sans balise `<form>`, le gestionnaire de mots de passe de Chrome fouille la
+page entière.** Chrome cherche toujours l'identifiant qui accompagne un champ
+`type="password"`. Sans frontière de formulaire, il n'a aucune limite : il se
+rabat sur le premier champ texte venu — celui où l'élève tape sa réponse — et
+pose sa bulle « Gérer les mots de passe » au milieu d'un exercice.
+`autocomplete="off"` n'y peut rien, Chrome l'ignore délibérément pour son
+gestionnaire depuis 2014. Le symptôme est intermittent — Chrome refait son
+analyse à chaque chargement et ne retient pas toujours le même champ —, ce qui
+le rend impossible à trouver par relecture. Les trois écrans qui portent une
+identité sont donc des `<form onsubmit="return false">`, et celui du professeur
+offre l'identifiant (`autocomplete="username"`, rempli depuis `COURRIEL_PROF`)
+pour que Chrome n'ait plus aucune raison d'aller le chercher ailleurs. Ce champ
+est hors écran mais **rendu** : `display:none` le ferait ignorer, et la fouille
+reprendrait. Attention au piège d'à côté : un `<button>` sans `type` explicite
+SOUMET le formulaire qui l'entoure, donc recharge la page. Un contrôle tient
+les quatre bords sur les trois fichiers.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
