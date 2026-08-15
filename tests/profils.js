@@ -45,8 +45,15 @@ const RAPPELS_PREMIERE = `(function(){
     'tables-multiplication':'tm','tables-multiplication-2':'tm' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
+    /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
+       partagent parfois le même moteur sans avoir les mêmes réflexes à
+       rappeler. */
+    if(typeof RAPPELS_ID!=='undefined' && RAPPELS_ID[id]) return;
     const k=cles[id];
-    if(k && !RAPPELS[k]) manquants.push(id);
+    /* un identifiant que ce contrôle ne connaît pas était IGNORÉ : un exercice
+       ajouté sans rappel passait donc au vert sans que rien ne le dise. */
+    if(!k){ manquants.push(id+' (le contrôle ne connaît pas son kind)'); return; }
+    if(!RAPPELS[k]) manquants.push(id);
   });
   return manquants.join(', ');
 })()`;

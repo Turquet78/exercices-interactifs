@@ -208,6 +208,32 @@ JSON sans les fonctions de leurs courbes.
 La migration `003` se joue à la main chez Supabase, comme les autres : jouée
 après coup, le bouton renvoie une erreur à l'élève.
 
+**Deux exercices peuvent partager un moteur — mais pas leur identité.** Le
+calcul mental et les additions-soustractions tournent sur le même `kind`
+(`cm`), le même écran et la même ardoise : seul le tirage change. Trois choses
+sont alors indexées par le `kind` et se retrouveraient partagées à tort — la
+note, le rappel de cours et les questions à l'IA. La note passe donc par
+`test.qId` comme partout ailleurs, le rappel par `RAPPELS_ID` (indexé par
+identifiant), et `qiaSuggestions()` fait primer l'identifiant sur le `kind`
+quand il a une entrée. Le contrôle des rappels IGNORAIT un identifiant qu'il ne
+connaissait pas : un exercice ajouté sans rappel passait au vert. Il le signale
+maintenant, comme le fait celui de la Seconde.
+
+**Un devoir peut allonger la séance des tables, dans des bornes.** Le format
+normal est `TM_NB` calculs — ce que l'élève trouve au menu. Un devoir peut en
+demander davantage sur le niveau 1, et sur lui seul : le niveau 2 tire les
+produits les plus ratés, sa liste a sa propre logique. Le réglage vit sur
+l'entrée de l'exercice dans le devoir, à côté des modes, et n'est lu qu'à un
+endroit (`tmNbDevoir()`) plutôt que rangé dans une variable de plus —
+`currentPasse` avait montré ce que coûte un état parallèle qu'il faut penser à
+remettre à zéro partout. L'affichage et la note, eux, lisent le TIRAGE
+(`tmNb()`) et non le devoir : après une reprise de pause, c'est la séance
+commencée qui fait foi, le devoir ayant pu changer entre-temps. `TM_NB_CHOIX`
+borne les deux côtés, l'éditeur ET la relecture : le réglage est un simple
+champ JSON qu'on peut éditer à la main dans la base, et une valeur bricolée
+doit retomber sur le format normal plutôt que produire une séance de quatre
+cents calculs. Un contrôle tient ces quatre bords.
+
 **Un devoir demande une fois chaque exercice, et tous sont ouverts.** Il a su
 un temps en demander plusieurs passages et en verrouiller un tant que les
 précédents n'étaient pas faits ; c'est retiré, éditeur compris (décision de

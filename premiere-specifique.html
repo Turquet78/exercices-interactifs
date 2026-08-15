@@ -322,6 +322,11 @@
   .sig-actions{display:flex;gap:8px;flex-wrap:wrap}
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
+  .dm-nb{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:.86rem;color:var(--ink-soft);font-weight:600}
+  .dm-nb label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .dm-nb select{padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;font:inherit}
+  .dm-nb.off{opacity:.5} .dm-nb.off label{cursor:default}
+  .dm-nb-hint{font-weight:600;font-style:italic}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
   /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
@@ -1342,7 +1347,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=111;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=114;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1574,11 +1579,22 @@ function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) retur
    laissait donc trois qui annonçaient encore l'ancienne durée. Un contrôle
    l'interdit désormais. */
 const TM_SECONDES = 4;        /* temps de réponse accordé, par calcul */
-const TM_NB       = 10;       /* nombre de calculs du premier tour */
+const TM_NB       = 10;       /* nombre de calculs du premier tour, par défaut */
+/* Un devoir peut en demander DAVANTAGE sur les tables de niveau 1 : le réglage
+   vit sur l'entrée de l'exercice dans le devoir, à côté des modes. Hors devoir,
+   c'est toujours TM_NB — le format normal, celui que l'élève trouve au menu.
+   Les valeurs sont énumérées ici plutôt que libres : elles bornent l'éditeur ET
+   ce que la page accepte de relire d'un devoir, si bien qu'un réglage bricolé à
+   la main dans la base ne peut pas produire une séance de 400 calculs. */
+const TM_NB_CHOIX = [10, 20];
+/* Le seul exercice dont la longueur de séance se règle : le niveau 2 tire les
+   produits les plus ratés, sa liste a sa propre logique. */
+const TM_ID_NB = 'tables-multiplication';
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
   'calcul-mental':       { name:'Calcul mental',           icon:'🧮', desc:'Additions, soustractions, multiplications… à calculer de tête.', start:()=>startTest() },
+  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres : une addition sur deux, une soustraction sur deux. Il y a toujours une retenue.', start:()=>startAddSub() },
   'multiplication-posee':{ name:'Multiplication posée',     icon:'✖️', desc:'Pose la multiplication, complète la retenue et le résultat.',     start:()=>startMultPosee() },
   'fractions-decimales': { name:'Fractions décimales',      icon:'🔢', desc:'Parcours en 5 niveaux : 4 bonnes réponses sur 5 pour passer au niveau suivant.', start:()=>startFracParcours() },
   'pourcentage':         { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
@@ -1618,7 +1634,7 @@ const THEMES=[
      qu'un : le second ne portait qu'un seul exercice, et les deux relèvent du
      même geste — calculer de tête ou à la main, avant d'entrer dans les
      pourcentages. */
-  { num:1, nom:'Calcul mental', ids:['calcul-mental','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
+  { num:1, nom:'Calcul mental', ids:['calcul-mental','addition-soustraction','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -1661,7 +1677,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else (test.qId==='addition-soustraction'?startAddSub():startTest()); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -2316,7 +2332,7 @@ function show(name){
 function exercicesDevoir(dev){
   return ((dev&&dev.exercices)||[])
     .filter(ex=>TESTS[ex.id])
-    .map(ex=>({ id:ex.id, modes:ex.modes||[] }));
+    .map(ex=>({ id:ex.id, modes:ex.modes||[], nb:parseInt(ex.nb,10)||null }));
 }
 /* Une note d'un devoir, sans distinction de passage. Les devoirs ne demandent
    plus qu'une fois chaque exercice ; les notes écrites du temps des passages
@@ -2382,7 +2398,10 @@ function renderDevoirDetail(devoirId){
     somme+=nd.note; if(nd.fait) faitQqch=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
+    /* Le devoir peut demander une séance plus longue : la carte le dit, sinon
+       l'élève lirait « 10 produits » dans la description et en trouverait 20. */
+    const desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
+    return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
   }).join('');
   const totMax=liste.length*10;
   const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
@@ -2839,12 +2858,59 @@ function genQuestion(c){
   return {text:`${a} ${sym} ${b}`,answer:ans};
 }
 
+/* ---------- Additions et soustractions : 3 chiffres ± 2 chiffres ----------
+   Le tirage est ÉQUILIBRÉ, et non tiré à pile ou face à chaque question : sur
+   dix calculs, cinq additions et cinq soustractions, mélangés. Un tirage
+   indépendant aurait donné, de temps en temps, huit additions d'affilée — et
+   l'élève n'aurait pas travaillé ce qu'on visait.
+   La soustraction tombe toujours juste : un nombre à trois chiffres vaut au
+   moins 100, un nombre à deux chiffres au plus 99, le résultat est donc
+   toujours positif. */
+/* Y a-t-il une retenue ? On regarde les unités ET les dizaines : 380 + 70 ne
+   déborde pas aux unités mais déborde aux dizaines — c'est bien une retenue, et
+   l'exclure retirerait un calcul sur trois sans raison.
+   Aux dizaines, la question ne se pose que si les unités n'ont rien reporté :
+   sinon on a déjà répondu oui. */
+function retenueAddSub(a,b,plus){
+  const ua=a%10, ub=b%10, da=Math.floor(a/10)%10, db=Math.floor(b/10)%10;
+  return plus ? (ua+ub>=10) || (da+db>=10)
+              : (ua<ub)     || (da<db);
+}
+/* Il faut TOUJOURS une retenue : sans elle, 342 + 15 se fait chiffre par
+   chiffre et n'exerce rien. Le tirage recommence tant qu'il n'en a pas — même
+   procédé que la multiplication posée. Une retenue tombe naturellement dans
+   72 % des cas : la boucle passe au premier coup trois fois sur quatre. */
+function genAddSub(plus){
+  let a,b;
+  do{ a=rand(100,999); b=rand(10,99); }while(!retenueAddSub(a,b,plus));
+  return plus ? { text:a+' + '+b, answer:a+b } : { text:a+' \u2212 '+b, answer:a-b };
+}
+function tirageAddSub(n){
+  const nb=Math.max(1, parseInt(n,10)||10);
+  const signes=Array.from({length:nb},(_,i)=>i<Math.ceil(nb/2));
+  for(let i=signes.length-1;i>0;i--){ const j=rand(0,i); const t=signes[i]; signes[i]=signes[j]; signes[j]=t; }
+  return signes.map(genAddSub);
+}
+async function startAddSub(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  /* Même moteur que le calcul mental — même écran, même ardoise, même
+     minuteur : seul le tirage change. « qId » dit lequel des deux exercices
+     tourne, et c'est lui qui part dans la note. */
+  test.kind='cm'; test.qId='addition-soustraction';
+  test.questions=tirageAddSub(cfg.count);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.demarre=false;
+  show('test'); renderQuestion();
+}
+
 /* ---------- Déroulé du test ---------- */
 async function startTest(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
-  test.kind='cm';
+  test.kind='cm'; test.qId='calcul-mental';
   test.questions=Array.from({length:cfg.count},()=>genQuestion(cfg));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.demarre=false;                                  /* l'eleve lance lui-meme le test */
@@ -2924,7 +2990,7 @@ async function finishTest(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{
-    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'calcul-mental',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
+    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'calcul-mental'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -3085,7 +3151,7 @@ async function startTM(){
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   test.kind='tm'; test.tmId='tables-multiplication';
-  test.items=tmTirage(TM_NB);                   /* les 10 calculs de reference */
+  test.items=tmTirage(tmNbDevoir());            /* les calculs de reference : 10, ou ce que le devoir demande */
   test.questions=test.items;                    /* meme tableau : la sauvegarde de reprise l'exige */
   test.tour=1;
   test.file=test.items.slice();                 /* ce qu'il reste a faire dans ce tour */
@@ -3093,6 +3159,22 @@ async function startTM(){
   test.demarre=false;                                  /* l'eleve lance lui-meme le test */
   show('tm'); tmRender();
 }
+/* Combien de calculs ce devoir demande-t-il pour CET exercice ? Lu sur la
+   définition du devoir — la même que celle que l'éditeur écrit — plutôt que
+   rangé dans une variable de plus : currentPasse avait montré ce que coûte un
+   état parallèle qu'il faut penser à remettre à zéro partout. */
+function tmNbDevoir(){
+  if(!currentDM) return TM_NB;
+  const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+  const ex=dev&&(dev.exercices||[]).find(e=>e.id===currentTestId);
+  const n=parseInt(ex&&ex.nb,10);
+  return TM_NB_CHOIX.indexOf(n)>=0 ? n : TM_NB;
+}
+/* Le nombre de calculs de la séance EN COURS. On le lit sur le tirage lui-même
+   et non sur le devoir : après une reprise de pause, c'est le tirage qui fait
+   foi — le devoir a pu changer entre-temps, et l'élève doit retrouver sa
+   séance telle qu'il l'a laissée. */
+function tmNb(){ return (test.items && test.items.length) || TM_NB; }
 function tmAcquis(){ return test.items.filter(it=>it.acquis).length; }
 /* Sur iPad et t\u00e9l\u00e9phone, le clavier ne s'ouvre QUE si le focus est demand\u00e9 pendant le
    geste de l'\u00e9l\u00e8ve (clic ou touche). On focalise donc de mani\u00e8re SYNCHRONE, sans passer
@@ -3116,9 +3198,9 @@ function tmRender(){
     test.phase='depart'; test.locked=false;
     $('modeTagTm').innerHTML=modeTagHTML();
     $('tmIdx').textContent='Calcul 1 / '+test.file.length;
-    $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+    $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
     $('tmTour').className='tm-tour';
-    $('tmTour').innerHTML='<b>'+TM_NB+' calculs</b>, <b>'+TM_SECONDES+' secondes</b> chacun.';    $('tmEq').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
+    $('tmTour').innerHTML='<b>'+tmNb()+' calculs</b>, <b>'+TM_SECONDES+' secondes</b> chacun.';    $('tmEq').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
     const ai0=$('tmInput'); ai0.value=''; ai0.className='answer-input'; ai0.disabled=true;
     $('tmMark').className='mark'; $('tmMark').textContent='';
     $('tmTimerBar').hidden=true; $('tmCorrection').innerHTML='';
@@ -3131,10 +3213,10 @@ function tmRender(){
   test.phase='saisie'; test.locked=false;
   $('modeTagTm').innerHTML=modeTagHTML();
   $('tmIdx').textContent='Calcul '+(test.idx+1)+' / '+test.file.length;
-  $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+  $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
   $('tmTour').className='tm-tour'+(test.tour>1?' reprise':'');
   $('tmTour').innerHTML = test.tour===1
-    ? 'Tour 1 — <b>'+TM_NB+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
+    ? 'Tour 1 — <b>'+tmNb()+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
     : 'Reprise n\u00b0'+(test.tour-1)+' — on refait les <b>'+test.file.length+'</b> calcul'+(test.file.length>1?'s':'')+' rat\u00e9'+(test.file.length>1?'s':'')+'.';
   $('tmEq').innerHTML=esc(it.text)+' = <span class="blank">?</span>';
   const ai=$('tmInput'); ai.value=''; ai.className='answer-input'; ai.disabled=false; ai.readOnly=false;
@@ -3194,7 +3276,7 @@ function tmValider(tempsEcoule){
       : 'Pas encore \u2014 ce calcul reviendra.';
     $('tmFeedback').className='mp-feedback bad';
   }
-  $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+  $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
   $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmSuivant()">'
     +(test.idx<test.file.length-1?'Calcul suivant':'Continuer')+'</button>';
 }
@@ -3239,7 +3321,7 @@ async function tmFinir(){
   test.phase='fini';                          /* ferme aussi la voie clavier de tmSuivant */
   clearTimeout(test.qTimer);
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const score=tmAcquis(), total=TM_NB, pct=Math.round(score/total*100);
+  const score=tmAcquis(), total=tmNb(), pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   test.answers=test.items.map(it=>({ q:it.text, answer:it.answer,
     given:(it.acquis?it.answer:it.premiere), correct:it.acquis, essais:it.essais }));
@@ -6578,18 +6660,31 @@ function renderDmEditor(){
   const box=$('dmEditor');
   if(!dmSelId){ box.innerHTML='<div class="dm-empty">Aucun devoir pour l\'instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
-  const chosen={};
-  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; });
+  const chosen={}, nbs={};
+  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB; });
   const groups=THEMES.map(th=>{
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
       const mk=(m,lbl)=>{ const on=modes.includes(m), interdit=(m==='soutien'&&sansSoutien(id));
         if(interdit) return `<label class="dm-mode off" title="Exercice de rapidité : le mode soutien n\u2019y existe pas."><input type="checkbox" disabled><span>${esc(lbl)}</span></label>`;
         return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
+      /* Le nombre de calculs ne se règle que là où il a un sens : les tables de
+         niveau 1, seul exercice dont la longueur de séance est un réglage. Le
+         proposer partout donnerait vingt-cinq champs sans effet. Il est montré
+         même sur une ligne non cochée — grisé, avec le motif écrit à côté :
+         un réglage qui n'apparaît qu'après le bon geste est un réglage qu'on ne
+         découvre jamais. */
+      const nbChoix = (id===TM_ID_NB) ? `<span class="dm-nb${picked?'':' off'}">
+          <label>Questions <select ${picked?'':'disabled'} onchange="dmSetNb('${escJS(id)}',this.value)">${
+            TM_NB_CHOIX.map(n=>`<option value="${n}"${nbs[id]===n?' selected':''}>${n}</option>`).join('')
+          }</select></label>
+          ${picked?'':'<span class="dm-nb-hint">coche un mode pour le régler</span>'}
+        </span>` : '';
       return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
         <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
         <span class="dm-exo-name">${esc(testName(id))}</span>
         <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
+        ${nbChoix}
       </div>`;
     }).join('');
     if(!rows) return '';
@@ -6613,6 +6708,16 @@ function renderDmEditor(){
       <button class="btn btn-danger" onclick="deleteDM('${escJS(d.id)}')">Supprimer ce devoir</button>
     </div>
   </div>`;
+}
+/* Le nombre de calculs vit sur l'entrée de l'exercice dans le devoir : un
+   exercice retiré du devoir l'emporte avec lui. La valeur par défaut ne s'écrit
+   pas — un devoir « normal » garde exactement la forme qu'il avait avant que ce
+   réglage n'existe. */
+function dmSetNb(id,v){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  const n=parseInt(v,10);
+  if(TM_NB_CHOIX.indexOf(n)>=0 && n!==TM_NB) ex.nb=n; else delete ex.nb;
 }
 function dmToggleMode(id,m,checked){
   const d=dmCur(); if(!d) return;
@@ -6649,7 +6754,7 @@ async function saveDM(){
      « verrou » : on les retire ici plutôt que de les traîner indéfiniment dans
      un réglage que plus rien ne lit. */
   d.exercices=(d.exercices||[]).filter(ex=>(ex.modes||[]).length)
-    .map(ex=>({ id:ex.id, modes:ex.modes }));
+    .map(ex=>Object.assign({ id:ex.id, modes:ex.modes }, ex.nb?{nb:ex.nb}:{}));
   try{
     cfg=await loadConfig();
     const arr=(cfg.devoirs||[]).slice();
@@ -7306,7 +7411,12 @@ function qiaRedactionPresente(){
 function qiaSuggestions(){
   const rap='Faire un rappel de cours pour cet exercice.';
   const qc=(test && test.questions && test.questions[test.idx]) || null;
-  const cle=(test && test.kind==='augq' && qc && qc.sens===-1)?'dimq':(test && test.kind);
+  /* Un exercice peut avoir SES questions même s'il partage le moteur d'un autre :
+     le calcul mental et les additions-soustractions tournent tous deux sur le
+     kind « cm », et n'ont pas les mêmes réflexes à rappeler. L'identifiant
+     l'emporte donc sur le kind quand il a une entrée. */
+  const cle=(test && test.kind==='augq' && qc && qc.sens===-1)?'dimq'
+          : (QIA_SUGG[currentTestId] ? currentTestId : (test && test.kind));
   const base=(QIA_SUGG[cle] || QIA_SUGG.gen)
     .filter(function(t){ return t!==QIA_EXEMPLE && t!==QIA_REDAC && !(rappelDispo() && t===rap); });
   const tete=qiaRedactionPresente() ? [QIA_EXEMPLE,QIA_REDAC] : [QIA_EXEMPLE];
@@ -7728,12 +7838,21 @@ Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse —
 Exemple : diminuer 300 de 20 %. La baisse vaut 20/100 × 300 = 60, et 300 \u2212 60 = 240.<br>
 C\u2019est la même réponse qu\u2019avec le coefficient (300 × 0,8 = 240) : deux chemins, un seul résultat.<br>
 Piège classique : la baisse seule (60) n\u2019est pas la réponse — et c\u2019est bien la valeur de départ qui perd, jamais l\u2019inverse.`;
-const RAPPELS_ID={ 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
+const RAP_ADDSUB=`<b>Additions et soustractions de tête</b><br>
+Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres, et <b>toujours une retenue</b> : une colonne d\u00e9borde \u00e0 l\u2019addition, une colonne oblige \u00e0 emprunter \u00e0 la soustraction.<br>Deux r\u00e9flexes \u00e9vitent d\u2019avoir \u00e0 la poser :<br>
+<b>additionner</b> — passer par la dizaine ronde : 347 + 58 = 347 + 3 + 55 = 350 + 55 = 405 ;
+ou d\u00e9couper le petit nombre : 347 + 50 = 397, puis + 8 = 405.<br>
+<b>soustraire</b> — c\u2019est un \u00e9cart, et on avance : pour 432 \u2212 87, aller de 87 \u00e0 100 (13),
+puis de 100 \u00e0 432 (332), soit 345. On peut aussi retirer 100 et rendre 13 : 432 \u2212 100 = 332, puis + 13 = 345.<br>
+Et toujours l\u2019ordre de grandeur d\u2019abord : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
+Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
+  'addition-soustraction':["Comment additionner de tête en passant par la dizaine ?","Comment soustraire en avançant plutôt qu'en reculant ?","C'est quoi, une retenue ?","Pourquoi chercher un ordre de grandeur avant de calculer ?","Comment vérifier une soustraction sans la refaire ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
@@ -7912,6 +8031,12 @@ function conseilCtxCourant(){
   } else if(k==='fracp' && q){
     att='Question : '+(q.qtext||'')+'. Réponse attendue, STRICTEMENT SECRÈTE : '+(q.atext||'')+'. '
       +'Méthode : diviser par 10, 100 ou 1000 décale la virgule de 1, 2 ou 3 rangs vers la gauche ; inversement, le nombre de chiffres après la virgule donne le dénominateur.';
+  } else if(currentTestId==='addition-soustraction' && q){
+    att='Calcul mental \u00e0 poser de t\u00eate : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
+      +'M\u00e9thode : pour une addition, passer par la dizaine ronde ou ajouter les dizaines puis les unit\u00e9s ; '
+      +'pour une soustraction, avancer du petit nombre vers le grand, ou retirer la centaine puis rendre la diff\u00e9rence. '
+      +'Il y a TOUJOURS une retenue dans cet exercice : une colonne d\u00e9borde, ou oblige \u00e0 emprunter. '
+      +'Ne donne jamais le r\u00e9sultat : oriente sur le chemin.';
   } else if(k==='tm' && q){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
