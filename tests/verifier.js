@@ -1578,6 +1578,39 @@ function abandonSortDePause(w, apres){
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */
 function premiere(w){
+  /* ---- Le tirage des additions-soustractions ---------------------------
+     Un nombre à TROIS chiffres, un nombre à DEUX chiffres, et une addition sur
+     deux. « Une fois sur deux » est pris au pied de la lettre : le tirage est
+     équilibré, pas tiré à pile ou face à chaque question — sinon une séance sur
+     cinquante serait faite de huit additions d'affilée, et l'élève n'aurait pas
+     travaillé ce qu'on visait. Le contrôle exige donc l'équilibre EXACT sur
+     chaque séance, et pas seulement en moyenne : une moyenne juste ne dit rien
+     de ce qu'un élève reçoit un soir. */
+  verifierEval(w, 'le tirage additions-soustractions est équilibré et bien formé', `(function(){
+    if(typeof tirageAddSub!=='function') return 'tirageAddSub() n\\'existe pas';
+    let plus=0, moins=0, horsFormat=0, faux=0, desequilibres=0;
+    for(let s=0;s<2000;s++){
+      const q=tirageAddSub(10);
+      if(q.length!==10){ horsFormat++; continue; }
+      let p=0;
+      q.forEach(function(x){
+        const m=/^(\\d+) ([+\\u2212]) (\\d+)$/.exec(x.text);
+        if(!m){ horsFormat++; return; }
+        const a=+m[1], b=+m[3];
+        if(a<100||a>999||b<10||b>99) horsFormat++;
+        if((m[2]==='+'?a+b:a-b)!==x.answer) faux++;
+        if(m[2]==='+'){ plus++; p++; } else moins++;
+      });
+      if(p!==5) desequilibres++;
+    }
+    const vus=[];
+    if(horsFormat) vus.push(horsFormat+' calcul(s) hors du format 3 chiffres ± 2 chiffres');
+    if(faux)       vus.push(faux+' réponse(s) fausse(s)');
+    if(desequilibres) vus.push(desequilibres+' séance(s) sans 5 additions sur 10');
+    if(plus!==moins)  vus.push('au total '+plus+' additions pour '+moins+' soustractions');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- Un devoir peut allonger la séance des tables --------------------
      Le format normal est TM_NB calculs — c'est ce que l'élève trouve au menu.
      Un devoir peut en demander davantage sur le niveau 1, et sur lui seul : le

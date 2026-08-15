@@ -1347,7 +1347,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=112;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=113;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1594,6 +1594,7 @@ const TM_ID_NB = 'tables-multiplication';
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
   'calcul-mental':       { name:'Calcul mental',           icon:'🧮', desc:'Additions, soustractions, multiplications… à calculer de tête.', start:()=>startTest() },
+  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres : une addition sur deux, une soustraction sur deux.', start:()=>startAddSub() },
   'multiplication-posee':{ name:'Multiplication posée',     icon:'✖️', desc:'Pose la multiplication, complète la retenue et le résultat.',     start:()=>startMultPosee() },
   'fractions-decimales': { name:'Fractions décimales',      icon:'🔢', desc:'Parcours en 5 niveaux : 4 bonnes réponses sur 5 pour passer au niveau suivant.', start:()=>startFracParcours() },
   'pourcentage':         { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
@@ -1633,7 +1634,7 @@ const THEMES=[
      qu'un : le second ne portait qu'un seul exercice, et les deux relèvent du
      même geste — calculer de tête ou à la main, avant d'entrer dans les
      pourcentages. */
-  { num:1, nom:'Calcul mental', ids:['calcul-mental','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
+  { num:1, nom:'Calcul mental', ids:['calcul-mental','addition-soustraction','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -1676,7 +1677,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else (test.qId==='addition-soustraction'?startAddSub():startTest()); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -2857,12 +2858,44 @@ function genQuestion(c){
   return {text:`${a} ${sym} ${b}`,answer:ans};
 }
 
+/* ---------- Additions et soustractions : 3 chiffres ± 2 chiffres ----------
+   Le tirage est ÉQUILIBRÉ, et non tiré à pile ou face à chaque question : sur
+   dix calculs, cinq additions et cinq soustractions, mélangés. Un tirage
+   indépendant aurait donné, de temps en temps, huit additions d'affilée — et
+   l'élève n'aurait pas travaillé ce qu'on visait.
+   La soustraction tombe toujours juste : un nombre à trois chiffres vaut au
+   moins 100, un nombre à deux chiffres au plus 99, le résultat est donc
+   toujours positif. */
+function genAddSub(plus){
+  const a=rand(100,999), b=rand(10,99);
+  return plus ? { text:a+' + '+b, answer:a+b } : { text:a+' \u2212 '+b, answer:a-b };
+}
+function tirageAddSub(n){
+  const nb=Math.max(1, parseInt(n,10)||10);
+  const signes=Array.from({length:nb},(_,i)=>i<Math.ceil(nb/2));
+  for(let i=signes.length-1;i>0;i--){ const j=rand(0,i); const t=signes[i]; signes[i]=signes[j]; signes[j]=t; }
+  return signes.map(genAddSub);
+}
+async function startAddSub(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  /* Même moteur que le calcul mental — même écran, même ardoise, même
+     minuteur : seul le tirage change. « qId » dit lequel des deux exercices
+     tourne, et c'est lui qui part dans la note. */
+  test.kind='cm'; test.qId='addition-soustraction';
+  test.questions=tirageAddSub(cfg.count);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.demarre=false;
+  show('test'); renderQuestion();
+}
+
 /* ---------- Déroulé du test ---------- */
 async function startTest(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
-  test.kind='cm';
+  test.kind='cm'; test.qId='calcul-mental';
   test.questions=Array.from({length:cfg.count},()=>genQuestion(cfg));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.demarre=false;                                  /* l'eleve lance lui-meme le test */
@@ -2942,7 +2975,7 @@ async function finishTest(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{
-    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'calcul-mental',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
+    if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'calcul-mental'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
   }catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -7363,7 +7396,12 @@ function qiaRedactionPresente(){
 function qiaSuggestions(){
   const rap='Faire un rappel de cours pour cet exercice.';
   const qc=(test && test.questions && test.questions[test.idx]) || null;
-  const cle=(test && test.kind==='augq' && qc && qc.sens===-1)?'dimq':(test && test.kind);
+  /* Un exercice peut avoir SES questions même s'il partage le moteur d'un autre :
+     le calcul mental et les additions-soustractions tournent tous deux sur le
+     kind « cm », et n'ont pas les mêmes réflexes à rappeler. L'identifiant
+     l'emporte donc sur le kind quand il a une entrée. */
+  const cle=(test && test.kind==='augq' && qc && qc.sens===-1)?'dimq'
+          : (QIA_SUGG[currentTestId] ? currentTestId : (test && test.kind));
   const base=(QIA_SUGG[cle] || QIA_SUGG.gen)
     .filter(function(t){ return t!==QIA_EXEMPLE && t!==QIA_REDAC && !(rappelDispo() && t===rap); });
   const tete=qiaRedactionPresente() ? [QIA_EXEMPLE,QIA_REDAC] : [QIA_EXEMPLE];
@@ -7785,12 +7823,21 @@ Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse —
 Exemple : diminuer 300 de 20 %. La baisse vaut 20/100 × 300 = 60, et 300 \u2212 60 = 240.<br>
 C\u2019est la même réponse qu\u2019avec le coefficient (300 × 0,8 = 240) : deux chemins, un seul résultat.<br>
 Piège classique : la baisse seule (60) n\u2019est pas la réponse — et c\u2019est bien la valeur de départ qui perd, jamais l\u2019inverse.`;
-const RAPPELS_ID={ 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
+const RAP_ADDSUB=`<b>Additions et soustractions de tête</b><br>
+Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres. Deux r\u00e9flexes suffisent :<br>
+<b>additionner</b> — passer par la dizaine ronde : 347 + 58 = 347 + 3 + 55 = 350 + 55 = 405 ;
+ou d\u00e9couper le petit nombre : 347 + 50 = 397, puis + 8 = 405.<br>
+<b>soustraire</b> — c\u2019est un \u00e9cart, et on avance : pour 432 \u2212 87, aller de 87 \u00e0 100 (13),
+puis de 100 \u00e0 432 (332), soit 345. On peut aussi retirer 100 et rendre 13 : 432 \u2212 100 = 332, puis + 13 = 345.<br>
+Et toujours l\u2019ordre de grandeur d\u2019abord : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
+Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
+  'addition-soustraction':["Comment additionner de tête en passant par la dizaine ?","Comment soustraire en avançant plutôt qu'en reculant ?","Pourquoi chercher un ordre de grandeur avant de calculer ?","Comment vérifier une soustraction sans la refaire ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
@@ -7969,6 +8016,11 @@ function conseilCtxCourant(){
   } else if(k==='fracp' && q){
     att='Question : '+(q.qtext||'')+'. Réponse attendue, STRICTEMENT SECRÈTE : '+(q.atext||'')+'. '
       +'Méthode : diviser par 10, 100 ou 1000 décale la virgule de 1, 2 ou 3 rangs vers la gauche ; inversement, le nombre de chiffres après la virgule donne le dénominateur.';
+  } else if(currentTestId==='addition-soustraction' && q){
+    att='Calcul mental \u00e0 poser de t\u00eate : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
+      +'M\u00e9thode : pour une addition, passer par la dizaine ronde ou ajouter les dizaines puis les unit\u00e9s ; '
+      +'pour une soustraction, avancer du petit nombre vers le grand, ou retirer la centaine puis rendre la diff\u00e9rence. '
+      +'Ne donne jamais le r\u00e9sultat : oriente sur le chemin.';
   } else if(k==='tm' && q){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
