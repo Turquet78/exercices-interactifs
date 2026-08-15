@@ -1605,6 +1605,34 @@ function abandonSortDePause(w, apres){
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */
 function premiere(w){
+  /* ---- La durée des tables de multiplication n'est écrite qu'une fois ----
+     TM_SECONDES commande le minuteur. Le même nombre était pourtant écrit en
+     toutes lettres à quatre autres endroits : les deux descriptions du menu,
+     un commentaire, et le contexte envoyé au modèle. Le porter de 3 à 4
+     secondes en laissait donc trois qui annonçaient encore 3 — l'élève lisait
+     une durée, en vivait une autre, et le modèle en racontait une troisième.
+     C'est la même maladie que les numéros d'exercice écrits en dur, et elle se
+     soigne pareil : un seul endroit, tous les textes le citent.
+     Le contrôle lit les textes RENDUS, pas le fichier : un nombre remis en dur
+     y apparaîtrait tel quel, et un commentaire n'y apparaît pas du tout. */
+  verifierEval(w, 'la durée des tables n’est annoncée que d’après TM_SECONDES', `(function(){
+    if(typeof TM_SECONDES!=='number') return 'TM_SECONDES introuvable';
+    const vus=[];
+    const lire=function(quoi, txt){
+      String(txt||'').replace(/(\\d+)\\s*secondes?/g, function(m,n){
+        if(Number(n)!==TM_SECONDES) vus.push(quoi+' annonce '+n+' au lieu de '+TM_SECONDES);
+        return m;
+      });
+    };
+    lire('la description du niveau 1', TESTS['tables-multiplication'] && TESTS['tables-multiplication'].desc);
+    lire('la description du niveau 2', TESTS['tables-multiplication-2'] && TESTS['tables-multiplication-2'].desc);
+    /* le contexte envoyé au modèle : on se met sur l'exercice, comme l'élève */
+    currentTestId='tables-multiplication'; test.kind='tm';
+    test.questions=[{a:7,b:8,text:'7 × 8',answer:56,acquis:false,essais:0,premiere:null}]; test.idx=0;
+    try{ lire('le contexte envoyé au modèle', conseilCtxCourant()); }catch(e){ vus.push('contexte illisible : '+e.message); }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
   /* générateurs : mêmes invariants que ceux vérifiés à la main jusqu'ici */
   const audit = w.eval(`(function(){
     const bilan={};

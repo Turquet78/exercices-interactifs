@@ -222,6 +222,17 @@ porter un exercice de un à trois passages effacerait les notes déjà obtenues.
 Un exercice peut aussi être `verrou`illé tant que tout ce qui le précède dans le
 devoir n'est pas fait. Quatre contrôles, chacun éprouvé en le cassant.
 
+**Un nombre affiché à l'élève ne s'écrit qu'une fois.** `TM_SECONDES` commande
+le minuteur des tables de multiplication — et le même nombre était écrit en
+toutes lettres à quatre autres endroits : les deux descriptions du menu, un
+commentaire, et le contexte envoyé au modèle. Le porter de 3 à 4 secondes en
+laissait trois qui annonçaient encore 3 : l'élève lisait une durée, en vivait
+une autre, et le modèle en racontait une troisième. Même maladie que les
+numéros d'exercice, même remède — la constante monte au-dessus de `TESTS` pour
+que les descriptions puissent la citer. Un contrôle lit les textes RENDUS (pas
+le fichier : un commentaire n'y apparaît pas) et exige que toute durée qu'on y
+trouve soit celle de `TM_SECONDES`.
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet
