@@ -655,6 +655,46 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater. le cadre de pose reste resserré =====
+       Un cadre prend la largeur de son plus large enfant. Ici l'énoncé faisait
+       700 à 830 px sur une seule ligne, alors que l'opération qu'il encadre
+       n'en fait que 144 à 190 : le cadre était quatre fois trop large. La
+       largeur est donc bornée, l'énoncé se replie, et le cadre se resserre.
+       Aucun banc hors navigateur ne mesure une largeur RENDUE — celle-ci
+       dépend de la police, du repli au mot et de la fenêtre. */
+    titre('6 quater. LE CADRE DE POSE RESTE RESSERRÉ');
+    if(!P.cadrePose){
+      ignorer('le cadre de la pose ne suit pas la longueur de son énoncé',
+        'ce niveau n\'a pas de cadre de pose inséré');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      for(const [exo, hote] of P.cadrePose.exercices){
+        await s.page.evaluate(i => openTest(i), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(900);
+        const vu = await s.page.evaluate(h => {
+          const host = document.getElementById(h);
+          const o = host && host.querySelector('.pt-outil');
+          if(!o) return { absent: true };
+          const op = o.querySelector('.mp-op');
+          const ro = o.getBoundingClientRect(), rp = op ? op.getBoundingClientRect() : null;
+          return { absent:false, cadre: Math.round(ro.width),
+                   deborde: !!rp && (rp.left < ro.left - 1 || rp.right > ro.right + 1),
+                   page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+        }, hote);
+        verifier(exo + ' : le cadre de pose est là', !vu.absent, 'aucun .pt-outil dans #' + hote);
+        verifier(exo + ' : il reste resserré', !vu.absent && vu.cadre <= P.cadrePose.largeurMax,
+          'largeur rendue ' + vu.cadre + ' px (maximum ' + P.cadrePose.largeurMax + ') — l\'énoncé l\'étire de nouveau');
+        verifier(exo + ' : l\'opération tient dedans', !vu.absent && !vu.deborde,
+          'la pose déborde du cadre');
+        verifier(exo + ' : la page ne défile pas en largeur', !vu.absent && !vu.page,
+          'débordement horizontal de la page');
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là
