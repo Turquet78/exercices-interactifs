@@ -316,6 +316,76 @@ MUTATIONS.forEach(([nom, sqls], i) => {
 });
 
 /* ---------------------------------------------------------------------------
+   3 bis. Le ménage des brouillons fantômes
+   -------------------------------------------------------------------------
+   supabase/menage-brouillons.sql est un script DESTRUCTIF que Turquet colle à
+   la main dans l'éditeur SQL de son projet. Il ne doit emporter que les lignes
+   « state: paused » — jamais une note, jamais une ligne d'une autre table.
+   Un script qu'on ne peut pas rejouer chez soi se vérifie ici, sur une base
+   jetable semée exprès : des notes, des brouillons vieux et récents, et une
+   note dont les détails ne portent aucun « state » (le cas le plus courant :
+   c'est ainsi que sont écrites toutes les notes). */
+console.log('\n3 bis. LE MÉNAGE DES BROUILLONS FANTÔMES');
+{
+  const bd = monter('menage');
+  psql(bd, ['-f', MIG]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql')]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql')]);
+
+  /* Une élève, deux notes (dont une ancienne), deux brouillons — l'un d'hier,
+     l'autre de tout à l'heure — et un brouillon sur un AUTRE niveau, pour
+     vérifier que le script passe bien sur les trois tables. */
+  psql(bd, ['-c', `
+    insert into auth.users (id, email) values
+      ('11111111-1111-1111-1111-111111111111', 'a@eleves.test') on conflict (id) do nothing;
+    insert into public.eleves_2nde (prenom, cle, user_id) values
+      ('Alice', 'cle-alice', '11111111-1111-1111-1111-111111111111');
+    insert into public.eleves_1ere (prenom, cle, user_id) values
+      ('Alice', 'cle-alice-1ere', '11111111-1111-1111-1111-111111111111');
+    insert into public.resultats_2nde (eleve_id, score, total, percent, duration_sec, details, created_at)
+    select e.id, v.sc, 10, v.pc, 60, v.d::jsonb, now() - (v.age || ' hours')::interval
+      from public.eleves_2nde e,
+           (values (9, 90, '{"test":"pourcentage","mode":"train"}', '2'),
+                   (7, 70, '{"test":"pourcentage","mode":"soutien"}', '400'),
+                   (0,  0, '{"test":"pourcentage","mode":"train","state":"paused"}', '300'),
+                   (0,  0, '{"test":"augmenter-pourcentage","mode":"soutien","state":"paused"}', '1')
+           ) as v(sc, pc, d, age)
+     where e.cle = 'cle-alice';
+    insert into public.resultats_1ere (eleve_id, score, total, percent, duration_sec, details)
+    select e.id, 0, 10, 0, 5, '{"test":"pourcentage","mode":"train","state":"paused"}'::jsonb
+      from public.eleves_1ere e where e.cle = 'cle-alice-1ere';`]);
+
+  const compte = q => psql(bd, ['-tAc', q]).trim();
+  const notesAvant = compte("select count(*) from public.resultats_2nde where details->>'state' is distinct from 'paused'");
+  const pauseAvant = compte("select count(*) from public.resultats_2nde where details->>'state' = 'paused'");
+  bilan('la base d\'essai porte bien 2 notes et 2 brouillons',
+    notesAvant === '2' && pauseAvant === '2', notesAvant + ' note(s), ' + pauseAvant + ' brouillon(s)');
+
+  const sortie = psql(bd, ['-f', path.join(RACINE, 'supabase/menage-brouillons.sql')]);
+  bilan('le script annonce ce qu\'il a retiré, table par table',
+    /brouillon\(s\) retiré\(s\)/.test(sortie), sortie.split('\n').slice(-3).join(' '));
+
+  bilan('les notes sont toutes là après le ménage',
+    compte("select count(*) from public.resultats_2nde where details->>'state' is distinct from 'paused'") === notesAvant,
+    'il en reste ' + compte("select count(*) from public.resultats_2nde where details->>'state' is distinct from 'paused'") + ' sur ' + notesAvant);
+  bilan('leurs scores n\'ont pas bougé non plus',
+    compte("select coalesce(sum(score),0) from public.resultats_2nde") === '16',
+    'somme des scores = ' + compte("select coalesce(sum(score),0) from public.resultats_2nde"));
+  bilan('plus aucun brouillon en Seconde',
+    compte("select count(*) from public.resultats_2nde where details->>'state' = 'paused'") === '0');
+  bilan('ni en Première : le script passe bien sur les trois tables',
+    compte("select count(*) from public.resultats_1ere where details->>'state' = 'paused'") === '0');
+  bilan('les élèves eux-mêmes sont intacts',
+    compte("select count(*) from public.eleves_2nde") === compte("select count(*) from public.eleves_2nde"));
+
+  const rejeu = psql(bd, ['-f', path.join(RACINE, 'supabase/menage-brouillons.sql')], true);
+  bilan('le rejouer ne trouve plus rien et ne casse rien', !rejeu.erreur, rejeu.erreur);
+
+  psql('postgres', ['-c', 'drop database if exists menage']);
+}
+
+/* ---------------------------------------------------------------------------
    4. La restauration d'une sauvegarde
    -------------------------------------------------------------------------
    Une sauvegarde qu'on n'a jamais remise en place n'est pas une sauvegarde :
