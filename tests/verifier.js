@@ -1698,9 +1698,9 @@ function premiere(w){
      travaillé ce qu'on visait. Le contrôle exige donc l'équilibre EXACT sur
      chaque séance, et pas seulement en moyenne : une moyenne juste ne dit rien
      de ce qu'un élève reçoit un soir. */
-  verifierEval(w, 'les additions-soustractions sont bien posées, équilibrées et à retenue', `(function(){
+  verifierEval(w, 'les additions-soustractions alternent, sont bien posées et n’ont de case qu’où il faut', `(function(){
     if(typeof tirageAddSub!=='function') return 'tirageAddSub() n\\'existe pas';
-    let plus=0, moins=0, horsFormat=0, faux=0, desequilibres=0, sansRetenue=0;
+    let plus=0, moins=0, horsFormat=0, faux=0, desequilibres=0, sansRetenue=0, ordre=0;
     for(let s=0;s<2000;s++){
       const q=tirageAddSub(10);
       if(q.length!==10){ horsFormat++; continue; }
@@ -1720,6 +1720,10 @@ function premiere(w){
         if(m[2]==='+'){ plus++; p++; } else moins++;
       });
       if(p!==5) desequilibres++;
+      /* On ALTERNE, en commençant par une addition : l'élève passe d'une
+         technique à l'autre à chaque calcul. Un tirage mélangé donnerait le
+         même total mais pas le même exercice. */
+      q.forEach(function(x,i){ if((x.text.indexOf('+')>=0)!==(i%2===0)) ordre++; });
     }
     /* L'opération est POSÉE : le générateur doit fournir, en plus du résultat,
        les chiffres de chaque colonne et les retenues attendues. On les
@@ -1806,6 +1810,25 @@ function premiere(w){
     })();
     if(deux.length) vus0.push('retenue de soustraction — '+deux.join(' ; '));
 
+    /* Aucune case de retenue là où il n'y en a pas : une case vide à remplir de
+       rien n'apprend rien (décision de Turquet, août 2026). On pose donc une
+       opération dont UNE SEULE colonne porte une retenue, et on compte.
+       Les deux bords : trop de cases, et plus assez. */
+    let cases=[];
+    [ {nom:'addition, retenue aux seules unités', q:{plus:true,a:342,b:19,ua:2,da:4,ha:3,ub:9,db:1,
+        ret:{d:1,h:0,m:0},res:[3,6,1],text:'342 + 19',answer:361}, attendu:1},
+      {nom:'soustraction, emprunt aux seules unités', q:{plus:false,a:342,b:19,ua:2,da:4,ha:3,ub:9,db:1,
+        ret:{d:1,h:0,m:0},res:[3,2,3],text:'342 - 19',answer:323}, attendu:2}
+    ].forEach(function(c){
+      test.kind='asp'; test.idx=0; test.questions=[c.q];
+      show('asptest'); renderASPTest();
+      const n=document.querySelectorAll('#aspHost .mp-carry, #aspHost .asp-ret').length;
+      if(n!==c.attendu) cases.push(c.nom+' : '+n+' case(s) au lieu de '+c.attendu);
+      const plusVides=[].slice.call(document.querySelectorAll('#aspHost .asp-plus')).length;
+      if(!c.q.plus && plusVides!==1) cases.push(c.nom+' : '+plusVides+' signe(s) « + » au lieu de 1');
+    });
+    if(cases.length) vus0.push('cases inutiles — '+cases.join(' ; '));
+
     test.questions=vraiesQ; test.idx=vraiIdx; test.kind=vraiKind;
 
     const vus=[];
@@ -1816,6 +1839,7 @@ function premiere(w){
     if(faux)       vus.push(faux+' réponse(s) fausse(s)');
     if(sansRetenue) vus.push(sansRetenue+' calcul(s) SANS retenue');
     if(desequilibres) vus.push(desequilibres+' séance(s) sans 5 additions sur 10');
+    if(ordre) vus.push(ordre+' calcul(s) hors de l\\'alternance addition/soustraction');
     if(plus!==moins)  vus.push('au total '+plus+' additions pour '+moins+' soustractions');
     return vus.join(' | ');
   })()`, v => v === '', undefined);

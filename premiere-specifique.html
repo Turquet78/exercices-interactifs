@@ -1429,7 +1429,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=119;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=120;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2996,11 +2996,13 @@ function genAddSub(plus){
            res: ch(r),                        /* les chiffres du résultat, sans zéro inutile */
            text:a+(plus?' + ':' \u2212 ')+b, answer:r };
 }
+/* On ALTERNE : addition, soustraction, addition… en commençant par une
+   addition. Le tirage était auparavant mélangé — équilibré sur la séance, mais
+   l'ordre restait imprévisible. Alterner rend la séance lisible : l'élève sait
+   ce qui vient, et passe d'une technique à l'autre à chaque calcul. */
 function tirageAddSub(n){
   const nb=Math.max(1, parseInt(n,10)||10);
-  const signes=Array.from({length:nb},(_,i)=>i<Math.ceil(nb/2));
-  for(let i=signes.length-1;i>0;i--){ const j=rand(0,i); const t=signes[i]; signes[i]=signes[j]; signes[j]=t; }
-  return signes.map(genAddSub);
+  return Array.from({length:nb},(_,i)=>genAddSub(i%2===0));
 }
 async function startAddSub(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
@@ -3500,10 +3502,14 @@ function renderASPTest(){
   let rowRet='', rowA, rowB;
   if(q.plus){
     /* ADDITION : la retenue entre dans la colonne, on l'écrit AU-DESSUS. */
+    /* Une case seulement là où il Y A une retenue : une case vide à remplir de
+       rien n'apprend rien, et l'élève finissait par se demander ce qu'on lui
+       demandait (décision de Turquet, août 2026). Le tirage garantit qu'il en
+       reste toujours au moins une. */
     const ret=[];
-    if(nCols===4) ret.push(inp('mp-carry',q.ret.m,nRes+3));
-    ret.push(inp('mp-carry',q.ret.h,nRes+2));
-    ret.push(inp('mp-carry',q.ret.d,nRes+1));
+    if(nCols===4) ret.push(q.ret.m?inp('mp-carry',q.ret.m,nRes+3):'');
+    ret.push(q.ret.h?inp('mp-carry',q.ret.h,nRes+2):'');
+    ret.push(q.ret.d?inp('mp-carry',q.ret.d,nRes+1):'');
     ret.push('');                                /* colonne des unités : rien */
     rowRet='<div class="mp-row"><div class="mp-cl op"></div>'+ret.map(x=>cell(x)).join('')+'</div>';
     rowA=rangee('', [dig(q.ha),dig(q.da),dig(q.ua)]);
@@ -3517,9 +3523,13 @@ function renderASPTest(){
        Les cases sont proposées sur les deux colonnes possibles, et non sur les
        seules qui portent une retenue : leur présence dirait sinon à l'élève où
        elle tombe. Elles restent facultatives. */
-    rowA=rangee('', [dig(q.ha), dig(q.da)+pet(q.ret.h,nRes+2), dig(q.ua)+pet(q.ret.d,nRes+1)]);
+    /* Là encore : rien à écrire, donc pas de case. Chaque retenue reste posée
+       à SES deux places — devant le chiffre du haut, et en « +1 » devant le
+       chiffre du bas de la colonne suivante. */
+    const m=(v,tab,plus)=>v?pet(v,tab,plus):'';
+    rowA=rangee('', [dig(q.ha), dig(q.da)+m(q.ret.h,nRes+2), dig(q.ua)+m(q.ret.d,nRes+1)]);
     rowB=rangee('<span class="mp-sign">\u2212</span>',
-                [pet(q.ret.h,nRes+4,true), dig(q.db)+pet(q.ret.d,nRes+3,true), dig(q.ub)]);
+                [m(q.ret.h,nRes+4,true), dig(q.db)+m(q.ret.d,nRes+3,true), dig(q.ub)]);
   }
   const rowLine='<div class="mp-lrow"><div class="mp-cl op"></div><div class="mp-line" style="width:calc(var(--asp-col) * '+nCols+')"></div></div>';
   /* Les cases du résultat : autant que de chiffres, pas plus. Une case en trop
