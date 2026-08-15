@@ -643,11 +643,16 @@ async function parcours(page, N){
            du nombre du haut : c'est la définition d'une opération posée. */
         const der = r => { const k = [...r.children]; return k[k.length - 1].getBoundingClientRect(); };
         const uHaut = der(rangees[1]), uRes = der(rangees[rangees.length - 1]);
-        return { absent:false, rangees: rangees.length, decales,
+        /* Une ADDITION a quatre rangées — retenues, deux nombres, résultat ;
+           une SOUSTRACTION n'en a que trois : ses retenues ne sont pas sur une
+           rangée à part, elles s'écrivent devant les chiffres. Exiger 4 partout
+           faisait rougir le banc sur une soustraction parfaitement dessinée. */
+        const q = test.questions[test.idx];
+        return { absent:false, rangees: rangees.length, attendu: q.plus ? 4 : 3, decales,
                  ecartUnites: Math.round(Math.abs((uHaut.left+uHaut.width/2) - (uRes.left+uRes.width/2))) };
       }, P.operationPosee.hote);
-      verifier('l\'opération posée est bien dessinée', !vu.absent && vu.rangees >= 4,
-        vu.absent ? 'aucune grille trouvée' : vu.rangees + ' rangée(s)');
+      verifier('l\'opération posée est bien dessinée', !vu.absent && vu.rangees === vu.attendu,
+        vu.absent ? 'aucune grille trouvée' : vu.rangees + ' rangée(s) au lieu de ' + vu.attendu);
       verifier('toutes les rangées ont les mêmes colonnes', !vu.absent && vu.decales === 0,
         vu.decales + ' rangée(s) décalée(s) — le signe et les colonnes ne tombent plus en face');
       verifier('la case des unités tombe sous le chiffre des unités',

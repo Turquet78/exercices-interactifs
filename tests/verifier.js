@@ -1744,7 +1744,7 @@ function premiere(w){
        défaut qu'a eu la première version. On vérifie sur les quatre formes :
        addition, soustraction, addition qui déborde à quatre chiffres, et
        soustraction dont le résultat n'a qu'un chiffre. */
-    let grille=[];
+    let grille=[], vus0=[];
     const vraiesQ=test.questions, vraiIdx=test.idx, vraiKind=test.kind;
     [[true,347,58],[false,432,87],[true,978,45],[false,102,97]].forEach(function(c){
       const plus=c[0], a=c[1], b=c[2];
@@ -1763,11 +1763,55 @@ function premiere(w){
       const cases=document.querySelectorAll('#aspHost .mp-box').length;
       if(cases!==String(r).length) grille.push(a+(plus?'+':'-')+b+' : '+cases+' case(s) pour '+String(r).length+' chiffre(s)');
     });
+    /* La retenue de la SOUSTRACTION s'écrit DEUX fois — le petit 1 devant le
+       chiffre du haut, et le même en « +1 » devant le chiffre du bas de la
+       colonne SUIVANTE. C'est le geste du cahier, et c'est ce qui manquait :
+       la première version ne posait qu'une case, au-dessus de la colonne,
+       c'est-à-dire à l'endroit de l'ADDITION — indéchiffrable pour un élève.
+       On vérifie donc que chaque retenue est présente aux deux endroits, avec
+       la même valeur attendue, et décalée d'exactement une colonne. */
+    let deux=[];
+    test.kind='asp'; test.idx=0;
+    test.questions=[{plus:false,a:432,b:87,ua:2,da:3,ha:4,ub:7,db:8,
+                     ret:{d:1,h:1,m:0},res:[3,4,5],text:'432 - 87',answer:345}];
+    show('asptest'); renderASPTest();
+    (function(){
+      const rangees=[].slice.call(document.querySelectorAll('#aspHost .mp-row'));
+      if(rangees.length<3){ deux.push('grille incomplète'); return; }
+      const marques=function(r){ return [].slice.call(r.children).map(function(c){
+        const i=c.querySelector('.asp-ret');
+        return i ? {exp:i.dataset.exp, plus:!!c.querySelector('.asp-plus')} : null; }); };
+      const haut=marques(rangees[0]), bas=marques(rangees[1]);
+      if(document.querySelectorAll('#aspHost .mp-carry').length)
+        deux.push('la soustraction porte encore une rangée de retenues au-dessus');
+      haut.forEach(function(m,i){
+        if(!m) return;
+        if(m.plus) deux.push('la marque du HAUT porte un « + »');
+        const v=bas[i-1];                       /* une colonne à gauche */
+        if(!v) deux.push('la retenue de la colonne '+i+' ne redescend pas sur le nombre du bas');
+        else{
+          if(!v.plus) deux.push('la marque du BAS n\\'affiche pas « + »');
+          if(v.exp!==m.exp) deux.push('haut='+m.exp+' mais bas='+v.exp+' : ce n\\'est pas la même retenue');
+        }
+      });
+      if(!haut.filter(Boolean).length) deux.push('aucune marque sur le nombre du haut');
+      /* et l'addition, elle, garde sa rangée au-dessus */
+      test.questions=[{plus:true,a:347,b:58,ua:7,da:4,ha:3,ub:8,db:5,
+                       ret:{d:1,h:1,m:0},res:[4,0,5],text:'347 + 58',answer:405}];
+      renderASPTest();
+      if(!document.querySelectorAll('#aspHost .mp-carry').length)
+        deux.push('l\\'addition a perdu sa rangée de retenues');
+      if(document.querySelectorAll('#aspHost .asp-ret').length)
+        deux.push('l\\'addition porte les marques de la soustraction');
+    })();
+    if(deux.length) vus0.push('retenue de soustraction — '+deux.join(' ; '));
+
     test.questions=vraiesQ; test.idx=vraiIdx; test.kind=vraiKind;
 
     const vus=[];
     if(posee) vus.push(posee+' incohérence(s) entre les colonnes et le résultat');
     if(grille.length) vus.push('grille de travers — '+grille.join(' ; '));
+    vus0.forEach(function(x){ vus.push(x); });
     if(horsFormat) vus.push(horsFormat+' calcul(s) hors du format 3 chiffres ± 2 chiffres');
     if(faux)       vus.push(faux+' réponse(s) fausse(s)');
     if(sansRetenue) vus.push(sansRetenue+' calcul(s) SANS retenue');
