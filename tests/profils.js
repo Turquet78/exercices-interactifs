@@ -165,7 +165,10 @@ module.exports = {
        exercice tant que les précédents ne sont pas faits. Seule la Première a
        cet éditeur de devoirs : les deux autres niveaux construisent les leurs
        autrement, et n'ont pas ces exercices. */
-    devoirPassages: { exercice: 'tables-multiplication', suivant: 'tables-multiplication-2' },
+    /* L'éditeur de devoirs, et deux exercices pour l'éprouver. « exercice » doit
+       être un exercice SANS mode soutien (les tables sont un exercice de
+       rapidité) : le contrôle du mode inexistant s'en sert aussi. */
+    devoirs: { exercice: 'tables-multiplication', suivant: 'tables-multiplication-2' },
     specifique: 'premiere',
     lacunes: [],
   },
