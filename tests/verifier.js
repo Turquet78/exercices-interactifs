@@ -1505,19 +1505,19 @@ function fiabilite(w, suite){
   });
 }
 
-/* ---------- 4 ter. Abandonner sort l'exercice de la pause ------------------
+/* ---------- 4 ter. Ce qu'un abandon efface, et ce qu'il laisse -------------
    Un brouillon de pause désigne QUATRE choses : l'exercice, le mode, le devoir
    et — en Première — le passage. Trois endroits en avaient chacun leur idée, et
-   l'effacement était le plus étroit des trois : il ne regardait que l'exercice
-   et le mode, jamais le devoir.
-   L'élève mettait l'entraînement en pause, revenait faire le soutien,
-   l'abandonnait — et retrouvait « Reprendre l'entraînement » sur l'écran même
-   où il venait d'abandonner. En Terminale c'était le plus visible : l'abandon
-   RAMÈNE à cet écran-là.
-   Le contraire se contrôle ici aussi : élargir l'effacement à l'autre mode ne
-   doit déborder ni sur un DEVOIR, ni sur un autre exercice, ni sur une fin de
-   test ordinaire — terminer le soutien n'efface pas le travail que l'élève a
-   mis en pause dans l'entraînement.
+   l'effacement était le plus large des trois : il ne regardait ni le devoir ni
+   le passage.
+   LA RÈGLE, décidée par Turquet : abandonner efface la pause de SON mode et de
+   lui seul. L'entraînement et le soutien sont deux travaux distincts, que
+   l'écran des modes montre côte à côte — abandonner l'un ne jette pas l'autre.
+   Ce contrôle tient les deux bords à la fois, parce que chacun a son défaut :
+   trop étroit, l'exercice reste « en pause » dans le mode qu'on vient
+   d'abandonner ; trop large, un seul abandon emporte le travail en cours des
+   autres passages, des autres devoirs et du travail libre — c'était le cas, et
+   sans le moindre message.
    Ce contrôle vient EN DERNIER et rend la main lui-même : son scénario est une
    suite d'attentes, et le verdict du banc partait avant lui.
    Le double de la base est chargé pour de bon — un talon qui répond « pas
@@ -1550,13 +1550,16 @@ function abandonSortDePause(w, apres){
       ${SEMER} ${POSER} currentMode='soutien';
       await abandonTest();
       bilan.abandon=${RESTANT};
-      /* 1 bis. et l'écran où l'élève retombe n'en propose plus AUCUN.
-         C'est le contrôle qui compte vraiment : effacer les bonnes lignes ne
-         sert à rien si le menu, lui, en montre d'autres. Le menu libre montrait
-         les brouillons nés dans un DEVOIR — il proposait donc de reprendre un
-         travail que l'abandon venait de laisser en place, à dessein. */
+      /* 1 bis. et l'écran où l'élève retombe le dit. C'est le contrôle qui
+         compte vraiment : effacer la bonne ligne ne sert à rien si le menu, lui,
+         en montre une autre. Le menu libre montrait les brouillons nés dans un
+         DEVOIR — il proposait donc de reprendre un travail que l'abandon laisse
+         en place à dessein. La carte du mode abandonné doit disparaître, celle
+         de l'AUTRE mode doit rester. */
       await openTest('${exo}');
-      bilan.menu=(document.getElementById('modeChoices').innerHTML.indexOf('Reprendre')>=0)?'propose encore':'propre';
+      const vu=document.getElementById('modeChoices').innerHTML;
+      bilan.menu=(vu.indexOf('Reprendre le soutien')>=0?'soutien':'')
+                +(vu.indexOf('Reprendre l\u2019entraînement')>=0?'+entraînement':'');
       /* 2. abandon DANS le devoir : les brouillons libres ne bougent pas */
       ${SEMER} ${POSER} currentMode='train'; currentDM='devoir-1';
       await clearRecovery(true);
@@ -1577,12 +1580,12 @@ function abandonSortDePause(w, apres){
   })()`, r => {
     const b = r.ok ? (r.valeur || {}) : {};
     const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
-    verifier('abandonner sort l’exercice de la pause, dans les deux modes',
-      r.ok && b.abandon === 'L3,L4',
-      souci || 'brouillons restants : ' + b.abandon + ' — attendu L3,L4, le devoir et l’autre exercice');
-    verifier('et l’écran où l’élève retombe ne propose plus de reprendre',
-      r.ok && b.menu === 'propre',
-      souci || 'le menu de l’exercice ' + b.menu + ' « Reprendre » après l’abandon');
+    verifier('abandonner efface la pause de son mode',
+      r.ok && b.abandon === 'L1,L3,L4',
+      souci || 'brouillons restants : ' + b.abandon + ' — attendu L1,L3,L4 : le soutien abandonné part, l’entraînement reste');
+    verifier('et l’écran ne propose plus de reprendre CE mode-là, mais toujours l’autre',
+      r.ok && b.menu === '+entraînement',
+      souci || 'cartes de reprise au menu : « ' + b.menu + ' » — attendu l’entraînement seul');
     verifier('abandonner n’efface pas le travail mis en pause ailleurs',
       r.ok && b.devoir === 'L1,L2,L4',
       souci || 'brouillons restants : ' + b.devoir + ' — attendu L1,L2,L4 : abandonner dans un devoir ne touche pas au travail libre');

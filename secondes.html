@@ -1348,7 +1348,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=38;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=39;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2395,33 +2395,37 @@ function autoSave(){
 }
 // supprime le brouillon de reprise quand le test est terminé
 /* CE QU'UN BROUILLON DE PAUSE DÉSIGNE : trois choses, pas une — l'exercice, le
-   mode et le devoir. Trois endroits en avaient chacun leur idée. L'écran des
-   modes en montre DEUX, un par mode ; l'écran d'un devoir n'en montre qu'un,
-   celui de ce devoir ; et clearRecovery() n'en effaçait qu'un, sans jamais
-   regarder le devoir. D'où deux défauts, tous deux reproduits avant d'être
-   corrigés :
-     · abandonner en soutien laissait « Reprendre l'entraînement » sous les yeux
-       de l'élève, sur l'exercice qu'il venait justement d'abandonner ;
-     · abandonner effaçait aussi le travail mis en pause dans un devoir, ou hors
-       devoir.
-   Une seule fonction en décide maintenant, et l'effacement suit ce que l'écran
-   montre. La Première a la même, avec un quatrième critère : le passage. */
+   mode et le devoir. Trois endroits en avaient chacun leur idée.
+   L'écran des modes en montre deux, un par mode, et ne regardait pas le
+   devoir ; l'écran d'un devoir n'en montre qu'un, celui de ce devoir ; et l'effacement ne regardait ni l'un ni l'autre. D'où deux défauts,
+   reproduits l'un et l'autre avant d'être corrigés :
+     · un seul abandon effaçait la pause de les autres devoirs et celle du
+       travail libre — du travail en cours perdu, sans
+       le moindre message ;
+     · et le menu libre proposait de reprendre un brouillon né dans un devoir,
+       si bien qu'y « reprendre » relançait en douce une tentative de devoir.
+   Une seule fonction en décide maintenant, et les trois écrans la partagent :
+   ce que l'écran montre et ce que l'effacement retire sont la même chose. La
+   Première a la même, avec un quatrième critère : le passage.
+   LE MODE, LUI, N'EST JAMAIS ÉLARGI. L'entraînement et le soutien sont deux
+   travaux distincts, que l'écran des modes montre côte à côte : abandonner
+   l'entraînement laisse le soutien en pause, et réciproquement. « mode » n'est
+   laissé libre que par les écrans, qui affichent les deux cartes. */
 function memeBrouillon(d, cible){
   if(!d || Array.isArray(d) || d.state!=='paused') return false;
   if(d.test!==cible.test) return false;
   if(cible.mode && d.mode!==cible.mode) return false;        /* mode null : les deux modes */
   return (d.dm||null)===(cible.dm||null);                    /* un devoir n'efface pas le travail libre */
 }
-/* Supprime le brouillon de reprise quand le test est terminé.
-   « tousModes » est réservé à l'ABANDON : abandonner, c'est laisser tomber
-   l'EXERCICE, pas la tentative en cours. Terminer un exercice, au contraire, ne
-   doit pas effacer le travail que l'élève a mis en pause dans l'autre mode.
-   Rend vrai si la base a bien tout effacé — abandonTest() en a besoin pour ne
+/* Supprime le brouillon de reprise quand le test est terminé — ou abandonné.
+   L'effacement porte sur LE MODE COURANT et sur lui seul : abandonner
+   l'entraînement ne touche pas au soutien mis en pause, et réciproquement.
+   Rend vrai si la base a bien tout effacé : abandonTest() en a besoin pour ne
    pas annoncer un abandon qui n'a pas eu lieu. */
-async function clearRecovery(tousModes){
+async function clearRecovery(){
   recoveryClosed=true; recoveryDirty=false;
   const id=recoveryRowId, eid=currentEleve&&currentEleve.id;
-  const cible={test:currentTestId, mode:tousModes?null:currentMode, dm:currentDM};
+  const cible={test:currentTestId, mode:currentMode, dm:currentDM};
   recoveryRowId=null;
   let ok=true;
   try{
@@ -2516,11 +2520,11 @@ async function abandonTest(){
   let noted=false, efface=null;
   try{
     noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
-    /* Abandonner sort aussi l'exercice de la pause, DANS LES DEUX MODES : l'élève
-       qui abandonne laisse tomber l'EXERCICE, pas seulement la tentative en
-       cours. Sans cela il retrouvait « Reprendre l'entraînement » sur l'écran
-       même où il venait d'abandonner le soutien. */
-    if(noted!==false) efface = await clearRecovery(true);   // note perdue ? on garde le brouillon, l'élève pourra reprendre
+    /* Abandonner efface la pause de CE mode, et de lui seul : l'entraînement et
+       le soutien sont deux travaux distincts, que l'écran des modes montre côte
+       à côte. Abandonner l'un ne jette pas l'autre.
+       */
+    if(noted!==false) efface = await clearRecovery();   // note perdue ? on garde le brouillon, l'élève pourra reprendre
   }catch(e){}
   /* On ne l'assure pas d'un abandon qui n'a pas eu lieu. Deux façons d'échouer,
      et chacune laisse l'exercice EN PAUSE : la note n'est pas partie (on garde

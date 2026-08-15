@@ -228,24 +228,27 @@ ce filtre. Deux pannes sont nées exactement de là.
 
 **Un brouillon de pause désigne quatre choses, pas une.** L'exercice, le mode,
 le devoir, et — en Première — le passage. Trois endroits en avaient chacun leur
-idée : l'écran des modes en montrait deux, un par mode, et *sans* regarder le
-devoir ; l'écran d'un devoir n'en montrait qu'un, celui de ce devoir et de ce
-passage ; et l'effacement n'en effaçait qu'un, l'exercice et le mode, sans
-regarder le devoir non plus. Trois définitions pour une seule notion, donc deux
-défauts opposés à la fois. L'élève mettait l'entraînement en pause, revenait
-faire le soutien, l'abandonnait — et retrouvait « Reprendre l'entraînement » sur
-l'écran même où il venait d'abandonner (en Terminale, l'abandon *ramène* à cet
-écran). Et à l'inverse, un seul abandon effaçait la pause de tous les autres
-passages, des autres devoirs et du travail libre : du travail en cours perdu
-sans un mot. `memeBrouillon()` en décide maintenant seule, et les trois écrans
-la partagent — **ce que l'écran montre et ce que l'abandon efface doivent être
-la même chose**, sans quoi corriger un seul des deux côtés ne corrige rien.
-Abandonner efface les deux modes (`clearRecovery(true)`) parce qu'abandonner,
-c'est laisser tomber l'EXERCICE ; terminer un exercice n'efface que le mode
-courant, sinon finir le soutien détruirait l'entraînement mis en pause. Les
-tables ont leur propre fin, `tmFinir(abandon)`, qui passe le drapeau. Et
-l'abandon **dit la vérité** : si la base refuse, l'exercice est toujours en
-pause, et l'élève l'apprend au lieu de lire « abandonné ✓ ». Cinq contrôles.
+idée : l'écran des modes en montre deux, un par mode, mais ne regardait pas le
+devoir ; l'écran d'un devoir n'en montre qu'un, celui de ce devoir et de ce
+passage ; et l'effacement ne regardait ni le devoir ni le passage. Un seul
+abandon emportait donc la pause de tous les autres passages, des autres devoirs
+et du travail libre — du travail en cours perdu, sans le moindre message ; et le
+menu libre proposait de reprendre un brouillon né dans un devoir, si bien qu'y
+« reprendre » relançait en douce une tentative de devoir. `memeBrouillon()` en
+décide maintenant seule, et les trois écrans la partagent — **ce que l'écran
+montre et ce que l'effacement retire doivent être la même chose**, sans quoi
+corriger un seul des deux côtés ne corrige rien.
+
+**Le mode, lui, n'est jamais élargi.** Abandonner efface la pause de SON mode et
+de lui seul : l'entraînement et le soutien sont deux travaux distincts, que
+l'écran des modes montre côte à côte, et abandonner l'un ne jette pas l'autre
+(décision de Turquet, août 2026). Les tables ont leur propre fin, `tmFinir()`,
+qui suit la même règle. Et l'abandon **dit la vérité** : si la base refuse
+d'effacer, l'exercice est toujours en pause, et l'élève l'apprend au lieu de
+lire « abandonné ✓ » puis de retrouver sa pause intacte. Le contrôle tient les
+deux bords, parce que chacun a son défaut : trop étroit, l'exercice reste en
+pause dans le mode qu'on vient d'abandonner ; trop large, il emporte le travail
+d'à côté.
 
 **Cinq oublis silencieux en ajoutant un exercice.** Cinq des quinze
 branchements n'étaient contrôlés par rien. Aucun ne casse quoi que ce soit : ils
