@@ -163,6 +163,82 @@ modification professeur, suppression professeur.
 > du professeur. Il éprouve aussi la fuite : rendre les signalements lisibles
 > par toute la classe **doit** le faire rougir.
 
+## 3 quater. La pause de l'élève (1 min)
+
+Collez **`migrations/004_pause_de_l_eleve.sql`** dans l'éditeur SQL et
+exécutez-le.
+
+**À jouer AVANT de mettre en ligne la version qui porte la relecture.** Sans
+cette étape, l'élève qui abandonne un exercice verra désormais un message rouge
+« Abandon non enregistré — l'exercice reste en pause » : il dira la vérité, mais
+l'abandon ne marchera toujours pas.
+
+### Ce qui n'allait pas
+
+La mise en pause fait **trois** gestes dans la table des résultats : insérer la
+ligne « en pause », la faire avancer à chaque réponse, puis la supprimer quand
+le test se termine ou que l'élève abandonne. La migration 001 n'avait donné que
+le premier — il n'existait ni politique d'`update` ni politique de `delete` pour
+l'élève, seulement pour le professeur.
+
+Et les deux gestes manquants étaient refusés **sans erreur** : sous RLS, une
+ligne qu'on n'a pas le droit de toucher est une ligne qui n'existe pas.
+PostgREST répond « 0 ligne », ce qui n'est pas un refus. D'où trois
+conséquences, toutes silencieuses et toutes en production :
+
+- le brouillon n'avançait jamais : « tu t'es arrêté à la question 2 » restait
+  figé sur la première réponse enregistrée ;
+- il n'était **jamais** supprimé, ni à la fin d'un test ni à l'abandon.
+  L'exercice restait donc proposé « à reprendre » indéfiniment, pendant que la
+  page annonçait « Exercice abandonné ✓ » ;
+- chaque tentative laissait une ligne fantôme de plus dans la table.
+
+### Ce que la migration n'accorde pas
+
+Le droit est volontairement étroit : il ne porte que sur les lignes dont
+`details->>'state'` vaut `paused`, et seulement celles de l'élève lui-même.
+
+- une **note obtenue reste intouchable** : un élève ne peut ni l'effacer ni se
+  relever un score ;
+- le `with check` de l'`update` interdit de transformer un brouillon en note ;
+- le travail d'un camarade reste hors de portée.
+
+Pour vérifier :
+
+```sql
+select tablename, policyname, cmd from pg_policies
+where schemaname='public' and tablename like 'resultats%'
+order by tablename, cmd, policyname;
+```
+
+→ **cinq politiques par table** : écriture élève, lecture élève+professeur,
+modification de la pause par l'élève, suppression de la pause par l'élève,
+suppression professeur.
+
+### Le ménage des lignes fantômes
+
+Les brouillons accumulés depuis des mois sont toujours là. Une fois la migration
+jouée, chaque élève nettoie les siens en reprenant puis en terminant ou en
+abandonnant ses exercices — mais on peut aussi les retirer d'un coup, en tant
+que professeur, dans l'éditeur SQL :
+
+```sql
+-- à lire d'abord : combien, et pour qui
+select count(*) from public.resultats_1ere where details->>'state' = 'paused';
+-- puis, si le compte paraît juste
+delete from public.resultats_1ere where details->>'state' = 'paused';
+```
+
+Cela n'efface **aucune note** : une note n'a pas de champ `state`. En revanche
+cela fait perdre les pauses réellement en cours — à faire donc en dehors des
+heures où les élèves travaillent. Les trois tables sont `resultats`,
+`resultats_1ere` et `resultats_2nde`.
+
+> `npm run test:base` joue la migration sur un PostgreSQL jetable et met le banc
+> dans la peau d'Alice : sa pause doit avancer et s'effacer, sa note doit rester
+> intouchable, et le travail de Bob hors d'atteinte. Retirer la politique de
+> suppression **doit** le faire rougir.
+
 ---
 
 ## 4. Vous déclarer professeur (1 min)

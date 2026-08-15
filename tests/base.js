@@ -230,6 +230,25 @@ const r4 = psql('banc', ['-f', MIG3], true);
 bilan('rejouer 003 ne fait plus rien', !r4.erreur, r4.erreur);
 
 /* ---------------------------------------------------------------------------
+   1 quater. La migration 004 — la pause de l'élève
+   -------------------------------------------------------------------------
+   La 001 n'avait donné à l'élève que le droit d'INSÉRER dans la table des
+   résultats. Or la mise en pause y fait trois gestes : insérer la ligne, la
+   faire avancer à chaque réponse, puis la supprimer à la fin du test ou à
+   l'abandon. Les deux derniers étaient refusés — et refusés SANS ERREUR, parce
+   qu'une ligne que RLS cache est une ligne qui n'existe pas : PostgREST répond
+   « 0 ligne », pas « refusé ». La page croyait donc avoir effacé.
+   Le contrôle des rôles, plus bas, exerce les deux bords : la pause doit
+   avancer et s'effacer, et une note obtenue doit rester intouchable. */
+const MIG4 = path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql');
+const s4 = psql('banc', ['-f', MIG4]);
+bilan('004 ouvre la pause sur les trois tables de résultats',
+  (s4.match(/avance et s'efface/g) || []).length === 3,
+  (s4.match(/avance et s'efface/g) || []).length + ' table(s) sur 3');
+const r5 = psql('banc', ['-f', MIG4], true);
+bilan('rejouer 004 ne fait plus rien', !r5.erreur, r5.erreur);
+
+/* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
    ------------------------------------------------------------------------- */
 console.log('\n2. CE QUE CHAQUE RÔLE OBTIENT DE LA BASE');
@@ -289,6 +308,7 @@ MUTATIONS.forEach(([nom, sqls], i) => {
   psql(bd, ['-f', MIG]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql')]);
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
   bilan('détectée : ' + nom, !!r.erreur, r.erreur ? '' : 'le banc est resté vert alors que la base est ouverte');

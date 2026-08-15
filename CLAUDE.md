@@ -84,6 +84,22 @@ Supabase est dérivée de la colonne `cle`, indépendante du type.
 `tests/base-avant.sql` reproduit la structure **relevée sur le projet**, pas
 supposée : c'est une reconstitution de mémoire qui a laissé passer ce défaut.
 
+**Une suppression que RLS refuse n'est pas une erreur.** C'est le piège le plus
+coûteux du projet : une ligne qu'on n'a pas le droit de toucher est une ligne
+qui n'existe pas, et PostgREST répond « 0 ligne » — pas « refusé ». La migration
+001 n'avait donné à l'élève que le droit d'INSÉRER dans la table des résultats,
+alors que la mise en pause y fait trois gestes : insérer, faire avancer, effacer.
+Les deux derniers étaient donc refusés en silence. Le brouillon n'avançait
+jamais, il n'était jamais supprimé — ni à la fin d'un test ni à l'abandon —,
+l'exercice restait proposé « à reprendre » indéfiniment pendant que la page
+annonçait « Exercice abandonné ✓ », et chaque tentative laissait une ligne
+fantôme de plus. Aucun banc ne pouvait le voir : `npm test` remplace Supabase
+par un double sans règles d'accès, et `npm run test:base` n'exigeait que des
+REFUS — jamais qu'un geste normal de l'application marche. `004` ouvre le droit,
+étroitement (`state='paused'` et sa propre ligne : une note reste intouchable),
+le banc de la base exerce désormais les deux bords, et `clearRecovery()` relit
+la base après avoir effacé pour que le prochain refus muet se voie tout de suite.
+
 **Une politique RLS grande ouverte annule toutes les autres.** PostgreSQL
 combine les politiques permissives par un OU : une seule
 `for all … using (true)` suffit à rendre inutiles les trente qui l'entourent.

@@ -1555,6 +1555,21 @@ function abandonSortDePause(w, apres){
       window.__faux.panne=false;
       bilan.panne=${RESTANT};
       bilan.ditsPanne=dits.join(' | ');
+      /* 5. ET LE CAS QUI A VRAIMENT COÛTÉ. La base refuse la suppression SANS
+         le dire — c'est ce que fait RLS : une ligne qu'on n'a pas le droit de
+         toucher est une ligne qui n'existe pas, et PostgREST répond « 0 ligne
+         effacée », pas « refusé ». Les élèves n'avaient aucune politique de
+         suppression sur leurs résultats : la page a donc annoncé « Exercice
+         abandonné ✓ » des mois durant, et l'exercice restait proposé « à
+         reprendre ». Aucune erreur nulle part, donc aucun contrôle ne bougeait.
+         La migration 004 ouvre le droit ; ceci vérifie que le PROCHAIN refus
+         muet, quel qu'il soit, se verra tout de suite. */
+      ${SEMER} ${POSER} currentMode='soutien';
+      dits.length=0; window.__faux.refusMuet=true;
+      await abandonTest();
+      window.__faux.refusMuet=false;
+      bilan.muet=${RESTANT};
+      bilan.ditsMuet=dits.join(' | ');
     } finally { toast=vraiToast; window.__faux.panne=false; }
     return bilan;
   })()`, r => {
@@ -1578,6 +1593,9 @@ function abandonSortDePause(w, apres){
     verifier('terminer un exercice laisse la pause de l’autre mode',
       r.ok && b.finNormale === 'L1,L3,L4',
       souci || 'brouillons restants : ' + b.finNormale + ' — attendu L1,L3,L4 : finir le soutien n’efface pas l’entraînement en pause');
+    verifier('un refus MUET de la base est vu quand même',
+      r.ok && b.muet === 'L1,L2,L3,L4' && /err:/.test(String(b.ditsMuet || '')) && /pause/i.test(String(b.ditsMuet || '')),
+      souci || 'restants : ' + b.muet + ' — l’élève a lu « ' + b.ditsMuet + ' » ; sous RLS la suppression ne rend aucune erreur');
     verifier('un abandon que la base refuse n’est pas annoncé comme réussi',
       r.ok && b.panne === 'L1,L2,L3,L4' && /err:/.test(String(b.ditsPanne || '')) && /pause/i.test(String(b.ditsPanne || '')),
       souci || 'restants : ' + b.panne + ' — l’élève a lu « ' + b.ditsPanne + ' »');

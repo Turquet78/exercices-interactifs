@@ -13,6 +13,15 @@
    comme le ferait une coupure réseau ou un refus de la base — c'est ainsi qu'on
    vérifie que l'application le dit à l'élève au lieu de l'assurer du contraire.
 
+   Poser window.__faux.refusMuet = true imite tout autre chose, et de bien pire :
+   une SUPPRESSION QUE LA BASE REFUSE SANS LE DIRE. Sous RLS, une ligne qu'on n'a
+   pas le droit de toucher est une ligne qui n'existe pas : PostgREST répond
+   « 0 ligne effacée », ce qui n'est pas une erreur. Les élèves n'avaient aucune
+   politique de suppression sur leurs résultats, et la page a donc annoncé des
+   mois durant « Exercice abandonné ✓ » sur des brouillons qui restaient en base.
+   Le double sait maintenant jouer ce silence, sans quoi aucun contrôle ne
+   pourrait le reproduire — « panne » rend une erreur, ce que RLS ne fait jamais.
+
    Le texte de ce fichier est envoyé tel quel au navigateur : il doit rester du
    JavaScript autonome, sans require ni export.
    ========================================================================== */
@@ -20,6 +29,7 @@ window.__faux = {
   tables: {},
   journal: [],
   panne: false,
+  refusMuet: false,
   suivant: 1,
   /* Les comptes tiennent le rôle de auth.users : c'est là que vivent les codes
      depuis qu'ils ont quitté la table des élèves. Le double les compare
@@ -92,6 +102,10 @@ window.supabase = {
           return { data: touchees, error: null };
         }
         if(op === 'delete'){
+          if(F.refusMuet){                             /* RLS : rien n'est effacé, rien n'est dit */
+            F.journal.push({ op: 'delete', table: nom, n: 0, refusMuet: true });
+            return { data: null, error: null };
+          }
           const gardees = lignes.filter(l => !correspond(l));
           F.journal.push({ op: 'delete', table: nom, n: lignes.length - gardees.length });
           F.tables[nom] = gardees;
