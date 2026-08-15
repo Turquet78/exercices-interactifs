@@ -610,6 +610,51 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 ter. une opération posée est-elle vraiment alignée ? =====
+       La grille est en flexbox à cellules de largeur fixe : une rangée qui n'a
+       pas le même nombre de cellules que les autres décale le signe et les
+       colonnes. Le contrôle structurel compte les cellules ; lui seul mesure
+       les POSITIONS réelles, c'est-à-dire ce que l'élève voit. */
+    titre('6 ter. L\'OPÉRATION POSÉE EST ALIGNÉE');
+    if(!P.operationPosee){
+      ignorer('les colonnes de l\'opération posée s\'alignent',
+        'ce niveau n\'a pas d\'addition-soustraction posée');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.operationPosee.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const vu = await s.page.evaluate(hote => {
+        const h = document.getElementById(hote);
+        if(!h) return { absent: true };
+        const rangees = [...h.querySelectorAll('.mp-row')];
+        /* Le centre de chaque cellule, rangée par rangée : deux rangées bien
+           posées ont EXACTEMENT les mêmes centres de colonnes. */
+        const centres = rangees.map(r => [...r.children].map(c => {
+          const b = c.getBoundingClientRect();
+          return Math.round(b.left + b.width / 2);
+        }));
+        const ref = centres[0] || [];
+        const decales = centres.filter(c =>
+          c.length !== ref.length || c.some((x, i) => Math.abs(x - ref[i]) > 1)).length;
+        /* La case des unités du résultat doit tomber sous le chiffre des unités
+           du nombre du haut : c'est la définition d'une opération posée. */
+        const der = r => { const k = [...r.children]; return k[k.length - 1].getBoundingClientRect(); };
+        const uHaut = der(rangees[1]), uRes = der(rangees[rangees.length - 1]);
+        return { absent:false, rangees: rangees.length, decales,
+                 ecartUnites: Math.round(Math.abs((uHaut.left+uHaut.width/2) - (uRes.left+uRes.width/2))) };
+      }, P.operationPosee.hote);
+      verifier('l\'opération posée est bien dessinée', !vu.absent && vu.rangees >= 4,
+        vu.absent ? 'aucune grille trouvée' : vu.rangees + ' rangée(s)');
+      verifier('toutes les rangées ont les mêmes colonnes', !vu.absent && vu.decales === 0,
+        vu.decales + ' rangée(s) décalée(s) — le signe et les colonnes ne tombent plus en face');
+      verifier('la case des unités tombe sous le chiffre des unités',
+        !vu.absent && vu.ecartUnites <= 1, 'écart de ' + vu.ecartUnites + ' px');
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là
