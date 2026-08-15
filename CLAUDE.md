@@ -294,6 +294,17 @@ les quatre bords sur les trois fichiers.
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
 
+**Un cadre prend la largeur de son plus large enfant — souvent son énoncé.** Le
+cadre de pose inséré dans les deux exercices de multiplication de décimaux
+(`.pt-outil`) encadre une opération de 144 à 190 px, mais son énoncé tenait sur
+une seule ligne de 700 à 830 px : le cadre suivait, quatre fois plus large que
+ce qu'il contient. Sa largeur est donc bornée (500 px), l'énoncé se replie sur
+deux lignes et le cadre se resserre. Le seuil est MESURÉ, pas choisi : à 490 px
+l'énoncé le plus long repassait à trois lignes, et le repli au mot est trop
+sensible aux métriques de police pour se tenir pile sur la limite. Un contrôle
+du banc navigateur mesure la largeur rendue à 1400 px de fenêtre — aucun banc
+hors navigateur ne sait où un texte se replie.
+
 **La fenêtre des tables de multiplication a deux bords opposés.** Le bouton est
 sur TOUS les écrans d'exercice — y compris le calcul mental et les tables, qui
 n'ont pas d'élément `…Actions` : leur point d'accroche est `.answer-zone`, et

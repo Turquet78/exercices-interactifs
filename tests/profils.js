@@ -186,6 +186,12 @@ module.exports = {
     /* Une opération POSÉE se juge à l'œil : les colonnes doivent s'aligner.
        Aucun banc hors navigateur ne mesure une position à l'écran. */
     operationPosee: { exercice: 'addition-soustraction', hote: 'aspHost' },
+    /* Le cadre de pose inséré dans les deux exercices de multiplication de
+       décimaux : il est dimensionné par son ÉNONCÉ, pas par l'opération. Sans
+       borne, l'énoncé tenait sur une ligne de 700 à 830 px et le cadre suivait,
+       quatre fois plus large que ce qu'il encadre. Seul un navigateur mesure
+       une largeur rendue — elle dépend de la police et du repli au mot. */
+    cadrePose: { exercices: [['mult-decimaux','mdHost'], ['mult-dec-un','uHost']], largeurMax: 520 },
     lacunes: [],
   },
 
@@ -262,6 +268,7 @@ module.exports = {
     missionSansReponses: 'qiaEnvoyer',
     specifique: null,
     lacunes: [
+      "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
     ],
@@ -332,6 +339,7 @@ module.exports = {
     rappels: RAPPELS_TERMINALE,
     specifique: null,
     lacunes: [
+      "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
       "le contexte envoyé au modèle n'est vérifié que pour l'exercice témoin (dexp) : la table kind -> générateur des 23 autres exercices reste à écrire",

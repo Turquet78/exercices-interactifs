@@ -630,7 +630,15 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* La pose en colonnes de 1.5 et 1.6 est un OUTIL au service d'une case
    intermédiaire (le numérateur du produit), pas une étape finale : son cadre
    pointillé la met à part, sa note renvoie vers la case qu'elle remplit. */
-.pt-outil{border:1.5px dashed var(--grid);border-radius:14px;padding:10px 12px 6px;margin-top:4px;background:rgba(0,0,0,.015);}
+/* Le cadre de la pose est dimensionné par son ÉNONCÉ, pas par l'opération :
+   celle-ci ne fait que 144 à 190 px, l'énoncé en faisait 700 à 830 sur une
+   seule ligne, et le cadre suivait — quatre fois plus large que ce qu'il
+   contient. On borne donc sa largeur : l'énoncé se replie sur deux lignes et
+   le cadre se resserre autour de l'opération. 500 px est le seuil mesuré dans
+   un vrai navigateur — à 490 px l'énoncé le plus long repassait à trois
+   lignes, et le repli au mot est trop sensible aux métriques de police pour
+   se tenir pile sur la limite. */
+.pt-outil{border:1.5px dashed var(--grid);border-radius:14px;padding:10px 12px 6px;margin-top:4px;background:rgba(0,0,0,.015);max-width:500px;margin-inline:auto;}
 .pt-pose-note{text-align:center;font-weight:800;color:var(--ink-soft);font-size:.92rem;margin:2px 0 6px;}
 /* Sur écran large, la pose-outil se range à DROITE des étapes, alignée en haut ;
    sur écran étroit elle repasse naturellement dessous. */
@@ -1402,7 +1410,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=117;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=118;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
