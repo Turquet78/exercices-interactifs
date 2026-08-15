@@ -276,6 +276,25 @@ les quatre bords sur les trois fichiers.
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.
 
+**La fenêtre des tables de multiplication a deux bords opposés.** Le bouton est
+sur TOUS les écrans d'exercice — y compris le calcul mental et les tables, qui
+n'ont pas d'élément `…Actions` : leur point d'accroche est `.answer-zone`, et
+sans ce repli le bouton manquait au calcul mental sans que rien ne le dise.
+Ailleurs la fenêtre doit RESTER ouverte à côté de l'exercice — c'est tout
+l'intérêt d'une fenêtre flottante ; sur l'exercice des tables elle devient une
+antisèche, donc elle se referme dès qu'on revient au calcul. Corriger un seul
+des deux côtés ne corrige rien. Elle s'ouvre en haut à droite et non au centre :
+au centre elle recouvrirait l'ardoise et le champ, c'est-à-dire l'endroit exact
+où l'élève doit revenir pour la refermer.
+Deux pièges de banc s'y sont montrés. **jsdom n'implémente pas `PointerEvent`** :
+un essai écrit avec `new PointerEvent` ne lève rien et laisse croire que la
+fermeture ne marche pas — on émet un `Event` ordinaire du bon type, et le vrai
+geste se vérifie dans le banc navigateur. Et **`testScreens` est une constante
+locale à `show()`** : un contrôle qui la lit depuis la page boucle sur une liste
+vide et passe au vert sur un bouton disparu. On la lit dans le SOURCE, comme le
+fait le contrôle de l'énoncé, en refusant de continuer si la liste est
+invraisemblable.
+
 **Fenêtres d'aide détachées** — sur ordinateur, les fenêtres « Soutien » et
 « Question à l'IA » s'ouvrent dans une fenêtre indépendante et leur carte y est
 déplacée. `document.getElementById` ne les trouve plus : la fonction `$` doit

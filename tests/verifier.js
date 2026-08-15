@@ -61,7 +61,12 @@ function evaluer(w, code){
 function verifierEval(w, intitule, code, juge, detail){
   const r = evaluer(w, code);
   if(!r.ok){ verifier(intitule, false, 'erreur JavaScript : ' + r.erreur); return undefined; }
-  verifier(intitule, juge ? juge(r.valeur) : r.valeur === true, detail);
+  /* Beaucoup de ces contrôles rendent une CHAÎNE qui décrit ce qui cloche, et
+     rendent '' quand tout va bien. Sans cette ligne, leur échec s'affichait
+     nu — « ✗ » et rien d'autre —, et il fallait relire le contrôle pour savoir
+     lequel de ses bords avait cédé. */
+  const ok = juge ? juge(r.valeur) : r.valeur === true;
+  verifier(intitule, ok, detail || (!ok && typeof r.valeur==='string' && r.valeur ? r.valeur : undefined));
   return r.valeur;
 }
 /* Même chose pour un code qui rend une promesse — la pause et la fin de test en
@@ -1621,6 +1626,70 @@ function abandonSortDePause(w, apres){
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */
 function premiere(w){
+  /* ---- La fenêtre des tables de multiplication -------------------------
+     Une table de référence, ouverte depuis TOUS les écrans d'exercice. Deux
+     bords opposés, et c'est leur opposition qui compte : sur l'exercice DES
+     tables elle devient une antisèche, donc elle se referme dès que l'élève
+     revient à son calcul ; partout ailleurs elle doit RESTER ouverte à côté,
+     sans quoi une fenêtre flottante ne sert à rien. Corriger un seul des deux
+     côtés ne corrige rien.
+     Note : jsdom n'implémente pas PointerEvent — un premier essai écrit avec
+     « new PointerEvent » ne levait rien et laissait croire que la fermeture ne
+     marchait pas. On émet donc un Event ordinaire du bon type. */
+  /* testScreens est une constante LOCALE à show() : invisible depuis la page.
+     Une première version de ce contrôle bouclait donc sur une liste vide et
+     passait au vert alors que le bouton avait disparu de deux écrans. On lit
+     donc la liste dans le SOURCE, comme le fait le contrôle de l'énoncé, et on
+     refuse de continuer si l'extraction rend une liste invraisemblable. */
+  const ecransEx = ((lire(CIBLE).match(/const testScreens\s*=\s*\[([^\]]*)\]/) || [])[1] || '')
+    .split(',').map(t => t.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+
+  verifierEval(w, 'la fenêtre des tables s’ouvre partout et ne reste ouverte que là où il faut', `(function(){
+    const ECRANS=${JSON.stringify(ecransEx)};
+    if(ECRANS.length<10) return 'liste des écrans d\\'exercice illisible ('+ECRANS.length+') : le contrôle serait aveugle';
+    if(typeof ouvrirTables!=='function') return 'ouvrirTables() n\\'existe pas';
+    const vus=[];
+    /* 1. le contenu : 8 tables, 80 produits, tous justes */
+    ouvrirTables();
+    const blocs=document.querySelectorAll('#tablesCorps .tables-bloc');
+    if(blocs.length!==8) vus.push(blocs.length+' tables au lieu de 8');
+    const titres=Array.from(blocs).map(function(b){ return b.querySelector('h4').textContent.replace(/\\D/g,''); }).join(',');
+    if(titres!=='2,3,4,5,6,7,8,9') vus.push('tables affichées : '+titres);
+    let faux=0, lignes=0;
+    blocs.forEach(function(b){
+      const t=+b.querySelector('h4').textContent.replace(/\\D/g,'');
+      b.querySelectorAll('.tables-ligne').forEach(function(l,i){
+        lignes++; if(+l.querySelector('b').textContent!==t*(i+1)) faux++;
+      });
+    });
+    if(lignes!==80) vus.push(lignes+' lignes au lieu de 80');
+    if(faux) vus.push(faux+' produit(s) FAUX');
+    fermerTables();
+    /* 2. le bouton, sur chaque écran d'exercice */
+    const sans=[];
+    ECRANS.forEach(function(nom){
+      show(nom);
+      if(!document.querySelector('#scr-'+nom+' .tables-btn')) sans.push(nom);
+    });
+    if(sans.length) vus.push('aucun bouton sur : '+sans.join(', '));
+    /* 3. les deux bords, chacun exercé */
+    const clic=function(el){ if(el) el.dispatchEvent(new Event('pointerdown',{bubbles:true})); };
+    show('tm'); ouvrirTables();
+    clic(document.getElementById('tmInput'));
+    if(tablesOuvertes()) vus.push('sur les tables, revenir au calcul ne la referme pas');
+    show('tm'); ouvrirTables();
+    clic(document.querySelector('#tablesCorps .tables-bloc'));
+    if(!tablesOuvertes()) vus.push('un clic DANS la fenêtre la referme');
+    show('ptest'); ouvrirTables();
+    clic(document.getElementById('scr-ptest'));
+    if(!tablesOuvertes()) vus.push('ailleurs, elle se referme alors qu\\'elle devrait rester');
+    fermerTables();
+    /* 4. quitter l'exercice la referme */
+    show('tm'); ouvrirTables(); show('home');
+    if(tablesOuvertes()) vus.push('quitter l\\'exercice ne la referme pas');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- Le tirage des additions-soustractions ---------------------------
      Un nombre à TROIS chiffres, un nombre à DEUX chiffres, et une addition sur
      deux. « Une fois sur deux » est pris au pied de la lettre : le tirage est

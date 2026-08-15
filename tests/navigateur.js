@@ -541,6 +541,75 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 bis. la fenêtre des tables de multiplication ===== */
+    /* Elle s'ouvre depuis tous les exercices. Sur l'exercice DES tables, elle
+       doit se refermer dès que l'élève revient à son calcul — sinon c'est une
+       antisèche posée à côté du chronomètre. Ailleurs, elle doit RESTER
+       ouverte, sinon une fenêtre flottante ne sert à rien.
+       Ce contrôle ne peut vivre QUE dans un vrai navigateur : jsdom
+       n'implémente pas PointerEvent, et un premier essai écrit avec
+       « new PointerEvent » n'y levait rien — il laissait croire que la
+       fermeture ne marchait pas alors qu'aucun événement n'était parti. */
+    titre('6 bis. LA FENÊTRE DES TABLES DE MULTIPLICATION');
+    if(!P.tablesAide){
+      ignorer('la fenêtre des tables s\'ouvre et se referme au bon moment',
+        'ce niveau n\'a pas la fenêtre des tables de multiplication');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      const ouvrirExo = async (id) => {
+        await s.page.evaluate(i => openTest(i), id);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(900);
+      };
+      /* a) l'exercice des tables : elle se referme au retour */
+      await ouvrirExo(P.tablesAide.referme);
+      const btn = await s.page.$('.screen.on .tables-btn');
+      verifier('le bouton des tables est là, sur l\'exercice des tables', !!btn,
+        'aucun bouton .tables-btn sur l\'écran');
+      if(btn){
+        await btn.click();
+        await s.page.waitForTimeout(300);
+        const vu = await s.page.evaluate(() => {
+          const ov = document.getElementById('tablesOverlay');
+          return { ouverte: !!(ov && ov.classList.contains('on')),
+                   visible: !!(ov && getComputedStyle(ov).display !== 'none'),
+                   blocs: document.querySelectorAll('#tablesCorps .tables-bloc').length };
+        });
+        verifier('elle s\'ouvre et s\'affiche vraiment', vu.ouverte && vu.visible,
+          'ouverte=' + vu.ouverte + ' affichée=' + vu.visible);
+        verifier('elle montre les 8 tables, de 2 à 9', vu.blocs === 8, vu.blocs + ' table(s)');
+        /* Un VRAI clic sur l'exercice : retour au calcul. On vise l'ardoise et
+           non le champ — sur l'écran « Prêt ? » le champ est DÉSACTIVÉ, et un
+           clic dessus n'aurait jamais lieu (Playwright l'a signalé en attendant
+           trente secondes qu'il devienne cliquable). L'ardoise, elle, est le
+           geste naturel : c'est là que le calcul s'affiche. */
+        await s.page.click('.screen.on .ardoise');
+        await s.page.waitForTimeout(250);
+        const apres = await s.page.evaluate(() =>
+          !!document.getElementById('tablesOverlay').classList.contains('on'));
+        verifier('revenir au calcul la referme, sur l\'exercice des tables', !apres,
+          'elle est restée ouverte à côté du chronomètre');
+      }
+      /* b) un autre exercice : elle doit rester ouverte */
+      await ouvrirExo(P.tablesAide.reste);
+      const btn2 = await s.page.$('.screen.on .tables-btn');
+      verifier('le bouton des tables est là, sur un autre exercice', !!btn2,
+        'aucun bouton .tables-btn sur ' + P.tablesAide.reste);
+      if(btn2){
+        await btn2.click();
+        await s.page.waitForTimeout(300);
+        await s.page.click('.screen.on .enonce, .screen.on');
+        await s.page.waitForTimeout(250);
+        const reste = await s.page.evaluate(() =>
+          !!document.getElementById('tablesOverlay').classList.contains('on'));
+        verifier('ailleurs, elle reste ouverte à côté de l\'exercice', reste,
+          'elle s\'est refermée : la fenêtre flottante ne sert plus à rien');
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là

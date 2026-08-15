@@ -177,6 +177,12 @@ module.exports = {
        rapidité) : le contrôle du mode inexistant s'en sert aussi. */
     devoirs: { exercice: 'tables-multiplication', suivant: 'tables-multiplication-2' },
     specifique: 'premiere',
+    /* La fenêtre des tables de multiplication : ouverte depuis tous les
+       exercices, mais refermée dès qu'on revient au calcul sur l'exercice DES
+       tables. Seul un vrai navigateur a de vrais clics — jsdom n'implémente
+       même pas PointerEvent. On déclare donc les deux exercices à visiter :
+       celui où elle doit se refermer, et un autre où elle doit RESTER. */
+    tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage' },
     lacunes: [],
   },
 
@@ -253,6 +259,7 @@ module.exports = {
     missionSansReponses: 'qiaEnvoyer',
     specifique: null,
     lacunes: [
+      "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
     ],
   },
@@ -322,6 +329,7 @@ module.exports = {
     rappels: RAPPELS_TERMINALE,
     specifique: null,
     lacunes: [
+      "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
       "le contexte envoyé au modèle n'est vérifié que pour l'exercice témoin (dexp) : la table kind -> générateur des 23 autres exercices reste à écrire",
       "aucun audit de générateur : les 45 générateurs de Terminale n'ont pas d'invariants déclarés (les 15 de la Première en ont)",
