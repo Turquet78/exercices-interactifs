@@ -434,7 +434,20 @@
 .qia-overlay .qia-card{pointer-events:auto;border:1.5px solid var(--line)}
 #conseilModal{background:transparent;pointer-events:none}
 #conseilModal .conseil-card{pointer-events:auto;border:1.5px solid var(--line);box-shadow:0 18px 50px rgba(15,23,42,.25)}
-#qiaOverlay .qia-head,#conseilModal .notes-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+#qiaOverlay .qia-head,#conseilModal .notes-head,#tablesOverlay .qia-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+/* Elle s'ouvre EN HAUT À DROITE, pas au centre : une fenêtre de référence qui
+   se pose sur l'exercice qu'on est en train de lire ne sert à rien, et sur
+   l'exercice des tables elle recouvrirait justement l'ardoise et le champ —
+   c'est-à-dire l'endroit exact où l'élève doit revenir pour la refermer.
+   Elle reste déplaçable : ce n'est qu'un point de départ. */
+#tablesOverlay{align-items:flex-start;justify-content:flex-end}
+.tables-card{max-width:520px;max-height:min(78vh,620px);margin:8px}
+@media (max-width:720px){ #tablesOverlay{justify-content:center} .tables-card{max-width:100%} }
+.tables-corps{padding:12px 14px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:10px}
+.tables-bloc{border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--paper)}
+.tables-bloc h4{margin:0 0 6px;font-size:.92rem;color:var(--blue);text-align:center;font-weight:800}
+.tables-ligne{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;font-size:.9rem;padding:1px 0;line-height:1.45}
+.tables-ligne b{font-weight:800;color:var(--ink)}
 .qia-headbtns{display:flex;align-items:center;gap:2px}
   .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
   /* Retour IA phrase par phrase : le juste en vert, le faux/oubli en rouge (balises [OK]/[KO]) */
@@ -1323,6 +1336,16 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </div>
 </div>
+<!-- LES TABLES DE MULTIPLICATION — aide de référence, sur tous les exercices.
+     Elle emprunte les classes de la fenêtre « Question à l'IA » : sur ordinateur,
+     celles-ci la rendent flottante et déplaçable, sans voile qui bloquerait la
+     page — l'élève peut donc la laisser ouverte à côté de son exercice. -->
+<div id="tablesOverlay" class="qia-overlay">
+  <div class="qia-card tables-card">
+    <div class="qia-head"><b>✖️ Tables de multiplication</b><span class="qia-headbtns"><button type="button" class="qia-close" onclick="fermerTables()" title="Fermer">✕</button></span></div>
+    <div class="tables-corps" id="tablesCorps"></div>
+  </div>
+</div>
 <div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()">⚑ Signaler un problème</button><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ Mettre en pause</button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
@@ -1364,7 +1387,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=115;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=116;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -7705,7 +7728,7 @@ function rendreDeplacable(carte, poignee){
 /* --- Fermer (et vider) les fenêtres d'aide à chaque changement d'écran : quitter l'exercice les fait disparaître. --- */
 function fermerFenetresIA(vider){
   reattacherFenetres();
-  fermerQIA(); fermerConseil();
+  fermerQIA(); fermerConseil(); fermerTables();
   if(!vider) return;
   const d=$('qiaDialog'); if(d) d.innerHTML='';
   const b=$('conseilBody'); if(b){ b.innerHTML=''; b.className='mp-feedback'; }
@@ -8185,22 +8208,71 @@ function qiaEstExemple(q){ q=String(q||'').toLowerCase();
   return /exemple|mod[e\u00e8]le|correction|corrig|r[e\u00e9]dige/.test(q)
       || /comment\s+(on|tu|je)\s+(fait|fais|r[e\u00e9]dige|r[e\u00e9]sou[ts]?|proc[e\u00e8]de)/.test(q); }
 
+/* ================= LES TABLES DE MULTIPLICATION (aide) =================
+   Une table de référence, de 2 à 9. Ce n'est pas une correction : elle ne dit
+   rien de l'exercice en cours, elle rappelle un fait que l'élève devrait
+   savoir par cœur. D'où sa présence sur TOUS les écrans d'exercice. */
+function tablesHTML(){
+  let h='';
+  for(let t=2;t<=9;t++){
+    h+='<div class="tables-bloc"><h4>Table de '+t+'</h4>';
+    for(let k=1;k<=10;k++) h+='<div class="tables-ligne"><span>'+t+' \u00d7 '+k+'</span><b>'+(t*k)+'</b></div>';
+    h+='</div>';
+  }
+  return h;
+}
+/* Sur l'exercice DES TABLES, la même fenêtre devient une antisèche : elle s'y
+   referme dès que l'élève revient à son calcul. Ailleurs, elle reste ouverte à
+   côté de l'exercice, ce qui est tout l'intérêt d'une fenêtre flottante. */
+const TABLES_REFERME=['scr-tm'];
+function ouvrirTables(){
+  const ov=$('tablesOverlay'); if(!ov) return;
+  const c=$('tablesCorps'); if(c && !c.innerHTML) c.innerHTML=tablesHTML();
+  rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
+  ov.classList.add('on');
+}
+function fermerTables(){ const ov=$('tablesOverlay'); if(ov) ov.classList.remove('on'); }
+function tablesOuvertes(){ const ov=$('tablesOverlay'); return !!(ov && ov.classList.contains('on')); }
+function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
+/* « Revenir à l'exercice », c'est y toucher : cliquer dedans ou y remettre le
+   clavier. On écoute donc à la CAPTURE, pour être prévenu avant que le champ ne
+   reçoive la frappe. Le bouton qui l'ouvre est exclu, sinon il la refermerait au
+   moment même où il l'ouvre. */
+function tablesRetourExercice(e){
+  if(!tablesOuvertes()) return;
+  const ec=document.querySelector('.screen.on');
+  if(!ec || TABLES_REFERME.indexOf(ec.id)<0) return;
+  const ov=$('tablesOverlay');
+  if(ov && ov.contains(e.target)) return;
+  if(e.target && e.target.closest && e.target.closest('.tables-btn')) return;
+  fermerTables();
+}
+document.addEventListener('pointerdown', tablesRetourExercice, true);
+document.addEventListener('focusin',     tablesRetourExercice, true);
+
 /* ---------- Les deux boutons, sur tous les écrans d'exercice sauf le calcul mental ----------
    Le calcul mental (et les tables) sont des exercices de rapidité chronométrés :
    une fenêtre d'aide n'y a pas de sens et fausserait la mesure. */
 const IA_ECRANS_SANS=['scr-test','scr-tm'];
 function iaBoutons(scr){
   const s=scr||document.querySelector('.screen.on'); if(!s) return;
-  if(IA_ECRANS_SANS.indexOf(s.id)>=0) return;
-  if(currentMode==='eval') { const v=s.querySelector('.ia-row'); if(v) v.remove(); return; }
-  const act=s.querySelector('[id$="Actions"]'); if(!act) return;
+  /* Le calcul mental et les tables n'ont pas d'élément « …Actions » : leur point
+     d'accroche est la zone de réponse. Sans cette solution de repli, la rangée
+     n'existerait pas chez eux — et le bouton des tables non plus. */
+  const act=s.querySelector('[id$="Actions"]') || s.querySelector('.answer-zone');
+  if(!act) return;
   let row=s.querySelector('.ia-row');
   if(!row){
     act.insertAdjacentHTML('afterend','<div class="ia-row"></div>');
     row=s.querySelector('.ia-row');
   }
-  row.innerHTML=(isSoutien()?'<button class="btn btn-ghost" type="button" onclick="conseilCourant()">🎓 Soutien</button>':'')
-    +'<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button>';
+  /* Le soutien et l'IA restent réservés aux exercices qui ne sont pas des
+     épreuves de rapidité, et disparaissent en mode évaluation. Les tables, non :
+     elles ne disent rien de l'exercice en cours. */
+  const aide = currentMode!=='eval' && IA_ECRANS_SANS.indexOf(s.id)<0;
+  row.innerHTML=(aide&&isSoutien()?'<button class="btn btn-ghost" type="button" onclick="conseilCourant()">🎓 Soutien</button>':'')
+    +(aide?'<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button>':'')
+    +'<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
 }
 
 /* ============ GREFFE TERMINALE : activation apres chaque rendu ============
