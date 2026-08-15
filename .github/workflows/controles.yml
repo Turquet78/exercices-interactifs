@@ -8,6 +8,12 @@
 # d'installation de navigateur masque l'état réel du code.
 name: Contrôles
 
+# Les contrôles ne font que lire le dépôt et lancer des bancs : le jeton n'a
+# besoin de rien d'autre. Le déclarer évite d'hériter des droits par défaut,
+# qui peuvent aller jusqu'à l'écriture.
+permissions:
+  contents: read
+
 on:
   pull_request:
   push:

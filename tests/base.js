@@ -316,6 +316,44 @@ MUTATIONS.forEach(([nom, sqls], i) => {
 });
 
 /* ---------------------------------------------------------------------------
+   3 ter. « Tout effacer » sur les trois niveaux
+   -------------------------------------------------------------------------
+   La fonction Edge vide une classe entière avec « neq('id', <un uuid>) » — la
+   façon habituelle de dire « toutes les lignes » à PostgREST. Mais « id » n'a
+   PAS le même type partout : uuid en Terminale et en Seconde, bigint en
+   Première. Comparer un bigint à un uuid n'est pas faux, c'est une ERREUR de
+   syntaxe côté PostgreSQL, et la fonction rend alors « suppression impossible ».
+   C'est le même piège que la création de compte, qui avait déjà marché sur deux
+   niveaux et cassé le troisième. Le banc de la fonction Edge ne pouvait pas le
+   voir : son double garde les lignes en mémoire, sans types. Il faut la vraie
+   base. */
+console.log('\n3 ter. « TOUT EFFACER » SUR LES TROIS NIVEAUX');
+{
+  const bd = monter('effacer');
+  /* Le filtre que la fonction Edge emploie réellement pour dire « toutes les
+     lignes ». Il ne doit supposer aucun type : « id » est un uuid en Terminale
+     et en Seconde, un bigint en Première. */
+  const filtre = 'id is not null';
+  [['resultats', 'uuid'], ['resultats_1ere', 'bigint'], ['resultats_2nde', 'uuid'],
+   ['eleves', 'uuid'], ['eleves_1ere', 'bigint'], ['eleves_2nde', 'uuid']].forEach(([t, type]) => {
+    const r = psql(bd, ['-c', 'delete from public.' + t + ' where ' + filtre], true);
+    bilan('« tout effacer » atteint ' + t + ' (id ' + type + ')', !r.erreur,
+      String(r.erreur || '').split('\n').filter(l => /ERROR|ERREUR/.test(l))[0] || r.erreur);
+  });
+  /* Et l'ancien filtre, celui qui a cassé, ne doit pas revenir dans la
+     fonction : sur un bigint il ne rend pas « zéro ligne », il rend une
+     ERREUR, et le professeur lit « suppression impossible » sans savoir
+     pourquoi. Le banc de la fonction Edge ne peut pas le voir — son double
+     garde les lignes en mémoire, sans types. */
+  const fonction = fs.readFileSync(path.join(RACINE, 'supabase/functions/admin-eleve/index.ts'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  bilan('la fonction Edge ne filtre plus sur un identifiant impossible',
+    !/00000000-0000-0000-0000-000000000000/.test(fonction),
+    'neq(id, <uuid nul>) est revenu : il casse la Première, dont les id sont des bigint');
+  psql('postgres', ['-c', 'drop database if exists effacer']);
+}
+
+/* ---------------------------------------------------------------------------
    3 bis. Le ménage des brouillons fantômes
    -------------------------------------------------------------------------
    supabase/menage-brouillons.sql est un script DESTRUCTIF que Turquet colle à

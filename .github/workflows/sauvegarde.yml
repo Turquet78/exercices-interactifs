@@ -21,6 +21,14 @@
 
 name: Sauvegarde
 
+# Le jeton de l'action n'a besoin d'AUCUN droit sur le dépôt : cette action
+# lit la base, chiffre, et dépose un artefact — trois gestes qui ne touchent
+# pas au code. Sans ce bloc, le jeton hérite des droits par défaut du dépôt,
+# qui peuvent aller jusqu'à l'écriture. Un jeton qui peut écrire là où il n'a
+# rien à écrire est un jeton de trop, et celui-ci vit dans le même travail que
+# la clé de service.
+permissions: {}
+
 on:
   schedule:
     # 01:00 UTC le dimanche — soit 03:00 à Paris l'été, 02:00 l'hiver.
