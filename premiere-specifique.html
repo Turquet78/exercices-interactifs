@@ -1349,7 +1349,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=109;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=110;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1573,6 +1573,16 @@ const test={kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:n
 let finVerrouillee=0;
 function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) return false; finVerrouillee=test.startTime; return true; }
 
+/* Le minuteur des tables de multiplication, déclaré ICI et non près de
+   l'exercice : les descriptions du registre le citent, et une description est
+   lue avant tout le reste. Le nombre ne vit donc qu'à un seul endroit — il
+   était écrit en toutes lettres à quatre autres, dont deux sous les yeux de
+   l'élève et un dans le contexte envoyé au modèle. Le porter de 3 à 4 en
+   laissait donc trois qui annonçaient encore l'ancienne durée. Un contrôle
+   l'interdit désormais. */
+const TM_SECONDES = 4;        /* temps de réponse accordé, par calcul */
+const TM_NB       = 10;       /* nombre de calculs du premier tour */
+
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
   'calcul-mental':       { name:'Calcul mental',           icon:'🧮', desc:'Additions, soustractions, multiplications… à calculer de tête.', start:()=>startTest() },
@@ -1587,7 +1597,7 @@ const TESTS={
   'diminuer-pourcentage':{ name:'Diminuer d\u2019un pourcentage en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📉', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() },
   'diminuer-depart':     { name:'Retrouver la valeur initiale apr\u00e8s une baisse en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'🔁', desc:'On donne le pourcentage de baisse et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la avec les 5 étapes de l’exercice {diminuer-pourcentage}.', start:()=>startDimDepart() },
   'diminuer-taux':       { name:'Retrouver le pourcentage d\u2019une baisse en calculant le coefficient multiplicateur puis en effectuant une multiplication.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage de baisse parmi quatre, puis vérifie-le avec les 5 étapes de l’exercice {diminuer-pourcentage}.', start:()=>startDimTaux() },
-  'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:'10 produits des tables de 2 à 9 (résultats à deux chiffres), 3 secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
+  'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:TM_NB+' produits des tables de 2 à 9 (résultats à deux chiffres), '+TM_SECONDES+' secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
   'pourcentage-depart':  { name:'Retrouver la valeur initiale', icon:'🔎', desc:'On donne le pourcentage et le r\u00e9sultat : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctDepart() },
   'pourcentage-taux':    { name:'Retrouver le pourcentage', icon:'🧮', desc:'On donne la valeur initiale et le r\u00e9sultat : choisis le bon pourcentage parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctTaux() },
   'augmenter-taux-addition':{ name:'Retrouver le pourcentage d\u2019une hausse en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis vérifie-le en calculant l\u2019augmentation et en l\u2019ajoutant à la valeur de départ.', start:()=>startAugTauxAdd() },
@@ -1599,7 +1609,7 @@ const TESTS={
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
-  'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les 10 produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : 3 secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() }
+  'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -2963,15 +2973,13 @@ function showResults(r){
 }
 
 /* ================= Tables de multiplication (rapidité) =================
-   10 produits des tables de 2 à 9 dont le résultat a DEUX chiffres. Trois secondes
-   par calcul : au-delà, c'est faux. La réponse est jugée immédiatement (juste, ou
+   TM_NB produits des tables de 2 à 9 dont le résultat a DEUX chiffres, et
+   TM_SECONDES secondes par calcul : au-delà, c'est faux. La réponse est jugée immédiatement (juste, ou
    faux avec la correction) ; Entrée efface et affiche le calcul suivant.
    À la fin du tour, les calculs ratés reviennent dans un nouveau tour, et ainsi de
    suite jusqu'à ce que les 10 soient sus.
    NOTE : un point par calcul finalement su, sur 10. Aller au bout donne donc 10/10 ;
    abandonner en cours de route donne le nombre de calculs déjà acquis. */
-const TM_SECONDES = 3;        /* temps de réponse accordé */
-const TM_NB       = 10;       /* nombre de calculs du premier tour */
 
 /* toutes les paires 2..9 dont le produit a deux chiffres (10 à 81) */
 function tmPairesPossibles(){
@@ -2994,8 +3002,8 @@ function tmTirage(n){
    plus de poids aux seances recentes. Faute d'historique exploitable, on retombe
    sur une liste de produits reputes difficiles. */
 const TM_IDS=['tables-multiplication','tables-multiplication-2'];
-/* Les tables de multiplication sont un exercice de RAPIDITÉ : trois secondes par
-   produit. Le mode soutien, qui laisse corriger sans limite de temps jusqu'à
+/* Les tables de multiplication sont un exercice de RAPIDITÉ : le calcul suivant
+   arrive au bout de TM_SECONDES secondes. Le mode soutien, qui laisse corriger sans limite de temps jusqu'à
    réussir, n'y a aucun sens — l'écran des modes l'a toujours refusé.
    La règle vit désormais ici, et non recopiée à chaque écran : l'éditeur de
    devoirs l'ignorait, et proposait au professeur un mode que l'élève n'aurait
@@ -7957,7 +7965,7 @@ function conseilCtxCourant(){
     att='Question : '+(q.qtext||'')+'. Réponse attendue, STRICTEMENT SECRÈTE : '+(q.atext||'')+'. '
       +'Méthode : diviser par 10, 100 ou 1000 décale la virgule de 1, 2 ou 3 rangs vers la gauche ; inversement, le nombre de chiffres après la virgule donne le dénominateur.';
   } else if(k==='tm' && q){
-    att='Exercice de rapidité sur les tables de multiplication : 3 secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
+    att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
   const ec=ctxEcranPremiere();
   /* numeros() en dernier : le contexte est assemblé de dix morceaux, et plusieurs
