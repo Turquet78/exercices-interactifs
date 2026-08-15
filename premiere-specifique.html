@@ -267,6 +267,25 @@
   .mp-carry{width:32px;height:32px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--red);
     background:var(--red-soft);border:2px dashed #f0b3bb;border-radius:9px;outline:none;padding:0;-moz-appearance:textfield}
   .mp-carry:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(226,61,82,.16)}
+  /* Retenue de la SOUSTRACTION, méthode par compensation. Elle s'écrit à deux
+     endroits, comme dans un cahier : le petit 1 devant le chiffre du HAUT —
+     2 devient 12 —, et la même retenue descend en « +1 » devant le chiffre du
+     BAS de la colonne suivante. Deux marques, une seule retenue.
+     Elles se posent dans le coin haut-gauche de la cellule, au-dessus de la
+     hauteur du chiffre : la colonne n'est pas décalée d'un pixel. */
+  /* Les colonnes de CET exercice sont plus larges que celles de la
+     multiplication : il faut la place d'écrire une marque DEVANT le chiffre,
+     sans la poser dessus ni la faire dépasser du cadre. La largeur vit à un
+     seul endroit — le trait la relit — pour que les deux ne divergent pas. */
+  #aspHost{--asp-col:78px}
+  #aspHost .mp-cl{width:var(--asp-col)}
+  .asp-ret{position:absolute;left:10px;top:6px;width:21px;height:21px;text-align:center;
+    font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--red);
+    background:var(--red-soft);border:1.5px dashed #f0b3bb;border-radius:7px;outline:none;padding:0}
+  .asp-ret:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(226,61,82,.16)}
+  .asp-ret.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
+  .asp-ret.bad{color:var(--red);background:var(--red-soft);border-color:var(--red);border-style:solid}
+  .asp-plus{position:absolute;left:1px;top:6px;font-family:"Fredoka";font-weight:700;font-size:.82rem;color:var(--red);line-height:21px}
   .mp-box.ok,.mp-carry.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
   .mp-box.bad,.mp-carry.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb;border-style:solid}
   .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
@@ -998,7 +1017,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="aspLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Pose l’opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). Les <b>retenues</b> (cases rouges) sont facultatives, mais si tu les écris, elles doivent être justes.</p>
+      <p class="mp-instr" id="aspInstr">Pose l’opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues).</p>
       <div class="mp-stage"><div class="mp-op" id="aspHost"></div></div>
       <div class="mp-feedback" id="aspFeedback"></div>
       <div class="row" style="justify-content:center" id="aspActions">
@@ -1410,7 +1429,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=118;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=119;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3446,6 +3465,15 @@ function renderASPTest(){
   $('modeTagAsp').innerHTML=modeTagHTML();
   $('aspLiveScore').textContent=test.score;
   $('aspFeedback').textContent=''; $('aspFeedback').className='mp-feedback';
+  /* L'énoncé dit où s'écrit la retenue, et ce n'est PAS au même endroit selon
+     l'opération : au-dessus à l'addition, deux fois à la soustraction. Sans
+     cette phrase, les cases rouges de la soustraction sont indéchiffrables —
+     c'est le retour qu'en a fait Turquet. */
+  $('aspInstr').innerHTML='Pose l\u2019opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). '
+    +(q.plus
+      ? 'La <b style="color:var(--red)">retenue</b> s\u2019écrit au-dessus de la colonne où elle s\u2019ajoute.'
+      : 'Quand on ne peut pas soustraire, on ajoute <b>10</b> en haut — le petit <b style="color:var(--red)">1</b> devant le chiffre — et on compense par <b style="color:var(--red)">+1</b> devant le chiffre du bas de la colonne suivante.')
+    +' Les cases rouges sont <b>facultatives</b>, mais si tu les écris, elles doivent être justes.';
   $('aspActions').innerHTML='<button class="btn btn-primary" id="aspCheck" onclick="checkASPAnswer()">Vérifier</button>';
   const cell=(inner)=>'<div class="mp-cl">'+(inner||'')+'</div>';
   const inp=(cls,exp,tab)=>'<input class="'+cls+'" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" tabindex="'+tab+'" aria-label="case à compléter">';
@@ -3466,15 +3494,34 @@ function renderASPTest(){
      FACULTATIVES — on les propose sur toutes les colonnes plutôt que sur les
      seules qui en portent une, sinon leur simple présence dirait à l'élève où
      la retenue tombe. */
-  const ret=[];
-  if(nCols===4) ret.push(inp('mp-carry',q.ret.m,nRes+3));
-  ret.push(inp('mp-carry',q.ret.h,nRes+2));
-  ret.push(inp('mp-carry',q.ret.d,nRes+1));
-  ret.push('');                                  /* colonne des unités : rien */
-  const rowRet ='<div class="mp-row"><div class="mp-cl op"></div>'+ret.map(x=>cell(x)).join('')+'</div>';
-  const rowA   =rangee('', [dig(q.ha),dig(q.da),dig(q.ua)]);
-  const rowB   =rangee('<span class="mp-sign">'+(q.plus?'+':'\u2212')+'</span>', [dig(q.db),dig(q.ub)]);
-  const rowLine='<div class="mp-lrow"><div class="mp-cl op"></div><div class="mp-line" style="width:'+(nCols*52)+'px"></div></div>';
+  /* Petite case de retenue posée DANS une cellule, devant le chiffre. */
+  const pet=(exp,tab,plus)=>(plus?'<span class="asp-plus">+</span>':'')
+    +'<input class="asp-ret" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" tabindex="'+tab+'" aria-label="retenue">';
+  let rowRet='', rowA, rowB;
+  if(q.plus){
+    /* ADDITION : la retenue entre dans la colonne, on l'écrit AU-DESSUS. */
+    const ret=[];
+    if(nCols===4) ret.push(inp('mp-carry',q.ret.m,nRes+3));
+    ret.push(inp('mp-carry',q.ret.h,nRes+2));
+    ret.push(inp('mp-carry',q.ret.d,nRes+1));
+    ret.push('');                                /* colonne des unités : rien */
+    rowRet='<div class="mp-row"><div class="mp-cl op"></div>'+ret.map(x=>cell(x)).join('')+'</div>';
+    rowA=rangee('', [dig(q.ha),dig(q.da),dig(q.ua)]);
+    rowB=rangee('<span class="mp-sign">+</span>', [dig(q.db),dig(q.ub)]);
+  } else {
+    /* SOUSTRACTION, par compensation. La retenue des unités s'écrit devant le
+       2 du haut — qui se lit alors 12 — et redescend en « +1 » devant le 8 du
+       bas ; celle des dizaines devant le 3 du haut, et en « +1 » devant la
+       colonne des centaines du bas. Chaque retenue est donc écrite DEUX fois :
+       c'est exactement le geste du cahier.
+       Les cases sont proposées sur les deux colonnes possibles, et non sur les
+       seules qui portent une retenue : leur présence dirait sinon à l'élève où
+       elle tombe. Elles restent facultatives. */
+    rowA=rangee('', [dig(q.ha), dig(q.da)+pet(q.ret.h,nRes+2), dig(q.ua)+pet(q.ret.d,nRes+1)]);
+    rowB=rangee('<span class="mp-sign">\u2212</span>',
+                [pet(q.ret.h,nRes+4,true), dig(q.db)+pet(q.ret.d,nRes+3,true), dig(q.ub)]);
+  }
+  const rowLine='<div class="mp-lrow"><div class="mp-cl op"></div><div class="mp-line" style="width:calc(var(--asp-col) * '+nCols+')"></div></div>';
   /* Les cases du résultat : autant que de chiffres, pas plus. Une case en trop
      se lirait comme un zéro à écrire. On commence par les unités (tabindex 1). */
   const rowRes =rangee('', q.res.map((d,i)=>inp('mp-box',d,nRes-i)));
@@ -3491,10 +3538,10 @@ function renderASPTest(){
 function checkASPAnswer(live){
   if(test.locked)return;
   const soutien=isSoutien();
-  if(live){ [...$('aspHost').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp); return; }
+  if(live){ [...$('aspHost').querySelectorAll('.mp-box, .mp-carry, .asp-ret')].forEach(liveColorExp); return; }
   const host=$('aspHost');
   const boxes=[...host.querySelectorAll('.mp-box')];
-  const carries=[...host.querySelectorAll('.mp-carry')];
+  const carries=[...host.querySelectorAll('.mp-carry, .asp-ret')];
   const typedResult=boxes.map(b=>b.value.trim()).join('');
   let resultOk=true, carryOk=true;
   boxes.forEach(el=>{

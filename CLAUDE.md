@@ -222,9 +222,21 @@ MESURE les positions dans un vrai navigateur — seul un navigateur sait où tom
 une colonne.
 Les cases de retenue sont facultatives, et proposées sur toutes les colonnes
 plutôt que sur celles qui en portent une : leur seule présence dirait sinon à
-l'élève où la retenue tombe. À la soustraction, elles portent la compensation
-(+1 à la colonne suivante du bas) ; un élève qui apprend la méthode par emprunt
-les laisse vides sans être pénalisé.
+l'élève où la retenue tombe.
+**À la soustraction, la retenue s'écrit à DEUX endroits, pas un.** Méthode par
+compensation : le petit `1` devant le chiffre du HAUT — 2 se lit alors 12 — et
+la même retenue redescend en `+1` devant le chiffre du BAS de la colonne
+suivante. C'est le geste du cahier. La première version n'en posait qu'une, sur
+la rangée au-dessus, c'est-à-dire à l'endroit de l'ADDITION : même position,
+deux sens opposés — la case s'ajoutait au nombre du bas alors qu'à l'addition
+elle entre dans la colonne. Turquet, professeur de mathématiques, n'a pas su la
+lire ; aucun élève ne l'aurait pu. L'énoncé le dit maintenant, et il change
+selon l'opération. La soustraction n'a donc **que trois rangées** là où
+l'addition en a quatre — un contrôle du navigateur qui en exigeait quatre
+partout rougissait sur une soustraction parfaitement dessinée.
+Les colonnes de cet exercice sont plus larges (`--asp-col`, 78 px mesurés) :
+il faut la place d'écrire une marque DEVANT le chiffre sans la poser dessus. La
+largeur vit à un seul endroit, le trait la relit.
 
 **Deux exercices peuvent partager un moteur — mais pas leur identité.** Le
 calcul mental et les additions-soustractions tournent sur le même `kind`
