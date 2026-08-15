@@ -1698,7 +1698,7 @@ function premiere(w){
      travaillé ce qu'on visait. Le contrôle exige donc l'équilibre EXACT sur
      chaque séance, et pas seulement en moyenne : une moyenne juste ne dit rien
      de ce qu'un élève reçoit un soir. */
-  verifierEval(w, 'le tirage additions-soustractions est équilibré et bien formé', `(function(){
+  verifierEval(w, 'les additions-soustractions sont bien posées, équilibrées et à retenue', `(function(){
     if(typeof tirageAddSub!=='function') return 'tirageAddSub() n\\'existe pas';
     let plus=0, moins=0, horsFormat=0, faux=0, desequilibres=0, sansRetenue=0;
     for(let s=0;s<2000;s++){
@@ -1721,7 +1721,53 @@ function premiere(w){
       });
       if(p!==5) desequilibres++;
     }
+    /* L'opération est POSÉE : le générateur doit fournir, en plus du résultat,
+       les chiffres de chaque colonne et les retenues attendues. On les
+       RECALCULE ici plutôt que d'appeler la fonction de la page — un contrôle
+       qui demande au code de se juger ne peut pas le contredire. */
+    let posee=0;
+    for(let s=0;s<400;s++) tirageAddSub(10).forEach(function(q){
+      const r = q.plus ? q.a+q.b : q.a-q.b;
+      if(q.res.join('')!==String(r)) posee++;
+      if(q.ha*100+q.da*10+q.ua!==q.a || q.db*10+q.ub!==q.b) posee++;
+      if(q.plus){
+        const c1=(q.ua+q.ub>=10)?1:0, c2=(q.da+q.db+c1>=10)?1:0, c3=(q.ha+c2>=10)?1:0;
+        if(q.ret.d!==c1||q.ret.h!==c2||q.ret.m!==c3) posee++;
+      } else {
+        const e1=(q.ua<q.ub)?1:0, e2=(q.da<q.db+e1)?1:0;
+        if(q.ret.d!==e1||q.ret.h!==e2) posee++;
+      }
+    });
+    /* La grille est en flexbox à cellules de largeur fixe : si les rangées
+       n'ont pas TOUTES le même nombre de cellules, le signe et les colonnes se
+       décalent — l'opération n'est plus posée, elle est de travers. C'est le
+       défaut qu'a eu la première version. On vérifie sur les quatre formes :
+       addition, soustraction, addition qui déborde à quatre chiffres, et
+       soustraction dont le résultat n'a qu'un chiffre. */
+    let grille=[];
+    const vraiesQ=test.questions, vraiIdx=test.idx, vraiKind=test.kind;
+    [[true,347,58],[false,432,87],[true,978,45],[false,102,97]].forEach(function(c){
+      const plus=c[0], a=c[1], b=c[2];
+      const r=plus?a+b:a-b, ua=a%10, da=Math.floor(a/10)%10, ha=Math.floor(a/100), ub=b%10, db=Math.floor(b/10);
+      let ret;
+      if(plus){ const c1=(ua+ub>=10)?1:0,c2=(da+db+c1>=10)?1:0,c3=(ha+c2>=10)?1:0; ret={d:c1,h:c2,m:c3}; }
+      else { const e1=(ua<ub)?1:0,e2=(da<db+e1)?1:0; ret={d:e1,h:e2,m:0}; }
+      test.kind='asp'; test.idx=0;
+      test.questions=[{plus:plus,a:a,b:b,ua:ua,da:da,ha:ha,ub:ub,db:db,ret:ret,
+        res:String(r).split('').map(Number),text:a+(plus?' + ':' - ')+b,answer:r}];
+      show('asptest'); renderASPTest();
+      const rangees=[].slice.call(document.querySelectorAll('#aspHost .mp-row'));
+      const n=rangees.map(function(x){ return x.children.length; });
+      if(n.length && n.some(function(x){ return x!==n[0]; }))
+        grille.push(a+(plus?'+':'-')+b+' : rangées de '+n.join(','));
+      const cases=document.querySelectorAll('#aspHost .mp-box').length;
+      if(cases!==String(r).length) grille.push(a+(plus?'+':'-')+b+' : '+cases+' case(s) pour '+String(r).length+' chiffre(s)');
+    });
+    test.questions=vraiesQ; test.idx=vraiIdx; test.kind=vraiKind;
+
     const vus=[];
+    if(posee) vus.push(posee+' incohérence(s) entre les colonnes et le résultat');
+    if(grille.length) vus.push('grille de travers — '+grille.join(' ; '));
     if(horsFormat) vus.push(horsFormat+' calcul(s) hors du format 3 chiffres ± 2 chiffres');
     if(faux)       vus.push(faux+' réponse(s) fausse(s)');
     if(sansRetenue) vus.push(sansRetenue+' calcul(s) SANS retenue');

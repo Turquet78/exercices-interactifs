@@ -114,7 +114,7 @@ module.exports = {
        très grand. Les déclarer ici plutôt que de les deviner — un exercice
        ajouté demain sans encadré doit faire rougir le banc, pas passer. */
     enonce: { classes: ['enonce', 'mp-instr'], ardoise: ['test', 'tm'],
-              navigateur: ['pourcentage', 'pourcentage-colonnes'] },
+              navigateur: ['pourcentage', 'pourcentage-colonnes', 'addition-soustraction'] },
     /* La correction en direct du mode soutien passe par liveCheckCurrent(), qui
        doit aiguiller CHAQUE écran d'exercice. Aucune dispense ici : les
        quatorze écrans y sont. « sans » existe pour les niveaux où un exercice
@@ -183,6 +183,9 @@ module.exports = {
        même pas PointerEvent. On déclare donc les deux exercices à visiter :
        celui où elle doit se refermer, et un autre où elle doit RESTER. */
     tablesAide: { referme: 'tables-multiplication', reste: 'pourcentage' },
+    /* Une opération POSÉE se juge à l'œil : les colonnes doivent s'aligner.
+       Aucun banc hors navigateur ne mesure une position à l'écran. */
+    operationPosee: { exercice: 'addition-soustraction', hote: 'aspHost' },
     lacunes: [],
   },
 

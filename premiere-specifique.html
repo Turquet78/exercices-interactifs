@@ -336,7 +336,7 @@
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -984,6 +984,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   </section>
 
   <!-- TEST : MULTIPLICATION POSÉE -->
+  <section class="screen" id="scr-asptest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagAsp"></span><span class="q-idx" id="aspIdx">Opération 1 / 10</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="aspLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Pose l’opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). Les <b>retenues</b> (cases rouges) sont facultatives, mais si tu les écris, elles doivent être justes.</p>
+      <div class="mp-stage"><div class="mp-op" id="aspHost"></div></div>
+      <div class="mp-feedback" id="aspFeedback"></div>
+      <div class="row" style="justify-content:center" id="aspActions">
+        <button class="btn btn-primary" onclick="checkASPAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-mtest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagMp"></span><span class="q-idx" id="mqIdx">Multiplication 1 / 10</span></span>
@@ -1387,7 +1402,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=116;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=117;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1634,7 +1649,7 @@ const TM_ID_NB = 'tables-multiplication';
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
   'calcul-mental':       { name:'Calcul mental',           icon:'🧮', desc:'Additions, soustractions, multiplications… à calculer de tête.', start:()=>startTest() },
-  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres : une addition sur deux, une soustraction sur deux. Il y a toujours une retenue.', start:()=>startAddSub() },
+  'addition-soustraction':{ name:'Additions et soustractions', icon:'\u00b1', desc:'Additions et soustractions POS\u00c9ES : un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres. Une addition sur deux, une soustraction sur deux, et toujours une retenue.', start:()=>startAddSub() },
   'multiplication-posee':{ name:'Multiplication posée',     icon:'✖️', desc:'Pose la multiplication, complète la retenue et le résultat.',     start:()=>startMultPosee() },
   'fractions-decimales': { name:'Fractions décimales',      icon:'🔢', desc:'Parcours en 5 niveaux : 4 bonnes réponses sur 5 pour passer au niveau suivant.', start:()=>startFracParcours() },
   'pourcentage':         { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
@@ -1717,7 +1732,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else (test.qId==='addition-soustraction'?startAddSub():startTest()); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1787,6 +1802,7 @@ function liveCheckCurrent(){
   if(!isSoutien()||test.locked) return;
   const k=test.kind;
   if(k==='mp') checkMAnswer(true);
+  else if(k==='asp') checkASPAnswer(true);
   else if(k==='fracp') checkFAnswer(true);
   else if(k==='pct') checkPAnswer(true);
   else if(k==='pctq') checkQAnswer(true);
@@ -2147,6 +2163,7 @@ function rejouerSignalement(id){
    rejeu — deux listes à tenir, c'est une de trop. */
 function afficherEcranDe(k){
   const table={
+    asp:['asptest',renderASPTest],
     mp:['mtest',renderMTest], fracp:['ftest',renderFTest], pct:['ptest',renderPTest],
     pctq:['qtest',renderQTest], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
@@ -2323,7 +2340,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
@@ -2919,11 +2936,38 @@ function retenueAddSub(a,b,plus){
 /* Il faut TOUJOURS une retenue : sans elle, 342 + 15 se fait chiffre par
    chiffre et n'exerce rien. Le tirage recommence tant qu'il n'en a pas — même
    procédé que la multiplication posée. Une retenue tombe naturellement dans
-   72 % des cas : la boucle passe au premier coup trois fois sur quatre. */
+   72 % des cas : la boucle passe au premier coup trois fois sur quatre.
+
+   L'opération est POSÉE, comme la multiplication : l'élève remplit les cases du
+   résultat, colonne par colonne, et peut écrire les retenues.
+   · À l'addition, la retenue se pose AU-DESSUS de la colonne où elle s'ajoute —
+     convention universelle.
+   · À la soustraction, on retient la compensation : +10 aux unités du haut, +1
+     aux dizaines du bas. La case porte donc ce « 1 » ajouté au nombre du bas.
+     Comme à la multiplication, les cases de retenue sont FACULTATIVES : un
+     élève qui apprend la méthode par emprunt les laisse vides et n'est pas
+     pénalisé — seule une retenue écrite doit être juste. */
 function genAddSub(plus){
   let a,b;
   do{ a=rand(100,999); b=rand(10,99); }while(!retenueAddSub(a,b,plus));
-  return plus ? { text:a+' + '+b, answer:a+b } : { text:a+' \u2212 '+b, answer:a-b };
+  const r = plus ? a+b : a-b;
+  const ch = function(n){ return String(n).split('').map(Number); };
+  const ua=a%10, da=Math.floor(a/10)%10, ha=Math.floor(a/100);
+  const ub=b%10, db=Math.floor(b/10);
+  let ret;                                   /* retenues attendues, par colonne */
+  if(plus){
+    const c1 = (ua+ub>=10) ? 1 : 0;                       /* vers les dizaines */
+    const c2 = (da+db+c1>=10) ? 1 : 0;                    /* vers les centaines */
+    const c3 = (ha+c2>=10) ? 1 : 0;                       /* vers les milliers  */
+    ret = { d:c1, h:c2, m:c3 };
+  } else {
+    const e1 = (ua<ub) ? 1 : 0;                           /* +1 aux dizaines du bas */
+    const e2 = (da < db+e1) ? 1 : 0;                      /* +1 aux centaines du bas */
+    ret = { d:e1, h:e2, m:0 };
+  }
+  return { plus, a, b, ua, da, ha, ub, db, ret,
+           res: ch(r),                        /* les chiffres du résultat, sans zéro inutile */
+           text:a+(plus?' + ':' \u2212 ')+b, answer:r };
 }
 function tirageAddSub(n){
   const nb=Math.max(1, parseInt(n,10)||10);
@@ -2935,14 +2979,12 @@ async function startAddSub(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
-  /* Même moteur que le calcul mental — même écran, même ardoise, même
-     minuteur : seul le tirage change. « qId » dit lequel des deux exercices
-     tourne, et c'est lui qui part dans la note. */
-  test.kind='cm'; test.qId='addition-soustraction';
-  test.questions=tirageAddSub(cfg.count);
+  /* Opération POSÉE : son propre écran et son propre kind. Il n'y a plus de
+     minuteur — on pose, on aligne, on vérifie. */
+  test.kind='asp';
+  test.questions=tirageAddSub(cfg.mpCount||10);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  test.demarre=false;
-  show('test'); renderQuestion();
+  show('asptest'); renderASPTest();
 }
 
 /* ---------- Déroulé du test ---------- */
@@ -3380,6 +3422,115 @@ async function tmFinir(){
   /* Plus de branche « abandon » ici : « ✕ Abandonner » passe par abandonTest()
      et ne pose aucune note. On n'entre donc dans tmFinir() qu'une fois tous les
      calculs sus. */
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Additions et soustractions POSÉES : rendu et correction ----------
+   Même grille que la multiplication posée, mêmes classes CSS, donc même aspect :
+   une rangée de retenues facultatives, les deux nombres alignés par la droite,
+   un trait, puis les cases du résultat.
+   Le nombre de cases du résultat suit le RÉSULTAT, pas une largeur fixe :
+   999+99 en demande quatre, 101\u221299 une seule. Des cases en trop se liraient
+   comme des zéros à écrire. */
+function renderASPTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('aspIdx').textContent='Opération '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagAsp').innerHTML=modeTagHTML();
+  $('aspLiveScore').textContent=test.score;
+  $('aspFeedback').textContent=''; $('aspFeedback').className='mp-feedback';
+  $('aspActions').innerHTML='<button class="btn btn-primary" id="aspCheck" onclick="checkASPAnswer()">Vérifier</button>';
+  const cell=(inner)=>'<div class="mp-cl">'+(inner||'')+'</div>';
+  const inp=(cls,exp,tab)=>'<input class="'+cls+'" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" tabindex="'+tab+'" aria-label="case à compléter">';
+  /* TOUTES les rangées ont le même nombre de cellules : la grille est en
+     flexbox à cellules de largeur fixe, et une rangée plus courte décalerait
+     le signe et les colonnes. Trois colonnes d'ordinaire, quatre quand
+     l'addition déborde (999 + 99 = 1098). */
+  const nRes=q.res.length, nCols=Math.max(3,nRes);
+  /* Une rangée : un contenu par colonne, aligné à DROITE comme on pose. */
+  const rangee=(tete,contenus)=>{
+    const c=[]; for(let i=0;i<nCols-contenus.length;i++) c.push(cell());
+    contenus.forEach(x=>c.push(cell(x)));
+    return '<div class="mp-row"><div class="mp-cl op">'+(tete||'')+'</div>'+c.join('')+'</div>';
+  };
+  const dig=n=>'<span class="mp-digit">'+n+'</span>';
+  /* Les retenues, au-dessus de la colonne où elles s'ajoutent. Rien au-dessus
+     des unités : aucune retenue n'y entre. Elles valent 0 ou 1 et sont
+     FACULTATIVES — on les propose sur toutes les colonnes plutôt que sur les
+     seules qui en portent une, sinon leur simple présence dirait à l'élève où
+     la retenue tombe. */
+  const ret=[];
+  if(nCols===4) ret.push(inp('mp-carry',q.ret.m,nRes+3));
+  ret.push(inp('mp-carry',q.ret.h,nRes+2));
+  ret.push(inp('mp-carry',q.ret.d,nRes+1));
+  ret.push('');                                  /* colonne des unités : rien */
+  const rowRet ='<div class="mp-row"><div class="mp-cl op"></div>'+ret.map(x=>cell(x)).join('')+'</div>';
+  const rowA   =rangee('', [dig(q.ha),dig(q.da),dig(q.ua)]);
+  const rowB   =rangee('<span class="mp-sign">'+(q.plus?'+':'\u2212')+'</span>', [dig(q.db),dig(q.ub)]);
+  const rowLine='<div class="mp-lrow"><div class="mp-cl op"></div><div class="mp-line" style="width:'+(nCols*52)+'px"></div></div>';
+  /* Les cases du résultat : autant que de chiffres, pas plus. Une case en trop
+     se lirait comme un zéro à écrire. On commence par les unités (tabindex 1). */
+  const rowRes =rangee('', q.res.map((d,i)=>inp('mp-box',d,nRes-i)));
+  $('aspHost').innerHTML=rowRet+rowA+rowB+rowLine+rowRes;
+  const ins=[...$('aspHost').querySelectorAll('input')].sort((x,y)=>(+x.tabIndex)-(+y.tabIndex));
+  ins.forEach((el,i)=>{
+    el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i<ins.length-1)ins[i+1].focus(); });
+    el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault();checkASPAnswer();} if(ev.key==='Backspace'&&!el.value&&i>0)ins[i-1].focus(); });
+  });
+  setTimeout(()=>ins[0]&&ins[0].focus(),70);
+}
+/* La correction est celle de la multiplication posée, au mot près : le résultat
+   est obligatoire, la retenue facultative mais juste si elle est écrite. */
+function checkASPAnswer(live){
+  if(test.locked)return;
+  const soutien=isSoutien();
+  if(live){ [...$('aspHost').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp); return; }
+  const host=$('aspHost');
+  const boxes=[...host.querySelectorAll('.mp-box')];
+  const carries=[...host.querySelectorAll('.mp-carry')];
+  const typedResult=boxes.map(b=>b.value.trim()).join('');
+  let resultOk=true, carryOk=true;
+  boxes.forEach(el=>{
+    const exp=el.dataset.exp, v=el.value.trim(), ok=(v!==''&&v===exp);
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ resultOk=false;
+      if(currentMode==='train'){ if(v===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else { const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+    }
+  });
+  carries.forEach(el=>{
+    const exp=el.dataset.exp, v=el.value.trim();
+    const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+    el.classList.remove('ok','bad'); el.disabled=!soutien;
+    if(v===''){ return; }                       /* non utilisée : on ne l'évalue pas */
+    const ok=(v===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+    const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+    if(!ok){ carryOk=false; if(currentMode==='train'){ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); } }
+  });
+  const allOk = resultOk && carryOk;
+  if(!allOk && soutien){ soutienAgain('aspFeedback','aspActions','checkASPAnswer','aspHost'); return; }
+  test.locked=true;
+  const q=test.questions[test.idx];
+  if(allOk){ test.score++; $('aspLiveScore').textContent=test.score;
+    $('aspFeedback').textContent=pick(['Bravo, c\u2019est juste !','Parfait !','Excellent !','Très bien !']); $('aspFeedback').className='mp-feedback good';
+  }else{
+    $('aspFeedback').textContent = resultOk ? 'Le résultat est bon, mais une retenue écrite est fausse.' : 'Presque ! Regarde les cases rouges.';
+    $('aspFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}), q:q.text, answer:q.answer, given:resultOk?q.answer:(typedResult===''?null:parseInt(typedResult,10)), correct:allOk });
+  const last=test.idx===test.questions.length-1;
+  $('aspActions').innerHTML='<button class="btn btn-primary" id="aspNext" onclick="nextASPQuestion()">'+(last?'Voir mes résultats':'Opération suivante')+'</button>';
+  $('aspNext').focus();
+}
+function nextASPQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderASPTest(); autoSave(); } else finishASPTest(); }
+async function finishASPTest(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'addition-soustraction',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
 
@@ -7882,13 +8033,17 @@ Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse —
 Exemple : diminuer 300 de 20 %. La baisse vaut 20/100 × 300 = 60, et 300 \u2212 60 = 240.<br>
 C\u2019est la même réponse qu\u2019avec le coefficient (300 × 0,8 = 240) : deux chemins, un seul résultat.<br>
 Piège classique : la baisse seule (60) n\u2019est pas la réponse — et c\u2019est bien la valeur de départ qui perd, jamais l\u2019inverse.`;
-const RAP_ADDSUB=`<b>Additions et soustractions de tête</b><br>
-Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres, et <b>toujours une retenue</b> : une colonne d\u00e9borde \u00e0 l\u2019addition, une colonne oblige \u00e0 emprunter \u00e0 la soustraction.<br>Deux r\u00e9flexes \u00e9vitent d\u2019avoir \u00e0 la poser :<br>
-<b>additionner</b> — passer par la dizaine ronde : 347 + 58 = 347 + 3 + 55 = 350 + 55 = 405 ;
-ou d\u00e9couper le petit nombre : 347 + 50 = 397, puis + 8 = 405.<br>
-<b>soustraire</b> — c\u2019est un \u00e9cart, et on avance : pour 432 \u2212 87, aller de 87 \u00e0 100 (13),
-puis de 100 \u00e0 432 (332), soit 345. On peut aussi retirer 100 et rendre 13 : 432 \u2212 100 = 332, puis + 13 = 345.<br>
-Et toujours l\u2019ordre de grandeur d\u2019abord : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
+const RAP_ADDSUB=`<b>Poser une addition ou une soustraction</b><br>
+Un nombre \u00e0 trois chiffres, un nombre \u00e0 deux chiffres, et <b>toujours une retenue</b> : une colonne d\u00e9borde \u00e0 l\u2019addition, une colonne oblige \u00e0 emprunter \u00e0 la soustraction.<br>On aligne les chiffres par la DROITE — unit\u00e9s sous unit\u00e9s, dizaines sous dizaines — puis on calcule colonne par colonne, en commen\u00e7ant par les unit\u00e9s.<br>
+<b>Addition</b> — 347 + 58 : aux unit\u00e9s 7 + 8 = 15, on \u00e9crit 5 et on retient 1 ; aux dizaines
+4 + 5 + 1 = 10, on \u00e9crit 0 et on retient 1 ; aux centaines 3 + 1 = 4. R\u00e9sultat 405.
+La retenue s\u2019\u00e9crit au-dessus de la colonne o\u00f9 elle s\u2019ajoute.<br>
+<b>Soustraction</b> — 432 \u2212 87 : aux unit\u00e9s 2 est plus petit que 7, on ajoute 10 en haut
+(12 \u2212 7 = 5) et on compense en ajoutant 1 aux dizaines du BAS ; aux dizaines 3 \u2212 (8+1),
+m\u00eame chose : 13 \u2212 9 = 4, et 1 de plus aux centaines du bas ; aux centaines 4 \u2212 1 = 3.
+R\u00e9sultat 345. Les cases de retenue sont facultatives : si tu as appris la m\u00e9thode
+par emprunt, laisse-les vides.<br>
+V\u00e9rifie l\u2019ordre de grandeur \u00e0 la fin : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
 Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
 const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -7896,7 +8051,7 @@ function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPP
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
-  'addition-soustraction':["Comment additionner de tête en passant par la dizaine ?","Comment soustraire en avançant plutôt qu'en reculant ?","C'est quoi, une retenue ?","Pourquoi chercher un ordre de grandeur avant de calculer ?","Comment vérifier une soustraction sans la refaire ?"],
+  asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
@@ -8076,11 +8231,12 @@ function conseilCtxCourant(){
     att='Question : '+(q.qtext||'')+'. Réponse attendue, STRICTEMENT SECRÈTE : '+(q.atext||'')+'. '
       +'Méthode : diviser par 10, 100 ou 1000 décale la virgule de 1, 2 ou 3 rangs vers la gauche ; inversement, le nombre de chiffres après la virgule donne le dénominateur.';
   } else if(currentTestId==='addition-soustraction' && q){
-    att='Calcul mental \u00e0 poser de t\u00eate : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
-      +'M\u00e9thode : pour une addition, passer par la dizaine ronde ou ajouter les dizaines puis les unit\u00e9s ; '
-      +'pour une soustraction, avancer du petit nombre vers le grand, ou retirer la centaine puis rendre la diff\u00e9rence. '
-      +'Il y a TOUJOURS une retenue dans cet exercice : une colonne d\u00e9borde, ou oblige \u00e0 emprunter. '
-      +'Ne donne jamais le r\u00e9sultat : oriente sur le chemin.';
+    att='Op\u00e9ration POS\u00c9E en colonnes : '+q.text+'. R\u00e9ponse attendue, STRICTEMENT SECR\u00c8TE : '+q.answer+'. '
+      +'L\u2019\u00e9l\u00e8ve remplit les cases du r\u00e9sultat, colonne par colonne en partant des unit\u00e9s ; '
+      +'les cases de retenue sont facultatives. Il y a TOUJOURS une retenue dans cet exercice. '
+      +'M\u00e9thode : \u00e0 l\u2019addition, la retenue s\u2019\u00e9crit au-dessus de la colonne o\u00f9 elle s\u2019ajoute ; '
+      +'\u00e0 la soustraction, on ajoute 10 en haut et on compense par +1 \u00e0 la colonne suivante du BAS. '
+      +'Ne donne jamais le r\u00e9sultat : oriente sur la colonne o\u00f9 \u00e7a bloque.';
   } else if(k==='tm' && q){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
@@ -8288,7 +8444,7 @@ function pmJetons(scr){
   if(cible) cible.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderQuestion','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
+  const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
               'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;

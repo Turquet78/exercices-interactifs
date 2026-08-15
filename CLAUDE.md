@@ -208,6 +208,24 @@ JSON sans les fonctions de leurs courbes.
 La migration `003` se joue à la main chez Supabase, comme les autres : jouée
 après coup, le bouton renvoie une erreur à l'élève.
 
+**Une opération posée se juge à l'œil, pas au compte.** La grille des
+opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
+rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de
+cellules que les autres décale donc le signe et les colonnes : l'opération n'est
+plus posée, elle est de travers — et rien dans le code ne le dit. Chaque rangée
+compte un `op` puis exactement `nCols` cellules, `nCols` valant 3 d'ordinaire et
+4 quand l'addition déborde (999 + 99 = 1098) ; le trait suit la largeur. Les
+cases du résultat suivent le RÉSULTAT et non une largeur fixe — une case en trop
+se lirait comme un zéro à écrire, et 102 − 97 n'en demande qu'une. Deux
+contrôles : l'un compte les cellules et les cases sur les quatre formes, l'autre
+MESURE les positions dans un vrai navigateur — seul un navigateur sait où tombe
+une colonne.
+Les cases de retenue sont facultatives, et proposées sur toutes les colonnes
+plutôt que sur celles qui en portent une : leur seule présence dirait sinon à
+l'élève où la retenue tombe. À la soustraction, elles portent la compensation
+(+1 à la colonne suivante du bas) ; un élève qui apprend la méthode par emprunt
+les laisse vides sans être pénalisé.
+
 **Deux exercices peuvent partager un moteur — mais pas leur identité.** Le
 calcul mental et les additions-soustractions tournent sur le même `kind`
 (`cm`), le même écran et la même ardoise : seul le tirage change. Trois choses
