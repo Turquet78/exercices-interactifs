@@ -217,22 +217,41 @@ suppression professeur.
 
 ### Le ménage des lignes fantômes
 
-Les brouillons accumulés depuis des mois sont toujours là. Une fois la migration
-jouée, chaque élève nettoie les siens en reprenant puis en terminant ou en
-abandonnant ses exercices — mais on peut aussi les retirer d'un coup, en tant
-que professeur, dans l'éditeur SQL :
+Les brouillons accumulés depuis des mois sont toujours là : la migration ouvre
+le droit pour la suite, elle ne nettoie pas le passé. Collez
+**`menage-brouillons.sql`** dans l'éditeur SQL et exécutez-le.
 
-```sql
--- à lire d'abord : combien, et pour qui
-select count(*) from public.resultats_1ere where details->>'state' = 'paused';
--- puis, si le compte paraît juste
-delete from public.resultats_1ere where details->>'state' = 'paused';
-```
+Il travaille en trois temps, et le premier ne touche à rien :
 
-Cela n'efface **aucune note** : une note n'a pas de champ `state`. En revanche
-cela fait perdre les pauses réellement en cours — à faire donc en dehors des
-heures où les élèves travaillent. Les trois tables sont `resultats`,
-`resultats_1ere` et `resultats_2nde`.
+1. **ce qu'il y a** — par table : lignes, notes, brouillons, et combien datent
+   de moins de 24 h. Si les nombres vous surprennent, arrêtez-vous là ;
+2. **le ménage** — les seules lignes dont `details->>'state'` vaut `paused` ;
+3. **ce qu'il reste** — « brouillons » à zéro, « notes » identique au point 1.
+
+**Aucune note n'est touchée**, et ce n'est pas une promesse : une note n'a pas
+de champ `state`, le filtre ne peut pas l'atteindre, et l'étape 1 le montre
+chiffres en main avant toute suppression.
+
+Ces brouillons ne valent rien, et c'est démontrable : le droit de *modifier*
+manquait autant que celui de supprimer, si bien que chaque ligne est restée
+figée à l'instant de la toute première réponse. Elle annonce « tu t'es arrêté à
+la question 5 » et ramènerait en réalité à la question 1. Les garder ne conserve
+pas du travail — cela conserve un mensonge, et empêche l'élève de recommencer
+l'exercice, puisque l'écran des modes remplace « M'entraîner » par « Reprendre »
+dès qu'un brouillon existe.
+
+**À jouer en dehors des heures où les élèves travaillent** : les rares pauses
+réellement en cours partiraient avec les autres. Aucune note perdue, mais
+l'exercice reprendrait au début. Pour les épargner, décommentez dans l'étape 2
+la ligne `and created_at < now() - interval '24 hours'`.
+
+Le relancer ne trouve plus rien.
+
+> `npm run test:base` rejoue ce script sur un PostgreSQL jetable semé exprès —
+> deux notes, deux brouillons, un brouillon sur un autre niveau — et vérifie que
+> les notes et leurs scores sont intacts, que les trois tables sont traitées, et
+> qu'un second passage ne casse rien. Retirer le filtre `state = 'paused'`
+> **doit** le faire rougir : c'est le cas.
 
 > `npm run test:base` joue la migration sur un PostgreSQL jetable et met le banc
 > dans la peau d'Alice : sa pause doit avancer et s'effacer, sa note doit rester
