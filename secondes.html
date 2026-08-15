@@ -396,6 +396,10 @@
   .sig-actions{display:flex;gap:8px;flex-wrap:wrap}
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
+  /* Rendu — donc vu par Chrome — mais hors de l'écran et hors du parcours
+     clavier. « display:none » ne conviendrait pas : Chrome ignore ce qu'il ne
+     considère pas affiché, et chercherait de nouveau ailleurs. */
+  .hors-ecran{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
   /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
@@ -892,19 +896,19 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <button id="segCr" onclick="loginMode('cr')">Créer mon compte</button>
       </div>
 
-      <div id="modeCo">
+      <form id="modeCo" onsubmit="return false" autocomplete="off">
         <label class="lab">Choisis ton prénom</label>
         <div class="chips" id="nameChips"></div>
         <div id="pinRow" hidden style="margin-top:14px">
           <label class="lab" for="loginPin">Ton code à 6 chiffres</label>
           <div class="row">
             <input class="pin-input" id="loginPin" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
-            <button class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
+            <button type="button" class="btn btn-primary" onclick="connexionEleve()">Entrer</button>
           </div>
         </div>
-      </div>
+      </form>
 
-      <div id="modeCr" hidden>
+      <form id="modeCr" hidden onsubmit="return false" autocomplete="off">
         <div class="field">
           <label class="lab" for="newPrenom">Ton prénom</label>
           <input class="text-input" id="newPrenom" maxlength="24" placeholder="Ex. : Léa" autocomplete="off">
@@ -919,9 +923,9 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
             <input class="text-input" id="newPin2" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
           </div>
         </div>
-        <button class="btn btn-primary" onclick="creerCompte()">Créer mon compte</button>
+        <button type="button" class="btn btn-primary" onclick="creerCompte()">Créer mon compte</button>
         <p class="note">Choisis un code facile à retenir. En cas d'oubli, ton professeur peut le réinitialiser.</p>
-      </div>
+      </form>
 
       <div style="margin-top:16px"><button class="btn-link" onclick="show('home')">Retour</button></div>
     </div>
@@ -1170,14 +1174,27 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="card">
       <h2 class="title">Espace professeur</h2>
       <p class="lead">Entre le mot de passe pour accéder au tableau de bord.</p>
-      <div class="field">
-        <label class="lab" for="teacherPass">Mot de passe</label>
-        <input class="text-input" id="teacherPass" type="password" autocomplete="off">
-      </div>
-      <div class="row">
-        <button class="btn btn-primary" onclick="teacherLogin()">Entrer</button>
-        <button class="btn-link" onclick="show('home')">Retour</button>
-      </div>
+      <!-- Chrome cherche TOUJOURS l'identifiant qui accompagne un mot de passe.
+           Sans balise « form », il n'a aucune frontière : il fouille la page
+           ENTIÈRE et se rabat sur le premier champ texte venu — celui de la
+           réponse d'un exercice. D'où la bulle « Gérer les mots de passe »
+           apparue au milieu des tables de multiplication.
+           « autocomplete=off » n'y peut rien : Chrome l'ignore délibérément
+           pour son gestionnaire de mots de passe depuis 2014. Ce qu'il faut lui
+           donner, c'est la frontière — et l'identifiant, pour qu'il n'ait plus
+           aucune raison d'aller le chercher ailleurs. -->
+      <form onsubmit="return false">
+        <input id="teacherUser" class="hors-ecran" type="text" name="username"
+               autocomplete="username" tabindex="-1" aria-hidden="true" readonly>
+        <div class="field">
+          <label class="lab" for="teacherPass">Mot de passe</label>
+          <input class="text-input" id="teacherPass" type="password" name="password" autocomplete="current-password">
+        </div>
+        <div class="row">
+          <button type="button" class="btn btn-primary" onclick="teacherLogin()">Entrer</button>
+          <button type="button" class="btn-link" onclick="show('home')">Retour</button>
+        </div>
+      </form>
     </div>
   </section>
 
@@ -1348,7 +1365,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=41;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=42;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -4697,6 +4714,10 @@ document.addEventListener('input',e=>{
   clearTimeout(_draftSaveTimer); _draftSaveTimer=setTimeout(autoSave,1200);
 });
 $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
+/* L'identifiant est celui du compte Supabase du professeur. Il est posé depuis
+   la constante, jamais recopié : deux écritures qui divergent, c'est le défaut
+   qu'on a déjà payé avec DOMAINE_COMPTES. */
+(function(){ const u=$('teacherUser'); if(u) u.value=COURRIEL_PROF; })();
 $('teacherPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();teacherLogin();}});
 $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();creerCompte();}});
 

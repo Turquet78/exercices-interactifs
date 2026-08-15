@@ -720,6 +720,49 @@ function demarrage(suite){
    dans le même cas, et trois écrans de la Terminale sans questions à l'IA. */
 function branchements(w){
   const src = lire(CIBLE);
+
+  /* ---- Le gestionnaire de mots de passe ne déborde pas sur un exercice ----
+     Chrome cherche toujours l'identifiant qui accompagne un champ « password ».
+     Sans balise <form>, il n'a AUCUNE frontière : il fouille le document
+     entier et se rabat sur le premier champ texte venu — en l'occurrence celui
+     où l'élève tape sa réponse, d'où une bulle « Gérer les mots de passe »
+     posée au milieu des tables de multiplication. Le symptôme est
+     intermittent, parce que Chrome refait son analyse à chaque chargement et
+     ne retient pas toujours le même champ : c'est exactement le genre de panne
+     qu'une relecture ne voit pas et qu'un banc doit tenir.
+     « autocomplete=off » ne protège de rien ici : Chrome l'ignore
+     délibérément pour son gestionnaire de mots de passe. Ce qui compte, c'est
+     la frontière, l'identifiant offert dedans, et le fait qu'aucun champ
+     d'exercice ne partage ce formulaire. */
+  verifierEval(w, 'le gestionnaire de mots de passe ne peut pas déborder sur un exercice', `(function(){
+    const vus=[];
+    const mdp=Array.from(document.querySelectorAll('input[type=password]'));
+    if(!mdp.length) return 'aucun champ mot de passe : le contrôle ne mesure plus rien';
+    mdp.forEach(function(p){
+      const nom=p.id||'(sans id)';
+      if(!p.form){ vus.push(nom+' n\\'est dans aucun <form> — Chrome fouille toute la page'); return; }
+      const u=p.form.querySelector('input[autocomplete=username]');
+      if(!u){ vus.push(nom+' : son formulaire n\\'offre aucun identifiant, Chrome ira en chercher un ailleurs'); return; }
+      if(!u.value) vus.push(nom+' : l\\'identifiant proposé est vide');
+      if(getComputedStyle(u).display==='none') vus.push(nom+' : l\\'identifiant est en display:none, Chrome l\\'ignore');
+    });
+    /* Aucun champ d'un écran d'exercice ne doit se trouver dans un formulaire :
+       c'est la moitié qui compte pour l'élève. */
+    (typeof testScreens!=='undefined'?testScreens:[]).forEach(function(nom){
+      const ec=document.getElementById('scr-'+nom); if(!ec) return;
+      ec.querySelectorAll('input').forEach(function(i){
+        if(i.form) vus.push('le champ '+(i.id||i.className)+' de l\\'écran '+nom+' est dans un formulaire');
+      });
+    });
+    /* Un bouton sans type explicite SOUMET le formulaire qui l'entoure : la
+       page se rechargerait, et la connexion serait perdue. */
+    document.querySelectorAll('form button').forEach(function(b){
+      if((b.getAttribute('type')||'submit')==='submit')
+        vus.push('le bouton « '+(b.textContent||'').trim()+' » soumettrait son formulaire');
+    });
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
   const kinds = (() => {
     const f = evaluer(w, 'String(afficherEcranDe)');
     if(!f.ok) return null;
