@@ -1578,6 +1578,44 @@ function abandonSortDePause(w, apres){
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */
 function premiere(w){
+  /* ---- Un devoir peut allonger la séance des tables --------------------
+     Le format normal est TM_NB calculs — c'est ce que l'élève trouve au menu.
+     Un devoir peut en demander davantage sur le niveau 1, et sur lui seul : le
+     niveau 2 tire les produits les plus ratés, sa liste a sa propre logique.
+     Trois bords à tenir, et le troisième est le moins évident :
+       · le devoir obtient ce qu'il demande ;
+       · hors devoir, et dans un devoir sans réglage, rien ne change ;
+       · une valeur BRICOLÉE dans la base — le réglage est un simple champ JSON,
+         que le professeur ou un curieux peut éditer — ne doit pas produire une
+         séance de quatre cents calculs. TM_NB_CHOIX borne les deux côtés :
+         l'éditeur ET la relecture. */
+  verifierEval(w, 'un devoir peut allonger la séance des tables, dans des bornes', `(function(){
+    if(typeof tmNbDevoir!=='function') return 'tmNbDevoir() n\\'existe pas';
+    const vrai=mesDevoirs, dm=currentDM, tid=currentTestId;
+    mesDevoirs=[{id:'d20',exercices:[{id:'tables-multiplication',modes:['train'],nb:20}]},
+                {id:'d10',exercices:[{id:'tables-multiplication',modes:['train']}]},
+                {id:'dbric',exercices:[{id:'tables-multiplication',modes:['train'],nb:400}]}];
+    currentTestId='tables-multiplication';
+    const lu=function(d){ currentDM=d; return tmNbDevoir(); };
+    const vus=[];
+    if(lu('d20')!==20)      vus.push('le devoir qui demande 20 en obtient '+lu('d20'));
+    if(lu('d10')!==TM_NB)   vus.push('un devoir sans réglage donne '+lu('d10')+' au lieu de '+TM_NB);
+    if(lu('dbric')!==TM_NB) vus.push('un réglage bricolé (400) passe : '+lu('dbric'));
+    if(lu(null)!==TM_NB)    vus.push('hors devoir, la séance fait '+lu(null)+' au lieu de '+TM_NB);
+    /* le tirage doit VRAIMENT en produire autant, et sans doublon */
+    const plus=Math.max.apply(null,TM_NB_CHOIX);
+    const t=tmTirage(plus);
+    if(t.length!==plus) vus.push('le tirage rend '+t.length+' calculs pour '+plus+' demandés');
+    const vusPaires={};
+    t.forEach(function(it){ const k=Math.min(it.a,it.b)+'x'+Math.max(it.a,it.b); vusPaires[k]=(vusPaires[k]||0)+1; });
+    if(Object.keys(vusPaires).length!==t.length) vus.push('le tirage répète un produit');
+    /* et le réglage ne se propose que là où il a un sens */
+    if(typeof renderDmEditor==='function' && !/TM_ID_NB/.test(String(renderDmEditor)))
+      vus.push('l\\'éditeur propose le nombre de calculs ailleurs que sur les tables de niveau 1');
+    mesDevoirs=vrai; currentDM=dm; currentTestId=tid;
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- La durée des tables de multiplication n'est écrite qu'une fois ----
      TM_SECONDES commande le minuteur. Le même nombre était pourtant écrit en
      toutes lettres à quatre autres endroits : les deux descriptions du menu,

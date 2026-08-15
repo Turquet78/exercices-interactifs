@@ -322,6 +322,11 @@
   .sig-actions{display:flex;gap:8px;flex-wrap:wrap}
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
+  .dm-nb{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:.86rem;color:var(--ink-soft);font-weight:600}
+  .dm-nb label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .dm-nb select{padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;font:inherit}
+  .dm-nb.off{opacity:.5} .dm-nb.off label{cursor:default}
+  .dm-nb-hint{font-weight:600;font-style:italic}
   #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
   /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
@@ -1342,7 +1347,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=111;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=112;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1574,7 +1579,17 @@ function debutFin(){ if(test.startTime && finVerrouillee===test.startTime) retur
    laissait donc trois qui annonçaient encore l'ancienne durée. Un contrôle
    l'interdit désormais. */
 const TM_SECONDES = 4;        /* temps de réponse accordé, par calcul */
-const TM_NB       = 10;       /* nombre de calculs du premier tour */
+const TM_NB       = 10;       /* nombre de calculs du premier tour, par défaut */
+/* Un devoir peut en demander DAVANTAGE sur les tables de niveau 1 : le réglage
+   vit sur l'entrée de l'exercice dans le devoir, à côté des modes. Hors devoir,
+   c'est toujours TM_NB — le format normal, celui que l'élève trouve au menu.
+   Les valeurs sont énumérées ici plutôt que libres : elles bornent l'éditeur ET
+   ce que la page accepte de relire d'un devoir, si bien qu'un réglage bricolé à
+   la main dans la base ne peut pas produire une séance de 400 calculs. */
+const TM_NB_CHOIX = [10, 20];
+/* Le seul exercice dont la longueur de séance se règle : le niveau 2 tire les
+   produits les plus ratés, sa liste a sa propre logique. */
+const TM_ID_NB = 'tables-multiplication';
 
 /* ---------- Registre des tests (ajouter un test = une ligne ici) ---------- */
 const TESTS={
@@ -2316,7 +2331,7 @@ function show(name){
 function exercicesDevoir(dev){
   return ((dev&&dev.exercices)||[])
     .filter(ex=>TESTS[ex.id])
-    .map(ex=>({ id:ex.id, modes:ex.modes||[] }));
+    .map(ex=>({ id:ex.id, modes:ex.modes||[], nb:parseInt(ex.nb,10)||null }));
 }
 /* Une note d'un devoir, sans distinction de passage. Les devoirs ne demandent
    plus qu'une fois chaque exercice ; les notes écrites du temps des passages
@@ -2382,7 +2397,10 @@ function renderDevoirDetail(devoirId){
     somme+=nd.note; if(nd.fait) faitQqch=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
+    /* Le devoir peut demander une séance plus longue : la carte le dit, sinon
+       l'élève lirait « 10 produits » dans la description et en trouverait 20. */
+    const desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
+    return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
   }).join('');
   const totMax=liste.length*10;
   const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
@@ -3085,7 +3103,7 @@ async function startTM(){
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   test.kind='tm'; test.tmId='tables-multiplication';
-  test.items=tmTirage(TM_NB);                   /* les 10 calculs de reference */
+  test.items=tmTirage(tmNbDevoir());            /* les calculs de reference : 10, ou ce que le devoir demande */
   test.questions=test.items;                    /* meme tableau : la sauvegarde de reprise l'exige */
   test.tour=1;
   test.file=test.items.slice();                 /* ce qu'il reste a faire dans ce tour */
@@ -3093,6 +3111,22 @@ async function startTM(){
   test.demarre=false;                                  /* l'eleve lance lui-meme le test */
   show('tm'); tmRender();
 }
+/* Combien de calculs ce devoir demande-t-il pour CET exercice ? Lu sur la
+   définition du devoir — la même que celle que l'éditeur écrit — plutôt que
+   rangé dans une variable de plus : currentPasse avait montré ce que coûte un
+   état parallèle qu'il faut penser à remettre à zéro partout. */
+function tmNbDevoir(){
+  if(!currentDM) return TM_NB;
+  const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+  const ex=dev&&(dev.exercices||[]).find(e=>e.id===currentTestId);
+  const n=parseInt(ex&&ex.nb,10);
+  return TM_NB_CHOIX.indexOf(n)>=0 ? n : TM_NB;
+}
+/* Le nombre de calculs de la séance EN COURS. On le lit sur le tirage lui-même
+   et non sur le devoir : après une reprise de pause, c'est le tirage qui fait
+   foi — le devoir a pu changer entre-temps, et l'élève doit retrouver sa
+   séance telle qu'il l'a laissée. */
+function tmNb(){ return (test.items && test.items.length) || TM_NB; }
 function tmAcquis(){ return test.items.filter(it=>it.acquis).length; }
 /* Sur iPad et t\u00e9l\u00e9phone, le clavier ne s'ouvre QUE si le focus est demand\u00e9 pendant le
    geste de l'\u00e9l\u00e8ve (clic ou touche). On focalise donc de mani\u00e8re SYNCHRONE, sans passer
@@ -3116,9 +3150,9 @@ function tmRender(){
     test.phase='depart'; test.locked=false;
     $('modeTagTm').innerHTML=modeTagHTML();
     $('tmIdx').textContent='Calcul 1 / '+test.file.length;
-    $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+    $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
     $('tmTour').className='tm-tour';
-    $('tmTour').innerHTML='<b>'+TM_NB+' calculs</b>, <b>'+TM_SECONDES+' secondes</b> chacun.';    $('tmEq').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
+    $('tmTour').innerHTML='<b>'+tmNb()+' calculs</b>, <b>'+TM_SECONDES+' secondes</b> chacun.';    $('tmEq').innerHTML='<span class="depart-titre">Pr\u00eat\u00a0?</span>';
     const ai0=$('tmInput'); ai0.value=''; ai0.className='answer-input'; ai0.disabled=true;
     $('tmMark').className='mark'; $('tmMark').textContent='';
     $('tmTimerBar').hidden=true; $('tmCorrection').innerHTML='';
@@ -3131,10 +3165,10 @@ function tmRender(){
   test.phase='saisie'; test.locked=false;
   $('modeTagTm').innerHTML=modeTagHTML();
   $('tmIdx').textContent='Calcul '+(test.idx+1)+' / '+test.file.length;
-  $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+  $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
   $('tmTour').className='tm-tour'+(test.tour>1?' reprise':'');
   $('tmTour').innerHTML = test.tour===1
-    ? 'Tour 1 — <b>'+TM_NB+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
+    ? 'Tour 1 — <b>'+tmNb()+' calculs</b>, '+TM_SECONDES+' secondes chacun.'
     : 'Reprise n\u00b0'+(test.tour-1)+' — on refait les <b>'+test.file.length+'</b> calcul'+(test.file.length>1?'s':'')+' rat\u00e9'+(test.file.length>1?'s':'')+'.';
   $('tmEq').innerHTML=esc(it.text)+' = <span class="blank">?</span>';
   const ai=$('tmInput'); ai.value=''; ai.className='answer-input'; ai.disabled=false; ai.readOnly=false;
@@ -3194,7 +3228,7 @@ function tmValider(tempsEcoule){
       : 'Pas encore \u2014 ce calcul reviendra.';
     $('tmFeedback').className='mp-feedback bad';
   }
-  $('tmLiveScore').textContent=tmAcquis()+' / '+TM_NB;
+  $('tmLiveScore').textContent=tmAcquis()+' / '+tmNb();
   $('tmActions').innerHTML='<button class="btn btn-primary" onclick="tmSuivant()">'
     +(test.idx<test.file.length-1?'Calcul suivant':'Continuer')+'</button>';
 }
@@ -3239,7 +3273,7 @@ async function tmFinir(){
   test.phase='fini';                          /* ferme aussi la voie clavier de tmSuivant */
   clearTimeout(test.qTimer);
   recoveryClosed=true; recoveryDirty=false;   /* on arrete l'enregistrement automatique tout de suite... */
-  const score=tmAcquis(), total=TM_NB, pct=Math.round(score/total*100);
+  const score=tmAcquis(), total=tmNb(), pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   test.answers=test.items.map(it=>({ q:it.text, answer:it.answer,
     given:(it.acquis?it.answer:it.premiere), correct:it.acquis, essais:it.essais }));
@@ -6578,18 +6612,31 @@ function renderDmEditor(){
   const box=$('dmEditor');
   if(!dmSelId){ box.innerHTML='<div class="dm-empty">Aucun devoir pour l\'instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
-  const chosen={};
-  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; });
+  const chosen={}, nbs={};
+  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB; });
   const groups=THEMES.map(th=>{
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
       const mk=(m,lbl)=>{ const on=modes.includes(m), interdit=(m==='soutien'&&sansSoutien(id));
         if(interdit) return `<label class="dm-mode off" title="Exercice de rapidité : le mode soutien n\u2019y existe pas."><input type="checkbox" disabled><span>${esc(lbl)}</span></label>`;
         return `<label class="dm-mode ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="dmToggleMode('${escJS(id)}','${escJS(m)}',this.checked)"> ${lbl}</label>`; };
+      /* Le nombre de calculs ne se règle que là où il a un sens : les tables de
+         niveau 1, seul exercice dont la longueur de séance est un réglage. Le
+         proposer partout donnerait vingt-cinq champs sans effet. Il est montré
+         même sur une ligne non cochée — grisé, avec le motif écrit à côté :
+         un réglage qui n'apparaît qu'après le bon geste est un réglage qu'on ne
+         découvre jamais. */
+      const nbChoix = (id===TM_ID_NB) ? `<span class="dm-nb${picked?'':' off'}">
+          <label>Questions <select ${picked?'':'disabled'} onchange="dmSetNb('${escJS(id)}',this.value)">${
+            TM_NB_CHOIX.map(n=>`<option value="${n}"${nbs[id]===n?' selected':''}>${n}</option>`).join('')
+          }</select></label>
+          ${picked?'':'<span class="dm-nb-hint">coche un mode pour le régler</span>'}
+        </span>` : '';
       return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
         <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
         <span class="dm-exo-name">${esc(testName(id))}</span>
         <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
+        ${nbChoix}
       </div>`;
     }).join('');
     if(!rows) return '';
@@ -6613,6 +6660,16 @@ function renderDmEditor(){
       <button class="btn btn-danger" onclick="deleteDM('${escJS(d.id)}')">Supprimer ce devoir</button>
     </div>
   </div>`;
+}
+/* Le nombre de calculs vit sur l'entrée de l'exercice dans le devoir : un
+   exercice retiré du devoir l'emporte avec lui. La valeur par défaut ne s'écrit
+   pas — un devoir « normal » garde exactement la forme qu'il avait avant que ce
+   réglage n'existe. */
+function dmSetNb(id,v){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  const n=parseInt(v,10);
+  if(TM_NB_CHOIX.indexOf(n)>=0 && n!==TM_NB) ex.nb=n; else delete ex.nb;
 }
 function dmToggleMode(id,m,checked){
   const d=dmCur(); if(!d) return;
@@ -6649,7 +6706,7 @@ async function saveDM(){
      « verrou » : on les retire ici plutôt que de les traîner indéfiniment dans
      un réglage que plus rien ne lit. */
   d.exercices=(d.exercices||[]).filter(ex=>(ex.modes||[]).length)
-    .map(ex=>({ id:ex.id, modes:ex.modes }));
+    .map(ex=>Object.assign({ id:ex.id, modes:ex.modes }, ex.nb?{nb:ex.nb}:{}));
   try{
     cfg=await loadConfig();
     const arr=(cfg.devoirs||[]).slice();
