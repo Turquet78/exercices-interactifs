@@ -1349,7 +1349,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=107;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=108;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2239,18 +2239,19 @@ async function pauseTest(){
 }
 async function abandonTest(){
   if(!currentEleve) return;
-  /* Tables de multiplication : arreter enregistre la note des calculs deja sus. */
-  if(test && test.kind==='tm' && test.demarre){
-    if(!confirm('Arr\u00eater cet exercice ? Ta note sera celle des calculs d\u00e9j\u00e0 sus.')) return;
-    const tc0=$('testCtrls'); if(tc0) tc0.hidden=true;
-    tmAbandon(); return;
-  }
-  if(!confirm('Abandonner cet exercice ? Ta progression n\u2019est pas modifiée.')) return;
+  if(!confirm('Abandonner cet exercice ? Aucune note ne sera enregistrée.')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   const tc=$('testCtrls'); if(tc) tc.hidden=true;
-  /* Abandonner efface la pause de CE mode, et de lui seul : l'entraînement et
-     le soutien sont deux travaux distincts, que l'écran des modes montre côte à
-     côte. Abandonner l'un ne jette pas l'autre. */
+  /* ABANDONNER N'ENREGISTRE AUCUNE NOTE (décision de Turquet, août 2026).
+     Le même bouton faisait trois choses différentes selon l'endroit : rien en
+     Première, une note partielle « sur ce qui a été fait » en Seconde et en
+     Terminale, et la note des calculs déjà sus aux tables de multiplication.
+     Un élève qui renonçait repartait donc avec une note qu'il n'avait pas
+     demandée — et la moyenne s'en souvenait. Abandonner ne laisse plus aucune
+     trace dans la progression.
+     Il reste UN seul geste : retirer la pause de CE mode, et de lui seul —
+     l'entraînement et le soutien sont deux travaux distincts, que l'écran des
+     modes montre côte à côte. */
   let efface=false;
   try{ efface=await clearRecovery(); }catch(e){ efface=false; }
   /* Et on ne l'assure pas d'un abandon qui n'a pas eu lieu : si la base a
@@ -3207,7 +3208,7 @@ function tmSuivant(){
   if(test.idx < test.file.length-1){ test.idx++; tmRender(); autoSave(); return; }
   /* fin du tour : on repart avec les calculs rates */
   const restants=test.file.filter(it=>!it.acquis);
-  if(!restants.length){ tmFinir(false); return; }
+  if(!restants.length){ tmFinir(); return; }
   test.tour++; test.file=restants; test.idx=0;
   tmRender(); autoSave();
 }
@@ -3224,12 +3225,11 @@ function tmReprise(){
   if(test.idx>=test.file.length) test.idx=0;
   if(!test.tour) test.tour=1;
 }
-/* Arret en cours de route : la note vaut les calculs deja sus (10 si tout est acquis).
-   Appele par le bouton « \u2715 Abandonner » de l'en-tete, propre a cet exercice. */
-function tmAbandon(){
-  clearTimeout(test.qTimer); test.phase='fini';
-  tmFinir(true);
-}
+/* Les tables avaient leur propre arrêt, tmAbandon(), qui enregistrait la note
+   des calculs déjà sus. Il a disparu avec la règle « abandonner ne pose aucune
+   note » : « ✕ Abandonner » y passe désormais par abandonTest(), comme partout
+   ailleurs. tmFinir() ne sert donc plus qu'à la VRAIE fin — tous les calculs
+   sus — et n'a plus besoin de savoir distinguer les deux. */
 /* Entrée : valide pendant la saisie, passe au calcul suivant pendant la correction */
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter') return;
@@ -3239,7 +3239,7 @@ document.addEventListener('keydown',e=>{
   else if(test.phase==='saisie') tmValider(false);
   else if(test.phase==='correction') tmSuivant();
 });
-async function tmFinir(abandon){
+async function tmFinir(){
   if(!debutFin()) return;                     /* double-clic : une seule fin de test */
   test.phase='fini';                          /* ferme aussi la voie clavier de tmSuivant */
   clearTimeout(test.qTimer);
@@ -3256,13 +3256,13 @@ async function tmFinir(abandon){
   try{
     if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,
       duration_sec:durationSec,
-      details:{test:(test.tmId||'tables-multiplication'),mode:currentMode,tours:test.tour,abandon:!!abandon,misses,stats,
+      details:{test:(test.tmId||'tables-multiplication'),mode:currentMode,tours:test.tour,misses,stats,
         ...(test.tmId==='tables-multiplication-2'?{tm2Source:test.tm2Source,tm2Seances:test.tm2Seances}:{}),
         ...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */
   }catch(e){ toast('R\u00e9sultat non enregistr\u00e9 (connexion)','err'); }
-  /* Les tables ont leur propre fin : \u00ab \u2715 Abandonner \u00bb y passe par ici, avec une
-     note, au lieu de passer par abandonTest(). Fin ou abandon, l'effacement est
-     le meme : celui du mode courant. */
+  /* Plus de branche « abandon » ici : « ✕ Abandonner » passe par abandonTest()
+     et ne pose aucune note. On n'entre donc dans tmFinir() qu'une fois tous les
+     calculs sus. */
   showResults({score,total,percent:pct,durationSec});
 }
 

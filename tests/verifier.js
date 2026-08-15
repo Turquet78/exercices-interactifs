@@ -1437,43 +1437,13 @@ function fiabilite(w, suite){
     try{ precoce=await doRecoverySave(); }catch(e){ precoce='exception : '+e.message; }
     recoveryClosed=sauveClos;
 
-    /* Abandon : la note partielle compte comme note. Si elle n'est pas partie,
-       jeter le brouillon fait perdre la note ET la session reprenable d'un coup.
-       abandonTest délègue à enregistrerNotePartielle, donc les contrôles
-       statiques ne voient rien de son corps : il faut l'exercer. */
-    let abandon='(sans objet)';
-    if(aNote && typeof abandonTest==='function' && typeof clearRecovery==='function' && typeof debutFin==='function'){
-      const vraiClear=clearRecovery, vraiConfirm=window.confirm;
-      let repondOui=true, jete=false, notes=0;
-      window.confirm=function(){ return repondOui; };
-      clearRecovery=function(){ jete=true; return Promise.resolve(); };
-      const essaiAbandon=async function(noteOk, depart){
-        jete=false; notes=0;
-        enregistrerNotePartielle=function(){ notes++; return Promise.resolve(noteOk); };
-        currentEleve={id:1,prenom:'Contrôle'}; currentMode='train'; currentDM=null;
-        test.startTime=depart;
-        try{ await abandonTest(); }catch(e){}
-      };
-      await essaiAbandon(false, 101); const aEchec=jete;
-      await essaiAbandon(true,  102); const aSucces=jete;
-      await essaiAbandon(null,  103); const aRien=jete;     /* rien à noter : le brouillon peut partir */
-      /* deuxième clic sur le MÊME test : le verrou doit refuser la seconde note */
-      await essaiAbandon(true,  104);
-      try{ await abandonTest(); }catch(e){}
-      const double=notes;
-      /* « Annuler » dans la boîte de confirmation ne doit PAS consommer le verrou :
-         sinon la fin normale du test serait refusée ensuite, et la note perdue. */
-      repondOui=false; test.startTime=105;
-      try{ await abandonTest(); }catch(e){}
-      repondOui=true;
-      const verrouLibre=debutFin();
-      clearRecovery=vraiClear; window.confirm=vraiConfirm; enregistrerNotePartielle=vraiNote;
-      abandon=[aEchec?'echec:jette':'echec:garde', aSucces?'succes:jette':'succes:garde',
-               aRien?'rien:jette':'rien:garde', 'double:'+double,
-               verrouLibre?'annule:libre':'annule:consomme'].join('|');
-    }
+    /* Il y avait ici tout un scénario sur la note posée par l'abandon : elle
+       n'existe plus. Abandonner ne touche plus à la progression — c'est
+       désormais le contrôle « abandonner n'enregistre aucune note », plus bas,
+       qui le tient, en exerçant la VRAIE fonction contre le double de la base
+       plutôt qu'en bouchonnant enregistrerNotePartielle(). */
     return JSON.stringify({echec:echec, succes:succes, devoir:devoir,
-      precoce:(precoce===null?'null':String(precoce)), abandon:abandon});
+      precoce:(precoce===null?'null':String(precoce))});
   })()`, r => {
     if(!r.ok){ verifier('la pause n’annonce « ✓ » que si elle a réussi', false, 'erreur JavaScript : ' + r.erreur); return suite(); }
     let d = {};
@@ -1486,15 +1456,6 @@ function fiabilite(w, suite){
       'messages affichés : ' + (d.succes || '(aucun)'));
     verifier('doRecoverySave ne fait pas passer « rien à enregistrer » pour un succès',
       d.precoce === 'null', 'retour anticipé : ' + (d.precoce || '(inconnu)') + ' — attendu null');
-    if(d.abandon === '(sans objet)'){
-      ignorer('l’abandon ne jette le brouillon que si la note est enregistrée', 'ce niveau n’enregistre pas de note à l’abandon');
-    } else {
-      verifier('l’abandon ne jette le brouillon que si la note est enregistrée',
-        d.abandon === 'echec:garde|succes:jette|rien:jette|double:1|annule:libre',
-        'observé : ' + (d.abandon || '(inconnu)') + ' — attendu ' +
-        '« echec:garde|succes:jette|rien:jette|double:1|annule:libre » : une note perdue laisse la session ' +
-        'reprenable, un double clic n’écrit qu’une note, et un « Annuler » ne consomme pas le verrou');
-    }
     if(d.devoir === '(sans objet)'){
       ignorer('un devoir mis en pause avant d’être commencé n’alarme pas', 'ce niveau n’enregistre pas de note partielle');
     } else {
@@ -1548,8 +1509,27 @@ function abandonSortDePause(w, apres){
     try{
       /* 1. abandon en soutien, hors devoir */
       ${SEMER} ${POSER} currentMode='soutien';
+      test.questions=[{q:'2+2',answer:4}]; test.answers=[{q:'2+2',answer:4,given:4,correct:true}]; test.score=1;
+      window.__faux.journal.length=0;
       await abandonTest();
       bilan.abandon=${RESTANT};
+      /* Ce qui a été ÉCRIT pendant l'abandon : il ne doit y avoir aucune
+         insertion dans la table des notes. L'élève a répondu juste à une
+         question — de quoi nourrir une note partielle, si elle existait encore. */
+      bilan.ecrits=window.__faux.operations('insert','${TR}').length
+                  +window.__faux.operations('upsert','${TR}').length;
+      /* ET LE CONTRÔLE QUI COUVRE TOUS LES EXERCICES À LA FOIS. Celui du dessus
+         n'exerce qu'un seul écran : abandonTest() a longtemps eu des branches
+         propres à certains d'entre eux — les tables de multiplication avaient la
+         leur, qui posait la note des calculs déjà sus. On lit donc le corps de la
+         fonction, commentaires retirés (la première version d'un contrôle voisin
+         lisait le commentaire qui EXPLIQUE l'appel et passait au vert sur une
+         fonction débranchée) : aucun chemin d'écriture de note ne doit y être
+         nommé, quel que soit l'exercice. */
+      const corpsAbandon=String(abandonTest)
+        .replace(/\\/\\*[\\s\\S]*?\\*\\//g,'').replace(/(^|[^:])\\/\\/[^\\n]*/g,'$1');
+      bilan.ecrivains=['enregistrerNotePartielle','enregistrerResultat','tmFinir','tmAbandon','showResults']
+        .filter(function(n){ return corpsAbandon.indexOf(n)>=0; }).join(', ');
       /* 1 bis. et l'écran où l'élève retombe le dit. C'est le contrôle qui
          compte vraiment : effacer la bonne ligne ne sert à rien si le menu, lui,
          en montre une autre. Le menu libre montrait les brouillons nés dans un
@@ -1580,6 +1560,12 @@ function abandonSortDePause(w, apres){
   })()`, r => {
     const b = r.ok ? (r.valeur || {}) : {};
     const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+    verifier('abandonner n’enregistre aucune note',
+      r.ok && b.ecrits === 0,
+      souci || b.ecrits + ' écriture(s) dans la table des notes — abandonner ne doit rien poser sur la progression');
+    verifier('et aucun exercice n’a de chemin de note à l’abandon',
+      r.ok && b.ecrivains === '',
+      souci || 'abandonTest() appelle encore : ' + b.ecrivains);
     verifier('abandonner efface la pause de son mode',
       r.ok && b.abandon === 'L1,L3,L4',
       souci || 'brouillons restants : ' + b.abandon + ' — attendu L1,L3,L4 : le soutien abandonné part, l’entraînement reste');

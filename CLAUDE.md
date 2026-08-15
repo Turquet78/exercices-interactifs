@@ -239,16 +239,23 @@ décide maintenant seule, et les trois écrans la partagent — **ce que l'écra
 montre et ce que l'effacement retire doivent être la même chose**, sans quoi
 corriger un seul des deux côtés ne corrige rien.
 
-**Le mode, lui, n'est jamais élargi.** Abandonner efface la pause de SON mode et
-de lui seul : l'entraînement et le soutien sont deux travaux distincts, que
-l'écran des modes montre côte à côte, et abandonner l'un ne jette pas l'autre
-(décision de Turquet, août 2026). Les tables ont leur propre fin, `tmFinir()`,
-qui suit la même règle. Et l'abandon **dit la vérité** : si la base refuse
-d'effacer, l'exercice est toujours en pause, et l'élève l'apprend au lieu de
-lire « abandonné ✓ » puis de retrouver sa pause intacte. Le contrôle tient les
-deux bords, parce que chacun a son défaut : trop étroit, l'exercice reste en
+**Abandonner ne pose aucune note, et n'efface que la pause de son mode.** Le
+même bouton faisait trois choses selon l'endroit : rien en Première, une note
+partielle « sur ce qui a été fait » en Seconde et en Terminale, et la note des
+calculs déjà sus aux tables de multiplication — un élève qui renonçait repartait
+donc avec une note qu'il n'avait pas demandée. Abandonner ne touche plus à la
+progression (décision de Turquet, août 2026) ; `tmAbandon()` a disparu et
+`tmFinir()` ne sert plus qu'à la vraie fin, tous les calculs sus. Le mode, lui,
+n'est jamais élargi : l'entraînement et le soutien sont deux travaux distincts,
+que l'écran des modes montre côte à côte, et abandonner l'un ne jette pas
+l'autre. Et l'abandon **dit la vérité** : si la base refuse d'effacer,
+l'exercice est toujours en pause, et l'élève l'apprend au lieu de lire
+« abandonné ✓ » puis de retrouver sa pause intacte. Le contrôle du mode tient
+les deux bords, parce que chacun a son défaut : trop étroit, l'exercice reste en
 pause dans le mode qu'on vient d'abandonner ; trop large, il emporte le travail
-d'à côté.
+d'à côté. Celui de la note en a deux aussi — l'un exerce la vraie fonction
+contre le double de la base, l'autre lit le corps d'`abandonTest()` pour qu'une
+branche propre à un exercice ne puisse pas y ramener une note sans être vue.
 
 **Cinq oublis silencieux en ajoutant un exercice.** Cinq des quinze
 branchements n'étaient contrôlés par rien. Aucun ne casse quoi que ce soit : ils

@@ -1905,7 +1905,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=224;
+const APP_VERSION=225;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3067,29 +3067,27 @@ async function pauseTest(){
 }
 async function abandonTest(){
   if(!currentEleve) return;
-  if(!confirm('Abandonner cet exercice ? Ta note sera calculée sur ce que tu as déjà fait.')) return;
-  if(!debutFin()) return;                       // double-clic : un seul abandon, une seule note
+  if(!confirm('Abandonner cet exercice ? Aucune note ne sera enregistrée.')) return;
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   $('testCtrls').hidden=true;
-  let noted=false, efface=null;
-  try{
-    noted = await enregistrerNotePartielle();   // note (devoir ou thème) sur ce qui a été fait
-    /* Abandonner efface la pause de CE mode, et de lui seul : l'entraînement et
-       le soutien sont deux travaux distincts, que l'écran des modes montre côte
-       à côte. Abandonner l'un ne jette pas l'autre.
-       Ici l'abandon ramène à l'écran des modes : la carte de l'autre mode y
-       reste, et c'est voulu.
-       */
-    if(noted!==false) efface = await clearRecovery();   // note perdue ? on garde le brouillon, l'élève pourra reprendre
-  }catch(e){}
-  /* On ne l'assure pas d'un abandon qui n'a pas eu lieu. Deux façons d'échouer,
-     et chacune laisse l'exercice EN PAUSE : la note n'est pas partie (on garde
-     alors le brouillon exprès), ou la base a refusé de l'effacer. Supabase rend
-     ses erreurs au lieu de les lever : sans ces deux cas, l'élève lisait
-     « Exercice abandonné ✓ » et retrouvait sa pause intacte. */
-  if(noted===false) toast('Note non enregistrée — l’exercice reste en pause, tu pourras reprendre','err');
-  else if(efface===false) toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
-  else toast(noted?'Note enregistrée sur ta progression ✓':'Exercice abandonné','ok');
+  /* ABANDONNER N'ENREGISTRE AUCUNE NOTE (décision de Turquet, août 2026).
+     Le même bouton faisait trois choses différentes selon l'endroit : rien en
+     Première, une note partielle « sur ce qui a été fait » en Seconde et en
+     Terminale, et la note des calculs déjà sus aux tables de multiplication.
+     Un élève qui renonçait repartait donc avec une note qu'il n'avait pas
+     demandée — et la moyenne s'en souvenait. Abandonner ne laisse plus aucune
+     trace dans la progression.
+     Il reste UN seul geste : retirer la pause de CE mode, et de lui seul —
+     l'entraînement et le soutien sont deux travaux distincts, que l'écran des
+     modes montre côte à côte. */
+  let efface=false;
+  try{ efface=await clearRecovery(); }catch(e){ efface=false; }
+  /* Et on ne l'assure pas d'un abandon qui n'a pas eu lieu : si la base a
+     refusé, l'exercice est TOUJOURS en pause et il faut le dire. Supabase rend
+     ses erreurs au lieu de les lever — l'élève lisait « Exercice abandonné ✓ »
+     puis retrouvait sa pause intacte. */
+  if(efface) toast('Exercice abandonné','ok');
+  else toast('Abandon non enregistré — l’exercice reste en pause, réessaie','err');
   if(currentDM){ const _dm=currentDM; currentDM=null; ouvrirDevoirDetail(_dm); }   // devoir : retour au détail du devoir
   else if(currentTestId && TESTS[currentTestId]){ openTest(currentTestId); }       // retour à la page des modes de l'exercice
   else { openThemes(); }
