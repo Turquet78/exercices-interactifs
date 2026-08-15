@@ -1348,7 +1348,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=40;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=41;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2436,6 +2436,19 @@ async function clearRecovery(){
       const old=(data||[]).filter(r=>memeBrouillon(r.details, cible));
       for(const r of old){ const {error:errSup}=await sb.from('resultats_2nde').delete().eq('id',r.id);
         if(errSup){ ok=false; console.warn('ancien brouillon non supprime :', errSup.message||errSup); } } }
+    /* ET ON VÉRIFIE QUE LA BASE A VRAIMENT EFFACÉ. Une suppression que RLS
+       refuse n'est pas une erreur : une ligne qu'on n'a pas le droit de toucher
+       est une ligne qui n'existe pas, et PostgREST répond « 0 ligne » sans un
+       mot. C'est exactement ce qui est arrivé — l'élève n'avait aucune politique
+       de suppression, la page annonçait « Exercice abandonné ✓ », et l'exercice
+       restait proposé « à reprendre » pour toujours. La migration 004 le
+       corrige ; cette relecture fait que le PROCHAIN refus muet, quel qu'il
+       soit, se voie tout de suite au lieu de vivre des mois. */
+    if(eid && ok){
+      const {data:reste,error:errRelu}=await sb.from('resultats_2nde').select('id,details').eq('eleve_id',eid);
+      if(errRelu) ok=false;
+      else if((reste||[]).some(r=>memeBrouillon(r.details, cible))) ok=false;
+    }
   }catch(e){ ok=false; }
   return ok;
 }

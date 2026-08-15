@@ -171,6 +171,62 @@ begin
   end;
   perform pg_temp.exige('elle ne peut pas toucher aux devoirs', ok);
 
+  -- ------------------------------------------------------------------------
+  -- LE BROUILLON DE PAUSE : le seul geste où l'élève MODIFIE et SUPPRIME.
+  -- ------------------------------------------------------------------------
+  -- Ce banc n'exigeait jusqu'ici que des REFUS : tout ce qu'un élève ne doit
+  -- pas pouvoir faire. Il ne demandait nulle part qu'un geste normal de
+  -- l'application marche — et celui-là ne marchait pas.
+  --
+  -- La mise en pause écrit une ligne « state: paused », la fait avancer à
+  -- chaque réponse (update), puis la supprime quand le test se termine ou que
+  -- l'élève abandonne (delete). Sans politique, les deux sont refusés — et
+  -- SANS ERREUR : sous RLS, une ligne qu'on n'a pas le droit de toucher est
+  -- une ligne qui n'existe pas. PostgREST rend « 0 ligne modifiée », pas un
+  -- refus. L'application croyait donc avoir effacé, disait « Exercice
+  -- abandonné ✓ », et l'exercice restait proposé « à reprendre » pour
+  -- toujours. C'est ainsi que le défaut a vécu sans qu'aucun banc ne bouge.
+  insert into public.resultats_2nde (eleve_id, score, total, percent, duration_sec, details)
+  select e.id, 0, 10, 0, 12, '{"test":"pourcentage","mode":"train","state":"paused"}'::jsonb
+    from public.eleves_2nde e where e.cle = 'cle-alice';
+
+  update public.resultats_2nde set details = details || '{"idx":3}'::jsonb
+   where details->>'state' = 'paused'
+     and eleve_id in (select id from public.eleves_2nde where cle = 'cle-alice');
+  perform pg_temp.exige('sa pause avance quand elle répond', found);
+
+  delete from public.resultats_2nde
+   where details->>'state' = 'paused'
+     and eleve_id in (select id from public.eleves_2nde where cle = 'cle-alice');
+  perform pg_temp.exige('elle efface son propre brouillon de pause', found);
+
+  -- Mais une NOTE, elle n'y touche pas : ce serait effacer une mauvaise note.
+  begin
+    delete from public.resultats_2nde
+     where details->>'state' is distinct from 'paused'
+       and eleve_id in (select id from public.eleves_2nde where cle = 'cle-alice');
+    ok := not found;
+  exception when insufficient_privilege then ok := true;
+  end;
+  perform pg_temp.exige('elle ne peut pas effacer une note obtenue', ok);
+
+  begin
+    update public.resultats_2nde set score = 10, percent = 100
+     where eleve_id in (select id from public.eleves_2nde where cle = 'cle-alice');
+    ok := not found;
+  exception when insufficient_privilege then ok := true;
+  end;
+  perform pg_temp.exige('elle ne peut pas se relever une note', ok);
+
+  -- Ni toucher au brouillon de Bob.
+  begin
+    delete from public.resultats_2nde
+     where eleve_id in (select id from public.eleves_2nde where cle = 'cle-bob');
+    ok := not found;
+  exception when insufficient_privilege then ok := true;
+  end;
+  perform pg_temp.exige('elle ne touche pas au travail de Bob', ok);
+
   -- Les signalements : elle en dépose un sous son nom.
   -- Le contexte part en jsonb — c'est l'instantané de l'exercice, celui-là même
   -- que la mise en pause enregistre.
