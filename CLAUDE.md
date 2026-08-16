@@ -570,6 +570,23 @@ Ce qu'aucun banc ne voit, et qui reste à vérifier à la main sur le projet : l
 réglage de l'authentification Supabase, le déploiement de la fonction Edge, et
 le fait que `COURRIEL_PROF` désigne un compte réel. Voir `supabase/LISEZMOI.md`.
 
+**La même erreur, huit fois, n'est pas huit mesures.** Une poussée a échoué huit
+fois de suite sur `could not read Username`, et le message a été relu huit fois
+comme s'il était neuf. Il ne l'était pas : il décrit ce que git constate au tout
+dernier maillon — « je n'ai pas d'identifiant à présenter » — et ne dit rien de
+la cause. Celle-ci était trois maillons plus haut, hors du dépôt : aucun compte
+GitHub n'était lié au compte claude.ai. L'installation de l'application GitHub
+côté dépôt, elle, était parfaite, si bien que la vérifier ne pouvait qu'innocenter
+la mauvaise moitié de la chaîne.
+Ce qui a fini par trancher, ce sont les outils qui contrôlent l'autorisation
+EN AMONT et savent la nommer : `list_repos` répond `no GitHub account linked`,
+`create_session` répond `github_repo_access_denied`. Ils ont été essayés en
+dernier ; ils auraient dû l'être au deuxième échec. La règle : quand une erreur
+revient à l'identique, cesser de la reproduire et changer de couche — remonter
+la chaîne jusqu'au maillon capable d'expliquer, au lieu d'interroger celui qui
+ne sait que constater. C'est la règle 3 appliquée au diagnostic : une
+vérification qui ne prouve rien ne prouve pas davantage en la répétant.
+
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui
 ont motivé ce banc de test y sont chacune couvertes par une ligne.
 
