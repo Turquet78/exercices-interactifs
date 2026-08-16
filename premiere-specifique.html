@@ -1429,7 +1429,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=120;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=121;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1716,7 +1716,12 @@ const THEMES=[
      qu'un : le second ne portait qu'un seul exercice, et les deux relèvent du
      même geste — calculer de tête ou à la main, avant d'entrer dans les
      pourcentages. */
-  { num:1, nom:'Calcul mental', ids:['calcul-mental','addition-soustraction','tables-multiplication','tables-multiplication-2','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
+  /* « Calcul mental » ne vient plus en premier : il se place après les deux
+     séances de tables (décision de Turquet, août 2026). L'ORDRE DE CETTE LISTE
+     EST LA NUMÉROTATION — 1.1 est le premier élément, pas un titre. Les
+     références écrites ailleurs suivent d'elles-mêmes : elles s'écrivent
+     {identifiant} et sont résolues à l'affichage par numeros(). */
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','mult-decimaux','mult-dec-un','fractions-decimales'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
