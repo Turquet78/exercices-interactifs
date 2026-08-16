@@ -836,6 +836,102 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 9. L'AIDE EST ATTEIGNABLE SUR CHAQUE EXERCICE =====
+       « Le plus petit ensemble » (Seconde) construisait ses boutons à part,
+       et cette fonction-là avait oublié « Poser une question à l'IA » et le
+       rappel de cours — elle ne rendait même rien hors du soutien. L'exercice
+       était le seul du niveau sans aucune aide, alors que sa fiche QIA_SUGG,
+       son contexte et son rappel existaient déjà : l'aide était écrite, rien
+       n'y menait.
+       Aucun contrôle statique ne pouvait le voir. Le banc de tests vérifie
+       qu'une entrée QIA_SUGG existe, pas qu'un bouton l'atteint ; et un écran
+       a parfaitement le droit de poser son bouton lui-même, comme le fait
+       « Lecture graphique ». Seul l'écran dit la vérité : on OUVRE chaque
+       exercice et on regarde ce qui s'affiche. */
+    titre('9. L\'AIDE EST ATTEIGNABLE SUR CHAQUE EXERCICE');
+    s = await ouvrir(chromium, ml);
+    if(await connecter(s.page) !== 'scr-space'){
+      ignorer('le bouton d\'aide IA est présent sur chaque exercice',
+        'connexion impossible — rien à mesurer');
+    } else {
+      /* La liste des exercices se lit dans TEST_NUM et non dans THEMES : un
+         thème découpé en parties porte ses identifiants dans « sous », pas
+         dans « ids » (la Première en a quatre). Parcourir THEMES à plat y
+         donnerait un « undefined » par thème découpé — openTest(undefined)
+         ouvrirait n'importe quoi. TEST_NUM est construit des deux formes. */
+      const tous = await s.page.evaluate(() => Object.keys(TEST_NUM));
+      /* Les exercices chronométrés n'ont pas d'aide IA, et c'est voulu : voir
+         « aideIA.sans » dans tests/profils.js. On les nomme à l'écran plutôt
+         que de les taire — un manque silencieux finit par se croire normal. */
+      const exemptes = (P.aideIA && P.aideIA.sans) || [];
+      const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
+      const ids = tous.filter(id => exemptes.indexOf(id) < 0);
+      const sans = [], sansMode = [];
+      for(const id of ids){
+        for(const mode of ['train', 'soutien']){
+          await s.page.evaluate(i => openTest(i), id);
+          await s.page.waitForTimeout(300);
+          /* Le mode se choisit sur sa carte. On lit l'attribut plutôt qu'un
+             sélecteur : « [onclick*="train"] » attraperait aussi la carte
+             « Reprendre l'entraînement » d'une pause. */
+          const pris = await s.page.evaluate(m => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='" + m + "'") >= 0);
+            if(b){ b.click(); return true; } return false;
+          }, mode);
+          if(!pris){ sansMode.push(id + '/' + mode); continue; }
+          await s.page.waitForTimeout(650);
+          /* Certains exercices n'ouvrent pas directement leur écran : les
+             tables et le calcul mental passent par un « Commencer », le signe
+             du second degré par un choix de niveau. Mesurer là revenait à
+             constater l'absence de boutons d'aide sur un écran de départ — le
+             contrôle criait sur quatre exercices parfaitement corrects. On
+             franchit donc ces écrans avant de regarder. */
+          for(let hop = 0; hop < 3; hop++){
+            const passe = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on');
+              if(!on) return false;
+              const visible = e => {
+                if(!e || e.hidden) return false;
+                const r = e.getBoundingClientRect();
+                return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none';
+              };
+              const b = [...on.querySelectorAll('button')].filter(visible)
+                .find(x => /^(Commencer|Démarrer|C'est parti|Niveau 1)/.test(x.textContent.trim()));
+              if(b){ b.click(); return true; }
+              return false;
+            });
+            if(!passe) break;
+            await s.page.waitForTimeout(700);
+          }
+          const vu = await s.page.evaluate(() => {
+            const on = document.querySelector('section.screen.on');
+            if(!on) return {ia: false, ecran: '(aucun)'};
+            const visible = e => {
+              if(!e || e.hidden) return false;
+              const r = e.getBoundingClientRect();
+              return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none';
+            };
+            const textes = [...on.querySelectorAll('button')].filter(visible).map(b => b.textContent);
+            return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id};
+          });
+          if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
+        }
+      }
+      verifier('le bouton d\'aide IA est présent sur chaque exercice',
+        sans.length === 0,
+        sans.length ? 'absent sur : ' + sans.join(', ')
+                    : (exemptes.length ? exemptes.length + ' exercice(s) chronométré(s) déclarés sans aide IA'
+                                       : (sansMode.length ? sansMode.length + ' mode(s) indisponible(s)' : '')));
+      /* Un identifiant exempté qui n'existe plus est une exemption qui ne
+         protège plus rien — et qui masquerait le jour où on le réutilise. */
+      verifier('chaque exercice déclaré sans aide IA existe encore',
+        inconnus.length === 0, 'identifiant(s) inconnu(s) dans aideIA.sans : ' + inconnus.join(', '));
+      verifier('la visite de tous les exercices ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

@@ -121,6 +121,23 @@ différentes — un correctif qui aurait filtré sur `_all` en aurait raté six.
 `supabase/migrations/002` les retire en les nommant. Le banc le démontre : joué
 après la seule migration 001, le contrôle des rôles **doit échouer**.
 
+**Un élève prévenu trop tard n'est pas prévenu.** « Attention : Note ton code
+dans le carnet de liaison. » s'affiche aux DEUX endroits où un élève se
+donne un code — la création de compte et le changement imposé après un code
+provisoire (décision de Turquet, août 2026). N'en couvrir qu'un ne couvre
+rien : un code oublié se perd aussi bien dans un cas que dans l'autre, et c'est
+le second qui arrive le plus souvent, précisément parce que l'élève avait déjà
+oublié le premier. Elle dit « ton code » et non « ton mot de passe » : la page
+n'emploie que le mot « code », d'un bout à l'autre, et un élève qui lirait deux
+mots pour une seule chose se demanderait lequel on lui réclame (décision de
+Turquet, août 2026). Elle est posée AVANT le bouton
+« Créer mon compte » : sous le bouton elle était parfaitement visible et
+parfaitement inutile — l'élève clique, puis lit. Ce défaut ne s'est vu qu'en
+regardant la page, pas le code. Quatre contrôles : la phrase, sa mise en
+évidence (un style qui reprendrait la couleur du texte courant les
+satisferait tous sans rien changer), sa position avant le bouton, et sa
+présence dans `imposerChoixCode()`.
+
 **Supabase refuse tout mot de passe de moins de 6 caractères.** L'application
 envoie donc `PREFIXE_CODE + code`. Ce préfixe ne protège rien et ne prétend pas
 le faire : il satisfait une longueur minimale.
@@ -319,6 +336,31 @@ est hors écran mais **rendu** : `display:none` le ferait ignorer, et la fouille
 reprendrait. Attention au piège d'à côté : un `<button>` sans `type` explicite
 SOUMET le formulaire qui l'entoure, donc recharge la page. Un contrôle tient
 les quatre bords sur les trois fichiers.
+
+**Le bouton qui MÈNE à l'aide.** Pire que l'entrée manquante : l'aide entièrement
+écrite et rien qui y conduise. « Le plus petit ensemble » (Seconde) construisait
+ses boutons dans une fonction à part, qui avait oublié « Poser une question à
+l'IA » et le rappel de cours, et qui ne rendait rien hors du soutien — l'exercice
+était le seul du niveau sans aucune aide, alors que sa fiche `QIA_SUGG`, son
+contexte `ctxPge()` et son rappel `RAP_PGE` existaient tous les trois. Un écran
+qui construit ses boutons à part finit par diverger : il passe par
+`conseilInlineBtn()` désormais, en gardant son bouton propre (« Schéma des
+ensembles »).
+Aucun contrôle statique ne pouvait le voir — le banc vérifie qu'une entrée
+`QIA_SUGG` existe, pas qu'un bouton l'atteint, et un écran a le droit de poser
+son bouton lui-même, comme le fait « Lecture graphique ». Le banc navigateur
+OUVRE donc chaque exercice, dans les deux modes, et regarde ce qui s'affiche.
+Trois pièges s'y sont montrés. Il faut **franchir les écrans de départ** — les
+tables et le calcul mental passent par « Commencer », le signe du second degré
+par un choix de niveau : mesurer avant, c'était constater l'absence de boutons
+sur un écran de menu, et le contrôle criait sur quatre exercices corrects.
+**Les exercices chronométrés n'ont pas d'aide IA, volontairement** : à quatre
+secondes par calcul, une question n'a pas de sens. Ils sont déclarés dans
+`tests/profils.js` (`aideIA.sans`) et nommés à l'exécution, jamais tus ; un
+second contrôle exige que chacun existe encore, sans quoi une exemption
+survivrait à l'exercice qu'elle protégeait. Enfin la liste des exercices se lit
+dans `TEST_NUM`, jamais en aplatissant `THEMES` : un thème découpé en parties
+porte ses identifiants dans `sous`, et la Première en a quatre.
 
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,

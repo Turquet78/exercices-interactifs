@@ -635,6 +635,45 @@ function structure(){
     champs.length !== 3 ? champs.length + ' champ(s) trouvé(s) au lieu de 3'
                         : 'trop court(s) : ' + troples.join(', '));
 
+  /* L'ÉLÈVE DOIT ÊTRE PRÉVENU DE NOTER SON CODE, AUX DEUX ENDROITS où il s'en
+     donne un : la création de compte, et le changement imposé après un code
+     provisoire (décision de Turquet, août 2026). N'en couvrir qu'un seul ne
+     couvre rien — un code oublié se perd aussi bien dans un cas que dans
+     l'autre, et c'est le second qui arrive le plus souvent, précisément parce
+     que l'élève avait déjà oublié le premier.
+     On exige la phrase ET sa mise en évidence : posée dans une « note » grise
+     comme les autres, elle se lirait comme une remarque de bas de page. */
+  const PHRASE = /Note ton code dans le carnet de liaison/;
+  const avert = (s.match(/<p class="avert-code">([^<]*)<\/p>/) || [])[1] || '';
+  verifier('la création de compte prévient de noter le code, bien en évidence',
+    PHRASE.test(avert) && /class="avert-code"/.test(s) && /\.avert-code\{/.test(s),
+    !/class="avert-code"/.test(s) ? 'aucun avertissement sur le formulaire'
+      : (!/\.avert-code\{/.test(s) ? 'la classe .avert-code n’a aucun style — invisible'
+      : 'phrase absente : ' + JSON.stringify(avert.slice(0, 60))));
+
+  /* Et il doit se lire AVANT de valider. Posé sous le bouton « Créer mon
+     compte », il était parfaitement visible — et parfaitement inutile : l'élève
+     clique puis lit. Trouvé en regardant la page, pas le code. */
+  const iAvert = s.indexOf('class="avert-code"');
+  const iBouton = s.indexOf('onclick="creerCompte()"');
+  verifier('l’avertissement se lit avant le bouton de validation',
+    iAvert > 0 && iBouton > 0 && iAvert < iBouton,
+    iAvert < 0 ? 'aucun avertissement' : 'l’avertissement est APRÈS le bouton');
+
+  const impose = (s.match(/async function imposerChoixCode\(\)\{[\s\S]*?\n\}/) || [''])[0];
+  const nImpose = (impose.match(new RegExp(PHRASE.source, 'gi')) || []).length;
+  verifier('le changement de code imposé prévient lui aussi',
+    impose !== '' && nImpose >= 1,
+    impose === '' ? 'imposerChoixCode() introuvable'
+                  : nImpose + ' rappel(s) dans imposerChoixCode()');
+
+  /* Et le style doit vraiment SE VOIR : une classe qui reprendrait la couleur
+     du texte courant satisferait le contrôle ci-dessus sans rien changer. */
+  const regle = (s.match(/\.avert-code\{([^}]*)\}/) || [])[1] || '';
+  verifier('l’avertissement est visuellement distinct du texte courant',
+    /background/.test(regle) && /border/.test(regle) && /font-weight\s*:\s*[7-9]00/.test(regle),
+    'règle .avert-code : ' + JSON.stringify(regle.slice(0, 70)));
+
   /* Et le code brut ne doit jamais partir tel quel : il serait refusé. */
   const brut = [...s.matchAll(/sb\.auth\.sign(?:Up|InWithPassword)\(\{([^}]*)\}/g)]
     .filter(m => /password\s*:\s*(pin|code)\b/.test(m[1]))

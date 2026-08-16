@@ -202,6 +202,15 @@
   label.lab{display:block;font-weight:700;margin:0 0 7px;font-size:.95rem}
   .text-input{width:100%;font-family:"Fredoka";font-weight:500;font-size:1.15rem;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:13px 15px}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  /* Avertissement du carnet de liaison. Il est posé aux DEUX endroits où un
+     élève se donne un code — la création de compte et le changement imposé
+     après un code provisoire — et non au seul premier : un code oublié se
+     perd aussi bien dans un cas que dans l'autre (décision de Turquet,
+     août 2026). Il est volontairement plus voyant qu'une « note » grise :
+     c'est la phrase que l'élève doit lire, pas celle qu'il peut sauter. */
+  .avert-code{display:block;margin:12px 0 4px;padding:11px 13px;border-radius:12px;
+    background:var(--red-soft);border:2px solid var(--red);color:var(--red);
+    font-family:"Nunito";font-weight:800;font-size:.95rem;line-height:1.35}
   .note{color:var(--ink-soft);font-size:.85rem;font-weight:600;margin-top:10px}
 
   .seg{display:inline-flex;background:#f0eee5;border-radius:12px;padding:4px;margin-bottom:18px;gap:4px}
@@ -1151,6 +1160,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
             <input class="text-input" id="newPin2" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="off">
           </div>
         </div>
+        <p class="avert-code">⚠️ Attention : Note ton code dans le carnet de liaison.</p>
         <button type="button" class="btn btn-primary" onclick="creerCompte()">Créer mon compte</button>
         <p class="note">Choisis un code facile à retenir. En cas d'oubli, ton professeur peut le réinitialiser.</p>
       </form>
@@ -1922,7 +1932,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=227;
+const APP_VERSION=228;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3359,11 +3369,13 @@ async function imposerChoixCode(){
   const motif=new RegExp('^\\d{'+CHIFFRES_CODE+'}$');
   while(true){
     const n1=prompt('Ton professeur t\'a donne un code provisoire.\n\n'
+                   +'ATTENTION : Note ton code dans le carnet de liaison.\n\n'
                    +'Choisis maintenant TON code a '+CHIFFRES_CODE+' chiffres :');
     if(n1===null) return false;                 /* il renonce : on referme */
     const code=String(n1).trim();
     if(!motif.test(code)){ toast('Le code doit avoir '+CHIFFRES_CODE+' chiffres','err'); continue; }
-    const n2=prompt('Retape-le pour confirmer :');
+    const n2=prompt('Retape-le pour confirmer :\n\n'
+                   +'Attention : Note ton code dans le carnet de liaison.');
     if(n2===null) return false;
     if(String(n2).trim()!==code){ toast('Les deux codes sont differents','err'); continue; }
 
