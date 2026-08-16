@@ -1375,7 +1375,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=43;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=44;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1835,10 +1835,18 @@ function startPge(){
   show('pge'); renderPgeQ();
 }
 function pgeRappelBtn(withConseil){
-  if(!isSoutien()) return '';
-  let h='<button class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()">🖼 Schéma des ensembles</button>';
-  if(withConseil) h+='<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>';
-  return h;
+  /* Le « Schéma des ensembles » est propre à cet exercice ; TOUT LE RESTE vient
+     de conseilInlineBtn(), partagée par les sept autres écrans. Écrite à part,
+     cette fonction avait oublié le bouton « Poser une question à l'IA » et le
+     rappel de cours, et elle sortait sans rien rendre hors du soutien : cet
+     exercice était le seul du niveau sans aucune aide, alors que sa fiche
+     QIA_SUGG, son contexte ctxPge() et son rappel RAP_PGE existaient déjà.
+     Un écran qui construit ses boutons à part finit par diverger — d'où le
+     passage par la fonction commune. */
+  const schema = isSoutien()
+    ? '<button class="btn btn-ghost" type="button" onclick="ouvrirBilanEns()">🖼 Schéma des ensembles</button>'
+    : '';
+  return schema + conseilInlineBtn(withConseil);
 }
 let conseilBusy=false;
 async function lancerConseil(nombre, contexte, fb){
@@ -2235,10 +2243,10 @@ function rappelInlineBtn(){
   return (currentMode!=='eval' && rappelDispo())
     ? '<button class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()">📘 Rappel de cours</button>' : '';
 }
-function conseilInlineBtn(){
+function conseilInlineBtn(avecConseil){
   if(currentMode==='eval') return '';
   return rappelInlineBtn()
-    + (isSoutien() ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : '')
+    + ((avecConseil!==false && isSoutien()) ? '<button class="btn btn-ghost" type="button" onclick="conseilCourant()">💡 Conseil</button>' : '')
     + '<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question \u00e0 l\u2019IA</button>';
 }
 function ctxEns(q){

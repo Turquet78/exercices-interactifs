@@ -337,6 +337,31 @@ reprendrait. Attention au piège d'à côté : un `<button>` sans `type` explici
 SOUMET le formulaire qui l'entoure, donc recharge la page. Un contrôle tient
 les quatre bords sur les trois fichiers.
 
+**Le bouton qui MÈNE à l'aide.** Pire que l'entrée manquante : l'aide entièrement
+écrite et rien qui y conduise. « Le plus petit ensemble » (Seconde) construisait
+ses boutons dans une fonction à part, qui avait oublié « Poser une question à
+l'IA » et le rappel de cours, et qui ne rendait rien hors du soutien — l'exercice
+était le seul du niveau sans aucune aide, alors que sa fiche `QIA_SUGG`, son
+contexte `ctxPge()` et son rappel `RAP_PGE` existaient tous les trois. Un écran
+qui construit ses boutons à part finit par diverger : il passe par
+`conseilInlineBtn()` désormais, en gardant son bouton propre (« Schéma des
+ensembles »).
+Aucun contrôle statique ne pouvait le voir — le banc vérifie qu'une entrée
+`QIA_SUGG` existe, pas qu'un bouton l'atteint, et un écran a le droit de poser
+son bouton lui-même, comme le fait « Lecture graphique ». Le banc navigateur
+OUVRE donc chaque exercice, dans les deux modes, et regarde ce qui s'affiche.
+Trois pièges s'y sont montrés. Il faut **franchir les écrans de départ** — les
+tables et le calcul mental passent par « Commencer », le signe du second degré
+par un choix de niveau : mesurer avant, c'était constater l'absence de boutons
+sur un écran de menu, et le contrôle criait sur quatre exercices corrects.
+**Les exercices chronométrés n'ont pas d'aide IA, volontairement** : à quatre
+secondes par calcul, une question n'a pas de sens. Ils sont déclarés dans
+`tests/profils.js` (`aideIA.sans`) et nommés à l'exécution, jamais tus ; un
+second contrôle exige que chacun existe encore, sans quoi une exemption
+survivrait à l'exercice qu'elle protégeait. Enfin la liste des exercices se lit
+dans `TEST_NUM`, jamais en aplatissant `THEMES` : un thème découpé en parties
+porte ses identifiants dans `sous`, et la Première en a quatre.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.

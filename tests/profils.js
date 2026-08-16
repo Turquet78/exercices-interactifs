@@ -99,6 +99,14 @@ module.exports = {
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_1ere', exercice: 'pourcentage' },
 
+    /* Exercices sans bouton « Poser une question à l'IA », et pourquoi. Ce ne
+       sont pas des oublis : ces trois-là sont CHRONOMÉTRÉS — TM_SECONDES par
+       calcul —, et une question à l'IA n'a pas de sens quand la réponse est
+       attendue en quatre secondes. On le déclare plutôt que d'affaiblir le
+       contrôle : un exercice ajouté sans aide doit continuer à faire rougir le
+       banc. Retirer un identifiant d'ici suffit à réexiger le bouton. */
+    aideIA: { sans: ['tables-multiplication', 'tables-multiplication-2', 'calcul-mental'] },
+
     /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
        dans testScreens : c'est cette liste que show() consulte pour passer en
        plein écran, et c'est elle que le contrôle de l'encadré « Énoncé »
