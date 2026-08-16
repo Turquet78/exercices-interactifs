@@ -220,9 +220,14 @@ se lirait comme un zéro à écrire, et 102 − 97 n'en demande qu'une. Deux
 contrôles : l'un compte les cellules et les cases sur les quatre formes, l'autre
 MESURE les positions dans un vrai navigateur — seul un navigateur sait où tombe
 une colonne.
-Les cases de retenue sont facultatives, et proposées sur toutes les colonnes
-plutôt que sur celles qui en portent une : leur seule présence dirait sinon à
-l'élève où la retenue tombe.
+Les cases de retenue sont facultatives, et **ne sont posées que là où il y a
+une retenue** : une case vide à remplir de rien n'apprend rien, et l'élève
+finissait par se demander ce qu'on lui demandait (décision de Turquet, août
+2026). C'est un arbitrage assumé — la présence d'une case dit désormais où la
+retenue tombe. Le tirage garantit qu'il en reste toujours au moins une.
+Les deux opérations **alternent**, en commençant par une addition : l'élève
+passe d'une technique à l'autre à chaque calcul. Le tirage était auparavant
+mélangé — même total, pas le même exercice.
 **À la soustraction, la retenue s'écrit à DEUX endroits, pas un.** Méthode par
 compensation : le petit `1` devant le chiffre du HAUT — 2 se lit alors 12 — et
 la même retenue redescend en `+1` devant le chiffre du BAS de la colonne
