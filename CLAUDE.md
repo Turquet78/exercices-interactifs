@@ -27,6 +27,19 @@ ligne » et **attend que Turquet dise explicitement « mets en ligne »** (ou un
 vérifie la publication, et jamais avant (décision de Turquet, août 2026).
 Jamais de poussée directe sur `main`.
 
+**Et Claude joint le fichier HTML de la branche à cette annonce, toujours**
+(décision de Turquet, août 2026). Pas une capture d'écran : le fichier, que
+Turquet ouvre dans son navigateur pour cliquer lui-même. Les pages sont
+monolithiques et sans étape de compilation — le fichier de la branche EST la
+page, il suffit de l'ouvrir. Une capture ne montre qu'un écran choisi par
+Claude ; le fichier laisse regarder ce que Claude n'a pas pensé à montrer, et
+c'est précisément là que se logent les défauts qu'un banc ne voit pas.
+Deux avertissements l'accompagnent, parce qu'ils ne se devinent pas : le
+fichier porte l'adresse du VRAI projet Supabase, donc naviguer est sans danger
+mais **terminer un exercice écrit une vraie note sur un vrai élève** ; et un
+aperçu hébergé ne remplacerait pas le fichier — les appels sortants y sont
+bloqués, ni Supabase ni MathLive ne répondraient.
+
 **2. `npm test` avant toute proposition.** Aucune modification n'est poussée si
 les contrôles échouent. `npm test` contrôle **les trois niveaux**, chacun selon
 son profil (`tests/profils.js`). L'action GitHub `.github/workflows/controles.yml`
