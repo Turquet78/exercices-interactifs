@@ -260,6 +260,51 @@ Le relancer ne trouve plus rien.
 
 ---
 
+## 3 quinquies. Les cours en PDF (2 min)
+
+Collez **`migrations/005_cours_en_pdf.sql`** dans l'éditeur SQL et exécutez-le.
+
+**À jouer AVANT de mettre en ligne la version qui porte l'onglet « Cours en
+PDF ».** Sans cette étape, le bouton « Déposer » répondra *« Dépôt refusé »* :
+le bucket n'existe pas, et aucune politique n'autorise quoi que ce soit.
+
+### Ce qu'elle pose
+
+Un bucket **`cours`**, **privé**, limité à 20 Mo par fichier et au seul type
+`application/pdf` — ces deux bornes sont posées sur le bucket, pas seulement
+dans la page : une vérification faite dans le navigateur se contourne en dix
+secondes. Et quatre politiques : **lecture** pour tout compte connecté,
+**dépôt**, **remplacement** et **suppression** pour le seul professeur, par la
+même fonction `est_prof()` que partout ailleurs.
+
+Privé, donc : l'application demande à Supabase une **adresse signée** valable
+une heure chaque fois qu'un élève clique sur « Ouvrir le PDF ». Un bucket public
+aurait donné des adresses devinables, lisibles sans compte et indexables.
+
+### Où vit le reste
+
+Le fichier vit dans le bucket ; son **titre, sa date et sa taille** vivent dans
+la ligne de `parametres_…` (`valeurs.cours`), à côté des devoirs et des
+réglages. Aucune table nouvelle, donc aucune politique nouvelle à écrire pour
+eux : ceux des paramètres suffisent — lecture pour tous, écriture pour le
+professeur.
+
+### Ce qu'aucun banc ne voit
+
+`npm run test:base` **ne rejoue pas** cette migration : il lève un PostgreSQL
+ordinaire, où le schéma `storage` n'existe pas — il est propre à Supabase. Le
+fichier se termine donc par un contrôle qui **échoue bruyamment** si le bucket
+manque, s'il est resté public, ou s'il n'a pas ses quatre politiques. Lisez la
+ligne `NOTICE` qu'il affiche.
+
+### Les sauvegardes ne l'emportent pas
+
+L'export de nuit (`sauvegarde.yml`) exporte les **tables**, pas le stockage. Les
+titres des cours sont donc sauvegardés, les PDF eux-mêmes ne le sont pas —
+gardez vos originaux sur votre ordinateur.
+
+---
+
 ## 4. Vous déclarer professeur (1 min)
 
 Toujours dans **SQL Editor**, avec l'UUID de l'étape 2 :

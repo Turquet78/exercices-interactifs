@@ -1702,6 +1702,161 @@ function abandonSortDePause(w, apres){
     verifier('un abandon que la base refuse n’est pas annoncé comme réussi',
       r.ok && b.panne === 'L1,L2,L3,L4' && /err:/.test(String(b.ditsPanne || '')) && /pause/i.test(String(b.ditsPanne || '')),
       souci || 'restants : ' + b.panne + ' — l’élève a lu « ' + b.ditsPanne + ' »');
+    coursEnPdf(w, apres);
+  });
+}
+
+/* ---------- 4 quater. Les cours en PDF déposés par le professeur -----------
+   Le professeur dépose un PDF, l'élève le retrouve en haut de la page des
+   exercices. Le fichier vit dans un bucket Supabase, les métadonnées dans la
+   table des paramètres, à côté des devoirs.
+
+   Quatre bords, et aucun ne se voit à la relecture :
+
+   — LE REFUS MUET, une fois de plus. storage.remove() rend la liste de ce qui
+     a été retiré : sous RLS, un refus n'est pas une erreur, c'est une liste
+     VIDE. La page doit compter, sinon elle annonce « supprimé ✓ » sur un
+     fichier que la classe a toujours sous les yeux. C'est exactement le défaut
+     qui a coûté le plus cher à ce projet, sur les brouillons de pause ;
+
+   — L'ORPHELIN. Un dépôt qui réussit suivi d'un enregistrement qui échoue
+     laisserait un fichier en ligne que plus rien ne désigne : invisible, et
+     décompté du quota. Il doit être retiré ;
+
+   — LES DEVOIRS D'À CÔTÉ. Métadonnées et devoirs partagent une seule ligne de
+     paramètres. Un enregistrement qui repartirait d'une copie ancienne — ou
+     qui écraserait « valeurs » au lieu de le compléter — effacerait les
+     devoirs de la classe sans un mot ;
+
+   — L'ONGLET AVANT L'ATTENTE. window.open() appelé APRÈS un await est bloqué
+     comme une fenêtre surgissante : l'élève cliquerait sans que rien ne
+     s'ouvre. Ce dernier bord se lit dans le source de la fonction, faute de
+     bloqueur dans jsdom. */
+function coursEnPdf(w, apres){
+  const src = lire(CIBLE);
+  const TP = (src.match(/from\('(parametres[a-z0-9_]*)'\)/) || [])[1];
+  if(!TP || !/BUCKET_COURS/.test(src)){
+    ignorer('le professeur peut déposer un cours en PDF', 'ce niveau n’a pas de dépôt de cours');
+    return apres();
+  }
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const dits=[]; const vraiToast=toast; toast=function(m,k){ dits.push((k||'ok')+':'+m); };
+    const bilan={};
+    const fichiers=function(){ return Object.keys((window.__faux.fichiers||{}).cours||{}); };
+    const poserFichier=function(nom,type,taille){
+      const champ=document.getElementById('coursFichier');
+      Object.defineProperty(champ,'files',{configurable:true,
+        value:[{name:nom,type:type,size:taille}]});
+      return champ;
+    };
+    try{
+      window.confirm=function(){ return true; };
+      /* La ligne des paramètres porte DÉJÀ un devoir et un réglage : ils doivent
+         être encore là après le dépôt. */
+      window.__faux.tables['${TP}']=[{id:1,valeurs:{
+        secondsPerQuestion:30,
+        devoirs:[{id:'dm_1',num:1,actif:true,titre:'Devoir de contrôle',cours:'',exercices:[]}]}}];
+
+      /* 1. ce qui n'est pas un PDF, et ce qui est trop lourd, sont refusés ici */
+      poserFichier('photo.png','image/png',1024);
+      dits.length=0; await deposerCours();
+      bilan.refusType=dits.join(' | ')+' /'+fichiers().length;
+      poserFichier('enorme.pdf','application/pdf',25*1024*1024);
+      dits.length=0; await deposerCours();
+      bilan.refusTaille=dits.join(' | ')+' /'+fichiers().length;
+
+      /* 2. le dépôt ordinaire */
+      document.getElementById('coursTitre').value='Cours et fiche n\u00b01';
+      poserFichier('Chapitre 3 — pourcentages.pdf','application/pdf',2*1024*1024);
+      dits.length=0; await deposerCours();
+      bilan.ditsDepot=dits.join(' | ');
+      bilan.deposes=fichiers().join(',');
+      const liste=await listeCours();
+      bilan.enregistres=liste.map(function(c){ return c.titre; }).join(' ; ');
+      /* le chemin est une adresse : ni accent, ni espace, ni apostrophe */
+      bilan.chemin=liste.length?liste[0].chemin:'';
+      /* et les devoirs n'ont pas bougé */
+      const ligne=window.__faux.tables['${TP}'][0].valeurs;
+      bilan.devoirsRestants=(ligne.devoirs||[]).length;
+      bilan.reglageRestant=ligne.secondsPerQuestion;
+
+      /* 3. l'élève le voit sur la page des exercices */
+      await renderCoursEleve();
+      const panneau=document.getElementById('coursPanel');
+      bilan.eleveCache=!!panneau.hidden;
+      bilan.eleveTexte=panneau.textContent.replace(/[ \\n\\t]+/g,' ').trim();
+      bilan.eleveOuvre=panneau.innerHTML.indexOf('onclick="ouvrirCours(')>=0;
+
+      /* 4. LE REFUS MUET : rien n'est retiré, rien n'est dit par la base */
+      const id=(await listeCours())[0].id;
+      dits.length=0; window.__faux.refusMuet=true;
+      await supprimerCours(id);
+      window.__faux.refusMuet=false;
+      bilan.muetFichiers=fichiers().length;
+      bilan.muetListe=(await listeCours()).length;
+      bilan.ditsMuet=dits.join(' | ');
+
+      /* 5. la suppression qui aboutit vraiment */
+      dits.length=0;
+      await supprimerCours(id);
+      bilan.supFichiers=fichiers().length;
+      bilan.supListe=(await listeCours()).length;
+
+      /* 6. L'ORPHELIN : le fichier part, l'enregistrement échoue */
+      const vraiPersist=persistCours;
+      persistCours=function(){ return Promise.reject(new Error('base refusée')); };
+      document.getElementById('coursTitre').value='Cours orphelin';
+      poserFichier('orphelin.pdf','application/pdf',1024);
+      dits.length=0; await deposerCours();
+      persistCours=vraiPersist;
+      bilan.orphelins=fichiers().length;
+      bilan.ditsOrphelin=dits.join(' | ');
+
+      /* 7. l'onglet s'ouvre AVANT l'attente, sinon le navigateur le bloque */
+      const corps=String(ouvrirCours);
+      bilan.ordreOnglet=(corps.indexOf('window.open')>=0
+        && corps.indexOf('window.open')<corps.indexOf('createSignedUrl'));
+    } finally { toast=vraiToast; window.__faux.refusMuet=false; window.__faux.panne=false; }
+    return bilan;
+  })()`, r => {
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+
+    verifier('un fichier qui n’est pas un PDF est refusé, et rien n’est déposé',
+      r.ok && /err:/.test(String(b.refusType||'')) && / \/0$/.test(String(b.refusType||'')),
+      souci || 'réaction : ' + b.refusType);
+    verifier('un fichier trop lourd est refusé avant l’envoi',
+      r.ok && /err:/.test(String(b.refusTaille||'')) && / \/0$/.test(String(b.refusTaille||'')),
+      souci || 'réaction : ' + b.refusTaille);
+    verifier('le dépôt d’un PDF met le fichier en ligne et l’enregistre',
+      r.ok && String(b.deposes||'').split(',').filter(Boolean).length === 1
+           && /Cours et fiche n/.test(String(b.enregistres||'')) && /\u2713/.test(String(b.ditsDepot||'')),
+      souci || 'fichiers : ' + b.deposes + ' — enregistrés : ' + b.enregistres + ' — dit : ' + b.ditsDepot);
+    verifier('le chemin du fichier ne porte ni accent, ni espace, ni apostrophe',
+      r.ok && /^[a-z0-9]+\/[a-z0-9.\-]+\.pdf$/.test(String(b.chemin||'')),
+      souci || 'chemin produit : ' + b.chemin);
+    verifier('déposer un cours ne touche ni aux devoirs ni aux réglages',
+      r.ok && b.devoirsRestants === 1 && b.reglageRestant === 30,
+      souci || 'devoirs restants : ' + b.devoirsRestants + ' — temps par question : ' + b.reglageRestant);
+    verifier('l’élève voit le cours sur la page des exercices, avec de quoi l’ouvrir',
+      r.ok && b.eleveCache === false && /Cours et fiche n/.test(String(b.eleveTexte||'')) && b.eleveOuvre === true,
+      souci || 'panneau ' + (b.eleveCache ? 'caché' : 'affiché') + ' : « ' + b.eleveTexte + ' »');
+    verifier('une suppression que la base refuse EN SILENCE n’est pas annoncée comme faite',
+      r.ok && b.muetFichiers === 1 && b.muetListe === 1 && /err:/.test(String(b.ditsMuet||'')),
+      souci || 'fichiers restants : ' + b.muetFichiers + ', enregistrés : ' + b.muetListe +
+               ' — l’élève du professeur a lu « ' + b.ditsMuet + ' »');
+    verifier('la suppression qui aboutit retire le fichier ET son enregistrement',
+      r.ok && b.supFichiers === 0 && b.supListe === 0,
+      souci || 'fichiers restants : ' + b.supFichiers + ', enregistrés : ' + b.supListe);
+    verifier('un dépôt dont l’enregistrement échoue ne laisse pas de fichier fantôme',
+      r.ok && b.orphelins === 0 && /err:/.test(String(b.ditsOrphelin||'')),
+      souci || 'fichiers restants : ' + b.orphelins + ' — dit : ' + b.ditsOrphelin);
+    verifier('l’onglet du PDF s’ouvre avant l’attente, sinon le navigateur le bloque',
+      r.ok && b.ordreOnglet === true,
+      souci || 'window.open() est appelé après createSignedUrl() dans ouvrirCours()');
     apres();
   });
 }

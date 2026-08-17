@@ -98,6 +98,11 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_1ere', exercice: 'pourcentage' },
+    /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
+       des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
+       en retirant cette ligne — le banc affiche alors « non applicable » au
+       lieu de rougir. */
+    coursPdf: { table: 'parametres_1ere' },
 
     /* Exercices sans bouton « Poser une question à l'IA », et pourquoi. Ce ne
        sont pas des oublis : ces trois-là sont CHRONOMÉTRÉS — TM_SECONDES par
@@ -230,6 +235,11 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_2nde', exercice: 'pourcentage' },
+    /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
+       des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
+       en retirant cette ligne — le banc affiche alors « non applicable » au
+       lieu de rougir. */
+    coursPdf: { table: 'parametres_2nde' },
 
     /* Les écrans qui ne sont PAS des exercices. Tout autre écran doit figurer
        dans testScreens : c'est cette liste que show() consulte pour passer en
@@ -309,6 +319,11 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements', exercice: 'derivee-exp' },
+    /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
+       des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
+       en retirant cette ligne — le banc affiche alors « non applicable » au
+       lieu de rougir. */
+    coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même
        les lignes trop vieilles pour en avoir un. Les supprimer de TESTS ferait
