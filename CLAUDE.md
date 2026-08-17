@@ -358,24 +358,26 @@ l'arithmétique sur les 324 couples que produit `uFactor()`. Une pose se juge à
 l'œil, donc on ne la déplace pas sans preuve.
 
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
-−40 % puis −4 % fait −42,4 %, pas −44 %, parce que la seconde baisse porte sur
-la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision de
-Turquet, août 2026) : le résultat n'en dépend pas, et un nombre inutile posé là
-inviterait à le faire entrer dans le calcul. Chaque baisse n'a qu'un seul
-chiffre différent de zéro — 4 % ou 40 %, jamais 47 % —, et la PAIRE mêle
-toujours un multiple de dix et un chiffre : c'est la seule qui donne, zéros
-finaux retirés, la pose « deux chiffres × un chiffre » que sait dessiner
-`buildPose()`. 4 % puis 7 % demanderait une pose 96 × 93 qui n'existe nulle
-part ; 40 % puis 70 % donnerait « 6 × 3 », sans retenue ni intérêt. Le tirage
-garantit une retenue, comme {multiplication-posee}.
-Chaque coefficient s'écrit en trois temps — `1 − 4/100 = 1 − 0,04 = 0,96` — et la
-vérification finale en trois temps aussi : `1 − 42,4/100 = 1 − 0,424 = 0,576`
+−20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
+la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
+de Turquet, août 2026) : le résultat n'en dépend pas, et un nombre inutile posé
+là inviterait à le faire entrer dans le calcul.
+**Le COEFFICIENT de chaque baisse n'a qu'un seul chiffre différent de zéro, et
+c'est un dixième** — 1 − 0,20 = 0,8 (décision de Turquet, août 2026). Les deux
+baisses sont donc des multiples de dix, et les numérateurs sont deux chiffres
+seuls. **Il n'y a plus de multiplication posée** : 8 × 6 est un fait de table,
+et la case de retenue que `buildPose()` dessinerait au-dessus d'un chiffre seul
+ne voudrait rien dire — le bouton « Tables de multiplication » est sur l'écran,
+il suffit. On écarte 90 % (coefficient 0,1) : multiplier par 1 n'est pas un
+calcul. La baisse globale tombe alors toujours sur un nombre ENTIER de pourcent,
+et `baisseNum` porte ce pourcentage lui-même : la première version comptait en
+dixièmes (424 pour 42,4 %) et changer l'un sans l'autre a fait rougir quatre
+cases à la première exécution.
+Chaque coefficient s'écrit en trois temps — `1 − 20/100 = 1 − 0,20 = 0,8` — et
+la vérification finale en trois temps aussi : `1 − 52/100 = 1 − 0,52 = 0,48`
 (décision de Turquet, août 2026). Le passage par l'écriture décimale du
-pourcentage est l'étape que l'élève saute, et c'est celle qui fait écrire 0,4 au
-lieu de 0,04. Le numérateur de la vérification est DÉCIMAL : `fracEqual()` passe
-par `parseInt` et lirait « 42,4 » comme 42, d'où une comparaison qui relit les
-deux cases avec `parseDecToFrac` — 42,4/100 et 424/1000 sont acceptées toutes
-les deux.
+pourcentage est l'étape que l'élève saute, et c'est celle qui fait écrire 0,2 au
+lieu de 0,20 quand la baisse est de 20 %.
 Le piège d'à côté a mordu : `v()` était déclarée APRÈS le bloc « live », si bien
 que la coloration en direct la touchait dans sa zone morte et que le mode
 soutien plantait à la première frappe. Une déclaration de commodité se met en

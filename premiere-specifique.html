@@ -1487,7 +1487,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=127;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=128;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -6793,33 +6793,32 @@ const BS_ENONCES=[
   q=>`${BS_CTX[q.ci].sujet} est réduit${BS_CTX[q.ci].g==='f'?'e':''} de <b>${q.P1} %</b>, puis de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
   q=>`${BS_CTX[q.ci].sujet} baisse une première fois de <b>${q.P1} %</b>, puis une seconde fois de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`
 ];
-/* CHAQUE BAISSE N'A QU'UN SEUL CHIFFRE DIFFÉRENT DE ZÉRO — 4 % ou 40 %, jamais
-   47 % (décision de Turquet, août 2026). Et la PAIRE mêle toujours un multiple
-   de dix et un chiffre : c'est la seule qui donne, une fois les zéros finaux
-   retirés, la pose « deux chiffres × un chiffre » que sait dessiner
-   buildPose(). 4 % puis 7 % demanderait une pose 96 × 93 qui n'existe nulle
-   part dans le fichier ; 40 % puis 70 % donnerait « 6 × 3 », sans retenue ni
-   intérêt. L'ordre des deux baisses, lui, est tiré au sort. */
+/* LE COEFFICIENT DE CHAQUE BAISSE N'A QU'UN SEUL CHIFFRE DIFFÉRENT DE ZÉRO, ET
+   c'est un DIXIÈME : 1 − 0,20 = 0,8 (décision de Turquet, août 2026). Les deux
+   baisses sont donc des multiples de dix, et les numérateurs des coefficients
+   sont deux chiffres seuls — 8 et 6 pour −20 % et −40 %.
+   IL N'Y A DONC PLUS DE MULTIPLICATION POSÉE : 8 × 6 est un fait de table, pas
+   une opération à poser, et la case de retenue que buildPose() dessinerait
+   au-dessus d'un chiffre seul ne voudrait rien dire. Le bouton « Tables de
+   multiplication » est sur l'écran, il suffit.
+   On écarte 90 % (coefficient 0,1) : multiplier par 1 n'est pas un calcul. Et on
+   exige un produit d'au moins deux chiffres, pour que le coefficient global reste
+   un vrai nombre à deux décimales.
+   Conséquence heureuse : la baisse globale tombe toujours sur un nombre ENTIER
+   de pourcent — 0,8 × 0,6 = 0,48, soit 52 %. */
 function genBaisses(){
-  let Pd,Pu,haut,bas;
+  let n1,n2;
   do{
-    Pd=pick([10,20,30,40,50,60,70,80,90]);      /* multiple de dix */
-    Pu=rand(1,9);                               /* un chiffre      */
-    haut=100-Pu;                                /* 91..99, deux chiffres non nuls */
-    bas=(100-Pd)/10;                            /* 1..9, zéro final retiré        */
-  }while((haut%10)*bas<10);                     /* une retenue à la pose, comme {multiplication-posee} */
-  const dixDabord=pick([true,false]);
-  const P1=dixDabord?Pd:Pu, P2=dixDabord?Pu:Pd;
-  /* Les fractions à multiplier, dans l'ordre de l'énoncé : le coefficient d'une
-     baisse d'un multiple de dix s'écrit sans son zéro final (60/100 = 6/10). */
-  const fDix={num:bas,den:10}, fUn={num:haut,den:100};
-  const fA=dixDabord?fDix:fUn, fB=dixDabord?fUn:fDix;
-  const prodNum=haut*bas, prodDen=1000;         /* 96 × 6 = 576, sur 1000 */
-  const baisseNum=1000-prodNum;                 /* 424/1000 = 42,4 %      */
-  const q={P1,P2,Pd,Pu,haut,bas,fA,fB,prodNum,prodDen,baisseNum,
-    c1:100-P1, c2:100-P2,                       /* coefficients sur 100, dans l'ordre de l'énoncé */
+    n1=rand(2,9); n2=rand(2,9);                 /* numérateurs des coefficients : 0,2 à 0,9 */
+  }while(n1*n2<10);
+  const P1=100-n1*10, P2=100-n2*10;             /* 8 -> 20 %, 6 -> 40 % */
+  const fA={num:n1,den:10}, fB={num:n2,den:10};
+  const prodNum=n1*n2, prodDen=100;             /* 8 × 6 = 48, sur 100 */
+  const baisseNum=100-prodNum;                  /* 52 % pile */
+  const q={P1,P2,n1,n2,fA,fB,prodNum,prodDen,baisseNum,
+    c1:100-P1, c2:100-P2,                       /* coefficients sur 100 : 80 et 60 */
     coefStr:String(prodNum/prodDen).replace('.', ','),
-    baisseStr:String(baisseNum/10).replace('.', ','),
+    baisseStr:String(baisseNum),
     ci:tirerContexte(BS_CTX,0)};
   q.v=tirerVariante(BS_ENONCES,q);
   return q;
@@ -6842,7 +6841,6 @@ function renderBSTest(){
   $('bsPrompt').innerHTML=variante(BS_ENONCES,q);
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
-  const posed=buildPose(q.haut,q.bas,'bsMul');
   /* numeros() : les libellés citent {diminuer-pourcentage} et {mult-decimaux}.
      Les trois entonnoirs habituels (cardHTML, rappelHTML, conseilCtxCourant)
      ne voient pas un innerHTML posé ici — sans cet appel, l'élève lit
@@ -6851,18 +6849,14 @@ function renderBSTest(){
     `<div class="pt-step"><div class="pt-lab">① Le coefficient de chaque baisse, comme dans {diminuer-pourcentage}</div>
        <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs1n','bs1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bs1p','la première baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs1dec','premier coefficient')}</div>
        <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs2n','bs2d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bs2p','la seconde baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs2dec','second coefficient')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients, comme dans {mult-decimaux}</div>
+    `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients : multiplie les numérateurs, comme dans {mult-decimaux}</div>
        <div class="pt-row">${frac('bsAn','bsAd')}<span class="f-times">×</span>${frac('bsBn','bsBd')}<span class="f-eq">=</span>${frac('bsPn','bsPd')}<span class="f-eq">=</span>${dec('bsDec','coefficient global')}</div></div>`+
-    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, zéros finaux retirés <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
-       <div class="pt-row" style="padding:8px 0 6px">${posed}</div>
-       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`+
     `<div class="pt-step"><div class="pt-lab">③ La baisse globale, en pourcentage</div>
        <div class="pt-row"><span class="f-whole">baisse globale :</span>${dec('bsP','la baisse globale en pourcentage')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="bsStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l'étape ②</div>
        <div class="pt-row"><span class="f-whole">1 −</span>${frac('bsVn','bsVd')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bsVp','ta baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bsVc','le coefficient retrouvé')}</div></div>`);
-  const posedIns=[...$('bsMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('bs1n'),$('bs1d'),$('bs1p'),$('bs1dec'),$('bs2n'),$('bs2d'),$('bs2p'),$('bs2dec'),
-               $('bsAn'),$('bsAd'),$('bsBn'),$('bsBd'),...posedIns,$('bsPn'),$('bsPd'),$('bsDec'),
+               $('bsAn'),$('bsAd'),$('bsBn'),$('bsBd'),$('bsPn'),$('bsPd'),$('bsDec'),
                $('bsP'),$('bsVn'),$('bsVd'),$('bsVp'),$('bsVc')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
@@ -6909,19 +6903,18 @@ function checkBSAnswer(live){
     liveColorFrac('bs2n','bs2d',q.P2,100); liveColorDecCoef0('bs2p',q.P2); liveColorDecCoef0('bs2dec',q.c2);
     liveColorFrac('bsAn','bsAd',q.fA.num,q.fA.den,true);
     liveColorFrac('bsBn','bsBd',q.fB.num,q.fB.den,true);
-    [...$('bsMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
     liveColorFrac('bsPn','bsPd',q.prodNum,q.prodDen,true);
     liveColorDec('bsDec',q.prodNum,q.prodDen);
-    liveColorDec('bsP',q.baisseNum,10);
+    liveColorDec('bsP',q.baisseNum,1);
     ['bsVp','bsVc'].forEach((id,k)=>{ const el=$(id); if(!el||el.disabled) return;
       const t=el.value.trim(); el.classList.remove('ok','bad'); if(t==='') return;
-      el.classList.add(decOk(id,'0,',k?q.prodNum:q.baisseNum,1000)?'ok':'bad'); });
+      el.classList.add(decOk(id,'0,',k?q.prodNum:q.baisseNum,100)?'ok':'bad'); });
     /* La baisse s'écrit 42,4/100 comme 424/1000 : la comparaison lit les deux
        cases en décimal, sans quoi « 42,4 » au numérateur se réduirait à 42. */
     [$('bsVn'),$('bsVd')].forEach(el=>{ if(!el||el.disabled) return;
       el.classList.remove('ok','bad');
       if(v('bsVn')==='' && v('bsVd')==='') return;
-      el.classList.add(fracDec('bsVn','bsVd',q.baisseNum,1000)?'ok':'bad'); });
+      el.classList.add(fracDec('bsVn','bsVd',q.baisseNum,100)?'ok':'bad'); });
     return;
   }
   const iv=id=>parseInt(v(id),10);
@@ -6936,39 +6929,14 @@ function checkBSAnswer(live){
   const okB  = v('bsBn')!=='' && fracEqual(iv('bsBn'),den('bsBd'),q.fB.num,q.fB.den);
   const okPr = v('bsPn')!=='' && fracEqual(iv('bsPn'),den('bsPd'),q.prodNum,q.prodDen);
   const okC  = decOk('bsDec','',q.prodNum,q.prodDen);
-  const okP  = decOk('bsP','',q.baisseNum,10);
-  /* La pose est un OUTIL, comme dans {mult-decimaux} : on la corrige si l'élève
-     s'en est servi, mais elle n'entre pas dans la réussite du calcul. */
-  const host=$('bsMul');
-  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
-  const engage=[...boxes,...carries].some(el=>el.value.trim()!=='');
-  if(engage){
-    boxes.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const fx=document.createElement('span');fx.className='mp-fix';fx.textContent=exp;cl.appendChild(fx);} }
-    });
-    carries.forEach(el=>{
-      const exp=el.dataset.exp, vv=el.value.trim();
-      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
-      el.classList.remove('ok','bad'); el.disabled=!soutien;
-      if(vv==='') return;
-      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
-      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
-      if(!ok && currentMode==='train'){ const fx=document.createElement('span');fx.className='mp-fix';fx.textContent=exp;cl.appendChild(fx); }
-    });
-  } else {
-    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
-  }
+  const okP  = decOk('bsP','',q.baisseNum,1);
   /* ④ est facultative elle aussi : on la colore, elle ne compte pas. */
   ['bsVp','bsVc'].forEach((id,k)=>{ const el=$(id); if(!el) return; const t=el.value.trim();
     el.classList.remove('ok','bad'); if(t==='') return;
-    const ok=decOk(id,'0,',k?q.prodNum:q.baisseNum,1000);
+    const ok=decOk(id,'0,',k?q.prodNum:q.baisseNum,100);
     el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; });
   if(v('bsVn')!=='' || v('bsVd')!==''){
-    const okV=fracDec('bsVn','bsVd',q.baisseNum,1000);
+    const okV=fracDec('bsVn','bsVd',q.baisseNum,100);
     [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
@@ -8808,14 +8776,15 @@ const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
 Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
 Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
 const RAP_BS=`<b>Une baisse suivie d’une autre baisse</b><br>
-Deux baisses <b>ne s’additionnent pas</b> : baisser de 40 % puis de 4 %, ce n’est PAS baisser de 44 %. La deuxième baisse ne porte pas sur le prix de départ, mais sur le prix <b>déjà baissé</b> — elle est donc plus petite.<br>
+Deux baisses <b>ne s’additionnent pas</b> : baisser de 20 % puis de 40 %, ce n’est PAS baisser de 60 %. La deuxième baisse ne porte pas sur le prix de départ, mais sur le prix <b>déjà baissé</b> — elle est donc plus petite.<br>
 On passe par les <b>coefficients multiplicateurs</b>, exactement comme dans {diminuer-pourcentage} :<br>
-· baisser de 40 %, c’est multiplier par 1 − 0,40 = <b>0,60</b> ;<br>
-· baisser de 4 %, c’est multiplier par 1 − 0,04 = <b>0,96</b>.<br>
-Enchaîner les deux baisses, c’est multiplier par l’un <b>puis</b> par l’autre : le coefficient global est le <b>produit</b> des deux, et il se calcule comme dans {mult-decimaux} — fractions décimales, puis multiplication des numérateurs.<br>
-0,60 × 0,96 = 6/10 × 96/100 = 576/1000 = <b>0,576</b>.<br>
-Le coefficient global se relit enfin en pourcentage : multiplier par 0,576, c’est <b>garder</b> 57,6 % — donc <b>perdre 42,4 %</b>. La baisse globale est <b>42,4 %</b>.<br>
-Pour vérifier, refais le chemin dans l’autre sens : 1 − 0,424 = 0,576, le coefficient trouvé à l’étape ②.`;
+· baisser de 20 %, c’est multiplier par 1 − 0,20 = <b>0,8</b> ;<br>
+· baisser de 40 %, c’est multiplier par 1 − 0,40 = <b>0,6</b>.<br>
+Enchaîner les deux baisses, c’est multiplier par l’un <b>puis</b> par l’autre : le coefficient global est le <b>produit</b> des deux. On l’écrit en fractions décimales, comme dans {mult-decimaux}, et il ne reste qu’à multiplier les numérateurs — une table de multiplication.<br>
+0,8 × 0,6 = 8/10 × 6/10 = 48/100 = <b>0,48</b>.<br>
+Le coefficient global se relit enfin en pourcentage : multiplier par 0,48, c’est <b>garder</b> 48 % — donc <b>perdre 52 %</b>. La baisse globale est <b>52 %</b>.<br>
+Pour vérifier, refais le chemin dans l’autre sens : 1 − 0,52 = 0,48, le coefficient trouvé à l’étape ②.`;
+
 const RAP_LC=`<b>Lire un coefficient multiplicateur</b><br>
 Un coefficient dit d’un coup <b>le sens</b> de l’évolution et <b>son ampleur</b>.<br>
 · Il est <b>plus grand que 1</b> → la valeur monte : c’est une <b>augmentation</b>.<br>
@@ -8956,7 +8925,7 @@ function conseilCtxCourant(){
     att='Réponses attendues, STRICTEMENT SECRÈTES : étape ① les coefficients 1 − '+q.P1+'/100 = 0,'+String(q.c1).padStart(2,'0')+' et 1 − '+q.P2+'/100 = 0,'+String(q.c2).padStart(2,'0')+' ; '
       +'étape ② '+q.fA.num+'/'+q.fA.den+' × '+q.fB.num+'/'+q.fB.den+' = '+q.prodNum+'/'+q.prodDen+' = '+q.coefStr+' (toute fraction égale convient) ; '
       +'étape ③ la baisse globale vaut '+q.baisseStr+' %. '
-      +'Méthode enseignée : un coefficient par baisse comme dans l’exercice {diminuer-pourcentage}, puis le PRODUIT des deux coefficients comme dans {mult-decimaux} — les baisses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
+      +'Méthode enseignée : un coefficient par baisse comme dans l’exercice {diminuer-pourcentage}, puis le PRODUIT des deux coefficients, écrit en fractions décimales comme dans {mult-decimaux} — il ne reste qu’à multiplier les numérateurs, deux chiffres, ce qui est une table de multiplication. Les baisses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
       +'La deuxième baisse porte sur la valeur déjà baissée, pas sur la valeur de départ. Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
   } else if(k==='pct' && q){
     att='Réponses attendues, STRICTEMENT SECRÈTES : étape ① la fraction '+q.P+'/100 (toute fraction égale convient) ; '
