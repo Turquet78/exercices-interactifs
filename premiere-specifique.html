@@ -1455,7 +1455,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=124;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=125;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -6596,8 +6596,8 @@ function renderBSTest(){
      l'accolade au lieu du numéro. Vu sur la capture, pas dans le code. */
   $('bsHost').innerHTML=numeros(
     `<div class="pt-step"><div class="pt-lab">① Le coefficient de chaque baisse, comme dans {diminuer-pourcentage}</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs1n','bs1d')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs1dec','premier coefficient')}</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs2n','bs2d')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs2dec','second coefficient')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs1n','bs1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bs1p','la première baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs1dec','premier coefficient')}</div>
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs2n','bs2d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bs2p','la seconde baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs2dec','second coefficient')}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients, comme dans {mult-decimaux}</div>
        <div class="pt-row">${frac('bsAn','bsAd')}<span class="f-times">×</span>${frac('bsBn','bsBd')}<span class="f-eq">=</span>${frac('bsPn','bsPd')}<span class="f-eq">=</span>${dec('bsDec','coefficient global')}</div></div>`+
     `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, zéros finaux retirés <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
@@ -6606,11 +6606,11 @@ function renderBSTest(){
     `<div class="pt-step"><div class="pt-lab">③ La baisse globale, en pourcentage</div>
        <div class="pt-row"><span class="f-whole">baisse globale :</span>${dec('bsP','la baisse globale en pourcentage')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="bsStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l'étape ②</div>
-       <div class="pt-row"><span class="f-whole">1 − 0,</span>${dec('bsVp','ta baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bsVc','le coefficient retrouvé')}</div></div>`);
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bsVn','bsVd')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bsVp','ta baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bsVc','le coefficient retrouvé')}</div></div>`);
   const posedIns=[...$('bsMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
-  const order=[$('bs1n'),$('bs1d'),$('bs1dec'),$('bs2n'),$('bs2d'),$('bs2dec'),
+  const order=[$('bs1n'),$('bs1d'),$('bs1p'),$('bs1dec'),$('bs2n'),$('bs2d'),$('bs2p'),$('bs2dec'),
                $('bsAn'),$('bsAd'),$('bsBn'),$('bsBd'),...posedIns,$('bsPn'),$('bsPd'),$('bsDec'),
-               $('bsP'),$('bsVp'),$('bsVc')];
+               $('bsP'),$('bsVn'),$('bsVd'),$('bsVp'),$('bsVc')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
@@ -6636,14 +6636,24 @@ function checkBSAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
   const soutien=isSoutien();
+  /* v() est déclarée AVANT le bloc « live » : la coloration en direct s'en sert
+     aussi, et une déclaration plus bas la laissait dans sa zone morte — le mode
+     soutien plantait dès la première frappe. Trouvé en tapant dedans. */
+  const v=id=>$(id).value.trim();
   /* Comparaison d'un champ décimal à une fraction attendue : « 0,60 » et
      « 0,6 » valent le même coefficient, et l'élève a le droit d'écrire l'un
      ou l'autre. */
   const decOk=(id,pre,n,d)=>{ const t=$(id).value.trim(); if(t==='') return false;
     const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
+  /* Fraction dont le numérateur PEUT être décimal : la baisse globale vaut
+     42,4 %, et l'élève a le droit d'écrire 42,4/100 aussi bien que 424/1000.
+     fracEqual() passe par parseInt et lirait « 42,4 » comme 42. */
+  const fracDec=(idN,idD,n,d)=>{ const tn=$(idN).value.trim(); if(tn==='') return false;
+    const a=parseDecToFrac(tn), b=parseDecToFrac($(idD).value.trim()||'1');
+    return !!a && !!b && b.n!==0 && a.n*b.d*d===n*a.d*b.n; };
   if(live){
-    liveColorFrac('bs1n','bs1d',q.P1,100); liveColorDecCoef0('bs1dec',q.c1);
-    liveColorFrac('bs2n','bs2d',q.P2,100); liveColorDecCoef0('bs2dec',q.c2);
+    liveColorFrac('bs1n','bs1d',q.P1,100); liveColorDecCoef0('bs1p',q.P1); liveColorDecCoef0('bs1dec',q.c1);
+    liveColorFrac('bs2n','bs2d',q.P2,100); liveColorDecCoef0('bs2p',q.P2); liveColorDecCoef0('bs2dec',q.c2);
     liveColorFrac('bsAn','bsAd',q.fA.num,q.fA.den,true);
     liveColorFrac('bsBn','bsBd',q.fB.num,q.fB.den,true);
     [...$('bsMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
@@ -6653,13 +6663,21 @@ function checkBSAnswer(live){
     ['bsVp','bsVc'].forEach((id,k)=>{ const el=$(id); if(!el||el.disabled) return;
       const t=el.value.trim(); el.classList.remove('ok','bad'); if(t==='') return;
       el.classList.add(decOk(id,'0,',k?q.prodNum:q.baisseNum,1000)?'ok':'bad'); });
+    /* La baisse s'écrit 42,4/100 comme 424/1000 : la comparaison lit les deux
+       cases en décimal, sans quoi « 42,4 » au numérateur se réduirait à 42. */
+    [$('bsVn'),$('bsVd')].forEach(el=>{ if(!el||el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(v('bsVn')==='' && v('bsVd')==='') return;
+      el.classList.add(fracDec('bsVn','bsVd',q.baisseNum,1000)?'ok':'bad'); });
     return;
   }
-  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const iv=id=>parseInt(v(id),10);
   const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
   const ok1  = v('bs1n')!=='' && fracEqual(iv('bs1n'),den('bs1d'),q.P1,100);
+  const ok1p = decOk('bs1p','0,',q.P1,100);
   const ok1d = decOk('bs1dec','0,',q.c1,100);
   const ok2  = v('bs2n')!=='' && fracEqual(iv('bs2n'),den('bs2d'),q.P2,100);
+  const ok2p = decOk('bs2p','0,',q.P2,100);
   const ok2d = decOk('bs2dec','0,',q.c2,100);
   const okA  = v('bsAn')!=='' && fracEqual(iv('bsAn'),den('bsAd'),q.fA.num,q.fA.den);
   const okB  = v('bsBn')!=='' && fracEqual(iv('bsBn'),den('bsBd'),q.fB.num,q.fB.den);
@@ -6696,12 +6714,16 @@ function checkBSAnswer(live){
     el.classList.remove('ok','bad'); if(t==='') return;
     const ok=decOk(id,'0,',k?q.prodNum:q.baisseNum,1000);
     el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; });
+  if(v('bsVn')!=='' || v('bsVd')!==''){
+    const okV=fracDec('bsVn','bsVd',q.baisseNum,1000);
+    [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
+  }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('bs1n',ok1); mark('bs1d',ok1); mark('bs1dec',ok1d);
-  mark('bs2n',ok2); mark('bs2d',ok2); mark('bs2dec',ok2d);
+  mark('bs1n',ok1); mark('bs1d',ok1); mark('bs1p',ok1p); mark('bs1dec',ok1d);
+  mark('bs2n',ok2); mark('bs2d',ok2); mark('bs2p',ok2p); mark('bs2dec',ok2d);
   mark('bsAn',okA); mark('bsAd',okA); mark('bsBn',okB); mark('bsBd',okB);
   mark('bsPn',okPr); mark('bsPd',okPr); mark('bsDec',okC); mark('bsP',okP);
-  const allOk=ok1&&ok1d&&ok2&&ok2d&&okA&&okB&&okPr&&okC&&okP;
+  const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('bsFeedback','bsActions','checkBSAnswer','bsHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('bsLiveScore').textContent=test.score;
@@ -6709,8 +6731,8 @@ function checkBSAnswer(live){
   } else {
     $('bsFeedback').textContent=`Méthode : 1 − ${pDecStr(q.P1)} = 0,${String(q.c1).padStart(2,'0')} et 1 − ${pDecStr(q.P2)} = 0,${String(q.c2).padStart(2,'0')} ; ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.coefStr} ; la baisse globale est 1 − ${q.coefStr} = ${q.baisseStr} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
     $('bsFeedback').className='mp-feedback bad';
-    corTrainFrac('bs1n','bs1d',q.P1,100); corTrainDec('bs1dec',String(q.c1).padStart(2,'0'));
-    corTrainFrac('bs2n','bs2d',q.P2,100); corTrainDec('bs2dec',String(q.c2).padStart(2,'0'));
+    corTrainFrac('bs1n','bs1d',q.P1,100); corTrainDec('bs1p',String(q.P1).padStart(2,'0')); corTrainDec('bs1dec',String(q.c1).padStart(2,'0'));
+    corTrainFrac('bs2n','bs2d',q.P2,100); corTrainDec('bs2p',String(q.P2).padStart(2,'0')); corTrainDec('bs2dec',String(q.c2).padStart(2,'0'));
     corTrainFrac('bsAn','bsAd',q.fA.num,q.fA.den); corTrainFrac('bsBn','bsBd',q.fB.num,q.fB.den);
     corTrainFrac('bsPn','bsPd',q.prodNum,q.prodDen); corTrainDec('bsDec',q.coefStr); corTrainDec('bsP',q.baisseStr);
   }
