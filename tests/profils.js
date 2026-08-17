@@ -200,6 +200,16 @@ module.exports = {
        quatre fois plus large que ce qu'il encadre. Seul un navigateur mesure
        une largeur rendue — elle dépend de la police et du repli au mot. */
     cadrePose: { exercices: [['mult-decimaux','mdHost'], ['mult-dec-un','uHost']], largeurMax: 520 },
+
+    /* L'étiquette de la colonne de gauche de « Fraction et pourcentage » doit
+       nommer le DÉNOMINATEUR de la fraction étudiée — « pour 5 » devant 2/5 —
+       et non « pour 1 » (décision de Turquet, août 2026). C'est ce qui rend la
+       lecture parallèle des deux colonnes : « 2 pour 5 » à gauche, « 40 pour
+       100 » à droite. Elle est posée dans une chaîne JavaScript, invisible à
+       un contrôle qui lirait le HTML : le banc OUVRE l'exercice et lit ce qui
+       s'affiche. L'exercice voisin étiquette déjà sa colonne de la même
+       façon. */
+    colonneFraction: { exercice: 'fraction-pourcentage', hote: 'fpHost', droite: 'pour 100' },
     lacunes: [],
   },
 

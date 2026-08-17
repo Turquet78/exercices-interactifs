@@ -707,6 +707,54 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quinquies. l'étiquette de la colonne de gauche ===== */
+    /* Elle doit nommer le dénominateur de la fraction étudiée : « pour 5 »
+       devant 2/5. C'est ce qui met les deux colonnes en regard — « 2 pour 5 »
+       d'un côté, « 40 pour 100 » de l'autre. L'étiquette est posée depuis une
+       chaîne JavaScript, invisible à un contrôle qui ne lirait que le HTML ;
+       et une étiquette figée (« pour 1 ») passerait tous les contrôles de
+       structure sans qu'aucun ne la regarde. On ouvre donc l'exercice, on
+       relit la question tirée, et on compare à ce qui est AFFICHÉ. Plusieurs
+       questions d'affilée : une seule ne dirait pas si l'étiquette suit. */
+    titre('6 quinquies. LA COLONNE DE GAUCHE NOMME LE DÉNOMINATEUR');
+    if(!P.colonneFraction){
+      ignorer('l\'étiquette de la colonne suit le dénominateur',
+        'ce niveau n\'a pas l\'exercice « Fraction et pourcentage »');
+    } else {
+      const C = P.colonneFraction;
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      await s.page.evaluate(i => openTest(i), C.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+      let vues = 0, ecarts = [];
+      for(let i = 0; i < 4; i++){
+        const vu = await s.page.evaluate(h => {
+          const host = document.getElementById(h);
+          const labs = host ? [...host.querySelectorAll('.fp-lab')].map(e => e.textContent.trim()) : [];
+          const q = (typeof test !== 'undefined' && test.questions) ? test.questions[test.idx] : null;
+          const col = host ? host.querySelectorAll('#fpColL .fp-seg').length : 0;
+          return { labs, a: q && q.a, b: q && q.b, col };
+        }, C.hote);
+        if(!vu.b) break;
+        vues++;
+        if(vu.labs[0] !== 'pour ' + vu.b)
+          ecarts.push('fraction ' + vu.a + '/' + vu.b + ' → étiquette « ' + vu.labs[0] + ' » au lieu de « pour ' + vu.b + ' »');
+        if(vu.labs[1] !== C.droite)
+          ecarts.push('colonne de droite « ' + vu.labs[1] + ' » au lieu de « ' + C.droite + ' »');
+        if(vu.col !== vu.b)
+          ecarts.push('fraction ' + vu.a + '/' + vu.b + ' → ' + vu.col + ' parts dessinées, l\'étiquette annonce ' + vu.b);
+        await s.page.evaluate(() => { if(typeof nextFPQuestion === 'function'){ test.locked = false; nextFPQuestion(); } });
+        await s.page.waitForTimeout(350);
+      }
+      verifier('l\'exercice s\'ouvre et tire des fractions', vues >= 2,
+        'seulement ' + vues + ' question(s) lue(s) — l\'écran ne s\'est pas ouvert');
+      verifier('l\'étiquette nomme le dénominateur sur chaque question', vues >= 2 && !ecarts.length,
+        ecarts.join(' ; '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là
