@@ -30,7 +30,7 @@ const KINDS_PREMIERE = [
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
-  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'],
+  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'],
 ];
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
@@ -41,7 +41,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','baisses-successives':'bs','lire-coefficient':'lc',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs',
     'tables-multiplication':'tm','tables-multiplication-2':'tm' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
