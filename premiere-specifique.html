@@ -1487,7 +1487,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=128;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=131;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1815,6 +1815,11 @@ let currentDM=null;
    null = passage unique, et la note s'enregistre alors sans « passe » — les
    devoirs déjà rendus gardent exactement la forme qu'ils avaient. */
 let mesResultats=[], mesDevoirs=[];
+/* Ce que la dernière lecture des réglages a obtenu — voir loadConfig().
+   Déclaré ICI, en tête, et non près de loadConfig : devoirsVideHTML() le lit
+   huit cents lignes plus haut, et une déclaration posée après son premier
+   usage vit dans sa zone morte. Le projet s'est déjà fait prendre. */
+let CONFIG_LIGNE=false, CONFIG_ERREUR=null;
 const DEFAULT_DEVOIR={id:'dm_1',num:1,actif:true,titre:'Devoir à la maison',cours:'',exercices:[]};
 function newDevoirId(){ return 'dm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 function ensureDevoir(d,i){ return { id:d.id||newDevoirId(), num:(typeof d.num==='number'?d.num:(i+1)), actif:d.actif!==false, titre:d.titre||'Devoir à la maison', cours:(typeof d.cours==='string')?d.cours:'', exercices:Array.isArray(d.exercices)?d.exercices:[] }; }
@@ -2515,9 +2520,20 @@ async function openDevoirsEleve(){
   await chargerMesResultats();
   renderDevoirsList();
 }
+/* Trois situations, trois phrases. Une seule — la première — autorise à dire
+   qu'il n'y a rien à faire : celle où les réglages ont bien été lus et ne
+   portent aucun devoir affiché. */
+function devoirsVideHTML(){
+  if(CONFIG_ERREUR)
+    return '<div class="empty">Les devoirs n\'ont pas pu être lus (problème de connexion). Réessaie dans un instant.</div>';
+  if(!CONFIG_LIGNE)
+    return '<div class="empty">Aucun devoir à la maison pour l\'instant.<br>'
+         + '<span class="muted">Si ton professeur t\'en a donné un, dis-le-lui : cette page ne voit aucun réglage.</span></div>';
+  return '<div class="empty">Aucun devoir à la maison pour l\'instant.</div>';
+}
 function renderDevoirsList(){
   const actifs=(mesDevoirs||[]).filter(d=>d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
-  if(!actifs.length){ $('devoirsBody').innerHTML='<div class="empty">Aucun devoir à la maison pour l\'instant.</div>'; return; }
+  if(!actifs.length){ $('devoirsBody').innerHTML=devoirsVideHTML(); return; }
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
     const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
     const lignes=exos.map(ex=>{
@@ -2998,12 +3014,25 @@ function lineChart(values){
 }
 
 /* ---------- Réglages : chargement ---------- */
+/* Ce que la DERNIÈRE lecture des réglages a vraiment obtenu.
+   Une lecture que RLS refuse n'est pas une erreur : PostgREST répond « aucune
+   ligne », exactement comme le ferait une base encore vide. La page ne peut
+   donc pas dire POURQUOI elle n'a rien — mais elle peut cesser d'affirmer
+   qu'il n'y a rien à faire. C'est cette affirmation qui a coûté une recherche
+   entière : l'espace élève annonçait « Aucun devoir à la maison » d'un ton
+   parfaitement assuré pendant que le professeur voyait le sien dans son
+   éditeur, et rien nulle part ne disait que la ligne n'avait pas été lue.
+   « maybeSingle » plutôt que « single » : une table encore vide n'est pas une
+   panne, et la distinguer est ce qui permet au professeur de créer son premier
+   devoir sans que le garde-fou d'écriture ne l'en empêche. */
 async function loadConfig(){
   try{
-    const {data,error}=await sb.from('parametres_1ere').select('valeurs').eq('id',1).single();
-    if(error||!data) return {...DEFAULT_CFG};
+    const {data,error}=await sb.from('parametres_1ere').select('valeurs').eq('id',1).maybeSingle();
+    CONFIG_ERREUR = error || null; CONFIG_LIGNE = !error && !!data;
+    if(error||!data) return normalizeCfg({...DEFAULT_CFG});
     return normalizeCfg(Object.assign({},DEFAULT_CFG,data.valeurs));
-  }catch(e){ return {...DEFAULT_CFG}; }
+  }catch(e){ CONFIG_ERREUR = e || new Error('lecture impossible'); CONFIG_LIGNE=false;
+    return normalizeCfg({...DEFAULT_CFG}); }
 }
 
 /* ---------- Génération des questions ---------- */
@@ -4464,7 +4493,7 @@ function renderFPTest(){
   $('fpHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">Méthode 1 : colorie, puis choisis la même hauteur</div>
     <div class="fp-zone">`+
-      `<div class="fp-bloc"><div class="fp-lab">pour 1</div>`+
+      `<div class="fp-bloc"><div class="fp-lab">pour ${q.b}</div>`+
         `<div class="fp-col" id="fpColL">${segsL}</div>`+
         `<div class="fp-val" id="fpValL">${q.selL?fpFracHTML(q.selL,q.b):'…'}</div></div>`+
       `<div class="fp-bloc"><div class="fp-lab">pour 100</div>`+
@@ -7564,7 +7593,21 @@ async function renderClassTable(){
 }
 
 /* ---------- Mode évaluation : verrous ---------- */
-function saveConfig(valeurs){ return sb.from('parametres_1ere').upsert({id:1,valeurs}); }
+/* Les réglages emportent la correspondance « identifiant → numéro + nom ».
+   Elle ne sert à rien ici : c'est le site portail qui la lit, dans cette même
+   ligne, pour nommer les exercices d'un devoir. Il en gardait une copie écrite
+   à la main, qui s'est figée sur la numérotation d'un autre mois — il
+   annonçait « 3.1 » pour l'exercice devenu 2.1.3, et ignorait les deux
+   exercices ajoutés depuis. Un numéro se DÉDUIT de la position dans THEMES :
+   recopié quelque part, il ment tôt ou tard. Publié ici à chaque
+   enregistrement, il suit une réorganisation tout seul. */
+/* Depuis TESTS, et non depuis l'ordre des thèmes : un exercice retiré du menu
+   mais gardé dans TESTS pour que ses anciennes notes gardent un nom n'a plus de
+   numéro — il en manquait deux en Terminale, qui se seraient affichés sous leur
+   identifiant brut dans un vieux devoir. testNum rend alors une chaîne vide, et
+   le nom suffit. */
+function carteExercices(){ const o={}; Object.keys(TESTS).forEach(id=>{ o[id]={num:testNum(id),nom:TESTS[id].name}; }); return o; }
+function saveConfig(valeurs){ return sb.from('parametres_1ere').upsert({id:1,valeurs:Object.assign({},valeurs,{exos:carteExercices()})}); }
 
 /* ---------- Devoir maison (prof) ---------- */
 let dmAdminList=[], dmSelId=null, dmResRows=[];
@@ -7592,6 +7635,7 @@ async function newDM(){
   const nd={ id:newDevoirId(), num:maxNum+1, actif:true, titre:'Devoir à la maison', cours:'', exercices:[] };
   try{
     cfg=await loadConfig();
+    if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
     const arr=(cfg.devoirs||[]).slice(); arr.push(nd);
     const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
     dmSelId=nd.id; toast('Nouveau devoir créé','ok'); renderDevoirsAdmin();
@@ -7698,6 +7742,7 @@ async function saveDM(){
     .map(ex=>Object.assign({ id:ex.id, modes:ex.modes }, ex.nb?{nb:ex.nb}:{}));
   try{
     cfg=await loadConfig();
+    if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
     const arr=(cfg.devoirs||[]).slice();
     const clean={ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices };
     const i=arr.findIndex(x=>x.id===d.id);
@@ -7711,6 +7756,7 @@ async function deleteDM(id){
   if(!confirm(`Supprimer le devoir n°${d?d.num:''} ? Les résultats déjà enregistrés par les élèves sont conservés.`)) return;
   try{
     cfg=await loadConfig();
+    if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
     const arr=(cfg.devoirs||[]).filter(x=>x.id!==id);
     const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
     if(dmSelId===id) dmSelId=null;
@@ -7801,6 +7847,7 @@ async function renderEvalLocks(){
 async function toggleLock(id){
   try{
     cfg=await loadConfig();
+    if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
     const locks=Object.assign({},cfg.locks||{}); locks[id]=!locks[id];
     const {error}=await saveConfig(Object.assign({},cfg,{locks})); if(error)throw error;
     toast(locks[id]?`${testName(id)} déverrouillé`:`${testName(id)} verrouillé`, locks[id]?'ok':null);

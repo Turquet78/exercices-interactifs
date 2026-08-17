@@ -57,8 +57,10 @@ function faireSupabase(etat){
       const filtres = [];
       let op = null, charge = null;
       const lignes = () => (etat.tables[nom] = etat.tables[nom] || []);
-      const colle = x => filtres.every(([c, v]) =>
-        String(x[c]).toLowerCase() === String(v).toLowerCase());
+      /* Un filtre est soit une égalité [colonne, valeur], soit un prédicat :
+         « tout effacer » ne s'écrit pas avec une égalité. */
+      const colle = x => filtres.every(f => typeof f === 'function' ? f(x)
+        : String(x[f[0]]).toLowerCase() === String(f[1]).toLowerCase());
 
       function executer(){
         if(op === 'insert'){
@@ -89,6 +91,16 @@ function faireSupabase(etat){
         eq(c, v){ filtres.push([c, v]); return b; },
         ilike(c, v){ filtres.push([c, v]); return b; },
         neq(){ return b; },
+        /* .not('id','is',null) — « id is not null », la façon dont la fonction
+           dit « toutes les lignes » sans supposer le type de l'identifiant.
+           Son absence ici rendait « tout effacer » INEXÉCUTABLE par le banc :
+           le geste le plus lourd de la fonction était le seul jamais joué.
+           Toute autre forme doit se voir plutôt que de passer pour vraie. */
+        not(c, o, v){
+          if(o !== 'is' || v !== null) throw new Error('not(' + o + ', ' + v + ') non modélisé');
+          filtres.push(x => x[c] !== null && x[c] !== undefined);
+          return b;
+        },
         maybeSingle(){
           const r = executer();
           return Promise.resolve({ data: (r.data || [])[0] || null, error: null });
@@ -317,6 +329,58 @@ titre('5. LES DEUX GÉNÉRATIONS DE CLÉS SUPABASE');
   const j2 = await r2.json();
   verifier('leur absence est dite explicitement',
     r2.status === 500 && /environnement/.test(String(j2.erreur || '')), JSON.stringify(j2));
+}
+
+/* ---------------------------------------------------------------------------
+   6. TOUT EFFACER — le geste le plus lourd, et le seul que rien ne jouait
+   -------------------------------------------------------------------------
+   « Réinitialiser pour une nouvelle année » efface les élèves d'un niveau,
+   leurs notes et leurs comptes Supabase. Deux bords comptent autant l'un que
+   l'autre : que le niveau demandé soit VRAIMENT vidé, et que les deux autres
+   n'y laissent pas une ligne — les trois niveaux partagent un seul projet, et
+   vider la Seconde ne doit rien coûter à la Terminale. */
+console.log('\n6. TOUT EFFACER');
+{
+  const e = etatNeuf();
+  e.comptes['jeton-prof']  = { id: 'idprof', email: 'p@x' };
+  e.comptes['jeton-eleve'] = { id: 'ideleve', email: 'e@x' };
+  e.tables.professeurs   = [{ user_id: 'idprof' }];
+  e.tables.eleves_2nde   = [{ id: 's1', prenom: 'Alice', user_id: 'auth-a' },
+                            { id: 's2', prenom: 'Bob',   user_id: null }];
+  e.tables.resultats_2nde= [{ id: 'r1', eleve_id: 's1' }, { id: 'r2', eleve_id: 's2' }];
+  e.tables.eleves_1ere   = [{ id: 7, prenom: 'Chloé', user_id: 'auth-c' }];
+  e.tables.resultats_1ere= [{ id: 9, eleve_id: 7 }];
+  e.tables.eleves        = [{ id: 't1', prenom: 'Diane', user_id: 'auth-d' }];
+  e.tables.resultats     = [{ id: 'rt', eleve_id: 't1' }];
+
+  const h = await charger(e);
+  let r = await appel(h, { action: 'tout-effacer', niveau: 'secondes' }, 'jeton-eleve');
+  verifier('un élève ne peut pas réinitialiser la classe', r.status === 403, 'statut ' + r.status);
+  verifier('et rien n\'a bougé', e.tables.eleves_2nde.length === 2, 'des élèves ont disparu');
+
+  r = await appel(h, { action: 'tout-effacer', niveau: 'secondes' }, 'jeton-prof');
+  const j = await r.json();
+  verifier('le professeur vide le niveau demandé', r.status === 200 && j.n === 2, JSON.stringify(j));
+  verifier('les élèves de Seconde sont partis', e.tables.eleves_2nde.length === 0,
+    e.tables.eleves_2nde.length + ' restant(s)');
+  verifier('leurs notes aussi', e.tables.resultats_2nde.length === 0,
+    e.tables.resultats_2nde.length + ' note(s) restante(s)');
+
+  /* Le compte Supabase ne part pas avec la ligne : c'est un appel séparé, et
+     l'oublier laisserait des comptes qui ouvrent une porte sur rien. */
+  const efface = e.journal.filter(x => x.op === 'deleteUser').map(x => x.id);
+  verifier('le compte Supabase de chaque élève qui en avait un est supprimé',
+    efface.length === 1 && efface[0] === 'auth-a', JSON.stringify(efface));
+
+  /* Et surtout : les deux autres niveaux sont intacts. */
+  verifier('la Première n\'a pas été touchée',
+    e.tables.eleves_1ere.length === 1 && e.tables.resultats_1ere.length === 1,
+    'élèves ' + e.tables.eleves_1ere.length + ', notes ' + e.tables.resultats_1ere.length);
+  verifier('la Terminale non plus',
+    e.tables.eleves.length === 1 && e.tables.resultats.length === 1,
+    'élèves ' + e.tables.eleves.length + ', notes ' + e.tables.resultats.length);
+  verifier('et aucun de leurs comptes n\'a été supprimé',
+    !efface.includes('auth-c') && !efface.includes('auth-d'), JSON.stringify(efface));
 }
 
 console.log('\n──────────────────────────────────────────────────────────');

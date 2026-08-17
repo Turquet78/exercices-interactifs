@@ -171,6 +171,19 @@ begin
   end;
   perform pg_temp.exige('elle ne peut pas toucher aux devoirs', ok);
 
+  -- ...mais elle doit les LIRE : c'est par là que le devoir à la maison arrive
+  -- jusqu'à elle. Ce banc n'exigeait ici que des refus, et le seul contrôle de
+  -- lecture des paramètres portait sur le VISITEUR non connecté. Un droit qui
+  -- couvrirait « anon » sans couvrir « authenticated » passait donc au vert
+  -- pendant que l'espace élève annonçait « Aucun devoir à la maison » — la
+  -- page ne sait pas distinguer « rien à faire » de « je n'ai pas pu lire ».
+  select count(*) into n from public.parametres_2nde;
+  perform pg_temp.exige('elle LIT les devoirs (' || n || ')', n = 1);
+
+  select count(*) into n from public.parametres_2nde
+    where valeurs -> 'devoirs' is not null;
+  perform pg_temp.exige('et elle en lit le contenu, pas une ligne vide', n = 1);
+
   -- ------------------------------------------------------------------------
   -- LE BROUILLON DE PAUSE : le seul geste où l'élève MODIFIE et SUPPRIME.
   -- ------------------------------------------------------------------------
