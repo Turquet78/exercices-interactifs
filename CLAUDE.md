@@ -314,6 +314,28 @@ notes réellement obtenues. Un devoir enregistré alors porte encore `rep` et
 contrôles tiennent les deux bords — que le réglage ne revienne pas par
 l'éditeur, et que les vieilles notes se lisent toujours.
 
+**`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
+`{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
+`conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
+fonction de rendu y échappe donc entièrement : « Baisse suivie d'une baisse »
+affichait à l'élève « comme dans {diminuer-pourcentage} », accolades comprises,
+sur deux étapes. Aucun banc ne pouvait le voir — celui qui existait interdit les
+numéros EN DUR, exactement l'inverse. Ça ne s'est vu que sur une capture de
+l'écran. Le rendu passe maintenant par `numeros()`, et le banc navigateur
+refuse toute accolade `{…}` désignant un exercice connu qui resterait affichée.
+
+**Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
+−40 % puis −4 % fait −42,4 %, pas −44 %, parce que la seconde baisse porte sur
+la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision de
+Turquet, août 2026) : le résultat n'en dépend pas, et un nombre inutile posé là
+inviterait à le faire entrer dans le calcul. Chaque baisse n'a qu'un seul
+chiffre différent de zéro — 4 % ou 40 %, jamais 47 % —, et la PAIRE mêle
+toujours un multiple de dix et un chiffre : c'est la seule qui donne, zéros
+finaux retirés, la pose « deux chiffres × un chiffre » que sait dessiner
+`buildPose()`. 4 % puis 7 % demanderait une pose 96 × 93 qui n'existe nulle
+part ; 40 % puis 70 % donnerait « 6 × 3 », sans retenue ni intérêt. Le tirage
+garantit une retenue, comme {multiplication-posee}.
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet
