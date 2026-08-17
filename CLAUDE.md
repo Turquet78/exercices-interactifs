@@ -615,6 +615,55 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 
 ---
 
+## Fiches imprimées (`.docx`)
+
+Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du
+projet ne les produit : elles se modifient à la main, dans le XML du `.docx`.
+Deux règles les tiennent (décisions de Turquet, août 2026).
+
+**Les traits de fraction sont épais.** Une barre de fraction fine s'imprime
+grise et se confond avec le cadre des cases. Il y en a de deux sortes, et n'en
+traiter qu'une ne traite rien : les fractions IMPRIMÉES sont des formules Word
+(`m:f`), leur barre suit le `m:ctrlPr` de la fraction — on y pose `<w:b/>`, Word
+épaissit alors la barre sans toucher aux chiffres ; les fractions que l'ÉLÈVE
+écrit sont deux cases empilées, et leur barre n'est que le côté partagé de deux
+cadres, à 1 pt comme les trois autres côtés — rien ne disait que c'était une
+barre. Ce trait-là est à 2,25 pt en bleu nuit (`w:sz="18"`, `1F3864`, la couleur
+du trait des opérations posées), posé sur le `bottom` du numérateur ET le `top`
+du dénominateur : Word garde le plus épais des deux, en oublier un laisse le
+résultat à la merci du sens de résolution.
+
+**Les exercices se suivent sur la même page.** Aucun `<w:pageBreakBefore/>` sur
+les titres d'exercice : un exercice qui s'arrête au tiers de la page laisse
+deux tiers de papier blanc, et la fiche passe de trois pages à quatre. Mais
+retirer les sauts ne suffit pas — c'est là que le piège se referme. Le saut de
+page cachait ce qu'il empêchait : dès que le texte s'enchaîne, une
+multiplication posée se coupe en deux, l'opération en bas d'une page et ses
+cases de résultat en haut de la suivante. Trois solidarités le tiennent, et il
+les faut toutes les trois : `keepNext` sur toutes les rangées d'un tableau sauf
+la dernière (le tableau ne se coupe plus), sur l'intitulé
+« *3. Calcule 92 × 0,5.* » (il reste avec sa ligne de fractions), et sur la
+consigne
+« *✎ Pose la multiplication…* » (elle reste avec l'opération qu'elle annonce).
+Ces solidarités repoussent les blocs et regagnent une page à elles seules : la
+place se reprend sur les paragraphes VIDES qui séparent deux questions — un
+paragraphe vide coûte une ligne entière (~15 pt) en plus de son espacement. On
+le retire et on reporte son `after` sur le `before` du bloc suivant :
+l'intervalle reste, la ligne perdue disparaît. Jamais sur la hauteur des cases,
+qui est la place où l'élève écrit.
+
+**Une fiche se juge en l'ouvrant, comme une page.** `soffice --convert-to pdf`
+suffit à voir la pagination (`apt-get install libreoffice-writer` — le conteneur
+n'a que le noyau, sans les filtres Writer, et sans eux la conversion répond
+« *source file could not be loaded* », ce qui ressemble à un fichier corrompu
+alors que le fichier est parfait). Deux réserves à connaître : LibreOffice
+IGNORE le gras sur la barre des fractions OMML — les barres imprimées y restent
+fines même quand le fichier est correct, seul Word tranche — et il dessine les
+`=` des formules en `¿`. La pagination, elle, est fiable à une ligne près ; les
+solidarités rendent cet écart sans conséquence.
+
+---
+
 ## Vérifier
 
 ```bash
