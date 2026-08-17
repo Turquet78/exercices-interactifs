@@ -1932,7 +1932,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=228;
+const APP_VERSION=229;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -12164,7 +12164,21 @@ async function renderClassTable(){
 }
 
 /* ---------- Mode évaluation : verrous ---------- */
-function saveConfig(valeurs){ return sb.from('parametres').upsert({id:1,valeurs}); }
+/* Les réglages emportent la correspondance « identifiant → numéro + nom ».
+   Elle ne sert à rien ici : c'est le site portail qui la lit, dans cette même
+   ligne, pour nommer les exercices d'un devoir. Il en gardait une copie écrite
+   à la main, qui s'est figée sur la numérotation d'un autre mois — il
+   annonçait « 3.1 » pour l'exercice devenu 2.1.3, et ignorait les deux
+   exercices ajoutés depuis. Un numéro se DÉDUIT de la position dans THEMES :
+   recopié quelque part, il ment tôt ou tard. Publié ici à chaque
+   enregistrement, il suit une réorganisation tout seul. */
+/* Depuis TESTS, et non depuis l'ordre des thèmes : un exercice retiré du menu
+   mais gardé dans TESTS pour que ses anciennes notes gardent un nom n'a plus de
+   numéro — il en manquait deux en Terminale, qui se seraient affichés sous leur
+   identifiant brut dans un vieux devoir. testNum rend alors une chaîne vide, et
+   le nom suffit. */
+function carteExercices(){ const o={}; Object.keys(TESTS).forEach(id=>{ o[id]={num:testNum(id),nom:TESTS[id].name}; }); return o; }
+function saveConfig(valeurs){ return sb.from('parametres').upsert({id:1,valeurs:Object.assign({},valeurs,{exos:carteExercices()})}); }
 async function renderEvalLocks(){
   const box=$('lockList'); box.innerHTML='<p class="muted">Chargement…</p>';
   try{

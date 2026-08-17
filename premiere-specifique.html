@@ -1487,7 +1487,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=130;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=131;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -7593,7 +7593,21 @@ async function renderClassTable(){
 }
 
 /* ---------- Mode évaluation : verrous ---------- */
-function saveConfig(valeurs){ return sb.from('parametres_1ere').upsert({id:1,valeurs}); }
+/* Les réglages emportent la correspondance « identifiant → numéro + nom ».
+   Elle ne sert à rien ici : c'est le site portail qui la lit, dans cette même
+   ligne, pour nommer les exercices d'un devoir. Il en gardait une copie écrite
+   à la main, qui s'est figée sur la numérotation d'un autre mois — il
+   annonçait « 3.1 » pour l'exercice devenu 2.1.3, et ignorait les deux
+   exercices ajoutés depuis. Un numéro se DÉDUIT de la position dans THEMES :
+   recopié quelque part, il ment tôt ou tard. Publié ici à chaque
+   enregistrement, il suit une réorganisation tout seul. */
+/* Depuis TESTS, et non depuis l'ordre des thèmes : un exercice retiré du menu
+   mais gardé dans TESTS pour que ses anciennes notes gardent un nom n'a plus de
+   numéro — il en manquait deux en Terminale, qui se seraient affichés sous leur
+   identifiant brut dans un vieux devoir. testNum rend alors une chaîne vide, et
+   le nom suffit. */
+function carteExercices(){ const o={}; Object.keys(TESTS).forEach(id=>{ o[id]={num:testNum(id),nom:TESTS[id].name}; }); return o; }
+function saveConfig(valeurs){ return sb.from('parametres_1ere').upsert({id:1,valeurs:Object.assign({},valeurs,{exos:carteExercices()})}); }
 
 /* ---------- Devoir maison (prof) ---------- */
 let dmAdminList=[], dmSelId=null, dmResRows=[];
