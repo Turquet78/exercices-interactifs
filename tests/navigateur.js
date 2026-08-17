@@ -755,6 +755,54 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 sexies. le devoir à la maison arrive-t-il jusqu'à l'élève ? ===== */
+    titre('6 sexies. LE DEVOIR À LA MAISON, DU PROFESSEUR À L\'ÉLÈVE');
+    if(!P.devoirsEleve){
+      ignorer('l\'espace élève dit ce qu\'il a pu lire', 'ce niveau n\'a pas de devoir à la maison');
+    } else {
+      const D = P.devoirsEleve;
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      const lire = () => s.page.evaluate(async () => {
+        await openDevoirsEleve();
+        await new Promise(r => setTimeout(r, 250));
+        return document.getElementById('devoirsBody').textContent.replace(/\s+/g, ' ').trim();
+      });
+
+      /* 1. la ligne des réglages est invisible — ce que fait un refus de RLS */
+      await s.page.evaluate(t => { window.__faux.tables[t] = []; }, D.table);
+      const muet = await lire();
+      verifier('une ligne de réglages illisible ne passe pas pour « aucun devoir »',
+        muet.indexOf(D.aveu) >= 0,
+        'l\'élève lit « ' + muet.slice(0, 90) + ' » — rien ne dit que la page n\'a rien pu lire');
+
+      /* 2. la ligne est lue, et ne porte aucun devoir affiché : là, c'est vrai */
+      await s.page.evaluate(t => window.__faux.semer(t, [{ id: 1, valeurs: { devoirs: [] } }]), D.table);
+      const vide = await lire();
+      verifier('une liste vraiment vide se dit vide, sans alarmer',
+        vide.indexOf('Aucun devoir') >= 0 && vide.indexOf(D.aveu) < 0,
+        'l\'élève lit « ' + vide.slice(0, 90) + ' »');
+
+      /* 3. un devoir affiché arrive bien jusqu'à l'élève */
+      await s.page.evaluate(a => window.__faux.semer(a.t, [{ id: 1, valeurs: { devoirs: [
+        { id: 'dm_c', num: 7, actif: true, titre: 'Devoir de contrôle', cours: '',
+          exercices: [{ id: a.ex, modes: ['train'] }] }] } }]), { t: D.table, ex: D.exercice });
+      const vu = await lire();
+      verifier('un devoir affiché arrive jusqu\'à l\'élève',
+        vu.indexOf('Devoir de contrôle') >= 0 && vu.indexOf('n°7') >= 0,
+        'l\'élève lit « ' + vu.slice(0, 110) + ' »');
+
+      /* 4. masqué par le professeur : il disparaît, et sans faux aveu */
+      await s.page.evaluate(a => window.__faux.semer(a.t, [{ id: 1, valeurs: { devoirs: [
+        { id: 'dm_c', num: 7, actif: false, titre: 'Devoir de contrôle', cours: '',
+          exercices: [{ id: a.ex, modes: ['train'] }] }] } }]), { t: D.table, ex: D.exercice });
+      const masque = await lire();
+      verifier('un devoir masqué disparaît, sans faire croire à une panne',
+        masque.indexOf('Devoir de contrôle') < 0 && masque.indexOf(D.aveu) < 0,
+        'l\'élève lit « ' + masque.slice(0, 90) + ' »');
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là

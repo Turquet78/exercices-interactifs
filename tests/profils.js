@@ -210,6 +210,16 @@ module.exports = {
        s'affiche. L'exercice voisin étiquette déjà sa colonne de la même
        façon. */
     colonneFraction: { exercice: 'fraction-pourcentage', hote: 'fpHost', droite: 'pour 100' },
+
+    /* Le devoir à la maison va du professeur à l'élève par la table des
+       réglages. Si la base ne la rend pas lisible à l'élève, PostgREST répond
+       « aucune ligne » — ce qui n'est PAS une erreur — et l'espace élève
+       annonçait « Aucun devoir à la maison » d'un ton assuré pendant que le
+       professeur voyait le sien. Le banc éprouve les trois situations, parce
+       que corriger une seule ne corrigerait rien : ligne illisible, ligne lue
+       mais sans devoir affiché, et devoir affiché. */
+    devoirsEleve: { table: 'parametres_1ere', exercice: 'pourcentage',
+                    aveu: 'ne voit aucun réglage' },
     lacunes: [],
   },
 
