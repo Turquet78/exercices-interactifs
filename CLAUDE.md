@@ -341,6 +341,22 @@ dire sous l'autre signe. Le pourcentage garde un seul chiffre non nul, si bien
 que le coefficient n'a jamais plus de deux chiffres différents de zéro —
 36 valeurs en tout, de 0,1 à 1,9.
 
+**Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
+2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,
+parce que la seconde hausse porte sur la valeur déjà augmentée ; à la baisse on
+trouve moins que la somme (42,4). C'est la paire qui est instructive, pas
+chacun pris seul.
+**La pose n'est pas la même, et ne pouvait pas l'être.** Les coefficients de
+hausse valent 1,4 et 1,04 : leurs numérateurs sont 14 et 104, soit trois
+chiffres × deux, quand {mult-decimaux} ne sait poser que deux chiffres × un.
+C'est {mult-dec-un} qui sait cette pose-là — deux produits partiels et un
+décalage —, et elle vivait en ligne dans son rendu. `buildPoseU()` la partage
+désormais entre les deux exercices, avec `poseUDonnees()` pour les chiffres.
+L'extraction a été PROUVÉE plutôt que relue : le HTML rendu est identique au
+caractère près sur 4000 tirages et sur les trois formes (2×2, 3×2, 3×3), et
+l'arithmétique sur les 324 couples que produit `uFactor()`. Une pose se juge à
+l'œil, donc on ne la déplace pas sans preuve.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −40 % puis −4 % fait −42,4 %, pas −44 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision de
