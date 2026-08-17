@@ -674,6 +674,49 @@ function structure(){
     /background/.test(regle) && /border/.test(regle) && /font-weight\s*:\s*[7-9]00/.test(regle),
     'règle .avert-code : ' + JSON.stringify(regle.slice(0, 70)));
 
+  /* PAS DEUX FOIS LA MÊME CLÉ DANS LE PROFIL DE CE FICHIER. tests/profils.js
+     est un objet littéral : une clé écrite deux fois ne casse rien, la seconde
+     l'emporte en silence. Un « suivant » ainsi doublé a fait attendre le banc
+     navigateur sur un sélecteur qui n'existait pas — quarante tours de boucle,
+     vingt minutes, et pas un mot. node --check passe, l'objet est valide.
+     On lit donc le SOURCE, en suivant la profondeur des accolades. */
+  const profSrc = fs.readFileSync(path.join(__dirname, 'profils.js'), 'utf8');
+  const debut = profSrc.indexOf("'" + CIBLE + "': {");
+  const doublons = [];
+  if(debut >= 0){
+    let prof = 0, i = profSrc.indexOf('{', debut), fin = i;
+    for(; fin < profSrc.length; fin++){
+      const ch = profSrc[fin];
+      if(ch === '{') prof++;
+      else if(ch === '}'){ prof--; if(prof === 0) break; }
+    }
+    const bloc = profSrc.slice(i, fin);
+    /* Une pile de dictionnaires : un par objet ouvert. Les chaînes et les
+       commentaires sont retirés d'abord — « http:// » et « ? a : b » y
+       passeraient pour des clés. */
+    const propre = bloc.replace(/\/\*[\s\S]*?\*\//g, ' ')
+                       .replace(/\/\/[^\n]*/g, ' ')
+                       .replace(/`(?:\\.|[^`\\])*`/g, '``')
+                       .replace(/"(?:\\.|[^"\\])*"/g, '""')
+                       .replace(/'(?:\\.|[^'\\])*'/g, "''");
+    const pile = [];
+    const re = /([{}])|(?:^|[,{\s])([A-Za-z_$][\w$]*)\s*:/g;
+    let m;
+    while((m = re.exec(propre))){
+      if(m[1] === '{'){ pile.push(new Set()); continue; }
+      if(m[1] === '}'){ pile.pop(); continue; }
+      const cle = m[2];
+      if(!pile.length) continue;
+      const vues = pile[pile.length - 1];
+      if(vues.has(cle)) doublons.push(cle);
+      else vues.add(cle);
+    }
+  }
+  verifier('le profil de ce fichier n’a pas deux fois la même clé',
+    debut >= 0 && doublons.length === 0,
+    debut < 0 ? 'profil introuvable dans tests/profils.js'
+              : 'clé(s) en double : ' + [...new Set(doublons)].join(', '));
+
   /* Et le code brut ne doit jamais partir tel quel : il serait refusé. */
   const brut = [...s.matchAll(/sb\.auth\.sign(?:Up|InWithPassword)\(\{([^}]*)\}/g)]
     .filter(m => /password\s*:\s*(pin|code)\b/.test(m[1]))

@@ -217,7 +217,14 @@ async function parcours(page, N){
     if(!pose) break;
     await page.click(N.valider);
     if(N.suivant){
-      await page.waitForSelector(N.suivant, { timeout: 4000 }).catch(() => {});
+      /* Un sélecteur « suivant » qui ne désigne rien ne casse pas : la boucle
+         retombe sur « valider » quarante fois de suite, et le banc met vingt
+         minutes à ne rien dire. On s'arrête au premier tour — le contrôle
+         « l'exercice se déroule jusqu'à l'écran de résultats » rougit alors
+         tout de suite. C'est arrivé sur un profil dont la clé « suivant »
+         était écrite deux fois, la seconde l'emportant en silence. */
+      const vu = await page.waitForSelector(N.suivant, { timeout: 4000 }).then(() => true).catch(() => false);
+      if(!vu && tours === 1) break;
       await page.click(N.suivant).catch(() => {});
       await page.waitForTimeout(150);
     } else {
