@@ -866,7 +866,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [];
+      const sans = [], sansMode = [], accolades = [];
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           await s.page.evaluate(i => openTest(i), id);
@@ -913,9 +913,16 @@ async function parcours(page, N){
               return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none';
             };
             const textes = [...on.querySelectorAll('button')].filter(visible).map(b => b.textContent);
-            return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id};
+            /* Un « {identifiant} » resté à l'écran est une référence que
+               numeros() n'a pas résolue : l'élève lit l'accolade au lieu du
+               numéro. numeros() ne passe que par cardHTML, rappelHTML et le
+               contexte du modèle — un innerHTML posé par un rendu y échappe. */
+            const brut = (on.textContent || '').match(/\{[a-z0-9-]+\}/g) || [];
+            const connus = brut.filter(m => TESTS[m.slice(1, -1)]);
+            return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id, accolades: [...new Set(connus)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
+          if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
         }
       }
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
@@ -923,6 +930,12 @@ async function parcours(page, N){
         sans.length ? 'absent sur : ' + sans.join(', ')
                     : (exemptes.length ? exemptes.length + ' exercice(s) chronométré(s) déclarés sans aide IA'
                                        : (sansMode.length ? sansMode.length + ' mode(s) indisponible(s)' : '')));
+      /* Une référence {identifiant} affichée telle quelle est un numéro que
+         numeros() n'a pas résolu. Trouvé sur une capture de 2.3.7, jamais par
+         un contrôle : le banc statique interdit les numéros EN DUR, pas les
+         accolades restées visibles. */
+      verifier('aucune référence {identifiant} ne reste affichée à l\'élève',
+        accolades.length === 0, accolades.join(' | '));
       /* Un identifiant exempté qui n'existe plus est une exemption qui ne
          protège plus rien — et qui masquerait le jour où on le réutilise. */
       verifier('chaque exercice déclaré sans aide IA existe encore',

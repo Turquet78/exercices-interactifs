@@ -364,9 +364,10 @@
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
+  #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
   .choice.resume{border-color:#5cc4ad;background:linear-gradient(180deg,#F0FBF8,#fff)}
@@ -1237,6 +1238,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-bstest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagBs"></span><span class="q-idx" id="bsqIdx">Calcul 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="bsLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="bsPrompt">Une baisse suivie d'une autre baisse.</p>
+      <div class="mp-stage"><div style="width:100%" id="bsHost"></div></div>
+      <div class="mp-feedback" id="bsFeedback"></div>
+      <div class="row" style="justify-content:center" id="bsActions">
+        <button class="btn btn-primary" onclick="checkBSAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- CONNEXION PROF -->
   <section class="screen" id="scr-teacher-login">
     <div class="card">
@@ -1439,7 +1455,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=123;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=124;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1707,6 +1723,7 @@ const TESTS={
   'augmenter-depart-addition':{ name:'Retrouver la valeur initiale apr\u00e8s une hausse en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'🔁', desc:'On donne le pourcentage d\u2019augmentation et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant l\u2019augmentation comme en {augmenter-addition}, sans coefficient.', start:()=>startAugDepAdd() },
   'diminuer-taux-soustraction':{ name:'Retrouver le pourcentage d\u2019une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage de baisse parmi quatre, puis vérifie-le en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimTauxSub() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
+  'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
@@ -1740,7 +1757,7 @@ const THEMES=[
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition'] },
-      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction'] },
+      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives'] },
       { num:4, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages'] }
   ] }
 ];
@@ -1776,7 +1793,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1845,7 +1862,8 @@ window.dexpLiveCheck=function(){ liveCheckCurrent(); };
 function liveCheckCurrent(){
   if(!isSoutien()||test.locked) return;
   const k=test.kind;
-  if(k==='mp') checkMAnswer(true);
+  if(k==='bs') checkBSAnswer(true);
+  else if(k==='mp') checkMAnswer(true);
   else if(k==='asp') checkASPAnswer(true);
   else if(k==='fracp') checkFAnswer(true);
   else if(k==='pct') checkPAnswer(true);
@@ -2212,7 +2230,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest]
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest]
   };
   const e=table[k];
   if(!e) return false;
@@ -2384,7 +2402,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
@@ -6492,6 +6510,229 @@ async function finishDim(){
   showResults({score,total,percent:pct,durationSec});
 }
 
+/* ---------- 2.3.7 : une baisse suivie d'une autre baisse ----------
+   Deux baisses de suite ne s'additionnent pas : −40 % puis −4 % ne fait pas
+   −44 %, mais −42,4 %. C'est tout l'objet de l'exercice, et c'est pourquoi
+   l'énoncé ne donne AUCUNE valeur de départ (décision de Turquet, août 2026) :
+   le résultat n'en dépend pas, et un nombre inutile posé là inviterait à le
+   faire entrer dans le calcul.
+   La méthode enchaîne deux exercices déjà connus : les deux coefficients se
+   calculent comme dans {diminuer-pourcentage}, puis se multiplient comme dans
+   {mult-decimaux} — mêmes fractions décimales, même pose des numérateurs. */
+const BS_CTX=[
+  {sujet:'Le prix d’un article',                            g:'m'},
+  {sujet:'Le prix d’un vélo',                               g:'m'},
+  {sujet:'Le prix d’un ordinateur',                         g:'m'},
+  {sujet:'Le prix d’un billet d’avion',                g:'m'},
+  {sujet:'Le tarif d’un abonnement',                        g:'m'},
+  {sujet:'Le salaire d’un employé',                         g:'m'},
+  {sujet:'La valeur d’une voiture',                         g:'f'},
+  {sujet:'La population d’une ville',                       g:'f'},
+  {sujet:'La consommation d’électricité d’une usine',  g:'f'},
+  {sujet:'La surface d’une forêt',                          g:'f'},
+  {sujet:'Le nombre d’abonnés d’un journal',           g:'m'}
+];
+const BS_ENONCES=[
+  q=>`${BS_CTX[q.ci].sujet} baisse de <b>${q.P1} %</b>, puis de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
+  q=>`${BS_CTX[q.ci].sujet} diminue de <b>${q.P1} %</b>, puis subit une nouvelle baisse de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
+  q=>`${BS_CTX[q.ci].sujet} subit deux baisses successives : d’abord <b>${q.P1} %</b>, puis <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
+  q=>`${BS_CTX[q.ci].sujet} perd <b>${q.P1} %</b> de sa valeur, puis encore <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
+  q=>`${BS_CTX[q.ci].sujet} est réduit${BS_CTX[q.ci].g==='f'?'e':''} de <b>${q.P1} %</b>, puis de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`,
+  q=>`${BS_CTX[q.ci].sujet} baisse une première fois de <b>${q.P1} %</b>, puis une seconde fois de <b>${q.P2} %</b>. Quelle est la baisse globale, en pourcentage ?`
+];
+/* CHAQUE BAISSE N'A QU'UN SEUL CHIFFRE DIFFÉRENT DE ZÉRO — 4 % ou 40 %, jamais
+   47 % (décision de Turquet, août 2026). Et la PAIRE mêle toujours un multiple
+   de dix et un chiffre : c'est la seule qui donne, une fois les zéros finaux
+   retirés, la pose « deux chiffres × un chiffre » que sait dessiner
+   buildPose(). 4 % puis 7 % demanderait une pose 96 × 93 qui n'existe nulle
+   part dans le fichier ; 40 % puis 70 % donnerait « 6 × 3 », sans retenue ni
+   intérêt. L'ordre des deux baisses, lui, est tiré au sort. */
+function genBaisses(){
+  let Pd,Pu,haut,bas;
+  do{
+    Pd=pick([10,20,30,40,50,60,70,80,90]);      /* multiple de dix */
+    Pu=rand(1,9);                               /* un chiffre      */
+    haut=100-Pu;                                /* 91..99, deux chiffres non nuls */
+    bas=(100-Pd)/10;                            /* 1..9, zéro final retiré        */
+  }while((haut%10)*bas<10);                     /* une retenue à la pose, comme {multiplication-posee} */
+  const dixDabord=pick([true,false]);
+  const P1=dixDabord?Pd:Pu, P2=dixDabord?Pu:Pd;
+  /* Les fractions à multiplier, dans l'ordre de l'énoncé : le coefficient d'une
+     baisse d'un multiple de dix s'écrit sans son zéro final (60/100 = 6/10). */
+  const fDix={num:bas,den:10}, fUn={num:haut,den:100};
+  const fA=dixDabord?fDix:fUn, fB=dixDabord?fUn:fDix;
+  const prodNum=haut*bas, prodDen=1000;         /* 96 × 6 = 576, sur 1000 */
+  const baisseNum=1000-prodNum;                 /* 424/1000 = 42,4 %      */
+  const q={P1,P2,Pd,Pu,haut,bas,fA,fB,prodNum,prodDen,baisseNum,
+    c1:100-P1, c2:100-P2,                       /* coefficients sur 100, dans l'ordre de l'énoncé */
+    coefStr:String(prodNum/prodDen).replace('.', ','),
+    baisseStr:String(baisseNum/10).replace('.', ','),
+    ci:tirerContexte(BS_CTX,0)};
+  q.v=tirerVariante(BS_ENONCES,q);
+  return q;
+}
+async function startBaisses(){
+  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='bs'; test.qId='baisses-successives';
+  test.questions=Array.from({length:6},genBaisses);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('bstest'); renderBSTest();
+}
+function renderBSTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('bsqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagBs').innerHTML=modeTagHTML();
+  $('bsLiveScore').textContent=test.score;
+  $('bsFeedback').textContent=''; $('bsFeedback').className='mp-feedback';
+  $('bsActions').innerHTML='<button class="btn btn-primary" onclick="checkBSAnswer()">Vérifier</button>';
+  $('bsPrompt').innerHTML=variante(BS_ENONCES,q);
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const posed=buildPose(q.haut,q.bas,'bsMul');
+  /* numeros() : les libellés citent {diminuer-pourcentage} et {mult-decimaux}.
+     Les trois entonnoirs habituels (cardHTML, rappelHTML, conseilCtxCourant)
+     ne voient pas un innerHTML posé ici — sans cet appel, l'élève lit
+     l'accolade au lieu du numéro. Vu sur la capture, pas dans le code. */
+  $('bsHost').innerHTML=numeros(
+    `<div class="pt-step"><div class="pt-lab">① Le coefficient de chaque baisse, comme dans {diminuer-pourcentage}</div>
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs1n','bs1d')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs1dec','premier coefficient')}</div>
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs2n','bs2d')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs2dec','second coefficient')}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients, comme dans {mult-decimaux}</div>
+       <div class="pt-row">${frac('bsAn','bsAd')}<span class="f-times">×</span>${frac('bsBn','bsBd')}<span class="f-eq">=</span>${frac('bsPn','bsPd')}<span class="f-eq">=</span>${dec('bsDec','coefficient global')}</div></div>`+
+    `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, zéros finaux retirés <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
+       <div class="pt-row" style="padding:8px 0 6px">${posed}</div>
+       <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">③ La baisse globale, en pourcentage</div>
+       <div class="pt-row"><span class="f-whole">baisse globale :</span>${dec('bsP','la baisse globale en pourcentage')}<span class="f-whole">%</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="bsStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l'étape ②</div>
+       <div class="pt-row"><span class="f-whole">1 − 0,</span>${dec('bsVp','ta baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bsVc','le coefficient retrouvé')}</div></div>`);
+  const posedIns=[...$('bsMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
+  const order=[$('bs1n'),$('bs1d'),$('bs1dec'),$('bs2n'),$('bs2d'),$('bs2dec'),
+               $('bsAn'),$('bsAd'),$('bsBn'),$('bsBd'),...posedIns,$('bsPn'),$('bsPd'),$('bsDec'),
+               $('bsP'),$('bsVp'),$('bsVc')];
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  const prevVis=i=>{ let j=i-1; while(j>=0 && !usable(order[j])) j--; return j; };
+  order.forEach((el,i)=>{
+    if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')){
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); const j=nextVis(i); if(el.value&&j<order.length)order[j].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value){const j=prevVis(i); if(j>=0)order[j].focus();} });
+    }
+    if(el.id==='bsP'){ el.addEventListener('input',updateBSStep4); el.addEventListener('focusout',updateBSStep4); }
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkBSAnswer();} });
+  });
+  updateBSStep4();
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* La vérification ne s'ouvre qu'une fois la réponse écrite : proposée avant,
+   elle donnerait le résultat par l'autre bout. */
+function updateBSStep4(){
+  const s=$('bsStep4'); if(!s) return;
+  const e=$('bsP');
+  s.classList.toggle('step-hidden', !(e && e.value.trim()!==''));
+}
+function checkBSAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const soutien=isSoutien();
+  /* Comparaison d'un champ décimal à une fraction attendue : « 0,60 » et
+     « 0,6 » valent le même coefficient, et l'élève a le droit d'écrire l'un
+     ou l'autre. */
+  const decOk=(id,pre,n,d)=>{ const t=$(id).value.trim(); if(t==='') return false;
+    const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
+  if(live){
+    liveColorFrac('bs1n','bs1d',q.P1,100); liveColorDecCoef0('bs1dec',q.c1);
+    liveColorFrac('bs2n','bs2d',q.P2,100); liveColorDecCoef0('bs2dec',q.c2);
+    liveColorFrac('bsAn','bsAd',q.fA.num,q.fA.den,true);
+    liveColorFrac('bsBn','bsBd',q.fB.num,q.fB.den,true);
+    [...$('bsMul').querySelectorAll('.mp-box, .mp-carry')].forEach(liveColorExp);
+    liveColorFrac('bsPn','bsPd',q.prodNum,q.prodDen,true);
+    liveColorDec('bsDec',q.prodNum,q.prodDen);
+    liveColorDec('bsP',q.baisseNum,10);
+    ['bsVp','bsVc'].forEach((id,k)=>{ const el=$(id); if(!el||el.disabled) return;
+      const t=el.value.trim(); el.classList.remove('ok','bad'); if(t==='') return;
+      el.classList.add(decOk(id,'0,',k?q.prodNum:q.baisseNum,1000)?'ok':'bad'); });
+    return;
+  }
+  const v=id=>$(id).value.trim(), iv=id=>parseInt(v(id),10);
+  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
+  const ok1  = v('bs1n')!=='' && fracEqual(iv('bs1n'),den('bs1d'),q.P1,100);
+  const ok1d = decOk('bs1dec','0,',q.c1,100);
+  const ok2  = v('bs2n')!=='' && fracEqual(iv('bs2n'),den('bs2d'),q.P2,100);
+  const ok2d = decOk('bs2dec','0,',q.c2,100);
+  const okA  = v('bsAn')!=='' && fracEqual(iv('bsAn'),den('bsAd'),q.fA.num,q.fA.den);
+  const okB  = v('bsBn')!=='' && fracEqual(iv('bsBn'),den('bsBd'),q.fB.num,q.fB.den);
+  const okPr = v('bsPn')!=='' && fracEqual(iv('bsPn'),den('bsPd'),q.prodNum,q.prodDen);
+  const okC  = decOk('bsDec','',q.prodNum,q.prodDen);
+  const okP  = decOk('bsP','',q.baisseNum,10);
+  /* La pose est un OUTIL, comme dans {mult-decimaux} : on la corrige si l'élève
+     s'en est servi, mais elle n'entre pas dans la réussite du calcul. */
+  const host=$('bsMul');
+  const boxes=[...host.querySelectorAll('.mp-box')], carries=[...host.querySelectorAll('.mp-carry')];
+  const engage=[...boxes,...carries].some(el=>el.value.trim()!=='');
+  if(engage){
+    boxes.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp);
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ if(vv===''){el.value=exp; el.classList.remove('bad'); el.classList.add('sol');} else {const fx=document.createElement('span');fx.className='mp-fix';fx.textContent=exp;cl.appendChild(fx);} }
+    });
+    carries.forEach(el=>{
+      const exp=el.dataset.exp, vv=el.value.trim();
+      const cl=el.parentElement; cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove());
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;
+      const tag=document.createElement('span'); tag.className='mp-tag '+(ok?'ok':'bad'); tag.textContent=ok?'✓':'✗'; cl.appendChild(tag);
+      if(!ok && currentMode==='train'){ const fx=document.createElement('span');fx.className='mp-fix';fx.textContent=exp;cl.appendChild(fx); }
+    });
+  } else {
+    [...boxes,...carries].forEach(el=>{ const cl=el.parentElement; if(cl)cl.querySelectorAll('.mp-tag,.mp-fix').forEach(n=>n.remove()); el.classList.remove('ok','bad'); });
+  }
+  /* ④ est facultative elle aussi : on la colore, elle ne compte pas. */
+  ['bsVp','bsVc'].forEach((id,k)=>{ const el=$(id); if(!el) return; const t=el.value.trim();
+    el.classList.remove('ok','bad'); if(t==='') return;
+    const ok=decOk(id,'0,',k?q.prodNum:q.baisseNum,1000);
+    el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; });
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
+  mark('bs1n',ok1); mark('bs1d',ok1); mark('bs1dec',ok1d);
+  mark('bs2n',ok2); mark('bs2d',ok2); mark('bs2dec',ok2d);
+  mark('bsAn',okA); mark('bsAd',okA); mark('bsBn',okB); mark('bsBd',okB);
+  mark('bsPn',okPr); mark('bsPd',okPr); mark('bsDec',okC); mark('bsP',okP);
+  const allOk=ok1&&ok1d&&ok2&&ok2d&&okA&&okB&&okPr&&okC&&okP;
+  if(!allOk && soutien){ soutienAgain('bsFeedback','bsActions','checkBSAnswer','bsHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('bsLiveScore').textContent=test.score;
+    $('bsFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('bsFeedback').className='mp-feedback good';
+  } else {
+    $('bsFeedback').textContent=`Méthode : 1 − ${pDecStr(q.P1)} = 0,${String(q.c1).padStart(2,'0')} et 1 − ${pDecStr(q.P2)} = 0,${String(q.c2).padStart(2,'0')} ; ${q.fA.num}/${q.fA.den} × ${q.fB.num}/${q.fB.den} = ${q.prodNum}/${q.prodDen} = ${q.coefStr} ; la baisse globale est 1 − ${q.coefStr} = ${q.baisseStr} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
+    $('bsFeedback').className='mp-feedback bad';
+    corTrainFrac('bs1n','bs1d',q.P1,100); corTrainDec('bs1dec',String(q.c1).padStart(2,'0'));
+    corTrainFrac('bs2n','bs2d',q.P2,100); corTrainDec('bs2dec',String(q.c2).padStart(2,'0'));
+    corTrainFrac('bsAn','bsAd',q.fA.num,q.fA.den); corTrainFrac('bsBn','bsBd',q.fB.num,q.fB.den);
+    corTrainFrac('bsPn','bsPd',q.prodNum,q.prodDen); corTrainDec('bsDec',q.coefStr); corTrainDec('bsP',q.baisseStr);
+  }
+  const given=v('bsP')===''?null:(v('bsP').replace('.', ',')+' %');
+  test.answers.push({...(ptsExo()||{}),q:`une baisse de ${q.P1} % suivie d'une baisse de ${q.P2} %`,
+    answer:`${q.baisseStr} %`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('bsActions').innerHTML=`<button class="btn btn-primary" id="bsNext" onclick="nextBSQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('bsNext').focus();
+}
+function nextBSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderBSTest(); autoSave(); } else finishBaisses(); }
+async function finishBaisses(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'baisses-successives',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
 /* ---------- Test 5 : multiplier des décimaux (méthode en 4 étapes) ---------- */
 function fracEqual(n,d,N,D){ return !isNaN(n)&&!isNaN(d)&&d!==0 && n*D===N*d; }   // n/d == N/D
 function twoNZ(){ return rand(1,9)*10+rand(1,9); }                                // 11-99, deux chiffres non nuls
@@ -8109,8 +8350,17 @@ const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
 \u2014 en calculant <b>l\u2019augmentation ou la baisse</b> : P/100 × valeur, puis on l\u2019ajoute ou on la retire.<br>
 Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
 Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
+const RAP_BS=`<b>Une baisse suivie d’une autre baisse</b><br>
+Deux baisses <b>ne s’additionnent pas</b> : baisser de 40 % puis de 4 %, ce n’est PAS baisser de 44 %. La deuxième baisse ne porte pas sur le prix de départ, mais sur le prix <b>déjà baissé</b> — elle est donc plus petite.<br>
+On passe par les <b>coefficients multiplicateurs</b>, exactement comme dans {diminuer-pourcentage} :<br>
+· baisser de 40 %, c’est multiplier par 1 − 0,40 = <b>0,60</b> ;<br>
+· baisser de 4 %, c’est multiplier par 1 − 0,04 = <b>0,96</b>.<br>
+Enchaîner les deux baisses, c’est multiplier par l’un <b>puis</b> par l’autre : le coefficient global est le <b>produit</b> des deux, et il se calcule comme dans {mult-decimaux} — fractions décimales, puis multiplication des numérateurs.<br>
+0,60 × 0,96 = 6/10 × 96/100 = 576/1000 = <b>0,576</b>.<br>
+Le coefficient global se relit enfin en pourcentage : multiplier par 0,576, c’est <b>garder</b> 57,6 % — donc <b>perdre 42,4 %</b>. La baisse globale est <b>42,4 %</b>.<br>
+Pour vérifier, refais le chemin dans l’autre sens : 1 − 0,424 = 0,576, le coefficient trouvé à l’étape ②.`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, P/100 × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -8139,6 +8389,7 @@ const QIA_SUGG={
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
+  bs:["Pourquoi deux baisses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième baisse ?","Comment relire un coefficient global en pourcentage de baisse ?"],
   dim:["Pourquoi une remise de 30 % revient à multiplier par 0,7 ?","C’est quoi, un coefficient multiplicateur ?","Après une remise de 25 %, que reste-t-il à payer ?","Quelle différence entre une remise et un rabais ?"],
   mp:["Comment fonctionne une retenue ?","Pourquoi commence-t-on par les unités ?","Comment vérifier un résultat de multiplication ?"],
   md:["Où place-t-on la virgule dans un produit de décimaux ?","Pourquoi 0,3 s’écrit 3/10 ?","Comment multiplier deux fractions décimales ?"],
@@ -8205,7 +8456,13 @@ function conseilCtxCourant(){
   const nom=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name) || 'un exercice';
   const num=(typeof testNum==='function' && testNum(currentTestId)) || '';
   let att='';
-  if(k==='pct' && q){
+  if(k==='bs' && q){
+    att='Réponses attendues, STRICTEMENT SECRÈTES : étape ① les coefficients 1 − '+q.P1+'/100 = 0,'+String(q.c1).padStart(2,'0')+' et 1 − '+q.P2+'/100 = 0,'+String(q.c2).padStart(2,'0')+' ; '
+      +'étape ② '+q.fA.num+'/'+q.fA.den+' × '+q.fB.num+'/'+q.fB.den+' = '+q.prodNum+'/'+q.prodDen+' = '+q.coefStr+' (toute fraction égale convient) ; '
+      +'étape ③ la baisse globale vaut '+q.baisseStr+' %. '
+      +'Méthode enseignée : un coefficient par baisse comme dans l’exercice {diminuer-pourcentage}, puis le PRODUIT des deux coefficients comme dans {mult-decimaux} — les baisses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
+      +'La deuxième baisse porte sur la valeur déjà baissée, pas sur la valeur de départ. Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
+  } else if(k==='pct' && q){
     att='Réponses attendues, STRICTEMENT SECRÈTES : étape ① la fraction '+q.P+'/100 (toute fraction égale convient) ; '
       +'étape ② '+q.prod+'/100 ; étape ③ '+q.result+' '+q.unit+'. '
       +'Méthode enseignée : écrire le pourcentage sur 100, multiplier les numérateurs, puis diviser par 100 en décalant la virgule de deux rangs.';
@@ -8529,7 +8786,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
