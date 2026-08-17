@@ -30,7 +30,7 @@ const KINDS_PREMIERE = [
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
-  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['bs','genBaisses()'],
+  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'],
 ];
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
@@ -41,7 +41,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','baisses-successives':'bs','baisses-successives':'bs',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','baisses-successives':'bs','lire-coefficient':'lc',
     'tables-multiplication':'tm','tables-multiplication-2':'tm' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -175,7 +175,7 @@ module.exports = {
        partie choisie. Le banc navigateur clique ces deux étages comme le ferait
        un élève — une carte sans onclick ou un écran qui ne change pas ne se
        voit pas autrement. */
-    menu: { theme: 2, parties: 4, exercice: 'pourcentage' },
+    menu: { theme: 2, parties: 5, exercice: 'pourcentage' },
     /* Un devoir peut demander plusieurs fois le même exercice, et verrouiller un
        exercice tant que les précédents ne sont pas faits. Seule la Première a
        cet éditeur de devoirs : les deux autres niveaux construisent les leurs

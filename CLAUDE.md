@@ -324,6 +324,23 @@ numéros EN DUR, exactement l'inverse. Ça ne s'est vu que sur une capture de
 l'écran. Le rendu passe maintenant par `numeros()`, et le banc navigateur
 refuse toute accolade `{…}` désignant un exercice connu qui resterait affichée.
 
+**Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
+inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
+coefficient, l'élève dit le sens puis le pourcentage. Le piège qu'il vise est
+franc — 0,96 n'est pas « −96 % » mais « −4 % », parce que ce qui compte est ce
+qui MANQUE pour arriver à 1. Le sens se choisit sur deux boutons ; le
+pourcentage s'écrit (décision de Turquet, août 2026) : lire 0,96 et en déduire
+4 % EST l'exercice, et quatre propositions se laisseraient éliminer.
+**Le signe affiché à la vérification suit le sens CHOISI, pas le bon.** C'est
+tout ce qui fait qu'une vérification vérifie quelque chose : un élève qui a
+répondu « augmentation » devant 0,96 se voit proposer « 1 + …/100 = … = 1,… »
+et bute sur le « 1, » qu'il ne peut pas remplir. Corriger sur le bon signe
+aurait donné une vérification qui tombe juste quelle que soit la réponse.
+Changer de sens redessine l'étape : les cases déjà écrites ne veulent plus rien
+dire sous l'autre signe. Le pourcentage garde un seul chiffre non nul, si bien
+que le coefficient n'a jamais plus de deux chiffres différents de zéro —
+36 valeurs en tout, de 0,1 à 1,9.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −40 % puis −4 % fait −42,4 %, pas −44 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision de
@@ -623,6 +640,17 @@ vérification qui ne prouve rien ne prouve pas davantage en la répétant.
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui
 ont motivé ce banc de test y sont chacune couvertes par une ligne.
+
+**Une clé écrite deux fois dans `tests/profils.js` ne casse rien — elle
+gagne.** C'est un objet littéral : la seconde écrase la première, `node --check`
+passe, et l'objet est parfaitement valide. Un `suivant` ainsi doublé a fait
+attendre le banc navigateur sur un sélecteur absent de l'écran : quarante tours
+de boucle, vingt minutes, et pas un mot — la boucle retombait chaque fois sur
+« valider ». Deux gardes désormais : le banc s'arrête au premier tour si le
+sélecteur « suivant » ne désigne rien, et un contrôle lit le SOURCE du profil
+en suivant la profondeur des accolades pour nommer la clé en double. Trouvé en
+nettoyant : `main` en portait déjà deux, arrivées par un script de restauration
+qui réinsérait des entrées déjà présentes.
 
 **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.** Les trois
 fichiers ne savent pas faire les mêmes choses : `tests/profils.js` dit pour
