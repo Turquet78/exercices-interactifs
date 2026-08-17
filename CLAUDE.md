@@ -335,6 +335,18 @@ finaux retirés, la pose « deux chiffres × un chiffre » que sait dessiner
 `buildPose()`. 4 % puis 7 % demanderait une pose 96 × 93 qui n'existe nulle
 part ; 40 % puis 70 % donnerait « 6 × 3 », sans retenue ni intérêt. Le tirage
 garantit une retenue, comme {multiplication-posee}.
+Chaque coefficient s'écrit en trois temps — `1 − 4/100 = 1 − 0,04 = 0,96` — et la
+vérification finale en trois temps aussi : `1 − 42,4/100 = 1 − 0,424 = 0,576`
+(décision de Turquet, août 2026). Le passage par l'écriture décimale du
+pourcentage est l'étape que l'élève saute, et c'est celle qui fait écrire 0,4 au
+lieu de 0,04. Le numérateur de la vérification est DÉCIMAL : `fracEqual()` passe
+par `parseInt` et lirait « 42,4 » comme 42, d'où une comparaison qui relit les
+deux cases avec `parseDecToFrac` — 42,4/100 et 424/1000 sont acceptées toutes
+les deux.
+Le piège d'à côté a mordu : `v()` était déclarée APRÈS le bloc « live », si bien
+que la coloration en direct la touchait dans sa zone morte et que le mode
+soutien plantait à la première frappe. Une déclaration de commodité se met en
+tête de fonction, pas au milieu.
 
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
