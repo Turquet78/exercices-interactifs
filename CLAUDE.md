@@ -550,6 +550,37 @@ sont atteignables que par le paramètre d'un démarreur partagé —
 `startA2Q('augmenter-taux-addition', …)` — : les chercher comme littéraux en
 aurait manqué le tiers.
 
+**Un PDF déposé vit à deux endroits, et le second se perd en silence.** Le
+professeur dépose ses cours et ses fiches depuis l'onglet « Cours en PDF » ;
+l'élève les trouve en haut de la page des exercices, avant les thèmes. Le
+FICHIER va dans un bucket Supabase, privé (`005_cours_en_pdf.sql`, à jouer à la
+main comme les autres) ; ses MÉTADONNÉES vont dans `parametres_….valeurs.cours`,
+à côté des devoirs — même ligne, mêmes droits, aucune table de plus. Le lien
+entre les deux n'est tenu par rien, d'où quatre bords.
+*La suppression que RLS refuse*, encore : `storage.remove()` rend la liste de ce
+qui a été retiré, et un refus est une liste VIDE, sans erreur. On la compte,
+sinon la page annonce « supprimé ✓ » sur un fichier que la classe a toujours
+sous les yeux. *L'orphelin* : un dépôt qui réussit suivi d'un enregistrement qui
+échoue laisserait un fichier en ligne que plus rien ne désigne — invisible, et
+décompté du quota ; il est retiré, et si ce retrait échoue à son tour, on le
+dit. *Les devoirs d'à côté* : l'enregistrement relit la configuration avant
+d'écrire, sans quoi il effacerait les devoirs de la classe sans un mot.
+*L'onglet avant l'attente*, enfin : `window.open()` appelé APRÈS un `await` est
+bloqué par Chrome comme une fenêtre surgissante — l'élève clique, rien ne
+s'ouvre, aucune erreur nulle part. L'onglet naît donc AVANT la demande d'adresse
+signée et la reçoit ensuite. Seul un vrai navigateur peut le voir : jsdom n'a
+pas de bloqueur, et le banc navigateur clique donc pour de bon et regarde ce que
+Chrome est allé chercher.
+Le bucket est privé et l'adresse signée dure une heure : un bucket public aurait
+donné des adresses devinables et indexables. Les bornes — 20 Mo, `application/pdf`
+— sont posées sur le bucket ET dans la page ; celle de la page est un confort,
+elle se contourne en dix secondes, celle du bucket est le vrai rempart.
+`npm run test:base` ne rejoue PAS cette migration : le schéma `storage` n'existe
+pas dans un PostgreSQL ordinaire. Elle porte donc son propre contrôle, qui échoue
+bruyamment si le bucket manque, s'il est public, ou s'il n'a pas ses quatre
+politiques. Et l'export de nuit n'emporte que les tables : les titres sont
+sauvegardés, les PDF non — l'original reste sur l'ordinateur du professeur.
+
 ---
 
 ## Ajouter un exercice

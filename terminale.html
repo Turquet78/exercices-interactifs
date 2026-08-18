@@ -33,6 +33,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
+  /* --- Cours et fiches en PDF déposés par le professeur --- */
+  .cours-panel{margin-top:20px}
+  .cours-liste{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .cours-item{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1.5px solid #d8e0fb;border-radius:12px;padding:10px 13px}
+  .cours-ic{font-size:1.15rem}
+  .cours-nom{font-weight:700;color:var(--ink)}
+  .cours-meta{color:var(--ink-soft);font-size:.85rem}
+  .cours-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .cours-vide{color:var(--ink-soft);font-size:.92rem}
+  .cours-depot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 4px}
+  .cours-depot .text-input{flex:1 1 220px}
+  .cours-fichier{font-family:inherit;font-size:.92rem;color:var(--ink-soft)}
   :root{
     --paper:#F7F6F1; --grid:#CBD8EC; --ink:#1E2A4A; --ink-soft:#5C668A;
     --blue:#2B50C8; --blue-dark:#1E3CA0;
@@ -1215,6 +1228,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
       </div>
       <p class="lead">Choisis un thème pour ouvrir la page de ses exercices interactifs.</p>
+      <div class="panel cours-panel" id="coursPanel" hidden></div>
       <div class="theme-list" id="testChoices"></div>
       <div class="panel" style="margin-top:20px">
         <h3>Ma progression</h3>
@@ -1796,7 +1810,21 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <button class="tab" data-tab="settings" onclick="teacherTab('settings')">Réglages des tests</button>
         <button class="tab" data-tab="signalements" onclick="teacherTab('signalements')">Signalements<span id="sigPastille"></span></button>
         <button class="tab" data-tab="devoir" onclick="teacherTab('devoir')">Devoir maison</button>
+        <button class="tab" data-tab="cours" onclick="teacherTab('cours')">Cours en PDF</button>
       </div>
+
+      <!-- cours et fiches en PDF -->
+      <div class="tpane" id="pane-cours">
+        <p class="lead">Dépose ici les PDF de cours et de fiches d'exercices. Les élèves les retrouvent en haut de la page des exercices, avant la liste des thèmes.</p>
+        <div class="cours-depot">
+          <input class="text-input" id="coursTitre" placeholder="Titre affiché aux élèves" maxlength="80" autocomplete="off">
+          <input class="cours-fichier" type="file" id="coursFichier" accept="application/pdf,.pdf">
+          <button class="btn btn-primary" type="button" id="coursDeposer" onclick="deposerCours()">Déposer</button>
+        </div>
+        <p class="note">PDF uniquement, 20 Mo au maximum. Un cours déposé n'est lisible que par les élèves connectés — il n'est pas public sur Internet.</p>
+        <div id="coursListeProf"></div>
+      </div>
+
 
       <!-- suivi -->
       <div class="tpane on" id="pane-results">
@@ -1932,7 +1960,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=229;
+const APP_VERSION=230;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2025,7 +2053,7 @@ function normalizeCfg(cfg){
     if(cfg.devoir && typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)];
     else ds=[Object.assign({},DEFAULT_DEVOIR)];
   }
-  cfg.devoirs = ds.map((d,i)=>ensureDevoir(d,i));
+  cfg.devoirs = ds.map((d,i)=>ensureDevoir(d,i)); cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : [];
   delete cfg.devoir;
   return cfg;
 }
@@ -3638,6 +3666,7 @@ async function openThemes(){
   await chargerMesResultats();
   renderChooser(mesResultats);
   renderBilan(mesResultats);
+  renderCoursEleve();
 }
 async function openRattrapage(){
   if(!currentEleve){ show('login'); renderLoginNames(); return; }
@@ -12049,6 +12078,168 @@ async function teacherLogin(){
   }
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
+
+/* ================= Cours et fiches en PDF =================
+   Le professeur dépose un PDF depuis son tableau de bord ; l'élève le retrouve
+   en haut de la page des exercices, avant les thèmes.
+
+   Le FICHIER vit dans un bucket Supabase (BUCKET_COURS), privé, dont les
+   politiques sont posées par supabase/migrations/005_cours_en_pdf.sql : seul le
+   professeur y dépose et y efface, tout compte connecté y lit. Les MÉTADONNÉES
+   (titre, chemin, taille, date) vivent dans parametres.valeurs, à côté des
+   devoirs — même table, mêmes droits, aucune table de plus.
+
+   Trois pièges sont tenus ici, et chacun a déjà mordu ailleurs dans ce projet :
+
+   — UNE SUPPRESSION QUE RLS REFUSE N'EST PAS UNE ERREUR. remove() rend une
+     liste VIDE, sans erreur, exactement comme PostgREST répond « 0 ligne ». On
+     compte donc ce qui a été retiré, faute de quoi la page annonce
+     « supprimé ✓ » sur un fichier que les élèves ont toujours sous les yeux ;
+
+   — un dépôt réussi suivi d'un enregistrement raté laisserait un fichier
+     fantôme : en ligne, désigné par rien, décompté du quota. On le retire ;
+
+   — window.open() APRÈS un await est bloqué comme une fenêtre surgissante.
+     L'onglet s'ouvre donc AVANT de demander l'adresse signée, et la reçoit
+     ensuite. */
+const BUCKET_COURS='cours';
+const DOSSIER_COURS='terminale';        /* un dossier par niveau dans le même bucket */
+const COURS_TAILLE_MAX=20*1024*1024;  /* la même borne est posée sur le bucket, migration 005 */
+
+function newCoursId(){ return 'co_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+
+/* Un cours relu depuis la base est du JSON : écrit par une autre version de la
+   page, ou édité à la main. Sans chemin il ne désigne aucun fichier — on
+   l'écarte plutôt que d'afficher un bouton qui ouvrirait le vide. */
+function ensureCours(c,i){
+  if(!c || typeof c!=='object') return null;
+  const chemin=(typeof c.chemin==='string')?c.chemin.trim():'';
+  if(!chemin) return null;
+  return { id:(typeof c.id==='string'&&c.id)?c.id:('co_'+i),
+           titre:(typeof c.titre==='string'&&c.titre.trim())?c.titre.trim():'Cours',
+           chemin:chemin,
+           taille:(typeof c.taille==='number'&&c.taille>0)?c.taille:0,
+           date:(typeof c.date==='string')?c.date:'' };
+}
+function coursMeta(c){
+  const mo=c.taille?((c.taille/1048576).toFixed(1).replace('.',',')+' Mo'):'';
+  let d=''; if(c.date){ const t=new Date(c.date); if(!isNaN(t.getTime())) d=t.toLocaleDateString('fr-FR'); }
+  return [mo,d].filter(Boolean).join(' \u00b7 ');
+}
+/* Le nom du fichier devient une adresse : accents, espaces et apostrophes n'y
+   ont pas leur place. L'horodatage préfixe le nom pour que deux dépôts du même
+   titre ne se recouvrent pas. */
+function coursChemin(nom){
+  const base=String(nom||'cours').replace(/\.pdf$/i,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48).toLowerCase();
+  return DOSSIER_COURS+'/'+Date.now().toString(36)+'-'+(base||'cours')+'.pdf';
+}
+async function listeCours(){
+  try{ const c=await loadConfig(); return Array.isArray(c.cours)?c.cours:[]; }catch(e){ return []; }
+}
+/* On relit la configuration avant d'écrire : le professeur peut avoir modifié
+   un devoir depuis un autre onglet, et un enregistrement qui repartirait d'une
+   copie ancienne l'effacerait. */
+async function persistCours(liste){
+  const cur=await loadConfig();
+  const {error}=await sb.from('parametres').upsert({id:1,valeurs:Object.assign({},cur,{cours:liste})});
+  if(error) throw error;
+}
+
+async function ouvrirCours(chemin){
+  const onglet=window.open('about:blank','_blank');
+  if(onglet){ try{ onglet.opener=null; }catch(e){} }
+  let url='', err=null;
+  try{ const r=await sb.storage.from(BUCKET_COURS).createSignedUrl(chemin,3600);
+       err=r.error; url=(r.data&&r.data.signedUrl)||''; }catch(e){ err=e; }
+  if(err||!url){
+    if(onglet){ try{ onglet.close(); }catch(e){} }
+    toast('Ce cours n\u2019a pas pu s\u2019ouvrir.','err'); return;
+  }
+  if(onglet){ try{ onglet.location.href=url; return; }catch(e){} }
+  window.open(url,'_blank','noopener');
+}
+
+async function renderCoursEleve(){
+  const host=$('coursPanel'); if(!host) return;
+  const liste=await listeCours();
+  if(!liste.length){ host.hidden=true; host.innerHTML=''; return; }
+  host.innerHTML='<h3>\u{1F4D8} Cours et fiches</h3><ul class="cours-liste">'+liste.map(c=>`<li class="cours-item">
+      <span class="cours-ic">\u{1F4C4}</span>
+      <span class="cours-nom">${esc(c.titre)}</span>
+      <span class="cours-meta">${esc(coursMeta(c))}</span>
+      <span class="cours-actions"><button class="btn btn-ghost btn-sm" type="button" onclick="ouvrirCours('${escJS(c.chemin)}')">Ouvrir le PDF</button></span>
+    </li>`).join('')+'</ul>';
+  host.hidden=false;
+}
+
+async function chargerCoursProf(){
+  const host=$('coursListeProf'); if(!host) return;
+  host.innerHTML='<p class="muted">Chargement\u2026</p>';
+  const liste=await listeCours();
+  if(!liste.length){ host.innerHTML='<p class="cours-vide">Aucun cours déposé pour le moment.</p>'; return; }
+  host.innerHTML='<ul class="cours-liste">'+liste.map(c=>`<li class="cours-item">
+      <span class="cours-ic">\u{1F4C4}</span>
+      <span class="cours-nom">${esc(c.titre)}</span>
+      <span class="cours-meta">${esc(coursMeta(c))}</span>
+      <span class="cours-actions">
+        <button class="btn btn-ghost btn-sm" type="button" onclick="ouvrirCours('${escJS(c.chemin)}')">Ouvrir</button>
+        <button class="btn btn-danger btn-sm" type="button" onclick="supprimerCours('${escJS(c.id)}')">Supprimer</button>
+      </span>
+    </li>`).join('')+'</ul>';
+}
+
+async function deposerCours(){
+  const champ=$('coursFichier'), f=champ&&champ.files&&champ.files[0];
+  if(!f){ toast('Choisis d\u2019abord un fichier PDF.','err'); return; }
+  if(!(f.type==='application/pdf' || /\.pdf$/i.test(f.name||''))){
+    toast('Seuls les fichiers PDF sont acceptés.','err'); return; }
+  if(f.size>COURS_TAILLE_MAX){ toast('Fichier trop lourd : 20 Mo au maximum.','err'); return; }
+  const btn=$('coursDeposer'), libelle=btn?btn.textContent:'Déposer';
+  if(btn){ btn.disabled=true; btn.textContent='Dépôt en cours\u2026'; }
+  const chemin=coursChemin(f.name);
+  try{
+    let err=null;
+    try{ const r=await sb.storage.from(BUCKET_COURS).upload(chemin,f,{contentType:'application/pdf',upsert:false});
+         err=r.error; }catch(e){ err=e; }
+    if(err){ toast('Dépôt refusé : '+((err&&err.message)||'erreur inconnue'),'err'); return; }
+    const titre=(($('coursTitre').value||'').trim()) || String(f.name||'Cours').replace(/\.pdf$/i,'');
+    const liste=(await listeCours()).slice();
+    liste.push({id:newCoursId(), titre:titre, chemin:chemin, taille:f.size, date:new Date().toISOString()});
+    try{ await persistCours(liste); }
+    catch(e){
+      /* Le fichier est en ligne, mais plus rien ne le désigne : invisible, et
+         compté dans le quota. On le retire — et si ce retrait échoue à son tour,
+         on le DIT, plutôt que de laisser un fantôme sans témoin. */
+      let menage=null;
+      try{ const r=await sb.storage.from(BUCKET_COURS).remove([chemin]); menage=r.error; }catch(e2){ menage=e2; }
+      toast(menage ? 'Le cours n\u2019a pas pu être enregistré, et le fichier déposé n\u2019a pas pu être retiré.'
+                   : 'Le cours n\u2019a pas pu être enregistré : rien n\u2019a été déposé.','err');
+      return;
+    }
+    $('coursTitre').value=''; champ.value='';
+    toast('Cours déposé \u2713','ok');
+    await chargerCoursProf();
+  } finally { if(btn){ btn.disabled=false; btn.textContent=libelle; } }
+}
+
+async function supprimerCours(id){
+  const liste=await listeCours();
+  const c=liste.find(x=>x.id===id); if(!c) return;
+  if(!confirm('Supprimer « '+c.titre+' » ? Les élèves ne l\u2019auront plus.')) return;
+  let sup=null, err=null;
+  try{ const r=await sb.storage.from(BUCKET_COURS).remove([c.chemin]); err=r.error; sup=r.data; }catch(e){ err=e; }
+  if(err){ toast('Suppression impossible : '+((err&&err.message)||'erreur'),'err'); return; }
+  /* Le refus muet : liste vide, aucune erreur. Le dire, plutôt que d'annoncer
+     une suppression qui n'a pas eu lieu. */
+  if(!Array.isArray(sup) || sup.length===0){
+    toast('Le fichier n\u2019a pas été supprimé : droits refusés. Rien n\u2019a changé.','err'); return; }
+  try{ await persistCours(liste.filter(x=>x.id!==id)); }
+  catch(e){ toast('Fichier supprimé, mais la liste n\u2019a pas pu être mise à jour.','err'); }
+  await chargerCoursProf();
+}
+
 function teacherTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
   document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));
@@ -12058,6 +12249,7 @@ function teacherTab(name){
   else if(name==='eval')renderEvalLocks();
   else if(name==='devoir')loadDevoirTab();
   else if(name==='signalements')chargerSignalements();
+  else if(name==='cours')chargerCoursProf();
 }
 function setTeacherMode(m){ teacherMode=m; $('segEval').classList.toggle('on',m==='eval'); $('segTrain').classList.toggle('on',m==='train'); $('segSoutien').classList.toggle('on',m==='soutien'); $('studentDetail').innerHTML=''; renderClassTable(); }
 function setTeacherFilter(id){ teacherFilter=id; renderClassTable(); }

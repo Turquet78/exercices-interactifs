@@ -803,6 +803,83 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septies. le cours en PDF, déposé puis ouvert ===== */
+    /* Trois choses qu'aucun banc hors navigateur ne sait voir ensemble : un
+       VRAI sélecteur de fichier reçoit un VRAI fichier, la liste du professeur
+       se redessine, et surtout le clic de l'élève OUVRE un onglet. Ce dernier
+       point est le seul qui compte vraiment : window.open() appelé après un
+       await est bloqué par Chrome comme une fenêtre surgissante — l'élève
+       cliquerait, et rien ne s'ouvrirait, sans la moindre erreur. jsdom n'a pas
+       de bloqueur : il ne peut donc rien en dire. */
+    titre('6 septies. LE COURS EN PDF, DU PROFESSEUR À L\'ÉLÈVE');
+    if(!P.coursPdf){
+      ignorer('le professeur dépose un PDF, l\'élève l\'ouvre', 'ce niveau n\'a pas de dépôt de cours');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+
+      /* 1. le professeur dépose, par le sélecteur de fichier du navigateur */
+      await s.page.evaluate(() => { show('teacher'); teacherTab('cours'); });
+      await s.page.setInputFiles('#coursFichier', {
+        name: 'Chapitre 3 — pourcentages.pdf', mimeType: 'application/pdf',
+        buffer: Buffer.from('%PDF-1.4 fichier de contrôle') });
+      await s.page.fill('#coursTitre', "Cours n°3 — pourcentages");
+      await s.page.click('#coursDeposer');
+      await s.page.waitForTimeout(800);
+
+      const cote = await s.page.evaluate(t => ({
+        fichiers: Object.keys((window.__faux.fichiers || {}).cours || {}),
+        enregistres: ((((window.__faux.tables[t] || [])[0] || {}).valeurs || {}).cours || []).length,
+        affiche: (document.getElementById('coursListeProf') || {}).textContent || '',
+      }), P.coursPdf.table);
+      verifier('le professeur dépose un PDF et le voit dans sa liste',
+        cote.fichiers.length === 1 && cote.enregistres === 1 && /Cours n°3/.test(cote.affiche),
+        'fichiers : ' + cote.fichiers.join(',') + ' — enregistrés : ' + cote.enregistres +
+        ' — affiché : « ' + cote.affiche.replace(/\s+/g, ' ').trim().slice(0, 90) + ' »');
+
+      /* 2. l'élève le trouve sur la page des exercices, au-dessus des thèmes */
+      await s.page.evaluate(async () => { await openThemes(); });
+      await s.page.waitForTimeout(600);
+      const vu = await s.page.evaluate(() => {
+        const p = document.getElementById('coursPanel');
+        if(!p) return { absent: true };
+        const c = getComputedStyle(p), b = p.querySelector('button');
+        const themes = document.getElementById('testChoices');
+        return { visible: !p.hidden && c.display !== 'none',
+                 texte: p.textContent.replace(/\s+/g, ' ').trim(),
+                 bouton: b ? b.textContent.trim() : '',
+                 /* au-DESSUS des exercices : c'est là qu'on cherche son cours */
+                 avant: !!themes && !!(p.compareDocumentPosition(themes) & Node.DOCUMENT_POSITION_FOLLOWING) };
+      });
+      verifier('l\'élève voit le cours en haut de la page des exercices',
+        !vu.absent && vu.visible && /Cours n°3/.test(vu.texte) && vu.avant,
+        vu.absent ? 'panneau absent de la page' :
+          'affiché : ' + vu.visible + ', avant les exercices : ' + vu.avant + ' — « ' + vu.texte.slice(0, 90) + ' »');
+
+      /* 3. LE CLIC. L'onglet doit vraiment s'ouvrir, sur l'adresse signée.
+         L'adresse du double ne mène nulle part — le DNS échoue et onglet.url()
+         devient « chrome-error://… ». On écoute donc ce que le navigateur a
+         DEMANDÉ, ce qui est justement la preuve recherchée : l'onglet est né et
+         il est parti chercher le PDF. */
+      const demandes = [];
+      s.page.context().on('request', r => demandes.push(r.url()));
+      const [onglet] = await Promise.all([
+        s.page.waitForEvent('popup', { timeout: 8000 }).catch(() => null),
+        s.page.click('#coursPanel button'),
+      ]);
+      await s.page.waitForTimeout(800);
+      const demandee = demandes.filter(u => /exemple\.invalid\/cours\//.test(u))[0] || '';
+      verifier('cliquer « Ouvrir le PDF » ouvre vraiment un onglet, sur l\'adresse signée',
+        !!onglet && !!demandee,
+        !onglet ? 'aucun onglet ne s\'est ouvert — window.open() appelé après l\'attente, Chrome l\'a bloqué'
+                : 'onglet ouvert, mais aucune demande vers le stockage : ' + demandes.slice(-3).join(' , '));
+      if(onglet) await onglet.close().catch(() => {});
+
+      verifier('le dépôt et l\'ouverture n\'ont levé aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là

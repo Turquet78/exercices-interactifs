@@ -37,6 +37,10 @@ window.__faux = {
      pas dans la page. */
   comptes: {},
   session: null,
+  /* Le stockage : bucket -> chemin -> { taille, type }. Aucun octet n'est
+     gardé — les contrôles ne lisent jamais le contenu d'un PDF, seulement
+     ce que la page a déposé, retiré et demandé. */
+  fichiers: {},
   lignes(nom){ return this.tables[nom] || (this.tables[nom] = []); },
   semer(nom, lignes){ this.tables[nom] = lignes.map(l => Object.assign({}, l)); },
   semerCompte(courriel, motDePasse, userId, meta){
@@ -207,6 +211,47 @@ window.supabase = {
         },
         getUser(){ return Promise.resolve({ data: { user: F.session ? F.session.user : null }, error: null }); },
         getSession(){ return Promise.resolve({ data: { session: F.session }, error: null }); },
+      },
+      /* storage rejoue les trois gestes du dépôt de cours, et surtout leurs
+         SILENCES. remove() rend une liste de ce qui a été retiré : sous RLS,
+         un refus n'est pas une erreur, c'est une liste VIDE. refusMuet la
+         reproduit, sans quoi aucun contrôle ne pourrait exiger que la page
+         cesse d'annoncer « supprimé ✓ » sur un fichier toujours en ligne. */
+      storage: {
+        from(bucket){
+          const B = () => (F.fichiers[bucket] || (F.fichiers[bucket] = {}));
+          return {
+            upload(chemin, f, opts){
+              F.journal.push({ op:'upload', table:bucket, chemin:chemin });
+              if(F.panne) return Promise.resolve({ data:null, error:{ message:'panne simulée' } });
+              if(!F.refusMuet && B()[chemin] && !(opts && opts.upsert))
+                return Promise.resolve({ data:null, error:{ message:'The resource already exists' } });
+              if(F.refusMuet) return Promise.resolve({ data:null, error:{ message:'new row violates row-level security policy' } });
+              B()[chemin] = { taille: (f && f.size) || 0, type: (opts && opts.contentType) || '' };
+              return Promise.resolve({ data:{ path: chemin }, error:null });
+            },
+            remove(chemins){
+              F.journal.push({ op:'remove', table:bucket, chemins:chemins });
+              if(F.panne) return Promise.resolve({ data:null, error:{ message:'panne simulée' } });
+              /* le refus muet : rien n'est retiré, et rien ne le dit */
+              if(F.refusMuet) return Promise.resolve({ data:[], error:null });
+              const retires = [];
+              (chemins || []).forEach(c => { if(B()[c]){ delete B()[c]; retires.push({ name:c }); } });
+              return Promise.resolve({ data:retires, error:null });
+            },
+            createSignedUrl(chemin, secondes){
+              F.journal.push({ op:'signedUrl', table:bucket, chemin:chemin });
+              if(F.panne) return Promise.resolve({ data:null, error:{ message:'panne simulée' } });
+              if(!B()[chemin]) return Promise.resolve({ data:null, error:{ message:'Object not found' } });
+              return Promise.resolve({ data:{ signedUrl:'https://exemple.invalid/' + bucket + '/' + chemin +
+                                                        '?jeton=faux&duree=' + (secondes || 0) }, error:null });
+            },
+            list(prefixe){
+              const noms = Object.keys(B()).filter(c => !prefixe || c.indexOf(prefixe) === 0);
+              return Promise.resolve({ data: noms.map(n => ({ name:n })), error:null });
+            },
+          };
+        },
       },
       functions: {
         invoke(nom, opts){
