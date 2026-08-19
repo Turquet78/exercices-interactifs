@@ -28,7 +28,6 @@
 <style>
 
   /* --- Cours et fiches en PDF déposés par le professeur --- */
-  .cours-panel{margin-top:20px}
   .cours-liste{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
   .cours-item{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1.5px solid #d8e0fb;border-radius:12px;padding:10px 13px}
   .cours-ic{font-size:1.15rem}
@@ -982,7 +981,6 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
       </div>
       <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
-      <div class="panel cours-panel" id="coursPanel" hidden></div>
       <div class="theme-list" id="testChoices"></div>
       <div class="panel" style="margin-top:20px">
         <h3>Ma progression</h3>
@@ -1223,7 +1221,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 
       <!-- cours et fiches en PDF -->
       <div class="tpane" id="pane-cours">
-        <p class="lead">Dépose ici les PDF de cours et de fiches d'exercices. Les élèves les retrouvent en haut de la page des exercices, avant la liste des thèmes.</p>
+        <p class="lead">Dépose ici les PDF de cours et de fiches d'exercices. Ils apparaissent sur le site de maths, dans la partie « Cours et exercices » du niveau — pas dans cette application.</p>
         <div class="cours-depot">
           <input class="text-input" id="coursTitre" placeholder="Titre affiché aux élèves" maxlength="80" autocomplete="off">
           <input class="cours-fichier" type="file" id="coursFichier" accept="application/pdf,.pdf">
@@ -1385,7 +1383,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=47;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=48;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -3129,7 +3127,6 @@ async function openThemes(){
   await chargerMesResultats();
   renderChooser(mesResultats);
   renderBilan(mesResultats);
-  renderCoursEleve();
 }
 async function openRattrapage(){
   if(!currentEleve){ accueil(); return; }
@@ -3724,18 +3721,6 @@ async function ouvrirCours(chemin){
   window.open(url,'_blank','noopener');
 }
 
-async function renderCoursEleve(){
-  const host=$('coursPanel'); if(!host) return;
-  const liste=await listeCours();
-  if(!liste.length){ host.hidden=true; host.innerHTML=''; return; }
-  host.innerHTML='<h3>\u{1F4D8} Cours et fiches</h3><ul class="cours-liste">'+liste.map(c=>`<li class="cours-item">
-      <span class="cours-ic">\u{1F4C4}</span>
-      <span class="cours-nom">${esc(c.titre)}</span>
-      <span class="cours-meta">${esc(coursMeta(c))}</span>
-      <span class="cours-actions"><button class="btn btn-ghost btn-sm" type="button" onclick="ouvrirCours('${escJS(c.chemin)}')">Ouvrir le PDF</button></span>
-    </li>`).join('')+'</ul>';
-  host.hidden=false;
-}
 
 async function chargerCoursProf(){
   const host=$('coursListeProf'); if(!host) return;

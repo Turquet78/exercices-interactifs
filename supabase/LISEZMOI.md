@@ -309,11 +309,26 @@ Le relancer ne trouve plus rien.
 
 ## 3 quinquies. Les cours en PDF (2 min)
 
-Collez **`migrations/005_cours_en_pdf.sql`** dans l'éditeur SQL et exécutez-le.
+Collez **`migrations/005_cours_en_pdf.sql`** dans l'éditeur SQL et exécutez-le,
+**puis `migrations/006_cours_lisibles_par_le_portail.sql`**.
+
+> **Collez le fichier ENTIER.** L'éditeur SQL de Supabase exécute tout le script
+> comme une seule transaction : si une instruction échoue, tout est annulé,
+> bucket compris — et un extrait qui ne contiendrait que des commentaires
+> afficherait « Success » sans rien créer. La vérification qui tranche :
+> `select id, public from storage.buckets where id = 'cours';` doit rendre une
+> ligne.
 
 **À jouer AVANT de mettre en ligne la version qui porte l'onglet « Cours en
 PDF ».** Sans cette étape, le bouton « Déposer » répondra *« Dépôt refusé »* :
 le bucket n'existe pas, et aucune politique n'autorise quoi que ce soit.
+
+### Où les élèves les voient
+
+**Pas dans l'application** : sur le portail (`turquet-math974.netlify.app`),
+dans « Cours et exercices » du niveau, à côté des fiches du dossier `fiches/`.
+C'est la migration **006** qui rend le bucket lisible par ce site : il n'a aucun
+élève connecté, donc aucun moyen d'obtenir une adresse signée.
 
 ### Ce qu'elle pose
 
