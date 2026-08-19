@@ -119,7 +119,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','home','login','space','choose','theme','soustheme','rattrapage',
+    ecransHorsExercice: ['setup','login','space','choose','theme','soustheme','rattrapage',
                         'devoirs','mode','results','teacher-login','teacher'],
     niveau: 'Première',
     /* Les classes qui portent l'encadré « Énoncé », et les écrans qui n'en ont
@@ -248,7 +248,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','home','login','space','rattrapage','choose','devoirs','mode',
+    ecransHorsExercice: ['setup','login','space','rattrapage','choose','devoirs','mode',
                         'results','teacher-login','teacher'],
     niveau: 'Seconde',
     /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
@@ -339,7 +339,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','home','login','space','rattrapage','choose','theme','devoirs','mode',
+    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','devoirs','mode',
                         'results','teacher-login','teacher',
                         /* choix du niveau de « Signe du second degré » : un menu, pas un exercice */
                         's2lvl'],

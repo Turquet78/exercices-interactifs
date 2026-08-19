@@ -530,6 +530,33 @@ function structure(){
      les verrous d'évaluation. */
   verifier('le mot de passe du professeur n’est plus dans la page',
     !/MOT_DE_PASSE_PROF/.test(s), 'la constante est encore là');
+
+  /* ---- La porte du professeur n'a plus de bouton -------------------------
+     Elle s'ouvre par l'adresse « …#prof », mise en favori (décision de
+     Turquet, août 2026). Trois bords, et le troisième est le plus coûteux :
+     un professeur enfermé dehors.
+       · aucun attribut d'événement ne doit mener à l'écran du professeur —
+         un bouton remis « pour dépanner » rouvrirait la porte à la classe
+         entière sans que personne ne s'en aperçoive ;
+       · le fragment est le MÊME sur les trois niveaux : le professeur n'a
+         qu'une habitude, pas trois ;
+       · et l'écran « Choisis ton rôle » ayant disparu, plus rien ne doit le
+         nommer. Un show('home') oublié ne lève pas une erreur discrète : il
+         cherche un écran absent, $('scr-home') vaut null, et la navigation se
+         fige sur place. */
+  const versProf = [...s.matchAll(/on[a-z]+="[^"]*"/g)]
+    .filter(m => /show\(\s*'teacher-login'\s*\)/.test(m[0]))
+    .map(m => ligneDe(m.index));
+  verifier('aucun bouton de la page ne mène à l’écran du professeur',
+    versProf.length === 0, 'ligne(s) ' + versProf.join(', ') + ' — la porte doit rester sans poignée');
+
+  const fragment = (s.match(/const ENTREE_PROF\s*=\s*'([^']*)'/) || [])[1];
+  verifier('la porte du professeur s’ouvre par « #prof »',
+    fragment === '#prof', 'fragment déclaré : ' + JSON.stringify(fragment));
+
+  const restes = [...s.matchAll(/scr-home|show\(\s*'home'\s*\)/g)].map(m => ligneDe(m.index));
+  verifier('plus rien ne renvoie à l’écran d’accueil supprimé',
+    restes.length === 0, 'ligne(s) ' + restes.join(', ') + ' — show() y figerait la navigation');
   const tl = toutesFonctions.find(f => f.nom === 'teacherLogin');
   verifier('la connexion du professeur est vérifiée par le serveur',
     !!tl && /sb\.auth\.signInWithPassword/.test(tl.texte),
@@ -743,12 +770,28 @@ function demarrage(suite){
       const vrai=fermerFenetresIA;
       fermerFenetresIA=function(){ throw new Error('incident simulé'); };
       let avant='', apres='';
-      try{ show('home'); avant=((document.querySelector('.screen.on')||{}).id)||''; }catch(e){}
+      /* deux écrans qui existent partout : « home » a disparu avec le bouton du professeur */
+      try{ show('space'); avant=((document.querySelector('.screen.on')||{}).id)||''; }catch(e){}
       try{ show('login'); apres=((document.querySelector('.screen.on')||{}).id)||''; }catch(e){}
       fermerFenetresIA=vrai;
       if(!avant) return 'le premier show() n’a rien affiché';
       return avant!==apres ? true : 'la navigation est restée sur '+avant;
     })()`, v => v === true || v === 'sans objet', undefined);
+    /* Et le démarrage AIGUILLE : sans fragment il ouvre la connexion de l'élève,
+       avec « #prof » il ouvre celle du professeur. Le contrôle statique dit que
+       le fragment est déclaré ; celui-ci dit qu'il ouvre quelque chose — c'est
+       la seule porte qui reste, et un professeur enfermé dehors n'aurait aucun
+       autre chemin. */
+    verifierEval(w, 'le démarrage ouvre la connexion de l’élève, et « #prof » celle du professeur', `(function(){
+      if(typeof demarrer!=='function') return 'demarrer() manque';
+      const vu=function(){ return ((document.querySelector('.screen.on')||{}).id)||'(aucun)'; };
+      let libre='', prof='';
+      try{ location.hash=''; demarrer(); libre=vu(); }catch(e){ return 'sans fragment : '+e.message; }
+      try{ location.hash='#prof'; demarrer(); prof=vu(); }catch(e){ return 'avec #prof : '+e.message; }
+      try{ location.hash=''; }catch(e){}
+      return libre+' / '+prof;
+    })()`, v => v === 'scr-login / scr-teacher-login',
+       'attendu « scr-login / scr-teacher-login » : la page doit s’ouvrir sur l’élève, et sur le professeur avec le fragment');
     verifierEval(w, 'les fonctions d’affichage encaissent une donnée inconnue', `(function(){
       const rate=[];
       const essais=[['testName','exercice-absent-du-registre'],['testLabel','exercice-absent-du-registre'],
@@ -1922,7 +1965,7 @@ function premiere(w){
     if(!tablesOuvertes()) vus.push('ailleurs, elle se referme alors qu\\'elle devrait rester');
     fermerTables();
     /* 4. quitter l'exercice la referme */
-    show('tm'); ouvrirTables(); show('home');
+    show('tm'); ouvrirTables(); show('space');   /* « home » n'existe plus : l'écran de l'élève fait aussi bien */
     if(tablesOuvertes()) vus.push('quitter l\\'exercice ne la referme pas');
     return vus.join(' | ');
   })()`, v => v === '', undefined);

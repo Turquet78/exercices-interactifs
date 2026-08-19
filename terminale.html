@@ -1118,25 +1118,6 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
-  <!-- ACCUEIL -->
-  <section class="screen" id="scr-home">
-    <div class="card">
-      <h2 class="title">Bienvenue</h2>
-      <p class="lead">Choisis ton rôle pour commencer.</p>
-      <div class="choices">
-        <button class="choice eleve" onclick="show('login');renderLoginNames()">
-          <span class="ic">✏️</span><span class="ttl">Je suis élève</span>
-          <span class="ds">Je me connecte et je choisis un test.</span>
-        </button>
-        <button class="choice prof" onclick="show('teacher-login');setTimeout(()=>$('teacherPass').focus(),100)">
-          <span class="ic">📋</span><span class="ttl">Je suis le professeur</span>
-          <span class="ds">Je gère les comptes et je suis la progression.</span>
-        </button>
-      </div>
-      <p class="muted" style="text-align:center;font-size:.75rem;margin:14px 0 0" title="Version du fichier en ligne — si un correctif ne semble pas appliqué, vérifier ce numéro (cache du navigateur ou de GitHub Pages)">version 160</p>
-    </div>
-  </section>
-
   <!-- CONNEXION ÉLÈVE -->
   <section class="screen" id="scr-login">
     <div class="card">
@@ -1178,7 +1159,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <p class="note">Choisis un code facile à retenir. En cas d'oubli, ton professeur peut le réinitialiser.</p>
       </form>
 
-      <div style="margin-top:16px"><button class="btn-link" onclick="show('home')">Retour</button></div>
+      <div style="margin-top:16px"><button class="btn-link" onclick="accueil()">Retour</button></div>
     </div>
   </section>
 
@@ -1790,7 +1771,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         </div>
         <div class="row">
           <button type="button" class="btn btn-primary" onclick="teacherLogin()">Entrer</button>
-          <button type="button" class="btn-link" onclick="show('home')">Retour</button>
+          <button type="button" class="btn-link" onclick="accueil()">Retour</button>
         </div>
       </form>
     </div>
@@ -1960,7 +1941,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=230;
+const APP_VERSION=231;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3324,8 +3305,40 @@ function show(name){
    rechargement de la page. Sans signOut(), l'élève suivant sur le même
    ordinateur hériterait des droits du précédent. */
 function fermerSession(){ try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
-function quitToHome(){ currentEleve=null; fermerSession(); show('home'); }
-function logout(){ currentEleve=null; fermerSession(); show('home'); }
+
+/* ---------- L'accueil, et la porte du professeur ----------
+   L'accueil de l'élève EST sa connexion : l'écran « Choisis ton rôle » a
+   disparu avec le bouton du professeur (décision de Turquet, août 2026). Tout
+   ce qui ramenait à l'accueil passe donc par accueil() — « Retour »,
+   « Quitter », le démarrage : trois chemins qui, laissés séparés, auraient fini
+   par diverger, comme l'ont fait la réserve du bas et testScreens.
+
+   La porte du professeur n'a plus de bouton : elle s'ouvre par l'adresse
+   « …#prof », que le professeur met en favori. CE N'EST PAS UNE PROTECTION, et
+   il ne faut pas le croire : le mot de passe du compte Supabase et la table
+   « professeurs », revérifiée après la connexion, restent le seul verrou — un
+   élève qui lit l'adresse dans l'historique du tableau blanc voit la même porte
+   qu'avant. Ce que ça retire, c'est l'invitation : plus personne ne tombe
+   dessus, et plus personne ne s'amuse à y frapper.
+
+   Le fragment RESTE dans l'adresse : recharger rouvre l'écran, ce qu'on attend
+   d'un favori. Et le poser sur une page déjà ouverte marche aussi — sans quoi
+   taper « #prof » dans la barre d'adresse ne ferait rien, le navigateur ne
+   rechargeant pas une page pour un simple changement de fragment. */
+const ENTREE_PROF='#prof';
+function entreeProfDemandee(){
+  try{ return String(location.hash||'').trim().toLowerCase()===ENTREE_PROF; }catch(e){ return false; }
+}
+function ouvrirEntreeProf(){
+  show('teacher-login');
+  setTimeout(()=>{ const c=$('teacherPass'); if(c) c.focus(); },100);
+}
+function accueil(){ show('login'); renderLoginNames(); }
+function demarrer(){ if(entreeProfDemandee()) ouvrirEntreeProf(); else accueil(); }
+try{ window.addEventListener('hashchange',()=>{ if(entreeProfDemandee()) ouvrirEntreeProf(); }); }catch(e){}
+
+function quitToHome(){ currentEleve=null; fermerSession(); accueil(); }
+function logout(){ currentEleve=null; fermerSession(); accueil(); }
 
 /* ---------- Connexion élève ---------- */
 function loginMode(m){
@@ -3473,7 +3486,7 @@ async function ouvrirEspace(){
          heriterait des droits du precedent. */
       const {error:errSortie}=await sb.auth.signOut();
       if(errSortie) toast('Ferme l\'onglet avant de laisser la place','err');
-      show('login'); renderLoginNames();
+      accueil();
       return;
     }
   }
@@ -3669,7 +3682,7 @@ async function openThemes(){
   renderCoursEleve();
 }
 async function openRattrapage(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   currentDM=null;
   show('rattrapage');
   $('rattrapageList').innerHTML='<p class="muted">Chargement…</p>';
@@ -3943,7 +3956,7 @@ function genSuite(){
 }
 /* ---------- Déroulé du test ---------- */
 async function startSuites(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='suites'; test.kind='gen';
@@ -3952,7 +3965,7 @@ async function startSuites(){
   show('test'); renderQuestion();
 }
 async function startDerivees(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivees'; test.kind='gen';
@@ -4247,7 +4260,7 @@ function tviSentence(c){
 const TVI_IDS=['tvi-bg','tvi-bd','tvi-cont','tvi-sens','tvi-vg','tvi-vd','tvi-tvi','tvi-k','tvi-uniq','tvi-enc-k','tvi-enc-lo','tvi-enc-hi'];
 
 async function startTVI(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            // reprise activée (pause/abandon)
   cfg=await loadConfig();
   currentTestId='tvi'; test.kind='tvi';
@@ -4489,7 +4502,7 @@ function tvi3RaisonTexte(c){
   return c.fname+' n’est pas continue ('+c.v+' = '+c.cLabel+' est une valeur interdite)';
 }
 async function startTVI3(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='tvi-contre-exemples'; test.kind='tvi3';
@@ -4879,7 +4892,7 @@ async function checkLR(){
 }
 function nextLR(){ if(test.idx<test.questions.length-1){ test.idx++; renderLR(); } else finishTest(); }
 async function startLR(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='limites-redaction'; test.kind='lr';
@@ -5029,7 +5042,7 @@ function tvinsAttenduIA(c){
 }
 function tvinsReponseTxt(vals){ return vals.map((x,i)=>'('+(i+1)+') '+x).join(' ; '); }
 async function startTVINS(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='tvi-nombre-solutions'; test.kind='tvins';
@@ -5429,7 +5442,7 @@ function tvgReponseTxt(c){
   return 'Points cliqués sur la courbe : '+(pts||'aucun')+'. Abscisses cliquées sur l’axe : '+(Xs.map(n=>numFmt(n)).join(', ')||'aucune')+'. Solutions écrites à la question c : « '+ecr+' ».';
 }
 async function startTVG(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='tvi-lecture-graphique'; test.kind='tvg';
@@ -5624,7 +5637,7 @@ function dhvReponseTxt(vals){
     +'. Équation de d1 : « '+vals['dhv-v1']+' = '+vals['dhv-n1']+' ». Équation de d2 : « '+vals['dhv-v2']+' = '+vals['dhv-n2']+' ».';
 }
 async function startDHV(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='equation-droite-h-v'; test.kind='dhv';
@@ -5974,7 +5987,7 @@ function lgReponseTxt(c){
   }).join('. ')+'.';
 }
 async function startLG(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='limites-graphiques'; test.kind='lg';
@@ -6294,7 +6307,7 @@ function lg2SyncAll(){
 }
 function lg2InsInf(i){ lgSubsInsInf('lg2',i); }
 async function startLG2(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='limites-graphiques-2'; test.kind='lg2';
@@ -6537,7 +6550,7 @@ function lg3TableHTML(c){
     +'</tbody></table></div>';
 }
 async function startLG3(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            /* reprise activée (pause/abandon) */
   cfg=await loadConfig();
   currentTestId='limites-graphiques-3'; test.kind='lg3';
@@ -6703,7 +6716,7 @@ function renderJustifCheck(r){
 }
 
 async function startTVI2(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='tvi-redaction'; test.kind='tvi2';
@@ -7050,7 +7063,7 @@ document.addEventListener('input',function(ev){
 });
 
 async function startDexp(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivee-exp'; test.kind='dexp'; test.dexpLevel=1;
@@ -7059,7 +7072,7 @@ async function startDexp(){
   show('dexp'); renderDexp();
 }
 async function startDexp2(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivee-exp-2'; test.kind='dexp'; test.dexpLevel=2;
@@ -7511,7 +7524,7 @@ function d3FxPlain(c){ return (c.aStr+' + '+c.bxStr+'\u00b7e^('+c.expHtml+')').r
 function d3DfPlain(c){ return c.deg===0 ? '('+c.facAns+')\u00b7e^('+c.expHtml+')' : c.daTxt+' + ('+c.facAns+')\u00b7e^('+c.expHtml+')'; }
 function d3ATex(c){ return mlTexN(c.aStr).replace('x\u00b2','x^{2}'); }
 async function startDexp3(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivee-exp-3'; test.kind='dexp'; test.dexpLevel=3;
@@ -7753,7 +7766,7 @@ function dqFxPlain(c){ return 'e^('+c.expHtml+') / ('+c.vStr+')'; }
 function dqDfPlain(c){ return '[e^('+c.expHtml+')\u00b7('+c.facAns+')] / ('+c.vStr+')^2'; }
 function dqDfPlainAlt(c){ return '[('+c.facAns+')\u00b7e^('+c.expHtml+')] / ('+c.vStr+')^2'; }
 async function startDexpQ2(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivee-exp-quotient-2'; test.kind='dexpq'; test.dexpLevel=2;
@@ -7823,7 +7836,7 @@ async function checkDexpQ2(){
 }
 function nextDexpQ2(){ if(test.idx<test.questions.length-1){ test.idx++; renderDexpQ2(); } else finishTest(); }
 async function startDexpQ(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='derivee-exp-quotient'; test.kind='dexpq'; test.dexpLevel=1;
@@ -8213,7 +8226,7 @@ function svArrowChange(){
   ov.innerHTML=g;
 }
 async function startSV(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;            // reprise activée (pause/abandon)
   cfg=await loadConfig();
   currentTestId='signes-variations'; test.kind='sv';
@@ -8512,7 +8525,7 @@ function efArrowChange(){
   ov.innerHTML=g;
 }
 async function startEF(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='etude-fonction'; test.kind='ef';
@@ -8782,7 +8795,7 @@ function eqSyncDen(){
   });
 }
 async function startEQ(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='etude-quotient'; test.kind='eq';
@@ -9051,7 +9064,7 @@ function rcFicheHTML(c){
     +'<div class="s1-res rc-ccl"><div class="s1-line">Conclusion : la propri\u00e9t\u00e9 est vraie pour <i>n</i> = '+numFmt(c.n0)+' et h\u00e9r\u00e9ditaire \u2014 donc, pour tout entier <i>n</i> \u2265 '+numFmt(c.n0)+',&nbsp; '+numFmt(c.m)+' \u2264 '+rcUn('n')+' \u2264 '+numFmt(c.M)+'.</div></div>';
 }
 async function startRC(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='recurrence-encadrement'; test.kind='rc';
@@ -9282,7 +9295,7 @@ function tgFormHTML(c){
   </div>`;
 }
 async function startTG(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='equation-tangente'; test.kind='tg';
@@ -9435,7 +9448,7 @@ function s1TableHTML(c){
   </tbody></table>`;
 }
 async function startS1(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-premier-degre'; test.kind='s1';
@@ -9594,11 +9607,11 @@ function s2TableHTML(c){
   </tbody></table>`;
 }
 async function startS2(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   show('s2lvl');
 }
 async function startS2Run(level){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   s2Level=level;
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
@@ -10359,7 +10372,7 @@ function spRenderTable(q, focusKeep){
 }
 /* 1.5 : deux exemples de la forme (ax+b)/(cx+d)^2 \u2014 meme ecran, meme mecanique */
 async function startSPC(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-quotient-carre'; test.kind='sp';
@@ -10368,7 +10381,7 @@ async function startSPC(){
   show('sp'); renderSP();
 }
 async function startSP(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-produit'; test.kind='sp';
@@ -10593,7 +10606,7 @@ function spConseilCtx(){
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
 async function startSU(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='suite-explicite'; test.kind='su';
@@ -11411,7 +11424,7 @@ function encJetonsHTML(){
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="encMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">\u2630</button></div>';
 }
 async function startENC(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='suites-encadrement'; test.kind='enc';
@@ -11681,7 +11694,7 @@ function recVide(x){
 function recCorrLat(x){ return x.cible ? x.cible.lat : x.lat; }
 function recCorrS(x){ return x.cible ? x.cible.s : x.s; }
 async function startREC(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='recurrence-complete'; test.kind='rec';
@@ -11866,7 +11879,7 @@ function recConseilCtx(){
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
 async function startSA(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='suite-auxiliaire'; test.kind='sa';
@@ -13426,7 +13439,7 @@ function fermerFenetresIA(vider){
 })();
 
 /* démarrage */
-if(configReady()){ initSupabase(); show('home'); }
+if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
 </script>
 

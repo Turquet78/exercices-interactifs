@@ -581,6 +581,31 @@ bruyamment si le bucket manque, s'il est public, ou s'il n'a pas ses quatre
 politiques. Et l'export de nuit n'emporte que les tables : les titres sont
 sauvegardés, les PDF non — l'original reste sur l'ordinateur du professeur.
 
+**La porte du professeur n'a plus de poignée.** L'écran « Choisis ton rôle » et
+son bouton « Je suis le professeur » ont disparu : la page s'ouvre directement
+sur la connexion de l'élève, et le tableau de bord s'atteint par l'adresse
+`…#prof`, que le professeur met en favori (décision de Turquet, août 2026).
+**Ce n'est pas une protection, et le croire serait le vrai danger** : le mot de
+passe du compte Supabase et la table `professeurs`, revérifiée après la
+connexion, restent le seul verrou — l'adresse traîne dans l'historique du
+tableau blanc de la classe. Ce que ça retire, c'est l'invitation.
+Trois bords, tenus par cinq contrôles. *Aucun attribut d'événement ne doit
+mener à `teacher-login`* : un bouton remis « pour dépanner » rouvrirait la porte
+à la classe entière sans que rien ne le dise. *Le fragment est le même sur les
+trois niveaux* — le professeur n'a qu'une habitude, pas trois — et le banc
+navigateur OUVRE la page avec, parce qu'un fragment qui cesserait d'aiguiller
+enfermerait le professeur dehors, sans autre chemin et sans erreur nulle part.
+*Et l'écran supprimé ne doit plus être nommé nulle part* : `show('home')` ne
+lève pas une erreur discrète, il cherche un écran absent, `$('scr-home')` vaut
+`null`, et la navigation se fige sur place — le banc l'a montré tout de suite
+sur deux contrôles qui s'en servaient comme d'un écran quelconque.
+Le changement de fragment sur une page DÉJÀ ouverte est écouté aussi
+(`hashchange`) : sans cela, taper « #prof » dans la barre d'adresse ne ferait
+rien du tout, un navigateur ne rechargeant pas une page pour un simple
+fragment. Tout ce qui ramenait à l'accueil — « Retour », « Quitter », le
+démarrage — passe par `accueil()`, un seul entonnoir : trois chemins séparés
+auraient fini par diverger, comme l'ont fait la réserve du bas et `testScreens`.
+
 ---
 
 ## Ajouter un exercice

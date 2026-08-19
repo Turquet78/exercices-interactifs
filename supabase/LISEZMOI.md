@@ -56,6 +56,29 @@ Notez l'**UUID** du compte créé : il sert à l'étape 4.
 
 ---
 
+## 2 bis. Entrer dans le tableau de bord (à mettre en favori)
+
+Depuis août 2026, **le bouton « Je suis le professeur » n'existe plus** : la
+page s'ouvre directement sur la connexion des élèves. Votre tableau de bord
+s'atteint en ajoutant `#prof` à l'adresse :
+
+```
+https://turquet78.github.io/exercices-interactifs/secondes.html#prof
+https://turquet78.github.io/exercices-interactifs/premiere-specifique.html#prof
+https://turquet78.github.io/exercices-interactifs/terminale.html#prof
+```
+
+Mettez les trois en favori, sur l'ordinateur et sur le téléphone. Le fragment
+reste dans l'adresse : recharger la page rouvre l'écran de connexion. Sur une
+page déjà ouverte, ajouter `#prof` dans la barre d'adresse fonctionne aussi.
+
+> **Ce n'est pas une protection.** Le mot de passe de votre compte Supabase
+> reste le seul verrou, et l'adresse peut traîner dans l'historique d'un
+> ordinateur de classe. Ce que cela retire, c'est l'invitation : aucun élève ne
+> voit la porte, donc aucun ne s'amuse à y frapper.
+
+---
+
 ## 3. Jouer la migration (5 min)
 
 Dans **SQL Editor**, coller **`migrations/001_comptes_et_verrouillage.sql`** en

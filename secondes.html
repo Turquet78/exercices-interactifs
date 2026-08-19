@@ -891,24 +891,6 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- ACCUEIL -->
-  <section class="screen" id="scr-home">
-    <div class="card">
-      <h2 class="title">Bienvenue</h2>
-      <p class="lead">Choisis ton rôle pour commencer.</p>
-      <div class="choices">
-        <button class="choice eleve" onclick="show('login');renderLoginNames()">
-          <span class="ic">✏️</span><span class="ttl">Je suis élève</span>
-          <span class="ds">Je me connecte et je choisis un test.</span>
-        </button>
-        <button class="choice prof" onclick="show('teacher-login');setTimeout(()=>$('teacherPass').focus(),100)">
-          <span class="ic">📋</span><span class="ttl">Je suis le professeur</span>
-          <span class="ds">Je gère les comptes et je suis la progression.</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
   <!-- CONNEXION ÉLÈVE -->
   <section class="screen" id="scr-login">
     <div class="card">
@@ -950,7 +932,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <p class="note">Choisis un code facile à retenir. En cas d'oubli, ton professeur peut le réinitialiser.</p>
       </form>
 
-      <div style="margin-top:16px"><button class="btn-link" onclick="show('home')">Retour</button></div>
+      <div style="margin-top:16px"><button class="btn-link" onclick="accueil()">Retour</button></div>
     </div>
   </section>
 
@@ -1216,7 +1198,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         </div>
         <div class="row">
           <button type="button" class="btn btn-primary" onclick="teacherLogin()">Entrer</button>
-          <button type="button" class="btn-link" onclick="show('home')">Retour</button>
+          <button type="button" class="btn-link" onclick="accueil()">Retour</button>
         </div>
       </form>
     </div>
@@ -1403,7 +1385,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=46;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=47;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1793,7 +1775,7 @@ const DEF_SETS={N:{sym:'ℕ',nom:'entiers naturels'},Z:{sym:'ℤ',nom:'entiers r
 const DEF_ORDER=['N','Z','D','Q','R'];
 let defBusy=false;
 async function startDef(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'def', questions:DEF_ORDER.slice(), idx:0, score:0, maxScore:DEF_ORDER.length, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
@@ -1854,7 +1836,7 @@ function pgeSmallest(q){ return PGE_ORDER.find(k=>q.sets[k]) || 'R'; }
 function pgeWhy(q,bon,correct){ return (correct?'Bravo ! ':'')+'Le plus petit ensemble est '+PGE_SYM[bon]+'. '+(q.why||''); }
 function pgeHint(q,k){ if(q.sets[k]) return 'Ce nombre est bien dans '+PGE_SYM[k]+', mais un ensemble plus petit le contient aussi.'; return 'Ce nombre n’appartient pas à '+PGE_SYM[k]+'. Regarde bien sa valeur (le bouton Rappels peut aider).'; }
 function startPge(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   const qs=ensBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
@@ -2773,8 +2755,40 @@ function show(name){
    rechargement de la page. Sans signOut(), l'élève suivant sur le même
    ordinateur hériterait des droits du précédent. */
 function fermerSession(){ try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
-function quitToHome(){ currentEleve=null; fermerSession(); show('home'); }
-function logout(){ currentEleve=null; fermerSession(); show('home'); }
+
+/* ---------- L'accueil, et la porte du professeur ----------
+   L'accueil de l'élève EST sa connexion : l'écran « Choisis ton rôle » a
+   disparu avec le bouton du professeur (décision de Turquet, août 2026). Tout
+   ce qui ramenait à l'accueil passe donc par accueil() — « Retour »,
+   « Quitter », le démarrage : trois chemins qui, laissés séparés, auraient fini
+   par diverger, comme l'ont fait la réserve du bas et testScreens.
+
+   La porte du professeur n'a plus de bouton : elle s'ouvre par l'adresse
+   « …#prof », que le professeur met en favori. CE N'EST PAS UNE PROTECTION, et
+   il ne faut pas le croire : le mot de passe du compte Supabase et la table
+   « professeurs », revérifiée après la connexion, restent le seul verrou — un
+   élève qui lit l'adresse dans l'historique du tableau blanc voit la même porte
+   qu'avant. Ce que ça retire, c'est l'invitation : plus personne ne tombe
+   dessus, et plus personne ne s'amuse à y frapper.
+
+   Le fragment RESTE dans l'adresse : recharger rouvre l'écran, ce qu'on attend
+   d'un favori. Et le poser sur une page déjà ouverte marche aussi — sans quoi
+   taper « #prof » dans la barre d'adresse ne ferait rien, le navigateur ne
+   rechargeant pas une page pour un simple changement de fragment. */
+const ENTREE_PROF='#prof';
+function entreeProfDemandee(){
+  try{ return String(location.hash||'').trim().toLowerCase()===ENTREE_PROF; }catch(e){ return false; }
+}
+function ouvrirEntreeProf(){
+  show('teacher-login');
+  setTimeout(()=>{ const c=$('teacherPass'); if(c) c.focus(); },100);
+}
+function accueil(){ show('login'); renderLoginNames(); }
+function demarrer(){ if(entreeProfDemandee()) ouvrirEntreeProf(); else accueil(); }
+try{ window.addEventListener('hashchange',()=>{ if(entreeProfDemandee()) ouvrirEntreeProf(); }); }catch(e){}
+
+function quitToHome(){ currentEleve=null; fermerSession(); accueil(); }
+function logout(){ currentEleve=null; fermerSession(); accueil(); }
 
 /* ---------- Connexion élève ---------- */
 function loginMode(m){
@@ -2922,7 +2936,7 @@ async function ouvrirEspace(){
          heriterait des droits du precedent. */
       const {error:errSortie}=await sb.auth.signOut();
       if(errSortie) toast('Ferme l\'onglet avant de laisser la place','err');
-      show('login'); renderLoginNames();
+      accueil();
       return;
     }
   }
@@ -3118,7 +3132,7 @@ async function openThemes(){
   renderCoursEleve();
 }
 async function openRattrapage(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   currentDM=null;
   show('rattrapage');
   $('rattrapageList').innerHTML='<p class="muted">Chargement…</p>';
@@ -4291,7 +4305,7 @@ function genPercent(){
   return {P,N,unit,prod,result};
 }
 async function startPercent(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pct';
   test.questions=Array.from({length:8},genPercent);
@@ -4417,7 +4431,7 @@ function genAug(){
     intro:th.intro, unit:th.unit};
 }
 async function startAug(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='aug';
   test.questions=Array.from({length:6},genAug);
@@ -4594,7 +4608,7 @@ function genDim(){
     intro:th.intro, unit:th.unit};
 }
 async function startDim(){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='dim';
   test.questions=Array.from({length:6},genDim);
@@ -4861,7 +4875,7 @@ function ensBuildQuestions(){
 }
 /* ---- Cycle de vie de l'exercice ---- */
 async function startEns(level){
-  if(!currentEleve){ show('login'); renderLoginNames(); return; }
+  if(!currentEleve){ accueil(); return; }
   const qs=ensBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
@@ -4948,7 +4962,7 @@ $('teacherPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDef
 $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();creerCompte();}});
 
 /* démarrage */
-if(configReady()){ initSupabase(); show('home'); }
+if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
 
 /* ============ GREFFE TERMINALE : activation apres chaque rendu ============ */
