@@ -551,35 +551,47 @@ sont atteignables que par le paramètre d'un démarreur partagé —
 aurait manqué le tiers.
 
 **Un PDF déposé vit à deux endroits, et le second se perd en silence.** Le
-professeur dépose ses cours et ses fiches depuis l'onglet « Cours en PDF » ;
-l'élève les trouve en haut de la page des exercices, avant les thèmes. Le
-FICHIER va dans un bucket Supabase, privé (`005_cours_en_pdf.sql`, à jouer à la
-main comme les autres) ; ses MÉTADONNÉES vont dans `parametres_….valeurs.cours`,
-à côté des devoirs — même ligne, mêmes droits, aucune table de plus. Le lien
-entre les deux n'est tenu par rien, d'où quatre bords.
+professeur dépose ses cours depuis l'onglet « Cours en PDF » de son tableau de
+bord. Le FICHIER va dans un bucket Supabase ; ses MÉTADONNÉES vont dans
+`parametres_….valeurs.cours`, à côté des devoirs — même ligne, mêmes droits,
+aucune table de plus. Le lien entre les deux n'est tenu par rien, d'où quatre
+bords.
 *La suppression que RLS refuse*, encore : `storage.remove()` rend la liste de ce
 qui a été retiré, et un refus est une liste VIDE, sans erreur. On la compte,
-sinon la page annonce « supprimé ✓ » sur un fichier que la classe a toujours
-sous les yeux. *L'orphelin* : un dépôt qui réussit suivi d'un enregistrement qui
-échoue laisserait un fichier en ligne que plus rien ne désigne — invisible, et
+sinon la page annonce « supprimé ✓ » sur un fichier toujours en ligne.
+*L'orphelin* : un dépôt qui réussit suivi d'un enregistrement qui échoue
+laisserait un fichier en ligne que plus rien ne désigne — invisible, et
 décompté du quota ; il est retiré, et si ce retrait échoue à son tour, on le
 dit. *Les devoirs d'à côté* : l'enregistrement relit la configuration avant
 d'écrire, sans quoi il effacerait les devoirs de la classe sans un mot.
 *L'onglet avant l'attente*, enfin : `window.open()` appelé APRÈS un `await` est
-bloqué par Chrome comme une fenêtre surgissante — l'élève clique, rien ne
-s'ouvre, aucune erreur nulle part. L'onglet naît donc AVANT la demande d'adresse
-signée et la reçoit ensuite. Seul un vrai navigateur peut le voir : jsdom n'a
-pas de bloqueur, et le banc navigateur clique donc pour de bon et regarde ce que
-Chrome est allé chercher.
-Le bucket est privé et l'adresse signée dure une heure : un bucket public aurait
-donné des adresses devinables et indexables. Les bornes — 20 Mo, `application/pdf`
-— sont posées sur le bucket ET dans la page ; celle de la page est un confort,
-elle se contourne en dix secondes, celle du bucket est le vrai rempart.
-`npm run test:base` ne rejoue PAS cette migration : le schéma `storage` n'existe
-pas dans un PostgreSQL ordinaire. Elle porte donc son propre contrôle, qui échoue
-bruyamment si le bucket manque, s'il est public, ou s'il n'a pas ses quatre
-politiques. Et l'export de nuit n'emporte que les tables : les titres sont
-sauvegardés, les PDF non — l'original reste sur l'ordinateur du professeur.
+bloqué par Chrome comme une fenêtre surgissante — le professeur clique, rien ne
+s'ouvre, aucune erreur nulle part. L'onglet naît donc AVANT la demande
+d'adresse et la reçoit ensuite ; seul un vrai navigateur peut le voir, jsdom
+n'ayant pas de bloqueur.
+
+**Ces PDF ne s'affichent PAS dans cette application, mais sur le portail**
+(dépôt `Turquet78/site-maths`, `turquet-math974.netlify.app`), dans « Cours et
+exercices » du niveau, à côté des fiches versées dans `fiches/` (décision de
+Turquet, août 2026). Le panneau qui les montrait à l'élève dans la page des
+exercices a donc été retiré ; un contrôle du banc navigateur exige qu'il ne
+revienne pas — les mêmes PDF à deux endroits, ce sont deux vérités possibles le
+jour où l'une des deux cesse d'être à jour.
+**Le bucket est PUBLIC depuis la migration 006, et il devait l'être** : le
+portail n'a aucun élève connecté, donc aucun moyen de demander une adresse
+signée. Un bucket privé y afficherait des cartes qui n'ouvrent rien. Ces PDF
+sont ainsi au même niveau d'exposition que les fiches du dépôt, publiques
+elles aussi ; l'écriture, elle, reste au seul professeur, et la migration 006
+échoue bruyamment si une politique d'écriture s'ouvrait à `anon`.
+**Deux dépôts que rien ne relie, et c'est le piège qui reste.** Le portail
+reconstruit l'adresse du PDF lui-même —
+`…/storage/v1/object/public/cours/<chemin>` — à partir du nom du bucket et du
+chemin rangé dans `valeurs.cours`. Renommer le bucket, ou changer la forme des
+chemins produits par `coursChemin()`, laisserait des cartes qui n'ouvrent plus
+rien : aucun banc ne le verrait, les deux moitiés vivant dans des dépôts
+séparés. Le portail, lui, tient ses deux sources séparément : les fiches
+s'affichent dès que `fiches.json` arrive, sans attendre Supabase, et une base
+muette ne doit jamais emporter l'autre source.
 
 **La porte du professeur n'a plus de poignée.** L'écran « Choisis ton rôle » et
 son bouton « Je suis le professeur » ont disparu : la page s'ouvre directement

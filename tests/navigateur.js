@@ -873,9 +873,9 @@ async function parcours(page, N){
        await est bloqué par Chrome comme une fenêtre surgissante — l'élève
        cliquerait, et rien ne s'ouvrirait, sans la moindre erreur. jsdom n'a pas
        de bloqueur : il ne peut donc rien en dire. */
-    titre('6 septies. LE COURS EN PDF, DU PROFESSEUR À L\'ÉLÈVE');
+    titre('6 septies. LE COURS EN PDF, DÉPOSÉ PAR LE PROFESSEUR');
     if(!P.coursPdf){
-      ignorer('le professeur dépose un PDF, l\'élève l\'ouvre', 'ce niveau n\'a pas de dépôt de cours');
+      ignorer('le professeur dépose un PDF', 'ce niveau n\'a pas de dépôt de cours');
     } else {
       s = await ouvrir(chromium, ml, {});
       await connecter(s.page);
@@ -899,43 +899,41 @@ async function parcours(page, N){
         'fichiers : ' + cote.fichiers.join(',') + ' — enregistrés : ' + cote.enregistres +
         ' — affiché : « ' + cote.affiche.replace(/\s+/g, ' ').trim().slice(0, 90) + ' »');
 
-      /* 2. l'élève le trouve sur la page des exercices, au-dessus des thèmes */
-      await s.page.evaluate(async () => { await openThemes(); });
-      await s.page.waitForTimeout(600);
-      const vu = await s.page.evaluate(() => {
-        const p = document.getElementById('coursPanel');
-        if(!p) return { absent: true };
-        const c = getComputedStyle(p), b = p.querySelector('button');
-        const themes = document.getElementById('testChoices');
-        return { visible: !p.hidden && c.display !== 'none',
-                 texte: p.textContent.replace(/\s+/g, ' ').trim(),
-                 bouton: b ? b.textContent.trim() : '',
-                 /* au-DESSUS des exercices : c'est là qu'on cherche son cours */
-                 avant: !!themes && !!(p.compareDocumentPosition(themes) & Node.DOCUMENT_POSITION_FOLLOWING) };
-      });
-      verifier('l\'élève voit le cours en haut de la page des exercices',
-        !vu.absent && vu.visible && /Cours n°3/.test(vu.texte) && vu.avant,
-        vu.absent ? 'panneau absent de la page' :
-          'affiché : ' + vu.visible + ', avant les exercices : ' + vu.avant + ' — « ' + vu.texte.slice(0, 90) + ' »');
-
-      /* 3. LE CLIC. L'onglet doit vraiment s'ouvrir, sur l'adresse signée.
-         L'adresse du double ne mène nulle part — le DNS échoue et onglet.url()
-         devient « chrome-error://… ». On écoute donc ce que le navigateur a
-         DEMANDÉ, ce qui est justement la preuve recherchée : l'onglet est né et
-         il est parti chercher le PDF. */
+      /* 2. LE CLIC, depuis la liste du professeur. L'onglet doit vraiment
+         s'ouvrir : window.open() appelé APRÈS un await est bloqué par Chrome
+         comme une fenêtre surgissante, et jsdom, qui n'a pas de bloqueur, ne
+         peut rien en dire. L'adresse du double ne mène nulle part — le DNS
+         échoue et onglet.url() devient « chrome-error://… ». On écoute donc ce
+         que le navigateur a DEMANDÉ, ce qui est justement la preuve cherchée :
+         l'onglet est né, et il est parti chercher le PDF. */
       const demandes = [];
       s.page.context().on('request', r => demandes.push(r.url()));
       const [onglet] = await Promise.all([
         s.page.waitForEvent('popup', { timeout: 8000 }).catch(() => null),
-        s.page.click('#coursPanel button'),
+        s.page.click('#coursListeProf button'),
       ]);
       await s.page.waitForTimeout(800);
       const demandee = demandes.filter(u => /exemple\.invalid\/cours\//.test(u))[0] || '';
-      verifier('cliquer « Ouvrir le PDF » ouvre vraiment un onglet, sur l\'adresse signée',
+      verifier('cliquer « Ouvrir » ouvre vraiment un onglet, sur l\'adresse du stockage',
         !!onglet && !!demandee,
         !onglet ? 'aucun onglet ne s\'est ouvert — window.open() appelé après l\'attente, Chrome l\'a bloqué'
                 : 'onglet ouvert, mais aucune demande vers le stockage : ' + demandes.slice(-3).join(' , '));
       if(onglet) await onglet.close().catch(() => {});
+
+      /* 3. Et l'élève ne doit RIEN voir ici : les cours vivent sur le portail
+         (décision de Turquet, août 2026). Un panneau qui reviendrait par
+         mégarde afficherait les mêmes PDF à deux endroits, avec deux vérités
+         possibles le jour où l'un des deux cesserait d'être à jour. */
+      await s.page.evaluate(async () => { await openThemes(); });
+      await s.page.waitForTimeout(600);
+      const cotEleve = await s.page.evaluate(() => ({
+        panneau: !!document.getElementById('coursPanel'),
+        texte: (document.querySelector('.screen.on') || document.body).innerText,
+      }));
+      verifier('la page des exercices ne montre aucun cours à l\'élève',
+        !cotEleve.panneau && cotEleve.texte.indexOf('Cours n°3') < 0,
+        cotEleve.panneau ? 'le panneau #coursPanel est revenu dans la page'
+                         : 'le titre du cours s\'affiche encore à l\'élève');
 
       verifier('le dépôt et l\'ouverture n\'ont levé aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

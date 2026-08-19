@@ -1847,12 +1847,13 @@ function coursEnPdf(w, apres){
       bilan.devoirsRestants=(ligne.devoirs||[]).length;
       bilan.reglageRestant=ligne.secondsPerQuestion;
 
-      /* 3. l'élève le voit sur la page des exercices */
-      await renderCoursEleve();
-      const panneau=document.getElementById('coursPanel');
-      bilan.eleveCache=!!panneau.hidden;
-      bilan.eleveTexte=panneau.textContent.replace(/[ \\n\\t]+/g,' ').trim();
-      bilan.eleveOuvre=panneau.innerHTML.indexOf('onclick="ouvrirCours(')>=0;
+      /* 3. la liste du professeur montre ce qu'il vient de déposer. C'est
+         désormais le seul écran de l'application qui affiche les cours : les
+         élèves les lisent sur le portail, pas ici. */
+      await chargerCoursProf();
+      const liste2=document.getElementById('coursListeProf');
+      bilan.profTexte=liste2.textContent.replace(/[ \\n\\t]+/g,' ').trim();
+      bilan.profOuvre=liste2.innerHTML.indexOf('onclick="ouvrirCours(')>=0;
 
       /* 4. LE REFUS MUET : rien n'est retiré, rien n'est dit par la base */
       const id=(await listeCours())[0].id;
@@ -1905,9 +1906,9 @@ function coursEnPdf(w, apres){
     verifier('déposer un cours ne touche ni aux devoirs ni aux réglages',
       r.ok && b.devoirsRestants === 1 && b.reglageRestant === 30,
       souci || 'devoirs restants : ' + b.devoirsRestants + ' — temps par question : ' + b.reglageRestant);
-    verifier('l’élève voit le cours sur la page des exercices, avec de quoi l’ouvrir',
-      r.ok && b.eleveCache === false && /Cours et fiche n/.test(String(b.eleveTexte||'')) && b.eleveOuvre === true,
-      souci || 'panneau ' + (b.eleveCache ? 'caché' : 'affiché') + ' : « ' + b.eleveTexte + ' »');
+    verifier('le professeur retrouve son cours dans sa liste, avec de quoi l’ouvrir',
+      r.ok && /Cours et fiche n/.test(String(b.profTexte||'')) && b.profOuvre === true,
+      souci || 'liste affichée : « ' + String(b.profTexte||'').slice(0, 90) + ' »');
     verifier('une suppression que la base refuse EN SILENCE n’est pas annoncée comme faite',
       r.ok && b.muetFichiers === 1 && b.muetListe === 1 && /err:/.test(String(b.ditsMuet||'')),
       souci || 'fichiers restants : ' + b.muetFichiers + ', enregistrés : ' + b.muetListe +
