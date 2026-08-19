@@ -1770,6 +1770,98 @@ function abandonSortDePause(w, apres){
   });
 }
 
+/* ---------- 4 quinquies. Ce que la page envoie au modèle tient-il ? --------
+   L'aide par IA passe par la fonction Edge « corriger-definition », qui REFUSE
+   tout contexte plus long que MAX_CTX — et le refus arrive à l'élève sous la
+   forme « Demande de conseil invalide. », qui n'explique rien.
+
+   C'est arrivé en production, en août 2026 : la Terminale envoie à elle seule
+   6650 caractères de consignes AVANT le contexte de l'exercice, et deux écrans
+   dépassaient la borne de 8000 — « Signe et variations » (8139) et « Lecture
+   graphique » (8096). Les élèves de ces deux exercices n'avaient plus d'aide du
+   tout, les autres passaient à 400 caractères près, et rien ne le disait : ni
+   erreur dans la page, ni trace dans le banc, qui ne mesurait pas cette
+   longueur.
+
+   Le contrôle OUVRE donc chaque exercice et mesure ce qui partirait vraiment.
+   La borne est LUE dans la source de la fonction, jamais recopiée : c'est le
+   même défaut « deux endroits que rien ne relie » que pour le domaine des
+   comptes ou la longueur des codes. Attention toutefois — la fonction ne se
+   déploie pas toute seule : ce contrôle compare la page au FICHIER du dépôt, il
+   ne voit pas ce qui tourne réellement chez Supabase. */
+function longueurContexteIA(w, apres){
+  let maxCtx;
+  try{
+    maxCtx = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8')
+      .match(/const MAX_CTX\s*=\s*(\d+)/) || [])[1], 10);
+  }catch(e){ maxCtx = undefined; }
+  if(!maxCtx){
+    verifier('le contexte envoyé au modèle tient dans la borne de la fonction Edge',
+      false, 'MAX_CTX introuvable dans supabase/functions/corriger-definition/index.ts');
+    return apres();
+  }
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    if(typeof qiaEnvoyer!=='function') return { absent:true };
+    let taille=0;
+    sb.functions.invoke=function(n,o){
+      taille=Math.max(taille, ((o&&o.body&&o.body.contexte)||'').length);
+      return Promise.resolve({ data:{ feedback:'ok' }, error:null });
+    };
+    currentEleve={id:'e1',prenom:'Contrôle'}; currentMode='soutien'; currentDM=null;
+    /* la question ne doit pas demander un rappel de cours : la page y répond
+       elle-même, sans appeler la fonction — on ne mesurerait rien. */
+    const QUESTION='Quel est le lien entre le signe de la dérivée et les variations ?';
+    const mesures=[];
+    for(const id of Object.keys(TESTS)){
+      const t=TESTS[id];
+      if(!t || typeof t.start!=='function') continue;
+      try{ await t.start(); }catch(e){}
+      await new Promise(function(r){ setTimeout(r,0); });
+      let d=document.getElementById('qiaDialog');
+      if(!d){ d=document.createElement('div'); d.id='qiaDialog'; document.body.appendChild(d); }
+      let i=document.getElementById('qiaInput');
+      if(!i){ i=document.createElement('input'); i.id='qiaInput'; document.body.appendChild(i); }
+      i.value=QUESTION; taille=0; qiaBusy=false;
+      try{ await qiaEnvoyer(); }catch(e){}
+      if(taille>0) mesures.push([id, taille]);
+    }
+    mesures.sort(function(a,b){ return b[1]-a[1]; });
+    return { mesures:mesures };
+  })()`, r => {
+    if(!r.ok){
+      verifier('le contexte envoyé au modèle tient dans la borne de la fonction Edge',
+        false, 'erreur JavaScript : ' + r.erreur);
+      return apres();
+    }
+    const v = r.valeur || {};
+    if(v.absent){
+      ignorer('le contexte envoyé au modèle tient dans la borne de la fonction Edge',
+        'ce niveau n’a pas de fenêtre « Question à l’IA »');
+      return apres();
+    }
+    const mesures = v.mesures || [];
+    if(!mesures.length){
+      verifier('le contexte envoyé au modèle tient dans la borne de la fonction Edge',
+        false, 'aucun exercice n’a envoyé de contexte : le contrôle ne mesure rien');
+      return apres();
+    }
+    const trop = mesures.filter(m => m[1] > maxCtx);
+    const pire = mesures[0];
+    verifier('le contexte envoyé au modèle tient dans la borne de la fonction Edge',
+      trop.length === 0,
+      trop.map(m => m[0] + ' : ' + m[1]).slice(0, 4).join(' , ') +
+      ' — la fonction refuse au-delà de ' + maxCtx + ' et l’élève lit « Demande de conseil invalide. »');
+    if(trop.length === 0){
+      console.log('   · le plus long contexte : ' + pire[0] + ' (' + pire[1] +
+        ' caractères, ' + (maxCtx - pire[1]) + ' de marge sur ' + maxCtx + ')');
+    }
+    apres();
+  });
+}
+
 /* ---------- 4 quater. Les cours en PDF déposés par le professeur -----------
    Le professeur dépose un PDF, l'élève le retrouve en haut de la page des
    exercices. Le fichier vit dans un bucket Supabase, les métadonnées dans la
@@ -1801,7 +1893,7 @@ function coursEnPdf(w, apres){
   const TP = (src.match(/from\('(parametres[a-z0-9_]*)'\)/) || [])[1];
   if(!TP || !/BUCKET_COURS/.test(src)){
     ignorer('le professeur peut déposer un cours en PDF', 'ce niveau n’a pas de dépôt de cours');
-    return apres();
+    return longueurContexteIA(w, apres);
   }
 
   evalPromis(w, `(async function(){
@@ -1922,7 +2014,7 @@ function coursEnPdf(w, apres){
     verifier('l’onglet du PDF s’ouvre avant l’attente, sinon le navigateur le bloque',
       r.ok && b.ordreOnglet === true,
       souci || 'window.open() est appelé après createSignedUrl() dans ouvrirCours()');
-    apres();
+    longueurContexteIA(w, apres);
   });
 }
 

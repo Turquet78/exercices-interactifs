@@ -165,6 +165,23 @@ et `Deno.env` ; le reste du fichier est exécuté tel quel. C'est ainsi qu'a ét
 trouvé le défaut qui rendait « Nouveau code » inutilisable pour tout élève
 inscrit avant la bascule : la migration ajoute `user_id`, mais vide.
 
+**Une borne posée côté serveur coupe l'aide sans le dire.** L'aide par IA passe
+par `corriger-definition`, qui refuse tout contexte plus long que `MAX_CTX` et
+répond « Demande de conseil invalide. » — un message qui n'explique rien et que
+la page se contente d'afficher. À 8000, cette borne privait d'aide **11 des 30
+exercices de la Terminale**, qui envoie 6650 caractères de consignes avant même
+le contexte de l'exercice ; la Seconde (1100) et la Première (4900) passaient,
+ce qui a d'abord fait soupçonner une différence de payload entre les niveaux —
+la Première envoie deux champs de plus. C'était faux : seule la LONGUEUR
+comptait. Elle ne protégeait rien, la question de l'élève étant déjà plafonnée à
+300 caractères par la page ; elle est à 20000.
+La source de la fonction vit désormais dans le dépôt, comme `admin-eleve` : elle
+portait l'aide des trois niveaux sans qu'aucun banc ne puisse la lire. Un
+contrôle OUVRE chaque exercice, mesure ce qui partirait vraiment et le compare à
+`MAX_CTX` lu dans ce fichier — il affiche à chaque exécution le contexte le plus
+long et sa marge. Comme pour `admin-eleve`, il compare deux fichiers du dépôt :
+il ne voit pas ce qui tourne chez Supabase. Après toute modification, redéployer.
+
 **La fonction Edge ne se met jamais à jour toute seule.** GitHub Pages publie
 les trois pages à chaque fusion ; `admin-eleve` se déploie à la main chez
 Supabase et peut rester en arrière indéfiniment. Le contrôle qui compare la
