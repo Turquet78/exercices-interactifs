@@ -59,23 +59,47 @@ Notez l'**UUID** du compte créé : il sert à l'étape 4.
 ## 2 bis. Entrer dans le tableau de bord (à mettre en favori)
 
 Depuis août 2026, **le bouton « Je suis le professeur » n'existe plus** : la
-page s'ouvre directement sur la connexion des élèves. Votre tableau de bord
-s'atteint en ajoutant `#prof` à l'adresse :
+page s'ouvre directement sur la connexion des élèves.
+
+**Un seul favori suffit** — la page `prof.html` rassemble les trois niveaux :
 
 ```
-https://turquet78.github.io/exercices-interactifs/secondes.html#prof
-https://turquet78.github.io/exercices-interactifs/premiere-specifique.html#prof
-https://turquet78.github.io/exercices-interactifs/terminale.html#prof
+https://turquet78.github.io/exercices-interactifs/prof.html
 ```
 
-Mettez les trois en favori, sur l'ordinateur et sur le téléphone. Le fragment
-reste dans l'adresse : recharger la page rouvre l'écran de connexion. Sur une
-page déjà ouverte, ajouter `#prof` dans la barre d'adresse fonctionne aussi.
+Elle ne fait qu'aiguiller : trois boutons vers les trois tableaux de bord. Elle
+ne contient aucun secret, n'appelle pas Supabase, et n'est liée depuis aucune
+page d'élève — un contrôle du banc l'interdit sur les trois fichiers.
 
-> **Ce n'est pas une protection.** Le mot de passe de votre compte Supabase
-> reste le seul verrou, et l'adresse peut traîner dans l'historique d'un
-> ordinateur de classe. Ce que cela retire, c'est l'invitation : aucun élève ne
-> voit la porte, donc aucun ne s'amuse à y frapper.
+Les adresses directes restent valables, si vous préférez un favori par niveau :
+
+```
+…/secondes.html#prof
+…/premiere-specifique.html#prof
+…/terminale.html#prof
+```
+
+Le fragment reste dans l'adresse : recharger la page rouvre l'écran de
+connexion. Sur une page déjà ouverte, ajouter `#prof` dans la barre d'adresse
+fonctionne aussi — sans quoi le navigateur ne rechargerait rien pour un simple
+fragment.
+
+**Il n'y a pas d'identifiant à saisir, seulement un mot de passe** : celui du
+compte `professeur@exercices-interactifs.invalid` (étape 2), présenté à
+Supabase par la page elle-même. Il est le même pour les trois niveaux.
+
+Les deux refus possibles ne disent pas la même chose, et c'est ce qui fait
+gagner du temps :
+
+- *« Mot de passe incorrect »* — Supabase a refusé le mot de passe ;
+- *« Ce compte n'est pas celui du professeur »* — le mot de passe était bon,
+  mais l'UUID du compte ne figure pas dans la table `professeurs` : c'est
+  l'étape 4 qui manque.
+
+> **Rien de tout cela n'est une protection.** Le mot de passe du compte
+> Supabase reste le seul verrou, et l'adresse peut traîner dans l'historique
+> d'un ordinateur de la classe. Ce que cela retire, c'est l'invitation : aucun
+> élève ne voit la porte, donc aucun ne s'amuse à y frapper.
 
 ---
 

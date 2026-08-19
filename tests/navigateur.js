@@ -295,6 +295,30 @@ async function parcours(page, N){
       parProf.focus === 'teacherPass', 'élément actif : « ' + (parProf.focus || '(aucun)') + ' »');
     verifier('la porte du professeur ne lève aucune erreur JavaScript',
       q.erreurs.length === 0, q.erreurs.slice(0, 2).join(' | '));
+
+    /* Et le favori unique : prof.html, ouverte et CLIQUÉE. Le contrôle statique
+       dit que le lien est écrit avec le bon fragment ; celui-ci dit qu'il mène
+       quelque part. Un lien juste sur le papier qui atterrirait sur la
+       connexion des élèves ne lèverait aucune erreur — il faut regarder où l'on
+       tombe. */
+    await q.page.goto('file://' + path.join(RACINE, 'prof.html'), { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await q.page.waitForTimeout(300);
+    const lien = 'a[href="' + CIBLE + '#prof"]';
+    const existe = await q.page.evaluate(sel => !!document.querySelector(sel), lien);
+    if(!existe){
+      verifier('la page d\'aiguillage mène au tableau de bord de ce niveau', false,
+        'aucun lien « ' + lien + ' » dans prof.html');
+    } else {
+      await q.page.click(lien);
+      await q.page.waitForTimeout(1500);
+      const arrivee = await q.page.evaluate(() => ({
+        fichier: location.pathname.split('/').pop(),
+        ecran: ((document.querySelector('.screen.on') || {}).id) || '(aucun)',
+      }));
+      verifier('la page d\'aiguillage mène au tableau de bord de ce niveau',
+        arrivee.fichier === CIBLE && arrivee.ecran === 'scr-teacher-login',
+        'atterrissage : ' + arrivee.fichier + ' / ' + arrivee.ecran);
+    }
     await q.nav.close();
 
     /* ===== 2. MathLive, pour de vrai ===== */

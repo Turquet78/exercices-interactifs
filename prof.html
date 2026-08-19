@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- ==========================================================================
+     AIGUILLAGE DU PROFESSEUR — un seul favori pour les trois niveaux
+     ==========================================================================
+     Les trois pages du site sont indépendantes : trois fichiers, trois
+     tableaux de bord, trois jeux de tables. Le professeur, lui, n'a qu'une
+     habitude — cette page l'envoie vers celui qu'il veut ouvrir.
+
+     ELLE NE PROTÈGE RIEN, et il ne faut surtout pas le croire. Le mot de passe
+     du compte Supabase, plus l'appartenance à la table « professeurs »
+     revérifiée après la connexion, restent le seul verrou. Cette page ne
+     contient aucun secret : trois liens, et rien d'autre. Elle n'appelle même
+     pas Supabase.
+
+     ELLE N'EST LIÉE DEPUIS AUCUNE PAGE D'ÉLÈVE, à dessein : le bouton
+     « Je suis le professeur » a été retiré exprès en août 2026, et un lien
+     posé ici ou là le remettrait sans que personne ne s'en aperçoive. Un
+     contrôle du banc l'interdit sur les trois fichiers.
+
+     Le fragment « #prof » est celui qu'attendent les trois pages
+     (ENTREE_PROF). S'il y changeait sans changer ici, les trois boutons
+     ouvriraient la connexion des ÉLÈVES sans la moindre erreur : un contrôle
+     compare donc les deux, niveau par niveau.
+     ====================================================================== -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Une page réservée au professeur n'a rien à faire dans un moteur de
+     recherche. Ce n'est pas une protection non plus — juste de l'hygiène. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Tableau de bord — choisir le niveau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F6F1; --ink:#1E2A4A; --ink-soft:#5C668A;
+    --blue:#2B50C8; --green:#1FA971; --gold:#F2A93B;
+    --line:#E6E3D8; --surface:#FFFFFF;
+    --radius:20px;
+    --shadow:0 14px 34px rgba(30,42,74,.10), 0 3px 10px rgba(30,42,74,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:"Nunito",system-ui,sans-serif;font-weight:600}
+  .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
+  .card{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px}
+  .title{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:1.5rem;margin:0 0 6px}
+  .lead{color:var(--ink-soft);margin:0 0 18px}
+  .niveaux{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:640px){ .niveaux{grid-template-columns:repeat(3,1fr)} }
+  .niveau{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;
+          background:#fff;border:2px solid var(--line);border-radius:18px;padding:20px;
+          transition:transform .14s,border-color .14s,box-shadow .14s}
+  .niveau:hover,.niveau:focus-visible{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--blue)}
+  .niveau .ic{font-size:28px;line-height:1}
+  .niveau .ttl{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:1.15rem}
+  .niveau .ds{color:var(--ink-soft);font-size:.86rem}
+  .niveau.n2:hover{border-color:var(--green)}
+  .niveau.n3:hover{border-color:var(--gold)}
+  .note{color:var(--ink-soft);font-size:.85rem;margin-top:18px;line-height:1.5}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="title">Tableau de bord</h1>
+      <p class="lead">Choisis le niveau à ouvrir. Le mot de passe est le même pour les trois : celui du compte Supabase.</p>
+      <div class="niveaux">
+        <a class="niveau n1" href="secondes.html#prof">
+          <span class="ic">📐</span>
+          <span class="ttl">Seconde</span>
+          <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
+        </a>
+        <a class="niveau n2" href="premiere-specifique.html#prof">
+          <span class="ic">📊</span>
+          <span class="ttl">Première</span>
+          <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
+        </a>
+        <a class="niveau n3" href="terminale.html#prof">
+          <span class="ic">📈</span>
+          <span class="ttl">Terminale</span>
+          <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
+        </a>
+      </div>
+      <p class="note">Cette page ne protège rien : elle ne fait que rassembler trois adresses. Le mot de passe du compte Supabase, revérifié par le serveur, reste le seul verrou — comme pour les élèves.</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -557,6 +557,27 @@ function structure(){
   const restes = [...s.matchAll(/scr-home|show\(\s*'home'\s*\)/g)].map(m => ligneDe(m.index));
   verifier('plus rien ne renvoie à l’écran d’accueil supprimé',
     restes.length === 0, 'ligne(s) ' + restes.join(', ') + ' — show() y figerait la navigation');
+
+  /* ---- La page d'aiguillage du professeur -------------------------------
+     prof.html rassemble les trois niveaux derrière un seul favori. Elle ne
+     contient aucun secret et ne protège rien : trois liens, et c'est tout.
+     Mais elle vit à côté des trois pages, sans que rien ne l'y relie — d'où
+     deux bords.
+       · le fragment qu'elle pose doit être celui que CETTE page attend. S'ils
+         divergeaient, le bouton ouvrirait la connexion des ÉLÈVES, sans la
+         moindre erreur nulle part ;
+       · et aucune page d'élève ne doit renvoyer vers elle : ce serait remettre
+         le bouton « Je suis le professeur » retiré à dessein, par un autre
+         chemin. */
+  let aiguillage;
+  try{ aiguillage = fs.readFileSync(path.join(__dirname, '..', 'prof.html'), 'utf8'); }
+  catch(e){ aiguillage = undefined; }
+  verifier('la page d’aiguillage mène à ce niveau, avec le fragment qu’il attend',
+    !!aiguillage && !!fragment && aiguillage.includes('href="' + CIBLE + fragment + '"'),
+    aiguillage === undefined ? 'prof.html est introuvable'
+      : 'prof.html ne contient pas href="' + CIBLE + (fragment || '(fragment inconnu)') + '"');
+  verifier('la page d’aiguillage n’est jamais atteignable depuis la page des élèves',
+    !/prof\.html/.test(s), 'un lien vers prof.html remettrait la porte du professeur sous les yeux de la classe');
   const tl = toutesFonctions.find(f => f.nom === 'teacherLogin');
   verifier('la connexion du professeur est vérifiée par le serveur',
     !!tl && /sb\.auth\.signInWithPassword/.test(tl.texte),
