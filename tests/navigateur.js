@@ -166,7 +166,10 @@ async function ouvrir(chromium, ml, options){
     .match(/https:\/\/([a-z0-9-]+)\.supabase\.co/) || [])[1];
   if(projet) await page.route('**' + projet + '.supabase.co**', r => r.abort().catch(() => {}));
 
-  await page.goto('file://' + path.join(RACINE, CIBLE), { waitUntil: 'domcontentloaded', timeout: 60000 });
+  /* options.fragment ouvre la page comme le ferait un favori : « #prof » est la
+     seule porte du professeur depuis qu'elle n'a plus de bouton. */
+  await page.goto('file://' + path.join(RACINE, CIBLE) + (options.fragment || ''),
+    { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(ml ? 3500 : 1500);
 
   /* Et on refuse de continuer si le double n'est pas en place : mieux vaut ne
@@ -183,7 +186,9 @@ const ecranVisible = page => page.evaluate(() =>
 
 /* ---------- le parcours d'un élève ---------- */
 async function connecter(page){
-  await page.click('#scr-home button.choice.eleve');           /* « Je suis élève » */
+  /* La page s'ouvre DIRECTEMENT sur la connexion : l'écran « Choisis ton rôle »
+     a disparu avec le bouton du professeur. Le banc n'a donc plus de premier
+     clic à donner — et s'il en donnait un, il chercherait un écran absent. */
   await page.waitForSelector('#nameChips .chip', { timeout: 15000 });
   await page.click('#nameChips .chip');                        /* son prénom */
   await page.fill('#loginPin', CODE_CONTROLE);
@@ -258,6 +263,64 @@ async function parcours(page, N){
       (await ecranVisible(s.page)) !== 'scr-setup',
       'écran affiché : ' + (await ecranVisible(s.page)));
 
+    /* ===== 1 bis. la porte du professeur ===== */
+    /* Elle n'a plus de bouton : elle s'ouvre par « …#prof », mis en favori.
+       Deux bords opposés, et corriger un seul ne corrige rien : l'élève ne doit
+       trouver AUCUNE porte, et le professeur doit trouver LA SIENNE. Le second
+       est le plus coûteux — un fragment qui cesserait d'aiguiller enfermerait
+       le professeur dehors, sans autre chemin, et sans erreur nulle part. */
+    const porte = await s.page.evaluate(() => {
+      const vu = ((document.querySelector('.screen.on') || {}).id) || '(aucun)';
+      const mots = document.body.innerText.toLowerCase();
+      /* ce que l'élève VOIT : le texte des écrans affichés, pas le HTML entier */
+      return { ecran: vu, professeur: mots.indexOf('je suis le professeur') >= 0,
+               boutons: [...document.querySelectorAll('.screen.on button')].length };
+    });
+    verifier('l\'élève arrive directement sur sa connexion, sans écran de rôles',
+      porte.ecran === 'scr-login', 'écran affiché : ' + porte.ecran);
+    verifier('aucun bouton « professeur » ne s\'offre à l\'élève',
+      porte.professeur === false, 'le texte affiché propose encore la porte du professeur');
+
+    /* Et maintenant le favori du professeur, ouvert comme il l'ouvrira. */
+    const q = await ouvrir(chromium, ml, { fragment: '#prof' });
+    const parProf = await q.page.evaluate(() => ({
+      ecran: ((document.querySelector('.screen.on') || {}).id) || '(aucun)',
+      champ: !!document.getElementById('teacherPass'),
+      focus: document.activeElement ? document.activeElement.id : '',
+    }));
+    verifier('l\'adresse « #prof » ouvre la connexion du professeur',
+      parProf.ecran === 'scr-teacher-login' && parProf.champ,
+      'écran affiché : ' + parProf.ecran + ' — champ mot de passe : ' + parProf.champ);
+    verifier('le curseur est déjà dans le champ du mot de passe',
+      parProf.focus === 'teacherPass', 'élément actif : « ' + (parProf.focus || '(aucun)') + ' »');
+    verifier('la porte du professeur ne lève aucune erreur JavaScript',
+      q.erreurs.length === 0, q.erreurs.slice(0, 2).join(' | '));
+
+    /* Et le favori unique : prof.html, ouverte et CLIQUÉE. Le contrôle statique
+       dit que le lien est écrit avec le bon fragment ; celui-ci dit qu'il mène
+       quelque part. Un lien juste sur le papier qui atterrirait sur la
+       connexion des élèves ne lèverait aucune erreur — il faut regarder où l'on
+       tombe. */
+    await q.page.goto('file://' + path.join(RACINE, 'prof.html'), { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await q.page.waitForTimeout(300);
+    const lien = 'a[href="' + CIBLE + '#prof"]';
+    const existe = await q.page.evaluate(sel => !!document.querySelector(sel), lien);
+    if(!existe){
+      verifier('la page d\'aiguillage mène au tableau de bord de ce niveau', false,
+        'aucun lien « ' + lien + ' » dans prof.html');
+    } else {
+      await q.page.click(lien);
+      await q.page.waitForTimeout(1500);
+      const arrivee = await q.page.evaluate(() => ({
+        fichier: location.pathname.split('/').pop(),
+        ecran: ((document.querySelector('.screen.on') || {}).id) || '(aucun)',
+      }));
+      verifier('la page d\'aiguillage mène au tableau de bord de ce niveau',
+        arrivee.fichier === CIBLE && arrivee.ecran === 'scr-teacher-login',
+        'atterrissage : ' + arrivee.fichier + ' / ' + arrivee.ecran);
+    }
+    await q.nav.close();
+
     /* ===== 2. MathLive, pour de vrai ===== */
     titre('2. RENDU MATHÉMATIQUE');
     if(!ml){
@@ -301,7 +364,6 @@ async function parcours(page, N){
        mauvais codes — elle les comparait dans la page. Ce qui change, et que ce
        contrôle regarde, c'est QUI refuse : le serveur, ou une ligne de
        JavaScript que n'importe quel élève peut réécrire dans sa console. */
-    await s.page.click('#scr-home button.choice.eleve');
     await s.page.waitForSelector('#nameChips .chip', { timeout: 15000 });
     await s.page.click('#nameChips .chip');
     await s.page.fill('#loginPin', CODE_FAUX);
