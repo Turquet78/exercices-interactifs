@@ -419,6 +419,45 @@ automatiquement par Supabase.
 
 ---
 
+## 5 bis. Déployer la fonction `corriger-definition` (5 min)
+
+C'est elle qui porte **toute l'aide par IA** des trois niveaux : les conseils,
+les questions à l'IA, la correction des définitions et la vérification des
+rédactions. Elle tient la clé du modèle, qui n'est jamais dans la page.
+
+```bash
+npx supabase functions deploy corriger-definition
+```
+
+ou, sans outil en ligne de commande : **Edge Functions → `corriger-definition`
+→ Code**, et coller le contenu de `functions/corriger-definition/index.ts`.
+
+Une variable d'environnement à régler, une seule : **`ANTHROPIC_API_KEY`**
+(Edge Functions → Secrets). Les trois autres sont fournies par Supabase.
+
+> ### ⚠️ Elle non plus ne se met pas à jour toute seule
+>
+> Le 19 août 2026, sa borne `MAX_CTX` valait 8000 caractères. Or la Terminale
+> envoie 6650 caractères de consignes **avant même** le contexte de l'exercice :
+> **11 de ses 30 exercices dépassaient la borne**, et leurs élèves lisaient
+> *« Demande de conseil invalide. »* à chaque question — sans aide, et sans que
+> rien n'explique pourquoi. La Seconde (1100) et la Première (4900) n'étaient
+> pas touchées.
+>
+> La borne est passée à 20000. Elle ne protégeait de rien : ce qu'un élève écrit
+> est déjà plafonné à 300 caractères par la page et à `MAX_LEN` par la fonction —
+> tout le reste, ce sont les consignes de l'application.
+>
+> **Après cette mise à jour du dépôt, redéployez la fonction**, sinon l'aide
+> reste coupée sur ces 11 exercices.
+>
+> Le contrôle « le contexte envoyé au modèle tient dans la borne de la fonction
+> Edge » mesure, exercice par exercice, ce que chaque page enverrait, et le
+> compare à `MAX_CTX` **lu dans le fichier du dépôt** — il ne voit pas ce qui est
+> déployé. Il affiche à chaque exécution le contexte le plus long et sa marge.
+
+---
+
 ## 6. Redonner un code à chaque élève
 
 Les anciens codes n'existent plus — ils ont été supprimés avec la colonne, et un
