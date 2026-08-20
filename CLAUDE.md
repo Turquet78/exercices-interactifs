@@ -486,6 +486,24 @@ survivrait à l'exercice qu'elle protégeait. Enfin la liste des exercices se li
 dans `TEST_NUM`, jamais en aplatissant `THEMES` : un thème découpé en parties
 porte ses identifiants dans `sous`, et la Première en a quatre.
 
+**« Montre-moi un exemple de rédaction de cet exercice. » est proposée partout.**
+C'est la première chose qu'un élève bloqué demande, et aucun exercice ne doit en
+être privé (décision de Turquet, août 2026). Elle ne peut donc PAS vivre dans
+`QIA_SUGG` : une liste à tenir exercice par exercice finit toujours par en
+oublier un, et c'est celui-là qui en aurait eu besoin — la Seconde ne la
+proposait nulle part, ce qui s'est vu en ouvrant la fenêtre sur les intervalles.
+`qiaSuggestions()` la pose donc elle-même en tête (`QIA_EXEMPLE`), et la retire
+d'une liste qui la porterait déjà : sans ce filtre, deux boutons identiques.
+Un contrôle éprouve CHAQUE liste des trois niveaux, `gen` compris, plus un
+`kind` inconnu — c'est par là que passe un exercice nouveau. Il tient les trois
+bords : absente, pas en tête, ou proposée deux fois.
+Et la proposition doit produire quelque chose : la mission de la Seconde ne
+promettait un exemple que « si un exemple aide ». Elle en impose un, entièrement
+rédigé, dès que l'élève en demande un — comme le fait déjà la Terminale.
+Les trois niveaux n'emploient pas encore la même formulation : la Première dit
+« Rédige-moi une correction similaire. », la Terminale « Montre-moi un exemple
+de résolution de cet exercice. » Le contrôle exige la proposition, pas ses mots.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.

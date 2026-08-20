@@ -998,6 +998,38 @@ function branchements(w){
       !cles.ok ? 'QIA_SUGG introuvable' : sans.join(', ') + ' — retombent sur les questions génériques');
   }
 
+
+  /* ---- « Montre-moi un exemple de rédaction » est offerte PARTOUT ---------
+     C'est une aide dont aucun exercice ne doit être privé (décision de
+     Turquet, août 2026) : un élève bloqué demande d'abord à voir comment on
+     rédige. Le piège est qu'elle ne peut pas vivre dans QIA_SUGG — une liste
+     à tenir exercice par exercice finit toujours par en oublier un, et c'est
+     celui-là qui en aurait eu besoin. Elle est donc posée par
+     qiaSuggestions() en tête de la liste, quoi qu'il arrive.
+     On éprouve CHAQUE liste, y compris « gen » (le repli d'un exercice sans
+     entrée) et un kind inconnu : c'est par là qu'un nouvel exercice passe.
+     Et on exige qu'elle n'apparaisse qu'UNE fois — une liste qui la
+     recopierait afficherait deux boutons identiques. */
+  verifierEval(w, 'chaque exercice propose « un exemple de rédaction » à l’IA', `(function(){
+    if(typeof qiaSuggestions!=='function') return 'qiaSuggestions() introuvable';
+    if(typeof QIA_EXEMPLE!=='string' || !QIA_EXEMPLE.trim()) return 'QIA_EXEMPLE introuvable : aucune demande d\\'exemple n\\'est offerte';
+    const vus=[], kindSauve=test&&test.kind, idSauve=(typeof currentTestId!=='undefined')?currentTestId:null;
+    const cles=Object.keys(QIA_SUGG).concat(['kind-inconnu-du-controle']);
+    cles.forEach(function(k){
+      try{
+        test.kind=k;
+        if(typeof currentTestId!=='undefined') currentTestId=(QIA_SUGG[k]?k:'');
+        const l=qiaSuggestions()||[], n=l.filter(function(t){ return t===QIA_EXEMPLE; }).length;
+        if(n===0) vus.push(k+' : la demande d\\'exemple n\\'est pas proposée du tout');
+        else if(l[0]!==QIA_EXEMPLE) vus.push(k+' : la demande d\\'exemple n\\'est pas en tête ('+l[0]+')');
+        else if(n>1) vus.push(k+' : la demande d\\'exemple est proposée '+n+' fois');
+      }catch(e){ vus.push(k+' : '+e.message); }
+    });
+    if(test) test.kind=kindSauve;
+    if(idSauve!==null && typeof currentTestId!=='undefined') currentTestId=idSauve;
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- L'identifiant sous lequel la note est enregistrée ----------------
      Point 14, et le plus coûteux à rater : la note part sous l'identifiant
      d'un AUTRE exercice, ou sous un identifiant que rien n'affiche. Elle est
