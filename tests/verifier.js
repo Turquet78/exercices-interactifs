@@ -325,6 +325,37 @@ function structure(){
       !!f && !fuite, f ? 'la mission appelle le contexte de l’exercice' : P.missionSansReponses + ' introuvable');
   }
 
+  /* ---- ...et l'inverse, pour un niveau qui a fait l'autre choix -------------
+     Envoyer le contexte rend l'aide utile — sans lui, le modèle ne connaît que
+     le NOM de l'exercice et répond à côté de ce que l'élève a sous les yeux.
+     Mais le contexte porte les RÉPONSES ATTENDUES, et la fenêtre est ouverte
+     dès l'entraînement : sans la clause qui interdit de les révéler, elle
+     donnerait gratuitement ce que le barème fait payer au soutien.
+     Les deux vont donc ENSEMBLE, et le contrôle les exige ensemble : le
+     contexte seul est pire que pas de contexte du tout. */
+  if(P.missionAvecContexte){
+    const mc = P.missionAvecContexte;
+    const f = toutesFonctions.find(x => x.nom === mc.fonction);
+    const g = toutesFonctions.find(x => x.nom === mc.appel);
+    const soucis = [];
+    if(!f) soucis.push(mc.fonction + ' introuvable');
+    else if(!new RegExp('\\b' + mc.appel + '\\s*\\(').test(f.texte))
+      soucis.push(mc.fonction + ' n’appelle pas ' + mc.appel + '() : la mission part sans le contexte de l’exercice');
+    if(!g) soucis.push(mc.appel + ' introuvable');
+    else {
+      if(!/conseilCtxCourant\s*\(/.test(g.texte))
+        soucis.push(mc.appel + '() ne lit pas conseilCtxCourant() : il n’a aucun contexte à envoyer');
+      /* La clause de secret, en toutes lettres. On cherche le MOT, pas la
+         phrase : la reformuler est permis, la retirer ne l'est pas. */
+      if(!/SECRET|SECR\u00c8TES|SECRETES/i.test(g.texte))
+        soucis.push(mc.appel + '() n’interdit pas de révéler les réponses attendues');
+      if(!/ne les r[ée]v[èe]le jamais/i.test(g.texte))
+        soucis.push(mc.appel + '() ne dit pas au modèle de ne jamais révéler la réponse');
+    }
+    verifier('la question à l’IA emporte le contexte, et l’interdit de le révéler',
+      soucis.length === 0, soucis.join(' | '));
+  }
+
   const styles = [...s.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]);
   styles.forEach((css, i) => {
     const o = (css.match(/\{/g)||[]).length, f = (css.match(/\}/g)||[]).length;
@@ -2197,6 +2228,40 @@ function seconde(w){
       }
     }
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Chaque exercice a vraiment quelque chose à dire au modèle ----------
+     conseilCtxCourant() sert deux aides : le Conseil du soutien et la fenêtre
+     « Question à l'IA ». Trois exercices ont leur propre description ; tous les
+     autres se lisent À L'ÉCRAN, par ctxVisible() — qui cherche un énoncé, une
+     scène et les saisies de l'élève. Un exercice dont l'écran ne porterait
+     aucun de ces repères retomberait sur la phrase de secours, « L'élève est en
+     difficulté sur un exercice de mathématiques de Seconde », et le modèle
+     répondrait dans le vide : rien ne casse, rien ne rougit, l'aide est
+     simplement devenue creuse.
+     On OUVRE donc chaque exercice et on lit ce qui partirait. La phrase de
+     secours est refusée nommément — elle est le signe que rien n'a été trouvé,
+     et sa présence est précisément ce qu'on ne veut pas voir. */
+  verifierEval(w, 'chaque exercice a un contexte à envoyer au modèle', `(function(){
+    if(typeof conseilCtxCourant!=='function') return 'conseilCtxCourant() introuvable : le contrôle ne mesure rien';
+    const SECOURS='en difficulté sur un exercice';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='soutien'; currentDM=null;
+    const creux=[], mesures=[];
+    Object.keys(TESTS).forEach(function(id){
+      const t=TESTS[id]; if(!t || typeof t.start!=='function') return;
+      currentTestId=id;
+      try{ t.start(); }catch(e){ creux.push(id+' (ne démarre pas : '+e.message+')'); return; }
+      let c='';
+      try{ c=String(conseilCtxCourant()||''); }catch(e){ creux.push(id+' (contexte illisible : '+e.message+')'); return; }
+      if(c.indexOf(SECOURS)>=0){ creux.push(id+' (retombe sur la phrase de secours)'); return; }
+      if(c.length<60){ creux.push(id+' ('+c.length+' caractères seulement)'); return; }
+      /* une référence {identifiant} non résolue partirait telle quelle au modèle */
+      const acc=(c.match(/\{[a-z0-9-]+\}/g)||[]).filter(function(m){ return TESTS[m.slice(1,-1)]; });
+      if(acc.length){ creux.push(id+' (accolade non résolue : '+acc.join(' ')+')'); return; }
+      mesures.push([id,c.length]);
+    });
+    if(!mesures.length) return 'aucun exercice n\\'a produit de contexte : le contrôle ne mesure rien';
+    return creux.join(' | ');
   })()`, v => v === '', undefined);
 }
 
