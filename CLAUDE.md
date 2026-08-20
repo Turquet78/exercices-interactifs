@@ -309,13 +309,24 @@ s'écartent du trait rouge. Il tient aussi les bords de l'écriture : l'infini n
 jamais fermé et n'a **pas** de case d'inégalité (« x ≤ +∞ » n'a pas de bonne
 réponse), et les trois lignes se répondent l'une l'autre. Il a été éprouvé en le
 cassant cinq fois.
-Deux pièges d'à côté s'y sont montrés, invisibles à la relecture. La feuille pose
-`select{width:100%}` : sans largeur EXPLICITE, les quatre cases de l'intervalle
-s'étiraient chacune sur toute la ligne et se posaient l'une sous l'autre — un
-`min-width` n'y peut rien, c'est la largeur qu'il faut reprendre. Et `ptsEcran()`,
-qui calcule la note affichée sous le retour, ne compte que les classes `ok`, `bad`
-et `sol` : une case juste marquée `good` n'est comptée nulle part, et la note
-annonçait « 0 case juste sur 8 » sur une question à moitié réussie.
+Un piège d'à côté s'y est montré : la feuille pose `select{width:100%}`, si bien
+que sans largeur EXPLICITE les quatre cases de l'intervalle s'étiraient chacune
+sur toute la ligne et se posaient l'une sous l'autre — un `min-width` n'y peut
+rien, c'est la largeur qu'il faut reprendre.
+
+**Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
+affichée sous le retour de chaque question, et il ne connaît que trois classes :
+`ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —
+elle sort du dénominateur en même temps que du numérateur. Une question réussie à
+trois cases sur cinq annonçait donc « 0 case juste sur 2 », et une question TOUTE
+juste n'affichait plus de note du tout, `ptsEcran()` ne trouvant plus une seule
+case à compter. Deux exercices de la Seconde marquaient `good` : les ensembles de
+nombres et la lecture graphique — la note enregistrée en base, elle, était juste ;
+seule celle montrée à l'élève mentait, ce qui est précisément ce qui l'a laissée
+passer. Rien ne rougissait, et le mot `good` est parfaitement sensé partout
+ailleurs — il reste sur les pastilles ✓/✗, les retours et les boutons, que
+`ptsEcran()` ne regarde pas. Un contrôle répond juste, pour de vrai, sur chaque
+exercice à cases et relit ce que la page a compté.
 
 **Deux exercices peuvent partager un moteur — mais pas leur identité.** Le
 calcul mental et les additions-soustractions tournent sur le même `kind`

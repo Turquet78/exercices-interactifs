@@ -438,7 +438,7 @@
   .ens-set{font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--ink);justify-self:start;min-width:30px}
   .ens-sel{appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:74px;height:48px;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer;justify-self:center}
   .ens-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
-  .ens-sel.good{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .ens-sel.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
   .ens-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   .ens-sel:disabled{opacity:1;cursor:default}
   .ens-frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1;vertical-align:middle;font-size:.92em}
@@ -757,7 +757,7 @@
     .lv-in{width:42px;border:1.6px solid var(--line);border-radius:8px;padding:5px 2px;text-align:center;font-family:inherit;font-size:.95rem;background:var(--surface);color:var(--ink)}
     .lv-in.sm{width:40px}
     .lv-in:focus{outline:none;border-color:var(--blue)}
-    .lv-in.good,.lv-sel.good{border-color:var(--green);background:var(--green-soft)}
+    .lv-in.ok,.lv-sel.ok{border-color:var(--green);background:var(--green-soft)}
     .lv-in.bad,.lv-sel.bad{border-color:var(--red);background:#fdeaea}
     .lv-blist{display:flex;flex-direction:column;gap:14px}
     .lv-brow{font-weight:600;line-height:2}
@@ -790,9 +790,9 @@
     .vaf .vt-head{fill:none;stroke:var(--blue);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
     .vaf .vt-sel{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:.8rem;padding:1px 6px;border:1.3px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;opacity:.92}
     .vaf .vt-sel:focus{outline:none;border-color:var(--blue)}
-    .vnf .vv.good{border-color:var(--green);background:var(--green-soft)}
+    .vnf .vv.ok{border-color:var(--green);background:var(--green-soft)}
     .vnf .vv.bad{border-color:var(--red);background:#fdeaea}
-    .vt-sel.good{border-color:var(--green);background:var(--green-soft)}
+    .vt-sel.ok{border-color:var(--green);background:var(--green-soft)}
     .vt-sel.bad{border-color:var(--red);background:#fdeaea}
     /* ---- Tableau de variation : flèches reliant les valeurs ---- */
     .lv-vartbl2 .vfcell{position:relative;padding:0;border:none;vertical-align:middle}
@@ -809,7 +809,7 @@
     /* ---- Menu de sens, dans le tableau, au milieu de chaque flèche ---- */
     .vfcell .vt-sel2{position:absolute;transform:translate(-50%,-50%);width:48px;box-sizing:border-box;font-size:.98rem;padding:2px 0;border:1.4px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;z-index:3;cursor:pointer;box-shadow:0 0 0 3px var(--surface)}
     .vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
-    .vfcell .vt-sel2.good{border-color:var(--green);background:var(--green-soft)}
+    .vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft)}
     .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
 
 /* ===================== GREFFE TERMINALE : cases mathematiques, jetons,
@@ -1430,7 +1430,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=49;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=50;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1578,6 +1578,13 @@ function corrCase(id, val, ok){
   el.disabled=true;
 }
 /* ---- notation : credit partiel + note de chaque exercice ---- */
+/* La note d'une question se compte sur les cases marquées « ok », « bad » ou
+   « sol » — et sur elles seules. Une case juste marquée d'une AUTRE classe n'est
+   comptée nulle part : elle sort du dénominateur en même temps que du
+   numérateur, et la note affichée sous le retour annonçait « 0 case juste sur
+   2 » sur une question réussie à trois cases sur cinq. Les ensembles de nombres
+   et la lecture graphique ont porté ce défaut ; un contrôle du banc l'interdit
+   désormais, exercice par exercice. */
 function ptsEcran(){
   try{
     const scr=document.querySelector('.screen.on'); if(!scr) return null;
@@ -3601,14 +3608,14 @@ function lvCheckPart(q){
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
 }
 function lvMarkFields(res, final){
-  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('good','bad'); el.classList.add(s.ok?'good':'bad'); });
+  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad'); el.classList.add(s.ok?'ok':'bad'); });
 }
 /* Mode soutien : contrôle chaque case au fur et à mesure (vert = juste, rouge = faux, rien si vide). */
 function lvLive(){
   if(test.kind!=='lv' || !isSoutien()) return;
   const q=test.questions[test.idx]; if(!q) return;
   const a=lvAnalyze(q.pts);
-  const mk=(id, filled, good)=>{ const el=$(id); if(!el) return; el.classList.remove('good','bad'); if(filled) el.classList.add(good?'good':'bad'); };
+  const mk=(id, filled, juste)=>{ const el=$(id); if(!el) return; el.classList.remove('ok','bad'); if(filled) el.classList.add(juste?'ok':'bad'); };
   const filledTxt=id=>{ const el=$(id); return !!el && (el.value||'').trim()!==''; };
   const filledSel=id=>{ const el=$(id); return !!el && el.value!==''; };
   if(q.part==='a'){
@@ -4968,9 +4975,9 @@ function ensLive(){
   if(test.kind!=='ens' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   ENS_SETS_ORDER.forEach(k=>{ const sel=$('ens-s-'+k); if(!sel) return;
-    sel.classList.remove('good','bad');
+    sel.classList.remove('ok','bad');
     if(sel.value==='') return;
-    sel.classList.add(sel.value===(q.sets[k]?'in':'out')?'good':'bad');
+    sel.classList.add(sel.value===(q.sets[k]?'in':'out')?'ok':'bad');
   });
 }
 function checkEnsAnswer(live){
@@ -4979,7 +4986,7 @@ function checkEnsAnswer(live){
   if(live){ ensLive(); return; }
   const subs=ENS_SETS_ORDER.map(k=>{ const sel=$('ens-s-'+k); const want=q.sets[k]?'in':'out'; return {k,sel,ok:!!sel&&sel.value===want}; });
   const nCorrect=subs.filter(s=>s.ok).length, allOk=nCorrect===subs.length;
-  subs.forEach(s=>{ if(!s.sel) return; s.sel.classList.remove('good','bad'); s.sel.classList.add(s.ok?'good':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(s=>{ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
   if(!allOk && isSoutien()){ soutienAgain('ensFeedback','ensActions','checkEnsAnswer','ensHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('ensLiveScore').textContent=test.score;

@@ -2108,6 +2108,64 @@ function seconde(w){
     }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+
+  /* ---- La note d'une question compte ses cases JUSTES, pas seulement ses
+     fautes ------------------------------------------------------------------
+     ptsEcran() calcule la note affichée sous le retour, et il ne connaît que
+     trois classes : « ok », « bad » et « sol ». Une case juste marquée d'une
+     autre classe n'est comptée nulle part — elle sort du dénominateur en même
+     temps que du numérateur —, si bien qu'une question réussie à trois cases
+     sur cinq annonçait « 0 case juste sur 2 », et qu'une question TOUTE juste
+     n'affichait plus de note du tout. Deux exercices de la Seconde marquaient
+     « good » : les ensembles de nombres et la lecture graphique.
+     Rien ne casse, rien ne rougit, et la note enregistrée en base reste juste :
+     seule la note montrée à l'élève ment. C'est exactement le genre de défaut
+     qu'aucune relecture ne voit, parce que le mot « good » est parfaitement
+     sensé partout ailleurs. On répond donc juste, pour de vrai, et on lit ce
+     que la page a compté. */
+  verifierEval(w, 'la note d’une question compte ses cases justes, pas seulement ses fautes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    /* Les ensembles de nombres : cinq cases, on les remplit toutes juste. */
+    if(typeof startEns!=='function' || typeof ENS_SETS_ORDER==='undefined') vus.push('les ensembles de nombres sont introuvables');
+    else {
+      startEns(1);
+      const q=test.questions[test.idx];
+      ENS_SETS_ORDER.forEach(function(k){ const s=document.getElementById('ens-s-'+k); if(s) s.value=q.sets[k]?'in':'out'; });
+      checkEnsAnswer();
+      const a=test.answers[test.answers.length-1]||{}, n=ENS_SETS_ORDER.length;
+      if(a.cases!==n || a.justes!==n) vus.push('ensembles de nombres : '+a.justes+' case(s) juste(s) sur '+a.cases+' comptée(s), au lieu de '+n+' sur '+n);
+    }
+    /* Les intervalles : sept ou huit cases selon la question. */
+    if(typeof startItv!=='function' || typeof itvCases!=='function') vus.push('les intervalles sont introuvables');
+    else {
+      startItv();
+      const q=test.questions[test.idx], cs=itvCases(q);
+      cs.forEach(function(c){ const s=document.getElementById(c.id); if(s) s.value=c.bon; });
+      checkItvAnswer();
+      const a=test.answers[test.answers.length-1]||{};
+      if(a.cases!==cs.length || a.justes!==cs.length) vus.push('intervalles : '+a.justes+' case(s) juste(s) sur '+a.cases+' comptée(s), au lieu de '+cs.length+' sur '+cs.length);
+    }
+    /* La lecture graphique ne se résout pas en trois lignes — il faudrait
+       relire la courbe. Son marquage vit heureusement à un seul endroit,
+       lvMarkFields(), et c'est ce point-là qui doit parler la même langue que
+       ptsEcran() : on lui donne une case fausse et le reste juste. */
+    if(typeof startLV!=='function' || typeof lvMarkFields!=='function' || typeof lvCheckPart!=='function')
+      vus.push('la lecture graphique est introuvable');
+    else {
+      startLV();
+      const q=test.questions[test.idx], res=lvCheckPart(q);
+      if(!res.subs.length) vus.push('lecture graphique : aucune case à marquer, le contrôle ne mesure rien');
+      else {
+        const faits=res.subs.map(function(x,i){ return {id:x.id, ok:i>0}; });
+        lvMarkFields({subs:faits}, true);
+        const m=ptsEcran()||{};
+        if(m.cases!==faits.length || m.justes!==faits.length-1)
+          vus.push('lecture graphique : '+m.justes+' case(s) juste(s) sur '+m.cases+' comptée(s), au lieu de '+(faits.length-1)+' sur '+faits.length);
+      }
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
 }
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */
