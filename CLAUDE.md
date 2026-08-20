@@ -290,6 +290,33 @@ Les colonnes de cet exercice sont plus larges (`--asp-col`, 78 px mesurés) :
 il faut la place d'écrire une marque DEVANT le chiffre sans la poser dessus. La
 largeur vit à un seul endroit, le trait la relit.
 
+**Un schéma d'intervalle et son écriture sont la même chose, dite deux fois.**
+L'exercice des intervalles de la Seconde montre une droite graduée et demande
+d'écrire ce qu'elle montre — les crochets, l'inégalité, « ouvert / fermé en … » —
+en choisissant dans des propositions, jamais en tapant : la fiche papier dont il
+est repris fait exactement cela, et une saisie libre recalerait un élève qui
+écrit « -2 » avec le tiret du clavier. Le crochet d'une borne EXCLUE **tourne le
+dos à l'intervalle**, comme le fait le « ] » de ]−2 ; 3[ : le dessin EST la
+notation, et c'est tout ce que l'exercice cherche à faire passer. Le retourner ne
+casse rien — l'élève répond ce que le dessin lui montre, la page le corrige avec
+l'autre version, et il croit s'être trompé ; c'est le défaut de la retenue de la
+soustraction, au bon endroit dans le mauvais sens.
+Un contrôle MESURE donc le schéma. Il y lit les graduations — aucune coordonnée
+n'est recopiée, une échelle qui changerait resterait mesurée juste —, vérifie que
+le trait rouge part d'une borne et s'arrête à l'autre, qu'une borne prise porte un
+point plein et une borne exclue un crochet, et que les bras de ce crochet
+s'écartent du trait rouge. Il tient aussi les bords de l'écriture : l'infini n'est
+jamais fermé et n'a **pas** de case d'inégalité (« x ≤ +∞ » n'a pas de bonne
+réponse), et les trois lignes se répondent l'une l'autre. Il a été éprouvé en le
+cassant cinq fois.
+Deux pièges d'à côté s'y sont montrés, invisibles à la relecture. La feuille pose
+`select{width:100%}` : sans largeur EXPLICITE, les quatre cases de l'intervalle
+s'étiraient chacune sur toute la ligne et se posaient l'une sous l'autre — un
+`min-width` n'y peut rien, c'est la largeur qu'il faut reprendre. Et `ptsEcran()`,
+qui calcule la note affichée sous le retour, ne compte que les classes `ok`, `bad`
+et `sol` : une case juste marquée `good` n'est comptée nulle part, et la note
+annonçait « 0 case juste sur 8 » sur une question à moitié réussie.
+
 **Deux exercices peuvent partager un moteur — mais pas leur identité.** Le
 calcul mental et les additions-soustractions tournent sur le même `kind`
 (`cm`), le même écran et la même ardoise : seul le tirage change. Trois choses
