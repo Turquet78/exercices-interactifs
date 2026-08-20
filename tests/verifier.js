@@ -998,6 +998,38 @@ function branchements(w){
       !cles.ok ? 'QIA_SUGG introuvable' : sans.join(', ') + ' — retombent sur les questions génériques');
   }
 
+
+  /* ---- « Montre-moi un exemple de rédaction » est offerte PARTOUT ---------
+     C'est une aide dont aucun exercice ne doit être privé (décision de
+     Turquet, août 2026) : un élève bloqué demande d'abord à voir comment on
+     rédige. Le piège est qu'elle ne peut pas vivre dans QIA_SUGG — une liste
+     à tenir exercice par exercice finit toujours par en oublier un, et c'est
+     celui-là qui en aurait eu besoin. Elle est donc posée par
+     qiaSuggestions() en tête de la liste, quoi qu'il arrive.
+     On éprouve CHAQUE liste, y compris « gen » (le repli d'un exercice sans
+     entrée) et un kind inconnu : c'est par là qu'un nouvel exercice passe.
+     Et on exige qu'elle n'apparaisse qu'UNE fois — une liste qui la
+     recopierait afficherait deux boutons identiques. */
+  verifierEval(w, 'chaque exercice propose « un exemple de rédaction » à l’IA', `(function(){
+    if(typeof qiaSuggestions!=='function') return 'qiaSuggestions() introuvable';
+    if(typeof QIA_EXEMPLE!=='string' || !QIA_EXEMPLE.trim()) return 'QIA_EXEMPLE introuvable : aucune demande d\\'exemple n\\'est offerte';
+    const vus=[], kindSauve=test&&test.kind, idSauve=(typeof currentTestId!=='undefined')?currentTestId:null;
+    const cles=Object.keys(QIA_SUGG).concat(['kind-inconnu-du-controle']);
+    cles.forEach(function(k){
+      try{
+        test.kind=k;
+        if(typeof currentTestId!=='undefined') currentTestId=(QIA_SUGG[k]?k:'');
+        const l=qiaSuggestions()||[], n=l.filter(function(t){ return t===QIA_EXEMPLE; }).length;
+        if(n===0) vus.push(k+' : la demande d\\'exemple n\\'est pas proposée du tout');
+        else if(l[0]!==QIA_EXEMPLE) vus.push(k+' : la demande d\\'exemple n\\'est pas en tête ('+l[0]+')');
+        else if(n>1) vus.push(k+' : la demande d\\'exemple est proposée '+n+' fois');
+      }catch(e){ vus.push(k+' : '+e.message); }
+    });
+    if(test) test.kind=kindSauve;
+    if(idSauve!==null && typeof currentTestId!=='undefined') currentTestId=idSauve;
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- L'identifiant sous lequel la note est enregistrée ----------------
      Point 14, et le plus coûteux à rater : la note part sous l'identifiant
      d'un AUTRE exercice, ou sous un identifiant que rien n'affiche. Elle est
@@ -1537,6 +1569,7 @@ function exercices(suite){
     })()`, v => v === '', undefined);
 
     if(P.specifique === 'premiere') premiere(w);
+    if(P.specifique === 'seconde') seconde(w);
     fiabilite(w, suite);
   });
 }
@@ -2016,6 +2049,155 @@ function coursEnPdf(w, apres){
       souci || 'window.open() est appelé après createSignedUrl() dans ouvrirCours()');
     longueurContexteIA(w, apres);
   });
+}
+
+/* ---------- 4 bis. Contrôles propres à la Seconde ----------
+   L'exercice des intervalles montre un SCHÉMA et demande d'écrire ce qu'il
+   montre. Le dessin et l'écriture sont donc la même chose dite deux fois : si
+   l'un des deux se met à dire autre chose, l'exercice enseigne le contraire de
+   ce qu'il affirme, et rien ne le signale — l'élève répond ce que le dessin
+   lui montre, la page le corrige avec l'autre version, et il croit s'être
+   trompé. C'est le défaut de la retenue de la soustraction, dessinée au bon
+   endroit dans le mauvais sens : personne ne l'a lu, pas même un professeur de
+   mathématiques.
+   Aucune coordonnée n'est recopiée ici : les graduations se lisent DANS le
+   schéma, et le sens d'un crochet se juge par rapport au trait rouge, jamais
+   par rapport à un nombre écrit dans le contrôle. Un schéma dont l'échelle
+   changerait resterait donc mesuré juste. */
+function seconde(w){
+  verifierEval(w, 'le schéma d’un intervalle dit la même chose que son écriture', `(function(){
+    if(typeof ITV_FORMES==='undefined' || typeof itvGen!=='function' || typeof itvSchema!=='function')
+      return 'l\\'exercice des intervalles est introuvable : le contrôle ne mesure rien';
+    const vus=[], pres=function(a,b){ return Math.abs(a-b)<0.5; };
+    for(let tour=0; tour<400 && vus.length<6; tour++){
+      const f=ITV_FORMES[tour%ITV_FORMES.length], q=itvGen(f), nom=itvPlain(q);
+      /* 1. la question survit à un aller-retour JSON : la pause l'écrit en base,
+            et une borne rangée en Infinity y deviendrait null sans un mot. */
+      if(JSON.stringify(JSON.parse(JSON.stringify(q)))!==JSON.stringify(q))
+        vus.push(nom+' : ne survit pas à un aller-retour JSON');
+      /* 2. les bornes tiennent sur la droite dessinée, et dans l'ordre */
+      if(q.bg!==null && (q.bg<ITV_MIN||q.bg>ITV_MAX)) vus.push(nom+' : borne gauche hors de la droite graduée');
+      if(q.bd!==null && (q.bd<ITV_MIN||q.bd>ITV_MAX)) vus.push(nom+' : borne droite hors de la droite graduée');
+      if(q.bg!==null && q.bd!==null && !(q.bg<q.bd)) vus.push(nom+' : bornes dans le désordre');
+      /* 3. les trois lignes à compléter se répondent l'une l'autre */
+      const cases=itvCases(q), par={};
+      cases.forEach(function(c){ par[c.id]=c.bon; });
+      if(par['itv-cg']!==(q.fg?'[':']')) vus.push(nom+' : crochet de gauche');
+      if(par['itv-cd']!==(q.fd?']':'[')) vus.push(nom+' : crochet de droite');
+      if(par['itv-og']!==(q.fg?'ferme':'ouvert')) vus.push(nom+' : « ouvert / fermé » à gauche');
+      if(par['itv-od']!==(q.fd?'ferme':'ouvert')) vus.push(nom+' : « ouvert / fermé » à droite');
+      if(q.bg!==null && par['itv-ig']!==(q.fg?'le':'lt')) vus.push(nom+' : inégalité de gauche');
+      if(q.bd!==null && par['itv-id']!==(q.fd?'le':'lt')) vus.push(nom+' : inégalité de droite');
+      /* 4. l'infini n'est jamais fermé, et n'a pas d'inégalité : « x ≤ +∞ » ne
+            veut rien dire, et une case posée là n'aurait pas de bonne réponse. */
+      if(q.bg===null && (q.fg || par['itv-og']!=='ouvert' || par['itv-ig']!==undefined))
+        vus.push(nom+' : −∞ n\\'est pas traité comme une borne ouverte sans inégalité');
+      if(q.bd===null && (q.fd || par['itv-od']!=='ouvert' || par['itv-id']!==undefined))
+        vus.push(nom+' : +∞ n\\'est pas traité comme une borne ouverte sans inégalité');
+      /* 5. LE DESSIN. Les graduations sont les lignes verticales du schéma :
+            l'échelle se lit dedans, on ne la recopie pas. */
+      const svg=String(itvSchema(q)), ticks=[];
+      let rouge=null;
+      svg.replace(/<line x1="([-\\d.]+)" y1="([-\\d.]+)" x2="([-\\d.]+)" y2="([-\\d.]+)"([^>]*)>/g,
+        function(t,x1,y1,x2,y2,reste){
+          if(x1===x2) ticks.push(parseFloat(x1));
+          else if(reste.indexOf('E5232B')>=0) rouge=[parseFloat(x1),parseFloat(x2)];
+          return t;
+        });
+      ticks.sort(function(a,b){ return a-b; });
+      const attendu=ITV_MAX-ITV_MIN+1;
+      if(ticks.length!==attendu){ vus.push(nom+' : '+ticks.length+' graduations au lieu de '+attendu); continue; }
+      if(!rouge){ vus.push(nom+' : aucun trait rouge dans le schéma'); continue; }
+      const posDe=function(v){ return ticks[v-ITV_MIN]; };
+      /* le trait rouge part de la borne, ou file au-delà de la droite graduée */
+      if(q.bg===null){ if(!(rouge[0]<ticks[0])) vus.push(nom+' : le trait rouge ne part pas au-delà de la première graduation'); }
+      else if(!pres(rouge[0],posDe(q.bg))) vus.push(nom+' : le trait rouge ne part pas de '+itvNum(q.bg));
+      if(q.bd===null){ if(!(rouge[1]>ticks[ticks.length-1])) vus.push(nom+' : le trait rouge ne file pas au-delà de la dernière graduation'); }
+      else if(!pres(rouge[1],posDe(q.bd))) vus.push(nom+' : le trait rouge ne s\\'arrête pas à '+itvNum(q.bd));
+      const milieu=(rouge[0]+rouge[1])/2;
+      /* les points pleins (bornes prises) et les crochets (bornes exclues) */
+      const points=[], crochets=[];
+      svg.replace(/<circle cx="([-\\d.]+)"/g, function(t,x){ points.push(parseFloat(x)); return t; });
+      svg.replace(/<path d="M ([-\\d.]+) [-\\d.]+ L ([-\\d.]+) [^"]*"([^>]*)>/g,
+        function(t,x1,x2,reste){ if(reste.indexOf('E5232B')>=0) crochets.push([parseFloat(x1),parseFloat(x2)]); return t; });
+      const pleines=[q.bg,q.bd].filter(function(v,i){ return v!==null && (i?q.fd:q.fg); });
+      const vides=[q.bg,q.bd].filter(function(v,i){ return v!==null && !(i?q.fd:q.fg); });
+      if(points.length!==pleines.length) vus.push(nom+' : '+points.length+' point(s) plein(s) pour '+pleines.length+' borne(s) prise(s)');
+      if(crochets.length!==vides.length) vus.push(nom+' : '+crochets.length+' crochet(s) pour '+vides.length+' borne(s) exclue(s)');
+      pleines.forEach(function(v){
+        if(!points.some(function(x){ return pres(x,posDe(v)); })) vus.push(nom+' : aucun point plein sur '+itvNum(v));
+      });
+      vides.forEach(function(v){
+        const c=crochets.filter(function(b){ return pres(b[1],posDe(v)); })[0];
+        if(!c){ vus.push(nom+' : aucun crochet sur '+itvNum(v)); return; }
+        /* LE POINT QUI COMPTE : le crochet TOURNE LE DOS à l'intervalle. Ses
+           bras doivent s'écarter du trait rouge, comme le « ] » de ]−2 ; 3[
+           s'écarte de ce qu'il ouvre. Retourné, il dit « borne prise » à
+           l'élève pendant que la correction attend « exclue ». */
+        const bras=c[0]-c[1], dehors=c[1]-milieu;
+        if(bras*dehors<=0) vus.push(nom+' : le crochet de '+itvNum(v)+' tourne ses bras VERS l\\'intervalle');
+      });
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- La note d'une question compte ses cases JUSTES, pas seulement ses
+     fautes ------------------------------------------------------------------
+     ptsEcran() calcule la note affichée sous le retour, et il ne connaît que
+     trois classes : « ok », « bad » et « sol ». Une case juste marquée d'une
+     autre classe n'est comptée nulle part — elle sort du dénominateur en même
+     temps que du numérateur —, si bien qu'une question réussie à trois cases
+     sur cinq annonçait « 0 case juste sur 2 », et qu'une question TOUTE juste
+     n'affichait plus de note du tout. Deux exercices de la Seconde marquaient
+     « good » : les ensembles de nombres et la lecture graphique.
+     Rien ne casse, rien ne rougit, et la note enregistrée en base reste juste :
+     seule la note montrée à l'élève ment. C'est exactement le genre de défaut
+     qu'aucune relecture ne voit, parce que le mot « good » est parfaitement
+     sensé partout ailleurs. On répond donc juste, pour de vrai, et on lit ce
+     que la page a compté. */
+  verifierEval(w, 'la note d’une question compte ses cases justes, pas seulement ses fautes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    /* Les ensembles de nombres : cinq cases, on les remplit toutes juste. */
+    if(typeof startEns!=='function' || typeof ENS_SETS_ORDER==='undefined') vus.push('les ensembles de nombres sont introuvables');
+    else {
+      startEns(1);
+      const q=test.questions[test.idx];
+      ENS_SETS_ORDER.forEach(function(k){ const s=document.getElementById('ens-s-'+k); if(s) s.value=q.sets[k]?'in':'out'; });
+      checkEnsAnswer();
+      const a=test.answers[test.answers.length-1]||{}, n=ENS_SETS_ORDER.length;
+      if(a.cases!==n || a.justes!==n) vus.push('ensembles de nombres : '+a.justes+' case(s) juste(s) sur '+a.cases+' comptée(s), au lieu de '+n+' sur '+n);
+    }
+    /* Les intervalles : sept ou huit cases selon la question. */
+    if(typeof startItv!=='function' || typeof itvCases!=='function') vus.push('les intervalles sont introuvables');
+    else {
+      startItv();
+      const q=test.questions[test.idx], cs=itvCases(q);
+      cs.forEach(function(c){ const s=document.getElementById(c.id); if(s) s.value=c.bon; });
+      checkItvAnswer();
+      const a=test.answers[test.answers.length-1]||{};
+      if(a.cases!==cs.length || a.justes!==cs.length) vus.push('intervalles : '+a.justes+' case(s) juste(s) sur '+a.cases+' comptée(s), au lieu de '+cs.length+' sur '+cs.length);
+    }
+    /* La lecture graphique ne se résout pas en trois lignes — il faudrait
+       relire la courbe. Son marquage vit heureusement à un seul endroit,
+       lvMarkFields(), et c'est ce point-là qui doit parler la même langue que
+       ptsEcran() : on lui donne une case fausse et le reste juste. */
+    if(typeof startLV!=='function' || typeof lvMarkFields!=='function' || typeof lvCheckPart!=='function')
+      vus.push('la lecture graphique est introuvable');
+    else {
+      startLV();
+      const q=test.questions[test.idx], res=lvCheckPart(q);
+      if(!res.subs.length) vus.push('lecture graphique : aucune case à marquer, le contrôle ne mesure rien');
+      else {
+        const faits=res.subs.map(function(x,i){ return {id:x.id, ok:i>0}; });
+        lvMarkFields({subs:faits}, true);
+        const m=ptsEcran()||{};
+        if(m.cases!==faits.length || m.justes!==faits.length-1)
+          vus.push('lecture graphique : '+m.justes+' case(s) juste(s) sur '+m.cases+' comptée(s), au lieu de '+(faits.length-1)+' sur '+faits.length);
+      }
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
 }
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */

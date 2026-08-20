@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
                'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
-               'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim' };
+               'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -304,7 +304,7 @@ module.exports = {
        de l'eleve : le bouton IA est offert des l'entrainement, alors que le
        conseil est reserve au soutien, note moins cher */
     missionSansReponses: 'qiaEnvoyer',
-    specifique: null,
+    specifique: 'seconde',
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",

@@ -290,6 +290,44 @@ Les colonnes de cet exercice sont plus larges (`--asp-col`, 78 px mesurés) :
 il faut la place d'écrire une marque DEVANT le chiffre sans la poser dessus. La
 largeur vit à un seul endroit, le trait la relit.
 
+**Un schéma d'intervalle et son écriture sont la même chose, dite deux fois.**
+L'exercice des intervalles de la Seconde montre une droite graduée et demande
+d'écrire ce qu'elle montre — les crochets, l'inégalité, « ouvert / fermé en … » —
+en choisissant dans des propositions, jamais en tapant : la fiche papier dont il
+est repris fait exactement cela, et une saisie libre recalerait un élève qui
+écrit « -2 » avec le tiret du clavier. Le crochet d'une borne EXCLUE **tourne le
+dos à l'intervalle**, comme le fait le « ] » de ]−2 ; 3[ : le dessin EST la
+notation, et c'est tout ce que l'exercice cherche à faire passer. Le retourner ne
+casse rien — l'élève répond ce que le dessin lui montre, la page le corrige avec
+l'autre version, et il croit s'être trompé ; c'est le défaut de la retenue de la
+soustraction, au bon endroit dans le mauvais sens.
+Un contrôle MESURE donc le schéma. Il y lit les graduations — aucune coordonnée
+n'est recopiée, une échelle qui changerait resterait mesurée juste —, vérifie que
+le trait rouge part d'une borne et s'arrête à l'autre, qu'une borne prise porte un
+point plein et une borne exclue un crochet, et que les bras de ce crochet
+s'écartent du trait rouge. Il tient aussi les bords de l'écriture : l'infini n'est
+jamais fermé et n'a **pas** de case d'inégalité (« x ≤ +∞ » n'a pas de bonne
+réponse), et les trois lignes se répondent l'une l'autre. Il a été éprouvé en le
+cassant cinq fois.
+Un piège d'à côté s'y est montré : la feuille pose `select{width:100%}`, si bien
+que sans largeur EXPLICITE les quatre cases de l'intervalle s'étiraient chacune
+sur toute la ligne et se posaient l'une sous l'autre — un `min-width` n'y peut
+rien, c'est la largeur qu'il faut reprendre.
+
+**Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
+affichée sous le retour de chaque question, et il ne connaît que trois classes :
+`ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —
+elle sort du dénominateur en même temps que du numérateur. Une question réussie à
+trois cases sur cinq annonçait donc « 0 case juste sur 2 », et une question TOUTE
+juste n'affichait plus de note du tout, `ptsEcran()` ne trouvant plus une seule
+case à compter. Deux exercices de la Seconde marquaient `good` : les ensembles de
+nombres et la lecture graphique — la note enregistrée en base, elle, était juste ;
+seule celle montrée à l'élève mentait, ce qui est précisément ce qui l'a laissée
+passer. Rien ne rougissait, et le mot `good` est parfaitement sensé partout
+ailleurs — il reste sur les pastilles ✓/✗, les retours et les boutons, que
+`ptsEcran()` ne regarde pas. Un contrôle répond juste, pour de vrai, sur chaque
+exercice à cases et relit ce que la page a compté.
+
 **Deux exercices peuvent partager un moteur — mais pas leur identité.** Le
 calcul mental et les additions-soustractions tournent sur le même `kind`
 (`cm`), le même écran et la même ardoise : seul le tirage change. Trois choses
@@ -447,6 +485,24 @@ second contrôle exige que chacun existe encore, sans quoi une exemption
 survivrait à l'exercice qu'elle protégeait. Enfin la liste des exercices se lit
 dans `TEST_NUM`, jamais en aplatissant `THEMES` : un thème découpé en parties
 porte ses identifiants dans `sous`, et la Première en a quatre.
+
+**« Montre-moi un exemple de rédaction de cet exercice. » est proposée partout.**
+C'est la première chose qu'un élève bloqué demande, et aucun exercice ne doit en
+être privé (décision de Turquet, août 2026). Elle ne peut donc PAS vivre dans
+`QIA_SUGG` : une liste à tenir exercice par exercice finit toujours par en
+oublier un, et c'est celui-là qui en aurait eu besoin — la Seconde ne la
+proposait nulle part, ce qui s'est vu en ouvrant la fenêtre sur les intervalles.
+`qiaSuggestions()` la pose donc elle-même en tête (`QIA_EXEMPLE`), et la retire
+d'une liste qui la porterait déjà : sans ce filtre, deux boutons identiques.
+Un contrôle éprouve CHAQUE liste des trois niveaux, `gen` compris, plus un
+`kind` inconnu — c'est par là que passe un exercice nouveau. Il tient les trois
+bords : absente, pas en tête, ou proposée deux fois.
+Et la proposition doit produire quelque chose : la mission de la Seconde ne
+promettait un exemple que « si un exemple aide ». Elle en impose un, entièrement
+rédigé, dès que l'élève en demande un — comme le fait déjà la Terminale.
+Les trois niveaux n'emploient pas encore la même formulation : la Première dit
+« Rédige-moi une correction similaire. », la Terminale « Montre-moi un exemple
+de résolution de cet exercice. » Le contrôle exige la proposition, pas ses mots.
 
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
