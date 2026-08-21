@@ -1500,7 +1500,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=135;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=136;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -8519,6 +8519,30 @@ function conseilHTML(t){
 /*### conseilBusy ###*/
 let conseilBusy=false;
 /*### lancerConseil ###*/
+/* ---------- Comment le modèle parle aux élèves ----------------------------
+   Le conseil du soutien et la réponse de la fenêtre « Question à l'IA »
+   s'écrivent TOUJOURS en français simple (décision de Turquet, août 2026) : ce
+   n'est plus une faveur qu'un élève demande, c'est la façon de parler de la
+   plateforme. Un bouton « explique-moi plus simplement » supposait que l'élève
+   sache qu'il a le droit de le demander — et celui qui en a le plus besoin est
+   justement celui qui n'ose pas.
+   Le vocabulaire mathématique est GARDÉ et expliqué, jamais remplacé : un élève
+   à qui on épargne le mot « intervalle » ne le connaîtra pas davantage le jour
+   du contrôle.
+   La consigne est posée par la PAGE, et non dans CONSEIL_SYS côté fonction
+   Edge, pour une raison qui a déjà coûté une panne : la fonction ne se déploie
+   qu'à la main, et la consigne serait restée lettre morte jusqu'au jour du
+   redéploiement, sans que rien ne le dise. Ici elle part avec la page.
+   UN SEUL endroit la décrit — les deux aides et le bouton du rappel de cours la
+   partagent. Deux descriptions auraient fini par diverger, et l'une des aides
+   aurait reparlé comme avant sans que personne ne le voie. */
+const LANGUE_SIMPLE=" COMMENT \u00c9CRIRE \u2014 ces r\u00e8gles sont OBLIGATOIRES, quelle que soit la question :"
+  +" tu \u00e9cris pour un \u00e9l\u00e8ve qui lit difficilement le fran\u00e7ais."
+  +" Des phrases COURTES, une seule id\u00e9e par phrase. Des mots de tous les jours."
+  +" Jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb, \u00ab par cons\u00e9quent \u00bb."
+  +" Tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet."
+  +" Tu tutoies. \u00c9cris comme si tu parlais \u00e0 voix haute \u00e0 un \u00e9l\u00e8ve assis \u00e0 c\u00f4t\u00e9 de toi."
+  +" Cette fa\u00e7on d\u2019\u00e9crire ne change RIEN \u00e0 ce que tu as le droit de dire : elle ne t\u2019autorise \u00e0 donner ni r\u00e9sultat, ni r\u00e9ponse attendue.";
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
   conseilBusy=true;
@@ -8527,12 +8551,12 @@ async function lancerConseil(contexte, fb){
   const roule=()=>{ if(dansDialogue && fb.parentElement) fb.parentElement.scrollTop=fb.parentElement.scrollHeight; };
   fb.textContent='Je réfléchis à un indice…'; cls('mp-feedback muted'); roule();
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, niveau:'1ere', table_eleves:'eleves_1ere', action:'conseil', contexte:String(contexte||'')+CONSEIL_FORMAT+qiaIlluMission(), balises:true } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, niveau:'1ere', table_eleves:'eleves_1ere', action:'conseil', contexte:String(contexte||'')+LANGUE_SIMPLE+CONSEIL_FORMAT+qiaIlluMission(), balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
     if(d && d.feedback){
       const p=qiaIlluExtrait(d.feedback);
-      fb.innerHTML='💡 '+conseilHTML(p.texte)+p.illus.map(qiaIlluHTML).join('')+(p.courbes||[]).map(qiaCourbeHTML).join('')+simpleBtnHTML(); cls('mp-feedback conseil'); roule();
+      fb.innerHTML='💡 '+conseilHTML(p.texte)+p.illus.map(qiaIlluHTML).join('')+(p.courbes||[]).map(qiaCourbeHTML).join(''); cls('mp-feedback conseil'); roule();
       /* garde anti-recopie : on retient les conseils donnés pour détecter un collage tel quel */
       const cs=(window.__conseilsDonnes=window.__conseilsDonnes||[]);
       cs.push(String(d.feedback)); if(cs.length>20) cs.shift();
@@ -8663,13 +8687,13 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme répond elle-même, avec le rappel exact du cours. */
   if(rappelDemande(q) && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(typeof TESTS!=='undefined' && TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathématiques';
-  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Première (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes de la vie courante (un prix, une remise, une part d’un groupe, un partage en cent parts égales…). Reste dans le cadre du programme de Première (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — JAMAIS entre dollars ($…$ ni $$…$$) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+qiaCtxExercice()+(qiaEstExemple(q)?qiaModeleExemple():'')+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
+  const mission="MISSION « réponse à une question d’élève » — ce n’est PAS une demande de conseil sur les réponses de l’exercice, mais une QUESTION DE COURS à laquelle tu dois répondre directement. Un élève de Première (programme français), travaille sur l’exercice « "+nomTest+" ». Sa question : « "+q+" ». RÉPONDS À SA QUESTION en 3 à 6 phrases maximum (hors lignes de calcul d’un éventuel exemple), en tutoyant : langage SIMPLE d’un professeur bienveillant, sans vocabulaire compliqué, en t’appuyant sur l’INTUITION et des IMAGES concrètes de la vie courante (un prix, une remise, une part d’un groupe, un partage en cent parts égales…). Reste dans le cadre du programme de Première (France) : tu PEUX donner les définitions, propriétés et exemples du cours — c’est le but. EXEMPLE NUMÉRIQUE COMPLET : si un exemple peut aider à comprendre, et TOUJOURS si l’élève demande un exemple, un calcul ou « comment on fait », INVENTE un exemple avec des valeurs simples, DIFFÉRENTES de celles de l’exercice en cours, et rédige TOUTES les étapes du calcul, une étape par ligne, chacune en LaTeX, jusqu’au résultat final — SANS AUCUN POINTILLÉ dans cet exemple : tout y est écrit et calculé (4 à 8 lignes de calcul maximum, avec au besoin quelques mots entre les lignes pour dire ce qu’on fait). Ne résous PAS l’exercice en cours et ne cite aucune de ses valeurs : l’exemple utilise d’autres nombres — même si l’élève demande « un exemple de résolution de cet exercice », tu donnes un exemple du MÊME TYPE avec d’AUTRES valeurs. Si sa question porte sur la RÉDACTION (comment écrire, formuler ou présenter sa réponse, ou une demande d’exemple de rédaction), tu DOIS lui donner un MODÈLE DE PHRASE générique à recopier, sur une ligne à part, où chaque valeur du MODÈLE est remplacée par « … » (dans le modèle seulement : aucun nombre, aucun +∞ ni −∞, aucune borne) — par exemple, pour une conjecture de limite : quand x → … , f(x) → … — puis une ou deux variantes acceptées (x tend vers … , f(x) tend vers … ; lim … = …), PUIS un EXEMPLE ENTIÈREMENT COMPLÉTÉ sur sa propre ligne, avec des valeurs simples inventées, différentes de celles de l’exercice en cours, sans aucun pointillé. Dans ce cas le modèle est OBLIGATOIRE et un dessin ne le remplace jamais. Si la question ne concerne pas les mathématiques, réponds gentiment que tu ne réponds qu’aux questions de mathématiques. Termine par une courte phrase encourageante pour reprendre l’exercice. Sans titre ni markdown. Écris CHAQUE écriture mathématique en LaTeX entre \\( et \\) — JAMAIS entre dollars ($…$ ni $$…$$) — par exemple \\(U_{n+1}=3U_n+2\\) — jamais en texte brut ; constantes et inconnues en une seule lettre (k, c…), jamais un nom epele comme « ell » ; exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : e^{-2x}, u_{n+1}. Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots. Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades. Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\cdot, \\sqrt \u2014 jamais deux antislashs (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux). Pour un tableau de variation ou de signe dans ta r\u00e9ponse, utilise EXCLUSIVEMENT l'environnement \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes, fl\u00e8ches \\nearrow et \\searrow, premi\u00e8re colonne x puis f'(x) et/ou f(x) \u2014 la plateforme le dessine en vrai tableau ; n'utilise AUCUN autre environnement LaTeX (tabular, matrix\u2026) et ne d\u00e9cris jamais un tableau en texte libre."+LANGUE_SIMPLE+qiaCtxExercice()+(qiaEstExemple(q)?qiaModeleExemple():'')+(qiaEstRedaction(q)?qiaConsigneRedaction():qiaIlluMission()+qiaCourbeMission());
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, niveau:'1ere', table_eleves:'eleves_1ere', action:'conseil', contexte:mission, balises:true } });
     if(r.error) throw r.error;
     const d=r.data;
     if(d && d.feedback){ const p=qiaIlluExtrait(d.feedback); const illus=qiaEstRedaction(q)?[]:p.illus, crb=qiaEstRedaction(q)?[]:(p.courbes||[]);   /* filet : meme si l'IA invente une balise, aucune figure ici */
-      br.innerHTML=conseilHTML(p.texte)+illus.map(qiaIlluHTML).join('')+crb.map(qiaCourbeHTML).join('')+simpleBtnHTML(); }
+      br.innerHTML=conseilHTML(p.texte)+illus.map(qiaIlluHTML).join('')+crb.map(qiaCourbeHTML).join(''); }
     else if(d && d.error) br.textContent=d.error;
     else br.textContent='Je n’ai pas de réponse pour le moment. Réessaie.';
   }catch(e){ br.textContent='L’IA est indisponible pour le moment. Réessaie dans un instant.'; }
@@ -9116,12 +9140,8 @@ function simpleBtnHTML(){
    le jour du contrôle. */
 function simpleMission(texte){
   return "MISSION \u00ab redire plus simplement \u00bb \u2014 ce n\u2019est PAS une demande d\u2019indice, PAS une correction, PAS un nouvel exercice. "
-    + "Un \u00e9l\u00e8ve de Premi\u00e8re a lu le texte ci-dessous et ne l\u2019a pas compris : il lit difficilement le fran\u00e7ais. "
-    + "REDIS EXACTEMENT LA M\u00caME CHOSE, plus simplement.\n"
-    + "COMMENT \u00c9CRIRE \u2014 toutes ces r\u00e8gles sont obligatoires : des phrases COURTES, une seule id\u00e9e par phrase ; des mots de tous les jours ; "
-    + "jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb ; "
-    + "tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet ; "
-    + "tu tutoies ; six phrases au maximum, plus les lignes de calcul s\u2019il y en a.\n"
+    + "Un \u00e9l\u00e8ve de Premi\u00e8re a lu le texte ci-dessous et ne l\u2019a pas compris. REDIS EXACTEMENT LA M\u00caME CHOSE, plus simplement.\n"
+    + LANGUE_SIMPLE + " Six phrases au maximum, plus les lignes de calcul s\u2019il y en a.\n"
     + "INTERDIT : ajouter quoi que ce soit qui ne soit pas dans le texte. Aucune r\u00e9ponse, aucun r\u00e9sultat, aucun calcul nouveau, aucun exemple nouveau. "
     + "Ce que le texte ne dit pas, tu ne l\u2019inventes pas. S\u2019il te para\u00eet d\u00e9j\u00e0 simple, redis-le quand m\u00eame avec tes mots, sans le rallonger.\n"
     + "TEXTE \u00c0 REDIRE SIMPLEMENT :\n\u00ab " + texte + " \u00bb";

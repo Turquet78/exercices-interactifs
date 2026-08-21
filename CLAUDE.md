@@ -560,29 +560,40 @@ modèle répond dans le vide : rien ne casse, rien ne rougit, l'aide est simplem
 devenue creuse. Un contrôle OUVRE donc chaque exercice et refuse cette phrase
 nommément — sa présence EST le signe que rien n'a été trouvé.
 
-**« Explique-moi plus simplement » vit sous les TROIS aides.** Un élève qui bute
-sur la LANGUE bute dessus partout : le rappel de cours, le conseil du soutien et
-la réponse de la fenêtre « Question à l'IA » portent donc le même bouton
-(décision de Turquet, août 2026). Le poser sous une seule des trois aurait laissé
-les deux autres illisibles pour lui, et c'est précisément l'élève qui n'ose pas
-demander qui en a besoin.
-Il **reformule le texte affiché** ; il ne repose pas la question. C'est ce qui le
-rend uniforme — le rappel de cours n'est PAS une réponse du modèle, c'est du HTML
-écrit à la main que le modèle n'a jamais vu — et c'est aussi ce qui le rend sûr :
-le texte source a déjà passé les garde-fous, le conseil ne donnant jamais le
-résultat et la mission de la fenêtre d'aide interdisant les valeurs de l'exercice.
-Reformuler un texte déjà sûr reste sûr ; reposer la question aurait rouvert
-chacune de ces portes, et la fenêtre d'aide est offerte dès l'**entraînement**.
-Le bord décisif de la consigne est l'**interdiction d'ajouter** : un modèle à qui
+**Le modèle parle simplement, sans qu'on le lui demande.** Le conseil du soutien
+et la réponse de la fenêtre « Question à l'IA » s'écrivent TOUJOURS en français
+simple (décision de Turquet, août 2026) : ce n'est pas une faveur qu'un élève
+réclame, c'est la façon de parler de la plateforme. Ces deux aides ont d'abord
+porté un bouton « Explique-moi plus simplement », et le bouton était le défaut :
+il supposait que l'élève sache qu'il a le droit de le demander — or celui qui en
+a le plus besoin est justement celui qui n'ose pas.
+La consigne dit des phrases courtes, une idée par phrase, des mots de tous les
+jours, pas de subordonnée ni de tournure passive, le tutoiement. Le vocabulaire
+mathématique est **gardé** et expliqué en trois ou quatre mots la première fois,
+jamais remplacé : un élève à qui on épargne le mot « intervalle » ne le
+connaîtra pas davantage le jour du contrôle. Et elle redit qu'écrire simplement
+n'autorise à donner ni résultat ni réponse attendue — sans quoi « simplifier »
+devient une porte vers ce que les garde-fous ferment.
+Elle est posée par la PAGE et non dans `CONSEIL_SYS`, côté fonction Edge, pour
+une raison déjà payée : la fonction ne se déploie qu'à la main, et la consigne
+serait restée lettre morte jusqu'au redéploiement sans que rien ne le dise. Ici
+elle part avec la page. **Un seul endroit la décrit** (`LANGUE_SIMPLE`), partagé
+par les deux aides et par le bouton du rappel : deux descriptions auraient fini
+par diverger, et l'une des aides aurait reparlé comme avant sans qu'on le voie.
+
+**Le rappel de cours garde son bouton, et lui seul.** Il n'est PAS une réponse du
+modèle : c'est du HTML écrit à la main que le modèle n'a jamais vu. Le rendre
+« toujours simple » demanderait de réécrire les soixante rappels des trois
+niveaux ; le bouton est le seul chemin qu'il ait. Il REFORMULE le texte affiché,
+et c'est ce qui le rend sûr : le texte source a déjà passé les garde-fous.
+Le bord décisif de sa consigne est l'**interdiction d'ajouter** — un modèle à qui
 on demande de « simplifier » un rappel finit par le compléter, et livre en
-français simple la réponse que le barème fait payer. Le vocabulaire mathématique
-est GARDÉ et expliqué, jamais remplacé — un élève à qui on épargne le mot
-« intervalle » ne le connaîtra pas davantage le jour du contrôle.
+français simple la réponse que le barème fait payer.
 Le bouton se pose DANS le bloc qu'il reformule et lit le texte de son propre
-parent : une seule fonction sert les trois aides sans rien savoir de leur DOM. Et
-elle retire du texte envoyé le bouton lui-même ET une reformulation déjà posée —
-sans ce ménage, le libellé du bouton partait au modèle comme s'il faisait partie
-du cours, et chaque clic reformulait la reformulation précédente.
+parent, sans rien savoir de son DOM. Il retire du texte envoyé le bouton lui-même
+ET une reformulation déjà posée — sans ce ménage, le libellé du bouton partait au
+modèle comme s'il faisait partie du cours, et chaque clic reformulait la
+reformulation précédente.
 
 **Un bouton d'une fenêtre DÉTACHÉE ne trouve pas sa fonction tout seul.** C'est le
 piège d'à côté, et il a mordu le jour même. Une fenêtre détachée est un AUTRE
