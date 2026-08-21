@@ -532,6 +532,42 @@ modèle répond dans le vide : rien ne casse, rien ne rougit, l'aide est simplem
 devenue creuse. Un contrôle OUVRE donc chaque exercice et refuse cette phrase
 nommément — sa présence EST le signe que rien n'a été trouvé.
 
+**« Explique-moi plus simplement » vit sous les TROIS aides.** Un élève qui bute
+sur la LANGUE bute dessus partout : le rappel de cours, le conseil du soutien et
+la réponse de la fenêtre « Question à l'IA » portent donc le même bouton
+(décision de Turquet, août 2026). Le poser sous une seule des trois aurait laissé
+les deux autres illisibles pour lui, et c'est précisément l'élève qui n'ose pas
+demander qui en a besoin.
+Il **reformule le texte affiché** ; il ne repose pas la question. C'est ce qui le
+rend uniforme — le rappel de cours n'est PAS une réponse du modèle, c'est du HTML
+écrit à la main que le modèle n'a jamais vu — et c'est aussi ce qui le rend sûr :
+le texte source a déjà passé les garde-fous, le conseil ne donnant jamais le
+résultat et la mission de la fenêtre d'aide interdisant les valeurs de l'exercice.
+Reformuler un texte déjà sûr reste sûr ; reposer la question aurait rouvert
+chacune de ces portes, et la fenêtre d'aide est offerte dès l'**entraînement**.
+Le bord décisif de la consigne est l'**interdiction d'ajouter** : un modèle à qui
+on demande de « simplifier » un rappel finit par le compléter, et livre en
+français simple la réponse que le barème fait payer. Le vocabulaire mathématique
+est GARDÉ et expliqué, jamais remplacé — un élève à qui on épargne le mot
+« intervalle » ne le connaîtra pas davantage le jour du contrôle.
+Le bouton se pose DANS le bloc qu'il reformule et lit le texte de son propre
+parent : une seule fonction sert les trois aides sans rien savoir de leur DOM. Et
+elle retire du texte envoyé le bouton lui-même ET une reformulation déjà posée —
+sans ce ménage, le libellé du bouton partait au modèle comme s'il faisait partie
+du cours, et chaque clic reformulait la reformulation précédente.
+
+**Un bouton d'une fenêtre DÉTACHÉE ne trouve pas sa fonction tout seul.** C'est le
+piège d'à côté, et il a mordu le jour même. Une fenêtre détachée est un AUTRE
+document : un attribut `onclick` posé dans la carte y cherche sa fonction sur le
+`window` de la POPUP, qui n'en a aucune. Le bouton ne fait alors rien du tout —
+pas d'erreur, pas de trace, juste un bouton mort chez l'élève qui a détaché sa
+fenêtre. `garnirFenetre()` recopie donc une **liste de noms** sur la popup, et une
+liste tenue à la main est exactement ce qui dérive : « expliquerSimplement » y
+manquait. Un contrôle ouvre désormais les deux cartes, y déclenche tout ce qui
+pose un bouton, relève CHAQUE `onclick` et exige qu'il soit dans la liste — en
+dispensant ce que la fenêtre détachée masque elle-même (le bouton « Détacher »),
+lu dans sa propre feuille de styles plutôt que recopié.
+
 **MathLive** — la feuille de styles statique (`<style id="ml-static-css">`) est
 indispensable au rendu des fractions hors des champs de saisie. Sans elle,
 `\frac{25}{100}` s'affiche « 10025 », dénominateur d'abord, dans l'ordre du DOM.

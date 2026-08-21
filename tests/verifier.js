@@ -1061,6 +1061,153 @@ function branchements(w){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- « Explique-moi plus simplement » est sous les TROIS aides ----------
+     Un élève qui bute sur la LANGUE bute dessus partout (décision de Turquet,
+     août 2026) : le rappel de cours, le conseil du soutien et la réponse de la
+     fenêtre « Question à l'IA » portent donc le même bouton. Le poser sous une
+     seule des trois aurait laissé les deux autres illisibles pour lui, et
+     c'est précisément celui qui n'ose pas demander qui en a besoin.
+
+     Le contrôle EXÉCUTE le bouton — il ne lit pas le fichier. Trois bords, et
+     chacun a déjà son défaut tout prêt :
+
+     · le bouton MANQUE sous l'une des trois aides. Rien ne casse : l'aide
+       s'affiche, elle est simplement restée en français scolaire.
+     · la mission n'INTERDIT pas d'ajouter. Un modèle à qui on demande de
+       « simplifier » un rappel de cours finit par le compléter — et livre, en
+       français simple, la réponse que le barème fait payer. La fenêtre d'aide
+       est offerte dès l'entraînement : c'est la porte qu'on rouvrirait.
+     · le texte envoyé emporte le BOUTON lui-même, ou une reformulation déjà
+       posée. Le premier fait lire « Explique-moi plus simplement » au modèle
+       comme si c'était du cours ; le second reformule la reformulation, et
+       chaque clic s'éloigne un peu plus du texte d'origine. */
+  verifierEval(w, '« Explique-moi plus simplement » est sous les trois aides, et ne fait que redire', `(function(){
+    if(typeof simpleBtnHTML!=='function' || typeof expliquerSimplement!=='function' || typeof simpleMission!=='function')
+      return 'le bouton « Explique-moi plus simplement » n\\'existe pas';
+    const vus=[];
+    /* 1. La mission : elle doit RENDRE le texte source, et INTERDIRE d'ajouter. */
+    const m=String(simpleMission('TEXTE-TEMOIN-DU-BANC'));
+    if(m.indexOf('TEXTE-TEMOIN-DU-BANC')<0) vus.push('la mission n\\'emporte pas le texte à reformuler');
+    if(!/INTERDIT/.test(m) || !/inventes pas/.test(m))
+      vus.push('la mission n\\'interdit pas d\\'ajouter au texte : le modèle peut « simplifier » en donnant la réponse');
+    if(!/aucun r\u00e9sultat/.test(m)) vus.push('la mission n\\'interdit pas de donner un résultat');
+    /* 2. Le bouton, sous chacune des trois aides — telles que la page les pose. */
+    const libelle=(function(){ const d=document.createElement('div'); d.innerHTML=simpleBtnHTML();
+      return (d.textContent||'').trim(); })();
+    if(!libelle) vus.push('le bouton n\\'a pas de libellé');
+    const aides=[];
+    /* le rappel de cours : c'est rappelHTML() qui le porte, donc les DEUX
+       endroits où il s'affiche l'ont d'un coup */
+    if(typeof rappelHTML==='function' && typeof RAPPELS!=='undefined'){
+      const k=Object.keys(RAPPELS)[0];
+      if(k){ if(test) test.kind=k;
+        const h=String(rappelHTML()||'');
+        aides.push(['le rappel de cours', h]);
+      }
+    } else vus.push('rappelHTML() introuvable : le rappel n\\'est pas mesuré');
+    /* le conseil et la réponse de la fenêtre d'aide : on lit le CORPS des deux
+       fonctions, faute de pouvoir appeler le modèle. Un bouton retiré de l'une
+       des deux disparaît du corps. */
+    [['le conseil du soutien','lancerConseil'],['la réponse de la fenêtre d\\'aide','qiaEnvoyer']].forEach(function(x){
+      const f=(typeof window!=='undefined')?window[x[1]]:null;
+      if(typeof f!=='function'){ vus.push(x[1]+'() introuvable'); return; }
+      if(String(f).indexOf('simpleBtnHTML')<0) vus.push(x[0]+' ne pose pas le bouton');
+    });
+    aides.forEach(function(a){
+      if(String(a[1]).indexOf('btn-simple')<0) vus.push(a[0]+' ne pose pas le bouton');
+    });
+    /* 3. Ce qui PART au modèle : le texte de l'aide, sans le bouton ni une
+          reformulation déjà là. On rejoue le vrai geste de l'élève. */
+    const hote=document.createElement('div');
+    hote.innerHTML='Le coefficient multiplicateur vaut 0,8.'+simpleBtnHTML()
+                 +'<div class="simple-rep">UNE-REFORMULATION-DEJA-LA</div>';
+    document.body.appendChild(hote);
+    const btn=hote.querySelector('.btn-simple');
+    if(!btn){ vus.push('le bouton posé n\\'a pas la classe btn-simple'); return vus.join(' | '); }
+    let parti='';
+    /* sb n'est pas branché ici : on pose un double le temps du clic, et on le
+       retire. Aucun contrôle ne doit approcher le vrai projet. */
+    const sbSauve=sb;
+    sb={ functions:{ invoke:function(n,o){ parti=(o&&o.body&&o.body.contexte)||''; return new Promise(function(){}); } } };
+    const sauve=currentEleve; currentEleve={id:'e-controle',prenom:'Contrôle'};
+    try{ expliquerSimplement(btn); }catch(e){ vus.push('le clic lève : '+e.message); }
+    sb=sbSauve; currentEleve=sauve;
+    simpleBusy=false;
+    if(parti.indexOf('Le coefficient multiplicateur vaut 0,8.')<0) vus.push('le texte de l\\'aide ne part pas au modèle');
+    if(libelle && parti.indexOf(libelle)>=0) vus.push('le LIBELLÉ du bouton part au modèle comme s\\'il faisait partie du cours');
+    if(parti.indexOf('UNE-REFORMULATION-DEJA-LA')>=0) vus.push('une reformulation déjà posée repart au modèle : chaque clic s\\'éloignerait du texte d\\'origine');
+    try{ hote.remove(); }catch(e){}
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- Un bouton d'une fenêtre DÉTACHÉE trouve-t-il sa fonction ? --------
+     Sur ordinateur, « Soutien » et « Question à l'IA » s'ouvrent dans une
+     fenêtre indépendante et leur carte y est DÉPLACÉE. C'est alors un autre
+     document, avec un autre window : un attribut onclick posé dans la carte y
+     cherche sa fonction sur le window de la POPUP, qui n'en a aucune. Le bouton
+     ne fait rien du tout — pas d'erreur à l'écran, pas de trace, juste un
+     bouton mort chez l'élève qui a détaché sa fenêtre.
+     garnirFenetre() recopie donc une LISTE DE NOMS sur la popup. Une liste
+     tenue à la main est exactement ce qui dérive : « expliquerSimplement » y
+     manquait le jour où le bouton a été ajouté, et rien ne l'aurait dit.
+     Le contrôle ouvre les deux cartes, y déclenche tout ce qui pose un bouton
+     — les questions suggérées, le rappel de cours, une réponse du modèle —,
+     puis relève CHAQUE onclick présent et exige qu'il soit dans la liste. */
+  verifierEval(w, 'chaque bouton des fenêtres d’aide survit à leur détachement', `(function(){
+    if(typeof garnirFenetre!=='function') return 'garnirFenetre() introuvable : le contrôle ne mesure rien';
+    const exportes=(String(garnirFenetre).match(/\\[([^\\]]*)\\]\\s*\\.forEach\\(function\\(n\\)/)||[])[1]||'';
+    const liste=exportes.split(',').map(function(t){ return t.trim().replace(/^['"]|['"]$/g,''); }).filter(Boolean);
+    if(liste.length<3) return 'la liste des fonctions recopiées sur la fenêtre est illisible : le contrôle serait aveugle';
+    /* On garnit les deux cartes comme la page le fait pour un élève. */
+    const sauveEleve=currentEleve, sauveMode=(typeof currentMode!=='undefined')?currentMode:null;
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    if(typeof currentMode!=='undefined') currentMode='soutien';
+    try{ if(typeof ouvrirQIA==='function') ouvrirQIA(); }catch(e){}
+    try{ if(typeof basculerRappel==='function'){ const b=document.getElementById('conseilRappel'); if(b) b.hidden=true; basculerRappel(); } }catch(e){}
+    /* une réponse du modèle dans le fil, et un conseil : chacun pose son bouton */
+    const dlg=document.getElementById('qiaDialog');
+    if(dlg && typeof simpleBtnHTML==='function'){
+      const d=document.createElement('div'); d.className='qia-r';
+      d.textContent='Réponse de contrôle.'; d.insertAdjacentHTML('beforeend', simpleBtnHTML());
+      dlg.appendChild(d);
+    }
+    const corps=document.getElementById('conseilBody');
+    if(corps && typeof simpleBtnHTML==='function'){
+      corps.textContent='Indice de contrôle.'; corps.insertAdjacentHTML('beforeend', simpleBtnHTML());
+    }
+    /* Le bouton « détacher » est le seul à ne pas avoir besoin d'exister une
+       fois la fenêtre détachée : garnirFenetre() le MASQUE. On lit donc les
+       sélecteurs qu'elle met en display:none dans SA feuille, plutôt que de
+       recopier un nom ici — masquer autre chose demain le dispenserait tout
+       seul, et cesser de masquer le remettrait sous surveillance. */
+    const caches=[];
+    String(garnirFenetre).replace(/([.#][\\w-]+)\\{display:none\\s*!important\\}/g,
+      function(t,sel){ caches.push(sel); return t; });
+    const manquants=[], vus=[];
+    ['.qia-card','.conseil-card'].forEach(function(sel){
+      const carte=document.querySelector(sel);
+      if(!carte){ manquants.push(sel+' introuvable'); return; }
+      carte.querySelectorAll('[onclick]').forEach(function(e){
+        const code=e.getAttribute('onclick')||'';
+        /* le nom appelé en tête de l'attribut : « qiaPoser(this.textContent) » */
+        const m=/^\\s*([A-Za-z_$][\\w$]*)\\s*\\(/.exec(code);
+        if(!m) return;
+        const nom=m[1];
+        if(caches.some(function(c){ try{ return e.matches(c); }catch(x){ return false; } })) return;
+        if(vus.indexOf(nom)<0) vus.push(nom);
+        if(liste.indexOf(nom)<0) manquants.push(nom+' ('+sel+')');
+      });
+    });
+    currentEleve=sauveEleve;
+    if(sauveMode!==null && typeof currentMode!=='undefined') currentMode=sauveMode;
+    try{ if(typeof fermerQIA==='function') fermerQIA(); if(typeof fermerConseil==='function') fermerConseil(); }catch(e){}
+    if(!vus.length) return 'aucun bouton relevé dans les deux cartes : le contrôle ne mesure rien';
+    /* Une liste qui nomme une fonction DISPARUE ne protège plus rien. */
+    const morts=liste.filter(function(n){ return typeof window[n]!=='function'; });
+    return [manquants.length ? 'absente(s) de garnirFenetre, donc morte(s) une fois la fenêtre détachée : '+manquants.join(', ') : '',
+            morts.length ? 'recopiée(s) sans exister : '+morts.join(', ') : ''].filter(Boolean).join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- L'identifiant sous lequel la note est enregistrée ----------------
      Point 14, et le plus coûteux à rater : la note part sous l'identifiant
      d'un AUTRE exercice, ou sous un identifiant que rien n'affiche. Elle est
