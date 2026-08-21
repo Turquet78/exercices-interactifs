@@ -300,10 +300,17 @@ module.exports = {
     /* la fenetre d'aide de la Seconde lance l'IA des son ouverture : le rappel a
        donc son propre chemin, et ce chemin ne doit RIEN appeler */
     rappelSansIA: { fonction: 'ouvrirRappelSeul', appelIA: 'lancerConseil' },
-    /* la mission envoyee au modele ne doit pas emporter l'enonce ni les reponses
-       de l'eleve : le bouton IA est offert des l'entrainement, alors que le
-       conseil est reserve au soutien, note moins cher */
-    missionSansReponses: 'qiaEnvoyer',
+    /* La mission envoyée au modèle emporte le CONTEXTE de l'exercice, comme en
+       Terminale (décision de Turquet, août 2026). Elle ne l'emportait pas
+       jusque-là, et c'était volontaire : le bouton IA est offert dès
+       l'entraînement, alors que le conseil est réservé au soutien, noté moins
+       cher — un contexte qui contient les réponses attendues ouvrait par une
+       autre porte l'aide que le barème réserve au soutien.
+       Le contrôle n'est donc pas RETIRÉ, il est RETOURNÉ : il exigeait
+       l'absence du contexte, il exige maintenant sa présence ET la clause qui
+       le rend sans danger. Les deux ensemble, parce que le contexte seul est
+       pire que pas de contexte du tout. */
+    missionAvecContexte: { fonction: 'qiaEnvoyer', appel: 'qiaCtxExercice' },
     specifique: 'seconde',
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
