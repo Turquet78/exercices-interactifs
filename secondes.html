@@ -1435,7 +1435,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=53;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=54;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1918,15 +1918,39 @@ function pgeRappelBtn(withConseil){
   return schema + conseilInlineBtn(withConseil);
 }
 let conseilBusy=false;
+/* ---------- Comment le modèle parle aux élèves ----------------------------
+   Le conseil du soutien et la réponse de la fenêtre « Question à l'IA »
+   s'écrivent TOUJOURS en français simple (décision de Turquet, août 2026) : ce
+   n'est plus une faveur qu'un élève demande, c'est la façon de parler de la
+   plateforme. Un bouton « explique-moi plus simplement » supposait que l'élève
+   sache qu'il a le droit de le demander — et celui qui en a le plus besoin est
+   justement celui qui n'ose pas.
+   Le vocabulaire mathématique est GARDÉ et expliqué, jamais remplacé : un élève
+   à qui on épargne le mot « intervalle » ne le connaîtra pas davantage le jour
+   du contrôle.
+   La consigne est posée par la PAGE, et non dans CONSEIL_SYS côté fonction
+   Edge, pour une raison qui a déjà coûté une panne : la fonction ne se déploie
+   qu'à la main, et la consigne serait restée lettre morte jusqu'au jour du
+   redéploiement, sans que rien ne le dise. Ici elle part avec la page.
+   UN SEUL endroit la décrit — les deux aides et le bouton du rappel de cours la
+   partagent. Deux descriptions auraient fini par diverger, et l'une des aides
+   aurait reparlé comme avant sans que personne ne le voie. */
+const LANGUE_SIMPLE=" COMMENT \u00c9CRIRE \u2014 ces r\u00e8gles sont OBLIGATOIRES, quelle que soit la question :"
+  +" tu \u00e9cris pour un \u00e9l\u00e8ve qui lit difficilement le fran\u00e7ais."
+  +" Des phrases COURTES, une seule id\u00e9e par phrase. Des mots de tous les jours."
+  +" Jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb, \u00ab par cons\u00e9quent \u00bb."
+  +" Tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet."
+  +" Tu tutoies. \u00c9cris comme si tu parlais \u00e0 voix haute \u00e0 un \u00e9l\u00e8ve assis \u00e0 c\u00f4t\u00e9 de toi."
+  +" Cette fa\u00e7on d\u2019\u00e9crire ne change RIEN \u00e0 ce que tu as le droit de dire : elle ne t\u2019autorise \u00e0 donner ni r\u00e9sultat, ni r\u00e9ponse attendue.";
 async function lancerConseil(nombre, contexte, fb){
   if(conseilBusy||!fb) return;
   conseilBusy=true;
   fb.textContent='Je réfléchis à un indice…'; fb.className='mp-feedback muted';
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', nombre:nombre, contexte:contexte } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', nombre:nombre, contexte:contexte+LANGUE_SIMPLE } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; fb.insertAdjacentHTML('beforeend', simpleBtnHTML()); }
+    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; }
     else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
     else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
   }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
@@ -2252,12 +2276,12 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme repond elle-meme, sans appeler le modele. */
   if(rappelDemande(q) && typeof rappelDispo==='function' && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathematiques';
-  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, et TOUJOURS si l\u2019eleve demande un exemple, une redaction ou \u00ab comment on fait \u00bb, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes de la solution REDIGEE, une par ligne, jusqu\u2019au resultat, sans aucun pointille. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s’ecrivent 3/4, les puissances 2^3."+qiaCtxExercice();
+  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, et TOUJOURS si l\u2019eleve demande un exemple, une redaction ou \u00ab comment on fait \u00bb, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes de la solution REDIGEE, une par ligne, jusqu\u2019au resultat, sans aucun pointille. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s’ecrivent 3/4, les puissances 2^3."+LANGUE_SIMPLE+qiaCtxExercice();
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback){ br.textContent=d.feedback; br.insertAdjacentHTML('beforeend', simpleBtnHTML()); }
+    if(d && d.feedback) br.textContent=d.feedback;
     else if(d && d.error) br.textContent=d.error;
     else br.textContent='Je n\u2019ai pas de reponse pour le moment. Reessaie.';
   }catch(e){ br.textContent='L\u2019IA est indisponible pour le moment. Reessaie dans un instant.'; }
@@ -2391,12 +2415,8 @@ function simpleBtnHTML(){
    le jour du contrôle. */
 function simpleMission(texte){
   return "MISSION \u00ab redire plus simplement \u00bb \u2014 ce n\u2019est PAS une demande d\u2019indice, PAS une correction, PAS un nouvel exercice. "
-    + "Un \u00e9l\u00e8ve de Seconde a lu le texte ci-dessous et ne l\u2019a pas compris : il lit difficilement le fran\u00e7ais. "
-    + "REDIS EXACTEMENT LA M\u00caME CHOSE, plus simplement.\n"
-    + "COMMENT \u00c9CRIRE \u2014 toutes ces r\u00e8gles sont obligatoires : des phrases COURTES, une seule id\u00e9e par phrase ; des mots de tous les jours ; "
-    + "jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb ; "
-    + "tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet ; "
-    + "tu tutoies ; six phrases au maximum, plus les lignes de calcul s\u2019il y en a.\n"
+    + "Un \u00e9l\u00e8ve de Seconde a lu le texte ci-dessous et ne l\u2019a pas compris. REDIS EXACTEMENT LA M\u00caME CHOSE, plus simplement.\n"
+    + LANGUE_SIMPLE + " Six phrases au maximum, plus les lignes de calcul s\u2019il y en a.\n"
     + "INTERDIT : ajouter quoi que ce soit qui ne soit pas dans le texte. Aucune r\u00e9ponse, aucun r\u00e9sultat, aucun calcul nouveau, aucun exemple nouveau. "
     + "Ce que le texte ne dit pas, tu ne l\u2019inventes pas. S\u2019il te para\u00eet d\u00e9j\u00e0 simple, redis-le quand m\u00eame avec tes mots, sans le rallonger.\n"
     + "TEXTE \u00c0 REDIRE SIMPLEMENT :\n\u00ab " + texte + " \u00bb";

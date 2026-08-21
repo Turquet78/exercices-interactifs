@@ -1061,82 +1061,85 @@ function branchements(w){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
-  /* ---- « Explique-moi plus simplement » est sous les TROIS aides ----------
-     Un élève qui bute sur la LANGUE bute dessus partout (décision de Turquet,
-     août 2026) : le rappel de cours, le conseil du soutien et la réponse de la
-     fenêtre « Question à l'IA » portent donc le même bouton. Le poser sous une
-     seule des trois aurait laissé les deux autres illisibles pour lui, et
-     c'est précisément celui qui n'ose pas demander qui en a besoin.
+  /* ---- Le modèle parle simplement, sans qu'on le lui demande -------------
+     Le conseil du soutien et la réponse de la fenêtre « Question à l'IA »
+     s'écrivent TOUJOURS en français simple (décision de Turquet, août 2026).
+     C'est un renversement : ces deux aides portaient un bouton « Explique-moi
+     plus simplement », et le bouton supposait que l'élève sache qu'il a le
+     droit de le demander — celui qui en a le plus besoin est justement celui
+     qui n'ose pas.
 
-     Le contrôle EXÉCUTE le bouton — il ne lit pas le fichier. Trois bords, et
-     chacun a déjà son défaut tout prêt :
+     Le bouton RESTE sur le rappel de cours, et lui seul : le rappel n'est pas
+     une réponse du modèle, c'est du HTML écrit à la main que le modèle n'a
+     jamais vu. Le rendre « toujours simple » demanderait de réécrire les
+     soixante rappels des trois niveaux ; le bouton est le seul chemin.
 
-     · le bouton MANQUE sous l'une des trois aides. Rien ne casse : l'aide
-       s'affiche, elle est simplement restée en français scolaire.
-     · la mission n'INTERDIT pas d'ajouter. Un modèle à qui on demande de
-       « simplifier » un rappel de cours finit par le compléter — et livre, en
-       français simple, la réponse que le barème fait payer. La fenêtre d'aide
-       est offerte dès l'entraînement : c'est la porte qu'on rouvrirait.
-     · le texte envoyé emporte le BOUTON lui-même, ou une reformulation déjà
-       posée. Le premier fait lire « Explique-moi plus simplement » au modèle
-       comme si c'était du cours ; le second reformule la reformulation, et
-       chaque clic s'éloigne un peu plus du texte d'origine. */
-  verifierEval(w, '« Explique-moi plus simplement » est sous les trois aides, et ne fait que redire', `(function(){
-    if(typeof simpleBtnHTML!=='function' || typeof expliquerSimplement!=='function' || typeof simpleMission!=='function')
-      return 'le bouton « Explique-moi plus simplement » n\\'existe pas';
+     Quatre bords. La consigne peut MANQUER dans l'une des deux aides — rien ne
+     casse, elle reparle comme avant, et seul un élève s'en apercevrait. Elle
+     peut être décrite DEUX FOIS — les deux descriptions divergent, et une aide
+     finit par parler autrement que l'autre. Le bouton peut DISPARAÎTRE du
+     rappel, qui n'a alors plus aucun moyen d'être simplifié. Et il peut
+     REVENIR sous les deux aides, où il ne sert plus à rien.
+     On EXÉCUTE les deux aides et on relit ce qui part vraiment. */
+  verifierEval(w, 'le conseil et la question à l’IA parlent simplement par défaut', `(function(){
+    if(typeof LANGUE_SIMPLE!=='string' || LANGUE_SIMPLE.trim().length<200)
+      return 'LANGUE_SIMPLE introuvable ou trop courte : les aides ne disent pas comment écrire';
     const vus=[];
-    /* 1. La mission : elle doit RENDRE le texte source, et INTERDIRE d'ajouter. */
-    const m=String(simpleMission('TEXTE-TEMOIN-DU-BANC'));
-    if(m.indexOf('TEXTE-TEMOIN-DU-BANC')<0) vus.push('la mission n\\'emporte pas le texte à reformuler');
-    if(!/INTERDIT/.test(m) || !/inventes pas/.test(m))
-      vus.push('la mission n\\'interdit pas d\\'ajouter au texte : le modèle peut « simplifier » en donnant la réponse');
-    if(!/aucun r\u00e9sultat/.test(m)) vus.push('la mission n\\'interdit pas de donner un résultat');
-    /* 2. Le bouton, sous chacune des trois aides — telles que la page les pose. */
-    const libelle=(function(){ const d=document.createElement('div'); d.innerHTML=simpleBtnHTML();
-      return (d.textContent||'').trim(); })();
-    if(!libelle) vus.push('le bouton n\\'a pas de libellé');
-    const aides=[];
-    /* le rappel de cours : c'est rappelHTML() qui le porte, donc les DEUX
-       endroits où il s'affiche l'ont d'un coup */
-    if(typeof rappelHTML==='function' && typeof RAPPELS!=='undefined'){
-      const k=Object.keys(RAPPELS)[0];
-      if(k){ if(test) test.kind=k;
-        const h=String(rappelHTML()||'');
-        aides.push(['le rappel de cours', h]);
-      }
-    } else vus.push('rappelHTML() introuvable : le rappel n\\'est pas mesuré');
-    /* le conseil et la réponse de la fenêtre d'aide : on lit le CORPS des deux
-       fonctions, faute de pouvoir appeler le modèle. Un bouton retiré de l'une
-       des deux disparaît du corps. */
-    [['le conseil du soutien','lancerConseil'],['la réponse de la fenêtre d\\'aide','qiaEnvoyer']].forEach(function(x){
-      const f=(typeof window!=='undefined')?window[x[1]]:null;
-      if(typeof f!=='function'){ vus.push(x[1]+'() introuvable'); return; }
-      if(String(f).indexOf('simpleBtnHTML')<0) vus.push(x[0]+' ne pose pas le bouton');
-    });
-    aides.forEach(function(a){
-      if(String(a[1]).indexOf('btn-simple')<0) vus.push(a[0]+' ne pose pas le bouton');
-    });
-    /* 3. Ce qui PART au modèle : le texte de l'aide, sans le bouton ni une
-          reformulation déjà là. On rejoue le vrai geste de l'élève. */
-    const hote=document.createElement('div');
-    hote.innerHTML='Le coefficient multiplicateur vaut 0,8.'+simpleBtnHTML()
-                 +'<div class="simple-rep">UNE-REFORMULATION-DEJA-LA</div>';
-    document.body.appendChild(hote);
-    const btn=hote.querySelector('.btn-simple');
-    if(!btn){ vus.push('le bouton posé n\\'a pas la classe btn-simple'); return vus.join(' | '); }
+    /* Une SEULE description de « comment écrire » : le bouton du rappel doit la
+       partager, jamais en tenir une copie. */
+    if(typeof simpleMission==='function' && String(simpleMission).indexOf('LANGUE_SIMPLE')<0)
+      vus.push('le bouton du rappel décrit sa propre façon d\\'écrire au lieu de partager LANGUE_SIMPLE');
+    /* Ce qui PART vraiment, aide par aide. */
+    const sbSauve=sb, sauve=currentEleve;
     let parti='';
-    /* sb n'est pas branché ici : on pose un double le temps du clic, et on le
-       retire. Aucun contrôle ne doit approcher le vrai projet. */
-    const sbSauve=sb;
     sb={ functions:{ invoke:function(n,o){ parti=(o&&o.body&&o.body.contexte)||''; return new Promise(function(){}); } } };
-    const sauve=currentEleve; currentEleve={id:'e-controle',prenom:'Contrôle'};
-    try{ expliquerSimplement(btn); }catch(e){ vus.push('le clic lève : '+e.message); }
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    const temoin='CONTEXTE-TEMOIN-DU-BANC';
+    /* 1. le conseil du soutien */
+    if(typeof lancerConseil!=='function') vus.push('lancerConseil() introuvable');
+    else {
+      const fb=document.createElement('div'); document.body.appendChild(fb);
+      parti=''; conseilBusy=false;
+      try{ if(lancerConseil.length>=3) lancerConseil('', temoin, fb); else lancerConseil(temoin, fb); }
+      catch(e){ vus.push('le conseil lève : '+e.message); }
+      conseilBusy=false;
+      if(parti.indexOf(temoin)<0) vus.push('le conseil n\\'envoie pas son contexte : le contrôle ne mesure rien');
+      else if(parti.indexOf(LANGUE_SIMPLE)<0) vus.push('le conseil du soutien ne dit pas au modèle d\\'écrire simplement');
+      try{ fb.remove(); }catch(e){}
+    }
+    /* 2. la fenêtre « Question à l'IA » */
+    if(typeof qiaEnvoyer!=='function') vus.push('qiaEnvoyer() introuvable');
+    else {
+      let d=document.getElementById('qiaDialog');
+      if(!d){ d=document.createElement('div'); d.id='qiaDialog'; document.body.appendChild(d); }
+      let inp=document.getElementById('qiaInput');
+      if(!inp){ inp=document.createElement('input'); inp.id='qiaInput'; document.body.appendChild(inp); }
+      inp.value='Comment on fait pour trouver la réponse ?';
+      parti=''; qiaBusy=false;
+      try{ qiaEnvoyer(); }catch(e){ vus.push('la fenêtre d\\'aide lève : '+e.message); }
+      qiaBusy=false;
+      if(!parti) vus.push('la fenêtre d\\'aide n\\'envoie rien : le contrôle ne mesure rien');
+      else if(parti.indexOf(LANGUE_SIMPLE)<0) vus.push('la fenêtre « Question à l\\'IA » ne dit pas au modèle d\\'écrire simplement');
+    }
     sb=sbSauve; currentEleve=sauve;
-    simpleBusy=false;
-    if(parti.indexOf('Le coefficient multiplicateur vaut 0,8.')<0) vus.push('le texte de l\\'aide ne part pas au modèle');
-    if(libelle && parti.indexOf(libelle)>=0) vus.push('le LIBELLÉ du bouton part au modèle comme s\\'il faisait partie du cours');
-    if(parti.indexOf('UNE-REFORMULATION-DEJA-LA')>=0) vus.push('une reformulation déjà posée repart au modèle : chaque clic s\\'éloignerait du texte d\\'origine');
-    try{ hote.remove(); }catch(e){}
+    /* 3. le rappel de cours garde SON bouton — c'est le seul chemin qu'il ait. */
+    if(typeof rappelHTML!=='function' || typeof RAPPELS==='undefined') vus.push('rappelHTML() ou RAPPELS introuvable');
+    else {
+      const k=Object.keys(RAPPELS)[0];
+      if(test) test.kind=k;
+      const h=String(rappelHTML()||'');
+      if(!h.trim()) vus.push('aucun rappel de cours : le contrôle ne mesure rien');
+      else if(h.indexOf('btn-simple')<0) vus.push('le rappel de cours n\\'a plus de bouton : plus aucun moyen de le simplifier');
+    }
+    /* 4. et le bouton ne revient pas là où il ne sert plus à rien. */
+    [['le conseil du soutien','lancerConseil'],['la fenêtre d\\'aide','qiaEnvoyer']].forEach(function(x){
+      const f=(typeof window!=='undefined')?window[x[1]]:null;
+      if(typeof f==='function' && String(f).indexOf('simpleBtnHTML')>=0)
+        vus.push(x[0]+' repose le bouton alors qu\\'il parle déjà simplement');
+    });
+    /* La consigne ne doit pas rouvrir ce que les garde-fous ferment. */
+    if(!/ni r\u00e9sultat|ni réponse attendue/.test(LANGUE_SIMPLE))
+      vus.push('LANGUE_SIMPLE ne rappelle pas qu\\'écrire simplement n\\'autorise pas à donner le résultat');
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
