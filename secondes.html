@@ -428,7 +428,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv{padding-bottom:84px}
+  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -480,6 +480,15 @@
      l'écriture de l'intervalle doit tenir sur UNE ligne, sinon son crochet de
      droite se retrouve seul sous les autres et ne se lit plus comme un
      crochet fermant. Mesuré à 390 px de large. */
+  /* ---- De l'inégalité à l'intervalle : l'énoncé, et les quatre propositions ---- */
+  .itq-ineg{font-family:"Fredoka";font-weight:600;font-size:2rem;color:var(--blue-dark);text-align:center;letter-spacing:.02em;padding:10px 14px;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;width:100%;max-width:560px;box-sizing:border-box}
+  .itq-cartes{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:560px}
+  .itq-carte{position:relative;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;padding:6px 4px 4px}
+  .itq-carte svg{width:100%;height:auto;display:block}
+  .itq-lettre{position:absolute;top:6px;left:8px;font-family:"Fredoka";font-weight:600;font-size:1rem;color:var(--blue-dark)}
+  .itq-carte.ok{border-color:var(--green);background:var(--green-soft)}
+  .itq-carte.bad{border-color:var(--red);background:var(--red-soft)}
+  @media(max-width:520px){ .itq-cartes{grid-template-columns:1fr} .itq-ineg{font-size:1.5rem} }
   @media(max-width:520px){ .itv-ligne{grid-template-columns:1fr;padding:8px 10px} .itv-corps{font-size:1.05rem;gap:5px} .itv-sel{width:48px;height:40px;font-size:1.05rem;padding:0 2px} .itv-sel.large{width:68px} }
   .def-text{width:100%;box-sizing:border-box;font-family:"Nunito",sans-serif;font-size:1rem;color:var(--ink);padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;resize:vertical;min-height:96px;outline:none;background:#fff}
   .def-text:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(43,80,200,.14)}
@@ -1226,6 +1235,23 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : DE L'INÉGALITÉ À L'INTERVALLE -->
+  <section class="screen" id="scr-itq">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagItq"></span><span class="q-idx" id="itqIdx">Question 1 / 8</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="itqLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Voici une inégalité. Retrouve le schéma qui lui correspond, puis écris l’intervalle.</p>
+      <p class="ens-note">Propositions : un nombre, ou <b>&minus;&infin;</b> ; <b>+&infin;</b> ; <b>[</b> ; <b>]</b> ; <b>ouvert</b> ; <b>ferm&eacute;</b>.</p>
+      <div class="mp-stage"><div style="width:100%" id="itqHost"></div></div>
+      <div class="mp-feedback" id="itqFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="itqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkItqAnswer()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-teacher-login">
     <div class="card">
       <h2 class="title">Espace professeur</h2>
@@ -1435,7 +1461,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=53;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=54;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1714,7 +1740,8 @@ const TESTS={
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'diminuer-pourcentage': { name:'Diminuer d\u2019un pourcentage', icon:'\ud83d\udcc9', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() },
-  'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Lis un intervalle sur la droite graduée : complète les crochets, l’inégalité et la phrase « ouvert / fermé en … » avec les propositions données.', start:()=>startItv() }
+  'intervalles': { name:'Intervalles', icon:'\ud83d\udccf', desc:'Lis un intervalle sur la droite graduée : complète les crochets, l’inégalité et la phrase « ouvert / fermé en … » avec les propositions données.', start:()=>startItv() },
+  'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'Le chemin inverse de {intervalles} : on ne donne que l’inégalité, et tu retrouves le schéma, l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
@@ -1722,7 +1749,7 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles'] },
+  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles','intervalles-inegalite'] },
   { num:2, nom:'Fonctions', ids:['lecture-variations'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] }
 ];
@@ -1768,6 +1795,7 @@ function liveCheckCurrent(){
   else if(k==='dim') checkDAnswer(true);
   else if(k==='ens') checkEnsAnswer(true);
   else if(k==='itv') checkItvAnswer(true);
+  else if(k==='itq') checkItqAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -1974,6 +2002,7 @@ function conseilPaire(){
   if(test.kind==='ens' && q) b=ctxEns(q);
   else if(test.kind==='pge' && q) b=ctxPge(q);
   else if(test.kind==='itv' && q) b=ctxItv(q);
+  else if(test.kind==='itq' && q) b=ctxItq(q);
   else b={nombre:'', contexte:ctxVisible()};
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   b.contexte=numeros(b.contexte); b.nombre=numeros(b.nombre);
@@ -2176,6 +2205,7 @@ const QIA_SUGG={
   pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
   itv:["C’est quoi, un intervalle ?","Comment savoir si le crochet est ouvert ou fermé ?","Pourquoi le crochet est toujours ouvert du côté de l’infini ?","Quelle différence entre < et ≤ ?"],
+  itq:["Comment passer d’une inégalité à un intervalle ?","Quelle différence entre « −1 ≤ x » et « x ≤ −1 » ?","Le signe ≤ donne quel crochet ?","Comment savoir de quel côté part le trait rouge ?"],
   gen:["Explique-moi simplement la notion principale.","Quelles sont les erreurs classiques a eviter ?"],
 };
 function qiaSuggestions(){
@@ -2350,9 +2380,17 @@ Un intervalle est le morceau de droite graduée compris entre deux bornes.<br>
 <b>④ L’infini ne s’atteint jamais</b> : du côté de +∞ ou de −∞, le crochet est TOUJOURS tourné vers l’extérieur — [−2 ; +∞[ , ]−∞ ; 3].<br>
 Piège classique : écrire [−2 ; +∞] — l’infini n’est pas un nombre, aucune borne ne peut valoir +∞.`;
 
+const RAP_ITQ=`<b>D’une inégalité à un intervalle</b><br>
+L’inégalité dit quels nombres x a le droit de prendre ; l’intervalle dit la même chose, en plus court.<br>
+<b>① Repère les bornes.</b> Dans « −2 &lt; x ≤ 3 », ce sont −2 et 3. Dans « x ≤ 3 », il n’y en a qu’une : de l’autre côté, rien n’arrête x, la borne est −∞.<br>
+<b>② Le signe donne le crochet.</b> <b>≤</b> accepte la borne : elle est PRISE — point plein sur le schéma, crochet tourné vers l’intérieur, intervalle <b>fermé</b>. <b>&lt;</b> la refuse : elle est EXCLUE — crochet tourné vers l’extérieur, intervalle <b>ouvert</b>.<br>
+<b>③ Écris de gauche à droite</b>, du plus petit au plus grand : −2 &lt; x ≤ 3 donne ]−2 ; 3].<br>
+<b>④ Du côté de l’infini, le crochet est toujours ouvert</b> : x ≤ 3 donne ]−∞ ; 3].<br>
+Piège classique : confondre « −1 ≤ x » et « x ≤ −1 ». Le premier dit que x est PLUS GRAND que −1, le second qu’il est plus petit — les deux schémas partent en sens opposés.`;
+
 /* Un rappel par kind ; RAPPELS_ID l'emporte quand deux exercices partagent un
    kind (les deux niveaux d'ensembles passent tous deux par kind 'ens'). */
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ };
 const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours porte le bouton lui-même : il s'affiche à DEUX endroits —
@@ -2817,7 +2855,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest]};
+  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -2941,7 +2979,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv'];
+  const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq'];
   /* La barre suit désormais deux règles différentes. Pause et abandon restent
      réservés à l'entraînement et au soutien — ils n'ont pas de sens en
      évaluation. « Signaler » doit au contraire y être : c'est justement en
@@ -2958,7 +2996,7 @@ function show(name){
   }
   $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -5234,32 +5272,39 @@ function itvWhy(q){
 /* ---- Le schéma ----
    Le trait rouge se pose PAR-DESSUS l'axe, comme au feutre sur la fiche : les
    graduations dépassent au-dessus et au-dessous, l'élève les lit encore. */
-function itvPoint(x,y){ return '<circle cx="'+x+'" cy="'+y+'" r="7" fill="#E5232B"/>'; }
+function itvPoint(x,y,e){ return '<circle cx="'+x+'" cy="'+y+'" r="'+(7*(e||1))+'" fill="#E5232B"/>'; }
 /* La borne EXCLUE se dessine par un crochet qui TOURNE LE DOS à l'intervalle —
    exactement le crochet qu'on écrira : « ]−2 » à gauche, « 3[ » à droite. Le
    dessin et l'écriture sont alors la même chose, et c'est tout ce que
    l'exercice cherche à faire passer. */
-function itvCrochet(x,y,sens){
-  const a=10, h=15;
+function itvCrochet(x,y,sens,e){
+  const f=e||1, a=10*f, h=15*f;
   return '<path d="M '+(x+sens*a)+' '+(y-h)+' L '+x+' '+(y-h)+' L '+x+' '+(y+h)+' L '+(x+sens*a)+' '+(y+h)+
-    '" fill="none" stroke="#E5232B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
+    '" fill="none" stroke="#E5232B" stroke-width="'+(6*f)+'" stroke-linecap="round" stroke-linejoin="round"/>';
 }
-function itvSchema(q){
-  const W=520, H=88, g=34, y=40;
+/* « mini » : le même dessin, mais destiné à être rendu quatre fois plus petit
+   (les quatre propositions de {intervalles-inegalite}). Tout y est grossi DANS
+   le viewBox — traits, graduations, chiffres —, si bien qu'une fois réduit à
+   250 px il se lit comme le grand à 520. Sans cela, un chiffre de 15 px y
+   tombait à 7, et l'élève devait deviner les graduations qu'on lui demande
+   justement de lire. */
+function itvSchema(q,mini){
+  const W=520, H=mini?104:88, g=34, y=mini?44:40;
+  const e=mini?1.9:1, T=mini?26:15;               /* épaisseurs et texte */
   const px=v=>g+(v-ITV_MIN)*(W-2*g)/(ITV_MAX-ITV_MIN);
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Schéma de l’intervalle sur la droite graduée">';
-  s+='<line x1="8" y1="'+y+'" x2="'+(W-10)+'" y2="'+y+'" stroke="#1F2937" stroke-width="2"/>';
-  s+='<path d="M '+(W-20)+' '+(y-7)+' L '+(W-8)+' '+y+' L '+(W-20)+' '+(y+7)+
-     '" fill="none" stroke="#1F2937" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  s+='<line x1="8" y1="'+y+'" x2="'+(W-10)+'" y2="'+y+'" stroke="#1F2937" stroke-width="'+(2*e)+'"/>';
+  s+='<path d="M '+(W-20)+' '+(y-7*e)+' L '+(W-8)+' '+y+' L '+(W-20)+' '+(y+7*e)+
+     '" fill="none" stroke="#1F2937" stroke-width="'+(2*e)+'" stroke-linecap="round" stroke-linejoin="round"/>';
   for(let v=ITV_MIN;v<=ITV_MAX;v++){
     const x=px(v);
-    s+='<line x1="'+x+'" y1="'+(y-9)+'" x2="'+x+'" y2="'+(y+9)+'" stroke="#1F2937" stroke-width="2"/>';
-    s+='<text x="'+x+'" y="'+(y+30)+'" text-anchor="middle" font-family="Nunito, sans-serif" font-size="15" fill="#1F2937">'+itvNum(v)+'</text>';
+    s+='<line x1="'+x+'" y1="'+(y-9*e)+'" x2="'+x+'" y2="'+(y+9*e)+'" stroke="#1F2937" stroke-width="'+(2*e)+'"/>';
+    s+='<text x="'+x+'" y="'+(y+(mini?38:30))+'" text-anchor="middle" font-family="Nunito, sans-serif" font-size="'+T+'" fill="#1F2937">'+itvNum(v)+'</text>';
   }
   const xa=(q.bg===null)?9:px(q.bg), xb=(q.bd===null)?(W-14):px(q.bd);
-  s+='<line x1="'+xa+'" y1="'+y+'" x2="'+xb+'" y2="'+y+'" stroke="#E5232B" stroke-width="7"/>';
-  if(q.bg!==null) s+= q.fg?itvPoint(px(q.bg),y):itvCrochet(px(q.bg),y,-1);
-  if(q.bd!==null) s+= q.fd?itvPoint(px(q.bd),y):itvCrochet(px(q.bd),y,1);
+  s+='<line x1="'+xa+'" y1="'+y+'" x2="'+xb+'" y2="'+y+'" stroke="#E5232B" stroke-width="'+(7*e)+'"/>';
+  if(q.bg!==null) s+= q.fg?itvPoint(px(q.bg),y,e):itvCrochet(px(q.bg),y,-1,e);
+  if(q.bd!==null) s+= q.fd?itvPoint(px(q.bd),y,e):itvCrochet(px(q.bd),y,1,e);
   return s+'</svg>';
 }
 /* ---- Les cases ---- */
@@ -5347,6 +5392,182 @@ function checkItvAnswer(live){
   const nb=$('itvNext'); if(nb) nb.focus();
 }
 function nextItvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderItvTest(); autoSave(); } else finishTest(); }
+/* ---------- Exercice : de l'inégalité à l'intervalle ----------------------
+   Le miroir de {intervalles}. Là, on donnait le schéma et l'élève écrivait ce
+   qu'il montre ; ici on donne l'INÉGALITÉ, et il doit retrouver le reste : le
+   dessin, l'écriture de l'intervalle, et la phrase « ouvert / fermé en … ».
+   C'est le chemin que l'élève fera au contrôle, et c'est le plus difficile des
+   deux — un dessin se lit, une inégalité se traduit.
+
+   Le schéma se CHOISIT parmi quatre, et les quatre ne diffèrent que par leurs
+   bornes : sur un intervalle borné, ce sont les quatre combinaisons de
+   crochets sur les mêmes nombres ; sur une demi-droite, ce sont les deux sens
+   × les deux crochets. Un élève qui lit « −1 ≤ x » comme « x ≤ −1 » se trompe
+   alors de dessin, et c'est exactement l'erreur que l'exercice vise. Des
+   propositions qui différeraient par autre chose se laisseraient éliminer sans
+   lire l'inégalité.
+
+   Tout le moteur de {intervalles} est repris tel quel — le tirage, le dessin,
+   les listes de propositions, l'écriture. Seule la DIRECTION change. En
+   recopier une moitié aurait donné deux dessins à tenir, et le jour où l'un des
+   deux aurait changé de convention, les deux exercices se seraient contredits
+   sous les yeux de l'élève. */
+const ITQ_NOM={'itq-sch':'le schéma','itq-cg':'le crochet de gauche','itq-bg':'la borne de gauche',
+  'itq-bd':'la borne de droite','itq-cd':'le crochet de droite',
+  'itq-og':'« ouvert / fermé » à gauche','itq-od':'« ouvert / fermé » à droite'};
+const ITQ_LETTRES=['A','B','C','D'];
+function itqMeme(a,b){ return a.bg===b.bg && a.bd===b.bd && a.fg===b.fg && a.fd===b.fd; }
+function itqGen(f){
+  const base=itvGen(f);                       /* même tirage que {intervalles} */
+  let cands;
+  if(base.bg!==null && base.bd!==null){
+    /* borné : les quatre crochets possibles sur les mêmes bornes */
+    cands=[{fg:true,fd:true},{fg:false,fd:false},{fg:false,fd:true},{fg:true,fd:false}]
+      .map(function(x){ return {bg:base.bg, bd:base.bd, fg:x.fg, fd:x.fd}; });
+  } else {
+    /* demi-droite : les deux SENS, et les deux crochets. Le sens est le piège —
+       « −1 ≤ x » et « x ≤ −1 » ne se distinguent qu'en lisant l'inégalité. */
+    const v=(base.bg===null)?base.bd:base.bg;
+    cands=[{bg:v,bd:null,fg:true,fd:false},{bg:v,bd:null,fg:false,fd:false},
+           {bg:null,bd:v,fg:false,fd:true},{bg:null,bd:v,fg:false,fd:false}];
+  }
+  cands=ensShuffle(cands);
+  let bon=-1;
+  cands.forEach(function(c,i){ if(itqMeme(c,base)) bon=i; });
+  return {bg:base.bg, bd:base.bd, fg:base.fg, fd:base.fd, cands:cands, bon:bon};
+}
+function itqBuildQuestions(){ return ensShuffle(ITV_FORMES.map(itqGen)); }
+/* L'inégalité DONNÉE. Une borne infinie n'en a pas : « x ≤ +∞ » ne veut rien
+   dire, et l'énoncé serait faux avant même que l'élève ne commence. */
+function itqInegalite(q){
+  const g=(q.bg!==null), d=(q.bd!==null);
+  if(g&&d) return itvNum(q.bg)+' '+(q.fg?'≤':'<')+' x '+(q.fd?'≤':'<')+' '+itvNum(q.bd);
+  if(g) return itvNum(q.bg)+' '+(q.fg?'≤':'<')+' x';
+  return 'x '+(q.fd?'≤':'<')+' '+itvNum(q.bd);
+}
+function itqCases(q){
+  return [{id:'itq-sch', bon:String(q.bon)},
+          {id:'itq-cg', bon:(q.fg?'[':']')},
+          {id:'itq-bg', bon:(q.bg===null?'-inf':String(q.bg))},
+          {id:'itq-bd', bon:(q.bd===null?'+inf':String(q.bd))},
+          {id:'itq-cd', bon:(q.fd?']':'[')},
+          {id:'itq-og', bon:(q.fg?'ferme':'ouvert')},
+          {id:'itq-od', bon:(q.fd?'ferme':'ouvert')}];
+}
+function itqAffiche(id,v){
+  if(id==='itq-sch') return (v==='' || v==null) ? '?' : (ITQ_LETTRES[parseInt(v,10)]||'?');
+  return itvAffiche(v);
+}
+function itqWhy(q){
+  const p=['L’inégalité '+itqInegalite(q)+' se lit '+itvPlain(q)+', schéma '+(ITQ_LETTRES[q.bon]||'?')+'.'];
+  if(q.bg===null) p.push('Rien ne borne à gauche : la borne est '+ITV_INF_N+', toujours ouverte.');
+  else if(q.fg) p.push('« '+itvNum(q.bg)+' ≤ x » : le signe ≤ accepte '+itvNum(q.bg)+', donc '+itvNum(q.bg)+
+    ' est PRIS — point plein, crochet [ , fermé.');
+  else p.push('« '+itvNum(q.bg)+' < x » : le signe < refuse '+itvNum(q.bg)+', donc '+itvNum(q.bg)+
+    ' est EXCLU — crochet ] tourné vers l’extérieur, ouvert.');
+  if(q.bd===null) p.push('Rien ne borne à droite : la borne est '+ITV_INF_P+', ouverte elle aussi.');
+  else if(q.fd) p.push('« x ≤ '+itvNum(q.bd)+' » : le signe ≤ accepte '+itvNum(q.bd)+', donc '+itvNum(q.bd)+
+    ' est PRIS — point plein, crochet ] , fermé.');
+  else p.push('« x < '+itvNum(q.bd)+' » : le signe < refuse '+itvNum(q.bd)+', donc '+itvNum(q.bd)+
+    ' est EXCLU — crochet [ tourné vers l’extérieur, ouvert.');
+  return p.join(' ');
+}
+let _itqSaveTimer=null;
+function renderItqTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('itqIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagItq').innerHTML=modeTagHTML();
+  $('itqLiveScore').textContent=test.score;
+  $('itqFeedback').textContent=''; $('itqFeedback').className='mp-feedback';
+  $('itqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkItqAnswer()">Vérifier</button>';
+  const B=itvOptBornes();
+  /* les quatre schémas proposés, étiquetés A à D */
+  const cartes=q.cands.map(function(c,i){
+    return '<div class="itq-carte"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+itvSchema(c,true)+'</div>';
+  }).join('');
+  const inter='<span class="itv-corps">'
+    +itvSelHTML('itq-cg',ITV_OPT_CROCHET,'Crochet de gauche')
+    +itvSelHTML('itq-bg',B,'Borne de gauche','large')
+    +'<span class="itv-fixe">;</span>'
+    +itvSelHTML('itq-bd',B,'Borne de droite','large')
+    +itvSelHTML('itq-cd',ITV_OPT_CROCHET,'Crochet de droite')
+    +'</span>';
+  const ecrit='<span class="itv-corps"><span class="itv-fixe">L’intervalle est</span>'
+    +itvSelHTML('itq-og',ITV_OPT_OF,'Ouvert ou fermé à gauche','large')
+    +'<span class="itv-fixe">en '+itvBorneG(q)+'</span><span class="itv-fixe">et</span>'
+    +itvSelHTML('itq-od',ITV_OPT_OF,'Ouvert ou fermé à droite','large')
+    +'<span class="itv-fixe">en '+itvBorneD(q)+'</span></span>';
+  const choixSch='<span class="itv-corps"><span class="itv-fixe">C’est le schéma</span>'
+    +itvSelHTML('itq-sch', ITQ_LETTRES.map(function(l,i){ return [String(i),l]; }), 'Schéma correspondant')
+    +'</span>';
+  $('itqHost').innerHTML='<div class="itv-fiche">'
+    +'<div class="itq-ineg">'+itqInegalite(q)+'</div>'
+    +'<div class="itq-cartes">'+cartes+'</div>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Schéma</span>'+choixSch+'</div>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Intervalle</span>'+inter+'</div>'
+    +'<div class="itv-ligne"><span class="itv-lbl">On écrit</span>'+ecrit+'</div>'
+    +'</div>';
+  itqCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.addEventListener('change',function(){ if(isSoutien()) itqLive(); clearTimeout(_itqSaveTimer); _itqSaveTimer=setTimeout(autoSave,1000); });
+  });
+}
+/* Mode soutien : chaque case est colorée au fur et à mesure. */
+function itqLive(){
+  if(test.kind!=='itq' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  itqCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.classList.remove('ok','bad');
+    if(sel.value==='') return;
+    sel.classList.add(sel.value===c.bon?'ok':'bad');
+  });
+}
+function checkItqAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ itqLive(); return; }
+  const subs=itqCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  /* le schéma juste se montre : on entoure la carte choisie, et la bonne */
+  const cartes=document.querySelectorAll('#itqHost .itq-carte');
+  cartes.forEach(function(el,i){ el.classList.remove('ok','bad');
+    if(i===q.bon) el.classList.add('ok');
+    else if(String(i)===(($('itq-sch')||{}).value||'')) el.classList.add('bad');
+  });
+  if(!allOk && isSoutien()){ soutienAgain('itqFeedback','itqActions','checkItqAnswer','itqHost'); return; }
+  test.locked=true;
+  test.score+=nCorrect; $('itqLiveScore').textContent=test.score;
+  if(allOk){ $('itqFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('itqFeedback').className='mp-feedback good'; }
+  else { $('itqFeedback').textContent=itqWhy(q); $('itqFeedback').className='mp-feedback bad'; }
+  const answer=subs.map(function(s){ return itqAffiche(s.c.id, s.c.bon); }).join(' ');
+  const given=subs.map(function(s){ return itqAffiche(s.c.id, s.sel?s.sel.value:''); }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:allOk, q:itqInegalite(q)+' → '+itvPlain(q)+' — '+nCorrect+'/'+subs.length+' justes', answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('itqActions').innerHTML='<button class="btn btn-primary" id="itqNext" onclick="nextItqQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('itqNext'); if(nb) nb.focus();
+}
+function nextItqQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderItqTest(); autoSave(); } else finishTest(); }
+async function startItq(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=itqBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'itq', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+itqCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('itq'); renderItqTest();
+}
+function ctxItq(q){
+  const faux=itqCases(q).filter(function(c){ const sel=$(c.id), v=sel?sel.value:''; return v!=='' && v!==c.bon; })
+                        .map(function(c){ return ITQ_NOM[c.id]; });
+  let c='L’élève lit l’inégalité '+itqInegalite(q)+' et doit retrouver le reste : choisir, parmi quatre droites graduées, '
+       +'celle qui la représente, puis écrire l’intervalle et dire s’il est ouvert ou fermé à chaque borne. '
+       +'La bonne réponse est '+itvPlain(q)+', schéma '+(ITQ_LETTRES[q.bon]||'?')+'.';
+  if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
+  return {nombre:itvPlain(q), contexte:c};
+}
+
 async function startItv(){
   if(!currentEleve){ accueil(); return; }
   const qs=itvBuildQuestions();
@@ -5395,7 +5616,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

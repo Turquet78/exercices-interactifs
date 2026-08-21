@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
                'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
-               'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv' };
+               'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
