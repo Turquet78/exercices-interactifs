@@ -508,6 +508,11 @@
 .qia-close{border:none;background:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft);padding:4px 8px}
 .qia-sugg{padding:10px 14px 2px}
 .qia-chip{display:inline-block;margin:0 8px 8px 0;padding:7px 11px;border:1.5px solid #c9d3e8;border-radius:999px;background:var(--paper);font-weight:700;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left}
+/* ---- « Explique-moi plus simplement » : le bouton, et la reformulation ---- */
+.btn-simple{display:block;margin:14px auto 2px;padding:7px 15px;border:1.5px solid var(--blue);border-radius:999px;background:#fff;color:var(--blue-dark);font-family:"Nunito",sans-serif;font-weight:700;font-size:.9rem;line-height:1.3;cursor:pointer;text-align:center}
+.btn-simple:hover{background:#EAF2FF}
+.btn-simple:disabled{opacity:.55;cursor:default}
+.simple-rep{margin-top:12px;padding:12px 14px;border-left:4px solid var(--blue);background:#F3F7FF;border-radius:10px;color:var(--ink);font-family:"Nunito",sans-serif;font-size:1rem;line-height:1.6;text-align:left;white-space:pre-wrap}
 .qia-chip:hover{border-color:var(--blue);color:var(--blue)}
 .qia-dialog{flex:1;overflow-y:auto;padding:6px 14px;min-height:56px}
 .qia-q,.qia-r{margin:8px 0;padding:9px 12px;border-radius:12px;line-height:1.5;font-size:.95rem}
@@ -1430,7 +1435,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=52;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=53;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1921,7 +1926,7 @@ async function lancerConseil(nombre, contexte, fb){
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', nombre:nombre, contexte:contexte } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; }
+    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; fb.insertAdjacentHTML('beforeend', simpleBtnHTML()); }
     else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
     else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
   }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
@@ -2046,7 +2051,15 @@ function garnirFenetre(pop, titre){
       pd.head.appendChild(st);
     }
   }catch(e){}
-  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+  /* Une fenêtre détachée est un AUTRE document : un attribut onclick posé dans
+     la carte y cherche sa fonction sur le window de la POPUP, qui n'en a
+     aucune. Toute fonction appelée depuis un onclick de la carte doit donc
+     figurer ici — « expliquer plus simplement » y manquait, et son bouton
+     était mort dans la fenêtre détachée, sans la moindre erreur nulle part.
+     Une liste de noms tenue à la main est exactement ce qui dérive : le banc
+     ouvre les deux cartes, y déclenche tout ce qui pose un bouton, et exige
+     que chaque onclick trouvé soit dans cette liste. */
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel','expliquerSimplement'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
 }
 function rapatrierFenetre(pop){
   try{
@@ -2244,7 +2257,7 @@ async function qiaEnvoyer(){
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback) br.textContent=d.feedback;
+    if(d && d.feedback){ br.textContent=d.feedback; br.insertAdjacentHTML('beforeend', simpleBtnHTML()); }
     else if(d && d.error) br.textContent=d.error;
     else br.textContent='Je n\u2019ai pas de reponse pour le moment. Reessaie.';
   }catch(e){ br.textContent='L\u2019IA est indisponible pour le moment. Reessaie dans un instant.'; }
@@ -2342,7 +2355,82 @@ Piège classique : écrire [−2 ; +∞] — l’infini n’est pas un nombre, a
 const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV };
 const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
-function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
+/* Le rappel de cours porte le bouton lui-même : il s'affiche à DEUX endroits —
+   la fenêtre d'aide et le fil de « Question à l'IA » — et un bouton posé sur
+   un seul des deux aurait laissé l'autre sans. Rien quand il n'y a pas de
+   rappel : un bouton seul n'aurait rien à redire. */
+function rappelHTML(){ const t=numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); return t ? t+simpleBtnHTML() : t; }
+/* ---------- « Explique-moi plus simplement » ----------------------------------
+   Le même bouton sous les TROIS aides — le rappel de cours, le conseil du
+   soutien et la réponse de la fenêtre « Question à l'IA » (décision de Turquet,
+   août 2026). Un élève qui bute sur la LANGUE bute dessus partout : le poser
+   sous une seule des trois aurait laissé les deux autres illisibles pour lui,
+   et c'est justement celui qui n'ose pas demander qui en a besoin.
+
+   Il REFORMULE le texte affiché ; il ne repose pas la question. C'est ce qui le
+   rend uniforme — le rappel de cours n'est PAS une réponse du modèle, c'est du
+   HTML écrit à la main que le modèle n'a jamais vu — et c'est aussi ce qui le
+   rend sûr : le texte source a déjà passé les garde-fous, le conseil ne donnant
+   jamais le résultat et la mission de la fenêtre d'aide interdisant les valeurs
+   de l'exercice. Reformuler un texte déjà sûr reste sûr ; reposer la question
+   aurait rouvert chacune de ces portes, et la fenêtre d'aide est offerte dès
+   l'ENTRAÎNEMENT, alors que le Conseil est réservé au soutien, noté moins cher.
+
+   Le bouton se pose DANS le bloc qu'il reformule et lit le texte de son propre
+   parent : une seule fonction sert les trois aides sans rien savoir de leur
+   DOM. Trois fonctions auraient fini par diverger — c'est ce qui est arrivé à
+   la réserve du bas et à testScreens. */
+function simpleBtnHTML(){
+  return '<button type="button" class="btn-simple" onclick="expliquerSimplement(this)">\u{1F5E3} Explique-moi plus simplement</button>';
+}
+/* La consigne. Son bord décisif est l'INTERDICTION D'AJOUTER : sans elle, un
+   modèle à qui on demande de « simplifier » un rappel de cours finit par le
+   compléter — et par livrer, en français simple, la réponse que le barème fait
+   payer. Le vocabulaire mathématique est GARDÉ et expliqué, jamais remplacé :
+   un élève à qui on épargne le mot « intervalle » ne le connaîtra pas davantage
+   le jour du contrôle. */
+function simpleMission(texte){
+  return "MISSION \u00ab redire plus simplement \u00bb \u2014 ce n\u2019est PAS une demande d\u2019indice, PAS une correction, PAS un nouvel exercice. "
+    + "Un \u00e9l\u00e8ve de Seconde a lu le texte ci-dessous et ne l\u2019a pas compris : il lit difficilement le fran\u00e7ais. "
+    + "REDIS EXACTEMENT LA M\u00caME CHOSE, plus simplement.\n"
+    + "COMMENT \u00c9CRIRE \u2014 toutes ces r\u00e8gles sont obligatoires : des phrases COURTES, une seule id\u00e9e par phrase ; des mots de tous les jours ; "
+    + "jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb ; "
+    + "tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet ; "
+    + "tu tutoies ; six phrases au maximum, plus les lignes de calcul s\u2019il y en a.\n"
+    + "INTERDIT : ajouter quoi que ce soit qui ne soit pas dans le texte. Aucune r\u00e9ponse, aucun r\u00e9sultat, aucun calcul nouveau, aucun exemple nouveau. "
+    + "Ce que le texte ne dit pas, tu ne l\u2019inventes pas. S\u2019il te para\u00eet d\u00e9j\u00e0 simple, redis-le quand m\u00eame avec tes mots, sans le rallonger.\n"
+    + "TEXTE \u00c0 REDIRE SIMPLEMENT :\n\u00ab " + texte + " \u00bb";
+}
+let simpleBusy=false;
+async function expliquerSimplement(btn){
+  if(simpleBusy || !btn) return;
+  const hote=btn.parentElement; if(!hote) return;
+  /* Le texte de l'hôte SANS le bouton ni une reformulation déjà posée. Sans ce
+     ménage, un second clic reformulerait la première reformulation, et le
+     libellé du bouton partirait au modèle comme s'il faisait partie du cours. */
+  const copie=hote.cloneNode(true);
+  copie.querySelectorAll('.btn-simple,.simple-rep').forEach(function(e){ e.remove(); });
+  const texte=(copie.textContent||'').replace(/\s+/g,' ').trim();
+  if(!texte) return;
+  simpleBusy=true; btn.disabled=true;
+  const rep=document.createElement('div'); rep.className='simple-rep';
+  rep.textContent='Je redis \u00e7a plus simplement\u2026';
+  hote.appendChild(rep);
+  /* dans la fenêtre « Question à l'IA », la réponse arrive en bas d'un fil qui défile */
+  const roule=function(){ const d=hote.closest && hote.closest('#qiaDialog'); if(d) d.scrollTop=d.scrollHeight; };
+  roule();
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:simpleMission(texte) } });
+    if(r.error) throw r.error;
+    const d=r.data;
+    if(d && d.feedback){ rep.textContent=d.feedback; btn.remove(); }
+    else if(d && d.error){ rep.textContent=d.error; btn.disabled=false; }
+    else { rep.textContent='Je n\u2019ai pas r\u00e9ussi \u00e0 le redire autrement. R\u00e9essaie.'; btn.disabled=false; }
+  }catch(e){ rep.textContent='L\u2019IA est indisponible pour le moment. R\u00e9essaie dans un instant.'; btn.disabled=false; }
+  roule();
+  simpleBusy=false;
+}
+
 function masquerRappel(){
   const box=$('conseilRappel'); if(box){ box.hidden=true; box.innerHTML=''; }
   const b=$('conseilRappelBtn'); if(b) b.textContent='\u{1F4D8} Voir le rappel de cours';
