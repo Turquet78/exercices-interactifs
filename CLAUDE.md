@@ -314,6 +314,34 @@ que sans largeur EXPLICITE les quatre cases de l'intervalle s'étiraient chacune
 sur toute la ligne et se posaient l'une sous l'autre — un `min-width` n'y peut
 rien, c'est la largeur qu'il faut reprendre.
 
+**Et le chemin inverse est un autre exercice.** {intervalles-inegalite} ne donne
+que l'inégalité, et demande de retrouver le reste : le dessin, l'écriture, la
+phrase « ouvert / fermé en … ». C'est le chemin du contrôle, et le plus dur des
+deux — un dessin se lit, une inégalité se traduit.
+Le schéma s'y CHOISIT parmi quatre, et les quatre ne diffèrent que par leurs
+bornes : sur un intervalle borné, ce sont les quatre combinaisons de crochets sur
+les mêmes nombres ; sur une demi-droite, ce sont les deux SENS × les deux
+crochets. Un élève qui lit « −1 ≤ x » comme « x ≤ −1 » se trompe alors de dessin,
+et c'est exactement l'erreur visée. Des propositions qui différeraient par autre
+chose se laisseraient éliminer sans lire l'inégalité.
+Tout le moteur est repris de l'exercice miroir — le tirage, le dessin, les listes
+de propositions. En recopier une moitié aurait donné deux dessins à tenir, et le
+jour où l'un des deux aurait changé de convention, les deux exercices se seraient
+contredits sous les yeux de l'élève.
+Quatre bords, tous silencieux, et un contrôle par bord : l'inégalité affichée qui
+CONTREDIT l'intervalle attendu — l'énoncé est faux avant que l'élève ne commence,
+et la correction lui donne tort sur une lecture juste ; deux propositions
+identiques — deux bonnes réponses, une seule comptée ; « bon » qui ne désigne pas
+la bonne ; et les quatre non MÉLANGÉES — rien ne casse, mais la bonne tombe
+toujours au même rang et l'élève apprend le rang. Ce dernier a pris le banc en
+défaut : compter les rangs toutes formes confondues ne prouvait rien, puisque
+sans mélange la bonne tombe quand même à un rang différent selon la forme. Ce
+qui compte est qu'à forme ÉGALE le rang change.
+Le schéma se rend en DEUX tailles — les quatre propositions sont côte à côte, et
+tout y est grossi dans le viewBox pour rester lisible une fois réduit. Le banc ne
+mesurait que la grande : la moitié du dessin échappait au contrôle, et c'était
+justement celle que l'élève compare case par case. Il mesure les deux.
+
 **Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
 affichée sous le retour de chaque question, et il ne connaît que trois classes :
 `ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —

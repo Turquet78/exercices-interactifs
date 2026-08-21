@@ -1737,14 +1737,36 @@ function exercices(suite){
          contexte de la Terminale avaient été converties en {identifiant} sans que
          conseilCtxCourant() soit branchée, et elles seraient parties au modèle en
          accolades. La carte, elle, était juste : rien d'autre ne l'aurait vu. */
+      /* commentaires retirés d'abord : la première version de ce contrôle lisait
+         le commentaire qui EXPLIQUE l'appel et passait au vert sur une fonction
+         débranchée. Elle a été prise en défaut sur ce cas exact. */
+      var sansNotes=function(fn){
+        return String(fn).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'').replace(/(^|[^:])\\/\\/[^\\n]*/g,'$1');
+      };
+      /* Un entonnoir a le droit de DÉLÉGUER : conseilCtxCourant() ne résout pas
+         lui-même, il rend la version en une chaîne de conseilPaire(), qui
+         résout. Exiger numeros() dans son corps propre l'aurait déclaré
+         débranché alors qu'il est juste — et la seule façon de le faire taire
+         aurait été d'y recopier un appel inutile. On suit donc UN niveau
+         d'appel : c'est assez pour ce fichier, et ça ne dispense personne, un
+         entonnoir qui n'appellerait rien restant signalé. */
+      var resout=function(fn, profondeur){
+        if(typeof fn!=='function') return true;
+        var corps=sansNotes(fn);
+        if(corps.indexOf('numeros(')>=0) return true;
+        if(profondeur<=0) return false;
+        var appels=corps.match(/([A-Za-z_$][\\w$]*)\\s*\\(/g)||[];
+        for(var i=0;i<appels.length;i++){
+          var nom=appels[i].replace(/\\s*\\($/,'');
+          var g=(typeof window!=='undefined')?window[nom]:null;
+          if(typeof g==='function' && g!==fn && resout(g, profondeur-1)) return true;
+        }
+        return false;
+      };
       var debranches=['cardHTML','rappelHTML','conseilCtxCourant'].filter(function(f){
         var fn=(typeof window!=='undefined')?window[f]:null;
         if(typeof fn!=='function') return false;
-        /* commentaires retirés d'abord : la première version de ce contrôle lisait
-           le commentaire qui EXPLIQUE l'appel et passait au vert sur une fonction
-           débranchée. Elle a été prise en défaut sur ce cas exact. */
-        var corps=String(fn).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'').replace(/(^|[^:])\\/\\/[^\\n]*/g,'$1');
-        return corps.indexOf('numeros(')<0;
+        return !resout(fn, 1);
       });
       return debranches.length ? 'ces fonctions laissent passer un texte sans le résoudre : '+debranches.join(', ') : '';
     })()`, v => v === '', undefined);
@@ -2275,9 +2297,14 @@ function seconde(w){
         vus.push(nom+' : −∞ n\\'est pas traité comme une borne ouverte sans inégalité');
       if(q.bd===null && (q.fd || par['itv-od']!=='ouvert' || par['itv-id']!==undefined))
         vus.push(nom+' : +∞ n\\'est pas traité comme une borne ouverte sans inégalité');
-      /* 5. LE DESSIN. Les graduations sont les lignes verticales du schéma :
-            l'échelle se lit dedans, on ne la recopie pas. */
-      const svg=String(itvSchema(q)), ticks=[];
+      /* 5. LE DESSIN, dans SES DEUX TAILLES. « {intervalles-inegalite} » propose
+            quatre schémas côte à côte, rendus par le même itvSchema() en mode
+            « mini » : traits, points et crochets y sont grossis dans le viewBox
+            pour rester lisibles une fois réduits. Ne mesurer que le grand aurait
+            laissé la moitié du dessin hors du banc — et c'est justement celle
+            que l'élève compare case par case. */
+      [false,true].forEach(function(mini){
+      const svg=String(itvSchema(q,mini)), ticks=[];
       let rouge=null;
       svg.replace(/<line x1="([-\\d.]+)" y1="([-\\d.]+)" x2="([-\\d.]+)" y2="([-\\d.]+)"([^>]*)>/g,
         function(t,x1,y1,x2,y2,reste){
@@ -2287,14 +2314,15 @@ function seconde(w){
         });
       ticks.sort(function(a,b){ return a-b; });
       const attendu=ITV_MAX-ITV_MIN+1;
-      if(ticks.length!==attendu){ vus.push(nom+' : '+ticks.length+' graduations au lieu de '+attendu); continue; }
-      if(!rouge){ vus.push(nom+' : aucun trait rouge dans le schéma'); continue; }
+      const taille=mini?' (schéma réduit)':'';
+      if(ticks.length!==attendu){ vus.push(nom+taille+' : '+ticks.length+' graduations au lieu de '+attendu); return; }
+      if(!rouge){ vus.push(nom+taille+' : aucun trait rouge dans le schéma'); return; }
       const posDe=function(v){ return ticks[v-ITV_MIN]; };
       /* le trait rouge part de la borne, ou file au-delà de la droite graduée */
-      if(q.bg===null){ if(!(rouge[0]<ticks[0])) vus.push(nom+' : le trait rouge ne part pas au-delà de la première graduation'); }
-      else if(!pres(rouge[0],posDe(q.bg))) vus.push(nom+' : le trait rouge ne part pas de '+itvNum(q.bg));
-      if(q.bd===null){ if(!(rouge[1]>ticks[ticks.length-1])) vus.push(nom+' : le trait rouge ne file pas au-delà de la dernière graduation'); }
-      else if(!pres(rouge[1],posDe(q.bd))) vus.push(nom+' : le trait rouge ne s\\'arrête pas à '+itvNum(q.bd));
+      if(q.bg===null){ if(!(rouge[0]<ticks[0])) vus.push(nom+taille+' : le trait rouge ne part pas au-delà de la première graduation'); }
+      else if(!pres(rouge[0],posDe(q.bg))) vus.push(nom+taille+' : le trait rouge ne part pas de '+itvNum(q.bg));
+      if(q.bd===null){ if(!(rouge[1]>ticks[ticks.length-1])) vus.push(nom+taille+' : le trait rouge ne file pas au-delà de la dernière graduation'); }
+      else if(!pres(rouge[1],posDe(q.bd))) vus.push(nom+taille+' : le trait rouge ne s\\'arrête pas à '+itvNum(q.bd));
       const milieu=(rouge[0]+rouge[1])/2;
       /* les points pleins (bornes prises) et les crochets (bornes exclues) */
       const points=[], crochets=[];
@@ -2303,20 +2331,21 @@ function seconde(w){
         function(t,x1,x2,reste){ if(reste.indexOf('E5232B')>=0) crochets.push([parseFloat(x1),parseFloat(x2)]); return t; });
       const pleines=[q.bg,q.bd].filter(function(v,i){ return v!==null && (i?q.fd:q.fg); });
       const vides=[q.bg,q.bd].filter(function(v,i){ return v!==null && !(i?q.fd:q.fg); });
-      if(points.length!==pleines.length) vus.push(nom+' : '+points.length+' point(s) plein(s) pour '+pleines.length+' borne(s) prise(s)');
-      if(crochets.length!==vides.length) vus.push(nom+' : '+crochets.length+' crochet(s) pour '+vides.length+' borne(s) exclue(s)');
+      if(points.length!==pleines.length) vus.push(nom+taille+' : '+points.length+' point(s) plein(s) pour '+pleines.length+' borne(s) prise(s)');
+      if(crochets.length!==vides.length) vus.push(nom+taille+' : '+crochets.length+' crochet(s) pour '+vides.length+' borne(s) exclue(s)');
       pleines.forEach(function(v){
-        if(!points.some(function(x){ return pres(x,posDe(v)); })) vus.push(nom+' : aucun point plein sur '+itvNum(v));
+        if(!points.some(function(x){ return pres(x,posDe(v)); })) vus.push(nom+taille+' : aucun point plein sur '+itvNum(v));
       });
       vides.forEach(function(v){
         const c=crochets.filter(function(b){ return pres(b[1],posDe(v)); })[0];
-        if(!c){ vus.push(nom+' : aucun crochet sur '+itvNum(v)); return; }
+        if(!c){ vus.push(nom+taille+' : aucun crochet sur '+itvNum(v)); return; }
         /* LE POINT QUI COMPTE : le crochet TOURNE LE DOS à l'intervalle. Ses
            bras doivent s'écarter du trait rouge, comme le « ] » de ]−2 ; 3[
            s'écarte de ce qu'il ouvre. Retourné, il dit « borne prise » à
            l'élève pendant que la correction attend « exclue ». */
         const bras=c[0]-c[1], dehors=c[1]-milieu;
-        if(bras*dehors<=0) vus.push(nom+' : le crochet de '+itvNum(v)+' tourne ses bras VERS l\\'intervalle');
+        if(bras*dehors<=0) vus.push(nom+taille+' : le crochet de '+itvNum(v)+' tourne ses bras VERS l\\'intervalle');
+      });
       });
     }
     return vus.join(' | ');
@@ -2413,7 +2442,71 @@ function seconde(w){
     if(!mesures.length) return 'aucun exercice n\\'a produit de contexte : le contrôle ne mesure rien';
     return creux.join(' | ');
   })()`, v => v === '', undefined);
+
+  /* ---- De l'inégalité à l'intervalle : ce qu'on donne doit être vrai -----
+     Le miroir de l'exercice précédent. On ne donne que l'inégalité, et l'élève
+     retrouve le dessin, l'écriture et la phrase « ouvert / fermé en … ».
+     Quatre bords, tous silencieux :
+
+     · l'inégalité affichée CONTREDIT l'intervalle attendu. L'énoncé est alors
+       faux avant que l'élève ne commence, et la correction lui donne tort sur
+       une lecture juste. C'est le pire des quatre, et rien ne le signale.
+     · deux propositions IDENTIQUES : l'élève a deux bonnes réponses et une
+       seule est comptée juste.
+     · « bon » ne DÉSIGNE pas la bonne : la correction rouge une réponse juste.
+     · les quatre ne sont pas MÉLANGÉES. Rien ne casse — mais la bonne tombe
+       toujours au même rang, et l'élève apprend le rang, pas les intervalles. */
+  verifierEval(w, 'l’inégalité donnée dit bien l’intervalle attendu', `(function(){
+    if(typeof itqGen!=='function' || typeof itqInegalite!=='function' || typeof itqCases!=='function')
+      return 'l\\'exercice « de l\\'inégalité à l\\'intervalle » est introuvable';
+    const vus=[], rangs={};
+    for(let tour=0; tour<400 && vus.length<5; tour++){
+      const f=ITV_FORMES[tour%ITV_FORMES.length], q=itqGen(f), nom=itvPlain(q);
+      /* 1. l'inégalité affichée redit exactement l'intervalle attendu */
+      const ineg=String(itqInegalite(q));
+      const g=(q.bg!==null), d=(q.bd!==null);
+      const attendu=(g&&d) ? (itvNum(q.bg)+' '+(q.fg?'\\u2264':'<')+' x '+(q.fd?'\\u2264':'<')+' '+itvNum(q.bd))
+                 : g ? (itvNum(q.bg)+' '+(q.fg?'\\u2264':'<')+' x')
+                     : ('x '+(q.fd?'\\u2264':'<')+' '+itvNum(q.bd));
+      if(ineg!==attendu) vus.push(nom+' : on affiche « '+ineg+' » pour « '+attendu+' »');
+      /* une borne infinie ne peut pas porter d'inégalité : « x \\u2264 +\\u221e » n'a pas de sens */
+      if(!g && ineg.indexOf(ITV_INF_N)>=0) vus.push(nom+' : \\u2212\\u221e apparaît dans l\\'inégalité');
+      if(!d && ineg.indexOf(ITV_INF_P)>=0) vus.push(nom+' : +\\u221e apparaît dans l\\'inégalité');
+      /* 2. quatre propositions, toutes différentes */
+      const c=q.cands||[];
+      if(c.length!==4){ vus.push(nom+' : '+c.length+' proposition(s) au lieu de 4'); continue; }
+      const cles=c.map(function(x){ return x.bg+'|'+x.bd+'|'+x.fg+'|'+x.fd; });
+      if(new Set(cles).size!==4) vus.push(nom+' : deux propositions identiques \\u2014 deux bonnes réponses possibles');
+      /* 3. « bon » désigne la bonne, et elle est la SEULE à correspondre */
+      const justes=c.filter(function(x){ return itqMeme(x,q); }).length;
+      if(justes!==1) vus.push(nom+' : '+justes+' proposition(s) correspondent à l\\'intervalle attendu');
+      else if(!itqMeme(c[q.bon]||{}, q)) vus.push(nom+' : « bon » ne désigne pas la bonne proposition');
+      /* 4. et le rang de la bonne varie, FORME PAR FORME. Compter les rangs
+            toutes formes confondues ne prouvait rien : sans mélange, les quatre
+            combinaisons de crochets sortent dans un ordre fixe, si bien que la
+            bonne tombe à un rang différent selon la forme — quatre rangs
+            distincts, et le contrôle passait au vert sur un tirage qui n'était
+            pas mélangé du tout. Ce qui compte est qu'à forme ÉGALE le rang
+            change : c'est ce qu'un élève apprendrait par cœur. */
+      const cle='f'+(tour%ITV_FORMES.length);
+      (rangs[cle]=rangs[cle]||{})[q.bon]=true;
+      /* 5. les cases attendues suivent l'intervalle, comme dans l'exercice miroir */
+      const par={}; itqCases(q).forEach(function(x){ par[x.id]=x.bon; });
+      if(par['itq-cg']!==(q.fg?'[':']')) vus.push(nom+' : crochet de gauche');
+      if(par['itq-cd']!==(q.fd?']':'[')) vus.push(nom+' : crochet de droite');
+      if(par['itq-og']!==(q.fg?'ferme':'ouvert')) vus.push(nom+' : « ouvert / fermé » à gauche');
+      if(par['itq-od']!==(q.fd?'ferme':'ouvert')) vus.push(nom+' : « ouvert / fermé » à droite');
+      if(par['itq-sch']!==String(q.bon)) vus.push(nom+' : la case du schéma ne désigne pas la bonne');
+    }
+    const figees=Object.keys(rangs).filter(function(k){ return Object.keys(rangs[k]).length<2; });
+    if(!vus.length && figees.length)
+      vus.push(figees.length+' forme(s) sur '+Object.keys(rangs).length+
+               ' posent toujours la bonne au même rang : l\\'élève apprendrait le rang, pas les intervalles');
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
 }
+
 
 /* ---------- 4 bis. Contrôles propres à la Première ---------- */
 function premiere(w){
