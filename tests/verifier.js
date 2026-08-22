@@ -2549,6 +2549,120 @@ function seconde(w){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- « Appartient ou pas ? » : l'arithmétique avant tout ---------------
+     Le risque de cet exercice n'est pas graphique, il est ARITHMÉTIQUE. Une
+     comparaison en virgule flottante peut faire dire à la page le contraire
+     des mathématiques sur une borne — 2 qui n'appartiendrait pas à [2 ; 3] —
+     et l'élève serait compté faux sur une réponse juste, sans que rien ne
+     rougisse. C'est le pire défaut possible pour un exercice : il apprend
+     l'inverse de ce qu'il enseigne.
+
+     Le contrôle compare donc appCmp() à LA FICHE, item par item — les vingt
+     items décimaux du tableau, et les douze cas d'irrationnels, de fractions
+     et d'unités des exercices 5 et 6. Ce sont les réponses du papier, pas les
+     miennes : si le code et la fiche divergent, c'est le code qui a tort.
+
+     Trois autres bords. Une question toute ∈ ou toute ∉ se répondrait sans
+     rien lire — le premier tirage du niveau 2 donnait trois ∈ sur quatre.
+     La bonne réponse doit être CALCULÉE par la fonction qui corrige, jamais
+     rangée à côté : sinon l'énoncé peut contredire sa correction. Et un
+     irrationnel ne doit jamais frôler une borne de trop près : la comparaison
+     resterait juste, mais l'exercice deviendrait un piège de précision. */
+  verifierEval(w, 'l\u2019appartenance à un intervalle est calculée exactement', `(function(){
+    if(typeof appCmp!=='function' || typeof appDansIntervalle!=='function')
+      return 'l\\'exercice « appartient ou pas ? » est introuvable';
+    const vus=[];
+    const D=function(t){ const neg=t[0]==='-'; t=t.replace('-','');
+      const m=t.split(','), d=m[1]||'';
+      return {n:(neg?-1:1)*parseInt(m[0]+d,10), k:d.length}; };
+    const IV=function(t){ return {a:D(t[1]), b:D(t[2]), fg:t[0]==='[', fd:t[3]===']'}; };
+    /* [nombre, [crochetG, borneG, borneD, crochetD], réponse de la FICHE] */
+    const dec=function(t){ const d=D(t); return {t:'dec', n:d.n, k:d.k}; };
+    const FICHE=[
+      [dec('2,9'),['[','2','3',']'],true],   [dec('1,9'),['[','2','3',']'],false],
+      [dec('2'),['[','2','3',']'],true],     [dec('3'),['[','2','3',']'],true],
+      [dec('2,9'),[']','2','3',']'],true],   [dec('2,1'),[']','2','3',']'],true],
+      [dec('2'),[']','2','3',']'],false],    [dec('3'),[']','2','3',']'],true],
+      [dec('2,02'),[']','2,1','2,9','['],false], [dec('2,09'),[']','2,1','2,9','['],false],
+      [dec('2,91'),[']','2,1','2,9','['],false], [dec('2,89'),[']','2,1','2,9','['],true],
+      [dec('-3,02'),[']','-4,8','-3,1','['],false], [dec('-4,12'),[']','-4,8','-3,1','['],true],
+      [dec('-3,12'),[']','-4,8','-3,1','['],true],  [dec('-4,09'),[']','-4,8','-3,1','['],true],
+      [dec('-3,082'),[']','-4,8','-3,1','['],false], [dec('-4,122'),[']','-4,8','-3,1','['],true],
+      [dec('-3,099'),[']','-4,8','-3,1','['],false], [dec('-4,785'),[']','-4,8','-3,1','['],true],
+      [{t:'pi'},['[','3','4',']'],true],     [{t:'pi'},['[','3','3,2',']'],true],
+      [{t:'pi'},['[','3','3,1',']'],false],  [{t:'pi'},['[','3','3,14',']'],false],
+      [{t:'pi'},['[','3,14','3,141',']'],false],
+      [{t:'rac',n:2},[']','1','2',']'],true], [{t:'rac',n:15},[']','3','4','['],true],
+      [{t:'frac',p:2,q:5},[']','0,39','2,5',']'],true],
+      [dec('-0,25'),[']','-0,3','-0,2','['],true],
+      [dec('-0,199'),[']','-0,2','-0,19','['],true],
+      [{t:'mult',n:2,k:1,u:'millier'},['[','0,2','0,3','['],false],
+      [{t:'mult',n:2,k:1,u:'millier'},['[','200','201','['],true],
+      /* Ceux-ci ne sont pas sur la fiche : ils épinglent le cas où la valeur
+         tombe EXACTEMENT sur la borne après conversion d'unité — « 0,1
+         millier » vaut 100 tout rond, et c'est alors le crochet, et lui seul,
+         qui décide. C'est le cas qu'un arrondi d'un cran ferait basculer. */
+      [{t:'mult',n:1,k:1,u:'millier'},[']','100','101','['],false],
+      [{t:'mult',n:1,k:1,u:'millier'},['[','100','101','['],true],
+      [{t:'mult',n:7,k:1,u:'centaine'},[']','70','71','['],false],
+      /* Et ceux-là défendent l'échelle des racines : avec des bornes entières,
+         une erreur d'exposant reste invisible. */
+      [{t:'rac',n:15},['[','3,87','3,88',']'],true],
+      [{t:'rac',n:15},['[','3,88','3,9',']'],false],
+      [{t:'rac',n:2},['[','1,41','1,42',']'],true],
+      [{t:'rac',n:2},[']','1,42','1,5','['],false]
+    ];
+    FICHE.forEach(function(x){
+      const vu=appDansIntervalle(x[0], IV(x[1]));
+      if(vu!==x[2]) vus.push(appNombrePlain(x[0])+' '+appIntervalle(IV(x[1]))+' : la page dit '
+        +(vu?'∈':'∉')+', la fiche dit '+(x[2]?'∈':'∉'));
+    });
+    if(vus.length) return vus.slice(0,3).join(' | ');
+    /* Force brute contre une référence indépendante — décimaux, puis racines.
+       Les racines demandent leur propre balayage : avec les seules bornes
+       entières de la fiche, une erreur d'échelle (n·10^k au lieu de n·10^2k)
+       reste parfaitement invisible. */
+    for(let n=-300;n<=300 && vus.length<3;n++) for(let m=-30;m<=30;m++){
+      const attendu=Math.sign(n/100-m/10);
+      if(appCmp({t:'dec',n:n,k:2},{n:m,k:1})!==attendu){
+        vus.push('décimaux : '+(n/100)+' contre '+(m/10)+' mal comparés'); break; }
+    }
+    for(let n=2;n<=60 && vus.length<3;n++) for(let m=0;m<=250;m++){
+      const ecart=Math.sqrt(n)-m/100;
+      const attendu=(Math.abs(ecart)<1e-12)?0:Math.sign(ecart);
+      if(appCmp({t:'rac',n:n},{n:m,k:2})!==attendu){
+        vus.push('racines : √'+n+' contre '+(m/100)+' mal comparé'); break; }
+    }
+    if(vus.length) return vus.slice(0,3).join(' | ');
+    /* Le tirage : équilibre, cohérence, et l'écart des irrationnels. */
+    for(let niveau=1; niveau<=2 && vus.length<3; niveau++){
+      for(let tour=0; tour<80 && vus.length<3; tour++){
+        const q=(niveau===1)?appGen1():appGen2();
+        if(!q.lignes || q.lignes.length!==4){ vus.push('niveau '+niveau+' : '+((q.lignes||[]).length)+' ligne(s) au lieu de 4'); break; }
+        const n=q.lignes.filter(function(l){ return l.dans; }).length;
+        if(n===0 || n===4) vus.push('niveau '+niveau+' : les quatre lignes ont la même réponse — elle se devine sans lire');
+        if(niveau===2 && n!==2) vus.push('niveau 2 : '+n+' ∈ sur 4 — le tirage penche d\\'un côté');
+        q.lignes.forEach(function(l){
+          /* la réponse affichée EST celle que la correction calculera */
+          if(l.dans!==appDansIntervalle(l.v,l.iv))
+            vus.push(appNombrePlain(l.v)+' : la réponse rangée contredit la correction');
+          /* bornes dans l'ordre */
+          if(appCmp({t:'dec',n:l.iv.a.n,k:l.iv.a.k}, l.iv.b)>=0)
+            vus.push('bornes dans le désordre : '+appIntervalle(l.iv));
+          /* un irrationnel ne frôle jamais une borne */
+          if(l.v.t==='rac' || l.v.t==='pi'){
+            const x=appVal(l.v);
+            [l.iv.a,l.iv.b].forEach(function(b){
+              if(Math.abs(x-b.n/Math.pow(10,b.k))<1e-6)
+                vus.push(appNombrePlain(l.v)+' frôle la borne '+appBorne(b)+' : piège de précision, pas de lecture');
+            });
+          }
+        });
+      }
+    }
+    return vus.slice(0,3).join(' | ');
+  })()`, v => v === '', undefined);
+
 }
 
 
