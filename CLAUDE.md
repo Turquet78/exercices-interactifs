@@ -360,6 +360,41 @@ tout y est grossi dans le viewBox pour rester lisible une fois réduit. Le banc 
 mesurait que la grande : la moitié du dessin échappait au contrôle, et c'était
 justement celle que l'élève compare case par case. Il mesure les deux.
 
+**« Appartient ou pas ? » : le risque est arithmétique, pas graphique.** Deux
+exercices sur un seul moteur, repris de la fiche « Intervalles 2 » : un nombre,
+un intervalle, l'élève dit ∈ ou ∉. Le niveau 1 tire quatre décimaux contre le
+MÊME intervalle — le cas dedans, le cas dehors, la borne elle-même (c'est le
+crochet qui tranche) et le voisin immédiat de la borne (2,09 contre 2,1). Le
+niveau 2 tire des nombres qui ne disent pas leur valeur : √15, π, une fraction,
+« 0,2 millier ».
+Se tromper d'un cran sur une borne compterait l'élève faux sur une réponse juste,
+sans que rien ne rougisse — c'est le pire défaut possible pour un exercice, il
+apprend l'inverse de ce qu'il enseigne. Les rationnels sont donc comparés **en
+entiers** : p/q contre m/10^k se décide par p·10^k contre m·q, égalité comprise.
+Aux grandeurs de cet exercice une comparaison en virgule flottante donnerait le
+même résultat — le banc a été mis au défi de les distinguer et n'y arrive pas —,
+donc ce n'est pas un correctif : c'est le refus de dépendre d'une chance que rien
+ne surveille le jour où quelqu'un ajoutera des fractions plus fines.
+**La bonne réponse n'est jamais rangée à côté de l'intervalle** : elle est
+calculée par la fonction même qui corrige l'élève, si bien qu'un énoncé ne peut
+pas contredire sa correction.
+Le contrôle compare la page à LA FICHE, item par item — les vingt items décimaux
+du tableau et les douze cas d'irrationnels, de fractions et d'unités. Si le code
+et le papier divergent, c'est le code qui a tort. Trois sabotages sur six l'ont
+d'abord traversé : la comparaison des racines n'était éprouvée que sur des bornes
+ENTIÈRES, où une erreur d'échelle est invisible, et deux « défauts » de virgule
+flottante n'en étaient pas. Le contrôle balaie maintenant les racines contre des
+bornes au centième.
+**Un tirage penché se répond sans lire.** Le premier jet du niveau 2 centrait
+l'intervalle sur la valeur : trois lignes sur quatre étaient ∈, et répondre ∈
+partout donnait 75 %. Le tirage vise maintenant deux ∈ et deux ∉ — mais la
+réponse reste CALCULÉE, jamais supposée, et c'est le compte final qui décide de
+garder la question. Le niveau 1 refuse seulement les quatre lignes identiques.
+Le piège de la fiche vaut d'être gardé : « 0,2 millier » contre [0,2 ; 0,3[.
+L'intervalle est bâti autour de l'ÉCRITURE et non de la valeur, et l'élève qui
+compare ce qu'il lit au lieu de ce que ça vaut répond ∈. Sans ce cas, l'exercice
+ne posait la question qu'autour de 200 — là où le piège ne se referme jamais.
+
 **Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
 affichée sous le retour de chaque question, et il ne connaît que trois classes :
 `ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —
