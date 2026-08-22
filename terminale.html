@@ -663,11 +663,6 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .qia-close{border:none;background:none;font-size:1.05rem;cursor:pointer;color:var(--ink-soft);padding:4px 8px}
 .qia-sugg{padding:10px 14px 2px}
 .qia-chip{display:inline-block;margin:0 8px 8px 0;padding:7px 11px;border:1.5px solid #c9d3e8;border-radius:999px;background:var(--paper);font-weight:700;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left}
-/* ---- « Explique-moi plus simplement » : le bouton, et la reformulation ---- */
-.btn-simple{display:block;margin:14px auto 2px;padding:7px 15px;border:1.5px solid var(--blue);border-radius:999px;background:#fff;color:var(--blue-dark);font-family:"Nunito",sans-serif;font-weight:700;font-size:.9rem;line-height:1.3;cursor:pointer;text-align:center}
-.btn-simple:hover{background:#EAF2FF}
-.btn-simple:disabled{opacity:.55;cursor:default}
-.simple-rep{margin-top:12px;padding:12px 14px;border-left:4px solid var(--blue);background:#F3F7FF;border-radius:10px;color:var(--ink);font-family:"Nunito",sans-serif;font-size:1rem;line-height:1.6;text-align:left;white-space:pre-wrap}
 .qia-chip:hover{border-color:var(--blue);color:var(--blue)}
 .qia-dialog{flex:1;overflow-y:auto;padding:6px 14px;min-height:56px}
 .qia-q,.qia-r{margin:8px 0;padding:9px 12px;border-radius:12px;line-height:1.5;font-size:.95rem}
@@ -1944,7 +1939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=234;
+const APP_VERSION=236;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2563,7 +2558,11 @@ const LANGUE_SIMPLE=" COMMENT \u00c9CRIRE \u2014 ces r\u00e8gles sont OBLIGATOIR
   +" Jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb, \u00ab par cons\u00e9quent \u00bb."
   +" Tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet."
   +" Tu tutoies. \u00c9cris comme si tu parlais \u00e0 voix haute \u00e0 un \u00e9l\u00e8ve assis \u00e0 c\u00f4t\u00e9 de toi."
-  +" Cette fa\u00e7on d\u2019\u00e9crire ne change RIEN \u00e0 ce que tu as le droit de dire : elle ne t\u2019autorise \u00e0 donner ni r\u00e9sultat, ni r\u00e9ponse attendue.";
+  +" Cette fa\u00e7on d\u2019\u00e9crire ne change RIEN \u00e0 ce que tu as le droit de dire : elle ne t\u2019autorise \u00e0 donner ni r\u00e9sultat, ni r\u00e9ponse attendue."
+  +" MISE EN PAGE \u2014 tu vas \u00e0 la ligne SOUVENT, c\u2019est ce qui rend une explication lisible :"
+  +" une \u00e9tape par ligne, un calcul par ligne, une question par ligne ;"
+  +" une ligne VIDE entre deux parties \u2014 entre l\u2019explication et l\u2019exemple, entre deux id\u00e9es qui ne se suivent pas ;"
+  +" et jamais un paragraphe de plus de deux phrases. Un pav\u00e9 de texte d\u00e9courage l\u2019\u00e9l\u00e8ve avant qu\u2019il ait commenc\u00e9 \u00e0 lire.";
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
   conseilBusy=true;
@@ -9935,78 +9934,13 @@ const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, r
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, s1:RAP_S1, s2:RAP_S2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
-/* Le rappel de cours porte le bouton lui-même : il s'affiche à DEUX endroits —
-   la fenêtre d'aide et le fil de « Question à l'IA » — et un bouton posé sur
-   un seul des deux aurait laissé l'autre sans. Rien quand il n'y a pas de
-   rappel : un bouton seul n'aurait rien à redire. */
-function rappelHTML(){ const t=numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); return t ? t+simpleBtnHTML() : t; }
-/* ---------- « Explique-moi plus simplement » ----------------------------------
-   Le même bouton sous les TROIS aides — le rappel de cours, le conseil du
-   soutien et la réponse de la fenêtre « Question à l'IA » (décision de Turquet,
-   août 2026). Un élève qui bute sur la LANGUE bute dessus partout : le poser
-   sous une seule des trois aurait laissé les deux autres illisibles pour lui,
-   et c'est justement celui qui n'ose pas demander qui en a besoin.
-
-   Il REFORMULE le texte affiché ; il ne repose pas la question. C'est ce qui le
-   rend uniforme — le rappel de cours n'est PAS une réponse du modèle, c'est du
-   HTML écrit à la main que le modèle n'a jamais vu — et c'est aussi ce qui le
-   rend sûr : le texte source a déjà passé les garde-fous, le conseil ne donnant
-   jamais le résultat et la mission de la fenêtre d'aide interdisant les valeurs
-   de l'exercice. Reformuler un texte déjà sûr reste sûr ; reposer la question
-   aurait rouvert chacune de ces portes, et la fenêtre d'aide est offerte dès
-   l'ENTRAÎNEMENT, alors que le Conseil est réservé au soutien, noté moins cher.
-
-   Le bouton se pose DANS le bloc qu'il reformule et lit le texte de son propre
-   parent : une seule fonction sert les trois aides sans rien savoir de leur
-   DOM. Trois fonctions auraient fini par diverger — c'est ce qui est arrivé à
-   la réserve du bas et à testScreens. */
-function simpleBtnHTML(){
-  return '<button type="button" class="btn-simple" onclick="expliquerSimplement(this)">\u{1F5E3} Explique-moi plus simplement</button>';
-}
-/* La consigne. Son bord décisif est l'INTERDICTION D'AJOUTER : sans elle, un
-   modèle à qui on demande de « simplifier » un rappel de cours finit par le
-   compléter — et par livrer, en français simple, la réponse que le barème fait
-   payer. Le vocabulaire mathématique est GARDÉ et expliqué, jamais remplacé :
-   un élève à qui on épargne le mot « intervalle » ne le connaîtra pas davantage
-   le jour du contrôle. */
-function simpleMission(texte){
-  return "MISSION \u00ab redire plus simplement \u00bb \u2014 ce n\u2019est PAS une demande d\u2019indice, PAS une correction, PAS un nouvel exercice. "
-    + "Un \u00e9l\u00e8ve de Terminale a lu le texte ci-dessous et ne l\u2019a pas compris. REDIS EXACTEMENT LA M\u00caME CHOSE, plus simplement.\n"
-    + LANGUE_SIMPLE + " Six phrases au maximum, plus les lignes de calcul s\u2019il y en a.\n"
-    + "INTERDIT : ajouter quoi que ce soit qui ne soit pas dans le texte. Aucune r\u00e9ponse, aucun r\u00e9sultat, aucun calcul nouveau, aucun exemple nouveau. "
-    + "Ce que le texte ne dit pas, tu ne l\u2019inventes pas. S\u2019il te para\u00eet d\u00e9j\u00e0 simple, redis-le quand m\u00eame avec tes mots, sans le rallonger.\n"
-    + "TEXTE \u00c0 REDIRE SIMPLEMENT :\n\u00ab " + texte + " \u00bb";
-}
-let simpleBusy=false;
-async function expliquerSimplement(btn){
-  if(simpleBusy || !btn) return;
-  const hote=btn.parentElement; if(!hote) return;
-  /* Le texte de l'hôte SANS le bouton ni une reformulation déjà posée. Sans ce
-     ménage, un second clic reformulerait la première reformulation, et le
-     libellé du bouton partirait au modèle comme s'il faisait partie du cours. */
-  const copie=hote.cloneNode(true);
-  copie.querySelectorAll('.btn-simple,.simple-rep').forEach(function(e){ e.remove(); });
-  const texte=(copie.textContent||'').replace(/\s+/g,' ').trim();
-  if(!texte) return;
-  simpleBusy=true; btn.disabled=true;
-  const rep=document.createElement('div'); rep.className='simple-rep';
-  rep.textContent='Je redis \u00e7a plus simplement\u2026';
-  hote.appendChild(rep);
-  /* dans la fenêtre « Question à l'IA », la réponse arrive en bas d'un fil qui défile */
-  const roule=function(){ const d=hote.closest && hote.closest('#qiaDialog'); if(d) d.scrollTop=d.scrollHeight; };
-  roule();
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:simpleMission(texte), balises:true } });
-    if(r.error) throw r.error;
-    const d=r.data;
-    if(d && d.feedback){ rep.innerHTML=conseilHTML(qiaIlluExtrait(d.feedback).texte); btn.remove(); }
-    else if(d && d.error){ rep.textContent=d.error; btn.disabled=false; }
-    else { rep.textContent='Je n\u2019ai pas r\u00e9ussi \u00e0 le redire autrement. R\u00e9essaie.'; btn.disabled=false; }
-  }catch(e){ rep.textContent='L\u2019IA est indisponible pour le moment. R\u00e9essaie dans un instant.'; btn.disabled=false; }
-  roule();
-  simpleBusy=false;
-}
-
+/* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
+   c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
+   de bouton nulle part. Le conseil et la question à l'IA parlent simplement
+   d'eux-mêmes ; le rappel, lui, est du HTML écrit à la main que le modèle n'a
+   jamais vu — il reste donc tel qu'il est écrit, et le simplifier demanderait
+   de réécrire les soixante rappels des trois niveaux. */
+function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
 /* question de l'élève portant sur le cours (chip « Faire un rappel de cours pour cet exercice. ») */
 function rappelDemande(t){ const s=String(t||''); return /rappel/i.test(s) && /cours|le\u00e7on|lecon/i.test(s); }
 function masquerRappel(){
@@ -13413,12 +13347,13 @@ function garnirFenetre(pop, titre){
   /* Une fenêtre détachée est un AUTRE document : un attribut onclick posé dans
      la carte y cherche sa fonction sur le window de la POPUP, qui n'en a
      aucune. Toute fonction appelée depuis un onclick de la carte doit donc
-     figurer ici — « expliquer plus simplement » y manquait, et son bouton
-     était mort dans la fenêtre détachée, sans la moindre erreur nulle part.
-     Une liste de noms tenue à la main est exactement ce qui dérive : le banc
-     ouvre les deux cartes, y déclenche tout ce qui pose un bouton, et exige
-     que chaque onclick trouvé soit dans cette liste. */
-  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel','expliquerSimplement'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+     figurer ici. Une liste de noms tenue à la main est exactement ce qui
+     dérive — « expliquer plus simplement » y avait manqué, et son bouton était
+     mort dans la fenêtre détachée, sans la moindre erreur nulle part. Le banc
+     ouvre donc les deux cartes, y déclenche tout ce qui pose un bouton, et
+     exige que chaque onclick trouvé soit dans cette liste ; il refuse aussi un
+     nom recopié ici sans fonction derrière. */
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
 }
 function rapatrierFenetre(pop){
   try{

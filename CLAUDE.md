@@ -574,6 +574,23 @@ jamais remplacé : un élève à qui on épargne le mot « intervalle » ne le
 connaîtra pas davantage le jour du contrôle. Et elle redit qu'écrire simplement
 n'autorise à donner ni résultat ni réponse attendue — sans quoi « simplifier »
 devient une porte vers ce que les garde-fous ferment.
+**Et elle va à la ligne souvent** : une étape par ligne, un calcul par ligne, une
+ligne VIDE entre deux parties, jamais un paragraphe de plus de deux phrases
+(décision de Turquet, août 2026). Un pavé de texte décourage l'élève avant qu'il
+ait commencé à lire.
+Cette consigne a **deux moitiés, et la seconde est muette** : le modèle peut
+obéir parfaitement pendant que la page réduit ses retours à la ligne à des
+espaces. La Seconde pose la réponse en `textContent`, où `\n` ne vaut rien sans
+`white-space:pre-wrap` ; la Première et la Terminale passent par `conseilHTML()`,
+qui convertit les `\n` en `<br>`. Deux chemins différents pour une seule
+promesse — et aucun banc hors navigateur ne sait où un texte va à la ligne. Le
+banc navigateur MESURE donc le même texte avec et sans retours à la ligne, sur
+les deux aides : s'ils comptent, la version qui en porte est plus haute. Éprouvé
+en retirant `pre-wrap` d'un côté et la conversion de l'autre.
+Le `pre-wrap` ne vise que `.mp-feedback.conseil` et `.qia-r`, jamais
+`.mp-feedback` tout court : les retours des exercices sont des phrases courtes et
+centrées, et le sont très bien.
+
 Elle est posée par la PAGE et non dans `CONSEIL_SYS`, côté fonction Edge, pour
 une raison déjà payée : la fonction ne se déploie qu'à la main, et la consigne
 serait restée lettre morte jusqu'au redéploiement sans que rien ne le dise. Ici
@@ -581,19 +598,17 @@ elle part avec la page. **Un seul endroit la décrit** (`LANGUE_SIMPLE`), partag
 par les deux aides et par le bouton du rappel : deux descriptions auraient fini
 par diverger, et l'une des aides aurait reparlé comme avant sans qu'on le voie.
 
-**Le rappel de cours garde son bouton, et lui seul.** Il n'est PAS une réponse du
-modèle : c'est du HTML écrit à la main que le modèle n'a jamais vu. Le rendre
-« toujours simple » demanderait de réécrire les soixante rappels des trois
-niveaux ; le bouton est le seul chemin qu'il ait. Il REFORMULE le texte affiché,
-et c'est ce qui le rend sûr : le texte source a déjà passé les garde-fous.
-Le bord décisif de sa consigne est l'**interdiction d'ajouter** — un modèle à qui
-on demande de « simplifier » un rappel finit par le compléter, et livre en
-français simple la réponse que le barème fait payer.
-Le bouton se pose DANS le bloc qu'il reformule et lit le texte de son propre
-parent, sans rien savoir de son DOM. Il retire du texte envoyé le bouton lui-même
-ET une reformulation déjà posée — sans ce ménage, le libellé du bouton partait au
-modèle comme s'il faisait partie du cours, et chaque clic reformulait la
-reformulation précédente.
+**Il n'y a plus aucun bouton « Explique-moi plus simplement ».** Ni sous le
+conseil, ni sous la fenêtre d'aide — ils parlent simplement d'eux-mêmes —, ni
+sous le rappel de cours (décision de Turquet, août 2026). Ce dernier est un
+arbitrage assumé, pas un oubli : le rappel n'est PAS une réponse du modèle,
+c'est du HTML écrit à la main que le modèle n'a jamais vu, et il reste donc tel
+que le professeur l'a écrit. Le rendre simple demanderait de réécrire les
+soixante rappels des trois niveaux — ce qui se fera peut-être un jour, à la
+main, sous ses yeux, plutôt que par un modèle dont personne ne relit la sortie.
+Un contrôle refuse que le bouton revienne, sous quelque aide que ce soit : deux
+chemins vers la même chose finiraient par se contredire le jour où l'un des deux
+changerait.
 
 **Un bouton d'une fenêtre DÉTACHÉE ne trouve pas sa fonction tout seul.** C'est le
 piège d'à côté, et il a mordu le jour même. Une fenêtre détachée est un AUTRE
