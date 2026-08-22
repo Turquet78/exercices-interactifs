@@ -1206,6 +1206,55 @@ function branchements(w){
             morts.length ? 'recopiée(s) sans exister : '+morts.join(', ') : ''].filter(Boolean).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- Le numéro de l'exercice est en tête de son écran ------------------
+     Il apparaissait déjà partout ailleurs — la carte du menu, l'écran des
+     modes, les résultats, le signalement — mais PAS là où l'élève passe son
+     temps. La Seconde, portée depuis la Terminale, n'avait jamais reçu ce
+     morceau : ses dix exercices s'ouvraient sans dire lequel on faisait. Rien
+     ne cassait, et c'est pour ça que personne ne l'avait vu.
+
+     Le contrôle vise show(), et show() seule : c'est l'unique porte vers un
+     écran d'exercice, donc l'y vérifier une fois les couvre tous — y compris
+     celui qu'on ajoutera demain. Deux bords. La pastille peut MANQUER. Et le
+     numéro peut être FIGÉ : il n'est écrit nulle part, il se déduit de la
+     position dans THEMES, et un numéro capturé une fois pour toutes enverrait
+     l'élève au mauvais exercice le jour d'une réorganisation. */
+  verifierEval(w, 'le numéro de l\u2019exercice est affiché en tête de son écran', `(function(){
+    if(typeof show!=='function') return 'show() introuvable';
+    const ecrans=(String(show).match(/const testScreens\\s*=\\s*\\[([^\\]]*)\\]/)||[])[1]||'';
+    const liste=ecrans.split(',').map(function(t){ return t.trim().replace(/^['\"]|['\"]$/g,''); }).filter(Boolean);
+    if(!liste.length) return 'testScreens illisible : le contrôle serait aveugle';
+    const id=Object.keys(TESTS).filter(function(i){ return testNum(i); })[0];
+    if(!id) return 'aucun exercice numéroté : le contrôle ne mesure rien';
+    const sauveId=currentTestId, sauveNum=TEST_NUM[id], vus=[];
+    currentTestId=id;
+    const lire=function(nom){
+      try{ show(nom); }catch(e){ return {err:e.message}; }
+      const t=document.querySelector('#scr-'+nom+' .exo-title');
+      if(!t) return {err:'aucune pastille'};
+      const num=(t.querySelector('.exo-num')||{}).textContent||'';
+      const nom2=(t.querySelector('.exo-name')||{}).textContent||'';
+      return {num:num, nom:nom2};
+    };
+    /* 1. la pastille est là, sur CHAQUE écran d'exercice */
+    liste.forEach(function(nom){
+      const v=lire(nom);
+      if(v.err){ vus.push(nom+' : '+v.err); return; }
+      if(v.num!==TEST_NUM[id]) vus.push(nom+' : numéro « '+v.num+' » au lieu de « '+TEST_NUM[id]+' »');
+      if(v.nom!==testName(id)) vus.push(nom+' : nom « '+v.nom+' » au lieu de « '+testName(id)+' »');
+    });
+    /* 2. et il SUIT une renumérotation — la preuve qui compte */
+    if(!vus.length){
+      TEST_NUM[id]='9.9.9';
+      const v=lire(liste[0]);
+      TEST_NUM[id]=sauveNum;
+      if(v.err) vus.push(liste[0]+' : '+v.err);
+      else if(v.num!=='9.9.9') vus.push('le numéro ne suit pas une renumérotation (« '+v.num+' ») : il est figé quelque part');
+    }
+    TEST_NUM[id]=sauveNum; currentTestId=sauveId;
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- L'identifiant sous lequel la note est enregistrée ----------------
      Point 14, et le plus coûteux à rater : la note part sous l'identifiant
      d'un AUTRE exercice, ou sous un identifiant que rien n'affiche. Elle est

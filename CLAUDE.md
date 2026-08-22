@@ -220,6 +220,19 @@ fichier et exige autant d'énoncés étiquetés que d'écrans d'exercice. Le ban
 navigateur, lui, compte les étiquettes réellement affichées sur deux écrans
 choisis pour cela.
 
+**Le numéro de l'exercice est en tête de son écran, et c'est `show()` qui l'y
+met.** Il apparaissait déjà partout ailleurs — la carte du menu, l'écran des
+modes, les résultats, le signalement — mais PAS là où l'élève passe son temps.
+La Seconde, portée depuis la Terminale, n'avait jamais reçu ce morceau : ses dix
+exercices s'ouvraient sans dire lequel on faisait. Rien ne cassait, et c'est
+pour ça que personne ne l'avait vu pendant des mois.
+Le contrôle vise `show()`, et elle seule : c'est l'unique porte vers un écran
+d'exercice, donc l'y vérifier une fois les couvre tous — y compris celui qu'on
+ajoutera demain. Deux bords : la pastille qui MANQUE, et le numéro FIGÉ. Le
+second est le plus sournois, parce qu'un numéro capturé une fois pour toutes
+enverrait l'élève au mauvais exercice le jour d'une réorganisation, sans erreur
+nulle part.
+
 **Les numéros d'exercice n'existent nulle part.** `3.1.1` se déduit de la
 POSITION dans `THEMES` : réordonner un thème les décale tous. Vingt-cinq phrases
 en citaient un en toutes lettres — « les 3 étapes de l'exercice 3.1.1 » — dans
