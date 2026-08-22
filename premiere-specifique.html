@@ -376,7 +376,7 @@
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-hstest{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-hstest,#scr-sf{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
@@ -732,6 +732,40 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
 #fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+/* ---- Somme et différence de fractions ----
+   Un seul bloc pour les deux niveaux : le moteur est le même, sa présentation
+   doit l'être aussi. Deux blocs auraient fini par diverger. */
+.sf-f{position:relative;display:inline-flex;flex-direction:column;align-items:center;line-height:1;vertical-align:middle;font-size:.92em}
+.sf-f .sf-lu{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sf-f .n,.sf-f .d{padding:0 6px}
+.sf-f .bar{align-self:stretch;height:2.5px;background:currentColor;border-radius:2px;margin:3px 0}
+.f-frac{display:inline-flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark)}
+.sf-prod{align-items:stretch}
+.sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.sf-somme .sf-haut{display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.sf-times,.f-times{font-size:1.35rem;color:var(--blue-dark);font-weight:700}
+/* Les multiplicateurs sont des nombres à UN chiffre : une case aussi large que
+   celles des fractions écarterait le « × » de son chiffre. */
+/* Le trait suit la LARGEUR de la ligne, il n'a pas la sienne : « 5 × [case] »
+   est bien plus large que 82 px, et un trait plus court que ce qu'il sépare ne
+   se lit plus comme une barre de fraction. */
+#sfHost .f-fbar{width:auto;align-self:stretch;height:4px}
+/* L'enveloppe d'une case, et le badge de correction qu'elle porte : posé HORS
+   du flux, il ne déplace plus ni le trait ni la colonne. */
+#sfHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#sfHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:1.1rem;white-space:nowrap}
+/* De l'air autour du signe de l'étape ② : la correction du premier numérateur
+   se pose à sa droite, et sans place elle recouvrait le signe et le numérateur
+   suivant — la bonne réponse était affichée ET illisible. La place n'est prise
+   que LÀ OÙ une correction existe : l'écran de l'élève qui travaille, lui,
+   reste serré. Un navigateur qui ne connaîtrait pas « :has » retombe sur le
+   petit écart, pas sur la superposition. */
+#sfHost .sf-haut{gap:14px}
+#sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
+#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px}
+#sfHost .pt-row{flex-wrap:wrap}
+@media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:54px} }
 .fpm-ligne{display:flex;align-items:center;justify-content:center;gap:8px;}
 .fpm-const{font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--ink);white-space:nowrap;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
@@ -1280,6 +1314,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   </section>
 
   <!-- CONNEXION PROF -->
+  <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
+  <section class="screen" id="scr-sf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagSF"></span><span class="q-idx" id="sfIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sfLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="sfPrompt">Calcule la somme.</p>
+      <div class="mp-stage"><div style="width:100%" id="sfHost"></div></div>
+      <div class="mp-feedback" id="sfFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="sfActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSFAnswer()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-teacher-login">
     <div class="card">
       <h2 class="title">Espace professeur</h2>
@@ -1495,7 +1545,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=138;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=139;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1769,7 +1819,8 @@ const TESTS={
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
-  'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() }
+  'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
+  'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() }
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -1792,7 +1843,7 @@ const THEMES=[
      pas un titre. Les références écrites ailleurs suivent d'elles-mêmes :
      elles s'écrivent {identifiant} et sont résolues à l'affichage par
      numeros(). */
-  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un'] },
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -1843,7 +1894,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -1930,6 +1981,7 @@ function liveCheckCurrent(){
   else if(k==='ag2') checkAG2Answer(true);
   else if(k==='ag2q') checkWAnswer(true);
   else if(k==='syn') checkSynAnswer(true);
+  else if(k==='sf') checkSFAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -2282,7 +2334,8 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], hs:['hstest',renderHSTest]
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], hs:['hstest',renderHSTest],
+    sf:['sf',renderSFTest]
   };
   const e=table[k];
   if(!e) return false;
@@ -2454,7 +2507,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','hstest'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','hstest','sf'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
@@ -6821,6 +6874,233 @@ function checkHSAnswer(live){
   $('hsNext').focus();
 }
 function nextHSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderHSTest(); autoSave(); } else finishHausses(); }
+/* La rangée d'aide, propre au niveau : la Première la fait poser par
+   iaBoutons(), qui l'insère après l'élément « …Actions ». Le moteur ne
+   choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
+function sfBoutonsAide(){ return ''; }
+
+/* ---------- Exercice : somme et différence de deux fractions --------------
+   Trois étapes, celles du cahier : mettre au même dénominateur en COMPLÉTANT
+   les multiplications, écrire la somme sur ce dénominateur, puis donner la
+   fraction finale.
+
+   Un des deux termes peut être un ENTIER, sans dénominateur — c'est le cas qui
+   bloque le plus d'élèves. L'étape le montre alors écrit « 3 = 3/1 » avant les
+   multiplications : le passage par le dénominateur 1 est donné, il ne se
+   devine pas.
+
+   LE DÉNOMINATEUR COMMUN N'EST PAS IMPOSÉ. L'élève écrit les multiplicateurs
+   qu'il veut : la correction vérifie qu'ils donnent bien le MÊME dénominateur
+   des deux côtés, puis que la suite s'y tient. Un élève qui multiplie par 4 et
+   6 là où 2 et 3 suffisaient a raison, et l'exercice le lui dit — imposer le
+   PPCM aurait compté faux une méthode juste.
+   La dernière étape accepte toute fraction ÉGALE au résultat, comme partout
+   ailleurs dans l'application ; le tirage donne un résultat déjà irréductible,
+   pour que la question « faut-il simplifier ? » ne se pose pas. */
+function sfPgcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
+function sfPpcm(a,b){ return a/sfPgcd(a,b)*b; }
+function sfGen(){
+  for(let essai=0; essai<500; essai++){
+    const entier = Math.random()<0.28;              /* un terme sur quatre est un entier */
+    const d1 = entier && Math.random()<0.5 ? 1 : rand(2,9);
+    const d2 = (d1===1) ? rand(2,9) : (entier ? 1 : rand(2,9));
+    if(d1===d2) continue;                            /* même dénominateur : plus rien à mettre au même */
+    const n1=rand(1,9), n2=rand(1,9);
+    const op = Math.random()<0.5 ? '+' : '−';
+    const D=sfPpcm(d1,d2), k1=D/d1, k2=D/d2;
+    const N1=n1*k1, N2=n2*k2;
+    const N = (op==='+') ? N1+N2 : N1-N2;
+    if(N<=0) continue;                               /* une différence négative n'est pas le sujet ici */
+    /* Aucune fraction de DÉPART réductible. 6/2 vaut 3, et l'élève qui le
+       simplifie d'abord — ce qui est juste — écrit des multiplicateurs que la
+       correction, calée sur les nombres de l'énoncé, compterait faux. Un
+       exercice qui punit une méthode correcte apprend l'inverse de ce qu'il
+       enseigne : on ne tire pas ce cas-là. */
+    if(sfPgcd(n1,d1)!==1 || sfPgcd(n2,d2)!==1) continue;
+    if(sfPgcd(N,D)!==1) continue;                    /* résultat déjà irréductible : pas de « faut-il simplifier ? » */
+    if(N===D) continue;                              /* 1 tout rond : l'écriture finale devient ambiguë */
+    return {n1:n1,d1:d1,n2:n2,d2:d2,op:op,D:D,k1:k1,k2:k2,N1:N1,N2:N2,N:N};
+  }
+  return {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5};
+}
+/* La fraction ÉCRITE (pas une case à remplir). Le moteur ne s'appuie sur aucune
+   aide propre au niveau : la Seconde a « ensFracInner », la Première rend ses
+   fractions par MathLive — un moteur qui dépendrait de l'un des deux ne
+   pourrait pas vivre dans l'autre fichier, et deux moteurs séparés finiraient
+   par diverger sous les yeux de l'élève. */
+function sfFracInner(numStr,denStr){
+  /* La barre oblique est ÉCRITE, et cachée à l'œil. Une fraction empilée se lit
+     « 83 » quand on la met à plat — et c'est à plat que la Première envoie
+     l'écran au modèle : « Calcule 1 + 83 » contredisait alors, dans le même
+     message, le « 1 + 8/3 » que l'exercice venait de dire. Elle sert aussi à
+     qui écoute la page. */
+  return '<span class="sf-f"><span class="n">'+numStr+'</span><span class="bar"></span>'
+        +'<span class="sf-lu">/</span><span class="d">'+denStr+'</span></span>';
+}
+function sfBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen()); return qs; }
+/* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
+function sfTermeHTML(n,d){
+  return (d===1) ? '<span class="f-whole">'+n+'</span>'
+                 : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
+}
+function sfCases(){ return ['sf-a1','sf-b1','sf-a2','sf-b2','sf-num1','sf-num2','sf-den','sf-fn','sf-fd']; }
+function renderSFTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('sfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagSF').innerHTML=modeTagHTML();
+  $('sfLiveScore').textContent=test.score;
+  $('sfFeedback').textContent=''; $('sfFeedback').className='mp-feedback';
+  $('sfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkSFAnswer()">Vérifier</button>';
+  $('sfPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+q.op+'</b> '+sfTermeHTML(q.n2,q.d2)+'.';
+  /* Toute case est ENVELOPPÉE. La correction du mode entraînement s'insère
+     juste après la case (corTrainDec) : posée nue dans une fraction, elle en
+     élargissait le trait et, sous le dénominateur commun, tombait carrément
+     hors de la fraction, une ligne plus bas. L'enveloppe lui donne un repère
+     à elle, d'où le badge se pose à côté sans rien déplacer. */
+  const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
+  const frac=(n,d)=>'<span class="f-frac-input">'+mf(n,'f-num','numérateur')+'<span class="f-fbar"></span>'+mf(d,'f-den','dénominateur')+'</span>';
+  /* Un entier passe d'abord par « n = n/1 » : c'est donné, pas demandé. */
+  const depart=(n,d)=> (d===1)
+    ? '<span class="f-whole">'+n+'</span><span class="f-eq">=</span><span class="f-frac">'+sfFracInner(String(n),'1')+'</span>'
+    : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
+  /* Une ligne de l'étape ① : le terme de départ, puis la même fraction dont le
+     numérateur et le dénominateur sont chacun multipliés par une case. */
+  const ligne1=(n,d,a,b)=>
+    '<div class="pt-row">'+depart(n,d)+'<span class="f-eq">=</span>'
+     +'<span class="f-frac-input sf-prod">'
+       +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'
+       +mf(a,'f-num','multiplicateur du numérateur')+'</span>'
+       +'<span class="f-fbar"></span>'
+       +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'
+       +mf(b,'f-den','multiplicateur du dénominateur')+'</span>'
+     +'</span></div>';
+  $('sfHost').innerHTML=
+    '<div class="pt-step"><div class="pt-lab">① Mettre les deux au même dénominateur</div>'
+     +ligne1(q.n1, q.d1, 'sf-a1', 'sf-b1')
+     +ligne1(q.n2, q.d2, 'sf-a2', 'sf-b2')
+     +'</div>'
+   +'<div class="pt-step"><div class="pt-lab">② Écrire la '+(q.op==='+'?'somme':'différence')+' sur ce dénominateur</div>'
+     +'<div class="pt-row"><span class="f-eq">=</span>'
+       +'<span class="f-frac-input sf-somme">'
+       +'<span class="sf-haut">'+mf('sf-num1','f-num','premier numérateur')
+       +'<span class="f-times">'+q.op+'</span>'
+       +mf('sf-num2','f-num','second numérateur')+'</span>'
+       +'<span class="f-fbar"></span>'
+       +mf('sf-den','f-den','dénominateur commun')+'</span>'
+     +'</div></div>'
+   +'<div class="pt-step"><div class="pt-lab">③ La fraction finale</div>'
+     +'<div class="pt-row"><span class="f-eq">=</span>'+frac('sf-fn','sf-fd')+'</div></div>';
+  const order=sfCases().map(id=>$(id));
+  order.forEach((el,i)=>{ if(!el) return;
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* Ce que l'élève a écrit, en entier — vide ou illisible rend NaN. */
+function sfLu(id){ const el=$(id); if(!el) return NaN; const t=String(el.value||'').trim();
+  return /^-?\d+$/.test(t) ? parseInt(t,10) : NaN; }
+/* La correction. Elle ne compare pas au PPCM : elle vérifie que les
+   multiplicateurs de l'élève donnent le MÊME dénominateur des deux côtés, puis
+   que tout le reste s'y tient. */
+function sfJuge(q){
+  const a1=sfLu('sf-a1'), b1=sfLu('sf-b1'), a2=sfLu('sf-a2'), b2=sfLu('sf-b2');
+  const d1=(q.d1===1)?1:q.d1, d2=(q.d2===1)?1:q.d2;
+  /* un multiplicateur se met en HAUT comme en BAS : c'est ce qui ne change pas
+     la fraction, et c'est tout le sens de l'étape */
+  const ok1 = a1>=1 && b1>=1 && a1===b1;
+  const ok2 = a2>=1 && b2>=1 && a2===b2;
+  const D1 = ok1 ? d1*b1 : 0, D2 = ok2 ? d2*b2 : 0;
+  const memeD = ok1 && ok2 && D1===D2;
+  const D = memeD ? D1 : 0;
+  const n1=sfLu('sf-num1'), n2=sfLu('sf-num2'), dd=sfLu('sf-den');
+  const ok3 = memeD && n1===q.n1*a1 && n2===q.n2*a2 && dd===D;
+  const fn=sfLu('sf-fn'), fd=sfLu('sf-fd');
+  const ok4 = !isNaN(fn) && !isNaN(fd) && fd!==0 && fn*q.D===q.N*fd;
+  return {ok1:ok1&&memeD, ok2:ok2&&memeD, ok3:ok3, ok4:ok4, memeD:memeD, D:D};
+}
+function sfLive(){
+  if(test.kind!=='sf' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const r=sfJuge(q);
+  const col=(ids,ok)=>ids.forEach(id=>{ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(String(el.value||'').trim()==='') return;
+    el.classList.add(ok?'ok':'bad'); });
+  col(['sf-a1','sf-b1'],r.ok1); col(['sf-a2','sf-b2'],r.ok2);
+  col(['sf-num1','sf-num2','sf-den'],r.ok3); col(['sf-fn','sf-fd'],r.ok4);
+}
+function checkSFAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ sfLive(); return; }
+  const r=sfJuge(q);
+  const mark=(ids,ok)=>ids.forEach(id=>{ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); });
+  mark(['sf-a1','sf-b1'],r.ok1); mark(['sf-a2','sf-b2'],r.ok2);
+  mark(['sf-num1','sf-num2','sf-den'],r.ok3); mark(['sf-fn','sf-fd'],r.ok4);
+  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4;
+  if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('sfLiveScore').textContent=test.score;
+    $('sfFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']);
+    $('sfFeedback').className='mp-feedback good';
+  } else {
+    $('sfFeedback').textContent=sfPourquoi(q,r); $('sfFeedback').className='mp-feedback bad';
+    /* corrections en bleu, comme partout : on montre la voie du PPCM */
+    corTrainDec('sf-a1',q.k1); corTrainDec('sf-b1',q.k1);
+    corTrainDec('sf-a2',q.k2); corTrainDec('sf-b2',q.k2);
+    corTrainDec('sf-num1',q.N1); corTrainDec('sf-num2',q.N2); corTrainDec('sf-den',q.D);
+    corTrainFrac('sf-fn','sf-fd',q.N,q.D);
+  }
+  const donne=sfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q:q.n1+(q.d1===1?'':'/'+q.d1)+' '+q.op+' '+q.n2+(q.d2===1?'':'/'+q.d2),
+    answer:q.N+'/'+q.D, given:donne});
+  const last=test.idx===test.questions.length-1;
+  $('sfActions').innerHTML='<button class="btn btn-primary" id="sfNext" onclick="nextSFQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('sfNext'); if(nb) nb.focus();
+}
+function sfPourquoi(q,r){
+  if(!r.memeD) return 'Il faut le MÊME dénominateur des deux côtés. Avec '+q.d1+' et '+q.d2+', le plus petit qui convient est '+q.D
+    +' : multiplie la première par '+q.k1+' (en haut ET en bas) et la seconde par '+q.k2+'.';
+  if(!r.ok3) return 'Sur le dénominateur '+r.D+', les deux numérateurs deviennent '+(q.n1*q.k1*(r.D/q.D))+' et '+(q.n2*q.k2*(r.D/q.D))
+    +'. On additionne ou on soustrait les numérateurs, jamais les dénominateurs.';
+  return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
+}
+function nextSFQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSFTest(); autoSave(); } else finishTest(); }
+async function startSF(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=sfBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'sf', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  /* L'identifiant de la note, épinglé EN TOUTES LETTRES : la Première
+     enregistre sous « test.qId », et un contrôle du banc le lit ici — rangé
+     dans l'Object.assign au-dessus, il y était invisible. La Seconde
+     enregistre sous currentTestId et n'en tient pas compte. */
+  test.qId='somme-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('sf'); renderSFTest();
+}
+/* Le contexte envoyé au modèle, en UNE chaîne. Les deux niveaux ne l'emballent
+   pas pareil — la Seconde rend une paire {nombre, contexte}, la Première pose
+   le texte dans son « att » — mais ils disent la même chose, ici, une fois. */
+function sfCtxTexte(q){
+  const r=sfJuge(q);
+  let c='L’élève calcule '+q.n1+(q.d1===1?'':'/'+q.d1)+' '+q.op+' '+q.n2+(q.d2===1?'':'/'+q.d2)
+       +' en trois étapes : compléter les multiplications pour mettre les deux fractions au même dénominateur, '
+       +'écrire la somme ou la différence sur ce dénominateur, puis donner la fraction finale. '
+       +'Avec le plus petit dénominateur commun, '+q.D+', les multiplicateurs sont '+q.k1+' et '+q.k2+', '
+       +'les numérateurs deviennent '+q.N1+' et '+q.N2+', et le résultat est '+q.N+'/'+q.D+'. '
+       +'Ces réponses attendues sont STRICTEMENT SECRÈTES. '
+       +'Méthode enseignée : le dénominateur commun n’est PAS imposé — tout multiplicateur qui donne le même dénominateur des deux côtés convient, à condition d’être posé en haut ET en bas. '
+       +'L’erreur classique est d’additionner les dénominateurs : 1/2 + 1/3 ne fait pas 2/5. Un entier est une fraction de dénominateur 1.';
+  const rate=[]; if(!r.ok1||!r.ok2) rate.push('la mise au même dénominateur');
+  if(!r.ok3) rate.push('l’écriture de la somme'); if(!r.ok4) rate.push('la fraction finale');
+  if(rate.length) c+=' Il bloque sur : '+rate.join(', ')+'.';
+  return c;
+}
+
 async function finishHausses(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
@@ -9082,8 +9362,16 @@ Enchaîner les deux, c’est multiplier par l’un <b>puis</b> par l’autre : l
 1,4 × 1,04 = 14/10 × 104/100 = 1456/1000 = <b>1,456</b>.<br>
 Le coefficient global se relit en pourcentage : multiplier par 1,456, c’est <b>ajouter 45,6 %</b>. La hausse globale est <b>45,6 %</b> — plus que 44, alors qu’à la baisse on trouve <i>moins</i> que la somme.<br>
 Pour vérifier, refais le chemin dans l’autre sens : 1 + 0,456 = 1,456, le coefficient trouvé à l’étape ②.`;
+const RAP_SF=`<b>Additionner ou soustraire deux fractions</b><br>
+On ne peut additionner que des parts de MÊME taille : il faut donc le même dénominateur.<br>
+<b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour 1/2 et 1/3, le plus petit dénominateur commun est 6 : 1/2 = (1×3)/(2×3) = 3/6, et 1/3 = (1×2)/(3×2) = 2/6.<br>
+<b>② Additionner les NUMÉRATEURS seulement.</b> 3/6 + 2/6 = (3 + 2)/6. Le dénominateur ne change pas : il dit la taille des parts, pas leur nombre.<br>
+<b>③ Faire le calcul du haut</b> : (3 + 2)/6 = 5/6.<br>
+<b>Un entier est une fraction</b> : 3 = 3/1. On le met au même dénominateur comme les autres — 3 = (3×5)/(1×5) = 15/5.<br>
+Piège classique : additionner les dénominateurs. 1/2 + 1/3 ne fait pas 2/5 — ce serait moins que 1/2, alors qu'on a ajouté quelque chose.`;
+
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, sf:RAP_SF };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, P/100 × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -9134,6 +9422,7 @@ const QIA_SUGG={
   ag2:["Pourquoi calcule-t-on d\u2019abord l\u2019augmentation ?","Quelle différence avec la méthode du coefficient ?","Pourquoi faut-il ajouter la valeur de départ à la fin ?","Comment calculer 20 % de 300 ?"],
   pcol:["Que vaut une part de la colonne de droite ?","Pourquoi les deux colonnes ont-elles le même nombre de parts ?","Comment lire le résultat sur la colonne ?","Fais-moi un rappel de cours pour cet exercice."],
   fp:["Pourquoi 3/4 égale 75 % ?","Comment passer d’une fraction à un pourcentage ?","Que vaut une part quand la colonne est divisée en 5 ?","Pourquoi 1/2 et 50 % ont-ils la même hauteur ?"],
+  sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 
@@ -9327,6 +9616,7 @@ function conseilCtxCourant(){
   } else if(k==='tm' && q){
     att='Exercice de rapidité sur les tables de multiplication : '+TM_SECONDES+' secondes par produit. Ne donne aucun produit de l’exercice en cours ; parle de méthode et de mémorisation.';
   }
+  if(k==='sf' && q) att=sfCtxTexte(q);
   const ec=ctxEcranPremiere();
   /* numeros() en dernier : le contexte est assemblé de dix morceaux, et plusieurs
      citent un exercice voisin. Les résoudre ici les prend tous d'un coup. */
@@ -9532,7 +9822,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderSFTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

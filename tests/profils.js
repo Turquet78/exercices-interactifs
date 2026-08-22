@@ -42,7 +42,7 @@ const RAPPELS_PREMIERE = `(function(){
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs',
-    'tables-multiplication':'tm','tables-multiplication-2':'tm' };
+    'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices
@@ -80,7 +80,8 @@ const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
                'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
-               'appartient-intervalle':'app','appartient-intervalle-2':'app' };
+               'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
+               'placer-intervalle':'plc' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -313,9 +314,15 @@ module.exports = {
        pire que pas de contexte du tout. */
     missionAvecContexte: { fonction: 'qiaEnvoyer', appel: 'qiaCtxExercice' },
     specifique: 'seconde',
+    /* La fenêtre des tables de multiplication, portée depuis la Première.
+       Pas de « referme » : la Seconde n'a aucun exercice de rapidité, donc
+       aucun écran où la fenêtre deviendrait une antisèche. Ce manque est
+       déclaré plutôt que tu — le banc affiche « non applicable » sur ce
+       seul bord, et continue d'exiger l'autre. */
+    tablesAide: { reste: 'pourcentage' },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
-      "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
+      "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
     ],
   },
