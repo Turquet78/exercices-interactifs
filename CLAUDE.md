@@ -1015,17 +1015,47 @@ enfermerait le professeur dehors, sans autre chemin et sans erreur nulle part.
 lève pas une erreur discrète, il cherche un écran absent, `$('scr-home')` vaut
 `null`, et la navigation se fige sur place — le banc l'a montré tout de suite
 sur deux contrôles qui s'en servaient comme d'un écran quelconque.
-**Un seul favori pour trois niveaux : `prof.html`.** Une quatrième page, de
-cent lignes, qui ne fait qu'aiguiller — trois liens vers `…#prof`. Elle ne
-contient aucun secret et n'appelle pas Supabase. Deux bords, parce qu'elle vit
-à côté des trois pages sans que rien ne l'y relie : *le fragment qu'elle pose
-doit être celui que la page attend* — s'ils divergeaient, le bouton ouvrirait
-la connexion des ÉLÈVES sans la moindre erreur nulle part —, et *aucune page
-d'élève ne doit renvoyer vers elle*, ce qui remettrait par un autre chemin le
-bouton retiré à dessein. Deux contrôles statiques les tiennent, niveau par
-niveau ; et le banc navigateur OUVRE `prof.html`, CLIQUE le lien du niveau
-contrôlé et regarde où il atterrit — un lien juste sur le papier qui tomberait
-sur la connexion des élèves ne lèverait aucune erreur.
+**Un seul favori pour trois niveaux : `prof.html`, et le mot de passe AVANT
+les trois portes.** Une quatrième page qui ne fait qu'aiguiller — trois liens
+vers `…#prof` —, mais elle demande d'abord le mot de passe et ne montre les
+niveaux qu'ensuite (décision de Turquet, août 2026). **Ce n'est pas un verrou
+de plus : c'est le MÊME, posé un cran plus tôt.** Elle appelle donc Supabase
+comme les trois pages — `signInWithPassword`, puis l'appartenance à
+`professeurs` revérifiée après la connexion — et **le mot de passe n'est pas
+écrit dedans** : le dépôt est public, un code posé là serait lisible par
+n'importe qui. Un contrôle refuse qu'un mot de passe y revienne, sous forme de
+constante comme de comparaison.
+Ce que ça retire, c'est la vue : un élève qui tombe sur l'adresse ne voit plus
+les trois portes du tableau de bord. Ce que ça ne retire pas : rien du verrou,
+qui reste entier et côté serveur.
+**La session est partagée par les quatre pages** — même domaine, même projet.
+Cliquer un niveau ouvre son tableau de bord directement, sans redemander le mot
+de passe (`reprendreSessionProf()`, qui demande son avis au SERVEUR, jamais à la
+page), et **« Quitter » un niveau ramène à `prof.html`** avec les trois liens
+toujours ouverts. C'est un arbitrage assumé : « Quitter » ne ferme plus la
+session — sans quoi passer de la Terminale à la Seconde redemanderait le mot de
+passe à chaque fois. C'est « Se déconnecter », sur la page d'aiguillage, qui la
+ferme vraiment, et la page le dit en toutes lettres.
+Le contrôle qui interdisait TOUT lien vers `prof.html` depuis une page d'élève
+n'a pas été retiré, il a été rétréci : le seul retour autorisé part de
+`quitToHome()`, c'est-à-dire du tableau de bord, c'est-à-dire de quelqu'un qui a
+déjà donné le mot de passe. Et il ne compte que les `prof.html` ENTRE
+GUILLEMETS : une adresse qu'on suit, pas un commentaire qui la nomme.
+Cinq bords en tout, parce que la page vit à côté des trois autres sans que rien
+ne l'y relie : le fragment qu'elle pose, les trois valeurs de configuration
+qu'elle écrit une QUATRIÈME fois (adresse du projet, clé publique, courriel du
+compte — divergentes, elle refuserait le bon mot de passe, ou pire ouvrirait une
+session sur un autre projet, sans rien dire), la carte des niveaux livrée
+cachée, le retour réservé au tableau de bord, et ce retour qui ne doit pas
+fermer la session. Le banc navigateur, lui, joue le trajet entier : il OUVRE
+`prof.html`, vérifie qu'aucun niveau ne se voit, essaie un MAUVAIS mot de passe,
+donne le bon, CLIQUE le niveau contrôlé, exige d'atterrir sur le tableau de bord
+et non sur la connexion des élèves, puis clique « Quitter » et exige de revenir
+sur les trois niveaux SANS retaper. Éprouvé en le cassant neuf fois.
+Un piège de banc s'y est montré : le double de Supabase gardait sa session en
+MÉMOIRE, si bien qu'elle disparaissait au changement de page et qu'aucun
+contrôle ne pouvait éprouver ce partage. Il la range maintenant dans le stockage
+du navigateur, comme le vrai client.
 
 Le changement de fragment sur une page DÉJÀ ouverte est écouté aussi
 (`hashchange`) : sans cela, taper « #prof » dans la barre d'adresse ne ferait
