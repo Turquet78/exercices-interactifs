@@ -105,6 +105,11 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* La Première l'a depuis toujours ; on le mesure pour que les deux
+       niveaux ne divergent pas — c'est d'elle que la Seconde tient sa
+       largeur. « somme-fractions » partage son moteur avec la Seconde. */
+    pleineLargeur: { exercices: ['pourcentage', 'mult-decimaux', 'somme-fractions'],
+                     chaine: [['pourcentage', 1], ['somme-fractions', 1]] },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -247,6 +252,15 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* L'écran d'un exercice prend toute la largeur, et les étapes d'une même
+       égalité tiennent sur une seule ligne. « chaine » dit combien de blocs
+       empilés un exercice a le droit de garder : au-delà, la chaîne est
+       coupée. Le pourcentage n'en a qu'un ; augmenter et diminuer en ont
+       deux — le coefficient est une autre égalité — plus la pose
+       facultative, qui reste cachée tant que l'élève n'a rien écrit. */
+    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions'],
+                     chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
+                              ['diminuer-pourcentage', 2], ['somme-fractions', 1]] },
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */

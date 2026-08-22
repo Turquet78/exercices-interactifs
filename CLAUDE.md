@@ -840,6 +840,57 @@ vide et passe au vert sur un bouton disparu. On la lit dans le SOURCE, comme le
 fait le contrôle de l'énoncé, en refusant de continuer si la liste est
 invraisemblable.
 
+**Un enchaînement d'égalités se lit d'un trait.** « a × b = c = d » coupé en
+trois blocs empilés se lit comme trois calculs sans rapport, alors que c'est le
+même, poursuivi. Deux choses le provoquaient en Seconde, et il fallait les deux
+pour le corriger.
+*La colonne était trop étroite.* La Première élargit l'écran d'un exercice à
+toute la fenêtre (`body.plein-ecran .wrap{max-width:none}`, posé par `show()`
+sur les seuls écrans d'exercice) ; la Seconde n'avait ni la règle ni la bascule.
+Le menu, lui, garde sa colonne : c'est du texte, et une ligne de 1400 px ne se
+lit pas (décision de Turquet, août 2026).
+*Et les étapes étaient écrites en blocs séparés.* Le pourcentage passe de trois
+`pt-step` à un seul ; augmenter et diminuer de cinq à deux — le coefficient est
+une AUTRE égalité, elle garde son bloc — plus la pose facultative, renvoyée à la
+fin : elle coupait la chaîne en son milieu, entre le « × valeur » et son
+résultat. Les libellés fusionnent avec le point médian de la Première :
+« ② coefficient × valeur de départ · ③ multiplier les fractions · ④ le résultat ».
+
+**Une somme de fractions s'écrit en une seule ligne, et l'entier est un maillon.**
+{somme-fractions} passe de trois blocs à la chaîne du cahier :
+`5/3 + 1/2 = (5×□)/(3×□) + (1×□)/(2×□) = (□ + □)/□ = □/□`. Quand un terme est un
+ENTIER, le passage par le dénominateur 1 devient un maillon de la chaîne —
+`3 + 1/2 = 3/1 + 1/2 = …` — et non une égalité posée à côté : écrire « 3 = 3/1 »
+au milieu d'une somme dirait que 3 vaut la somme entière. Quand aucun des deux
+termes n'est entier, ce maillon ne dirait rien de plus et disparaît.
+Le moteur étant partagé avec la Première, les deux niveaux gagnent la même ligne
+— et restent identiques au caractère près.
+**Le piège d'à côté a mordu tout de suite** : sur une seule ligne, ce qui suit
+une case n'est plus du vide mais le « + » ou le « = » suivant, et les
+corrections en bleu se sont mises à les recouvrir. La place se réserve donc au
+niveau du GROUPE (`.sf-prod`, `.sf-somme`), pas de la case : posée sur la case,
+la marge élargirait le trait de fraction au lieu d'écarter le voisin.
+
+**Le contrôle tient les deux bords, et n'en tenir qu'un ne tient rien** : la
+carte doit être LARGE, et les rangées ne doivent PAS se replier. Une carte large
+dont les rangées se replient quand même n'a rien gagné ; des rangées qui ne se
+replient pas dans une carte étroite, c'est qu'elles étaient déjà courtes. Il
+compte aussi les blocs empilés — c'est là que se voit la fusion — et vérifie que
+le menu, lui, garde sa colonne. Il vit dans le banc navigateur : seul un vrai
+navigateur sait où un contenu se replie.
+Un piège de mesure s'y est montré : une rangée n'a pas replié parce que ses
+enfants ont des « top » différents — une fraction et un « = » sont centrés l'un
+sur l'autre, donc leurs hauts diffèrent toujours, et le premier compteur criait
+au repli sur des lignes parfaitement droites. On compare la HAUTEUR de la rangée
+à celle de son plus haut enfant.
+**Et un sabotage IMPOSSIBLE n'est pas un contrôle mort.** Élargir les cases pour
+faire déborder la rangée ne produit rien : `math-field` est plafonné à 150 px
+(`math-field.pm-mf{max-width:150px}`), donc la rangée ne peut pas grossir par
+là — le vert était juste, et c'est le sabotage qui ne disait rien. Le repli
+s'éprouve en rétrécissant la FENÊTRE : à 760 px le banc signale « 1 rangée
+repliée sur 1 ». Avant de conclure qu'un contrôle ne mesure rien, il faut
+vérifier que le sabotage pouvait seulement l'atteindre.
+
 **La fenêtre « Soutien » se saisit n'importe où.** Elle ne se déplaçait que par
 sa barre de titre, un ruban d'une trentaine de pixels qu'il fallait viser
 (décision de Turquet, août 2026). Sa poignée est donc la CARTE ENTIÈRE — et

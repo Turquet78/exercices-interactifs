@@ -976,6 +976,83 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
+    /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
+       en blocs empilés, il se lit comme des calculs séparés — et c'est une
+       colonne trop étroite qui l'y force. L'écran d'un exercice prend donc
+       toute la largeur (décision de Turquet, août 2026), et les étapes d'une
+       même égalité tiennent sur une seule ligne.
+       Deux bords, et n'en tenir qu'un ne tient rien : la carte doit être LARGE,
+       et les rangées ne doivent PAS se replier. Une carte large dont les
+       rangées se replient quand même n'a rien gagné ; des rangées qui ne se
+       replient pas dans une carte étroite, c'est qu'elles étaient déjà courtes.
+       Seul un vrai navigateur sait où un contenu se replie. */
+    titre('6 decies. L\'ÉCRAN D\'EXERCICE PREND TOUTE LA LARGEUR');
+    if(!P.pleineLargeur){
+      ignorer('l\'écran d\'un exercice prend toute la largeur',
+        'ce niveau ne déclare pas d\'exercice à mesurer en largeur');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      /* le menu, lui, garde sa colonne : c'est du texte, et une ligne de
+         1400 px ne se lit pas */
+      const menu = await s.page.evaluate(() => {
+        const w = document.querySelector('.wrap');
+        return { large: Math.round(w.getBoundingClientRect().width),
+                 plein: document.body.classList.contains('plein-ecran') };
+      });
+      verifier('hors exercice, la page garde sa colonne de lecture',
+        !menu.plein && menu.large < 900, 'wrap ' + menu.large + ' px, plein-ecran:' + menu.plein);
+      for(const exo of P.pleineLargeur.exercices){
+        await s.page.evaluate(id => openTest(id), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1100);
+        const m = await s.page.evaluate(() => {
+          const w = document.querySelector('.wrap');
+          const rows = [...document.querySelectorAll('.screen.on .pt-row')];
+          /* Une rangée a REPLIÉ si elle est plus haute que son plus haut
+             enfant. Comparer les « top » ne prouverait rien : une fraction et
+             un « = » sont centrés l'un sur l'autre, donc leurs hauts diffèrent
+             toujours, et le compteur crierait au repli sur des lignes droites. */
+          const replis = rows.filter(r => {
+            const k = [...r.children].filter(x => x.getBoundingClientRect().height > 0);
+            if(k.length < 2) return false;
+            const h = r.getBoundingClientRect().height;
+            const hmax = Math.max(...k.map(x => x.getBoundingClientRect().height));
+            return h > hmax + 8;
+          }).length;
+          return { large: Math.round(w.getBoundingClientRect().width),
+                   plein: document.body.classList.contains('plein-ecran'),
+                   rangees: rows.length, replis: replis,
+                   deborde: document.documentElement.scrollWidth > window.innerWidth + 1 };
+        });
+        verifier(exo + ' : l\'écran prend toute la largeur',
+          m.plein && m.large > 1200, 'wrap ' + m.large + ' px, plein-ecran:' + m.plein);
+        verifier(exo + ' : aucune rangée ne se replie',
+          m.replis === 0, m.replis + ' rangée(s) repliée(s) sur ' + m.rangees);
+        verifier(exo + ' : la page ne défile pas en largeur', !m.deborde,
+          'la carte déborde de la fenêtre');
+      }
+      /* et le nombre de blocs empilés : c'est là que se voit la fusion des
+         étapes en une seule égalité */
+      if(P.pleineLargeur.chaine){
+        for(const [exo, max] of P.pleineLargeur.chaine){
+          await s.page.evaluate(id => openTest(id), exo);
+          await s.page.waitForTimeout(400);
+          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.waitForTimeout(1100);
+          const n = await s.page.evaluate(() =>
+            document.querySelectorAll('.screen.on .pt-step:not(.step-hidden)').length);
+          verifier(exo + ' : les étapes d\'une même égalité tiennent en ' + max + ' bloc(s)',
+            n <= max, n + ' blocs empilés — la chaîne est coupée');
+        }
+      }
+      verifier('mesurer la largeur ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
     /* Le bouton d'aide de « Placer des nombres sur une droite graduée » réécrit
        les cinq nombres à la même longueur — mais SEULEMENT tant qu'on le garde
