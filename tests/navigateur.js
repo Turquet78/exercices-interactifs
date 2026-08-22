@@ -976,6 +976,150 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 octies. la fenêtre « Soutien » se saisit N'IMPORTE OÙ ===== */
+    /* Elle ne se déplaçait que par sa barre de titre, un ruban de trente pixels
+       qu'il fallait viser (décision de Turquet, août 2026 : on la saisit
+       n'importe où). La poignée est donc la CARTE ENTIÈRE — et c'est là que le
+       piège se referme : une carte qui prend tous les clics avale ceux de ses
+       propres boutons, qui deviennent muets sans lever la moindre erreur.
+       Les deux bords vont ensemble, et n'en tenir qu'un ne tient rien : la
+       fenêtre doit SUIVRE la souris saisie en plein texte, et ses boutons
+       doivent GARDER leur geste.
+       Ce contrôle ne peut vivre que dans un vrai navigateur : jsdom n'a ni
+       PointerEvent, ni mise en page, donc aucune position à mesurer. */
+    titre('6 octies. LA FENÊTRE « SOUTIEN » SE SAISIT N\'IMPORTE OÙ');
+    if(!P.fenetreSoutien){
+      ignorer('la fenêtre « Soutien » se déplace en la saisissant n\'importe où',
+        'ce niveau ne déclare pas d\'exercice où ouvrir le soutien');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.fenetreSoutien.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(900);
+      /* La Première et la Terminale DÉTACHENT le soutien dans une vraie fenêtre
+         du système dès que le pointeur est fin : c'est alors le gestionnaire de
+         fenêtres qui la déplace, et la carte de la page n'existe plus. On coupe
+         donc le détachement — la carte flottante est justement le seul cas où
+         « saisir n'importe où » veut dire quelque chose. */
+      await s.page.evaluate(() => {
+        if(typeof detachementPossible === 'function') window.detachementPossible = function(){ return false; };
+        for(const n of ['ouvrirRappelSeul', 'ouvrirSoutien', 'conseilCourant']){
+          if(typeof window[n] === 'function'){ window[n](); return; }
+        }
+        const m = document.getElementById('conseilModal'); if(m) m.hidden = false;
+      });
+      await s.page.waitForTimeout(700);
+      /* de quoi la saisir ailleurs que sur sa barre de titre */
+      await s.page.evaluate(() => {
+        const b = document.getElementById('conseilBody');
+        if(b && !b.textContent.trim()) b.textContent = 'Un conseil assez long pour offrir une prise ailleurs que sur la barre de titre. '.repeat(3);
+      });
+      await s.page.waitForTimeout(200);
+      const carte = await s.page.$('#conseilModal .conseil-card');
+      verifier('la fenêtre « Soutien » s\'ouvre dans la page', !!carte,
+        'aucune .conseil-card : le contrôle ne mesure rien');
+      if(carte){
+        const rect = () => s.page.evaluate(() => {
+          const c = document.querySelector('#conseilModal .conseil-card');
+          const r = c.getBoundingClientRect();
+          return { x: Math.round(r.left), y: Math.round(r.top) };
+        });
+        const glisser = async (px, py, dx, dy) => {
+          await s.page.mouse.move(px, py);
+          await s.page.mouse.down();
+          await s.page.mouse.move(px + dx / 2, py + dy / 2, { steps: 5 });
+          await s.page.mouse.move(px + dx, py + dy, { steps: 5 });
+          await s.page.mouse.up();
+          await s.page.waitForTimeout(150);
+        };
+        /* a) saisie en plein milieu du texte : la fenêtre suit */
+        let r0 = await rect();
+        const cible = await s.page.evaluate(() => {
+          const b = document.getElementById('conseilBody');
+          const r = b.getBoundingClientRect();
+          return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+        });
+        await glisser(cible.x, cible.y, 120, 70);
+        let r1 = await rect();
+        verifier('saisie en plein texte, elle suit la souris',
+          Math.abs((r1.x - r0.x) - 120) <= 3 && Math.abs((r1.y - r0.y) - 70) <= 3,
+          'déplacée de (' + (r1.x - r0.x) + ', ' + (r1.y - r0.y) + ') au lieu de (120, 70)');
+        /* b) la barre de titre n'a rien perdu */
+        r0 = await rect();
+        const tete = await s.page.evaluate(() => {
+          const h = document.querySelector('#conseilModal .notes-head h3');
+          if(!h) return null;
+          const r = h.getBoundingClientRect();
+          return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+        });
+        if(tete){
+          await glisser(tete.x, tete.y, -90, 40);
+          r1 = await rect();
+          verifier('la barre de titre la déplace toujours',
+            Math.abs((r1.x - r0.x) + 90) <= 3 && Math.abs((r1.y - r0.y) - 40) <= 3,
+            'déplacée de (' + (r1.x - r0.x) + ', ' + (r1.y - r0.y) + ') au lieu de (-90, 40)');
+        } else {
+          ignorer('la barre de titre la déplace toujours', 'cette fenêtre n\'a pas de titre');
+        }
+        /* c) LE BORD QUI COMPTE : un bouton garde son geste. On vise le premier
+           qui a vraiment un rectangle — « Détacher » est masqué par display:none
+           quand le détachement est impossible, et sa boîte est alors nulle. */
+        r0 = await rect();
+        const bb = await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#conseilModal .conseil-card button')]
+            .find(x => { const r = x.getBoundingClientRect(); return r.width > 2 && r.height > 2; });
+          if(!b) return null;
+          const r = b.getBoundingClientRect();
+          return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), nom: b.textContent.trim() };
+        });
+        if(!bb){
+          verifier('un glisser parti d\'un bouton ne déplace pas la fenêtre', false,
+            'aucun bouton visible dans la fenêtre : le contrôle ne mesure rien');
+        } else {
+          /* On mesure POINTEUR ENCORE ENFONCÉ. Relâcher d'abord fausse tout :
+             la carte suit le curseur, donc le bouton reste dessous, le clic
+             part quand même et « Fermer » referme la fenêtre — une fenêtre
+             fermée n'a plus de rectangle, et le contrôle se satisfaisait de ce
+             « elle a bien agi » alors qu'elle venait d'être traînée de 400 px.
+             C'est ainsi que le bord le plus important passait au vert. */
+          await s.page.mouse.move(bb.x, bb.y);
+          await s.page.mouse.down();
+          await s.page.mouse.move(bb.x + 30, bb.y + 15, { steps: 5 });
+          await s.page.mouse.move(bb.x + 60, bb.y + 30, { steps: 5 });
+          const r2 = await rect();
+          await s.page.mouse.up();
+          await s.page.waitForTimeout(150);
+          verifier('un glisser parti d\'un bouton ne déplace pas la fenêtre',
+            Math.abs(r2.x - r0.x) <= 1 && Math.abs(r2.y - r0.y) <= 1,
+            'le bouton « ' + bb.nom +' » l\'a déplacée de (' + (r2.x - r0.x) + ', ' + (r2.y - r0.y) + ')');
+          /* et il agit VRAIMENT : « Fermer » ferme */
+          await s.page.evaluate(() => { const m = document.getElementById('conseilModal'); if(m) m.hidden = false; });
+          await s.page.waitForTimeout(200);
+          const fb = await s.page.evaluate(() => {
+            const b = [...document.querySelectorAll('#conseilModal .conseil-card button')]
+              .find(x => /Fermer/i.test(x.textContent));
+            if(!b) return null;
+            const r = b.getBoundingClientRect();
+            return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+          });
+          if(fb){
+            await s.page.mouse.click(fb.x, fb.y);
+            await s.page.waitForTimeout(300);
+            verifier('« Fermer » ferme bien la fenêtre',
+              await s.page.evaluate(() => !!document.getElementById('conseilModal').hidden),
+              'elle est restée ouverte : le bouton est devenu muet');
+          } else {
+            ignorer('« Fermer » ferme bien la fenêtre', 'cette fenêtre n\'a pas de bouton « Fermer »');
+          }
+        }
+      }
+      verifier('déplacer la fenêtre ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 7. signaler un problème ===== */
     /* Le seul retour que la page donne au professeur. Il traverse trois choses
        qu'aucun contrôle de structure ne voit ensemble : le bouton doit être là

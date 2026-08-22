@@ -1939,7 +1939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=236;
+const APP_VERSION=237;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -13395,22 +13395,38 @@ function ouvrirSoutien(){
     if((window.__fenetresDetachees||[]).some(function(p){ return p.__origine===m && !p.closed; })) return;
   }
   m.hidden=false;
-  rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
+  rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.conseil-card'));
 }
 /* --- Fenêtres flottantes : déplaçables par leur barre de titre, sur tout l'écran.
    Pointer Events quand ils existent ; sinon repli souris + tactile (vieux navigateurs). --- */
+/* Ce qui, dans une fenêtre déplaçable, garde son propre geste. */
+const GESTE_PROPRE='button,a,input,select,textarea,math-field,[contenteditable],[role="button"]';
 function rendreDeplacable(carte, poignee){
   if(!carte || !poignee || poignee.__deplacable) return;
   poignee.__deplacable=true;
   poignee.style.cursor='move';
   poignee.style.touchAction='none';
+  /* Le glisser vit ICI et non dans la feuille de styles, parce que la poignée
+     n'est plus toujours l'en-tête : quand c'est la carte entière, sélectionner
+     du texte et la déplacer sont le même geste, et le navigateur ferait les
+     deux à la fois. Le texte du conseil n'est donc plus sélectionnable — c'est
+     le prix assumé de « déplacer en cliquant n'importe où ». */
+  poignee.style.userSelect='none';
+  poignee.style.webkitUserSelect='none';
   const EVT=window.PointerEvent
     ? { debut:['pointerdown'], bouge:['pointermove'], fin:['pointerup','pointercancel'] }
     : { debut:['mousedown','touchstart'], bouge:['mousemove','touchmove'], fin:['mouseup','touchend','touchcancel'] };
   const pointDe=function(e){ return (e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e; };
   const debut=function(e){
     if(e.button!==undefined && e.button!==0 && !e.touches) return;      /* clic gauche ou doigt uniquement */
-    if(e.target && e.target.closest && e.target.closest('button')) return;   /* ✕ / Fermer restent cliquables */
+    /* Tout ce qui se clique, se tape ou se choisit garde son geste. La poignée
+       est désormais parfois la CARTE ENTIÈRE — « déplacer en cliquant n'importe
+       où » —, et sans cette liste le premier bouton posé dans une fenêtre
+       deviendrait muet : il déplacerait la fenêtre au lieu d'agir, sans erreur
+       nulle part. On ne s'en remet donc pas au seul <button> : un lien dans un
+       rappel de cours, un champ de saisie, une liste, suffiraient à rouvrir le
+       trou. */
+    if(e.target && e.target.closest && e.target.closest(GESTE_PROPRE)) return;
     if(carte.ownerDocument!==document) return;                /* détachée : le système gère la fenêtre */
     const r=carte.getBoundingClientRect();
     carte.style.position='fixed';

@@ -100,6 +100,11 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_1ere', exercice: 'pourcentage' },
+    /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
+       barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
+       le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
+       ses boutons n'ont pas été avalés par la poignée. */
+    fenetreSoutien: { exercice: 'pourcentage' },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -237,6 +242,11 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements_2nde', exercice: 'pourcentage' },
+    /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
+       barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
+       le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
+       ses boutons n'ont pas été avalés par la poignée. */
+    fenetreSoutien: { exercice: 'pourcentage' },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -334,6 +344,11 @@ module.exports = {
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
     signalement: { table: 'signalements', exercice: 'derivee-exp' },
+    /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
+       barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
+       le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
+       ses boutons n'ont pas été avalés par la poignée. */
+    fenetreSoutien: { exercice: 'derivee-exp' },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au

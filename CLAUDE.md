@@ -823,6 +823,35 @@ vide et passe au vert sur un bouton disparu. On la lit dans le SOURCE, comme le
 fait le contrôle de l'énoncé, en refusant de continuer si la liste est
 invraisemblable.
 
+**La fenêtre « Soutien » se saisit n'importe où.** Elle ne se déplaçait que par
+sa barre de titre, un ruban d'une trentaine de pixels qu'il fallait viser
+(décision de Turquet, août 2026). Sa poignée est donc la CARTE ENTIÈRE — et
+c'est là que le piège se referme : **une carte qui prend tous les clics avale
+ceux de ses propres boutons**, qui deviennent muets sans lever la moindre
+erreur. La liste `GESTE_PROPRE` rend son geste à tout ce qui se clique, se tape
+ou se choisit, et elle ne se limite pas à `<button>` : un lien dans un rappel de
+cours, un champ, une liste suffiraient à rouvrir le trou.
+Le glisser coupe la sélection du texte (`user-select`), et c'est posé dans
+`rendreDeplacable()` plutôt que dans la feuille de styles, parce que la poignée
+n'est plus toujours l'en-tête : saisir la fenêtre et sélectionner son texte sont
+le même geste, et le navigateur ferait les deux à la fois. Le texte du conseil
+n'est donc plus sélectionnable — prix assumé.
+La Première et la Terminale DÉTACHENT le soutien dans une vraie fenêtre du
+système dès que le pointeur est fin ; c'est alors le gestionnaire de fenêtres
+qui la déplace, et la carte de la page n'existe plus. Le changement ne se voit
+donc que là où le détachement n'est pas possible — et en Seconde, qui ne détache
+pas le soutien.
+**Le contrôle tient les deux bords ensemble, et n'en tenir qu'un ne tient
+rien** : la fenêtre doit SUIVRE la souris saisie en plein texte, et ses boutons
+doivent GARDER leur geste. Il vit dans le banc navigateur — jsdom n'a ni
+PointerEvent ni mise en page, donc aucune position à mesurer.
+Il s'est pris lui-même en défaut sur le bord le plus important. Il mesurait la
+position APRÈS avoir relâché le bouton de la souris : or la carte suit le
+curseur, donc le bouton reste dessous, le clic part quand même, « Fermer »
+referme la fenêtre — et une fenêtre fermée n'a plus de rectangle. Le contrôle
+se satisfaisait de ce « elle a bien agi » alors qu'elle venait d'être traînée de
+quatre cents pixels. Il mesure maintenant POINTEUR ENCORE ENFONCÉ.
+
 **Fenêtres d'aide détachées** — sur ordinateur, les fenêtres « Soutien » et
 « Question à l'IA » s'ouvrent dans une fenêtre indépendante et leur carte y est
 déplacée. `document.getElementById` ne les trouve plus : la fonction `$` doit
