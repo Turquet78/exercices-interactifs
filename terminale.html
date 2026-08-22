@@ -1939,7 +1939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=237;
+const APP_VERSION=238;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -7347,9 +7347,20 @@ function dexpVerdicts(){
   verdicts['dexp-fac']=checkExprFn(dexpCellValue('dexp-fac'), x=>polyEval(c.dcoef,x));
   return {verdicts, order, groups:{s2:s2ok, s3:s3ok}};
 }
+/* Lecture d'une case math : on retire D'ABORD les residus de fin de saisie avec saClean
+   (exposant vide « 2^{} », \placeholder{}, operateur isole). Sans ce nettoyage, une reponse
+   JUSTE portant un residu INVISIBLE est comptee fausse : c'est le defaut signale par un eleve
+   sur le 2.1 en aout 2026 — « 2 » et « 4x » rouges, « 4 » vert, 10 cases sur 12.
+   Un signe seul (« + » = coefficient +1) n'est PAS un residu : si le nettoyage vide la case,
+   on garde ce que l'eleve a ecrit. */
 function dexpCellValue(id){
   const el=$(id); if(!el) return '';
-  if(el.tagName==='MATH-FIELD') return window.mlDexp ? window.mlDexp.toPlain(el.getValue()) : '';
+  if(el.tagName==='MATH-FIELD'){
+    if(!window.mlDexp) return '';
+    let lx=''; try{ lx=String(el.getValue?el.getValue():''); }catch(e){}
+    const net=saClean(lx);
+    return window.mlDexp.toPlain(net===''?lx:net);
+  }
   return el.classList.contains('dexp-ce') ? dexpReadValue(el) : el.value.trim();
 }
 /* Lecture NETTOYEE d'un champ math : on retire d'abord les residus MathLive de fin de saisie
