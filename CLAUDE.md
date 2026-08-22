@@ -526,6 +526,34 @@ fenêtre, qui interceptait. Trente secondes d'attente, puis un échec qui accusa
 la page alors que le banc n'avait jamais cliqué l'exercice. Il calcule maintenant
 un point de l'écran HORS du rectangle de la fenêtre.
 
+**Un résidu invisible rend fausse une réponse juste.** C'est le pire défaut
+possible : l'exercice apprend l'inverse de ce qu'il enseigne, et rien ne rougit
+nulle part. Un élève de Terminale l'a signalé en août 2026 sur le 2.1 — sa copie
+était juste d'un bout à l'autre, « 2 » et « 4x » étaient rouges, « 4 » vert, note
+« 10 cases justes sur 12 ». Les deux cases fautives portaient un exposant VIDE
+(`2^{}`), laissé par une touche effleurée : MathLive n'affiche RIEN pour un
+exposant vide, si bien qu'il n'y a strictement rien à voir à l'écran ; seul
+l'évaluateur le voit, et `new Function('return (2**())')` lève, donc la case ne
+compile pas, donc elle est rouge. La troisième case, propre, restait verte — d'où
+la signature ✗ ✗ ✓, qui a d'abord fait chercher une erreur d'appariement des
+termes alors que le défaut était dans la LECTURE.
+Le nettoyage existait déjà — `saClean()`, écrit pour le 6.2, dont le commentaire
+disait mot pour mot « sans quoi une bonne réponse comme "3" suivie d'un résidu
+invisible est comptée fausse ». Il n'avait simplement jamais été branché sur les
+autres lecteurs : `dexpCellValue()` en Terminale (66 appels, toute la famille des
+dérivées), `pmPlain()` en Seconde et en Première (la greffe qui donne `.value` à
+chaque `math-field`). Une leçon apprise dans un coin ne protège pas les autres.
+**Un signe seul n'est pas un résidu** : dans une case de coefficient, « + » vaut
++1, et le nettoyer viderait la case — donc si le nettoyage rend une chaîne vide,
+on garde ce que l'élève a écrit. Les deux bords sont contrôlés, et n'en tenir
+qu'un ne tient rien.
+Le contrôle vit dans le banc navigateur : jsdom n'a pas MathLive, donc aucun
+résidu à produire. Il éprouve le lecteur de chaque niveau sur un vrai
+`<math-field>`, résidu par résidu, et rejoue en Terminale la copie de l'élève de
+bout en bout — d'ABORD sans résidu (si elle ne passe pas au vert ainsi, c'est le
+contrôle qui a tort, pas la page), puis avec. Le sabotage rend le signalement au
+mot près : « 10/12 cases vertes, rouges : dexp-s3a, dexp-s3b ».
+
 **Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
 affichée sous le retour de chaque question, et il ne connaît que trois classes :
 `ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —

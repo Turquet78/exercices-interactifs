@@ -105,6 +105,15 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+
+    /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
+       réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
+       contient « 2^{} » : elle affiche toujours « 2 », mais l'évaluateur la refuse.
+       Signalé par un élève sur le 2.1 en août 2026 — « 2 » et « 4x » rouges,
+       « 4 » vert, 10 cases sur 12, et la copie était juste.
+       « lire » nomme le LECTEUR du niveau : c'est le seul endroit où le résidu
+       peut être arrêté, et le seul endroit qu'un sabotage doit rougir. */
+    residuMathlive: { lire: 'id => pmPlain(document.getElementById(id))' },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -247,6 +256,15 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+
+    /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
+       réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
+       contient « 2^{} » : elle affiche toujours « 2 », mais l'évaluateur la refuse.
+       Signalé par un élève sur le 2.1 en août 2026 — « 2 » et « 4x » rouges,
+       « 4 » vert, 10 cases sur 12, et la copie était juste.
+       « lire » nomme le LECTEUR du niveau : c'est le seul endroit où le résidu
+       peut être arrêté, et le seul endroit qu'un sabotage doit rougir. */
+    residuMathlive: { lire: 'id => pmPlain(document.getElementById(id))' },
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */
@@ -354,6 +372,31 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'derivee-exp' },
+
+    /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
+       réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
+       contient « 2^{} » : elle affiche toujours « 2 », mais l'évaluateur la refuse.
+       Signalé par un élève sur le 2.1 en août 2026 — « 2 » et « 4x » rouges,
+       « 4 » vert, 10 cases sur 12, et la copie était juste.
+       « lire » nomme le LECTEUR du niveau : c'est le seul endroit où le résidu
+       peut être arrêté, et le seul endroit qu'un sabotage doit rougir. */
+    residuMathlive: {
+      lire: 'id => dexpCellValue(id)',
+      /* et la copie de l'élève, à l'identique, jouée de bout en bout : le contrôle
+         la joue D'ABORD sans résidu — si elle ne passe pas au vert ainsi, c'est le
+         contrôle qui a tort, pas la page — puis avec, et exige le même verdict. */
+      copie: {
+        exercice: 'derivee-exp',
+        question: "test.questions[test.idx]={type:'dexp',a:2,b:2,k:2,uStr:polyToStr([2,2]),"
+                + "vTxt:expMenu(2),duTxt:numFmt(2),dvTxt:vprimeMenu(2),dcoef:[6,4],"
+                + "facAns:polyFr([6,4]),expHtml:expCore(2)}; renderDexp();",
+        cases: { 'dexp-u':'2x+2', 'dexp-v':'e^{2x}', 'dexp-du':'2', 'dexp-dv':'2e^{2x}',
+                 'dexp-s2a':'2', 'dexp-s2b':'e^{2x}', 'dexp-s2c':'2e^{2x}', 'dexp-s2d':'2x+2',
+                 'dexp-s3a':'2', 'dexp-s3b':'4x', 'dexp-s3c':'4', 'dexp-fac':'4x+6' },
+        residus: ['dexp-s3a', 'dexp-s3b'],
+        valider: '#dexpActions button.btn-primary'
+      }
+    },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au

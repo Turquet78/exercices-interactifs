@@ -1545,11 +1545,30 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=141;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=142;                       /* numero de version affiche dans l'en-tete */
+/* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
+   un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
+   — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
+   Un signe seul (« + ») n'est pas un residu : si le nettoyage vide la case, on garde l'ecrit. */
+function saClean(s){
+  s=String(s==null?'':s);
+  s=s.replace(/\\placeholder\{\}/g,'');
+  var prev;
+  do{ prev=s;
+    s=s.replace(/\s+$/,'');
+    s=s.replace(/\{\s*\}$/,'');
+    s=s.replace(/[\^_]$/,'');
+    s=s.replace(/(\\times|\\cdot|\\div|\\,)$/,'');
+    s=s.replace(/[+\/]$/,'');
+  }while(s!==prev);
+  return s.trim();
+}
 function pmPlain(el){
   try{
-    if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
-    return String(el.getValue?el.getValue():'').trim();
+    var lx = String(el.getValue?el.getValue():'');
+    var net = saClean(lx); if(net==='') net = lx;
+    if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(net)||'').trim();
+    return net.trim();
   }catch(e){ return ''; }
 }
 
