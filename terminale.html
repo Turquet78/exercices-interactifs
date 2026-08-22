@@ -1939,7 +1939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=235;
+const APP_VERSION=236;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2558,7 +2558,11 @@ const LANGUE_SIMPLE=" COMMENT \u00c9CRIRE \u2014 ces r\u00e8gles sont OBLIGATOIR
   +" Jamais de subordonn\u00e9e, jamais de tournure passive, jamais de \u00ab dont \u00bb, \u00ab lequel \u00bb, \u00ab ainsi \u00bb, \u00ab en effet \u00bb, \u00ab il s\u2019agit de \u00bb, \u00ab or \u00bb, \u00ab par cons\u00e9quent \u00bb."
   +" Tu GARDES les mots de math\u00e9matiques \u2014 l\u2019\u00e9l\u00e8ve doit les apprendre \u2014 mais tu expliques chacun en trois ou quatre mots la PREMI\u00c8RE fois qu\u2019il appara\u00eet."
   +" Tu tutoies. \u00c9cris comme si tu parlais \u00e0 voix haute \u00e0 un \u00e9l\u00e8ve assis \u00e0 c\u00f4t\u00e9 de toi."
-  +" Cette fa\u00e7on d\u2019\u00e9crire ne change RIEN \u00e0 ce que tu as le droit de dire : elle ne t\u2019autorise \u00e0 donner ni r\u00e9sultat, ni r\u00e9ponse attendue.";
+  +" Cette fa\u00e7on d\u2019\u00e9crire ne change RIEN \u00e0 ce que tu as le droit de dire : elle ne t\u2019autorise \u00e0 donner ni r\u00e9sultat, ni r\u00e9ponse attendue."
+  +" MISE EN PAGE \u2014 tu vas \u00e0 la ligne SOUVENT, c\u2019est ce qui rend une explication lisible :"
+  +" une \u00e9tape par ligne, un calcul par ligne, une question par ligne ;"
+  +" une ligne VIDE entre deux parties \u2014 entre l\u2019explication et l\u2019exemple, entre deux id\u00e9es qui ne se suivent pas ;"
+  +" et jamais un paragraphe de plus de deux phrases. Un pav\u00e9 de texte d\u00e9courage l\u2019\u00e9l\u00e8ve avant qu\u2019il ait commenc\u00e9 \u00e0 lire.";
 async function lancerConseil(contexte, fb){
   if(conseilBusy||!fb) return;
   conseilBusy=true;

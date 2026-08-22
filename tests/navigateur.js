@@ -1185,6 +1185,89 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- Les retours à la ligne du modèle arrivent-ils à l'écran ? --------
+       Le modèle a pour consigne d'aller à la ligne souvent — une étape par
+       ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,
+       et la seconde est muette : le modèle peut obéir parfaitement pendant que
+       la page réduit ses retours à la ligne à des espaces. La Seconde pose la
+       réponse en textContent, où « \n » ne vaut rien sans white-space:pre-wrap ;
+       la Première et la Terminale passent par conseilHTML(), qui convertit.
+       Deux chemins différents, une seule promesse — et aucun banc hors
+       navigateur ne sait où un texte va à la ligne.
+       On MESURE donc : le même texte, avec et sans retours à la ligne. S'ils
+       comptent, la version qui en porte est plus haute. */
+    titre('10. LES RETOURS À LA LIGNE DU MODÈLE ARRIVENT À L\'ÉCRAN');
+    s = await ouvrir(chromium, ml);
+    if(await connecter(s.page) !== 'scr-space'){
+      ignorer('les retours à la ligne de l\'IA se voient à l\'écran', 'connexion impossible — rien à mesurer');
+    } else {
+      const N = P.navigateur;
+      await s.page.evaluate(i => openTest(i), N.exercice);
+      await s.page.waitForTimeout(300);
+      await s.page.evaluate(() => {
+        const b = [...document.querySelectorAll('#modeChoices button')]
+          .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0);
+        if(b) b.click();
+      });
+      await s.page.waitForTimeout(800);
+      /* le modèle est remplacé par un double qui rend le texte demandé */
+      const mesure = await s.page.evaluate(async () => {
+        const AVEC = 'Etape 1 : tu prends le nombre.\nEtape 2 : tu le divises par cent.\n\nExemple : 30 % de 40.';
+        const SANS = AVEC.replace(/\n+/g, ' ');
+        const vrai = sb.functions.invoke;
+        const poser = txt => { sb.functions.invoke = () => Promise.resolve({ data:{ feedback: txt }, error:null }); };
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        const haut = el => el ? Math.round(el.getBoundingClientRect().height) : 0;
+        const res = {};
+        /* 1. le conseil du soutien */
+        /* $ et non getElementById : sur ordinateur la carte du soutien est
+           DÉPLACÉE dans une fenêtre indépendante, et le document principal ne
+           la contient plus. La sonde y lisait 0 px contre 0 et accusait la page
+           de perdre les retours à la ligne. */
+        for(const [cle, txt] of [['avec', AVEC], ['sans', SANS]]){
+          poser(txt); conseilBusy = false;
+          const fb = $('conseilBody');
+          if(fb){ fb.textContent = ''; fb.innerHTML = ''; }
+          try{ conseilCourant(); }catch(e){ res.erreurConseil = e.message; }
+          await attendre(150);
+          res['conseil_' + cle] = haut($('conseilBody'));
+        }
+        try{ fermerConseil(); }catch(e){}
+        /* 2. la fenêtre « Question à l'IA » */
+        try{ ouvrirQIA(); }catch(e){ res.erreurQIA = e.message; }
+        await attendre(120);
+        for(const [cle, txt] of [['avec', AVEC], ['sans', SANS]]){
+          poser(txt); qiaBusy = false;
+          const inp = $('qiaInput'); if(inp) inp.value = 'Comment on fait ?';
+          try{ await qiaEnvoyer(); }catch(e){ res.erreurQIA = e.message; }
+          await attendre(120);
+          const bulles = [...$('qiaDialog').querySelectorAll('.qia-r')];
+          res['qia_' + cle] = haut(bulles[bulles.length - 1]);
+        }
+        sb.functions.invoke = vrai;
+        return res;
+      });
+      /* Deux hauteurs nulles ne veulent pas dire « les retours sont perdus » :
+         elles veulent dire que RIEN n'a été mesuré. Les distinguer évite
+         d'accuser la page d'un défaut qu'elle n'a pas — et évite surtout de
+         croire le contrôle utile alors qu'il ne regarde rien. */
+      const juge = (intitule, a, b, erreur) => {
+        const A = mesure[a] || 0, B = mesure[b] || 0;
+        if(!A && !B){ verifier(intitule, false, 'aucune réponse affichée : le contrôle ne mesure rien'
+          + (erreur ? ' — ' + erreur : '')); return; }
+        verifier(intitule, A - B > 8,
+          'même hauteur avec et sans retours à la ligne (' + A + ' px contre ' + B +
+          ') : la page les réduit à des espaces' + (erreur ? ' — ' + erreur : ''));
+      };
+      juge('les retours à la ligne se voient dans le conseil du soutien',
+        'conseil_avec', 'conseil_sans', mesure.erreurConseil);
+      juge('les retours à la ligne se voient dans la fenêtre « Question à l\'IA »',
+        'qia_avec', 'qia_sans', mesure.erreurQIA);
+      verifier('mesurer la mise en page de l\'IA ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

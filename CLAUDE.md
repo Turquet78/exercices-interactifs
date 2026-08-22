@@ -574,6 +574,23 @@ jamais remplacé : un élève à qui on épargne le mot « intervalle » ne le
 connaîtra pas davantage le jour du contrôle. Et elle redit qu'écrire simplement
 n'autorise à donner ni résultat ni réponse attendue — sans quoi « simplifier »
 devient une porte vers ce que les garde-fous ferment.
+**Et elle va à la ligne souvent** : une étape par ligne, un calcul par ligne, une
+ligne VIDE entre deux parties, jamais un paragraphe de plus de deux phrases
+(décision de Turquet, août 2026). Un pavé de texte décourage l'élève avant qu'il
+ait commencé à lire.
+Cette consigne a **deux moitiés, et la seconde est muette** : le modèle peut
+obéir parfaitement pendant que la page réduit ses retours à la ligne à des
+espaces. La Seconde pose la réponse en `textContent`, où `\n` ne vaut rien sans
+`white-space:pre-wrap` ; la Première et la Terminale passent par `conseilHTML()`,
+qui convertit les `\n` en `<br>`. Deux chemins différents pour une seule
+promesse — et aucun banc hors navigateur ne sait où un texte va à la ligne. Le
+banc navigateur MESURE donc le même texte avec et sans retours à la ligne, sur
+les deux aides : s'ils comptent, la version qui en porte est plus haute. Éprouvé
+en retirant `pre-wrap` d'un côté et la conversion de l'autre.
+Le `pre-wrap` ne vise que `.mp-feedback.conseil` et `.qia-r`, jamais
+`.mp-feedback` tout court : les retours des exercices sont des phrases courtes et
+centrées, et le sont très bien.
+
 Elle est posée par la PAGE et non dans `CONSEIL_SYS`, côté fonction Edge, pour
 une raison déjà payée : la fonction ne se déploie qu'à la main, et la consigne
 serait restée lettre morte jusqu'au redéploiement sans que rien ne le dise. Ici
