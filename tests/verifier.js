@@ -1069,26 +1069,20 @@ function branchements(w){
      droit de le demander — celui qui en a le plus besoin est justement celui
      qui n'ose pas.
 
-     Le bouton RESTE sur le rappel de cours, et lui seul : le rappel n'est pas
-     une réponse du modèle, c'est du HTML écrit à la main que le modèle n'a
-     jamais vu. Le rendre « toujours simple » demanderait de réécrire les
-     soixante rappels des trois niveaux ; le bouton est le seul chemin.
+     Il n'y a plus de bouton nulle part, rappel de cours compris. Le rappel
+     n'est pas une réponse du modèle — c'est du HTML écrit à la main —, il
+     reste donc tel que le professeur l'a écrit : c'est un arbitrage assumé,
+     pas un oubli.
 
-     Quatre bords. La consigne peut MANQUER dans l'une des deux aides — rien ne
-     casse, elle reparle comme avant, et seul un élève s'en apercevrait. Elle
-     peut être décrite DEUX FOIS — les deux descriptions divergent, et une aide
-     finit par parler autrement que l'autre. Le bouton peut DISPARAÎTRE du
-     rappel, qui n'a alors plus aucun moyen d'être simplifié. Et il peut
-     REVENIR sous les deux aides, où il ne sert plus à rien.
+     Deux bords. La consigne peut MANQUER dans l'une des deux aides : rien ne
+     casse, elle reparle comme avant, et seul un élève s'en apercevrait. Et le
+     bouton peut REVENIR — un second chemin vers la même chose, qui se
+     contredirait avec la consigne le jour où l'une des deux changerait.
      On EXÉCUTE les deux aides et on relit ce qui part vraiment. */
-  verifierEval(w, 'le conseil et la question à l’IA parlent simplement par défaut', `(function(){
+  verifierEval(w, 'le conseil et la question à l’IA parlent simplement, sans bouton', `(function(){
     if(typeof LANGUE_SIMPLE!=='string' || LANGUE_SIMPLE.trim().length<200)
       return 'LANGUE_SIMPLE introuvable ou trop courte : les aides ne disent pas comment écrire';
     const vus=[];
-    /* Une SEULE description de « comment écrire » : le bouton du rappel doit la
-       partager, jamais en tenir une copie. */
-    if(typeof simpleMission==='function' && String(simpleMission).indexOf('LANGUE_SIMPLE')<0)
-      vus.push('le bouton du rappel décrit sa propre façon d\\'écrire au lieu de partager LANGUE_SIMPLE');
     /* Ce qui PART vraiment, aide par aide. */
     const sbSauve=sb, sauve=currentEleve;
     let parti='';
@@ -1122,21 +1116,22 @@ function branchements(w){
       else if(parti.indexOf(LANGUE_SIMPLE)<0) vus.push('la fenêtre « Question à l\\'IA » ne dit pas au modèle d\\'écrire simplement');
     }
     sb=sbSauve; currentEleve=sauve;
-    /* 3. le rappel de cours garde SON bouton — c'est le seul chemin qu'il ait. */
+    /* 3. et le bouton ne revient NULLE PART. Il n'y en a plus : les deux aides
+          parlent simplement d'elles-mêmes, et le rappel de cours reste tel que
+          le professeur l'a écrit (décision de Turquet, août 2026). Un bouton
+          remis « pour dépanner » sur l'une des aides serait un second chemin
+          vers la même chose, et le jour où la consigne changerait, les deux se
+          contrediraient. */
+    if(typeof simpleBtnHTML!=='undefined' || typeof expliquerSimplement!=='undefined')
+      vus.push('le bouton « Explique-moi plus simplement » est revenu : les aides parlent déjà simplement');
     if(typeof rappelHTML!=='function' || typeof RAPPELS==='undefined') vus.push('rappelHTML() ou RAPPELS introuvable');
     else {
       const k=Object.keys(RAPPELS)[0];
       if(test) test.kind=k;
       const h=String(rappelHTML()||'');
       if(!h.trim()) vus.push('aucun rappel de cours : le contrôle ne mesure rien');
-      else if(h.indexOf('btn-simple')<0) vus.push('le rappel de cours n\\'a plus de bouton : plus aucun moyen de le simplifier');
+      else if(h.indexOf('btn-simple')>=0) vus.push('le rappel de cours repose un bouton');
     }
-    /* 4. et le bouton ne revient pas là où il ne sert plus à rien. */
-    [['le conseil du soutien','lancerConseil'],['la fenêtre d\\'aide','qiaEnvoyer']].forEach(function(x){
-      const f=(typeof window!=='undefined')?window[x[1]]:null;
-      if(typeof f==='function' && String(f).indexOf('simpleBtnHTML')>=0)
-        vus.push(x[0]+' repose le bouton alors qu\\'il parle déjà simplement');
-    });
     /* La consigne ne doit pas rouvrir ce que les garde-fous ferment. */
     if(!/ni r\u00e9sultat|ni réponse attendue/.test(LANGUE_SIMPLE))
       vus.push('LANGUE_SIMPLE ne rappelle pas qu\\'écrire simplement n\\'autorise pas à donner le résultat');
