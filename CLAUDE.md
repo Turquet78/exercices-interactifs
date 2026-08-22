@@ -395,6 +395,78 @@ L'intervalle est bâti autour de l'ÉCRITURE et non de la valeur, et l'élève q
 compare ce qu'il lit au lieu de ce que ça vaut répond ∈. Sans ce cas, l'exercice
 ne posait la question qu'autour de 200 — là où le piège ne se referme jamais.
 
+**Deux fractions ne s'additionnent qu'au même dénominateur — et le commun n'est
+pas imposé.** {somme-fractions} vit en Seconde ET en Première, sur un moteur
+unique : le tirage, la pose et la correction sont le même texte dans les deux
+fichiers. Une moitié recopiée aurait donné deux exercices qui se contredisent le
+jour où l'un des deux change de convention. Les deux niveaux ne diffèrent que par
+deux lignes, nommées comme telles : la rangée d'aide (`sfBoutonsAide()` — la
+Seconde la pose dans son `…Actions`, la Première la fait poser par `iaBoutons()`)
+et l'emballage du contexte (`sfCtxTexte()` rend UNE chaîne, la Seconde en fait une
+paire `{nombre, contexte}`, la Première la range dans son `att`).
+Le moteur ne s'appuie donc sur aucune aide propre à un niveau : la Seconde a
+`ensFracInner`, la Première rend ses fractions par MathLive — il écrit les
+siennes (`sfFracInner`).
+
+L'élève complète les multiplications de la mise au même dénominateur, écrit la
+somme sur ce dénominateur, puis donne la fraction finale. Trois étapes, celles du
+cahier. Un des deux termes peut être un ENTIER : l'étape le montre alors écrit
+« 3 = 3/1 » avant les multiplications — le passage par le dénominateur 1 est
+DONNÉ, il ne se devine pas.
+
+**Le dénominateur commun n'est pas imposé, et c'est une promesse.** La correction
+vérifie que les multiplicateurs de l'élève donnent le MÊME dénominateur des deux
+côtés, puis que la suite s'y tient. Multiplier 1/2 et 1/3 par 12 et 8 au lieu de
+6 et 4 est une méthode juste, et l'exercice le dit. Comparer au PPCM aurait compté
+faux un élève qui a raison — un exercice qui punit une méthode correcte apprend
+l'inverse de ce qu'il enseigne. Le multiplicateur, lui, va en haut ET en bas :
+c'est ce qui ne change pas la fraction, et c'est tout le sens de l'étape.
+
+**Le tirage écarte quatre questions piégées**, chacune silencieuse. Deux
+dénominateurs égaux : il n'y a plus rien à mettre au même. Une fraction de DÉPART
+réductible (6/2) : l'élève qui la simplifie d'abord — ce qui est juste — écrit des
+multiplicateurs que la correction, calée sur les nombres de l'énoncé, compte faux.
+Un résultat négatif ou nul, hors sujet. Un résultat réductible, qui poserait la
+question « faut-il simplifier ? » que l'exercice ne traite pas. La dernière étape,
+elle, accepte toute fraction ÉGALE, comme partout ailleurs.
+
+Le contrôle EXERCE la vraie correction en posant des valeurs dans les vraies
+cases, jamais une réimplémentation — qui se serait trompée du même côté. Il a été
+éprouvé en le cassant dix fois, et **deux sabotages l'ont d'abord traversé** :
+retirer « le même multiplicateur en haut et en bas », et faire lire 1 dans une
+case vide. Les deux étaient masqués par la règle du même dénominateur, qui
+rougissait la première. Il fallait des cas choisis pour que TOUT LE RESTE soit
+juste — ×5 en haut et ×3 en bas donne encore 6 au dénominateur, et une case vide
+ne se voit que là où le multiplicateur attendu vaut 1.
+
+**Une correction en bleu posée dans une fraction en déplace le trait.**
+`corTrainDec()` insère son badge juste après la case. Nu dans une fraction, il
+élargissait le trait ; sous le dénominateur commun, il tombait carrément hors de
+la fraction, une ligne plus bas. Chaque case est donc ENVELOPPÉE (`.sf-case`),
+et le badge s'y pose hors du flux. La place à droite du premier numérateur n'est
+prise que LÀ OÙ une correction existe (`:has(.mf-cor)`) : l'écran de l'élève qui
+travaille reste serré, et un navigateur sans `:has` retombe sur un petit écart,
+pas sur la superposition. Un banc MESURE tout cela dans un vrai Chromium — aucun
+chevauchement entre un badge et de l'encre, et un trait aussi large que ce qu'il
+sépare.
+
+**Une fraction empilée se lit « 83 » quand on la met à plat.** La Première envoie
+l'ÉCRAN au modèle, aplati en texte : « Calcule 1 + 83 » contredisait, dans le même
+message, le « 1 + 8/3 » que le contexte venait de dire. La barre oblique est donc
+écrite dans le HTML et cachée à l'œil (`.sf-lu`).
+
+**La fenêtre des tables de multiplication est arrivée en Seconde** avec cet
+exercice. Elle n'y a pas de bord « antisèche » : la Seconde n'a aucun exercice de
+rapidité, donc aucun écran où la fenêtre devrait se refermer. Ce manque est
+DÉCLARÉ (`tablesAide` sans `referme`), et le banc affiche « non applicable » sur
+ce seul bord en continuant d'exiger l'autre. Le contrôle du navigateur s'y est
+d'ailleurs pris en défaut lui-même : pour vérifier que la fenêtre RESTE ouverte,
+il cliquait « l'énoncé, sinon l'écran entier » — en Seconde il n'y a pas d'énoncé
+à cet endroit, Playwright visait le CENTRE de l'écran, c'est-à-dire sous la
+fenêtre, qui interceptait. Trente secondes d'attente, puis un échec qui accusait
+la page alors que le banc n'avait jamais cliqué l'exercice. Il calcule maintenant
+un point de l'écran HORS du rectangle de la fenêtre.
+
 **Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
 affichée sous le retour de chaque question, et il ne connaît que trois classes :
 `ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —

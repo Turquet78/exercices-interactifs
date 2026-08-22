@@ -632,7 +632,16 @@ async function parcours(page, N){
         await s.page.click('#modeChoices [onclick*="train"]');
         await s.page.waitForTimeout(900);
       };
-      /* a) l'exercice des tables : elle se referme au retour */
+      /* a) l'exercice des tables : elle se referme au retour.
+         Un niveau peut porter la fenêtre SANS avoir d'exercice où elle
+         devient une antisèche — la Seconde n'a aucun exercice de rapidité.
+         Il le déclare en n'écrivant pas « referme », et le banc le dit
+         plutôt que de le taire : une exemption muette survivrait à
+         l'exercice qu'elle dispense. */
+      if(!P.tablesAide.referme){
+        ignorer('revenir au calcul la referme, sur l\'exercice des tables',
+          'ce niveau n\'a pas d\'exercice où la fenêtre deviendrait une antisèche');
+      } else {
       await ouvrirExo(P.tablesAide.referme);
       const btn = await s.page.$('.screen.on .tables-btn');
       verifier('le bouton des tables est là, sur l\'exercice des tables', !!btn,
@@ -661,6 +670,7 @@ async function parcours(page, N){
         verifier('revenir au calcul la referme, sur l\'exercice des tables', !apres,
           'elle est restée ouverte à côté du chronomètre');
       }
+      }
       /* b) un autre exercice : elle doit rester ouverte */
       await ouvrirExo(P.tablesAide.reste);
       const btn2 = await s.page.$('.screen.on .tables-btn');
@@ -669,12 +679,38 @@ async function parcours(page, N){
       if(btn2){
         await btn2.click();
         await s.page.waitForTimeout(300);
-        await s.page.click('.screen.on .enonce, .screen.on');
-        await s.page.waitForTimeout(250);
-        const reste = await s.page.evaluate(() =>
-          !!document.getElementById('tablesOverlay').classList.contains('on'));
-        verifier('ailleurs, elle reste ouverte à côté de l\'exercice', reste,
-          'elle s\'est refermée : la fenêtre flottante ne sert plus à rien');
+        /* Cliquer SUR L'EXERCICE, pas sur la fenêtre. Le banc visait « .enonce,
+           sinon l'écran entier » : en Première l'énoncé tombe à côté de la
+           fenêtre et le clic passait, en Seconde il n'y en a pas à cet
+           endroit-là et Playwright visait le CENTRE de l'écran — c'est-à-dire
+           sous la fenêtre, qui interceptait. Trente secondes d'attente, puis un
+           échec qui accusait la page alors que le banc n'avait jamais cliqué
+           l'exercice. On calcule donc un point de l'écran hors du rectangle de
+           la fenêtre, et on clique là. */
+        const point = await s.page.evaluate(() => {
+          const sc = document.querySelector('.screen.on');
+          const ov = document.querySelector('#tablesOverlay .tables-card') || document.getElementById('tablesOverlay');
+          if(!sc || !ov) return null;
+          const a = sc.getBoundingClientRect(), b = ov.getBoundingClientRect();
+          /* on descend le long du bord gauche de l'écran jusqu'à sortir de la
+             fenêtre : elle s'ouvre en haut à droite, la place est en bas */
+          const x = a.left + Math.min(40, a.width / 4);
+          for(let y = a.top + 8; y < Math.min(a.bottom, window.innerHeight) - 4; y += 12){
+            if(x < b.left || x > b.right || y < b.top || y > b.bottom) return { x: x, y: y };
+          }
+          return null;
+        });
+        if(!point){
+          verifier('ailleurs, elle reste ouverte à côté de l\'exercice', false,
+            'aucun point de l\'écran n\'échappe à la fenêtre : le contrôle ne mesure rien');
+        } else {
+          await s.page.mouse.click(point.x, point.y);
+          await s.page.waitForTimeout(250);
+          const reste = await s.page.evaluate(() =>
+            !!document.getElementById('tablesOverlay').classList.contains('on'));
+          verifier('ailleurs, elle reste ouverte à côté de l\'exercice', reste,
+            'elle s\'est refermée : la fenêtre flottante ne sert plus à rien');
+        }
       }
       await s.nav.close(); s = null;
     }

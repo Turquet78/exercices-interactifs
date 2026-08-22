@@ -1815,6 +1815,8 @@ function exercices(suite){
       return debranches.length ? 'ces fonctions laissent passer un texte sans le résoudre : '+debranches.join(', ') : '';
     })()`, v => v === '', undefined);
 
+    sommeFractions(w, P);
+
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
     fiabilite(w, suite);
@@ -2311,6 +2313,160 @@ function coursEnPdf(w, apres){
    schéma, et le sens d'un crochet se juge par rapport au trait rouge, jamais
    par rapport à un nombre écrit dans le contrôle. Un schéma dont l'échelle
    changerait resterait donc mesuré juste. */
+/* ---------- 4 quater. Somme et différence de deux fractions ----------------
+   Le même exercice vit en Seconde et en Première, sur un moteur unique : le
+   tirage, la pose et la correction sont le MÊME texte dans les deux fichiers.
+   Ce contrôle vaut donc pour les deux, et il s'annonce non applicable là où
+   l'exercice n'est pas — la Terminale — plutôt que de disparaître en silence.
+
+   Cinq bords, tous silencieux. Aucun ne casse quoi que ce soit : chacun compte
+   faux un élève qui a raison, ou juste un élève qui a tort, et rien nulle part
+   ne rougit.
+
+   · L'ÉNONCÉ CONTREDIT SA CORRECTION. « q.N/q.D » est rangé au tirage, à côté
+     des nombres de l'énoncé, et rien ne les relie : le jour où l'un des deux
+     change, l'exercice affiche un calcul et en corrige un autre. C'est le pire
+     des cinq, celui de l'inégalité qui contredit l'intervalle — la correction
+     donne tort à une lecture juste.
+   · LE DÉNOMINATEUR COMMUN N'EST PAS IMPOSÉ, et c'est une promesse. Un élève
+     qui multiplie 1/2 et 1/3 par 12 et 8 au lieu de 6 et 4 a raison : il a bien
+     mis les deux au même dénominateur. Une correction qui comparerait au PPCM
+     compterait faux une méthode juste — exactement ce qu'un exercice ne doit
+     jamais faire.
+   · LE MULTIPLICATEUR VA EN HAUT ET EN BAS. Multiplier le numérateur par 3 et
+     le dénominateur par 4 CHANGE la fraction, et c'est l'erreur que l'étape ①
+     vise. Acceptée, l'exercice enseigne l'inverse de ce qu'il montre.
+   · LE TIRAGE NE POSE PAS DE QUESTION PIÉGÉE. Deux dénominateurs égaux, il n'y
+     a plus rien à mettre au même ; une fraction de départ réductible (6/2), et
+     l'élève qui la simplifie d'abord — ce qui est juste — écrit des
+     multiplicateurs que la correction, calée sur les nombres de l'énoncé,
+     compte faux ; un résultat négatif ou nul sort du sujet ; un résultat
+     réductible pose la question « faut-il simplifier ? » que l'exercice ne
+     traite pas.
+   · LA DERNIÈRE ÉTAPE ACCEPTE TOUTE FRACTION ÉGALE, comme partout ailleurs
+     dans l'application. Exiger la forme irréductible ici seul serait une règle
+     que rien n'annonce à l'élève.
+
+   On EXERCE la vraie correction, en posant des valeurs dans les vraies cases —
+   jamais une réimplémentation, qui se serait trompée du même côté. */
+function sommeFractions(w, P){
+  const present = evaluer(w, "typeof sfGen==='function' && typeof sfJuge==='function' && typeof startSF==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la somme de deux fractions se corrige sans compter faux une méthode juste',
+      'ce niveau n\'a pas l\'exercice « Somme et différence de fractions »');
+    return;
+  }
+  verifierEval(w, 'la somme de deux fractions se corrige sans compter faux une méthode juste', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='somme-fractions';
+
+    /* ---- 1. le tirage, sur un grand nombre de coups ---------------------- */
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    let entiers=0, plus=0, moins=0;
+    for(let i=0;i<3000;i++){
+      const q=sfGen();
+      const eti='tirage '+q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2;
+      /* l'énoncé et la correction disent-ils la même chose ? */
+      const g=(q.op==='+') ? (q.n1*q.d2 + q.n2*q.d1) : (q.n1*q.d2 - q.n2*q.d1);
+      const h=q.d1*q.d2;
+      if(g*q.D !== q.N*h){ vus.push(eti+' : l\\'énoncé annonce '+q.N+'/'+q.D+', le calcul donne '+g+'/'+h); break; }
+      if(q.d1===q.d2){ vus.push(eti+' : les deux dénominateurs sont déjà égaux, il n\\'y a rien à mettre au même'); break; }
+      if(pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1){ vus.push(eti+' : une fraction de départ est réductible — la simplifier d\\'abord est juste, et serait compté faux'); break; }
+      if(q.N<=0){ vus.push(eti+' : le résultat vaut '+q.N+'/'+q.D); break; }
+      if(pgcd(q.N,q.D)!==1){ vus.push(eti+' : le résultat '+q.N+'/'+q.D+' est réductible'); break; }
+      if(q.N===q.D){ vus.push(eti+' : le résultat vaut 1 tout rond'); break; }
+      if([q.n1,q.d1,q.n2,q.d2].some(function(x){ return x<1 || x>9; })){ vus.push(eti+' : un nombre de l\\'énoncé n\\'a pas un seul chiffre'); break; }
+      if(q.D%q.d1 || q.D%q.d2 || q.k1!==q.D/q.d1 || q.k2!==q.D/q.d2){ vus.push(eti+' : les multiplicateurs rangés ne mènent pas au dénominateur '+q.D); break; }
+      if(q.d1===1||q.d2===1) entiers++;
+      if(q.op==='+') plus++; else moins++;
+    }
+    /* les deux formes doivent SORTIR : un tirage qui ne donnerait jamais
+       d'entier retirerait le cas que l'énoncé annonce, sans rien casser.
+       Seulement si la boucle est allée au bout : arrêtée à son premier tirage
+       fautif, elle n'a rien compté, et le dire ferait passer un même défaut
+       pour deux. */
+    if(!vus.length){
+      if(!entiers) vus.push('aucun entier tiré en 3000 coups : le cas « un terme sans dénominateur » a disparu');
+      if(!plus || !moins) vus.push('une seule opération tirée en 3000 coups (+ : '+plus+', − : '+moins+')');
+    }
+
+    /* ---- 2. la correction, exercée pour de vrai -------------------------- */
+    startSF();
+    const poser=function(vals){
+      Object.keys(vals).forEach(function(id){
+        const el=document.getElementById(id); if(el) el.value=String(vals[id]);
+      });
+    };
+    /* on force une question connue : 1/2 + 1/3, dénominateur commun 6 */
+    test.questions[test.idx]={n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5};
+    renderSFTest();
+    const q=test.questions[test.idx];
+    const juger=function(vals){ poser(vals); return sfJuge(q); };
+
+    /* a) la voie du PPCM : tout juste */
+    let r=juger({'sf-a1':3,'sf-b1':3,'sf-a2':2,'sf-b2':2,'sf-num1':3,'sf-num2':2,'sf-den':6,'sf-fn':5,'sf-fd':6});
+    if(!(r.ok1&&r.ok2&&r.ok3&&r.ok4)) vus.push('la voie du PPCM (×3 et ×2, 3/6 + 2/6 = 5/6) est comptée fausse');
+
+    /* b) un dénominateur commun NON minimal : 12. C'est la promesse même de
+          l'exercice — une méthode plus lourde reste une méthode juste. */
+    r=juger({'sf-a1':6,'sf-b1':6,'sf-a2':4,'sf-b2':4,'sf-num1':6,'sf-num2':4,'sf-den':12,'sf-fn':5,'sf-fd':6});
+    if(!(r.ok1&&r.ok2&&r.ok3&&r.ok4)) vus.push('le dénominateur commun 12 (×6 et ×4) est compté faux : l\\'exercice impose le PPCM');
+
+    /* c) la dernière étape accepte toute fraction ÉGALE */
+    r=juger({'sf-a1':3,'sf-b1':3,'sf-a2':2,'sf-b2':2,'sf-num1':3,'sf-num2':2,'sf-den':6,'sf-fn':10,'sf-fd':12});
+    if(!r.ok4) vus.push('10/12 est refusé alors qu\\'il vaut 5/6');
+
+    /* d) le multiplicateur n'est pas le même en haut et en bas : la fraction
+          a CHANGÉ de valeur, c'est l'erreur que l'étape ① vise.
+          LE CAS EST CHOISI POUR QUE LE DÉNOMINATEUR RESTE BON — ×5 en haut,
+          ×3 en bas donne toujours 6 au dénominateur. Un premier essai posait
+          ×3 et ×4, et il ne prouvait rien : la règle du même dénominateur
+          rougissait avant celle-ci, si bien que retirer « a1===b1 » ne se
+          voyait pas. Ici, tout le reste est juste ; seule cette règle tient. */
+    r=juger({'sf-a1':5,'sf-b1':3,'sf-a2':2,'sf-b2':2,'sf-num1':5,'sf-num2':2,'sf-den':6,'sf-fn':7,'sf-fd':6});
+    if(r.ok1) vus.push('multiplier le haut par 5 et le bas par 3 est accepté : la fraction a pourtant changé de valeur');
+
+    /* e) deux dénominateurs DIFFÉRENTS d'une ligne à l'autre : rien n'a été mis
+          au même, et l'addition qui suit n'a pas de sens */
+    r=juger({'sf-a1':3,'sf-b1':3,'sf-a2':4,'sf-b2':4,'sf-num1':3,'sf-num2':4,'sf-den':6,'sf-fn':5,'sf-fd':6});
+    if(r.ok1||r.ok2||r.ok3) vus.push('6 d\\'un côté et 12 de l\\'autre est accepté : les deux ne sont pas au même dénominateur');
+
+    /* f) additionner les DÉNOMINATEURS — l'erreur classique, 1/2 + 1/3 = 2/5 */
+    r=juger({'sf-a1':1,'sf-b1':1,'sf-a2':1,'sf-b2':1,'sf-num1':1,'sf-num2':1,'sf-den':5,'sf-fn':2,'sf-fd':5});
+    if(r.ok1||r.ok2||r.ok3||r.ok4) vus.push('2/5 est accepté pour 1/2 + 1/3');
+
+    /* g) une case vide n'est pas une case juste.
+          Tout laisser vide ne prouvait rien : les dénominateurs ne tombaient
+          alors pas d'accord, et c'est cette règle-là qui rougissait. On prend
+          donc un tirage où le multiplicateur attendu vaut 1 — 1/2 + 5/6, où la
+          seconde ligne n'a rien à multiplier — et on ne laisse vide QUE ce qui
+          vaudrait 1 : une case vide lue comme un 1 rendrait alors l'exercice
+          parfait, pendant que l'élève n'a rien écrit. */
+    r=juger({'sf-a1':'','sf-b1':'','sf-a2':'','sf-b2':'','sf-num1':'','sf-num2':'','sf-den':'','sf-fn':'','sf-fd':''});
+    if(r.ok1||r.ok2||r.ok3||r.ok4) vus.push('des cases vides sont comptées justes');
+    test.questions[test.idx]={n1:1,d1:2,n2:5,d2:6,op:'+',D:6,k1:3,k2:1,N1:3,N2:5,N:8};
+    renderSFTest();
+    const q2=test.questions[test.idx];
+    const juger2=function(vals){ poser(vals); return sfJuge(q2); };
+    r=juger2({'sf-a1':3,'sf-b1':3,'sf-a2':'','sf-b2':'','sf-num1':3,'sf-num2':5,'sf-den':6,'sf-fn':8,'sf-fd':6});
+    if(r.ok2) vus.push('la seconde ligne laissée VIDE est comptée juste, parce que son multiplicateur vaut 1');
+    r=juger2({'sf-a1':3,'sf-b1':3,'sf-a2':1,'sf-b2':1,'sf-num1':3,'sf-num2':'','sf-den':6,'sf-fn':8,'sf-fd':6});
+    if(r.ok3) vus.push('un numérateur laissé VIDE est compté juste à l\\'étape ②');
+    /* et le tirage doit vraiment produire des multiplicateurs de 1, sans quoi
+       les deux essais ci-dessus n'éprouveraient qu'une question inventée */
+    let unMult=false;
+    for(let i=0;i<3000 && !unMult;i++){ const c=sfGen(); if(c.k1===1||c.k2===1) unMult=true; }
+    if(!unMult) vus.push('aucun multiplicateur de 1 en 3000 tirages : les deux essais sur la case vide ne portent sur rien de réel');
+
+    /* h) un dénominateur nul ne doit pas passer par une division muette */
+    r=juger({'sf-a1':3,'sf-b1':3,'sf-a2':2,'sf-b2':2,'sf-num1':3,'sf-num2':2,'sf-den':6,'sf-fn':0,'sf-fd':0});
+    if(r.ok4) vus.push('0/0 est accepté comme fraction finale');
+
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function seconde(w){
   verifierEval(w, 'le schéma d’un intervalle dit la même chose que son écriture', `(function(){
     if(typeof ITV_FORMES==='undefined' || typeof itvGen!=='function' || typeof itvSchema!=='function')
