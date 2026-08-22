@@ -1816,6 +1816,7 @@ function exercices(suite){
     })()`, v => v === '', undefined);
 
     sommeFractions(w, P);
+    placerSurLaDroite(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -2463,6 +2464,184 @@ function sommeFractions(w, P){
     r=juger({'sf-a1':3,'sf-b1':3,'sf-a2':2,'sf-b2':2,'sf-num1':3,'sf-num2':2,'sf-den':6,'sf-fn':0,'sf-fd':0});
     if(r.ok4) vus.push('0/0 est accepté comme fraction finale');
 
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 4 quinquies. Placer trois nombres sur une droite graduée -------
+   Deux graduations, trois nombres, trois zones — avant, entre, après. Le
+   risque n'est pas dans le dessin : il est ARITHMÉTIQUE, et il est le même
+   que celui de « Appartient ou pas ? ». Se tromper d'une zone compterait faux
+   un élève qui a raison, sans que rien ne rougisse : c'est le pire défaut
+   possible pour un exercice, il apprend l'inverse de ce qu'il enseigne.
+
+   On compare donc la page à LA FICHE, cas par cas — les trois exemples
+   écrits à la main, y compris celui aux nombres négatifs, où −1,59 est APRÈS
+   −1,6. Si le code et le papier divergent, c'est le code qui a tort.
+
+   Puis on balaie le tirage, et on juge chaque comparaison par une SECONDE
+   méthode : les deux écritures complétées de zéros, puis comparées comme des
+   chaînes. Une réimplémentation en entiers se serait trompée du même côté que
+   l'originale ; celle-ci n'a rien en commun avec elle.
+
+   Enfin le bouton d'aide : il ajoute des zéros, donc il ne doit RIEN changer
+   à la correction. Un bouton qui déplacerait une réponse serait un piège posé
+   à l'élève qui demande de l'aide — exactement celui qui n'en a pas besoin. */
+function placerSurLaDroite(w, P){
+  const present = evaluer(w, "typeof plcGen==='function' && typeof plcZone==='function' && typeof plcEcrit==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('un nombre est placé dans la zone que la fiche lui donne',
+      'ce niveau n\'a pas l\'exercice « Placer des nombres sur une droite graduée »');
+    return;
+  }
+  verifierEval(w, 'un nombre est placé dans la zone que la fiche lui donne', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='placer-intervalle';
+    const d=function(n,k){ return {n:n,k:k}; };
+
+    /* ---- 1. LA FICHE, cas par cas ---------------------------------------- */
+    const FICHE=[
+      { a:d(107,2), b:d(108,2), items:[[d(1075,3),'entre'],[d(1009,3),'avant'],[d(11,1),'apres']] },
+      { a:d(16,1),  b:d(17,1),  items:[[d(165,2),'entre'],[d(159,2),'avant'],[d(172,2),'apres']] },
+      /* le tableau aux négatifs : −1,59 est APRÈS −1,6, et −1,71 AVANT −1,7 */
+      { a:d(-17,1), b:d(-16,1), items:[[d(-161,2),'entre'],[d(-159,2),'apres'],[d(-171,2),'avant']] }
+    ];
+    FICHE.forEach(function(f){
+      const q={p:0, a:f.a, b:f.b, nombres:f.items.map(function(it){ return it[0]; })};
+      f.items.forEach(function(it){
+        const z=plcZone(it[0], q);
+        if(z!==it[1]) vus.push('la fiche : '+plcEcrit(it[0],null)+' entre '+plcEcrit(f.a,null)
+          +' et '+plcEcrit(f.b,null)+' → la page dit « '+z+' », la fiche dit « '+it[1]+' »');
+      });
+    });
+
+    /* ---- 2. la SECONDE méthode : comparer les écritures ------------------- */
+    /* On complète les deux nombres de zéros — à droite pour les décimales, à
+       gauche pour la partie entière — puis on compare les chaînes. Rien de
+       commun avec la comparaison en entiers de la page : si l'une se trompe
+       d'échelle, l'autre ne suit pas. */
+    const parEcriture=function(x,y){
+      const dec=Math.max(x.k,y.k);
+      const bout=function(v){
+        const t=plcEcrit(v,dec), neg=t.charAt(0)==='\\u2212';
+        const nu=(neg?t.slice(1):t).replace(',','');
+        return {neg:neg, s:nu};
+      };
+      const A=bout(x), B=bout(y);
+      const L=Math.max(A.s.length,B.s.length);
+      const pa=A.s.padStart(L,'0'), pb=B.s.padStart(L,'0');
+      if(A.neg!==B.neg) return A.neg ? -1 : 1;        /* un négatif est toujours plus petit */
+      const c = pa<pb ? -1 : (pa>pb ? 1 : 0);
+      return A.neg ? -c : c;                          /* chez les négatifs, tout s'inverse */
+    };
+    const zoneParEcriture=function(v,q){
+      if(parEcriture(v,q.a)<0) return 'avant';
+      if(parEcriture(v,q.b)>0) return 'apres';
+      return 'entre';
+    };
+
+    /* ---- 3. le balayage du tirage ---------------------------------------- */
+    let negatifs=0, moinsDec=0, plusDec=0, surBorne=0;
+    const TOURS=4000;
+    for(let i=0;i<TOURS && vus.length===0;i++){
+      const q=plcGen();
+      const eti='['+plcEcrit(q.a,null)+' | '+plcEcrit(q.b,null)+'] '
+        +q.nombres.map(function(v){ return plcEcrit(v,null); }).join(' ');
+      if(plcCmp(q.a,q.b)>=0){ vus.push(eti+' : la première graduation n\\'est pas avant la seconde'); break; }
+      const zones=q.nombres.map(function(v){ return plcZone(v,q); });
+      /* les deux méthodes doivent dire la MÊME chose */
+      q.nombres.forEach(function(v,j){
+        const z2=zoneParEcriture(v,q);
+        if(z2!==zones[j]) vus.push(eti+' : '+plcEcrit(v,null)+' → « '+zones[j]+' » en entiers, « '+z2+' » par l\\'écriture');
+      });
+      if(vus.length) break;
+      /* chaque zone reçoit exactement un nombre, comme sur le papier */
+      if(new Set(zones).size!==3){ vus.push(eti+' : les trois nombres n\\'occupent pas les trois zones ('+zones.join(', ')+')'); break; }
+      /* aucun nombre ne tombe SUR une graduation : il n'appartiendrait alors à
+         aucune zone, et la question n'aurait pas de réponse */
+      q.nombres.forEach(function(v){ if(plcCmp(v,q.a)===0||plcCmp(v,q.b)===0) surBorne++; });
+      /* le bouton d'aide doit avoir de quoi faire */
+      const ks=[q.a.k,q.b.k].concat(q.nombres.map(function(v){ return v.k; }));
+      if(new Set(ks).size<2){ vus.push(eti+' : les cinq nombres ont tous le même nombre de décimales, « ajouter les zéros » ne ferait rien'); break; }
+      const dmax=plcDecMax(q);
+      if(dmax>3){ vus.push(eti+' : '+dmax+' décimales, la fiche n\\'en écrit jamais autant'); break; }
+      /* et l'écriture complétée doit valoir EXACTEMENT le nombre : c'est toute
+         la promesse du bouton. On relit ce qu'il écrit. */
+      [q.a,q.b].concat(q.nombres).forEach(function(v){
+        const t=plcEcrit(v,dmax), neg=t.charAt(0)==='\\u2212';
+        const parts=(neg?t.slice(1):t).split(',');
+        const k=(parts[1]||'').length;
+        const n=parseInt(parts[0]+(parts[1]||''),10)*(neg?-1:1);
+        if(plcCmp({n:n,k:k}, v)!==0) vus.push(eti+' : « '+t+' » ne vaut pas '+plcEcrit(v,null));
+      });
+      if(q.a.n<0) negatifs++;
+      const gk=Math.max(q.a.k,q.b.k);
+      q.nombres.forEach(function(v){ if(v.k<gk) moinsDec++; if(v.k>gk) plusDec++; });
+    }
+    if(surBorne) vus.push(surBorne+' nombre(s) tombent SUR une graduation : ils n\\'appartiennent à aucune zone');
+
+    /* Le garde-fou du tirage — « aucun nombre sur une graduation » — n'a jamais
+       rien à écarter, parce que plcAuDela() ne rend JAMAIS la borne elle-même.
+       Le retirer ne change donc rien, et le compteur ci-dessus reste à zéro :
+       il ne mesure pas ce qu'on croit. Ce qu'il faut éprouver est la propriété
+       dont il dépend, et celle-là s'éprouve directement. */
+    if(!vus.length && typeof plcAuDela==='function'){
+      let hors=0;
+      for(let F=3;F<=4 && !hors;F++){
+        for(let dec=1; dec<=3 && !hors; dec++){
+          for(let b=-2999; b<=2999 && !hors; b+=137){
+            const bF=b*Math.pow(10,F-2);
+            for(let e=0;e<=2;e++){
+              if(plcAuDela(bF,+1,dec,F,e)<=bF) hors++;
+              if(plcAuDela(bF,-1,dec,F,e)>=bF) hors++;
+            }
+          }
+        }
+      }
+      if(hors) vus.push('plcAuDela rend '+hors+' valeur(s) du mauvais côté de la borne, ou la borne elle-même : un nombre pourrait tomber sur une graduation');
+    }
+    if(!vus.length){
+      /* les deux pièges de la fiche doivent SORTIR, sinon l'exercice a perdu
+         ce qu'il enseigne sans que rien ne casse */
+      if(!negatifs) vus.push('aucune droite négative en '+TOURS+' tirages : le piège de « −1,59 est après −1,6 » a disparu');
+      if(!moinsDec) vus.push('aucun nombre à MOINS de décimales que les graduations en '+TOURS+' tirages : le piège de « 1,1 face à 1,08 » a disparu');
+      if(!plusDec)  vus.push('aucun nombre à PLUS de décimales que les graduations en '+TOURS+' tirages');
+    }
+
+    /* ---- 4. la correction, exercée pour de vrai --------------------------- */
+    if(!vus.length){
+      startPlc();
+      const q=test.questions[test.idx];
+      const cases=plcCases(q);
+      if(!document.getElementById('plcZeroBtn')) vus.push('le bouton « Ajouter les zéros » n\\'est pas sur l\\'écran : l\\'aide est écrite mais rien n\\'y mène');
+      /* on répond juste : tout doit être compté juste */
+      cases.forEach(function(c){ const sel=document.getElementById(c.id); if(sel) sel.value=c.bon; });
+      checkPlcAnswer();
+      let a=test.answers[test.answers.length-1]||{};
+      if(!a.correct) vus.push('une réponse entièrement juste est comptée fausse');
+      if(a.justes!==cases.length || a.cases!==cases.length)
+        vus.push('la note affichée compte '+a.justes+' case(s) juste(s) sur '+a.cases+', au lieu de '+cases.length+' sur '+cases.length);
+      /* et le bouton d'aide ne déplace AUCUNE réponse */
+      const avant=plcCases(q).map(function(c){ return c.bon; }).join(' ');
+      plcBasculerZeros(); plcBasculerZeros();
+      const apres=plcCases(q).map(function(c){ return c.bon; }).join(' ');
+      if(avant!==apres) vus.push('« ajouter les zéros » change la correction : ' + avant + ' devient ' + apres);
+      /* on répond FAUX sur une nouvelle question : rien ne doit passer */
+      test.idx=0; test.locked=false; test.score=0; test.answers=[]; test.plcZeros=false;
+      renderPlcTest();
+      const q2=test.questions[0], c2=plcCases(q2);
+      const ordre=['avant','entre','apres'];
+      c2.forEach(function(c){ const sel=document.getElementById(c.id);
+        if(sel) sel.value=ordre[(ordre.indexOf(c.bon)+1)%3]; });
+      checkPlcAnswer();
+      a=test.answers[test.answers.length-1]||{};
+      if(a.correct) vus.push('trois zones décalées d\\'un cran sont comptées justes');
+      if(a.justes!==0) vus.push('trois réponses fausses comptent '+a.justes+' case(s) juste(s)');
+      /* et la correction MONTRE la méthode : les cinq nombres passent à la
+         même longueur, comme le ferait le bouton */
+      if(!test.plcZeros) vus.push('la correction ne complète pas les nombres de zéros : elle décrit la méthode sans la montrer');
+    }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

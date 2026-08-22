@@ -435,7 +435,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf{padding-bottom:84px}
+  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-plc{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -499,6 +499,19 @@
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
   #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:54px} }
+  /* ---- Placer trois nombres sur une droite graduée ---- */
+  .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
+  .plc-scene svg{width:100%;height:auto;display:block}
+  .plc-rows{display:grid;grid-template-columns:1fr auto;gap:12px 18px;align-items:center;width:100%;max-width:380px;margin:4px auto 0}
+  .plc-nb{font-family:"Fredoka";font-weight:600;color:var(--blue-dark);font-size:1.45rem;justify-self:end;font-variant-numeric:tabular-nums}
+  /* la largeur est EXPLICITE : la feuille pose select{width:100%}, et sans
+     elle les listes s'étirent sur toute la ligne — un min-width n'y peut rien */
+  .plc-sel{appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:132px;height:48px;font-family:"Fredoka";font-weight:600;font-size:1.15rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer;justify-self:start}
+  .plc-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  .plc-sel.ok{border-color:var(--green);background:#EAFBF0;color:var(--green)}
+  .plc-sel.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
+  .plc-aide{display:flex;justify-content:center;margin-top:14px}
+  @media(max-width:520px){ .plc-rows{gap:10px 10px;max-width:100%} .plc-nb{font-size:1.25rem} .plc-sel{width:118px;font-size:1.02rem} }
   .ens-rep{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
   /* ---- Intervalles (le schéma, et les cases à compléter) ---- */
   .itv-fiche{display:flex;flex-direction:column;gap:12px;align-items:center;width:100%}
@@ -1343,6 +1356,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : PLACER TROIS NOMBRES SUR UNE DROITE GRADUÉE -->
+  <section class="screen" id="scr-plc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPlc"></span><span class="q-idx" id="plcIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="plcLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Place chaque nombre dans la bonne zone de la droite gradu&eacute;e : <b>&#9312;</b> avant la premi&egrave;re graduation, <b>&#9313;</b> entre les deux, <b>&#9314;</b> apr&egrave;s la seconde.</p>
+      <div class="mp-stage"><div style="width:100%" id="plcHost"></div></div>
+      <div class="mp-feedback" id="plcFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="plcActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkPlcAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-teacher-login">
     <div class="card">
       <h2 class="title">Espace professeur</h2>
@@ -1563,7 +1592,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=61;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=62;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -1846,7 +1875,8 @@ const TESTS={
   'intervalles-inegalite': { name:'De l’inégalité à l’intervalle', icon:'\ud83d\udd01', desc:'On ne te donne que l’inégalité : retrouve le schéma qui lui correspond, l’écriture de l’intervalle et la phrase « ouvert / fermé en … ».', start:()=>startItq() },
   'appartient-intervalle': { name:'Appartient ou pas ? — niveau 1', icon:'\ud83c\udfaf', desc:'Un nombre, un intervalle : dis s’il appartient (∈) ou non (∉). Attention aux bornes — c’est le crochet qui décide.', start:()=>startApp1() },
   'appartient-intervalle-2': { name:'Appartient ou pas ? — niveau 2', icon:'\ud83c\udfaf', desc:'Même question, avec des nombres qui ne disent pas leur valeur : √15, π, une fraction, « 0,2 millier ». Calcule avant de comparer.', start:()=>startApp2() },
-  'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() }
+  'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
+  'placer-intervalle': { name:'Placer des nombres sur une droite graduée', icon:'\ud83d\udccd', desc:'On donne une droite avec deux graduations et trois nombres : place chacun avant la première graduation, entre les deux, ou après la seconde. Un bouton ajoute les zéros pour que tous les nombres aient autant de décimales.', start:()=>startPlc() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
    Un thème = { num, nom, ids:[...] }. Le numéro affiché (1.1, 1.2, …) vient
@@ -1854,7 +1884,7 @@ const TESTS={
    il suffit de le déplacer d'une liste à l'autre : la numérotation se recalcule
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
-  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','appartient-intervalle','appartient-intervalle-2'] },
+  { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','appartient-intervalle','appartient-intervalle-2','placer-intervalle'] },
   { num:2, nom:'Fonctions', ids:['lecture-variations'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   { num:4, nom:'Fractions', ids:['somme-fractions'] }
@@ -1904,6 +1934,7 @@ function liveCheckCurrent(){
   else if(k==='itq') checkItqAnswer(true);
   else if(k==='app') checkAppAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
+  else if(k==='plc') checkPlcAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -2141,6 +2172,7 @@ function conseilPaire(){
   else if(test.kind==='itq' && q) b=ctxItq(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
+  else if(test.kind==='plc' && q) b=ctxPlc(q);
   else b={nombre:'', contexte:ctxVisible()};
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   b.contexte=numeros(b.contexte); b.nombre=numeros(b.nombre);
@@ -2227,7 +2259,7 @@ function garnirFenetre(pop, titre){
      ouvre donc les deux cartes, y déclenche tout ce qui pose un bouton, et
      exige que chaque onclick trouvé soit dans cette liste ; il refuse aussi un
      nom recopié ici sans fonction derrière. */
-  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel','fermerTables','basculerTables'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel','fermerTables','basculerTables','plcBasculerZeros'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
 }
 function rapatrierFenetre(pop){
   try{
@@ -2347,6 +2379,7 @@ const QIA_SUGG={
   itq:["Comment passer d’une inégalité à un intervalle ?","Quelle différence entre « −1 ≤ x » et « x ≤ −1 » ?","Le signe ≤ donne quel crochet ?","Comment savoir de quel côté part le trait rouge ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
+  plc:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des zéros à droite ?","Comment comparer deux nombres négatifs ?","Comment lire une droite graduée ?"],
   gen:["Explique-moi simplement la notion principale.","Quelles sont les erreurs classiques a eviter ?"],
 };
 function qiaSuggestions(){
@@ -2552,9 +2585,16 @@ On ne peut additionner que des parts de MÊME taille : il faut donc le même dé
 <b>Un entier est une fraction</b> : 3 = 3/1. On le met au même dénominateur comme les autres — 3 = (3×5)/(1×5) = 15/5.<br>
 Piège classique : additionner les dénominateurs. 1/2 + 1/3 ne fait pas 2/5 — ce serait moins que 1/2, alors qu'on a ajouté quelque chose.`;
 
+const RAP_PLC=`<b>Comparer des nombres décimaux</b><br>
+Deux décimaux ne se comparent PAS chiffre à chiffre tels qu'ils sont écrits : 1,1 n'est pas plus petit que 1,08 parce que 1 est plus petit que 8.<br>
+<b>La méthode.</b> On donne à tous les nombres le <b>même nombre de décimales</b>, en complétant par des zéros à droite. Ajouter un zéro à droite de la partie décimale ne change pas la valeur : 1,1 = 1,10 = 1,100.<br>
+Avec 1,07 et 1,08, on écrit donc 1,070 et 1,080 ; et 1,1 devient 1,100. On voit alors tout de suite que 1,100 est le plus grand des trois, et que 1,009 est le plus petit.<br>
+<b>Sur la droite graduée</b>, un nombre plus petit que la première graduation se place <b>avant</b> elle ; un nombre compris entre les deux se place <b>entre</b> ; un nombre plus grand que la seconde se place <b>après</b>.<br>
+<b>Avec des nombres négatifs, tout s'inverse.</b> Plus le nombre est « grand » sans son signe, plus il est PETIT : −1,71 est plus petit que −1,7, et −1,59 est plus grand que −1,6. Sur la droite, les négatifs sont à gauche de zéro, et le plus petit est le plus à gauche.`;
+
 /* Un rappel par kind ; RAPPELS_ID l'emporte quand deux exercices partagent un
    kind (les deux niveaux d'ensembles passent tous deux par kind 'ens'). */
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC };
 const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -2984,7 +3024,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], app:['app',renderAppTest], sf:['sf',renderSFTest]};
+  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], app:['app',renderAppTest], sf:['sf',renderSFTest], plc:['plc',renderPlcTest]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3108,7 +3148,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf'];
+  const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','plc'];
   /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
      partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
      résultats, dans le signalement —, mais PAS là où l'élève passe son temps.
@@ -3140,7 +3180,7 @@ function show(name){
   }
   $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='app'||name==='sf'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='app'||name==='sf'||name==='plc'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -5719,6 +5759,278 @@ function sfPourquoi(q,r){
   return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
 }
 function nextSFQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSFTest(); autoSave(); } else finishTest(); }
+/* ---------- Exercice : placer trois nombres sur une droite graduée ---------
+   Repris de la fiche : une droite avec DEUX graduations, trois nombres à
+   placer, et trois zones — avant la première graduation, entre les deux,
+   après la seconde. Chaque zone reçoit exactement un nombre, comme sur le
+   papier.
+
+   TOUT LE RISQUE EST ARITHMÉTIQUE. Le piège de la fiche est celui des
+   décimales de longueurs différentes : face à 1,07 et 1,08, l'élève lit
+   « 1,1 » et le place AVANT, parce que 1 est plus petit que 08. Les nombres
+   négatifs en ajoutent un second : −1,59 est APRÈS −1,6.
+   Se tromper d'une zone compterait faux un élève qui a raison, sans que rien
+   ne rougisse — c'est le pire défaut possible pour un exercice, il apprend
+   l'inverse de ce qu'il enseigne. Les comparaisons se font donc EN ENTIERS,
+   jamais en virgule flottante : deux décimaux se ramènent à la même échelle
+   et se comparent comme des entiers.
+
+   ET LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : elle est
+   calculée par la fonction même qui corrige l'élève (plcZone), si bien qu'un
+   énoncé ne peut pas contredire sa correction.
+
+   Le bouton « Ajouter les zéros » est l'aide de la fiche, celle que le
+   professeur donne au tableau : il réécrit les CINQ nombres avec autant de
+   décimales que celui qui en a le plus — 1,07 et 1,08 deviennent 1,070 et
+   1,080, et 1,1 devient 1,100. La comparaison saute alors aux yeux. Il ne
+   change QUE l'écriture : la correction, elle, ne le regarde pas. */
+
+/* Un décimal exact : n × 10^-k, n entier signé. */
+function plcCmp(x,y){
+  const K=Math.max(x.k,y.k);
+  const a=x.n*Math.pow(10,K-x.k), b=y.n*Math.pow(10,K-y.k);
+  return a<b ? -1 : (a>b ? 1 : 0);
+}
+/* L'écriture minimale : on retire les zéros qui ne disent rien (1,100 → 1,1,
+   et 1,000 → 1). C'est l'écriture NATURELLE, celle du cahier — et c'est
+   justement parce qu'elle est naturelle que les longueurs diffèrent d'un
+   nombre à l'autre, et que la comparaison devient piégeuse. */
+function plcReduit(n,k){ while(k>0 && n%10===0){ n/=10; k--; } return {n:n,k:k}; }
+/* Le nombre écrit avec « dec » décimales — au moins les siennes. C'est ici, et
+   ici seulement, que le bouton d'aide agit. */
+function plcEcrit(v,dec){
+  const k=(dec==null||dec<v.k) ? v.k : dec;
+  const n=v.n*Math.pow(10,k-v.k);
+  const neg=n<0, s=String(Math.abs(n)).padStart(k+1,'0');
+  const ent=k?s.slice(0,s.length-k):s, fra=k?s.slice(s.length-k):'';
+  return (neg?'−':'')+ent+(k?','+fra:'');
+}
+function plcDecMax(q){
+  return Math.max(q.a.k, q.b.k, ...q.nombres.map(function(v){ return v.k; }));
+}
+/* LA ZONE D'UN NOMBRE, calculée. C'est la seule fonction qui décide, et c'est
+   elle que la correction interroge : aucune réponse n'est rangée d'avance. */
+function plcZone(v,q){
+  if(plcCmp(v,q.a)<0) return 'avant';
+  if(plcCmp(v,q.b)>0) return 'apres';
+  return 'entre';
+}
+const PLC_ZONES=[['avant','① avant'],['entre','② entre'],['apres','③ après']];
+
+/* Une valeur strictement au-delà d'une borne, écrite avec « dec » décimales.
+   sens = +1 au-dessus, −1 en dessous. Tout se joue en unités fines (10^-F). */
+function plcAuDela(borneF, sens, dec, F, ecart){
+  const u=Math.pow(10,F-dec);
+  const q=Math.floor(borneF/u);
+  let v=(sens>0) ? (q+1)*u : q*u;
+  if(sens<0 && v>=borneF) v-=u;
+  if(sens>0 && v<=borneF) v+=u;
+  return v + sens*ecart*u;
+}
+function plcGen(){
+  for(let essai=0; essai<800; essai++){
+    /* le pas entre les deux graduations : 0,1 ou 0,01 */
+    const p=(Math.random()<0.5)?1:2;
+    const F=p+2;                                   /* l'échelle fine du tirage */
+    const PAS=100;                                 /* un pas vaut 100 unités fines */
+    const gradG=rand(Math.pow(10,p), 3*Math.pow(10,p)-1);   /* 1,0 à 2,9 — ou 1,00 à 2,99 */
+    let aF=gradG*PAS, bF=aF+PAS;
+    /* à gauche de zéro, l'ordre s'inverse : c'est le second piège de la fiche */
+    if(Math.random()<0.4){ const t=aF; aF=-bF; bF=-t; }
+    /* ENTRE : strictement entre les deux, donc toujours PLUS de décimales que
+       les bornes — le bouton des zéros a donc toujours quelque chose à faire.
+       On s'arrête à trois décimales, comme la fiche : au-delà le nombre cesse
+       d'être lisible sans rien apprendre de plus. */
+    const dEntre=(p===1 && Math.random()<0.3) ? rand(11,89) : rand(1,9)*10;
+    const vEntre=aF+dEntre;
+    /* AVANT et APRÈS : on choisit d'abord AVEC COMBIEN DE DÉCIMALES le nombre
+       s'écrit. Moins que les bornes, c'est le « 1,1 » de la fiche ; plus, c'est
+       le « 1,009 ». Les deux se ressemblent, et ni l'un ni l'autre ne se lit
+       sans compter les décimales. */
+    /* trois décimales au plus, comme la fiche : au-delà, le nombre cesse d'être
+       lisible sans rien apprendre de plus sur la comparaison. */
+    const dec=function(){ return rand(1,Math.min(p+2,3)); };
+    const dA=dec(), dB=dec();
+    const vAvant=plcAuDela(aF,-1,dA,F,(dA<p)?0:rand(0,2));
+    const vApres=plcAuDela(bF,+1,dB,F,(dB<p)?0:rand(0,2));
+    /* les graduations, ramenées à leur écriture : un multiple exact du pas */
+    const q={ p:p, a:plcReduit(aF/PAS, p), b:plcReduit(bF/PAS, p), nombres:null };
+    const trois=[vAvant,vEntre,vApres].map(function(x){ return plcReduit(x,F); });
+    /* aucun des trois ne doit tomber SUR une graduation : une valeur posée sur
+       la borne n'appartient à aucune des trois zones, et la question n'aurait
+       pas de réponse */
+    if(trois.some(function(v){ return plcCmp(v,q.a)===0 || plcCmp(v,q.b)===0; })) continue;
+    /* les nombres sont mélangés : l'ordre de la liste ne doit pas dire la
+       réponse, sans quoi l'élève apprend le rang plutôt que la comparaison */
+    q.nombres=ensShuffle(trois.slice());
+    /* la vérité est CALCULÉE, jamais rangée : on ne garde la question que si
+       les trois zones sont bien occupées une fois chacune */
+    const zones=q.nombres.map(function(v){ return plcZone(v,q); });
+    if(new Set(zones).size!==3) continue;
+    /* et le bouton d'aide doit servir : les cinq nombres n'ont pas tous le même
+       nombre de décimales. Sans cela, « ajouter les zéros » ne ferait rien et
+       l'exercice perdrait ce qu'il enseigne. */
+    const ks=[q.a.k,q.b.k].concat(q.nombres.map(function(v){ return v.k; }));
+    if(new Set(ks).size<2) continue;
+    return q;
+  }
+  /* la question de la fiche, mot pour mot, si le tirage n'aboutissait pas */
+  return { p:2, a:{n:107,k:2}, b:{n:108,k:2},
+           nombres:[{n:1075,k:3},{n:1009,k:3},{n:11,k:1}] };
+}
+function plcBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(plcGen()); return qs; }
+function plcCases(q){
+  return q.nombres.map(function(v,i){ return {id:'plc-s-'+i, bon:plcZone(v,q)}; });
+}
+
+/* ---- Le schéma : la droite, ses deux graduations, et les trois zones ---- */
+function plcSchema(q,dec){
+  const W=520, H=104, y=44, xa=190, xb=340;
+  const T=17;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Droite graduée à deux graduations et trois zones">';
+  s+='<line x1="10" y1="'+y+'" x2="'+(W-12)+'" y2="'+y+'" stroke="#1F2937" stroke-width="2"/>';
+  s+='<path d="M '+(W-24)+' '+(y-7)+' L '+(W-10)+' '+y+' L '+(W-24)+' '+(y+7)+
+     '" fill="none" stroke="#1F2937" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  [[xa,'plc-ta',q.a],[xb,'plc-tb',q.b]].forEach(function(g){
+    s+='<line x1="'+g[0]+'" y1="'+(y-10)+'" x2="'+g[0]+'" y2="'+(y+10)+'" stroke="#1F2937" stroke-width="2"/>';
+    s+='<text id="'+g[1]+'" x="'+g[0]+'" y="'+(y+32)+'" text-anchor="middle" font-family="Nunito, sans-serif" '
+      +'font-size="'+T+'" font-weight="700" fill="#1F2937">'+esc(plcEcrit(g[2],dec))+'</text>';
+  });
+  /* Les trois zones, numérotées : c'est à elles que renvoient les listes.
+     Le chiffre est écrit NU dans un cercle dessiné — un caractère « ① » posé
+     dans le cercle aurait mis un rond dans un rond, et le chiffre devenait
+     illisible à cette taille. */
+  [(10+xa)/2, (xa+xb)/2, (xb+W-12)/2].forEach(function(x,i){
+    s+='<circle cx="'+x+'" cy="'+(y-25)+'" r="14" fill="#EAF0FF" stroke="#2B50C8" stroke-width="2"/>';
+    s+='<text x="'+x+'" y="'+(y-19)+'" text-anchor="middle" font-family="Nunito, sans-serif" font-size="19" '
+      +'font-weight="800" fill="#2B50C8">'+(i+1)+'</text>';
+  });
+  return s+'</svg>';
+}
+let _plcSaveTimer=null;
+function renderPlcTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('plcIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagPlc').innerHTML=modeTagHTML();
+  $('plcLiveScore').textContent=test.score;
+  $('plcFeedback').textContent=''; $('plcFeedback').className='mp-feedback';
+  $('plcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkPlcAnswer()">Vérifier</button>';
+  const dec=test.plcZeros ? plcDecMax(q) : null;
+  const lignes=q.nombres.map(function(v,i){
+    return '<span class="plc-nb" id="plc-n-'+i+'">'+esc(plcEcrit(v,dec))+'</span>'
+      +'<select class="plc-sel" id="plc-s-'+i+'" aria-label="Zone de '+esc(plcEcrit(v,null))+'">'
+        +'<option value="" selected disabled>?</option>'
+        +PLC_ZONES.map(function(z){ return '<option value="'+z[0]+'">'+z[1]+'</option>'; }).join('')
+      +'</select>';
+  }).join('');
+  $('plcHost').innerHTML='<div class="plc-scene">'+plcSchema(q,dec)+'</div>'
+    +'<div class="plc-rows">'+lignes+'</div>'
+    +'<div class="plc-aide"><button class="btn btn-ghost" type="button" id="plcZeroBtn" onclick="plcBasculerZeros()">'
+      +(test.plcZeros?'🔢 Retirer les zéros':'🔢 Ajouter les zéros')+'</button></div>';
+  plcCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.addEventListener('change',function(){ if(isSoutien()) plcLive(); clearTimeout(_plcSaveTimer); _plcSaveTimer=setTimeout(autoSave,1000); });
+  });
+}
+/* L'aide de la fiche : les cinq nombres réécrits avec le même nombre de
+   décimales. On ne redessine QUE les écritures — refaire l'écran effacerait
+   les réponses déjà données. */
+function plcBasculerZeros(){
+  if(test.kind!=='plc') return;
+  const q=test.questions[test.idx]; if(!q) return;
+  test.plcZeros=!test.plcZeros;
+  const dec=test.plcZeros ? plcDecMax(q) : null;
+  const put=function(id,v){ const e=$(id); if(e) e.textContent=plcEcrit(v,dec); };
+  put('plc-ta',q.a); put('plc-tb',q.b);
+  q.nombres.forEach(function(v,i){ put('plc-n-'+i,v); });
+  const b=$('plcZeroBtn');
+  if(b) b.textContent=test.plcZeros?'🔢 Retirer les zéros':'🔢 Ajouter les zéros';
+}
+function plcLive(){
+  if(test.kind!=='plc' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  plcCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.classList.remove('ok','bad');
+    if(sel.value==='') return;
+    sel.classList.add(sel.value===c.bon?'ok':'bad');
+  });
+}
+function plcMot(z){ return z==='avant'?'① avant':(z==='entre'?'② entre':'③ après'); }
+/* Le pourquoi, dit avec les zéros ajoutés : c'est la méthode de l'exercice, et
+   la voir appliquée vaut mieux que de la relire. */
+function plcPourquoi(q){
+  const d=plcDecMax(q);
+  return q.nombres.map(function(v){
+    const z=plcZone(v,q);
+    let s=plcEcrit(v,null);
+    if(v.k<d) s+=' s’écrit '+plcEcrit(v,d);
+    s+=' : ';
+    if(z==='avant')      s+='c’est moins que '+plcEcrit(q.a,d)+', donc ① avant';
+    else if(z==='apres') s+='c’est plus que '+plcEcrit(q.b,d)+', donc ③ après';
+    else                 s+='c’est entre '+plcEcrit(q.a,d)+' et '+plcEcrit(q.b,d)+', donc ② entre les deux';
+    return s;
+  }).join('  •  ');
+}
+function checkPlcAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ plcLive(); return; }
+  const subs=plcCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  if(!allOk && isSoutien()){ soutienAgain('plcFeedback','plcActions','checkPlcAnswer','plcHost'); return; }
+  test.locked=true;
+  test.score+=nCorrect; $('plcLiveScore').textContent=test.score;
+  if(allOk){ $('plcFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('plcFeedback').className='mp-feedback good'; }
+  else {
+    $('plcFeedback').textContent=plcPourquoi(q); $('plcFeedback').className='mp-feedback bad';
+    /* La correction MONTRE la méthode au lieu de seulement la dire : les cinq
+       nombres passent à la même longueur, comme le ferait le bouton. On ne
+       force rien en soutien — l'élève y corrige lui-même, et l'écran ne se
+       verrouille que lorsqu'il a tout juste. */
+    if(!test.plcZeros) plcBasculerZeros();
+  }
+  const answer=subs.map(function(s){ return plcMot(s.c.bon); }).join(' ');
+  const given=subs.map(function(s){ return s.sel&&s.sel.value?plcMot(s.sel.value):'?'; }).join(' ');
+  const enonce=q.nombres.map(function(v){ return plcEcrit(v,null); }).join(' ; ')
+    +' sur '+plcEcrit(q.a,null)+' | '+plcEcrit(q.b,null);
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q:enonce+' — '+nCorrect+'/'+subs.length+' justes', answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('plcActions').innerHTML='<button class="btn btn-primary" id="plcNext" onclick="nextPlcQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('plcNext'); if(nb) nb.focus();
+}
+function nextPlcQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPlcTest(); autoSave(); } else finishTest(); }
+async function startPlc(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=plcBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'plc', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+plcCases(q).length; },0), answers:[],
+    startTime:Date.now(), qTimer:null, fbTimer:null, locked:false, plcZeros:false});
+  test.qId='placer-intervalle';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('plc'); renderPlcTest();
+}
+function ctxPlc(q){
+  const d=plcDecMax(q);
+  const faux=plcCases(q).filter(function(c){ const sel=$(c.id), v=sel?sel.value:''; return v!=='' && v!==c.bon; }).length;
+  let c='La droite graduée porte deux graduations, '+plcEcrit(q.a,null)+' et '+plcEcrit(q.b,null)+'. '
+   +'Elle découpe trois zones : ① avant '+plcEcrit(q.a,null)+', ② entre les deux, ③ après '+plcEcrit(q.b,null)+'. '
+   +'L’élève doit placer chacun des trois nombres '+q.nombres.map(function(v){ return plcEcrit(v,null); }).join(', ')
+   +' dans la bonne zone, en choisissant dans une liste. Chaque zone reçoit exactement un nombre. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : '
+   +q.nombres.map(function(v){ return plcEcrit(v,null)+' → '+plcZone(v,q); }).join(' ; ')+'. '
+   +'Méthode enseignée : écrire les cinq nombres avec le MÊME nombre de décimales en complétant par des zéros '
+   +'(ici '+d+' décimales : '+plcEcrit(q.a,d)+', '+plcEcrit(q.b,d)+', '
+   +q.nombres.map(function(v){ return plcEcrit(v,d); }).join(', ')+'), puis comparer. '
+   +'Un bouton de la page le fait pour l’élève s’il le demande. '
+   +'L’erreur classique est de comparer les décimales chiffre à chiffre sans les aligner : 1,1 paraît plus petit que 1,08 parce que 1 est plus petit que 8.';
+  if(q.a.n<0) c+=' Attention, les nombres sont négatifs : plus le chiffre est grand, plus le nombre est PETIT.';
+  if(faux) c+=' Il s’est trompé sur '+faux+' nombre(s).';
+  return {nombre:'', contexte:c};
+}
+
 async function startSF(){
   if(!currentEleve){ accueil(); return; }
   const qs=sfBuildQuestions();
@@ -6288,7 +6600,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderAppTest','renderSFTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderAppTest','renderSFTest','renderPlcTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

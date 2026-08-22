@@ -395,6 +395,48 @@ L'intervalle est bâti autour de l'ÉCRITURE et non de la valeur, et l'élève q
 compare ce qu'il lit au lieu de ce que ça vaut répond ∈. Sans ce cas, l'exercice
 ne posait la question qu'autour de 200 — là où le piège ne se referme jamais.
 
+**Trois nombres, deux graduations, trois zones.** {placer-intervalle} est
+repris de deux fiches manuscrites : une droite avec DEUX graduations, trois
+nombres à placer — avant la première, entre les deux, après la seconde —, et
+chaque zone reçoit exactement un nombre, comme sur le papier.
+**Le risque n'est pas dans le dessin, il est arithmétique**, et c'est le même
+que celui d'{appartient-intervalle} : face à 1,07 et 1,08, l'élève lit « 1,1 »
+et le place AVANT, parce que 1 est plus petit que 08. Les négatifs en ajoutent
+un second : −1,59 est APRÈS −1,6. Les comparaisons se font donc EN ENTIERS,
+jamais en virgule flottante, et **la bonne réponse n'est jamais rangée à côté de
+la question** : elle est calculée par `plcZone()`, la fonction même qui corrige
+l'élève, si bien qu'un énoncé ne peut pas contredire sa correction.
+
+**Le bouton « Ajouter les zéros » est l'aide de la fiche** — celle que le
+professeur donne au tableau (décision de Turquet, août 2026) : il réécrit les
+CINQ nombres avec autant de décimales que celui qui en a le plus, et 1,07 / 1,08
+/ 1,1 deviennent 1,070 / 1,080 / 1,100. Il ne change QUE l'écriture ; la
+correction ne le regarde pas, et un contrôle l'exige — un bouton qui déplacerait
+une réponse serait un piège tendu à l'élève qui demande de l'aide, c'est-à-dire à
+celui qui en a le plus besoin. Il ne redessine pas l'écran non plus, seulement
+les écritures : refaire l'écran effacerait les réponses déjà données.
+**Et la correction pose ces zéros elle-même** quand l'élève s'est trompé : elle
+MONTRE la méthode au lieu de seulement la décrire. Jamais en soutien, où l'élève
+corrige lui-même.
+
+Le tirage garantit que le bouton ait toujours quelque chose à faire — les cinq
+nombres n'ont jamais tous le même nombre de décimales — et s'arrête à trois
+décimales, comme la fiche.
+
+Le contrôle compare la page à LA FICHE, cas par cas, les trois tableaux
+manuscrits y compris celui aux négatifs. Puis il balaie le tirage en jugeant
+chaque comparaison par une SECONDE méthode, qui n'a rien en commun avec la
+première : les deux écritures complétées de zéros, puis comparées comme des
+chaînes. Une réimplémentation en entiers se serait trompée du même côté.
+Éprouvé en le cassant onze fois, et **deux sabotages l'ont d'abord traversé**.
+Le premier a montré un garde-fou MORT : « aucun nombre ne tombe sur une
+graduation » n'a jamais rien à écarter, parce que `plcAuDela()` ne rend jamais
+la borne — le retirer ne changeait rien, et le compteur restait à zéro sans
+rien mesurer. Le contrôle éprouve donc `plcAuDela()` directement, sur les deux
+sens et toutes les échelles. Le second était un faux sabotage de ma part :
+décaler un nombre d'une unité de son propre rang ne lui fait presque jamais
+changer de zone, et le vert était juste.
+
 **Deux fractions ne s'additionnent qu'au même dénominateur — et le commun n'est
 pas imposé.** {somme-fractions} vit en Seconde ET en Première, sur un moteur
 unique : le tirage, la pose et la correction sont le même texte dans les deux
