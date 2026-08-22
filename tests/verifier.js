@@ -2624,9 +2624,35 @@ function placerSurLaDroite(w, P){
         vus.push('la note affichée compte '+a.justes+' case(s) juste(s) sur '+a.cases+', au lieu de '+cases.length+' sur '+cases.length);
       /* et le bouton d'aide ne déplace AUCUNE réponse */
       const avant=plcCases(q).map(function(c){ return c.bon; }).join(' ');
-      plcBasculerZeros(); plcBasculerZeros();
+      plcAppuiZeros(true); plcAppuiZeros(false);
       const apres=plcCases(q).map(function(c){ return c.bon; }).join(' ');
-      if(avant!==apres) vus.push('« ajouter les zéros » change la correction : ' + avant + ' devient ' + apres);
+      if(avant!==apres) vus.push('« voir les zéros » change la correction : ' + avant + ' devient ' + apres);
+      /* L'AIDE NE DURE QUE LE TEMPS DE L'APPUI. C'est tout ce qui la distingue
+         d'un exercice où les zéros seraient déjà écrits : l'élève jette un œil,
+         relâche, et compare lui-même. Un bouton resté bloqué en position
+         « affiché » ne casserait rien — il retirerait simplement l'exercice. */
+      const lu=function(){
+        const t=[document.getElementById('plc-ta'),document.getElementById('plc-tb')]
+          .concat(q.nombres.map(function(v,i){ return document.getElementById('plc-n-'+i); }));
+        return t.map(function(e){ return e?e.textContent:'?'; }).join(' ');
+      };
+      test.plcZeros=false; plcAppuiZeros(false); renderPlcTest();
+      const nu=lu();
+      plcAppuiZeros(true);
+      const tenu=lu();
+      plcAppuiZeros(false);
+      const relache=lu();
+      const d=plcDecMax(q);
+      const attenduTenu=[q.a,q.b].concat(q.nombres).map(function(v){ return plcEcrit(v,d); }).join(' ');
+      const attenduNu=[q.a,q.b].concat(q.nombres).map(function(v){ return plcEcrit(v,null); }).join(' ');
+      if(nu!==attenduNu) vus.push('sans appui, les nombres ne sont pas dans leur écriture naturelle : « '+nu+' »');
+      if(tenu!==attenduTenu) vus.push('bouton MAINTENU, les zéros ne sont pas tous posés : « '+tenu+' » au lieu de « '+attenduTenu+' »');
+      if(relache!==nu) vus.push('bouton RELÂCHÉ, les zéros restent affichés : « '+relache+' » — l\\'aide est devenue l\\'exercice');
+      if(nu===attenduTenu) vus.push('ce tirage écrit déjà tout à la même longueur : le contrôle ne mesure rien');
+      /* et le bouton s'écoute à l'APPUI, pas au clic : un clic n'arrive qu'une
+         fois le doigt levé, c'est-à-dire trop tard. */
+      const b=document.getElementById('plcZeroBtn');
+      if(b && b.getAttribute('onclick')) vus.push('le bouton des zéros répond encore à onclick : le clic arrive après le relâchement');
       /* on répond FAUX sur une nouvelle question : rien ne doit passer */
       test.idx=0; test.locked=false; test.score=0; test.answers=[]; test.plcZeros=false;
       renderPlcTest();
@@ -2641,6 +2667,17 @@ function placerSurLaDroite(w, P){
       /* et la correction MONTRE la méthode : les cinq nombres passent à la
          même longueur, comme le ferait le bouton */
       if(!test.plcZeros) vus.push('la correction ne complète pas les nombres de zéros : elle décrit la méthode sans la montrer');
+      /* Et un appui qui suit la correction ne doit pas l'emporter en se
+         relâchant : ce sont DEUX états, et un seul drapeau ferait disparaître
+         la méthode juste au moment où on la montre. */
+      if(test.plcZeros){
+        plcAppuiZeros(true); plcAppuiZeros(false);
+        const apresAppui=[document.getElementById('plc-ta'),document.getElementById('plc-tb')]
+          .map(function(e){ return e?e.textContent:'?'; }).join(' ');
+        const q3=test.questions[test.idx], d3=plcDecMax(q3);
+        if(apresAppui!==[q3.a,q3.b].map(function(v){ return plcEcrit(v,d3); }).join(' '))
+          vus.push('un appui relâché efface les zéros que la CORRECTION avait posés');
+      }
     }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
