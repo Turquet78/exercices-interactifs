@@ -511,6 +511,10 @@
   .plc-sel.ok{border-color:var(--green);background:#EAFBF0;color:var(--green)}
   .plc-sel.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .plc-aide{display:flex;justify-content:center;margin-top:14px}
+  /* On le MAINTIENT enfoncé : ni sélection du libellé, ni menu contextuel
+     d'appui long, ni surbrillance bleue de tapotement. */
+  .plc-zero-btn{-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  .plc-zero-btn:active{background:#EAF0FF;border-color:var(--blue)}
   @media(max-width:520px){ .plc-rows{gap:10px 10px;max-width:100%} .plc-nb{font-size:1.25rem} .plc-sel{width:118px;font-size:1.02rem} }
   .ens-rep{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
   /* ---- Intervalles (le schéma, et les cases à compléter) ---- */
@@ -1592,7 +1596,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=63;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=64;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2259,7 +2263,7 @@ function garnirFenetre(pop, titre){
      ouvre donc les deux cartes, y déclenche tout ce qui pose un bouton, et
      exige que chaque onclick trouvé soit dans cette liste ; il refuse aussi un
      nom recopié ici sans fonction derrière. */
-  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel','fermerTables','basculerTables','plcBasculerZeros'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
+  ['fermerQIA','qiaEnvoyer','qiaPoser','qiaMicToggle','fermerConseil','conseilCourant','basculerRappel','fermerTables','basculerTables'].forEach(function(n){ try{ pop[n]=window[n]; }catch(e){} });
 }
 function rapatrierFenetre(pop){
   try{
@@ -5931,7 +5935,7 @@ function renderPlcTest(){
   $('plcLiveScore').textContent=test.score;
   $('plcFeedback').textContent=''; $('plcFeedback').className='mp-feedback';
   $('plcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkPlcAnswer()">Vérifier</button>';
-  const dec=test.plcZeros ? plcDecMax(q) : null;
+  const dec=plcZerosVus() ? plcDecMax(q) : null;
   const lignes=q.nombres.map(function(v,i){
     return '<span class="plc-nb" id="plc-n-'+i+'">'+esc(plcEcrit(v,dec))+'</span>'
       +'<select class="plc-sel" id="plc-s-'+i+'" aria-label="Zone de '+esc(plcEcrit(v,null))+'">'
@@ -5941,25 +5945,69 @@ function renderPlcTest(){
   }).join('');
   $('plcHost').innerHTML='<div class="plc-scene">'+plcSchema(q,dec)+'</div>'
     +'<div class="plc-rows">'+lignes+'</div>'
-    +'<div class="plc-aide"><button class="btn btn-ghost" type="button" id="plcZeroBtn" onclick="plcBasculerZeros()">'
-      +(test.plcZeros?'🔢 Retirer les zéros':'🔢 Ajouter les zéros')+'</button></div>';
+    +'<div class="plc-aide"><button class="btn btn-ghost plc-zero-btn" type="button" id="plcZeroBtn">'
+      +PLC_ZERO_LIB+'</button></div>';
   plcCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
     sel.addEventListener('change',function(){ if(isSoutien()) plcLive(); clearTimeout(_plcSaveTimer); _plcSaveTimer=setTimeout(autoSave,1000); });
   });
+  plcBrancherZeros($('plcZeroBtn'));
 }
-/* L'aide de la fiche : les cinq nombres réécrits avec le même nombre de
-   décimales. On ne redessine QUE les écritures — refaire l'écran effacerait
-   les réponses déjà données. */
-function plcBasculerZeros(){
-  if(test.kind!=='plc') return;
-  const q=test.questions[test.idx]; if(!q) return;
-  test.plcZeros=!test.plcZeros;
-  const dec=test.plcZeros ? plcDecMax(q) : null;
+/* ---- L'aide de la fiche : les cinq nombres à la même longueur -------------
+   Elle ne dure QUE le temps de l'appui (décision de Turquet, août 2026) : on
+   garde le bouton enfoncé pour jeter un œil, on relâche et les zéros s'en
+   vont. L'élève voit la méthode, il ne travaille pas dessus — c'est bien lui
+   qui doit comparer.
+
+   DEUX ÉTATS, ET NON UN. « plcAppui » dure le temps du doigt ; « test.plcZeros »
+   est posé par la CORRECTION et reste. Un seul drapeau ferait disparaître la
+   correction au premier appui suivi d'un relâchement — l'élève aurait vu la
+   méthode s'effacer juste au moment où on la lui montre. */
+let plcAppui=false;
+const PLC_ZERO_LIB='🔢 Appuie pour voir les zéros';
+function plcZerosVus(){ return !!(plcAppui || (typeof test!=='undefined' && test && test.plcZeros)); }
+/* On ne redessine QUE les écritures : refaire l'écran effacerait les réponses
+   déjà données. */
+function plcMajEcriture(){
+  if(typeof test==='undefined' || !test || test.kind!=='plc') return;
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  const dec=plcZerosVus() ? plcDecMax(q) : null;
   const put=function(id,v){ const e=$(id); if(e) e.textContent=plcEcrit(v,dec); };
   put('plc-ta',q.a); put('plc-tb',q.b);
   q.nombres.forEach(function(v,i){ put('plc-n-'+i,v); });
-  const b=$('plcZeroBtn');
-  if(b) b.textContent=test.plcZeros?'🔢 Retirer les zéros':'🔢 Ajouter les zéros';
+}
+function plcAppuiZeros(actif){
+  if(plcAppui===!!actif) return;
+  plcAppui=!!actif;
+  plcMajEcriture();
+}
+/* Le bouton s'écoute à l'appui et au relâchement, jamais au clic : un clic
+   n'arrive qu'une fois le doigt levé, c'est-à-dire trop tard.
+   On relâche AUSSI quand le pointeur quitte le bouton, quand le geste est
+   annulé, et quand la page perd le focus — sinon les zéros resteraient
+   affichés pour de bon, et l'aide deviendrait l'exercice. */
+function plcBrancherZeros(b){
+  if(!b || b.__plcBranche) return;
+  b.__plcBranche=true;
+  b.style.touchAction='none';
+  const presse=function(e){ plcAppuiZeros(true); if(e && e.cancelable && e.preventDefault) e.preventDefault(); };
+  const lache =function(){ plcAppuiZeros(false); };
+  if(window.PointerEvent){
+    b.addEventListener('pointerdown',presse);
+    ['pointerup','pointercancel','pointerleave'].forEach(function(n){ b.addEventListener(n,lache); });
+    document.addEventListener('pointerup',lache);
+  } else {
+    b.addEventListener('mousedown',presse);
+    b.addEventListener('touchstart',presse,{passive:false});
+    ['mouseup','mouseleave'].forEach(function(n){ b.addEventListener(n,lache); });
+    ['touchend','touchcancel'].forEach(function(n){ b.addEventListener(n,lache); });
+    document.addEventListener('mouseup',lache);
+  }
+  /* Au clavier, « maintenir » est la touche enfoncée : sans cela l'aide
+     deviendrait inatteignable à qui navigue sans souris. */
+  b.addEventListener('keydown',function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); presse(); } });
+  b.addEventListener('keyup',  function(e){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); lache(); } });
+  b.addEventListener('blur',lache);
+  window.addEventListener('blur',lache);
 }
 function plcLive(){
   if(test.kind!=='plc' || !isSoutien() || test.locked) return;
@@ -6003,7 +6051,7 @@ function checkPlcAnswer(live){
        nombres passent à la même longueur, comme le ferait le bouton. On ne
        force rien en soutien — l'élève y corrige lui-même, et l'écran ne se
        verrouille que lorsqu'il a tout juste. */
-    if(!test.plcZeros) plcBasculerZeros();
+    test.plcZeros=true; plcMajEcriture();
   }
   const answer=subs.map(function(s){ return plcMot(s.c.bon); }).join(' ');
   const given=subs.map(function(s){ return s.sel&&s.sel.value?plcMot(s.sel.value):'?'; }).join(' ');

@@ -407,14 +407,31 @@ jamais en virgule flottante, et **la bonne réponse n'est jamais rangée à côt
 la question** : elle est calculée par `plcZone()`, la fonction même qui corrige
 l'élève, si bien qu'un énoncé ne peut pas contredire sa correction.
 
-**Le bouton « Ajouter les zéros » est l'aide de la fiche** — celle que le
-professeur donne au tableau (décision de Turquet, août 2026) : il réécrit les
-CINQ nombres avec autant de décimales que celui qui en a le plus, et 1,07 / 1,08
-/ 1,1 deviennent 1,070 / 1,080 / 1,100. Il ne change QUE l'écriture ; la
-correction ne le regarde pas, et un contrôle l'exige — un bouton qui déplacerait
-une réponse serait un piège tendu à l'élève qui demande de l'aide, c'est-à-dire à
-celui qui en a le plus besoin. Il ne redessine pas l'écran non plus, seulement
-les écritures : refaire l'écran effacerait les réponses déjà données.
+**Le bouton des zéros est l'aide de la fiche** — celle que le professeur donne
+au tableau (décision de Turquet, août 2026) : il réécrit les CINQ nombres avec
+autant de décimales que celui qui en a le plus, et 1,07 / 1,08 / 1,1 deviennent
+1,070 / 1,080 / 1,100. Il ne change QUE l'écriture ; la correction ne le regarde
+pas, et un contrôle l'exige — un bouton qui déplacerait une réponse serait un
+piège tendu à l'élève qui demande de l'aide, c'est-à-dire à celui qui en a le
+plus besoin. Il ne redessine pas l'écran non plus, seulement les écritures :
+refaire l'écran effacerait les réponses déjà données.
+
+**Et l'aide ne dure QUE le temps de l'appui** (décision de Turquet, août 2026) :
+on garde le bouton enfoncé pour jeter un œil, on relâche et les zéros s'en vont.
+C'est ce qui la sépare d'un exercice où les zéros seraient déjà écrits — l'élève
+voit la méthode, il ne travaille pas dessus. Le bouton s'écoute donc à l'APPUI
+et au RELÂCHEMENT, jamais au clic : un clic n'arrive qu'une fois le doigt levé,
+c'est-à-dire trop tard. Il se relâche aussi quand le pointeur quitte le bouton,
+quand le geste est annulé et quand la page perd le focus — sans quoi le geste le
+plus banal (appuyer, glisser un peu, lever) laisserait l'aide allumée pour de
+bon, et l'aide serait devenue l'exercice. Au clavier, « maintenir » est la
+touche enfoncée, sinon l'aide devient inatteignable à qui navigue sans souris.
+**Ce sont DEUX états, pas un.** `plcAppui` dure le temps du doigt ;
+`test.plcZeros` est posé par la CORRECTION et reste. Un seul drapeau ferait
+disparaître la correction au premier appui suivi d'un relâchement — l'élève
+aurait vu la méthode s'effacer juste au moment où on la lui montre.
+Le banc principal appelle la fonction ; seul le banc navigateur APPUIE. C'est la
+différence qui compte, et deux des six sabotages ne sont vus que par lui.
 **Et la correction pose ces zéros elle-même** quand l'élève s'est trompé : elle
 MONTRE la méthode au lieu de seulement la décrire. Jamais en soutien, où l'élève
 corrige lui-même.

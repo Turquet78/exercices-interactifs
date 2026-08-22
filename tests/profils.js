@@ -247,6 +247,11 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
+       l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
+       le banc principal, lui, ne peut qu'appeler la fonction. */
+    aideMaintenue: { exercice: 'placer-intervalle', bouton: 'plcZeroBtn',
+                     nombres: '#plc-ta,#plc-tb,.plc-nb' },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au

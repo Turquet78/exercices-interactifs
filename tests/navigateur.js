@@ -976,6 +976,64 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
+    /* Le bouton d'aide de « Placer des nombres sur une droite graduée » réécrit
+       les cinq nombres à la même longueur — mais SEULEMENT tant qu'on le garde
+       enfoncé (décision de Turquet, août 2026) : on jette un œil, on relâche,
+       et c'est à l'élève de comparer.
+       Le banc principal appelle la fonction ; lui seul APPUIE vraiment. C'est
+       la différence qui compte : un bouton branché sur « click » se déclenche
+       au relâchement, donc trop tard, et jsdom ne le verrait jamais. */
+    titre('6 nonies. LES ZÉROS NE DURENT QUE LE TEMPS DE L\'APPUI');
+    if(!P.aideMaintenue){
+      ignorer('les zéros s\'affichent à l\'appui et s\'effacent au relâchement',
+        'ce niveau n\'a pas d\'aide qui se maintient');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.aideMaintenue.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const lire = () => s.page.evaluate(sel => {
+        const n = [...document.querySelectorAll(sel)];
+        return n.map(e => e.textContent.trim()).join(' ');
+      }, P.aideMaintenue.nombres);
+      const bouton = await s.page.$('#' + P.aideMaintenue.bouton);
+      verifier('le bouton d\'aide est sur l\'écran', !!bouton,
+        'aucun #' + P.aideMaintenue.bouton);
+      if(bouton){
+        const nu = await lire();
+        const b = await bouton.boundingBox();
+        const bx = Math.round(b.x + b.width / 2), by = Math.round(b.y + b.height / 2);
+        await s.page.mouse.move(bx, by);
+        await s.page.mouse.down();
+        await s.page.waitForTimeout(200);
+        const tenu = await lire();                       /* bouton ENCORE enfoncé */
+        await s.page.mouse.up();
+        await s.page.waitForTimeout(200);
+        const relache = await lire();
+        verifier('bouton maintenu, les zéros s\'affichent', tenu !== nu && tenu.length > nu.length,
+          'rien n\'a changé pendant l\'appui : « ' + nu + ' » → « ' + tenu + ' »');
+        verifier('bouton relâché, les zéros s\'effacent', relache === nu,
+          'ils sont restés : « ' + relache + ' » au lieu de « ' + nu + ' »');
+        /* Relâcher AILLEURS que sur le bouton doit aussi les effacer : sans
+           cela, le geste le plus banal — appuyer, glisser un peu, lever —
+           laisserait l'aide allumée pour de bon. */
+        await s.page.mouse.move(bx, by);
+        await s.page.mouse.down();
+        await s.page.waitForTimeout(150);
+        await s.page.mouse.move(bx + 200, by - 120, { steps: 5 });
+        await s.page.mouse.up();
+        await s.page.waitForTimeout(200);
+        verifier('relâché hors du bouton, les zéros s\'effacent aussi', (await lire()) === nu,
+          'l\'aide est restée allumée après un relâchement à côté');
+      }
+      verifier('l\'aide maintenue ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 octies. la fenêtre « Soutien » se saisit N'IMPORTE OÙ ===== */
     /* Elle ne se déplaçait que par sa barre de titre, un ruban de trente pixels
        qu'il fallait viser (décision de Turquet, août 2026 : on la saisit
