@@ -1590,7 +1590,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [];
+      const sans = [], sansMode = [], accolades = [], petites = [];
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           await s.page.evaluate(i => openTest(i), id);
@@ -1643,12 +1643,46 @@ async function parcours(page, N){
                contexte du modèle — un innerHTML posé par un rendu y échappe. */
             const brut = (on.textContent || '').match(/\{[a-z0-9-]+\}/g) || [];
             const connus = brut.filter(m => TESTS[m.slice(1, -1)]);
-            return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id, accolades: [...new Set(connus)]};
+            /* Une case où l'élève écrit s'écrit à la MÊME TAILLE que les nombres
+               qui l'entourent (décision de Turquet, août 2026, valable pour tout
+               exercice à saisie) : une case plus petite fait passer la réponse de
+               l'élève pour une note en bas de page au milieu du calcul.
+               « Autour » se mesure, et il a fallu deux essais pour le dire juste.
+               Le premier prenait n'importe quel chiffre d'un ancêtre proche : il
+               attrapait ceux du panneau d'à côté (la multiplication posée) et
+               accusait des écrans parfaitement corrects. Un nombre est « autour »
+               s'il partage la LIGNE de la case — recouvrement vertical — ET s'il
+               est À CÔTÉ : au-delà de 120 px de vide horizontal, c'est un autre
+               bloc, pas un voisin. */
+            const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+            const chiffres = [...on.querySelectorAll('*')].filter(x => x.children.length === 0
+              && !x.closest('math-field')
+              && /^[0-9]+([.,][0-9]+)?$/.test((x.textContent || '').trim())
+              && x.getBoundingClientRect().width > 0);
+            const cases = [];
+            for(const mf of [...on.querySelectorAll('math-field')].filter(visible)){
+              const r = mf.getBoundingClientRect();
+              const voisins = chiffres.filter(x => {
+                const q = x.getBoundingClientRect();
+                if(Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top) <= Math.min(r.height, q.height) * 0.5) return false;
+                return Math.max(0, Math.max(r.left, q.left) - Math.min(r.right, q.right)) <= 120;
+              });
+              if(!voisins.length) continue;
+              const gros = Math.max(...voisins.map(px));
+              if(px(mf) < gros * 0.9)
+                cases.push((mf.id || '(sans id)') + ' : ' + px(mf) + 'px contre ' + gros + 'px');
+            }
+            return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
+                    accolades: [...new Set(connus)], cases: cases};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
+          if(mode === 'train' && vu.cases && vu.cases.length)
+            petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
         }
       }
+      verifier('les cases de saisie ont la taille des nombres qui les entourent',
+        petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')

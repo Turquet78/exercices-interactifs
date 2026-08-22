@@ -810,6 +810,31 @@ elle part avec la page. **Un seul endroit la décrit** (`LANGUE_SIMPLE`), partag
 par les deux aides et par le bouton du rappel : deux descriptions auraient fini
 par diverger, et l'une des aides aurait reparlé comme avant sans qu'on le voie.
 
+**Une case où l'élève écrit a la taille des nombres qui l'entourent.** Elle est
+en mode math — un `<math-field>` —, et sa police fait la même taille que les
+chiffres posés à côté (décision de Turquet, août 2026, **valable pour tout
+exercice à saisie, présent ou futur**). Une case plus petite fait passer la
+réponse de l'élève pour une note en bas de page au milieu du calcul ; c'est ce
+que donnait {somme-fractions}, cases à 1,05 rem contre des chiffres à 2 rem.
+La référence est l'écran des pourcentages de la Première, qui portait déjà la
+règle en toutes lettres dans son commentaire : `font-size:1.9rem` quand les
+voisins sont à 2 rem. La largeur suit la taille — à 62 px, une réponse à deux
+chiffres débordait.
+**« Autour » se mesure, et il a fallu deux essais pour le dire juste.** Le
+premier relevé prenait n'importe quel chiffre d'un ancêtre proche : il attrapait
+ceux de la multiplication POSÉE, dans le panneau d'à côté, et accusait
+{mult-decimaux} et {mult-dec-un} d'un défaut qu'ils n'avaient pas. Un nombre est
+« autour » d'une case s'il partage sa LIGNE — recouvrement vertical — ET s'il est
+À CÔTÉ : au-delà de 120 px de vide horizontal, c'est un autre bloc. Avec cette
+définition, aucune exemption n'est nécessaire nulle part, ce qui est le signe
+qu'elle est la bonne : une règle qui demande une liste d'exceptions décrit mal ce
+qu'elle mesure.
+Le contrôle vit dans le banc navigateur, greffé sur la visite de TOUS les
+exercices : un exercice ajouté demain est donc couvert sans rien déclarer. Il
+donne le numéro de l'exercice et les deux tailles — « 4.1 — sf-a1 : 16.8px contre
+32px ». Le mode math, lui, était déjà acquis partout : la Seconde et la Première
+posent les mêmes `math-field`, seule la TAILLE divergeait.
+
 **Une fraction se lit empilée, ou elle ne se lit pas.** Le modèle et les rappels
 de cours écrivent leurs mathématiques en LaTeX entre `\(` et `\)` — les fractions
 sont EMPILÉES, comme dans le cahier, et non couchées derrière une barre oblique.

@@ -509,10 +509,19 @@
    le trait de fraction au lieu d'écarter le voisin. */
 #sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
 #sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:52px}
-#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px}
+/* Une case où l'élève écrit un nombre s'écrit en MODE MATH et à la MÊME TAILLE
+   que les nombres qui l'entourent (décision de Turquet, août 2026, valable pour
+   tout exercice à saisie). C'est 1,9rem, comme les écrans de pourcentage de la
+   Première : les chiffres voisins (.f-whole) sont à 2rem, et une case à 1,05rem
+   se lisait comme une note de bas de page au milieu d'un calcul.
+   La largeur suit la taille : à 62 px, une réponse à deux chiffres débordait. */
+#sfHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
+@media(max-width:900px){ #sfHost math-field.pm-mf{font-size:1.5rem}
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
-  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:54px} }
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
   /* ---- Placer trois nombres sur une droite graduée ---- */
   .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
   .plc-scene svg{width:100%;height:auto;display:block}
@@ -1610,7 +1619,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=68;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=69;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
