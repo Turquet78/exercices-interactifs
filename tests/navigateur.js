@@ -1747,6 +1747,106 @@ async function parcours(page, N){
         'conseil_avec', 'conseil_sans', mesure.erreurConseil);
       juge('les retours à la ligne se voient dans la fenêtre « Question à l\'IA »',
         'qia_avec', 'qia_sans', mesure.erreurQIA);
+      /* ===== 11. les écritures mathématiques du modèle s'affichent EMPILÉES ===== */
+      /* Le modèle écrit \(\frac{3}{4}\) ; l'élève doit voir une fraction, pas
+         une commande. Posée en textContent, la formule arrive à l'écran avec
+         ses antislashs — c'est ce que lisaient les élèves de Seconde.
+         Seul un vrai navigateur peut le voir : jsdom n'a pas MathLive, donc
+         rien à empiler et rien à mesurer. Deux bords, et n'en tenir qu'un ne
+         tient rien : la fraction doit être DESSINÉE (un .ML__mfrac dans le
+         rendu), et le « \frac » ne doit PLUS être lisible en toutes lettres. */
+      const rendu = await s.page.evaluate(async () => {
+        const TXT = 'Tu prends \\(\\frac{3}{4}\\) du nombre, puis tu conclus.';
+        const vrai = sb.functions.invoke;
+        sb.functions.invoke = () => Promise.resolve({ data: { feedback: TXT }, error: null });
+        const attendre = ms => new Promise(r => setTimeout(r, ms));
+        const lire = el => el ? { frac: el.querySelectorAll('.ML__mfrac').length,
+                                  texte: (el.textContent || '') } : null;
+        const res = {};
+        conseilBusy = false;
+        const fb = $('conseilBody');
+        if(fb){ fb.textContent = ''; fb.innerHTML = ''; }
+        try{ conseilCourant(); }catch(e){ res.erreurConseil = e.message; }
+        await attendre(300);
+        res.conseil = lire($('conseilBody'));
+        try{ fermerConseil(); }catch(e){}
+        try{ ouvrirQIA(); }catch(e){ res.erreurQIA = e.message; }
+        await attendre(150);
+        qiaBusy = false;
+        const inp = $('qiaInput'); if(inp) inp.value = 'Comment on fait ?';
+        try{ await qiaEnvoyer(); }catch(e){ res.erreurQIA = e.message; }
+        await attendre(300);
+        const bulles = [...$('qiaDialog').querySelectorAll('.qia-r')];
+        res.qia = lire(bulles[bulles.length - 1]);
+        sb.functions.invoke = vrai;
+        return res;
+      });
+      const jugeMath = (intitule, o, erreur) => {
+        if(!o || !o.texte.trim()){
+          verifier(intitule, false, 'aucune réponse affichée : le contrôle ne mesure rien'
+            + (erreur ? ' — ' + erreur : '')); return;
+        }
+        const nu = /\\frac|\\\(|\\\)/.test(o.texte);
+        verifier(intitule, o.frac > 0 && !nu,
+          o.frac === 0 ? 'aucune fraction empilée dans le rendu — l\'élève lit « ' + o.texte.trim().slice(0, 60) + ' »'
+                       : 'du LaTeX reste lisible à l\'écran : « ' + o.texte.trim().slice(0, 60) + ' »');
+      };
+      if(!ml){
+        ignorer('la fraction du modèle s\'affiche empilée dans le conseil', 'MathLive absent');
+        ignorer('la fraction du modèle s\'affiche empilée dans la fenêtre d\'aide', 'MathLive absent');
+      } else {
+        jugeMath('la fraction du modèle s\'affiche empilée dans le conseil', rendu.conseil, rendu.erreurConseil);
+        jugeMath('la fraction du modèle s\'affiche empilée dans la fenêtre d\'aide', rendu.qia, rendu.erreurQIA);
+      }
+
+      /* ===== 12. les fractions des rappels de cours s'affichent EMPILÉES ===== */
+      /* Un rappel de cours est du HTML écrit à la main. Une fraction s'y écrit
+         \(\frac{1}{2}\) et c'est rapMaths(), à l'AFFICHAGE, qui la dessine — au
+         chargement, MathLive n'est pas prêt et la fraction serait vide.
+         Le défaut à empêcher est franc : si rapMaths() n'est pas branché, l'élève
+         lit « \frac{1}{2} » en toutes lettres. On ouvre donc CHAQUE rappel du
+         niveau et on regarde ce qui s'affiche — un rappel ajouté demain est
+         couvert sans rien déclarer nulle part. */
+      const rappels = await s.page.evaluate(() => {
+        if(typeof RAPPELS === 'undefined' || typeof rappelHTML !== 'function') return null;
+        const hote = document.createElement('div');
+        hote.style.cssText = 'position:fixed;left:-9999px;top:0;width:900px';
+        document.body.appendChild(hote);
+        const out = [];
+        const cles = Object.keys(RAPPELS).map(k => ({ kind: k, id: null }))
+          .concat(Object.keys(typeof RAPPELS_ID === 'undefined' ? {} : RAPPELS_ID)
+            .map(i => ({ kind: null, id: i })));
+        const kSauve = test ? test.kind : null, iSauve = currentTestId;
+        for(const c of cles){
+          if(c.kind && test) test.kind = c.kind;
+          currentTestId = c.id;
+          const brut = c.id ? RAPPELS_ID[c.id] : RAPPELS[c.kind];
+          if(String(brut || '').indexOf('\\(') < 0) continue;   /* ce rappel n'écrit aucune formule */
+          hote.innerHTML = rappelHTML();
+          out.push({ nom: c.id || c.kind,
+                     frac: hote.querySelectorAll('.ML__mfrac').length,
+                     nu: /\\frac|\\\(|\\\)/.test(hote.textContent || ''),
+                     extrait: (hote.textContent || '').trim().slice(0, 70) });
+        }
+        if(test) test.kind = kSauve; currentTestId = iSauve;
+        hote.remove();
+        return out;
+      });
+      if(!ml){
+        ignorer('les fractions des rappels de cours s\'affichent empilées', 'MathLive absent');
+      } else if(rappels === null){
+        verifier('les fractions des rappels de cours s\'affichent empilées', false,
+          'RAPPELS ou rappelHTML() introuvable : le contrôle ne mesure rien');
+      } else if(!rappels.length){
+        ignorer('les fractions des rappels de cours s\'affichent empilées',
+          'aucun rappel de ce niveau n\'écrit de formule');
+      } else {
+        const muets = rappels.filter(r => r.frac === 0 || r.nu);
+        verifier('les fractions des rappels de cours s\'affichent empilées (' + rappels.length + ' rappels)',
+          muets.length === 0,
+          muets.map(r => r.nom + ' : « ' + r.extrait + ' »').slice(0, 2).join(' | '));
+      }
+
       verifier('mesurer la mise en page de l\'IA ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
