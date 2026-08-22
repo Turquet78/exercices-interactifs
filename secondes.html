@@ -1596,7 +1596,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=65;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=66;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3255,15 +3255,44 @@ const ENTREE_PROF='#prof';
 function entreeProfDemandee(){
   try{ return String(location.hash||'').trim().toLowerCase()===ENTREE_PROF; }catch(e){ return false; }
 }
+/* La session du professeur est PARTAGEE avec prof.html et les deux autres
+   niveaux : meme domaine, meme projet Supabase. Celui qui vient de donner son
+   mot de passe sur la page d'aiguillage n'a donc pas a le redonner ici — on
+   demande son avis au SERVEUR (la table « professeurs », comme teacherLogin),
+   jamais a la page. Session absente, perimee, ou compte qui n'est pas celui du
+   professeur : l'ecran de connexion, comme avant. */
 function ouvrirEntreeProf(){
   show('teacher-login');
   setTimeout(()=>{ const c=$('teacherPass'); if(c) c.focus(); },100);
+  reprendreSessionProf();
 }
+async function sessionProfOuverte(){
+  if(!sb||!sb.auth) return false;
+  let session=null;
+  try{ const {data,error}=await sb.auth.getSession(); if(error) return false; session=data.session; }
+  catch(e){ return false; }
+  if(!session) return false;
+  try{ const {data,error}=await sb.from('professeurs').select('user_id').maybeSingle();
+       return !error && !!data; }catch(e){ return false; }
+}
+async function reprendreSessionProf(){
+  if(!(await sessionProfOuverte())) return;
+  if(!estEcranActif('teacher-login')) return;   /* parti ailleurs pendant l'attente : on ne le ramene pas de force */
+  const c=$('teacherPass'); if(c) c.value='';
+  show('teacher'); loadSettingsIntoForm(); teacherTab('results');
+}
+function estEcranActif(nom){ const e=$('scr-'+nom); return !!e && e.classList.contains('on'); }
 function accueil(){ show('login'); renderLoginNames(); }
 function demarrer(){ if(entreeProfDemandee()) ouvrirEntreeProf(); else accueil(); }
 try{ window.addEventListener('hashchange',()=>{ if(entreeProfDemandee()) ouvrirEntreeProf(); }); }catch(e){}
 
-function quitToHome(){ currentEleve=null; fermerSession(); accueil(); }
+/* « Quitter » un niveau ne ferme PAS la session : il ramene a la page qui donne
+   les trois niveaux (decision de Turquet, aout 2026), et le professeur y passe
+   d'un niveau a l'autre sans retaper son mot de passe. C'est « Se deconnecter »,
+   sur cette page-la, qui ferme vraiment la session — et elle le dit.
+   Ce chemin part du TABLEAU DE BORD, donc de quelqu'un qui a deja donne le mot
+   de passe : aucun ecran d'eleve ne mene ici, et un controle l'exige. */
+function quitToHome(){ currentEleve=null; location.href='prof.html'; }
 function logout(){ currentEleve=null; fermerSession(); accueil(); }
 
 /* ---------- Connexion élève ---------- */
