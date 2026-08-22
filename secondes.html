@@ -1592,7 +1592,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=62;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=63;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2282,18 +2282,34 @@ function detacherQIA(){
   const pop=detacherFenetre(ov, carte, 'Poser une question à l’IA', 'fenQIA', 430, 560);
   if(pop) ov.classList.remove('on');
 }
+/* Ce qui, dans une fenêtre déplaçable, garde son propre geste. */
+const GESTE_PROPRE='button,a,input,select,textarea,math-field,[contenteditable],[role="button"]';
 function rendreDeplacable(carte, poignee){
   if(!carte || !poignee || poignee.__deplacable) return;
   poignee.__deplacable=true;
   poignee.style.cursor='move';
   poignee.style.touchAction='none';
+  /* Le glisser vit ICI et non dans la feuille de styles, parce que la poignée
+     n'est plus toujours l'en-tête : quand c'est la carte entière, sélectionner
+     du texte et la déplacer sont le même geste, et le navigateur ferait les
+     deux à la fois. Le texte du conseil n'est donc plus sélectionnable — c'est
+     le prix assumé de « déplacer en cliquant n'importe où ». */
+  poignee.style.userSelect='none';
+  poignee.style.webkitUserSelect='none';
   const EVT=window.PointerEvent
     ? { debut:['pointerdown'], bouge:['pointermove'], fin:['pointerup','pointercancel'] }
     : { debut:['mousedown','touchstart'], bouge:['mousemove','touchmove'], fin:['mouseup','touchend','touchcancel'] };
   const pointDe=function(e){ return (e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e; };
   const debut=function(e){
     if(e.button!==undefined && e.button!==0 && !e.touches) return;      /* clic gauche ou doigt uniquement */
-    if(e.target && e.target.closest && e.target.closest('button')) return;   /* ✕ / Fermer restent cliquables */
+    /* Tout ce qui se clique, se tape ou se choisit garde son geste. La poignée
+       est désormais parfois la CARTE ENTIÈRE — « déplacer en cliquant n'importe
+       où » —, et sans cette liste le premier bouton posé dans une fenêtre
+       deviendrait muet : il déplacerait la fenêtre au lieu d'agir, sans erreur
+       nulle part. On ne s'en remet donc pas au seul <button> : un lien dans un
+       rappel de cours, un champ de saisie, une liste, suffiraient à rouvrir le
+       trou. */
+    if(e.target && e.target.closest && e.target.closest(GESTE_PROPRE)) return;
     if(carte.ownerDocument!==document) return;                /* détachée : le système gère la fenêtre */
     const r=carte.getBoundingClientRect();
     carte.style.position='fixed';
@@ -2618,7 +2634,7 @@ function basculerRappel(){
    au modele pour relire son cours. */
 function ouvrirRappelSeul(){
   const m=$('conseilModal'); if(m) m.hidden=false;
-  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
+  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.conseil-card'));
   const corps=$('conseilBody'); if(corps) corps.innerHTML='';
   masquerRappel();
   const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
@@ -2628,7 +2644,7 @@ function demanderConseilModal(nombre, contexte){
   const m=$('conseilModal'); if(m) m.hidden=false;
   /* le CSS porte rend le voile traversant : sans ceci le panneau serait flottant
      ET immobile, et son curseur « move » promettrait un deplacement inexistant */
-  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.notes-head'));
+  if(m) rendreDeplacable(m.querySelector('.conseil-card'), m.querySelector('.conseil-card'));
   masquerRappel();
   const rr=$('conseilRappelRow'); if(rr) rr.hidden=!rappelDispo();
   lancerConseil(nombre, contexte, $('conseilBody'));
