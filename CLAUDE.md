@@ -331,6 +331,11 @@ rien, c'est la largeur qu'il faut reprendre.
 que l'inégalité, et demande de retrouver le reste : le dessin, l'écriture, la
 phrase « ouvert / fermé en … ». C'est le chemin du contrôle, et le plus dur des
 deux — un dessin se lit, une inégalité se traduit.
+C'est lui qui vient EN PREMIER dans le menu (décision de Turquet, août 2026) ;
+{intervalles} le suit. Les deux descriptions se renvoient l'une à l'autre par
+`{identifiant}`, jamais par un numéro écrit : un ordre qui change les renumérote
+tous les deux, et les renvois suivent le jour même. Les notes déjà obtenues,
+elles, ne bougent pas — elles portent l'IDENTIFIANT, pas le numéro.
 Le schéma s'y CHOISIT parmi quatre, et les quatre ne diffèrent que par leurs
 bornes : sur un intervalle borné, ce sont les quatre combinaisons de crochets sur
 les mêmes nombres ; sur une demi-droite, ce sont les deux SENS × les deux
