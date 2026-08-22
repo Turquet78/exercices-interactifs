@@ -4,23 +4,40 @@
      ==========================================================================
      Les trois pages du site sont indépendantes : trois fichiers, trois
      tableaux de bord, trois jeux de tables. Le professeur, lui, n'a qu'une
-     habitude — cette page l'envoie vers celui qu'il veut ouvrir.
+     habitude — cette page demande son mot de passe, puis l'envoie vers le
+     niveau qu'il veut ouvrir.
 
-     ELLE NE PROTÈGE RIEN, et il ne faut surtout pas le croire. Le mot de passe
-     du compte Supabase, plus l'appartenance à la table « professeurs »
-     revérifiée après la connexion, restent le seul verrou. Cette page ne
-     contient aucun secret : trois liens, et rien d'autre. Elle n'appelle même
-     pas Supabase.
+     LE MOT DE PASSE N'EST PAS DANS CETTE PAGE, et il ne faut surtout pas l'y
+     mettre : le dépôt est PUBLIC. C'est Supabase qui le vérifie, exactement
+     comme sur les trois pages — signInWithPassword, puis l'appartenance à la
+     table « professeurs » revérifiée après la connexion. Cette page ne
+     contient donc aucun secret : l'adresse du projet et la clé « anon » y
+     sont déjà publiques, elles vivent en clair dans les trois autres pages.
 
-     ELLE N'EST LIÉE DEPUIS AUCUNE PAGE D'ÉLÈVE, à dessein : le bouton
-     « Je suis le professeur » a été retiré exprès en août 2026, et un lien
-     posé ici ou là le remettrait sans que personne ne s'en aperçoive. Un
-     contrôle du banc l'interdit sur les trois fichiers.
+     CE QUE CETTE PORTE APPORTE : les trois liens ne s'affichent plus tant que
+     le mot de passe n'a pas été accepté. Un élève qui tombe sur l'adresse ne
+     voit plus les trois portes du tableau de bord. Ce n'est pas un verrou de
+     plus — c'est le MÊME verrou, posé un cran plus tôt.
+
+     LA SESSION EST PARTAGÉE AVEC LES TROIS PAGES : même domaine, même projet
+     Supabase, donc la connexion faite ici vaut là-bas. Cliquer un niveau ouvre
+     son tableau de bord directement, sans redemander le mot de passe ; et
+     « Quitter » un niveau ramène ici, les trois liens toujours ouverts. C'est
+     « Se déconnecter », sur cette page, qui ferme vraiment la session — un
+     poste partagé la garderait ouverte sinon.
+
+     ELLE N'EST LIÉE DEPUIS AUCUN ÉCRAN D'ÉLÈVE, à dessein : le bouton
+     « Je suis le professeur » a été retiré exprès en août 2026. Le seul
+     chemin qui revient ici part du TABLEAU DE BORD, c'est-à-dire d'une
+     personne qui a déjà donné le mot de passe. Un contrôle du banc l'exige
+     sur les trois fichiers.
 
      Le fragment « #prof » est celui qu'attendent les trois pages
      (ENTREE_PROF). S'il y changeait sans changer ici, les trois boutons
      ouvriraient la connexion des ÉLÈVES sans la moindre erreur : un contrôle
-     compare donc les deux, niveau par niveau.
+     compare donc les deux, niveau par niveau. Deux autres comparent l'adresse
+     du projet, la clé et le courriel du compte : écrits à un quatrième
+     endroit, ils dériveraient sans que rien ne le dise.
      ====================================================================== -->
 <html lang="fr">
 <head>
@@ -30,13 +47,19 @@
      recherche. Ce n'est pas une protection non plus — juste de l'hygiène. -->
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord — choisir le niveau</title>
+<script>
+  const SUPABASE_URL      = "https://rcxenttecucvcebjlmcw.supabase.co";   // ← identiques aux trois pages
+  const SUPABASE_ANON_KEY = "sb_publishable_lhXHUAI-GbOEEzZvrhk2gQ_QhS_5MMm";
+  const COURRIEL_PROF     = "professeur@exercices-interactifs.invalid";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#F7F6F1; --ink:#1E2A4A; --ink-soft:#5C668A;
-    --blue:#2B50C8; --green:#1FA971; --gold:#F2A93B;
+    --blue:#2B50C8; --green:#1FA971; --gold:#F2A93B; --rouge:#D14343;
     --line:#E6E3D8; --surface:#FFFFFF;
     --radius:20px;
     --shadow:0 14px 34px rgba(30,42,74,.10), 0 3px 10px rgba(30,42,74,.06);
@@ -60,13 +83,52 @@
   .niveau.n2:hover{border-color:var(--green)}
   .niveau.n3:hover{border-color:var(--gold)}
   .note{color:var(--ink-soft);font-size:.85rem;margin-top:18px;line-height:1.5}
+  .champ{display:block;margin:0 0 6px;font-size:.9rem;color:var(--ink-soft)}
+  .text-input{width:100%;max-width:340px;padding:12px 14px;border:2px solid var(--line);border-radius:14px;
+              font:inherit;color:inherit;background:#fff}
+  .text-input:focus{outline:none;border-color:var(--blue)}
+  .rang{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+  .btn{border:none;border-radius:14px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer;
+       background:var(--blue);color:#fff}
+  .btn:disabled{opacity:.6;cursor:default}
+  .btn-lien{background:none;border:none;color:var(--ink-soft);font:inherit;font-weight:700;
+            cursor:pointer;text-decoration:underline;padding:6px}
+  .erreur{color:var(--rouge);margin:12px 0 0;min-height:1.3em}
+  .horsecran{position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0}
+  [hidden]{display:none !important}
 </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+
+    <!-- ÉCRAN 1 — le mot de passe, avant tout le reste -->
+    <div class="card" id="carte-entree">
       <h1 class="title">Tableau de bord</h1>
-      <p class="lead">Choisis le niveau à ouvrir. Le mot de passe est le même pour les trois : celui du compte Supabase.</p>
+      <p class="lead">Ton mot de passe, puis tu choisis le niveau.</p>
+      <!-- Sans balise <form>, le gestionnaire de mots de passe de Chrome fouille
+           la page entière et se rabat sur le premier champ texte venu. Le champ
+           d'identité est hors écran mais RENDU : display:none le ferait ignorer,
+           et la fouille reprendrait. Et un <button> sans type explicite SOUMET
+           le formulaire qui l'entoure, donc recharge la page. -->
+      <form onsubmit="return false" autocomplete="on">
+        <input class="horsecran" id="profUser" type="text" name="username"
+               autocomplete="username" tabindex="-1" aria-hidden="true">
+        <label class="champ" for="profPass">Mot de passe du professeur</label>
+        <input class="text-input" id="profPass" type="password" name="password"
+               autocomplete="current-password">
+        <div class="rang">
+          <button type="button" class="btn" id="profEntrer" onclick="entrer()">Entrer</button>
+        </div>
+      </form>
+      <p class="erreur" id="profErreur" role="status"></p>
+      <p class="note">C'est le mot de passe du compte Supabase, le même que sur les trois
+        niveaux. Il n'est pas écrit dans cette page — c'est Supabase qui le vérifie.</p>
+    </div>
+
+    <!-- ÉCRAN 2 — les trois niveaux, une fois le mot de passe accepté -->
+    <div class="card" id="carte-niveaux" hidden>
+      <h1 class="title">Tableau de bord</h1>
+      <p class="lead">Choisis le niveau à ouvrir.</p>
       <div class="niveaux">
         <a class="niveau n1" href="secondes.html#prof">
           <span class="ic">📐</span>
@@ -84,8 +146,97 @@
           <span class="ds">Suivi, comptes, devoirs, cours en PDF.</span>
         </a>
       </div>
-      <p class="note">Cette page ne protège rien : elle ne fait que rassembler trois adresses. Le mot de passe du compte Supabase, revérifié par le serveur, reste le seul verrou — comme pour les élèves.</p>
+      <div class="rang">
+        <button type="button" class="btn-lien" onclick="seDeconnecter()">Se déconnecter</button>
+      </div>
+      <p class="note">Quitter un niveau ramène ici, sans redemander le mot de passe :
+        la connexion est la même pour les trois. C'est « Se déconnecter » qui la ferme —
+        pense à le faire sur un ordinateur partagé.</p>
     </div>
+
   </div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let sb = null;
+
+  /* Le client Supabase, comme sur les trois pages. La session vit dans le
+     stockage du navigateur, pour ce domaine : celle ouverte ici est celle que
+     secondes.html, premiere-specifique.html et terminale.html retrouveront. */
+  function initSupabase(){
+    try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+    catch(e){ sb = null; }
+    return !!sb;
+  }
+
+  /* Se connecter ne suffit pas — encore faut-il être inscrit comme professeur.
+     Les règles d'accès de la base s'appuient sur la même table : un compte qui
+     n'y figure pas ne verrait de toute façon rien de plus que ses propres notes.
+     Le contrôle est fait par le SERVEUR, ici comme sur les trois pages. */
+  async function estProfesseur(){
+    if(!sb) return false;
+    try{
+      const {data, error} = await sb.from('professeurs').select('user_id').maybeSingle();
+      return !error && !!data;
+    }catch(e){ return false; }
+  }
+
+  function montrerNiveaux(oui){
+    $('carte-entree').hidden = !!oui;
+    $('carte-niveaux').hidden = !oui;
+    if(!oui) setTimeout(() => { const c = $('profPass'); if(c) c.focus(); }, 60);
+  }
+  function dire(texte){ $('profErreur').textContent = texte || ''; }
+
+  async function entrer(){
+    const mdp = String($('profPass').value || '');
+    if(!mdp){ dire('Écris ton mot de passe.'); return; }
+    if(!sb && !initSupabase()){ dire('La base ne répond pas. Recharge la page.'); return; }
+    const bouton = $('profEntrer');
+    bouton.disabled = true; dire('');
+    try{
+      const {error} = await sb.auth.signInWithPassword({email: COURRIEL_PROF, password: mdp});
+      if(error){ $('profPass').value = ''; dire('Mot de passe incorrect.'); return; }
+      if(!(await estProfesseur())){
+        /* Si la déconnexion échoue, la session reste ouverte : le compte n'a pas
+           les droits du professeur, mais mieux vaut le dire que le taire. */
+        let sortie = null;
+        try{ sortie = (await sb.auth.signOut()).error; }catch(e){ sortie = e; }
+        $('profPass').value = '';
+        dire(sortie ? 'Ce compte n’est pas celui du professeur — recharge la page.'
+                    : 'Ce compte n’est pas celui du professeur.');
+        return;
+      }
+      $('profPass').value = '';
+      montrerNiveaux(true);
+    } finally { bouton.disabled = false; }
+  }
+
+  async function seDeconnecter(){
+    if(sb){ try{ await sb.auth.signOut(); }catch(e){} }
+    montrerNiveaux(false);
+    dire('');
+  }
+
+  /* Entrée valide aussi : sur un écran à un seul champ, c'est le geste attendu. */
+  try{
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Enter' && document.activeElement === $('profPass')){ e.preventDefault(); entrer(); }
+    });
+  }catch(e){}
+
+  /* Au chargement : si la session du professeur est déjà ouverte — parce qu'il
+     vient de quitter un niveau, ou qu'il a ouvert un autre onglet — on passe
+     directement aux trois niveaux. La vérification reste celle du serveur : une
+     session périmée ou un compte qui n'est pas professeur redemande le mot de passe. */
+  (async function demarrer(){
+    $('profUser').value = COURRIEL_PROF;
+    montrerNiveaux(false);
+    if(!initSupabase()) return;
+    let session = null;
+    try{ session = (await sb.auth.getSession()).data.session; }catch(e){ session = null; }
+    if(session && await estProfesseur()) montrerNiveaux(true);
+  })();
+</script>
 </body>
 </html>

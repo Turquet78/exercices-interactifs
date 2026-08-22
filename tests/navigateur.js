@@ -35,6 +35,10 @@ const RACINE = path.resolve(__dirname, '..');
    à 6 chiffres, et un banc qui l'aurait gardée en dur aurait continué à passer
    sans jamais éprouver la nouvelle. */
 let CODE_CONTROLE = '', CODE_FAUX = '';
+/* Le mot de passe du professeur d'essai : il ne vit que dans ce banc, et le
+   double le compare lui-même — comme le ferait Supabase. */
+const MDP_PROF = 'mot-de-passe-du-professeur-de-controle';
+const MDP_PROF_FAUX = 'ce-n-est-pas-le-bon';
 const CACHE = path.join(__dirname, '.cache');
 const ML_FICHIER = path.join(CACHE, 'mathlive-0.110.0.mjs');
 const ML_URL = 'https://cdn.jsdelivr.net/npm/mathlive@0.110.0/mathlive.min.mjs';
@@ -136,12 +140,21 @@ async function ouvrir(chromium, ml, options){
   if(!nChiffres) throw new Error('longueur du code introuvable dans ' + CIBLE);
   CODE_CONTROLE = '123456789'.slice(0, nChiffres);
   CODE_FAUX     = '987654321'.slice(0, nChiffres);
+  /* Le compte du professeur, et son inscription dans « professeurs » : la page
+     d'aiguillage demande le mot de passe AVANT de montrer les trois niveaux, et
+     les trois pages reprennent la session ouverte là-bas. Le courriel est LU
+     dans le fichier, jamais recopié — recopié, il aurait fini par diverger. */
+  const courrielProf = (source.match(/const COURRIEL_PROF\s*=\s*"([^"]+)"/) || [])[1];
+  if(!courrielProf) throw new Error('COURRIEL_PROF introuvable dans ' + CIBLE);
   await page.route('**/supabase-js**', r => r.fulfill({
     contentType: 'application/javascript',
     body: faux
       + '\nwindow.__faux.semer(' + JSON.stringify(P.tableEleves) + ',' + JSON.stringify([eleve]) + ');'
       + '\nwindow.__faux.semerCompte(' + JSON.stringify(eleve.cle + '@' + domaine) + ','
-        + JSON.stringify(prefixe + CODE_CONTROLE) + ',' + JSON.stringify(eleve.user_id) + ');',
+        + JSON.stringify(prefixe + CODE_CONTROLE) + ',' + JSON.stringify(eleve.user_id) + ');'
+      + '\nwindow.__faux.semerCompte(' + JSON.stringify(courrielProf) + ','
+        + JSON.stringify(MDP_PROF) + ',' + JSON.stringify('compte-prof-controle') + ');'
+      + '\nwindow.__faux.semer("professeurs",[{user_id:"compte-prof-controle"}]);',
   }));
 
   /* MathLive servi depuis le cache ; les polices restent au réseau (elles ne
@@ -302,23 +315,74 @@ async function parcours(page, N){
        connexion des élèves ne lèverait aucune erreur — il faut regarder où l'on
        tombe. */
     await q.page.goto('file://' + path.join(RACINE, 'prof.html'), { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await q.page.waitForTimeout(300);
+    await q.page.waitForTimeout(600);
     const lien = 'a[href="' + CIBLE + '#prof"]';
-    const existe = await q.page.evaluate(sel => !!document.querySelector(sel), lien);
-    if(!existe){
+    const profVisible = async () => q.page.evaluate(sel => {
+      const a = document.querySelector(sel);
+      if(!a) return null;
+      const r = a.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    }, lien);
+
+    /* Le bord qui compte : les trois portes ne s'ouvrent qu'APRÈS le mot de
+       passe. Livrées visibles, elles s'offriraient à qui tombe sur l'adresse,
+       et rien ne rougirait nulle part. */
+    const profAvant = await profVisible();
+    verifier('avant le mot de passe, la page d\'aiguillage ne montre aucun niveau',
+      profAvant === false, profAvant === null ? 'aucun lien « ' + lien +' » dans prof.html'
+                                      : 'le lien du niveau est déjà visible');
+
+    /* et un mauvais mot de passe ne les ouvre pas non plus */
+    await q.page.fill('#profPass', MDP_PROF_FAUX);
+    await q.page.click('#profEntrer');
+    await q.page.waitForTimeout(700);
+    const profApresFaux = await profVisible();
+    const profDit = await q.page.evaluate(() => (document.getElementById('profErreur') || {}).textContent || '');
+    verifier('un mauvais mot de passe est refusé, et la page le dit',
+      profApresFaux === false && profDit.trim() !== '', 'message affiché : « ' + profDit.trim() + ' »');
+
+    await q.page.fill('#profPass', MDP_PROF);
+    await q.page.click('#profEntrer');
+    await q.page.waitForTimeout(900);
+    const profApresBon = await profVisible();
+    verifier('le bon mot de passe ouvre les trois niveaux', profApresBon === true,
+      'le lien du niveau reste caché après un mot de passe accepté');
+
+    if(profApresBon !== true){
       verifier('la page d\'aiguillage mène au tableau de bord de ce niveau', false,
-        'aucun lien « ' + lien + ' » dans prof.html');
+        'les niveaux ne se sont pas affichés : rien à cliquer');
     } else {
       await q.page.click(lien);
-      await q.page.waitForTimeout(1500);
+      await q.page.waitForTimeout(2500);
       const arrivee = await q.page.evaluate(() => ({
         fichier: location.pathname.split('/').pop(),
         ecran: ((document.querySelector('.screen.on') || {}).id) || '(aucun)',
       }));
+      /* La session est partagée : le professeur ne redonne pas son mot de
+         passe en arrivant. Un lien juste sur le papier qui atterrirait sur la
+         connexion des ÉLÈVES ne lèverait aucune erreur — il faut regarder où
+         l'on tombe. */
       verifier('la page d\'aiguillage mène au tableau de bord de ce niveau',
-        arrivee.fichier === CIBLE && arrivee.ecran === 'scr-teacher-login',
+        arrivee.fichier === CIBLE && arrivee.ecran === 'scr-teacher',
         'atterrissage : ' + arrivee.fichier + ' / ' + arrivee.ecran);
+
+      /* et « Quitter » ramène à la page des trois niveaux, toujours ouverte */
+      if(arrivee.ecran === 'scr-teacher'){
+        await q.page.click('#scr-teacher .topbar button');
+        await q.page.waitForTimeout(2000);
+        const profRetour = await q.page.evaluate(() => ({
+          fichier: location.pathname.split('/').pop(),
+          carte: !((document.getElementById('carte-niveaux') || {}).hidden !== false),
+        }));
+        verifier('« Quitter » un niveau ramène à la page des trois niveaux',
+          profRetour.fichier === 'prof.html', 'atterrissage : ' + profRetour.fichier);
+        verifier('le retour ne redemande pas le mot de passe',
+          profRetour.fichier === 'prof.html' && profRetour.carte === true,
+          'la page d\'aiguillage redemande le mot de passe après « Quitter »');
+      }
     }
+    verifier('la page d\'aiguillage ne lève aucune erreur JavaScript',
+      q.erreurs.length === 0, q.erreurs.slice(0, 2).join(' | '));
     await q.nav.close();
 
     /* ===== 2. MathLive, pour de vrai ===== */
@@ -1320,6 +1384,111 @@ async function parcours(page, N){
       verifier('signaler n\'enregistre aucune note', aucuneNote === 0, aucuneNote + ' note(s) écrite(s)');
 
       verifier('signaler n\'a levé aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0,2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 undecies. un résidu invisible ne rend pas fausse une réponse juste ===== */
+    /* Le pire défaut possible pour un exercice : compter faux un élève qui a raison.
+       Il apprend l'inverse de ce qu'on lui enseigne, et rien ne rougit nulle part.
+       Un élève de Terminale l'a signalé en août 2026 sur le 2.1 : sa copie était
+       juste d'un bout à l'autre, « 2 » et « 4x » étaient rouges, « 4 » vert, note
+       10 cases sur 12. Les deux cases fautives portaient un exposant VIDE — « 2^{} » —
+       laissé par une touche effleurée. À l'écran il n'y a rien à voir : MathLive
+       n'affiche pas un exposant vide. Seul l'évaluateur le voit, et il refuse.
+       Le lecteur du niveau est le seul endroit où ce résidu peut être arrêté ;
+       c'est donc lui que ce contrôle éprouve, sur un vrai <math-field>. */
+    titre('6 undecies. UN RÉSIDU INVISIBLE NE REND PAS FAUSSE UNE RÉPONSE JUSTE');
+    if(!P.residuMathlive){
+      ignorer('les résidus de fin de saisie sont ignorés à la lecture',
+        'ce niveau ne déclare pas de lecteur de case mathématique');
+    } else if(!ml){
+      ignorer('les résidus de fin de saisie sont ignorés à la lecture',
+        'MathLive absent : un <math-field> ne s\'enregistre pas');
+    } else {
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      /* Les cinq formes de résidu, telles que MathLive les laisse. Chacune est
+         INVISIBLE : la case affiche « 2 », et c'est bien « 2 » qu'il faut lire. */
+      const RESIDUS = ['^{}', '^{\\placeholder{}}', '\\times', '+', '\\,'];
+      const lu = await s.page.evaluate(([lire, residus]) => {
+        const fn = eval(lire);
+        const hote = document.createElement('div');
+        hote.style.cssText = 'position:fixed;left:-9999px;top:0';
+        hote.innerHTML = '<math-field id="ctrl-residu"></math-field>';
+        document.body.appendChild(hote);
+        const mf = hote.firstChild;
+        const essai = v => { mf.setValue(v); return String(fn('ctrl-residu')); };
+        const out = { propre: essai('2'), avec: residus.map(r => [r, essai('2' + r)]),
+                      signe: essai('+'), vide: essai('') };
+        hote.remove();
+        return out;
+      }, [P.residuMathlive.lire, RESIDUS]);
+      verifier('une case propre se lit telle quelle', lu.propre === '2', 'lu « ' + lu.propre +' »');
+      for(const [r, v] of lu.avec){
+        verifier('le résidu « ' + r + ' » est ignoré : la case vaut toujours 2',
+          v === '2', 'lu « ' + v + ' »');
+      }
+      /* le bord opposé, et il compte autant : un signe SEUL n'est pas un résidu.
+         Dans une case de coefficient, « + » vaut +1 — le nettoyer viderait la case
+         et changerait la réponse de l'élève. */
+      verifier('un signe seul n\'est pas nettoyé (« + » = coefficient +1)',
+        lu.signe === '+', 'lu « ' + lu.signe + ' »');
+      verifier('une case vide se lit vide', lu.vide === '', 'lu « ' + lu.vide + ' »');
+
+      /* et la copie de l'élève, jouée de bout en bout */
+      const C = P.residuMathlive.copie;
+      if(!C){
+        ignorer('la copie signalée est comptée juste malgré les résidus',
+          'ce niveau ne déclare pas de copie à rejouer');
+      } else {
+        let largeursPropres = null;
+        for(const avecResidu of [false, true]){
+          const quoi = avecResidu ? 'avec les résidus de l\'élève' : 'sans résidu (contrôle du contrôle)';
+          await s.page.evaluate(id => openTest(id), C.exercice);
+          await s.page.waitForTimeout(400);
+          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.waitForTimeout(1100);
+          await s.page.evaluate(q => { (new Function(q))(); }, C.question);
+          await s.page.waitForTimeout(700);
+          const rendu = await s.page.evaluate(([cases, residus, avec]) => {
+            Object.keys(cases).forEach(id => {
+              const el = document.getElementById(id); if(!el) return;
+              const sup = (avec && residus.includes(id)) ? '^{}' : '';
+              el.setValue(cases[id] + sup);
+            });
+            /* ce que l'élève VOIT doit être le même dans les deux passes :
+               un résidu qui se verrait ne serait pas ce défaut-là */
+            return residus.map(id => {
+              const el = document.getElementById(id);
+              return el ? Math.round(el.getBoundingClientRect().width) : 0;
+            });
+          }, [C.cases, C.residus, avecResidu]);
+          await s.page.waitForTimeout(500);
+          await s.page.click(C.valider);
+          await s.page.waitForTimeout(700);
+          const etat = await s.page.evaluate(cases => {
+            const ids = Object.keys(cases);
+            const rouges = ids.filter(id => { const el = document.getElementById(id);
+              return el && el.classList.contains('bad'); });
+            const verts = ids.filter(id => { const el = document.getElementById(id);
+              return el && el.classList.contains('ok'); });
+            const f = document.getElementById('dexpFeedback');
+            return { rouges, verts, total: ids.length, retour: f ? f.textContent.trim().slice(0, 60) : '' };
+          }, C.cases);
+          verifier('la copie de l\'élève est comptée juste — ' + quoi,
+            etat.rouges.length === 0 && etat.verts.length === etat.total,
+            etat.verts.length + '/' + etat.total + ' cases vertes'
+              + (etat.rouges.length ? ', rouges : ' + etat.rouges.join(', ') : '')
+              + ' — « ' + etat.retour + ' »');
+          if(avecResidu){
+            verifier('le résidu ne se voit pas à l\'écran (largeur des cases inchangée)',
+              !!largeursPropres && rendu.every((w, i) => Math.abs(w - largeursPropres[i]) <= 2),
+              'largeurs ' + rendu.join('/') + ' contre ' + (largeursPropres || []).join('/'));
+          } else { largeursPropres = rendu; }
+        }
+      }
+      verifier('lire une case ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
 

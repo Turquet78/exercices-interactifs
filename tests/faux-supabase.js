@@ -36,7 +36,23 @@ window.__faux = {
      lui-même, comme le ferait Supabase — un mauvais code doit être refusé ICI,
      pas dans la page. */
   comptes: {},
+  /* La session, comme chez Supabase, SURVIT au changement de page : le vrai
+     client la range dans le stockage du navigateur, et c'est ce qui fait
+     qu'une connexion prise sur prof.html vaut encore sur terminale.html.
+     Gardée en mémoire seulement, elle disparaissait à chaque navigation et
+     aucun contrôle ne pouvait éprouver ce partage. */
+  CLE_SESSION: 'faux-supabase.session',
   session: null,
+  chargerSession(){
+    try{ const t=window.localStorage.getItem(this.CLE_SESSION);
+         this.session = t ? JSON.parse(t) : null; }catch(e){ this.session = null; }
+    return this.session;
+  },
+  poserSession(s){
+    this.session = s;
+    try{ if(s) window.localStorage.setItem(this.CLE_SESSION, JSON.stringify(s));
+         else window.localStorage.removeItem(this.CLE_SESSION); }catch(e){}
+  },
   /* Le stockage : bucket -> chemin -> { taille, type }. Aucun octet n'est
      gardé — les contrôles ne lisent jamais le contenu d'un PDF, seulement
      ce que la page a déposé, retiré et demandé. */
@@ -57,6 +73,7 @@ window.__faux = {
 window.supabase = {
   createClient(){
     const F = window.__faux;
+    F.chargerSession();
 
     function colonnesDe(demandees){
       return (demandees && String(demandees).trim() !== '*')
@@ -176,8 +193,8 @@ window.supabase = {
           F.journal.push({ op: 'signIn', table: 'auth', courriel: courriel, ok: ok });
           if(!ok) return Promise.resolve({ data: { user: null, session: null },
                                            error: { message: 'Invalid login credentials' } });
-          F.session = { user: { id: c.userId, email: courriel,
-                                app_metadata: c.app_metadata || {} } };
+          F.poserSession({ user: { id: c.userId, email: courriel,
+                                   app_metadata: c.app_metadata || {} } });
           return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
         },
         signUp(id){
@@ -189,7 +206,7 @@ window.supabase = {
           }
           const userId = F.semerCompte(courriel, mdp);
           F.journal.push({ op: 'signUp', table: 'auth', courriel: courriel, ok: true });
-          F.session = { user: { id: userId, email: courriel, app_metadata: {} } };
+          F.poserSession({ user: { id: userId, email: courriel, app_metadata: {} } });
           return Promise.resolve({ data: { user: F.session.user, session: F.session }, error: null });
         },
         /* Un compte connecté change SON mot de passe, et rien d'autre : le
@@ -206,7 +223,7 @@ window.supabase = {
         },
         signOut(){
           F.journal.push({ op: 'signOut', table: 'auth' });
-          F.session = null;
+          F.poserSession(null);
           return Promise.resolve({ error: null });
         },
         getUser(){ return Promise.resolve({ data: { user: F.session ? F.session.user : null }, error: null }); },

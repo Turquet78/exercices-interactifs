@@ -590,16 +590,24 @@ function structure(){
     restes.length === 0, 'ligne(s) ' + restes.join(', ') + ' — show() y figerait la navigation');
 
   /* ---- La page d'aiguillage du professeur -------------------------------
-     prof.html rassemble les trois niveaux derrière un seul favori. Elle ne
-     contient aucun secret et ne protège rien : trois liens, et c'est tout.
-     Mais elle vit à côté des trois pages, sans que rien ne l'y relie — d'où
-     deux bords.
+     prof.html rassemble les trois niveaux derrière un seul favori. Elle demande
+     le mot de passe AVANT de montrer les trois portes (décision de Turquet,
+     août 2026) — le même mot de passe, vérifié par le même serveur : ce n'est
+     pas un verrou de plus, c'est le même, posé un cran plus tôt.
+     Elle vit à côté des trois pages sans que rien ne l'y relie, d'où quatre
+     bords.
        · le fragment qu'elle pose doit être celui que CETTE page attend. S'ils
          divergeaient, le bouton ouvrirait la connexion des ÉLÈVES, sans la
          moindre erreur nulle part ;
-       · et aucune page d'élève ne doit renvoyer vers elle : ce serait remettre
-         le bouton « Je suis le professeur » retiré à dessein, par un autre
-         chemin. */
+       · l'adresse du projet, la clé publique et le courriel du compte y sont
+         écrits une QUATRIÈME fois. Divergents, la page d'aiguillage
+         refuserait le bon mot de passe — ou pire, ouvrirait une session sur un
+         autre projet — sans rien dire ;
+       · le retour vers elle ne part que du TABLEAU DE BORD, jamais d'un écran
+         d'élève : un lien posé ailleurs remettrait le bouton « Je suis le
+         professeur » retiré à dessein, par un autre chemin ;
+       · et ce retour ne doit pas fermer la session au passage, sinon la page
+         redemande le mot de passe à chaque changement de niveau. */
   let aiguillage;
   try{ aiguillage = fs.readFileSync(path.join(__dirname, '..', 'prof.html'), 'utf8'); }
   catch(e){ aiguillage = undefined; }
@@ -607,8 +615,56 @@ function structure(){
     !!aiguillage && !!fragment && aiguillage.includes('href="' + CIBLE + fragment + '"'),
     aiguillage === undefined ? 'prof.html est introuvable'
       : 'prof.html ne contient pas href="' + CIBLE + (fragment || '(fragment inconnu)') + '"');
-  verifier('la page d’aiguillage n’est jamais atteignable depuis la page des élèves',
-    !/prof\.html/.test(s), 'un lien vers prof.html remettrait la porte du professeur sous les yeux de la classe');
+
+  /* Les trois valeurs de configuration, comparées à celles de CETTE page. */
+  const lireConst = (texte, nom) => {
+    const m = (texte || '').match(new RegExp('const\\s+' + nom + '\\s*=\\s*"([^"]*)"'));
+    return m ? m[1] : null;
+  };
+  for(const nom of ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'COURRIEL_PROF']){
+    const ici = lireConst(s, nom), la = lireConst(aiguillage, nom);
+    verifier('prof.html porte le même ' + nom + ' que cette page',
+      !!ici && ici === la,
+      'ici ' + JSON.stringify(ici) + ', dans prof.html ' + JSON.stringify(la));
+  }
+
+  /* prof.html ne montre les trois niveaux qu'APRÈS le mot de passe : la carte
+     qui les porte est cachée dans le fichier servi. Une carte livrée visible
+     s'ouvrirait à qui tombe sur l'adresse — et rien ne rougirait. */
+  verifier('prof.html livre ses trois niveaux cachés, derrière le mot de passe',
+    !!aiguillage && /id="carte-niveaux"[^>]*\shidden/.test(aiguillage),
+    'la carte des trois niveaux doit porter « hidden » dans le fichier servi');
+  verifier('prof.html fait vérifier le mot de passe par le serveur',
+    !!aiguillage && /sb\.auth\.signInWithPassword/.test(aiguillage)
+      && /from\('professeurs'\)/.test(aiguillage),
+    'la page d’aiguillage doit demander son avis à Supabase, pas à elle-même');
+  /* Le dépôt est PUBLIC : un mot de passe écrit dans cette page serait lisible
+     par n'importe qui, et « Afficher la source » rouvrirait le tableau de bord.
+     Deux formes possibles — une constante qui le porte, ou une comparaison faite
+     dans la page. Aucune des deux n'a le droit d'exister. */
+  const motEnDur = !!aiguillage && (
+        /const\s+[A-Z_]*(MOT_DE_PASSE|CODE_ACCES|CODE_PROF|MOTDEPASSE)[A-Z_]*\s*=/.test(aiguillage)
+     || /(mdp|motdepasse|pass|code)\s*===?\s*['"]/i.test(aiguillage));
+  verifier('prof.html ne contient aucun mot de passe',
+    !!aiguillage && !motEnDur,
+    'le dépôt est public : un mot de passe écrit là serait lisible par tout le monde');
+
+  /* Le retour vers prof.html : uniquement depuis le tableau de bord. */
+  const qth = toutesFonctions.find(f => f.nom === 'quitToHome');
+  const dansQuit = !!qth && /prof\.html/.test(qth.texte);
+  const finQuit = qth ? qth.debut + qth.texte.length : -1;
+  /* On ne cherche que les prof.html ENTRE GUILLEMETS : une adresse qu'on suit,
+     pas un commentaire qui la nomme. */
+  const horsQuit = [...s.matchAll(/(['"`])[^'"`\n]*prof\.html[^'"`\n]*\1/g)]
+    .filter(m => !(qth && m.index >= qth.debut && m.index < finQuit))
+    .map(m => ligneDe(m.index));
+  verifier('seul « Quitter » du tableau de bord ramène à la page d’aiguillage',
+    dansQuit && horsQuit.length === 0,
+    !dansQuit ? 'quitToHome ne ramène pas à prof.html'
+              : 'ligne(s) ' + horsQuit.join(', ') + ' — un élève ne doit jamais y être conduit');
+  verifier('« Quitter » ne ferme pas la session : le professeur change de niveau sans retaper',
+    !!qth && !/fermerSession|signOut/.test(qth.texte),
+    'quitToHome referme la session — prof.html redemanderait le mot de passe à chaque niveau');
   const tl = toutesFonctions.find(f => f.nom === 'teacherLogin');
   verifier('la connexion du professeur est vérifiée par le serveur',
     !!tl && /sb\.auth\.signInWithPassword/.test(tl.texte),
