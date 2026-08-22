@@ -367,6 +367,13 @@
   .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
   .mp-tag.ok{background:var(--green)}.mp-tag.bad{background:var(--red)}
   .mp-fix{position:absolute;bottom:-15px;left:0;right:0;text-align:center;font-family:"Fredoka";font-weight:600;font-size:.8rem;color:var(--green)}
+  /* Le numéro et le nom de l'exercice, en tête de son écran. Repris à
+     l'identique de la Terminale et de la Première : trois pages qui montrent la
+     même chose de trois façons différentes finissent par se contredire, et
+     l'élève qui passe de l'une à l'autre ne s'y retrouve plus. */
+  .exo-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 14px;font-family:"Fredoka"}
+  .exo-title .exo-num{font-weight:700;color:#fff;background:var(--blue);border-radius:999px;padding:3px 12px;font-size:.95rem;line-height:1.35}
+  .exo-title .exo-name{font-weight:600;color:var(--ink);font-size:1.12rem}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
   .set-h{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:20px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
@@ -1463,7 +1470,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=57;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=58;                       /* numero de version affiche dans l'en-tete */
 function pmPlain(el){
   try{
     if(window.mlDexp && window.mlDexp.toPlain) return String(window.mlDexp.toPlain(el.getValue?el.getValue():'')||'').trim();
@@ -2942,6 +2949,21 @@ function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq'];
+  /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
+     partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
+     résultats, dans le signalement —, mais PAS là où l'élève passe son temps.
+     La Première et la Terminale le posent ici depuis toujours ; la Seconde,
+     portée depuis la Terminale, n'avait jamais reçu ce morceau.
+     Le numéro n'est écrit nulle part : il se déduit de la position dans THEMES,
+     et testNum() le relit à chaque affichage — une réorganisation le suit donc
+     toute seule. */
+  if(testScreens.includes(name)){
+    const sec=$('scr-'+name);
+    let t=sec.querySelector('.exo-title');
+    if(!t){ t=document.createElement('div'); t.className='exo-title'; sec.insertBefore(t, sec.firstChild); }
+    const num=testNum(currentTestId);
+    t.innerHTML=(num?'<span class="exo-num">'+esc(num)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>';
+  }
   /* La barre suit désormais deux règles différentes. Pause et abandon restent
      réservés à l'entraînement et au soutien — ils n'ont pas de sens en
      évaluation. « Signaler » doit au contraire y être : c'est justement en
