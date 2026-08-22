@@ -761,7 +761,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    reste serré. Un navigateur qui ne connaîtrait pas « :has » retombe sur le
    petit écart, pas sur la superposition. */
 #sfHost .sf-haut{gap:14px}
+/* La place n'est prise que LÀ OÙ une correction existe : l'écran de l'élève qui
+   travaille reste serré. Depuis que les trois étapes tiennent sur UNE ligne, ce
+   qui suit une case n'est plus du vide mais le « + » ou le « = » de la chaîne :
+   il faut donc réserver au niveau du GROUPE (la fraction entière), et pas
+   seulement entre les deux numérateurs. Posée sur la case, la marge élargirait
+   le trait de fraction au lieu d'écarter le voisin. */
 #sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
+#sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:52px}
 #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px}
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
@@ -1545,7 +1552,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=142;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=143;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7007,37 +7014,48 @@ function renderSFTest(){
      à elle, d'où le badge se pose à côté sans rien déplacer. */
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const frac=(n,d)=>'<span class="f-frac-input">'+mf(n,'f-num','numérateur')+'<span class="f-fbar"></span>'+mf(d,'f-den','dénominateur')+'</span>';
-  /* Un entier passe d'abord par « n = n/1 » : c'est donné, pas demandé. */
-  const depart=(n,d)=> (d===1)
-    ? '<span class="f-whole">'+n+'</span><span class="f-eq">=</span><span class="f-frac">'+sfFracInner(String(n),'1')+'</span>'
+  /* LES TROIS ÉTAPES SONT UNE SEULE ÉGALITÉ, et elles s'écrivent donc sur une
+     seule ligne — c'est la chaîne du cahier (décision de Turquet, août 2026).
+     Empilées en trois blocs, elles se lisaient comme trois calculs séparés,
+     alors que c'est le même, poursuivi. */
+  const terme=(n,d)=> (d===1)
+    ? '<span class="f-whole">'+n+'</span>'
     : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
-  /* Une ligne de l'étape ① : le terme de départ, puis la même fraction dont le
-     numérateur et le dénominateur sont chacun multipliés par une case. */
-  const ligne1=(n,d,a,b)=>
-    '<div class="pt-row">'+depart(n,d)+'<span class="f-eq">=</span>'
-     +'<span class="f-frac-input sf-prod">'
+  const surUn=(n,d)=> '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
+  const op='<span class="f-times">'+q.op+'</span>';
+  const eq='<span class="f-eq">=</span>';
+  /* Le terme de départ, puis la même fraction dont le numérateur et le
+     dénominateur sont chacun multipliés par une case. */
+  const produit=(n,d,a,b)=>
+    '<span class="f-frac-input sf-prod">'
        +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'
        +mf(a,'f-num','multiplicateur du numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'
        +mf(b,'f-den','multiplicateur du dénominateur')+'</span>'
-     +'</span></div>';
+     +'</span>';
+  /* Un entier passe d'abord par « 3 = 3/1 » : c'est donné, pas demandé. Dans
+     une chaîne, ce passage devient un MAILLON — « 3 + 1/2 = 3/1 + 1/2 = … » —
+     et non une égalité posée à côté : écrire « 3 = 3/1 » au milieu d'une somme
+     dirait que 3 vaut la somme entière. Quand aucun des deux termes n'est
+     entier, ce maillon ne dirait rien de plus et disparaît. */
+  const versFraction = (q.d1===1 || q.d2===1);
   $('sfHost').innerHTML=
-    '<div class="pt-step"><div class="pt-lab">① Mettre les deux au même dénominateur</div>'
-     +ligne1(q.n1, q.d1, 'sf-a1', 'sf-b1')
-     +ligne1(q.n2, q.d2, 'sf-a2', 'sf-b2')
-     +'</div>'
-   +'<div class="pt-step"><div class="pt-lab">② Écrire la '+(q.op==='+'?'somme':'différence')+' sur ce dénominateur</div>'
-     +'<div class="pt-row"><span class="f-eq">=</span>'
+    '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur&nbsp;· ② écrire la '
+      +(q.op==='+'?'somme':'différence')+' sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
+     +'<div class="pt-row">'
+       +terme(q.n1,q.d1)+op+terme(q.n2,q.d2)
+       +(versFraction ? (eq+surUn(q.n1,q.d1)+op+surUn(q.n2,q.d2)) : '')
+       +eq+produit(q.n1,q.d1,'sf-a1','sf-b1')+op+produit(q.n2,q.d2,'sf-a2','sf-b2')
+       +eq
        +'<span class="f-frac-input sf-somme">'
        +'<span class="sf-haut">'+mf('sf-num1','f-num','premier numérateur')
        +'<span class="f-times">'+q.op+'</span>'
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +mf('sf-den','f-den','dénominateur commun')+'</span>'
-     +'</div></div>'
-   +'<div class="pt-step"><div class="pt-lab">③ La fraction finale</div>'
-     +'<div class="pt-row"><span class="f-eq">=</span>'+frac('sf-fn','sf-fd')+'</div></div>';
+       +eq+frac('sf-fn','sf-fd')
+     +'</div></div>';
   const order=sfCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });

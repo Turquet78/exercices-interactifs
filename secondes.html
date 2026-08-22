@@ -60,6 +60,11 @@
     -webkit-font-smoothing:antialiased; min-height:100dvh; line-height:1.5;
   }
   .wrap{max-width:780px;margin:0 auto;padding:26px 20px 60px}
+  /* L'écran d'un exercice prend toute la largeur, comme en Première : une
+     colonne de 780 px replie les enchaînements d'égalités que l'élève doit
+     lire d'un trait. La classe est posée par show(), sur les seuls écrans
+     d'exercice — le menu, lui, garde sa colonne. */
+  body.plein-ecran .wrap{max-width:none;}
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -494,7 +499,14 @@
    reste serré. Un navigateur qui ne connaîtrait pas « :has » retombe sur le
    petit écart, pas sur la superposition. */
 #sfHost .sf-haut{gap:14px}
+/* La place n'est prise que LÀ OÙ une correction existe : l'écran de l'élève qui
+   travaille reste serré. Depuis que les trois étapes tiennent sur UNE ligne, ce
+   qui suit une case n'est plus du vide mais le « + » ou le « = » de la chaîne :
+   il faut donc réserver au niveau du GROUPE (la fraction entière), et pas
+   seulement entre les deux numérateurs. Posée sur la case, la marge élargirait
+   le trait de fraction au lieu d'écarter le voisin. */
 #sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
+#sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:52px}
 #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px}
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
@@ -1596,7 +1608,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=66;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=67;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3188,6 +3200,7 @@ function show(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
   const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','plc'];
+  document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
      partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
      résultats, dans le signalement —, mais PAS là où l'élève passe son temps.
@@ -4813,13 +4826,12 @@ function renderPTest(){
   $('pActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkPAnswer()">Vérifier</button>';
   $('pPrompt').innerHTML=`Prendre <b>${q.P}%</b> de <b>${q.N} ${esc(q.unit)}</b>, c'est calculer :`;
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  /* Les trois étapes sont UNE SEULE égalité, et elles s'écrivent sur une seule
+     ligne, comme en Première : un enchaînement d'égalités coupé en trois blocs
+     empilés se lit comme trois calculs séparés, alors que c'est le même. */
   $('pHost').innerHTML=
-    `<div class="pt-step"><div class="pt-lab">① Transformer le % en fraction décimale</div>
-       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span></div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('p2n','p2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">③ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">① le % en fraction décimale&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('p2n','p2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -4943,16 +4955,18 @@ function renderATest(){
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
   const aPosed=buildPose(stripZ(q.coef),stripZ(q.N),'aMul');
   $('aHost').innerHTML=
+    /* Les étapes ②, ③ et ④ sont UNE SEULE égalité — coefficient × valeur, puis
+       le produit des fractions, puis l'écriture décimale — et elles s'écrivent
+       donc sur une seule ligne, comme en Première. Empilées, elles se lisaient
+       comme trois calculs sans rapport.
+       La pose facultative passe EN DERNIER et devient ⑤ : elle interrompait la
+       chaîne au milieu, entre le « × valeur » et son résultat. */
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
        <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
-    `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
-       <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('a4n','a4d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('a4n','a4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`;
   const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('a1n'),$('a1d'),$('a1dec'),$('a2n'),$('a2d'),$('a3n'),$('a3d'),$('a3v'),...posedIns,$('a4n'),$('a4d'),$('a5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;                  // visible et modifiable
@@ -5120,16 +5134,18 @@ function renderDTest(){
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
   const dPosed=buildPose(stripZ(q.coef),stripZ(q.N),'dMul');
   $('dHost').innerHTML=
+    /* Les étapes ②, ③ et ④ sont UNE SEULE égalité — coefficient × valeur, puis
+       le produit des fractions, puis l'écriture décimale — et elles s'écrivent
+       donc sur une seule ligne, comme en Première. Empilées, elles se lisaient
+       comme trois calculs sans rapport.
+       La pose facultative passe EN DERNIER et devient ⑤ : elle interrompait la
+       chaîne au milieu, entre le « × valeur » et son résultat. */
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
        <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">② Écris l'opération : coefficient × valeur de départ</div>
-       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field></div></div>`+
-    `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">③ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
-       <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">④ Multiplier les fractions</div>
-       <div class="pt-row"><span class="f-eq">=</span>${frac('d4n','d4d')}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">⑤ Écrire le résultat sous forme décimale</div>
-       <div class="pt-row"><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+    `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('d4n','d4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
+       <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`;
   const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('d1n'),$('d1d'),$('d1dec'),$('d2n'),$('d2d'),$('d3n'),$('d3d'),$('d3v'),...posedIns,$('d4n'),$('d4d'),$('d5')];
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
@@ -5719,37 +5735,48 @@ function renderSFTest(){
      à elle, d'où le badge se pose à côté sans rien déplacer. */
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const frac=(n,d)=>'<span class="f-frac-input">'+mf(n,'f-num','numérateur')+'<span class="f-fbar"></span>'+mf(d,'f-den','dénominateur')+'</span>';
-  /* Un entier passe d'abord par « n = n/1 » : c'est donné, pas demandé. */
-  const depart=(n,d)=> (d===1)
-    ? '<span class="f-whole">'+n+'</span><span class="f-eq">=</span><span class="f-frac">'+sfFracInner(String(n),'1')+'</span>'
+  /* LES TROIS ÉTAPES SONT UNE SEULE ÉGALITÉ, et elles s'écrivent donc sur une
+     seule ligne — c'est la chaîne du cahier (décision de Turquet, août 2026).
+     Empilées en trois blocs, elles se lisaient comme trois calculs séparés,
+     alors que c'est le même, poursuivi. */
+  const terme=(n,d)=> (d===1)
+    ? '<span class="f-whole">'+n+'</span>'
     : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
-  /* Une ligne de l'étape ① : le terme de départ, puis la même fraction dont le
-     numérateur et le dénominateur sont chacun multipliés par une case. */
-  const ligne1=(n,d,a,b)=>
-    '<div class="pt-row">'+depart(n,d)+'<span class="f-eq">=</span>'
-     +'<span class="f-frac-input sf-prod">'
+  const surUn=(n,d)=> '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
+  const op='<span class="f-times">'+q.op+'</span>';
+  const eq='<span class="f-eq">=</span>';
+  /* Le terme de départ, puis la même fraction dont le numérateur et le
+     dénominateur sont chacun multipliés par une case. */
+  const produit=(n,d,a,b)=>
+    '<span class="f-frac-input sf-prod">'
        +'<span class="sf-l"><span class="f-whole">'+n+'</span><span class="f-times">×</span>'
        +mf(a,'f-num','multiplicateur du numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +'<span class="sf-l"><span class="f-whole">'+d+'</span><span class="f-times">×</span>'
        +mf(b,'f-den','multiplicateur du dénominateur')+'</span>'
-     +'</span></div>';
+     +'</span>';
+  /* Un entier passe d'abord par « 3 = 3/1 » : c'est donné, pas demandé. Dans
+     une chaîne, ce passage devient un MAILLON — « 3 + 1/2 = 3/1 + 1/2 = … » —
+     et non une égalité posée à côté : écrire « 3 = 3/1 » au milieu d'une somme
+     dirait que 3 vaut la somme entière. Quand aucun des deux termes n'est
+     entier, ce maillon ne dirait rien de plus et disparaît. */
+  const versFraction = (q.d1===1 || q.d2===1);
   $('sfHost').innerHTML=
-    '<div class="pt-step"><div class="pt-lab">① Mettre les deux au même dénominateur</div>'
-     +ligne1(q.n1, q.d1, 'sf-a1', 'sf-b1')
-     +ligne1(q.n2, q.d2, 'sf-a2', 'sf-b2')
-     +'</div>'
-   +'<div class="pt-step"><div class="pt-lab">② Écrire la '+(q.op==='+'?'somme':'différence')+' sur ce dénominateur</div>'
-     +'<div class="pt-row"><span class="f-eq">=</span>'
+    '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur&nbsp;· ② écrire la '
+      +(q.op==='+'?'somme':'différence')+' sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
+     +'<div class="pt-row">'
+       +terme(q.n1,q.d1)+op+terme(q.n2,q.d2)
+       +(versFraction ? (eq+surUn(q.n1,q.d1)+op+surUn(q.n2,q.d2)) : '')
+       +eq+produit(q.n1,q.d1,'sf-a1','sf-b1')+op+produit(q.n2,q.d2,'sf-a2','sf-b2')
+       +eq
        +'<span class="f-frac-input sf-somme">'
        +'<span class="sf-haut">'+mf('sf-num1','f-num','premier numérateur')
        +'<span class="f-times">'+q.op+'</span>'
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +mf('sf-den','f-den','dénominateur commun')+'</span>'
-     +'</div></div>'
-   +'<div class="pt-step"><div class="pt-lab">③ La fraction finale</div>'
-     +'<div class="pt-row"><span class="f-eq">=</span>'+frac('sf-fn','sf-fd')+'</div></div>';
+       +eq+frac('sf-fn','sf-fd')
+     +'</div></div>';
   const order=sfCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });

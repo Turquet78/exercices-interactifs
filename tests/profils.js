@@ -105,6 +105,11 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* La Première l'a depuis toujours ; on le mesure pour que les deux
+       niveaux ne divergent pas — c'est d'elle que la Seconde tient sa
+       largeur. « somme-fractions » partage son moteur avec la Seconde. */
+    pleineLargeur: { exercices: ['pourcentage', 'mult-decimaux', 'somme-fractions'],
+                     chaine: [['pourcentage', 1], ['somme-fractions', 1]] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
@@ -256,6 +261,15 @@ module.exports = {
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
        ses boutons n'ont pas été avalés par la poignée. */
     fenetreSoutien: { exercice: 'pourcentage' },
+    /* L'écran d'un exercice prend toute la largeur, et les étapes d'une même
+       égalité tiennent sur une seule ligne. « chaine » dit combien de blocs
+       empilés un exercice a le droit de garder : au-delà, la chaîne est
+       coupée. Le pourcentage n'en a qu'un ; augmenter et diminuer en ont
+       deux — le coefficient est une autre égalité — plus la pose
+       facultative, qui reste cachée tant que l'élève n'a rien écrit. */
+    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions'],
+                     chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
+                              ['diminuer-pourcentage', 2], ['somme-fractions', 1]] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
