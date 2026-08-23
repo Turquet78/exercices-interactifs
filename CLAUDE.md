@@ -533,6 +533,66 @@ sens et toutes les échelles. Le second était un faux sabotage de ma part :
 décaler un nombre d'une unité de son propre rang ne lui fait presque jamais
 changer de zone, et le vert était juste.
 
+**Simplifier, ça se VOIT : deux colonnes de même hauteur.**
+{simplifier-colonnes} (Seconde) donne une fraction à simplifier et la fait dire
+deux fois. Méthode 1 : deux colonnes de même hauteur, la première partagée en
+`b` parts, la seconde en `d` — l'élève colorie la fraction à gauche, puis la
+même HAUTEUR à droite, et lit dessous ce qu'il vient de colorier. Méthode 2 :
+`a ÷ □` sur `b ÷ □` `= □` sur `d`. Quand tout est vérifié, la page écrit la
+conclusion : « donc a/b = n/d » (demande de Turquet, août 2026). Le dessin est
+porté du 2.1.1 de la Première, qui posait déjà deux colonnes partagées
+différemment ; le chemin des nombres est celui de la dernière étape de
+{simplifier-fractions}.
+
+**La première colonne ne demande rien de plus que de recopier l'énoncé, et
+c'est pour ça qu'elle existe.** Sans elle il n'y aurait aucune hauteur à
+retrouver, et la seconde colonne ne serait qu'un second exercice de calcul.
+C'est la hauteur COMMUNE qui enseigne : simplifier ne change pas la valeur,
+seulement l'écriture.
+
+**Le dénominateur d'arrivée est DONNÉ des deux côtés** — la seconde colonne est
+partagée en `d` parts, et la méthode 2 écrit `= □/d`. C'est ce qui rend
+l'exercice décidable : le diviseur est alors forcément le PGCD, et il n'y a pas
+de « juste mais pas fini » à arbitrer. La correction ne peut donc jamais compter
+faux un élève qui a raison — la question ne laisse pas cette place. C'est
+l'inverse de {simplifier-fractions}, où le dénominateur commun reste libre
+jusqu'au bout : là le diviseur se CALCULE sur ce que l'élève a écrit, ici il est
+déterminé par l'énoncé.
+
+**Le tirage part de la fraction d'ARRIVÉE.** On tire `n/d` irréductible, puis on
+la « dé-simplifie » en multipliant par `k` : le PGCD de `a/b` vaut alors
+exactement `k`, puisque pgcd(nk, dk) = k × pgcd(n, d) = k. Partir de `a/b` et
+calculer son PGCD aurait obligé à jeter les tirages sans simplification
+possible, et à espérer que le PGCD tombe sous 10 — la borne demandée. Il en
+découle que **la bonne réponse n'est jamais rangée à côté de la question** : `n`,
+`d` et `k` sont les nombres MÊMES dont l'énoncé est fait, un énoncé ne peut donc
+pas contredire sa correction. `b` est borné à 20 : à 320 px de colonne, un
+segment plus fin que 16 px ne se clique plus.
+
+**Une colonne est une RÉPONSE, pas un décor — et la note affichée doit le
+savoir.** Chaque question vaut cinq réponses : les deux coloriages et les trois
+cases. `ptsEcran()` ne connaissait que les `math-field`, les `select` et les
+`input` : l'écran annonçait « 3 cases justes sur 3 » sur une question qui en
+vaut 5, pendant que la note enregistrée en comptait bien 5. C'est le défaut de
+`good` au lieu de `ok`, par une autre porte — la note enregistrée juste, celle
+montrée à l'élève fausse, et rien qui rougisse. Une classe le dit désormais :
+`pts-case`, que `ptsEcran()` compte comme une case. Toute réponse qui n'est ni
+un champ ni une liste peut la porter.
+
+**Et une colonne laissée vide ne rougit pas**, comme une case : elle reçoit la
+correction en bleu — le trait de la bonne hauteur — et la bordure passe en
+pointillés. La règle valait déjà partout pour les cases de saisie ; elle vaut
+ici dès le premier jour, sur un élément qui n'est pas un champ. Le contrôle
+universel du banc navigateur, lui, ne regarde que les `MATH-FIELD`, `INPUT` et
+`SELECT` : il ne verrait pas une colonne rouge. C'est un contrôle du banc de
+l'exercice qui tient ce bord.
+
+**Le bloc CSS est RECOPIÉ, pas greffé sur `#sfHost`.** Les réglages qui posent
+le badge de correction hors du flux vivent sur `#sfHost`, dans un bloc qui est
+le même texte dans les deux niveaux — et la Première n'a pas cet écran. Les
+étendre aurait fait diverger ce bloc ; sans eux, le badge se poserait DANS le
+flux et élargirait le trait de fraction, le défaut d'août 2026 au même endroit.
+
 **Croiser les dénominateurs, c'est le MÊME moteur avec une image en plus.**
 {croiser-denominateurs} (Seconde) partage tout avec {somme-fractions} — écran,
 correction, chaîne d'égalités — et n'ajoute qu'une chose : il MONTRE d'où vient

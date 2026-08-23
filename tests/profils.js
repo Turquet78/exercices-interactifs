@@ -82,7 +82,7 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
-               'somme-fractions-libre':'sfl' };
+               'somme-fractions-libre':'sfl','simplifier-colonnes':'smp' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -302,6 +302,11 @@ module.exports = {
        flèches en plus. Le banc navigateur mesure ce que l'élève VOIT — les
        couleurs, les liserés et le croisement des deux flèches. */
     croisement: { exercice: 'croiser-denominateurs' },
+    /* {simplifier-colonnes} : les deux colonnes doivent monter au MÊME niveau,
+       et tenir ENTIÈRES dans un écran d'ordinateur portable — on colorie du bas
+       vers le haut, et à 320 px le bas tombait sous le pli. Ni l'un ni l'autre
+       ne se voit hors d'un vrai navigateur. */
+    colonnesSimplifier: { exercice: 'simplifier-colonnes' },
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */

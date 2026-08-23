@@ -462,7 +462,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc{padding-bottom:84px}
+  #scr-lv,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -575,6 +575,69 @@
   #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
   #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
+
+/* ---- Simplifier une fraction en coloriant deux colonnes ------------------
+   Le dessin est porté du 2.1.1 de la Première (« Fraction et pourcentage »),
+   qui pose déjà deux colonnes de MÊME HAUTEUR partagées différemment. C'est
+   exactement ce qu'il faut voir ici : simplifier ne change pas la hauteur,
+   seulement l'écriture.
+   Le préfixe est « smp- » et non « fp- » : en Première, « fp » nomme
+   l'exercice fraction-pourcentage, qui n'existe pas dans ce fichier — une
+   classe qui porterait son nom mentirait sur ce qu'elle dessine.
+
+   « column-reverse » : le premier segment est en BAS, on colorie du bas vers
+   le haut. « smp-seg » et non « seg » : la page possède déjà une classe .seg
+   (marges, coins arrondis) qui écarterait les cases — ici elles se touchent. */
+/* LA COLONNE ENTIÈRE DOIT TENIR À L'ÉCRAN. On colorie DU BAS vers le haut, et
+   à 320 px — la hauteur de la Première — le bas de la colonne tombait sous le
+   pli d'un écran d'ordinateur portable (1366×768) : l'élève cliquait ce qu'il
+   ne voyait pas. Ça ne s'est vu qu'en ouvrant la page à cette taille-là.
+   250 px, et le dénominateur borné à SMP_BMAX : un segment fait au moins 17 px,
+   ce qui reste un but facile à viser. Les deux vont ensemble — baisser la
+   hauteur sans borner le partage rendrait les segments incliquables. */
+.smp-zone{display:flex;justify-content:center;align-items:flex-start;gap:56px;padding:4px 0 0;flex-wrap:wrap}
+.smp-bloc{display:flex;flex-direction:column;align-items:center;gap:6px}
+.smp-col{position:relative;display:flex;flex-direction:column-reverse;width:96px;height:250px;
+  border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface)}
+.smp-col .smp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer}
+.smp-col .smp-seg+.smp-seg{border-bottom:2px solid var(--ink)}
+.smp-col .smp-seg.on{background:#BBD0F7}
+.smp-col.ok{border-color:var(--green)} .smp-col.ok .smp-seg.on{background:var(--green-soft)}
+.smp-col.bad{border-color:var(--red)} .smp-col.bad .smp-seg.on{background:var(--red-soft)}
+/* Une colonne laissée VIDE ne rougit pas : elle reçoit la correction en bleu,
+   comme une case de saisie. Rouge veut dire FAUX, jamais « rien écrit ». */
+.smp-col.sol{border-color:var(--blue);border-style:dashed}
+/* correction du mode entraînement : le trait bleu à la bonne hauteur */
+.smp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none}
+.smp-val{min-height:2.1em;display:flex;align-items:center;
+  font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark)}
+.smp-lab{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);font-size:1.15rem}
+/* La conclusion, écrite une fois l'exercice vérifié : « donc a/b = n/d ».
+   Une rangée flex centrée, comme l'énoncé — en texte ordinaire, le « = » d'un
+   étage et une fraction de deux n'ont pas le même milieu, et le signe monterait
+   au-dessus du trait. */
+.smp-donc{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;
+  margin-top:10px;min-height:1.4em;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
+#smpPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+/* Les mêmes réglages que #sfHost, RECOPIÉS plutôt qu'ajoutés à ses sélecteurs :
+   le bloc « sf » est le même texte dans les deux niveaux, et la Première n'a pas
+   cet écran. Sans eux, le badge de correction se poserait DANS le flux et
+   élargirait le trait de fraction — le défaut d'août 2026, au même endroit. */
+#smpHost .f-fbar{width:auto;align-self:stretch;height:4px}
+#smpHost .sf-case{position:relative;display:inline-flex;align-items:center;justify-content:center}
+#smpHost .sf-case .mf-cor{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:5px;font-size:1.1rem;white-space:nowrap}
+#smpHost .sf-prod:has(.mf-cor){margin-right:52px}
+/* Une case où l'élève écrit a la TAILLE des nombres qui l'entourent : les
+   chiffres voisins (.f-whole) sont à 2rem. */
+#smpHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+#smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:92px}
+#smpHost .pt-row{flex-wrap:wrap}
+#smpHost .pt-row>.f-frac{font-size:2rem}
+@media(max-width:900px){ #smpHost math-field.pm-mf{font-size:1.5rem}
+  #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:76px} }
+@media(max-width:520px){ .smp-zone{gap:30px} .smp-col{width:78px;height:220px}
+  #smpHost math-field.pm-mf{font-size:1.25rem}
+  #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:62px} }
   /* ---- Placer trois nombres sur une droite graduée ---- */
   .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
   .plc-scene svg{width:100%;height:auto;display:block}
@@ -1492,6 +1555,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-smp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagSmp"></span><span class="q-idx" id="smpIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="smpLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="smpPrompt">Simplifie la fraction.</p>
+      <div class="mp-stage"><div style="width:100%" id="smpHost"></div></div>
+      <div class="mp-feedback" id="smpFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="smpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSmpAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-teacher-login">
     <div class="card">
       <h2 class="title">Espace professeur</h2>
@@ -1723,7 +1801,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=79;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=80;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2020,8 +2098,16 @@ function corrCase(id, val, ok){
 function ptsEcran(){
   try{
     const scr=document.querySelector('.screen.on'); if(!scr) return null;
+    /* « pts-case » : une réponse qui n'est ni un champ ni une liste. Les deux
+       colonnes de {simplifier-colonnes} sont des réponses à part entière — on
+       les colorie vert, rouge ou bleu comme une case —, et sans cette classe
+       elles sortaient du compte : la page annonçait « 3 cases justes sur 3 »
+       sur une question qui en vaut 5. C'est le défaut de « good » au lieu de
+       « ok », par une autre porte : la note enregistrée était juste, seule
+       celle montrée à l'élève mentait. */
     const els=scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
-      +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol');
+      +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol,'
+      +'.pts-case.ok,.pts-case.bad,.pts-case.sol');
     if(!els.length) return null;
     let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
     return {pts:ok/els.length, justes:ok, cases:els.length};
@@ -2147,6 +2233,10 @@ const TESTS={
   'appartient-intervalle-2': { name:'Appartient ou pas ? — niveau 2', icon:'\ud83c\udfaf', desc:'Même question, avec des nombres qui ne disent pas leur valeur : √15, π, une fraction, « 0,2 millier ». Calcule avant de comparer.', start:()=>startApp2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'croiser-denominateurs': { name:'Croiser les d\u00e9nominateurs', icon:'\u2716\ufe0f', desc:'Deux fractions \u00e0 mettre au m\u00eame d\u00e9nominateur : chaque case prend le d\u00e9nominateur de l\u2019AUTRE fraction. Des couleurs et deux fl\u00e8ches crois\u00e9es montrent d\u2019o\u00f9 vient chaque nombre, puis on termine la somme comme en {somme-fractions}.', start:()=>startCRD() },
+  /* Deux colonnes de même hauteur, partagées différemment : simplifier ne change
+     pas la valeur, seulement l'écriture. Le dessin est porté du 2.1.1 de la
+     Première ; le chemin des nombres, lui, est celui de {simplifier-fractions}. */
+  'simplifier-colonnes': { name:'Simplifier une fraction en coloriant deux colonnes', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re colonne, puis retrouve la M\u00caME hauteur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
   'somme-fractions-libre': { name:'Somme de fractions \u2014 tu \u00e9cris ton calcul', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {simplifier-fractions}, mais plus aucune case : tu \u00e9cris ton calcul toi-m\u00eame, une \u00e9tape par ligne. Il faut l\u2019\u00e9tape du m\u00eame d\u00e9nominateur, et un r\u00e9sultat simplifi\u00e9 \u2014 l\u2019IA v\u00e9rifie que tout y est.', start:()=>startSFL() },
   'placer-intervalle': { name:'Placer des nombres sur une droite graduée', icon:'\ud83d\udccd', desc:'On donne une droite avec deux graduations et trois nombres : place chacun avant la première graduation, entre les deux, ou après la seconde. Un bouton ajoute les zéros pour que tous les nombres aient autant de décimales.', start:()=>startPlc() }
@@ -2164,7 +2254,7 @@ const THEMES=[
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
      commun. Les notes d\u00e9j\u00e0 obtenues ne bougent pas : elles portent l\u2019IDENTIFIANT,
      pas le num\u00e9ro. */
-  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre'] }
+  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','simplifier-colonnes'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -2212,6 +2302,7 @@ function liveCheckCurrent(){
   else if(k==='app') checkAppAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
   else if(k==='plc') checkPlcAnswer(true);
+  else if(k==='smp') checkSmpAnswer(true);
 }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -2723,6 +2814,7 @@ function conseilPaire(){
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
   else if(test.kind==='plc' && q) b=ctxPlc(q);
+  else if(test.kind==='smp' && q) b=ctxSmp(q);
   else b={nombre:'', contexte:ctxVisible()};
   if(!b.contexte) b.contexte='L’élève est en difficulté sur un exercice de mathématiques de Seconde.';
   b.contexte=numeros(b.contexte); b.nombre=numeros(b.nombre);
@@ -2946,6 +3038,7 @@ const QIA_SUGG={
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
   sf:["Pourquoi faut-il le même dénominateur ?","Comment trouver le dénominateur commun ?","Pourquoi on multiplie en haut ET en bas ?","Comment écrire un entier en fraction ?"],
+  smp:["Comment trouver le nombre par lequel je peux diviser\u00a0?","Pourquoi faut-il diviser en haut ET en bas\u00a0?","Pourquoi les deux colonnes montent-elles \u00e0 la m\u00eame hauteur\u00a0?","Comment savoir qu\u2019une fraction ne se simplifie plus\u00a0?"],
   plc:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des zéros à droite ?","Comment comparer deux nombres négatifs ?","Comment lire une droite graduée ?"],
   gen:["Explique-moi simplement la notion principale.","Quelles sont les erreurs classiques a eviter ?"],
 };
@@ -3186,7 +3279,20 @@ Diviser le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre <b>ne
 <b>\u2462 On divise en haut et en bas</b> : \\(\\frac{4}{6}=\\frac{4\\div 2}{6\\div 2}=\\frac{2}{3}\\)<br>
 On s\u2019arr\u00eate quand <b>plus aucun nombre \u00e0 part 1 ne divise les deux</b> : la fraction est alors irr\u00e9ductible. Si tu divises par 2 alors que tu pouvais diviser par 6, ce n\u2019est pas faux \u2014 c\u2019est juste que ce n\u2019est pas fini.<br>
 <b>Le d\u00e9nominateur commun reste libre.</b> Qui prend 12 au lieu de 6 obtient \\(\\frac{8}{12}\\), divise par 4, et retombe sur \\(\\frac{2}{3}\\). Le r\u00e9sultat r\u00e9duit ne d\u00e9pend pas du chemin.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC };
+/* Le rappel de {simplifier-colonnes}. Il ne redit pas celui de la somme : ici
+   il n'y a rien à additionner, et c'est le DESSIN qui porte l'idée — la même
+   hauteur, partagée autrement.
+   Les fractions s'écrivent en LaTeX entre \( et \) : rapMaths() les rend
+   empilées à l'affichage. Une fraction couchée derrière une barre oblique ne se
+   lit pas comme au cahier, et un contrôle du banc refuse « a/b » dans un
+   rappel. */
+const RAP_SMP=`<b>Simplifier une fraction</b><br>
+Simplifier <b>ne change pas la valeur</b> : c’est la même hauteur, partagée autrement. Colorie \\(\\frac{6}{8}\\) sur une colonne partagée en 8, puis \\(\\frac{3}{4}\\) sur une colonne partagée en 4 : les deux montent au même niveau.<br>
+<b>① On cherche un nombre qui divise le numérateur ET le dénominateur.</b> Ici 2 divise 6 et divise 8.<br>
+<b>② On divise en haut et en bas par ce nombre</b> : \\(\\frac{6}{8}=\\frac{6\\div 2}{8\\div 2}=\\frac{3}{4}\\)<br>
+On s’arrête quand <b>plus aucun nombre à part 1 ne divise les deux</b> : la fraction est alors irréductible.<br>
+<b>Dans cet exercice, le dénominateur d’arrivée est déjà écrit.</b> Le nombre par lequel diviser est donc celui qui fait passer le dénominateur de départ à celui-là — et c’est le même en haut.`;
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP };
 const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -3633,7 +3739,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest]};
+  const DISPATCH={lv:['lv',renderLV], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3757,7 +3863,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc'];
+  const testScreens=['lv','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
      partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
@@ -7134,6 +7240,269 @@ function ctxPlc(q){
 }
 
 
+/* ===== EXERCICE : SIMPLIFIER UNE FRACTION EN COLORIANT DEUX COLONNES ==========
+   (identifiant « simplifier-colonnes », kind « smp »)
+   =============================================================================
+   Demandé par Turquet en août 2026, sur le modèle du 2.1.1 de la Première
+   (« Fraction et pourcentage ») : deux colonnes de MÊME HAUTEUR, partagées
+   différemment, et l'élève colorie la même hauteur sur les deux.
+
+   CE QUE LE DESSIN ENSEIGNE, ET QUE LE CALCUL SEUL NE DIT PAS. Simplifier ne
+   change pas la valeur : 18/24 et 3/4 montent au même niveau. C'est la seule
+   chose que cet exercice cherche à faire passer, et c'est pour ça que la
+   première colonne existe alors qu'elle ne demande rien de plus que de recopier
+   l'énoncé — sans elle, il n'y aurait aucune hauteur à retrouver.
+
+   LE DÉNOMINATEUR D'ARRIVÉE EST DONNÉ, des deux côtés : la seconde colonne est
+   partagée en d parts, et la méthode 2 écrit « = □/d ». C'est ce qui rend
+   l'exercice décidable — le diviseur est alors forcément le PGCD, et il n'y a
+   pas de « juste mais pas fini » à arbitrer. La correction n'a donc jamais à
+   compter faux un élève qui a raison : la question ne laisse pas cette place.
+
+   LE TIRAGE PART DE LA FRACTION D'ARRIVÉE. On tire n/d irréductible, puis on la
+   « dé-simplifie » en multipliant par k : le PGCD de a/b vaut alors exactement
+   k, puisque pgcd(nk, dk) = k × pgcd(n, d) = k. Partir de a/b et calculer son
+   PGCD aurait obligé à jeter les tirages sans simplification possible, et à
+   espérer que le PGCD tombe sous 10 — la borne demandée par Turquet.
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : n, d et k sont
+   les nombres MÊMES dont l'énoncé est fait (a = n×k, b = d×k). Un énoncé ne
+   peut donc pas contredire sa correction — c'est la règle qu'{appartient-intervalle}
+   et {placer-intervalle} appliquent déjà.
+
+   CINQ RÉPONSES PAR QUESTION, et les deux colonnes en font partie : elles
+   portent la classe « pts-case » pour que la note AFFICHÉE compte ce que la
+   note ENREGISTRÉE compte. Sans elle, l'écran annonçait « 3 cases justes sur 3 »
+   sur une question qui en vaut 5. */
+const SMP_BMAX=14;   /* 250 px de colonne : au-delà, un segment fait moins de 17 px */
+function smpPgcd(x,y){ x=Math.abs(x); y=Math.abs(y); while(y){ const t=x%y; x=y; y=t; } return x; }
+function smpGen(){
+  const paires=[];
+  for(let d=2; d<=10; d++)
+    for(let k=2; k<=10 && d*k<=SMP_BMAX; k++) paires.push([d,k]);
+  const pr=pick(paires), d=pr[0], k=pr[1];
+  const ns=[]; for(let n=1;n<d;n++) if(smpPgcd(n,d)===1) ns.push(n);
+  const n=pick(ns);
+  return { a:n*k, b:d*k, n:n, d:d, k:k, selL:0, selR:0 };
+}
+/* Série sans répétition : les 6 fractions d'un même test sont différentes. Le
+   garde-fou évite toute boucle infinie si le vivier venait à rétrécir. */
+function smpBuildQuestions(){
+  const vus=new Set(), qs=[]; let garde=400;
+  while(qs.length<6 && garde-->0){
+    const q=smpGen(), s=q.a+'/'+q.b;
+    if(vus.has(s)) continue;
+    vus.add(s); qs.push(q);
+  }
+  while(qs.length<6) qs.push(smpGen());
+  return qs;
+}
+/* La même fraction empilée que partout ailleurs, et par la MÊME fonction :
+   deux écritures auraient fini par diverger sous les yeux de l'élève. */
+function smpFracHTML(n,d){ return '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>'; }
+const SMP_CASES=['smp-q1','smp-q2','smp-fn'];
+function smpVal(id){ const e=$(id); return e?String(e.value||'').trim():''; }
+function smpNb(id){ const v=smpVal(id); return /^-?\d+$/.test(v)?parseInt(v,10):NaN; }
+function renderSmpTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('smpIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagSmp').innerHTML=modeTagHTML();
+  $('smpLiveScore').textContent=test.score;
+  $('smpFeedback').textContent=''; $('smpFeedback').className='mp-feedback';
+  $('smpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkSmpAnswer()">Vérifier</button>';
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît, et « Simplifie18/24 » se collerait. */
+  $('smpPrompt').innerHTML='Simplifie '+smpFracHTML(q.a,q.b)
+    +' : colorie-la à gauche, retrouve la même hauteur à droite, puis termine par la méthode 2.';
+  const seg=(nb,sel,fn)=>Array.from({length:nb},(_,i)=>
+    '<div class="smp-seg'+(i<sel?' on':'')+'" onclick="'+fn+'('+(i+1)+')"></div>').join('');
+  /* Toute case est ENVELOPPÉE (.sf-case) : la correction du mode entraînement
+     s'insère juste après elle, et posée nue dans une fraction elle en
+     élargirait le trait. */
+  const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
+  $('smpHost').innerHTML=
+    '<div class="pt-step"><div class="pt-lab">Méthode 1 : la même hauteur, partagée autrement</div>'
+     +'<div class="smp-zone">'
+       +'<div class="smp-bloc"><div class="smp-lab">partagée en '+q.b+'</div>'
+         +'<div class="smp-col pts-case" id="smpColL">'+seg(q.b,q.selL,'smpClicL')+'</div>'
+         +'<div class="smp-val" id="smpValL">'+(q.selL?smpFracHTML(q.selL,q.b):'…')+'</div></div>'
+       +'<div class="smp-bloc"><div class="smp-lab">partagée en '+q.d+'</div>'
+         +'<div class="smp-col pts-case" id="smpColR">'+seg(q.d,q.selR,'smpClicR')+'</div>'
+         +'<div class="smp-val" id="smpValR">'+(q.selR?smpFracHTML(q.selR,q.d):'…')+'</div></div>'
+     +'</div>'
+     +'<div class="smp-donc" id="smpDonc"></div></div>'
+    +'<div class="pt-step"><div class="pt-lab">Méthode 2 : divise en haut ET en bas par le même nombre</div>'
+     +'<div class="pt-row">'
+       +smpFracHTML(q.a,q.b)
+       +'<span class="f-eq">=</span>'
+       +'<span class="f-frac-input sf-prod">'
+         +'<span class="sf-l"><span class="f-whole">'+q.a+'</span><span class="f-times">÷</span>'
+         +mf('smp-q1','f-num','diviseur du numérateur')+'</span>'
+         +'<span class="f-fbar"></span>'
+         +'<span class="sf-l"><span class="f-whole">'+q.b+'</span><span class="f-times">÷</span>'
+         +mf('smp-q2','f-den','diviseur du dénominateur')+'</span>'
+       +'</span>'
+       +'<span class="f-eq">=</span>'
+       +'<span class="f-frac-input sf-prod">'
+         +'<span class="sf-l">'+mf('smp-fn','f-num','numérateur simplifié')+'</span>'
+         +'<span class="f-fbar"></span>'
+         +'<span class="sf-l"><span class="f-whole">'+q.d+'</span></span>'
+       +'</span>'
+     +'</div></div>';
+  const order=SMP_CASES.map(id=>$(id));
+  order.forEach((el,i)=>{ if(!el) return;
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
+      if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSmpAnswer(); } }); });
+}
+/* Cliquer un segment colorie jusqu'à lui ; recliquer le dernier efface d'un cran. */
+function smpMajCol(){
+  const q=test.questions[test.idx];
+  const L=$('smpColL'), R=$('smpColR'); if(!L||!R) return;
+  [...L.querySelectorAll('.smp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
+  [...R.querySelectorAll('.smp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
+  [L,R].forEach(function(c){ c.classList.remove('ok','bad','sol');
+    [...c.querySelectorAll('.smp-cible')].forEach(function(e){ e.remove(); }); });
+  $('smpValL').innerHTML = q.selL ? smpFracHTML(q.selL,q.b) : '…';
+  $('smpValR').innerHTML = q.selR ? smpFracHTML(q.selR,q.d) : '…';
+}
+function smpClicL(i){ if(test.locked) return; const q=test.questions[test.idx];
+  q.selL=(q.selL===i?i-1:i); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
+function smpClicR(i){ if(test.locked) return; const q=test.questions[test.idx];
+  q.selR=(q.selR===i?i-1:i); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
+/* UNE COLONNE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX ; une colonne
+   que l'élève n'a pas coloriée n'est pas une erreur, elle reçoit la correction
+   en bleu comme une case de saisie. C'est la règle que la Seconde a réapprise
+   trois fois en une journée d'août 2026 — elle vaut ici dès le premier jour. */
+function smpMarqueCol(id, ok, vide){
+  const c=$(id); if(!c) return;
+  c.classList.remove('ok','bad','sol');
+  if(ok) c.classList.add('ok');
+  else if(!vide) c.classList.add('bad');
+}
+/* Le message dit la VÉRITÉ : il nomme la première étape en défaut, dans l'ordre
+   où elles se font. « Il faut diviser en haut ET en bas » devant une copie où
+   rien n'est colorié serait un mensonge — une case vide n'est pas une erreur de
+   calcul, et la correction le dit avant tout le reste. */
+function smpPourquoi(q,r){
+  if(r.vide) return 'Il manque des réponses : colorie les deux colonnes et remplis les trois cases.';
+  if(!r.okL) return 'À gauche, colorie '+q.a+' parts sur '+q.b+' : c’est la fraction de l’énoncé.';
+  if(!r.okR) return 'À droite, colorie la MÊME hauteur qu’à gauche — elle vaut '+q.n+' parts sur '+q.d+'.';
+  if(!r.ok1||!r.ok2) return 'Le même nombre divise le haut ET le bas, et il doit faire passer '+q.b+' à '+q.d+' : c’est '+q.k+'.';
+  return 'Il reste le numérateur : '+q.a+' ÷ '+q.k+' = '+q.n+'.';
+}
+function checkSmpAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const colL=$('smpColL'), colR=$('smpColR'); if(!colL||!colR) return;
+  const okL=(q.selL===q.a), okR=(q.selR===q.n);
+  const ok1=(smpNb('smp-q1')===q.k), ok2=(smpNb('smp-q2')===q.k), ok3=(smpNb('smp-fn')===q.n);
+  if(live){   /* soutien : on ne juge que ce qui est déjà colorié ou écrit */
+    smpMarqueCol('smpColL', okL, q.selL===0);
+    smpMarqueCol('smpColR', okR, q.selR===0);
+    [['smp-q1',ok1],['smp-q2',ok2],['smp-fn',ok3]].forEach(function(pr){
+      const el=$(pr[0]); if(!el||el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(smpVal(pr[0])!=='') el.classList.add(pr[1]?'ok':'bad');
+    });
+    return;
+  }
+  const soutien=isSoutien();
+  const vide = q.selL===0 || q.selR===0
+            || SMP_CASES.some(function(id){ return smpVal(id)===''; });
+  smpMarqueCol('smpColL', okL, q.selL===0);
+  smpMarqueCol('smpColR', okR, q.selR===0);
+  const marque=function(id,ok){ const el=$(id); if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    if(ok) el.classList.add('ok');
+    else if(smpVal(id)!=='') el.classList.add('bad');
+    el.disabled=ok||!soutien; };
+  marque('smp-q1',ok1); marque('smp-q2',ok2); marque('smp-fn',ok3);
+  const justes=[okL,okR,ok1,ok2,ok3].filter(Boolean).length;
+  /* PAS de « && !vide » ici, et c'est une leçon déjà payée ailleurs : le
+     garde-fou n'écarterait JAMAIS rien. Une colonne non coloriée vaut 0, une
+     case vide se lit NaN — aucune des cinq réponses ne peut être juste ET vide,
+     donc « justes===5 » implique déjà que tout est rempli. {simplifier-fractions}
+     en avait besoin parce que chacune de ses étapes se juge sur ce que l'élève a
+     écrit, et pouvait donc être verte à moitié ; ici chaque réponse est comparée
+     à UNE valeur. Le sabotage l'a montré : retirer ce garde-fou ne rendait
+     aucun contrôle rouge, parce qu'il ne pouvait pas être atteint. Un garde-fou
+     qui n'écarte jamais rien fait croire qu'on vérifie quelque chose.
+     « vide » sert encore, et à une seule chose : dire la vérité dans le
+     message — une case vide n'est pas une erreur de calcul. */
+  const allOk = justes===5;
+  if(!allOk && soutien){ soutienAgain('smpFeedback','smpActions','checkSmpAnswer','smpHost'); return; }
+  test.locked=true;
+  test.score+=justes; $('smpLiveScore').textContent=test.score;
+  if(allOk){
+    $('smpFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']);
+    $('smpFeedback').className='mp-feedback good';
+  } else {
+    $('smpFeedback').textContent=smpPourquoi(q,{okL:okL,okR:okR,ok1:ok1,ok2:ok2,ok3:ok3,vide:vide});
+    $('smpFeedback').className='mp-feedback bad';
+    /* Mode entraînement : la bonne hauteur apparaît en bleu sur chaque colonne
+       fausse OU vide, et les trois cases reçoivent leur correction. En soutien
+       on ne montre rien — l'élève y corrige lui-même. */
+    if(currentMode==='train'){
+      [[colL,okL,q.a,q.b],[colR,okR,q.n,q.d]].forEach(function(pr){
+        if(pr[1]) return;
+        if(!pr[0].querySelector('.smp-cible'))
+          pr[0].insertAdjacentHTML('beforeend','<div class="smp-cible" style="bottom:'+(pr[2]*100/pr[3])+'%"></div>');
+        if(!pr[0].classList.contains('bad')) pr[0].classList.add('sol');
+      });
+    }
+    corTrainDec('smp-q1',q.k); corTrainDec('smp-q2',q.k); corTrainDec('smp-fn',q.n);
+  }
+  /* La conclusion, écrite quand c'est vérifié (demande de Turquet, août 2026) :
+     l'égalité que les deux colonnes viennent de montrer. */
+  $('smpDonc').innerHTML='donc'+' '+smpFracHTML(q.a,q.b)
+    +'<span class="f-eq">=</span>'+smpFracHTML(q.n,q.d);
+  test.answers.push({...(ptsExo()||{}), correct:allOk,
+    q:q.a+'/'+q.b+' à simplifier — '+justes+'/5 justes',
+    answer:q.a+'/'+q.b+' = '+q.n+'/'+q.d+' (on divise par '+q.k+')',
+    given:(q.selL||'?')+'/'+q.b+', '+(q.selR||'?')+'/'+q.d
+        +', ÷'+(smpVal('smp-q1')||'?')+' et ÷'+(smpVal('smp-q2')||'?')
+        +', numérateur '+(smpVal('smp-fn')||'?')});
+  const last=test.idx===test.questions.length-1;
+  $('smpActions').innerHTML='<button class="btn btn-primary" id="smpNext" onclick="nextSmpQuestion()">'
+    +(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('smpNext'); if(nb) nb.focus();
+}
+function nextSmpQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSmpTest(); autoSave(); } else finishTest(); }
+async function startSmp(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=smpBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'smp', questions:qs, idx:0, score:0,
+    maxScore:qs.length*5, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='simplifier-colonnes';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('smp'); renderSmpTest();
+}
+/* Ce que le modèle sait de cet écran. Les réponses attendues y sont, et la
+   clause de secret va avec : sans elle, le contexte serait pire que pas de
+   contexte du tout — la fenêtre d'aide est offerte dès l'entraînement. */
+function ctxSmp(q){
+  let c='L’élève doit simplifier la fraction '+q.a+'/'+q.b+', de deux façons sur le même écran. '
+   +'Méthode 1 : deux colonnes de MÊME hauteur, la première partagée en '+q.b+' parts, la seconde en '+q.d+'. '
+   +'Il colorie la fraction à gauche, puis la même HAUTEUR à droite — ce qui montre que simplifier ne change pas la valeur, seulement l’écriture. '
+   +'Méthode 2 : il complète « '+q.a+' ÷ □ » sur « '+q.b+' ÷ □ » = « □ » sur '+q.d+', le même diviseur en haut et en bas. '
+   +'Le dénominateur d’arrivée '+q.d+' est DONNÉ des deux côtés : le diviseur est donc forcément celui qui fait passer '+q.b+' à '+q.d+'. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : '
+   +'à gauche '+q.a+' parts sur '+q.b+', à droite '+q.n+' parts sur '+q.d+', diviseur '+q.k+' en haut comme en bas, numérateur simplifié '+q.n+'. '
+   +'L’erreur classique est de diviser par un nombre qui ne va pas jusqu’au bout : la fraction obtenue est alors juste, mais le travail n’est pas terminé.';
+  const faux=[];
+  if(q.selL && q.selL!==q.a) faux.push('le coloriage de gauche');
+  if(q.selR && q.selR!==q.n) faux.push('le coloriage de droite');
+  [['smp-q1','le diviseur du haut',q.k],['smp-q2','le diviseur du bas',q.k],
+   ['smp-fn','le numérateur simplifié',q.n]].forEach(function(pr){
+    const v=smpVal(pr[0]); if(v!=='' && parseInt(v,10)!==pr[2]) faux.push(pr[1]);
+  });
+  if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
+  return {nombre:q.a+'/'+q.b, contexte:c};
+}
+
 /* ===== EXERCICE : CROISER LES DÉNOMINATEURS (identifiant « croiser-denominateurs »)
    =============================================================================
    Le MÊME moteur que {somme-fractions} — même écran, même correction, même
@@ -8048,7 +8417,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
