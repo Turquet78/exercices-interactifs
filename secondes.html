@@ -507,7 +507,12 @@
    « vertical-align:middle » place chaque terme selon SA hauteur : un entier à un
    étage et une fraction à deux n'ont pas le même milieu, et le signe tombait
    15 px au-dessus du trait. Une rangée flex les centre tous sur la même ligne. */
-#sfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+#sfPrompt,#sflPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+/* La seconde phrase de l'énoncé prend TOUTE la ligne, toujours. Laissée dans
+   le flux, elle se repliait sur un écran étroit en emportant le point de la
+   première : « . Donne le résultat… » commençait la ligne suivante par un
+   point orphelin. Ça ne s'est vu qu'en regardant l'écran, à 560 px. */
+#sflPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 .sf-prod{align-items:stretch}
 .sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .sf-somme .sf-haut{display:inline-flex;align-items:center;gap:8px;justify-content:center}
@@ -810,7 +815,12 @@
 .dexp2-sheet{background:var(--paper);border:2px solid var(--grid);border-radius:12px;padding:6px 12px;margin:8px 0;overflow-x:auto;transition:border-color .18s,box-shadow .18s;}
 .dexp2-sheet:focus-within{border-color:var(--blue);background:var(--surface);box-shadow:0 0 0 3px rgba(43,80,200,.16);}
 .dexp2-line{display:flex;align-items:center;gap:10px;padding:5px 2px;width:max-content;min-width:100%;}
-.dexp2-prefix{flex:none;text-align:right;white-space:nowrap;font-weight:700;font-size:2rem;color:var(--ink);}
+/* MÊME RÈGLE QUE L'ÉNONCÉ, et pour la même raison : en texte ordinaire, un
+   « + » s'aligne sur la ligne d'écriture, pas sur le milieu d'une fraction à
+   deux étages — il tombait au-dessus du trait. Signalé par Turquet en août
+   2026 sur ce nouvel écran, alors que {somme-fractions} avait déjà appris la
+   leçon : une correction faite dans un coin ne protège pas les autres. */
+.dexp2-prefix{flex:none;display:flex;align-items:center;justify-content:flex-end;white-space:nowrap;font-weight:700;font-size:2rem;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf{border:none;outline:none;box-shadow:none;background:transparent;flex:1 0 auto;min-width:6ch;min-height:1.9em;font-size:2rem;padding:2px 0;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf:focus-within{border:none;background:transparent;box-shadow:none;}
 /* Le préfixe porte la somme de l'énoncé, et il est écrit à la MÊME taille que
@@ -1713,7 +1723,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=76;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=77;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7306,8 +7316,10 @@ function renderSFL(){
   $('modeTagSFL').innerHTML=modeTagHTML();
   $('sflLiveScore').textContent=test.score;
   $('sflFeedback').textContent=''; $('sflFeedback').className='mp-feedback';
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît. */
   $('sflPrompt').innerHTML='Calcule\u00a0'+sfTermeHTML(q.n1,q.d1)+'\u00a0<b>'+q.op+'</b>\u00a0'+sfTermeHTML(q.n2,q.d2)
-    +', et donne le résultat sous forme de fraction simplifiée.';
+    +'.<span class="sfl-suite">Donne le résultat sous forme de fraction simplifiée.</span>';
   $('sflHost').innerHTML=
      '<p class="tvi-instr">Écris ton calcul, une étape par ligne.</p>'
     +'<div class="dexp2-sheet" id="sflSheet"></div>'
@@ -7317,7 +7329,8 @@ function renderSFL(){
   /* Le préfixe de la PREMIÈRE ligne porte la somme de l'énoncé, comme
      « f ′(x) = » en Terminale : les lignes sont la suite d'un seul calcul. */
   sflFeuille=mlFeuille({ conteneur:'sflSheet', mode:'calcul',
-    prefixes:{ premiere: sfTermeHTML(q.n1,q.d1)+'<span class="f-times">'+q.op+'</span>'+sfTermeHTML(q.n2,q.d2)+' =', suite:'=' },
+    prefixes:{ premiere: sfTermeHTML(q.n1,q.d1)+'\u00a0<span class="f-times">'+q.op+'</span>\u00a0'
+                         +sfTermeHTML(q.n2,q.d2)+'\u00a0=', suite:'=' },
     prefixesTexte:{ premiere: q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2+' =', suite:'=' } });
   $('sflActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkSFL()">Vérifier</button>';
 }

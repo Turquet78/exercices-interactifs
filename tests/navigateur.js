@@ -1961,7 +1961,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [];
+      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [];
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           await s.page.evaluate(i => openTest(i), id);
@@ -2043,17 +2043,50 @@ async function parcours(page, N){
               if(px(mf) < gros * 0.9)
                 cases.push((mf.id || '(sans id)') + ' : ' + px(mf) + 'px contre ' + gros + 'px');
             }
+            /* UN SIGNE POSÉ À CÔTÉ D'UNE FRACTION TOMBE SUR SON TRAIT.
+               En texte ordinaire, « vertical-align:middle » place chaque terme
+               selon SA hauteur : un « + » d'un étage et une fraction de deux
+               n'ont pas le même milieu, et le signe monte au-dessus du trait.
+               {somme-fractions} l'avait appris en août 2026 — sa ligne d'énoncé
+               était passée en rangée flex centrée —, et le défaut est revenu
+               tel quel sur l'écran suivant, qui n'avait pas reçu la règle :
+               signalé par Turquet, sur une capture. Une leçon apprise dans un
+               coin ne protège pas les autres, donc on mesure ICI, sur TOUS les
+               exercices visités : celui qu'on ajoutera demain est couvert sans
+               rien déclarer.
+               « À côté » se mesure comme pour la taille des cases : le signe
+               doit chevaucher la fraction en hauteur et n'en être séparé que
+               par moins de 120 px de vide. */
+            const mil = e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+            const signes = [];
+            for(const frac of [...on.querySelectorAll('.sf-f')].filter(visible)){
+              const bar = frac.querySelector('.bar'); if(!bar) continue;
+              const rf = frac.getBoundingClientRect();
+              for(const sg of [...on.querySelectorAll('.f-times, .f-eq, b')].filter(visible)){
+                if(!/^[+−=]$/.test((sg.textContent || '').trim())) continue;
+                if(sg.closest('math-field')) continue;
+                const rs = sg.getBoundingClientRect();
+                if(Math.min(rf.bottom, rs.bottom) - Math.max(rf.top, rs.top) <= Math.min(rf.height, rs.height) * 0.5) continue;
+                if(Math.max(0, Math.max(rf.left, rs.left) - Math.min(rf.right, rs.right)) > 120) continue;
+                const d = Math.round(Math.abs(mil(sg) - mil(bar)) * 10) / 10;
+                if(d > 3) signes.push('« ' + sg.textContent.trim() + ' » à ' + d + 'px du trait');
+              }
+            }
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
-                    accolades: [...new Set(connus)], cases: cases};
+                    accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
           if(mode === 'train' && vu.cases && vu.cases.length)
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
+          if(mode === 'train' && vu.signes && vu.signes.length)
+            dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
         }
       }
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
+      verifier('un signe posé à côté d\'une fraction tombe sur son trait',
+        dechires.length === 0, dechires.slice(0, 3).join(' | '));
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')
