@@ -1989,7 +1989,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [];
+      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], videsRouges = [];
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           await s.page.evaluate(i => openTest(i), id);
@@ -2109,12 +2109,47 @@ async function parcours(page, N){
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
           if(mode === 'train' && vu.signes && vu.signes.length)
             dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
+          /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
+             C'est la règle que la Seconde a réapprise trois fois en une seule
+             journée d'août 2026, chaque fois sur un exercice différent, et
+             chaque fois corrigée dans son coin. Une règle valable partout doit
+             être tenue par un contrôle qui va PARTOUT : on clique « Vérifier »
+             sur une copie entièrement vide, et aucune case ne doit être rouge.
+             Rouge veut dire FAUX ; une case que l'élève n'a pas remplie n'est
+             pas une erreur de calcul, elle reçoit la correction en bleu. */
+          if(mode === 'train'){
+            const r = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const visible = e => { if(!e || e.hidden) return false;
+                const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).display !== 'none'; };
+              const b = [...on.querySelectorAll('button')].filter(visible)
+                .find(x => /^(Vérifier|Valider|Corriger)/.test(x.textContent.trim()));
+              if(!b) return null;
+              b.click();
+              return true;
+            });
+            if(r){
+              await s.page.waitForTimeout(500);
+              const rouges = await s.page.evaluate(() => {
+                const on = document.querySelector('section.screen.on'); if(!on) return [];
+                return [...on.querySelectorAll('.bad')]
+                  .filter(e => /^(MATH-FIELD|INPUT|SELECT)$/.test(e.tagName))
+                  .map(e => e.id || '(sans id)');
+              });
+              if(rouges.length)
+                videsRouges.push((await s.page.evaluate(i => TEST_NUM[i], id))
+                  + ' — ' + rouges.slice(0, 3).join(', '));
+            }
+          }
         }
       }
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('un signe posé à côté d\'une fraction tombe sur son trait',
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
+      verifier('aucune case laissée vide ne rougit à la vérification',
+        videsRouges.length === 0, videsRouges.slice(0, 4).join(' | '));
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')

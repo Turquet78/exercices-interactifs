@@ -57,6 +57,44 @@ l'en-tête et permet de savoir d'un coup d'œil quelle version est ouverte.
 
 ---
 
+## Ce que TOUT exercice doit respecter
+
+Les mêmes défauts revenaient exercice après exercice — la taille des cases,
+l'alignement d'un signe sur un trait de fraction, une case juste qui rougit —
+parce que chaque règle était écrite au moment où elle était apprise, dans le
+coin où elle était apprise, et tenue par un contrôle qui ne regardait que cet
+exercice-là (constat de Turquet, août 2026).
+
+**Une règle valable partout doit être tenue par un contrôle qui va PARTOUT.**
+C'est la seule chose qui empêche la répétition : pas la vigilance, pas la
+relecture. Chacune des règles ci-dessous est donc vérifiée sur TOUS les
+exercices, par un contrôle greffé sur la visite qui les ouvre un par un dans
+les deux modes (`tests/navigateur.js`, section 9). Un exercice ajouté demain est
+couvert sans rien avoir à déclarer.
+
+| Règle | Ce qu'elle empêche | Contrôle |
+|---|---|---|
+| Une case où l'élève écrit a la **taille des nombres qui l'entourent** | la réponse de l'élève passe pour une note en bas de page | « les cases de saisie ont la taille des nombres qui les entourent » |
+| Un **signe posé à côté d'une fraction tombe sur son trait** | le « + » monte au-dessus du trait, la ligne se lit de travers | « un signe posé à côté d'une fraction tombe sur son trait » |
+| **Une case vide ne rougit jamais** à la vérification | l'élève croit avoir faux là où il n'a rien écrit | « aucune case laissée vide ne rougit à la vérification » |
+| Une case juste se marque **`ok`**, jamais `good` | la note affichée ne la compte pas | « chaque exercice à cases compte ses cases justes » |
+| Chaque exercice a son **bouton d'aide IA** | l'aide est écrite, rien n'y mène | « le bouton d'aide IA est présent sur chaque exercice » |
+| Aucune référence **`{identifiant}`** ne reste affichée | l'élève lit des accolades | « aucune référence {identifiant} ne reste affichée à l'élève » |
+| L'écran d'un exercice prend **toute la largeur**, et ses rangées ne se replient pas | une chaîne d'égalités se lit comme trois calculs séparés | « aucune rangée ne se replie » |
+
+**Trois autres règles ne se vérifient pas encore partout**, et le dire vaut
+mieux que de le taire :
+
+* **Une case juste ne rougit pas parce qu'une AUTRE est vide ou fausse.** Il
+  faudrait, pour chaque exercice, savoir écrire une copie juste — ce que seul
+  l'exercice témoin de chaque profil sait faire aujourd'hui (`navigateur.repondre`).
+  Le bord voisin, lui, est tenu partout : la case vide qui rougit.
+* **Le message d'erreur dit la vérité.** « Il faut le MÊME dénominateur »
+  devant une copie dont il manque sept cases est un mensonge, et rien ne le
+  mesure.
+* **La note enregistrée est celle qui s'affiche.** Le contrôle des cases justes
+  compare ce que la page a peint ; il ne relit pas ce qui part en base.
+
 ## Pièges éprouvés
 
 Chacun a coûté une panne en production. Ils ne se voient pas à la relecture.
