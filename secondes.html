@@ -576,48 +576,51 @@
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
   #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
 
-/* ---- Simplifier une fraction en coloriant deux colonnes ------------------
-   Le dessin est porté du 2.1.1 de la Première (« Fraction et pourcentage »),
-   qui pose déjà deux colonnes de MÊME HAUTEUR partagées différemment. C'est
-   exactement ce qu'il faut voir ici : simplifier ne change pas la hauteur,
-   seulement l'écriture.
-   Le préfixe est « smp- » et non « fp- » : en Première, « fp » nomme
-   l'exercice fraction-pourcentage, qui n'existe pas dans ce fichier — une
-   classe qui porterait son nom mentirait sur ce qu'elle dessine.
+/* ---- Simplifier une fraction en coloriant deux barres --------------------
+   L'idée est celle du 2.1.1 de la Première — deux dessins de MÊME taille,
+   partagés différemment, coloriés à la même mesure —, mais COUCHÉE.
 
-   « column-reverse » : le premier segment est en BAS, on colorie du bas vers
-   le haut. « smp-seg » et non « seg » : la page possède déjà une classe .seg
-   (marges, coins arrondis) qui écarterait les cases — ici elles se touchent. */
-/* LA COLONNE ENTIÈRE DOIT TENIR À L'ÉCRAN. On colorie DU BAS vers le haut, et
-   à 320 px — la hauteur de la Première — le bas de la colonne tombait sous le
-   pli d'un écran d'ordinateur portable (1366×768) : l'élève cliquait ce qu'il
-   ne voyait pas. Ça ne s'est vu qu'en ouvrant la page à cette taille-là.
-   250 px, et le dénominateur borné à SMP_BMAX : un segment fait au moins 17 px,
-   ce qui reste un but facile à viser. Les deux vont ensemble — baisser la
-   hauteur sans borner le partage rendrait les segments incliquables. */
-.smp-zone{display:flex;justify-content:center;align-items:flex-start;gap:56px;padding:4px 0 0;flex-wrap:wrap}
-.smp-bloc{display:flex;flex-direction:column;align-items:center;gap:6px}
-.smp-col{position:relative;display:flex;flex-direction:column-reverse;width:96px;height:250px;
+   POURQUOI PAS DEUX COLONNES. Le partage va jusqu'à 40 (demande de Turquet,
+   août 2026), et une colonne ne peut pas dépasser 250 px de haut : au-delà, son
+   BAS tombe sous le pli d'un écran d'ordinateur portable, or on colorie du bas
+   vers le haut — l'élève cliquerait ce qu'il ne voit pas. 40 parts dans 250 px
+   font des segments de 6 px : incliquables, et illisibles. Couchée, la barre
+   dispose de toute la largeur de l'écran, que ces écrans prennent entière :
+   1080 px découpés en 40 font des parts de 27 px. C'est aussi le schéma de
+   fraction le plus courant dans les manuels.
+
+   LES DEUX BARRES DOIVENT COMMENCER AU MÊME ENDROIT, sinon les deux longueurs
+   coloriées ne se comparent plus — et c'est tout ce que l'exercice enseigne.
+   L'étiquette a donc une largeur FIXE : « partagée en 40 » et « partagée en 5 »
+   n'ont pas la même longueur, et sans elle les deux barres seraient décalées
+   l'une par rapport à l'autre. */
+.smp-zone{display:flex;flex-direction:column;align-items:stretch;gap:14px;padding:4px 0 0}
+.smp-ligne{display:flex;align-items:center;gap:14px}
+.smp-bar{position:relative;display:flex;flex:1 1 auto;max-width:1080px;height:62px;
   border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface)}
-.smp-col .smp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer}
-.smp-col .smp-seg+.smp-seg{border-bottom:2px solid var(--ink)}
-.smp-col .smp-seg.on{background:#BBD0F7}
-.smp-col.ok{border-color:var(--green)} .smp-col.ok .smp-seg.on{background:var(--green-soft)}
-.smp-col.bad{border-color:var(--red)} .smp-col.bad .smp-seg.on{background:var(--red-soft)}
-/* Une colonne laissée VIDE ne rougit pas : elle reçoit la correction en bleu,
+.smp-bar .smp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer}
+.smp-bar .smp-seg+.smp-seg{border-left:2px solid var(--ink)}
+.smp-bar .smp-seg.on{background:#BBD0F7}
+.smp-bar.ok{border-color:var(--green)} .smp-bar.ok .smp-seg.on{background:var(--green-soft)}
+.smp-bar.bad{border-color:var(--red)} .smp-bar.bad .smp-seg.on{background:var(--red-soft)}
+/* Une barre laissée VIDE ne rougit pas : elle reçoit la correction en bleu,
    comme une case de saisie. Rouge veut dire FAUX, jamais « rien écrit ». */
-.smp-col.sol{border-color:var(--blue);border-style:dashed}
-/* correction du mode entraînement : le trait bleu à la bonne hauteur */
-.smp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none}
-.smp-val{min-height:2.1em;display:flex;align-items:center;
+.smp-bar.sol{border-color:var(--blue);border-style:dashed}
+/* correction du mode entraînement : le trait bleu à la bonne mesure */
+.smp-cible{position:absolute;top:0;bottom:0;border-left:3px dashed var(--blue);pointer-events:none}
+/* Largeurs FIXES des deux côtés : c'est ce qui aligne les deux barres. */
+.smp-lab{flex:0 0 168px;text-align:right;font-family:"Fredoka";font-weight:700;
+  color:var(--blue-dark);font-size:1.05rem}
+.smp-val{flex:0 0 96px;display:flex;align-items:center;justify-content:flex-start;
   font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark)}
-.smp-lab{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);font-size:1.15rem}
 /* La conclusion, écrite une fois l'exercice vérifié : « donc a/b = n/d ».
-   Une rangée flex centrée, comme l'énoncé — en texte ordinaire, le « = » d'un
-   étage et une fraction de deux n'ont pas le même milieu, et le signe monterait
-   au-dessus du trait. */
+   Une rangée flex centrée — en texte ordinaire, le « = » d'un étage et une
+   fraction de deux n'ont pas le même milieu, et le signe monterait au-dessus
+   du trait. */
 .smp-donc{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;
-  margin-top:10px;min-height:1.4em;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
+  margin-top:12px;min-height:1.4em;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
+@media(max-width:760px){ .smp-lab{flex-basis:96px;font-size:.85rem} .smp-val{flex-basis:66px;font-size:1.15rem}
+  .smp-bar{height:50px} .smp-ligne{gap:8px} }
 #smpPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 /* Les mêmes réglages que #sfHost, RECOPIÉS plutôt qu'ajoutés à ses sélecteurs :
    le bloc « sf » est le même texte dans les deux niveaux, et la Première n'a pas
@@ -635,8 +638,7 @@
 #smpHost .pt-row>.f-frac{font-size:2rem}
 @media(max-width:900px){ #smpHost math-field.pm-mf{font-size:1.5rem}
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:76px} }
-@media(max-width:520px){ .smp-zone{gap:30px} .smp-col{width:78px;height:220px}
-  #smpHost math-field.pm-mf{font-size:1.25rem}
+@media(max-width:520px){ #smpHost math-field.pm-mf{font-size:1.25rem}
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:62px} }
   /* ---- Placer trois nombres sur une droite graduée ---- */
   .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
@@ -2099,7 +2101,7 @@ function ptsEcran(){
   try{
     const scr=document.querySelector('.screen.on'); if(!scr) return null;
     /* « pts-case » : une réponse qui n'est ni un champ ni une liste. Les deux
-       colonnes de {simplifier-colonnes} sont des réponses à part entière — on
+       colonnes de {simplifier-barres} sont des réponses à part entière — on
        les colorie vert, rouge ou bleu comme une case —, et sans cette classe
        elles sortaient du compte : la page annonçait « 3 cases justes sur 3 »
        sur une question qui en vaut 5. C'est le défaut de « good » au lieu de
@@ -2233,10 +2235,10 @@ const TESTS={
   'appartient-intervalle-2': { name:'Appartient ou pas ? — niveau 2', icon:'\ud83c\udfaf', desc:'Même question, avec des nombres qui ne disent pas leur valeur : √15, π, une fraction, « 0,2 millier ». Calcule avant de comparer.', start:()=>startApp2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'croiser-denominateurs': { name:'Croiser les d\u00e9nominateurs', icon:'\u2716\ufe0f', desc:'Deux fractions \u00e0 mettre au m\u00eame d\u00e9nominateur : chaque case prend le d\u00e9nominateur de l\u2019AUTRE fraction. Des couleurs et deux fl\u00e8ches crois\u00e9es montrent d\u2019o\u00f9 vient chaque nombre, puis on termine la somme comme en {somme-fractions}.', start:()=>startCRD() },
-  /* Deux colonnes de même hauteur, partagées différemment : simplifier ne change
-     pas la valeur, seulement l'écriture. Le dessin est porté du 2.1.1 de la
+  /* Deux barres de même longueur, partagées différemment : simplifier ne change
+     pas la valeur, seulement l'écriture. L'idée est celle du 2.1.1 de la
      Première ; le chemin des nombres, lui, est celui de {simplifier-fractions}. */
-  'simplifier-colonnes': { name:'Simplifier une fraction en coloriant deux colonnes', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re colonne, puis retrouve la M\u00caME hauteur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
+  'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
   'somme-fractions-libre': { name:'Somme de fractions \u2014 tu \u00e9cris ton calcul', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {simplifier-fractions}, mais plus aucune case : tu \u00e9cris ton calcul toi-m\u00eame, une \u00e9tape par ligne. Il faut l\u2019\u00e9tape du m\u00eame d\u00e9nominateur, et un r\u00e9sultat simplifi\u00e9 \u2014 l\u2019IA v\u00e9rifie que tout y est.', start:()=>startSFL() },
   'placer-intervalle': { name:'Placer des nombres sur une droite graduée', icon:'\ud83d\udccd', desc:'On donne une droite avec deux graduations et trois nombres : place chacun avant la première graduation, entre les deux, ou après la seconde. Un bouton ajoute les zéros pour que tous les nombres aient autant de décimales.', start:()=>startPlc() }
@@ -2254,7 +2256,7 @@ const THEMES=[
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
      commun. Les notes d\u00e9j\u00e0 obtenues ne bougent pas : elles portent l\u2019IDENTIFIANT,
      pas le num\u00e9ro. */
-  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','simplifier-colonnes'] }
+  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','simplifier-barres'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -3279,7 +3281,7 @@ Diviser le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre <b>ne
 <b>\u2462 On divise en haut et en bas</b> : \\(\\frac{4}{6}=\\frac{4\\div 2}{6\\div 2}=\\frac{2}{3}\\)<br>
 On s\u2019arr\u00eate quand <b>plus aucun nombre \u00e0 part 1 ne divise les deux</b> : la fraction est alors irr\u00e9ductible. Si tu divises par 2 alors que tu pouvais diviser par 6, ce n\u2019est pas faux \u2014 c\u2019est juste que ce n\u2019est pas fini.<br>
 <b>Le d\u00e9nominateur commun reste libre.</b> Qui prend 12 au lieu de 6 obtient \\(\\frac{8}{12}\\), divise par 4, et retombe sur \\(\\frac{2}{3}\\). Le r\u00e9sultat r\u00e9duit ne d\u00e9pend pas du chemin.`;
-/* Le rappel de {simplifier-colonnes}. Il ne redit pas celui de la somme : ici
+/* Le rappel de {simplifier-barres}. Il ne redit pas celui de la somme : ici
    il n'y a rien à additionner, et c'est le DESSIN qui porte l'idée — la même
    hauteur, partagée autrement.
    Les fractions s'écrivent en LaTeX entre \( et \) : rapMaths() les rend
@@ -3287,7 +3289,7 @@ On s\u2019arr\u00eate quand <b>plus aucun nombre \u00e0 part 1 ne divise les deu
    lit pas comme au cahier, et un contrôle du banc refuse « a/b » dans un
    rappel. */
 const RAP_SMP=`<b>Simplifier une fraction</b><br>
-Simplifier <b>ne change pas la valeur</b> : c’est la même hauteur, partagée autrement. Colorie \\(\\frac{6}{8}\\) sur une colonne partagée en 8, puis \\(\\frac{3}{4}\\) sur une colonne partagée en 4 : les deux montent au même niveau.<br>
+Simplifier <b>ne change pas la valeur</b> : c’est la même longueur, partagée autrement. Colorie \\(\\frac{6}{8}\\) sur une barre partagée en 8, puis \\(\\frac{3}{4}\\) sur une barre partagée en 4 : les deux vont exactement aussi loin.<br>
 <b>① On cherche un nombre qui divise le numérateur ET le dénominateur.</b> Ici 2 divise 6 et divise 8.<br>
 <b>② On divise en haut et en bas par ce nombre</b> : \\(\\frac{6}{8}=\\frac{6\\div 2}{8\\div 2}=\\frac{3}{4}\\)<br>
 On s’arrête quand <b>plus aucun nombre à part 1 ne divise les deux</b> : la fraction est alors irréductible.<br>
@@ -7241,19 +7243,21 @@ function ctxPlc(q){
 
 
 /* ===== EXERCICE : SIMPLIFIER UNE FRACTION EN COLORIANT DEUX COLONNES ==========
-   (identifiant « simplifier-colonnes », kind « smp »)
+   (identifiant « simplifier-barres », kind « smp »)
    =============================================================================
    Demandé par Turquet en août 2026, sur le modèle du 2.1.1 de la Première
-   (« Fraction et pourcentage ») : deux colonnes de MÊME HAUTEUR, partagées
-   différemment, et l'élève colorie la même hauteur sur les deux.
+   (« Fraction et pourcentage ») : deux dessins de MÊME TAILLE, partagés
+   différemment, et l'élève colorie la même mesure sur les deux. Ici ce sont
+   deux BARRES et non deux colonnes — le partage va jusqu'à 40, et seul le sens
+   couché en donne la place (voir le bloc CSS).
 
    CE QUE LE DESSIN ENSEIGNE, ET QUE LE CALCUL SEUL NE DIT PAS. Simplifier ne
-   change pas la valeur : 18/24 et 3/4 montent au même niveau. C'est la seule
-   chose que cet exercice cherche à faire passer, et c'est pour ça que la
-   première colonne existe alors qu'elle ne demande rien de plus que de recopier
-   l'énoncé — sans elle, il n'y aurait aucune hauteur à retrouver.
+   change pas la valeur : 18/24 et 3/4 vont exactement aussi loin. C'est la
+   seule chose que cet exercice cherche à faire passer, et c'est pour ça que la
+   première barre existe alors qu'elle ne demande rien de plus que de recopier
+   l'énoncé — sans elle, il n'y aurait aucune longueur à retrouver.
 
-   LE DÉNOMINATEUR D'ARRIVÉE EST DONNÉ, des deux côtés : la seconde colonne est
+   LE DÉNOMINATEUR D'ARRIVÉE EST DONNÉ, des deux côtés : la seconde barre est
    partagée en d parts, et la méthode 2 écrit « = □/d ». C'est ce qui rend
    l'exercice décidable — le diviseur est alors forcément le PGCD, et il n'y a
    pas de « juste mais pas fini » à arbitrer. La correction n'a donc jamais à
@@ -7270,16 +7274,20 @@ function ctxPlc(q){
    peut donc pas contredire sa correction — c'est la règle qu'{appartient-intervalle}
    et {placer-intervalle} appliquent déjà.
 
-   CINQ RÉPONSES PAR QUESTION, et les deux colonnes en font partie : elles
+   CINQ RÉPONSES PAR QUESTION, et les deux barres en font partie : elles
    portent la classe « pts-case » pour que la note AFFICHÉE compte ce que la
    note ENREGISTRÉE compte. Sans elle, l'écran annonçait « 3 cases justes sur 3 »
    sur une question qui en vaut 5. */
-const SMP_BMAX=14;   /* 250 px de colonne : au-delà, un segment fait moins de 17 px */
+/* Le dénominateur de départ va de 4 à 40 (demande de Turquet, août 2026).
+   40 est la borne du DESSIN : à 1080 px de barre, une part fait encore 27 px ;
+   au-delà elle cesse d'être cliquable. Les deux vont ensemble — élargir le
+   tirage sans élargir la barre rendrait les parts introuvables. */
+const SMP_BMIN=4, SMP_BMAX=40;
 function smpPgcd(x,y){ x=Math.abs(x); y=Math.abs(y); while(y){ const t=x%y; x=y; y=t; } return x; }
 function smpGen(){
   const paires=[];
-  for(let d=2; d<=10; d++)
-    for(let k=2; k<=10 && d*k<=SMP_BMAX; k++) paires.push([d,k]);
+  for(let d=2; d<=SMP_BMAX/2; d++)
+    for(let k=2; k<=10; k++){ const b=d*k; if(b>=SMP_BMIN && b<=SMP_BMAX) paires.push([d,k]); }
   const pr=pick(paires), d=pr[0], k=pr[1];
   const ns=[]; for(let n=1;n<d;n++) if(smpPgcd(n,d)===1) ns.push(n);
   const n=pick(ns);
@@ -7313,22 +7321,27 @@ function renderSmpTest(){
   /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
      entre deux éléments disparaît, et « Simplifie18/24 » se collerait. */
   $('smpPrompt').innerHTML='Simplifie '+smpFracHTML(q.a,q.b)
-    +' : colorie-la à gauche, retrouve la même hauteur à droite, puis termine par la méthode 2.';
+    +' : colorie-la sur la première barre, retrouve la même longueur sur la seconde, puis termine par la méthode 2.';
   const seg=(nb,sel,fn)=>Array.from({length:nb},(_,i)=>
     '<div class="smp-seg'+(i<sel?' on':'')+'" onclick="'+fn+'('+(i+1)+')"></div>').join('');
+  /* Étiquette, barre, puis la fraction que l'élève vient de colorier. Les deux
+     lignes l'une SOUS l'autre : c'est ce qui met les deux longueurs coloriées
+     bout à bout dans le regard. */
+  const ligne=(lab,idBar,nb,sel,fn,idVal,val)=>
+    '<div class="smp-ligne"><div class="smp-lab">'+lab+'</div>'
+     +'<div class="smp-bar pts-case" id="'+idBar+'">'+seg(nb,sel,fn)+'</div>'
+     +'<div class="smp-val" id="'+idVal+'">'+val+'</div></div>';
   /* Toute case est ENVELOPPÉE (.sf-case) : la correction du mode entraînement
      s'insère juste après elle, et posée nue dans une fraction elle en
      élargirait le trait. */
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   $('smpHost').innerHTML=
-    '<div class="pt-step"><div class="pt-lab">Méthode 1 : la même hauteur, partagée autrement</div>'
+    '<div class="pt-step"><div class="pt-lab">Méthode 1 : la même longueur, partagée autrement</div>'
      +'<div class="smp-zone">'
-       +'<div class="smp-bloc"><div class="smp-lab">partagée en '+q.b+'</div>'
-         +'<div class="smp-col pts-case" id="smpColL">'+seg(q.b,q.selL,'smpClicL')+'</div>'
-         +'<div class="smp-val" id="smpValL">'+(q.selL?smpFracHTML(q.selL,q.b):'…')+'</div></div>'
-       +'<div class="smp-bloc"><div class="smp-lab">partagée en '+q.d+'</div>'
-         +'<div class="smp-col pts-case" id="smpColR">'+seg(q.d,q.selR,'smpClicR')+'</div>'
-         +'<div class="smp-val" id="smpValR">'+(q.selR?smpFracHTML(q.selR,q.d):'…')+'</div></div>'
+       +ligne('partagée en '+q.b,'smpBarL',q.b,q.selL,'smpClicL','smpValL',
+              q.selL?smpFracHTML(q.selL,q.b):'…')
+       +ligne('partagée en '+q.d,'smpBarR',q.d,q.selR,'smpClicR','smpValR',
+              q.selR?smpFracHTML(q.selR,q.d):'…')
      +'</div>'
      +'<div class="smp-donc" id="smpDonc"></div></div>'
     +'<div class="pt-step"><div class="pt-lab">Méthode 2 : divise en haut ET en bas par le même nombre</div>'
@@ -7357,7 +7370,7 @@ function renderSmpTest(){
 /* Cliquer un segment colorie jusqu'à lui ; recliquer le dernier efface d'un cran. */
 function smpMajCol(){
   const q=test.questions[test.idx];
-  const L=$('smpColL'), R=$('smpColR'); if(!L||!R) return;
+  const L=$('smpBarL'), R=$('smpBarR'); if(!L||!R) return;
   [...L.querySelectorAll('.smp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selL));
   [...R.querySelectorAll('.smp-seg')].forEach((el,i)=>el.classList.toggle('on', i<q.selR));
   [L,R].forEach(function(c){ c.classList.remove('ok','bad','sol');
@@ -7384,21 +7397,21 @@ function smpMarqueCol(id, ok, vide){
    rien n'est colorié serait un mensonge — une case vide n'est pas une erreur de
    calcul, et la correction le dit avant tout le reste. */
 function smpPourquoi(q,r){
-  if(r.vide) return 'Il manque des réponses : colorie les deux colonnes et remplis les trois cases.';
-  if(!r.okL) return 'À gauche, colorie '+q.a+' parts sur '+q.b+' : c’est la fraction de l’énoncé.';
-  if(!r.okR) return 'À droite, colorie la MÊME hauteur qu’à gauche — elle vaut '+q.n+' parts sur '+q.d+'.';
+  if(r.vide) return 'Il manque des réponses : colorie les deux barres et remplis les trois cases.';
+  if(!r.okL) return 'Sur la première barre, colorie '+q.a+' parts sur '+q.b+' : c’est la fraction de l’énoncé.';
+  if(!r.okR) return 'Sur la seconde barre, colorie la MÊME longueur que sur la première — elle vaut '+q.n+' parts sur '+q.d+'.';
   if(!r.ok1||!r.ok2) return 'Le même nombre divise le haut ET le bas, et il doit faire passer '+q.b+' à '+q.d+' : c’est '+q.k+'.';
   return 'Il reste le numérateur : '+q.a+' ÷ '+q.k+' = '+q.n+'.';
 }
 function checkSmpAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  const colL=$('smpColL'), colR=$('smpColR'); if(!colL||!colR) return;
+  const colL=$('smpBarL'), colR=$('smpBarR'); if(!colL||!colR) return;
   const okL=(q.selL===q.a), okR=(q.selR===q.n);
   const ok1=(smpNb('smp-q1')===q.k), ok2=(smpNb('smp-q2')===q.k), ok3=(smpNb('smp-fn')===q.n);
   if(live){   /* soutien : on ne juge que ce qui est déjà colorié ou écrit */
-    smpMarqueCol('smpColL', okL, q.selL===0);
-    smpMarqueCol('smpColR', okR, q.selR===0);
+    smpMarqueCol('smpBarL', okL, q.selL===0);
+    smpMarqueCol('smpBarR', okR, q.selR===0);
     [['smp-q1',ok1],['smp-q2',ok2],['smp-fn',ok3]].forEach(function(pr){
       const el=$(pr[0]); if(!el||el.disabled) return;
       el.classList.remove('ok','bad');
@@ -7409,8 +7422,8 @@ function checkSmpAnswer(live){
   const soutien=isSoutien();
   const vide = q.selL===0 || q.selR===0
             || SMP_CASES.some(function(id){ return smpVal(id)===''; });
-  smpMarqueCol('smpColL', okL, q.selL===0);
-  smpMarqueCol('smpColR', okR, q.selR===0);
+  smpMarqueCol('smpBarL', okL, q.selL===0);
+  smpMarqueCol('smpBarR', okR, q.selR===0);
   const marque=function(id,ok){ const el=$(id); if(!el) return;
     el.classList.remove('ok','bad','sol');
     if(ok) el.classList.add('ok');
@@ -7446,7 +7459,7 @@ function checkSmpAnswer(live){
       [[colL,okL,q.a,q.b],[colR,okR,q.n,q.d]].forEach(function(pr){
         if(pr[1]) return;
         if(!pr[0].querySelector('.smp-cible'))
-          pr[0].insertAdjacentHTML('beforeend','<div class="smp-cible" style="bottom:'+(pr[2]*100/pr[3])+'%"></div>');
+          pr[0].insertAdjacentHTML('beforeend','<div class="smp-cible" style="left:'+(pr[2]*100/pr[3])+'%"></div>');
         if(!pr[0].classList.contains('bad')) pr[0].classList.add('sol');
       });
     }
@@ -7476,7 +7489,7 @@ async function startSmp(){
   Object.assign(test,{kind:'smp', questions:qs, idx:0, score:0,
     maxScore:qs.length*5, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
-  test.qId='simplifier-colonnes';
+  test.qId='simplifier-barres';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('smp'); renderSmpTest();
 }
@@ -7485,16 +7498,16 @@ async function startSmp(){
    contexte du tout — la fenêtre d'aide est offerte dès l'entraînement. */
 function ctxSmp(q){
   let c='L’élève doit simplifier la fraction '+q.a+'/'+q.b+', de deux façons sur le même écran. '
-   +'Méthode 1 : deux colonnes de MÊME hauteur, la première partagée en '+q.b+' parts, la seconde en '+q.d+'. '
-   +'Il colorie la fraction à gauche, puis la même HAUTEUR à droite — ce qui montre que simplifier ne change pas la valeur, seulement l’écriture. '
+   +'Méthode 1 : deux barres de MÊME longueur, la première partagée en '+q.b+' parts, la seconde en '+q.d+'. '
+   +'Il colorie la fraction sur la première, puis la même LONGUEUR sur la seconde — ce qui montre que simplifier ne change pas la valeur, seulement l’écriture. '
    +'Méthode 2 : il complète « '+q.a+' ÷ □ » sur « '+q.b+' ÷ □ » = « □ » sur '+q.d+', le même diviseur en haut et en bas. '
    +'Le dénominateur d’arrivée '+q.d+' est DONNÉ des deux côtés : le diviseur est donc forcément celui qui fait passer '+q.b+' à '+q.d+'. '
    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : '
-   +'à gauche '+q.a+' parts sur '+q.b+', à droite '+q.n+' parts sur '+q.d+', diviseur '+q.k+' en haut comme en bas, numérateur simplifié '+q.n+'. '
+   +'première barre '+q.a+' parts sur '+q.b+', seconde barre '+q.n+' parts sur '+q.d+', diviseur '+q.k+' en haut comme en bas, numérateur simplifié '+q.n+'. '
    +'L’erreur classique est de diviser par un nombre qui ne va pas jusqu’au bout : la fraction obtenue est alors juste, mais le travail n’est pas terminé.';
   const faux=[];
-  if(q.selL && q.selL!==q.a) faux.push('le coloriage de gauche');
-  if(q.selR && q.selR!==q.n) faux.push('le coloriage de droite');
+  if(q.selL && q.selL!==q.a) faux.push('le coloriage de la première barre');
+  if(q.selR && q.selR!==q.n) faux.push('le coloriage de la seconde barre');
   [['smp-q1','le diviseur du haut',q.k],['smp-q2','le diviseur du bas',q.k],
    ['smp-fn','le numérateur simplifié',q.n]].forEach(function(pr){
     const v=smpVal(pr[0]); if(v!=='' && parseInt(v,10)!==pr[2]) faux.push(pr[1]);

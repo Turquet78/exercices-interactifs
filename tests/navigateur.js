@@ -1980,66 +1980,66 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 sexdecies. SIMPLIFIER EN COLORIANT : LA MÊME HAUTEUR =====
+    /* ===== 6 sexdecies. SIMPLIFIER EN COLORIANT : LA MÊME LONGUEUR =====
        Tout l'exercice tient dans une chose qu'aucun banc hors navigateur ne
-       peut voir : les deux colonnes MONTENT AU MÊME NIVEAU. Si l'une était
-       dessinée plus courte que l'autre, ou si le remplissage ne suivait pas la
-       fraction, le dessin dirait l'inverse de ce qu'on enseigne — et rien ne
-       rougirait nulle part, la correction, elle, comparant des nombres.
-       Il tient aussi le défaut trouvé le jour même, à la main, en ouvrant la
-       page : à 320 px de colonne (la hauteur de la Première), le BAS de la
-       colonne tombait sous le pli d'un écran 1366×768. On colorie du bas vers
-       le haut : l'élève cliquait ce qu'il ne voyait pas. Un banc qui mesure une
-       fenêtre de 1000 px de haut ne l'aurait jamais vu. */
-    titre('6 sexdecies. SIMPLIFIER EN COLORIANT : LES DEUX COLONNES DISENT LA MÊME HAUTEUR');
-    if(!P.colonnesSimplifier){
-      ignorer('les deux colonnes montent exactement à la même hauteur',
-        'ce niveau n\'a pas l\'exercice des deux colonnes');
+       peut voir : les deux barres VONT EXACTEMENT AUSSI LOIN. Si l'une était
+       dessinée plus courte que l'autre, ou si elles ne partaient pas du même
+       bord, ou si le remplissage ne suivait pas la fraction, le dessin dirait
+       l'inverse de ce qu'on enseigne — et rien ne rougirait nulle part, la
+       correction, elle, comparant des nombres.
+       Il tient aussi le défaut trouvé le jour même en ouvrant la page à la
+       taille d'un ordinateur portable : les deux dessins doivent tenir tout
+       entiers à l'écran, et une part rester assez large pour être cliquée. */
+    titre('6 sexdecies. SIMPLIFIER EN COLORIANT : LES DEUX BARRES VONT AUSSI LOIN');
+    if(!P.barresSimplifier){
+      ignorer('les deux barres vont exactement aussi loin',
+        'ce niveau n\'a pas l\'exercice des deux barres');
     } else {
       /* L'écran d'un ordinateur portable ordinaire, et non le grand format des
          autres contrôles : c'est cette taille-là qui a montré le défaut. */
       s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 768 } });
       await connecter(s.page);
-      await s.page.evaluate(id => openTest(id), P.colonnesSimplifier.exercice);
+      await s.page.evaluate(id => openTest(id), P.barresSimplifier.exercice);
       await s.page.waitForTimeout(400);
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(1200);
 
-      /* 1. LA COLONNE ENTIÈRE EST À L'ÉCRAN, sans avoir à faire défiler. */
-      const pli = await s.page.evaluate(() => {
-        const L = document.getElementById('smpColL'), R = document.getElementById('smpColR');
-        if(!L || !R) return { manque: 'les colonnes sont absentes' };
-        const a = L.getBoundingClientRect(), b = R.getBoundingClientRect();
-        const seg = L.querySelector('.smp-seg');
-        return { basG: Math.round(a.bottom), basD: Math.round(b.bottom),
-                 fenetre: window.innerHeight,
-                 hSeg: seg ? Math.round(seg.getBoundingClientRect().height * 10) / 10 : 0,
-                 parts: L.querySelectorAll('.smp-seg').length };
-      });
       const dits = [];
+      /* 1. LES DEUX DESSINS SONT ENTIERS À L'ÉCRAN, et une part se clique. */
+      const pli = await s.page.evaluate(() => {
+        const L = document.getElementById('smpBarL'), R = document.getElementById('smpBarR');
+        if(!L || !R) return { manque: 'les barres sont absentes' };
+        const a = L.getBoundingClientRect(), b = R.getBoundingClientRect();
+        const segs = [...L.querySelectorAll('.smp-seg')];
+        return { bas: Math.round(Math.max(a.bottom, b.bottom)), fenetre: window.innerHeight,
+                 lSeg: segs.length ? Math.round(segs[0].getBoundingClientRect().width * 10) / 10 : 0,
+                 parts: segs.length };
+      });
       if(pli.manque) dits.push(pli.manque);
       else {
-        if(pli.basG > pli.fenetre || pli.basD > pli.fenetre)
-          dits.push('le bas d\'une colonne tombe sous le pli : ' + Math.max(pli.basG, pli.basD)
-            + 'px pour une fenêtre de ' + pli.fenetre + 'px — on colorie du bas vers le haut');
-        /* et le partage reste cliquable : les deux vont ensemble, raccourcir la
-           colonne sans borner le partage rendrait les segments introuvables. */
-        if(pli.hSeg < 14)
-          dits.push('un segment ne fait que ' + pli.hSeg + 'px de haut (' + pli.parts + ' parts)');
+        if(pli.bas > pli.fenetre)
+          dits.push('le bas d\'une barre tombe sous le pli : ' + pli.bas
+            + 'px pour une fenêtre de ' + pli.fenetre + 'px');
+        /* La largeur d'une part et la borne du tirage vont ENSEMBLE : élargir
+           le tirage sans élargir la barre rendrait les parts introuvables. */
+        if(pli.lSeg < 20)
+          dits.push('une part ne fait que ' + pli.lSeg + 'px de large (' + pli.parts + ' parts)');
       }
 
-      /* 2. LES DEUX COLONNES ONT LA MÊME HAUTEUR, et une fois la bonne réponse
-            donnée, la MÊME HAUTEUR COLORIÉE. C'est l'exercice tout entier. */
+      /* 2. LES DEUX BARRES ONT LA MÊME LONGUEUR, PARTENT DU MÊME BORD, et une
+            fois la bonne réponse donnée, sont COLORIÉES SUR LA MÊME LONGUEUR.
+            C'est l'exercice tout entier. */
       const vu = await s.page.evaluate(() => {
         const q = test.questions[test.idx];
         smpClicL(q.a); smpClicR(q.n);
-        const L = document.getElementById('smpColL'), R = document.getElementById('smpColR');
+        const L = document.getElementById('smpBarL'), R = document.getElementById('smpBarR');
         const plein = c => { const on = [...c.querySelectorAll('.smp-seg.on')];
           if(!on.length) return 0;
           const r = c.getBoundingClientRect();
-          return Math.round((r.bottom - Math.min(...on.map(e => e.getBoundingClientRect().top))) * 10) / 10; };
+          return Math.round((Math.max(...on.map(e => e.getBoundingClientRect().right)) - r.left) * 10) / 10; };
         const a = L.getBoundingClientRect(), b = R.getBoundingClientRect();
-        return { hG: Math.round(a.height), hD: Math.round(b.height),
+        return { lG: Math.round(a.width), lD: Math.round(b.width),
+                 xG: Math.round(a.left), xD: Math.round(b.left),
                  remplG: plein(L), remplD: plein(R),
                  partsG: L.querySelectorAll('.smp-seg').length,
                  partsD: R.querySelectorAll('.smp-seg').length,
@@ -2047,24 +2047,29 @@ async function parcours(page, N){
                  sousG: (document.getElementById('smpValL') || {}).textContent.replace(/\s/g, ''),
                  sousD: (document.getElementById('smpValR') || {}).textContent.replace(/\s/g, '') };
       });
-      if(vu.hG !== vu.hD)
-        dits.push('les deux colonnes n\'ont pas la même hauteur : ' + vu.hG + 'px contre ' + vu.hD + 'px');
+      if(vu.lG !== vu.lD)
+        dits.push('les deux barres n\'ont pas la même longueur : ' + vu.lG + 'px contre ' + vu.lD + 'px');
+      /* Le bord le plus sournois : deux barres de même longueur mais décalées
+         l\'une par rapport à l\'autre ne se comparent plus du tout, et rien
+         d\'autre ne le dirait. C\'est l\'étiquette à largeur fixe qui le tient. */
+      if(vu.xG !== vu.xD)
+        dits.push('les deux barres ne commencent pas au même endroit : ' + vu.xG + 'px contre ' + vu.xD + 'px');
       if(vu.partsG === vu.partsD)
-        dits.push('les deux colonnes sont partagées pareil (' + vu.partsG + ') : il n\'y a rien à simplifier');
-      /* Le bord qui compte : la hauteur COLORIÉE, pas le nombre de parts. */
+        dits.push('les deux barres sont partagées pareil (' + vu.partsG + ') : il n\'y a rien à simplifier');
+      /* Le bord qui compte : la longueur COLORIÉE, pas le nombre de parts. */
       if(Math.abs(vu.remplG - vu.remplD) > 2)
-        dits.push('sur ' + vu.q + ' les deux coloriages ne montent pas au même niveau : '
+        dits.push('sur ' + vu.q + ' les deux coloriages ne vont pas aussi loin : '
           + vu.remplG + 'px contre ' + vu.remplD + 'px');
       if(!vu.remplG || !vu.remplD)
-        dits.push('une colonne reste vide après le clic : ' + vu.remplG + ' / ' + vu.remplD);
-      /* et l'élève LIT sous chaque colonne ce qu'il vient de colorier */
+        dits.push('une barre reste vide après le clic : ' + vu.remplG + ' / ' + vu.remplD);
+      /* et l'élève LIT à côté de chaque barre ce qu'il vient de colorier */
       const att = vu.q.split(' = ');
-      if(vu.sousG !== att[0]) dits.push('sous la colonne de gauche on lit « ' + vu.sousG +' » au lieu de ' + att[0]);
-      if(vu.sousD !== att[1]) dits.push('sous la colonne de droite on lit « ' + vu.sousD + ' » au lieu de ' + att[1]);
+      if(vu.sousG !== att[0]) dits.push('à côté de la 1re barre on lit « ' + vu.sousG + ' » au lieu de ' + att[0]);
+      if(vu.sousD !== att[1]) dits.push('à côté de la 2de barre on lit « ' + vu.sousD + ' » au lieu de ' + att[1]);
 
-      verifier('les deux colonnes montent exactement à la même hauteur',
+      verifier('les deux barres vont exactement aussi loin',
         dits.length === 0, dits.slice(0, 3).join(' | '));
-      verifier('l\'écran des deux colonnes ne lève aucune erreur JavaScript',
+      verifier('l\'écran des deux barres ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }

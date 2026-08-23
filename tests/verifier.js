@@ -2298,7 +2298,7 @@ function exercices(suite){
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
-    simplifierColonnes(w, P);
+    simplifierBarres(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -3114,7 +3114,11 @@ function sommeFractions(w, P){
      accepterait 32/6 comme « simplifié ».
 
    On EXERCE la vraie correction, en posant des valeurs dans les vraies cases. */
-/* {simplifier-colonnes} — la fraction dite deux fois : coloriée, puis divisée.
+/* {simplifier-barres} — la fraction dite deux fois : coloriée, puis divisée.
+   « colonnes » est l'identifiant d'origine et il ne se renomme PAS : c'est la
+   clé sous laquelle les notes des élèves sont enregistrées. Le dessin, lui, est
+   passé de deux colonnes à deux barres couchées le jour même — le partage va
+   jusqu'à 40, et seule la largeur en donne la place.
    Le contrôle EXERCE la vraie correction en posant des valeurs dans les vraies
    cases, jamais une réimplémentation — qui se serait trompée du même côté.
    Il tient quatre bords, et n'en tenir qu'un ne tient rien :
@@ -3122,27 +3126,27 @@ function sommeFractions(w, P){
        et le partage reste cliquable (b borné) ;
      · la correction — une copie juste vaut 5, un diviseur qui ne va pas
        jusqu'au bout est refusé ;
-     · une réponse laissée VIDE ne rougit pas, colonnes COMPRISES — le contrôle
+     · une réponse laissée VIDE ne rougit pas, barres COMPRISES — le contrôle
        universel du banc navigateur ne regarde que les champs et les listes, il
-       ne verrait jamais une colonne rouge ;
+       ne verrait jamais une barre rouge ;
      · la note compte CINQ réponses — les deux coloriages en font partie, et
        sans « pts-case » l'écran annonçait « 3 justes sur 3 » sur une question
        qui en vaut 5. */
-function simplifierColonnes(w, P){
+function simplifierBarres(w, P){
   const present = evaluer(w, "typeof startSmp==='function' && typeof smpGen==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('simplifier une fraction en coloriant deux colonnes',
-      'ce niveau n\'a pas l\'exercice « Simplifier une fraction en coloriant deux colonnes »');
+    ignorer('simplifier une fraction en coloriant deux barres',
+      'ce niveau n\'a pas l\'exercice « Simplifier une fraction en coloriant deux barres »');
     return;
   }
-  verifierEval(w, 'simplifier une fraction en coloriant deux colonnes', `(function(){
+  verifierEval(w, 'simplifier une fraction en coloriant deux barres', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
-    currentTestId='simplifier-colonnes';
+    currentTestId='simplifier-barres';
     const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
 
     /* ---- 1. le tirage ---------------------------------------------------- */
-    const vusK={};
+    const vusK={}, vusB={};
     for(let i=0;i<2000;i++){
       const q=smpGen(), eti='tirage '+q.a+'/'+q.b+' (n='+q.n+', d='+q.d+', k='+q.k+')';
       if(q.a!==q.n*q.k || q.b!==q.d*q.k){ vus.push(eti+' : a et b ne sont pas n×k et d×k'); break; }
@@ -3153,14 +3157,26 @@ function simplifierColonnes(w, P){
       if(pgcd(q.n,q.d)!==1){ vus.push(eti+' : la fraction d\\'arrivée '+q.n+'/'+q.d+' se simplifie encore'); break; }
       if(q.k<2){ vus.push(eti+' : rien à simplifier'); break; }
       if(q.k>10){ vus.push(eti+' : le PGCD dépasse 10'); break; }
-      if(q.d<2){ vus.push(eti+' : la seconde colonne n\\'aurait qu\\'une seule part'); break; }
-      if(q.n<1 || q.n>=q.d){ vus.push(eti+' : le numérateur d\\'arrivée sort de la colonne'); break; }
-      if(q.b>SMP_BMAX){ vus.push(eti+' : '+q.b+' parts, un segment devient trop fin pour être cliqué'); break; }
-      if(q.selL!==0 || q.selR!==0){ vus.push(eti+' : une colonne est déjà coloriée au tirage'); break; }
-      vusK[q.k]=1;
+      if(q.d<2){ vus.push(eti+' : la seconde barre n\\'aurait qu\\'une seule part'); break; }
+      if(q.n<1 || q.n>=q.d){ vus.push(eti+' : le numérateur d\\'arrivée sort de la barre'); break; }
+      /* LES DEUX BORNES DEMANDÉES : de 4 à 40. Au-delà de 40, une part de barre
+         descend sous 27 px et cesse d\\'être cliquable ; en deçà de 4, il n\\'y a
+         plus grand-chose à partager. */
+      if(q.b>SMP_BMAX){ vus.push(eti+' : '+q.b+' parts, une part devient trop fine pour être cliquée'); break; }
+      if(q.b<SMP_BMIN){ vus.push(eti+' : '+q.b+' parts, en deçà du partage demandé'); break; }
+      if(q.selL!==0 || q.selR!==0){ vus.push(eti+' : une barre est déjà coloriée au tirage'); break; }
+      vusK[q.k]=1; vusB[q.b]=1;
     }
     if(!vus.length && Object.keys(vusK).length<3)
       vus.push('le tirage ne produit que '+Object.keys(vusK).length+' diviseur(s) différent(s)');
+    /* Le partage demandé va de 4 à 40 : si le tirage ne montait jamais au-delà
+       d\'une vingtaine, la borne serait écrite sans être atteinte — et une borne
+       qu\'on n\'atteint jamais fait croire qu\'on couvre un domaine. */
+    if(!vus.length){
+      const bs=Object.keys(vusB).map(Number);
+      if(Math.max.apply(null,bs)<30) vus.push('le tirage ne dépasse jamais '+Math.max.apply(null,bs)+' parts, alors que la borne est '+SMP_BMAX);
+      if(Math.min.apply(null,bs)>8) vus.push('le tirage ne descend jamais sous '+Math.min.apply(null,bs)+' parts');
+    }
 
     /* ---- 2. la correction, exercée pour de vrai -------------------------- */
     startSmp();
@@ -3183,7 +3199,7 @@ function simplifierColonnes(w, P){
       };
       const rep=test.answers[test.answers.length-1]||{};
       return { justes:test.score-avant, correct:!!rep.correct, cases:rep.cases, bons:rep.justes,
-               g:etat('smpColL'), d:etat('smpColR'),
+               g:etat('smpBarL'), d:etat('smpBarR'),
                q1:etat('smp-q1'), q2:etat('smp-q2'), fn:etat('smp-fn'),
                cibles:document.querySelectorAll('.smp-cible').length,
                retour:(document.getElementById('smpFeedback')||{}).textContent||'' };
@@ -3199,7 +3215,7 @@ function simplifierColonnes(w, P){
     /* LA NOTE AFFICHÉE COMPTE LES DEUX COLONNES. Sans « pts-case », ptsEcran()
        ne voyait que les trois champs : « 3 cases justes sur 3 » sur une
        question qui en vaut 5, pendant que la note enregistrée en comptait 5. */
-    if(r.cases!==5) vus.push('la note affichée compte '+r.cases+' cases au lieu de 5 : les colonnes n\\'y sont pas');
+    if(r.cases!==5) vus.push('la note affichée compte '+r.cases+' cases au lieu de 5 : les barres n\\'y sont pas');
 
     /* diviser par trop peu : le dénominateur d\\'arrivée est ÉCRIT, 8/12 divisé
        par 2 donne 4/6 et n\\'atteint pas 3. */
@@ -3210,17 +3226,17 @@ function simplifierColonnes(w, P){
     r=juger(avec({'smp-q2':2}));
     if(r.q2==='ok') vus.push('diviser le haut par 4 et le bas par 2 est accepté');
     if(r.q1!=='ok') vus.push('le diviseur JUSTE du haut rougit parce que celui du bas est faux');
-    /* le coloriage de droite doit être la MÊME hauteur */
+    /* le coloriage de la seconde barre doit être la MÊME longueur */
     r=juger(avec({R:1}));
     if(r.d==='ok') vus.push('1 part sur 3 est accepté alors que 8/12 vaut 2/3');
-    if(r.g!=='ok') vus.push('le coloriage JUSTE de gauche rougit parce que celui de droite est faux');
+    if(r.g!=='ok') vus.push('le coloriage JUSTE de la 1re barre rougit parce que celui de la 2de est faux');
 
     /* ---- 3. RIEN N\\'EST ÉCRIT : rien ne rougit -------------------------- */
     r=juger({});
-    if(r.g==='bad'||r.d==='bad') vus.push('une colonne laissée VIDE rougit : '+r.g+' / '+r.d);
+    if(r.g==='bad'||r.d==='bad') vus.push('une barre laissée VIDE rougit : '+r.g+' / '+r.d);
     if(r.q1==='bad'||r.q2==='bad'||r.fn==='bad') vus.push('une case laissée vide rougit');
-    if(r.g!=='sol'||r.d!=='sol') vus.push('une colonne vide ne reçoit pas la correction en bleu : '+r.g+' / '+r.d);
-    if(r.cibles!==2) vus.push('la bonne hauteur n\\'est pas montrée sur les deux colonnes ('+r.cibles+' trait(s))');
+    if(r.g!=='sol'||r.d!=='sol') vus.push('une barre vide ne reçoit pas la correction en bleu : '+r.g+' / '+r.d);
+    if(r.cibles!==2) vus.push('la bonne mesure n\\'est pas montrée sur les deux barres ('+r.cibles+' trait(s))');
     if(r.justes!==0) vus.push('une copie entièrement vide vaut '+r.justes+' réponse(s)');
     if(r.cases!==5) vus.push('une copie vide compte '+r.cases+' cases au lieu de 5');
     if(!/manque/.test(r.retour)) vus.push('le message ne dit pas qu\\'il manque des réponses : « '+r.retour+' »');
