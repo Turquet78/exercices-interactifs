@@ -1980,6 +1980,100 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 sexdecies. SIMPLIFIER EN COLORIANT : LA MÊME LONGUEUR =====
+       Tout l'exercice tient dans une chose qu'aucun banc hors navigateur ne
+       peut voir : les deux barres VONT EXACTEMENT AUSSI LOIN. Si l'une était
+       dessinée plus courte que l'autre, ou si elles ne partaient pas du même
+       bord, ou si le remplissage ne suivait pas la fraction, le dessin dirait
+       l'inverse de ce qu'on enseigne — et rien ne rougirait nulle part, la
+       correction, elle, comparant des nombres.
+       Il tient aussi le défaut trouvé le jour même en ouvrant la page à la
+       taille d'un ordinateur portable : les deux dessins doivent tenir tout
+       entiers à l'écran, et une part rester assez large pour être cliquée. */
+    titre('6 sexdecies. SIMPLIFIER EN COLORIANT : LES DEUX BARRES VONT AUSSI LOIN');
+    if(!P.barresSimplifier){
+      ignorer('les deux barres vont exactement aussi loin',
+        'ce niveau n\'a pas l\'exercice des deux barres');
+    } else {
+      /* L'écran d'un ordinateur portable ordinaire, et non le grand format des
+         autres contrôles : c'est cette taille-là qui a montré le défaut. */
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 768 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.barresSimplifier.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1200);
+
+      const dits = [];
+      /* 1. LES DEUX DESSINS SONT ENTIERS À L'ÉCRAN, et une part se clique. */
+      const pli = await s.page.evaluate(() => {
+        const L = document.getElementById('smpBarL'), R = document.getElementById('smpBarR');
+        if(!L || !R) return { manque: 'les barres sont absentes' };
+        const a = L.getBoundingClientRect(), b = R.getBoundingClientRect();
+        const segs = [...L.querySelectorAll('.smp-seg')];
+        return { bas: Math.round(Math.max(a.bottom, b.bottom)), fenetre: window.innerHeight,
+                 lSeg: segs.length ? Math.round(segs[0].getBoundingClientRect().width * 10) / 10 : 0,
+                 parts: segs.length };
+      });
+      if(pli.manque) dits.push(pli.manque);
+      else {
+        if(pli.bas > pli.fenetre)
+          dits.push('le bas d\'une barre tombe sous le pli : ' + pli.bas
+            + 'px pour une fenêtre de ' + pli.fenetre + 'px');
+        /* La largeur d'une part et la borne du tirage vont ENSEMBLE : élargir
+           le tirage sans élargir la barre rendrait les parts introuvables. */
+        if(pli.lSeg < 20)
+          dits.push('une part ne fait que ' + pli.lSeg + 'px de large (' + pli.parts + ' parts)');
+      }
+
+      /* 2. LES DEUX BARRES ONT LA MÊME LONGUEUR, PARTENT DU MÊME BORD, et une
+            fois la bonne réponse donnée, sont COLORIÉES SUR LA MÊME LONGUEUR.
+            C'est l'exercice tout entier. */
+      const vu = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        smpClicL(q.a); smpClicR(q.n);
+        const L = document.getElementById('smpBarL'), R = document.getElementById('smpBarR');
+        const plein = c => { const on = [...c.querySelectorAll('.smp-seg.on')];
+          if(!on.length) return 0;
+          const r = c.getBoundingClientRect();
+          return Math.round((Math.max(...on.map(e => e.getBoundingClientRect().right)) - r.left) * 10) / 10; };
+        const a = L.getBoundingClientRect(), b = R.getBoundingClientRect();
+        return { lG: Math.round(a.width), lD: Math.round(b.width),
+                 xG: Math.round(a.left), xD: Math.round(b.left),
+                 remplG: plein(L), remplD: plein(R),
+                 partsG: L.querySelectorAll('.smp-seg').length,
+                 partsD: R.querySelectorAll('.smp-seg').length,
+                 q: q.a + '/' + q.b + ' = ' + q.n + '/' + q.d,
+                 sousG: (document.getElementById('smpValL') || {}).textContent.replace(/\s/g, ''),
+                 sousD: (document.getElementById('smpValR') || {}).textContent.replace(/\s/g, '') };
+      });
+      if(vu.lG !== vu.lD)
+        dits.push('les deux barres n\'ont pas la même longueur : ' + vu.lG + 'px contre ' + vu.lD + 'px');
+      /* Le bord le plus sournois : deux barres de même longueur mais décalées
+         l\'une par rapport à l\'autre ne se comparent plus du tout, et rien
+         d\'autre ne le dirait. C\'est l\'étiquette à largeur fixe qui le tient. */
+      if(vu.xG !== vu.xD)
+        dits.push('les deux barres ne commencent pas au même endroit : ' + vu.xG + 'px contre ' + vu.xD + 'px');
+      if(vu.partsG === vu.partsD)
+        dits.push('les deux barres sont partagées pareil (' + vu.partsG + ') : il n\'y a rien à simplifier');
+      /* Le bord qui compte : la longueur COLORIÉE, pas le nombre de parts. */
+      if(Math.abs(vu.remplG - vu.remplD) > 2)
+        dits.push('sur ' + vu.q + ' les deux coloriages ne vont pas aussi loin : '
+          + vu.remplG + 'px contre ' + vu.remplD + 'px');
+      if(!vu.remplG || !vu.remplD)
+        dits.push('une barre reste vide après le clic : ' + vu.remplG + ' / ' + vu.remplD);
+      /* et l'élève LIT à côté de chaque barre ce qu'il vient de colorier */
+      const att = vu.q.split(' = ');
+      if(vu.sousG !== att[0]) dits.push('à côté de la 1re barre on lit « ' + vu.sousG + ' » au lieu de ' + att[0]);
+      if(vu.sousD !== att[1]) dits.push('à côté de la 2de barre on lit « ' + vu.sousD + ' » au lieu de ' + att[1]);
+
+      verifier('les deux barres vont exactement aussi loin',
+        dits.length === 0, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des deux barres ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent

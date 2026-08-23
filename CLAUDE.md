@@ -533,6 +533,91 @@ sens et toutes les échelles. Le second était un faux sabotage de ma part :
 décaler un nombre d'une unité de son propre rang ne lui fait presque jamais
 changer de zone, et le vert était juste.
 
+**Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
+{simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
+deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
+`b` parts, la seconde en `d` — l'élève colorie la fraction sur la première,
+puis la même LONGUEUR sur la seconde, et lit à côté ce qu'il vient de colorier.
+Méthode 2 : `a ÷ □` sur `b ÷ □` `= □` sur `d`. Quand tout est vérifié, la page
+écrit la conclusion : « donc a/b = n/d » (demande de Turquet, août 2026).
+L'idée est celle du 2.1.1 de la Première, qui posait déjà deux dessins de même
+taille partagés différemment ; le chemin des nombres est celui de la dernière
+étape de {simplifier-fractions}.
+
+**Le dessin est COUCHÉ, et c'est le partage qui l'a décidé.** Le dénominateur de
+départ va de 4 à 40 (demande de Turquet, août 2026), et une colonne verticale ne
+peut pas dépasser 250 px : au-delà son BAS tombe sous le pli d'un écran
+d'ordinateur portable, or on colorie du bas vers le haut — l'élève cliquerait ce
+qu'il ne voit pas. 40 parts dans 250 px font des segments de 6 px, incliquables.
+Couchée, la barre dispose de la largeur entière que ces écrans prennent déjà :
+1080 px découpés en 40 font des parts de 27 px. **La borne du tirage et la
+largeur de la barre vont ensemble** — élargir l'une sans l'autre rend les parts
+introuvables, et un contrôle du banc navigateur mesure la part rendue.
+La première version était en colonnes, et le défaut ne s'est vu qu'en ouvrant la
+page à 1366×768 : à la hauteur de la Première (320 px), le bas des colonnes
+passait déjà sous le pli avec un partage de 14.
+
+**Les deux barres doivent COMMENCER AU MÊME ENDROIT.** Deux barres de même
+longueur mais décalées ne se comparent plus, et c'est tout ce que l'exercice
+enseigne. « partagée en 40 » et « partagée en 5 » n'ayant pas la même longueur,
+l'étiquette a une largeur FIXE. Rien d'autre ne dirait ce défaut : le banc
+navigateur mesure donc le bord gauche des deux barres, en plus de leur longueur
+et de la longueur coloriée.
+
+**La première barre ne demande rien de plus que de recopier l'énoncé, et c'est
+pour ça qu'elle existe.** Sans elle il n'y aurait aucune longueur à retrouver, et
+la seconde ne serait qu'un second exercice de calcul. C'est la longueur COMMUNE
+qui enseigne : simplifier ne change pas la valeur, seulement l'écriture.
+
+**Le dénominateur d'arrivée est DONNÉ des deux côtés** — la seconde barre est
+partagée en `d` parts, et la méthode 2 écrit `= □/d`. C'est ce qui rend
+l'exercice décidable : le diviseur est alors forcément le PGCD, et il n'y a pas
+de « juste mais pas fini » à arbitrer. La correction ne peut donc jamais compter
+faux un élève qui a raison — la question ne laisse pas cette place. C'est
+l'inverse de {simplifier-fractions}, où le dénominateur commun reste libre
+jusqu'au bout : là le diviseur se CALCULE sur ce que l'élève a écrit, ici il est
+déterminé par l'énoncé.
+
+**Le tirage part de la fraction d'ARRIVÉE.** On tire `n/d` irréductible, puis on
+la « dé-simplifie » en multipliant par `k` : le PGCD de `a/b` vaut alors
+exactement `k`, puisque pgcd(nk, dk) = k × pgcd(n, d) = k. Partir de `a/b` et
+calculer son PGCD aurait obligé à jeter les tirages sans simplification
+possible, et à espérer que le PGCD tombe sous 10 — la borne demandée. Il en
+découle que **la bonne réponse n'est jamais rangée à côté de la question** : `n`,
+`d` et `k` sont les nombres MÊMES dont l'énoncé est fait, un énoncé ne peut donc
+pas contredire sa correction.
+
+**Une barre est une RÉPONSE, pas un décor — et la note affichée doit le savoir.**
+Chaque question vaut cinq réponses : les deux coloriages et les trois cases.
+`ptsEcran()` ne connaissait que les `math-field`, les `select` et les `input` :
+l'écran annonçait « 3 cases justes sur 3 » sur une question qui en vaut 5,
+pendant que la note enregistrée en comptait bien 5. C'est le défaut de `good` au
+lieu de `ok`, par une autre porte — la note enregistrée juste, celle montrée à
+l'élève fausse, et rien qui rougisse. Une classe le dit désormais : `pts-case`,
+que `ptsEcran()` compte comme une case. Toute réponse qui n'est ni un champ ni
+une liste peut la porter.
+
+**Et une barre laissée vide ne rougit pas**, comme une case : elle reçoit la
+correction en bleu — le trait à la bonne mesure — et la bordure passe en
+pointillés. La règle valait déjà partout pour les cases de saisie ; elle vaut
+ici dès le premier jour, sur un élément qui n'est pas un champ. Le contrôle
+universel du banc navigateur, lui, ne regarde que les `MATH-FIELD`, `INPUT` et
+`SELECT` : il ne verrait pas une barre rouge. C'est un contrôle du banc de
+l'exercice qui tient ce bord.
+
+**Un garde-fou MORT y a été écrit, puis retiré.** `allOk = justes===5 && !vide`
+n'écartait jamais rien : aucune des cinq réponses ne peut être juste ET vide —
+une barre non coloriée vaut 0, une case vide se lit NaN. {simplifier-fractions}
+en avait besoin parce que chacune de ses étapes se juge sur ce que l'élève a
+écrit et pouvait donc être verte à moitié ; ici chaque réponse est comparée à UNE
+valeur. Le sabotage l'a montré en restant vert, et il avait raison.
+
+**Le bloc CSS est RECOPIÉ, pas greffé sur `#sfHost`.** Les réglages qui posent
+le badge de correction hors du flux vivent sur `#sfHost`, dans un bloc qui est
+le même texte dans les deux niveaux — et la Première n'a pas cet écran. Les
+étendre aurait fait diverger ce bloc ; sans eux, le badge se poserait DANS le
+flux et élargirait le trait de fraction, le défaut d'août 2026 au même endroit.
+
 **Croiser les dénominateurs, c'est le MÊME moteur avec une image en plus.**
 {croiser-denominateurs} (Seconde) partage tout avec {somme-fractions} — écran,
 correction, chaîne d'égalités — et n'ajoute qu'une chose : il MONTRE d'où vient
