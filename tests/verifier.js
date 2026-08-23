@@ -1194,6 +1194,133 @@ function branchements(w){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- Les écritures mathématiques des réponses du modèle ----------------
+     Un élève de Seconde lisait « \frac{1}{2} », en toutes lettres, là où son
+     cahier porte une fraction empilée : sa page posait la réponse du modèle en
+     textContent, et lui demandait d'ailleurs d'écrire « sans LaTeX ». La
+     Terminale et la Première rendaient déjà ces écritures depuis longtemps —
+     encore une leçon apprise dans un coin qui n'avait pas gagné les autres.
+
+     DEUX MOITIÉS, et n'en tenir qu'une ne tient rien :
+       · la page doit SAVOIR RENDRE — la réponse passe par conseilHTML(), jamais
+         par textContent : posée en texte, la plus belle formule du monde
+         s'affiche avec ses antislashs ;
+       · et elle doit DEMANDER — si la consigne envoyée au modèle ne réclame pas
+         de LaTeX, il répond « 3/4 » et il n'y a rien à rendre. Pire : demander
+         sans savoir rendre AFFICHE les antislashs, c'est-à-dire le défaut qu'on
+         corrige. Les deux ensemble, ou aucune.
+     Le moteur lui-même (huit fonctions et deux constantes) est le MÊME texte
+     dans les trois fichiers : une moitié modifiée d'un seul côté ferait diverger
+     le rendu d'un niveau sans que rien ne rougisse. */
+  const MOTEUR_IA = ['latexRepare','fracAuto','iaMathAuto','iaTabCell','iaTableau',
+                     'iaCoupe','iaDollars','conseilHTML'];
+  /* corpsFonctions() et non un comptage d'accolades naïf : ces fonctions sont
+     pleines d'expressions régulières où « { } » abondent, et un compteur qui ne
+     saute ni les chaînes ni les regex avalait 11 000 lignes au lieu de 60 — le
+     contrôle comparait alors deux moitiés de fichier et criait sur tout. */
+  const corpsDe = (texte, nom) => {
+    const f = corpsFonctions(texte, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+      .find(o => o.nom === nom);
+    return f ? f.texte : null;
+  };
+  let origine;
+  try{ origine = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
+  catch(e){ origine = undefined; }
+  const manquantes = MOTEUR_IA.filter(n => corpsDe(src, n) === null);
+  verifier('le moteur d’écritures mathématiques est au complet',
+    manquantes.length === 0, 'manque : ' + manquantes.join(', '));
+  if(!manquantes.length && origine){
+    const differentes = MOTEUR_IA.filter(n => corpsDe(src, n) !== corpsDe(origine, n));
+    verifier('le moteur est identique à celui de la Terminale, au caractère près',
+      differentes.length === 0,
+      differentes.length ? 'diverge sur : ' + differentes.join(', ')
+                         : undefined);
+  } else if(!origine){
+    verifier('le moteur est identique à celui de la Terminale, au caractère près',
+      false, 'terminale.html est introuvable');
+  }
+
+  /* La réponse du modèle ne doit JAMAIS être posée en texte. On cherche les
+     endroits qui affichent d.feedback : chacun doit passer par conseilHTML(). */
+  const sinks = [...src.matchAll(/[^\n]*\bd\.feedback\b[^\n]*/g)]
+    .map(m => ({ ligne: src.slice(0, m.index).split('\n').length, texte: m[0] }))
+    .filter(o => /textContent\s*=/.test(o.texte));
+  verifier('la réponse du modèle est rendue, jamais posée en texte brut',
+    sinks.length === 0,
+    'ligne(s) ' + sinks.map(o => o.ligne).join(', ')
+      + ' — une formule y arriverait avec ses antislashs');
+
+  /* Et les rappels de cours eux-mêmes : une fraction s'y écrit \(\frac{a}{b}\),
+     jamais « a/b ». Ce n'est pas une coquetterie — le rappel est ce que l'élève
+     relit quand il ne comprend plus, et une barre oblique n'est pas ce que porte
+     son cahier. Le contrôle du navigateur vérifie que ce qui est écrit s'AFFICHE
+     empilé ; celui-ci vérifie que c'est ÉCRIT ainsi, sans quoi une fraction
+     remise à plat repasserait sans un mot. */
+  const rapsPlats = [];
+  const listeRap = (src.match(/const RAPPELS\s*=\s*\{([\s\S]*?)\}/) || [])[1] || '';
+  const listeRapId = (src.match(/const RAPPELS_ID\s*=\s*\{([\s\S]*?)\}/) || [])[1] || '';
+  const nomsRap = [...new Set([...(listeRap + listeRapId).matchAll(/:\s*(RAP_[A-Z0-9_]+)/g)].map(m => m[1]))];
+  for(const n of nomsRap){
+    const m = src.match(new RegExp('^const ' + n + '\\s*=', 'm'));
+    if(!m) continue;
+    let i = m.index + m[0].length, prof = 0, fin = -1;
+    for(let j = i; j < src.length; j++){
+      const saut = sauter(src, j);
+      if(saut >= 0){ j = saut; continue; }
+      if(src[j] === '(' || src[j] === '{' || src[j] === '[') prof++;
+      else if(src[j] === ')' || src[j] === '}' || src[j] === ']') prof--;
+      else if(src[j] === ';' && prof <= 0){ fin = j; break; }
+    }
+    const corps = src.slice(i, fin < 0 ? src.length : fin);
+    /* Chiffres ET lettres : « P/100 », « x/100 », « 100/b », « u/v » sont des
+       fractions autant que « 1/2 ». Le premier jet ne cherchait que chiffre/chiffre
+       et laissait passer les autres — ça s'est vu sur une capture d'écran, pas
+       dans le vert du banc. Chaque côté est un nombre ou UNE lettre : « et/ou »
+       et « km/h » ne sont pas des fractions et ne doivent pas rougir. */
+    const plats = [...corps.matchAll(/(?<![\w\\])(?:[0-9]+|[a-zA-Z])\s*\/\s*(?:[0-9]+|[a-zA-Z])(?![\w])/g)].map(x => x[0]);
+    if(plats.length) rapsPlats.push(n + ' (' + plats.slice(0, 3).join(', ') + ')');
+  }
+  verifier('les fractions des rappels de cours sont écrites empilées, jamais « a/b »',
+    nomsRap.length > 0 && rapsPlats.length === 0,
+    !nomsRap.length ? 'aucun rappel trouvé : le contrôle ne mesure rien'
+                    : rapsPlats.slice(0, 3).join(' | '));
+
+  verifierEval(w, 'les deux aides réclament des écritures mathématiques au modèle', `(function(){
+    const CLAUSE='LaTeX entre \\\\( et \\\\)';
+    const vus=[];
+    if(typeof conseilHTML!=='function') vus.push('conseilHTML() introuvable : la page ne saurait pas rendre');
+    const sbSauve=sb, sauve=currentEleve;
+    let parti='';
+    sb={ functions:{ invoke:function(n,o){ parti=(o&&o.body&&o.body.contexte)||''; return new Promise(function(){}); } } };
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    if(typeof lancerConseil!=='function') vus.push('lancerConseil() introuvable');
+    else {
+      const fb=document.createElement('div'); document.body.appendChild(fb);
+      parti=''; conseilBusy=false;
+      try{ if(lancerConseil.length>=3) lancerConseil('', 'CONTEXTE-TEMOIN', fb); else lancerConseil('CONTEXTE-TEMOIN', fb); }
+      catch(e){ vus.push('le conseil lève : '+e.message); }
+      conseilBusy=false;
+      if(!parti) vus.push('le conseil n\\'envoie rien : le contrôle ne mesure rien');
+      else if(parti.indexOf(CLAUSE)<0) vus.push('le conseil du soutien ne réclame pas d\\'écritures en LaTeX');
+      try{ fb.remove(); }catch(e){}
+    }
+    if(typeof qiaEnvoyer!=='function') vus.push('qiaEnvoyer() introuvable');
+    else {
+      let d=document.getElementById('qiaDialog');
+      if(!d){ d=document.createElement('div'); d.id='qiaDialog'; document.body.appendChild(d); }
+      let inp=document.getElementById('qiaInput');
+      if(!inp){ inp=document.createElement('input'); inp.id='qiaInput'; document.body.appendChild(inp); }
+      inp.value='Comment on fait ?';
+      parti=''; qiaBusy=false;
+      try{ qiaEnvoyer(); }catch(e){ vus.push('la fenêtre d\\'aide lève : '+e.message); }
+      qiaBusy=false;
+      if(!parti) vus.push('la fenêtre d\\'aide n\\'envoie rien : le contrôle ne mesure rien');
+      else if(parti.indexOf(CLAUSE)<0) vus.push('la fenêtre « Question à l\\'IA » ne réclame pas d\\'écritures en LaTeX');
+    }
+    sb=sbSauve; currentEleve=sauve;
+    return vus.slice(0,3).join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- Un bouton d'une fenêtre DÉTACHÉE trouve-t-il sa fonction ? --------
      Sur ordinateur, « Soutien » et « Question à l'IA » s'ouvrent dans une
      fenêtre indépendante et leur carte y est DÉPLACÉE. C'est alors un autre

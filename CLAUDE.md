@@ -810,6 +810,68 @@ elle part avec la page. **Un seul endroit la décrit** (`LANGUE_SIMPLE`), partag
 par les deux aides et par le bouton du rappel : deux descriptions auraient fini
 par diverger, et l'une des aides aurait reparlé comme avant sans qu'on le voie.
 
+**Une case où l'élève écrit a la taille des nombres qui l'entourent.** Elle est
+en mode math — un `<math-field>` —, et sa police fait la même taille que les
+chiffres posés à côté (décision de Turquet, août 2026, **valable pour tout
+exercice à saisie, présent ou futur**). Une case plus petite fait passer la
+réponse de l'élève pour une note en bas de page au milieu du calcul ; c'est ce
+que donnait {somme-fractions}, cases à 1,05 rem contre des chiffres à 2 rem.
+La référence est l'écran des pourcentages de la Première, qui portait déjà la
+règle en toutes lettres dans son commentaire : `font-size:1.9rem` quand les
+voisins sont à 2 rem. La largeur suit la taille — à 62 px, une réponse à deux
+chiffres débordait.
+**« Autour » se mesure, et il a fallu deux essais pour le dire juste.** Le
+premier relevé prenait n'importe quel chiffre d'un ancêtre proche : il attrapait
+ceux de la multiplication POSÉE, dans le panneau d'à côté, et accusait
+{mult-decimaux} et {mult-dec-un} d'un défaut qu'ils n'avaient pas. Un nombre est
+« autour » d'une case s'il partage sa LIGNE — recouvrement vertical — ET s'il est
+À CÔTÉ : au-delà de 120 px de vide horizontal, c'est un autre bloc. Avec cette
+définition, aucune exemption n'est nécessaire nulle part, ce qui est le signe
+qu'elle est la bonne : une règle qui demande une liste d'exceptions décrit mal ce
+qu'elle mesure.
+Le contrôle vit dans le banc navigateur, greffé sur la visite de TOUS les
+exercices : un exercice ajouté demain est donc couvert sans rien déclarer. Il
+donne le numéro de l'exercice et les deux tailles — « 4.1 — sf-a1 : 16.8px contre
+32px ». Le mode math, lui, était déjà acquis partout : la Seconde et la Première
+posent les mêmes `math-field`, seule la TAILLE divergeait.
+
+**Une fraction se lit empilée, ou elle ne se lit pas.** Le modèle et les rappels
+de cours écrivent leurs mathématiques en LaTeX entre `\(` et `\)` — les fractions
+sont EMPILÉES, comme dans le cahier, et non couchées derrière une barre oblique.
+La Terminale et la Première le faisaient depuis longtemps ; la Seconde posait la
+réponse du modèle en `textContent` et lui demandait d'ailleurs d'écrire « sans
+LaTeX ». Un élève y lisait donc « 3/4 » au mieux, « \frac{3}{4} » en toutes
+lettres au pire — encore une leçon apprise dans un coin qui n'avait pas gagné les
+autres, comme le résidu MathLive.
+**Ce sont DEUX moitiés, et n'en tenir qu'une ne tient rien.** La page doit SAVOIR
+RENDRE — `conseilHTML()`, jamais `textContent` : posée en texte, la plus belle
+formule arrive avec ses antislashs. Et elle doit DEMANDER — sans la clause
+`ECRITURE_MATHS`, le modèle répond « 3/4 » et il n'y a rien à rendre. Demander
+sans savoir rendre est le PIRE des trois états : ça affiche les antislashs,
+c'est-à-dire exactement le défaut qu'on corrige. Un contrôle exige les deux.
+Le moteur (huit fonctions, deux constantes — `latexRepare`, `fracAuto`,
+`iaMathAuto`, `iaTabCell`, `iaTableau`, `iaCoupe`, `iaDollars`, `conseilHTML`) est
+le MÊME TEXTE dans les trois fichiers, et un contrôle les compare au caractère
+près : une moitié modifiée d'un seul côté ferait diverger le rendu d'un niveau
+sans que rien ne rougisse. Il ne dépend que d'`esc()` et de `window.mlDexp`.
+**Un rappel de cours, lui, ne passe PAS par `conseilHTML()`** : c'est du HTML
+écrit à la main, et `esc()` afficherait ses `<b>` en toutes lettres. `rapMaths()`
+ne remplace que les segments `\( … \)`, et le fait à L'AFFICHAGE : les rappels
+sont des constantes évaluées au chargement, quand MathLive n'est pas encore prêt
+— une fraction rendue là serait vide.
+Deux contrôles, et ils ne voient pas la même chose. Le STATIQUE lit les rappels et
+refuse une fraction écrite « a/b » ; il cherche chiffres ET lettres, parce que le
+premier jet ne voyait que `1/2` et laissait passer `P/100`, `x/100`, `100/b`,
+`u/v` — ça ne s'est vu que sur une capture d'écran. Le NAVIGATEUR ouvre chaque
+rappel qui porte une formule et exige qu'elle soit dessinée : lui seul voit qu'on
+a débranché `rapMaths()`, le statique n'y verrait rien.
+Un piège de banc s'y est montré, et il vaut pour tout le dépôt : **comparer deux
+fonctions en comptant les accolades ne marche pas ici**. Ces fonctions sont
+pleines d'expressions régulières où `{ }` abondent ; un compteur naïf avalait
+11 000 lignes au lieu de 60, et le contrôle criait sur des fonctions parfaitement
+identiques. `corpsFonctions()` existe pour ça — il saute les chaînes, les
+commentaires et les regex.
+
 **Il n'y a plus aucun bouton « Explique-moi plus simplement ».** Ni sous le
 conseil, ni sous la fenêtre d'aide — ils parlent simplement d'eux-mêmes —, ni
 sous le rappel de cours (décision de Turquet, août 2026). Ce dernier est un

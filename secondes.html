@@ -381,6 +381,8 @@
   .exo-title .exo-name{font-weight:600;color:var(--ink);font-size:1.12rem}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
+  .mp-feedback .fb-ok{color:var(--green);font-weight:600}
+  .mp-feedback .fb-ko{color:var(--red);font-weight:600}
   .set-h{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:20px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
   .set-h.first{border-top:none;padding-top:0;margin-top:2px}
 
@@ -507,10 +509,19 @@
    le trait de fraction au lieu d'écarter le voisin. */
 #sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
 #sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:52px}
-#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px}
+/* Une case où l'élève écrit un nombre s'écrit en MODE MATH et à la MÊME TAILLE
+   que les nombres qui l'entourent (décision de Turquet, août 2026, valable pour
+   tout exercice à saisie). C'est 1,9rem, comme les écrans de pourcentage de la
+   Première : les chiffres voisins (.f-whole) sont à 2rem, et une case à 1,05rem
+   se lisait comme une note de bas de page au milieu d'un calcul.
+   La largeur suit la taille : à 62 px, une réponse à deux chiffres débordait. */
+#sfHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
+@media(max-width:900px){ #sfHost math-field.pm-mf{font-size:1.5rem}
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
-  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:54px} }
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
   /* ---- Placer trois nombres sur une droite graduée ---- */
   .plc-scene{width:100%;max-width:520px;margin:0 auto 6px}
   .plc-scene svg{width:100%;height:auto;display:block}
@@ -1608,7 +1619,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=67;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=69;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2119,6 +2130,252 @@ function pgeRappelBtn(withConseil){
     : '';
   return schema + conseilInlineBtn(withConseil);
 }
+/* ===== ÉCRITURES MATHÉMATIQUES DANS LES RÉPONSES DE L'IA =====================
+   PORTÉ DEPUIS terminale.html, AU CARACTÈRE PRÈS. Ces huit fonctions forment un
+   moteur : le modèle écrit ses formules en LaTeX entre \( et \), et conseilHTML()
+   les rend par MathLive — fractions EMPILÉES, exposants, indices, et les tableaux
+   \begin{array} dessinés en vrais tableaux.
+   La Seconde posait sa réponse en textContent : un \frac{1}{2} envoyé par le
+   modèle s'affichait « \frac{1}{2} », en toutes lettres. Elle était le seul
+   niveau dans ce cas — encore une leçon apprise dans un coin qui n'avait pas
+   gagné les autres.
+   Les trois copies doivent rester IDENTIQUES : un contrôle les compare. Une
+   moitié modifiée d'un seul côté ferait diverger le rendu d'un niveau sans que
+   rien ne rougisse. Ce moteur ne dépend que de esc() et de window.mlDexp.
+   ========================================================================== */
+var LTX_ACC='(?:d?frac|tfrac|sqrt|text|mathbb|mathrm|mathbf|overline|underline|overrightarrow|widehat|binom|vec)';
+var LTX_MOT='(?:Leftrightarrow|longrightarrow|rightarrow|Rightarrow|leqslant|geqslant|approx|lambda|infty|times|ldots|cdots|qquad|alpha|gamma|delta|theta|Delta|cdot|quad|beta|left|right|sqrt|frac|ell|div|lim|log|exp|cos|sin|tan|neq|leq|geq|ln|pm|pi|to)';
+function latexRepare(s, dansFormule){
+  s=String(s==null?'':s);
+  if(s.indexOf('\\')>=0){
+    s=s.replace(/\\{2,}(?=[A-Za-z()[\]])/g,'\\');   /* \\frac, \\( , \\) … : un seul antislash */
+    s=s.replace(/\\{2,}/g,'');                   /* \\ isole : retour a la ligne LaTeX parasite */
+  }
+  s=s.replace(new RegExp('(^|[^\\\\A-Za-z])('+LTX_ACC+')\\s*(?=\\{)','g'),'$1\\$2');
+  if(dansFormule){
+    var T=[];
+    s=s.replace(/\\(?:text|mathrm)\{[^{}]{0,80}\}/g,function(m){T.push(m);return '\uE012'+(T.length-1)+'\uE013';});
+    s=s.replace(new RegExp('(^|[^\\\\A-Za-z])('+LTX_MOT+')(?![A-Za-z])','g'),'$1\\$2');
+    s=s.replace(/([_^])\(([^()]{1,24})\)/g,'$1{$2}');   /* e^(-x), u_(n+1) : parentheses -> accolades, sinon MathLive ne met que « ( » en exposant */
+    s=s.replace(/\uE012(\d+)\uE013/g,function(m,i){return T[+i]||'';});
+    s=s.replace(/\\+$/,'');
+  }
+  return s;
+}
+function fracAuto(s){
+  s=String(s==null?'':s);
+  s=s.replace(/\\div(?![A-Za-z])/g,'/').replace(/\u00f7/g,'/');
+  if(s.indexOf('/')<0) return s;
+  const T=[]; s=s.replace(/\\text\{[^{}]{0,60}\}/g,function(m){T.push(m);return '\uE010'+(T.length-1)+'\uE011';});
+  var NUM='\\d+(?:[.,]\\d+)?';
+  var SUF='(?:[_^](?:\\{(?:[^{}]|\\{[^{}]{0,24}\\}){0,40}\\}|'+NUM+'|[A-Za-z]))*';
+  var GRP='\\((?:[^()]|\\([^()]{0,30}\\)){0,80}\\)';
+  var FRC='\\\\(?:d?frac|sqrt)(?:\\{(?:[^{}]|\\{[^{}]{0,30}\\}){0,80}\\}){1,2}';
+  var FUN="(?:\\\\?[A-Za-z]{1,6}(?:'{1,2}|\u2032{1,2})?)?"+GRP;
+  var VAR="(?:\\\\[A-Za-z]{1,12}|[A-Za-z])(?:'{1,2}|\u2032{1,2})?";
+  var ATOM='(?:'+FRC+'|'+FUN+'|'+VAR+'|'+NUM+')'+SUF;
+  var RX=new RegExp('((?:'+NUM+'\\s?)?'+ATOM+')\\s*\\/\\s*(-?'+ATOM+')');
+  var OP=/^-?\\(?:cdot|times|div|to(?![A-Za-z])|left|right|ldots|cdots|ddots|vdots|quad|qquad|text|mathbb|lim(?![A-Za-z])|le(?:q(?:slant)?)?(?![A-Za-z])|ge(?:q(?:slant)?)?(?![A-Za-z])|ne(?:q)?(?![A-Za-z])|approx|pm|mp|in(?![A-Za-z])|notin|iff|implies|Rightarrow|Leftrightarrow|infty)/;
+  var nue=function(x){ x=x.trim(); return /^\((?:[^()]|\([^()]*\))*\)$/.test(x) ? x.slice(1,-1) : x; };
+  var garde=0, idx=0;
+  while(garde++<10){
+    var m=RX.exec(s.slice(idx));
+    if(!m) break;
+    var abs=idx+m.index, nu=m[1], de=m[2], avant=abs>0?s[abs-1]:'';
+    if(OP.test(nu)||OP.test(de)||avant==='\\'||(/[A-Za-z]/.test(avant)&&/^[A-Za-z]/.test(nu))||/^[VvOo]$/.test(nu)&&/^[FfNn]$/.test(de)){
+      idx=abs+m[0].indexOf('/')+1; continue;   /* operande suspect ou mot colle : cette barre reste une barre */
+    }
+    s=s.slice(0,abs)+'\\frac{'+nue(nu)+'}{'+nue(de)+'}'+s.slice(abs+m[0].length);
+    idx=0;   /* la fraction creee devient un atome pour les barres suivantes (a/b/c) */
+  }
+  s=s.replace(/\uE010(\d+)\uE011/g,function(m,i){return T[+i]||'';});
+  return s;
+}
+function iaMathAuto(s, maths){
+  s=String(s==null?'':s);
+  s=s.replace(/\\d?frac(?!\s?\{)/g,'');   /* \frac malforme (\frace^(0,5x)…, \frac x/y) : la commande cassee disparait, la suite reste detectable puis fracAuto empile la division si elle existe */
+  const CMD='(?:Leftrightarrow|Rightarrow|leqslant|geqslant|implies|approx|infty|times|lambda|Delta|alpha|gamma|delta|notin|ldots|cdots|ddots|vdots|left|right|cdot|dots|beta|iff|div|ell|exp|cos|sin|tan|lim|ln|log|mu|pm|to|in|pi|leq|geq|neq|le|ge|ne|e)';
+  const BRACE='\\{(?:[^{}]|\\{(?:[^{}]|\\{[^{}]{0,16}\\}){0,32}\\}){1,48}\\}';   /* accolades imbriquees (2 niveaux) : \frac{e^{0{,}5x}}{3x+3} */
+  const SUFF='(?:_(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9])|\\^(?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9]))';
+  const seed=new RegExp('\\\\(?:d?frac)'+BRACE+'\\s?'+BRACE+'|\\\\sqrt'+BRACE+'|\\\\(?:lim|ln|log|exp)(?![A-Za-z])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\u221a|[A-Za-z0-9)][\/\u00f7](?=\\s?[A-Za-z0-9(\u2212-])|[A-Za-z0-9)}]'+SUFF,'g');
+  const tokRe=new RegExp('^(?:\\\\(?:d?frac)'+BRACE+'\\s?'+BRACE+'|\\\\sqrt'+BRACE+'|\\\\text'+BRACE+'|\\\\mathbb\\{[A-Z]\\}|\\\\'+CMD+'(?![A-Za-z])|\\\\[,;!]|d[xt](?![A-Za-z])|[_^](?:\\('+'[^()]{1,24}'+'\\)|'+BRACE+'|\\d+(?:[.,]\\d+)?|[A-Za-z0-9])|[A-Za-z]\\x27{1,2}(?=\\()|(?:ln|log|exp|cos|sin|tan)(?=\\s?\\()|\\d+(?:[.,]\\d+)?|[=+\\-\\u2212\\u00d7\\u00b7\\/\\u00f7()<>\\u2264\\u2265\\u2260\\u2248\\u00b1\\u221a\\u2192\\u221e\\u03c0\\u2113]|\\*(?!\\*)|[A-Za-z]'+SUFF+'?)');
+  const bareOK=/^[A-Znqrkxbuvwdfgh]$/;   /* jamais a e i l o s t y : lettres-mots du francais */
+  const lettre=c=>!!c && /[A-Za-z\u00c0-\u00ff]/.test(c);
+  let m, out='', last=0;
+  while((m=seed.exec(s))){
+    let a=m.index, b=seed.lastIndex;
+    if(a>0 && /[A-Za-z0-9]/.test(s[a]) && (lettre(s[a-1])||s[a-1]==="'"||s[a-1]==='\u2019')) continue;   /* base lettre/chiffre collee a un mot */
+    for(;;){   /* extension a droite */
+      let p=b; if(s[p]===' ') p++;
+      const t=tokRe.exec(s.slice(p)); if(!t) break;
+      const tok=t[0], fin=p+tok.length;
+      if(/[A-Za-z]$/.test(tok) && (lettre(s[fin])||s[fin]==="'"||s[fin]==='\u2019')) break;   /* identifiant colle a un mot */
+      if(/^[A-Za-z]$/.test(tok) && !bareOK.test(tok)) break;
+      b=fin;
+    }
+    for(;;){   /* extension a gauche */
+      let p=a; if(p>0 && s[p-1]===' ') p--;
+      let best=null;
+      for(let L=Math.min(30,p); L>=1; L--){
+        const cand=s.slice(p-L,p), t2=tokRe.exec(cand);
+        if(t2 && t2[0].length===cand.length){ best=cand; break; }
+      }
+      if(!best) break;
+      const deb=p-best.length;
+      if(deb<last) break;   /* verrou : jamais mordre la zone deja emise */
+      if(/^[A-Za-z]/.test(best) && deb>0 && (lettre(s[deb-1])||s[deb-1]==="'"||s[deb-1]==='\u2019')) break;
+      if(/^[A-Za-z]$/.test(best) && !bareOK.test(best)) break;
+      if(best==='*' && (s[p]==='*'||s[deb-1]==='*')) break;   /* '**' : frontiere */
+      a=deb;
+    }
+    if(a>last && s[a]==='\\' && /[A-Za-z]/.test(s[a-1]) && !/[A-Za-z\u00c0-\u00ff'\u2019]/.test(s[a-2]||'')) a--;   /* coefficient colle : a\,U_n */
+    if(a<last) a=last;
+    while(a<b && /[ =+\u00d7\u00b7*\/,)<>\u2264\u2265\u2260\u2248]/.test(s[a])) a++;
+    while(b>a && /[ =+\-\u2212\u00d7\u00b7*\/,(<>\u2264\u2265\u2260\u2248]/.test(s[b-1])) b--;
+    let run=s.slice(a,b);
+    const nb=(t,c)=>t.split(c).length-1;
+    while(run && run[run.length-1]===')' && nb(run,')')>nb(run,'(')){ b--; run=s.slice(a,b); }
+    while(run && run[0]==='(' && nb(run,'(')>nb(run,')')){ a++; run=s.slice(a,b); }
+    if(b-a<2 || !/[_^\u221a\u2192\u221e\u03c0\u2113]|[A-Za-z0-9)]\s?[\/\u00f7]|\\(?:d?frac|sqrt|lim|ln|log|exp|text|mathbb)|[A-Za-z]'{1,2}\(|(?:ln|log|exp|cos|sin|tan)\s?\(/.test(run)){
+      seed.lastIndex=Math.max(seed.lastIndex,b); continue;
+    }
+    out+=s.slice(last,a);
+    const lx=run
+      .replace(/_\(([^()]{1,24})\)/g,'_{$1}').replace(/\^\(([^()]{1,24})\)/g,'^{$1}')
+      .replace(/_([A-Za-z0-9])/g,'_{$1}').replace(/\^([A-Za-z0-9])/g,'^{$1}')
+      .replace(/(^|[^\\A-Za-z])(ln|log|exp|cos|sin|tan)(?=\s?\()/g,'$1\\$2 ')
+      .replace(/\u221a\(([^()]{1,24})\)/g,'\\sqrt{$1}').replace(/\u221a([A-Za-z0-9])/g,'\\sqrt{$1}')
+      .replace(/\u00d7/g,'\\times ').replace(/\u00b7/g,'\\cdot ').replace(/\*/g,'\\times ').replace(/\u2212/g,'-')
+      .replace(/\u2264/g,'\\le ').replace(/\u2265/g,'\\ge ').replace(/\u2260/g,'\\ne ').replace(/\u2248/g,'\\approx ')
+      .replace(/\u2192/g,'\\to ').replace(/\u221e/g,'\\infty ').replace(/\u03c0/g,'\\pi ').replace(/\u2113/g,'\\ell ').replace(/\u00b1/g,'\\pm ');
+    maths.push(fracAuto(latexRepare(lx,true)));
+    out+='\uE000'+(maths.length-1)+'\uE001';
+    last=b; seed.lastIndex=b;
+  }
+  out+=s.slice(last);
+  /* commandes LaTeX restees seules dans le texte : converties en glyphes lisibles */
+  out=out.replace(/\\text\{([^{}]{0,30})\}/g,'$1')
+         .replace(/\\mathbb\{R\}/g,'\u211d').replace(/\\mathbb\{N\}/g,'\u2115').replace(/\\mathbb\{Z\}/g,'\u2124').replace(/\\mathbb\{Q\}/g,'\u211a')
+         .replace(/\\(?:Leftrightarrow|iff)(?![A-Za-z])/g,'\u21d4').replace(/\\(?:Rightarrow|implies)(?![A-Za-z])/g,'\u21d2')
+         .replace(/\\leqslant(?![A-Za-z])/g,'\u2264').replace(/\\geqslant(?![A-Za-z])/g,'\u2265')
+         .replace(/\\approx(?![A-Za-z])/g,'\u2248').replace(/\\notin(?![A-Za-z])/g,'\u2209').replace(/\\in(?![A-Za-z])/g,'\u2208')
+         .replace(/\\Delta(?![A-Za-z])/g,'\u0394').replace(/\\alpha(?![A-Za-z])/g,'\u03b1').replace(/\\beta(?![A-Za-z])/g,'\u03b2')
+         .replace(/\\gamma(?![A-Za-z])/g,'\u03b3').replace(/\\delta(?![A-Za-z])/g,'\u03b4').replace(/\\lambda(?![A-Za-z])/g,'\u03bb').replace(/\\mu(?![A-Za-z])/g,'\u03bc')
+         .replace(/\\times(?![A-Za-z])/g,'\u00d7').replace(/\\cdot(?![A-Za-z])/g,'\u00b7').replace(/\\div(?![A-Za-z])/g,'\u00f7')
+         .replace(/\\pm(?![A-Za-z])/g,'\u00b1').replace(/\\leq?(?![A-Za-z])/g,'\u2264').replace(/\\geq?(?![A-Za-z])/g,'\u2265')
+         .replace(/\\neq?(?![A-Za-z])/g,'\u2260').replace(/\\ell(?![A-Za-z])/g,'\u2113')
+         .replace(/\\pi(?![A-Za-z])/g,'\u03c0').replace(/\\infty(?![A-Za-z])/g,'\u221e')
+         .replace(/\\nearrow(?![A-Za-z])/g,'\u2197').replace(/\\searrow(?![A-Za-z])/g,'\u2198')
+         .replace(/\\(?:ldots|dots)(?![A-Za-z])/g,'\u2026').replace(/\\cdots(?![A-Za-z])/g,'\u22ef')
+         .replace(/\\ddots(?![A-Za-z])/g,'\u22f1').replace(/\\vdots(?![A-Za-z])/g,'\u22ee')
+         .replace(/\\qquad(?![A-Za-z])/g,'\u2003\u2003').replace(/\\quad(?![A-Za-z])/g,'\u2003')
+         .replace(/\\Longrightarrow(?![A-Za-z])/g,'\u27f9').replace(/\\longrightarrow(?![A-Za-z])/g,'\u27f6')
+         .replace(/\\math(?:rm|bf|it)\{([^{}]{0,30})\}/g,'$1')
+         .replace(/\\to(?![A-Za-z])/g,'\u2192').replace(/\\(?:lim|ln|log|exp|cos|sin|tan)(?![A-Za-z])/g,x=>x.slice(1))
+         .replace(/\\(?:left|right)(?![A-Za-z])/g,'').replace(/\\e(?![A-Za-z])/g,'e')
+         .replace(/\\[,;!]/g,'\u2009')
+         .replace(/\\([A-Za-z]+)/g,'$1');   /* filet ultime : toute commande inconnue perd sa barre (le mot reste lisible), zero backslash a l'ecran */
+  return out;
+}
+/* Tableaux LaTeX (\begin{array} … \end{array}) que le modele peut emettre malgre la
+   consigne : convertis en vrai tableau HTML — lignes separees par \\ ou par des retours
+   a la ligne, cellules par &, \hline = bordure haute, \nearrow/\searrow = fleches — et
+   chaque cellule est rendue par MathLive. Jeton prive \uE002n\uE003, reinjecte apres coup. */
+function iaTabCell(c){
+  let s=String(c==null?'':c).trim();
+  s=s.replace(/\\?nearrow/g,'\u2197').replace(/\\?searrow/g,'\u2198');
+  if(s==='') return '';
+  if(!/[A-Za-z\\^_\/]/.test(s)) return esc(s);   /* nombres, signes, fleches seuls : texte direct */
+  const lx=fracAuto(latexRepare(s,true));
+  const r=(window.mlDexp&&mlDexp.tex)?mlDexp.tex(lx):null;
+  return r!=null?r:esc(s);
+}
+function iaTableau(t,tabs){
+  return String(t==null?'':t).replace(/(?:\\[\[(]\s*)?\\?begin\{(array|tabular|matrix|pmatrix)\}(\{[^{}]*\})?([\s\S]*?)\\?end\{\1\}(?:\s*\\[\])])?/g,function(m,env,spec,corps){
+    let lignes=corps.split(/\\\\/);
+    if(lignes.length===1) lignes=corps.split(/\n/);
+    const rows=[]; let bord=false;
+    lignes.forEach(function(L){
+      const l=L.replace(/\\?hline/g,function(){ bord=true; return ''; }).trim();
+      if(l==='') return;   /* ligne reduite a \hline : la bordure ira a la ligne suivante */
+      rows.push({b:bord, c:l.split('&').map(iaTabCell)}); bord=false;
+    });
+    if(!rows.length) return m;
+    const nc=Math.max.apply(null,rows.map(function(r){ return r.c.length; }));
+    const html='<table class="qia-arr">'+rows.map(function(r){
+      let tr='<tr'+(r.b?' class="qia-arr-h"':'')+'>';
+      for(let i=0;i<nc;i++) tr+='<td>'+(r.c[i]||'')+'</td>';
+      return tr+'</tr>';
+    }).join('')+'</table>';
+    tabs.push(html); return '\uE002'+(tabs.length-1)+'\uE003';
+  });
+}
+/* Reponse de l'IA coupee en plein vol (limite de longueur cote serveur) : un \\( ouvert
+   sans \\) fermant, ou des accolades jamais refermees en fin de texte, laisseraient un
+   fragment illisible (« \\(= frac{3e^x (x + »). On retire le fragment inacheve, on efface
+   un antislash orphelin, et on termine par « … » pour signaler la coupure. */
+function iaCoupe(t){
+  let s=String(t==null?'':t), coupe=false;
+  const s2=s.replace(/\\+\s*$/,''); if(s2!==s){ s=s2; coupe=true; }   /* antislash orphelin final : troncature aussi */
+  const oP=s.lastIndexOf('\\('), cP=s.lastIndexOf('\\)');
+  if(oP>=0 && oP>cP){ s=s.slice(0,oP); coupe=true; }
+  const oC=s.lastIndexOf('\\['), cC=s.lastIndexOf('\\]');
+  if(oC>=0 && oC>cC){ s=s.slice(0,oC); coupe=true; }
+  const pile=[];   /* accolades restees ouvertes : positions des « { » jamais refermes */
+  for(let i=0;i<s.length;i++){ const ch=s[i]; if(ch==='{') pile.push(i); else if(ch==='}') pile.pop(); }
+  if(pile.length){
+    let p=pile[0];
+    const av=s.slice(0,p).match(/\\[A-Za-z]{1,12}\s?$/);   /* la commande collee devant (« \\frac ») part avec */
+    if(av) p-=av[0].length;
+    s=s.slice(0,p); coupe=true;
+  }
+  if(coupe){ s=s.replace(/[\s:.,;=+\-\u00d7\u00b7]+$/,''); if(s) s+=' \u2026'; }
+  return s;
+}
+/* Le modele emploie parfois des DOLLARS comme delimiteurs ($…$, $$…$$) malgre la consigne
+   \( … \). Sans conversion : $$X$$ laisse un $ orphelin de chaque cote (la regle $X$
+   n'attrape que l'interieur), et $ X $ avec espaces internes est ignore par la garde
+   anti-prix. On convertit donc AVANT tout : 1) \$ echappe -> $ ; 2) $$…$$ (meme sur
+   plusieurs lignes) -> \(…\) ; 3) toute LIGNE entierement entouree de $ … $ (espaces
+   internes admis) -> \(…\). Les $ isoles dans du texte (« 5 $ ») restent intacts, et la
+   regle historique $X$ sans espaces continue de s'appliquer ensuite. */
+function iaDollars(t){
+  let s=String(t==null?'':t).replace(/\\\$/g,'$');
+  s=s.replace(/\$\$([\s\S]+?)\$\$/g,function(m,x){ return '\\('+x.trim()+'\\)'; });
+  s=s.replace(/^([ \t]*)\$([^$\n]+)\$([ \t]*)$/gm,function(m,g1,x,g3){ return g1+'\\('+x.trim()+'\\)'+g3; });
+  return s;
+}
+function conseilHTML(t){
+  /* 1) extraire les ecritures mathematiques AVANT echappement : \( … \), \[ … \] ou $ … $
+        (des caracteres comme < > doivent survivre dans le LaTeX). Chaque segment devient un
+        jeton prive \uE000n\uE001, remplace a la fin par le rendu MathLive (mlDexp.tex). */
+  const maths=[];
+  const tabs=[];
+  const brut=latexRepare(iaTableau(iaCoupe(iaDollars(t)),tabs),false).replace(/\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^$\n]+?)\$/g,(m,a,b,c)=>{
+    const lx=(a!=null?a:(b!=null?b:c));
+    if(c!=null && (/^\s|\s$/.test(c))) return m;   /* $ isole (prix, texte) : on ne touche pas */
+    maths.push(fracAuto(latexRepare(lx,true))); return '\uE000'+(maths.length-1)+'\uE001';
+  });
+  let x=esc(iaMathAuto(brut,maths));   /* + ecritures en clair (V_(n+1), q^n, equations…) */
+  x=x.replace(/^[ \t]*#{1,6}[ \t]*(.+)$/gm,'<b>$1</b>');
+  x=x.replace(/\*\*([^*\n]+?)\*\*/g,'<b>$1</b>');
+  x=x.replace(/`([^`\n]+)`/g,'$1');
+  /* balises couleur demandées au modèle : [OK]…[/OK] = déjà juste (vert), [KO]…[/KO] = erreur ou oubli (rouge) */
+  x=x.replace(/\[\s*OK\s*\]([\s\S]*?)\[\s*\/\s*OK\s*\]/gi,'<span class="fb-ok">$1</span>');
+  x=x.replace(/\[\s*KO\s*\]([\s\S]*?)\[\s*\/\s*KO\s*\]/gi,'<span class="fb-ko">$1</span>');
+  x=x.replace(/\[\s*\/?\s*(?:OK|KO)\s*\]/gi,'');   /* balise orpheline : on l'efface plutôt que l'afficher */
+  x=x.replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');
+  /* 2) reinjecter les maths rendues ; si le rendu est indisponible, le LaTeX source (echappe) reste lisible */
+  x=x.replace(/\uE000(\d+)\uE001/g,(m,i)=>{
+    const lx=maths[+i]||'';
+    const r=(window.mlDexp && mlDexp.tex) ? mlDexp.tex(lx) : null;
+    if(r!=null) return r;
+    let clair=lx; try{ if(window.mlDexp && mlDexp.toPlain) clair=mlDexp.toPlain(lx); }catch(e){}
+    return esc(clair);   /* rendu indisponible : ecriture en clair ((a)/(b)), jamais de \\frac a l'ecran */
+  });
+  x=x.replace(/\uE002(\d+)\uE003/g,(m,i)=>tabs[+i]||'');   /* tableaux \begin{array} convertis */
+  return x;
+}
 let conseilBusy=false;
 /* ---------- Comment le modèle parle aux élèves ----------------------------
    Le conseil du soutien et la réponse de la fenêtre « Question à l'IA »
@@ -2148,15 +2405,41 @@ const LANGUE_SIMPLE=" COMMENT \u00c9CRIRE \u2014 ces r\u00e8gles sont OBLIGATOIR
   +" une \u00e9tape par ligne, un calcul par ligne, une question par ligne ;"
   +" une ligne VIDE entre deux parties \u2014 entre l\u2019explication et l\u2019exemple, entre deux id\u00e9es qui ne se suivent pas ;"
   +" et jamais un paragraphe de plus de deux phrases. Un pav\u00e9 de texte d\u00e9courage l\u2019\u00e9l\u00e8ve avant qu\u2019il ait commenc\u00e9 \u00e0 lire.";
+/* ---------- Comment le modèle ÉCRIT ses mathématiques ----------------------
+   La page sait désormais rendre le LaTeX (conseilHTML). Encore faut-il que le
+   modèle en écrive : tant qu'on lui demandait du « texte simple, sans LaTeX »,
+   il répondait « 3/4 » et l'élève lisait une barre oblique là où son cahier
+   porte une fraction empilée.
+   Les deux moitiés vont ENSEMBLE, et n'en poser qu'une ne pose rien : demander
+   du LaTeX sans savoir le rendre afficherait « \\frac{3}{4} » en toutes lettres
+   — exactement le défaut qu'on corrige. Un contrôle exige les deux.
+   UN SEUL endroit la décrit, partagé par le conseil du soutien et par la
+   fenêtre « Question à l'IA » : deux descriptions auraient fini par diverger. */
+const ECRITURE_MATHS=" \u00c9CRITURES MATH\u00c9MATIQUES \u2014 \u00e9cris CHAQUE \u00e9criture math\u00e9matique en LaTeX entre \\( et \\)"
+  +" \u2014 JAMAIS entre dollars ($\u2026$ ni $$\u2026$$) \u2014 par exemple \\(\\frac{3}{4}\\) ou \\(2^{3}\\),"
+  +" jamais en texte brut (pas de \u00ab 3/4 \u00bb, pas de \u00ab 2^3 \u00bb \u00e9crit tel quel)."
+  +" Toute division ou quotient s'\u00e9crit \\frac{num\u00e9rateur}{d\u00e9nominateur} avec ses DEUX groupes entre accolades"
+  +" \u2014 jamais a/b, jamais \u00f7, jamais \\frac coll\u00e9 \u00e0 la suite sans accolades."
+  +" Exposants et indices de plusieurs caract\u00e8res TOUJOURS entre accolades : 10^{-3}, x_{1}."
+  +" Chaque commande LaTeX porte UN SEUL antislash : \\frac, \\times, \\sqrt \u2014 jamais deux antislashs"
+  +" (\\\\frac est faux) et jamais une commande nue sans antislash (frac{a}{b} est faux)."
+  +" Pointill\u00e9s : le caract\u00e8re \u2026, jamais \\ldots ni \\dots."
+  +" Pour un tableau de variation ou de signe, utilise EXCLUSIVEMENT l'environnement"
+  +" \\begin{array}{c|ccc} \u2026 \\end{array} \u2014 lignes s\u00e9par\u00e9es par \\\\, cellules par &, \\hline entre les lignes,"
+  +" fl\u00e8ches \\nearrow et \\searrow \u2014 la plateforme le dessine en vrai tableau ;"
+  +" n'utilise AUCUN autre environnement LaTeX et ne d\u00e9cris jamais un tableau en texte libre."
+  +" Sans titre ni markdown (pas de \u00ab # \u00bb, pas de \u00ab ** \u00bb).";
 async function lancerConseil(nombre, contexte, fb){
   if(conseilBusy||!fb) return;
   conseilBusy=true;
   fb.textContent='Je réfléchis à un indice…'; fb.className='mp-feedback muted';
   try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', nombre:nombre, contexte:contexte+LANGUE_SIMPLE } });
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'conseil', nombre:nombre, contexte:contexte+LANGUE_SIMPLE+ECRITURE_MATHS } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback){ fb.textContent='💡 '+d.feedback; fb.className='mp-feedback conseil'; }
+    /* innerHTML et non textContent : conseilHTML() a echappe le texte AVANT toute
+       conversion, et rend les formules du modele par MathLive. */
+    if(d && d.feedback){ fb.innerHTML='💡 '+conseilHTML(d.feedback); fb.className='mp-feedback conseil'; }
     else if(d && d.error){ fb.textContent=d.error; fb.className='mp-feedback bad'; }
     else { fb.textContent='Pas de conseil pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
   }catch(e){ fb.textContent='Le conseil est indisponible pour le moment. Réessaie.'; fb.className='mp-feedback bad'; }
@@ -2507,12 +2790,12 @@ async function qiaEnvoyer(){
   /* « Faire un rappel de cours » : la plateforme repond elle-meme, sans appeler le modele. */
   if(rappelDemande(q) && typeof rappelDispo==='function' && rappelDispo()){ br.innerHTML=rappelHTML(); dlg.scrollTop=dlg.scrollHeight; qiaBusy=false; return; }
   const nomTest=(TESTS[currentTestId] && TESTS[currentTestId].name)||'un exercice de mathematiques';
-  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, et TOUJOURS si l\u2019eleve demande un exemple, une redaction ou \u00ab comment on fait \u00bb, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes de la solution REDIGEE, une par ligne, jusqu\u2019au resultat, sans aucun pointille. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante. IMPORTANT : ecris en TEXTE SIMPLE, sans LaTeX, sans dollars, sans markdown et sans titre : les fractions s’ecrivent 3/4, les puissances 2^3."+LANGUE_SIMPLE+qiaCtxExercice();
+  const mission="MISSION « reponse a une question d\u2019eleve » : ce n\u2019est PAS une demande de conseil sur les reponses de l\u2019exercice, mais une QUESTION DE COURS a laquelle tu dois repondre directement. Un eleve de SECONDE (programme francais) travaille sur l\u2019exercice « "+nomTest+" ». Sa question : « "+q+" ». REPONDS A SA QUESTION en 3 a 6 phrases maximum, en tutoyant : langage SIMPLE d\u2019un professeur bienveillant, en t\u2019appuyant sur l\u2019intuition et des images concretes. Reste dans le cadre du programme de Seconde. Si un exemple aide, et TOUJOURS si l\u2019eleve demande un exemple, une redaction ou \u00ab comment on fait \u00bb, invente-en un avec des valeurs simples, DIFFERENTES de celles de l\u2019exercice en cours, et ecris toutes les etapes de la solution REDIGEE, une par ligne, jusqu\u2019au resultat, sans aucun pointille. Ne resous PAS l\u2019exercice en cours et ne cite aucune de ses valeurs. Si la question ne concerne pas les mathematiques, reponds gentiment que tu ne reponds qu\u2019aux questions de mathematiques. Termine par une courte phrase encourageante."+LANGUE_SIMPLE+ECRITURE_MATHS+qiaCtxExercice();
   try{
     const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve?currentEleve.id:null, action:'conseil', contexte:mission } });
     if(r.error) throw r.error;
     const d=r.data;
-    if(d && d.feedback) br.textContent=d.feedback;
+    if(d && d.feedback) br.innerHTML=conseilHTML(d.feedback);
     else if(d && d.error) br.textContent=d.error;
     else br.textContent='Je n\u2019ai pas de reponse pour le moment. Reessaie.';
   }catch(e){ br.textContent='L\u2019IA est indisponible pour le moment. Reessaie dans un instant.'; }
@@ -2541,21 +2824,21 @@ async function qiaEnvoyer(){
    pourcentages. Ne PAS y ajouter de <div class="rap"> : ce cadre-la est celui de
    terminale.html, et les deux ensemble donnent un double encadre. */
 const RAP_PCT=`<b>Prendre un pourcentage d’un nombre</b><br>
-Prendre <b>P %</b> d’un nombre, c’est en prendre <b>P centiemes</b> : on multiplie ce nombre par la fraction <b>P/100</b>.<br>
-<b>① Le pourcentage devient une fraction decimale</b> : 30 % s’ecrit 30/100.<br>
-<b>② On multiplie les numerateurs</b> : 30/100 × 40 = (30 × 40)/100 = 1200/100.<br>
-<b>③ On divise par 100</b>, c’est-a-dire on decale la virgule de deux rangs vers la gauche : 1200/100 = 12.<br>
+Prendre <b>P %</b> d’un nombre, c’est en prendre <b>P centiemes</b> : on multiplie ce nombre par la fraction <b>\\(\\frac{P}{100}\\)</b>.<br>
+<b>① Le pourcentage devient une fraction decimale</b> : 30 % s’ecrit \\(\\frac{30}{100}\\).<br>
+<b>② On multiplie les numerateurs</b> : \\(\\frac{30}{100}\\times 40=\\frac{30\\times 40}{100}=\\frac{1200}{100}\\).<br>
+<b>③ On divise par 100</b>, c’est-a-dire on decale la virgule de deux rangs vers la gauche : \\(\\frac{1200}{100}=12\\).<br>
 A retenir : diviser par 100 ne change pas les chiffres, seulement leur place.`;
 const RAP_AUG=`<b>Augmenter d’un pourcentage</b><br>
 Augmenter de <b>P %</b>, c’est garder le tout (100 %) et y ajouter P % : on multiplie par le <b>coefficient multiplicateur</b><br>
-<b>1 + P/100 = (100 + P)/100</b>.<br>
-Exemple : augmenter de 20 % revient a multiplier par 120/100 = 1,2.<br>
+<b>\\(1+\\frac{P}{100}=\\frac{100+P}{100}\\)</b>.<br>
+Exemple : augmenter de 20 % revient a multiplier par \\(\\frac{120}{100}=1{,}2\\).<br>
 On multiplie ensuite la valeur de depart par ce coefficient, puis on divise par 100 en decalant la virgule de deux rangs.<br>
 Piege classique : augmenter de 20 % n’est pas ajouter 20, c’est multiplier par 1,2.`;
 const RAP_DIM=`<b>Diminuer d’un pourcentage</b><br>
 Diminuer de <b>P %</b>, c’est garder le tout (100 %) et en retirer P % : on multiplie par le <b>coefficient multiplicateur</b><br>
-<b>1 − P/100 = (100 − P)/100</b>.<br>
-Exemple : une remise de 30 % revient a multiplier par 70/100 = 0,7 — on paie 70 % du prix.<br>
+<b>\\(1-\\frac{P}{100}=\\frac{100-P}{100}\\)</b>.<br>
+Exemple : une remise de 30 % revient a multiplier par \\(\\frac{70}{100}=0{,}7\\) — on paie 70 % du prix.<br>
 On multiplie la valeur de depart par ce coefficient, puis on divise par 100.<br>
 Piege classique : apres une remise de 30 %, il reste 70 %, et non 30 %.`;
 const RAP_ENS=`<b>Les ensembles de nombres</b><br>
@@ -2563,15 +2846,15 @@ Ils sont <b>emboites</b> : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>.<br>
 <b>ℕ</b> : les entiers positifs — 0, 1, 2, 3…<br>
 <b>ℤ</b> : les entiers, positifs ou negatifs — −5, 0, 7…<br>
 <b>𝔻</b> : les decimaux, ceux qui s’ecrivent avec un nombre <i>fini</i> de chiffres apres la virgule — 2,5 ; −0,75.<br>
-<b>ℚ</b> : les rationnels, ceux qui s’ecrivent comme une fraction de deux entiers — 1/3 ; −7/4.<br>
+<b>ℚ</b> : les rationnels, ceux qui s’ecrivent comme une fraction de deux entiers — \\(\\frac{1}{3}\\) ; \\(-\\frac{7}{4}\\).<br>
 <b>ℝ</b> : tous les nombres de la droite graduee, y compris √2 et π.<br>
 Comme les ensembles sont emboites, un nombre de ℕ appartient aussi a ℤ, a 𝔻, a ℚ et a ℝ.<br>
 On ecrit <b>∈</b> pour « appartient a » et <b>∉</b> pour « n’appartient pas a ».`;
 const RAP_ENS2=`<b>Les ensembles de nombres — les cas qui trompent</b><br>
 Rappel : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>, et un nombre appartient a tous les ensembles qui contiennent le plus petit auquel il appartient.<br>
-<b>Une fraction n’est pas forcement en dehors de ℤ</b> : 6/3 = 2, donc 6/3 ∈ ℕ.<br>
-<b>Une ecriture decimale illimitee periodique reste rationnelle</b> : 0,333… = 1/3, donc c’est un element de ℚ mais pas de 𝔻.<br>
-<b>1/3 n’est pas decimal</b> : aucune ecriture finie apres la virgule. 1/3 ∈ ℚ, 1/3 ∉ 𝔻.<br>
+<b>Une fraction n’est pas forcement en dehors de ℤ</b> : \\(\\frac{6}{3}=2\\), donc \\(\\frac{6}{3}\\) ∈ ℕ.<br>
+<b>Une ecriture decimale illimitee periodique reste rationnelle</b> : 0,333… = \\(\\frac{1}{3}\\), donc c’est un element de ℚ mais pas de 𝔻.<br>
+<b>\\(\\frac{1}{3}\\) n’est pas decimal</b> : aucune ecriture finie apres la virgule. \\(\\frac{1}{3}\\) ∈ ℚ, \\(\\frac{1}{3}\\) ∉ 𝔻.<br>
 <b>√2 et π ne sont pas rationnels</b> : ils appartiennent a ℝ et a aucun des quatre autres.<br>
 <b>√9 = 3</b> : une racine peut tres bien tomber sur un entier — regarde toujours la valeur, pas l’ecriture.<br>
 Piege classique : juger d’apres la forme ecrite au lieu de calculer la valeur.`;
@@ -2585,9 +2868,9 @@ Une definition dit <i>quels nombres</i> l’ensemble contient, pas des exemples.
 Piege classique : repondre par un exemple (« 2 ; 3 ; 4 ») au lieu d’une definition.`;
 const RAP_PGE=`<b>Trouver le plus petit ensemble qui contient un nombre</b><br>
 Les ensembles sont emboites : <b>ℕ ⊂ ℤ ⊂ 𝔻 ⊂ ℚ ⊂ ℝ</b>. Le « plus petit » est donc le premier de cette liste auquel le nombre appartient.<br>
-<b>① Calcule d’abord la valeur</b> : 6/3 vaut 2, √9 vaut 3. L’ecriture n’est pas la valeur.<br>
+<b>① Calcule d’abord la valeur</b> : \\(\\frac{6}{3}\\) vaut 2, √9 vaut 3. L’ecriture n’est pas la valeur.<br>
 <b>② Puis descends la liste</b> : est-il entier positif ? → ℕ. Sinon entier ? → ℤ. Sinon a-t-il un nombre fini de decimales ? → 𝔻. Sinon s’ecrit-il en fraction d’entiers ? → ℚ. Sinon → ℝ.<br>
-Exemples : −3 → ℤ ; 2,5 → 𝔻 ; 1/3 → ℚ ; π → ℝ.<br>
+Exemples : −3 → ℤ ; 2,5 → 𝔻 ; \\(\\frac{1}{3}\\) → ℚ ; π → ℝ.<br>
 Piege classique : repondre ℝ parce que c’est toujours vrai — on demande le <i>plus petit</i>.`;
 const RAP_LV=`<b>Lire les variations d’une courbe</b><br>
 On parcourt la courbe <b>de gauche a droite</b>, dans le sens des x croissants.<br>
@@ -2624,17 +2907,17 @@ const RAP_APP2=`<b>Des nombres qui ne disent pas leur valeur</b><br>
 Avant de comparer, il faut <b>calculer la valeur</b> du nombre.<br>
 <b>Les racines</b> : √15 ≈ 3,87 car 3,87 × 3,87 ≈ 15. Encadre : 3² = 9 et 4² = 16, donc 3 &lt; √15 &lt; 4.<br>
 <b>π</b> ≈ 3,14159… Attention : π &gt; 3,14, donc π ∉ [3 ; 3,14].<br>
-<b>Les fractions</b> : 2/5 = 0,4 ; 7/8 = 0,875 ; 1/3 ≈ 0,333…<br>
+<b>Les fractions</b> : \\(\\frac{2}{5}=0{,}4\\) ; \\(\\frac{7}{8}=0{,}875\\) ; \\(\\frac{1}{3}\\) ≈ 0,333…<br>
 <b>Les unités</b> : un millier vaut 1000, donc 0,2 millier = 200. Ce n’est pas 0,2 !<br>
 Piège classique : comparer l’ÉCRITURE au lieu de la VALEUR. « 0,2 millier » ressemble à 0,2 et vaut 200.`;
 
 const RAP_SF=`<b>Additionner ou soustraire deux fractions</b><br>
 On ne peut additionner que des parts de MÊME taille : il faut donc le même dénominateur.<br>
-<b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour 1/2 et 1/3, le plus petit dénominateur commun est 6 : 1/2 = (1×3)/(2×3) = 3/6, et 1/3 = (1×2)/(3×2) = 2/6.<br>
-<b>② Additionner les NUMÉRATEURS seulement.</b> 3/6 + 2/6 = (3 + 2)/6. Le dénominateur ne change pas : il dit la taille des parts, pas leur nombre.<br>
-<b>③ Faire le calcul du haut</b> : (3 + 2)/6 = 5/6.<br>
-<b>Un entier est une fraction</b> : 3 = 3/1. On le met au même dénominateur comme les autres — 3 = (3×5)/(1×5) = 15/5.<br>
-Piège classique : additionner les dénominateurs. 1/2 + 1/3 ne fait pas 2/5 — ce serait moins que 1/2, alors qu'on a ajouté quelque chose.`;
+<b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour \\(\\frac{1}{2}\\) et \\(\\frac{1}{3}\\), le plus petit dénominateur commun est 6 : \\(\\frac{1}{2}=\\frac{1\\times 3}{2\\times 3}=\\frac{3}{6}\\), et \\(\\frac{1}{3}=\\frac{1\\times 2}{3\\times 2}=\\frac{2}{6}\\).<br>
+<b>② Additionner les NUMÉRATEURS seulement.</b> \\(\\frac{3}{6}+\\frac{2}{6}=\\frac{3+2}{6}\\). Le dénominateur ne change pas : il dit la taille des parts, pas leur nombre.<br>
+<b>③ Faire le calcul du haut</b> : \\(\\frac{3+2}{6}=\\frac{5}{6}\\).<br>
+<b>Un entier est une fraction</b> : \\(3=\\frac{3}{1}\\). On le met au même dénominateur comme les autres — \\(3=\\frac{3\\times 5}{1\\times 5}=\\frac{15}{5}\\).<br>
+Piège classique : additionner les dénominateurs. \\(\\frac{1}{2}+\\frac{1}{3}\\) ne fait pas \\(\\frac{2}{5}\\) — ce serait moins que \\(\\frac{1}{2}\\), alors qu'on a ajouté quelque chose.`;
 
 const RAP_PLC=`<b>Comparer des nombres décimaux</b><br>
 Deux décimaux ne se comparent PAS chiffre à chiffre tels qu'ils sont écrits : 1,1 n'est pas plus petit que 1,08 parce que 1 est plus petit que 8.<br>
@@ -2654,7 +2937,24 @@ function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[
    d'eux-mêmes ; le rappel, lui, est du HTML écrit à la main que le modèle n'a
    jamais vu — il reste donc tel qu'il est écrit, et le simplifier demanderait
    de réécrire les soixante rappels des trois niveaux. */
-function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
+/* Une écriture mathématique dans un rappel de cours s'écrit \( … \) et se rend
+   à L'AFFICHAGE, jamais au chargement : les rappels sont des constantes évaluées
+   quand la page se lit, MathLive n'est pas encore prêt à ce moment-là, et une
+   fraction rendue là serait vide.
+   Le reste du rappel est du HTML écrit à la main (<b>, <br>, <table>) : on ne le
+   passe donc PAS par conseilHTML(), qui échapperait ces balises et les afficherait
+   en toutes lettres. Seuls les segments \( … \) sont remplacés.
+   Si le rendu est indisponible, on retombe sur l'écriture en clair — (a)/(b) —
+   jamais sur un \frac visible à l'écran. */
+function rapMaths(h){
+  return String(h==null?'':h).replace(/\\\(([\s\S]+?)\\\)/g, function(m,lx){
+    const r=(window.mlDexp&&mlDexp.tex)?mlDexp.tex(latexRepare(lx,true)):null;
+    if(r!=null) return r;
+    let clair=lx; try{ if(window.mlDexp&&mlDexp.toPlain) clair=mlDexp.toPlain(lx); }catch(e){}
+    return esc(clair);
+  });
+}
+function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || '')); }
 function masquerRappel(){
   const box=$('conseilRappel'); if(box){ box.hidden=true; box.innerHTML=''; }
   const b=$('conseilRappelBtn'); if(b) b.textContent='\u{1F4D8} Voir le rappel de cours';

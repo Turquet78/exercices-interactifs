@@ -1939,7 +1939,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=239;
+const APP_VERSION=240;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -9952,7 +9952,7 @@ const RAP_EF=
 const RAP_EQ=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 fonction quotient : domaine, d\u00e9riv\u00e9e, variations</h4>'
 +'<ul><li><b>Valeur interdite</b> : celle qui annule le <b>d\u00e9nominateur</b> ; on r\u00e9sout cx + d = 0, soit x = \u2212d/c. L\u2019ensemble de d\u00e9finition est \u211d priv\u00e9 de cette valeur.</li>'
-+'<li><b>D\u00e9riv\u00e9e d\u2019un quotient</b> : (u/v)\u2009\u2032 = (u\u2032v \u2212 uv\u2032)/v\u00b2. Pour f(x) = (ax+b)/(cx+d), on <b>d\u00e9veloppe</b> le num\u00e9rateur : a(cx+d) \u2212 c(ax+b) = acx + ad \u2212 acx \u2212 cb \u2014 les termes en x <b>se compensent</b>, il reste la <b>constante</b> ad \u2212 cb.</li>'
++'<li><b>D\u00e9riv\u00e9e d\u2019un quotient</b> : \\(\\left(\\frac{u}{v}\\right)^{\\prime}=\\frac{u^{\\prime}v-uv^{\\prime}}{v^{2}}\\). Pour f(x) = \\(\\frac{ax+b}{cx+d}\\), on <b>d\u00e9veloppe</b> le num\u00e9rateur : a(cx+d) \u2212 c(ax+b) = acx + ad \u2212 acx \u2212 cb \u2014 les termes en x <b>se compensent</b>, il reste la <b>constante</b> ad \u2212 cb.</li>'
 +'<li>Un <b>carr\u00e9</b> est toujours positif (nul seulement en la valeur interdite) : le signe de f\u2009\u2032 est donc celui de sa constante, le <b>m\u00eame des deux c\u00f4t\u00e9s</b> \u2014 f\u2009\u2032 ne s\u2019annule jamais.</li>'
 +'<li>Dans le tableau, on place une <b>double barre</b> \u2551 \u00e0 la valeur interdite (f n\u2019y existe pas) : f est <b>monotone sur chacun</b> des deux intervalles \u2014 croissante si la constante est positive, d\u00e9croissante sinon \u2014 mais on ne compare JAMAIS les deux c\u00f4t\u00e9s entre eux.</li></ul></div>';
 const RAP_RC=
@@ -9980,7 +9980,24 @@ function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[
    d'eux-mêmes ; le rappel, lui, est du HTML écrit à la main que le modèle n'a
    jamais vu — il reste donc tel qu'il est écrit, et le simplifier demanderait
    de réécrire les soixante rappels des trois niveaux. */
-function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
+/* Une écriture mathématique dans un rappel de cours s'écrit \( … \) et se rend
+   à L'AFFICHAGE, jamais au chargement : les rappels sont des constantes évaluées
+   quand la page se lit, MathLive n'est pas encore prêt à ce moment-là, et une
+   fraction rendue là serait vide.
+   Le reste du rappel est du HTML écrit à la main (<b>, <br>, <table>) : on ne le
+   passe donc PAS par conseilHTML(), qui échapperait ces balises et les afficherait
+   en toutes lettres. Seuls les segments \( … \) sont remplacés.
+   Si le rendu est indisponible, on retombe sur l'écriture en clair — (a)/(b) —
+   jamais sur un \frac visible à l'écran. */
+function rapMaths(h){
+  return String(h==null?'':h).replace(/\\\(([\s\S]+?)\\\)/g, function(m,lx){
+    const r=(window.mlDexp&&mlDexp.tex)?mlDexp.tex(latexRepare(lx,true)):null;
+    if(r!=null) return r;
+    let clair=lx; try{ if(window.mlDexp&&mlDexp.toPlain) clair=mlDexp.toPlain(lx); }catch(e){}
+    return esc(clair);
+  });
+}
+function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || '')); }
 /* question de l'élève portant sur le cours (chip « Faire un rappel de cours pour cet exercice. ») */
 function rappelDemande(t){ const s=String(t||''); return /rappel/i.test(s) && /cours|le\u00e7on|lecon/i.test(s); }
 function masquerRappel(){

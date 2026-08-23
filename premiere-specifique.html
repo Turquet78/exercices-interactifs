@@ -728,6 +728,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
 #fpHost math-field.pm-mf{font-size:1.5rem;line-height:1.15;}
+/* Même règle sur l'écran des fractions décimales : la fraction de l'énoncé est à
+   1,7rem (.fr .fn, .fr .fd) et le « = » à 2rem — une case à 1,05rem se lisait
+   comme une note en bas de page au milieu du calcul. */
+#fHost math-field.pm-mf{font-size:1.7rem;line-height:1.15;}
+@media(max-width:900px){ #fHost math-field.pm-mf{font-size:1.4rem;} }
 #fpHost .f-frac-input{align-items:stretch;}
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
@@ -769,10 +774,19 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    le trait de fraction au lieu d'écarter le voisin. */
 #sfHost .sf-haut .sf-case:has(.mf-cor){margin-right:56px}
 #sfHost .sf-prod:has(.mf-cor),#sfHost .sf-somme:has(.mf-cor){margin-right:52px}
-#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px}
+/* Une case où l'élève écrit un nombre s'écrit en MODE MATH et à la MÊME TAILLE
+   que les nombres qui l'entourent (décision de Turquet, août 2026, valable pour
+   tout exercice à saisie). C'est 1,9rem, comme les écrans de pourcentage de la
+   Première : les chiffres voisins (.f-whole) sont à 2rem, et une case à 1,05rem
+   se lisait comme une note de bas de page au milieu d'un calcul.
+   La largeur suit la taille : à 62 px, une réponse à deux chiffres débordait. */
+#sfHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+#sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
+@media(max-width:900px){ #sfHost math-field.pm-mf{font-size:1.5rem}
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ .sf-prod .sf-l{gap:3px} .sf-somme .sf-haut{gap:4px}
-  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:54px} }
+  #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:62px} }
 .fpm-ligne{display:flex;align-items:center;justify-content:center;gap:8px;}
 .fpm-const{font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--ink);white-space:nowrap;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
@@ -1552,7 +1566,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=143;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=145;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9311,26 +9325,26 @@ function qiaCourbeMission(){ return ''; }
 
 /* ---------- Rappels de cours ---------- */
 const RAP_PCT=`<b>Prendre un pourcentage d’un nombre</b><br>
-Prendre <b>P %</b> d’un nombre, c’est en prendre <b>P centièmes</b> : on multiplie ce nombre par la fraction <b>P/100</b>.<br>
-<b>① Le pourcentage devient une fraction décimale</b> : 30 % s’écrit 30/100.<br>
-<b>② On multiplie les numérateurs</b> : 30/100 × 40 = (30 × 40)/100 = 1200/100.<br>
-<b>③ On divise par 100</b>, c’est-à-dire on décale la virgule de deux rangs vers la gauche : 1200/100 = 12.<br>
+Prendre <b>P %</b> d’un nombre, c’est en prendre <b>P centièmes</b> : on multiplie ce nombre par la fraction <b>\\(\\frac{P}{100}\\)</b>.<br>
+<b>① Le pourcentage devient une fraction décimale</b> : 30 % s’écrit \\(\\frac{30}{100}\\).<br>
+<b>② On multiplie les numérateurs</b> : \\(\\frac{30}{100}\\times 40=\\frac{30\\times 40}{100}=\\frac{1200}{100}\\).<br>
+<b>③ On divise par 100</b>, c’est-à-dire on décale la virgule de deux rangs vers la gauche : \\(\\frac{1200}{100}=12\\).<br>
 À retenir : diviser par 100 ne change pas les chiffres, seulement leur place.`;
 const RAP_PCTQ=`<b>Retrouver la valeur initiale ou le pourcentage</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
-<b>P/100 × (valeur initiale) = (résultat)</b>.<br>
+<b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
 Quand on en connaît deux, le troisième est déterminé. Plutôt que de le calculer directement, on <b>teste une proposition</b> : on prend le pourcentage de la valeur proposée, exactement comme dans l’exercice {pourcentage}, et on regarde si l’on retombe sur le résultat annoncé.<br>
 Si le calcul est juste mais que le résultat ne correspond pas, c’est la proposition qui est mauvaise, pas le calcul. C’est la méthode de la <b>vérification</b> : elle sert toute la vie en mathématiques.`;
 const RAP_AUG=`<b>Augmenter d’un pourcentage</b><br>
 Augmenter de <b>P %</b>, c’est garder le tout (100 %) et y ajouter P % : on multiplie par le <b>coefficient multiplicateur</b><br>
-<b>1 + P/100 = (100 + P)/100</b>.<br>
-Exemple : augmenter de 20 % revient à multiplier par 120/100 = 1,2.<br>
+<b>\\(1+\\frac{P}{100}=\\frac{100+P}{100}\\)</b>.<br>
+Exemple : augmenter de 20 % revient à multiplier par \\(\\frac{120}{100}=1{,}2\\).<br>
 On multiplie ensuite la valeur de départ par ce coefficient, puis on divise par 100 en décalant la virgule de deux rangs.<br>
 Piège classique : augmenter de 20 % n’est pas ajouter 20, c’est multiplier par 1,2.`;
 const RAP_DIM=`<b>Diminuer d’un pourcentage</b><br>
 Diminuer de <b>P %</b>, c’est garder le tout (100 %) et en retirer P % : on multiplie par le <b>coefficient multiplicateur</b><br>
-<b>1 − P/100 = (100 − P)/100</b>.<br>
-Exemple : une remise de 30 % revient à multiplier par 70/100 = 0,7 — on paie 70 % du prix.<br>
+<b>\\(1-\\frac{P}{100}=\\frac{100-P}{100}\\)</b>.<br>
+Exemple : une remise de 30 % revient à multiplier par \\(\\frac{70}{100}=0{,}7\\) — on paie 70 % du prix.<br>
 On multiplie la valeur de départ par ce coefficient, puis on divise par 100.<br>
 Piège classique : après une remise de 30 %, il reste 70 %, et non 30 %.`;
 const RAP_MP=`<b>La multiplication posée</b><br>
@@ -9339,9 +9353,9 @@ Si le produit des unités dépasse 9, on écrit le chiffre des unités du résul
 On multiplie ensuite le chiffre des dizaines, <b>puis on ajoute la retenue</b>.<br>
 Exemple : 27 × 4. 7 × 4 = 28, j’écris 8 et je retiens 2. 2 × 4 = 8, plus la retenue 2, cela fait 10. Résultat : 108.`;
 const RAP_MD=`<b>Multiplier des décimaux</b><br>
-Un nombre décimal est une fraction décimale : 0,3 = 3/10 et 0,07 = 7/100.<br>
+Un nombre décimal est une fraction décimale : \\(0{,}3=\\frac{3}{10}\\) et \\(0{,}07=\\frac{7}{100}\\).<br>
 Pour multiplier deux décimaux, on multiplie les <b>numérateurs</b> entre eux et les <b>dénominateurs</b> entre eux :<br>
-0,3 × 0,07 = 3/10 × 7/100 = 21/1000 = 0,021.<br>
+\\(0{,}3\\times 0{,}07=\\frac{3}{10}\\times \\frac{7}{100}=\\frac{21}{1000}=0{,}021\\).<br>
 Autrement dit : on multiplie comme si c’étaient des entiers, puis on place la virgule en comptant <b>autant de décimales que dans les deux facteurs réunis</b>.`;
 const RAP_U=`<b>Multiplier deux nombres commençant par 1</b><br>
 Le principe est celui de la multiplication posée, mais le chiffre de tête vaut 1, ce qui simplifie le deuxième produit partiel : multiplier par 1, c’est recopier le nombre.<br>
@@ -9349,9 +9363,9 @@ On écrit d’abord le produit par le chiffre des unités, puis le produit par l
 Pour les décimaux, on multiplie les numérateurs, puis on divise par le produit des dénominateurs — la virgule se replace à la fin.`;
 const RAP_FRAC=`<b>Fractions décimales et nombres décimaux</b><br>
 Une <b>fraction décimale</b> a pour dénominateur 10, 100, 1000…<br>
-Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : 47/100 = 0,47.<br>
-Inversement, 0,058 = 58/1000, car il y a trois chiffres après la virgule.<br>
-À retenir : les zéros finaux d’un numérateur « tombent » contre les zéros du dénominateur — 300/100 = 3.`;
+Diviser par 10, 100 ou 1000, c’est décaler la virgule de 1, 2 ou 3 rangs <b>vers la gauche</b> : \\(\\frac{47}{100}=0{,}47\\).<br>
+Inversement, \\(0{,}058=\\frac{58}{1000}\\), car il y a trois chiffres après la virgule.<br>
+À retenir : les zéros finaux d’un numérateur « tombent » contre les zéros du dénominateur — \\(\\frac{300}{100}=3\\).`;
 const RAP_CM=`<b>Le calcul mental</b><br>
 Quatre opérations, et pour chacune un réflexe qui simplifie le calcul de tête :<br>
 <b>addition</b> — compléter d’abord à la dizaine : 47 + 28 = 47 + 3 + 25 = 50 + 25 = 75 ;<br>
@@ -9367,13 +9381,13 @@ la multiplication est <b>commutative</b> (7 × 8 = 8 × 7 : une seule chose à r
 un produit oublié se retrouve en partant du voisin : 7 × 8 = 7 × 7 + 7 = 49 + 7 = 56.`;
 const RAP_AUGQ=`<b>Retrouver la valeur initiale ou le pourcentage d\u2019une augmentation</b><br>
 Une augmentation relie trois nombres par une seule \u00e9galit\u00e9\u00a0:<br>
-<b>(valeur initiale) \u00d7 (1 + P/100) = (valeur finale)</b>.<br>
+<b>(valeur initiale) \u00d7 \\(\\left(1+\\frac{P}{100}\\right)\\) = (valeur finale)</b>.<br>
 D\u00e8s qu\u2019on en conna\u00eet deux, le troisi\u00e8me est d\u00e9termin\u00e9. Plut\u00f4t que de le calculer directement, on <b>teste une proposition</b>\u00a0: on refait l\u2019augmentation avec elle, exactement comme dans l\u2019exercice {augmenter-pourcentage}, et on regarde si l\u2019on retombe sur la valeur finale annonc\u00e9e.<br>
 Si le calcul est juste mais que le r\u00e9sultat ne correspond pas, c\u2019est la proposition qui est mauvaise, pas le calcul.<br>
 Piège classique\u00a0: passer de 80 \u00e0 96, ce n\u2019est pas «\u00a0+16\u00a0%\u00a0» mais +20\u00a0%, car on compare l\u2019augmentation \u00e0 la valeur de DÉPART.`;
 const RAP_DIMQ=`<b>Retrouver la valeur initiale ou le pourcentage d’une baisse</b><br>
 Une diminution relie trois nombres par une seule égalité :<br>
-<b>(valeur initiale) × (1 − P/100) = (valeur finale)</b>.<br>
+<b>(valeur initiale) × \\(\\left(1-\\frac{P}{100}\\right)\\) = (valeur finale)</b>.<br>
 Dès qu’on en connaît deux, le troisième est déterminé. Plutôt que de le calculer directement, on <b>teste une proposition</b> : on refait la baisse avec elle, exactement comme dans l’exercice {diminuer-pourcentage}, et on regarde si l’on retombe sur la valeur finale annoncée.<br>
 Si le calcul est juste mais que le résultat ne correspond pas, c’est la proposition qui est mauvaise, pas le calcul.<br>
 Piège classique : une baisse de 20 % ne s’annule pas par une hausse de 20 % — on compare toujours à la valeur de DÉPART.`;
@@ -9388,28 +9402,28 @@ nombre, c’est donc colorier le MÊME nombre de parts qu’à gauche.<br>
 À retenir : les deux colonnes ne montrent pas la même chose — l’une compte en pourcents,
 l’autre dans l’unité de l’énoncé — mais la HAUTEUR y est la même.`;
 const RAP_FP=`<b>Fraction et pourcentage</b><br>
-Un pourcentage est une fraction de dénominateur 100 : <b>x % = x/100</b>.<br>
-<b>Méthode 1, avec les colonnes</b> : on partage 100 % en b parts égales, chaque part vaut 100/b % — à la même hauteur correspondent la fraction ET le pourcentage.<br>
-<b>Méthode 2, par le calcul</b> : on multiplie le numérateur ET le dénominateur par le même nombre pour amener le dénominateur à 100 : 3/4 = (3 × 25)/(4 × 25) = 75/100 = 75 %.<br>
+Un pourcentage est une fraction de dénominateur 100 : <b>x % = \\(\\frac{x}{100}\\)</b>.<br>
+<b>Méthode 1, avec les colonnes</b> : on partage 100 % en b parts égales, chaque part vaut \\(\\frac{100}{b}\\) % — à la même hauteur correspondent la fraction ET le pourcentage.<br>
+<b>Méthode 2, par le calcul</b> : on multiplie le numérateur ET le dénominateur par le même nombre pour amener le dénominateur à 100 : \\(\\frac{3}{4}=\\frac{3\\times 25}{4\\times 25}=\\frac{75}{100}\\) = 75 %.<br>
 Les deux méthodes donnent le même pourcentage : deux écritures d’une seule quantité.<br>
-À retenir : 1/2 = 50 %, 1/4 = 25 %, 3/4 = 75 %, 1/5 = 20 %, 1/10 = 10 %.`;
+À retenir : \\(\\frac{1}{2}\\) = 50 %, \\(\\frac{1}{4}\\) = 25 %, \\(\\frac{3}{4}\\) = 75 %, \\(\\frac{1}{5}\\) = 20 %, \\(\\frac{1}{10}\\) = 10 %.`;
 const RAP_AG2=`<b>Augmenter en calculant l\u2019augmentation</b><br>
-Augmenter de <b>P %</b>, c\u2019est ajouter P % de la valeur : on calcule d\u2019abord <b>l\u2019augmentation</b> elle-même, P/100 × valeur, exactement comme en {pourcentage}.<br>
+Augmenter de <b>P %</b>, c\u2019est ajouter P % de la valeur : on calcule d\u2019abord <b>l\u2019augmentation</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>ajoute</b> : nouvelle valeur = valeur de départ + augmentation.<br>
-Exemple : augmenter 300 de 20 %. L\u2019augmentation vaut 20/100 × 300 = 60, et 300 + 60 = 360.<br>
+Exemple : augmenter 300 de 20 %. L\u2019augmentation vaut \\(\\frac{20}{100}\\times 300=60\\), et 300 + 60 = 360.<br>
 C\u2019est la même réponse qu\u2019avec le coefficient (300 × 1,2 = 360) : deux chemins, un seul résultat.<br>
 Piège classique : ne pas oublier d\u2019ajouter la valeur de départ — l\u2019augmentation seule (60) n\u2019est pas la réponse.`;
 const RAP_AG2Q=`<b>Tester une proposition par le calcul direct</b><br>
 Une évolution relie trois nombres : <b>valeur initiale, pourcentage, valeur finale</b>. Dès qu\u2019on en connaît deux, on peut tester une proposition pour le troisième.<br>
-On calcule <b>l\u2019augmentation ou la baisse</b> : P/100 × valeur initiale, comme en {pourcentage} — sans coefficient multiplicateur.<br>
+On calcule <b>l\u2019augmentation ou la baisse</b> : \\(\\frac{P}{100}\\) × valeur initiale, comme en {pourcentage} — sans coefficient multiplicateur.<br>
 Puis on <b>ajoute</b> (hausse) ou on <b>retire</b> (baisse) : si l\u2019on retombe sur la valeur finale annoncée, la proposition est la bonne.<br>
 Attention au sens de la soustraction : c\u2019est valeur de départ − baisse, jamais l\u2019inverse.<br>
 Si le calcul est juste mais que le résultat ne correspond pas, c\u2019est la proposition qui est mauvaise, pas le calcul.`;
 const RAP_SYN=`<b>Synthèse sur les pourcentages</b><br>
-<b>Prendre P %</b> d\u2019un nombre : P/100 × valeur, comme en {pourcentage}.<br>
+<b>Prendre P %</b> d\u2019un nombre : \\(\\frac{P}{100}\\) × valeur, comme en {pourcentage}.<br>
 <b>Augmenter ou diminuer de P %</b> : deux méthodes, un seul résultat.<br>
-\u2014 avec le <b>coefficient multiplicateur</b> : 1 ± P/100, puis coefficient × valeur de départ ;<br>
-\u2014 en calculant <b>l\u2019augmentation ou la baisse</b> : P/100 × valeur, puis on l\u2019ajoute ou on la retire.<br>
+\u2014 avec le <b>coefficient multiplicateur</b> : \\(1\\pm \\frac{P}{100}\\), puis coefficient × valeur de départ ;<br>
+\u2014 en calculant <b>l\u2019augmentation ou la baisse</b> : \\(\\frac{P}{100}\\) × valeur, puis on l\u2019ajoute ou on la retire.<br>
 Quand on cherche la valeur initiale ou le pourcentage, on <b>teste une proposition</b> : on refait le calcul avec elle et on regarde si l\u2019on retombe sur la valeur annoncée.<br>
 Piège classique : l\u2019évolution se compare toujours à la valeur de DÉPART.`;
 const RAP_BS=`<b>Une baisse suivie d’une autre baisse</b><br>
@@ -9418,7 +9432,7 @@ On passe par les <b>coefficients multiplicateurs</b>, exactement comme dans {dim
 · baisser de 20 %, c’est multiplier par 1 − 0,20 = <b>0,8</b> ;<br>
 · baisser de 40 %, c’est multiplier par 1 − 0,40 = <b>0,6</b>.<br>
 Enchaîner les deux baisses, c’est multiplier par l’un <b>puis</b> par l’autre : le coefficient global est le <b>produit</b> des deux. On l’écrit en fractions décimales, comme dans {mult-decimaux}, et il ne reste qu’à multiplier les numérateurs — une table de multiplication.<br>
-0,8 × 0,6 = 8/10 × 6/10 = 48/100 = <b>0,48</b>.<br>
+\\(0{,}8\\times 0{,}6=\\frac{8}{10}\\times \\frac{6}{10}=\\frac{48}{100}\\) = <b>0,48</b>.<br>
 Le coefficient global se relit enfin en pourcentage : multiplier par 0,48, c’est <b>garder</b> 48 % — donc <b>perdre 52 %</b>. La baisse globale est <b>52 %</b>.<br>
 Pour vérifier, refais le chemin dans l’autre sens : 1 − 0,52 = 0,48, le coefficient trouvé à l’étape ②.`;
 
@@ -9433,7 +9447,7 @@ Pour le pourcentage, on lit <b>l’écart à 1</b> :<br>
 <b>Le piège :</b> 0,96 n’est pas « −96 % ». Ce qui compte est ce qu’il MANQUE
 pour arriver à 1. Multiplier par 0,96, c’est garder 96 % — donc en perdre 4.<br>
 Pour vérifier, on refait le calcul dans l’autre sens, exactement comme dans
-{augmenter-pourcentage} et {diminuer-pourcentage} : 1 − 4/100 = 1 − 0,04 = 0,96.
+{augmenter-pourcentage} et {diminuer-pourcentage} : \\(1-\\frac{4}{100}=1-0{,}04=0{,}96\\).
 Si l’on retombe sur le coefficient donné, la réponse est la bonne.`;
 const RAP_HS=`<b>Une hausse suivie d’une autre hausse</b><br>
 Deux hausses <b>ne s’additionnent pas</b> : augmenter de 40 % puis de 4 %, ce n’est PAS augmenter de 44 %. La seconde hausse ne porte pas sur la valeur de départ, mais sur la valeur <b>déjà augmentée</b> — elle est donc plus grosse.<br>
@@ -9441,23 +9455,23 @@ On passe par les <b>coefficients multiplicateurs</b>, comme dans {augmenter-pour
 · augmenter de 40 %, c’est multiplier par 1 + 0,40 = <b>1,4</b> ;<br>
 · augmenter de 4 %, c’est multiplier par 1 + 0,04 = <b>1,04</b>.<br>
 Enchaîner les deux, c’est multiplier par l’un <b>puis</b> par l’autre : le coefficient global est le <b>produit</b> des deux, et il se pose comme dans {mult-dec-un} — deux nombres qui commencent par 1, donc une multiplication en colonnes avec ses deux produits partiels et son décalage.<br>
-1,4 × 1,04 = 14/10 × 104/100 = 1456/1000 = <b>1,456</b>.<br>
+\\(1{,}4\\times 1{,}04=\\frac{14}{10}\\times \\frac{104}{100}=\\frac{1456}{1000}\\) = <b>1,456</b>.<br>
 Le coefficient global se relit en pourcentage : multiplier par 1,456, c’est <b>ajouter 45,6 %</b>. La hausse globale est <b>45,6 %</b> — plus que 44, alors qu’à la baisse on trouve <i>moins</i> que la somme.<br>
 Pour vérifier, refais le chemin dans l’autre sens : 1 + 0,456 = 1,456, le coefficient trouvé à l’étape ②.`;
 const RAP_SF=`<b>Additionner ou soustraire deux fractions</b><br>
 On ne peut additionner que des parts de MÊME taille : il faut donc le même dénominateur.<br>
-<b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour 1/2 et 1/3, le plus petit dénominateur commun est 6 : 1/2 = (1×3)/(2×3) = 3/6, et 1/3 = (1×2)/(3×2) = 2/6.<br>
-<b>② Additionner les NUMÉRATEURS seulement.</b> 3/6 + 2/6 = (3 + 2)/6. Le dénominateur ne change pas : il dit la taille des parts, pas leur nombre.<br>
-<b>③ Faire le calcul du haut</b> : (3 + 2)/6 = 5/6.<br>
-<b>Un entier est une fraction</b> : 3 = 3/1. On le met au même dénominateur comme les autres — 3 = (3×5)/(1×5) = 15/5.<br>
-Piège classique : additionner les dénominateurs. 1/2 + 1/3 ne fait pas 2/5 — ce serait moins que 1/2, alors qu'on a ajouté quelque chose.`;
+<b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour \\(\\frac{1}{2}\\) et \\(\\frac{1}{3}\\), le plus petit dénominateur commun est 6 : \\(\\frac{1}{2}=\\frac{1\\times 3}{2\\times 3}=\\frac{3}{6}\\), et \\(\\frac{1}{3}=\\frac{1\\times 2}{3\\times 2}=\\frac{2}{6}\\).<br>
+<b>② Additionner les NUMÉRATEURS seulement.</b> \\(\\frac{3}{6}+\\frac{2}{6}=\\frac{3+2}{6}\\). Le dénominateur ne change pas : il dit la taille des parts, pas leur nombre.<br>
+<b>③ Faire le calcul du haut</b> : \\(\\frac{3+2}{6}=\\frac{5}{6}\\).<br>
+<b>Un entier est une fraction</b> : \\(3=\\frac{3}{1}\\). On le met au même dénominateur comme les autres — \\(3=\\frac{3\\times 5}{1\\times 5}=\\frac{15}{5}\\).<br>
+Piège classique : additionner les dénominateurs. \\(\\frac{1}{2}+\\frac{1}{3}\\) ne fait pas \\(\\frac{2}{5}\\) — ce serait moins que \\(\\frac{1}{2}\\), alors qu'on a ajouté quelque chose.`;
 
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, sf:RAP_SF };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
-Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, P/100 × valeur, exactement comme en {pourcentage}.<br>
+Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
-Exemple : diminuer 300 de 20 %. La baisse vaut 20/100 × 300 = 60, et 300 \u2212 60 = 240.<br>
+Exemple : diminuer 300 de 20 %. La baisse vaut \\(\\frac{20}{100}\\times 300=60\\), et 300 \u2212 60 = 240.<br>
 C\u2019est la même réponse qu\u2019avec le coefficient (300 × 0,8 = 240) : deux chemins, un seul résultat.<br>
 Piège classique : la baisse seule (60) n\u2019est pas la réponse — et c\u2019est bien la valeur de départ qui perd, jamais l\u2019inverse.`;
 const RAP_ADDSUB=`<b>Poser une addition ou une soustraction</b><br>
@@ -9480,7 +9494,24 @@ function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[
    d'eux-mêmes ; le rappel, lui, est du HTML écrit à la main que le modèle n'a
    jamais vu — il reste donc tel qu'il est écrit, et le simplifier demanderait
    de réécrire les soixante rappels des trois niveaux. */
-function rappelHTML(){ return numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || ''); }
+/* Une écriture mathématique dans un rappel de cours s'écrit \( … \) et se rend
+   à L'AFFICHAGE, jamais au chargement : les rappels sont des constantes évaluées
+   quand la page se lit, MathLive n'est pas encore prêt à ce moment-là, et une
+   fraction rendue là serait vide.
+   Le reste du rappel est du HTML écrit à la main (<b>, <br>, <table>) : on ne le
+   passe donc PAS par conseilHTML(), qui échapperait ces balises et les afficherait
+   en toutes lettres. Seuls les segments \( … \) sont remplacés.
+   Si le rendu est indisponible, on retombe sur l'écriture en clair — (a)/(b) —
+   jamais sur un \frac visible à l'écran. */
+function rapMaths(h){
+  return String(h==null?'':h).replace(/\\\(([\s\S]+?)\\\)/g, function(m,lx){
+    const r=(window.mlDexp&&mlDexp.tex)?mlDexp.tex(latexRepare(lx,true)):null;
+    if(r!=null) return r;
+    let clair=lx; try{ if(window.mlDexp&&mlDexp.toPlain) clair=mlDexp.toPlain(lx); }catch(e){}
+    return esc(clair);
+  });
+}
+function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind]) || '')); }
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
