@@ -616,6 +616,33 @@ second bord, « toujours vrai » passerait —, deux paires divergentes restent
 fausses toutes les deux, l'étape ② ne suit pas une étape ① qui dit autre chose,
 et les cases vides se voient.
 
+**Et le même défaut vivait une couche plus bas : DANS la paire.** Corrigé le
+matin entre les deux fractions, il a été resignalé l'après-midi : sur
+« 1/5 − 1/8 », l'élève écrit 8 dans la case du HAUT, laisse sa jumelle vide,
+vérifie — et son 8, le bon multiplicateur, rougit. La paire réclamait ses DEUX
+cases pour se juger, et posait quand même du rouge sans avoir tranché. Corriger
+un seul des deux étages ne corrigeait rien.
+La règle vaut donc à toutes les profondeurs : **un groupe se juge sur les cases
+que l'élève a ÉCRITES**. Un multiplicateur se met en haut comme en bas, donc
+les deux cases portent le même nombre — une seule suffit à le désigner, et se
+juge sur ce qu'elle promet. L'étape ② se juge sur le dénominateur écrit, à
+défaut sur celui que l'étape ① annonce. La fraction finale à moitié écrite se
+juge de même : le résultat étant irréductible, toute fraction égale s'écrit
+N×t sur D×t. Et **une case vide ne reçoit plus aucune couleur** — elle reçoit
+la correction en bleu, ce qui est autre chose.
+**Un garde-fou va avec, et sans lui le correctif ouvre un trou** : chaque étape
+se jugeant sur ce qui est écrit, une demi-copie peut passer aux quatre verdicts
+verts. Elle vaudrait alors le point entier, et ses cases vides ne recevraient
+même pas la correction — l'application les tenant pour terminées. `allOk`
+exige donc aussi qu'aucune case ne soit vide.
+Trois sabotages sont d'abord passés au vert, et chacun disait la même chose :
+le contrôle ne mesurait pas ce qu'il avait l'air de mesurer. Le report du
+dénominateur depuis l'étape ① n'était éprouvé que par des copies qui écrivaient
+ce dénominateur ; le garde-fou de la demi-copie n'était éprouvé que sur `vide`,
+jamais sur la note ; et l'accord des deux étapes n'avait aucun cas où elles se
+contredisent. **Un contrôle qui passe au vert sous le sabotage n'est pas un
+contrôle trop faible : c'est un contrôle qui parle d'autre chose.**
+
 **Un terme ENTIER s'écrit avec la même encre qu'une fraction.** Écrit en
 `f-whole` — 2 rem, une autre couleur — il dépassait des fractions voisines :
 « 7/6 + 9 » avait un 9 deux fois plus gros que le 7, et le « + » ne tombait plus
