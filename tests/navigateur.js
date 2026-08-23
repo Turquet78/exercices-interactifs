@@ -1719,7 +1719,14 @@ async function parcours(page, N){
       await s.page.evaluate(() => { const m = sflFeuille.lignes[0].mf; m.focus();
         try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
       await s.page.waitForTimeout(150);
-      await s.page.keyboard.type('=27/6+5/6', { delay: 40 });
+      /* LES ESPACES SORTENT DE LA FRACTION, et sans elles le banc écrivait du
+         charabia : « 27/6+5/6 » tapé d'un trait donne 27/(6+5/6), tout ce qui
+         suit tombant dans le dénominateur. C'est la convention de MathLive, et
+         l'indication sous la feuille la dit — mais un contrôle qui tape sans
+         elles n'éprouve PAS la rédaction en ligne : il vérifie qu'on sait
+         envoyer n'importe quoi. Vu en photographiant l'écran, pas dans le
+         code. */
+      await s.page.keyboard.type('=27/6 +5/6 =32/6 ', { delay: 40 });
       await s.page.keyboard.press('Enter');
       await s.page.waitForTimeout(400);
       await s.page.keyboard.type('16/3', { delay: 40 });
@@ -1770,6 +1777,12 @@ async function parcours(page, N){
       verifier('la copie de l\'élève part au modèle, la somme comprise',
         !!juste.envoye && juste.envoye.indexOf(depart.plain) === 0 && juste.regle > 500,
         'envoyé : ' + JSON.stringify(juste.envoye) + ', règle : ' + juste.regle + ' caractères');
+      /* La rédaction EN LIGNE — plusieurs « = » dans une même ligne — doit
+         arriver entière au modèle : c'est la façon d'écrire de Turquet, et
+         c'est celle que la règle de décision doit accepter. */
+      verifier('une rédaction écrite en ligne arrive entière au modèle',
+        !!juste.envoye && (juste.envoye.split('\n')[0].match(/=/g) || []).length >= 2,
+        'première ligne envoyée : ' + JSON.stringify((juste.envoye || '').split('\n')[0]));
       verifier('un « correct » du modèle donne le point',
         juste.score === 1 && juste.note === true,
         'score ' + juste.score + ', note ' + juste.note);
