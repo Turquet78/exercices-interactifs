@@ -2047,6 +2047,73 @@ function exercices(suite){
        temps des passages doit continuer de se lire — avec toutes les notes
        prises pendant ces passages, sans quoi les retirer aurait effacé de
        l'écran des notes réellement obtenues. */
+    /* ---- UNE NOTE POSÉE PAR LE PROFESSEUR ---------------------------------
+       Turquet doit pouvoir corriger la note d'un exercice pour un élève, dans
+       un devoir. Elle se pose PAR-DESSUS : le travail de l'élève reste dans
+       « resultats », intact, et la note posée vit à côté, dans la
+       configuration du devoir. Rien n'est réécrit — une note corrigée par
+       erreur serait sinon irrécupérable, et la trace de ce que l'élève a fait,
+       perdue.
+       QUATRE BORDS, et n'en tenir qu'un ne tient rien.
+       · Elle REMPLACE la note calculée, et le total du devoir la suit. Un
+         total qui ne bougerait pas ferait deux vérités sur le même écran.
+       · Elle SURVIT au rechargement. La configuration est relue à chaque
+         ouverture de l'onglet et recopiée champ par champ : un champ que
+         ensureDevoir() ne connaît pas disparaît SANS erreur, et le professeur
+         retrouverait la note d'avant sans comprendre pourquoi.
+       · Elle est BORNÉE à 0–10. C'est un JSON qu'on peut éditer à la main dans
+         la base ; une valeur bricolée doit retomber sur quelque chose de sensé
+         plutôt que produire un 47/10.
+       · La RETIRER rend la note obtenue. C'est la seule façon d'annuler.
+       Et le même entonnoir sert l'élève et le professeur : deux calculs
+       auraient fini par donner deux notes, comme l'a montré exercicesDevoir(). */
+    if(evaluer(w, "typeof noteForcee==='function' && typeof noteDevoirExo==='function'").valeur){
+      verifierEval(w, 'une note posée par le professeur remplace la note calculée, et lui survit', `(function(){
+        const vus=[];
+        const copie=(p)=>({percent:p});
+        const dev={id:'dm-n',num:9,actif:true,exercices:[{id:'a',modes:['train']},{id:'b',modes:['train']}],
+                   notes:{'e1|a':8}};
+        /* 1. sans note posée, rien ne change */
+        let nd=noteDevoirExo(copie(100), copie(50), noteForcee(dev,'e1','b'));
+        if(nd.posee) vus.push('un exercice sans note posée se croit forcé');
+        if(Math.round(nd.note*10)/10!==5) vus.push('la note calculée vaut '+nd.note+' au lieu de 5');
+        /* 2. avec, elle remplace — et se distingue */
+        nd=noteDevoirExo(copie(100), copie(50), noteForcee(dev,'e1','a'));
+        if(!nd.posee) vus.push('la note posée n\\'est pas signalée comme telle');
+        if(nd.note!==8) vus.push('la note posée vaut '+nd.note+' au lieu de 8');
+        if(Math.round(nd.auto*10)/10!==5) vus.push('la note OBTENUE n\\'est plus lisible à côté ('+nd.auto+' au lieu de 5)');
+        /* 3. elle vaut même si l'élève n'a rien fait : le professeur a noté */
+        nd=noteDevoirExo(null, null, noteForcee(dev,'e1','a'));
+        if(!nd.fait) vus.push('une note posée sur un exercice non fait ne compte pas dans le devoir');
+        if(nd.note!==8) vus.push('une note posée sur un exercice non fait vaut '+nd.note);
+        /* 4. elle ne déborde pas de 0–10 */
+        if(noteDevoirExo(null,null,47).note!==10) vus.push('47 n\\'est pas ramené à 10');
+        if(noteDevoirExo(null,null,-3).note!==0) vus.push('−3 n\\'est pas ramené à 0');
+        /* 5. une valeur illisible dans le JSON est ignorée, pas transformée en NaN */
+        const sale={notes:{'e1|a':'huit','e1|b':null}};
+        if(noteForcee(sale,'e1','a')!==undefined) vus.push('une note écrite en toutes lettres est lue comme un nombre');
+        /* un SOUTIEN à 100 % vaut 5 sur 10, par construction — c'est le
+           plafond du mode, et le contrôle s'était trompé, pas la page. */
+        if(noteDevoirExo(copie(100),null,noteForcee(sale,'e1','a')).note!==5)
+          vus.push('une note illisible efface la note obtenue');
+        /* 6. ELLE SURVIT AU RECHARGEMENT : ensureDevoir recopie champ par champ */
+        if(typeof ensureDevoir==='function'){
+          const relu=ensureDevoir(JSON.parse(JSON.stringify(dev)),0);
+          if(noteForcee(relu,'e1','a')!==8)
+            vus.push('la note posée ne survit pas au rechargement : ensureDevoir ne la recopie pas');
+        } else vus.push('ensureDevoir() est introuvable');
+        /* 7. la retirer rend la note obtenue */
+        const sans=JSON.parse(JSON.stringify(dev)); delete sans.notes['e1|a'];
+        const rendu=noteDevoirExo(copie(100), copie(50), noteForcee(sans,'e1','a'));
+        if(rendu.posee || Math.round(rendu.note*10)/10!==5)
+          vus.push('retirer la note posée ne rend pas la note obtenue ('+rendu.note+')');
+        return vus.join(' | ');
+      })()`, v => v === '', undefined);
+    } else {
+      ignorer('une note posée par le professeur remplace la note calculée, et lui survit',
+        'ce niveau n’a pas de note posée par le professeur');
+    }
+
     if(P.devoirs){
       const dv = P.devoirs;
       verifierEval(w, 'un devoir ne demande qu\'une fois chaque exercice', `(function(){

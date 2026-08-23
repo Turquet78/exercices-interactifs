@@ -419,6 +419,10 @@ module.exports = {
        Turquet, pas une correction technique.
        Les six sont donc NOMMÉS ici et s'affichent à chaque exécution : un
        manque tu finit par se croire normal. */
+    /* Le professeur pose une note sur un exercice d'un devoir : le banc
+       principal éprouve le calcul, celui-ci éprouve le GESTE — taper la note,
+       la voir tenir, et le total du devoir la suivre. */
+    notesDevoir: { exercice: 'derivee-exp', tableParametres: 'parametres', tableResultats: 'resultats' },
     casesVides: { sans: ['derivee-exp', 'derivee-exp-3', 'derivee-exp-quotient',
                          'etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
 

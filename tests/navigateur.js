@@ -965,6 +965,95 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quindecies. Le professeur POSE une note sur un devoir ===== */
+    /* Turquet doit pouvoir corriger la note d'un exercice pour un élève. Le
+       banc principal éprouve le CALCUL — la note posée remplace, elle est
+       bornée, elle survit au rechargement. Il ne peut pas éprouver le GESTE :
+       taper une note dans le champ, et voir le total du devoir bouger.
+       C'est la différence qui compte ici. Le champ vit dans un tableau rendu en
+       innerHTML, son « onchange » traverse deux analyseurs, et l'enregistrement
+       passe par la base. Rien de tout cela ne se voit hors d'un navigateur.
+       TROIS BORDS : la note s'écrit et TIENT (elle part vraiment en base), le
+       TOTAL du devoir la suit — sans quoi le même écran porterait deux
+       vérités —, et vider le champ REND la note obtenue. */
+    titre('6 quindecies. LE PROFESSEUR POSE UNE NOTE SUR UN DEVOIR');
+    if(!P.notesDevoir){
+      ignorer('le professeur pose une note, elle tient, et le total la suit',
+        'ce niveau n\'a pas de note posée par le professeur');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      const N = P.notesDevoir;
+      /* L'ÉLÈVE EST CELUI DU BANC, pas un identifiant inventé. Un résultat semé
+         sous « e1 » n'appartient à personne : le tableau du professeur ne le
+         montre nulle part, et le contrôle accusait alors la page d'un défaut
+         qui n'existait pas. On lit donc l'identifiant dans la table. */
+      const eleveId = await s.page.evaluate(t => ((window.__faux.tables[t] || [])[0] || {}).id,
+        P.tableEleves);
+      /* un devoir d'un exercice, et un résultat d'élève à 40 % en entraînement
+         — donc 4 sur 10 obtenus */
+      await s.page.evaluate(o => {
+        window.__faux.tables[o.params] = [{ id:1, valeurs:{ devoirs:[
+          { id:'dm-banc', num:7, actif:true, titre:'Devoir du banc',
+            exercices:[{ id:o.exo, modes:['train'] }] }] } }];
+        window.__faux.tables[o.res] = [{ id:'r1', eleve_id:o.eleve, percent:40, score:4, total:10,
+          created_at:new Date(0).toISOString(), details:{ test:o.exo, mode:'train', dm:'dm-banc' } }];
+        show('teacher');
+      }, { params:N.tableParametres, res:N.tableResultats, exo:N.exercice, eleve:eleveId });
+      await s.page.evaluate(() => teacherTab('devoir'));
+      await s.page.waitForTimeout(1200);
+
+      const avant = await s.page.evaluate(() => ({
+        champs: document.querySelectorAll('.dm-noteinput').length,
+        texte: (document.getElementById('dmResults') || {}).textContent || '',
+      }));
+      verifier('le champ pour poser une note est là', avant.champs > 0,
+        avant.champs + ' champ(s) — ' + avant.texte.slice(0, 120));
+      verifier('le total du devoir part de la note obtenue',
+        /4\s*\/\s*10/.test(avant.texte.replace(/ /g, ' ')),
+        'affiché : ' + avant.texte.slice(0, 160));
+
+      /* on TAPE 9, comme le professeur */
+      await s.page.evaluate(() => {
+        const c = document.querySelector('.dm-noteinput');
+        c.value = '9';
+        c.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      await s.page.waitForTimeout(900);
+      const apres = await s.page.evaluate(o => ({
+        texte: (document.getElementById('dmResults') || {}).textContent || '',
+        enBase: (((window.__faux.tables[o.params] || [])[0] || {}).valeurs || {}).devoirs,
+      }), { params:N.tableParametres });
+      const posee = apres.enBase && apres.enBase[0] && apres.enBase[0].notes;
+      verifier('la note posée part vraiment en base',
+        !!posee && posee[eleveId + '|' + N.exercice] === 9,
+        'notes enregistrées : ' + JSON.stringify(posee || null));
+      verifier('le total du devoir suit la note posée',
+        /9\s*\/\s*10/.test(apres.texte.replace(/ /g, ' ')),
+        'affiché : ' + apres.texte.slice(0, 160));
+      verifier('la note obtenue reste lisible à côté',
+        /obtenu/i.test(apres.texte), 'affiché : ' + apres.texte.slice(0, 160));
+
+      /* et vider le champ REND la note obtenue */
+      await s.page.evaluate(() => {
+        const c = document.querySelector('.dm-noteinput');
+        c.value = '';
+        c.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      await s.page.waitForTimeout(900);
+      const rendu = await s.page.evaluate(o => ({
+        texte: (document.getElementById('dmResults') || {}).textContent || '',
+        notes: ((((window.__faux.tables[o.params] || [])[0] || {}).valeurs || {}).devoirs || [{}])[0].notes,
+      }), { params:N.tableParametres });
+      verifier('vider le champ rend la note obtenue',
+        /4\s*\/\s*10/.test(rendu.texte.replace(/ /g, ' '))
+          && !(rendu.notes && rendu.notes[eleveId + '|' + N.exercice] !== undefined),
+        'affiché : ' + rendu.texte.slice(0, 160) + ' — notes : ' + JSON.stringify(rendu.notes || null));
+      verifier('poser une note ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 septies. le cours en PDF, déposé puis ouvert ===== */
     /* Trois choses qu'aucun banc hors navigateur ne sait voir ensemble : un
        VRAI sélecteur de fichier reçoit un VRAI fichier, la liste du professeur
