@@ -1709,19 +1709,40 @@ async function parcours(page, N){
       await s.page.waitForTimeout(400);
       await s.page.keyboard.type('16/3', { delay: 40 });
       await s.page.waitForTimeout(300);
-      const vu = await s.page.evaluate(() => ({
-        lignes: sflFeuille.lignes.length,
-        lu: sflFeuille.lire(),
-        jetons: !!document.querySelector('.screen.on .rc-jetons'),
-        cible: (function(){ try{ const a=pmActiveMF(); return !!(a && a.classList.contains('dexp2-mf')); }catch(e){ return false; } })(),
-      }));
+      const vu = await s.page.evaluate(() => {
+        /* LE JETON DOIT TOMBER DANS LA LIGNE OÙ L'ÉLÈVE ÉCRIT, pas dans la
+           première venue. Demander seulement « pmActiveMF rend un champ de la
+           feuille » ne suffisait pas : la fonction a trois chemins, et son
+           dernier repli rend le PREMIER champ de l'écran. Un élève posé sur la
+           troisième ligne aurait vu sa virgule atterrir sur la première, sans
+           que rien ne rougisse — et le sabotage passait au vert. On INSÈRE donc
+           pour de bon, et on regarde où ça tombe. */
+        const avant = sflFeuille.lignes.map(L => { try{ return L.mf.getValue(); }catch(e){ return ''; } });
+        let ou = -1;
+        try{
+          const L = sflFeuille.lignes[sflFeuille.lignes.length - 1];
+          L.mf.focus();
+          pmInsert(',');
+          const apres = sflFeuille.lignes.map(M => { try{ return M.mf.getValue(); }catch(e){ return ''; } });
+          for(let i = 0; i < apres.length; i++) if(apres[i] !== avant[i]) { ou = i; break; }
+          L.mf.setValue(avant[avant.length - 1]);
+        }catch(e){}
+        return {
+          lignes: sflFeuille.lignes.length,
+          lu: sflFeuille.lire(),
+          jetons: !!document.querySelector('.screen.on .rc-jetons'),
+          jetonLigne: ou, derniere: sflFeuille.lignes.length - 1,
+        };
+      });
       verifier('Entrée ajoute une ligne à la feuille', vu.lignes >= 2,
         vu.lignes + ' ligne(s) après un appui sur Entrée');
       verifier('la feuille se lit avec ses préfixes, une étape par ligne',
         /^9\/2 \+ 5\/6 =/.test(vu.lu) && /\n= /.test(vu.lu),
         'lu : ' + JSON.stringify(vu.lu));
-      verifier('la rangée de jetons vise bien la feuille', vu.jetons && vu.cible,
-        'jetons affichés : ' + vu.jetons + ', champ visé : ' + vu.cible);
+      verifier('un jeton tombe dans la ligne où l\'élève écrit',
+        vu.jetons && vu.jetonLigne === vu.derniere,
+        'jetons affichés : ' + vu.jetons + ', inséré dans la ligne ' + vu.jetonLigne
+          + ' au lieu de ' + vu.derniere);
       /* le verdict de l'IA, et lui seul, fait la note */
       await s.page.evaluate(() => { window.__verdict = true; });
       await s.page.click('#sflActions .btn-primary');
