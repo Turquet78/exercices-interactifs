@@ -588,6 +588,34 @@ qu'elle vérifie — le même dénominateur des deux côtés — parle des deux 
 déclarer fausse parce qu'il manque une case ailleurs. La Terminale avait déjà
 appris cette règle sur ses groupes du 6.1 ; elle n'avait pas gagné la Seconde.
 
+**Et la VÉRIFICATION portait le même défaut, en pire.** La correction en direct
+avait été réparée, pas celle du bouton « Vérifier » : là, une case juste rougissait
+toujours parce qu'une autre était vide. Sur « 8/5 + 4/9 », l'élève écrit 9 et 9
+sous la première fraction, vérifie avant d'avoir rempli le reste — ses deux cases
+deviennent ROUGES et la note annonce « 0 case juste sur 9 ». Elles ne l'étaient
+que parce que `memeD` réclame les DEUX paires : une case comptée fausse à cause
+d'une case restée vide AILLEURS. Cette fois **la note mentait aussi**, et elle
+partait en base. Rien ne rougissait nulle part ; c'est Turquet qui l'a vu en
+cliquant, ce que ni `npm test` ni le banc navigateur ne faisaient — les deux
+remplissaient toujours TOUTES les cases avant de vérifier.
+Une paire seule se juge donc sur ce qu'elle PROMET : le dénominateur qu'elle
+produit doit pouvoir devenir commun, c'est-à-dire être un multiple de l'autre
+dénominateur. 5 × 9 = 45 est un multiple de 9, la paire tient ; 5 × 2 = 10 n'en
+est pas un, elle ne mène nulle part et rougit. **Aucun dénominateur commun n'est
+imposé pour autant** — 90 passe comme 45, c'est la promesse de l'exercice. Quand
+les deux paires sont posées, elles doivent redevenir d'accord entre elles. Et
+l'étape ② se juge de même sur SA ligne : le dénominateur commun est celui que
+l'élève a ÉCRIT, les deux numérateurs doivent le suivre, et une paire de l'étape
+① déjà posée doit s'y accorder.
+Le message aussi mentait : « Il faut le MÊME dénominateur des deux côtés »
+devant une copie dont il manquait sept cases. Une case vide n'est pas une erreur
+de calcul, et la correction le dit maintenant avant tout le reste.
+Cinq bords contrôlés, et n'en tenir qu'un ne tient rien : la paire seule qui MÈNE
+quelque part est juste, celle qui ne mène nulle part reste fausse — sans ce
+second bord, « toujours vrai » passerait —, deux paires divergentes restent
+fausses toutes les deux, l'étape ② ne suit pas une étape ① qui dit autre chose,
+et les cases vides se voient.
+
 **Un terme ENTIER s'écrit avec la même encre qu'une fraction.** Écrit en
 `f-whole` — 2 rem, une autre couleur — il dépassait des fractions voisines :
 « 7/6 + 9 » avait un 9 deux fois plus gros que le 7, et le « + » ne tombait plus
