@@ -1194,6 +1194,31 @@ function branchements(w){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- {somme-fractions} : les deux opérations alternent -----------------
+     L'élève passe d'une technique à l'autre à chaque question, au lieu de
+     tomber six fois de suite sur la même (décision de Turquet, août 2026).
+     Tiré au hasard, le même total sortait — mais pas le même exercice.
+     Deux bords : l'ALTERNANCE, et le fait que ça commence par une addition.
+     On appelle le vrai tirage, plusieurs fois : un générateur qui retomberait
+     sur son repli doit alterner lui aussi. */
+  if(src.indexOf('function sfBuildQuestions') >= 0){
+    verifierEval(w, '{somme-fractions} alterne addition et soustraction', `(function(){
+      for(let essai=0; essai<40; essai++){
+        const qs=sfBuildQuestions();
+        if(!qs.length) return 'aucune question tirée : le contrôle ne mesure rien';
+        for(let i=0;i<qs.length;i++){
+          const attendu = (i%2===0) ? '+' : '−';
+          if(qs[i].op!==attendu)
+            return 'question '+(i+1)+' : « '+qs[i].op+' » au lieu de « '+attendu+' »';
+        }
+      }
+      return '';
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('{somme-fractions} alterne addition et soustraction',
+      'ce niveau n’a pas l’exercice de somme de fractions');
+  }
+
   /* ---- Les écritures mathématiques des réponses du modèle ----------------
      Un élève de Seconde lisait « \frac{1}{2} », en toutes lettres, là où son
      cahier porte une fraction empilée : sa page posait la réponse du modèle en

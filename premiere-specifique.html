@@ -765,6 +765,14 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .sf-f .n,.sf-f .d{padding:0 6px}
 .sf-f .bar{align-self:stretch;height:2.5px;background:currentColor;border-radius:2px;margin:3px 0}
 .f-frac{display:inline-flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark)}
+/* L'entier d'un terme : une « fraction » à un seul étage. Le padding est celui
+   d'un numérateur, sinon il collerait au signe voisin. */
+.sf-f.sf-ent .n{padding:0 3px}   /* moins qu'un numérateur : un entier n'a pas de trait à border, et 6 px le décollaient du point final */
+/* L'énoncé s'aligne au MILIEU, pas sur la ligne d'écriture. En texte ordinaire,
+   « vertical-align:middle » place chaque terme selon SA hauteur : un entier à un
+   étage et une fraction à deux n'ont pas le même milieu, et le signe tombait
+   15 px au-dessus du trait. Une rangée flex les centre tous sur la même ligne. */
+#sfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 .sf-prod{align-items:stretch}
 .sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .sf-somme .sf-haut{display:inline-flex;align-items:center;gap:8px;justify-content:center}
@@ -7166,14 +7174,19 @@ function sfBoutonsAide(){ return ''; }
    pour que la question « faut-il simplifier ? » ne se pose pas. */
 function sfPgcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; }
 function sfPpcm(a,b){ return a/sfPgcd(a,b)*b; }
-function sfGen(){
+/* Les deux opérations ALTERNENT, en commençant par une addition (décision de
+   Turquet, août 2026) : l'élève passe d'une technique à l'autre à chaque
+   question, au lieu de tomber six fois de suite sur la même. Tiré au hasard,
+   le même total sortait — mais pas le même exercice. C'est la règle des
+   opérations posées, au même endroit du raisonnement. */
+function sfGen(opImpose){
   for(let essai=0; essai<500; essai++){
     const entier = Math.random()<0.28;              /* un terme sur quatre est un entier */
     const d1 = entier && Math.random()<0.5 ? 1 : rand(2,9);
     const d2 = (d1===1) ? rand(2,9) : (entier ? 1 : rand(2,9));
     if(d1===d2) continue;                            /* même dénominateur : plus rien à mettre au même */
     const n1=rand(1,9), n2=rand(1,9);
-    const op = Math.random()<0.5 ? '+' : '−';
+    const op = opImpose || (Math.random()<0.5 ? '+' : '−');
     const D=sfPpcm(d1,d2), k1=D/d1, k2=D/d2;
     const N1=n1*k1, N2=n2*k2;
     const N = (op==='+') ? N1+N2 : N1-N2;
@@ -7188,7 +7201,11 @@ function sfGen(){
     if(N===D) continue;                              /* 1 tout rond : l'écriture finale devient ambiguë */
     return {n1:n1,d1:d1,n2:n2,d2:d2,op:op,D:D,k1:k1,k2:k2,N1:N1,N2:N2,N:N};
   }
-  return {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5};
+  /* Le repli suit l'opération demandée : rendre une addition là où l'alternance
+     attend une soustraction la romprait sans que rien ne le dise. */
+  return (opImpose==='−')
+    ? {n1:1,d1:2,n2:1,d2:3,op:'−',D:6,k1:3,k2:2,N1:3,N2:2,N:1}
+    : {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5};
 }
 /* La fraction ÉCRITE (pas une case à remplir). Le moteur ne s'appuie sur aucune
    aide propre au niveau : la Seconde a « ensFracInner », la Première rend ses
@@ -7204,10 +7221,17 @@ function sfFracInner(numStr,denStr){
   return '<span class="sf-f"><span class="n">'+numStr+'</span><span class="bar"></span>'
         +'<span class="sf-lu">/</span><span class="d">'+denStr+'</span></span>';
 }
-function sfBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen()); return qs; }
+function sfBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−')); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
+/* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
+   Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions
+   voisines et cassait la ligne : « 7/6 + 9 » avait un 9 deux fois plus gros que
+   le 7, et le « + » ne tombait plus sur le trait (décision de Turquet,
+   août 2026). On lui donne donc la FORME d'une fraction sans barre : même
+   colonne, même centrage — son milieu tombe là où tomberait le trait, et le
+   « + » s'aligne dessus tout seul. */
 function sfTermeHTML(n,d){
-  return (d===1) ? '<span class="f-whole">'+n+'</span>'
+  return (d===1) ? '<span class="f-frac"><span class="sf-f sf-ent"><span class="n">'+n+'</span></span></span>'
                  : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
 }
 function sfCases(){ return ['sf-a1','sf-b1','sf-a2','sf-b2','sf-num1','sf-num2','sf-den','sf-fn','sf-fd']; }
@@ -7218,7 +7242,10 @@ function renderSFTest(){
   $('sfLiveScore').textContent=test.score;
   $('sfFeedback').textContent=''; $('sfFeedback').className='mp-feedback';
   $('sfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkSFAnswer()">Vérifier</button>';
-  $('sfPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+q.op+'</b> '+sfTermeHTML(q.n2,q.d2)+'.';
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît, et « Calcule7/6+9 » se collerait. Le point
+     final, lui, n'en a pas — il suit le dernier terme comme dans une phrase. */
+  $('sfPrompt').innerHTML='Calcule\u00a0'+sfTermeHTML(q.n1,q.d1)+'\u00a0<b>'+q.op+'</b>\u00a0'+sfTermeHTML(q.n2,q.d2)+'.';
   /* Toute case est ENVELOPPÉE. La correction du mode entraînement s'insère
      juste après la case (corTrainDec) : posée nue dans une fraction, elle en
      élargissait le trait et, sous le dénominateur commun, tombait carrément
@@ -7230,9 +7257,9 @@ function renderSFTest(){
      seule ligne — c'est la chaîne du cahier (décision de Turquet, août 2026).
      Empilées en trois blocs, elles se lisaient comme trois calculs séparés,
      alors que c'est le même, poursuivi. */
-  const terme=(n,d)=> (d===1)
-    ? '<span class="f-whole">'+n+'</span>'
-    : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
+  /* le même terme que l'énoncé, et par la même fonction : deux écritures
+     auraient fini par diverger sous les yeux de l'élève */
+  const terme=(n,d)=> sfTermeHTML(n,d);
   const surUn=(n,d)=> '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
   const op='<span class="f-times">'+q.op+'</span>';
   const eq='<span class="f-eq">=</span>';
@@ -7295,15 +7322,30 @@ function sfJuge(q){
   const ok4 = !isNaN(fn) && !isNaN(fd) && fd!==0 && fn*q.D===q.N*fd;
   return {ok1:ok1&&memeD, ok2:ok2&&memeD, ok3:ok3, ok4:ok4, memeD:memeD, D:D};
 }
+/* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
+   TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
+   paire de multiplicateurs ne veut rien dire à moitié écrite. L'élève tapait 1
+   dans « 2 × □ », passait à la case du dessous, et la première virait au ROUGE
+   — alors qu'elle était juste, et que la page la comptait juste à la fin.
+   Signalé par Turquet en août 2026 ; c'est la même règle que les groupes du
+   6.1 en Terminale, qui l'avait déjà apprise. */
 function sfLive(){
   if(test.kind!=='sf' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   const r=sfJuge(q);
-  const col=(ids,ok)=>ids.forEach(id=>{ const el=$(id); if(!el) return;
-    el.classList.remove('ok','bad');
-    if(String(el.value||'').trim()==='') return;
-    el.classList.add(ok?'ok':'bad'); });
-  col(['sf-a1','sf-b1'],r.ok1); col(['sf-a2','sf-b2'],r.ok2);
+  const vide=id=>{ const el=$(id); return !el || String(el.value||'').trim()===''; };
+  const col=(ids,ok)=>{
+    ids.forEach(id=>{ const el=$(id); if(el) el.classList.remove('ok','bad'); });
+    if(ids.some(vide)) return;          /* groupe incomplet : aucun verdict, aucune couleur */
+    ids.forEach(id=>{ const el=$(id); if(el) el.classList.add(ok?'ok':'bad'); });
+  };
+  /* L'étape ① est UN groupe de QUATRE cases, pas deux paires : la règle qu'elle
+     vérifie — le même dénominateur des deux côtés — parle des deux fractions à
+     la fois. Juger la première pendant que la seconde est vide, c'est la
+     déclarer fausse parce qu'il manque une case ailleurs. */
+  const etape1=['sf-a1','sf-b1','sf-a2','sf-b2'];
+  if(etape1.some(vide)) col(etape1,true);   /* incomplète : le col() efface et s'arrête */
+  else { col(['sf-a1','sf-b1'],r.ok1); col(['sf-a2','sf-b2'],r.ok2); }
   col(['sf-num1','sf-num2','sf-den'],r.ok3); col(['sf-fn','sf-fd'],r.ok4);
 }
 function checkSFAnswer(live){
