@@ -1605,7 +1605,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=151;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=152;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7426,13 +7426,33 @@ function sfJuge(q){
      DEUX paires : une case était donc comptée fausse à cause d'une case restée
      vide AILLEURS. C'est le pire défaut possible, il apprend l'inverse de ce
      qu'il enseigne — et la note disait « 0 case juste sur 9 ».
-     Une paire seule se juge donc sur ce qu'elle PROMET : le dénominateur
-     qu'elle produit doit pouvoir devenir commun, c'est-à-dire être un multiple
-     de l'autre dénominateur. 5 × 9 = 45 est un multiple de 9, la paire tient ;
+     Une paire se juge donc sur ce qu'elle PROMET : le dénominateur qu'elle
+     produit doit pouvoir devenir commun, c'est-à-dire être un multiple de
+     l'autre dénominateur. 5 × 9 = 45 est un multiple de 9, la paire tient ;
      5 × 2 = 10 n'en est pas un, elle ne mène nulle part et rougit. Aucun
-     dénominateur commun n'est imposé pour autant — 90 passe comme 45. */
-  const ok1 = m1>0 && (m2>0 ? memeD : D1 % d2 === 0);
-  const ok2 = m2>0 && (m1>0 ? memeD : D2 % d1 === 0);
+     dénominateur commun n'est imposé pour autant — 90 passe comme 45.
+
+     ET ELLE SE JUGE AINSI MÊME QUAND L'AUTRE PAIRE EST REMPLIE. C'est la
+     TROISIÈME profondeur du même défaut, signalée par Turquet en août 2026 sur
+     « 8/5 − 1/8 » : l'élève écrit ×1 sous la première fraction et ×5 sous la
+     seconde, et les QUATRE cases rougissent. Or ×5 est juste — 8 × 5 = 40 est
+     un multiple de 5, la paire mène quelque part —, et seule la paire ×1
+     n'aboutit à rien, 5 n'étant pas un multiple de 8. Les deux corrections
+     précédentes n'avaient ouvert que le cas où l'autre paire est VIDE : dès
+     qu'elle était remplie ET fausse, « memeD » reprenait la main et la paire
+     juste payait pour sa voisine. Une case juste ne rougit pas parce qu'une
+     AUTRE est fausse, pas plus que parce qu'une autre est vide.
+
+     L'ACCORD ENTRE LES DEUX PAIRES N'EST EXIGÉ QUE LORSQUE LES DEUX MÈNENT
+     QUELQUE PART, et ce second bord compte autant que le premier : ×8 d'un
+     côté (40) et ×10 de l'autre (80) sont chacune défendables et ne se
+     rejoignent pas — les déclarer justes dirait à l'élève que sa mise au même
+     dénominateur est faite alors qu'elle ne l'est pas. Elles restent donc
+     fausses toutes les deux. Sans ce bord, « toujours vrai » passerait. */
+  const prom1 = m1>0 && D1 % d2 === 0;
+  const prom2 = m2>0 && D2 % d1 === 0;
+  const ok1 = prom1 && (!prom2 || memeD);
+  const ok2 = prom2 && (!prom1 || memeD);
   const n1=sfLu('sf-num1'), n2=sfLu('sf-num2'), dd=sfLu('sf-den');
   /* L'étape ② se juge de même sur SA ligne : le dénominateur commun est celui
      que l'élève a ÉCRIT — sinon celui que l'étape ① annonce —, les numérateurs
@@ -7494,7 +7514,13 @@ function sfJuge(q){
      serait mentir : le message le nomme avant tout le reste. */
   const vide = sfCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
   return {ok1:ok1, ok2:ok2, ok3:ok3, ok4:ok4, okS:okS, okQ:okQ,
-          memeD:memeD, D:D, vide:vide, Ns:Ns, Dc:Dc, g:g};
+          memeD:memeD, D:D, vide:vide, Ns:Ns, Dc:Dc, g:g,
+          /* D1 et D2 sortent pour que le MESSAGE puisse dire laquelle des deux
+             paires mène quelque part. Sans eux, « il faut le même dénominateur
+             des deux côtés » s'affichait devant une copie dont une moitié est
+             juste et verte — ce n'est pas faux, mais ça n'aide pas l'élève à
+             voir laquelle reprendre. */
+          prom1:prom1, prom2:prom2, D1:D1, D2:D2};
 }
 /* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
    TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
@@ -7584,6 +7610,16 @@ function checkSFAnswer(live){
 }
 function sfPourquoi(q,r){
   if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en bleu : compare-les à ce que tu as écrit.';
+  /* UNE MOITIÉ JUSTE SE DIT. Quand une seule des deux paires mène quelque
+     part, elle est verte à l'écran : lui répondre « il faut le même
+     dénominateur des deux côtés » est vrai mais aveugle — l'élève ne sait pas
+     laquelle des deux reprendre, et peut croire qu'il doit tout refaire. */
+  if(r.prom1 !== r.prom2){
+    const aRefaire = r.prom1 ? 'seconde' : 'première';
+    const cible = r.prom1 ? r.D1 : r.D2;
+    return 'Une des deux paires est bonne : elle mène au dénominateur '+cible
+      +'. Reprends la '+aRefaire+' fraction pour l’y amener aussi — en haut ET en bas.';
+  }
   if(!r.memeD) return 'Il faut le MÊME dénominateur des deux côtés. Avec '+q.d1+' et '+q.d2+', le plus petit qui convient est '+q.D
     +' : multiplie la première par '+q.k1+' (en haut ET en bas) et la seconde par '+q.k2+'.';
   if(!r.ok3) return 'Sur le dénominateur '+r.D+', les deux numérateurs deviennent '+(q.n1*q.k1*(r.D/q.D))+' et '+(q.n2*q.k2*(r.D/q.D))

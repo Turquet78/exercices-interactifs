@@ -2981,9 +2981,55 @@ function sommeFractions(w, P){
     /* et un dénominateur commun NON minimal reste juste, même seul : 5 × 18 = 90 */
     r=juger3(avec({'sf-a1':18,'sf-b1':18}));
     if(!r.ok1) vus.push('×18 sous 8/5 est refusé : 90 est pourtant un dénominateur commun');
-    /* les deux paires posées et DIVERGENTES restent fausses toutes les deux */
+    /* les deux paires posées et DIVERGENTES restent fausses toutes les deux —
+       45 et 90 sont chacun un dénominateur commun possible, mais ensemble ils
+       ne mettent rien au même dénominateur. Les déclarer justes dirait à
+       l'élève que son étape ① est faite alors qu'elle ne l'est pas. Sans ce
+       bord, « toujours vrai » passerait. */
     r=juger3(avec({'sf-a1':9,'sf-b1':9,'sf-a2':10,'sf-b2':10}));
     if(r.ok1||r.ok2) vus.push('45 d\\'un côté et 90 de l\\'autre est accepté');
+
+    /* i bis) UNE PAIRE JUSTE NE ROUGIT PAS PARCE QUE L'AUTRE EST FAUSSE.
+       TROISIÈME profondeur du même défaut, signalée par Turquet en août 2026
+       sur une capture de « 8/5 − 1/8 » : ×1 sous la première fraction, ×5 sous
+       la seconde, et les QUATRE cases rouges. Or 8 × 5 = 40 est un multiple de
+       5 : la seconde paire mène quelque part et elle est juste. Seule la
+       première ne mène nulle part — 5 × 1 = 5 n'est pas un multiple de 8.
+       Les deux corrections précédentes n'avaient ouvert que le cas où l'autre
+       paire est VIDE ; dès qu'elle était remplie ET fausse, l'ancien
+       comportement revenait et la paire juste payait pour sa voisine.
+       DEUX BORDS ENCORE, et n'en tenir qu'un ne tient rien : la paire qui mène
+       quelque part passe au vert, ET celle qui ne mène nulle part reste rouge
+       — sinon il suffirait de rendre « toujours vrai ». */
+    test.questions[test.idx]={n1:8,d1:5,n2:1,d2:8,op:'−',D:40,k1:8,k2:5,N1:64,N2:5,N:59};
+    renderSFTest();
+    const qCap=test.questions[test.idx];
+    const jugerCap=function(vals){ poser(vals); return sfJuge(qCap); };
+    const rienCap={'sf-a1':'','sf-b1':'','sf-a2':'','sf-b2':'','sf-num1':'','sf-num2':'','sf-den':'','sf-fn':'','sf-fd':''};
+    const avecCap=function(o){ const c=Object.assign({},rienCap); Object.keys(o).forEach(function(k){ c[k]=o[k]; }); return c; };
+    r=jugerCap(avecCap({'sf-a1':1,'sf-b1':1,'sf-a2':5,'sf-b2':5}));
+    if(!r.ok2) vus.push('la capture de Turquet : ×5 sous 1/8 (40, multiple de 5) est compté FAUX parce que l\\'autre paire est fausse');
+    if(r.ok1) vus.push('×1 sous 8/5 est accepté : 5 ne sera jamais un multiple de 8');
+    /* et le symétrique, pour qu\'un correctif qui ne regarderait qu\'un côté
+       ne puisse pas passer */
+    r=jugerCap(avecCap({'sf-a1':8,'sf-b1':8,'sf-a2':1,'sf-b2':1}));
+    if(!r.ok1) vus.push('×8 sous 8/5 (40, multiple de 8) est compté FAUX parce que l\\'autre paire est fausse');
+    if(r.ok2) vus.push('×1 sous 1/8 est accepté : 8 ne sera jamais un multiple de 5');
+    /* LE MESSAGE DIT LA VÉRITÉ. Devant une copie où une paire est juste et
+       l\'autre non, « il faut le même dénominateur des deux côtés » est vrai
+       mais aveugle : l\'élève ne sait pas laquelle des deux reprendre, et peut
+       croire qu\'il doit tout refaire alors que la moitié de son travail est
+       verte à l\'écran.
+       La copie est ENTIÈREMENT remplie, et il le faut : une case vide passe
+       AVANT tout le reste dans le message — « il manque des cases » — et c\'est
+       la bonne priorité, une case vide n\'étant pas une erreur de calcul. Le
+       premier essai de ce contrôle l\'ignorait et mesurait donc autre chose. */
+    r=jugerCap({'sf-a1':1,'sf-b1':1,'sf-a2':5,'sf-b2':5,
+                'sf-num1':8,'sf-num2':5,'sf-den':40,'sf-fn':3,'sf-fd':40});
+    if(r.vide) vus.push('la copie d\\'essai du message n\\'est pas complète : le message parlera des cases vides');
+    const msg=sfPourquoi(qCap,r);
+    if(!/une des deux paires/i.test(msg) || msg.indexOf('40')<0 || !/première/.test(msg))
+      vus.push('le message ne dit pas laquelle des deux paires reprendre : « '+msg+' »');
     /* l'étape ② se juge sur le dénominateur ÉCRIT, et refuse de suivre une
        étape ① qui dit autre chose */
     r=juger3(avec({'sf-a1':9,'sf-b1':9,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45}));
