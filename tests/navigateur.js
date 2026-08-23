@@ -1701,10 +1701,32 @@ async function parcours(page, N){
         renderSFL();
       });
       await s.page.waitForTimeout(900);
-      /* on ÉCRIT dans la première ligne, puis on appuie sur Entrée */
-      await s.page.evaluate(() => sflFeuille.lignes[0].mf.focus());
-      await s.page.waitForTimeout(120);
-      await s.page.keyboard.type('27/6', { delay: 40 });
+      /* LA SOMME EST DÉJÀ TAPÉE DANS LE CHAMP, et l'élève peut la modifier
+         (demande de Turquet, août 2026). On relève donc d'abord ce qui s'y
+         trouve, puis on écrit À LA SUITE — ce qui éprouve du même coup la
+         rédaction EN LIGNE, celle qui enchaîne les « = » sans aller à la
+         ligne : elle doit être acceptée comme l'autre. */
+      const depart = await s.page.evaluate(() => {
+        const m = sflFeuille.lignes[0].mf;
+        return { latex: m.getValue(), attendu: String(test.sflDepart || ''),
+                 modifiable: !m.readOnly,
+                 plain: (window.mlDexp ? window.mlDexp.toPlain(m.getValue()) : '').trim() };
+      });
+      verifier('la somme est écrite dans le champ, et reste modifiable',
+        depart.latex !== '' && depart.latex === depart.attendu && depart.modifiable,
+        'champ : ' + JSON.stringify(depart.latex) + ', attendu ' + JSON.stringify(depart.attendu)
+          + ', modifiable : ' + depart.modifiable);
+      await s.page.evaluate(() => { const m = sflFeuille.lignes[0].mf; m.focus();
+        try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+      await s.page.waitForTimeout(150);
+      /* LES ESPACES SORTENT DE LA FRACTION, et sans elles le banc écrivait du
+         charabia : « 27/6+5/6 » tapé d'un trait donne 27/(6+5/6), tout ce qui
+         suit tombant dans le dénominateur. C'est la convention de MathLive, et
+         l'indication sous la feuille la dit — mais un contrôle qui tape sans
+         elles n'éprouve PAS la rédaction en ligne : il vérifie qu'on sait
+         envoyer n'importe quoi. Vu en photographiant l'écran, pas dans le
+         code. */
+      await s.page.keyboard.type('=27/6 +5/6 =32/6 ', { delay: 40 });
       await s.page.keyboard.press('Enter');
       await s.page.waitForTimeout(400);
       await s.page.keyboard.type('16/3', { delay: 40 });
@@ -1736,9 +1758,9 @@ async function parcours(page, N){
       });
       verifier('Entrée ajoute une ligne à la feuille', vu.lignes >= 2,
         vu.lignes + ' ligne(s) après un appui sur Entrée');
-      verifier('la feuille se lit avec ses préfixes, une étape par ligne',
-        /^9\/2 \+ 5\/6 =/.test(vu.lu) && /\n= /.test(vu.lu),
-        'lu : ' + JSON.stringify(vu.lu));
+      verifier('la feuille se lit d\'un trait, la somme comprise',
+        vu.lu.indexOf(depart.plain) === 0 && /\n= /.test(vu.lu) && vu.lu.indexOf('=') > 0,
+        'lu : ' + JSON.stringify(vu.lu) + ' — attendu au début : ' + JSON.stringify(depart.plain));
       verifier('un jeton tombe dans la ligne où l\'élève écrit',
         vu.jetons && vu.jetonLigne === vu.derniere,
         'jetons affichés : ' + vu.jetons + ', inséré dans la ligne ' + vu.jetonLigne
@@ -1752,9 +1774,15 @@ async function parcours(page, N){
         regle: window.__envoye ? (window.__envoye.attendu || '').length : 0,
         score: test.score, note: test.answers[test.answers.length-1].correct,
       }));
-      verifier('la copie de l\'élève part au modèle, préfixes compris',
-        !!juste.envoye && /^9\/2 \+ 5\/6 =/.test(juste.envoye) && juste.regle > 500,
+      verifier('la copie de l\'élève part au modèle, la somme comprise',
+        !!juste.envoye && juste.envoye.indexOf(depart.plain) === 0 && juste.regle > 500,
         'envoyé : ' + JSON.stringify(juste.envoye) + ', règle : ' + juste.regle + ' caractères');
+      /* La rédaction EN LIGNE — plusieurs « = » dans une même ligne — doit
+         arriver entière au modèle : c'est la façon d'écrire de Turquet, et
+         c'est celle que la règle de décision doit accepter. */
+      verifier('une rédaction écrite en ligne arrive entière au modèle',
+        !!juste.envoye && (juste.envoye.split('\n')[0].match(/=/g) || []).length >= 2,
+        'première ligne envoyée : ' + JSON.stringify((juste.envoye || '').split('\n')[0]));
       verifier('un « correct » du modèle donne le point',
         juste.score === 1 && juste.note === true,
         'score ' + juste.score + ', note ' + juste.note);
@@ -1961,7 +1989,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [];
+      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], videsRouges = [];
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           await s.page.evaluate(i => openTest(i), id);
@@ -2043,17 +2071,97 @@ async function parcours(page, N){
               if(px(mf) < gros * 0.9)
                 cases.push((mf.id || '(sans id)') + ' : ' + px(mf) + 'px contre ' + gros + 'px');
             }
+            /* UN SIGNE POSÉ À CÔTÉ D'UNE FRACTION TOMBE SUR SON TRAIT.
+               En texte ordinaire, « vertical-align:middle » place chaque terme
+               selon SA hauteur : un « + » d'un étage et une fraction de deux
+               n'ont pas le même milieu, et le signe monte au-dessus du trait.
+               {somme-fractions} l'avait appris en août 2026 — sa ligne d'énoncé
+               était passée en rangée flex centrée —, et le défaut est revenu
+               tel quel sur l'écran suivant, qui n'avait pas reçu la règle :
+               signalé par Turquet, sur une capture. Une leçon apprise dans un
+               coin ne protège pas les autres, donc on mesure ICI, sur TOUS les
+               exercices visités : celui qu'on ajoutera demain est couvert sans
+               rien déclarer.
+               « À côté » se mesure comme pour la taille des cases : le signe
+               doit chevaucher la fraction en hauteur et n'en être séparé que
+               par moins de 120 px de vide. */
+            const mil = e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
+            const signes = [];
+            for(const frac of [...on.querySelectorAll('.sf-f')].filter(visible)){
+              const bar = frac.querySelector('.bar'); if(!bar) continue;
+              const rf = frac.getBoundingClientRect();
+              for(const sg of [...on.querySelectorAll('.f-times, .f-eq, b')].filter(visible)){
+                if(!/^[+−=]$/.test((sg.textContent || '').trim())) continue;
+                if(sg.closest('math-field')) continue;
+                const rs = sg.getBoundingClientRect();
+                if(Math.min(rf.bottom, rs.bottom) - Math.max(rf.top, rs.top) <= Math.min(rf.height, rs.height) * 0.5) continue;
+                if(Math.max(0, Math.max(rf.left, rs.left) - Math.min(rf.right, rs.right)) > 120) continue;
+                const d = Math.round(Math.abs(mil(sg) - mil(bar)) * 10) / 10;
+                if(d > 3) signes.push('« ' + sg.textContent.trim() + ' » à ' + d + 'px du trait');
+              }
+            }
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
-                    accolades: [...new Set(connus)], cases: cases};
+                    accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
           if(mode === 'train' && vu.cases && vu.cases.length)
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
+          if(mode === 'train' && vu.signes && vu.signes.length)
+            dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
+          /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
+             C'est la règle que la Seconde a réapprise trois fois en une seule
+             journée d'août 2026, chaque fois sur un exercice différent, et
+             chaque fois corrigée dans son coin. Une règle valable partout doit
+             être tenue par un contrôle qui va PARTOUT : on clique « Vérifier »
+             sur une copie entièrement vide, et aucune case ne doit être rouge.
+             Rouge veut dire FAUX ; une case que l'élève n'a pas remplie n'est
+             pas une erreur de calcul, elle reçoit la correction en bleu. */
+          if(mode === 'train' && (!P.casesVides || (P.casesVides.sans || []).indexOf(id) < 0)){
+            const r = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const visible = e => { if(!e || e.hidden) return false;
+                const q = e.getBoundingClientRect();
+                return q.width > 0 && q.height > 0 && getComputedStyle(e).display !== 'none'; };
+              const b = [...on.querySelectorAll('button')].filter(visible)
+                .find(x => /^(Vérifier|Valider|Corriger)/.test(x.textContent.trim()));
+              if(!b) return null;
+              b.click();
+              return true;
+            });
+            if(r){
+              await s.page.waitForTimeout(500);
+              const rouges = await s.page.evaluate(() => {
+                const on = document.querySelector('section.screen.on'); if(!on) return [];
+                return [...on.querySelectorAll('.bad')]
+                  .filter(e => /^(MATH-FIELD|INPUT|SELECT)$/.test(e.tagName))
+                  .map(e => e.id || '(sans id)');
+              });
+              if(rouges.length)
+                videsRouges.push((await s.page.evaluate(i => TEST_NUM[i], id))
+                  + ' — ' + rouges.slice(0, 3).join(', '));
+            }
+          }
         }
       }
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
+      verifier('un signe posé à côté d\'une fraction tombe sur son trait',
+        dechires.length === 0, dechires.slice(0, 3).join(' | '));
+      /* Le COMPTE d'abord : la liste était tronquée à quatre, et un cinquième
+         exercice fautif est resté caché derrière les quatre premiers jusqu'à
+         ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
+         fait croire qu'on a fini. */
+      /* Ce qui est DÉCLARÉ est nommé à l'écran, jamais tu : un contrôle qui
+         saute des exercices en silence rend le banc vert sur ce qu'il ne
+         vérifie plus. */
+      const dispenses = (P.casesVides && P.casesVides.sans) || [];
+      verifier('aucune case laissée vide ne rougit à la vérification',
+        videsRouges.length === 0,
+        videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
+      if(dispenses.length && !videsRouges.length)
+        console.log('   · ' + dispenses.length + ' exercice(s) déclarés hors de ce contrôle : '
+          + dispenses.join(', '));
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')

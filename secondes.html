@@ -507,7 +507,12 @@
    « vertical-align:middle » place chaque terme selon SA hauteur : un entier à un
    étage et une fraction à deux n'ont pas le même milieu, et le signe tombait
    15 px au-dessus du trait. Une rangée flex les centre tous sur la même ligne. */
-#sfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+#sfPrompt,#sflPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+/* La seconde phrase de l'énoncé prend TOUTE la ligne, toujours. Laissée dans
+   le flux, elle se repliait sur un écran étroit en emportant le point de la
+   première : « . Donne le résultat… » commençait la ligne suivante par un
+   point orphelin. Ça ne s'est vu qu'en regardant l'écran, à 560 px. */
+#sflPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 .sf-prod{align-items:stretch}
 .sf-prod .sf-l{display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .sf-somme .sf-haut{display:inline-flex;align-items:center;gap:8px;justify-content:center}
@@ -810,7 +815,12 @@
 .dexp2-sheet{background:var(--paper);border:2px solid var(--grid);border-radius:12px;padding:6px 12px;margin:8px 0;overflow-x:auto;transition:border-color .18s,box-shadow .18s;}
 .dexp2-sheet:focus-within{border-color:var(--blue);background:var(--surface);box-shadow:0 0 0 3px rgba(43,80,200,.16);}
 .dexp2-line{display:flex;align-items:center;gap:10px;padding:5px 2px;width:max-content;min-width:100%;}
-.dexp2-prefix{flex:none;text-align:right;white-space:nowrap;font-weight:700;font-size:2rem;color:var(--ink);}
+/* MÊME RÈGLE QUE L'ÉNONCÉ, et pour la même raison : en texte ordinaire, un
+   « + » s'aligne sur la ligne d'écriture, pas sur le milieu d'une fraction à
+   deux étages — il tombait au-dessus du trait. Signalé par Turquet en août
+   2026 sur ce nouvel écran, alors que {somme-fractions} avait déjà appris la
+   leçon : une correction faite dans un coin ne protège pas les autres. */
+.dexp2-prefix{flex:none;display:flex;align-items:center;justify-content:flex-end;white-space:nowrap;font-weight:700;font-size:2rem;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf{border:none;outline:none;box-shadow:none;background:transparent;flex:1 0 auto;min-width:6ch;min-height:1.9em;font-size:2rem;padding:2px 0;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf:focus-within{border:none;background:transparent;box-shadow:none;}
 /* Le préfixe porte la somme de l'énoncé, et il est écrit à la MÊME taille que
@@ -1713,7 +1723,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=76;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=79;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -1961,6 +1971,27 @@ function mlFeuille(opts){
   F.verrouiller=function(){ F.lignes.forEach(function(L){ try{ L.mf.readOnly=true; }catch(e){} }); };
   F.ajouterLigne();
   return F;
+}
+/* ---- LA CORRECTION D'UNE CASE À CHOISIR, POUR TOUS LES EXERCICES QUI EN ONT
+   PLUSIEURS. Cinq d'entre eux écrivaient leur marquage à la main, à
+   l'identique, et le même défaut s'y était logé : une case laissée VIDE
+   devenait ROUGE, sans recevoir la bonne réponse. Rouge veut dire FAUX ; une
+   case que l'élève n'a pas remplie n'est pas une erreur de calcul.
+   Trouvé en août 2026 par le contrôle universel « aucune case laissée vide ne
+   rougit à la vérification », qui ouvre les quatorze exercices — jamais par
+   une relecture, et sur aucun des exercices que Turquet avait signalés. C'est
+   exactement ce que dit la règle : une règle valable partout doit être tenue
+   par un contrôle qui va partout.
+   En entraînement, la case vide reçoit la réponse en bleu ; en soutien elle
+   reste vide et modifiable, l'élève n'ayant pas fini. */
+function corrChoix(el, val, ok){
+  if(!el) return;
+  el.classList.remove('ok','bad','sol');
+  const vide=String(el.value==null?'':el.value).trim()==='';
+  if(ok) el.classList.add('ok');
+  else if(vide){ if(!isSoutien()){ el.value=val; el.classList.add('sol'); } }
+  else el.classList.add('bad');
+  el.disabled=ok||!isSoutien();
 }
 /* ---- correction : vert / rouge + bonne reponse en bleu / bleu si vide ---- */
 function corrCase(id, val, ok){
@@ -4736,18 +4767,28 @@ function lvReadInt(id){ const el=$(id); if(!el) return null; const v=(el.value||
 function lvCheckPart(q){
   const a=lvAnalyze(q.pts); const subs=[];
   if(q.part==='a'){
-    a.xs.forEach((x,i)=>{ subs.push({id:'lv-a-'+i, ok: lvReadInt('lv-a-'+i)===q.pts[i]}); });
+    a.xs.forEach((x,i)=>{ subs.push({id:'lv-a-'+i, val:q.pts[i], ok: lvReadInt('lv-a-'+i)===q.pts[i]}); });
   } else if(q.part==='b'){
-    a.segments.forEach((s,i)=>{ const el=$('lv-b-'+i); subs.push({id:'lv-b-'+i, ok: !!el && el.value===s.dir}); });
+    a.segments.forEach((s,i)=>{ const el=$('lv-b-'+i); subs.push({id:'lv-b-'+i, val:s.dir, ok: !!el && el.value===s.dir}); });
   } else {
-    a.nodes.forEach((nd,j)=>{ if(j!==0 && j!==a.nodes.length-1){ subs.push({id:'lv-c-x-'+j, ok: lvReadInt('lv-c-x-'+j)===nd.x}); } subs.push({id:'lv-c-val-'+j, ok: lvReadInt('lv-c-val-'+j)===nd.y}); });
-    a.segments.forEach((s,i)=>{ const el=$('lv-c-arr-'+i); const exp=(s.dir==='croissante')?'up':'down'; subs.push({id:'lv-c-arr-'+i, ok: !!el && el.value===exp}); });
+    a.nodes.forEach((nd,j)=>{ if(j!==0 && j!==a.nodes.length-1){ subs.push({id:'lv-c-x-'+j, val:nd.x, ok: lvReadInt('lv-c-x-'+j)===nd.x}); } subs.push({id:'lv-c-val-'+j, val:nd.y, ok: lvReadInt('lv-c-val-'+j)===nd.y}); });
+    a.segments.forEach((s,i)=>{ const el=$('lv-c-arr-'+i); const exp=(s.dir==='croissante')?'up':'down'; subs.push({id:'lv-c-arr-'+i, val:exp, ok: !!el && el.value===exp}); });
   }
   const nCorrect=subs.filter(s=>s.ok).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
 }
+/* Même règle que corrChoix(), et pour la même raison : une case laissée VIDE
+   n'est pas une erreur de calcul. Elle reçoit la réponse en bleu en
+   entraînement, et rien en soutien — où lvLive() faisait déjà le bon geste
+   pendant la frappe, mais où la vérification finale le défaisait. */
 function lvMarkFields(res, final){
-  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad'); el.classList.add(s.ok?'ok':'bad'); });
+  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    const vide=String(el.value==null?'':el.value).trim()==='';
+    if(s.ok) el.classList.add('ok');
+    else if(vide){ if(!isSoutien() && s.val!=null){ el.value=String(s.val); el.classList.add('sol'); } }
+    else el.classList.add('bad');
+  });
 }
 /* Mode soutien : contrôle chaque case au fur et à mesure (vert = juste, rouge = faux, rien si vide). */
 function lvLive(){
@@ -6328,7 +6369,7 @@ function checkAppAnswer(live){
   if(live){ appLive(); return; }
   const subs=appCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('appFeedback','appActions','checkAppAnswer','appHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('appLiveScore').textContent=test.score;
@@ -7037,7 +7078,7 @@ function checkPlcAnswer(live){
   if(live){ plcLive(); return; }
   const subs=plcCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('plcFeedback','plcActions','checkPlcAnswer','plcHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('plcLiveScore').textContent=test.score;
@@ -7274,9 +7315,12 @@ function sflEnonceIA(q){
   const fr=(n,d)=>n+'/'+d;
   return 'Exercice de mathématiques de Seconde (France). L’élève doit calculer '
    +fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE.'
-   +' Il écrit son calcul LUI-MÊME, une étape par ligne, dans une feuille de calcul :'
-   +' la première ligne est précédée de « '+fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+' = », les suivantes de « = ».'
-   +' Les lignes sont donc la SUITE d’un seul et même calcul : elles doivent toutes valoir la même chose.'
+   +' Il écrit son calcul LUI-MÊME dans une feuille de calcul. La première ligne contient déjà la somme'
+   +' « '+fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+' », qu’il complète.'
+   +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
+   +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
+   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = » : « '+fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+' = … = … ».'
+   +'\nCe qui compte est la CHAÎNE D’ÉGALITÉS, pas la mise en page : ne refuse JAMAIS une copie au motif qu’elle tient sur une seule ligne, ni parce qu’elle est répartie sur plusieurs.'
    +' Les fractions sont écrites en texte, sous la forme « a/b ».';
 }
 /* La règle de décision. Elle est stricte parce qu'un correcteur qui accepte
@@ -7289,9 +7333,9 @@ function sflAttenduIA(q){
    +q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+', ce qui donne '+q.N+'/'+D+', et se simplifie en '+q.Nr+'/'+q.Dr+' en divisant en haut et en bas par '+g+'.'
    +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
    +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE. Au moins une ligne montre les DEUX fractions portant le MÊME dénominateur — par exemple '+q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+'. Une ligne qui montre les multiplications, du genre ('+q.n1+'×k)/('+q.d1+'×k) '+q.op+' ('+q.n2+'×k2)/('+q.d2+'×k2), compte aussi pour cette étape. LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun de '+q.d1+' et '+q.d2+' convient — '+(2*D)+' aussi bien que '+D+' — pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler.'
-   +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE ligne non vide vaut '+q.Nr+'/'+q.Dr+' et est écrite sous forme irréductible. S’arrêter sur '+q.N+'/'+D+', ou sur toute autre fraction égale mais réductible, est REFUSÉ : le travail n’est pas terminé.'
-   +'\n3. AUCUNE LIGNE FAUSSE. Chaque ligne écrite doit valoir '+q.Nr+'/'+q.Dr+'. Une seule égalité fausse suffit à refuser, même si la dernière ligne est juste.'
-   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Une ligne qui répète l’énoncé ne compte pas comme une étape.'
+   +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = », que ce soit en fin de ligne ou sur une ligne à part — vaut '+q.Nr+'/'+q.Dr+' et est écrite sous forme irréductible. S’arrêter sur '+q.N+'/'+D+', ou sur toute autre fraction égale mais réductible, est REFUSÉ : le travail n’est pas terminé.'
+   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.Nr+'/'+q.Dr+'. Une seule égalité fausse suffit à refuser, même si le dernier morceau est juste — dis alors LEQUEL est faux.'
+   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter la somme de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
    +' S’il manque l’étape du même dénominateur : dis-le, et rappelle qu’on n’additionne deux fractions que lorsqu’elles ont le même dénominateur — sans écrire le calcul à sa place.'
@@ -7300,35 +7344,57 @@ function sflAttenduIA(q){
    +' NE DONNE JAMAIS la fraction '+q.Nr+'/'+q.Dr+' ni le nombre '+g+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
    + LANGUE_SIMPLE;
 }
+/* La somme de l'énoncé, en LaTeX, telle que l'élève l'aurait tapée. Le signe
+   « − » de l'énoncé est le moins TYPOGRAPHIQUE (U+2212) : MathLive attend le
+   moins ordinaire, et un tiret long y serait lu comme un caractère de texte. */
+function sflLatexSomme(q){
+  const t=(n,d)=> (d===1) ? String(n) : ('\\frac{'+n+'}{'+d+'}');
+  return t(q.n1,q.d1)+(q.op==='+'?'+':'-')+t(q.n2,q.d2);
+}
 function renderSFL(){
   const q=test.questions[test.idx]; test.locked=false; test.sflBusy=false;
   $('sflIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagSFL').innerHTML=modeTagHTML();
   $('sflLiveScore').textContent=test.score;
   $('sflFeedback').textContent=''; $('sflFeedback').className='mp-feedback';
+  /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
+     entre deux éléments disparaît. */
   $('sflPrompt').innerHTML='Calcule\u00a0'+sfTermeHTML(q.n1,q.d1)+'\u00a0<b>'+q.op+'</b>\u00a0'+sfTermeHTML(q.n2,q.d2)
-    +', et donne le résultat sous forme de fraction simplifiée.';
+    +'.<span class="sfl-suite">Donne le résultat sous forme de fraction simplifiée.</span>';
   $('sflHost').innerHTML=
-     '<p class="tvi-instr">Écris ton calcul, une étape par ligne.</p>'
+     '<p class="tvi-instr">Écris ton calcul. Une étape par ligne, ou tout à la suite&nbsp;: comme tu veux.</p>'
     +'<div class="dexp2-sheet" id="sflSheet"></div>'
     +'<p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
     +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '
     +'Il faut écrire l’étape où les deux fractions ont le même dénominateur, puis simplifier le résultat.</p>';
-  /* Le préfixe de la PREMIÈRE ligne porte la somme de l'énoncé, comme
-     « f ′(x) = » en Terminale : les lignes sont la suite d'un seul calcul. */
+  /* LA SOMME EST TAPÉE DANS LE CHAMP, comme si l'élève venait de l'écrire —
+     et il peut donc la modifier (demande de Turquet, août 2026). Posée en
+     PRÉFIXE, elle était hors d'atteinte : l'élève recopiait à côté ce qu'il
+     avait déjà sous les yeux. Il n'y a plus de préfixe sur la première ligne ;
+     les suivantes gardent leur « = », et la chaîne se lit d'un trait. */
   sflFeuille=mlFeuille({ conteneur:'sflSheet', mode:'calcul',
-    prefixes:{ premiere: sfTermeHTML(q.n1,q.d1)+'<span class="f-times">'+q.op+'</span>'+sfTermeHTML(q.n2,q.d2)+' =', suite:'=' },
-    prefixesTexte:{ premiere: q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2+' =', suite:'=' } });
+    prefixes:{ premiere:'', suite:'=' },
+    prefixesTexte:{ premiere:'', suite:'=' } });
+  /* On retient le point de DÉPART : sans lui, une copie où l'élève n'a rien
+     ajouté partirait au modèle comme si elle était un calcul. */
+  test.sflDepart=sflLatexSomme(q);
+  try{ sflFeuille.lignes[0].mf.setValue(test.sflDepart); }catch(e){}
+  setTimeout(function(){ try{ const m=sflFeuille.lignes[0].mf; m.focus(); m.executeCommand('moveToMathfieldEnd'); }catch(e){} },40);
   $('sflActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkSFL()">Vérifier</button>';
 }
 async function checkSFL(){
   if(test.locked || test.sflBusy) return;
   const q=test.questions[test.idx], fb=$('sflFeedback');
   const rep=(sflFeuille?sflFeuille.lire():'').trim();
-  /* « lire() » rend les préfixes AVEC le calcul : sans un seul chiffre écrit
-     par l'élève, il ne reste que l'énoncé recopié. */
-  const ecrit=rep.split('\n').map(function(L){ return L.replace(/^[^=]*=\s*/,'').trim(); }).join('');
-  if(ecrit.length<1){ fb.textContent='Écris d’abord ton calcul.'; fb.className='mp-feedback bad';
+  /* La première ligne CONTIENT déjà la somme : une copie où l'élève n'a rien
+     ajouté n'est pas un calcul, et il est inutile de la faire lire au modèle.
+     On compare donc à ce qui était écrit au départ, jamais au vide. */
+  let intact=false;
+  try{
+    const l=sflFeuille.lignes;
+    intact = l.length===1 && l[0].mf.getValue().replace(/\s/g,'')===String(test.sflDepart||'').replace(/\s/g,'');
+  }catch(e){}
+  if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite de la somme.'; fb.className='mp-feedback bad';
     if(sflFeuille && sflFeuille.lignes[0]) sflFeuille.lignes[0].mf.focus(); return; }
   test.sflBusy=true;
   $('sflActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
@@ -7532,7 +7598,7 @@ function checkEnsAnswer(live){
   if(live){ ensLive(); return; }
   const subs=ENS_SETS_ORDER.map(k=>{ const sel=$('ens-s-'+k); const want=q.sets[k]?'in':'out'; return {k,sel,ok:!!sel&&sel.value===want}; });
   const nCorrect=subs.filter(s=>s.ok).length, allOk=nCorrect===subs.length;
-  subs.forEach(s=>{ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(s=>corrChoix(s.sel, (q.sets[s.k]?'in':'out'), s.ok));
   if(!allOk && isSoutien()){ soutienAgain('ensFeedback','ensActions','checkEnsAnswer','ensHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('ensLiveScore').textContent=test.score;
@@ -7744,7 +7810,7 @@ function checkItvAnswer(live){
   if(live){ itvLive(); return; }
   const subs=itvCases(q).map(c=>{ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(s=>s.ok).length, allOk=nCorrect===subs.length;
-  subs.forEach(s=>{ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(s=>corrChoix(s.sel, s.c.bon, s.ok));
   if(!allOk && isSoutien()){ soutienAgain('itvFeedback','itvActions','checkItvAnswer','itvHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('itvLiveScore').textContent=test.score;
@@ -7893,7 +7959,7 @@ function checkItqAnswer(live){
   if(live){ itqLive(); return; }
   const subs=itqCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   /* le schéma juste se montre : on entoure la carte choisie, et la bonne */
   const cartes=document.querySelectorAll('#itqHost .itq-carte');
   cartes.forEach(function(el,i){ el.classList.remove('ok','bad');

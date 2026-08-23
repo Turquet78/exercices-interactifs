@@ -408,6 +408,21 @@ module.exports = {
   /* ------------------------------------------------------------------ */
   'terminale.html': {
 
+    /* UNE CASE VIDE QUI ROUGIT — six exercices de ce niveau le font encore, et
+       ce n'est PAS un oubli qu'on peut corriger d'office. La Terminale a une
+       convention à elle, écrite dans checkDexp() : elle ne remplace jamais les
+       réponses de l'élève ; les cases fausses gardent ce qu'il a écrit et la
+       bonne démarche s'affiche en dessous. Y appliquer la règle de la Seconde
+       — la réponse en bleu dans la case vide — changerait cette convention, et
+       surtout le CALCUL DE LA NOTE : une case vide qui cesse d'être comptée
+       fait passer « 3 justes sur 5 » à « 3 sur 3 ». C'est une décision de
+       Turquet, pas une correction technique.
+       Les six sont donc NOMMÉS ici et s'affichent à chaque exécution : un
+       manque tu finit par se croire normal. */
+    casesVides: { sans: ['derivee-exp', 'derivee-exp-3', 'derivee-exp-quotient',
+                         'etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
+
+
     /* Le signalement : la table du niveau, et le nom de la fonction de rendu de
        l'exercice témoin. Le banc dépose un signalement comme le ferait un élève,
        puis le rejoue comme le ferait le professeur. */
@@ -507,6 +522,7 @@ module.exports = {
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
+      "six exercices rougissent encore une case laissée VIDE (2.1, 2.3, 2.4, 5.2, 5.3, 6.4) : ce niveau ne remplace jamais les réponses de l'élève, et la règle de la Seconde y changerait le calcul de la note — décision à prendre, pas correction technique",
       "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
       "le contexte envoyé au modèle n'est vérifié que pour l'exercice témoin (dexp) : la table kind -> générateur des 23 autres exercices reste à écrire",
       "aucun audit de générateur : les 45 générateurs de Terminale n'ont pas d'invariants déclarés (les 15 de la Première en ont)",

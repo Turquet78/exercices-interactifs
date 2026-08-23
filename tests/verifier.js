@@ -3637,7 +3637,13 @@ function seconde(w){
       const q=test.questions[test.idx], res=lvCheckPart(q);
       if(!res.subs.length) vus.push('lecture graphique : aucune case à marquer, le contrôle ne mesure rien');
       else {
-        const faits=res.subs.map(function(x,i){ return {id:x.id, ok:i>0}; });
+        /* La valeur attendue VOYAGE avec la case, et il faut la donner ici
+           aussi : depuis qu'une case vide reçoit la réponse en bleu au lieu de
+           rougir, c'est elle qui la fait compter. Sans « val », la case fautive
+           ne recevait plus aucune classe et sortait du dénominateur — « 6 sur
+           6 » au lieu de « 6 sur 7 ». Le contrôle a vu le changement tout de
+           suite, ce qui est exactement son travail. */
+        const faits=res.subs.map(function(x,i){ return {id:x.id, val:x.val, ok:i>0}; });
         lvMarkFields({subs:faits}, true);
         const m=ptsEcran()||{};
         if(m.cases!==faits.length || m.justes!==faits.length-1)
