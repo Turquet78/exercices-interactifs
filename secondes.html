@@ -1658,7 +1658,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=71;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=72;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6318,16 +6318,40 @@ function sfJuge(q){
   const d1=(q.d1===1)?1:q.d1, d2=(q.d2===1)?1:q.d2;
   /* un multiplicateur se met en HAUT comme en BAS : c'est ce qui ne change pas
      la fraction, et c'est tout le sens de l'étape */
-  const ok1 = a1>=1 && b1>=1 && a1===b1;
-  const ok2 = a2>=1 && b2>=1 && a2===b2;
-  const D1 = ok1 ? d1*b1 : 0, D2 = ok2 ? d2*b2 : 0;
-  const memeD = ok1 && ok2 && D1===D2;
+  const p1 = a1>=1 && b1>=1 && a1===b1;
+  const p2 = a2>=1 && b2>=1 && a2===b2;
+  const D1 = p1 ? d1*b1 : 0, D2 = p2 ? d2*b2 : 0;
+  const memeD = p1 && p2 && D1===D2;
   const D = memeD ? D1 : 0;
+  /* UNE CASE JUSTE NE ROUGIT PAS PARCE QU'UNE AUTRE EST VIDE — à la
+     vérification comme en direct. Signalé par Turquet en août 2026 sur
+     « 8/5 + 4/9 » : l'élève écrit 9 et 9 sous la première fraction, vérifie
+     avant d'avoir rempli le reste, et ses deux cases — parfaitement justes —
+     deviennent ROUGES. Elles ne l'étaient que parce que « memeD » réclame les
+     DEUX paires : une case était donc comptée fausse à cause d'une case restée
+     vide AILLEURS. C'est le pire défaut possible, il apprend l'inverse de ce
+     qu'il enseigne — et la note disait « 0 case juste sur 9 ».
+     Une paire seule se juge donc sur ce qu'elle PROMET : le dénominateur
+     qu'elle produit doit pouvoir devenir commun, c'est-à-dire être un multiple
+     de l'autre dénominateur. 5 × 9 = 45 est un multiple de 9, la paire tient ;
+     5 × 2 = 10 n'en est pas un, elle ne mène nulle part et rougit. Aucun
+     dénominateur commun n'est imposé pour autant — 90 passe comme 45. */
+  const ok1 = p1 && (p2 ? memeD : D1 % d2 === 0);
+  const ok2 = p2 && (p1 ? memeD : D2 % d1 === 0);
   const n1=sfLu('sf-num1'), n2=sfLu('sf-num2'), dd=sfLu('sf-den');
-  const ok3 = memeD && n1===q.n1*a1 && n2===q.n2*a2 && dd===D;
+  /* L'étape ② se juge de même sur SA ligne : le dénominateur commun est celui
+     que l'élève a ÉCRIT, et les deux numérateurs doivent le suivre. Une paire
+     de l'étape ① déjà posée doit s'y accorder — sans quoi la chaîne se
+     contredirait d'une égalité à l'autre. */
+  const ok3 = !isNaN(dd) && dd>0 && dd%d1===0 && dd%d2===0
+           && n1===q.n1*(dd/d1) && n2===q.n2*(dd/d2)
+           && (!p1 || dd===D1) && (!p2 || dd===D2);
   const fn=sfLu('sf-fn'), fd=sfLu('sf-fd');
   const ok4 = !isNaN(fn) && !isNaN(fd) && fd!==0 && fn*q.D===q.N*fd;
-  return {ok1:ok1&&memeD, ok2:ok2&&memeD, ok3:ok3, ok4:ok4, memeD:memeD, D:D};
+  /* Une case laissée vide n'est pas une erreur de calcul, et le dire autrement
+     serait mentir : le message le nomme avant tout le reste. */
+  const vide = sfCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
+  return {ok1:ok1, ok2:ok2, ok3:ok3, ok4:ok4, memeD:memeD, D:D, vide:vide};
 }
 /* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
    TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
@@ -6387,6 +6411,7 @@ function checkSFAnswer(live){
   const nb=$('sfNext'); if(nb) nb.focus();
 }
 function sfPourquoi(q,r){
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en bleu : compare-les à ce que tu as écrit.';
   if(!r.memeD) return 'Il faut le MÊME dénominateur des deux côtés. Avec '+q.d1+' et '+q.d2+', le plus petit qui convient est '+q.D
     +' : multiplie la première par '+q.k1+' (en haut ET en bas) et la seconde par '+q.k2+'.';
   if(!r.ok3) return 'Sur le dénominateur '+r.D+', les deux numérateurs deviennent '+(q.n1*q.k1*(r.D/q.D))+' et '+(q.n2*q.k2*(r.D/q.D))
