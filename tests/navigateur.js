@@ -2117,7 +2117,7 @@ async function parcours(page, N){
              sur une copie entièrement vide, et aucune case ne doit être rouge.
              Rouge veut dire FAUX ; une case que l'élève n'a pas remplie n'est
              pas une erreur de calcul, elle reçoit la correction en bleu. */
-          if(mode === 'train'){
+          if(mode === 'train' && (!P.casesVides || (P.casesVides.sans || []).indexOf(id) < 0)){
             const r = await s.page.evaluate(() => {
               const on = document.querySelector('section.screen.on'); if(!on) return null;
               const visible = e => { if(!e || e.hidden) return false;
@@ -2152,9 +2152,16 @@ async function parcours(page, N){
          exercice fautif est resté caché derrière les quatre premiers jusqu'à
          ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
          fait croire qu'on a fini. */
+      /* Ce qui est DÉCLARÉ est nommé à l'écran, jamais tu : un contrôle qui
+         saute des exercices en silence rend le banc vert sur ce qu'il ne
+         vérifie plus. */
+      const dispenses = (P.casesVides && P.casesVides.sans) || [];
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
+      if(dispenses.length && !videsRouges.length)
+        console.log('   · ' + dispenses.length + ' exercice(s) déclarés hors de ce contrôle : '
+          + dispenses.join(', '));
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')

@@ -1605,7 +1605,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=150;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=151;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4377,6 +4377,21 @@ function checkFAnswer(live){
     else { liveColorFrac('fNum','fDen',q.pn,q.pd,false); }
     return;
   }
+  /* UNE CASE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX, et l'élève n'a
+     rien écrit : en entraînement elle reçoit la réponse en bleu, en soutien
+     elle reste vide et modifiable, l'exercice n'étant pas fini.
+     Les cinq niveaux de cet exercice écrivaient leur marquage chacun de son
+     côté, et le défaut s'y était logé partout. Trouvé en août 2026 par le
+     contrôle universel « aucune case laissée vide ne rougit à la vérification »,
+     sur la Première — que je n'avais pas fait tourner avant de pousser. */
+  const marque=(el, ok, val)=>{ if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    const vide=String(el.value==null?'':el.value).trim()==='';
+    if(ok) el.classList.add('ok');
+    else if(vide){ if(!soutien && val!=null && val!==''){ el.value=String(val); el.classList.add('sol'); } }
+    else el.classList.add('bad');
+    el.disabled=ok||!soutien;
+  };
   let correct=false, given=null;
   if(q.level==='frac-n5'){
     // 3 étapes — É1 : chaque décimal en fraction (puissance de 10) ; É2 : produit en fraction ; É3 : décimal
@@ -4395,10 +4410,10 @@ function checkFAnswer(live){
     const eDec=$('fDec'), vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
     const okDec = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
     correct = a.ok && b.ok && okProd && okDec;
-    a.els.forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(a.ok?'ok':'bad'); el.disabled=a.ok||!soutien; });
-    b.els.forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(b.ok?'ok':'bad'); el.disabled=b.ok||!soutien; });
-    [pN,pD].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okProd?'ok':'bad'); el.disabled=okProd||!soutien; });
-    eDec.classList.remove('ok','bad'); eDec.classList.add(okDec?'ok':'bad'); eDec.disabled=okDec||!soutien;
+    marque($('f5an'), a.ok, q.fnA); marque($('f5ad'), a.ok, q.fdA);
+    marque($('f5bn'), b.ok, q.fnB); marque($('f5bd'), b.ok, q.fdB);
+    marque(pN, okProd, q.pn); marque(pD, okProd, q.pd);
+    marque(eDec, okDec, q.atext);
     given = `${pFilled?Np+'/'+Dp:'?'} = ${vDec||'?'}`;
   } else if(q.level==='frac-n4'){
     // 2 étapes — Étape 1 : produit en fraction décimale (dénominateur puissance de 10) ; Étape 2 : résultat décimal
@@ -4409,8 +4424,8 @@ function checkFAnswer(live){
     const vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
     const step2 = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
     correct = step1 && step2;
-    [eN,eD].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(step1?'ok':'bad'); el.disabled=step1||!soutien; });
-    eDec.classList.remove('ok','bad'); eDec.classList.add(step2?'ok':'bad'); eDec.disabled=step2||!soutien;
+    marque(eN, step1, q.pn); marque(eD, step1, q.pd);
+    marque(eDec, step2, q.atext);
     given = `${frFilled?Nf+'/'+Df:'?'} = ${vDec||'?'}`;
   } else if(q.level==='frac-n1'){
     const el=$('fDec'), v=el.value.trim();
@@ -4426,7 +4441,7 @@ function checkFAnswer(live){
       fr=parseDecToFrac(v);   // formes décimales : 20, 20,0, 0,15 ...
     }
     correct=!!fr && fr.n*cd===cn*fr.d;
-    el.classList.remove('ok','bad'); el.classList.add(correct?'ok':'bad'); el.disabled=correct||!soutien;
+    marque(el, correct, q.atext);
   } else {
     const eN=$('fNum'), eD=$('fDen');
     const filled=eN.value.trim()!==''&&eD.value.trim()!=='';
@@ -4434,7 +4449,8 @@ function checkFAnswer(live){
     given=filled?`${N}/${D}`:null;
     if(q.level==='frac-n2') correct=filled&&!isNaN(N)&&!isNaN(D)&&D>0&&N*q.denom===q.numer*D;  // toute fraction égale acceptée (même non décimale)
     else correct=filled&&!isNaN(N)&&!isNaN(D)&&D!==0&&N*q.pd===q.pn*D;
-    [eN,eD].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(correct?'ok':'bad'); el.disabled=correct||!soutien; });
+    marque(eN, correct, (q.level==='frac-n2')?q.numer:q.pn);
+    marque(eD, correct, (q.level==='frac-n2')?q.denom:q.pd);
   }
   if(!correct && soutien){
     $('fFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
