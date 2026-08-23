@@ -1678,7 +1678,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=73;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=74;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6373,10 +6373,25 @@ function sfJuge(q){
   const d1=(q.d1===1)?1:q.d1, d2=(q.d2===1)?1:q.d2;
   /* un multiplicateur se met en HAUT comme en BAS : c'est ce qui ne change pas
      la fraction, et c'est tout le sens de l'étape */
-  const p1 = a1>=1 && b1>=1 && a1===b1;
-  const p2 = a2>=1 && b2>=1 && a2===b2;
-  const D1 = p1 ? d1*b1 : 0, D2 = p2 ? d2*b2 : 0;
-  const memeD = p1 && p2 && D1===D2;
+  /* UN GROUPE SE JUGE SUR LES CASES QUE L'ÉLÈVE A ÉCRITES, jamais sur celles
+     qu'il a laissées vides — et une case vide ne reçoit AUCUNE couleur : c'est
+     la correction en bleu qui la remplit. Deux signalements de Turquet en
+     août 2026, le même défaut à deux profondeurs : « 9 et 9 » posés sous la
+     première fraction, le reste vide, comptés FAUX ; puis « 8 » seul dans une
+     case, sa jumelle encore vide, compté FAUX lui aussi. Une case était donc
+     déclarée fausse à cause d'une case restée vide AILLEURS — et la note
+     annonçait « 0 case juste sur 9 » sous une copie sans une seule erreur.
+     Un multiplicateur se met en HAUT comme en BAS : les deux cases portent le
+     MÊME nombre, et une seule des deux suffit donc à le désigner. */
+  const mult=function(a,b){
+    if(!isNaN(a) && !isNaN(b)) return (a===b && a>=1) ? a : 0;  /* les deux écrites : elles doivent s'accorder */
+    const m = isNaN(a) ? b : a;                                 /* une seule écrite : c'est elle qui dit le multiplicateur */
+    if(isNaN(m)) return -1;                                     /* rien d'écrit : indéterminé, pas faux */
+    return (m>=1) ? m : 0;
+  };
+  const m1=mult(a1,b1), m2=mult(a2,b2);
+  const D1 = m1>0 ? d1*m1 : 0, D2 = m2>0 ? d2*m2 : 0;
+  const memeD = m1>0 && m2>0 && D1===D2;
   const D = memeD ? D1 : 0;
   /* UNE CASE JUSTE NE ROUGIT PAS PARCE QU'UNE AUTRE EST VIDE — à la
      vérification comme en direct. Signalé par Turquet en août 2026 sur
@@ -6391,18 +6406,28 @@ function sfJuge(q){
      de l'autre dénominateur. 5 × 9 = 45 est un multiple de 9, la paire tient ;
      5 × 2 = 10 n'en est pas un, elle ne mène nulle part et rougit. Aucun
      dénominateur commun n'est imposé pour autant — 90 passe comme 45. */
-  const ok1 = p1 && (p2 ? memeD : D1 % d2 === 0);
-  const ok2 = p2 && (p1 ? memeD : D2 % d1 === 0);
+  const ok1 = m1>0 && (m2>0 ? memeD : D1 % d2 === 0);
+  const ok2 = m2>0 && (m1>0 ? memeD : D2 % d1 === 0);
   const n1=sfLu('sf-num1'), n2=sfLu('sf-num2'), dd=sfLu('sf-den');
   /* L'étape ② se juge de même sur SA ligne : le dénominateur commun est celui
-     que l'élève a ÉCRIT, et les deux numérateurs doivent le suivre. Une paire
-     de l'étape ① déjà posée doit s'y accorder — sans quoi la chaîne se
-     contredirait d'une égalité à l'autre. */
-  const ok3 = !isNaN(dd) && dd>0 && dd%d1===0 && dd%d2===0
-           && n1===q.n1*(dd/d1) && n2===q.n2*(dd/d2)
-           && (!p1 || dd===D1) && (!p2 || dd===D2);
+     que l'élève a ÉCRIT — sinon celui que l'étape ① annonce —, les numérateurs
+     doivent le suivre, et une paire déjà posée doit s'y accorder, sans quoi la
+     chaîne se contredirait d'une égalité à l'autre. Une case encore vide ne
+     compte pas contre les autres. */
+  const Dc = !isNaN(dd) ? dd : (D1 || D2 || 0);
+  const ok3 = !(isNaN(n1) && isNaN(n2) && isNaN(dd))
+           && Dc>0 && Dc%d1===0 && Dc%d2===0
+           && (m1<=0 || Dc===D1) && (m2<=0 || Dc===D2)
+           && (isNaN(n1) || n1===q.n1*(Dc/d1))
+           && (isNaN(n2) || n2===q.n2*(Dc/d2));
   const fn=sfLu('sf-fn'), fd=sfLu('sf-fd');
-  const ok4 = !isNaN(fn) && !isNaN(fd) && fd!==0 && fn*q.D===q.N*fd;
+  /* Les deux cases ensemble doivent VALOIR le résultat. Une seule écrite se
+     juge sur ce qu'elle promet : le résultat étant irréductible, toute
+     fraction qui lui est égale s'écrit N×t sur D×t. */
+  const ok4 = (!isNaN(fn) || !isNaN(fd))
+           && ((isNaN(fn) || isNaN(fd))
+                 ? (isNaN(fn) ? (fd>0 && fd%q.D===0) : (fn>0 && fn%q.N===0))
+                 : (fd!==0 && fn*q.D===q.N*fd));
   /* Une case laissée vide n'est pas une erreur de calcul, et le dire autrement
      serait mentir : le message le nomme avant tout le reste. */
   const vide = sfCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
@@ -6439,11 +6464,21 @@ function checkSFAnswer(live){
   const q=test.questions[test.idx];
   if(live){ sfLive(); return; }
   const r=sfJuge(q);
+  /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
+     calcul. En entraînement la correction l'écrit en bleu juste après ; en
+     soutien elle reste à remplir, et donc modifiable. */
   const mark=(ids,ok)=>ids.forEach(id=>{ const el=$(id); if(!el) return;
-    el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!isSoutien(); });
+    el.classList.remove('ok','bad');
+    const ecrit=String(el.value||'').trim()!=='';
+    if(ecrit) el.classList.add(ok?'ok':'bad');
+    el.disabled=(ok&&ecrit)||!isSoutien(); });
   mark(['sf-a1','sf-b1'],r.ok1); mark(['sf-a2','sf-b2'],r.ok2);
   mark(['sf-num1','sf-num2','sf-den'],r.ok3); mark(['sf-fn','sf-fd'],r.ok4);
-  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4;
+  /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
+     cases écrites, donc une copie à moitié remplie peut voir ses quatre
+     verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
+     cases laissées vides ne recevraient même pas la correction en bleu. */
+  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&!r.vide;
   if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('sfLiveScore').textContent=test.score;

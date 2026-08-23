@@ -2798,8 +2798,16 @@ function sommeFractions(w, P){
     const juger2=function(vals){ poser(vals); return sfJuge(q2); };
     r=juger2({'sf-a1':3,'sf-b1':3,'sf-a2':'','sf-b2':'','sf-num1':3,'sf-num2':5,'sf-den':6,'sf-fn':8,'sf-fd':6});
     if(r.ok2) vus.push('la seconde ligne laissée VIDE est comptée juste, parce que son multiplicateur vaut 1');
-    r=juger2({'sf-a1':3,'sf-b1':3,'sf-a2':1,'sf-b2':1,'sf-num1':3,'sf-num2':'','sf-den':6,'sf-fn':8,'sf-fd':6});
-    if(r.ok3) vus.push('un numérateur laissé VIDE est compté juste à l\\'étape ②');
+    /* Une case vide n'est plus jugée avec son groupe — chaque étape se juge sur
+       ce que l'élève a ÉCRIT. Ce qui doit rester vrai, c'est qu'elle ne soit
+       jamais comptée JUSTE : on regarde donc la case, seule chose que l'élève
+       voit, et non le verdict de l'étape. */
+    poser({'sf-a1':3,'sf-b1':3,'sf-a2':1,'sf-b2':1,'sf-num1':3,'sf-num2':'','sf-den':6,'sf-fn':8,'sf-fd':6});
+    r=sfJuge(q2);   /* AVANT le clic : la correction remplit ensuite la case vide */
+    if(!r.vide) vus.push('un numérateur laissé VIDE ne se voit pas : la copie passe pour complète');
+    checkSFAnswer();
+    const vert=function(id){ const el=document.getElementById(id); return !!el && /\\bok\\b/.test(el.className); };
+    if(vert('sf-num2')) vus.push('un numérateur laissé VIDE est compté juste à l\\'étape ②');
     /* et le tirage doit vraiment produire des multiplicateurs de 1, sans quoi
        les deux essais ci-dessus n'éprouveraient qu'une question inventée */
     let unMult=false;
@@ -2871,6 +2879,77 @@ function sommeFractions(w, P){
     const note=ptsEcran();
     if(!note || note.cases!==9) vus.push('la note ne compte pas les neuf cases');
     else if(note.justes!==2) vus.push('la note annonce ' + note.justes + ' case(s) juste(s) sur ' + note.cases + ' alors que deux sont justes');
+
+    /* k) UNE CASE SEULE, SA JUMELLE ENCORE VIDE. Deuxième signalement de
+          Turquet, le même défaut une couche plus bas : sur « 1/5 − 1/8 » il
+          écrit 8 dans la case du haut, laisse celle du bas vide, vérifie — et
+          son 8, qui est le bon multiplicateur, devient ROUGE. La paire
+          réclamait ses DEUX cases pour se juger.
+          Un multiplicateur se met en haut comme en bas : les deux cases
+          portent le même nombre, donc une seule suffit à le désigner. LES DEUX
+          BORDS : la case seule JUSTE est verte, la case seule FAUSSE reste
+          rouge — sans le second, « toujours vrai » passerait. */
+    test.questions[test.idx]={n1:1,d1:5,n2:1,d2:8,op:'−',D:40,k1:8,k2:5,N1:8,N2:5,N:3};
+    renderSFTest();
+    const q4=test.questions[test.idx];
+    const rien4={'sf-a1':'','sf-b1':'','sf-a2':'','sf-b2':'','sf-num1':'','sf-num2':'','sf-den':'','sf-fn':'','sf-fd':''};
+    const seul=function(o){ const c=Object.assign({},rien4); Object.keys(o).forEach(function(k){ c[k]=o[k]; }); poser(c); return sfJuge(q4); };
+    r=seul({'sf-a1':8});
+    if(!r.ok1) vus.push('8 écrit seul dans la case du haut est compté FAUX : sa jumelle était encore vide');
+    r=seul({'sf-b1':8});
+    if(!r.ok1) vus.push('8 écrit seul dans la case du BAS est compté faux');
+    r=seul({'sf-a1':3});
+    if(r.ok1) vus.push('3 écrit seul est accepté : 15 ne sera jamais un multiple de 8');
+    r=seul({'sf-a1':8,'sf-b1':3});
+    if(r.ok1) vus.push('8 en haut et 3 en bas est accepté : la fraction a changé de valeur');
+    /* l'étape ② et la fraction finale suivent la même règle */
+    r=seul({'sf-den':40});
+    if(!r.ok3) vus.push('40 écrit seul au dénominateur commun est compté faux');
+    r=seul({'sf-den':42});
+    if(r.ok3) vus.push('42 est accepté comme dénominateur commun de 5 et 8');
+    r=seul({'sf-fn':3});
+    if(!r.ok4) vus.push('3 écrit seul au numérateur de la fraction finale est compté faux');
+    r=seul({'sf-fn':4});
+    if(r.ok4) vus.push('4 est accepté au numérateur de la fraction finale (le résultat est 3/40)');
+    /* et une copie à moitié remplie ne vaut PAS le point entier, même si tout
+       ce qui y est écrit est juste : c'est le trou qu'ouvre le jugement case
+       par case, et « r.vide » est ce qui le ferme */
+    r=seul({'sf-a1':8,'sf-a2':5,'sf-num1':8,'sf-den':40,'sf-fn':3});
+    if(!(r.ok1&&r.ok2&&r.ok3&&r.ok4)) vus.push('une demi-copie pourtant juste est comptée fausse');
+    if(!r.vide) vus.push('une demi-copie passe pour complète — elle vaudrait le point entier');
+    /* l'étape ② sans dénominateur écrit : c'est l'étape ① qui le dit. Sans ce
+       report, un numérateur juste rougirait parce que la case du dénominateur
+       commun est encore vide — le défaut signalé, une case plus loin. */
+    r=seul({'sf-a1':8,'sf-b1':8,'sf-num1':8});
+    if(!r.ok3) vus.push('8 au premier numérateur est compté faux alors que l\\'étape ① annonce déjà 40');
+    r=seul({'sf-a1':8,'sf-b1':8,'sf-num1':5});
+    if(r.ok3) vus.push('5 au premier numérateur est accepté sur le dénominateur 40 (1 × 8 = 8)');
+
+    /* UNE DEMI-COPIE NE VAUT PAS LE POINT ENTIER. Chaque étape se jugeant
+       désormais sur les cases écrites, les quatre verdicts peuvent passer au
+       vert sur une copie à moitié remplie : sans « r.vide » dans allOk, elle
+       vaudrait 1/1 ET ses cases vides ne recevraient même pas la correction en
+       bleu, l'application les tenant pour terminées. */
+    poser(rien4); poser({'sf-a1':8,'sf-a2':5,'sf-num1':8,'sf-den':40,'sf-fn':3});
+    checkSFAnswer();
+    const der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('une copie à moitié remplie vaut le point entier');
+    if(!/\\bsol\\b/.test(document.getElementById('sf-fd').className))
+      vus.push('sur une demi-copie déclarée juste, les cases vides ne reçoivent pas la correction en bleu');
+
+    /* le geste EXACT du signalement : le 8 seul, puis « Vérifier ».
+       On REDESSINE d'abord : la vérification précédente a laissé ses couleurs
+       et verrouillé l'écran, et vider les cases ne les efface pas. */
+    renderSFTest();
+    poser(rien4); poser({'sf-a1':8});
+    checkSFAnswer();
+    if(!/\\bok\\b/.test(document.getElementById('sf-a1').className))
+      vus.push('après le clic, le 8 écrit seul n\\'est pas vert (' + document.getElementById('sf-a1').className + ')');
+    if(!/\\bsol\\b/.test(document.getElementById('sf-b1').className))
+      vus.push('la jumelle laissée vide n\\'est pas complétée en bleu');
+    const note4=ptsEcran();
+    if(!note4 || note4.cases!==9 || note4.justes!==1)
+      vus.push('la note annonce ' + (note4?note4.justes+' sur '+note4.cases:'rien') + ' alors qu\\'une seule case est juste sur neuf');
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);
