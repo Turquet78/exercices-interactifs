@@ -199,6 +199,15 @@
   .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  /* Une note POSÉE par le professeur ne se confond pas avec une note calculée :
+     elle change de couleur, et la note obtenue reste écrite juste à côté. */
+  .dm-note.posee{background:var(--violet,#6D28D9)}
+  .dm-obtenu{font-size:.78rem;color:var(--ink-soft);white-space:nowrap}
+  .dm-poser{display:inline-flex;align-items:center;gap:3px}
+  .dm-noteinput{width:54px;padding:3px 6px;border:1px solid var(--line);border-radius:8px;
+    font-family:"Fredoka";font-weight:600;font-size:.82rem;text-align:center;color:var(--ink);background:var(--surface)}
+  .dm-noteinput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
+  .dm-sur{font-size:.78rem;color:var(--ink-soft)}
   .dm-exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 0;border-top:1px dashed var(--line)}
   .dm-exrow:first-child{border-top:none;padding-top:1px}
   .dm-exname{font-weight:700;font-size:.9rem;color:var(--ink)}
@@ -1970,7 +1979,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=241;
+const APP_VERSION=242;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2053,7 +2062,12 @@ function ensureDevoir(d,i){
     actif: d.actif!==false,
     titre: d.titre || 'Devoir à la maison',
     cours: (typeof d.cours==='string')? d.cours : '',
-    exercices: Array.isArray(d.exercices)? d.exercices : []
+    exercices: Array.isArray(d.exercices)? d.exercices : [],
+    /* Les notes POSÉES par le professeur, « <id élève>|<id exercice> » -> note
+       sur 10. Sans cette ligne, ensureDevoir les effacerait au premier
+       rechargement : la configuration est relue à chaque ouverture de l'onglet,
+       et tout champ qu'elle ne recopie pas disparaît SANS erreur. */
+    notes: (d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {}
   };
 }
 /* Garantit une LISTE de devoirs et migre l'ancien format « devoir » unique le cas échéant. */
@@ -3988,12 +4002,32 @@ function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPau
 /* Note d'un exercice de devoir. Soutien vaut 5 pts (5×%), entraînement vaut 10 pts (10×%).
    Note /10 = points d'entraînement si (entraînement > soutien) OU si le soutien n'a pas été fait ;
    sinon points du soutien (au max 5). */
-function noteDevoirExo(bestSoutien, bestEntrain){
+/* LA NOTE QUE LE PROFESSEUR A POSÉE sur un exercice d'un devoir, pour un élève.
+   Elle se pose PAR-DESSUS : le travail de l'élève reste enregistré tel quel, et
+   le professeur voit côte à côte ce qui a été obtenu et ce qu'il a mis. Rien
+   n'est réécrit dans « resultats » — une note corrigée par erreur serait sinon
+   irrécupérable, et la trace de ce que l'élève a réellement fait, perdue.
+   UN SEUL ENDROIT LA LIT : la liste des devoirs de l'élève, le détail d'un
+   devoir et le tableau du professeur s'en servent tous les trois. Deux lectures
+   auraient fini par donner deux notes — c'est la leçon d'exercicesDevoir(). */
+function noteForcee(dev, eleveId, exoId){
+  const m = dev && dev.notes;
+  if(!m || typeof m!=='object' || !eleveId || !exoId) return undefined;
+  const v = m[eleveId+'|'+exoId];
+  return (typeof v==='number' && isFinite(v)) ? v : undefined;
+}
+function noteDevoirExo(bestSoutien, bestEntrain, forcee){
   const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
   const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
-  const note = (e > s || !soutienFait) ? e : s;
-  return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
+  const auto = (e > s || !soutienFait) ? e : s;
+  /* Une note posée est BORNÉE à 0–10 : elle vit dans un JSON qu'on peut éditer
+     à la main dans la base, et une valeur bricolée doit retomber sur quelque
+     chose de sensé plutôt que produire un 47/10. */
+  const posee = (typeof forcee==='number' && isFinite(forcee));
+  const note = posee ? Math.max(0, Math.min(10, forcee)) : auto;
+  return { note, auto, posee, s, e, soutienFait, entrainFait:!!bestEntrain,
+           fait:(posee || soutienFait || !!bestEntrain) };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 function renderDevoirsList(){
@@ -4003,7 +4037,7 @@ function renderDevoirsList(){
     const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
     const lignes=exos.map(ex=>{
       const bs=dmBest(dev.id,ex.id,'soutien'), be=dmBest(dev.id,ex.id,'train');
-      const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) faitQqch=true;
+      const nd=noteDevoirExo(bs,be,noteForcee(dev, currentEleve&&currentEleve.id, ex.id)); somme+=nd.note; if(nd.fait) faitQqch=true;
       const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
       const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
       return `<div class="dl-ex"><span class="dl-ex-name">${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
@@ -4033,7 +4067,8 @@ function renderDevoirDetail(devoirId){
   const exos=dev.exercices||[]; let somme=0, faitQqch=false;
   const cards=exos.map(ex=>{
     const t=TESTS[ex.id]; if(!t) return '';
-    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'));
+    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'),
+                           noteForcee(dev, currentEleve&&currentEleve.id, ex.id));
     somme+=nd.note; if(nd.fait) faitQqch=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
     return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
@@ -12905,7 +12940,7 @@ async function renderDevoirResultats(){
       let somme=0, nbFait=0;
       const exd=exos.map(ex=>{
         const bs=best[k(e.id,ex.id,'soutien')], be=best[k(e.id,ex.id,'train')];
-        const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) nbFait++;
+        const nd=noteDevoirExo(bs,be,noteForcee(dev,e.id,ex.id)); somme+=nd.note; if(nd.fait) nbFait++;
         return {ex,nd,bs,be};
       });
       return {e,somme,nbFait,exd,fait:nbFait>0};
@@ -12928,8 +12963,24 @@ async function renderDevoirResultats(){
     const cards=synth.map(x=>{
       const rows=x.exd.map(({ex,nd,bs,be})=>{
         const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
-        const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
-        return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
+        /* La note POSÉE se voit à côté de celle qui a été OBTENUE, jamais à sa
+           place : le professeur doit pouvoir revenir en arrière en sachant
+           d'où il part. Le champ vaut la note affichée ; le vider rend la note
+           obtenue.
+           escJS() et non esc() : ces deux identifiants partent dans un attribut
+           onchange, où une chaîne échappée en HTML serait décodée AVANT que
+           JavaScript ne la lise. */
+        const nb=nd.posee
+          ? `<span class="dm-note posee" title="Note posée par le professeur">${fmtNote(nd.note)}/10</span>`
+          : (nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`);
+        const obtenu = nd.posee
+          ? `<span class="dm-obtenu">obtenu&nbsp;${nd.soutienFait||nd.entrainFait?fmtNote(nd.auto):'—'}</span>` : '';
+        const champ = `<span class="dm-poser">`
+          + `<input class="dm-noteinput" type="text" inputmode="decimal" value="${nd.posee?esc(fmtNote(nd.note)):''}"`
+          + ` placeholder="${nd.fait?esc(fmtNote(nd.auto)):'—'}" aria-label="Note posée pour ${esc(x.e.prenom)} sur ${esc(testNum(ex.id))}"`
+          + ` onchange="poserNoteDevoir('${escJS(x.e.id)}','${escJS(ex.id)}',this.value)">`
+          + `<span class="dm-sur">/10</span></span>`;
+        return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${obtenu}${nb}${champ}</span></div>`;
       }).join('');
       const totLbl=x.fait?`Note : ${fmtNote(x.somme)} / ${totMax}`:`Note : — / ${totMax}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
@@ -12938,6 +12989,34 @@ async function renderDevoirResultats(){
   }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
 
+
+/* POSER UNE NOTE. Le champ vide REND la note obtenue : c'est la seule façon
+   d'annuler, et elle doit être évidente — un professeur qui s'est trompé ne
+   doit pas avoir à chercher un bouton.
+   Une saisie illisible n'écrase rien et le dit : sans ce refus, « 8,5,2 » ou
+   « huit » deviendrait NaN, la note disparaîtrait de la moyenne, et rien ne
+   l'aurait annoncé. La virgule est acceptée — c'est ainsi qu'on écrit une note
+   en France, et l'exiger en point serait un piège. */
+async function poserNoteDevoir(eleveId, exoId, brut){
+  const dev=selectedDevoir(); if(!dev) return;
+  readEditorIntoDevoir();
+  if(!dev.notes || typeof dev.notes!=='object') dev.notes={};
+  const cle=eleveId+'|'+exoId;
+  const t=String(brut==null?'':brut).trim().replace(',', '.');
+  let annonce;
+  if(t===''){ delete dev.notes[cle]; annonce='Note rendue à ce que l’élève a obtenu'; }
+  else {
+    const v=Number(t);
+    if(!isFinite(v) || t.match(/[^0-9.\-]/)){ toast('Note illisible — écris un nombre entre 0 et 10','err'); renderDevoirResultats(); return; }
+    const borne=Math.max(0, Math.min(10, v));
+    dev.notes[cle]=borne;
+    annonce='Note posée : '+fmtNote(borne)+' / 10';
+    if(borne!==v) annonce+=' (ramenée dans 0–10)';
+  }
+  try{ await persistDevoirs(); toast(annonce+' ✓','ok'); }
+  catch(e){ toast('Enregistrement impossible — la note n’est pas gardée','err'); }
+  renderDevoirResultats();
+}
 
 /* export CSV */
 async function exportCSV(){
