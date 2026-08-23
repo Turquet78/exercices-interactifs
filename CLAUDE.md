@@ -680,6 +680,45 @@ parce que les précédentes sont vides : le défaut d'août 2026, une troisième
 fois, une case plus loin encore. **Rouge veut dire FAUX, jamais « je ne peux pas
 savoir ».**
 
+**Et un quatrième : le même calcul, mais l'élève écrit tout.**
+{somme-fractions-libre} tire les MÊMES nombres que {simplifier-fractions} et
+retire toutes les cases : l'élève écrit son calcul dans une feuille ligne par
+ligne — l'éditeur du 2.2 de la Terminale (`mlFeuille`), **porté au caractère
+près** et comparé par un contrôle —, et c'est l'IA qui le lit. Le préfixe de la
+première ligne porte la somme de l'énoncé, les suivantes un « = » : c'est une
+seule égalité poursuivie, comme au cahier. Entrée ajoute une ligne, retour
+arrière sur une ligne vide la supprime.
+**Ce que change la saisie libre.** Les trois autres exercices guident le geste :
+les cases disent où va chaque nombre. Ici rien ne le dit, et c'est le but —
+l'élève décide seul d'écrire l'étape du même dénominateur, puis de simplifier.
+La règle de décision envoyée au modèle EXIGE donc trois choses, et n'en tenir
+qu'une ne tient rien : au moins une ligne où les deux fractions portent le même
+dénominateur, un résultat final irréductible, et aucune ligne fausse. Écrire
+directement la bonne réponse ne suffit pas — c'est l'étape qu'on fait
+travailler, pas le résultat.
+**Rien à redéployer chez Supabase.** La fonction Edge porte depuis longtemps un
+correcteur GÉNÉRIQUE : tout appel `verif` qui n'est pas l'un des deux exercices
+de dérivée historiques décrit lui-même son énoncé et sa règle. La règle vit donc
+dans la PAGE et part avec elle — c'est la leçon de `MAX_CTX`, qui était restée
+lettre morte côté fonction faute de redéploiement.
+**Mais la fonction TRONQUE en silence à 4000 caractères.** Une règle coupée en
+son milieu ne lève rien : le modèle corrige avec la moitié qu'il a reçue, et
+l'exercice se met à accepter des copies sans étape. La borne est LUE dans la
+source de la fonction, jamais recopiée, et la marge s'affiche à chaque exécution
+(3213 caractères pour 4000, 787 de marge).
+**Trois contrôles de prose sont d'abord passés au vert sous le sabotage**, et
+c'est la même leçon qu'ailleurs : chercher « même dénominateur » ou
+« irréductible » dans TOUT le texte ne prouve rien, ces mots y reviennent
+partout. On découpe donc la règle en ses trois points numérotés et on regarde
+CHACUN. Un contrôle qui passe au vert sous le sabotage parle d'autre chose.
+**Et quatre bords ne se voient que dans un navigateur** : Entrée qui ajoute
+vraiment une ligne, la lecture qui garde ses préfixes (sans eux le correcteur
+reçoit des lignes sans lien et refuse des copies justes), le verdict du modèle
+qui fait la note — c'est le seul exercice de la Seconde dont la note ne vient
+pas de cases colorées —, et la rangée de jetons, qui ne connaissait que les
+cases `pm-mf` et n'aurait rien inséré du tout dans la feuille : des boutons
+morts, sans erreur.
+
 **Le moteur `sf` est le même TEXTE dans les deux niveaux, et un contrôle le
 vérifie.** Quatorze fonctions comparées au caractère près entre `secondes.html`
 et `premiere-specifique.html`. Rien ne les comparait jusqu'en août 2026 — celui
