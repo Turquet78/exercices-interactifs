@@ -72,8 +72,29 @@ jobs:
       - name: Fonction Edge admin-eleve
         run: npm run test:fonction
 
+  # LES TROIS NIVEAUX EN PARALLÈLE, une machine chacun. Ils tournaient l'un
+  # après l'autre dans un seul travail : environ trois minutes par niveau, plus
+  # l'installation de Chromium, soit une dizaine de minutes avant de pouvoir
+  # fusionner — et c'est ce banc-là qui décide de la mise en ligne. Les trois
+  # niveaux sont indépendants : chacun ouvre son propre fichier, dans son propre
+  # navigateur, et ne partage rien avec les autres. Les séparer ne retire donc
+  # aucun contrôle ; ça remplace une attente de dix minutes par une de trois.
+  #
+  # « fail-fast: false » est indispensable : sans lui, un niveau rouge annulerait
+  # les deux autres en cours de route, et on ne saurait pas si le défaut touche
+  # un fichier ou les trois. C'est ce que faisait déjà « if: always() » dans la
+  # version en série, et pour la même raison.
+  #
+  # Le nom du travail porte le niveau (« navigateur (secondes.html) ») : c'est
+  # lui qui s'affiche sur la pull request, et il doit dire quel fichier a rougi
+  # sans qu'on ait à ouvrir les traces.
   navigateur:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        niveau: [premiere-specifique.html, secondes.html, terminale.html]
+    name: navigateur (${{ matrix.niveau }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,11 +103,5 @@ jobs:
       - run: npm install
       - name: Installer Chromium
         run: npx playwright install --with-deps chromium
-      - name: premiere-specifique.html — dans un vrai navigateur
-        run: npm run test:navigateur:premiere
-      - name: secondes.html — dans un vrai navigateur
-        if: always()
-        run: npm run test:navigateur:secondes
-      - name: terminale.html — dans un vrai navigateur
-        if: always()
-        run: npm run test:navigateur:terminale
+      - name: ${{ matrix.niveau }} — dans un vrai navigateur
+        run: node tests/navigateur.js ${{ matrix.niveau }}
