@@ -82,7 +82,8 @@ const RAPPELS_SECONDE = `(function(){
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
-               'somme-fractions-libre':'sfl','simplifier-barres':'smp' };
+               'somme-fractions-libre':'sfl','simplifier-barres':'smp',
+               'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -348,7 +349,11 @@ module.exports = {
        ligne par ligne, et c'est l'IA qui le lit. Rien de cet écran ne se
        mesure hors d'un vrai navigateur. */
     saisieLibre: { exercice: 'somme-fractions-libre' },
-    soutienEnDirect: { sans: ['lv', 'def', 'pge', 'sfl'] },
+    /* « mll » corrige comme « sfl » : la saisie est libre et c'est l'IA qui
+       lit le calcul. Il n'y a rien à colorer pendant la frappe, et un appel
+       au modèle à chaque touche serait absurde. Déclaré plutôt que le
+       contrôle affaibli pour tout le monde. */
+    soutienEnDirect: { sans: ['lv', 'def', 'pge', 'sfl', 'mll'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {

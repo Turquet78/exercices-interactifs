@@ -2299,6 +2299,7 @@ function exercices(suite){
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
     simplifierBarres(w, P);
+    multiplierFractions(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -3238,6 +3239,167 @@ function sommeFractions(w, P){
      · la note compte CINQ réponses — les deux coloriages en font partie, et
        sans « pts-case » l'écran annonçait « 3 justes sur 3 » sur une question
        qui en vaut 5. */
+/* {multiplier-fractions} et {multiplier-fractions-libre} — le miroir de la
+   somme, SANS mise au même dénominateur.
+   Quatre bords, et n'en tenir qu'un ne tient rien :
+     · le tirage — le PRODUIT doit être irréductible, et ce n'est PAS impliqué
+       par « chaque fraction irréductible » : 2/3 × 3/2 donne 6/6 ;
+     · l'ordre des deux facteurs est LIBRE — rien à l'écran ne dit quelle case
+       appartient à quelle fraction, et la multiplication est commutative ;
+     · une case juste ne rougit pas pour sa voisine, et on lit la COULEUR
+       peinte, pas seulement le verdict — c'est la leçon du jour ;
+     · l'erreur VISÉE (mettre au même dénominateur) est nommée par le message. */
+function multiplierFractions(w, P){
+  const present = evaluer(w, "typeof startMlt==='function' && typeof mltGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas',
+      'ce niveau n\'a pas les exercices de multiplication de fractions');
+    return;
+  }
+  verifierEval(w, 'multiplier deux fractions : l\'ordre est libre, et le produit ne se simplifie pas', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='multiplier-fractions';
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    let vuNonTrivial=false;
+    for(let i=0;i<2000;i++){
+      const q=mltGen(), eti='tirage '+q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2;
+      if(q.P!==q.n1*q.n2 || q.Q!==q.d1*q.d2){ vus.push(eti+' : le produit rangé ne suit pas les facteurs'); break; }
+      /* LE BORD QUI COMPTE. « Chaque fraction irréductible » NE SUFFIT PAS :
+         2/3 × 3/2 a ses deux fractions irréductibles et donne 6/6. C'est bien
+         le PRODUIT qu'il faut tester — sinon l'élève qui simplifie, ce qui est
+         juste, écrirait une fraction comptée fausse. */
+      if(pgcd(q.P,q.Q)!==1){ vus.push(eti+' : le produit '+q.P+'/'+q.Q+' se simplifie encore'); break; }
+      if(q.P===q.Q){ vus.push(eti+' : le produit vaut 1 tout rond'); break; }
+      if(q.d1<2 || q.d2<2){ vus.push(eti+' : un dénominateur vaut '+Math.min(q.d1,q.d2)); break; }
+      if(q.n1<1 || q.n2<1){ vus.push(eti+' : un numérateur est nul ou négatif'); break; }
+      if(q.n1===1 && q.n2===1){ vus.push(eti+' : les deux numérateurs valent 1, il n\\'y a rien à multiplier en haut'); break; }
+      if(q.n1!==1 && q.n2!==1) vuNonTrivial=true;
+    }
+    if(!vus.length && !vuNonTrivial) vus.push('le tirage ne produit jamais deux numérateurs différents de 1');
+
+    /* ---- 2. la correction, exercée pour de vrai -------------------------- */
+    startMlt();
+    /* 3/7 × 4/9 = 12/63… non : 12 et 63 partagent 3. On prend 5/7 × 4/9 = 20/63,
+       irréductible, et dont aucun facteur n'est égal à un autre. */
+    test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,P:20,Q:63};
+    const CASES=['mlt-h1','mlt-h2','mlt-b1','mlt-b2','mlt-fn','mlt-fd'];
+    const q=test.questions[test.idx];
+    const juger=function(o){
+      test.locked=false; renderMltTest();
+      CASES.forEach(function(id){ const el=document.getElementById(id);
+        if(el) el.value=(o[id]===undefined)?'':String(o[id]); });
+      return mltJuge(q);
+    };
+    const JUSTE={'mlt-h1':5,'mlt-h2':4,'mlt-b1':7,'mlt-b2':9,'mlt-fn':20,'mlt-fd':63};
+    const avec=function(o){ const c=Object.assign({},JUSTE); Object.keys(o).forEach(function(k){
+      if(o[k]===null) delete c[k]; else c[k]=o[k]; }); return c; };
+    const tout=function(r){ return r.haut&&r.bas&&r.fin&&!r.vide; };
+
+    let r=juger(JUSTE);
+    if(!tout(r)) vus.push('la copie juste est comptée fausse : '+JSON.stringify(r));
+    /* L'ORDRE EST LIBRE : rien à l'écran ne dit quelle case va avec quelle
+       fraction, et 4 × 5 vaut 5 × 4. */
+    r=juger(avec({'mlt-h1':4,'mlt-h2':5,'mlt-b1':9,'mlt-b2':7}));
+    if(!tout(r)) vus.push('les facteurs écrits dans l\\'autre ordre sont comptés faux');
+    /* mais les deux cases doivent former la PAIRE : deux fois le même nombre
+       est chacune défendable et fausse ensemble */
+    r=juger(avec({'mlt-h2':5}));
+    if(r.okH1||r.okH2) vus.push('5 et 5 sont acceptés en haut alors qu\\'on attend 5 et 4');
+    /* une case juste ne rougit pas pour sa voisine */
+    r=juger(avec({'mlt-h2':6}));
+    if(!r.okH1) vus.push('le numérateur JUSTE rougit parce que l\\'autre est faux');
+    if(r.okH2) vus.push('6 est accepté au numérateur (on attend 5 et 4)');
+    if(!r.okB1 || !r.okB2) vus.push('les dénominateurs JUSTES rougissent parce qu\\'un numérateur est faux');
+    if(!r.okFn || !r.okFd) vus.push('le résultat JUSTE rougit parce qu\\'un numérateur est faux');
+    /* L'ERREUR VISÉE : mettre au même dénominateur. 63 est le produit, mais le
+       PPCM de 7 et 9 vaut aussi 63 — on prend donc un cas où ils diffèrent. */
+    test.questions[test.idx]={n1:5,d1:4,n2:5,d2:8,P:25,Q:32};
+    const q2=test.questions[test.idx];
+    test.locked=false; renderMltTest();
+    CASES.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=''; });
+    ({'mlt-h1':5,'mlt-h2':5,'mlt-b1':8,'mlt-b2':8,'mlt-fn':25,'mlt-fd':32}) &&
+      Object.keys({'mlt-h1':5,'mlt-h2':5,'mlt-b1':8,'mlt-b2':8,'mlt-fn':25,'mlt-fd':32}).forEach(function(id){
+        const v={'mlt-h1':5,'mlt-h2':5,'mlt-b1':8,'mlt-b2':8,'mlt-fn':25,'mlt-fd':32}[id];
+        const el=document.getElementById(id); if(el) el.value=String(v); });
+    const r2=mltJuge(q2);
+    if(r2.bas) vus.push('mettre les deux dénominateurs au même (8 et 8) est accepté');
+    if(!r2.haut) vus.push('les numérateurs JUSTES rougissent parce que l\\'élève a mis au même dénominateur');
+    if(!r2.fin) vus.push('le résultat JUSTE rougit parce que l\\'élève a mis au même dénominateur');
+    const msg=mltPourquoi(q2,r2);
+    if(!/pas besoin du m/i.test(msg) || msg.indexOf('4')<0 || msg.indexOf('8')<0)
+      vus.push('le message ne nomme pas l\\'erreur visée : « '+msg+' »');
+
+    /* ---- 3. RIEN N'EST ÉCRIT : rien ne rougit, et la COULEUR le dit ------ */
+    test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,P:20,Q:63};
+    test.locked=false; renderMltTest();
+    checkMltAnswer();
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const rouges=CASES.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('une copie entièrement vide rougit : '+rouges.join(', '));
+    const bleus=CASES.filter(function(id){ return peint(id)==='bleu'; });
+    if(bleus.length!==6) vus.push('les cases vides ne reçoivent pas toutes la correction en bleu ('+bleus.length+'/6)');
+    const der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('une copie entièrement vide vaut le point');
+    if(!der || der.cases!==6) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 6');
+    /* ET LE MÊME BORD EN SOUTIEN, où il est le seul à être ATTEIGNABLE : en
+       entraînement, la correction en bleu repasse derrière et efface le rouge
+       d'une case vide, si bien qu'une case vide qui rougirait ne se verrait
+       pas. Un sabotage l'a montré en restant vert — non parce que le contrôle
+       était trop faible, mais parce qu'il regardait le seul mode où le défaut
+       ne peut pas se voir. En soutien, rien n'efface : c'est là qu'on mesure. */
+    currentMode='soutien';
+    test.locked=false; renderMltTest();
+    checkMltAnswer();
+    const rougesS=CASES.filter(function(id){ return peint(id)==='rouge'; });
+    if(rougesS.length) vus.push('en soutien, une copie entièrement vide rougit : '+rougesS.join(', '));
+    currentMode='train';
+
+    /* ---- 4. CE QUI EST PEINT, une case juste à côté d'une fausse --------- */
+    test.locked=false; renderMltTest();
+    CASES.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=''; });
+    [['mlt-h1',5],['mlt-h2',6],['mlt-b1',7],['mlt-b2',9],['mlt-fn',20],['mlt-fd',63]].forEach(function(pr){
+      const el=document.getElementById(pr[0]); if(el) el.value=String(pr[1]); });
+    checkMltAnswer();
+    if(peint('mlt-h1')!=='vert') vus.push('après le clic, le numérateur JUSTE est peint en '+peint('mlt-h1'));
+    if(peint('mlt-h2')!=='rouge') vus.push('après le clic, le numérateur FAUX est peint en '+peint('mlt-h2'));
+    if(peint('mlt-b1')!=='vert' || peint('mlt-fn')!=='vert')
+      vus.push('après le clic, des cases justes d\\'autres étapes rougissent');
+
+    /* ---- 5. LE LIBRE : les mêmes nombres, et la règle envoyée au modèle --- */
+    if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
+      vus.push('l\\'exercice en saisie libre est absent');
+    } else {
+      for(let i=0;i<200;i++){
+        const g=mltGen(), a=mllAttenduIA(g), e=mllEnonceIA(g);
+        if(a.indexOf(g.P+'/'+g.Q)<0){ vus.push('la règle ne nomme pas le résultat '+g.P+'/'+g.Q); break; }
+        if(a.indexOf('('+g.n1+'×'+g.n2+')/('+g.d1+'×'+g.d2+')')<0){ vus.push('la règle n\\'écrit pas l\\'étape du produit'); break; }
+        if(e.indexOf(g.n1+'/'+g.d1)<0 || e.indexOf(g.n2+'/'+g.d2)<0){ vus.push('l\\'énoncé envoyé au modèle ne porte pas les deux fractions'); break; }
+        /* LES TROIS EXIGENCES, CHACUNE DANS SON POINT — chercher les mots dans
+           tout le texte ne prouverait rien, ils y reviennent partout. */
+        const iR=a.indexOf('RÈGLE DE DÉCISION'), iC=a.indexOf('CONSIGNES POUR LE FEEDBACK');
+        if(iR<0 || iC<0 || iC<iR){ vus.push('la règle de décision et les consignes de feedback ne se distinguent plus'); break; }
+        const regle=a.slice(iR,iC);
+        const pt=function(n){ const d=regle.indexOf('\\n'+n+'. '); if(d<0) return '';
+          const f=regle.indexOf('\\n'+(n+1)+'. ', d); return regle.slice(d, f<0?regle.length:f); };
+        const p1=pt(1), p2=pt(2), p3=pt(3);
+        if(!p1||!p2||!p3){ vus.push('la règle de décision n\\'a plus ses trois points numérotés'); break; }
+        if(p1.indexOf('('+g.n1+'×'+g.n2+')/('+g.d1+'×'+g.d2+')')<0 || !/REFUS/.test(p1)){
+          vus.push('le point 1 n\\'exige plus l\\'étape du produit'); break; }
+        if(p2.indexOf(g.P+'/'+g.Q)<0){ vus.push('le point 2 ne dit plus quel résultat attendre'); break; }
+        if(!/ÉGALITÉ FAUSSE/.test(p3)){ vus.push('le point 3 n\\'interdit plus les égalités fausses'); break; }
+        /* et la règle ne doit RIEN réclamer à simplifier : le produit est
+           irréductible par construction, exiger une simplification enverrait
+           l'élève chercher ce qui n'existe pas. */
+        if(/simplifi/i.test(p2)){ vus.push('le point 2 parle de simplification alors que le produit est irréductible'); break; }
+      }
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 function simplifierBarres(w, P){
   const present = evaluer(w, "typeof startSmp==='function' && typeof smpGen==='function'");
   if(!present.ok || !present.valeur){
