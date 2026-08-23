@@ -2810,6 +2810,68 @@ function sommeFractions(w, P){
     r=juger({'sf-a1':3,'sf-b1':3,'sf-a2':2,'sf-b2':2,'sf-num1':3,'sf-num2':2,'sf-den':6,'sf-fn':0,'sf-fd':0});
     if(r.ok4) vus.push('0/0 est accepté comme fraction finale');
 
+    /* i) UNE CASE JUSTE NE ROUGIT PAS PARCE QU'UNE AUTRE EST VIDE.
+          C'est la copie que Turquet a signalée en août 2026 : « 8/5 + 4/9 »,
+          9 et 9 écrits sous la première fraction, tout le reste vide, et la
+          vérification rougissait les deux seules cases remplies — justes —
+          en annonçant « 0 case juste sur 9 ». Rien ne cassait ; l'exercice
+          apprenait simplement l'inverse de ce qu'il enseigne.
+          LES DEUX BORDS, et n'en tenir qu'un ne tient rien : une paire seule
+          qui MÈNE quelque part est juste, une paire seule qui ne mène nulle
+          part reste fausse. Sans le second, « toujours vrai » passerait. */
+    test.questions[test.idx]={n1:8,d1:5,n2:4,d2:9,op:'+',D:45,k1:9,k2:5,N1:72,N2:20,N:92};
+    renderSFTest();
+    const q3=test.questions[test.idx];
+    const juger3=function(vals){ poser(vals); return sfJuge(q3); };
+    const rien={'sf-a1':'','sf-b1':'','sf-a2':'','sf-b2':'','sf-num1':'','sf-num2':'','sf-den':'','sf-fn':'','sf-fd':''};
+    const avec=function(o){ const c=Object.assign({},rien); Object.keys(o).forEach(function(k){ c[k]=o[k]; }); return c; };
+    r=juger3(avec({'sf-a1':9,'sf-b1':9}));
+    if(!r.ok1) vus.push('×9 sous 8/5, le reste encore vide : la paire est comptée FAUSSE alors qu\\'elle est juste');
+    if(!r.vide) vus.push('sept cases vides et la correction ne le sait pas : le message parlera d\\'autre chose');
+    r=juger3(avec({'sf-a2':5,'sf-b2':5}));
+    if(!r.ok2) vus.push('×5 sous 4/9, le reste encore vide : la paire est comptée FAUSSE alors qu\\'elle est juste');
+    /* le bord opposé : 5 × 2 = 10, et 9 ne divise pas 10 — cette paire seule
+       ne peut mener à aucun dénominateur commun */
+    r=juger3(avec({'sf-a1':2,'sf-b1':2}));
+    if(r.ok1) vus.push('×2 sous 8/5 est accepté : 10 ne sera jamais un multiple de 9');
+    /* et un dénominateur commun NON minimal reste juste, même seul : 5 × 18 = 90 */
+    r=juger3(avec({'sf-a1':18,'sf-b1':18}));
+    if(!r.ok1) vus.push('×18 sous 8/5 est refusé : 90 est pourtant un dénominateur commun');
+    /* les deux paires posées et DIVERGENTES restent fausses toutes les deux */
+    r=juger3(avec({'sf-a1':9,'sf-b1':9,'sf-a2':10,'sf-b2':10}));
+    if(r.ok1||r.ok2) vus.push('45 d\\'un côté et 90 de l\\'autre est accepté');
+    /* l'étape ② se juge sur le dénominateur ÉCRIT, et refuse de suivre une
+       étape ① qui dit autre chose */
+    r=juger3(avec({'sf-a1':9,'sf-b1':9,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45}));
+    if(!r.ok3) vus.push('72 + 20 sur 45 est compté faux');
+    r=juger3(avec({'sf-a1':18,'sf-b1':18,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45}));
+    if(r.ok3) vus.push('l\\'étape ② est acceptée sur 45 alors que l\\'étape ① annonce 90');
+    /* et la copie ENTIÈRE, celle de la capture, reste juste d'un bout à l'autre */
+    r=juger3({'sf-a1':9,'sf-b1':9,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45,'sf-fn':92,'sf-fd':45});
+    if(!(r.ok1&&r.ok2&&r.ok3&&r.ok4)) vus.push('la copie complète 9/9 · 5/5 · 72+20/45 · 92/45 est comptée fausse');
+    if(r.vide) vus.push('une copie entièrement remplie est signalée comme incomplète');
+
+    /* j) LE BOUTON, ET LA NOTE QUI EN SORT. Les essais ci-dessus appellent la
+          correction ; celui-ci CLIQUE dessus, et c'est la différence qui
+          comptait — ce que Turquet a vu, c'est la note « 0 case juste sur 9 »
+          sous une copie dont deux cases étaient justes. Elle sort de
+          ptsEcran(), donc de ce que checkSFAnswer a réellement peint, et elle
+          part en base. La chaîne entière se vérifie ici : les deux cases
+          remplies vertes, les sept laissées vides écrites en bleu (« sol »),
+          et la note qui les compte. */
+    test.questions[test.idx]={n1:8,d1:5,n2:4,d2:9,op:'+',D:45,k1:9,k2:5,N1:72,N2:20,N:92};
+    renderSFTest();
+    poser(rien); poser({'sf-a1':9,'sf-b1':9});
+    checkSFAnswer();
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:''; };
+    if(!/\\bok\\b/.test(cls('sf-a1'))||!/\\bok\\b/.test(cls('sf-b1')))
+      vus.push('après un clic sur « Vérifier », les deux cases justes ne sont pas vertes (' + cls('sf-a1') + ')');
+    if(!/\\bsol\\b/.test(cls('sf-den')))
+      vus.push('une case laissée vide n\\'est pas complétée en bleu par la correction');
+    const note=ptsEcran();
+    if(!note || note.cases!==9) vus.push('la note ne compte pas les neuf cases');
+    else if(note.justes!==2) vus.push('la note annonce ' + note.justes + ' case(s) juste(s) sur ' + note.cases + ' alors que deux sont justes');
+
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
