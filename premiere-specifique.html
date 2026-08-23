@@ -7179,12 +7179,20 @@ function sfPpcm(a,b){ return a/sfPgcd(a,b)*b; }
    question, au lieu de tomber six fois de suite sur la même. Tiré au hasard,
    le même total sortait — mais pas le même exercice. C'est la règle des
    opérations posées, au même endroit du raisonnement. */
-function sfGen(opImpose){
+/* « premiers » : les deux dénominateurs sont premiers entre eux. C'est ce
+   qu'exige l'exercice du CROISEMENT — multiplier chaque fraction par le
+   dénominateur de l'autre donne alors exactement le PPCM, si bien que la
+   méthode enseignée et la méthode libre tombent d'accord. Sans cette
+   contrainte, 4 et 6 donneraient 24 par croisement contre 12 par le PPCM, et
+   l'élève qui simplifie aurait raison tout en étant compté faux. On retire
+   l'ambiguïté au TIRAGE, jamais à la correction. */
+function sfGen(opImpose, premiers){
   for(let essai=0; essai<500; essai++){
     const entier = Math.random()<0.28;              /* un terme sur quatre est un entier */
     const d1 = entier && Math.random()<0.5 ? 1 : rand(2,9);
     const d2 = (d1===1) ? rand(2,9) : (entier ? 1 : rand(2,9));
     if(d1===d2) continue;                            /* même dénominateur : plus rien à mettre au même */
+    if(premiers && (d1===1 || d2===1 || sfPgcd(d1,d2)!==1)) continue;
     const n1=rand(1,9), n2=rand(1,9);
     const op = opImpose || (Math.random()<0.5 ? '+' : '−');
     const D=sfPpcm(d1,d2), k1=D/d1, k2=D/d2;
@@ -7221,7 +7229,7 @@ function sfFracInner(numStr,denStr){
   return '<span class="sf-f"><span class="n">'+numStr+'</span><span class="bar"></span>'
         +'<span class="sf-lu">/</span><span class="d">'+denStr+'</span></span>';
 }
-function sfBuildQuestions(){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−')); return qs; }
+function sfBuildQuestions(premiers){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−', premiers)); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
 /* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
    Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions
@@ -7295,6 +7303,11 @@ function renderSFTest(){
        +mf('sf-den','f-den','dénominateur commun')+'</span>'
        +eq+frac('sf-fn','sf-fd')
      +'</div></div>';
+  /* La décoration du croisement — couleurs et flèches — n'existe qu'en Seconde,
+     et ne s'applique qu'à l'exercice qui la demande. La ligne est la même dans
+     les deux fichiers : le moteur reste identique au caractère près, et la
+     Première, qui n'a pas cette fonction, ne s'en aperçoit jamais. */
+  if(test.crd && typeof crdDecorer==='function') crdDecorer(q);
   const order=sfCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkSFAnswer(); } }); });

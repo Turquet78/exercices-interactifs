@@ -495,6 +495,43 @@ sens et toutes les échelles. Le second était un faux sabotage de ma part :
 décaler un nombre d'une unité de son propre rang ne lui fait presque jamais
 changer de zone, et le vert était juste.
 
+**Croiser les dénominateurs, c'est le MÊME moteur avec une image en plus.**
+{croiser-denominateurs} (Seconde) partage tout avec {somme-fractions} — écran,
+correction, chaîne d'égalités — et n'ajoute qu'une chose : il MONTRE d'où vient
+chaque multiplicateur. Chaque dénominateur est coloré, les cases qui prendront
+sa valeur portent son liseré, et deux flèches partent de l'un pour arriver sur
+l'autre en se CROISANT (demande de Turquet, août 2026).
+C'est la règle « deux exercices peuvent partager un moteur, mais pas leur
+identité » : la note passe par `test.qId`, le rappel par `RAPPELS_ID`, les
+questions par `QIA_SUGG_ID` — et `qiaSuggestions()` fait primer l'identifiant
+sur le `kind`, comme la Terminale le fait déjà. Le moteur, lui, ne gagne qu'une
+ligne (`if(test.crd && typeof crdDecorer==='function')`), écrite à l'identique
+dans les deux fichiers : la Première n'a pas cette fonction et ne s'en aperçoit
+jamais.
+**Les dénominateurs sont PREMIERS ENTRE EUX**, et c'est ce qui rend l'exercice
+honnête. Le croisement donne alors exactement le PPCM : la méthode montrée et
+la méthode libre tombent d'accord. Avec 4 et 6, le croisement donnerait 24
+contre 12, et l'élève qui simplifie aurait raison tout en rougissant. On retire
+l'ambiguïté au TIRAGE, jamais à la correction — qui reste celle de
+{somme-fractions} et accepte tout dénominateur commun : les flèches sont un
+appui, pas une contrainte.
+**La couleur ne porte jamais seule.** La consigne dit le croisement en toutes
+lettres et les flèches le montrent : un écran mal réglé, ou un élève qui
+distingue mal les couleurs, doit pouvoir faire l'exercice. Le bleu et l'orange
+sont choisis pour ne pas se confondre avec le vert et le rouge de la
+correction — ni entre eux pour un daltonien, qui confond justement le vert et
+le rouge.
+Les flèches sont posées sur des positions MESURÉES après le rendu, et
+redessinées quand la fenêtre change : un trait posé sur des coordonnées
+supposées se décale au premier changement de police, et personne ne le voit.
+Elles partent du dénominateur écrit DANS la ligne — le « 5 » de « 5 × □ » — et
+non de la fraction de départ, restée loin à gauche : le premier jet traversait
+toute l'égalité et passait sur le « = ».
+Un contrôle du banc navigateur mesure les quatre bords, et le premier est le
+plus sournois : un liseré qui prendrait la couleur de SA PROPRE fraction ferait
+dire au dessin l'inverse de la règle, et l'élève apprendrait le contraire de ce
+qu'on enseigne, sans que rien ne rougisse.
+
 **Deux fractions ne s'additionnent qu'au même dénominateur — et le commun n'est
 pas imposé.** {somme-fractions} vit en Seconde ET en Première, sur un moteur
 unique : le tirage, la pose et la correction sont le même texte dans les deux
