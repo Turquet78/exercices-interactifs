@@ -1653,6 +1653,96 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
+    /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
+       l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui
+       prendront sa valeur portent son liseré, et deux flèches partent de l'un
+       pour arriver sur l'autre en se CROISANT. Ce croisement est toute l'idée.
+       Rien de tout cela ne se lit dans le code : la couleur d'un liseré vient
+       d'une feuille de styles, et une flèche est un chemin posé sur des
+       positions MESURÉES après le rendu. Un banc hors navigateur n'a ni l'une
+       ni l'autre.
+       Quatre bords, et le premier est le plus sournois : si un liseré prenait
+       la couleur de SA PROPRE fraction, le dessin dirait exactement l'inverse
+       de la règle — et l'élève apprendrait le contraire de ce qu'on enseigne,
+       sans que rien ne rougisse. */
+    titre('6 terdecies. CROISER LES DÉNOMINATEURS : LE CROISEMENT SE VOIT');
+    if(!P.croisement){
+      ignorer('les flèches se croisent, et les couleurs disent le croisement',
+        'ce niveau n\'a pas l\'exercice du croisement');
+    } else if(!ml){
+      ignorer('les flèches se croisent, et les couleurs disent le croisement', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.croisement.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1600);
+      const c = await s.page.evaluate(() => {
+        const hote = document.getElementById('sfHost');
+        if(!hote) return { manque: 'l\'écran n\'a pas de sfHost' };
+        const R = hote.getBoundingClientRect();
+        const rangee = hote.querySelector('.pt-row');
+        if(!rangee) return { manque: 'la ligne de calcul est absente' };
+        const coul = e => getComputedStyle(e).color;
+        const blocs = [...rangee.querySelectorAll('.sf-prod')];
+        if(blocs.length < 2) return { manque: 'moins de deux fractions à croiser' };
+        const srcL = b => { const l = b.querySelectorAll('.sf-l');
+          return l.length > 1 ? l[1].querySelector('.f-whole') : null; };
+        if(!srcL(blocs[0]) || !srcL(blocs[1])) return { manque: 'les dénominateurs de la ligne sont introuvables' };
+        const src = blocs.map(b => ({ t: srcL(b).textContent.trim(), c: coul(srcL(b)) }));
+        /* le liseré d'une case : la couleur du box-shadow */
+        const lis = b => [...b.querySelectorAll('.sf-case')]
+          .map(x => (getComputedStyle(x).boxShadow.match(/rgba?\([^)]*\)/) || [''])[0]);
+        const arcs = [...hote.querySelectorAll('[data-crd-arc]')].map(p => {
+          const d = (p.getAttribute('d') || '').match(/M ([\d.]+) ([\d.]+) Q [\d.]+ [\d.]+ ([\d.]+) ([\d.]+)/);
+          return d ? { x0: +d[1], x1: +d[3] } : null;
+        }).filter(Boolean);
+        const cx = e => { const r = e.getBoundingClientRect(); return (r.left + r.right) / 2 - R.left; };
+        return { src: src, lis1: lis(blocs[0]), lis2: lis(blocs[1]), arcs: arcs,
+                 xs: [cx(srcL(blocs[0])), cx(srcL(blocs[1]))], xb: [cx(blocs[0]), cx(blocs[1])],
+                 consigne: (hote.querySelector('.pt-lab') || {}).textContent || '' };
+      });
+      const dits = [];
+      if(c.manque) dits.push(c.manque);
+      else {
+        /* 1. chaque case porte le liseré de L'AUTRE dénominateur */
+        const a = c.src[0].c, b = c.src[1].c;
+        if(a === b) dits.push('les deux dénominateurs ont la même couleur : le croisement ne se voit pas');
+        if(!c.lis1.length || !c.lis1.every(x => x === b))
+          dits.push('les cases de la 1re fraction ne portent pas la couleur du 2e dénominateur');
+        if(!c.lis2.length || !c.lis2.every(x => x === a))
+          dits.push('les cases de la 2de fraction ne portent pas la couleur du 1er dénominateur');
+        /* 2. deux flèches, et elles se croisent : l'une part à droite, l'autre
+              à gauche, et leurs trajets se recouvrent. */
+        if(c.arcs.length !== 2) dits.push(c.arcs.length + ' flèche(s) au lieu de 2');
+        else {
+          const [f, g] = c.arcs;
+          const versDroite = f.x1 > f.x0, versGauche = g.x1 < g.x0;
+          const recouvre = Math.min(f.x1, Math.max(g.x0, g.x1)) > Math.max(f.x0, Math.min(g.x0, g.x1));
+          if(!(versDroite && versGauche && recouvre))
+            dits.push('les deux flèches ne se croisent pas : ' + JSON.stringify(c.arcs));
+          /* et chacune part d'un dénominateur pour arriver sur l'AUTRE bloc */
+          const pres = (u, v) => Math.abs(u - v) < 40;
+          if(!pres(f.x0, c.xs[0]) || !pres(f.x1, c.xb[1]))
+            dits.push('la 1re flèche ne va pas du 1er dénominateur vers la 2de fraction');
+          if(!pres(g.x0, c.xs[1]) || !pres(g.x1, c.xb[0]))
+            dits.push('la 2de flèche ne va pas du 2d dénominateur vers la 1re fraction');
+        }
+        /* 3. et la consigne le dit EN TOUTES LETTRES : la couleur ne porte
+              jamais seule — un écran mal réglé, ou un élève qui distingue mal
+              les couleurs, doit pouvoir faire l'exercice quand même. */
+        if(!/dénominateur de l’AUTRE|dénominateur de l'AUTRE/.test(c.consigne))
+          dits.push('la consigne ne dit pas le croisement en toutes lettres : « ' + c.consigne.slice(0, 60) + ' »');
+      }
+      verifier('les flèches se croisent, et les couleurs disent le croisement',
+        dits.length === 0, dits.slice(0, 2).join(' | '));
+      verifier('l\'écran du croisement ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent

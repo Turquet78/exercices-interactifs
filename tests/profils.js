@@ -81,7 +81,7 @@ const RAPPELS_SECONDE = `(function(){
                'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
-               'placer-intervalle':'plc' };
+               'placer-intervalle':'plc','croiser-denominateurs':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -291,6 +291,11 @@ module.exports = {
        qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
        juge pas à moitié écrite —, puis mesure l'alignement des termes. */
     sommeFractions: { exercice: 'somme-fractions' },
+
+    /* {croiser-denominateurs} : le même moteur que {somme-fractions}, avec les
+       flèches en plus. Le banc navigateur mesure ce que l'élève VOIT — les
+       couleurs, les liserés et le croisement des deux flèches. */
+    croisement: { exercice: 'croiser-denominateurs' },
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */
