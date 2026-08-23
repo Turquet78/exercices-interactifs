@@ -1723,7 +1723,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=77;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=78;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7284,9 +7284,12 @@ function sflEnonceIA(q){
   const fr=(n,d)=>n+'/'+d;
   return 'Exercice de mathématiques de Seconde (France). L’élève doit calculer '
    +fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE.'
-   +' Il écrit son calcul LUI-MÊME, une étape par ligne, dans une feuille de calcul :'
-   +' la première ligne est précédée de « '+fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+' = », les suivantes de « = ».'
-   +' Les lignes sont donc la SUITE d’un seul et même calcul : elles doivent toutes valoir la même chose.'
+   +' Il écrit son calcul LUI-MÊME dans une feuille de calcul. La première ligne contient déjà la somme'
+   +' « '+fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+' », qu’il complète.'
+   +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
+   +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
+   +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = » : « '+fr(q.n1,q.d1)+' '+q.op+' '+fr(q.n2,q.d2)+' = … = … ».'
+   +'\nCe qui compte est la CHAÎNE D’ÉGALITÉS, pas la mise en page : ne refuse JAMAIS une copie au motif qu’elle tient sur une seule ligne, ni parce qu’elle est répartie sur plusieurs.'
    +' Les fractions sont écrites en texte, sous la forme « a/b ».';
 }
 /* La règle de décision. Elle est stricte parce qu'un correcteur qui accepte
@@ -7299,9 +7302,9 @@ function sflAttenduIA(q){
    +q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+', ce qui donne '+q.N+'/'+D+', et se simplifie en '+q.Nr+'/'+q.Dr+' en divisant en haut et en bas par '+g+'.'
    +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
    +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE. Au moins une ligne montre les DEUX fractions portant le MÊME dénominateur — par exemple '+q.N1+'/'+D+' '+q.op+' '+q.N2+'/'+D+'. Une ligne qui montre les multiplications, du genre ('+q.n1+'×k)/('+q.d1+'×k) '+q.op+' ('+q.n2+'×k2)/('+q.d2+'×k2), compte aussi pour cette étape. LE DÉNOMINATEUR COMMUN N’EST PAS IMPOSÉ : tout multiple commun de '+q.d1+' et '+q.d2+' convient — '+(2*D)+' aussi bien que '+D+' — pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler.'
-   +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE ligne non vide vaut '+q.Nr+'/'+q.Dr+' et est écrite sous forme irréductible. S’arrêter sur '+q.N+'/'+D+', ou sur toute autre fraction égale mais réductible, est REFUSÉ : le travail n’est pas terminé.'
-   +'\n3. AUCUNE LIGNE FAUSSE. Chaque ligne écrite doit valoir '+q.Nr+'/'+q.Dr+'. Une seule égalité fausse suffit à refuser, même si la dernière ligne est juste.'
-   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Une ligne qui répète l’énoncé ne compte pas comme une étape.'
+   +'\n2. LE RÉSULTAT FINAL EST SIMPLIFIÉ. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = », que ce soit en fin de ligne ou sur une ligne à part — vaut '+q.Nr+'/'+q.Dr+' et est écrite sous forme irréductible. S’arrêter sur '+q.N+'/'+D+', ou sur toute autre fraction égale mais réductible, est REFUSÉ : le travail n’est pas terminé.'
+   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.Nr+'/'+q.Dr+'. Une seule égalité fausse suffit à refuser, même si le dernier morceau est juste — dis alors LEQUEL est faux.'
+   +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter la somme de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
    +' S’il manque l’étape du même dénominateur : dis-le, et rappelle qu’on n’additionne deux fractions que lorsqu’elles ont le même dénominateur — sans écrire le calcul à sa place.'
@@ -7309,6 +7312,13 @@ function sflAttenduIA(q){
    +' Si une ligne est fausse : dis LAQUELLE et ce qui cloche.'
    +' NE DONNE JAMAIS la fraction '+q.Nr+'/'+q.Dr+' ni le nombre '+g+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
    + LANGUE_SIMPLE;
+}
+/* La somme de l'énoncé, en LaTeX, telle que l'élève l'aurait tapée. Le signe
+   « − » de l'énoncé est le moins TYPOGRAPHIQUE (U+2212) : MathLive attend le
+   moins ordinaire, et un tiret long y serait lu comme un caractère de texte. */
+function sflLatexSomme(q){
+  const t=(n,d)=> (d===1) ? String(n) : ('\\frac{'+n+'}{'+d+'}');
+  return t(q.n1,q.d1)+(q.op==='+'?'+':'-')+t(q.n2,q.d2);
 }
 function renderSFL(){
   const q=test.questions[test.idx]; test.locked=false; test.sflBusy=false;
@@ -7321,27 +7331,39 @@ function renderSFL(){
   $('sflPrompt').innerHTML='Calcule\u00a0'+sfTermeHTML(q.n1,q.d1)+'\u00a0<b>'+q.op+'</b>\u00a0'+sfTermeHTML(q.n2,q.d2)
     +'.<span class="sfl-suite">Donne le résultat sous forme de fraction simplifiée.</span>';
   $('sflHost').innerHTML=
-     '<p class="tvi-instr">Écris ton calcul, une étape par ligne.</p>'
+     '<p class="tvi-instr">Écris ton calcul. Une étape par ligne, ou tout à la suite&nbsp;: comme tu veux.</p>'
     +'<div class="dexp2-sheet" id="sflSheet"></div>'
     +'<p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
     +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '
     +'Il faut écrire l’étape où les deux fractions ont le même dénominateur, puis simplifier le résultat.</p>';
-  /* Le préfixe de la PREMIÈRE ligne porte la somme de l'énoncé, comme
-     « f ′(x) = » en Terminale : les lignes sont la suite d'un seul calcul. */
+  /* LA SOMME EST TAPÉE DANS LE CHAMP, comme si l'élève venait de l'écrire —
+     et il peut donc la modifier (demande de Turquet, août 2026). Posée en
+     PRÉFIXE, elle était hors d'atteinte : l'élève recopiait à côté ce qu'il
+     avait déjà sous les yeux. Il n'y a plus de préfixe sur la première ligne ;
+     les suivantes gardent leur « = », et la chaîne se lit d'un trait. */
   sflFeuille=mlFeuille({ conteneur:'sflSheet', mode:'calcul',
-    prefixes:{ premiere: sfTermeHTML(q.n1,q.d1)+'\u00a0<span class="f-times">'+q.op+'</span>\u00a0'
-                         +sfTermeHTML(q.n2,q.d2)+'\u00a0=', suite:'=' },
-    prefixesTexte:{ premiere: q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2+' =', suite:'=' } });
+    prefixes:{ premiere:'', suite:'=' },
+    prefixesTexte:{ premiere:'', suite:'=' } });
+  /* On retient le point de DÉPART : sans lui, une copie où l'élève n'a rien
+     ajouté partirait au modèle comme si elle était un calcul. */
+  test.sflDepart=sflLatexSomme(q);
+  try{ sflFeuille.lignes[0].mf.setValue(test.sflDepart); }catch(e){}
+  setTimeout(function(){ try{ const m=sflFeuille.lignes[0].mf; m.focus(); m.executeCommand('moveToMathfieldEnd'); }catch(e){} },40);
   $('sflActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkSFL()">Vérifier</button>';
 }
 async function checkSFL(){
   if(test.locked || test.sflBusy) return;
   const q=test.questions[test.idx], fb=$('sflFeedback');
   const rep=(sflFeuille?sflFeuille.lire():'').trim();
-  /* « lire() » rend les préfixes AVEC le calcul : sans un seul chiffre écrit
-     par l'élève, il ne reste que l'énoncé recopié. */
-  const ecrit=rep.split('\n').map(function(L){ return L.replace(/^[^=]*=\s*/,'').trim(); }).join('');
-  if(ecrit.length<1){ fb.textContent='Écris d’abord ton calcul.'; fb.className='mp-feedback bad';
+  /* La première ligne CONTIENT déjà la somme : une copie où l'élève n'a rien
+     ajouté n'est pas un calcul, et il est inutile de la faire lire au modèle.
+     On compare donc à ce qui était écrit au départ, jamais au vide. */
+  let intact=false;
+  try{
+    const l=sflFeuille.lignes;
+    intact = l.length===1 && l[0].mf.getValue().replace(/\s/g,'')===String(test.sflDepart||'').replace(/\s/g,'');
+  }catch(e){}
+  if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite de la somme.'; fb.className='mp-feedback bad';
     if(sflFeuille && sflFeuille.lignes[0]) sflFeuille.lignes[0].mf.focus(); return; }
   test.sflBusy=true;
   $('sflActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';

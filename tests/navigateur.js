@@ -1701,10 +1701,25 @@ async function parcours(page, N){
         renderSFL();
       });
       await s.page.waitForTimeout(900);
-      /* on ÉCRIT dans la première ligne, puis on appuie sur Entrée */
-      await s.page.evaluate(() => sflFeuille.lignes[0].mf.focus());
-      await s.page.waitForTimeout(120);
-      await s.page.keyboard.type('27/6', { delay: 40 });
+      /* LA SOMME EST DÉJÀ TAPÉE DANS LE CHAMP, et l'élève peut la modifier
+         (demande de Turquet, août 2026). On relève donc d'abord ce qui s'y
+         trouve, puis on écrit À LA SUITE — ce qui éprouve du même coup la
+         rédaction EN LIGNE, celle qui enchaîne les « = » sans aller à la
+         ligne : elle doit être acceptée comme l'autre. */
+      const depart = await s.page.evaluate(() => {
+        const m = sflFeuille.lignes[0].mf;
+        return { latex: m.getValue(), attendu: String(test.sflDepart || ''),
+                 modifiable: !m.readOnly,
+                 plain: (window.mlDexp ? window.mlDexp.toPlain(m.getValue()) : '').trim() };
+      });
+      verifier('la somme est écrite dans le champ, et reste modifiable',
+        depart.latex !== '' && depart.latex === depart.attendu && depart.modifiable,
+        'champ : ' + JSON.stringify(depart.latex) + ', attendu ' + JSON.stringify(depart.attendu)
+          + ', modifiable : ' + depart.modifiable);
+      await s.page.evaluate(() => { const m = sflFeuille.lignes[0].mf; m.focus();
+        try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+      await s.page.waitForTimeout(150);
+      await s.page.keyboard.type('=27/6+5/6', { delay: 40 });
       await s.page.keyboard.press('Enter');
       await s.page.waitForTimeout(400);
       await s.page.keyboard.type('16/3', { delay: 40 });
@@ -1736,9 +1751,9 @@ async function parcours(page, N){
       });
       verifier('Entrée ajoute une ligne à la feuille', vu.lignes >= 2,
         vu.lignes + ' ligne(s) après un appui sur Entrée');
-      verifier('la feuille se lit avec ses préfixes, une étape par ligne',
-        /^9\/2 \+ 5\/6 =/.test(vu.lu) && /\n= /.test(vu.lu),
-        'lu : ' + JSON.stringify(vu.lu));
+      verifier('la feuille se lit d\'un trait, la somme comprise',
+        vu.lu.indexOf(depart.plain) === 0 && /\n= /.test(vu.lu) && vu.lu.indexOf('=') > 0,
+        'lu : ' + JSON.stringify(vu.lu) + ' — attendu au début : ' + JSON.stringify(depart.plain));
       verifier('un jeton tombe dans la ligne où l\'élève écrit',
         vu.jetons && vu.jetonLigne === vu.derniere,
         'jetons affichés : ' + vu.jetons + ', inséré dans la ligne ' + vu.jetonLigne
@@ -1752,8 +1767,8 @@ async function parcours(page, N){
         regle: window.__envoye ? (window.__envoye.attendu || '').length : 0,
         score: test.score, note: test.answers[test.answers.length-1].correct,
       }));
-      verifier('la copie de l\'élève part au modèle, préfixes compris',
-        !!juste.envoye && /^9\/2 \+ 5\/6 =/.test(juste.envoye) && juste.regle > 500,
+      verifier('la copie de l\'élève part au modèle, la somme comprise',
+        !!juste.envoye && juste.envoye.indexOf(depart.plain) === 0 && juste.regle > 500,
         'envoyé : ' + JSON.stringify(juste.envoye) + ', règle : ' + juste.regle + ' caractères');
       verifier('un « correct » du modèle donne le point',
         juste.score === 1 && juste.note === true,
