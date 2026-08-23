@@ -2148,8 +2148,13 @@ async function parcours(page, N){
         petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('un signe posé à côté d\'une fraction tombe sur son trait',
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
+      /* Le COMPTE d'abord : la liste était tronquée à quatre, et un cinquième
+         exercice fautif est resté caché derrière les quatre premiers jusqu'à
+         ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
+         fait croire qu'on a fini. */
       verifier('aucune case laissée vide ne rougit à la vérification',
-        videsRouges.length === 0, videsRouges.slice(0, 4).join(' | '));
+        videsRouges.length === 0,
+        videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')

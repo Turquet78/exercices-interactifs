@@ -1723,7 +1723,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=78;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=79;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -1971,6 +1971,27 @@ function mlFeuille(opts){
   F.verrouiller=function(){ F.lignes.forEach(function(L){ try{ L.mf.readOnly=true; }catch(e){} }); };
   F.ajouterLigne();
   return F;
+}
+/* ---- LA CORRECTION D'UNE CASE À CHOISIR, POUR TOUS LES EXERCICES QUI EN ONT
+   PLUSIEURS. Cinq d'entre eux écrivaient leur marquage à la main, à
+   l'identique, et le même défaut s'y était logé : une case laissée VIDE
+   devenait ROUGE, sans recevoir la bonne réponse. Rouge veut dire FAUX ; une
+   case que l'élève n'a pas remplie n'est pas une erreur de calcul.
+   Trouvé en août 2026 par le contrôle universel « aucune case laissée vide ne
+   rougit à la vérification », qui ouvre les quatorze exercices — jamais par
+   une relecture, et sur aucun des exercices que Turquet avait signalés. C'est
+   exactement ce que dit la règle : une règle valable partout doit être tenue
+   par un contrôle qui va partout.
+   En entraînement, la case vide reçoit la réponse en bleu ; en soutien elle
+   reste vide et modifiable, l'élève n'ayant pas fini. */
+function corrChoix(el, val, ok){
+  if(!el) return;
+  el.classList.remove('ok','bad','sol');
+  const vide=String(el.value==null?'':el.value).trim()==='';
+  if(ok) el.classList.add('ok');
+  else if(vide){ if(!isSoutien()){ el.value=val; el.classList.add('sol'); } }
+  else el.classList.add('bad');
+  el.disabled=ok||!isSoutien();
 }
 /* ---- correction : vert / rouge + bonne reponse en bleu / bleu si vide ---- */
 function corrCase(id, val, ok){
@@ -4746,18 +4767,28 @@ function lvReadInt(id){ const el=$(id); if(!el) return null; const v=(el.value||
 function lvCheckPart(q){
   const a=lvAnalyze(q.pts); const subs=[];
   if(q.part==='a'){
-    a.xs.forEach((x,i)=>{ subs.push({id:'lv-a-'+i, ok: lvReadInt('lv-a-'+i)===q.pts[i]}); });
+    a.xs.forEach((x,i)=>{ subs.push({id:'lv-a-'+i, val:q.pts[i], ok: lvReadInt('lv-a-'+i)===q.pts[i]}); });
   } else if(q.part==='b'){
-    a.segments.forEach((s,i)=>{ const el=$('lv-b-'+i); subs.push({id:'lv-b-'+i, ok: !!el && el.value===s.dir}); });
+    a.segments.forEach((s,i)=>{ const el=$('lv-b-'+i); subs.push({id:'lv-b-'+i, val:s.dir, ok: !!el && el.value===s.dir}); });
   } else {
-    a.nodes.forEach((nd,j)=>{ if(j!==0 && j!==a.nodes.length-1){ subs.push({id:'lv-c-x-'+j, ok: lvReadInt('lv-c-x-'+j)===nd.x}); } subs.push({id:'lv-c-val-'+j, ok: lvReadInt('lv-c-val-'+j)===nd.y}); });
-    a.segments.forEach((s,i)=>{ const el=$('lv-c-arr-'+i); const exp=(s.dir==='croissante')?'up':'down'; subs.push({id:'lv-c-arr-'+i, ok: !!el && el.value===exp}); });
+    a.nodes.forEach((nd,j)=>{ if(j!==0 && j!==a.nodes.length-1){ subs.push({id:'lv-c-x-'+j, val:nd.x, ok: lvReadInt('lv-c-x-'+j)===nd.x}); } subs.push({id:'lv-c-val-'+j, val:nd.y, ok: lvReadInt('lv-c-val-'+j)===nd.y}); });
+    a.segments.forEach((s,i)=>{ const el=$('lv-c-arr-'+i); const exp=(s.dir==='croissante')?'up':'down'; subs.push({id:'lv-c-arr-'+i, val:exp, ok: !!el && el.value===exp}); });
   }
   const nCorrect=subs.filter(s=>s.ok).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
 }
+/* Même règle que corrChoix(), et pour la même raison : une case laissée VIDE
+   n'est pas une erreur de calcul. Elle reçoit la réponse en bleu en
+   entraînement, et rien en soutien — où lvLive() faisait déjà le bon geste
+   pendant la frappe, mais où la vérification finale le défaisait. */
 function lvMarkFields(res, final){
-  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return; el.classList.remove('ok','bad'); el.classList.add(s.ok?'ok':'bad'); });
+  res.subs.forEach(s=>{ const el=$(s.id); if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    const vide=String(el.value==null?'':el.value).trim()==='';
+    if(s.ok) el.classList.add('ok');
+    else if(vide){ if(!isSoutien() && s.val!=null){ el.value=String(s.val); el.classList.add('sol'); } }
+    else el.classList.add('bad');
+  });
 }
 /* Mode soutien : contrôle chaque case au fur et à mesure (vert = juste, rouge = faux, rien si vide). */
 function lvLive(){
@@ -6338,7 +6369,7 @@ function checkAppAnswer(live){
   if(live){ appLive(); return; }
   const subs=appCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('appFeedback','appActions','checkAppAnswer','appHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('appLiveScore').textContent=test.score;
@@ -7047,7 +7078,7 @@ function checkPlcAnswer(live){
   if(live){ plcLive(); return; }
   const subs=plcCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('plcFeedback','plcActions','checkPlcAnswer','plcHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('plcLiveScore').textContent=test.score;
@@ -7567,7 +7598,7 @@ function checkEnsAnswer(live){
   if(live){ ensLive(); return; }
   const subs=ENS_SETS_ORDER.map(k=>{ const sel=$('ens-s-'+k); const want=q.sets[k]?'in':'out'; return {k,sel,ok:!!sel&&sel.value===want}; });
   const nCorrect=subs.filter(s=>s.ok).length, allOk=nCorrect===subs.length;
-  subs.forEach(s=>{ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(s=>corrChoix(s.sel, (q.sets[s.k]?'in':'out'), s.ok));
   if(!allOk && isSoutien()){ soutienAgain('ensFeedback','ensActions','checkEnsAnswer','ensHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('ensLiveScore').textContent=test.score;
@@ -7779,7 +7810,7 @@ function checkItvAnswer(live){
   if(live){ itvLive(); return; }
   const subs=itvCases(q).map(c=>{ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(s=>s.ok).length, allOk=nCorrect===subs.length;
-  subs.forEach(s=>{ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(s=>corrChoix(s.sel, s.c.bon, s.ok));
   if(!allOk && isSoutien()){ soutienAgain('itvFeedback','itvActions','checkItvAnswer','itvHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('itvLiveScore').textContent=test.score;
@@ -7928,7 +7959,7 @@ function checkItqAnswer(live){
   if(live){ itqLive(); return; }
   const subs=itqCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  subs.forEach(function(s){ if(!s.sel) return; s.sel.classList.remove('ok','bad'); s.sel.classList.add(s.ok?'ok':'bad'); s.sel.disabled=s.ok||!isSoutien(); });
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   /* le schéma juste se montre : on entoure la carte choisie, et la bonne */
   const cartes=document.querySelectorAll('#itqHost .itq-carte');
   cartes.forEach(function(el,i){ el.classList.remove('ok','bad');
