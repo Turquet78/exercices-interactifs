@@ -1354,6 +1354,56 @@ async function parcours(page, N){
       verifier('la modale s\'ouvre et nomme l\'exercice',
         modale.ouverte && /\S/.test(modale.quoi), JSON.stringify(modale));
 
+      /* ===== la copie d'écran, COLLÉE comme le ferait un élève =====
+         C'est le geste réel : Impr. écran (ou Win+Maj+S), puis Ctrl+V dans la
+         fenêtre. jsdom ne peut pas le voir — il n'a ni presse-papiers, ni
+         canvas, donc ni collage ni réduction d'image. Ce banc-ci a les deux.
+         Deux bords : l'image doit être REÇUE (l'aperçu s'affiche), et elle doit
+         être RÉDUITE avant l'envoi — une capture brute de 2000 px pèse des
+         méga-octets, et le quota du plan gratuit est d'un giga. */
+      const colle = await s.page.evaluate(async () => {
+        /* une « capture d'écran » de 2000×1200, fabriquée sur place */
+        const c = document.createElement('canvas'); c.width = 2000; c.height = 1200;
+        const x = c.getContext('2d');
+        x.fillStyle = '#123456'; x.fillRect(0, 0, 2000, 1200);
+        x.fillStyle = '#fff'; x.font = '90px sans-serif'; x.fillText('2 + 4x + 4', 90, 600);
+        const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+        const f = new File([blob], 'capture.png', { type: 'image/png' });
+        const dt = new DataTransfer(); dt.items.add(f);
+        const ev = new ClipboardEvent('paste', { clipboardData: dt, bubbles: true });
+        window.dispatchEvent(ev);
+        await new Promise(r => setTimeout(r, 700));
+        const vue = document.getElementById('sigApercu');
+        const zone = document.getElementById('sigZone');
+        /* « sigCapture » et non « window.sigCapture » : un let de haut niveau
+           n'atterrit pas sur window, et le contrôle lisait 0 sur une capture
+           parfaitement reçue. */
+        const cap = (typeof sigCapture !== 'undefined' && sigCapture) ? sigCapture : null;
+        let large = 0;
+        if(cap && cap.blob){
+          try{ const bm = await createImageBitmap(cap.blob); large = bm.width; }catch(e){}
+        }
+        return { brut: f.size, reduite: (cap && cap.blob && cap.blob.size) || 0, large: large,
+                 type: (cap && cap.blob && cap.blob.type) || '',
+                 apercu: !!(vue && !vue.hidden && vue.querySelector('img')),
+                 /* le RECTANGLE, pas la propriété : « display:flex » écrit dans
+                    la feuille bat le « display:none » que [hidden] pose depuis
+                    celle du navigateur. La zone restait à l'écran sous l'aperçu
+                    pendant que zone.hidden valait true, et le banc passait au
+                    vert sur un écran faux. */
+                 zoneCachee: !!zone && zone.getBoundingClientRect().height === 0 };
+      });
+      verifier('une copie d\'écran collée est reçue et montrée à l\'élève',
+        colle.apercu && colle.zoneCachee && colle.reduite > 0,
+        'aperçu:' + colle.apercu + ' zone masquée:' + colle.zoneCachee + ' taille:' + colle.reduite);
+      /* La garantie qui compte est la LARGEUR, pas le nombre d'octets : une
+         image de démonstration en aplat se comprime si bien que comparer les
+         poids ne prouverait rien — alors qu'une capture d'un vrai écran, elle,
+         pèse des méga-octets tant qu'on ne l'a pas rétrécie. */
+      verifier('elle est réduite avant l\'envoi (1600 px au plus, en JPEG)',
+        colle.large > 0 && colle.large <= 1600 && /jpeg/.test(colle.type),
+        '2000 px à l\'origine, ' + colle.large + ' px après, type « ' + colle.type + ' »');
+
       /* Un message avec une apostrophe : c'est le piège « O'Brien », qui a déjà
          tué un bouton du professeur en traversant deux analyseurs. */
       await s.page.fill('#sigInput', "ça dit faux alors que j'ai bon");
@@ -1379,6 +1429,23 @@ async function parcours(page, N){
           !!l.contexte && !!l.contexte._boxes && typeof l.version === 'number',
           'boxes/version : ' + JSON.stringify(l.contexte && l.contexte._boxes) + ' / ' + l.version);
       }
+
+      /* et la copie d'écran est réellement PARTIE : un chemin dans la ligne, et
+         un fichier dans le bucket. Le chemin commence par l'identifiant de
+         l'élève — c'est ce que la politique du bucket exige (migration 007) ;
+         un chemin qui cesserait de le porter serait refusé par la base, chez
+         l'élève, sans que rien ne rougisse ici. */
+      const depot = await s.page.evaluate(() => {
+        const ops = window.__faux.operations('upload', 'signalements');
+        return { n: ops.length, chemin: ops.length ? ops[ops.length-1].chemin : '' };
+      });
+      const cheminLigne = (parti.ligne && parti.ligne.capture) || '';
+      verifier('la copie d\'écran est déposée, et son chemin voyage avec le signalement',
+        depot.n === 1 && cheminLigne === depot.chemin && /\//.test(depot.chemin),
+        depot.n + ' dépôt(s), chemin déposé « ' + depot.chemin + ' », chemin écrit « ' + cheminLigne + ' »');
+      verifier('elle est déposée dans le dossier de l\'élève, jamais ailleurs',
+        depot.chemin.indexOf(s.eleve.id + '/') === 0,
+        'chemin « ' + depot.chemin + ' » — attendu sous « ' + s.eleve.id + '/ »');
 
       const aucuneNote = await s.page.evaluate(t => window.__faux.operations('insert', t).length, P.tableResultats);
       verifier('signaler n\'enregistre aucune note', aucuneNote === 0, aucuneNote + ' note(s) écrite(s)');

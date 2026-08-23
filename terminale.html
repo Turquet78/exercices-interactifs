@@ -375,6 +375,26 @@
   .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
   .mp-tag.ok{background:var(--green)}.mp-tag.bad{background:var(--red)}
   .mp-fix{position:absolute;bottom:-15px;left:0;right:0;text-align:center;font-family:"Fredoka";font-weight:600;font-size:.8rem;color:var(--green)}
+  /* La zone de copie d'écran du signalement — facultative, et elle doit en
+     avoir l'air : un pointillé, pas un cadre plein. */
+  /* [hidden] pose « display:none » depuis la feuille du navigateur, et un
+     « display:flex » écrit ici le BAT : la zone restait affichée sous l'aperçu,
+     alors que zone.hidden valait bien true. Le premier banc lisait la propriété
+     et passait au vert sur un écran faux — il mesure le RECTANGLE désormais. */
+  .sig-zone[hidden]{display:none}
+  .sig-zone{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:12px;
+            padding:14px 12px;border:2px dashed var(--line);border-radius:12px;cursor:pointer;
+            background:#FBFAF6;transition:border-color .14s,background .14s}
+  .sig-zone:hover,.sig-zone:focus-visible,.sig-zone.survol{border-color:var(--blue);background:#F3F6FF;outline:none}
+  .sig-zone-ic{font-size:22px;line-height:1}
+  .sig-zone-t{font-weight:700;font-size:.95rem}
+  .sig-zone-d{color:var(--ink-soft);font-size:.82rem;text-align:center}
+  .sig-apercu{margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .sig-apercu img{max-width:100%;max-height:220px;border:1.5px solid var(--line);border-radius:10px}
+  /* Côté professeur : la capture s'affiche DANS la carte, jamais dans un onglet
+     ouvert après une attente — Chrome le bloquerait comme une fenêtre surgissante. */
+  .sig-capture{margin-top:8px}
+  .sig-capture img{max-width:100%;border:1.5px solid var(--line);border-radius:10px;display:block}
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
   .mp-feedback.muted{color:var(--ink-soft)}
@@ -1924,6 +1944,17 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <p class="muted" id="sigQuoi" style="margin:0 0 10px"></p>
     <textarea id="sigInput" rows="4" maxlength="600" placeholder="Qu'est-ce qui ne va pas ? Par exemple : « ça dit faux alors que j'ai bon »."
       style="width:100%;font-family:inherit;font-size:1rem;padding:10px;border:1.5px solid var(--line);border-radius:10px;resize:vertical"></textarea>
+    <!-- La zone est FACULTATIVE, et le texte le dit d'entrée : un signalement
+         sans image part exactement comme avant. Elle est atteignable au clavier
+         (tabindex + Entrée), sinon elle n'existe pas pour qui n'a pas de souris. -->
+    <div class="sig-zone" id="sigZone" tabindex="0" role="button"
+         aria-label="Ajouter une copie d'écran, si tu veux">
+      <span class="sig-zone-ic">🖼️</span>
+      <span class="sig-zone-t">Ajoute une copie d'écran <b>si tu veux</b></span>
+      <span class="sig-zone-d">Colle-la avec Ctrl+V, dépose-la ici, ou clique pour la choisir</span>
+    </div>
+    <input type="file" id="sigFichier" accept="image/*" hidden>
+    <div class="sig-apercu" id="sigApercu" hidden></div>
     <p class="note" style="margin:8px 0 0">Ton professeur recevra aussi l'exercice et ce que tu as écrit dans les cases, pour pouvoir rouvrir ton écran tel quel. Rien d'autre n'est envoyé.</p>
     <div class="row" style="margin-top:14px;gap:8px">
       <button class="btn btn-primary" id="sigSend" onclick="envoyerSignalement()">Envoyer</button>
@@ -1939,7 +1970,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=240;
+const APP_VERSION=241;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3560,6 +3591,7 @@ function ouvrirEspaceSuite(){
    et une image ne se rejoue pas. On envoie l'INSTANTANÉ de l'exercice, celui-là
    même que la mise en pause enregistre : le professeur rouvre l'écran à
    l'identique au lieu de deviner à partir d'une photo. */
+const TABLE_SIG='signalements';   /* la table des signalements de ce niveau */
 let sigEnvoyes={};                  /* un signalement par exercice et par session */
 
 function ouvrirSignalement(){
@@ -3567,12 +3599,122 @@ function ouvrirSignalement(){
   if(sigEnvoyes[currentTestId]){ toast('Tu as déjà signalé cet exercice','err'); return; }
   $('sigQuoi').textContent='Exercice '+testLabel(currentTestId)+'.';
   $('sigInput').value='';
+  sigRetirerCapture();
+  sigBrancherZone();
   $('sigModal').hidden=false;
   setTimeout(()=>{ const e=$('sigInput'); if(e) e.focus(); },50);
 }
-function fermerSignalement(){ const m=$('sigModal'); if(m) m.hidden=true; }
+function fermerSignalement(){ const m=$('sigModal'); if(m) m.hidden=true; sigRetirerCapture(); }
 
-function signalementPayload(message){
+/* ===== LA COPIE D'ÉCRAN JOINTE À UN SIGNALEMENT ==============================
+   PORTÉ À L'IDENTIQUE DANS LES TROIS FICHIERS — un contrôle les compare.
+   Facultative, et c'est le mot qui compte : un signalement sans image part
+   exactement comme avant. L'instantané reste le principal — il REJOUE l'écran,
+   ce qu'une image ne fera jamais. La capture sert là où l'instantané est
+   aveugle : un défaut d'affichage, un écran de téléphone, un dérangement hors
+   de l'exercice.
+   Trois précautions, chacune payée par une panne déjà vue dans ce projet :
+     · l'image est RÉDUITE dans le navigateur avant l'envoi. Une capture brute
+       pèse 1 à 3 Mo ; le quota du plan gratuit est d'un giga-octet, et le
+       réseau d'un lycée n'aime pas les gros envois ;
+     · un envoi qui échoue ne fait PAS perdre le signalement : on le dit, et on
+       envoie le texte seul. Le pire serait qu'un élève qui veut aider reparte
+       les mains vides ;
+     · une image déposée dont l'écriture échoue ensuite est un ORPHELIN :
+       invisible, et décompté du quota. On la retire.
+   Le bucket est privé (migration 007) : c'est l'écran d'un mineur. L'élève n'a
+   même pas le droit de relire ce qu'il vient d'envoyer — le droit qu'on ne
+   donne pas est celui qu'on n'a pas à surveiller. */
+const SIG_BUCKET='signalements';
+const SIG_LARGEUR_MAX=1600;          /* au-delà, on réduit : personne ne lit 4000 px */
+const SIG_TAILLE_MAX=3*1024*1024;    /* la même borne est posée sur le bucket, migration 007 */
+let sigCapture=null;                 /* { blob, url, nom } — l'image prête à partir */
+
+function sigTypeImage(f){
+  return !!f && (/^image\//.test(f.type||'') || /\.(png|jpe?g|webp)$/i.test(f.name||''));
+}
+/* Réduction par canvas : largeur bornée, sortie JPEG. On rend l'ORIGINAL si le
+   navigateur ne sait pas le décoder — mieux vaut une grosse image qu'aucune. */
+function sigReduire(f){
+  return new Promise(function(resolve){
+    if(!(window.createImageBitmap||window.Image)) return resolve(f);
+    const url=URL.createObjectURL(f);
+    const img=new Image();
+    img.onload=function(){
+      try{
+        const k=Math.min(1, SIG_LARGEUR_MAX/(img.naturalWidth||img.width||SIG_LARGEUR_MAX));
+        const w=Math.max(1,Math.round((img.naturalWidth||img.width)*k));
+        const h=Math.max(1,Math.round((img.naturalHeight||img.height)*k));
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);   /* un PNG transparent deviendrait noir en JPEG */
+        ctx.drawImage(img,0,0,w,h);
+        c.toBlob(function(b){ URL.revokeObjectURL(url); resolve(b&&b.size?b:f); },'image/jpeg',0.85);
+      }catch(e){ URL.revokeObjectURL(url); resolve(f); }
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); resolve(f); };
+    img.src=url;
+  });
+}
+async function sigPoser(f){
+  if(!sigTypeImage(f)){ toast('Ce n’est pas une image.','err'); return; }
+  const zone=$('sigZone'); if(zone) zone.classList.add('occupe');
+  const b=await sigReduire(f);
+  if(b.size>SIG_TAILLE_MAX){
+    if(zone) zone.classList.remove('occupe');
+    toast('Cette image est trop lourde, même réduite.','err'); return;
+  }
+  sigRetirerCapture(true);
+  sigCapture={ blob:b, url:URL.createObjectURL(b), nom:(f.name||'copie-ecran') };
+  const vue=$('sigApercu');
+  if(vue){ vue.innerHTML='<img src="'+sigCapture.url+'" alt="copie d’écran">'
+    +'<button type="button" class="btn-link" onclick="sigRetirerCapture()">Retirer</button>';
+    vue.hidden=false; }
+  if(zone) zone.hidden=true;
+}
+function sigRetirerCapture(silencieux){
+  if(sigCapture&&sigCapture.url){ try{ URL.revokeObjectURL(sigCapture.url); }catch(e){} }
+  sigCapture=null;
+  const vue=$('sigApercu'); if(vue){ vue.hidden=true; vue.innerHTML=''; }
+  const zone=$('sigZone'); if(zone){ zone.hidden=false; zone.classList.remove('occupe','survol'); }
+  if(!silencieux){ const c=$('sigFichier'); if(c) c.value=''; }
+}
+/* Trois gestes, parce qu'un seul en laisserait la moitié dehors : COLLER (le
+   réflexe après Impr. écran ou Win+Maj+S), DÉPOSER un fichier, et CLIQUER pour
+   choisir — sur tablette, ce dernier ouvre la galerie ou l'appareil photo. */
+function sigBrancherZone(){
+  const zone=$('sigZone'); if(!zone||zone.dataset.branche) return;
+  zone.dataset.branche='1';
+  zone.addEventListener('click',function(){ const c=$('sigFichier'); if(c) c.click(); });
+  zone.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); const c=$('sigFichier'); if(c) c.click(); } });
+  const c=$('sigFichier');
+  if(c) c.addEventListener('change',function(){ if(c.files&&c.files[0]) sigPoser(c.files[0]); });
+  ['dragenter','dragover'].forEach(function(n){ zone.addEventListener(n,function(e){
+    e.preventDefault(); zone.classList.add('survol'); }); });
+  ['dragleave','drop'].forEach(function(n){ zone.addEventListener(n,function(e){
+    e.preventDefault(); zone.classList.remove('survol'); }); });
+  zone.addEventListener('drop',function(e){
+    const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) sigPoser(f); });
+  /* Le collage s'écoute sur la FENÊTRE : au moment du Ctrl+V, le curseur est
+     dans le champ de texte, pas sur la zone — un écouteur posé sur la zone ne
+     recevrait jamais rien. On ne prend la main que si la fenêtre est ouverte. */
+  window.addEventListener('paste',function(e){
+    const m=$('sigModal'); if(!m||m.hidden) return;
+    const it=(e.clipboardData&&e.clipboardData.items)||[];
+    for(let i=0;i<it.length;i++){
+      if(it[i].kind==='file'&&/^image\//.test(it[i].type||'')){
+        const f=it[i].getAsFile(); if(f){ e.preventDefault(); sigPoser(f); return; }
+      }
+    }
+  });
+}
+function sigChemin(){
+  const id=String((currentEleve&&currentEleve.id)||'inconnu');
+  return id+'/'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+}
+
+function signalementPayload(message, chemin){
   let contexte=null;
   try{ contexte=Object.assign({}, snapshotTest(), {_boxes:captureBoxes()}); }catch(e){ contexte={erreur:'instantané indisponible'}; }
   return {
@@ -3583,7 +3725,8 @@ function signalementPayload(message){
     message:message,
     contexte:contexte,
     version:APP_VERSION,
-    navigateur:(navigator.userAgent||'').slice(0,300)
+    navigateur:(navigator.userAgent||'').slice(0,300),
+    capture:chemin||null
   };
 }
 async function envoyerSignalement(){
@@ -3592,13 +3735,37 @@ async function envoyerSignalement(){
   if(message.length<5){ toast('Explique en quelques mots ce qui ne va pas','err'); return; }
   const bouton=$('sigSend'); if(bouton) bouton.disabled=true;
   try{
+    /* La capture part D'ABORD, s'il y en a une. Un envoi qui échoue ne fait pas
+       perdre le signalement : on le dit, et le texte part seul — le pire serait
+       qu'un élève qui veut aider reparte les mains vides. */
+    let chemin=null, imagePerdue=false;
+    if(sigCapture&&sigCapture.blob){
+      chemin=sigChemin();
+      let err=null;
+      try{ const r=await sb.storage.from(SIG_BUCKET)
+             .upload(chemin, sigCapture.blob, {contentType:'image/jpeg', upsert:false});
+           err=r.error; }catch(e){ err=e; }
+      if(err){ chemin=null; imagePerdue=true; }
+    }
     /* insert SEC : la politique de lecture est réservée au professeur, et
        demander la ligne en retour ferait échouer l'écriture elle-même. */
-    const {error}=await sb.from('signalements').insert(signalementPayload(message));
-    if(error){ toast('Signalement non envoyé : '+(error.message||'erreur'),'err'); return; }
+    const {error}=await sb.from(TABLE_SIG).insert(signalementPayload(message, chemin));
+    if(error){
+      /* L'image est en ligne mais plus rien ne la désigne : invisible, et
+         décomptée du quota. On la retire — et si ce retrait échoue à son tour,
+         on le DIT, plutôt que de laisser un fantôme sans témoin. */
+      let menage=null;
+      if(chemin){
+        try{ const r=await sb.storage.from(SIG_BUCKET).remove([chemin]); menage=r.error; }catch(e2){ menage=e2; }
+      }
+      toast(menage ? 'Signalement non envoyé, et la copie d’écran n’a pas pu être retirée.'
+                   : 'Signalement non envoyé : '+(error.message||'erreur'),'err');
+      return;
+    }
     sigEnvoyes[currentTestId]=true;
     fermerSignalement();
-    toast('Merci ! Ton professeur a reçu le signalement','ok');
+    toast(imagePerdue ? 'Signalement envoyé, mais la copie d’écran n’est pas passée'
+                      : 'Merci ! Ton professeur a reçu le signalement', imagePerdue?'err':'ok');
   }catch(e){ toast('Signalement non envoyé (connexion)','err'); }
   finally{ if(bouton) bouton.disabled=false; }
 }
@@ -3614,7 +3781,7 @@ async function chargerSignalements(){
        élèves, et une jointure imbriquée dépendrait du nom que PostgREST donne
        à la relation — un détail qui se renomme sans prévenir. */
     const [sig, eleves] = await Promise.all([
-      sb.from('signalements').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from(TABLE_SIG).select('*').order('created_at',{ascending:false}).limit(200),
       sb.from('eleves').select('id,prenom')
     ]);
     if(sig.error){ hote.innerHTML='<p class="muted">Signalements non chargés : '+esc(sig.error.message||'erreur')+'</p>'; return; }
@@ -3652,9 +3819,11 @@ function renderSignalements(){
       <div class="sig-meta">${esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
       <div class="sig-actions">
         <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l’écran</button>
+        ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d\u2019\u00e9cran</button>`:''}
         ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
       </div>
+      <div class="sig-capture" id="sigCap-${escJS(r.id)}"></div>
     </div>`;
   }).join('');
 }
@@ -3673,17 +3842,46 @@ function navigateurCourt(ua){
 
 async function marquerSignalementLu(id){
   try{
-    const {error}=await sb.from('signalements').update({lu:true}).eq('id',id);
+    const {error}=await sb.from(TABLE_SIG).update({lu:true}).eq('id',id);
     if(error){ toast('Non enregistré : '+(error.message||'erreur'),'err'); return; }
     const r=mesSignalements.find(x=>x.id===id); if(r) r.lu=true;
     renderSignalements();
   }catch(e){ toast('Non enregistré (connexion)','err'); }
 }
 
+
+/* La capture s'affiche DANS la carte, pas dans un onglet : window.open() appelé
+   APRÈS une attente est bloqué par Chrome comme une fenêtre surgissante — c'est
+   le piège qui avait déjà mordu sur les cours en PDF. Ici il n'y a pas d'onglet
+   à ouvrir, donc pas de piège. Le bucket est privé : l'adresse est SIGNÉE, et
+   ne vaut qu'une heure. */
+async function voirCaptureSignalement(id){
+  const r=mesSignalements.find(x=>x.id===id); if(!r||!r.capture) return;
+  const hote=$('sigCap-'+id); if(!hote) return;
+  if(hote.dataset.ouvert==='1'){ hote.innerHTML=''; hote.dataset.ouvert=''; return; }
+  hote.innerHTML='<p class="muted">Ouverture\u2026</p>'; hote.dataset.ouvert='1';
+  let url='', err=null;
+  try{ const s=await sb.storage.from(SIG_BUCKET).createSignedUrl(r.capture,3600);
+       err=s.error; url=(s.data&&s.data.signedUrl)||''; }catch(e){ err=e; }
+  if(err||!url){ hote.innerHTML='<p class="muted">Cette copie d\u2019\u00e9cran n\u2019a pas pu \u00eatre ouverte.</p>'; return; }
+  hote.innerHTML='<img src="'+esc(url)+'" alt="copie d\u2019\u00e9cran de l\u2019\u00e9l\u00e8ve">';
+}
 async function supprimerSignalement(id){
   if(!confirm('Supprimer ce signalement ?')) return;
+  /* La capture part AVEC lui : gardée, elle serait invisible et décomptée du
+     quota. Et le refus muet s'applique ici comme aux cours — remove() rend une
+     liste VIDE quand les droits manquent, sans lever la moindre erreur. On la
+     compte, plutôt que d'annoncer une suppression qui n'a pas eu lieu. */
+  const r=mesSignalements.find(x=>x.id===id);
+  if(r&&r.capture){
+    let err=null, sup=null;
+    try{ const s=await sb.storage.from(SIG_BUCKET).remove([r.capture]); err=s.error; sup=s.data; }catch(e){ err=e; }
+    if(err){ toast('Suppression impossible : '+((err&&err.message)||'erreur'),'err'); return; }
+    if(!Array.isArray(sup)||sup.length===0){
+      toast('La copie d\u2019\u00e9cran n\u2019a pas \u00e9t\u00e9 supprim\u00e9e : droits refus\u00e9s. Rien n\u2019a chang\u00e9.','err'); return; }
+  }
   try{
-    const {error}=await sb.from('signalements').delete().eq('id',id);
+    const {error}=await sb.from(TABLE_SIG).delete().eq('id',id);
     if(error){ toast('Non supprimé : '+(error.message||'erreur'),'err'); return; }
     mesSignalements=mesSignalements.filter(x=>x.id!==id);
     renderSignalements();
