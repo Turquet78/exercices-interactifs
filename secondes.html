@@ -6600,8 +6600,19 @@ function checkSFAnswer(live){
     corTrainDec('sf-a2',q.k2); corTrainDec('sf-b2',q.k2);
     corTrainDec('sf-num1',q.N1); corTrainDec('sf-num2',q.N2); corTrainDec('sf-den',q.D);
     if(test.simp){
-      corTrainDec('sf-sn',q.N); corTrainDec('sf-sd',q.D);
-      corTrainDec('sf-q1',q.D/q.Dr); corTrainDec('sf-q2',q.D/q.Dr);
+      /* LA CORRECTION EN BLEU SUIT LA ROUTE DE L'ÉLÈVE, sinon elle contredit
+         le message posé juste en dessous. Sur « 9/2 + 5/6 » passé par 12,
+         l'élève obtient 64/12 et doit diviser par 4 : un badge qui aurait
+         affiché 2 — le diviseur de la voie du PPCM — aurait dit l'inverse de
+         la phrase « le plus grand qui va dans les deux : ici 4 », sur le même
+         écran. Ça ne s'est vu qu'en regardant une capture.
+         On ne suit sa route que si elle TIENT (étape ② juste) ; sinon on
+         revient à la voie de référence, celle du PPCM. */
+      const suivie = r.ok3 && r.Ns>0 && r.Dc>0 && r.g>1;
+      corTrainDec('sf-sn', suivie ? r.Ns : q.N);
+      corTrainDec('sf-sd', suivie ? r.Dc : q.D);
+      corTrainDec('sf-q1', suivie ? r.g : q.D/q.Dr);
+      corTrainDec('sf-q2', suivie ? r.g : q.D/q.Dr);
       corTrainFrac('sf-fn','sf-fd',q.Nr,q.Dr);
     } else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
   }

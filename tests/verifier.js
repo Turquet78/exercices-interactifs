@@ -3146,6 +3146,16 @@ function simplifierFractions(w, P){
     if(!note || note.justes!==9) vus.push('la copie qui divise par 2 au lieu de 4 compte '+(note?note.justes:'?')+' cases justes, au lieu de 9');
     der=test.answers[test.answers.length-1];
     if(der && der.correct) vus.push('une fraction non simplifiée vaut quand même le point');
+    /* ET LA CORRECTION EN BLEU DOIT DIRE LA MÊME CHOSE QUE LE MESSAGE. Sur
+       cette copie, passée par 12, le diviseur attendu est 4 : un badge affichant
+       2 — le diviseur de la voie du PPCM — contredirait, sur le même écran, la
+       phrase posée juste en dessous. Rien ne casserait, et l'élève ne saurait
+       pas laquelle des deux croire. */
+    const badge=function(id){ const el=document.getElementById(id); const s=el&&el.nextElementSibling;
+      return (s&&s.classList&&s.classList.contains('mf-cor')) ? s.textContent.trim() : ''; };
+    if(badge('sf-q1')!=='4') vus.push('la correction en bleu du diviseur annonce « '+badge('sf-q1')+' » alors que la route de l\\'élève (12) demande 4');
+    const dit=document.getElementById('sfFeedback').textContent;
+    if(dit.indexOf('4')<0) vus.push('le message ne nomme pas le diviseur 4');
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);
