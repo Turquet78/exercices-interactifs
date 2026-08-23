@@ -739,6 +739,33 @@ second bord, « toujours vrai » passerait —, deux paires divergentes restent
 fausses toutes les deux, l'étape ② ne suit pas une étape ① qui dit autre chose,
 et les cases vides se voient.
 
+**Et une TROISIÈME fois, un cran à côté : la paire juste qui paie pour sa
+voisine.** Signalé par Turquet en août 2026 sur une capture de « 8/5 − 1/8 » :
+l'élève écrit ×1 sous la première fraction et ×5 sous la seconde, et les QUATRE
+cases rougissent. Or ×5 est JUSTE — 8 × 5 = 40 est un multiple de 5, la paire
+mène à un dénominateur commun parfaitement valable ; seule la paire ×1 n'aboutit
+à rien, 5 n'étant pas un multiple de 8.
+Les deux corrections précédentes n'avaient ouvert que le cas où l'autre paire est
+**vide** : dès qu'elle était remplie ET fausse, `memeD` reprenait la main et
+redemandait l'accord des deux. **Une case juste ne rougit pas parce qu'une autre
+est fausse, pas plus que parce qu'une autre est vide** — c'est la même règle, et
+elle vaut à tous les degrés de remplissage, pas seulement au vide.
+Chaque paire se juge donc sur ce qu'elle PROMET, que sa voisine soit vide,
+juste ou fausse. **L'accord entre les deux n'est exigé que lorsque les deux
+mènent quelque part**, et ce second bord compte autant que le premier : ×8 d'un
+côté (40) et ×10 de l'autre (80) sont chacune défendables et ne se rejoignent
+pas — les déclarer justes dirait à l'élève que sa mise au même dénominateur est
+faite alors qu'elle ne l'est pas. Sans ce bord, « toujours vrai » passerait, et
+un sabotage l'a vérifié.
+**Le message aussi a gagné une moitié.** Devant une copie où une paire est juste
+et l'autre non, « il faut le MÊME dénominateur des deux côtés » est vrai mais
+aveugle : l'élève ne sait pas laquelle reprendre, et peut croire qu'il doit tout
+refaire alors que la moitié de son écran est verte. Il nomme donc la paire à
+reprendre et le dénominateur à viser. Le premier essai du contrôle mesurait
+autre chose : une case VIDE passe avant tout le reste dans le message — « il
+manque des cases », et c'est la bonne priorité —, si bien qu'il faut une copie
+ENTIÈREMENT remplie pour éprouver cette phrase-là.
+
 **Et le même défaut vivait une couche plus bas : DANS la paire.** Corrigé le
 matin entre les deux fractions, il a été resignalé l'après-midi : sur
 « 1/5 − 1/8 », l'élève écrit 8 dans la case du HAUT, laisse sa jumelle vide,
