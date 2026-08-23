@@ -81,7 +81,7 @@ const RAPPELS_SECONDE = `(function(){
                'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
-               'placer-intervalle':'plc','croiser-denominateurs':'sf' };
+               'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -273,9 +273,14 @@ module.exports = {
        coupée. Le pourcentage n'en a qu'un ; augmenter et diminuer en ont
        deux — le coefficient est une autre égalité — plus la pose
        facultative, qui reste cachée tant que l'élève n'a rien écrit. */
-    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions'],
+    /* {simplifier-fractions} est la chaîne la PLUS LONGUE de l'application :
+       six égalités sur une seule rangée, dont deux blocs de division. C'est
+       exactement là qu'un repli se produirait, et aucun banc hors navigateur
+       ne sait où un contenu se replie. */
+    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
-                              ['diminuer-pourcentage', 2], ['somme-fractions', 1]] },
+                              ['diminuer-pourcentage', 2], ['somme-fractions', 1],
+                              ['simplifier-fractions', 1]] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case

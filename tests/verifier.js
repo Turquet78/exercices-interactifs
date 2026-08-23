@@ -1265,6 +1265,47 @@ function branchements(w){
       false, 'terminale.html est introuvable');
   }
 
+  /* ---- LE MOTEUR DES FRACTIONS EST LE MÊME TEXTE DANS LES DEUX NIVEAUX ----
+     {somme-fractions} vit en Seconde ET en Première, et {croiser-denominateurs}
+     comme {simplifier-fractions} tournent dessus. Une moitié recopiée aurait
+     donné deux exercices qui se contredisent le jour où l'un des deux change de
+     convention — et ce jour est venu trois fois en une seule journée d'août
+     2026, la correction ayant été reprise à trois reprises à la main dans les
+     DEUX fichiers. Rien ne comparait ces deux copies : le contrôle qui existait
+     ne regardait que le moteur d'écritures mathématiques.
+     DEUX FONCTIONS DIVERGENT VOLONTAIREMENT, et elles sont nommées ici plutôt
+     que tues : sfBoutonsAide() — la Seconde pose sa rangée elle-même, la
+     Première la fait poser par iaBoutons() — et sfCtxTexte(), qui porte les
+     phrases des exercices propres à la Seconde. Les nommer est ce qui empêche
+     la liste de se vider en silence. */
+  const MOTEUR_SF = ['sfPgcd','sfPpcm','sfGen','sfBuildQuestions','sfTermeHTML','sfCases',
+                     'renderSFTest','sfLu','sfJuge','sfLive','checkSFAnswer','sfPourquoi',
+                     'nextSFQuestion','sfFracInner'];
+  if(src.indexOf('function sfJuge') >= 0){
+    let jumeau;
+    const autre = CIBLE.indexOf('secondes') >= 0 ? 'premiere-specifique.html' : 'secondes.html';
+    try{ jumeau = fs.readFileSync(path.join(__dirname, '..', autre), 'utf8'); }
+    catch(e){ jumeau = undefined; }
+    if(!jumeau){
+      verifier('le moteur des fractions est identique dans les deux niveaux', false,
+        autre + ' est introuvable');
+    } else {
+      const absentes = MOTEUR_SF.filter(n => corpsDe(src, n) === null || corpsDe(jumeau, n) === null);
+      if(absentes.length){
+        verifier('le moteur des fractions est identique dans les deux niveaux', false,
+          'introuvable(s) : ' + absentes.join(', '));
+      } else {
+        const divergent = MOTEUR_SF.filter(n => corpsDe(src, n) !== corpsDe(jumeau, n));
+        verifier('le moteur des fractions est identique dans les deux niveaux',
+          divergent.length === 0,
+          divergent.length ? 'diverge de ' + autre + ' sur : ' + divergent.join(', ') : undefined);
+      }
+    }
+  } else {
+    ignorer('le moteur des fractions est identique dans les deux niveaux',
+      'ce niveau n’a pas l’exercice de somme de fractions');
+  }
+
   /* La réponse du modèle ne doit JAMAIS être posée en texte. On cherche les
      endroits qui affichent d.feedback : chacun doit passer par conseilHTML(). */
   const sinks = [...src.matchAll(/[^\n]*\bd\.feedback\b[^\n]*/g)]
@@ -2162,6 +2203,7 @@ function exercices(suite){
     })()`, v => v === '', undefined);
 
     sommeFractions(w, P);
+    simplifierFractions(w, P);
     placerSurLaDroite(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
@@ -2950,6 +2992,160 @@ function sommeFractions(w, P){
     const note4=ptsEcran();
     if(!note4 || note4.cases!==9 || note4.justes!==1)
       vus.push('la note annonce ' + (note4?note4.justes+' sur '+note4.cases:'rien') + ' alors qu\\'une seule case est juste sur neuf');
+
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 4 quater bis. Une somme de fractions À SIMPLIFIER --------------
+   Le troisième exercice du moteur « sf ». Il ne change que deux choses au
+   tirage — des dénominateurs qui PARTAGENT un diviseur, et une somme qui se
+   simplifie — et ajoute deux étapes : diviser en haut et en bas par le même
+   nombre, puis écrire la fraction réduite.
+
+   TOUT LE RISQUE EST DANS LE TIRAGE ET DANS LA PROMESSE.
+
+   · SI LA SOMME NE SE SIMPLIFIE PAS, l'exercice n'a plus de sujet : sa
+     dernière étape demande de diviser par un nombre qui n'existe pas. Deux
+     dénominateurs qui partagent un diviseur NE SUFFISENT PAS — 1/6 + 1/4 ont
+     bien 2 en commun et donnent 5/12, irréductible. Les deux conditions sont
+     indépendantes, et n'en tenir qu'une ne tient rien.
+   · LE DÉNOMINATEUR COMMUN RESTE LIBRE, comme dans {somme-fractions}. Qui
+     prend 12 au lieu de 6 divise ensuite par 4 au lieu de 2 et retombe au même
+     endroit. Compter faux cette route punirait une méthode juste.
+   · LE DIVISEUR N'EST PAS RANGÉ À CÔTÉ DE LA QUESTION : il dépend de la route,
+     donc il est calculé sur ce que l'élève a écrit. Seul le résultat réduit ne
+     bouge pas.
+   · DIVISER PAR TROP PEU N'EST PAS FINI, et doit rougir : sans quoi l'exercice
+     accepterait 32/6 comme « simplifié ».
+
+   On EXERCE la vraie correction, en posant des valeurs dans les vraies cases. */
+function simplifierFractions(w, P){
+  const present = evaluer(w, "typeof startSFSimp==='function' && typeof sfGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la somme de fractions à simplifier accepte toutes les routes et exige d\'aller au bout',
+      'ce niveau n\'a pas l\'exercice « Somme de fractions à simplifier »');
+    return;
+  }
+  verifierEval(w, 'la somme de fractions à simplifier accepte toutes les routes et exige d\'aller au bout', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='simplifier-fractions';
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+
+    /* ---- 1. le tirage ---------------------------------------------------- */
+    let plus=0, moins=0;
+    for(let i=0;i<3000;i++){
+      const q=sfGen(i%2===0?'+':'−','simplifier');
+      const eti='tirage '+q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2;
+      const g=(q.op==='+') ? (q.n1*q.d2 + q.n2*q.d1) : (q.n1*q.d2 - q.n2*q.d1);
+      const h=q.d1*q.d2;
+      if(g*q.D !== q.N*h){ vus.push(eti+' : l\\'énoncé annonce '+q.N+'/'+q.D+', le calcul donne '+g+'/'+h); break; }
+      if(q.d1===1 || q.d2===1){ vus.push(eti+' : un terme est un ENTIER, l\\'écran en porte déjà quatre étapes'); break; }
+      if(q.d1===q.d2){ vus.push(eti+' : les deux dénominateurs sont déjà égaux'); break; }
+      if(pgcd(q.d1,q.d2)===1){ vus.push(eti+' : les deux dénominateurs n\\'ont aucun diviseur commun — c\\'est l\\'autre exercice'); break; }
+      /* LE BORD QUI COMPTE : la somme doit vraiment se simplifier. */
+      if(pgcd(q.N,q.D)===1){ vus.push(eti+' : '+q.N+'/'+q.D+' est déjà irréductible — la dernière étape n\\'a rien à diviser'); break; }
+      if(q.Nr!==q.N/pgcd(q.N,q.D) || q.Dr!==q.D/pgcd(q.N,q.D)){ vus.push(eti+' : le résultat réduit rangé ('+q.Nr+'/'+q.Dr+') n\\'est pas celui de '+q.N+'/'+q.D); break; }
+      if(q.Nr===q.Dr){ vus.push(eti+' : le résultat vaut 1 tout rond'); break; }
+      if(q.N<=0){ vus.push(eti+' : le résultat vaut '+q.N+'/'+q.D); break; }
+      if(pgcd(q.n1,q.d1)!==1 || pgcd(q.n2,q.d2)!==1){ vus.push(eti+' : une fraction de départ est réductible'); break; }
+      if(q.op==='+') plus++; else moins++;
+    }
+    if(!vus.length && (!plus || !moins)) vus.push('une seule opération tirée (+ : '+plus+', − : '+moins+')');
+
+    /* ---- 2. la correction, exercée pour de vrai -------------------------- */
+    startSFSimp();
+    const poser=function(vals){
+      sfCases().forEach(function(id){ const el=document.getElementById(id); if(el) el.value=''; });
+      Object.keys(vals).forEach(function(id){
+        const el=document.getElementById(id); if(el) el.value=String(vals[id]);
+      });
+    };
+    /* 9/2 + 5/6 : PPCM 6, somme 32/6, réduite 16/3. Par 12 : 64/12, divisé
+       par 4, même résultat. */
+    test.questions[test.idx]={n1:9,d1:2,n2:5,d2:6,op:'+',D:6,k1:3,k2:1,N1:27,N2:5,N:32,Nr:16,Dr:3};
+    renderSFTest();
+    const q=test.questions[test.idx];
+    const tout=function(r){ return r.ok1&&r.ok2&&r.ok3&&r.okS&&r.okQ&&r.ok4; };
+    const juger=function(vals){ poser(vals); return sfJuge(q); };
+    const PPCM={'sf-a1':3,'sf-b1':3,'sf-a2':1,'sf-b2':1,'sf-num1':27,'sf-num2':5,'sf-den':6,
+                'sf-sn':32,'sf-q1':2,'sf-sd':6,'sf-q2':2,'sf-fn':16,'sf-fd':3};
+    const DOUZE={'sf-a1':6,'sf-b1':6,'sf-a2':2,'sf-b2':2,'sf-num1':54,'sf-num2':10,'sf-den':12,
+                 'sf-sn':64,'sf-q1':4,'sf-sd':12,'sf-q2':4,'sf-fn':16,'sf-fd':3};
+    const avec=function(base,o){ const c=Object.assign({},base); Object.keys(o).forEach(function(k){ c[k]=o[k]; }); return c; };
+
+    let r=juger(PPCM);
+    if(!tout(r)) vus.push('la voie du PPCM (32/6 divisé par 2 = 16/3) est comptée fausse : '+JSON.stringify(r));
+    /* LA PROMESSE : une autre route, un autre diviseur, le même résultat. */
+    r=juger(DOUZE);
+    if(!tout(r)) vus.push('le dénominateur commun 12 (64/12 divisé par 4 = 16/3) est compté faux : l\\'exercice impose le PPCM');
+
+    /* diviser par trop peu n'est pas fini */
+    r=juger(avec(DOUZE,{'sf-q1':2,'sf-q2':2,'sf-fn':32,'sf-fd':6}));
+    if(r.okQ) vus.push('diviser 64/12 par 2 est accepté : 32/6 se simplifie encore');
+    if(r.ok4) vus.push('32/6 est accepté comme fraction simplifiée de 16/3');
+    /* diviser par 1 n'est pas simplifier */
+    r=juger(avec(PPCM,{'sf-q1':1,'sf-q2':1,'sf-fn':32,'sf-fd':6}));
+    if(r.okQ) vus.push('diviser par 1 est accepté comme une simplification');
+    /* pas le même diviseur en haut et en bas : la fraction change de valeur */
+    r=juger(avec(PPCM,{'sf-q1':2,'sf-q2':1}));
+    if(r.okQ) vus.push('diviser le haut par 2 et le bas par 1 est accepté');
+    /* la fraction recopiée doit être celle qu'on vient d'obtenir */
+    r=juger(avec(PPCM,{'sf-sn':30}));
+    if(r.okS) vus.push('30 est accepté comme somme alors que 27 + 5 = 32');
+    r=juger(avec(PPCM,{'sf-sd':12}));
+    if(r.okS) vus.push('12 est accepté comme dénominateur obtenu alors que l\\'élève a écrit 6 à l\\'étape ②');
+    /* la dernière étape veut la fraction RÉDUITE, elle seule */
+    r=juger(avec(PPCM,{'sf-fn':32,'sf-fd':6}));
+    if(r.ok4) vus.push('32/6 passe à la dernière étape : elle vaut 16/3, mais elle n\\'est pas simplifiée');
+
+    /* ---- 3. les cases écrites seules, comme partout ailleurs ------------- */
+    const rien={}; sfCases().forEach(function(id){ rien[id]=''; });
+    const seul=function(o){ return juger(avec(rien,o)); };
+    r=seul({'sf-q1':2});
+    if(!r.okQ) vus.push('2 écrit seul comme diviseur est compté faux : les cases d\\'avant étaient vides');
+    r=seul({'sf-q1':5});
+    if(r.okQ) vus.push('5 écrit seul comme diviseur est accepté : 5 ne divise ni 32 ni 6');
+    r=seul({'sf-fn':16});
+    if(!r.ok4) vus.push('16 écrit seul au numérateur final est compté faux');
+    r=seul({'sf-fd':3});
+    if(!r.ok4) vus.push('3 écrit seul au dénominateur final est compté faux');
+    r=seul({'sf-fd':6});
+    if(r.ok4) vus.push('6 est accepté au dénominateur final : la fraction réduite est 16/3');
+    /* et une demi-copie ne vaut pas le point entier */
+    r=seul({'sf-a1':3,'sf-sn':32,'sf-fn':16});
+    if(!r.vide) vus.push('une demi-copie passe pour complète');
+    /* LES QUATRE CASES NOUVELLES COMPTENT COMME LES AUTRES. Si sfCases() les
+       ignorait, une copie à qui il manque le diviseur passerait pour complète
+       et vaudrait le point entier — et rien d'autre ne le dirait : la
+       coloration, elle, les marque bien. */
+    ['sf-sn','sf-q1','sf-sd','sf-q2'].forEach(function(id){
+      const c=Object.assign({},PPCM); c[id]='';
+      poser(c);
+      const rr=sfJuge(q);
+      if(!rr.vide) vus.push(id+' laissée vide ne se voit pas : la copie passe pour complète');
+      renderSFTest(); poser(c); checkSFAnswer();
+      const d=test.answers[test.answers.length-1];
+      if(d && d.correct) vus.push('une copie sans '+id+' vaut quand même le point entier');
+    });
+    renderSFTest();
+
+    /* ---- 4. le clic, et la note qui en sort ------------------------------ */
+    renderSFTest();
+    poser(PPCM); checkSFAnswer();
+    let note=ptsEcran();
+    if(!note || note.cases!==13) vus.push('la note ne compte pas les treize cases ('+(note?note.cases:'aucune')+')');
+    else if(note.justes!==13) vus.push('une copie entièrement juste compte '+note.justes+' cases justes sur 13');
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('une copie entièrement juste ne vaut pas le point');
+    /* et la copie qui s'arrête à mi-simplification garde ses cases justes */
+    renderSFTest();
+    poser(avec(DOUZE,{'sf-q1':2,'sf-q2':2,'sf-fn':32,'sf-fd':6})); checkSFAnswer();
+    note=ptsEcran();
+    if(!note || note.justes!==9) vus.push('la copie qui divise par 2 au lieu de 4 compte '+(note?note.justes:'?')+' cases justes, au lieu de 9');
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('une fraction non simplifiée vaut quand même le point');
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);

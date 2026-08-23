@@ -1678,7 +1678,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=74;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=75;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -1982,6 +1982,7 @@ const TESTS={
   'appartient-intervalle-2': { name:'Appartient ou pas ? — niveau 2', icon:'\ud83c\udfaf', desc:'Même question, avec des nombres qui ne disent pas leur valeur : √15, π, une fraction, « 0,2 millier ». Calcule avant de comparer.', start:()=>startApp2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'croiser-denominateurs': { name:'Croiser les d\u00e9nominateurs', icon:'\u2716\ufe0f', desc:'Deux fractions \u00e0 mettre au m\u00eame d\u00e9nominateur : chaque case prend le d\u00e9nominateur de l\u2019AUTRE fraction. Des couleurs et deux fl\u00e8ches crois\u00e9es montrent d\u2019o\u00f9 vient chaque nombre, puis on termine la somme comme en {somme-fractions}.', start:()=>startCRD() },
+  'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
   'placer-intervalle': { name:'Placer des nombres sur une droite graduée', icon:'\ud83d\udccd', desc:'On donne une droite avec deux graduations et trois nombres : place chacun avant la première graduation, entre les deux, ou après la seconde. Un bouton ajoute les zéros pour que tous les nombres aient autant de décimales.', start:()=>startPlc() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
@@ -1997,7 +1998,7 @@ const THEMES=[
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
      commun. Les notes d\u00e9j\u00e0 obtenues ne bougent pas : elles portent l\u2019IDENTIFIANT,
      pas le num\u00e9ro. */
-  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions'] }
+  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -2786,6 +2787,7 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'simplifier-fractions':["Comment savoir par quel nombre je peux diviser\u00a0?","Pourquoi faut-il diviser en haut ET en bas\u00a0?","Comment savoir qu\u2019une fraction ne se simplifie plus\u00a0?","Si je prends un autre d\u00e9nominateur commun, est-ce que je trouve la m\u00eame chose\u00a0?"],
   'croiser-denominateurs':["Pourquoi multiplie-t-on par le dénominateur de l’autre fraction ?","Pourquoi faut-il multiplier en haut ET en bas ?","Le croisement donne-t-il toujours le plus petit dénominateur commun ?","Pourquoi ne peut-on pas additionner deux fractions telles quelles ?"]
 };
 function qiaSuggestions(){
@@ -3009,8 +3011,15 @@ Pour additionner deux fractions, il faut le MÊME dénominateur. Il y a une faç
 <b>② Les deux ont alors le même dénominateur</b> : \\(5\\times 7=35\\). C’est toujours vrai — le croisement ne se trompe jamais.<br>
 <b>③ On additionne les numérateurs</b>, et le dénominateur ne bouge plus : \\(\\frac{14}{35}+\\frac{15}{35}=\\frac{29}{35}\\)<br>
 À retenir : le croisement donne <b>un</b> dénominateur commun, pas forcément le plus petit. Ici les deux dénominateurs n’ont aucun diviseur commun, donc 35 est bien le plus petit.`;
+const RAP_SIMP=`<b>Simplifier une fraction</b><br>
+Diviser le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre <b>ne change pas la fraction</b> \u2014 c\u2019est l\u2019exacte sym\u00e9trique de la multiplication qui sert \u00e0 mettre au m\u00eame d\u00e9nominateur.<br>
+<b>\u2460 On additionne d\u2019abord</b>, comme d\u2019habitude : \\(\\frac{1}{2}+\\frac{1}{6}=\\frac{3}{6}+\\frac{1}{6}=\\frac{4}{6}\\)<br>
+<b>\u2461 On cherche un nombre qui divise les deux.</b> Ici 2 divise 4 et divise 6.<br>
+<b>\u2462 On divise en haut et en bas</b> : \\(\\frac{4}{6}=\\frac{4\\div 2}{6\\div 2}=\\frac{2}{3}\\)<br>
+On s\u2019arr\u00eate quand <b>plus aucun nombre \u00e0 part 1 ne divise les deux</b> : la fraction est alors irr\u00e9ductible. Si tu divises par 2 alors que tu pouvais diviser par 6, ce n\u2019est pas faux \u2014 c\u2019est juste que ce n\u2019est pas fini.<br>
+<b>Le d\u00e9nominateur commun reste libre.</b> Qui prend 12 au lieu de 6 obtient \\(\\frac{8}{12}\\), divise par 4, et retombe sur \\(\\frac{2}{3}\\). Le r\u00e9sultat r\u00e9duit ne d\u00e9pend pas du chemin.`;
 const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC };
-const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD };
+const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -6235,13 +6244,35 @@ function sfPpcm(a,b){ return a/sfPgcd(a,b)*b; }
    contrainte, 4 et 6 donneraient 24 par croisement contre 12 par le PPCM, et
    l'élève qui simplifie aurait raison tout en étant compté faux. On retire
    l'ambiguïté au TIRAGE, jamais à la correction. */
-function sfGen(opImpose, premiers){
+/* Le tirage sert TROIS exercices, et « mode » dit lequel :
+   · sans mode      — {somme-fractions}, tout est permis, le résultat tombe
+                      toujours irréductible ;
+   · « premiers »   — {croiser-denominateurs}, dénominateurs sans diviseur
+                      commun, pour que le croisement donne le PPCM ;
+   · « simplifier » — {simplifier-fractions}, dénominateurs qui PARTAGENT un
+                      diviseur, et surtout somme RÉDUCTIBLE sur le PPCM : sans
+                      cette seconde condition, l'exercice tomberait sur des
+                      questions où il n'y a rien à simplifier, et sa dernière
+                      étape n'aurait pas de sens. Les deux conditions sont
+                      indépendantes — 1/6 + 1/4 a bien 2 en commun, et donne
+                      pourtant 5/12, irréductible. */
+function sfGen(opImpose, mode){
   for(let essai=0; essai<500; essai++){
-    const entier = Math.random()<0.28;              /* un terme sur quatre est un entier */
+    /* Pas de terme entier à simplifier : « 3 + 1/6 » passe par 3/1, et
+       l'écran porte déjà quatre étapes. */
+    const entier = (mode==='simplifier') ? false : Math.random()<0.28;   /* un terme sur quatre est un entier */
     const d1 = entier && Math.random()<0.5 ? 1 : rand(2,9);
     const d2 = (d1===1) ? rand(2,9) : (entier ? 1 : rand(2,9));
     if(d1===d2) continue;                            /* même dénominateur : plus rien à mettre au même */
-    if(premiers && (d1===1 || d2===1 || sfPgcd(d1,d2)!==1)) continue;
+    if(mode==='premiers' && (d1===1 || d2===1 || sfPgcd(d1,d2)!==1)) continue;
+    /* Rien à écrire ici pour « simplifier » : des dénominateurs PREMIERS ENTRE
+       EUX donnent toujours une somme irréductible — un facteur premier de d1
+       divise n2×d1, donc il diviserait la somme s'il divisait n1×d2, ce
+       qu'interdisent pgcd(n1,d1)=1 et pgcd(d1,d2)=1. La condition « somme
+       réductible », plus bas, écarte donc déjà tous ces tirages. Un garde-fou
+       de plus n'aurait rien écarté, et un garde-fou qui n'écarte jamais rien
+       fait croire qu'on vérifie quelque chose : le contrôle EXIGE la propriété
+       sur le tirage, c'est là qu'elle est tenue. */
     const n1=rand(1,9), n2=rand(1,9);
     const op = opImpose || (Math.random()<0.5 ? '+' : '−');
     const D=sfPpcm(d1,d2), k1=D/d1, k2=D/d2;
@@ -6254,15 +6285,27 @@ function sfGen(opImpose, premiers){
        exercice qui punit une méthode correcte apprend l'inverse de ce qu'il
        enseigne : on ne tire pas ce cas-là. */
     if(sfPgcd(n1,d1)!==1 || sfPgcd(n2,d2)!==1) continue;
-    if(sfPgcd(N,D)!==1) continue;                    /* résultat déjà irréductible : pas de « faut-il simplifier ? » */
-    if(N===D) continue;                              /* 1 tout rond : l'écriture finale devient ambiguë */
-    return {n1:n1,d1:d1,n2:n2,d2:d2,op:op,D:D,k1:k1,k2:k2,N1:N1,N2:N2,N:N};
+    const g=sfPgcd(N,D);
+    /* Le résultat réduit. Il ne dépend PAS de la route : qui prend un
+       dénominateur commun plus grand a un plus grand diviseur, et arrive au
+       même endroit. C'est ce qui permet à la dernière étape d'accepter toutes
+       les méthodes sans rien ranger à côté de la question. */
+    const Nr=N/g, Dr=D/g;
+    if(mode==='simplifier'){ if(g===1) continue; }   /* rien à simplifier : ce n'est pas cet exercice-là */
+    else if(g!==1) continue;                         /* résultat réductible : la question « faut-il simplifier ? » n'est pas traitée ici */
+    if(Nr===Dr) continue;                            /* 1 tout rond : l'écriture finale devient ambiguë */
+    return {n1:n1,d1:d1,n2:n2,d2:d2,op:op,D:D,k1:k1,k2:k2,N1:N1,N2:N2,N:N,Nr:Nr,Dr:Dr};
   }
   /* Le repli suit l'opération demandée : rendre une addition là où l'alternance
-     attend une soustraction la romprait sans que rien ne le dise. */
+     attend une soustraction la romprait sans que rien ne le dise. Et il suit le
+     MODE : un repli sans rien à simplifier priverait la dernière étape de son
+     objet, sans que rien ne le dise non plus. */
+  if(mode==='simplifier') return (opImpose==='−')
+    ? {n1:5,d1:6,n2:1,d2:2,op:'−',D:6,k1:1,k2:3,N1:5,N2:3,N:2,Nr:1,Dr:3}
+    : {n1:1,d1:2,n2:1,d2:6,op:'+',D:6,k1:3,k2:1,N1:3,N2:1,N:4,Nr:2,Dr:3};
   return (opImpose==='−')
-    ? {n1:1,d1:2,n2:1,d2:3,op:'−',D:6,k1:3,k2:2,N1:3,N2:2,N:1}
-    : {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5};
+    ? {n1:1,d1:2,n2:1,d2:3,op:'−',D:6,k1:3,k2:2,N1:3,N2:2,N:1,Nr:1,Dr:6}
+    : {n1:1,d1:2,n2:1,d2:3,op:'+',D:6,k1:3,k2:2,N1:3,N2:2,N:5,Nr:5,Dr:6};
 }
 /* La fraction ÉCRITE (pas une case à remplir). Le moteur ne s'appuie sur aucune
    aide propre au niveau : la Seconde a « ensFracInner », la Première rend ses
@@ -6278,7 +6321,7 @@ function sfFracInner(numStr,denStr){
   return '<span class="sf-f"><span class="n">'+numStr+'</span><span class="bar"></span>'
         +'<span class="sf-lu">/</span><span class="d">'+denStr+'</span></span>';
 }
-function sfBuildQuestions(premiers){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−', premiers)); return qs; }
+function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−', mode)); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
 /* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
    Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions
@@ -6291,7 +6334,15 @@ function sfTermeHTML(n,d){
   return (d===1) ? '<span class="f-frac"><span class="sf-f sf-ent"><span class="n">'+n+'</span></span></span>'
                  : '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
 }
-function sfCases(){ return ['sf-a1','sf-b1','sf-a2','sf-b2','sf-num1','sf-num2','sf-den','sf-fn','sf-fd']; }
+/* Les quatre cases de la simplification n'existent que dans l'exercice qui les
+   pose. Les nommer partout rendrait « vide » toujours vrai ailleurs — une case
+   absente compte comme une case non remplie —, et la note compterait des cases
+   qui n'existent pas. */
+function sfCases(){
+  const base=['sf-a1','sf-b1','sf-a2','sf-b2','sf-num1','sf-num2','sf-den'];
+  const fin=['sf-fn','sf-fd'];
+  return (test && test.simp) ? base.concat(['sf-sn','sf-q1','sf-sd','sf-q2'],fin) : base.concat(fin);
+}
 function renderSFTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('sfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
@@ -6335,10 +6386,27 @@ function renderSFTest(){
      et non une égalité posée à côté : écrire « 3 = 3/1 » au milieu d'une somme
      dirait que 3 vaut la somme entière. Quand aucun des deux termes n'est
      entier, ce maillon ne dirait rien de plus et disparaît. */
+  /* LA DIVISION SE POSE COMME LA MULTIPLICATION DE L'ÉTAPE ①, et c'est tout ce
+     qui la rend lisible : le nombre obtenu, « ÷ », puis la case du diviseur —
+     en haut ET en bas, parce que c'est ce qui ne change pas la fraction.
+     L'élève réécrit lui-même la fraction qu'il vient d'obtenir : c'est le geste
+     du cahier, et c'est aussi ce qui permet à la correction d'accepter toutes
+     les routes — le nombre à diviser dépend du dénominateur commun choisi, la
+     page ne peut donc pas l'écrire à sa place. */
+  const quotient=()=>
+    '<span class="f-frac-input sf-prod sf-div">'
+       +'<span class="sf-l">'+mf('sf-sn','f-num','numérateur obtenu')
+       +'<span class="f-times">÷</span>'+mf('sf-q1','f-num','diviseur du numérateur')+'</span>'
+       +'<span class="f-fbar"></span>'
+       +'<span class="sf-l">'+mf('sf-sd','f-den','dénominateur obtenu')
+       +'<span class="f-times">÷</span>'+mf('sf-q2','f-den','diviseur du dénominateur')+'</span>'
+     +'</span>';
   const versFraction = (q.d1===1 || q.d2===1);
   $('sfHost').innerHTML=
     '<div class="pt-step"><div class="pt-lab">① mettre au même dénominateur&nbsp;· ② écrire la '
-      +(q.op==='+'?'somme':'différence')+' sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
+      +(q.op==='+'?'somme':'différence')+' sur ce dénominateur&nbsp;· '
+      +(test.simp ? '③ diviser en haut ET en bas par le même nombre&nbsp;· ④ la fraction simplifiée'
+                  : '③ la fraction finale')+'</div>'
      +'<div class="pt-row">'
        +terme(q.n1,q.d1)+op+terme(q.n2,q.d2)
        +(versFraction ? (eq+surUn(q.n1,q.d1)+op+surUn(q.n2,q.d2)) : '')
@@ -6350,6 +6418,7 @@ function renderSFTest(){
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
        +mf('sf-den','f-den','dénominateur commun')+'</span>'
+       +(test.simp ? (eq+quotient()) : '')
        +eq+frac('sf-fn','sf-fd')
      +'</div></div>';
   /* La décoration du croisement — couleurs et flèches — n'existe qu'en Seconde,
@@ -6371,8 +6440,6 @@ function sfLu(id){ const el=$(id); if(!el) return NaN; const t=String(el.value||
 function sfJuge(q){
   const a1=sfLu('sf-a1'), b1=sfLu('sf-b1'), a2=sfLu('sf-a2'), b2=sfLu('sf-b2');
   const d1=(q.d1===1)?1:q.d1, d2=(q.d2===1)?1:q.d2;
-  /* un multiplicateur se met en HAUT comme en BAS : c'est ce qui ne change pas
-     la fraction, et c'est tout le sens de l'étape */
   /* UN GROUPE SE JUGE SUR LES CASES QUE L'ÉLÈVE A ÉCRITES, jamais sur celles
      qu'il a laissées vides — et une case vide ne reçoit AUCUNE couleur : c'est
      la correction en bleu qui la remplit. Deux signalements de Turquet en
@@ -6414,24 +6481,62 @@ function sfJuge(q){
      doivent le suivre, et une paire déjà posée doit s'y accorder, sans quoi la
      chaîne se contredirait d'une égalité à l'autre. Une case encore vide ne
      compte pas contre les autres. */
-  const Dc = !isNaN(dd) ? dd : (D1 || D2 || 0);
+  const Dc0 = !isNaN(dd) ? dd : (D1 || D2 || 0);
+  /* AUCUNE ROUTE CHOISIE — l'élève a écrit une case plus loin sans avoir posé
+     l'étape ① : on juge alors sur la voie du PPCM, qui est exactement celle que
+     la correction en bleu écrira à côté. Sans ce repli, une case juste
+     rougirait parce que les cases d'AVANT sont vides : le défaut d'août 2026
+     une troisième fois, une case plus loin encore. Rouge veut dire FAUX, jamais
+     « je ne peux pas savoir ». */
+  const Dc = Dc0>0 ? Dc0 : q.D;
   const ok3 = !(isNaN(n1) && isNaN(n2) && isNaN(dd))
            && Dc>0 && Dc%d1===0 && Dc%d2===0
            && (m1<=0 || Dc===D1) && (m2<=0 || Dc===D2)
            && (isNaN(n1) || n1===q.n1*(Dc/d1))
            && (isNaN(n2) || n2===q.n2*(Dc/d2));
+  /* ── LES DEUX ÉTAPES DE {simplifier-fractions} ────────────────────────────
+     L'élève réécrit la fraction obtenue, la divise en haut et en bas par le
+     même nombre, puis donne le résultat.
+     LE DIVISEUR N'EST PAS IMPOSÉ PAR SON NOM. On n'exige nulle part « le
+     PGCD » : on exige que la fraction finale soit IRRÉDUCTIBLE, ce qui revient
+     au même sans demander à l'élève un mot qu'il n'a pas encore. Diviser par 2
+     quand on pouvait diviser par 6 n'est pas une faute de calcul — c'est un
+     travail non terminé, et le message le dit ainsi.
+     ET LE NOMBRE À SIMPLIFIER DÉPEND DE LA ROUTE : qui a pris un dénominateur
+     commun plus grand a un plus grand diviseur. Il est donc CALCULÉ sur ce que
+     l'élève a écrit, jamais rangé à côté de la question — un énoncé ne peut pas
+     contredire sa correction. Seul le résultat réduit, lui, ne bouge pas. */
+  const simp = !!(test && test.simp);
+  /* la somme telle qu'elle tombe sur le dénominateur commun retenu */
+  const Ns = (Dc%d1===0 && Dc%d2===0)
+        ? ((q.op==='+') ? q.n1*(Dc/d1)+q.n2*(Dc/d2) : q.n1*(Dc/d1)-q.n2*(Dc/d2)) : 0;
+  const sn=sfLu('sf-sn'), sd=sfLu('sf-sd'), q1=sfLu('sf-q1'), q2=sfLu('sf-q2');
+  const okS = simp && !(isNaN(sn) && isNaN(sd)) && Ns>0 && Dc>0
+           && (isNaN(sn) || sn===Ns) && (isNaN(sd) || sd===Dc);
+  /* la fraction que l'élève a sous les yeux : ce qu'il a réécrit, à défaut ce
+     que son propre calcul donne */
+  const Ne = !isNaN(sn) ? sn : Ns, De = !isNaN(sd) ? sd : Dc;
+  const g = (Ne>0 && De>0) ? sfPgcd(Ne,De) : 0;
+  const m3 = mult(q1,q2);
+  const okQ = simp && m3>0 && g>1 && m3===g;
   const fn=sfLu('sf-fn'), fd=sfLu('sf-fd');
   /* Les deux cases ensemble doivent VALOIR le résultat. Une seule écrite se
      juge sur ce qu'elle promet : le résultat étant irréductible, toute
-     fraction qui lui est égale s'écrit N×t sur D×t. */
-  const ok4 = (!isNaN(fn) || !isNaN(fd))
+     fraction qui lui est égale s'écrit N×t sur D×t.
+     Dans {simplifier-fractions}, en revanche, la dernière étape EST la
+     simplification : y accepter 4/6 pour 2/3 viderait l'exercice de son sujet.
+     Elle demande donc la fraction réduite, elle seule. */
+  const ok4 = simp
+    ? ((!isNaN(fn) || !isNaN(fd)) && (isNaN(fn) || fn===q.Nr) && (isNaN(fd) || fd===q.Dr))
+    : ((!isNaN(fn) || !isNaN(fd))
            && ((isNaN(fn) || isNaN(fd))
                  ? (isNaN(fn) ? (fd>0 && fd%q.D===0) : (fn>0 && fn%q.N===0))
-                 : (fd!==0 && fn*q.D===q.N*fd));
+                 : (fd!==0 && fn*q.D===q.N*fd)));
   /* Une case laissée vide n'est pas une erreur de calcul, et le dire autrement
      serait mentir : le message le nomme avant tout le reste. */
   const vide = sfCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
-  return {ok1:ok1, ok2:ok2, ok3:ok3, ok4:ok4, memeD:memeD, D:D, vide:vide};
+  return {ok1:ok1, ok2:ok2, ok3:ok3, ok4:ok4, okS:okS, okQ:okQ,
+          memeD:memeD, D:D, vide:vide, Ns:Ns, Dc:Dc, g:g};
 }
 /* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
    TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
@@ -6457,7 +6562,9 @@ function sfLive(){
   const etape1=['sf-a1','sf-b1','sf-a2','sf-b2'];
   if(etape1.some(vide)) col(etape1,true);   /* incomplète : le col() efface et s'arrête */
   else { col(['sf-a1','sf-b1'],r.ok1); col(['sf-a2','sf-b2'],r.ok2); }
-  col(['sf-num1','sf-num2','sf-den'],r.ok3); col(['sf-fn','sf-fd'],r.ok4);
+  col(['sf-num1','sf-num2','sf-den'],r.ok3);
+  if(test.simp){ col(['sf-sn','sf-sd'],r.okS); col(['sf-q1','sf-q2'],r.okQ); }
+  col(['sf-fn','sf-fd'],r.ok4);
 }
 function checkSFAnswer(live){
   if(test.locked) return;
@@ -6473,12 +6580,14 @@ function checkSFAnswer(live){
     if(ecrit) el.classList.add(ok?'ok':'bad');
     el.disabled=(ok&&ecrit)||!isSoutien(); });
   mark(['sf-a1','sf-b1'],r.ok1); mark(['sf-a2','sf-b2'],r.ok2);
-  mark(['sf-num1','sf-num2','sf-den'],r.ok3); mark(['sf-fn','sf-fd'],r.ok4);
+  mark(['sf-num1','sf-num2','sf-den'],r.ok3);
+  if(test.simp){ mark(['sf-sn','sf-sd'],r.okS); mark(['sf-q1','sf-q2'],r.okQ); }
+  mark(['sf-fn','sf-fd'],r.ok4);
   /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
      cases écrites, donc une copie à moitié remplie peut voir ses quatre
      verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
      cases laissées vides ne recevraient même pas la correction en bleu. */
-  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&!r.vide;
+  const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&!r.vide;
   if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('sfLiveScore').textContent=test.score;
@@ -6490,7 +6599,11 @@ function checkSFAnswer(live){
     corTrainDec('sf-a1',q.k1); corTrainDec('sf-b1',q.k1);
     corTrainDec('sf-a2',q.k2); corTrainDec('sf-b2',q.k2);
     corTrainDec('sf-num1',q.N1); corTrainDec('sf-num2',q.N2); corTrainDec('sf-den',q.D);
-    corTrainFrac('sf-fn','sf-fd',q.N,q.D);
+    if(test.simp){
+      corTrainDec('sf-sn',q.N); corTrainDec('sf-sd',q.D);
+      corTrainDec('sf-q1',q.D/q.Dr); corTrainDec('sf-q2',q.D/q.Dr);
+      corTrainFrac('sf-fn','sf-fd',q.Nr,q.Dr);
+    } else corTrainFrac('sf-fn','sf-fd',q.N,q.D);
   }
   const donne=sfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk,
@@ -6506,6 +6619,12 @@ function sfPourquoi(q,r){
     +' : multiplie la première par '+q.k1+' (en haut ET en bas) et la seconde par '+q.k2+'.';
   if(!r.ok3) return 'Sur le dénominateur '+r.D+', les deux numérateurs deviennent '+(q.n1*q.k1*(r.D/q.D))+' et '+(q.n2*q.k2*(r.D/q.D))
     +'. On additionne ou on soustrait les numérateurs, jamais les dénominateurs.';
+  if(test && test.simp){
+    const Ns=(r.Ns>0)?r.Ns:q.N, Dc=(r.Dc>0)?r.Dc:q.D, g=(r.g>1)?r.g:(q.D/q.Dr);
+    if(!r.okS) return 'Recopie la fraction que tu viens d’obtenir : '+Ns+' sur '+Dc+'.';
+    if(!r.okQ) return 'Divise en haut ET en bas par le même nombre, le plus grand qui va dans les deux : ici '+g+'.';
+    return 'Il reste à faire les deux divisions : '+Ns+' ÷ '+g+' et '+Dc+' ÷ '+g+', donc '+q.Nr+'/'+q.Dr+'.';
+  }
   return 'Il reste à effectuer le calcul du haut : le résultat est '+q.N+'/'+q.D+'.';
 }
 function nextSFQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSFTest(); autoSave(); } else finishTest(); }
@@ -6954,7 +7073,7 @@ function crdDecorer(q){
 }
 async function startCRD(){
   if(!currentEleve){ accueil(); return; }
-  const qs=sfBuildQuestions(true);   /* dénominateurs premiers entre eux */
+  const qs=sfBuildQuestions('premiers');   /* dénominateurs premiers entre eux */
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'sf', questions:qs, idx:0, score:0, maxScore:qs.length,
@@ -6963,6 +7082,32 @@ async function startCRD(){
      courte liste, donc la reprise retrouve les flèches sans rien de plus. */
   test.crd=true;
   test.qId='croiser-denominateurs';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('sf'); renderSFTest();
+}
+
+/* ===== EXERCICE : SOMME DE FRACTIONS À SIMPLIFIER (« simplifier-fractions »)
+   Le troisième exercice sur le même moteur. Il ne change que deux choses au
+   tirage — des dénominateurs qui PARTAGENT un diviseur, et une somme qui se
+   simplifie — et ajoute deux étapes à la chaîne : diviser en haut et en bas,
+   puis écrire la fraction réduite.
+   Le dénominateur commun reste LIBRE, comme partout ici, et c'est ce qui rend
+   la dernière étape intéressante : qui prend 12 au lieu de 6 divise ensuite par
+   4 au lieu de 2, et retombe sur la même fraction. La correction calcule donc
+   le diviseur sur ce que l'élève a écrit, jamais sur une valeur rangée à côté
+   de la question. */
+async function startSFSimp(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=sfBuildQuestions('simplifier');
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'sf', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  /* « simp » voyage avec le test, comme « crd » : la pause enregistre tout
+     « test » sauf une courte liste, donc la reprise retrouve les deux étapes
+     de plus sans rien de spécial à écrire ailleurs. */
+  test.simp=true;
+  test.qId='simplifier-fractions';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('sf'); renderSFTest();
 }
@@ -6999,6 +7144,7 @@ function sfCtxTexte(q){
      l'écran : dans le croisement, l'élève a des flèches sous les yeux, et un
      conseil qui les ignorerait le renverrait à une autre méthode que celle
      qu'on lui montre. */
+  if(test && test.simp) c+=' Cet exercice-ci est « Somme de fractions à simplifier » : les deux dénominateurs ont un diviseur commun, et la somme obtenue se simplifie. Après la somme, l’élève doit DIVISER le numérateur et le dénominateur par le même nombre, le plus grand qui va dans les deux, pour arriver à '+q.Nr+'/'+q.Dr+' — qui est aussi une réponse attendue, donc STRICTEMENT SECRÈTE. Le dénominateur commun reste libre : qui en prend un plus grand divisera ensuite par un plus grand nombre et retombera sur la même fraction. Diviser par trop peu n’est pas une faute de calcul, c’est un travail non terminé — dis-le ainsi.';
   if(test && test.crd) c+=' Cet exercice-ci est « Croiser les dénominateurs » : l’écran MONTRE, par des couleurs et deux flèches croisées, que chaque fraction se multiplie par le dénominateur de l’AUTRE. Appuie-toi sur ces flèches. Les deux dénominateurs n’ont ici aucun diviseur commun, donc le croisement donne bien le plus petit dénominateur commun.';
   const rate=[]; if(!r.ok1||!r.ok2) rate.push('la mise au même dénominateur');
   if(!r.ok3) rate.push('l’écriture de la somme'); if(!r.ok4) rate.push('la fraction finale');

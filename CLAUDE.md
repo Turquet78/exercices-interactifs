@@ -643,6 +643,51 @@ jamais sur la note ; et l'accord des deux étapes n'avait aucun cas où elles se
 contredisent. **Un contrôle qui passe au vert sous le sabotage n'est pas un
 contrôle trop faible : c'est un contrôle qui parle d'autre chose.**
 
+**Et un troisième exercice sur le même moteur : simplifier à la fin.**
+{simplifier-fractions} est {somme-fractions} avec deux dénominateurs qui
+PARTAGENT un diviseur et une somme qui se simplifie — la chaîne gagne deux
+maillons : `(□ ÷ □)/(□ ÷ □) = □/□`. La division se pose comme la multiplication
+de l'étape ①, en haut ET en bas, parce que c'est le même geste dans l'autre
+sens. C'est la chaîne la plus longue de l'application : six égalités sur une
+seule rangée, et seul un vrai navigateur sait si elle se replie — le contrôle
+de pleine largeur la mesure (1288 px de rangée dans une carte de 1360 à
+1400 px de fenêtre).
+**Le dénominateur commun reste libre jusqu'au bout, et c'est ce qui rend la
+dernière étape intéressante** : qui prend 12 au lieu de 6 obtient 64/12 au lieu
+de 32/6, divise ensuite par 4 au lieu de 2, et retombe sur la même fraction. Le
+diviseur est donc CALCULÉ sur ce que l'élève a écrit, jamais rangé à côté de la
+question ; seul le résultat réduit ne dépend pas du chemin, et c'est lui qu'on
+range (`Nr`, `Dr`).
+**Le PGCD n'est jamais nommé.** On n'exige pas « divise par le PGCD » : on exige
+que la fraction finale soit IRRÉDUCTIBLE, ce qui revient au même sans réclamer
+un mot que l'élève n'a pas encore. Diviser par 2 quand on pouvait diviser par 6
+n'est pas une faute de calcul — c'est un travail non terminé, et le message le
+dit ainsi.
+**Le tirage a DEUX conditions, et n'en tenir qu'une ne tient rien** : des
+dénominateurs qui partagent un diviseur, et une somme réductible sur le PPCM.
+1/6 + 1/4 ont bien 2 en commun et donnent pourtant 5/12, irréductible : sans la
+seconde, la dernière étape n'aurait rien à diviser. La première, elle, est
+IMPLIQUÉE par la seconde — avec des dénominateurs premiers entre eux la somme
+est toujours irréductible —, et le garde-fou qui la répétait n'écartait donc
+jamais rien. Il a été retiré : un garde-fou qui n'écarte jamais rien fait croire
+qu'on vérifie quelque chose. C'est le contrôle qui EXIGE la propriété sur le
+tirage, et le sabotage l'a montré en passant au vert.
+**Le repli sur la voie de référence.** Une case écrite alors que les cases
+d'AVANT sont vides ne peut pas être jugée sur la route de l'élève — il n'en a
+pas choisi. On la juge alors sur la voie du PPCM, qui est exactement celle que
+la correction en bleu écrira à côté. Sans ce repli, une case juste rougirait
+parce que les précédentes sont vides : le défaut d'août 2026, une troisième
+fois, une case plus loin encore. **Rouge veut dire FAUX, jamais « je ne peux pas
+savoir ».**
+
+**Le moteur `sf` est le même TEXTE dans les deux niveaux, et un contrôle le
+vérifie.** Quatorze fonctions comparées au caractère près entre `secondes.html`
+et `premiere-specifique.html`. Rien ne les comparait jusqu'en août 2026 — celui
+qui existait ne regardait que le moteur d'écritures mathématiques —, et la
+correction des fractions a été reprise trois fois en une journée, à la main,
+dans les deux fichiers. Deux fonctions divergent VOLONTAIREMENT et sont nommées
+dans le contrôle plutôt que tues : `sfBoutonsAide()` et `sfCtxTexte()`.
+
 **Un terme ENTIER s'écrit avec la même encre qu'une fraction.** Écrit en
 `f-whole` — 2 rem, une autre couleur — il dépassait des fractions voisines :
 « 7/6 + 9 » avait un 9 deux fois plus gros que le 7, et le « + » ne tombait plus
