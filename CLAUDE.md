@@ -498,6 +498,37 @@ rougissait la première. Il fallait des cas choisis pour que TOUT LE RESTE soit
 juste — ×5 en haut et ×3 en bas donne encore 6 au dénominateur, et une case vide
 ne se voit que là où le multiplicateur attendu vaut 1.
 
+**Une case juste ne doit pas rougir parce qu'une AUTRE est vide.** La correction
+en direct du mode soutien ne juge un groupe qu'une fois TOUTES ses cases
+remplies. L'élève tapait 1 dans « 2 × □ », passait à la case du dessous, et la
+première virait au rouge : sa jumelle était encore vide, donc la paire ne se
+jugeait pas — mais elle se colorait quand même. La note finale, elle, était
+juste ; **seule la couleur mentait**, ce qui est exactement ce qui l'a laissée
+passer. Et l'étape ① est UN groupe de QUATRE cases, pas deux paires : la règle
+qu'elle vérifie — le même dénominateur des deux côtés — parle des deux fractions
+à la fois, et juger la première pendant que la seconde est vide, c'est la
+déclarer fausse parce qu'il manque une case ailleurs. La Terminale avait déjà
+appris cette règle sur ses groupes du 6.1 ; elle n'avait pas gagné la Seconde.
+
+**Un terme ENTIER s'écrit avec la même encre qu'une fraction.** Écrit en
+`f-whole` — 2 rem, une autre couleur — il dépassait des fractions voisines :
+« 7/6 + 9 » avait un 9 deux fois plus gros que le 7, et le « + » ne tombait plus
+sur le trait. On lui donne donc la FORME d'une fraction sans barre
+(`.sf-f.sf-ent`) : même colonne, même centrage, son milieu tombe là où tomberait
+le trait, et le signe s'aligne dessus tout seul. L'énoncé, lui, passe en rangée
+flex centrée : en texte ordinaire, `vertical-align:middle` place chaque terme
+selon SA hauteur, et un terme à un étage n'a pas le même milieu qu'un terme à
+deux — le signe tombait 15 px au-dessus du trait. Les espaces y sont
+INSÉCABLES : dans une rangée flex, une espace ordinaire entre deux éléments
+disparaît. Le banc navigateur mesure les deux endroits, l'énoncé et le début de
+la ligne ; aucun banc hors navigateur ne sait où tombe un trait.
+
+**Les deux opérations alternent, en commençant par une addition** (décision de
+Turquet, août 2026) — comme les opérations posées, et pour la même raison :
+tiré au hasard, le même total sortait, mais pas le même exercice. Le repli du
+tirage suit l'opération demandée ; rendre une addition là où l'alternance attend
+une soustraction la romprait sans que rien ne le dise.
+
 **Une correction en bleu posée dans une fraction en déplace le trait.**
 `corTrainDec()` insère son badge juste après la case. Nu dans une fraction, il
 élargissait le trait ; sous le dénominateur commun, il tombait carrément hors de
