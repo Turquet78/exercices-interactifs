@@ -1278,6 +1278,31 @@ function branchements(w){
      Première la fait poser par iaBoutons() — et sfCtxTexte(), qui porte les
      phrases des exercices propres à la Seconde. Les nommer est ce qui empêche
      la liste de se vider en silence. */
+  /* ---- L'ÉDITEUR LIGNE PAR LIGNE EST CELUI DE LA TERMINALE -----------------
+     mlFeuille() a été PORTÉE, pas réécrite : c'est le même éditeur qui sert le
+     2.2 et le 3.5 là-bas et la saisie libre des fractions ici. Une copie
+     retouchée d'un seul côté ferait diverger deux niveaux sans que rien ne
+     rougisse — ce qui est arrivé trois fois au moteur des fractions en une
+     seule journée d'août 2026. On la compare donc au caractère près. */
+  if(src.indexOf('function mlFeuille') >= 0){
+    let origineT;
+    try{ origineT = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
+    catch(e){ origineT = undefined; }
+    if(!origineT){
+      verifier('l’éditeur ligne par ligne est identique à celui de la Terminale', false,
+        'terminale.html est introuvable');
+    } else {
+      const ici = corpsDe(src, 'mlFeuille'), la = corpsDe(origineT, 'mlFeuille');
+      verifier('l’éditeur ligne par ligne est identique à celui de la Terminale',
+        !!ici && !!la && ici === la,
+        (!ici || !la) ? 'mlFeuille introuvable d’un des deux côtés'
+                      : 'le texte diverge de terminale.html');
+    }
+  } else {
+    ignorer('l’éditeur ligne par ligne est identique à celui de la Terminale',
+      'ce niveau n’a pas de feuille de calcul ligne par ligne');
+  }
+
   const MOTEUR_SF = ['sfPgcd','sfPpcm','sfGen','sfBuildQuestions','sfTermeHTML','sfCases',
                      'renderSFTest','sfLu','sfJuge','sfLive','checkSFAnswer','sfPourquoi',
                      'nextSFQuestion','sfFracInner'];
@@ -2204,6 +2229,7 @@ function exercices(suite){
 
     sommeFractions(w, P);
     simplifierFractions(w, P);
+    sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
@@ -3159,6 +3185,109 @@ function simplifierFractions(w, P){
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+}
+
+/* ---------- 4 quater ter. La somme de fractions ÉCRITE PAR L'ÉLÈVE ---------
+   Les mêmes nombres que {simplifier-fractions}, mais plus une seule case :
+   l'élève écrit son calcul dans une feuille ligne par ligne, et c'est l'IA qui
+   le lit. Tout le risque est donc DANS CE QUI PART AU MODÈLE.
+
+   · LA RÈGLE DE DÉCISION EST TRONQUÉE EN SILENCE À 4000 CARACTÈRES par la
+     fonction Edge (« .slice(0, 4000) »). Une règle coupée en son milieu ne
+     lève rien : le modèle corrige simplement avec la moitié qu'il a reçue, et
+     l'exercice se met à accepter des copies sans étape. C'est le défaut de
+     MAX_CTX, au même endroit du raisonnement — et la borne est LUE dans la
+     source de la fonction, jamais recopiée.
+   · LA RÈGLE DOIT DIRE CE QU'ELLE EXIGE. Trois conditions, et n'en tenir
+     qu'une ne tient rien : l'étape du même dénominateur, le résultat
+     irréductible, et l'absence de ligne fausse. Si la règle cesse de nommer le
+     résultat réduit ou la somme non simplifiée, elle ne peut plus les
+     distinguer — et rien ne rougirait.
+   · ELLE NE DOIT PAS CONTREDIRE LE TIRAGE. Les nombres qu'elle annonce sont
+     recalculés ici depuis la question : un énoncé qui contredit sa correction
+     est le pire défaut possible.
+
+   La fonction Edge ne se déploie pas toute seule : ce contrôle compare la page
+   au FICHIER du dépôt, il ne voit pas ce qui tourne chez Supabase. */
+function sommeFractionsLibre(w, P){
+  const present = evaluer(w, "typeof startSFL==='function' && typeof sflAttenduIA==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la règle envoyée au modèle est complète, exacte, et tient dans la borne de la fonction Edge',
+      'ce niveau n\'a pas l\'exercice « Somme de fractions — tu écris ton calcul »');
+    return;
+  }
+  let bornes;
+  try{
+    const src = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = src.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = src.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const r = src.match(/payload\.reponse\s*\|\|\s*""\)\.toString\(\)\.trim\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a && r) bornes = { question:+q[1], attendu:+a[1], reponse:+r[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier('la règle envoyée au modèle est complète, exacte, et tient dans la borne de la fonction Edge',
+      false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, 'la règle envoyée au modèle est complète, exacte, et tient dans la borne de la fonction Edge', `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='somme-fractions-libre';
+    let pireQ=0, pireA=0, pireId='';
+    for(let i=0;i<400;i++){
+      const q=sfGen(i%2===0?'+':'−','simplifier');
+      const e=sflEnonceIA(q), a=sflAttenduIA(q);
+      if(e.length>pireQ) pireQ=e.length;
+      if(a.length>pireA){ pireA=a.length; pireId=q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2; }
+      /* la règle NOMME ce qu'elle doit distinguer */
+      const reduite=q.Nr+'/'+q.Dr, brute=q.N+'/'+q.D;
+      if(a.indexOf(reduite)<0){ vus.push('la règle ne nomme pas le résultat réduit '+reduite); break; }
+      if(a.indexOf(brute)<0){ vus.push('la règle ne nomme pas la somme non simplifiée '+brute+' : elle ne peut plus la refuser'); break; }
+      if(reduite===brute){ vus.push('le tirage rend '+brute+' déjà irréductible'); break; }
+      /* et elle ne contredit pas le tirage : les nombres qu'elle annonce sont
+         recalculés ici, jamais recopiés depuis la question */
+      const attJ=(q.op==='+')?(q.n1*(q.D/q.d1)+q.n2*(q.D/q.d2)):(q.n1*(q.D/q.d1)-q.n2*(q.D/q.d2));
+      if(a.indexOf(q.N1+'/'+q.D)<0 || a.indexOf(q.N2+'/'+q.D)<0){ vus.push('la règle n\\'écrit pas les deux fractions sur le dénominateur commun'); break; }
+      if(attJ!==q.N){ vus.push('le tirage lui-même se contredit : '+attJ+' contre '+q.N); break; }
+      /* LES TROIS EXIGENCES, CHACUNE DANS SON POINT. Chercher les mots dans
+         TOUT le texte ne prouvait rien : « même dénominateur » et
+         « irréductible » y reviennent partout, si bien que vider un point de
+         sa substance passait au vert. On découpe donc la règle en ses trois
+         points numérotés, et on regarde CHACUN. Trois sabotages l'ont montré :
+         un contrôle qui passe au vert sous le sabotage parle d'autre chose. */
+      const iR=a.indexOf('RÈGLE DE DÉCISION'), iC=a.indexOf('CONSIGNES POUR LE FEEDBACK');
+      if(iR<0 || iC<0 || iC<iR){ vus.push('la règle de décision et les consignes de feedback ne se distinguent plus'); break; }
+      const regle=a.slice(iR,iC);
+      const pt=function(n){
+        const d=regle.indexOf('\\n'+n+'. '); if(d<0) return '';
+        const f=regle.indexOf('\\n'+(n+1)+'. ', d);
+        return regle.slice(d, f<0?regle.length:f);
+      };
+      const p1=pt(1), p2=pt(2), p3=pt(3);
+      if(!p1||!p2||!p3){ vus.push('la règle de décision n\\'a plus ses trois points numérotés'); break; }
+      if(!/m[êe]me d[ée]nominateur/i.test(p1)){ vus.push('le point 1 n\\'exige plus l\\'étape du même dénominateur'); break; }
+      if(p1.indexOf(q.N1+'/'+q.D)<0 || p1.indexOf(q.N2+'/'+q.D)<0){ vus.push('le point 1 ne montre plus les deux fractions sur le dénominateur commun'); break; }
+      /* le dénominateur commun n'est pas imposé, et le point 1 doit le dire :
+         sans cette phrase, le modèle refuserait une méthode juste */
+      if(p1.indexOf(String(2*q.D))<0){ vus.push('le point 1 ne dit plus qu\\'un autre dénominateur commun ('+(2*q.D)+') convient'); break; }
+      if(!/irr[ée]ductible/i.test(p2)){ vus.push('le point 2 n\\'exige plus un résultat irréductible'); break; }
+      if(p2.indexOf(reduite)<0){ vus.push('le point 2 ne nomme plus le résultat réduit '+reduite); break; }
+      if(p2.indexOf(brute)<0){ vus.push('le point 2 ne nomme plus '+brute+', la fraction sur laquelle il ne faut PAS s\\'arrêter'); break; }
+      if(!/fausse/i.test(p3)){ vus.push('le point 3 n\\'interdit plus les lignes fausses'); break; }
+    }
+    if(!vus.length){
+      if(pireQ>B.question) vus.push('l\\'énoncé envoyé fait '+pireQ+' caractères, tronqué à '+B.question);
+      if(pireA>B.attendu) vus.push('la règle envoyée fait '+pireA+' caractères, tronquée à '+B.attendu+' (sur '+pireId+')');
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle fait '+pireA+' caractères pour une borne de '+B.attendu+' : moins de 300 de marge');
+    /* La marge est AFFICHÉE à chaque exécution, comme celle de MAX_CTX : un
+       chiffre qu'on voit fondre prévient avant que la troncature ne morde. */
+    if(!vus.length) return 'MARGE '+pireA+' '+B.attendu;
+    return vus.join(' | ');
+  })()`, v => /^MARGE /.test(v), undefined);
+  const m = (typeof mesure === 'string') ? /^MARGE (\d+) (\d+)$/.exec(mesure) : null;
+  if(m) console.log('   · règle la plus longue : ' + m[1] + ' caractères, ' + (+m[2] - +m[1]) + ' de marge sur ' + m[2]);
 }
 
 /* ---------- 4 quinquies. Placer trois nombres sur une droite graduée -------

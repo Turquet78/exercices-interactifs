@@ -1653,6 +1653,126 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quaterdecies. La saisie LIBRE : la feuille de calcul ===== */
+    /* L'élève écrit son calcul lui-même, une étape par ligne, et c'est l'IA qui
+       le lit. Rien de cet écran n'existe hors d'un vrai navigateur : jsdom n'a
+       pas MathLive, donc pas de champ où écrire, pas d'événement « change »
+       quand on appuie sur Entrée, et « lire() » rend une chaîne vide.
+       QUATRE BORDS.
+       · Entrée AJOUTE une ligne. C'est tout ce qui permet d'écrire plusieurs
+         étapes ; sans lui l'exercice se réduit à une seule ligne, et la règle
+         envoyée au modèle exige justement une étape intermédiaire.
+       · Ce qui PART au modèle porte les préfixes. Une lecture qui perdrait le
+         « = » de tête donnerait au correcteur des lignes sans lien entre elles,
+         et il refuserait des copies justes.
+       · Le VERDICT de l'IA fait la note. C'est le seul exercice de la Seconde
+         où la note ne vient pas de cases colorées : si le « correct » du modèle
+         cessait d'être lu, la note serait fausse sans que rien ne rougisse.
+       · Les JETONS visent la feuille. La rangée « Insérer : , − ▯/▯ » s'affiche
+         sur cet écran ; elle ne connaissait que les cases « pm-mf » et n'aurait
+         rien inséré du tout — des boutons morts, sans erreur. */
+    titre('6 quaterdecies. LA SAISIE LIBRE : LA FEUILLE DE CALCUL');
+    if(!P.saisieLibre){
+      ignorer('la feuille de calcul écrit, ajoute des lignes, et sa lecture part au modèle',
+        'ce niveau n\'a pas d\'exercice à saisie libre');
+      ignorer('le verdict de l\'IA fait la note', 'ce niveau n\'a pas d\'exercice à saisie libre');
+    } else if(!ml){
+      ignorer('la feuille de calcul écrit, ajoute des lignes, et sa lecture part au modèle', 'MathLive absent');
+      ignorer('le verdict de l\'IA fait la note', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.saisieLibre.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1300);
+      /* on capte ce qui part vraiment, et on choisit le verdict rendu */
+      await s.page.evaluate(() => {
+        window.__envoye = null; window.__verdict = false;
+        const vrai = sb.functions.invoke.bind(sb.functions);
+        sb.functions.invoke = function(nom, opts){
+          if(opts && opts.body && opts.body.action === 'verif'){
+            window.__envoye = opts.body;
+            return Promise.resolve({ data:{ correct: window.__verdict, feedback:'Retour de contrôle.' }, error:null });
+          }
+          return vrai(nom, opts);
+        };
+        test.questions[test.idx] = {n1:9,d1:2,n2:5,d2:6,op:'+',D:6,k1:3,k2:1,N1:27,N2:5,N:32,Nr:16,Dr:3};
+        renderSFL();
+      });
+      await s.page.waitForTimeout(900);
+      /* on ÉCRIT dans la première ligne, puis on appuie sur Entrée */
+      await s.page.evaluate(() => sflFeuille.lignes[0].mf.focus());
+      await s.page.waitForTimeout(120);
+      await s.page.keyboard.type('27/6', { delay: 40 });
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(400);
+      await s.page.keyboard.type('16/3', { delay: 40 });
+      await s.page.waitForTimeout(300);
+      const vu = await s.page.evaluate(() => {
+        /* LE JETON DOIT TOMBER DANS LA LIGNE OÙ L'ÉLÈVE ÉCRIT, pas dans la
+           première venue. Demander seulement « pmActiveMF rend un champ de la
+           feuille » ne suffisait pas : la fonction a trois chemins, et son
+           dernier repli rend le PREMIER champ de l'écran. Un élève posé sur la
+           troisième ligne aurait vu sa virgule atterrir sur la première, sans
+           que rien ne rougisse — et le sabotage passait au vert. On INSÈRE donc
+           pour de bon, et on regarde où ça tombe. */
+        const avant = sflFeuille.lignes.map(L => { try{ return L.mf.getValue(); }catch(e){ return ''; } });
+        let ou = -1;
+        try{
+          const L = sflFeuille.lignes[sflFeuille.lignes.length - 1];
+          L.mf.focus();
+          pmInsert(',');
+          const apres = sflFeuille.lignes.map(M => { try{ return M.mf.getValue(); }catch(e){ return ''; } });
+          for(let i = 0; i < apres.length; i++) if(apres[i] !== avant[i]) { ou = i; break; }
+          L.mf.setValue(avant[avant.length - 1]);
+        }catch(e){}
+        return {
+          lignes: sflFeuille.lignes.length,
+          lu: sflFeuille.lire(),
+          jetons: !!document.querySelector('.screen.on .rc-jetons'),
+          jetonLigne: ou, derniere: sflFeuille.lignes.length - 1,
+        };
+      });
+      verifier('Entrée ajoute une ligne à la feuille', vu.lignes >= 2,
+        vu.lignes + ' ligne(s) après un appui sur Entrée');
+      verifier('la feuille se lit avec ses préfixes, une étape par ligne',
+        /^9\/2 \+ 5\/6 =/.test(vu.lu) && /\n= /.test(vu.lu),
+        'lu : ' + JSON.stringify(vu.lu));
+      verifier('un jeton tombe dans la ligne où l\'élève écrit',
+        vu.jetons && vu.jetonLigne === vu.derniere,
+        'jetons affichés : ' + vu.jetons + ', inséré dans la ligne ' + vu.jetonLigne
+          + ' au lieu de ' + vu.derniere);
+      /* le verdict de l'IA, et lui seul, fait la note */
+      await s.page.evaluate(() => { window.__verdict = true; });
+      await s.page.click('#sflActions .btn-primary');
+      await s.page.waitForTimeout(700);
+      const juste = await s.page.evaluate(() => ({
+        envoye: window.__envoye ? window.__envoye.reponse : null,
+        regle: window.__envoye ? (window.__envoye.attendu || '').length : 0,
+        score: test.score, note: test.answers[test.answers.length-1].correct,
+      }));
+      verifier('la copie de l\'élève part au modèle, préfixes compris',
+        !!juste.envoye && /^9\/2 \+ 5\/6 =/.test(juste.envoye) && juste.regle > 500,
+        'envoyé : ' + JSON.stringify(juste.envoye) + ', règle : ' + juste.regle + ' caractères');
+      verifier('un « correct » du modèle donne le point',
+        juste.score === 1 && juste.note === true,
+        'score ' + juste.score + ', note ' + juste.note);
+      /* et un refus ne le donne pas */
+      await s.page.click('#sflActions .btn-primary');   /* question suivante */
+      await s.page.waitForTimeout(900);
+      await s.page.evaluate(() => { window.__verdict = false; sflFeuille.lignes[0].mf.setValue('\\frac{1}{2}'); });
+      await s.page.waitForTimeout(200);
+      await s.page.click('#sflActions .btn-primary');
+      await s.page.waitForTimeout(700);
+      const faux = await s.page.evaluate(() => ({ score: test.score, note: test.answers[test.answers.length-1].correct }));
+      verifier('un refus du modèle ne donne pas le point',
+        faux.score === 1 && faux.note === false, 'score ' + faux.score + ', note ' + faux.note);
+      verifier('la saisie libre ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
     /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
        l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui

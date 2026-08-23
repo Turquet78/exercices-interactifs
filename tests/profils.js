@@ -81,7 +81,8 @@ const RAPPELS_SECONDE = `(function(){
                'plus-petit-ensemble':'pge','lecture-variations':'lv','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
-               'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf' };
+               'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
+               'somme-fractions-libre':'sfl' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -334,7 +335,15 @@ module.exports = {
                validation, comme le moteur générique.
        Les nommer les met sous surveillance : si l'un de ces écrans disparaît,
        le banc réclame le retrait de sa dispense au lieu de l'oublier ici. */
-    soutienEnDirect: { sans: ['lv', 'def', 'pge'] },
+    /* « sfl » corrige AUTREMENT : la saisie est libre, et c'est l'IA qui lit le
+       calcul. Il n'y a donc rien à colorer pendant la frappe — et surtout, un
+       appel au modèle à chaque touche serait absurde. Le manque est DÉCLARÉ
+       plutôt que le contrôle affaibli pour tout le monde. */
+    /* L'exercice à saisie LIBRE : l'élève écrit son calcul dans une feuille
+       ligne par ligne, et c'est l'IA qui le lit. Rien de cet écran ne se
+       mesure hors d'un vrai navigateur. */
+    saisieLibre: { exercice: 'somme-fractions-libre' },
+    soutienEnDirect: { sans: ['lv', 'def', 'pge', 'sfl'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
