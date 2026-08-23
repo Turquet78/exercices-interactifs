@@ -119,6 +119,12 @@ module.exports = {
        « lire » nomme le LECTEUR du niveau : c'est le seul endroit où le résidu
        peut être arrêté, et le seul endroit qu'un sabotage doit rougir. */
     residuMathlive: { lire: 'id => pmPlain(document.getElementById(id))' },
+
+    /* {somme-fractions} : les deux niveaux le partagent, au caractère près.
+       Le banc navigateur y remplit une copie JUSTE case par case et exige
+       qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
+       juge pas à moitié écrite —, puis mesure l'alignement des termes. */
+    sommeFractions: { exercice: 'somme-fractions' },
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -279,6 +285,12 @@ module.exports = {
        « lire » nomme le LECTEUR du niveau : c'est le seul endroit où le résidu
        peut être arrêté, et le seul endroit qu'un sabotage doit rougir. */
     residuMathlive: { lire: 'id => pmPlain(document.getElementById(id))' },
+
+    /* {somme-fractions} : les deux niveaux le partagent, au caractère près.
+       Le banc navigateur y remplit une copie JUSTE case par case et exige
+       qu'aucune ne vire au rouge en chemin — une paire de multiplicateurs ne se
+       juge pas à moitié écrite —, puis mesure l'alignement des termes. */
+    sommeFractions: { exercice: 'somme-fractions' },
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */

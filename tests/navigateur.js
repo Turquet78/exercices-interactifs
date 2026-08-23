@@ -1492,6 +1492,100 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 duodecies. {somme-fractions} : rien ne rougit à tort, et la ligne est droite ===== */
+    /* Deux défauts signalés par Turquet en août 2026, sur le même écran.
+       LE PREMIER est le pire qui puisse arriver : une case JUSTE comptée fausse.
+       En soutien, l'élève tapait 1 dans « 2 × □ », passait à la case du dessous,
+       et la première virait au ROUGE — parce que sa jumelle était encore vide et
+       qu'une paire de multiplicateurs ne veut rien dire à moitié écrite. La note
+       finale, elle, était juste : seule la couleur mentait, ce qui est
+       exactement ce qui l'a laissée passer. On tape donc une copie JUSTE case
+       par case, et AUCUNE ne doit rougir en chemin.
+       LE SECOND est d'écriture : un terme entier s'écrivait à 2rem quand les
+       chiffres d'une fraction sont à 1,33rem, dans une autre couleur — « 7/6 + 9 »
+       avait un 9 deux fois plus gros que le 7, et le « + » ne tombait pas sur le
+       trait. On mesure les deux, dans l'énoncé ET au début de la ligne.
+       Seul un vrai navigateur peut voir tout cela : jsdom n'a pas MathLive, donc
+       aucune case ne se remplit et rien n'a de position. */
+    titre('6 duodecies. LES FRACTIONS : RIEN NE ROUGIT À TORT, ET LA LIGNE EST DROITE');
+    if(!P.sommeFractions){
+      ignorer('aucune case juste ne rougit pendant la saisie',
+        'ce niveau n\'a pas l\'exercice de somme de fractions');
+      ignorer('un terme entier s\'écrit comme une fraction, et le signe tombe sur le trait',
+        'ce niveau n\'a pas l\'exercice de somme de fractions');
+    } else if(!ml){
+      ignorer('aucune case juste ne rougit pendant la saisie', 'MathLive absent : aucune case ne se remplit');
+      ignorer('un terme entier s\'écrit comme une fraction, et le signe tombe sur le trait', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.sommeFractions.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.waitForTimeout(1200);
+      /* La question du signalement : 2/5 + 5. Un terme ENTIER, parce que c'est
+         là que les deux défauts se voyaient. */
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = {n1:2,d1:5,n2:5,d2:1,op:'+',D:5,k1:1,k2:5,N1:2,N2:25,N:27};
+        renderSFTest();
+      });
+      await s.page.waitForTimeout(800);
+      const COPIE = [['sf-a1','1'],['sf-b1','1'],['sf-a2','5'],['sf-b2','5'],
+                     ['sf-num1','2'],['sf-num2','25'],['sf-den','5'],['sf-fn','27'],['sf-fd','5']];
+      const rouges = [];
+      for(const [id, v] of COPIE){
+        await s.page.evaluate(i => { const el = document.getElementById(i); if(el) el.focus(); }, id);
+        await s.page.waitForTimeout(70);
+        await s.page.keyboard.type(v, { delay: 20 });
+        /* on quitte la case : c'est le blur qui déclenche la correction en direct */
+        await s.page.evaluate(() => { const e = document.querySelector('.screen.on'); if(e) e.click(); });
+        await s.page.waitForTimeout(200);
+        const vus = await s.page.evaluate(ids => ids.filter(i => {
+          const el = document.getElementById(i); return el && el.classList.contains('bad');
+        }), COPIE.map(c => c[0]));
+        if(vus.length) rouges.push('après « ' + id + ' = ' + v +' » : ' + vus.join(', '));
+      }
+      verifier('aucune case juste ne rougit pendant la saisie',
+        rouges.length === 0, rouges.slice(0, 2).join(' | '));
+
+      const m = await s.page.evaluate(() => {
+        const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+        const mil = e => { const r = e.getBoundingClientRect(); return Math.round((r.top + r.bottom) / 2 * 10) / 10; };
+        const dans = rac => {
+          const h = document.getElementById(rac); if(!h) return null;
+          const frac = h.querySelector('.sf-f:not(.sf-ent)');
+          const ent = h.querySelector('.sf-f.sf-ent .n');
+          const bar = frac ? frac.querySelector('.bar') : null;
+          /* Nommer ce qui manque plutôt que hausser les épaules : un entier
+             écrit « f-whole » — la grosse écriture d'avant — est le défaut
+             même qu'on mesure, pas une mesure impossible. */
+          if(!frac || !ent || !bar)
+            return { manque: h.querySelector('.f-whole') ? 'l\'entier est écrit en « f-whole », la grosse écriture'
+                                                         : 'il manque une fraction ou un entier à mesurer' };
+          const signe = [...h.querySelectorAll('.f-times, b')]
+            .find(x => /^[+−]$/.test((x.textContent || '').trim()));
+          return { fraction: px(frac.querySelector('.n')), entier: px(ent),
+                   ecartMilieu: Math.abs(mil(ent) - mil(bar)),
+                   ecartSigne: signe ? Math.abs(mil(signe) - mil(bar)) : null };
+        };
+        return { enonce: dans('sfPrompt'), ligne: dans('sfHost') };
+      });
+      const juge = (ou, o) => {
+        if(!o || o.manque) return (ou + ' : ' + (o ? o.manque : 'écran introuvable'));
+        if(o.entier !== o.fraction) return (ou + ' : entier à ' + o.entier + 'px contre ' + o.fraction + 'px');
+        if(o.ecartMilieu > 2) return (ou + ' : l\'entier est décalé de ' + o.ecartMilieu + 'px du trait');
+        if(o.ecartSigne === null) return (ou + ' : aucun signe trouvé');
+        if(o.ecartSigne > 3) return (ou + ' : le signe est à ' + o.ecartSigne + 'px du trait');
+        return '';
+      };
+      const dits = [juge('énoncé', m.enonce), juge('ligne', m.ligne)].filter(Boolean);
+      verifier('un terme entier s\'écrit comme une fraction, et le signe tombe sur le trait',
+        dits.length === 0, dits.join(' | '));
+      verifier('cet écran ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
