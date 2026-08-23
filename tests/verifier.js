@@ -1692,7 +1692,7 @@ function exercices(suite){
           ce dispositif, et le seul qui ne se verrait pas à l'œil nu. */
     if(P.signalement){
       const sg = P.signalement;
-      verifierEval(w, 'le signalement emporte l\'état de l\'exercice, pas une image', `(function(){
+      verifierEval(w, 'le signalement emporte l\'état de l\'exercice, rejouable', `(function(){
         currentEleve={id:1,prenom:'Contrôle'}; currentTestId='${sg.exercice}'; currentMode='train';
         test.kind='${t.kind}'; test.questions=[${t.generateur}]; test.idx=0;
         const p=signalementPayload('la case reste rouge');
@@ -1705,6 +1705,144 @@ function exercices(suite){
         if(p.version!==APP_VERSION) return 'la version n\\'est pas jointe';
         return '';
       })()`, v => v === '', undefined);
+
+      /* ---- La copie d'écran, facultative, jointe au signalement ----------
+         Elle est FACULTATIVE, et c'est le mot qui porte tout le contrôle : le
+         signalement doit partir dans tous les cas. Quatre bords, tous silencieux
+         si on les lâche :
+           · sans image, la ligne part comme avant et « capture » vaut null ;
+           · avec image, elle part D'ABORD dans le stockage, et c'est SON chemin
+             qui est écrit dans la ligne — pas un autre, pas rien ;
+           · si le dépôt échoue, le signalement part QUAND MÊME, sans image. Le
+             pire serait qu'un élève qui veut aider reparte les mains vides ;
+           · si l'écriture échoue APRÈS le dépôt, l'image est retirée : gardée,
+             elle serait invisible et décomptée du quota — l'orphelin des cours
+             en PDF, au même endroit.
+         Et le chemin commence par l'identifiant de l'élève : la politique du
+         bucket (migration 007) n'accepte que son propre dossier. Un chemin qui
+         cesserait de le porter serait refusé par la base, chez l'élève, sans que
+         rien ne rougisse ici.
+         La RÉDUCTION de l'image et le COLLAGE ne sont pas éprouvés ici : jsdom
+         n'a ni canvas ni presse-papiers. C'est le banc navigateur qui les voit. */
+      evalPromis(w, `(function(){
+        const vus=[];
+        /* Le double HÉRITE du vrai « sb » : les contrôles qui suivent celui-ci
+           s'exécutent AVANT que la partie asynchrone d'ici n'ait rendu la main,
+           donc avant la restauration. Un double construit à plat leur retirait
+           sb.functions, et le contrôle du contexte envoyé au modèle rougissait
+           en accusant la page — d'un défaut qui était le mien. */
+        const faireSb=(echecDepot, echecEcriture)=>{
+          const j={depots:[], retires:[], lignes:[]};
+          return Object.assign(Object.create(sb||{}), { __j:j,
+            storage:{ from:function(b){ j.bucket=b; return {
+              upload:function(c,f,o){ j.depots.push(c);
+                return Promise.resolve(echecDepot?{data:null,error:{message:'refusé'}}:{data:{path:c},error:null}); },
+              remove:function(cs){ j.retires.push.apply(j.retires,cs);
+                return Promise.resolve({data:cs.map(function(c){return {name:c};}),error:null}); } }; } },
+            from:function(){ return { insert:function(l){ j.lignes.push(l);
+              return Promise.resolve(echecEcriture?{error:{message:'refusé'}}:{error:null}); } }; } });
+        };
+        const preparer=()=>{
+          currentEleve={id:'eleve-42',prenom:'Contrôle'}; currentTestId='${sg.exercice}'; currentMode='train';
+          test.kind='${t.kind}'; test.questions=[${t.generateur}]; test.idx=0;
+          sigEnvoyes={};
+          let champ=document.getElementById('sigInput');
+          if(!champ){ champ=document.createElement('textarea'); champ.id='sigInput'; document.body.appendChild(champ); }
+          champ.value='la case reste rouge alors que j\\'ai bon';
+        };
+        const attendre=()=>new Promise(function(r){ setTimeout(r,0); });
+        const sbSauve=sb, eleveSauve=currentEleve;
+        return (async function(){
+          /* On garde une référence au double plutôt que de relire « sb » après
+             l'attente : la page peut l'avoir remplacé entre-temps, et le
+             contrôle lirait alors le journal d'un autre. */
+          /* 1. sans image */
+          preparer(); sigCapture=null; const d1=faireSb(false,false); sb=d1;
+          await envoyerSignalement(); await attendre();
+          if(d1.__j.lignes.length!==1) vus.push('sans image : '+d1.__j.lignes.length+' ligne écrite au lieu d\\'une');
+          else if(d1.__j.lignes[0].capture!==null) vus.push('sans image : « capture » devrait valoir null');
+          if(d1.__j.depots.length) vus.push('sans image : un dépôt a quand même eu lieu');
+
+          /* 2. avec image */
+          preparer(); sigCapture={blob:{size:1234},url:'',nom:'ecran.png'};
+          const d2=faireSb(false,false); sb=d2;
+          await envoyerSignalement(); await attendre();
+          const j2=d2.__j;
+          if(j2.bucket!=='signalements') vus.push('avec image : déposée dans « '+j2.bucket+' »');
+          if(j2.depots.length!==1) vus.push('avec image : '+j2.depots.length+' dépôt(s) au lieu d\\'un');
+          else{
+            if(j2.lignes.length!==1 || j2.lignes[0].capture!==j2.depots[0])
+              vus.push('avec image : le chemin déposé n\\'est pas celui écrit dans la ligne');
+            if(j2.depots[0].indexOf('eleve-42/')!==0)
+              vus.push('avec image : le chemin ne commence pas par l\\'identifiant de l\\'élève');
+          }
+
+          /* 3. le dépôt échoue : le signalement part quand même */
+          preparer(); sigCapture={blob:{size:1234},url:'',nom:'ecran.png'};
+          const d3=faireSb(true,false); sb=d3;
+          await envoyerSignalement(); await attendre();
+          if(d3.__j.lignes.length!==1) vus.push('dépôt refusé : le signalement est perdu');
+          else if(d3.__j.lignes[0].capture!==null) vus.push('dépôt refusé : un chemin est écrit alors que rien n\\'est déposé');
+
+          /* 4. l'écriture échoue après le dépôt : pas d'orphelin */
+          preparer(); sigCapture={blob:{size:1234},url:'',nom:'ecran.png'};
+          const d4=faireSb(false,true); sb=d4;
+          await envoyerSignalement(); await attendre();
+          const j4=d4.__j;
+          if(!j4.depots.length) vus.push('écriture refusée : le contrôle ne mesure rien, aucun dépôt');
+          else if(j4.retires.indexOf(j4.depots[0])<0)
+            vus.push('écriture refusée : l\\'image déposée reste en ligne, orpheline');
+
+
+          /* ---- et la capture s'en va AVEC le signalement --------------------
+             Deux bords, et le second est le piège le plus coûteux du projet :
+             sous RLS, storage.remove() rend une liste VIDE sans la moindre
+             erreur. La page annoncerait « supprimé » sur un fichier toujours en
+             ligne, et la ligne partirait quand même : signalement perdu, image
+             gardée. Ces cas vivent dans le MÊME contrôle que les précédents, et
+             non dans un second : deux contrôles asynchrones qui se rendent
+             « sb » à tour de rôle se le reprennent l'un l'autre en plein vol —
+             celui-ci lisait alors le double de l'autre, et accusait la page. */
+          const faireSbSup=(refusMuet)=>{
+            const k={retires:[], supprimees:0};
+            return Object.assign(Object.create(sbSauve||{}), { __k:k,
+              storage:{ from:function(){ return { remove:function(cs){
+                if(refusMuet) return Promise.resolve({data:[],error:null});
+                k.retires.push.apply(k.retires,cs);
+                return Promise.resolve({data:cs.map(function(c){return {name:c};}),error:null}); } }; } },
+              from:function(){ const q={ delete:function(){ return q; },
+                eq:function(){ k.supprimees++; return Promise.resolve({error:null}); } }; return q; } });
+          };
+          const confirmSauve=window.confirm;
+          window.confirm=function(){ return true; };
+          if(typeof supprimerSignalement!=='function') vus.push('supprimerSignalement introuvable');
+          else{
+            mesSignalements=[{id:'s1', capture:'eleve-42/abc.jpg', message:'x', lu:false}];
+            const e1=faireSbSup(false); sb=e1;
+            await supprimerSignalement('s1'); await attendre();
+            if(e1.__k.retires.indexOf('eleve-42/abc.jpg')<0) vus.push('suppression : la copie d\\'écran reste en ligne');
+            if(e1.__k.supprimees!==1) vus.push('suppression : la ligne n\\'a pas été supprimée');
+
+            mesSignalements=[{id:'s2', capture:'eleve-42/def.jpg', message:'x', lu:false}];
+            const e2=faireSbSup(true); sb=e2;
+            await supprimerSignalement('s2'); await attendre();
+            if(e2.__k.supprimees!==0)
+              vus.push('refus muet : la ligne est partie alors que l\\'image est restée');
+
+            mesSignalements=[{id:'s3', capture:null, message:'x', lu:false}];
+            const e3=faireSbSup(false); sb=e3;
+            await supprimerSignalement('s3'); await attendre();
+            if(e3.__k.supprimees!==1) vus.push('sans capture : la suppression ne marche plus');
+            if(e3.__k.retires.length) vus.push('sans capture : un retrait a quand même eu lieu');
+          }
+          window.confirm=confirmSauve;
+          sb=sbSauve; currentEleve=eleveSauve;
+          return vus.slice(0,3).join(' | ');
+        })();
+      })()`, r => {
+        verifier('la copie d’écran part avec le signalement, s’en va avec lui, et ne le perd jamais',
+          r.ok && r.valeur === '', r.ok ? r.valeur : ('erreur JavaScript : ' + r.erreur));
+      });
 
       /* sb est nul hors navigateur : le banc pose un double qui note les tables
          touchées. C'est la seule façon de voir OÙ part l'écriture — un contrôle
@@ -1773,7 +1911,7 @@ function exercices(suite){
         return absentes.length ? absentes.join(', ') : '';
       })()`, v => v === '', undefined);
     } else {
-      ignorer('le signalement emporte l\'état de l\'exercice, pas une image',
+      ignorer('le signalement emporte l\'état de l\'exercice, rejouable',
         'ce niveau n\'a pas déclaré sa table de signalements (voir tests/profils.js)');
     }
 

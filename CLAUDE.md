@@ -248,6 +248,47 @@ d'intervalle — qu'aucune règle ne distingue d'une référence. Une substituti
 mécanique y avait d'ailleurs transformé 105 décimales en identifiants, dans les
 illustrations de la Terminale.
 
+**Une copie d'écran jointe est FACULTATIVE, et tout le reste en découle.**
+L'élève peut ajouter une image à son signalement — il la COLLE (Ctrl+V, le
+réflexe après Impr. écran ou Win+Maj+S), la dépose, ou clique pour la choisir ;
+sur tablette ce dernier geste ouvre la galerie. Trois gestes, parce qu'un seul
+en laisserait la moitié dehors. Le collage s'écoute sur la FENÊTRE et non sur la
+zone : au moment du Ctrl+V le curseur est dans le champ de texte, et un écouteur
+posé sur la zone ne recevrait jamais rien.
+L'instantané reste le principal — il REJOUE l'écran, ce qu'une image ne fera
+jamais. La capture sert là où l'instantané est aveugle : un défaut d'affichage,
+un écran de téléphone, un dérangement hors de l'exercice.
+**Un envoi d'image qui échoue ne fait pas perdre le signalement** : le texte part
+seul, et la page le dit. Le pire serait qu'un élève qui veut aider reparte les
+mains vides. À l'inverse, une image déposée dont l'écriture échoue ensuite est un
+ORPHELIN — invisible et décompté du quota : elle est retirée, comme pour les PDF
+de cours.
+**L'image est réduite dans le navigateur avant l'envoi** (1600 px, JPEG) : une
+capture brute pèse 1 à 3 Mo, le plan gratuit offre un giga-octet, et le réseau
+d'un lycée n'aime pas les gros envois. Le contrôle mesure la LARGEUR et non le
+poids : une image d'essai en aplat se comprime si bien que comparer les octets ne
+prouverait rien.
+**Le bucket est PRIVÉ** (migration 007), contrairement à celui des cours : c'est
+l'écran d'un mineur, avec son prénom dessus. Le professeur le lit par une adresse
+signée. Le chemin commence par l'identifiant de l'élève, et la politique n'accepte
+que son propre dossier — un chemin qui cesserait de le porter serait refusé par la
+base, chez l'élève, sans que rien ne rougisse au banc. L'élève n'a même pas le
+droit de RELIRE ce qu'il vient d'envoyer : le droit qu'on ne donne pas est celui
+qu'on n'a pas à surveiller. Supprimer un signalement emporte son image, et le
+refus muet s'y applique — `remove()` rend une liste VIDE quand les droits
+manquent : on la compte, sinon la ligne partirait pendant que l'image resterait.
+**La migration se joue AVANT la mise en ligne, pas après.** C'est la leçon de la
+003, et elle se répète : la page écrit la colonne `capture`, et sans elle l'élève
+reçoit une erreur au moment où il essaie d'aider.
+**Deux pièges de banc s'y sont montrés.** Deux contrôles ASYNCHRONES qui se
+rendent `sb` à tour de rôle se le reprennent l'un l'autre en plein vol : le
+second lisait le double du premier et accusait la page. Ils vivent dans un seul
+contrôle, séquentiel. Et surtout : `[hidden]` pose `display:none` depuis la
+feuille du NAVIGATEUR, qu'un `display:flex` écrit dans la page bat — la zone
+restait affichée sous l'aperçu pendant que `zone.hidden` valait `true`. Le banc
+lisait la propriété, passait au vert, et l'écran était faux. Il mesure le
+RECTANGLE désormais. Ça ne s'est vu que sur une capture.
+
 **Un signalement d'élève est du texte libre tapé par un mineur, et le rejeu se
 fait sous le compte du professeur.** Le bouton « Signaler un problème » envoie
 l'INSTANTANÉ de l'exercice — celui que la pause enregistre — et non une capture

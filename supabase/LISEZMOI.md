@@ -359,6 +359,64 @@ fichier se termine donc par un contrôle qui **échoue bruyamment** si le bucket
 manque, s'il est resté public, ou s'il n'a pas ses quatre politiques. Lisez la
 ligne `NOTICE` qu'il affiche.
 
+---
+
+## 3 sexies. La copie d'écran jointe à un signalement (2 min)
+
+Collez **`migrations/007_capture_de_signalement.sql`** dans l'éditeur SQL et
+exécutez-le. **Collez le fichier ENTIER**, pour la même raison qu'au 3 quinquies.
+
+**À jouer AVANT de mettre en ligne la version qui porte la zone de copie
+d'écran.** Sans cette étape, l'élève qui joint une image reçoit une erreur au
+moment précis où il essaie d'aider — c'est ce que la migration 003 avait déjà
+coûté. Dans l'autre sens, il n'y a aucun risque : une colonne en trop et un
+bucket inutilisé ne gênent personne.
+
+### Ce qu'elle pose
+
+Une colonne **`capture`** sur les trois tables de signalements — le CHEMIN du
+fichier, jamais l'image : une image en base64 ferait grossir la table de
+centaines de kilo-octets par ligne, et la sauvegarde nocturne avec elle.
+
+Un bucket **`signalements`**, **privé**, limité à 3 Mo et aux seuls types
+`image/jpeg`, `image/png`, `image/webp`. Trois politiques :
+
+| Geste | Qui |
+|---|---|
+| déposer | l'élève, **dans son propre dossier** — le premier segment du chemin est son identifiant, vérifié contre son compte |
+| lire | le professeur, et lui seul |
+| supprimer | le professeur |
+
+Aucune politique de **remplacement**, volontairement : une capture est une pièce
+déposée, pas un brouillon qu'on retouche.
+
+### Pourquoi privé, alors que `cours` est public
+
+Ce n'est pas la même chose. Un cours en PDF est un document destiné à être lu ;
+une copie d'écran est l'écran d'un élève **mineur**, avec son prénom affiché
+dessus, ses réponses et sa note. Public voudrait dire lisible par quiconque
+devine l'adresse. Le professeur, lui, est connecté : il demande une adresse
+signée, valable une heure.
+
+L'élève ne peut même pas **relire** ce qu'il vient d'envoyer — rien dans la page
+n'en a besoin, et le droit qu'on ne donne pas est celui qu'on n'a pas à
+surveiller.
+
+### Ce qu'aucun banc ne voit
+
+Comme au 3 quinquies : la partie `storage` n'est pas rejouée par
+`npm run test:base`. La colonne `capture`, elle, est du SQL ordinaire et le banc
+la voit. Le fichier se termine par un contrôle qui **échoue bruyamment** si le
+bucket manque, s'il est resté public, s'il n'a pas ses trois politiques, ou si
+aucune table n'a reçu la colonne.
+
+### Le quota
+
+Le plan gratuit offre 1 Go de stockage. La page **réduit** chaque image avant
+l'envoi (1600 px de large, JPEG) : comptez 150 à 400 Ko par capture. Supprimer
+un signalement emporte son image — c'est ce qui garde le quota stable dans le
+temps.
+
 ### Les sauvegardes ne l'emportent pas
 
 L'export de nuit (`sauvegarde.yml`) exporte les **tables**, pas le stockage. Les
