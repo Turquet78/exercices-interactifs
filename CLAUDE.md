@@ -1265,6 +1265,39 @@ en le cassant neuf fois. Un piège d'outillage s'y est montré : un sabotage qui
 RETIRE une ligne ne se « remet » pas par `replace('', ligne)` — ça prépende en
 tête de fichier, et les sabotages suivants mesurent un fichier déjà cassé.
 
+**Et la même synthèse, mais l'élève JUSTIFIE.** {pourcentage-synthese-libre}
+(Première 2.1.7, demande de Turquet, août 2026) reprend le tirage de
+{pourcentage-synthese} — les trois types, quatre propositions — et remplace la
+chaîne de cases par la feuille de calcul ligne par ligne de la Terminale,
+VIDE : c'est l'IA qui lit la justification. C'est le premier exercice rédigé de
+la Première, et le portage a apporté trois choses d'un coup : `mlFeuille`
+(reprise au caractère près — le contrôle d'identité avec `terminale.html`
+couvre désormais les TROIS fichiers), le bloc CSS `dexp2`, et le piège documenté
+des jetons évité au moment du portage — `pmEstCase()` accepte les deux familles
+de champs, sans quoi la rangée « Insérer » aurait visé le vide.
+**La règle envoyée au modèle nomme la voie attendue avec les nombres MÊMES de
+la question** — commencer par le pourcentage en fraction × le nombre
+(P/100 × N) — dit que les étapes suivantes sont FACULTATIVES, ACCEPTE tout
+calcul différent qui fonctionne, et REFUSE la copie sans étape : recopier la
+proposition n'est pas justifier. N'en tenir qu'un ne tient rien. Le point 1
+tranche selon la proposition réellement choisie, la bonne est déclarée
+STRICTEMENT SECRÈTE, et les bornes de troncature de la fonction Edge sont LUES
+dans sa source — la marge s'affiche à chaque exécution.
+**Deux contrôles se sont pris en défaut au premier sabotage**, et c'est la
+leçon habituelle : chercher « P/100 × N » dans TOUTE la règle ne prouvait rien
+— la ligne d'égalité, plus haut, porte la même écriture — on cherche APRÈS
+« RÈGLE DE DÉCISION » ; et l'identité de « Recommencer » se mesurait sur un
+`test.qId` que `startTest()` ne touche pas — l'identifiant restait par inertie,
+il faut une sentinelle. Éprouvé en le cassant sept fois.
+**Une feuille ne se crée pas dans un écran caché.** `mlFeuille` donne le focus
+à sa première ligne dès sa création, et MathLive lève « reading 'options' »
+sur un champ encore invisible — or la feuille du 2.1.7 vit derrière le choix
+de la proposition (`step-hidden`), un état que la Seconde et la Terminale ne
+connaissent pas : leurs feuilles naissent toujours visibles. La feuille n'est
+donc créée qu'une proposition choisie ; `mlFeuille` reste intouchée. Seul le
+banc navigateur pouvait le voir — jsdom n'a pas MathLive — et il l'a vu à la
+première visite.
+
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
 coefficient, l'élève dit le sens puis le pourcentage. Le piège qu'il vise est

@@ -2337,6 +2337,7 @@ function exercices(suite){
     simplifierBarres(w, P);
     multiplierFractions(w, P);
     synthesePourcentage(w, P);
+    syntheseLibrePourcentage(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -3652,6 +3653,99 @@ function synthesePourcentage(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* {pourcentage-synthese-libre} (Première 2.1.7) — les questions de la
+   synthèse, mais l'élève JUSTIFIE dans la feuille de calcul de la Terminale,
+   vide, et c'est l'IA qui lit. Tout le risque est DANS CE QUI PART AU MODÈLE :
+     · la règle nomme la voie attendue avec les nombres MÊMES de la question
+       (P/100 × N), dit que les étapes suivantes sont FACULTATIVES, ACCEPTE
+       tout calcul différent qui fonctionne, et REFUSE la copie sans étape —
+       n'en tenir qu'un ne tient rien ;
+     · la bonne proposition y est déclarée STRICTEMENT SECRÈTE, et le point 1
+       tranche selon la proposition réellement choisie ;
+     · l'énoncé et la règle tiennent dans les bornes de troncature de la
+       fonction Edge, LUES dans sa source — une règle coupée en son milieu ne
+       lève rien, le modèle corrige avec la moitié reçue ;
+     · le tirage mêle les trois types, chacun au moins une fois, ordre variable.
+   La fonction Edge ne se déploie pas toute seule : ce contrôle compare la page
+   au FICHIER du dépôt, il ne voit pas ce qui tourne chez Supabase. */
+function syntheseLibrePourcentage(w, P){
+  const present = evaluer(w, "typeof startPctSyntheseLibre==='function' && typeof pslAttenduIA==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la règle de la synthèse rédigée est complète et tient dans la borne de la fonction Edge',
+      'ce niveau n\'a pas la synthèse rédigée des pourcentages');
+    return;
+  }
+  let bornes;
+  try{
+    const srcF = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = srcF.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = srcF.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a) bornes = { question:+q[1], attendu:+a[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier('la règle de la synthèse rédigée est complète et tient dans la borne de la fonction Edge',
+      false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, 'la règle de la synthèse rédigée est complète et tient dans la borne de la fonction Edge', `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='pourcentage-synthese-libre';
+
+    /* ---- 1. le tirage : les trois types, ordre variable ------------------- */
+    const ordres={};
+    for(let t=0;t<40 && !vus.length;t++){
+      startPctSyntheseLibre();
+      const types=test.questions.map(function(q){ return q.type; });
+      ['res','val','pct'].forEach(function(ty){
+        if(types.indexOf(ty)<0) vus.push('tirage '+t+' : aucun type « '+ty+' »');
+      });
+      ordres[types.join(',')]=1;
+    }
+    if(!vus.length && Object.keys(ordres).length<2)
+      vus.push('l\\'ordre des types ne change jamais d\\'un tirage à l\\'autre');
+
+    /* ---- 2. la règle, par type et par choix ------------------------------- */
+    let pireQ=0, pireA=0, pireEti='';
+    const gens=[genPctRes,genPctDepart,genPctTaux];
+    for(let i=0;i<400 && !vus.length;i++){
+      const q=gens[i%3](); q.choisi=(i%2===0)?q.bon:((q.bon+1)%4);
+      const e=pslEnonceIA(q), a=pslAttenduIA(q);
+      if(e.length>pireQ) pireQ=e.length;
+      if(a.length>pireA){ pireA=a.length; pireEti=q.type+' '+q.P+'% de '+q.N; }
+      const eti='('+q.type+', choix '+(q.choisi===q.bon?'juste':'faux')+') ';
+      /* la voie attendue doit être NOMMÉE dans la règle de décision : la ligne
+         d'égalité, plus haut, porte la même écriture — chercher dans tout le
+         texte ne prouvait rien, un sabotage l'a montré en restant vert */
+      const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
+      if(regle.indexOf(q.P+'/100 × '+q.N)<0){ vus.push(eti+'la règle de décision n\\'écrit pas la voie attendue '+q.P+'/100 × '+q.N); break; }
+      if(a.indexOf('FACULTATIVES')<0){ vus.push(eti+'la règle n\\'a plus les étapes facultatives'); break; }
+      if(a.indexOf('FONCTIONNENT')<0 || a.indexOf('idée différente')<0){ vus.push(eti+'la règle n\\'accepte plus un calcul différent qui fonctionne'); break; }
+      if(!/sans aucun calcul, est REFUSÉ/.test(a)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
+      if(a.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
+      if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
+      if(q.choisi===q.bon && a.indexOf('c\\u2019est la bonne')<0){ vus.push(eti+'le point 1 ne valide pas le bon choix'); break; }
+      if(q.choisi!==q.bon && a.indexOf('N\\u2019EST PAS la bonne')<0){ vus.push(eti+'le point 1 ne condamne pas le mauvais choix'); break; }
+      if(q.prod!==q.P*q.N || q.result*100!==q.prod){ vus.push(eti+'l\\'énoncé contredit sa correction'); break; }
+      if(e.indexOf(QLET[q.choisi]+')')<0){ vus.push(eti+'l\\'énoncé envoyé ne dit pas ce que l\\'élève a choisi'); break; }
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');
+    if(!vus.length && pireQ>B.question-300)
+      vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
+
+    /* ---- 3. l'identité : « Recommencer » relance bien la synthèse rédigée - */
+    test.kind='psl'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!=='pourcentage-synthese-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée');
+
+    return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
+  })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
+  if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
+    const p=mesure.split('|');
+    console.log('   · la plus longue règle de la synthèse rédigée : '+p[1]+' caractères pour '+bornes.attendu
+      +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
+  }
+}
 /* {ordre-croissant} — les nombres de {placer-intervalle}, à ranger avec « < ».
    Quatre bords, et n'en tenir qu'un ne tient rien :
      · le tirage vient de plcGen() et garantit trois nombres distincts, dont
@@ -3904,10 +3998,12 @@ function fichesDeTravail(w, apres){
    parce qu'il remplace sb : lancé en parallèle, un autre contrôle le lui
    reprendrait en plein vol — le piège documenté. */
 function verdictColore(w, apres){
-  const present = evaluer(w, "typeof checkMLL==='function' && typeof checkSFL==='function'");
+  /* Trois fonctions peignent un verdict d'IA : checkSFL et checkMLL en
+     Seconde, checkPsl en Première — on exerce celles que le niveau possède. */
+  const present = evaluer(w, "(typeof checkMLL==='function' && typeof checkSFL==='function') || typeof checkPsl==='function'");
   if(!present.ok || !present.valeur){
     ignorer('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux',
-      'ce niveau n\'a pas les exercices rédigés de la Seconde');
+      'ce niveau n\'a pas d\'exercice rédigé corrigé par l\'IA');
     return longueurContexteIA(w, apres);
   }
   evalPromis(w, `(async function(){
@@ -3923,7 +4019,22 @@ function verdictColore(w, apres){
     const couleur=function(id){ const c=(document.getElementById(id)||{}).className||'';
       return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
 
+    /* 2.1.7 (Première) — la synthèse rédigée (checkPsl) */
+    if(typeof checkPsl==='function'){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'psl', questions:[{type:'res',P:30,N:40,unit:'€',prod:1200,result:12,opts:[11,12,13,14],bon:1,choisi:1,ci:0,v:0}],
+        idx:0, score:0, answers:[], startTime:Date.now(), locked:false, pslBusy:false});
+      test.qId='pourcentage-synthese-libre';
+      pslFeuille=feuille('30/100 × 40 = 12');
+      verdict(true); await checkPsl();
+      if(couleur('pslFeedback')!=='vert') vus.push('2.1.7 : verdict juste peint « '+couleur('pslFeedback')+' » au lieu de vert');
+      test.locked=false; test.pslBusy=false; pslFeuille=feuille('30/100 × 40 = 11');
+      verdict(false); await checkPsl();
+      if(couleur('pslFeedback')!=='rouge') vus.push('2.1.7 : verdict faux peint « '+couleur('pslFeedback')+' » au lieu de rouge');
+    }
+
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */
+    if(typeof checkMLL==='function'){
     Object.keys(test).forEach(function(k){ delete test[k]; });
     Object.assign(test,{kind:'mll', questions:mltBuildQuestions(), idx:0, score:0,
       answers:[], startTime:Date.now(), locked:false, mllBusy:false});
@@ -3946,6 +4057,7 @@ function verdictColore(w, apres){
     test.locked=false; test.sflBusy=false; sflFeuille=feuille('1/2 + 1/3 = 2/5');
     verdict(false); await checkSFL();
     if(couleur('sflFeedback')!=='rouge') vus.push('4.5 : verdict faux peint « '+couleur('sflFeedback')+' » au lieu de rouge');
+    }
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok) verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', false, 'erreur JavaScript : '+r.erreur);
