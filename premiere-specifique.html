@@ -1661,7 +1661,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=160;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=161;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4928,6 +4928,10 @@ const DIM_ENONCES=[
   poids(siEuros(q=>`Un revenu de <b>${q.N} €</b> bénéficie d'un abattement de <b>${q.P} %</b>. Quel est le montant imposable ?`,null,1000),3)
 ];
 
+/* 4 questions, comme les quatre exercices qui suivent (demande de Turquet,
+   août 2026) : le nombre vit à côté du générateur, le banc le compare à
+   tests/profils.js. */
+const PCT_NB=4;
 function genPercent(){
   let P,N;
   do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N));
@@ -4941,7 +4945,7 @@ async function startPercent(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='pct';
-  test.questions=Array.from({length:8},genPercent);
+  test.questions=Array.from({length:PCT_NB},genPercent);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('ptest'); renderPTest();
 }
@@ -6201,7 +6205,7 @@ async function finishSyn(){
      type 'pct' \u2014 on donne N et R, l'\u00e9l\u00e8ve retrouve P (le pourcentage).
    C'est la v\u00e9rification qui r\u00e9v\u00e8le l'erreur : un \u00e9l\u00e8ve peut calculer parfaitement
    et s'\u00eatre tromp\u00e9 de proposition. Les deux sont donc jug\u00e9s s\u00e9par\u00e9ment. */
-const QD_NB=6;                       /* nombre de questions */
+const QD_NB=4;                       /* nombre de questions — 4 du 2.1.4 au 2.1.7 (demande de Turquet, août 2026) */
 const QLET=['a','b','c','d'];
 /* ---- Plage de nombres des exercices 3.1.x ----
    Ce qui limite la plage, c'est l'étape ② : elle demande d'écrire le produit P × N.

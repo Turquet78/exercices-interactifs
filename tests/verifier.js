@@ -1224,6 +1224,26 @@ function branchements(w){
      la Première garde 6. DEUX sources : la page a ses constantes (SF_NB,
      MLT_NB), le banc compare à tests/profils.js — lire la constante de la page
      et la comparer à elle-même ne prouverait rien. */
+  /* ---- Le NOMBRE de questions des exercices de pourcentages (Première) ---
+     4 du 2.1.3 au 2.1.7 (demande de Turquet, août 2026). On appelle les VRAIS
+     démarreurs — chacun a sa fabrique, et un nombre changé dans l'une ne dit
+     rien des autres. */
+  if(P.nbQuestionsPourcentages){
+    verifierEval(w, 'les exercices de pourcentages posent le bon nombre de questions', `(function(){
+      const attendu=${JSON.stringify(P.nbQuestionsPourcentages)}, vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      const essais=[['2.1.3','startPercent'],['2.1.4','startPctDepart'],['2.1.5','startPctTaux'],
+                    ['2.1.6','startPctSynthese'],['2.1.7','startPctSyntheseLibre']];
+      essais.forEach(function(e){
+        if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
+        window[e[1]]();
+        if(!test.questions || test.questions.length!==attendu)
+          vus.push(e[0]+' : '+(test.questions?test.questions.length:0)+' questions au lieu de '+attendu);
+      });
+      return vus.join(' | ');
+    })()`, v => v === '', undefined);
+  }
+
   if(P.nbQuestionsFractions){
     verifierEval(w, 'les exercices de fractions posent le bon nombre de questions', `(function(){
       const attendus=${JSON.stringify(P.nbQuestionsFractions)}, vus=[];
