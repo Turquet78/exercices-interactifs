@@ -2313,6 +2313,7 @@ function exercices(suite){
     }
     simplifierBarres(w, P);
     multiplierFractions(w, P);
+    synthesePourcentage(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -3488,6 +3489,134 @@ function multiplierFractions(w, P){
         if(/simplifi/i.test(p2)){ vus.push('le point 2 parle de simplification alors que le produit est irréductible'); break; }
       }
     }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {pourcentage-synthese} (Première 2.1.6) — la synthèse de {pourcentage},
+   {pourcentage-depart} et {pourcentage-taux} sur le moteur pctq. Ses bords :
+     · le tirage mêle les TROIS types, chacun au moins une fois, et l'ordre
+       change d'un tirage à l'autre — sinon l'élève apprend le rang, pas la
+       méthode ; la bonne réponse est calculée des nombres mêmes de l'énoncé,
+       jamais rangée à part, et les propositions sont quatre entiers distincts,
+       mélangés (à type égal, le rang de la bonne varie) ;
+     · TOUTES les cases sont vides, y compris le nombre de départ (demande de
+       Turquet, août 2026) — ailleurs (2.1.4, 2.1.5) la page l'écrit encore ;
+     · la case du nombre se JUGE : juste elle verdit, fausse elle rougit seule,
+       et la note la compte ;
+     · une case vide ne rougit jamais, et une case seule dans sa fraction se
+       juge sur sa PROMESSE, pas sur sa jumelle vide — mesuré en SOUTIEN, le
+       seul mode où le bord est atteignable ;
+     · l'aide du type « résultat » ne révèle JAMAIS le résultat — elle rappelle
+       la proposition choisie ; et le message « calcul juste, proposition
+       fausse » ne dit pas « 12, et non 12 ». */
+function synthesePourcentage(w, P){
+  const present = evaluer(w, "typeof startPctSynthese==='function' && typeof genPctRes==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la synthèse des pourcentages mêle les trois types, et toutes ses cases sont vides',
+      'ce niveau n\'a pas la synthèse « prendre un pourcentage »');
+    return;
+  }
+  verifierEval(w, 'la synthèse des pourcentages mêle les trois types, et toutes ses cases sont vides', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='pourcentage-synthese';
+
+    /* ---- 1. le tirage : les trois types, mélangés, la bonne réponse calculée */
+    const ordres={}, rangs={res:{},val:{},pct:{}};
+    for(let t=0;t<60 && !vus.length;t++){
+      startPctSynthese();
+      const qs=test.questions;
+      if(!qs || qs.length<3){ vus.push('tirage : '+(qs?qs.length:0)+' questions'); break; }
+      const types=qs.map(function(q){ return q.type; });
+      ['res','val','pct'].forEach(function(ty){
+        if(types.indexOf(ty)<0) vus.push('tirage '+t+' : aucun type « '+ty+' » sur '+qs.length+' questions');
+      });
+      ordres[types.join(',')]=1;
+      qs.forEach(function(q,i){
+        const eti='tirage '+t+' q'+i+' ('+q.type+')';
+        if(q.prod!==q.P*q.N || q.result*100!==q.prod){ vus.push(eti+' : l\\'énoncé contredit sa correction'); return; }
+        if(!q.opts || q.opts.length!==4){ vus.push(eti+' : '+(q.opts?q.opts.length:0)+' propositions'); return; }
+        if(new Set(q.opts).size!==4) vus.push(eti+' : deux propositions identiques ('+q.opts.join(', ')+')');
+        if(q.opts.some(function(v){ return !Number.isInteger(v) || v<1; }))
+          vus.push(eti+' : une proposition n\\'est pas un entier positif ('+q.opts.join(', ')+')');
+        const attendu=(q.type==='res')?q.result:(q.type==='pct'?q.P:q.N);
+        if(q.opts[q.bon]!==attendu) vus.push(eti+' : « bon » désigne '+q.opts[q.bon]+' au lieu de '+attendu);
+        rangs[q.type][q.bon]=1;
+      });
+    }
+    if(!vus.length && Object.keys(ordres).length<2)
+      vus.push('l\\'ordre des types ne change jamais d\\'un tirage à l\\'autre');
+    ['res','val','pct'].forEach(function(ty){
+      if(!vus.length && Object.keys(rangs[ty]).length<3)
+        vus.push('à type égal ('+ty+'), la bonne réponse ne change pas assez de rang : '+Object.keys(rangs[ty]).join(','));
+    });
+
+    /* ---- 2. toutes les cases sont VIDES, y compris le nombre de départ ---- */
+    const RES={type:'res',P:30,N:40,unit:'€',prod:1200,result:12,opts:[11,12,13,14],bon:1,choisi:null,ci:0,v:0};
+    const fixe=function(q,choix){ test.idx=0; test.locked=false;
+      test.questions[0]=JSON.parse(JSON.stringify(q)); test.questions[0].choisi=choix;
+      renderQTest(); return test.questions[0]; };
+    const CASES=['q1n','q1d','qN','q2n','q2d','q3'];
+    const el=function(id){ return document.getElementById(id); };
+    startPctSynthese(); fixe(RES,1);
+    CASES.forEach(function(id){
+      const e=el(id);
+      if(!e) vus.push('la case '+id+' manque à l\\'écran de la synthèse');
+      else if(String(e.value||'').trim()!=='') vus.push('la case '+id+' n\\'est pas vide au départ');
+      else if(e.tagName!=='MATH-FIELD') vus.push(id+' n\\'est pas une case de saisie ('+e.tagName+')');
+    });
+    /* le bord opposé : en 2.1.4, le nombre reste ÉCRIT par la page */
+    startPctDepart(); test.questions[0].choisi=0; test.idx=0; test.locked=false; renderQTest();
+    if(el('qN')) vus.push('2.1.4 a maintenant une case qN : le nombre doit y rester écrit par la page');
+
+    /* ---- 3. la case du nombre se juge, et la note la compte -------------- */
+    const remplir=function(o){ CASES.forEach(function(id){ const e=el(id);
+      if(e) e.value=(o[id]===undefined)?'':String(o[id]); }); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const JUSTE={q1n:30,q1d:100,qN:40,q2n:1200,q2d:100,q3:12};
+    startPctSynthese(); fixe(RES,1); remplir(JUSTE); test.answers=[]; checkQAnswer();
+    CASES.forEach(function(id){ if(peint(id)!=='vert') vus.push('copie juste : '+id+' est peinte « '+peint(id)+' »'); });
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste ne vaut pas le point');
+    fixe(RES,1); remplir(Object.assign({},JUSTE,{qN:50})); test.answers=[]; checkQAnswer();
+    if(peint('qN')!=='rouge') vus.push('un nombre de départ FAUX est peint « '+peint('qN')+' »');
+    ['q1n','q1d','q2n','q2d','q3'].forEach(function(id){
+      if(peint(id)!=='vert') vus.push('qN faux : la case juste '+id+' est peinte « '+peint(id)+' »'); });
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('un nombre de départ faux vaut quand même le point');
+
+    /* ---- 4. cases vides et paires à moitié écrites, en SOUTIEN ----------- */
+    currentMode='soutien';
+    fixe(RES,1); remplir({q1n:30}); checkQAnswer();
+    if(peint('q1n')==='rouge') vus.push('30 seul au numérateur rougit alors qu\\'il promet 30/100');
+    ['q1d','qN','q2n','q2d','q3'].forEach(function(id){
+      if(peint(id)==='rouge') vus.push('en soutien, la case vide '+id+' rougit'); });
+    fixe(RES,1); remplir({q1n:7}); checkQAnswer();
+    if(peint('q1n')!=='rouge') vus.push('7 seul au numérateur ne rougit pas : aucune fraction 7/d ne vaut 30/100');
+    fixe(RES,1); remplir({q1d:10}); checkQAnswer();
+    if(peint('q1d')==='rouge') vus.push('10 seul au dénominateur rougit alors qu\\'il promet 3/10 = 30/100');
+    if(peint('q1d')==='rien') vus.push('le dénominateur seul n\\'est pas jugé du tout');
+
+    /* ---- 5. l'aide du type « résultat » ne révèle rien ------------------- */
+    currentMode='train';
+    fixe(RES,0);                                     /* proposition FAUSSE : 11 */
+    const aide=(document.querySelector('#qHost ~ .pt-aide')||document.querySelector('.screen.on .pt-aide')||{}).textContent||'';
+    if(aide.indexOf('11')<0) vus.push('l\\'aide ne rappelle pas la proposition choisie : « '+aide+' »');
+    if(/retrouver\\s+12/.test(aide)) vus.push('l\\'aide du type « résultat » RÉVÈLE le résultat : « '+aide+' »');
+
+    /* ---- 6. « calcul juste, proposition fausse », sans non-sens ---------- */
+    currentMode='soutien';
+    fixe(RES,0); remplir(JUSTE); checkQAnswer();
+    const fb=(el('qFeedback')||{}).textContent||'';
+    if(!/tu avais choisi\\s+11/.test(fb)) vus.push('le message ne nomme pas la proposition choisie : « '+fb+' »');
+    if(/et non\\s+12/.test(fb)) vus.push('le message dit « fait 12, et non 12 » : « '+fb+' »');
+    currentMode='train';
+
+    /* ---- 7. l'identité : « Recommencer » relance bien la synthèse -------- */
+    test.kind='pctq'; test.qId='pourcentage-synthese'; restartCurrentTest();
+    if(test.qId!=='pourcentage-synthese') vus.push('« Recommencer » relance '+test.qId+' au lieu de la synthèse');
+
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
