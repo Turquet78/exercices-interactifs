@@ -3470,23 +3470,32 @@ function multiplierFractions(w, P){
         if(a.indexOf(g.P+'/'+g.Q)<0){ vus.push('la règle ne nomme pas le résultat '+g.P+'/'+g.Q); break; }
         if(a.indexOf('('+g.n1+'×'+g.n2+')/('+g.d1+'×'+g.d2+')')<0){ vus.push('la règle n\\'écrit pas l\\'étape du produit'); break; }
         if(e.indexOf(g.n1+'/'+g.d1)<0 || e.indexOf(g.n2+'/'+g.d2)<0){ vus.push('l\\'énoncé envoyé au modèle ne porte pas les deux fractions'); break; }
-        /* LES TROIS EXIGENCES, CHACUNE DANS SON POINT — chercher les mots dans
-           tout le texte ne prouverait rien, ils y reviennent partout. */
+        /* CHAQUE EXIGENCE DANS SON POINT — chercher les mots dans tout le
+           texte ne prouverait rien, ils y reviennent partout. DEPUIS AOÛT 2026
+           (décision de Turquet), l'étape du produit N'EST PLUS EXIGÉE : la
+           règle n'a que DEUX points — le résultat, les égalités — et doit
+           AUTORISER en toutes lettres la rédaction directe. Les deux bords se
+           tiennent : un point 3 revenu, ou l'autorisation disparue, rougissent
+           l'un comme l'autre. */
         const iR=a.indexOf('RÈGLE DE DÉCISION'), iC=a.indexOf('CONSIGNES POUR LE FEEDBACK');
         if(iR<0 || iC<0 || iC<iR){ vus.push('la règle de décision et les consignes de feedback ne se distinguent plus'); break; }
         const regle=a.slice(iR,iC);
         const pt=function(n){ const d=regle.indexOf('\\n'+n+'. '); if(d<0) return '';
           const f=regle.indexOf('\\n'+(n+1)+'. ', d); return regle.slice(d, f<0?regle.length:f); };
         const p1=pt(1), p2=pt(2), p3=pt(3);
-        if(!p1||!p2||!p3){ vus.push('la règle de décision n\\'a plus ses trois points numérotés'); break; }
-        if(p1.indexOf('('+g.n1+'×'+g.n2+')/('+g.d1+'×'+g.d2+')')<0 || !/REFUS/.test(p1)){
-          vus.push('le point 1 n\\'exige plus l\\'étape du produit'); break; }
-        if(p2.indexOf(g.P+'/'+g.Q)<0){ vus.push('le point 2 ne dit plus quel résultat attendre'); break; }
-        if(!/ÉGALITÉ FAUSSE/.test(p3)){ vus.push('le point 3 n\\'interdit plus les égalités fausses'); break; }
+        if(!p1||!p2){ vus.push('la règle de décision n\\'a plus ses deux points numérotés'); break; }
+        if(p3){ vus.push('la règle du produit a retrouvé un troisième point : une étape serait exigée de nouveau'); break; }
+        if(p1.indexOf('RÉSULTAT FINAL')<0 || p1.indexOf(g.P+'/'+g.Q)<0){
+          vus.push('le point 1 ne dit plus quel résultat attendre'); break; }
+        if(!/ÉGALITÉ FAUSSE/.test(p2)){ vus.push('le point 2 n\\'interdit plus les égalités fausses'); break; }
+        if(/REFUS/.test(regle)){ vus.push('la règle du produit REFUSE quelque chose : une rédaction directe serait recalée'); break; }
+        if(a.indexOf('AUCUNE ÉTAPE N’EST EXIGÉE')<0 || a.indexOf('ne la refuse JAMAIS')<0
+           || a.indexOf(g.n1+'/'+g.d1+' × '+g.n2+'/'+g.d2+' = '+g.P+'/'+g.Q)<0){
+          vus.push('la règle n\\'autorise plus la rédaction directe « '+g.n1+'/'+g.d1+' × '+g.n2+'/'+g.d2+' = '+g.P+'/'+g.Q+' »'); break; }
         /* et la règle ne doit RIEN réclamer à simplifier : le produit est
            irréductible par construction, exiger une simplification enverrait
            l'élève chercher ce qui n'existe pas. */
-        if(/simplifi/i.test(p2)){ vus.push('le point 2 parle de simplification alors que le produit est irréductible'); break; }
+        if(/simplifi/i.test(p1)){ vus.push('le point 1 parle de simplification alors que le produit est irréductible'); break; }
       }
     }
     return vus.join(' | ');
@@ -3763,7 +3772,7 @@ function fichesDeTravail(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('les fiches de travail vivent à côté des devoirs, jamais dedans',
       'ce niveau n\'a pas les fiches de travail en classe');
-    return longueurContexteIA(w, apres);
+    return verdictColore(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -3844,6 +3853,65 @@ function fichesDeTravail(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', false, 'erreur JavaScript : '+r.erreur);
     else verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', r.valeur==='', r.valeur);
+    verdictColore(w, apres);
+  });
+}
+/* Les phrases qui commentent une vérification par l'IA sont VERTES quand c'est
+   bon, ROUGES quand c'est faux (demande de Turquet, août 2026) — comme tous
+   les retours de l'application. Les trois exercices rédigés de la Seconde
+   (4.5, 4.7, 4.9) passent par deux fonctions, checkSFL et checkMLL : on
+   exerce les deux, pour de vrai — le verdict du modèle est stubbé, la feuille
+   aussi (jsdom n'a pas MathLive), mais la fonction qui PEINT est la vraie et
+   c'est la COULEUR qu'on relit. Le contrôle vit dans la chaîne séquentielle,
+   parce qu'il remplace sb : lancé en parallèle, un autre contrôle le lui
+   reprendrait en plein vol — le piège documenté. */
+function verdictColore(w, apres){
+  const present = evaluer(w, "typeof checkMLL==='function' && typeof checkSFL==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux',
+      'ce niveau n\'a pas les exercices rédigés de la Seconde');
+    return longueurContexteIA(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return 'x'; },focus:function(){},setValue:function(){},executeCommand:function(){}}}],
+      verrouiller:function(){} }; };
+    const verdict=function(ok){ sb.functions={ invoke:async function(){
+      return { data:{ correct:ok, feedback: ok?'Bravo, ton calcul est juste.':'Il y a une erreur dans ton calcul.' } }; } }; };
+    const couleur=function(id){ const c=(document.getElementById(id)||{}).className||'';
+      return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+
+    /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'mll', questions:mltBuildQuestions(), idx:0, score:0,
+      answers:[], startTime:Date.now(), locked:false, mllBusy:false});
+    test.qId='multiplier-fractions-libre';
+    mllFeuille=feuille('3/5 × 7/2 = 21/10'); test.mllDepart='depart';
+    verdict(true); await checkMLL();
+    if(couleur('mllFeedback')!=='vert') vus.push('4.7 : verdict juste peint « '+couleur('mllFeedback')+' » au lieu de vert');
+    test.locked=false; test.mllBusy=false; mllFeuille=feuille('3/5 × 7/2 = 9/9');
+    verdict(false); await checkMLL();
+    if(couleur('mllFeedback')!=='rouge') vus.push('4.7 : verdict faux peint « '+couleur('mllFeedback')+' » au lieu de rouge');
+
+    /* 4.5 — la somme en rédigeant (checkSFL), même règle */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'sfl', questions:sfBuildQuestions('simplifier'), idx:0, score:0,
+      answers:[], startTime:Date.now(), locked:false, sflBusy:false});
+    test.qId='somme-fractions-libre';
+    sflFeuille=feuille('1/2 + 1/3 = 5/6'); test.sflDepart='depart';
+    verdict(true); await checkSFL();
+    if(couleur('sflFeedback')!=='vert') vus.push('4.5 : verdict juste peint « '+couleur('sflFeedback')+' » au lieu de vert');
+    test.locked=false; test.sflBusy=false; sflFeuille=feuille('1/2 + 1/3 = 2/5');
+    verdict(false); await checkSFL();
+    if(couleur('sflFeedback')!=='rouge') vus.push('4.5 : verdict faux peint « '+couleur('sflFeedback')+' » au lieu de rouge');
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', false, 'erreur JavaScript : '+r.erreur);
+    else verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', r.valeur==='', r.valeur);
     longueurContexteIA(w, apres);
   });
 }
