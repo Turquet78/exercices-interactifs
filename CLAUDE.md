@@ -766,6 +766,34 @@ autre chose : une case VIDE passe avant tout le reste dans le message — « il
 manque des cases », et c'est la bonne priorité —, si bien qu'il faut une copie
 ENTIÈREMENT remplie pour éprouver cette phrase-là.
 
+**Et il vivait ENCORE dans les étapes suivantes : trois cases, un seul
+verdict.** Turquet a demandé « la même chose pour le 4.2 et le 4.3 » (août
+2026), et il y avait bien quelque chose à faire — mais pas là où on l'attendait.
+Le moteur étant partagé, l'étape ① des trois exercices était déjà réparée. Ce qui
+ne l'était pas, c'est que `checkSFAnswer` peignait des GROUPES : les deux
+numérateurs ET le dénominateur commun d'un seul `ok3`, la fraction recopiée d'un
+seul `okS`, la fraction finale d'un seul `ok4`. Un numérateur faux rougissait
+donc les deux autres cases, justes. **Ce qui est peint ensemble doit être ce qui
+se juge ensemble, et rien de plus** : les deux cases d'un multiplicateur sont une
+vraie paire — le même nombre en haut et en bas —, le diviseur du 4.3 aussi ; les
+numérateurs, le dénominateur et la fraction finale sont des réponses distinctes.
+Deux règles sont CONSERVÉES, parce qu'elles ne sont pas ce défaut. Une étape ②
+ne peut pas contredire une étape ① **cohérente** — mais une étape ① qui dit deux
+choses différentes ne dit rien, et l'étape ② se juge alors seule. Et sur la
+fraction finale de {somme-fractions}, où toute fraction ÉGALE est acceptée,
+chaque case se juge d'abord sur sa promesse (numérateur multiple de N,
+dénominateur multiple de D) puis les deux doivent se rejoindre : 6 et 40 sont
+chacun défendables et 6/40 ne vaut pas 3/40.
+
+**QUATRE SABOTAGES SUR SEPT SONT D'ABORD PASSÉS AU VERT, et tous disaient la
+même chose : les contrôles lisaient le VERDICT, l'élève regarde la COULEUR.**
+On pouvait donc reconnecter trois cases sur un seul `mark()` sans qu'aucun
+contrôle ne bronche — le défaut signalé était précisément un défaut de peinture.
+Les contrôles CLIQUENT désormais « Vérifier » et relisent les classes posées, sur
+les deux exercices. Un cinquième essai a rougi sur une erreur du CONTRÔLE et non
+de la page : il exigeait le refus de 6/80, qui vaut exactement 3/40. Un essai
+faux se reconnaît à ce qu'il rougit sur du code juste.
+
 **Et le même défaut vivait une couche plus bas : DANS la paire.** Corrigé le
 matin entre les deux fractions, il a été resignalé l'après-midi : sur
 « 1/5 − 1/8 », l'élève écrit 8 dans la case du HAUT, laisse sa jumelle vide,

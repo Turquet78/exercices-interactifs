@@ -3034,8 +3034,15 @@ function sommeFractions(w, P){
        étape ① qui dit autre chose */
     r=juger3(avec({'sf-a1':9,'sf-b1':9,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45}));
     if(!r.ok3) vus.push('72 + 20 sur 45 est compté faux');
-    r=juger3(avec({'sf-a1':18,'sf-b1':18,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45}));
-    if(r.ok3) vus.push('l\\'étape ② est acceptée sur 45 alors que l\\'étape ① annonce 90');
+    /* Une étape ① qui fait foi est une étape ① COHÉRENTE : ×18 et ×10 donnent
+       tous deux 90, les deux paires sont vertes, et l'étape ② ne peut plus dire
+       45. Le premier essai de ce contrôle posait ×18 et ×5 — 90 d'un côté, 45
+       de l'autre : une étape ① qui dit DEUX choses différentes ne dit rien, et
+       l'étape ② se juge alors seule. Il mesurait donc autre chose que ce qu'il
+       annonçait. */
+    r=juger3(avec({'sf-a1':18,'sf-b1':18,'sf-a2':10,'sf-b2':10,'sf-num1':72,'sf-num2':20,'sf-den':45}));
+    if(r.okDen) vus.push('l\\'étape ② est acceptée sur 45 alors que l\\'étape ① annonce 90 des deux côtés');
+    if(!r.ok1 || !r.ok2) vus.push('×18 et ×10 donnent tous deux 90 : l\\'étape ① est pourtant comptée fausse');
     /* et la copie ENTIÈRE, celle de la capture, reste juste d'un bout à l'autre */
     r=juger3({'sf-a1':9,'sf-b1':9,'sf-a2':5,'sf-b2':5,'sf-num1':72,'sf-num2':20,'sf-den':45,'sf-fn':92,'sf-fd':45});
     if(!(r.ok1&&r.ok2&&r.ok3&&r.ok4)) vus.push('la copie complète 9/9 · 5/5 · 72+20/45 · 92/45 est comptée fausse');
@@ -3084,28 +3091,59 @@ function sommeFractions(w, P){
     if(r.ok1) vus.push('3 écrit seul est accepté : 15 ne sera jamais un multiple de 8');
     r=seul({'sf-a1':8,'sf-b1':3});
     if(r.ok1) vus.push('8 en haut et 3 en bas est accepté : la fraction a changé de valeur');
-    /* l'étape ② et la fraction finale suivent la même règle */
+    /* L'ÉTAPE ② ET LA FRACTION FINALE SE JUGENT CASE PAR CASE. Elles étaient
+       peintes d'un seul verdict : un numérateur faux rougissait le second et le
+       dénominateur, tous deux justes. Les essais visent donc la CASE — « ok3 »
+       et « ok4 » restent l'étape entière, et ne servent plus qu'à la note. */
     r=seul({'sf-den':40});
-    if(!r.ok3) vus.push('40 écrit seul au dénominateur commun est compté faux');
+    if(!r.okDen) vus.push('40 écrit seul au dénominateur commun est compté faux');
     r=seul({'sf-den':42});
-    if(r.ok3) vus.push('42 est accepté comme dénominateur commun de 5 et 8');
+    if(r.okDen) vus.push('42 est accepté comme dénominateur commun de 5 et 8');
     r=seul({'sf-fn':3});
-    if(!r.ok4) vus.push('3 écrit seul au numérateur de la fraction finale est compté faux');
+    if(!r.okFn) vus.push('3 écrit seul au numérateur de la fraction finale est compté faux');
     r=seul({'sf-fn':4});
-    if(r.ok4) vus.push('4 est accepté au numérateur de la fraction finale (le résultat est 3/40)');
+    if(r.okFn) vus.push('4 est accepté au numérateur de la fraction finale (le résultat est 3/40)');
+    /* LE BORD QUI COMPTE, celui pour lequel tout ceci existe : une case JUSTE
+       ne rougit pas parce que sa voisine est FAUSSE. 8 et 40 sont justes, 9 ne
+       l'est pas — et seules les cases fausses doivent être rouges. */
+    r=seul({'sf-num1':8,'sf-num2':9,'sf-den':40});
+    if(!r.okN1) vus.push('le premier numérateur JUSTE rougit parce que le second est faux');
+    if(!r.okDen) vus.push('le dénominateur commun JUSTE rougit parce qu\\'un numérateur est faux');
+    if(r.okN2) vus.push('9 est accepté au second numérateur (1 × 5 = 5)');
+    /* et le symétrique, pour qu\'un correctif ne regardant qu\'un côté ne passe pas */
+    r=seul({'sf-num1':9,'sf-num2':5,'sf-den':40});
+    if(!r.okN2) vus.push('le second numérateur JUSTE rougit parce que le premier est faux');
+    if(r.okN1) vus.push('9 est accepté au premier numérateur (8 × 8 = 64… ici 8 × 1 = 8)');
+    /* la fraction finale de même : 3/40 est le résultat, 3 juste et 41 faux */
+    r=seul({'sf-fn':3,'sf-fd':41});
+    if(r.okFd) vus.push('41 est accepté au dénominateur de la fraction finale');
+    /* ET LE SECOND BORD, celui des paires de l'étape ① transposé ici : deux
+       moitiés chacune défendable qui NE SE REJOIGNENT PAS restent fausses
+       toutes les deux. 6 est un multiple de 3 et 80 un multiple de 40, mais
+       6/80 ne vaut pas 3/40 — les déclarer justes dirait à l'élève que son
+       résultat est bon. Sans ce bord, « chacune sur sa promesse » suffirait, et
+       un sabotage l'a montré en passant au vert. */
+    r=seul({'sf-fn':6,'sf-fd':40});
+    if(r.okFn||r.okFd) vus.push('6/40 est accepté comme fraction finale : elle ne vaut pas 3/40');
+    /* alors que la MÊME fraction, écrite en plus grand, reste juste — et le
+       premier essai de ce contrôle s'était trompé LÀ : il exigeait le refus de
+       6/80, qui vaut exactement 3/40. C'est le contrôle qui avait tort, pas la
+       page ; un essai faux se reconnaît à ce qu'il rougit sur du code juste. */
+    r=seul({'sf-fn':9,'sf-fd':120});
+    if(!r.okFn || !r.okFd) vus.push('9/120 est refusé alors qu\\'il vaut 3/40');
     /* et une copie à moitié remplie ne vaut PAS le point entier, même si tout
        ce qui y est écrit est juste : c'est le trou qu'ouvre le jugement case
        par case, et « r.vide » est ce qui le ferme */
     r=seul({'sf-a1':8,'sf-a2':5,'sf-num1':8,'sf-den':40,'sf-fn':3});
-    if(!(r.ok1&&r.ok2&&r.ok3&&r.ok4)) vus.push('une demi-copie pourtant juste est comptée fausse');
+    if(!(r.ok1&&r.ok2&&r.okN1&&r.okDen&&r.okFn)) vus.push('une demi-copie pourtant juste est comptée fausse');
     if(!r.vide) vus.push('une demi-copie passe pour complète — elle vaudrait le point entier');
     /* l'étape ② sans dénominateur écrit : c'est l'étape ① qui le dit. Sans ce
        report, un numérateur juste rougirait parce que la case du dénominateur
        commun est encore vide — le défaut signalé, une case plus loin. */
     r=seul({'sf-a1':8,'sf-b1':8,'sf-num1':8});
-    if(!r.ok3) vus.push('8 au premier numérateur est compté faux alors que l\\'étape ① annonce déjà 40');
+    if(!r.okN1) vus.push('8 au premier numérateur est compté faux alors que l\\'étape ① annonce déjà 40');
     r=seul({'sf-a1':8,'sf-b1':8,'sf-num1':5});
-    if(r.ok3) vus.push('5 au premier numérateur est accepté sur le dénominateur 40 (1 × 8 = 8)');
+    if(r.okN1) vus.push('5 au premier numérateur est accepté sur le dénominateur 40 (1 × 8 = 8)');
 
     /* UNE DEMI-COPIE NE VAUT PAS LE POINT ENTIER. Chaque étape se jugeant
        désormais sur les cases écrites, les quatre verdicts peuvent passer au
@@ -3132,6 +3170,28 @@ function sommeFractions(w, P){
     const note4=ptsEcran();
     if(!note4 || note4.cases!==9 || note4.justes!==1)
       vus.push('la note annonce ' + (note4?note4.justes+' sur '+note4.cases:'rien') + ' alors qu\\'une seule case est juste sur neuf');
+
+    /* k) CE QUI EST PEINT, et non ce qui est jugé. Les essais ci-dessus lisent
+          le VERDICT rendu par sfJuge ; l'élève, lui, voit la COULEUR posée par
+          checkSFAnswer — et c'est là que vivait le défaut : trois cases
+          peintes d'un seul verdict, donc rouges ensemble. Quatre sabotages ont
+          traversé les essais précédents en ne touchant qu'aux appels à
+          « mark », sans rien changer aux verdicts. Un contrôle qui ne regarde
+          pas ce que l'élève regarde parle d'autre chose. */
+    renderSFTest();
+    poser(rien4);
+    poser({'sf-a1':8,'sf-b1':8,'sf-a2':5,'sf-b2':5,'sf-num1':8,'sf-num2':9,'sf-den':40,'sf-fn':3,'sf-fd':44});
+    checkSFAnswer();
+    const cl4=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const peint=function(id){ const c=cl4(id);
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    /* 8 et 40 sont justes, 9 ne l'est pas : seule la fausse doit être rouge. */
+    if(peint('sf-num1')!=='vert') vus.push('le premier numérateur JUSTE est peint en '+peint('sf-num1')+' alors que seul le second est faux');
+    if(peint('sf-den')!=='vert') vus.push('le dénominateur commun JUSTE est peint en '+peint('sf-den')+' alors que seul un numérateur est faux');
+    if(peint('sf-num2')!=='rouge') vus.push('le second numérateur, FAUX, est peint en '+peint('sf-num2'));
+    /* la fraction finale de même : 3 est juste, 44 ne mène nulle part. */
+    if(peint('sf-fn')!=='vert') vus.push('le numérateur final JUSTE est peint en '+peint('sf-fn')+' alors que seul le dénominateur est faux');
+    if(peint('sf-fd')!=='rouge') vus.push('le dénominateur final, FAUX, est peint en '+peint('sf-fd'));
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);
@@ -3389,11 +3449,36 @@ function simplifierFractions(w, P){
     r=seul({'sf-q1':5});
     if(r.okQ) vus.push('5 écrit seul comme diviseur est accepté : 5 ne divise ni 32 ni 6');
     r=seul({'sf-fn':16});
-    if(!r.ok4) vus.push('16 écrit seul au numérateur final est compté faux');
+    if(!r.okFn) vus.push('16 écrit seul au numérateur final est compté faux');
     r=seul({'sf-fd':3});
-    if(!r.ok4) vus.push('3 écrit seul au dénominateur final est compté faux');
+    if(!r.okFd) vus.push('3 écrit seul au dénominateur final est compté faux');
     r=seul({'sf-fd':6});
-    if(r.ok4) vus.push('6 est accepté au dénominateur final : la fraction réduite est 16/3');
+    if(r.okFd) vus.push('6 est accepté au dénominateur final : la fraction réduite est 16/3');
+    /* ICI AUSSI, une case juste ne rougit pas pour sa voisine — et cet exercice
+       a DEUX étapes de plus que les autres, donc deux endroits de plus où le
+       défaut pouvait vivre (demande de Turquet, août 2026). */
+    r=seul({'sf-fn':16,'sf-fd':6});
+    if(!r.okFn) vus.push('16, juste, rougit parce que le dénominateur final est faux');
+    if(r.okFd) vus.push('6 est accepté au dénominateur final alors que 16 est écrit à côté');
+    r=seul({'sf-sn':32,'sf-sd':7});
+    if(!r.okSn) vus.push('la somme recopiée JUSTE rougit parce que le dénominateur recopié est faux');
+    if(r.okSd) vus.push('7 est accepté comme dénominateur recopié');
+
+    /* ET CE QUI EST PEINT, pas seulement ce qui est jugé. Cet exercice a DEUX
+       étapes de plus que les autres, donc deux endroits de plus où trois cases
+       pouvaient partager un verdict — c'est exactement le défaut signalé, une
+       étape plus loin. Un sabotage qui ne touchait qu'aux appels à « mark » a
+       traversé les essais ci-dessus : ils lisent le verdict, l'élève regarde la
+       couleur. */
+    renderSFTest();
+    poser(avec(PPCM,{'sf-sd':7}));
+    checkSFAnswer();
+    const peintS=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    if(peintS('sf-sn')!=='vert') vus.push('la somme recopiée JUSTE est peinte en '+peintS('sf-sn')+' alors que seul le dénominateur recopié est faux');
+    if(peintS('sf-sd')!=='rouge') vus.push('le dénominateur recopié, FAUX, est peint en '+peintS('sf-sd'));
+    if(peintS('sf-num1')!=='vert' || peintS('sf-den')!=='vert')
+      vus.push('l\\'étape ② rougit alors qu\\'elle est juste : la faute est une étape plus loin');
     /* et une demi-copie ne vaut pas le point entier */
     r=seul({'sf-a1':3,'sf-sn':32,'sf-fn':16});
     if(!r.vide) vus.push('une demi-copie passe pour complète');

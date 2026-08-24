@@ -1605,7 +1605,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=152;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=153;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7459,19 +7459,33 @@ function sfJuge(q){
      doivent le suivre, et une paire déjà posée doit s'y accorder, sans quoi la
      chaîne se contredirait d'une égalité à l'autre. Une case encore vide ne
      compte pas contre les autres. */
-  const Dc0 = !isNaN(dd) ? dd : (D1 || D2 || 0);
-  /* AUCUNE ROUTE CHOISIE — l'élève a écrit une case plus loin sans avoir posé
+  /* CHAQUE CASE DE L'ÉTAPE ② A SON PROPRE VERDICT. Elles étaient jugées
+     ENSEMBLE, d'un seul « ok3 » : un numérateur faux rougissait donc le second
+     numérateur et le dénominateur, tous deux justes. C'est le défaut signalé
+     par Turquet sur l'étape ①, à l'étape d'après — et il a demandé le même
+     traitement pour {somme-fractions} et {simplifier-fractions} (août 2026).
+     Le dénominateur ÉCRIT est juste s'il peut devenir commun — multiple des
+     deux — et s'il ne contredit pas une paire de l'étape ① qui, elle, tient.
+     Un « ok1 » faux ne lui impose rien : une étape ① qui dit DEUX choses
+     différentes ne dit rien, et l'étape ② se juge alors seule. Mais une étape ①
+     COHÉRENTE fait foi — sinon la chaîne se contredirait d'une égalité à
+     l'autre sans que rien ne le dise. */
+  const ddOk = !isNaN(dd) && dd>0 && dd%d1===0 && dd%d2===0
+            && (!ok1 || dd===D1) && (!ok2 || dd===D2);
+  /* LA ROUTE SUR LAQUELLE ON JUGE LES NUMÉRATEURS : celle que l'élève a
+     réellement posée, à défaut celle du PPCM.
+     AUCUNE ROUTE CHOISIE — l'élève a écrit une case plus loin sans avoir posé
      l'étape ① : on juge alors sur la voie du PPCM, qui est exactement celle que
      la correction en bleu écrira à côté. Sans ce repli, une case juste
      rougirait parce que les cases d'AVANT sont vides : le défaut d'août 2026
      une troisième fois, une case plus loin encore. Rouge veut dire FAUX, jamais
      « je ne peux pas savoir ». */
-  const Dc = Dc0>0 ? Dc0 : q.D;
-  const ok3 = !(isNaN(n1) && isNaN(n2) && isNaN(dd))
-           && Dc>0 && Dc%d1===0 && Dc%d2===0
-           && (m1<=0 || Dc===D1) && (m2<=0 || Dc===D2)
-           && (isNaN(n1) || n1===q.n1*(Dc/d1))
-           && (isNaN(n2) || n2===q.n2*(Dc/d2));
+  const Dc = ddOk ? dd : (ok1 ? D1 : (ok2 ? D2 : q.D));
+  const okN1 = !isNaN(n1) && Dc>0 && Dc%d1===0 && n1===q.n1*(Dc/d1);
+  const okN2 = !isNaN(n2) && Dc>0 && Dc%d2===0 && n2===q.n2*(Dc/d2);
+  const okDen = ddOk;
+  /* « ok3 » reste, pour la note et le message : c'est l'étape ② tout entière. */
+  const ok3 = okN1 && okN2 && okDen;
   /* ── LES DEUX ÉTAPES DE {simplifier-fractions} ────────────────────────────
      L'élève réécrit la fraction obtenue, la divise en haut et en bas par le
      même nombre, puis donne le résultat.
@@ -7489,8 +7503,11 @@ function sfJuge(q){
   const Ns = (Dc%d1===0 && Dc%d2===0)
         ? ((q.op==='+') ? q.n1*(Dc/d1)+q.n2*(Dc/d2) : q.n1*(Dc/d1)-q.n2*(Dc/d2)) : 0;
   const sn=sfLu('sf-sn'), sd=sfLu('sf-sd'), q1=sfLu('sf-q1'), q2=sfLu('sf-q2');
-  const okS = simp && !(isNaN(sn) && isNaN(sd)) && Ns>0 && Dc>0
-           && (isNaN(sn) || sn===Ns) && (isNaN(sd) || sd===Dc);
+  /* La fraction RECOPIÉE, elle aussi case par case : son numérateur ne dépend
+     pas de son dénominateur, et l'un ne doit pas rougir pour l'autre. */
+  const okSn = simp && !isNaN(sn) && Ns>0 && sn===Ns;
+  const okSd = simp && !isNaN(sd) && Dc>0 && sd===Dc;
+  const okS = okSn && okSd;
   /* la fraction que l'élève a sous les yeux : ce qu'il a réécrit, à défaut ce
      que son propre calcul donne */
   const Ne = !isNaN(sn) ? sn : Ns, De = !isNaN(sd) ? sd : Dc;
@@ -7504,12 +7521,20 @@ function sfJuge(q){
      Dans {simplifier-fractions}, en revanche, la dernière étape EST la
      simplification : y accepter 4/6 pour 2/3 viderait l'exercice de son sujet.
      Elle demande donc la fraction réduite, elle seule. */
-  const ok4 = simp
-    ? ((!isNaN(fn) || !isNaN(fd)) && (isNaN(fn) || fn===q.Nr) && (isNaN(fd) || fd===q.Dr))
-    : ((!isNaN(fn) || !isNaN(fd))
-           && ((isNaN(fn) || isNaN(fd))
-                 ? (isNaN(fn) ? (fd>0 && fd%q.D===0) : (fn>0 && fn%q.N===0))
-                 : (fd!==0 && fn*q.D===q.N*fd)));
+  /* DANS {simplifier-fractions}, les deux cases sont INDÉPENDANTES : la
+     fraction réduite est imposée, donc chacune a une seule bonne valeur et se
+     juge seule. Ailleurs elles ne le sont pas — toute fraction ÉGALE est
+     acceptée, et « 92 » n'est juste que RELATIVEMENT au dénominateur écrit à
+     côté. Chacune se juge donc d'abord sur ce qu'elle PROMET, exactement comme
+     les paires de l'étape ① : un numérateur multiple de N, un dénominateur
+     multiple de D. Quand les deux promettent, elles doivent se rejoindre —
+     92/90 est fait de deux moitiés défendables qui ne valent pas 92/45. */
+  const promFn = !isNaN(fn) && fn>0 && fn%q.N===0;
+  const promFd = !isNaN(fd) && fd>0 && fd%q.D===0;
+  const accord = promFn && promFd && fn*q.D===q.N*fd;
+  const okFn = simp ? (!isNaN(fn) && fn===q.Nr) : (promFn && (!promFd || accord));
+  const okFd = simp ? (!isNaN(fd) && fd===q.Dr) : (promFd && (!promFn || accord));
+  const ok4 = okFn && okFd;
   /* Une case laissée vide n'est pas une erreur de calcul, et le dire autrement
      serait mentir : le message le nomme avant tout le reste. */
   const vide = sfCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
@@ -7520,7 +7545,10 @@ function sfJuge(q){
              des deux côtés » s'affichait devant une copie dont une moitié est
              juste et verte — ce n'est pas faux, mais ça n'aide pas l'élève à
              voir laquelle reprendre. */
-          prom1:prom1, prom2:prom2, D1:D1, D2:D2};
+          prom1:prom1, prom2:prom2, D1:D1, D2:D2,
+          /* Chaque case a son verdict : c'est ce que peint checkSFAnswer. */
+          okN1:okN1, okN2:okN2, okDen:okDen, okSn:okSn, okSd:okSd,
+          okFn:okFn, okFd:okFd};
 }
 /* La correction EN DIRECT du mode soutien. Elle ne juge un groupe qu'une fois
    TOUTES ses cases remplies, et c'est tout ce qui la sépare d'un piège : une
@@ -7563,10 +7591,16 @@ function checkSFAnswer(live){
     const ecrit=String(el.value||'').trim()!=='';
     if(ecrit) el.classList.add(ok?'ok':'bad');
     el.disabled=(ok&&ecrit)||!isSoutien(); });
+  /* CE QUI EST PEINT ENSEMBLE EST CE QUI SE JUGE ENSEMBLE, et rien de plus.
+     Les deux cases d'un multiplicateur sont une VRAIE paire — le même nombre en
+     haut et en bas —, et le diviseur de {simplifier-fractions} aussi. Les
+     numérateurs, le dénominateur commun et la fraction finale, eux, sont des
+     réponses distinctes : les peindre d'un seul verdict faisait rougir les
+     justes avec la fausse (demande de Turquet, août 2026). */
   mark(['sf-a1','sf-b1'],r.ok1); mark(['sf-a2','sf-b2'],r.ok2);
-  mark(['sf-num1','sf-num2','sf-den'],r.ok3);
-  if(test.simp){ mark(['sf-sn','sf-sd'],r.okS); mark(['sf-q1','sf-q2'],r.okQ); }
-  mark(['sf-fn','sf-fd'],r.ok4);
+  mark(['sf-num1'],r.okN1); mark(['sf-num2'],r.okN2); mark(['sf-den'],r.okDen);
+  if(test.simp){ mark(['sf-sn'],r.okSn); mark(['sf-sd'],r.okSd); mark(['sf-q1','sf-q2'],r.okQ); }
+  mark(['sf-fn'],r.okFn); mark(['sf-fd'],r.okFd);
   /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
      cases écrites, donc une copie à moitié remplie peut voir ses quatre
      verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
