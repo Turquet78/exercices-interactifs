@@ -1298,6 +1298,13 @@ donc créée qu'une proposition choisie ; `mlFeuille` reste intouchée. Seul le
 banc navigateur pouvait le voir — jsdom n'a pas MathLive — et il l'a vu à la
 première visite.
 
+**Du 2.1.3 au 2.1.7, quatre questions par exercice** (demande de Turquet, août
+2026). Deux constantes, à côté de leurs fabriques : `PCT_NB` pour le 2.1.3,
+`QD_NB` pour les quatre suivants — et un contrôle à deux sources qui appelle
+les CINQ vrais démarreurs et compare à `tests/profils.js`
+(`nbQuestionsPourcentages`) : un nombre changé dans une fabrique ne dit rien
+des autres.
+
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
 coefficient, l'élève dit le sens puis le pourcentage. Le piège qu'il vise est

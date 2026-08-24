@@ -178,6 +178,9 @@ module.exports = {
        page a sa constante SF_NB, le banc compare à celle-ci. 6 en Première,
        4 en Seconde (demande de Turquet, août 2026). */
     nbQuestionsFractions: { sf: 6 },
+    /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026) —
+       DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
+    nbQuestionsPourcentages: 4,
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
