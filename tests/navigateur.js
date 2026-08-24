@@ -1215,23 +1215,31 @@ async function parcours(page, N){
        la différence qui compte : un bouton branché sur « click » se déclenche
        au relâchement, donc trop tard, et jsdom ne le verrait jamais. */
     titre('6 nonies. LES ZÉROS NE DURENT QUE LE TEMPS DE L\'APPUI');
-    if(!P.aideMaintenue){
+    /* DEUX exercices peuvent porter le bouton — {placer-intervalle} et
+       {ordre-croissant} partagent le drapeau et le branchement. Le banc APPUIE
+       sur chacun : un appui qui marcherait sur l'un et pas sur l'autre ne se
+       verrait nulle part ailleurs. Le profil déclare une liste ; une entrée
+       seule reste acceptée. */
+    const aidesM = Array.isArray(P.aideMaintenue) ? P.aideMaintenue
+                 : (P.aideMaintenue ? [P.aideMaintenue] : []);
+    if(!aidesM.length){
       ignorer('les zéros s\'affichent à l\'appui et s\'effacent au relâchement',
         'ce niveau n\'a pas d\'aide qui se maintient');
     } else {
       s = await ouvrir(chromium, ml);
       await connecter(s.page);
-      await s.page.evaluate(id => openTest(id), P.aideMaintenue.exercice);
+      for(const AIDE of aidesM){
+      await s.page.evaluate(id => openTest(id), AIDE.exercice);
       await s.page.waitForTimeout(400);
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
       const lire = () => s.page.evaluate(sel => {
         const n = [...document.querySelectorAll(sel)];
         return n.map(e => e.textContent.trim()).join(' ');
-      }, P.aideMaintenue.nombres);
-      const bouton = await s.page.$('#' + P.aideMaintenue.bouton);
-      verifier('le bouton d\'aide est sur l\'écran', !!bouton,
-        'aucun #' + P.aideMaintenue.bouton);
+      }, AIDE.nombres);
+      const bouton = await s.page.$('#' + AIDE.bouton);
+      verifier('le bouton d\'aide est sur l\'écran de ' + AIDE.exercice, !!bouton,
+        'aucun #' + AIDE.bouton);
       if(bouton){
         const nu = await lire();
         const b = await bouton.boundingBox();
@@ -1243,9 +1251,10 @@ async function parcours(page, N){
         await s.page.mouse.up();
         await s.page.waitForTimeout(200);
         const relache = await lire();
-        verifier('bouton maintenu, les zéros s\'affichent', tenu !== nu && tenu.length > nu.length,
+        verifier('bouton maintenu, les zéros s\'affichent (' + AIDE.exercice + ')',
+          tenu !== nu && tenu.length > nu.length,
           'rien n\'a changé pendant l\'appui : « ' + nu + ' » → « ' + tenu + ' »');
-        verifier('bouton relâché, les zéros s\'effacent', relache === nu,
+        verifier('bouton relâché, les zéros s\'effacent (' + AIDE.exercice + ')', relache === nu,
           'ils sont restés : « ' + relache + ' » au lieu de « ' + nu + ' »');
         /* Relâcher AILLEURS que sur le bouton doit aussi les effacer : sans
            cela, le geste le plus banal — appuyer, glisser un peu, lever —
@@ -1256,8 +1265,10 @@ async function parcours(page, N){
         await s.page.mouse.move(bx + 200, by - 120, { steps: 5 });
         await s.page.mouse.up();
         await s.page.waitForTimeout(200);
-        verifier('relâché hors du bouton, les zéros s\'effacent aussi', (await lire()) === nu,
+        verifier('relâché hors du bouton, les zéros s\'effacent aussi (' + AIDE.exercice + ')',
+          (await lire()) === nu,
           'l\'aide est restée allumée après un relâchement à côté');
+      }
       }
       verifier('l\'aide maintenue ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

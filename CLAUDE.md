@@ -533,6 +533,33 @@ sens et toutes les échelles. Le second était un faux sabotage de ma part :
 décaler un nombre d'une unité de son propre rang ne lui fait presque jamais
 changer de zone, et le vert était juste.
 
+**Ranger trois nombres, c'est {placer-intervalle} sans la droite.**
+{ordre-croissant} (Seconde) donne trois nombres décimaux à ranger du plus petit
+au plus grand, choisis dans des listes séparées par « < » — jamais tapés, comme
+partout où une saisie libre recalerait un élève sur un tiret de clavier.
+**Les nombres sont tirés par le moteur de {placer-intervalle}** : `ordGen()`
+appelle `plcGen()` et n'en garde que les trois nombres — mêmes pièges, mêmes
+négatifs. Un second tirage aurait fini par diverger. Il n'ajoute qu'une
+condition : les trois nombres n'ont jamais tous le même nombre de décimales,
+sans quoi le bouton des zéros n'aurait rien à faire ici (plcGen ne le garantit
+que sur les cinq, bornes comprises) — le sabotage l'a montré, les trois nombres
+sortaient parfois tous à trois décimales.
+**Le bouton des zéros est LE MÊME** — mêmes drapeaux (`plcAppui`,
+`test.plcZeros`), même branchement (`plcBrancherZeros`), même fonction de
+réécriture : l'aide ne dure que le temps de l'appui, et la correction pose les
+zéros pour de bon quand l'élève s'est trompé. Le banc navigateur APPUIE sur les
+deux boutons — `aideMaintenue` est devenu une liste, parce qu'un appui qui
+marcherait sur l'un et pas sur l'autre ne se verrait nulle part ailleurs.
+**Les listes portent l'INDICE du nombre, jamais son écriture.** C'est le piège
+propre à cet exercice : le bouton réécrit les libellés sous le doigt de l'élève
+(« 1,1 » devient « 1,100 »), et une liste qui porterait l'écriture comme VALEUR
+changerait de réponse au moment où l'aide la réécrit. Un sabotage l'a joué :
+toutes les cases rougissaient dès que la correction posait ses zéros.
+**L'ordre est calculé en entiers** (`plcCmp`) par la fonction qui corrige, et le
+contrôle le vérifie par une SECONDE méthode — les écritures complétées de zéros
+comparées comme des chaînes, les négatifs à part, où « plus grand » s'inverse
+sous le signe. Éprouvé en le cassant sept fois.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
