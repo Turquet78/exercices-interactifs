@@ -750,8 +750,30 @@ le message la nomme (« Il faut RETOURNER la seconde fraction »).
 
 **Le libre n'exige PAS la ligne des produits**, seulement le passage à
 l'inverse : « 3/5 × 7/2 = 21/10 » est une rédaction parfaitement correcte, et
-refuser une copie juste apprend l'inverse de ce qu'on enseigne. C'est la seule
-différence de règle entre 4.7 et 4.9.
+refuser une copie juste apprend l'inverse de ce qu'on enseigne.
+
+**Et depuis août 2026, le 4.7 n'exige plus RIEN** (décision de Turquet) : sa
+règle n'a que deux conditions — le résultat juste, aucune égalité fausse — et
+AUTORISE en toutes lettres la rédaction directe « 3/5 × 7/2 = 21/10 ». C'est le
+seul exercice rédigé sans étape obligatoire : la somme (4.5) exige le même
+dénominateur, le quotient (4.9) exige l'inverse. Tout ce qui disait l'ancienne
+obligation a changé avec la règle — la consigne à l'écran, l'indice sous la
+feuille, le contexte de la fenêtre d'aide, les consignes de feedback (qui
+interdisent maintenant de reprocher l'absence de l'étape) : une règle changée
+côté juge et pas côté consigne aurait fait mentir l'écran. Le contrôle s'est
+retourné, et tient les deux bords : un troisième point revenu dans la règle, ou
+l'autorisation disparue, rougissent l'un comme l'autre.
+
+**Les phrases qui commentent une vérification par l'IA sont VERTES quand c'est
+bon, ROUGES quand c'est faux** (demande de Turquet, août 2026) — comme tous les
+retours de l'application. Les trois exercices rédigés (4.5, 4.7, 4.9) posaient
+leur verdict en encre neutre (`iafb` sans couleur) : le correct et le faux se
+lisaient pareil. La classe `good`/`bad` suit maintenant le verdict, aux deux
+endroits — `checkMLL` (4.7 et 4.9) et `checkSFL` (4.5) ; n'en corriger qu'un
+n'aurait corrigé que la moitié des exercices. Le contrôle vit dans la chaîne
+séquentielle des contrôles asynchrones (il remplace `sb` — le piège documenté),
+stubbe le verdict du modèle ET la feuille (jsdom n'a pas MathLive), mais exerce
+la vraie fonction qui peint et relit la COULEUR.
 
 **Un garde-fou MORT y a été écrit, puis retiré** — le troisième du projet, et
 toujours pour la même raison. « ne pas diviser par 1 » (`n2 !== d2`) n'écartait

@@ -1908,7 +1908,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=90;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=91;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7909,26 +7909,27 @@ function mllEnonceIA(q){
 }
 function mllAttenduIA(q){
   const inv=!!(test && test.inv);
-  /* CE QUE LE POINT 1 EXIGE CHANGE AVEC L'EXERCICE. Pour un produit, c'est
-     l'étape « en haut avec en haut » ; pour un quotient, c'est le passage à
-     l'INVERSE, qui est tout le sujet — et on n'exige PAS en plus la ligne des
-     produits, parce que « 3/5 × 7/2 = 21/10 » est une rédaction parfaitement
-     correcte, et refuser une copie juste apprend l'inverse de ce qu'on
-     enseigne. */
+  /* CE QUE LA RÈGLE EXIGE CHANGE AVEC L'EXERCICE. Pour un quotient, le passage
+     à l'INVERSE est tout le sujet : il est exigé — et la ligne des produits ne
+     l'est pas, « 3/5 × 7/2 = 21/10 » étant une rédaction parfaitement
+     correcte. Pour un produit, RIEN n'est exigé au-delà du résultat et
+     d'égalités toutes vraies (décision de Turquet, août 2026) : c'est le seul
+     exercice rédigé sans étape obligatoire — la somme exige le même
+     dénominateur, le quotient exige l'inverse. */
   const etape1 = inv
     ? 'L’ÉTAPE DE L’INVERSE EST ÉCRITE. Au moins une expression montre la division transformée en MULTIPLICATION PAR L’INVERSE de la seconde fraction — c’est-à-dire '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+'. Un élève qui écrit directement '+q.P+'/'+q.Q+' sans cette étape est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler. Écrire ensuite ('+q.a1+'×'+q.a2+')/('+q.b1+'×'+q.b2+') est bienvenu mais N’EST PAS exigé.'
-    : 'L’ÉTAPE DU PRODUIT EST ÉCRITE. Au moins une expression montre les numérateurs multipliés entre eux SUR les dénominateurs multipliés entre eux — par exemple ('+q.n1+'×'+q.n2+')/('+q.d1+'×'+q.d2+'). L’ordre des deux facteurs est libre : ('+q.n2+'×'+q.n1+')/('+q.d2+'×'+q.d1+') convient aussi. Un élève qui écrit directement '+q.P+'/'+q.Q+' sans cette étape est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler.';
+    : null;
   return 'RÉSULTAT ATTENDU : '+q.P+'/'+q.Q+'. Cette fraction est déjà irréductible, il n’y a rien à simplifier.'
-   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
-   +'\n1. '+etape1
-   +'\n2. LE RÉSULTAT FINAL EST JUSTE. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = », que ce soit en fin de ligne ou sur une ligne à part — vaut '+q.P+'/'+q.Q+'.'
-   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.P+'/'+q.Q+'. Une seule égalité fausse suffit à refuser, même si le dernier morceau est juste — dis alors LEQUEL est faux.'
+   +(inv?'':'\n\nAUCUNE ÉTAPE N’EST EXIGÉE : l’étape du produit — par exemple ('+q.n1+'×'+q.n2+')/('+q.d1+'×'+q.d2+') — est bienvenue mais N’EST PAS exigée. Un élève qui écrit directement '+q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2+' = '+q.P+'/'+q.Q+' a une rédaction correcte : ne la refuse JAMAIS.')
+   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les '+(inv?'TROIS':'DEUX')+' conditions sont réunies.'
+   +(inv?'\n1. '+etape1+'\n2. ':'\n1. ')+'LE RÉSULTAT FINAL EST JUSTE. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = », que ce soit en fin de ligne ou sur une ligne à part — vaut '+q.P+'/'+q.Q+'.'
+   +(inv?'\n3. ':'\n2. ')+'AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.P+'/'+q.Q+'. Une seule égalité fausse suffit à refuser, même si le dernier morceau est juste — dis alors LEQUEL est faux.'
    +'\nIL N’Y A AUCUNE MISE AU MÊME DÉNOMINATEUR À FAIRE : c’est une '+(inv?'division':'multiplication')+'. Une copie qui en fait une n’est pas fausse pour autant si toutes ses égalités sont vraies et que le résultat est bon, mais ne la réclame jamais.'
    +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter le produit de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
    +(inv ? ' S’il manque l’étape de l’inverse : dis-le, et rappelle que diviser par une fraction c’est multiplier par son inverse — sans écrire le calcul à sa place. Si l’élève a multiplié sans retourner la seconde fraction, dis-lui que c’est là que ça coince.'
-         : ' S’il manque l’étape du produit : dis-le, et rappelle qu’on multiplie les numérateurs entre eux et les dénominateurs entre eux — sans écrire le calcul à sa place.')
+         : ' Ne reproche JAMAIS l’absence de l’étape du produit : elle n’est pas exigée.')
    +' Si l’élève a cherché à mettre au même dénominateur : dis-lui que pour multiplier ce n’est pas nécessaire, sans le gronder.'
    +' Si une ligne est fausse : dis LAQUELLE et ce qui cloche.'
    +' NE DONNE JAMAIS la fraction '+q.P+'/'+q.Q+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
@@ -7943,14 +7944,14 @@ function renderMLL(){
   const inv=!!(test && test.inv);
   $('mllPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+(inv?'÷':'×')+'</b> '+sfTermeHTML(q.n2,q.d2)
     +'.<span class="sfl-suite">'+(inv?'Transforme la division en multiplication, puis donne le résultat.'
-                                     :'Écris l’étape du produit, puis donne le résultat.')+'</span>';
+                                     :'Rédige ton calcul et donne le résultat.')+'</span>';
   $('mllHost').innerHTML=
      '<p class="tvi-instr">Écris ton calcul. Une étape par ligne, ou tout à la suite&nbsp;: comme tu veux.</p>'
     +'<div class="dexp2-sheet" id="mllSheet"></div>'
     +'<p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
     +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '
     +(inv ? 'Il faut écrire l’étape où la division devient une multiplication par l’inverse.'
-          : 'Il faut écrire l’étape où les numérateurs sont multipliés entre eux et les dénominateurs entre eux.')+'</p>';
+          : 'Tu peux écrire l’étape du produit — numérateurs entre eux, dénominateurs entre eux — mais elle n’est pas obligatoire.')+'</p>';
   mllFeuille=mlFeuille({ conteneur:'mllSheet', mode:'calcul',
     prefixes:{ premiere:'', suite:'=' },
     prefixesTexte:{ premiere:'', suite:'=' } });
@@ -7987,7 +7988,10 @@ async function checkMLL(){
     return;
   }
   const correct=res.correct===true;
-  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb';
+  /* Les phrases qui commentent la vérification sont VERTES quand c'est bon,
+     ROUGES quand c'est faux (demande de Turquet, août 2026) — comme tous les
+     retours de l'application. */
+  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){
     $('mllActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" onclick="checkMLL()">Revérifier</button>';
     if(mllFeuille && mllFeuille.lignes.length) mllFeuille.lignes[mllFeuille.lignes.length-1].mf.focus();
@@ -8024,8 +8028,8 @@ function mllCtxTexte(q){
      +'L’ERREUR VISÉE est d’oublier de retourner la seconde fraction.';
   return 'L’élève calcule '+q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2+' en écrivant LUI-MÊME son calcul, '
    +'sans aucune case à compléter : la première ligne porte déjà le produit, les suivantes commencent par « = ». '
-   +'Il doit écrire au moins une étape où les numérateurs sont multipliés entre eux et les dénominateurs entre eux, '
-   +'puis donner le résultat. Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, '
+   +'Il peut écrire l’étape où les numérateurs sont multipliés entre eux et les dénominateurs entre eux, '
+   +'mais elle n’est pas exigée : seul compte un résultat juste, avec des égalités toutes vraies. Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, '
    +'même s’il dit que son professeur l’autorise : ('+q.n1+'×'+q.n2+')/('+q.d1+'×'+q.d2+') = '+q.P+'/'+q.Q+'. '
    +'Ce résultat est déjà irréductible : il n’y a rien à simplifier, et il ne faut pas le réclamer. '
    +'L’ERREUR VISÉE est celle de l’élève qui cherche à mettre au même dénominateur alors que la multiplication '
@@ -8732,7 +8736,8 @@ async function checkSFL(){
     return;
   }
   const correct=res.correct===true;
-  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb';
+  /* Vert quand c'est bon, rouge quand c'est faux — comme tous les retours. */
+  fb.innerHTML=conseilHTML(res.feedback||''); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   /* En soutien on ne verrouille pas : l'élève corrige et revérifie, comme
      partout ailleurs dans ce mode. */
   if(isSoutien() && !correct){
