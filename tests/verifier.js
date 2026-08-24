@@ -1219,6 +1219,29 @@ function branchements(w){
       'ce niveau n’a pas l’exercice de somme de fractions');
   }
 
+  /* ---- Le NOMBRE de questions des exercices de fractions -----------------
+     4 par exercice en Seconde, du 4.2 au 4.9 (demande de Turquet, août 2026) ;
+     la Première garde 6. DEUX sources : la page a ses constantes (SF_NB,
+     MLT_NB), le banc compare à tests/profils.js — lire la constante de la page
+     et la comparer à elle-même ne prouverait rien. */
+  if(P.nbQuestionsFractions){
+    verifierEval(w, 'les exercices de fractions posent le bon nombre de questions', `(function(){
+      const attendus=${JSON.stringify(P.nbQuestionsFractions)}, vus=[];
+      if(attendus.sf!==undefined){
+        if(typeof sfBuildQuestions!=='function') vus.push('sfBuildQuestions absente');
+        else{ const n=sfBuildQuestions().length, n2=sfBuildQuestions('simplifier').length;
+          if(n!==attendus.sf) vus.push('moteur sf : '+n+' questions au lieu de '+attendus.sf);
+          if(n2!==attendus.sf) vus.push('moteur sf (simplifier) : '+n2+' questions au lieu de '+attendus.sf); }
+      }
+      if(attendus.mlt!==undefined){
+        if(typeof mltBuildQuestions!=='function') vus.push('mltBuildQuestions absente');
+        else{ const n=mltBuildQuestions().length;
+          if(n!==attendus.mlt) vus.push('moteur mlt : '+n+' questions au lieu de '+attendus.mlt); }
+      }
+      return vus.join(' | ');
+    })()`, v => v === '', undefined);
+  }
+
   /* ---- Les écritures mathématiques des réponses du modèle ----------------
      Un élève de Seconde lisait « \frac{1}{2} », en toutes lettres, là où son
      cahier porte une fraction empilée : sa page posait la réponse du modèle en

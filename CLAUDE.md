@@ -1039,6 +1039,18 @@ correction des fractions a été reprise trois fois en une journée, à la main,
 dans les deux fichiers. Deux fonctions divergent VOLONTAIREMENT et sont nommées
 dans le contrôle plutôt que tues : `sfBoutonsAide()` et `sfCtxTexte()`.
 
+**Le NOMBRE de questions vit HORS du moteur, et c'est ce qui permet aux deux
+niveaux de différer sans diverger.** Les huit exercices de fractions de la
+Seconde (4.2 à 4.9) posent 4 questions, la Première en garde 6 (demande de
+Turquet, août 2026). Écrire « 4 » dans `sfBuildQuestions` aurait cassé
+l'identité du moteur — le sabotage l'a montré, le contrôle des quatorze
+fonctions rougit — : la fonction lit `SF_NB`, une constante posée à CÔTÉ du
+moteur, 4 dans un fichier et 6 dans l'autre. Le tirage des multiplications a
+la sienne (`MLT_NB`, ses DEUX boucles la lisent — un 6 oublié dans le tirage
+de secours aurait rallongé l'exercice en silence). Le contrôle compare à
+`tests/profils.js` (`nbQuestionsFractions`), jamais à la constante de la page :
+lire la page et la comparer à elle-même ne prouverait rien.
+
 **Un terme ENTIER s'écrit avec la même encre qu'une fraction.** Écrit en
 `f-whole` — 2 rem, une autre couleur — il dépassait des fractions voisines :
 « 7/6 + 9 » avait un 9 deux fois plus gros que le 7, et le « + » ne tombait plus

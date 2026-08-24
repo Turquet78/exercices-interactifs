@@ -171,6 +171,10 @@ module.exports = {
        celle du voisin recopié, ou sous rien. Les deux autres niveaux
        enregistrent sous currentTestId, et le contrôle n'y mesurerait rien. */
     noteParExercice: true,
+    /* Le nombre de questions des exercices du moteur sf — DEUX sources : la
+       page a sa constante SF_NB, le banc compare à celle-ci. 6 en Première,
+       4 en Seconde (demande de Turquet, août 2026). */
+    nbQuestionsFractions: { sf: 6 },
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
@@ -366,6 +370,11 @@ module.exports = {
        au modèle à chaque touche serait absurde. Déclaré plutôt que le
        contrôle affaibli pour tout le monde. */
     soutienEnDirect: { sans: ['lv', 'def', 'pge', 'sfl', 'mll'] },
+    /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
+       Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
+       mlt. DEUX sources — la page a ses constantes, le banc compare à
+       celles-ci. */
+    nbQuestionsFractions: { sf: 4, mlt: 4 },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
