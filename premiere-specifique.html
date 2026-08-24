@@ -816,6 +816,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    se lisait comme une note de bas de page au milieu d'un calcul.
    La largeur suit la taille : à 62 px, une réponse à deux chiffres débordait. */
 #sfHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+/* Le calcul écrit en TÊTE de rangée a la taille de la rangée (demande de
+   Turquet, août 2026, née en Seconde — l'écran des sommes est le MÊME) :
+   « .f-frac » vaut 1,45 rem partout ailleurs. */
+#sfHost .pt-row>.f-frac{font-size:2rem}
 #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:900px){ #sfHost math-field.pm-mf{font-size:1.5rem}
@@ -1617,7 +1621,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=157;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=158;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.

@@ -2290,7 +2290,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], videsRouges = [];
+      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], videsRouges = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -2402,6 +2402,25 @@ async function parcours(page, N){
                 if(d > 3) signes.push('« ' + sg.textContent.trim() + ' » à ' + d + 'px du trait');
               }
             }
+            /* LE CALCUL ÉCRIT EN TÊTE DE RANGÉE A LA TAILLE DE LA RANGÉE
+               (demande de Turquet, août 2026) : « .f-frac » vaut 1,45 rem
+               partout ailleurs, et les fractions de l'énoncé se lisaient comme
+               une note de bas de page devant des cases à 1,9 rem. Le 4.1 avait
+               reçu le réglage, pas les quatre autres écrans — une leçon
+               apprise dans un coin ne protège pas les autres, donc on mesure
+               ICI, sur TOUS les exercices visités : toute fraction posée en
+               enfant direct d'une rangée doit être au moins aussi grande que
+               les cases de cette rangée. */
+            const debuts = [];
+            for(const row of on.querySelectorAll('.pt-row')){
+              const fracs = [...row.children].filter(c => c.classList && c.classList.contains('f-frac')).filter(visible);
+              const mfs = [...row.querySelectorAll('math-field')].filter(visible);
+              if(!fracs.length || !mfs.length) continue;
+              const boxPx = Math.max(...mfs.map(px));
+              for(const f of fracs){
+                if(px(f) < boxPx) debuts.push('fraction du calcul à ' + px(f) + 'px contre des cases à ' + boxPx + 'px');
+              }
+            }
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
                     /* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT.
                        On relève ce qui est AFFICHÉ, exercice par exercice ; la
@@ -2409,7 +2428,8 @@ async function parcours(page, N){
                        sienne. Deux sources, donc un vrai contrôle : si elles
                        divergent, ça rougit. */
                     tables: [...on.querySelectorAll('.tables-btn')].filter(visible).length > 0,
-                    accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)]};
+                    accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)],
+                    debuts: [...new Set(debuts)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
@@ -2418,6 +2438,8 @@ async function parcours(page, N){
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
           if(mode === 'train' && vu.signes && vu.signes.length)
             dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
+          if(mode === 'train' && vu.debuts && vu.debuts.length)
+            tetes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.debuts[0]);
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -2457,6 +2479,8 @@ async function parcours(page, N){
         petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('un signe posé à côté d\'une fraction tombe sur son trait',
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
+      verifier('le calcul en tête de rangée s\'écrit à la taille de sa rangée',
+        tetes.length === 0, tetes.slice(0, 3).join(' | '));
       /* Le COMPTE d'abord : la liste était tronquée à quatre, et un cinquième
          exercice fautif est resté caché derrière les quatre premiers jusqu'à
          ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
