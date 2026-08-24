@@ -1979,7 +1979,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=242;
+const APP_VERSION=243;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3218,6 +3218,71 @@ async function abandonTest(){
    rehydrateQuestions() reste à la charge de l'appelant : les questions
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
+/* ---- Rangée de jetons GÉNÉRIQUE : le clavier mathématique sur TOUT écran ----
+   Huit exercices à champs mathématiques (les cinq dérivées, 3.5, 5.3, 6.1)
+   n'offraient AUCUN bouton pour le clavier à l'écran : chaque famille posait
+   sa rangée dans son coin (sa, rc, sp, enc), et les autres restaient nues —
+   signalé par Turquet en août 2026, l'indice « clic droit » ne servant à rien
+   sur tablette. C'est la rangée générique de la Seconde et de la Première,
+   revenue à la maison : elle se greffe sur tout écran à champ mathématique
+   qui n'a pas déjà SA rangée, et les rangées spécialisées gardent leurs
+   jetons. */
+const PM_ICO_FRAC='<svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="true">'
+ +'<rect x="4" y="2" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/>'
+ +'<line x1="2" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.8"/>'
+ +'<rect x="4" y="12" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+let pmLastMF=null;
+document.addEventListener('focusin',e=>{
+  const el=e.target;
+  if(el && el.tagName==='MATH-FIELD' && pmEstCase(el)) pmLastMF=el;
+});
+function pmEstCase(el){
+  return !!(el && el.classList && (el.classList.contains('dexp-mf') || el.classList.contains('dexp2-mf')));
+}
+function pmActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && pmEstCase(a)) return a;
+  if(pmLastMF && document.contains(pmLastMF) && !pmLastMF.readOnly) return pmLastMF;
+  return document.querySelector('.screen.on math-field.dexp-mf:not([readonly]), .screen.on math-field.dexp2-mf:not([readonly])');
+}
+function pmInsert(lx){
+  const el=pmActiveMF(); if(!el || el.readOnly) return;
+  try{ el.focus(); }catch(e){}
+  try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }
+}
+function pmKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=pmActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function pmMenuKb(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;
+  const t=pmActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+  try{
+    const r=t.getBoundingClientRect();
+    t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
+      clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
+  }catch(e){}
+}
+function pmJetonsHTML(){
+  return '<div class="rc-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\',\')" title="Virgule d\u00e9cimale" aria-label="Ins\u00e9rer une virgule">,</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'-\')" title="Signe moins" aria-label="Ins\u00e9rer un signe moins">\u2212</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'\\\\frac{#0}{#?}\')" title="Fraction" aria-label="Ins\u00e9rer une fraction">'+PM_ICO_FRAC+'</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmKB()" title="Clavier math\u00e9matique \u00e0 l\u2019\u00e9cran" aria-label="Afficher ou masquer le clavier">\u2328\ufe0f</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmMenuKb()" title="Raccourcis clavier" aria-label="Afficher les raccourcis">\u2630</button></div>';
+}
+function pmJetons(scr){
+  const s=scr||document.querySelector('.screen.on'); if(!s) return;
+  const vis=e=>{ const q=e.getBoundingClientRect(); return q.width>0&&q.height>0; };
+  if(![...s.querySelectorAll('math-field')].some(vis)) return;
+  if(s.querySelector('.rc-jetons') || s.querySelector('.sa-jetons')) return;
+  const fb=s.querySelector('.mp-feedback');
+  if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
+}
 function afficherEcranDe(k){
   const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR] };
   const disp=DISPATCH[k];
@@ -13816,6 +13881,18 @@ function fermerFenetresIA(vider){
   });
 })();
 
+(function(){
+  /* Les rendus des écrans SANS rangée propre : après chaque rendu, la rangée
+     générique se pose (une fois — l'ancre .mp-feedback est statique). Les
+     écrans qui ont la leur (sa, rc, sp, enc) sont dispensés par pmJetons(). */
+  const noms=['renderDexp','renderDexpQ','renderLR','renderEQ','renderSU'];
+  noms.forEach(n=>{
+    const f=window[n]; if(typeof f!=='function') return;
+    window[n]=function(){ const r=f.apply(this,arguments);
+      try{ pmJetons(); }catch(e){}
+      return r; };
+  });
+})();
 /* démarrage */
 if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
