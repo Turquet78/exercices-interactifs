@@ -1864,7 +1864,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=85;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=86;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2331,7 +2331,12 @@ const THEMES=[
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
      commun. Les notes d\u00e9j\u00e0 obtenues ne bougent pas : elles portent l\u2019IDENTIFIANT,
      pas le num\u00e9ro. */
-  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','simplifier-barres','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] }
+  /* {simplifier-barres} ouvre le thème (décision de Turquet, août 2026) :
+     simplifier une fraction SEULE, et la VOIR sur deux barres, avant d'en
+     additionner deux. Les numéros suivent la position — il est 4.1, tout se
+     renumérote derrière — et les notes déjà obtenues ne bougent pas : elles
+     portent l'IDENTIFIANT, pas le numéro. */
+  { num:4, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
