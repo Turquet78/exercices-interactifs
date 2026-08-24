@@ -1421,6 +1421,30 @@ sensible aux métriques de police pour se tenir pile sur la limite. Un contrôle
 du banc navigateur mesure la largeur rendue à 1400 px de fenêtre — aucun banc
 hors navigateur ne sait où un texte se replie.
 
+**Le bouton des tables n'est proposé que là où il SERT** (demande de Turquet,
+août 2026) : là où l'élève a un calcul mental à faire. Ailleurs c'est une porte
+qui ne mène nulle part, posée au milieu des aides qui, elles, servent.
+**La liste est écrite en NÉGATIF, et ce sens compte** : en positif, un exercice
+ajouté demain arriverait SANS le bouton et personne ne le remarquerait — une
+aide absente ne se signale pas. En négatif il l'a par défaut, et on le retire
+quand on a constaté qu'il ne sert pas. Le mauvais côté de l'erreur est celui
+d'une aide offerte pour rien, pas celui d'une aide manquante.
+**Deux exercices ont été GARDÉS contre l'intuition**, après lecture de leur
+générateur : les trois exercices sur les ensembles présentent des fractions
+comme 24/4, et décider que c'est un entier EST un calcul de table ;
+{appartient-intervalle-2} demande si √15 tombe entre 3 et 4, ce qui suppose de
+savoir que 3² = 9 et 4² = 16. Les six qui n'en ont pas ne demandent aucune
+multiplication : écrire une définition, choisir un crochet, lire une courbe,
+comparer 1,07 et 1,1.
+**Le contrôle compare DEUX sources** : ce que la page affiche réellement,
+relevé sur la visite de TOUS les exercices, et une liste écrite dans
+`tests/profils.js`. Lire la liste de la page et la comparer à elle-même n'aurait
+rien prouvé. Un exercice ajouté demain est donc couvert sans rien déclarer.
+Et il faut les DEUX contrôles d'existence, un par liste : un sabotage qui
+ajoutait un identifiant périmé à la liste de la PAGE est resté vert, l'exercice
+n'étant jamais visité — le banc navigateur ne pouvait rien en dire. C'est
+`npm test` qui tient ce bord-là.
+
 **La fenêtre des tables de multiplication a deux bords opposés.** Le bouton est
 sur TOUS les écrans d'exercice — y compris le calcul mental et les tables, qui
 n'ont pas d'élément `…Actions` : leur point d'accroche est `.answer-zone`, et

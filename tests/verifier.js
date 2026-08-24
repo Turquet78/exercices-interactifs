@@ -2298,6 +2298,18 @@ function exercices(suite){
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
+    /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
+       banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
+       et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
+       l'exercice n'étant jamais visité, la comparaison passe. Un sabotage l'a
+       montré en restant vert. Une exemption qui ne protège plus rien masquerait
+       le jour où on réutilise l'identifiant. */
+    if(evaluer(w, "typeof TABLES_SANS!=='undefined'").valeur){
+      verifierEval(w, 'chaque exercice nommé dans TABLES_SANS existe encore', `(function(){
+        const inconnus=TABLES_SANS.filter(function(id){ return !TESTS[id]; });
+        return inconnus.length ? 'identifiant(s) inconnu(s) : '+inconnus.join(', ') : '';
+      })()`, v => v === '', undefined);
+    }
     simplifierBarres(w, P);
     multiplierFractions(w, P);
 

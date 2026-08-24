@@ -2173,6 +2173,7 @@ async function parcours(page, N){
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], videsRouges = [];
+      const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           await s.page.evaluate(i => openTest(i), id);
@@ -2284,9 +2285,16 @@ async function parcours(page, N){
               }
             }
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
+                    /* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT.
+                       On relève ce qui est AFFICHÉ, exercice par exercice ; la
+                       liste attendue vit dans tests/profils.js et la page a la
+                       sienne. Deux sources, donc un vrai contrôle : si elles
+                       divergent, ça rougit. */
+                    tables: [...on.querySelectorAll('.tables-btn')].filter(visible).length > 0,
                     accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
+          (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
           if(mode === 'train' && vu.cases && vu.cases.length)
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
@@ -2345,6 +2353,31 @@ async function parcours(page, N){
       if(dispenses.length && !videsRouges.length)
         console.log('   · ' + dispenses.length + ' exercice(s) déclarés hors de ce contrôle : '
           + dispenses.join(', '));
+      /* LE BOUTON DES TABLES : proposé là où il y a un calcul mental à faire,
+         et NULLE PART ailleurs (demande de Turquet, août 2026). Le contrôle est
+         greffé sur la visite de TOUS les exercices — celui qu'on ajoutera
+         demain est donc couvert sans rien déclarer.
+         Il compare deux sources : ce que la page AFFICHE et la liste écrite
+         ici. Lire la liste de la page et la comparer à elle-même n'aurait rien
+         prouvé du tout. */
+      if(P.tablesAide && P.tablesAide.sans){
+        const attendu = P.tablesAide.sans;
+        const inconnusT = attendu.filter(x => tous.indexOf(x) < 0);
+        const enTrop = [...sansTables].filter(x => attendu.indexOf(x) < 0);
+        const manquants = attendu.filter(x => avecTables.has(x));
+        verifier('le bouton des tables n\'est proposé que là où il y a un calcul à faire',
+          enTrop.length === 0 && manquants.length === 0,
+          (enTrop.length ? 'sans bouton alors qu\'il devrait l\'avoir : ' + enTrop.join(', ') + '. ' : '')
+          + (manquants.length ? 'avec bouton alors qu\'il est déclaré sans : ' + manquants.join(', ') : ''));
+        /* Une exemption qui ne protège plus rien masquerait le jour où on
+           réutilise l'identifiant. */
+        verifier('chaque exercice déclaré sans les tables existe encore',
+          inconnusT.length === 0, 'identifiant(s) inconnu(s) : ' + inconnusT.join(', '));
+        console.log('   · ' + attendu.length + ' exercice(s) sans les tables : ' + attendu.join(', '));
+      } else {
+        ignorer('le bouton des tables n\'est proposé que là où il y a un calcul à faire',
+          'ce niveau ne déclare pas où les tables servent');
+      }
       verifier('le bouton d\'aide IA est présent sur chaque exercice',
         sans.length === 0,
         sans.length ? 'absent sur : ' + sans.join(', ')

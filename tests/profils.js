@@ -412,7 +412,19 @@ module.exports = {
        aucun écran où la fenêtre deviendrait une antisèche. Ce manque est
        déclaré plutôt que tu — le banc affiche « non applicable » sur ce
        seul bord, et continue d'exiger l'autre. */
-    tablesAide: { reste: 'pourcentage' },
+    /* OÙ LES TABLES SERVENT, ET OÙ ELLES NE SERVENT PAS (demande de Turquet,
+       août 2026). « sans » nomme les exercices qui ne demandent AUCUN calcul
+       mental : écrire une définition, choisir un crochet, lire une courbe,
+       comparer 1,07 et 1,1. Les trois exercices sur les ensembles n'y sont
+       PAS — ils présentent des fractions comme 24/4, et décider que c'est un
+       entier est un calcul de table ; {appartient-intervalle-2} non plus, il
+       demande si √15 tombe entre 3 et 4.
+       Cette liste est la SECONDE source : la page a la sienne, le banc compare
+       ce qui est réellement affiché à celle-ci. Les lire toutes deux au même
+       endroit n'aurait rien prouvé. */
+    tablesAide: { reste: 'pourcentage',
+                  sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
+                         'appartient-intervalle', 'placer-intervalle', 'lecture-variations'] },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",

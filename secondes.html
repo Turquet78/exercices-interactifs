@@ -1864,7 +1864,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=84;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=85;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3484,7 +3484,27 @@ function ouvrirTables(){
 function fermerTables(){ const ov=$('tablesOverlay'); if(ov) ov.classList.remove('on'); }
 function tablesOuvertes(){ const ov=$('tablesOverlay'); return !!(ov && ov.classList.contains('on')); }
 function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
+/* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT (demande de Turquet,
+   août 2026) : là où l'élève a un calcul mental à faire. Ailleurs c'est une
+   porte qui ne mène nulle part, posée au milieu des aides qui, elles, servent.
+
+   LA LISTE EST EN NÉGATIF, et ce sens-là compte. En positif, un exercice ajouté
+   demain arriverait SANS le bouton et personne ne le remarquerait — une aide
+   absente ne se signale pas. En négatif, il l'a par défaut, et on le retire
+   quand on a constaté qu'il ne sert pas : le mauvais côté de l'erreur est celui
+   d'une aide offerte pour rien, pas celui d'une aide manquante.
+
+   CE QUI EST RESTÉ DANS LA LISTE DES EXERCICES QUI L'ONT, et qui ne se devine
+   pas : les trois exercices sur les ensembles présentent des fractions comme
+   24/4, et décider que c'est un entier EST un calcul de table. De même,
+   {appartient-intervalle-2} demande si √15 tombe entre 3 et 4 — il faut savoir
+   que 3² = 9 et 4² = 16.
+   Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
+   définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
+const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
+                   'appartient-intervalle','placer-intervalle','lecture-variations'];
 function tablesBtnHTML(){
+  if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
 }
 function conseilInlineBtn(avecConseil){
