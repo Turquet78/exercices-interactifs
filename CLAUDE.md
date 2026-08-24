@@ -1289,6 +1289,18 @@ leçon habituelle : chercher « P/100 × N » dans TOUTE la règle ne prouvait r
 « RÈGLE DE DÉCISION » ; et l'identité de « Recommencer » se mesurait sur un
 `test.qId` que `startTest()` ne touche pas — l'identifiant restait par inertie,
 il faut une sentinelle. Éprouvé en le cassant sept fois.
+**« Retrouver le pourcentage » a DEUX voies, et la règle nomme les deux.**
+Signalé par Turquet sur une copie (août 2026) : « 32/40 = 16/20 = 80/100 » —
+la part sur le tout, amenée au dénominateur 100 — est une justification
+parfaitement correcte pour retrouver un pourcentage, mais la règle ne
+connaissait que « P/100 × N = résultat » et demandait d'« arriver à 32 » : une
+route qui arrive à 80/100 risquait le refus, et la clause « tout calcul
+différent est accepté » ne suffit pas à protéger une voie aussi centrale — ce
+qui doit être accepté se NOMME, avec les nombres mêmes de la question. La
+consigne à l'écran et le contexte de la fenêtre d'aide nomment aussi cette
+voie, pour ce type de question seulement. Le contrôle l'exige, sabotage à
+l'appui.
+
 **Une feuille ne se crée pas dans un écran caché.** `mlFeuille` donne le focus
 à sa première ligne dès sa création, et MathLive lève « reading 'options' »
 sur un champ encore invisible — or la feuille du 2.1.7 vit derrière le choix
