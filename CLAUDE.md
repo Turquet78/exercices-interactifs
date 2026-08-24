@@ -655,6 +655,51 @@ plus sournois : un liseré qui prendrait la couleur de SA PROPRE fraction ferait
 dire au dessin l'inverse de la règle, et l'élève apprendrait le contraire de ce
 qu'on enseigne, sans que rien ne rougisse.
 
+**Multiplier, c'est le miroir de la somme SANS le même dénominateur — et c'est
+tout le sujet.** {multiplier-fractions} (4.6) et {multiplier-fractions-libre}
+(4.7), demandés par Turquet en août 2026, sont au produit ce que
+{somme-fractions} et {somme-fractions-libre} sont à la somme : un guidé, un
+rédigé, les mêmes nombres. Le guidé pose une seule chaîne —
+`n1/d1 × n2/d2 = (□ × □)/(□ × □) = □/□` — et **l'erreur qu'il vise est celle de
+l'élève qui vient de passer trois exercices à mettre au même dénominateur et
+croit devoir le faire encore**. Le message la nomme en toutes lettres quand elle
+se produit, plutôt que de dire seulement « faux ».
+
+**Les quatre premières cases ne demandent aucun calcul, et c'est voulu**
+(décision de Turquet, août 2026) : elles demandent de PLACER les numérateurs
+ensemble et les dénominateurs ensemble. Poser le produit à la place de l'élève —
+« (5 × 1)/(3 × 2) » écrit par la page — ne lui laisserait que l'arithmétique,
+alors que l'arithmétique n'est pas la difficulté ici.
+
+**L'ORDRE DES DEUX FACTEURS EST LIBRE**, et il le faut : rien à l'écran ne dit
+quelle case appartient à quelle fraction, et la multiplication est commutative.
+Chaque case se juge donc sur ce qu'elle PROMET — être l'un des deux nombres
+attendus — puis les deux doivent former la paire : deux cases portant toutes
+deux 5 quand on attend 5 et 1 sont chacune défendable et fausses ensemble.
+C'est la règle des paires de {somme-fractions}, transposée.
+
+**AUCUNE SIMPLIFICATION** (décision de Turquet, août 2026), et ça se paie au
+TIRAGE : le produit doit être irréductible. **`pgcd(n1,d1)=1` et `pgcd(n2,d2)=1`
+NE SUFFISENT PAS** — 2/3 × 3/2 a ses deux fractions irréductibles et donne 6/6.
+C'est bien le PRODUIT qu'il faut tester, et un sabotage l'a montré en sortant
+35/15. Sans cette condition, l'élève qui simplifie — ce qui est juste — écrirait
+une fraction que la correction compterait fausse ; et l'exercice poserait la
+question « faut-il simplifier ? » que 4.3 et 4.5 traitent déjà. Deux leçons dans
+un même exercice rendent la faute illisible.
+
+**La correction en bleu recouvrait le signe ×.** Le badge se pose hors du flux à
+droite de sa case, et ici la case a un voisin immédiat sur la MÊME ligne : la
+ligne du bas se lisait « 35 7 35 5 ». C'est le défaut d'août 2026 sur la somme,
+au même endroit et pour la même raison ; la place se réserve sur la case qui
+porte une correction, et seulement sur elle. Ça ne s'est vu que sur une capture.
+
+**Un sabotage restait vert sans que le contrôle soit faible : il regardait le
+mauvais MODE.** « Une case vide rougit » ne se voit pas en entraînement — la
+correction en bleu repasse derrière et efface le rouge. Le bord n'est atteignable
+qu'en SOUTIEN, où rien n'efface. C'est la même leçon que le sabotage impossible
+de la pleine largeur : avant de conclure qu'un contrôle ne mesure rien, il faut
+vérifier que le sabotage pouvait seulement l'atteindre.
+
 **Deux fractions ne s'additionnent qu'au même dénominateur — et le commun n'est
 pas imposé.** {somme-fractions} vit en Seconde ET en Première, sur un moteur
 unique : le tirage, la pose et la correction sont le même texte dans les deux
