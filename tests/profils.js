@@ -31,6 +31,7 @@ const KINDS_PREMIERE = [
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
   ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'],
+  ['psl','genPctRes()'],
 ];
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
@@ -163,7 +164,9 @@ module.exports = {
        doit aiguiller CHAQUE écran d'exercice. Aucune dispense ici : les
        quatorze écrans y sont. « sans » existe pour les niveaux où un exercice
        corrige autrement — le déclarer vaut mieux que d'affaiblir le contrôle. */
-    soutienEnDirect: { sans: [] },
+    /* {pourcentage-synthese-libre} : la correction est le verdict de l'IA,
+       il n'y a rien à colorer pendant la saisie. */
+    soutienEnDirect: { sans: ['psl'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
@@ -199,7 +202,7 @@ module.exports = {
       qiaDetachee: true,
       conseil: true,
       ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE,
-             prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;' } },
+             prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
     liveCheck: {
