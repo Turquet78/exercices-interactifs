@@ -3284,7 +3284,7 @@ function multiplierFractions(w, P){
     startMlt();
     /* 3/7 × 4/9 = 12/63… non : 12 et 63 partagent 3. On prend 5/7 × 4/9 = 20/63,
        irréductible, et dont aucun facteur n'est égal à un autre. */
-    test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,P:20,Q:63};
+    test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,a1:5,a2:4,b1:7,b2:9,P:20,Q:63};
     const CASES=['mlt-h1','mlt-h2','mlt-b1','mlt-b2','mlt-fn','mlt-fd'];
     const q=test.questions[test.idx];
     const juger=function(o){
@@ -3316,7 +3316,7 @@ function multiplierFractions(w, P){
     if(!r.okFn || !r.okFd) vus.push('le résultat JUSTE rougit parce qu\\'un numérateur est faux');
     /* L'ERREUR VISÉE : mettre au même dénominateur. 63 est le produit, mais le
        PPCM de 7 et 9 vaut aussi 63 — on prend donc un cas où ils diffèrent. */
-    test.questions[test.idx]={n1:5,d1:4,n2:5,d2:8,P:25,Q:32};
+    test.questions[test.idx]={n1:5,d1:4,n2:5,d2:8,a1:5,a2:5,b1:4,b2:8,P:25,Q:32};
     const q2=test.questions[test.idx];
     test.locked=false; renderMltTest();
     CASES.forEach(function(id){ const el=document.getElementById(id); if(el) el.value=''; });
@@ -3333,7 +3333,7 @@ function multiplierFractions(w, P){
       vus.push('le message ne nomme pas l\\'erreur visée : « '+msg+' »');
 
     /* ---- 3. RIEN N'EST ÉCRIT : rien ne rougit, et la COULEUR le dit ------ */
-    test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,P:20,Q:63};
+    test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,a1:5,a2:4,b1:7,b2:9,P:20,Q:63};
     test.locked=false; renderMltTest();
     checkMltAnswer();
     const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
@@ -3369,7 +3369,85 @@ function multiplierFractions(w, P){
     if(peint('mlt-b1')!=='vert' || peint('mlt-fn')!=='vert')
       vus.push('après le clic, des cases justes d\\'autres étapes rougissent');
 
-    /* ---- 5. LE LIBRE : les mêmes nombres, et la règle envoyée au modèle --- */
+    /* ---- 5. DIVISER, C'EST MULTIPLIER PAR L'INVERSE --------------------- */
+    if(typeof divGen!=='function' || typeof startDiv!=='function'){
+      vus.push('les exercices de division sont absents');
+    } else {
+      /* le tirage : ce sont les facteurs INVERSÉS qui doivent être rangés, et
+         c'est le quotient qui doit être irréductible — ni « chaque fraction
+         irréductible » ni la condition du produit direct ne l'impliquent. */
+      for(let i=0;i<2000;i++){
+        const g=divGen(), eti='tirage '+g.n1+'/'+g.d1+' ÷ '+g.n2+'/'+g.d2;
+        if(g.a1!==g.n1 || g.a2!==g.d2 || g.b1!==g.d1 || g.b2!==g.n2){
+          vus.push(eti+' : les facteurs rangés ne sont pas ceux de la fraction INVERSÉE'); break; }
+        if(g.P!==g.n1*g.d2 || g.Q!==g.d1*g.n2){ vus.push(eti+' : le quotient rangé ne suit pas les facteurs'); break; }
+        if(pgcd(g.P,g.Q)!==1){ vus.push(eti+' : le quotient '+g.P+'/'+g.Q+' se simplifie encore'); break; }
+        if(g.n2===0){ vus.push(eti+' : on divise par zéro'); break; }
+        if(g.n2===g.d2){ vus.push(eti+' : on divise par 1, il n\\'y a rien à faire'); break; }
+        if(g.P===g.Q){ vus.push(eti+' : le quotient vaut 1 tout rond'); break; }
+      }
+      /* la correction : l'inverse se juge case par case, et le MESSAGE nomme
+         l'erreur visée — multiplier sans retourner la seconde fraction. */
+      startDiv();
+      test.questions[test.idx]={n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
+      const qd=test.questions[test.idx];
+      const jugerD=function(o){
+        test.locked=false; renderMltTest();
+        mltCases().forEach(function(id){ const el=document.getElementById(id);
+          if(el) el.value=(o[id]===undefined)?'':String(o[id]); });
+        return mltJuge(qd);
+      };
+      const JUSTED={'mlt-i1':7,'mlt-i2':2,'mlt-h1':3,'mlt-h2':7,'mlt-b1':5,'mlt-b2':2,'mlt-fn':21,'mlt-fd':10};
+      const avecD=function(o){ const c=Object.assign({},JUSTED); Object.keys(o).forEach(function(k){ c[k]=o[k]; }); return c; };
+      let rd=jugerD(JUSTED);
+      if(!(rd.inverse&&rd.haut&&rd.bas&&rd.fin) || rd.vide) vus.push('la copie juste de la division est comptée fausse : '+JSON.stringify(rd));
+      if(mltCases().length!==8) vus.push('la division ne compte pas ses huit cases ('+mltCases().length+')');
+      /* L'ERREUR VISÉE : l'élève n'a pas retourné la seconde fraction. */
+      rd=jugerD(avecD({'mlt-i1':2,'mlt-i2':7,'mlt-h2':2,'mlt-b2':7,'mlt-fn':6,'mlt-fd':35}));
+      if(rd.inverse) vus.push('recopier 2/7 au lieu de 7/2 est accepté comme inverse');
+      if(!rd.okH1 || !rd.okB1) vus.push('la première fraction, JUSTE, rougit parce que l\\'inverse est faux');
+      const msgD=mltPourquoi(qd,rd);
+      if(!/RETOURNER/.test(msgD) || msgD.indexOf('7')<0) vus.push('le message ne nomme pas l\\'erreur visée : « '+msgD+' »');
+      /* UN INVERSE FAUX EMPÊCHE LA COPIE D'ÊTRE JUSTE, et ce bord ne se voit
+         que par le BOUTON : les produits se jugent sur les facteurs inversés,
+         indépendamment de ce que l'élève a écrit dans les cases de l'inverse.
+         Une copie peut donc avoir ses six dernières cases justes et son inverse
+         faux — sans ce bord, elle vaudrait le point entier avec une case rouge
+         à l'écran. Un sabotage est passé au vert ici : le contrôle lisait le
+         verdict de sfJuge, jamais la NOTE que le bouton enregistre. */
+      test.locked=false; renderMltTest();
+      mltCases().forEach(function(id){ const el=document.getElementById(id); if(el) el.value=''; });
+      Object.keys(avecD({'mlt-i1':2,'mlt-i2':7})).forEach(function(id){
+        const el=document.getElementById(id); if(el) el.value=String(avecD({'mlt-i1':2,'mlt-i2':7})[id]); });
+      checkMltAnswer();
+      const derD=test.answers[test.answers.length-1];
+      if(derD && derD.correct) vus.push('une copie dont l\\'inverse est faux vaut le point entier');
+      const clD=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+        return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+      if(clD('mlt-i1')!=='rouge') vus.push('après le clic, l\\'inverse FAUX est peint en '+clD('mlt-i1'));
+      if(clD('mlt-h1')!=='vert') vus.push('après le clic, un facteur JUSTE rougit parce que l\\'inverse est faux');
+
+      /* et une case de l'inverse juste ne rougit pas parce que l'autre est fausse */
+      rd=jugerD(avecD({'mlt-i2':9}));
+      if(!rd.okI1) vus.push('le numérateur JUSTE de l\\'inverse rougit parce que l\\'autre case est fausse');
+      if(rd.okI2) vus.push('9 est accepté au dénominateur de l\\'inverse');
+      /* la règle envoyée au modèle exige l'étape de l'inverse, et n'exige PAS
+         la ligne des produits : « 3/5 × 7/2 = 21/10 » est une rédaction juste. */
+      if(typeof startDLL==='function'){
+        startDLL();
+        test.questions[test.idx]=qd;
+        const aD=mllAttenduIA(qd), eD=mllEnonceIA(qd);
+        if(eD.indexOf('÷')<0) vus.push('l\\'énoncé envoyé au modèle ne dit pas que c\\'est une division');
+        if(aD.indexOf('3/5 × 7/2')<0) vus.push('la règle n\\'écrit pas la multiplication par l\\'inverse');
+        if(!/N’EST PAS exigé|N'EST PAS exigé/.test(aD))
+          vus.push('la règle exige la ligne des produits : une rédaction juste serait refusée');
+        if(aD.indexOf('division')<0) vus.push('la règle ne dit pas qu\\'il s\\'agit d\\'une division');
+      }
+      startMlt();
+      test.questions[test.idx]={n1:5,d1:7,n2:4,d2:9,a1:5,a2:4,b1:7,b2:9,P:20,Q:63};
+    }
+
+    /* ---- 6. LE LIBRE : les mêmes nombres, et la règle envoyée au modèle --- */
     if(typeof startMLL!=='function' || typeof mllAttenduIA!=='function'){
       vus.push('l\\'exercice en saisie libre est absent');
     } else {

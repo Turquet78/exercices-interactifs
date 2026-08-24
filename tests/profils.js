@@ -83,7 +83,8 @@ const RAPPELS_SECONDE = `(function(){
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
-               'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll' };
+               'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
+               'diviser-fractions':'mlt','diviser-fractions-libre':'mll' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -279,10 +280,14 @@ module.exports = {
        six égalités sur une seule rangée, dont deux blocs de division. C'est
        exactement là qu'un repli se produirait, et aucun banc hors navigateur
        ne sait où un contenu se replie. */
-    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions'],
+    /* {diviser-fractions} pose HUIT cases sur une ligne — la transformation en
+       multiplication, puis le produit, puis le résultat. C'est la chaîne la
+       plus chargée après {simplifier-fractions}, et c'est là qu'un repli se
+       produirait. */
+    pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
                               ['diminuer-pourcentage', 2], ['somme-fractions', 1],
-                              ['simplifier-fractions', 1]] },
+                              ['simplifier-fractions', 1], ['diviser-fractions', 1]] },
 
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case

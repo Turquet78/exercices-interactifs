@@ -700,6 +700,45 @@ qu'en SOUTIEN, où rien n'efface. C'est la même leçon que le sabotage impossib
 de la pleine largeur : avant de conclure qu'un contrôle ne mesure rien, il faut
 vérifier que le sabotage pouvait seulement l'atteindre.
 
+**Diviser, c'est multiplier par l'inverse — et l'exercice fait ÉCRIRE ce
+passage.** {diviser-fractions} (4.8) et {diviser-fractions-libre} (4.9),
+demandés par Turquet en août 2026, sont aux quotients ce que 4.6 et 4.7 sont aux
+produits, avec un maillon de plus au début :
+
+    n1/d1 ÷ n2/d2 = n1/d1 × d2/n2 = (n1 × d2)/(d1 × n2) = P/Q
+
+**C'est le MÊME moteur que la multiplication**, avec un drapeau `test.inv` —
+exactement comme `test.simp` chez les sommes. Le tirage range les facteurs
+EFFECTIFS (`a1 a2 / b1 b2`) : ceux de l'énoncé pour un produit, ceux de l'énoncé
+APRÈS inversion pour un quotient. C'est ce qui permet au juge, au rendu et à la
+correction d'être les mêmes ; un moteur recopié aurait fini par diverger sous
+les yeux de l'élève. Les deux exercices partagent donc l'écran, mais pas leur
+identité : la note passe par `test.qId`, le rappel par `RAPPELS_ID`, les
+questions par `QIA_SUGG_ID`.
+
+**Les deux cases de l'inverse ne forment PAS une paire.** Le haut doit valoir
+`d2` et le bas `n2` — chacune une seule valeur, jugée seule. Une case qui
+porterait l'autre nombre n'a pas inversé, et c'est précisément la faute visée :
+le message la nomme (« Il faut RETOURNER la seconde fraction »).
+
+**Le libre n'exige PAS la ligne des produits**, seulement le passage à
+l'inverse : « 3/5 × 7/2 = 21/10 » est une rédaction parfaitement correcte, et
+refuser une copie juste apprend l'inverse de ce qu'on enseigne. C'est la seule
+différence de règle entre 4.7 et 4.9.
+
+**Un garde-fou MORT y a été écrit, puis retiré** — le troisième du projet, et
+toujours pour la même raison. « ne pas diviser par 1 » (`n2 !== d2`) n'écartait
+jamais rien : si `n2 = d2 = k`, le quotient vaut `n1·k/(d1·k)` et son PGCD vaut
+au moins `k ≥ 2`, donc la condition d'irréductibilité l'avait déjà écarté. Le
+sabotage l'a montré en restant vert. C'est le CONTRÔLE qui exige la propriété
+sur le tirage.
+
+**Et un vrai trou dans le contrôle, qu'un sabotage a ouvert** : une copie dont
+l'INVERSE est faux mais dont les six autres cases sont justes valait le point
+entier. Les produits se jugent sur les facteurs inversés, indépendamment de ce
+que l'élève a écrit dans les cases de l'inverse — le contrôle lisait le verdict
+de `mltJuge`, jamais la NOTE que le bouton enregistre. Il CLIQUE désormais.
+
 **Deux fractions ne s'additionnent qu'au même dénominateur — et le commun n'est
 pas imposé.** {somme-fractions} vit en Seconde ET en Première, sur un moteur
 unique : le tirage, la pose et la correction sont le même texte dans les deux
