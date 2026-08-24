@@ -1621,7 +1621,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=155;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=156;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -1902,6 +1902,7 @@ const TESTS={
   'tables-multiplication':{ name:'Tables de multiplication', icon:'⚡', desc:TM_NB+' produits des tables de 2 à 9 (résultats à deux chiffres), '+TM_SECONDES+' secondes par calcul. Les ratés reviennent jusqu\u2019à ce que tout soit su.', start:()=>startTM() },
   'pourcentage-depart':  { name:'Retrouver la valeur initiale', icon:'🔎', desc:'On donne le pourcentage et le r\u00e9sultat : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctDepart() },
   'pourcentage-taux':    { name:'Retrouver le pourcentage', icon:'🧮', desc:'On donne la valeur initiale et le r\u00e9sultat : choisis le bon pourcentage parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctTaux() },
+  'pourcentage-synthese':{ name:'Synth\u00e8se : prendre un pourcentage', icon:'🎯', desc:'Synth\u00e8se de {pourcentage}, {pourcentage-depart} et {pourcentage-taux} : le r\u00e9sultat, la valeur initiale ou le pourcentage \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la en \u00e9crivant les 3 \u00e9tapes. Ici, toutes les cases sont vides, m\u00eame le nombre de d\u00e9part.', start:()=>startPctSynthese() },
   'augmenter-taux-addition':{ name:'Retrouver le pourcentage d\u2019une hausse en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis vérifie-le en calculant l\u2019augmentation et en l\u2019ajoutant à la valeur de départ.', start:()=>startAugTauxAdd() },
   'diminuer-soustraction':{ name:'Diminuer d\u2019un pourcentage en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'➖', desc:'Calcule d\u2019abord la baisse (le pourcentage de la valeur, comme en {pourcentage}), puis retire-la de la valeur de départ — sans coefficient multiplicateur.', start:()=>startDimSub() },
   'diminuer-depart-soustraction':{ name:'Retrouver la valeur initiale apr\u00e8s une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'🔁', desc:'On donne le pourcentage de baisse et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimDepSub() },
@@ -1943,7 +1944,7 @@ const THEMES=[
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:2, nom:'Pourcentages', sous:[
-      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux'] },
+      { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
@@ -2007,7 +2008,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (test.qId==='pourcentage-taux'?startPctTaux():startPctDepart()); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -6142,14 +6143,45 @@ function genPctTaux(){
 /* Les deux nombres de l'\u00e9tape \u2460, selon la proposition choisie (null si rien n'est choisi). */
 function qdCouple(q){
   if(q.choisi===null) return null;
+  /* type 'res' (synth\u00e8se) : P et N viennent de l'\u00c9NONC\u00c9 \u2014 le calcul ne d\u00e9pend
+     pas de la proposition choisie, c'est son R\u00c9SULTAT qui la d\u00e9partage. On
+     attend quand m\u00eame un choix : v\u00e9rifier avant d'avoir choisi n'est pas
+     l'exercice. */
+  if(q.type==='res') return {P:q.P,N:q.N};
   const v=q.opts[q.choisi];
   return (q.type==='pct') ? {P:v,N:q.N} : {P:q.P,N:v};
 }
 function qdLabel(q,v){ return (q.type==='pct') ? (v+'\u00a0%') : (v+' '+q.unit); }
-function qdQuoi(q){ return (q.type==='pct') ? 'le pourcentage' : 'la valeur initiale'; }
+function qdQuoi(q){ return (q.type==='pct') ? 'le pourcentage' : (q.type==='res' ? 'le r\u00e9sultat' : 'la valeur initiale'); }
 
 async function startPctDepart(){ return startQCM('pourcentage-depart', genPctDepart); }
 async function startPctTaux(){ return startQCM('pourcentage-taux', genPctTaux); }
+/* --- Synthèse (2.1.6) : retrouver le RÉSULTAT — le calcul même de {pourcentage},
+   posé en propositions. Les leurres sont au pas du résultat, comme ceux de la
+   valeur initiale : proches, ils obligent à calculer. R ≥ 2 : en dessous,
+   leurresProches produirait des décimaux, et la bonne réponse serait le seul
+   entier — elle se lirait sans calculer. --- */
+function genPctRes(){
+  let P,N;
+  do{ P=pick(PCT_PCTS); N=pick(PCT_VALEURS); } while(!pctCoupleOk(P,N) || P*N/100<2);
+  const prod=P*N, R=prod/100;
+  const opts=qdMelanger(leurresProches(R).concat([R]));
+  const ci=tirerContexte(CTX_PART,N);
+  const q={type:'res',P,N,unit:CTX_PART[ci].u,prod,result:R,opts,bon:opts.indexOf(R),choisi:null,ci};
+  q.v=tirerVariante(PCT_ENONCES,q);
+  return q;
+}
+/* La synthèse tire les trois types — le résultat, la valeur initiale, le
+   pourcentage — chacun au moins une fois sur les six questions, puis mélange :
+   l'élève ne sait jamais ce que la question suivante demande, et c'est tout ce
+   que la synthèse ajoute aux trois exercices dont elle reprend le moteur.
+   Même moteur, pas même identité : la note part sous test.qId, le rappel vit
+   dans RAPPELS_ID, les questions dans QIA_SUGG — comme le calcul mental. */
+const SYN21_GENS=[genPctRes,genPctDepart,genPctTaux];
+async function startPctSynthese(){
+  const plan=qdMelanger(SYN21_GENS.concat(Array.from({length:Math.max(0,QD_NB-SYN21_GENS.length)},()=>pick(SYN21_GENS))));
+  let i=0; return startQCM('pourcentage-synthese', ()=>plan[i++]());
+}
 async function startQCM(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -6173,20 +6205,27 @@ function renderQTest(){
   $('qFeedback').textContent=''; $('qFeedback').className='mp-feedback';
   $('qActions').innerHTML='<button class="btn btn-primary" onclick="checkQAnswer()">V\u00e9rifier</button>';
   const consigne=` Retrouve ${qdQuoi(q)} et v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les \u00e9tapes des calculs.`;
-  $('qPrompt').innerHTML=variante(q.type==='pct'?QD_ENONCES_PCT:QD_ENONCES_VAL,q)+consigne;
+  $('qPrompt').innerHTML=variante(q.type==='pct'?QD_ENONCES_PCT:(q.type==='res'?PCT_ENONCES:QD_ENONCES_VAL),q)+consigne;
   /* m\u00eame fabrique de fraction que 3.1.1 : m\u00eames classes, donc m\u00eame pr\u00e9sentation */
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="num\u00e9rateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="d\u00e9nominateur"></math-field></span>`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="qc${i}" onclick="choisirQ(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(qdLabel(q,v))}</span></button>`).join('');
   const c=qdCouple(q), cache=(c===null)?' step-hidden':'';
+  /* Synthèse : TOUTES les cases sont vides, même le nombre de départ — la page
+     n'écrit plus rien dans la chaîne (demande de Turquet, août 2026). Ailleurs,
+     le nombre choisi ou donné reste posé par la page, comme avant. */
+  const vide=(test.qId==='pourcentage-synthese');
+  const caseN=vide
+    ? `<math-field class="dexp-mf pm-mf f-dec" id="qN" aria-label="nombre de d\u00e9part"></math-field>`
+    : `<span class="f-whole">${c?c.N:''}</span>`;
   $('qHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="qChoix">${choix}</div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
-       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span><span class="f-whole">${c?c.N:''}</span><span class="f-eq">=</span>${frac('q2n','q2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span>${caseN}<span class="f-eq">=</span>${frac('q2n','q2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<p class="pt-aide">${c===null
         ? 'Choisis une proposition, puis \u00e9cris les \u00e9tapes du calcul pour la v\u00e9rifier.'
-        : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+q.result+'\u00a0'+esc(q.unit)+'.'}</p>`;
-  const order=['q1n','q1d','q2n','q2d','q3'].map(id=>$(id));
+        : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+(q.type==='res'?'la proposition que tu as choisie\u00a0: '+esc(qdLabel(q,q.opts[q.choisi])):q.result+'\u00a0'+esc(q.unit))+'.'}</p>`;
+  const order=(vide?['q1n','q1d','qN','q2n','q2d','q3']:['q1n','q1d','q2n','q2d','q3']).map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkQAnswer();} }); });
   if(c!==null) setTimeout(()=>order[0]&&order[0].focus(),70);
 }
@@ -6201,7 +6240,7 @@ function checkQAnswer(live){
   const c=qdCouple(q), prod=c.P*c.N, res=prod/100;
   /* Les \u00e9tapes sont jug\u00e9es par rapport \u00e0 la proposition CHOISIE : un calcul correct
      sur une mauvaise proposition reste un calcul correct. */
-  if(live){ liveColorFrac('q1n','q1d',c.P,100,false); liveColorFrac('q2n','q2d',prod,100,false); liveColorDec('q3',res,1); return; }
+  if(live){ liveColorFrac('q1n','q1d',c.P,100,false); liveColorDec('qN',c.N,1); liveColorFrac('q2n','q2d',prod,100,false); liveColorDec('q3',res,1); return; }
   const v=id=>$(id).value.trim(), iv=id=>parseInt($(id).value.trim(),10);
   const f1n=iv('q1n'), f1d=iv('q1d');
   const ok1 = v('q1n')!=='' && v('q1d')!=='' && !isNaN(f1n) && !isNaN(f1d) && f1d!==0 && f1n*100===c.P*f1d;
@@ -6209,9 +6248,29 @@ function checkQAnswer(live){
   const ok2 = v('q2n')!=='' && v('q2d')!=='' && !isNaN(f2n) && !isNaN(f2d) && f2d!==0 && f2n*100===prod*f2d;
   const fr=parseDecToFrac(v('q3'));
   const ok3 = !!fr && fr.n*100===prod*fr.d;      /* tout en entiers : jamais de flottant */
-  const okChoix=(q.choisi===q.bon), calculOk=ok1&&ok2&&ok3, allOk=calculOk&&okChoix;
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
-  mark('q1n',ok1); mark('q1d',ok1); mark('q2n',ok2); mark('q2d',ok2); mark('q3',ok3);
+  /* Synthèse : la case du nombre de départ se juge comme les autres. Absente
+     (2.1.4, 2.1.5 : la page l'écrit), elle ne compte pas. */
+  const eN=$('qN');
+  const okN = !eN || (v('qN')!=='' && !isNaN(iv('qN')) && iv('qN')===c.N);
+  const okChoix=(q.choisi===q.bon), calculOk=ok1&&ok2&&ok3&&okN, allOk=calculOk&&okChoix;
+  /* Une case VIDE ne rougit jamais : elle reste sans couleur — en entraînement,
+     la correction la complète en bleu juste derrière. */
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');
+    if(String(el.value||'').trim()===''){ el.disabled=!isSoutien(); return; }
+    el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
+  /* Une case seule dans sa fraction se juge sur ce qu'elle PROMET — pouvoir se
+     compléter en une fraction égale à la cible — jamais sur sa jumelle vide :
+     une case juste ne rougit pas parce qu'une autre est vide (règle du projet,
+     à toutes les profondeurs — c'est le bug des sommes de fractions, ici par
+     une autre porte). La NOTE, elle, exige toujours la paire complète. */
+  const promN=(vn,cible)=>{ const n=parseInt(vn,10); return !isNaN(n)&&n>0&&(n*100)%cible===0; };
+  const promD=(vd,cible)=>{ const d=parseInt(vd,10); return !isNaN(d)&&d>0&&(cible*d)%100===0; };
+  mark('q1n', v('q1d')===''?promN(v('q1n'),c.P):ok1);
+  mark('q1d', v('q1n')===''?promD(v('q1d'),c.P):ok1);
+  if(eN) mark('qN',okN);
+  mark('q2n', v('q2d')===''?promN(v('q2n'),prod):ok2);
+  mark('q2d', v('q2n')===''?promD(v('q2d'),prod):ok2);
+  mark('q3',ok3);
   const btn=$('qc'+q.choisi);
   if(btn){ btn.classList.remove('sel','ok','bad'); btn.classList.add(okChoix?'ok':'bad'); }
   const font=n=>(n>1?'font':'fait');
@@ -6219,7 +6278,9 @@ function checkQAnswer(live){
     if(calculOk){
       /* Calcul juste, proposition fausse : on rouvre le choix, sinon l'\u00e9l\u00e8ve
          tournerait en rond sur une proposition d\u00e9j\u00e0 condamn\u00e9e. */
-      $('qFeedback').innerHTML=`Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b>, et non ${q.result}. Ce n\u2019est donc pas ${qdQuoi(q)} \u2014 essaie une autre proposition.`;
+      $('qFeedback').innerHTML=(q.type==='res')
+        ? `Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b> \u2014 or tu avais choisi ${esc(qdLabel(q,q.opts[q.choisi]))}. Choisis la proposition que ton calcul vient de te donner.`
+        : `Ton calcul est juste\u00a0: ${c.P}\u00a0% de ${c.N} ${font(res)} <b>${res} ${esc(q.unit)}</b>, et non ${q.result}. Ce n\u2019est donc pas ${qdQuoi(q)} \u2014 essaie une autre proposition.`;
       $('qFeedback').className='mp-feedback bad';
       $('qActions').innerHTML='<button class="btn btn-primary" onclick="checkQAnswer()">V\u00e9rifier</button>';
       setTimeout(()=>{ const z=$('qChoix'); if(z) z.scrollIntoView({block:'center',behavior:'smooth'}); },40);
@@ -6240,7 +6301,7 @@ function checkQAnswer(live){
   } else {
     $('qFeedback').innerHTML=`R\u00e9ponse\u00a0: ${bonLbl}, car ${preuve} ${esc(q.unit)} (toute fraction \u00e9gale est accept\u00e9e).`;
     $('qFeedback').className='mp-feedback bad';
-    corTrainFrac('q1n','q1d',c.P,100); corTrainFrac('q2n','q2d',prod,100);
+    corTrainFrac('q1n','q1d',c.P,100); if(eN) corTrainDec('qN',String(c.N)); corTrainFrac('q2n','q2d',prod,100);
     corTrainDec('q3',String(res).replace('.',','));
   }
   const enonce=(q.type==='pct')
@@ -9920,6 +9981,11 @@ Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
 Quand on en connaît deux, le troisième est déterminé. Plutôt que de le calculer directement, on <b>teste une proposition</b> : on prend le pourcentage de la valeur proposée, exactement comme dans l’exercice {pourcentage}, et on regarde si l’on retombe sur le résultat annoncé.<br>
 Si le calcul est juste mais que le résultat ne correspond pas, c’est la proposition qui est mauvaise, pas le calcul. C’est la méthode de la <b>vérification</b> : elle sert toute la vie en mathématiques.`;
+const RAP_SYN21=`<b>Le résultat, la valeur initiale ou le pourcentage</b><br>
+Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
+<b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
+Quand on en connaît deux, le troisième est déterminé. La question peut donc demander n’importe lequel des trois — c’est ce qui change par rapport aux exercices {pourcentage}, {pourcentage-depart} et {pourcentage-taux}, où l’on sait d’avance ce qu’on cherche. Commence toujours par repérer les deux nombres que l’énoncé donne.<br>
+Dans tous les cas, on <b>teste la proposition choisie</b> : on écrit les 3 étapes de l’exercice {pourcentage} — le % en fraction décimale, la multiplication, le résultat en écriture décimale — et on regarde si tout se raccorde. Ici, toutes les cases sont vides : c’est à toi d’écrire aussi le nombre de départ.`;
 const RAP_AUG=`<b>Augmenter d’un pourcentage</b><br>
 Augmenter de <b>P %</b>, c’est garder le tout (100 %) et y ajouter P % : on multiplie par le <b>coefficient multiplicateur</b><br>
 <b>\\(1+\\frac{P}{100}=\\frac{100+P}{100}\\)</b>.<br>
@@ -10071,7 +10137,7 @@ R\u00e9sultat 345. Les cases de retenue sont facultatives : si tu as appris la m
 par emprunt, laisse-les vides.<br>
 V\u00e9rifie l\u2019ordre de grandeur \u00e0 la fin : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
 Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2 };
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -10103,6 +10169,7 @@ const QIA_SUGG={
   asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
   pct:["C’est quoi, un pourcentage ?","Pourquoi divise-t-on par 100 ?","Comment place-t-on la virgule quand on divise par 100 ?","Comment calculer 10 % de tête ?"],
   pctq:["Comment retrouver un nombre quand on connaît son pourcentage ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","Comment savoir si ma proposition est la bonne ?","C’est quoi, un pourcentage ?"],
+  'pourcentage-synthese':["Comment savoir ce que la question me demande de retrouver ?","Comment tester une proposition ?","Pourquoi vérifier sa réponse plutôt que la deviner ?","C’est quoi, un pourcentage ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
@@ -10202,14 +10269,16 @@ function conseilCtxCourant(){
   } else if(k==='pctq' && q){
     const lettres=['a','b','c','d'];
     const lbl=function(v){ return (q.type==='pct')?(v+' %'):(v+' '+q.unit); };
-    const ch=(q.choisi==null)?null:(q.type==='pct'?{P:q.opts[q.choisi],N:q.N}:{P:q.P,N:q.opts[q.choisi]});
-    att='Exercice à propositions : l’élève choisit '+(q.type==='pct'?'le pourcentage':'la valeur initiale')
+    const ch=(q.choisi==null)?null:(q.type==='pct'?{P:q.opts[q.choisi],N:q.N}:(q.type==='res'?{P:q.P,N:q.N}:{P:q.P,N:q.opts[q.choisi]}));
+    att='Exercice à propositions : l’élève choisit '+qdQuoi(q)
       +' parmi quatre, puis DOIT vérifier son choix en refaisant les 3 étapes de l’exercice {pourcentage}. '
       +'Bonne proposition, STRICTEMENT SECRÈTE : '+lettres[q.bon]+') '+lbl(q.opts[q.bon])+'. '
       +'Égalité qui relie les trois nombres : '+q.P+'/100 × '+q.N+' = '+q.result+' '+q.unit+'. ';
     att+= ch ? ('L’élève a choisi '+lettres[q.choisi]+') '+lbl(q.opts[q.choisi])+' : les étapes doivent donc donner '
         +ch.P+'/100, puis '+(ch.P*ch.N)+'/100, puis '+(ch.P*ch.N/100)+' '+q.unit+'. '
-        +'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c’est justement la vérification qui doit lui révéler que la proposition ne convient pas.')
+        +(q.type==='res'
+        ?'Pour cette question, le calcul ne dépend pas du choix : c’est son RÉSULTAT qui départage les propositions — ne révèle jamais ce résultat.'
+        :'Juge son CALCUL par rapport à CE choix : un calcul correct sur une mauvaise proposition reste un calcul correct, et c’est justement la vérification qui doit lui révéler que la proposition ne convient pas.'))
       : 'L’élève n’a pas encore choisi de proposition : aide-le à comprendre comment tester une proposition, sans lui dire laquelle est la bonne.';
   } else if(k==='augq' && q){
     const lettres=['a','b','c','d'];

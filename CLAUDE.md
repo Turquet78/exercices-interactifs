@@ -1182,6 +1182,43 @@ numéros EN DUR, exactement l'inverse. Ça ne s'est vu que sur une capture de
 l'écran. Le rendu passe maintenant par `numeros()`, et le banc navigateur
 refuse toute accolade `{…}` désignant un exercice connu qui resterait affichée.
 
+**La synthèse d'un pourcentage, c'est ne plus savoir d'avance ce qu'on
+cherche.** {pourcentage-synthese} (Première 2.1.6, demande de Turquet, août
+2026) reprend le MOTEUR de {pourcentage-depart} et {pourcentage-taux} — quatre
+propositions a/b/c/d, puis la vérification en 3 étapes — et y ajoute le
+troisième type : retrouver le RÉSULTAT, c'est-à-dire le calcul même de
+{pourcentage} posé en propositions. Le tirage sert les trois types, chacun au
+moins une fois sur les six questions, mélangés : c'est tout ce que la synthèse
+ajoute, et c'est l'exercice — repérer ce que l'énoncé donne avant de calculer.
+Même moteur, pas même identité : la note sous `test.qId`, le rappel dans
+`RAPPELS_ID`, les questions dans `QIA_SUGG` sous l'identifiant.
+**Toutes les cases sont vides, même le nombre de départ** (demande de Turquet) :
+là où 2.1.4 et 2.1.5 écrivent le nombre dans la chaîne (`f-whole`), la synthèse
+pose une case `qN`, jugée comme les autres et comptée dans la note. Le bord
+opposé est contrôlé aussi : en 2.1.4, le nombre doit RESTER écrit par la page.
+**Le type « résultat » a un piège à lui : l'aide et les messages parlaient du
+résultat.** « Tu dois retrouver 12 € » sous une question dont 12 EST la réponse
+la donnerait ; l'aide rappelle donc la proposition CHOISIE. Et le message
+« calcul juste, mais fait 12, et non 12 » était un non-sens : pour ce type, il
+renvoie l'élève à sa proposition. La règle générale reste : le calcul se juge
+sur la proposition choisie pour val/pct, sur l'ÉNONCÉ pour res — c'est son
+résultat qui départage les propositions, et il n'est jamais révélé.
+**Et deux défauts du moteur partagé sont tombés au passage**, parce que la règle
+vaut à toutes les profondeurs : une case VIDE rougissait à la vérification (le
+bord n'est atteignable qu'en soutien — en entraînement la correction bleue
+repasse derrière), et une case SEULE dans sa fraction rougissait parce que sa
+jumelle était vide. Elle se juge maintenant sur sa PROMESSE — 30 seul promet
+30/100, 7 seul ne promet rien — la note, elle, exige toujours la paire
+complète. C'est le bug des sommes de fractions, par une autre porte, et il
+vivait en production dans 2.1.4 et 2.1.5.
+Un contrôle tient ces bords (tirage mélangé et bonne réponse calculée — à type
+égal, le rang de la bonne varie —, cases vides, `qN` jugée et comptée, cases
+vides sans couleur, promesse des cases seules, aide muette sur le résultat,
+message sans non-sens, « Recommencer » qui relance la bonne identité), éprouvé
+en le cassant neuf fois. Un piège d'outillage s'y est montré : un sabotage qui
+RETIRE une ligne ne se « remet » pas par `replace('', ligne)` — ça prépende en
+tête de fichier, et les sabotages suivants mesurent un fichier déjà cassé.
+
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
 coefficient, l'élève dit le sens puis le pourcentage. Le piège qu'il vise est
