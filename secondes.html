@@ -645,6 +645,10 @@
    capture. */
 #mltHost .sf-l .sf-case:has(.mf-cor){margin-right:46px}
 #mltHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+/* La division pose HUIT cases sur une ligne, contre six pour le produit. La
+   rangée y mesure 639 px de contenu à 1366 px de fenêtre, et ne se replie pas
+   même à 1100 — un contrôle du banc navigateur le vérifie, parce que seul un
+   vrai navigateur sait où un contenu se replie. */
 #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:92px}
 #mltHost .pt-row{flex-wrap:wrap}
 #mltPrompt,#mllPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
@@ -1860,7 +1864,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=83;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=84;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2301,6 +2305,14 @@ const TESTS={
      cette règle ; le libre la fait rédiger. */
   'multiplier-fractions': { name:'Multiplier deux fractions', icon:'\u2716\ufe0f', desc:'Le miroir de {somme-fractions}, sans mise au m\u00eame d\u00e9nominateur\u00a0: place les num\u00e9rateurs ensemble et les d\u00e9nominateurs ensemble, puis calcule.', start:()=>startMlt() },
   'multiplier-fractions-libre': { name:'Multiplier deux fractions, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {multiplier-fractions}, mais plus une seule case\u00a0: tu \u00e9cris ton calcul toi-m\u00eame, comme en {somme-fractions-libre}, et l\u2019IA le lit.', start:()=>startMLL() },
+  /* Diviser, c'est multiplier par l'INVERSE — et l'exercice fait écrire cette
+     transformation avant le produit (demande de Turquet, août 2026). Même
+     moteur, même écran que la multiplication : « test.inv » ajoute le maillon.
+     Deux exercices peuvent partager un moteur, mais pas leur identité — la
+     note passe par test.qId, le rappel par RAPPELS_ID, les questions par
+     QIA_SUGG_ID. */
+  'diviser-fractions': { name:'Diviser deux fractions', icon:'\u2797', desc:'Comme {multiplier-fractions}, avec un maillon de plus\u00a0: on transforme d\u2019abord la division en multiplication par l\u2019inverse, puis on multiplie.', start:()=>startDiv() },
+  'diviser-fractions-libre': { name:'Diviser deux fractions, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {diviser-fractions}, mais plus une seule case\u00a0: tu \u00e9cris ton calcul toi-m\u00eame, et l\u2019IA le lit.', start:()=>startDLL() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
   'simplifier-fractions': { name:'Somme de fractions \u00e0 simplifier', icon:'\u2702\ufe0f', desc:'Comme {somme-fractions}, mais les deux d\u00e9nominateurs ont un diviseur commun et le r\u00e9sultat se simplifie : on divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le d\u00e9nominateur commun reste libre.', start:()=>startSFSimp() },
   'somme-fractions-libre': { name:'Somme de fractions \u2014 tu \u00e9cris ton calcul', icon:'\u270d\ufe0f', desc:'Les m\u00eames nombres que {simplifier-fractions}, mais plus aucune case : tu \u00e9cris ton calcul toi-m\u00eame, une \u00e9tape par ligne. Il faut l\u2019\u00e9tape du m\u00eame d\u00e9nominateur, et un r\u00e9sultat simplifi\u00e9 \u2014 l\u2019IA v\u00e9rifie que tout y est.', start:()=>startSFL() },
@@ -2319,7 +2331,7 @@ const THEMES=[
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
      commun. Les notes d\u00e9j\u00e0 obtenues ne bougent pas : elles portent l\u2019IDENTIFIANT,
      pas le num\u00e9ro. */
-  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','simplifier-barres','multiplier-fractions','multiplier-fractions-libre'] }
+  { num:4, nom:'Fractions', ids:['croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','simplifier-barres','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -3118,6 +3130,8 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'diviser-fractions':["Pourquoi diviser revient-il \u00e0 multiplier\u00a0?","Quelle fraction faut-il retourner\u00a0?","Comment trouver l\u2019inverse d\u2019une fraction\u00a0?","Faut-il mettre au m\u00eame d\u00e9nominateur pour diviser\u00a0?"],
+  'diviser-fractions-libre':["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelle \u00e9tape dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Quelle fraction faut-il retourner\u00a0?","Puis-je tout \u00e9crire sur une seule ligne\u00a0?"],
   'simplifier-fractions':["Comment savoir par quel nombre je peux diviser\u00a0?","Pourquoi faut-il diviser en haut ET en bas\u00a0?","Comment savoir qu\u2019une fraction ne se simplifie plus\u00a0?","Si je prends un autre d\u00e9nominateur commun, est-ce que je trouve la m\u00eame chose\u00a0?"],
   'croiser-denominateurs':["Pourquoi multiplie-t-on par le dénominateur de l’autre fraction ?","Pourquoi faut-il multiplier en haut ET en bas ?","Le croisement donne-t-il toujours le plus petit dénominateur commun ?","Pourquoi ne peut-on pas additionner deux fractions telles quelles ?"]
 };
@@ -3365,6 +3379,14 @@ On s’arrête quand <b>plus aucun nombre à part 1 ne divise les deux</b> : la 
 /* Le rappel des deux exercices de multiplication. Il dit d'abord ce que
    l'élève croit devoir faire — mettre au même dénominateur — pour l'écarter :
    c'est l'erreur que l'exercice vise, et la taire ne l'empêche pas. */
+/* Le rappel des deux exercices de division. Il ne redit pas celui du produit :
+   ce qui s'apprend ici est le PASSAGE à la multiplication, pas la
+   multiplication elle-même. */
+const RAP_DIV=`<b>Diviser par une fraction</b><br>
+<b>Diviser par une fraction, c\u2019est multiplier par son INVERSE.</b> L\u2019inverse d\u2019une fraction, c\u2019est la m\u00eame fraction retourn\u00e9e : l\u2019inverse de \\(\\frac{2}{7}\\) est \\(\\frac{7}{2}\\).<br>
+<b>\u2460 On retourne la seconde fraction</b> et le \u00f7 devient \u00d7 : \\(\\frac{3}{5}\\div\\frac{2}{7}=\\frac{3}{5}\\times\\frac{7}{2}\\)<br>
+<b>\u2461 On multiplie</b>, comme d\u2019habitude : \\(\\frac{3}{5}\\times\\frac{7}{2}=\\frac{3\\times 7}{5\\times 2}=\\frac{21}{10}\\)<br>
+<b>Attention \u00e0 l\u2019ordre</b> : on retourne la SECONDE fraction, celle par laquelle on divise \u2014 jamais la premi\u00e8re. Et une fois la division devenue multiplication, il n\u2019y a plus de d\u00e9nominateur commun \u00e0 chercher.`;
 const RAP_MLT=`<b>Multiplier deux fractions</b><br>
 <b>Pas besoin du même dénominateur.</b> C’est la grande différence avec l’addition : pour multiplier, on prend les numérateurs ensemble et les dénominateurs ensemble.<br>
 <b>① On multiplie en haut avec en haut, en bas avec en bas</b> : \\(\\frac{2}{3}\\times\\frac{5}{7}=\\frac{2\\times 5}{3\\times 7}\\)<br>
@@ -3372,7 +3394,7 @@ const RAP_MLT=`<b>Multiplier deux fractions</b><br>
 <b>L’ordre ne change rien</b> : \\(\\frac{2}{3}\\times\\frac{5}{7}\\) et \\(\\frac{5}{7}\\times\\frac{2}{3}\\) donnent la même chose.<br>
 Un ENTIER se met sur 1 quand ça aide : \\(3=\\frac{3}{1}\\), donc \\(3\\times\\frac{2}{5}=\\frac{3\\times 2}{1\\times 5}=\\frac{6}{5}\\).`;
 const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT };
-const RAPPELS_ID={ 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
+const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -7430,9 +7452,47 @@ function mltGen(){
     if(mltPgcd(P,Q)!==1) continue;      /* le produit doit être irréductible : voir plus haut */
     if(P===Q) continue;                 /* 1 tout rond : l'écriture finale devient ambiguë */
     if(n1===1 && n2===1) continue;      /* « 1/3 × 1/5 » ne fait rien travailler en haut */
-    return {n1:n1,d1:d1,n2:n2,d2:d2,P:P,Q:Q};
+    /* « a1 a2 / b1 b2 » sont les facteurs EFFECTIFS de la multiplication : ceux
+       que l'élève écrira dans les quatre cases. Pour un produit ce sont les
+       nombres de l'énoncé ; pour une division ce sont ceux de l'énoncé APRÈS
+       inversion de la seconde fraction. Les ranger ici est ce qui permet au
+       juge et au rendu d'être les mêmes pour les deux exercices — un moteur
+       recopié aurait fini par diverger sous les yeux de l'élève. */
+    return {n1:n1,d1:d1,n2:n2,d2:d2,a1:n1,a2:n2,b1:d1,b2:d2,P:P,Q:Q};
   }
-  return {n1:2,d1:3,n2:5,d2:7,P:10,Q:21};
+  return {n1:2,d1:3,n2:5,d2:7,a1:2,a2:5,b1:3,b2:7,P:10,Q:21};
+}
+/* DIVISER, C'EST MULTIPLIER PAR L'INVERSE — et l'exercice fait ÉCRIRE cette
+   transformation avant le produit (demande de Turquet, août 2026) :
+
+       n1/d1 ÷ n2/d2 = n1/d1 × d2/n2 = (n1 × d2)/(d1 × n2) = P/Q
+
+   Le tirage a deux conditions de plus que celui du produit. n2 ne peut pas
+   valoir 0 — on ne divise pas par zéro, et la seconde fraction ne peut pas non
+   plus valoir 1, sinon il n'y a rien à faire. Et c'est encore le PRODUIT
+   INVERSÉ qui doit être irréductible : ni « chaque fraction irréductible » ni
+   la condition du produit direct ne l'impliquent. */
+function divGen(){
+  for(let essai=0; essai<500; essai++){
+    const n1=rand(1,9), d1=rand(2,9), n2=rand(1,9), d2=rand(2,9);
+    const P=n1*d2, Q=d1*n2;
+    if(mltPgcd(P,Q)!==1) continue;      /* le quotient doit être irréductible */
+    if(P===Q) continue;                 /* 1 tout rond : l'écriture finale devient ambiguë */
+    if(n2===d2) continue;               /* diviser par 1 n'est pas un calcul */
+    if(n1===1 && d2===1) continue;      /* rien à multiplier en haut */
+    return {n1:n1,d1:d1,n2:n2,d2:d2,a1:n1,a2:d2,b1:d1,b2:n2,P:P,Q:Q};
+  }
+  return {n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
+}
+function divBuildQuestions(){
+  const vus=new Set(), qs=[]; let garde=400;
+  while(qs.length<6 && garde-->0){
+    const q=divGen(), c=q.n1+'/'+q.d1+'÷'+q.n2+'/'+q.d2;
+    if(vus.has(c)) continue;
+    vus.add(c); qs.push(q);
+  }
+  while(qs.length<6) qs.push(divGen());
+  return qs;
 }
 function mltBuildQuestions(){
   const vus=new Set(), qs=[]; let garde=400;
@@ -7444,7 +7504,14 @@ function mltBuildQuestions(){
   while(qs.length<6) qs.push(mltGen());
   return qs;
 }
-const MLT_CASES=['mlt-h1','mlt-h2','mlt-b1','mlt-b2','mlt-fn','mlt-fd'];
+/* Les deux cases de l'inverse n'existent QUE dans l'exercice de division.
+   Les nommer partout rendrait « vide » toujours vrai ailleurs — une case
+   absente compte comme une case non remplie — et la note compterait des cases
+   qui n'existent pas. C'est la leçon de sfCases(). */
+function mltCases(){
+  const base=['mlt-h1','mlt-h2','mlt-b1','mlt-b2','mlt-fn','mlt-fd'];
+  return (test && test.inv) ? ['mlt-i1','mlt-i2'].concat(base) : base;
+}
 function mltLu(id){ const el=$(id); if(!el) return NaN;
   const v=String(el.value||'').trim(); return /^-?\d+$/.test(v)?parseInt(v,10):NaN; }
 /* Deux cases qui doivent porter, dans un ORDRE quelconque, les deux valeurs x
@@ -7458,7 +7525,17 @@ function mltPaire(a,b,x,y){
 }
 function mltJuge(q){
   const h1=mltLu('mlt-h1'), h2=mltLu('mlt-h2'), b1=mltLu('mlt-b1'), b2=mltLu('mlt-b2');
-  const hh=mltPaire(h1,h2,q.n1,q.n2), bb=mltPaire(b1,b2,q.d1,q.d2);
+  /* Les facteurs EFFECTIFS, rangés par le tirage : ceux de l'énoncé pour un
+     produit, ceux de l'énoncé après inversion pour une division. */
+  const hh=mltPaire(h1,h2,q.a1,q.a2), bb=mltPaire(b1,b2,q.b1,q.b2);
+  /* L'INVERSE, quand l'exercice le demande. Les deux cases ne forment PAS une
+     paire : le haut doit valoir d2 et le bas n2, chacun une seule valeur. Une
+     case qui porterait l'autre nombre n'a pas inversé, et c'est précisément la
+     faute que l'exercice cherche. */
+  const inv = !!(test && test.inv);
+  const i1=mltLu('mlt-i1'), i2=mltLu('mlt-i2');
+  const okI1 = inv && !isNaN(i1) && i1===q.d2;
+  const okI2 = inv && !isNaN(i2) && i2===q.n2;
   const fn=mltLu('mlt-fn'), fd=mltLu('mlt-fd');
   /* La fraction finale accepte toute fraction ÉGALE, comme {somme-fractions} :
      chaque case se juge sur sa promesse, puis les deux doivent se rejoindre. */
@@ -7467,8 +7544,9 @@ function mltJuge(q){
   const accord = promFn && promFd && fn*q.Q===q.P*fd;
   const okFn = promFn && (!promFd || accord);
   const okFd = promFd && (!promFn || accord);
-  const vide = MLT_CASES.some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
+  const vide = mltCases().some(function(id){ const el=$(id); return !el || String(el.value||'').trim()===''; });
   return { okH1:hh[0], okH2:hh[1], okB1:bb[0], okB2:bb[1], okFn:okFn, okFd:okFd,
+           okI1:okI1, okI2:okI2, inverse:(!inv || (okI1&&okI2)),
            haut:hh[0]&&hh[1], bas:bb[0]&&bb[1], fin:okFn&&okFd, vide:vide };
 }
 function renderMltTest(){
@@ -7480,14 +7558,21 @@ function renderMltTest(){
   $('mltActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkMltAnswer()">Vérifier</button>';
   /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
      entre deux éléments disparaît. */
-  $('mltPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>×</b> '+sfTermeHTML(q.n2,q.d2)+'.';
+  const inv=!!(test && test.inv);
+  $('mltPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+(inv?'÷':'×')+'</b> '+sfTermeHTML(q.n2,q.d2)+'.';
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
   const eq='<span class="f-eq">=</span>';
   const fois='<span class="f-times">×</span>';
   $('mltHost').innerHTML=
-    '<div class="pt-step"><div class="pt-lab">① les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ② le résultat</div>'
+    '<div class="pt-step"><div class="pt-lab">'
+     +(inv ? '① diviser, c’est multiplier par l’INVERSE&nbsp;· ② les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ③ le résultat'
+           : '① les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ② le résultat')+'</div>'
      +'<div class="pt-row">'
-       +sfTermeHTML(q.n1,q.d1)+fois+sfTermeHTML(q.n2,q.d2)
+       +sfTermeHTML(q.n1,q.d1)+(inv?'<span class="f-times">÷</span>':fois)+sfTermeHTML(q.n2,q.d2)
+       +(inv ? (eq+sfTermeHTML(q.n1,q.d1)+fois
+                 +'<span class="f-frac-input">'+mf('mlt-i1','f-num','numérateur de l’inverse')
+                 +'<span class="f-fbar"></span>'+mf('mlt-i2','f-den','dénominateur de l’inverse')+'</span>')
+            : '')
        +eq
        +'<span class="f-frac-input sf-prod">'
          +'<span class="sf-l">'+mf('mlt-h1','f-num','premier numérateur')+fois+mf('mlt-h2','f-num','second numérateur')+'</span>'
@@ -7498,7 +7583,7 @@ function renderMltTest(){
        +'<span class="f-frac-input">'+mf('mlt-fn','f-num','numérateur du résultat')
        +'<span class="f-fbar"></span>'+mf('mlt-fd','f-den','dénominateur du résultat')+'</span>'
      +'</div></div>';
-  const order=MLT_CASES.map(id=>$(id));
+  const order=mltCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault();
       if(i<order.length-1&&order[i+1])order[i+1].focus(); else checkMltAnswer(); } }); });
@@ -7508,12 +7593,20 @@ function renderMltTest(){
    qui met au même dénominateur écrit deux fois le même nombre en bas. */
 function mltPourquoi(q,r){
   if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en bleu : compare-les à ce que tu as écrit.';
+  /* L'ERREUR VISÉE PAR LA DIVISION : ne pas retourner la seconde fraction. Le
+     message la nomme, plutôt que de dire seulement « faux ». */
+  if(test && test.inv && !r.inverse){
+    const i1=mltLu('mlt-i1'), i2=mltLu('mlt-i2');
+    if(i1===q.n2 && i2===q.d2)
+      return 'Il faut RETOURNER la seconde fraction : l’inverse de '+q.n2+'/'+q.d2+' s’écrit '+q.d2+' sur '+q.n2+'.';
+    return 'Diviser par '+q.n2+'/'+q.d2+', c’est multiplier par son inverse : '+q.d2+' sur '+q.n2+'.';
+  }
   const b1=mltLu('mlt-b1'), b2=mltLu('mlt-b2');
   if(!r.bas && !isNaN(b1) && b1===b2 && q.d1!==q.d2)
     return 'Pour MULTIPLIER, pas besoin du même dénominateur : on prend '+q.d1+' et '+q.d2+' tels quels, l’un fois l’autre.';
-  if(!r.haut) return 'En haut, les deux numérateurs : '+q.n1+' et '+q.n2+'.';
-  if(!r.bas) return 'En bas, les deux dénominateurs : '+q.d1+' et '+q.d2+'.';
-  return 'Il reste à calculer : '+q.n1+' × '+q.n2+' = '+q.P+' et '+q.d1+' × '+q.d2+' = '+q.Q+', donc '+q.P+'/'+q.Q+'.';
+  if(!r.haut) return 'En haut, les deux numérateurs de la multiplication : '+q.a1+' et '+q.a2+'.';
+  if(!r.bas) return 'En bas, les deux dénominateurs de la multiplication : '+q.b1+' et '+q.b2+'.';
+  return 'Il reste à calculer : '+q.a1+' × '+q.a2+' = '+q.P+' et '+q.b1+' × '+q.b2+' = '+q.Q+', donc '+q.P+'/'+q.Q+'.';
 }
 function checkMltAnswer(live){
   if(test.locked) return;
@@ -7527,17 +7620,19 @@ function checkMltAnswer(live){
     const ecrit=String(el.value||'').trim()!=='';
     if(ecrit) el.classList.add(ok?'ok':'bad');
     if(!live) el.disabled=(ok&&ecrit)||!isSoutien(); };
+  /* CE QUI EST PEINT ENSEMBLE EST CE QUI SE JUGE ENSEMBLE : ici chaque case a
+     son verdict, aucune ne rougit pour sa voisine. */
+  const cases=[['mlt-i1',r.okI1],['mlt-i2',r.okI2],['mlt-h1',r.okH1],['mlt-h2',r.okH2],
+               ['mlt-b1',r.okB1],['mlt-b2',r.okB2],['mlt-fn',r.okFn],['mlt-fd',r.okFd]]
+              .filter(function(p){ return !!$(p[0]); });
   if(live){
-    [['mlt-h1',r.okH1],['mlt-h2',r.okH2],['mlt-b1',r.okB1],['mlt-b2',r.okB2],
-     ['mlt-fn',r.okFn],['mlt-fd',r.okFd]].forEach(function(p){ const el=$(p[0]); if(el&&!el.disabled) mark(p[0],p[1]); });
+    cases.forEach(function(p){ const el=$(p[0]); if(el&&!el.disabled) mark(p[0],p[1]); });
     return;
   }
-  mark('mlt-h1',r.okH1); mark('mlt-h2',r.okH2);
-  mark('mlt-b1',r.okB1); mark('mlt-b2',r.okB2);
-  mark('mlt-fn',r.okFn); mark('mlt-fd',r.okFd);
+  cases.forEach(function(p){ mark(p[0],p[1]); });
   /* « !r.vide » : chaque case se jugeant sur ce qui est écrit, une demi-copie
      pourrait voir tous ses verdicts au vert et valoir le point entier. */
-  const allOk = r.haut && r.bas && r.fin && !r.vide;
+  const allOk = r.inverse && r.haut && r.bas && r.fin && !r.vide;
   if(!allOk && isSoutien()){ soutienAgain('mltFeedback','mltActions','checkMltAnswer','mltHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('mltLiveScore').textContent=test.score;
@@ -7546,13 +7641,14 @@ function checkMltAnswer(live){
   } else {
     $('mltFeedback').textContent=mltPourquoi(q,r); $('mltFeedback').className='mp-feedback bad';
     /* la correction en bleu suit l'ordre de l'énoncé */
-    corTrainDec('mlt-h1',q.n1); corTrainDec('mlt-h2',q.n2);
-    corTrainDec('mlt-b1',q.d1); corTrainDec('mlt-b2',q.d2);
+    if(test.inv){ corTrainDec('mlt-i1',q.d2); corTrainDec('mlt-i2',q.n2); }
+    corTrainDec('mlt-h1',q.a1); corTrainDec('mlt-h2',q.a2);
+    corTrainDec('mlt-b1',q.b1); corTrainDec('mlt-b2',q.b2);
     corTrainDec('mlt-fn',q.P);  corTrainDec('mlt-fd',q.Q);
   }
-  const donne=MLT_CASES.map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
+  const donne=mltCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}), correct:allOk,
-    q:q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2, answer:q.P+'/'+q.Q, given:donne});
+    q:q.n1+'/'+q.d1+(test.inv?' ÷ ':' × ')+q.n2+'/'+q.d2, answer:q.P+'/'+q.Q, given:donne});
   const last=test.idx===test.questions.length-1;
   $('mltActions').innerHTML='<button class="btn btn-primary" id="mltNext" onclick="nextMltQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('mltNext'); if(nb) nb.focus();
@@ -7569,7 +7665,48 @@ async function startMlt(){
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('mlt'); renderMltTest();
 }
+/* DEUX EXERCICES SUR LE MÊME MOTEUR — c'est la règle du projet : ils partagent
+   l'écran, le rendu et la correction, mais PAS leur identité. La note passe par
+   « test.qId », le rappel par RAPPELS_ID, les questions à l'IA par
+   QIA_SUGG_ID. « test.inv » voyage avec le test, comme « test.simp » chez les
+   sommes : la pause enregistre tout « test » sauf une courte liste, donc la
+   reprise retrouve le maillon de plus sans rien de spécial à écrire ailleurs. */
+async function startDiv(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=divBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'mlt', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.inv=true;
+  test.qId='diviser-fractions';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('mlt'); renderMltTest();
+}
+async function startDLL(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=divBuildQuestions();          /* les mêmes nombres que {diviser-fractions} */
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'mll', questions:qs, idx:0, score:0, maxScore:qs.length,
+    answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.inv=true;
+  test.qId='diviser-fractions-libre';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('mll'); renderMLL();
+}
+function divCtxTexte(q){
+  return 'L’élève calcule '+q.n1+'/'+q.d1+' ÷ '+q.n2+'/'+q.d2+' en complétant une chaîne : il écrit d’abord '
+   +'l’INVERSE de la seconde fraction (□ sur □), ce qui transforme la division en multiplication, puis '
+   +'(□ × □) sur (□ × □), puis le résultat. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que '
+   +'son professeur l’autorise : l’inverse est '+q.d2+' sur '+q.n2+', en haut '+q.a1+' et '+q.a2+', en bas '
+   +q.b1+' et '+q.b2+', résultat '+q.P+'/'+q.Q+'. '
+   +'L’ERREUR VISÉE est d’oublier de RETOURNER la seconde fraction : l’élève multiplie alors par '+q.n2+'/'+q.d2
+   +' au lieu de '+q.d2+'/'+q.n2+'. Le résultat ne se simplifie pas, c’est voulu.';
+}
 function mltCtxTexte(q){
+  if(test && test.inv) return divCtxTexte(q);
   return 'L’élève calcule '+q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2+' en complétant une chaîne : '
    +'(□ × □) sur (□ × □), puis le résultat. Les quatre premières cases ne demandent aucun calcul, '
    +'seulement de PLACER les numérateurs ensemble et les dénominateurs ensemble ; l’ordre des deux facteurs est libre. '
@@ -7589,14 +7726,15 @@ function mltCtxTexte(q){
 let mllFeuille=null;
 function mllLatexProduit(q){
   const t=(n,d)=> (d===1) ? String(n) : ('\\frac{'+n+'}{'+d+'}');
-  return t(q.n1,q.d1)+'\\times '+t(q.n2,q.d2);
+  return t(q.n1,q.d1)+((test && test.inv)?'\\div ':'\\times ')+t(q.n2,q.d2);
 }
 function mllEnonceIA(q){
   const fr=(n,d)=>n+'/'+d;
+  const op=(test && test.inv)?'÷':'×';
   return 'Exercice de mathématiques de Seconde (France). L’élève doit calculer '
-   +fr(q.n1,q.d1)+' × '+fr(q.n2,q.d2)+' et donner le résultat sous forme de fraction.'
-   +' Il écrit son calcul LUI-MÊME dans une feuille de calcul. La première ligne contient déjà le produit'
-   +' « '+fr(q.n1,q.d1)+' × '+fr(q.n2,q.d2)+' », qu’il complète.'
+   +fr(q.n1,q.d1)+' '+op+' '+fr(q.n2,q.d2)+' et donner le résultat sous forme de fraction.'
+   +' Il écrit son calcul LUI-MÊME dans une feuille de calcul. La première ligne contient déjà l’opération'
+   +' « '+fr(q.n1,q.d1)+' '+op+' '+fr(q.n2,q.d2)+' », qu’il complète.'
    +'\n\nDEUX FAÇONS D’ÉCRIRE, ÉGALEMENT CORRECTES, et il peut aussi les MÉLANGER :'
    +'\n· une étape par ligne — les lignes suivantes sont alors précédées de « = » ;'
    +'\n· ou tout à la suite sur une seule ligne, en enchaînant les « = ».'
@@ -7604,16 +7742,27 @@ function mllEnonceIA(q){
    +' Les fractions sont écrites en texte, sous la forme « a/b ».';
 }
 function mllAttenduIA(q){
+  const inv=!!(test && test.inv);
+  /* CE QUE LE POINT 1 EXIGE CHANGE AVEC L'EXERCICE. Pour un produit, c'est
+     l'étape « en haut avec en haut » ; pour un quotient, c'est le passage à
+     l'INVERSE, qui est tout le sujet — et on n'exige PAS en plus la ligne des
+     produits, parce que « 3/5 × 7/2 = 21/10 » est une rédaction parfaitement
+     correcte, et refuser une copie juste apprend l'inverse de ce qu'on
+     enseigne. */
+  const etape1 = inv
+    ? 'L’ÉTAPE DE L’INVERSE EST ÉCRITE. Au moins une expression montre la division transformée en MULTIPLICATION PAR L’INVERSE de la seconde fraction — c’est-à-dire '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+'. Un élève qui écrit directement '+q.P+'/'+q.Q+' sans cette étape est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler. Écrire ensuite ('+q.a1+'×'+q.a2+')/('+q.b1+'×'+q.b2+') est bienvenu mais N’EST PAS exigé.'
+    : 'L’ÉTAPE DU PRODUIT EST ÉCRITE. Au moins une expression montre les numérateurs multipliés entre eux SUR les dénominateurs multipliés entre eux — par exemple ('+q.n1+'×'+q.n2+')/('+q.d1+'×'+q.d2+'). L’ordre des deux facteurs est libre : ('+q.n2+'×'+q.n1+')/('+q.d2+'×'+q.d1+') convient aussi. Un élève qui écrit directement '+q.P+'/'+q.Q+' sans cette étape est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler.';
   return 'RÉSULTAT ATTENDU : '+q.P+'/'+q.Q+'. Cette fraction est déjà irréductible, il n’y a rien à simplifier.'
    +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
-   +'\n1. L’ÉTAPE DU PRODUIT EST ÉCRITE. Au moins une expression montre les numérateurs multipliés entre eux SUR les dénominateurs multipliés entre eux — par exemple ('+q.n1+'×'+q.n2+')/('+q.d1+'×'+q.d2+'). L’ordre des deux facteurs est libre : ('+q.n2+'×'+q.n1+')/('+q.d2+'×'+q.d1+') convient aussi. Un élève qui écrit directement '+q.P+'/'+q.Q+' sans cette étape est REFUSÉ même si son résultat est juste : c’est cette étape que l’exercice fait travailler.'
+   +'\n1. '+etape1
    +'\n2. LE RÉSULTAT FINAL EST JUSTE. La DERNIÈRE expression du calcul — ce qui est écrit après le tout dernier « = », que ce soit en fin de ligne ou sur une ligne à part — vaut '+q.P+'/'+q.Q+'.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe tout le calcul aux « = », à l’intérieur d’une ligne comme d’une ligne à l’autre : chaque morceau doit valoir '+q.P+'/'+q.Q+'. Une seule égalité fausse suffit à refuser, même si le dernier morceau est juste — dis alors LEQUEL est faux.'
-   +'\nIL N’Y A AUCUNE MISE AU MÊME DÉNOMINATEUR À FAIRE : c’est une multiplication. Une copie qui en fait une n’est pas fausse pour autant si toutes ses égalités sont vraies et que le résultat est bon, mais ne la réclame jamais.'
+   +'\nIL N’Y A AUCUNE MISE AU MÊME DÉNOMINATEUR À FAIRE : c’est une '+(inv?'division':'multiplication')+'. Une copie qui en fait une n’est pas fausse pour autant si toutes ses égalités sont vraies et que le résultat est bon, mais ne la réclame jamais.'
    +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance. Une ligne vide est ignorée. Répéter le produit de départ ne compte pas comme une étape, mais ne rend rien faux non plus.'
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
-   +' S’il manque l’étape du produit : dis-le, et rappelle qu’on multiplie les numérateurs entre eux et les dénominateurs entre eux — sans écrire le calcul à sa place.'
+   +(inv ? ' S’il manque l’étape de l’inverse : dis-le, et rappelle que diviser par une fraction c’est multiplier par son inverse — sans écrire le calcul à sa place. Si l’élève a multiplié sans retourner la seconde fraction, dis-lui que c’est là que ça coince.'
+         : ' S’il manque l’étape du produit : dis-le, et rappelle qu’on multiplie les numérateurs entre eux et les dénominateurs entre eux — sans écrire le calcul à sa place.')
    +' Si l’élève a cherché à mettre au même dénominateur : dis-lui que pour multiplier ce n’est pas nécessaire, sans le gronder.'
    +' Si une ligne est fausse : dis LAQUELLE et ce qui cloche.'
    +' NE DONNE JAMAIS la fraction '+q.P+'/'+q.Q+' quand la réponse est refusée : l’élève doit pouvoir réessayer.'
@@ -7625,14 +7774,17 @@ function renderMLL(){
   $('modeTagMll').innerHTML=modeTagHTML();
   $('mllLiveScore').textContent=test.score;
   $('mllFeedback').textContent=''; $('mllFeedback').className='mp-feedback';
-  $('mllPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>×</b> '+sfTermeHTML(q.n2,q.d2)
-    +'.<span class="sfl-suite">Écris l’étape du produit, puis donne le résultat.</span>';
+  const inv=!!(test && test.inv);
+  $('mllPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+(inv?'÷':'×')+'</b> '+sfTermeHTML(q.n2,q.d2)
+    +'.<span class="sfl-suite">'+(inv?'Transforme la division en multiplication, puis donne le résultat.'
+                                     :'Écris l’étape du produit, puis donne le résultat.')+'</span>';
   $('mllHost').innerHTML=
      '<p class="tvi-instr">Écris ton calcul. Une étape par ligne, ou tout à la suite&nbsp;: comme tu veux.</p>'
     +'<div class="dexp2-sheet" id="mllSheet"></div>'
     +'<p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. '
     +'Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort. '
-    +'Il faut écrire l’étape où les numérateurs sont multipliés entre eux et les dénominateurs entre eux.</p>';
+    +(inv ? 'Il faut écrire l’étape où la division devient une multiplication par l’inverse.'
+          : 'Il faut écrire l’étape où les numérateurs sont multipliés entre eux et les dénominateurs entre eux.')+'</p>';
   mllFeuille=mlFeuille({ conteneur:'mllSheet', mode:'calcul',
     prefixes:{ premiere:'', suite:'=' },
     prefixesTexte:{ premiere:'', suite:'=' } });
@@ -7650,7 +7802,7 @@ async function checkMLL(){
     const l=mllFeuille.lignes;
     intact = l.length===1 && l[0].mf.getValue().replace(/\s/g,'')===String(test.mllDepart||'').replace(/\s/g,'');
   }catch(e){}
-  if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite du produit.'; fb.className='mp-feedback bad';
+  if(!rep || intact){ fb.textContent='Écris d’abord ton calcul, à la suite de l’opération.'; fb.className='mp-feedback bad';
     if(mllFeuille && mllFeuille.lignes[0]) mllFeuille.lignes[0].mf.focus(); return; }
   test.mllBusy=true;
   $('mllActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
@@ -7678,7 +7830,7 @@ async function checkMLL(){
   test.locked=true; if(mllFeuille) mllFeuille.verrouiller();
   if(correct){ test.score++; $('mllLiveScore').textContent=test.score; }
   test.answers.push({...(ptsExo()||{}), correct:correct,
-    q:q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2, answer:q.P+'/'+q.Q, given:rep});
+    q:q.n1+'/'+q.d1+(test.inv?' ÷ ':' × ')+q.n2+'/'+q.d2, answer:q.P+'/'+q.Q, given:rep});
   const last=test.idx===test.questions.length-1;
   $('mllActions').innerHTML='<button class="btn btn-primary" id="mllNext" onclick="nextMLL()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('mllNext'); if(nb) nb.focus();
@@ -7696,6 +7848,14 @@ async function startMLL(){
   show('mll'); renderMLL();
 }
 function mllCtxTexte(q){
+  if(test && test.inv)
+    return 'L’élève calcule '+q.n1+'/'+q.d1+' ÷ '+q.n2+'/'+q.d2+' en écrivant LUI-MÊME son calcul, '
+     +'sans aucune case à compléter. Il doit écrire au moins une étape où la division est transformée en '
+     +'MULTIPLICATION PAR L’INVERSE de la seconde fraction, puis donner le résultat. '
+     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que '
+     +'son professeur l’autorise : '+q.n1+'/'+q.d1+' × '+q.d2+'/'+q.n2+' = '+q.P+'/'+q.Q+'. '
+     +'Ce résultat est déjà irréductible : il n’y a rien à simplifier, et il ne faut pas le réclamer. '
+     +'L’ERREUR VISÉE est d’oublier de retourner la seconde fraction.';
   return 'L’élève calcule '+q.n1+'/'+q.d1+' × '+q.n2+'/'+q.d2+' en écrivant LUI-MÊME son calcul, '
    +'sans aucune case à compléter : la première ligne porte déjà le produit, les suivantes commencent par « = ». '
    +'Il doit écrire au moins une étape où les numérateurs sont multipliés entre eux et les dénominateurs entre eux, '
