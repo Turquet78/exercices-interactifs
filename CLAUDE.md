@@ -1131,6 +1131,32 @@ champ JSON qu'on peut éditer à la main dans la base, et une valeur bricolée
 doit retomber sur le format normal plutôt que produire une séance de quatre
 cents calculs. Un contrôle tient ces quatre bords.
 
+**Les fiches de travail en classe sont des devoirs sous un autre nom — et
+c'est UNE table qui le dit.** Seconde et Première ont une seconde famille de
+devoirs (demande de Turquet, août 2026) : les fiches de travail en classe.
+Même structure, même écran élève, même éditeur, mêmes notes — `details.dm`
+porte l'identifiant, préfixé `fc_` au lieu de `dm_`. Tout ce qui change d'une
+famille à l'autre tient dans `GENRE_DEVOIRS` (titres, badges, clé de stockage),
+et nulle part ailleurs : deux moteurs auraient fini par diverger.
+**Deux CLÉS de stockage, et c'est le point qui ne se voit pas** : le portail
+(dépôt `site-maths`) lit `valeurs.devoirs` pour sa page publique « Devoirs ».
+Une fiche rangée dedans y serait publiée. Les fiches vivent sous
+`valeurs.fiches`, et l'enregistrement d'une famille ne touche JAMAIS l'autre —
+il relit la configuration puis n'écrit que sa clé.
+**Côté élève, les deux familles sont chargées dans UNE liste, étiquetées** :
+le détail d'un devoir et le retour après un exercice n'arrivent qu'avec
+l'identifiant, et c'est l'étiquette qui remet le bon titre en haut de l'écran.
+Un sabotage l'a montré : sans elle, l'élève revenait d'un exercice de fiche
+sur un écran titré « Devoirs à la maison ».
+**Le contrôle vit DANS la chaîne séquentielle des contrôles asynchrones** —
+entre `coursEnPdf` et `longueurContexteIA` — parce qu'il ré-injecte le double
+de la base : lancé en parallèle, un autre contrôle lui reprenait `sb` en plein
+vol (« panne simulée » au milieu d'une lecture). C'est le piège documenté des
+deux contrôles qui se rendent `sb` à tour de rôle, retombé tel quel. Six
+sabotages sur les deux niveaux ; le banc navigateur fait le trajet professeur →
+élève en Première (la Seconde n'a jamais déclaré `devoirsEleve` — manque
+antérieur à cette page, le banc principal couvre ses fiches).
+
 **Un devoir demande une fois chaque exercice, et tous sont ouverts.** Il a su
 un temps en demander plusieurs passages et en verrouiller un tant que les
 précédents n'étaient pas faits ; c'est retiré, éditeur compris (décision de

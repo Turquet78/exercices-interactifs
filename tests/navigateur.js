@@ -962,6 +962,48 @@ async function parcours(page, N){
       verifier('un devoir masqué disparaît, sans faire croire à une panne',
         masque.indexOf('Devoir de contrôle') < 0 && masque.indexOf(D.aveu) < 0,
         'l\'élève lit « ' + masque.slice(0, 90) + ' »');
+
+      /* 5. LA SECONDE FAMILLE : les fiches de travail en classe (Seconde et
+         Première). Chaque page montre LA SIENNE — mélangées, l'élève ferait
+         deux fois le même travail, et une fiche rangée sous « devoirs » serait
+         publiée par le portail, qui lit cette clé-là. */
+      const aFiches = await s.page.evaluate(() => typeof GENRE_DEVOIRS !== 'undefined');
+      if(!aFiches){
+        ignorer('une fiche de travail s\'affiche dans SA page, et nulle part ailleurs',
+          'ce niveau n\'a pas les fiches de travail en classe');
+      } else {
+        await s.page.evaluate(a => window.__faux.semer(a.t, [{ id: 1, valeurs: {
+          devoirs: [{ id: 'dm_c', num: 7, actif: true, titre: 'Devoir de contrôle', cours: '',
+                      exercices: [{ id: a.ex, modes: ['train'] }] }],
+          fiches:  [{ id: 'fc_c', num: 2, actif: true, titre: 'Fiche de contrôle', cours: '',
+                      exercices: [{ id: a.ex, modes: ['train'] }] }] } }]),
+          { t: D.table, ex: D.exercice });
+        const lireFiches = () => s.page.evaluate(async () => {
+          await openDevoirsEleve('fiche');
+          await new Promise(r => setTimeout(r, 250));
+          return document.getElementById('devoirsTitle').textContent + ' | '
+               + document.getElementById('devoirsBody').textContent.replace(/\s+/g, ' ').trim();
+        });
+        const pageFiches = await lireFiches();
+        verifier('une fiche de travail s\'affiche dans SA page, et nulle part ailleurs',
+          pageFiches.indexOf('Fiches de travail en classe') >= 0
+          && pageFiches.indexOf('Fiche de contrôle') >= 0
+          && pageFiches.indexOf('Fiche n°2') >= 0
+          && pageFiches.indexOf('Devoir de contrôle') < 0,
+          'l\'élève lit « ' + pageFiches.slice(0, 120) + ' »');
+        const pageDevoirs = await lire();
+        verifier('et la page des devoirs ne montre pas la fiche',
+          pageDevoirs.indexOf('Devoir de contrôle') >= 0 && pageDevoirs.indexOf('Fiche de contrôle') < 0,
+          'l\'élève lit « ' + pageDevoirs.slice(0, 120) + ' »');
+        /* le bouton de l'accueil : sans lui, la page existe et rien n'y mène —
+           c'est le défaut du « bouton qui MÈNE à l'aide », transposé */
+        const bouton = await s.page.evaluate(() => {
+          const b = document.querySelector('#scr-space .choice.fiche');
+          return b ? b.textContent : '';
+        });
+        verifier('l\'accueil de l\'élève a le bouton des fiches de travail',
+          /Fiches de travail en classe/.test(bouton), 'aucun bouton .choice.fiche sur l\'accueil');
+      }
       await s.nav.close(); s = null;
     }
 

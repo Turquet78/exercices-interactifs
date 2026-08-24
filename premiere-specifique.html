@@ -449,6 +449,7 @@
   .u-mul .mp-fix{font-size:.68rem;bottom:-13px}
   /* ===== Architecture (portée des terminales) ===== */
   .choice.rattrapage{border-color:#f1d199}.choice.rattrapage:hover{border-color:#d98f2a}
+  .choice.fiche{border-color:#dccdf0}.choice.fiche:hover{border-color:#8d5fb8}
   .exo-title{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 14px;font-family:"Fredoka"}
   .exo-title .exo-num{font-weight:700;color:#fff;background:var(--blue);border-radius:999px;padding:3px 12px;font-size:.95rem;line-height:1.35}
   .exo-title .exo-name{font-weight:600;color:var(--ink);font-size:1.12rem}
@@ -912,6 +913,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <button class="choice prof" onclick="openDevoirsEleve()">
           <span class="ic">📌</span><span class="ttl">Voir les devoirs à la maison</span>
           <span class="ds">Le dernier devoir, les exercices à faire et tes résultats.</span>
+        </button>
+        <button class="choice fiche" onclick="openDevoirsEleve('fiche')">
+          <span class="ic">📝</span><span class="ttl">Fiches de travail en classe</span>
+          <span class="ds">Les fiches d&rsquo;exercices &agrave; faire en classe, et tes r&eacute;sultats.</span>
         </button>
         <button class="choice rattrapage" onclick="openRattrapage()">
           <span class="ic">🎯</span><span class="ttl">Reprendre les exercices à améliorer</span>
@@ -1482,7 +1487,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 
       <!-- devoir maison -->
       <div class="tpane" id="pane-devoirs">
-        <p class="lead">Crée et gère les devoirs à la maison. Chaque devoir <b>affiché</b> apparaît dans « Voir les devoirs à la maison » de l'espace élève.</p>
+        <p class="lead" id="dmFamilleLead">Crée et gère les devoirs à la maison. Chaque devoir <b>affiché</b> apparaît dans « Voir les devoirs à la maison » de l'espace élève.</p>
+        <div class="dm-tabs" id="dmGenres"></div>
         <div class="dm-tabs" id="dmTabs"></div>
         <div id="dmEditor"></div>
         <div id="dmResults"></div>
@@ -1605,7 +1611,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=153;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=154;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -1959,9 +1965,27 @@ let mesResultats=[], mesDevoirs=[];
    usage vit dans sa zone morte. Le projet s'est déjà fait prendre. */
 let CONFIG_LIGNE=false, CONFIG_ERREUR=null;
 const DEFAULT_DEVOIR={id:'dm_1',num:1,actif:true,titre:'Devoir à la maison',cours:'',exercices:[]};
-function newDevoirId(){ return 'dm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+/* Le préfixe dit la FAMILLE : une note enregistrée porte l'identifiant dans
+   details.dm, et « fc_ » suffit à savoir qu'elle vient d'une fiche de travail. */
+function newDevoirId(genre){ return ((genre==='fiche')?'fc_':'dm_')+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+/* DEUX FAMILLES SUR UN SEUL MOTEUR (demande de Turquet, août 2026) : les
+   devoirs à la maison et les fiches de travail en classe. Même structure, même
+   écran élève, même éditeur, mêmes notes — mais deux CLÉS de stockage : le
+   portail (dépôt site-maths) lit valeurs.devoirs, et une fiche rangée dedans y
+   serait publiée. Ce qui change d'une famille à l'autre tient dans cette table. */
+const GENRE_DEVOIRS={
+  dm:   { cle:'devoirs', titre:'Devoirs à la maison',         badge:'Devoir', vide:'Aucun devoir à la maison pour l\u2019instant.',
+          defTitre:'Devoir à la maison',        ouvrir:'Ouvrir le devoir \u2192', note:'Note du devoir',   ajouter:'\uFF0B Nouveau devoir',  familleProf:'Mes devoirs à la maison' },
+  fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
+          defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe' }
+};
+let genreEleve='dm';
+function famillesDevoirs(cfg){
+  const tag=function(arr,g){ return (arr||[]).map(function(d){ return Object.assign({},d,{genre:g}); }); };
+  return tag(cfg.devoirs,'dm').concat(tag(cfg.fiches,'fiche'));
+}
 function ensureDevoir(d,i){ return { id:d.id||newDevoirId(), num:(typeof d.num==='number'?d.num:(i+1)), actif:d.actif!==false, titre:d.titre||'Devoir à la maison', cours:(typeof d.cours==='string')?d.cours:'', exercices:Array.isArray(d.exercices)?d.exercices:[] }; }
-function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
+function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.fiches = Array.isArray(cfg.fiches)? cfg.fiches.map((d,i)=>ensureDevoir(d,i)) : []; cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
 let teacherFilter='all';
@@ -2819,11 +2843,12 @@ function noteDevoirExo(bestSoutien, bestEntrain){
   return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
-async function openDevoirsEleve(){
+async function openDevoirsEleve(genre){
+  genreEleve=(genre==='fiche')?'fiche':'dm';
   show('devoirs');
-  $('devoirsTitle').textContent='Devoirs à la maison';
+  $('devoirsTitle').textContent=GENRE_DEVOIRS[genreEleve].titre;
   $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
-  try{ mesDevoirs=(await loadConfig()).devoirs||[]; }catch(e){ mesDevoirs=[]; }
+  try{ mesDevoirs=famillesDevoirs(await loadConfig()); }catch(e){ mesDevoirs=[]; }
   await chargerMesResultats();
   renderDevoirsList();
 }
@@ -2831,15 +2856,18 @@ async function openDevoirsEleve(){
    qu'il n'y a rien à faire : celle où les réglages ont bien été lus et ne
    portent aucun devoir affiché. */
 function devoirsVideHTML(){
+  const G=GENRE_DEVOIRS[genreEleve];
   if(CONFIG_ERREUR)
-    return '<div class="empty">Les devoirs n\'ont pas pu être lus (problème de connexion). Réessaie dans un instant.</div>';
+    return '<div class="empty">'+(genreEleve==='fiche'?'Les fiches n\u2019ont':'Les devoirs n\u2019ont')+' pas pu être lus (problème de connexion). Réessaie dans un instant.</div>';
   if(!CONFIG_LIGNE)
-    return '<div class="empty">Aucun devoir à la maison pour l\'instant.<br>'
-         + '<span class="muted">Si ton professeur t\'en a donné un, dis-le-lui : cette page ne voit aucun réglage.</span></div>';
-  return '<div class="empty">Aucun devoir à la maison pour l\'instant.</div>';
+    return '<div class="empty">'+G.vide+'<br>'
+         + '<span class="muted">Si ton professeur t\u2019en a donné '+(genreEleve==='fiche'?'une':'un')+', dis-le-lui : cette page ne voit aucun réglage.</span></div>';
+  return '<div class="empty">'+G.vide+'</div>';
 }
 function renderDevoirsList(){
-  const actifs=(mesDevoirs||[]).filter(d=>d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
+  const G=GENRE_DEVOIRS[genreEleve];
+  $('devoirsTitle').textContent=G.titre;
+  const actifs=(mesDevoirs||[]).filter(d=>(d.genre||'dm')===genreEleve&&d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
   if(!actifs.length){ $('devoirsBody').innerHTML=devoirsVideHTML(); return; }
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
     const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
@@ -2853,18 +2881,20 @@ function renderDevoirsList(){
     const totMax=exos.length*10;
     const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
     return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
-      <div class="dl-head"><span class="dm-badge">Devoir n°${esc(String(dev.num))}${isLast?' · le plus récent':''}</span><span class="dl-prog">${totLbl}</span></div>
+      <div class="dl-head"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}${isLast?' · la plus récente':''}</span><span class="dl-prog">${totLbl}</span></div>
       <div class="dl-title">${esc(dev.titre||'')}</div>
       <div class="dl-exos">${lignes}</div>
-      <div class="dl-go">Ouvrir le devoir →</div>
+      <div class="dl-go">${G.ouvrir}</div>
     </button>`;
   }).join('')+'</div>';
 }
 async function ouvrirDevoirDetail(devoirId){
   show('devoirs');
-  $('devoirsTitle').textContent='Devoirs à la maison';
   $('devoirsBody').innerHTML='<p class="muted">Chargement…</p>';
-  try{ mesDevoirs=(await loadConfig()).devoirs||[]; }catch(e){}
+  try{ mesDevoirs=famillesDevoirs(await loadConfig()); }catch(e){}
+  const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  if(dev) genreEleve=dev.genre||'dm';
+  $('devoirsTitle').textContent=GENRE_DEVOIRS[genreEleve].titre;
   await chargerMesResultats();
   renderDevoirDetail(devoirId);
 }
@@ -2884,11 +2914,12 @@ function renderDevoirDetail(devoirId){
     const desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
     return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
   }).join('');
+  const G=GENRE_DEVOIRS[(dev.genre||'dm')];
   const totMax=liste.length*10;
-  const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
+  const totLbl=faitQqch?`${G.note} : ${fmtNote(somme)} / ${totMax}`:`${G.note} : — / ${totMax}`;
   $('devoirsBody').innerHTML=`
-    <button class="btn-link" onclick="renderDevoirsList()">← Tous les devoirs</button>
-    <div class="dm-head" style="margin-top:8px"><span class="dm-badge">Devoir n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
+    <button class="btn-link" onclick="renderDevoirsList()">← ${dev.genre==='fiche'?'Toutes les fiches':'Tous les devoirs'}</button>
+    <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
     <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
@@ -8683,10 +8714,21 @@ function saveConfig(valeurs){ return sb.from('parametres_1ere').upsert({id:1,val
 /* ---------- Devoir maison (prof) ---------- */
 let dmAdminList=[], dmSelId=null, dmResRows=[];
 function dmCur(){ return dmAdminList.find(x=>x.id===dmSelId); }
+let dmGenre='dm';
+function dmCleGenre(){ return GENRE_DEVOIRS[dmGenre].cle; }
+function renderDmGenres(){
+  $('dmFamilleLead').innerHTML = dmGenre==='fiche'
+    ? 'Crée et gère les fiches de travail en classe. Chaque fiche <b>affichée</b> apparaît dans « Fiches de travail en classe » de l\'espace élève.'
+    : 'Crée et gère les devoirs à la maison. Chaque devoir <b>affiché</b> apparaît dans « Voir les devoirs à la maison » de l\'espace élève.';
+  $('dmGenres').innerHTML=['dm','fiche'].map(g=>
+    `<button class="dm-tab ${g===dmGenre?'on':''}" onclick="choisirGenreDevoir('${escJS(g)}')">${GENRE_DEVOIRS[g].titre}</button>`).join('');
+}
+function choisirGenreDevoir(g){ dmGenre=(g==='fiche')?'fiche':'dm'; dmSelId=null; renderDevoirsAdmin(); }
 async function renderDevoirsAdmin(){
+  renderDmGenres();
   $('dmTabs').innerHTML='<span class="muted">Chargement…</span>';
   $('dmEditor').innerHTML=''; $('dmResults').innerHTML='';
-  try{ cfg=await loadConfig(); dmAdminList=(cfg.devoirs||[]).slice(); }
+  try{ cfg=await loadConfig(); dmAdminList=(cfg[dmCleGenre()]||[]).slice(); }
   catch(e){ dmAdminList=[]; $('dmTabs').innerHTML='<div class="empty">Connexion impossible. Vérifie la configuration.</div>'; return; }
   dmAdminList.sort((a,b)=>(a.num||0)-(b.num||0));
   if(dmSelId && !dmAdminList.some(d=>d.id===dmSelId)) dmSelId=null;
@@ -8694,27 +8736,31 @@ async function renderDevoirsAdmin(){
   renderDmTabs(); renderDmEditor(); renderDmResults();
 }
 function renderDmTabs(){
+  const G=GENRE_DEVOIRS[dmGenre];
   const tabs=dmAdminList.map(d=>{
     const on=d.id===dmSelId, masq=d.actif?'':' · masqué';
-    return `<button class="dm-tab ${on?'on':''}" onclick="selectDM('${escJS(d.id)}')">Devoir n°${esc(String(d.num))}${masq}</button>`;
+    return `<button class="dm-tab ${on?'on':''}" onclick="selectDM('${escJS(d.id)}')">${G.badge} n°${esc(String(d.num))}${masq}</button>`;
   }).join('');
-  $('dmTabs').innerHTML=tabs+`<button class="dm-tab add" onclick="newDM()">＋ Nouveau devoir</button>`;
+  $('dmTabs').innerHTML=tabs+`<button class="dm-tab add" onclick="newDM()">${G.ajouter}</button>`;
 }
 function selectDM(id){ dmSelId=id; renderDmTabs(); renderDmEditor(); renderDmResults(); }
 async function newDM(){
+  const G=GENRE_DEVOIRS[dmGenre];
   const maxNum=dmAdminList.reduce((m,d)=>Math.max(m,d.num||0),0);
-  const nd={ id:newDevoirId(), num:maxNum+1, actif:true, titre:'Devoir à la maison', cours:'', exercices:[] };
+  const nd={ id:newDevoirId(dmGenre), num:maxNum+1, actif:true, titre:G.defTitre, cours:'', exercices:[] };
   try{
     cfg=await loadConfig();
     if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
-    const arr=(cfg.devoirs||[]).slice(); arr.push(nd);
-    const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
-    dmSelId=nd.id; toast('Nouveau devoir créé','ok'); renderDevoirsAdmin();
+    const maj={}; maj[G.cle]=(cfg[G.cle]||[]).concat([nd]);
+    const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error)throw error;
+    dmSelId=nd.id; toast(dmGenre==='fiche'?'Nouvelle fiche créée':'Nouveau devoir créé','ok'); renderDevoirsAdmin();
   }catch(e){ toast('Création impossible','err'); }
 }
 function renderDmEditor(){
   const box=$('dmEditor');
-  if(!dmSelId){ box.innerHTML='<div class="dm-empty">Aucun devoir pour l\'instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.</div>'; return; }
+  if(!dmSelId){ box.innerHTML='<div class="dm-empty">'+(dmGenre==='fiche'
+    ?'Aucune fiche pour l\u2019instant.<br>Clique sur « ＋ Nouvelle fiche » pour en créer une.'
+    :'Aucun devoir pour l\u2019instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.')+'</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
   const chosen={}, nbs={};
   (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB; });
@@ -8803,7 +8849,7 @@ async function saveDM(){
   const d=dmCur(); if(!d){ toast('Aucun devoir sélectionné','err'); return; }
   const numV=parseInt(val('dmNum'),10);
   d.num=(Number.isFinite(numV)&&numV>0)?numV:d.num;
-  d.titre=(val('dmTitre')||'').trim()||'Devoir à la maison';
+  d.titre=(val('dmTitre')||'').trim()||GENRE_DEVOIRS[dmGenre].defTitre;
   d.cours=$('dmCours').value;
   d.actif=$('dmActif').checked;
   /* Un devoir enregistré du temps des passages porte encore « rep » et
@@ -8814,24 +8860,30 @@ async function saveDM(){
   try{
     cfg=await loadConfig();
     if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
-    const arr=(cfg.devoirs||[]).slice();
+    /* N'ÉCRIT QUE SA FAMILLE : l'autre — et les cours, les réglages — vient
+       d'être relue et repart telle quelle. Écrire les fiches sous « devoirs »
+       les publierait sur le portail, qui lit cette clé-là. */
+    const cle=dmCleGenre();
+    const arr=(cfg[cle]||[]).slice();
     const clean={ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices };
     const i=arr.findIndex(x=>x.id===d.id);
     if(i>=0) arr[i]=clean; else arr.push(clean);
-    const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
-    dmSelId=d.id; toast('Devoir enregistré','ok'); renderDevoirsAdmin();
+    const maj={}; maj[cle]=arr;
+    const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error)throw error;
+    dmSelId=d.id; toast(dmGenre==='fiche'?'Fiche enregistrée':'Devoir enregistré','ok'); renderDevoirsAdmin();
   }catch(e){ toast('Enregistrement impossible','err'); }
 }
 async function deleteDM(id){
   const d=dmAdminList.find(x=>x.id===id);
-  if(!confirm(`Supprimer le devoir n°${d?d.num:''} ? Les résultats déjà enregistrés par les élèves sont conservés.`)) return;
+  if(!confirm(`Supprimer ${dmGenre==='fiche'?'la fiche':'le devoir'} n°${d?d.num:''} ? Les résultats déjà enregistrés par les élèves sont conservés.`)) return;
   try{
     cfg=await loadConfig();
     if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
-    const arr=(cfg.devoirs||[]).filter(x=>x.id!==id);
-    const {error}=await saveConfig(Object.assign({},cfg,{devoirs:arr})); if(error)throw error;
+    const cle=dmCleGenre();
+    const maj={}; maj[cle]=(cfg[cle]||[]).filter(x=>x.id!==id);
+    const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error)throw error;
     if(dmSelId===id) dmSelId=null;
-    toast('Devoir supprimé','ok'); renderDevoirsAdmin();
+    toast(dmGenre==='fiche'?'Fiche supprimée':'Devoir supprimé','ok'); renderDevoirsAdmin();
   }catch(e){ toast('Suppression impossible','err'); }
 }
 function dmBestFor(rows,eid,did,id,m){
@@ -8848,7 +8900,7 @@ async function renderDmResults(){
   if(!dmSelId){ box.innerHTML=''; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
   const exos=(d.exercices||[]);
-  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats du devoir n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; return; }
+  if(!exos.length){ box.innerHTML=`<div class="panel"><h3>Résultats ${dmGenre==='fiche'?'de la fiche':'du devoir'} n°${esc(String(d.num))}</h3><p class="muted" style="margin:0">Ajoute des exercices puis enregistre pour suivre les résultats de la classe.</p></div>`; return; }
   box.innerHTML='<div class="panel"><h3>Bilan de la classe</h3><p class="muted">Chargement…</p></div>';
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
