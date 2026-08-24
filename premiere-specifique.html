@@ -1621,7 +1621,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=158;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=159;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7387,7 +7387,11 @@ function sfFracInner(numStr,denStr){
   return '<span class="sf-f"><span class="n">'+numStr+'</span><span class="bar"></span>'
         +'<span class="sf-lu">/</span><span class="d">'+denStr+'</span></span>';
 }
-function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−', mode)); return qs; }
+/* Le NOMBRE de questions vit HORS du moteur partagé : la fonction reste le
+   même texte dans les deux niveaux, et chacun règle le sien. 6 en Première,
+   4 en Seconde (demande de Turquet, août 2026). */
+const SF_NB=6;
+function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<SF_NB;i++) qs.push(sfGen(i%2===0?'+':'−', mode)); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
 /* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
    Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions

@@ -1914,7 +1914,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=93;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=94;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6861,7 +6861,12 @@ function sfFracInner(numStr,denStr){
   return '<span class="sf-f"><span class="n">'+numStr+'</span><span class="bar"></span>'
         +'<span class="sf-lu">/</span><span class="d">'+denStr+'</span></span>';
 }
-function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<6;i++) qs.push(sfGen(i%2===0?'+':'−', mode)); return qs; }
+/* Le NOMBRE de questions vit HORS du moteur partagé : la fonction reste le
+   même texte dans les deux niveaux, et chacun règle le sien. 4 en Seconde
+   (demande de Turquet, août 2026 — les huit exercices de fractions 4.2 à 4.9),
+   6 en Première. */
+const SF_NB=4;
+function sfBuildQuestions(mode){ const qs=[]; for(let i=0;i<SF_NB;i++) qs.push(sfGen(i%2===0?'+':'−', mode)); return qs; }
 /* Le terme tel qu'il s'écrit : « 3 » pour un entier, « 3/4 » sinon. */
 /* Un ENTIER s'écrit avec la même encre qu'une fraction, et à la même hauteur.
    Écrit en « f-whole » (2rem, autre couleur), il dépassait des fractions
@@ -7669,14 +7674,17 @@ function divBuildQuestions(){
   while(qs.length<6) qs.push(divGen());
   return qs;
 }
+/* 4 questions, comme les exercices du moteur sf (demande de Turquet, août
+   2026) : le nombre vit à UN endroit, les deux tirages de secours le lisent. */
+const MLT_NB=4;
 function mltBuildQuestions(){
   const vus=new Set(), qs=[]; let garde=400;
-  while(qs.length<6 && garde-->0){
+  while(qs.length<MLT_NB && garde-->0){
     const q=mltGen(), c=q.n1+'/'+q.d1+'×'+q.n2+'/'+q.d2;
     if(vus.has(c)) continue;
     vus.add(c); qs.push(q);
   }
-  while(qs.length<6) qs.push(mltGen());
+  while(qs.length<MLT_NB) qs.push(mltGen());
   return qs;
 }
 /* Les deux cases de l'inverse n'existent QUE dans l'exercice de division.
