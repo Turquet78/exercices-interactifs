@@ -72,6 +72,16 @@
      Les menus, l'accueil et le tableau du professeur gardent leur largeur de
      lecture. La classe est posée par show(). */
   body.plein-ecran .wrap{max-width:none;}
+  /* L'ÉCRAN « EXERCICES PAR THÈME » PREND TOUTE LA LARGEUR, et ses cartes
+     gagnent des colonnes (demande de Turquet, août 2026). Cette décision
+     REMPLACE, pour cet écran-là seulement, « le menu garde sa colonne » :
+     l'accueil, le rattrapage et les devoirs restent en colonne de lecture —
+     eux sont du texte, une liste de cartes ne l'est pas. Les colonnes suivent
+     la place : 2 par défaut, 3 dès 1000 px, 4 dès 1400 px, 1 sur téléphone
+     comme avant. */
+  body.menu-large .wrap{max-width:none}
+  @media(min-width:1000px){ body.menu-large .theme-list .choices{grid-template-columns:repeat(3,1fr)} }
+  @media(min-width:1400px){ body.menu-large .theme-list .choices{grid-template-columns:repeat(4,1fr)} }
 
   .mast{display:flex;align-items:center;gap:12px;margin-bottom:22px}
   .mast .logo{width:42px;height:42px;border-radius:12px;background:var(--blue);display:grid;place-items:center;color:#fff;font-family:"Fredoka";font-weight:700;font-size:24px;box-shadow:var(--shadow-sm);flex:none}
@@ -1611,7 +1621,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=154;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=155;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2779,6 +2789,9 @@ function show(name){
   $('scr-'+name).classList.add('on');
   const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','hstest','sf'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
+  /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
+     écran : un écran de menu ajouté demain se déclare au même endroit */
+  document.body.classList.toggle('menu-large', ['choose','theme','soustheme'].indexOf(name)>=0);
   if(testScreens.indexOf(name)>=0){          /* numéro + titre de l'exercice en tête */
     /* RÈGLE : chaque exercice doit fournir son rappel de cours (section RAPPELS).
        Invisible pour l'élève, impossible à oublier en silence pour nous. */

@@ -1524,8 +1524,28 @@ pour le corriger.
 *La colonne était trop étroite.* La Première élargit l'écran d'un exercice à
 toute la fenêtre (`body.plein-ecran .wrap{max-width:none}`, posé par `show()`
 sur les seuls écrans d'exercice) ; la Seconde n'avait ni la règle ni la bascule.
-Le menu, lui, garde sa colonne : c'est du texte, et une ligne de 1400 px ne se
-lit pas (décision de Turquet, août 2026).
+L'accueil, le rattrapage et les devoirs gardent leur colonne : c'est du texte,
+et une ligne de 1400 px ne se lit pas (décision de Turquet, août 2026).
+**L'écran « Exercices par thème », lui, prend TOUTE la largeur** et ses cartes
+gagnent des colonnes — 2 par défaut, 3 dès 1000 px, 4 dès 1400 px (demande de
+Turquet, août 2026, qui REMPLACE pour cet écran-là « le menu garde sa
+colonne ») : une liste de cartes n'est pas du texte. La bascule `menu-large`
+vit dans `show()`, à côté de celle du plein écran, et le contrôle du banc
+navigateur tient les DEUX bords — le cadre large ET le nombre de colonnes
+réellement rendues, parce qu'un cadre large dont la grille reste à 2 colonnes
+n'a rien gagné — plus le retour : revenir à l'accueil rend la colonne de
+lecture. En Première, les trois écrans du menu (thèmes, parties, exercices)
+sont larges ; la Terminale garde son menu à 1200 px, inchangé.
+**« Exercices par thème » n'est pas UN écran, et mesurer le premier ne mesure
+rien en Première** : elle ouvre d'abord DEUX cartes de thème, et deux cartes ne
+peuvent pas dessiner quatre colonnes, quelle que soit la grille — le contrôle
+rougissait sur une page parfaitement réglée. Les cartes d'EXERCICE, celles dont
+parle la demande, vivent deux écrans plus bas. Le contrôle PARCOURT donc tout
+l'arbre du menu en suivant les cartes de thème (`.themecard`) : chaque écran
+doit être large, chaque écran qui liste au moins 4 exercices doit les poser sur
+4 colonnes, et un écran plus court ne doit pas empiler (autant de colonnes que
+de cartes). Éprouvé sur les écrans profonds : retirer `soustheme` de la
+bascule, ou ramener la grille à 3 colonnes, rougit en nommant l'écran fautif.
 *Et les étapes étaient écrites en blocs séparés.* Le pourcentage passe de trois
 `pt-step` à un seul ; augmenter et diminuer de cinq à deux — le coefficient est
 une AUTRE égalité, elle garde son bloc — plus la pose facultative, renvoyée à la

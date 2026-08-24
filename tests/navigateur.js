@@ -1198,6 +1198,71 @@ async function parcours(page, N){
       });
       verifier('hors exercice, la page garde sa colonne de lecture',
         !menu.plein && menu.large < 900, 'wrap ' + menu.large + ' px, plein-ecran:' + menu.plein);
+      /* L'ÉCRAN « EXERCICES PAR THÈME », lui, prend TOUTE la largeur et gagne
+         des colonnes (demande de Turquet, août 2026 — elle remplace, pour cet
+         écran seulement, « le menu garde sa colonne »). Les deux bords vont
+         ensemble et n'en tenir qu'un ne tient rien : un cadre large dont la
+         grille reste à 2 colonnes n'a rien gagné, et compter les colonnes se
+         fait sur les POSITIONS rendues — seul un navigateur les connaît.
+         Et « exercices par thème » n'est pas UN écran : la Première ouvre
+         d'abord deux cartes de THÈME, puis des parties, et les cartes
+         d'EXERCICE — celles dont parle la demande — vivent deux écrans plus
+         bas. Mesurer le premier écran ne mesurait donc rien chez elle : deux
+         cartes ne peuvent pas dessiner quatre colonnes, quelle que soit la
+         grille. Le contrôle PARCOURT tout l'arbre du menu en suivant les
+         cartes de thème : chaque écran doit être large, et chaque écran qui
+         liste au moins 4 exercices doit les poser sur 4 colonnes. */
+      const themes = await s.page.evaluate(async () => {
+        const mesurer = () => {
+          const w = document.querySelector('.wrap');
+          const grille = document.querySelector('.screen.on .theme-list .choices');
+          const enfants = grille ? [...grille.children]
+            .filter(c => c.getBoundingClientRect().width > 0) : [];
+          const gauches = [...new Set(enfants.map(c => Math.round(c.getBoundingClientRect().left)))];
+          return { large: Math.round(w.getBoundingClientRect().width),
+                   menuLarge: document.body.classList.contains('menu-large'),
+                   colonnes: gauches.length, enfants: enfants.length,
+                   cartesTheme: enfants.length > 0 && enfants.every(c => c.classList.contains('themecard')),
+                   descentes: enfants.filter(c => c.classList.contains('themecard'))
+                     .map(c => c.getAttribute('onclick')) };
+        };
+        const aVisiter = ['openThemes()'];
+        const ecrans = [];
+        while (aVisiter.length && ecrans.length < 40) {
+          const appel = aVisiter.shift();
+          await new Function('return (async()=>{ await ' + appel + '; })()')();
+          await new Promise(r => setTimeout(r, 250));
+          const m = mesurer();
+          ecrans.push({ appel, large: m.large, menuLarge: m.menuLarge,
+                        colonnes: m.colonnes, enfants: m.enfants, cartesTheme: m.cartesTheme });
+          if (m.cartesTheme) aVisiter.push(...m.descentes);
+        }
+        return ecrans;
+      });
+      const etroits = themes.filter(e => !e.menuLarge || e.large <= 1300);
+      verifier('l\'écran des exercices par thème prend toute la largeur',
+        themes.length > 0 && etroits.length === 0,
+        themes.length === 0 ? 'aucun écran visité'
+          : etroits.map(e => e.appel + ' : wrap ' + e.large + ' px, menu-large:' + e.menuLarge).join(' ; '));
+      const ecransExos = themes.filter(e => !e.cartesTheme && e.enfants > 0);
+      const mauvaisesColonnes = ecransExos.filter(e =>
+        e.enfants >= 4 ? e.colonnes !== 4 : e.colonnes !== e.enfants);
+      verifier('et ses cartes gagnent des colonnes : 4 à 1400 px',
+        ecransExos.some(e => e.enfants >= 4) && mauvaisesColonnes.length === 0,
+        !ecransExos.some(e => e.enfants >= 4)
+          ? 'aucun écran d\'exercices à 4 cartes ou plus n\'a été atteint'
+          : mauvaisesColonnes.map(e => e.appel + ' : ' + e.colonnes + ' colonne(s) pour '
+              + e.enfants + ' carte(s)').join(' ; '));
+      /* et en revenant à l'accueil, la colonne de lecture revient */
+      const retour = await s.page.evaluate(() => {
+        show('space');
+        const w = document.querySelector('.wrap');
+        return { large: Math.round(w.getBoundingClientRect().width),
+                 menuLarge: document.body.classList.contains('menu-large') };
+      });
+      verifier('revenir à l\'accueil rend la colonne de lecture',
+        !retour.menuLarge && retour.large < 900,
+        'wrap ' + retour.large + ' px, menu-large:' + retour.menuLarge);
       for(const exo of P.pleineLargeur.exercices){
         await s.page.evaluate(id => openTest(id), exo);
         await s.page.waitForTimeout(400);
