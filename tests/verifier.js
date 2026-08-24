@@ -2672,7 +2672,7 @@ function coursEnPdf(w, apres){
   const TP = (src.match(/from\('(parametres[a-z0-9_]*)'\)/) || [])[1];
   if(!TP || !/BUCKET_COURS/.test(src)){
     ignorer('le professeur peut déposer un cours en PDF', 'ce niveau n’a pas de dépôt de cours');
-    return longueurContexteIA(w, apres);
+    return fichesDeTravail(w, apres);
   }
 
   evalPromis(w, `(async function(){
@@ -2793,7 +2793,7 @@ function coursEnPdf(w, apres){
     verifier('l’onglet du PDF s’ouvre avant l’attente, sinon le navigateur le bloque',
       r.ok && b.ordreOnglet === true,
       souci || 'window.open() est appelé après createSignedUrl() dans ouvrirCours()');
-    longueurContexteIA(w, apres);
+    fichesDeTravail(w, apres);
   });
 }
 
@@ -3613,6 +3613,110 @@ function ordreCroissant(w, P){
 
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+}
+/* Les FICHES DE TRAVAIL EN CLASSE — la seconde famille de devoirs (demande de
+   Turquet, août 2026). Même moteur, deux clés de stockage : le portail lit
+   valeurs.devoirs, et une fiche rangée dedans y serait publiée.
+   Quatre bords, et n'en tenir qu'un ne tient rien :
+     · la page des fiches montre les fiches, JAMAIS les devoirs — et
+       réciproquement : mélangées, l'élève ferait deux fois le même travail ;
+     · le détail d'une fiche remet le bon titre, même en y arrivant par le seul
+       identifiant (le retour après un exercice) ;
+     · l'enregistrement d'une famille NE TOUCHE PAS l'autre ;
+     · une note lancée depuis une fiche porte l'identifiant de la fiche. */
+/* SÉQUENTIEL, dans la chaîne des contrôles asynchrones — la leçon des deux
+   contrôles qui se rendaient « sb » à tour de rôle : celui-ci ré-injecte le
+   double de la base, et un contrôle qui courrait à côté lui reprendrait la
+   main en plein vol (« panne simulée » au milieu d'une lecture). Il vit donc
+   entre coursEnPdf et longueurContexteIA, jamais dans la liste synchrone. */
+function fichesDeTravail(w, apres){
+  const present = evaluer(w, "typeof GENRE_DEVOIRS!=='undefined' && typeof openDevoirsEleve==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les fiches de travail vivent à côté des devoirs, jamais dedans',
+      'ce niveau n\'a pas les fiches de travail en classe');
+    return longueurContexteIA(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    const exId=Object.keys(TESTS)[0];
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{
+      devoirs:[{id:'dm_temoin',num:3,actif:true,titre:'Devoir témoin',cours:'',exercices:[{id:exId,modes:['train']}]}],
+      fiches:[{id:'fc_temoin',num:2,actif:true,titre:'Fiche témoin',cours:'',exercices:[{id:exId,modes:['train']}]}]
+    }}]);
+
+    /* 1. chaque page montre SA famille */
+    await openDevoirsEleve('fiche');
+    let corps=document.getElementById('devoirsBody').textContent;
+    let titre=document.getElementById('devoirsTitle').textContent;
+    if(titre.indexOf('Fiches de travail')<0) vus.push('la page des fiches se titre « '+titre+' »');
+    if(corps.indexOf('Fiche témoin')<0) vus.push('la fiche affichée n\\'arrive pas jusqu\\'à l\\'élève');
+    if(corps.indexOf('Fiche n°2')<0) vus.push('la carte ne dit pas « Fiche n°2 » : '+corps.slice(0,80));
+    if(corps.indexOf('Devoir témoin')>=0) vus.push('un DEVOIR s\\'affiche dans la page des fiches');
+    await openDevoirsEleve();
+    corps=document.getElementById('devoirsBody').textContent;
+    titre=document.getElementById('devoirsTitle').textContent;
+    if(titre.indexOf('Devoirs à la maison')<0) vus.push('la page des devoirs se titre « '+titre+' »');
+    if(corps.indexOf('Devoir témoin')<0) vus.push('le devoir a disparu de sa page');
+    if(corps.indexOf('Fiche témoin')>=0) vus.push('une FICHE s\\'affiche dans la page des devoirs');
+
+    /* 2. le détail par le seul identifiant : le titre suit la famille */
+    await ouvrirDevoirDetail('fc_temoin');
+    titre=document.getElementById('devoirsTitle').textContent;
+    corps=document.getElementById('devoirsBody').textContent;
+    if(titre.indexOf('Fiches de travail')<0) vus.push('le détail d\\'une fiche se titre « '+titre+' »');
+    if(corps.indexOf('Note de la fiche')<0) vus.push('le détail d\\'une fiche parle de « Note du devoir »');
+
+    /* 3. une note lancée depuis une fiche porte SON identifiant */
+    if(typeof openTestDevoir==='function'){
+      await openTestDevoir('fc_temoin', exId);
+      if(currentDM!=='fc_temoin') vus.push('un exercice lancé depuis la fiche est étiqueté « '+currentDM+' »');
+      currentDM=null;
+    }
+
+    /* 4. l'enregistrement d'une famille NE TOUCHE PAS l'autre */
+    const lireValeurs=function(){ return (window.__faux.tables['${TABLE}']||[{}])[0].valeurs||{}; };
+    if(typeof persistDevoirs==='function' && typeof dmGenre!=='undefined'){
+      /* Seconde : l'éditeur écrit dmList sous la clé de SA famille */
+      dmGenre='fiche';
+      dmList=[{id:'fc_temoin',num:2,actif:true,titre:'Fiche corrigée',cours:'',exercices:[{id:exId,modes:['train']}]}];
+      await persistDevoirs();
+      let v=lireValeurs();
+      if(!v.fiches || v.fiches[0].titre!=='Fiche corrigée') vus.push('la fiche enregistrée n\\'est pas sous valeurs.fiches');
+      if(!v.devoirs || v.devoirs.length!==1 || v.devoirs[0].titre!=='Devoir témoin')
+        vus.push('enregistrer une fiche a touché valeurs.devoirs : '+JSON.stringify(v.devoirs));
+      dmGenre='dm';
+      dmList=[{id:'dm_temoin',num:3,actif:true,titre:'Devoir corrigé',cours:'',exercices:[{id:exId,modes:['train']}]}];
+      await persistDevoirs();
+      v=lireValeurs();
+      if(!v.devoirs || v.devoirs[0].titre!=='Devoir corrigé') vus.push('le devoir enregistré n\\'est pas sous valeurs.devoirs');
+      if(!v.fiches || v.fiches[0].titre!=='Fiche corrigée')
+        vus.push('enregistrer un devoir a touché valeurs.fiches : '+JSON.stringify(v.fiches));
+    } else if(typeof newDM==='function' && typeof dmGenre!=='undefined'){
+      /* Première : la création écrit sous la clé de SA famille */
+      dmGenre='fiche';
+      await newDM();
+      let v=lireValeurs();
+      if(!v.fiches || v.fiches.length!==2) vus.push('la fiche créée n\\'est pas sous valeurs.fiches ('+(v.fiches||[]).length+')');
+      if(!v.devoirs || v.devoirs.length!==1) vus.push('créer une fiche a touché valeurs.devoirs ('+(v.devoirs||[]).length+')');
+      if(v.fiches && v.fiches[1] && v.fiches[1].id.indexOf('fc_')!==0) vus.push('une fiche créée porte l\\'identifiant « '+v.fiches[1].id+' »');
+      dmGenre='dm';
+      await newDM();
+      v=lireValeurs();
+      if(!v.devoirs || v.devoirs.length!==2) vus.push('le devoir créé n\\'est pas sous valeurs.devoirs');
+      if(!v.fiches || v.fiches.length!==2) vus.push('créer un devoir a touché valeurs.fiches');
+    } else {
+      vus.push('aucun éditeur de fiches à exercer');
+    }
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', false, 'erreur JavaScript : '+r.erreur);
+    else verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', r.valeur==='', r.valeur);
+    longueurContexteIA(w, apres);
+  });
 }
 function simplifierBarres(w, P){
   const present = evaluer(w, "typeof startSmp==='function' && typeof smpGen==='function'");
