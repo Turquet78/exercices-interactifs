@@ -576,6 +576,13 @@
 /* de la place SOUS la ligne : c'est par là que passent les arcs */
 #sfHost.crd .pt-step{padding-bottom:78px}
 #sfHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
+/* Le calcul écrit en TÊTE de rangée a la taille de la rangée (demande de
+   Turquet, août 2026) : « .f-frac » vaut 1,45 rem partout ailleurs, et les
+   fractions de l'énoncé se lisaient comme une note de bas de page devant des
+   cases à 1,9 rem et des chiffres à 2 rem. Le 4.1 portait déjà ce réglage ;
+   une règle valable partout est tenue par un contrôle du banc navigateur qui
+   va partout. */
+#sfHost .pt-row>.f-frac{font-size:2rem}
 #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:900px){ #sfHost math-field.pm-mf{font-size:1.5rem}
@@ -658,6 +665,9 @@
    vrai navigateur sait où un contenu se replie. */
 #mltHost .sf-l .f-num,#mltHost .sf-l .f-den{width:92px}
 #mltHost .pt-row{flex-wrap:wrap}
+/* même règle qu'en #sfHost : le calcul en tête de rangée a la taille de la
+   rangée — et en 4.8, la fraction RÉÉCRITE au milieu de la ligne aussi */
+#mltHost .pt-row>.f-frac{font-size:2rem}
 #mltPrompt,#mllPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 #mllPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 @media(max-width:900px){ #mltHost math-field.pm-mf{font-size:1.5rem}
@@ -1904,7 +1914,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=92;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=93;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.

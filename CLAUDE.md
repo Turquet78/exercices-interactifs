@@ -81,6 +81,7 @@ couvert sans rien avoir à déclarer.
 | Chaque exercice a son **bouton d'aide IA** | l'aide est écrite, rien n'y mène | « le bouton d'aide IA est présent sur chaque exercice » |
 | Aucune référence **`{identifiant}`** ne reste affichée | l'élève lit des accolades | « aucune référence {identifiant} ne reste affichée à l'élève » |
 | L'écran d'un exercice prend **toute la largeur**, et ses rangées ne se replient pas | une chaîne d'égalités se lit comme trois calculs séparés | « aucune rangée ne se replie » |
+| Le **calcul écrit en tête de rangée** a la taille de sa rangée | l'énoncé de la chaîne se lit comme une note de bas de page devant les cases | « le calcul en tête de rangée s'écrit à la taille de sa rangée » |
 
 **Trois autres règles ne se vérifient pas encore partout**, et le dire vaut
 mieux que de le taire :
