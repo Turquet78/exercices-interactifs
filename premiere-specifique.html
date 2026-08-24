@@ -563,10 +563,6 @@
   .dl-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .dl-prog{font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--ink-soft)}
   .dl-title{font-family:"Fredoka";font-weight:600;font-size:1.12rem}
-  .dl-exos{display:flex;flex-direction:column;gap:8px}
-  .dl-ex{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:9px 12px}
-  .dl-ex-name{font-weight:700;font-size:.92rem}
-  .dl-ex-cells{display:flex;gap:6px;flex-wrap:wrap}
   .dm-cell{font-size:.76rem;font-weight:700;padding:2px 9px;border-radius:999px}
   .dm-cell.done{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2}
   .dm-cell.todo{color:var(--ink-soft);background:#fff;border:1px solid var(--line)}
@@ -1621,7 +1617,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=156;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=157;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2883,22 +2879,25 @@ function renderDevoirsList(){
   $('devoirsTitle').textContent=G.titre;
   const actifs=(mesDevoirs||[]).filter(d=>(d.genre||'dm')===genreEleve&&d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
   if(!actifs.length){ $('devoirsBody').innerHTML=devoirsVideHTML(); return; }
+  /* La liste est COMPACTE — le numéro, le titre, la note s'il y en a une
+     (demande de Turquet, août 2026) : elle recopiait le contenu entier de
+     chaque devoir, exercice par exercice, et les deux pages se ressemblaient
+     au point qu'on ne voyait plus laquelle était la liste. Le contenu ne vit
+     plus que sur la page du devoir, ouverte au clic. */
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
-    const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
-    const lignes=exos.map(ex=>{
-      const bs=dmBest(dev.id,ex.id,'soutien'), be=dmBest(dev.id,ex.id,'train');
-      const nd=noteDevoirExo(bs,be); somme+=nd.note; if(nd.fait) faitQqch=true;
-      const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
-      const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
-      return `<div class="dl-ex"><span class="dl-ex-name">${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
-    }).join('');
+    const isLast=idx===0; const exos=(typeof exercicesDevoir==='function')?exercicesDevoir(dev):(dev.exercices||[]); let somme=0, faitQqch=false;
+    exos.forEach(ex=>{
+      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'));
+      somme+=nd.note; if(nd.fait) faitQqch=true;
+    });
     const totMax=exos.length*10;
-    const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
+    const note=faitQqch?`<span class="dl-prog">Note : ${fmtNote(somme)} / ${totMax}</span>`
+                       :`<span class="ex-bilan todo">À faire</span>`;
+    const recent=isLast?((dev.genre||'dm')==='fiche'?' · la plus récente':' · le plus récent'):'';
     return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
-      <div class="dl-head"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}${isLast?' · la plus récente':''}</span><span class="dl-prog">${totLbl}</span></div>
+      <div class="dl-head"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}${recent}</span>${note}</div>
       <div class="dl-title">${esc(dev.titre||'')}</div>
-      <div class="dl-exos">${lignes}</div>
-      <div class="dl-go">${G.ouvrir}</div>
+      <div class="dl-go">${exos.length} exercice${exos.length>1?'s':''} · ${G.ouvrir}</div>
     </button>`;
   }).join('')+'</div>';
 }
