@@ -84,7 +84,8 @@ const RAPPELS_SECONDE = `(function(){
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
-               'diviser-fractions':'mlt','diviser-fractions-libre':'mll' };
+               'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
+               'ordre-croissant':'ord' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -316,8 +317,14 @@ module.exports = {
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */
-    aideMaintenue: { exercice: 'placer-intervalle', bouton: 'plcZeroBtn',
-                     nombres: '#plc-ta,#plc-tb,.plc-nb' },
+    /* DEUX exercices portent le bouton : {placer-intervalle} et
+       {ordre-croissant}, qui partagent le drapeau et le branchement. Le banc
+       APPUIE sur chacun — un appui qui marcherait sur l'un et pas sur l'autre
+       ne se verrait nulle part ailleurs. */
+    aideMaintenue: [{ exercice: 'placer-intervalle', bouton: 'plcZeroBtn',
+                      nombres: '#plc-ta,#plc-tb,.plc-nb' },
+                    { exercice: 'ordre-croissant', bouton: 'ordZeroBtn',
+                      nombres: '.ord-nbs .plc-nb' }],
     /* Le dépôt de cours en PDF : la table où vivent ses métadonnées, à côté
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
@@ -424,7 +431,7 @@ module.exports = {
        endroit n'aurait rien prouvé. */
     tablesAide: { reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
-                         'appartient-intervalle', 'placer-intervalle', 'lecture-variations'] },
+                         'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations'] },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",

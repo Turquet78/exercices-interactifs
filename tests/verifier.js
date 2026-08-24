@@ -2298,6 +2298,7 @@ function exercices(suite){
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
+    ordreCroissant(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -3487,6 +3488,129 @@ function multiplierFractions(w, P){
         if(/simplifi/i.test(p2)){ vus.push('le point 2 parle de simplification alors que le produit est irréductible'); break; }
       }
     }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {ordre-croissant} — les nombres de {placer-intervalle}, à ranger avec « < ».
+   Quatre bords, et n'en tenir qu'un ne tient rien :
+     · le tirage vient de plcGen() et garantit trois nombres distincts, dont
+       les décomptes de décimales diffèrent — sans quoi le bouton des zéros
+       n'aurait rien à faire ;
+     · l'ordre est CALCULÉ par la fonction qui corrige, en entiers, et une
+       SECONDE méthode le vérifie ici — les écritures complétées de zéros
+       comparées comme des chaînes ;
+     · chaque case a son verdict, une case vide ne rougit pas, la note compte ;
+     · le bouton ne change QUE l'écriture — jamais une réponse déjà choisie,
+       jamais la correction. */
+function ordreCroissant(w, P){
+  const present = evaluer(w, "typeof startOrd==='function' && typeof ordGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('ranger trois nombres : l\'ordre est calculé, et le bouton ne change que l\'écriture',
+      'ce niveau n\'a pas l\'exercice du rangement');
+    return;
+  }
+  verifierEval(w, 'ranger trois nombres : l\'ordre est calculé, et le bouton ne change que l\'écriture', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='ordre-croissant';
+
+    /* ---- 1. le tirage, jugé par une SECONDE méthode ---------------------- */
+    const chaine=function(v,d){   /* l'écriture complétée, comparée comme du texte */
+      const s=plcEcrit(v,d);
+      return (s[0]==='−'?'-':'+')+s.replace('−','').padStart(12,'0');
+    };
+    const rangs={};
+    for(let i=0;i<1500;i++){
+      const q=ordGen(), eti='tirage '+q.nombres.map(function(v){ return plcEcrit(v,null); }).join(' ; ');
+      if(q.nombres.length!==3){ vus.push(eti+' : pas trois nombres'); break; }
+      const ks=q.nombres.map(function(v){ return v.k; });
+      if(new Set(ks).size<2){ vus.push(eti+' : les trois nombres ont le même nombre de décimales, le bouton n\\'a rien à faire'); break; }
+      if(Math.max.apply(null,ks)>3){ vus.push(eti+' : plus de trois décimales'); break; }
+      if(plcCmp(q.nombres[0],q.nombres[1])===0 || plcCmp(q.nombres[0],q.nombres[2])===0
+        || plcCmp(q.nombres[1],q.nombres[2])===0){ vus.push(eti+' : deux nombres égaux'); break; }
+      /* l'ordre calculé, contre la seconde méthode. Les négatifs se comparent
+         à part : sur les chaînes, « plus grand » s'inverse sous le signe. */
+      const d=ordDecMax(q), tri=ordTri(q);
+      const attendu=q.nombres.map(function(v,ix){ return ix; }).sort(function(a,b){
+        const A=q.nombres[a], B=q.nombres[b];
+        const negA=A.n<0, negB=B.n<0;
+        if(negA!==negB) return negA?-1:1;
+        const cA=chaine(A,d).slice(1), cB=chaine(B,d).slice(1);
+        const c=(cA<cB)?-1:(cA>cB?1:0);
+        return negA ? -c : c;
+      });
+      if(tri.join(',')!==attendu.join(',')){
+        vus.push(eti+' : ordTri rend '+tri.join(',')+', la méthode des chaînes '+attendu.join(',')); break; }
+      rangs[tri[0]]=(rangs[tri[0]]||0)+1;
+    }
+    /* le plus petit ne tombe pas toujours au même rang de la liste : sans
+       mélange, l'élève apprendrait le rang plutôt que la comparaison */
+    if(!vus.length && Object.keys(rangs).length<3)
+      vus.push('le plus petit nombre tombe toujours aux rangs '+Object.keys(rangs).join(','));
+
+    /* ---- 2. la correction, exercée par le BOUTON ------------------------- */
+    startOrd();
+    /* la fiche : 1,1 ; 1,075 ; 1,009 — l'ordre juste est 1,009 < 1,075 < 1,1,
+       c'est-à-dire les indices 2, 1, 0 : le piège de la lecture chiffre à
+       chiffre est dans la question même. */
+    test.questions[test.idx]={nombres:[{n:11,k:1},{n:1075,k:3},{n:1009,k:3}]};
+    const CASES=['ord-s-0','ord-s-1','ord-s-2'];
+    const poser=function(vals){
+      test.locked=false; renderOrdTest();
+      CASES.forEach(function(id,i){ const el=document.getElementById(id);
+        if(el) el.value=(vals[i]===undefined||vals[i]===null)?'':String(vals[i]); });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    /* copie juste */
+    poser([2,1,0]); checkOrdAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('la copie juste (1,009 < 1,075 < 1,1) est comptée fausse');
+    if(CASES.some(function(id){ return peint(id)!=='vert'; })) vus.push('la copie juste n\\'est pas entièrement verte');
+    if(!der || der.cases!==3) vus.push('la note compte '+(der?der.cases:'?')+' cases au lieu de 3');
+    /* LE PIÈGE : ranger par la lecture chiffre à chiffre (1,009 < 1,1 < 1,075) */
+    poser([2,0,1]); checkOrdAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('le rangement chiffre à chiffre est accepté');
+    if(peint('ord-s-0')!=='vert') vus.push('la première case, JUSTE, est peinte en '+peint('ord-s-0'));
+    if(peint('ord-s-1')!=='rouge' || peint('ord-s-2')!=='rouge') vus.push('les cases fausses ne rougissent pas');
+    /* la correction MONTRE la méthode : les zéros restent posés */
+    if(!test.plcZeros) vus.push('après une erreur, la méthode des zéros n\\'est pas montrée');
+    if((document.getElementById('ord-n-0')||{}).textContent!=='1,100')
+      vus.push('les zéros de la correction ne sont pas écrits : « '+(document.getElementById('ord-n-0')||{}).textContent+' »');
+    /* une case vide ne rougit pas — elle reçoit la correction en bleu */
+    poser([2,null,0]); checkOrdAnswer();
+    if(peint('ord-s-1')==='rouge') vus.push('une case laissée vide rougit');
+    if(peint('ord-s-1')!=='bleu') vus.push('une case vide ne reçoit pas la correction en bleu ('+peint('ord-s-1')+')');
+    if(peint('ord-s-0')!=='vert' || peint('ord-s-2')!=='vert') vus.push('une case juste rougit parce qu\\'une autre est vide');
+    /* le même nombre posé deux fois : chacun jugé seul */
+    poser([2,2,0]); checkOrdAnswer();
+    if(peint('ord-s-0')!=='vert') vus.push('la case juste rougit parce que son nombre est repris ailleurs');
+    if(peint('ord-s-1')==='vert') vus.push('le même nombre posé deux fois est compté juste deux fois');
+
+    /* ---- 3. le bouton ne change QUE l'écriture --------------------------- */
+    /* le drapeau posé par la correction des essais précédents se retire : ici
+       on éprouve l'APPUI seul, l'autre état a son essai plus haut */
+    test.plcZeros=false;
+    poser([2,1,0]);
+    const avant=document.getElementById('ord-s-0').value;
+    plcAppuiZeros(true);
+    if((document.getElementById('ord-n-0')||{}).textContent!=='1,100')
+      vus.push('l\\'appui n\\'écrit pas les zéros : « '+(document.getElementById('ord-n-0')||{}).textContent+' »');
+    const optTenu=[...document.getElementById('ord-s-0').options].find(function(o){ return o.value==='0'; });
+    if(optTenu && optTenu.textContent!=='1,100')
+      vus.push('l\\'appui ne réécrit pas les libellés des listes : « '+optTenu.textContent+' »');
+    if(document.getElementById('ord-s-0').value!==avant)
+      vus.push('l\\'appui a CHANGÉ une réponse déjà choisie');
+    const rTenu=(function(){ const q=test.questions[test.idx];
+      return ordCases(q).map(function(c){ return document.getElementById(c.id).value===c.bon; }).join(' '); })();
+    plcAppuiZeros(false);
+    if((document.getElementById('ord-n-0')||{}).textContent!=='1,1')
+      vus.push('le relâchement ne rend pas l\\'écriture minimale : « '+(document.getElementById('ord-n-0')||{}).textContent+' »');
+    const rLache=(function(){ const q=test.questions[test.idx];
+      return ordCases(q).map(function(c){ return document.getElementById(c.id).value===c.bon; }).join(' '); })();
+    if(rTenu!==rLache) vus.push('la correction ne juge pas pareil pendant l\\'appui et après');
+
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
