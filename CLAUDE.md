@@ -1178,6 +1178,17 @@ deux contrôles qui se rendent `sb` à tour de rôle, retombé tel quel. Six
 sabotages sur les deux niveaux ; le banc navigateur fait le trajet professeur →
 élève en Première (la Seconde n'a jamais déclaré `devoirsEleve` — manque
 antérieur à cette page, le banc principal couvre ses fiches).
+**La liste des devoirs est COMPACTE : le numéro, le titre, la note s'il y en a
+une** (demande de Turquet, août 2026) — et le CONTENU ne vit que sur la page du
+devoir, ouverte au clic. La liste recopiait le contenu entier de chaque devoir,
+exercice par exercice avec leurs pourcentages : les deux pages se ressemblaient
+au point qu'on ne voyait plus laquelle était la liste. Une carte dit maintenant
+« Devoir n°7 · le plus récent », le titre, « Note : 12,5 / 30 » quand quelque
+chose a été fait et « À faire » sinon, et le nombre d'exercices. Le total de la
+Première passe par `exercicesDevoir()`, comme sa page de détail — deux calculs
+auraient donné deux totaux. Quatre bords au contrôle, chacun éprouvé par
+sabotage : le contenu absent de la liste, « À faire » quand rien n'est fait, la
+note quand elle existe, et le contenu bien PRÉSENT sur la page du devoir.
 
 **Un devoir demande une fois chaque exercice, et tous sont ouverts.** Il a su
 un temps en demander plusieurs passages et en verrouiller un tant que les

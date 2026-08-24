@@ -3794,6 +3794,20 @@ function fichesDeTravail(w, apres){
     if(corps.indexOf('Fiche témoin')<0) vus.push('la fiche affichée n\\'arrive pas jusqu\\'à l\\'élève');
     if(corps.indexOf('Fiche n°2')<0) vus.push('la carte ne dit pas « Fiche n°2 » : '+corps.slice(0,80));
     if(corps.indexOf('Devoir témoin')>=0) vus.push('un DEVOIR s\\'affiche dans la page des fiches');
+    /* 1 bis. LA LISTE EST COMPACTE (demande de Turquet, août 2026) : le numéro,
+       le titre, la note s'il y en a une — jamais le contenu, qui ne vit que sur
+       la page du devoir. Trois bords : le contenu absent de la liste, « À
+       faire » quand rien n'est fait, la note quand elle existe — et le
+       contenu, lui, doit être SUR la page du devoir. */
+    const exLbl=testLabel(exId);
+    if(corps.indexOf(exLbl)>=0) vus.push('la liste recopie le contenu : « '+exLbl+' » s\\'affiche avant d\\'ouvrir la fiche');
+    if(corps.indexOf('À faire')<0) vus.push('une fiche jamais travaillée ne dit pas « À faire » : '+corps.slice(0,90));
+    window.__faux.semer('${P.tableResultats||'resultats'}',[{id:1,eleve_id:'e-controle',score:8,total:10,percent:80,
+      details:{test:exId,mode:'train',dm:'fc_temoin'}}]);
+    await openDevoirsEleve('fiche');
+    corps=document.getElementById('devoirsBody').textContent;
+    if(corps.indexOf('Note : 8 / 10')<0) vus.push('la note obtenue ne s\\'affiche pas sur la liste : '+corps.slice(0,110));
+    window.__faux.semer('${P.tableResultats||'resultats'}',[]);
     await openDevoirsEleve();
     corps=document.getElementById('devoirsBody').textContent;
     titre=document.getElementById('devoirsTitle').textContent;
@@ -3807,6 +3821,7 @@ function fichesDeTravail(w, apres){
     corps=document.getElementById('devoirsBody').textContent;
     if(titre.indexOf('Fiches de travail')<0) vus.push('le détail d\\'une fiche se titre « '+titre+' »');
     if(corps.indexOf('Note de la fiche')<0) vus.push('le détail d\\'une fiche parle de « Note du devoir »');
+    if(corps.indexOf(exLbl)<0) vus.push('le contenu de la fiche n\\'est plus sur sa page : « '+exLbl+' » manque');
 
     /* 3. une note lancée depuis une fiche porte SON identifiant */
     if(typeof openTestDevoir==='function'){
