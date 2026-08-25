@@ -2342,6 +2342,7 @@ function exercices(suite){
     sommeFractionsLibre(w, P);
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
+    imageNombre(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -3783,6 +3784,133 @@ function syntheseLibrePourcentage(w, P){
      · chaque case a son verdict, une case vide ne rougit pas, la note compte ;
      · le bouton ne change QUE l'écriture — jamais une réponse déjà choisie,
        jamais la correction. */
+/* ---------- L'image d'un nombre : la réponse est lue dans la courbe ---------- */
+/* {image-nombre} (Seconde, 2.2). Trois promesses, chacune silencieuse si elle
+   casse. La bonne réponse n'est JAMAIS rangée à côté de la question : l'image
+   se calcule depuis q.pts — les données mêmes qui dessinent la courbe — par la
+   fonction qui corrige, donc un énoncé ne peut pas contredire sa correction ;
+   le contrôle exige que la question ne porte RIEN d'autre. Le trait est LA
+   MÉTHODE de la fiche : absent pendant la recherche (il donnerait la hauteur),
+   dessiné à la validation, et mesuré contre les GRADUATIONS du dessin — aucune
+   coordonnée recopiée, une échelle qui changerait resterait mesurée juste.
+   Et les règles de partout : cinq réponses comptées cinq, une case juste qui
+   ne rougit pas pour sa voisine, une case vide jamais rouge. */
+function imageNombre(w, P){
+  const present = evaluer(w, "typeof startImg==='function' && typeof imgCheck==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('l\'image d\'un nombre : la réponse est lue dans la courbe, et le trait montre la méthode',
+      'ce niveau n\'a pas l\'exercice de l\'image');
+    return;
+  }
+  verifierEval(w, 'l\'image d\'un nombre : la réponse est lue dans la courbe, et le trait montre la méthode', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='image-nombre';
+
+    /* ---- 1. le tirage : jamais 0, jamais d'image nulle, quatre abscisses
+       distinctes, et RIEN d'autre que la courbe et l'abscisse dans la
+       question. ---- */
+    for(let t=0;t<300 && !vus.length;t++){
+      startImg(); clearTimeout(test.fbTimer);
+      if(test.questions.length!==4){ vus.push(test.questions.length+' questions au lieu de 4'); break; }
+      const xs=test.questions.map(function(q){ return q.x0; });
+      if(xs.some(function(x){ return x===0; })) vus.push('une question demande l\\'image de 0 — le trait vertical n\\'y a rien à tracer');
+      if(xs.some(function(x){ return !Number.isInteger(x)||x<-3||x>3; })) vus.push('abscisse hors de la droite graduée : '+xs.join(','));
+      if(new Set(xs).size!==4) vus.push('deux questions demandent la même abscisse : '+xs.join(','));
+      test.questions.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='x0'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe et l\\'abscisse : '+cles.join(','));
+        if(q.pts.length!==7 || q.pts.some(function(y){ return !Number.isInteger(y)||y<-3||y>3; })) vus.push('courbe hors du quadrillage');
+        if(q.pts[q.x0+3]===0) vus.push('l\\'image demandée vaut 0 : le trait vertical serait invisible');
+      });
+    }
+
+    /* ---- 2. la correction, exercée sur les vraies cases. La question est
+       CHOISIE (la fiche des variations) : x0 positif, image négative — le
+       signe moins de l'écran passe par numFmt. ---- */
+    startImg(); clearTimeout(test.fbTimer);
+    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], x0:2};
+    const q=test.questions[0], y0=q.pts[q.x0+3];
+    const CASES=['img-c','img-fx','img-fv','img-tx','img-tv'];
+    const BON={'img-c':y0,'img-fx':q.x0,'img-fv':y0,'img-tx':q.x0,'img-tv':y0};
+    const poser=function(vals){ test.locked=false; test.idx=0; renderImg();
+      CASES.forEach(function(id){ const el=document.getElementById(id);
+        if(el){ if(vals[id]===undefined||vals[id]===null) el.value=''; else el.value=String(vals[id]); } }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+
+    /* l'énoncé nomme l'abscisse demandée, et le trait ATTEND la validation */
+    poser({});
+    if(document.getElementById('imgInstr').textContent.indexOf(numFmt(q.x0))<0)
+      vus.push('l\\'énoncé ne nomme pas l\\'abscisse demandée');
+    if(document.querySelector('#imgGraph .img-trait'))
+      vus.push('le trait est déjà dessiné avant la validation — il donne la hauteur qu\\'on demande de lire');
+
+    /* copie juste : cinq cases vertes, la note les compte toutes les cinq */
+    poser(BON); const avant=test.score; submitImg(); clearTimeout(test.fbTimer);
+    if(CASES.some(function(id){ return peint(id)!=='vert'; }))
+      vus.push('la copie juste n\\'est pas entièrement verte ('+CASES.map(peint).join(',')+')');
+    if(test.score-avant!==5) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 5');
+
+    /* ...et le trait est dessiné, DE la bonne abscisse À la bonne hauteur,
+       lu contre les graduations du dessin même. */
+    const svg=document.getElementById('imgGraph');
+    const traits=svg.querySelectorAll('.img-trait');
+    if(traits.length<2){ vus.push('le trait de la méthode n\\'est pas dessiné à la validation'); }
+    else{
+      const num=function(el,a){ return parseFloat(el.getAttribute(a)); };
+      const vert=Array.prototype.find.call(traits,function(l){ return Math.abs(num(l,'x1')-num(l,'x2'))<0.5; });
+      const horz=Array.prototype.find.call(traits,function(l){ return Math.abs(num(l,'y1')-num(l,'y2'))<0.5 && Math.abs(num(l,'x1')-num(l,'x2'))>=0.5; });
+      if(!vert||!horz) vus.push('il manque le trait vertical ou le trait horizontal');
+      else{
+        const lab=function(txt,horiz){
+          const ts=svg.querySelectorAll('text.lv-ax');
+          for(let i=0;i<ts.length;i++){ if(ts[i].textContent===txt &&
+            (horiz ? ts[i].getAttribute('text-anchor')==='middle' : ts[i].getAttribute('text-anchor')==='end')) return ts[i]; }
+          return null; };
+        const lx=lab(numFmt(q.x0),true), ly=lab(numFmt(y0),false);
+        if(!lx) vus.push('aucune graduation ne porte '+numFmt(q.x0));
+        else if(Math.abs(num(vert,'x1')-parseFloat(lx.getAttribute('x')))>1)
+          vus.push('le trait vertical ne part pas de la graduation '+numFmt(q.x0));
+        if(!ly) vus.push('aucune graduation ne porte '+numFmt(y0));
+        else if(Math.abs(num(horz,'y1')-(parseFloat(ly.getAttribute('y'))-3.5))>1)
+          vus.push('le trait horizontal n\\'arrive pas à la hauteur '+numFmt(y0));
+        const pt=svg.querySelector('.img-pt');
+        if(!pt) vus.push('le point d\\'arrivée sur la courbe manque');
+        else if(Math.abs(parseFloat(pt.getAttribute('cx'))-num(vert,'x1'))>1
+             || Math.abs(parseFloat(pt.getAttribute('cy'))-num(horz,'y1'))>1)
+          vus.push('le point d\\'arrivée n\\'est pas au bout des deux traits');
+      }
+    }
+
+    /* une seule case fausse : elle SEULE rougit */
+    poser(Object.assign({},BON,{'img-fv':y0+1})); submitImg(); clearTimeout(test.fbTimer);
+    if(peint('img-fv')!=='rouge') vus.push('la case fausse est peinte en '+peint('img-fv'));
+    ['img-c','img-fx','img-tx','img-tv'].forEach(function(id){
+      if(peint(id)!=='vert') vus.push('une case juste ('+id+') est peinte en '+peint(id)+' parce qu\\'une autre est fausse'); });
+
+    /* en entraînement, une case VIDE ne rougit pas : la correction en bleu */
+    poser(Object.assign({},BON,{'img-tv':null})); submitImg(); clearTimeout(test.fbTimer);
+    if(peint('img-tv')==='rouge') vus.push('une case laissée vide rougit à la vérification');
+    if(peint('img-tv')!=='bleu') vus.push('une case vide ne reçoit pas la correction en bleu ('+peint('img-tv')+')');
+    if((document.getElementById('img-tv').value||'')==='') vus.push('la correction en bleu n\\'écrit pas la valeur');
+
+    /* en soutien : la frappe colore, la case vide ne reçoit RIEN, et la
+       vérification d'une copie incomplète laisse corriger */
+    currentMode='soutien';
+    poser(Object.assign({},BON,{'img-tv':null,'img-fx':q.x0+1}));
+    imgLive();
+    if(peint('img-tv')!=='rien') vus.push('en soutien, la case vide reçoit '+peint('img-tv')+' pendant la frappe');
+    if(peint('img-fx')!=='rouge') vus.push('en soutien, la case fausse ne rougit pas pendant la frappe');
+    if(peint('img-c')!=='vert') vus.push('en soutien, la case juste ne verdit pas pendant la frappe');
+    submitImg();
+    if(peint('img-tv')!=='rien') vus.push('en soutien, la vérification pose '+peint('img-tv')+' sur une case vide');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question au lieu de laisser corriger');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function ordreCroissant(w, P){
   const present = evaluer(w, "typeof startOrd==='function' && typeof ordGen==='function'");
   if(!present.ok || !present.valeur){

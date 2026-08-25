@@ -562,6 +562,39 @@ contrôle le vérifie par une SECONDE méthode — les écritures complétées d
 comparées comme des chaînes, les négatifs à part, où « plus grand » s'inverse
 sous le signe. Éprouvé en le cassant sept fois.
 
+**L'image d'un nombre se lit dans la courbe — au sens propre.** {image-nombre}
+(Seconde, thème Fonctions) est repris de la fiche papier : une courbe sur
+quadrillage, et « L'image de X est la hauteur de X. C'est … f(…) = … » plus le
+tableau de valeurs à une colonne. Tout le dessin est celui de
+{lecture-variations} — `lvGenPts`, `lvGraphSVG`, la spline, les cases `lv-in`
+et `lvMarkFields` : un second moteur aurait fini par diverger. `lvGraphSVG` a
+seulement gagné un paramètre (`extra`) pour dessiner par-dessus.
+**La MÉTHODE est le trait vertical, et la page le DESSINE.** Il part de X sur
+l'axe des abscisses, monte ou descend jusqu'à la courbe, puis rejoint l'axe des
+ordonnées à l'horizontale — le geste de la fiche, montré à la VALIDATION et
+jamais avant : affiché pendant la recherche, il donnerait la hauteur qu'on
+demande de lire. Le contrôle mesure le trait contre les GRADUATIONS du dessin
+même — il retrouve l'étiquette qui porte l'abscisse demandée et exige que le
+trait en parte : aucune coordonnée recopiée, une échelle qui changerait
+resterait mesurée juste (la leçon du schéma des intervalles).
+**La bonne réponse n'est jamais rangée à côté de la question** : l'image est
+`q.pts[x0+3]` — les données MÊMES qui dessinent la courbe — lue par `imgCheck`,
+la fonction qui corrige, si bien qu'un énoncé ne peut pas contredire sa
+correction. La question ne porte QUE la courbe et l'abscisse, et le contrôle
+refuse tout autre champ.
+**Le tirage écarte deux questions muettes** : x = 0 (le trait vertical n'y a
+rien à tracer) et une image nulle (le trait serait invisible) — pour la
+seconde, on retire la COURBE, pas l'abscisse, afin que les quatre abscisses
+restent distinctes. Éprouvé en le cassant sept fois : x = 0 autorisé, abscisses
+répétées, la réponse rangée dans la question, une case qui ne se juge plus, la
+case vide colorée en soutien, le trait absent, le trait parti de 0 — chacun
+rougit en nommant son défaut.
+Et un manque d'à côté s'y est vu : `lvMarkFields` posait la classe `sol` depuis
+toujours, mais aucune règle CSS ne dessinait `.lv-in.sol` — la correction en
+bleu d'une case vide s'écrivait avec l'encre d'une saisie ordinaire, sur
+{lecture-variations} aussi. La règle est posée maintenant, et elle répare les
+deux exercices d'un coup.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
