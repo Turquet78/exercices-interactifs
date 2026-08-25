@@ -81,6 +81,7 @@ couvert sans rien avoir à déclarer.
 | Chaque exercice a son **bouton d'aide IA** | l'aide est écrite, rien n'y mène | « le bouton d'aide IA est présent sur chaque exercice » |
 | Aucune référence **`{identifiant}`** ne reste affichée | l'élève lit des accolades | « aucune référence {identifiant} ne reste affichée à l'élève » |
 | L'écran d'un exercice prend **toute la largeur**, et ses rangées ne se replient pas | une chaîne d'égalités se lit comme trois calculs séparés | « aucune rangée ne se replie » |
+| Le **clavier mathématique** est atteignable sur tout écran à champ mathématique | sur tablette, l'élève ne peut plus rien écrire | « le clavier mathématique est atteignable sur tout écran à champ mathématique » |
 | Le **calcul écrit en tête de rangée** a la taille de sa rangée | l'énoncé de la chaîne se lit comme une note de bas de page devant les cases | « le calcul en tête de rangée s'écrit à la taille de sa rangée » |
 
 **Trois autres règles ne se vérifient pas encore partout**, et le dire vaut
@@ -2011,6 +2012,22 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 9 000 élèves.
 
 ---
+
+**Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
+mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
+Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
+dans son coin (sa, rc, sp, enc), et les autres restaient nues ; l'indice
+« clic droit sur le champ » ne mène nulle part sur tablette. La rangée
+générique de la Seconde et de la Première — qui était née « convention
+terminale » — est revenue à la maison : `pmJetons()` se greffe sur tout écran
+à champ mathématique qui n'a pas déjà SA rangée (`.rc-jetons`/`.sa-jetons`),
+par l'enveloppement des cinq rendus concernés, et l'ancre `.mp-feedback` étant
+statique, la rangée survit aux redessins. Les rangées spécialisées gardent
+leurs jetons propres (Uₙ, x², …). Le contrôle est UNIVERSEL — greffé sur la
+visite de tous les exercices des trois niveaux : tout écran à champ
+mathématique doit offrir un bouton « Clavier mathématique », et un exercice
+ajouté demain est couvert sans rien déclarer. Éprouvé en débranchant la
+greffe : il nomme les huit écrans.
 
 ## Fiches imprimées (`.docx`)
 

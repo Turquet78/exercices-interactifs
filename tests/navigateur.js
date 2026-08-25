@@ -2290,7 +2290,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], videsRouges = [];
+      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -2421,7 +2421,18 @@ async function parcours(page, N){
                 if(px(f) < boxPx) debuts.push('fraction du calcul à ' + px(f) + 'px contre des cases à ' + boxPx + 'px');
               }
             }
+            /* LE CLAVIER MATHÉMATIQUE EST ATTEIGNABLE SUR TOUT ÉCRAN À CHAMP
+               MATHÉMATIQUE. Huit exercices de la Terminale n'offraient aucun
+               bouton — chaque famille posait sa rangée dans son coin, et les
+               autres restaient nues ; sur tablette, l'indice « clic droit »
+               ne mène nulle part (signalé par Turquet, août 2026). On mesure
+               ICI, sur tous les exercices visités : celui qu'on ajoutera
+               demain est couvert sans rien déclarer. */
+            const champsMaths = [...on.querySelectorAll('math-field')].filter(visible).length > 0;
+            const boutonClavier = [...on.querySelectorAll('button')].filter(visible)
+              .some(b => /clavier math/i.test(b.getAttribute('title') || ''));
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
+                    clavier: !champsMaths || boutonClavier,
                     /* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT.
                        On relève ce qui est AFFICHÉ, exercice par exercice ; la
                        liste attendue vit dans tests/profils.js et la page a la
@@ -2440,6 +2451,8 @@ async function parcours(page, N){
             dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
           if(mode === 'train' && vu.debuts && vu.debuts.length)
             tetes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.debuts[0]);
+          if(mode === 'train' && vu.clavier === false)
+            sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           /* UNE CASE VIDE NE ROUGIT JAMAIS — sur TOUS les exercices.
              C'est la règle que la Seconde a réapprise trois fois en une seule
              journée d'août 2026, chaque fois sur un exercice différent, et
@@ -2481,6 +2494,8 @@ async function parcours(page, N){
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
       verifier('le calcul en tête de rangée s\'écrit à la taille de sa rangée',
         tetes.length === 0, tetes.slice(0, 3).join(' | '));
+      verifier('le clavier mathématique est atteignable sur tout écran à champ mathématique',
+        sansClavier.length === 0, sansClavier.join(', ') + ' — aucun bouton « Clavier mathématique »');
       /* Le COMPTE d'abord : la liste était tronquée à quatre, et un cinquième
          exercice fautif est resté caché derrière les quatre premiers jusqu'à
          ce qu'ils soient corrigés. Un contrôle qui dit moins que ce qu'il sait
