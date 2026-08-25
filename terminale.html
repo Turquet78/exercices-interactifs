@@ -955,6 +955,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
    plus l'exposant de e (une petite case) et le « e » écrit par la page. */
 .tx-part{font-weight:800;color:var(--ink);margin:16px 0 2px;}
 .tx-part:first-child{margin-top:4px;}
+.tx-avec{color:var(--ink-soft);font-weight:600;margin-bottom:2px;}
 .tx-se{width:30px;padding:2px 2px;font-size:.85rem;position:relative;top:-8px;}
 .tx-e{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:700;}
 .tg-in:focus{outline:none;border-color:var(--green);}
@@ -1998,7 +1999,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=245;
+const APP_VERSION=246;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -9797,9 +9798,15 @@ function txELin(m,p){
 function txInp(id,cls){ return '<input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" class="tg-in'+(cls?' '+cls:'')+'" id="'+id+'">'; }
 function txEsup(id){ return '<span class="tx-e">e</span><sup>'+txInp(id,'tx-se')+'</sup>'; }
 /* Une ligne « Démontre que f(0) = … : f(0) = (…)e^[ ] = [ ] ». avecE : le résultat
-   se lit en « [coefficient] e » — la page écrit le e, la case porte le nombre. */
+   se lit en « [coefficient] e » — la page écrit le e, la case porte le nombre.
+   AVANT chaque calcul, la page RAPPELLE l'expression dans laquelle on remplace
+   (demande de Turquet, août 2026) : « Avec f(x) = (2x − 1)eˣ, on a : » — le
+   geste du cahier : on récrit la fonction avant d'y substituer. L'expression
+   vient de txFx sur les MÊMES coefficients que la ligne de calcul, si bien que
+   le rappel ne peut pas contredire le calcul qu'il annonce. */
 function txCalcHTML(lettre, fn, x, a, b, ids, cible, avecE){
   return '<p class="tx-part">'+lettre+'. Démontre que '+fn+'('+x+') = '+cible+' :</p>'
+    +'<div class="tg-line tx-avec">Avec '+fn+'(<i>x</i>) = '+txFx(a,b)+', on a :</div>'
     +'<div class="tg-line"><span class="tg-eq">'+fn+'('+x+') =</span> '
     +txSubst(a,b,txInp(ids[0]))+' '+txEsup(ids[1])+' <span class="tg-eq">=</span> '+txInp(ids[2])
     +(avecE?' <span class="tx-e">e</span>':'')+'</div>';
