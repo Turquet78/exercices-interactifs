@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
    d'ensembles, qui partagent le kind 'ens'. */
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
-               'plus-petit-ensemble':'pge','lecture-variations':'lv','image-nombre':'img','pourcentage':'pct',
+               'plus-petit-ensemble':'pge','lecture-variations':'lv','image-nombre':'img','antecedent-nombre':'ant','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
@@ -375,7 +375,7 @@ module.exports = {
        lit le calcul. Il n'y a rien à colorer pendant la frappe, et un appel
        au modèle à chaque touche serait absurde. Déclaré plutôt que le
        contrôle affaibli pour tout le monde. */
-    soutienEnDirect: { sans: ['lv', 'img', 'def', 'pge', 'sfl', 'mll'] },
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -447,7 +447,7 @@ module.exports = {
     tablesAide: { reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
-                         'image-nombre'] },
+                         'image-nombre', 'antecedent-nombre'] },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",

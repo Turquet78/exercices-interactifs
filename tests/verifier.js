@@ -2344,6 +2344,7 @@ function exercices(suite){
     ordreCroissant(w, P);
     imageNombre(w, P);
     tangenteExp(w, P);
+    antecedentNombre(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -4029,6 +4030,147 @@ function tangenteExp(w, P){
       'tx-f-m2':4,'tx-f-t1':-4,'tx-f-t2':2,'tx-f-m3':4,'tx-f-b3':-2 };
     poser(B0); checkTX();
     if(test.score!==1) vus.push('avec b = 0, la copie juste vaut '+test.score+' au lieu de 1');
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- Les antécédents d'un nombre : la ligne de niveau ne coupe qu'aux graduations ---------- */
+/* {antecedent-nombre} (Seconde, 2.3), l'inverse de {image-nombre}. Le risque
+   propre à cet exercice est la hauteur ILLISIBLE : une hauteur strictement
+   comprise entre deux valeurs voisines de la courbe est traversée par la ligne
+   de niveau ENTRE deux graduations — l'élève voit un croisement qu'il ne peut
+   pas lire, et sa réponse juste est comptée fausse. Le contrôle recompte les
+   traversées par sa PROPRE arithmétique sur chaque tirage. L'ordre des
+   antécédents est LIBRE (règle des paires), le même antécédent posé deux fois
+   ne compte qu'une fois, le trait se mesure contre les GRADUATIONS du dessin,
+   et la séance montre toujours les deux visages — une hauteur à UN antécédent,
+   une à PLUSIEURS. */
+function antecedentNombre(w, P){
+  const present = evaluer(w, "typeof startAnt==='function' && typeof antCheck==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les antécédents d\'un nombre : la ligne de niveau ne coupe la courbe qu\'aux graduations',
+      'ce niveau n\'a pas l\'exercice des antécédents');
+    return;
+  }
+  verifierEval(w, 'les antécédents d\'un nombre : la ligne de niveau ne coupe la courbe qu\'aux graduations', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='antecedent-nombre';
+
+    /* ---- 1. le tirage : hauteur lisible, 1 à 3 antécédents, les deux
+       visages dans chaque séance, et RIEN d'autre que la courbe et la
+       hauteur dans la question ---- */
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=antTirage();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      const ns=[];
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='y0'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe et la hauteur : '+cles.join(','));
+        if(q.pts.length!==7 || q.pts.some(function(y){ return !Number.isInteger(y)||y<-3||y>3; })) vus.push('courbe hors du quadrillage');
+        if(!Number.isInteger(q.y0)||q.y0<-3||q.y0>3) vus.push('hauteur hors du quadrillage : '+q.y0);
+        /* la traversée, recomptée ici */
+        for(let i=0;i<6;i++){ const lo=Math.min(q.pts[i],q.pts[i+1]), hi=Math.max(q.pts[i],q.pts[i+1]);
+          if(q.y0>lo && q.y0<hi) vus.push('la ligne de niveau '+q.y0+' traverse la courbe ENTRE deux graduations ('+q.pts[i]+' → '+q.pts[i+1]+')'); }
+        const n=q.pts.filter(function(v){ return v===q.y0; }).length;
+        if(n<1||n>3) vus.push(n+' antécédents pour la hauteur '+q.y0);
+        ns.push(n);
+      });
+      if(ns.indexOf(1)<0) vus.push('aucune question à UN SEUL antécédent dans la séance');
+      if(!ns.some(function(n){ return n>1; })) vus.push('aucune question à PLUSIEURS antécédents dans la séance');
+    }
+
+    /* ---- 2. la correction, sur une question CHOISIE : la fiche des
+       variations, hauteur −1 — deux antécédents, −2 et 2. ---- */
+    startAnt(); clearTimeout(test.fbTimer);
+    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], y0:-1};
+    const poser=function(vals){ test.locked=false; test.idx=0; renderAnt();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id);
+        if(el){ const x=vals[id]; el.value=(x===undefined||x===null)?'':String(x); } }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const IDS=['ant-s-0','ant-s-1','ant-fx-0','ant-fy-0','ant-fx-1','ant-fy-1'];
+
+    poser({});
+    if(document.getElementById('antInstr').textContent.indexOf(numFmt(-1))<0)
+      vus.push('l\\'énoncé ne nomme pas la hauteur demandée');
+    if(document.querySelector('#antGraph .img-trait'))
+      vus.push('la ligne de niveau est déjà dessinée avant la validation — elle montre les croisements qu\\'on demande de trouver');
+
+    /* copie juste : six cases vertes, la note les compte toutes */
+    const BON={'ant-s-0':-2,'ant-s-1':2,'ant-fx-0':-2,'ant-fy-0':-1,'ant-fx-1':2,'ant-fy-1':-1};
+    poser(BON); const avant=test.score; submitAnt(); clearTimeout(test.fbTimer);
+    if(IDS.some(function(id){ return peint(id)!=='vert'; }))
+      vus.push('la copie juste n\\'est pas entièrement verte ('+IDS.map(peint).join(',')+')');
+    if(test.score-avant!==6) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 6');
+
+    /* le trait, mesuré contre les GRADUATIONS du dessin même */
+    const svg=document.getElementById('antGraph');
+    const traits=svg.querySelectorAll('.img-trait');
+    if(traits.length<3){ vus.push('la ligne de niveau et ses descentes ne sont pas dessinées à la validation ('+traits.length+' traits)'); }
+    else{
+      const num=function(el,a){ return parseFloat(el.getAttribute(a)); };
+      const horz=Array.prototype.filter.call(traits,function(l){ return Math.abs(num(l,'y1')-num(l,'y2'))<0.5 && Math.abs(num(l,'x1')-num(l,'x2'))>=0.5; });
+      const verts=Array.prototype.filter.call(traits,function(l){ return Math.abs(num(l,'x1')-num(l,'x2'))<0.5; });
+      const lab=function(txt,horiz){
+        const ts=svg.querySelectorAll('text.lv-ax');
+        for(let i=0;i<ts.length;i++){ if(ts[i].textContent===txt &&
+          (horiz ? ts[i].getAttribute('text-anchor')==='middle' : ts[i].getAttribute('text-anchor')==='end')) return ts[i]; }
+        return null; };
+      if(horz.length!==1) vus.push(horz.length+' lignes de niveau au lieu de 1');
+      else{
+        const ly=lab(numFmt(-1),false);
+        if(!ly) vus.push('aucune graduation ne porte '+numFmt(-1));
+        else if(Math.abs(num(horz[0],'y1')-(parseFloat(ly.getAttribute('y'))-3.5))>1)
+          vus.push('la ligne de niveau n\\'est pas à la hauteur '+numFmt(-1));
+      }
+      if(verts.length!==2) vus.push(verts.length+' descentes au lieu de 2');
+      else [-2,2].forEach(function(x0){
+        const lx=lab(numFmt(x0),true);
+        if(!lx){ vus.push('aucune graduation ne porte '+numFmt(x0)); return; }
+        if(!verts.some(function(l){ return Math.abs(num(l,'x1')-parseFloat(lx.getAttribute('x')))<=1; }))
+          vus.push('aucune descente ne tombe sur la graduation '+numFmt(x0));
+      });
+      if(svg.querySelectorAll('.img-pt').length!==2) vus.push('les points de croisement manquent');
+    }
+
+    /* L'ORDRE EST LIBRE : la même copie, antécédents échangés */
+    poser({'ant-s-0':2,'ant-s-1':-2,'ant-fx-0':2,'ant-fy-0':-1,'ant-fx-1':-2,'ant-fy-1':-1});
+    const av2=test.score; submitAnt(); clearTimeout(test.fbTimer);
+    if(test.score-av2!==6) vus.push('les antécédents ne s\\'acceptent pas dans l\\'autre ordre ('+(test.score-av2)+'/6)');
+
+    /* le MÊME antécédent posé deux fois : défendable une fois, faux la seconde */
+    poser(Object.assign({},BON,{'ant-s-0':-2,'ant-s-1':-2})); submitAnt(); clearTimeout(test.fbTimer);
+    if(peint('ant-s-0')!=='vert') vus.push('le premier −2 est peint en '+peint('ant-s-0'));
+    if(peint('ant-s-1')==='vert') vus.push('le même antécédent posé deux fois est compté juste deux fois');
+
+    /* une case vide en entraînement : jamais rouge, la correction en bleu */
+    poser(Object.assign({},BON,{'ant-s-1':null})); submitAnt(); clearTimeout(test.fbTimer);
+    if(peint('ant-s-1')==='rouge') vus.push('une case laissée vide rougit à la vérification');
+    if(peint('ant-s-1')!=='bleu') vus.push('une case vide ne reçoit pas la correction en bleu ('+peint('ant-s-1')+')');
+    if((document.getElementById('ant-s-1').value||'')==='') vus.push('la correction en bleu n\\'écrit pas la valeur');
+
+    /* en soutien : la case vide ne reçoit rien, la fausse rougit seule */
+    currentMode='soutien';
+    poser(Object.assign({},BON,{'ant-fy-1':null,'ant-fx-0':0}));
+    antLive();
+    if(peint('ant-fy-1')!=='rien') vus.push('en soutien, la case vide reçoit '+peint('ant-fy-1')+' pendant la frappe');
+    if(peint('ant-fx-0')!=='rouge') vus.push('en soutien, la case fausse ne rougit pas pendant la frappe');
+    if(peint('ant-s-0')!=='vert') vus.push('en soutien, une case juste ne verdit pas');
+    submitAnt();
+    if(peint('ant-fy-1')!=='rien') vus.push('en soutien, la vérification pose '+peint('ant-fy-1')+' sur une case vide');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question');
+    currentMode='train';
+
+    /* ---- 3. UN SEUL antécédent : le singulier, et trois cases ---- */
+    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], y0:3};
+    poser({});
+    const txt=(document.getElementById('antBody').textContent||'').replace(/\\s+/g,' ');
+    if(txt.indexOf('L’antécédent de 3 est')<0) vus.push('une hauteur à un seul antécédent ne se dit pas au singulier : '+txt.slice(0,50));
+    if(document.getElementById('ant-s-1')) vus.push('une hauteur à un seul antécédent affiche deux cases');
+    poser({'ant-s-0':0,'ant-fx-0':0,'ant-fy-0':3}); const av3=test.score; submitAnt(); clearTimeout(test.fbTimer);
+    if(test.score-av3!==3) vus.push('la copie juste au singulier vaut '+(test.score-av3)+' au lieu de 3');
 
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
