@@ -2046,6 +2046,37 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 
 ---
 
+**La tangente à (ax+b)eˣ démontre ce que l'énoncé annonce — et les deux lisent
+la même fonction.** {tangente-exp} (Terminale, à côté d'{equation-tangente},
+demande de Turquet, août 2026) est repris de la fiche papier : f(x) = (ax+b)eˣ
+et sa dérivée sont DONNÉES, l'élève démontre f(0), f′(0), la tangente en 0,
+puis f(1), f′(1) et la tangente en 1 — avec les mêmes étapes que l'exercice de
+tangente : y = f′(a)(x−a) + f(a), substituée, remplacée, développée, réduite.
+Le tirage suit la demande : a entier non nul entre −2 et 2, b entier entre −2
+et 2, les trois fonctions d'une séance distinctes.
+**Chaque « Démontre que » RÉVÈLE sa cible, et c'est la forme de la fiche** : le
+travail noté est la route, pas le résultat. Le danger est donc l'énoncé qui
+contredit sa correction — le pire défaut du projet, déjà vu sur les
+intervalles. La question ne porte QUE a et b ; `txAns()` recalcule tout, et
+l'énoncé comme la correction le lisent. Le contrôle recalcule ces valeurs par
+sa PROPRE arithmétique et exige que les phrases les disent, puis que les cases
+remplies avec elles passent toutes au vert.
+**Les pentes ne sont jamais nulles** (a+b ≠ 0 et 2a+b ≠ 0) : une tangente
+horizontale ferait disparaître le terme en x des lignes à remplir, comme
+{equation-tangente} écarte déjà m = 0. Et **b = 0 retire la case du « + 0 »**
+de la ligne réduite au lieu de l'exiger : une case pour écrire zéro n'apprend
+rien, c'est la leçon des retenues de la soustraction.
+**En 1, le « e » est écrit par la page et la case porte le coefficient** —
+« [3]e » — sinon il aurait fallu analyser « 3e » tapé librement, et « −e »
+s'écrit avec une case à −1. Les deux constantes de la ligne développée
+s'acceptent dans les deux ordres, comme dans {equation-tangente}. Une case
+vide ne rougit pas en soutien — l'exercice modèle le faisait, la règle de
+partout l'emporte — et l'entraînement révèle les bonnes réponses en vert,
+comme le modèle. Éprouvé en le cassant sept fois : a = 0 autorisé, pente
+nulle, la réponse rangée dans la question, une case qui ne se juge plus, les
+constantes à ordre imposé, l'énoncé qui contredit la correction, la case vide
+rougie — chacun rougit en nommant son défaut.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
