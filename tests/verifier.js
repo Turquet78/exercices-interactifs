@@ -3959,6 +3959,15 @@ function tangenteExp(w, P){
     if(txt().indexOf('3e x − 2e')<0) vus.push('l\\'énoncé de la tangente en 1 ne dit pas « y = 3e x − 2e »');
     if(txt().indexOf('f(1) = e')<0) vus.push('l\\'énoncé de f(1) n\\'écrit pas « e » quand le coefficient vaut 1');
 
+    /* AVANT chaque calcul, le rappel de l'expression (demande de Turquet,
+       août 2026) : « Avec f(x) = …, on a : » — quatre lignes, l'expression de
+       f pour a et d, celle de f ′ pour b et e, écrites avec les nombres MÊMES
+       de la fonction tirée. */
+    const nAvec=(txt().match(/Avec f/g)||[]).length;
+    if(nAvec!==4) vus.push(nAvec+' rappels « Avec f(x) = …, on a : » au lieu de 4');
+    if(txt().indexOf('Avec f(x) = (2x − 1) ex, on a')<0) vus.push('le rappel de f(x) manque ou ne dit pas la fonction : '+txt().slice(0,60));
+    if(txt().indexOf('Avec f ′(x) = (2x + 1) ex, on a')<0) vus.push('le rappel de f ′(x) manque ou ne dit pas la dérivée');
+
     const IDS=['tx-a-x','tx-a-e','tx-a-r','tx-b-x','tx-b-e','tx-b-r',
       'tx-c-a1','tx-c-a2','tx-c-a3','tx-c-m1','tx-c-a4','tx-c-f1','tx-c-m2','tx-c-b2',
       'tx-d-x','tx-d-e','tx-d-r','tx-e-x','tx-e-e','tx-e-r',
