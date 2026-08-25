@@ -2343,6 +2343,7 @@ function exercices(suite){
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     imageNombre(w, P);
+    tangenteExp(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -3907,6 +3908,119 @@ function imageNombre(w, P){
     if(peint('img-tv')!=='rien') vus.push('en soutien, la vérification pose '+peint('img-tv')+' sur une case vide');
     if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question au lieu de laisser corriger');
     currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- Tangente à (ax+b)e^x : l'énoncé et la correction lisent la même fonction ---------- */
+/* {tangente-exp} (Terminale, thème 5). La question ne porte QUE a et b ; tout le
+   reste — f(0), f'(0), f(1), f'(1), les deux tangentes — est recalculé par
+   txAns(), que l'énoncé ET la correction lisent : le contrôle recalcule ces
+   valeurs par sa PROPRE arithmétique et exige que les phrases « Démontre
+   que … » les disent, puis que les cases remplies avec elles passent toutes
+   au vert. Les pentes ne sont jamais nulles, les deux constantes de la ligne
+   développée s'acceptent dans les deux ordres, une case vide ne rougit pas
+   en soutien, et le cas b = 0 retire la case du « + 0 » au lieu de l'exiger. */
+function tangenteExp(w, P){
+  const present = evaluer(w, "typeof startTX==='function' && typeof genTXCase==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la tangente à (ax+b)e^x : l\'énoncé et la correction lisent la même fonction',
+      'ce niveau n\'a pas l\'exercice de la tangente à (ax+b)e^x');
+    return;
+  }
+  verifierEval(w, 'la tangente à (ax+b)e^x : l\'énoncé et la correction lisent la même fonction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tangente-exp'; currentDM=null;
+
+    /* ---- 1. le tirage : a jamais nul, pentes jamais nulles, trois fonctions
+       distinctes, et RIEN d'autre que a et b dans la question ---- */
+    if(TX_N!==3) vus.push(TX_N+' questions au lieu de 3');
+    for(let t=0;t<400 && !vus.length;t++){
+      const qs=[]; for(let i=0;i<3;i++) qs.push(genTXCase(qs));
+      qs.forEach(function(q){
+        if(!Number.isInteger(q.a)||q.a===0||q.a<-2||q.a>2) vus.push('a hors bornes ou nul : '+q.a);
+        if(!Number.isInteger(q.b)||q.b<-2||q.b>2) vus.push('b hors bornes : '+q.b);
+        if(q.a+q.b===0) vus.push('pente nulle en 0 (a+b=0) : la ligne « y = …x » n\\'a plus de terme en x');
+        if(2*q.a+q.b===0) vus.push('pente nulle en 1 (2a+b=0)');
+        const cles=Object.keys(q).filter(function(k){ return k!=='a'&&k!=='b'; });
+        if(cles.length) vus.push('la question range autre chose que a et b : '+cles.join(','));
+      });
+      if(new Set(qs.map(function(q){ return q.a+'/'+q.b; })).size!==3) vus.push('deux questions posent la même fonction');
+    }
+
+    /* ---- 2. l'énoncé dit ce que la correction attend — recalculé ICI, par
+       une seconde arithmétique. Cas choisi : f(x) = (2x − 1)e^x. ---- */
+    test.kind='tx'; test.questions=[{a:2,b:-1}]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+    const A={ f0:-1, d0:1, f1:1, d1:3, t1a:-3, t1b:1, b1:-2 };
+    renderTX();
+    const txt=function(){ return (document.getElementById('txForm').textContent||'').replace(/\\s+/g,' '); };
+    if(txt().indexOf('y = x − 1')<0) vus.push('l\\'énoncé de la tangente en 0 ne dit pas « y = x − 1 » : '+txt().slice(0,80));
+    if(txt().indexOf('3e x − 2e')<0) vus.push('l\\'énoncé de la tangente en 1 ne dit pas « y = 3e x − 2e »');
+    if(txt().indexOf('f(1) = e')<0) vus.push('l\\'énoncé de f(1) n\\'écrit pas « e » quand le coefficient vaut 1');
+
+    const IDS=['tx-a-x','tx-a-e','tx-a-r','tx-b-x','tx-b-e','tx-b-r',
+      'tx-c-a1','tx-c-a2','tx-c-a3','tx-c-m1','tx-c-a4','tx-c-f1','tx-c-m2','tx-c-b2',
+      'tx-d-x','tx-d-e','tx-d-r','tx-e-x','tx-e-e','tx-e-r',
+      'tx-f-a1','tx-f-a2','tx-f-a3','tx-f-m1','tx-f-a4','tx-f-f1','tx-f-m2','tx-f-t1','tx-f-t2','tx-f-m3','tx-f-b3'];
+    const BON={ 'tx-a-x':0,'tx-a-e':0,'tx-a-r':A.f0, 'tx-b-x':0,'tx-b-e':0,'tx-b-r':A.d0,
+      'tx-c-a1':0,'tx-c-a2':0,'tx-c-a3':0,'tx-c-m1':A.d0,'tx-c-a4':0,'tx-c-f1':A.f0,'tx-c-m2':A.d0,'tx-c-b2':A.f0,
+      'tx-d-x':1,'tx-d-e':1,'tx-d-r':A.f1, 'tx-e-x':1,'tx-e-e':1,'tx-e-r':A.d1,
+      'tx-f-a1':1,'tx-f-a2':1,'tx-f-a3':1,'tx-f-m1':A.d1,'tx-f-a4':1,'tx-f-f1':A.f1,
+      'tx-f-m2':A.d1,'tx-f-t1':A.t1a,'tx-f-t2':A.t1b,'tx-f-m3':A.d1,'tx-f-b3':A.b1 };
+    const poser=function(vals){ test.locked=false; renderTX();
+      IDS.forEach(function(id){ const el=document.getElementById(id);
+        if(el){ const v=vals[id]; el.value=(v===undefined||v===null)?'':String(v); } }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+
+    /* la copie juste passe entière au vert, et vaut le point */
+    poser(BON); checkTX();
+    const pasVerts=IDS.filter(function(id){ return peint(id)!=='vert'; });
+    if(pasVerts.length) vus.push('la copie juste n\\'est pas entièrement verte : '+pasVerts.slice(0,3).join(', '));
+    if(test.score!==1) vus.push('la copie juste vaut '+test.score+' au lieu de 1');
+    if(!test.answers.length || !test.answers[test.answers.length-1].correct) vus.push('la copie juste est comptée fausse');
+
+    /* les deux constantes de la ligne développée, dans l'AUTRE ordre */
+    const B2=Object.assign({},BON,{'tx-f-t1':A.t1b,'tx-f-t2':A.t1a});
+    test.score=0; poser(B2); checkTX();
+    if(test.score!==1) vus.push('les deux constantes de la ligne développée ne s\\'acceptent pas dans l\\'autre ordre');
+
+    /* en entraînement, une copie fausse révèle les bonnes réponses en vert */
+    poser(Object.assign({},BON,{'tx-f-b3':A.b1+1})); checkTX();
+    if(peint('tx-f-b3')!=='vert') vus.push('la correction ne révèle pas la bonne réponse ('+peint('tx-f-b3')+')');
+    if(String(document.getElementById('tx-f-b3').value)!==numFmt(A.b1)) vus.push('la valeur révélée n\\'est pas la bonne');
+    if(!test.locked) vus.push('la question fausse ne se verrouille pas en entraînement');
+
+    /* la copie entièrement vide ne rougit nulle part */
+    poser({}); checkTX();
+    const rouges=IDS.filter(function(id){ return peint(id)==='rouge'; });
+    if(rouges.length) vus.push('la copie vide rougit : '+rouges.slice(0,3).join(', '));
+    if(test.locked) vus.push('la copie vide verrouille la question');
+
+    /* en soutien : la case fausse rougit SEULE, la case vide ne reçoit rien,
+       et la vérification laisse corriger */
+    currentMode='soutien';
+    poser(Object.assign({},BON,{'tx-e-r':A.d1+1,'tx-d-r':null})); checkTX();
+    if(peint('tx-e-r')!=='rouge') vus.push('en soutien, la case fausse est peinte en '+peint('tx-e-r'));
+    if(peint('tx-d-r')!=='rien') vus.push('en soutien, la case VIDE est peinte en '+peint('tx-d-r'));
+    if(peint('tx-a-r')!=='vert'||peint('tx-f-m3')!=='vert') vus.push('en soutien, une case juste ne verdit pas');
+    if(test.locked) vus.push('en soutien, une copie à corriger se verrouille');
+    currentMode='train';
+
+    /* ---- 3. b = 0 : la ligne réduite en 0 n'a pas de case « + 0 » ---- */
+    test.questions=[{a:2,b:0}]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+    renderTX();
+    if(document.getElementById('tx-c-b2')) vus.push('avec b = 0, la ligne réduite exige une case « + 0 »');
+    if(txt().indexOf('y = 2x')<0) vus.push('avec b = 0, l\\'énoncé de la tangente en 0 ne dit pas « y = 2x »');
+    const B0={ 'tx-a-x':0,'tx-a-e':0,'tx-a-r':0, 'tx-b-x':0,'tx-b-e':0,'tx-b-r':2,
+      'tx-c-a1':0,'tx-c-a2':0,'tx-c-a3':0,'tx-c-m1':2,'tx-c-a4':0,'tx-c-f1':0,'tx-c-m2':2,
+      'tx-d-x':1,'tx-d-e':1,'tx-d-r':2, 'tx-e-x':1,'tx-e-e':1,'tx-e-r':4,
+      'tx-f-a1':1,'tx-f-a2':1,'tx-f-a3':1,'tx-f-m1':4,'tx-f-a4':1,'tx-f-f1':2,
+      'tx-f-m2':4,'tx-f-t1':-4,'tx-f-t2':2,'tx-f-m3':4,'tx-f-b3':-2 };
+    poser(B0); checkTX();
+    if(test.score!==1) vus.push('avec b = 0, la copie juste vaut '+test.score+' au lieu de 1');
+
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
