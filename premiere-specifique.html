@@ -1661,7 +1661,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=161;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=162;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6512,7 +6512,7 @@ function renderPsl(){
   $('pslHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="pslChoix">${choix}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 justifie ta réponse — commence par écrire le pourcentage en fraction × le nombre</div>
+    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 justifie ta réponse — ${q.type==='pct'?'écris la part sur le tout et amène-la à /100, ou le pourcentage en fraction × le nombre':'commence par écrire le pourcentage en fraction × le nombre'}</div>
        <div class="dexp2-sheet" id="pslSheet"></div>
        <p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d\u2019espace</b> en sort. Les étapes suivantes sont facultatives, et tout calcul juste qui fonctionne est accepté.</p></div>`;
   /* La feuille n'est créée qu'une proposition CHOISIE : mlFeuille donne le
@@ -6541,7 +6541,9 @@ function pslAttenduIA(q){
    +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
    +'\n1. LA PROPOSITION CHOISIE EST LA BONNE. L\u2019élève a choisi '+QLET[q.choisi]+') '+qdLabel(q,q.opts[q.choisi])+' : '
      +(okChoix?'c\u2019est la bonne.':'ce N\u2019EST PAS la bonne — « correct » vaut donc false, quelle que soit la justification.')
-   +'\n2. AU MOINS UNE ÉTAPE COHÉRENTE. La voie attendue COMMENCE par le pourcentage écrit en fraction multipliée par le nombre — '+q.P+'/100 × '+q.N+' — puis les étapes suivantes sont FACULTATIVES pour arriver à '+q.result+'. Mais TOUT calcul différent, toute idée différente, sont acceptés dès lors qu\u2019ils FONCTIONNENT mathématiquement. Recopier seulement la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n\u2019est pas une justification.'
+   +'\n2. AU MOINS UNE ÉTAPE COHÉRENTE. La voie attendue COMMENCE par le pourcentage écrit en fraction multipliée par le nombre — '+q.P+'/100 × '+q.N+' — puis les étapes suivantes sont FACULTATIVES pour arriver à '+q.result+'.'
+     +(q.type==='pct'?' Une AUTRE voie attendue, PARFAITEMENT CORRECTE et qui DOIT être acceptée : écrire la part sur le tout et l\u2019amener au dénominateur 100 — '+q.result+'/'+q.N+' = '+q.P+'/100 — y compris par une chaîne de fractions égales intermédiaires'+(q.result%2===0&&q.N%2===0?' (par exemple '+q.result+'/'+q.N+' = '+(q.result/2)+'/'+(q.N/2)+' = '+q.P+'/100)':'')+' : cette écriture MONTRE le pourcentage, elle se suffit.':'')
+     +' Mais TOUT calcul différent, toute idée différente, sont acceptés dès lors qu\u2019ils FONCTIONNENT mathématiquement. Recopier seulement la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n\u2019est pas une justification.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Découpe le calcul aux « = », à l\u2019intérieur d\u2019une ligne comme d\u2019une ligne à l\u2019autre : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE est fausse.'
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme ce qui est bien fait.'
@@ -10579,7 +10581,7 @@ function conseilCtxCourant(){
     const lettres=['a','b','c','d'];
     att='Exercice de synthèse : l’élève choisit '+qdQuoi(q)+' parmi quatre propositions, puis JUSTIFIE son choix en écrivant lui-même son calcul dans une feuille, sans aucune case. '
       +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : la bonne proposition est '+lettres[q.bon]+') '+qdLabel(q,q.opts[q.bon])+', et l’égalité qui relie les trois nombres est '+q.P+'/100 × '+q.N+' = '+q.result+' '+q.unit+'. '
-      +'La voie attendue commence par écrire le pourcentage en fraction × le nombre ; les étapes suivantes sont facultatives, et tout calcul juste est accepté, pourvu qu’il y ait au moins une étape cohérente — recopier la proposition n’est pas justifier.'
+      +'La voie attendue commence par écrire le pourcentage en fraction × le nombre'+(q.type==='pct'?' — ou, tout aussi juste, la part sur le tout amenée au dénominateur 100':'')+' ; les étapes suivantes sont facultatives, et tout calcul juste est accepté, pourvu qu’il y ait au moins une étape cohérente — recopier la proposition n’est pas justifier.'
       +(q.choisi==null?' L’élève n’a pas encore choisi de proposition : aide-le à comprendre ce que la question demande, sans lui dire laquelle est la bonne.':' L’élève a choisi '+lettres[q.choisi]+') '+qdLabel(q,q.opts[q.choisi])+'.');
   } else if(k==='augq' && q){
     const lettres=['a','b','c','d'];

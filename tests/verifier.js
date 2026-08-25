@@ -3739,6 +3739,12 @@ function syntheseLibrePourcentage(w, P){
          texte ne prouvait rien, un sabotage l'a montré en restant vert */
       const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
       if(regle.indexOf(q.P+'/100 × '+q.N)<0){ vus.push(eti+'la règle de décision n\\'écrit pas la voie attendue '+q.P+'/100 × '+q.N); break; }
+      /* pour « retrouver le pourcentage », la PART SUR LE TOUT amenée à /100
+         (32/40 = 80/100) est une voie attendue, nommée avec les nombres de la
+         question et déclarée à accepter — signalée par Turquet sur une copie
+         refusable, août 2026 */
+      if(q.type==='pct' && (regle.indexOf(q.result+'/'+q.N+' = '+q.P+'/100')<0 || regle.indexOf('DOIT être acceptée')<0)){
+        vus.push(eti+'la règle n\\'accepte plus la part sur le tout '+q.result+'/'+q.N+' = '+q.P+'/100'); break; }
       if(a.indexOf('FACULTATIVES')<0){ vus.push(eti+'la règle n\\'a plus les étapes facultatives'); break; }
       if(a.indexOf('FONCTIONNENT')<0 || a.indexOf('idée différente')<0){ vus.push(eti+'la règle n\\'accepte plus un calcul différent qui fonctionne'); break; }
       if(!/sans aucun calcul, est REFUSÉ/.test(a)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
