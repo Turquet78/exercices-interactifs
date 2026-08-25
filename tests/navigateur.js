@@ -2294,6 +2294,13 @@ async function parcours(page, N){
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
+          /* La rangée GÉNÉRIQUE survit aux redessins d'un écran PARTAGÉ : le
+             2.1 la posait pour toute la famille des dérivées, et le 2.2 —
+             dont le rendu n'était pas enveloppé — passait au vert sans avoir
+             gagné la sienne. Un élève qui arrive DIRECTEMENT au 2.2 n'a rien
+             (signalé par Turquet, capture, août 2026). On la retire donc avant
+             chaque exercice : chacun doit la faire naître lui-même. */
+          await s.page.evaluate(() => document.querySelectorAll('.pm-jetons').forEach(x => x.remove()));
           await s.page.evaluate(i => openTest(i), id);
           await s.page.waitForTimeout(300);
           /* Le mode se choisit sur sa carte. On lit l'attribut plutôt qu'un
