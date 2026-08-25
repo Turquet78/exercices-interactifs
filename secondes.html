@@ -1914,7 +1914,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=94;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=95;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2067,7 +2067,7 @@ const PM_ICO_FRAC='<svg width="16" height="18" viewBox="0 0 16 18" aria-hidden="
  +'<line x1="2" y1="9" x2="14" y2="9" stroke="currentColor" stroke-width="1.8"/>'
  +'<rect x="4" y="12" width="8" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function pmJetonsHTML(){
-  return '<div class="rc-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
+  return '<div class="rc-jetons pm-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\',\')" title="Virgule d\u00e9cimale" aria-label="Ins\u00e9rer une virgule">,</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'-\')" title="Signe moins" aria-label="Ins\u00e9rer un signe moins">\u2212</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'\\\\frac{#0}{#?}\')" title="Fraction" aria-label="Ins\u00e9rer une fraction">'+PM_ICO_FRAC+'</button>'

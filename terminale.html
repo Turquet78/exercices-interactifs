@@ -1979,7 +1979,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=243;
+const APP_VERSION=244;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3268,7 +3268,7 @@ function pmMenuKb(){
   }catch(e){}
 }
 function pmJetonsHTML(){
-  return '<div class="rc-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
+  return '<div class="rc-jetons pm-jetons"><span class="rc-jlbl">Ins\u00e9rer\u00a0:</span>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\',\')" title="Virgule d\u00e9cimale" aria-label="Ins\u00e9rer une virgule">,</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'-\')" title="Signe moins" aria-label="Ins\u00e9rer un signe moins">\u2212</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmInsert(\'\\\\frac{#0}{#?}\')" title="Fraction" aria-label="Ins\u00e9rer une fraction">'+PM_ICO_FRAC+'</button>'
@@ -13885,7 +13885,13 @@ function fermerFenetresIA(vider){
   /* Les rendus des écrans SANS rangée propre : après chaque rendu, la rangée
      générique se pose (une fois — l'ancre .mp-feedback est statique). Les
      écrans qui ont la leur (sa, rc, sp, enc) sont dispensés par pmJetons(). */
-  const noms=['renderDexp','renderDexpQ','renderLR','renderEQ','renderSU'];
+  /* TOUS les rendus appelés par un démarreur de ces écrans — pas seulement
+     ceux de la table de reprise. startDexp2() appelle renderDexp2() en
+     direct : envelopper renderDexp seul laissait le 2.2 SANS rangée pour
+     l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
+     visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
+     l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

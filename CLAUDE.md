@@ -2021,8 +2021,17 @@ dans son coin (sa, rc, sp, enc), et les autres restaient nues ; l'indice
 générique de la Seconde et de la Première — qui était née « convention
 terminale » — est revenue à la maison : `pmJetons()` se greffe sur tout écran
 à champ mathématique qui n'a pas déjà SA rangée (`.rc-jetons`/`.sa-jetons`),
-par l'enveloppement des cinq rendus concernés, et l'ancre `.mp-feedback` étant
-statique, la rangée survit aux redessins. Les rangées spécialisées gardent
+par l'enveloppement des rendus concernés, et l'ancre `.mp-feedback` étant
+statique, la rangée survit aux redessins.
+**Envelopper la table de reprise ne suffit pas** : `startDexp2()` appelle
+`renderDexp2()` en DIRECT, et n'envelopper que `renderDexp` laissait le 2.2
+sans rangée pour l'élève qui y arrive en premier — signalé par Turquet sur une
+capture, le lendemain de la mise en ligne. Le banc n'y voyait rien : sa visite
+séquentielle passait par le 2.1 d'abord, qui posait la rangée sur l'écran
+PARTAGÉ de la famille, et le 2.2 en héritait. La rangée générique porte donc
+une classe à elle (`pm-jetons`) et le banc la RETIRE avant chaque exercice :
+chacun doit la faire naître lui-même. Les HUIT rendus appelés par un démarreur
+de ces écrans sont enveloppés, et le sabotage nomme le 2.2. Les rangées spécialisées gardent
 leurs jetons propres (Uₙ, x², …). Le contrôle est UNIVERSEL — greffé sur la
 visite de tous les exercices des trois niveaux : tout écran à champ
 mathématique doit offrir un bouton « Clavier mathématique », et un exercice
