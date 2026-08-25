@@ -2133,6 +2133,38 @@ mathématique doit offrir un bouton « Clavier mathématique », et un exercice
 ajouté demain est couvert sans rien déclarer. Éprouvé en débranchant la
 greffe : il nomme les huit écrans.
 
+**Sur tablette, le clavier du système recouvre la moitié de l'écran pour taper
+trois chiffres.** Le pavé numérique compact (demande de Turquet, août 2026) le
+remplace sur les écrans tactiles — et sur eux seulement : une rangée d'environ
+60 px dessinée par la page, chiffres, virgule, signe moins, effacer, Entrée.
+Le moteur est le MÊME TEXTE dans les trois fichiers (six fonctions comparées au
+caractère près) ; la liste des touches vit HORS du moteur, comme `SF_NB` —
+`PAVE_TOUCHES`, la Terminale y ajoute « / » pour ses fractions p/q — et un
+contrôle la compare à `tests/profils.js` : deux sources.
+**Le pavé ne s'attache qu'aux cases DÉCLARÉES numériques**
+(`inputmode="numeric"`), une liste en POSITIF — contrairement au bouton des
+tables, et le sens compte ici aussi : le mauvais bord n'est pas le même. Un
+pavé sans lettres attaché à un champ de texte rendrait le champ INUTILISABLE
+sur tablette, quand une case numérique oubliée garde simplement le clavier du
+système. Un observateur convertit les cases au fil des rendus : un exercice
+ajouté demain est couvert dès que ses cases se déclarent. Les `math-field`
+sont hors sujet — MathLive a son propre clavier.
+**Trois pièges, chacun tenu par un contrôle.** Le signe moins doit insérer le
+TIRET du clavier, jamais « − » : `lvReadInt()` passe par `parseFloat`, qui ne
+connaît que le tiret — la touche aurait écrit une réponse illisible par la
+correction. Chaque touche doit lever l'événement `input`, sans quoi la
+correction en direct du soutien ne voit jamais la frappe. Et la touche « ⏎ »
+envoie la touche Entrée : le calcul mental et les opérations posées valident
+au clavier, et sans elle un élève sur tablette n'aurait plus AUCUN moyen de
+valider — le clavier du système qui portait Entrée ne s'ouvre plus.
+**Enfoncer une touche ne vole pas le focus de la case** (`pointerdown`
+neutralisé — le piège classique des claviers dessinés), et le banc navigateur
+MESURE en mode tactile forcé (`window.__paveForce` — la requête média
+`pointer: coarse`, elle, appartient au navigateur) : le pavé est PETIT — c'est
+toute sa raison d'être —, ses touches font 40 px, il ne recouvre ni la case
+qu'on remplit ni les commandes du bas, et une touche cliquée écrit dans la
+case sans lui voler le focus. Éprouvé en le cassant sept fois.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du
