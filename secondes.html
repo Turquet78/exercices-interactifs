@@ -469,7 +469,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-img,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord{padding-bottom:84px}
+  #scr-lv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1432,6 +1432,17 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-ant">
+    <div class="card lv-card">
+      <div class="q-head"><span id="antIdx" class="q-idx">Question 1 / 4</span><span id="antModeTag"></span></div>
+      <p class="lv-instr" id="antInstr"></p>
+      <div class="lv-graph" id="antGraph"></div>
+      <div id="antBody"></div>
+      <div class="lv-feedback"><span id="antMark" class="mark"></span> <span id="antCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="antRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="antConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="antQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="antValidate" onclick="submitAnt()">Valider</button></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-results">
     <div class="card">
       <div class="result-head"><h2 id="resultMsg">Bravo !</h2><p id="resultSub"></p></div>
@@ -1936,7 +1947,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=96;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=97;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2387,6 +2398,7 @@ const TESTS={
   'plus-petit-ensemble': { name:'Le plus petit ensemble', icon:'🎯', desc:'Pour un nombre donné, trouve le plus petit ensemble qui le contient (ℕ, ℤ, 𝔻, ℚ, ℝ). En soutien : bouton Rappels du cours.', start:()=>startPge() },
   'lecture-variations': { name:'Lecture graphique \u2014 variations', icon:'\ud83d\udcc8', desc:'Lis une courbe : complète le tableau de valeurs, le sens de variation et le tableau de variation.', start:()=>startLV() },
   'image-nombre': { name:'Image d\u2019un nombre', icon:'\ud83d\udccd', desc:'Lis l\u2019image d\u2019un nombre sur une courbe : le trait vertical montre la hauteur, puis écris f(x) = … et complète le tableau de valeurs.', start:()=>startImg() },
+  'antecedent-nombre': { name:'Antécédents d\u2019un nombre', icon:'\ud83e\udded', desc:'C\u2019est l\u2019inverse de {image-nombre} : on te donne la hauteur, et la ligne de niveau — un trait horizontal — te fait retrouver le ou les nombres de départ.', start:()=>startAnt() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
   'diminuer-pourcentage': { name:'Diminuer d\u2019un pourcentage', icon:'\ud83d\udcc9', desc:'Diminue une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startDim() },
@@ -2436,7 +2448,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3232,6 +3244,7 @@ const QIA_SUGG={
   pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
+  ant:["C\u2019est quoi, un antécédent ?","Quelle est la différence entre image et antécédent ?","À quoi sert la ligne de niveau ?"],
   itv:["C’est quoi, un intervalle ?","Comment savoir si le crochet est ouvert ou fermé ?","Pourquoi le crochet est toujours ouvert du côté de l’infini ?","Quelle différence entre < et ≤ ?"],
   itq:["Comment passer d’une inégalité à un intervalle ?","Quelle différence entre « −1 ≤ x » et « x ≤ −1 » ?","Le signe ≤ donne quel crochet ?","Comment savoir de quel côté part le trait rouge ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
@@ -3427,6 +3440,12 @@ L'<b>image</b> d'un nombre <i>a</i> par la fonction <i>f</i> est la <b>hauteur</
 Si le trait rejoint la courbe à la hauteur 2, alors <i>f</i>(<i>a</i>) = 2 : l'image de <i>a</i> est 2.<br>
 Piège classique : ne confonds pas le nombre et son image — le nombre se lit sur l'axe <b>horizontal</b>, l'image sur l'axe <b>vertical</b>.`;
 
+const RAP_ANT=`<b>Les antécédents d'un nombre, lus sur une courbe</b><br>
+Un <b>antécédent</b> de <i>Y</i> par la fonction <i>f</i> est un nombre <i>a</i> tel que <i>f</i>(<i>a</i>) = <i>Y</i> : c'est l'inverse de l'image.<br>
+<b>La méthode de la ligne de niveau</b> : on trace un <b>trait horizontal</b> à la hauteur <i>Y</i> ; chaque point où il coupe la courbe donne un antécédent, lu en descendant sur l'axe des abscisses.<br>
+Un nombre peut avoir <b>plusieurs</b> antécédents — la ligne coupe alors la courbe plusieurs fois — ou un seul.<br>
+Piège classique : ne confonds pas image et antécédent — l'image se lit en MONTANT depuis le nombre (trait vertical), l'antécédent en PARTANT de la hauteur (trait horizontal).`;
+
 const RAP_ITV=`<b>Lire et écrire un intervalle</b><br>
 Un intervalle est le morceau de droite graduée compris entre deux bornes.<br>
 <b>① La borne est-elle prise, ou pas ?</b> Un <b>point plein</b> sur le schéma : la borne fait partie de l’intervalle — l’intervalle est <b>fermé</b> en cette borne. Un <b>crochet tourné vers l’extérieur</b> : la borne est <b>exclue</b> — l’intervalle est <b>ouvert</b> en cette borne.<br>
@@ -3521,7 +3540,7 @@ const RAP_MLT=`<b>Multiplier deux fractions</b><br>
 Un ENTIER se met sur 1 quand ça aide : \\(3=\\frac{3}{1}\\), donc \\(3\\times\\frac{2}{5}=\\frac{3\\times 2}{1\\times 5}=\\frac{6}{5}\\).`;
 /* {ordre-croissant} partage le rappel de {placer-intervalle} : c'est la même
    méthode — écrire avec le même nombre de décimales, puis comparer. */
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -3630,7 +3649,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -3988,7 +4007,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest]};
+  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4112,7 +4131,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord'];
+  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -5315,6 +5334,158 @@ function submitImg(){
   else $('imgCorr').innerHTML='<span class="lv-ok">Parfait \u2014 l\u2019image de '+X+' est bien '+Y+' !</span>';
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Image de '+X+' \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'img'});
   test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderImg(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
+}
+
+/* ================= Exercice Seconde : Antécédents d'un nombre (kind 'ant') =================
+   Le chemin INVERSE de {image-nombre}, repris de la fiche papier : on donne une
+   hauteur, et il faut retrouver le ou les nombres de départ. La MÉTHODE est le
+   trait horizontal — la ligne de niveau : chaque point où il coupe la courbe
+   donne un antécédent, lu en descendant sur l'axe des abscisses. La page le
+   DESSINE à la validation, jamais avant : affiché pendant la recherche, il
+   montrerait les croisements qu'on demande de trouver.
+   La bonne réponse n'est jamais rangée à côté de la question : la question ne
+   porte QUE la courbe et la hauteur, et antAnts() — que la correction ET le
+   rendu lisent — recalcule les antécédents depuis les données mêmes qui
+   dessinent la courbe. Le dessin est celui de {lecture-variations}, comme pour
+   l'image : un troisième moteur aurait fini par diverger. */
+const ANT_NB=4;
+function antAnts(q){ const out=[]; for(let x=-3;x<=3;x++){ if(q.pts[x+3]===q.y0) out.push(x); } return out; }
+/* Une hauteur n'est posable que si la ligne de niveau ne coupe la courbe
+   qu'AUX graduations : une hauteur strictement comprise entre deux valeurs
+   voisines serait traversée ENTRE deux graduations, et l'élève verrait un
+   croisement qu'il ne peut pas lire. */
+function antCibles(pts){
+  const ok=[];
+  for(let y=-3;y<=3;y++){
+    if(pts.indexOf(y)<0) continue;
+    let traverse=false;
+    for(let i=0;i<6;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(y>lo && y<hi) traverse=true; }
+    if(traverse) continue;
+    const n=pts.filter(v=>v===y).length;
+    if(n>=1 && n<=3) ok.push(y);
+  }
+  return ok;
+}
+function antTrait(y0, ants){
+  return function(sx,sy){
+    let g='<line x1="'+sx(-3.5).toFixed(1)+'" y1="'+sy(y0).toFixed(1)+'" x2="'+sx(3.5).toFixed(1)+'" y2="'+sy(y0).toFixed(1)+'" class="img-trait"/>';
+    ants.forEach(function(x0){
+      g+='<line x1="'+sx(x0).toFixed(1)+'" y1="'+sy(y0).toFixed(1)+'" x2="'+sx(x0).toFixed(1)+'" y2="'+sy(0).toFixed(1)+'" class="img-trait"/>'
+        +'<circle cx="'+sx(x0).toFixed(1)+'" cy="'+sy(y0).toFixed(1)+'" r="4" class="img-pt"/>';
+    });
+    return g;
+  };
+}
+function antGraphSVG(q,montrer){ return lvGraphSVG(q.pts, montrer ? antTrait(q.y0, antAnts(q)) : null); }
+/* La séance montre les deux visages de la notion : au moins une hauteur à UN
+   antécédent, au moins une à PLUSIEURS — sinon l'élève croit que la réponse
+   est toujours du même genre. */
+function antTirage(){
+  for(let att=0;att<200;att++){
+    const qs=[];
+    for(let i=0;i<ANT_NB;i++){
+      let pts=null, cibles=null;
+      for(let t=0;t<80;t++){ pts=lvGenPts(pick([2,3])).pts; cibles=antCibles(pts); if(cibles.length) break; }
+      if(!cibles || !cibles.length){ qs.length=0; break; }
+      qs.push({pts:pts, y0:pick(cibles)});
+    }
+    if(qs.length!==ANT_NB) continue;
+    const ns=qs.map(q=>antAnts(q).length);
+    if(ns.indexOf(1)<0 || !ns.some(n=>n>1)) continue;
+    return qs;
+  }
+  return [ {pts:[-3,-1,1,3,1,-1,-3],y0:3}, {pts:[-3,-1,1,3,1,-1,-3],y0:-1},
+           {pts:[3,1,-1,-3,-1,1,3],y0:-3}, {pts:[-2,0,2,3,2,0,-2],y0:0} ];
+}
+function startAnt(){
+  const qs=antTirage();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'ant', questions:qs, idx:0, score:0, maxScore:qs.reduce((n,q)=>n+3*antAnts(q).length,0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ant'); renderAnt();
+}
+function renderAnt(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  const ants=antAnts(q), n=ants.length, Y=numFmt(q.y0);
+  $('antIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('antModeTag').innerHTML=modeTagHTML();
+  { const cb=$('antConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('antRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('antQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('antInstr').textContent='C\u2019est l\u2019inverse de l\u2019image : on te donne la hauteur '+Y+', et il faut retrouver le ou les nombres de départ. Pour les trouver, trace (ou imagine) un trait horizontal — une ligne de niveau — à la hauteur '+Y+' : chaque point où il coupe la courbe donne un antécédent, à lire sur l\u2019axe des abscisses.';
+  $('antGraph').innerHTML=antGraphSVG(q,false);
+  const inp=(id,cls)=>'<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off">';
+  let sont;
+  if(n===1) sont='L\u2019antécédent de '+Y+' est '+inp('ant-s-0')+'.';
+  else{
+    const cases=[]; for(let i=0;i<n;i++) cases.push(inp('ant-s-'+i));
+    sont='Les antécédents de '+Y+' sont '+cases.slice(0,-1).join('\u2009;\u2009')+' et '+cases[cases.length-1]+'.';
+  }
+  let lignes='';
+  for(let i=0;i<n;i++) lignes+='<div class="img-line"><i>f</i>\u2009(\u2009'+inp('ant-fx-'+i,'sm')+'\u2009)\u2009=\u2009'+inp('ant-fy-'+i,'sm')+'</div>';
+  $('antBody').innerHTML='<div class="img-line">'+sont+'</div>'+lignes;
+  $('antBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',antLive); el.addEventListener('change',antLive); });
+  $('antMark').className='mark'; $('antMark').textContent=''; $('antCorr').innerHTML=''; $('antValidate').disabled=false;
+}
+/* L'ORDRE DES ANTÉCÉDENTS EST LIBRE, et il le faut : rien à l'écran ne dit
+   quelle case porte lequel. Chaque case se juge sur ce qu'elle PROMET — être
+   l'un des antécédents attendus — et la liste les prend une fois chacun :
+   le même antécédent posé deux fois est défendable une fois, faux la seconde.
+   C'est la règle des paires de {somme-fractions}, transposée. Les cases
+   restées sans correspondance reçoivent en partage les antécédents restants :
+   c'est la valeur que la correction en bleu écrira dedans. */
+function antCheck(q){
+  const ants=antAnts(q), y0=q.y0, n=ants.length, subs=[];
+  const take=(left,v)=>{ if(v===null) return false; const i=left.indexOf(v); if(i>=0){ left.splice(i,1); return true; } return false; };
+  const juge=(prefixe)=>{
+    const left=ants.slice(), rows=[];
+    for(let i=0;i<n;i++){ const v=lvReadInt(prefixe+i); rows.push({id:prefixe+i, v:v, ok:take(left,v)}); }
+    rows.forEach(r=>{ subs.push({id:r.id, val:(r.ok? r.v : left.shift()), ok:r.ok}); });
+  };
+  juge('ant-s-');
+  const left2=ants.slice(), rows2=[];
+  for(let i=0;i<n;i++){ const v=lvReadInt('ant-fx-'+i); rows2.push({id:'ant-fx-'+i, v:v, ok:take(left2,v)}); }
+  rows2.forEach((r,i)=>{
+    subs.push({id:r.id, val:(r.ok? r.v : left2.shift()), ok:r.ok});
+    subs.push({id:'ant-fy-'+i, val:y0, ok: lvReadInt('ant-fy-'+i)===y0});
+  });
+  const nCorrect=subs.filter(x=>x.ok).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+/* Soutien : chaque case au fil de la frappe — et une case vide ne reçoit RIEN. */
+function antLive(){
+  if(test.kind!=='ant' || !isSoutien()) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  antCheck(q).subs.forEach(x=>{ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if((el.value||'').trim()!=='') el.classList.add(x.ok?'ok':'bad');
+  });
+}
+function submitAnt(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=antCheck(q);
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const mk=$('antMark'); mk.textContent='\u2717'; mk.className='mark bad show';
+    $('antCorr').textContent='Pas tout à fait \u2014 corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  /* la ligne de niveau se dessine maintenant, jamais avant : montrée pendant
+     la recherche, elle donnerait les croisements qu'on demande de trouver */
+  $('antGraph').innerHTML=antGraphSVG(q,true);
+  const mk=$('antMark'); mk.textContent=res.allOk?'\u2713':'\u2717'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('antValidate').disabled=true;
+  const ants=antAnts(q), Y=numFmt(q.y0), liste=ants.map(numFmt).join(' et ');
+  if(!res.allOk) $('antCorr').innerHTML='Le trait rouge montre la méthode : la ligne de niveau à la hauteur '+Y+' coupe la courbe au-dessus de '+liste+'. '+(ants.length===1?'L\u2019antécédent de '+Y+' est '+liste:'Les antécédents de '+Y+' sont '+liste)+'.';
+  else $('antCorr').innerHTML='<span class="lv-ok">Parfait \u2014 '+(ants.length===1?'l\u2019antécédent de '+Y+' est bien '+liste:'les antécédents de '+Y+' sont bien '+liste)+' !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Antécédents de '+Y+' \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'ant'});
+  test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderAnt(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
 }
 
 /* ---- Moteur : fin de test + écran de résultats (réintégrés) ---- */
@@ -9529,7 +9700,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderAnt','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

@@ -595,6 +595,37 @@ bleu d'une case vide s'écrivait avec l'encre d'une saisie ordinaire, sur
 {lecture-variations} aussi. La règle est posée maintenant, et elle répare les
 deux exercices d'un coup.
 
+**Et le chemin inverse de l'image est un autre exercice : les antécédents.**
+{antecedent-nombre} (Seconde, 2.3, demande de Turquet, août 2026) est repris de
+la fiche papier : on donne une HAUTEUR, et il faut retrouver le ou les nombres
+de départ. La méthode est le **trait horizontal — la ligne de niveau** : chaque
+point où il coupe la courbe donne un antécédent, lu en descendant sur l'axe des
+abscisses. La page le dessine à la VALIDATION, jamais avant — affiché pendant
+la recherche, il montrerait les croisements qu'on demande de trouver. Le dessin
+est celui de {lecture-variations}, comme pour l'image : un troisième moteur
+aurait fini par diverger.
+**Le risque propre à cet exercice est la hauteur ILLISIBLE.** La courbe est une
+spline qui passe par des points entiers : une hauteur strictement comprise
+entre deux valeurs voisines est traversée par la ligne de niveau ENTRE deux
+graduations — l'élève voit un croisement qu'il ne peut pas lire, et sa réponse
+juste serait comptée fausse, le pire défaut possible. `antCibles()` écarte ces
+hauteurs au TIRAGE, et le contrôle recompte les traversées par sa propre
+arithmétique sur chaque tirage.
+**L'ordre des antécédents est LIBRE**, et il le faut : rien à l'écran ne dit
+quelle case porte lequel. Chaque case se juge sur ce qu'elle PROMET — être l'un
+des antécédents attendus — et la liste les prend une fois chacun : le même
+antécédent posé deux fois est défendable une fois, faux la seconde. C'est la
+règle des paires de {somme-fractions}, transposée. Les cases restées sans
+correspondance reçoivent en partage les antécédents restants — la valeur que la
+correction en bleu écrira dedans.
+**La séance montre toujours les deux visages** : au moins une hauteur à UN
+antécédent (dite au singulier — « L'antécédent de 3 est … »), au moins une à
+PLUSIEURS — sans quoi l'élève apprend que la réponse est toujours du même
+genre. Éprouvé en le cassant huit fois : la hauteur illisible autorisée, la
+réponse rangée dans la question, une case qui ne se juge plus, l'ordre imposé,
+le doublon compté deux fois, la case vide colorée en soutien, la ligne absente,
+la ligne posée à la mauvaise hauteur — chacun rougit en nommant son défaut.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
