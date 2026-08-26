@@ -2710,12 +2710,29 @@ async function parcours(page, N){
           .concat(Object.keys(typeof RAPPELS_ID === 'undefined' ? {} : RAPPELS_ID)
             .map(i => ({ kind: null, id: i })));
         const kSauve = test ? test.kind : null, iSauve = currentTestId;
+        const dessins = [];
         for(const c of cles){
           if(c.kind && test) test.kind = c.kind;
           currentTestId = c.id;
           const brut = c.id ? RAPPELS_ID[c.id] : RAPPELS[c.kind];
-          if(String(brut || '').indexOf('\\(') < 0) continue;   /* ce rappel n'écrit aucune formule */
+          const aFormule = String(brut || '').indexOf('\\(') >= 0;
+          const aDessin  = String(brut || '').indexOf('<svg') >= 0;
+          if(!aFormule && !aDessin) continue;   /* ce rappel n'écrit ni formule ni dessin */
           hote.innerHTML = rappelHTML();
+          /* un rappel qui porte un DESSIN doit le dessiner, à taille lisible —
+             seul un vrai navigateur sait quelle place un SVG occupe vraiment */
+          if(aDessin){
+            const svgs = hote.querySelectorAll('svg');
+            let minW = 1e9, minH = 1e9;
+            svgs.forEach(sv => { const r = sv.getBoundingClientRect();
+              minW = Math.min(minW, r.width); minH = Math.min(minH, r.height); });
+            let rouges = 0;
+            hote.querySelectorAll('.ing-rouge').forEach(p => {
+              try{ const bb = p.getBBox(); if(bb.width > 5) rouges++; }catch(e){} });
+            dessins.push({ nom: c.id || c.kind, n: svgs.length,
+                           minW: Math.round(minW), minH: Math.round(minH), rouges: rouges });
+          }
+          if(!aFormule) continue;
           out.push({ nom: c.id || c.kind,
                      frac: hote.querySelectorAll('.ML__mfrac').length,
                      nu: /\\frac|\\\(|\\\)/.test(hote.textContent || ''),
@@ -2723,21 +2740,47 @@ async function parcours(page, N){
         }
         if(test) test.kind = kSauve; currentTestId = iSauve;
         hote.remove();
-        return out;
+        return { out: out, dessins: dessins };
       });
+      const rappelsDessins = rappels && rappels.dessins;
+      const rappelsOut = rappels && rappels.out;
       if(!ml){
         ignorer('les fractions des rappels de cours s\'affichent empilées', 'MathLive absent');
       } else if(rappels === null){
         verifier('les fractions des rappels de cours s\'affichent empilées', false,
           'RAPPELS ou rappelHTML() introuvable : le contrôle ne mesure rien');
-      } else if(!rappels.length){
+      } else if(!rappelsOut.length){
         ignorer('les fractions des rappels de cours s\'affichent empilées',
           'aucun rappel de ce niveau n\'écrit de formule');
       } else {
-        const muets = rappels.filter(r => r.frac === 0 || r.nu);
-        verifier('les fractions des rappels de cours s\'affichent empilées (' + rappels.length + ' rappels)',
+        const muets = rappelsOut.filter(r => r.frac === 0 || r.nu);
+        verifier('les fractions des rappels de cours s\'affichent empilées (' + rappelsOut.length + ' rappels)',
           muets.length === 0,
           muets.map(r => r.nom + ' : « ' + r.extrait + ' »').slice(0, 2).join(' | '));
+      }
+      /* ===== 12b. les dessins des rappels sont réellement DESSINÉS ===== */
+      /* Le rappel de l'inéquation graphique montre les quatre dessins de
+         l'exercice : chacun doit occuper une vraie place à l'écran (un CSS
+         perdu les rendrait minuscules ou invisibles sans qu'aucune erreur ne
+         se lève), et ses morceaux rouges doivent avoir une étendue. Un rappel
+         à dessins ajouté demain est couvert sans rien déclarer. */
+      if(rappels === null){
+        /* déjà signalé au contrôle des fractions */
+      } else if(!rappelsDessins || !rappelsDessins.length){
+        verifier('un rappel qui porte un dessin le dessine, à taille lisible', false,
+          'aucun rappel ne porte de dessin — celui de l\'inéquation graphique devrait');
+      } else {
+        const petits = rappelsDessins.filter(d => d.minW < 180 || d.minH < 90);
+        const ing = rappelsDessins.find(d => d.nom === 'ing');
+        const fautes = [];
+        if(petits.length) fautes.push(petits.map(d => d.nom + ' : ' + d.minW + '×' + d.minH + ' px').join(', '));
+        if(!ing) fautes.push('le rappel de l\'inéquation graphique ne porte aucun dessin');
+        else{
+          if(ing.n !== 4) fautes.push('le rappel de l\'inéquation graphique montre ' + ing.n + ' dessin(s) au lieu de 4');
+          if(ing.rouges !== 6) fautes.push(ing.rouges + ' morceau(x) rouge(s) visibles au lieu de 6 (1+1+2+2)');
+        }
+        verifier('un rappel qui porte un dessin le dessine, à taille lisible (' + rappelsDessins.length + ' rappel(s))',
+          fautes.length === 0, fautes.slice(0, 2).join(' | '));
       }
 
       verifier('mesurer la mise en page de l\'IA ne lève aucune erreur JavaScript',

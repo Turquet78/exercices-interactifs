@@ -2281,7 +2281,15 @@ function exercices(suite){
        On n'inspecte que les DEUX sources de texte pur — descriptions et rappels.
        Le contexte envoyé au modèle en est exclu : il est truffé de décimales
        (coordonnées de tracé, bornes d'intervalle) qu'aucune règle ne distingue
-       d'une référence. C'est un manque assumé, pas un oubli. */
+       d'une référence. C'est un manque assumé, pas un oubli.
+       Un rappel s'inspecte sur son texte, BALISES RETIRÉES — remplacées par une
+       espace, jamais lues : depuis que le rappel de l'inéquation graphique
+       porte ses dessins, la chaîne brute est truffée des mêmes décimales de
+       tracé que le contexte — « 70.4 » y est une coordonnée dans un attribut,
+       pas un numéro que l'élève lit. L'espace de remplacement compte : un
+       textContent nu COLLE deux paragraphes voisins, et « …n+1.</p><p>2.
+       Remplacer… » fabriquait le faux numéro « 1.2 » dans un rappel de la
+       Terminale. Un numéro écrit dans le texte, lui, reste attrapé. */
     verifierEval(w, 'aucun numéro d\'exercice écrit en dur dans un texte vu par l\'élève', `(function(){
       var fautifs=[], suspect=/\\d+\\.\\d+(?:\\.\\d+)?/;
       Object.keys(TESTS).forEach(function(id){
@@ -2292,7 +2300,7 @@ function exercices(suite){
        ['RAPPELS_ID', typeof RAPPELS_ID!=='undefined'?RAPPELS_ID:null]].forEach(function(t){
         if(!t[1]) return;
         Object.keys(t[1]).forEach(function(k){
-          var v=t[1][k]; v=String((typeof v==='function'?v():v)||'');
+          var v=t[1][k]; v=String((typeof v==='function'?v():v)||'').replace(/<[^>]*>/g,' ');
           if(suspect.test(v)) fautifs.push(t[0]+'.'+k+' cite '+v.match(suspect)[0]);
         });
       });
@@ -4001,7 +4009,41 @@ function inequationGraphique(w, P){
     const okD=function(id){ return res2.subs.filter(function(s){ return s.id===id; })[0].ok; };
     if(okD('ing-d1')&&okD('ing-d3')) vus.push('les deux phrases décrivent le même morceau et sont comptées justes toutes les deux');
 
-    /* ---- 5. en soutien : la frappe colore, la case vide ne reçoit RIEN, et
+    /* ---- 5. le rappel de cours MONTRE les quatre dessins, et chaque légende
+       dit exactement SON dessin — le pire défaut serait la légende « ≥ »
+       posée sous le dessin des ronds vides : l'élève apprendrait l'inverse.
+       On lit le signe dans la légende, on exige que le dessin le dise aussi
+       (morceaux, points pleins, ronds vides), et que la solution écrite soit
+       celle qu'ingPlain() calcule sur les données mêmes du dessin. ---- */
+    const rap=document.createElement('div');
+    rap.innerHTML=(typeof RAPPELS!=='undefined' && RAPPELS.ing) ? RAPPELS.ing : '';
+    const figs=rap.querySelectorAll('.rap-ing-fig');
+    if(figs.length!==4) vus.push('le rappel montre '+figs.length+' dessin(s) au lieu de 4');
+    else if(typeof RAP_ING_EX==='undefined') vus.push('RAP_ING_EX introuvable : le contrôle ne peut pas relier les légendes aux dessins');
+    else{
+      const OPS={'≥':'ge','>':'gt','≤':'le','<':'lt'};
+      const signesVus=[];
+      Array.prototype.forEach.call(figs, function(f,i){
+        const leg=(f.querySelector('figcaption')||{textContent:''}).textContent;
+        const m=leg.match(/f\\s*\\(x\\)\\s*([≥>≤<])/);
+        if(!m){ vus.push('dessin '+(i+1)+' du rappel : la légende ne dit pas son signe'); return; }
+        const op=OPS[m[1]]; signesVus.push(op);
+        const dessus=(op==='ge'||op==='gt'), pris=(op==='ge'||op==='le');
+        const rouges=f.querySelectorAll('.ing-rouge').length;
+        if(rouges!==(dessus?1:2)) vus.push('rappel, dessin « '+m[1]+' » : '+rouges+' morceau(x) rouge(s) au lieu de '+(dessus?1:2));
+        const pleins=f.querySelectorAll('.ing-pt').length, vides=f.querySelectorAll('.ing-vide').length;
+        const attP=(pris?2:0)+(dessus?0:2), attV=(pris?0:2);
+        if(pleins!==attP||vides!==attV)
+          vus.push('rappel, dessin « '+m[1]+' » : '+pleins+' plein(s) et '+vides+' vide(s) au lieu de '+attP+' et '+attV+' — la légende dit le contraire du dessin');
+        if(!f.querySelector('.ing-niv')) vus.push('rappel, dessin « '+m[1]+' » : la droite horizontale manque');
+        const S=ingPlain({pts:RAP_ING_EX.pts, k:RAP_ING_EX.k, op:op});
+        if(leg.indexOf(S)<0) vus.push('rappel, dessin « '+m[1]+' » : la légende n\\'écrit pas la solution de SON dessin ('+S+')');
+      });
+      if(signesVus.slice().sort().join(',')!=='ge,gt,le,lt')
+        vus.push('les quatre signes ne sont pas tous illustrés dans le rappel : '+signesVus.join(','));
+    }
+
+    /* ---- 6. en soutien : la frappe colore, la case vide ne reçoit RIEN, et
        une copie incomplète laisse corriger. ---- */
     currentMode='soutien';
     poser(2,{'ing-d1':-3,'ing-p1':'oui','ing-d2':x1+1});
