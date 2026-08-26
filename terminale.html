@@ -944,6 +944,13 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .tg-tan{fill:none;stroke:var(--ink-soft);stroke-width:1.7;stroke-dasharray:6 4;stroke-linecap:round;}
 .tg-form{font-family:'Nunito',sans-serif;color:var(--ink);font-size:1rem;}
 .tg-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0;font-weight:600;}
+/* ---- Devoir : l'énoncé complet, papier ou ordinateur ---- */
+.dme-q{border:1.5px solid var(--grid);border-radius:14px;padding:12px 16px;margin:12px 0;background:#fff}
+.dme-qnum{font-weight:800;color:var(--blue-dark);margin-bottom:6px}
+.dme-blank{display:inline-block;min-width:90px;height:1.15em;border-bottom:2px dotted var(--ink-soft);vertical-align:middle;margin:0 4px}
+.dme-ok{color:var(--green);font-weight:800;display:inline-flex;align-items:center}
+.dme-corps .lv-tblwrap{overflow-x:auto}
+
 /* ---- Étude complète (ax+b)e^(−x) : fractions sur e, parties, graphique ---- */
 .ec-graph{max-width:380px;margin:0 auto 6px}
 .ec-graph svg{width:100%;height:auto;display:block}
@@ -1628,6 +1635,16 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <section class="screen" id="scr-dmenonce">
+    <div class="card">
+      <button class="btn-link" onclick="dmeRetour()">← Retour</button>
+      <h3 id="dmeTitre" style="margin:8px 0 4px"></h3>
+      <p class="lead" id="dmeIntro"></p>
+      <div id="dmeCorps" class="dme-corps"></div>
+      <div class="row" style="justify-content:center;gap:12px;margin-top:16px;flex-wrap:wrap" id="dmeActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-ec">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ecModeTag"></span><span class="q-idx" id="ecQIdx">Question 1 / 1</span></span>
@@ -2032,7 +2049,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=248;
+const APP_VERSION=249;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3008,13 +3025,137 @@ function openTheme(num){
   show('theme');
 }
 /* ---------- Devoir à la maison (élève) ---------- */
+/* Les DEUX portes d'un exercice de devoir — le panneau de l'accueil et la page
+   du devoir — passent par l'ÉNONCÉ d'abord (demande de Turquet, août 2026) :
+   une seule porte détournée aurait laissé l'autre lancer l'exercice sans le
+   choix papier/ordinateur, et personne ne l'aurait vu. */
 function lancerDevoir(devoirId, id, mode){
+  dmEnonce(devoirId, id, function(){ lancerDevoirOrdinateur(devoirId, id, mode); });
+}
+function lancerDevoirOrdinateur(devoirId, id, mode){
   const t=TESTS[id]; if(!t||!t.start) return;
   currentThemeNum=themeOfTest(id)||currentThemeNum;
   currentDM=devoirId||true;                    // la tentative est étiquetée avec l'id du devoir
   currentMode=(mode==='train')?'train':'soutien';
   currentTestId=id;
   t.start();
+}
+/* ---------- Devoir : l'énoncé complet d'abord, puis papier ou ordinateur ----------
+   Quand un exercice est un exercice de devoir, l'élève voit D'ABORD l'énoncé
+   entier — toutes les questions — puis choisit : sur papier, ou sur
+   l'ordinateur (demande de Turquet, août 2026).
+   Le tirage montré est fait par la porte NORMALE (TESTS[id].start()), puis
+   photographié question par question par la porte du REJEU (afficherEcranDe) :
+   réutiliser les rendus mêmes de l'exercice garantit qu'un énoncé ne peut pas
+   diverger de l'exercice, et un exercice ajouté demain est couvert sans rien
+   déclarer. Les cases de saisie deviennent des pointillés.
+   S'il choisit le PAPIER, l'énoncé part au professeur par le canal des
+   signalements — la table existe, l'élève a le droit d'y écrire, et le
+   professeur la lit déjà dans son tableau de bord : aucune migration à jouer
+   (la leçon de la 003). L'instantané envoyé porte le tirage EXACT montré à
+   l'élève : c'est cette version-là que le professeur corrigera sur la feuille.
+   S'il choisit l'ORDINATEUR, la suite est le chemin d'avant, inchangé — choix
+   du mode, reprises de pause comprises (le tirage de l'aperçu est jeté : c'est
+   l'exercice qui se joue qui fait foi, comme d'habitude). */
+let dmeCtx=null;
+async function dmEnonce(devoirId, testId, continuer){
+  const t=TESTS[testId]; if(!t||!t.start){ return; }
+  currentThemeNum=themeOfTest(testId)||currentThemeNum;
+  currentTestId=testId; currentMode='train'; currentDM=devoirId;
+  try{ await Promise.resolve(t.start()); }catch(e){ toast('Exercice indisponible','err'); return; }
+  const corps=dmEnonceHTML();
+  /* un exercice qui ne sait pas se rejouer ne sait pas s'énoncer : on continue
+     comme d'habitude plutôt que d'enfermer l'élève sur un écran vide */
+  if(corps==null){ if(continuer) continuer(); return; }
+  /* un exercice à chronomètre a démarré son minuteur au tirage : on le coupe,
+     sans quoi il avancerait tout seul derrière l'écran d'énoncé */
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  dmeCtx={devoirId:devoirId, testId:testId, continuer:continuer, envoye:false};
+  $('dmeTitre').textContent=testLabel(testId);
+  $('dmeIntro').textContent='Voici l’énoncé complet, avec toutes les questions. Tu peux le faire sur ta feuille — ton professeur recevra alors CET énoncé, avec ton prénom — ou sur l’ordinateur, comme d’habitude.';
+  $('dmeCorps').innerHTML=corps;
+  $('dmeActions').innerHTML=
+    '<button class="btn btn-primary" id="dmeOrdiBtn" onclick="dmeOrdinateur()">💻 Le faire sur l’ordinateur</button>'
+   +'<button class="btn btn-ghost" id="dmePapierBtn" onclick="dmePapier()">📄 Le faire sur papier</button>';
+  show('dmenonce');
+}
+/* Une question rendue, photographiée sans ses commandes : les cases de saisie
+   (et la feuille de rédaction) deviennent des pointillés, les boutons et les
+   retours disparaissent. */
+function dmEnonceQ(section){
+  const c=section.cloneNode(true);
+  c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,button').forEach(function(e){ e.remove(); });
+  c.querySelectorAll('input,select,math-field,.dexp2-sheet').forEach(function(e){
+    const b=document.createElement('span'); b.className='dme-blank'; e.replaceWith(b); });
+  return c.innerHTML;
+}
+function dmEnonceHTML(){
+  const n=(test.questions||[]).length; if(!n) return null;
+  let out='';
+  for(let i=0;i<n;i++){
+    test.idx=i;
+    if(!afficherEcranDe(test.kind)) return null;
+    const scr=document.querySelector('.screen.on'); if(!scr) return null;
+    out+='<div class="dme-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+' / '+n+'</div>':'')+dmEnonceQ(scr)+'</div>';
+  }
+  test.idx=0; afficherEcranDe(test.kind);
+  return out;
+}
+function dmeOrdinateur(){ const c=dmeCtx; dmeCtx=null; if(c&&c.continuer) c.continuer(); }
+function dmeRetour(){
+  const c=dmeCtx; dmeCtx=null;
+  if(!c){ show('teacher'); return; }           /* vue professeur : retour au tableau de bord */
+  currentDM=null; ouvrirDevoirDetail(c.devoirId);
+}
+async function dmePapier(){
+  const c=dmeCtx; if(!c||c.envoye) return;
+  const bo=$('dmeOrdiBtn'), bp=$('dmePapierBtn');
+  if(bp) bp.disabled=true;
+  const dev=(mesDevoirs||[]).find(function(d){ return d.id===c.devoirId; });
+  const payload=signalementPayload('DM sur papier — '+((currentEleve&&currentEleve.prenom)||'élève')
+    +(dev&&dev.num!=null?' — Devoir n°'+dev.num:'')+' — '+testLabel(c.testId), null);
+  payload.mode=null;                            /* un devoir sur papier n'a pas de mode */
+  payload.contexte=payload.contexte||{};
+  payload.contexte.dmPapier=true; payload.contexte.dm=c.devoirId;
+  try{
+    /* insert SEC, et l'échec se DIT : annoncer un envoi qui n'a pas eu lieu
+       laisserait l'élève rendre une feuille dont le professeur n'a pas
+       l'énoncé — le refus muet, encore. */
+    const {error}=await sb.from(TABLE_SIG).insert(payload);
+    if(error){ toast('Énoncé non envoyé : '+(error.message||'erreur')+' — réessaie.','err'); if(bp) bp.disabled=false; return; }
+    c.envoye=true;
+    if(bo) bo.remove();
+    $('dmeIntro').textContent='Ton professeur a reçu cet énoncé, avec ton prénom. Recopie les questions sur ta feuille : c’est cette version-là qu’il corrigera.';
+    $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé envoyé au professeur</span>'
+      +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
+    toast('Énoncé envoyé au professeur','ok');
+  }catch(e){ toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; }
+}
+/* L'énoncé d'un DM sur papier, côté professeur : la photo envoyée par
+   l'élève, rendue par le MÊME capteur que l'écran de l'élève (dmEnonceHTML) —
+   deux rendus auraient fini par diverger. REJEU verrouille les notes : le
+   professeur est connecté à SON compte, et la boucle de capture rejoue de
+   vrais écrans d'exercice. */
+function voirEnonceDM(id){
+  const r=mesSignalements.find(function(x){ return x.id===id; });
+  if(!r || !r.contexte || !r.contexte.kind){ toast('Cet énoncé ne peut pas être affiché','err'); return; }
+  const d=r.contexte;
+  REJEU=true;
+  currentTestId=r.exercice; currentMode='train'; currentDM=null;
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
+  const skip={_boxes:1}; Object.keys(d).forEach(function(k){ if(!skip[k]) test[k]=d[k]; });
+  test.startTime=Date.now(); test.locked=false;
+  try{ rehydrateQuestions(); }catch(e){}
+  const corps=dmEnonceHTML();
+  if(corps==null){ toast('Cet énoncé ne peut pas être affiché','err'); return; }
+  dmeCtx=null;
+  $('dmeTitre').textContent='📄 '+(r.prenom||'élève')+' — '+testLabel(r.exercice);
+  $('dmeIntro').textContent='Voici l’énoncé exact que cet élève a reçu pour son devoir sur papier : c’est cette version-là qu’il traite sur sa feuille.';
+  $('dmeCorps').innerHTML=corps;
+  $('dmeActions').innerHTML='<button class="btn btn-ghost" onclick="dmeRetour()">← Retour au tableau de bord</button>';
+  show('dmenonce');
 }
 /* Ouvre la page « Devoirs à la maison » du portail (adresse à ajuster si besoin). */
 const PAGE_DEVOIRS_URL='https://turquet-math974.netlify.app/#/terminale/devoirs';
@@ -3485,7 +3626,7 @@ function show(name){
   const ab=$('abandonBtn'); if(ab) ab.hidden=!canPause;
   $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='dmenonce'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -3944,16 +4085,22 @@ function renderSignalements(){
        par escJS() partout où il approche un attribut onclick — c'est le piège
        « O'Brien », qui a déjà tué un bouton du professeur. */
     const q=r.contexte&&r.contexte.idx!=null ? ' · question '+(r.contexte.idx+1) : '';
+    /* Un DM sur papier arrive par ce même canal : il se DISTINGUE d'un
+       signalement — le professeur y cherche l'énoncé à corriger, pas un
+       problème à rejouer. */
+    const estPapier=!!(r.contexte&&r.contexte.dmPapier);
     return `<div class="sig-item ${r.lu?'':'nonlu'}">
       <div class="sig-head">
-        <span class="sig-exo">${esc((r.numero?r.numero+' · ':'')+testName(r.exercice))}</span>
+        <span class="sig-exo">${estPapier?'📄 ':''}${esc((r.numero?r.numero+' · ':'')+testName(r.exercice))}</span>
         <span class="sig-qui">${esc(r.prenom)}</span>
-        <span class="sig-quand">${esc(fmtDate(r.created_at))}${esc(q)}</span>
+        <span class="sig-quand">${esc(fmtDate(r.created_at))}${estPapier?'':esc(q)}</span>
       </div>
       <div class="sig-msg">${esc(r.message)}</div>
-      <div class="sig-meta">${esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
+      <div class="sig-meta">${esc(estPapier?'devoir sur papier':modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
       <div class="sig-actions">
-        <button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l’écran</button>
+        ${estPapier
+          ? `<button class="btn btn-sm btn-primary" onclick="voirEnonceDM('${escJS(r.id)}')">Voir l’énoncé complet</button>`
+          : `<button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l’écran</button>`}
         ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d\u2019\u00e9cran</button>`:''}
         ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
@@ -4204,7 +4351,10 @@ function renderDevoirDetail(devoirId){
     <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
 }
-async function openTestDevoir(devoirId, testId){
+function openTestDevoir(devoirId, testId){
+  dmEnonce(devoirId, testId, function(){ openTestDevoirModes(devoirId, testId); });
+}
+async function openTestDevoirModes(devoirId, testId){
   currentTestId=testId; currentDM=devoirId;
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;

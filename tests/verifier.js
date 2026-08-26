@@ -2665,7 +2665,7 @@ function etudeCompleteClique(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('l\'étude complète cliquée : la note compte les cases ET la dérivée lue par l\'IA',
       'ce niveau n\'a pas l\'exercice de l\'étude complète');
-    return longueurContexteIA(w, apres);
+    return devoirPapierClique(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -2729,6 +2729,119 @@ function etudeCompleteClique(w, apres){
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
     const nom='l\'étude complète cliquée : la note compte les cases ET la dérivée lue par l\'IA';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    devoirPapierClique(w, apres);
+  });
+}
+/* ---------- Le devoir sur papier : l'énoncé d'abord, et il part avec le prénom ----------
+   En Terminale, un exercice de devoir montre D'ABORD son énoncé complet —
+   toutes les questions, cases remplacées par des pointillés — puis l'élève
+   choisit : papier ou ordinateur. Papier : l'énoncé part au professeur par le
+   canal des signalements, avec le prénom et le tirage EXACT montré — c'est ce
+   que le professeur corrigera. Le contrôle joue le parcours entier : les deux
+   portes d'entrée, l'affichage, le choix ordinateur, l'envoi papier (prénom,
+   marque dmPapier, tirage fidèle, double clic muet, échec DIT), puis la vue
+   professeur (ligne distinguée, énoncé rejoué, verrou REJEU). Il vit dans la
+   chaîne séquentielle parce qu'il remplace sb — le piège documenté. */
+function devoirPapierClique(w, apres){
+  const present = evaluer(w, "typeof dmEnonce==='function' && typeof dmePapier==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le devoir sur papier : l\'énoncé d\'abord, et il part avec le prénom',
+      'ce niveau n\'a pas le choix papier/ordinateur des devoirs');
+    return longueurContexteIA(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Léa'}; currentMode='train'; currentDM=null;
+    mesDevoirs=[{id:'dev-1', num:7, titre:'Contrôle', actif:true, exercices:[{id:'tangente-exp',modes:['train']}]}];
+    let continuerAppels=0;
+
+    /* ---- 1. l'énoncé complet s'affiche, sans une seule case de saisie ---- */
+    await dmEnonce('dev-1','tangente-exp', function(){ continuerAppels++; });
+    const on=document.querySelector('.screen.on');
+    if(!on||on.id!=='scr-dmenonce') vus.push('l\\'écran d\\'énoncé ne s\\'affiche pas ('+(on?on.id:'aucun')+')');
+    const nb=document.querySelectorAll('#dmeCorps .dme-q').length;
+    if(nb!==3) vus.push(nb+' question(s) dans l\\'énoncé au lieu de 3');
+    if(document.querySelector('#dmeCorps input,#dmeCorps select,#dmeCorps math-field,#dmeCorps button'))
+      vus.push('l\\'énoncé garde des cases de saisie ou des boutons');
+    if(!document.querySelector('#dmeCorps .dme-blank')) vus.push('aucun pointillé : les cases ne sont pas remplacées');
+    if((document.getElementById('dmeCorps').textContent||'').indexOf('Démontre que')<0)
+      vus.push('l\\'énoncé ne porte pas le texte des questions');
+
+    /* ---- 2. « sur l'ordinateur » : la suite d'avant, inchangée ---- */
+    dmeOrdinateur();
+    if(continuerAppels!==1) vus.push('« sur l\\'ordinateur » n\\'appelle pas la suite normale ('+continuerAppels+')');
+
+    /* ---- 3. « sur papier » : la ligne part, prénom + marque + tirage exact ---- */
+    await dmEnonce('dev-1','tangente-exp', function(){ continuerAppels++; });
+    const tirage=test.questions.map(function(q){ return q.a+'/'+q.b; }).join(';');
+    await dmePapier();
+    let lignes=(window.__faux.journal||[]).filter(function(j){ return j.op==='insert'&&j.table==='signalements'; });
+    let row=null;
+    if(lignes.length!==1){ vus.push(lignes.length+' insertion(s) au lieu de 1'); }
+    else{
+      row=lignes[0].lignes[0];
+      const msg=String(row.message||'');
+      if(msg.indexOf('Léa')<0) vus.push('le message ne porte pas le prénom : « '+msg+' »');
+      if(msg.indexOf('DM sur papier')<0) vus.push('le message ne dit pas « DM sur papier »');
+      if(msg.indexOf('Devoir n°7')<0) vus.push('le message ne nomme pas le devoir');
+      if(!row.contexte||row.contexte.dmPapier!==true) vus.push('la ligne ne porte pas la marque dmPapier');
+      if(!row.contexte||row.contexte.dm!=='dev-1') vus.push('la ligne ne porte pas l\\'identifiant du devoir');
+      const envoye=((row.contexte&&row.contexte.questions)||[]).map(function(q){ return q.a+'/'+q.b; }).join(';');
+      if(envoye!==tirage) vus.push('le tirage envoyé n\\'est pas celui montré à l\\'élève ('+envoye+' contre '+tirage+')');
+    }
+    await dmePapier();   /* second clic : rien ne repart */
+    lignes=(window.__faux.journal||[]).filter(function(j){ return j.op==='insert'&&j.table==='signalements'; });
+    if(lignes.length!==1) vus.push('un second clic envoie une seconde ligne ('+lignes.length+')');
+
+    /* ---- 4. l'échec d'envoi se DIT, et ne se fait pas passer pour un succès ---- */
+    await dmEnonce('dev-1','tangente-exp', function(){});
+    const vraiToast=toast, dits=[];
+    toast=function(m,t){ dits.push((t||'ok')+':'+m); };
+    window.__faux.panne=true;
+    await dmePapier();
+    window.__faux.panne=false; toast=vraiToast;
+    if(!dits.some(function(t){ return /^err:/.test(t); })) vus.push('l\\'échec d\\'envoi n\\'est pas dit à l\\'élève : '+dits.join(' ¦ '));
+    if(dits.some(function(t){ return /^ok:/.test(t); })) vus.push('l\\'échec d\\'envoi est annoncé comme un succès : '+dits.join(' ¦ '));
+    if(dmeCtx&&dmeCtx.envoye) vus.push('l\\'échec d\\'envoi marque quand même « envoyé »');
+    dmeCtx=null;
+
+    /* ---- 5. les DEUX portes d'un devoir passent par l'énoncé ---- */
+    const vraiDme=dmEnonce; let passes=0;
+    dmEnonce=async function(){ passes++; };
+    try{ lancerDevoir('dev-1','tangente-exp','train'); openTestDevoir('dev-1','tangente-exp'); }
+    finally{ dmEnonce=vraiDme; }
+    if(passes!==2) vus.push('une porte de devoir contourne l\\'écran d\\'énoncé ('+passes+'/2)');
+
+    /* ---- 6. côté professeur : la ligne se distingue, l'énoncé se rejoue, REJEU posé ---- */
+    if(row){
+      mesSignalements=[{id:'sig-1', eleve_id:'e2', exercice:'tangente-exp', numero:'5.2', mode:null,
+        message:row.message, prenom:'Léa', lu:false, created_at:'2026-08-26T08:00:00Z',
+        version:1, navigateur:'x', capture:null, contexte:row.contexte}];
+      renderSignalements();
+      const item=document.querySelector('#sigListe .sig-item');
+      if(!item){ vus.push('la liste des signalements du professeur est vide'); }
+      else{
+        if((item.textContent||'').indexOf('devoir sur papier')<0) vus.push('la ligne DM papier ne se distingue pas d\\'un signalement');
+        if(!item.querySelector('button[onclick*="voirEnonceDM"]')) vus.push('pas de bouton « Voir l\\'énoncé complet »');
+        if(item.querySelector('button[onclick*="rejouerSignalement"]')) vus.push('la ligne papier propose encore « Rejouer l\\'écran »');
+      }
+      REJEU=false;
+      voirEnonceDM('sig-1');
+      if(REJEU!==true) vus.push('la vue professeur ne pose pas le verrou REJEU — terminer un écran rejoué poserait une note');
+      const on2=document.querySelector('.screen.on');
+      if(!on2||on2.id!=='scr-dmenonce') vus.push('la vue professeur n\\'affiche pas l\\'écran d\\'énoncé');
+      if((document.getElementById('dmeTitre').textContent||'').indexOf('Léa')<0) vus.push('le prénom de l\\'élève manque sur l\\'énoncé du professeur');
+      const nb2=document.querySelectorAll('#dmeCorps .dme-q').length;
+      if(nb2!==3) vus.push('la vue professeur montre '+nb2+' question(s) au lieu de 3');
+      REJEU=false;
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
+    const nom='le devoir sur papier : l\'énoncé d\'abord, et il part avec le prénom';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
     longueurContexteIA(w, apres);

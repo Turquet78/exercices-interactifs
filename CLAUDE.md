@@ -2212,6 +2212,47 @@ on vise le TITRE de la partie d), et la dérivée cherchée dans tout l'attendu
 non plus (la moitié « autre ordre » la portait encore — on exige chaque
 moitié).
 
+**Un exercice de devoir montre d'abord son énoncé — et le papier est un choix.**
+En Terminale, un exercice lancé depuis un devoir affiche D'ABORD l'énoncé
+complet, toutes les questions, puis demande : sur papier, ou sur l'ordinateur
+(demande de Turquet, août 2026). Les énoncés étant TIRÉS au hasard, le
+professeur ne peut corriger une feuille que s'il reçoit le tirage exact de
+l'élève : c'est toute la raison du circuit.
+**Le tirage montré est fait par la porte normale** (`TESTS[id].start()`), puis
+photographié question par question par la porte du REJEU (`afficherEcranDe`) —
+les cases de saisie deviennent des pointillés, les boutons disparaissent.
+Réutiliser les rendus mêmes de l'exercice garantit qu'un énoncé ne peut pas
+diverger de l'exercice, et un exercice ajouté demain est couvert sans rien
+déclarer ; un exercice dont le kind est inconnu du rejeu retombe sur le chemin
+d'avant au lieu d'enfermer l'élève sur un écran vide. Le minuteur d'un
+exercice à chronomètre est COUPÉ après la capture — il aurait avancé tout seul
+derrière l'écran d'énoncé.
+**Le papier part par le canal des signalements** — la table existe, l'élève a
+le droit d'y écrire, le professeur la lit déjà : aucune migration à jouer, la
+leçon de la 003 prise à l'envers. La ligne porte le prénom dans son message,
+la marque `dmPapier` et l'identifiant du devoir dans son contexte, et
+l'instantané du tirage EXACT montré à l'élève. L'échec d'envoi se DIT et ne se
+fait pas passer pour un succès (le refus muet, encore), et un second clic
+n'envoie pas une seconde ligne.
+**Côté professeur, la ligne se DISTINGUE d'un signalement** — pastille 📄,
+« devoir sur papier », bouton « Voir l'énoncé complet » au lieu de « Rejouer
+l'écran » — et l'énoncé s'affiche par le MÊME capteur que l'écran de l'élève :
+deux rendus auraient fini par diverger. REJEU est posé avant la capture — la
+boucle rejoue de vrais écrans d'exercice sous le compte du professeur.
+**Les DEUX portes d'un exercice de devoir passent par l'énoncé** — le panneau
+de l'accueil et la page du devoir : une seule porte détournée aurait laissé
+l'autre lancer l'exercice sans le choix, et personne ne l'aurait vu. « Sur
+l'ordinateur » rend exactement le chemin d'avant, reprises de pause comprises ;
+le tirage de l'aperçu est jeté, c'est l'exercice qui se joue qui fait foi.
+Éprouvé en le cassant dix fois : l'énoncé réduit à sa première question, les
+cases restées interactives, le prénom absent, l'échec d'envoi avalé, le double
+clic qui double la ligne, la marque dmPapier perdue, la porte qui contourne
+l'énoncé, le verrou REJEU oublié, la ligne du professeur non distinguée, le
+tirage envoyé qui n'est pas celui montré — chacun rougit en nommant son
+défaut. Un piège d'outillage s'est montré dans le SCRIPT DE VUE, pas dans la
+page : `Object.assign({id:'s1'}, ligne)` laissait l'id du double écraser celui
+du script, et la vue accusait la page d'un défaut qu'elle n'avait pas.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
