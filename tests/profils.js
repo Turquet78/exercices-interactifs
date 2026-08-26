@@ -540,7 +540,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','devoirs','mode',
+    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','devoirs','mode','dmenonce',
                         'results','teacher-login','teacher',
                         /* choix du niveau de « Signe du second degré » : un menu, pas un exercice */
                         's2lvl'],
