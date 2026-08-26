@@ -626,6 +626,50 @@ réponse rangée dans la question, une case qui ne se juge plus, l'ordre imposé
 le doublon compté deux fois, la case vide colorée en soutien, la ligne absente,
 la ligne posée à la mauvaise hauteur — chacun rougit en nommant son défaut.
 
+**Résoudre une inéquation, c'est d'abord choisir le dessin qui la montre.**
+{inequation-graphique} (Seconde, 2.4, demande de Turquet, août 2026) est repris
+de la fiche papier : UNE courbe, la droite y = k, et quatre dessins qui ne
+diffèrent que par leur partie rouge — au-dessus ou au-dessous de la droite,
+croisements en point PLEIN (pris) ou rond VIDE (exclu) — puis quatre
+sous-questions dans l'ordre de la fiche (≥, >, ≤, <) : choisir le dessin, dire
+où la partie rouge commence et s'arrête (et s'il faut prendre ces nombres),
+écrire S. Tout se choisit dans des propositions, jamais tapé — la règle des
+intervalles. Le dessin est celui de {lecture-variations}, comme l'image et les
+antécédents ; `lvPath` a seulement appris à ne dessiner qu'un MORCEAU de la
+courbe, les tangentes restant calculées sur la courbe entière pour que le rouge
+se superpose exactement au noir.
+**L'ordre des quatre dessins est tiré UNE fois par séance et CONSERVÉ pour les
+quatre sous-questions** (demande de Turquet, août 2026). Les deux bords sont
+tenus, parce que chacun a son défaut : re-tiré à chaque question, le dessin (a)
+de la question 2 ne serait plus celui de la question 1 — le tableau changerait
+sous les yeux de l'élève ; figé dans le code, le dessin de ≥ tomberait toujours
+au même rang et l'élève apprendrait le rang — la leçon d'{intervalles-inegalite},
+« à forme égale le rang change », transposée à la séance.
+**La bonne réponse n'est jamais rangée à côté de la question** : elle ne porte
+que la courbe, la hauteur, l'ordre et le signe ; `ingBornes()` relit les deux
+croisements dans les données mêmes qui dessinent la courbe, et le contrôle
+refuse tout autre champ. Le tirage pose les croisements PILE sur des
+graduations — la spline est monotone entre deux points voisins, c'est la leçon
+d'`antCibles()` —, jamais au bord (un morceau du dessous serait vide), et
+jamais k = 0 : la droite serait posée SUR l'axe des abscisses, invisible, ses
+marques sur les étiquettes — vu sur une capture, pas au banc.
+**L'ordre des DEUX morceaux du dessous est libre**, phrases et solution
+indépendamment : rien à l'écran ne dit si la première phrase décrit le morceau
+de gauche ou celui de droite. Chaque groupe de quatre cases se juge sur le
+morceau qu'il décrit le MIEUX, et les deux ne peuvent pas décrire le même —
+la règle des paires, transposée aux groupes. Le contrôle MESURE les quatre
+dessins contre les graduations du dessin même (aucune coordonnée recopiée),
+exige la même courbe noire sur les quatre, puis CLIQUE « Vérifier » — la leçon
+des sommes : les contrôles lisaient le verdict, l'élève regarde la couleur.
+Éprouvé en le cassant onze fois : l'ordre non mélangé, l'ordre re-tiré à chaque
+question, le croisement au bord, la réponse rangée dans la question, les
+marques inversées, le morceau rouge décalé, la case vide rougie, l'ordre des
+morceaux imposé, la case qui accepte l'un OU l'autre morceau, les bouts de la
+courbe sans leurs points, la droite sur l'axe — chacun rougit en nommant son
+défaut. Un défaut de mise en page ne s'est vu que sur une capture : dans la
+colonne de 560 px des intervalles, « il faut [le prendre] » se repliait sous sa
+phrase — les lignes de cet écran sont élargies.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
