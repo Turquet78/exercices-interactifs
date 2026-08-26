@@ -2740,7 +2740,8 @@ async function parcours(page, N){
         }
         if(test) test.kind = kSauve; currentTestId = iSauve;
         hote.remove();
-        return { out: out, dessins: dessins };
+        return { out: out, dessins: dessins,
+                 ingAttendu: !!(typeof RAPPELS !== 'undefined' && RAPPELS.ing) };
       });
       const rappelsDessins = rappels && rappels.dessins;
       const rappelsOut = rappels && rappels.out;
@@ -2763,19 +2764,28 @@ async function parcours(page, N){
          l'exercice : chacun doit occuper une vraie place à l'écran (un CSS
          perdu les rendrait minuscules ou invisibles sans qu'aucune erreur ne
          se lève), et ses morceaux rouges doivent avoir une étendue. Un rappel
-         à dessins ajouté demain est couvert sans rien déclarer. */
+         à dessins ajouté demain est couvert sans rien déclarer.
+         Seule la Seconde a ce rappel : sur un niveau qui ne déclare pas
+         RAPPELS.ing, le contrôle s'affiche « non applicable » au lieu
+         d'exiger un dessin qui n'a aucune raison d'exister — la première
+         version rougissait sur la Première et la Terminale, parfaitement
+         saines, et c'est l'action Contrôles qui l'a montré. */
       if(rappels === null){
         /* déjà signalé au contrôle des fractions */
       } else if(!rappelsDessins || !rappelsDessins.length){
-        verifier('un rappel qui porte un dessin le dessine, à taille lisible', false,
-          'aucun rappel ne porte de dessin — celui de l\'inéquation graphique devrait');
+        if(rappels.ingAttendu)
+          verifier('un rappel qui porte un dessin le dessine, à taille lisible', false,
+            'le rappel de l\'inéquation graphique ne porte aucun dessin');
+        else
+          ignorer('un rappel qui porte un dessin le dessine, à taille lisible',
+            'aucun rappel de ce niveau ne porte de dessin');
       } else {
         const petits = rappelsDessins.filter(d => d.minW < 180 || d.minH < 90);
         const ing = rappelsDessins.find(d => d.nom === 'ing');
         const fautes = [];
         if(petits.length) fautes.push(petits.map(d => d.nom + ' : ' + d.minW + '×' + d.minH + ' px').join(', '));
-        if(!ing) fautes.push('le rappel de l\'inéquation graphique ne porte aucun dessin');
-        else{
+        if(rappels.ingAttendu && !ing) fautes.push('le rappel de l\'inéquation graphique ne porte aucun dessin');
+        if(ing){
           if(ing.n !== 4) fautes.push('le rappel de l\'inéquation graphique montre ' + ing.n + ' dessin(s) au lieu de 4');
           if(ing.rouges !== 6) fautes.push(ing.rouges + ' morceau(x) rouge(s) visibles au lieu de 6 (1+1+2+2)');
         }
