@@ -1346,6 +1346,30 @@ function branchements(w){
       'ce niveau n’a pas de feuille de calcul ligne par ligne');
   }
 
+  /* ---- LE PAVÉ NUMÉRIQUE EST LE MÊME TEXTE DANS LES TROIS FICHIERS -------
+     Cinq fonctions comparées au caractère près à terminale.html. UNE constante
+     diverge VOLONTAIREMENT et elle est nommée ici plutôt que tue :
+     PAVE_TOUCHES — la Terminale a la touche « / » pour ses fractions p/q. */
+  const MOTEUR_PAVE = ['paveActif','paveHTML','paveInserer','paveCale','paveBrancher','paveObserver'];
+  if(src.indexOf('function paveBrancher') >= 0){
+    let refPave;
+    try{ refPave = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
+    catch(e){ refPave = undefined; }
+    if(!refPave){
+      verifier('le pavé numérique est identique à celui de la Terminale', false,
+        'terminale.html est introuvable');
+    } else {
+      const absentes = MOTEUR_PAVE.filter(n => corpsDe(src, n) === null || corpsDe(refPave, n) === null);
+      const diff = MOTEUR_PAVE.filter(n => corpsDe(src, n) !== corpsDe(refPave, n));
+      verifier('le pavé numérique est identique à celui de la Terminale',
+        absentes.length === 0 && diff.length === 0,
+        absentes.length ? 'manque : ' + absentes.join(', ') : (diff.length ? 'diverge sur : ' + diff.join(', ') : undefined));
+    }
+  } else {
+    verifier('le pavé numérique est identique à celui de la Terminale', false,
+      'paveBrancher est introuvable dans ce fichier');
+  }
+
   const MOTEUR_SF = ['sfPgcd','sfPpcm','sfGen','sfBuildQuestions','sfTermeHTML','sfCases',
                      'renderSFTest','sfLu','sfJuge','sfLive','checkSFAnswer','sfPourquoi',
                      'nextSFQuestion','sfFracInner'];
@@ -2345,6 +2369,7 @@ function exercices(suite){
     imageNombre(w, P);
     tangenteExp(w, P);
     antecedentNombre(w, P);
+    paveNumerique(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -4174,6 +4199,82 @@ function antecedentNombre(w, P){
 
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
+}
+
+/* ---------- Le pavé numérique compact : tactile seulement, et il écrit vraiment ---------- */
+/* Quatre promesses, chacune silencieuse si elle casse. Sur ordinateur, RIEN ne
+   change — un pavé qui s'ouvrirait partout volerait la place de l'exercice.
+   Sur écran tactile, les cases déclarées numériques perdent le clavier du
+   système (inputmode="none") et gagnent le pavé. Ses touches ÉCRIVENT dans la
+   case et préviennent la page (événement input — sans lui, la correction en
+   direct du soutien ne verrait jamais la frappe). Le signe moins insère le
+   TIRET du clavier : lvReadInt passe par parseFloat, qui ne connaît pas « − ».
+   Et la liste des touches est comparée à tests/profils.js — deux sources. */
+function paveNumerique(w, P){
+  const present = evaluer(w, "typeof paveBrancher==='function' && typeof PAVE_TOUCHES!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer('le pavé numérique compact : tactile seulement, et il écrit vraiment',
+      'ce fichier n\'a pas le pavé numérique');
+    return;
+  }
+  const attendues = JSON.stringify((P.pave && P.pave.touches) || []);
+  verifierEval(w, 'le pavé numérique compact : tactile seulement, et il écrit vraiment', `(function(){
+    const vus=[];
+    const gaine=document.createElement('div');
+    gaine.innerHTML='<input id="pv-essai" inputmode="numeric"><input id="pv-libre" type="text"><button id="pv-bouton" type="button">ailleurs</button>';
+    document.body.appendChild(gaine);
+    const essai=document.getElementById('pv-essai'), libre=document.getElementById('pv-libre');
+
+    /* ---- 1. sur ordinateur, RIEN ne change ---- */
+    delete window.__paveForce;
+    if(paveActif()) vus.push('paveActif() est vrai hors écran tactile — le pavé s\\'ouvrirait sur ordinateur');
+    paveObserver();
+    if(document.getElementById('paveNum')) vus.push('le pavé est construit hors écran tactile');
+    if(essai.getAttribute('inputmode')!=='numeric') vus.push('hors tactile, la case perd son inputmode ('+essai.getAttribute('inputmode')+')');
+
+    /* ---- 2. la liste des touches, comparée à tests/profils.js ---- */
+    if(JSON.stringify(PAVE_TOUCHES)!=='${attendues}'.replace(/&quot;/g,'"'))
+      vus.push('PAVE_TOUCHES ne dit pas ce que tests/profils.js attend : '+JSON.stringify(PAVE_TOUCHES));
+
+    /* ---- 3. en tactile : la conversion, le pavé, la frappe ---- */
+    window.__paveForce=true;
+    paveObserver();
+    const pave=document.getElementById('paveNum');
+    if(!pave){ document.body.removeChild(gaine); return 'le pavé n\\'est pas construit en tactile'; }
+    if(essai.getAttribute('inputmode')!=='none') vus.push('la case numérique garde le clavier du système (inputmode='+essai.getAttribute('inputmode')+')');
+    if(!essai.hasAttribute('data-pave')) vus.push('la case numérique n\\'est pas marquée data-pave');
+    if(libre.hasAttribute('data-pave')) vus.push('un champ de TEXTE reçoit le pavé — il deviendrait inutilisable sur tablette');
+
+    essai.focus();
+    essai.dispatchEvent(new FocusEvent('focusin',{bubbles:true}));
+    if(pave.hidden) vus.push('le pavé ne s\\'ouvre pas quand une case numérique prend le focus');
+
+    let frappes=0, entrees=0;
+    essai.addEventListener('input',function(){ frappes++; });
+    essai.addEventListener('keydown',function(e){ if(e.key==='Enter') entrees++; });
+    const appuyer=function(t){ const b=pave.querySelector('button[data-t="'+t+'"]');
+      if(!b){ vus.push('la touche « '+t+' » manque'); return; }
+      b.dispatchEvent(new MouseEvent('click',{bubbles:true})); };
+    appuyer('1'); appuyer('2'); appuyer(','); appuyer('5');
+    if(essai.value!=='12,5') vus.push('les touches écrivent « '+essai.value+' » au lieu de « 12,5 »');
+    appuyer('⌫');
+    if(essai.value!=='12,') vus.push('la touche effacer laisse « '+essai.value+' »');
+    if(frappes<5) vus.push('les touches ne préviennent pas la page ('+frappes+' événements input sur 5) : la correction en direct ne verrait rien');
+    essai.value=''; appuyer('−');
+    if(essai.value!=='-') vus.push('le signe moins insère « '+essai.value+' » au lieu du tiret du clavier — parseFloat ne le lirait pas');
+    appuyer('⏎');
+    if(entrees!==1) vus.push('la touche ⏎ n\\'envoie pas la touche Entrée — sur tablette, le calcul mental ne pourrait plus valider');
+
+    /* ---- 4. le focus ailleurs referme le pavé ---- */
+    const bouton=document.getElementById('pv-bouton');
+    bouton.focus();
+    bouton.dispatchEvent(new FocusEvent('focusin',{bubbles:true}));
+    if(!pave.hidden) vus.push('le pavé reste ouvert quand le focus quitte les cases numériques');
+
+    delete window.__paveForce;
+    document.body.removeChild(gaine);
+    return vus.slice(0,4).join(' | ');
+  })()`, r => r === '', undefined);
 }
 
 function ordreCroissant(w, P){

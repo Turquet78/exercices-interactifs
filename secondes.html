@@ -1097,6 +1097,15 @@
        posait déjà la classe, mais aucune règle ne la dessinait : la valeur
        s'écrivait avec l'encre d'une saisie ordinaire. */
     .lv-in.sol{border-color:var(--blue);border-style:dashed;background:#EAF0FF;color:var(--blue)}
+/* ---- Pavé numérique compact des écrans tactiles ---- */
+#paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
+  background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
+  box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:calc(100vw - 12px);overflow-x:auto}
+#paveNum[hidden]{display:none}
+.pave-t{min-width:44px;height:44px;flex:none;border:1.5px solid var(--grid);border-radius:10px;background:var(--paper);
+  color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer}
+.pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pave-eff{min-width:54px}
     /* ---- Tableau de variation (format escalier) ---- */
     .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
     .lv-vartbl2 td{border:none;text-align:center;padding:0}
@@ -1947,7 +1956,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=97;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=98;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9687,7 +9696,96 @@ $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefaul
 $('teacherPass').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();teacherLogin();}});
 $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();creerCompte();}});
 
+/* La liste des touches vit HORS du moteur partagé, comme SF_NB : les trois
+   niveaux ont le même pavé, la Terminale a une touche de plus. */
+const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎'];
+
+/* ================= Pavé numérique compact (écrans tactiles) =================
+   Sur tablette, le clavier du système recouvre la moitié de l'écran alors que
+   les cases d'exercice ne demandent que des chiffres. Sur les écrans tactiles
+   — et sur eux seulement — les cases numériques n'ouvrent plus le clavier du
+   système : un pavé d'une seule rangée, dessiné par la page, apparaît au bas
+   de l'écran avec les touches qui servent (PAVE_TOUCHES, une constante par
+   niveau à CÔTÉ du moteur : la Terminale y ajoute « / » pour ses fractions).
+   Le pavé ne s'attache qu'aux cases DÉCLARÉES numériques (inputmode="numeric")
+   — une liste en POSITIF, contrairement au bouton des tables, parce que le
+   mauvais bord n'est pas le même : un pavé sans lettres attaché à un champ de
+   texte rendrait le champ INUTILISABLE sur tablette, quand une case numérique
+   oubliée garde simplement le clavier du système. Un observateur convertit
+   les cases au fil des rendus : un exercice ajouté demain est couvert dès que
+   ses cases se déclarent. Le clavier PHYSIQUE continue de fonctionner
+   (inputmode="none" ne bloque que le clavier tactile), et rien ne change sur
+   ordinateur. La touche « ⏎ » envoie la touche Entrée : le calcul mental et
+   les opérations posées valident au clavier, et sans elle un élève sur
+   tablette n'aurait plus aucun moyen de valider.
+   Le signe moins INSÈRE le tiret du clavier (« - »), jamais le signe
+   typographique « − » : les lecteurs des exercices comprennent les deux, mais
+   lvReadInt() passe par parseFloat, qui ne connaît que le tiret. */
+function paveActif(){ return window.__paveForce===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
+function paveHTML(){
+  return '<div id="paveNum" hidden>'+PAVE_TOUCHES.map(function(t){
+    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'</div>';
+}
+function paveInserer(el,t){
+  const deb=el.selectionStart==null?el.value.length:el.selectionStart;
+  const fin=el.selectionEnd==null?el.value.length:el.selectionEnd;
+  let v=el.value, pos=deb;
+  if(t==='⌫'){ if(fin>deb){ v=v.slice(0,deb)+v.slice(fin); } else if(deb>0){ v=v.slice(0,deb-1)+v.slice(fin); pos=deb-1; } }
+  else { v=v.slice(0,deb)+t+v.slice(fin); pos=deb+t.length; }
+  el.value=v;
+  try{ el.setSelectionRange(pos,pos); }catch(e){}
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+  el.dispatchEvent(new Event('change',{bubbles:true}));
+}
+/* La réserve du bas : le pavé ouvert, l'écran gagne de quoi faire remonter la
+   dernière ligne au-dessus de lui — retirée dès qu'il se referme. */
+function paveCale(on){ document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? '180px' : ''; }); }
+function paveBrancher(){
+  if(!paveActif()) return;
+  let pave=document.getElementById('paveNum');
+  if(!pave){
+    const d=document.createElement('div'); d.innerHTML=paveHTML();
+    document.body.appendChild(d.firstElementChild);
+    pave=document.getElementById('paveNum');
+    /* enfoncer une touche ne doit PAS voler le focus de la case */
+    pave.addEventListener('pointerdown', function(e){ e.preventDefault(); });
+    pave.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    pave.addEventListener('click', function(e){
+      const b=e.target && e.target.closest ? e.target.closest('button[data-t]') : null; if(!b) return;
+      const el=document.activeElement;
+      if(!el || el.tagName!=='INPUT' || !el.hasAttribute('data-pave')) return;
+      const t=b.getAttribute('data-t');
+      if(t==='⏎'){ el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true})); return; }
+      paveInserer(el, t==='−' ? '-' : t);
+    });
+    document.addEventListener('focusin', function(e){
+      const el=e.target;
+      if(el && el.tagName==='INPUT' && el.hasAttribute('data-pave')){
+        pave.hidden=false; paveCale(true);
+        try{ el.scrollIntoView({block:'center'}); }catch(er){}
+      } else if(!pave.contains(el)){ pave.hidden=true; paveCale(false); }
+    });
+    document.addEventListener('focusout', function(){
+      setTimeout(function(){ const a=document.activeElement;
+        if(!(a && ((a.tagName==='INPUT' && a.hasAttribute('data-pave')) || pave.contains(a)))){ pave.hidden=true; paveCale(false); } },0);
+    });
+  }
+  document.querySelectorAll('input[inputmode="numeric"]').forEach(function(el){
+    el.setAttribute('data-pave','1'); el.setAttribute('inputmode','none');
+  });
+}
+/* Les cases naissent et renaissent à chaque rendu : l'observateur les
+   convertit au fil de l'eau, sans rien demander aux exercices. Il n'observe
+   que les AJOUTS d'éléments — pas les attributs, sans quoi ses propres
+   setAttribute le réveilleraient en boucle. */
+function paveObserver(){
+  if(!paveActif()) return;
+  paveBrancher();
+  try{ new MutationObserver(function(){ paveBrancher(); }).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+}
+
 /* démarrage */
+try{ paveObserver(); }catch(e){}
 if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
 

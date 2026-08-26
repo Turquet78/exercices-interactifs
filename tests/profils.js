@@ -181,6 +181,8 @@ module.exports = {
     /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026) —
        DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
     nbQuestionsPourcentages: 4,
+    pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
@@ -381,6 +383,10 @@ module.exports = {
        mlt. DEUX sources — la page a ses constantes, le banc compare à
        celles-ci. */
     nbQuestionsFractions: { sf: 4, mlt: 4 },
+    /* Le pavé numérique compact : la SECONDE source de sa liste de touches,
+       et la case réelle que le banc navigateur pilote en mode tactile. */
+    pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
@@ -473,6 +479,9 @@ module.exports = {
        principal éprouve le calcul, celui-ci éprouve le GESTE — taper la note,
        la voir tenir, et le total du devoir la suivre. */
     notesDevoir: { exercice: 'derivee-exp', tableParametres: 'parametres', tableResultats: 'resultats' },
+    /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
+    pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
     casesVides: { sans: ['derivee-exp', 'derivee-exp-3', 'derivee-exp-quotient',
                          'etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
 

@@ -2745,6 +2745,85 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11. Le pavé numérique compact, mesuré en tactile ------------------
+       Seul un vrai navigateur sait où tombe un rectangle : on force le mode
+       tactile (window.__paveForce — la requête média, elle, appartient au
+       navigateur), on ouvre l'exercice déclaré dans tests/profils.js par le
+       vrai chemin, on donne le focus à une case, et on MESURE : le pavé est
+       petit — c'est toute sa raison d'être —, ses touches sont touchables, il
+       ne recouvre ni la case qu'on remplit ni les commandes du bas, et une
+       touche cliquée écrit dans la case sans lui voler le focus. */
+    titre('11. LE PAVÉ NUMÉRIQUE COMPACT (ÉCRANS TACTILES)');
+    if(!P.pave){
+      ignorer('le pavé numérique est petit, touchable, et il écrit', 'ce fichier ne déclare pas de pavé');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 } });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('le pavé numérique est petit, touchable, et il écrit', 'connexion impossible');
+      } else {
+        await s.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
+        await s.page.evaluate(i => openTest(i), P.pave.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(700);
+        /* certains exercices ont un écran de départ à franchir */
+        await s.page.evaluate(() => {
+          const vis = e => { const q = e.getBoundingClientRect(); return q.width > 0 && q.height > 0; };
+          const b = [...document.querySelectorAll('button')].filter(vis)
+            .find(x => /^(Commencer|Démarrer|C'est parti|Niveau 1)/.test(x.textContent.trim()));
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(700);
+        await s.page.focus(P.pave.champ);
+        await s.page.waitForTimeout(400);
+        const m = await s.page.evaluate(champ => {
+          const el = document.querySelector(champ), pave = document.getElementById('paveNum');
+          if(!pave) return { absent: true };
+          const r = pave.getBoundingClientRect(), c = el.getBoundingClientRect();
+          const touches = [...pave.querySelectorAll('.pave-t')].map(b => b.getBoundingClientRect());
+          const ctrls = document.getElementById('testCtrls');
+          const k = ctrls ? ctrls.getBoundingClientRect() : null;
+          const chev = (a1, b2) => !!(a1 && b2 && b2.width > 0 && a1.left < b2.right && b2.left < a1.right && a1.top < b2.bottom && b2.top < a1.bottom);
+          return { visible: !pave.hidden && r.height > 0, hauteur: Math.round(r.height),
+                   petites: touches.filter(t => t.width < 40 || t.height < 40).length,
+                   surCase: chev(r, c), surCommandes: chev(r, k),
+                   mode: el.getAttribute('inputmode') };
+        }, P.pave.champ);
+        if(m.absent){
+          verifier('le pavé numérique est petit, touchable, et il écrit', false, 'aucun pavé dans la page');
+        } else {
+          verifier('le pavé s\'ouvre quand une case numérique prend le focus', m.visible === true,
+            'le pavé reste caché après le focus');
+          verifier('le pavé est PETIT — c\'est toute sa raison d\'être', m.hauteur > 0 && m.hauteur <= 100,
+            m.hauteur + 'px de haut : le clavier de la tablette en fait autant');
+          verifier('chaque touche du pavé fait au moins 40 px — un doigt, pas une souris', m.petites === 0,
+            m.petites + ' touche(s) trop petites');
+          verifier('le pavé ne recouvre ni la case remplie ni les commandes du bas',
+            !m.surCase && !m.surCommandes,
+            m.surCase ? 'il recouvre la case qu\'on remplit' : 'il recouvre Pause/Abandonner');
+          verifier('la case a perdu le clavier du système (inputmode="none")', m.mode === 'none',
+            'inputmode=' + m.mode);
+          /* la frappe vit dans le profil : les cases de la multiplication
+             posée n'acceptent qu'UN chiffre, celles des courbes une décimale */
+          for(const touche of P.pave.frappe){
+            await s.page.click('#paveNum button[data-t="' + touche + '"]');
+          }
+          const t = await s.page.evaluate(champ => ({
+            valeur: document.querySelector(champ).value,
+            focus: document.activeElement === document.querySelector(champ),
+          }), P.pave.champ);
+          verifier('les touches écrivent dans la case sans lui voler le focus',
+            t.valeur === P.pave.attendu && t.focus === true,
+            '« ' + t.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t.focus ? 'gardé' : 'perdu'));
+        }
+      }
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {
