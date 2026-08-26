@@ -2380,6 +2380,7 @@ function exercices(suite){
     inequationGraphique(w, P);
     paveNumerique(w, P);
     etudeExponentielle(w, P);
+    correctionBleueListes(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -4266,6 +4267,98 @@ function inequationGraphique(w, P){
    copie à une faute, la paire de la tangente dans l'autre ordre, et les cases
    vides du soutien. Le clic complet — avec la feuille lue par l'IA — vit dans
    la chaîne séquentielle (etudeCompleteClique), le piège documenté de sb. */
+/* ---- Une liste vide reçoit la correction en bleu, et le message dit d'abord
+   les cases manquantes -------------------------------------------------------
+   Signalé par Turquet sur une capture (août 2026) : « 6 cases justes sur 7 »
+   sur {intervalles-inegalite} avec toutes les réponses visiblement justes. La
+   septième était restée VIDE : corrChoix l'avait remplie avec la classe
+   « sol » — qu'aucune règle CSS ne dessinait sur .itv-sel, la leçon déjà
+   apprise par .plc-sel.sol et .lv-in.sol, revenue sur une troisième famille de
+   listes — et le message rouge déroulait la solution entière comme si l'élève
+   s'était trompé.
+   Quatre bords, et n'en tenir qu'un ne tient rien : la règle CSS existe ; une
+   case vide seule donne « il te manquait 1 case … en bleu » SANS dérouler
+   l'explication (elle donnerait tort à une lecture juste) ; une vraie faute
+   garde l'explication ; les deux ensemble donnent les deux. Puis le même
+   geste sur {intervalles} et {inequation-graphique}, qui partagent corrChoix
+   et .itv-sel : une famille corrigée à moitié ne serait pas corrigée. */
+function correctionBleueListes(w, P){
+  const present = evaluer(w, "typeof startItq==='function' && typeof itqCases==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('une liste vide reçoit la correction en bleu, et le message dit d\'abord les cases manquantes',
+      'ce niveau n\'a pas les exercices d\'intervalles à listes');
+    return;
+  }
+  verifierEval(w, 'une liste vide reçoit la correction en bleu, et le message dit d\'abord les cases manquantes', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+
+    /* ---- 1. la règle CSS : sans elle, la classe « sol » ne dessine rien ---- */
+    const css=Array.prototype.map.call(document.querySelectorAll('style'),function(st){ return st.textContent; }).join('\\n');
+    if(!/\\.itv-sel\\.sol\\s*\\{[^}]*dashed/.test(css))
+      vus.push('aucune règle .itv-sel.sol en pointillés : corrChoix pose la classe, rien ne la dessine');
+
+    /* ---- 2. {intervalles-inegalite}, sur une question FIXE ---- */
+    function poseItq(sauf, faux){
+      startItq(); clearTimeout(test.fbTimer);
+      const q={bg:0,bd:null,fg:true,fd:false,
+        cands:[{bg:0,bd:null,fg:true,fd:false},{bg:0,bd:null,fg:false,fd:false},
+               {bg:null,bd:0,fg:false,fd:true},{bg:null,bd:0,fg:false,fd:false}],bon:0};
+      test.questions[test.idx]=q; renderItqTest();
+      itqCases(q).forEach(function(c){ const sel=document.getElementById(c.id); if(!sel) return;
+        if(sauf&&sauf.indexOf(c.id)>=0) return;
+        sel.value=(faux&&faux[c.id]!==undefined)?faux[c.id]:c.bon; });
+      checkItqAnswer();
+      return document.getElementById('itqFeedback').textContent;
+    }
+    /* a. une case vide, tout le reste juste */
+    let fb=poseItq(['itq-og'], null);
+    const og=document.getElementById('itq-og');
+    if(!og || !og.classList.contains('sol')) vus.push('la case vide ne porte pas la classe « sol » après la vérification');
+    if(og && og.value!=='ferme') vus.push('la case vide n\\'a pas reçu la bonne réponse : '+(og?og.value:'(absente)'));
+    if(fb.indexOf('Il te manquait 1 case')!==0) vus.push('le message ne commence pas par « Il te manquait 1 case » : '+fb.slice(0,60));
+    if(fb.indexOf('bleu')<0) vus.push('le message ne dit pas que la correction est en bleu');
+    if(fb.indexOf('Le reste est juste')<0) vus.push('le message ne dit pas que le reste est juste');
+    if(fb.indexOf('se lit')>=0) vus.push('le message déroule l\\'explication alors qu\\'aucune case n\\'est fausse — il donne tort à une lecture juste');
+    /* b. une vraie faute, aucune case vide : l'explication reste */
+    fb=poseItq(null, {'itq-og':'ouvert'});
+    if(fb.indexOf('se lit')<0) vus.push('sur une vraie faute, l\\'explication a disparu : '+fb.slice(0,60));
+    if(fb.indexOf('manquait')>=0) vus.push('« il te manquait » s\\'affiche alors qu\\'aucune case n\\'est vide');
+    /* c. une faute ET une case vide : les deux moitiés du message */
+    fb=poseItq(['itq-og'], {'itq-od':'ferme'});
+    if(fb.indexOf('Il te manquait 1 case')!==0) vus.push('faute + case vide : le message ne commence pas par la case manquante : '+fb.slice(0,60));
+    if(fb.indexOf('se lit')<0) vus.push('faute + case vide : l\\'explication de la faute a disparu');
+    /* d. tout juste : bravo, sans « manquait » */
+    fb=poseItq(null, null);
+    if(fb.indexOf('manquait')>=0) vus.push('« il te manquait » s\\'affiche sur une copie entièrement juste');
+
+    /* ---- 3. le même geste sur {intervalles} et {inequation-graphique} ---- */
+    if(typeof startItv!=='function' || typeof itvCases!=='function') vus.push('{intervalles} introuvable');
+    else {
+      startItv(); clearTimeout(test.fbTimer);
+      const q=test.questions[test.idx], cs=itvCases(q), dernier=cs[cs.length-1];
+      cs.forEach(function(c,i){ const sel=document.getElementById(c.id); if(sel && i<cs.length-1) sel.value=c.bon; });
+      checkItvAnswer();
+      const sel=document.getElementById(dernier.id);
+      if(!sel || !sel.classList.contains('sol')) vus.push('{intervalles} : la case vide ne porte pas « sol »');
+      const f2=document.getElementById('itvFeedback').textContent;
+      if(f2.indexOf('Il te manquait 1 case')!==0) vus.push('{intervalles} : le message ne dit pas la case manquante : '+f2.slice(0,60));
+    }
+    if(typeof startIng!=='function' || typeof ingCases!=='function') vus.push('{inequation-graphique} introuvable');
+    else {
+      startIng(); clearTimeout(test.fbTimer);
+      const q=test.questions[test.idx], cs=ingCases(q), dernier=cs[cs.length-1];
+      cs.forEach(function(c,i){ const sel=document.getElementById(c.id); if(sel && i<cs.length-1) sel.value=c.bon; });
+      checkIngAnswer();
+      const sel=document.getElementById(dernier.id);
+      if(!sel || !sel.classList.contains('sol')) vus.push('{inequation-graphique} : la case vide ne porte pas « sol »');
+      const f3=document.getElementById('ingFeedback').textContent;
+      if(f3.indexOf('Il te manquait 1 case')!==0) vus.push('{inequation-graphique} : le message ne dit pas la case manquante : '+f3.slice(0,60));
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function etudeExponentielle(w, P){
   const present = evaluer(w, "typeof startEC==='function' && typeof ecJugeLocal==='function'");
   if(!present.ok || !present.valeur){

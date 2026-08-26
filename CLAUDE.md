@@ -441,6 +441,26 @@ tout y est grossi dans le viewBox pour rester lisible une fois réduit. Le banc 
 mesurait que la grande : la moitié du dessin échappait au contrôle, et c'était
 justement celle que l'élève compare case par case. Il mesure les deux.
 
+**Une liste corrigée en bleu doit se VOIR en bleu — et le message doit dire les
+cases vides avant tout.** Signalé par Turquet sur une capture (août 2026) :
+« 6 cases justes sur 7 » avec toutes les réponses visiblement justes. La
+septième était restée VIDE ; `corrChoix` l'avait remplie avec la classe `sol` —
+qu'aucune règle CSS ne dessinait sur `.itv-sel`. C'est la leçon de `.plc-sel.sol`
+et `.lv-in.sol`, revenue sur une TROISIÈME famille de listes : une règle apprise
+sur une classe ne protège pas les autres, et chaque famille de sélecteurs doit
+recevoir la sienne le jour où elle naît. La règle vaut pour les trois exercices
+qui partagent `.itv-sel` — intervalles, inégalité, inéquation graphique.
+Et le message rouge déroulait la solution entière comme si l'élève s'était
+trompé — la leçon des sommes, encore : une case vide n'est pas une erreur de
+calcul. `msgAvecVides()` dit d'abord « il te manquait N case(s) — la correction
+les a remplies en bleu », puis l'explication SEULEMENT s'il y a une vraie
+faute : expliquer une erreur qui n'existe pas donne tort à une lecture juste ;
+et « Le reste est juste ! » quand rien d'autre ne cloche. Un contrôle tient les
+quatre bords (la règle CSS, la case vide seule, la vraie faute, les deux
+ensemble) puis rejoue le geste sur les trois exercices de la famille — une
+famille corrigée à moitié ne serait pas corrigée. Éprouvé en le cassant six
+fois.
+
 **« Appartient ou pas ? » : le risque est arithmétique, pas graphique.** Deux
 exercices sur un seul moteur, repris de la fiche « Intervalles 2 » : un nombre,
 un intervalle, l'élève dit ∈ ou ∉. Le niveau 1 tire quatre décimaux contre le

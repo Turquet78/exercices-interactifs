@@ -743,6 +743,14 @@
      note annonçait « 0 case juste sur 8 » sur une question à moitié réussie. */
   .itv-sel.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
   .itv-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  /* Une liste vide remplie par la correction : le bleu des cases, ici aussi.
+     corrChoix posait déjà la classe « sol » — aucun style ne la dessinait sur
+     .itv-sel, et la case corrigée gardait l'allure d'une liste ordinaire :
+     « 6 cases justes sur 7 » sans que rien ne montre laquelle manquait.
+     {placer-intervalle} avait appris cette leçon (.plc-sel.sol) ; la famille
+     .itv-sel — intervalles, inégalité, inéquation graphique — ne l'avait pas
+     reçue. */
+  .itv-sel.sol{border-color:var(--blue);border-style:dashed;background:#EAF0FF;color:var(--blue)}
   .itv-sel:disabled{opacity:1;cursor:default}
   /* Sur un téléphone, l'étiquette passe au-dessus et les cases rétrécissent :
      l'écriture de l'intervalle doit tenir sur UNE ligne, sinon son crochet de
@@ -1993,7 +2001,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=100;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=101;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2262,6 +2270,24 @@ function corrChoix(el, val, ok){
   else if(vide){ if(!isSoutien()){ el.value=val; el.classList.add('sol'); } }
   else el.classList.add('bad');
   el.disabled=ok||!isSoutien();
+}
+/* Une case vide n'est pas une erreur de calcul, et le message le dit AVANT
+   tout le reste — la leçon de {somme-fractions}, portée aux exercices à
+   listes. Sur « 6 cases justes sur 7 », l'explication déroulait la solution
+   entière comme si l'élève s'était trompé, alors qu'il avait seulement oublié
+   une case — remplie en bleu par la correction. Quand il n'y a AUCUNE vraie
+   faute, l'explication ne s'affiche pas du tout : expliquer une erreur qui
+   n'existe pas donne tort à une lecture juste. */
+function msgAvecVides(subs, pourquoi){
+  const vides=subs.filter(function(s){ return s.vide; }).length;
+  if(!vides) return pourquoi;
+  const fautes=subs.filter(function(s){ return !s.ok && !s.vide; }).length;
+  const justes=subs.filter(function(s){ return s.ok; }).length;
+  let m='Il te manquait '+vides+(vides>1?' cases':' case')+' \u2014 la correction '
+       +(vides>1?'les a remplies':'l\u2019a remplie')+' en bleu.';
+  if(fautes) m+=' '+pourquoi;
+  else if(justes) m+=' Le reste est juste !';
+  return m;
 }
 /* ---- correction : vert / rouge + bonne reponse en bleu / bleu si vide ---- */
 function corrCase(id, val, ok){
@@ -5797,7 +5823,7 @@ function checkIngAnswer(live){
   const q=test.questions[test.idx];
   if(live){ ingLive(); return; }
   const res=ingJuge(q);
-  res.subs.forEach(function(s){ corrChoix($(s.id), s.val, s.ok); });
+  res.subs.forEach(function(s){ const el=$(s.id); s.vide=!el||String(el.value==null?'':el.value).trim()===''; corrChoix(el, s.val, s.ok); });
   /* le dessin juste se montre : on entoure la carte choisie, et la bonne */
   const cartes=document.querySelectorAll('#ingHost .ing-carte');
   const bon=q.perm.indexOf(q.op);
@@ -5809,7 +5835,7 @@ function checkIngAnswer(live){
   test.locked=true;
   test.score+=res.nCorrect; $('ingLiveScore').textContent=test.score;
   if(res.allOk){ $('ingFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('ingFeedback').className='mp-feedback good'; }
-  else { $('ingFeedback').textContent=ingWhy(q); $('ingFeedback').className='mp-feedback bad'; }
+  else { $('ingFeedback').textContent=msgAvecVides(res.subs, ingWhy(q)); $('ingFeedback').className='mp-feedback bad'; }
   const answer=res.subs.map(function(s){ return ingAffiche(s.id, s.val); }).join(' ');
   const given=res.subs.map(function(s){ const el=$(s.id); return ingAffiche(s.id, el?el.value:''); }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'f(x) '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' \u2192 S = '+ingPlain(q)+' — '+res.nCorrect+'/'+res.subs.length+' justes', answer:answer, given:given});
@@ -9821,14 +9847,14 @@ function checkItvAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(live){ itvLive(); return; }
-  const subs=itvCases(q).map(c=>{ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
+  const subs=itvCases(q).map(c=>{ const sel=$(c.id); const vide=!sel||String(sel.value==null?'':sel.value).trim()===''; return {c:c, sel:sel, vide:vide, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(s=>s.ok).length, allOk=nCorrect===subs.length;
   subs.forEach(s=>corrChoix(s.sel, s.c.bon, s.ok));
   if(!allOk && isSoutien()){ soutienAgain('itvFeedback','itvActions','checkItvAnswer','itvHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('itvLiveScore').textContent=test.score;
   if(allOk){ $('itvFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('itvFeedback').className='mp-feedback good'; }
-  else { $('itvFeedback').textContent=itvWhy(q); $('itvFeedback').className='mp-feedback bad'; }
+  else { $('itvFeedback').textContent=msgAvecVides(subs, itvWhy(q)); $('itvFeedback').className='mp-feedback bad'; }
   const answer=subs.map(s=>itvAffiche(s.c.bon)).join(' ');
   const given=subs.map(s=>itvAffiche(s.sel?s.sel.value:'')).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk, q:itvPlain(q)+' — '+nCorrect+'/'+subs.length+' justes', answer:answer, given:given});
@@ -9970,7 +9996,7 @@ function checkItqAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(live){ itqLive(); return; }
-  const subs=itqCases(q).map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
+  const subs=itqCases(q).map(function(c){ const sel=$(c.id); const vide=!sel||String(sel.value==null?'':sel.value).trim()===''; return {c:c, sel:sel, vide:vide, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   /* le schéma juste se montre : on entoure la carte choisie, et la bonne */
@@ -9983,7 +10009,7 @@ function checkItqAnswer(live){
   test.locked=true;
   test.score+=nCorrect; $('itqLiveScore').textContent=test.score;
   if(allOk){ $('itqFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('itqFeedback').className='mp-feedback good'; }
-  else { $('itqFeedback').textContent=itqWhy(q); $('itqFeedback').className='mp-feedback bad'; }
+  else { $('itqFeedback').textContent=msgAvecVides(subs, itqWhy(q)); $('itqFeedback').className='mp-feedback bad'; }
   const answer=subs.map(function(s){ return itqAffiche(s.c.id, s.c.bon); }).join(' ');
   const given=subs.map(function(s){ return itqAffiche(s.c.id, s.sel?s.sel.value:''); }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk, q:itqInegalite(q)+' → '+itvPlain(q)+' — '+nCorrect+'/'+subs.length+' justes', answer:answer, given:given});
