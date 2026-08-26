@@ -670,6 +670,30 @@ défaut. Un défaut de mise en page ne s'est vu que sur une capture : dans la
 colonne de 560 px des intervalles, « il faut [le prendre] » se repliait sous sa
 phrase — les lignes de cet écran sont élargies.
 
+**Et son rappel de cours MONTRE les quatre dessins** (demande de Turquet, août
+2026) : la méthode est visuelle, la décrire en mots ne suffisait pas. Les
+dessins sont ceux de l'EXERCICE — `lvGraphSVG` et `ingRouge`, les mêmes
+fonctions, sur UN exemple fixe (`RAP_ING_EX`) — et chaque légende écrit sa
+solution par `ingPlain()`, la fonction même qui l'écrit dans la correction :
+une légende ne peut pas contredire son dessin, et le contrôle le vérifie quand
+même — il lit le signe DANS la légende et exige que le dessin le dise aussi,
+morceaux et marques. Illustrer le rappel illustre les TROIS aides d'un coup :
+le bouton « Rappel de cours », le conseil du soutien (« Voir le rappel ») et la
+fenêtre « Question à l'IA » (« Faire un rappel de cours ») affichent tous
+`rappelHTML()`, et la fenêtre détachée reçoit les styles par `garnirFenetre()`.
+**Deux pièges de banc s'y sont montrés.** Le contrôle des numéros en dur lisait
+la chaîne BRUTE des rappels : les coordonnées de tracé du dessin (« 70.4 »)
+sont devenues autant de faux numéros — le piège documenté des décimales
+d'illustration, revenu par le rappel. Il lit maintenant le texte balises
+retirées — remplacées par une ESPACE, parce que le premier essai (textContent)
+collait deux paragraphes voisins et fabriquait « 1.2 » avec la fin de « n+1. »
+et le début de « 2. Remplacer », dans un rappel de la Terminale que personne
+n'avait touché. Un numéro écrit dans le texte reste attrapé, sabotage à
+l'appui. Et le banc navigateur mesure les dessins RENDUS — quatre figures à
+taille lisible, six morceaux rouges d'étendue non nulle — parce qu'un CSS
+perdu les rendrait minuscules sans qu'aucune erreur ne se lève ; un rappel à
+dessins ajouté demain est couvert sans rien déclarer.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
