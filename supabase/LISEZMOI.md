@@ -837,9 +837,19 @@ eleves_1ere  →  resultats_1ere  →  parametres_1ere
 eleves_2nde  →  resultats_2nde  →  parametres_2nde
 ```
 
-**6. Redonner un code à chaque élève** depuis l'onglet Élèves. Les élèves
-reviennent sans compte Supabase — les anciens ont disparu avec la base — et
-« Nouveau code » leur en recrée un.
+**6. Relier ou redonner les comptes.** Les élèves reviennent la colonne
+`user_id` VIDE : leur ligne n'est plus rattachée à leur compte Supabase, et
+tout ce que la base leur accorde « en propre » — notes, pause, signalements,
+devoir sur papier — est refusé, la connexion continuant pourtant de marcher.
+Deux cas :
+
+- **Les comptes ont survécu** (la base a été restaurée mais `auth.users` n'a
+  pas été touché — c'est le cas d'une restauration ordinaire) : coller
+  **`relier-comptes.sql`** dans l'éditeur SQL et l'exécuter. Il recalcule le
+  lien par l'adresse dérivée de la clé, sans changer aucun code, et liste les
+  élèves qu'il n'a pas pu relier.
+- **Les comptes ont disparu aussi** : « Nouveau code » depuis l'onglet Élèves
+  recrée le compte et pose le lien — l'élève reçoit un code provisoire.
 
 **7. Retirer les outils**, ils n'ont plus rien à faire dans la base :
 

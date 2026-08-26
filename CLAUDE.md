@@ -239,6 +239,26 @@ désignent un élève, donc `eleves…` passe avant `resultats…`. `supabase/re
 désamorce les trois, et `npm run test:base` rejoue la restauration entière sur
 un PostgreSQL jetable.
 
+**Un élève dé-relié se connecte parfaitement — et tout ce qui est à lui est
+refusé.** La restauration remet `user_id` à VIDE, volontairement (compte
+d'avant le sinistre peut-être disparu) ; mais les comptes vivent dans
+`auth.users`, que la restauration ne touche pas. Quand ils ont survécu,
+l'élève tape son code, Supabase le reconnaît — et sa LIGNE n'est plus
+rattachée à rien : chaque politique « sa propre ligne » (`user_id =
+auth.uid()`) le refuse. Un élève de Terminale l'a rencontré en cliquant « Le
+faire sur papier » (signalé par Turquet, août 2026) : « new row violates
+row-level security policy for table "signalements" » — le premier geste
+BRUYANT de la liste, les autres refus (notes, pause) étant muets, le piège
+documenté. `supabase/relier-comptes.sql` recalcule le lien par l'adresse
+dérivée de la clé — sans toucher aux codes ni aux comptes — et NOMME les
+élèves dont le compte a disparu, pour qui « Nouveau code » est le seul chemin.
+Le domaine des comptes y vit une TROISIÈME fois, et le contrôle qui comparait
+la page à la fonction Edge compare maintenant les trois. `npm run test:base`
+rejoue le défaut (l'élève dé-relié refusé), le reliage, le témoin intact et
+l'idempotence — et sa sortie sur le vrai projet est un DIAGNOSTIC : « 0 sans
+lien » partout veut dire que la cause est ailleurs (session expirée, par
+exemple), pas que le script a échoué.
+
 **Le plan gratuit de Supabase ne sauvegarde rien.** L'action
 `.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
 dimanche, les chiffre et les conserve 90 jours. Le chiffrement est
@@ -713,6 +733,42 @@ l'appui. Et le banc navigateur mesure les dessins RENDUS — quatre figures à
 taille lisible, six morceaux rouges d'étendue non nulle — parce qu'un CSS
 perdu les rendrait minuscules sans qu'aucune erreur ne se lève ; un rappel à
 dessins ajouté demain est couvert sans rien déclarer.
+
+**Deux courbes sur un dessin, et quatre questions qui se répondent.**
+{equation-graphique} (Seconde, 2.5, demande de Turquet, août 2026 — « au moins
+10 dessins possibles ») est repris de la fiche « équation et inéquation » : la
+courbe de f en trait plein, la droite de g en POINTILLÉS, et quatre questions
+dans l'ordre de la fiche sur le MÊME tirage conservé — lire f(a) et g(b),
+résoudre f(x) = k, résoudre f(x) = g(x), puis f(x) signe g(x) écrit en
+intervalle. Les croisements de la question 3 SONT les bornes de la question 4 :
+c'est la progression de la fiche. Tout le dessin est celui de
+{lecture-variations} ; les solutions à deux nombres suivent la règle des paires
+d'{antecedent-nombre} (ordre libre, le doublon défendable une fois) ; l'union
+de l'inéquation suit la règle des deux morceaux d'{inequation-graphique}
+(jugés au mieux, bords ±3 toujours pris) ; la sauvegarde ne part que sur un
+GESTE de l'élève — programmée au rendu, elle fusait à vide dans le contrôle du
+signalement, qui l'a vue.
+**Le risque propre est le croisement illisible, et il a changé de nature** :
+f moins une droite PENCHÉE n'est pas monotone entre deux graduations — la
+garantie d'antCibles ne suffit plus seule. Ce qui la remplace est la MARGE :
+à toute graduation qui n'est pas un croisement, f est à au moins 1 de la
+droite, du côté annoncé. Un échantillonnage de la courbe rendue posé en
+garde-fou dans le tirage n'a jamais rien écarté (0 sur 2000) — le quatrième
+garde-fou mort du projet, retiré ; c'est le CONTRÔLE qui exige la propriété,
+en relisant les courbes de Bézier que lvPath écrit, tirage après tirage.
+**Et ce contrôle a pris le tirage en défaut à sa première exécution** : deux
+solutions de f(x) = k sur des graduations VOISINES font un segment de spline
+CONSTANT à la hauteur k — valeurs égales, tangentes nulles — et la vraie
+solution est un intervalle entier, pas deux nombres : l'énoncé mentait avant
+que l'élève ne commence. Le tirage les écarte, et le bord est tenu en DISCRET
+(l'écart des deux solutions), pas par une mesure : mesurée, la proximité à k
+criait sur les SOMMETS, où la courbe plate reste proche sans retraverser — un
+contrôle qui parle d'autre chose. Éprouvé en le cassant treize fois : le
+croisement au bord, f du mauvais côté, le tirage re-tiré, la réponse dans la
+question, k traversé, les solutions voisines, les dessins figés, l'ordre
+imposé, le doublon compté deux fois, la méthode montrée avant la
+vérification, g(b) hors du dessin, le signe figé, le bord 3 lâché — chacun
+rougit en nommant son défaut.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
