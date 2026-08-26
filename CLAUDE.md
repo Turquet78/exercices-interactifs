@@ -2176,6 +2176,42 @@ nulle, la réponse rangée dans la question, une case qui ne se juge plus, les
 constantes à ordre imposé, l'énoncé qui contredit la correction, la case vide
 rougie — chacun rougit en nommant son défaut.
 
+**L'étude complète, c'est la fiche entière sur un seul écran — et trois moteurs
+qui servent au lieu d'être recopiés.** {etude-exponentielle} (Terminale, 5.5,
+demande de Turquet, août 2026) est repris de la fiche « étude de fonction
+expo » : f(x) = (ax + ab)e^(−x), a = ±1, b entier de −4 à 4, et les sept
+parties de la fiche dans son ordre — les intersections avec les axes, la
+dérivée RÉDIGÉE dans la feuille du 2.2 (u, v, u′, v′ facultatifs, l'IA lit la
+rédaction), le tableau de signes et de variations du 5.3 (`efTableHTML`,
+`efSyntHTML`, `efArrowChange` — le même moteur, généralisé d'une ligne), la
+valeur de l'extremum, f(1), f′(1), et la tangente en x = 1 avec les étapes du
+5.2, écrites en FRACTIONS empilées sur e. Écrire la constante ab (et non b)
+donne un zéro ENTIER (x = −b) et un extremum entier (x = 1 − b).
+**La bonne réponse n'est jamais rangée à côté de la question** : elle ne porte
+que a et b, et `ecAns()` — que l'énoncé, le rendu et la correction lisent
+tous — recalcule tout ; le contrôle refait ces calculs par sa propre
+arithmétique sur les 14 couples possibles. Le tirage écarte b = 0 (f′(1)
+serait nulle : tangente horizontale, la leçon des pentes nulles) et b = −1
+(f(1) = 0 : le point de tangence tomberait sur l'axe).
+**Deux juges, une seule note.** 46 cases locales et une feuille dont le
+verdict vient du modèle : la note les compte ensemble (47), et le contrôle
+CLIQUE — la feuille vide arrête la vérification AVANT l'appel au modèle, la
+dérivée refusée coûte exactement son point, les cases fausses sont révélées
+en vert (la convention du 5.2) et une case vide ne rougit jamais en soutien.
+**Les ids du tableau sont partagés avec l'écran du 5.3** : chaque rendu vide
+l'hôte de l'autre écran, sans quoi `$()` lirait le tableau FANTÔME de l'écran
+quitté. Éprouvé en le cassant treize fois — la réponse rangée dans la
+question, b = 0 et b = −1 autorisés, `ecAns` faussée, le titre qui annonce
+toujours un maximum, la case vide rougie, la paire de la tangente à ordre
+imposé, la feuille vide envoyée au modèle, l'attendu faussé (chaque moitié),
+la note qui ignore le verdict, la révélation débranchée, le tableau aux
+signes inversés — chacun rougit en nommant son défaut. **Deux contrôles se
+sont pris en défaut au premier essai** : « maximum » cherché dans tout
+l'écran ne prouvait rien (le sélecteur min/max porte toujours les deux mots —
+on vise le TITRE de la partie d), et la dérivée cherchée dans tout l'attendu
+non plus (la moitié « autre ordre » la portait encore — on exige chaque
+moitié).
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
