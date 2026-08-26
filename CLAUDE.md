@@ -1184,6 +1184,46 @@ pas de cases colorées —, et la rangée de jetons, qui ne connaissait que les
 cases `pm-mf` et n'aurait rien inséré du tout dans la feuille : des boutons
 morts, sans erreur.
 
+**Un verdict arithmétique ne se confie pas à un modèle.** Le modèle a compté
+faux une copie JUSTE en production : sur « 1/2 − 1/6 = 6/12 − 2/12 = 4/12 =
+1/3 » — chaque égalité vraie, le dénominateur commun 12 autorisé en toutes
+lettres par la règle — il a inventé une erreur sur la soustraction des
+numérateurs (« 6 − 2 = 4, c'est juste, mais c'est faux en termes de calcul de
+fractions »). Signalé par Turquet sur une capture, août 2026 : le pire défaut
+possible, et structurel — la règle était claire, l'envoi était propre, le
+modèle a simplement déraillé.
+La page porte donc son JUGE (`libreJuge`), qui sert les trois rédactions —
+4.5, 4.7, 4.9 — et calcule en entiers exacts : les morceaux découpés aux « = »
+comme la règle le dit, chaque morceau évalué en rationnel, le résultat final
+lu tel qu'écrit, l'étape exigée (même dénominateur au 4.5, l'inverse au 4.9)
+reconnue par sa VALEUR au niveau zéro des parenthèses. Quand le juge sait lire
+la copie, son verdict PRIME : le modèle reçoit ce verdict avec l'énoncé — pas
+avec la règle, qui frôle sa borne de troncature ; l'énoncé a 3000 de marge, et
+le contrôle de la borne mesure l'énoncé AVEC le bloc — et ne fait plus que
+RÉDIGER. S'il CONTESTE le verdict, sa prose raconte l'autre verdict : elle est
+remplacée par la phrase du juge. S'il est en panne, le juge répond seul au
+lieu de bloquer l'élève.
+**TROIS positions, pas deux, et c'est ce qui rend le juge sûr** : il ne REFUSE
+que sur un fait prouvable (une égalité fausse, un résultat non simplifié) et
+n'ACCEPTE que lorsque tout est positivement vérifié ; une étape qu'il ne
+reconnaît pas, une écriture qui lui échappe, un résultat écrit comme un calcul
+le font S'ABSTENIR — le modèle reste alors seul juge, comme avant. Refuser
+localement une forme que le modèle aurait acceptée recréerait le défaut qu'on
+corrige, dans l'autre sens.
+Deux contrôles : l'un éprouve le juge cas par cas — la copie de production
+d'abord : si elle ne passe pas au juge, c'est le juge qui a tort —, l'autre
+CLIQUE avec un modèle stubbé qui SE TROMPE et lit la note et la couleur. Le
+banc navigateur rejoue la copie de production sur du VRAI MathLive — jsdom n'a
+pas la sérialisation réelle que le juge doit lire. Éprouvé en le cassant dix
+fois, et **deux sabotages ont d'abord traversé** : l'inverse accepté sur
+n'importe quel produit — l'égalité fausse attrapait tous les cas existants
+avant lui, il fallait un produit VRAI qui n'est pas l'inverse — et la garde de
+la prose retirée à moitié — le sabotage ne retirait que la copie du 4.7 quand
+le contrôle ne regardait que le 4.5. Les questions des contrôles qui posent
+des copies fixes sont désormais ÉPINGLÉES : une copie qui ne colle pas à la
+question tirée serait refusée par le juge, à bon droit, et le contrôle
+mesurerait autre chose que ce qu'il croit mesurer.
+
 **Le moteur `sf` est le même TEXTE dans les deux niveaux, et un contrôle le
 vérifie.** Quatorze fonctions comparées au caractère près entre `secondes.html`
 et `premiere-specifique.html`. Rien ne les comparait jusqu'en août 2026 — celui
