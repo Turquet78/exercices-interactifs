@@ -2369,6 +2369,7 @@ function exercices(suite){
     imageNombre(w, P);
     tangenteExp(w, P);
     antecedentNombre(w, P);
+    inequationGraphique(w, P);
     paveNumerique(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
@@ -3822,6 +3823,200 @@ function syntheseLibrePourcentage(w, P){
    coordonnée recopiée, une échelle qui changerait resterait mesurée juste.
    Et les règles de partout : cinq réponses comptées cinq, une case juste qui
    ne rougit pas pour sa voisine, une case vide jamais rouge. */
+/* ---------- Inéquation graphique : quatre dessins dans un ordre tiré, conservé, jamais menteur ---------- */
+/* {inequation-graphique} (Seconde, thème Fonctions). Le pire défaut possible est
+   ici un dessin qui contredit sa question — l'élève lit juste et rougit. Le
+   contrôle MESURE donc les quatre dessins contre les graduations du dessin
+   même (aucune coordonnée recopiée), vérifie que l'ordre des dessins est tiré
+   (à op égal, le rang du bon varie d'une séance à l'autre) et CONSERVÉ pour
+   les quatre sous-questions, que la question ne range rien d'autre que la
+   courbe, la hauteur, l'ordre et le signe, puis CLIQUE « Vérifier » sur des
+   copies choisies — canonique, à une faute, à cases vides, et la copie qui
+   décrit les deux morceaux dans l'autre ordre, qui est juste. */
+function inequationGraphique(w, P){
+  const present = evaluer(w, "typeof startIng==='function' && typeof ingJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('l\'inéquation graphique : quatre dessins dans un ordre tiré, conservé, et jamais menteur',
+      'ce niveau n\'a pas l\'exercice de l\'inéquation graphique');
+    return;
+  }
+  verifierEval(w, 'l\'inéquation graphique : quatre dessins dans un ordre tiré, conservé, et jamais menteur', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='inequation-graphique';
+
+    /* ---- 1. le tirage : les quatre sous-questions de la fiche, le même
+       tirage pour les quatre, l'ordre des dessins mélangé, les croisements
+       PILE sur des graduations et jamais au bord — le tout par sa propre
+       arithmétique, et RIEN d'autre dans la question. ---- */
+    const rangs=new Set();
+    for(let t=0;t<80 && !vus.length;t++){
+      startIng(); clearTimeout(test.fbTimer);
+      if(test.questions.length!==4){ vus.push(test.questions.length+' questions au lieu de 4'); break; }
+      if(test.questions.map(function(q){ return q.op; }).join(',')!=='ge,gt,le,lt')
+        vus.push('les sous-questions ne suivent pas l\\'ordre de la fiche (\\u2265, >, \\u2264, <) : '+test.questions.map(function(q){ return q.op; }).join(','));
+      const q0=test.questions[0];
+      const ref=JSON.stringify([q0.pts,q0.k,q0.perm]);
+      if(test.questions.some(function(q){ return JSON.stringify([q.pts,q.k,q.perm])!==ref; }))
+        vus.push('la courbe ou l\\'ordre des dessins CHANGE d\\'une sous-question à l\\'autre — l\\'ordre tiré doit être conservé pour les quatre');
+      if(q0.perm.slice().sort().join(',')!=='ge,gt,le,lt')
+        vus.push('l\\'ordre des dessins n\\'est pas une permutation des quatre signes : '+q0.perm.join(','));
+      rangs.add(q0.perm.indexOf('ge'));
+      test.questions.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','k','perm','op'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, la hauteur, l\\'ordre et le signe : '+cles.join(','));
+      });
+      if(q0.pts.length!==7 || q0.pts.some(function(y){ return !Number.isInteger(y)||y<-3||y>3; })) vus.push('courbe hors du quadrillage');
+      if(!Number.isInteger(q0.k)||q0.k<-3||q0.k>3) vus.push('hauteur de droite hors du quadrillage : '+q0.k);
+      if(q0.k===0) vus.push('la droite est posée SUR l\\'axe des abscisses (k = 0) : elle ne se voit plus, et ses marques tombent sur les étiquettes');
+      const cross=[]; for(let x=-3;x<=3;x++){ if(q0.pts[x+3]===q0.k) cross.push(x); }
+      if(cross.length!==2){ vus.push('la droite croise la courbe en '+cross.length+' graduation(s) au lieu de 2'); }
+      else{
+        if(cross[0]<=-3||cross[1]>=3) vus.push('un croisement tombe au bord de la courbe : un morceau du dessous serait vide');
+        for(let x=-3;x<=3;x++){ const y=q0.pts[x+3];
+          if(x>cross[0]&&x<cross[1]){ if(y<=q0.k) vus.push('entre les croisements, la courbe n\\'est pas strictement au-dessus de la droite'); }
+          else if(x<cross[0]||x>cross[1]){ if(y>=q0.k) vus.push('hors des croisements, la courbe n\\'est pas strictement au-dessous de la droite'); }
+        }
+      }
+    }
+    if(!vus.length && rangs.size<2)
+      vus.push('sur 80 séances, le dessin de \\u2265 tombe toujours au rang '+Array.from(rangs)[0]+' : l\\'ordre des dessins n\\'est pas mélangé');
+
+    /* ---- 2. les quatre dessins, MESURÉS contre les graduations du dessin
+       même : même courbe noire partout, et le rouge de chaque carte dit
+       exactement son signe — morceaux, bornes, point plein ou rond vide. ---- */
+    startIng(); clearTimeout(test.fbTimer);
+    test.idx=0; renderIngTest();
+    const q=test.questions[0];
+    const cross=[]; for(let x=-3;x<=3;x++){ if(q.pts[x+3]===q.k) cross.push(x); }
+    const x1=cross[0], x2=cross[1];
+    const cartes=document.querySelectorAll('#ingHost .ing-carte');
+    if(cartes.length!==4) vus.push(cartes.length+' dessins au lieu de 4');
+    else{
+      const dNoir=[]; cartes.forEach(function(c){ const p=c.querySelector('.lv-curve'); dNoir.push(p?p.getAttribute('d'):'absente'); });
+      if(new Set(dNoir).size!==1) vus.push('les quatre dessins ne portent pas la MÊME courbe noire');
+      /* l'échelle se relit sur les étiquettes des graduations — aucune
+         coordonnée recopiée, un viewBox qui changerait resterait mesuré juste */
+      const carte0=cartes[0];
+      const grad=function(txt,horiz){
+        const ts=carte0.querySelectorAll('text.lv-ax');
+        for(let i=0;i<ts.length;i++){ if(ts[i].textContent===txt &&
+          (horiz ? ts[i].getAttribute('text-anchor')==='middle' : ts[i].getAttribute('text-anchor')==='end')) return ts[i]; }
+        return null; };
+      const g3=grad(numFmt(-3),true), g3b=grad(numFmt(3),true);
+      const h1=grad(numFmt(-1),false), h1b=grad(numFmt(1),false);
+      if(!g3||!g3b||!h1||!h1b){ vus.push('les graduations \\u22123, 3, \\u22121 ou 1 sont introuvables sur le dessin'); }
+      else{
+        const gx=function(el){ return parseFloat(el.getAttribute('x')); };
+        const gy=function(el){ return parseFloat(el.getAttribute('y'))-3.5; };
+        const sx=function(v){ return gx(g3)+(v+3)*(gx(g3b)-gx(g3))/6; };
+        const sy=function(v){ return (gy(h1)+gy(h1b))/2 - v*(gy(h1)-gy(h1b))/2; };
+        const deb=function(d){ const m=d.match(/M\\s*([-\\d.]+)\\s+([-\\d.]+)/); return m?[parseFloat(m[1]),parseFloat(m[2])]:[NaN,NaN]; };
+        const fin=function(d){ const t=d.trim().split(/[\\s,]+/); return [parseFloat(t[t.length-2]),parseFloat(t[t.length-1])]; };
+        const pres=function(a,b){ return Math.abs(a-b)<=1.5; };
+        cartes.forEach(function(c,i){
+          const op=q.perm[i], dessus=(op==='ge'||op==='gt'), pris=(op==='ge'||op==='le');
+          const nom='dessin '+(i+1)+' ('+op+')';
+          const niv=c.querySelector('.ing-niv');
+          if(!niv) vus.push(nom+' : la droite horizontale manque');
+          else if(!pres(parseFloat(niv.getAttribute('y1')), sy(q.k))) vus.push(nom+' : la droite n\\'est pas à la hauteur '+q.k);
+          const rouges=c.querySelectorAll('.ing-rouge');
+          if(rouges.length!==(dessus?1:2)){ vus.push(nom+' : '+rouges.length+' morceau(x) rouge(s) au lieu de '+(dessus?1:2)); return; }
+          if(dessus){
+            const d=rouges[0].getAttribute('d'), a=deb(d), z=fin(d);
+            if(!pres(a[0],sx(x1))||!pres(z[0],sx(x2))) vus.push(nom+' : le rouge ne va pas de '+x1+' à '+x2);
+            if(!pres(a[1],sy(q.k))||!pres(z[1],sy(q.k))) vus.push(nom+' : le rouge ne part pas de la droite ou n\\'y revient pas');
+          } else {
+            const dg=rouges[0].getAttribute('d'), dd=rouges[1].getAttribute('d');
+            if(!pres(deb(dg)[0],sx(-3))||!pres(fin(dg)[0],sx(x1))) vus.push(nom+' : le morceau de gauche ne va pas de \\u22123 à '+x1);
+            if(!pres(deb(dd)[0],sx(x2))||!pres(fin(dd)[0],sx(3))) vus.push(nom+' : le morceau de droite ne va pas de '+x2+' à 3');
+          }
+          const surCroisement=function(el){ const cx=parseFloat(el.getAttribute('cx')), cy=parseFloat(el.getAttribute('cy'));
+            return pres(cy,sy(q.k)) && (pres(cx,sx(x1))||pres(cx,sx(x2))); };
+          const pleins=Array.prototype.filter.call(c.querySelectorAll('.ing-pt'), surCroisement);
+          const vides=Array.prototype.filter.call(c.querySelectorAll('.ing-vide'), surCroisement);
+          if(pris && (pleins.length!==2 || vides.length!==0))
+            vus.push(nom+' : les croisements devraient porter deux points PLEINS ('+pleins.length+' pleins, '+vides.length+' vides)');
+          if(!pris && (vides.length!==2 || pleins.length!==0))
+            vus.push(nom+' : les croisements devraient porter deux ronds VIDES ('+pleins.length+' pleins, '+vides.length+' vides)');
+          if(!dessus){
+            const bouts=Array.prototype.filter.call(c.querySelectorAll('.ing-pt'), function(el){
+              const cx=parseFloat(el.getAttribute('cx'));
+              return (pres(cx,sx(-3))&&pres(parseFloat(el.getAttribute('cy')),sy(q.pts[0])))
+                  || (pres(cx,sx(3))&&pres(parseFloat(el.getAttribute('cy')),sy(q.pts[6]))); });
+            if(bouts.length!==2) vus.push(nom+' : les bouts de la courbe ne portent pas leurs points pleins ('+bouts.length+'/2)');
+          }
+        });
+      }
+    }
+
+    /* ---- 3. la correction, CLIQUÉE — la leçon des sommes : les contrôles
+       lisaient le verdict, l'élève regarde la couleur. ---- */
+    const poser=function(idx, vals){ test.locked=false; test.idx=idx; renderIngTest();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id);
+        if(el) el.value=(vals[id]==null?'':String(vals[id])); }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const sch=String(q.perm.indexOf('ge'));
+    const BON={'ing-sch':sch,'ing-d1':x1,'ing-p1':'oui','ing-d2':x2,'ing-p2':'oui',
+               'ing-co1':'[','ing-b1':x1,'ing-b2':x2,'ing-cf1':']'};
+    const IDS=Object.keys(BON);
+
+    /* copie juste : tout vert, la note compte les 9 cases, la bonne carte s'entoure */
+    poser(0,BON); let avant=test.score; checkIngAnswer();
+    if(IDS.some(function(id){ return peint(id)!=='vert'; }))
+      vus.push('la copie juste de \\u2265 n\\'est pas entièrement verte ('+IDS.map(peint).join(',')+')');
+    if(test.score-avant!==9) vus.push('la copie juste de \\u2265 vaut '+(test.score-avant)+' au lieu de 9');
+    const carteOk=document.querySelectorAll('#ingHost .ing-carte')[q.perm.indexOf('ge')];
+    if(!carteOk || !/\\bok\\b/.test(carteOk.className)) vus.push('le bon dessin n\\'est pas entouré à la vérification');
+
+    /* une seule case fausse : elle SEULE rougit */
+    poser(0,Object.assign({},BON,{'ing-p2':'non'})); checkIngAnswer();
+    if(peint('ing-p2')!=='rouge') vus.push('la case fausse est peinte en '+peint('ing-p2'));
+    IDS.filter(function(id){ return id!=='ing-p2'; }).forEach(function(id){
+      if(peint(id)!=='vert') vus.push('une case juste ('+id+') est peinte en '+peint(id)+' parce qu\\'une autre est fausse'); });
+
+    /* en entraînement, une case VIDE ne rougit pas : correction en bleu, valeur écrite */
+    poser(0,Object.assign({},BON,{'ing-b2':null})); checkIngAnswer();
+    if(peint('ing-b2')==='rouge') vus.push('une case laissée vide rougit à la vérification');
+    if(peint('ing-b2')!=='bleu') vus.push('une case vide ne reçoit pas la correction en bleu ('+peint('ing-b2')+')');
+    if((document.getElementById('ing-b2').value||'')==='') vus.push('la correction en bleu n\\'écrit pas la valeur');
+
+    /* ---- 4. l'ordre des deux morceaux est LIBRE : la copie de f(x) < k qui
+       décrit le morceau de droite D'ABORD est juste, phrases ET solution. ---- */
+    const schLt=String(q.perm.indexOf('lt'));
+    const INVERSE={'ing-sch':schLt,
+      'ing-d1':x2,'ing-p1':'non','ing-d2':3,'ing-p2':'oui',
+      'ing-d3':-3,'ing-p3':'oui','ing-d4':x1,'ing-p4':'non',
+      'ing-co1':']','ing-b1':x2,'ing-b2':3,'ing-cf1':']',
+      'ing-co2':'[','ing-b3':-3,'ing-b4':x1,'ing-cf2':'['};
+    poser(3,INVERSE); avant=test.score; checkIngAnswer();
+    const rougesInv=Object.keys(INVERSE).filter(function(id){ return peint(id)!=='vert'; });
+    if(rougesInv.length) vus.push('la copie qui décrit les morceaux dans l\\'autre ordre est comptée fausse : '+rougesInv.map(function(id){ return id+'='+peint(id); }).join(','));
+    if(test.score-avant!==17) vus.push('la copie inversée de < vaut '+(test.score-avant)+' au lieu de 17');
+
+    /* ...et le même morceau décrit DEUX fois n'est défendable qu'une fois */
+    poser(3,{'ing-d1':-3,'ing-p1':'oui','ing-d3':-3,'ing-p3':'oui'});
+    const res2=ingJuge(test.questions[3]);
+    const okD=function(id){ return res2.subs.filter(function(s){ return s.id===id; })[0].ok; };
+    if(okD('ing-d1')&&okD('ing-d3')) vus.push('les deux phrases décrivent le même morceau et sont comptées justes toutes les deux');
+
+    /* ---- 5. en soutien : la frappe colore, la case vide ne reçoit RIEN, et
+       une copie incomplète laisse corriger. ---- */
+    currentMode='soutien';
+    poser(2,{'ing-d1':-3,'ing-p1':'oui','ing-d2':x1+1});
+    ingLive();
+    if(peint('ing-d1')!=='vert') vus.push('en soutien, la case juste ne verdit pas pendant la frappe');
+    if(peint('ing-d2')!=='rouge') vus.push('en soutien, la case fausse ne rougit pas pendant la frappe');
+    if(peint('ing-b1')!=='rien') vus.push('en soutien, une case vide reçoit '+peint('ing-b1')+' pendant la frappe');
+    checkIngAnswer();
+    if(peint('ing-b1')!=='rien') vus.push('en soutien, la vérification pose '+peint('ing-b1')+' sur une case vide');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question au lieu de laisser corriger');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function imageNombre(w, P){
   const present = evaluer(w, "typeof startImg==='function' && typeof imgCheck==='function'");
   if(!present.ok || !present.valeur){
