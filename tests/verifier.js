@@ -2393,6 +2393,7 @@ function exercices(suite){
     jugeArithmetique(w, P);
     equationGraphique(w, P);
     associerDerivee(w, P);
+    signePremierDegre(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -5625,6 +5626,34 @@ function associerDerivee(w, P){
     { const el=document.getElementById('afp-comp');
       if(!el || el.value!=='non') vus.push('la révélation de la question c n\\'écrit pas « non »'); }
     if(r.fb.indexOf('SIGNE')<0 && r.fb.indexOf('signe')<0) vus.push('le pourquoi de l\\'incompatibilité ne nomme pas le signe');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Le signe du premier degré : 5 questions, les trois niveaux présents --
+   L'exercice en posait 15 (5 par niveau) ; Turquet en demande 5 (août 2026).
+   Deux bords : le COMPTE, comparé à tests/profils.js — deux sources, comme
+   SF_NB —, et la COMPOSITION : chaque niveau garde au moins une question,
+   dans l'ordre des niveaux, sans quoi l'un des trois disparaîtrait en
+   silence — une aide absente ne se signale pas. */
+function signePremierDegre(w, P){
+  const present = evaluer(w, "typeof s1BuildQuestions==='function'");
+  if(!present.ok || !present.valeur || !P.nbQuestionsSignePremier){
+    ignorer('le signe du premier degré pose 5 questions, les trois niveaux présents',
+      'ce niveau n\'a pas l\'exercice du signe du premier degré');
+    return;
+  }
+  verifierEval(w, 'le signe du premier degré pose 5 questions, les trois niveaux présents', `(function(){
+    const vus=[];
+    for(let t=0;t<40 && !vus.length;t++){
+      const qs=s1BuildQuestions();
+      if(qs.length!==${P.nbQuestionsSignePremier})
+        vus.push(qs.length+' questions au lieu de ${P.nbQuestionsSignePremier}');
+      [1,2,3].forEach(function(n){
+        if(!qs.some(function(q){ return q.level===n; })) vus.push('le niveau '+n+' a disparu de la séance');
+      });
+      for(let i=1;i<qs.length;i++){ if(qs[i].level<qs[i-1].level)
+        vus.push('les niveaux ne se suivent plus dans l\\'ordre : '+qs.map(function(q){ return q.level; }).join(',')); }
+    }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

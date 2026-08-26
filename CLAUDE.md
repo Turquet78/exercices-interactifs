@@ -2295,6 +2295,15 @@ visite. Éprouvé en le cassant onze fois — et le sabotage de la case vide est
 d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
 le masque sous la révélation — la leçon des sabotages impossibles, encore.
 
+**Le signe du premier degré pose 5 questions, et non plus 15** (demande de
+Turquet, août 2026). Les trois niveaux restent TOUS représentés — 2 du
+niveau 1, 2 du niveau 2 (la racine en fraction), 1 du niveau 3 (la racine
+0) —, dans leur ordre. Le compte vit dans `S1_NB`, à côté de sa fabrique
+`s1BuildQuestions()`, et le contrôle le compare à `tests/profils.js`
+(`nbQuestionsSignePremier`) — deux sources, comme `SF_NB`. Il tient aussi la
+COMPOSITION : un niveau qui disparaîtrait de la séance ne casserait rien, et
+personne ne le verrait — une aide absente ne se signale pas.
+
 **La tangente à (ax+b)eˣ démontre ce que l'énoncé annonce — et les deux lisent
 la même fonction.** {tangente-exp} (Terminale, à côté d'{equation-tangente},
 demande de Turquet, août 2026) est repris de la fiche papier : f(x) = (ax+b)eˣ
