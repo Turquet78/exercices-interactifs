@@ -2295,6 +2295,27 @@ visite. Éprouvé en le cassant onze fois — et le sabotage de la case vide est
 d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
 le masque sous la révélation — la leçon des sabotages impossibles, encore.
 
+**Et le même savoir, à l'envers du QCM : choisir le tableau de f parmi
+quatre.** {variations-depuis-derivee} (Terminale, thème Dérivée, demande de
+Turquet, août 2026) est l'exercice 4 de la fiche 9 : la courbe de f′ donnée,
+quatre tableaux de variations proposés, et les distracteurs sont les pièges
+MÊMES de la fiche — celui qui lit les SOMMETS de f′ au lieu de ses zéros (le
+« 3,25 » de la fiche est l'abscisse du sommet), celui qui INVERSE les sens,
+celui dont un zéro manque ou s'est décalé. Des propositions qui différeraient
+par autre chose se laisseraient éliminer sans lire la courbe — la leçon
+d'{intervalles-inegalite}, et « à forme égale le rang change » aussi.
+La question ne porte que la courbe, l'ordre et les indices des distracteurs
+(on range l'indice, jamais l'objet) ; les quatre tableaux sont CONSTRUITS
+depuis la courbe même, et la correction nomme le piège du tableau choisi.
+Moteur d'{associer-derivee} réutilisé (afGraphSVG, afpZeros, afpCourbeDer),
+tableau statique dessiné avec les classes du 5.2. Deux défauts attrapés par
+le contrôle avant la mise en ligne : lvAnalyze compte les bords d'un PALIER
+comme des sommets — le piège aurait listé un sommet que l'œil ne voit pas,
+d'où afqSommets — et un garde-fou « sommet sur un zéro » qui n'écartait
+jamais rien (une courbe traverse l'axe en montant, jamais en tournant) :
+le cinquième garde-fou mort du projet, retiré, sabotage à l'appui. Éprouvé
+en le cassant neuf fois.
+
 **Le signe du premier degré pose 5 questions, et non plus 15** (demande de
 Turquet, août 2026). Les trois niveaux restent TOUS représentés — 2 du
 niveau 1, 2 du niveau 2 (la racine en fraction), 1 du niveau 3 (la racine

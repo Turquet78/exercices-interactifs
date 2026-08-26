@@ -2394,6 +2394,7 @@ function exercices(suite){
     equationGraphique(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
+    variationsDerivee(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -5654,6 +5655,108 @@ function signePremierDegre(w, P){
       for(let i=1;i<qs.length;i++){ if(qs[i].level<qs[i-1].level)
         vus.push('les niveaux ne se suivent plus dans l\\'ordre : '+qs.map(function(q){ return q.level; }).join(',')); }
     }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Le tableau de f depuis la courbe de f' : quatre propositions, les
+   pièges de la fiche ---------------------------------------------------------
+   La fiche 9, exercice 4 : la courbe de f' donnée, choisir parmi quatre
+   tableaux de variations celui de f. Les distracteurs sont les pièges mêmes
+   de la fiche — les SOMMETS de f' lus comme des zéros, les sens inversés, un
+   zéro décalé ou manquant — et le contrôle recompte tout par sa propre
+   arithmétique : zéros et signes sur les valeurs de la courbe, sommets sur
+   les différences. Quatre bords silencieux : le vrai tableau qui ne colle pas
+   à la courbe, deux propositions identiques (deux bonnes réponses, une seule
+   comptée), le piège du sommet posé SUR un zéro (il ne piègerait plus rien),
+   et la bonne qui tombe toujours au même rang — à forme égale le rang change,
+   la leçon d'{intervalles-inegalite}. */
+function variationsDerivee(w, P){
+  const present = evaluer(w, "typeof startAfq==='function' && typeof afqBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le tableau de f depuis la courbe de f\' : quatre propositions, les pièges de la fiche',
+      'ce niveau n\'a pas l\'exercice du tableau depuis la courbe de f\'');
+    return;
+  }
+  verifierEval(w, 'le tableau de f depuis la courbe de f\' : quatre propositions, les pièges de la fiche', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='variations-depuis-derivee';
+    const zerosDe=function(p){ const out=[]; for(let x=-3;x<=3;x++){ if(p[x+3]===0) out.push(x); } return out; };
+    const signesDe=function(p, roots){
+      const seps=[-3.5].concat(roots,[3.5]), out=[];
+      for(let i=0;i<seps.length-1;i++){ let sg=null;
+        for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&p[x+3]!==0){ sg=(p[x+3]>0)?'+':'-'; break; } }
+        out.push(sg); }
+      return out;
+    };
+    const sommetsDe=function(p){ const out=[]; let d0=Math.sign(p[1]-p[0]);
+      for(let i=1;i<6;i++){ const d=Math.sign(p[i+1]-p[i]); if(d!==0&&d0!==0&&d!==d0) out.push(i-3); if(d!==0) d0=d; }
+      return out;
+    };
+    const parRang={};
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=afqBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['ptsp','perm','gard','dec'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'ordre et les indices : '+cles.join(','));
+        if(q.perm.slice().sort().join(',')!=='autre,inverse,sommets,vrai')
+          vus.push('l\\'ordre n\\'est pas une permutation des quatre natures : '+q.perm.join(','));
+        const zeros=zerosDe(q.ptsp);
+        if(!zeros.length||zeros.length>2) vus.push(zeros.length+' zéro(s) sur la courbe de f\\'');
+        if(zeros.some(function(r){ return r<=-3||r>=3; })) vus.push('un zéro de f\\' au bord du dessin');
+        for(let i=1;i<zeros.length;i++){ if(zeros[i]-zeros[i-1]<2) vus.push('deux zéros voisins : '+zeros.join(',')); }
+        const sg=signesDe(q.ptsp, zeros);
+        if(sg.some(function(x){ return x===null; })) vus.push('un intervalle sans graduation pour porter son signe');
+        for(let i=1;i<sg.length;i++){ if(sg[i]===sg[i-1]) vus.push('f\\' ne change pas de signe à un zéro'); }
+        q.ptsp.forEach(function(v){ if(v!==0&&Math.abs(v)<1) vus.push('f\\' frôle l\\'axe sans le toucher'); });
+        const som=sommetsDe(q.ptsp);
+        if(!som.length) vus.push('aucun sommet sur la courbe de f\\' : le piège de la fiche n\\'a rien à lire');
+        if(som.some(function(x){ return zeros.indexOf(x)>=0; }))
+          vus.push('un sommet de f\\' tombe SUR un zéro : le piège serait la bonne réponse');
+        /* les quatre tableaux affichés : le vrai colle à la courbe, et deux
+           à deux différents */
+        const T=afqTables(q);
+        const flAtt=sg.map(function(x){ return x==='+'?'up':'down'; }).join(',');
+        if(T.vrai.roots.join(',')!==zeros.join(',') || T.vrai.fleches.join(',')!==flAtt)
+          vus.push('le tableau « vrai » ne colle pas à la courbe : '+T.vrai.roots.join(',')+' | '+T.vrai.fleches.join(','));
+        const sigs=['vrai','sommets','inverse','autre'].map(function(k){ return T[k].roots.join(',')+'|'+T[k].fleches.join(','); });
+        if(new Set(sigs).size!==4) vus.push('deux propositions identiques : deux bonnes réponses, une seule comptée');
+        const forme=String(zeros.length);
+        (parRang[forme]=parRang[forme]||new Set()).add(q.perm.indexOf('vrai'));
+      });
+    }
+    if(!vus.length){
+      Object.keys(parRang).forEach(function(f){
+        if(parRang[f].size<2) vus.push('à forme égale ('+f+' zéro(s)), la bonne tombe toujours au rang '+Array.from(parRang[f]).join(''));
+      });
+    }
+
+    /* ---- les gestes, sur une question FIXE ---- */
+    const Q0={ptsp:[-1,-2,-3,0,1,2,3], perm:['sommets','vrai','autre','inverse'], gard:0, dec:1};
+    function pose(valeur){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'afq', questions:[JSON.parse(JSON.stringify(Q0))], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false});
+      renderAfq();
+      const sel=document.getElementById('afq-sel'); if(sel && valeur!==null) sel.value=valeur;
+      checkAfq();
+      return { score:test.score, fb:document.getElementById('afqFeedback').textContent,
+        selCls:(document.getElementById('afq-sel')||{}).className||'',
+        cartes:[].slice.call(document.querySelectorAll('#afqHost .afq-carte')).map(function(e){ return e.className.replace('afq-carte','').trim(); }) };
+    }
+    let r=pose('1');   /* le vrai est au rang 1 (lettre b) */
+    if(r.score!==1) vus.push('la bonne lettre est refusée');
+    if(r.cartes[1].indexOf('ok')<0) vus.push('la bonne carte ne se montre pas en vert');
+    r=pose('0');       /* rang 0 = le piège des sommets */
+    if(r.score!==0) vus.push('le piège des sommets est accepté');
+    if(r.fb.indexOf('SOMMETS')<0) vus.push('le retour ne nomme pas le piège des sommets choisi');
+    if(r.cartes[0].indexOf('bad')<0 || r.cartes[1].indexOf('ok')<0) vus.push('les cartes ne montrent pas le choisi et la bonne');
+    r=pose('3');       /* rang 3 = les sens inversés */
+    if(r.fb.indexOf('INVERSE')<0) vus.push('le retour ne nomme pas l\\'inversion des sens choisie');
+    r=pose(null);      /* rien choisi */
+    if(r.fb.indexOf('Choisis un tableau')<0) vus.push('une copie vide devrait demander de choisir, pas juger');
+    if(/\\bbad\\b/.test(r.selCls)) vus.push('le menu vide rougit');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
