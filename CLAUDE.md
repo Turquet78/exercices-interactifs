@@ -2261,6 +2261,40 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 
 ---
 
+**Associer f à f′, sans une seule formule.** {associer-derivee} (Terminale,
+thème Dérivée, demande de Turquet, août 2026) est repris de la fiche 9 : a) une
+courbe de f dont on déduit le tableau — signe de f′, variations —, b) une
+courbe de f′ dont on déduit le MÊME tableau, c) la question de la fiche : ces
+deux courbes sont-elles COMPATIBLES ? Une séance = deux paires, l'une
+compatible et l'autre non — sans quoi l'élève apprendrait que la réponse est
+toujours du même côté —, à rang mélangé, chacune en trois questions sur les
+mêmes dessins conservés.
+**Le dessin est le moteur de courbes de {lecture-variations} de la Seconde,
+PORTÉ au caractère près** — cinq fonctions (lvPickSubset, lvGenPts, lvAnalyze,
+lvTangents, lvPath) comparées entre les deux fichiers par un contrôle, la
+leçon de mlFeuille — et le tableau est celui d'{etude-fonction} (efTableHTML,
+efArrowChange, mêmes ids `ef-*`) : chaque rendu VIDE les hôtes des autres
+écrans, le piège documenté du tableau fantôme. La bonne réponse n'est jamais
+rangée à côté de la question : la question ne porte que les deux courbes, et
+la compatibilité est la COMPARAISON des deux tables, recalculées par les
+fonctions qui corrigent.
+**L'incompatible se fabrique en MUTANT la vraie table de f** — signes opposés,
+un zéro décalé, un zéro de plus ou de moins — puis la paire est REVÉRIFIÉE par
+la fonction qui corrigera : une mutation qui ne mute rien ferait dire « non »
+à un élève qui a raison. Les zéros de f′ changent de signe (un zéro sans
+changement n'est pas un extremum), jamais voisins (le segment entier serait
+posé sur l'axe — la leçon des solutions voisines d'{equation-graphique}),
+jamais au bord.
+**Une case vide ne rougit jamais — tenue ici dès le premier jour.** Le 5.2,
+copié au départ, marque tout ce qu'il voit et vit pour cela dans la liste des
+dispenses du banc navigateur (`casesVides.sans`) ; l'exercice neuf n'y entre
+pas : rien n'est peint tant que la copie est vide, une case vide ne reçoit
+aucune couleur avant le verrouillage, la révélation en vert la remplit à la
+fin. C'est le contrôle universel du banc navigateur qui l'a vu, à la première
+visite. Éprouvé en le cassant onze fois — et le sabotage de la case vide est
+d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
+le masque sous la révélation — la leçon des sabotages impossibles, encore.
+
 **La tangente à (ax+b)eˣ démontre ce que l'énoncé annonce — et les deux lisent
 la même fonction.** {tangente-exp} (Terminale, à côté d'{equation-tangente},
 demande de Turquet, août 2026) est repris de la fiche papier : f(x) = (ax+b)eˣ

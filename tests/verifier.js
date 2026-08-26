@@ -2392,6 +2392,7 @@ function exercices(suite){
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
     equationGraphique(w, P);
+    associerDerivee(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -5470,6 +5471,160 @@ function equationGraphique(w, P){
     /* l'union dans l'AUTRE ordre : les deux intervalles se jugent au mieux */
     r=pose('ineq', 'lt', {'eqg-co1':']','eqg-b1':'2','eqg-b2':'3','eqg-cf1':']','eqg-co2':'[','eqg-b3':'-3','eqg-b4':'-1','eqg-cf2':'['});
     if(r.score!==8) vus.push('f(x) < g(x) : l\\'union écrite droite-gauche est refusée, score '+r.score);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
+   Deux paires de courbes par séance — l'une compatible, l'autre non —,
+   chacune en trois questions a/b/c sur les MÊMES dessins. Le moteur de
+   courbes est PORTÉ de la Seconde au caractère près : cinq fonctions
+   comparées ici entre les deux fichiers, parce qu'une copie retouchée d'un
+   seul côté ferait diverger deux niveaux sans que rien ne rougisse — la
+   leçon de mlFeuille et du moteur des fractions. Le reste se recompte par
+   la propre arithmétique du contrôle : les sommets de f par les différences
+   de ses valeurs, les zéros et signes de f' par ses valeurs mêmes — jamais
+   afpSignes ni afpZeros, qui se tromperaient du même côté. */
+function associerDerivee(w, P){
+  const present = evaluer(w, "typeof startAfp==='function' && typeof afpBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('associer f à f\' : deux paires par séance, l\'une compatible, l\'autre non',
+      'ce niveau n\'a pas l\'exercice « Associer f et f\' »');
+    return;
+  }
+  /* le moteur de courbes porté de la Seconde, au caractère près */
+  const LV_PORT=['lvPickSubset','lvGenPts','lvAnalyze','lvTangents','lvPath'];
+  const corpsLv=(texte,nom)=>{
+    const f=corpsFonctions(texte, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o=>o.nom===nom);
+    return f ? f.texte : null;
+  };
+  let srcSec;
+  try{ srcSec = fs.readFileSync(path.join(__dirname, '..', 'secondes.html'), 'utf8'); }
+  catch(e){ srcSec = undefined; }
+  let srcTer;
+  try{ srcTer = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
+  catch(e){ srcTer = undefined; }
+  if(!srcSec || !srcTer){
+    verifier('le moteur de courbes est identique à celui de la Seconde, au caractère près', false,
+      'un des deux fichiers est introuvable');
+  } else {
+    const abs=LV_PORT.filter(n=>corpsLv(srcSec,n)===null || corpsLv(srcTer,n)===null);
+    const diff=LV_PORT.filter(n=>corpsLv(srcSec,n)!==corpsLv(srcTer,n));
+    verifier('le moteur de courbes est identique à celui de la Seconde, au caractère près',
+      abs.length===0 && diff.length===0,
+      abs.length ? 'introuvable : '+abs.join(', ') : 'diverge sur : '+diff.join(', '));
+  }
+  verifierEval(w, 'associer f à f\' : deux paires par séance, l\'une compatible, l\'autre non', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='associer-derivee';
+
+    /* la table de f, recomptée par les DIFFÉRENCES de ses valeurs */
+    const tableDeF=function(pts){
+      const roots=[], s=[]; let d0=Math.sign(pts[1]-pts[0]);
+      s.push(d0>0?'+':'-');
+      for(let i=1;i<6;i++){ const d=Math.sign(pts[i+1]-pts[i]);
+        if(d!==d0){ roots.push(i-3); s.push(d>0?'+':'-'); d0=d; } }
+      return {roots:roots, s:s};
+    };
+    /* la table de f', recomptée sur ses valeurs mêmes */
+    const tableDeFp=function(ptsp){
+      const roots=[]; for(let x=-3;x<=3;x++){ if(ptsp[x+3]===0) roots.push(x); }
+      const seps=[-3.5].concat(roots,[3.5]), s=[];
+      for(let i=0;i<seps.length-1;i++){
+        let signe=null;
+        for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&ptsp[x+3]!==0){ signe=(ptsp[x+3]>0)?'+':'-'; break; } }
+        s.push(signe);
+      }
+      return {roots:roots, s:s};
+    };
+    const compatibles=function(q){
+      const A=tableDeF(q.pts), B=tableDeFp(q.ptsp);
+      return A.roots.join(',')===B.roots.join(',') && A.s.join('')===B.s.join('');
+    };
+
+    /* ---- 1. le tirage : 200 séances ---- */
+    const rangsCompat=new Set();
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=afpBuildQuestions();
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='a,b,c,a,b,c')
+        vus.push('les questions ne suivent pas l\\'ordre a, b, c de la fiche : '+qs.map(function(q){ return q.type; }).join(','));
+      for(let p=0;p<2;p++){
+        const tri=qs.slice(3*p, 3*p+3);
+        const ref=JSON.stringify([tri[0].pts, tri[0].ptsp]);
+        if(tri.some(function(q){ return JSON.stringify([q.pts,q.ptsp])!==ref; }))
+          vus.push('les dessins CHANGENT au sein d\\'une paire — les trois questions a/b/c portent sur les mêmes courbes');
+      }
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','ptsp','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que les deux courbes et le type : '+cles.join(','));
+      });
+      const comps=[compatibles(qs[0]), compatibles(qs[3])];
+      if(comps[0]===comps[1])
+        vus.push('la séance n\\'a pas une paire compatible ET une incompatible ('+comps.join(',')+') — l\\'élève apprendrait que la réponse est toujours du même côté');
+      rangsCompat.add(comps[0]?0:1);
+      qs.filter(function(q,i){ return i%3===0; }).forEach(function(q){
+        const A=tableDeF(q.pts);
+        if(A.roots.length<1||A.roots.length>2) vus.push(A.roots.length+' sommet(s) sur la courbe de f');
+        if(A.roots.some(function(r){ return r<=-3||r>=3; })) vus.push('un sommet de f au bord du dessin');
+        const B=tableDeFp(q.ptsp);
+        if(!B.roots.length||B.roots.length>2) vus.push(B.roots.length+' zéro(s) sur la courbe de f\\'');
+        if(B.roots.some(function(r){ return r<=-3||r>=3; })) vus.push('un zéro de f\\' au bord du dessin');
+        for(let i=1;i<B.roots.length;i++){ if(B.roots[i]-B.roots[i-1]<2)
+          vus.push('deux zéros de f\\' voisins ('+B.roots.join(',')+') : le segment entier serait posé sur l\\'axe'); }
+        if(B.s.some(function(x){ return x===null; })) vus.push('un intervalle de f\\' sans aucune graduation pour porter son signe');
+        for(let i=1;i<B.s.length;i++){ if(B.s[i]===B.s[i-1])
+          vus.push('f\\' ne change pas de signe à un zéro : ce ne serait pas un extremum de f'); }
+        q.ptsp.forEach(function(v,i){ if(v!==0 && Math.abs(v)<1) vus.push('f\\' frôle l\\'axe sans le toucher (valeur '+v+')'); });
+      });
+    }
+    if(!vus.length && rangsCompat.size<2)
+      vus.push('la paire compatible tombe toujours au même rang : l\\'élève apprendrait le rang');
+
+    /* ---- 2. les gestes, sur une paire FIXE (sommet de f en 0, f\\' compatible) ---- */
+    const P1={pts:[-3,-1,1,3,1,-1,-3], ptsp:[2,1,3,0,-2,-1,-3]};
+    const P2={pts:[-3,-1,1,3,1,-1,-3], ptsp:[-2,-1,-3,0,2,1,3]};   /* signes opposés */
+    function pose(paire, type, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'afp', questions:['a','b','c'].map(function(tt){ return Object.assign({},paire,{type:tt}); }),
+        idx:{a:0,b:1,c:2}[type], score:0, answers:[], startTime:Date.now(), locked:false});
+      renderAfp();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkAfp();
+      return { score:test.score, fb:document.getElementById('afpFeedback').textContent,
+        rouges:[].slice.call(document.querySelectorAll('#scr-afp .bad'))
+          .filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); })
+          .map(function(e){ return e.id; }) };
+    }
+    let r=pose(P1,'a',{ 'ef-r0':'0','ef-l0s0':'+','ef-l0s1':'\\u2212','ef-a0':'up','ef-a1':'down' });
+    if(r.score!==1) vus.push('la table juste de f (sommet en 0, + puis \\u2212) est refusée');
+    r=pose(P1,'b',{ 'ef-r0':'0','ef-l0s0':'\\u2212','ef-l0s1':'+','ef-a0':'down','ef-a1':'up' });
+    if(r.score!==0) vus.push('la table de f\\' aux signes inversés est acceptée');
+    { const el=document.getElementById('ef-l0s0');
+      if(!el || el.value!=='+' || !el.classList.contains('ok')) vus.push('la révélation en vert (convention du 5.2) ne remplit pas la bonne réponse'); }
+    /* une copie vide ne rougit pas et ne verrouille pas */
+    r=pose(P1,'a',{});
+    if(r.rouges.length) vus.push('une copie vide rougit : '+r.rouges.join(','));
+    if(r.fb.indexOf('au moins une case')<0) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* une seule case remplie : les cases VIDES ne rougissent pas non plus */
+    r=pose(P1,'a',{ 'ef-r0':'0' });
+    if(r.rouges.length) vus.push('des cases vides rougissent quand une seule est remplie : '+r.rouges.join(','));
+    /* le bord n'est atteignable qu'en SOUTIEN : en entraînement, la révélation
+       en vert repasse derrière et efface le rouge — la leçon documentée des
+       sabotages impossibles */
+    currentMode='soutien';
+    r=pose(P1,'a',{ 'ef-r0':'5' });
+    if(r.rouges.indexOf('ef-r0')<0) vus.push('soutien : la case fausse ne rougit pas');
+    if(r.rouges.length>1) vus.push('soutien : des cases vides rougissent : '+r.rouges.join(','));
+    currentMode='train';
+    /* la question c, sur les deux paires, contre l\\'arithmétique du contrôle */
+    r=pose(P1,'c',{ 'afp-comp':'oui' });
+    if(r.score!==1) vus.push('la paire compatible refusée quand l\\'élève répond oui');
+    r=pose(P2,'c',{ 'afp-comp':'oui' });
+    if(r.score!==0) vus.push('la paire aux signes opposés acceptée comme compatible');
+    { const el=document.getElementById('afp-comp');
+      if(!el || el.value!=='non') vus.push('la révélation de la question c n\\'écrit pas « non »'); }
+    if(r.fb.indexOf('SIGNE')<0 && r.fb.indexOf('signe')<0) vus.push('le pourquoi de l\\'incompatibilité ne nomme pas le signe');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
