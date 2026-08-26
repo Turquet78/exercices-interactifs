@@ -2379,6 +2379,7 @@ function exercices(suite){
     antecedentNombre(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
+    etudeExponentielle(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -2650,6 +2651,89 @@ function abandonSortDePause(w, apres){
    comptes ou la longueur des codes. Attention toutefois — la fonction ne se
    déploie pas toute seule : ce contrôle compare la page au FICHIER du dépôt, il
    ne voit pas ce qui tourne réellement chez Supabase. */
+/* ---------- L'étude complète CLIQUÉE : la note compte les cases ET la dérivée lue par l'IA ----------
+   {etude-exponentielle} mélange deux juges : 46 cases locales et une feuille
+   dont le verdict vient du modèle. Le contrôle stubbe sb ET la feuille (le
+   modèle de verdictColore), puis CLIQUE : la feuille vide arrête la
+   vérification AVANT l'appel, la copie parfaite vaut 47/47, l'appel à l'IA
+   porte la dérivée attendue et la rédaction telle quelle, une dérivée refusée
+   coûte exactement le point de la feuille, et les cases fausses sont révélées
+   et décomptées. Il vit dans la chaîne séquentielle parce qu'il remplace sb :
+   lancé en parallèle, un autre contrôle le lui reprendrait en plein vol. */
+function etudeCompleteClique(w, apres){
+  const present = evaluer(w, "typeof checkEC==='function' && typeof ecJugeLocal==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('l\'étude complète cliquée : la note compte les cases ET la dérivée lue par l\'IA',
+      'ce niveau n\'a pas l\'exercice de l\'étude complète');
+    return longueurContexteIA(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='etude-exponentielle';
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'ec', questions:[{a:1,b:-3}], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:47});
+    const feuille=function(texte){ return { lire:function(){ return texte; }, lignes:[], verrouiller:function(){} }; };
+    let appels=[], verdictOk=true;
+    const BON={'ec-a1':0,'ec-a2':0,'ec-aexp':'jamais','ec-a3':0,'ec-a4':3,'ec-a5':3,'ec-a6':0,'ec-a7':0,'ec-a8':0,'ec-a9':0,'ec-a10':-3,'ec-a11':0,'ec-a12':-3,'ef-r0':4,'ef-l0s0':'+','ef-l0s1':'\u2212','ef-l1s0':'+','ef-l1s1':'+','ef-l2s0':'+','ef-l2s1':'\u2212','ef-a0':'up','ef-a1':'down','ef-e0t':'max','ef-e0x':4,'ec-d1':4,'ec-d2':4,'ec-d3':4,'ec-d4':1,'ec-d5':-4,'ec-e1':1,'ec-e2':1,'ec-e3':-2,'ec-f1':1,'ec-f2':1,'ec-f3':3,'ec-g1':1,'ec-g2':1,'ec-g3':1,'ec-g4':3,'ec-g5':1,'ec-g6':-2,'ec-g7':3,'ec-g8':-3,'ec-g9':-2,'ec-g10':3,'ec-g11':-5};
+    const poser=function(vals){ test.locked=false; test.ecBusy=false; renderEC();
+      sb.functions={ invoke:async function(nom, opts){ appels.push((opts&&opts.body)||{});
+        return { data:{ correct:verdictOk, feedback: verdictOk?'Ta dérivée est juste.':'Il y a une erreur dans ta dérivée.' } }; } };
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=String(vals[id]); }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+
+    /* la feuille vide arrête la vérification AVANT l'appel au modèle */
+    poser(BON); ecF=feuille('');
+    await checkEC();
+    if(appels.length) vus.push('la feuille vide part quand même à l\\'IA');
+    if(test.locked) vus.push('la feuille vide verrouille la question');
+
+    /* copie parfaite : 47/47, tout vert, et l'appel porte la bonne dérivée */
+    poser(BON); ecF=feuille("f'(x) = (-x+4)e^(-x)"); test.score=0;
+    await checkEC();
+    if(!test.locked) vus.push('la copie parfaite ne verrouille pas la question');
+    if(test.score!==47) vus.push('la copie parfaite vaut '+test.score+' au lieu de 47');
+    const rouges=Object.keys(BON).filter(function(id){ return peint(id)!=='vert'; });
+    if(rouges.length) vus.push('cases non vertes sur la copie parfaite : '+rouges.slice(0,5).join(','));
+    const corps=appels[appels.length-1]||{};
+    /* l'attendu porte DEUX écritures (principale, puis « ÉGALEMENT CORRECT dans
+       l'autre ordre ») : chercher la dérivée dans TOUT le texte ne prouve rien,
+       l'autre moitié la porterait encore — le sabotage l'a montré en restant
+       vert. On exige la dérivée dans CHAQUE moitié. */
+    const att=String(corps.attendu||'');
+    const attCoupe=att.indexOf(' — ÉGALEMENT');
+    const attP=attCoupe<0?att:att.slice(0,attCoupe), attA=attCoupe<0?'':att.slice(attCoupe);
+    if(attP.indexOf('−x + 4')<0 && attP.indexOf('-x + 4')<0)
+      vus.push('l\\'attendu principal envoyé à l\\'IA ne porte pas la dérivée (−x + 4)e^(−x) : « '+attP.slice(0,60)+' »');
+    if(attA.indexOf('−x + 4')<0 && attA.indexOf('-x + 4')<0)
+      vus.push('l\\'attendu n\\'offre pas la dérivée dans l\\'autre ordre : « '+attA.slice(0,60)+' »');
+    if(corps.reponse!=="f'(x) = (-x+4)e^(-x)") vus.push('la rédaction de l\\'élève ne part pas telle quelle');
+    if(corps.balises!==true) vus.push('l\\'appel ne demande pas les balises');
+
+    /* dérivée refusée par le modèle : la note perd EXACTEMENT le point de la feuille */
+    verdictOk=false;
+    poser(BON); ecF=feuille("f'(x) = (x+4)e^(-x)"); test.score=0;
+    await checkEC();
+    if(test.score!==46) vus.push('cases justes + dérivée fausse : '+test.score+' au lieu de 46');
+
+    /* deux cases fausses : décomptées, puis révélées en vert */
+    verdictOk=true;
+    poser(Object.assign({},BON,{'ec-e3':999,'ec-g11':999})); ecF=feuille("f'(x) = (-x+4)e^(-x)"); test.score=0;
+    await checkEC();
+    if(test.score!==45) vus.push('deux cases fausses : '+test.score+' au lieu de 45');
+    const rev=(document.getElementById('ec-e3')||{}).value||'';
+    if(rev!=='−2' && rev!=='-2') vus.push('la case fausse n\\'est pas révélée à la correction (valeur « '+rev+' »)');
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
+    const nom='l\'étude complète cliquée : la note compte les cases ET la dérivée lue par l\'IA';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    longueurContexteIA(w, apres);
+  });
+}
 function longueurContexteIA(w, apres){
   let maxCtx;
   try{
@@ -4059,6 +4143,103 @@ function inequationGraphique(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* ---------- Étude complète de (ax+b)e^(−x) : l'énoncé et la correction lisent la même fonction ---------- */
+/* {etude-exponentielle} (Terminale, thème 5). La question ne porte QUE a et b ;
+   ecAns() recalcule tout — le zéro, la racine de f′, l'extremum, f(1), f′(1),
+   la tangente — et l'énoncé comme la correction le lisent. Le contrôle refait
+   ces calculs par sa PROPRE arithmétique sur les 14 couples possibles, exige
+   que les « Démontre que » les disent, puis exerce le jugement local sur une
+   copie canonique (la fiche : a = 1, b = −3, soit f(x) = (x − 3)e^(−x)), une
+   copie à une faute, la paire de la tangente dans l'autre ordre, et les cases
+   vides du soutien. Le clic complet — avec la feuille lue par l'IA — vit dans
+   la chaîne séquentielle (etudeCompleteClique), le piège documenté de sb. */
+function etudeExponentielle(w, P){
+  const present = evaluer(w, "typeof startEC==='function' && typeof ecJugeLocal==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('l\'étude complète de (ax+b)e^(−x) : l\'énoncé et la correction lisent la même fonction',
+      'ce niveau n\'a pas l\'exercice de l\'étude complète');
+    return;
+  }
+  verifierEval(w, 'l\'étude complète de (ax+b)e^(−x) : l\'énoncé et la correction lisent la même fonction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='etude-exponentielle';
+
+    /* ---- 1. le tirage : a = ±1, b entier de −4 à 4, jamais 0 ni −1, et
+       RIEN d'autre dans la question ---- */
+    for(let t=0;t<200 && !vus.length;t++){
+      const q=genECCase();
+      if(q.a!==1 && q.a!==-1) vus.push('a vaut '+q.a+' au lieu de ±1');
+      if(!Number.isInteger(q.b)||q.b<-4||q.b>4) vus.push('b hors bornes : '+q.b);
+      if(q.b===0) vus.push('b = 0 autorisé : f\\'(1) = 0, la tangente serait horizontale');
+      if(q.b===-1) vus.push('b = −1 autorisé : f(1) = 0, le point de tangence tomberait sur l\\'axe');
+      const cles=Object.keys(q).filter(function(k){ return k!=='a'&&k!=='b'; });
+      if(cles.length) vus.push('la question range autre chose que a et b : '+cles.join(','));
+    }
+
+    /* ---- 2. ecAns contre une SECONDE arithmétique, sur les 14 couples ---- */
+    [1,-1].forEach(function(a){ [-4,-3,-2,1,2,3,4].forEach(function(b){
+      const A=ecAns({a:a,b:b});
+      const att={p:a, q:a*b, x0:-b, r:1-b, dp:-a, dq:a-a*b, ext:(a===1?'max':'min'),
+                 mE:b-1, f1:a*(1+b), d1:-a*b, tM:-a*b, tP:a*(1+2*b)};
+      Object.keys(att).forEach(function(k){
+        if(A[k]!==att[k]) vus.push('ecAns.'+k+' vaut '+A[k]+' au lieu de '+att[k]+' pour a='+a+', b='+b); });
+    }); });
+
+    /* ---- 3. l'énoncé dit ce que la correction attend — cas de la fiche ---- */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'ec', questions:[{a:1,b:-3}], idx:0, score:0, answers:[], locked:false, startTime:Date.now()});
+    renderEC();
+    const txt=function(){ return (document.getElementById('ecForm').textContent||'').replace(/\\s+/g,' '); };
+    if(txt().indexOf('(−x + 4)')<0) vus.push('l\\'énoncé de la dérivée ne dit pas (−x + 4) : '+txt().slice(0,80));
+    /* « maximum » seul ne prouve rien : le sélecteur min/max porte toujours
+       les deux mots dans son textContent — on vise le TITRE de la partie d */
+    if(txt().indexOf('ce maximum vaut')<0) vus.push('a = 1 : le titre d doit annoncer « ce maximum vaut »');
+    if((document.getElementById('ecPrompt').textContent||'').indexOf('− 3')<0) vus.push('l\\'énoncé n\\'écrit pas la fonction (x − 3)e^(−x)');
+    test.questions=[{a:-1,b:2}]; renderEC();
+    if(txt().indexOf('ce minimum vaut')<0) vus.push('a = −1 : le titre d doit annoncer « ce minimum vaut »');
+
+    /* ---- 4. le jugement local, exercé sur les vraies cases ---- */
+    test.questions=[{a:1,b:-3}];
+    const BON={'ec-a1':0,'ec-a2':0,'ec-aexp':'jamais','ec-a3':0,'ec-a4':3,'ec-a5':3,'ec-a6':0,'ec-a7':0,'ec-a8':0,'ec-a9':0,'ec-a10':-3,'ec-a11':0,'ec-a12':-3,'ef-r0':4,'ef-l0s0':'+','ef-l0s1':'\u2212','ef-l1s0':'+','ef-l1s1':'+','ef-l2s0':'+','ef-l2s1':'\u2212','ef-a0':'up','ef-a1':'down','ef-e0t':'max','ef-e0x':4,'ec-d1':4,'ec-d2':4,'ec-d3':4,'ec-d4':1,'ec-d5':-4,'ec-e1':1,'ec-e2':1,'ec-e3':-2,'ec-f1':1,'ec-f2':1,'ec-f3':3,'ec-g1':1,'ec-g2':1,'ec-g3':1,'ec-g4':3,'ec-g5':1,'ec-g6':-2,'ec-g7':3,'ec-g8':-3,'ec-g9':-2,'ec-g10':3,'ec-g11':-5};
+    const IDS=Object.keys(BON);
+    const poser=function(vals){ test.locked=false; renderEC();
+      Object.keys(vals).forEach(function(id){ const el=document.getElementById(id);
+        if(el) el.value=(vals[id]==null?'':String(vals[id])); }); };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); };
+
+    /* copie canonique : 46 cases justes, tout vert */
+    poser(BON); let r=ecJugeLocal(test.questions[0], false);
+    if(!r.allOk || r.nOk!==46 || r.nTot!==46)
+      vus.push('la copie canonique vaut '+r.nOk+'/'+r.nTot+' au lieu de 46/46 — rouges : '
+        +IDS.filter(function(id){ return peint(id)!=='vert'; }).slice(0,5).join(','));
+
+    /* une seule case fausse : elle SEULE rougit */
+    poser(Object.assign({},BON,{'ec-f3':99})); r=ecJugeLocal(test.questions[0], false);
+    if(peint('ec-f3')!=='rouge') vus.push('la case fausse est peinte en '+peint('ec-f3'));
+    IDS.filter(function(id){ return id!=='ec-f3'; }).forEach(function(id){
+      if(peint(id)!=='vert') vus.push('une case juste ('+id+') est peinte en '+peint(id)+' parce qu\\'une autre est fausse'); });
+    if(r.nOk!==45) vus.push('une faute : '+r.nOk+'/46 au lieu de 45/46');
+
+    /* les deux constantes de la tangente, dans l'autre ordre : copie juste */
+    poser(Object.assign({},BON,{'ec-g8':BON['ec-g9'],'ec-g9':BON['ec-g8']}));
+    r=ecJugeLocal(test.questions[0], false);
+    if(!r.allOk) vus.push('les deux constantes de la tangente écrites dans l\\'autre ordre sont comptées fausses ('
+      +peint('ec-g8')+','+peint('ec-g9')+')');
+
+    /* en soutien : la case vide ne reçoit RIEN, la juste verdit, la fausse rougit */
+    currentMode='soutien';
+    poser({'ec-a1':0,'ec-f3':99});
+    ecJugeLocal(test.questions[0], false);
+    if(peint('ec-a1')!=='vert') vus.push('en soutien, la case juste ne verdit pas');
+    if(peint('ec-f3')!=='rouge') vus.push('en soutien, la case fausse ne rougit pas');
+    if(peint('ec-e1')!=='rien') vus.push('en soutien, une case vide reçoit '+peint('ec-e1'));
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function imageNombre(w, P){
   const present = evaluer(w, "typeof startImg==='function' && typeof imgCheck==='function'");
   if(!present.ok || !present.valeur){
@@ -4761,7 +4942,7 @@ function verdictColore(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux',
       'ce niveau n\'a pas d\'exercice rédigé corrigé par l\'IA');
-    return longueurContexteIA(w, apres);
+    return etudeCompleteClique(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -4819,7 +5000,7 @@ function verdictColore(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', false, 'erreur JavaScript : '+r.erreur);
     else verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', r.valeur==='', r.valeur);
-    longueurContexteIA(w, apres);
+    etudeCompleteClique(w, apres);
   });
 }
 function simplifierBarres(w, P){
