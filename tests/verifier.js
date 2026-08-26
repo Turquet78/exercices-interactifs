@@ -2391,6 +2391,7 @@ function exercices(suite){
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
+    equationGraphique(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -5308,6 +5309,167 @@ function jugeArithmetique(w, P){
        Sans ce cas, un sabotage qui acceptait n'importe quel produit restait
        vert : l'égalité fausse attrapait tous les autres avant lui. */
     cas('un produit vrai qui n\\'est pas l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (21)/(2)*(1)/(5)\\n= (21)/(10)', 'dll', 'je-ne-sais-pas');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Les équations graphiques : deux courbes, des croisements lisibles, et
+   au moins dix dessins --------------------------------------------------------
+   Repris de la fiche « équation et inéquation » (demande de Turquet, août
+   2026, « au moins 10 dessins possibles »). Le risque propre : un croisement
+   ILLISIBLE — f moins la droite de g n'est pas monotone entre deux
+   graduations, et la page a RETIRÉ son échantillonnage après l'avoir mesuré
+   mort (0 rejet sur 2000). C'est donc CE contrôle qui exige la propriété, en
+   relisant les courbes de Bézier que lvPath écrit — le dessin même, jamais
+   eqgSpline ni une réimplémentation qui se tromperait du même côté. */
+function equationGraphique(w, P){
+  const present = evaluer(w, "typeof startEqg==='function' && typeof eqgBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les équations graphiques : deux courbes, des croisements lisibles, au moins dix dessins',
+      'ce niveau n\'a pas l\'exercice des équations graphiques');
+    return;
+  }
+  verifierEval(w, 'les équations graphiques : deux courbes, des croisements lisibles, au moins dix dessins', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='equation-graphique';
+
+    /* Le dessin MÊME, relu : lvPath en coordonnées de données, ses cubiques
+       échantillonnées par ce contrôle — indépendamment de toute fonction de
+       correction de la page. */
+    const echantillons=function(pts){
+      const d=lvPath(pts, function(x){ return x; }, function(y){ return y; });
+      const nums=d.replace(/[MC]/g,' ').trim().split(/\\s+/).map(Number);
+      if(nums.some(isNaN)) return null;
+      const out=[]; let px=nums[0], py=nums[1];
+      for(let i=2;i+5<nums.length;i+=6){
+        const c1x=nums[i],c1y=nums[i+1],c2x=nums[i+2],c2y=nums[i+3],x1=nums[i+4],y1=nums[i+5];
+        for(let t=0;t<=1.0001;t+=0.04){
+          const u=1-t;
+          out.push({x:u*u*u*px+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x1,
+                    y:u*u*u*py+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*y1});
+        }
+        px=x1; py=y1;
+      }
+      return out;
+    };
+
+    /* ---- 1. le tirage : 300 séances, tout par sa propre arithmétique ---- */
+    const dessins=new Set(), opsVus=new Set();
+    for(let t=0;t<300 && !vus.length;t++){
+      const qs=eqgBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='img,eqk,crx,ineq')
+        vus.push('les questions ne suivent pas l\\'ordre de la fiche (images, f(x)=k, f(x)=g(x), inéquation) : '+qs.map(function(q){ return q.type; }).join(','));
+      const q0=qs[0];
+      const ref=JSON.stringify([q0.pts,q0.s,q0.c,q0.k,q0.a,q0.b,q0.op]);
+      if(qs.some(function(q){ return JSON.stringify([q.pts,q.s,q.c,q.k,q.a,q.b,q.op])!==ref; }))
+        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux quatre');
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','s','c','k','a','b','op','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, la droite, k, a, b et le signe : '+cles.join(','));
+      });
+      dessins.add(JSON.stringify([q0.pts,q0.s,q0.c])); opsVus.add(q0.op);
+      const g=function(x){ return q0.s*x+q0.c; };
+      /* les croisements : exactement 2, sur des graduations, jamais au bord,
+         hauteur lisible, et le signe de f-g change bien à chacun */
+      const cr=[]; for(let x=-3;x<=3;x++){ if(q0.pts[x+3]===g(x)) cr.push(x); }
+      if(cr.length!==2){ vus.push(cr.length+' croisement(s) au lieu de 2'); continue; }
+      if(cr[0]<=-3||cr[1]>=3) vus.push('un croisement tombe au bord du dessin : '+cr.join(','));
+      if(Math.abs(g(cr[0]))>3||Math.abs(g(cr[1]))>3) vus.push('un croisement sort du quadrillage en hauteur');
+      let milieu=0;
+      for(let x=-3;x<=3;x++){
+        if(x===cr[0]||x===cr[1]) continue;
+        const d=q0.pts[x+3]-g(x);
+        if(d===0){ vus.push('f touche la droite sur une graduation qui n\\'est pas un croisement (x='+x+')'); break; }
+        const attendu=(x>cr[0]&&x<cr[1])?1:-1;
+        if(milieu===0 && x>cr[0]&&x<cr[1]) milieu=(d>0?1:-1);
+        if(milieu!==0){ const cote=(x>cr[0]&&x<cr[1])?milieu:-milieu; if((d>0?1:-1)!==cote){ vus.push('f ne change pas de côté à chaque croisement (x='+x+')'); break; } }
+      }
+      if(milieu===0) vus.push('aucune graduation strictement entre les deux croisements');
+      /* k : exactement 2 solutions, jamais traversé entre deux graduations */
+      const sols=[]; for(let x=-3;x<=3;x++){ if(q0.pts[x+3]===q0.k) sols.push(x); }
+      if(sols.length!==2) vus.push('f(x) = '+q0.k+' a '+sols.length+' solution(s) au lieu de 2');
+      /* deux solutions VOISINES = un segment de spline CONSTANT à la hauteur
+         k (valeurs égales, tangentes nulles) : la vraie solution serait un
+         intervalle entier, pas deux nombres — l'énoncé mentirait. Ce bord a
+         pris le tirage en défaut à la première exécution du contrôle. */
+      if(sols.length===2 && sols[1]-sols[0]<2)
+        vus.push('les deux solutions de f(x) = '+q0.k+' sont voisines ('+sols.join(',')+') : le segment entier est à cette hauteur');
+      for(let i=0;i<6;i++){ const lo=Math.min(q0.pts[i],q0.pts[i+1]), hi=Math.max(q0.pts[i],q0.pts[i+1]);
+        if(q0.k>lo && q0.k<hi) vus.push('la hauteur k = '+q0.k+' est traversée ENTRE deux graduations : une solution illisible'); }
+      /* les images se lisent : g(b) reste dans le quadrillage */
+      if(Math.abs(g(q0.b))>3) vus.push('g('+q0.b+') = '+g(q0.b)+' sort du dessin : l\\'image ne se lit pas');
+      /* LE DESSIN MÊME : la courbe écrite par lvPath ne frôle ni ne recroise
+         la droite hors des croisements — c'est le seul vrai risque, f moins
+         une droite PENCHÉE n'étant pas monotone entre deux graduations. La
+         hauteur k, elle, est déjà tenue par le bord discret : la spline est
+         monotone entre deux graduations, et un premier essai qui la mesurait
+         quand même criait sur les SOMMETS, où la courbe plate reste proche de
+         k sans le retraverser — un contrôle qui parle d'autre chose. */
+      const ech=echantillons(q0.pts);
+      if(!ech){ vus.push('le chemin de lvPath ne se relit pas'); break; }
+      ech.forEach(function(p){
+        if(!cr.some(function(x0){ return Math.abs(p.x-x0)<0.35; }) && Math.abs(p.y-g(p.x))<0.15)
+          vus.push('la courbe frôle la droite hors d\\'un croisement (x≈'+p.x.toFixed(2)+')');
+      });
+    }
+    /* AU MOINS DIX DESSINS : la demande même de l'exercice. */
+    if(!vus.length && dessins.size<10)
+      vus.push('seulement '+dessins.size+' dessin(s) distinct(s) sur 300 séances — il en faut au moins 10');
+    if(!vus.length && opsVus.size<4)
+      vus.push('le signe de l\\'inéquation ne varie pas assez : '+Array.from(opsVus).join(','));
+
+    /* ---- 2. les gestes, sur un tirage FIXE (croisements -1 et 2, f au-dessus
+       entre les deux) : la correction est la fonction même qui juge ---- */
+    const Q0={pts:[-3,-2,2,3,1,-1,-3], s:-1, c:1, k:-3, a:-2, b:2};
+    function pose(type, op, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'eqg', questions:['img','eqk','crx','ineq'].map(function(tt){ return Object.assign({},Q0,{op:op||'ge',type:tt}); }),
+        idx:{img:0,eqk:1,crx:2,ineq:3}[type], score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      renderEqgTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkEqgAnswer();
+      return { fb:document.getElementById('eqgFeedback').textContent,
+               cls:document.getElementById('eqgFeedback').className,
+               score:test.score };
+    }
+    /* les traits de la méthode n'apparaissent qu'à la vérification */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'eqg', questions:[Object.assign({},Q0,{op:'ge',type:'eqk'})], idx:0, score:0, maxScore:2, answers:[], startTime:Date.now(), locked:false});
+    renderEqgTest();
+    if(document.querySelector('#eqgGraph .img-trait, #eqgGraph .ing-rouge'))
+      vus.push('le trait de la méthode est dessiné AVANT la vérification : il donne ce qu\\'on demande de trouver');
+    if(!document.querySelector('#eqgGraph .eqg-g')) vus.push('la droite de g n\\'est pas dessinée');
+    checkEqgAnswer();
+    if(!document.querySelector('#eqgGraph .img-trait'))
+      vus.push('après la vérification, le trait de la méthode manque sur f(x) = k');
+    /* images : justes, et la vide reçoit le bleu avec le message des vides */
+    let r=pose('img', 'ge', {'eqg-fa':'-2','eqg-gb':'-1'});
+    if(r.score!==2 || !/\\bgood\\b/.test(r.cls)) vus.push('images justes refusées : f(-2)=-2 et g(2)=-1, score '+r.score);
+    r=pose('img', 'ge', {'eqg-fa':'-2'});
+    if(r.fb.indexOf('Il te manquait 1 case')!==0) vus.push('image vide : le message ne dit pas la case manquante : '+r.fb.slice(0,50));
+    { const el=document.getElementById('eqg-gb');
+      if(!el || !el.classList.contains('sol') || el.value!=='-1') vus.push('image vide : la case n\\'a pas reçu la correction en bleu'); }
+    /* f(x) = k : l'ordre des deux solutions est LIBRE, le doublon ne compte qu'une fois */
+    r=pose('eqk', 'ge', {'eqg-s-0':'3','eqg-s-1':'-3'});
+    if(r.score!==2) vus.push('les solutions de f(x)=k dans l\\'autre ordre sont refusées, score '+r.score);
+    r=pose('eqk', 'ge', {'eqg-s-0':'-3','eqg-s-1':'-3'});
+    if(r.score!==1) vus.push('la même solution écrite deux fois vaut '+r.score+' au lieu de 1 : défendable une fois, fausse la seconde');
+    /* f(x) = g(x) : les croisements */
+    r=pose('crx', 'ge', {'eqg-s-0':'2','eqg-s-1':'-1'});
+    if(r.score!==2) vus.push('les croisements -1 et 2 (dans l\\'autre ordre) sont refusés, score '+r.score);
+    /* l'inéquation, les quatre signes contre sa propre arithmétique :
+       f au-dessus entre -1 et 2, donc ge/gt -> un intervalle, le/lt -> union */
+    r=pose('ineq', 'ge', {'eqg-co1':'[','eqg-b1':'-1','eqg-b2':'2','eqg-cf1':']'});
+    if(r.score!==4) vus.push('f(x) ≥ g(x) : S = [-1 ; 2] refusé, score '+r.score);
+    r=pose('ineq', 'gt', {'eqg-co1':']','eqg-b1':'-1','eqg-b2':'2','eqg-cf1':'['});
+    if(r.score!==4) vus.push('f(x) > g(x) : S = ]-1 ; 2[ refusé, score '+r.score);
+    /* le signe ≤ ACCEPTE l'égalité : les croisements sont pris, crochets fermés */
+    r=pose('ineq', 'le', {'eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-1','eqg-cf1':']','eqg-co2':'[','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'});
+    if(r.score!==8) vus.push('f(x) ≤ g(x) : S = [-3 ; -1] ∪ [2 ; 3] refusé, score '+r.score);
+    /* l'union dans l'AUTRE ordre : les deux intervalles se jugent au mieux */
+    r=pose('ineq', 'lt', {'eqg-co1':']','eqg-b1':'2','eqg-b2':'3','eqg-cf1':']','eqg-co2':'[','eqg-b3':'-3','eqg-b4':'-1','eqg-cf2':'['});
+    if(r.score!==8) vus.push('f(x) < g(x) : l\\'union écrite droite-gauche est refusée, score '+r.score);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
