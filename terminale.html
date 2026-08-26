@@ -1045,6 +1045,12 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .s1-in:focus{outline:none;border-color:var(--green);}
 .s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+/* Une case vide remplie par la correction : le bleu des cases, ici aussi.
+   corrCase posait déjà la classe « sol » — aucun style ne la dessinait sur
+   .s1-in, et la correction en bleu s'écrivait avec l'encre d'une saisie
+   ordinaire. C'est la leçon de .itv-sel.sol de la Seconde, revenue sur la
+   famille s1-in de la Terminale. */
+.s1-in.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .s1-in:disabled{opacity:1;}
 /* ---- Suites : type, raison et formule explicite ---- */
 .su-en{line-height:2.1;}
@@ -2102,7 +2108,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=252;
+const APP_VERSION=253;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -9412,8 +9418,8 @@ function checkAfp(live){
      pour cela dans la liste des dispenses du banc navigateur ; un exercice
      neuf n'y entre pas. On juge d'abord TOUT, on ne peint qu'ensuite :
      rien n'est touché tant que la copie est entièrement vide, une case vide
-     ne reçoit aucune couleur avant le verrouillage, et c'est la révélation
-     en vert (la convention du 5.2) qui la remplit à la fin. */
+     ne reçoit aucune couleur avant le verrouillage, et c'est corrCase — la
+     convention commune — qui la remplit en BLEU à la fin. */
   let allOk=true, anyFilled=false;
   const etats=cases.map(function(x){
     const el=$(x.id); if(!el) return null;
@@ -9440,22 +9446,36 @@ function checkAfp(live){
     return;
   }
   test.locked=true;
-  etats.forEach(function(e){ e.el.classList.remove('ok','bad'); e.el.classList.add(e.ok?'ok':'bad'); e.el.disabled=true; });
+  /* la convention COMMUNE de la Terminale (corrCase) : la case juste est
+     verte, la case FAUSSE reste ROUGE avec la saisie de l'élève et la bonne
+     réponse s'affiche en bleu à côté, la case vide est remplie en bleu. La
+     première version révélait tout en VERT (la convention du 5.2) : l'écran
+     entier était vert sous un message qui disait « quelques erreurs », et on
+     ne voyait plus quelle case reprendre — signalé par Turquet sur une
+     capture, août 2026. */
+  etats.forEach(function(e){
+    corrCase(e.x.id, (e.x.type==='sel')?String(e.x.good):numFmt(e.x.good), e.ok);
+    /* le badge bleu d'un menu de flèche se cale à côté de SON menu : inséré
+       dans le flux de la cellule, il s'empilerait au coin du tableau */
+    const el=$(e.x.id), b=el&&el.nextElementSibling;
+    if(el && b && b.classList && b.classList.contains('mf-cor') && el.classList.contains('vt-sel2')){
+      b.style.position='absolute'; b.style.left='calc('+el.style.left+' + 42px)';
+      b.style.top=el.style.top; b.style.transform='translateY(-50%)'; b.style.zIndex=4;
+    }
+  });
   efArrowChange();
   if(allOk){
     test.score++; $('afpLiveScore').textContent=test.score;
     $('afpFeedback').innerHTML=(q.type==='c')?afpPourquoi(q):pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo !']);
     $('afpFeedback').className='mp-feedback good';
   } else {
-    $('afpFeedback').innerHTML='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.<br>'
+    const nbVides=etats.filter(function(e){ return e.vide; }).length;
+    $('afpFeedback').innerHTML='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en bleu'
+      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en bleu':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en bleu'):'')+'.<br>'
       +((q.type==='c')?afpPourquoi(q)
         :(q.type==='a')?'Retiens : <i>f</i>\u2009\u2032 s\u2019annule aux <b>sommets et creux</b> de <i>f</i>, et son signe est le sens de variation \u2014 <i>f</i> <b>cro\u00eet quand <i>f</i>\u2009\u2032 &gt; 0</b>.'
         :'Retiens : ici c\u2019est <i>f</i>\u2009\u2032 qui est dessin\u00e9e \u2014 son signe se lit <b>au-dessus / au-dessous de l\u2019axe</b>, ses z\u00e9ros sont ses croisements avec l\u2019axe, et <i>f</i> cro\u00eet l\u00e0 o\u00f9 <i>f</i>\u2009\u2032 est positive.');
     $('afpFeedback').className='mp-feedback bad';
-    cases.forEach(function(x){ const el=$(x.id); if(!el) return;
-      el.value=(x.type==='sel')?x.good:numFmt(x.good);
-      el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; });
-    efArrowChange();
   }
   const t=afpTab(q);
   test.answers.push({...(ptsExo()||{}),q:'Fiche 9 \u2014 question '+q.type+' (exercice '+(Math.floor(test.idx/3)+1)+')',
@@ -9648,7 +9668,7 @@ function checkAfq(live){
     return;
   }
   test.locked=true;
-  sel.classList.remove('ok','bad'); sel.classList.add(ok?'ok':'bad'); sel.disabled=true;
+  corrCase('afq-sel', String(bon), ok);   /* faux : la lettre choisie reste en rouge, la bonne en bleu à côté */
   /* la bonne carte se montre, et la carte choisie à tort aussi */
   document.querySelectorAll('#afqHost .afq-carte').forEach(function(el,i){
     el.classList.remove('ok','bad');
@@ -9664,7 +9684,6 @@ function checkAfq(live){
     $('afqFeedback').innerHTML='C’était le tableau <b>'+AFQ_LETTRES[bon]+'</b>. '+afqPourquoi(choisi)
       +'<br>Retiens : les variations de f se lisent sur le SIGNE de f ′ — f croît quand f ′ est au-dessus de l’axe, et change de sens là où f ′ le coupe.';
     $('afqFeedback').className='mp-feedback bad';
-    sel.value=String(bon);
   }
   test.answers.push({...(ptsExo()||{}),q:'Tableau de f depuis la courbe de f′ — bonne réponse '+AFQ_LETTRES[bon],
     answer:AFQ_LETTRES[bon], given:raw===''?'(vide)':AFQ_LETTRES[parseInt(raw,10)], correct:ok, type:'tvi'});

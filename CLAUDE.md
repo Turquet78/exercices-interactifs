@@ -2288,12 +2288,22 @@ jamais au bord.
 **Une case vide ne rougit jamais — tenue ici dès le premier jour.** Le 5.2,
 copié au départ, marque tout ce qu'il voit et vit pour cela dans la liste des
 dispenses du banc navigateur (`casesVides.sans`) ; l'exercice neuf n'y entre
-pas : rien n'est peint tant que la copie est vide, une case vide ne reçoit
-aucune couleur avant le verrouillage, la révélation en vert la remplit à la
-fin. C'est le contrôle universel du banc navigateur qui l'a vu, à la première
-visite. Éprouvé en le cassant onze fois — et le sabotage de la case vide est
+pas : rien n'est peint tant que la copie est vide, et une case vide ne reçoit
+aucune couleur avant le verrouillage. C'est le contrôle universel du banc
+navigateur qui l'a vu, à la première visite.
+**Et la correction est celle de la convention COMMUNE (`corrCase`), pas la
+révélation en vert du 5.2.** Le premier jet révélait tout en VERT : « 7 cases
+justes sur 8 » sous un tableau entièrement vert — l'écran contredisait le
+message, et on ne voyait plus quelle case reprendre (signalé par Turquet sur
+une capture, août 2026). La case fausse RESTE rouge avec la saisie de
+l'élève, la bonne réponse s'affiche en bleu à côté (badge `mf-cor`, calé près
+de SON menu pour les flèches — inséré dans le flux, il s'empilait au coin du
+tableau), la case vide est remplie en bleu. Et la famille `s1-in` n'avait
+AUCUNE règle `.sol` : la leçon de `.itv-sel.sol`, revenue en Terminale — la
+règle posée répare d'un coup tous les exercices qui remplissent une `s1-in`
+vide. Éprouvé en le cassant treize fois — et le sabotage de la case vide est
 d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
-le masque sous la révélation — la leçon des sabotages impossibles, encore.
+le masque sous la correction — la leçon des sabotages impossibles, encore.
 
 **Et le même savoir, à l'envers du QCM : choisir le tableau de f parmi
 quatre.** {variations-depuis-derivee} (Terminale, thème Dérivée, demande de

@@ -5602,8 +5602,17 @@ function associerDerivee(w, P){
     if(r.score!==1) vus.push('la table juste de f (sommet en 0, + puis \\u2212) est refusée');
     r=pose(P1,'b',{ 'ef-r0':'0','ef-l0s0':'\\u2212','ef-l0s1':'+','ef-a0':'down','ef-a1':'up' });
     if(r.score!==0) vus.push('la table de f\\' aux signes inversés est acceptée');
-    { const el=document.getElementById('ef-l0s0');
-      if(!el || el.value!=='+' || !el.classList.contains('ok')) vus.push('la révélation en vert (convention du 5.2) ne remplit pas la bonne réponse'); }
+    /* la convention COMMUNE (corrCase) : la saisie fausse RESTE en rouge, la
+       bonne réponse s'affiche en bleu à côté — la révélation en vert du
+       premier jet peignait tout l'écran en vert sous « quelques erreurs »,
+       signalé par Turquet sur une capture. */
+    { const el=document.getElementById('ef-l0s0'), b=el&&el.nextElementSibling;
+      if(!el || el.value!=='\u2212' || !el.classList.contains('bad'))
+        vus.push('la saisie fausse doit RESTER en rouge, avec ce que l\\'élève a choisi');
+      if(!b || !b.classList || !b.classList.contains('mf-cor') || b.textContent!=='+')
+        vus.push('la bonne réponse en bleu manque à côté de la case fausse'); }
+    { const css=Array.prototype.map.call(document.querySelectorAll('style'),function(st){ return st.textContent; }).join('\\n');
+      if(!/\.s1-in\.sol\s*\{/.test(css)) vus.push('aucune règle .s1-in.sol : la case vide remplie en bleu s\\'écrit à l\\'encre ordinaire'); }
     /* une copie vide ne rougit pas et ne verrouille pas */
     r=pose(P1,'a',{});
     if(r.rouges.length) vus.push('une copie vide rougit : '+r.rouges.join(','));
@@ -5611,6 +5620,9 @@ function associerDerivee(w, P){
     /* une seule case remplie : les cases VIDES ne rougissent pas non plus */
     r=pose(P1,'a',{ 'ef-r0':'0' });
     if(r.rouges.length) vus.push('des cases vides rougissent quand une seule est remplie : '+r.rouges.join(','));
+    { const el=document.getElementById('ef-l0s0');
+      if(!el || !el.classList.contains('sol') || el.value!=='+')
+        vus.push('la case restée vide n\\'est pas remplie en bleu à la vérification'); }
     /* le bord n'est atteignable qu'en SOUTIEN : en entraînement, la révélation
        en vert repasse derrière et efface le rouge — la leçon documentée des
        sabotages impossibles */
@@ -5624,8 +5636,11 @@ function associerDerivee(w, P){
     if(r.score!==1) vus.push('la paire compatible refusée quand l\\'élève répond oui');
     r=pose(P2,'c',{ 'afp-comp':'oui' });
     if(r.score!==0) vus.push('la paire aux signes opposés acceptée comme compatible');
-    { const el=document.getElementById('afp-comp');
-      if(!el || el.value!=='non') vus.push('la révélation de la question c n\\'écrit pas « non »'); }
+    { const el=document.getElementById('afp-comp'), b=el&&el.nextElementSibling;
+      if(!el || el.value!=='oui' || !el.classList.contains('bad'))
+        vus.push('la réponse fausse de la question c doit rester en rouge, telle que choisie');
+      if(!b || !b.classList || !b.classList.contains('mf-cor') || b.textContent!=='non')
+        vus.push('la bonne réponse « non » en bleu manque à côté du menu'); }
     if(r.fb.indexOf('SIGNE')<0 && r.fb.indexOf('signe')<0) vus.push('le pourquoi de l\\'incompatibilité ne nomme pas le signe');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
