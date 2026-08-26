@@ -2392,6 +2392,9 @@ function exercices(suite){
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
     equationGraphique(w, P);
+    associerDerivee(w, P);
+    signePremierDegre(w, P);
+    variationsDerivee(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -5470,6 +5473,305 @@ function equationGraphique(w, P){
     /* l'union dans l'AUTRE ordre : les deux intervalles se jugent au mieux */
     r=pose('ineq', 'lt', {'eqg-co1':']','eqg-b1':'2','eqg-b2':'3','eqg-cf1':']','eqg-co2':'[','eqg-b3':'-3','eqg-b4':'-1','eqg-cf2':'['});
     if(r.score!==8) vus.push('f(x) < g(x) : l\\'union écrite droite-gauche est refusée, score '+r.score);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
+   Deux paires de courbes par séance — l'une compatible, l'autre non —,
+   chacune en trois questions a/b/c sur les MÊMES dessins. Le moteur de
+   courbes est PORTÉ de la Seconde au caractère près : cinq fonctions
+   comparées ici entre les deux fichiers, parce qu'une copie retouchée d'un
+   seul côté ferait diverger deux niveaux sans que rien ne rougisse — la
+   leçon de mlFeuille et du moteur des fractions. Le reste se recompte par
+   la propre arithmétique du contrôle : les sommets de f par les différences
+   de ses valeurs, les zéros et signes de f' par ses valeurs mêmes — jamais
+   afpSignes ni afpZeros, qui se tromperaient du même côté. */
+function associerDerivee(w, P){
+  const present = evaluer(w, "typeof startAfp==='function' && typeof afpBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('associer f à f\' : deux paires par séance, l\'une compatible, l\'autre non',
+      'ce niveau n\'a pas l\'exercice « Associer f et f\' »');
+    return;
+  }
+  /* le moteur de courbes porté de la Seconde, au caractère près */
+  const LV_PORT=['lvPickSubset','lvGenPts','lvAnalyze','lvTangents','lvPath'];
+  const corpsLv=(texte,nom)=>{
+    const f=corpsFonctions(texte, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o=>o.nom===nom);
+    return f ? f.texte : null;
+  };
+  let srcSec;
+  try{ srcSec = fs.readFileSync(path.join(__dirname, '..', 'secondes.html'), 'utf8'); }
+  catch(e){ srcSec = undefined; }
+  let srcTer;
+  try{ srcTer = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
+  catch(e){ srcTer = undefined; }
+  if(!srcSec || !srcTer){
+    verifier('le moteur de courbes est identique à celui de la Seconde, au caractère près', false,
+      'un des deux fichiers est introuvable');
+  } else {
+    const abs=LV_PORT.filter(n=>corpsLv(srcSec,n)===null || corpsLv(srcTer,n)===null);
+    const diff=LV_PORT.filter(n=>corpsLv(srcSec,n)!==corpsLv(srcTer,n));
+    verifier('le moteur de courbes est identique à celui de la Seconde, au caractère près',
+      abs.length===0 && diff.length===0,
+      abs.length ? 'introuvable : '+abs.join(', ') : 'diverge sur : '+diff.join(', '));
+  }
+  verifierEval(w, 'associer f à f\' : deux paires par séance, l\'une compatible, l\'autre non', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='associer-derivee';
+
+    /* la table de f, recomptée par les DIFFÉRENCES de ses valeurs */
+    const tableDeF=function(pts){
+      const roots=[], s=[]; let d0=Math.sign(pts[1]-pts[0]);
+      s.push(d0>0?'+':'-');
+      for(let i=1;i<6;i++){ const d=Math.sign(pts[i+1]-pts[i]);
+        if(d!==d0){ roots.push(i-3); s.push(d>0?'+':'-'); d0=d; } }
+      return {roots:roots, s:s};
+    };
+    /* la table de f', recomptée sur ses valeurs mêmes */
+    const tableDeFp=function(ptsp){
+      const roots=[]; for(let x=-3;x<=3;x++){ if(ptsp[x+3]===0) roots.push(x); }
+      const seps=[-3.5].concat(roots,[3.5]), s=[];
+      for(let i=0;i<seps.length-1;i++){
+        let signe=null;
+        for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&ptsp[x+3]!==0){ signe=(ptsp[x+3]>0)?'+':'-'; break; } }
+        s.push(signe);
+      }
+      return {roots:roots, s:s};
+    };
+    const compatibles=function(q){
+      const A=tableDeF(q.pts), B=tableDeFp(q.ptsp);
+      return A.roots.join(',')===B.roots.join(',') && A.s.join('')===B.s.join('');
+    };
+
+    /* ---- 1. le tirage : 200 séances ---- */
+    const rangsCompat=new Set();
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=afpBuildQuestions();
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='a,b,c,a,b,c')
+        vus.push('les questions ne suivent pas l\\'ordre a, b, c de la fiche : '+qs.map(function(q){ return q.type; }).join(','));
+      for(let p=0;p<2;p++){
+        const tri=qs.slice(3*p, 3*p+3);
+        const ref=JSON.stringify([tri[0].pts, tri[0].ptsp]);
+        if(tri.some(function(q){ return JSON.stringify([q.pts,q.ptsp])!==ref; }))
+          vus.push('les dessins CHANGENT au sein d\\'une paire — les trois questions a/b/c portent sur les mêmes courbes');
+      }
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','ptsp','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que les deux courbes et le type : '+cles.join(','));
+      });
+      const comps=[compatibles(qs[0]), compatibles(qs[3])];
+      if(comps[0]===comps[1])
+        vus.push('la séance n\\'a pas une paire compatible ET une incompatible ('+comps.join(',')+') — l\\'élève apprendrait que la réponse est toujours du même côté');
+      rangsCompat.add(comps[0]?0:1);
+      qs.filter(function(q,i){ return i%3===0; }).forEach(function(q){
+        const A=tableDeF(q.pts);
+        if(A.roots.length<1||A.roots.length>2) vus.push(A.roots.length+' sommet(s) sur la courbe de f');
+        if(A.roots.some(function(r){ return r<=-3||r>=3; })) vus.push('un sommet de f au bord du dessin');
+        const B=tableDeFp(q.ptsp);
+        if(!B.roots.length||B.roots.length>2) vus.push(B.roots.length+' zéro(s) sur la courbe de f\\'');
+        if(B.roots.some(function(r){ return r<=-3||r>=3; })) vus.push('un zéro de f\\' au bord du dessin');
+        for(let i=1;i<B.roots.length;i++){ if(B.roots[i]-B.roots[i-1]<2)
+          vus.push('deux zéros de f\\' voisins ('+B.roots.join(',')+') : le segment entier serait posé sur l\\'axe'); }
+        if(B.s.some(function(x){ return x===null; })) vus.push('un intervalle de f\\' sans aucune graduation pour porter son signe');
+        for(let i=1;i<B.s.length;i++){ if(B.s[i]===B.s[i-1])
+          vus.push('f\\' ne change pas de signe à un zéro : ce ne serait pas un extremum de f'); }
+        q.ptsp.forEach(function(v,i){ if(v!==0 && Math.abs(v)<1) vus.push('f\\' frôle l\\'axe sans le toucher (valeur '+v+')'); });
+      });
+    }
+    if(!vus.length && rangsCompat.size<2)
+      vus.push('la paire compatible tombe toujours au même rang : l\\'élève apprendrait le rang');
+
+    /* ---- 2. les gestes, sur une paire FIXE (sommet de f en 0, f\\' compatible) ---- */
+    const P1={pts:[-3,-1,1,3,1,-1,-3], ptsp:[2,1,3,0,-2,-1,-3]};
+    const P2={pts:[-3,-1,1,3,1,-1,-3], ptsp:[-2,-1,-3,0,2,1,3]};   /* signes opposés */
+    function pose(paire, type, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'afp', questions:['a','b','c'].map(function(tt){ return Object.assign({},paire,{type:tt}); }),
+        idx:{a:0,b:1,c:2}[type], score:0, answers:[], startTime:Date.now(), locked:false});
+      renderAfp();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkAfp();
+      return { score:test.score, fb:document.getElementById('afpFeedback').textContent,
+        rouges:[].slice.call(document.querySelectorAll('#scr-afp .bad'))
+          .filter(function(e){ return /^(INPUT|SELECT)$/.test(e.tagName); })
+          .map(function(e){ return e.id; }) };
+    }
+    let r=pose(P1,'a',{ 'ef-r0':'0','ef-l0s0':'+','ef-l0s1':'\\u2212','ef-a0':'up','ef-a1':'down' });
+    if(r.score!==1) vus.push('la table juste de f (sommet en 0, + puis \\u2212) est refusée');
+    r=pose(P1,'b',{ 'ef-r0':'0','ef-l0s0':'\\u2212','ef-l0s1':'+','ef-a0':'down','ef-a1':'up' });
+    if(r.score!==0) vus.push('la table de f\\' aux signes inversés est acceptée');
+    /* la convention COMMUNE (corrCase) : la saisie fausse RESTE en rouge, la
+       bonne réponse s'affiche en bleu à côté — la révélation en vert du
+       premier jet peignait tout l'écran en vert sous « quelques erreurs »,
+       signalé par Turquet sur une capture. */
+    { const el=document.getElementById('ef-l0s0'), b=el&&el.nextElementSibling;
+      if(!el || el.value!=='\u2212' || !el.classList.contains('bad'))
+        vus.push('la saisie fausse doit RESTER en rouge, avec ce que l\\'élève a choisi');
+      if(!b || !b.classList || !b.classList.contains('mf-cor') || b.textContent!=='+')
+        vus.push('la bonne réponse en bleu manque à côté de la case fausse'); }
+    { const css=Array.prototype.map.call(document.querySelectorAll('style'),function(st){ return st.textContent; }).join('\\n');
+      if(!/\.s1-in\.sol\s*\{/.test(css)) vus.push('aucune règle .s1-in.sol : la case vide remplie en bleu s\\'écrit à l\\'encre ordinaire'); }
+    /* une copie vide ne rougit pas et ne verrouille pas */
+    r=pose(P1,'a',{});
+    if(r.rouges.length) vus.push('une copie vide rougit : '+r.rouges.join(','));
+    if(r.fb.indexOf('au moins une case')<0) vus.push('une copie vide devrait demander de compléter, pas juger');
+    /* une seule case remplie : les cases VIDES ne rougissent pas non plus */
+    r=pose(P1,'a',{ 'ef-r0':'0' });
+    if(r.rouges.length) vus.push('des cases vides rougissent quand une seule est remplie : '+r.rouges.join(','));
+    { const el=document.getElementById('ef-l0s0');
+      if(!el || !el.classList.contains('sol') || el.value!=='+')
+        vus.push('la case restée vide n\\'est pas remplie en bleu à la vérification'); }
+    /* le bord n'est atteignable qu'en SOUTIEN : en entraînement, la révélation
+       en vert repasse derrière et efface le rouge — la leçon documentée des
+       sabotages impossibles */
+    currentMode='soutien';
+    r=pose(P1,'a',{ 'ef-r0':'5' });
+    if(r.rouges.indexOf('ef-r0')<0) vus.push('soutien : la case fausse ne rougit pas');
+    if(r.rouges.length>1) vus.push('soutien : des cases vides rougissent : '+r.rouges.join(','));
+    currentMode='train';
+    /* la question c, sur les deux paires, contre l\\'arithmétique du contrôle */
+    r=pose(P1,'c',{ 'afp-comp':'oui' });
+    if(r.score!==1) vus.push('la paire compatible refusée quand l\\'élève répond oui');
+    r=pose(P2,'c',{ 'afp-comp':'oui' });
+    if(r.score!==0) vus.push('la paire aux signes opposés acceptée comme compatible');
+    { const el=document.getElementById('afp-comp'), b=el&&el.nextElementSibling;
+      if(!el || el.value!=='oui' || !el.classList.contains('bad'))
+        vus.push('la réponse fausse de la question c doit rester en rouge, telle que choisie');
+      if(!b || !b.classList || !b.classList.contains('mf-cor') || b.textContent!=='non')
+        vus.push('la bonne réponse « non » en bleu manque à côté du menu'); }
+    if(r.fb.indexOf('SIGNE')<0 && r.fb.indexOf('signe')<0) vus.push('le pourquoi de l\\'incompatibilité ne nomme pas le signe');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Le signe du premier degré : 5 questions, les trois niveaux présents --
+   L'exercice en posait 15 (5 par niveau) ; Turquet en demande 5 (août 2026).
+   Deux bords : le COMPTE, comparé à tests/profils.js — deux sources, comme
+   SF_NB —, et la COMPOSITION : chaque niveau garde au moins une question,
+   dans l'ordre des niveaux, sans quoi l'un des trois disparaîtrait en
+   silence — une aide absente ne se signale pas. */
+function signePremierDegre(w, P){
+  const present = evaluer(w, "typeof s1BuildQuestions==='function'");
+  if(!present.ok || !present.valeur || !P.nbQuestionsSignePremier){
+    ignorer('le signe du premier degré pose 5 questions, les trois niveaux présents',
+      'ce niveau n\'a pas l\'exercice du signe du premier degré');
+    return;
+  }
+  verifierEval(w, 'le signe du premier degré pose 5 questions, les trois niveaux présents', `(function(){
+    const vus=[];
+    for(let t=0;t<40 && !vus.length;t++){
+      const qs=s1BuildQuestions();
+      if(qs.length!==${P.nbQuestionsSignePremier})
+        vus.push(qs.length+' questions au lieu de ${P.nbQuestionsSignePremier}');
+      [1,2,3].forEach(function(n){
+        if(!qs.some(function(q){ return q.level===n; })) vus.push('le niveau '+n+' a disparu de la séance');
+      });
+      for(let i=1;i<qs.length;i++){ if(qs[i].level<qs[i-1].level)
+        vus.push('les niveaux ne se suivent plus dans l\\'ordre : '+qs.map(function(q){ return q.level; }).join(',')); }
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Le tableau de f depuis la courbe de f' : quatre propositions, les
+   pièges de la fiche ---------------------------------------------------------
+   La fiche 9, exercice 4 : la courbe de f' donnée, choisir parmi quatre
+   tableaux de variations celui de f. Les distracteurs sont les pièges mêmes
+   de la fiche — les SOMMETS de f' lus comme des zéros, les sens inversés, un
+   zéro décalé ou manquant — et le contrôle recompte tout par sa propre
+   arithmétique : zéros et signes sur les valeurs de la courbe, sommets sur
+   les différences. Quatre bords silencieux : le vrai tableau qui ne colle pas
+   à la courbe, deux propositions identiques (deux bonnes réponses, une seule
+   comptée), le piège du sommet posé SUR un zéro (il ne piègerait plus rien),
+   et la bonne qui tombe toujours au même rang — à forme égale le rang change,
+   la leçon d'{intervalles-inegalite}. */
+function variationsDerivee(w, P){
+  const present = evaluer(w, "typeof startAfq==='function' && typeof afqBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le tableau de f depuis la courbe de f\' : quatre propositions, les pièges de la fiche',
+      'ce niveau n\'a pas l\'exercice du tableau depuis la courbe de f\'');
+    return;
+  }
+  verifierEval(w, 'le tableau de f depuis la courbe de f\' : quatre propositions, les pièges de la fiche', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='variations-depuis-derivee';
+    const zerosDe=function(p){ const out=[]; for(let x=-3;x<=3;x++){ if(p[x+3]===0) out.push(x); } return out; };
+    const signesDe=function(p, roots){
+      const seps=[-3.5].concat(roots,[3.5]), out=[];
+      for(let i=0;i<seps.length-1;i++){ let sg=null;
+        for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&p[x+3]!==0){ sg=(p[x+3]>0)?'+':'-'; break; } }
+        out.push(sg); }
+      return out;
+    };
+    const sommetsDe=function(p){ const out=[]; let d0=Math.sign(p[1]-p[0]);
+      for(let i=1;i<6;i++){ const d=Math.sign(p[i+1]-p[i]); if(d!==0&&d0!==0&&d!==d0) out.push(i-3); if(d!==0) d0=d; }
+      return out;
+    };
+    const parRang={};
+    for(let t=0;t<200 && !vus.length;t++){
+      const qs=afqBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['ptsp','perm','gard','dec'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'ordre et les indices : '+cles.join(','));
+        if(q.perm.slice().sort().join(',')!=='autre,inverse,sommets,vrai')
+          vus.push('l\\'ordre n\\'est pas une permutation des quatre natures : '+q.perm.join(','));
+        const zeros=zerosDe(q.ptsp);
+        if(!zeros.length||zeros.length>2) vus.push(zeros.length+' zéro(s) sur la courbe de f\\'');
+        if(zeros.some(function(r){ return r<=-3||r>=3; })) vus.push('un zéro de f\\' au bord du dessin');
+        for(let i=1;i<zeros.length;i++){ if(zeros[i]-zeros[i-1]<2) vus.push('deux zéros voisins : '+zeros.join(',')); }
+        const sg=signesDe(q.ptsp, zeros);
+        if(sg.some(function(x){ return x===null; })) vus.push('un intervalle sans graduation pour porter son signe');
+        for(let i=1;i<sg.length;i++){ if(sg[i]===sg[i-1]) vus.push('f\\' ne change pas de signe à un zéro'); }
+        q.ptsp.forEach(function(v){ if(v!==0&&Math.abs(v)<1) vus.push('f\\' frôle l\\'axe sans le toucher'); });
+        const som=sommetsDe(q.ptsp);
+        if(!som.length) vus.push('aucun sommet sur la courbe de f\\' : le piège de la fiche n\\'a rien à lire');
+        if(som.some(function(x){ return zeros.indexOf(x)>=0; }))
+          vus.push('un sommet de f\\' tombe SUR un zéro : le piège serait la bonne réponse');
+        /* les quatre tableaux affichés : le vrai colle à la courbe, et deux
+           à deux différents */
+        const T=afqTables(q);
+        const flAtt=sg.map(function(x){ return x==='+'?'up':'down'; }).join(',');
+        if(T.vrai.roots.join(',')!==zeros.join(',') || T.vrai.fleches.join(',')!==flAtt)
+          vus.push('le tableau « vrai » ne colle pas à la courbe : '+T.vrai.roots.join(',')+' | '+T.vrai.fleches.join(','));
+        const sigs=['vrai','sommets','inverse','autre'].map(function(k){ return T[k].roots.join(',')+'|'+T[k].fleches.join(','); });
+        if(new Set(sigs).size!==4) vus.push('deux propositions identiques : deux bonnes réponses, une seule comptée');
+        const forme=String(zeros.length);
+        (parRang[forme]=parRang[forme]||new Set()).add(q.perm.indexOf('vrai'));
+      });
+    }
+    if(!vus.length){
+      Object.keys(parRang).forEach(function(f){
+        if(parRang[f].size<2) vus.push('à forme égale ('+f+' zéro(s)), la bonne tombe toujours au rang '+Array.from(parRang[f]).join(''));
+      });
+    }
+
+    /* ---- les gestes, sur une question FIXE ---- */
+    const Q0={ptsp:[-1,-2,-3,0,1,2,3], perm:['sommets','vrai','autre','inverse'], gard:0, dec:1};
+    function pose(valeur){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'afq', questions:[JSON.parse(JSON.stringify(Q0))], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false});
+      renderAfq();
+      const sel=document.getElementById('afq-sel'); if(sel && valeur!==null) sel.value=valeur;
+      checkAfq();
+      return { score:test.score, fb:document.getElementById('afqFeedback').textContent,
+        selCls:(document.getElementById('afq-sel')||{}).className||'',
+        cartes:[].slice.call(document.querySelectorAll('#afqHost .afq-carte')).map(function(e){ return e.className.replace('afq-carte','').trim(); }) };
+    }
+    let r=pose('1');   /* le vrai est au rang 1 (lettre b) */
+    if(r.score!==1) vus.push('la bonne lettre est refusée');
+    if(r.cartes[1].indexOf('ok')<0) vus.push('la bonne carte ne se montre pas en vert');
+    r=pose('0');       /* rang 0 = le piège des sommets */
+    if(r.score!==0) vus.push('le piège des sommets est accepté');
+    if(r.fb.indexOf('SOMMETS')<0) vus.push('le retour ne nomme pas le piège des sommets choisi');
+    if(r.cartes[0].indexOf('bad')<0 || r.cartes[1].indexOf('ok')<0) vus.push('les cartes ne montrent pas le choisi et la bonne');
+    r=pose('3');       /* rang 3 = les sens inversés */
+    if(r.fb.indexOf('INVERSE')<0) vus.push('le retour ne nomme pas l\\'inversion des sens choisie');
+    r=pose(null);      /* rien choisi */
+    if(r.fb.indexOf('Choisis un tableau')<0) vus.push('une copie vide devrait demander de choisir, pas juger');
+    if(/\\bbad\\b/.test(r.selCls)) vus.push('le menu vide rougit');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

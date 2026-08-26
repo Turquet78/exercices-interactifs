@@ -2261,6 +2261,80 @@ souvent que les formulations abstraites. Un contexte peut porter `nOk`, qui
 
 ---
 
+**Associer f à f′, sans une seule formule.** {associer-derivee} (Terminale,
+thème Dérivée, demande de Turquet, août 2026) est repris de la fiche 9 : a) une
+courbe de f dont on déduit le tableau — signe de f′, variations —, b) une
+courbe de f′ dont on déduit le MÊME tableau, c) la question de la fiche : ces
+deux courbes sont-elles COMPATIBLES ? Une séance = deux paires, l'une
+compatible et l'autre non — sans quoi l'élève apprendrait que la réponse est
+toujours du même côté —, à rang mélangé, chacune en trois questions sur les
+mêmes dessins conservés.
+**Le dessin est le moteur de courbes de {lecture-variations} de la Seconde,
+PORTÉ au caractère près** — cinq fonctions (lvPickSubset, lvGenPts, lvAnalyze,
+lvTangents, lvPath) comparées entre les deux fichiers par un contrôle, la
+leçon de mlFeuille — et le tableau est celui d'{etude-fonction} (efTableHTML,
+efArrowChange, mêmes ids `ef-*`) : chaque rendu VIDE les hôtes des autres
+écrans, le piège documenté du tableau fantôme. La bonne réponse n'est jamais
+rangée à côté de la question : la question ne porte que les deux courbes, et
+la compatibilité est la COMPARAISON des deux tables, recalculées par les
+fonctions qui corrigent.
+**L'incompatible se fabrique en MUTANT la vraie table de f** — signes opposés,
+un zéro décalé, un zéro de plus ou de moins — puis la paire est REVÉRIFIÉE par
+la fonction qui corrigera : une mutation qui ne mute rien ferait dire « non »
+à un élève qui a raison. Les zéros de f′ changent de signe (un zéro sans
+changement n'est pas un extremum), jamais voisins (le segment entier serait
+posé sur l'axe — la leçon des solutions voisines d'{equation-graphique}),
+jamais au bord.
+**Une case vide ne rougit jamais — tenue ici dès le premier jour.** Le 5.2,
+copié au départ, marque tout ce qu'il voit et vit pour cela dans la liste des
+dispenses du banc navigateur (`casesVides.sans`) ; l'exercice neuf n'y entre
+pas : rien n'est peint tant que la copie est vide, et une case vide ne reçoit
+aucune couleur avant le verrouillage. C'est le contrôle universel du banc
+navigateur qui l'a vu, à la première visite.
+**Et la correction est celle de la convention COMMUNE (`corrCase`), pas la
+révélation en vert du 5.2.** Le premier jet révélait tout en VERT : « 7 cases
+justes sur 8 » sous un tableau entièrement vert — l'écran contredisait le
+message, et on ne voyait plus quelle case reprendre (signalé par Turquet sur
+une capture, août 2026). La case fausse RESTE rouge avec la saisie de
+l'élève, la bonne réponse s'affiche en bleu à côté (badge `mf-cor`, calé près
+de SON menu pour les flèches — inséré dans le flux, il s'empilait au coin du
+tableau), la case vide est remplie en bleu. Et la famille `s1-in` n'avait
+AUCUNE règle `.sol` : la leçon de `.itv-sel.sol`, revenue en Terminale — la
+règle posée répare d'un coup tous les exercices qui remplissent une `s1-in`
+vide. Éprouvé en le cassant treize fois — et le sabotage de la case vide est
+d'abord resté vert : le bord n'est atteignable qu'en SOUTIEN, l'entraînement
+le masque sous la correction — la leçon des sabotages impossibles, encore.
+
+**Et le même savoir, à l'envers du QCM : choisir le tableau de f parmi
+quatre.** {variations-depuis-derivee} (Terminale, thème Dérivée, demande de
+Turquet, août 2026) est l'exercice 4 de la fiche 9 : la courbe de f′ donnée,
+quatre tableaux de variations proposés, et les distracteurs sont les pièges
+MÊMES de la fiche — celui qui lit les SOMMETS de f′ au lieu de ses zéros (le
+« 3,25 » de la fiche est l'abscisse du sommet), celui qui INVERSE les sens,
+celui dont un zéro manque ou s'est décalé. Des propositions qui différeraient
+par autre chose se laisseraient éliminer sans lire la courbe — la leçon
+d'{intervalles-inegalite}, et « à forme égale le rang change » aussi.
+La question ne porte que la courbe, l'ordre et les indices des distracteurs
+(on range l'indice, jamais l'objet) ; les quatre tableaux sont CONSTRUITS
+depuis la courbe même, et la correction nomme le piège du tableau choisi.
+Moteur d'{associer-derivee} réutilisé (afGraphSVG, afpZeros, afpCourbeDer),
+tableau statique dessiné avec les classes du 5.2. Deux défauts attrapés par
+le contrôle avant la mise en ligne : lvAnalyze compte les bords d'un PALIER
+comme des sommets — le piège aurait listé un sommet que l'œil ne voit pas,
+d'où afqSommets — et un garde-fou « sommet sur un zéro » qui n'écartait
+jamais rien (une courbe traverse l'axe en montant, jamais en tournant) :
+le cinquième garde-fou mort du projet, retiré, sabotage à l'appui. Éprouvé
+en le cassant neuf fois.
+
+**Le signe du premier degré pose 5 questions, et non plus 15** (demande de
+Turquet, août 2026). Les trois niveaux restent TOUS représentés — 2 du
+niveau 1, 2 du niveau 2 (la racine en fraction), 1 du niveau 3 (la racine
+0) —, dans leur ordre. Le compte vit dans `S1_NB`, à côté de sa fabrique
+`s1BuildQuestions()`, et le contrôle le compare à `tests/profils.js`
+(`nbQuestionsSignePremier`) — deux sources, comme `SF_NB`. Il tient aussi la
+COMPOSITION : un niveau qui disparaîtrait de la séance ne casserait rien, et
+personne ne le verrait — une aide absente ne se signale pas.
+
 **La tangente à (ax+b)eˣ démontre ce que l'énoncé annonce — et les deux lisent
 la même fonction.** {tangente-exp} (Terminale, à côté d'{equation-tangente},
 demande de Turquet, août 2026) est repris de la fiche papier : f(x) = (ax+b)eˣ

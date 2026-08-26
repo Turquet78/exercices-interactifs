@@ -483,6 +483,10 @@ module.exports = {
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
+    /* Le signe du premier degré : 5 questions par séance (demande de Turquet,
+       août 2026), et non plus 15 — les trois niveaux tous représentés. */
+    nbQuestionsSignePremier: 5,
+
     casesVides: { sans: ['derivee-exp', 'derivee-exp-3', 'derivee-exp-quotient',
                          'etude-fonction', 'etude-quotient', 'recurrence-encadrement'] },
 

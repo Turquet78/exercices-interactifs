@@ -471,7 +471,7 @@
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — neuf écrans y manquaient, tous ajoutés après elle.
      Un contrôle les compare désormais. */
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-lr,#scr-ec{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -912,6 +912,27 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .sv-tables{display:flex;flex-direction:column;gap:14px;margin:0 0 2px;}
 .sv-tbl{width:100%;border-collapse:collapse;font-family:'Nunito',sans-serif;table-layout:fixed;}
 /* ---- Tableau de variation « escalier » (même construction que l'exercice 2.1c de Seconde) ---- */
+  /* ---- {associer-derivee} : le dessin de courbe porté de la Seconde ----
+     Les classes lv-* portent les mêmes noms qu'en Seconde : le moteur qui les
+     dessine est le même texte, un contrôle compare les deux fichiers. */
+  .lv-svg{display:block;width:100%;max-width:430px;height:auto;margin:0 auto}
+  .lv-grid{stroke:#dfe7f5;stroke-width:1}
+  .lv-axis{stroke:#5b6b8c;stroke-width:1.6}
+  .lv-axfill{fill:#5b6b8c}
+  .lv-ax{font-family:"Nunito";font-size:10.5px;fill:#5b6b8c}
+  .lv-cf{font-family:"Fredoka";font-weight:600;font-size:14px;font-style:italic;fill:var(--blue-dark)}
+  .lv-curve{fill:none;stroke:var(--blue-dark);stroke-width:3;stroke-linecap:round}
+  .af-graph{width:100%;max-width:470px;margin:0 auto;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;padding:8px 6px;box-sizing:border-box}
+  .af-deux{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%}
+  .af-deux .af-graph{flex:1 1 320px;max-width:430px}
+  .af-instr{text-align:center;font-weight:700;color:var(--blue-dark);margin:10px 0 4px}
+  /* ---- {variations-depuis-derivee} : quatre tableaux à choisir ---- */
+  .afq-cartes{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));gap:14px;width:100%;max-width:1080px;margin:10px auto}
+  @media(max-width:760px){ .afq-cartes{grid-template-columns:1fr} }
+  .afq-carte{position:relative;background:#fff;border:2px solid #DCE7FB;border-radius:14px;padding:26px 8px 10px;overflow-x:auto}
+  .afq-carte.ok{border-color:var(--green);box-shadow:0 0 0 3px rgba(38,166,120,.18)}
+  .afq-carte.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
+  .afq-lettre{position:absolute;top:6px;left:10px;font-family:"Fredoka";font-weight:600;color:var(--blue-dark)}
 .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
 .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
 .lv-vartbl2 td{border:none;text-align:center;padding:0}
@@ -1024,6 +1045,12 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .s1-in:focus{outline:none;border-color:var(--green);}
 .s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
+/* Une case vide remplie par la correction : le bleu des cases, ici aussi.
+   corrCase posait déjà la classe « sol » — aucun style ne la dessinait sur
+   .s1-in, et la correction en bleu s'écrivait avec l'encre d'une saisie
+   ordinaire. C'est la leçon de .itv-sel.sol de la Seconde, revenue sur la
+   famille s1-in de la Terminale. */
+.s1-in.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .s1-in:disabled{opacity:1;}
 /* ---- Suites : type, raison et formule explicite ---- */
 .su-en{line-height:2.1;}
@@ -1659,6 +1686,38 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <!-- 2.x ASSOCIER f ET f' — la fiche 9, purement graphique -->
+  <section class="screen" id="scr-afp">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="afpModeTag"></span><span class="q-idx" id="afpQIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="afpLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="tvi-prompt" id="afpPrompt"></p>
+      <div id="afpHost"></div>
+      <div class="mp-feedback" id="afpFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="afpActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfp()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2.x LE TABLEAU DE f DEPUIS LA COURBE DE f' — la fiche 9, exercice 4 -->
+  <section class="screen" id="scr-afq">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="afqModeTag"></span><span class="q-idx" id="afqQIdx">Question 1 / 4</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="afqLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="tvi-prompt" id="afqPrompt"></p>
+      <div id="afqHost"></div>
+      <div class="mp-feedback" id="afqFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="afqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkAfq()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-s1">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="s1ModeTag"></span><span class="q-idx" id="s1QIdx">Question 1 / 4</span></span>
@@ -2049,7 +2108,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=249;
+const APP_VERSION=253;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2184,6 +2243,8 @@ const TESTS={
   'tangente-exp': { name:'Tangente \u00e0 (ax+b)e\u02e3', icon:'\ud83e\uddee', desc:'f(x) = (ax+b)e\u02e3 : calcule f et f\u2032 en 0 puis en 1, et d\u00e9montre les \u00e9quations des deux tangentes, \u00e9tape par \u00e9tape comme dans {equation-tangente}.', start:()=>startTX() },
   'recurrence-encadrement': { name:'R\u00e9currence \u2014 encadrement de U\u2099', icon:'n+1', desc:'D\u00e9montre par r\u00e9currence que m \u2264 U\u2099 \u2264 M : initialisation au rang 0 ou 1, h\u00e9r\u00e9dit\u00e9 en appliquant f croissante \u00e0 l\u2019encadrement, puis \u00e9largissement \u2014 cha\u00eenes d\u2019in\u00e9galit\u00e9s align\u00e9es, cases math avec clavier \u00e9cran.', start:()=>startRC() },
   'etude-quotient': { name:'Fonction quotient \u2014 domaine, d\u00e9riv\u00e9e et variations', icon:'u/v', desc:'Une fonction f(x) = (ax+b)/(cx+d) : trouve la valeur interdite et l\u2019ensemble de d\u00e9finition, d\u00e9montre la d\u00e9riv\u00e9e avec la formule du quotient (champs math, clavier \u00e9cran en option), puis dresse le tableau de signes et de variations avec la double barre.', start:()=>startEQ() },
+  'associer-derivee': { name:'Associer f et f\u2009\u2032', icon:'\ud83d\udd17', desc:'La fiche 9, sans aucune formule : une courbe de f dont tu déduis le signe de f\u2009\u2032, une courbe de f\u2009\u2032 dont tu déduis les variations de f, puis la question de la fiche — ces deux courbes sont-elles compatibles ?', start:()=>startAfp() },
+  'variations-depuis-derivee': { name:'Le tableau de f depuis la courbe de f\u2009\u2032', icon:'\ud83e\udded', desc:'On te donne la courbe de f\u2009\u2032 : choisis, parmi quatre tableaux de variations, celui de f. Les pièges de la fiche sont dans les propositions — lire les sommets de f\u2009\u2032 au lieu de ses zéros, inverser les sens.', start:()=>startAfq() },
   'etude-exponentielle': { name:'Étude complète — (ax+b)e\u207b\u02e3', icon:'\ud83d\udccb', desc:'L\u2019étude de la fiche, de bout en bout : les points d\u2019intersection avec les axes, la dérivée rédigée comme dans {derivee-exp-2}, le tableau de variations comme dans {etude-fonction}, l\u2019extremum, puis la tangente en x = 1 comme dans {tangente-exp}.', start:()=>startEC() },
   'etude-fonction': { name:'\u00c9tude de fonction \u2014 signe de f\u2009\u2032 et variations', icon:'f\u2032', desc:'On te donne f et sa d\u00e9riv\u00e9e f\u2009\u2032 \u2014 produit avec e^(cx) ou e^(cx\u00b2) : trouve les racines de f\u2009\u2032, compl\u00e8te le signe de chaque facteur puis de f\u2009\u2032, les variations et les extremums de f, puis associe les courbes de f et de f\u2009\u2032.', start:()=>startEF() },
   'signe-premier-degre': { name:'Signe du 1er degr\u00e9', icon:'\u00b1', desc:'Trouve la racine \u2212b/a et le signe de ax + b, puis complète le tableau de signe.', start:()=>startS1() },
@@ -2204,7 +2265,7 @@ const TESTS={
    toute seule, partout dans l'app (menu élève + tableau de bord prof). */
 const THEMES=[
   { num:1, nom:'Révision',           ids:['signe-premier-degre','signe-second-degre','signes-variations','signe-produit','signe-quotient-carre'] },
-  { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2'] },
+  { num:2, nom:'Dérivée',            ids:['derivee-exp','derivee-exp-2','derivee-exp-3','derivee-exp-quotient','derivee-exp-quotient-2','associer-derivee','variations-depuis-derivee'] },
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
@@ -2737,6 +2798,8 @@ function conseilCtxCourant(){
   else if(test && test.kind==='sp' && test.questions && test.questions[test.idx]){ c=spConseilCtx(); }
   else if(test && test.kind==='ef' && test.questions && test.questions[test.idx]){ c=efConseilCtx(); }
   else if(test && test.kind==='ec' && test.questions && test.questions[test.idx]){ c=ecConseilCtx(); }
+  else if(test && test.kind==='afp' && test.questions && test.questions[test.idx]){ c=afpConseilCtx(); }
+  else if(test && test.kind==='afq' && test.questions && test.questions[test.idx]){ c=afqConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
@@ -3481,7 +3544,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR], ec:['ec',renderEC] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3603,7 +3666,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','enc','rec','ef','eq','rc','lr','ec'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','enc','rec','ef','eq','rc','lr','ec','afp','afq'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -9075,10 +9138,11 @@ function efArrowChange(){
   /* le tableau du 5.3 sert aussi {etude-exponentielle} : même dessin, même
      fonction — la question de l'étude ne portant que (a, b), on reconstruit
      son tableau par ecTab() */
-  if(test.kind!=='ef' && test.kind!=='ec') return;
+  if(test.kind!=='ef' && test.kind!=='ec' && test.kind!=='afp') return;
   const ov=$('ef-var-ov'); if(!ov) return;
   let c=test.questions[test.idx]; if(!c) return;
   if(test.kind==='ec') c=ecTab(c);
+  if(test.kind==='afp') c=afpTab(c);
   const nA=c.fleches.length, ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
   const dirs=[]; for(let i=0;i<nA;i++) dirs.push(($('ef-a'+i)||{}).value||'');
   const posY=[];
@@ -9096,6 +9160,546 @@ function efArrowChange(){
   }
   posY.forEach((y,j)=>{ g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4.5"/>'; });
   ov.innerHTML=g;
+}
+
+/* ================= Exercice Terminale : Associer f à f' (kind 'afp') =================
+   Repris de la fiche 9 « ASSOCIER la fonction f à la fonction f' » (demande de
+   Turquet, août 2026) : AUCUNE formule — a) une courbe de f dont on déduit le
+   tableau (signe de f', variations), b) une courbe de f' dont on déduit le
+   MÊME tableau, c) la question de la fiche : ces deux courbes sont-elles
+   compatibles ? Une séance = deux paires de courbes, l'une compatible et
+   l'autre non — sans quoi l'élève apprendrait que la réponse est toujours du
+   même côté —, mélangées, chacune en trois questions a/b/c sur les MÊMES
+   dessins conservés.
+   Le dessin est le moteur de courbes de {lecture-variations} de la Seconde,
+   PORTÉ au caractère près — cinq fonctions comparées par un contrôle — et le
+   tableau est celui d'{etude-fonction} (efTableHTML, efArrowChange, mêmes ids
+   ef-*) : deux moteurs de plus auraient fini par diverger. Les ids partagés
+   imposent la règle des écrans du 5.3 et de l'étude : chaque rendu VIDE les
+   hôtes des autres écrans, sans quoi $() lirait un tableau fantôme.
+   La bonne réponse n'est jamais rangée à côté de la question : la question ne
+   porte que les deux courbes (pts, ptsp) et le type ; afpSignes() lit la
+   table dans la courbe de f, afpZeros() dans celle de f', et la
+   compatibilité est leur COMPARAISON — un énoncé ne peut pas contredire sa
+   correction. */
+function lvPickSubset(arr, m){
+  if(m<=0) return [];
+  if(m>=arr.length) return arr.slice();
+  const idx=arr.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=idx[i]; idx[i]=idx[j]; idx[j]=t; }
+  return idx.slice(0,m).sort((a,b)=>a-b).map(i=>arr[i]);
+}
+function lvGenPts(k){
+  const FALL2=[[-3,-1,1,3,1,-1,-3],[3,1,-1,-3,-1,1,3],[-2,0,2,3,2,0,-2]];
+  const FALL3=[[-3,-1,2,0,-2,0,2],[2,0,-2,0,2,0,-2],[-2,0,3,1,-1,1,3]];
+  for(let att=0; att<600; att++){
+    let turns;
+    if(k===2){ turns=[pick([1,2,3,4,5])]; }
+    else{ const a=pick([1,2,3]); const opts=[a+2,a+3,a+4].filter(v=>v<=5); if(!opts.length) continue; turns=[a,pick(opts)]; }
+    const nodeIdx=[0].concat(turns,[6]);
+    const d0=pick([1,-1]);
+    const segDir=[]; for(let s=0;s<nodeIdx.length-1;s++) segDir.push(d0*(s%2===0?1:-1));
+    const y=new Array(7);
+    y[0] = d0>0 ? pick([-3,-2,-1]) : pick([1,2,3]);
+    let ok=true;
+    for(let s=0;s<nodeIdx.length-1 && ok;s++){
+      const ai=nodeIdx[s], bi=nodeIdx[s+1], dir=segDir[s], len=bi-ai, cur=y[ai];
+      const cands=[]; for(let v=-3; v<=3; v++){ if(dir>0 ? (v-cur>=len) : (cur-v>=len)) cands.push(v); }
+      if(!cands.length){ ok=false; break; }
+      const end=pick(cands);
+      const lo=Math.min(cur,end), hi=Math.max(cur,end);
+      const inner=[]; for(let v=lo+1; v<=hi-1; v++) inner.push(v);
+      if(inner.length < len-1){ ok=false; break; }
+      const chosen=lvPickSubset(inner, len-1);
+      const seq = dir>0 ? chosen : chosen.slice().reverse();
+      for(let t=1;t<len;t++) y[ai+t]=seq[t-1];
+      y[bi]=end;
+    }
+    if(!ok) continue;
+    const mn=Math.min.apply(null,y), mx=Math.max.apply(null,y);
+    if(mx-mn<4 || mn<-3 || mx>3) continue;
+    if(lvAnalyze(y).segments.length!==k) continue;
+    return {pts:y};
+  }
+  const fb = k===2?pick(FALL2):pick(FALL3);
+  return {pts:fb.slice()};
+}
+function lvAnalyze(pts){
+  const xs=[-3,-2,-1,0,1,2,3];
+  const d=[]; for(let i=0;i<6;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+  const turnIdx=[]; for(let i=1;i<=5;i++){ if(d[i-1]!==d[i]) turnIdx.push(i); }
+  const nodeIdx=[0].concat(turnIdx,[6]);
+  const nodes=nodeIdx.map(i=>({x:xs[i], y:pts[i]}));
+  const segments=[]; for(let s=0;s<nodeIdx.length-1;s++){ const a=nodeIdx[s], b=nodeIdx[s+1]; segments.push({fromX:xs[a], toX:xs[b], dir: pts[b]>pts[a]?'croissante':'décroissante'}); }
+  return {xs, dir:d, turnIdx, nodeIdx, nodes, segments};
+}
+function lvTangents(pts){
+  const n=pts.length, d=[];
+  for(let i=0;i<n-1;i++) d.push(pts[i+1]-pts[i]);
+  const m=new Array(n); m[0]=d[0]; m[n-1]=d[n-2];
+  for(let i=1;i<n-1;i++){ m[i] = (Math.sign(d[i-1])!==Math.sign(d[i])) ? 0 : (d[i-1]+d[i])/2; }
+  for(let i=0;i<n-1;i++){
+    if(d[i]===0){ m[i]=0; m[i+1]=0; continue; }
+    const a=m[i]/d[i], b=m[i+1]/d[i], s=a*a+b*b;
+    if(s>9){ const t=3/Math.sqrt(s); m[i]=t*a*d[i]; m[i+1]=t*b*d[i]; }
+  }
+  return m;
+}
+function lvPath(pts, sx, sy, ia, ib){
+  const xs=[-3,-2,-1,0,1,2,3], m=lvTangents(pts);
+  const a=(ia==null)?0:ia, b=(ib==null)?6:ib;
+  let d='M '+sx(xs[a]).toFixed(1)+' '+sy(pts[a]).toFixed(1);
+  for(let i=a;i<b;i++){
+    const x0=xs[i],x1=xs[i+1],y0=pts[i],y1=pts[i+1];
+    d+=' C '+sx(x0+1/3).toFixed(1)+' '+sy(y0+m[i]/3).toFixed(1)+' '+sx(x1-1/3).toFixed(1)+' '+sy(y1-m[i+1]/3).toFixed(1)+' '+sx(x1).toFixed(1)+' '+sy(y1).toFixed(1);
+  }
+  return d;
+}
+const AFP_TYPES=['a','b','c'];
+/* La table lue sur la courbe de f : f' s'annule aux sommets, son signe est le
+   sens de variation. */
+function afpSignes(pts){
+  const a=lvAnalyze(pts);
+  return { roots:a.turnIdx.map(i=>i-3),
+           s:a.segments.map(sg=>sg.dir==='croissante'?'+':'\u2212') };
+}
+/* La table lue sur la courbe de f' : ses zéros sont ses croisements avec
+   l'axe, son signe se lit au-dessus / au-dessous. */
+function afpZeros(ptsp){
+  const roots=[]; for(let x=-3;x<=3;x++){ if(ptsp[x+3]===0) roots.push(x); }
+  const seps=[-3.5].concat(roots,[3.5]), s=[];
+  for(let i=0;i<seps.length-1;i++){
+    let signe='+';
+    for(let x=-3;x<=3;x++){ if(x>seps[i]&&x<seps[i+1]&&ptsp[x+3]!==0){ signe=(ptsp[x+3]>0)?'+':'\u2212'; break; } }
+    s.push(signe);
+  }
+  return { roots:roots, s:s };
+}
+function afpCompatible(q){
+  const A=afpSignes(q.pts), B=afpZeros(q.ptsp);
+  return A.roots.join(',')===B.roots.join(',') && A.s.join('')===B.s.join('');
+}
+/* Une courbe de f' aux zéros DONNÉS : 0 pile sur ces graduations, et partout
+   ailleurs à AU MOINS 1 de l'axe, du côté voulu — entre deux graduations la
+   spline est monotone, elle ne peut donc pas retraverser l'axe en douce. */
+function afpCourbeDer(roots, premier){
+  const pts=new Array(7); let seg=0;
+  for(let x=-3;x<=3;x++){
+    if(roots.indexOf(x)>=0){ pts[x+3]=0; seg++; continue; }
+    const signe=(seg%2===0)?premier:-premier;
+    pts[x+3]=signe*rand(1,3);
+  }
+  return pts;
+}
+/* Une paire de courbes, compatible ou non — au choix du tirage de séance.
+   L'incompatible se fabrique en MUTANT la vraie table de f : signes opposés,
+   un zéro décalé, ou un zéro de plus ou de moins — puis la paire est
+   REVÉRIFIÉE par afpCompatible, la fonction même qui corrigera l'élève. */
+function afpPaire(comp){
+  for(let att=0;att<200;att++){
+    const pts=lvGenPts(pick([2,3])).pts;
+    const A=afpSignes(pts);
+    let roots=A.roots.slice(), premier=(A.s[0]==='+')?1:-1;
+    if(!comp){
+      const muts=[{r:roots.slice(), p:-premier}];
+      for(let i=0;i<roots.length;i++){ [-1,1].forEach(function(d){
+        const nr=roots.slice(); nr[i]+=d; nr.sort(function(a,b){ return a-b; });
+        if(nr.every(function(v){ return v>=-2&&v<=2; }) && nr.every(function(v,j){ return j===0||nr[j]-nr[j-1]>=2; }))
+          muts.push({r:nr, p:premier});
+      }); }
+      if(roots.length===2) muts.push({r:[pick(roots)], p:premier});
+      else { const cands=[]; for(let v=-2;v<=2;v++){ if(Math.abs(v-roots[0])>=2) cands.push(v); }
+        if(cands.length){ muts.push({r:[roots[0],pick(cands)].sort(function(a,b){ return a-b; }), p:premier}); } }
+      const m=pick(muts);
+      if(m.r.join(',')===A.roots.join(',') && m.p===premier) continue;
+      roots=m.r; premier=m.p;
+    }
+    const q={pts:pts, ptsp:afpCourbeDer(roots, premier)};
+    if(afpCompatible(q)!==comp) continue;
+    return q;
+  }
+  const pts=[-3,-1,1,3,1,-1,-3];
+  return comp ? {pts:pts, ptsp:afpCourbeDer([0],1)} : {pts:pts, ptsp:afpCourbeDer([0],-1)};
+}
+function afpBuildQuestions(){
+  const paires=[afpPaire(true), afpPaire(false)];
+  if(rand(0,1)===1) paires.reverse();   /* la compatible ne tombe pas toujours au même rang */
+  const qs=[];
+  paires.forEach(function(p){ AFP_TYPES.forEach(function(t){ qs.push({pts:p.pts, ptsp:p.ptsp, type:t}); }); });
+  return qs;
+}
+/* La configuration du tableau du 5.3 — même dessin, même fonction. */
+function afpTab(q){
+  const t=(q.type==='b')?afpZeros(q.ptsp):afpSignes(q.pts);
+  return { bornes:['\u22123','3'], roots:t.roots.map(efNum),
+    lignes:[{lab:'Signe de <i>f</i>\u2009\u2032(<i>x</i>)', zero:t.roots.map(function(){ return true; }), s:t.s}],
+    fleches:t.s.map(function(x){ return x==='+'?'up':'down'; }) };
+}
+function afpCases(q){
+  if(q.type==='c') return [{id:'afp-comp', type:'sel', good:afpCompatible(q)?'oui':'non'}];
+  const c=afpTab(q), out=[];
+  c.roots.forEach(function(R,i){ out.push({id:'ef-r'+i, type:'num', good:R.v}); });
+  c.lignes[0].s.forEach(function(sg,i){ out.push({id:'ef-l0s'+i, type:'sel', good:sg}); });
+  c.fleches.forEach(function(d,i){ out.push({id:'ef-a'+i, type:'sel', good:d}); });
+  return out;
+}
+/* Le dessin de la Seconde, avec l'étiquette de la fiche : Cf ou Cf'. */
+function afGraphSVG(pts, prime){
+  const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
+  const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
+  const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
+  let grid='';
+  for(let x=-3;x<=3;x++) grid+='<line x1="'+sx(x).toFixed(1)+'" y1="'+PT+'" x2="'+sx(x).toFixed(1)+'" y2="'+PB+'" class="lv-grid"/>';
+  for(let y=-3;y<=3;y++) grid+='<line x1="'+PL+'" y1="'+sy(y).toFixed(1)+'" x2="'+PR+'" y2="'+sy(y).toFixed(1)+'" class="lv-grid"/>';
+  const y0=sy(0), x0=sx(0);
+  const axes='<line x1="'+PL+'" y1="'+y0.toFixed(1)+'" x2="'+(PR+6)+'" y2="'+y0.toFixed(1)+'" class="lv-axis"/>'
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+(PB)+'" x2="'+x0.toFixed(1)+'" y2="'+(PT-6)+'" class="lv-axis"/>'
+    +'<polygon points="'+(PR+8)+','+y0.toFixed(1)+' '+(PR)+','+(y0-3.5).toFixed(1)+' '+(PR)+','+(y0+3.5).toFixed(1)+'" class="lv-axfill"/>'
+    +'<polygon points="'+x0.toFixed(1)+','+(PT-8)+' '+(x0-3.5).toFixed(1)+','+(PT)+' '+(x0+3.5).toFixed(1)+','+(PT)+'" class="lv-axfill"/>'
+    +'<text x="'+(PR+6)+'" y="'+(y0+15).toFixed(1)+'" class="lv-ax" text-anchor="middle">x</text>';
+  let labels='';
+  for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
+  for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
+  const cf='<text x="'+sx(-2.7).toFixed(1)+'" y="'+(sy(pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f'+(prime?'\u2009\u2032':'')+'</tspan></text>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy)+'"/>'+cf+'</svg>';
+}
+async function startAfp(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='associer-derivee'; test.kind='afp';
+  test.questions=afpBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('afp'); renderAfp();
+}
+function renderAfp(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('afpQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('afpModeTag').innerHTML=modeTagHTML();
+  $('afpLiveScore').textContent=test.score;
+  $('afpFeedback').textContent=''; $('afpFeedback').className='mp-feedback';
+  $('afpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAfp()">V\u00e9rifier</button>';
+  const ex='Exercice '+(Math.floor(test.idx/3)+1)+' \u2014 ';
+  /* les ids ef-* du tableau vivent aussi sur les écrans du 5.3 et de l'étude :
+     leurs hôtes se vident, sans quoi $() lirait un tableau fantôme */
+  { const a1=$('efTable'); if(a1) a1.innerHTML=''; const a2=$('ecForm'); if(a2) a2.innerHTML=''; }
+  if(q.type==='a'){
+    $('afpPrompt').innerHTML=ex+'On donne une courbe repr\u00e9sentant <b><i>f</i></b>. Compl\u00e8te logiquement le tableau : les abscisses o\u00f9 <i>f</i>\u2009\u2032 s\u2019annule, le signe de <i>f</i>\u2009\u2032, les variations de <i>f</i>.';
+    $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.pts,false)+'</div><p class="af-instr">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
+  } else if(q.type==='b'){
+    $('afpPrompt').innerHTML=ex+'On donne cette fois une courbe repr\u00e9sentant <b><i>f</i>\u2009\u2032</b> \u2014 attention, c\u2019est la D\u00c9RIV\u00c9E qui est dessin\u00e9e. Compl\u00e8te logiquement le m\u00eame tableau.';
+    $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div><p class="af-instr">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
+  } else {
+    $('afpPrompt').innerHTML=ex+'Voici les DEUX courbes des questions pr\u00e9c\u00e9dentes, c\u00f4te \u00e0 c\u00f4te. Les courbes <i>f</i> et <i>f</i>\u2009\u2032 sont-elles compatibles ?';
+    $('afpHost').innerHTML='<div class="af-deux"><div class="af-graph">'+afGraphSVG(q.pts,false)+'</div><div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div></div>'
+      +'<p class="af-instr">Les courbes <i>f</i> et <i>f</i>\u2009\u2032 sont-elles compatibles ? '
+      +'<select class="tvi-sel" id="afp-comp"><option value="">\u2026</option><option value="oui">oui</option><option value="non">non</option></select></p>';
+  }
+  setTimeout(efArrowChange,0);
+  if(isSoutien()){
+    afpCases(q).forEach(function(x){ const el=$(x.id); if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',function(){ checkAfp(true); }); });
+  }
+}
+/* Le pourquoi de la question c, calculé sur les deux tables — jamais rangé. */
+function afpPourquoi(q){
+  const A=afpSignes(q.pts), B=afpZeros(q.ptsp);
+  if(A.roots.join(',')!==B.roots.join(','))
+    return 'Les z\u00e9ros de <i>f</i>\u2009\u2032 ('+B.roots.map(numFmt).join(' et ')+') ne tombent pas exactement sous les sommets de <i>f</i> ('+A.roots.map(numFmt).join(' et ')+') : les courbes ne sont PAS compatibles.';
+  if(A.s.join('')!==B.s.join(''))
+    return 'Les z\u00e9ros co\u00efncident, mais le SIGNE ne suit pas : <i>f</i>\u2009\u2032 est positive l\u00e0 o\u00f9 <i>f</i> d\u00e9cro\u00eet \u2014 les courbes ne sont PAS compatibles.';
+  return 'Les z\u00e9ros de <i>f</i>\u2009\u2032 tombent exactement sous les sommets de <i>f</i>, et <i>f</i>\u2009\u2032 est positive l\u00e0 o\u00f9 <i>f</i> cro\u00eet : les courbes sont compatibles.';
+}
+function checkAfp(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=afpCases(q);
+  /* UNE CASE VIDE NE ROUGIT JAMAIS — la règle de partout, tenue ici dès le
+     premier jour : le 5.2, copié au départ, marque tout ce qu'il voit et vit
+     pour cela dans la liste des dispenses du banc navigateur ; un exercice
+     neuf n'y entre pas. On juge d'abord TOUT, on ne peint qu'ensuite :
+     rien n'est touché tant que la copie est entièrement vide, une case vide
+     ne reçoit aucune couleur avant le verrouillage, et c'est corrCase — la
+     convention commune — qui la remplit en BLEU à la fin. */
+  let allOk=true, anyFilled=false;
+  const etats=cases.map(function(x){
+    const el=$(x.id); if(!el) return null;
+    const raw=String(el.value||''), vide=(raw.trim()==='');
+    let ok;
+    if(x.type==='sel'){ ok=(raw===x.good); }
+    else { const v=efParse(raw); ok=numOkTol(v,x.good,0.01); }
+    if(!vide) anyFilled=true;
+    if(!ok) allOk=false;
+    return {x:x, el:el, ok:ok, vide:vide};
+  }).filter(function(e){ return !!e; });
+  const peindre=function(){ etats.forEach(function(e){
+    e.el.classList.remove('ok','bad');
+    if(!e.vide) e.el.classList.add(e.ok?'ok':'bad');
+  }); };
+  if(live){ peindre(); return; }
+  if(!anyFilled){ $('afpFeedback').textContent='Complète au moins une case avant de vérifier.'; $('afpFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    peindre();
+    etats.forEach(function(e){ if(e.ok) e.el.disabled=true; });
+    $('afpFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('afpFeedback').className='mp-feedback bad';
+    $('afpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAfp()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  /* la convention COMMUNE de la Terminale (corrCase) : la case juste est
+     verte, la case FAUSSE reste ROUGE avec la saisie de l'élève et la bonne
+     réponse s'affiche en bleu à côté, la case vide est remplie en bleu. La
+     première version révélait tout en VERT (la convention du 5.2) : l'écran
+     entier était vert sous un message qui disait « quelques erreurs », et on
+     ne voyait plus quelle case reprendre — signalé par Turquet sur une
+     capture, août 2026. */
+  etats.forEach(function(e){
+    corrCase(e.x.id, (e.x.type==='sel')?String(e.x.good):numFmt(e.x.good), e.ok);
+    /* le badge bleu d'un menu de flèche se cale à côté de SON menu : inséré
+       dans le flux de la cellule, il s'empilerait au coin du tableau */
+    const el=$(e.x.id), b=el&&el.nextElementSibling;
+    if(el && b && b.classList && b.classList.contains('mf-cor') && el.classList.contains('vt-sel2')){
+      b.style.position='absolute'; b.style.left='calc('+el.style.left+' + 42px)';
+      b.style.top=el.style.top; b.style.transform='translateY(-50%)'; b.style.zIndex=4;
+    }
+  });
+  efArrowChange();
+  if(allOk){
+    test.score++; $('afpLiveScore').textContent=test.score;
+    $('afpFeedback').innerHTML=(q.type==='c')?afpPourquoi(q):pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo !']);
+    $('afpFeedback').className='mp-feedback good';
+  } else {
+    const nbVides=etats.filter(function(e){ return e.vide; }).length;
+    $('afpFeedback').innerHTML='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en bleu'
+      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en bleu':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en bleu'):'')+'.<br>'
+      +((q.type==='c')?afpPourquoi(q)
+        :(q.type==='a')?'Retiens : <i>f</i>\u2009\u2032 s\u2019annule aux <b>sommets et creux</b> de <i>f</i>, et son signe est le sens de variation \u2014 <i>f</i> <b>cro\u00eet quand <i>f</i>\u2009\u2032 &gt; 0</b>.'
+        :'Retiens : ici c\u2019est <i>f</i>\u2009\u2032 qui est dessin\u00e9e \u2014 son signe se lit <b>au-dessus / au-dessous de l\u2019axe</b>, ses z\u00e9ros sont ses croisements avec l\u2019axe, et <i>f</i> cro\u00eet l\u00e0 o\u00f9 <i>f</i>\u2009\u2032 est positive.');
+    $('afpFeedback').className='mp-feedback bad';
+  }
+  const t=afpTab(q);
+  test.answers.push({...(ptsExo()||{}),q:'Fiche 9 \u2014 question '+q.type+' (exercice '+(Math.floor(test.idx/3)+1)+')',
+    answer:(q.type==='c')?(afpCompatible(q)?'oui':'non'):('z\u00e9ros : '+t.roots.map(function(R){ return R.str; }).join(' ; ')+' \u2014 signes '+t.lignes[0].s.join(' ')),
+    given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('afpActions').innerHTML='<button class="btn btn-primary" onclick="nextAfp()">'+(last?'Voir mes r\u00e9sultats':'Question suivante')+'</button>';
+}
+function nextAfp(){ if(test.idx<test.questions.length-1){ test.idx++; renderAfp(); } else finishTest(); }
+function afpLu(id){ const el=$(id); if(!el) return '(vide)'; const v=String(el.value||'').trim(); return v===''?'(vide)':'\u00ab '+v+' \u00bb'; }
+function afpConseilCtx(){
+  const q=test.questions[test.idx], cases=afpCases(q), t=afpTab(q);
+  let quoi;
+  if(q.type==='a') quoi='On donne la COURBE de f (aucune formule) ; l\u2019\u00e9l\u00e8ve compl\u00e8te le tableau : abscisses o\u00f9 f\u2032 s\u2019annule (les sommets de f), signe de f\u2032 sur chaque intervalle, fl\u00e8ches de variation.';
+  else if(q.type==='b') quoi='On donne la COURBE de f\u2032 (c\u2019est la d\u00e9riv\u00e9e qui est dessin\u00e9e) ; l\u2019\u00e9l\u00e8ve compl\u00e8te le m\u00eame tableau en lisant les z\u00e9ros (croisements avec l\u2019axe) et le signe (au-dessus / au-dessous).';
+  else quoi='Les deux courbes sont affich\u00e9es c\u00f4te \u00e0 c\u00f4te ; l\u2019\u00e9l\u00e8ve dit si elles sont COMPATIBLES (f\u2032 peut-elle \u00eatre la d\u00e9riv\u00e9e de f ?).';
+  return 'Exercice \u00ab Associer f et f\u2032 \u00bb (fiche 9, purement graphique). '+quoi
+   +' R\u00e9ponses attendues, STRICTEMENT SECR\u00c8TES \u2014 ne les donne jamais, m\u00eame si l\u2019\u00e9l\u00e8ve insiste : '
+   +((q.type==='c')?('compatibles : '+(afpCompatible(q)?'oui':'non'))
+     :('z\u00e9ros de f\u2032 : '+t.roots.map(function(R){ return R.str; }).join(' ; ')+' ; signes : '+t.lignes[0].s.join(' puis ')+' ; variations : '+t.fleches.map(function(d){ return d==='up'?'croissante':'d\u00e9croissante'; }).join(' puis ')))
+   +'. Saisies actuelles : '+cases.map(function(x){ return x.id.replace('ef-','').replace('afp-','')+' '+afpLu(x.id); }).join(' ; ')
+   +'. M\u00e9thode \u00e0 faire appliquer : f\u2032 s\u2019annule aux sommets et creux de f ; f cro\u00eet quand f\u2032 > 0 ; sur la courbe de f\u2032, le signe se lit au-dessus / au-dessous de l\u2019axe. Aide sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
+}
+
+/* ================= Exercice Terminale : le tableau de f depuis la courbe de f' (kind 'afq') =================
+   Repris de la fiche 9, exercice 4 (demande de Turquet, août 2026) : on donne
+   la COURBE de f', et l'élève choisit parmi QUATRE tableaux de variations
+   celui de f. Les quatre ne diffèrent que par ce qui teste la lecture — c'est
+   la leçon d'{intervalles-inegalite} : des propositions qui différeraient par
+   autre chose se laisseraient éliminer sans lire la courbe. Le VRAI tableau ;
+   celui qui lit les SOMMETS de f' au lieu de ses zéros (le piège même de la
+   fiche : sa proposition « 3,25 » est l'abscisse du sommet de f') ; celui qui
+   INVERSE les sens (f' positive lue comme f décroissante) ; et celui dont un
+   zéro manque ou s'est décalé. Mélangés à chaque question — à forme égale, le
+   rang de la bonne change.
+   La bonne réponse n'est jamais rangée à côté de la question : la question ne
+   porte que la courbe (ptsp), l'ordre (perm) et les indices des distracteurs
+   (gard, dec — on range l'indice, jamais l'objet) ; les quatre tableaux sont
+   CONSTRUITS par afqTables() depuis la courbe même, et la correction relit
+   perm. Le dessin et la table lue sont ceux d'{associer-derivee} (afGraphSVG,
+   afpZeros, afpCourbeDer) : un moteur de plus aurait fini par diverger. */
+function afqMelange(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=rand(0,i); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+const AFQ_KINDS=['vrai','sommets','inverse','autre'];
+const AFQ_LETTRES=['a','b','c','d'];
+/* Les quatre tableaux, par nature, construits depuis la courbe. */
+function afqTables(q){
+  const vrai=afpZeros(q.ptsp);
+  const fl=function(sg){ return sg.map(function(x){ return x==='+'?'up':'down'; }); };
+  const inv=function(fs){ return fs.map(function(d){ return d==='up'?'down':'up'; }); };
+  const T={};
+  T.vrai={roots:vrai.roots.slice(), fleches:fl(vrai.s)};
+  const sommets=afqSommets(q.ptsp);
+  const flS=[]; for(let i=0;i<=sommets.length;i++) flS.push((i%2===0)?T.vrai.fleches[0]:(T.vrai.fleches[0]==='up'?'down':'up'));
+  T.sommets={roots:sommets, fleches:flS};
+  T.inverse={roots:vrai.roots.slice(), fleches:inv(T.vrai.fleches)};
+  if(vrai.roots.length===2){
+    T.autre={roots:[vrai.roots[q.gard]], fleches:[T.vrai.fleches[0], T.vrai.fleches[0]==='up'?'down':'up']};
+  } else {
+    T.autre={roots:[vrai.roots[0]+q.dec], fleches:T.vrai.fleches.slice()};
+  }
+  return T;
+}
+function afqSignature(t){ return t.roots.join(',')+'|'+t.fleches.join(','); }
+/* Les VRAIS sommets de la courbe : lvAnalyze compte les bords d'un PALIER
+   (deux valeurs égales) comme des tournants — un « sommet » que l'œil ne voit
+   pas, et le piège de la fiche doit lire un sommet qui se voit. On saute donc
+   les différences nulles : seul un vrai changement de sens compte. */
+function afqSommets(ptsp){
+  const out=[]; let d0=Math.sign(ptsp[1]-ptsp[0]);
+  for(let i=1;i<6;i++){ const d=Math.sign(ptsp[i+1]-ptsp[i]);
+    if(d!==0 && d0!==0 && d!==d0) out.push(i-3);
+    if(d!==0) d0=d; }
+  return out;
+}
+function afqGen(){
+  for(let att=0;att<400;att++){
+    const nz=pick([1,2,2]);
+    let roots;
+    if(nz===1) roots=[pick([-2,-1,0,1,2])];
+    else{ const r1=pick([-2,-1,0]); const c2=[r1+2,r1+3,r1+4].filter(function(v){ return v<=2; }); roots=[r1,pick(c2)]; }
+    const ptsp=afpCourbeDer(roots, pick([1,-1]));
+    /* la table lue doit être celle qu'on a visée */
+    const lu=afpZeros(ptsp);
+    if(lu.roots.join(',')!==roots.join(',')) continue;
+    /* le piège du sommet a besoin d'un sommet, et d'un sommet qui ne soit pas
+       un zéro : le piège doit être un AUTRE nombre que la bonne réponse */
+    const sommets=afqSommets(ptsp);
+    if(!sommets.length || sommets.length>2) continue;
+    /* un sommet ne peut PAS tomber sur un zéro : la courbe traverse l'axe en
+       montant ou en descendant, jamais en tournant — un garde-fou qui
+       l'écartait ici n'écartait donc jamais rien (le cinquième garde-fou mort
+       du projet, retiré ; le sabotage l'a montré en restant vert). C'est le
+       contrôle qui exige la propriété, par sa propre arithmétique. */
+    const gard=rand(0,1), dec=pick([-1,1]);
+    if(nz===1 && (roots[0]+dec<-2 || roots[0]+dec>2)) continue;
+    const q={ptsp:ptsp, perm:afqMelange(AFQ_KINDS.slice()), gard:gard, dec:dec};
+    /* quatre tableaux deux à deux DIFFÉRENTS : deux propositions identiques
+       feraient deux bonnes réponses, une seule comptée */
+    const T=afqTables(q), sigs=AFQ_KINDS.map(function(k){ return afqSignature(T[k]); });
+    if(new Set(sigs).size!==4) continue;
+    return q;
+  }
+  return {ptsp:[-1,-2,-3,0,1,2,3], perm:AFQ_KINDS.slice(), gard:0, dec:1};
+}
+function afqBuildQuestions(){ const qs=[]; for(let i=0;i<4;i++) qs.push(afqGen()); return qs; }
+/* Un tableau de variations STATIQUE, dessiné comme celui du 5.2 (mêmes
+   classes vt-*), en plus petit : c'est une proposition à lire, pas à remplir. */
+function afqTableHTML(t){
+  const WN=46, WS=88, H=84, TT=16, BB=70;
+  const nR=t.roots.length, nN=nR+2, nS=nR+1, innerW=nN*WN+nS*WS;
+  const ncx=function(j){ return j*(WN+WS)+WN/2; };
+  let xr='<td class="vlab" style="width:58px"><i>x</i></td>'
+    +'<td class="vnx" style="width:'+WN+'px">−3</td>';
+  t.roots.forEach(function(r){ xr+='<td class="vax" style="width:'+WS+'px"></td><td class="vnx" style="width:'+WN+'px"><b>'+numFmt(r)+'</b></td>'; });
+  xr+='<td class="vax" style="width:'+WS+'px"></td><td class="vnx" style="width:'+WN+'px">3</td>';
+  const posY=[];
+  for(let j=0;j<=nS;j++){
+    const right=t.fleches[j]||'', left=(j>0?t.fleches[j-1]:'')||'';
+    let y=(TT+BB)/2;
+    if(right==='up') y=BB; else if(right==='down') y=TT;
+    else if(left==='up') y=TT; else if(left==='down') y=BB;
+    posY.push(y);
+  }
+  let g='';
+  for(let i=0;i<nS;i++){
+    const y0=(t.fleches[i]==='up')?BB:TT, y1=(t.fleches[i]==='up')?TT:BB;
+    g+=svArrowSVG(ncx(i),y0,ncx(i+1),y1);
+  }
+  posY.forEach(function(y,j){ g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4"/>'; });
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(58+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xr+'</tr>'
+    +'<tr class="vt-fr"><td class="vlab"><i>f</i> (<i>x</i>)</td><td class="vfcell" colspan="'+(2*nN-1)+'" style="height:'+H+'px">'
+    +'<svg class="vt-overlay" viewBox="0 0 '+innerW+' '+H+'" preserveAspectRatio="none">'+g+'</svg></td></tr>'
+    +'</tbody></table></div>';
+}
+async function startAfq(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='variations-depuis-derivee'; test.kind='afq';
+  test.questions=afqBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('afq'); renderAfq();
+}
+function renderAfq(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('afqQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('afqModeTag').innerHTML=modeTagHTML();
+  $('afqLiveScore').textContent=test.score;
+  $('afqFeedback').textContent=''; $('afqFeedback').className='mp-feedback';
+  $('afqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAfq()">Vérifier</button>';
+  $('afqPrompt').innerHTML='On donne ci-dessous la représentation graphique de <b><i>f</i> ′</b>, fonction dérivée d’une fonction <i>f</i> définie sur [−3 ; 3]. Le tableau de variation de <i>f</i> est :';
+  const T=afqTables(q);
+  const cartes=q.perm.map(function(k,i){
+    return '<div class="afq-carte" data-carte="'+i+'"><span class="afq-lettre">'+AFQ_LETTRES[i]+'.</span>'+afqTableHTML(T[k])+'</div>';
+  }).join('');
+  $('afqHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.ptsp,true)+'</div>'
+    +'<div class="afq-cartes">'+cartes+'</div>'
+    +'<p class="af-instr">C’est le tableau <select class="tvi-sel" id="afq-sel"><option value="">…</option>'
+    +AFQ_LETTRES.map(function(l,i){ return '<option value="'+i+'">'+l+'</option>'; }).join('')+'</select></p>';
+  /* cliquer une carte la choisit : sur tablette, viser le petit menu est
+     pénible, et la fiche se répond en montrant le tableau du doigt */
+  $('afqHost').querySelectorAll('.afq-carte').forEach(function(el){
+    el.addEventListener('click', function(){ if(test.locked) return;
+      const sel=$('afq-sel'); if(!sel||sel.disabled) return; sel.value=el.getAttribute('data-carte');
+      if(isSoutien()) checkAfq(true); });
+  });
+  if(isSoutien()){ const sel=$('afq-sel'); if(sel) sel.addEventListener('change',function(){ checkAfq(true); }); }
+}
+function afqBon(q){ return q.perm.indexOf('vrai'); }
+/* Le pourquoi, par NATURE du tableau choisi — le tirage l'a rangée dans perm. */
+function afqPourquoi(kind){
+  if(kind==='sommets') return 'Ce tableau lit les SOMMETS de la courbe de f ′ — là où elle culmine ou creuse — alors que les variations de f changent là où f ′ COUPE l’axe des abscisses : c’est le piège de la fiche.';
+  if(kind==='inverse') return 'Ce tableau INVERSE les sens : f croît là où f ′ est POSITIVE (au-dessus de l’axe), et décroît là où elle est négative.';
+  if(kind==='autre') return 'Ce tableau n’a pas les bons changements de sens : f change de sens à CHAQUE zéro de f ′, ni plus, ni moins, ni à côté.';
+  return '';
+}
+function checkAfq(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], sel=$('afq-sel');
+  const raw=sel?String(sel.value):'', bon=afqBon(q);
+  const ok=(raw===String(bon));
+  if(live){ if(sel && raw!==''){ sel.classList.remove('ok','bad'); sel.classList.add(ok?'ok':'bad'); } return; }
+  if(raw===''){ $('afqFeedback').textContent='Choisis un tableau avant de vérifier.'; $('afqFeedback').className='mp-feedback'; return; }
+  if(!ok && isSoutien()){
+    sel.classList.remove('ok'); sel.classList.add('bad');
+    $('afqFeedback').textContent='Ce n’est pas ce tableau — regarde où f ′ coupe l’axe, puis réessaie.';
+    $('afqFeedback').className='mp-feedback bad';
+    $('afqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkAfq()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  corrCase('afq-sel', String(bon), ok);   /* faux : la lettre choisie reste en rouge, la bonne en bleu à côté */
+  /* la bonne carte se montre, et la carte choisie à tort aussi */
+  document.querySelectorAll('#afqHost .afq-carte').forEach(function(el,i){
+    el.classList.remove('ok','bad');
+    if(i===bon) el.classList.add('ok');
+    else if(String(i)===raw) el.classList.add('bad');
+  });
+  if(ok){
+    test.score++; $('afqLiveScore').textContent=test.score;
+    $('afqFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo !']);
+    $('afqFeedback').className='mp-feedback good';
+  } else {
+    const choisi=q.perm[parseInt(raw,10)];
+    $('afqFeedback').innerHTML='C’était le tableau <b>'+AFQ_LETTRES[bon]+'</b>. '+afqPourquoi(choisi)
+      +'<br>Retiens : les variations de f se lisent sur le SIGNE de f ′ — f croît quand f ′ est au-dessus de l’axe, et change de sens là où f ′ le coupe.';
+    $('afqFeedback').className='mp-feedback bad';
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Tableau de f depuis la courbe de f′ — bonne réponse '+AFQ_LETTRES[bon],
+    answer:AFQ_LETTRES[bon], given:raw===''?'(vide)':AFQ_LETTRES[parseInt(raw,10)], correct:ok, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('afqActions').innerHTML='<button class="btn btn-primary" onclick="nextAfq()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextAfq(){ if(test.idx<test.questions.length-1){ test.idx++; renderAfq(); } else finishTest(); }
+function afqConseilCtx(){
+  const q=test.questions[test.idx], T=afqTables(q), bon=afqBon(q);
+  const sel=$('afq-sel'), v=sel?String(sel.value):'';
+  const dit=function(t){ return 'zéros '+(t.roots.map(numFmt).join(' et ')||'aucun')+', '+t.fleches.map(function(d){ return d==='up'?'↗':'↘'; }).join(' puis '); };
+  return 'Exercice « Le tableau de f depuis la courbe de f′ » (fiche 9, exercice 4). On donne la COURBE de f′ ; l’élève choisit parmi quatre tableaux de variations (a à d) celui de f. '
+   +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste : le tableau '+AFQ_LETTRES[bon]+'. '
+   +'Contenu des propositions : '+q.perm.map(function(k,i){ return AFQ_LETTRES[i]+' ('+dit(T[k])+')'; }).join(' ; ')+'. '
+   +'Choix actuel de l’élève : '+(v===''?'(aucun)':AFQ_LETTRES[parseInt(v,10)])+'. '
+   +'Méthode à faire appliquer, sans donner la lettre : repérer où la courbe de f′ COUPE l’axe des abscisses (jamais ses sommets), puis lire son signe — f croît quand f′ est au-dessus de l’axe.';
 }
 async function startEF(){
   if(!currentEleve){ accueil(); return; }
@@ -10515,17 +11119,26 @@ function s1TableHTML(c){
     <tr><td class="lab">Signe de <i>f</i>\u00a0(<i>x</i>)</td><td>${sign('s1-sl')}</td><td class="sv-zero s-rootcol"><span>0</span></td><td>${sign('s1-sr')}</td></tr>
   </tbody></table>`;
 }
+/* 5 questions et non plus 15 (demande de Turquet, août 2026), les trois
+   niveaux restant TOUS représentés, dans leur ordre : 2 du niveau 1 (racine
+   entière, e ou π), 2 du niveau 2 (la racine en fraction à simplifier), 1 du
+   niveau 3 (ax seul, la racine 0). Le compte vit ICI et le contrôle le
+   compare à tests/profils.js — deux sources, comme SF_NB : lire la page et la
+   comparer à elle-même ne prouverait rien. */
+const S1_NB=[2,2,1];
+function s1BuildQuestions(){
+  const qs=[];
+  for(let i=0;i<S1_NB[0];i++) qs.push(genS1L1(i));   // niveau 1
+  for(let i=0;i<S1_NB[1];i++) qs.push(genS1Case(i)); // niveau 2
+  for(let i=0;i<S1_NB[2];i++) qs.push(genS1L3(i));   // niveau 3
+  return qs;
+}
 async function startS1(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='signe-premier-degre'; test.kind='s1';
-  // Les 3 niveaux à la suite : 5 questions chacun (15 en tout), une seule note /10 sur l'ensemble.
-  const qs=[];
-  for(let i=0;i<5;i++) qs.push(genS1L1(i));   // niveau 1
-  for(let i=0;i<5;i++) qs.push(genS1Case(i)); // niveau 2
-  for(let i=0;i<5;i++) qs.push(genS1L3(i));   // niveau 3
-  test.questions=qs;
+  test.questions=s1BuildQuestions();
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('s1'); renderS1();
 }
@@ -10989,7 +11602,11 @@ const RAP_EC=
 +'<div class="rap-t">Tangente</div>'
 +'<p>y = f\u2009\u2032(a)(x \u2212 a) + f(a) : on remplace a, on développe, on réduit. Ici a = 1, et e\u207b\u00b9 = \\(\\frac{1}{e}\\) : les valeurs s\u2019écrivent en fractions sur e.</p></div>';
 const RAPPELS_ID={ 'suites':RAP_SUITES, 'derivees':RAP_DER, 'signe-quotient-carre':RAP_SPC };
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR,
+const RAP_AFP=`<b>Associer une fonction f à sa dérivée f\u2009\u2032</b><br>
+\u2022 <b>Le signe de f\u2009\u2032 se lit sur les VARIATIONS de f</b> : f croît \u21d4 f\u2009\u2032 &gt; 0, f décroît \u21d4 f\u2009\u2032 &lt; 0. Et f\u2009\u2032 s'annule (0 dans le tableau) aux <b>sommets et creux</b> de f — là où la tangente est horizontale.<br>
+\u2022 <b>Les variations de f se lisent sur le SIGNE de f\u2009\u2032</b> : quand la courbe de f\u2009\u2032 est AU-DESSUS de l'axe des abscisses, f croît ; au-dessous, f décroît ; f\u2009\u2032 coupe l'axe exactement là où f change de sens.<br>
+\u2022 <b>Deux courbes sont COMPATIBLES</b> quand leurs deux tableaux coïncident : les zéros de f\u2009\u2032 tombent sous les sommets de f, et f\u2009\u2032 est positive là où f croît. Un seul désaccord — un zéro décalé, un signe inversé — et f\u2009\u2032 dessinée ne peut pas être la dérivée de f dessinée.`;
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -13891,6 +14508,8 @@ try{
    imagé, programme de Terminale spécialité, définitions du cours autorisées, mais
    jamais les valeurs de l'exercice en cours. */
 const QIA_SUGG={
+  afq:["Pourquoi les variations de f changent-elles l\u00e0 o\u00f9 f\u2009\u2032 coupe l'axe ?","Quel est le pi\u00e8ge du sommet de f\u2009\u2032 ?","Comment savoir si f monte ou descend sur un intervalle ?","Pourquoi le tableau ne se lit-il pas sur les bosses de f\u2009\u2032 ?"],
+  afp:["Comment savoir où f\u2009\u2032 s'annule en regardant la courbe de f ?","Pourquoi f croît quand f\u2009\u2032 est positive ?","Que veut dire \u00ab compatibles \u00bb pour deux courbes ?","Comment lire le signe de f\u2009\u2032 sur sa courbe ?"],
   lg:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment lire une limite sur un graphique ?","À quoi servent les limites ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   lg2:["C’est quoi, une limite ?","C’est quoi, une asymptote ?","Comment remplir un tableau de variation ?","Que veut dire la double barre dans un tableau ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
   lg3:["Comment lire les limites dans un tableau de variation ?","Que veut dire la double barre ?","Comment trouver une asymptote à partir du tableau ?","C’est quoi, une limite ?","Quand n’y a-t-il pas d’asymptote horizontale ou verticale ?"],
