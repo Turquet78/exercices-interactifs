@@ -424,6 +424,76 @@ console.log('\n3 bis. LE MÉNAGE DES BROUILLONS FANTÔMES');
 }
 
 /* ---------------------------------------------------------------------------
+   3 quater. Relier les élèves à leur compte (user_id vide)
+   -------------------------------------------------------------------------
+   Un élève de Terminale a cliqué « Le faire sur papier » et a reçu « new row
+   violates row-level security policy » (signalé par Turquet, août 2026) : sa
+   ligne n'était plus RELIÉE à son compte — user_id vide —, alors que la
+   connexion marchait parfaitement. La restauration d'une sauvegarde produit
+   exactement cet état quand les comptes auth ont survécu au sinistre : elle
+   remet user_id à vide (voir la section 4), mais auth.users n'est pas touché.
+   Ce banc REPRODUIT le refus, joue supabase/relier-comptes.sql, et vérifie
+   que le geste refusé passe désormais — les deux bords, comme pour la pause. */
+console.log('\n3 quater. RELIER LES ÉLÈVES À LEUR COMPTE');
+{
+  const bd = monter('relier');
+  psql(bd, ['-f', MIG]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql')]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
+
+  /* Trois élèves de Terminale : Léa dé-reliée dont le compte a SURVÉCU (le
+     cas du reliage), Sam dé-relié dont le compte a disparu (le cas « Nouveau
+     code »), Bob relié — le témoin que le script ne touche pas. */
+  psql(bd, ['-c', `
+    insert into auth.users (id, email) values
+      ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'cle-lea@eleves.exercices-interactifs.invalid'),
+      ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'cle-bob@eleves.exercices-interactifs.invalid')
+      on conflict (id) do nothing;
+    insert into public.eleves (prenom, cle, user_id) values
+      ('Léa', 'cle-lea', null),
+      ('Sam', 'cle-sam', null),
+      ('Bob', 'cle-bob', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');`]);
+  const idLea = psql(bd, ['-tAc', "select id from public.eleves where prenom = 'Léa'"]).trim();
+
+  /* Le défaut d'abord : si la ligne dé-reliée n'était pas refusée, ce banc
+     mesurerait un reliage qui ne répare rien. */
+  const geste = "begin; set local role authenticated;"
+    + " set local request.jwt.claim.sub = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';"
+    + " insert into public.signalements (eleve_id, exercice, message)"
+    + " values ('" + idLea + "', 'dm', 'DM sur papier — Léa'); commit;";
+  const refus = psql(bd, ['-c', geste], true);
+  bilan('le défaut se reproduit : l\'élève dé-relié ne peut pas déposer son devoir sur papier',
+    !!(refus && refus.erreur) && /row-level security/.test(String(refus.erreur)),
+    refus && refus.erreur ? String(refus.erreur).split('\n')[0] : 'l\'insertion est passée');
+
+  const sortie = psql(bd, ['-f', path.join(RACINE, 'supabase/relier-comptes.sql')]);
+  bilan('le script annonce ce qu\'il a relié, table par table',
+    /relié\(s\) par ce script/.test(sortie), sortie.split('\n').slice(-6).join(' '));
+  bilan('Sam, dont le compte a disparu, est nommé pour un « Nouveau code »',
+    /encore sans lien : Sam/.test(sortie), sortie.split('\n').filter(l => /Sam/.test(l)).join(' '));
+
+  const liens = psql(bd, ['-tAc',
+    "select prenom || '=' || coalesce(user_id::text, 'vide') from public.eleves order by prenom"]).trim().split('\n');
+  bilan('Léa est reliée à son compte survivant',
+    liens.some(l => l === 'Léa=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), liens.join(' , '));
+  bilan('Sam reste sans lien : son compte n\'existe plus, rien à inventer',
+    liens.some(l => l === 'Sam=vide'), liens.join(' , '));
+  bilan('Bob, déjà relié, n\'a pas bougé',
+    liens.some(l => l === 'Bob=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'), liens.join(' , '));
+
+  /* Le second bord : le geste refusé passe maintenant — c'est tout l'objet. */
+  const accepte = psql(bd, ['-c', geste], true);
+  bilan('le devoir sur papier de Léa part désormais',
+    !(accepte && accepte.erreur), accepte && accepte.erreur ? String(accepte.erreur).split('\n')[0] : '');
+
+  const rejeu = psql(bd, ['-f', path.join(RACINE, 'supabase/relier-comptes.sql')], true);
+  bilan('le rejouer ne trouve plus rien et ne casse rien', !(rejeu && rejeu.erreur),
+    rejeu && rejeu.erreur ? String(rejeu.erreur).split('\n')[0] : '');
+
+  psql('postgres', ['-c', 'drop database if exists relier']);
+}
+
+/* ---------------------------------------------------------------------------
    4. La restauration d'une sauvegarde
    -------------------------------------------------------------------------
    Une sauvegarde qu'on n'a jamais remise en place n'est pas une sauvegarde :

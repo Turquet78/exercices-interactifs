@@ -715,9 +715,18 @@ function structure(){
     domEdge = (fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/admin-eleve/index.ts'), 'utf8')
       .match(/const DOMAINE\s*=\s*'([^']+)'/) || [])[1];
   }catch(e){ domEdge = undefined; }
-  verifier('le domaine des comptes est le même dans la page et dans la fonction Edge',
-    !!domPage && domPage === domEdge,
-    'page : ' + (domPage || '(absent)') + ' — fonction Edge : ' + (domEdge || '(absent)'));
+  /* Le script de reliage (supabase/relier-comptes.sql) recalcule l'adresse
+     des comptes à partir de la clé : le domaine y vit une TROISIÈME fois.
+     S'il divergeait, le script ne relierait plus personne — sans erreur. */
+  let domSql;
+  try{
+    domSql = (fs.readFileSync(path.join(__dirname, '..', 'supabase/relier-comptes.sql'), 'utf8')
+      .match(/dom constant text := '([^']+)'/) || [])[1];
+  }catch(e){ domSql = undefined; }
+  verifier('le domaine des comptes est le même dans la page, la fonction Edge et le script de reliage',
+    !!domPage && domPage === domEdge && domPage === domSql,
+    'page : ' + (domPage || '(absent)') + ' — fonction Edge : ' + (domEdge || '(absent)')
+      + ' — relier-comptes.sql : ' + (domSql || '(absent)'));
 
   /* Supabase refuse tout mot de passe de moins de 6 caractères : le code d'un
      élève en fait 4, et l'application envoie donc une chaîne dérivée. Le

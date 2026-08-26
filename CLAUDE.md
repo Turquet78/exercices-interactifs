@@ -239,6 +239,26 @@ désignent un élève, donc `eleves…` passe avant `resultats…`. `supabase/re
 désamorce les trois, et `npm run test:base` rejoue la restauration entière sur
 un PostgreSQL jetable.
 
+**Un élève dé-relié se connecte parfaitement — et tout ce qui est à lui est
+refusé.** La restauration remet `user_id` à VIDE, volontairement (compte
+d'avant le sinistre peut-être disparu) ; mais les comptes vivent dans
+`auth.users`, que la restauration ne touche pas. Quand ils ont survécu,
+l'élève tape son code, Supabase le reconnaît — et sa LIGNE n'est plus
+rattachée à rien : chaque politique « sa propre ligne » (`user_id =
+auth.uid()`) le refuse. Un élève de Terminale l'a rencontré en cliquant « Le
+faire sur papier » (signalé par Turquet, août 2026) : « new row violates
+row-level security policy for table "signalements" » — le premier geste
+BRUYANT de la liste, les autres refus (notes, pause) étant muets, le piège
+documenté. `supabase/relier-comptes.sql` recalcule le lien par l'adresse
+dérivée de la clé — sans toucher aux codes ni aux comptes — et NOMME les
+élèves dont le compte a disparu, pour qui « Nouveau code » est le seul chemin.
+Le domaine des comptes y vit une TROISIÈME fois, et le contrôle qui comparait
+la page à la fonction Edge compare maintenant les trois. `npm run test:base`
+rejoue le défaut (l'élève dé-relié refusé), le reliage, le témoin intact et
+l'idempotence — et sa sortie sur le vrai projet est un DIAGNOSTIC : « 0 sans
+lien » partout veut dire que la cause est ailleurs (session expirée, par
+exemple), pas que le script a échoué.
+
 **Le plan gratuit de Supabase ne sauvegarde rien.** L'action
 `.github/workflows/sauvegarde.yml` exporte les données chaque nuit du samedi au
 dimanche, les chiffre et les conserve 90 jours. Le chiffrement est
