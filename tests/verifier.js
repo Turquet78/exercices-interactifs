@@ -2381,6 +2381,7 @@ function exercices(suite){
     paveNumerique(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
+    jugeArithmetique(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
        et ne peut donc rien dire d'un identifiant périmé dans celle de la page :
@@ -2661,6 +2662,109 @@ function abandonSortDePause(w, apres){
    coûte exactement le point de la feuille, et les cases fausses sont révélées
    et décomptées. Il vit dans la chaîne séquentielle parce qu'il remplace sb :
    lancé en parallèle, un autre contrôle le lui reprendrait en plein vol. */
+/* ---- Le verdict du juge PRIME sur celui du modèle -------------------------
+   Le juge peut être parfait et ne rien changer si checkSFL/checkMLL n'en font
+   rien : les contrôles CLIQUENT donc « Vérifier » avec un modèle stubbé qui
+   SE TROMPE, et lisent la note et la couleur — la leçon de partout, l'élève
+   regarde la couleur. Quatre bords : le modèle refuse une copie juste (le
+   défaut de production) et la page donne quand même le point ; le modèle
+   accepte une copie fausse et la page refuse quand même ; quand le juge
+   s'abstient, le modèle redevient seul juge, sans bloc VERDICT dans la
+   règle ; et quand le modèle est en panne, le juge répond seul au lieu de
+   bloquer l'élève. */
+function jugeArithmetiqueClique(w, apres){
+  const present = evaluer(w, "typeof libreJuge==='function' && typeof checkSFL==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le verdict du juge arithmétique prime sur celui du modèle',
+      'ce niveau n\'a pas le juge arithmétique des rédactions');
+    return etudeCompleteClique(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return 'x'; },focus:function(){},setValue:function(){},executeCommand:function(){}}}],
+      verrouiller:function(){} }; };
+    let MODELE={correct:false, panne:false}, envoye=null;
+    sb.functions={ invoke:async function(nom, opts){
+      envoye=(opts&&opts.body)||null;
+      if(MODELE.panne) throw new Error('panne simulée');
+      return { data:{ correct:MODELE.correct, feedback:'Retour du modèle stubbé.' } };
+    } };
+    const qS={n1:1,d1:2,n2:1,d2:6,op:'\\u2212',D:6,N1:3,N2:1,N:2,Nr:1,Dr:3};
+    const lina='(1)/(2)-(1)/(6)\\n= (1*6)/(2*6)-(1*2)/(6*2)\\n= (6)/(12)-(2)/(12)\\n= (4)/(12)\\n= (1)/(3)';
+    function armeSFL(copie){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'sfl', questions:[qS], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false, sflBusy:false});
+      test.qId='somme-fractions-libre'; test.sflDepart='depart';
+      sflFeuille=feuille(copie); envoye=null;
+      const f=document.getElementById('sflFeedback'); if(f){ f.textContent=''; f.className='mp-feedback'; }
+    }
+    function couleur(){ const c=(document.getElementById('sflFeedback')||{}).className||'';
+      return /\\bgood\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':'rien'); }
+
+    /* 1. le défaut de production : le modèle refuse une copie juste */
+    armeSFL(lina); MODELE={correct:false, panne:false};
+    await checkSFL();
+    if(test.score!==1 || test.answers[0].correct!==true)
+      vus.push('le modèle refuse une copie juste et la page le suit : score '+test.score);
+    if(couleur()!=='vert') vus.push('copie juste sous modèle qui refuse : peinte « '+couleur()+' » au lieu de vert');
+    /* le modèle a contredit le verdict : sa prose raconte l'autre verdict,
+       elle ne doit pas s'afficher sous une peinture verte */
+    const fb1=(document.getElementById('sflFeedback')||{}).textContent||'';
+    if(fb1.indexOf('stubbé')>=0) vus.push('le modèle contredit le verdict et sa prose s\\'affiche quand même');
+    if(!envoye || String(envoye.question||'').indexOf('VERDICT DÉJÀ CALCULÉ')<0 || String(envoye.question||'').indexOf('vaut true')<0)
+      vus.push('le verdict du juge ne part pas au modèle avec la règle');
+
+    /* 2. le bord opposé : le modèle accepte une copie fausse */
+    armeSFL('(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (5)/(12)'); MODELE={correct:true, panne:false};
+    await checkSFL();
+    if(test.score!==0 || test.answers[0].correct!==false)
+      vus.push('le modèle accepte une copie fausse et la page le suit : score '+test.score);
+    if(couleur()!=='rouge') vus.push('copie fausse sous modèle qui accepte : peinte « '+couleur()+' » au lieu de rouge');
+    if(!envoye || String(envoye.question||'').indexOf('vaut false')<0)
+      vus.push('le verdict « faux » du juge ne part pas au modèle');
+
+    /* 3. le juge s'abstient (étape absente) : le modèle redevient seul juge */
+    armeSFL('(1)/(2)-(1)/(6)\\n= (1)/(3)'); MODELE={correct:false, panne:false};
+    await checkSFL();
+    if(test.score!==0 || test.answers[0].correct!==false)
+      vus.push('juge abstenu : le refus du modèle devait faire foi, score '+test.score);
+    if(envoye && String(envoye.question||'').indexOf('VERDICT DÉJÀ CALCULÉ')>=0)
+      vus.push('le juge s\\'abstient mais un bloc VERDICT part quand même au modèle');
+
+    /* 4. le modèle en panne : le juge répond seul */
+    armeSFL(lina); MODELE={correct:false, panne:true};
+    await checkSFL();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true)
+      vus.push('modèle en panne sur une copie juste : la page devait donner le point, score '+test.score);
+    const fbtxt=(document.getElementById('sflFeedback')||{}).textContent||'';
+    if(fbtxt.indexOf('indisponible')>=0) vus.push('modèle en panne : la page dit « indisponible » alors que le juge savait');
+
+    /* 5. 4.9 : la division multipliée sans retourner, sous un modèle qui accepte */
+    if(typeof checkMLL==='function'){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'mll', inv:true, questions:[{n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10}], idx:0, score:0,
+        answers:[], startTime:Date.now(), locked:false, mllBusy:false});
+      test.qId='diviser-fractions-libre'; test.mllDepart='depart';
+      mllFeuille=feuille('(3)/(5)\\\\div(2)/(7)\\n= (3)/(5)*(2)/(7)\\n= (6)/(35)');
+      MODELE={correct:true, panne:false};
+      await checkMLL();
+      if(test.score!==0 || test.answers[0].correct!==false)
+        vus.push('4.9 : la division multipliée sans retourner passe sous un modèle qui accepte, score '+test.score);
+      const fb5=(document.getElementById('mllFeedback')||{}).textContent||'';
+      if(fb5.indexOf('stubbé')>=0) vus.push('4.9 : le modèle contredit le verdict et sa prose s\\'affiche quand même');
+    }
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier('le verdict du juge arithmétique prime sur celui du modèle', false, 'erreur JavaScript : '+r.erreur);
+    else verifier('le verdict du juge arithmétique prime sur celui du modèle', r.valeur==='', r.valeur);
+    etudeCompleteClique(w, apres);
+  });
+}
 function etudeCompleteClique(w, apres){
   const present = evaluer(w, "typeof checkEC==='function' && typeof ecJugeLocal==='function'");
   if(!present.ok || !present.valeur){
@@ -5141,6 +5245,63 @@ function fichesDeTravail(w, apres){
    c'est la COULEUR qu'on relit. Le contrôle vit dans la chaîne séquentielle,
    parce qu'il remplace sb : lancé en parallèle, un autre contrôle le lui
    reprendrait en plein vol — le piège documenté. */
+/* ---- Le juge arithmétique des rédactions ----------------------------------
+   La note du 4.5, du 4.7 et du 4.9 venait du modèle seul, et le modèle a
+   compté faux une copie juste en production (« 6/12 − 2/12 = 4/12 » déclaré
+   faux — signalé par Turquet sur une capture, août 2026). La page juge
+   maintenant elle-même, en entiers ; le modèle ne fait plus que rédiger.
+   Ce contrôle éprouve le JUGE, cas par cas — la copie de production d'abord :
+   si elle ne passe pas au juge, c'est le juge qui a tort, pas la page. Puis
+   les trois positions : FAUX sur un fait prouvable (égalité fausse, résultat
+   non simplifié), JUSTE quand tout est vérifié, et JE-NE-SAIS-PAS partout
+   ailleurs — une étape absente ou une écriture illisible font s'abstenir,
+   jamais refuser : le modèle reste alors seul juge, comme avant. */
+function jugeArithmetique(w, P){
+  const present = evaluer(w, "typeof libreJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le juge arithmétique des rédactions : juste, faux, ou je-ne-sais-pas',
+      'ce niveau n\'a pas le juge arithmétique des rédactions');
+    return;
+  }
+  verifierEval(w, 'le juge arithmétique des rédactions : juste, faux, ou je-ne-sais-pas', `(function(){
+    const vus=[];
+    const qS={n1:1,d1:2,n2:1,d2:6,op:'\\u2212',D:6,N1:3,N2:1,N:2,Nr:1,Dr:3};
+    const qM={n1:2,d1:3,n2:5,d2:7,a1:2,a2:5,b1:3,b2:7,P:10,Q:21};
+    const qD={n1:3,d1:5,n2:2,d2:7,a1:3,a2:7,b1:5,b2:2,P:21,Q:10};
+    function cas(nom, q, rep, genre, attendu){
+      const j=libreJuge(q, rep, genre);
+      const vu=j.sait?(j.correct?'juste':'faux ('+(j.motif||'?')+')'):'je-ne-sais-pas';
+      if(vu!==attendu) vus.push(nom+' : le juge dit « '+vu+' » au lieu de « '+attendu+' »');
+      return j;
+    }
+    /* LA COPIE DE PRODUCTION, telle que la feuille la lit (toPlain met les
+       parenthèses). Le dénominateur commun 12 au lieu de 6 est autorisé. */
+    const lina='(1)/(2)-(1)/(6)\\n= (1*6)/(2*6)-(1*2)/(6*2)\\n= (6)/(12)-(2)/(12)\\n= (4)/(12)\\n= (1)/(3)';
+    cas('la copie de production (juste, dénominateur 12)', qS, lina, 'sfl', 'juste');
+    cas('la même par le PPCM', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (2)/(6)\\n= (1)/(3)', 'sfl', 'juste');
+    const jF=cas('une égalité fausse', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (5)/(12)\\n= (1)/(3)', 'sfl', 'faux (egalite)');
+    if(jF.sait && jF.morceau!=='(5)/(12)') vus.push('le juge ne nomme pas le morceau faux : '+jF.morceau);
+    cas('un résultat non simplifié', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (2)/(6)', 'sfl', 'faux (simplifier)');
+    cas('l\\'étape du même dénominateur absente : le modèle reste juge', qS, '(1)/(2)-(1)/(6)\\n= (1)/(3)', 'sfl', 'je-ne-sais-pas');
+    cas('une écriture illisible : le modèle reste juge', qS, '(1)/(2)-(1)/(6)\\n= n importe quoi', 'sfl', 'je-ne-sais-pas');
+    cas('un résultat écrit comme un calcul : le modèle reste juge', qS, '(1)/(2)-(1)/(6)\\n= (3)/(6)-(1)/(6)\\n= (3-1)/(6)', 'sfl', 'je-ne-sais-pas');
+    /* 4.7 : aucune étape exigée — la rédaction directe est jugée juste. */
+    cas('le produit rédigé en direct (4.7)', qM, '(2)/(3)*(5)/(7)\\n= (10)/(21)', 'mll', 'juste');
+    cas('le produit au mauvais résultat (4.7)', qM, '(2)/(3)*(5)/(7)\\n= (7)/(10)', 'mll', 'faux (egalite)');
+    /* 4.9 : l'inverse est exigé — et le « ÷ » de la première ligne doit se
+       lire, sinon le juge s'abstiendrait sur TOUTE copie de division. */
+    cas('le quotient avec son inverse (4.9)', qD, '(3)/(5)\\\\div(2)/(7)\\n= (3)/(5)*(7)/(2)\\n= (21)/(10)', 'dll', 'juste');
+    cas('l\\'inverse dans l\\'autre ordre (4.9)', qD, '(3)/(5)\\\\div(2)/(7)\\n= (7)/(2)*(3)/(5)\\n= (21)/(10)', 'dll', 'juste');
+    cas('le quotient sans l\\'étape de l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (21)/(10)', 'dll', 'je-ne-sais-pas');
+    cas('la division multipliée SANS retourner (4.9)', qD, '(3)/(5)\\\\div(2)/(7)\\n= (3)/(5)*(2)/(7)\\n= (6)/(35)', 'dll', 'faux (egalite)');
+    /* Un produit VRAI qui n'est pas l'inverse — 21/2 × 1/5 vaut bien 21/10 —
+       ne compte pas comme l'étape : le juge s'abstient, le modèle tranche.
+       Sans ce cas, un sabotage qui acceptait n'importe quel produit restait
+       vert : l'égalité fausse attrapait tous les autres avant lui. */
+    cas('un produit vrai qui n\\'est pas l\\'inverse : le modèle reste juge', qD, '(3)/(5)\\\\div(2)/(7)\\n= (21)/(2)*(1)/(5)\\n= (21)/(10)', 'dll', 'je-ne-sais-pas');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 function verdictColore(w, apres){
   /* Trois fonctions peignent un verdict d'IA : checkSFL et checkMLL en
      Seconde, checkPsl en Première — on exerce celles que le niveau possède. */
@@ -5148,7 +5309,7 @@ function verdictColore(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux',
       'ce niveau n\'a pas d\'exercice rédigé corrigé par l\'IA');
-    return etudeCompleteClique(w, apres);
+    return jugeArithmetiqueClique(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -5180,7 +5341,11 @@ function verdictColore(w, apres){
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */
     if(typeof checkMLL==='function'){
     Object.keys(test).forEach(function(k){ delete test[k]; });
-    Object.assign(test,{kind:'mll', questions:mltBuildQuestions(), idx:0, score:0,
+    /* La question est ÉPINGLÉE pour correspondre aux copies posées : depuis
+       que la page porte son juge arithmétique, une copie qui ne colle pas à
+       la question tirée serait refusée par le juge — à bon droit — et le
+       contrôle mesurerait autre chose que la peinture. */
+    Object.assign(test,{kind:'mll', questions:[{n1:3,d1:5,n2:7,d2:2,a1:3,a2:7,b1:5,b2:2,P:21,Q:10}], idx:0, score:0,
       answers:[], startTime:Date.now(), locked:false, mllBusy:false});
     test.qId='multiplier-fractions-libre';
     mllFeuille=feuille('3/5 × 7/2 = 21/10'); test.mllDepart='depart';
@@ -5192,7 +5357,7 @@ function verdictColore(w, apres){
 
     /* 4.5 — la somme en rédigeant (checkSFL), même règle */
     Object.keys(test).forEach(function(k){ delete test[k]; });
-    Object.assign(test,{kind:'sfl', questions:sfBuildQuestions('simplifier'), idx:0, score:0,
+    Object.assign(test,{kind:'sfl', questions:[{n1:1,d1:2,n2:1,d2:3,op:'+',D:6,N1:3,N2:2,N:5,Nr:5,Dr:6}], idx:0, score:0,
       answers:[], startTime:Date.now(), locked:false, sflBusy:false});
     test.qId='somme-fractions-libre';
     sflFeuille=feuille('1/2 + 1/3 = 5/6'); test.sflDepart='depart';
@@ -5206,7 +5371,7 @@ function verdictColore(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', false, 'erreur JavaScript : '+r.erreur);
     else verifier('le verdict de l\'IA se peint en vert quand c\'est bon, en rouge quand c\'est faux', r.valeur==='', r.valeur);
-    etudeCompleteClique(w, apres);
+    jugeArithmetiqueClique(w, apres);
   });
 }
 function simplifierBarres(w, P){
@@ -5547,8 +5712,13 @@ function sommeFractionsLibre(w, P){
     let pireQ=0, pireA=0, pireId='';
     for(let i=0;i<400;i++){
       const q=sfGen(i%2===0?'+':'−','simplifier');
+      /* le bloc verdict du juge part AVEC l'énoncé : on mesure ce qui part
+         vraiment, dans son pire cas — un refus, avec un morceau cité à sa
+         borne de 80 caractères */
+      const bloc=(typeof libreVerdictIA==='function')
+        ? libreVerdictIA({sait:true, correct:false, motif:'egalite', morceau:new Array(81).join('x')}).length : 0;
       const e=sflEnonceIA(q), a=sflAttenduIA(q);
-      if(e.length>pireQ) pireQ=e.length;
+      if(e.length+bloc>pireQ) pireQ=e.length+bloc;
       if(a.length>pireA){ pireA=a.length; pireId=q.n1+'/'+q.d1+' '+q.op+' '+q.n2+'/'+q.d2; }
       /* la règle NOMME ce qu'elle doit distinguer */
       const reduite=q.Nr+'/'+q.Dr, brute=q.N+'/'+q.D;

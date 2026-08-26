@@ -1972,7 +1972,8 @@ async function parcours(page, N){
         vu.jetons && vu.jetonLigne === vu.derniere,
         'jetons affichés : ' + vu.jetons + ', inséré dans la ligne ' + vu.jetonLigne
           + ' au lieu de ' + vu.derniere);
-      /* le verdict de l'IA, et lui seul, fait la note */
+      /* un « correct » donne le point — ici le juge de la page et le modèle
+         stubbé disent la même chose, c'est le circuit entier qu'on éprouve */
       await s.page.evaluate(() => { window.__verdict = true; });
       await s.page.click('#sflActions .btn-primary');
       await s.page.waitForTimeout(700);
@@ -2003,6 +2004,37 @@ async function parcours(page, N){
       const faux = await s.page.evaluate(() => ({ score: test.score, note: test.answers[test.answers.length-1].correct }));
       verifier('un refus du modèle ne donne pas le point',
         faux.score === 1 && faux.note === false, 'score ' + faux.score + ', note ' + faux.note);
+      /* LA COPIE DE PRODUCTION, sur du VRAI MathLive : le modèle refuse une
+         copie juste — le défaut signalé par Turquet — et la page donne quand
+         même le point, parce que son juge arithmétique a vérifié chaque
+         égalité en entiers. jsdom ne peut pas voir ce bord : il n'a pas
+         MathLive, donc pas la sérialisation réelle que le juge doit lire. */
+      await s.page.click('#sflActions .btn-primary');   /* question suivante */
+      await s.page.waitForTimeout(900);
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = {n1:1,d1:2,n2:1,d2:6,op:'−',D:6,N1:3,N2:1,N:2,Nr:1,Dr:3};
+        renderSFL();
+      });
+      await s.page.waitForTimeout(700);
+      const lina = await s.page.evaluate(() => {
+        sflFeuille.lignes[0].mf.setValue(
+          '\\frac{1}{2}-\\frac{1}{6}=\\frac{1\\times6}{2\\times6}-\\frac{1\\times2}{6\\times2}=\\frac{6}{12}-\\frac{2}{12}=\\frac{4}{12}=\\frac{1}{3}');
+        window.__verdict = false;
+        const q = test.questions[test.idx];
+        const j = libreJuge(q, sflFeuille.lire(), 'sfl');
+        return { lu: sflFeuille.lire(), sait: j.sait, correct: j.correct, avant: test.score };
+      });
+      verifier('le juge lit la sérialisation réelle de MathLive',
+        lina.sait === true && lina.correct === true,
+        'juge sur ' + JSON.stringify(lina.lu) + ' : sait ' + lina.sait + ', correct ' + lina.correct);
+      await s.page.click('#sflActions .btn-primary');
+      await s.page.waitForTimeout(700);
+      const sauve = await s.page.evaluate(() => ({ score: test.score,
+        note: test.answers[test.answers.length-1].correct,
+        classe: document.getElementById('sflFeedback').className }));
+      verifier('le modèle refuse une copie juste : le juge de la page donne quand même le point',
+        sauve.score === lina.avant + 1 && sauve.note === true && /\bgood\b/.test(sauve.classe),
+        'score ' + sauve.score + ' (avant : ' + lina.avant + '), note ' + sauve.note + ', classe ' + JSON.stringify(sauve.classe));
       verifier('la saisie libre ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
