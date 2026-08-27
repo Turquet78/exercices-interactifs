@@ -2108,7 +2108,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=253;
+const APP_VERSION=254;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3221,7 +3221,7 @@ function voirEnonceDM(id){
   show('dmenonce');
 }
 /* Ouvre la page « Devoirs à la maison » du portail (adresse à ajuster si besoin). */
-const PAGE_DEVOIRS_URL='https://turquet-math974.netlify.app/#/terminale/devoirs';
+const PAGE_DEVOIRS_URL='https://turquet78.github.io/site-maths/#/terminale/devoirs';
 function ouvrirDevoirs(){ window.open(PAGE_DEVOIRS_URL,'_blank','noopener'); }
 async function renderDM(results){
   const host=$('dmPanel'); if(!host) return;
