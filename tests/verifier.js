@@ -1253,29 +1253,23 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
-  /* ---- 3 questions pour les AUGMENTATIONS, 2.2.1 à 2.2.8 (demande de
-     Turquet, août 2026) — et le bord opposé : les DIMINUTIONS gardent leurs
-     6, sans quoi la réduction aurait fui par les démarreurs partagés. */
-  if(P.nbQuestionsAugmentations){
-    verifierEval(w, 'les exercices sur les augmentations posent 3 questions, les diminutions gardent les leurs', `(function(){
-      const attendu=${JSON.stringify(P.nbQuestionsAugmentations)}, vus=[];
+  /* ---- 3 questions pour toutes les ÉVOLUTIONS, hausses 2.2.1 à 2.2.8 et
+     baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en deux temps).
+     On appelle les QUINZE vrais démarreurs : un nombre changé dans un
+     démarreur partagé ne dit rien des autres. */
+  if(P.nbQuestionsEvolutions){
+    verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
+      const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
       [['2.2.1','startAug'],['2.2.2','startAugAdd'],['2.2.3','startAugDepart'],['2.2.4','startAugDepAdd'],
-       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug']]
+       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
+       ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
+       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
         if(!test.questions || test.questions.length!==attendu)
           vus.push(e[0]+' : '+(test.questions?test.questions.length:0)+' questions au lieu de '+attendu);
-      });
-      /* les diminutions, elles, posent toujours 6 questions (leur réglage du jour) */
-      [['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
-       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],['2.5.1','startSyn']]
-      .forEach(function(e){
-        if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
-        window[e[1]]();
-        if(!test.questions || test.questions.length!==6)
-          vus.push(e[0]+' : la réduction des augmentations a fui — '+(test.questions?test.questions.length:0)+' questions au lieu de 6');
       });
       return vus.join(' | ');
     })()`, v => v === '', undefined);

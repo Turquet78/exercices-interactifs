@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=168;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=169;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5418,21 +5418,22 @@ function buildPoseSub(hTop, hBot, hostId){
     +`<div class="mp-row">${cell('op')}${rowRes}</div>`
     +`</div>`;
 }
-/* Les exercices sur les AUGMENTATIONS posent 3 questions (demande de Turquet,
-   août 2026) — les diminutions gardent leurs 6. La constante vit ici, à côté
-   du premier démarreur qui la lit ; le contrôle la compare à tests/profils.js
-   (nbQuestionsAugmentations) : deux sources, comme SF_NB — lire la page et la
-   comparer à elle-même ne prouverait rien. */
-const AUG_NB=3;
-async function startEvolAdd(id, gen, nb){
+/* Les exercices sur les ÉVOLUTIONS — hausses (2.2) ET baisses (2.3) — posent
+   3 questions (demande de Turquet, août 2026, en deux temps : d'abord les
+   augmentations, puis les diminutions le même jour). La constante vit ici, à
+   côté du premier démarreur qui la lit ; le contrôle la compare à
+   tests/profils.js (nbQuestionsEvolutions) : deux sources, comme SF_NB —
+   lire la page et la comparer à elle-même ne prouverait rien. */
+const EVOL_NB=3;
+async function startEvolAdd(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2'; test.qId=id;
-  test.questions=Array.from({length:nb||6},gen);
+  test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('ag2test'); renderAG2Test();
 }
-async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd, AUG_NB); }
+async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd); }
 async function startDimSub(){ return startEvolAdd('diminuer-soustraction', genDimSub); }
 function updateAG2Step5(){
   const st=$('ag2Step5'); if(!st) return;
@@ -5619,11 +5620,11 @@ function a2qCouple(q){
   return {P,N,prod:P*N,aug,fin,
     augStr:String(aug).replace('.',','), finStr:String(fin).replace('.',',')};
 }
-async function startA2Q(id, gen, nb){
+async function startA2Q(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2q'; test.qId=id;
-  test.questions=Array.from({length:nb||AUGQ_NB},gen);
+  test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('a2qtest'); renderWTest();
 }
@@ -5653,9 +5654,9 @@ function genDimDepSub(){
   q.v=rand(0,DIMQ_EN_VAL.length-1);
   return q;
 }
-async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd, AUG_NB); }
+async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd); }
 async function startDimTauxSub(){ return startA2Q('diminuer-taux-soustraction', genDimTauxSub); }
-async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd, AUG_NB); }
+async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd); }
 async function startDimDepSub(){ return startA2Q('diminuer-depart-soustraction', genDimDepSub); }
 function choisirW(i){
   if(test.locked) return;
@@ -5942,7 +5943,7 @@ async function startSynAug(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='syn'; test.qId='synthese-augmentations';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=Array.from({length:AUG_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
+  test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('syntest'); renderSynTest();
 }
@@ -6769,7 +6770,7 @@ async function startAug(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='aug';
-  test.questions=Array.from({length:AUG_NB},genAug);
+  test.questions=Array.from({length:EVOL_NB},genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('atest'); renderATest();
 }
@@ -6999,7 +7000,6 @@ function liveColorDecCoef0(id,coef){                    // coefficient décimal 
      type 'pct' — on donne la valeur initiale et la valeur finale, il retrouve le pourcentage.
    Comme en 3.1.x, le calcul est jugé par rapport à la proposition CHOISIE : c'est la
    vérification qui révèle qu'une proposition ne convient pas, pas une croix arbitraire. */
-const AUGQ_NB=6;
 const AUGQ_PCTS=[10,20,30,40,50,60,70,80,90,1,2,3,4,5,6,7,8,9];
 /* Sujets utilisables quand un des deux nombres est caché : contrairement aux contextes
    de 3.2.1, l'énoncé ne peut pas annoncer « Un prix de 80 € » puisque 80 est justement
@@ -7103,8 +7103,8 @@ function genAugTaux(){
   q.v=rand(0,AUGQ_EN_PCT.length-1);
   return q;
 }
-async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart, AUG_NB); }
-async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux, AUG_NB); }
+async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart); }
+async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
 /* Baisses : mêmes exercices à propositions, coefficient (100 − P)/100 (sens = −1). */
 function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
@@ -7134,11 +7134,11 @@ function genDimTaux(){
 }
 async function startDimDepart(){ return startAUGQ('diminuer-depart', genDimDepart); }
 async function startDimTaux(){ return startAUGQ('diminuer-taux', genDimTaux); }
-async function startAUGQ(id, gen, nb){
+async function startAUGQ(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='augq'; test.qId=id;
-  test.questions=Array.from({length:nb||AUGQ_NB},gen);
+  test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('vtest'); renderVTest();
 }
@@ -7320,7 +7320,7 @@ async function startDim(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='dim';
-  test.questions=Array.from({length:6},genDim);
+  test.questions=Array.from({length:EVOL_NB},genDim);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('dtest'); renderDTest();
 }
@@ -7501,7 +7501,7 @@ async function startHausses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='hs'; test.qId='hausses-successives';
-  test.questions=Array.from({length:AUG_NB},genHausses);
+  test.questions=Array.from({length:EVOL_NB},genHausses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('hstest'); renderHSTest();
 }
@@ -8268,7 +8268,7 @@ async function startBaisses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='bs'; test.qId='baisses-successives';
-  test.questions=Array.from({length:6},genBaisses);
+  test.questions=Array.from({length:EVOL_NB},genBaisses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('bstest'); renderBSTest();
 }

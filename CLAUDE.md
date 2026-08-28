@@ -1655,15 +1655,17 @@ quoi l'élève apprendrait que la question est toujours du même genre.
 `genSyn` a simplement appris deux paramètres facultatifs (famille,
 inconnue) ; un second tirage aurait fini par diverger.
 
-**Les exercices sur les AUGMENTATIONS posent 3 questions** — 2.2.1 à 2.2.8
-(demande de Turquet, août 2026) ; les diminutions gardent leurs 6. Les
-démarreurs sont PARTAGÉS entre hausses et baisses (`startEvolAdd`,
-`startA2Q`, `startAUGQ`) : le nombre passe en paramètre, `AUG_NB` pour les
-hausses, le réglage d'avant sinon — écrire 3 dans le démarreur partagé
-aurait réduit les baisses en silence. Le contrôle compare à
-`tests/profils.js` (`nbQuestionsAugmentations`) et tient le bord opposé :
-chaque exercice de diminution doit garder ses 6 questions — le sabotage
-« la réduction a fui » l'a montré en nommant le 2.3.5.
+**Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
+2.2.8 ET baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en deux
+temps : d'abord les hausses seules, puis « pour les diminutions aussi »).
+Le nombre vit dans `EVOL_NB`, une seule constante à côté des démarreurs —
+le paramètre de comptage qu'avaient gagné les démarreurs partagés
+(`startEvolAdd`, `startA2Q`, `startAUGQ`) pour tenir les deux familles à
+des réglages différents a été RETIRÉ avec la différence qui le justifiait,
+et `AUGQ_NB` avec lui : un paramètre qui ne varie plus est une porte à
+divergence. Le contrôle compare les QUINZE démarreurs à `tests/profils.js`
+(`nbQuestionsEvolutions`) — deux sources, comme `SF_NB` — et le sabotage
+« les baisses repassent à 6 » rougit en nommant le 2.3.7.
 
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
