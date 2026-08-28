@@ -1574,6 +1574,30 @@ texte vit dans ses éléments, les préserver le préserve) — plus deux gardes
 « Vérifier » sans proposition le demande sans verrouiller, et la marque
 `sel` suit le choix. Éprouvé par sabotage des deux côtés.
 
+**La vérification s'affiche AVEC les propositions, dans tous les QCM à chaîne
+de vérification** (décision de Turquet, août 2026) : pourcentages 2.1.4, 2.1.5
+et 2.1.6, les quatre « retrouver » des évolutions, leurs variantes
+addition/soustraction, et la synthèse des évolutions. L'élève écrit les étapes
+AVANT de choisir s'il veut ; les valeurs connues de l'ÉNONCÉ s'affichent tout
+de suite, celle qui dépend de la proposition s'écrit « … » tant qu'aucune
+n'est choisie. **Choisir — ou changer — ne détruit jamais ce que l'élève a
+écrit** : `qcmRedessiner()` redessine l'écran (libellés, nombre écrit par la
+page et pose suivent la proposition) puis restaure chaque case et le focus —
+SAUF les cases de la POSE, dérivées de la proposition : leurs chiffres ne
+veulent rien dire sous une autre. Et la pose facultative ne se révèle jamais
+VIDE : elle n'existe qu'une proposition choisie, ses trois gardes le
+vérifient. La synthèse des évolutions a son bord propre : la méthode se
+choisit AVANT la proposition, la chaîne apparaît dès la méthode — changer de
+MÉTHODE, en revanche, reconstruit la chaîne sans restaurer : les deux
+méthodes n'écrivent pas le même calcul. Le 2.4.1 (lire un coefficient) reste
+volontairement en dehors : son « choix » est le SENS, et le signe de chaque
+ligne en dépend — une vérification sans sens n'existe pas. Un contrôle tient
+ces bords sur les quatre moteurs, éprouvé par quatre sabotages. **Il est
+SYNCHRONE, exprès** : les démarreurs de ces exercices n'attendent rien, et un
+contrôle asynchrone laissait les minuteurs en attente des contrôles
+précédents s'exécuter à chaque await — un exercice chronométré avançait et
+verrouillait `test` en plein vol, le piège documenté par une autre porte.
+
 **Du 2.1.3 au 2.1.7, quatre questions par exercice** (demande de Turquet, août
 2026). Deux constantes, à côté de leurs fabriques : `PCT_NB` pour le 2.1.3,
 `QD_NB` pour les quatre suivants — et un contrôle à deux sources qui appelle

@@ -2411,6 +2411,7 @@ function exercices(suite){
     multiplierFractions(w, P);
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
+    verificationAvecPropositions(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -4033,6 +4034,84 @@ function synthesePourcentage(w, P){
     if(test.qId!=='pourcentage-synthese') vus.push('« Recommencer » relance '+test.qId+' au lieu de la synthèse');
 
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- La vérification s'affiche AVEC les propositions ----------------
+   (décision de Turquet, août 2026) : dans tous les QCM à chaîne de
+   vérification — pourcentages 2.1.4/2.1.5/2.1.6, les quatre « retrouver »
+   des évolutions, leurs variantes addition/soustraction, la synthèse des
+   évolutions — l'élève écrit les étapes AVANT de choisir s'il veut, et
+   choisir (ou changer) ne détruit jamais ce qu'il a écrit. Quatre bords :
+   la chaîne visible sans choix, la case qui survit au choix ET au
+   changement, la marque « sel » qui suit, et la POSE facultative qui ne se
+   révèle jamais vide (elle n'existe qu'une proposition choisie). La synthèse
+   des évolutions a son bord propre : la méthode se choisit AVANT la
+   proposition, et la chaîne apparaît dès la méthode. */
+function verificationAvecPropositions(w, P){
+  const present = evaluer(w, "typeof startPctDepart==='function' && typeof choisirQ==='function' && typeof qcmRedessiner==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la vérification s\'affiche avec les propositions, et choisir n\'efface rien',
+      'ce niveau n\'a pas les QCM à chaîne de vérification');
+    return;
+  }
+  /* Contrôle SYNCHRONE, exprès : les démarreurs de ces exercices n'attendent
+     rien, et un contrôle asynchrone laisserait les minuteurs en attente des
+     contrôles précédents s'exécuter à chaque await — un exercice chronométré
+     avançait et verrouillait test en plein vol (le piège documenté des
+     contrôles qui se rendent l'état à tour de rôle). */
+  verifierEval(w, 'la vérification s\'affiche avec les propositions, et choisir n\'efface rien', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const visible=id=>{ let e=$(id); if(!e) return false; for(let n=e;n;n=n.parentElement){ if(n.classList&&n.classList.contains('step-hidden')) return false; } return true; };
+    function essai(nom, demarrer, champ, choisir, prefixe){
+      demarrer();
+      if(!visible(champ)){ vus.push(nom+' : la chaîne de vérification est cachée avant le choix'); return; }
+      $(champ).value='7';
+      choisir(1);
+      if(String($(champ).value)!=='7'){ vus.push(nom+' : choisir efface la case écrite'); return; }
+      const b=$(prefixe+'1');
+      if(!b || b.className.indexOf('sel')<0){ vus.push(nom+' : la proposition choisie ne se marque pas'); return; }
+      choisir(2);
+      if(String($(champ).value)!=='7'){ vus.push(nom+' : changer de proposition efface la case écrite'); return; }
+      if(b.isConnected && b.className.indexOf('sel')>=0) vus.push(nom+' : la marque ne suit pas le changement de proposition');
+      const b2=$(prefixe+'2');
+      if(!b2 || b2.className.indexOf('sel')<0) vus.push(nom+' : la nouvelle proposition ne se marque pas');
+    }
+    essai('2.1.4', startPctDepart, 'q1n', choisirQ, 'qc');
+    essai('2.1.5', startPctTaux, 'q1n', choisirQ, 'qc');
+    essai('2.1.6', startPctSynthese, 'qN', choisirQ, 'qc');
+    essai('retrouver la valeur (hausse)', startAugDepart, 'v1n', choisirV, 'vc');
+    essai('retrouver le taux (hausse)', startAugTaux, 'v1n', choisirV, 'vc');
+    essai('retrouver le taux (addition)', startAugTauxAdd, 'w1n', choisirW, 'wc');
+
+    /* la POSE facultative ne se révèle jamais vide : remplie AVANT le choix,
+       l'étape reste cachée ; elle ne s'ouvre qu'une proposition choisie */
+    startAugDepart();
+    ['v3n','v3d','v3v'].forEach(id=>{ $(id).value='2'; });
+    updateVStep3();
+    if(!$('vStep3').classList.contains('step-hidden'))
+      vus.push('la pose se révèle VIDE, sans proposition choisie');
+    choisirV(1);
+    ['v3n','v3d','v3v'].forEach(id=>{ if(String($(id).value)!=='2') vus.push('la garde de la pose a perdu la case '+id); });
+    updateVStep3();
+    if($('vStep3').classList.contains('step-hidden'))
+      vus.push('la pose ne se révèle plus une fois la proposition choisie');
+
+    /* la synthèse des évolutions : la méthode se choisit AVANT la proposition,
+       la chaîne apparaît dès la méthode, et le choix n'efface rien */
+    startSyn();
+    let q=test.questions[0], garde=0;
+    while(q.fam==='pct' && garde++<200){ test.questions[0]=q=genSyn(); }
+    renderSynTest();
+    if(q.fam==='pct'){ vus.push('impossible de tirer une question à évolution pour la synthèse'); }
+    else {
+      if(!$('syMeth')) vus.push('synthèse : les boutons de méthode manquent avant le choix de la proposition');
+      choisirSyMeth('coef');
+      if(!visible('y1n')) vus.push('synthèse : la chaîne reste cachée une fois la méthode choisie');
+      else { $('y1n').value='7'; choisirSy(1);
+        if(String($('y1n').value)!=='7') vus.push('synthèse : choisir la proposition efface la case écrite'); }
+    }
+    return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* {pourcentage-synthese-libre} (Première 2.1.7) — les questions de la

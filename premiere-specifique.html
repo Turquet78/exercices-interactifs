@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=165;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=166;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5654,12 +5654,13 @@ function choisirW(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(q.choisi===i) return;
-  q.choisi=i; renderWTest(); autoSave();
+  q.choisi=i; qcmRedessiner('a2qHost', renderWTest); autoSave();
 }
 function updateWPose(){
   const st=$('wPose'); if(!st) return;
   const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  st.classList.toggle('step-hidden', !(ok('w4a')&&ok('w4b')));
+  const posee=$('wMul')&&$('wMul').firstChild;   /* pas de pose sans proposition choisie */
+  st.classList.toggle('step-hidden', !(posee&&ok('w4a')&&ok('w4b')));
 }
 function renderWTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -5673,21 +5674,24 @@ function renderWTest(){
   $('wPrompt').innerHTML=(tab[q.v]||tab[0])(q)+` Retrouve ${augqQuoi(q)} et vérifie ta réponse en calculant ${neg?'la baisse':'l\u2019augmentation'}, puis en ${neg?'la retirant de la valeur de départ':'l\u2019ajoutant à la valeur de départ'}.`;
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="wc${i}" onclick="choisirW(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(augqLabel(q,v))}</span></button>`).join('');
-  const c=a2qCouple(q), cache=(c===null)?' step-hidden':'';
+  const c=a2qCouple(q);
+  /* les valeurs connues de l'ÉNONCÉ s'affichent tout de suite ; celle qui
+     dépend de la proposition s'écrit « … » tant qu'aucune n'est choisie */
+  const pAff=(q.type==='pct')?(c?c.P:'…'):q.P, nAff=(q.type==='pct')?q.N:(c?c.N:'…');
   /* la pose facultative est celle de l'opération FINALE de la méthode directe :
      l'addition (hausse) ou la soustraction (baisse) — jamais la multiplication */
   const pose=c?(neg?buildPoseSub(c.N,c.aug,'wMul'):buildPoseAdd(c.N,c.aug,'wMul')):'<div class="mp-op" id="wMul"></div>';
   $('a2qHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="wChoix">${choix}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${c?c.P:'…'} % de ${c?c.N:'…'}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
+    `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
        <div class="pt-row">${frac('w1n','w1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="w1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('w2n','w2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="w3" aria-label="en écriture décimale"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
+    `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
        <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="w4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="w4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="w4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="wPose"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
        <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
     `<p class="pt-aide">${c===null
-        ? 'Choisis une proposition, puis vérifie-la en calculant '+(neg?'la baisse':'l\u2019augmentation')+'.'
+        ? '\u00c9cris les \u00e9tapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
         : 'Vérifie ta proposition\u00a0: tu dois retrouver '+q.decStr+'\u00a0'+esc(q.unit)+'.'}</p>`;
   const posedIns=[...$('wMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
   const order=[$('w1n'),$('w1d'),$('w1v'),$('w2n'),$('w2d'),$('w3'),$('w4a'),$('w4b'),$('w4r'),...posedIns];
@@ -5704,7 +5708,7 @@ function renderWTest(){
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkWAnswer();} });
   });
   updateWPose();
-  if(c!==null) setTimeout(()=>order[0]&&order[0].focus(),70);
+  setTimeout(()=>{ if(order[0] && order.every(el=>!el||String(el.value==null?'':el.value).trim()==='')) order[0].focus(); },70);
 }
 function checkWAnswer(live){
   if(test.locked)return;
@@ -5924,7 +5928,7 @@ function choisirSy(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(q.choisi===i) return;
-  q.choisi=i; renderSynTest(); autoSave();
+  q.choisi=i; qcmRedessiner('synHost', renderSynTest); autoSave();
 }
 function choisirSyMeth(m){
   if(test.locked) return;
@@ -5939,7 +5943,8 @@ function updateSynPose(){
      méthode directe : pose de l'addition/la soustraction, ouverte quand ses termes sont écrits */
   const ids=(q.meth==='coef')?['y3n','y3d','y3v']:['y4a','y4b'];
   const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  st.classList.toggle('step-hidden', !ids.every(ok));
+  const posee=$('syMul')&&$('syMul').firstChild;   /* pas de pose sans proposition choisie */
+  st.classList.toggle('step-hidden', !(posee&&ids.every(ok)));
 }
 function renderSynTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -5956,11 +5961,14 @@ function renderSynTest(){
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="sc${i}" onclick="choisirSy(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(synLabel(q,v))}</span></button>`).join('');
   const c=synCouple(q);
-  const pretE=(c!==null)&&(!evol||q.meth);           /* étapes visibles : choix fait, méthode choisie */
-  const cache=pretE?'':' step-hidden';
+  /* les étapes s'affichent dès que leur STRUCTURE est connue — tout de suite
+     pour un pourcentage, dès la méthode choisie pour une évolution — sans
+     attendre la proposition : les valeurs qui en dépendent s'écrivent « … » */
+  const pretE=(!evol||!!q.meth);
+  const pAff=(q.inc==='pct')?(c?c.P:'…'):q.P, nAff=(q.inc==='ini')?(c?c.N:'…'):q.N;
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
   let methHTML='';
-  if(evol && c!==null){
+  if(evol){
     methHTML=`<div class="pt-step"><div class="pt-lab">Ⓜ Choisis ta méthode de vérification</div>
        <div class="pt-choix" id="syMeth">
          <button type="button" class="pt-choix-btn${q.meth==='coef'?' sel':''}" id="sm0" onclick="choisirSyMeth('coef')"><span class="valeur">Avec le coefficient multiplicateur</span></button>
@@ -5972,12 +5980,12 @@ function renderSynTest(){
     etapes='';
   } else if(q.fam==='pct'){
     etapes=
-      `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction décimale : ${c.P} % de ${c.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le résultat en écriture décimale</div>
-         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><span class="f-whole">${c.N}</span><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+      `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction décimale : ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le résultat en écriture décimale</div>
+         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><span class="f-whole">${nAff}</span><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   } else if(q.meth==='coef'){
-    const pose=buildPose(stripZ(c.coef),stripZ(c.N),'syMul');
+    const pose=c?buildPose(stripZ(c.coef),stripZ(c.N),'syMul'):'<div class="mp-op" id="syMul"></div>';
     etapes=
-      `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${c.P} %, c'est multiplier par 1 ${neg?'\u2212':'+'} ${c.P}/100</div>
+      `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${pAff} %, c'est multiplier par 1 ${neg?'\u2212':'+'} ${pAff}/100</div>
          <div class="pt-row"><span class="f-whole">1 ${neg?'\u2212':'+'}</span>${frac('y1n','y1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'\u2212':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="y1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="y1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}</div></div>`+
       `<div class="pt-step"><div class="pt-lab">\u2461 coefficient \u00d7 valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
          <div class="pt-row">${frac('y3n','y3d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y3v" aria-label="valeur de départ"></math-field><span class="f-eq">=</span>${frac('y4n','y4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
@@ -5985,9 +5993,9 @@ function renderSynTest(){
          <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
   } else {
     /* la pose facultative de la méthode directe est l'addition ou la soustraction */
-    const pose=neg?buildPoseSub(c.N,c.res,'syMul'):buildPoseAdd(c.N,c.res,'syMul');
+    const pose=c?(neg?buildPoseSub(c.N,c.res,'syMul'):buildPoseAdd(c.N,c.res,'syMul')):'<div class="mp-op" id="syMul"></div>';
     etapes=
-      `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${c.P} % de ${c.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
+      `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
          <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
       `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
          <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="y4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="y4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
@@ -5998,9 +6006,9 @@ function renderSynTest(){
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${synQuoi(q)}</div>
        <div class="pt-choix" id="syChoix">${choix}</div></div>`+
     methHTML+etapes+
-    `<p class="pt-aide">${c===null
-        ? 'Choisis une proposition'+(evol?', puis ta méthode de vérification':'')+'.'
-        : (evol&&!q.meth) ? 'Choisis maintenant ta méthode de vérification : les deux donnent le même résultat.'
+    `<p class="pt-aide">${(evol&&!q.meth)
+        ? 'Choisis ta méthode de vérification : les deux donnent le même résultat.'
+        : c===null ? 'Écris les étapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
         : (q.inc==='fin' ? 'Écris les étapes du calcul : tu dois retrouver la proposition choisie.'
                          : 'Vérifie ta proposition\u00a0: tu dois retrouver '+((q.fam==='pct')?q.result:q.decStr)+'\u00a0'+esc(q.unit)+'.')}</p>`;
   if(!pretE) return;
@@ -6023,7 +6031,7 @@ function renderSynTest(){
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkSynAnswer();} });
   });
   updateSynPose();
-  setTimeout(()=>order[0]&&order[0].focus(),70);
+  setTimeout(()=>{ if(order[0] && order.every(el=>!el||String(el.value==null?'':el.value).trim()==='')) order[0].focus(); },70);
 }
 function checkSynAnswer(live){
   if(test.locked)return;
@@ -6342,12 +6350,33 @@ async function startQCM(id, gen){
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('qtest'); renderQTest();
 }
-/* Changer de proposition remet les cases \u00e0 z\u00e9ro : le calcul \u00e0 v\u00e9rifier n'est plus le m\u00eame. */
+/* La vérification s'affiche EN MÊME TEMPS que les propositions, et l'élève
+   peut écrire les étapes avant de choisir (décision de Turquet, août 2026).
+   Choisir — ou changer — ne détruit donc JAMAIS ce que l'élève a écrit dans
+   la chaîne : l'écran est redessiné (les libellés, le nombre écrit par la
+   page et la pose suivent la proposition), puis chaque case retrouve sa
+   valeur et le focus revient où il était. Les cases de la POSE ne sont pas
+   restaurées : la pose est dérivée de la proposition, ses chiffres ne
+   veulent rien dire sous une autre. */
+function qcmRedessiner(hostId, rendre){
+  const host=$(hostId); const sauve={}; let focusId=null;
+  if(host){
+    host.querySelectorAll('math-field[id],input[id],select[id]').forEach(el=>{
+      if(el.classList.contains('mp-box')||el.classList.contains('mp-carry')) return;
+      const v=el.value; if(v!=null && String(v)!=='') sauve[el.id]=v;
+    });
+    const a=document.activeElement; if(a&&a.id&&host.contains(a)) focusId=a.id;
+  }
+  rendre();
+  Object.keys(sauve).forEach(id=>{ const el=$(id); if(el && String(el.value==null?'':el.value)==='') el.value=sauve[id]; });
+  if(focusId){ const el=$(focusId); if(el&&el.focus){ try{ el.focus(); }catch(e){} } }
+  liveCheckCurrent();
+}
 function choisirQ(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(q.choisi===i) return;
-  q.choisi=i; renderQTest(); autoSave();
+  q.choisi=i; qcmRedessiner('qHost', renderQTest); autoSave();
 }
 function renderQTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -6361,25 +6390,27 @@ function renderQTest(){
   /* m\u00eame fabrique de fraction que 3.1.1 : m\u00eames classes, donc m\u00eame pr\u00e9sentation */
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="num\u00e9rateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="d\u00e9nominateur"></math-field></span>`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="qc${i}" onclick="choisirQ(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(qdLabel(q,v))}</span></button>`).join('');
-  const c=qdCouple(q), cache=(c===null)?' step-hidden':'';
+  const c=qdCouple(q);
   /* Synthèse : TOUTES les cases sont vides, même le nombre de départ — la page
      n'écrit plus rien dans la chaîne (demande de Turquet, août 2026). Ailleurs,
-     le nombre choisi ou donné reste posé par la page, comme avant. */
+     le nombre choisi ou donné reste posé par la page, comme avant — « … » tant
+     qu'aucune proposition n'est choisie, quand il en dépend. */
   const vide=(test.qId==='pourcentage-synthese');
+  const nAff=(q.type==='val')?(c?c.N:'\u2026'):q.N;
   const caseN=vide
     ? `<math-field class="dexp-mf pm-mf f-dec" id="qN" aria-label="nombre de d\u00e9part"></math-field>`
-    : `<span class="f-whole">${c?c.N:''}</span>`;
+    : `<span class="f-whole">${nAff}</span>`;
   $('qHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="qChoix">${choix}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
+    `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
        <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span>${caseN}<span class="f-eq">=</span>${frac('q2n','q2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<p class="pt-aide">${c===null
-        ? 'Choisis une proposition, puis \u00e9cris les \u00e9tapes du calcul pour la v\u00e9rifier.'
+        ? '\u00c9cris les \u00e9tapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
         : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+(q.type==='res'?'la proposition que tu as choisie\u00a0: '+esc(qdLabel(q,q.opts[q.choisi])):q.result+'\u00a0'+esc(q.unit))+'.'}</p>`;
   const order=(vide?['q1n','q1d','qN','q2n','q2d','q3']:['q1n','q1d','q2n','q2d','q3']).map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkQAnswer();} }); });
-  if(c!==null) setTimeout(()=>order[0]&&order[0].focus(),70);
+  setTimeout(()=>{ if(order[0] && order.every(el=>!el||String(el.value==null?'':el.value).trim()==='')) order[0].focus(); },70);
 }
 function checkQAnswer(live){
   if(test.locked) return;
@@ -7061,12 +7092,13 @@ function choisirV(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
   if(q.choisi===i) return;
-  q.choisi=i; renderVTest(); autoSave();
+  q.choisi=i; qcmRedessiner('vHost', renderVTest); autoSave();
 }
 function updateVStep3(){
   const s=$('vStep3'); if(!s) return;
   const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  s.classList.toggle('step-hidden', !(ok('v3n')&&ok('v3d')&&ok('v3v')));
+  const posee=$('vMul')&&$('vMul').firstChild;   /* pas de pose sans proposition choisie */
+  s.classList.toggle('step-hidden', !(posee&&ok('v3n')&&ok('v3d')&&ok('v3v')));
 }
 function renderVTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -7080,16 +7112,19 @@ function renderVTest(){
   $('vPrompt').innerHTML=(tab[q.v]||tab[0])(q)+` Retrouve ${augqQuoi(q)} et vérifie ta réponse en écrivant les étapes des calculs.`;
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="vc${i}" onclick="choisirV(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(augqLabel(q,v))}</span></button>`).join('');
-  const c=augqCouple(q), cache=(c===null)?' step-hidden':'';
+  const c=augqCouple(q);
+  /* les valeurs connues de l'ÉNONCÉ s'affichent tout de suite ; celle qui
+     dépend de la proposition s'écrit « … » tant qu'aucune n'est choisie */
+  const pAff=(q.type==='pct')?(c?c.P:'…'):q.P, nAff=(q.type==='val')?(c?c.N:''):q.N;
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
   const pose=c?buildPose(stripZ(c.coef),stripZ(c.N),'vMul'):'<div class="mp-op" id="vMul"></div>';
   $('vHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="vChoix">${choix}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${c?c.P:'…'} %, c'est multiplier par 1 ${neg?'−':'+'} ${c?c.P:'…'}/100</div>
+    `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${pAff} %, c'est multiplier par 1 ${neg?'−':'+'} ${pAff}/100</div>
        <div class="pt-row"><span class="f-whole">1 ${neg?'−':'+'}</span>${frac('v1n','v1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'−':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="v1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('v2n','v2d')}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2461 coefficient × valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${c?c.N:''}"></math-field><span class="f-eq">=</span>${frac('v4n','v4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+    `<div class="pt-step"><div class="pt-lab">\u2461 coefficient × valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
+       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${nAff}"></math-field><span class="f-eq">=</span>${frac('v4n','v4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="vStep3"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
     `<p class="pt-aide">${c===null
@@ -7110,7 +7145,7 @@ function renderVTest(){
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkVAnswer();} });
   });
   updateVStep3();
-  if(c!==null) setTimeout(()=>order[0]&&order[0].focus(),70);
+  setTimeout(()=>{ if(order[0] && order.every(el=>!el||String(el.value==null?'':el.value).trim()==='')) order[0].focus(); },70);
 }
 function checkVAnswer(live){
   if(test.locked)return;
