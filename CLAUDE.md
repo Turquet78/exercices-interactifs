@@ -2454,7 +2454,22 @@ cases restées interactives, le prénom absent, l'échec d'envoi avalé, le doub
 clic qui double la ligne, la marque dmPapier perdue, la porte qui contourne
 l'énoncé, le verrou REJEU oublié, la ligne du professeur non distinguée, le
 tirage envoyé qui n'est pas celui montré — chacun rougit en nommant son
-défaut. Un piège d'outillage s'est montré dans le SCRIPT DE VUE, pas dans la
+défaut.
+**Une photo ne porte AUCUN id — et jsdom était structurellement aveugle à ce
+défaut.** Les conteneurs clonés dans l'énoncé (s1Res, s1Table, …) gardaient
+leurs id, et l'écran d'énoncé vient AVANT les écrans d'exercice dans le
+document : après « Le faire sur l'ordinateur », `getElementById` rendait le
+CLONE — le rendu de l'exercice écrivait dans l'énoncé caché, l'élève
+remplissait un écran que la vérification ne lisait pas, et « Vérifier »
+répondait « Complète au moins une case » devant une copie pleine, sans une
+couleur nulle part (signalé par Turquet sur une capture du signe du premier
+degré, août 2026 — le défaut frappait TOUT exercice lancé depuis un devoir).
+jsdom, lui, garde un cache d'id qui rend l'ORIGINAL : aucun banc jsdom ne
+pouvait le voir, et c'est un vrai Chromium qui a tranché entre les deux
+comportements. `dmEnonceQ` retire donc tous les id de la photo, quitter
+l'écran d'énoncé VIDE son hôte (`dmeViderCorps`, par les deux sorties), et le
+contrôle tient ces deux bords en STRUCTURE — jamais par `getElementById`, qui
+ne mesurerait rien là où il tourne. Éprouvé par sabotage des deux côtés. Un piège d'outillage s'est montré dans le SCRIPT DE VUE, pas dans la
 page : `Object.assign({id:'s1'}, ligne)` laissait l'id du double écraser celui
 du script, et la vue accusait la page d'un défaut qu'elle n'avait pas.
 

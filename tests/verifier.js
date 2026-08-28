@@ -2888,10 +2888,20 @@ function devoirPapierClique(w, apres){
     if(!document.querySelector('#dmeCorps .dme-blank')) vus.push('aucun pointillé : les cases ne sont pas remplacées');
     if((document.getElementById('dmeCorps').textContent||'').indexOf('Démontre que')<0)
       vus.push('l\\'énoncé ne porte pas le texte des questions');
+    /* une photo ne porte AUCUN id : les conteneurs clonés gardaient les leurs,
+       et l'écran d'énoncé venant avant les écrans d'exercice, un vrai
+       navigateur faisait écrire le rendu de l'exercice DANS le clone —
+       « Complète au moins une case » sur copie pleine (signalé par Turquet,
+       août 2026). jsdom rend l'original par son cache d'id : ce bord se tient
+       donc en STRUCTURE, pas par getElementById. */
+    if(document.querySelector('#dmeCorps [id]'))
+      vus.push('la photo de l\\'énoncé garde des id — le rendu de l\\'exercice écrirait dans le clone chez l\\'élève');
 
     /* ---- 2. « sur l'ordinateur » : la suite d'avant, inchangée ---- */
     dmeOrdinateur();
     if(continuerAppels!==1) vus.push('« sur l\\'ordinateur » n\\'appelle pas la suite normale ('+continuerAppels+')');
+    if((document.getElementById('dmeCorps').innerHTML||'').trim()!=='')
+      vus.push('quitter l\\'énoncé laisse son clone dans le document — un écran fantôme de plus');
 
     /* ---- 3. « sur papier » : la ligne part, prénom + marque + tirage exact ---- */
     await dmEnonce('dev-1','tangente-exp', function(){ continuerAppels++; });

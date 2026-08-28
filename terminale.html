@@ -2108,7 +2108,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=254;
+const APP_VERSION=255;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3150,6 +3150,15 @@ function dmEnonceQ(section){
   c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,button').forEach(function(e){ e.remove(); });
   c.querySelectorAll('input,select,math-field,.dexp2-sheet').forEach(function(e){
     const b=document.createElement('span'); b.className='dme-blank'; e.replaceWith(b); });
+  /* Une photo ne porte AUCUN id : les conteneurs clonés (s1Res, s1Table, …)
+     gardaient les leurs, et l'écran d'énoncé venant AVANT les écrans
+     d'exercice dans le document, getElementById rendait le CLONE — le rendu
+     de l'exercice écrivait dans l'énoncé caché, l'élève remplissait un écran
+     que la vérification ne lisait pas, et « Vérifier » répondait « Complète
+     au moins une case » devant une copie pleine (signalé par Turquet, août
+     2026). jsdom, lui, garde un cache d'id qui rend l'ORIGINAL : seul un
+     vrai navigateur voyait le défaut. */
+  c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
   return c.innerHTML;
 }
 function dmEnonceHTML(){
@@ -3164,9 +3173,12 @@ function dmEnonceHTML(){
   test.idx=0; afficherEcranDe(test.kind);
   return out;
 }
-function dmeOrdinateur(){ const c=dmeCtx; dmeCtx=null; if(c&&c.continuer) c.continuer(); }
+/* Quitter l'écran d'énoncé VIDE son hôte — la convention des hôtes partagés :
+   un clone qui resterait dans le document est un écran fantôme de plus. */
+function dmeViderCorps(){ const h=$('dmeCorps'); if(h) h.innerHTML=''; }
+function dmeOrdinateur(){ const c=dmeCtx; dmeCtx=null; dmeViderCorps(); if(c&&c.continuer) c.continuer(); }
 function dmeRetour(){
-  const c=dmeCtx; dmeCtx=null;
+  const c=dmeCtx; dmeCtx=null; dmeViderCorps();
   if(!c){ show('teacher'); return; }           /* vue professeur : retour au tableau de bord */
   currentDM=null; ouvrirDevoirDetail(c.devoirId);
 }
