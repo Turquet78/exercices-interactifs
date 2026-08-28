@@ -1693,16 +1693,23 @@ quoi l'élève apprendrait que la question est toujours du même genre.
 inconnue) ; un second tirage aurait fini par diverger.
 
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
-2.2.8 ET baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en deux
-temps : d'abord les hausses seules, puis « pour les diminutions aussi »).
+2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
+2026, en trois temps : les hausses seules, « pour les diminutions aussi »,
+puis « pour la synthèse 2.5.1 aussi »). Le 2.5.1 a suivi le motif du 2.2.8 en
+y passant : ses trois inconnues sortent chacune UNE fois, en ordre mélangé —
+à trois questions, un tirage au hasard répéterait souvent le même genre — et
+ses FAMILLES restent mélangées, sous contrôle : une synthèse qui ne tirerait
+plus qu'une famille aurait perdu son sujet. `SYN_NB` a disparu avec ce
+changement, comme `AUGQ_NB` avant lui.
 Le nombre vit dans `EVOL_NB`, une seule constante à côté des démarreurs —
 le paramètre de comptage qu'avaient gagné les démarreurs partagés
 (`startEvolAdd`, `startA2Q`, `startAUGQ`) pour tenir les deux familles à
 des réglages différents a été RETIRÉ avec la différence qui le justifiait,
 et `AUGQ_NB` avec lui : un paramètre qui ne varie plus est une porte à
 divergence. Le contrôle compare les QUINZE démarreurs à `tests/profils.js`
-(`nbQuestionsEvolutions`) — deux sources, comme `SF_NB` — et le sabotage
-« les baisses repassent à 6 » rougit en nommant le 2.3.7.
+(`nbQuestionsEvolutions`) — deux sources, comme `SF_NB` — compte SEIZE
+démarreurs, et ses sabotages rougissent en nommant l'exercice (« 2.3.7 : 6
+questions au lieu de 3 », puis « 2.5.1 » à son tour).
 
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
