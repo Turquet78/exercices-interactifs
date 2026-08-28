@@ -1375,6 +1375,22 @@ bout en bout — d'ABORD sans résidu (si elle ne passe pas au vert ainsi, c'est
 contrôle qui a tort, pas la page), puis avec. Le sabotage rend le signalement au
 mot près : « 10/12 cases vertes, rouges : dexp-s3a, dexp-s3b ».
 
+**Le terme entier recopié dans une case de coefficient se NOMME.** Signalé
+par Julien, transmis par Turquet (août 2026) sur le 2.1 : « on me signale une
+erreur alors que la correction est conforme à ce que j'ai écrit ». Dans la
+ligne développée, chaque case attend le COEFFICIENT — la page écrit e^(kx)
+juste après la case — et l'élève avait recopié le terme ENTIER (« 3xe^(−x) »)
+dans la case : son terme affiché valait (3xe^(−x))·e^(−x), compté faux à bon
+droit, mais la bonne démarche affichée (« +3xe^(−x) ») ressemblait trait pour
+trait à ce qu'il avait tapé — il était convaincu d'une injustice. La
+vérification détecte désormais ce cas précis (une case fausse dont le contenu
+vaut un terme attendu ENTIER, exponentielle comprise) et le message le dit en
+toutes lettres, en entraînement comme en soutien : « e^(…) est déjà écrit
+APRÈS chaque case — écris seulement le coefficient ». Jamais sur une copie
+juste. Le contrôle rejoue la copie du signalement — d'abord SANS l'erreur (si
+elle ne passe pas, c'est le contrôle qui a tort), puis avec — éprouvé par
+sabotage.
+
 **Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
 affichée sous le retour de chaque question, et il ne connaît que trois classes :
 `ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —

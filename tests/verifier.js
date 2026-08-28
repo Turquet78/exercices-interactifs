@@ -2414,6 +2414,7 @@ function exercices(suite){
     verificationAvecPropositions(w, P);
     poseSuitLEleve(w, P);
     correctionSignesVariations(w, P);
+    termeEntierDansCaseCoefficient(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -4089,6 +4090,62 @@ function poseSuitLEleve(w, P){
       while(q.fam==='pct' && garde++<200){ test.questions[0]=q=genSyn(); }
       renderSynTest(); choisirSyMeth('coef');
     }, 'syPose', 'syMul', 'y3n', 'y3v', updateSynPose);
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- 2.1 : le terme entier recopié dans une case de coefficient -----
+   Signalé par Julien, transmis par Turquet (août 2026) : « on me signale une
+   erreur alors que la correction est conforme à ce que j'ai écrit ». Dans la
+   ligne développée, chaque case attend le COEFFICIENT — la page écrit e^(kx)
+   juste après — et l'élève avait recopié le terme ENTIER (« 3xe^(−x) ») dans
+   la case : son terme affiché valait (3xe^(−x))·e^(−x), compté faux à bon
+   droit, mais la bonne démarche affichée lui ressemblait trait pour trait.
+   Le message NOMME donc cette erreur quand elle se produit, en entraînement
+   comme en soutien — et jamais sur une copie juste. */
+function termeEntierDansCaseCoefficient(w, P){
+  const present = evaluer(w, "typeof dexpVerdicts==='function' && typeof checkDexp==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.1 : le terme entier recopié dans une case de coefficient est nommé',
+      'ce niveau n\'a pas la dérivée du produit avec exponentielle');
+    return;
+  }
+  verifierEval(w, '2.1 : le terme entier recopié dans une case de coefficient est nommé', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='derivee-exp'; test.kind='dexp';
+    /* la question du signalement : f(x) = (−3x+3)e^(−x) */
+    const q={type:'dexp', a:-3, b:3, k:-1, uStr:polyToStr([3,-3]), vTxt:expMenu(-1), duTxt:numFmt(-3),
+             dvTxt:vprimeMenu(-1), dcoef:[-6,3], facAns:polyFr([-6,3]), expHtml:expCore(-1)};
+    test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+    show('dexp'); renderDexp();
+    /* la copie de Julien, lue par un double (jsdom n'a pas MathLive) */
+    const V={'dexp-u':'-3x+3','dexp-du':'-3','dexp-v':'e^(-x)','dexp-dv':'-e^(-x)',
+             'dexp-s2a':'-3','dexp-s2b':'e^(-x)','dexp-s2c':'-e^(-x)','dexp-s2d':'-3x+3',
+             'dexp-s3a':'-3','dexp-s3b':'3x*e^(-x)','dexp-s3c':'-3','dexp-fac':'3x-6'};
+    const vrai=dexpCellValue; dexpCellValue=function(id){ return (id in V)?V[id]:''; };
+    try{
+      /* d'abord la copie JUSTE : si elle ne passe pas, c'est le contrôle qui a tort */
+      const VJ=Object.assign({},V,{'dexp-s3b':'3x'});
+      dexpCellValue=function(id){ return (id in VJ)?VJ[id]:''; };
+      const rj=dexpVerdicts();
+      if(!Object.values(rj.verdicts).every(Boolean)){ vus.push('la copie témoin juste ne passe pas'); return vus.join(' | '); }
+      if(rj.groups.s3TermeEntier) vus.push('l\\'avertissement sort sur une copie juste');
+      /* puis la copie du signalement */
+      dexpCellValue=function(id){ return (id in V)?V[id]:''; };
+      const r=dexpVerdicts();
+      if(r.verdicts['dexp-s3b']!==false) vus.push('le terme entier recopié dans la case est ACCEPTÉ — le terme affiché vaudrait coefficient×e×e');
+      if(r.groups.s3TermeEntier!==true) vus.push('le terme entier n\\'est pas détecté');
+      checkDexp();
+      const fb=$('dexpFeedback').innerHTML;
+      if(fb.indexOf('COEFFICIENT')<0 || fb.indexOf('APRÈS chaque case')<0)
+        vus.push('le message ne nomme pas l\\'erreur');
+      if(fb.indexOf('La bonne d')<0) vus.push('la bonne démarche a disparu du message');
+      /* en soutien aussi : l'élève qui corrige doit savoir QUOI corriger */
+      currentMode='soutien'; test.locked=false; renderDexp(); checkDexp();
+      const fbs=$('dexpFeedback').innerHTML;
+      if(fbs.indexOf('COEFFICIENT')<0) vus.push('en soutien, le message ne nomme pas l\\'erreur');
+      currentMode='train';
+    } finally { dexpCellValue=vrai; }
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
