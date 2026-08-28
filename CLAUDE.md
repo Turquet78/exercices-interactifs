@@ -2365,6 +2365,22 @@ jamais rien (une courbe traverse l'axe en montant, jamais en tournant) :
 le cinquième garde-fou mort du projet, retiré, sabotage à l'appui. Éprouvé
 en le cassant neuf fois.
 
+**Le 1.3 (Signes & variations) suit la convention commune de correction.**
+Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
+correctes, mais 0,9/1 ». L'écran RÉVÉLAIT tout en vert par-dessus la copie —
+la convention abandonnée du 5.2 — si bien que l'élève ne voyait plus quelle
+case était fausse, et que la note ne tenait qu'au garde-fou de `ptsRep`
+(« 7 cases justes sur 8 » sur un écran tout vert : l'écran contredit le
+message, le défaut déjà corrigé sur {associer-derivee}). `checkSV` passe par
+`corrCase` : la case fausse reste rouge avec la réponse de l'élève et la
+bonne s'affiche en bleu à côté (badge calé près de SON menu pour les
+flèches — la leçon du 5.4), la case vide est remplie en bleu et ne rougit
+jamais, même en soutien, et la note enregistrée compte les vraies cases. La
+famille `vt-sel2` n'avait AUCUNE règle `.sol` — la leçon des familles de
+listes, revenue une énième fois : la règle posée sert aussi au 5.4, qui
+remplissait déjà des flèches vides en bleu invisible. Un contrôle tient ces
+bords, éprouvé par deux sabotages.
+
 **Le signe du premier degré pose 5 questions, et non plus 15** (demande de
 Turquet, août 2026). Les trois niveaux restent TOUS représentés — 2 du
 niveau 1, 2 du niveau 2 (la racine en fraction), 1 du niveau 3 (la racine

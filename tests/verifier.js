@@ -2412,6 +2412,7 @@ function exercices(suite){
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
     verificationAvecPropositions(w, P);
+    correctionSignesVariations(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -4034,6 +4035,69 @@ function synthesePourcentage(w, P){
     if(test.qId!=='pourcentage-synthese') vus.push('« Recommencer » relance '+test.qId+' au lieu de la synthèse');
 
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- 1.3 Signes & variations : la correction dit QUELLE case reprendre
+   Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
+   correctes, mais 0,9/1 ». L'écran révélait TOUT en vert par-dessus la copie
+   (la convention abandonnée du 5.2) : l'élève ne voyait plus quelle case
+   était fausse, et la note ne tenait qu'au garde-fou de ptsRep. La convention
+   COMMUNE (corrCase) s'applique désormais : la case fausse reste ROUGE avec
+   la réponse de l'élève et la bonne s'affiche en bleu à côté, la case vide
+   est remplie en bleu (jamais rougie), et la note enregistrée compte les
+   vraies cases. */
+function correctionSignesVariations(w, P){
+  const present = evaluer(w, "typeof svBuild==='function' && typeof checkSV==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('signes & variations : la correction dit quelle case reprendre',
+      'ce niveau n\'a pas l\'exercice Signes & variations');
+    return;
+  }
+  verifierEval(w, 'signes & variations : la correction dit quelle case reprendre', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='signes-variations'; test.kind='sv';
+    const lancer=()=>{ test.questions=[svBuild('maxLeft',2,2,'f')]; test.idx=0; test.score=0;
+      test.answers=[]; test.startTime=Date.now(); test.locked=false; show('sv'); renderSV(); };
+    const a=()=>test.questions[0].ans, cls=id=>$(id).className;
+
+    /* 1. une case fausse + une flèche vide : rouge qui reste, bleu qui dit */
+    lancer();
+    $('sv-rootx').value=a().rootx; $('sv-extrx').value=a().extrx;
+    $('sv-fl').value=a().fl; $('sv-fr').value=(a().fr==='+'?'\\u2212':'+');
+    $('sv-dl').value=a().dl; $('sv-dr').value=a().dr;
+    $('sv-al').value=a().al;                       /* sv-ar reste VIDE */
+    checkSV();
+    if(!/\\bbad\\b/.test(cls('sv-fr'))) vus.push('la case fausse ne reste pas rouge ('+cls('sv-fr')+')');
+    if($('sv-fr').value===a().fr) vus.push('la case fausse a été écrasée par la correction');
+    const badge=$('sv-fr').nextElementSibling;
+    if(!badge||!badge.classList.contains('mf-cor')) vus.push('pas de badge bleu à côté de la case fausse');
+    if(!/\\bsol\\b/.test(cls('sv-ar'))) vus.push('la flèche vide n\\'est pas remplie en bleu ('+cls('sv-ar')+')');
+    if(/\\bbad\\b/.test(cls('sv-ar'))) vus.push('la flèche restée vide ROUGIT');
+    ['sv-rootx','sv-extrx','sv-fl','sv-dl','sv-dr','sv-al'].forEach(id=>{
+      if(!/\\bok\\b/.test(cls(id))) vus.push('case juste '+id+' non verte ('+cls(id)+')'); });
+    let der=test.answers[test.answers.length-1]||{};
+    if(!(der.pts<1)||der.cases!==8) vus.push('la note enregistrée ment (pts='+der.pts+' cases='+der.cases+')');
+    /* la règle CSS .sol de la famille vt-sel2 existe — la leçon des familles de listes */
+    if(!/\\.vt-sel2\\.sol/.test(document.documentElement.innerHTML)) vus.push('aucune règle CSS .vt-sel2.sol : la flèche corrigée en bleu s\\'écrirait à l\\'encre ordinaire');
+
+    /* 2. la copie toute juste vaut le point entier */
+    lancer();
+    $('sv-rootx').value=a().rootx; $('sv-extrx').value=a().extrx; $('sv-fl').value=a().fl; $('sv-fr').value=a().fr;
+    $('sv-dl').value=a().dl; $('sv-dr').value=a().dr; $('sv-al').value=a().al; $('sv-ar').value=a().ar;
+    checkSV();
+    der=test.answers[test.answers.length-1]||{};
+    if(!der.correct) vus.push('la copie toute juste ne vaut pas le point');
+
+    /* 3. en soutien, la case vide ne reçoit AUCUNE couleur */
+    currentMode='soutien';
+    lancer();
+    $('sv-fl').value=a().fl;                       /* le reste VIDE */
+    checkSV();
+    if(/\\bbad\\b/.test(cls('sv-rootx'))) vus.push('en soutien, une case vide rougit à la vérification');
+    if(!/\\bok\\b/.test(cls('sv-fl'))) vus.push('en soutien, la case juste seule n\\'est pas verte');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* ---------- La vérification s'affiche AVEC les propositions ----------------
