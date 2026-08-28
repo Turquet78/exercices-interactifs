@@ -83,6 +83,42 @@ couvert sans rien avoir à déclarer.
 | L'écran d'un exercice prend **toute la largeur**, et ses rangées ne se replient pas | une chaîne d'égalités se lit comme trois calculs séparés | « aucune rangée ne se replie » |
 | Le **clavier mathématique** est atteignable sur tout écran à champ mathématique | sur tablette, l'élève ne peut plus rien écrire | « le clavier mathématique est atteignable sur tout écran à champ mathématique » |
 | Le **calcul écrit en tête de rangée** a la taille de sa rangée | l'énoncé de la chaîne se lit comme une note de bas de page devant les cases | « le calcul en tête de rangée s'écrit à la taille de sa rangée » |
+| La vérification peint le **juste en BLEU**, le faux en rouge, la **correction en VERT** | l'élève ne distingue plus sa réponse juste de la correction écrite par la page | « les règles .ok sont bleues, .sol et .mf-cor vertes, .bad rouges » |
+
+**Les couleurs de la vérification ont changé en août 2026** (décision de
+Turquet) : ce qui est JUSTE se peint en **bleu**, ce qui est faux reste en
+rouge, et la **correction** — la bonne réponse écrite par la page — est
+**verte**. Avant, juste était vert et correction bleue : les paragraphes plus
+anciens de ce fichier qui disent « la correction en bleu » ou « une copie
+verte » racontent l'histoire avec les couleurs de leur époque — la RÈGLE
+qu'ils enseignent reste vraie, seule l'encre a changé. Les classes, elles,
+n'ont pas bougé : `ok`, `bad`, `sol` — c'est la feuille de styles qui a
+tourné, et les étiquettes internes des contrôles (`peint()` rend 'vert' pour
+`ok`) parlent toujours des CLASSES.
+Ce qui a bougé AVEC les couleurs, parce que la sémantique l'exigeait : les
+**révélations de la Terminale** (tvi, ef, eq, rc, tg, tx, ec, suites) ne
+repeignent plus tout l'écran en « juste » — la case que l'élève avait juste
+garde son `ok` bleu, celle qu'il avait fausse ou vide reçoit la valeur et la
+classe `sol`, verte ; la note partielle relue à l'écran devient plus vraie, et
+le garde-fou de `ptsRep` reste en ceinture. Même règle sur les **QCM à
+cartes** (itq, ing, afq) et le plus petit ensemble (pge) : la bonne réponse
+CHOISIE est bleue, la bonne réponse MONTRÉE est verte — deux familles ont
+gagné leur règle `.sol` ce jour-là. Les pastilles ✓/✗, les messages de
+verdict (`good`/`bad` sur le texte) et les marqueurs « fait » restent verts :
+la demande porte sur les cases, et ces exceptions sont NOMMÉES dans le
+contrôle. Le contrôle vit dans le banc navigateur (« 9 bis ») : il relit
+CHAQUE règle CSS de verdict, résout ses `var(--…)` et classe chaque encre par
+sa dominante — une famille ajoutée demain entre dans la feuille de styles,
+donc dans le contrôle, sans rien déclarer. Éprouvé par sabotage des deux
+côtés (un `.ok` reverdi, un `.sol` rebleui). Un piège de banc s'y est
+montré : depuis l'imbrication CSS, TOUTE règle porte un `cssRules` (souvent
+vide, mais truthy) — une récursion qui teste ce champ pour descendre dans les
+`@media` avale alors chaque règle sans la lire, et le contrôle mesure zéro.
+C'est son second bord (« la convention a des règles à tenir ») qui l'a
+attrapé, à la première exécution : un contrôle qui n'a rien à mesurer ne
+mesure rien, et doit le dire. Le **liseré bleu** de
+{croiser-denominateurs} est devenu **violet** (`--crd-a`) : un liseré bleu à
+côté de cases justes bleues aurait dit autre chose que ce qu'il dit.
 
 **Trois autres règles ne se vérifient pas encore partout**, et le dire vaut
 mieux que de le taire :
@@ -877,10 +913,11 @@ l'ambiguïté au TIRAGE, jamais à la correction — qui reste celle de
 appui, pas une contrainte.
 **La couleur ne porte jamais seule.** La consigne dit le croisement en toutes
 lettres et les flèches le montrent : un écran mal réglé, ou un élève qui
-distingue mal les couleurs, doit pouvoir faire l'exercice. Le bleu et l'orange
-sont choisis pour ne pas se confondre avec le vert et le rouge de la
-correction — ni entre eux pour un daltonien, qui confond justement le vert et
-le rouge.
+distingue mal les couleurs, doit pouvoir faire l'exercice. Le violet et
+l'orange sont choisis pour ne pas se confondre avec le bleu, le vert et le
+rouge de la correction — ni entre eux pour un daltonien, qui confond justement
+le vert et le rouge. (Le liseré fut bleu tant que le bleu n'était pas une
+couleur de verdict ; il est passé au violet quand le bleu a pris « juste ».)
 Les flèches sont posées sur des positions MESURÉES après le rendu, et
 redessinées quand la fenêtre change : un trait posé sur des coordonnées
 supposées se décale au premier changement de police, et personne ne le voit.
