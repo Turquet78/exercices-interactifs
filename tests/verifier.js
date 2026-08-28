@@ -2411,6 +2411,10 @@ function exercices(suite){
     multiplierFractions(w, P);
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
+    verificationAvecPropositions(w, P);
+    poseSuitLEleve(w, P);
+    correctionSignesVariations(w, P);
+    termeEntierDansCaseCoefficient(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
     if(P.specifique === 'seconde') seconde(w);
@@ -4033,6 +4037,244 @@ function synthesePourcentage(w, P){
     if(test.qId!=='pourcentage-synthese') vus.push('« Recommencer » relance '+test.qId+' au lieu de la synthèse');
 
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- La pose facultative suit les nombres de L'ÉLÈVE -----------------
+   (décision de Turquet, août 2026) : dans les quatre écrans qui posent la
+   multiplication des numérateurs (2.2.1, 2.3.1, les QCM « retrouver », la
+   synthèse en méthode coefficient), la pose est bâtie sur ce que l'élève a
+   ÉCRIT dans la ligne coefficient × valeur — même si ses nombres ne sont pas
+   ceux de la correction : c'est une aide pour SON calcul, pas une révélation.
+   Elle n'est proposée que si un facteur garde au moins 2 chiffres non nuls
+   (un fait de table ne se pose pas), les zéros finaux sont retirés, et elle
+   ne se reconstruit que si les facteurs changent — reconstruire à chaque
+   frappe effacerait ce que l'élève y écrit. */
+function poseSuitLEleve(w, P){
+  const present = evaluer(w, "typeof poseEleveMAJ==='function' && typeof startAug==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la pose facultative suit les nombres de l\'élève',
+      'ce niveau n\'a pas la pose facultative des multiplications');
+    return;
+  }
+  verifierEval(w, 'la pose facultative suit les nombres de l\'élève', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    function essai(nom, demarrer, step, host, nId, vId, maj){
+      demarrer();
+      const cache=()=>$(step).classList.contains('step-hidden');
+      if(!cache()){ vus.push(nom+' : pose visible sans facteurs'); return; }
+      $(nId).value='14'; $(vId).value='30'; maj();
+      if(cache()){ vus.push(nom+' : pose cachée avec 14 × 30'); return; }
+      if($(host).dataset.pose!=='14x3'){ vus.push(nom+' : pose '+$(host).dataset.pose+' au lieu de 14x3'); return; }
+      const exps=[...$(host).querySelectorAll('.mp-box')].map(e=>e.dataset.exp).join('');
+      if(exps!=='42') vus.push(nom+' : la pose n\\'attend pas le produit de l\\'ÉLÈVE (42) mais « '+exps+' »');
+      $(nId).value='13'; maj();
+      if($(host).dataset.pose!=='13x3') vus.push(nom+' : la pose ne suit pas les nombres de l\\'élève ('+$(host).dataset.pose+')');
+      $(nId).value='2'; maj();
+      if(!cache()) vus.push(nom+' : une table (2 × 3) est posée — l\\'aide ne sert à rien');
+      $(nId).value='140'; maj();
+      if($(host).dataset.pose!=='14x3') vus.push(nom+' : les zéros finaux ne sont pas retirés ('+$(host).dataset.pose+')');
+      const in1=$(host).querySelector('input'); if(in1){ in1.value='4'; maj();
+        if($(host).querySelector('input').value!=='4') vus.push(nom+' : la pose se reconstruit sans changement de facteurs — l\\'élève perd ce qu\\'il y écrit'); }
+      $(vId).value='14'; $(nId).value='3'; maj();
+      if(cache()||$(host).dataset.pose!=='14x3') vus.push(nom+' : 3 × 14 n\\'est pas retourné pour rentrer dans la pose');
+    }
+    essai('2.2.1', startAug, 'aStep3', 'aMul', 'a3n', 'a3v', updateAStep3);
+    essai('2.3.1', startDim, 'dStep3', 'dMul', 'd3n', 'd3v', updateDStep3);
+    /* QCM : la pose suit l'élève SANS qu'aucune proposition soit choisie */
+    essai('retrouver (QCM)', startAugDepart, 'vStep3', 'vMul', 'v3n', 'v3v', updateVStep3);
+    /* synthèse, méthode coefficient */
+    essai('synthèse (coef)', function(){
+      startSyn();
+      let q=test.questions[0], garde=0;
+      while(q.fam==='pct' && garde++<200){ test.questions[0]=q=genSyn(); }
+      renderSynTest(); choisirSyMeth('coef');
+    }, 'syPose', 'syMul', 'y3n', 'y3v', updateSynPose);
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- 2.1 : le terme entier recopié dans une case de coefficient -----
+   Signalé par Julien, transmis par Turquet (août 2026) : « on me signale une
+   erreur alors que la correction est conforme à ce que j'ai écrit ». Dans la
+   ligne développée, chaque case attend le COEFFICIENT — la page écrit e^(kx)
+   juste après — et l'élève avait recopié le terme ENTIER (« 3xe^(−x) ») dans
+   la case : son terme affiché valait (3xe^(−x))·e^(−x), compté faux à bon
+   droit, mais la bonne démarche affichée lui ressemblait trait pour trait.
+   Le message NOMME donc cette erreur quand elle se produit, en entraînement
+   comme en soutien — et jamais sur une copie juste. */
+function termeEntierDansCaseCoefficient(w, P){
+  const present = evaluer(w, "typeof dexpVerdicts==='function' && typeof checkDexp==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.1 : le terme entier recopié dans une case de coefficient est nommé',
+      'ce niveau n\'a pas la dérivée du produit avec exponentielle');
+    return;
+  }
+  verifierEval(w, '2.1 : le terme entier recopié dans une case de coefficient est nommé', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='derivee-exp'; test.kind='dexp';
+    /* la question du signalement : f(x) = (−3x+3)e^(−x) */
+    const q={type:'dexp', a:-3, b:3, k:-1, uStr:polyToStr([3,-3]), vTxt:expMenu(-1), duTxt:numFmt(-3),
+             dvTxt:vprimeMenu(-1), dcoef:[-6,3], facAns:polyFr([-6,3]), expHtml:expCore(-1)};
+    test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+    show('dexp'); renderDexp();
+    /* la copie de Julien, lue par un double (jsdom n'a pas MathLive) */
+    const V={'dexp-u':'-3x+3','dexp-du':'-3','dexp-v':'e^(-x)','dexp-dv':'-e^(-x)',
+             'dexp-s2a':'-3','dexp-s2b':'e^(-x)','dexp-s2c':'-e^(-x)','dexp-s2d':'-3x+3',
+             'dexp-s3a':'-3','dexp-s3b':'3x*e^(-x)','dexp-s3c':'-3','dexp-fac':'3x-6'};
+    const vrai=dexpCellValue; dexpCellValue=function(id){ return (id in V)?V[id]:''; };
+    try{
+      /* d'abord la copie JUSTE : si elle ne passe pas, c'est le contrôle qui a tort */
+      const VJ=Object.assign({},V,{'dexp-s3b':'3x'});
+      dexpCellValue=function(id){ return (id in VJ)?VJ[id]:''; };
+      const rj=dexpVerdicts();
+      if(!Object.values(rj.verdicts).every(Boolean)){ vus.push('la copie témoin juste ne passe pas'); return vus.join(' | '); }
+      if(rj.groups.s3TermeEntier) vus.push('l\\'avertissement sort sur une copie juste');
+      /* puis la copie du signalement */
+      dexpCellValue=function(id){ return (id in V)?V[id]:''; };
+      const r=dexpVerdicts();
+      if(r.verdicts['dexp-s3b']!==false) vus.push('le terme entier recopié dans la case est ACCEPTÉ — le terme affiché vaudrait coefficient×e×e');
+      if(r.groups.s3TermeEntier!==true) vus.push('le terme entier n\\'est pas détecté');
+      checkDexp();
+      const fb=$('dexpFeedback').innerHTML;
+      if(fb.indexOf('COEFFICIENT')<0 || fb.indexOf('APRÈS chaque case')<0)
+        vus.push('le message ne nomme pas l\\'erreur');
+      if(fb.indexOf('La bonne d')<0) vus.push('la bonne démarche a disparu du message');
+      /* en soutien aussi : l'élève qui corrige doit savoir QUOI corriger */
+      currentMode='soutien'; test.locked=false; renderDexp(); checkDexp();
+      const fbs=$('dexpFeedback').innerHTML;
+      if(fbs.indexOf('COEFFICIENT')<0) vus.push('en soutien, le message ne nomme pas l\\'erreur');
+      currentMode='train';
+    } finally { dexpCellValue=vrai; }
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- 1.3 Signes & variations : la correction dit QUELLE case reprendre
+   Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
+   correctes, mais 0,9/1 ». L'écran révélait TOUT en vert par-dessus la copie
+   (la convention abandonnée du 5.2) : l'élève ne voyait plus quelle case
+   était fausse, et la note ne tenait qu'au garde-fou de ptsRep. La convention
+   COMMUNE (corrCase) s'applique désormais : la case fausse reste ROUGE avec
+   la réponse de l'élève et la bonne s'affiche en bleu à côté, la case vide
+   est remplie en bleu (jamais rougie), et la note enregistrée compte les
+   vraies cases. */
+function correctionSignesVariations(w, P){
+  const present = evaluer(w, "typeof svBuild==='function' && typeof checkSV==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('signes & variations : la correction dit quelle case reprendre',
+      'ce niveau n\'a pas l\'exercice Signes & variations');
+    return;
+  }
+  verifierEval(w, 'signes & variations : la correction dit quelle case reprendre', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='signes-variations'; test.kind='sv';
+    const lancer=()=>{ test.questions=[svBuild('maxLeft',2,2,'f')]; test.idx=0; test.score=0;
+      test.answers=[]; test.startTime=Date.now(); test.locked=false; show('sv'); renderSV(); };
+    const a=()=>test.questions[0].ans, cls=id=>$(id).className;
+
+    /* 1. une case fausse + une flèche vide : rouge qui reste, bleu qui dit */
+    lancer();
+    $('sv-rootx').value=a().rootx; $('sv-extrx').value=a().extrx;
+    $('sv-fl').value=a().fl; $('sv-fr').value=(a().fr==='+'?'\\u2212':'+');
+    $('sv-dl').value=a().dl; $('sv-dr').value=a().dr;
+    $('sv-al').value=a().al;                       /* sv-ar reste VIDE */
+    checkSV();
+    if(!/\\bbad\\b/.test(cls('sv-fr'))) vus.push('la case fausse ne reste pas rouge ('+cls('sv-fr')+')');
+    if($('sv-fr').value===a().fr) vus.push('la case fausse a été écrasée par la correction');
+    const badge=$('sv-fr').nextElementSibling;
+    if(!badge||!badge.classList.contains('mf-cor')) vus.push('pas de badge bleu à côté de la case fausse');
+    if(!/\\bsol\\b/.test(cls('sv-ar'))) vus.push('la flèche vide n\\'est pas remplie en bleu ('+cls('sv-ar')+')');
+    if(/\\bbad\\b/.test(cls('sv-ar'))) vus.push('la flèche restée vide ROUGIT');
+    ['sv-rootx','sv-extrx','sv-fl','sv-dl','sv-dr','sv-al'].forEach(id=>{
+      if(!/\\bok\\b/.test(cls(id))) vus.push('case juste '+id+' non verte ('+cls(id)+')'); });
+    let der=test.answers[test.answers.length-1]||{};
+    if(!(der.pts<1)||der.cases!==8) vus.push('la note enregistrée ment (pts='+der.pts+' cases='+der.cases+')');
+    /* la règle CSS .sol de la famille vt-sel2 existe — la leçon des familles de listes */
+    if(!/\\.vt-sel2\\.sol/.test(document.documentElement.innerHTML)) vus.push('aucune règle CSS .vt-sel2.sol : la flèche corrigée en bleu s\\'écrirait à l\\'encre ordinaire');
+
+    /* 2. la copie toute juste vaut le point entier */
+    lancer();
+    $('sv-rootx').value=a().rootx; $('sv-extrx').value=a().extrx; $('sv-fl').value=a().fl; $('sv-fr').value=a().fr;
+    $('sv-dl').value=a().dl; $('sv-dr').value=a().dr; $('sv-al').value=a().al; $('sv-ar').value=a().ar;
+    checkSV();
+    der=test.answers[test.answers.length-1]||{};
+    if(!der.correct) vus.push('la copie toute juste ne vaut pas le point');
+
+    /* 3. en soutien, la case vide ne reçoit AUCUNE couleur */
+    currentMode='soutien';
+    lancer();
+    $('sv-fl').value=a().fl;                       /* le reste VIDE */
+    checkSV();
+    if(/\\bbad\\b/.test(cls('sv-rootx'))) vus.push('en soutien, une case vide rougit à la vérification');
+    if(!/\\bok\\b/.test(cls('sv-fl'))) vus.push('en soutien, la case juste seule n\\'est pas verte');
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- La vérification s'affiche AVEC les propositions ----------------
+   (décision de Turquet, août 2026) : dans tous les QCM à chaîne de
+   vérification — pourcentages 2.1.4/2.1.5/2.1.6, les quatre « retrouver »
+   des évolutions, leurs variantes addition/soustraction, la synthèse des
+   évolutions — l'élève écrit les étapes AVANT de choisir s'il veut, et
+   choisir (ou changer) ne détruit jamais ce qu'il a écrit. Quatre bords :
+   la chaîne visible sans choix, la case qui survit au choix ET au
+   changement, la marque « sel » qui suit, et la POSE facultative qui ne se
+   révèle jamais vide (elle n'existe qu'une proposition choisie). La synthèse
+   des évolutions a son bord propre : la méthode se choisit AVANT la
+   proposition, et la chaîne apparaît dès la méthode. */
+function verificationAvecPropositions(w, P){
+  const present = evaluer(w, "typeof startPctDepart==='function' && typeof choisirQ==='function' && typeof qcmRedessiner==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la vérification s\'affiche avec les propositions, et choisir n\'efface rien',
+      'ce niveau n\'a pas les QCM à chaîne de vérification');
+    return;
+  }
+  /* Contrôle SYNCHRONE, exprès : les démarreurs de ces exercices n'attendent
+     rien, et un contrôle asynchrone laisserait les minuteurs en attente des
+     contrôles précédents s'exécuter à chaque await — un exercice chronométré
+     avançait et verrouillait test en plein vol (le piège documenté des
+     contrôles qui se rendent l'état à tour de rôle). */
+  verifierEval(w, 'la vérification s\'affiche avec les propositions, et choisir n\'efface rien', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const visible=id=>{ let e=$(id); if(!e) return false; for(let n=e;n;n=n.parentElement){ if(n.classList&&n.classList.contains('step-hidden')) return false; } return true; };
+    function essai(nom, demarrer, champ, choisir, prefixe){
+      demarrer();
+      if(!visible(champ)){ vus.push(nom+' : la chaîne de vérification est cachée avant le choix'); return; }
+      $(champ).value='7';
+      choisir(1);
+      if(String($(champ).value)!=='7'){ vus.push(nom+' : choisir efface la case écrite'); return; }
+      const b=$(prefixe+'1');
+      if(!b || b.className.indexOf('sel')<0){ vus.push(nom+' : la proposition choisie ne se marque pas'); return; }
+      choisir(2);
+      if(String($(champ).value)!=='7'){ vus.push(nom+' : changer de proposition efface la case écrite'); return; }
+      if(b.isConnected && b.className.indexOf('sel')>=0) vus.push(nom+' : la marque ne suit pas le changement de proposition');
+      const b2=$(prefixe+'2');
+      if(!b2 || b2.className.indexOf('sel')<0) vus.push(nom+' : la nouvelle proposition ne se marque pas');
+    }
+    essai('2.1.4', startPctDepart, 'q1n', choisirQ, 'qc');
+    essai('2.1.5', startPctTaux, 'q1n', choisirQ, 'qc');
+    essai('2.1.6', startPctSynthese, 'qN', choisirQ, 'qc');
+    essai('retrouver la valeur (hausse)', startAugDepart, 'v1n', choisirV, 'vc');
+    essai('retrouver le taux (hausse)', startAugTaux, 'v1n', choisirV, 'vc');
+    essai('retrouver le taux (addition)', startAugTauxAdd, 'w1n', choisirW, 'wc');
+
+    /* la synthèse des évolutions : la méthode se choisit AVANT la proposition,
+       la chaîne apparaît dès la méthode, et le choix n'efface rien */
+    startSyn();
+    let q=test.questions[0], garde=0;
+    while(q.fam==='pct' && garde++<200){ test.questions[0]=q=genSyn(); }
+    renderSynTest();
+    if(q.fam==='pct'){ vus.push('impossible de tirer une question à évolution pour la synthèse'); }
+    else {
+      if(!$('syMeth')) vus.push('synthèse : les boutons de méthode manquent avant le choix de la proposition');
+      choisirSyMeth('coef');
+      if(!visible('y1n')) vus.push('synthèse : la chaîne reste cachée une fois la méthode choisie');
+      else { $('y1n').value='7'; choisirSy(1);
+        if(String($('y1n').value)!=='7') vus.push('synthèse : choisir la proposition efface la case écrite'); }
+    }
+    return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
 /* {pourcentage-synthese-libre} (Première 2.1.7) — les questions de la

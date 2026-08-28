@@ -1375,6 +1375,22 @@ bout en bout — d'ABORD sans résidu (si elle ne passe pas au vert ainsi, c'est
 contrôle qui a tort, pas la page), puis avec. Le sabotage rend le signalement au
 mot près : « 10/12 cases vertes, rouges : dexp-s3a, dexp-s3b ».
 
+**Le terme entier recopié dans une case de coefficient se NOMME.** Signalé
+par Julien, transmis par Turquet (août 2026) sur le 2.1 : « on me signale une
+erreur alors que la correction est conforme à ce que j'ai écrit ». Dans la
+ligne développée, chaque case attend le COEFFICIENT — la page écrit e^(kx)
+juste après la case — et l'élève avait recopié le terme ENTIER (« 3xe^(−x) »)
+dans la case : son terme affiché valait (3xe^(−x))·e^(−x), compté faux à bon
+droit, mais la bonne démarche affichée (« +3xe^(−x) ») ressemblait trait pour
+trait à ce qu'il avait tapé — il était convaincu d'une injustice. La
+vérification détecte désormais ce cas précis (une case fausse dont le contenu
+vaut un terme attendu ENTIER, exponentielle comprise) et le message le dit en
+toutes lettres, en entraînement comme en soutien : « e^(…) est déjà écrit
+APRÈS chaque case — écris seulement le coefficient ». Jamais sur une copie
+juste. Le contrôle rejoue la copie du signalement — d'abord SANS l'erreur (si
+elle ne passe pas, c'est le contrôle qui a tort), puis avec — éprouvé par
+sabotage.
+
 **Une case juste se marque `ok`, jamais `good`.** `ptsEcran()` calcule la note
 affichée sous le retour de chaque question, et il ne connaît que trois classes :
 `ok`, `bad` et `sol`. Une case juste marquée autrement n'est comptée nulle part —
@@ -1574,12 +1590,57 @@ texte vit dans ses éléments, les préserver le préserve) — plus deux gardes
 « Vérifier » sans proposition le demande sans verrouiller, et la marque
 `sel` suit le choix. Éprouvé par sabotage des deux côtés.
 
+**La vérification s'affiche AVEC les propositions, dans tous les QCM à chaîne
+de vérification** (décision de Turquet, août 2026) : pourcentages 2.1.4, 2.1.5
+et 2.1.6, les quatre « retrouver » des évolutions, leurs variantes
+addition/soustraction, et la synthèse des évolutions. L'élève écrit les étapes
+AVANT de choisir s'il veut ; les valeurs connues de l'ÉNONCÉ s'affichent tout
+de suite, celle qui dépend de la proposition s'écrit « … » tant qu'aucune
+n'est choisie. **Choisir — ou changer — ne détruit jamais ce que l'élève a
+écrit** : `qcmRedessiner()` redessine l'écran (libellés, nombre écrit par la
+page et pose suivent la proposition) puis restaure chaque case et le focus —
+SAUF les cases de la POSE, dérivées de la proposition : leurs chiffres ne
+veulent rien dire sous une autre. Et la pose facultative ne se révèle jamais
+VIDE : elle n'existe qu'une proposition choisie, ses trois gardes le
+vérifient. La synthèse des évolutions a son bord propre : la méthode se
+choisit AVANT la proposition, la chaîne apparaît dès la méthode — changer de
+MÉTHODE, en revanche, reconstruit la chaîne sans restaurer : les deux
+méthodes n'écrivent pas le même calcul. Le 2.4.1 (lire un coefficient) reste
+volontairement en dehors : son « choix » est le SENS, et le signe de chaque
+ligne en dépend — une vérification sans sens n'existe pas. Un contrôle tient
+ces bords sur les quatre moteurs, éprouvé par quatre sabotages. **Il est
+SYNCHRONE, exprès** : les démarreurs de ces exercices n'attendent rien, et un
+contrôle asynchrone laissait les minuteurs en attente des contrôles
+précédents s'exécuter à chaque await — un exercice chronométré avançait et
+verrouillait `test` en plein vol, le piège documenté par une autre porte.
+
 **Du 2.1.3 au 2.1.7, quatre questions par exercice** (demande de Turquet, août
 2026). Deux constantes, à côté de leurs fabriques : `PCT_NB` pour le 2.1.3,
 `QD_NB` pour les quatre suivants — et un contrôle à deux sources qui appelle
 les CINQ vrais démarreurs et compare à `tests/profils.js`
 (`nbQuestionsPourcentages`) : un nombre changé dans une fabrique ne dit rien
 des autres.
+
+**La pose facultative de la multiplication suit les nombres de L'ÉLÈVE**
+(décision de Turquet, août 2026). Dans les quatre écrans de la Première qui
+posent la multiplication des numérateurs comme le 2.2.1 — augmenter,
+diminuer, les QCM « retrouver », la synthèse en méthode coefficient —, la
+pose est bâtie sur ce que l'élève a ÉCRIT dans la ligne coefficient ×
+valeur, zéros finaux retirés, même si ses nombres ne sont pas ceux de la
+correction : c'est une aide pour SON calcul, pas une révélation — et ses
+cases attendent donc les chiffres de SON produit. Elle est proposée dès
+qu'un facteur garde au moins 2 chiffres différents de zéro, et seulement
+là : un fait de table ne se pose pas (la leçon du 2.3.7). Dans les QCM,
+elle n'attend plus la proposition. `poseEleveMAJ()` la reconstruit quand
+les facteurs CHANGENT, et jamais sinon — reconstruire à chaque frappe
+effacerait ce que l'élève y écrit — et retourne les facteurs si c'est
+l'autre sens qui rentre dans la pose (3 chiffres × 1 chiffre). La pose de
+l'addition/soustraction de la méthode directe, elle, ne bouge pas : la
+demande ne porte que sur la multiplication. Un contrôle tient ces bords sur
+les quatre écrans, éprouvé par sabotage des deux côtés. Après une reprise
+de pause, la pose se reconstruit depuis les facteurs restaurés ; les
+chiffres qui y avaient été posés ne sont pas conservés — c'est un
+brouillon d'aide, pas une réponse.
 
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
@@ -2340,6 +2401,22 @@ d'où afqSommets — et un garde-fou « sommet sur un zéro » qui n'écartait
 jamais rien (une courbe traverse l'axe en montant, jamais en tournant) :
 le cinquième garde-fou mort du projet, retiré, sabotage à l'appui. Éprouvé
 en le cassant neuf fois.
+
+**Le 1.3 (Signes & variations) suit la convention commune de correction.**
+Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
+correctes, mais 0,9/1 ». L'écran RÉVÉLAIT tout en vert par-dessus la copie —
+la convention abandonnée du 5.2 — si bien que l'élève ne voyait plus quelle
+case était fausse, et que la note ne tenait qu'au garde-fou de `ptsRep`
+(« 7 cases justes sur 8 » sur un écran tout vert : l'écran contredit le
+message, le défaut déjà corrigé sur {associer-derivee}). `checkSV` passe par
+`corrCase` : la case fausse reste rouge avec la réponse de l'élève et la
+bonne s'affiche en bleu à côté (badge calé près de SON menu pour les
+flèches — la leçon du 5.4), la case vide est remplie en bleu et ne rougit
+jamais, même en soutien, et la note enregistrée compte les vraies cases. La
+famille `vt-sel2` n'avait AUCUNE règle `.sol` — la leçon des familles de
+listes, revenue une énième fois : la règle posée sert aussi au 5.4, qui
+remplissait déjà des flèches vides en bleu invisible. Un contrôle tient ces
+bords, éprouvé par deux sabotages.
 
 **Le signe du premier degré pose 5 questions, et non plus 15** (demande de
 Turquet, août 2026). Les trois niveaux restent TOUS représentés — 2 du

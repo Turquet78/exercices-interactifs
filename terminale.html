@@ -757,6 +757,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .vt-dbar{stroke:var(--ink);stroke-width:2;}
 .vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft);}
 .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdecee;}
+.vfcell .vt-sel2.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .vfcell .lg2-fix{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:.82rem;z-index:3;}
 .dhv-lab{font-size:13px;font-weight:700;fill:#111827;}
 .dhv-svg{max-width:380px;}
@@ -2108,7 +2109,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=255;
+const APP_VERSION=257;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -7940,6 +7941,7 @@ function dexpVerdicts(){
   }
   const g1=dexpCompile0('dexp-s3a'),g2=dexpCompile0('dexp-s3b'),g3=dexpCompile0('dexp-s3c');
   const s3ok=!!(g1&&g2&&g3)&&cmpFns(x=>(g1(x)+g2(x)+g3(x))*Math.exp(c.k*x), fprime);
+  let s3TermeEntier=false;
   if(s3ok){ verdicts['dexp-s3a']=verdicts['dexp-s3b']=verdicts['dexp-s3c']=true; }
   else{
     /* ligne fausse : chaque coefficient est apparié aux termes attendus (a, akx, bk) */
@@ -7951,9 +7953,17 @@ function dexpVerdicts(){
       verdicts[id]=ok; });
     pass(ids.filter(id=>dexpCellValue(id)!==''));   /* les cases saisies choisissent leur terme d'abord */
     pass(ids.filter(id=>dexpCellValue(id)===''));
+    /* l'erreur du signalement de Julien (août 2026) : le TERME ENTIER écrit
+       dans la case du coefficient — « 3xe^{−x} » dans une case déjà suivie de
+       e^{−x}, si bien que le terme affiché vaut (3xe^{−x})·e^{−x}. La bonne
+       démarche affichée lui ressemble trait pour trait, et l'élève est
+       convaincu d'une injustice : on détecte cette erreur pour la NOMMER. */
+    s3TermeEntier=ids.some(id=>{ if(verdicts[id]) return false;
+      const f=dexpCompile1(id); if(!f) return false;
+      return terms.some(t=>eqF(f, x=>t(x)*Math.exp(c.k*x))); });
   }
   verdicts['dexp-fac']=checkExprFn(dexpCellValue('dexp-fac'), x=>polyEval(c.dcoef,x));
-  return {verdicts, order, groups:{s2:s2ok, s3:s3ok}};
+  return {verdicts, order, groups:{s2:s2ok, s3:s3ok, s3TermeEntier}};
 }
 /* Lecture d'une case math : on retire D'ABORD les residus de fin de saisie avec saClean
    (exposant vide « 2^{} », \placeholder{}, operateur isole). Sans ce nettoyage, une reponse
@@ -8093,13 +8103,19 @@ function dexpRevealSolution(key){
 function checkDexp(){
   if(test.locked) return;
   const c=test.questions[test.idx];
-  const {verdicts:tests, order}=dexpVerdicts();
+  const {verdicts:tests, order, groups}=dexpVerdicts();
+  /* la phrase qui nomme l'erreur du terme entier recopié dans une case de coefficient */
+  const expSup='e<sup>'+esc(c.expHtml)+'</sup>';
+  const avertTerme=(groups&&groups.s3TermeEntier)
+    ? '\u26a0 Dans la ligne d\u00e9velopp\u00e9e, '+expSup+' est d\u00e9j\u00e0 \u00e9crit APR\u00c8S chaque case\u00a0: \u00e9cris seulement le COEFFICIENT dans la case. Y r\u00e9\u00e9crire '+expSup+' fait un terme qui vaut \u00ab\u00a0coefficient \u00d7 '+expSup+' \u00d7 '+expSup+'\u00a0\u00bb \u2014 c\u2019est pour cela que la case est compt\u00e9e fausse.'
+    : '';
   const setEdit=(el,on)=>{ if(el.tagName==='MATH-FIELD'){ el.readOnly=!on; } else if(el.tagName==='INPUT')el.disabled=!on; else el.contentEditable=on?'true':'false'; };
   const mark=(id,ok)=>{const el=$(id);if(el){el.classList.remove('ok','bad','sol');el.classList.add(ok?'ok':'bad');setEdit(el, !ok && isSoutien());}};
   Object.keys(tests).forEach(id=>mark(id,tests[id]));
   const allOk=Object.values(tests).every(Boolean);
   if(!allOk && isSoutien()){
-    $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.';
+    if(avertTerme){ $('dexpFeedback').innerHTML=avertTerme; }
+    else { $('dexpFeedback').textContent='Pas tout à fait \u2014 corrige ce qui est en rouge, puis rev\u00e9rifie.'; }
     $('dexpFeedback').className='mp-feedback bad';
     $('dexpActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkDexp()">Rev\u00e9rifier</button>';
     return;
@@ -8142,7 +8158,7 @@ function checkDexp(){
         '\u00a0\u00a0\u00a0\u00a0'+L('='+eT+'\\left('+mlTexN(c.facAns)+'\\right)')+
         '</div>';
     }
-    $('dexpFeedback').innerHTML = texHtml || oldHtml;
+    $('dexpFeedback').innerHTML = (avertTerme?'<div style="margin-bottom:8px">'+avertTerme+'</div>':'') + (texHtml || oldHtml);
     $('dexpFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),q:`D\u00e9riv\u00e9e de (${c.uStr})e^(${c.expHtml})`, answer:'e^('+c.expHtml+')('+c.facAns+')', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
@@ -8899,31 +8915,55 @@ function checkSV(live){
   if(test.locked && !live) return;
   const c=test.questions[test.idx], a=c.ans;
   const map=[['sv-rootx',a.rootx],['sv-extrx',a.extrx],['sv-fl',a.fl],['sv-fr',a.fr],['sv-dl',a.dl],['sv-dr',a.dr],['sv-al',a.al],['sv-ar',a.ar]];
-  let allOk=true;
-  map.forEach(([id,good])=>{
-    const el=$(id); if(!el) return; const v=el.value; const ok=(v===good);
-    el.classList.remove('ok','bad');
-    if(live){ if(v!=='') el.classList.add(ok?'ok':'bad'); if(!ok) allOk=false; return; }
-    if(!ok) allOk=false;
-    el.classList.add(ok?'ok':'bad'); el.disabled = ok || !isSoutien();
-  });
-  if(live) return;
+  const etats=map.map(([id,good])=>{ const el=$(id); const v=el?String(el.value==null?'':el.value):'';
+    return {id, good, el, vide:v.trim()==='', ok:(v===good)}; });
+  const allOk=etats.every(e=>e.ok);
+  if(live){
+    etats.forEach(e=>{ if(!e.el) return; e.el.classList.remove('ok','bad');
+      if(!e.vide) e.el.classList.add(e.ok?'ok':'bad'); });
+    return;
+  }
   if(!allOk && isSoutien()){
+    /* une case vide ne re\u00e7oit AUCUNE couleur en soutien : rien ne l'efface derri\u00e8re */
+    etats.forEach(e=>{ if(!e.el) return; e.el.classList.remove('ok','bad');
+      if(!e.vide) e.el.classList.add(e.ok?'ok':'bad');
+      e.el.disabled=e.ok; });
     $('svFeedback').textContent='Presque ! Corrige les cases en rouge, puis rev\u00e9rifie.';
     $('svFeedback').className='mp-feedback bad';
     $('svActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSV()">Rev\u00e9rifier</button>';
     return;
   }
   test.locked=true;
+  /* La convention COMMUNE de la Terminale (corrCase) : la case juste est
+     verte, la case FAUSSE reste ROUGE avec la r\u00e9ponse de l'\u00e9l\u00e8ve et la bonne
+     s'affiche en bleu \u00e0 c\u00f4t\u00e9, la case vide est remplie en bleu. La premi\u00e8re
+     version r\u00e9v\u00e9lait tout en VERT (la convention du 5.2) : l'\u00e9cran entier
+     \u00e9tait vert sous un message qui disait « quelques erreurs », l'\u00e9l\u00e8ve ne
+     voyait plus quelle case reprendre, et la note tenait au seul garde-fou
+     (« 7 cases justes sur 8 » sur un \u00e9cran tout vert) — signal\u00e9 par Julien,
+     transmis par Turquet, ao\u00fbt 2026. */
+  etats.forEach(e=>{
+    if(!e.el) return;
+    corrCase(e.id, e.good, e.ok);
+    /* le badge bleu d'un menu de fl\u00e8che se cale \u00e0 c\u00f4t\u00e9 de SON menu : ins\u00e9r\u00e9
+       dans le flux de la cellule, il s'empilerait au coin du tableau (la
+       le\u00e7on du 5.4) */
+    const el=$(e.id), b=el&&el.nextElementSibling;
+    if(el && b && b.classList && b.classList.contains('mf-cor') && el.classList.contains('vt-sel2')){
+      b.style.position='absolute'; b.style.left='calc('+el.style.left+' + 42px)';
+      b.style.top=el.style.top; b.style.transform='translateY(-50%)'; b.style.zIndex=4;
+    }
+  });
+  svArrowChange();   /* les sens affich\u00e9s ont pu changer (cases vides remplies) : on redessine */
   if(allOk){
     test.score++; $('svLiveScore').textContent=test.score;
     $('svFeedback').textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, tableaux complets !']);
     $('svFeedback').className='mp-feedback good';
   } else {
-    $('svFeedback').textContent='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.';
+    const nbVides=etats.filter(e=>e.vide).length;
+    $('svFeedback').textContent='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en bleu'
+      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en bleu':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en bleu'):'')+'.';
     $('svFeedback').className='mp-feedback bad';
-    map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
-    svArrowChange();   /* la correction vient de changer les sens : on redessine l'escalier */
   }
   test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tableaux de signes et de variation`, answer:'tableaux complets', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
