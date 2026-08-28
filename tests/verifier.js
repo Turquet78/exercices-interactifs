@@ -1255,8 +1255,9 @@ function branchements(w){
 
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
      baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps). On appelle les SEIZE vrais démarreurs : un nombre
-     changé dans un démarreur partagé ne dit rien des autres. */
+     2026, en trois temps), plus la synthèse rédigée 2.2.9. On appelle les
+     DIX-SEPT vrais démarreurs : un nombre changé dans un démarreur partagé
+     ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -1265,7 +1266,7 @@ function branchements(w){
        ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
-       ['2.5.1','startSyn']]
+       ['2.2.9','startSynAugLibre'],['2.5.1','startSyn']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -1293,6 +1294,12 @@ function branchements(w){
         const incs2=test.questions.map(function(q){ return q.inc; });
         ['fin','ini','pct'].forEach(function(inc){ if(incs2.indexOf(inc)<0) vus.push('2.5.1 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
         test.questions.forEach(function(q){ famsSyn[q.fam]=1; });
+        if(typeof startSynAugLibre==='function'){
+          startSynAugLibre();
+          test.questions.forEach(function(q,i){ if(q.fam!=='aug') vus.push('2.2.9 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
+          const incs3=test.questions.map(function(q){ return q.inc; });
+          ['fin','ini','pct'].forEach(function(inc){ if(incs3.indexOf(inc)<0) vus.push('2.2.9 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        }
         startSynAug();
         const qs=test.questions;
         qs.forEach(function(q,i){ if(q.fam!=='aug') vus.push('tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
@@ -2471,6 +2478,7 @@ function exercices(suite){
     multiplierFractions(w, P);
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
+    syntheseAugLibreRedigee(w, P);
     verificationAvecPropositions(w, P);
     poseSuitLEleve(w, P);
     correctionSignesVariations(w, P);
@@ -4466,6 +4474,130 @@ function syntheseLibrePourcentage(w, P){
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
 }
+/* {synthese-augmentations-libre} (2.2.9) — la synthèse des hausses, rédigée.
+   La page porte son JUGE (salJuge) : on l'éprouve cas par cas sur des
+   questions ÉPINGLÉES (la leçon documentée : une copie qui ne colle pas à la
+   question tirée mesurerait autre chose), puis on tient la RÈGLE envoyée au
+   modèle — les deux voies NOMMÉES avec les nombres de la question, après
+   « RÈGLE DE DÉCISION » (chercher dans tout le texte ne prouve rien) — et la
+   borne de troncature de la fonction Edge, verdict du juge inclus. Enfin la
+   feuille avant le choix, le choix qui ne l'efface pas, et l'identité. */
+function syntheseAugLibreRedigee(w, P){
+  const present = evaluer(w, "typeof startSynAugLibre==='function' && typeof salAttenduIA==='function' && typeof salJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la synthèse des augmentations rédigée : juge local, règle complète, feuille préservée',
+      'ce niveau n\'a pas la synthèse des augmentations rédigée');
+    return;
+  }
+  let bornes;
+  try{
+    const srcF = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = srcF.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = srcF.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a) bornes = { question:+q[1], attendu:+a[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier('la synthèse des augmentations rédigée : juge local, règle complète, feuille préservée',
+      false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, 'la synthèse des augmentations rédigée : juge local, règle complète, feuille préservée', `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='synthese-augmentations-libre';
+
+    /* ---- 1. le JUGE, cas par cas, sur deux questions épinglées ---- */
+    const qFin={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0};
+    const qPct={fam:'aug',inc:'pct',sens:1,P:30,N:600,aug:180,fin:780,decStr:'780',unit:'€',opts:[20,30,40,50],bon:1,choisi:1,ci:0,v:0};
+    const cas=[
+      ['coefficient',            qFin, 1, '1,05 × 600 = 630',                  true,  true ],
+      ['coefficient, ordre libre',qFin, 1, '600 × 1,05 = 630',                 true,  true ],
+      ['augmentation en 2 lignes',qFin, 1, '0,05 × 600 = 30\\n600 + 30 = 630', true,  true ],
+      ['ligne combinée',         qFin, 1, '600 + 0,05 × 600 = 630',            true,  true ],
+      ['fraction 5/100',         qFin, 1, '5/100 × 600 = 30\\n600 + 30 = 630', true,  true ],
+      ['recopie sans calcul',    qFin, 1, '630',                               true,  false],
+      ['égalité fausse',         qFin, 1, '1,05 × 600 = 640',                  true,  false],
+      ['addition manquante',     qFin, 1, '0,05 × 600 = 30',                   true,  false],
+      ['multiplication manquante',qFin, 1, '600 + 30 = 630',                   true,  false],
+      ['mauvaise proposition',   qFin, 0, '1,05 × 600 = 630',                  true,  false],
+      ['multiplication noyée dans un autre calcul', qFin, 1, '1,05 × 600 − 30 = 600', true, false],
+      ['pourcentage choisi juste',qPct, 1, '1,3 × 600 = 780',                  true,  true ],
+      ['pourcentage choisi faux, calcul cohérent', qPct, 2, '1,4 × 600 = 840', true,  false],
+      ['écriture inconnue',      qFin, 1, 'j’ai trouvé 630',                   false, null ],
+    ];
+    cas.forEach(function(c){
+      const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
+      const j=salJuge(q, c[3]);
+      if(j.sait!==c[4]) vus.push('juge « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[4]);
+      else if(c[4] && j.correct!==c[5]) vus.push('juge « '+c[0]+' » : correct='+j.correct+' au lieu de '+c[5]);
+    });
+    if(!vus.length){
+      const q=JSON.parse(JSON.stringify(qFin)); q.choisi=1;
+      const j=salJuge(q,'1,05 × 600 = 640');
+      if(!j.phrase || j.phrase.indexOf('640')<0) vus.push('le refus d\\'une égalité fausse ne la nomme pas');
+    }
+
+    /* ---- 2. la règle envoyée au modèle, par inconnue et par choix ---- */
+    let pireQ=0, pireA=0, pireEti='';
+    const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « 1,05 × 600 = 640 ». Reprends cette ligne.'};
+    for(let i=0;i<120 && !vus.length;i++){
+      const q=genSyn('aug', ['fin','ini','pct'][i%3]); q.choisi=(i%2===0)?q.bon:((q.bon+1)%4);
+      const e=salEnonceIA(q), a=salAttenduIA(q, (i%4===0)?jugeMesure:null), c=salCouple(q);
+      if(e.length>pireQ) pireQ=e.length;
+      if(a.length>pireA){ pireA=a.length; pireEti=q.inc+' '+c.P+'% de '+c.N; }
+      const eti='('+q.inc+', choix '+(q.choisi===q.bon?'juste':'faux')+') ';
+      const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
+      if(regle.indexOf(c.coefStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie du coefficient '+c.coefStr+' × '+c.N); break; }
+      if(regle.indexOf(c.pDecStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie de l\\'augmentation '+c.pDecStr+' × '+c.N); break; }
+      if(regle.indexOf('addition')<0){ vus.push(eti+'la règle n\\'exige plus l\\'addition de la voie de l\\'augmentation'); break; }
+      if(!/sans aucun calcul, est REFUSÉ/.test(regle)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
+      if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
+      if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
+      if(q.choisi===q.bon && a.indexOf('c\\u2019est la bonne')<0){ vus.push(eti+'le point 1 ne valide pas le bon choix'); break; }
+      if(q.choisi!==q.bon && a.indexOf('N\\u2019EST PAS la bonne')<0){ vus.push(eti+'le point 1 ne condamne pas le mauvais choix'); break; }
+      if((i%4===0) && (a.indexOf('VERDICT DE LA PAGE')<0 || a.indexOf('PRIORITAIRE')<0)){ vus.push(eti+'le verdict du juge ne part plus avec la règle'); break; }
+      if(e.indexOf(QLET[q.choisi]+')')<0){ vus.push(eti+'l\\'énoncé envoyé ne dit pas ce que l\\'élève a choisi'); break; }
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');
+    if(!vus.length && pireQ>B.question-300)
+      vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
+
+    /* ---- 3. la feuille avant le choix, le choix qui ne l'efface pas ---- */
+    startSynAugLibre();
+    if(!salFeuille || !salFeuille.lignes.length){
+      vus.push('au démarrage, la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
+    } else {
+      const f0=salFeuille, ligne0=salFeuille.lignes[0].line;
+      choisirSal(2);
+      if(test.questions[0].choisi!==2) vus.push('choisirSal ne retient pas la proposition');
+      if(salFeuille!==f0) vus.push('choisir une proposition recrée la feuille — la justification écrite serait effacée');
+      else if(!ligne0.isConnected) vus.push('choisir une proposition redessine l\\'écran — la ligne écrite a disparu du document');
+      const b2=$('salc2');
+      if(!b2 || b2.className.indexOf('sel')<0) vus.push('la proposition choisie ne se marque pas');
+      choisirSal(1);
+      if((b2 && b2.className.indexOf('sel')>=0) || !$('salc1') || $('salc1').className.indexOf('sel')<0)
+        vus.push('changer de proposition ne déplace pas la marque');
+      if(salFeuille!==f0) vus.push('changer de proposition recrée la feuille');
+      test.questions[0].choisi=null;
+      checkSal();
+      const fb=$('salFeedback');
+      if(!fb || fb.textContent.indexOf('Choisis d')!==0) vus.push('vérifier sans proposition ne demande pas de choisir');
+      if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
+    }
+
+    /* ---- 4. l'identité : « Recommencer » relance bien le 2.2.9 ---- */
+    test.kind='sal'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des augmentations');
+
+    return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
+  })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
+  if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
+    const p=mesure.split('|');
+    console.log('   · la plus longue règle du 2.2.9 : '+p[1]+' caractères pour '+bornes.attendu
+      +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
+  }
+}
 /* {ordre-croissant} — les nombres de {placer-intervalle}, à ranger avec « < ».
    Quatre bords, et n'en tenir qu'un ne tient rien :
      · le tirage vient de plcGen() et garantit trois nombres distincts, dont
@@ -6151,6 +6283,29 @@ function verdictColore(w, apres){
       test.locked=false; test.pslBusy=false; pslFeuille=feuille('30/100 × 40 = 11');
       verdict(false); await checkPsl();
       if(couleur('pslFeedback')!=='rouge') vus.push('2.1.7 : verdict faux peint « '+couleur('pslFeedback')+' » au lieu de rouge');
+    }
+
+    /* 2.2.9 (Première) — la synthèse des augmentations rédigée (checkSal) :
+       ici la page porte son JUGE, et c'est lui qu'on éprouve — le modèle
+       stubbé SE TROMPE dans les deux sens, le verdict peint doit être celui
+       du juge (la leçon de la Seconde : un verdict arithmétique ne se confie
+       pas à un modèle). */
+    if(typeof checkSal==='function'){
+      const q29={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0};
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'sal', questions:[JSON.parse(JSON.stringify(q29))],
+        idx:0, score:0, answers:[], startTime:Date.now(), locked:false, salBusy:false});
+      test.qId='synthese-augmentations-libre';
+      salFeuille=feuille('1,05 × 600 = 630');
+      verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
+      if(couleur('salFeedback')!=='vert') vus.push('2.2.9 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==1) vus.push('2.2.9 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
+      test.locked=false; test.salBusy=false; test.score=0;
+      test.questions=[JSON.parse(JSON.stringify(q29))];
+      salFeuille=feuille('1,05 × 600 = 640');
+      verdict(true); await checkSal();    /* le modèle MENT : l'égalité est fausse */
+      if(couleur('salFeedback')!=='rouge') vus.push('2.2.9 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==0) vus.push('2.2.9 : égalité fausse sous modèle qui accepte — le point est donné quand même');
     }
 
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */

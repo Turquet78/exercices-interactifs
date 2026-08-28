@@ -1692,6 +1692,42 @@ quoi l'élève apprendrait que la question est toujours du même genre.
 `genSyn` a simplement appris deux paramètres facultatifs (famille,
 inconnue) ; un second tirage aurait fini par diverger.
 
+**La synthèse des augmentations, RÉDIGÉE : deux voies, un juge dans la page.**
+{synthese-augmentations-libre} (2.2.9, demande de Turquet, août 2026) reprend
+le tirage de {synthese-augmentations} — hausses seules, les trois inconnues
+chacune une fois en ordre mélangé — et remplace la chaîne de cases par la
+feuille libre du 2.1.7 : l'élève choisit sa proposition et JUSTIFIE en
+écrivant sa vérification. Deux voies, toutes deux exigées PAR LEUR FORME :
+le coefficient (au moins une multiplication `1,xx × valeur initiale = …` qui
+arrive au bon résultat final) ou l'augmentation (au moins une multiplication
+`0,xx × valeur initiale = …` ET au moins une addition qui arrive à la valeur
+finale). Un calcul qui ne montre aucune des deux est refusé — c'est la
+demande, et elle diffère du 2.1.7 où toute méthode juste passe.
+**Un verdict arithmétique ne se confie pas à un modèle** — la leçon de la
+Seconde, appliquée dès le premier jour : la page porte son juge (`salJuge`),
+qui lit les lignes en rationnels exacts (les décimales deviennent des
+fractions, jamais de virgule flottante), enregistre chaque multiplication
+avec ses deux facteurs, et décide sur TROIS positions — refuser sur un fait
+prouvable (égalité fausse NOMMÉE, voie absente, multiplication noyée dans un
+autre calcul qui n'arrive pas au résultat), accepter quand tout est vérifié,
+s'ABSTENIR quand une écriture lui échappe (le modèle décide alors seul).
+Quand le juge sait lire, son verdict PRIME et part AVEC la règle (« VERDICT
+DE LA PAGE, PRIORITAIRE ») : le modèle ne fait que rédiger, et une prose qui
+le contredit — ou un modèle en panne — est remplacée par la phrase du juge.
+**Chaque ligne de la feuille est un calcul INDÉPENDANT**, contrairement au
+2.1.7 où les lignes poursuivent une seule égalité : la voie de l'augmentation
+demande DEUX égalités (la multiplication, puis l'addition), et le préfixe
+« = » automatique les aurait soudées en une égalité fausse. Le calcul se juge
+sur la proposition CHOISIE — elle remplace l'inconnue, et c'est la
+vérification qui révèle qu'une proposition ne convient pas. Éprouvé en le
+cassant neuf fois (le résultat final lâché, les égalités fausses avalées,
+l'addition oubliée, la mauvaise proposition passée, la voie retirée de la
+règle, le verdict non transmis, le juge qui ne prime plus, les familles qui
+fuient, les 6 questions revenues) — chacun rougit en nommant son défaut. Un
+défaut d'écriture s'est montré au premier passage : `salAttenduIA` bâtissait
+sa règle et ne la RENDAIT pas — un `return` oublié ne casse rien, la règle
+partait simplement vide.
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,

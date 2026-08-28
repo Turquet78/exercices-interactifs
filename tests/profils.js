@@ -166,7 +166,7 @@ module.exports = {
        corrige autrement — le déclarer vaut mieux que d'affaiblir le contrôle. */
     /* {pourcentage-synthese-libre} : la correction est le verdict de l'IA,
        il n'y a rien à colorer pendant la saisie. */
-    soutienEnDirect: { sans: ['psl'] },
+    soutienEnDirect: { sans: ['psl', 'sal'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
