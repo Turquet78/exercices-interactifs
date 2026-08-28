@@ -2888,10 +2888,20 @@ function devoirPapierClique(w, apres){
     if(!document.querySelector('#dmeCorps .dme-blank')) vus.push('aucun pointillé : les cases ne sont pas remplacées');
     if((document.getElementById('dmeCorps').textContent||'').indexOf('Démontre que')<0)
       vus.push('l\\'énoncé ne porte pas le texte des questions');
+    /* une photo ne porte AUCUN id : les conteneurs clonés gardaient les leurs,
+       et l'écran d'énoncé venant avant les écrans d'exercice, un vrai
+       navigateur faisait écrire le rendu de l'exercice DANS le clone —
+       « Complète au moins une case » sur copie pleine (signalé par Turquet,
+       août 2026). jsdom rend l'original par son cache d'id : ce bord se tient
+       donc en STRUCTURE, pas par getElementById. */
+    if(document.querySelector('#dmeCorps [id]'))
+      vus.push('la photo de l\\'énoncé garde des id — le rendu de l\\'exercice écrirait dans le clone chez l\\'élève');
 
     /* ---- 2. « sur l'ordinateur » : la suite d'avant, inchangée ---- */
     dmeOrdinateur();
     if(continuerAppels!==1) vus.push('« sur l\\'ordinateur » n\\'appelle pas la suite normale ('+continuerAppels+')');
+    if((document.getElementById('dmeCorps').innerHTML||'').trim()!=='')
+      vus.push('quitter l\\'énoncé laisse son clone dans le document — un écran fantôme de plus');
 
     /* ---- 3. « sur papier » : la ligne part, prénom + marque + tirage exact ---- */
     await dmEnonce('dev-1','tangente-exp', function(){ continuerAppels++; });
@@ -4112,7 +4122,37 @@ function syntheseLibrePourcentage(w, P){
     if(!vus.length && pireQ>B.question-300)
       vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
 
-    /* ---- 3. l'identité : « Recommencer » relance bien la synthèse rédigée - */
+    /* ---- 3. la feuille avant le choix, et le choix qui ne l'efface pas ----
+       (décision de Turquet, août 2026) : la justification s'écrit SANS avoir
+       choisi de proposition, et choisir ensuite ne doit ni recréer la feuille
+       ni redessiner l'écran — un redessin effacerait le calcul que l'élève
+       vient d'écrire, au moment précis où il valide. On tient l'identité de
+       l'objet ET la présence de la ligne dans le document : le contenu d'une
+       feuille vit dans ses éléments, les préserver préserve le texte. */
+    startPctSyntheseLibre();
+    if(!pslFeuille || !pslFeuille.lignes.length){
+      vus.push('au démarrage, la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
+    } else {
+      const f0=pslFeuille, ligne0=pslFeuille.lignes[0].line;
+      choisirPsl(2);
+      if(test.questions[0].choisi!==2) vus.push('choisirPsl ne retient pas la proposition');
+      if(pslFeuille!==f0) vus.push('choisir une proposition recrée la feuille — la justification écrite serait effacée');
+      else if(!ligne0.isConnected) vus.push('choisir une proposition redessine l\\'écran — la ligne écrite a disparu du document');
+      const b2=$('pslc2');
+      if(!b2 || b2.className.indexOf('sel')<0) vus.push('la proposition choisie ne se marque pas');
+      choisirPsl(1);
+      if((b2 && b2.className.indexOf('sel')>=0) || !$('pslc1') || $('pslc1').className.indexOf('sel')<0)
+        vus.push('changer de proposition ne déplace pas la marque');
+      if(pslFeuille!==f0) vus.push('changer de proposition recrée la feuille');
+      /* vérifier sans proposition : un message, jamais un verrou */
+      test.questions[0].choisi=null;
+      checkPsl();
+      const fb=$('pslFeedback');
+      if(!fb || fb.textContent.indexOf('Choisis d')!==0) vus.push('vérifier sans proposition ne demande pas de choisir');
+      if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
+    }
+
+    /* ---- 4. l'identité : « Recommencer » relance bien la synthèse rédigée - */
     test.kind='psl'; test.qId='(sentinelle)'; restartCurrentTest();
     if(test.qId!=='pourcentage-synthese-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée');
 
