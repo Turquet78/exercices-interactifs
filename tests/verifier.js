@@ -4112,7 +4112,37 @@ function syntheseLibrePourcentage(w, P){
     if(!vus.length && pireQ>B.question-300)
       vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
 
-    /* ---- 3. l'identité : « Recommencer » relance bien la synthèse rédigée - */
+    /* ---- 3. la feuille avant le choix, et le choix qui ne l'efface pas ----
+       (décision de Turquet, août 2026) : la justification s'écrit SANS avoir
+       choisi de proposition, et choisir ensuite ne doit ni recréer la feuille
+       ni redessiner l'écran — un redessin effacerait le calcul que l'élève
+       vient d'écrire, au moment précis où il valide. On tient l'identité de
+       l'objet ET la présence de la ligne dans le document : le contenu d'une
+       feuille vit dans ses éléments, les préserver préserve le texte. */
+    startPctSyntheseLibre();
+    if(!pslFeuille || !pslFeuille.lignes.length){
+      vus.push('au démarrage, la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
+    } else {
+      const f0=pslFeuille, ligne0=pslFeuille.lignes[0].line;
+      choisirPsl(2);
+      if(test.questions[0].choisi!==2) vus.push('choisirPsl ne retient pas la proposition');
+      if(pslFeuille!==f0) vus.push('choisir une proposition recrée la feuille — la justification écrite serait effacée');
+      else if(!ligne0.isConnected) vus.push('choisir une proposition redessine l\\'écran — la ligne écrite a disparu du document');
+      const b2=$('pslc2');
+      if(!b2 || b2.className.indexOf('sel')<0) vus.push('la proposition choisie ne se marque pas');
+      choisirPsl(1);
+      if((b2 && b2.className.indexOf('sel')>=0) || !$('pslc1') || $('pslc1').className.indexOf('sel')<0)
+        vus.push('changer de proposition ne déplace pas la marque');
+      if(pslFeuille!==f0) vus.push('changer de proposition recrée la feuille');
+      /* vérifier sans proposition : un message, jamais un verrou */
+      test.questions[0].choisi=null;
+      checkPsl();
+      const fb=$('pslFeedback');
+      if(!fb || fb.textContent.indexOf('Choisis d')!==0) vus.push('vérifier sans proposition ne demande pas de choisir');
+      if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
+    }
+
+    /* ---- 4. l'identité : « Recommencer » relance bien la synthèse rédigée - */
     test.kind='psl'; test.qId='(sentinelle)'; restartCurrentTest();
     if(test.qId!=='pourcentage-synthese-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée');
 

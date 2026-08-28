@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=164;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=165;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2047,7 +2047,7 @@ const TESTS={
   'pourcentage-depart':  { name:'Retrouver la valeur initiale', icon:'🔎', desc:'On donne le pourcentage et le r\u00e9sultat : choisis la bonne valeur initiale parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctDepart() },
   'pourcentage-taux':    { name:'Retrouver le pourcentage', icon:'🧮', desc:'On donne la valeur initiale et le r\u00e9sultat : choisis le bon pourcentage parmi quatre, puis v\u00e9rifie ta r\u00e9ponse en \u00e9crivant les 3 \u00e9tapes de l\u2019exercice {pourcentage}.', start:()=>startPctTaux() },
   'pourcentage-synthese':{ name:'Synth\u00e8se : prendre un pourcentage', icon:'🎯', desc:'Synth\u00e8se de {pourcentage}, {pourcentage-depart} et {pourcentage-taux} : le r\u00e9sultat, la valeur initiale ou le pourcentage \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la en \u00e9crivant les 3 \u00e9tapes. Ici, toutes les cases sont vides, m\u00eame le nombre de d\u00e9part.', start:()=>startPctSynthese() },
-  'pourcentage-synthese-libre':{ name:'Synth\u00e8se : prendre un pourcentage, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {pourcentage-synthese}, mais plus une seule case : tu choisis ta r\u00e9ponse parmi quatre, puis tu JUSTIFIES en \u00e9crivant ton calcul toi-m\u00eame \u2014 et l\u2019IA le lit.', start:()=>startPctSyntheseLibre() },
+  'pourcentage-synthese-libre':{ name:'Synth\u00e8se : prendre un pourcentage, en r\u00e9digeant', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {pourcentage-synthese}, mais plus une seule case : tu JUSTIFIES en \u00e9crivant ton calcul toi-m\u00eame \u2014 avant ou apr\u00e8s avoir choisi ta r\u00e9ponse parmi quatre \u2014 et l\u2019IA le lit.', start:()=>startPctSyntheseLibre() },
   'augmenter-taux-addition':{ name:'Retrouver le pourcentage d\u2019une hausse en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage d\u2019augmentation parmi quatre, puis vérifie-le en calculant l\u2019augmentation et en l\u2019ajoutant à la valeur de départ.', start:()=>startAugTauxAdd() },
   'diminuer-soustraction':{ name:'Diminuer d\u2019un pourcentage en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'➖', desc:'Calcule d\u2019abord la baisse (le pourcentage de la valeur, comme en {pourcentage}), puis retire-la de la valeur de départ — sans coefficient multiplicateur.', start:()=>startDimSub() },
   'diminuer-depart-soustraction':{ name:'Retrouver la valeur initiale apr\u00e8s une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'🔁', desc:'On donne le pourcentage de baisse et la valeur finale : choisis la bonne valeur initiale parmi quatre, puis vérifie-la en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimDepSub() },
@@ -6499,13 +6499,18 @@ async function startPctSyntheseLibre(){
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;test.pslBusy=false;
   show('psl'); renderPsl();
 }
-/* Changer de proposition efface la feuille : la justification ne parle plus de
-   la même valeur. */
+/* La justification s'écrit AVANT ou APRÈS le choix de la proposition, au gré
+   de l'élève (décision de Turquet, août 2026) : choisir ne redessine donc
+   JAMAIS l'écran — un redessin recréerait la feuille et effacerait la
+   justification déjà écrite, précisément au moment où l'élève vient de
+   choisir. On ne touche qu'aux boutons. */
 function choisirPsl(i){
   if(test.locked||test.pslBusy) return;
   const q=test.questions[test.idx];
   if(q.choisi===i) return;
-  q.choisi=i; renderPsl(); autoSave();
+  q.choisi=i;
+  q.opts.forEach((_,j)=>{ const b=$('pslc'+j); if(b) b.classList.toggle('sel', j===i); });
+  autoSave();
 }
 function renderPsl(){
   const q=test.questions[test.idx]; test.locked=false; test.pslBusy=false;
@@ -6514,23 +6519,24 @@ function renderPsl(){
   $('pslLiveScore').textContent=test.score;
   $('pslFeedback').textContent=''; $('pslFeedback').className='mp-feedback';
   $('pslActions').innerHTML='<button class="btn btn-primary" onclick="checkPsl()">Vérifier</button>';
-  const consigne=` Retrouve ${qdQuoi(q)}, puis JUSTIFIE ta réponse en écrivant ton calcul.`;
+  const consigne=` Retrouve ${qdQuoi(q)} et JUSTIFIE ta réponse en écrivant ton calcul — dans l\u2019ordre que tu veux.`;
   $('pslPrompt').innerHTML=variante(q.type==='pct'?QD_ENONCES_PCT:(q.type==='res'?PCT_ENONCES:QD_ENONCES_VAL),q)+consigne;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="pslc${i}" onclick="choisirPsl(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(qdLabel(q,v))}</span></button>`).join('');
-  const cache=(q.choisi===null)?' step-hidden':'';
   $('pslHost').innerHTML=
-    `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
+    `<div class="pt-step"><div class="pt-lab">Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="pslChoix">${choix}</div></div>`+
-    `<div class="pt-step${cache}"><div class="pt-lab">\u2460 justifie ta réponse — ${q.type==='pct'?'écris la part sur le tout et amène-la à /100, ou le pourcentage en fraction × le nombre':'commence par écrire le pourcentage en fraction × le nombre'}</div>
+    `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${q.type==='pct'?'écris la part sur le tout et amène-la à /100, ou le pourcentage en fraction × le nombre':'commence par écrire le pourcentage en fraction × le nombre'}</div>
        <div class="dexp2-sheet" id="pslSheet"></div>
-       <p class="dexp-hint"><b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d\u2019espace</b> en sort. Les étapes suivantes sont facultatives, et tout calcul juste qui fonctionne est accepté.</p></div>`;
-  /* La feuille n'est créée qu'une proposition CHOISIE : mlFeuille donne le
-     focus à sa première ligne dès sa création, et MathLive lève une erreur sur
-     un champ encore caché (« reading 'options' ») — le banc navigateur l'a vue
-     dès la première visite. Créer la feuille dans l'écran visible suffit, et
-     mlFeuille reste intouchée : elle est identique à la Terminale au caractère
-     près. */
-  pslFeuille=(q.choisi===null)?null:mlFeuille({ conteneur:'pslSheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
+       <p class="dexp-hint">Tu peux écrire ta justification d\u2019abord, et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d\u2019espace</b> en sort. Les étapes suivantes sont facultatives, et tout calcul juste qui fonctionne est accepté.</p></div>`;
+  /* La feuille est créée à CHAQUE rendu, toujours VISIBLE — plus aucun état
+     caché : la justification s'écrit sans avoir choisi de proposition, et le
+     choix se fait avant ou après, au gré de l'élève (décision de Turquet,
+     août 2026). La leçon de la feuille reste entière : mlFeuille donne le
+     focus à sa première ligne dès sa création, et MathLive lève une erreur
+     sur un champ encore caché (« reading 'options' ») — c'est précisément
+     parce qu'elle naît dans un écran visible que c'est sûr, et mlFeuille
+     reste intouchée : elle est identique à la Terminale au caractère près. */
+  pslFeuille=mlFeuille({ conteneur:'pslSheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
 }
 function pslEnonceIA(q){
   const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
@@ -10378,7 +10384,7 @@ Dans tous les cas, on <b>teste la proposition choisie</b> : on écrit les 3 éta
 const RAP_PSL=`<b>Justifier, c’est montrer le calcul</b><br>
 Les trois nombres d’un pourcentage sont liés par une seule égalité :<br>
 <b>\\(\\frac{P}{100}\\) × (valeur initiale) = (résultat)</b>.<br>
-Repère d’abord les deux nombres que l’énoncé donne, choisis ta proposition, puis <b>justifie-la</b> : commence par écrire le pourcentage en fraction multipliée par le nombre, comme dans l’exercice {pourcentage}, et poursuis jusqu’au résultat — les étapes intermédiaires sont libres.<br>
+Repère d’abord les deux nombres que l’énoncé donne, puis <b>justifie ta réponse</b> — tu peux écrire ton calcul avant ou après avoir choisi ta proposition : commence par écrire le pourcentage en fraction multipliée par le nombre, comme dans l’exercice {pourcentage}, et poursuis jusqu’au résultat — les étapes intermédiaires sont libres.<br>
 Recopier la proposition n’est pas une justification : il faut au moins une étape de calcul. Toute méthode juste est acceptée, même différente de celle du cours.`;
 const RAP_AUG=`<b>Augmenter d’un pourcentage</b><br>
 Augmenter de <b>P %</b>, c’est garder le tout (100 %) et y ajouter P % : on multiplie par le <b>coefficient multiplicateur</b><br>

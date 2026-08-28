@@ -1552,12 +1552,27 @@ l'appui.
 
 **Une feuille ne se crée pas dans un écran caché.** `mlFeuille` donne le focus
 à sa première ligne dès sa création, et MathLive lève « reading 'options' »
-sur un champ encore invisible — or la feuille du 2.1.7 vit derrière le choix
-de la proposition (`step-hidden`), un état que la Seconde et la Terminale ne
-connaissent pas : leurs feuilles naissent toujours visibles. La feuille n'est
-donc créée qu'une proposition choisie ; `mlFeuille` reste intouchée. Seul le
-banc navigateur pouvait le voir — jsdom n'a pas MathLive — et il l'a vu à la
-première visite.
+sur un champ encore invisible — la feuille du 2.1.7 a d'abord vécu derrière le
+choix de la proposition (`step-hidden`), un état que la Seconde et la
+Terminale ne connaissent pas : leurs feuilles naissent toujours visibles. Seul
+le banc navigateur pouvait le voir — jsdom n'a pas MathLive — et il l'a vu à
+la première visite. Depuis août 2026 cet état caché n'existe plus (paragraphe
+suivant) : la feuille du 2.1.7 naît elle aussi toujours visible, dès le rendu,
+et `mlFeuille` reste intouchée. La leçon demeure pour toute feuille future.
+
+**La justification s'écrit AVANT ou APRÈS le choix de la proposition** —
+au gré de l'élève (décision de Turquet, août 2026). La feuille du 2.1.7 est
+donc visible et servie dès le rendu, sous les propositions, sans qu'aucune
+soit choisie ; l'élève peut écrire son calcul d'abord et valider sa
+proposition ensuite. Le piège est dans le CHOIX : `choisirPsl` redessinait
+l'écran, ce qui recréait la feuille — choisir après avoir rédigé aurait
+EFFACÉ la justification au moment précis où l'élève valide, sans erreur nulle
+part. Choisir ne touche plus qu'aux boutons, jamais à l'écran. Le contrôle
+tient les deux bords — la feuille existe avant tout choix, et choisir ne la
+recrée pas (l'identité de l'objet ET la ligne toujours dans le document : le
+texte vit dans ses éléments, les préserver le préserve) — plus deux gardes :
+« Vérifier » sans proposition le demande sans verrouiller, et la marque
+`sel` suit le choix. Éprouvé par sabotage des deux côtés.
 
 **Du 2.1.3 au 2.1.7, quatre questions par exercice** (demande de Turquet, août
 2026). Deux constantes, à côté de leurs fabriques : `PCT_NB` pour le 2.1.3,
