@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=170;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=171;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5853,8 +5853,13 @@ async function finishA2Q(){
    correspondants. L'élève choisit, puis VÉRIFIE : pour « prendre », les trois
    étapes de 3.1.1 ; pour une évolution, il choisit sa méthode — coefficient
    multiplicateur (comme 3.2.1) ou calcul direct de l'augmentation/la baisse
-   (comme 3.2.4) — chacune présentée exactement comme dans ces exercices. */
-const SYN_NB=6;
+   (comme 3.2.4) — chacune présentée exactement comme dans ces exercices.
+   Le NOMBRE de questions vit dans EVOL_NB, comme tous les exercices sur les
+   évolutions (demande de Turquet, août 2026 : « pour la synthèse 2.5.1 aussi
+   je veux 3 questions ») ; les trois inconnues sortent chacune UNE fois, en
+   ordre mélangé — à trois questions, un tirage au hasard répéterait souvent
+   le même genre, et l'élève apprendrait que la question est toujours du même
+   genre. La famille (pct/aug/dim), elle, reste tirée au hasard. */
 function genSyn(famVoulu, incVoulu){
   const fam=famVoulu||pick(['pct','aug','dim']);
   const inc=incVoulu||pick(['fin','ini','pct']);
@@ -5928,7 +5933,8 @@ async function startSyn(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='syn'; test.qId='synthese-pourcentages';
-  test.questions=Array.from({length:SYN_NB},()=>genSyn());
+  const incs=qdMelanger(['fin','ini','pct']);
+  test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn(undefined, incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('syntest'); renderSynTest();
 }

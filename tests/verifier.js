@@ -1253,10 +1253,10 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
-  /* ---- 3 questions pour toutes les ÉVOLUTIONS, hausses 2.2.1 à 2.2.8 et
-     baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en deux temps).
-     On appelle les QUINZE vrais démarreurs : un nombre changé dans un
-     démarreur partagé ne dit rien des autres. */
+  /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
+     baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
+     2026, en trois temps). On appelle les SEIZE vrais démarreurs : un nombre
+     changé dans un démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -1264,7 +1264,8 @@ function branchements(w){
       [['2.2.1','startAug'],['2.2.2','startAugAdd'],['2.2.3','startAugDepart'],['2.2.4','startAugDepAdd'],
        ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
-       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses']]
+       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
+       ['2.5.1','startSyn']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -1278,11 +1279,20 @@ function branchements(w){
        même moteur, pas même identité. Trois bords : uniquement des hausses,
        les trois inconnues chacune une fois à ordre variable, et
        « Recommencer » qui relance la bonne identité des DEUX synthèses. */
-    verifierEval(w, 'la synthèse des augmentations ne tire que des hausses, toutes les inconnues, et garde son identité', `(function(){
+    verifierEval(w, 'les deux synthèses tirent toutes les inconnues, les hausses seules pour 2.2.8, et gardent leur identité', `(function(){
       const vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
-      const ordres={};
+      const ordres={}, famsSyn={};
       for(let t=0;t<30 && !vus.length;t++){
+        /* le 2.5.1 suit la même règle des inconnues depuis son passage à 3
+           questions — et ses familles restent MÉLANGÉES : une synthèse qui ne
+           tirerait plus qu'une famille aurait perdu tout son sujet. Il passe
+           AVANT startSynAug : le contrôle d'identité, après la boucle, lit
+           l'état du DERNIER démarreur appelé. */
+        startSyn();
+        const incs2=test.questions.map(function(q){ return q.inc; });
+        ['fin','ini','pct'].forEach(function(inc){ if(incs2.indexOf(inc)<0) vus.push('2.5.1 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        test.questions.forEach(function(q){ famsSyn[q.fam]=1; });
         startSynAug();
         const qs=test.questions;
         qs.forEach(function(q,i){ if(q.fam!=='aug') vus.push('tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
@@ -1291,6 +1301,7 @@ function branchements(w){
         ordres[incs.join(',')]=1;
       }
       if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des inconnues ne change jamais d\\'un tirage à l\\'autre');
+      if(!vus.length && Object.keys(famsSyn).length<3) vus.push('sur 30 tirages du 2.5.1, les familles vues sont : '+Object.keys(famsSyn).join(',')+' — la synthèse ne mélange plus');
       if(!vus.length){
         if(test.qId!=='synthese-augmentations') vus.push('startSynAug n\\'épingle pas son identité ('+test.qId+')');
         test.kind='syn'; test.qId='synthese-augmentations'; restartCurrentTest();

@@ -182,8 +182,9 @@ module.exports = {
        DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
     nbQuestionsPourcentages: 4,
     /* 3 questions pour tous les exercices sur les ÉVOLUTIONS — hausses 2.2.1
-       à 2.2.8 ET baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en
-       deux temps). DEUX sources : la page a EVOL_NB, le banc compare à ceci. */
+       à 2.2.8, baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de
+       Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
+       le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
