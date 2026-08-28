@@ -379,7 +379,7 @@
   .mp-carry{width:32px;height:32px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--red);
     background:var(--red-soft);border:2px dashed #f0b3bb;border-radius:9px;outline:none;padding:0;-moz-appearance:textfield}
   .mp-carry:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(226,61,82,.16)}
-  .mp-box.ok,.mp-carry.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
+  .mp-box.ok,.mp-carry.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee;border-style:solid}
   .mp-box.bad,.mp-carry.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb;border-style:solid}
   .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
   .mp-tag.ok{background:var(--green)}.mp-tag.bad{background:var(--red)}
@@ -430,7 +430,7 @@
   .f-num,.f-den{width:76px;height:46px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none}
   .f-num:focus,.f-den:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .f-fbar{width:82px;height:3px;background:var(--ink);border-radius:2px}
-  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
   .f-dec.bad,.f-num.bad,.f-den.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   /* Niveau 5 : multiplication de décimaux, 2 étapes */
   .f5{display:flex;flex-direction:column;gap:16px;width:100%;align-items:center}
@@ -514,10 +514,9 @@
 /* --- Test TVI : tableau de variation + justification à compléter --- */
 .tvi-card{max-width:var(--card-max);margin:0 auto;}
 /* ---- Encadré « Énoncé » --------------------------------------------------
-   L'énoncé avait un cadre, mais VERT — la couleur qui, partout ailleurs dans
-   cette page, veut dire « juste » : .ok, .done, les cases validées, les
-   badges de réussite. Un énoncé sur ce fond se lit comme une réponse déjà
-   validée. Il passe au bleu, avec son étiquette.
+   L'énoncé avait un cadre, mais aux couleurs d'un verdict — un énoncé sur un
+   fond de verdict se lit comme une réponse déjà jugée. Il porte le bleu de la
+   marque (cadres, boutons), posé AVANT toute vérification, avec son étiquette.
    Le « :empty » n'est pas un détail — plusieurs écrans laissent l'élément
    vide selon la question, et l'étiquette seule flotterait au-dessus d'un
    cadre sans texte.
@@ -553,12 +552,12 @@
 .tvi-fill i{font-style:italic;}
 .tvi-int{white-space:nowrap;}
 .tvi-sel{width:auto;max-width:100%;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235C668A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-size:9px 6px;border:2px solid var(--grid);border-radius:9px;padding:4px 21px 4px 8px;margin:0 1px;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
-.tvi-sel.ok{border-color:var(--green);background-color:var(--green-soft);color:var(--green);}
+.tvi-sel.ok{border-color:var(--blue);background-color:#EAF0FF;color:var(--blue);}
 .tvi-sel.bad{border-color:var(--red);background-color:var(--red-soft);color:var(--red);}
-.tvi-sel.sol{border-color:var(--blue);background-color:#EAF0FF;color:var(--blue);}
+.tvi-sel.sol{border-color:var(--green);background-color:var(--green-soft);color:var(--green);}
 /* correction affichee A COTE d'une case fausse (verrouillee en rouge) : la saisie de
-   l'eleve reste visible, la bonne reponse est donnee juste apres, en bleu */
-.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+   l'eleve reste visible, la bonne reponse est donnee juste apres, en vert */
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;vertical-align:middle;line-height:1.5;}
 .sel-cor{display:block;margin-top:4px;color:var(--blue);font-weight:600;white-space:normal;}
 /* 6.5 recurrence complete : lignes de la fiche et termes affiches par le programme */
 .rec-ligne{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 0;line-height:2;}
@@ -618,7 +617,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvi-check{margin:14px 0 4px;display:flex;flex-direction:column;gap:6px;}
 .just-item{font-size:.93rem;line-height:1.35;display:flex;gap:9px;align-items:flex-start;}
 .just-item span{font-weight:800;flex:none;}
-.just-item.ok{color:var(--green);}
+.just-item.ok{color:var(--blue);}
 .just-item.no{color:var(--ink-soft);}
 .just-item.miss{color:var(--red);}
 .tvi-model{margin-top:9px;padding:11px 13px;background:var(--surface);border-left:3px solid var(--green);border-radius:8px;font-size:.95rem;line-height:1.55;color:var(--ink);font-weight:600;}
@@ -637,7 +636,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvg-svg .tvg-t .dot{fill:var(--surface);stroke:#b9c2d8;stroke-width:1.6;}
 .tvg-svg .tvg-t:hover .dot{stroke:var(--blue);stroke-width:2.2;}
 .tvg-svg .tvg-t.sel .dot{fill:var(--blue);stroke:var(--blue-dark);}
-.tvg-svg .tvg-t.okc .dot{fill:var(--green);stroke:#137a52;}
+.tvg-svg .tvg-t.okc .dot{fill:var(--blue);stroke:var(--blue-dark);}
 .tvg-svg .tvg-t.badc .dot{fill:var(--red);stroke:#bf2c3e;}
 .tvg-svg .tvg-t.missc .dot{fill:var(--green-soft);stroke:var(--green);stroke-width:2.4;}
 .tvg-svg .tvg-t.off{pointer-events:none;}
@@ -647,7 +646,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .tvg-sollbl{font-weight:800;color:var(--ink);font-size:1.05rem;}
 .tvg-solin{width:190px;padding:8px 10px;border:2px solid #c9d3e8;border-radius:10px;font:inherit;font-weight:700;color:var(--ink);background:var(--surface);}
 .tvg-solin:focus{outline:none;border-color:var(--blue);}
-.tvg-solin.ok{border-color:var(--green);background:var(--green-soft);}
+.tvg-solin.ok{border-color:var(--blue);background:#EAF0FF;}
 .tvg-solin.bad{border-color:var(--red);background:#fdecee;}
 .tvg-vide{border:2px solid #c9d3e8;background:var(--surface);border-radius:10px;padding:6px 13px;font-size:1.05rem;font-weight:800;color:var(--ink);cursor:pointer;}
 .tvg-vide:hover{border-color:var(--blue);color:var(--blue);}
@@ -659,7 +658,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .dhv-q{margin:12px 0;font-weight:700;color:var(--ink);line-height:2.4;}
 .dhv-in{width:52px;padding:7px 6px;border:2px solid #c9d3e8;border-radius:9px;font:inherit;font-weight:700;text-align:center;color:var(--ink);background:var(--surface);}
 .dhv-in:focus{outline:none;border-color:var(--blue);}
-.dhv-in.ok{border-color:var(--green);background:var(--green-soft);}
+.dhv-in.ok{border-color:var(--blue);background:#EAF0FF;}
 .dhv-in.bad{border-color:var(--red);background:#fdecee;}
 .dhv-in:disabled{opacity:.95;}
 .dhv-var{width:44px;font-style:italic;}
@@ -669,7 +668,7 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .lg-sub{margin:13px 0;font-weight:700;color:var(--ink);line-height:2.35;padding:10px 12px;border:1.5px solid var(--grid);border-radius:12px;background:var(--surface);}
 .lg-quand{margin-right:6px;}
 .lg-sel{padding:7px 9px;border:2px solid #c9d3e8;border-radius:9px;font:inherit;font-weight:700;color:var(--ink);background:var(--surface);max-width:100%;}
-.lg-sel.ok{border-color:var(--green);background:var(--green-soft);}
+.lg-sel.ok{border-color:var(--blue);background:#EAF0FF;}
 .lg-sel.bad{border-color:var(--red);background:#fdecee;}
 .lg-lim{width:66px;}
 .lg-play{border:2px solid #c9d3e8;background:var(--surface);border-radius:999px;width:34px;height:34px;font-size:.9rem;font-weight:800;color:var(--blue);cursor:pointer;vertical-align:middle;margin-left:4px;}
@@ -755,9 +754,9 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 /* --- Niveau 2 : tableau de variation (cases de valeurs, double barre, badges) --- */
 .vfcell .lg2-vin{position:absolute;transform:translate(-50%,-50%);width:54px;padding:5px 4px;font-size:.95rem;transition:top .2s ease;}
 .vt-dbar{stroke:var(--ink);stroke-width:2;}
-.vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft);}
+.vfcell .vt-sel2.ok{border-color:var(--blue);background:#EAF0FF;}
 .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdecee;}
-.vfcell .vt-sel2.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
+.vfcell .vt-sel2.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .vfcell .lg2-fix{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:.82rem;z-index:3;}
 .dhv-lab{font-size:13px;font-weight:700;fill:#111827;}
 .dhv-svg{max-width:380px;}
@@ -800,9 +799,9 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .dexp-ek{display:inline-block;font-weight:700;}
 .dexp-ek sup{font-size:.72em;vertical-align:super;line-height:0;}
 .dexp-in:focus,.dexp-ce:focus{outline:none;border-color:var(--blue);background:var(--surface);}
-.dexp-in.ok,.dexp-ce.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.dexp-in.ok,.dexp-ce.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .dexp-in.bad,.dexp-ce.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
-.dexp-in.sol,.dexp-ce.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
+.dexp-in.sol,.dexp-ce.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .dexp-in:disabled{opacity:1;}
 .dexp2-in{display:block;min-height:2.4em;width:100%;box-sizing:border-box;font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:10px;padding:9px 12px;text-align:left;line-height:1.7;margin:8px 0;}
 .dexp2-in .mvar{font-family:Georgia,'Times New Roman',Cambria,serif;font-style:italic;font-weight:600;}
@@ -844,9 +843,9 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;
   --contains-highlight-background-color:transparent;}
 body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
-math-field.dexp-mf.ok{border-color:var(--green);background:var(--green-soft);}
+math-field.dexp-mf.ok{border-color:var(--blue);background:#EAF0FF;}
 math-field.dexp-mf.bad{border-color:var(--red);background:var(--red-soft);}
-math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
+math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
 .ML__sqrt-line.ML__sqrt-line::before{margin-left:-0.08em;min-height:max(1.5px,0.05em);}
 
 /* ===== Clavier mathématique : ancré (tactile) / fenêtre flottante (ordinateur) ===== */
@@ -931,7 +930,8 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
   .afq-cartes{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));gap:14px;width:100%;max-width:1080px;margin:10px auto}
   @media(max-width:760px){ .afq-cartes{grid-template-columns:1fr} }
   .afq-carte{position:relative;background:#fff;border:2px solid #DCE7FB;border-radius:14px;padding:26px 8px 10px;overflow-x:auto}
-  .afq-carte.ok{border-color:var(--green);box-shadow:0 0 0 3px rgba(38,166,120,.18)}
+  .afq-carte.ok{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.18)}
+  .afq-carte.sol{border-color:var(--green);border-style:dashed;box-shadow:0 0 0 3px rgba(31,169,113,.18)}
   .afq-carte.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
   .afq-lettre{position:absolute;top:6px;left:10px;font-family:"Fredoka";font-weight:600;color:var(--blue-dark)}
 .lv-tblwrap{overflow-x:auto;margin:0 0 4px}
@@ -947,7 +947,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .vt-node{fill:var(--blue);transition:cy .2s ease}
 .vfcell .vt-sel2{position:absolute;transform:translate(-50%,-50%);width:48px;box-sizing:border-box;font-size:.98rem;padding:2px 0;border:1.4px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;z-index:3;cursor:pointer;box-shadow:0 0 0 3px var(--surface)}
 .vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
-.vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft)}
+.vfcell .vt-sel2.ok{border-color:var(--blue);background:#EAF0FF}
 .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
 .sv-tbl td{border:1.5px solid var(--grid);padding:7px 5px;text-align:center;vertical-align:middle;font-size:.95rem;}
 .sv-tbl td.lab{text-align:right;font-weight:700;color:var(--ink);background:var(--paper);white-space:nowrap;width:39%;font-size:.9rem;}
@@ -1007,7 +1007,7 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .pave-eff{min-width:54px}
 .tg-in:focus{outline:none;border-color:var(--green);}
-.tg-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.tg-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .tg-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .tg-in:disabled{opacity:1;}
 /* ---- Test : signe du 1er degré ---- */
@@ -1044,14 +1044,14 @@ math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
 .sv-tbl.s1-tbl td.sv-zero span{display:inline-block;background:var(--surface);padding:2px 7px;}
 .s2-calc{color:var(--ink-soft);font-size:.85rem;margin-left:8px;white-space:nowrap;}
 .s1-in:focus{outline:none;border-color:var(--green);}
-.s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.s1-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
-/* Une case vide remplie par la correction : le bleu des cases, ici aussi.
+/* Une case vide remplie par la correction : le vert des cases, ici aussi.
    corrCase posait déjà la classe « sol » — aucun style ne la dessinait sur
-   .s1-in, et la correction en bleu s'écrivait avec l'encre d'une saisie
+   .s1-in, et la correction en vert s'écrivait avec l'encre d'une saisie
    ordinaire. C'est la leçon de .itv-sel.sol de la Seconde, revenue sur la
    famille s1-in de la Terminale. */
-.s1-in.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
+.s1-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .s1-in:disabled{opacity:1;}
 /* ---- Suites : type, raison et formule explicite ---- */
 .su-en{line-height:2.1;}
@@ -2109,7 +2109,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=257;
+const APP_VERSION=258;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -4690,7 +4690,7 @@ function submitAnswer(timedOut){
 /* ================== NOTE AVEC CREDIT PARTIEL ==================
    Un exercice qui comporte plusieurs cases ne vaut plus 0 des la premiere erreur : au
    moment ou il est verrouille, on compte les cases corrigees a l'ecran (vertes = justes,
-   rouges ou bleues = ratees) et l'exercice rapporte cette FRACTION de point. Les
+   rouges ou vertes = ratees) et l'exercice rapporte cette FRACTION de point. Les
    exercices a reponse unique gardent naturellement 0 ou 1. Si le comptage est impossible
    (aucune case coloree), on retombe sur l'ancien tout-ou-rien. */
 function ptsEcran(){
@@ -4951,7 +4951,7 @@ function checkTVI(live){
   } else {
     $('tviFeedback').textContent='Quelques erreurs \u2014 les bonnes r\u00e9ponses sont en vert.';
     $('tviFeedback').className='mp-feedback bad';
-    map.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=good; el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+    map.forEach(([id,good])=>{ const el=$(id); if(el){ if(!el.classList.contains('ok')){ el.value=good; el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
   }
   test.answers.push({...(ptsExo()||{}),q:`${c.fname}(${c.v}) = ${c.kL} sur ${c.leftBrk}${c.aLabel} ; ${c.bLabel}${c.rightBrk}`, answer:'justification compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
@@ -8070,7 +8070,7 @@ function dexpSolveData(){
     s3a:numFmt(c.a), s3b:polyFr([0,c.a*c.k]), s3c:numFmt(c.b*c.k), facAns:c.facAns
   };
 }
-/* Donne la solution d'une case (ou d'un groupe) : on la remplit, on la met en bleu et on la verrouille. */
+/* Donne la solution d'une case (ou d'un groupe) : on la remplit, on la met en vert et on la verrouille. */
 function dexpRevealSolution(key){
   const d=dexpSolveData();
   const setCe=(cid,o)=>{const el=$(cid);if(!el)return;
@@ -8936,7 +8936,7 @@ function checkSV(live){
   test.locked=true;
   /* La convention COMMUNE de la Terminale (corrCase) : la case juste est
      verte, la case FAUSSE reste ROUGE avec la r\u00e9ponse de l'\u00e9l\u00e8ve et la bonne
-     s'affiche en bleu \u00e0 c\u00f4t\u00e9, la case vide est remplie en bleu. La premi\u00e8re
+     s'affiche en vert \u00e0 c\u00f4t\u00e9, la case vide est remplie en vert. La premi\u00e8re
      version r\u00e9v\u00e9lait tout en VERT (la convention du 5.2) : l'\u00e9cran entier
      \u00e9tait vert sous un message qui disait « quelques erreurs », l'\u00e9l\u00e8ve ne
      voyait plus quelle case reprendre, et la note tenait au seul garde-fou
@@ -8945,7 +8945,7 @@ function checkSV(live){
   etats.forEach(e=>{
     if(!e.el) return;
     corrCase(e.id, e.good, e.ok);
-    /* le badge bleu d'un menu de fl\u00e8che se cale \u00e0 c\u00f4t\u00e9 de SON menu : ins\u00e9r\u00e9
+    /* le badge vert d'un menu de fl\u00e8che se cale \u00e0 c\u00f4t\u00e9 de SON menu : ins\u00e9r\u00e9
        dans le flux de la cellule, il s'empilerait au coin du tableau (la
        le\u00e7on du 5.4) */
     const el=$(e.id), b=el&&el.nextElementSibling;
@@ -8961,8 +8961,8 @@ function checkSV(live){
     $('svFeedback').className='mp-feedback good';
   } else {
     const nbVides=etats.filter(e=>e.vide).length;
-    $('svFeedback').textContent='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en bleu'
-      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en bleu':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en bleu'):'')+'.';
+    $('svFeedback').textContent='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en vert'
+      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en vert':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en vert'):'')+'.';
     $('svFeedback').className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tableaux de signes et de variation`, answer:'tableaux complets', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
@@ -9500,14 +9500,14 @@ function checkAfp(live){
   test.locked=true;
   /* la convention COMMUNE de la Terminale (corrCase) : la case juste est
      verte, la case FAUSSE reste ROUGE avec la saisie de l'élève et la bonne
-     réponse s'affiche en bleu à côté, la case vide est remplie en bleu. La
+     réponse s'affiche en vert à côté, la case vide est remplie en vert. La
      première version révélait tout en VERT (la convention du 5.2) : l'écran
      entier était vert sous un message qui disait « quelques erreurs », et on
      ne voyait plus quelle case reprendre — signalé par Turquet sur une
      capture, août 2026. */
   etats.forEach(function(e){
     corrCase(e.x.id, (e.x.type==='sel')?String(e.x.good):numFmt(e.x.good), e.ok);
-    /* le badge bleu d'un menu de flèche se cale à côté de SON menu : inséré
+    /* le badge vert d'un menu de flèche se cale à côté de SON menu : inséré
        dans le flux de la cellule, il s'empilerait au coin du tableau */
     const el=$(e.x.id), b=el&&el.nextElementSibling;
     if(el && b && b.classList && b.classList.contains('mf-cor') && el.classList.contains('vt-sel2')){
@@ -9522,8 +9522,8 @@ function checkAfp(live){
     $('afpFeedback').className='mp-feedback good';
   } else {
     const nbVides=etats.filter(function(e){ return e.vide; }).length;
-    $('afpFeedback').innerHTML='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en bleu'
-      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en bleu':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en bleu'):'')+'.<br>'
+    $('afpFeedback').innerHTML='Quelques erreurs \u2014 ce qui est faux reste en rouge, la bonne r\u00e9ponse est \u00e0 c\u00f4t\u00e9 en vert'
+      +(nbVides?(nbVides>1?', et les cases rest\u00e9es vides ont \u00e9t\u00e9 remplies en vert':', et la case rest\u00e9e vide a \u00e9t\u00e9 remplie en vert'):'')+'.<br>'
       +((q.type==='c')?afpPourquoi(q)
         :(q.type==='a')?'Retiens : <i>f</i>\u2009\u2032 s\u2019annule aux <b>sommets et creux</b> de <i>f</i>, et son signe est le sens de variation \u2014 <i>f</i> <b>cro\u00eet quand <i>f</i>\u2009\u2032 &gt; 0</b>.'
         :'Retiens : ici c\u2019est <i>f</i>\u2009\u2032 qui est dessin\u00e9e \u2014 son signe se lit <b>au-dessus / au-dessous de l\u2019axe</b>, ses z\u00e9ros sont ses croisements avec l\u2019axe, et <i>f</i> cro\u00eet l\u00e0 o\u00f9 <i>f</i>\u2009\u2032 est positive.');
@@ -9720,11 +9720,11 @@ function checkAfq(live){
     return;
   }
   test.locked=true;
-  corrCase('afq-sel', String(bon), ok);   /* faux : la lettre choisie reste en rouge, la bonne en bleu à côté */
+  corrCase('afq-sel', String(bon), ok);   /* faux : la lettre choisie reste en rouge, la bonne en vert à côté */
   /* la bonne carte se montre, et la carte choisie à tort aussi */
   document.querySelectorAll('#afqHost .afq-carte').forEach(function(el,i){
-    el.classList.remove('ok','bad');
-    if(i===bon) el.classList.add('ok');
+    el.classList.remove('ok','bad','sol');
+    if(i===bon) el.classList.add(String(i)===raw?'ok':'sol');   /* choisie et juste = bleu ; montrée = correction, verte */
     else if(String(i)===raw) el.classList.add('bad');
   });
   if(ok){
@@ -9816,8 +9816,11 @@ function checkEF(live){
       +'Pour les courbes : <i>f</i>\u2009\u2032 <b>coupe l\u2019axe des abscisses</b> exactement l\u00e0 o\u00f9 <i>f</i> a un <b>extremum</b> (sommet ou creux).';
     $('efFeedback').className='mp-feedback bad';
     cases.forEach(x=>{ const el=$(x.id); if(!el) return;
-      el.value=(x.type==='sel')?x.good:numFmt(x.good);
-      el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; });
+      if(!el.classList.contains('ok')){
+        el.value=(x.type==='sel')?x.good:numFmt(x.good);
+        el.classList.remove('bad'); el.classList.add('sol');
+      }
+      el.disabled=true; });
     efArrowChange();
   }
   const rs=c.roots.map(R=>R.str).join(' ; ');
@@ -10132,10 +10135,14 @@ function checkEQ(live){
       'eq-s2e':'('+c.denStr+')^2','eq-num':numFmt(c.k),
       'eq-d1':(c.a*c.cd)+'x','eq-d2':String(c.a*c.dd),'eq-d3':(-c.a*c.cd)+'x','eq-d4':String(-c.cd*c.b)};
     cases.forEach(x=>{ const el=$(x.id); if(!el) return;
-      if(x.type==='mf'){ try{ el.setValue(String(sol[x.id]).replace(/\u2212/g,'-')); }catch(e){} el.readOnly=true; }
-      else { el.value=(x.type==='sel')?x.good:numFmt(x.good); el.disabled=true; }
-      el.classList.remove('bad'); el.classList.add('ok'); });
-    eqSyncDen(); ['eq-ddev','eq-dend'].forEach(id=>{ const dd2=$(id); if(dd2){ dd2.classList.remove('bad'); dd2.classList.add('ok'); } });
+      if(!el.classList.contains('ok')){
+        if(x.type==='mf'){ try{ el.setValue(String(sol[x.id]).replace(/\u2212/g,'-')); }catch(e){} }
+        else { el.value=(x.type==='sel')?x.good:numFmt(x.good); }
+        el.classList.remove('bad'); el.classList.add('sol');
+      }
+      if(x.type==='mf'){ el.readOnly=true; } else { el.disabled=true; }
+    });
+    eqSyncDen(); ['eq-ddev','eq-dend'].forEach(id=>{ const dd2=$(id); if(dd2&&!dd2.classList.contains('ok')){ dd2.classList.remove('bad'); dd2.classList.add('sol'); } });
     eqArrowChange();
   }
   test.answers.push({...(ptsExo()||{}),q:'f(x) = ('+c.numStr+')/('+c.denStr+') \u2014 domaine, d\u00e9riv\u00e9e '+numFmt(c.k)+'/('+c.denStr+')\u00b2, variations ('+(c.fam==='croi'?'croissante':'d\u00e9croissante')+')', answer:'\u00e9tude compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
@@ -10381,9 +10388,13 @@ function checkRC(live){
       'rc-c1':solNum(c.fm),'rc-c2':solNum(c.fM),
       'rc-d1':solNum(c.m),'rc-d2':solNum(c.fM),'rc-d3':solNum(c.M)};
     cases.forEach(x=>{ const el=$(x.id); if(!el) return;
-      if(x.type==='sel'){ el.value=x.good; el.disabled=true; }
-      else { try{ el.setValue(sol[x.id]); }catch(e){} el.readOnly=true; }
-      el.classList.remove('bad'); el.classList.add('ok'); });
+      if(!el.classList.contains('ok')){
+        if(x.type==='sel'){ el.value=x.good; }
+        else { try{ el.setValue(sol[x.id]); }catch(e){} }
+        el.classList.remove('bad'); el.classList.add('sol');
+      }
+      if(x.type==='sel'){ el.disabled=true; } else { el.readOnly=true; }
+    });
   }
   test.answers.push({...(ptsExo()||{}),q:'R\u00e9currence ('+(c.fam==='aff'?'affine':'quotient')+', n \u2265 '+numFmt(c.n0)+') : '+numFmt(c.m)+' \u2264 Un \u2264 '+numFmt(c.M), answer:'d\u00e9monstration compl\u00e8te', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
@@ -10594,7 +10605,7 @@ function checkTG(live){
     $('tgFeedback').innerHTML=`Quelques erreurs \u2014 les bonnes réponses sont en vert.<br>Tangente : <b>y = ${numFmt(a.m)}\u00a0x${bTxt}</b>&nbsp; (avec <i>f</i>(${numFmt(c.a)}) = ${numFmt(c.fa)} et <i>f</i>\u00a0\u2032(${numFmt(c.a)}) = ${numFmt(c.m)}).`;
     $('tgFeedback').className='mp-feedback bad';
     const reveal=fixed.concat([['tg-t1',a.t1],['tg-t2',a.t2]]);
-    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ if(!el.classList.contains('ok')){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
   }
   const bRev = a.b===0 ? '' : (a.b>0?'+ '+a.b:'\u2212 '+Math.abs(a.b));
   test.answers.push({...(ptsExo()||{}),q:`Graphique ${test.idx+1} \u2014 tangente en a = ${numFmt(c.a)} : y = ${numFmt(a.m)} x ${bRev}`, answer:'tangente', given:allOk?'\u2713':'incomplet', correct:allOk, type:'tvi'});
@@ -10772,7 +10783,7 @@ function checkTX(live){
       +'<br>En 1 : <i>f</i>(1) = '+txECoef(A.f1)+', <i>f</i> ′(1) = '+txECoef(A.d1)+', tangente <b>y = '+txELin(A.d1,A.b1)+'</b>.';
     $('txFeedback').className='mp-feedback bad';
     const reveal=fixed.concat([['tx-f-t1',A.t1a],['tx-f-t2',A.t1b]]);
-    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+    reveal.forEach(([id,good])=>{ const el=$(id); if(el){ if(!el.classList.contains('ok')){ el.value=numFmt(good); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
   }
   test.answers.push({...(ptsExo()||{}),q:'Fonction ('+txAX(q.a).replace(/<[^>]*>/g,'x')+txB(q.b)+')e^x — tangentes en 0 et en 1', answer:'tangentes', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
@@ -11068,9 +11079,12 @@ async function checkEC(live){
     /* les bonnes réponses se révèlent en vert — la convention du 5.2 et du 5.3 */
     const cases=ecCases(q), P=ecPaire(q);
     cases.forEach(x=>{ const el=$(x.id); if(!el) return;
-      el.value=(x.type==='sel')?x.good:numFmt(x.good);
-      el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; });
-    [[P.ids[0],P.vals[0]],[P.ids[1],P.vals[1]]].forEach(([id,v])=>{ const el=$(id); if(el){ el.value=numFmt(v); el.classList.remove('bad'); el.classList.add('ok'); el.disabled=true; } });
+      if(!el.classList.contains('ok')){
+        el.value=(x.type==='sel')?x.good:numFmt(x.good);
+        el.classList.remove('bad'); el.classList.add('sol');
+      }
+      el.disabled=true; });
+    [[P.ids[0],P.vals[0]],[P.ids[1],P.vals[1]]].forEach(([id,v])=>{ const el=$(id); if(el){ if(!el.classList.contains('ok')){ el.value=numFmt(v); el.classList.remove('bad'); el.classList.add('sol'); } el.disabled=true; } });
     efArrowChange();
     fb.innerHTML=conseilHTML(res.feedback||'')
       +'<br>Les bonnes réponses sont en vert — '+r.nOk+' case(s) juste(s) sur '+r.nTot
@@ -11268,7 +11282,7 @@ function checkS1(live){
     $('s1Feedback').className='mp-feedback good';
   } else {
     const aPos=c.a>0;
-    $('s1Feedback').innerHTML=`Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne réponse en <b>bleu</b> juste à côté.<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
+    $('s1Feedback').innerHTML=`Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne réponse en <b>vert</b> juste à côté.<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
     $('s1Feedback').className='mp-feedback bad';
     const corr=(id,val)=>corrCase(id,val,verd[id]===true);
     if(c.level!==1){ corr('s1-num',numFmt(c.negb)); corr('s1-den',numFmt(c.a)); }
@@ -11831,7 +11845,7 @@ function suQbHTML(){
    À la vérification : les DEUX comptes doivent d'abord être exacts (2 et 2 — comptages,
    pas de tolérance) sinon on explique et le tableau reste modifiable ; ensuite chaque
    case est jugée (racines : équivalence + dixième ; menus : exact), avec le code couleur
-   vert / rouge + correction bleue à côté. Les comptes q.nF / q.nR vivent sur la question
+   bleu / rouge + correction verte à côté. Les comptes q.nF / q.nR vivent sur la question
    (sérialisés) : la pause/reprise reconstruit le tableau puis restaure les saisies. */
 function spFacteur(){
   const a=pick([-3,-2,-1,1,2,3]); const r=rand(-4,4); const b=-a*r;
@@ -12251,7 +12265,7 @@ function checkSP(){
       : (q.quo
       ? 'Retiens : chaque expression affine est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour celle qui s\u2019annule l\u00e0 ; le signe de f suit la <b>r\u00e8gle des signes</b>, et \u00e0 la valeur interdite f n\u2019existe pas : <b>double barre \u2016</b>.'
       : 'Retiens : chaque facteur est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour le facteur qui s\u2019annule l\u00e0 (et pour f) ; le signe de f est le <b>produit des signes</b>.');
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9.<br>'+aide;
+    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9.<br>'+aide;
     fb.className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}), q:q.fPlain+' \u2014 tableau de signe construit (facteurs, racines, z\u00e9ros et signes)',
@@ -12452,15 +12466,15 @@ function checkSU(){
     const sh=c.p===0?'<i>n</i>':('(<i>n</i> \u2212 '+c.p+')');
     const form=arith ? (suU('<i>n</i>')+' = '+suU(c.p)+' + <i>r</i> \u00d7 '+sh)
                      : (suU('<i>n</i>')+' = '+suU(c.p)+' \u00d7 <i>q</i><sup>'+(c.p===0?'<i>n</i>':('<i>n</i>\u2212'+c.p))+'</sup>');
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>bleu</b>.<br>'
+    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b>.<br>'
       +'On passe de '+suU('<i>n</i>')+' \u00e0 '+suU('<i>n</i>+1')+' en '+geste+'.<br>'
       +'Le premier terme donn\u00e9 est '+suU(c.p)+', donc la formule explicite s\u2019\u00e9crit '+form+'.';
     fb.className='mp-feedback bad';
     /* type de suite : jamais vide ici (garde plus haut) -> s'il est faux, il reste en rouge
-       et la bonne reponse s'affiche a cote, en bleu */
+       et la bonne reponse s'affiche a cote, en vert */
     const ts=$('su-type');
     if(ts){ if(!v['su-type']) ts.insertAdjacentHTML('afterend','<span class="mf-cor">'+(c.kind==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique')+'</span>'); ts.disabled=true; }
-    /* champs math : vide -> complete en bleu ; faux -> reste en rouge, correction en bleu a cote */
+    /* champs math : vide -> complete en vert ; faux -> reste en rouge, correction en vert a cote */
     const fillVide=(id,lx)=>{ const el=$(id); if(!el) return;
       try{ if(el.setValue) el.setValue(window.mlDexp?window.mlDexp.plainToML(lx):lx); }catch(e){}
       el.classList.remove('bad'); el.classList.add('sol'); try{ el.readOnly=true; }catch(e){} };
@@ -13288,8 +13302,8 @@ function checkENC(){
     fb.className='mp-feedback good';
   } else {
     /* case fausse : elle RESTE en rouge (la saisie de l'eleve est conservee) et la bonne
-       reponse est affichee juste a cote, en bleu ; case laissee VIDE : elle est completee
-       par la bonne reponse et passe en bleu. Tout est verrouille. */
+       reponse est affichee juste a cote, en vert ; case laissee VIDE : elle est completee
+       par la bonne reponse et passe en vert. Tout est verrouille. */
     cases.forEach(x=>{ if(v[x.id]) return; const el=$(x.id); if(!el) return;
       const vide=(lus[x.id]==='');
       if(x.okIdx!=null){
@@ -13301,7 +13315,7 @@ function checkENC(){
         else { el.insertAdjacentHTML('afterend','<span class="mf-cor">'+encTex(x.cible.lat, x.cible.s)+'</span>'); }
         try{ el.readOnly=true; }catch(e){}
       } });
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>bleu</b>.<br>'
+    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b>.<br>'
       +'Retiens : <b>ajouter</b> un nombre ou <b>multiplier par un nombre positif</b> conserve l\u2019ordre ; '
       +'la <b>racine carr\u00e9e</b> (croissante sur [0 ; +\u221e[) le conserve ; '
       +'l\u2019<b>inverse</b> (d\u00e9croissante sur ]0 ; +\u221e[) et la <b>multiplication par un nombre n\u00e9gatif</b> (l\u2019<b>oppos\u00e9</b>) l\u2019<b>\u00e9changent</b>.';
@@ -13552,7 +13566,7 @@ function checkREC(){
     fb.textContent=pick(['Parfait !','Tr\u00e8s bien !','Excellent !','Bravo, r\u00e9currence compl\u00e8te !']);
     fb.className='mp-feedback good';
   } else {
-    /* case fausse : reste en rouge, correction en bleu a cote ; case vide : completee en bleu */
+    /* case fausse : reste en rouge, correction en vert a cote ; case vide : completee en vert */
     cases.forEach(x=>{ if(v[x.id]) return; const el=$(x.id); if(!el) return;
       const vide=recVide(x);
       if(x.okIdx!=null){
@@ -13564,7 +13578,7 @@ function checkREC(){
         else el.insertAdjacentHTML('afterend','<span class="mf-cor">'+encTex(recCorrLat(x), recCorrS(x))+'</span>');
         try{ el.readOnly=true; }catch(e){}
       } });
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>vert</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>bleu</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>bleu</b>.<br>'
+    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b>.<br>'
       +'Retiens : on <b>suppose</b> pour <i>n</i>, on <b>montre</b> pour <i>n</i>+1, en reconstruisant le calcul de U<sub><i>n</i>+1</sub> \u00e9tape par \u00e9tape.';
     fb.className='mp-feedback bad';
   }
@@ -13802,14 +13816,14 @@ function checkSA(){
       +'Ensuite '+SA_V0+' se calcule avec '+saUH('0')+', la formule du cours donne '+SA_VN+' = '+SA_V0+' \u00d7 q\u207f, et on isole '+SA_UN+' dans la d\u00e9finition de '+SA_VN+'.';
     fb.className='mp-feedback bad';
     const sel=$('sa-ctype');
-    if(sel){ if(!v['sa-ctype']){ sel.value='geo'; sel.classList.remove('bad'); sel.classList.add('ok'); } sel.disabled=true; }
+    if(sel){ if(!v['sa-ctype']){ sel.value='geo'; sel.classList.remove('bad'); sel.classList.add('sol'); } sel.disabled=true; }
     const sols=SA.sols(q);
     SA_ORDER.forEach(id=>{
       if(id==='sa-ctype') return;
       const el=$(id); if(!el) return;
       if(!v[id]){
         try{ if(el.setValue) el.setValue(sols[id]); }catch(e){}
-        el.classList.remove('bad'); el.classList.add('ok');
+        el.classList.remove('bad'); el.classList.add('sol');
       }
       try{ el.readOnly=true; }catch(e){}
     });

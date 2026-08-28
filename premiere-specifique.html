@@ -264,9 +264,9 @@
      L'énoncé se perdait : du texte gras posé au milieu du reste, sans rien
      qui le sépare de la zone de réponse. Un cadre et une étiquette le
      détachent.
-     L'étiquette est BLEUE, jamais verte : dans ces pages le vert veut dire
-     « juste » partout ailleurs (.ok, .done, les cases validées), et un
-     énoncé sur fond vert se lit comme une réponse déjà validée.
+     L'étiquette garde le bleu de la marque — c'est la couleur des cadres et
+     des boutons, posée AVANT toute vérification : un énoncé n'est ni une
+     réponse juste (bleu de verdict) ni une correction (vert).
      Le « :empty » n'est pas un détail — un exercice qui laisse l'élément
      vide selon la question afficherait sinon une étiquette flottant
      au-dessus d'un cadre sans texte.
@@ -323,10 +323,10 @@
     font-family:"Fredoka";font-weight:600;font-size:.9rem;color:var(--red);
     background:var(--red-soft);border:1.5px dashed #f0b3bb;border-radius:7px;outline:none;padding:0}
   .asp-ret:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(226,61,82,.16)}
-  .asp-ret.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
+  .asp-ret.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee;border-style:solid}
   .asp-ret.bad{color:var(--red);background:var(--red-soft);border-color:var(--red);border-style:solid}
   .asp-plus{position:absolute;left:1px;top:6px;font-family:"Fredoka";font-weight:700;font-size:.82rem;color:var(--red);line-height:21px}
-  .mp-box.ok,.mp-carry.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
+  .mp-box.ok,.mp-carry.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee;border-style:solid}
   .mp-box.bad,.mp-carry.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb;border-style:solid}
   .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
   .mp-tag.ok{background:var(--green)}.mp-tag.bad{background:var(--red)}
@@ -370,7 +370,7 @@
   .f-num,.f-den{width:76px;height:46px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none}
   .f-num:focus,.f-den:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .f-fbar{width:82px;height:3px;background:var(--ink);border-radius:2px}
-  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
   .f-dec.bad,.f-num.bad,.f-den.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   /* Niveau 5 : multiplication de décimaux, 2 étapes */
   .f5{display:flex;flex-direction:column;gap:16px;width:100%;align-items:center}
@@ -447,11 +447,11 @@
     background:#EAF0FF;border-radius:9px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;line-height:1}
   .pt-choix-btn .valeur{font-family:"Fredoka";font-weight:600;font-size:1.4rem;color:var(--ink)}
   .pt-choix-btn.sel{border-color:var(--blue);background:#EAF0FF;box-shadow:0 0 0 4px rgba(43,80,200,.14)}
-  .pt-choix-btn.ok{border-color:var(--green);background:var(--green-soft)}
-  .pt-choix-btn.ok .valeur,.pt-choix-btn.ok .lettre{color:var(--green)}
+  .pt-choix-btn.ok{border-color:var(--blue);background:#EAF0FF}
+  .pt-choix-btn.ok .valeur,.pt-choix-btn.ok .lettre{color:var(--blue)}
   .pt-choix-btn.bad{border-color:var(--red);background:var(--red-soft)}
   .pt-choix-btn.bad .valeur,.pt-choix-btn.bad .lettre{color:var(--red)}
-  .pt-choix-btn.sol{border-color:var(--blue);background:#EAF0FF;box-shadow:0 0 0 4px rgba(43,80,200,.14)}
+  .pt-choix-btn.sol{border-color:var(--green);background:var(--green-soft);box-shadow:0 0 0 4px rgba(31,169,113,.14)}
   .pt-choix.locked{pointer-events:none}
   .pt-aide{text-align:center;color:var(--ink-soft);font-weight:700;font-size:.92rem;margin:10px 0 0}
   .pt-opt{position:relative;border:2px dashed #c2cdf2;background:#fafbff;border-radius:16px;padding:30px 14px 14px;margin:6px 0 18px}
@@ -643,10 +643,10 @@
    dans une declaration ouverte et ferait ignorer tout ce qui suit). ===================== */
 body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;  --contains-highlight-background-color:transparent;}
 body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
-math-field.dexp-mf.ok{border-color:var(--green);background:var(--green-soft);}
+math-field.dexp-mf.ok{border-color:var(--blue);background:#EAF0FF;}
 math-field.dexp-mf.bad{border-color:var(--red);background:var(--red-soft);}
-math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
-.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;vertical-align:middle;line-height:1.5;}
 .sel-cor{display:block;margin-top:4px;color:var(--blue);font-weight:600;white-space:normal;}
 /* Les deux boutons que MathLive dessine DANS la case (clavier + menu proprietes) sont
    masques : ils sont repris dans la rangee de jetons, en tete de l'enonce. Passer par
@@ -752,8 +752,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   #mdHost .pt-step:not(.pt-outil),#uHost .pt-step:not(.pt-outil){grid-column:1;}
   #mdHost .pt-outil,#uHost .pt-outil{grid-column:2;grid-row:1;margin-top:0;}
 }
-/* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
-.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+/* Correction en vert a cote d'une case fausse (mode entrainement, convention terminale). */
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
 /* --- 3.1.4 Fraction et pourcentage : deux colonnes a colorier --- */
 .fp-zone{display:flex;justify-content:center;align-items:flex-start;gap:64px;padding:12px 0 4px;flex-wrap:wrap;}
@@ -767,10 +767,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .fp-col .fp-seg+.fp-seg{border-bottom:2px solid var(--ink);}
 .fp-colr .fp-seg+.fp-seg{border-bottom:1px solid var(--grid);}
 .fp-col .fp-seg.on{background:#BBD0F7;}
-.fp-col.ok{border-color:var(--green);} .fp-col.ok .fp-seg.on{background:var(--green-soft);}
+.fp-col.ok{border-color:var(--blue);} .fp-col.ok .fp-seg.on{background:#EAF0FF;}
 .fp-col.bad{border-color:var(--red);} .fp-col.bad .fp-seg.on{background:var(--red-soft);}
-/* correction du mode entrainement : trait bleu a la bonne hauteur */
-.fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--blue);pointer-events:none;}
+/* correction du mode entrainement : trait vert a la bonne hauteur */
+.fp-cible{position:absolute;left:0;right:0;border-top:3px dashed var(--green);pointer-events:none;}
 .fp-val{min-height:2.2em;display:flex;align-items:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);}
 .fp-lab{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);font-size:1.4rem;}
 /* Les deux colonnes sont IDENTIQUES — même largeur, même partage en dix, même
@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=168;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=170;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -1915,7 +1915,7 @@ function pmJetonsHTML(){
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmKB()" title="Clavier math\u00e9matique \u00e0 l\u2019\u00e9cran" aria-label="Afficher ou masquer le clavier">\u2328\ufe0f</button>'
     +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="pmMenuKb()" title="Raccourcis clavier" aria-label="Afficher les raccourcis">\u2630</button></div>';
 }
-/* ---- correction : vert / rouge + bonne reponse en bleu / bleu si vide ---- */
+/* ---- correction : bleu / rouge + bonne reponse en vert / vert si vide ---- */
 function corrCase(id, val, ok){
   const el=$(id); if(!el) return;
   const libelle=(el.tagName==='SELECT' && el.options)
@@ -4572,7 +4572,7 @@ function checkFAnswer(live){
     return;
   }
   /* UNE CASE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX, et l'élève n'a
-     rien écrit : en entraînement elle reçoit la réponse en bleu, en soutien
+     rien écrit : en entraînement elle reçoit la réponse en vert, en soutien
      elle reste vide et modifiable, l'exercice n'étant pas fini.
      Les cinq niveaux de cet exercice écrivaient leur marquage chacun de son
      côté, et le défaut s'y était logé partout. Trouvé en août 2026 par le
@@ -5158,8 +5158,8 @@ function checkFPAnswer(live){
   } else {
     $('fpFeedback').innerHTML='Réponse : '+egal+' — on multiplie le numérateur ET le dénominateur par '+k+'.';
     $('fpFeedback').className='mp-feedback bad';
-    /* mode entraînement : la bonne hauteur apparaît en bleu sur chaque colonne fausse,
-       et les cases de la méthode 2 reçoivent leurs corrections bleues */
+    /* mode entraînement : la bonne hauteur apparaît en vert sur chaque colonne fausse,
+       et les cases de la méthode 2 reçoivent leurs corrections vertes */
     if(currentMode==='train'){
       [[colL,okL],[colR,okR]].forEach(p=>{ if(!p[1] && !p[0].querySelector('.fp-cible'))
         p[0].insertAdjacentHTML('beforeend','<div class="fp-cible" style="bottom:'+q.pct+'%"></div>'); });
@@ -5310,7 +5310,7 @@ function checkPctColAnswer(live){
   } else {
     $('pcFeedback').innerHTML='Réponse : '+egal;
     $('pcFeedback').className='mp-feedback bad';
-    /* entraînement : la bonne hauteur apparaît en pointillés bleus sur chaque
+    /* entraînement : la bonne hauteur apparaît en pointillés verts sur chaque
        colonne fausse, et la case reçoit sa correction */
     if(currentMode==='train'){
       [[colL,okL],[colR,okR]].forEach(pr=>{ if(!pr[1] && !pr[0].querySelector('.fp-cible'))
@@ -5418,21 +5418,22 @@ function buildPoseSub(hTop, hBot, hostId){
     +`<div class="mp-row">${cell('op')}${rowRes}</div>`
     +`</div>`;
 }
-/* Les exercices sur les AUGMENTATIONS posent 3 questions (demande de Turquet,
-   août 2026) — les diminutions gardent leurs 6. La constante vit ici, à côté
-   du premier démarreur qui la lit ; le contrôle la compare à tests/profils.js
-   (nbQuestionsAugmentations) : deux sources, comme SF_NB — lire la page et la
-   comparer à elle-même ne prouverait rien. */
-const AUG_NB=3;
-async function startEvolAdd(id, gen, nb){
+/* Les exercices sur les ÉVOLUTIONS — hausses (2.2) ET baisses (2.3) — posent
+   3 questions (demande de Turquet, août 2026, en deux temps : d'abord les
+   augmentations, puis les diminutions le même jour). La constante vit ici, à
+   côté du premier démarreur qui la lit ; le contrôle la compare à
+   tests/profils.js (nbQuestionsEvolutions) : deux sources, comme SF_NB —
+   lire la page et la comparer à elle-même ne prouverait rien. */
+const EVOL_NB=3;
+async function startEvolAdd(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2'; test.qId=id;
-  test.questions=Array.from({length:nb||6},gen);
+  test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('ag2test'); renderAG2Test();
 }
-async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd, AUG_NB); }
+async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd); }
 async function startDimSub(){ return startEvolAdd('diminuer-soustraction', genDimSub); }
 function updateAG2Step5(){
   const st=$('ag2Step5'); if(!st) return;
@@ -5619,11 +5620,11 @@ function a2qCouple(q){
   return {P,N,prod:P*N,aug,fin,
     augStr:String(aug).replace('.',','), finStr:String(fin).replace('.',',')};
 }
-async function startA2Q(id, gen, nb){
+async function startA2Q(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2q'; test.qId=id;
-  test.questions=Array.from({length:nb||AUGQ_NB},gen);
+  test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('a2qtest'); renderWTest();
 }
@@ -5653,9 +5654,9 @@ function genDimDepSub(){
   q.v=rand(0,DIMQ_EN_VAL.length-1);
   return q;
 }
-async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd, AUG_NB); }
+async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd); }
 async function startDimTauxSub(){ return startA2Q('diminuer-taux-soustraction', genDimTauxSub); }
-async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd, AUG_NB); }
+async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd); }
 async function startDimDepSub(){ return startA2Q('diminuer-depart-soustraction', genDimDepSub); }
 function choisirW(i){
   if(test.locked) return;
@@ -5942,7 +5943,7 @@ async function startSynAug(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='syn'; test.qId='synthese-augmentations';
   const incs=qdMelanger(['fin','ini','pct']);
-  test.questions=Array.from({length:AUG_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
+  test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('syntest'); renderSynTest();
 }
@@ -6461,7 +6462,7 @@ function checkQAnswer(live){
   const okN = !eN || (v('qN')!=='' && !isNaN(iv('qN')) && iv('qN')===c.N);
   const okChoix=(q.choisi===q.bon), calculOk=ok1&&ok2&&ok3&&okN, allOk=calculOk&&okChoix;
   /* Une case VIDE ne rougit jamais : elle reste sans couleur — en entraînement,
-     la correction la complète en bleu juste derrière. */
+     la correction la complète en vert juste derrière. */
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');
     if(String(el.value||'').trim()===''){ el.disabled=!isSoutien(); return; }
     el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
@@ -6769,7 +6770,7 @@ async function startAug(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='aug';
-  test.questions=Array.from({length:AUG_NB},genAug);
+  test.questions=Array.from({length:EVOL_NB},genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('atest'); renderATest();
 }
@@ -6953,10 +6954,10 @@ function poseEleveMAJ(cfg){
 }
 /* P/100 en écriture décimale, pour les textes : 5 → « 0,05 », 40 → « 0,40 ». */
 function pDecStr(P){ return P<10 ? '0,0'+P : '0,'+P; }
-/* ---- Mode entraînement : corrections en bleu après la vérification ----
+/* ---- Mode entraînement : corrections en vert après la vérification ----
    Convention de terminale : une case fausse garde la réponse de l'élève et la
-   bonne réponse s'affiche en bleu juste à côté ; une case laissée vide est
-   complétée en bleu. Uniquement en entraînement — en soutien l'élève corrige
+   bonne réponse s'affiche en vert juste à côté ; une case laissée vide est
+   complétée en vert. Uniquement en entraînement — en soutien l'élève corrige
    lui-même, en évaluation seul le message de méthode s'affiche. */
 function corTrainDec(id,attendu){
   if(currentMode!=='train') return;
@@ -6999,7 +7000,6 @@ function liveColorDecCoef0(id,coef){                    // coefficient décimal 
      type 'pct' — on donne la valeur initiale et la valeur finale, il retrouve le pourcentage.
    Comme en 3.1.x, le calcul est jugé par rapport à la proposition CHOISIE : c'est la
    vérification qui révèle qu'une proposition ne convient pas, pas une croix arbitraire. */
-const AUGQ_NB=6;
 const AUGQ_PCTS=[10,20,30,40,50,60,70,80,90,1,2,3,4,5,6,7,8,9];
 /* Sujets utilisables quand un des deux nombres est caché : contrairement aux contextes
    de 3.2.1, l'énoncé ne peut pas annoncer « Un prix de 80 € » puisque 80 est justement
@@ -7103,8 +7103,8 @@ function genAugTaux(){
   q.v=rand(0,AUGQ_EN_PCT.length-1);
   return q;
 }
-async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart, AUG_NB); }
-async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux, AUG_NB); }
+async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart); }
+async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
 /* Baisses : mêmes exercices à propositions, coefficient (100 − P)/100 (sens = −1). */
 function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
@@ -7134,11 +7134,11 @@ function genDimTaux(){
 }
 async function startDimDepart(){ return startAUGQ('diminuer-depart', genDimDepart); }
 async function startDimTaux(){ return startAUGQ('diminuer-taux', genDimTaux); }
-async function startAUGQ(id, gen, nb){
+async function startAUGQ(id, gen){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='augq'; test.qId=id;
-  test.questions=Array.from({length:nb||AUGQ_NB},gen);
+  test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('vtest'); renderVTest();
 }
@@ -7320,7 +7320,7 @@ async function startDim(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='dim';
-  test.questions=Array.from({length:6},genDim);
+  test.questions=Array.from({length:EVOL_NB},genDim);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('dtest'); renderDTest();
 }
@@ -7501,7 +7501,7 @@ async function startHausses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='hs'; test.qId='hausses-successives';
-  test.questions=Array.from({length:AUG_NB},genHausses);
+  test.questions=Array.from({length:EVOL_NB},genHausses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('hstest'); renderHSTest();
 }
@@ -7892,7 +7892,7 @@ function sfJuge(q){
   const d1=(q.d1===1)?1:q.d1, d2=(q.d2===1)?1:q.d2;
   /* UN GROUPE SE JUGE SUR LES CASES QUE L'ÉLÈVE A ÉCRITES, jamais sur celles
      qu'il a laissées vides — et une case vide ne reçoit AUCUNE couleur : c'est
-     la correction en bleu qui la remplit. Deux signalements de Turquet en
+     la correction en vert qui la remplit. Deux signalements de Turquet en
      août 2026, le même défaut à deux profondeurs : « 9 et 9 » posés sous la
      première fraction, le reste vide, comptés FAUX ; puis « 8 » seul dans une
      case, sa jumelle encore vide, compté FAUX lui aussi. Une case était donc
@@ -7968,7 +7968,7 @@ function sfJuge(q){
      réellement posée, à défaut celle du PPCM.
      AUCUNE ROUTE CHOISIE — l'élève a écrit une case plus loin sans avoir posé
      l'étape ① : on juge alors sur la voie du PPCM, qui est exactement celle que
-     la correction en bleu écrira à côté. Sans ce repli, une case juste
+     la correction en vert écrira à côté. Sans ce repli, une case juste
      rougirait parce que les cases d'AVANT sont vides : le défaut d'août 2026
      une troisième fois, une case plus loin encore. Rouge veut dire FAUX, jamais
      « je ne peux pas savoir ». */
@@ -8076,7 +8076,7 @@ function checkSFAnswer(live){
   if(live){ sfLive(); return; }
   const r=sfJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
-     calcul. En entraînement la correction l'écrit en bleu juste après ; en
+     calcul. En entraînement la correction l'écrit en vert juste après ; en
      soutien elle reste à remplir, et donc modifiable. */
   const mark=(ids,ok)=>ids.forEach(id=>{ const el=$(id); if(!el) return;
     el.classList.remove('ok','bad');
@@ -8096,7 +8096,7 @@ function checkSFAnswer(live){
   /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
      cases écrites, donc une copie à moitié remplie peut voir ses quatre
      verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
-     cases laissées vides ne recevraient même pas la correction en bleu. */
+     cases laissées vides ne recevraient même pas la correction en vert. */
   const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&!r.vide;
   if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
   test.locked=true;
@@ -8105,7 +8105,7 @@ function checkSFAnswer(live){
     $('sfFeedback').className='mp-feedback good';
   } else {
     $('sfFeedback').textContent=sfPourquoi(q,r); $('sfFeedback').className='mp-feedback bad';
-    /* corrections en bleu, comme partout : on montre la voie du PPCM */
+    /* corrections en vert, comme partout : on montre la voie du PPCM */
     corTrainDec('sf-a1',q.k1); corTrainDec('sf-b1',q.k1);
     corTrainDec('sf-a2',q.k2); corTrainDec('sf-b2',q.k2);
     corTrainDec('sf-num1',q.N1); corTrainDec('sf-num2',q.N2); corTrainDec('sf-den',q.D);
@@ -8135,7 +8135,7 @@ function checkSFAnswer(live){
   const nb=$('sfNext'); if(nb) nb.focus();
 }
 function sfPourquoi(q,r){
-  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en bleu : compare-les à ce que tu as écrit.';
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
   /* UNE MOITIÉ JUSTE SE DIT. Quand une seule des deux paires mène quelque
      part, elle est verte à l'écran : lui répondre « il faut le même
      dénominateur des deux côtés » est vrai mais aveugle — l'élève ne sait pas
@@ -8268,7 +8268,7 @@ async function startBaisses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='bs'; test.qId='baisses-successives';
-  test.questions=Array.from({length:6},genBaisses);
+  test.questions=Array.from({length:EVOL_NB},genBaisses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('bstest'); renderBSTest();
 }
@@ -9606,7 +9606,7 @@ document.addEventListener('keydown',e=>{                     /* Entree sur l'ecr
 document.addEventListener('input',e=>{
   const t=e.target;
   if(!isSoutien()||test.locked||!t||t.tagName!=='INPUT'||!t.dataset||t.dataset.exp===undefined) return;
-  if(t.closest('.screen.on')) liveColorExp(t);   // case chiffre : vert/rouge dès la saisie
+  if(t.closest('.screen.on')) liveColorExp(t);   // case chiffre : bleu/rouge dès la saisie
 });
 document.addEventListener('focusout',e=>{
   const t=e.target;

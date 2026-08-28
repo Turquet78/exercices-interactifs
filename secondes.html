@@ -340,9 +340,9 @@
      L'énoncé se perdait : du texte gras posé au milieu du reste, sans rien
      qui le sépare de la zone de réponse. Un cadre et une étiquette le
      détachent.
-     L'étiquette est BLEUE, jamais verte : dans ces pages le vert veut dire
-     « juste » partout ailleurs (.ok, .done, les cases validées), et un
-     énoncé sur fond vert se lit comme une réponse déjà validée.
+     L'étiquette garde le bleu de la marque — c'est la couleur des cadres et
+     des boutons, posée AVANT toute vérification : un énoncé n'est ni une
+     réponse juste (bleu de verdict) ni une correction (vert).
      Le « :empty » n'est pas un détail — un exercice qui laisse l'élément
      vide selon la question afficherait sinon une étiquette flottant
      au-dessus d'un cadre sans texte.
@@ -374,7 +374,7 @@
   .mp-carry{width:32px;height:32px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--red);
     background:var(--red-soft);border:2px dashed #f0b3bb;border-radius:9px;outline:none;padding:0;-moz-appearance:textfield}
   .mp-carry:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(226,61,82,.16)}
-  .mp-box.ok,.mp-carry.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1;border-style:solid}
+  .mp-box.ok,.mp-carry.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee;border-style:solid}
   .mp-box.bad,.mp-carry.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb;border-style:solid}
   .mp-tag{position:absolute;top:-8px;right:-2px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;font-family:"Nunito"}
   .mp-tag.ok{background:var(--green)}.mp-tag.bad{background:var(--red)}
@@ -427,7 +427,7 @@
   .f-num,.f-den{width:76px;height:46px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none}
   .f-num:focus,.f-den:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
   .f-fbar{width:82px;height:3px;background:var(--ink);border-radius:2px}
-  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .f-dec.ok,.f-num.ok,.f-den.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
   .f-dec.bad,.f-num.bad,.f-den.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   /* Niveau 5 : multiplication de décimaux, 2 étapes */
   .f5{display:flex;flex-direction:column;gap:16px;width:100%;align-items:center}
@@ -479,7 +479,7 @@
   .ens-set{font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--ink);justify-self:start;min-width:30px}
   .ens-sel{appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:74px;height:48px;font-family:"Fredoka";font-weight:600;font-size:1.5rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer;justify-self:center}
   .ens-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
-  .ens-sel.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .ens-sel.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
   .ens-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
   .ens-sel:disabled{opacity:1;cursor:default}
   .ens-frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1;vertical-align:middle;font-size:.92em}
@@ -561,7 +561,7 @@
    « ta réponse est fausse ». C'est aussi la paire que distingue un daltonien,
    qui confond justement le vert et le rouge.
    La couleur ne porte jamais seule : les flèches disent la même chose. */
-:root{ --crd-a:#1D4ED8; --crd-b:#C2410C; }
+:root{ --crd-a:#7C3AED; --crd-b:#C2410C; }
 #sfHost.crd{position:relative}
 #sfHost.crd .crd-a{color:var(--crd-a)}
 #sfHost.crd .crd-b{color:var(--crd-b)}
@@ -615,13 +615,13 @@
 .smp-bar .smp-seg{display:block;flex:1 1 0;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer}
 .smp-bar .smp-seg+.smp-seg{border-left:2px solid var(--ink)}
 .smp-bar .smp-seg.on{background:#BBD0F7}
-.smp-bar.ok{border-color:var(--green)} .smp-bar.ok .smp-seg.on{background:var(--green-soft)}
+.smp-bar.ok{border-color:var(--blue)} .smp-bar.ok .smp-seg.on{background:#EAF0FF}
 .smp-bar.bad{border-color:var(--red)} .smp-bar.bad .smp-seg.on{background:var(--red-soft)}
-/* Une barre laissée VIDE ne rougit pas : elle reçoit la correction en bleu,
+/* Une barre laissée VIDE ne rougit pas : elle reçoit la correction en vert,
    comme une case de saisie. Rouge veut dire FAUX, jamais « rien écrit ». */
-.smp-bar.sol{border-color:var(--blue);border-style:dashed}
-/* correction du mode entraînement : le trait bleu à la bonne mesure */
-.smp-cible{position:absolute;top:0;bottom:0;border-left:3px dashed var(--blue);pointer-events:none}
+.smp-bar.sol{border-color:var(--green);border-style:dashed}
+/* correction du mode entraînement : le trait vert à la bonne mesure */
+.smp-cible{position:absolute;top:0;bottom:0;border-left:3px dashed var(--green);pointer-events:none}
 /* Largeurs FIXES des deux côtés : c'est ce qui aligne les deux barres. */
 .smp-lab{flex:0 0 168px;text-align:right;font-family:"Fredoka";font-weight:700;
   color:var(--blue-dark);font-size:1.05rem}
@@ -697,13 +697,13 @@
      elle les listes s'étirent sur toute la ligne — un min-width n'y peut rien */
   .plc-sel{appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:132px;height:48px;font-family:"Fredoka";font-weight:600;font-size:1.15rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer;justify-self:start}
   .plc-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
-  .plc-sel.ok{border-color:var(--green);background:#EAFBF0;color:var(--green)}
+  .plc-sel.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue)}
   .plc-sel.bad{border-color:var(--red);background:#FDECEC;color:var(--red)}
   .plc-aide{display:flex;justify-content:center;margin-top:14px}
-  /* Une liste vide remplie par la correction : le bleu des cases, sur les
+  /* Une liste vide remplie par la correction : le vert des cases, sur les
      listes aussi. corrChoix posait déjà la classe « sol » — aucun style ne la
-     dessinait, et la correction en bleu restait de la couleur d'une réponse. */
-  .plc-sel.sol{border-color:var(--blue);border-style:dashed;background:#EAF0FF;color:var(--blue)}
+     dessinait, et la correction en vert restait de la couleur d'une réponse. */
+  .plc-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   /* ---- Ranger trois nombres dans l'ordre croissant ----
      Les nombres et le bouton des zéros sont ceux de {placer-intervalle} ;
      seule la question change. Les classes plc-nb / plc-sel sont réutilisées :
@@ -741,16 +741,16 @@
      affichée sous le retour — ne compte que les cases « ok », « bad » ou
      « sol ». Une case juste marquée « good » n'était comptée nulle part, et la
      note annonçait « 0 case juste sur 8 » sur une question à moitié réussie. */
-  .itv-sel.ok{color:var(--green);background:var(--green-soft);border-color:#9bdcc1}
+  .itv-sel.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
   .itv-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
-  /* Une liste vide remplie par la correction : le bleu des cases, ici aussi.
+  /* Une liste vide remplie par la correction : le vert des cases, ici aussi.
      corrChoix posait déjà la classe « sol » — aucun style ne la dessinait sur
      .itv-sel, et la case corrigée gardait l'allure d'une liste ordinaire :
      « 6 cases justes sur 7 » sans que rien ne montre laquelle manquait.
      {placer-intervalle} avait appris cette leçon (.plc-sel.sol) ; la famille
      .itv-sel — intervalles, inégalité, inéquation graphique — ne l'avait pas
      reçue. */
-  .itv-sel.sol{border-color:var(--blue);border-style:dashed;background:#EAF0FF;color:var(--blue)}
+  .itv-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
   .itv-sel:disabled{opacity:1;cursor:default}
   /* Sur un téléphone, l'étiquette passe au-dessus et les cases rétrécissent :
      l'écriture de l'intervalle doit tenir sur UNE ligne, sinon son crochet de
@@ -762,8 +762,10 @@
   .itq-carte{position:relative;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;padding:6px 4px 4px}
   .itq-carte svg{width:100%;height:auto;display:block}
   .itq-lettre{position:absolute;top:6px;left:8px;font-family:"Fredoka";font-weight:600;font-size:1rem;color:var(--blue-dark)}
-  .itq-carte.ok{border-color:var(--green);background:var(--green-soft)}
+  .itq-carte.ok{border-color:var(--blue);background:#EAF0FF}
   .itq-carte.bad{border-color:var(--red);background:var(--red-soft)}
+  /* la bonne carte NON choisie est une correction : verte, comme partout */
+  .itq-carte.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft)}
   /* ---- Inéquation graphique : quatre dessins côte à côte, le rouge par-dessus ---- */
   .ing-cartes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;max-width:1380px}
   @media(max-width:1100px){ .ing-cartes{grid-template-columns:1fr 1fr} }
@@ -806,7 +808,8 @@
   .pge-opt{font-family:"Fredoka";font-weight:600;font-size:1.7rem;min-width:64px;height:58px;color:var(--blue-dark);background:#fff;border:2px solid #BBD0F7;border-radius:14px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
   .pge-opt:hover:not(:disabled){border-color:var(--blue);background:#EEF3FF}
   .pge-opt:disabled{cursor:default}
-  .pge-opt.good{color:#fff;background:var(--green);border-color:var(--green)}
+  .pge-opt.ok{color:#fff;background:var(--blue);border-color:var(--blue)}
+  .pge-opt.sol{color:#fff;background:var(--green);border-color:var(--green)}
   .pge-opt.bad{color:#fff;background:var(--red);border-color:var(--red)}
   /* « pre-wrap » : la Seconde pose la réponse du modèle en textContent, et sans
      cela ses retours à la ligne se réduiraient à des espaces — la consigne de
@@ -929,7 +932,7 @@
 .tvi-fill i{font-style:italic;}
 .tvi-int{white-space:nowrap;}
 .tvi-sel{width:auto;max-width:100%;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235C668A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;background-size:9px 6px;border:2px solid var(--grid);border-radius:9px;padding:4px 21px 4px 8px;margin:0 1px;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
-.tvi-sel.ok{border-color:var(--green);background-color:var(--green-soft);color:var(--green);}
+.tvi-sel.ok{border-color:var(--blue);background-color:#EAF0FF;color:var(--blue);}
 .tvi-sel.bad{border-color:var(--red);background-color:var(--red-soft);color:var(--red);}
 .tvi-sel:disabled{opacity:1;}
 
@@ -939,7 +942,7 @@
 .tvi-check{margin:14px 0 4px;display:flex;flex-direction:column;gap:6px;}
 .just-item{font-size:.93rem;line-height:1.35;display:flex;gap:9px;align-items:flex-start;}
 .just-item span{font-weight:800;flex:none;}
-.just-item.ok{color:var(--green);}
+.just-item.ok{color:var(--blue);}
 .just-item.no{color:var(--ink-soft);}
 .just-item.miss{color:var(--red);}
 .tvi-model{margin-top:9px;padding:11px 13px;background:var(--surface);border-left:3px solid var(--green);border-radius:8px;font-size:.95rem;line-height:1.55;color:var(--ink);font-weight:600;}
@@ -996,9 +999,9 @@
 .dexp-ek{display:inline-block;font-weight:700;}
 .dexp-ek sup{font-size:.72em;vertical-align:super;line-height:0;}
 .dexp-in:focus,.dexp-ce:focus{outline:none;border-color:var(--blue);background:var(--surface);}
-.dexp-in.ok,.dexp-ce.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.dexp-in.ok,.dexp-ce.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .dexp-in.bad,.dexp-ce.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
-.dexp-in.sol,.dexp-ce.sol{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
+.dexp-in.sol,.dexp-ce.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 .dexp-in:disabled{opacity:1;}
 .expr-help{display:flex;gap:8px;margin:10px 0 0;}
 .expr-help button{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:var(--ink);background:var(--surface);border:2px solid var(--grid);border-radius:9px;padding:7px 16px;cursor:pointer;}
@@ -1041,7 +1044,7 @@
 .tg-sub{font-weight:700;color:var(--ink);margin:14px 0 4px;}
 .tg-in{width:46px;text-align:center;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);background:var(--paper);border:2px solid var(--grid);border-radius:8px;padding:4px 4px;-webkit-appearance:none;appearance:none;}
 .tg-in:focus{outline:none;border-color:var(--green);}
-.tg-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.tg-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .tg-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .tg-in:disabled{opacity:1;}
 /* ---- Test : signe du 1er degré ---- */
@@ -1078,7 +1081,7 @@
 .sv-tbl.s1-tbl td.sv-zero span{display:inline-block;background:var(--surface);padding:2px 7px;}
 .s2-calc{color:var(--ink-soft);font-size:.85rem;margin-left:8px;white-space:nowrap;}
 .s1-in:focus{outline:none;border-color:var(--green);}
-.s1-in.ok{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.s1-in.ok{border-color:var(--blue);background:#EAF0FF;color:var(--blue);}
 .s1-in.bad{border-color:var(--red);background:var(--red-soft);color:var(--red);}
 .s1-in:disabled{opacity:1;}
     /* ---- Exercice Lecture graphique — variations ---- */
@@ -1106,7 +1109,7 @@
     .lv-in{width:42px;border:1.6px solid var(--line);border-radius:8px;padding:5px 2px;text-align:center;font-family:inherit;font-size:.95rem;background:var(--surface);color:var(--ink)}
     .lv-in.sm{width:40px}
     .lv-in:focus{outline:none;border-color:var(--blue)}
-    .lv-in.ok,.lv-sel.ok{border-color:var(--green);background:var(--green-soft)}
+    .lv-in.ok,.lv-sel.ok{border-color:var(--blue);background:#EAF0FF}
     .lv-in.bad,.lv-sel.bad{border-color:var(--red);background:#fdeaea}
     .lv-blist{display:flex;flex-direction:column;gap:14px}
     .lv-brow{font-weight:600;line-height:2}
@@ -1126,10 +1129,10 @@
     .img-trait{stroke:var(--red);stroke-width:2;stroke-dasharray:6 4;fill:none}
     .img-pt{fill:var(--red)}
     .img-line{font-weight:600;font-size:1.02rem;text-align:center;margin:0 0 12px;line-height:2.4}
-    /* La correction en bleu d'une case vide — la règle de partout. lvMarkFields
+    /* La correction en vert d'une case vide — la règle de partout. lvMarkFields
        posait déjà la classe, mais aucune règle ne la dessinait : la valeur
        s'écrivait avec l'encre d'une saisie ordinaire. */
-    .lv-in.sol{border-color:var(--blue);border-style:dashed;background:#EAF0FF;color:var(--blue)}
+    .lv-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
 /* ---- Pavé numérique compact des écrans tactiles ---- */
 #paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
   background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
@@ -1159,9 +1162,9 @@
     .vaf .vt-head{fill:none;stroke:var(--blue);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
     .vaf .vt-sel{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:.8rem;padding:1px 6px;border:1.3px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;opacity:.92}
     .vaf .vt-sel:focus{outline:none;border-color:var(--blue)}
-    .vnf .vv.ok{border-color:var(--green);background:var(--green-soft)}
+    .vnf .vv.ok{border-color:var(--blue);background:#EAF0FF}
     .vnf .vv.bad{border-color:var(--red);background:#fdeaea}
-    .vt-sel.ok{border-color:var(--green);background:var(--green-soft)}
+    .vt-sel.ok{border-color:var(--blue);background:#EAF0FF}
     .vt-sel.bad{border-color:var(--red);background:#fdeaea}
     /* ---- Tableau de variation : flèches reliant les valeurs ---- */
     .lv-vartbl2 .vfcell{position:relative;padding:0;border:none;vertical-align:middle}
@@ -1178,7 +1181,7 @@
     /* ---- Menu de sens, dans le tableau, au milieu de chaque flèche ---- */
     .vfcell .vt-sel2{position:absolute;transform:translate(-50%,-50%);width:48px;box-sizing:border-box;font-size:.98rem;padding:2px 0;border:1.4px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;z-index:3;cursor:pointer;box-shadow:0 0 0 3px var(--surface)}
     .vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
-    .vfcell .vt-sel2.ok{border-color:var(--green);background:var(--green-soft)}
+    .vfcell .vt-sel2.ok{border-color:var(--blue);background:#EAF0FF}
     .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
 
 /* ===================== GREFFE TERMINALE : cases mathematiques, jetons,
@@ -1187,10 +1190,10 @@
    dans une declaration ouverte et ferait ignorer tout ce qui suit). ===================== */
 body math-field.dexp-mf{border:2px solid var(--grid);outline:none;box-shadow:none;  --contains-highlight-background-color:transparent;}
 body math-field.dexp-mf:focus-within{outline:none;border-color:var(--blue);background:var(--surface);}
-math-field.dexp-mf.ok{border-color:var(--green);background:var(--green-soft);}
+math-field.dexp-mf.ok{border-color:var(--blue);background:#EAF0FF;}
 math-field.dexp-mf.bad{border-color:var(--red);background:var(--red-soft);}
-math-field.dexp-mf.sol{border-color:var(--blue);background:#EAF0FF;}
-.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;vertical-align:middle;line-height:1.5;}
 .sel-cor{display:block;margin-top:4px;color:var(--blue);font-weight:600;white-space:normal;}
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
 .rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
@@ -1227,8 +1230,8 @@ body math-field.dexp-mf{border-radius:10px;background:var(--surface);padding:2px
 math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
 math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
 math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
-/* Correction en bleu a cote d'une case fausse (mode entrainement, convention terminale). */
-.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--blue);border-radius:8px;background:#EAF0FF;color:var(--blue);font-weight:700;vertical-align:middle;line-height:1.5;}
+/* Correction en vert a cote d'une case fausse (mode entrainement, convention terminale). */
+.mf-cor{display:inline-block;margin-left:6px;padding:2px 8px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;vertical-align:middle;line-height:1.5;}
 .pt-row .mf-cor{font-size:1.2rem;align-self:center;}
 /* --- Pourcentages (pHost, aHost, dHost) — même traitement qu'en Première ---
    1) Les cases s'ecrivent dans la meme taille que les nombres qui les entourent
@@ -2022,7 +2025,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=104;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=105;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2281,7 +2284,7 @@ function mlFeuille(opts){
    une relecture, et sur aucun des exercices que Turquet avait signalés. C'est
    exactement ce que dit la règle : une règle valable partout doit être tenue
    par un contrôle qui va partout.
-   En entraînement, la case vide reçoit la réponse en bleu ; en soutien elle
+   En entraînement, la case vide reçoit la réponse en vert ; en soutien elle
    reste vide et modifiable, l'élève n'ayant pas fini. */
 function corrChoix(el, val, ok){
   if(!el) return;
@@ -2296,7 +2299,7 @@ function corrChoix(el, val, ok){
    tout le reste — la leçon de {somme-fractions}, portée aux exercices à
    listes. Sur « 6 cases justes sur 7 », l'explication déroulait la solution
    entière comme si l'élève s'était trompé, alors qu'il avait seulement oublié
-   une case — remplie en bleu par la correction. Quand il n'y a AUCUNE vraie
+   une case — remplie en vert par la correction. Quand il n'y a AUCUNE vraie
    faute, l'explication ne s'affiche pas du tout : expliquer une erreur qui
    n'existe pas donne tort à une lecture juste. */
 function msgAvecVides(subs, pourquoi){
@@ -2305,12 +2308,12 @@ function msgAvecVides(subs, pourquoi){
   const fautes=subs.filter(function(s){ return !s.ok && !s.vide; }).length;
   const justes=subs.filter(function(s){ return s.ok; }).length;
   let m='Il te manquait '+vides+(vides>1?' cases':' case')+' \u2014 la correction '
-       +(vides>1?'les a remplies':'l\u2019a remplie')+' en bleu.';
+       +(vides>1?'les a remplies':'l\u2019a remplie')+' en vert.';
   if(fautes) m+=' '+pourquoi;
   else if(justes) m+=' Le reste est juste !';
   return m;
 }
-/* ---- correction : vert / rouge + bonne reponse en bleu / bleu si vide ---- */
+/* ---- correction : bleu / rouge + bonne reponse en vert / vert si vide ---- */
 function corrCase(id, val, ok){
   const el=$(id); if(!el) return;
   const libelle=(el.tagName==='SELECT' && el.options)
@@ -2339,7 +2342,7 @@ function ptsEcran(){
     const scr=document.querySelector('.screen.on'); if(!scr) return null;
     /* « pts-case » : une réponse qui n'est ni un champ ni une liste. Les deux
        colonnes de {simplifier-barres} sont des réponses à part entière — on
-       les colorie vert, rouge ou bleu comme une case —, et sans cette classe
+       les colorie bleu, rouge ou vert comme une case —, et sans cette classe
        elles sortaient du compte : la page annonçait « 3 cases justes sur 3 »
        sur une question qui en vaut 5. C'est le défaut de « good » au lieu de
        « ok », par une autre porte : la note enregistrée était juste, seule
@@ -3835,7 +3838,7 @@ function choisirPge(k){
   const btns=[...document.querySelectorAll('#pgeOpts .pge-opt')];
   const clicked=btns.find(b=>b.dataset.k===k);
   if(k===bon){
-    if(clicked){ clicked.classList.remove('bad'); clicked.classList.add('good'); }
+    if(clicked){ clicked.classList.remove('bad'); clicked.classList.add('ok'); }
     btns.forEach(b=>b.disabled=true);
     test.locked=true; test.score++; $('pgeScore').textContent=test.score;
     $('pgeFeedback').textContent=pgeWhy(q,bon,true); $('pgeFeedback').className='mp-feedback good';
@@ -3846,7 +3849,7 @@ function choisirPge(k){
     $('pgeFeedback').textContent='Ce n’est pas le plus petit. '+pgeHint(q,k); $('pgeFeedback').className='mp-feedback bad';
   } else {
     if(clicked) clicked.classList.add('bad');
-    btns.forEach(b=>{ b.disabled=true; if(b.dataset.k===bon) b.classList.add('good'); });
+    btns.forEach(b=>{ b.disabled=true; if(b.dataset.k===bon) b.classList.add('sol'); });
     test.locked=true;
     $('pgeFeedback').textContent=pgeWhy(q,bon,false); $('pgeFeedback').className='mp-feedback bad';
     test.answers.push({...(ptsExo()||{}),correct:false, q:q.plain+' → '+PGE_SYM[bon], answer:PGE_SYM[bon], given:PGE_SYM[k]});
@@ -5313,7 +5316,7 @@ function lvCheckPart(q){
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
 }
 /* Même règle que corrChoix(), et pour la même raison : une case laissée VIDE
-   n'est pas une erreur de calcul. Elle reçoit la réponse en bleu en
+   n'est pas une erreur de calcul. Elle reçoit la réponse en vert en
    entraînement, et rien en soutien — où lvLive() faisait déjà le bon geste
    pendant la frappe, mais où la vérification finale le défaisait. */
 function lvMarkFields(res, final){
@@ -5582,7 +5585,7 @@ function renderAnt(){
    le même antécédent posé deux fois est défendable une fois, faux la seconde.
    C'est la règle des paires de {somme-fractions}, transposée. Les cases
    restées sans correspondance reçoivent en partage les antécédents restants :
-   c'est la valeur que la correction en bleu écrira dedans. */
+   c'est la valeur que la correction en vert écrira dedans. */
 function antCheck(q){
   const ants=antAnts(q), y0=q.y0, n=ants.length, subs=[];
   const take=(left,v)=>{ if(v===null) return false; const i=left.indexOf(v); if(i>=0){ left.splice(i,1); return true; } return false; };
@@ -5857,9 +5860,10 @@ function checkIngAnswer(live){
   /* le dessin juste se montre : on entoure la carte choisie, et la bonne */
   const cartes=document.querySelectorAll('#ingHost .ing-carte');
   const bon=q.perm.indexOf(q.op);
-  cartes.forEach(function(el,i){ el.classList.remove('ok','bad');
-    if(i===bon) el.classList.add('ok');
-    else if(String(i)===(($('ing-sch')||{}).value||'')) el.classList.add('bad');
+  cartes.forEach(function(el,i){ el.classList.remove('ok','bad','sol');
+    const choisi=String(i)===(($('ing-sch')||{}).value||'');
+    if(i===bon) el.classList.add(choisi?'ok':'sol');   /* choisie et juste = bleu ; montrée = correction, verte */
+    else if(choisi) el.classList.add('bad');
   });
   if(!res.allOk && isSoutien()){ soutienAgain('ingFeedback','ingActions','checkIngAnswer','ingHost'); return; }
   test.locked=true;
@@ -6998,10 +7002,10 @@ function renderPTest(){
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
-/* ---- Mode entraînement : corrections en bleu après la vérification ----
+/* ---- Mode entraînement : corrections en vert après la vérification ----
    Convention de terminale : une case fausse garde la réponse de l'élève et la
-   bonne réponse s'affiche en bleu juste à côté ; une case laissée vide est
-   complétée en bleu. Uniquement en entraînement — en soutien l'élève corrige
+   bonne réponse s'affiche en vert juste à côté ; une case laissée vide est
+   complétée en vert. Uniquement en entraînement — en soutien l'élève corrige
    lui-même, en évaluation seul le message de méthode s'affiche. */
 function corTrainDec(id,attendu){
   if(currentMode!=='train') return;
@@ -8052,7 +8056,7 @@ function sfJuge(q){
   const d1=(q.d1===1)?1:q.d1, d2=(q.d2===1)?1:q.d2;
   /* UN GROUPE SE JUGE SUR LES CASES QUE L'ÉLÈVE A ÉCRITES, jamais sur celles
      qu'il a laissées vides — et une case vide ne reçoit AUCUNE couleur : c'est
-     la correction en bleu qui la remplit. Deux signalements de Turquet en
+     la correction en vert qui la remplit. Deux signalements de Turquet en
      août 2026, le même défaut à deux profondeurs : « 9 et 9 » posés sous la
      première fraction, le reste vide, comptés FAUX ; puis « 8 » seul dans une
      case, sa jumelle encore vide, compté FAUX lui aussi. Une case était donc
@@ -8128,7 +8132,7 @@ function sfJuge(q){
      réellement posée, à défaut celle du PPCM.
      AUCUNE ROUTE CHOISIE — l'élève a écrit une case plus loin sans avoir posé
      l'étape ① : on juge alors sur la voie du PPCM, qui est exactement celle que
-     la correction en bleu écrira à côté. Sans ce repli, une case juste
+     la correction en vert écrira à côté. Sans ce repli, une case juste
      rougirait parce que les cases d'AVANT sont vides : le défaut d'août 2026
      une troisième fois, une case plus loin encore. Rouge veut dire FAUX, jamais
      « je ne peux pas savoir ». */
@@ -8236,7 +8240,7 @@ function checkSFAnswer(live){
   if(live){ sfLive(); return; }
   const r=sfJuge(q);
   /* Une case VIDE ne reçoit aucune couleur — elle n'est pas une erreur de
-     calcul. En entraînement la correction l'écrit en bleu juste après ; en
+     calcul. En entraînement la correction l'écrit en vert juste après ; en
      soutien elle reste à remplir, et donc modifiable. */
   const mark=(ids,ok)=>ids.forEach(id=>{ const el=$(id); if(!el) return;
     el.classList.remove('ok','bad');
@@ -8256,7 +8260,7 @@ function checkSFAnswer(live){
   /* « r.vide » est indispensable ici : chaque étape se juge désormais sur les
      cases écrites, donc une copie à moitié remplie peut voir ses quatre
      verdicts au vert. Sans ce garde-fou elle vaudrait le point entier, et les
-     cases laissées vides ne recevraient même pas la correction en bleu. */
+     cases laissées vides ne recevraient même pas la correction en vert. */
   const allOk=r.ok1&&r.ok2&&r.ok3&&r.ok4&&(!test.simp||(r.okS&&r.okQ))&&!r.vide;
   if(!allOk && isSoutien()){ soutienAgain('sfFeedback','sfActions','checkSFAnswer','sfHost'); return; }
   test.locked=true;
@@ -8265,7 +8269,7 @@ function checkSFAnswer(live){
     $('sfFeedback').className='mp-feedback good';
   } else {
     $('sfFeedback').textContent=sfPourquoi(q,r); $('sfFeedback').className='mp-feedback bad';
-    /* corrections en bleu, comme partout : on montre la voie du PPCM */
+    /* corrections en vert, comme partout : on montre la voie du PPCM */
     corTrainDec('sf-a1',q.k1); corTrainDec('sf-b1',q.k1);
     corTrainDec('sf-a2',q.k2); corTrainDec('sf-b2',q.k2);
     corTrainDec('sf-num1',q.N1); corTrainDec('sf-num2',q.N2); corTrainDec('sf-den',q.D);
@@ -8295,7 +8299,7 @@ function checkSFAnswer(live){
   const nb=$('sfNext'); if(nb) nb.focus();
 }
 function sfPourquoi(q,r){
-  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en bleu : compare-les à ce que tu as écrit.';
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
   /* UNE MOITIÉ JUSTE SE DIT. Quand une seule des deux paires mène quelque
      part, elle est verte à l'écran : lui répondre « il faut le même
      dénominateur des deux côtés » est vrai mais aveugle — l'élève ne sait pas
@@ -8840,7 +8844,7 @@ function renderMltTest(){
 /* Le message dit la VÉRITÉ, et nomme l'erreur visée quand c'est elle : un élève
    qui met au même dénominateur écrit deux fois le même nombre en bas. */
 function mltPourquoi(q,r){
-  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en bleu : compare-les à ce que tu as écrit.';
+  if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
   /* L'ERREUR VISÉE PAR LA DIVISION : ne pas retourner la seconde fraction. Le
      message la nomme, plutôt que de dire seulement « faux ». */
   if(test && test.inv && !r.inverse){
@@ -8888,7 +8892,7 @@ function checkMltAnswer(live){
     $('mltFeedback').className='mp-feedback good';
   } else {
     $('mltFeedback').textContent=mltPourquoi(q,r); $('mltFeedback').className='mp-feedback bad';
-    /* la correction en bleu suit l'ordre de l'énoncé */
+    /* la correction en vert suit l'ordre de l'énoncé */
     if(test.inv){ corTrainDec('mlt-i1',q.d2); corTrainDec('mlt-i2',q.n2); }
     corTrainDec('mlt-h1',q.a1); corTrainDec('mlt-h2',q.a2);
     corTrainDec('mlt-b1',q.b1); corTrainDec('mlt-b2',q.b2);
@@ -9456,7 +9460,7 @@ function smpClicR(i){ if(test.locked) return; const q=test.questions[test.idx];
   q.selR=(q.selR===i?i-1:i); smpMajCol(); autoSave(); if(isSoutien()) checkSmpAnswer(true); }
 /* UNE COLONNE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX ; une colonne
    que l'élève n'a pas coloriée n'est pas une erreur, elle reçoit la correction
-   en bleu comme une case de saisie. C'est la règle que la Seconde a réapprise
+   en vert comme une case de saisie. C'est la règle que la Seconde a réapprise
    trois fois en une journée d'août 2026 — elle vaut ici dès le premier jour. */
 function smpMarqueCol(id, ok, vide){
   const c=$(id); if(!c) return;
@@ -9524,7 +9528,7 @@ function checkSmpAnswer(live){
   } else {
     $('smpFeedback').textContent=smpPourquoi(q,{okL:okL,okR:okR,ok1:ok1,ok2:ok2,ok3:ok3,vide:vide});
     $('smpFeedback').className='mp-feedback bad';
-    /* Mode entraînement : la bonne hauteur apparaît en bleu sur chaque colonne
+    /* Mode entraînement : la bonne hauteur apparaît en vert sur chaque colonne
        fausse OU vide, et les trois cases reçoivent leur correction. En soutien
        on ne montre rien — l'élève y corrige lui-même. */
     if(currentMode==='train'){
@@ -9686,7 +9690,7 @@ function checkOrdAnswer(live){
   const subs=cases.map(function(c){ const sel=$(c.id); return {c:c, sel:sel, ok:!!sel&&sel.value===c.bon}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   /* chaque case a son verdict : une case juste ne rougit pas pour sa voisine,
-     et une case vide reçoit la correction en bleu (corrChoix) */
+     et une case vide reçoit la correction en vert (corrChoix) */
   subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('ordFeedback','ordActions','checkOrdAnswer','ordHost'); return; }
   test.locked=true;
@@ -9764,10 +9768,10 @@ function ctxOrd(q){
       enseigne.
 
    LA COULEUR NE PORTE JAMAIS SEULE : les flèches disent la même chose que les
-   couleurs, et l'énoncé la dit en toutes lettres. Le bleu et l'orange sont
-   choisis pour ne pas se confondre avec le vert et le rouge de la correction —
-   ni entre eux pour un daltonien, qui distingue mal le vert du rouge mais très
-   bien le bleu de l'orange. */
+   couleurs, et l'énoncé la dit en toutes lettres. Le violet et l'orange sont
+   choisis pour ne pas se confondre avec le bleu, le vert et le rouge de la
+   correction — ni entre eux pour un daltonien, qui distingue mal le vert du
+   rouge mais très bien le violet de l'orange. */
 let crdRedessine=null;
 
 /* Où vont les flèches : de CHAQUE dénominateur de départ vers le bloc de
@@ -9810,7 +9814,7 @@ function crdDessinerFleches(){
   const hote=$('sfHost'); if(!hote) return;
   const vieux=hote.querySelector('.crd-fleches'); if(vieux) vieux.remove();
   const p=crdPoints(); if(!p || !p.larg) return;
-  const A=getComputedStyle(document.documentElement).getPropertyValue('--crd-a').trim()||'#1D4ED8';
+  const A=getComputedStyle(document.documentElement).getPropertyValue('--crd-a').trim()||'#7C3AED';
   const B=getComputedStyle(document.documentElement).getPropertyValue('--crd-b').trim()||'#C2410C';
   const pointe=(id,c)=>'<marker id="'+id+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5"'
     +' markerHeight="5.5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="'+c+'"></path></marker>';
@@ -10572,9 +10576,10 @@ function checkItqAnswer(live){
   subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
   /* le schéma juste se montre : on entoure la carte choisie, et la bonne */
   const cartes=document.querySelectorAll('#itqHost .itq-carte');
-  cartes.forEach(function(el,i){ el.classList.remove('ok','bad');
-    if(i===q.bon) el.classList.add('ok');
-    else if(String(i)===(($('itq-sch')||{}).value||'')) el.classList.add('bad');
+  cartes.forEach(function(el,i){ el.classList.remove('ok','bad','sol');
+    const choisi=String(i)===(($('itq-sch')||{}).value||'');
+    if(i===q.bon) el.classList.add(choisi?'ok':'sol');   /* choisie et juste = bleu ; montrée = correction, verte */
+    else if(choisi) el.classList.add('bad');
   });
   if(!allOk && isSoutien()){ soutienAgain('itqFeedback','itqActions','checkItqAnswer','itqHost'); return; }
   test.locked=true;

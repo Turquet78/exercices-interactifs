@@ -2594,6 +2594,84 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- Les couleurs de la vérification : JUSTE en bleu, FAUX en rouge, la
+       CORRECTION en vert (décision de Turquet, août 2026). Les classes ne
+       suffisent pas : « ok » peut rester posé pendant qu'une feuille de styles
+       le peint encore en vert — c'est un défaut de PEINTURE, et seul un
+       navigateur voit la peinture. On relit donc chaque règle CSS qui vise une
+       classe de verdict (.ok, .bad, .sol, et le badge .mf-cor), on résout ses
+       var(--…), et on classe chaque encre par sa dominante : une règle .ok qui
+       porte une encre verte, ou une règle .sol qui porte une encre bleue,
+       rougit en nommant son sélecteur. Les encres presque blanches (fonds
+       adoucis) ne disent rien et sont ignorées. Les exceptions sont NOMMÉES :
+       .dm-go (bouton de devoir), .review et #toast (récapitulatif, message),
+       .mp-tag et .mark (pastilles ✓/✗) sont des verdicts d'à-côté, restés
+       verts — la demande porte sur les cases. Une famille de cases ajoutée
+       demain entre dans la feuille de styles, donc dans ce contrôle, sans
+       rien déclarer. */
+    titre('9 bis. LES COULEURS DE LA VÉRIFICATION : BLEU JUSTE, ROUGE FAUX, VERT CORRECTION');
+    s = await ouvrir(chromium, ml);
+    {
+      const teintes = await s.page.evaluate(() => {
+        const probe = document.createElement('div'); document.body.appendChild(probe);
+        const rgb = tok => { probe.style.color = ''; probe.style.color = tok;
+          const m = getComputedStyle(probe).color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          return m ? [+m[1], +m[2], +m[3]] : null; };
+        const dominante = c => { const [r, g, b] = c;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          if(max < 100 || max - min < 30) return null;   /* encre neutre : fond adouci, blanc, gris */
+          return b >= max ? 'bleu' : (g >= max ? 'vert' : 'rouge'); };
+        const resoudre = tok => { const m = tok.match(/var\((--[\w-]+)\)/);
+          return m ? getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim() : tok; };
+        const soucis = [], vusOk = [], vusSol = [];
+        const exceptions = /\.dm-go|\.review|#toast|\.mp-tag|\.mark(?![\w-])/;
+        const lireRegle = r => {
+          /* CSS imbriqué : TOUTE règle porte un cssRules (souvent vide mais
+             truthy) — on descend dedans ET on lit la règle elle-même, sinon
+             la récursion avale tout et le contrôle mesure zéro règle. */
+          if(r.cssRules) for(const q of r.cssRules) lireRegle(q);
+          if(!r.selectorText || !r.style) return;
+          const sel = r.selectorText;
+          const quoi = /\.mf-cor(?![\w-])/.test(sel) ? 'sol'
+            : /\.sol(?![\w-])/.test(sel) ? 'sol'
+            : /\.ok(?![\w-])/.test(sel) ? 'ok'
+            : /\.bad(?![\w-])/.test(sel) ? 'bad' : null;
+          if(!quoi || exceptions.test(sel)) return;
+          const encres = [];
+          for(const p of ['color', 'background-color', 'border-color', 'border-top-color',
+                          'border-bottom-color', 'border-left-color', 'border-right-color', 'fill', 'stroke']){
+            const v = r.style.getPropertyValue(p); if(!v) continue;
+            const c = rgb(resoudre(v)); if(!c) continue;
+            const d = dominante(c); if(d) encres.push(d);
+          }
+          if(!encres.length) return;
+          const interdits = quoi === 'ok' ? ['vert'] : quoi === 'sol' ? ['bleu'] : ['vert', 'bleu'];
+          const attendu = quoi === 'ok' ? 'bleu' : quoi === 'sol' ? 'vert' : 'rouge';
+          for(const d of encres) if(interdits.indexOf(d) >= 0)
+            soucis.push(sel + ' porte une encre ' + d + ' (attendu : ' + attendu + ')');
+          if(quoi === 'ok' && encres.indexOf('bleu') >= 0) vusOk.push(sel);
+          if(quoi === 'sol' && encres.indexOf('vert') >= 0) vusSol.push(sel);
+        };
+        for(const feuille of document.styleSheets){
+          let regles; try{ regles = feuille.cssRules; }catch(e){ continue; }
+          for(const r of regles) lireRegle(r);
+        }
+        probe.remove();
+        return { soucis: [...new Set(soucis)], nbOk: vusOk.length, nbSol: vusSol.length };
+      });
+      verifier('les règles .ok sont bleues, .sol et .mf-cor vertes, .bad rouges',
+        teintes.soucis.length === 0, teintes.soucis.slice(0, 4).join(' | '));
+      /* Sans ce second bord, une feuille de styles VIDÉE de ses règles de
+         verdict passerait au vert : un contrôle qui n'a rien à mesurer ne
+         mesure rien. */
+      verifier('la convention des couleurs a des règles à tenir',
+        teintes.nbOk > 0 && teintes.nbSol > 0,
+        teintes.nbOk + ' règle(s) .ok bleue(s), ' + teintes.nbSol + ' règle(s) .sol verte(s)');
+      verifier('la lecture des couleurs ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ---- Les retours à la ligne du modèle arrivent-ils à l'écran ? --------
        Le modèle a pour consigne d'aller à la ligne souvent — une étape par
        ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,

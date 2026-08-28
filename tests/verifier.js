@@ -1253,29 +1253,23 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
-  /* ---- 3 questions pour les AUGMENTATIONS, 2.2.1 à 2.2.8 (demande de
-     Turquet, août 2026) — et le bord opposé : les DIMINUTIONS gardent leurs
-     6, sans quoi la réduction aurait fui par les démarreurs partagés. */
-  if(P.nbQuestionsAugmentations){
-    verifierEval(w, 'les exercices sur les augmentations posent 3 questions, les diminutions gardent les leurs', `(function(){
-      const attendu=${JSON.stringify(P.nbQuestionsAugmentations)}, vus=[];
+  /* ---- 3 questions pour toutes les ÉVOLUTIONS, hausses 2.2.1 à 2.2.8 et
+     baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en deux temps).
+     On appelle les QUINZE vrais démarreurs : un nombre changé dans un
+     démarreur partagé ne dit rien des autres. */
+  if(P.nbQuestionsEvolutions){
+    verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
+      const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
       [['2.2.1','startAug'],['2.2.2','startAugAdd'],['2.2.3','startAugDepart'],['2.2.4','startAugDepAdd'],
-       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug']]
+       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
+       ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
+       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
         if(!test.questions || test.questions.length!==attendu)
           vus.push(e[0]+' : '+(test.questions?test.questions.length:0)+' questions au lieu de '+attendu);
-      });
-      /* les diminutions, elles, posent toujours 6 questions (leur réglage du jour) */
-      [['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
-       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],['2.5.1','startSyn']]
-      .forEach(function(e){
-        if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
-        window[e[1]]();
-        if(!test.questions || test.questions.length!==6)
-          vus.push(e[0]+' : la réduction des augmentations a fui — '+(test.questions?test.questions.length:0)+' questions au lieu de 6');
       });
       return vus.join(' | ');
     })()`, v => v === '', undefined);
@@ -2896,7 +2890,7 @@ function etudeCompleteClique(w, apres){
     await checkEC();
     if(test.score!==46) vus.push('cases justes + dérivée fausse : '+test.score+' au lieu de 46');
 
-    /* deux cases fausses : décomptées, puis révélées en vert */
+    /* deux cases fausses : décomptées, puis révélées (correction verte, classe sol) */
     verdictOk=true;
     poser(Object.assign({},BON,{'ec-e3':999,'ec-g11':999})); ecF=feuille("f'(x) = (-x+4)e^(-x)"); test.score=0;
     await checkEC();
@@ -4721,7 +4715,7 @@ function inequationGraphique(w, P){
    copie à une faute, la paire de la tangente dans l'autre ordre, et les cases
    vides du soutien. Le clic complet — avec la feuille lue par l'IA — vit dans
    la chaîne séquentielle (etudeCompleteClique), le piège documenté de sb. */
-/* ---- Une liste vide reçoit la correction en bleu, et le message dit d'abord
+/* ---- Une liste vide reçoit la correction en vert, et le message dit d'abord
    les cases manquantes -------------------------------------------------------
    Signalé par Turquet sur une capture (août 2026) : « 6 cases justes sur 7 »
    sur {intervalles-inegalite} avec toutes les réponses visiblement justes. La
@@ -4731,7 +4725,7 @@ function inequationGraphique(w, P){
    listes — et le message rouge déroulait la solution entière comme si l'élève
    s'était trompé.
    Quatre bords, et n'en tenir qu'un ne tient rien : la règle CSS existe ; une
-   case vide seule donne « il te manquait 1 case … en bleu » SANS dérouler
+   case vide seule donne « il te manquait 1 case … en vert » SANS dérouler
    l'explication (elle donnerait tort à une lecture juste) ; une vraie faute
    garde l'explication ; les deux ensemble donnent les deux. Puis le même
    geste sur {intervalles} et {inequation-graphique}, qui partagent corrChoix
@@ -4739,11 +4733,11 @@ function inequationGraphique(w, P){
 function correctionBleueListes(w, P){
   const present = evaluer(w, "typeof startItq==='function' && typeof itqCases==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('une liste vide reçoit la correction en bleu, et le message dit d\'abord les cases manquantes',
+    ignorer('une liste vide reçoit la correction en vert, et le message dit d\'abord les cases manquantes',
       'ce niveau n\'a pas les exercices d\'intervalles à listes');
     return;
   }
-  verifierEval(w, 'une liste vide reçoit la correction en bleu, et le message dit d\'abord les cases manquantes', `(function(){
+  verifierEval(w, 'une liste vide reçoit la correction en vert, et le message dit d\'abord les cases manquantes', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
 
@@ -4771,7 +4765,7 @@ function correctionBleueListes(w, P){
     if(!og || !og.classList.contains('sol')) vus.push('la case vide ne porte pas la classe « sol » après la vérification');
     if(og && og.value!=='ferme') vus.push('la case vide n\\'a pas reçu la bonne réponse : '+(og?og.value:'(absente)'));
     if(fb.indexOf('Il te manquait 1 case')!==0) vus.push('le message ne commence pas par « Il te manquait 1 case » : '+fb.slice(0,60));
-    if(fb.indexOf('bleu')<0) vus.push('le message ne dit pas que la correction est en bleu');
+    if(fb.indexOf('vert')<0) vus.push('le message ne dit pas que la correction est en vert');
     if(fb.indexOf('Le reste est juste')<0) vus.push('le message ne dit pas que le reste est juste');
     if(fb.indexOf('se lit')>=0) vus.push('le message déroule l\\'explication alors qu\\'aucune case n\\'est fausse — il donne tort à une lecture juste');
     /* b. une vraie faute, aucune case vide : l'explication reste */
@@ -5101,7 +5095,7 @@ function tangenteExp(w, P){
 
     /* en entraînement, une copie fausse révèle les bonnes réponses en vert */
     poser(Object.assign({},BON,{'tx-f-b3':A.b1+1})); checkTX();
-    if(peint('tx-f-b3')!=='vert') vus.push('la correction ne révèle pas la bonne réponse ('+peint('tx-f-b3')+')');
+    if(!/\\bsol\\b/.test((document.getElementById('tx-f-b3')||{}).className||'')) vus.push('la case fausse révélée ne porte pas « sol » — la correction verte ('+peint('tx-f-b3')+')');
     if(String(document.getElementById('tx-f-b3').value)!==numFmt(A.b1)) vus.push('la valeur révélée n\\'est pas la bonne');
     if(!test.locked) vus.push('la question fausse ne se verrouille pas en entraînement');
 
@@ -5940,16 +5934,16 @@ function associerDerivee(w, P){
     r=pose(P1,'b',{ 'ef-r0':'0','ef-l0s0':'\\u2212','ef-l0s1':'+','ef-a0':'down','ef-a1':'up' });
     if(r.score!==0) vus.push('la table de f\\' aux signes inversés est acceptée');
     /* la convention COMMUNE (corrCase) : la saisie fausse RESTE en rouge, la
-       bonne réponse s'affiche en bleu à côté — la révélation en vert du
+       bonne réponse s'affiche en vert à côté — la révélation intégrale du
        premier jet peignait tout l'écran en vert sous « quelques erreurs »,
        signalé par Turquet sur une capture. */
     { const el=document.getElementById('ef-l0s0'), b=el&&el.nextElementSibling;
       if(!el || el.value!=='\u2212' || !el.classList.contains('bad'))
         vus.push('la saisie fausse doit RESTER en rouge, avec ce que l\\'élève a choisi');
       if(!b || !b.classList || !b.classList.contains('mf-cor') || b.textContent!=='+')
-        vus.push('la bonne réponse en bleu manque à côté de la case fausse'); }
+        vus.push('la bonne réponse en vert manque à côté de la case fausse'); }
     { const css=Array.prototype.map.call(document.querySelectorAll('style'),function(st){ return st.textContent; }).join('\\n');
-      if(!/\.s1-in\.sol\s*\{/.test(css)) vus.push('aucune règle .s1-in.sol : la case vide remplie en bleu s\\'écrit à l\\'encre ordinaire'); }
+      if(!/\.s1-in\.sol\s*\{/.test(css)) vus.push('aucune règle .s1-in.sol : la case vide remplie en vert s\\'écrit à l\\'encre ordinaire'); }
     /* une copie vide ne rougit pas et ne verrouille pas */
     r=pose(P1,'a',{});
     if(r.rouges.length) vus.push('une copie vide rougit : '+r.rouges.join(','));
@@ -5959,7 +5953,7 @@ function associerDerivee(w, P){
     if(r.rouges.length) vus.push('des cases vides rougissent quand une seule est remplie : '+r.rouges.join(','));
     { const el=document.getElementById('ef-l0s0');
       if(!el || !el.classList.contains('sol') || el.value!=='+')
-        vus.push('la case restée vide n\\'est pas remplie en bleu à la vérification'); }
+        vus.push('la case restée vide n\\'est pas remplie en vert à la vérification'); }
     /* le bord n'est atteignable qu'en SOUTIEN : en entraînement, la révélation
        en vert repasse derrière et efface le rouge — la leçon documentée des
        sabotages impossibles */
@@ -6099,11 +6093,11 @@ function variationsDerivee(w, P){
     }
     let r=pose('1');   /* le vrai est au rang 1 (lettre b) */
     if(r.score!==1) vus.push('la bonne lettre est refusée');
-    if(r.cartes[1].indexOf('ok')<0) vus.push('la bonne carte ne se montre pas en vert');
+    if(r.cartes[1].indexOf('ok')<0) vus.push('la bonne carte choisie ne se marque pas juste (ok)');
     r=pose('0');       /* rang 0 = le piège des sommets */
     if(r.score!==0) vus.push('le piège des sommets est accepté');
     if(r.fb.indexOf('SOMMETS')<0) vus.push('le retour ne nomme pas le piège des sommets choisi');
-    if(r.cartes[0].indexOf('bad')<0 || r.cartes[1].indexOf('ok')<0) vus.push('les cartes ne montrent pas le choisi et la bonne');
+    if(r.cartes[0].indexOf('bad')<0 || r.cartes[1].indexOf('sol')<0) vus.push('les cartes ne montrent pas le choisi (bad) et la bonne en correction (sol)');
     r=pose('3');       /* rang 3 = les sens inversés */
     if(r.fb.indexOf('INVERSE')<0) vus.push('le retour ne nomme pas l\\'inversion des sens choisie');
     r=pose(null);      /* rien choisi */
@@ -7604,7 +7598,7 @@ function premiere(w){
   verifier('2.2 : les 4 propositions donnent toutes un calcul entier', qdPb === 0, qdPb + ' anomalies');
 
   /* convention des modes dans les poses en colonnes : en ÉVALUATION, aucune
-     correction révélée ; en ENTRAÎNEMENT, la case vide est complétée en bleu */
+     correction révélée ; en ENTRAÎNEMENT, la case vide est complétée en vert */
   const modesPose = w.eval(`(function(){
     currentMode='eval';
     test.kind='mp'; test.questions=[genMultPosee()]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
@@ -7621,7 +7615,7 @@ function premiere(w){
   })()`);
   const [fuites, bleues] = modesPose.split('|').map(Number);
   verifier('en évaluation, la pose ne révèle rien', fuites === 0, fuites + ' case(s) révélée(s)');
-  verifier('en entraînement, la case vide est complétée en bleu', bleues > 0, 'aucune case .sol');
+  verifier('en entraînement, la case vide est complétée en vert', bleues > 0, 'aucune case .sol');
 
   /* pas de « 52,5 licenciés » : une valeur finale décimale interdit les
      contextes dénombrables (ent:true) dans les quatre générateurs augq */

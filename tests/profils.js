@@ -181,10 +181,10 @@ module.exports = {
     /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026) —
        DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
     nbQuestionsPourcentages: 4,
-    /* 3 questions pour tous les exercices sur les AUGMENTATIONS, 2.2.1 à
-       2.2.8 (demande de Turquet, août 2026) — les diminutions gardent leurs
-       6. DEUX sources : la page a AUG_NB, le banc compare à ceci. */
-    nbQuestionsAugmentations: 3,
+    /* 3 questions pour tous les exercices sur les ÉVOLUTIONS — hausses 2.2.1
+       à 2.2.8 ET baisses 2.3.1 à 2.3.7 (demande de Turquet, août 2026, en
+       deux temps). DEUX sources : la page a EVOL_NB, le banc compare à ceci. */
+    nbQuestionsEvolutions: 3,
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
     tableResultats: 'resultats_1ere',
