@@ -1642,6 +1642,29 @@ de pause, la pose se reconstruit depuis les facteurs restaurés ; les
 chiffres qui y avaient été posés ne sont pas conservés — c'est un
 brouillon d'aide, pas une réponse.
 
+**La synthèse des augmentations est la synthèse des évolutions, HAUSSES
+seules.** {synthese-augmentations} (2.2.8, demande de Turquet, août 2026)
+reprend le moteur du 2.5.1 — même écran, même correction, mêmes méthodes —
+et n'en garde que les hausses : même moteur, pas même identité (`test.qId`,
+le motif du calcul mental ; « Recommencer » route par l'identité, la clé du
+rappel vit dans `tests/profils.js`, la note part sous
+`test.qId||'synthese-pourcentages'` — le motif maison des fins partagées).
+Les trois inconnues — le résultat, la valeur initiale, le pourcentage —
+sortent chacune UNE fois sur les trois questions, en ordre mélangé : sans
+quoi l'élève apprendrait que la question est toujours du même genre.
+`genSyn` a simplement appris deux paramètres facultatifs (famille,
+inconnue) ; un second tirage aurait fini par diverger.
+
+**Les exercices sur les AUGMENTATIONS posent 3 questions** — 2.2.1 à 2.2.8
+(demande de Turquet, août 2026) ; les diminutions gardent leurs 6. Les
+démarreurs sont PARTAGÉS entre hausses et baisses (`startEvolAdd`,
+`startA2Q`, `startAUGQ`) : le nombre passe en paramètre, `AUG_NB` pour les
+hausses, le réglage d'avant sinon — écrire 3 dans le démarreur partagé
+aurait réduit les baisses en silence. Le contrôle compare à
+`tests/profils.js` (`nbQuestionsAugmentations`) et tient le bord opposé :
+chaque exercice de diminution doit garder ses 6 questions — le sabotage
+« la réduction a fui » l'a montré en nommant le 2.3.5.
+
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
 coefficient, l'élève dit le sens puis le pourcentage. Le piège qu'il vise est

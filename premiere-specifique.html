@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=167;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=168;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2058,6 +2058,7 @@ const TESTS={
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
+  'synthese-augmentations':{ name:'Synth\u00e8se sur les augmentations', icon:'\ud83d\udcc8', desc:'La synth\u00e8se de {synthese-pourcentages}, mais uniquement sur les HAUSSES : le r\u00e9sultat, la valeur initiale ou le pourcentage d\u2019une augmentation \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la avec la m\u00e9thode de ton choix.', start:()=>startSynAug() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
@@ -2090,7 +2091,7 @@ const THEMES=[
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre'] },
-      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives'] },
+      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','synthese-augmentations'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
@@ -2153,7 +2154,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') startSyn(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -5417,15 +5418,21 @@ function buildPoseSub(hTop, hBot, hostId){
     +`<div class="mp-row">${cell('op')}${rowRes}</div>`
     +`</div>`;
 }
-async function startEvolAdd(id, gen){
+/* Les exercices sur les AUGMENTATIONS posent 3 questions (demande de Turquet,
+   août 2026) — les diminutions gardent leurs 6. La constante vit ici, à côté
+   du premier démarreur qui la lit ; le contrôle la compare à tests/profils.js
+   (nbQuestionsAugmentations) : deux sources, comme SF_NB — lire la page et la
+   comparer à elle-même ne prouverait rien. */
+const AUG_NB=3;
+async function startEvolAdd(id, gen, nb){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2'; test.qId=id;
-  test.questions=Array.from({length:6},gen);
+  test.questions=Array.from({length:nb||6},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('ag2test'); renderAG2Test();
 }
-async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd); }
+async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd, AUG_NB); }
 async function startDimSub(){ return startEvolAdd('diminuer-soustraction', genDimSub); }
 function updateAG2Step5(){
   const st=$('ag2Step5'); if(!st) return;
@@ -5612,11 +5619,11 @@ function a2qCouple(q){
   return {P,N,prod:P*N,aug,fin,
     augStr:String(aug).replace('.',','), finStr:String(fin).replace('.',',')};
 }
-async function startA2Q(id, gen){
+async function startA2Q(id, gen, nb){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='ag2q'; test.qId=id;
-  test.questions=Array.from({length:AUGQ_NB},gen);
+  test.questions=Array.from({length:nb||AUGQ_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('a2qtest'); renderWTest();
 }
@@ -5646,9 +5653,9 @@ function genDimDepSub(){
   q.v=rand(0,DIMQ_EN_VAL.length-1);
   return q;
 }
-async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd); }
+async function startAugDepAdd(){ return startA2Q('augmenter-depart-addition', genAugDepAdd, AUG_NB); }
 async function startDimTauxSub(){ return startA2Q('diminuer-taux-soustraction', genDimTauxSub); }
-async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd); }
+async function startAugTauxAdd(){ return startA2Q('augmenter-taux-addition', genAugTauxAdd, AUG_NB); }
 async function startDimDepSub(){ return startA2Q('diminuer-depart-soustraction', genDimDepSub); }
 function choisirW(i){
   if(test.locked) return;
@@ -5847,9 +5854,9 @@ async function finishA2Q(){
    multiplicateur (comme 3.2.1) ou calcul direct de l'augmentation/la baisse
    (comme 3.2.4) — chacune présentée exactement comme dans ces exercices. */
 const SYN_NB=6;
-function genSyn(){
-  const fam=pick(['pct','aug','dim']);
-  const inc=pick(['fin','ini','pct']);
+function genSyn(famVoulu, incVoulu){
+  const fam=famVoulu||pick(['pct','aug','dim']);
+  const inc=incVoulu||pick(['fin','ini','pct']);
   let q;
   if(fam==='pct'){
     if(inc==='pct'){
@@ -5919,8 +5926,23 @@ function synLabel(q,v){ return (q.inc==='pct') ? (v+'\u00a0%') : (v+' '+q.unit);
 async function startSyn(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
-  test.kind='syn';
-  test.questions=Array.from({length:SYN_NB},genSyn);
+  test.kind='syn'; test.qId='synthese-pourcentages';
+  test.questions=Array.from({length:SYN_NB},()=>genSyn());
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('syntest'); renderSynTest();
+}
+/* {synthese-augmentations} (2.2.8, demande de Turquet, août 2026) : la
+   synthèse de {synthese-pourcentages} restreinte aux HAUSSES — même moteur,
+   pas même identité (test.qId, le motif du calcul mental). Les trois
+   inconnues — le résultat, la valeur initiale, le pourcentage — sortent
+   chacune UNE fois sur les trois questions, en ordre mélangé : sans quoi
+   l'élève apprendrait que la question est toujours du même genre. */
+async function startSynAug(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='syn'; test.qId='synthese-augmentations';
+  const incs=qdMelanger(['fin','ini','pct']);
+  test.questions=Array.from({length:AUG_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('syntest'); renderSynTest();
 }
@@ -6210,7 +6232,7 @@ async function finishSyn(){
   const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);   /* entier : la colonne l'exige */
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'synthese-pourcentages',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'synthese-pourcentages'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery();   /* le brouillon ne part qu'une fois la note en base */ }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -6747,7 +6769,7 @@ async function startAug(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='aug';
-  test.questions=Array.from({length:6},genAug);
+  test.questions=Array.from({length:AUG_NB},genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('atest'); renderATest();
 }
@@ -7081,8 +7103,8 @@ function genAugTaux(){
   q.v=rand(0,AUGQ_EN_PCT.length-1);
   return q;
 }
-async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart); }
-async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux); }
+async function startAugDepart(){ return startAUGQ('augmenter-depart', genAugDepart, AUG_NB); }
+async function startAugTaux(){ return startAUGQ('augmenter-taux', genAugTaux, AUG_NB); }
 /* Baisses : mêmes exercices à propositions, coefficient (100 − P)/100 (sens = −1). */
 function genDimDepart(){
   const P = Math.random()<0.5 ? pick([10,20,30,40,50,60,70,80,90]) : rand(1,9);
@@ -7112,11 +7134,11 @@ function genDimTaux(){
 }
 async function startDimDepart(){ return startAUGQ('diminuer-depart', genDimDepart); }
 async function startDimTaux(){ return startAUGQ('diminuer-taux', genDimTaux); }
-async function startAUGQ(id, gen){
+async function startAUGQ(id, gen, nb){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='augq'; test.qId=id;
-  test.questions=Array.from({length:AUGQ_NB},gen);
+  test.questions=Array.from({length:nb||AUGQ_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('vtest'); renderVTest();
 }
@@ -7479,7 +7501,7 @@ async function startHausses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='hs'; test.qId='hausses-successives';
-  test.questions=Array.from({length:6},genHausses);
+  test.questions=Array.from({length:AUG_NB},genHausses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   show('hstest'); renderHSTest();
 }
