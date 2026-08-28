@@ -1605,6 +1605,27 @@ les CINQ vrais démarreurs et compare à `tests/profils.js`
 (`nbQuestionsPourcentages`) : un nombre changé dans une fabrique ne dit rien
 des autres.
 
+**La pose facultative de la multiplication suit les nombres de L'ÉLÈVE**
+(décision de Turquet, août 2026). Dans les quatre écrans de la Première qui
+posent la multiplication des numérateurs comme le 2.2.1 — augmenter,
+diminuer, les QCM « retrouver », la synthèse en méthode coefficient —, la
+pose est bâtie sur ce que l'élève a ÉCRIT dans la ligne coefficient ×
+valeur, zéros finaux retirés, même si ses nombres ne sont pas ceux de la
+correction : c'est une aide pour SON calcul, pas une révélation — et ses
+cases attendent donc les chiffres de SON produit. Elle est proposée dès
+qu'un facteur garde au moins 2 chiffres différents de zéro, et seulement
+là : un fait de table ne se pose pas (la leçon du 2.3.7). Dans les QCM,
+elle n'attend plus la proposition. `poseEleveMAJ()` la reconstruit quand
+les facteurs CHANGENT, et jamais sinon — reconstruire à chaque frappe
+effacerait ce que l'élève y écrit — et retourne les facteurs si c'est
+l'autre sens qui rentre dans la pose (3 chiffres × 1 chiffre). La pose de
+l'addition/soustraction de la méthode directe, elle, ne bouge pas : la
+demande ne porte que sur la multiplication. Un contrôle tient ces bords sur
+les quatre écrans, éprouvé par sabotage des deux côtés. Après une reprise
+de pause, la pose se reconstruit depuis les facteurs restaurés ; les
+chiffres qui y avaient été posés ne sont pas conservés — c'est un
+brouillon d'aide, pas une réponse.
+
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
 coefficient, l'élève dit le sens puis le pourcentage. Le piège qu'il vise est

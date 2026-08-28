@@ -1670,7 +1670,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=166;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=167;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5939,12 +5939,14 @@ function choisirSyMeth(m){
 function updateSynPose(){
   const st=$('syPose'); if(!st) return;
   const q=test.questions[test.idx];
-  /* méthode coefficient : pose de la multiplication, ouverte quand l'opération est écrite ;
-     méthode directe : pose de l'addition/la soustraction, ouverte quand ses termes sont écrits */
-  const ids=(q.meth==='coef')?['y3n','y3d','y3v']:['y4a','y4b'];
+  /* méthode coefficient : la pose de la MULTIPLICATION suit les nombres de
+     l'élève (poseEleveMAJ) ; méthode directe : la pose de l'addition ou de la
+     soustraction reste celle de la proposition, ouverte quand ses termes sont
+     écrits — la demande de Turquet ne porte que sur la multiplication */
+  if(q.meth==='coef'){ poseEleveMAJ({step:'syPose',host:'syMul',nId:'y3n',vId:'y3v'}); return; }
   const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
   const posee=$('syMul')&&$('syMul').firstChild;   /* pas de pose sans proposition choisie */
-  st.classList.toggle('step-hidden', !(posee&&ids.every(ok)));
+  st.classList.toggle('step-hidden', !(posee&&ok('y4a')&&ok('y4b')));
 }
 function renderSynTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -5983,7 +5985,7 @@ function renderSynTest(){
       `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction décimale : ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le résultat en écriture décimale</div>
          <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><span class="f-whole">${nAff}</span><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
   } else if(q.meth==='coef'){
-    const pose=c?buildPose(stripZ(c.coef),stripZ(c.N),'syMul'):'<div class="mp-op" id="syMul"></div>';
+    const pose='<div class="mp-op" id="syMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseEleveMAJ) */
     etapes=
       `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${pAff} %, c'est multiplier par 1 ${neg?'\u2212':'+'} ${pAff}/100</div>
          <div class="pt-row"><span class="f-whole">1 ${neg?'\u2212':'+'}</span>${frac('y1n','y1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'\u2212':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="y1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="y1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}</div></div>`+
@@ -6758,9 +6760,8 @@ function renderATest(){
   $('aActions').innerHTML='<button class="btn btn-primary" onclick="checkAAnswer()">Vérifier</button>';
   $('aPrompt').innerHTML=variante(AUG_ENONCES,q);
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
-  // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
-  const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
-  const aPosed=buildPose(stripZ(q.coef),stripZ(q.N),'aMul');
+  // étape ③ facultative : la pose suit les nombres de l'ÉLÈVE (poseEleveMAJ)
+  const aPosed='<div class="mp-op" id="aMul"></div>';
   $('aHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
        <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span><math-field class="dexp-mf pm-mf f-dec" id="a1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
@@ -6784,11 +6785,7 @@ function renderATest(){
   updateAStep3();                                                                 // étape ③ cachée tant que l'étape ② n'est pas écrite
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
-function updateAStep3(){
-  const s=$('aStep3'); if(!s) return;
-  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  s.classList.toggle('step-hidden', !(ok('a3n')&&ok('a3d')&&ok('a3v')));          // visible seulement quand la multiplication fraction × nombre est écrite
-}
+function updateAStep3(){ poseEleveMAJ({step:'aStep3',host:'aMul',nId:'a3n',vId:'a3v'}); }
 function checkAAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];
@@ -6895,6 +6892,42 @@ function buildPose(mTop, mBot, hostId){
   const rowLine =`<div class="mp-lrow">${cell('op')}<div class="mp-line"></div></div>`;
   const rowRes  =`<div class="mp-row">${cell('op')}${rDig>=3?cell('',box(mH,4)):cell('')}${rDig>=2?cell('',box(mT,3)):cell('')}${cell('',box(mU,1))}</div>`;
   return `<div class="mp-op" id="${hostId}">${rowCarry+rowTop+rowMul+rowLine+rowRes}</div>`;
+}
+/* Pose facultative « comme au 2.2.1 » (décision de Turquet, août 2026) : la
+   multiplication posée suit les nombres de L'ÉLÈVE — ceux qu'il a écrits dans
+   la ligne coefficient × valeur, zéros finaux retirés — même s'ils ne sont
+   pas ceux de la correction : la pose est une aide pour SON calcul, pas une
+   révélation. Elle n'est proposée que lorsqu'elle sert : dès qu'un des deux
+   facteurs garde au moins 2 chiffres différents de zéro (un fait de table ne
+   se pose pas — la leçon du 2.3.7). Elle se reconstruit quand les facteurs
+   changent — des chiffres posés sous une autre multiplication ne voudraient
+   rien dire — et jamais sinon : reconstruire à chaque frappe effacerait ce
+   que l'élève est en train d'y écrire. */
+function poseChiffresNonNuls(n){ return String(n).split('').filter(c=>c!=='0').length; }
+function poseEleveMAJ(cfg){
+  const st=$(cfg.step), host=$(cfg.host); if(!st||!host) return;
+  const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
+  const lire=id=>{ const e=$(id); const n=parseInt(String((e&&e.value)==null?'':e.value).trim(),10);
+    return (isFinite(n)&&n>0)?stripZ(n):null; };
+  let a=lire(cfg.nId), b=lire(cfg.vId);
+  /* buildPose sait poser (jusqu'à 3 chiffres) × (1 chiffre) : on retourne les
+     facteurs si c'est l'autre sens qui rentre — la multiplication est commutative */
+  if(a!=null&&b!=null && String(b).length>1 && String(a).length===1){ const t=a; a=b; b=t; }
+  const posable = a!=null && b!=null && String(a).length<=3 && String(b).length===1 && a*b<=999
+    && (poseChiffresNonNuls(a)>=2 || poseChiffresNonNuls(b)>=2);
+  if(!posable){ st.classList.add('step-hidden'); host.dataset.pose=''; host.innerHTML=''; return; }
+  const cle=a+'x'+b;
+  if(host.dataset.pose!==cle){
+    host.dataset.pose=cle;
+    const tmp=document.createElement('div'); tmp.innerHTML=buildPose(a,b,'__pose_tmp');
+    host.innerHTML=tmp.firstElementChild.innerHTML;
+    const ins=[...host.querySelectorAll('input')].sort((x,y)=>(+x.dataset.mtab)-(+y.dataset.mtab));
+    ins.forEach((el,i)=>{
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&ins[i+1]) ins[i+1].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value&&ins[i-1]) ins[i-1].focus(); });
+    });
+  }
+  st.classList.remove('step-hidden');
 }
 /* P/100 en écriture décimale, pour les textes : 5 → « 0,05 », 40 → « 0,40 ». */
 function pDecStr(P){ return P<10 ? '0,0'+P : '0,'+P; }
@@ -7094,12 +7127,7 @@ function choisirV(i){
   if(q.choisi===i) return;
   q.choisi=i; qcmRedessiner('vHost', renderVTest); autoSave();
 }
-function updateVStep3(){
-  const s=$('vStep3'); if(!s) return;
-  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  const posee=$('vMul')&&$('vMul').firstChild;   /* pas de pose sans proposition choisie */
-  s.classList.toggle('step-hidden', !(posee&&ok('v3n')&&ok('v3d')&&ok('v3v')));
-}
+function updateVStep3(){ poseEleveMAJ({step:'vStep3',host:'vMul',nId:'v3n',vId:'v3v'}); }
 function renderVTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('vqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
@@ -7117,7 +7145,7 @@ function renderVTest(){
      dépend de la proposition s'écrit « … » tant qu'aucune n'est choisie */
   const pAff=(q.type==='pct')?(c?c.P:'…'):q.P, nAff=(q.type==='val')?(c?c.N:''):q.N;
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
-  const pose=c?buildPose(stripZ(c.coef),stripZ(c.N),'vMul'):'<div class="mp-op" id="vMul"></div>';
+  const pose='<div class="mp-op" id="vMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseEleveMAJ) */
   $('vHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="vChoix">${choix}</div></div>`+
@@ -7285,7 +7313,7 @@ function renderDTest(){
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   // étape ③ facultative : pose des numérateurs (coef × N) sans les zéros finaux
   const stripZ=x=>parseInt(String(x).replace(/0+$/,'')||'0',10);
-  const dPosed=buildPose(stripZ(q.coef),stripZ(q.N),'dMul');
+  const dPosed='<div class="mp-op" id="dMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseEleveMAJ) */
   $('dHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
        <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
@@ -7309,11 +7337,7 @@ function renderDTest(){
   updateDStep3();
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
-function updateDStep3(){
-  const s=$('dStep3'); if(!s) return;
-  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  s.classList.toggle('step-hidden', !(ok('d3n')&&ok('d3d')&&ok('d3v')));
-}
+function updateDStep3(){ poseEleveMAJ({step:'dStep3',host:'dMul',nId:'d3n',vId:'d3v'}); }
 function checkDAnswer(live){
   if(test.locked)return;
   const q=test.questions[test.idx];

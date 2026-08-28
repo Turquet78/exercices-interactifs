@@ -2412,6 +2412,7 @@ function exercices(suite){
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
     verificationAvecPropositions(w, P);
+    poseSuitLEleve(w, P);
     correctionSignesVariations(w, P);
 
     if(P.specifique === 'premiere') premiere(w);
@@ -4037,6 +4038,60 @@ function synthesePourcentage(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- La pose facultative suit les nombres de L'ÉLÈVE -----------------
+   (décision de Turquet, août 2026) : dans les quatre écrans qui posent la
+   multiplication des numérateurs (2.2.1, 2.3.1, les QCM « retrouver », la
+   synthèse en méthode coefficient), la pose est bâtie sur ce que l'élève a
+   ÉCRIT dans la ligne coefficient × valeur — même si ses nombres ne sont pas
+   ceux de la correction : c'est une aide pour SON calcul, pas une révélation.
+   Elle n'est proposée que si un facteur garde au moins 2 chiffres non nuls
+   (un fait de table ne se pose pas), les zéros finaux sont retirés, et elle
+   ne se reconstruit que si les facteurs changent — reconstruire à chaque
+   frappe effacerait ce que l'élève y écrit. */
+function poseSuitLEleve(w, P){
+  const present = evaluer(w, "typeof poseEleveMAJ==='function' && typeof startAug==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la pose facultative suit les nombres de l\'élève',
+      'ce niveau n\'a pas la pose facultative des multiplications');
+    return;
+  }
+  verifierEval(w, 'la pose facultative suit les nombres de l\'élève', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    function essai(nom, demarrer, step, host, nId, vId, maj){
+      demarrer();
+      const cache=()=>$(step).classList.contains('step-hidden');
+      if(!cache()){ vus.push(nom+' : pose visible sans facteurs'); return; }
+      $(nId).value='14'; $(vId).value='30'; maj();
+      if(cache()){ vus.push(nom+' : pose cachée avec 14 × 30'); return; }
+      if($(host).dataset.pose!=='14x3'){ vus.push(nom+' : pose '+$(host).dataset.pose+' au lieu de 14x3'); return; }
+      const exps=[...$(host).querySelectorAll('.mp-box')].map(e=>e.dataset.exp).join('');
+      if(exps!=='42') vus.push(nom+' : la pose n\\'attend pas le produit de l\\'ÉLÈVE (42) mais « '+exps+' »');
+      $(nId).value='13'; maj();
+      if($(host).dataset.pose!=='13x3') vus.push(nom+' : la pose ne suit pas les nombres de l\\'élève ('+$(host).dataset.pose+')');
+      $(nId).value='2'; maj();
+      if(!cache()) vus.push(nom+' : une table (2 × 3) est posée — l\\'aide ne sert à rien');
+      $(nId).value='140'; maj();
+      if($(host).dataset.pose!=='14x3') vus.push(nom+' : les zéros finaux ne sont pas retirés ('+$(host).dataset.pose+')');
+      const in1=$(host).querySelector('input'); if(in1){ in1.value='4'; maj();
+        if($(host).querySelector('input').value!=='4') vus.push(nom+' : la pose se reconstruit sans changement de facteurs — l\\'élève perd ce qu\\'il y écrit'); }
+      $(vId).value='14'; $(nId).value='3'; maj();
+      if(cache()||$(host).dataset.pose!=='14x3') vus.push(nom+' : 3 × 14 n\\'est pas retourné pour rentrer dans la pose');
+    }
+    essai('2.2.1', startAug, 'aStep3', 'aMul', 'a3n', 'a3v', updateAStep3);
+    essai('2.3.1', startDim, 'dStep3', 'dMul', 'd3n', 'd3v', updateDStep3);
+    /* QCM : la pose suit l'élève SANS qu'aucune proposition soit choisie */
+    essai('retrouver (QCM)', startAugDepart, 'vStep3', 'vMul', 'v3n', 'v3v', updateVStep3);
+    /* synthèse, méthode coefficient */
+    essai('synthèse (coef)', function(){
+      startSyn();
+      let q=test.questions[0], garde=0;
+      while(q.fam==='pct' && garde++<200){ test.questions[0]=q=genSyn(); }
+      renderSynTest(); choisirSyMeth('coef');
+    }, 'syPose', 'syMul', 'y3n', 'y3v', updateSynPose);
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---------- 1.3 Signes & variations : la correction dit QUELLE case reprendre
    Signalé par Julien, transmis par Turquet (août 2026) : « toutes les cases
    correctes, mais 0,9/1 ». L'écran révélait TOUT en vert par-dessus la copie
@@ -4147,19 +4202,6 @@ function verificationAvecPropositions(w, P){
     essai('retrouver la valeur (hausse)', startAugDepart, 'v1n', choisirV, 'vc');
     essai('retrouver le taux (hausse)', startAugTaux, 'v1n', choisirV, 'vc');
     essai('retrouver le taux (addition)', startAugTauxAdd, 'w1n', choisirW, 'wc');
-
-    /* la POSE facultative ne se révèle jamais vide : remplie AVANT le choix,
-       l'étape reste cachée ; elle ne s'ouvre qu'une proposition choisie */
-    startAugDepart();
-    ['v3n','v3d','v3v'].forEach(id=>{ $(id).value='2'; });
-    updateVStep3();
-    if(!$('vStep3').classList.contains('step-hidden'))
-      vus.push('la pose se révèle VIDE, sans proposition choisie');
-    choisirV(1);
-    ['v3n','v3d','v3v'].forEach(id=>{ if(String($(id).value)!=='2') vus.push('la garde de la pose a perdu la case '+id); });
-    updateVStep3();
-    if($('vStep3').classList.contains('step-hidden'))
-      vus.push('la pose ne se révèle plus une fois la proposition choisie');
 
     /* la synthèse des évolutions : la méthode se choisit AVANT la proposition,
        la chaîne apparaît dès la méthode, et le choix n'efface rien */
