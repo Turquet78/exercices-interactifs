@@ -42,7 +42,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -181,6 +181,10 @@ module.exports = {
     /* 4 questions du 2.1.3 au 2.1.7 (demande de Turquet, août 2026) —
        DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
     nbQuestionsPourcentages: 4,
+    /* 3 questions pour tous les exercices sur les AUGMENTATIONS, 2.2.1 à
+       2.2.8 (demande de Turquet, août 2026) — les diminutions gardent leurs
+       6. DEUX sources : la page a AUG_NB, le banc compare à ceci. */
+    nbQuestionsAugmentations: 3,
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
     tableResultats: 'resultats_1ere',

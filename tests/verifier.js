@@ -1253,6 +1253,61 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
+  /* ---- 3 questions pour les AUGMENTATIONS, 2.2.1 à 2.2.8 (demande de
+     Turquet, août 2026) — et le bord opposé : les DIMINUTIONS gardent leurs
+     6, sans quoi la réduction aurait fui par les démarreurs partagés. */
+  if(P.nbQuestionsAugmentations){
+    verifierEval(w, 'les exercices sur les augmentations posent 3 questions, les diminutions gardent les leurs', `(function(){
+      const attendu=${JSON.stringify(P.nbQuestionsAugmentations)}, vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      [['2.2.1','startAug'],['2.2.2','startAugAdd'],['2.2.3','startAugDepart'],['2.2.4','startAugDepAdd'],
+       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug']]
+      .forEach(function(e){
+        if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
+        window[e[1]]();
+        if(!test.questions || test.questions.length!==attendu)
+          vus.push(e[0]+' : '+(test.questions?test.questions.length:0)+' questions au lieu de '+attendu);
+      });
+      /* les diminutions, elles, posent toujours 6 questions (leur réglage du jour) */
+      [['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
+       ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],['2.5.1','startSyn']]
+      .forEach(function(e){
+        if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
+        window[e[1]]();
+        if(!test.questions || test.questions.length!==6)
+          vus.push(e[0]+' : la réduction des augmentations a fui — '+(test.questions?test.questions.length:0)+' questions au lieu de 6');
+      });
+      return vus.join(' | ');
+    })()`, v => v === '', undefined);
+
+    /* ---- {synthese-augmentations} : la synthèse du 2.5.1, HAUSSES seules —
+       même moteur, pas même identité. Trois bords : uniquement des hausses,
+       les trois inconnues chacune une fois à ordre variable, et
+       « Recommencer » qui relance la bonne identité des DEUX synthèses. */
+    verifierEval(w, 'la synthèse des augmentations ne tire que des hausses, toutes les inconnues, et garde son identité', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      const ordres={};
+      for(let t=0;t<30 && !vus.length;t++){
+        startSynAug();
+        const qs=test.questions;
+        qs.forEach(function(q,i){ if(q.fam!=='aug') vus.push('tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
+        const incs=qs.map(function(q){ return q.inc; });
+        ['fin','ini','pct'].forEach(function(inc){ if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        ordres[incs.join(',')]=1;
+      }
+      if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des inconnues ne change jamais d\\'un tirage à l\\'autre');
+      if(!vus.length){
+        if(test.qId!=='synthese-augmentations') vus.push('startSynAug n\\'épingle pas son identité ('+test.qId+')');
+        test.kind='syn'; test.qId='synthese-augmentations'; restartCurrentTest();
+        if(test.qId!=='synthese-augmentations') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des augmentations');
+        test.kind='syn'; test.qId='synthese-pourcentages'; restartCurrentTest();
+        if(test.qId!=='synthese-pourcentages') vus.push('« Recommencer » sur le 2.5.1 relance « '+test.qId+' »');
+      }
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+  }
+
   if(P.nbQuestionsFractions){
     verifierEval(w, 'les exercices de fractions posent le bon nombre de questions', `(function(){
       const attendus=${JSON.stringify(P.nbQuestionsFractions)}, vus=[];
