@@ -517,6 +517,21 @@ ensemble) puis rejoue le geste sur les trois exercices de la famille — une
 famille corrigée à moitié ne serait pas corrigée. Éprouvé en le cassant six
 fois.
 
+**Et une case ROUGE porte la bonne réponse en VERT à côté.** Demande de
+Turquet (août 2026, sur le 2.7) : la case fausse gardait le choix de l'élève
+en rouge et rien ne disait la bonne réponse — elle ne vivait que dans le
+texte du message. `corrChoix` pose maintenant le badge `mf-cor` de la
+convention commune après chaque case fausse, ce qui la porte d'un coup à
+TOUTE la famille des listes de la Seconde (intervalles, inéquations et
+équations graphiques, appartenance, 2.7…) : la fonction partagée est
+précisément ce qui empêche deux exercices voisins de se contredire. Le
+badge écrit le LIBELLÉ de l'option, jamais sa valeur interne — la bonne
+carte du 2.7 s'écrit « B », pas « 1 » ; le « oui » des inéquations s'écrit
+« le prendre » ; ∈ garde son symbole. En ENTRAÎNEMENT seulement : en
+soutien l'élève corrige lui-même, un badge lui soufflerait la réponse que
+le barème fait payer. Trois sabotages nommés (le badge retiré, la valeur
+interne au lieu du libellé, le badge qui fuit en soutien).
+
 **« Appartient ou pas ? » : le risque est arithmétique, pas graphique.** Deux
 exercices sur un seul moteur, repris de la fiche « Intervalles 2 » : un nombre,
 un intervalle, l'élève dit ∈ ou ∉. Le niveau 1 tire quatre décimaux contre le
