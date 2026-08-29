@@ -2061,7 +2061,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=109;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=110;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7934,7 +7934,10 @@ function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénom
   if(vn===''||vd==='') return;                       // fraction incomplète : aucune couleur
   const n=parseInt(vn,10), d=parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
-  if(!en.disabled) en.classList.add(ok?'ok':'bad'); if(ed&&!ed.disabled) ed.classList.add(ok?'ok':'bad');
+  /* la paire fausse ne rougit que sa case fautive : la case qui porte la
+     valeur canonique reste juste (la règle de la capture du 1.7) */
+  if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
+  if(ed&&!ed.disabled) ed.classList.add((ok||d===td)?'ok':'bad');
 }
 function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
   const en=$(idn), ed=$(idd); if(!en||!ed) return;
@@ -7943,7 +7946,8 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   if(vn===''||vd==='') return;
   const n=parseInt(vn,10), d=parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d>0&&isPow10(d)&&n*td===tn*d;
-  if(!en.disabled) en.classList.add(ok?'ok':'bad'); if(!ed.disabled) ed.classList.add(ok?'ok':'bad');
+  if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
+  if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
 }
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
@@ -8050,9 +8054,12 @@ function checkPAnswer(live){
   // étape 3 : décimale égale au résultat
   const fr=parseDecToFrac(v('p3'));
   const ok3 = !!fr && fr.n===q.result*fr.d;
-  // les 2 cases d'une même étape partagent le même état (l'égalité porte sur la fraction entière)
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
-  mark('p1n',ok1); mark('p1d',ok1); mark('p2n',ok2); mark('p2d',ok2); mark('p3',ok3);
+  // une case juste ne rougit pas parce que sa JUMELLE est fausse : quand la
+  // fraction est fausse, la case qui porte la valeur canonique reste juste
+  // (la règle de la capture du 1.7) — et une case vide ne reçoit rien
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
+  mark('p1n',ok1||(v('p1d')!==''&&f1n===q.P)); mark('p1d',ok1||(v('p1n')!==''&&f1d===100));
+  mark('p2n',ok2||(v('p2d')!==''&&f2n===q.prod)); mark('p2d',ok2||(v('p2n')!==''&&f2d===100)); mark('p3',ok3);
   const allOk=ok1&&ok2&&ok3;
   if(!allOk && isSoutien()){ soutienAgain('pFeedback','pActions','checkPAnswer','pHost'); return; }
   test.locked=true;

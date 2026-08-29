@@ -1819,13 +1819,28 @@ là : un fait de table ne se pose pas (la leçon du 2.3.7). Dans les QCM,
 elle n'attend plus la proposition. `poseEleveMAJ()` la reconstruit quand
 les facteurs CHANGENT, et jamais sinon — reconstruire à chaque frappe
 effacerait ce que l'élève y écrit — et retourne les facteurs si c'est
-l'autre sens qui rentre dans la pose (3 chiffres × 1 chiffre). La pose de
-l'addition/soustraction de la méthode directe, elle, ne bouge pas : la
-demande ne porte que sur la multiplication. Un contrôle tient ces bords sur
-les quatre écrans, éprouvé par sabotage des deux côtés. Après une reprise
-de pause, la pose se reconstruit depuis les facteurs restaurés ; les
-chiffres qui y avaient été posés ne sont pas conservés — c'est un
-brouillon d'aide, pas une réponse.
+l'autre sens qui rentre dans la pose (3 chiffres × 1 chiffre). Un contrôle
+tient ces bords sur les quatre écrans, éprouvé par sabotage des deux côtés.
+Après une reprise de pause, la pose se reconstruit depuis les facteurs
+restaurés ; les chiffres qui y avaient été posés ne sont pas conservés —
+c'est un brouillon d'aide, pas une réponse.
+
+**Et la pose de l'addition/soustraction de la méthode directe suit l'élève
+AUSSI** — d'abord tenue hors de la demande (« la demande ne porte que sur
+la multiplication »), elle y est entrée sur une capture du 2.2.2 (Turquet,
+août 2026) : l'élève avait écrit 6000 + 300 dans la ligne « départ +
+augmentation », et la pose en colonnes montrait 70 + 63 — les nombres de la
+CORRECTION posés sous les siens. `poseOpEleveMAJ()` bâtit la pose des trois
+écrans de la méthode directe (2.2.2/2.3.2, les QCM addition/soustraction,
+la synthèse en méthode directe) sur les termes ÉCRITS, sur le motif de
+`poseEleveMAJ` — reconstruite quand les termes changent, jamais sinon, et
+dans les QCM elle n'attend plus la proposition. Deux différences avec la
+multiplication, et elles ont leur raison : PAS de zéros finaux retirés —
+dans une addition posée, chaque zéro tient sa colonne (6000 + 300 se pose
+sur quatre colonnes, c'est le calcul même) — et les colonnes ne posent que
+des ENTIERS, une soustraction qui ne descend pas sous zéro : sinon la pose
+se cache au lieu de mentir. Le cas de la capture est épinglé au contrôle,
+cinq sabotages nommés.
 
 **La synthèse des augmentations est la synthèse des évolutions, HAUSSES
 seules.** {synthese-augmentations} (2.2.8, demande de Turquet, août 2026)
@@ -1965,6 +1980,40 @@ veut dire faux, pas « pas fini ». Le cas de la capture est épinglé au
 contrôle ; trois sabotages nommés (le vide qui revaut 1 en direct, la case
 vide repeinte à la vérification, un exercice qui revient à l'ancienne
 marque).
+
+**La paire fausse ne rougit que sa case fautive.** Seconde capture de
+Turquet sur le 1.7 (août 2026) : sur 0,08 × 0,77, le produit écrit
+616/100000 rougissait ses DEUX cases — « la case 616 ne doit pas être rouge
+car correct ». Un seul verdict de paire peignait les deux cellules d'une
+fraction, et le code portait même la doctrine en commentaire (« les 2 cases
+d'une même étape partagent le même état ») — renversée ce jour-là : quand la
+paire ne fait pas la bonne fraction, chaque case se juge SEULE contre la
+valeur CANONIQUE, celle que l'énoncé fait écrire — 616 reste juste, seul
+100000 rougit, et le miroir vaut aussi (1232/10000 : le dénominateur reste
+juste). Toute fraction ÉGALE reste acceptée, comme avant.
+**L'ancre canonique ne joue que si l'AUTRE case est ÉCRITE** : un numérateur
+seul garde la convention du facteur entier — vide vaut 1, « 4 » seul dit 4,
+faux devant 0,04 — c'est le bord du paragraphe précédent, et le premier jet
+du correctif l'écrasait : le contrôle existant l'a rattrapé à la première
+exécution. `marqueFracSaufVide` porte la règle à la vérification (1.7, 1.8,
+2.2.7, 2.3.7), `liveColorFrac` et `liveColorFracPow10` en direct — dans les
+DEUX fichiers, la Seconde ayant les mêmes fonctions — et la vérification du
+2.1.3 des deux niveaux suit. La capture est épinglée au contrôle, cinq
+sabotages nommés — et l'un d'eux est d'abord resté VERT : la vérification
+du 2.1.3 revenue au verdict de paire, parce que le contrôle générique ne
+mesurait que le DIRECT et qu'aucun ne cliquait « Vérifier » sur ce chemin.
+Le bord est tenu (« à la vérification aussi, seule la case fautive
+rougit »), sabotage rejoué à l'appui.
+**Et les cases des multiplications ont rejoint le groupe de référence des
+pourcentages** (même capture : « je veux que la police soit aussi grande…
+et que les cases s'agrandissent si le nombre dépasse ») : police 1,9 rem,
+`width:auto` qui suit la saisie, la barre et l'autre case alignées sur la
+plus large — les trois règles écrites en commentaire du bloc CSS des
+pourcentages, qui valaient partout et n'étaient appliquées que là. Le
+plafond générique `max-width:110px` des paires est relevé à 320. Le banc
+navigateur MESURE (« 6 quater bis ») : la police rendue, la case qui
+s'élargit sur « 100000 », rien de coupé, la barre qui suit — seul un
+navigateur sait où un nombre se coupe.
 
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
