@@ -1255,9 +1255,9 @@ function branchements(w){
 
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
      baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps), plus la synthèse rédigée 2.2.9. On appelle les
-     DIX-SEPT vrais démarreurs : un nombre changé dans un démarreur partagé
-     ne dit rien des autres. */
+     2026, en trois temps), plus les synthèses rédigées 2.2.9 et 2.3.8. On
+     appelle les DIX-HUIT vrais démarreurs : un nombre changé dans un
+     démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -1266,7 +1266,7 @@ function branchements(w){
        ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
-       ['2.2.9','startSynAugLibre'],['2.5.1','startSyn']]
+       ['2.2.9','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -1299,6 +1299,12 @@ function branchements(w){
           test.questions.forEach(function(q,i){ if(q.fam!=='aug') vus.push('2.2.9 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
           const incs3=test.questions.map(function(q){ return q.inc; });
           ['fin','ini','pct'].forEach(function(inc){ if(incs3.indexOf(inc)<0) vus.push('2.2.9 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        }
+        if(typeof startSynDimLibre==='function'){
+          startSynDimLibre();
+          test.questions.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.8 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
+          const incs4=test.questions.map(function(q){ return q.inc; });
+          ['fin','ini','pct'].forEach(function(inc){ if(incs4.indexOf(inc)<0) vus.push('2.3.8 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
         }
         startSynAug();
         const qs=test.questions;
@@ -4509,6 +4515,7 @@ function syntheseAugLibreRedigee(w, P){
     /* ---- 1. le JUGE, cas par cas, sur deux questions épinglées ---- */
     const qFin={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0};
     const qPct={fam:'aug',inc:'pct',sens:1,P:30,N:600,aug:180,fin:780,decStr:'780',unit:'€',opts:[20,30,40,50],bon:1,choisi:1,ci:0,v:0};
+    const qFinD={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
     const cas=[
       ['coefficient',            qFin, 1, '1,05 × 600 = 630',                  true,  true ],
       ['coefficient, ordre libre',qFin, 1, '600 × 1,05 = 630',                 true,  true ],
@@ -4524,6 +4531,11 @@ function syntheseAugLibreRedigee(w, P){
       ['pourcentage choisi juste',qPct, 1, '1,3 × 600 = 780',                  true,  true ],
       ['pourcentage choisi faux, calcul cohérent', qPct, 2, '1,4 × 600 = 840', true,  false],
       ['écriture inconnue',      qFin, 1, 'j’ai trouvé 630',                   false, null ],
+      ['baisse : coefficient',   qFinD, 1, '0,95 × 600 = 570',                  true,  true ],
+      ['baisse : diminution puis soustraction', qFinD, 1, '0,05 × 600 = 30\\n600 − 30 = 570', true, true ],
+      ['baisse : une addition au lieu de la soustraction', qFinD, 1, '0,05 × 600 = 30\\n630 = 600 + 30', true, false],
+      ['baisse : soustraction sans la multiplication', qFinD, 1, '600 − 30 = 570', true, false],
+      ['baisse : une addition qui retombe sur la valeur finale ne remplace pas la soustraction', qFinD, 1, '0,05 × 600 = 30\\n540 + 30 = 570', true, false],
     ];
     cas.forEach(function(c){
       const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
@@ -4541,7 +4553,7 @@ function syntheseAugLibreRedigee(w, P){
     let pireQ=0, pireA=0, pireEti='';
     const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « 1,05 × 600 = 640 ». Reprends cette ligne.'};
     for(let i=0;i<120 && !vus.length;i++){
-      const q=genSyn('aug', ['fin','ini','pct'][i%3]); q.choisi=(i%2===0)?q.bon:((q.bon+1)%4);
+      const q=genSyn((i%2===0)?'aug':'dim', ['fin','ini','pct'][i%3]); q.choisi=(i%4<2)?q.bon:((q.bon+1)%4);
       const e=salEnonceIA(q), a=salAttenduIA(q, (i%4===0)?jugeMesure:null), c=salCouple(q);
       if(e.length>pireQ) pireQ=e.length;
       if(a.length>pireA){ pireA=a.length; pireEti=q.inc+' '+c.P+'% de '+c.N; }
@@ -4549,7 +4561,8 @@ function syntheseAugLibreRedigee(w, P){
       const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
       if(regle.indexOf(c.coefStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie du coefficient '+c.coefStr+' × '+c.N); break; }
       if(regle.indexOf(c.pDecStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie de l\\'augmentation '+c.pDecStr+' × '+c.N); break; }
-      if(regle.indexOf('addition')<0){ vus.push(eti+'la règle n\\'exige plus l\\'addition de la voie de l\\'augmentation'); break; }
+      if(q.fam==='aug' && regle.indexOf('addition')<0){ vus.push(eti+'la règle n\\'exige plus l\\'addition de la voie de l\\'augmentation'); break; }
+      if(q.fam==='dim' && regle.indexOf('soustraction')<0){ vus.push(eti+'la règle n\\'exige plus la soustraction de la voie de la diminution'); break; }
       if(!/sans aucun calcul, est REFUSÉ/.test(regle)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
       if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
       if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
@@ -4586,9 +4599,13 @@ function syntheseAugLibreRedigee(w, P){
       if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
     }
 
-    /* ---- 4. l'identité : « Recommencer » relance bien le 2.2.9 ---- */
+    /* ---- 4. l'identité : « Recommencer » relance la bonne synthèse rédigée ---- */
     test.kind='sal'; test.qId='(sentinelle)'; restartCurrentTest();
     if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des augmentations');
+    if(typeof startSynDimLibre==='function'){
+      test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
+      if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.8 relance « '+test.qId+' »');
+    }
 
     return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
   })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
@@ -5624,7 +5641,7 @@ function fichesDeTravail(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('les fiches de travail vivent à côté des devoirs, jamais dedans',
       'ce niveau n\'a pas les fiches de travail en classe');
-    return verdictColore(w, apres);
+    return reglagesDevoirs(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -5720,7 +5737,7 @@ function fichesDeTravail(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', false, 'erreur JavaScript : '+r.erreur);
     else verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', r.valeur==='', r.valeur);
-    verdictColore(w, apres);
+    reglagesDevoirs(w, apres);
   });
 }
 /* Les phrases qui commentent une vérification par l'IA sont VERTES quand c'est
@@ -6249,6 +6266,127 @@ function variationsDerivee(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* Les réglages PAR EXERCICE d'un devoir : le NOMBRE DE QUESTIONS et la NOTE
+   MAXIMALE EN SOUTIEN (demande de Turquet, août 2026). Quatre bords, et n'en
+   tenir qu'un ne tient rien : le plafond entre dans la note (et une valeur
+   bricolée retombe sur 5) ; la coupe s'applique au lancement DEPUIS le devoir
+   (et une valeur au-delà du format retombe dessus, et rien ne fuit hors du
+   devoir) ; l'écran des modes DIT le plafond et lance par l'entonnoir ; et
+   l'éditeur EMPORTE les réglages (et n'écrit jamais le défaut). En Terminale,
+   l'énoncé du circuit papier porte la même coupe : la feuille du professeur
+   doit montrer exactement la séance de l'élève. SÉQUENTIEL, dans la chaîne
+   des contrôles asynchrones — il ré-injecte le double de la base. */
+function reglagesDevoirs(w, apres){
+  const R=P.reglagesDevoirs;
+  const present = evaluer(w, "typeof lancerDevoirExo==='function' && typeof dmPlafondSoutien==='function'");
+  if(!R || !present.ok || !present.valeur){
+    ignorer('les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien',
+      'ce niveau n\'a pas les réglages par exercice des devoirs');
+    return verdictColore(w, apres);
+  }
+  /* Première : l'éditeur passe par saveDM(), qu'on ne peut pas cliquer ici —
+     on tient au moins la trace des réglages dans son corps, et les setters
+     s'exercent dans l'éval. */
+  const srcPage=lire(CIBLE);
+  if(/async function saveDM\(/.test(srcPage)){
+    const corpsSave=(srcPage.split('async function saveDM(')[1]||'').slice(0,1600);
+    verifier('saveDM emporte les réglages nbQ et smax',
+      corpsSave.indexOf('nbQ')>=0 && corpsSave.indexOf('smax')>=0,
+      'le corps de saveDM ne recopie plus nbQ/smax : un devoir enregistré les perdrait');
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const EX=${JSON.stringify(R.exercice)};
+
+    /* ---- 1. le plafond du soutien entre dans la note ---- */
+    const nDE=function(bs,be,smax){ return (typeof noteForcee==='function')?noteDevoirExo(bs,be,undefined,smax):noteDevoirExo(bs,be,smax); };
+    if(nDE({percent:100},null).note!==5) vus.push('sans réglage, le soutien plein ne vaut pas 5 ('+nDE({percent:100},null).note+')');
+    if(nDE({percent:100},null,8).note!==8) vus.push('le plafond réglé à 8 ne donne pas 8 ('+nDE({percent:100},null,8).note+')');
+    if(nDE({percent:50},null,8).note!==4) vus.push('à mi-parcours sous un plafond de 8, la note n\\'est pas 4');
+    if(nDE({percent:100},null,12).note!==5) vus.push('un plafond bricolé (12) ne retombe pas sur 5');
+    if(nDE({percent:100},null,'abc').note!==5) vus.push('un plafond illisible ne retombe pas sur 5');
+    if(nDE({percent:100},{percent:100},8).note!==10) vus.push('l\\'entraînement plein ne l\\'emporte plus sur un soutien plafonné à 8');
+    if(typeof noteForcee==='function'){
+      const f=noteDevoirExo({percent:100},null,3,8);
+      if(f.note!==3) vus.push('la note posée par le professeur ne prime plus sur le plafond réglé ('+f.note+')');
+    }
+
+    /* ---- 2. la coupe du nombre de questions, au lancement depuis le devoir ---- */
+    mesDevoirs=[{id:'dev-r',num:1,actif:true,titre:'Réglages',cours:'',exercices:[{id:EX,modes:['soutien','train']}]}];
+    await lancerDevoirExo('dev-r',EX,'train');
+    const defaut=(test.questions||[]).length;
+    if(defaut<3) vus.push('le témoin ne tire que '+defaut+' questions : la coupe n\\'a rien à éprouver');
+    mesDevoirs[0].exercices[0].nbQ=2;
+    await lancerDevoirExo('dev-r',EX,'train');
+    if((test.questions||[]).length!==2) vus.push('nbQ=2 : la séance fait '+(test.questions||[]).length+' questions au lieu de 2');
+    if(test.idx!==0) vus.push('après la coupe, la séance ne repart pas de la première question');
+    mesDevoirs[0].exercices[0].nbQ=99;
+    await lancerDevoirExo('dev-r',EX,'train');
+    if((test.questions||[]).length!==defaut) vus.push('nbQ=99 : une valeur au-delà du format ne retombe pas dessus ('+(test.questions||[]).length+')');
+    /* le réglage ne FUIT pas hors du devoir */
+    mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId=EX;
+    await Promise.resolve(TESTS[EX].start());
+    if((test.questions||[]).length!==defaut) vus.push('hors devoir, la séance porte la coupe du devoir ('+(test.questions||[]).length+')');
+
+    /* ---- 3. l'écran des modes dit le plafond, et lance par l'entonnoir ---- */
+    mesDevoirs[0].exercices[0]={id:EX,modes:['soutien','train'],smax:8};
+    await (typeof openTestDevoirModes==='function'?openTestDevoirModes:openTestDevoir)('dev-r',EX);
+    const htmlModes=document.getElementById('modeChoices').innerHTML;
+    if(htmlModes.indexOf('8 points')<0) vus.push('la carte du soutien ne dit pas le plafond réglé (8)');
+    if(htmlModes.indexOf('lancerDevoirExo')<0) vus.push('les cartes du devoir ne passent plus par l\\'entonnoir lancerDevoirExo');
+
+    /* ---- 4. Terminale : l'énoncé du circuit papier porte la même coupe ---- */
+    if(typeof dmEnonce==='function'){
+      mesDevoirs[0].exercices[0]={id:EX,modes:['train'],nbQ:2};
+      await dmEnonce('dev-r',EX,function(){});
+      if((test.questions||[]).length!==2) vus.push('l\\'énoncé du circuit papier ignore la coupe ('+(test.questions||[]).length+' questions)');
+      if(typeof dmeRetour==='function'){ try{ dmeCtx=null; dmeViderCorps(); }catch(e){} }
+    }
+
+    /* ---- 5. l'éditeur emporte les réglages, et n'écrit jamais le défaut ---- */
+    if(typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function'){
+      dmList=[{id:'d-ed',num:1,actif:true,titre:'t',cours:'',exercices:[]}]; dmSelId='d-ed';
+      if(typeof dmGenre!=='undefined') dmGenre='dm';
+      renderDevoirEditor();
+      const cb=document.querySelector('#dmExos input[data-mode="train"]');
+      if(!cb){ vus.push('l\\'éditeur n\\'a aucune ligne d\\'exercice'); }
+      else {
+        const exid=cb.dataset.ex; cb.checked=true;
+        const sq=document.querySelector('#dmExos select[data-nbq="'+exid+'"]');
+        const ss=document.querySelector('#dmExos select[data-smax="'+exid+'"]');
+        if(!sq||!ss) vus.push('les réglages nbQ/smax manquent dans l\\'éditeur');
+        else {
+          sq.value='2'; ss.value='8'; readEditorIntoDevoir();
+          const e0=(dmList[0].exercices||[]).find(function(x){ return x.id===exid; });
+          if(!e0||e0.nbQ!==2||e0.smax!==8) vus.push('l\\'enregistrement perd les réglages ('+JSON.stringify(e0)+')');
+          sq.value=''; ss.value='5'; readEditorIntoDevoir();
+          const e1=(dmList[0].exercices||[]).find(function(x){ return x.id===exid; });
+          if(!e1) vus.push('l\\'exercice coché a disparu à la relecture');
+          else if(('nbQ' in e1)||('smax' in e1)) vus.push('le défaut s\\'écrit au lieu de rester absent ('+JSON.stringify(e1)+')');
+        }
+      }
+    } else if(typeof dmSetNbQ==='function' && typeof dmSetSmax==='function'){
+      const dev={exercices:[{id:EX,modes:['train']}]};
+      const ancien=window.dmCur; window.dmCur=function(){ return dev; };
+      dmSetNbQ(EX,'2'); dmSetSmax(EX,'8');
+      if(dev.exercices[0].nbQ!==2||dev.exercices[0].smax!==8) vus.push('les setters de l\\'éditeur ne posent pas les réglages');
+      dmSetNbQ(EX,''); dmSetSmax(EX,'5');
+      if(('nbQ' in dev.exercices[0])||('smax' in dev.exercices[0])) vus.push('le défaut s\\'écrit au lieu de rester absent');
+      window.dmCur=ancien;
+    } else {
+      vus.push('aucun éditeur de réglages trouvé (ni readEditorIntoDevoir ni dmSetNbQ)');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
+    const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    verdictColore(w, apres);
+  });
+}
 function verdictColore(w, apres){
   /* Trois fonctions peignent un verdict d'IA : checkSFL et checkMLL en
      Seconde, checkPsl en Première — on exerce celles que le niveau possède. */
@@ -6306,6 +6444,14 @@ function verdictColore(w, apres){
       verdict(true); await checkSal();    /* le modèle MENT : l'égalité est fausse */
       if(couleur('salFeedback')!=='rouge') vus.push('2.2.9 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
       if(test.score!==0) vus.push('2.2.9 : égalité fausse sous modèle qui accepte — le point est donné quand même');
+      /* et sur une BAISSE (2.3.8), même moteur, même primauté */
+      const q38={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
+      test.locked=false; test.salBusy=false; test.score=0;
+      test.questions=[JSON.parse(JSON.stringify(q38))]; test.qId='synthese-diminutions-libre';
+      salFeuille=feuille('0,95 × 600 = 570');
+      verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
+      if(couleur('salFeedback')!=='vert') vus.push('2.3.8 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==1) vus.push('2.3.8 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
     }
 
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */

@@ -188,6 +188,10 @@ module.exports = {
     nbQuestionsEvolutions: 3,
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
+    /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
+       questions) : un exercice au tirage homogène, présent dans la table du
+       rejeu. */
+    reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_1ere',
     tableEleves: 'eleves_1ere',
     navigateur: {
@@ -392,6 +396,7 @@ module.exports = {
        et la case réelle que le banc navigateur pilote en mode tactile. */
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
+    reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
     navigateur: {
@@ -564,6 +569,7 @@ module.exports = {
        qui a porté par erreur la classe des énoncés. */
     enonce: { classes: ['enonce', 'tvi-prompt'], ardoise: ['test'],
               navigateur: ['signe-produit', 'limites-graphiques-2'] },
+    reglagesDevoirs: { exercice: 'tangente-exp' },
     tableResultats: 'resultats',
     tableEleves: 'eleves',
     navigateur: {
