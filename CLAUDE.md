@@ -850,6 +850,51 @@ défaut. Et un FAUX sabotage s'est montré : passer la marge de 1 à 0,5 ne
 change rien, les valeurs étant entières — un écart nul EST un croisement, la
 marge aux graduations est tenue par le compte des croisements.
 
+**Résoudre, c'est d'abord choisir le dessin — équations et inéquations sur
+les mêmes quatre cartes.** {resolutions-graphiques} (Seconde, 2.7, demande de
+Turquet, août 2026) est repris de la fiche « Exercice 2 » : UNE courbe, deux
+droites horizontales à tracer, et quatre questions sur le MÊME tirage
+conservé — équation puis inéquation à chaque hauteur, la plus basse d'abord
+(l'ordre de la fiche : f(x) = −3 avant f(x) = 0). Pour chaque question,
+QUATRE dessins proposés (demande de Turquet). Une INÉQUATION propose les
+quatre coloriages d'{inequation-graphique} — milieu/extérieur × pris/exclu —
+généralisés au CÔTÉ réel de f entre les croisements (`eigSide`) : la courbe
+n'est plus la cloche du 2.4. Une ÉQUATION propose la ligne horizontale et ses
+points, et les quatre dessins ne diffèrent que par ce qui fait l'erreur : le
+bon, la ligne à l'AUTRE hauteur avec SES points, un point OUBLIÉ, un point EN
+TROP posé sur la ligne là où la courbe ne passe pas — la règle
+d'{intervalles-inegalite}, transposée. Puis les phrases : les abscisses des
+points (« dans l'ordre que tu veux » — la règle des paires, le doublon
+défendable une fois) et S = { … ; … } aux ACCOLADES écrites par la page —
+quelques nombres, pas un intervalle ; l'inéquation garde les phrases et
+l'intervalle du 2.4. k = 0 est AUTORISÉ, la fiche l'exige (f(x) = 0) : la
+droite bleue se pose SUR l'axe noir et doit s'y voir — jugé sur capture.
+**Le risque propre est la TANGENCE, et il a été trouvé en relisant le tirage
+AVANT le premier contrôle** : une hauteur qui TOUCHE la courbe en un
+extremum sans la traverser a bien deux « solutions », mais l'inéquation n'a
+alors AUCUN des quatre dessins — le côté extérieur n'est plus l'opposé du
+milieu, et l'énoncé mentirait. Le tirage exige donc que chaque solution soit
+un vrai CROISEMENT (les voisins de part et d'autre de la hauteur), en plus
+des bords déjà connus — jamais traversée entre deux graduations, jamais au
+bord. **Et ce filtre a tué un garde-fou en naissant** — le sixième du
+projet : « écart ≥ 2 entre les solutions » (le palier du 2.5) n'écartait
+plus rien, un voisin ÉGAL à la hauteur donnant un produit NUL, jamais
+négatif — le sabotage l'a montré en restant vert, le garde-fou est retiré et
+c'est le contrôle qui exige la propriété sur le tirage. Les deux ordres des
+cartes (`permE`, `permI`) sont tirés une fois par séance et conservés ; à
+forme égale le rang varie.
+La bonne réponse n'est jamais rangée à côté de la question — elle ne porte
+que la courbe, les deux hauteurs, les deux signes, les deux abscisses du
+point en trop et les deux ordres, le contrôle refuse tout autre champ — et le
+REPLI du tirage est éprouvé par les mêmes contrôles que le tirage (la leçon
+d'IFG_FB), validateur indépendant à l'appui : 400 tirages, 0 recours au
+repli. Éprouvé en le cassant dix fois — la tangence autorisée, le garde-fou
+mort ci-dessus, le tirage re-tiré, la réponse dans la question, les dessins
+non mélangés, l'ordre des abscisses imposé, le doublon compté deux fois, la
+case vide rougie, la bonne carte qui ne se montre plus, le soutien qui peint
+le vide — chacun rougit en nommant son défaut, sauf celui du garde-fou mort,
+dont le vert disait vrai.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en

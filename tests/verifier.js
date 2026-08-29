@@ -2570,6 +2570,7 @@ function exercices(suite){
     jugeArithmetique(w, P);
     equationGraphique(w, P);
     lectureDeuxCourbes(w, P);
+    resolutionsGraphiques(w, P);
     fractionsDecimalesVides(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
@@ -6421,6 +6422,144 @@ function lectureDeuxCourbes(w, P){
     ifgLive();
     { const plein=document.getElementById('ifg-fa1'), vide=document.getElementById('ifg-fa2');
       if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne verdit pas au fil de la frappe');
+      if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Les résolutions graphiques : équations et inéquations sur quatre
+   dessins -------------------------------------------------------------------
+   La fiche « Exercice 2 » : UNE courbe, deux hauteurs k1 < k2 (k = 0 sort —
+   la fiche l'exige, f(x) = 0), et quatre questions sur le MÊME tirage
+   conservé — équation puis inéquation à chaque hauteur. Pour une équation,
+   les quatre dessins ne diffèrent que par la ligne et ses points (bon,
+   l'autre hauteur, un point oublié, un point en trop) ; pour une inéquation,
+   ce sont les quatre coloriages du 2.4 (milieu/extérieur × pris/exclu),
+   généralisés au CÔTÉ réel de f entre les croisements. Le risque propre est
+   la TANGENCE : une hauteur qui touche la courbe sans la traverser
+   laisserait l'inéquation sans aucun des quatre dessins proposés — l'énoncé
+   mentirait avant que l'élève ne commence. */
+function resolutionsGraphiques(w, P){
+  const present = evaluer(w, "typeof startEig==='function' && typeof eigBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les résolutions graphiques : équations et inéquations sur quatre dessins',
+      'ce niveau n\'a pas l\'exercice des résolutions graphiques');
+    return;
+  }
+  verifierEval(w, 'les résolutions graphiques : équations et inéquations sur quatre dessins', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='resolutions-graphiques';
+
+    /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
+    let k0=0; const rangsEq=new Set(), rangsParForme={};
+    for(let t=0;t<250 && !vus.length;t++){
+      const qs=eigBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='eq1,in1,eq2,in2')
+        vus.push('les questions ne suivent pas l\\'ordre de la fiche (équation puis inéquation, hauteur basse puis haute) : '+qs.map(function(q){ return q.type; }).join(','));
+      const q0=qs[0];
+      const ref=JSON.stringify([q0.pts,q0.k1,q0.k2,q0.op1,q0.op2,q0.xt1,q0.xt2,q0.permE,q0.permI]);
+      if(qs.some(function(q){ return JSON.stringify([q.pts,q.k1,q.k2,q.op1,q.op2,q.xt1,q.xt2,q.permE,q.permI])!==ref; }))
+        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux quatre');
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','k1','k2','op1','op2','xt1','xt2','permE','permI','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, les hauteurs, les signes, les points en trop et les ordres : '+cles.join(','));
+      });
+      if(!(q0.k1<q0.k2)) vus.push('k1 >= k2 : l\\'ordre de la fiche (la plus basse d\\'abord) est perdu');
+      [q0.k1,q0.k2].forEach(function(k,i){
+        const so=[]; for(let x=-3;x<=3;x++){ if(q0.pts[x+3]===k) so.push(x); }
+        if(so.length!==2){ vus.push('f(x) = '+k+' a '+so.length+' solution(s) au lieu de 2'); return; }
+        if(so[0]<=-3||so[1]>=3) vus.push('un croisement de k'+(i+1)+' tombe au bord du dessin');
+        if(so[1]-so[0]<2) vus.push('les deux solutions de f(x) = '+k+' sont voisines : le segment entier est à cette hauteur');
+        so.forEach(function(x){ if(x>-3&&x<3&&(q0.pts[x+2]-k)*(q0.pts[x+4]-k)>=0)
+          vus.push('la hauteur '+k+' TOUCHE la courbe en x='+x+' sans la traverser : l\\'inéquation n\\'a aucun des quatre dessins'); });
+        for(let j=0;j<6;j++){ const lo=Math.min(q0.pts[j],q0.pts[j+1]), hi=Math.max(q0.pts[j],q0.pts[j+1]);
+          if(k>lo&&k<hi) vus.push('la hauteur '+k+' est traversée ENTRE deux graduations : une solution illisible'); }
+        const xt=(i===0)?q0.xt1:q0.xt2;
+        if(typeof xt!=='number'||xt<-2||xt>2) vus.push('le point en trop de k'+(i+1)+' n\\'est pas une graduation intérieure');
+        else if(q0.pts[xt+3]===k) vus.push('le point en trop de k'+(i+1)+' tombe sur un vrai croisement');
+      });
+      if(k0===0 && (q0.k1===0||q0.k2===0)) k0=1;
+      rangsEq.add(q0.permE.indexOf('bon'));
+      const fi=eigFormeIneq(qs[1]);
+      (rangsParForme[fi]=rangsParForme[fi]||new Set()).add(q0.permI.indexOf(fi));
+    }
+    if(!vus.length && !k0) vus.push('k = 0 ne sort jamais sur 250 séances : la fiche demande f(x) = 0');
+    if(!vus.length && rangsEq.size<3) vus.push('le rang du bon dessin d\\'équation ne varie pas assez ('+rangsEq.size+' rang(s) vu(s)) : l\\'élève apprendrait le rang');
+    if(!vus.length){
+      const fig=Object.keys(rangsParForme).filter(function(f){ return rangsParForme[f].size>=2; });
+      if(!fig.length) vus.push('à forme égale, le rang du bon dessin d\\'inéquation ne varie jamais');
+    }
+
+    /* ---- 2. les gestes, sur un tirage FIXE (la courbe du repli : f vaut
+       -3,-1,1,3,1,-1,-3 — croisements de -1 en x=-2 et 2, de 1 en x=-1 et 1,
+       f AU-DESSUS de la hauteur entre les deux croisements dans les deux
+       cas ; permutations identité, donc le bon dessin est le premier) ---- */
+    const Q0={pts:[-3,-1,1,3,1,-1,-3], k1:-1, k2:1, op1:'ge', op2:'ge', xt1:0, xt2:2,
+      permE:['bon','autre','oubli','trop'], permI:['mo','mn','eo','en']};
+    function pose(type, op1, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'eig', questions:['eq1','in1','eq2','in2'].map(function(tt){ return Object.assign({},Q0,{op1:op1||'ge',type:tt}); }),
+        idx:{eq1:0,in1:1,eq2:2,in2:3}[type], score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      renderEigTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkEigAnswer();
+      return { fb:document.getElementById('eigFeedback').textContent,
+               cls:document.getElementById('eigFeedback').className,
+               score:test.score };
+    }
+    /* les quatre dessins d'une équation : la ligne partout, les points selon la forme */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'eig', questions:[Object.assign({},Q0,{type:'eq1'})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+    renderEigTest();
+    { const cartes=document.querySelectorAll('#eigHost .ing-carte');
+      if(cartes.length!==4) vus.push(cartes.length+' cartes au lieu de 4');
+      const pts=[].map.call(cartes,function(c){ return c.querySelectorAll('.ing-pt').length; });
+      /* permE identité : bon = 2 points, autre = les 2 points de l'AUTRE
+         hauteur, oubli = 1, trop = 3 */
+      if(pts.join(',')!=='2,2,1,3') vus.push('les points des quatre dessins d\\'équation (bon, autre, oubli, trop) : '+pts.join(',')+' au lieu de 2,2,1,3');
+      [].forEach.call(cartes,function(c,i){ if(!c.querySelector('.ing-niv')) vus.push('le dessin '+i+' n\\'a pas de ligne horizontale'); });
+      const ys=[].map.call(cartes,function(c){ const n=c.querySelector('.ing-niv'); return n?n.getAttribute('y1'):''; });
+      if(ys[0]===ys[1]) vus.push('le dessin « autre hauteur » porte la MÊME ligne que le bon');
+      if(ys[0]!==ys[2]||ys[0]!==ys[3]) vus.push('« oubli » et « trop » doivent garder la ligne de la bonne hauteur');
+    }
+    /* équation juste, abscisses et S dans l'ordre INVERSE : l'ordre est libre */
+    let r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'2','eig-a-1':'-2','eig-s-0':'2','eig-s-1':'-2'});
+    if(r.score!==5 || !/\\bgood\\b/.test(r.cls)) vus.push('l\\'équation juste avec les abscisses dans l\\'autre ordre est refusée, score '+r.score+'/5');
+    { const carte=document.querySelectorAll('#eigHost .ing-carte')[0];
+      if(!carte || !carte.classList.contains('ok')) vus.push('la bonne carte CHOISIE n\\'est pas bleue (ok)'); }
+    /* le doublon : défendable une fois, faux la seconde */
+    r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-2','eig-a-1':'-2','eig-s-0':'-2','eig-s-1':'2'});
+    if(r.score!==4) vus.push('la même abscisse écrite deux fois : la paire vaut '+(r.score-3)+' au lieu de 1 (score '+r.score+')');
+    /* le mauvais dessin choisi : la bonne carte se MONTRE en vert, la choisie rougit */
+    r=pose('eq1', 'ge', {'eig-sch':'1','eig-a-0':'-2','eig-a-1':'2','eig-s-0':'-2','eig-s-1':'2'});
+    { const cartes=document.querySelectorAll('#eigHost .ing-carte');
+      if(!cartes[0].classList.contains('sol')) vus.push('la bonne carte ne se montre pas en vert quand l\\'élève en a choisi une autre');
+      if(!cartes[1].classList.contains('bad')) vus.push('la carte choisie à tort ne rougit pas'); }
+    /* une case vide ne rougit JAMAIS : elle reçoit la correction en bleu */
+    r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-2','eig-a-1':'2','eig-s-0':'-2'});
+    { const el=document.getElementById('eig-s-1');
+      if(el.classList.contains('bad')) vus.push('la case vide ROUGIT à la vérification');
+      if(!el.classList.contains('sol') || el.value!=='2') vus.push('la case vide n\\'a pas reçu la correction en bleu (2)');
+      if(r.fb.indexOf('Il te manquait 1 case')!==0) vus.push('le message ne dit pas d\\'abord la case manquante : '+r.fb.slice(0,60)); }
+    /* l'inéquation ≥ : f au-dessus entre -2 et 2 → le milieu, pris (forme mo) */
+    r=pose('in1', 'ge', {'eig-sch':'0','eig-d1':'-2','eig-p1':'oui','eig-d2':'2','eig-p2':'oui','eig-co1':'[','eig-b1':'-2','eig-b2':'2','eig-cf1':']'});
+    if(r.score!==9) vus.push('f(x) ≥ -1 : S = [-2 ; 2] refusé, score '+r.score+'/9');
+    /* l'inéquation < : l'extérieur exclu (forme en), les deux morceaux et
+       l'union dans l'AUTRE ordre — jugés au mieux, la règle du 2.4 */
+    r=pose('in1', 'lt', {'eig-sch':'3','eig-d1':'2','eig-p1':'non','eig-d2':'3','eig-p2':'oui','eig-d3':'-3','eig-p3':'oui','eig-d4':'-2','eig-p4':'non',
+      'eig-co1':']','eig-b1':'2','eig-b2':'3','eig-cf1':']','eig-co2':'[','eig-b3':'-3','eig-b4':'-2','eig-cf2':'['});
+    if(r.score!==17) vus.push('f(x) < -1 : les deux morceaux écrits droite-gauche sont refusés, score '+r.score+'/17');
+    /* en soutien, une case vide ne reçoit AUCUNE couleur au fil du choix */
+    currentMode='soutien';
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'eig', questions:[Object.assign({},Q0,{type:'eq1'})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+    renderEigTest();
+    { const a0=document.getElementById('eig-a-0'); a0.value='-2'; }
+    eigLive();
+    { const plein=document.getElementById('eig-a-0'), vide=document.getElementById('eig-a-1');
+      if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne bleuit pas au fil du choix');
       if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
     currentMode='train';
     return vus.join(' | ');
