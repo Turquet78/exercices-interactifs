@@ -2569,6 +2569,7 @@ function exercices(suite){
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
     equationGraphique(w, P);
+    lectureDeuxCourbes(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     variationsDerivee(w, P);
@@ -6220,6 +6221,195 @@ function equationGraphique(w, P){
     /* l'union dans l'AUTRE ordre : les deux intervalles se jugent au mieux */
     r=pose('ineq', 'lt', {'eqg-co1':']','eqg-b1':'2','eqg-b2':'3','eqg-cf1':']','eqg-co2':'[','eqg-b3':'-3','eqg-b4':'-1','eqg-cf2':'['});
     if(r.score!==8) vus.push('f(x) < g(x) : l\\'union écrite droite-gauche est refusée, score '+r.score);
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- La lecture de deux courbes : la fiche « images et antécédents avec
+   f et g » ------------------------------------------------------------------
+   Sept questions dans l'ordre de la fiche, sur le MÊME tirage : les domaines,
+   les images, les antécédents par f ET par g, f(x)=k et g(x)=k, f(x) signe k,
+   f(x)=g(x), f(x) signe g(x). Le risque propre a changé de nature : spline
+   contre SPLINE, la garantie de la droite penchée du 2.5 ne tient plus — le
+   tirage échantillonne l'écart et CE contrôle relit les courbes de Bézier que
+   lvPath écrit, tirage après tirage. Et le palier est un piège de PLUS : deux
+   solutions voisines à une hauteur interrogée seraient un segment entier posé
+   à cette hauteur — pour les antécédents comme pour les équations, sur f
+   comme sur g. */
+function lectureDeuxCourbes(w, P){
+  const present = evaluer(w, "typeof startIfg==='function' && typeof ifgBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la lecture de deux courbes : domaines, images, antécédents et résolutions sur un même tirage',
+      'ce niveau n\'a pas l\'exercice de lecture de deux courbes');
+    return;
+  }
+  verifierEval(w, 'la lecture de deux courbes : domaines, images, antécédents et résolutions sur un même tirage', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='lecture-deux-courbes';
+
+    /* le dessin MÊME, relu : les cubiques de lvPath échantillonnées ici */
+    const echantillons=function(pts){
+      const d=lvPath(pts, function(x){ return x; }, function(y){ return y; });
+      const nums=d.replace(/[MC]/g,' ').trim().split(/\\s+/).map(Number);
+      if(nums.some(isNaN)) return null;
+      const out=[]; let px=nums[0], py=nums[1];
+      for(let i=2;i+5<nums.length;i+=6){
+        const c1x=nums[i],c1y=nums[i+1],c2x=nums[i+2],c2y=nums[i+3],x1=nums[i+4],y1=nums[i+5];
+        for(let t=0;t<=1.0001;t+=0.04){
+          const u=1-t;
+          out.push({x:u*u*u*px+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x1,
+                    y:u*u*u*py+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*y1});
+        }
+        px=x1; py=y1;
+      }
+      return out;
+    };
+    const sols=function(pts,dom,y){ const o=[]; for(let x=dom[0];x<=dom[1];x++){ if(pts[x+3]===y) o.push(x); } return o; };
+    const traverse=function(pts,dom,y){ for(let i=dom[0]+3;i<dom[1]+3;i++){ const lo=Math.min(pts[i],pts[i+1]),hi=Math.max(pts[i],pts[i+1]); if(y>lo&&y<hi) return true; } return false; };
+    const sansVois=function(l){ for(let i=1;i<l.length;i++){ if(l[i]-l[i-1]<2) return false; } return true; };
+
+    /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
+    const dessins=new Set(), ops1=new Set(), ops2=new Set();
+    for(let t=0;t<250 && !vus.length;t++){
+      const qs=ifgBuildQuestions();
+      if(qs.length!==7){ vus.push(qs.length+' questions au lieu de 7'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='dom,img,ant,eqk,ineqk,crx,ineq')
+        vus.push('les questions ne suivent pas l\\'ordre de la fiche : '+qs.map(function(q){ return q.type; }).join(','));
+      const q0=qs[0];
+      const ref=JSON.stringify([q0.ptsF,q0.ptsG,q0.domF,q0.domG,q0.k1,q0.k2,q0.a1,q0.a2,q0.b1,q0.b2,q0.op1,q0.op2]);
+      if(qs.some(function(q){ return JSON.stringify([q.ptsF,q.ptsG,q.domF,q.domG,q.k1,q.k2,q.a1,q.a2,q.b1,q.b2,q.op1,q.op2])!==ref; }))
+        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux sept');
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['ptsF','ptsG','domF','domG','k1','k2','a1','a2','b1','b2','op1','op2','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que les courbes, les domaines, k1, k2, les abscisses et les signes : '+cles.join(','));
+      });
+      dessins.add(JSON.stringify([q0.ptsF,q0.ptsG,q0.domF,q0.domG])); ops1.add(q0.op1); ops2.add(q0.op2);
+      const dF=q0.domF, dG=q0.domG;
+      /* les domaines : dans le cadre, assez longs, et DIFFÉRENTS */
+      if(dF[0]<-3||dF[1]>3||dF[1]-dF[0]<4) vus.push('le domaine de f est invraisemblable : ['+dF.join(';')+']');
+      if(dG[0]<-3||dG[1]>3||dG[1]-dG[0]<4) vus.push('le domaine de g est invraisemblable : ['+dG.join(';')+']');
+      if(dF[0]===dG[0]&&dF[1]===dG[1]) vus.push('les deux domaines sont égaux : la question 1 n\\'enseigne rien');
+      const ca=Math.max(dF[0],dG[0]), cb=Math.min(dF[1],dG[1]);
+      /* les croisements : exactement 2, strictement intérieurs au commun,
+         écartés, marge >= 1 partout ailleurs, et le côté alterne */
+      const cr=[]; for(let x=ca;x<=cb;x++){ if(q0.ptsF[x+3]===q0.ptsG[x+3]) cr.push(x); }
+      if(cr.length!==2){ vus.push(cr.length+' croisement(s) au lieu de 2'); continue; }
+      if(cr[0]<=ca||cr[1]>=cb) vus.push('un croisement tombe au bord du domaine commun : '+cr.join(','));
+      if(cr[1]-cr[0]<2) vus.push('les deux croisements sont voisins');
+      let milieu=0;
+      for(let x=ca;x<=cb;x++){
+        if(x===cr[0]||x===cr[1]) continue;
+        const d=q0.ptsF[x+3]-q0.ptsG[x+3];
+        if(Math.abs(d)<1){ vus.push('f est à moins de 1 de g sur une graduation qui n\\'est pas un croisement (x='+x+')'); break; }
+        if(milieu===0 && x>cr[0]&&x<cr[1]) milieu=(d>0?1:-1);
+        if(milieu!==0){ const cote=(x>cr[0]&&x<cr[1])?milieu:-milieu; if((d>0?1:-1)!==cote){ vus.push('f ne change pas de côté à chaque croisement (x='+x+')'); break; } }
+      }
+      if(milieu===0) vus.push('aucune graduation strictement entre les deux croisements');
+      /* k1 : lisible pour les deux, les deux visages, jamais un palier */
+      if(traverse(q0.ptsF,dF,q0.k1)||traverse(q0.ptsG,dG,q0.k1)) vus.push('k1 = '+q0.k1+' est traversé entre deux graduations : un antécédent illisible');
+      const aF=sols(q0.ptsF,dF,q0.k1), aG=sols(q0.ptsG,dG,q0.k1);
+      if(!((aF.length===1&&aG.length>1)||(aF.length>1&&aG.length===1)))
+        vus.push('k1 ne montre pas les deux visages (f : '+aF.length+', g : '+aG.length+')');
+      if(!sansVois(aF)||!sansVois(aG)) vus.push('deux antécédents de k1 sont voisins : un segment entier est à cette hauteur');
+      /* k2 : deux solutions pour f, intérieures, non voisines ; 1 à 3 pour g */
+      if(q0.k2===q0.k1) vus.push('k2 = k1 : deux questions sur la même hauteur');
+      if(traverse(q0.ptsF,dF,q0.k2)||traverse(q0.ptsG,dG,q0.k2)) vus.push('k2 = '+q0.k2+' est traversé entre deux graduations');
+      const sF=sols(q0.ptsF,dF,q0.k2), sG=sols(q0.ptsG,dG,q0.k2);
+      if(sF.length!==2) vus.push('f(x) = '+q0.k2+' a '+sF.length+' solution(s) au lieu de 2');
+      else{ if(sF[0]<=dF[0]||sF[1]>=dF[1]) vus.push('une solution de f(x) = k2 tombe au bord du domaine');
+            if(sF[1]-sF[0]<2) vus.push('les deux solutions de f(x) = k2 sont voisines : le segment entier est à cette hauteur'); }
+      if(sG.length<1||sG.length>3) vus.push('g(x) = '+q0.k2+' a '+sG.length+' solution(s)');
+      if(!sansVois(sG)) vus.push('deux solutions de g(x) = k2 sont voisines');
+      /* les images : abscisses distinctes, dans le domaine */
+      if(q0.a1===q0.a2||q0.a1<dF[0]||q0.a2<dF[0]||q0.a1>dF[1]||q0.a2>dF[1]) vus.push('les abscisses des images par f ne conviennent pas');
+      if(q0.b1===q0.b2||q0.b1<dG[0]||q0.b2<dG[0]||q0.b1>dG[1]||q0.b2>dG[1]) vus.push('les abscisses des images par g ne conviennent pas');
+      /* LE DESSIN MÊME : les deux splines écrites par lvPath ne se frôlent
+         jamais hors d'un croisement — spline contre spline, c'est le seul
+         vrai risque, et le bord discret ne suffit plus */
+      const eF=echantillons(q0.ptsF), eG=echantillons(q0.ptsG);
+      if(!eF||!eG){ vus.push('le chemin de lvPath ne se relit pas'); break; }
+      for(let i=0;i<eF.length;i++){
+        const p=eF[i];
+        if(p.x<ca-1e-6||p.x>cb+1e-6) continue;
+        if(cr.some(function(x0){ return Math.abs(p.x-x0)<0.35; })) continue;
+        if(Math.abs(p.y-eG[i].y)<0.15){ vus.push('les deux courbes se frôlent hors d\\'un croisement (x≈'+p.x.toFixed(2)+')'); break; }
+      }
+    }
+    if(!vus.length && dessins.size<10)
+      vus.push('seulement '+dessins.size+' dessin(s) distinct(s) sur 250 séances — il en faut au moins 10');
+    if(!vus.length && (ops1.size<4||ops2.size<4))
+      vus.push('les signes des inéquations ne varient pas assez ('+ops1.size+' et '+ops2.size+' sur 4)');
+
+    /* ---- 2. les gestes, sur le tirage FIXE du repli (f : -1..3, g : -3..3,
+       croisements 0 et 2, f au-dessous entre les deux, k1=3, k2=1) ---- */
+    const Q0=JSON.parse(JSON.stringify(IFG_FB));
+    function pose(type, op1, op2, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'ifg', questions:['dom','img','ant','eqk','ineqk','crx','ineq'].map(function(tt){
+        return Object.assign({},Q0,{op1:op1||'ge',op2:op2||'gt',type:tt}); }),
+        idx:{dom:0,img:1,ant:2,eqk:3,ineqk:4,crx:5,ineq:6}[type], score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      renderIfgTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkIfgAnswer();
+      return { fb:document.getElementById('ifgFeedback').textContent,
+               cls:document.getElementById('ifgFeedback').className,
+               score:test.score };
+    }
+    /* le dessin de l'énoncé : g en pointillés, les bouts des deux courbes —
+       et AUCUN trait de méthode avant la vérification */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'ifg', questions:[Object.assign({},Q0,{op1:'ge',op2:'gt',type:'eqk'})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+    renderIfgTest();
+    if(!document.querySelector('#ifgGraph .eqg-g')) vus.push('la courbe de g n\\'est pas dessinée');
+    if(document.querySelectorAll('#ifgGraph .ifg-bout, #ifgGraph .ifg-boutg').length!==4)
+      vus.push('les bouts des courbes ne sont pas marqués : les domaines ne se lisent pas');
+    if(document.querySelector('#ifgGraph .img-trait, #ifgGraph .ing-rouge'))
+      vus.push('le trait de la méthode est dessiné AVANT la vérification');
+    checkIfgAnswer();
+    if(!document.querySelector('#ifgGraph .img-trait'))
+      vus.push('après la vérification, la ligne de niveau manque sur f(x) = k');
+    /* les domaines : justes, et la case vide reçoit la correction en vert */
+    let r=pose('dom', 'ge', 'gt', {'ifg-df1':'-1','ifg-df2':'3','ifg-dg1':'-3','ifg-dg2':'3'});
+    if(r.score!==4 || !/\\bgood\\b/.test(r.cls)) vus.push('les domaines justes sont refusés : Df=[-1;3], Dg=[-3;3], score '+r.score);
+    r=pose('dom', 'ge', 'gt', {'ifg-df1':'-1','ifg-df2':'3','ifg-dg1':'-3'});
+    if(r.fb.indexOf('Il te manquait 1 case')!==0) vus.push('domaine vide : le message ne dit pas la case manquante : '+r.fb.slice(0,50));
+    { const el=document.getElementById('ifg-dg2');
+      if(!el || !el.classList.contains('sol') || el.value!=='3') vus.push('domaine vide : la case n\\'a pas reçu la correction'); }
+    /* les images, par la bonne courbe */
+    r=pose('img', 'ge', 'gt', {'ifg-fa1':'1','ifg-fa2':'-1','ifg-gb1':'1','ifg-gb2':'1'});
+    if(r.score!==4) vus.push('les images justes sont refusées : f(0)=1, f(1)=-1, g(-2)=1, g(2)=1, score '+r.score);
+    /* les antécédents : par f ET par g, l'ordre libre, le doublon une fois */
+    r=pose('ant', 'ge', 'gt', {'ifg-af-0':'3','ifg-af-1':'-1','ifg-ag-0':'-3'});
+    if(r.score!==3) vus.push('les antécédents justes (ordre inversé pour f) sont refusés, score '+r.score);
+    r=pose('ant', 'ge', 'gt', {'ifg-af-0':'3','ifg-af-1':'3','ifg-ag-0':'-3'});
+    if(r.score!==2) vus.push('le même antécédent écrit deux fois vaut '+r.score+' au lieu de 2 : défendable une fois, faux la seconde');
+    /* f(x)=k et g(x)=k ensemble, listes libres */
+    r=pose('eqk', 'ge', 'gt', {'ifg-sf-0':'2','ifg-sf-1':'0','ifg-sg-0':'2','ifg-sg-1':'-2','ifg-sg-2':'0'});
+    if(r.score!==5) vus.push('f(x)=1 et g(x)=1 : les listes permutées sont refusées, score '+r.score);
+    /* f(x) signe k : f au-dessous de 1 entre 0 et 2, bornes = domaine de f */
+    r=pose('ineqk', 'lt', 'gt', {'ifg-co1':']','ifg-b1':'0','ifg-b2':'2','ifg-cf1':'['});
+    if(r.score!==4) vus.push('f(x) < 1 : S = ]0 ; 2[ refusé, score '+r.score);
+    r=pose('ineqk', 'ge', 'gt', {'ifg-co1':'[','ifg-b1':'-1','ifg-b2':'0','ifg-cf1':']','ifg-co2':'[','ifg-b3':'2','ifg-b4':'3','ifg-cf2':']'});
+    if(r.score!==8) vus.push('f(x) ≥ 1 : S = [-1 ; 0] ∪ [2 ; 3] refusé (les bornes sont les bouts du domaine de f), score '+r.score);
+    /* f(x)=g(x) : les croisements */
+    r=pose('crx', 'ge', 'gt', {'ifg-sx-0':'2','ifg-sx-1':'0'});
+    if(r.score!==2) vus.push('les croisements 0 et 2 (dans l\\'autre ordre) sont refusés, score '+r.score);
+    /* f(x) signe g(x) : bornes = les bouts du domaine COMMUN, union au mieux */
+    r=pose('ineq', 'ge', 'le', {'ifg-co1':'[','ifg-b1':'0','ifg-b2':'2','ifg-cf1':']'});
+    if(r.score!==4) vus.push('f(x) ≤ g(x) : S = [0 ; 2] refusé, score '+r.score);
+    r=pose('ineq', 'ge', 'gt', {'ifg-co1':']','ifg-b1':'2','ifg-b2':'3','ifg-cf1':']','ifg-co2':'[','ifg-b3':'-1','ifg-b4':'0','ifg-cf2':'['});
+    if(r.score!==8) vus.push('f(x) > g(x) : l\\'union écrite droite-gauche (bornes -1 et 3, les bouts du commun) est refusée, score '+r.score);
+    /* en soutien, une case vide ne reçoit AUCUNE couleur au fil de la frappe */
+    currentMode='soutien';
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'ifg', questions:[Object.assign({},Q0,{op1:'ge',op2:'gt',type:'img'})], idx:0, score:0, maxScore:4, answers:[], startTime:Date.now(), locked:false});
+    renderIfgTest();
+    { const el=document.getElementById('ifg-fa1'); el.value='1'; }
+    ifgLive();
+    { const plein=document.getElementById('ifg-fa1'), vide=document.getElementById('ifg-fa2');
+      if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne verdit pas au fil de la frappe');
+      if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
+    currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

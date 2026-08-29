@@ -806,6 +806,50 @@ imposé, le doublon compté deux fois, la méthode montrée avant la
 vérification, g(b) hors du dessin, le signe figé, le bord 3 lâché — chacun
 rougit en nommant son défaut.
 
+**Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
+est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
+Turquet, août 2026) est repris de la fiche « images et antécédents avec f et
+g » : f en trait plein et g en POINTILLÉS — une vraie courbe, plus une
+droite —, chacune sur son propre domaine (les bouts sont marqués d'un point :
+sans domaines distincts, la question des domaines n'enseignerait rien), et
+SEPT questions dans l'ordre de la fiche sur le MÊME tirage conservé : les
+domaines, quatre images, les antécédents de k par f ET par g, f(x) = k et
+g(x) = k, f(x) signe k, f(x) = g(x), f(x) signe g(x). `lvGraphSVG` a
+seulement appris le morceau (ia, ib), comme `lvPath` l'avait appris — et
+l'étiquette Cf suit le début du morceau.
+**Le risque propre a changé de nature : spline contre SPLINE.** La garantie
+de la droite penchée du 2.5 ne tient plus — deux splines monotones entre deux
+graduations peuvent se refrôler même écartées de 1 aux deux bouts. Le tirage
+échantillonne donc l'écart des deux cubiques de Hermite (`ifgSpline`, les
+mêmes que `lvPath` écrit en Bézier) et rejette la séance qui frôle : mesuré à
+**16 rejets sur 316** — le garde-fou est VIVANT, contrairement à celui du
+2.5, mort à 0 sur 2000 et retiré. Le contrôle relit en plus les Bézier
+réellement écrites, tirage après tirage.
+**Le palier est un piège de PLUS, aux antécédents comme aux équations.** La
+leçon des « solutions voisines » du 2.5 vaut pour TOUTE hauteur interrogée,
+sur f comme sur g : deux antécédents voisins seraient un segment entier posé
+à cette hauteur, et l'énoncé mentirait. g n'a jamais de palier (ses pas sont
+non nuls) ; f, si — le tirage écarte la hauteur, et c'est le REPLI de secours
+qui l'a montré : le premier repli proposé par le tirage portait un palier de
+f à la hauteur k1, invisible aux contrôles d'alors, qui partageaient l'angle
+mort. Un repli s'éprouve par les mêmes contrôles que le tirage.
+**Les bornes d'une union ne sont plus jamais −3 et 3 d'office** : pour
+f(x) signe k ce sont les bouts du domaine de f, pour f(x) signe g(x) les
+bouts du domaine COMMUN — on ne compare f et g que là où les deux existent,
+et c'est une leçon de la fiche elle-même. Les antécédents demandent f ET g
+sur la même hauteur, avec les deux visages dans la même question (un
+singulier d'un côté, un pluriel de l'autre) ; les listes suivent la règle des
+paires, l'union se juge au mieux, et les cases suivent la convention commune
+(`corrChoix`, `msgAvecVides`). Éprouvé en le cassant dix fois — l'ordre de la
+fiche perdu, le tirage re-tiré, la réponse rangée dans la question, le
+croisement au bord, l'échantillonnage débranché (le frôlement se voit alors
+sur les Bézier), l'alternance des côtés cassée, le doublon compté deux fois,
+la méthode montrée avant la vérification, les deux visages lâchés, le palier
+autorisé, les bornes redevenues −3 et 3 — chacun rougit en nommant son
+défaut. Et un FAUX sabotage s'est montré : passer la marge de 1 à 0,5 ne
+change rien, les valeurs étant entières — un écart nul EST un croisement, la
+marge aux graduations est tenue par le compte des croisements.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
