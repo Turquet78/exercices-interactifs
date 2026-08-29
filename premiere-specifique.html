@@ -415,7 +415,7 @@
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-hstest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-hstest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
@@ -1441,6 +1441,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : RECONNAÎTRE LE COEFFICIENT (2.5.2) -->
+  <section class="screen" id="scr-cktest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCk"></span><span class="q-idx" id="ckIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="ckLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="ckPrompt">Reconnaître le coefficient multiplicateur.</p>
+      <div class="mp-stage"><div style="width:100%" id="ckHost"></div></div>
+      <div class="mp-feedback" id="ckFeedback"></div>
+      <div class="row" style="justify-content:center" id="ckActions">
+        <button class="btn btn-primary" onclick="checkCKAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- CONNEXION PROF -->
   <!-- TEST : SOMME ET DIFFÉRENCE DE FRACTIONS -->
   <section class="screen" id="scr-sf">
@@ -1685,7 +1701,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=175;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2075,6 +2091,7 @@ const TESTS={
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
   'synthese-diminutions-libre':{ name:'Synthèse sur les diminutions — rédigée', icon:'📝', desc:'Comme {synthese-augmentations-libre}, mais sur les BAISSES : tu JUSTIFIES en écrivant ta vérification toi-même — avec le coefficient (0,… × valeur initiale) ou avec la diminution (0,… × valeur initiale, puis la soustraction) — et la page la lit.', start:()=>startSynDimLibre() },
   'synthese-augmentations-libre':{ name:'Synthèse sur les augmentations — rédigée', icon:'🖋️', desc:'Les mêmes questions que {synthese-augmentations}, mais plus une seule case : tu JUSTIFIES en écrivant ta vérification toi-même — avec le coefficient (1,… × valeur initiale) ou avec l’augmentation (0,… × valeur initiale, puis l’addition) — et la page la lit.', start:()=>startSynAugLibre() },
+  'reconnaitre-coefficient':{ name:'Reconnaître le coefficient', icon:'🎯', desc:'Augmenter de 30 %, diminuer de 3 %, prendre 30 % : quel coefficient multiplicateur ? Choisis parmi quatre — les pièges classiques y sont — puis VÉRIFIE ta réponse en calculant le coefficient, comme dans {augmenter-pourcentage}.', start:()=>startReconnaitreCoef() },
   'synthese-augmentations':{ name:'Synthèse sur les augmentations', icon:'📈', desc:'La synth\u00e8se de {synthese-pourcentages}, mais uniquement sur les HAUSSES : le r\u00e9sultat, la valeur initiale ou le pourcentage d\u2019une augmentation \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la avec la m\u00e9thode de ton choix.', start:()=>startSynAug() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
@@ -2113,7 +2130,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','reconnaitre-coefficient'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -2171,7 +2188,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -2242,6 +2259,7 @@ function liveCheckCurrent(){
   const k=test.kind;
   if(k==='hs') checkHSAnswer(true);
   else if(k==='lc') checkLCAnswer(true);
+  else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
   else if(k==='mp') checkMAnswer(true);
   else if(k==='asp') checkASPAnswer(true);
@@ -2778,7 +2796,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], hs:['hstest',renderHSTest],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], hs:['hstest',renderHSTest],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -2951,7 +2969,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','hstest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','hstest','sf','psl','sal'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -6860,19 +6878,28 @@ function salExpr(txt){
   const toks=[]; const s=String(txt).replace(/−/g,'-').replace(/[×⋅*]/g,'x').replace(/÷/g,'/');
   const re=/\s*(\d+(?:[.,]\d+)?|[x+\-/()])/gy; let m, pos=0;
   while(pos<s.length){ re.lastIndex=pos; m=re.exec(s); if(!m) return null; toks.push(m[1]); pos=re.lastIndex; }
-  let i=0; const prods=[];
+  let i=0; const termes=[];
   function fact(){
     if(toks[i]==='-'){ i++; const f=fact(); return f&&{n:-f.n,d:f.d}; }
     if(toks[i]==='('){ i++; const e=expr(); if(!e||toks[i]!==')') return null; i++; return e; }
     const r=salRat(toks[i]); if(r) i++; return r;
   }
+  /* Chaque terme (chaîne de × et ÷ d'un même niveau) livre sa LISTE DE
+     FACTEURS, un « ÷ y » comptant pour 1/y. C'est ce qui permet de
+     reconnaître « 100 × 140/100 » comme valeur initiale × coefficient : lu
+     de gauche à droite, ce produit n'a jamais la PAIRE (100 ; 1,4) — la
+     copie de production d'un élève, signalée par Turquet en août 2026, était
+     refusée à tort par le juge. */
   function term(){
     let a=fact(); if(!a) return null;
+    const facteurs=[a];
     while(toks[i]==='x'||toks[i]==='/'){
       const op=toks[i++]; const b=fact(); if(!b) return null;
-      if(op==='x'){ prods.push([a,b]); a={n:a.n*b.n,d:a.d*b.d}; }
-      else { if(b.n===0) return null; a={n:a.n*b.d*(b.n<0?-1:1),d:a.d*Math.abs(b.n)}; }
+      if(op==='x'){ facteurs.push(b); a={n:a.n*b.n,d:a.d*b.d}; }
+      else { if(b.n===0) return null; facteurs.push({n:b.d*(b.n<0?-1:1),d:Math.abs(b.n)});
+             a={n:a.n*b.d*(b.n<0?-1:1),d:a.d*Math.abs(b.n)}; }
     }
+    if(facteurs.length>=2) termes.push(facteurs);
     return a;
   }
   function expr(){
@@ -6885,7 +6912,7 @@ function salExpr(txt){
     expr.plusHaut=plus; expr.moinsHaut=moins; return a;
   }
   const v=expr(); if(!v||i!==toks.length) return null;
-  return { v, prods, plusHaut:expr.plusHaut===true, moinsHaut:expr.moinsHaut===true };
+  return { v, termes, plusHaut:expr.plusHaut===true, moinsHaut:expr.moinsHaut===true };
 }
 /* salJuge : { sait, correct, phrase }. Refuse sur un fait prouvable, accepte
    quand tout est vérifié, s'abstient sinon. */
@@ -6907,10 +6934,18 @@ function salJuge(q, texte){
           phrase:'Il y a une égalité fausse dans ton calcul : « '+morceaux[k-1]+' = '+morceaux[k]+' ». Reprends cette ligne.' };
     }
     const val=lus[0].v, aDeuxMorceaux=lus.length>=2;
-    const paires=[]; lus.forEach(function(x){ x.prods.forEach(function(p){ paires.push(p); }); });
-    const contient=function(a,b){ return paires.some(function(p){ return (salEgal(p[0],a)&&salEgal(p[1],b))||(salEgal(p[0],b)&&salEgal(p[1],a)); }); };
-    if(aDeuxMorceaux && contient(rCoef,rN) && salEgal(val,rFin)) coefOk=true;
-    if(aDeuxMorceaux && contient(rPct,rN) && (salEgal(val,rAug)||salEgal(val,rFin))) augProd=true;
+    const termes=[]; lus.forEach(function(x){ x.termes.forEach(function(t){ termes.push(t); }); });
+    /* Un terme montre « Vi × cible » si l'un de ses facteurs vaut Vi et que
+       le PRODUIT DE TOUS LES AUTRES vaut la cible — quel que soit l'ordre,
+       et quelle que soit l'écriture de la cible (1,4 ou 140/100). */
+    const montre=function(cible){ return termes.some(function(t){
+      const iN=t.findIndex(function(f){ return salEgal(f,rN); });
+      if(iN<0) return false;
+      let p={n:1,d:1};
+      t.forEach(function(f,j){ if(j!==iN) p={n:p.n*f.n,d:p.d*f.d}; });
+      return salEgal(p,cible); }); };
+    if(aDeuxMorceaux && montre(rCoef) && salEgal(val,rFin)) coefOk=true;
+    if(aDeuxMorceaux && montre(rPct) && (salEgal(val,rAug)||salEgal(val,rFin))) augProd=true;
     if(aDeuxMorceaux && lus.some(function(x){ return c.sens>0?x.plusHaut:x.moinsHaut; }) && salEgal(val,rFin)) addOk=true;
   }
   const voieOk=coefOk || (augProd && addOk);
@@ -6958,6 +6993,31 @@ function salAttenduIA(q, juge){
    + LANGUE_SIMPLE;
   return att;
 }
+/* La vérification PEINT la feuille (signalé par Turquet, août 2026, sur la
+   copie de production) : une ligne dont toutes les égalités sont vraies passe
+   en bleu — la couleur du juste —, une ligne qui porte une égalité fausse en
+   rouge ; une ligne sans « = », ou une écriture que le juge ne sait pas lire,
+   ne reçoit rien. On lit chaque ligne par la même voie que la feuille (toPlain
+   sur la vraie MathLive), et par la propriété value de la greffe quand
+   MathLive n'est pas là — c'est ce qui rend la peinture mesurable au banc. */
+function salPeindreLignes(){
+  if(!salFeuille || !Array.isArray(salFeuille.lignes)) return;
+  salFeuille.lignes.forEach(function(L){
+    const mf=L&&L.mf; if(!mf||!mf.classList) return;
+    mf.classList.remove('ok','bad');
+    let t='';
+    try{ t=String(window.mlDexp&&window.mlDexp.toPlain?window.mlDexp.toPlain(mf.getValue()):(mf.value||'')).trim(); }
+    catch(e){ try{ t=String(mf.value||'').trim(); }catch(_){ t=''; } }
+    if(!t) return;
+    const morceaux=t.split('=').map(function(m){ return m.trim(); });
+    if(morceaux.length<2 || morceaux.some(function(m){ return m===''; })) return;
+    const lus=morceaux.map(salExpr);
+    if(lus.some(function(x){ return !x; })) return;
+    let faux=false;
+    for(let k=1;k<lus.length;k++) if(!salEgal(lus[k-1].v,lus[k].v)) faux=true;
+    mf.classList.add(faux?'bad':'ok');
+  });
+}
 async function checkSal(){
   if(test.locked || test.salBusy) return;
   const q=test.questions[test.idx], fb=$('salFeedback');
@@ -6992,6 +7052,7 @@ async function checkSal(){
     correct=res.correct===true; feedback=res.feedback||'';
   }
   fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  salPeindreLignes();                       /* la copie se voit : lignes justes en bleu, fausses en rouge */
   const okChoix=(q.choisi===q.bon);
   if(isSoutien() && !correct){
     $('salActions').innerHTML='<button class="btn btn-primary" onclick="checkSal()">Revérifier</button>';
@@ -8919,6 +8980,170 @@ async function finishLireCoef(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'lire-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Reconnaître le coefficient (2.5.2) --------------------------------
+   {reconnaitre-coefficient} (demande de Turquet, août 2026) : une
+   transformation donnée — augmenter de P %, diminuer de P %, prendre P % —
+   et QUATRE coefficients proposés, dont les pièges classiques : le
+   coefficient de l'autre sens, « prendre » au lieu d'évoluer, et la virgule
+   décalée (1,03 pour +30 %). L'élève choisit, puis VÉRIFIE sa proposition en
+   CALCULANT le coefficient dans des cases, comme l'étape du 2.2.1 :
+   1 + 30/100 = 1 + 0,30 = 1,30 (et P/100 = 0,PP pour « prendre »).
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : la question ne
+   porte que la famille et P ; ckCoef() — que l'énoncé, les propositions et la
+   correction lisent tous — recalcule le coefficient, et le bon rang se déduit
+   des propositions (ckBon). Les trois familles sortent chacune UNE fois sur
+   les trois questions, en ordre mélangé — le motif des synthèses — et les
+   quatre propositions sont mélangées : à famille égale, le rang de la bonne
+   varie. La VÉRIFICATION EST AFFICHÉE AVEC LES PROPOSITIONS (la règle des
+   QCM à chaîne) : ici rien ne dépend du choix — la chaîne se calcule depuis
+   l'énoncé — donc choisir ne redessine jamais l'écran. */
+function ckCoef(q){ return q.fam==='aug' ? 100+q.P : (q.fam==='dim' ? 100-q.P : q.P); }   /* en centièmes */
+function ckBon(q){ return q.opts.indexOf(ckCoef(q)); }
+function ckStr(c){ return Math.floor(c/100)+','+String(c%100).padStart(2,'0'); }
+function genCK(fam){
+  let P, Ps, pool;
+  do{
+    P=Math.random()<0.5?pick([10,20,30,40,60,70,80,90]):rand(1,9);
+    Ps=(P%10===0)?P/10:P*10;                       /* la virgule décalée : 30 -> 3, 3 -> 30 */
+    const bonC=(fam==='aug')?100+P:(fam==='dim')?100-P:P;
+    const leurres=(fam==='aug')?[100-P,P,100+Ps]:(fam==='dim')?[P,Ps,100-Ps]:[Ps,100+P,100-P];
+    pool=[bonC].concat(leurres);
+  }while(new Set(pool).size<4 || pool.some(c=>c<=0||c>=200));
+  return { fam, P, opts:qdMelanger(pool), choisi:null };
+}
+async function startReconnaitreCoef(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='ck'; test.qId='reconnaitre-coefficient';
+  test.questions=qdMelanger(['aug','dim','pre']).map(genCK);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  show('cktest'); renderCKTest();
+}
+/* Choisir ne redessine JAMAIS l'écran : rien ne dépend du choix, et un
+   redessin effacerait les cases déjà remplies. */
+function choisirCK(i){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(q.choisi===i) return;
+  q.choisi=i;
+  q.opts.forEach((_,j)=>{ const b=$('ckc'+j); if(b) b.classList.toggle('sel', j===i); });
+  autoSave();
+}
+function ckMots(fam){
+  return fam==='aug' ? {verbe:'Augmenter de', signe:'+', tete:'1,'}
+       : fam==='dim' ? {verbe:'Diminuer de',  signe:'−', tete:'0,'}
+                     : {verbe:'Prendre',      signe:'',  tete:'0,'};
+}
+function renderCKTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ckIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagCk').innerHTML=modeTagHTML();
+  $('ckLiveScore').textContent=test.score;
+  $('ckFeedback').textContent=''; $('ckFeedback').className='mp-feedback';
+  $('ckActions').innerHTML='<button class="btn btn-primary" onclick="checkCKAnswer()">Vérifier</button>';
+  const M=ckMots(q.fam);
+  $('ckPrompt').innerHTML=`<b>${esc(M.verbe)} ${q.P} %</b>, c’est multiplier par… Choisis le bon coefficient, puis VÉRIFIE ta réponse en le calculant.`;
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const choix=q.opts.map((c,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="ckc${i}" onclick="choisirCK(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">× ${ckStr(c)}</span></button>`).join('');
+  /* la chaîne se calcule depuis l'ÉNONCÉ : elle est visible dès le rendu,
+     sans « … », et « prendre » n'a pas le maillon « 1 ± » */
+  const chaine=(q.fam==='pre')
+    ? `<div class="pt-row">${frac('ck1n','ck1d')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('ck1p','le pourcentage en écriture décimale')}</div>`
+    : `<div class="pt-row"><span class="f-whole">1 ${M.signe}</span>${frac('ck1n','ck1d')}<span class="f-eq">=</span><span class="f-whole">1 ${M.signe} 0,</span>${dec('ck1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${M.tete}</span>${dec('ckC','le coefficient en écriture décimale')}</div>`;
+  $('ckHost').innerHTML=numeros(
+    `<div class="pt-step"><div class="pt-lab">① Choisis le coefficient</div>
+       <div class="pt-choix" id="ckChoix">${choix}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Vérifie ta proposition : calcule le coefficient, comme dans {augmenter-pourcentage}</div>
+       ${chaine}</div>`+
+    `<p class="pt-aide">Tu peux calculer d’abord et choisir ensuite : le coefficient que tu calcules est celui qu’il faut choisir.</p>`);
+  const order=[$('ck1n'),$('ck1d'),$('ck1p'),$('ckC')].filter(Boolean);
+  order.forEach((el,i)=>{
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i+1<order.length)order[i+1].focus(); else checkCKAnswer();} });
+  });
+}
+/* Le piège CHOISI se nomme (le motif d'{variations-depuis-derivee}) : chaque
+   distracteur a une raison d'être, et le message la dit. */
+function ckPiege(q, cents){
+  const Ps=(q.P%10===0)?q.P/10:q.P*10;
+  if(cents===100+Ps || cents===100-Ps || cents===Ps) return 'attention à la place de la VIRGULE : '+q.P+' % s’écrit '+pDecStr(q.P)+', pas '+pDecStr(Ps)+'.';
+  if(cents===100-q.P) return ckStr(cents)+' est le coefficient d’une DIMINUTION de '+q.P+' %.';
+  if(cents===100+q.P) return ckStr(cents)+' est le coefficient d’une AUGMENTATION de '+q.P+' %.';
+  if(cents===q.P) return ckStr(cents)+', c’est PRENDRE '+q.P+' % — la valeur diminue, elle n’évolue pas de '+q.P+' %.';
+  return '';
+}
+function checkCKAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx];
+  const soutien=isSoutien();
+  const M=ckMots(q.fam);
+  const v=id=>{const e=$(id);return e?e.value.trim():'';};
+  const decOk=(id,pre,n,d)=>{ const t=v(id); if(t==='') return false;
+    const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
+  const coef=ckCoef(q);
+  if(live){
+    liveColorFrac('ck1n','ck1d',q.P,100);
+    liveColorDecCoef0('ck1p',q.P);
+    if(q.fam!=='pre'){ const el=$('ckC'); if(el&&!el.disabled){
+      el.classList.remove('ok','bad'); if(v('ckC')!=='') el.classList.add(decOk('ckC',M.tete,coef,100)?'ok':'bad'); } }
+    return;
+  }
+  if(q.choisi==null){
+    $('ckFeedback').textContent='Choisis d’abord un coefficient (a, b, c ou d).';
+    $('ckFeedback').className='mp-feedback bad'; return;
+  }
+  const iv=id=>parseInt(v(id),10);
+  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
+  const okChoix = q.choisi===ckBon(q);
+  const ok1  = v('ck1n')!=='' && fracEqual(iv('ck1n'),den('ck1d'),q.P,100);
+  const ok1p = decOk('ck1p','0,',q.P,100);
+  const okC  = (q.fam==='pre') ? true : decOk('ckC',M.tete,coef,100);
+  /* une case VIDE ne reçoit aucune couleur : en entraînement la correction la
+     remplit en vert juste après, en soutien elle reste à écrire */
+  const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');
+    if(v(id)===''){ el.disabled=!soutien; return; }
+    el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien;};
+  mark('ck1n',ok1); mark('ck1d',ok1); mark('ck1p',ok1p); if(q.fam!=='pre') mark('ckC',okC);
+  const bon=ckBon(q);
+  q.opts.forEach((_,i)=>{ const b=$('ckc'+i); if(!b) return;
+    b.classList.remove('ok','bad','sol');
+    if(i===q.choisi) b.classList.add(okChoix?'ok':'bad');
+    else if(i===bon && !okChoix) b.classList.add('sol');   /* la bonne MONTRÉE : correction, verte */
+  });
+  const allOk=okChoix&&ok1&&ok1p&&okC;
+  if(!allOk && soutien){ soutienAgain('ckFeedback','ckActions','checkCKAnswer','ckHost'); return; }
+  test.locked=true;
+  const cx=$('ckChoix'); if(cx) cx.classList.add('locked');
+  if(allOk){ test.score++; $('ckLiveScore').textContent=test.score;
+    $('ckFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('ckFeedback').className='mp-feedback good';
+  } else {
+    const methode=(q.fam==='pre')
+      ? `Méthode : prendre ${q.P} %, c’est multiplier par ${q.P}/100 = ${ckStr(coef)}.`
+      : `Méthode : 1 ${M.signe} ${q.P}/100 = 1 ${M.signe} ${pDecStr(q.P)} = ${ckStr(coef)}.`;
+    const piege=okChoix?'':ckPiege(q, q.opts[q.choisi]);
+    $('ckFeedback').textContent=(piege?piege+' ':'')+methode;
+    $('ckFeedback').className='mp-feedback bad';
+    corTrainFrac('ck1n','ck1d',q.P,100); corTrainDec('ck1p',String(q.P).padStart(2,'0'));
+    if(q.fam!=='pre') corTrainDec('ckC',String(coef%100).padStart(2,'0'));
+  }
+  test.answers.push({...(ptsExo()||{}),q:`${M.verbe} ${q.P} % : coefficient ?`,
+    answer:'× '+ckStr(coef), given:(q.choisi==null)?null:('× '+ckStr(q.opts[q.choisi])), correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('ckActions').innerHTML=`<button class="btn btn-primary" id="ckNext" onclick="nextCKQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('ckNext').focus();
+}
+function nextCKQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderCKTest(); autoSave(); } else finishCK(); }
+async function finishCK(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'reconnaitre-coefficient',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -10955,6 +11180,13 @@ Enchaîner les deux baisses, c’est multiplier par l’un <b>puis</b> par l’a
 Le coefficient global se relit enfin en pourcentage : multiplier par 0,48, c’est <b>garder</b> 48 % — donc <b>perdre 52 %</b>. La baisse globale est <b>52 %</b>.<br>
 Pour vérifier, refais le chemin dans l’autre sens : 1 − 0,52 = 0,48, le coefficient trouvé à l’étape ②.`;
 
+const RAP_CK=`<b>Reconnaître le coefficient multiplicateur</b><br>
+Trois situations, trois coefficients :<br>
+<b>Augmenter de P %</b> : \\(1+\\frac{P}{100}\\). Exemple : +30 % → 1 + 0,30 = <b>1,30</b>.<br>
+<b>Diminuer de P %</b> : \\(1-\\frac{P}{100}\\). Exemple : −3 % → 1 − 0,03 = <b>0,97</b>.<br>
+<b>Prendre P %</b> : \\(\\frac{P}{100}\\). Exemple : 30 % → <b>0,30</b>.<br>
+Attention à la place de la virgule : 3 % s’écrit 0,03, et 30 % s’écrit 0,30.<br>
+Pour vérifier une proposition, CALCULE le coefficient : si tu retrouves le même, c’est la bonne.`;
 const RAP_LC=`<b>Lire un coefficient multiplicateur</b><br>
 Un coefficient dit d’un coup <b>le sens</b> de l’évolution et <b>son ampleur</b>.<br>
 · Il est <b>plus grand que 1</b> → la valeur monte : c’est une <b>augmentation</b>.<br>
@@ -11005,7 +11237,7 @@ R\u00e9sultat 345. Les cases de retenue sont facultatives : si tu as appris la m
 par emprunt, laisse-les vides.<br>
 V\u00e9rifie l\u2019ordre de grandeur \u00e0 la fin : 347 + 58, c\u2019est \u00ab un peu plus de 400 \u00bb.
 Une r\u00e9ponse \u00e0 3\u00a0000 ou \u00e0 40 saute alors aux yeux.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL };
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'reconnaitre-coefficient':RAP_CK };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -11045,6 +11277,7 @@ const QIA_SUGG={
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
+  ck:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment calculer le coefficient d’une augmentation ?","Comment calculer le coefficient d’une diminution ?"],
   bs:["Pourquoi deux baisses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième baisse ?","Comment relire un coefficient global en pourcentage de baisse ?"],
   dim:["Pourquoi une remise de 30 % revient à multiplier par 0,7 ?","C’est quoi, un coefficient multiplicateur ?","Après une remise de 25 %, que reste-t-il à payer ?","Quelle différence entre une remise et un rabais ?"],
   mp:["Comment fonctionne une retenue ?","Pourquoi commence-t-on par les unités ?","Comment vérifier un résultat de multiplication ?"],
@@ -11158,6 +11391,13 @@ function conseilCtxCourant(){
       +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : la bonne proposition est '+lettres[q.bon]+') '+qdLabel(q,q.opts[q.bon])+', et l’égalité qui relie les trois nombres est '+q.P+'/100 × '+q.N+' = '+q.result+' '+q.unit+'. '
       +'La voie attendue commence par écrire le pourcentage en fraction × le nombre'+(q.type==='pct'?' — ou, tout aussi juste, la part sur le tout amenée au dénominateur 100':'')+' ; les étapes suivantes sont facultatives, et tout calcul juste est accepté, pourvu qu’il y ait au moins une étape cohérente — recopier la proposition n’est pas justifier.'
       +(q.choisi==null?' L’élève n’a pas encore choisi de proposition : aide-le à comprendre ce que la question demande, sans lui dire laquelle est la bonne.':' L’élève a choisi '+lettres[q.choisi]+') '+qdLabel(q,q.opts[q.choisi])+'.');
+  } else if(k==='ck' && q){
+    const lettres=['a','b','c','d'];
+    const Mck=ckMots(q.fam);
+    att='QCM sur les coefficients multiplicateurs : « '+Mck.verbe+' '+q.P+' % » — l’élève choisit le bon coefficient parmi quatre ('+q.opts.map(function(c,i){ return lettres[i]+') × '+ckStr(c); }).join(' ; ')+'), puis VÉRIFIE sa proposition en calculant le coefficient dans des cases ('+(q.fam==='pre'?(q.P+'/100 = 0,'+String(q.P).padStart(2,'0')):('1 '+Mck.signe+' '+q.P+'/100 = 1 '+Mck.signe+' '+pDecStr(q.P)+' = '+ckStr(ckCoef(q))))+'). '
+      +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste : '+lettres[ckBon(q)]+') × '+ckStr(ckCoef(q))+'. '
+      +'Les pièges des propositions : le coefficient de l’autre sens, « prendre P % », et la virgule décalée (3 % s’écrit 0,03, 30 % s’écrit 0,30). '
+      +(q.choisi==null?'L’élève n’a pas encore choisi : aide-le à comprendre comment calculer un coefficient, sans lui dire lequel choisir.':'L’élève a choisi '+lettres[q.choisi]+') × '+ckStr(q.opts[q.choisi])+'.');
   } else if(k==='sal' && q){
     const lettres=['a','b','c','d'];
     const ch=salCouple(q);
@@ -11476,7 +11716,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderSFTest','renderPsl','renderSal'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderSFTest','renderPsl','renderSal','renderCKTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

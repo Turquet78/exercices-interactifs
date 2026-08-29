@@ -1255,9 +1255,9 @@ function branchements(w){
 
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
      baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps), plus les synthèses rédigées 2.2.9 et 2.3.8. On
-     appelle les DIX-HUIT vrais démarreurs : un nombre changé dans un
-     démarreur partagé ne dit rien des autres. */
+     2026, en trois temps), plus les synthèses rédigées 2.2.9 et 2.3.8 et le
+     QCM des coefficients 2.5.2. On appelle les DIX-NEUF vrais démarreurs :
+     un nombre changé dans un démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -1266,7 +1266,8 @@ function branchements(w){
        ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
-       ['2.2.9','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn']]
+       ['2.2.9','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn'],
+       ['2.5.2','startReconnaitreCoef']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -1324,6 +1325,109 @@ function branchements(w){
       }
       return vus.slice(0,4).join(' | ');
     })()`, v => v === '', undefined);
+  }
+
+  /* ---- {reconnaitre-coefficient} (2.5.2) : le QCM des coefficients ------
+     Cinq bords, et n'en tenir qu'un ne tient rien : le tirage (les trois
+     familles chacune une fois à ordre variable, quatre propositions
+     DISTINCTES qui contiennent les pièges, et à famille égale le rang de la
+     bonne varie) ; la bonne réponse JAMAIS rangée à côté (la question ne
+     porte que la famille et P — ckCoef la recalcule) ; la chaîne de
+     vérification VISIBLE dès le rendu, et choisir qui ne redessine pas ; la
+     correction CLIQUÉE (bonne choisie = ok, bonne montrée = sol, case vide
+     jamais rougie, le piège choisi NOMMÉ) ; et l'identité. */
+  if(typeof evaluer(w,"typeof startReconnaitreCoef").valeur==='string' && evaluer(w,"typeof startReconnaitreCoef").valeur==='function'){
+    verifierEval(w, 'reconnaître le coefficient : trois familles, pièges nommés, vérification honnête', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      /* ---- 1. le tirage ---- */
+      const ordres={}, rangs={aug:{},dim:{},pre:{}};
+      for(let t=0;t<30 && !vus.length;t++){
+        startReconnaitreCoef();
+        const fams=test.questions.map(function(q){ return q.fam; });
+        ['aug','dim','pre'].forEach(function(f){ if(fams.indexOf(f)<0) vus.push('tirage '+t+' : la famille « '+f+' » ne sort pas'); });
+        if(test.questions.length!==3) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de 3');
+        ordres[fams.join(',')]=1;
+        test.questions.forEach(function(q){
+          const cles=Object.keys(q).filter(function(k){ return ['fam','P','opts','choisi'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question porte d\\'autres champs que la famille et P : '+cles.join(','));
+          if(new Set(q.opts).size!==4) vus.push('tirage '+t+' ('+q.fam+', P='+q.P+') : propositions non distinctes '+q.opts.join('/'));
+          if(q.opts.indexOf(ckCoef(q))<0) vus.push('tirage '+t+' : la bonne réponse manque aux propositions');
+          const Ps=(q.P%10===0)?q.P/10:q.P*10;
+          const attendus=(q.fam==='aug')?[100-q.P,q.P,100+Ps]:(q.fam==='dim')?[q.P,Ps,100-Ps]:[Ps,100+q.P,100-q.P];
+          attendus.forEach(function(c){ if(q.opts.indexOf(c)<0) vus.push('tirage '+t+' ('+q.fam+', P='+q.P+') : le piège '+c+' manque'); });
+          rangs[q.fam][ckBon(q)]=1;
+        });
+      }
+      if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des familles ne change jamais');
+      ['aug','dim','pre'].forEach(function(f){ if(!vus.length && Object.keys(rangs[f]).length<2) vus.push('famille '+f+' : la bonne tombe toujours au même rang'); });
+
+      /* ---- 2. la chaîne visible dès le rendu, le choix qui ne redessine pas ---- */
+      startReconnaitreCoef();
+      test.questions[0]={fam:'aug',P:30,opts:[130,103,70,30],choisi:null}; test.idx=0; renderCKTest();
+      ['ck1n','ck1d','ck1p','ckC'].forEach(function(id){ if(!document.getElementById(id)) vus.push('la case '+id+' n\\'est pas visible avant le choix'); });
+      const el0=document.getElementById('ck1n'); el0.value='30';
+      choisirCK(2);
+      if(document.getElementById('ck1n')!==el0) vus.push('choisir une proposition redessine l\\'écran — les cases écrites seraient effacées');
+      if(el0.value!=='30') vus.push('choisir une proposition efface une case écrite');
+      if(test.questions[0].choisi!==2) vus.push('choisirCK ne retient pas la proposition');
+
+      /* ---- 3. la correction, CLIQUÉE ---- */
+      const poser=function(q,vals){ test.questions[0]=q; test.idx=0; test.locked=false; renderCKTest();
+        Object.keys(vals||{}).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(vals[id]); }); };
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      const fb=function(){ return document.getElementById('ckFeedback').textContent; };
+      const QA={fam:'aug',P:30,opts:[130,103,70,30],choisi:0};
+      /* copie juste */
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      test.score=0; checkCKAnswer();
+      if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
+      if(!/\\bok\\b/.test(cls('ckc0'))) vus.push('la bonne proposition choisie ne se marque pas ok');
+      if(!/\\bok\\b/.test(cls('ckC'))) vus.push('le coefficient juste ne se marque pas ok');
+      /* proposition fausse (le coefficient de la baisse), cases justes : le piège est NOMMÉ */
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:2}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      checkCKAnswer();
+      if(!test.answers.length || test.answers[test.answers.length-1].correct) vus.push('la mauvaise proposition est comptée juste');
+      if(!/\\bbad\\b/.test(cls('ckc2'))) vus.push('la proposition fausse ne rougit pas');
+      if(!/\\bsol\\b/.test(cls('ckc0'))) vus.push('la bonne proposition ne se montre pas en correction (sol)');
+      if(fb().indexOf('DIMINUTION')<0) vus.push('le retour ne nomme pas le piège du sens : '+fb().slice(0,60));
+      /* la virgule décalée se nomme */
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:1}),{ck1n:'30',ck1d:'100',ck1p:'30',ckC:'30'});
+      checkCKAnswer();
+      if(fb().indexOf('VIRGULE')<0) vus.push('le retour ne nomme pas le piège de la virgule : '+fb().slice(0,60));
+      /* case vide en entraînement : jamais rouge, remplie en vert */
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30'});
+      checkCKAnswer();
+      if(/\\bbad\\b/.test(cls('ckC'))) vus.push('une case laissée vide rougit à la vérification');
+      if(!/\\bsol\\b/.test(cls('ckC'))) vus.push('la case vide ne reçoit pas la correction en vert');
+      if((document.getElementById('ckC').value||'')==='') vus.push('la correction n\\'écrit pas la valeur dans la case vide');
+      /* en soutien, la vide reste NUE et l'exercice se rejoue */
+      currentMode='soutien';
+      poser(JSON.parse(JSON.stringify(QA)),{ck1n:'30',ck1d:'100',ck1p:'30'});
+      checkCKAnswer();
+      if(/\\b(bad|sol|ok)\\b/.test(cls('ckC'))) vus.push('en soutien, la case vide reçoit une couleur ('+cls('ckC')+')');
+      if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'exercice');
+      currentMode='train';
+      /* vérifier sans proposition : un message, jamais un verrou */
+      poser(Object.assign(JSON.parse(JSON.stringify(QA)),{choisi:null}),{});
+      checkCKAnswer();
+      if(fb().indexOf('Choisis d')!==0) vus.push('vérifier sans proposition ne demande pas de choisir');
+      if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
+      /* « prendre » : pas de maillon « 1 ± », la chaîne P/100 = 0,PP juge */
+      const QP={fam:'pre',P:30,opts:[3,130,30,70],choisi:2};
+      poser(JSON.parse(JSON.stringify(QP)),{ck1n:'30',ck1d:'100',ck1p:'30'});
+      if(document.getElementById('ckC')) vus.push('« prendre » affiche un maillon « 1 ± » qui n\\'existe pas');
+      test.score=0; checkCKAnswer();
+      if(test.score!==1) vus.push('« prendre » : la copie juste ne vaut pas le point');
+
+      /* ---- 4. l'identité ---- */
+      test.kind='ck'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='reconnaitre-coefficient') vus.push('« Recommencer » relance « '+test.qId+' »');
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('reconnaître le coefficient : trois familles, pièges nommés, vérification honnête',
+      'ce niveau n\'a pas le QCM des coefficients');
   }
 
   if(P.nbQuestionsFractions){
@@ -4516,6 +4620,11 @@ function syntheseAugLibreRedigee(w, P){
     const qFin={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0};
     const qPct={fam:'aug',inc:'pct',sens:1,P:30,N:600,aug:180,fin:780,decStr:'780',unit:'€',opts:[20,30,40,50],bon:1,choisi:1,ci:0,v:0};
     const qFinD={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
+    /* la copie de production (signalée par Turquet, août 2026) : « 100 ×
+       140/100 = 140 » sur « +40 % atteint 140, retrouve la valeur initiale »
+       — le coefficient écrit en FRACTION, la valeur initiale devant. Si elle
+       ne passe pas au juge, c'est le juge qui a tort. */
+    const qIni={fam:'aug',inc:'ini',sens:1,P:40,N:100,aug:40,fin:140,decStr:'140',unit:'articles',opts:[300,60,200,100],bon:3,choisi:3,ci:0,v:0};
     const cas=[
       ['coefficient',            qFin, 1, '1,05 × 600 = 630',                  true,  true ],
       ['coefficient, ordre libre',qFin, 1, '600 × 1,05 = 630',                 true,  true ],
@@ -4531,6 +4640,8 @@ function syntheseAugLibreRedigee(w, P){
       ['pourcentage choisi juste',qPct, 1, '1,3 × 600 = 780',                  true,  true ],
       ['pourcentage choisi faux, calcul cohérent', qPct, 2, '1,4 × 600 = 840', true,  false],
       ['écriture inconnue',      qFin, 1, 'j’ai trouvé 630',                   false, null ],
+      ['copie de production : Vi × 140/100', qIni, 3, '100 × 140/100 = 140',    true,  true ],
+      ['coefficient en fraction, ordre inverse', qIni, 3, '140/100 × 100 = 140', true, true ],
       ['baisse : coefficient',   qFinD, 1, '0,95 × 600 = 570',                  true,  true ],
       ['baisse : diminution puis soustraction', qFinD, 1, '0,05 × 600 = 30\\n600 − 30 = 570', true, true ],
       ['baisse : une addition au lieu de la soustraction', qFinD, 1, '0,05 × 600 = 30\\n630 = 600 + 30', true, false],
@@ -6452,6 +6563,28 @@ function verdictColore(w, apres){
       verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
       if(couleur('salFeedback')!=='vert') vus.push('2.3.8 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
       if(test.score!==1) vus.push('2.3.8 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
+
+      /* Et la copie SE VOIT (signalé par Turquet, août 2026) : à la
+         vérification, chaque ligne de la feuille est peinte — toute égalité
+         vraie en bleu (ok), une égalité fausse en rouge (bad), une ligne que
+         le juge ne sait pas lire ne reçoit rien. La feuille est ici adossée à
+         de VRAIS éléments : salPeindreLignes lit mf.value quand MathLive
+         n'est pas là, et ce repli rend la peinture mesurable au banc. */
+      const feuilleDom=function(lignes){ const ls=lignes.map(function(t){
+          const el=document.createElement('math-field'); el.value=t; return {mf:el, line:el}; });
+        return { lire:function(){ return lignes.join('\\n'); }, lignes:ls, verrouiller:function(){} }; };
+      test.locked=false; test.salBusy=false; test.score=0;
+      test.questions=[JSON.parse(JSON.stringify(q29))]; test.qId='synthese-augmentations-libre';
+      salFeuille=feuilleDom(['1,05 × 600 = 630','1,05 × 600 = 640','du texte sans egalite']);
+      verdict(true); await checkSal();
+      const cl=function(i){ const c=salFeuille.lignes[i].mf.classList;
+        return c.contains('ok')?(c.contains('bad')?'ok et bad':'ok'):(c.contains('bad')?'bad':'rien'); };
+      if(cl(0)!=='ok') vus.push('peinture : la ligne juste est « '+cl(0)+' » au lieu de ok (bleu)');
+      if(cl(1)!=='bad') vus.push('peinture : la ligne fausse est « '+cl(1)+' » au lieu de bad (rouge)');
+      if(cl(2)!=='rien') vus.push('peinture : une ligne illisible reçoit « '+cl(2)+' » au lieu de rien');
+      /* la repeinture retire l'encre d'avant : la ligne corrigée passe de bad à ok */
+      salFeuille.lignes[1].mf.value='2 × 315 = 630'; salPeindreLignes();
+      if(cl(1)!=='ok') vus.push('peinture : la ligne corrigée reste « '+cl(1)+' » au lieu de repasser ok');
     }
 
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */
