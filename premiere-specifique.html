@@ -1703,7 +1703,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=176;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=178;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2216,13 +2216,36 @@ function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénom
   const vn=en.value.trim(), vd=ed?ed.value.trim():'';
   if(!en.disabled) en.classList.remove('ok','bad'); if(ed&&!ed.disabled) ed.classList.remove('ok','bad');
   if(vn==='') return;
-  /* dénominateur vide : aucune couleur, sauf si denOptional (un facteur entier
-     est accepté : vide vaut 1, comme au contrôle final de md et u) */
-  if(vd===''&&!denOptional) return;                  // fraction incomplète : aucune couleur
-  const n=parseInt(vn,10), d=vd===''?1:parseInt(vd,10);
+  /* DÉNOMINATEUR VIDE : la fraction n'est pas finie, et le numérateur se juge
+     sur sa PROMESSE — la règle des paires, encore. « ok » s'il est déjà la
+     réponse en ENTIER (vide vaudra 1 au contrôle final : le 17 de 0,04 × 17),
+     RIEN s'il peut encore mener à une fraction égale (le 4 de 4/100, pendant
+     que l'élève écrit son dénominateur), rouge seulement s'il ne mène nulle
+     part. Le « 4 » qui rougissait sous le doigt de l'élève : signalé par
+     Turquet, août 2026 — le vide valait 1 et 4/1 se comparait à 4/100. */
+  if(vd===''){
+    if(!denOptional) return;                         // fraction incomplète : aucune couleur
+    const n=parseInt(vn,10);
+    if(isNaN(n)){ if(!en.disabled) en.classList.add('bad'); return; }
+    if(n*td===tn){ if(!en.disabled) en.classList.add('ok'); return; }   // déjà juste en entier
+    const mene = tn>0 && n>0 && (n*td)%tn===0;       // un dénominateur peut encore la rendre égale
+    if(!mene && !en.disabled) en.classList.add('bad');
+    return;
+  }
+  const n=parseInt(vn,10), d=parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
   if(!en.disabled) en.classList.add(ok?'ok':'bad');
   if(ed&&!ed.disabled&&vd!=='') ed.classList.add(ok?'ok':'bad');
+}
+/* Marque une case à la vérification — mais une case restée VIDE ne reçoit
+   JAMAIS de couleur : rouge veut dire faux, pas « pas fini » (la règle de
+   partout). En entraînement, la correction (corTrainFrac, corTrainDec) la
+   remplit ensuite en vert. */
+function marqueSaufVide(id,ok,soutien){
+  const el=$(id); if(!el) return;
+  el.classList.remove('ok','bad');
+  if(String(el.value==null?'':el.value).trim()!=='') el.classList.add(ok?'ok':'bad');
+  el.disabled=ok||!soutien;
 }
 function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
   const en=$(idn), ed=$(idd); if(!en||!ed) return;
@@ -6894,7 +6917,7 @@ function renderSal(){
   $('salHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">Choisis ${synQuoi(q)}</div>
        <div class="pt-choix" id="salChoix">${choix}</div></div>`+
-    `<div class="pt-step"><div class="pt-lab">justifie ta réponse — avec le coefficient (${neg?'0':'1'},… × valeur initiale = …), ou avec ${neg?'la diminution':'l’augmentation'} (0,… × valeur initiale = …, puis ${neg?'la soustraction':'l’addition'} qui donne la valeur finale)</div>
+    `<div class="pt-step"><div class="pt-lab">justifie ta réponse — avec le coefficient (${neg?'0':'1'},… × valeur initiale = …), avec le quotient (valeur finale/valeur initiale = coefficient), ou avec ${neg?'la diminution':'l’augmentation'} (0,… × valeur initiale = …, puis ${neg?'la soustraction':'l’addition'} qui donne la valeur finale)</div>
        <div class="dexp2-sheet" id="salSheet"></div>
        <p class="dexp-hint">Écris UN calcul par ligne — par exemple la multiplication sur une ligne, l’addition sur la suivante. Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>`;
   /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne —
@@ -6962,9 +6985,18 @@ function salJuge(q, texte){
   const rAug=salRatDe(c.aug), rFin=salRatDe(c.fin);
   const lignes=String(texte).split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; });
   if(!lignes.length) return { sait:false };
-  let coefOk=false, augProd=false, addOk=false;
+  const rInvN={n:rN.d, d:rN.n};
+  let coefOk=false, augProd=false, addOk=false, quotOk=false, commentaire=false;
   for(const ligne of lignes){
     const morceaux=ligne.split('=').map(function(m){ return m.trim(); });
+    /* Une ligne SANS « = » que le juge ne sait pas lire est un COMMENTAIRE
+       (« donc coef 1,04 ») : elle n'affirme aucune égalité, et ne force plus
+       l'abstention QUAND une voie est positivement montrée ailleurs — c'est
+       elle qui livrait la copie entière au modèle seul, qui a divagué
+       (signalé par Turquet, août 2026). Mais si aucune voie lisible n'est
+       trouvée, la voie est peut-être écrite EN MOTS dans ce commentaire :
+       refuser ne serait pas un fait prouvable, le juge s'abstient. */
+    if(morceaux.length===1){ if(!salExpr(morceaux[0])){ commentaire=true; continue; } }
     if(morceaux.some(function(m){ return m===''; })) return { sait:false };
     const lus=morceaux.map(salExpr);
     if(lus.some(function(x){ return !x; })) return { sait:false };   /* écriture inconnue : le modèle décide */
@@ -6987,14 +7019,34 @@ function salJuge(q, texte){
     if(aDeuxMorceaux && montre(rCoef) && salEgal(val,rFin)) coefOk=true;
     if(aDeuxMorceaux && montre(rPct) && (salEgal(val,rAug)||salEgal(val,rFin))) augProd=true;
     if(aDeuxMorceaux && lus.some(function(x){ return c.sens>0?x.plusHaut:x.moinsHaut; }) && salEgal(val,rFin)) addOk=true;
+    /* LA VOIE DU QUOTIENT (demande de Turquet, août 2026) : « 936/900 =
+       104/100 » suffit — la valeur finale divisée par la valeur initiale EST
+       le coefficient, c'est la leçon du 2.1.7 (« la part sur le tout »),
+       revenue ici. Il faut un morceau qui ÉCRIT le quotient (un facteur
+       1/valeur-initiale, produit = coefficient) et un AUTRE morceau qui vaut
+       le coefficient sans être la même écriture — « 936/900 = 936/900 » ne
+       nomme rien (sauf quand la valeur initiale est 100, où l'écriture du
+       quotient EST le coefficient sur 100). */
+    if(aDeuxMorceaux){
+      const iQuot=lus.findIndex(function(x){ return x.termes.some(function(t){
+        if(!t.some(function(f){ return salEgal(f,rInvN); })) return false;
+        let p={n:1,d:1}; t.forEach(function(f){ p={n:p.n*f.n,d:p.d*f.d}; });
+        return salEgal(p,rCoef); }); });
+      if(iQuot>=0 && lus.some(function(x,j){
+        if(j===iQuot || !salEgal(x.v,rCoef)) return false;
+        if(salEgal(rN,{n:100,d:1})) return true;
+        return !x.termes.some(function(t){ return t.some(function(f){ return salEgal(f,rInvN); }); });
+      })) quotOk=true;
+    }
   }
-  const voieOk=coefOk || (augProd && addOk);
+  const voieOk=coefOk || quotOk || (augProd && addOk);
+  if(!voieOk && commentaire) return { sait:false };   /* la voie est peut-être dans le commentaire */
   if(!voieOk){
     const opNom=(c.sens>0)?'l’addition':'la soustraction', evoNom=(c.sens>0)?'l’augmentation':'la diminution';
     const opEx=c.N+' '+(c.sens>0?'+':'−')+' '+c.augStr;
     const manque = augProd ? 'il manque '+opNom+' qui donne la valeur finale ('+opEx+')'
       : (addOk ? 'il manque la multiplication qui calcule '+evoNom+' ('+c.pDecStr+' × '+c.N+')'
-               : 'montre le calcul : le coefficient ('+c.coefStr+' × '+c.N+'), ou '+evoNom+' ('+c.pDecStr+' × '+c.N+') suivie de '+opNom);
+               : 'montre le calcul : le coefficient ('+c.coefStr+' × '+c.N+'), le quotient ('+c.finStr+'/'+c.N+' = '+c.coefStr+'), ou '+evoNom+' ('+c.pDecStr+' × '+c.N+') suivie de '+opNom);
     return { sait:true, correct:false, phrase:'Ta justification ne suffit pas : '+manque+'. Recopier la proposition n’est pas justifier.' };
   }
   if(q.choisi!==q.bon)
@@ -7018,16 +7070,18 @@ function salAttenduIA(q, juge){
    +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
    +'\n1. LA PROPOSITION CHOISIE EST LA BONNE. L’élève a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' : '
      +(okChoix?'c’est la bonne.':'ce N’EST PAS la bonne — « correct » vaut donc false, quelle que soit la justification.')
-   +'\n2. LA JUSTIFICATION MONTRE UNE DES DEUX VOIES, et SEULEMENT l’une d’elles est exigée :'
+   +'\n2. LA JUSTIFICATION MONTRE UNE DES TROIS VOIES, et SEULEMENT l’une d’elles est exigée :'
    +'\n   · la voie du COEFFICIENT : au moins une multiplication '+c.coefStr+' × '+c.N+' (dans un ordre ou l’autre) qui arrive à '+c.finStr+' ;'
+   +'\n   · la voie du QUOTIENT : la valeur finale divisée par la valeur initiale, égalée au coefficient — par exemple '+c.finStr+'/'+c.N+' = '+c.coef+'/100, ou '+c.finStr+'/'+c.N+' = '+c.coefStr+'. Cette seule égalité SUFFIT ;'
    +'\n   · la voie de '+(c.sens>0?'l’AUGMENTATION : au moins une multiplication '+c.pDecStr+' × '+c.N+' (= '+c.augStr+'), ET au moins une addition qui arrive à la valeur finale ('+c.N+' + '+c.augStr+' = '+c.finStr+').'
                               :'la DIMINUTION : au moins une multiplication '+c.pDecStr+' × '+c.N+' (= '+c.augStr+'), ET au moins une soustraction qui arrive à la valeur finale ('+c.N+' − '+c.augStr+' = '+c.finStr+').')
-   +'\n   Recopier la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n’est pas une justification. Un calcul qui ne montre AUCUNE des deux voies est REFUSÉ aussi.'
+   +'\n   Recopier la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n’est pas une justification. Un calcul qui ne montre AUCUNE des trois voies est REFUSÉ aussi.'
    +'\n3. AUCUNE ÉGALITÉ FAUSSE. Chaque ligne est un calcul indépendant ; à l’intérieur d’une ligne, découpe aux « = » : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
    +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
    +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
    +' Si tout est juste : félicite, et nomme la voie utilisée.'
-   +' Si la justification manque : rappelle les deux voies possibles, sans écrire le calcul à sa place.'
+   +' Si la justification manque : rappelle les voies possibles, sans écrire le calcul à sa place.'
+   +' Ne te contredis JAMAIS : n’écris jamais qu’un calcul est faux puis qu’il est juste.'
    +' Si la proposition choisie n’est pas la bonne : dis que sa vérification, menée honnêtement, le montrera — sans JAMAIS donner la bonne proposition.'
    +' Si une égalité est fausse : dis laquelle et ce qui cloche.'
    + LANGUE_SIMPLE;
@@ -7064,7 +7118,7 @@ async function checkSal(){
   if(q.choisi===null){ fb.textContent='Choisis d’abord une proposition (a, b, c ou d).'; fb.className='mp-feedback bad'; return; }
   const rep=(salFeuille?salFeuille.lire():'').trim();
   if(!rep){ const negV=(q.sens===-1);
-    fb.textContent='Écris d’abord ta vérification : le coefficient ('+(negV?'0':'1')+',… × valeur initiale), ou '+(negV?'la diminution':'l’augmentation')+' (0,… × valeur initiale) puis '+(negV?'la soustraction':'l’addition')+'.'; fb.className='mp-feedback bad';
+    fb.textContent='Écris d’abord ta vérification : le coefficient ('+(negV?'0':'1')+',… × valeur initiale), le quotient (valeur finale/valeur initiale), ou '+(negV?'la diminution':'l’augmentation')+' (0,… × valeur initiale) puis '+(negV?'la soustraction':'l’addition')+'.'; fb.className='mp-feedback bad';
     if(salFeuille && salFeuille.lignes[0]) salFeuille.lignes[0].mf.focus(); return; }
   const juge=salJuge(q, rep);
   test.salBusy=true;
@@ -7081,7 +7135,11 @@ async function checkSal(){
   let correct, feedback;
   if(juge.sait){
     correct=juge.correct;
-    feedback=(res && !res.error && (res.correct===true)===correct && res.feedback) ? res.feedback : juge.phrase;
+    /* Sur un REFUS, la phrase du juge s'affiche TOUJOURS : le modèle a rédigé
+       en production un refus qui se contredisait (« l'égalité est fausse…
+       donc c'est vrai ! », signalé par Turquet, août 2026). Il ne rédige plus
+       que les acceptations, et seulement s'il est d'accord. */
+    feedback=(correct && res && !res.error && res.correct===true && res.feedback) ? res.feedback : juge.phrase;
   } else {
     if(!res || res.error){
       fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
@@ -8071,10 +8129,10 @@ function checkHSAnswer(live){
     [$('hsVn'),$('hsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('hs1n',ok1); mark('hs1d',ok1); mark('hs1p',ok1p); mark('hs1dec',ok1d);
-  mark('hs2n',ok2); mark('hs2d',ok2); mark('hs2p',ok2p); mark('hs2dec',ok2d);
-  mark('hsAn',okA); mark('hsAd',okA); mark('hsBn',okB); mark('hsBd',okB);
-  mark('hsPn',okPr); mark('hsPd',okPr); mark('hsDec',okC); mark('hsP',okP);
+  marqueSaufVide('hs1n',ok1,soutien); marqueSaufVide('hs1d',ok1,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
+  marqueSaufVide('hs2n',ok2,soutien); marqueSaufVide('hs2d',ok2,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
+  marqueSaufVide('hsAn',okA,soutien); marqueSaufVide('hsAd',okA,soutien); marqueSaufVide('hsBn',okB,soutien); marqueSaufVide('hsBd',okB,soutien);
+  marqueSaufVide('hsPn',okPr,soutien); marqueSaufVide('hsPd',okPr,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('hsFeedback','hsActions','checkHSAnswer','hsHost'); return; }
   test.locked=true;
@@ -8824,10 +8882,10 @@ function checkBSAnswer(live){
     [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('bs1n',ok1); mark('bs1d',ok1); mark('bs1p',ok1p); mark('bs1dec',ok1d);
-  mark('bs2n',ok2); mark('bs2d',ok2); mark('bs2p',ok2p); mark('bs2dec',ok2d);
-  mark('bsAn',okA); mark('bsAd',okA); mark('bsBn',okB); mark('bsBd',okB);
-  mark('bsPn',okPr); mark('bsPd',okPr); mark('bsDec',okC); mark('bsP',okP);
+  marqueSaufVide('bs1n',ok1,soutien); marqueSaufVide('bs1d',ok1,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
+  marqueSaufVide('bs2n',ok2,soutien); marqueSaufVide('bs2d',ok2,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
+  marqueSaufVide('bsAn',okA,soutien); marqueSaufVide('bsAd',okA,soutien); marqueSaufVide('bsBn',okB,soutien); marqueSaufVide('bsBd',okB,soutien);
+  marqueSaufVide('bsPn',okPr,soutien); marqueSaufVide('bsPd',okPr,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('bsFeedback','bsActions','checkBSAnswer','bsHost'); return; }
   test.locked=true;
@@ -9295,8 +9353,8 @@ function checkMDAnswer(live){
   const fr=parseDecToFrac(v('mdDec'));
   const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('md1n',okA); mark('md1d',okA); mark('md2n',okB); mark('md2d',okB);
-  mark('md3n',ok3); mark('md3d',ok3); mark('mdDec',ok4);
+  marqueSaufVide('md1n',okA,soutien); marqueSaufVide('md1d',okA,soutien); marqueSaufVide('md2n',okB,soutien); marqueSaufVide('md2d',okB,soutien);
+  marqueSaufVide('md3n',ok3,soutien); marqueSaufVide('md3d',ok3,soutien); marqueSaufVide('mdDec',ok4,soutien);
   const allOk=okA&&okB&&okP&&ok3&&ok4;
   if(!allOk && soutien){ soutienAgain('mdFeedback','mdActions','checkMDAnswer','mdHost'); return; }
   test.locked=true;
@@ -9475,8 +9533,8 @@ function checkUAnswer(live){
   const fr=parseDecToFrac(v('uDec'));
   const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('u1n',okA); mark('u1d',okA); mark('u2n',okB); mark('u2d',okB);
-  mark('u3n',ok3); mark('u3d',ok3); mark('uDec',ok4);
+  marqueSaufVide('u1n',okA,soutien); marqueSaufVide('u1d',okA,soutien); marqueSaufVide('u2n',okB,soutien); marqueSaufVide('u2d',okB,soutien);
+  marqueSaufVide('u3n',ok3,soutien); marqueSaufVide('u3d',ok3,soutien); marqueSaufVide('uDec',ok4,soutien);
   const allOk=okA&&okB&&okP&&ok3&&ok4;
   if(!allOk && soutien){ soutienAgain('uFeedback','uActions','checkUAnswer','uHost'); return; }
   test.locked=true;

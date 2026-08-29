@@ -469,7 +469,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg{padding-bottom:84px}
+  #scr-lv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -781,6 +781,9 @@
      intervalles, « il faut [le prendre] » se repliait sous sa phrase. */
   #scr-ing .itv-ligne{max-width:1160px}
   #scr-eqg .itv-ligne{max-width:1160px}
+  #scr-ifg .itv-ligne{max-width:1160px}
+  .ifg-bout{fill:var(--blue)}
+  .ifg-boutg{fill:#4a5a80}
   /* La droite de g : en POINTILLÉS, comme sur la fiche — c'est ce qui la
      distingue de la courbe de f d'un coup d'œil, avant même les étiquettes. */
   .eqg-g{stroke:#4a5a80;stroke-width:2.4;stroke-dasharray:7 5;fill:none;stroke-linecap:round}
@@ -1507,6 +1510,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-ifg">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagIfg"></span><span class="q-idx" id="ifgIdx">Question 1 / 7</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="ifgLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">On a repr&eacute;sent&eacute; les courbes de f et de g dans le m&ecirc;me rep&egrave;re, chacune sur SON domaine. R&eacute;ponds avec le dessin&nbsp;: tout se lit sur les axes.</p>
+      <p class="ens-note"><b>C<sub>f</sub></b> est la courbe en trait plein&nbsp;; <b>C<sub>g</sub></b> est la courbe en pointill&eacute;s. Les petits points marquent l&agrave; o&ugrave; chaque courbe commence et s&rsquo;arr&ecirc;te.</p>
+      <div class="mp-stage"><div style="width:100%" id="ifgHost"></div></div>
+      <div class="mp-feedback" id="ifgFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="ifgActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkIfgAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
   <section class="screen" id="scr-eqg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEqg"></span><span class="q-idx" id="eqgIdx">Question 1 / 4</span></span>
@@ -2027,7 +2045,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=107;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=108;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2504,6 +2522,7 @@ const TESTS={
   'image-nombre': { name:'Image d\u2019un nombre', icon:'\ud83d\udccd', desc:'Lis l\u2019image d\u2019un nombre sur une courbe : le trait vertical montre la hauteur, puis écris f(x) = … et complète le tableau de valeurs.', start:()=>startImg() },
   'antecedent-nombre': { name:'Antécédents d\u2019un nombre', icon:'\ud83e\udded', desc:'C\u2019est l\u2019inverse de {image-nombre} : on te donne la hauteur, et la ligne de niveau — un trait horizontal — te fait retrouver le ou les nombres de départ.', start:()=>startAnt() },
   'equation-graphique': { name:'Équations graphiques', icon:'\ud83d\udcc8', desc:'La courbe de f et la droite de g sur le même dessin : lis des images, résous f\u2009(x)\u2009=\u2009k puis f\u2009(x)\u2009=\u2009g\u2009(x), et finis par une inéquation — tout se lit sur le dessin.', start:()=>startEqg() },
+  'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -2554,7 +2573,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2612,6 +2631,7 @@ function liveCheckCurrent(){
   else if(k==='itq') checkItqAnswer(true);
   else if(k==='ing') checkIngAnswer(true);
   else if(k==='eqg') checkEqgAnswer(true);
+  else if(k==='ifg') checkIfgAnswer(true);
   else if(k==='app') checkAppAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
   else if(k==='plc') checkPlcAnswer(true);
@@ -3127,6 +3147,7 @@ function conseilPaire(){
   else if(test.kind==='itq' && q) b=ctxItq(q);
   else if(test.kind==='ing' && q) b=ctxIng(q);
   else if(test.kind==='eqg' && q) b=ctxEqg(q);
+  else if(test.kind==='ifg' && q) b=ctxIfg(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
@@ -3358,6 +3379,7 @@ const QIA_SUGG={
   itv:["C’est quoi, un intervalle ?","Comment savoir si le crochet est ouvert ou fermé ?","Pourquoi le crochet est toujours ouvert du côté de l’infini ?","Quelle différence entre < et ≤ ?"],
   itq:["Comment passer d’une inégalité à un intervalle ?","Quelle différence entre « −1 ≤ x » et « x ≤ −1 » ?","Le signe ≤ donne quel crochet ?","Comment savoir de quel côté part le trait rouge ?"],
   eqg:["Comment lire g\u2009(x) quand g est une droite ?","Quelle diff\u00e9rence entre r\u00e9soudre f\u2009(x) = 2 et lire f\u2009(2) ?","O\u00f9 se lisent les solutions de f\u2009(x) = g\u2009(x) ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
+  ifg:["C\u2019est quoi, le domaine de d\u00e9finition d\u2019une fonction ?","Comment lire une image quand il y a DEUX courbes ?","Pourquoi f\u2009(x) > g\u2009(x) ne se regarde que l\u00e0 o\u00f9 les deux courbes existent ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
   ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
@@ -3688,12 +3710,18 @@ const RAP_MLT=`<b>Multiplier deux fractions</b><br>
 Un ENTIER se met sur 1 quand ça aide : \\(3=\\frac{3}{1}\\), donc \\(3\\times\\frac{2}{5}=\\frac{3\\times 2}{1\\times 5}=\\frac{6}{5}\\).`;
 /* {ordre-croissant} partage le rappel de {placer-intervalle} : c'est la même
    méthode — écrire avec le même nombre de décimales, puis comparer. */
+const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
+• <b>Le domaine de définition</b>, c'est l'intervalle des x où la courbe EXISTE : regarde où elle commence et où elle s'arrête — les petits points marquent ses bouts. En dehors, la fonction n'est pas définie : on ne peut ni lire une image, ni chercher un antécédent.<br>
+• <b>Une image</b> se lit en MONTANT du nombre jusqu'à SA courbe (f en trait plein, g en pointillés), puis en allant vers l'axe des y — comme dans {image-nombre}. Attention à bien viser la bonne courbe !<br>
+• <b>Un antécédent</b> se trouve avec la ligne de niveau — un trait horizontal à la hauteur donnée : chaque croisement avec la courbe donne un antécédent, comme dans {antecedent-nombre}. La même hauteur peut avoir UN antécédent par f et PLUSIEURS par g.<br>
+• <b>Résoudre f\u2009(x) = g\u2009(x)</b> : chercher les x où les deux courbes se CROISENT — mais seulement là où les deux existent.<br>
+• <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Les bouts de S sont les bouts du domaine COMMUN, et ils sont toujours pris ; les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
 const RAP_EQG=`<b>Deux courbes sur un même dessin</b><br>
 \u2022 <b>Lire une image</b> : f\u2009(2) est la HAUTEUR de la courbe C<sub>f</sub> au-dessus de 2. On monte (ou on descend) de 2 jusqu'à C<sub>f</sub>, puis on lit sur l'axe vertical. Pour g\u2009(2), même geste sur la droite C<sub>g</sub>.<br>
 \u2022 <b>Résoudre f\u2009(x) = k</b> : on cherche TOUS les x où la courbe est à la hauteur k. Les solutions se lisent sur l'axe des abscisses — comme dans {antecedent-nombre}.<br>
 \u2022 <b>Résoudre f\u2009(x) = g\u2009(x)</b> : on cherche les x où les deux courbes se CROISENT. Chaque croisement donne une solution, lue en descendant sur l'axe des abscisses.<br>
 \u2022 <b>Résoudre f\u2009(x) &gt; g\u2009(x)</b> : on cherche les x où C<sub>f</sub> est AU-DESSUS de C<sub>g</sub> — comme dans {inequation-graphique}, mais la droite n'est plus horizontale. La solution s'écrit en intervalle, avec les croisements pour bornes : crochet fermé si le signe accepte l'égalité (\u2265), ouvert sinon (&gt;). Les bouts du dessin (\u22123 et 3) sont toujours pris.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -3802,7 +3830,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4160,7 +4188,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest]};
+  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4284,7 +4312,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg'];
+  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -4320,7 +4348,7 @@ function show(name){
   }
   $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='ing'||name==='eqg'||name==='app'||name==='sf'||name==='sfl'||name==='plc'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='ing'||name==='eqg'||name==='ifg'||name==='app'||name==='sf'||name==='sfl'||name==='plc'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -5247,7 +5275,7 @@ function lvPath(pts, sx, sy, ia, ib){
   }
   return d;
 }
-function lvGraphSVG(pts, extra){
+function lvGraphSVG(pts, extra, ia, ib){
   const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
   const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
   const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
@@ -5263,8 +5291,11 @@ function lvGraphSVG(pts, extra){
   let labels='';
   for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
-  const cf='<text x="'+sx(-2.7).toFixed(1)+'" y="'+(sy(pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
-  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy)+'"/>'+cf+(extra?extra(sx,sy):'')+'</svg>';
+  /* {lecture-deux-courbes} : la courbe peut n'exister que sur un MORCEAU
+     (ia..ib) — l'étiquette Cf suit son début. Par défaut, rien ne change. */
+  const a0=(ia==null)?0:ia;
+  const cf='<text x="'+sx(-3+a0+0.3).toFixed(1)+'" y="'+(sy(pts[a0+1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy):'')+'</svg>';
 }
 
 /* ---- Cycle de l'exercice ---- */
@@ -6322,6 +6353,481 @@ function ctxEqg(q){
   let c='L’élève a sous les yeux la courbe de f et la droite de g dans le même repère, et doit '+quoi
     +'. La bonne réponse est '+rep+'.';
   if(faux.length) c+=' Il s’est trompé sur : '+faux.join(', ')+'.';
+  return {nombre:'', contexte:c};
+}
+
+
+/* ================= Exercice Seconde : Lecture de deux courbes (kind 'ifg') =================
+   Repris de la fiche « images et antécédents avec f et g » : DEUX courbes
+   dans le même repère — f en trait plein, g en POINTILLÉS, chacune sur SON
+   domaine (les courbes s'arrêtent avant les bords : c'est ce qui rend la
+   question des domaines réelle) — et SEPT questions dans l'ordre de la
+   fiche, sur le MÊME tirage conservé : les domaines, quatre images, les
+   antécédents de k par f ET par g, f(x) = k et g(x) = k, f(x) signe k en
+   intervalle, f(x) = g(x), puis f(x) signe g(x).
+   La bonne réponse n'est jamais rangée à côté de la question : elle ne porte
+   que les deux courbes, les deux domaines, k1, k2, les abscisses des images
+   et les deux signes ; tout le reste se recalcule dans les données MÊMES qui
+   dessinent. Le dessin est celui de {lecture-variations} — lvGraphSVG a
+   seulement appris le morceau (ia, ib), comme lvPath l'avait appris pour
+   {inequation-graphique}.
+   LE RISQUE PROPRE A CHANGÉ DE NATURE : spline contre SPLINE, la garantie de
+   la droite penchée du 2.5 ne tient plus — deux splines monotones entre deux
+   graduations peuvent se recroiser même à distance 1 aux deux bouts. Le
+   tirage ÉCHANTILLONNE donc l'écart des deux cubiques de Hermite (les mêmes
+   que lvPath écrit en Bézier) et rejette toute séance où f frôle g hors d'un
+   croisement ; et le CONTRÔLE relit les courbes réellement écrites, tirage
+   après tirage, comme au 2.5. */
+const IFG_TYPES=['dom','img','ant','eqk','ineqk','crx','ineq'];
+function ifgCommun(q){ return [Math.max(q.domF[0],q.domG[0]), Math.min(q.domF[1],q.domG[1])]; }
+function ifgSols(pts, dom, y){ const out=[]; for(let x=dom[0];x<=dom[1];x++){ if(pts[x+3]===y) out.push(x); } return out; }
+function ifgTraverse(pts, dom, y){
+  for(let i=dom[0]+3;i<dom[1]+3;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(y>lo&&y<hi) return true; }
+  return false;
+}
+function ifgCroix(q){ const c=ifgCommun(q); const out=[]; for(let x=c[0];x<=c[1];x++){ if(q.ptsF[x+3]===q.ptsG[x+3]) out.push(x); } return out; }
+/* Le côté de f entre les deux croisements, lu sur une graduation intérieure. */
+function ifgMilieu(q){
+  const cr=ifgCroix(q);
+  for(let x=cr[0]+1;x<cr[1];x++){ const d=q.ptsF[x+3]-q.ptsG[x+3]; if(d!==0) return d>0?1:-1; }
+  return 1;
+}
+/* Le côté de f par rapport à la hauteur k2, entre ses deux solutions. */
+function ifgMilieuK(q){
+  const so=ifgSols(q.ptsF, q.domF, q.k2);
+  for(let x=so[0]+1;x<so[1];x++){ const d=q.ptsF[x+3]-q.k2; if(d!==0) return d>0?1:-1; }
+  return 1;
+}
+/* La spline en un x réel — le MÊME cubique de Hermite que lvPath écrit en
+   Bézier (contrôle de points y ± m/3) : échantillonner ici, c'est mesurer le
+   dessin. */
+function ifgSpline(pts, x){
+  const m=lvTangents(pts);
+  const i=Math.max(0, Math.min(5, Math.floor(x+3)));
+  const t=(x+3)-i, t2=t*t, t3=t2*t;
+  return (2*t3-3*t2+1)*pts[i] + (t3-2*t2+t)*m[i] + (-2*t3+3*t2)*pts[i+1] + (t3-t2)*m[i+1];
+}
+/* Spline contre spline : l'écart échantillonné ne frôle jamais zéro hors d'un
+   croisement — sans quoi l'élève verrait un croisement qu'il ne peut pas
+   lire, et sa réponse juste serait comptée fausse, le pire défaut possible.
+   Contrairement au garde-fou mort du 2.5 (droite penchée), celui-ci ÉCARTE
+   réellement des tirages : deux splines peuvent se rapprocher entre deux
+   graduations même écartées de 1 aux deux bouts. */
+function ifgEcartOk(q){
+  const cr=ifgCroix(q), c=ifgCommun(q);
+  for(let x=c[0]; x<=c[1]+1e-9; x+=0.05){
+    if(cr.some(function(x0){ return Math.abs(x-x0)<0.35; })) continue;
+    if(Math.abs(ifgSpline(q.ptsF,x)-ifgSpline(q.ptsG,x))<0.25) return false;
+  }
+  return true;
+}
+const IFG_DOMS=[[-3,1],[-3,2],[-3,3],[-2,2],[-2,3],[-1,3]];
+function ifgGen(){
+  for(let att=0; att<4000; att++){
+    const domF=pick(IFG_DOMS).slice(), domG=pick(IFG_DOMS).slice();
+    if(domF[0]===domG[0]&&domF[1]===domG[1]) continue;         /* deux domaines, deux réponses */
+    const ca=Math.max(domF[0],domG[0]), cb=Math.min(domF[1],domG[1]);
+    if(cb-ca<4) continue;                 /* la place de deux croisements intérieurs écartés */
+    /* les croisements : strictement INTÉRIEURS au domaine commun, écartés d'au moins 2 */
+    const x1s=[]; for(let x=ca+1;x<=cb-3;x++) x1s.push(x);
+    if(!x1s.length) continue;
+    const x1=pick(x1s);
+    const x2s=[]; for(let x=x1+2;x<=cb-1;x++) x2s.push(x);
+    if(!x2s.length) continue;
+    const x2=pick(x2s);
+    const milieu=pick([1,-1]);
+    /* g : une marche sans palier, dans le cadre — la partie hors domaine ne se
+       dessine pas mais tient les tangentes du bord */
+    const ptsG=new Array(7); ptsG[0]=rand(-3,3);
+    let okG=true;
+    for(let i=1;i<7;i++){
+      const cands=[]; for(let v=-3;v<=3;v++){ if(v!==ptsG[i-1] && Math.abs(v-ptsG[i-1])<=2) cands.push(v); }
+      if(!cands.length){ okG=false; break; }
+      ptsG[i]=pick(cands);
+    }
+    if(!okG) continue;
+    /* f : collée à g aux croisements, à AU MOINS 1 de g ailleurs sur le
+       domaine commun, du côté annoncé — libre au-delà */
+    const ptsF=new Array(7); let ok=true;
+    for(let x=-3;x<=3&&ok;x++){
+      const gv=ptsG[x+3];
+      if(x===x1||x===x2){ ptsF[x+3]=gv; continue; }
+      if(x>=ca&&x<=cb){
+        const cote=(x>x1&&x<x2)?milieu:-milieu;
+        const cands=[]; for(let v=-3;v<=3;v++){ if(cote*(v-gv)>=1) cands.push(v); }
+        if(!cands.length){ ok=false; break; }
+        ptsF[x+3]=pick(cands);
+      } else {
+        ptsF[x+3]=rand(-3,3);
+      }
+    }
+    if(!ok) continue;
+    const q={ptsF:ptsF, ptsG:ptsG, domF:domF, domG:domG};
+    /* les deux courbes VARIENT sur leur domaine — une courbe plate n'a rien à lire */
+    const vals=function(pts,dom){ const v=[]; for(let x=dom[0];x<=dom[1];x++) v.push(pts[x+3]); return v; };
+    const vF=vals(ptsF,domF), vG=vals(ptsG,domG);
+    if(Math.max.apply(null,vF)-Math.min.apply(null,vF)<3) continue;
+    if(Math.max.apply(null,vG)-Math.min.apply(null,vG)<3) continue;
+    /* Deux solutions VOISINES = un segment de spline CONSTANT à cette
+       hauteur (la leçon du 2.5) : la ligne de niveau toucherait un segment
+       entier, et l'énoncé mentirait. g n'a jamais de palier (ses pas sont
+       non nuls) ; f, si — on l'écarte pour toute hauteur interrogée. */
+    const sansVoisines=function(l){ for(let i=1;i<l.length;i++){ if(l[i]-l[i-1]<2) return false; } return true; };
+    /* k1 (antécédents) : lisible pour les DEUX, et les deux visages — un
+       singulier d'un côté, un pluriel de l'autre */
+    const k1s=[];
+    for(let y=-3;y<=3;y++){
+      if(ifgTraverse(ptsF,domF,y)||ifgTraverse(ptsG,domG,y)) continue;
+      const aF=ifgSols(ptsF,domF,y), aG=ifgSols(ptsG,domG,y);
+      const nF=aF.length, nG=aG.length;
+      if(nF<1||nG<1||nF>3||nG>3) continue;
+      if(!sansVoisines(aF)||!sansVoisines(aG)) continue;
+      if((nF===1&&nG>1)||(nF>1&&nG===1)) k1s.push(y);
+    }
+    if(!k1s.length) continue;
+    const k1=pick(k1s);
+    /* k2 (équations et inéquation sur f) : exactement DEUX solutions pour f,
+       strictement intérieures et non voisines (la leçon du segment plat du
+       2.5) ; au moins une pour g ; lisible pour les deux ; différent de k1 */
+    const k2s=[];
+    for(let y=-3;y<=3;y++){
+      if(y===k1) continue;
+      if(ifgTraverse(ptsF,domF,y)||ifgTraverse(ptsG,domG,y)) continue;
+      const sF=ifgSols(ptsF,domF,y);
+      if(sF.length!==2||sF[0]<=domF[0]||sF[1]>=domF[1]||sF[1]-sF[0]<2) continue;
+      const sG=ifgSols(ptsG,domG,y);
+      if(sG.length<1||sG.length>3||!sansVoisines(sG)) continue;
+      k2s.push(y);
+    }
+    if(!k2s.length) continue;
+    const k2=pick(k2s);
+    /* l'écart des deux splines RENDUES : le vrai risque de cet exercice */
+    if(!ifgEcartOk(q)) continue;
+    /* les images : deux abscisses par fonction, distinctes, dans le domaine */
+    const axF=[]; for(let x=domF[0];x<=domF[1];x++) axF.push(x);
+    const axG=[]; for(let x=domG[0];x<=domG[1];x++) axG.push(x);
+    const a1=pick(axF), a2=pick(axF.filter(function(x){ return x!==a1; }));
+    const b1=pick(axG), b2=pick(axG.filter(function(x){ return x!==b1; }));
+    return {ptsF:ptsF, ptsG:ptsG, domF:domF, domG:domG, k1:k1, k2:k2,
+            a1:a1, a2:a2, b1:b1, b2:b2, op1:pick(ING_OPS), op2:pick(ING_OPS)};
+  }
+  /* repli ÉPROUVÉ : trouvé par le tirage lui-même et vérifié par le contrôle */
+  return {ptsF:IFG_FB.ptsF.slice(), ptsG:IFG_FB.ptsG.slice(), domF:IFG_FB.domF.slice(), domG:IFG_FB.domG.slice(),
+          k1:IFG_FB.k1, k2:IFG_FB.k2, a1:IFG_FB.a1, a2:IFG_FB.a2, b1:IFG_FB.b1, b2:IFG_FB.b2,
+          op1:pick(ING_OPS), op2:pick(ING_OPS)};
+}
+const IFG_FB={ptsF:[3,-1,3,1,-1,1,3], ptsG:[3,1,2,1,0,1,-1], domF:[-1,3], domG:[-3,3],
+              k1:3, k2:1, a1:0, a2:1, b1:-2, b2:2};
+/* Les sept questions de la fiche, dans son ordre, sur le MÊME tirage. */
+function ifgBuildQuestions(){
+  const g=ifgGen();
+  return IFG_TYPES.map(function(t){ return Object.assign({}, g, {type:t}); });
+}
+/* Un morceau ou une union : la liste CANONIQUE des cases de l'intervalle —
+   bg/bd sont les bouts du DOMAINE concerné (plus jamais −3 et 3 d'office). */
+function ifgIneqSpec(bg, bd, x1, x2, op, dessus){
+  const pris=(op==='ge'||op==='le');
+  const un=((op==='ge'||op==='gt')?1:-1)===dessus;
+  if(un) return {un:true, vals:[pris?'[':']', String(x1), String(x2), pris?']':'[']};
+  return {un:false, vals:['[', String(bg), String(x1), pris?']':'[', pris?'[':']', String(x2), String(bd), ']']};
+}
+function ifgSpec(q){
+  if(q.type==='ineqk'){ const so=ifgSols(q.ptsF,q.domF,q.k2);
+    return ifgIneqSpec(q.domF[0], q.domF[1], so[0], so[1], q.op1, ifgMilieuK(q)); }
+  const cr=ifgCroix(q), c=ifgCommun(q);
+  return ifgIneqSpec(c[0], c[1], cr[0], cr[1], q.op2, ifgMilieu(q));
+}
+const IFG_IDS_ITV=['ifg-co1','ifg-b1','ifg-b2','ifg-cf1','ifg-co2','ifg-b3','ifg-b4','ifg-cf2'];
+function ifgCases(q){
+  if(q.type==='dom') return [{id:'ifg-df1',bon:String(q.domF[0])},{id:'ifg-df2',bon:String(q.domF[1])},
+                             {id:'ifg-dg1',bon:String(q.domG[0])},{id:'ifg-dg2',bon:String(q.domG[1])}];
+  if(q.type==='img') return [{id:'ifg-fa1',bon:String(q.ptsF[q.a1+3])},{id:'ifg-fa2',bon:String(q.ptsF[q.a2+3])},
+                             {id:'ifg-gb1',bon:String(q.ptsG[q.b1+3])},{id:'ifg-gb2',bon:String(q.ptsG[q.b2+3])}];
+  if(q.type==='ant'){
+    const aF=ifgSols(q.ptsF,q.domF,q.k1), aG=ifgSols(q.ptsG,q.domG,q.k1), out=[];
+    aF.forEach(function(v,i){ out.push({id:'ifg-af-'+i, bon:String(v)}); });
+    aG.forEach(function(v,i){ out.push({id:'ifg-ag-'+i, bon:String(v)}); });
+    return out;
+  }
+  if(q.type==='eqk'){
+    const sF=ifgSols(q.ptsF,q.domF,q.k2), sG=ifgSols(q.ptsG,q.domG,q.k2), out=[];
+    sF.forEach(function(v,i){ out.push({id:'ifg-sf-'+i, bon:String(v)}); });
+    sG.forEach(function(v,i){ out.push({id:'ifg-sg-'+i, bon:String(v)}); });
+    return out;
+  }
+  if(q.type==='crx'){ const cr=ifgCroix(q);
+    return [{id:'ifg-sx-0',bon:String(cr[0])},{id:'ifg-sx-1',bon:String(cr[1])}]; }
+  const spec=ifgSpec(q);
+  return spec.vals.map(function(v,i){ return {id:IFG_IDS_ITV[i], bon:v}; });
+}
+function ifgSubCount(q){ return ifgCases(q).length; }
+/* L'ORDRE DES LISTES EST LIBRE — la règle des paires d'{antecedent-nombre} :
+   chaque case se juge sur ce qu'elle PROMET, la liste prend chaque valeur une
+   fois, le doublon est défendable une fois. L'union se juge au MIEUX, comme
+   les deux morceaux d'{inequation-graphique}. */
+function ifgJuge(q){
+  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  const paires=function(prefixe, attendues){
+    const left=attendues.slice(), rows=[], subs=[];
+    for(let i=0;i<attendues.length;i++){ const v=lvReadInt(prefixe+i); const j=(v!==null)?left.indexOf(v):-1;
+      rows.push({id:prefixe+i, v:v, ok:j>=0}); if(j>=0) left.splice(j,1); }
+    rows.forEach(function(r){ subs.push({id:r.id, val:(r.ok? r.v : left.shift()), ok:r.ok}); });
+    return subs;
+  };
+  let subs=[];
+  if(q.type==='dom'||q.type==='img'){
+    subs=ifgCases(q).map(function(c){ return {id:c.id, val:c.bon, ok:lire(c.id)===c.bon}; });
+  } else if(q.type==='ant'){
+    subs=paires('ifg-af-', ifgSols(q.ptsF,q.domF,q.k1)).concat(paires('ifg-ag-', ifgSols(q.ptsG,q.domG,q.k1)));
+  } else if(q.type==='eqk'){
+    subs=paires('ifg-sf-', ifgSols(q.ptsF,q.domF,q.k2)).concat(paires('ifg-sg-', ifgSols(q.ptsG,q.domG,q.k2)));
+  } else if(q.type==='crx'){
+    subs=paires('ifg-sx-', ifgCroix(q));
+  } else {
+    const spec=ifgSpec(q);
+    if(spec.un){
+      subs=spec.vals.map(function(v,i){ return {id:IFG_IDS_ITV[i], val:v, ok:lire(IFG_IDS_ITV[i])===v}; });
+    } else {
+      const groupe=function(ids,vals){ return ids.map(function(id,i){ return {id:id, val:vals[i], ok:lire(id)===vals[i]}; }); };
+      const nOk=function(l){ return l.filter(function(x){ return x.ok; }).length; };
+      const IG=spec.vals.slice(0,4), ID=spec.vals.slice(4);
+      const g1=IFG_IDS_ITV.slice(0,4), g2=IFG_IDS_ITV.slice(4);
+      const ab=groupe(g1,IG).concat(groupe(g2,ID));
+      const ba=groupe(g1,ID).concat(groupe(g2,IG));
+      subs=nOk(ba)>nOk(ab)?ba:ab;
+    }
+  }
+  const nCorrect=subs.filter(function(x){ return x.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+function ifgTitre(q){
+  const fx='<i>f</i> (<i>x</i>)', gx='<i>g</i> (<i>x</i>)';
+  if(q.type==='dom') return 'Donner les domaines de définition';
+  if(q.type==='img') return 'Lire des images sur le dessin';
+  if(q.type==='ant') return 'Les antécédents de '+itvNum(q.k1)+', par f et par g';
+  if(q.type==='eqk') return 'Résoudre '+fx+' = '+itvNum(q.k2)+' et '+gx.replace('x</i>)','x</i>)')+' = '+itvNum(q.k2);
+  if(q.type==='ineqk') return 'Résoudre '+fx+' '+ING_SIGNE[q.op1]+' '+itvNum(q.k2);
+  if(q.type==='crx') return 'Résoudre '+fx+' = '+gx;
+  return 'Résoudre '+fx+' '+ING_SIGNE[q.op2]+' '+gx;
+}
+/* Le dessin : g en pointillés sur SON domaine, les BOUTS des deux courbes
+   (c'est là que se lisent les domaines), l'étiquette Cg — et, APRÈS la
+   vérification seulement, le trait de la méthode. */
+function ifgExtra(q, montrer){
+  return function(sx,sy){
+    const dF=q.domF, dG=q.domG;
+    let out='<path class="eqg-g" d="'+lvPath(q.ptsG,sx,sy,dG[0]+3,dG[1]+3)+'"/>';
+    const bout=function(x,y,g2){ return '<circle class="'+(g2?'ifg-boutg':'ifg-bout')+'" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="3.4"/>'; };
+    out+=bout(dF[0],q.ptsF[dF[0]+3])+bout(dF[1],q.ptsF[dF[1]+3])
+        +bout(dG[0],q.ptsG[dG[0]+3],1)+bout(dG[1],q.ptsG[dG[1]+3],1);
+    let ly=q.ptsG[dG[1]+3]+0.55; if(ly>3.3) ly=q.ptsG[dG[1]+3]-0.65;
+    out+='<text class="eqg-cg" x="'+sx(dG[1]-0.2).toFixed(1)+'" y="'+sy(ly).toFixed(1)+'" text-anchor="middle">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+    if(!montrer) return out;
+    const vert=function(x,y){ return '<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>'; };
+    const horiz=function(x,y){ return '<line class="img-trait" x1="'+sx(x).toFixed(1)+'" y1="'+sy(y).toFixed(1)+'" x2="'+sx(0).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>'; };
+    const pt=function(x,y){ return '<circle class="img-pt" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="4"/>'; };
+    const niveau=function(y0){ return '<line class="img-trait" x1="'+sx(-3.5).toFixed(1)+'" y1="'+sy(y0).toFixed(1)+'" x2="'+sx(3.5).toFixed(1)+'" y2="'+sy(y0).toFixed(1)+'"/>'; };
+    if(q.type==='dom'){
+      out+=vert(dF[0],q.ptsF[dF[0]+3])+vert(dF[1],q.ptsF[dF[1]+3])+vert(dG[0],q.ptsG[dG[0]+3])+vert(dG[1],q.ptsG[dG[1]+3]);
+    } else if(q.type==='img'){
+      const fa1=q.ptsF[q.a1+3], fa2=q.ptsF[q.a2+3], gb1=q.ptsG[q.b1+3], gb2=q.ptsG[q.b2+3];
+      out+=vert(q.a1,fa1)+horiz(q.a1,fa1)+pt(q.a1,fa1)+vert(q.a2,fa2)+horiz(q.a2,fa2)+pt(q.a2,fa2)
+          +vert(q.b1,gb1)+horiz(q.b1,gb1)+pt(q.b1,gb1)+vert(q.b2,gb2)+horiz(q.b2,gb2)+pt(q.b2,gb2);
+    } else if(q.type==='ant'||q.type==='eqk'){
+      const y0=(q.type==='ant')?q.k1:q.k2;
+      out+=niveau(y0);
+      ifgSols(q.ptsF,q.domF,y0).forEach(function(x0){ out+=vert(x0,y0)+pt(x0,y0); });
+      ifgSols(q.ptsG,q.domG,y0).forEach(function(x0){ out+=vert(x0,y0)+pt(x0,y0); });
+    } else if(q.type==='crx'){
+      ifgCroix(q).forEach(function(x0){ out+=vert(x0,q.ptsF[x0+3])+pt(x0,q.ptsF[x0+3]); });
+    } else {
+      const surK=(q.type==='ineqk');
+      const bornes=surK?q.domF:ifgCommun(q);
+      const deux=surK?ifgSols(q.ptsF,q.domF,q.k2):ifgCroix(q);
+      const op=surK?q.op1:q.op2;
+      const dessus=surK?ifgMilieuK(q):ifgMilieu(q);
+      const x1=deux[0], x2=deux[1];
+      const pris=(op==='ge'||op==='le');
+      const un=((op==='ge'||op==='gt')?1:-1)===dessus;
+      const morceau=function(ia,ib){ return '<path class="ing-rouge" d="'+lvPath(q.ptsF,sx,sy,ia,ib)+'"/>'; };
+      const plein=function(x,y){ return '<circle class="ing-pt" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="5"/>'; };
+      const vide=function(x,y){ return '<circle class="ing-vide" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="5"/>'; };
+      if(surK) out+=niveau(q.k2);
+      if(un) out+=morceau(x1+3,x2+3);
+      else out+=morceau(bornes[0]+3,x1+3)+morceau(x2+3,bornes[1]+3)
+               +plein(bornes[0],q.ptsF[bornes[0]+3])+plein(bornes[1],q.ptsF[bornes[1]+3]);
+      const yc=function(x){ return q.ptsF[x+3]; };
+      out+=(pris?plein(x1,yc(x1)):vide(x1,yc(x1)))+(pris?plein(x2,yc(x2)):vide(x2,yc(x2)));
+    }
+    return out;
+  };
+}
+/* S en toutes lettres, pour les messages. */
+function ifgPlain(q){
+  const spec=ifgSpec(q), v=spec.vals.map(function(x){ return /^-?\d+$/.test(x)?itvNum(parseInt(x,10)):x; });
+  if(spec.un) return v[0]+v[1]+' ; '+v[2]+v[3];
+  return v[0]+v[1]+' ; '+v[2]+v[3]+' ∪ '+v[4]+v[5]+' ; '+v[6]+v[7];
+}
+let _ifgSaveTimer=null;
+function renderIfgTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ifgIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagIfg').innerHTML=modeTagHTML();
+  $('ifgLiveScore').textContent=test.score;
+  $('ifgFeedback').textContent=''; $('ifgFeedback').className='mp-feedback';
+  $('ifgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkIfgAnswer()">Vérifier</button>';
+  const inp=function(id){ return '<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="Réponse">'; };
+  const optN=[]; for(let v=-3;v<=3;v++) optN.push([String(v),itvNum(v)]);
+  const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };
+  const liste=function(prefixe,n){ const c=[]; for(let i=0;i<n;i++) c.push(inp(prefixe+i));
+    return n===1?c[0]:(c.slice(0,-1).join('<span class="itv-fixe">;</span>')+'<span class="itv-fixe">;</span>'+c[c.length-1]); };
+  let corps='';
+  if(q.type==='dom'){
+    const domLigne=function(nom,i1,i2){ return '<div class="img-line">D<sub>'+nom+'</sub> = <span class="itv-fixe">[</span>'
+      +selN(i1,'Début du domaine')+'<span class="itv-fixe">;</span>'+selN(i2,'Fin du domaine')+'<span class="itv-fixe">]</span></div>'; };
+    corps=domLigne('f','ifg-df1','ifg-df2')+domLigne('g','ifg-dg1','ifg-dg2')
+      +'<p class="ens-note">Le domaine, c’est l’intervalle des x où la courbe EXISTE : regarde où chaque courbe commence et s’arrête (les points aux bouts).</p>';
+  } else if(q.type==='img'){
+    corps='<div class="img-line"><i>f</i> ( '+itvNum(q.a1)+' ) = '+inp('ifg-fa1')
+      +'<span class="itv-fixe" style="margin:0 14px">et</span><i>f</i> ( '+itvNum(q.a2)+' ) = '+inp('ifg-fa2')+'</div>'
+      +'<div class="img-line"><i>g</i> ( '+itvNum(q.b1)+' ) = '+inp('ifg-gb1')
+      +'<span class="itv-fixe" style="margin:0 14px">et</span><i>g</i> ( '+itvNum(q.b2)+' ) = '+inp('ifg-gb2')+'</div>';
+  } else if(q.type==='ant'){
+    const nF=ifgSols(q.ptsF,q.domF,q.k1).length, nG=ifgSols(q.ptsG,q.domG,q.k1).length, Y=itvNum(q.k1);
+    corps='<div class="img-line">'+(nF===1?'L’antécédent de '+Y+' par <i>f</i> est ':'Les antécédents de '+Y+' par <i>f</i> sont ')+liste('ifg-af-',nF)+'.</div>'
+      +'<div class="img-line">'+(nG===1?'L’antécédent de '+Y+' par <i>g</i> est ':'Les antécédents de '+Y+' par <i>g</i> sont ')+liste('ifg-ag-',nG)+'.</div>'
+      +'<p class="ens-note">Dans l’ordre que tu veux. Une même hauteur peut avoir un seul antécédent par une fonction, et plusieurs par l’autre.</p>';
+  } else if(q.type==='eqk'){
+    const nF=ifgSols(q.ptsF,q.domF,q.k2).length, nG=ifgSols(q.ptsG,q.domG,q.k2).length;
+    corps='<div class="img-line"><i>f</i> (<i>x</i>) = '+itvNum(q.k2)+' : S = { '+liste('ifg-sf-',nF)+' }</div>'
+      +'<div class="img-line"><i>g</i> (<i>x</i>) = '+itvNum(q.k2)+' : S = { '+liste('ifg-sg-',nG)+' }</div>'
+      +'<p class="ens-note">Les solutions, dans l’ordre que tu veux.</p>';
+  } else if(q.type==='crx'){
+    corps='<div class="img-line">S = { '+inp('ifg-sx-0')+'<span class="itv-fixe">;</span>'+inp('ifg-sx-1')+' }</div>'
+      +'<p class="ens-note">Les deux solutions, dans l’ordre que tu veux.</p>';
+  } else {
+    const spec=ifgSpec(q);
+    const inter=function(co,b1,b2,cf){ return itvSelHTML(co,ITV_OPT_CROCHET,'Crochet ouvrant')+selN(b1,'Borne de gauche')
+      +'<span class="itv-fixe">;</span>'+selN(b2,'Borne de droite')+itvSelHTML(cf,ITV_OPT_CROCHET,'Crochet fermant'); };
+    let sol='<span class="itv-corps"><span class="itv-fixe">S =</span>'+inter('ifg-co1','ifg-b1','ifg-b2','ifg-cf1');
+    if(!spec.un) sol+='<span class="itv-fixe">∪</span>'+inter('ifg-co2','ifg-b3','ifg-b4','ifg-cf2');
+    sol+='</span>';
+    corps='<div class="itv-ligne"><span class="itv-lbl">Solution</span>'+sol+'</div>'
+      +(q.type==='ineq'?'<p class="ens-note">On ne compare f et g que là où les DEUX existent : les bouts de S sont les bouts du domaine commun.</p>'
+                       :'<p class="ens-note">Les bouts de S sont les bouts du domaine de f.</p>');
+  }
+  $('ifgHost').innerHTML='<div class="itv-fiche">'
+    +'<div class="itq-ineg">'+ifgTitre(q)+'</div>'
+    +'<div id="ifgGraph" class="itv-schema">'+lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3)+'</div>'
+    +corps+'</div>';
+  $('ifgHost').querySelectorAll('input,select').forEach(function(el){
+    ['input','change'].forEach(function(ev){ el.addEventListener(ev,function(){ ifgLive(); clearTimeout(_ifgSaveTimer); _ifgSaveTimer=setTimeout(autoSave,1000); }); });
+  });
+}
+/* Soutien : chaque case au fil de la frappe — une case vide ne reçoit RIEN. */
+function ifgLive(){
+  if(test.kind!=='ifg' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  ifgJuge(q).subs.forEach(function(x){ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(String(el.value==null?'':el.value).trim()!=='') el.classList.add(x.ok?'ok':'bad');
+  });
+}
+function ifgWhy(q){
+  if(q.type==='dom')
+    return 'Le domaine se lit sur l’axe des x : la courbe de f existe de '+itvNum(q.domF[0])+' à '+itvNum(q.domF[1])
+      +', celle de g de '+itvNum(q.domG[0])+' à '+itvNum(q.domG[1])+' — regarde les points où chaque courbe s’arrête.';
+  if(q.type==='img')
+    return 'Une image se lit en MONTANT du nombre jusqu’à SA courbe, puis en allant vers l’axe des y : f ('+itvNum(q.a1)+') = '+itvNum(q.ptsF[q.a1+3])
+      +', f ('+itvNum(q.a2)+') = '+itvNum(q.ptsF[q.a2+3])+', g ('+itvNum(q.b1)+') = '+itvNum(q.ptsG[q.b1+3])+', g ('+itvNum(q.b2)+') = '+itvNum(q.ptsG[q.b2+3])+'.';
+  if(q.type==='ant'){
+    const aF=ifgSols(q.ptsF,q.domF,q.k1).map(itvNum), aG=ifgSols(q.ptsG,q.domG,q.k1).map(itvNum), Y=itvNum(q.k1);
+    return 'La ligne de niveau à la hauteur '+Y+' coupe la courbe de f au-dessus de '+aF.join(' et ')
+      +', et celle de g au-dessus de '+aG.join(' et ')+' : chaque croisement donne un antécédent.';
+  }
+  if(q.type==='eqk'){
+    const sF=ifgSols(q.ptsF,q.domF,q.k2).map(itvNum), sG=ifgSols(q.ptsG,q.domG,q.k2).map(itvNum), K=itvNum(q.k2);
+    return 'Résoudre f (x) = '+K+', c’est chercher TOUS les x où la courbe de f est à la hauteur '+K
+      +' : S = { '+sF.join(' ; ')+' }. Pour g, même méthode : S = { '+sG.join(' ; ')+' }.';
+  }
+  if(q.type==='crx'){
+    const cr=ifgCroix(q).map(itvNum);
+    return 'Résoudre f (x) = g (x), c’est chercher les x où les DEUX courbes se croisent : au-dessus de '+cr.join(' et de ')
+      +'. Donc S = { '+cr.join(' ; ')+' }.';
+  }
+  const surK=(q.type==='ineqk');
+  const op=surK?q.op1:q.op2, dessus=surK?ifgMilieuK(q):ifgMilieu(q);
+  const deux=surK?ifgSols(q.ptsF,q.domF,q.k2):ifgCroix(q);
+  const bornes=surK?q.domF:ifgCommun(q);
+  const pris=(op==='ge'||op==='le'), veut=(op==='ge'||op==='gt');
+  const un=(veut?1:-1)===dessus;
+  const cible=surK?('la hauteur '+itvNum(q.k2)):'la courbe de g';
+  const p=['« f (x) '+ING_SIGNE[op]+' '+(surK?itvNum(q.k2):'g (x)')+' » demande les x où la courbe de f est '+(veut?'AU-DESSUS':'AU-DESSOUS')+' de '+cible+'.'];
+  if(un) p.push('C’est le morceau entre '+itvNum(deux[0])+' et '+itvNum(deux[1])+'.');
+  else p.push('Il y a DEUX morceaux : de '+itvNum(bornes[0])+' à '+itvNum(deux[0])+', puis de '+itvNum(deux[1])+' à '+itvNum(bornes[1])
+    +' — et les bouts '+(surK?'du domaine de f':'du domaine COMMUN')+' ('+itvNum(bornes[0])+' et '+itvNum(bornes[1])+') sont toujours pris.');
+  p.push(pris ? 'Le signe '+ING_SIGNE[op]+' accepte l’égalité : crochet fermé aux deux x du milieu.'
+              : 'Le signe '+ING_SIGNE[op]+' refuse l’égalité : crochet ouvert aux deux x du milieu.');
+  p.push('Donc S = '+ifgPlain(q)+'.');
+  return p.join(' ');
+}
+function checkIfgAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ ifgLive(); return; }
+  const res=ifgJuge(q);
+  res.subs.forEach(function(x){ const el=$(x.id);
+    x.vide=!el||String(el.value==null?'':el.value).trim()==='';
+    corrChoix(el, String(x.val), x.ok);
+  });
+  if(!res.allOk && isSoutien()){ soutienAgain('ifgFeedback','ifgActions','checkIfgAnswer','ifgHost'); return; }
+  test.locked=true;
+  /* le trait de la méthode se dessine MAINTENANT, jamais avant */
+  $('ifgGraph').innerHTML=lvGraphSVG(q.ptsF, ifgExtra(q,true), q.domF[0]+3, q.domF[1]+3);
+  test.score+=res.nCorrect; $('ifgLiveScore').textContent=test.score;
+  if(res.allOk){ $('ifgFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('ifgFeedback').className='mp-feedback good'; }
+  else { $('ifgFeedback').textContent=msgAvecVides(res.subs, ifgWhy(q)); $('ifgFeedback').className='mp-feedback bad'; }
+  const answer=ifgCases(q).map(function(c){ return c.bon; }).join(' ');
+  const given=res.subs.map(function(x){ const el=$(x.id); return el?String(el.value):''; }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:ifgTitre(q).replace(/<[^>]*>/g,'')+' — '+res.nCorrect+'/'+res.nTotal+' justes', answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('ifgActions').innerHTML='<button class="btn btn-primary" id="ifgNext" onclick="nextIfgQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('ifgNext'); if(nb) nb.focus();
+}
+function nextIfgQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderIfgTest(); autoSave(); } else finishTest(); }
+async function startIfg(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=ifgBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'ifg', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+ifgSubCount(q); },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ifg'); renderIfgTest();
+}
+function ctxIfg(q){
+  const res=ifgJuge(q);
+  const faux=res.subs.filter(function(x){ const el=$(x.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !x.ok; }).length;
+  let quoi, rep;
+  if(q.type==='dom'){ quoi='lire les domaines de définition de f et de g (où chaque courbe commence et s’arrête)';
+    rep='Df = ['+itvNum(q.domF[0])+' ; '+itvNum(q.domF[1])+'] et Dg = ['+itvNum(q.domG[0])+' ; '+itvNum(q.domG[1])+']'; }
+  else if(q.type==='img'){ quoi='lire deux images par f et deux images par g';
+    rep='f ('+itvNum(q.a1)+') = '+itvNum(q.ptsF[q.a1+3])+', f ('+itvNum(q.a2)+') = '+itvNum(q.ptsF[q.a2+3])
+      +', g ('+itvNum(q.b1)+') = '+itvNum(q.ptsG[q.b1+3])+', g ('+itvNum(q.b2)+') = '+itvNum(q.ptsG[q.b2+3]); }
+  else if(q.type==='ant'){ quoi='donner les antécédents de '+itvNum(q.k1)+' par f puis par g (ligne de niveau)';
+    rep='par f : '+ifgSols(q.ptsF,q.domF,q.k1).map(itvNum).join(' ; ')+' — par g : '+ifgSols(q.ptsG,q.domG,q.k1).map(itvNum).join(' ; '); }
+  else if(q.type==='eqk'){ quoi='résoudre graphiquement f (x) = '+itvNum(q.k2)+' puis g (x) = '+itvNum(q.k2);
+    rep='pour f : { '+ifgSols(q.ptsF,q.domF,q.k2).map(itvNum).join(' ; ')+' } — pour g : { '+ifgSols(q.ptsG,q.domG,q.k2).map(itvNum).join(' ; ')+' }'; }
+  else if(q.type==='ineqk'){ quoi='résoudre graphiquement f (x) '+ING_SIGNE[q.op1]+' '+itvNum(q.k2)+' et écrire S en intervalle';
+    rep='S = '+ifgPlain(q); }
+  else if(q.type==='crx'){ quoi='résoudre graphiquement f (x) = g (x) — les croisements des deux courbes';
+    rep='S = { '+ifgCroix(q).map(itvNum).join(' ; ')+' }'; }
+  else { quoi='résoudre graphiquement f (x) '+ING_SIGNE[q.op2]+' g (x) et écrire S en intervalle';
+    rep='S = '+ifgPlain(q); }
+  let c='L’élève a sous les yeux les courbes de f (trait plein) et de g (pointillés), chacune sur son propre domaine, et doit '+quoi
+    +'. La bonne réponse est '+rep+'.';
+  if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
   return {nombre:'', contexte:c};
 }
 

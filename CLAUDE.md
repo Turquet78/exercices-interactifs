@@ -806,6 +806,50 @@ imposé, le doublon compté deux fois, la méthode montrée avant la
 vérification, g(b) hors du dessin, le signe figé, le bord 3 lâché — chacun
 rougit en nommant son défaut.
 
+**Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
+est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
+Turquet, août 2026) est repris de la fiche « images et antécédents avec f et
+g » : f en trait plein et g en POINTILLÉS — une vraie courbe, plus une
+droite —, chacune sur son propre domaine (les bouts sont marqués d'un point :
+sans domaines distincts, la question des domaines n'enseignerait rien), et
+SEPT questions dans l'ordre de la fiche sur le MÊME tirage conservé : les
+domaines, quatre images, les antécédents de k par f ET par g, f(x) = k et
+g(x) = k, f(x) signe k, f(x) = g(x), f(x) signe g(x). `lvGraphSVG` a
+seulement appris le morceau (ia, ib), comme `lvPath` l'avait appris — et
+l'étiquette Cf suit le début du morceau.
+**Le risque propre a changé de nature : spline contre SPLINE.** La garantie
+de la droite penchée du 2.5 ne tient plus — deux splines monotones entre deux
+graduations peuvent se refrôler même écartées de 1 aux deux bouts. Le tirage
+échantillonne donc l'écart des deux cubiques de Hermite (`ifgSpline`, les
+mêmes que `lvPath` écrit en Bézier) et rejette la séance qui frôle : mesuré à
+**16 rejets sur 316** — le garde-fou est VIVANT, contrairement à celui du
+2.5, mort à 0 sur 2000 et retiré. Le contrôle relit en plus les Bézier
+réellement écrites, tirage après tirage.
+**Le palier est un piège de PLUS, aux antécédents comme aux équations.** La
+leçon des « solutions voisines » du 2.5 vaut pour TOUTE hauteur interrogée,
+sur f comme sur g : deux antécédents voisins seraient un segment entier posé
+à cette hauteur, et l'énoncé mentirait. g n'a jamais de palier (ses pas sont
+non nuls) ; f, si — le tirage écarte la hauteur, et c'est le REPLI de secours
+qui l'a montré : le premier repli proposé par le tirage portait un palier de
+f à la hauteur k1, invisible aux contrôles d'alors, qui partageaient l'angle
+mort. Un repli s'éprouve par les mêmes contrôles que le tirage.
+**Les bornes d'une union ne sont plus jamais −3 et 3 d'office** : pour
+f(x) signe k ce sont les bouts du domaine de f, pour f(x) signe g(x) les
+bouts du domaine COMMUN — on ne compare f et g que là où les deux existent,
+et c'est une leçon de la fiche elle-même. Les antécédents demandent f ET g
+sur la même hauteur, avec les deux visages dans la même question (un
+singulier d'un côté, un pluriel de l'autre) ; les listes suivent la règle des
+paires, l'union se juge au mieux, et les cases suivent la convention commune
+(`corrChoix`, `msgAvecVides`). Éprouvé en le cassant dix fois — l'ordre de la
+fiche perdu, le tirage re-tiré, la réponse rangée dans la question, le
+croisement au bord, l'échantillonnage débranché (le frôlement se voit alors
+sur les Bézier), l'alternance des côtés cassée, le doublon compté deux fois,
+la méthode montrée avant la vérification, les deux visages lâchés, le palier
+autorisé, les bornes redevenues −3 et 3 — chacun rougit en nommant son
+défaut. Et un FAUX sabotage s'est montré : passer la marge de 1 à 0,5 ne
+change rien, les valeurs étant entières — un écart nul EST un croisement, la
+marge aux graduations est tenue par le compte des croisements.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
@@ -1829,6 +1873,53 @@ c'est ce repli qui rend la peinture mesurable au banc, sur une feuille
 adossée à de VRAIS éléments. Deux sabotages, chacun nommé : la peinture
 débranchée, et le retour aux paires — la copie de production rougit alors en
 toutes lettres.
+
+**Le quotient est une TROISIÈME voie, et le modèle ne rédige plus les
+refus.** Seconde copie de production (signalée par Turquet, août 2026) :
+« 936/900 = 104/100 » puis « donc coef 1.04 » sur « 900 devient 936,
+retrouve le pourcentage » — refusée, avec une prose qui se contredisait
+(« l'égalité est fausse… Donc c'est vrai ! »). Trois défauts, trois
+corrections, toutes deux copies épinglées au contrôle :
+· **La voie du QUOTIENT suffit** (demande de Turquet) : la valeur finale
+  divisée par la valeur initiale EST le coefficient — la leçon du 2.1.7
+  (« la part sur le tout »), revenue au 2.2.9/2.3.8. Il faut un morceau qui
+  ÉCRIT le quotient (un facteur 1/valeur-initiale, produit = coefficient) et
+  un AUTRE morceau qui vaut le coefficient sans être la même écriture —
+  « 936/900 = 936/900 » ne nomme rien, sauf quand la valeur initiale est
+  100, où l'écriture du quotient EST le coefficient sur 100. La voie se
+  NOMME partout : la règle du modèle, la consigne à l'écran, le message de
+  la feuille vide, la phrase du juge.
+· **Une ligne SANS « = » que le juge ne sait pas lire est un COMMENTAIRE**
+  (« donc coef 1.04 ») : elle n'affirme aucune égalité et ne force plus
+  l'abstention — c'est elle qui livrait la copie ENTIÈRE au modèle seul, qui
+  a divagué. Mais si aucune voie lisible n'est trouvée, la voie est
+  peut-être écrite EN MOTS dans ce commentaire : refuser ne serait pas un
+  fait prouvable, le juge s'abstient — les deux bords sont au contrôle.
+· **Sur un refus que le juge sait prononcer, SA phrase s'affiche toujours**
+  — le modèle ne rédige plus que les acceptations, et seulement s'il est
+  d'accord : une prose de refus qui dit « faux puis vrai » n'a plus de
+  chemin vers l'écran. Éprouvé par quatre sabotages nommés (la voie
+  retirée, le commentaire qui re-force l'abstention, la prose du modèle
+  reprise sur un refus, la tautologie acceptée).
+
+**Le dénominateur vide ne condamne personne.** Signalé par Turquet sur une
+capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
+numérateur ROUGISSAIT pendant que l'élève écrivait son dénominateur. Quatre
+exercices de la Première acceptent un facteur ENTIER en laissant son
+dénominateur vide (vide vaut 1 au contrôle final : le 17 de 0,04 × 17) —
+1.7, 1.8, 2.2.7, 2.3.7 — et leur correction en direct appliquait cette
+convention au numérateur en cours de frappe : 4/1 se comparait à 4/100, et
+rougissait. La règle des paires, encore, une case plus loin : un numérateur
+seul se juge sur sa PROMESSE — « ok » s'il est déjà juste en entier, RIEN
+s'il peut encore mener à une fraction égale, rouge seulement s'il ne mène
+nulle part (aux fractions « toute écriture égale acceptée », presque tout
+numérateur positif mène quelque part : c'est le silence qui est honnête,
+pas le vert). Et à la VÉRIFICATION, une case restée vide ne reçoit jamais
+de couleur — `marqueSaufVide`, partagé par les quatre exercices : rouge
+veut dire faux, pas « pas fini ». Le cas de la capture est épinglé au
+contrôle ; trois sabotages nommés (le vide qui revaut 1 en direct, la case
+vide repeinte à la vérification, un exercice qui revient à l'ancienne
+marque).
 
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août

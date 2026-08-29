@@ -2569,6 +2569,8 @@ function exercices(suite){
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
     equationGraphique(w, P);
+    lectureDeuxCourbes(w, P);
+    fractionsDecimalesVides(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     variationsDerivee(w, P);
@@ -4625,6 +4627,12 @@ function syntheseAugLibreRedigee(w, P){
        — le coefficient écrit en FRACTION, la valeur initiale devant. Si elle
        ne passe pas au juge, c'est le juge qui a tort. */
     const qIni={fam:'aug',inc:'ini',sens:1,P:40,N:100,aug:40,fin:140,decStr:'140',unit:'articles',opts:[300,60,200,100],bon:3,choisi:3,ci:0,v:0};
+    /* la seconde copie de production (signalée par Turquet, août 2026) :
+       « 936/900 = 104/100 » puis « donc coef 1.04 » sur « 900 devient 936,
+       retrouve le pourcentage » — LA VOIE DU QUOTIENT, et une ligne de
+       commentaire que le juge ne sait pas lire. Elle SUFFIT : si elle ne
+       passe pas au juge, c'est le juge qui a tort. */
+    const qQuot={fam:'aug',inc:'pct',sens:1,P:4,N:900,aug:36,fin:936,decStr:'936',unit:'licenciés',opts:[30,4,8,40],bon:1,choisi:1,ci:0,v:0};
     const cas=[
       ['coefficient',            qFin, 1, '1,05 × 600 = 630',                  true,  true ],
       ['coefficient, ordre libre',qFin, 1, '600 × 1,05 = 630',                 true,  true ],
@@ -4647,6 +4655,12 @@ function syntheseAugLibreRedigee(w, P){
       ['baisse : une addition au lieu de la soustraction', qFinD, 1, '0,05 × 600 = 30\\n630 = 600 + 30', true, false],
       ['baisse : soustraction sans la multiplication', qFinD, 1, '600 − 30 = 570', true, false],
       ['baisse : une addition qui retombe sur la valeur finale ne remplace pas la soustraction', qFinD, 1, '0,05 × 600 = 30\\n540 + 30 = 570', true, false],
+      ['copie de production : le quotient 936/900 = 104/100 suffit', qQuot, 1, '936/900 = 104/100\\ndonc coef 1.04', true, true ],
+      ['le quotient égalé au décimal', qQuot, 1, '936/900 = 1,04',              true,  true ],
+      ['le quotient en tautologie ne nomme rien', qQuot, 1, '936/900 = 936/900', true, false],
+      ['le quotient avec la mauvaise proposition', qQuot, 3, '936/900 = 104/100', true, false],
+      ['le quotient sur une baisse',   qFinD, 1, '570/600 = 95/100',            true,  true ],
+      ['un commentaire illisible n\\'annule pas une voie montrée', qFin, 1, '1,05 × 600 = 630\\ndonc ça marche', true, true ],
     ];
     cas.forEach(function(c){
       const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
@@ -6223,6 +6237,257 @@ function equationGraphique(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- La lecture de deux courbes : la fiche « images et antécédents avec
+   f et g » ------------------------------------------------------------------
+   Sept questions dans l'ordre de la fiche, sur le MÊME tirage : les domaines,
+   les images, les antécédents par f ET par g, f(x)=k et g(x)=k, f(x) signe k,
+   f(x)=g(x), f(x) signe g(x). Le risque propre a changé de nature : spline
+   contre SPLINE, la garantie de la droite penchée du 2.5 ne tient plus — le
+   tirage échantillonne l'écart et CE contrôle relit les courbes de Bézier que
+   lvPath écrit, tirage après tirage. Et le palier est un piège de PLUS : deux
+   solutions voisines à une hauteur interrogée seraient un segment entier posé
+   à cette hauteur — pour les antécédents comme pour les équations, sur f
+   comme sur g. */
+function lectureDeuxCourbes(w, P){
+  const present = evaluer(w, "typeof startIfg==='function' && typeof ifgBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la lecture de deux courbes : domaines, images, antécédents et résolutions sur un même tirage',
+      'ce niveau n\'a pas l\'exercice de lecture de deux courbes');
+    return;
+  }
+  verifierEval(w, 'la lecture de deux courbes : domaines, images, antécédents et résolutions sur un même tirage', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='lecture-deux-courbes';
+
+    /* le dessin MÊME, relu : les cubiques de lvPath échantillonnées ici */
+    const echantillons=function(pts){
+      const d=lvPath(pts, function(x){ return x; }, function(y){ return y; });
+      const nums=d.replace(/[MC]/g,' ').trim().split(/\\s+/).map(Number);
+      if(nums.some(isNaN)) return null;
+      const out=[]; let px=nums[0], py=nums[1];
+      for(let i=2;i+5<nums.length;i+=6){
+        const c1x=nums[i],c1y=nums[i+1],c2x=nums[i+2],c2y=nums[i+3],x1=nums[i+4],y1=nums[i+5];
+        for(let t=0;t<=1.0001;t+=0.04){
+          const u=1-t;
+          out.push({x:u*u*u*px+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x1,
+                    y:u*u*u*py+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*y1});
+        }
+        px=x1; py=y1;
+      }
+      return out;
+    };
+    const sols=function(pts,dom,y){ const o=[]; for(let x=dom[0];x<=dom[1];x++){ if(pts[x+3]===y) o.push(x); } return o; };
+    const traverse=function(pts,dom,y){ for(let i=dom[0]+3;i<dom[1]+3;i++){ const lo=Math.min(pts[i],pts[i+1]),hi=Math.max(pts[i],pts[i+1]); if(y>lo&&y<hi) return true; } return false; };
+    const sansVois=function(l){ for(let i=1;i<l.length;i++){ if(l[i]-l[i-1]<2) return false; } return true; };
+
+    /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
+    const dessins=new Set(), ops1=new Set(), ops2=new Set();
+    for(let t=0;t<250 && !vus.length;t++){
+      const qs=ifgBuildQuestions();
+      if(qs.length!==7){ vus.push(qs.length+' questions au lieu de 7'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='dom,img,ant,eqk,ineqk,crx,ineq')
+        vus.push('les questions ne suivent pas l\\'ordre de la fiche : '+qs.map(function(q){ return q.type; }).join(','));
+      const q0=qs[0];
+      const ref=JSON.stringify([q0.ptsF,q0.ptsG,q0.domF,q0.domG,q0.k1,q0.k2,q0.a1,q0.a2,q0.b1,q0.b2,q0.op1,q0.op2]);
+      if(qs.some(function(q){ return JSON.stringify([q.ptsF,q.ptsG,q.domF,q.domG,q.k1,q.k2,q.a1,q.a2,q.b1,q.b2,q.op1,q.op2])!==ref; }))
+        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux sept');
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['ptsF','ptsG','domF','domG','k1','k2','a1','a2','b1','b2','op1','op2','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que les courbes, les domaines, k1, k2, les abscisses et les signes : '+cles.join(','));
+      });
+      dessins.add(JSON.stringify([q0.ptsF,q0.ptsG,q0.domF,q0.domG])); ops1.add(q0.op1); ops2.add(q0.op2);
+      const dF=q0.domF, dG=q0.domG;
+      /* les domaines : dans le cadre, assez longs, et DIFFÉRENTS */
+      if(dF[0]<-3||dF[1]>3||dF[1]-dF[0]<4) vus.push('le domaine de f est invraisemblable : ['+dF.join(';')+']');
+      if(dG[0]<-3||dG[1]>3||dG[1]-dG[0]<4) vus.push('le domaine de g est invraisemblable : ['+dG.join(';')+']');
+      if(dF[0]===dG[0]&&dF[1]===dG[1]) vus.push('les deux domaines sont égaux : la question 1 n\\'enseigne rien');
+      const ca=Math.max(dF[0],dG[0]), cb=Math.min(dF[1],dG[1]);
+      /* les croisements : exactement 2, strictement intérieurs au commun,
+         écartés, marge >= 1 partout ailleurs, et le côté alterne */
+      const cr=[]; for(let x=ca;x<=cb;x++){ if(q0.ptsF[x+3]===q0.ptsG[x+3]) cr.push(x); }
+      if(cr.length!==2){ vus.push(cr.length+' croisement(s) au lieu de 2'); continue; }
+      if(cr[0]<=ca||cr[1]>=cb) vus.push('un croisement tombe au bord du domaine commun : '+cr.join(','));
+      if(cr[1]-cr[0]<2) vus.push('les deux croisements sont voisins');
+      let milieu=0;
+      for(let x=ca;x<=cb;x++){
+        if(x===cr[0]||x===cr[1]) continue;
+        const d=q0.ptsF[x+3]-q0.ptsG[x+3];
+        if(Math.abs(d)<1){ vus.push('f est à moins de 1 de g sur une graduation qui n\\'est pas un croisement (x='+x+')'); break; }
+        if(milieu===0 && x>cr[0]&&x<cr[1]) milieu=(d>0?1:-1);
+        if(milieu!==0){ const cote=(x>cr[0]&&x<cr[1])?milieu:-milieu; if((d>0?1:-1)!==cote){ vus.push('f ne change pas de côté à chaque croisement (x='+x+')'); break; } }
+      }
+      if(milieu===0) vus.push('aucune graduation strictement entre les deux croisements');
+      /* k1 : lisible pour les deux, les deux visages, jamais un palier */
+      if(traverse(q0.ptsF,dF,q0.k1)||traverse(q0.ptsG,dG,q0.k1)) vus.push('k1 = '+q0.k1+' est traversé entre deux graduations : un antécédent illisible');
+      const aF=sols(q0.ptsF,dF,q0.k1), aG=sols(q0.ptsG,dG,q0.k1);
+      if(!((aF.length===1&&aG.length>1)||(aF.length>1&&aG.length===1)))
+        vus.push('k1 ne montre pas les deux visages (f : '+aF.length+', g : '+aG.length+')');
+      if(!sansVois(aF)||!sansVois(aG)) vus.push('deux antécédents de k1 sont voisins : un segment entier est à cette hauteur');
+      /* k2 : deux solutions pour f, intérieures, non voisines ; 1 à 3 pour g */
+      if(q0.k2===q0.k1) vus.push('k2 = k1 : deux questions sur la même hauteur');
+      if(traverse(q0.ptsF,dF,q0.k2)||traverse(q0.ptsG,dG,q0.k2)) vus.push('k2 = '+q0.k2+' est traversé entre deux graduations');
+      const sF=sols(q0.ptsF,dF,q0.k2), sG=sols(q0.ptsG,dG,q0.k2);
+      if(sF.length!==2) vus.push('f(x) = '+q0.k2+' a '+sF.length+' solution(s) au lieu de 2');
+      else{ if(sF[0]<=dF[0]||sF[1]>=dF[1]) vus.push('une solution de f(x) = k2 tombe au bord du domaine');
+            if(sF[1]-sF[0]<2) vus.push('les deux solutions de f(x) = k2 sont voisines : le segment entier est à cette hauteur'); }
+      if(sG.length<1||sG.length>3) vus.push('g(x) = '+q0.k2+' a '+sG.length+' solution(s)');
+      if(!sansVois(sG)) vus.push('deux solutions de g(x) = k2 sont voisines');
+      /* les images : abscisses distinctes, dans le domaine */
+      if(q0.a1===q0.a2||q0.a1<dF[0]||q0.a2<dF[0]||q0.a1>dF[1]||q0.a2>dF[1]) vus.push('les abscisses des images par f ne conviennent pas');
+      if(q0.b1===q0.b2||q0.b1<dG[0]||q0.b2<dG[0]||q0.b1>dG[1]||q0.b2>dG[1]) vus.push('les abscisses des images par g ne conviennent pas');
+      /* LE DESSIN MÊME : les deux splines écrites par lvPath ne se frôlent
+         jamais hors d'un croisement — spline contre spline, c'est le seul
+         vrai risque, et le bord discret ne suffit plus */
+      const eF=echantillons(q0.ptsF), eG=echantillons(q0.ptsG);
+      if(!eF||!eG){ vus.push('le chemin de lvPath ne se relit pas'); break; }
+      for(let i=0;i<eF.length;i++){
+        const p=eF[i];
+        if(p.x<ca-1e-6||p.x>cb+1e-6) continue;
+        if(cr.some(function(x0){ return Math.abs(p.x-x0)<0.35; })) continue;
+        if(Math.abs(p.y-eG[i].y)<0.15){ vus.push('les deux courbes se frôlent hors d\\'un croisement (x≈'+p.x.toFixed(2)+')'); break; }
+      }
+    }
+    if(!vus.length && dessins.size<10)
+      vus.push('seulement '+dessins.size+' dessin(s) distinct(s) sur 250 séances — il en faut au moins 10');
+    if(!vus.length && (ops1.size<4||ops2.size<4))
+      vus.push('les signes des inéquations ne varient pas assez ('+ops1.size+' et '+ops2.size+' sur 4)');
+
+    /* ---- 2. les gestes, sur le tirage FIXE du repli (f : -1..3, g : -3..3,
+       croisements 0 et 2, f au-dessous entre les deux, k1=3, k2=1) ---- */
+    const Q0=JSON.parse(JSON.stringify(IFG_FB));
+    function pose(type, op1, op2, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'ifg', questions:['dom','img','ant','eqk','ineqk','crx','ineq'].map(function(tt){
+        return Object.assign({},Q0,{op1:op1||'ge',op2:op2||'gt',type:tt}); }),
+        idx:{dom:0,img:1,ant:2,eqk:3,ineqk:4,crx:5,ineq:6}[type], score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      renderIfgTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkIfgAnswer();
+      return { fb:document.getElementById('ifgFeedback').textContent,
+               cls:document.getElementById('ifgFeedback').className,
+               score:test.score };
+    }
+    /* le dessin de l'énoncé : g en pointillés, les bouts des deux courbes —
+       et AUCUN trait de méthode avant la vérification */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'ifg', questions:[Object.assign({},Q0,{op1:'ge',op2:'gt',type:'eqk'})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+    renderIfgTest();
+    if(!document.querySelector('#ifgGraph .eqg-g')) vus.push('la courbe de g n\\'est pas dessinée');
+    if(document.querySelectorAll('#ifgGraph .ifg-bout, #ifgGraph .ifg-boutg').length!==4)
+      vus.push('les bouts des courbes ne sont pas marqués : les domaines ne se lisent pas');
+    if(document.querySelector('#ifgGraph .img-trait, #ifgGraph .ing-rouge'))
+      vus.push('le trait de la méthode est dessiné AVANT la vérification');
+    checkIfgAnswer();
+    if(!document.querySelector('#ifgGraph .img-trait'))
+      vus.push('après la vérification, la ligne de niveau manque sur f(x) = k');
+    /* les domaines : justes, et la case vide reçoit la correction en vert */
+    let r=pose('dom', 'ge', 'gt', {'ifg-df1':'-1','ifg-df2':'3','ifg-dg1':'-3','ifg-dg2':'3'});
+    if(r.score!==4 || !/\\bgood\\b/.test(r.cls)) vus.push('les domaines justes sont refusés : Df=[-1;3], Dg=[-3;3], score '+r.score);
+    r=pose('dom', 'ge', 'gt', {'ifg-df1':'-1','ifg-df2':'3','ifg-dg1':'-3'});
+    if(r.fb.indexOf('Il te manquait 1 case')!==0) vus.push('domaine vide : le message ne dit pas la case manquante : '+r.fb.slice(0,50));
+    { const el=document.getElementById('ifg-dg2');
+      if(!el || !el.classList.contains('sol') || el.value!=='3') vus.push('domaine vide : la case n\\'a pas reçu la correction'); }
+    /* les images, par la bonne courbe */
+    r=pose('img', 'ge', 'gt', {'ifg-fa1':'1','ifg-fa2':'-1','ifg-gb1':'1','ifg-gb2':'1'});
+    if(r.score!==4) vus.push('les images justes sont refusées : f(0)=1, f(1)=-1, g(-2)=1, g(2)=1, score '+r.score);
+    /* les antécédents : par f ET par g, l'ordre libre, le doublon une fois */
+    r=pose('ant', 'ge', 'gt', {'ifg-af-0':'3','ifg-af-1':'-1','ifg-ag-0':'-3'});
+    if(r.score!==3) vus.push('les antécédents justes (ordre inversé pour f) sont refusés, score '+r.score);
+    r=pose('ant', 'ge', 'gt', {'ifg-af-0':'3','ifg-af-1':'3','ifg-ag-0':'-3'});
+    if(r.score!==2) vus.push('le même antécédent écrit deux fois vaut '+r.score+' au lieu de 2 : défendable une fois, faux la seconde');
+    /* f(x)=k et g(x)=k ensemble, listes libres */
+    r=pose('eqk', 'ge', 'gt', {'ifg-sf-0':'2','ifg-sf-1':'0','ifg-sg-0':'2','ifg-sg-1':'-2','ifg-sg-2':'0'});
+    if(r.score!==5) vus.push('f(x)=1 et g(x)=1 : les listes permutées sont refusées, score '+r.score);
+    /* f(x) signe k : f au-dessous de 1 entre 0 et 2, bornes = domaine de f */
+    r=pose('ineqk', 'lt', 'gt', {'ifg-co1':']','ifg-b1':'0','ifg-b2':'2','ifg-cf1':'['});
+    if(r.score!==4) vus.push('f(x) < 1 : S = ]0 ; 2[ refusé, score '+r.score);
+    r=pose('ineqk', 'ge', 'gt', {'ifg-co1':'[','ifg-b1':'-1','ifg-b2':'0','ifg-cf1':']','ifg-co2':'[','ifg-b3':'2','ifg-b4':'3','ifg-cf2':']'});
+    if(r.score!==8) vus.push('f(x) ≥ 1 : S = [-1 ; 0] ∪ [2 ; 3] refusé (les bornes sont les bouts du domaine de f), score '+r.score);
+    /* f(x)=g(x) : les croisements */
+    r=pose('crx', 'ge', 'gt', {'ifg-sx-0':'2','ifg-sx-1':'0'});
+    if(r.score!==2) vus.push('les croisements 0 et 2 (dans l\\'autre ordre) sont refusés, score '+r.score);
+    /* f(x) signe g(x) : bornes = les bouts du domaine COMMUN, union au mieux */
+    r=pose('ineq', 'ge', 'le', {'ifg-co1':'[','ifg-b1':'0','ifg-b2':'2','ifg-cf1':']'});
+    if(r.score!==4) vus.push('f(x) ≤ g(x) : S = [0 ; 2] refusé, score '+r.score);
+    r=pose('ineq', 'ge', 'gt', {'ifg-co1':']','ifg-b1':'2','ifg-b2':'3','ifg-cf1':']','ifg-co2':'[','ifg-b3':'-1','ifg-b4':'0','ifg-cf2':'['});
+    if(r.score!==8) vus.push('f(x) > g(x) : l\\'union écrite droite-gauche (bornes -1 et 3, les bouts du commun) est refusée, score '+r.score);
+    /* en soutien, une case vide ne reçoit AUCUNE couleur au fil de la frappe */
+    currentMode='soutien';
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'ifg', questions:[Object.assign({},Q0,{op1:'ge',op2:'gt',type:'img'})], idx:0, score:0, maxScore:4, answers:[], startTime:Date.now(), locked:false});
+    renderIfgTest();
+    { const el=document.getElementById('ifg-fa1'); el.value='1'; }
+    ifgLive();
+    { const plein=document.getElementById('ifg-fa1'), vide=document.getElementById('ifg-fa2');
+      if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne verdit pas au fil de la frappe');
+      if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Les fractions décimales : le dénominateur vide ne condamne personne --
+   Signalé par Turquet sur une capture (août 2026, le 1.7 en soutien) : sur
+   « 0,04 × 17 », le 4 tapé au numérateur ROUGISSAIT pendant que l'élève
+   écrivait son dénominateur — le vide valait 1 (la convention du facteur
+   entier, correcte au contrôle final) et 4/1 se comparait à 4/100. La règle
+   des paires, encore : un numérateur seul se juge sur sa PROMESSE — « ok »
+   s'il est déjà juste en entier (le 17), rien s'il peut encore mener à une
+   fraction égale (le 4), rouge seulement s'il ne mène nulle part. Et à la
+   vérification, une case restée VIDE ne reçoit jamais de couleur
+   (marqueSaufVide, partagé par les quatre exercices à facteur entier :
+   1.7, 1.8, 2.2.7, 2.3.7). */
+function fractionsDecimalesVides(w, P){
+  const present = evaluer(w, "typeof startMultDec==='function' && typeof checkMDAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les fractions décimales : le dénominateur vide ne condamne personne',
+      'ce niveau n\'a pas l\'exercice des multiplications de décimaux');
+    return;
+  }
+  verifierEval(w, 'les fractions décimales : le dénominateur vide ne condamne personne', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='soutien'; currentDM=null;
+    currentTestId='mult-decimaux';
+    /* la question de la capture : 0,04 × 17 */
+    const Q={fA:{num:4,den:100}, fB:{num:17,den:1}, numD:17, numS:4, prodNum:68, prodDen:100,
+             tensD:1, unitsD:7, carry1:2, u:8, t:6, h:0, three:false, aStr:'0,04', bStr:'17', decStr:'0,68'};
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'md', questions:[JSON.parse(JSON.stringify(Q))], idx:0, score:0,
+      answers:[], startTime:Date.now(), locked:false});
+    renderMDTest();
+    const cl=function(id){ const c=document.getElementById(id).classList;
+      return c.contains('ok')?'ok':(c.contains('bad')?'bad':'rien'); };
+    const pose=function(id,v){ document.getElementById(id).value=v; };
+    /* 1. en direct : le 4 sans dénominateur ne reçoit RIEN */
+    pose('md1n','4'); checkMDAnswer(true);
+    if(cl('md1n')!=='rien') vus.push('le 4 de 0,04 est « '+cl('md1n')+' » pendant que son dénominateur est vide');
+    /* 2. le facteur ENTIER, lui, verdit tout de suite : 17 sans dénominateur est déjà juste */
+    pose('md2n','17'); checkMDAnswer(true);
+    if(cl('md2n')!=='ok') vus.push('le 17 (facteur entier, dénominateur vide) est « '+cl('md2n')+' » au lieu de ok');
+    /* 3. un numérateur qui ne mène nulle part rougit quand même */
+    pose('md1n','0'); checkMDAnswer(true);
+    if(cl('md1n')!=='bad') vus.push('un 0 au numérateur (aucun dénominateur possible) est « '+cl('md1n')+' » au lieu de bad');
+    /* 4. la paire complète se juge : 4/100 ok, 3/100 bad */
+    pose('md1n','4'); pose('md1d','100'); checkMDAnswer(true);
+    if(cl('md1n')!=='ok'||cl('md1d')!=='ok') vus.push('4/100 en direct : '+cl('md1n')+'/'+cl('md1d')+' au lieu de ok/ok');
+    pose('md1n','3'); checkMDAnswer(true);
+    if(cl('md1n')!=='bad') vus.push('3/100 en direct : le numérateur est « '+cl('md1n')+' » au lieu de bad');
+    /* 5. à la VÉRIFICATION, une case vide ne reçoit aucune couleur — le
+       numérateur faux en entier, lui, rougit à bon droit */
+    pose('md1n','4'); pose('md1d',''); pose('md2n',''); pose('md2d','');
+    checkMDAnswer();
+    if(cl('md1n')!=='bad') vus.push('vérification : 4 sans dénominateur (réponse entière fausse) est « '+cl('md1n')+' » au lieu de bad');
+    if(cl('md1d')!=='rien') vus.push('vérification : le dénominateur VIDE est « '+cl('md1d')+' » — une case vide ne rougit jamais');
+    if(cl('md2n')!=='rien') vus.push('vérification : le numérateur VIDE est « '+cl('md2n')+' » — une case vide ne rougit jamais');
+    /* 6. les quatre exercices à facteur entier partagent la même marque */
+    const src=document.documentElement.outerHTML;
+    ['hsAn','bsAn','md1n','u1n'].forEach(function(id){
+      if(src.indexOf("marqueSaufVide('"+id+"'")<0) vus.push('l\\'exercice de « '+id+' » ne passe pas par marqueSaufVide');
+    });
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
    Deux paires de courbes par séance — l'une compatible, l'autre non —,
    chacune en trois questions a/b/c sur les MÊMES dessins. Le moteur de
@@ -6700,6 +6965,18 @@ function verdictColore(w, apres){
       verdict(true); await checkSal();    /* le modèle MENT : l'égalité est fausse */
       if(couleur('salFeedback')!=='rouge') vus.push('2.2.9 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
       if(test.score!==0) vus.push('2.2.9 : égalité fausse sous modèle qui accepte — le point est donné quand même');
+      /* Sur un REFUS, la phrase du JUGE s'affiche toujours : le modèle avait
+         rédigé en production un refus qui se contredisait (« c'est faux…
+         donc c'est vrai ! », signalé par Turquet, août 2026) — même
+         d'accord sur le verdict, sa prose ne s'affiche plus. */
+      test.locked=false; test.salBusy=false; test.score=0;
+      test.questions=[JSON.parse(JSON.stringify(q29))];
+      salFeuille=feuille('1,05 × 600 = 640');
+      sb.functions={ invoke:async function(){ return { data:{ correct:false, feedback:'C est faux. Enfin non, c est vrai !' } }; } };
+      await checkSal();
+      { const fbTxt=document.getElementById('salFeedback').textContent;
+        if(fbTxt.indexOf('égalité fausse')<0 || fbTxt.indexOf('Enfin')>=0)
+          vus.push('2.2.9 : sur un refus, la prose du modèle s\\'affiche au lieu de la phrase du juge : « '+fbTxt.slice(0,60)+' »'); }
       /* et sur une BAISSE (2.3.8), même moteur, même primauté */
       const q38={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
       test.locked=false; test.salBusy=false; test.score=0;
