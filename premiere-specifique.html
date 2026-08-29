@@ -433,6 +433,8 @@
   .choice.locked{opacity:.6;cursor:not-allowed}
   .choice.locked:hover{transform:none;box-shadow:none;border-color:var(--line)}
   .choice .lockmsg{font-size:.82rem;color:#a8631c;font-weight:700;margin-top:2px}
+  .dm-fleche{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:.85rem;color:var(--ink-soft)}
+  .dm-fleche:disabled{opacity:.35;cursor:default}
 
   /* ===== Test 4 : pourcentage d'un nombre (3 étapes) ===== */
   .pt-step{width:100%;margin:4px 0 16px}
@@ -1701,7 +1703,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=175;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=176;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2167,8 +2169,14 @@ function newDevoirId(genre){ return ((genre==='fiche')?'fc_':'dm_')+Date.now().t
 const GENRE_DEVOIRS={
   dm:   { cle:'devoirs', titre:'Devoirs à la maison',         badge:'Devoir', vide:'Aucun devoir à la maison pour l\u2019instant.',
           defTitre:'Devoir à la maison',        ouvrir:'Ouvrir le devoir \u2192', note:'Note du devoir',   ajouter:'\uFF0B Nouveau devoir',  familleProf:'Mes devoirs à la maison' },
+  /* « ordre:true » : les exercices de cette famille se font DANS L'ORDRE écrit
+     par le professeur — un exercice est verrouillé tant que le précédent n'est
+     pas fait (demande de Turquet, août 2026, pour les fiches de travail en
+     classe). Les devoirs à la maison restent tous ouverts, comme avant : la
+     différence vit ICI, dans GENRE_DEVOIRS, et nulle part ailleurs. */
   fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
-          defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe' }
+          defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe',
+          ordre:true }
 };
 let genreEleve='dm';
 function famillesDevoirs(cfg){
@@ -3024,6 +3032,24 @@ function exercicesDevoir(dev){
     .map(ex=>({ id:ex.id, modes:ex.modes||[], nb:parseInt(ex.nb,10)||null,
                 nbQ:parseInt(ex.nbQ,10)||null, smax:parseInt(ex.smax,10)||null }));
 }
+/* L'ORDRE IMPOSÉ DES FICHES (demande de Turquet, août 2026). Une fiche de
+   travail en classe se fait dans l'ordre écrit par le professeur : un exercice
+   est verrouillé tant qu'un exercice placé AVANT lui dans la fiche n'est pas
+   fait. « Fait » est la définition de la carte — noteDevoirExo().fait — pour
+   que l'écran et la porte disent exactement la même chose. Les devoirs à la
+   maison restent tous ouverts : la règle vit dans GENRE_DEVOIRS (ordre:true),
+   comme toute différence entre les deux familles. */
+function dmOrdreImpose(dev){ return !!(dev && GENRE_DEVOIRS[dev.genre||'dm'].ordre); }
+function dmVerrouille(dev, testId){
+  if(!dmOrdreImpose(dev)) return false;
+  const exos=(dev.exercices||[]).filter(ex=>TESTS[ex.id]);
+  for(let i=0;i<exos.length;i++){
+    if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
+    const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
+    if(!nd.fait) return true;                  /* un exercice AVANT lui n'est pas fait */
+  }
+  return false;
+}
 /* Une note d'un devoir, sans distinction de passage. Les devoirs ne demandent
    plus qu'une fois chaque exercice ; les notes écrites du temps des passages
    portent encore un champ « passe », et on ne le regarde plus : elles comptent
@@ -3141,10 +3167,17 @@ function renderDevoirDetail(devoirId){
   if(!dev){ renderDevoirsList(); return; }
   const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
   const liste=exercicesDevoir(dev); let somme=0, faitQqch=false;
-  const cards=liste.map(ex=>{
+  /* L'ordre imposé : le premier exercice non fait est le PROCHAIN — il reste
+     ouvert — et tout ce qui vient après lui est verrouillé ; un exercice déjà
+     fait se refait librement. La carte et la porte (openTestDevoir) partagent
+     la même définition, dmVerrouille(). */
+  const ordreImpose=dmOrdreImpose(dev); let bloque=false;
+  const cards=liste.map((ex,i)=>{
     const t=TESTS[ex.id];
     const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'), ex.smax);
     somme+=nd.note; if(nd.fait) faitQqch=true;
+    const verrou=ordreImpose&&bloque;
+    if(ordreImpose&&!nd.fait) bloque=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
     /* Le devoir peut demander une séance plus longue : la carte le dit, sinon
@@ -3152,7 +3185,10 @@ function renderDevoirDetail(devoirId){
     let desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
     if(ex.nbQ) desc += ' Pour ce devoir : '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
     if(dmPlafondSoutien(ex.smax)>5) desc += ' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
-    return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
+    const titre=ordreImpose?String(i+1)+'. '+testLabel(ex.id):testLabel(ex.id);
+    if(verrou) return cardHTML('🔒', titre, desc, '', 'locked',
+      'Termine d\u2019abord l\u2019exercice précédent pour débloquer celui-ci.', badge);
+    return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
   }).join('');
   const G=GENRE_DEVOIRS[(dev.genre||'dm')];
   const totMax=liste.length*10;
@@ -3162,10 +3198,14 @@ function renderDevoirDetail(devoirId){
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
-    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <p class="lead" style="margin-top:14px">${ordreImpose?'Les exercices de cette fiche se font <b>dans l\u2019ordre</b> : le suivant se débloque quand le précédent est fait. ':''}Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
 }
 async function openTestDevoir(devoirId, testId){
+  /* LA PORTE TIENT LE VERROU, pas seulement la carte : ce que l'écran grise,
+     la porte le refuse — même définition, dmVerrouille(). */
+  const devO=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  if(dmVerrouille(devO,testId)){ toast('Termine d\u2019abord les exercices précédents de la fiche','err'); renderDevoirDetail(devoirId); return; }
   currentTestId=testId; currentDM=devoirId;
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;
@@ -9838,9 +9878,24 @@ function renderDmEditor(){
     if(!rows) return '';
     return `<div class="dm-grp"><div class="dm-grp-h">Thème ${th.num} · ${esc(th.nom)}</div>${rows}</div>`;
   }).join('');
+  /* LE RUBAN D'ORDRE DES FICHES (demande de Turquet, août 2026) : une fiche se
+     fait dans l'ordre, donc l'ordre se VOIT et se RÈGLE ici. L'ordre rangé est
+     celui du tableau d.exercices — celui-là même que la page de l'élève lit —
+     et les flèches le déplacent. Les devoirs, tous ouverts, n'en ont pas. */
+  const exOrd=(d.exercices||[]).filter(ex=>TESTS[ex.id]);
+  const ordreStrip = dmGenre!=='fiche' ? '' : `
+    <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices de la fiche</div>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.</p>
+    <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo pick">
+      <span class="dm-exo-num">${i+1}</span>
+      <span class="dm-exo-name">${esc(testLabel(ex.id))}</span>
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
+        <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
+      </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices de la fiche : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`;
   box.innerHTML=`<div class="dm-ed">
     <div class="dm-head" style="justify-content:space-between;margin-bottom:16px">
-      <span class="dm-badge">Devoir n°${esc(String(d.num))}</span>
+      <span class="dm-badge">${GENRE_DEVOIRS[dmGenre].badge} n°${esc(String(d.num))}</span>
       <label class="dm-switch"><input type="checkbox" id="dmActif" ${d.actif?'checked':''} onchange="dmToggleActif(this.checked)"><span class="track"></span><span class="sw-lbl">${d.actif?'Affiché aux élèves':'Masqué'}</span></label>
     </div>
     <div class="add-form" style="grid-template-columns:120px 1fr">
@@ -9848,12 +9903,13 @@ function renderDmEditor(){
       <div class="field" style="margin:0"><label class="lab" for="dmTitre">Titre</label><input class="text-input" id="dmTitre" value="${esc(d.titre||'')}" maxlength="80"></div>
     </div>
     <div class="field" style="margin-top:14px"><label class="lab" for="dmCours">Cours / consignes <span class="muted" style="font-weight:600;font-size:.85rem">(facultatif)</span></label><textarea class="dm-ta" id="dmCours" placeholder="Rappel de cours, consignes… (laisse vide pour n'afficher que les exercices)">${esc(d.cours||'')}</textarea></div>
-    <div class="dm-pick-h" style="margin-top:6px">Exercices du devoir</div>
+    <div class="dm-pick-h" style="margin-top:6px">${dmGenre==='fiche'?'Exercices de la fiche':'Exercices du devoir'}</div>
     <p class="muted" style="font-size:.85rem;margin:0 0 12px">Coche les modes proposés pour chaque exercice. « Questions » réduit la séance pour ce devoir (vide = le format normal). « Soutien » règle la note maximale du mode soutien pour cet exercice (5/10 par défaut) ; l'entraînement vaut toujours 10/10.</p>
     ${groups}
+    ${ordreStrip}
     <div class="dm-ed-acts">
-      <button class="btn btn-primary" onclick="saveDM()">Enregistrer ce devoir</button>
-      <button class="btn btn-danger" onclick="deleteDM('${escJS(d.id)}')">Supprimer ce devoir</button>
+      <button class="btn btn-primary" onclick="saveDM()">${dmGenre==='fiche'?'Enregistrer cette fiche':'Enregistrer ce devoir'}</button>
+      <button class="btn btn-danger" onclick="deleteDM('${escJS(d.id)}')">${dmGenre==='fiche'?'Supprimer cette fiche':'Supprimer ce devoir'}</button>
     </div>
   </div>`;
 }
@@ -9888,6 +9944,7 @@ function dmToggleMode(id,m,checked){
   if(checked){ if(!ex.modes.includes(m)) ex.modes.push(m); }
   else { ex.modes=ex.modes.filter(x=>x!==m); }
   if(!ex.modes.length) d.exercices=d.exercices.filter(e=>e.id!==id);
+  dmLireEntete();                            /* le titre tapé survit au re-rendu */
   /* Redessiner l'éditeur entier : les réglages de la ligne passent de grisés à
      actifs, et l'inverse. Un simple basculement de classe les aurait laissés
      désactivés alors que l'exercice vient d'être choisi. */
@@ -9898,6 +9955,25 @@ function dmToggleMode(id,m,checked){
     row.classList.toggle('pick',still);
     row.querySelectorAll('.dm-mode').forEach(lbl=>{ const cb=lbl.querySelector('input'); lbl.classList.toggle('on',cb.checked); });
   }
+}
+/* Relit les champs d'entête AVANT tout re-rendu de l'éditeur : sans cela, un
+   titre tapé mais pas encore enregistré disparaîtrait au premier clic sur une
+   flèche — le re-rendu réécrit les champs depuis l'objet. */
+function dmLireEntete(){
+  const d=dmCur(); if(!d||!$('dmNum')) return;
+  const numV=parseInt(val('dmNum'),10);
+  if(Number.isFinite(numV)&&numV>0) d.num=numV;
+  d.titre=(val('dmTitre')||'').trim()||d.titre;
+  d.cours=$('dmCours').value;
+  d.actif=$('dmActif').checked;
+}
+function dmOrdreBouge(id,delta){
+  const d=dmCur(); if(!d) return;
+  dmLireEntete();
+  const arr=d.exercices||[]; const i=arr.findIndex(e=>e.id===id), j=i+delta;
+  if(i<0||j<0||j>=arr.length) return;
+  const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
+  renderDmEditor();
 }
 function dmToggleActif(checked){
   const d=dmCur(); if(!d) return; d.actif=checked;

@@ -5752,7 +5752,7 @@ function fichesDeTravail(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('les fiches de travail vivent à côté des devoirs, jamais dedans',
       'ce niveau n\'a pas les fiches de travail en classe');
-    return reglagesDevoirs(w, apres);
+    return ordreDesFiches(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -5848,6 +5848,151 @@ function fichesDeTravail(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', false, 'erreur JavaScript : '+r.erreur);
     else verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', r.valeur==='', r.valeur);
+    ordreDesFiches(w, apres);
+  });
+}
+/* L'ORDRE IMPOSÉ DES FICHES (demande de Turquet, août 2026) : une fiche de
+   travail en classe se fait dans l'ordre écrit par le professeur — le premier
+   exercice non fait est le prochain, tout ce qui vient après est verrouillé,
+   un exercice déjà fait se refait librement. Les devoirs à la maison, eux,
+   restent tous ouverts. Quatre bords, et n'en tenir qu'un ne tient rien :
+     · la DÉFINITION (dmVerrouille) : rien de fait → seul le premier est
+       ouvert ; une note sur le premier débloque le deuxième et pas le
+       troisième ; le premier se refait toujours ;
+     · l'ÉCRAN dit la même chose : cartes 🔒 grisées, rangs écrits, phrase
+       d'ordre — et la page d'un DEVOIR ne grise rien ;
+     · la PORTE (openTestDevoir) refuse ce que l'écran grise — une carte se
+       recrée par un vieux rendu, la porte est l'entonnoir ;
+     · l'ÉDITEUR fixe l'ordre : la relecture du formulaire le PRÉSERVE
+       (l'ordre du menu écraserait celui du professeur), les flèches le
+       déplacent, l'enregistrement l'emporte tel quel — et un devoir garde
+       l'ordre du menu, sans ruban. */
+function ordreDesFiches(w, apres){
+  const present = evaluer(w, "typeof GENRE_DEVOIRS!=='undefined' && typeof dmVerrouille==='function' && typeof openTestDevoir==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur',
+      'ce niveau n\'a pas les fiches de travail en classe');
+    return reglagesDevoirs(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    const ids=Object.keys(TESTS).slice(0,3);
+    const A=ids[2], B=ids[0], C=ids[1];      /* un ordre qui n'est PAS celui du menu */
+    const trois=[{id:A,modes:['train']},{id:B,modes:['train']},{id:C,modes:['train']}];
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{
+      devoirs:[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:JSON.parse(JSON.stringify(trois))}],
+      fiches:[{id:'fc_o',num:1,actif:true,titre:'Fiche ordonnée',cours:'',exercices:JSON.parse(JSON.stringify(trois))}]
+    }}]);
+    window.__faux.semer('${P.tableResultats||'resultats'}',[]);
+    const ecran=function(){ return ([].slice.call(document.querySelectorAll('section.screen')).find(function(s){ return s.classList.contains('on'); })||{}).id; };
+
+    /* 1. la définition : rien de fait, seul le premier est ouvert */
+    await ouvrirDevoirDetail('fc_o');
+    const fiche=(mesDevoirs||[]).find(function(d){ return d.id==='fc_o'; });
+    if(!fiche) return 'la fiche témoin n\\'arrive pas chez l\\'élève';
+    if(dmVerrouille(fiche,A)) vus.push('le premier exercice est verrouillé alors que rien n\\'est fait');
+    if(!dmVerrouille(fiche,B)) vus.push('le deuxième est ouvert alors que le premier n\\'est pas fait');
+    if(!dmVerrouille(fiche,C)) vus.push('le troisième est ouvert alors que rien n\\'est fait');
+    /* et l'écran dit la même chose que la définition */
+    let grises=document.querySelectorAll('#devoirsBody .choice.locked').length;
+    const texte=document.getElementById('devoirsBody').textContent;
+    if(grises!==2) vus.push('l\\'écran grise '+grises+' carte(s) au lieu de 2');
+    if(texte.indexOf('1. ')<0 || texte.indexOf('3. ')<0) vus.push('les rangs ne s\\'écrivent pas sur les cartes');
+    if(texte.indexOf('dans l\\u2019ordre')<0) vus.push('la page ne dit pas que la fiche se fait dans l\\'ordre');
+
+    /* 2. la porte refuse ce que l'écran grise */
+    currentDM=null;
+    await openTestDevoir('fc_o',C);
+    if(ecran()==='scr-mode') vus.push('la porte ouvre un exercice verrouillé');
+    if(currentDM==='fc_o') vus.push('la porte pose le contexte du devoir avant de refuser');
+
+    /* 3. une note sur le premier débloque le deuxième, pas le troisième */
+    window.__faux.semer('${P.tableResultats||'resultats'}',[{id:'r1',eleve_id:'e-controle',score:8,total:10,percent:80,
+      details:{test:A,mode:'train',dm:'fc_o'}}]);
+    await ouvrirDevoirDetail('fc_o');
+    const f2=(mesDevoirs||[]).find(function(d){ return d.id==='fc_o'; });
+    if(dmVerrouille(f2,B)) vus.push('une note sur le premier ne débloque pas le deuxième');
+    if(!dmVerrouille(f2,C)) vus.push('le troisième se débloque avant son tour');
+    if(dmVerrouille(f2,A)) vus.push('un exercice déjà fait ne se refait plus');
+    grises=document.querySelectorAll('#devoirsBody .choice.locked').length;
+    if(grises!==1) vus.push('après la note, l\\'écran grise '+grises+' carte(s) au lieu de 1');
+    await openTestDevoir('fc_o',B);
+    if(ecran()!=='scr-mode') vus.push('la porte reste fermée sur un exercice débloqué');
+    currentDM=null;
+
+    /* 4. un devoir à la maison n'est jamais verrouillé */
+    window.__faux.semer('${P.tableResultats||'resultats'}',[]);
+    await ouvrirDevoirDetail('dm_o');
+    const devL=(mesDevoirs||[]).find(function(d){ return d.id==='dm_o'; });
+    if(dmVerrouille(devL,C)) vus.push('le verrou déborde sur les devoirs à la maison');
+    if(document.querySelectorAll('#devoirsBody .choice.locked').length) vus.push('la page d\\'un devoir grise des cartes');
+
+    /* 5. l'éditeur fixe l'ordre, et l'enregistrement l'emporte */
+    const lireValeurs=function(){ return (window.__faux.tables['${TABLE}']||[{}])[0].valeurs||{}; };
+    const idsDe=function(arr){ return (arr||[]).map(function(e){ return e.id; }).join('>'); };
+    if(typeof readEditorIntoDevoir==='function'){
+      /* Seconde : la relecture du formulaire préserve l'ordre de la fiche */
+      dmGenre='fiche';
+      dmList=[{id:'fc_o',num:1,actif:true,titre:'Fiche ordonnée',cours:'',exercices:[{id:A,modes:['train']},{id:B,modes:['train']}]}];
+      dmSelId='fc_o';
+      renderDevoirEditor();
+      if(!document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des fiches');
+      const cb=document.querySelector('#dmExos input[data-ex="'+C+'"][data-mode="train"]');
+      if(!cb){ vus.push('la case de l\\'exercice témoin est introuvable dans l\\'éditeur'); }
+      else {
+        cb.checked=true; readEditorIntoDevoir();
+        if(idsDe(dmList[0].exercices)!==A+'>'+B+'>'+C)
+          vus.push('la relecture réordonne la fiche : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B+'>'+C);
+        dmOrdreBouge(C,-1);
+        if(idsDe(dmList[0].exercices)!==A+'>'+C+'>'+B)
+          vus.push('la flèche ne déplace pas l\\'exercice : '+idsDe(dmList[0].exercices));
+        await persistDevoirs();
+        const v=lireValeurs();
+        if(idsDe((v.fiches||[{}])[0].exercices)!==A+'>'+C+'>'+B)
+          vus.push('l\\'enregistrement perd l\\'ordre : '+idsDe((v.fiches||[{}])[0].exercices));
+      }
+      /* un devoir, lui, garde l'ordre du menu, sans ruban */
+      dmGenre='dm';
+      dmList=[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:[{id:A,modes:['train']},{id:B,modes:['train']}]}];
+      dmSelId='dm_o';
+      renderDevoirEditor();
+      if(document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      readEditorIntoDevoir();
+      const menu=TEST_ORDER.filter(function(id){ return id===A||id===B; }).join('>');
+      if(idsDe(dmList[0].exercices)!==menu) vus.push('un devoir ne suit plus l\\'ordre du menu : '+idsDe(dmList[0].exercices));
+    } else if(typeof renderDmEditor==='function'){
+      /* Première : les flèches déplacent, l'enregistrement emporte l'ordre */
+      dmGenre='fiche';
+      dmAdminList=[{id:'fc_o',num:1,actif:true,titre:'Fiche ordonnée',cours:'',exercices:JSON.parse(JSON.stringify(trois))}];
+      dmSelId='fc_o';
+      renderDmEditor();
+      if(!document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des fiches');
+      dmOrdreBouge(C,-1);
+      if(idsDe(dmAdminList[0].exercices)!==A+'>'+C+'>'+B)
+        vus.push('la flèche ne déplace pas l\\'exercice : '+idsDe(dmAdminList[0].exercices));
+      await saveDM();
+      await new Promise(function(r){ setTimeout(r,80); });   /* renderDevoirsAdmin se pose */
+      const v=lireValeurs();
+      if(idsDe((v.fiches||[{}])[0].exercices)!==A+'>'+C+'>'+B)
+        vus.push('l\\'enregistrement perd l\\'ordre : '+idsDe((v.fiches||[{}])[0].exercices));
+      dmGenre='dm';
+      dmAdminList=[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:JSON.parse(JSON.stringify(trois))}];
+      dmSelId='dm_o';
+      renderDmEditor();
+      if(document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+    } else {
+      vus.push('aucun éditeur à exercer');
+    }
+    dmGenre='dm'; currentDM=null;
+    return vus.join(' | ');
+  })()`, function(r){
+    const nom='les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
     reglagesDevoirs(w, apres);
   });
 }

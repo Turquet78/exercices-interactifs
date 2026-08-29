@@ -890,6 +890,8 @@
   .choice.locked{opacity:.6;cursor:not-allowed}
   .choice.locked:hover{transform:none;box-shadow:none;border-color:var(--line)}
   .choice .lockmsg{font-size:.82rem;color:#a8631c;font-weight:700;margin-top:2px}
+  .dm-fleche{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:.85rem;color:var(--ink-soft)}
+  .dm-fleche:disabled{opacity:.35;cursor:default}
 
   /* ===== Test 4 : pourcentage d'un nombre (3 étapes) ===== */
   .pt-step{width:100%;margin:4px 0 16px}
@@ -1930,10 +1932,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
           <input class="text-input" id="dmTitre" maxlength="80" placeholder="Devoir à la maison" autocomplete="off">
           <label class="lab" for="dmCours" style="margin-top:14px">Cours <span style="font-weight:600;color:var(--ink-soft)">(laisse vide pour n'afficher que les exercices)</span></label>
           <textarea class="dm-area" id="dmCours" rows="7" placeholder="Rappels, consignes…"></textarea>
-          <label class="lab" style="margin-top:16px">Exercices du devoir <span style="font-weight:600;color:var(--ink-soft)">(coche les modes proposés à l'élève)</span></label>
+          <label class="lab" style="margin-top:16px" id="dmExosLbl">Exercices du devoir <span style="font-weight:600;color:var(--ink-soft)">(coche les modes proposés à l'élève)</span></label>
           <div id="dmExos"></div>
           <div class="row" style="margin-top:16px;justify-content:space-between;align-items:center">
-            <span><button class="btn btn-primary" onclick="saveDevoir()">Enregistrer ce devoir</button> <span class="saved" id="dmSaved">Enregistré ✓</span></span>
+            <span><button class="btn btn-primary" onclick="saveDevoir()" id="dmSaveBtn">Enregistrer ce devoir</button> <span class="saved" id="dmSaved">Enregistré ✓</span></span>
             <button class="btn btn-danger btn-sm" onclick="deleteDevoir()">Supprimer</button>
           </div>
         </div>
@@ -2025,7 +2027,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=106;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=107;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2442,8 +2444,14 @@ function newDevoirId(genre){ return ((genre==='fiche')?'fc_':'dm_')+Date.now().t
 const GENRE_DEVOIRS={
   dm:   { cle:'devoirs', titre:'Devoirs à la maison',         badge:'Devoir', vide:'Aucun devoir à la maison pour l\u2019instant.',
           defTitre:'Devoir à la maison',        ouvrir:'Ouvrir le devoir \u2192', note:'Note du devoir',   ajouter:'\uFF0B Nouveau devoir',  familleProf:'Mes devoirs à la maison' },
+  /* « ordre:true » : les exercices de cette famille se font DANS L'ORDRE écrit
+     par le professeur — un exercice est verrouillé tant que le précédent n'est
+     pas fait (demande de Turquet, août 2026, pour les fiches de travail en
+     classe). Les devoirs à la maison restent tous ouverts, comme avant : la
+     différence vit ICI, dans GENRE_DEVOIRS, et nulle part ailleurs. */
   fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
-          defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe' }
+          defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe',
+          ordre:true }
 };
 let genreEleve='dm';
 /* Les deux familles, étiquetées, dans UNE liste : le détail d'un devoir et le
@@ -5033,20 +5041,48 @@ async function ouvrirDevoirDetail(devoirId){
   await chargerMesResultats();
   renderDevoirDetail(devoirId);
 }
+/* L'ORDRE IMPOSÉ DES FICHES (demande de Turquet, août 2026). Une fiche de
+   travail en classe se fait dans l'ordre écrit par le professeur : un exercice
+   est verrouillé tant qu'un exercice placé AVANT lui dans la fiche n'est pas
+   fait. « Fait » est la définition de la carte — noteDevoirExo().fait — pour
+   que l'écran et la porte disent exactement la même chose. Les devoirs à la
+   maison restent tous ouverts : la règle vit dans GENRE_DEVOIRS (ordre:true),
+   comme toute différence entre les deux familles. */
+function dmOrdreImpose(dev){ return !!(dev && GENRE_DEVOIRS[dev.genre||'dm'].ordre); }
+function dmVerrouille(dev, testId){
+  if(!dmOrdreImpose(dev)) return false;
+  const exos=(dev.exercices||[]).filter(ex=>TESTS[ex.id]);
+  for(let i=0;i<exos.length;i++){
+    if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
+    const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
+    if(!nd.fait) return true;                  /* un exercice AVANT lui n'est pas fait */
+  }
+  return false;
+}
 function renderDevoirDetail(devoirId){
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   if(!dev){ renderDevoirsList(); return; }
   const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
-  const exos=dev.exercices||[]; let somme=0, faitQqch=false;
-  const cards=exos.map(ex=>{
-    const t=TESTS[ex.id]; if(!t) return '';
+  const exos=(dev.exercices||[]).filter(ex=>TESTS[ex.id]); let somme=0, faitQqch=false;
+  /* L'ordre imposé : le premier exercice non fait est le PROCHAIN — il reste
+     ouvert — et tout ce qui vient après lui est verrouillé ; un exercice déjà
+     fait se refait librement. La carte et la porte (openTestDevoir) partagent
+     la même définition, dmVerrouille(). */
+  const ordreImpose=dmOrdreImpose(dev); let bloque=false;
+  const cards=exos.map((ex,i)=>{
+    const t=TESTS[ex.id];
     const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'), ex.smax);
     somme+=nd.note; if(nd.fait) faitQqch=true;
+    const verrou=ordreImpose&&bloque;
+    if(ordreImpose&&!nd.fait) bloque=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
     let desc=t.desc;
     if(parseInt(ex.nbQ,10)>=1) desc+=' Pour ce devoir : '+parseInt(ex.nbQ,10)+' question'+(parseInt(ex.nbQ,10)>1?'s':'')+'.';
     if(dmPlafondSoutien(ex.smax)>5) desc+=' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
-    return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
+    const titre=ordreImpose?String(i+1)+'. '+testLabel(ex.id):testLabel(ex.id);
+    if(verrou) return cardHTML('🔒', titre, desc, '', 'locked',
+      'Termine d\u2019abord l\u2019exercice précédent pour débloquer celui-ci.', badge);
+    return cardHTML(t.icon, titre, desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
   }).join('');
   const G=GENRE_DEVOIRS[(dev.genre||'dm')];
   const totMax=exos.length*10;
@@ -5056,10 +5092,14 @@ function renderDevoirDetail(devoirId){
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
-    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <p class="lead" style="margin-top:14px">${ordreImpose?'Les exercices de cette fiche se font <b>dans l\u2019ordre</b> : le suivant se débloque quand le précédent est fait. ':''}Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
 }
 async function openTestDevoir(devoirId, testId){
+  /* LA PORTE TIENT LE VERROU, pas seulement la carte : ce que l'écran grise,
+     la porte le refuse — même définition, dmVerrouille(). */
+  const devO=(mesDevoirs||[]).find(d=>d.id===devoirId);
+  if(dmVerrouille(devO,testId)){ toast('Termine d\u2019abord les exercices précédents de la fiche','err'); renderDevoirDetail(devoirId); return; }
   currentTestId=testId; currentDM=devoirId;
   const dev=(mesDevoirs||[]).find(d=>d.id===devoirId);
   const ex=dev?dev.exercices.find(e=>e.id===testId):null;
@@ -6818,6 +6858,11 @@ async function addDevoir(){
 function renderDevoirEditor(){
   const dev=selectedDevoir(); if(!dev){ $('dmEditor').style.display='none'; return; }
   $('dmEditor').style.display='';
+  /* les libellés suivent la famille : « Enregistrer ce devoir » sur une fiche
+     laisserait croire qu'on enregistre dans l'autre liste */
+  const fiche=(dmGenre==='fiche');
+  const lbl=$('dmExosLbl'); if(lbl) lbl.firstChild.textContent=fiche?'Exercices de la fiche ':'Exercices du devoir ';
+  const sbt=$('dmSaveBtn'); if(sbt) sbt.textContent=fiche?'Enregistrer cette fiche':'Enregistrer ce devoir';
   $('dmNum').value=dev.num; $('dmActif').checked=!!dev.actif;
   $('dmTitre').value=dev.titre||''; $('dmCours').value=dev.cours||'';
   const byId={}, byNbQ={}, bySmax={};
@@ -6830,12 +6875,24 @@ function renderDevoirEditor(){
        retombe — et la NOTE MAXIMALE EN SOUTIEN (5/10 par défaut). */
     return `<div class="dm-exo">
       <span class="dm-exo-name">${esc(testLabel(id))}</span>
-      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''}> Soutien</label>
-      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''}> Entraînement</label>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''} onchange="dmExoCoche()"> Soutien</label>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''} onchange="dmExoCoche()"> Entraînement</label>
       <label class="dm-mode">Questions <select data-nbq="${id}"><option value="">normal</option>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${nbQ===n?' selected':''}>${n}</option>`).join('')}</select></label>
       <label class="dm-mode">Soutien <select data-smax="${id}">${[5,6,7,8,9,10].map(n=>`<option value="${n}"${smax===n?' selected':''}>${n}/10</option>`).join('')}</select></label>
     </div>`;
   }).join('') : '<div class="empty">Ajoute d\u2019abord des exercices à l\u2019application pour pouvoir les mettre dans un devoir.</div>';
+  if(dmGenre==='fiche'){
+    const exOrd=(dev.exercices||[]).filter(e=>TESTS[e.id]);
+    $('dmExos').insertAdjacentHTML('beforeend', `
+      <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices de la fiche</div>
+      <p class="muted" style="font-size:.85rem;margin:0 0 12px">Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.</p>
+      <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo">
+        <span class="dm-exo-name"><b>${i+1}.</b> ${esc(testLabel(ex.id))}</span>
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
+          <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
+        </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices de la fiche : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`);
+  }
 }
 /* Lit le formulaire dans le devoir sélectionné (en mémoire), sans écrire en base. */
 function readEditorIntoDevoir(){
@@ -6849,9 +6906,31 @@ function readEditorIntoDevoir(){
   const nbqs={}, smaxs={};
   document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=10) nbqs[s.dataset.nbq]=n; });
   document.querySelectorAll('#dmExos select[data-smax]').forEach(s=>{ const n=parseInt(s.value,10); if(n>=6&&n<=10) smaxs[s.dataset.smax]=n; });   /* 5 = le défaut, ne s'écrit pas */
-  dev.exercices=TEST_ORDER.filter(id=>map[id]&&map[id].length).map(id=>Object.assign({id,modes:map[id]},
+  /* L'ORDRE RANGÉ EST CELUI DE LA FICHE (demande de Turquet, août 2026) : une
+     fiche se fait dans l'ordre, donc relire le formulaire PRÉSERVE l'ordre
+     déjà rangé et ajoute les nouveaux cochés à la fin — l'ordre du menu
+     (TEST_ORDER) écraserait celui que le professeur vient de régler. Les
+     devoirs, tous ouverts, gardent l'ordre du menu, comme avant. */
+  const coches=TEST_ORDER.filter(id=>map[id]&&map[id].length);
+  const ordre=(dmGenre==='fiche')
+    ? (dev.exercices||[]).map(e=>e.id).filter(id=>coches.includes(id))
+        .concat(coches.filter(id=>!(dev.exercices||[]).some(e=>e.id===id)))
+    : coches;
+  dev.exercices=ordre.map(id=>Object.assign({id,modes:map[id]},
     nbqs[id]?{nbQ:nbqs[id]}:{}, smaxs[id]?{smax:smaxs[id]}:{}));
 }
+/* Le ruban d'ordre des fiches : l'ordre se voit et se règle. Les flèches
+   relisent d'abord le formulaire (cases cochées, entête) — un re-rendu sans
+   cette lecture effacerait ce qui vient d'être coché. */
+function dmOrdreBouge(id,delta){
+  readEditorIntoDevoir();
+  const dev=selectedDevoir(); if(!dev) return;
+  const arr=dev.exercices||[]; const i=arr.findIndex(e=>e.id===id), j=i+delta;
+  if(i<0||j<0||j>=arr.length) return;
+  const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
+  renderDevoirEditor();
+}
+function dmExoCoche(){ if(dmGenre!=='fiche') return; readEditorIntoDevoir(); renderDevoirEditor(); }
 async function persistDevoirs(){
   const cur=await loadConfig();
   /* N'ÉCRIT QUE SA FAMILLE. La configuration vient d'être relue : l'autre
