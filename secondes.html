@@ -2061,7 +2061,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=110;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=111;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2325,10 +2325,24 @@ function mlFeuille(opts){
 function corrChoix(el, val, ok){
   if(!el) return;
   el.classList.remove('ok','bad','sol');
+  const anc=el.nextElementSibling;
+  if(anc&&anc.classList&&anc.classList.contains('mf-cor')) anc.remove();
   const vide=String(el.value==null?'':el.value).trim()==='';
   if(ok) el.classList.add('ok');
   else if(vide){ if(!isSoutien()){ el.value=val; el.classList.add('sol'); } }
-  else el.classList.add('bad');
+  else {
+    el.classList.add('bad');
+    /* la bonne réponse s'affiche en VERT à côté de la case fausse (demande de
+       Turquet, août 2026, sur le 2.7) — la convention commune du badge, portée
+       à toute la famille des listes par la fonction partagée. Le badge montre
+       le LIBELLÉ de l'option, jamais sa valeur interne : la bonne carte du 2.7
+       s'écrit « B », pas « 1 ». En soutien, rien : l'élève corrige lui-même. */
+    if(!isSoutien()){
+      let lib=String(val);
+      try{ const o=[].find.call(el.options||[], function(x){ return x.value===String(val); }); if(o) lib=o.textContent; }catch(e){}
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+esc(lib)+'</span>');
+    }
+  }
   el.disabled=ok||!isSoutien();
 }
 /* Une case vide n'est pas une erreur de calcul, et le message le dit AVANT

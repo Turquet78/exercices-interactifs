@@ -6614,11 +6614,21 @@ function resolutionsGraphiques(w, P){
     /* le doublon : défendable une fois, faux la seconde */
     r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-2','eig-a-1':'-2','eig-s-0':'-2','eig-s-1':'2'});
     if(r.score!==4) vus.push('la même abscisse écrite deux fois : la paire vaut '+(r.score-3)+' au lieu de 1 (score '+r.score+')');
-    /* le mauvais dessin choisi : la bonne carte se MONTRE en vert, la choisie rougit */
+    /* le mauvais dessin choisi : la bonne carte se MONTRE en vert, la choisie rougit,
+       et la case rouge porte la bonne réponse en VERT à côté — en LIBELLÉ (« A »),
+       jamais en valeur interne (« 0 ») — demande de Turquet, août 2026 */
     r=pose('eq1', 'ge', {'eig-sch':'1','eig-a-0':'-2','eig-a-1':'2','eig-s-0':'-2','eig-s-1':'2'});
     { const cartes=document.querySelectorAll('#eigHost .ing-carte');
       if(!cartes[0].classList.contains('sol')) vus.push('la bonne carte ne se montre pas en vert quand l\\'élève en a choisi une autre');
-      if(!cartes[1].classList.contains('bad')) vus.push('la carte choisie à tort ne rougit pas'); }
+      if(!cartes[1].classList.contains('bad')) vus.push('la carte choisie à tort ne rougit pas');
+      const b=document.getElementById('eig-sch').nextElementSibling;
+      if(!(b&&b.classList&&b.classList.contains('mf-cor'))) vus.push('la case rouge du dessin n\\'a pas la bonne réponse en vert à côté');
+      else if(b.textContent!=='A') vus.push('le badge de la case rouge écrit « '+b.textContent+' » au lieu du libellé « A »'); }
+    /* et une abscisse fausse porte aussi son badge, au libellé du nombre */
+    r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-1','eig-a-1':'2','eig-s-0':'-2','eig-s-1':'2'});
+    { const b=document.getElementById('eig-a-0').nextElementSibling;
+      if(!(b&&b.classList&&b.classList.contains('mf-cor'))) vus.push('l\\'abscisse fausse n\\'a pas la bonne réponse en vert à côté');
+      else if(b.textContent.indexOf('2')<0) vus.push('le badge de l\\'abscisse fausse n\\'écrit pas le nombre attendu : « '+b.textContent+' »'); }
     /* une case vide ne rougit JAMAIS : elle reçoit la correction en bleu */
     r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-2','eig-a-1':'2','eig-s-0':'-2'});
     { const el=document.getElementById('eig-s-1');
@@ -6643,6 +6653,12 @@ function resolutionsGraphiques(w, P){
     { const plein=document.getElementById('eig-a-0'), vide=document.getElementById('eig-a-1');
       if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne bleuit pas au fil du choix');
       if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
+    /* en soutien, la vérification n'affiche PAS le badge : l'élève corrige lui-même */
+    document.getElementById('eig-sch').value='1'; document.getElementById('eig-a-1').value='2';
+    document.getElementById('eig-s-0').value='-2'; document.getElementById('eig-s-1').value='2';
+    checkEigAnswer();
+    { const b=document.getElementById('eig-sch').nextElementSibling;
+      if(b&&b.classList&&b.classList.contains('mf-cor')) vus.push('soutien : le badge vert révèle la bonne réponse'); }
     currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);
