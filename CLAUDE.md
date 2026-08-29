@@ -865,6 +865,32 @@ le piège rendu invisible, les dessins non mélangés, la carte qui ne compte
 plus, la bonne carte qui ne se montre plus, le tirage re-tiré, la ligne
 horizontale sur toutes les cartes — chacun rougit en nommant son défaut.
 
+**Puis les antécédents et les inéquations à k, et le 2.5 est devenu la fiche
+entière : HUIT questions** (demande de Turquet, août 2026) — images,
+antécédents de ka par f ET par g, f(x) = k puis f(x) signe k, g(x) = kg puis
+g(x) signe kg, f(x) = g(x), f(x) signe g(x) : chaque équation est SUIVIE de
+son inéquation à la même hauteur (la progression du 2.7), et chacune fait
+choisir le bon dessin parmi quatre. Les antécédents ont leurs quatre cartes
+sur permE (l'oubli est le point de G — l'élève qui ne regarde que f) ;
+f(x) signe k partage permI avec f(x) signe g(x) (les mêmes quatre
+coloriages, contre la ligne au lieu de la droite) ; g(x) signe kg a gagné
+permG — quatre demi-droites, côté × marque — parce qu'une droite ne croise
+la ligne qu'une fois : sa solution est TOUT UN CÔTÉ de xg, un seul
+intervalle, jamais d'union. Deux leçons de tirage payées comptant :
+**les solutions de f(x) = k sont INTÉRIEURES désormais** — l'union
+« [−3 ; x1] ∪ [x2 ; 3] » de la nouvelle inéquation mentirait si une solution
+tombait au bord, et le repli qui venait d'être figé avait exactement ce
+défaut ; et **la hauteur des antécédents accepte UN antécédent par f** (un
+sommet) — exiger deux hauteurs à deux solutions rendait le tirage exsangue
+(0,03 % d'essais viables, le repli sortait une séance sur trois, mesuré
+deux fois), quand le singulier est un visage que {lecture-deux-courbes}
+cultive déjà ; on préfère deux quand la courbe les offre, et le contrôle
+exige que les deux visages sortent. ka se choisit AVANT k — choisir k
+d'abord volait la seule hauteur lisible sur g. Le tirage fait 4 000 essais
+(un sur ~400 est viable), et les DEUX tirages épinglés du contrôle — le
+repli au pluriel, un second au singulier — passent par les mêmes gardes que
+le tirage. Éprouvé par les sabotages nommés du contrôle réécrit.
+
 **Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
 est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
 Turquet, août 2026) est repris de la fiche « images et antécédents avec f et

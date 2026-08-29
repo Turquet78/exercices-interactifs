@@ -6245,18 +6245,26 @@ function equationGraphique(w, P){
     };
 
     /* ---- 1. le tirage : 300 séances, tout par sa propre arithmétique ---- */
-    const dessins=new Set(), opsVus=new Set(), rangsBon=new Set(), rangsParForme={};
+    const dessins=new Set(), opsVus=new Set(), opsFVus=new Set(), opsGVus=new Set(),
+          rangsBonN={}, rangsParForme={}, rangsParFormeG={}, nAntVus=new Set();
+    /* le REPLI du tirage garde ses permutations mélangées : une séance de
+       repli parmi les 300 suffisait à faire varier UN rang et à masquer une
+       permutation figée — le sabotage restait vert une fois sur trois. On
+       compte donc les occurrences : toute forme vue au moins 10 fois doit
+       varier, et aucun rang du « bon » ne doit dépasser 90 %. */
+    const noteRang=function(map,f,rang){ const e=map[f]=map[f]||{set:new Set(),n:0}; e.set.add(rang); e.n++; };
     for(let t=0;t<300 && !vus.length;t++){
       const qs=eqgBuildQuestions();
-      if(qs.length!==5){ vus.push(qs.length+' questions au lieu de 5'); break; }
-      if(qs.map(function(q){ return q.type; }).join(',')!=='img,eqk,gk,crx,ineq')
-        vus.push('les questions ne suivent pas l\\'ordre attendu (images, f(x)=k, g(x)=k, f(x)=g(x), inéquation) : '+qs.map(function(q){ return q.type; }).join(','));
+      if(qs.length!==8){ vus.push(qs.length+' questions au lieu de 8'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='img,ant,eqk,infk,gk,ingk,crx,ineq')
+        vus.push('les questions ne suivent pas l\\'ordre attendu (images, antécédents, f(x)=k puis son inéquation, g(x)=k puis la sienne, f(x)=g(x), f signe g) : '+qs.map(function(q){ return q.type; }).join(','));
       const q0=qs[0];
-      const ref=JSON.stringify([q0.pts,q0.s,q0.c,q0.k,q0.kg,q0.a,q0.b,q0.op,q0.xtk,q0.xtg,q0.xtc,q0.permE,q0.permI]);
-      if(qs.some(function(q){ return JSON.stringify([q.pts,q.s,q.c,q.k,q.kg,q.a,q.b,q.op,q.xtk,q.xtg,q.xtc,q.permE,q.permI])!==ref; }))
-        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux cinq');
+      const CHAMPS=['pts','s','c','k','kg','ka','a','b','op','opf','opg','xtk','xtg','xtc','xta','permE','permI','permG'];
+      const ref=JSON.stringify(CHAMPS.map(function(ch){ return q0[ch]; }));
+      if(qs.some(function(q){ return JSON.stringify(CHAMPS.map(function(ch){ return q[ch]; }))!==ref; }))
+        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux huit');
       qs.forEach(function(q){
-        const cles=Object.keys(q).filter(function(k){ return ['pts','s','c','k','kg','a','b','op','xtk','xtg','xtc','permE','permI','type'].indexOf(k)<0; });
+        const cles=Object.keys(q).filter(function(k){ return CHAMPS.concat(['type']).indexOf(k)<0; });
         if(cles.length) vus.push('la question range autre chose que les courbes, les hauteurs, les signes, les points en trop et les ordres : '+cles.join(','));
       });
       /* g(x) = kg se lit d'un point : solution ENTIÈRE, intérieure, hors des
@@ -6273,14 +6281,35 @@ function equationGraphique(w, P){
         if(solsK0.indexOf(q0.xtk)>=0||q0.xtk<-2||q0.xtk>2) vus.push('le point en trop de f(x)=k est un vrai croisement ou hors bornes');
         if(q0.xtg===xg||q0.xtg<-2||q0.xtg>2) vus.push('le point en trop de g(x)=kg est la vraie solution ou hors bornes');
         if(crG.indexOf(q0.xtc)>=0||q0.xtc<-2||q0.xtc>2||Math.abs(gl(q0.xtc))>3) vus.push('le point en trop de f(x)=g(x) est un vrai croisement, hors bornes ou hors dessin');
+        /* f(x) signe k écrit son union « [−3 ; x1] ∪ [x2 ; 3] » : les deux
+           solutions de f(x)=k sont INTÉRIEURES, sans quoi l'union mentirait */
+        if(solsK0[0]<=-3||solsK0[solsK0.length-1]>=3) vus.push('une solution de f(x)=k tombe au bord du dessin ('+solsK0.join(',')+') : l\\'union de f(x) signe k mentirait');
+        /* ka : lisible sur f (1 ou 2 antécédents, jamais voisins, jamais
+           traversée entre deux graduations) ET sur g (xa graduation
+           intérieure hors des antécédents par f), distincte de k et de kg,
+           hors des hauteurs de croisement */
+        const solsA=[]; for(let x=-3;x<=3;x++){ if(q0.pts[x+3]===q0.ka) solsA.push(x); }
+        if(solsA.length<1||solsA.length>2) vus.push('la hauteur des antécédents a '+solsA.length+' antécédent(s) par f au lieu de 1 ou 2');
+        if(solsA.length===2&&solsA[1]-solsA[0]<2) vus.push('les deux antécédents par f sont voisins ('+solsA.join(',')+') : le segment entier est à cette hauteur');
+        for(let i=0;i<6;i++){ const lo=Math.min(q0.pts[i],q0.pts[i+1]), hi=Math.max(q0.pts[i],q0.pts[i+1]);
+          if(q0.ka>lo && q0.ka<hi) vus.push('la hauteur des antécédents est traversée ENTRE deux graduations : un antécédent illisible'); }
+        const xa=(q0.ka-q0.c)/q0.s;
+        if(!Number.isInteger(xa)||xa<-2||xa>2) vus.push('l\\'antécédent par g ('+xa+') n\\'est pas une graduation intérieure');
+        else if(solsA.indexOf(xa)>=0) vus.push('l\\'antécédent par g tombe sur un antécédent par f : deux points confondus');
+        if(q0.ka===q0.k||q0.ka===q0.kg) vus.push('la hauteur des antécédents retombe sur k ou sur kg');
+        if(gl(crG[0])===q0.ka||gl(crG[1])===q0.ka) vus.push('un croisement de f et g tombe à la hauteur des antécédents : le piège « croisements » serait invisible');
+        if(solsA.indexOf(q0.xta)>=0||q0.xta===xa||q0.xta<-2||q0.xta>2) vus.push('le point en trop des antécédents est un vrai antécédent ou hors bornes');
+        nAntVus.add(solsA.length);
         const permOk=function(p,r){ return Array.isArray(p)&&p.length===4&&r.every(function(f){ return p.indexOf(f)>=0; }); };
         if(!permOk(q0.permE,['bon','oubli','trop','confu'])) vus.push('permE n\\'est pas une permutation des quatre formes d\\'équation');
         if(!permOk(q0.permI,['mo','mn','eo','en'])) vus.push('permI n\\'est pas une permutation des quatre coloriages');
-        rangsBon.add(q0.permE.indexOf('bon'));
-        const fi=eqgFormeIneq(qs[4]);
-        (rangsParForme[fi]=rangsParForme[fi]||new Set()).add(q0.permI.indexOf(fi));
+        if(!permOk(q0.permG,['dp','dv','gp','gv'])) vus.push('permG n\\'est pas une permutation des quatre demi-droites');
+        const rb=q0.permE.indexOf('bon'); rangsBonN[rb]=(rangsBonN[rb]||0)+1;
+        noteRang(rangsParForme, eqgFormeIneq(qs[7]), q0.permI.indexOf(eqgFormeIneq(qs[7])));
+        noteRang(rangsParForme, eqgFormeInFk(qs[3]), q0.permI.indexOf(eqgFormeInFk(qs[3])));
+        noteRang(rangsParFormeG, eqgFormeInGk(qs[5]), q0.permG.indexOf(eqgFormeInGk(qs[5])));
       }
-      dessins.add(JSON.stringify([q0.pts,q0.s,q0.c])); opsVus.add(q0.op);
+      dessins.add(JSON.stringify([q0.pts,q0.s,q0.c])); opsVus.add(q0.op); opsFVus.add(q0.opf); opsGVus.add(q0.opg);
       const g=function(x){ return q0.s*x+q0.c; };
       /* les croisements : exactement 2, sur des graduations, jamais au bord,
          hauteur lisible, et le signe de f-g change bien à chacun */
@@ -6329,23 +6358,41 @@ function equationGraphique(w, P){
     if(!vus.length && dessins.size<10)
       vus.push('seulement '+dessins.size+' dessin(s) distinct(s) sur 300 séances — il en faut au moins 10');
     if(!vus.length && opsVus.size<4)
-      vus.push('le signe de l\\'inéquation ne varie pas assez : '+Array.from(opsVus).join(','));
-    /* à forme égale, le rang du bon dessin varie d'une séance à l'autre */
-    if(!vus.length && rangsBon.size<3)
-      vus.push('le rang du bon dessin d\\'équation ne varie pas assez ('+rangsBon.size+' rang(s) vu(s)) : l\\'élève apprendrait le rang');
-    if(!vus.length && !Object.keys(rangsParForme).some(function(f){ return rangsParForme[f].size>=2; }))
-      vus.push('à forme égale, le rang du bon coloriage d\\'inéquation ne varie jamais');
-
-    /* ---- 2. les gestes, sur un tirage FIXE (croisements -1 et 2, f au-dessus
-       entre les deux, kg = 1 dont la solution est x = 0 ; permutations
-       IDENTITÉ pour lire les rangs) : la correction est la fonction même qui
-       juge ---- */
-    const Q0={pts:[-3,-2,2,3,1,-1,-3], s:-1, c:1, k:-3, kg:1, a:-2, b:2, xtk:0, xtg:2, xtc:0,
-              permE:['bon','oubli','trop','confu'], permI:['mo','mn','eo','en']};
-    function pose(type, op, valeurs){
+      vus.push('le signe de l\\'inéquation f signe g ne varie pas assez : '+Array.from(opsVus).join(','));
+    if(!vus.length && (opsFVus.size<4||opsGVus.size<4))
+      vus.push('les signes de f(x) signe k ('+opsFVus.size+') ou de g(x) signe k ('+opsGVus.size+') ne varient pas assez');
+    if(!vus.length && nAntVus.size<2)
+      vus.push('les antécédents par f ne montrent jamais les deux visages (un seul / deux) sur 300 séances');
+    /* à forme égale, le rang du bon dessin varie d'une séance à l'autre —
+       et une poignée de séances de repli ne suffit pas à le prouver */
+    if(!vus.length){
+      const nBon=Object.keys(rangsBonN).reduce(function(a,r){ return a+rangsBonN[r]; },0);
+      const maxBon=Object.keys(rangsBonN).reduce(function(a,r){ return Math.max(a,rangsBonN[r]); },0);
+      if(Object.keys(rangsBonN).length<3||maxBon>0.9*nBon)
+        vus.push('le rang du bon dessin d\\'équation ne varie pas assez ('+Object.keys(rangsBonN).length+' rang(s), le plus fréquent '+maxBon+'/'+nBon+') : l\\'élève apprendrait le rang');
+      const figes=function(map){ return Object.keys(map).filter(function(f){ return map[f].n>=10 && map[f].set.size<2; }); };
+      const fI=figes(rangsParForme);
+      if(fI.length) vus.push('à forme égale, le rang du bon coloriage d\\'inéquation ne varie jamais ('+fI.join(', ')+')');
+      const fG=figes(rangsParFormeG);
+      if(fG.length) vus.push('à forme égale, le rang de la bonne demi-droite de g(x) signe k ne varie jamais ('+fG.join(', ')+')');
+    }
+    /* ---- 2. les gestes, sur DEUX tirages FIXES : Q0 (le repli — deux
+       antécédents par f) et Q1 (un seul antécédent par f, le singulier).
+       Permutations IDENTITÉ pour lire les rangs ; la correction est la
+       fonction même qui juge. Q0 : f par [-3,-2,0,3,2,-2,3], g = x+1,
+       croisements -1 et 1 (f au-dessus entre les deux), k = -2 (solutions
+       -2 et 2, f au-dessus entre elles), ka = 3 (antécédents 0 et 3 par f,
+       2 par g), kg = 1 (solution x = 0, pente +1). ---- */
+    const Q0={pts:[-3,-2,0,3,2,-2,3], s:1, c:1, k:-2, kg:1, ka:3, a:2, b:2, xtk:-1, xtg:-1, xtc:2, xta:-2,
+              permE:['bon','oubli','trop','confu'], permI:['mo','mn','eo','en'], permG:['dp','dv','gp','gv']};
+    const Q1={pts:[3,2,0,-3,-2,2,3], s:-1, c:-1, k:2, kg:-1, ka:-3, a:-3, b:2, xtk:-1, xtg:-1, xtc:2, xta:-2,
+              permE:['bon','oubli','trop','confu'], permI:['mo','mn','eo','en'], permG:['dp','dv','gp','gv']};
+    const TYPES=['img','ant','eqk','infk','gk','ingk','crx','ineq'];
+    function pose(type, ops, valeurs, base){
+      const B=base||Q0, o=ops||{};
       Object.keys(test).forEach(function(k){ delete test[k]; });
-      Object.assign(test,{kind:'eqg', questions:['img','eqk','gk','crx','ineq'].map(function(tt){ return Object.assign({},Q0,{op:op||'ge',type:tt}); }),
-        idx:{img:0,eqk:1,gk:2,crx:3,ineq:4}[type], score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      Object.assign(test,{kind:'eqg', questions:TYPES.map(function(tt){ return Object.assign({},B,{op:o.op||'ge',opf:o.opf||'ge',opg:o.opg||'ge',type:tt}); }),
+        idx:TYPES.indexOf(type), score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
       renderEqgTest();
       Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
       checkEqgAnswer();
@@ -6357,67 +6404,104 @@ function equationGraphique(w, P){
       function(c){ return c.className.replace('itq-carte','').replace('ing-carte','').trim(); }).join('|'); };
     const ptsParCarte=function(sel){ return [].map.call(document.querySelectorAll('#eqgHost .ing-carte'),
       function(c){ return c.querySelectorAll(sel).length; }).join(','); };
+    const montre=function(type){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'eqg', questions:TYPES.map(function(tt){ return Object.assign({},Q0,{op:'ge',opf:'ge',opg:'ge',type:tt}); }),
+        idx:TYPES.indexOf(type), score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      renderEqgTest();
+    };
     /* le trait de la méthode de l'IMAGE n'apparaît qu'à la vérification, et
        la droite de g est toujours dessinée */
-    Object.keys(test).forEach(function(k){ delete test[k]; });
-    Object.assign(test,{kind:'eqg', questions:[Object.assign({},Q0,{op:'ge',type:'img'})], idx:0, score:0, maxScore:2, answers:[], startTime:Date.now(), locked:false});
-    renderEqgTest();
+    montre('img');
     if(document.querySelector('#eqgGraph .img-trait'))
       vus.push('le trait de la méthode est dessiné AVANT la vérification : il donne ce qu\\'on demande de trouver');
     if(!document.querySelector('#eqgGraph .eqg-g')) vus.push('la droite de g n\\'est pas dessinée');
     checkEqgAnswer();
     if(!document.querySelector('#eqgGraph .img-trait'))
       vus.push('après la vérification, le trait de la méthode manque sur la lecture d\\'images');
-    /* les CARTES des trois équations : quatre dessins, la droite de g sur
-       chacun, les points selon la forme (bon, oubli, trop, confu), aucune
-       carte marquée avant la vérification */
-    Object.keys(test).forEach(function(k){ delete test[k]; });
-    Object.assign(test,{kind:'eqg', questions:['img','eqk','gk','crx','ineq'].map(function(tt){ return Object.assign({},Q0,{op:'ge',type:tt}); }), idx:1, score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
-    renderEqgTest();
+    /* les CARTES de chaque question : quatre dessins, la droite de g partout,
+       les points et morceaux selon la forme, rien de marqué avant la
+       vérification */
+    montre('eqk');
     if(document.querySelectorAll('#eqgHost .ing-carte').length!==4) vus.push('f(x)=k : '+document.querySelectorAll('#eqgHost .ing-carte').length+' cartes au lieu de 4');
     if(cartesEtat()!=='|||') vus.push('f(x)=k : une carte est marquée avant la vérification ('+cartesEtat()+')');
     if(ptsParCarte('.ing-pt')!=='2,1,3,2') vus.push('f(x)=k : points des cartes (bon,oubli,trop,confu) = '+ptsParCarte('.ing-pt')+' au lieu de 2,1,3,2');
     if(ptsParCarte('.eqg-g')!=='1,1,1,1') vus.push('f(x)=k : la droite de g manque sur une carte ('+ptsParCarte('.eqg-g')+')');
-    test.locked=false; test.idx=2; renderEqgTest();
+    montre('gk');
     if(ptsParCarte('.ing-pt')!=='1,0,2,1') vus.push('g(x)=kg : points des cartes = '+ptsParCarte('.ing-pt')+' au lieu de 1,0,2,1');
-    test.locked=false; test.idx=3; renderEqgTest();
+    montre('crx');
     if(ptsParCarte('.ing-niv')!=='0,0,0,1') vus.push('f(x)=g(x) : la ligne horizontale ne doit vivre que sur la carte « confu » ('+ptsParCarte('.ing-niv')+')');
     if(ptsParCarte('.ing-pt')!=='2,1,3,2') vus.push('f(x)=g(x) : points des cartes = '+ptsParCarte('.ing-pt')+' au lieu de 2,1,3,2');
+    montre('ant');
+    if(ptsParCarte('.ing-niv')!=='1,1,1,1') vus.push('antécédents : la ligne manque sur une carte ('+ptsParCarte('.ing-niv')+')');
+    if(ptsParCarte('.ing-pt')!=='3,2,4,2') vus.push('antécédents : points des cartes (bon,oubli,trop,confu) = '+ptsParCarte('.ing-pt')+' au lieu de 3,2,4,2 — l\\'oubli est le point de g');
+    montre('infk');
+    if(ptsParCarte('.ing-niv')!=='1,1,1,1') vus.push('f(x) signe k : la ligne manque sur une carte ('+ptsParCarte('.ing-niv')+')');
+    if(ptsParCarte('.ing-rouge')!=='1,1,2,2') vus.push('f(x) signe k : morceaux rouges = '+ptsParCarte('.ing-rouge')+' au lieu de 1,1,2,2');
+    if(ptsParCarte('.ing-pt')!=='2,0,4,2') vus.push('f(x) signe k : points pleins = '+ptsParCarte('.ing-pt')+' au lieu de 2,0,4,2');
+    montre('ingk');
+    if(ptsParCarte('.ing-niv')!=='1,1,1,1') vus.push('g(x) signe kg : la ligne manque sur une carte ('+ptsParCarte('.ing-niv')+')');
+    if(ptsParCarte('.ing-rouge')!=='1,1,1,1') vus.push('g(x) signe kg : chaque carte porte UN morceau rouge sur la droite ('+ptsParCarte('.ing-rouge')+')');
+    if(ptsParCarte('.ing-pt')!=='1,0,1,0') vus.push('g(x) signe kg : points pleins = '+ptsParCarte('.ing-pt')+' au lieu de 1,0,1,0');
+    if(ptsParCarte('.ing-vide')!=='0,1,0,1') vus.push('g(x) signe kg : points vides = '+ptsParCarte('.ing-vide')+' au lieu de 0,1,0,1');
     /* images : justes, et la vide reçoit la correction avec le message des vides */
-    let r=pose('img', 'ge', {'eqg-fa':'-2','eqg-gb':'-1'});
-    if(r.score!==2 || !/\\bgood\\b/.test(r.cls)) vus.push('images justes refusées : f(-2)=-2 et g(2)=-1, score '+r.score);
-    r=pose('img', 'ge', {'eqg-fa':'-2'});
+    let r=pose('img', null, {'eqg-fa':'-2','eqg-gb':'3'});
+    if(r.score!==2 || !/\\bgood\\b/.test(r.cls)) vus.push('images justes refusées : f(2)=-2 et g(2)=3, score '+r.score);
+    r=pose('img', null, {'eqg-fa':'-2'});
     if(r.fb.indexOf('Il te manquait 1 case')!==0) vus.push('image vide : le message ne dit pas la case manquante : '+r.fb.slice(0,50));
     { const el=document.getElementById('eqg-gb');
-      if(!el || !el.classList.contains('sol') || el.value!=='-1') vus.push('image vide : la case n\\'a pas reçu la correction'); }
+      if(!el || !el.classList.contains('sol') || el.value!=='3') vus.push('image vide : la case n\\'a pas reçu la correction'); }
+    /* les antécédents : carte + par f dans l'ordre libre + par g, le doublon
+       défendable une fois, la mauvaise carte montrée */
+    r=pose('ant', null, {'eqg-sch':'0','eqg-af-0':'3','eqg-af-1':'0','eqg-ag':'2'});
+    if(r.score!==4 || !/\\bgood\\b/.test(r.cls)) vus.push('antécédents justes (carte + 3 et 0 par f dans l\\'autre ordre + 2 par g) : score '+r.score+'/4');
+    r=pose('ant', null, {'eqg-sch':'0','eqg-af-0':'0','eqg-af-1':'0','eqg-ag':'2'});
+    if(r.score!==3) vus.push('le même antécédent écrit deux fois : score '+r.score+'/4 attendu 3 — défendable une fois, faux la seconde');
+    r=pose('ant', null, {'eqg-sch':'1','eqg-af-0':'0','eqg-af-1':'3','eqg-ag':'2'});
+    if(cartesEtat()!=='sol|bad||') vus.push('antécédents, mauvaise carte : attendu sol|bad||, vu '+cartesEtat());
+    /* le SINGULIER : sur Q1, ka n'a qu'un antécédent par f — une seule case,
+       et la phrase le dit au singulier */
+    r=pose('ant', null, {'eqg-sch':'0','eqg-af-0':'0','eqg-ag':'2'}, Q1);
+    if(r.score!==3 || !/\\bgood\\b/.test(r.cls)) vus.push('antécédent unique (Q1) juste : score '+r.score+'/3');
+    if(document.getElementById('eqg-af-1')) vus.push('antécédent unique : une seconde case par f est proposée alors que f n\\'en a qu\\'un');
+    if(document.getElementById('eqgHost').innerHTML.indexOf('antécédent de')<0) vus.push('antécédent unique : la phrase ne passe pas au singulier');
     /* f(x) = k : la carte + l'ordre libre des solutions, le doublon une fois */
-    r=pose('eqk', 'ge', {'eqg-sch':'0','eqg-s-0':'3','eqg-s-1':'-3'});
+    r=pose('eqk', null, {'eqg-sch':'0','eqg-s-0':'2','eqg-s-1':'-2'});
     if(r.score!==3) vus.push('f(x)=k juste (carte + solutions dans l\\'autre ordre) : score '+r.score+'/3');
     { const c0=document.querySelectorAll('#eqgHost .ing-carte')[0];
       if(!c0.classList.contains('ok')) vus.push('la bonne carte CHOISIE n\\'est pas bleue (ok)'); }
-    r=pose('eqk', 'ge', {'eqg-sch':'0','eqg-s-0':'-3','eqg-s-1':'-3'});
+    r=pose('eqk', null, {'eqg-sch':'0','eqg-s-0':'-2','eqg-s-1':'-2'});
     if(r.score!==2) vus.push('la même solution écrite deux fois : score '+r.score+'/3 attendu 2 — défendable une fois, fausse la seconde');
-    /* la mauvaise carte choisie : la bonne se MONTRE en vert, la choisie rougit */
-    r=pose('eqk', 'ge', {'eqg-sch':'2','eqg-s-0':'-3','eqg-s-1':'3'});
+    r=pose('eqk', null, {'eqg-sch':'2','eqg-s-0':'-2','eqg-s-1':'2'});
     if(cartesEtat()!=='sol||bad|') vus.push('mauvaise carte : attendu sol||bad|, vu '+cartesEtat());
+    /* f(x) signe k : le coloriage et l'intervalle suivent le signe — f est
+       AU-DESSUS de k entre les solutions -2 et 2 */
+    r=pose('infk', {opf:'ge'}, {'eqg-sch':'0','eqg-co1':'[','eqg-b1':'-2','eqg-b2':'2','eqg-cf1':']'});
+    if(r.score!==5) vus.push('f(x) ≥ k : carte + S = [-2 ; 2] refusés, score '+r.score+'/5');
+    r=pose('infk', {opf:'lt'}, {'eqg-sch':'3','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':'[','eqg-co2':']','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'});
+    if(r.score!==9) vus.push('f(x) < k : carte + S = [-3 ; -2[ ∪ ]2 ; 3] refusés, score '+r.score+'/9');
+    /* sur Q1 le côté S'INVERSE (f au-dessous de k entre les solutions) : un
+       côté figé dans le code passerait Q0 sans broncher */
+    r=pose('infk', {opf:'ge'}, {'eqg-sch':'2','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-2','eqg-cf1':']','eqg-co2':'[','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'}, Q1);
+    if(r.score!==9) vus.push('f(x) ≥ k sur Q1 (f au-dessous entre les solutions) : S = [-3 ; -2] ∪ [2 ; 3] refusé, score '+r.score+'/9');
     /* g(x) = kg : la carte + LA solution, sur la droite */
-    r=pose('gk', 'ge', {'eqg-sch':'0','eqg-s-0':'0'});
+    r=pose('gk', null, {'eqg-sch':'0','eqg-s-0':'0'});
     if(r.score!==2 || !/\\bgood\\b/.test(r.cls)) vus.push('g(x)=1 juste (carte + S={0}) : score '+r.score+'/2');
-    r=pose('gk', 'ge', {'eqg-sch':'3','eqg-s-0':'0'});
+    r=pose('gk', null, {'eqg-sch':'3','eqg-s-0':'0'});
     if(r.score!==1) vus.push('g(x)=1 avec la carte « lu sur f » : score '+r.score+'/2 attendu 1');
+    /* g(x) signe kg : une DEMI-DROITE — la pente est +1, donc ≥ va à droite */
+    r=pose('ingk', {opg:'ge'}, {'eqg-sch':'0','eqg-co1':'[','eqg-b1':'0','eqg-b2':'3','eqg-cf1':']'});
+    if(r.score!==5) vus.push('g(x) ≥ kg : carte + S = [0 ; 3] refusés, score '+r.score+'/5');
+    r=pose('ingk', {opg:'lt'}, {'eqg-sch':'3','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'0','eqg-cf1':'['});
+    if(r.score!==5) vus.push('g(x) < kg : carte + S = [-3 ; 0[ refusés, score '+r.score+'/5');
     /* f(x) = g(x) : la carte + les croisements, ordre libre */
-    r=pose('crx', 'ge', {'eqg-sch':'0','eqg-s-0':'2','eqg-s-1':'-1'});
-    if(r.score!==3) vus.push('f(x)=g(x) juste (carte + croisements -1 et 2 dans l\\'autre ordre) : score '+r.score+'/3');
-    /* l'inéquation : la carte du bon coloriage + S, les quatre signes :
-       f au-dessus entre -1 et 2, donc ge/gt -> un intervalle, le/lt -> union ;
-       permI identité : ge=mo(0), gt=mn(1), le=eo(2), lt=en(3) */
-    r=pose('ineq', 'ge', {'eqg-sch':'0','eqg-co1':'[','eqg-b1':'-1','eqg-b2':'2','eqg-cf1':']'});
-    if(r.score!==5) vus.push('f(x) ≥ g(x) : carte + S = [-1 ; 2] refusés, score '+r.score+'/5');
-    r=pose('ineq', 'gt', {'eqg-sch':'1','eqg-co1':']','eqg-b1':'-1','eqg-b2':'2','eqg-cf1':'['});
-    if(r.score!==5) vus.push('f(x) > g(x) : carte + S = ]-1 ; 2[ refusés, score '+r.score+'/5');
-    r=pose('ineq', 'le', {'eqg-sch':'2','eqg-co1':'[','eqg-b1':'-3','eqg-b2':'-1','eqg-cf1':']','eqg-co2':'[','eqg-b3':'2','eqg-b4':'3','eqg-cf2':']'});
-    if(r.score!==9) vus.push('f(x) ≤ g(x) : carte + S = [-3 ; -1] ∪ [2 ; 3] refusés, score '+r.score+'/9');
-    r=pose('ineq', 'lt', {'eqg-sch':'3','eqg-co1':']','eqg-b1':'2','eqg-b2':'3','eqg-cf1':']','eqg-co2':'[','eqg-b3':'-3','eqg-b4':'-1','eqg-cf2':'['});
+    r=pose('crx', null, {'eqg-sch':'0','eqg-s-0':'1','eqg-s-1':'-1'});
+    if(r.score!==3) vus.push('f(x)=g(x) juste (carte + croisements -1 et 1 dans l\\'autre ordre) : score '+r.score+'/3');
+    /* l'inéquation f signe g : f au-dessus entre -1 et 1 ; permI identité :
+       ge=mo(0), gt=mn(1), le=eo(2), lt=en(3) */
+    r=pose('ineq', {op:'ge'}, {'eqg-sch':'0','eqg-co1':'[','eqg-b1':'-1','eqg-b2':'1','eqg-cf1':']'});
+    if(r.score!==5) vus.push('f(x) ≥ g(x) : carte + S = [-1 ; 1] refusés, score '+r.score+'/5');
+    r=pose('ineq', {op:'lt'}, {'eqg-sch':'3','eqg-co1':']','eqg-b1':'1','eqg-b2':'3','eqg-cf1':']','eqg-co2':'[','eqg-b3':'-3','eqg-b4':'-1','eqg-cf2':'['});
     if(r.score!==9) vus.push('f(x) < g(x) : l\\'union écrite droite-gauche est refusée, score '+r.score+'/9');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
