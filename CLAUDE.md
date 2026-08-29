@@ -653,6 +653,21 @@ contrôle le vérifie par une SECONDE méthode — les écritures complétées d
 comparées comme des chaînes, les négatifs à part, où « plus grand » s'inverse
 sous le signe. Éprouvé en le cassant sept fois.
 
+**Une question vérifiée ATTEND l'élève — plus aucun écran ne s'enfuit.**
+Signalé par Turquet (août 2026) : « quand on a vérifié une question, il n'y a
+pas de bouton suivant » sur le 2.2. Les trois exercices de courbes (2.1, 2.2,
+2.3) avançaient TOUT SEULS — 0,9 s après une copie juste, 2,4 s après une
+fausse — un héritage de leur premier portage : le temps de rien, la
+correction, le badge et le trait de la méthode s'effaçaient sous les yeux de
+l'élève, précisément quand il en avait besoin. Le bouton « Valider » devient
+« Question suivante » après la vérification (« Voir mes résultats » sur la
+dernière), reçoit le focus, et le RENDU le réarme à chaque question — sans le
+réarmement, un clic de plus sauterait une question, et c'est le bord le plus
+sournois. Plus aucun minuteur (`fbTimer` n'est plus jamais posé sur ces
+trois écrans). Un contrôle tient les quatre bords sur les trois exercices —
+le minuteur qui reviendrait, le bouton éteint, le texte du bouton, le
+réarmement — éprouvé par trois sabotages nommés.
+
 **L'image d'un nombre se lit dans la courbe — au sens propre.** {image-nombre}
 (Seconde, thème Fonctions) est repris de la fiche papier : une courbe sur
 quadrillage, et « L'image de X est la hauteur de X. C'est … f(…) = … » plus le
