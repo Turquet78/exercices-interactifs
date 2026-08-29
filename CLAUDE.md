@@ -836,6 +836,35 @@ imposé, le doublon compté deux fois, la méthode montrée avant la
 vérification, g(b) hors du dessin, le signe figé, le bord 3 lâché — chacun
 rougit en nommant son défaut.
 
+**Puis le 2.5 a gagné g(x) = k et ses quatre dessins par question** (demande
+de Turquet, août 2026) : CINQ questions désormais — lire f(a) et g(b),
+f(x) = k, g(x) = k, f(x) = g(x), f(x) signe g(x) — et chaque question
+d'équation ou d'inéquation fait d'abord CHOISIR le bon dessin parmi quatre,
+comme au 2.7 et au 2.4 ; seule la lecture d'images garde le dessin nu et son
+trait de méthode. Les formes d'équation sont celles du 2.7 (bon, un point
+OUBLIÉ, un point EN TROP) plus le piège propre à DEUX courbes : la
+CONFUSION — pour f(x) = k, les points posés aux croisements de f et g ; pour
+g(x) = k, le point lu sur la COURBE au lieu de la droite ; pour f(x) = g(x),
+la ligne horizontale de f(x) = k avec ses points. Chaque confusion est
+l'erreur réelle de l'élève qui mélange les questions, et chacune se DESSINE
+sans nouvelle contrainte lourde : les croisements et les solutions sont déjà
+sur des graduations. Deux gardes de tirage l'accompagnent — la hauteur kg
+est PRISE SUR LA DROITE (g(xg) pour un xg entier intérieur hors croisements,
+donc la solution se lit, et « lu sur f » reste à au moins 1 de la ligne par
+la marge du tirage) et aucun croisement de f et g ne tombe à la hauteur k,
+sans quoi le piège « croisements » se confondrait avec le bon dessin.
+L'inéquation propose les quatre coloriages du 2.4 (permI), les trois
+équations partagent permE — tirés une fois par séance, conservés, à forme
+égale le rang varie. g(x) = k n'a qu'UNE solution — une droite ne croise la
+ligne qu'une fois, et l'énoncé le dit — d'où sa forme « oubli » : la ligne
+sans aucun point. La bonne carte CHOISIE est bleue, la bonne MONTRÉE est
+verte (en soutien, seulement une fois tout juste) ; le choix du dessin
+compte une case dans la note. Éprouvé en le cassant neuf fois de plus —
+g(x) = k retiré, la réponse rangée dans la question, kg pris n'importe où,
+le piège rendu invisible, les dessins non mélangés, la carte qui ne compte
+plus, la bonne carte qui ne se montre plus, le tirage re-tiré, la ligne
+horizontale sur toutes les cartes — chacun rougit en nommant son défaut.
+
 **Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
 est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
 Turquet, août 2026) est repris de la fiche « images et antécédents avec f et
