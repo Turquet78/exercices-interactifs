@@ -2109,7 +2109,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=258;
+const APP_VERSION=259;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3127,6 +3127,7 @@ async function dmEnonce(devoirId, testId, continuer){
   currentThemeNum=themeOfTest(testId)||currentThemeNum;
   currentTestId=testId; currentMode='train'; currentDM=devoirId;
   try{ await Promise.resolve(t.start()); }catch(e){ toast('Exercice indisponible','err'); return; }
+  dmAppliquerNbQ();                       /* l'énoncé montre la séance RÉGLÉE du devoir */
   const corps=dmEnonceHTML();
   /* un exercice qui ne sait pas se rejouer ne sait pas s'énoncer : on continue
      comme d'habitude plutôt que d'enfermer l'élève sur un écran vide */
@@ -4360,8 +4361,12 @@ function noteForcee(dev, eleveId, exoId){
   const v = m[eleveId+'|'+exoId];
   return (typeof v==='number' && isFinite(v)) ? v : undefined;
 }
-function noteDevoirExo(bestSoutien, bestEntrain, forcee){
-  const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
+function noteDevoirExo(bestSoutien, bestEntrain, forcee, smax){
+  /* Le plafond du soutien se règle PAR EXERCICE du devoir (demande de Turquet,
+     août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
+     paramètre et le plafond reste 5. La note POSÉE par le professeur, elle,
+     prime toujours. */
+  const s = bestSoutien ? (bestSoutien.percent/100*dmPlafondSoutien(smax)) : 0;
   const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
   const auto = (e > s || !soutienFait) ? e : s;
@@ -4374,6 +4379,39 @@ function noteDevoirExo(bestSoutien, bestEntrain, forcee){
            fait:(posee || soutienFait || !!bestEntrain) };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
+/* Un plafond bricolé à la main dans la base retombe sur 5 : le réglage est un
+   simple champ JSON (la leçon de TM_NB_CHOIX en Première). */
+function dmPlafondSoutien(smax){ const p=parseInt(smax,10); return (p>=6&&p<=10)?p:5; }
+/* L'entrée de l'exercice courant dans le devoir courant — la même définition
+   que celle que l'éditeur écrit, jamais un état parallèle. */
+function dmReglageExo(){
+  if(!currentDM) return null;
+  const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+  return (dev&&(dev.exercices||[]).find(e=>e.id===currentTestId))||null;
+}
+/* LE NOMBRE DE QUESTIONS SE RÈGLE PAR EXERCICE DU DEVOIR (demande de Turquet,
+   août 2026). On ne garde que les nbQ premières questions du tirage, puis on
+   redessine par afficherEcranDe(), l'entonnoir du rejeu et de la reprise. On
+   ne sait que RÉDUIRE : une valeur au-delà du format normal y retombe. Après
+   une reprise de pause, le tirage sauvegardé fait foi — il porte déjà la
+   coupe. Un kind absent de la table du rejeu garde sa séance entière.
+   L'ÉNONCÉ du circuit papier applique la même coupe AVANT la photographie :
+   la feuille du professeur doit montrer exactement la séance de l'élève. */
+function dmAppliquerNbQ(){
+  const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
+  if(!Number.isFinite(n)||n<1) return;
+  if(!Array.isArray(test.questions)||test.questions.length<=n) return;
+  const avant=test.questions;
+  test.questions=test.questions.slice(0,n); test.idx=0;
+  if(!afficherEcranDe(test.kind)) test.questions=avant;
+}
+/* L'entonnoir du lancement DEPUIS un devoir : un seul chemin, qui pose le
+   contexte puis applique les réglages du devoir. */
+async function lancerDevoirExo(devoirId, testId, mode){
+  currentMode=mode; currentDM=devoirId; currentTestId=testId;
+  await TESTS[testId].start();
+  dmAppliquerNbQ();
+}
 function renderDevoirsList(){
   const actifs=(mesDevoirs||[]).filter(d=>d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
   if(!actifs.length){ $('devoirsBody').innerHTML='<div class="empty">Aucun devoir à la maison pour l\'instant.</div>'; return; }
@@ -4381,7 +4419,7 @@ function renderDevoirsList(){
     const isLast=idx===0; const exos=dev.exercices||[]; let somme=0, faitQqch=false;
     const lignes=exos.map(ex=>{
       const bs=dmBest(dev.id,ex.id,'soutien'), be=dmBest(dev.id,ex.id,'train');
-      const nd=noteDevoirExo(bs,be,noteForcee(dev, currentEleve&&currentEleve.id, ex.id)); somme+=nd.note; if(nd.fait) faitQqch=true;
+      const nd=noteDevoirExo(bs,be,noteForcee(dev, currentEleve&&currentEleve.id, ex.id), ex.smax); somme+=nd.note; if(nd.fait) faitQqch=true;
       const cells=(ex.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const mlbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${mlbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${mlbl} —</span>`; }).join('');
       const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
       return `<div class="dl-ex"><span class="dl-ex-name">${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
@@ -4412,10 +4450,13 @@ function renderDevoirDetail(devoirId){
   const cards=exos.map(ex=>{
     const t=TESTS[ex.id]; if(!t) return '';
     const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'),
-                           noteForcee(dev, currentEleve&&currentEleve.id, ex.id));
+                           noteForcee(dev, currentEleve&&currentEleve.id, ex.id), ex.smax);
     somme+=nd.note; if(nd.fait) faitQqch=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, testLabel(ex.id), t.desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
+    let desc=t.desc;
+    if(parseInt(ex.nbQ,10)>=1) desc+=' Pour ce devoir : '+parseInt(ex.nbQ,10)+' question'+(parseInt(ex.nbQ,10)>1?'s':'')+'.';
+    if(dmPlafondSoutien(ex.smax)>5) desc+=' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
+    return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
   }).join('');
   const totMax=exos.length*10;
   const totLbl=faitQqch?`Note du devoir : ${fmtNote(somme)} / ${totMax}`:`Note du devoir : — / ${totMax}`;
@@ -4424,7 +4465,7 @@ function renderDevoirDetail(devoirId){
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">Devoir n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
-    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
 }
 function openTestDevoir(devoirId, testId){
@@ -4447,16 +4488,17 @@ async function openTestDevoirModes(devoirId, testId){
     (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId,dm:devoirId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
+  const plafond=dmPlafondSoutien(ex&&ex.smax);
   let cards='';
   if(allowed.includes('soutien')){
     cards += pausedRows.soutien
-      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
-      : cardHTML('🛟','Mode soutien','On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour ${plafond} points.`,`resumeTest('soutien')`,'resume')
+      : cardHTML('🛟','Mode soutien',`On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour ${plafond} points.`,`lancerDevoirExo('${devoirId}','${testId}','soutien')`);
   }
   if(allowed.includes('train')){
     cards += pausedRows.train
       ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
-      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`lancerDevoirExo('${devoirId}','${testId}','train')`);
   }
   $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
 }
@@ -14343,13 +14385,20 @@ function renderDevoirEditor(){
   $('dmEditor').style.display='';
   $('dmNum').value=dev.num; $('dmActif').checked=!!dev.actif;
   $('dmTitre').value=dev.titre||''; $('dmCours').value=dev.cours||'';
-  const byId={}; (dev.exercices||[]).forEach(e=>{ byId[e.id]=e.modes||[]; });
+  const byId={}, byNbQ={}, bySmax={};
+  (dev.exercices||[]).forEach(e=>{ byId[e.id]=e.modes||[]; byNbQ[e.id]=e.nbQ; bySmax[e.id]=e.smax; });
   $('dmExos').innerHTML=TEST_ORDER.map(id=>{
     const modes=byId[id]||[]; const s=modes.includes('soutien'), t=modes.includes('train');
+    const nbQ=parseInt(byNbQ[id],10)||'', smax=dmPlafondSoutien(bySmax[id]);
+    /* Deux réglages par exercice du devoir (demande de Turquet, août 2026) :
+       le NOMBRE DE QUESTIONS — vide = le format normal, une valeur au-delà y
+       retombe — et la NOTE MAXIMALE EN SOUTIEN (5/10 par défaut). */
     return `<div class="dm-exo">
       <span class="dm-exo-name">${esc(testLabel(id))}</span>
       <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''}> Soutien</label>
       <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''}> Entraînement</label>
+      <label class="dm-mode">Questions <select data-nbq="${id}"><option value="">normal</option>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${nbQ===n?' selected':''}>${n}</option>`).join('')}</select></label>
+      <label class="dm-mode">Soutien <select data-smax="${id}">${[5,6,7,8,9,10].map(n=>`<option value="${n}"${smax===n?' selected':''}>${n}/10</option>`).join('')}</select></label>
     </div>`;
   }).join('');
 }
@@ -14362,7 +14411,11 @@ function readEditorIntoDevoir(){
   dev.actif=$('dmActif').checked;
   dev.titre=val('dmTitre').trim()||'Devoir à la maison';
   dev.cours=$('dmCours').value;
-  dev.exercices=TEST_ORDER.filter(id=>map[id]&&map[id].length).map(id=>({id,modes:map[id]}));
+  const nbqs={}, smaxs={};
+  document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=10) nbqs[s.dataset.nbq]=n; });
+  document.querySelectorAll('#dmExos select[data-smax]').forEach(s=>{ const n=parseInt(s.value,10); if(n>=6&&n<=10) smaxs[s.dataset.smax]=n; });   /* 5 = le défaut, ne s'écrit pas */
+  dev.exercices=TEST_ORDER.filter(id=>map[id]&&map[id].length).map(id=>Object.assign({id,modes:map[id]},
+    nbqs[id]?{nbQ:nbqs[id]}:{}, smaxs[id]?{smax:smaxs[id]}:{}));
 }
 async function persistDevoirs(){
   const cur=await loadConfig();
@@ -14410,7 +14463,7 @@ async function renderDevoirResultats(){
       let somme=0, nbFait=0;
       const exd=exos.map(ex=>{
         const bs=best[k(e.id,ex.id,'soutien')], be=best[k(e.id,ex.id,'train')];
-        const nd=noteDevoirExo(bs,be,noteForcee(dev,e.id,ex.id)); somme+=nd.note; if(nd.fait) nbFait++;
+        const nd=noteDevoirExo(bs,be,noteForcee(dev,e.id,ex.id), ex.smax); somme+=nd.note; if(nd.fait) nbFait++;
         return {ex,nd,bs,be};
       });
       return {e,somme,nbFait,exd,fait:nbFait>0};

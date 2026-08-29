@@ -1505,6 +1505,34 @@ auraient donné deux totaux. Quatre bords au contrôle, chacun éprouvé par
 sabotage : le contenu absent de la liste, « À faire » quand rien n'est fait, la
 note quand elle existe, et le contenu bien PRÉSENT sur la page du devoir.
 
+**Deux réglages par exercice d'un devoir : le nombre de questions, et le
+plafond du soutien** (demande de Turquet, août 2026, les trois niveaux —
+devoirs et fiches). Dans l'éditeur, chaque ligne d'exercice porte
+« Questions » (vide = le format normal) et « Soutien » (la note maximale du
+mode soutien : 5/10 par défaut, jusqu'à 10). Le réglage vit sur l'ENTRÉE de
+l'exercice dans le devoir (`nbQ`, `smax`) — le motif de `tmNbDevoir` — et le
+défaut ne s'écrit jamais : un devoir normal garde exactement la forme qu'il
+avait avant que le réglage n'existe.
+**La coupe ne sait que RÉDUIRE.** `lancerDevoirExo()` est l'entonnoir du
+lancement depuis un devoir : il pose le contexte, démarre par la porte
+normale, puis `dmAppliquerNbQ()` ne garde que les nbQ premières questions du
+tirage et redessine par `afficherEcranDe()` — la table du rejeu et de la
+reprise, donc un exercice ajouté demain est couvert dès qu'il y entre, et les
+tables de multiplication (hors table) gardent leur réglage propre à elles.
+Une valeur au-delà du format normal y retombe ; après une reprise de pause,
+le tirage sauvegardé fait foi — il porte déjà la coupe. En Terminale,
+l'ÉNONCÉ du circuit papier applique la même coupe AVANT la photographie : la
+feuille du professeur doit montrer exactement la séance de l'élève.
+**Le plafond du soutien entre dans `noteDevoirExo(…, smax)`** — 5 hors
+devoir et par défaut, borné 6..10 sinon (un plafond bricolé dans le JSON
+retombe sur 5) ; en Terminale la note POSÉE par le professeur prime
+toujours. La carte du mode soutien DIT le plafond réglé — un élève à qui on
+promet 5 quand le devoir en donne 8 ne tenterait pas le soutien. Un contrôle
+par niveau tient les quatre bords (la note, la coupe et sa borne et sa
+non-fuite hors devoir, la carte qui dit le plafond, l'éditeur qui emporte
+les réglages sans jamais écrire le défaut), éprouvé par sept sabotages sur
+les trois fichiers, chacun nommé.
+
 **Un devoir demande une fois chaque exercice, et tous sont ouverts.** Il a su
 un temps en demander plusieurs passages et en verrouiller un tant que les
 précédents n'étaient pas faits ; c'est retiré, éditeur compris (décision de

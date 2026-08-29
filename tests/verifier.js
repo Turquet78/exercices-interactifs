@@ -5641,7 +5641,7 @@ function fichesDeTravail(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('les fiches de travail vivent à côté des devoirs, jamais dedans',
       'ce niveau n\'a pas les fiches de travail en classe');
-    return verdictColore(w, apres);
+    return reglagesDevoirs(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -5737,7 +5737,7 @@ function fichesDeTravail(w, apres){
   })()`, function(r){
     if(!r.ok) verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', false, 'erreur JavaScript : '+r.erreur);
     else verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', r.valeur==='', r.valeur);
-    verdictColore(w, apres);
+    reglagesDevoirs(w, apres);
   });
 }
 /* Les phrases qui commentent une vérification par l'IA sont VERTES quand c'est
@@ -6265,6 +6265,127 @@ function variationsDerivee(w, P){
     if(/\\bbad\\b/.test(r.selCls)) vus.push('le menu vide rougit');
     return vus.join(' | ');
   })()`, v => v === '', undefined);
+}
+/* Les réglages PAR EXERCICE d'un devoir : le NOMBRE DE QUESTIONS et la NOTE
+   MAXIMALE EN SOUTIEN (demande de Turquet, août 2026). Quatre bords, et n'en
+   tenir qu'un ne tient rien : le plafond entre dans la note (et une valeur
+   bricolée retombe sur 5) ; la coupe s'applique au lancement DEPUIS le devoir
+   (et une valeur au-delà du format retombe dessus, et rien ne fuit hors du
+   devoir) ; l'écran des modes DIT le plafond et lance par l'entonnoir ; et
+   l'éditeur EMPORTE les réglages (et n'écrit jamais le défaut). En Terminale,
+   l'énoncé du circuit papier porte la même coupe : la feuille du professeur
+   doit montrer exactement la séance de l'élève. SÉQUENTIEL, dans la chaîne
+   des contrôles asynchrones — il ré-injecte le double de la base. */
+function reglagesDevoirs(w, apres){
+  const R=P.reglagesDevoirs;
+  const present = evaluer(w, "typeof lancerDevoirExo==='function' && typeof dmPlafondSoutien==='function'");
+  if(!R || !present.ok || !present.valeur){
+    ignorer('les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien',
+      'ce niveau n\'a pas les réglages par exercice des devoirs');
+    return verdictColore(w, apres);
+  }
+  /* Première : l'éditeur passe par saveDM(), qu'on ne peut pas cliquer ici —
+     on tient au moins la trace des réglages dans son corps, et les setters
+     s'exercent dans l'éval. */
+  const srcPage=lire(CIBLE);
+  if(/async function saveDM\(/.test(srcPage)){
+    const corpsSave=(srcPage.split('async function saveDM(')[1]||'').slice(0,1600);
+    verifier('saveDM emporte les réglages nbQ et smax',
+      corpsSave.indexOf('nbQ')>=0 && corpsSave.indexOf('smax')>=0,
+      'le corps de saveDM ne recopie plus nbQ/smax : un devoir enregistré les perdrait');
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const EX=${JSON.stringify(R.exercice)};
+
+    /* ---- 1. le plafond du soutien entre dans la note ---- */
+    const nDE=function(bs,be,smax){ return (typeof noteForcee==='function')?noteDevoirExo(bs,be,undefined,smax):noteDevoirExo(bs,be,smax); };
+    if(nDE({percent:100},null).note!==5) vus.push('sans réglage, le soutien plein ne vaut pas 5 ('+nDE({percent:100},null).note+')');
+    if(nDE({percent:100},null,8).note!==8) vus.push('le plafond réglé à 8 ne donne pas 8 ('+nDE({percent:100},null,8).note+')');
+    if(nDE({percent:50},null,8).note!==4) vus.push('à mi-parcours sous un plafond de 8, la note n\\'est pas 4');
+    if(nDE({percent:100},null,12).note!==5) vus.push('un plafond bricolé (12) ne retombe pas sur 5');
+    if(nDE({percent:100},null,'abc').note!==5) vus.push('un plafond illisible ne retombe pas sur 5');
+    if(nDE({percent:100},{percent:100},8).note!==10) vus.push('l\\'entraînement plein ne l\\'emporte plus sur un soutien plafonné à 8');
+    if(typeof noteForcee==='function'){
+      const f=noteDevoirExo({percent:100},null,3,8);
+      if(f.note!==3) vus.push('la note posée par le professeur ne prime plus sur le plafond réglé ('+f.note+')');
+    }
+
+    /* ---- 2. la coupe du nombre de questions, au lancement depuis le devoir ---- */
+    mesDevoirs=[{id:'dev-r',num:1,actif:true,titre:'Réglages',cours:'',exercices:[{id:EX,modes:['soutien','train']}]}];
+    await lancerDevoirExo('dev-r',EX,'train');
+    const defaut=(test.questions||[]).length;
+    if(defaut<3) vus.push('le témoin ne tire que '+defaut+' questions : la coupe n\\'a rien à éprouver');
+    mesDevoirs[0].exercices[0].nbQ=2;
+    await lancerDevoirExo('dev-r',EX,'train');
+    if((test.questions||[]).length!==2) vus.push('nbQ=2 : la séance fait '+(test.questions||[]).length+' questions au lieu de 2');
+    if(test.idx!==0) vus.push('après la coupe, la séance ne repart pas de la première question');
+    mesDevoirs[0].exercices[0].nbQ=99;
+    await lancerDevoirExo('dev-r',EX,'train');
+    if((test.questions||[]).length!==defaut) vus.push('nbQ=99 : une valeur au-delà du format ne retombe pas dessus ('+(test.questions||[]).length+')');
+    /* le réglage ne FUIT pas hors du devoir */
+    mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId=EX;
+    await Promise.resolve(TESTS[EX].start());
+    if((test.questions||[]).length!==defaut) vus.push('hors devoir, la séance porte la coupe du devoir ('+(test.questions||[]).length+')');
+
+    /* ---- 3. l'écran des modes dit le plafond, et lance par l'entonnoir ---- */
+    mesDevoirs[0].exercices[0]={id:EX,modes:['soutien','train'],smax:8};
+    await (typeof openTestDevoirModes==='function'?openTestDevoirModes:openTestDevoir)('dev-r',EX);
+    const htmlModes=document.getElementById('modeChoices').innerHTML;
+    if(htmlModes.indexOf('8 points')<0) vus.push('la carte du soutien ne dit pas le plafond réglé (8)');
+    if(htmlModes.indexOf('lancerDevoirExo')<0) vus.push('les cartes du devoir ne passent plus par l\\'entonnoir lancerDevoirExo');
+
+    /* ---- 4. Terminale : l'énoncé du circuit papier porte la même coupe ---- */
+    if(typeof dmEnonce==='function'){
+      mesDevoirs[0].exercices[0]={id:EX,modes:['train'],nbQ:2};
+      await dmEnonce('dev-r',EX,function(){});
+      if((test.questions||[]).length!==2) vus.push('l\\'énoncé du circuit papier ignore la coupe ('+(test.questions||[]).length+' questions)');
+      if(typeof dmeRetour==='function'){ try{ dmeCtx=null; dmeViderCorps(); }catch(e){} }
+    }
+
+    /* ---- 5. l'éditeur emporte les réglages, et n'écrit jamais le défaut ---- */
+    if(typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function'){
+      dmList=[{id:'d-ed',num:1,actif:true,titre:'t',cours:'',exercices:[]}]; dmSelId='d-ed';
+      if(typeof dmGenre!=='undefined') dmGenre='dm';
+      renderDevoirEditor();
+      const cb=document.querySelector('#dmExos input[data-mode="train"]');
+      if(!cb){ vus.push('l\\'éditeur n\\'a aucune ligne d\\'exercice'); }
+      else {
+        const exid=cb.dataset.ex; cb.checked=true;
+        const sq=document.querySelector('#dmExos select[data-nbq="'+exid+'"]');
+        const ss=document.querySelector('#dmExos select[data-smax="'+exid+'"]');
+        if(!sq||!ss) vus.push('les réglages nbQ/smax manquent dans l\\'éditeur');
+        else {
+          sq.value='2'; ss.value='8'; readEditorIntoDevoir();
+          const e0=(dmList[0].exercices||[]).find(function(x){ return x.id===exid; });
+          if(!e0||e0.nbQ!==2||e0.smax!==8) vus.push('l\\'enregistrement perd les réglages ('+JSON.stringify(e0)+')');
+          sq.value=''; ss.value='5'; readEditorIntoDevoir();
+          const e1=(dmList[0].exercices||[]).find(function(x){ return x.id===exid; });
+          if(!e1) vus.push('l\\'exercice coché a disparu à la relecture');
+          else if(('nbQ' in e1)||('smax' in e1)) vus.push('le défaut s\\'écrit au lieu de rester absent ('+JSON.stringify(e1)+')');
+        }
+      }
+    } else if(typeof dmSetNbQ==='function' && typeof dmSetSmax==='function'){
+      const dev={exercices:[{id:EX,modes:['train']}]};
+      const ancien=window.dmCur; window.dmCur=function(){ return dev; };
+      dmSetNbQ(EX,'2'); dmSetSmax(EX,'8');
+      if(dev.exercices[0].nbQ!==2||dev.exercices[0].smax!==8) vus.push('les setters de l\\'éditeur ne posent pas les réglages');
+      dmSetNbQ(EX,''); dmSetSmax(EX,'5');
+      if(('nbQ' in dev.exercices[0])||('smax' in dev.exercices[0])) vus.push('le défaut s\\'écrit au lieu de rester absent');
+      window.dmCur=ancien;
+    } else {
+      vus.push('aucun éditeur de réglages trouvé (ni readEditorIntoDevoir ni dmSetNbQ)');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
+    const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    verdictColore(w, apres);
+  });
 }
 function verdictColore(w, apres){
   /* Trois fonctions peignent un verdict d'IA : checkSFL et checkMLL en

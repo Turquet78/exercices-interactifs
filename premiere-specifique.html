@@ -1685,7 +1685,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=173;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=174;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3003,7 +3003,8 @@ function show(name){
 function exercicesDevoir(dev){
   return ((dev&&dev.exercices)||[])
     .filter(ex=>TESTS[ex.id])
-    .map(ex=>({ id:ex.id, modes:ex.modes||[], nb:parseInt(ex.nb,10)||null }));
+    .map(ex=>({ id:ex.id, modes:ex.modes||[], nb:parseInt(ex.nb,10)||null,
+                nbQ:parseInt(ex.nbQ,10)||null, smax:parseInt(ex.smax,10)||null }));
 }
 /* Une note d'un devoir, sans distinction de passage. Les devoirs ne demandent
    plus qu'une fois chaque exercice ; les notes écrites du temps des passages
@@ -3012,14 +3013,53 @@ function exercicesDevoir(dev){
    Les ignorer aurait fait disparaître d'un devoir des notes réellement
    obtenues. */
 function dmBest(did,id,m){ let b=null; (mesResultats||[]).forEach(r=>{ if(!isPaused(r)&&testIdOf(r)===id&&modeOf(r)===m&&r.details&&!Array.isArray(r.details)&&r.details.dm===did){ if(b==null||r.percent>b.percent) b=r; } }); return b; }
-function noteDevoirExo(bestSoutien, bestEntrain){
-  const s = bestSoutien ? (bestSoutien.percent/100*5) : 0;
+function noteDevoirExo(bestSoutien, bestEntrain, smax){
+  /* Le plafond du soutien se règle PAR EXERCICE du devoir (demande de Turquet,
+     août 2026) : 5/10 par défaut, jusqu'à 10/10. Hors devoir, rien ne passe le
+     paramètre et le plafond reste 5 — le rattrapage libre ne change pas. */
+  const plafond = dmPlafondSoutien(smax);
+  const s = bestSoutien ? (bestSoutien.percent/100*plafond) : 0;
   const e = bestEntrain ? (bestEntrain.percent/100*10) : 0;
   const soutienFait = !!bestSoutien;
   const note = (e > s || !soutienFait) ? e : s;
   return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
+/* Un plafond bricolé à la main dans la base retombe sur 5 : la leçon de
+   TM_NB_CHOIX — le réglage est un simple champ JSON. */
+function dmPlafondSoutien(smax){ const p=parseInt(smax,10); return (p>=6&&p<=10)?p:5; }
+/* L'entrée de l'exercice courant dans le devoir courant — la même définition
+   que celle que l'éditeur écrit, jamais un état parallèle (la leçon de
+   currentPasse, déjà payée par tmNbDevoir). */
+function dmReglageExo(){
+  if(!currentDM) return null;
+  const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+  return (dev&&(dev.exercices||[]).find(e=>e.id===currentTestId))||null;
+}
+/* LE NOMBRE DE QUESTIONS SE RÈGLE PAR EXERCICE DU DEVOIR (demande de Turquet,
+   août 2026). Le tirage reste celui de l'exercice — on ne garde que les nbQ
+   premières questions, puis on redessine par afficherEcranDe(), l'entonnoir
+   du rejeu et de la reprise : un exercice ajouté demain est couvert dès qu'il
+   y entre. Un kind absent de cette table (les tables de multiplication, qui
+   ont leur propre réglage) ignore le réglage. On ne sait que RÉDUIRE : le
+   tirage ne connaît pas de rallonge générique, et une valeur au-delà du
+   format normal retombe dessus. Après une reprise de pause, c'est le tirage
+   sauvegardé qui fait foi — il porte déjà la coupe. */
+function dmAppliquerNbQ(){
+  const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
+  if(!Number.isFinite(n)||n<1) return;
+  if(!Array.isArray(test.questions)||test.questions.length<=n) return;
+  const avant=test.questions;
+  test.questions=test.questions.slice(0,n); test.idx=0;
+  if(!afficherEcranDe(test.kind)) test.questions=avant;   /* kind inconnu : séance intacte */
+}
+/* L'entonnoir du lancement DEPUIS un devoir : un seul chemin, qui pose le
+   contexte puis applique les réglages du devoir. */
+async function lancerDevoirExo(devoirId, testId, mode){
+  currentMode=mode; currentDM=devoirId; currentTestId=testId;
+  await TESTS[testId].start();
+  dmAppliquerNbQ();
+}
 async function openDevoirsEleve(genre){
   genreEleve=(genre==='fiche')?'fiche':'dm';
   show('devoirs');
@@ -3054,7 +3094,7 @@ function renderDevoirsList(){
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
     const isLast=idx===0; const exos=(typeof exercicesDevoir==='function')?exercicesDevoir(dev):(dev.exercices||[]); let somme=0, faitQqch=false;
     exos.forEach(ex=>{
-      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'));
+      const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'), ex.smax);
       somme+=nd.note; if(nd.fait) faitQqch=true;
     });
     const totMax=exos.length*10;
@@ -3085,13 +3125,15 @@ function renderDevoirDetail(devoirId){
   const liste=exercicesDevoir(dev); let somme=0, faitQqch=false;
   const cards=liste.map(ex=>{
     const t=TESTS[ex.id];
-    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'));
+    const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'), ex.smax);
     somme+=nd.note; if(nd.fait) faitQqch=true;
     const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
     /* Le devoir peut demander une séance plus longue : la carte le dit, sinon
        l'élève lirait « 10 produits » dans la description et en trouverait 20. */
-    const desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
+    let desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
+    if(ex.nbQ) desc += ' Pour ce devoir : '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
+    if(dmPlafondSoutien(ex.smax)>5) desc += ' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
     return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
   }).join('');
   const G=GENRE_DEVOIRS[(dev.genre||'dm')];
@@ -3102,7 +3144,7 @@ function renderDevoirDetail(devoirId){
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
-    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 ; pour aller au-delà, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
 }
 async function openTestDevoir(devoirId, testId){
@@ -3126,16 +3168,17 @@ async function openTestDevoir(devoirId, testId){
     (data||[]).forEach(r=>{ const d=r.details; if(memeBrouillon(d,{test:testId,dm:devoirId})&&(d.mode==='train'||d.mode==='soutien')){ pausedRows[d.mode]=r; } });
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
+  const plafond=dmPlafondSoutien(ex&&ex.smax);
   let cards='';
   if(allowed.includes('soutien')){
     cards += pausedRows.soutien
-      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
-      : cardHTML('🛟','Mode soutien','On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour ${plafond} points.`,`resumeTest('soutien')`,'resume')
+      : cardHTML('🛟','Mode soutien',`On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour ${plafond} points.`,`lancerDevoirExo('${devoirId}','${testId}','soutien')`);
   }
   if(allowed.includes('train')){
     cards += pausedRows.train
       ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
-      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';currentDM='${devoirId}';TESTS['${testId}'].start()`);
+      : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`lancerDevoirExo('${devoirId}','${testId}','train')`);
   }
   $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
 }
@@ -9522,8 +9565,9 @@ function renderDmEditor(){
     ?'Aucune fiche pour l\u2019instant.<br>Clique sur « ＋ Nouvelle fiche » pour en créer une.'
     :'Aucun devoir pour l\u2019instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.')+'</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
-  const chosen={}, nbs={};
-  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB; });
+  const chosen={}, nbs={}, nbQs={}, smaxs={};
+  (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB;
+    nbQs[ex.id]=parseInt(ex.nbQ,10)||null; smaxs[ex.id]=dmPlafondSoutien(ex.smax); });
   const groups=THEMES.map(th=>{
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
@@ -9536,17 +9580,34 @@ function renderDmEditor(){
          même sur une ligne non cochée — grisé, avec le motif écrit à côté :
          un réglage qui n'apparaît qu'après le bon geste est un réglage qu'on ne
          découvre jamais. */
+      /* Deux réglages par exercice du devoir (demande de Turquet, août
+         2026) : le NOMBRE DE QUESTIONS — vide = le format normal de
+         l'exercice, une valeur au-delà y retombe — et la NOTE MAXIMALE EN
+         SOUTIEN (5/10 par défaut, jusqu'à 10). Les tables gardent leur
+         réglage propre (10 ou 20 calculs). Montrés même sur une ligne non
+         cochée — grisés : un réglage qui n'apparaît qu'après le bon geste
+         est un réglage qu'on ne découvre jamais. */
       const nbChoix = (id===TM_ID_NB) ? `<span class="dm-nb${picked?'':' off'}">
           <label>Questions <select ${picked?'':'disabled'} onchange="dmSetNb('${escJS(id)}',this.value)">${
             TM_NB_CHOIX.map(n=>`<option value="${n}"${nbs[id]===n?' selected':''}>${n}</option>`).join('')
           }</select></label>
           ${picked?'':'<span class="dm-nb-hint">coche un mode pour le régler</span>'}
-        </span>` : '';
+        </span>` : `<span class="dm-nb${picked?'':' off'}">
+          <label>Questions <select ${picked?'':'disabled'} onchange="dmSetNbQ('${escJS(id)}',this.value)">
+            <option value="">normal</option>${
+            [1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${nbQs[id]===n?' selected':''}>${n}</option>`).join('')
+          }</select></label>
+        </span>`;
+      const soutChoix = sansSoutien(id) ? '' : `<span class="dm-nb${picked?'':' off'}">
+          <label>Soutien <select ${picked?'':'disabled'} onchange="dmSetSmax('${escJS(id)}',this.value)">${
+            [5,6,7,8,9,10].map(n=>`<option value="${n}"${(smaxs[id]||5)===n?' selected':''}>${n}/10</option>`).join('')
+          }</select></label>
+        </span>`;
       return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
         <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
         <span class="dm-exo-name">${esc(testName(id))}</span>
         <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
-        ${nbChoix}
+        ${nbChoix}${soutChoix}
       </div>`;
     }).join('');
     if(!rows) return '';
@@ -9563,7 +9624,7 @@ function renderDmEditor(){
     </div>
     <div class="field" style="margin-top:14px"><label class="lab" for="dmCours">Cours / consignes <span class="muted" style="font-weight:600;font-size:.85rem">(facultatif)</span></label><textarea class="dm-ta" id="dmCours" placeholder="Rappel de cours, consignes… (laisse vide pour n'afficher que les exercices)">${esc(d.cours||'')}</textarea></div>
     <div class="dm-pick-h" style="margin-top:6px">Exercices du devoir</div>
-    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Coche les modes proposés pour chaque exercice. En soutien l'élève peut obtenir jusqu'à 5/10, en entraînement jusqu'à 10/10.</p>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Coche les modes proposés pour chaque exercice. « Questions » réduit la séance pour ce devoir (vide = le format normal). « Soutien » règle la note maximale du mode soutien pour cet exercice (5/10 par défaut) ; l'entraînement vaut toujours 10/10.</p>
     ${groups}
     <div class="dm-ed-acts">
       <button class="btn btn-primary" onclick="saveDM()">Enregistrer ce devoir</button>
@@ -9580,6 +9641,18 @@ function dmSetNb(id,v){
   const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
   const n=parseInt(v,10);
   if(TM_NB_CHOIX.indexOf(n)>=0 && n!==TM_NB) ex.nb=n; else delete ex.nb;
+}
+function dmSetNbQ(id,v){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  const n=parseInt(v,10);
+  if(Number.isFinite(n)&&n>=1&&n<=10) ex.nbQ=n; else delete ex.nbQ;
+}
+function dmSetSmax(id,v){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  const n=parseInt(v,10);
+  if(n>=6&&n<=10) ex.smax=n; else delete ex.smax;   /* 5 = le défaut, ne s'écrit pas */
 }
 function dmToggleMode(id,m,checked){
   const d=dmCur(); if(!d) return;
@@ -9616,7 +9689,8 @@ async function saveDM(){
      « verrou » : on les retire ici plutôt que de les traîner indéfiniment dans
      un réglage que plus rien ne lit. */
   d.exercices=(d.exercices||[]).filter(ex=>(ex.modes||[]).length)
-    .map(ex=>Object.assign({ id:ex.id, modes:ex.modes }, ex.nb?{nb:ex.nb}:{}));
+    .map(ex=>Object.assign({ id:ex.id, modes:ex.modes }, ex.nb?{nb:ex.nb}:{},
+      ex.nbQ?{nbQ:ex.nbQ}:{}, ex.smax?{smax:ex.smax}:{}));
   try{
     cfg=await loadConfig();
     if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
@@ -9678,7 +9752,7 @@ async function renderDmResults(){
     const bilanRows=(eleves||[]).map(e=>{
       let somme=0, faits=0, started=false;
       liste.forEach(px=>{
-        const nd=noteDevoirExo(dmBestFor(rows,e.id,d.id,px.id,'soutien'), dmBestFor(rows,e.id,d.id,px.id,'train'));
+        const nd=noteDevoirExo(dmBestFor(rows,e.id,d.id,px.id,'soutien'), dmBestFor(rows,e.id,d.id,px.id,'train'), px.smax);
         somme+=nd.note; if(nd.fait){ faits++; started=true; }
       });
       if(started){ sommeClasse+=somme; nbActifs++; }
@@ -9703,7 +9777,7 @@ function dmStudentDetail(eid,prenom){
   const d=dmCur(); if(!d) return;
   const rows=exercicesDevoir(d).map(px=>{
     const bs=dmBestFor(dmResRows,eid,d.id,px.id,'soutien'), be=dmBestFor(dmResRows,eid,d.id,px.id,'train');
-    const nd=noteDevoirExo(bs,be);
+    const nd=noteDevoirExo(bs,be,px.smax);
     const cells=(px.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${lbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
     const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
     return `<tr><td class="name">${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
