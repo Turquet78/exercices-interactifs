@@ -1728,6 +1728,21 @@ défaut d'écriture s'est montré au premier passage : `salAttenduIA` bâtissait
 sa règle et ne la RENDAIT pas — un `return` oublié ne casse rien, la règle
 partait simplement vide.
 
+**Et le miroir sur les BAISSES : même moteur, troisième identité.**
+{synthese-diminutions-libre} (2.3.8, demande de Turquet, août 2026) est le
+2.2.9 sur les diminutions : le MÊME moteur `sal` — écran, feuille, juge,
+règle — a appris le SENS (`q.sens`, déjà porté par `genSyn`). Le coefficient
+d'une baisse s'écrit `0,xx` (1 − P/100), et la seconde voie s'achève par une
+SOUSTRACTION : le juge distingue l'addition de la soustraction au niveau haut
+de l'expression, et une addition qui retombe sur la valeur finale ne remplace
+pas la soustraction — le cas est au contrôle. Quand P = 50, le coefficient et
+le pourcentage décimal valent tous deux 0,5 : les deux voies calculent alors
+la même chose, et le juge accepte l'une comme l'autre, à bon droit. Les fins
+partagées épinglent `test.qId` (le motif maison), « Recommencer » route par
+l'identité, et chaque identité a son rappel et ses questions à l'IA —
+`qiaSuggestions()` fait primer l'identifiant sur le `kind`. Éprouvé par six
+sabotages, chacun nommé.
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,

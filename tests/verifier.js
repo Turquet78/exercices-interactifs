@@ -1255,9 +1255,9 @@ function branchements(w){
 
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
      baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps), plus la synthèse rédigée 2.2.9. On appelle les
-     DIX-SEPT vrais démarreurs : un nombre changé dans un démarreur partagé
-     ne dit rien des autres. */
+     2026, en trois temps), plus les synthèses rédigées 2.2.9 et 2.3.8. On
+     appelle les DIX-HUIT vrais démarreurs : un nombre changé dans un
+     démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -1266,7 +1266,7 @@ function branchements(w){
        ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
-       ['2.2.9','startSynAugLibre'],['2.5.1','startSyn']]
+       ['2.2.9','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -1299,6 +1299,12 @@ function branchements(w){
           test.questions.forEach(function(q,i){ if(q.fam!=='aug') vus.push('2.2.9 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
           const incs3=test.questions.map(function(q){ return q.inc; });
           ['fin','ini','pct'].forEach(function(inc){ if(incs3.indexOf(inc)<0) vus.push('2.2.9 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        }
+        if(typeof startSynDimLibre==='function'){
+          startSynDimLibre();
+          test.questions.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.8 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
+          const incs4=test.questions.map(function(q){ return q.inc; });
+          ['fin','ini','pct'].forEach(function(inc){ if(incs4.indexOf(inc)<0) vus.push('2.3.8 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
         }
         startSynAug();
         const qs=test.questions;
@@ -4509,6 +4515,7 @@ function syntheseAugLibreRedigee(w, P){
     /* ---- 1. le JUGE, cas par cas, sur deux questions épinglées ---- */
     const qFin={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0};
     const qPct={fam:'aug',inc:'pct',sens:1,P:30,N:600,aug:180,fin:780,decStr:'780',unit:'€',opts:[20,30,40,50],bon:1,choisi:1,ci:0,v:0};
+    const qFinD={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
     const cas=[
       ['coefficient',            qFin, 1, '1,05 × 600 = 630',                  true,  true ],
       ['coefficient, ordre libre',qFin, 1, '600 × 1,05 = 630',                 true,  true ],
@@ -4524,6 +4531,11 @@ function syntheseAugLibreRedigee(w, P){
       ['pourcentage choisi juste',qPct, 1, '1,3 × 600 = 780',                  true,  true ],
       ['pourcentage choisi faux, calcul cohérent', qPct, 2, '1,4 × 600 = 840', true,  false],
       ['écriture inconnue',      qFin, 1, 'j’ai trouvé 630',                   false, null ],
+      ['baisse : coefficient',   qFinD, 1, '0,95 × 600 = 570',                  true,  true ],
+      ['baisse : diminution puis soustraction', qFinD, 1, '0,05 × 600 = 30\\n600 − 30 = 570', true, true ],
+      ['baisse : une addition au lieu de la soustraction', qFinD, 1, '0,05 × 600 = 30\\n630 = 600 + 30', true, false],
+      ['baisse : soustraction sans la multiplication', qFinD, 1, '600 − 30 = 570', true, false],
+      ['baisse : une addition qui retombe sur la valeur finale ne remplace pas la soustraction', qFinD, 1, '0,05 × 600 = 30\\n540 + 30 = 570', true, false],
     ];
     cas.forEach(function(c){
       const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
@@ -4541,7 +4553,7 @@ function syntheseAugLibreRedigee(w, P){
     let pireQ=0, pireA=0, pireEti='';
     const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « 1,05 × 600 = 640 ». Reprends cette ligne.'};
     for(let i=0;i<120 && !vus.length;i++){
-      const q=genSyn('aug', ['fin','ini','pct'][i%3]); q.choisi=(i%2===0)?q.bon:((q.bon+1)%4);
+      const q=genSyn((i%2===0)?'aug':'dim', ['fin','ini','pct'][i%3]); q.choisi=(i%4<2)?q.bon:((q.bon+1)%4);
       const e=salEnonceIA(q), a=salAttenduIA(q, (i%4===0)?jugeMesure:null), c=salCouple(q);
       if(e.length>pireQ) pireQ=e.length;
       if(a.length>pireA){ pireA=a.length; pireEti=q.inc+' '+c.P+'% de '+c.N; }
@@ -4549,7 +4561,8 @@ function syntheseAugLibreRedigee(w, P){
       const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
       if(regle.indexOf(c.coefStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie du coefficient '+c.coefStr+' × '+c.N); break; }
       if(regle.indexOf(c.pDecStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie de l\\'augmentation '+c.pDecStr+' × '+c.N); break; }
-      if(regle.indexOf('addition')<0){ vus.push(eti+'la règle n\\'exige plus l\\'addition de la voie de l\\'augmentation'); break; }
+      if(q.fam==='aug' && regle.indexOf('addition')<0){ vus.push(eti+'la règle n\\'exige plus l\\'addition de la voie de l\\'augmentation'); break; }
+      if(q.fam==='dim' && regle.indexOf('soustraction')<0){ vus.push(eti+'la règle n\\'exige plus la soustraction de la voie de la diminution'); break; }
       if(!/sans aucun calcul, est REFUSÉ/.test(regle)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
       if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
       if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
@@ -4586,9 +4599,13 @@ function syntheseAugLibreRedigee(w, P){
       if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
     }
 
-    /* ---- 4. l'identité : « Recommencer » relance bien le 2.2.9 ---- */
+    /* ---- 4. l'identité : « Recommencer » relance la bonne synthèse rédigée ---- */
     test.kind='sal'; test.qId='(sentinelle)'; restartCurrentTest();
     if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des augmentations');
+    if(typeof startSynDimLibre==='function'){
+      test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
+      if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.8 relance « '+test.qId+' »');
+    }
 
     return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
   })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
@@ -6306,6 +6323,14 @@ function verdictColore(w, apres){
       verdict(true); await checkSal();    /* le modèle MENT : l'égalité est fausse */
       if(couleur('salFeedback')!=='rouge') vus.push('2.2.9 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
       if(test.score!==0) vus.push('2.2.9 : égalité fausse sous modèle qui accepte — le point est donné quand même');
+      /* et sur une BAISSE (2.3.8), même moteur, même primauté */
+      const q38={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
+      test.locked=false; test.salBusy=false; test.score=0;
+      test.questions=[JSON.parse(JSON.stringify(q38))]; test.qId='synthese-diminutions-libre';
+      salFeuille=feuille('0,95 × 600 = 570');
+      verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
+      if(couleur('salFeedback')!=='vert') vus.push('2.3.8 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==1) vus.push('2.3.8 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
     }
 
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */
