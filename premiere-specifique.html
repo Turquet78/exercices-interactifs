@@ -1703,7 +1703,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=177;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=178;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2216,13 +2216,36 @@ function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénom
   const vn=en.value.trim(), vd=ed?ed.value.trim():'';
   if(!en.disabled) en.classList.remove('ok','bad'); if(ed&&!ed.disabled) ed.classList.remove('ok','bad');
   if(vn==='') return;
-  /* dénominateur vide : aucune couleur, sauf si denOptional (un facteur entier
-     est accepté : vide vaut 1, comme au contrôle final de md et u) */
-  if(vd===''&&!denOptional) return;                  // fraction incomplète : aucune couleur
-  const n=parseInt(vn,10), d=vd===''?1:parseInt(vd,10);
+  /* DÉNOMINATEUR VIDE : la fraction n'est pas finie, et le numérateur se juge
+     sur sa PROMESSE — la règle des paires, encore. « ok » s'il est déjà la
+     réponse en ENTIER (vide vaudra 1 au contrôle final : le 17 de 0,04 × 17),
+     RIEN s'il peut encore mener à une fraction égale (le 4 de 4/100, pendant
+     que l'élève écrit son dénominateur), rouge seulement s'il ne mène nulle
+     part. Le « 4 » qui rougissait sous le doigt de l'élève : signalé par
+     Turquet, août 2026 — le vide valait 1 et 4/1 se comparait à 4/100. */
+  if(vd===''){
+    if(!denOptional) return;                         // fraction incomplète : aucune couleur
+    const n=parseInt(vn,10);
+    if(isNaN(n)){ if(!en.disabled) en.classList.add('bad'); return; }
+    if(n*td===tn){ if(!en.disabled) en.classList.add('ok'); return; }   // déjà juste en entier
+    const mene = tn>0 && n>0 && (n*td)%tn===0;       // un dénominateur peut encore la rendre égale
+    if(!mene && !en.disabled) en.classList.add('bad');
+    return;
+  }
+  const n=parseInt(vn,10), d=parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
   if(!en.disabled) en.classList.add(ok?'ok':'bad');
   if(ed&&!ed.disabled&&vd!=='') ed.classList.add(ok?'ok':'bad');
+}
+/* Marque une case à la vérification — mais une case restée VIDE ne reçoit
+   JAMAIS de couleur : rouge veut dire faux, pas « pas fini » (la règle de
+   partout). En entraînement, la correction (corTrainFrac, corTrainDec) la
+   remplit ensuite en vert. */
+function marqueSaufVide(id,ok,soutien){
+  const el=$(id); if(!el) return;
+  el.classList.remove('ok','bad');
+  if(String(el.value==null?'':el.value).trim()!=='') el.classList.add(ok?'ok':'bad');
+  el.disabled=ok||!soutien;
 }
 function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
   const en=$(idn), ed=$(idd); if(!en||!ed) return;
@@ -8106,10 +8129,10 @@ function checkHSAnswer(live){
     [$('hsVn'),$('hsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('hs1n',ok1); mark('hs1d',ok1); mark('hs1p',ok1p); mark('hs1dec',ok1d);
-  mark('hs2n',ok2); mark('hs2d',ok2); mark('hs2p',ok2p); mark('hs2dec',ok2d);
-  mark('hsAn',okA); mark('hsAd',okA); mark('hsBn',okB); mark('hsBd',okB);
-  mark('hsPn',okPr); mark('hsPd',okPr); mark('hsDec',okC); mark('hsP',okP);
+  marqueSaufVide('hs1n',ok1,soutien); marqueSaufVide('hs1d',ok1,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
+  marqueSaufVide('hs2n',ok2,soutien); marqueSaufVide('hs2d',ok2,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
+  marqueSaufVide('hsAn',okA,soutien); marqueSaufVide('hsAd',okA,soutien); marqueSaufVide('hsBn',okB,soutien); marqueSaufVide('hsBd',okB,soutien);
+  marqueSaufVide('hsPn',okPr,soutien); marqueSaufVide('hsPd',okPr,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('hsFeedback','hsActions','checkHSAnswer','hsHost'); return; }
   test.locked=true;
@@ -8859,10 +8882,10 @@ function checkBSAnswer(live){
     [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('bs1n',ok1); mark('bs1d',ok1); mark('bs1p',ok1p); mark('bs1dec',ok1d);
-  mark('bs2n',ok2); mark('bs2d',ok2); mark('bs2p',ok2p); mark('bs2dec',ok2d);
-  mark('bsAn',okA); mark('bsAd',okA); mark('bsBn',okB); mark('bsBd',okB);
-  mark('bsPn',okPr); mark('bsPd',okPr); mark('bsDec',okC); mark('bsP',okP);
+  marqueSaufVide('bs1n',ok1,soutien); marqueSaufVide('bs1d',ok1,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
+  marqueSaufVide('bs2n',ok2,soutien); marqueSaufVide('bs2d',ok2,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
+  marqueSaufVide('bsAn',okA,soutien); marqueSaufVide('bsAd',okA,soutien); marqueSaufVide('bsBn',okB,soutien); marqueSaufVide('bsBd',okB,soutien);
+  marqueSaufVide('bsPn',okPr,soutien); marqueSaufVide('bsPd',okPr,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('bsFeedback','bsActions','checkBSAnswer','bsHost'); return; }
   test.locked=true;
@@ -9330,8 +9353,8 @@ function checkMDAnswer(live){
   const fr=parseDecToFrac(v('mdDec'));
   const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('md1n',okA); mark('md1d',okA); mark('md2n',okB); mark('md2d',okB);
-  mark('md3n',ok3); mark('md3d',ok3); mark('mdDec',ok4);
+  marqueSaufVide('md1n',okA,soutien); marqueSaufVide('md1d',okA,soutien); marqueSaufVide('md2n',okB,soutien); marqueSaufVide('md2d',okB,soutien);
+  marqueSaufVide('md3n',ok3,soutien); marqueSaufVide('md3d',ok3,soutien); marqueSaufVide('mdDec',ok4,soutien);
   const allOk=okA&&okB&&okP&&ok3&&ok4;
   if(!allOk && soutien){ soutienAgain('mdFeedback','mdActions','checkMDAnswer','mdHost'); return; }
   test.locked=true;
@@ -9510,8 +9533,8 @@ function checkUAnswer(live){
   const fr=parseDecToFrac(v('uDec'));
   const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('u1n',okA); mark('u1d',okA); mark('u2n',okB); mark('u2d',okB);
-  mark('u3n',ok3); mark('u3d',ok3); mark('uDec',ok4);
+  marqueSaufVide('u1n',okA,soutien); marqueSaufVide('u1d',okA,soutien); marqueSaufVide('u2n',okB,soutien); marqueSaufVide('u2d',okB,soutien);
+  marqueSaufVide('u3n',ok3,soutien); marqueSaufVide('u3d',ok3,soutien); marqueSaufVide('uDec',ok4,soutien);
   const allOk=okA&&okB&&okP&&ok3&&ok4;
   if(!allOk && soutien){ soutienAgain('uFeedback','uActions','checkUAnswer','uHost'); return; }
   test.locked=true;

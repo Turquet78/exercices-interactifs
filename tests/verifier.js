@@ -2570,6 +2570,7 @@ function exercices(suite){
     jugeArithmetique(w, P);
     equationGraphique(w, P);
     lectureDeuxCourbes(w, P);
+    fractionsDecimalesVides(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     variationsDerivee(w, P);
@@ -6421,6 +6422,68 @@ function lectureDeuxCourbes(w, P){
     { const plein=document.getElementById('ifg-fa1'), vide=document.getElementById('ifg-fa2');
       if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne verdit pas au fil de la frappe');
       if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Les fractions décimales : le dénominateur vide ne condamne personne --
+   Signalé par Turquet sur une capture (août 2026, le 1.7 en soutien) : sur
+   « 0,04 × 17 », le 4 tapé au numérateur ROUGISSAIT pendant que l'élève
+   écrivait son dénominateur — le vide valait 1 (la convention du facteur
+   entier, correcte au contrôle final) et 4/1 se comparait à 4/100. La règle
+   des paires, encore : un numérateur seul se juge sur sa PROMESSE — « ok »
+   s'il est déjà juste en entier (le 17), rien s'il peut encore mener à une
+   fraction égale (le 4), rouge seulement s'il ne mène nulle part. Et à la
+   vérification, une case restée VIDE ne reçoit jamais de couleur
+   (marqueSaufVide, partagé par les quatre exercices à facteur entier :
+   1.7, 1.8, 2.2.7, 2.3.7). */
+function fractionsDecimalesVides(w, P){
+  const present = evaluer(w, "typeof startMultDec==='function' && typeof checkMDAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les fractions décimales : le dénominateur vide ne condamne personne',
+      'ce niveau n\'a pas l\'exercice des multiplications de décimaux');
+    return;
+  }
+  verifierEval(w, 'les fractions décimales : le dénominateur vide ne condamne personne', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='soutien'; currentDM=null;
+    currentTestId='mult-decimaux';
+    /* la question de la capture : 0,04 × 17 */
+    const Q={fA:{num:4,den:100}, fB:{num:17,den:1}, numD:17, numS:4, prodNum:68, prodDen:100,
+             tensD:1, unitsD:7, carry1:2, u:8, t:6, h:0, three:false, aStr:'0,04', bStr:'17', decStr:'0,68'};
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'md', questions:[JSON.parse(JSON.stringify(Q))], idx:0, score:0,
+      answers:[], startTime:Date.now(), locked:false});
+    renderMDTest();
+    const cl=function(id){ const c=document.getElementById(id).classList;
+      return c.contains('ok')?'ok':(c.contains('bad')?'bad':'rien'); };
+    const pose=function(id,v){ document.getElementById(id).value=v; };
+    /* 1. en direct : le 4 sans dénominateur ne reçoit RIEN */
+    pose('md1n','4'); checkMDAnswer(true);
+    if(cl('md1n')!=='rien') vus.push('le 4 de 0,04 est « '+cl('md1n')+' » pendant que son dénominateur est vide');
+    /* 2. le facteur ENTIER, lui, verdit tout de suite : 17 sans dénominateur est déjà juste */
+    pose('md2n','17'); checkMDAnswer(true);
+    if(cl('md2n')!=='ok') vus.push('le 17 (facteur entier, dénominateur vide) est « '+cl('md2n')+' » au lieu de ok');
+    /* 3. un numérateur qui ne mène nulle part rougit quand même */
+    pose('md1n','0'); checkMDAnswer(true);
+    if(cl('md1n')!=='bad') vus.push('un 0 au numérateur (aucun dénominateur possible) est « '+cl('md1n')+' » au lieu de bad');
+    /* 4. la paire complète se juge : 4/100 ok, 3/100 bad */
+    pose('md1n','4'); pose('md1d','100'); checkMDAnswer(true);
+    if(cl('md1n')!=='ok'||cl('md1d')!=='ok') vus.push('4/100 en direct : '+cl('md1n')+'/'+cl('md1d')+' au lieu de ok/ok');
+    pose('md1n','3'); checkMDAnswer(true);
+    if(cl('md1n')!=='bad') vus.push('3/100 en direct : le numérateur est « '+cl('md1n')+' » au lieu de bad');
+    /* 5. à la VÉRIFICATION, une case vide ne reçoit aucune couleur — le
+       numérateur faux en entier, lui, rougit à bon droit */
+    pose('md1n','4'); pose('md1d',''); pose('md2n',''); pose('md2d','');
+    checkMDAnswer();
+    if(cl('md1n')!=='bad') vus.push('vérification : 4 sans dénominateur (réponse entière fausse) est « '+cl('md1n')+' » au lieu de bad');
+    if(cl('md1d')!=='rien') vus.push('vérification : le dénominateur VIDE est « '+cl('md1d')+' » — une case vide ne rougit jamais');
+    if(cl('md2n')!=='rien') vus.push('vérification : le numérateur VIDE est « '+cl('md2n')+' » — une case vide ne rougit jamais');
+    /* 6. les quatre exercices à facteur entier partagent la même marque */
+    const src=document.documentElement.outerHTML;
+    ['hsAn','bsAn','md1n','u1n'].forEach(function(id){
+      if(src.indexOf("marqueSaufVide('"+id+"'")<0) vus.push('l\\'exercice de « '+id+' » ne passe pas par marqueSaufVide');
+    });
     currentMode='train';
     return vus.join(' | ');
   })()`, v => v === '', undefined);

@@ -1902,6 +1902,25 @@ corrections, toutes deux copies épinglées au contrôle :
   retirée, le commentaire qui re-force l'abstention, la prose du modèle
   reprise sur un refus, la tautologie acceptée).
 
+**Le dénominateur vide ne condamne personne.** Signalé par Turquet sur une
+capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
+numérateur ROUGISSAIT pendant que l'élève écrivait son dénominateur. Quatre
+exercices de la Première acceptent un facteur ENTIER en laissant son
+dénominateur vide (vide vaut 1 au contrôle final : le 17 de 0,04 × 17) —
+1.7, 1.8, 2.2.7, 2.3.7 — et leur correction en direct appliquait cette
+convention au numérateur en cours de frappe : 4/1 se comparait à 4/100, et
+rougissait. La règle des paires, encore, une case plus loin : un numérateur
+seul se juge sur sa PROMESSE — « ok » s'il est déjà juste en entier, RIEN
+s'il peut encore mener à une fraction égale, rouge seulement s'il ne mène
+nulle part (aux fractions « toute écriture égale acceptée », presque tout
+numérateur positif mène quelque part : c'est le silence qui est honnête,
+pas le vert). Et à la VÉRIFICATION, une case restée vide ne reçoit jamais
+de couleur — `marqueSaufVide`, partagé par les quatre exercices : rouge
+veut dire faux, pas « pas fini ». Le cas de la capture est épinglé au
+contrôle ; trois sabotages nommés (le vide qui revaut 1 en direct, la case
+vide repeinte à la vérification, un exercice qui revient à l'ancienne
+marque).
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,
