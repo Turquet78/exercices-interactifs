@@ -687,7 +687,7 @@ math-field::part(virtual-keyboard-toggle),math-field::part(menu-toggle){display:
 /* --- cases de reponse (dimensions propres a ce fichier) --- */
 body math-field.dexp-mf{border-radius:10px;background:var(--surface);padding:2px 8px;min-height:1.9em;font-size:1.05rem;}
 math-field.pm-mf{display:inline-block;vertical-align:middle;text-align:center;min-width:64px;max-width:150px;}
-math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:110px;}
+math-field.pm-mf.f-num,math-field.pm-mf.f-den{min-width:56px;max-width:320px;}
 math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .score-tag .score-lbl{font-size:.86rem;color:var(--ink-soft);font-weight:700;}
 @media(max-width:520px){ .score-tag{padding:5px 10px;} .score-tag .score-lbl{font-size:.78rem;} }
@@ -719,12 +719,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den{
+#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf{font-size:1.9rem;line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#bsHost .f-dec,#lcHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec{min-width:82px;}
@@ -1703,7 +1703,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=178;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=180;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2234,8 +2234,10 @@ function liveColorFrac(idn,idd,tn,td,denOptional){   // paire numérateur/dénom
   }
   const n=parseInt(vn,10), d=parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d!==0 && n*td===tn*d;
-  if(!en.disabled) en.classList.add(ok?'ok':'bad');
-  if(ed&&!ed.disabled&&vd!=='') ed.classList.add(ok?'ok':'bad');
+  /* la paire fausse ne rougit que sa case fautive : la case qui porte la
+     valeur canonique reste juste (le 616 de 616/100000) */
+  if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
+  if(ed&&!ed.disabled&&vd!=='') ed.classList.add((ok||d===td)?'ok':'bad');
 }
 /* Marque une case à la vérification — mais une case restée VIDE ne reçoit
    JAMAIS de couleur : rouge veut dire faux, pas « pas fini » (la règle de
@@ -2247,6 +2249,24 @@ function marqueSaufVide(id,ok,soutien){
   if(String(el.value==null?'':el.value).trim()!=='') el.classList.add(ok?'ok':'bad');
   el.disabled=ok||!soutien;
 }
+/* Marque les DEUX cases d'une fraction à la vérification — mais une case
+   juste ne rougit pas parce que l'AUTRE est fausse (la règle des paires,
+   encore une case plus loin). Quand la paire ne fait pas la bonne fraction,
+   chaque case se juge seule contre la valeur CANONIQUE — celle que l'énoncé
+   fait écrire : sur 616/100000 attendu 616/10000, le 616 reste juste et
+   seul le dénominateur rougit. Signalé par Turquet sur une capture (août
+   2026, le 1.7 : « la case 616 ne doit pas être rouge car correct »). */
+function marqueFracSaufVide(idn,idd,tn,td,soutien){
+  const lireV=id=>{const el=$(id);return el?String(el.value==null?'':el.value).trim():'';};
+  const vn=lireV(idn), vd=lireV(idd);
+  const n=parseInt(vn,10), d=(vd===''?1:parseInt(vd,10));
+  const ok=vn!==''&&!isNaN(n)&&!isNaN(d)&&d!==0&&n*td===tn*d;
+  /* l'ancre ne joue que si l'AUTRE case est écrite : un numérateur seul
+     garde la convention du facteur entier — vide vaut 1, « 4 » seul dit 4 */
+  marqueSaufVide(idn, ok||(vd!==''&&n===tn), soutien);
+  marqueSaufVide(idd, ok||(vd!==''&&d===td), soutien);
+  return ok;
+}
 function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
   const en=$(idn), ed=$(idd); if(!en||!ed) return;
   const vn=en.value.trim(), vd=ed.value.trim();
@@ -2254,7 +2274,8 @@ function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dé
   if(vn===''||vd==='') return;
   const n=parseInt(vn,10), d=parseInt(vd,10);
   const ok = !isNaN(n)&&!isNaN(d)&&d>0&&isPow10(d)&&n*td===tn*d;
-  if(!en.disabled) en.classList.add(ok?'ok':'bad'); if(!ed.disabled) ed.classList.add(ok?'ok':'bad');
+  if(!en.disabled) en.classList.add((ok||n===tn)?'ok':'bad');
+  if(!ed.disabled) ed.classList.add((ok||(isPow10(d)&&d===td))?'ok':'bad');
 }
 function liveColorDec(id,tn,td){                       // case décimale
   const el=$(id); if(!el||el.disabled) return; const v=el.value.trim();
@@ -5130,9 +5151,12 @@ function checkPAnswer(live){
   // étape 3 : décimale égale au résultat
   const fr=parseDecToFrac(v('p3'));
   const ok3 = !!fr && fr.n===q.result*fr.d;
-  // les 2 cases d'une même étape partagent le même état (l'égalité porte sur la fraction entière)
-  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
-  mark('p1n',ok1); mark('p1d',ok1); mark('p2n',ok2); mark('p2d',ok2); mark('p3',ok3);
+  // une case juste ne rougit pas parce que sa JUMELLE est fausse : quand la
+  // fraction est fausse, la case qui porte la valeur canonique reste juste
+  // (la règle de la capture du 1.7) — et une case vide ne reçoit rien
+  const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');if(v(id)!=='')el.classList.add(ok?'ok':'bad');el.disabled=ok||!isSoutien();};
+  mark('p1n',ok1||(v('p1d')!==''&&f1n===q.P)); mark('p1d',ok1||(v('p1n')!==''&&f1d===100));
+  mark('p2n',ok2||(v('p2d')!==''&&f2n===q.prod)); mark('p2d',ok2||(v('p2n')!==''&&f2d===100)); mark('p3',ok3);
   const allOk=ok1&&ok2&&ok3;
   if(!allOk && isSoutien()){ soutienAgain('pFeedback','pActions','checkPAnswer','pHost'); return; }
   test.locked=true;
@@ -5577,9 +5601,8 @@ async function startEvolAdd(id, gen){
 async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd); }
 async function startDimSub(){ return startEvolAdd('diminuer-soustraction', genDimSub); }
 function updateAG2Step5(){
-  const st=$('ag2Step5'); if(!st) return;
-  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  st.classList.toggle('step-hidden', !(ok('g4a')&&ok('g4b')));
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  poseOpEleveMAJ({step:'ag2Step5',host:'ag2Mul',aId:'g4a',bId:'g4b',neg:augqSens(q)<0});
 }
 function renderAG2Test(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -5593,7 +5616,7 @@ function renderAG2Test(){
     ?' Calcule d\u2019abord la baisse, puis retire-la de la valeur de d\u00e9part.'
     :' Calcule d\u2019abord l\u2019augmentation, puis ajoute-la \u00e0 la valeur de d\u00e9part.');
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
-  const pose=neg?buildPoseSub(q.N,q.aug,'ag2Mul'):buildPoseAdd(q.N,q.aug,'ag2Mul');
+  const pose='<div class="mp-op" id="ag2Mul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
   $('ag2Host').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : ${q.P} % de ${q.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
        <div class="pt-row">${frac('g1n','g1d')}<span class="f-times">\u00d7</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('g2n','g2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="g3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
@@ -5806,10 +5829,9 @@ function choisirW(i){
   q.choisi=i; qcmRedessiner('a2qHost', renderWTest); autoSave();
 }
 function updateWPose(){
-  const st=$('wPose'); if(!st) return;
-  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  const posee=$('wMul')&&$('wMul').firstChild;   /* pas de pose sans proposition choisie */
-  st.classList.toggle('step-hidden', !(posee&&ok('w4a')&&ok('w4b')));
+  const q=test.questions&&test.questions[test.idx]; if(!q) return;
+  /* elle n'attend plus la proposition : ce sont les termes ÉCRITS qui la font */
+  poseOpEleveMAJ({step:'wPose',host:'wMul',aId:'w4a',bId:'w4b',neg:augqSens(q)<0});
 }
 function renderWTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -5829,7 +5851,7 @@ function renderWTest(){
   const pAff=(q.type==='pct')?(c?c.P:'…'):q.P, nAff=(q.type==='pct')?q.N:(c?c.N:'…');
   /* la pose facultative est celle de l'opération FINALE de la méthode directe :
      l'addition (hausse) ou la soustraction (baisse) — jamais la multiplication */
-  const pose=c?(neg?buildPoseSub(c.N,c.aug,'wMul'):buildPoseAdd(c.N,c.aug,'wMul')):'<div class="mp-op" id="wMul"></div>';
+  const pose='<div class="mp-op" id="wMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
   $('a2qHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="wChoix">${choix}</div></div>`+
@@ -6110,13 +6132,11 @@ function updateSynPose(){
   const st=$('syPose'); if(!st) return;
   const q=test.questions[test.idx];
   /* méthode coefficient : la pose de la MULTIPLICATION suit les nombres de
-     l'élève (poseEleveMAJ) ; méthode directe : la pose de l'addition ou de la
-     soustraction reste celle de la proposition, ouverte quand ses termes sont
-     écrits — la demande de Turquet ne porte que sur la multiplication */
+     l'élève (poseEleveMAJ) ; méthode directe : la pose de l'addition ou de
+     la soustraction les suit AUSSI (demande de Turquet, août 2026) — bâtie
+     sur les termes écrits, plus jamais sur la proposition */
   if(q.meth==='coef'){ poseEleveMAJ({step:'syPose',host:'syMul',nId:'y3n',vId:'y3v'}); return; }
-  const ok=id=>{const e=$(id);return e&&e.value.trim()!=='';};
-  const posee=$('syMul')&&$('syMul').firstChild;   /* pas de pose sans proposition choisie */
-  st.classList.toggle('step-hidden', !(posee&&ok('y4a')&&ok('y4b')));
+  poseOpEleveMAJ({step:'syPose',host:'syMul',aId:'y4a',bId:'y4b',neg:q.sens<0});
 }
 function renderSynTest(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -6164,8 +6184,9 @@ function renderSynTest(){
       `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
          <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
   } else {
-    /* la pose facultative de la méthode directe est l'addition ou la soustraction */
-    const pose=c?(neg?buildPoseSub(c.N,c.res,'syMul'):buildPoseAdd(c.N,c.res,'syMul')):'<div class="mp-op" id="syMul"></div>';
+    /* la pose facultative de la méthode directe est l'addition ou la
+       soustraction — elle suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
+    const pose='<div class="mp-op" id="syMul"></div>';
     etapes=
       `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
          <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
@@ -7453,6 +7474,38 @@ function poseEleveMAJ(cfg){
   }
   st.classList.remove('step-hidden');
 }
+/* La pose de l'opération FINALE de la méthode directe suit elle aussi les
+   nombres de l'ÉLÈVE (demande de Turquet, août 2026 — « les opérations
+   posées correspondent à ce qu'a mis l'élève ») : elle est bâtie sur ce
+   qu'il a écrit dans la ligne « départ ± variation », même si ses nombres ne
+   sont pas ceux de la correction — c'est une aide pour SON calcul, pas une
+   révélation. Les colonnes ne savent poser que des ENTIERS positifs (et une
+   soustraction qui ne descend pas sous zéro) : sinon la pose se cache. Pas
+   de zéros finaux retirés ici, contrairement à la multiplication : dans une
+   addition posée, chaque zéro tient sa colonne. Reconstruite quand les
+   termes CHANGENT, jamais sinon — reconstruire à chaque frappe effacerait
+   ce que l'élève y écrit. */
+function poseOpEleveMAJ(cfg){
+  const st=$(cfg.step), host=$(cfg.host); if(!st||!host) return;
+  const lire=id=>{ const e=$(id); const t=String((e&&e.value)==null?'':e.value).trim();
+    return /^\d{1,6}$/.test(t)?parseInt(t,10):null; };
+  const a=lire(cfg.aId), b=lire(cfg.bId);
+  const posable = a!=null && b!=null && (!cfg.neg || a>=b);
+  if(!posable){ st.classList.add('step-hidden'); host.dataset.pose=''; host.innerHTML=''; return; }
+  const cle=(cfg.neg?'-':'+')+a+';'+b;
+  if(host.dataset.pose!==cle){
+    host.dataset.pose=cle;
+    const tmp=document.createElement('div');
+    tmp.innerHTML=cfg.neg?buildPoseSub(a,b,'__pose_tmp'):buildPoseAdd(a,b,'__pose_tmp');
+    host.innerHTML=tmp.firstElementChild.innerHTML;
+    const ins=[...host.querySelectorAll('input')].sort((x,y)=>(+x.dataset.mtab)-(+y.dataset.mtab));
+    ins.forEach((el,i)=>{
+      el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&ins[i+1]) ins[i+1].focus(); });
+      el.addEventListener('keydown',ev=>{ if(ev.key==='Backspace'&&!el.value&&ins[i-1]) ins[i-1].focus(); });
+    });
+  }
+  st.classList.remove('step-hidden');
+}
 /* P/100 en écriture décimale, pour les textes : 5 → « 0,05 », 40 → « 0,40 ». */
 function pDecStr(P){ return P<10 ? '0,0'+P : '0,'+P; }
 /* ---- Mode entraînement : corrections en vert après la vérification ----
@@ -8129,10 +8182,10 @@ function checkHSAnswer(live){
     [$('hsVn'),$('hsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueSaufVide('hs1n',ok1,soutien); marqueSaufVide('hs1d',ok1,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
-  marqueSaufVide('hs2n',ok2,soutien); marqueSaufVide('hs2d',ok2,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
-  marqueSaufVide('hsAn',okA,soutien); marqueSaufVide('hsAd',okA,soutien); marqueSaufVide('hsBn',okB,soutien); marqueSaufVide('hsBd',okB,soutien);
-  marqueSaufVide('hsPn',okPr,soutien); marqueSaufVide('hsPd',okPr,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
+  marqueFracSaufVide('hs1n','hs1d',q.P1,100,soutien); marqueSaufVide('hs1p',ok1p,soutien); marqueSaufVide('hs1dec',ok1d,soutien);
+  marqueFracSaufVide('hs2n','hs2d',q.P2,100,soutien); marqueSaufVide('hs2p',ok2p,soutien); marqueSaufVide('hs2dec',ok2d,soutien);
+  marqueFracSaufVide('hsAn','hsAd',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('hsBn','hsBd',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('hsPn','hsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('hsDec',okC,soutien); marqueSaufVide('hsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('hsFeedback','hsActions','checkHSAnswer','hsHost'); return; }
   test.locked=true;
@@ -8882,10 +8935,10 @@ function checkBSAnswer(live){
     [$('bsVn'),$('bsVd')].forEach(el=>{ el.classList.remove('ok','bad'); el.classList.add(okV?'ok':'bad'); el.disabled=okV||!soutien; });
   }
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueSaufVide('bs1n',ok1,soutien); marqueSaufVide('bs1d',ok1,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
-  marqueSaufVide('bs2n',ok2,soutien); marqueSaufVide('bs2d',ok2,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
-  marqueSaufVide('bsAn',okA,soutien); marqueSaufVide('bsAd',okA,soutien); marqueSaufVide('bsBn',okB,soutien); marqueSaufVide('bsBd',okB,soutien);
-  marqueSaufVide('bsPn',okPr,soutien); marqueSaufVide('bsPd',okPr,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
+  marqueFracSaufVide('bs1n','bs1d',q.P1,100,soutien); marqueSaufVide('bs1p',ok1p,soutien); marqueSaufVide('bs1dec',ok1d,soutien);
+  marqueFracSaufVide('bs2n','bs2d',q.P2,100,soutien); marqueSaufVide('bs2p',ok2p,soutien); marqueSaufVide('bs2dec',ok2d,soutien);
+  marqueFracSaufVide('bsAn','bsAd',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('bsBn','bsBd',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('bsPn','bsPd',q.prodNum,q.prodDen,soutien); marqueSaufVide('bsDec',okC,soutien); marqueSaufVide('bsP',okP,soutien);
   const allOk=ok1&&ok1p&&ok1d&&ok2&&ok2p&&ok2d&&okA&&okB&&okPr&&okC&&okP;
   if(!allOk && soutien){ soutienAgain('bsFeedback','bsActions','checkBSAnswer','bsHost'); return; }
   test.locked=true;
@@ -9353,8 +9406,8 @@ function checkMDAnswer(live){
   const fr=parseDecToFrac(v('mdDec'));
   const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueSaufVide('md1n',okA,soutien); marqueSaufVide('md1d',okA,soutien); marqueSaufVide('md2n',okB,soutien); marqueSaufVide('md2d',okB,soutien);
-  marqueSaufVide('md3n',ok3,soutien); marqueSaufVide('md3d',ok3,soutien); marqueSaufVide('mdDec',ok4,soutien);
+  marqueFracSaufVide('md1n','md1d',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('md2n','md2d',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('md3n','md3d',q.prodNum,q.prodDen,soutien); marqueSaufVide('mdDec',ok4,soutien);
   const allOk=okA&&okB&&okP&&ok3&&ok4;
   if(!allOk && soutien){ soutienAgain('mdFeedback','mdActions','checkMDAnswer','mdHost'); return; }
   test.locked=true;
@@ -9533,8 +9586,8 @@ function checkUAnswer(live){
   const fr=parseDecToFrac(v('uDec'));
   const ok4 = !!fr && fr.n*q.prodDen===q.prodNum*fr.d;
   const mark=(id,ok)=>{const el=$(id);el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  marqueSaufVide('u1n',okA,soutien); marqueSaufVide('u1d',okA,soutien); marqueSaufVide('u2n',okB,soutien); marqueSaufVide('u2d',okB,soutien);
-  marqueSaufVide('u3n',ok3,soutien); marqueSaufVide('u3d',ok3,soutien); marqueSaufVide('uDec',ok4,soutien);
+  marqueFracSaufVide('u1n','u1d',q.fA.num,q.fA.den,soutien); marqueFracSaufVide('u2n','u2d',q.fB.num,q.fB.den,soutien);
+  marqueFracSaufVide('u3n','u3d',q.prodNum,q.prodDen,soutien); marqueSaufVide('uDec',ok4,soutien);
   const allOk=okA&&okB&&okP&&ok3&&ok4;
   if(!allOk && soutien){ soutienAgain('uFeedback','uActions','checkUAnswer','uHost'); return; }
   test.locked=true;
