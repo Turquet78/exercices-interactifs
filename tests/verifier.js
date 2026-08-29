@@ -1950,9 +1950,29 @@ function exercices(suite){
       ecrire(c.d1, lc.justes.d1); quitter();
       verifier('fraction complète et juste : les deux cases en vert',
         couleur(w, c.n1) === 'VERT' && couleur(w, c.d1) === 'VERT');
+      /* la paire fausse ne rougit que sa case fautive (la capture du 1.7,
+         août 2026) : le numérateur du profil est la valeur CANONIQUE, seul
+         le dénominateur faux rougit */
       ecrire(c.n2, lc.faux.n2); ecrire(c.d2, lc.faux.d2); quitter();
-      verifier('fraction fausse : les deux cases en rouge',
+      verifier('fraction fausse : seule la case fautive rougit',
+        couleur(w, c.n2) === 'VERT' && couleur(w, c.d2) === 'ROUGE',
+        c.n2 + '=' + couleur(w, c.n2) + ' (canonique, attendu ok) ; ' + c.d2 + '=' + couleur(w, c.d2));
+      ecrire(c.n2, '999'); quitter();
+      verifier('fraction fausse aux deux valeurs : les deux cases en rouge',
         couleur(w, c.n2) === 'ROUGE' && couleur(w, c.d2) === 'ROUGE');
+      /* et la VÉRIFICATION suit la même règle que le direct — le sabotage qui
+         remettait le verdict de paire au seul bouton « Vérifier » restait
+         vert : aucun contrôle ne cliquait ce chemin-là */
+      if(lc.verif){
+        evaluer(w, "test.locked=false; " + t.rendu + "();");
+        ecrire(c.n1, lc.justes.n1); ecrire(c.d1, lc.justes.d1);
+        ecrire(c.n2, lc.faux.n2); ecrire(c.d2, lc.faux.d2);
+        ecrire(c.res, lc.justes.res);
+        evaluer(w, lc.verif);
+        verifier('à la vérification aussi, seule la case fautive rougit',
+          couleur(w, c.n2) === 'VERT' && couleur(w, c.d2) === 'ROUGE',
+          c.n2 + '=' + couleur(w, c.n2) + ' (canonique, attendu ok) ; ' + c.d2 + '=' + couleur(w, c.d2));
+      }
       ecrire(c.res, lc.justes.res); quitter();
       verifier('résultat décimal juste : case en vert', couleur(w, c.res) === 'VERT');
 
@@ -2570,7 +2590,9 @@ function exercices(suite){
     jugeArithmetique(w, P);
     equationGraphique(w, P);
     lectureDeuxCourbes(w, P);
+    resolutionsGraphiques(w, P);
     fractionsDecimalesVides(w, P);
+    paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     variationsDerivee(w, P);
@@ -2593,6 +2615,7 @@ function exercices(suite){
     syntheseAugLibreRedigee(w, P);
     verificationAvecPropositions(w, P);
     poseSuitLEleve(w, P);
+    poseOperationSuitLEleve(w, P);
     correctionSignesVariations(w, P);
     termeEntierDansCaseCoefficient(w, P);
 
@@ -4270,6 +4293,66 @@ function poseSuitLEleve(w, P){
       while(q.fam==='pct' && garde++<200){ test.questions[0]=q=genSyn(); }
       renderSynTest(); choisirSyMeth('coef');
     }, 'syPose', 'syMul', 'y3n', 'y3v', updateSynPose);
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- La pose de l'opération FINALE suit les nombres de l'élève ------
+   (demande de Turquet, août 2026, sur une capture du 2.2.2 : l'élève avait
+   écrit 6000 + 300 dans la ligne « départ + augmentation », et la pose en
+   colonnes montrait 70 + 63 — les nombres de la CORRECTION, pas les siens).
+   Dans les trois écrans de la méthode directe (2.2.2/2.3.2, les QCM
+   « retrouver » en addition/soustraction, la synthèse en méthode directe),
+   la pose de l'addition ou de la soustraction est bâtie sur les termes que
+   l'élève a ÉCRITS — c'est une aide pour SON calcul. Les colonnes ne posent
+   que des entiers (une soustraction qui ne descend pas sous zéro) ; pas de
+   zéros finaux retirés, contrairement à la multiplication : dans une
+   addition posée, chaque zéro tient sa colonne. Reconstruite quand les
+   termes changent, jamais sinon. */
+function poseOperationSuitLEleve(w, P){
+  const present = evaluer(w, "typeof poseOpEleveMAJ==='function' && typeof startAugAdd==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la pose de l\'addition ou de la soustraction suit les nombres de l\'élève',
+      'ce niveau n\'a pas la méthode directe des évolutions');
+    return;
+  }
+  verifierEval(w, 'la pose de l\'addition ou de la soustraction suit les nombres de l\'élève', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    function essai(nom, demarrer, step, host, aId, bId, maj, neg){
+      demarrer();
+      const cache=()=>$(step).classList.contains('step-hidden');
+      if(!cache()){ vus.push(nom+' : pose visible sans termes écrits'); return; }
+      if(neg){
+        $(aId).value='70'; $(bId).value='63'; maj();
+        if(cache()||$(host).dataset.pose!=='-70;63') vus.push(nom+' : 70 − 63 non posé ('+$(host).dataset.pose+')');
+        $(aId).value='63'; $(bId).value='70'; maj();
+        if(!cache()) vus.push(nom+' : 63 − 70 est posé — les colonnes ne descendent pas sous zéro');
+        return;
+      }
+      /* LA CAPTURE : 6000 + 300 — la pose montre les nombres de l'ÉLÈVE */
+      $(aId).value='6000'; $(bId).value='300'; maj();
+      if(cache()){ vus.push(nom+' : pose cachée avec 6000 + 300'); return; }
+      if($(host).dataset.pose!=='+6000;300'){ vus.push(nom+' : pose '+$(host).dataset.pose+' au lieu de +6000;300 — elle montre la correction, pas l\\'élève'); return; }
+      const exps=[...$(host).querySelectorAll('.mp-box')].map(e=>e.dataset.exp).join('');
+      if(exps!=='6300') vus.push(nom+' : la pose n\\'attend pas la somme de l\\'ÉLÈVE (6300) mais « '+exps+' »');
+      $(bId).value='63'; maj();
+      if($(host).dataset.pose!=='+6000;63') vus.push(nom+' : la pose ne suit pas un terme changé ('+$(host).dataset.pose+')');
+      const in1=$(host).querySelector('input'); if(in1){ in1.value='3'; maj();
+        if($(host).querySelector('input').value!=='3') vus.push(nom+' : la pose se reconstruit sans changement de termes — l\\'élève perd ce qu\\'il y écrit'); }
+      $(aId).value='70,5'; maj();
+      if(!cache()) vus.push(nom+' : un terme DÉCIMAL est posé en colonnes');
+    }
+    essai('2.2.2', startAugAdd, 'ag2Step5', 'ag2Mul', 'g4a', 'g4b', updateAG2Step5, false);
+    essai('2.3.2', startDimSub, 'ag2Step5', 'ag2Mul', 'g4a', 'g4b', updateAG2Step5, true);
+    /* QCM : la pose suit l'élève SANS qu'aucune proposition soit choisie */
+    essai('retrouver (QCM, addition)', startAugDepAdd, 'wPose', 'wMul', 'w4a', 'w4b', updateWPose, false);
+    /* synthèse, méthode directe, sur une HAUSSE forcée */
+    essai('synthèse (directe)', function(){
+      startSyn();
+      let q=test.questions[0], garde=0;
+      while((q.fam==='pct'||q.sens<0) && garde++<300){ test.questions[0]=q=genSyn(); }
+      renderSynTest(); choisirSyMeth('dir');
+    }, 'syPose', 'syMul', 'y4a', 'y4b', updateSynPose, false);
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -6426,6 +6509,144 @@ function lectureDeuxCourbes(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- Les résolutions graphiques : équations et inéquations sur quatre
+   dessins -------------------------------------------------------------------
+   La fiche « Exercice 2 » : UNE courbe, deux hauteurs k1 < k2 (k = 0 sort —
+   la fiche l'exige, f(x) = 0), et quatre questions sur le MÊME tirage
+   conservé — équation puis inéquation à chaque hauteur. Pour une équation,
+   les quatre dessins ne diffèrent que par la ligne et ses points (bon,
+   l'autre hauteur, un point oublié, un point en trop) ; pour une inéquation,
+   ce sont les quatre coloriages du 2.4 (milieu/extérieur × pris/exclu),
+   généralisés au CÔTÉ réel de f entre les croisements. Le risque propre est
+   la TANGENCE : une hauteur qui touche la courbe sans la traverser
+   laisserait l'inéquation sans aucun des quatre dessins proposés — l'énoncé
+   mentirait avant que l'élève ne commence. */
+function resolutionsGraphiques(w, P){
+  const present = evaluer(w, "typeof startEig==='function' && typeof eigBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les résolutions graphiques : équations et inéquations sur quatre dessins',
+      'ce niveau n\'a pas l\'exercice des résolutions graphiques');
+    return;
+  }
+  verifierEval(w, 'les résolutions graphiques : équations et inéquations sur quatre dessins', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='resolutions-graphiques';
+
+    /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
+    let k0=0; const rangsEq=new Set(), rangsParForme={};
+    for(let t=0;t<250 && !vus.length;t++){
+      const qs=eigBuildQuestions();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      if(qs.map(function(q){ return q.type; }).join(',')!=='eq1,in1,eq2,in2')
+        vus.push('les questions ne suivent pas l\\'ordre de la fiche (équation puis inéquation, hauteur basse puis haute) : '+qs.map(function(q){ return q.type; }).join(','));
+      const q0=qs[0];
+      const ref=JSON.stringify([q0.pts,q0.k1,q0.k2,q0.op1,q0.op2,q0.xt1,q0.xt2,q0.permE,q0.permI]);
+      if(qs.some(function(q){ return JSON.stringify([q.pts,q.k1,q.k2,q.op1,q.op2,q.xt1,q.xt2,q.permE,q.permI])!==ref; }))
+        vus.push('le tirage CHANGE d\\'une question à l\\'autre — le même dessin doit servir aux quatre');
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','k1','k2','op1','op2','xt1','xt2','permE','permI','type'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, les hauteurs, les signes, les points en trop et les ordres : '+cles.join(','));
+      });
+      if(!(q0.k1<q0.k2)) vus.push('k1 >= k2 : l\\'ordre de la fiche (la plus basse d\\'abord) est perdu');
+      [q0.k1,q0.k2].forEach(function(k,i){
+        const so=[]; for(let x=-3;x<=3;x++){ if(q0.pts[x+3]===k) so.push(x); }
+        if(so.length!==2){ vus.push('f(x) = '+k+' a '+so.length+' solution(s) au lieu de 2'); return; }
+        if(so[0]<=-3||so[1]>=3) vus.push('un croisement de k'+(i+1)+' tombe au bord du dessin');
+        if(so[1]-so[0]<2) vus.push('les deux solutions de f(x) = '+k+' sont voisines : le segment entier est à cette hauteur');
+        so.forEach(function(x){ if(x>-3&&x<3&&(q0.pts[x+2]-k)*(q0.pts[x+4]-k)>=0)
+          vus.push('la hauteur '+k+' TOUCHE la courbe en x='+x+' sans la traverser : l\\'inéquation n\\'a aucun des quatre dessins'); });
+        for(let j=0;j<6;j++){ const lo=Math.min(q0.pts[j],q0.pts[j+1]), hi=Math.max(q0.pts[j],q0.pts[j+1]);
+          if(k>lo&&k<hi) vus.push('la hauteur '+k+' est traversée ENTRE deux graduations : une solution illisible'); }
+        const xt=(i===0)?q0.xt1:q0.xt2;
+        if(typeof xt!=='number'||xt<-2||xt>2) vus.push('le point en trop de k'+(i+1)+' n\\'est pas une graduation intérieure');
+        else if(q0.pts[xt+3]===k) vus.push('le point en trop de k'+(i+1)+' tombe sur un vrai croisement');
+      });
+      if(k0===0 && (q0.k1===0||q0.k2===0)) k0=1;
+      rangsEq.add(q0.permE.indexOf('bon'));
+      const fi=eigFormeIneq(qs[1]);
+      (rangsParForme[fi]=rangsParForme[fi]||new Set()).add(q0.permI.indexOf(fi));
+    }
+    if(!vus.length && !k0) vus.push('k = 0 ne sort jamais sur 250 séances : la fiche demande f(x) = 0');
+    if(!vus.length && rangsEq.size<3) vus.push('le rang du bon dessin d\\'équation ne varie pas assez ('+rangsEq.size+' rang(s) vu(s)) : l\\'élève apprendrait le rang');
+    if(!vus.length){
+      const fig=Object.keys(rangsParForme).filter(function(f){ return rangsParForme[f].size>=2; });
+      if(!fig.length) vus.push('à forme égale, le rang du bon dessin d\\'inéquation ne varie jamais');
+    }
+
+    /* ---- 2. les gestes, sur un tirage FIXE (la courbe du repli : f vaut
+       -3,-1,1,3,1,-1,-3 — croisements de -1 en x=-2 et 2, de 1 en x=-1 et 1,
+       f AU-DESSUS de la hauteur entre les deux croisements dans les deux
+       cas ; permutations identité, donc le bon dessin est le premier) ---- */
+    const Q0={pts:[-3,-1,1,3,1,-1,-3], k1:-1, k2:1, op1:'ge', op2:'ge', xt1:0, xt2:2,
+      permE:['bon','autre','oubli','trop'], permI:['mo','mn','eo','en']};
+    function pose(type, op1, valeurs){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'eig', questions:['eq1','in1','eq2','in2'].map(function(tt){ return Object.assign({},Q0,{op1:op1||'ge',type:tt}); }),
+        idx:{eq1:0,in1:1,eq2:2,in2:3}[type], score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+      renderEigTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkEigAnswer();
+      return { fb:document.getElementById('eigFeedback').textContent,
+               cls:document.getElementById('eigFeedback').className,
+               score:test.score };
+    }
+    /* les quatre dessins d'une équation : la ligne partout, les points selon la forme */
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'eig', questions:[Object.assign({},Q0,{type:'eq1'})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+    renderEigTest();
+    { const cartes=document.querySelectorAll('#eigHost .ing-carte');
+      if(cartes.length!==4) vus.push(cartes.length+' cartes au lieu de 4');
+      const pts=[].map.call(cartes,function(c){ return c.querySelectorAll('.ing-pt').length; });
+      /* permE identité : bon = 2 points, autre = les 2 points de l'AUTRE
+         hauteur, oubli = 1, trop = 3 */
+      if(pts.join(',')!=='2,2,1,3') vus.push('les points des quatre dessins d\\'équation (bon, autre, oubli, trop) : '+pts.join(',')+' au lieu de 2,2,1,3');
+      [].forEach.call(cartes,function(c,i){ if(!c.querySelector('.ing-niv')) vus.push('le dessin '+i+' n\\'a pas de ligne horizontale'); });
+      const ys=[].map.call(cartes,function(c){ const n=c.querySelector('.ing-niv'); return n?n.getAttribute('y1'):''; });
+      if(ys[0]===ys[1]) vus.push('le dessin « autre hauteur » porte la MÊME ligne que le bon');
+      if(ys[0]!==ys[2]||ys[0]!==ys[3]) vus.push('« oubli » et « trop » doivent garder la ligne de la bonne hauteur');
+    }
+    /* équation juste, abscisses et S dans l'ordre INVERSE : l'ordre est libre */
+    let r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'2','eig-a-1':'-2','eig-s-0':'2','eig-s-1':'-2'});
+    if(r.score!==5 || !/\\bgood\\b/.test(r.cls)) vus.push('l\\'équation juste avec les abscisses dans l\\'autre ordre est refusée, score '+r.score+'/5');
+    { const carte=document.querySelectorAll('#eigHost .ing-carte')[0];
+      if(!carte || !carte.classList.contains('ok')) vus.push('la bonne carte CHOISIE n\\'est pas bleue (ok)'); }
+    /* le doublon : défendable une fois, faux la seconde */
+    r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-2','eig-a-1':'-2','eig-s-0':'-2','eig-s-1':'2'});
+    if(r.score!==4) vus.push('la même abscisse écrite deux fois : la paire vaut '+(r.score-3)+' au lieu de 1 (score '+r.score+')');
+    /* le mauvais dessin choisi : la bonne carte se MONTRE en vert, la choisie rougit */
+    r=pose('eq1', 'ge', {'eig-sch':'1','eig-a-0':'-2','eig-a-1':'2','eig-s-0':'-2','eig-s-1':'2'});
+    { const cartes=document.querySelectorAll('#eigHost .ing-carte');
+      if(!cartes[0].classList.contains('sol')) vus.push('la bonne carte ne se montre pas en vert quand l\\'élève en a choisi une autre');
+      if(!cartes[1].classList.contains('bad')) vus.push('la carte choisie à tort ne rougit pas'); }
+    /* une case vide ne rougit JAMAIS : elle reçoit la correction en bleu */
+    r=pose('eq1', 'ge', {'eig-sch':'0','eig-a-0':'-2','eig-a-1':'2','eig-s-0':'-2'});
+    { const el=document.getElementById('eig-s-1');
+      if(el.classList.contains('bad')) vus.push('la case vide ROUGIT à la vérification');
+      if(!el.classList.contains('sol') || el.value!=='2') vus.push('la case vide n\\'a pas reçu la correction en bleu (2)');
+      if(r.fb.indexOf('Il te manquait 1 case')!==0) vus.push('le message ne dit pas d\\'abord la case manquante : '+r.fb.slice(0,60)); }
+    /* l'inéquation ≥ : f au-dessus entre -2 et 2 → le milieu, pris (forme mo) */
+    r=pose('in1', 'ge', {'eig-sch':'0','eig-d1':'-2','eig-p1':'oui','eig-d2':'2','eig-p2':'oui','eig-co1':'[','eig-b1':'-2','eig-b2':'2','eig-cf1':']'});
+    if(r.score!==9) vus.push('f(x) ≥ -1 : S = [-2 ; 2] refusé, score '+r.score+'/9');
+    /* l'inéquation < : l'extérieur exclu (forme en), les deux morceaux et
+       l'union dans l'AUTRE ordre — jugés au mieux, la règle du 2.4 */
+    r=pose('in1', 'lt', {'eig-sch':'3','eig-d1':'2','eig-p1':'non','eig-d2':'3','eig-p2':'oui','eig-d3':'-3','eig-p3':'oui','eig-d4':'-2','eig-p4':'non',
+      'eig-co1':']','eig-b1':'2','eig-b2':'3','eig-cf1':']','eig-co2':'[','eig-b3':'-3','eig-b4':'-2','eig-cf2':'['});
+    if(r.score!==17) vus.push('f(x) < -1 : les deux morceaux écrits droite-gauche sont refusés, score '+r.score+'/17');
+    /* en soutien, une case vide ne reçoit AUCUNE couleur au fil du choix */
+    currentMode='soutien';
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'eig', questions:[Object.assign({},Q0,{type:'eq1'})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+    renderEigTest();
+    { const a0=document.getElementById('eig-a-0'); a0.value='-2'; }
+    eigLive();
+    { const plein=document.getElementById('eig-a-0'), vide=document.getElementById('eig-a-1');
+      if(!plein.classList.contains('ok')) vus.push('soutien : la case juste ne bleuit pas au fil du choix');
+      if(vide.classList.contains('ok')||vide.classList.contains('bad')) vus.push('soutien : une case vide reçoit une couleur'); }
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 /* ---- Les fractions décimales : le dénominateur vide ne condamne personne --
    Signalé par Turquet sur une capture (août 2026, le 1.7 en soutien) : sur
    « 0,04 × 17 », le 4 tapé au numérateur ROUGISSAIT pendant que l'élève
@@ -6479,12 +6700,80 @@ function fractionsDecimalesVides(w, P){
     if(cl('md1n')!=='bad') vus.push('vérification : 4 sans dénominateur (réponse entière fausse) est « '+cl('md1n')+' » au lieu de bad');
     if(cl('md1d')!=='rien') vus.push('vérification : le dénominateur VIDE est « '+cl('md1d')+' » — une case vide ne rougit jamais');
     if(cl('md2n')!=='rien') vus.push('vérification : le numérateur VIDE est « '+cl('md2n')+' » — une case vide ne rougit jamais');
-    /* 6. les quatre exercices à facteur entier partagent la même marque */
+    /* 6. les quatre exercices à facteur entier partagent la même marque —
+       depuis la capture du 616, la paire passe par marqueFracSaufVide */
     const src=document.documentElement.outerHTML;
     ['hsAn','bsAn','md1n','u1n'].forEach(function(id){
-      if(src.indexOf("marqueSaufVide('"+id+"'")<0) vus.push('l\\'exercice de « '+id+' » ne passe pas par marqueSaufVide');
+      if(src.indexOf("marqueFracSaufVide('"+id+"'")<0) vus.push('l\\'exercice de « '+id+' » ne passe pas par marqueFracSaufVide');
     });
     currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- La paire fausse ne rougit que sa case fautive ------------------------
+   Signalé par Turquet sur une capture (août 2026, le 1.7) : sur 0,08 × 0,77,
+   le produit écrit 616/100000 rougissait ses DEUX cases — « la case 616 ne
+   doit pas être rouge car correct ». Un seul verdict de paire peignait les
+   deux cellules d'une fraction (marqueSaufVide appelé deux fois avec le même
+   ok). Quand la paire ne fait pas la bonne fraction, chaque case se juge
+   seule contre la valeur CANONIQUE — celle que l'énoncé fait écrire — dans
+   les quatre écrans de la famille (1.7, 1.8, 2.2.7, 2.3.7), à la
+   vérification comme en direct. Toute fraction ÉGALE reste acceptée. */
+function paireFausseCaseFautive(w, P){
+  const present = evaluer(w, "typeof marqueFracSaufVide==='function' && typeof checkMDAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la paire fausse ne rougit que sa case fautive (1.7, 1.8, 2.2.7, 2.3.7)',
+      'ce niveau n\'a pas la famille des multiplications de décimaux');
+    return;
+  }
+  verifierEval(w, 'la paire fausse ne rougit que sa case fautive (1.7, 1.8, 2.2.7, 2.3.7)', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null; currentTestId='mult-decimaux';
+    const Q={aStr:'0,08', bStr:'0,77', fA:{num:8,den:100}, fB:{num:77,den:100}, prodNum:616, prodDen:10000,
+             decStr:'0,0616', tensD:7, unitsD:7, numS:8, carry1:'5', t:'1', u:'6', h:'6', three:true};
+    const pose=function(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'md', questions:[Q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+      show('mdtest'); renderMDTest();
+      Object.keys(valeurs).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkMDAnswer();
+    };
+    const teinte=function(id){ const el=document.getElementById(id);
+      return el.classList.contains('ok')?'ok':el.classList.contains('bad')?'bad':'rien'; };
+    /* la copie JUSTE d'abord : si elle ne passe pas, c'est le contrôle qui a tort */
+    pose({md1n:'8',md1d:'100',md2n:'77',md2d:'100',md3n:'616',md3d:'10000',mdDec:'0,0616'});
+    ['md1n','md1d','md2n','md2d','md3n','md3d','mdDec'].forEach(function(id){
+      if(teinte(id)!=='ok') vus.push('copie juste : '+id+' est '+teinte(id)); });
+    /* LA CAPTURE : 616/100000 — le 616 reste juste, seul le dénominateur rougit */
+    pose({md1n:'8',md1d:'100',md2n:'77',md2d:'100',md3n:'616',md3d:'100000',mdDec:'0,0616'});
+    if(teinte('md3n')!=='ok') vus.push('la capture : 616 est '+teinte('md3n')+' au lieu de ok');
+    if(teinte('md3d')!=='bad') vus.push('la capture : 100000 est '+teinte('md3d')+' au lieu de rouge');
+    /* le miroir : 1232/10000 — le dénominateur canonique reste juste */
+    pose({md1n:'8',md1d:'100',md2n:'77',md2d:'100',md3n:'1232',md3d:'10000',mdDec:'0,0616'});
+    if(teinte('md3n')!=='bad') vus.push('miroir : 1232 est '+teinte('md3n')+' au lieu de rouge');
+    if(teinte('md3d')!=='ok') vus.push('miroir : 10000 est '+teinte('md3d')+' au lieu de ok');
+    /* toute fraction ÉGALE reste acceptée, même sans être la canonique */
+    pose({md1n:'8',md1d:'100',md2n:'77',md2d:'100',md3n:'308',md3d:'5000',mdDec:'0,0616'});
+    if(teinte('md3n')!=='ok'||teinte('md3d')!=='ok') vus.push('308/5000 (fraction égale) refusée : '+teinte('md3n')+'/'+teinte('md3d'));
+    /* en DIRECT (soutien), la même règle au fil de la frappe */
+    currentMode='soutien';
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:'md', questions:[Q], idx:0, score:0, answers:[], startTime:Date.now(), locked:false});
+    show('mdtest'); renderMDTest();
+    document.getElementById('md3n').value='616'; document.getElementById('md3d').value='100000';
+    checkMDAnswer(true);
+    if(teinte('md3n')!=='ok') vus.push('en direct : 616 est '+teinte('md3n')+' au lieu de ok');
+    if(teinte('md3d')!=='bad') vus.push('en direct : 100000 est '+teinte('md3d')+' au lieu de rouge');
+    /* la famille entière est branchée : les trois autres écrans passent par le
+       même helper — on lit les SOURCES, un appel de paire revenu à
+       marqueSaufVide double ne se verrait sur aucun geste du 1.7 */
+    ['checkUAnswer','checkHSAnswer','checkBSAnswer'].forEach(function(fn){
+      const src=String(window[fn]);
+      if(src.indexOf('marqueFracSaufVide(')<0) vus.push(fn+' ne passe pas par marqueFracSaufVide');
+      const paires=src.match(/marqueSaufVide\\('[a-z]+[0-9]?[nd]'/g)||[];
+      if(paires.length) vus.push(fn+' peint encore une paire par un verdict unique : '+paires.join(','));
+    });
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }

@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
    d'ensembles, qui partagent le kind 'ens'. */
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
-               'plus-petit-ensemble':'pge','lecture-variations':'lv','image-nombre':'img','antecedent-nombre':'ant','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','pourcentage':'pct',
+               'plus-petit-ensemble':'pge','lecture-variations':'lv','image-nombre':'img','antecedent-nombre':'ant','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
@@ -223,6 +223,7 @@ module.exports = {
       amorce: "window.dexpLiveCheck && window.dexpLiveCheck('x')",
       cases: { n1:'p1n', d1:'p1d', n2:'p2n', d2:'p2d', res:'p3' },
       justes: { n1:'30', d1:'100', res:'12' }, faux: { n2:'1200', d2:'10' },
+      verif: 'checkPAnswer();',
     },
     pause: { dm: true, boxes: { champ: 'p1n', valeur: '30' } },
     relance: null,          /* couvert par le contrôle des deux tables, ci-dessous */
@@ -257,6 +258,11 @@ module.exports = {
        quatre fois plus large que ce qu'il encadre. Seul un navigateur mesure
        une largeur rendue — elle dépend de la police et du repli au mot. */
     cadrePose: { exercices: [['mult-decimaux','mdHost'], ['mult-dec-un','uHost']], largeurMax: 520 },
+
+    /* La case du produit du 1.7 : la police du groupe de référence, et la
+       largeur qui suit la saisie — « 100000 » écrit en entier, jamais coupé
+       (demande de Turquet, août 2026, sur une capture du 1.7). */
+    caseQuiGrandit: { exercice: 'mult-decimaux', hote: 'mdHost', num: 'md3n', den: 'md3d', grand: '100000' },
 
     /* L'étiquette de la colonne de gauche de « Fraction et pourcentage » doit
        nommer le DÉNOMINATEUR de la fraction étudiée — « pour 5 » devant 2/5 —
@@ -426,6 +432,7 @@ module.exports = {
       amorce: "window.dexpLiveCheck && window.dexpLiveCheck('x')",
       cases: { n1:'p1n', d1:'p1d', n2:'p2n', d2:'p2d', res:'p3' },
       justes: { n1:'30', d1:'100', res:'12' }, faux: { n2:'1200', d2:'10' },
+      verif: 'checkPAnswer();',
     },
     pause: { dm: true, boxes: { champ: 'p1n', valeur: '30' } },
     relance: { testId: 'pourcentage', kind: 'pct', fonction: 'startPercent' },
@@ -464,7 +471,7 @@ module.exports = {
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'image-nombre', 'antecedent-nombre', 'inequation-graphique',
-                         'equation-graphique', 'lecture-deux-courbes'] },
+                         'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques'] },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",

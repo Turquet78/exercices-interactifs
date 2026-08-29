@@ -869,6 +869,59 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
+       Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
+       largeur figée coupait « 100000 » et n'en montrait qu'un morceau —
+       l'élève ne pouvait plus se relire — et sa police était deux fois plus
+       petite que la correction d'à côté. Les cases des multiplications ont
+       rejoint le groupe de référence des pourcentages : même taille que les
+       nombres autour, largeur qui suit ce qui est écrit, et dans une
+       fraction les deux cases et la barre prennent la largeur de la plus
+       large. Seul un navigateur mesure une largeur RENDUE. */
+    titre('6 quater bis. LES CASES D\'UNE FRACTION GRANDISSENT AVEC LA SAISIE');
+    if(!P.caseQuiGrandit){
+      ignorer('la case s\'élargit et rien n\'est coupé', 'ce niveau n\'a pas d\'écran déclaré pour ce contrôle');
+    } else {
+      const G = P.caseQuiGrandit;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(i => openTest(i), G.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const avant = await s.page.evaluate(a => {
+        const el = document.getElementById(a.den);
+        return el ? { l: el.getBoundingClientRect().width, police: parseFloat(getComputedStyle(el).fontSize) } : null;
+      }, G);
+      verifier('l\'écran s\'ouvre et la case est là', !!avant, 'pas de #' + G.den);
+      verifier('la police de la case est celle des nombres qui l\'entourent',
+        !!avant && avant.police >= 28,
+        'police rendue ' + (avant && avant.police) + ' px — la réponse de l\'élève paraît secondaire');
+      /* MathLive redessine de façon ASYNCHRONE : mesurer dans le même
+         evaluate que l'écriture lit la largeur d'avant — le contrôle s'est
+         pris en défaut ainsi à sa première exécution (96 px avant, 96 après,
+         sur une page qui grandissait très bien). On écrit, on attend, on
+         mesure. */
+      await s.page.evaluate(a => { document.getElementById(a.den).value = a.grand; }, G);
+      await s.page.waitForTimeout(600);
+      const apres = await s.page.evaluate(a => {
+        const el = document.getElementById(a.den);
+        const r = el.getBoundingClientRect();
+        const num = document.getElementById(a.num);
+        const barre = el.closest('.f-frac-input') && el.closest('.f-frac-input').querySelector('.f-fbar');
+        return { l: r.width, coupe: el.scrollWidth > el.clientWidth + 2,
+                 num: num ? num.getBoundingClientRect().width : 0,
+                 barre: barre ? barre.getBoundingClientRect().width : 0 };
+      }, G);
+      verifier('la case s\'élargit quand le nombre dépasse', apres.l > avant.l + 8,
+        avant.l + ' px avant, ' + apres.l + ' px après « ' + G.grand + ' » — la largeur est restée figée');
+      verifier('rien n\'est coupé dans la case', !apres.coupe, 'le contenu déborde de la case (« ' + G.grand + ' » tronqué)');
+      verifier('la barre et l\'autre case suivent la plus large',
+        apres.barre >= apres.l - 2 && apres.num >= apres.l - 2,
+        'barre ' + Math.round(apres.barre) + ' px, numérateur ' + Math.round(apres.num) + ' px, dénominateur ' + Math.round(apres.l) + ' px');
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quinquies. l'étiquette de la colonne de gauche ===== */
     /* Elle doit nommer le dénominateur de la fraction étudiée : « pour 5 »
        devant 2/5. C'est ce qui met les deux colonnes en regard — « 2 pour 5 »
