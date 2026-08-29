@@ -2583,6 +2583,7 @@ function exercices(suite){
     imageNombre(w, P);
     tangenteExp(w, P);
     antecedentNombre(w, P);
+    boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
     etudeExponentielle(w, P);
@@ -5511,6 +5512,48 @@ function tangenteExp(w, P){
    ne compte qu'une fois, le trait se mesure contre les GRADUATIONS du dessin,
    et la séance montre toujours les deux visages — une hauteur à UN antécédent,
    une à PLUSIEURS. */
+/* ---------- La question vérifiée attend le bouton, elle ne s'enfuit plus ----
+   Demande de Turquet (août 2026) : « quand on a vérifié une question, il n'y
+   a pas de bouton suivant ». Les trois exercices de courbes (2.1, 2.2, 2.3)
+   avançaient TOUT SEULS, 0,9 s après une copie juste et 2,4 s après une
+   fausse — le temps de rien : la correction et le trait de la méthode
+   s'effaçaient sous les yeux de l'élève. Le bouton « Valider » devient
+   « Question suivante » (« Voir mes résultats » sur la dernière), le rendu le
+   réarme, et plus aucun minuteur ne tourne. */
+function boutonSuivantCourbes(w, P){
+  const present = evaluer(w, "typeof lvBoutonSuivant==='function' && typeof startImg==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la question vérifiée attend le bouton « Question suivante »',
+      'ce niveau n\'a pas les exercices de courbes de la Seconde');
+    return;
+  }
+  verifierEval(w, 'la question vérifiée attend le bouton « Question suivante »', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    [['2.1', startLV, submitLV, renderLV, 'lvValidate'],
+     ['2.2', startImg, submitImg, renderImg, 'imgValidate'],
+     ['2.3', startAnt, submitAnt, renderAnt, 'antValidate']].forEach(function(e){
+      const nom=e[0], demarrer=e[1], soumettre=e[2], rendre=e[3], id=e[4];
+      demarrer();
+      const b=document.getElementById(id);
+      if(!b){ vus.push(nom+' : pas de bouton #'+id); return; }
+      if(b.textContent!=='Valider') vus.push(nom+' : le bouton du départ dit « '+b.textContent+' »');
+      soumettre();
+      if(test.fbTimer) vus.push(nom+' : un minuteur d\\'avance automatique tourne encore — l\\'écran va s\\'enfuir');
+      if(b.disabled) vus.push(nom+' : le bouton est éteint après la vérification — aucun chemin vers la suite');
+      if(b.textContent!=='Question suivante') vus.push(nom+' : après la vérification le bouton dit « '+b.textContent+' » au lieu de « Question suivante »');
+      const avant=test.idx;
+      if(typeof b.onclick==='function') b.onclick(); else { vus.push(nom+' : le bouton n\\'a pas de geste'); return; }
+      if(test.idx!==avant+1){ vus.push(nom+' : « Question suivante » n\\'avance pas (idx '+test.idx+')'); return; }
+      if(b.textContent!=='Valider') vus.push(nom+' : le rendu ne réarme pas le bouton — un clic de plus sauterait une question');
+      /* la DERNIÈRE question propose les résultats, jamais une question fantôme */
+      test.idx=test.questions.length-1; test.locked=false; rendre();
+      soumettre();
+      if(b.textContent!=='Voir mes résultats') vus.push(nom+' : sur la dernière question le bouton dit « '+b.textContent+' »');
+    });
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function antecedentNombre(w, P){
   const present = evaluer(w, "typeof startAnt==='function' && typeof antCheck==='function'");
   if(!present.ok || !present.valeur){

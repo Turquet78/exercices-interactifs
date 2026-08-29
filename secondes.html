@@ -2061,7 +2061,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=111;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=112;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5406,7 +5406,7 @@ function renderLV(){
   $('lvInstr').textContent=instr;
   $('lvBody').innerHTML=body;
   $('lvBody').querySelectorAll('input,select').forEach(el=>{ el.addEventListener('input',lvLive); el.addEventListener('change',lvLive); });
-  $('lvMark').className='mark'; $('lvMark').textContent=''; $('lvCorr').innerHTML=''; $('lvValidate').disabled=false;
+  $('lvMark').className='mark'; $('lvMark').textContent=''; $('lvCorr').innerHTML=''; const _lvB=$('lvValidate'); _lvB.disabled=false; _lvB.textContent='Valider'; _lvB.onclick=submitLV;
   setTimeout(lvLive,0);
 }
 
@@ -5522,8 +5522,21 @@ function submitLV(){
   if(!res.allOk) $('lvCorr').innerHTML=lvCorrectionHTML(q);
   else $('lvCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:lvPartLabel(q)+' (graph. '+q.gnum+') \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'lv'});
-  test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderLV(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
+  lvBoutonSuivant('lvValidate', nextLvQuestion);
 }
+/* La question vérifiée ATTEND l'élève (demande de Turquet, août 2026 : « il
+   n'y a pas de bouton suivant ») : l'avance automatique laissait 2,4 secondes
+   pour lire la correction et le trait de la méthode, puis effaçait tout. Le
+   bouton « Valider » devient « Question suivante » — le motif de tous les
+   autres exercices — et le rendu le réarme à chaque question. */
+function lvBoutonSuivant(id, suivant){
+  const b=$(id); if(!b) return;
+  b.disabled=false;
+  b.textContent=(test.idx<test.questions.length-1)?'Question suivante':'Voir mes résultats';
+  b.onclick=suivant;
+  setTimeout(function(){ try{ b.focus(); }catch(e){} },40);
+}
+function nextLvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderLV(); autoSave(); } else finishTest(); }
 
 /* ================= Exercice Seconde : Image d'un nombre (kind 'img') =================
    Repris de la fiche papier : une courbe sur quadrillage, et « L'image de X est
@@ -5585,7 +5598,7 @@ function renderImg(){
     +'<tr><td class="lab"><i>f</i>(<i>x</i>)</td><td><input id="img-tv" class="lv-in" inputmode="numeric" autocomplete="off"></td></tr>'
     +'</tbody></table></div>';
   $('imgBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',imgLive); el.addEventListener('change',imgLive); });
-  $('imgMark').className='mark'; $('imgMark').textContent=''; $('imgCorr').innerHTML=''; $('imgValidate').disabled=false;
+  $('imgMark').className='mark'; $('imgMark').textContent=''; $('imgCorr').innerHTML=''; const _imgB=$('imgValidate'); _imgB.disabled=false; _imgB.textContent='Valider'; _imgB.onclick=submitImg;
 }
 function imgCheck(q){
   const y0=imgY(q);
@@ -5632,8 +5645,9 @@ function submitImg(){
   if(!res.allOk) $('imgCorr').innerHTML='Le trait rouge montre la méthode : il part de '+X+', rejoint la courbe, et la hauteur atteinte est '+Y+'. Donc f\u2009('+X+')\u2009=\u2009'+Y+' : l\u2019image de '+X+' est '+Y+'.';
   else $('imgCorr').innerHTML='<span class="lv-ok">Parfait \u2014 l\u2019image de '+X+' est bien '+Y+' !</span>';
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Image de '+X+' \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'img'});
-  test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderImg(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
+  lvBoutonSuivant('imgValidate', nextImgQuestion);
 }
+function nextImgQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderImg(); autoSave(); } else finishTest(); }
 
 /* ================= Exercice Seconde : Antécédents d'un nombre (kind 'ant') =================
    Le chemin INVERSE de {image-nombre}, repris de la fiche papier : on donne une
@@ -5726,7 +5740,7 @@ function renderAnt(){
   for(let i=0;i<n;i++) lignes+='<div class="img-line"><i>f</i>\u2009(\u2009'+inp('ant-fx-'+i,'sm')+'\u2009)\u2009=\u2009'+inp('ant-fy-'+i,'sm')+'</div>';
   $('antBody').innerHTML='<div class="img-line">'+sont+'</div>'+lignes;
   $('antBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',antLive); el.addEventListener('change',antLive); });
-  $('antMark').className='mark'; $('antMark').textContent=''; $('antCorr').innerHTML=''; $('antValidate').disabled=false;
+  $('antMark').className='mark'; $('antMark').textContent=''; $('antCorr').innerHTML=''; const _antB=$('antValidate'); _antB.disabled=false; _antB.textContent='Valider'; _antB.onclick=submitAnt;
 }
 /* L'ORDRE DES ANTÉCÉDENTS EST LIBRE, et il le faut : rien à l'écran ne dit
    quelle case porte lequel. Chaque case se juge sur ce qu'elle PROMET — être
@@ -5784,8 +5798,9 @@ function submitAnt(){
   if(!res.allOk) $('antCorr').innerHTML='Le trait rouge montre la méthode : la ligne de niveau à la hauteur '+Y+' coupe la courbe au-dessus de '+liste+'. '+(ants.length===1?'L\u2019antécédent de '+Y+' est '+liste:'Les antécédents de '+Y+' sont '+liste)+'.';
   else $('antCorr').innerHTML='<span class="lv-ok">Parfait \u2014 '+(ants.length===1?'l\u2019antécédent de '+Y+' est bien '+liste:'les antécédents de '+Y+' sont bien '+liste)+' !</span>';
   test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Antécédents de '+Y+' \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'ant'});
-  test.fbTimer=setTimeout(function(){ if(test.idx<test.questions.length-1){ test.idx++; renderAnt(); autoSave(); } else finishTest(); }, res.allOk?900:2400);
+  lvBoutonSuivant('antValidate', nextAntQuestion);
 }
+function nextAntQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderAnt(); autoSave(); } else finishTest(); }
 
 /* ================= Exercice Seconde : Inéquation graphique (kind 'ing') =================
    Repris de la fiche papier : UNE courbe, la droite y = k, et quatre dessins
