@@ -1533,10 +1533,41 @@ non-fuite hors devoir, la carte qui dit le plafond, l'éditeur qui emporte
 les réglages sans jamais écrire le défaut), éprouvé par sept sabotages sur
 les trois fichiers, chacun nommé.
 
+**Une fiche de travail se fait DANS L'ORDRE ; un devoir reste tout ouvert.**
+Les deux phrases sont deux décisions de Turquet, à un mois d'écart, et elles
+ne se contredisent pas : à la maison chacun avance comme il veut, en classe le
+professeur conduit la progression (demande de Turquet, août 2026 — « fixer
+l'ordre des exercices et obliger les élèves à suivre cet ordre », pour les
+fiches qu'il crée). La règle vit dans `GENRE_DEVOIRS` (`ordre:true` sur la
+famille des fiches), comme toute différence entre les deux familles — écrite
+ailleurs, elle aurait fini par fuir sur les devoirs.
+**Le premier exercice non fait est le PROCHAIN** : il reste ouvert, tout ce
+qui vient après lui est verrouillé (carte 🔒 grisée, rang écrit sur chaque
+carte), et un exercice déjà fait se refait librement — « fait » est la
+définition de la carte, `noteDevoirExo().fait`. **La carte et la porte
+partagent la même définition, `dmVerrouille()`** — la leçon de
+`memeBrouillon()` : ce que l'écran grise, `openTestDevoir()` le refuse, parce
+qu'une carte se recrée par un vieux rendu et que la porte est l'entonnoir.
+**L'ordre est l'ordre du tableau `exercices`** — celui-là même que la page de
+l'élève lit — et l'éditeur le montre et le règle : un ruban « Ordre des
+exercices de la fiche » avec des flèches ▲▼, sous la liste des exercices. Le
+piège était en Seconde : sa relecture du formulaire (`readEditorIntoDevoir`)
+réécrivait `exercices` dans l'ordre du MENU (`TEST_ORDER`) — l'ordre réglé
+par le professeur aurait été écrasé à chaque enregistrement, sans erreur
+nulle part. Pour une fiche elle PRÉSERVE l'ordre rangé et ajoute les nouveaux
+cochés à la fin ; un devoir garde l'ordre du menu, comme avant. Un contrôle
+par niveau tient les quatre bords (la définition, l'écran, la porte,
+l'éditeur — et le débordement sur les devoirs), éprouvé par cinq sabotages,
+chacun nommé. Le piège du SCRIPT DE VUE s'est remontré au passage : recopier
+le rendu de l'éditeur dans l'écran visible duplique les ids, et
+`getElementById` répond la copie — la flèche semblait morte alors que la page
+était juste.
+
 **Un devoir demande une fois chaque exercice, et tous sont ouverts.** Il a su
 un temps en demander plusieurs passages et en verrouiller un tant que les
 précédents n'étaient pas faits ; c'est retiré, éditeur compris (décision de
-Turquet, août 2026). La leçon reste : la liste des exercices d'un devoir est
+Turquet, août 2026 — le verrou des FICHES, ci-dessus, est une décision
+POSTÉRIEURE et ne vaut que pour elles). La leçon reste : la liste des exercices d'un devoir est
 calculée par `exercicesDevoir()`, partagée par l'écran de l'élève, le total du
 devoir et le tableau du professeur — deux calculs auraient donné deux totaux.
 Et un réglage retiré ne doit pas emporter les notes qu'il a produites : les
