@@ -2591,6 +2591,7 @@ function exercices(suite){
     jugeArithmetique(w, P);
     equationGraphique(w, P);
     lectureDeuxCourbes(w, P);
+    courbesFGSeDistinguent(w, P);
     resolutionsGraphiques(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -6432,6 +6433,69 @@ function equationGraphique(w, P){
    solutions voisines à une hauteur interrogée seraient un segment entier posé
    à cette hauteur — pour les antécédents comme pour les équations, sur f
    comme sur g. */
+/* Les courbes de f et de g se DISTINGUENT (signalé par Turquet, août 2026 :
+   « on a du mal quelquefois à savoir quelle est la courbe f et quelle est
+   g ») : f et g portaient deux BLEUS (#2B50C8 et #4a5a80), que seuls les
+   pointillés et de petites étiquettes séparaient — illisible sur les petites
+   cartes des propositions. Trois bords : les deux encres sont de dominantes
+   OPPOSÉES (f bleue, g chaude) et les étiquettes/bouts de g suivent son
+   encre ; une LÉGENDE s'affiche sur les deux exercices, cartes comprises ;
+   ses échantillons portent les CLASSES mêmes des courbes — une légende à
+   couleurs propres pourrait contredire le dessin. */
+function courbesFGSeDistinguent(w, P){
+  const present = evaluer(w, "typeof fgLegende==='function' && typeof renderEqgTest==='function' && typeof renderIfgTest==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les courbes de f et de g se distinguent : deux encres, une légende',
+      'ce niveau n\'a pas les exercices à deux courbes');
+    return;
+  }
+  verifierEval(w, 'les courbes de f et de g se distinguent : deux encres, une légende', `(function(){
+    const vus=[];
+    /* ---- 1. les deux encres, lues dans la feuille de styles ---- */
+    let css=''; document.querySelectorAll('style').forEach(function(st){ css+=st.textContent; });
+    const regle=function(sel,prop){
+      const i=css.indexOf(sel+'{'); if(i<0) return null;
+      const bloc=css.slice(i+sel.length+1, css.indexOf('}',i));
+      const j=bloc.indexOf(prop+':'); if(j<0) return null;
+      let v=bloc.slice(j+prop.length+1); const k=v.indexOf(';'); if(k>=0) v=v.slice(0,k);
+      return v.trim();
+    };
+    const hex=function(v){
+      if(!v) return null;
+      if(v.indexOf('var(')===0){ const nom=v.slice(4,v.indexOf(')')).trim(); const i=css.indexOf(nom+':'); if(i<0) return null; v=css.slice(i+nom.length+1, i+nom.length+30); }
+      const h=v.match(/#([0-9a-fA-F]{6})/);
+      if(!h) return null;
+      return {r:parseInt(h[1].slice(0,2),16), b:parseInt(h[1].slice(4,6),16), brut:('#'+h[1]).toUpperCase()};
+    };
+    const f=hex(regle('.lv-curve','stroke')), g=hex(regle('.eqg-g','stroke'));
+    if(!f||!g){ vus.push('impossible de lire les encres de .lv-curve ou .eqg-g : le contrôle ne mesure rien'); return vus.join(' | '); }
+    if(!(f.b>f.r+40)) vus.push('la courbe de f n\\'est pas à dominante bleue ('+f.brut+')');
+    if(!(g.r>g.b+40)) vus.push('g n\\'est pas à dominante chaude ('+g.brut+') : deux encres proches de f ne se distinguent pas');
+    const cg=hex(regle('.eqg-cg','fill')), boutg=hex(regle('.ifg-boutg','fill'));
+    if(!cg||cg.brut!==g.brut) vus.push('l\\'étiquette Cg ('+(cg?cg.brut:'introuvable')+') ne porte pas l\\'encre de g ('+g.brut+')');
+    if(!boutg||boutg.brut!==g.brut) vus.push('les bouts de g au 2.6 ('+(boutg?boutg.brut:'introuvable')+') ne portent pas l\\'encre de g ('+g.brut+')');
+    /* ---- 2. la légende, sur les DEUX exercices — dessin nu ET cartes ---- */
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const legOk=function(host,ou){
+      const leg=document.querySelector('#'+host+' .fg-leg');
+      if(!leg){ vus.push('pas de légende f/g sur '+ou); return; }
+      if(!leg.querySelector('line.lv-curve')) vus.push('la légende de '+ou+' ne dessine pas son échantillon de f par la classe lv-curve');
+      if(!leg.querySelector('line.eqg-g')) vus.push('la légende de '+ou+' ne dessine pas son échantillon de g par la classe eqg-g');
+      const t=leg.textContent;
+      if(!/plein/.test(t)||!/pointill/.test(t)) vus.push('la légende de '+ou+' ne dit pas le trait avec des mots : la couleur porterait seule');
+    };
+    const Q0={pts:[-3,-2,2,3,1,-1,-3], s:-1, c:1, k:-3, kg:1, a:-2, b:2, xtk:0, xtg:2, xtc:0,
+      permE:['bon','oubli','trop','confu'], permI:['mo','mn','eo','en']};
+    currentTestId='equation-graphique';
+    Object.assign(test,{kind:'eqg', questions:['img','ineq'].map(function(tt){ return Object.assign({},Q0,{op:'ge',type:tt}); }), idx:0, score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+    renderEqgTest(); legOk('eqgHost','le 2.5 (dessin nu)');
+    test.idx=1; renderEqgTest(); legOk('eqgHost','le 2.5 (question à cartes)');
+    currentTestId='lecture-deux-courbes';
+    Object.assign(test,{kind:'ifg', questions:ifgBuildQuestions(), idx:0, score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
+    renderIfgTest(); legOk('ifgHost','le 2.6');
+    return vus.join(' | ');
+  })()`, function(v){ return v===''; });
+}
 function lectureDeuxCourbes(w, P){
   const present = evaluer(w, "typeof startIfg==='function' && typeof ifgBuildQuestions==='function'");
   if(!present.ok || !present.valeur){

@@ -784,11 +784,22 @@
   #scr-ifg .itv-ligne{max-width:1160px}
   #scr-eig .itv-ligne{max-width:1160px}
   .ifg-bout{fill:var(--blue)}
-  .ifg-boutg{fill:#4a5a80}
-  /* La droite de g : en POINTILLÉS, comme sur la fiche — c'est ce qui la
-     distingue de la courbe de f d'un coup d'œil, avant même les étiquettes. */
-  .eqg-g{stroke:#4a5a80;stroke-width:2.4;stroke-dasharray:7 5;fill:none;stroke-linecap:round}
-  .eqg-cg{font-family:"Fredoka";font-weight:600;font-size:13px;font-style:italic;fill:#4a5a80}
+  .ifg-boutg{fill:#C2410C}
+  /* La droite de g : en POINTILLÉS, comme sur la fiche — et en ORANGE,
+     parce que l'ardoise #4a5a80 et le bleu de f se confondaient (signalé par
+     Turquet, août 2026 : « on a du mal à savoir quelle est la courbe f et
+     quelle est g »). L'orange est celui de {croiser-denominateurs}, choisi
+     pour ne pas se confondre avec le bleu, le vert et le rouge des verdicts,
+     ni avec le bleu pour un daltonien. La couleur ne porte jamais seule :
+     les pointillés et la légende disent la même chose avec des mots. */
+  .eqg-g{stroke:#C2410C;stroke-width:2.4;stroke-dasharray:7 5;fill:none;stroke-linecap:round}
+  .eqg-cg{font-family:"Fredoka";font-weight:700;font-size:15px;font-style:italic;fill:#C2410C}
+  /* La légende f/g : ses échantillons portent les CLASSES mêmes des courbes
+     (lv-curve, eqg-g) — une légende à couleurs propres pourrait contredire
+     le dessin le jour où l'une des deux change. */
+  .fg-leg{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;margin:0 0 8px;font-size:.92rem;font-weight:600;color:var(--ink-soft)}
+  .fg-leg-item{display:inline-flex;align-items:center;gap:7px}
+  .fg-ech{width:44px;height:10px;flex:none}
   /* ---- Les quatre dessins du rappel de cours ---- */
   .rap-ing{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
   .rap-ing-fig{margin:0;background:#fff;border:1.5px solid #DCE7FB;border-radius:10px;padding:4px}
@@ -2061,7 +2072,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=113;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=114;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6381,6 +6392,14 @@ function eqgTitre(q){
   return 'Résoudre '+fx+' '+ING_SIGNE[q.op]+' '+gx;
 }
 let _eqgSaveTimer=null;
+/* La légende sous le titre : quelle courbe est f, laquelle est g — les
+   échantillons sont dessinés avec les classes MÊMES des courbes, et les mots
+   disent le trait pour que la couleur ne porte jamais seule. */
+function fgLegende(gNom){
+  const ech=function(cls){ return '<svg class="fg-ech" viewBox="0 0 44 10" aria-hidden="true"><line x1="2" y1="5" x2="42" y2="5" class="'+cls+'"/></svg>'; };
+  return '<div class="fg-leg"><span class="fg-leg-item">'+ech('lv-curve')+'<span>courbe de <i>f</i> — trait plein</span></span>'
+    +'<span class="fg-leg-item">'+ech('eqg-g')+'<span>'+gNom+' — pointillés</span></span></div>';
+}
 function renderEqgTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('eqgIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
@@ -6428,7 +6447,7 @@ function renderEqgTest(){
   }
   $('eqgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+eqgTitre(q)+'</div>'
-    +scene+corps+'</div>';
+    +fgLegende('droite de <i>g</i>')+scene+corps+'</div>';
   /* la sauvegarde ne part que sur un GESTE de l'élève — programmée au rendu,
      elle fuserait à vide dans tout ce qui ouvre l'écran sans y toucher */
   $('eqgHost').querySelectorAll('input,select').forEach(function(el){
@@ -6916,6 +6935,7 @@ function renderIfgTest(){
   }
   $('ifgHost').innerHTML='<div class="itv-fiche">'
     +'<div class="itq-ineg">'+ifgTitre(q)+'</div>'
+    +fgLegende('courbe de <i>g</i>')
     +'<div id="ifgGraph" class="itv-schema">'+lvGraphSVG(q.ptsF, ifgExtra(q,false), q.domF[0]+3, q.domF[1]+3)+'</div>'
     +corps+'</div>';
   $('ifgHost').querySelectorAll('input,select').forEach(function(el){

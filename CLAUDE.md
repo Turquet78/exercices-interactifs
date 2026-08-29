@@ -909,6 +909,23 @@ défaut. Et un FAUX sabotage s'est montré : passer la marge de 1 à 0,5 ne
 change rien, les valeurs étant entières — un écart nul EST un croisement, la
 marge aux graduations est tenue par le compte des croisements.
 
+**Deux bleus ne font pas deux courbes.** Signalé par Turquet (août 2026) sur
+le 2.5 et le 2.6 : « on a du mal quelquefois à savoir quelle est la courbe f
+et quelle est la courbe g ». f était en bleu vif et g en bleu ardoise
+(#4a5a80) — deux bleus, que seuls les pointillés et de petites étiquettes
+séparaient, illisibles surtout sur les petites cartes des propositions. g est
+passée à l'ORANGE de {croiser-denominateurs} (#C2410C), choisi jadis pour ne
+pas se confondre avec les verdicts ni avec le bleu pour un daltonien ;
+l'étiquette Cg est grandie, et une LÉGENDE s'affiche sous le titre des deux
+exercices — cartes comprises, puisqu'elle vit au niveau de l'écran. Ses
+échantillons sont dessinés avec les CLASSES mêmes des courbes (`lv-curve`,
+`eqg-g`) : une légende à couleurs propres pourrait contredire le dessin le
+jour où l'une des deux change. Et la couleur ne porte jamais seule : les
+pointillés restent, et la légende dit « trait plein / pointillés » avec des
+mots. Un contrôle tient les trois bords — dominantes OPPOSÉES des deux encres
+(étiquette Cg et bouts de g compris), légende sur les deux exercices,
+échantillons par les classes — éprouvé par cinq sabotages nommés.
+
 **Résoudre, c'est d'abord choisir le dessin — équations et inéquations sur
 les mêmes quatre cartes.** {resolutions-graphiques} (Seconde, 2.7, demande de
 Turquet, août 2026) est repris de la fiche « Exercice 2 » : UNE courbe, deux
