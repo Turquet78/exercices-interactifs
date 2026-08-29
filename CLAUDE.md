@@ -1734,8 +1734,9 @@ demande, et elle diffère du 2.1.7 où toute méthode juste passe.
 **Un verdict arithmétique ne se confie pas à un modèle** — la leçon de la
 Seconde, appliquée dès le premier jour : la page porte son juge (`salJuge`),
 qui lit les lignes en rationnels exacts (les décimales deviennent des
-fractions, jamais de virgule flottante), enregistre chaque multiplication
-avec ses deux facteurs, et décide sur TROIS positions — refuser sur un fait
+fractions, jamais de virgule flottante), enregistre chaque produit avec la
+LISTE de ses facteurs (voir plus bas — les paires ont refusé une copie
+juste en production), et décide sur TROIS positions — refuser sur un fait
 prouvable (égalité fausse NOMMÉE, voie absente, multiplication noyée dans un
 autre calcul qui n'arrive pas au résultat), accepter quand tout est vérifié,
 s'ABSTENIR quand une écriture lui échappe (le modèle décide alors seul).
@@ -1771,6 +1772,33 @@ l'identité, et chaque identité a son rappel et ses questions à l'IA —
 `qiaSuggestions()` fait primer l'identifiant sur le `kind`. Éprouvé par six
 sabotages, chacun nommé.
 
+**Une multiplication n'est pas une paire : c'est une liste de facteurs.**
+Signalé par Turquet en production sur une capture (août 2026) : sur le 2.2.9,
+« 100 × 140/100 = 140 » — le coefficient écrit en FRACTION, posé APRÈS la
+valeur initiale — était compté faux, le message réclamant la voie même que la
+copie montrait. Le juge enregistrait les multiplications par PAIRES, de
+gauche à droite : dans 100 × 140/100 il voyait (100 ; 140) puis « ÷ 100 »,
+et la paire (valeur initiale ; coefficient) n'existait jamais quand le
+coefficient s'écrit en fraction. C'est le pire défaut du projet — une
+réponse juste comptée fausse — passé par une écriture que personne n'avait
+posée au banc. `salExpr` collecte désormais, pour chaque terme, la LISTE de
+ses facteurs (un « ÷ y » devient un facteur 1/y), et une voie est montrée si
+l'un des facteurs vaut la valeur initiale et que le PRODUIT DE TOUS LES
+AUTRES vaut la cible — quel que soit l'ordre, quelle que soit l'écriture
+(1,4 ou 140/100). La copie de production est ÉPINGLÉE au contrôle : si elle
+ne passe pas au juge, c'est le juge qui a tort.
+**Et la vérification PEINT la feuille** (même signalement : « on écrit en
+rouge ce qui ne va pas et en vert ce qui est correct ») — sous la convention
+d'août 2026 : la ligne dont toutes les égalités sont vraies passe en BLEU
+(`ok`), celle qui porte une égalité fausse en rouge (`bad`), et une ligne
+que le juge ne sait pas lire ne reçoit RIEN — ne pas savoir n'est pas faux.
+`salPeindreLignes()` lit chaque ligne par la voie de la feuille (toPlain sur
+la vraie MathLive) et retombe sur `mf.value` quand MathLive n'est pas là :
+c'est ce repli qui rend la peinture mesurable au banc, sur une feuille
+adossée à de VRAIS éléments. Deux sabotages, chacun nommé : la peinture
+débranchée, et le retour aux paires — la copie de production rougit alors en
+toutes lettres.
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,
@@ -1789,6 +1817,32 @@ divergence. Le contrôle compare les QUINZE démarreurs à `tests/profils.js`
 (`nbQuestionsEvolutions`) — deux sources, comme `SF_NB` — compte SEIZE
 démarreurs, et ses sabotages rougissent en nommant l'exercice (« 2.3.7 : 6
 questions au lieu de 3 », puis « 2.5.1 » à son tour).
+
+**Reconnaître un coefficient, c'est d'abord déjouer trois pièges.**
+{reconnaitre-coefficient} (2.5.2, demande de Turquet, août 2026) : une
+transformation donnée — augmenter de P %, diminuer de P %, prendre P % — et
+QUATRE coefficients proposés, dont les pièges qui font l'exercice : le
+coefficient de l'AUTRE sens, « prendre P % » à la place d'une évolution, et
+la VIRGULE décalée (1,03 pour +30 %). L'élève choisit, puis VÉRIFIE sa
+proposition en calculant le coefficient dans des cases — l'étape du 2.2.1 :
+1 + 30/100 = 1 + 0,30 = 1,30, et P/100 = 0,PP pour « prendre », qui n'a pas
+de maillon « 1 ± ». Les trois familles sortent chacune UNE fois sur les
+trois questions, en ordre mélangé — le motif des synthèses — et à famille
+égale le rang de la bonne varie.
+**La bonne réponse n'est jamais rangée à côté de la question** : la question
+ne porte que la famille et P — un contrôle refuse tout autre champ — et
+`ckCoef()`, que l'énoncé, les propositions et la correction lisent tous, la
+recalcule. La chaîne de vérification est VISIBLE dès le rendu (la règle des
+QCM à chaîne) : rien n'y dépend du choix, donc choisir ne redessine jamais
+l'écran — les cases écrites survivent. La bonne CHOISIE est bleue, la bonne
+MONTRÉE est verte, une case vide ne reçoit aucune couleur, et le piège
+CHOISI se NOMME dans le retour (le motif d'{variations-depuis-derivee}).
+Le tirage écarte P = 50, où le coefficient d'une baisse rejoint « prendre »
+(0,50 = 0,50) : deux propositions égales seraient deux bonnes réponses dont
+une seule comptée. Éprouvé en le cassant sept fois — les familles au hasard,
+les propositions non mélangées, la bonne rangée dans la question, le choix
+qui redessine, la bonne qui ne se montre plus, la case vide rougie, le piège
+tu — chacun rougit en nommant son défaut.
 
 **Un coefficient se lit sur son écart à 1.** L'exercice 2.4.1 fait le chemin
 inverse de {augmenter-pourcentage} et {diminuer-pourcentage} : on donne le
