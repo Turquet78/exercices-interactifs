@@ -4626,6 +4626,12 @@ function syntheseAugLibreRedigee(w, P){
        — le coefficient écrit en FRACTION, la valeur initiale devant. Si elle
        ne passe pas au juge, c'est le juge qui a tort. */
     const qIni={fam:'aug',inc:'ini',sens:1,P:40,N:100,aug:40,fin:140,decStr:'140',unit:'articles',opts:[300,60,200,100],bon:3,choisi:3,ci:0,v:0};
+    /* la seconde copie de production (signalée par Turquet, août 2026) :
+       « 936/900 = 104/100 » puis « donc coef 1.04 » sur « 900 devient 936,
+       retrouve le pourcentage » — LA VOIE DU QUOTIENT, et une ligne de
+       commentaire que le juge ne sait pas lire. Elle SUFFIT : si elle ne
+       passe pas au juge, c'est le juge qui a tort. */
+    const qQuot={fam:'aug',inc:'pct',sens:1,P:4,N:900,aug:36,fin:936,decStr:'936',unit:'licenciés',opts:[30,4,8,40],bon:1,choisi:1,ci:0,v:0};
     const cas=[
       ['coefficient',            qFin, 1, '1,05 × 600 = 630',                  true,  true ],
       ['coefficient, ordre libre',qFin, 1, '600 × 1,05 = 630',                 true,  true ],
@@ -4648,6 +4654,12 @@ function syntheseAugLibreRedigee(w, P){
       ['baisse : une addition au lieu de la soustraction', qFinD, 1, '0,05 × 600 = 30\\n630 = 600 + 30', true, false],
       ['baisse : soustraction sans la multiplication', qFinD, 1, '600 − 30 = 570', true, false],
       ['baisse : une addition qui retombe sur la valeur finale ne remplace pas la soustraction', qFinD, 1, '0,05 × 600 = 30\\n540 + 30 = 570', true, false],
+      ['copie de production : le quotient 936/900 = 104/100 suffit', qQuot, 1, '936/900 = 104/100\\ndonc coef 1.04', true, true ],
+      ['le quotient égalé au décimal', qQuot, 1, '936/900 = 1,04',              true,  true ],
+      ['le quotient en tautologie ne nomme rien', qQuot, 1, '936/900 = 936/900', true, false],
+      ['le quotient avec la mauvaise proposition', qQuot, 3, '936/900 = 104/100', true, false],
+      ['le quotient sur une baisse',   qFinD, 1, '570/600 = 95/100',            true,  true ],
+      ['un commentaire illisible n\\'annule pas une voie montrée', qFin, 1, '1,05 × 600 = 630\\ndonc ça marche', true, true ],
     ];
     cas.forEach(function(c){
       const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
@@ -6890,6 +6902,18 @@ function verdictColore(w, apres){
       verdict(true); await checkSal();    /* le modèle MENT : l'égalité est fausse */
       if(couleur('salFeedback')!=='rouge') vus.push('2.2.9 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
       if(test.score!==0) vus.push('2.2.9 : égalité fausse sous modèle qui accepte — le point est donné quand même');
+      /* Sur un REFUS, la phrase du JUGE s'affiche toujours : le modèle avait
+         rédigé en production un refus qui se contredisait (« c'est faux…
+         donc c'est vrai ! », signalé par Turquet, août 2026) — même
+         d'accord sur le verdict, sa prose ne s'affiche plus. */
+      test.locked=false; test.salBusy=false; test.score=0;
+      test.questions=[JSON.parse(JSON.stringify(q29))];
+      salFeuille=feuille('1,05 × 600 = 640');
+      sb.functions={ invoke:async function(){ return { data:{ correct:false, feedback:'C est faux. Enfin non, c est vrai !' } }; } };
+      await checkSal();
+      { const fbTxt=document.getElementById('salFeedback').textContent;
+        if(fbTxt.indexOf('égalité fausse')<0 || fbTxt.indexOf('Enfin')>=0)
+          vus.push('2.2.9 : sur un refus, la prose du modèle s\\'affiche au lieu de la phrase du juge : « '+fbTxt.slice(0,60)+' »'); }
       /* et sur une BAISSE (2.3.8), même moteur, même primauté */
       const q38={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
       test.locked=false; test.salBusy=false; test.score=0;

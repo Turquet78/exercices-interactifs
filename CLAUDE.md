@@ -1874,6 +1874,34 @@ adossée à de VRAIS éléments. Deux sabotages, chacun nommé : la peinture
 débranchée, et le retour aux paires — la copie de production rougit alors en
 toutes lettres.
 
+**Le quotient est une TROISIÈME voie, et le modèle ne rédige plus les
+refus.** Seconde copie de production (signalée par Turquet, août 2026) :
+« 936/900 = 104/100 » puis « donc coef 1.04 » sur « 900 devient 936,
+retrouve le pourcentage » — refusée, avec une prose qui se contredisait
+(« l'égalité est fausse… Donc c'est vrai ! »). Trois défauts, trois
+corrections, toutes deux copies épinglées au contrôle :
+· **La voie du QUOTIENT suffit** (demande de Turquet) : la valeur finale
+  divisée par la valeur initiale EST le coefficient — la leçon du 2.1.7
+  (« la part sur le tout »), revenue au 2.2.9/2.3.8. Il faut un morceau qui
+  ÉCRIT le quotient (un facteur 1/valeur-initiale, produit = coefficient) et
+  un AUTRE morceau qui vaut le coefficient sans être la même écriture —
+  « 936/900 = 936/900 » ne nomme rien, sauf quand la valeur initiale est
+  100, où l'écriture du quotient EST le coefficient sur 100. La voie se
+  NOMME partout : la règle du modèle, la consigne à l'écran, le message de
+  la feuille vide, la phrase du juge.
+· **Une ligne SANS « = » que le juge ne sait pas lire est un COMMENTAIRE**
+  (« donc coef 1.04 ») : elle n'affirme aucune égalité et ne force plus
+  l'abstention — c'est elle qui livrait la copie ENTIÈRE au modèle seul, qui
+  a divagué. Mais si aucune voie lisible n'est trouvée, la voie est
+  peut-être écrite EN MOTS dans ce commentaire : refuser ne serait pas un
+  fait prouvable, le juge s'abstient — les deux bords sont au contrôle.
+· **Sur un refus que le juge sait prononcer, SA phrase s'affiche toujours**
+  — le modèle ne rédige plus que les acceptations, et seulement s'il est
+  d'accord : une prose de refus qui dit « faux puis vrai » n'a plus de
+  chemin vers l'écran. Éprouvé par quatre sabotages nommés (la voie
+  retirée, le commentaire qui re-force l'abstention, la prose du modèle
+  reprise sur un refus, la tautologie acceptée).
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,
