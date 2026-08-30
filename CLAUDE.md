@@ -3357,6 +3357,25 @@ retombe pas sur Uₙ + k, la chaîne de l'énoncé est FAUSSE avant que l'élèv
 commence, et la correction lui donne tort sur un calcul juste — le pire défaut
 possible. Le contrôle REFAIT ce calcul par sa propre arithmétique sur chaque
 tirage, plutôt que de faire confiance à `SA.mk`.
+**Puis trois choses ont changé sur capture** (demande de Turquet, août 2026) :
+· **la page n'écrit plus le signe devant une case** — c'est l'élève qui le
+  pose, et la case porte le nombre SIGNÉ (« +200 », « −3800 »). Un signe
+  imprimé faisait la moitié du travail : savoir si l'on ajoute ou si l'on
+  retire EST une partie de la démonstration. Les seuls signes encore écrits
+  sont ceux de l'ÉNONCÉ — la définition de Vₙ —, jamais ceux d'une réponse, et
+  le contrôle lit le texte qui PRÉCÈDE chaque case pour l'exiger.
+· **la case est étroite au repos et GRANDIT sous la frappe** : une case large
+  laisse croire qu'on attend un long calcul, une case fixe couperait
+  « 10 000 ». La largeur se pose en JavaScript — un input ne sait pas se
+  dimensionner sur son contenu en CSS — et la CORRECTION la réajuste, sans quoi
+  la réponse écrite en bleu serait tronquée ; ce dernier bord a son contrôle,
+  parce que le premier ne le voit pas.
+· **la raison est DÉCIMALE, strictement entre 0 et 1** — le 0,95 de la fiche.
+  Le tirage puise dans le vivier de {suite-auxiliaire} plutôt que d'en écrire
+  un second, mais il le FILTRE : une entrée à raison entière ajoutée demain à
+  cette liste partagée n'entrerait pas ici en silence. Le contrôle exige la
+  propriété sur le tirage plutôt que de faire confiance au vivier.
+
 **Et le sabotage a trouvé un vrai défaut, que le contrôle ne regardait pas** :
 une case laissée VIDE recevait `bad` à la vérification. L'entraînement le
 masque — la correction en bleu repasse derrière — mais le SOUTIEN s'arrête

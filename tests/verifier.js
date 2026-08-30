@@ -5458,7 +5458,17 @@ function suiteAuxiliaireCompleter(w, P){
     /* ---- 1. LE TIRAGE : b = k(a−1), sinon la fiche est fausse ------------- */
     const pres=function(x){ return Math.round(x*1e6)/1e6; };
     for(let t=0;t<300;t++){
-      const qs=SA.genSession();
+      const qs=sa2GenSession();
+      /* LA RAISON EST DÉCIMALE, STRICTEMENT ENTRE 0 ET 1 (demande de Turquet) :
+         c'est le 0,95 de la fiche. Une raison entière rendrait la
+         factorisation sans intérêt, et le vivier est partagé avec le 6.2 —
+         une entrée entière ajoutée demain ne doit pas entrer ici. */
+      qs.forEach(function(q){
+        if(!(q.a>0 && q.a<1)) vus.push('tirage : raison '+q.a+' hors de ]0 ; 1[');
+        if(q.a===Math.round(q.a)) vus.push('tirage : raison entière '+q.a);
+      });
+      if(qs.length===2 && qs[0].a===qs[1].a && qs[0].u0===qs[1].u0)
+        vus.push('tirage : les deux questions sont identiques');
       qs.forEach(function(q){
         if(pres(q.b)!==pres(q.k*(q.a-1)))
           vus.push('tirage : b='+q.b+' au lieu de '+pres(q.k*(q.a-1))+' (la factorisation ne retombe pas sur Vₙ)');
@@ -5470,6 +5480,15 @@ function suiteAuxiliaireCompleter(w, P){
       });
     }
 
+    /* ET LE DÉMARREUR TIRE BIEN PAR CETTE PORTE-LÀ. Éprouver le générateur ne
+       dit rien du CÂBLAGE : le sabotage qui recollait startSA2 sur
+       SA.genSession() — les raisons ENTIÈRES du 6.2 — est resté vert, parce que
+       le contrôle appelait sa2GenSession() lui-même. On lit donc le corps du
+       démarreur, commentaires retirés. */
+    const corpsStart=String(startSA2).replace(/\\/\\*[\\s\\S]*?\\*\\//g,'').replace(/(^|[^:])\\/\\/[^\\n]*/g,'$1');
+    if(corpsStart.indexOf('sa2GenSession')<0)
+      vus.push('startSA2 ne tire pas par sa2GenSession : les raisons ne sont plus garanties décimales');
+
     /* ---- 2. LA COPIE JUSTE, à la virgule française ------------------------ */
     const q=SA._t.mk(0.95,-4000,10000);      /* le cas EXACT de la fiche, épinglé */
     test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
@@ -5478,9 +5497,11 @@ function suiteAuxiliaireCompleter(w, P){
     const poser=function(id,v){ const e=document.getElementById(id); if(!e) return false;
       e.value=v; return true; };
     /* la fiche : 0,95 / 200 / 3800 / 4000 / 10000 / 6000 — refaits ici */
-    if(att['sa2-b1'][1]!==200)  vus.push('la fiche : le terme constant vaut '+att['sa2-b1'][1]+' au lieu de 200');
-    if(att['sa2-bk'][1]!==3800) vus.push('la fiche : la constante réduite vaut '+att['sa2-bk'][1]+' au lieu de 3800');
-    if(att['sa2-k1'][1]!==4000) vus.push('la fiche : la constante factorisée vaut '+att['sa2-k1'][1]+' au lieu de 4000');
+    /* Les cases portent le nombre SIGNÉ : la page n'écrit plus le signe. */
+    if(att['sa2-b1'][1]!==200)   vus.push('la fiche : le terme constant vaut '+att['sa2-b1'][1]+' au lieu de +200');
+    if(att['sa2-bk'][1]!==-3800) vus.push('la fiche : la constante réduite vaut '+att['sa2-bk'][1]+' au lieu de −3800');
+    if(att['sa2-k1'][1]!==-4000) vus.push('la fiche : la constante factorisée vaut '+att['sa2-k1'][1]+' au lieu de −4000');
+    if(att['sa2-k2'][1]!==4000)  vus.push('la fiche : le retour à Uₙ vaut '+att['sa2-k2'][1]+' au lieu de +4000');
     if(att['sa2-v0'][1]!==6000) vus.push('la fiche : V0 vaut '+att['sa2-v0'][1]+' au lieu de 6000');
 
     /* ---- 3. UNE CASE VIDE NE ROUGIT JAMAIS -------------------------------- */
@@ -5492,8 +5513,10 @@ function suiteAuxiliaireCompleter(w, P){
       vus.push('copie vide : le message ne demande pas de compléter');
 
     /* ---- 4. la copie JUSTE vaut toutes ses cases -------------------------- */
-    SA2_IDS.forEach(function(id){ const a=att[id];
-      poser(id, (a[0]==='nb') ? String(a[1]).replace('.',',') : a[1]); });
+    /* l'élève tape le signe lui-même : « +200 », « −3800 » */
+    const ecrit=function(a){ return (a[0]!=='nb') ? a[1]
+      : ((a[1]>0?'+':'')+String(a[1]).replace('.',',').replace('-','\u2212')); };
+    SA2_IDS.forEach(function(id){ poser(id, ecrit(att[id])); });
     test.locked=false; checkSA2();
     const rouges=SA2_IDS.filter(function(id){ const e=document.getElementById(id);
       return e && e.classList.contains('bad'); });
@@ -5557,6 +5580,56 @@ function suiteAuxiliaireCompleter(w, P){
     if(cible && !cible.classList.contains('ok'))
       vus.push('en direct, la case juste ne verdit pas : la correction du soutien ne suit pas la frappe');
     currentMode='train';
+
+    /* ---- 6 quater. AUCUN SIGNE N'EST ÉCRIT DEVANT UNE CASE ----------------
+       C'est l'élève qui le pose (demande de Turquet, août 2026) : savoir si
+       l'on ajoute ou si l'on retire EST une partie de la démonstration, et un
+       signe imprimé en faisait la moitié. Les signes qui restent écrits sont
+       ceux de l'ÉNONCÉ — la définition de Vₙ — jamais ceux d'une réponse. */
+    test.questions=[q]; test.idx=0; test.locked=false; renderSA2();
+    const avecSigne=[];
+    ['sa2LadderA','sa2LadderB','sa2LadderC','sa2LadderD'].forEach(function(hote){
+      const h=document.getElementById(hote); if(!h) return;
+      Array.prototype.forEach.call(h.querySelectorAll('input'), function(el){
+        let av=el.previousSibling;
+        while(av && String(av.textContent||'').trim()==='') av=av.previousSibling;
+        const t=String((av&&av.textContent)||'').trim();
+        const dernier=t.charAt(t.length-1);
+        if(dernier==='+'||dernier==='-'||dernier==='\u2212') avecSigne.push(el.id+' (après « '+t.slice(-12)+' »)');
+      });
+    });
+    if(avecSigne.length)
+      vus.push('la page écrit encore le signe devant '+avecSigne.length+' case(s) : '+avecSigne.slice(0,3).join(', '));
+
+    /* ---- 6 quinquies. LA CASE GRANDIT SOUS LA FRAPPE ----------------------
+       Étroite au repos, elle s'élargit avec ce qu'on y tape : une case large
+       laisse croire qu'on attend un long calcul, une case fixe couperait
+       « 10 000 ». La largeur se pose en JavaScript — un input ne sait pas se
+       dimensionner sur son contenu en CSS — et la CORRECTION la réajuste,
+       sans quoi la réponse écrite en bleu serait tronquée. */
+    const c1=document.getElementById('sa2-u0');
+    if(!c1) vus.push('case sa2-u0 introuvable');
+    else{
+      c1.value=''; sa2Ajuster(c1); const vide=parseFloat(c1.style.width)||0;
+      c1.value='10000'; sa2Ajuster(c1); const plein=parseFloat(c1.style.width)||0;
+      c1.value='1'; sa2Ajuster(c1); const court=parseFloat(c1.style.width)||0;
+      if(!(plein>vide)) vus.push('la case ne grandit pas : '+vide+' puis '+plein+' à cinq chiffres');
+      if(!(court<=vide+0.01)) vus.push('la case ne revient pas à sa largeur de repos');
+      if(vide>4.5) vus.push('la case au repos fait '+vide+'ch : elle reste large');
+    }
+    /* ET LA CORRECTION RÉAJUSTE : elle écrit la réponse DANS la case vide, et
+       une case restée étroite la couperait — l'élève lirait « −38 » là où la
+       page a écrit « −3800 ». */
+    test.questions=[q]; test.idx=0; test.locked=false; renderSA2();
+    poser('sa2-a1', String(att['sa2-a1'][1]).replace('.',','));   /* tout le reste reste vide */
+    test.locked=false; checkSA2();
+    const rempli=document.getElementById('sa2-bk');
+    if(rempli){
+      const l=parseFloat(rempli.style.width)||0;
+      const n=String(rempli.value||'').length;
+      if(n>0 && l < n)
+        vus.push('après la correction, « '+rempli.value+' » ('+n+' signes) tient dans '+l+'ch : la réponse est coupée');
+    }
 
     /* ---- 7. le mot se CHOISIT, il ne se tape pas -------------------------- */
     const sel=document.getElementById('sa2-type');
