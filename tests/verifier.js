@@ -6085,6 +6085,12 @@ function moyennesDevoirs(w, apres){
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
     initSupabase();
+    /* LE DOUBLE, GARDÉ SOUS LA MAIN. Ce contrôle attend (le rendu du bilan
+       passe par un setTimeout), et pendant une attente les MINUTEURS laissés
+       par les contrôles précédents s'exécutent — l'un d'eux remplace « sb »
+       par un stub à lui, dont le from() ne rend qu'un insert(). Le piège est
+       documenté ; on se rend simplement le nôtre avant de mesurer. */
+    const sbDouble=sb;
     const bilan={};
     const vraiToast=toast; toast=function(){};
     const vraiBlob=window.Blob, vraiCreate=window.URL.createObjectURL, vraiRevoke=window.URL.revokeObjectURL;
@@ -6153,6 +6159,19 @@ function moyennesDevoirs(w, apres){
       window.URL.revokeObjectURL=function(){};
       dmMoyennesCSV();
       bilan.csv=capture;
+
+      /* ET L'EXPORT BRUT DE TOUS LES RÉSULTATS, qui séparait à la VIRGULE
+         quand celui-ci sépare au point-virgule. Deux conventions dans le même
+         tableau de bord finissent par se contredire : Excel en français range
+         la ligne entière dans une seule colonne pour l'une et pas pour
+         l'autre (décision de Turquet, août 2026). On ne lit ici que la ligne
+         d'en-tête : le double ne sait pas rendre la jointure
+         « eleves(prenom) », et les VALEURS qu'il produit ne veulent rien
+         dire — l'en-tête, lui, dit tout ce qu'on veut savoir. */
+      capture=null;
+      sb=sbDouble;                       /* un minuteur d'à côté a pu nous le prendre */
+      await exportCSV();
+      bilan.csvBrut=capture;
     } finally {
       toast=vraiToast; window.Blob=vraiBlob;
       window.URL.createObjectURL=vraiCreate; window.URL.revokeObjectURL=vraiRevoke;
@@ -6197,6 +6216,22 @@ function moyennesDevoirs(w, apres){
     verifier('le fichier porte aussi la moyenne de la classe',
       r.ok && /^"Moyenne de la classe";"6,7";"2,2";"3,3";"4,1";""$/.test(lignesCsv[4] || ''),
       souci || 'dernière ligne : ' + String(lignesCsv[4] || ''));
+    /* LES DEUX EXPORTS SUIVENT LA MÊME CONVENTION. Le statique dit que le
+       geste passe par l'entonnoir — un export qui reconstruirait son fichier
+       dans son coin redeviendrait libre de sa ponctuation sans que rien ne le
+       dise ; le dynamique dit que le fichier qui sort en porte vraiment la
+       trace. N'en tenir qu'un ne tient rien. */
+    const corpsExport = (lire(CIBLE).match(/async function exportCSV\(\)\{[\s\S]*?\n\}/) || [''])[0];
+    verifier('l’export brut des résultats passe par le même entonnoir que le carnet',
+      /csvTelecharger\(/.test(corpsExport) && !/new Blob\(/.test(corpsExport)
+        && !/join\(','\)/.test(corpsExport),
+      corpsExport === '' ? 'exportCSV() introuvable'
+        : (!/csvTelecharger\(/.test(corpsExport) ? 'il n’appelle pas csvTelecharger()'
+           : 'il refabrique son fichier lui-même (Blob ou join(\',\')), donc sa propre ponctuation')); 
+    const brut = String(b.csvBrut || '');
+    verifier('l’export brut sépare au point-virgule, comme le carnet de notes',
+      r.ok && /^﻿"Eleve";/.test(brut) && !/^﻿"Eleve",/.test(brut),
+      souci || 'première ligne : ' + brut.split('\r\n')[0].slice(0, 70));
     fichesDeTravail(w, apres);
   });
 }
