@@ -1329,7 +1329,7 @@ async function parcours(page, N){
        le tableau est juste, pas qu'on peut le télécharger. Ici on CLIQUE le
        bouton et on attend le vrai téléchargement du navigateur — jsdom n'en a
        aucun, c'est donc le seul banc qui puisse le voir.
-       Et il MESURE : à douze devoirs le tableau est plus large que la carte.
+       Et il MESURE : à vingt devoirs le tableau est plus large que la carte.
        C'est LUI qui doit défiler, jamais la page — une page qui part en travers
        emmène tout le tableau de bord avec elle, et rien ne rougirait. */
     titre('6 septies ter. LE CARNET DE NOTES DU PROFESSEUR');
@@ -1356,7 +1356,12 @@ async function parcours(page, N){
       await s.page.evaluate(async ([tEleves, tRes, liste]) => {
         const ids = Object.keys(TESTS).slice(0, 2);
         const devoirs = [];
-        for(let n = 12; n >= 1; n--)          /* semés à l'envers : ils doivent sortir rangés */
+        /* VINGT et non douze : la carte du professeur n'a pas la même largeur
+           d'un niveau à l'autre — 648 px en Seconde et en Première, 1068 en
+           Terminale (mesuré) — et à douze devoirs le tableau TIENT là-bas.
+           Le contrôle ne mesurait alors plus rien, et il l'a dit plutôt que
+           de passer au vert. Vingt déborde partout. */
+        for(let n = 20; n >= 1; n--)          /* semés à l'envers : ils doivent sortir rangés */
           devoirs.push({ id:'d'+n, num:n, actif:true, titre:'Devoir '+n,
                          exercices:[{id:ids[0],modes:['train']},{id:ids[1],modes:['train']}] });
         /* « dmList » est déclarée en `let` : ce n'est PAS une propriété de
@@ -1401,7 +1406,7 @@ async function parcours(page, N){
           && vu.eleves === 'alice,Émile,Zoé,Moyenne de la classe',
         !vu.rendu ? 'aucun tableau rendu'
                   : 'colonnes : ' + String(vu.colonnes || '').slice(0, 60) + ' — élèves : ' + vu.eleves);
-      verifier('à douze devoirs, c\'est le tableau qui défile, pas la page',
+      verifier('à vingt devoirs, c\'est le tableau qui défile, pas la page',
         vu.rendu === true && vu.large === true && vu.debordPage <= 1,
         !vu.rendu ? 'aucun tableau rendu'
           : (vu.large ? '' : 'le tableau ne déborde pas : le contrôle ne mesure rien à cette largeur — ')
