@@ -42,6 +42,26 @@ select e.id, 5, 10, 50, 200, '{"test":"pourcentage"}'::jsonb from public.eleves_
 insert into public.parametres_2nde (id, valeurs) values (1, '{"devoirs":[]}')
 on conflict (id) do nothing;
 
+-- Deux signalements DÉJÀ répondus par le professeur, un par élève : c'est ce
+-- que la migration 008 rend lisible à son AUTEUR, et à lui seul. Semés ici
+-- plutôt que dans la section de l'élève, parce qu'un élève ne peut pas écrire
+-- de réponse — c'est justement l'un des bords contrôlés plus bas.
+do $$
+begin
+  if to_regclass('public.signalements_2nde') is null then return; end if;
+  if not exists (select 1 from information_schema.columns
+                  where table_schema = 'public' and table_name = 'signalements_2nde'
+                    and column_name = 'reponse') then return; end if;
+  insert into public.signalements_2nde (eleve_id, exercice, message, reponse, repondu_at)
+  select e.id, 'pourcentage', 'je ne comprends pas la question 3',
+         'REPONSE POUR ALICE : regarde le rappel de cours.', now()
+    from public.eleves_2nde e where e.cle = 'cle-alice';
+  insert into public.signalements_2nde (eleve_id, exercice, message, reponse, repondu_at)
+  select e.id, 'pourcentage', 'moi non plus',
+         'REPONSE POUR BOB : on en reparle lundi.', now()
+    from public.eleves_2nde e where e.cle = 'cle-bob';
+end $$;
+
 -- Le compteur sert de preuve de passage : le banc compare le nombre de lignes
 -- « OK » qu'il a lues au total annoncé ici. Un fichier interrompu au milieu, ou
 -- une sortie mal captée, se voit alors au lieu de passer pour un succès.
@@ -282,11 +302,42 @@ begin
     end;
     perform pg_temp.exige('elle ne peut pas signaler au nom de Bob', ok);
 
-    -- Et elle ne LIT rien : un signalement porte un prénom et un texte libre
-    -- tapé par un élève. Il n'a rien à faire sous les yeux des autres — pas
-    -- même sous ceux de son auteur, qui n'a pas besoin de le relire.
+    -- LA LECTURE A ÉTÉ RENVERSÉE PAR LA MIGRATION 008, et le dire vaut mieux
+    -- que de le taire. La 003 ne laissait lire personne d'autre que le
+    -- professeur, et sa raison était bonne : un signalement porte le prénom
+    -- d'un mineur et un texte libre qu'il a tapé. Cette raison ne change pas —
+    -- l'élève ne lit que SA PROPRE ligne, jamais celle d'un camarade. Ce qui
+    -- change est qu'il lui faut bien lire quelque part la réponse que le
+    -- professeur lui écrit : sans cela elle serait parfaitement enregistrée et
+    -- parfaitement invisible.
     select count(*) into n from public.signalements_2nde;
-    perform pg_temp.exige('elle ne relit aucun signalement, pas même le sien (' || n || ')', n = 0);
+    perform pg_temp.exige('elle relit SES signalements, et eux seuls (' || n || ')', n = 2);
+
+    select count(*) into n from public.signalements_2nde where reponse like 'REPONSE POUR ALICE%';
+    perform pg_temp.exige('elle lit la réponse que le professeur lui a écrite (' || n || ')', n = 1);
+
+    select count(*) into n from public.signalements_2nde where reponse like 'REPONSE POUR BOB%';
+    perform pg_temp.exige('elle ne lit pas la réponse faite à Bob (' || n || ')', n = 0);
+
+    -- Et elle n'ÉCRIT aucune réponse : le droit qu'on ne donne pas est celui
+    -- qu'on n'a pas à surveiller. Sans politique d'UPDATE, PostgreSQL ne lève
+    -- rien — il ne touche simplement aucune ligne, le refus muet, encore.
+    begin
+      update public.signalements_2nde set reponse = 'je me réponds tout seul';
+      ok := not found;
+    exception when insufficient_privilege then ok := true;
+    end;
+    perform pg_temp.exige('elle ne peut écrire aucune réponse, pas même sur sa ligne', ok);
+
+    -- Ni retoucher son message une fois parti : c'est la même absence de droit,
+    -- et l'exiger séparément dit que le refus ne tient pas au seul nom de la
+    -- colonne.
+    begin
+      update public.signalements_2nde set message = 'message réécrit après coup';
+      ok := not found;
+    exception when insufficient_privilege then ok := true;
+    end;
+    perform pg_temp.exige('elle ne réécrit pas son propre message', ok);
 
     -- Ni effacer celui qu'elle vient de déposer, une fois qu'il est parti.
     begin
@@ -325,7 +376,11 @@ begin
 
   if to_regclass('public.signalements_2nde') is not null then
     select count(*) into n from public.signalements_2nde;
-    perform pg_temp.exige('il voit les signalements de la classe (' || n || ')', n = 1);
+    perform pg_temp.exige('il voit les signalements de TOUTE la classe (' || n || ')', n = 3);
+
+    update public.signalements_2nde set reponse = 'ma réponse', repondu_at = now(), lu = true
+     where reponse is null;
+    perform pg_temp.exige('il répond à un signalement', found);
 
     update public.signalements_2nde set lu = true;
     perform pg_temp.exige('il marque un signalement comme lu', found);

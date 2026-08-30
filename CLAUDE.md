@@ -454,6 +454,69 @@ JSON sans les fonctions de leurs courbes.
 La migration `003` se joue à la main chez Supabase, comme les autres : jouée
 après coup, le bouton renvoie une erreur à l'élève.
 
+**Le professeur RÉPOND à un signalement, et c'est la lecture qu'il a fallu
+renverser.** Demande de Turquet (août 2026) : « je voudrais pouvoir répondre à
+un élève qui me signale un problème ». Un signalement partait jusque-là sans
+retour possible — l'élève écrivait, et n'entendait plus rien.
+**Écrire la réponse ne demandait rien** : la politique `p_…_prof_modif` ouvre
+déjà l'UPDATE au professeur, c'est elle qui porte « Marquer lu » depuis
+toujours. Rien ne passe donc par la fonction Edge — le raisonnement du
+renommage et du devoir sur papier, pris tel quel : y faire passer la réponse
+aurait coûté un redéploiement à la main, et le bouton serait arrivé en ligne
+MORT en attendant, sans que rien ne le dise.
+**Ce qui bloquait était la LECTURE, et la migration 008 la renverse.** La 003
+la réservait au professeur et le disait en toutes lettres — « SEUL LE
+PROFESSEUR LIT » —, si bien qu'une réponse aurait été parfaitement enregistrée
+et parfaitement invisible ; la page insère d'ailleurs « à sec », sans demander
+la ligne en retour, précisément parce que la demander échouait. La raison de la
+003 ne disparaît pas pour autant : l'élève lit **sa propre ligne, et elle
+seule** — jamais celle d'un camarade —, exactement le motif que `resultats`
+emploie depuis la 001. C'est un renversement, comme le contexte envoyé au
+modèle, et le contrôle n'a pas été retiré mais retourné : le banc de la base
+exigeait « elle ne relit aucun signalement », il exige maintenant qu'elle
+relise les siens, qu'elle lise la réponse qu'on lui a écrite, et qu'elle ne
+voie ni celle de Bob ni la ligne de Bob.
+**Aucun droit d'écriture ne lui est donné** : pas de marque « j'ai lu », pas de
+réponse à la réponse. La table porte un UPDATE ouvert à tout compte connecté au
+niveau des DROITS, et seule la politique le restreint au professeur — lui
+ouvrir une politique d'UPDATE, fût-ce sur sa propre ligne, le laisserait
+réécrire son message ou la réponse elle-même. Le droit qu'on ne donne pas est
+celui qu'on n'a pas à surveiller, et deux contrôles du banc de la base
+l'exigent (la réponse, et le message). Conséquence assumée : la réponse reste
+sur l'accueil de l'élève tant que le professeur ne supprime pas le signalement,
+et il n'y a pas de « nouveau » à afficher — un état de lecture aurait demandé
+ce droit-là.
+**La migration se joue AVANT la mise en ligne**, comme la 003 et la 007 — mais
+le coût d'un retard change de côté, et c'est le seul endroit du projet où c'est
+le cas : côté ÉLÈVE le panneau se TAIT sur une erreur de lecture (la colonne
+n'existe pas encore) et l'accueil retombe simplement sur ce qu'il était, tandis
+que côté PROFESSEUR le bouton « Répondre » renvoie une erreur qui se voit.
+**Répondre, c'est lire** : la réponse pose `lu` du même geste, sans quoi la
+pastille des non-lus compterait encore un signalement qu'on vient de traiter.
+**Une mise à jour que RLS refuse n'est pas une erreur** — PostgREST rend
+« 0 ligne », comme pour une suppression : on redemande les lignes touchées
+(`.select('id')`) et on les COMPTE, sinon la page annonce « Réponse envoyée ✓ »
+sur une réponse qui n'est jamais partie. Effacer le texte puis envoyer RETIRE
+la réponse ; une réponse vide sur une ligne qui n'en a pas est refusée.
+**La réponse déjà écrite se repose en VALEUR dans le champ, jamais dans le
+HTML** — un `</textarea>` tapé dedans refermerait la balise — et le message
+rappelé à l'élève, tapé par un mineur, passe par `esc()` des deux côtés. Un
+sabotage a montré que le contrôle ne mesurait d'abord que la carte du
+professeur : la moitié « élève » de l'échappement lui échappait.
+**Deux bords ne se voient que dans un navigateur** : les retours à la ligne
+(`white-space:pre-wrap` — une réponse en plusieurs lignes se lirait d'un bloc
+sans lui, la leçon du conseil du modèle sur une troisième famille de textes),
+et le panneau qui ne devrait pas être là, mesuré au RECTANGLE et jamais à la
+propriété `hidden` — `[hidden]` pose `display:none` depuis la feuille du
+NAVIGATEUR, qu'un `display:` écrit dans la page bat, le piège déjà payé sur la
+zone de copie d'écran. Un piège de banc s'y est montré : ouvrir l'onglet des
+signalements LANCE une lecture, qui écrasait le `mesSignalements` posé à la
+main — les deux mesures tombaient sur le même texte et le contrôle restait vert
+en parlant d'autre chose ; il repasse par `chargerSignalements()`, la vraie
+porte. Treize sabotages en tout, chacun rougissant en nommant son défaut, plus
+deux mutations au banc de la base (la lecture redevenue réservée au professeur,
+et l'élève reçu au droit d'écrire).
+
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
 rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de
@@ -3507,9 +3570,10 @@ npm run test:fonction # la fonction Edge admin-eleve, réellement exécutée
 mémoire — exprès : aucun contrôle ne doit approcher les comptes réels. Ils sont
 donc **aveugles aux règles d'accès de la base**, et c'est là qu'étaient les
 fuites. `npm run test:base` comble ce trou sans jamais toucher au projet : il
-lève un PostgreSQL jetable, y recrée l'état d'avant, y joue la vraie migration,
-puis joue chaque rôle — visiteur, deux élèves, professeur — et vérifie ce que
-chacun obtient. Il exige PostgreSQL installé localement ; à défaut il le dit
+lève un PostgreSQL jetable, y recrée l'état d'avant, y joue les vraies
+migrations (001, 002, 003, 004 et 008 — les 005 à 007 sont du `storage`, propre
+à Supabase, que ce banc ne sait pas lever), puis joue chaque rôle — visiteur,
+deux élèves, professeur — et vérifie ce que chacun obtient. Il exige PostgreSQL installé localement ; à défaut il le dit
 bruyamment plutôt que de passer au vert.
 
 Ce qu'aucun banc ne voit, et qui reste à vérifier à la main sur le projet : le

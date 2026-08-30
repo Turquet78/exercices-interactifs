@@ -425,6 +425,61 @@ gardez vos originaux sur votre ordinateur.
 
 ---
 
+## 3 septies. Répondre à un signalement (1 min)
+
+Collez **`migrations/008_reponse_au_signalement.sql`** dans l'éditeur SQL et
+exécutez-le. **Collez le fichier ENTIER.**
+
+**À jouer AVANT de mettre en ligne la version qui porte le bouton
+« Répondre ».** Sans cette étape, le bouton renvoie une erreur au moment où
+vous écrivez votre réponse. Côté élève le retard coûte moins cher — son accueil
+n'affiche simplement rien — mais il ne verra rien non plus. Dans l'autre sens,
+il n'y a aucun risque : deux colonnes en trop ne gênent personne.
+
+### Ce qu'elle pose
+
+Deux colonnes sur les trois tables de signalements : **`reponse`** (votre texte)
+et **`repondu_at`** (la date, que l'élève voit à côté).
+
+Et surtout, elle **élargit la politique de lecture**. C'est le cœur du fichier :
+la migration 003 la réservait au professeur, si bien qu'une réponse serait
+parfaitement enregistrée et parfaitement invisible. L'élève lit désormais
+**sa propre ligne, et elle seule** — jamais celle d'un camarade. C'est exactement
+le motif que `resultats` emploie depuis la 001 :
+
+```sql
+using (public.est_prof()
+       or exists (select 1 from public.eleves e
+                   where e.id = eleve_id and e.user_id = auth.uid()))
+```
+
+La politique **remplace** celle de la 003, elle ne s'ajoute pas à côté : deux
+politiques permissives se combinent par un OU, et c'est ainsi qu'on garde une
+règle qu'on croit avoir retirée (la leçon de la migration 002).
+
+### Ce qu'elle ne donne pas, et c'est voulu
+
+**Aucun droit d'écriture à l'élève.** Pas de marque « j'ai lu », pas de réponse
+à la réponse. La table porte un UPDATE ouvert à tout compte connecté au niveau
+des *droits*, et seule la politique le restreint au professeur : lui ouvrir une
+politique d'UPDATE, fût-ce sur sa propre ligne, le laisserait réécrire son
+message — ou votre réponse. Le droit qu'on ne donne pas est celui qu'on n'a pas
+à surveiller.
+
+Conséquence à connaître : la réponse reste sur l'accueil de l'élève tant que
+vous ne supprimez pas le signalement. C'est le bouton « Supprimer » de la carte
+qui la retire.
+
+### Ce que le banc voit
+
+Celle-ci est du SQL ordinaire : `npm run test:base` la rejoue en entier et
+exerce les trois bords — l'élève lit sa réponse, il ne lit pas celle d'un
+camarade, il ne peut pas écrire de réponse. Le fichier se termine en plus par un
+contrôle qui **échoue bruyamment** si une colonne manque ou si la lecture n'a
+pas été élargie.
+
+---
+
 ## 4. Vous déclarer professeur (1 min)
 
 Toujours dans **SQL Editor**, avec l'UUID de l'étape 2 :

@@ -6164,7 +6164,7 @@ function renommerEleve(w, apres){
   const present = evaluer(w, "typeof renameStudent==='function' && typeof renderRoster==='function'");
   if(!present.ok || !present.valeur){
     ignorer('le professeur peut changer le prénom d’un élève', 'ce niveau n’a pas renameStudent()');
-    return moyennesDevoirs(w, apres);
+    return repondreSignalementCtrl(w, apres);
   }
   const TE = P.tableEleves, TR = P.tableResultats;
 
@@ -6266,6 +6266,227 @@ function renommerEleve(w, apres){
     verifier('un changement que la base refuse EN SILENCE n’est pas annoncé comme fait',
       r.ok && /err:/.test(String(b.muet||'')) && !/ok:/.test(String(b.muet||'')),
       souci || 'le professeur a lu « ' + b.muet + ' » — sous RLS, PostgREST rend « 0 ligne » sans erreur');
+    repondreSignalementCtrl(w, apres);
+  });
+}
+
+/* ---------- Répondre à un signalement ------------------------------------
+   Demande de Turquet (août 2026) : « je voudrais pouvoir répondre à un élève
+   qui me signale un problème ». Le professeur écrit sa réponse dans la carte du
+   signalement ; l'élève la lit sur son accueil.
+
+   LE BORD QUI PORTE TOUT EST CELUI DE LA MIGRATION, et aucun banc jsdom ne le
+   voit : le double remplace Supabase SANS règles d'accès, donc il ne peut ni
+   prouver que l'élève lit sa réponse, ni qu'il ne lit pas celle d'un camarade.
+   C'est npm run test:base qui tient ces deux-là, sur un vrai PostgreSQL. Ici on
+   tient tout le reste, et d'abord ce que la page fait de ses droits.
+
+   Cinq bords, chacun silencieux :
+
+   — LE REFUS MUET. Une mise à jour que RLS refuse rend « 0 ligne » et AUCUNE
+     erreur : sans compter les lignes touchées, la page annonce « Réponse
+     envoyée ✓ » sur une réponse qui n'est jamais partie. C'est le piège le plus
+     coûteux du projet, et il s'applique à l'UPDATE comme au DELETE ;
+
+   — SA PROPRE LIGNE. La page filtre sur eleve_id. Le filtre retiré, un élève
+     verrait la réponse faite à un camarade — sur un banc sans RLS, rien ne le
+     rattraperait ;
+
+   — RÉPONDRE, C'EST LIRE. La pastille des non-lus doit descendre : un
+     signalement auquel on vient de répondre et qui compterait encore parmi les
+     non lus ferait mentir le compteur ;
+
+   — LE TEXTE EST DU TEXTE. La réponse est écrite par le professeur, le message
+     rappelé au-dessus est tapé par un MINEUR : les deux passent par esc(). Et
+     la réponse déjà écrite se repose en VALEUR dans le champ, jamais dans le
+     HTML — un « </textarea> » refermerait la balise ;
+
+   — LE CÂBLAGE. chargerReponsesProf() peut être parfaite et n'être appelée par
+     personne : l'accueil s'ouvrirait sans jamais montrer la moindre réponse. */
+function repondreSignalementCtrl(w, apres){
+  const present = evaluer(w, "typeof repondreSignalement==='function' && typeof envoyerReponseSignalement==='function' && typeof chargerReponsesProf==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le professeur répond à un signalement', 'ce niveau n’a pas repondreSignalement()');
+    return moyennesDevoirs(w, apres);
+  }
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const dits=[]; const vraiToast=toast; toast=function(m,k){ dits.push((k||'ok')+':'+m); };
+    const vraiEleve=currentEleve;
+    const bilan={};
+    const TS=TABLE_SIG;
+    const exo=Object.keys(TESTS)[0];
+    const semer=function(){
+      window.__faux.tables[TS]=[
+        {id:'s1',created_at:'2026-08-01T10:00:00Z',eleve_id:'e1',exercice:exo,numero:'1.1',
+         mode:'train',message:'la case reste rouge',contexte:{kind:'x'},version:1,navigateur:'Chrome',lu:false,
+         reponse:null,repondu_at:null},
+        {id:'s2',created_at:'2026-08-02T10:00:00Z',eleve_id:'e2',exercice:exo,numero:'1.1',
+         mode:'train',message:'moi aussi',contexte:{kind:'x'},version:1,navigateur:'Chrome',lu:true,
+         reponse:'réponse faite à un CAMARADE',repondu_at:'2026-08-03T10:00:00Z'}];
+      mesSignalements=window.__faux.tables[TS].map(function(l){
+        return Object.assign({}, l, {prenom:l.eleve_id==='e1'?'Theo':'Léa'}); });
+      window.__faux.journal.length=0; dits.length=0;
+    };
+    const lu=function(id){ return (window.__faux.tables[TS]||[]).filter(function(l){return l.id===id;})[0]||{}; };
+    const ecrire=function(id,texte){
+      repondreSignalement(id);
+      const champ=document.getElementById('sigRepIn-'+id);
+      if(champ) champ.value=texte;
+      return champ;
+    };
+    try{
+      /* 1. la réponse ordinaire : elle est écrite, datée, et le signalement
+         passe à « lu » — répondre, c'est lire */
+      semer(); renderSignalements();
+      bilan.avantPastille=(document.getElementById('sigCompte')||{}).textContent||'';
+      ecrire('s1','Bien vu, je corrige ce soir.');
+      await envoyerReponseSignalement('s1');
+      const l1=lu('s1');
+      bilan.texte=l1.reponse; bilan.date=!!l1.repondu_at; bilan.lu=l1.lu===true;
+      bilan.dits=dits.join(' | ');
+      /* rien n'est passé par la fonction Edge : elle ne se déploie qu'à la main,
+         un bouton qui l'appellerait serait mort jusque-là */
+      bilan.edge=window.__faux.operations('invoke').length;
+      /* et la carte du professeur la montre, avec de quoi la reprendre */
+      const carte=document.getElementById('sigListe').innerHTML;
+      bilan.carte=carte.indexOf('Bien vu, je corrige ce soir.')>=0;
+      bilan.modifier=carte.indexOf('Modifier ma réponse')>=0;
+      bilan.pastille=(document.getElementById('sigCompte')||{}).textContent||'';
+
+      /* 2. effacer le texte RETIRE la réponse */
+      ecrire('s1','   ');
+      await envoyerReponseSignalement('s1');
+      bilan.retiree=lu('s1').reponse===null && lu('s1').repondu_at===null;
+
+      /* 3. une réponse vide sur un signalement qui n'en a pas est refusée,
+         et rien n'est écrit */
+      semer(); renderSignalements();
+      ecrire('s1','');
+      await envoyerReponseSignalement('s1');
+      bilan.vide=window.__faux.operations('update',TS).length+' /'+dits.join(' | ');
+
+      /* 4. LE REFUS MUET : la base ne change rien et ne dit rien. Le double sert
+         les autres bords ; celui-ci demande un sb à lui — deux contrôles qui se
+         rendent sb à tour de rôle se le reprennent en plein vol, le piège
+         documenté — et il est rendu tout de suite après. */
+      semer(); renderSignalements();
+      const sbSauve=sb;
+      sb={ from:function(){ const q={
+        select:function(){ return q; }, update:function(){ return q; }, eq:function(){ return q; },
+        then:function(ok,ko){ return Promise.resolve({data:[],error:null}).then(ok,ko); } }; return q; } };
+      ecrire('s1','partie ? on ne sait pas');
+      await envoyerReponseSignalement('s1');
+      sb=sbSauve;
+      bilan.muet=dits.join(' | ');
+
+      /* 5. le texte est du TEXTE : ni balise interprétée, ni textarea refermée */
+      semer();
+      window.__faux.tables[TS][0].reponse='<b>gras</b> </textarea><script>x</'+'script>';
+      window.__faux.tables[TS][0].repondu_at='2026-08-04T10:00:00Z';
+      mesSignalements[0].reponse=window.__faux.tables[TS][0].reponse;
+      mesSignalements[0].repondu_at='2026-08-04T10:00:00Z';
+      mesSignalements[0].message="O'Brien <script>alert(1)</"+"script>";
+      renderSignalements();
+      const h=document.getElementById('sigListe');
+      bilan.echappe=h.innerHTML.indexOf('&lt;b&gt;')>=0 && h.querySelectorAll('script').length===0;
+      /* on OUVRE sans rien écrire : la valeur déjà en base doit être reposée
+         telle quelle dans le champ, sans passer par le HTML */
+      repondreSignalement('s1');
+      const ch=document.getElementById('sigRepIn-s1');
+      bilan.valeur=ch ? ch.value===window.__faux.tables[TS][0].reponse : false;
+      bilan.textareas=document.querySelectorAll('#sigListe textarea').length;
+
+      /* 6. CÔTÉ ÉLÈVE — il lit SA réponse, et rien de plus */
+      semer();
+      /* la réponse et le message portent des balises : chez l'élève aussi, ce
+         sont des TEXTES — le message est tapé par un mineur, la réponse par le
+         professeur, et ni l'un ni l'autre n'a à s'exécuter */
+      window.__faux.tables[TS][0].reponse='<b>gras</b> Bien vu, je corrige ce soir.';
+      window.__faux.tables[TS][0].repondu_at='2026-08-03T11:00:00Z';
+      window.__faux.tables[TS][0].message='la case reste rouge <script>alert(1)</'+'script>';
+      currentEleve={id:'e1',prenom:'Theo'};
+      await chargerReponsesProf();
+      const panneau=document.getElementById('repProf');
+      bilan.panneau=panneau.hidden===false;
+      bilan.sien=panneau.textContent.indexOf('Bien vu, je corrige ce soir.')>=0;
+      bilan.camarade=panneau.textContent.indexOf('CAMARADE')>=0;
+      bilan.rappel=panneau.textContent.indexOf('la case reste rouge')>=0;
+      bilan.echappeEleve=panneau.innerHTML.indexOf('&lt;b&gt;')>=0
+                      && panneau.querySelectorAll('script,b').length===0;
+
+      /* 7. sans réponse, PAS de panneau : l'accueil reste ce qu'il était */
+      semer();
+      currentEleve={id:'e1',prenom:'Theo'};
+      await chargerReponsesProf();
+      bilan.muetteVide=document.getElementById('repProf').hidden===true
+                     && document.getElementById('repProf').innerHTML==='';
+
+      /* 8. une base qui refuse la lecture (colonne absente : migration non
+         jouée) ne fait pas s'ouvrir l'accueil sur une erreur */
+      const sbSauve2=sb;
+      sb={ from:function(){ const q={
+        select:function(){ return q; }, eq:function(){ return q; }, order:function(){ return q; },
+        then:function(ok,ko){ return Promise.resolve({data:null,error:{message:'column reponse does not exist'}}).then(ok,ko); } }; return q; } };
+      dits.length=0;
+      await chargerReponsesProf();
+      sb=sbSauve2;
+      bilan.sansMigration=document.getElementById('repProf').hidden===true && dits.length===0;
+    } finally { toast=vraiToast; currentEleve=vraiEleve; }
+    /* le câblage et la requête, lus dans le source : une fonction parfaite que
+       personne n'appelle laisserait l'accueil muet pour toujours */
+    bilan.branche=String(ouvrirEspaceSuite).indexOf('chargerReponsesProf')>=0;
+    const req=String(chargerReponsesProf);
+    bilan.filtre=req.indexOf(".eq('eleve_id'")>=0;
+    bilan.colonnes=req.indexOf("select('*')")<0 && req.indexOf('reponse')>=0;
+    return bilan;
+  })()`, r => {
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+
+    verifier('le professeur répond, et la réponse est écrite, datée et marquée lue',
+      r.ok && b.texte === 'Bien vu, je corrige ce soir.' && b.date === true && b.lu === true &&
+      /ok:/.test(String(b.dits||'')) && b.edge === 0,
+      souci || 'réponse : « ' + b.texte + ' », datée : ' + b.date + ', lu : ' + b.lu +
+               ', appels à la fonction Edge : ' + b.edge + ' — dit : ' + b.dits);
+    verifier('la pastille des non-lus descend : répondre, c’est lire',
+      r.ok && /1 non lu sur 2/.test(String(b.avantPastille||'')) && /tous lus/.test(String(b.pastille||'')),
+      souci || 'avant : « ' + b.avantPastille + ' » — après : « ' + b.pastille + ' »');
+    verifier('la carte montre la réponse, et propose de la reprendre',
+      r.ok && b.carte === true && b.modifier === true,
+      souci || 'réponse affichée : ' + b.carte + ' — bouton « Modifier » : ' + b.modifier);
+    verifier('effacer le texte retire la réponse',
+      r.ok && b.retiree === true,
+      souci || 'après un envoi vide, la ligne porte encore une réponse ou une date');
+    verifier('une réponse vide sur un signalement sans réponse n’écrit rien, et le dit',
+      r.ok && /^0 \//.test(String(b.vide||'')) && /err:/.test(String(b.vide||'')),
+      souci || 'écritures /dits : ' + b.vide + ' — attendu « 0 / » et un message rouge');
+    verifier('une réponse que la base refuse EN SILENCE n’est pas annoncée comme envoyée',
+      r.ok && /err:/.test(String(b.muet||'')) && !/ok:/.test(String(b.muet||'')),
+      souci || 'le professeur a lu « ' + b.muet + ' » — sous RLS, PostgREST rend « 0 ligne » sans erreur');
+    verifier('la réponse et le message de l’élève sont du TEXTE, jamais du HTML',
+      r.ok && b.echappe === true && b.echappeEleve === true && b.valeur === true && b.textareas === 1,
+      souci || 'échappé chez le professeur : ' + b.echappe + ', chez l’élève : ' + b.echappeEleve +
+               ', valeur reposée telle quelle : ' + b.valeur +
+               ', champs de saisie ouverts : ' + b.textareas + ' (attendu 1)');
+    verifier('l’élève lit SA réponse sur son accueil, avec ce qu’il avait signalé',
+      r.ok && b.panneau === true && b.sien === true && b.rappel === true,
+      souci || 'panneau visible : ' + b.panneau + ', réponse lue : ' + b.sien +
+               ', son signalement rappelé : ' + b.rappel);
+    verifier('la réponse faite à un camarade n’apparaît pas chez lui',
+      r.ok && b.camarade === false && b.filtre === true,
+      souci || 'réponse d’un autre élève visible : ' + b.camarade + ' — filtre eleve_id : ' + b.filtre);
+    verifier('sans réponse, l’accueil reste exactement ce qu’il était',
+      r.ok && b.muetteVide === true,
+      souci || 'le panneau des réponses s’affiche alors qu’il n’y en a aucune');
+    verifier('une lecture refusée n’ouvre pas l’accueil sur une erreur',
+      r.ok && b.sansMigration === true,
+      souci || 'migration 008 non jouée : le panneau doit se taire, pas crier');
+    verifier('l’accueil appelle vraiment les réponses, et n’en lit que les colonnes utiles',
+      r.ok && b.branche === true && b.colonnes === true,
+      souci || 'appelée par ouvrirEspaceSuite : ' + b.branche + ' — colonnes nommées : ' + b.colonnes);
     moyennesDevoirs(w, apres);
   });
 }
