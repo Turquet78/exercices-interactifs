@@ -1949,6 +1949,44 @@ la LISIBILITÉ : un tableau qui se comprime ne déborde nulle part, si bien que
 le contrôle du défilement reste vert sur un écran illisible. Il exige donc
 désormais qu'aucune cellule ne coupe son contenu.
 
+**Supprimer un devoir ne perd plus ses notes : il s'ARCHIVE.** Demande de
+Turquet (août 2026). La suppression n'effaçait déjà AUCUNE ligne de notes — le
+message de confirmation le disait — mais elle effaçait la DÉFINITION du
+devoir : ses exercices, son numéro, son titre. Les notes devenaient
+orphelines, plus rien ne savait les lire, et elles quittaient d'un coup le
+carnet, le bilan et le bilan de l'élève ; la moyenne de toute la classe
+changeait. **Le message était vrai à la lettre et faux en pratique** — le
+défaut que ce projet connaît sous « l'écran dit autre chose que la note ».
+**Un devoir qui porte des notes est donc ARCHIVÉ** : il quitte la vue des
+élèves et la liste de travail du professeur, mais reste une colonne du carnet,
+marquée ⧉, et **il continue de compter dans les moyennes** (décision de
+Turquet) — ranger un devoir ne doit pas changer la moyenne d'un élève. C'est
+le bord qui dit vraiment « sans perdre les notes », et le contrôle compare les
+moyennes AVANT et APRÈS : un contrôle qui vérifierait seulement que le drapeau
+est posé passerait au vert sur un carnet vidé.
+**Un devoir SANS aucune note est vraiment supprimé** (décision de Turquet) :
+il n'y a rien à conserver, et sans cette règle la liste des archives se
+remplirait des brouillons créés dans l'éditeur.
+**Et l'archivage se DÉFAIT, en laissant MASQUÉ** : « Restaurer » remet le
+devoir dans la liste sans jamais le republier aux élèves de soi-même. Sans ce
+retour, archiver serait un aller simple — une autre façon de perdre un devoir.
+**Le drapeau se perd par DEUX portes, et il fallait les deux** :
+`ensureDevoir()` efface tout champ qu'elle ne nomme pas — c'est ainsi que
+« bonus » s'était déjà perdu entre l'éditeur et l'écran de l'élève — et le
+nettoyage de la Première (`clean`) est la seconde, où enregistrer un devoir
+archivé l'aurait désarchivé sans un mot. Le défaut ne s'écrit jamais : un
+devoir ordinaire, ou restauré, garde exactement la forme qu'il avait avant que
+l'archivage n'existe.
+**Une lecture ratée ARCHIVE au lieu de détruire.** Le compte des notes décide
+du sort du devoir ; si la base ne répond pas, on ne sait pas compter, et un
+doute se tranche du côté où rien n'est perdu.
+**L'élève est écarté par `!archive` EN PLUS de `actif`**, alors qu'archiver
+masque déjà : s'appuyer sur le seul `actif` ferait republier une archive au
+premier drapeau remis à la main dans le JSON. Neuf sabotages, chacun
+rougissant en nommant son défaut — et l'un d'eux a d'abord cassé la SYNTAXE au
+lieu du comportement, ce qui ne prouve rien : un sabotage qui empêche la page
+de se charger fait rougir tout le banc sans rien dire du contrôle visé.
+
 **Une fiche de travail se fait DANS L'ORDRE ; un devoir reste tout ouvert.**
 Les deux phrases sont deux décisions de Turquet, à un mois d'écart, et elles
 ne se contredisent pas : à la maison chacun avance comme il veut, en classe le

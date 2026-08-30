@@ -612,6 +612,13 @@
      contenus larges). Le zéro d'un devoir non fait s'écrit, mais en gris : la
      note compte 0, l'œil doit pouvoir le distinguer d'un 0 obtenu. */
   .dm-moywrap{overflow-x:auto}
+  /* Une colonne archivée reste au carnet — ses notes comptent — mais elle se
+     distingue : le professeur doit comprendre pourquoi un devoir absent de sa
+     liste de travail est encore là. */
+  .dm-col-arch{color:var(--ink-soft);border-bottom:2px dashed var(--line)}
+  .dm-arch{margin:6px 0 10px;padding:10px 12px;border:1.5px dashed var(--line);border-radius:12px;background:var(--paper)}
+  .dm-arch-t{font-weight:700;color:var(--ink-soft);margin-right:8px}
+  .dm-arch-i{display:inline-flex;align-items:center;gap:6px;margin:0 10px 4px 0;white-space:nowrap}
   /* « width:max-content » a été essayé ici, puis RETIRÉ : mesuré des deux
      côtés, il n'écartait rien. Sans lui le tableau défile déjà (990 px dans
      648 à douze devoirs, contre 1159 avec), la page ne déborde pas et aucune
@@ -1597,6 +1604,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <p class="lead" id="dmFamilleLead">Crée et gère les devoirs à la maison. Chaque devoir <b>affiché</b> apparaît dans « Voir les devoirs à la maison » de l'espace élève.</p>
         <div class="dm-tabs" id="dmGenres"></div>
         <div class="dm-tabs" id="dmTabs"></div>
+        <div id="dmArchives"></div>
         <div id="dmEditor"></div>
         <div class="set-h">Moyennes de la classe</div>
         <div id="dmMoyennes"></div>
@@ -1720,7 +1728,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=184;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=185;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2200,7 +2208,12 @@ function famillesDevoirs(cfg){
   const tag=function(arr,g){ return (arr||[]).map(function(d){ return Object.assign({},d,{genre:g}); }); };
   return tag(cfg.devoirs,'dm').concat(tag(cfg.fiches,'fiche'));
 }
-function ensureDevoir(d,i){ return { id:d.id||newDevoirId(), num:(typeof d.num==='number'?d.num:(i+1)), actif:d.actif!==false, titre:d.titre||'Devoir à la maison', cours:(typeof d.cours==='string')?d.cours:'', exercices:Array.isArray(d.exercices)?d.exercices:[] }; }
+/* « archive » N'EST PAS ÉCRIT quand il est faux : un devoir ordinaire garde
+   exactement la forme qu'il avait avant que l'archivage n'existe. Et il est
+   RECOPIÉ ici plutôt qu'oublié — ensureDevoir() normalise l'entrée, donc tout
+   champ qu'elle ne nomme pas est effacé en silence. C'est le piège qui avait
+   déjà emporté le drapeau « bonus » entre l'éditeur et l'écran de l'élève. */
+function ensureDevoir(d,i){ return Object.assign({ id:d.id||newDevoirId(), num:(typeof d.num==='number'?d.num:(i+1)), actif:d.actif!==false, titre:d.titre||'Devoir à la maison', cours:(typeof d.cours==='string')?d.cours:'', exercices:Array.isArray(d.exercices)?d.exercices:[] }, d.archive?{archive:true}:{}); }
 function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.fiches = Array.isArray(cfg.fiches)? cfg.fiches.map((d,i)=>ensureDevoir(d,i)) : []; cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
@@ -3215,7 +3228,8 @@ function devoirsVideHTML(){
 function renderDevoirsList(){
   const G=GENRE_DEVOIRS[genreEleve];
   $('devoirsTitle').textContent=G.titre;
-  const actifs=(mesDevoirs||[]).filter(d=>(d.genre||'dm')===genreEleve&&d.actif&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
+  /* « !archive » en plus de « actif » : voir la Seconde. */
+  const actifs=(mesDevoirs||[]).filter(d=>(d.genre||'dm')===genreEleve&&d.actif&&!dmEstArchive(d)&&(d.exercices||[]).length).sort((a,b)=>(b.num||0)-(a.num||0));
   if(!actifs.length){ $('devoirsBody').innerHTML=devoirsVideHTML(); return; }
   /* La liste est COMPACTE — le numéro, le titre, la note s'il y en a une
      (demande de Turquet, août 2026) : elle recopiait le contenu entier de
@@ -9956,17 +9970,21 @@ async function renderDevoirsAdmin(){
   try{ cfg=await loadConfig(); dmAdminList=(cfg[dmCleGenre()]||[]).slice(); }
   catch(e){ dmAdminList=[]; $('dmTabs').innerHTML='<div class="empty">Connexion impossible. Vérifie la configuration.</div>'; return; }
   dmAdminList.sort((a,b)=>(a.num||0)-(b.num||0));
-  if(dmSelId && !dmAdminList.some(d=>d.id===dmSelId)) dmSelId=null;
-  if(!dmSelId && dmAdminList.length) dmSelId=dmAdminList[dmAdminList.length-1].id;
+  const vifs=dmAdminList.filter(d=>!dmEstArchive(d));
+  if(dmSelId && !vifs.some(d=>d.id===dmSelId)) dmSelId=null;
+  if(!dmSelId && vifs.length) dmSelId=vifs[vifs.length-1].id;
   renderDmTabs(); renderDmEditor(); renderDmResults();
 }
 function renderDmTabs(){
   const G=GENRE_DEVOIRS[dmGenre];
-  const tabs=dmAdminList.map(d=>{
+  /* Les archivés sortent de la liste de travail — ils vivent dans leur propre
+     bloc, juste dessous, avec leur bouton « Restaurer ». */
+  const tabs=dmAdminList.filter(d=>!dmEstArchive(d)).map(d=>{
     const on=d.id===dmSelId, masq=d.actif?'':' · masqué';
     return `<button class="dm-tab ${on?'on':''}" onclick="selectDM('${escJS(d.id)}')">${G.badge} n°${esc(String(d.num))}${masq}</button>`;
   }).join('');
   $('dmTabs').innerHTML=tabs+`<button class="dm-tab add" onclick="newDM()">${G.ajouter}</button>`;
+  renderDmArchives();
 }
 function selectDM(id){ dmSelId=id; renderDmTabs(); renderDmEditor(); renderDmResults(); }
 async function newDM(){
@@ -10166,7 +10184,10 @@ async function saveDM(){
        les publierait sur le portail, qui lit cette clé-là. */
     const cle=dmCleGenre();
     const arr=(cfg[cle]||[]).slice();
-    const clean={ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices };
+    /* « archive » recopié ici aussi : ce nettoyage est la SECONDE porte par
+       laquelle un drapeau se perd — enregistrer un devoir archivé le
+       désarchiverait, et ses notes quitteraient le carnet sans un mot. */
+    const clean=Object.assign({ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices }, d.archive?{archive:true}:{});
     const i=arr.findIndex(x=>x.id===d.id);
     if(i>=0) arr[i]=clean; else arr.push(clean);
     const maj={}; maj[cle]=arr;
@@ -10176,7 +10197,14 @@ async function saveDM(){
 }
 async function deleteDM(id){
   const d=dmAdminList.find(x=>x.id===id);
-  if(!confirm(`Supprimer ${dmGenre==='fiche'?'la fiche':'le devoir'} n°${d?d.num:''} ? Les résultats déjà enregistrés par les élèves sont conservés.`)) return;
+  if(!d) return;
+  const dec=await dmDecisionSuppression(d);
+  if(!confirm(dmTexteSuppression(d,dec))) return;
+  if(dec.archiver){
+    try{ await dmMarquerArchive(id,true); toast('Archivé — ses notes restent au carnet','ok'); }
+    catch(e){ toast('Archivage impossible','err'); }
+    return;
+  }
   try{
     cfg=await loadConfig();
     if(CONFIG_ERREUR) throw CONFIG_ERREUR;   /* réécrire après une lecture ratée effacerait TOUT le reste */
@@ -10196,6 +10224,128 @@ function dmBestFor(rows,eid,did,id,m){
   });
   return b;
 }
+/* ══ ARCHIVER PLUTÔT QUE DÉTRUIRE ══════════════════════════════════════════
+   « Je voudrais pouvoir supprimer un devoir sans perdre les notes » (demande
+   de Turquet, août 2026). Supprimer n'effaçait déjà AUCUNE ligne de notes — le
+   message de confirmation le disait — mais il effaçait la DÉFINITION du
+   devoir : ses exercices, son numéro, son titre. Les notes devenaient
+   orphelines, plus rien ne savait les lire, et elles quittaient d'un coup le
+   carnet, le bilan et le bilan de l'élève ; la moyenne de toute la classe
+   changeait. Le message était vrai à la lettre et faux en pratique — le défaut
+   que ce projet connaît sous « l'écran dit autre chose que la note ».
+
+   UN DEVOIR QUI PORTE DES NOTES EST DONC ARCHIVÉ, jamais détruit : il quitte
+   la vue des élèves et la liste de travail du professeur, mais reste une
+   colonne du carnet, marquée « archivé », et IL CONTINUE DE COMPTER dans les
+   moyennes (décision de Turquet, août 2026) — ranger un devoir ne doit pas
+   changer la moyenne d'un élève.
+
+   UN DEVOIR SANS AUCUNE NOTE est vraiment supprimé (décision de Turquet) : il
+   n'y a rien à conserver, et sans cette règle la liste des archives se
+   remplirait des brouillons créés dans l'éditeur.
+
+   Et l'archivage SE DÉFAIT : « Restaurer » remet le devoir dans la liste, mais
+   MASQUÉ — restaurer ne republie jamais un devoir aux élèves de soi-même.
+   Sans ce retour, archiver serait un aller simple, c'est-à-dire une autre
+   façon de perdre un devoir. */
+function dmEstArchive(dev){ return !!(dev && dev.archive); }
+
+/* Les notes d'un devoir — celles qui décident s'il s'archive ou s'il part. Un
+   brouillon de pause n'en est pas une : il ne compte nulle part ailleurs, et
+   il ne doit pas retenir un devoir ici. */
+function dmNotesDe(devId, rows){
+  return (rows||[]).filter(function(r){
+    const dt=r.details;
+    return dt && !Array.isArray(dt) && dt.dm===devId && !isPaused(r);
+  }).length;
+}
+
+/* LA DÉCISION, et elle se prend sur un compte VRAI, jamais supposé. Si la base
+   ne répond pas, on ARCHIVE : un doute se tranche du côté où rien n'est
+   perdu — détruire sur une lecture ratée serait exactement le défaut qu'on
+   répare. */
+async function dmDecisionSuppression(dev){
+  try{
+    const {data,error}=await sb.from(dmTableResultats()).select('*');
+    if(error) throw error;
+    const n=dmNotesDe(dev.id, data||[]);
+    return { archiver:n>0, n:n, lecture:true };
+  }catch(e){
+    return { archiver:true, n:null, lecture:false };
+  }
+}
+
+function dmTexteSuppression(dev, d){
+  const F=dmMoyFamille();
+  const quoi=(F.singulier==='fiche'?'la fiche':'le devoir')+' n°'+dev.num;
+  if(!d.archiver)
+    return 'Supprimer '+quoi+' ?\n\nAucune note n’y est rattachée : rien ne sera perdu.';
+  return (d.lecture
+      ? quoi.charAt(0).toUpperCase()+quoi.slice(1)+' porte '+d.n+' note'+(d.n>1?'s':'')+'.'
+      : 'Impossible de vérifier les notes de '+quoi+' pour l’instant.')
+    + '\n\nIl sera ARCHIVÉ, et non supprimé : retiré de la vue des élèves et de ta'
+    + ' liste, mais ses notes restent dans le carnet et continuent de compter'
+    + ' dans les moyennes.\n\nContinuer ?';
+}
+
+/* La liste des archives, et le chemin du retour. Elle vit sous les onglets de
+   l'éditeur : un devoir archivé ne s'y modifie plus — il n'a plus qu'un
+   bouton. */
+function renderDmArchives(){
+  const box=$('dmArchives'); if(!box) return;
+  const F=dmMoyFamille();
+  const arch=dmTousDevoirs().filter(dmEstArchive)
+    .slice().sort(function(a,b){ return (a.num||0)-(b.num||0); });
+  if(!arch.length){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="dm-arch"><span class="dm-arch-t">Archivé'+F.accord+'s :</span>'
+    + arch.map(function(d){
+        return '<span class="dm-arch-i">n°'+esc(String(d.num))
+          + (d.titre?' · '+esc(d.titre):'')
+          + ' <button class="btn btn-ghost btn-sm" onclick="dmRestaurer(\''+escJS(d.id)+'\')">Restaurer</button></span>';
+      }).join('')
+    + '<p class="note" style="margin:8px 0 0">Hors de la vue des élèves et de ta liste de'
+    + ' travail — mais leurs notes restent dans le carnet et comptent toujours dans les'
+    + ' moyennes. « Restaurer » les remet dans la liste, masqué'+F.accord+'s.</p></div>';
+}
+
+async function dmRestaurer(id){
+  const d=dmTousDevoirs().find(function(x){ return x.id===id; });
+  if(!d) return;
+  if(!confirm('Restaurer le n°'+d.num+' ?\n\nIl revient dans ta liste, MASQUÉ : à toi de'
+    +' cocher « Afficher aux élèves » si tu veux le redonner.')) return;
+  try{ await dmMarquerArchive(id,false); toast('Restauré — il est masqué','ok'); }
+  catch(e){ toast('Restauration impossible','err'); }
+}
+
+/* ---- CE QUI DIVERGE D'UN NIVEAU À L'AUTRE, et rien d'autre --------------
+   Le nom de la liste des devoirs, celui de la table des notes, et la façon
+   d'écrire un drapeau dans la configuration : la Première réécrit l'entrée
+   dans la configuration relue, les deux autres poussent leur liste entière.
+   Tout le moteur ci-dessus est le MÊME TEXTE dans les trois fichiers, et un
+   contrôle les compare. */
+function dmTousDevoirs(){ return dmAdminList; }
+function dmTableResultats(){ return 'resultats_1ere'; }
+async function dmMarquerArchive(id, archive){
+  /* On RELIT la configuration avant d'écrire, comme le fait la suppression :
+     réécrire après une lecture ratée effacerait tout le reste. */
+  cfg=await loadConfig();
+  if(CONFIG_ERREUR) throw CONFIG_ERREUR;
+  const cle=dmCleGenre();
+  const arr=(cfg[cle]||[]).map(function(x){
+    if(x.id!==id) return x;
+    /* Archiver MASQUE toujours, et restaurer laisse masqué. Et « archive » est
+       RETIRÉ plutôt que posé à false : un devoir restauré retrouve exactement
+       la forme qu'il avait avant que l'archivage n'existe. */
+    const y=Object.assign({}, x, {actif:false});
+    if(archive) y.archive=true; else delete y.archive;
+    return y;
+  });
+  const maj={}; maj[cle]=arr;
+  const {error}=await saveConfig(Object.assign({},cfg,maj)); if(error) throw error;
+  if(archive && dmSelId===id) dmSelId=null;
+  renderDevoirsAdmin();
+}
+
 /* ══ LES MOYENNES DE LA CLASSE, TOUS DEVOIRS ═══════════════════════════════
    Le bilan d'à côté ne montre qu'UN devoir. Le professeur veut son carnet de
    notes : les élèves en lignes, un devoir par colonne, la moyenne au bout, et
@@ -10302,7 +10452,12 @@ function dmMoyennesHTML(b){
       +' aux élèves pour l’instant — le tableau des moyennes apparaît dès qu’il y en a un'+F.accord+'.</div>';
   if(!b.lignes.length) return '<div class="empty">Aucun compte élève.</div>';
   const th=b.colonnes.map(function(d){
-    return '<th title="'+esc(d.titre||'')+'">n°'+esc(String(d.num))+'</th>'; }).join('');
+    /* Une colonne ARCHIVÉE se voit : ses notes comptent toujours, et le
+       professeur doit savoir pourquoi un devoir absent de sa liste est
+       encore là. */
+    return dmEstArchive(d)
+      ? '<th class="dm-col-arch" title="'+esc(d.titre||'')+' — archivé, ses notes comptent toujours">n°'+esc(String(d.num))+' ⧉</th>'
+      : '<th title="'+esc(d.titre||'')+'">n°'+esc(String(d.num))+'</th>'; }).join('');
   const corps=b.lignes.map(function(l){
     const tds=l.cases.map(function(c){
       return c.fait
@@ -10353,7 +10508,7 @@ function dmMoyennesCSV(){
   if(!b||!b.colonnes.length||!b.lignes.length){ toast('Rien à télécharger'); return; }
   const F=dmMoyFamille();
   const lignes=[ ['Élève']
-    .concat(b.colonnes.map(function(d){ return 'n°'+d.num+(d.titre?' — '+d.titre:''); }))
+    .concat(b.colonnes.map(function(d){ return 'n°'+d.num+(d.titre?' — '+d.titre:'')+(dmEstArchive(d)?' (archivé)':''); }))
     .concat(['Moyenne / 20', F.pluriel.charAt(0).toUpperCase()+F.pluriel.slice(1)+' faits']) ];
   b.lignes.forEach(function(l){
     lignes.push([l.eleve.prenom]
