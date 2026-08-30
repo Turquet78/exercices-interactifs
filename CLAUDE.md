@@ -265,6 +265,55 @@ longueur des codes lit les *fichiers du dépôt* — il ne voit pas ce qui tourn
 Le seul garde-fou qui le voie est dans la page : elle vérifie la longueur des
 codes reçus et avertit. Après toute modification de la fonction, redéployer.
 
+**Renommer un élève ne passe PAS par la fonction Edge, et c'est la leçon du
+paragraphe précédent prise à l'envers.** Le professeur peut changer le prénom
+d'un élève depuis sa liste (demande de Turquet, août 2026) : jusqu'ici le seul
+chemin était de le retirer et de le recréer, ce qui emportait TOUT son
+historique. Les trois autres gestes — nouveau code, ajout, retrait — passent par
+`admin-eleve` parce qu'ils touchent `auth.users` et réclament la clé de service.
+Celui-ci n'y touche pas : la politique `p_eleves…_prof_modif` ouvre déjà
+l'UPDATE au professeur, et le prénom n'est pas un secret — l'écran de connexion
+l'affiche sans être connecté. Le faire passer par la fonction Edge aurait coûté
+un redéploiement à la main, et le bouton serait arrivé en ligne MORT en
+attendant, sans que rien ne le dise. C'est le raisonnement du devoir sur papier,
+qui part par le canal des signalements pour la même raison.
+**Rien d'autre ne bouge, et c'est ce qui rend le geste sûr** : le compte
+Supabase de l'élève est dérivé de `cle`, jamais du prénom — son code et sa
+connexion ne changent pas — et ses notes le désignent par `eleve_id` : elles
+suivent le nouveau nom d'elles-mêmes, dans son bilan comme dans le tableau du
+professeur. Le contrôle EXIGE ces trois propriétés plutôt que de les supposer,
+et il compte les appels à la fonction Edge : zéro.
+**Une mise à jour que RLS refuse n'est pas une erreur** — PostgREST rend
+« 0 ligne », exactement comme pour une suppression, le piège le plus coûteux du
+projet. On redemande donc les lignes touchées (`.select('id')`) et on les
+COMPTE, sans quoi la page annonce « Prénom modifié ✓ » sur un prénom qui n'a
+pas bougé.
+**Et l'autre bord du droit vit dans le banc de la BASE**, seul endroit qui voie
+les règles d'accès : `npm test` remplace Supabase par un double sans RLS, donc
+il ne peut ni prouver que le professeur a le droit, ni qu'un élève ne l'a pas.
+Le banc exigeait déjà « il renomme un élève » côté professeur ; il exige
+maintenant les deux refus qui vont avec — un élève ne renomme ni un camarade ni
+lui-même. Sans eux, un prénom volé sur l'écran de connexion suffirait à se faire
+passer pour un autre, et rien ne rougirait. Éprouvé en ouvrant la politique
+d'UPDATE à tous : le banc de la base le nomme.
+**Le contrôle de doublon laisse passer l'élève LUI-MÊME.** Deux prénoms
+identiques ne se distinguent plus sur l'écran de connexion et l'un prendrait la
+place de l'autre : le prénom d'un autre est donc refusé, à la casse près, comme
+à la création de compte. Mais un contrôle qui refuserait toute correspondance
+interdirait à « marie » de devenir « Marie » — le sabotage l'a montré, et les
+deux bords sont tenus.
+**Et le contrôle de la mise en page mesurait d'abord autre chose.** La rangée
+d'un élève porte trois boutons depuis ce jour-là ; le premier jet comparait
+chaque bouton à SA rangée et restait vert sous les deux sabotages. En flex, une
+rangée qui ne se replie pas ne laisse pas déborder ses boutons — elle GRANDIT
+avec eux : c'est la PAGE qui déborde, et « Retirer » qui sort de l'écran par la
+droite. Le bord est aussi plus bas qu'il n'y paraît : à 420 px le repli des
+boutons (`.acts{flex-wrap:wrap}`) ne change RIEN ; à 320 px, sans lui, la page
+fait 341 px et « Retirer » devient inatteignable. Mesuré des deux côtés — ce
+n'est donc pas un garde-fou mort, contrairement aux six qu'a comptés le projet,
+et c'est le sabotage qui l'a établi, pas la relecture. Onze sabotages en tout,
+chacun rougissant en nommant son défaut.
+
 **Une sauvegarde remise en place casse la Première le lendemain.** Réinsérer des
 lignes avec leurs identifiants d'origine ne fait pas avancer la séquence qui les
 produit : elle repart de 1, et c'est le *premier élève ajouté après* la

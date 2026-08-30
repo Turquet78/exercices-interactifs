@@ -336,7 +336,7 @@
   .roster li .av{width:32px;height:32px;border-radius:50%;background:#e9eefb;color:var(--blue-dark);display:grid;place-items:center;font-family:"Fredoka";font-weight:600;flex:none}
   .roster li .nm{font-weight:700}
   .roster li .code{font-family:"Fredoka";color:var(--ink-soft);font-size:.9rem;background:#f4f3ec;padding:2px 9px;border-radius:8px}
-  .roster li .acts{margin-left:auto;display:flex;gap:6px}
+  .roster li .acts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
   .add-form{display:grid;grid-template-columns:1fr 130px auto;gap:10px;margin-bottom:16px}
   .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 
@@ -2109,7 +2109,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=260;
+const APP_VERSION=261;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -14298,11 +14298,50 @@ async function renderRoster(){
       <span class="nm">${esc(e.prenom)}</span>
       <span class="code" title="Les codes sont chiffrés : personne ne peut les relire. « Nouveau code » en tire un nouveau.">code : ••••</span>
       <span class="acts">
+        <button class="btn btn-ghost btn-sm" onclick="renameStudent('${escJS(e.id)}','${escJS(e.prenom)}')">Renommer</button>
         <button class="btn btn-ghost btn-sm" onclick="resetPin('${escJS(e.id)}','${escJS(e.prenom)}')">Nouveau code</button>
         <button class="btn btn-danger btn-sm" onclick="removeStudent('${escJS(e.id)}','${escJS(e.prenom)}')">Retirer</button>
       </span></li>`).join('');
   }catch(e){ ul.innerHTML='<div class="empty">Connexion impossible.</div>'; }
 }
+/* ---- Changer le prénom d'un élève ---------------------------------------
+   Ce geste-là ne passe PAS par la fonction Edge, et c'est délibéré : il ne
+   demande aucun droit que le navigateur du professeur n'ait déjà — la politique
+   « p_eleves_prof_modif » lui ouvre l'UPDATE sur cette table — et il ne
+   touche à rien de secret. Le compte Supabase de l'élève est dérivé de
+   « cle », JAMAIS du prénom : renommer ne change ni son code ni sa connexion.
+   Ses notes, elles, le désignent par « eleve_id » : elles suivent le nouveau
+   nom d'elles-mêmes, dans son bilan comme dans le tableau du professeur —
+   rien n'est perdu. Passer par admin-eleve aurait coûté un redéploiement à la
+   main, et le bouton serait resté mort jusque-là sans que rien ne le dise.
+
+   UNE MISE À JOUR QUE RLS REFUSE N'EST PAS UNE ERREUR : PostgREST rend
+   « 0 ligne », exactement comme pour une suppression — le piège le plus
+   coûteux du projet. On redemande donc les lignes touchées et on les COMPTE,
+   sans quoi la page annoncerait « Prénom modifié ✓ » sur un prénom qui n'a
+   pas bougé. */
+async function renameStudent(id,ancien){
+  const saisi=prompt('Nouveau prénom de '+ancien+' :\n\nSon code et son historique ne changent pas.',ancien);
+  if(saisi===null)return;                              /* « Annuler » */
+  const prenom=saisi.trim();
+  if(!prenom){ toast('Écris un prénom','err'); return; }
+  if(prenom===ancien)return;                           /* rien n'a changé */
+  try{
+    /* Deux élèves du même prénom ne se distinguent plus sur l'écran de
+       connexion : l'un des deux prendrait la place de l'autre. C'est le
+       contrôle de la création de compte — insensible à la casse —, à ceci près
+       qu'il laisse passer l'élève LUI-MÊME : sans quoi « marie » ne pourrait
+       jamais devenir « Marie ». */
+    const {data:deja,error:errDeja}=await sb.from('eleves').select('id').ilike('prenom',prenom);
+    if(errDeja){ toast('Vérification du prénom impossible — réessaie','err'); return; }
+    if((deja||[]).some(e=>String(e.id)!==String(id))){ toast('Ce prénom existe déjà','err'); return; }
+    const {data:touchees,error}=await sb.from('eleves').update({prenom}).eq('id',id).select('id');
+    if(error){ toast('Changement impossible — réessaie','err'); return; }
+    if(!(touchees||[]).length){ toast('La base a refusé le changement : le prénom n’a pas bougé','err'); return; }
+    toast('Prénom modifié','ok'); renderRoster();
+  }catch(e){ toast('Changement impossible','err'); }
+}
+
 async function addStudent(){
   const prenom=val('addPrenom').trim();
   if(!prenom){ toast('Écris un prénom'); return; }
