@@ -1703,7 +1703,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=180;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=181;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3074,7 +3074,8 @@ function exercicesDevoir(dev){
   return ((dev&&dev.exercices)||[])
     .filter(ex=>TESTS[ex.id])
     .map(ex=>({ id:ex.id, modes:ex.modes||[], nb:parseInt(ex.nb,10)||null,
-                nbQ:parseInt(ex.nbQ,10)||null, smax:parseInt(ex.smax,10)||null }));
+                nbQ:parseInt(ex.nbQ,10)||null, smax:parseInt(ex.smax,10)||null,
+                bonus:!!ex.bonus }));
 }
 /* L'ORDRE IMPOSÉ DES FICHES (demande de Turquet, août 2026). Une fiche de
    travail en classe se fait dans l'ordre écrit par le professeur : un exercice
@@ -3087,8 +3088,14 @@ function dmOrdreImpose(dev){ return !!(dev && GENRE_DEVOIRS[dev.genre||'dm'].ord
 function dmVerrouille(dev, testId){
   if(!dmOrdreImpose(dev)) return false;
   const exos=(dev.exercices||[]).filter(ex=>TESTS[ex.id]);
+  /* Un exercice BONUS est FACULTATIF : il n'entre pas dans la chaîne de
+     l'ordre — jamais verrouillé, jamais bloquant (demande de Turquet, août
+     2026, avec les exercices bonus). */
+  const moi=exos.find(ex=>ex.id===testId);
+  if(dmEstBonus(moi)) return false;
   for(let i=0;i<exos.length;i++){
     if(exos[i].id===testId) return false;      /* lui-même, ou placé avant le premier non-fait */
+    if(dmEstBonus(exos[i])) continue;          /* un bonus non fait ne bloque pas la suite */
     const nd=noteDevoirExo(dmBest(dev.id,exos[i].id,'soutien'), dmBest(dev.id,exos[i].id,'train'), exos[i].smax);
     if(!nd.fait) return true;                  /* un exercice AVANT lui n'est pas fait */
   }
@@ -3113,6 +3120,25 @@ function noteDevoirExo(bestSoutien, bestEntrain, smax){
   return { note, s, e, soutienFait, entrainFait:!!bestEntrain, fait:(soutienFait || !!bestEntrain) };
 }
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
+/* LA NOTE D'UN DEVOIR À EXERCICES BONUS (demande de Turquet, août 2026) : un
+   exercice coché « bonus » vaut UN POINT — sa note /10 ramenée sur 1 — qui
+   S'AJOUTE au total sans jamais le dépasser : le plafond est la note maximale
+   des exercices normaux. Si un devoir n'a QUE des bonus, le réglage ne
+   s'applique pas et ils comptent comme des exercices normaux : un bonus n'a de
+   sens qu'en plus de quelque chose. UN SEUL entonnoir, partagé par la liste, la
+   page du devoir et le tableau du professeur — deux calculs auraient donné deux
+   totaux (la leçon d'exercicesDevoir). */
+function dmEstBonus(ex){ return !!(ex && ex.bonus); }
+function dmTotal(parts){
+  const tousBonus = parts.length>0 && parts.every(function(p){ return p.bonus; });
+  const normaux = tousBonus ? parts : parts.filter(function(p){ return !p.bonus; });
+  const bonus   = tousBonus ? []    : parts.filter(function(p){ return p.bonus; });
+  const totMax  = normaux.length*10;
+  const brute   = normaux.reduce(function(a,p){ return a+p.note; },0)
+                + bonus.reduce(function(a,p){ return a+p.note/10; },0);
+  return { somme: Math.min(totMax, brute), totMax: totMax,
+           fait: parts.some(function(p){ return p.fait; }) };
+}
 /* Un plafond bricolé à la main dans la base retombe sur 5 : la leçon de
    TM_NB_CHOIX — le réglage est un simple champ JSON. */
 function dmPlafondSoutien(smax){ const p=parseInt(smax,10); return (p>=6&&p<=10)?p:5; }
@@ -3180,13 +3206,12 @@ function renderDevoirsList(){
      au point qu'on ne voyait plus laquelle était la liste. Le contenu ne vit
      plus que sur la page du devoir, ouverte au clic. */
   $('devoirsBody').innerHTML='<div class="dl-list">'+actifs.map((dev,idx)=>{
-    const isLast=idx===0; const exos=(typeof exercicesDevoir==='function')?exercicesDevoir(dev):(dev.exercices||[]); let somme=0, faitQqch=false;
-    exos.forEach(ex=>{
+    const isLast=idx===0; const exos=(typeof exercicesDevoir==='function')?exercicesDevoir(dev):(dev.exercices||[]);
+    const tot=dmTotal(exos.map(ex=>{
       const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'), ex.smax);
-      somme+=nd.note; if(nd.fait) faitQqch=true;
-    });
-    const totMax=exos.length*10;
-    const note=faitQqch?`<span class="dl-prog">Note : ${fmtNote(somme)} / ${totMax}</span>`
+      return {note:nd.note, fait:nd.fait, bonus:dmEstBonus(ex)};
+    }));
+    const note=tot.fait?`<span class="dl-prog">Note : ${fmtNote(tot.somme)} / ${tot.totMax}</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
     const recent=isLast?((dev.genre||'dm')==='fiche'?' · la plus récente':' · le plus récent'):'';
     return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
@@ -3216,27 +3241,31 @@ function renderDevoirDetail(devoirId){
      fait se refait librement. La carte et la porte (openTestDevoir) partagent
      la même définition, dmVerrouille(). */
   const ordreImpose=dmOrdreImpose(dev); let bloque=false;
+  const parts=[];
   const cards=liste.map((ex,i)=>{
     const t=TESTS[ex.id];
     const nd=noteDevoirExo(dmBest(devoirId,ex.id,'soutien'), dmBest(devoirId,ex.id,'train'), ex.smax);
-    somme+=nd.note; if(nd.fait) faitQqch=true;
-    const verrou=ordreImpose&&bloque;
-    if(ordreImpose&&!nd.fait) bloque=true;
-    const badge=nd.fait?`<span class="ex-bilan done">Note : ${fmtNote(nd.note)} / 10</span>`
-                       :`<span class="ex-bilan todo">À faire</span>`;
+    const bonus=dmEstBonus(ex);
+    parts.push({note:nd.note, fait:nd.fait, bonus:bonus}); if(nd.fait) faitQqch=true;
+    const verrou=ordreImpose&&bloque&&!bonus;
+    if(ordreImpose&&!nd.fait&&!bonus) bloque=true;
+    /* la note d'un BONUS s'affiche sur 1 : c'est ce qu'il vaut dans le total */
+    const badge=nd.fait?`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':'Note : '+fmtNote(nd.note)+' / 10'}</span>`
+                       :`<span class="ex-bilan todo">${bonus?'Bonus · à faire':'À faire'}</span>`;
     /* Le devoir peut demander une séance plus longue : la carte le dit, sinon
        l'élève lirait « 10 produits » dans la description et en trouverait 20. */
     let desc = (ex.nb && ex.nb!==TM_NB) ? t.desc+' Pour ce devoir : '+ex.nb+' calculs.' : t.desc;
+    if(bonus) desc += ' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note '+(dev.genre==='fiche'?'de la fiche':'du devoir')+', sans la faire dépasser le maximum.';
     if(ex.nbQ) desc += ' Pour ce devoir : '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
     if(dmPlafondSoutien(ex.smax)>5) desc += ' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
-    const titre=ordreImpose?String(i+1)+'. '+testLabel(ex.id):testLabel(ex.id);
+    const titre=(ordreImpose?String(i+1)+'. ':'')+(bonus?'\u2b50 ':'')+testLabel(ex.id);
     if(verrou) return cardHTML('🔒', titre, desc, '', 'locked',
       'Termine d\u2019abord l\u2019exercice précédent pour débloquer celui-ci.', badge);
     return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
   }).join('');
   const G=GENRE_DEVOIRS[(dev.genre||'dm')];
-  const totMax=liste.length*10;
-  const totLbl=faitQqch?`${G.note} : ${fmtNote(somme)} / ${totMax}`:`${G.note} : — / ${totMax}`;
+  const tot=dmTotal(parts);
+  const totLbl=faitQqch?`${G.note} : ${fmtNote(tot.somme)} / ${tot.totMax}`:`${G.note} : — / ${tot.totMax}`;
   $('devoirsBody').innerHTML=`
     <button class="btn-link" onclick="renderDevoirsList()">← ${dev.genre==='fiche'?'Toutes les fiches':'Tous les devoirs'}</button>
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
@@ -9941,9 +9970,9 @@ function renderDmEditor(){
     ?'Aucune fiche pour l\u2019instant.<br>Clique sur « ＋ Nouvelle fiche » pour en créer une.'
     :'Aucun devoir pour l\u2019instant.<br>Clique sur « ＋ Nouveau devoir » pour en créer un.')+'</div>'; return; }
   const d=dmCur(); if(!d){ box.innerHTML=''; return; }
-  const chosen={}, nbs={}, nbQs={}, smaxs={};
+  const chosen={}, nbs={}, nbQs={}, smaxs={}, bonuses={};
   (d.exercices||[]).forEach(ex=>{ chosen[ex.id]=ex.modes||[]; nbs[ex.id]=parseInt(ex.nb,10)||TM_NB;
-    nbQs[ex.id]=parseInt(ex.nbQ,10)||null; smaxs[ex.id]=dmPlafondSoutien(ex.smax); });
+    nbQs[ex.id]=parseInt(ex.nbQ,10)||null; smaxs[ex.id]=dmPlafondSoutien(ex.smax); bonuses[ex.id]=dmEstBonus(ex); });
   const groups=THEMES.map(th=>{
     const rows=th.ids.filter(id=>TESTS[id]).map(id=>{
       const modes=chosen[id]||[], picked=modes.length>0;
@@ -9979,11 +10008,15 @@ function renderDmEditor(){
             [5,6,7,8,9,10].map(n=>`<option value="${n}"${(smaxs[id]||5)===n?' selected':''}>${n}/10</option>`).join('')
           }</select></label>
         </span>`;
+      /* BONUS : 1 point qui remonte la note sans dépasser le maximum */
+      const bonusChoix = `<span class="dm-nb${picked?'':' off'}">
+          <label title="Un exercice bonus vaut 1 point : il remonte la note sans la faire dépasser le maximum."><input type="checkbox" ${picked?'':'disabled'} ${bonuses[id]?'checked':''} onchange="dmSetBonus('${escJS(id)}',this.checked)"> Bonus (+1 pt)</label>
+        </span>`;
       return `<div class="dm-exo ${picked?'pick':''}" id="dmx-${id}">
         <span class="dm-exo-num">${esc(testNum(id)||'–')}</span>
         <span class="dm-exo-name">${esc(testName(id))}</span>
         <span class="dm-modes">${mk('soutien','Soutien')}${mk('train','Entraînement')}</span>
-        ${nbChoix}${soutChoix}
+        ${nbChoix}${soutChoix}${bonusChoix}
       </div>`;
     }).join('');
     if(!rows) return '';
@@ -10045,6 +10078,11 @@ function dmSetSmax(id,v){
   const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
   const n=parseInt(v,10);
   if(n>=6&&n<=10) ex.smax=n; else delete ex.smax;   /* 5 = le défaut, ne s'écrit pas */
+}
+function dmSetBonus(id,coche){
+  const d=dmCur(); if(!d) return;
+  const ex=(d.exercices||[]).find(e=>e.id===id); if(!ex) return;
+  if(coche) ex.bonus=true; else delete ex.bonus;    /* le défaut ne s'écrit pas */
 }
 function dmToggleMode(id,m,checked){
   const d=dmCur(); if(!d) return;
@@ -10159,14 +10197,18 @@ async function renderDmResults(){
        l'élève : deux calculs auraient donné deux totaux, et c'est la note qui
        en aurait fait les frais. */
     const liste=exercicesDevoir(d);
-    const totMax=liste.length*10;
+    /* le total passe par dmTotal, le MÊME entonnoir que l'écran de l'élève —
+       les exercices bonus valent 1 point sans faire dépasser le maximum */
+    const totMax=dmTotal(liste.map(px=>({note:0,fait:false,bonus:dmEstBonus(px)}))).totMax;
     let sommeClasse=0, nbActifs=0;
     const bilanRows=(eleves||[]).map(e=>{
-      let somme=0, faits=0, started=false;
-      liste.forEach(px=>{
+      let faits=0, started=false;
+      const parts=liste.map(px=>{
         const nd=noteDevoirExo(dmBestFor(rows,e.id,d.id,px.id,'soutien'), dmBestFor(rows,e.id,d.id,px.id,'train'), px.smax);
-        somme+=nd.note; if(nd.fait){ faits++; started=true; }
+        if(nd.fait){ faits++; started=true; }
+        return {note:nd.note, fait:nd.fait, bonus:dmEstBonus(px)};
       });
+      const somme=dmTotal(parts).somme;
       if(started){ sommeClasse+=somme; nbActifs++; }
       const badge=started?`<span class="badge ${pctClass(Math.round(somme/totMax*100))}">${fmtNote(somme)} / ${totMax}</span>`:`<span class="badge">— / ${totMax}</span>`;
       return `<tr class="clickable" onclick="dmStudentDetail('${escJS(e.id)}','${escJS(e.prenom)}')"><td class="name">${esc(e.prenom)}</td><td>${badge}</td><td>${faits} / ${liste.length}</td></tr>`;
@@ -10190,9 +10232,10 @@ function dmStudentDetail(eid,prenom){
   const rows=exercicesDevoir(d).map(px=>{
     const bs=dmBestFor(dmResRows,eid,d.id,px.id,'soutien'), be=dmBestFor(dmResRows,eid,d.id,px.id,'train');
     const nd=noteDevoirExo(bs,be,px.smax);
+    const bonus=dmEstBonus(px);
     const cells=(px.modes||[]).map(m=>{ const r=(m==='train')?be:bs; const lbl=m==='train'?'Entr.':'Soutien'; return r?`<span class="dm-cell done">${lbl} ${r.percent}%</span>`:`<span class="dm-cell todo">${lbl} à faire</span>`; }).join(' ');
-    const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)} / 10</span>`:`<span class="dm-note none">— / 10</span>`;
-    return `<tr><td class="name">${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
+    const nb=nd.fait?`<span class="dm-note">${bonus?fmtNote(nd.note/10)+' / 1':fmtNote(nd.note)+' / 10'}</span>`:`<span class="dm-note none">— / ${bonus?'1':'10'}</span>`;
+    return `<tr><td class="name">${bonus?'\u2b50 ':''}${esc(testLabel(px.id))}</td><td>${cells}</td><td>${nb}</td></tr>`;
   }).join('');
   const el=$('dmStudentDetail');
   el.innerHTML=`<div class="panel"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Détail — ${esc(prenom)}</h3><button class="btn-link" onclick="$('dmStudentDetail').innerHTML=''">Fermer</button></div>

@@ -1042,6 +1042,13 @@ fenêtre — perdu sans erreur ; la grille se centre avant de cliquer. Éprouvé
 par DIX sabotages nommés, dont un que seul le navigateur voit : l'écouteur
 posé sur le SVG au lieu de l'hôte ne pose qu'un point, puis meurt avec la
 première réécriture.
+**Le fond de la grille est OPAQUE.** Signalé par Turquet (août 2026) : « le
+quadrillage de l'exercice ne doit pas se superposer au quadrillage du graphique
+que l'on doit dessiner ». La page porte un quadrillage décoratif en fond, et le
+SVG était transparent : les deux trames se croisaient, et l'élève ne savait plus
+quelle ligne était une graduation. La grille reçoit donc le cadre de
+`.lv-graph` — fond `--surface`, bordure, coins arrondis. Ça ne se voit que sur
+une capture : aucun banc ne mesure la lisibilité de deux trames superposées.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
@@ -1769,6 +1776,39 @@ par niveau tient les quatre bords (la note, la coupe et sa borne et sa
 non-fuite hors devoir, la carte qui dit le plafond, l'éditeur qui emporte
 les réglages sans jamais écrire le défaut), éprouvé par sept sabotages sur
 les trois fichiers, chacun nommé.
+
+**Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
+Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
+« Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa
+note /10 ramenée sur 1, qui S'AJOUTE au total — et le total est PLAFONNÉ à la
+note des exercices normaux (10 × leur nombre). Un élève à 19/20 qui réussit un
+bonus a 20/20 ; à 20/20 il reste à 20/20.
+**Le maximum ne compte QUE les exercices normaux**, et c'est le point qui ne se
+devine pas : compter le bonus dedans donnerait 10 points de plus à trouver pour
+1 point offert — le « bonus » rendrait le devoir plus dur. C'est ce bord qui
+distingue un bonus d'un exercice de plus.
+**Un devoir qui n'aurait QUE des bonus retombe sur le comportement normal** :
+le plafond serait alors 0, et toute la note disparaîtrait. Un bonus n'a de sens
+qu'en PLUS de quelque chose, et le tenir ici plutôt que de l'interdire dans
+l'éditeur évite qu'un devoir bricolé dans le JSON n'affiche 0 partout.
+**UN SEUL entonnoir, `dmTotal(parts)`** — la liste des devoirs, la page du
+devoir et le tableau du professeur l'appellent tous : c'est la leçon
+d'`exercicesDevoir()`, deux calculs auraient donné deux totaux, et c'est la
+note qui en aurait fait les frais. En Terminale la note POSÉE par le professeur
+y entre comme les autres (elle vaut déjà /10, un bonus posé à 8 ajoute 0,8).
+**Un bonus est FACULTATIF, donc hors de la chaîne de l'ordre des fiches** : il
+n'est jamais verrouillé, et un bonus non fait ne bloque jamais l'exercice
+suivant — sans quoi la fiche à ordre imposé s'arrêterait sur un exercice qu'on
+n'est pas obligé de faire. La carte et la porte partagent toujours
+`dmVerrouille()`.
+**L'écran le DIT** : ⭐ devant le titre, « Bonus : 0,8 / 1 » au lieu de
+« Note : 8 / 10 », et la description explique ce que le bonus peut ajouter — un
+élève qui lirait « 8 / 10 » sur une carte qui vaut 0,8 point ne comprendrait pas
+son total. Le piège de la Première est qu'`exercicesDevoir()` NORMALISE les
+entrées : sans y ajouter `bonus`, le drapeau était effacé entre l'éditeur et
+l'écran, sans que rien ne le dise. Le défaut ne s'écrit jamais dans le JSON (un
+devoir sans bonus garde exactement la forme qu'il avait avant que le réglage
+n'existe). Onze sabotages, chacun rougissant en nommant son défaut.
 
 **Une fiche de travail se fait DANS L'ORDRE ; un devoir reste tout ouvert.**
 Les deux phrases sont deux décisions de Turquet, à un mois d'écart, et elles

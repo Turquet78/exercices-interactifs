@@ -2593,6 +2593,7 @@ function exercices(suite){
     lectureDeuxCourbes(w, P);
     courbesFGSeDistinguent(w, P);
     construireFonction(w, P);
+    exercicesBonus(w, P);
     resolutionsGraphiques(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -6518,6 +6519,120 @@ function equationGraphique(w, P){
    solutions voisines à une hauteur interrogée seraient un segment entier posé
    à cette hauteur — pour les antécédents comme pour les équations, sur f
    comme sur g. */
+/* LES EXERCICES BONUS D'UN DEVOIR OU D'UNE FICHE (demande de Turquet, août
+   2026) : un exercice coché « bonus » vaut UN POINT — sa note /10 ramenée sur
+   1 — qui s'ajoute au total SANS le faire dépasser. Le plafond est la note des
+   exercices normaux, donc un bonus ne peut jamais porter la note au-delà de ce
+   que le devoir vaut. Cinq bords, et n'en tenir qu'un ne tient rien :
+   · le bonus AJOUTE (un devoir sans bonus ne change pas d'un cheveu) ;
+   · le total ne DÉPASSE jamais le maximum ;
+   · le maximum ne compte QUE les exercices normaux (sinon le bonus rendrait le
+     devoir plus dur : 10 points de plus à trouver pour 1 point offert) ;
+   · un devoir qui n'aurait QUE des bonus retombe sur le comportement normal —
+     un bonus n'a de sens qu'en PLUS de quelque chose ;
+   · un bonus est FACULTATIF : dans une fiche à ordre imposé, il n'est jamais
+     verrouillé et ne bloque jamais la suite.
+   Plus l'éditeur, qui doit emporter le drapeau sans jamais écrire le défaut,
+   et l'écran de l'élève, qui doit AFFICHER le bonus sur 1 et non sur 10. */
+function exercicesBonus(w, P){
+  const present = evaluer(w, "typeof dmTotal==='function' && typeof dmEstBonus==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les exercices bonus : 1 point chacun, sans dépasser le maximum',
+      'ce niveau n\'a pas les exercices bonus');
+    return;
+  }
+  verifierEval(w, 'les exercices bonus : 1 point chacun, sans dépasser le maximum', `(function(){
+    const vus=[];
+    const N=function(note,fait,bonus){ return {note:note, fait:fait!==false, bonus:!!bonus}; };
+    /* ---- 1. le bonus AJOUTE, sur 1 point ---- */
+    const sans=dmTotal([N(7),N(6)]);
+    if(sans.somme!==13||sans.totMax!==20) vus.push('sans bonus, le total a changé : '+JSON.stringify(sans));
+    const avec=dmTotal([N(7),N(6),N(8,true,true)]);
+    if(avec.totMax!==20) vus.push('le maximum compte le bonus : '+avec.totMax+' au lieu de 20');
+    if(Math.abs(avec.somme-13.8)>1e-9) vus.push('un bonus à 8/10 n\\'ajoute pas 0,8 point ('+avec.somme+' au lieu de 13,8)');
+    const plein=dmTotal([N(7),N(6),N(10,true,true)]);
+    if(Math.abs(plein.somme-14)>1e-9) vus.push('un bonus PARFAIT n\\'ajoute pas 1 point entier ('+plein.somme+')');
+    const nul=dmTotal([N(7),N(6),N(0,false,true)]);
+    if(nul.somme!==13) vus.push('un bonus non fait retire des points ('+nul.somme+')');
+    /* ---- 2. le total ne DÉPASSE jamais le maximum ---- */
+    const cap=dmTotal([N(10),N(10),N(10,true,true)]);
+    if(cap.somme!==20) vus.push('le bonus fait dépasser le maximum : '+cap.somme+' / '+cap.totMax);
+    const cap1=dmTotal([N(10),N(9,true,true)]);
+    if(cap1.somme!==10) vus.push('sur un seul exercice noté 10, le bonus dépasse : '+cap1.somme+' / '+cap1.totMax);
+    /* près du plafond, ce qui reste à prendre est ce qui MANQUE, pas 1 */
+    const presque=dmTotal([N(9.5),N(10,true,true)]);
+    if(Math.abs(presque.somme-10)>1e-9) vus.push('à 9,5 + un bonus plein, la note n\\'est pas 10 ('+presque.somme+')');
+    /* ---- 3. un devoir qui n'a QUE des bonus retombe sur le normal ---- */
+    const tout=dmTotal([N(7,true,true),N(6,true,true)]);
+    if(tout.totMax!==20||tout.somme!==13) vus.push('un devoir tout-bonus ne retombe pas sur le comportement normal : '+JSON.stringify(tout));
+    /* ---- 4. « fait » suit les parties, bonus compris ---- */
+    if(dmTotal([N(0,false),N(0,false)]).fait) vus.push('un devoir vierge est déclaré fait');
+    if(!dmTotal([N(0,false),N(5,true,true)]).fait) vus.push('un devoir dont SEUL le bonus est fait n\\'est pas déclaré fait');
+    /* ---- 5. dmEstBonus lit le drapeau, et lui seul ---- */
+    if(dmEstBonus({id:'x'})) vus.push('un exercice sans drapeau est pris pour un bonus');
+    if(!dmEstBonus({id:'x',bonus:true})) vus.push('le drapeau bonus n\\'est pas lu');
+    if(dmEstBonus(null)||dmEstBonus(undefined)) vus.push('dmEstBonus lève ou ment sur une entrée vide');
+    /* ---- 6. LE VERROU DES FICHES ignore les bonus ---- */
+    if(typeof dmVerrouille==='function' && typeof dmOrdreImpose==='function'){
+      currentEleve={id:'e-controle',prenom:'Contrôle'};
+      const ids=Object.keys(TESTS).filter(function(k){ return TESTS[k] && TESTS[k].start; }).slice(0,3);
+      if(ids.length<3) vus.push('moins de trois exercices pour éprouver le verrou');
+      else {
+        mesResultats=[];
+        const fiche={id:'fc-b',genre:'fiche',num:1,actif:true,exercices:[
+          {id:ids[0],modes:['train']}, {id:ids[1],modes:['train'],bonus:true}, {id:ids[2],modes:['train']}]};
+        if(!dmOrdreImpose(fiche)) vus.push('la fiche témoin ne porte pas l\\'ordre imposé : le contrôle du verrou ne mesure rien');
+        else {
+          if(dmVerrouille(fiche,ids[1])) vus.push('un exercice BONUS est verrouillé alors qu\\'il est facultatif');
+          if(!dmVerrouille(fiche,ids[2])) vus.push('le verrou de la fiche ne joue plus du tout : le 3e est ouvert alors que le 1er n\\'est pas fait');
+          /* le 1er fait, le bonus toujours pas : le 3e doit s'OUVRIR */
+          mesResultats=[{eleve_id:'e-controle', percent:100, details:{test:ids[0], mode:'train', dm:'fc-b'}}];
+          if(dmVerrouille(fiche,ids[2])) vus.push('un bonus non fait BLOQUE la suite de la fiche');
+          mesResultats=[];
+        }
+      }
+    }
+    /* ---- 7. l'éditeur emporte le drapeau, et n'écrit jamais le défaut ---- */
+    if(typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function'){
+      dmList=[{id:'d-b',num:1,actif:true,titre:'t',cours:'',exercices:[]}]; dmSelId='d-b';
+      if(typeof dmGenre!=='undefined') dmGenre='dm';
+      renderDevoirEditor();
+      const cb=document.querySelector('#dmExos input[data-mode="train"]');
+      if(!cb) vus.push('l\\'éditeur n\\'a aucune ligne d\\'exercice');
+      else {
+        const exid=cb.dataset.ex; cb.checked=true;
+        const bx=document.querySelector('#dmExos input[data-bonus="'+exid+'"]');
+        if(!bx) vus.push('la case « Bonus » manque dans l\\'éditeur');
+        else {
+          bx.checked=true; readEditorIntoDevoir();
+          const e0=(dmList[0].exercices||[]).find(function(x){ return x.id===exid; });
+          if(!e0||e0.bonus!==true) vus.push('l\\'enregistrement perd le drapeau bonus ('+JSON.stringify(e0)+')');
+          bx.checked=false; readEditorIntoDevoir();
+          const e1=(dmList[0].exercices||[]).find(function(x){ return x.id===exid; });
+          if(!e1) vus.push('l\\'exercice coché a disparu à la relecture');
+          else if('bonus' in e1) vus.push('le défaut (pas bonus) s\\'écrit au lieu de rester absent ('+JSON.stringify(e1)+')');
+        }
+      }
+    } else if(typeof dmSetBonus==='function'){
+      const dev={exercices:[{id:'zz',modes:['train']}]};
+      const ancien=window.dmCur; window.dmCur=function(){ return dev; };
+      dmSetBonus('zz',true);
+      if(dev.exercices[0].bonus!==true) vus.push('dmSetBonus ne pose pas le drapeau');
+      dmSetBonus('zz',false);
+      if('bonus' in dev.exercices[0]) vus.push('dmSetBonus n\\'efface pas le drapeau : le défaut s\\'écrirait');
+      window.dmCur=ancien;
+    } else {
+      vus.push('aucun éditeur de bonus trouvé (ni readEditorIntoDevoir ni dmSetBonus)');
+    }
+    /* ---- 8. exercicesDevoir NORMALISE : le drapeau doit survivre ---- */
+    if(typeof exercicesDevoir==='function'){
+      const id0=Object.keys(TESTS)[0];
+      const l=exercicesDevoir({exercices:[{id:id0,modes:['train'],bonus:true}]});
+      if(!l.length||!dmEstBonus(l[0])) vus.push('exercicesDevoir efface le drapeau bonus en normalisant');
+    }
+    return vus.slice(0,4).join(' | ');
+  })()`, function(v){ return v===''; });
+}
 /* Construire une fonction : l'INVERSE de la lecture graphique — le tirage
    fabrique un témoin, en DÉRIVE cinq consignes, et le juge ne relit que les
    consignes : toute courbe qui les respecte est juste, différente du témoin
