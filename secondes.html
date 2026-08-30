@@ -2118,7 +2118,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=119;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=120;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -8905,15 +8905,24 @@ async function exportCSV(){
     if(error)throw error;
     const data=(rawCsv||[]).filter(r=>!isPaused(r));
     if(!data.length){ toast('Aucun résultat à exporter'); return; }
-    const head=['Eleve','Numero','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date'];
-    const lines=data.map(r=>[
-      (r.eleves_2nde&&r.eleves_2nde.prenom)||(r.eleves&&r.eleves.prenom)||'?', testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)), r.score, r.total, r.percent,
-      Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')
-    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-    const csv='\uFEFF'+[head.join(','),...lines].join('\n');
-    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-    a.download='tests-resultats.csv';a.click();URL.revokeObjectURL(a.href);
+    /* LE MÊME ENTONNOIR QUE LE CARNET DE NOTES : csvTelecharger() pose les
+       guillemets, le point-virgule, les fins de ligne, le BOM et
+       l'enregistrement. Cet export-ci séparait à la VIRGULE, et lui seul —
+       Excel en français range alors la ligne entière dans une seule colonne.
+       Deux conventions dans le même tableau de bord auraient fini par se
+       contredire, et c'est le fichier qu'on garde qui en aurait fait les
+       frais (décision de Turquet, août 2026).
+       Une différence demeure, et elle est inévitable : cet export LIT la base
+       avant d'écrire, donc son enregistrement arrive après une attente. Le
+       carnet de notes, lui, n'attend rien — il reprend ce qui est déjà à
+       l'écran — et c'est pour cela qu'il ne risque pas le blocage de Chrome. */
+    const lignes=[['Eleve','Numero','Test','Mode','Score','Total','Pourcentage','Duree (s)','Date']];
+    data.forEach(r=>lignes.push([
+      (r.eleves_2nde&&r.eleves_2nde.prenom)||(r.eleves&&r.eleves.prenom)||'?',
+      testNum(testIdOf(r)), testName(testIdOf(r)), modeName(modeOf(r)),
+      r.score, r.total, r.percent,
+      Math.round(r.duration_sec||0), new Date(r.created_at).toLocaleString('fr-FR')]));
+    csvTelecharger('tests-resultats.csv', lignes);
   }catch(e){ toast('Export impossible','err'); }
 }
 

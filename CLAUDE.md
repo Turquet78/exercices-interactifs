@@ -1903,9 +1903,27 @@ calculs auraient donné deux tableaux, et c'est le FICHIER — celui qu'on garde
 qui aurait menti. Il sépare au **point-virgule** et non à la virgule : c'est le
 séparateur de liste des Windows français, et Excel range sinon la ligne entière
 dans une seule colonne ; le BOM en tête lui dit que le fichier est en UTF-8,
-sans quoi « élève » s'affiche « Ã©lÃ¨ve ». (L'export brut de tous les résultats,
-lui, sépare encore à la virgule : il est antérieur, et personne n'a demandé à
-le changer.) Rien n'attend entre le clic et l'enregistrement — un `await`
+sans quoi « élève » s'affiche « Ã©lÃ¨ve ».
+**L'export brut de tous les résultats a suivi** (décision de Turquet, août
+2026) : il séparait à la virgule, et lui seul — deux conventions dans le même
+tableau de bord finissent par se contredire, et c'est le fichier qu'on garde
+qui en fait les frais. Il passe désormais par le MÊME entonnoir,
+`csvTelecharger()`, qui pose les guillemets, le point-virgule, les fins de
+ligne, le BOM et l'enregistrement. Deux contrôles le tiennent, et n'en tenir
+qu'un ne tient rien : le STATIQUE exige que `exportCSV()` passe par
+l'entonnoir — un export qui refabriquerait son fichier dans son coin
+redeviendrait libre de sa ponctuation sans que rien ne le dise — et le
+DYNAMIQUE lit le fichier qui sort vraiment. Une différence demeure, inévitable :
+cet export LIT la base avant d'écrire, donc son enregistrement arrive après une
+attente ; le carnet, lui, n'attend rien.
+**Et le contrôle s'est fait prendre le `sb` en plein vol** — le piège
+documenté, par une porte de plus : ce contrôle ATTEND (le rendu du bilan passe
+par un `setTimeout`), et pendant une attente les MINUTEURS laissés par les
+contrôles précédents s'exécutent. L'un d'eux remplace `sb` par un stub dont le
+`from()` ne rend qu'un `insert()` — l'export échouait alors dans son propre
+`catch`, et le banc accusait la page d'un défaut qu'elle n'avait pas. Le
+contrôle garde son double sous la main et se le rend avant de mesurer.
+Rien n'attend entre le clic et l'enregistrement — un `await`
 glissé là ferait traiter le téléchargement comme une fenêtre surgissante, que
 Chrome bloque sans un mot : le piège déjà payé sur l'ouverture des cours en PDF.
 **Deux bords ne se voient que dans un navigateur**, et le banc navigateur les
