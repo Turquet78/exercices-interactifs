@@ -1445,6 +1445,156 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 septies quater. LES CASES D'INDICE DU 6.3 ===== */
+    /* Une case d'INDICE ne porte qu'un « n+1 » ou un « 0 », posés en indice
+       derrière un U. À la taille des autres cases elle écrasait ce U (demande
+       de Turquet, août 2026). Elle a donc une police et une largeur à elle —
+       et seul un vrai navigateur sait ce que ça donne à l'écran : jsdom n'a
+       pas de mise en page, et la règle CSS y resterait une intention.
+       Le bord OPPOSÉ compte autant : elle doit continuer de GRANDIR sous la
+       frappe, comme les autres. Une case rapetissie qui aurait perdu son
+       élasticité couperait « n+1 » — le défaut qu'on venait de corriger. */
+    titre('6 septies quater. LES CASES D\'INDICE DU 6.3');
+    if(!/function sa2Ajuster\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('les cases d\'indice sont plus petites que les autres, et grandissent quand même',
+        'ce niveau n\'a pas la suite auxiliaire à compléter');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      await s.page.evaluate(async () => {
+        currentEleve = { id:'e1', prenom:'Contrôle' }; currentMode = 'train';
+        await startSA2();
+        test.questions = [SA._t.mk(0.95, -4000, 10000)]; test.idx = 0; renderSA2();
+      });
+      await s.page.waitForTimeout(500);
+      const t = await s.page.evaluate(() => {
+        const m = id => { const e = document.getElementById(id); if(!e) return null;
+          const r = e.getBoundingClientRect();
+          return { p: parseFloat(getComputedStyle(e).fontSize), l: Math.round(r.width) }; };
+        const av = m('sa2-i1');
+        const e = document.getElementById('sa2-i1');
+        if(e){ e.value = 'n+1'; e.dispatchEvent(new Event('input', { bubbles:true })); }
+        const ap = m('sa2-i1');
+        return { idx: av, ordinaire: m('sa2-a1'), idxPlein: ap };
+      });
+      /* « Plus petite » se MESURE, et il a fallu un sabotage pour le dire juste.
+         Le premier jet demandait seulement « plus étroite que les autres » : la
+         police réduite y suffisait à elle seule, si bien que retirer la largeur
+         minimale dédiée aux indices ne faisait rougir personne — un garde-fou
+         qu'on croit tenir et qui ne tient rien. On compare donc les largeurs :
+         au repos l'indice fait 58 % d'une case ordinaire (25 px contre 43),
+         contre 74 % (32 px) si on lui rend le minimum commun. Le seuil est
+         posé entre les deux, avec de la marge des deux côtés. */
+      const rapport = (t.idx && t.ordinaire && t.ordinaire.l) ? t.idx.l / t.ordinaire.l : 1;
+      verifier('la case d\'indice a une police ET une largeur plus petites que les autres',
+        !!t.idx && !!t.ordinaire && t.idx.p < t.ordinaire.p && rapport <= 0.65,
+        !t.idx ? 'case d\'indice introuvable'
+               : 'indice ' + t.idx.p + 'px / ' + t.idx.l + 'px — ordinaire '
+                 + t.ordinaire.p + 'px / ' + t.ordinaire.l + 'px (rapport '
+                 + Math.round(rapport * 100) + ' %, attendu au plus 65 %)');
+      verifier('mais elle grandit quand même sous la frappe',
+        !!t.idxPlein && t.idxPlein.l > t.idx.l,
+        !t.idxPlein ? 'mesure impossible'
+                    : 'au repos ' + t.idx.l + 'px, avec « n+1 » ' + t.idxPlein.l + 'px');
+      verifier('le 6.3 n\'a levé aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies quinquies. la réponse du professeur, chez l'élève ===== */
+    /* Le professeur peut répondre à un signalement (demande de Turquet, août
+       2026), et la réponse se lit sur l'accueil de l'élève. Deux bords ne se
+       voient QUE dans un navigateur :
+
+       — LES RETOURS À LA LIGNE. Une réponse s'écrit volontiers en plusieurs
+         lignes ; sans « white-space:pre-wrap » elles se réduisent à des
+         espaces, et le professeur ne le saura jamais. C'est la leçon du
+         conseil du modèle, sur une troisième famille de textes — et aucun banc
+         hors navigateur ne sait où un texte va à la ligne ;
+
+       — LE PANNEAU QUI NE DEVRAIT PAS ÊTRE LÀ. On mesure son RECTANGLE et non
+         sa propriété « hidden » : [hidden] pose display:none depuis la feuille
+         du NAVIGATEUR, qu'un display: écrit dans la page bat — c'est le piège
+         déjà payé sur la zone de copie d'écran, où le banc lisait « true » sur
+         une zone parfaitement visible. */
+    titre('6 septies quinquies. LA RÉPONSE DU PROFESSEUR ARRIVE CHEZ L\'ÉLÈVE');
+    if(!/function chargerReponsesProf\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('l\'élève lit la réponse de son professeur', 'ce niveau n\'a pas chargerReponsesProf()');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('l\'élève lit la réponse de son professeur', 'connexion impossible — rien à mesurer');
+      } else {
+        const m = await s.page.evaluate(async exo => {
+          const AVEC = 'Regarde le rappel de cours.\nPuis refais la question 3.\n\nOn en reparle lundi.';
+          const SANS = AVEC.replace(/\n+/g, ' ');
+          const attendre = ms => new Promise(r => setTimeout(r, ms));
+          const haut = el => el ? Math.round(el.getBoundingClientRect().height) : 0;
+          const res = {};
+          const id = currentEleve && currentEleve.id;
+          res.eleve = !!id;
+          const semer = rep => {
+            window.__faux.tables[TABLE_SIG] = [{
+              id: 's1', created_at: '2026-08-01T10:00:00Z', eleve_id: id, exercice: exo,
+              numero: '1.1', mode: 'train', message: 'la case reste rouge alors que j\'ai bon',
+              reponse: rep, repondu_at: rep ? '2026-08-02T10:00:00Z' : null }];
+          };
+          /* 1. aucune réponse écrite : rien ne doit occuper l'accueil */
+          semer(null);
+          await chargerReponsesProf(); await attendre(60);
+          res.vide = haut(document.getElementById('repProf'));
+          /* 2. la même réponse, avec puis sans ses retours à la ligne */
+          for(const [cle, txt] of [['avec', AVEC], ['sans', SANS]]){
+            semer(txt);
+            await chargerReponsesProf(); await attendre(60);
+            const t = document.querySelector('#repProf .rep-texte');
+            res['eleve_' + cle] = t ? Math.round(t.getBoundingClientRect().height) : 0;
+            res['lu_' + cle] = t ? t.textContent : '';
+            res['panneau_' + cle] = haut(document.getElementById('repProf'));
+          }
+          /* 3. la MÊME règle sur la carte du professeur : le bloc CSS est
+             commun, mais deux familles de classes y vivent — en mesurer une
+             seule laisserait l'autre libre de perdre ses lignes. */
+          show('teacher'); teacherTab('signalements'); await attendre(300);
+          for(const [cle, txt] of [['avec', AVEC], ['sans', SANS]]){
+            /* on repasse par chargerSignalements(), la vraie porte : poser
+               mesSignalements à la main se faisait écraser par la lecture que
+               l'ouverture de l'onglet avait lancée, et les deux mesures
+               tombaient sur le MÊME texte — un contrôle qui parle d'autre
+               chose, resté vert par accident. */
+            semer(txt);
+            await chargerSignalements(); await attendre(60);
+            const t = document.querySelector('#sigListe .sig-rep');
+            res['prof_' + cle] = t ? Math.round(t.getBoundingClientRect().height) : 0;
+          }
+          return res;
+        }, P.navigateur.exercice);
+
+        verifier('l\'accueil ne porte aucun panneau tant qu\'aucune réponse n\'est écrite',
+          m.eleve === true && m.vide === 0,
+          m.eleve ? 'le panneau occupe ' + m.vide + ' px alors qu\'aucune réponse n\'existe'
+                  : 'aucun élève connecté : le contrôle ne mesure rien');
+        verifier('l\'élève lit la réponse de son professeur sur son accueil',
+          m.panneau_avec > 0 && String(m.lu_avec || '').indexOf('rappel de cours') >= 0,
+          'panneau : ' + m.panneau_avec + ' px — lu : « ' + String(m.lu_avec || '').slice(0, 60) + ' »');
+        /* Deux hauteurs nulles ne veulent pas dire « les retours sont perdus » :
+           elles veulent dire que RIEN n'a été mesuré. */
+        const juge = (intitule, a, b) => {
+          const A = m[a] || 0, B = m[b] || 0;
+          if(!A && !B){ verifier(intitule, false, 'aucune réponse affichée : le contrôle ne mesure rien'); return; }
+          verifier(intitule, A - B > 8,
+            'même hauteur avec et sans retours à la ligne (' + A + ' px contre ' + B +
+            ') : la page les réduit à des espaces');
+        };
+        juge('les retours à la ligne de la réponse se voient chez l\'élève', 'eleve_avec', 'eleve_sans');
+        juge('et se voient aussi dans la carte du professeur', 'prof_avec', 'prof_sans');
+        verifier('la réponse n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

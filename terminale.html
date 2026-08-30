@@ -481,6 +481,23 @@
   .sig-msg{color:var(--ink);line-height:1.5;margin:6px 0 10px;white-space:pre-wrap;word-break:break-word}
   .sig-meta{font-size:.8rem;color:var(--ink-soft);margin-bottom:10px}
   .sig-actions{display:flex;gap:8px;flex-wrap:wrap}
+  /* La réponse du professeur — dans sa carte, et sur l'accueil de l'élève.
+     Le « pre-wrap » n'est pas un détail : une réponse écrite en plusieurs
+     lignes se lirait d'un bloc sans lui, et aucun banc hors navigateur ne sait
+     où un texte va à la ligne. */
+  .sig-rep{border-left:3px solid var(--blue);background:#f4f8ff;border-radius:8px;padding:8px 12px;margin:0 0 10px;color:var(--ink);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .sig-repq{display:block;font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:4px}
+  .sig-repin{width:100%;box-sizing:border-box;font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;resize:vertical}
+  .sig-repzone{margin-top:8px}
+  .rep-bloc{margin-top:16px;border:1.5px solid var(--blue);border-radius:12px;padding:12px 14px;background:#f4f8ff;text-align:left}
+  .rep-bloc h3{margin:0 0 10px;font-size:1rem;color:var(--blue)}
+  .rep-item{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+  .rep-item:first-of-type{border-top:0;padding-top:0;margin-top:0}
+  .rep-exo{font-size:.78rem;font-weight:700;color:#fff;background:var(--blue);padding:3px 10px;border-radius:999px}
+  .rep-quand{font-size:.8rem;color:var(--ink-soft);margin-left:8px}
+  .rep-mien{font-size:.86rem;color:var(--ink-soft);margin:6px 0;padding-left:10px;border-left:3px solid var(--line);white-space:pre-wrap;word-break:break-word}
+  .rep-texte{color:var(--ink);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .rep-note{font-size:.8rem;color:var(--ink-soft);margin:10px 0 0}
   .tab .pastille{display:inline-block;min-width:19px;padding:0 6px;margin-left:7px;border-radius:999px;
     background:#c0392b;color:#fff;font-size:.72rem;font-weight:700;line-height:19px;text-align:center}
   /* Rendu — donc vu par Chrome — mais hors de l'écran et hors du parcours
@@ -505,6 +522,7 @@
      qu'une saisie absurde ne pousse pas la ligne hors de l'écran. */
   .sa2-in{font-family:"Fredoka",system-ui,sans-serif;font-size:1.2rem;font-weight:600;text-align:center;
           max-width:220px;padding:2px 6px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .sa2-in.sa2-mot{font-size:0.95rem;padding:1px 4px}
   .sa2-in:focus{outline:none;border-color:var(--blue)}
   .sa2-in.ok{border-color:var(--blue);background:#eaf1ff}
   .sa2-in.bad{border-color:#dc2626;background:#fee2e2}
@@ -1298,6 +1316,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     <div class="card">
       <h2 class="hello" id="spaceHello">Bonjour !</h2>
       <p class="muted" id="spaceSub">Que veux-tu faire aujourd'hui ?</p>
+      <!-- Les réponses du professeur à ce que l'élève a signalé. La carte
+           n'existe QUE s'il y en a : sinon l'accueil reste ce qu'il était. -->
+      <div class="rep-bloc" id="repProf" hidden></div>
       <div class="choices" style="margin-top:16px">
         <button class="choice eleve" onclick="openThemes()">
           <span class="ic">📚</span><span class="ttl">Choisir un exercice par thème</span>
@@ -2182,7 +2203,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=266;
+const APP_VERSION=268;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -4015,6 +4036,9 @@ function ouvrirEspaceSuite(){
   $('spaceHello').textContent=`Bonjour, ${esc(currentEleve.prenom)} !`;
   $('spaceSub').textContent="Que veux-tu faire aujourd'hui ?";
   show('space');
+  /* Les réponses du professeur, s'il y en a. Lancée sans attendre : l'accueil
+     ne doit pas patienter sur une lecture, et le panneau se pose ensuite. */
+  chargerReponsesProf();
 }
 /* ======================= SIGNALER UN PROBLÈME =======================
    Trois pannes sont passées en production sans qu'un seul contrôle ne rougisse,
@@ -4180,8 +4204,10 @@ async function envoyerSignalement(){
            err=r.error; }catch(e){ err=e; }
       if(err){ chemin=null; imagePerdue=true; }
     }
-    /* insert SEC : la politique de lecture est réservée au professeur, et
-       demander la ligne en retour ferait échouer l'écriture elle-même. */
+    /* insert SEC : on ne demande pas la ligne en retour. La migration 008 ouvre
+       bien à l'élève la lecture de SA PROPRE ligne, mais la page n'en a besoin
+       qu'à l'accueil, pour lire les réponses du professeur — et un droit qu'on
+       n'exerce pas ici est un chemin de moins à surveiller. */
     const {error}=await sb.from(TABLE_SIG).insert(signalementPayload(message, chemin));
     if(error){
       /* L'image est en ligne mais plus rien ne la désigne : invisible, et
@@ -4203,7 +4229,112 @@ async function envoyerSignalement(){
   finally{ if(bouton) bouton.disabled=false; }
 }
 
+/* ---------- LES RÉPONSES DU PROFESSEUR, CÔTÉ ÉLÈVE ----------
+   Un signalement partait sans retour possible : l'élève écrivait, et
+   n'entendait plus rien. Le professeur peut maintenant répondre (demande de
+   Turquet, août 2026), et la réponse se lit ICI, sur l'accueil — il n'y a pas
+   d'autre canal : la page n'envoie ni courriel ni notification, et l'élève la
+   découvre à sa prochaine connexion.
+
+   SA PROPRE LIGNE, ET ELLE SEULE. Le filtre est posé dans la requête, et la
+   politique de lecture le REDEMANDE côté base (migration 008) : une page qui
+   oublierait le filtre ne verrait quand même rien de plus. Jamais select('*') —
+   on ne rapatrie que ce qui s'affiche.
+
+   ET LE PANNEAU SE TAIT SUR UNE ERREUR. Tant que la 008 n'est pas jouée, la
+   colonne n'existe pas et la requête échoue : l'accueil d'un élève n'a pas à
+   s'ouvrir sur un message d'erreur pour une aide qui n'existe pas encore, il
+   retombe simplement sur ce qu'il était avant. C'est le seul endroit du projet
+   où un retard de migration ne coûte rien à l'élève — côté professeur, le
+   bouton « Répondre », lui, renvoie une erreur qui se voit. */
+let mesReponses=[];
+async function chargerReponsesProf(){
+  const hote=$('repProf'); if(!hote) return;
+  hote.hidden=true; hote.innerHTML=''; mesReponses=[];
+  if(!currentEleve||!currentEleve.id) return;
+  try{
+    const {data,error}=await sb.from(TABLE_SIG)
+      .select('id,created_at,exercice,numero,message,reponse,repondu_at')
+      .eq('eleve_id',currentEleve.id)
+      .order('repondu_at',{ascending:false});
+    if(error) return;
+    mesReponses=(data||[]).filter(r=>r.reponse&&String(r.reponse).trim());
+  }catch(e){ return; }
+  if(!mesReponses.length) return;
+  hote.innerHTML=reponsesProfHTML(mesReponses);
+  hote.hidden=false;
+}
+function reponsesProfHTML(lignes){
+  /* La réponse est écrite par le professeur, le message rappelé au-dessus est
+     tapé par l'élève : les deux passent par esc(). Aucun attribut d'événement
+     ici, donc pas d'escJS() à poser — mais rien n'y appelle non plus. */
+  return '<h3>💬 Ton professeur t’a répondu</h3>'+lignes.map(function(r){
+    return '<div class="rep-item">'
+      +'<div><span class="rep-exo">'+esc((r.numero?r.numero+' · ':'')+testName(r.exercice))+'</span>'
+      +'<span class="rep-quand">'+esc(fmtDate(r.repondu_at||r.created_at))+'</span></div>'
+      +'<div class="rep-mien">'+esc(r.message)+'</div>'
+      +'<div class="rep-texte">'+esc(r.reponse)+'</div>'
+      +'</div>';
+  }).join('')
+  +'<p class="rep-note">Ces réponses restent ici tant que ton professeur ne les efface pas.</p>';
+}
+
 /* ================== SIGNALEMENTS : CÔTÉ PROFESSEUR ================== */
+/* ---------- RÉPONDRE À UN ÉLÈVE ----------
+   Demande de Turquet (août 2026) : « je voudrais pouvoir répondre à un élève
+   qui me signale un problème ». Le professeur écrit, l'élève lit la réponse sur
+   son accueil à sa prochaine connexion.
+
+   RIEN NE PASSE PAR LA FONCTION EDGE, et c'est le raisonnement du renommage
+   pris tel quel : la politique p_…_prof_modif ouvre DÉJÀ l'UPDATE au
+   professeur — c'est elle qui porte « Marquer lu » depuis toujours. Y faire
+   passer la réponse aurait coûté un redéploiement à la main, et le bouton
+   serait arrivé en ligne MORT en attendant, sans que rien ne le dise.
+
+   RÉPONDRE, C'EST LIRE : la réponse pose « lu » du même geste. Un signalement
+   auquel on vient de répondre et qui compterait encore parmi les non lus ferait
+   mentir la pastille.
+
+   UNE MISE À JOUR QUE RLS REFUSE N'EST PAS UNE ERREUR — PostgREST rend
+   « 0 ligne », exactement comme pour une suppression, le piège le plus coûteux
+   du projet. On redemande les lignes touchées (.select('id')) et on les COMPTE,
+   sans quoi la page annonce « Réponse envoyée ✓ » sur une réponse qui n'est
+   jamais partie. */
+function repondreSignalement(id){
+  const r=mesSignalements.find(x=>x.id===id); if(!r) return;
+  const hote=$('sigRep-'+id); if(!hote) return;
+  if(hote.dataset.ouvert==='1'){ hote.innerHTML=''; hote.dataset.ouvert=''; return; }
+  hote.dataset.ouvert='1';
+  hote.innerHTML='<textarea class="sig-repin" id="sigRepIn-'+esc(String(id))+'" rows="3" placeholder="Ta réponse à '
+    +esc(r.prenom)+'…"></textarea>'
+    +'<div class="sig-actions" style="margin-top:8px">'
+    +'<button class="btn btn-sm btn-primary" onclick="envoyerReponseSignalement(\''+escJS(r.id)+'\')">Envoyer la réponse</button>'
+    +'<button class="btn btn-sm btn-ghost" onclick="repondreSignalement(\''+escJS(r.id)+'\')">Annuler</button>'
+    +'</div>'
+    +'<p class="note" style="margin:6px 0 0">'+esc(r.prenom)+' la lira sur son accueil, à sa prochaine connexion. '
+    +'Effacer le texte puis envoyer retire la réponse.</p>';
+  /* La réponse déjà écrite est posée en VALEUR, jamais interpolée dans le
+     HTML : un « </textarea> » tapé dedans refermerait la balise. */
+  const champ=$('sigRepIn-'+id);
+  if(champ){ champ.value=r.reponse||''; if(champ.focus) champ.focus(); }
+}
+async function envoyerReponseSignalement(id){
+  const champ=$('sigRepIn-'+id); if(!champ) return;
+  const r=mesSignalements.find(x=>x.id===id);
+  const texte=String(champ.value==null?'':champ.value).trim();
+  if(!texte && !(r&&r.reponse)){ toast('Écris ta réponse','err'); return; }
+  const charge = texte ? {reponse:texte, repondu_at:new Date().toISOString(), lu:true}
+                       : {reponse:null,  repondu_at:null};
+  try{
+    const {data:touchees,error}=await sb.from(TABLE_SIG).update(charge).eq('id',id).select('id');
+    if(error){ toast('Réponse non enregistrée : '+(error.message||'erreur'),'err'); return; }
+    if(!(touchees||[]).length){ toast('La base a refusé : la réponse n’a pas été enregistrée','err'); return; }
+    if(r){ r.reponse=charge.reponse; r.repondu_at=charge.repondu_at; if(texte) r.lu=true; }
+    toast(texte?'Réponse envoyée':'Réponse retirée','ok');
+    renderSignalements();
+  }catch(e){ toast('Réponse non enregistrée (connexion)','err'); }
+}
+
 let mesSignalements=[];
 
 async function chargerSignalements(){
@@ -4254,15 +4385,18 @@ function renderSignalements(){
       </div>
       <div class="sig-msg">${esc(r.message)}</div>
       <div class="sig-meta">${esc(estPapier?'devoir sur papier':modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
+      ${r.reponse?`<div class="sig-rep"><span class="sig-repq">Ta réponse${r.repondu_at?' · '+esc(fmtDate(r.repondu_at)):''}</span>${esc(r.reponse)}</div>`:''}
       <div class="sig-actions">
         ${estPapier
           ? `<button class="btn btn-sm btn-primary" onclick="voirEnonceDM('${escJS(r.id)}')">Voir l’énoncé complet</button>`
           : `<button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l’écran</button>`}
         ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d\u2019\u00e9cran</button>`:''}
         ${r.lu?'':`<button class="btn btn-sm btn-ghost" onclick="marquerSignalementLu('${escJS(r.id)}')">Marquer lu</button>`}
+        <button class="btn btn-sm btn-ghost" onclick="repondreSignalement('${escJS(r.id)}')">${r.reponse?'Modifier ma réponse':'Répondre'}</button>
         <button class="btn btn-sm btn-ghost" onclick="supprimerSignalement('${escJS(r.id)}')">Supprimer</button>
       </div>
       <div class="sig-capture" id="sigCap-${escJS(r.id)}"></div>
+      <div class="sig-repzone" id="sigRep-${escJS(r.id)}"></div>
     </div>`;
   }).join('');
 }
@@ -14054,10 +14188,16 @@ function sa2Libelle(type, attendu, q){
    un input ne sait pas se dimensionner tout seul en CSS — et elle est réajustée
    APRÈS la correction, sans quoi la réponse écrite en bleu serait tronquée. */
 const SA2_LARGEUR_MIN=3.2;                 /* en « ch » : de quoi loger « −6 » */
+/* Une case d'INDICE est plus petite, et son texte aussi (demande de Turquet,
+   août 2026) : elle ne porte qu'un « n+1 » ou un « 0 », posés en indice — à la
+   taille des autres cases, elle écrasait le U qu'elle suit. Sa largeur suit sa
+   police, « ch » étant relatif à celle-ci. */
+const SA2_LARGEUR_MIN_IDX=2.4;
 function sa2Ajuster(el){
   if(!el) return;
   const n=String(el.value==null?'':el.value).length;
-  el.style.width=Math.max(SA2_LARGEUR_MIN, n+1.2)+'ch';
+  const mini=el.classList.contains('sa2-mot') ? SA2_LARGEUR_MIN_IDX : SA2_LARGEUR_MIN;
+  el.style.width=Math.max(mini, n+1.2)+'ch';
 }
 function sa2AjusterTout(){ SA2_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
 function sa2In(id, mot){

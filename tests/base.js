@@ -249,6 +249,40 @@ const r5 = psql('banc', ['-f', MIG4], true);
 bilan('rejouer 004 ne fait plus rien', !r5.erreur, r5.erreur);
 
 /* ---------------------------------------------------------------------------
+   1 quinquies. La migration 008 — la réponse du professeur
+   -------------------------------------------------------------------------
+   Elle pose deux colonnes, et surtout elle RENVERSE la politique de lecture de
+   la 003 : l'élève lit désormais SA PROPRE ligne — c'est le seul endroit où il
+   peut lire la réponse qu'on lui écrit. La raison de la 003 ne disparaît pas
+   pour autant : celle d'un camarade lui reste fermée, et le contrôle des rôles,
+   plus bas, exerce les deux bords.
+   Le fichier se termine lui-même par un contrôle qui échoue bruyamment si une
+   colonne manque ou si la lecture n'a pas été élargie ; ici on vérifie surtout
+   qu'il a bien travaillé sur les TROIS tables — un « ignorée » silencieux
+   laisserait un niveau derrière. */
+const MIG8 = path.join(RACINE, 'supabase/migrations/008_reponse_au_signalement.sql');
+const s8 = psql('banc', ['-f', MIG8]);
+bilan('008 élargit la lecture sur les trois tables de signalements',
+  (s8.match(/lecture élargie à sa propre ligne/g) || []).length === 3,
+  (s8.match(/lecture élargie à sa propre ligne/g) || []).length + ' table(s) sur 3');
+const pol8 = psql('banc', ['-tAc',
+  `select count(*) from pg_policies
+    where schemaname='public' and tablename like 'signalements%'
+      and cmd='SELECT' and qual like '%auth.uid()%'`]).trim();
+bilan('la politique de lecture nomme vraiment le compte de l\'élève',
+  pol8 === '3', pol8 + ' politique(s) sur 3 citent auth.uid()');
+/* Une seconde politique de lecture posée À CÔTÉ de l'ancienne rouvrirait tout :
+   PostgreSQL combine les permissives par un OU. La 008 REMPLACE, elle n'ajoute
+   pas — c'est la leçon de la 002, et elle se vérifie en comptant. */
+const nbLect = psql('banc', ['-tAc',
+  `select count(*) from pg_policies
+    where schemaname='public' and tablename like 'signalements%' and cmd='SELECT'`]).trim();
+bilan('elle REMPLACE la politique de lecture au lieu d\'en ajouter une seconde',
+  nbLect === '3', nbLect + ' politique(s) de lecture pour 3 tables');
+const r8 = psql('banc', ['-f', MIG8], true);
+bilan('rejouer 008 ne fait plus rien', !r8.erreur, r8.erreur);
+
+/* ---------------------------------------------------------------------------
    2. Ce que chaque rôle peut réellement faire
    ------------------------------------------------------------------------- */
 console.log('\n2. CE QUE CHAQUE RÔLE OBTIENT DE LA BASE');
@@ -301,6 +335,21 @@ const MUTATIONS = [
   ['les signalements deviennent lisibles par toute la classe',
    ['drop policy p_signalements_2nde_lecture on public.signalements_2nde',
     'create policy p_signalements_2nde_lecture on public.signalements_2nde for select to authenticated using (true)']],
+  /* L'autre bord de la même politique, et il est aussi coûteux : la lecture
+     REDEVENUE réservée au professeur laisserait la réponse enregistrée et
+     invisible. Rien ne casserait, rien ne rougirait — l'élève n'entendrait
+     simplement jamais parler de la réponse qu'on lui a écrite. */
+  ['la réponse du professeur redevient invisible à son destinataire',
+   ['drop policy p_signalements_2nde_lecture on public.signalements_2nde',
+    'create policy p_signalements_2nde_lecture on public.signalements_2nde for select to authenticated using (public.est_prof())']],
+  /* Et le droit qu'on ne donne pas : une politique d'UPDATE ouverte à l'élève,
+     fût-ce sur sa propre ligne, le laisserait réécrire son message — ou la
+     réponse elle-même, ce que le professeur ne verrait jamais. */
+  ['l’élève reçoit le droit de réécrire sa ligne de signalement',
+   [`create policy p_signalements_2nde_eleve_modif on public.signalements_2nde
+       for update to authenticated
+       using (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))
+       with check (exists (select 1 from public.eleves_2nde e where e.id = eleve_id and e.user_id = auth.uid()))`]],
 ];
 MUTATIONS.forEach(([nom, sqls], i) => {
   const bd = 'mut' + i;
@@ -309,6 +358,7 @@ MUTATIONS.forEach(([nom, sqls], i) => {
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/002_retirer_politiques_ouvertes.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/003_signalements.sql')]);
   psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/004_pause_de_l_eleve.sql')]);
+  psql(bd, ['-f', path.join(RACINE, 'supabase/migrations/008_reponse_au_signalement.sql')]);
   sqls.forEach(q => psql(bd, ['-c', q]));
   const r = psql(bd, ['-f', path.join(RACINE, 'tests/base-controles.sql')], true);
   bilan('détectée : ' + nom, !!r.erreur, r.erreur ? '' : 'le banc est resté vert alors que la base est ouverte');
