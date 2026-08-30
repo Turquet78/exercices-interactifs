@@ -189,6 +189,21 @@
   .dm-cell.todo{color:#8a6d12;background:#FCEFD8;border:1px solid #f2dca8}
   .dm-note{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;color:#fff;background:var(--blue);white-space:nowrap}
   .dm-note.none{background:var(--paper);color:var(--ink-soft);border:1px solid var(--line)}
+  /* Le tableau des moyennes porte une colonne par devoir : à dix devoirs il
+     dépasse la carte, et c'est LUI qui défile, jamais la page (la règle des
+     contenus larges). Le zéro d'un devoir non fait s'écrit, mais en gris : la
+     note compte 0, l'œil doit pouvoir le distinguer d'un 0 obtenu. */
+  .dm-moywrap{overflow-x:auto}
+  /* « width:max-content » a été essayé ici, puis RETIRÉ : mesuré des deux
+     côtés, il n'écartait rien. Sans lui le tableau défile déjà (990 px dans
+     648 à douze devoirs, contre 1159 avec), la page ne déborde pas et aucune
+     cellule ne rogne son contenu — il ne gagnait que la largeur naturelle des
+     en-têtes. Un garde-fou qui n'écarte jamais rien fait croire qu'on vérifie
+     quelque chose : c'est le contrôle du banc navigateur qui tient la vraie
+     propriété (aucune cellule coupée, la page qui ne part pas en travers). */
+  .dm-moywrap table{min-width:100%}
+  .dm-zero{font-family:"Fredoka";font-weight:600;font-size:.82rem;padding:2px 11px;border-radius:999px;background:var(--paper);color:var(--ink-soft);border:1px dashed var(--line)}
+  .dm-moyclasse td{border-top:2px solid var(--line);font-weight:700}
   .dm-exrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 0;border-top:1px dashed var(--line)}
   .dm-exrow:first-child{border-top:none;padding-top:1px}
   .dm-exname{font-weight:700;font-size:.9rem;color:var(--ink)}
@@ -2013,6 +2028,8 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
             <button class="btn btn-danger btn-sm" onclick="deleteDevoir()">Supprimer</button>
           </div>
         </div>
+        <div class="set-h">Moyennes de la classe</div>
+        <div id="dmMoyennes"></div>
         <div class="set-h">Résultats <span id="dmResTitle" style="font-weight:600;color:var(--ink-soft)"></span></div>
         <div id="dmResults"></div>
       </div>
@@ -2101,7 +2118,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=118;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=119;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -8612,7 +8629,224 @@ async function deleteDevoir(){
   try{ await persistDevoirs(); toast('Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible','err'); }
   renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
 }
+/* ══ LES MOYENNES DE LA CLASSE, TOUS DEVOIRS ═══════════════════════════════
+   Le bilan d'à côté ne montre qu'UN devoir. Le professeur veut son carnet de
+   notes : les élèves en lignes, un devoir par colonne, la moyenne au bout, et
+   le tout téléchargeable (demande de Turquet, août 2026).
+
+   DEUX DÉCISIONS DE TURQUET, et elles changent les chiffres :
+   · un devoir NON FAIT compte ZÉRO, et il entre au dénominateur comme les
+     autres — c'est la moyenne d'un bulletin, elle dit le travail rendu autant
+     que le niveau ;
+   · chaque note est ramenée SUR 20 avant d'être moyennée. Sans quoi un devoir
+     à 3 exercices (sur 30) pèserait une fois et demie un devoir à 2 (sur 20),
+     ce que personne n'a demandé — et la moyenne d'un élève changerait le jour
+     où on ajoute un exercice à un vieux devoir.
+
+   LE ZÉRO S'ÉCRIT « 0 », JAMAIS « — ». C'est la leçon des cases justes
+   comptées `good` : l'écran ne doit pas dire autre chose que la note. Un tiret
+   devant une moyenne qui compte 0 laisserait croire que le devoir est hors du
+   calcul, et le professeur chercherait longtemps d'où vient l'écart. La
+   colonne « faits » dit, elle, combien de devoirs ont vraiment été rendus —
+   c'est là que se lit la différence entre un 0 obtenu et un 0 d'absence.
+
+   QUELS DEVOIRS COMPTENT. Un devoir JAMAIS montré aux élèves ne peut pas avoir
+   été fait : le compter 0 pour toute la classe serait un mensonge, et la
+   moyenne s'effondrerait à chaque brouillon créé dans l'éditeur. Un devoir
+   compte donc s'il est AFFICHÉ aux élèves, OU si au moins un élève y a déjà une
+   note — un devoir retiré après coup garde ainsi les notes qu'il a produites.
+   Un devoir sans exercice n'a pas de maximum : il reste hors du tableau.
+
+   L'ORDRE ALPHABÉTIQUE EST TENU PAR LA PAGE, pas par la base. `localeCompare`
+   en français range « Émile » avec les E ; l'ordre d'un `order('prenom')`
+   dépend, lui, de la collation du serveur — invisible ici, et faux le jour où
+   elle change. */
+
+/* La meilleure tentative d'un élève sur un exercice DE CE DEVOIR. Même
+   définition que partout : le plus haut pourcentage, les pauses écartées. */
+function dmMeilleur(rows, eleveId, devoirId, exoId, mode){
+  let b=null;
+  (rows||[]).forEach(function(r){
+    if(r.eleve_id!==eleveId||isPaused(r)||testIdOf(r)!==exoId||modeOf(r)!==mode) return;
+    const dt=r.details; if(!dt||Array.isArray(dt)||dt.dm!==devoirId) return;
+    if(b==null||r.percent>b.percent) b=r;
+  });
+  return b;
+}
+
+/* Le bilan complet, prêt à afficher ET à télécharger : ce qui est à l'écran et
+   ce qui part dans le fichier sortent du MÊME calcul. Deux calculs auraient
+   donné deux tableaux, et c'est le fichier — celui qu'on garde — qui aurait
+   menti. */
+function dmMoyennes(devoirs, eleves, rows){
+  const aDesNotes=function(dev){
+    return (rows||[]).some(function(r){
+      const dt=r.details;
+      return dt&&!Array.isArray(dt)&&dt.dm===dev.id&&!isPaused(r);
+    });
+  };
+  const colonnes=(devoirs||[])
+    .filter(function(d){ return d && dmNbExos(d)>0 && (d.actif || aDesNotes(d)); })
+    .slice().sort(function(a,b){ return (a.num||0)-(b.num||0); });
+
+  const lignes=(eleves||[]).slice()
+    .sort(function(a,b){ return String(a.prenom||'').localeCompare(String(b.prenom||''),'fr',{sensitivity:'base'}); })
+    .map(function(e){
+      let total=0, nbFaits=0;
+      const cases=colonnes.map(function(d){
+        const n=dmNoteDevoir(d, e.id, rows);
+        /* Un devoir sans maximum ne peut pas être ramené sur 20 ; il est déjà
+           écarté plus haut, et ce garde n'est là que pour ne jamais diviser
+           par zéro si la liste change un jour de source. */
+        const sur20 = n.totMax>0 ? n.somme/n.totMax*20 : 0;
+        if(n.fait) nbFaits++;
+        total += sur20;                    /* NON FAIT = 0 : sa somme vaut 0 */
+        return { sur20:sur20, fait:n.fait, somme:n.somme, totMax:n.totMax,
+                 nbFait:n.nbFait, nbExos:n.nbExos };
+      });
+      return { eleve:e, cases:cases, nbFaits:nbFaits,
+               /* le dénominateur est le NOMBRE DE DEVOIRS, jamais le nombre de
+                  devoirs faits : c'est là que vit la décision du zéro */
+               moyenne: colonnes.length ? total/colonnes.length : null };
+    });
+
+  const moyClasse=colonnes.map(function(d,i){
+    if(!lignes.length) return null;
+    return lignes.reduce(function(a,l){ return a+l.cases[i].sur20; },0)/lignes.length;
+  });
+  const moyGenerale = lignes.length
+    ? lignes.reduce(function(a,l){ return a+(l.moyenne||0); },0)/lignes.length : null;
+  return { colonnes:colonnes, lignes:lignes, moyClasse:moyClasse, moyGenerale:moyGenerale };
+}
+
+/* Le mot de la famille. Les FICHES n'existent qu'en Seconde et en Première :
+   « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
+   dans les trois fichiers. */
+function dmMoyFamille(){
+  return (typeof dmGenre!=='undefined' && dmGenre==='fiche')
+    ? { pluriel:'fiches', singulier:'fiche', accord:'e', fichier:'fiches' }
+    : { pluriel:'devoirs', singulier:'devoir', accord:'', fichier:'devoirs' };
+}
+
+function dmMoyennesHTML(b){
+  const F=dmMoyFamille();
+  if(!b.colonnes.length)
+    return '<div class="empty">Aucun'+F.accord+' '+F.singulier+' affiché'+F.accord
+      +' aux élèves pour l’instant — le tableau des moyennes apparaît dès qu’il y en a un'+F.accord+'.</div>';
+  if(!b.lignes.length) return '<div class="empty">Aucun compte élève.</div>';
+  const th=b.colonnes.map(function(d){
+    return '<th title="'+esc(d.titre||'')+'">n°'+esc(String(d.num))+'</th>'; }).join('');
+  const corps=b.lignes.map(function(l){
+    const tds=l.cases.map(function(c){
+      return c.fait
+        ? '<td><span class="badge '+pctClass(Math.round(c.sur20/20*100))+'">'+fmtNote(c.sur20)+'</span></td>'
+        : '<td><span class="dm-zero" title="Pas encore fait — compte 0 dans la moyenne">0</span></td>';
+    }).join('');
+    return '<tr><td class="name">'+esc(l.eleve.prenom)+'</td>'+tds
+      +'<td><b>'+(l.moyenne==null?'—':fmtNote(l.moyenne))+'</b></td>'
+      +'<td>'+l.nbFaits+' / '+b.colonnes.length+'</td></tr>';
+  }).join('');
+  const pied='<tr class="dm-moyclasse"><td class="name">Moyenne de la classe</td>'
+    +b.moyClasse.map(function(m){ return '<td>'+(m==null?'—':fmtNote(m))+'</td>'; }).join('')
+    +'<td><b>'+(b.moyGenerale==null?'—':fmtNote(b.moyGenerale))+'</b></td><td></td></tr>';
+  return '<div class="panel">'
+    +'<div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Moyennes de la classe</h3>'
+    +'<button class="btn btn-ghost btn-sm" onclick="dmMoyennesCSV()">⤓ Télécharger en CSV</button></div>'
+    +'<p class="note" style="margin:0 0 10px">Chaque note est ramenée <b>sur 20</b>, et un'+F.accord+' '+F.singulier
+    +' pas encore fait'+F.accord+' compte <b>0</b> — la colonne « faits » dit combien ont été rendus. '
+    +'Un'+F.accord+' '+F.singulier+' entre dans le tableau dès qu’il est affiché aux élèves, '
+    +'ou dès qu’un élève y a une note.</p>'
+    +'<div class="dm-moywrap"><table class="tbl"><thead><tr><th>Élève</th>'+th
+    +'<th>Moyenne / 20</th><th>'+F.pluriel.charAt(0).toUpperCase()+F.pluriel.slice(1)+' faits</th></tr></thead>'
+    +'<tbody>'+corps+pied+'</tbody></table></div></div>';
+}
+
+/* UN TABLEAU QUI S'OUVRE DANS UN TABLEUR. Le point-virgule et non la virgule :
+   c'est le séparateur de liste des Windows français, et Excel range sinon la
+   ligne entière dans une seule colonne. Les décimales suivent, à la virgule
+   (fmtNote le fait déjà). Le BOM en tête dit à Excel que le fichier est en
+   UTF-8 — sans lui, « élève » s'affiche « Ã©lÃ¨ve ». */
+function csvTelecharger(nom, lignes){
+  const texte='﻿'+lignes.map(function(l){
+    return l.map(function(v){ return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'; }).join(';');
+  }).join('\r\n');
+  const blob=new Blob([texte],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=nom; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* Le fichier reprend le tableau AFFICHÉ, sans rien recalculer ni rien
+   relire : le professeur télécharge ce qu'il a sous les yeux. Et rien
+   n'attend entre le clic et le téléchargement — un `await` glissé ici ferait
+   traiter l'enregistrement comme une fenêtre surgissante par Chrome, qui le
+   bloquerait sans un mot (le piège déjà payé sur l'ouverture des cours). */
+function dmMoyennesCSV(){
+  const b=dmMoyDernier;
+  if(!b||!b.colonnes.length||!b.lignes.length){ toast('Rien à télécharger'); return; }
+  const F=dmMoyFamille();
+  const lignes=[ ['Élève']
+    .concat(b.colonnes.map(function(d){ return 'n°'+d.num+(d.titre?' — '+d.titre:''); }))
+    .concat(['Moyenne / 20', F.pluriel.charAt(0).toUpperCase()+F.pluriel.slice(1)+' faits']) ];
+  b.lignes.forEach(function(l){
+    lignes.push([l.eleve.prenom]
+      .concat(l.cases.map(function(c){ return fmtNote(c.sur20); }))
+      .concat([l.moyenne==null?'':fmtNote(l.moyenne), l.nbFaits+' / '+b.colonnes.length]));
+  });
+  lignes.push(['Moyenne de la classe']
+    .concat(b.moyClasse.map(function(m){ return m==null?'':fmtNote(m); }))
+    .concat([b.moyGenerale==null?'':fmtNote(b.moyGenerale), '']));
+  csvTelecharger('moyennes-'+F.fichier+'.csv', lignes);
+}
+
+/* ---- CE QUI DIVERGE D'UN NIVEAU À L'AUTRE, et rien d'autre --------------
+   La liste des exercices d'un devoir et la façon d'en noter un : la Première
+   la lit par exercicesDevoir(), la Terminale y ajoute la note POSÉE par le
+   professeur. Tout le moteur ci-dessus est le MÊME TEXTE dans les trois
+   fichiers, et un contrôle les compare — deux moteurs auraient fini par
+   donner deux moyennes.
+
+   ET C'EST L'ENTONNOIR UNIQUE de la note d'un devoir : le bilan par devoir
+   d'à côté lit la même fonction. Deux calculs auraient donné deux notes, et
+   le professeur aurait lu l'une dans le tableau et l'autre dans le bilan,
+   sans que rien ne rougisse. */
+let dmMoyDernier=null;
+function dmNbExos(dev){
+  return ((dev&&dev.exercices)||[]).length;
+}
+function dmNoteDevoir(dev, eleveId, rows){
+  const liste=(dev&&dev.exercices)||[];
+  let nbFait=0;
+  const exd=liste.map(function(ex){
+    const bs=dmMeilleur(rows,eleveId,dev.id,ex.id,'soutien');
+    const be=dmMeilleur(rows,eleveId,dev.id,ex.id,'train');
+    const nd=noteDevoirExo(bs,be,ex.smax);
+    if(nd.fait) nbFait++;
+    return { ex:ex, nd:nd, bs:bs, be:be };
+  });
+  const t=dmTotal(exd.map(function(x){
+    return { note:x.nd.note, fait:x.nd.fait, bonus:dmEstBonus(x.ex) }; }));
+  return { somme:t.somme, totMax:t.totMax, nbFait:nbFait, nbExos:liste.length,
+           fait:nbFait>0, exd:exd };
+}
+async function renderDmMoyennes(){
+  const box=$('dmMoyennes'); if(!box) return;
+  box.innerHTML='<p class="muted">Chargement…</p>';
+  try{
+    const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
+      sb.from('eleves_2nde').select('id,prenom'),
+      sb.from('resultats_2nde').select('*')
+    ]);
+    if(e1)throw e1; if(e2)throw e2;
+    dmMoyDernier=dmMoyennes(dmList, eleves||[], rows||[]);
+    box.innerHTML=dmMoyennesHTML(dmMoyDernier);
+  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+}
+
 async function renderDevoirResultats(){
+  /* Les moyennes couvrent TOUS les devoirs : elles se redessinent quel que
+     soit le devoir choisi, et avant les sorties courtes ci-dessous. */
+  renderDmMoyennes();
   const box=$('dmResults'); const dev=selectedDevoir();
   if($('dmResTitle')) $('dmResTitle').textContent = dev? ((dmGenre==='fiche'?'de la Fiche n°':'du Devoir n°')+dev.num) : '';
   if(!dev){ box.innerHTML=''; return; }
@@ -8626,20 +8860,13 @@ async function renderDevoirResultats(){
     ]);
     if(e1)throw e1; if(e2)throw e2;
     if(!eleves||!eleves.length){ box.innerHTML='<div class="empty">Aucun compte élève.</div>'; return; }
-    const dmRes=(res||[]).filter(r=>!isPaused(r)&&r.details&&!Array.isArray(r.details)&&r.details.dm===dev.id);
-    const k=(eid,tid,m)=>eid+'|'+tid+'|'+m;
-    const best={}; dmRes.forEach(r=>{ const key=k(r.eleve_id,testIdOf(r),modeOf(r)); if(!best[key]||r.percent>best[key].percent) best[key]=r; });
-    // synthèse par élève (note du devoir + nombre d'exercices faits) — le
-    // total passe par dmTotal, le MÊME entonnoir que l'écran de l'élève
-    const synth=eleves.map(e=>{
-      let nbFait=0;
-      const exd=exos.map(ex=>{
-        const bs=best[k(e.id,ex.id,'soutien')], be=best[k(e.id,ex.id,'train')];
-        const nd=noteDevoirExo(bs,be,ex.smax); if(nd.fait) nbFait++;
-        return {ex,nd,bs,be};
-      });
-      const tot=dmTotal(exd.map(x=>({note:x.nd.note, fait:x.nd.fait, bonus:dmEstBonus(x.ex)})));
-      return {e,somme:tot.somme,nbFait,exd,fait:nbFait>0};
+    /* La note d'un élève sur ce devoir passe par dmNoteDevoir — l'ENTONNOIR
+       que lit aussi le tableau des moyennes juste au-dessus. Deux calculs
+       auraient donné deux notes, et le professeur aurait lu l'une ici et
+       l'autre là, sans que rien ne rougisse. */
+    const synth=eleves.map(function(e){
+      const n=dmNoteDevoir(dev, e.id, res||[]);
+      return { e:e, somme:n.somme, nbFait:n.nbFait, exd:n.exd, fait:n.fait };
     });
     const totMax=dmTotal(exos.map(ex=>({note:0,fait:false,bonus:dmEstBonus(ex)}))).totMax;
     const actifs=synth.filter(x=>x.fait);

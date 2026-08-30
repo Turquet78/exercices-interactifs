@@ -1323,6 +1323,128 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 septies ter. LE CARNET DE NOTES, ET SON FICHIER ===== */
+    /* Le banc principal exerce le calcul et lit le contenu du Blob : il dit que
+       le tableau est juste, pas qu'on peut le télécharger. Ici on CLIQUE le
+       bouton et on attend le vrai téléchargement du navigateur — jsdom n'en a
+       aucun, c'est donc le seul banc qui puisse le voir.
+       Et il MESURE : à vingt devoirs le tableau est plus large que la carte.
+       C'est LUI qui doit défiler, jamais la page — une page qui part en travers
+       emmène tout le tableau de bord avec elle, et rien ne rougirait. */
+    titre('6 septies ter. LE CARNET DE NOTES DU PROFESSEUR');
+    const srcMoy = fs.readFileSync(path.join(RACINE, CIBLE), 'utf8');
+    const LISTE_DM = (srcMoy.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
+    if(!LISTE_DM){
+      ignorer('le professeur télécharge les moyennes de sa classe',
+        'ce niveau n\'a pas le tableau des moyennes');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      /* L'ONGLET D'ABORD, et il faut l'attendre : l'ouvrir RECHARGE la liste
+         des devoirs depuis la configuration, et une liste semée avant se
+         ferait écraser en silence — le banc mesurait alors un tableau à un
+         seul devoir en se croyant à douze. On ouvre l'onglet par le panneau
+         qui porte le tableau, jamais par son nom : il s'appelle « devoir »
+         ici et « devoirs » en Première. */
+      await s.page.evaluate(() => {
+        show('teacher');
+        const pane = document.getElementById('dmMoyennes').closest('.tpane');
+        teacherTab(pane.id.replace('pane-', ''));
+      });
+      await s.page.waitForTimeout(700);
+      await s.page.evaluate(async ([tEleves, tRes, liste]) => {
+        const ids = Object.keys(TESTS).slice(0, 2);
+        const devoirs = [];
+        /* VINGT et non douze : la carte du professeur n'a pas la même largeur
+           d'un niveau à l'autre — 648 px en Seconde et en Première, 1068 en
+           Terminale (mesuré) — et à douze devoirs le tableau TIENT là-bas.
+           Le contrôle ne mesurait alors plus rien, et il l'a dit plutôt que
+           de passer au vert. Vingt déborde partout. */
+        for(let n = 20; n >= 1; n--)          /* semés à l'envers : ils doivent sortir rangés */
+          devoirs.push({ id:'d'+n, num:n, actif:true, titre:'Devoir '+n,
+                         exercices:[{id:ids[0],modes:['train']},{id:ids[1],modes:['train']}] });
+        /* « dmList » est déclarée en `let` : ce n'est PAS une propriété de
+           window, et lui en poser une ne toucherait rien. L'affectation passe
+           donc par un eval DIRECT, seul à voir la liaison lexicale globale. */
+        eval(liste + ' = devoirs; dmSelId = "d1";');
+        window.__faux.semer(tEleves, [
+          { id:'z', prenom:'Zoé',   cle:'c-z', user_id:'u-z' },
+          { id:'e', prenom:'Émile', cle:'c-e', user_id:'u-e' },
+          { id:'a', prenom:'alice', cle:'c-a', user_id:'u-a' }]);
+        window.__faux.semer(tRes, [
+          { id:'r1', eleve_id:'e', percent:100, score:10, total:10,
+            created_at:'2026-08-01T10:00:00Z',
+            details:{ test:ids[0], mode:'train', dm:'d1' } }]);
+        await renderDmMoyennes();
+      }, [P.tableEleves, P.tableResultats, LISTE_DM]);
+      await s.page.waitForTimeout(700);
+
+      const vu = await s.page.evaluate(() => {
+        const tbl = document.querySelector('#dmMoyennes table');
+        const wrap = document.querySelector('#dmMoyennes .dm-moywrap');
+        if(!tbl || !wrap) return { rendu:false };
+        return {
+          rendu: true,
+          colonnes: [].slice.call(tbl.querySelectorAll('thead th')).map(t => t.textContent.trim()).join('|'),
+          eleves: [].slice.call(tbl.querySelectorAll('tbody tr td.name')).map(t => t.textContent.trim()).join(','),
+          /* la carte déborde-t-elle ? et est-ce le TABLEAU qui défile ? */
+          debordPage: document.documentElement.scrollWidth - window.innerWidth,
+          large: wrap.scrollWidth > wrap.clientWidth + 1,
+          /* ET LE TABLEAU EST-IL LISIBLE ? Un tableau qui se COMPRIME au lieu
+             de défiler ne déborde nulle part : il rogne ses cellules, et le
+             contrôle du défilement reste vert sur un écran illisible. C'est le
+             sabotage de « width:max-content » qui l'a montré. On mesure donc
+             ce qui compte vraiment : aucune cellule ne coupe son contenu. */
+          rognees: [].slice.call(tbl.querySelectorAll('td, th'))
+            .filter(c => c.scrollWidth > c.clientWidth + 1)
+            .map(c => c.textContent.trim() || '(vide)').slice(0, 4),
+        };
+      });
+      verifier('le carnet range les devoirs par numéro et les élèves par ordre alphabétique',
+        vu.rendu === true && /^Élève\|n°1\|n°2\|/.test(String(vu.colonnes || ''))
+          && vu.eleves === 'alice,Émile,Zoé,Moyenne de la classe',
+        !vu.rendu ? 'aucun tableau rendu'
+                  : 'colonnes : ' + String(vu.colonnes || '').slice(0, 60) + ' — élèves : ' + vu.eleves);
+      verifier('à vingt devoirs, c\'est le tableau qui défile, pas la page',
+        vu.rendu === true && vu.large === true && vu.debordPage <= 1,
+        !vu.rendu ? 'aucun tableau rendu'
+          : (vu.large ? '' : 'le tableau ne déborde pas : le contrôle ne mesure rien à cette largeur — ')
+            + 'la page déborde de ' + vu.debordPage + ' px');
+      verifier('et aucune cellule ne rogne son contenu : le tableau défile, il ne se comprime pas',
+        vu.rendu === true && (vu.rognees || []).length === 0,
+        !vu.rendu ? 'aucun tableau rendu'
+                  : 'cellule(s) coupée(s) : ' + (vu.rognees || []).join(' , '));
+
+      /* LE TÉLÉCHARGEMENT, pour de vrai : le navigateur doit recevoir un
+         fichier. Un « download » posé sur une adresse blob: est exactement ce
+         que Chrome bloque quand il arrive après une attente — ici il ne doit
+         rien y avoir entre le clic et l'enregistrement. */
+      const [fichier] = await Promise.all([
+        s.page.waitForEvent('download', { timeout: 8000 }).catch(() => null),
+        s.page.click('#dmMoyennes button'),
+      ]);
+      let contenu = '';
+      if(fichier){
+        try{ contenu = fs.readFileSync(await fichier.path(), 'utf8'); }catch(e){ contenu = ''; }
+      }
+      const lignesF = contenu.replace(/^﻿/, '').split('\r\n');
+      verifier('cliquer « Télécharger en CSV » enregistre vraiment un fichier',
+        !!fichier && /^moyennes-(devoirs|fiches)\.csv$/.test(fichier ? fichier.suggestedFilename() : ''),
+        !fichier ? 'aucun téléchargement n\'a été proposé par le navigateur'
+                 : 'nom du fichier : ' + fichier.suggestedFilename());
+      verifier('le fichier téléchargé porte le tableau, dans le même ordre',
+        !!contenu && /^"Élève";"n°1/.test(lignesF[0] || '')
+          && /^"alice";/.test(lignesF[1] || '') && /^"Émile";"10";/.test(lignesF[2] || '')
+          && /^"Zoé";/.test(lignesF[3] || ''),
+        !contenu ? 'le fichier est vide ou illisible'
+                 : 'lignes lues : ' + lignesF.slice(0, 3).join('  ·  ').slice(0, 140));
+
+      verifier('le carnet de notes n\'a levé aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

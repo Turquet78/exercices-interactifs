@@ -1494,6 +1494,32 @@ function branchements(w){
       false, 'terminale.html est introuvable');
   }
 
+  /* ---- LE MOTEUR DES MOYENNES EST LE MÊME TEXTE DANS LES TROIS FICHIERS ---
+     Le carnet de notes du professeur — élèves en lignes, un devoir par colonne,
+     la moyenne au bout, le tout téléchargeable — vit dans les trois niveaux.
+     Une moitié retouchée d'un seul côté donnerait deux moyennes pour la même
+     classe, et c'est le FICHIER, celui qu'on garde, qui aurait menti.
+     TROIS FONCTIONS DIVERGENT VOLONTAIREMENT, et elles sont nommées ici plutôt
+     que tues : dmNbExos() et dmNoteDevoir() — la Première lit la liste des
+     exercices par exercicesDevoir(), la Terminale ajoute la note POSÉE par le
+     professeur — et renderDmMoyennes(), qui nomme les tables du niveau. Les
+     nommer est ce qui empêche la liste de se vider en silence. */
+  const MOTEUR_MOYENNES = ['dmMeilleur','dmMoyennes','dmMoyFamille','dmMoyennesHTML',
+                           'csvTelecharger','dmMoyennesCSV'];
+  if(src.indexOf('function dmMoyennes(') >= 0){
+    const absentes = MOTEUR_MOYENNES.filter(n => corpsDe(src, n) === null);
+    verifier('le moteur des moyennes de la classe est au complet',
+      absentes.length === 0, 'manque : ' + absentes.join(', '));
+    if(!absentes.length && origine && CIBLE !== 'terminale.html'){
+      const divergent = MOTEUR_MOYENNES.filter(n => corpsDe(src, n) !== corpsDe(origine, n));
+      verifier('le moteur des moyennes est identique à celui de la Terminale, au caractère près',
+        divergent.length === 0,
+        divergent.length ? 'diverge sur : ' + divergent.join(', ') : undefined);
+    }
+  } else {
+    ignorer('le moteur des moyennes de la classe est au complet',
+      'ce niveau n’a pas le tableau des moyennes');
+  }
   /* ---- LE MOTEUR DES FRACTIONS EST LE MÊME TEXTE DANS LES DEUX NIVEAUX ----
      {somme-fractions} vit en Seconde ET en Première, et {croiser-denominateurs}
      comme {simplifier-fractions} tournent dessus. Une moitié recopiée aurait
@@ -5907,7 +5933,7 @@ function renommerEleve(w, apres){
   const present = evaluer(w, "typeof renameStudent==='function' && typeof renderRoster==='function'");
   if(!present.ok || !present.valeur){
     ignorer('le professeur peut changer le prénom d’un élève', 'ce niveau n’a pas renameStudent()');
-    return fichesDeTravail(w, apres);
+    return moyennesDevoirs(w, apres);
   }
   const TE = P.tableEleves, TR = P.tableResultats;
 
@@ -6009,6 +6035,168 @@ function renommerEleve(w, apres){
     verifier('un changement que la base refuse EN SILENCE n’est pas annoncé comme fait',
       r.ok && /err:/.test(String(b.muet||'')) && !/ok:/.test(String(b.muet||'')),
       souci || 'le professeur a lu « ' + b.muet + ' » — sous RLS, PostgREST rend « 0 ligne » sans erreur');
+    moyennesDevoirs(w, apres);
+  });
+}
+
+/* ---------- Les moyennes de la classe, tous devoirs -----------------------
+   Le bilan d'à côté ne montre qu'UN devoir. Le professeur veut son carnet de
+   notes : élèves en lignes, un devoir par colonne, la moyenne au bout, et le
+   tout téléchargeable (demande de Turquet, août 2026).
+
+   Deux décisions de Turquet sont dans les chiffres, et chacune a son bord :
+     · un devoir NON FAIT compte 0 et reste au DÉNOMINATEUR — l'ignorer
+       donnerait une moyenne flatteuse à qui n'a rien rendu ;
+     · chaque note est ramenée SUR 20 — sans quoi un devoir à 3 exercices
+       pèserait une fois et demie un devoir à 2, et la moyenne d'un élève
+       changerait le jour où on ajoute un exercice à un vieux devoir.
+
+   Trois autres bords, chacun silencieux :
+     · QUELS DEVOIRS COMPTENT — un brouillon jamais montré ferait chuter toute
+       la classe à zéro ; un devoir retiré après coup doit garder ses notes ;
+     · L'ORDRE ALPHABÉTIQUE est tenu par la PAGE (localeCompare), pas par la
+       collation du serveur : « Émile » se range avec les E, et le banc sème
+       exprès dans le désordre ;
+     · L'ENTONNOIR UNIQUE — la note d'un devoir dans le tableau doit être celle
+       que le bilan affiche à côté. Deux calculs auraient donné deux notes, et
+       le professeur aurait lu l'une ici et l'autre là.
+
+   Et le FICHIER doit être le TABLEAU : mêmes lignes, même ordre, mêmes
+   nombres. C'est lui qu'on garde ; s'il diverge, c'est lui qui ment. */
+function moyennesDevoirs(w, apres){
+  const present = evaluer(w, "typeof dmMoyennes==='function' && typeof dmMoyennesCSV==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('les moyennes de la classe, tous devoirs confondus', 'ce niveau n’a pas dmMoyennes()');
+    return fichesDeTravail(w, apres);
+  }
+  /* La liste des devoirs n'a pas le même nom d'un niveau à l'autre (dmList /
+     dmAdminList) : on la LIT dans la page plutôt que de la recopier ici — une
+     liste recopiée aurait fini par désigner une variable morte, et le contrôle
+     aurait mesuré un tableau vide en passant au vert. */
+  const src = lire(CIBLE);
+  const LISTE = (src.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
+  if(!LISTE){
+    verifier('les moyennes de la classe, tous devoirs confondus', false,
+      'impossible de lire le nom de la liste des devoirs dans renderDmMoyennes()');
+    return fichesDeTravail(w, apres);
+  }
+  const TE = P.tableEleves, TR = P.tableResultats;
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const bilan={};
+    const vraiToast=toast; toast=function(){};
+    const vraiBlob=window.Blob, vraiCreate=window.URL.createObjectURL, vraiRevoke=window.URL.revokeObjectURL;
+    try{
+      /* Des identifiants d'exercice RÉELS : la Première filtre la liste d'un
+         devoir sur TESTS, et des identifiants inventés en sortiraient tous —
+         le contrôle aurait alors mesuré des devoirs vides. */
+      const ids=Object.keys(TESTS).slice(0,3);
+      const ex=function(i){ return {id:ids[i], modes:['train']}; };
+      /* Les numéros sont semés DANS LE DÉSORDRE : les colonnes doivent sortir
+         rangées par numéro, pas dans l'ordre du tableau. */
+      ${LISTE}=[
+        {id:'d2', num:2, actif:true,  titre:'Deux',  exercices:[ex(0),ex(1),ex(2)]},
+        {id:'d5', num:5, actif:true,  titre:'Vide',  exercices:[]},
+        {id:'d1', num:1, actif:true,  titre:'Un',    exercices:[ex(0),ex(1)]},
+        {id:'d4', num:4, actif:false, titre:'Retiré',exercices:[ex(0)]},
+        {id:'d3', num:3, actif:false, titre:'Jamais montré', exercices:[ex(0)]}];
+      dmSelId='d1';
+      /* Les élèves aussi sont semés dans le désordre, accents compris. */
+      window.__faux.semer('${TE}',[
+        {id:'z', prenom:'Zoé',   cle:'c-z', user_id:'u-z'},
+        {id:'e', prenom:'Émile', cle:'c-e', user_id:'u-e'},
+        {id:'a', prenom:'alice', cle:'c-a', user_id:'u-a'}]);
+      const note=function(eid,dm,tid,pct){
+        return {id:eid+dm+tid, eleve_id:eid, percent:pct, score:pct, total:100,
+                created_at:'2026-08-01T10:00:00Z',
+                details:{test:tid, mode:'train', dm:dm}};
+      };
+      window.__faux.semer('${TR}',[
+        note('e','d1',ids[0],100), note('e','d1',ids[1],100),   /* d1 : 20/20 -> 20 sur 20 */
+        note('e','d2',ids[0],100),                               /* d2 : 10/30 -> 6,67 sur 20 */
+        note('a','d4',ids[0],50)]);                              /* d4 : 5/10 -> 10 sur 20, et d4 entre */
+
+      await renderDmMoyennes();
+      const tbl=document.querySelector('#dmMoyennes table');
+      bilan.rendu=!!tbl;
+      if(tbl){
+        bilan.entetes=[].slice.call(tbl.querySelectorAll('thead th')).map(function(t){return t.textContent.trim();}).join('|');
+        const lignes=[].slice.call(tbl.querySelectorAll('tbody tr'));
+        bilan.lignes=lignes.map(function(tr){
+          return [].slice.call(tr.querySelectorAll('td')).map(function(td){return td.textContent.trim();}).join('|');
+        });
+      }
+      const b=dmMoyDernier||{colonnes:[],lignes:[]};
+      bilan.colonnes=b.colonnes.map(function(d){return d.num;}).join(',');
+      bilan.ordre=b.lignes.map(function(l){return l.eleve.prenom;}).join(',');
+      bilan.moyennes=b.lignes.map(function(l){return l.eleve.prenom+'='+fmtNote(l.moyenne);}).join(' ');
+      bilan.faits=b.lignes.map(function(l){return l.eleve.prenom+'='+l.nbFaits;}).join(' ');
+      bilan.moyClasse=b.moyClasse.map(function(m){return fmtNote(m);}).join(',');
+      bilan.moyGenerale=b.moyGenerale==null?'':fmtNote(b.moyGenerale);
+
+      /* L'ENTONNOIR : le bilan du devoir n°1 doit dire la MÊME note qu'ici. */
+      const rendreBilan=(typeof renderDevoirResultats==='function')?renderDevoirResultats:renderDmResults;
+      await rendreBilan();
+      await new Promise(function(r){ setTimeout(r,60); });
+      const txt=(document.getElementById('dmResults')||{}).textContent||'';
+      bilan.bilanEmile=/Émile/.test(txt) && /20 \\/ 20/.test(txt);
+      const cel=(b.lignes.filter(function(l){return l.eleve.prenom==='Émile';})[0]||{cases:[]}).cases[0];
+      bilan.celluleEmile=cel?fmtNote(cel.sur20)+'/'+fmtNote(cel.somme)+' sur '+cel.totMax:'(absente)';
+
+      /* LE FICHIER. On capture le contenu au niveau du Blob : c'est ce qui
+         part vraiment, pas une reconstitution. */
+      let capture=null;
+      window.Blob=function(parts,opts){ capture=parts.join(''); return new vraiBlob(parts,opts); };
+      window.URL.createObjectURL=function(){ return 'blob:controle'; };
+      window.URL.revokeObjectURL=function(){};
+      dmMoyennesCSV();
+      bilan.csv=capture;
+    } finally {
+      toast=vraiToast; window.Blob=vraiBlob;
+      window.URL.createObjectURL=vraiCreate; window.URL.revokeObjectURL=vraiRevoke;
+    }
+    return bilan;
+  })()`, function(r){
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+    const csv = String(b.csv || '');
+    const lignesCsv = csv.replace(/^﻿/, '').split('\r\n');
+
+    verifier('le tableau des moyennes s’affiche',
+      r.ok && b.rendu === true, souci || 'aucun tableau dans #dmMoyennes');
+    verifier('un devoir jamais montré reste dehors, un devoir retiré qui a des notes reste dedans',
+      r.ok && b.colonnes === '1,2,4',
+      souci || 'colonnes retenues : n°' + b.colonnes + ' — attendu 1,2,4 (le n°3 n’a jamais été montré, le n°5 n’a aucun exercice)');
+    verifier('les élèves sont rangés par ordre alphabétique, accents compris',
+      r.ok && b.ordre === 'alice,Émile,Zoé',
+      souci || 'ordre obtenu : ' + b.ordre + ' — attendu alice,Émile,Zoé');
+    /* 20/20 au n°1, 10/30 au n°2, rien au n°4 : (20 + 6,67 + 0)/3 = 8,9.
+       Sans la mise sur 20 on lirait 10 ; en ignorant le devoir non fait, 13,3. */
+    verifier('un devoir non fait compte 0, et chaque note est ramenée sur 20',
+      r.ok && b.moyennes === 'alice=3,3 Émile=8,9 Zoé=0',
+      souci || 'moyennes : ' + b.moyennes + ' — attendu alice=3,3 Émile=8,9 Zoé=0 (sans la mise sur 20 : Émile=10 ; en ignorant le non fait : Émile=13,3)');
+    verifier('la colonne « faits » compte les devoirs vraiment rendus',
+      r.ok && b.faits === 'alice=1 Émile=2 Zoé=0',
+      souci || 'devoirs faits : ' + b.faits);
+    verifier('la moyenne de la classe est donnée par devoir et au total',
+      r.ok && b.moyClasse === '6,7,2,2,3,3' && b.moyGenerale === '4,1',
+      souci || 'par devoir : ' + b.moyClasse + ' — générale : ' + b.moyGenerale);
+    verifier('la note d’un devoir est la MÊME dans le tableau et dans le bilan d’à côté',
+      r.ok && b.bilanEmile === true && b.celluleEmile === '20/20 sur 20',
+      souci || 'bilan : ' + b.bilanEmile + ' — cellule du tableau : ' + b.celluleEmile);
+    verifier('le fichier CSV sépare au point-virgule, avec le BOM qu’Excel réclame',
+      r.ok && /^﻿/.test(csv) && /^"Élève";/.test(lignesCsv[0] || ''),
+      souci || 'première ligne : ' + String(lignesCsv[0] || '').slice(0, 80));
+    verifier('le fichier reprend le tableau : mêmes élèves, même ordre, mêmes moyennes',
+      r.ok && /^"alice";"0";"0";"10";"3,3";"1 \/ 3"$/.test(lignesCsv[1] || '')
+           && /^"Émile";"20";"6,7";"0";"8,9";"2 \/ 3"$/.test(lignesCsv[2] || '')
+           && /^"Zoé";"0";"0";"0";"0";"0 \/ 3"$/.test(lignesCsv[3] || ''),
+      souci || 'lignes du fichier : ' + lignesCsv.slice(1, 4).join('  ·  '));
+    verifier('le fichier porte aussi la moyenne de la classe',
+      r.ok && /^"Moyenne de la classe";"6,7";"2,2";"3,3";"4,1";""$/.test(lignesCsv[4] || ''),
+      souci || 'dernière ligne : ' + String(lignesCsv[4] || ''));
     fichesDeTravail(w, apres);
   });
 }
