@@ -3333,6 +3333,40 @@ ne mesurerait rien là où il tourne. Éprouvé par sabotage des deux côtés. U
 page : `Object.assign({id:'s1'}, ligne)` laissait l'id du double écraser celui
 du script, et la vue accusait la page d'un défaut qu'elle n'avait pas.
 
+**La même démonstration, mais l'élève ne pose que des nombres.**
+{suite-auxiliaire-2} (Terminale, 6.3, demande de Turquet, août 2026) est repris
+de la fiche « Exercice suite Vn » : U₀ = 10 000, Uₙ₊₁ = 0,95 Uₙ + 200,
+Vₙ = Uₙ − 4000, et les trois questions du papier — la chaîne qui montre que
+(Vₙ) est géométrique, V₀, puis Vₙ et Uₙ en fonction de n.
+**C'est le MOTEUR DE TIRAGE de {suite-auxiliaire}**, pas un second : `SA.mk`
+lie a, b, k et U₀ par b = k(a−1), et `POOL_MODEL` portait DÉJÀ le cas exact de
+la fiche. Un second générateur aurait fini par diverger, et deux exercices
+voisins se seraient contredits sous les yeux de l'élève. Même moteur, pas même
+identité : la note passe par `currentTestId`, le rappel par `RAPPELS.sa2`
+(la même leçon), les questions par `QIA_SUGG.sa2`.
+**Ce qui change est la SAISIE, et c'est tout le sujet** : là où {suite-auxiliaire}
+fait écrire des expressions entières en écriture mathématique, celui-ci n'a que
+des cases à un nombre ou un mot — la PAGE écrit les signes et les symboles.
+Une case qui attendrait « + 200 » ferait buter sur la saisie du signe un élève
+qui sait parfaitement d'où vient le 200, or ce n'est pas la saisie qu'on fait
+travailler ici. Et « géométrique » se CHOISIT dans une liste : l'orthographe
+n'est pas ce qu'on évalue, et « géometrique » ne doit pas compter faux.
+**Le bord qui compte est arithmétique, et il est SILENCIEUX** : toute la fiche
+ne tient que si b = k(a−1). Sans cette identité, la factorisation par a ne
+retombe pas sur Uₙ + k, la chaîne de l'énoncé est FAUSSE avant que l'élève ne
+commence, et la correction lui donne tort sur un calcul juste — le pire défaut
+possible. Le contrôle REFAIT ce calcul par sa propre arithmétique sur chaque
+tirage, plutôt que de faire confiance à `SA.mk`.
+**Et le sabotage a trouvé un vrai défaut, que le contrôle ne regardait pas** :
+une case laissée VIDE recevait `bad` à la vérification. L'entraînement le
+masque — la correction en bleu repasse derrière — mais le SOUTIEN s'arrête
+avant elle, et la case restait rouge. C'est la leçon des sabotages impossibles,
+retombée telle quelle : éprouver ce bord en entraînement ne prouvait rien. La
+coloration du soutien a d'ailleurs DEUX chemins — « Vérifier » et la frappe —
+et n'en tenir qu'un ne tient rien : le sabotage du second est resté vert
+pendant que le premier rougissait. Neuf sabotages en tout, chacun rougissant en
+nommant son défaut.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
