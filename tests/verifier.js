@@ -6067,7 +6067,7 @@ function moyennesDevoirs(w, apres){
   const present = evaluer(w, "typeof dmMoyennes==='function' && typeof dmMoyennesCSV==='function'");
   if(!present.ok || !present.valeur){
     ignorer('les moyennes de la classe, tous devoirs confondus', 'ce niveau n’a pas dmMoyennes()');
-    return fichesDeTravail(w, apres);
+    return archiverDevoir(w, apres);
   }
   /* La liste des devoirs n'a pas le même nom d'un niveau à l'autre (dmList /
      dmAdminList) : on la LIT dans la page plutôt que de la recopier ici — une
@@ -6232,6 +6232,177 @@ function moyennesDevoirs(w, apres){
     verifier('l’export brut sépare au point-virgule, comme le carnet de notes',
       r.ok && /^﻿"Eleve";/.test(brut) && !/^﻿"Eleve",/.test(brut),
       souci || 'première ligne : ' + brut.split('\r\n')[0].slice(0, 70));
+    archiverDevoir(w, apres);
+  });
+}
+
+/* ---------- Supprimer un devoir sans perdre les notes ---------------------
+   « Je voudrais pouvoir supprimer un devoir sans perdre les notes » (demande
+   de Turquet, août 2026). La suppression n'effaçait aucune ligne — le message
+   le disait — mais elle effaçait la DÉFINITION du devoir, et les notes
+   devenaient illisibles : elles quittaient le carnet, le bilan et le bilan de
+   l'élève, et la moyenne de toute la classe changeait.
+
+   Le bord qui compte est celui-là, et c'est le seul qui dise vraiment « sans
+   perdre les notes » : LA MOYENNE DE CHAQUE ÉLÈVE EST LA MÊME AVANT ET APRÈS.
+   Un contrôle qui vérifierait seulement que le drapeau est posé passerait au
+   vert sur un carnet vidé.
+
+   Les autres bords, chacun avec son défaut :
+     · un devoir SANS note part vraiment — sinon les archives se remplissent
+       des brouillons de l'éditeur ;
+     · le devoir archivé quitte la liste de travail ET la vue des élèves,
+       mais reste au carnet ;
+     · « Restaurer » le rend MASQUÉ — republier un devoir de soi-même serait
+       le rendre aux élèves sans que personne ne l'ait demandé ;
+     · la NORMALISATION garde le drapeau : ensureDevoir() efface tout champ
+       qu'elle ne nomme pas, et c'est ainsi que le drapeau « bonus » s'était
+       déjà perdu entre l'éditeur et l'écran de l'élève ;
+     · et une LECTURE RATÉE archive au lieu de détruire : un doute se tranche
+       du côté où rien n'est perdu. */
+function archiverDevoir(w, apres){
+  const present = evaluer(w, "typeof dmEstArchive==='function' && typeof dmDecisionSuppression==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('supprimer un devoir ne perd jamais ses notes', 'ce niveau n’a pas l’archivage');
+    return fichesDeTravail(w, apres);
+  }
+  const LISTE = (lire(CIBLE).match(/function dmTousDevoirs\(\)\{\s*return ([A-Za-z_$][\w$]*)/) || [])[1];
+  if(!LISTE){
+    verifier('supprimer un devoir ne perd jamais ses notes', false,
+      'le nom de la liste des devoirs est illisible dans dmTousDevoirs()');
+    return fichesDeTravail(w, apres);
+  }
+  const TE = P.tableEleves, TR = P.tableResultats;
+  const TP = (P.coursPdf && P.coursPdf.table) || 'parametres';
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const sbDouble=sb;
+    const bilan={};
+    const vraiToast=toast; toast=function(){};
+    const vraiConfirm=window.confirm; window.confirm=function(){ return true; };
+    try{
+      const ids=Object.keys(TESTS).slice(0,2);
+      const ex=function(i){ return {id:ids[i], modes:['train']}; };
+      /* A porte des notes, B n'en porte aucune. */
+      const poser=function(){
+        const l=[ ensureDevoir({id:'dA', num:1, actif:true, titre:'Avec notes', exercices:[ex(0),ex(1)]},0),
+                  ensureDevoir({id:'dB', num:2, actif:true, titre:'Sans note',  exercices:[ex(0)]},1) ];
+        eval('${LISTE} = l;');
+        return l;
+      };
+      const listeInitiale=poser();
+      /* LES DEVOIRS VIVENT DANS LA CONFIGURATION, pas seulement dans la
+         variable : la Première RELIT la configuration avant d'y écrire le
+         drapeau (comme le fait sa suppression), et une fixture qui n'aurait
+         semé que la variable lui ferait écrire une liste vide — le contrôle
+         aurait alors accusé la page d'avoir perdu le devoir qu'il n'avait
+         jamais donné. */
+      const cleFam=(typeof dmCleGenre==='function')?dmCleGenre():'devoirs';
+      const valeursInit={}; valeursInit[cleFam]=listeInitiale.map(function(d){ return Object.assign({},d); });
+      window.__faux.semer('${TP}',[{id:1,valeurs:valeursInit}]);
+      window.__faux.semer('${TE}',[{id:'a',prenom:'alice',cle:'ca',user_id:'ua'},
+                                   {id:'e',prenom:'Émile',cle:'ce',user_id:'ue'}]);
+      window.__faux.semer('${TR}',[
+        {id:'r1', eleve_id:'e', percent:100, score:10, total:10, created_at:'2026-08-01T10:00:00Z',
+         details:{test:ids[0], mode:'train', dm:'dA'}},
+        {id:'r2', eleve_id:'a', percent:50,  score:5,  total:10, created_at:'2026-08-01T10:00:00Z',
+         details:{test:ids[0], mode:'train', dm:'dA'}}]);
+
+      const eleves=[{id:'a',prenom:'alice'},{id:'e',prenom:'Émile'}];
+      const rows=window.__faux.tables['${TR}'];
+      const moyDe=function(){
+        const b=dmMoyennes(dmTousDevoirs(), eleves, rows);
+        return b.lignes.map(function(l){ return l.eleve.prenom+'='+fmtNote(l.moyenne); }).join(' ');
+      };
+      bilan.avant=moyDe();
+
+      const supprimer=(typeof deleteDevoir==='function')
+        ? function(id){ dmSelId=id; return deleteDevoir(); }
+        : function(id){ dmSelId=id; return deleteDM(id); };
+
+      /* 1. LE DEVOIR QUI PORTE DES NOTES : archivé, jamais détruit */
+      sb=sbDouble;
+      await supprimer('dA');
+      await new Promise(function(r){ setTimeout(r,60); });
+      const A=dmTousDevoirs().filter(function(d){ return d.id==='dA'; })[0];
+      bilan.aReste=!!A;
+      bilan.aArchive=A?String(dmEstArchive(A)):'(absent)';
+      bilan.aActif=A?String(!!A.actif):'(absent)';
+      bilan.apres=moyDe();
+
+      /* 2. il quitte la liste de travail, et reparaît dans les archives */
+      const onglets=(document.getElementById('dmSelector')||document.getElementById('dmTabs')||{}).innerHTML||'';
+      bilan.ongletA=onglets.indexOf('dA')>=0;
+      const arch=(document.getElementById('dmArchives')||{}).innerHTML||'';
+      bilan.archiveVue=/Restaurer/.test(arch) && /n°1/.test(arch);
+
+      /* 3. l'élève ne le voit plus */
+      mesDevoirs=dmTousDevoirs().map(function(d){ return Object.assign({},d); });
+      bilan.eleveVoit=dmTousDevoirs().filter(function(d){
+        return d.actif && !dmEstArchive(d) && (d.exercices||[]).length; }).map(function(d){ return d.id; }).join(',');
+
+      /* 4. LE DEVOIR SANS NOTE : vraiment supprimé */
+      sb=sbDouble;
+      await supprimer('dB');
+      await new Promise(function(r){ setTimeout(r,60); });
+      bilan.bReste=dmTousDevoirs().some(function(d){ return d.id==='dB'; });
+
+      /* 5. RESTAURER : il revient dans la liste, MASQUÉ */
+      sb=sbDouble;
+      await dmRestaurer('dA');
+      await new Promise(function(r){ setTimeout(r,60); });
+      const A2=dmTousDevoirs().filter(function(d){ return d.id==='dA'; })[0];
+      bilan.restaure=A2?(String(!dmEstArchive(A2))+'/'+String(!!A2.actif)):'(absent)';
+      /* et le drapeau ne s'écrit pas quand il est faux */
+      bilan.sansDrapeau=A2?String(!('archive' in A2)):'(absent)';
+
+      /* 6. LA NORMALISATION garde le drapeau */
+      const n1=ensureDevoir({id:'x',num:9,archive:true,exercices:[]},0);
+      const n2=ensureDevoir({id:'y',num:9,exercices:[]},0);
+      bilan.normalise=String(!!n1.archive)+'/'+String('archive' in n2);
+
+      /* 7. UNE LECTURE RATÉE archive au lieu de détruire */
+      const sbCasse={ from:function(){ const q={ select:function(){ return q; },
+        then:function(ok){ return Promise.resolve({data:null,error:{message:'panne'}}).then(ok); } }; return q; } };
+      sb=sbCasse;
+      const dec=await dmDecisionSuppression({id:'dA',num:1});
+      sb=sbDouble;
+      bilan.panne=String(dec.archiver)+'/'+String(dec.lecture);
+    } finally { toast=vraiToast; window.confirm=vraiConfirm; }
+    return bilan;
+  })()`, function(r){
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+
+    verifier('un devoir qui porte des notes est ARCHIVÉ, jamais détruit',
+      r.ok && b.aReste === true && b.aArchive === 'true' && b.aActif === 'false',
+      souci || 'présent : ' + b.aReste + ', archivé : ' + b.aArchive + ', affiché : ' + b.aActif);
+    verifier('et la moyenne de chaque élève ne bouge pas d’un pouce',
+      r.ok && b.avant === b.apres && /=/.test(String(b.avant || '')),
+      souci || 'avant : « ' + b.avant +' » — après : « ' + b.apres + ' »');
+    verifier('il quitte la liste de travail et reparaît dans les archives, avec « Restaurer »',
+      r.ok && b.ongletA === false && b.archiveVue === true,
+      souci || 'encore dans les onglets : ' + b.ongletA + ' — bloc archives : ' + b.archiveVue);
+    verifier('l’élève ne voit plus un devoir archivé',
+      r.ok && b.eleveVoit === 'dB',
+      souci || 'devoirs visibles par l’élève : « ' + b.eleveVoit + ' » — attendu « dB » seul');
+    verifier('un devoir SANS aucune note est supprimé pour de bon',
+      r.ok && b.bReste === false,
+      souci || 'le devoir sans note est resté dans la liste');
+    verifier('« Restaurer » le remet dans la liste, mais MASQUÉ',
+      r.ok && b.restaure === 'true/false',
+      souci || 'restauré/affiché : ' + b.restaure + ' — attendu « true/false »');
+    verifier('un devoir restauré ne garde aucune trace du drapeau',
+      r.ok && b.sansDrapeau === 'true',
+      souci || 'le champ « archive » est resté dans l’entrée : ' + b.sansDrapeau);
+    verifier('la normalisation garde le drapeau, et ne l’écrit jamais quand il est faux',
+      r.ok && b.normalise === 'true/false',
+      souci || 'ensureDevoir rend : ' + b.normalise + ' — attendu « true/false »');
+    verifier('une lecture ratée de la base archive au lieu de détruire',
+      r.ok && b.panne === 'true/false',
+      souci || 'décision sur panne : ' + b.panne + ' — attendu « true/false »');
     fichesDeTravail(w, apres);
   });
 }
