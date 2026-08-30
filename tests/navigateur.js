@@ -1445,6 +1445,63 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 septies quater. LES CASES D'INDICE DU 6.3 ===== */
+    /* Une case d'INDICE ne porte qu'un « n+1 » ou un « 0 », posés en indice
+       derrière un U. À la taille des autres cases elle écrasait ce U (demande
+       de Turquet, août 2026). Elle a donc une police et une largeur à elle —
+       et seul un vrai navigateur sait ce que ça donne à l'écran : jsdom n'a
+       pas de mise en page, et la règle CSS y resterait une intention.
+       Le bord OPPOSÉ compte autant : elle doit continuer de GRANDIR sous la
+       frappe, comme les autres. Une case rapetissie qui aurait perdu son
+       élasticité couperait « n+1 » — le défaut qu'on venait de corriger. */
+    titre('6 septies quater. LES CASES D\'INDICE DU 6.3');
+    if(!/function sa2Ajuster\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('les cases d\'indice sont plus petites que les autres, et grandissent quand même',
+        'ce niveau n\'a pas la suite auxiliaire à compléter');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      await s.page.evaluate(async () => {
+        currentEleve = { id:'e1', prenom:'Contrôle' }; currentMode = 'train';
+        await startSA2();
+        test.questions = [SA._t.mk(0.95, -4000, 10000)]; test.idx = 0; renderSA2();
+      });
+      await s.page.waitForTimeout(500);
+      const t = await s.page.evaluate(() => {
+        const m = id => { const e = document.getElementById(id); if(!e) return null;
+          const r = e.getBoundingClientRect();
+          return { p: parseFloat(getComputedStyle(e).fontSize), l: Math.round(r.width) }; };
+        const av = m('sa2-i1');
+        const e = document.getElementById('sa2-i1');
+        if(e){ e.value = 'n+1'; e.dispatchEvent(new Event('input', { bubbles:true })); }
+        const ap = m('sa2-i1');
+        return { idx: av, ordinaire: m('sa2-a1'), idxPlein: ap };
+      });
+      /* « Plus petite » se MESURE, et il a fallu un sabotage pour le dire juste.
+         Le premier jet demandait seulement « plus étroite que les autres » : la
+         police réduite y suffisait à elle seule, si bien que retirer la largeur
+         minimale dédiée aux indices ne faisait rougir personne — un garde-fou
+         qu'on croit tenir et qui ne tient rien. On compare donc les largeurs :
+         au repos l'indice fait 58 % d'une case ordinaire (25 px contre 43),
+         contre 74 % (32 px) si on lui rend le minimum commun. Le seuil est
+         posé entre les deux, avec de la marge des deux côtés. */
+      const rapport = (t.idx && t.ordinaire && t.ordinaire.l) ? t.idx.l / t.ordinaire.l : 1;
+      verifier('la case d\'indice a une police ET une largeur plus petites que les autres',
+        !!t.idx && !!t.ordinaire && t.idx.p < t.ordinaire.p && rapport <= 0.65,
+        !t.idx ? 'case d\'indice introuvable'
+               : 'indice ' + t.idx.p + 'px / ' + t.idx.l + 'px — ordinaire '
+                 + t.ordinaire.p + 'px / ' + t.ordinaire.l + 'px (rapport '
+                 + Math.round(rapport * 100) + ' %, attendu au plus 65 %)');
+      verifier('mais elle grandit quand même sous la frappe',
+        !!t.idxPlein && t.idxPlein.l > t.idx.l,
+        !t.idxPlein ? 'mesure impossible'
+                    : 'au repos ' + t.idx.l + 'px, avec « n+1 » ' + t.idxPlein.l + 'px');
+      verifier('le 6.3 n\'a levé aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

@@ -505,6 +505,7 @@
      qu'une saisie absurde ne pousse pas la ligne hors de l'écran. */
   .sa2-in{font-family:"Fredoka",system-ui,sans-serif;font-size:1.2rem;font-weight:600;text-align:center;
           max-width:220px;padding:2px 6px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .sa2-in.sa2-mot{font-size:0.95rem;padding:1px 4px}
   .sa2-in:focus{outline:none;border-color:var(--blue)}
   .sa2-in.ok{border-color:var(--blue);background:#eaf1ff}
   .sa2-in.bad{border-color:#dc2626;background:#fee2e2}
@@ -2182,7 +2183,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=266;
+const APP_VERSION=267;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -14054,10 +14055,16 @@ function sa2Libelle(type, attendu, q){
    un input ne sait pas se dimensionner tout seul en CSS — et elle est réajustée
    APRÈS la correction, sans quoi la réponse écrite en bleu serait tronquée. */
 const SA2_LARGEUR_MIN=3.2;                 /* en « ch » : de quoi loger « −6 » */
+/* Une case d'INDICE est plus petite, et son texte aussi (demande de Turquet,
+   août 2026) : elle ne porte qu'un « n+1 » ou un « 0 », posés en indice — à la
+   taille des autres cases, elle écrasait le U qu'elle suit. Sa largeur suit sa
+   police, « ch » étant relatif à celle-ci. */
+const SA2_LARGEUR_MIN_IDX=2.4;
 function sa2Ajuster(el){
   if(!el) return;
   const n=String(el.value==null?'':el.value).length;
-  el.style.width=Math.max(SA2_LARGEUR_MIN, n+1.2)+'ch';
+  const mini=el.classList.contains('sa2-mot') ? SA2_LARGEUR_MIN_IDX : SA2_LARGEUR_MIN;
+  el.style.width=Math.max(mini, n+1.2)+'ch';
 }
 function sa2AjusterTout(){ SA2_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
 function sa2In(id, mot){
