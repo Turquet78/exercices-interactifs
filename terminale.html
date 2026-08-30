@@ -493,7 +493,24 @@
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — neuf écrans y manquaient, tous ajoutés après elle.
      Un contrôle les compare désormais. */
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
+  /* SUITE AUXILIAIRE À COMPLÉTER — des cases à NOMBRES et à MOTS, pas de
+     champ mathématique. La taille suit les nombres qui les entourent (la règle
+     commune), et la largeur suit la saisie : « 10 000 » ne doit pas se couper. */
+  .sa2-ladder{display:flex;flex-direction:column;gap:10px;margin:6px 0 2px}
+  .sa2-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:1.25rem}
+  .sa2-eq{min-width:74px;text-align:right;font-weight:600}
+  .sa2-t{white-space:nowrap}
+  .sa2-in{font-family:"Fredoka",system-ui,sans-serif;font-size:1.2rem;font-weight:600;text-align:center;
+          width:5.2em;max-width:220px;padding:2px 6px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .sa2-in.sa2-mot{width:3.6em}
+  .sa2-in:focus{outline:none;border-color:var(--blue)}
+  .sa2-in.ok{border-color:var(--blue);background:#eaf1ff}
+  .sa2-in.bad{border-color:#dc2626;background:#fee2e2}
+  .sa2-in.sol{border-color:var(--green,#15803d);background:#dcfce7;border-style:dashed}
+  .sa2-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}
+  .sa2-frac .bar{display:block;width:100%;min-width:4.4em;height:2px;background:var(--ink);margin:3px 0}
+  .sa2-frac .num,.sa2-frac .den{display:flex;align-items:center;gap:4px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1822,6 +1839,35 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <!-- SUITE AUXILIAIRE — À COMPLÉTER (fiche papier : cases à nombres et à mots) -->
+  <section class="screen" id="scr-sa2">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="sa2ModeTag"></span><span class="q-idx" id="sa2QIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sa2LiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="sa2Prompt"></p>
+      <p class="sa-aux" id="sa2Aux"></p>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">a)</span> <span id="sa2TitreA"></span></p>
+        <div class="sa2-ladder" id="sa2LadderA"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">b)</span> Calculer <i>V</i><sub>0</sub>.</p>
+        <div class="sa2-ladder" id="sa2LadderB"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">c)</span> En déduire <i>V<sub>n</sub></i> en fonction de <i>n</i>.</p>
+        <div class="sa2-ladder" id="sa2LadderC"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">d)</span> En déduire <i>U<sub>n</sub></i> en fonction de <i>n</i>.</p>
+        <div class="sa2-ladder" id="sa2LadderD"></div>
+      </div>
+      <div class="mp-feedback" id="sa2Feedback"></div>
+      <div class="mp-actions" id="sa2Actions"></div>
+    </div>
+  </section>
   <!-- 6.3 SUITES — ENCADREMENTS (préparer la récurrence) -->
   <section class="screen" id="scr-enc">
     <div class="test-top">
@@ -2134,7 +2180,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=264;
+const APP_VERSION=265;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2287,6 +2333,7 @@ const TESTS={
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
   'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au {suites-encadrement}.', start:()=>startREC() },
+  'suite-auxiliaire-2': { name:'Suites \u2014 suite auxiliaire \u00e0 compl\u00e9ter', icon:'\u270f\ufe0f', desc:'La m\u00eame d\u00e9monstration que {suite-auxiliaire}, mais guid\u00e9e\u00a0: chaque case attend simplement un NOMBRE ou un MOT. La page \u00e9crit les signes et les symboles, tu poses les nombres \u2014 comme sur la fiche papier.', start:()=>startSA2() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
@@ -2300,7 +2347,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suites-encadrement','recurrence-encadrement','recurrence-complete'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-complete'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -2824,6 +2871,7 @@ function conseilCtxCourant(){
   let c;
   if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
   else if(test && test.kind==='sa' && test.questions && test.questions[test.idx]){ c=saConseilCtx(); }
+  else if(test && test.kind==='sa2' && test.questions && test.questions[test.idx]){ c=sa2ConseilCtx(); }
   else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
   else if(test && test.kind==='rec' && test.questions && test.questions[test.idx]){ c=recConseilCtx(); }
   else if(test && test.kind==='sp' && test.questions && test.questions[test.idx]){ c=spConseilCtx(); }
@@ -3588,7 +3636,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3710,7 +3758,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','enc','rec','ef','eq','rc','lr','ec','afp','afq'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','lr','ec','afp','afq'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -11772,7 +11820,7 @@ const RAP_AFP=`<b>Associer une fonction f à sa dérivée f\u2009\u2032</b><br>
 \u2022 <b>Le signe de f\u2009\u2032 se lit sur les VARIATIONS de f</b> : f croît \u21d4 f\u2009\u2032 &gt; 0, f décroît \u21d4 f\u2009\u2032 &lt; 0. Et f\u2009\u2032 s'annule (0 dans le tableau) aux <b>sommets et creux</b> de f — là où la tangente est horizontale.<br>
 \u2022 <b>Les variations de f se lisent sur le SIGNE de f\u2009\u2032</b> : quand la courbe de f\u2009\u2032 est AU-DESSUS de l'axe des abscisses, f croît ; au-dessous, f décroît ; f\u2009\u2032 coupe l'axe exactement là où f change de sens.<br>
 \u2022 <b>Deux courbes sont COMPATIBLES</b> quand leurs deux tableaux coïncident : les zéros de f\u2009\u2032 tombent sous les sommets de f, et f\u2009\u2032 est positive là où f croît. Un seul désaccord — un zéro décalé, un signe inversé — et f\u2009\u2032 dessinée ne peut pas être la dérivée de f dessinée.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -13938,6 +13986,229 @@ function saLiveCheck(id){ return FICHE_SA.liveCheck(id); }   /* delegue au kit *
 function saNavListe(){ return FICHE_SA.navListe(); }
 function saNavSuiv(el,dir){ return FICHE_SA.navSuiv(el,dir); }
 function nextSA(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA(); } else finishTest(); }
+
+/* ====================== TEST : Suite auxiliaire — à compléter ======================
+   Repris de la fiche « Exercice suite Vn » (demande de Turquet, août 2026). C'est la
+   MÊME démonstration que {suite-auxiliaire}, et le MÊME tirage — SA.genSession() —
+   mais l'élève n'écrit plus d'expressions : chaque case attend UN NOMBRE ou UN MOT.
+   Deux exercices peuvent partager un moteur, pas leur identité : la note passe par
+   currentTestId, le rappel par RAPPELS_ID, les questions par QIA_SUGG_ID.
+
+   CE QUI CHANGE POUR L'ÉLÈVE, et c'est tout le sujet : la page ÉCRIT les signes et
+   les symboles, l'élève ne pose que les nombres. Une case qui attendrait « + 200 »
+   ferait buter sur la saisie du signe un élève qui sait parfaitement d'où vient le
+   200 — or ce n'est pas la saisie qu'on fait travailler ici.
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : la question ne porte
+   que a, b, k et U₀ (SA.mk les produit liés par b = k(a−1)), et sa2Attendu() recalcule
+   tout — l'énoncé ne peut donc pas contredire sa correction. */
+function sa2Nb(raw){
+  const t=String(raw==null?'':raw).replace(/[\s  ]/g,'').replace(/−/g,'-').replace(',','.');
+  if(t==='') return NaN;
+  if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
+  return parseFloat(t);
+}
+function sa2Mot(raw){ return String(raw==null?'':raw).toLowerCase().replace(/[\s  ]/g,'').replace(/−/g,'-'); }
+
+/* Les réponses attendues, calculées depuis la question et elle seule. */
+function sa2Attendu(q){
+  const A=Math.abs;
+  return {
+    'sa2-i1':['mot', 'n+1'],
+    'sa2-a1':['nb', q.a],      'sa2-b1':['nb', A(q.b)],
+    'sa2-a2':['nb', q.a],      'sa2-bk':['nb', A(q.bk)],
+    'sa2-a3':['nb', q.a],      'sa2-d1':['nb', q.a],
+    'sa2-n2':['nb', A(q.bk)],  'sa2-d2':['nb', q.a],
+    'sa2-k1':['nb', A(q.k)],
+    'sa2-a4':['nb', q.a],
+    'sa2-i2':['mot', '0'],     'sa2-u0':['nb', q.u0],   'sa2-v0':['nb', q.V0],
+    'sa2-type':['choix', 'geo'], 'sa2-q':['nb', q.a],
+    'sa2-i3':['mot', '0'],     'sa2-v0b':['nb', q.V0],  'sa2-q2':['nb', q.a],
+    'sa2-k2':['nb', A(q.k)],
+    'sa2-v0c':['nb', q.V0],    'sa2-q3':['nb', q.a],    'sa2-k3':['nb', A(q.k)]
+  };
+}
+const SA2_IDS=['sa2-i1','sa2-a1','sa2-b1','sa2-a2','sa2-bk','sa2-a3','sa2-d1','sa2-n2','sa2-d2',
+               'sa2-k1','sa2-a4','sa2-i2','sa2-u0','sa2-v0','sa2-type','sa2-q','sa2-i3','sa2-v0b',
+               'sa2-q2','sa2-k2','sa2-v0c','sa2-q3','sa2-k3'];
+function sa2Juste(type, attendu, raw){
+  if(type==='choix') return raw===attendu;
+  if(type==='mot')   return sa2Mot(raw)===attendu;
+  const v=sa2Nb(raw);
+  return isFinite(v) && Math.abs(v-attendu) <= 1e-9*Math.max(1,Math.abs(attendu));
+}
+/* Le libellé d'une correction : un nombre s'écrit comme la page l'écrit. */
+function sa2Libelle(type, attendu, q){
+  if(type==='choix') return 'géométrique';
+  if(type==='mot')   return attendu;
+  return SA.fmtH(attendu);
+}
+
+/* Une case : un nombre (clavier numérique sur tablette) ou un mot (clavier du système). */
+function sa2In(id, mot){
+  return '<input class="sa2-in'+(mot?' sa2-mot':'')+'" id="'+id+'" type="text" autocomplete="off"'
+    + (mot?'':' inputmode="numeric"') + ' aria-label="case à compléter">';
+}
+function sa2Frac(hautHTML, basHTML){
+  return '<span class="sa2-frac"><span class="num">'+hautHTML+'</span><span class="bar"></span><span class="den">'+basHTML+'</span></span>';
+}
+
+async function startSA2(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-auxiliaire-2'; test.kind='sa2';
+  test.questions=SA.genSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  show('sa2'); renderSA2();
+}
+function renderSA2(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const F=SA.fmtH, S=SA.sgnH;
+  $('sa2QIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('sa2ModeTag').innerHTML=modeTagHTML();
+  $('sa2LiveScore').textContent=test.score;
+  $('sa2Feedback').textContent=''; $('sa2Feedback').className='mp-feedback';
+  $('sa2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSA2()">Vérifier</button>';
+
+  const U='<i>U</i>', V='<i>V</i>', n='<i>n</i>';
+  const Un=U+'<sub>'+n+'</sub>', Vn=V+'<sub>'+n+'</sub>', Vn1=V+'<sub>'+n+'+1</sub>';
+  const sgnB=(q.b<0?' − ':' + '), sgnBK=(q.bk<0?' − ':' + '), sgnK=(q.k<0?' − ':' + ');
+  const sgnMK=(q.k<0?' + ':' − ');           /* Uₙ = Vₙ − k : le signe OPPOSÉ */
+
+  $('sa2Prompt').innerHTML='Soit <b>('+U+'<sub>'+n+'</sub>)</b> la suite définie par&nbsp;: <b>'+U+'<sub>0</sub> = '+F(q.u0)
+    +'</b> et, pour tout entier naturel '+n+', <b>'+U+'<sub>'+n+'+1</sub> = '+F(q.a)+' '+Un+S(q.b)+'</b>.';
+  $('sa2Aux').innerHTML='Soit la suite <b>('+Vn+')</b> définie par&nbsp;: <b>'+Vn+' = '+Un+S(q.k)+'</b>.';
+  $('sa2TitreA').innerHTML='Montrer que la suite ('+Vn+') est <b>géométrique de raison '+F(q.a)+'</b>. Compléter&nbsp;:';
+
+  /* a) la chaîne de la fiche */
+  const L=$('sa2LadderA');
+  L.innerHTML=
+    '<div class="sa2-row"><span class="sa2-eq">'+Vn1+' =</span>'
+      +'<span class="sa2-t">'+U+'<sub>'+sa2In('sa2-i1',true)+'</sub>'+S(q.k)+' = </span>'
+      +sa2In('sa2-a1')+'<span class="sa2-t"> '+Un+sgnB+'</span>'+sa2In('sa2-b1')
+      +'<span class="sa2-t">'+S(q.k)+'</span></div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a2')
+      +'<span class="sa2-t"> '+Un+sgnBK+'</span>'+sa2In('sa2-bk')+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' (</span>'
+      +sa2Frac(sa2In('sa2-a3')+' '+Un, sa2In('sa2-d1'))
+      +'<span class="sa2-t">'+sgnBK+'</span>'
+      +sa2Frac(sa2In('sa2-n2'), sa2In('sa2-d2'))
+      +'<span class="sa2-t">)</span></div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' ( '+Un+sgnK+'</span>'
+      +sa2In('sa2-k1')+'<span class="sa2-t">)</span></div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a4')
+      +'<span class="sa2-t"> × '+Vn+'</span></div>';
+
+  /* b) V₀ */
+  $('sa2LadderB').innerHTML=
+    '<div class="sa2-row"><span class="sa2-eq">'+V+'<sub>0</sub> =</span>'
+      +'<span class="sa2-t">'+U+'<sub>'+sa2In('sa2-i2',true)+'</sub>'+S(q.k)+' = </span>'
+      +sa2In('sa2-u0')+'<span class="sa2-t">'+S(q.k)+' = </span>'+sa2In('sa2-v0')+'</div>';
+
+  /* c) Vₙ en fonction de n */
+  $('sa2LadderC').innerHTML=
+    '<div class="sa2-row"><span class="sa2-t">Comme ('+Vn+') est</span>'
+      +'<select class="tvi-sel" id="sa2-type"><option value="">…</option>'
+      +'<option value="arith">arithmétique</option><option value="geo">géométrique</option></select>'
+      +'<span class="sa2-t">de raison</span>'+sa2In('sa2-q')+'<span class="sa2-t">&nbsp;:</span></div>'
+    +'<div class="sa2-row"><span class="sa2-eq">'+Vn+' =</span>'
+      +'<span class="sa2-t">'+V+'<sub>'+sa2In('sa2-i3',true)+'</sub> × <i>q</i><sup>'+n+'</sup> = </span>'
+      +sa2In('sa2-v0b')+'<span class="sa2-t"> × </span>'+sa2In('sa2-q2')
+      +'<span class="sa2-t"><sup>'+n+'</sup></span></div>';
+
+  /* d) Uₙ en fonction de n */
+  $('sa2LadderD').innerHTML=
+    '<div class="sa2-row"><span class="sa2-t">Comme '+Vn+' = '+Un+S(q.k)+', on a :</span></div>'
+    +'<div class="sa2-row"><span class="sa2-eq">'+Un+' =</span>'
+      +'<span class="sa2-t">'+Vn+sgnMK+'</span>'+sa2In('sa2-k2')
+      +'<span class="sa2-t"> = </span>'+sa2In('sa2-v0c')
+      +'<span class="sa2-t"> × </span>'+sa2In('sa2-q3')
+      +'<span class="sa2-t"><sup>'+n+'</sup>'+sgnMK+'</span>'+sa2In('sa2-k3')+'</div>';
+
+  /* correction en direct du mode soutien */
+  if(isSoutien()){
+    SA2_IDS.forEach(id=>{ const el=$(id); if(!el) return;
+      el.addEventListener(el.tagName==='SELECT'?'change':'input', ()=>checkSA2(true)); });
+  }
+}
+function checkSA2(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx];
+  const att=sa2Attendu(q);
+  let allOk=true, anyFilled=false; const verd={};
+  SA2_IDS.forEach(id=>{
+    const el=$(id); if(!el) return;
+    const raw=el.value==null?'':el.value;
+    const [type,bon]=att[id];
+    const ok=sa2Juste(type,bon,raw);
+    if(String(raw).trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad','sol');
+    if(live){
+      /* Une case VIDE ne reçoit aucune couleur : rouge veut dire FAUX, jamais
+         « pas fini » (la règle de partout). */
+      if(String(raw).trim()!=='') el.classList.add(ok?'ok':'bad');
+      if(!ok) allOk=false;
+      return;
+    }
+    if(!ok) allOk=false;
+    verd[id]=ok;
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR, ici non plus. En entraînement la
+       correction en bleu repasse derrière et masque le rouge ; en SOUTIEN on
+       s'arrête avant elle, et la case serait restée rouge — rouge veut dire
+       FAUX, jamais « pas fini ». C'est le bord que le sabotage a trouvé. */
+    if(String(raw).trim()!=='') el.classList.add(ok?'ok':'bad');
+    el.disabled=ok||!isSoutien();
+  });
+  if(live) return;
+  if(!anyFilled){
+    $('sa2Feedback').textContent='Complète au moins une case avant de vérifier.';
+    $('sa2Feedback').className='mp-feedback';
+    SA2_IDS.forEach(id=>{ const el=$(id); if(el) el.classList.remove('ok','bad','sol'); });
+    return;
+  }
+  if(!allOk && isSoutien()){
+    $('sa2Feedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('sa2Feedback').className='mp-feedback bad';
+    $('sa2Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSA2()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('sa2LiveScore').textContent=test.score;
+    $('sa2Feedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, la démonstration est complète !']);
+    $('sa2Feedback').className='mp-feedback good';
+  } else {
+    $('sa2Feedback').innerHTML='Quelques erreurs — tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne réponse en <b>vert</b> juste à côté.'
+      +'<br>La clé : on factorise par '+SA.fmtH(q.a)+' pour faire réapparaître '+'<i>U</i><sub><i>n</i></sub>'+SA.sgnH(q.k)+', c’est-à-dire <i>V</i><sub><i>n</i></sub>.';
+    $('sa2Feedback').className='mp-feedback bad';
+    SA2_IDS.forEach(id=>{ const [type,bon]=att[id]; corrCase(id, sa2Libelle(type,bon,q), verd[id]===true); });
+  }
+  test.answers.push({...(ptsExo()||{}),
+    q:'V(n+1) = '+SA.fmtH(q.a)+' × V(n) ; V0 = '+SA.fmtH(q.V0)+' ; U(n) = '+SA.fmtH(q.V0)+' × '+SA.fmtH(q.a)+'^n'+SA.sgnH(-q.k),
+    answer:'démonstration complétée', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('sa2Actions').innerHTML='<button class="btn btn-primary" onclick="nextSA2()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextSA2(){ if(test.idx<test.questions.length-1){ test.idx++; renderSA2(); } else finishTest(); }
+
+/* Le contexte envoyé au modèle : l'écran de l'élève, et la clause de secret
+   posée par le tronc commun. Les réponses attendues y sont déclarées
+   STRICTEMENT SECRÈTES — la fenêtre d'aide est offerte dès l'entraînement. */
+function sa2ConseilCtx(){
+  const q=test.questions[test.idx]; const F=SA.fmtH, S=SA.sgnH;
+  const etat=SA2_IDS.map(function(id){ const el=$(id); return id+'='+((el&&el.value)||"(vide)"); }).join(', ');
+  return 'Exercice de Terminale : suite auxiliaire, fiche À COMPLÉTER. La suite est définie par U0 = '+F(q.u0)
+    +' et U(n+1) = '+F(q.a)+' U(n)'+S(q.b)+'. La suite auxiliaire est V(n) = U(n)'+S(q.k)+'. '
+    +'L\u2019élève ne tape QUE des nombres ou des mots : la page écrit déjà les signes et les symboles. '
+    +'Réponses attendues, à ne JAMAIS révéler : raison '+F(q.a)+', constante intermédiaire '+F(q.bk)
+    +', V0 = '+F(q.V0)+', V(n) = '+F(q.V0)+' x '+F(q.a)+'^n, U(n) = V(n)'+S(-q.k)+'. '
+    +'Saisies actuelles de l\u2019élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. '
+    +'Méthode : on remplace U(n+1) par sa définition, on réduit, puis on FACTORISE par la raison '
+    +'pour faire réapparaître U(n) + la même constante que dans V(n). '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
 /* \u00c9tat des cases, en clair, pour le conseil de l'IA */
 function saLu(id){
   if(id==='sa-ctype'){ const el=$(id); const v=String((el&&el.value)||''); return v===''?'(vide)':(v==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique'); }
@@ -15106,6 +15377,7 @@ const QIA_SUGG={
      Un contrôle exige désormais une entrée par écran d'exercice. */
   s1:["Faire un rappel de cours pour cet exercice.","Comment trouver la racine de ax + b ?","Pourquoi la racine vaut-elle −b/a ?","Comment savoir de quel côté ax + b est positif ?","Que change le signe de a dans le tableau ?"],
   s2:["Faire un rappel de cours pour cet exercice.","À quoi sert le discriminant ?","Que se passe-t-il quand le discriminant est négatif ?","Que veut dire « du signe de a sauf entre les racines » ?","Comment calculer les deux racines ?"],
+  sa2:["Faire un rappel de cours pour cet exercice.","Pourquoi factorise-t-on par la raison ?","Comment retrouver le nombre qui va dans la case ?","À quoi sert la suite auxiliaire (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   sa:["Faire un rappel de cours pour cet exercice.","À quoi sert une suite auxiliaire ?","Comment montrer qu’une suite est géométrique ?","Comment trouver la raison et le premier terme de (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   rec:["Faire un rappel de cours pour cet exercice.","Comment conjecturer la limite avec les termes affich\u00e9s ?","Que veut dire \u00ab majorant \u00bb et \u00ab minorant \u00bb ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb dans l\u2019h\u00e9r\u00e9dit\u00e9 ?"],
   enc:["Faire un rappel de cours pour cet exercice.","Que devient un encadrement quand on multiplie par un nombre positif ?","Pourquoi l\u2019ordre change-t-il quand on passe \u00e0 l\u2019inverse ?","Que devient un encadrement quand on prend l\u2019oppos\u00e9 ?","\u00c0 quoi sert un encadrement pour une r\u00e9currence ?"],

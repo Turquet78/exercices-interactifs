@@ -2608,6 +2608,7 @@ function exercices(suite){
     ordreCroissant(w, P);
     imageNombre(w, P);
     tangenteExp(w, P);
+    suiteAuxiliaireCompleter(w, P);
     antecedentNombre(w, P);
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
@@ -5417,6 +5418,163 @@ function imageNombre(w, P){
    au vert. Les pentes ne sont jamais nulles, les deux constantes de la ligne
    développée s'acceptent dans les deux ordres, une case vide ne rougit pas
    en soutien, et le cas b = 0 retire la case du « + 0 » au lieu de l'exiger. */
+/* ---------- La suite auxiliaire À COMPLÉTER (fiche papier) ----------------
+   Reprise de la fiche « Exercice suite Vn » (demande de Turquet, août 2026).
+   C'est la MÊME démonstration que {suite-auxiliaire} et le MÊME tirage — un
+   second générateur aurait fini par diverger — mais l'élève n'écrit plus
+   d'expressions : chaque case attend UN NOMBRE ou UN MOT, et la page écrit les
+   signes et les symboles.
+
+   Le bord le plus important est arithmétique, et il est SILENCIEUX : la fiche
+   ne tient que si b = k(a−1). Sans cette identité, la factorisation par a ne
+   retombe pas sur Uₙ + k, la chaîne de l'énoncé est FAUSSE avant que l'élève
+   ne commence, et la correction lui donne tort sur un calcul juste — le pire
+   défaut possible. Le contrôle le REFAIT par sa propre arithmétique sur chaque
+   tirage, plutôt que de faire confiance à SA.mk.
+
+   Les autres bords :
+     · une case VIDE ne rougit jamais, dans les DEUX modes ;
+     · une copie juste vaut toutes ses cases, virgule française comprise —
+       « 0,95 » et « 0.95 » sont le même nombre, et un élève français tape la
+       virgule ;
+     · une case fausse reste ROUGE avec la saisie de l'élève, la bonne réponse
+       s'affichant à côté (la convention commune, corrCase) ;
+     · le mot se CHOISIT dans une liste : « géometrique » mal orthographié ne
+       doit pas compter faux, ce n'est pas l'orthographe qu'on évalue ;
+     · et l'exercice a son identité propre — la note, le rappel, les questions
+       à l'IA — alors qu'il partage le moteur de tirage. */
+function suiteAuxiliaireCompleter(w, P){
+  const present = evaluer(w, "typeof startSA2==='function' && typeof sa2Attendu==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la suite auxiliaire à compléter : la fiche, case par case',
+      'ce niveau n\'a pas l\'exercice de la suite auxiliaire à compléter');
+    return;
+  }
+  verifierEval(w, 'la suite auxiliaire à compléter : la fiche, case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-auxiliaire-2'; test.kind='sa2';
+
+    /* ---- 1. LE TIRAGE : b = k(a−1), sinon la fiche est fausse ------------- */
+    const pres=function(x){ return Math.round(x*1e6)/1e6; };
+    for(let t=0;t<300;t++){
+      const qs=SA.genSession();
+      qs.forEach(function(q){
+        if(pres(q.b)!==pres(q.k*(q.a-1)))
+          vus.push('tirage : b='+q.b+' au lieu de '+pres(q.k*(q.a-1))+' (la factorisation ne retombe pas sur Vₙ)');
+        if(pres(q.bk)!==pres(q.b+q.k)) vus.push('tirage : bk n’est pas b+k');
+        if(pres(q.V0)!==pres(q.u0+q.k)) vus.push('tirage : V0 n’est pas U0+k');
+        /* et la conclusion de la fiche, refaite ici : V(n+1) = a × V(n) */
+        const u=3.7, v=u+q.k, vn1=(q.a*u+q.b)+q.k;
+        if(Math.abs(vn1-q.a*v)>1e-9) vus.push('tirage : V(n+1) ≠ a×V(n)');
+      });
+    }
+
+    /* ---- 2. LA COPIE JUSTE, à la virgule française ------------------------ */
+    const q=SA._t.mk(0.95,-4000,10000);      /* le cas EXACT de la fiche, épinglé */
+    test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+    show('sa2'); renderSA2();
+    const att=sa2Attendu(q);
+    const poser=function(id,v){ const e=document.getElementById(id); if(!e) return false;
+      e.value=v; return true; };
+    /* la fiche : 0,95 / 200 / 3800 / 4000 / 10000 / 6000 — refaits ici */
+    if(att['sa2-b1'][1]!==200)  vus.push('la fiche : le terme constant vaut '+att['sa2-b1'][1]+' au lieu de 200');
+    if(att['sa2-bk'][1]!==3800) vus.push('la fiche : la constante réduite vaut '+att['sa2-bk'][1]+' au lieu de 3800');
+    if(att['sa2-k1'][1]!==4000) vus.push('la fiche : la constante factorisée vaut '+att['sa2-k1'][1]+' au lieu de 4000');
+    if(att['sa2-v0'][1]!==6000) vus.push('la fiche : V0 vaut '+att['sa2-v0'][1]+' au lieu de 6000');
+
+    /* ---- 3. UNE CASE VIDE NE ROUGIT JAMAIS -------------------------------- */
+    checkSA2();
+    const rougesVide=SA2_IDS.filter(function(id){ const e=document.getElementById(id);
+      return e && e.classList.contains('bad'); });
+    if(rougesVide.length) vus.push('copie vide : '+rougesVide.length+' case(s) rougissent — '+rougesVide.slice(0,3).join(', '));
+    if(!/Complète au moins une case/.test((document.getElementById('sa2Feedback')||{}).textContent||''))
+      vus.push('copie vide : le message ne demande pas de compléter');
+
+    /* ---- 4. la copie JUSTE vaut toutes ses cases -------------------------- */
+    SA2_IDS.forEach(function(id){ const a=att[id];
+      poser(id, (a[0]==='nb') ? String(a[1]).replace('.',',') : a[1]); });
+    test.locked=false; checkSA2();
+    const rouges=SA2_IDS.filter(function(id){ const e=document.getElementById(id);
+      return e && e.classList.contains('bad'); });
+    if(rouges.length) vus.push('copie juste : '+rouges.length+' case(s) rougissent — '+rouges.slice(0,4).join(', '));
+    if(test.score!==1) vus.push('copie juste : le point n’est pas accordé (score '+test.score+')');
+    const note=(typeof ptsEcran==='function')?ptsEcran():null;
+    if(!note || note.justes!==SA2_IDS.length || note.cases!==SA2_IDS.length)
+      vus.push('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de '+SA2_IDS.length+'/'+SA2_IDS.length);
+
+    /* ---- 5. le point décimal passe AUSSI ---------------------------------- */
+    test.questions=[q]; test.idx=0; test.locked=false; renderSA2();
+    SA2_IDS.forEach(function(id){ const a=att[id]; poser(id, a[0]==='nb'?String(a[1]):a[1]); });
+    test.locked=false; checkSA2();
+    const rouges2=SA2_IDS.filter(function(id){ const e=document.getElementById(id);
+      return e && e.classList.contains('bad'); });
+    if(rouges2.length) vus.push('le point décimal est refusé : '+rouges2.slice(0,3).join(', '));
+
+    /* ---- 6. une case FAUSSE reste rouge, la bonne réponse à côté ---------- */
+    test.questions=[q]; test.idx=0; test.locked=false; renderSA2();
+    SA2_IDS.forEach(function(id){ const a=att[id];
+      poser(id, (a[0]==='nb') ? String(a[1]).replace('.',',') : a[1]); });
+    poser('sa2-k1','1234');                       /* une seule case fausse */
+    test.locked=false; checkSA2();
+    const el=document.getElementById('sa2-k1');
+    if(!el || !el.classList.contains('bad')) vus.push('la case fausse ne rougit pas');
+    if(String(el&&el.value)!=='1234') vus.push('la case fausse a été écrasée : l’élève ne voit plus son erreur');
+    const cor=el&&el.nextElementSibling;
+    if(!cor || !cor.classList || !cor.classList.contains('mf-cor'))
+      vus.push('la bonne réponse ne s’affiche pas à côté de la case fausse');
+    /* et une case laissée vide sur cette copie reçoit la correction, jamais du rouge */
+    if((document.getElementById('sa2-a1')||{}).classList.contains('bad'))
+      vus.push('une case juste rougit parce qu’une autre est fausse');
+
+    /* ---- 6 bis. EN SOUTIEN, une case vide ne rougit pas non plus ----------
+       C'est le bord que le sabotage a trouvé, et que le contrôle ne regardait
+       pas : en entraînement la correction en bleu repasse derrière et masque
+       le rouge, alors qu'en soutien on s'arrête AVANT elle. Éprouver le bord
+       en entraînement ne prouvait donc rien. */
+    currentMode='soutien';
+    test.questions=[q]; test.idx=0; test.locked=false; renderSA2();
+    poser('sa2-a1', String(att['sa2-a1'][1]).replace('.',','));   /* une seule case remplie */
+    test.locked=false; checkSA2();
+    const videsSoutien=SA2_IDS.filter(function(id){ const e=document.getElementById(id);
+      return e && String(e.value||'').trim()==='' && e.classList.contains('bad'); });
+    if(videsSoutien.length)
+      vus.push('en soutien, '+videsSoutien.length+' case(s) VIDES rougissent — '+videsSoutien.slice(0,3).join(', '));
+    /* ---- 6 ter. ET EN DIRECT, à la frappe : le second chemin ---------------
+       La coloration du soutien a DEUX chemins — celui de « Vérifier » et celui
+       de la frappe — et n'en tenir qu'un ne tient rien : le sabotage du second
+       est resté vert pendant que le premier rougissait. */
+    test.questions=[q]; test.idx=0; test.locked=false; renderSA2();
+    const cible=document.getElementById('sa2-a1');
+    if(cible){
+      cible.value=String(att['sa2-a1'][1]).replace('.',',');
+      cible.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    const videsDirect=SA2_IDS.filter(function(id){ const e=document.getElementById(id);
+      return e && String(e.value||'').trim()==='' && (e.classList.contains('bad')||e.classList.contains('ok')); });
+    if(videsDirect.length)
+      vus.push('en direct, '+videsDirect.length+' case(s) VIDES se colorent — '+videsDirect.slice(0,3).join(', '));
+    if(cible && !cible.classList.contains('ok'))
+      vus.push('en direct, la case juste ne verdit pas : la correction du soutien ne suit pas la frappe');
+    currentMode='train';
+
+    /* ---- 7. le mot se CHOISIT, il ne se tape pas -------------------------- */
+    const sel=document.getElementById('sa2-type');
+    if(!sel || sel.tagName!=='SELECT') vus.push('« géométrique » se tape au lieu de se choisir');
+
+    /* ---- 8. l'identité propre, alors que le moteur est partagé ------------ */
+    if(!TESTS['suite-auxiliaire-2']) vus.push('l’exercice n’est pas dans TESTS');
+    if(typeof RAPPELS==='undefined' || !RAPPELS.sa2) vus.push('aucun rappel de cours pour sa2');
+    if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.sa2) vus.push('aucune question proposée pour sa2');
+    if(typeof conseilCtxCourant==='function'){
+      test.questions=[q]; test.idx=0; test.kind='sa2';
+      const c=String(conseilCtxCourant()||'');
+      if(!/suite auxiliaire/i.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
+      if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
+    }
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function tangenteExp(w, P){
   const present = evaluer(w, "typeof startTX==='function' && typeof genTXCase==='function'");
   if(!present.ok || !present.valeur){
