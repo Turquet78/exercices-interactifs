@@ -2277,6 +2277,88 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septdecies. construire une fonction : la grille se CLIQUE ===== */
+    /* jsdom n'a pas de mise en page : un rectangle de SVG y vaut zéro, et le
+       calcul clic → nœud (la seule porte de l'exercice) est invisible à tout
+       banc hors navigateur. On clique donc pour de vrai : chaque colonne à
+       la hauteur du témoin, le retrait d'un point, la vérification 5/5, puis
+       une copie fausse pour voir le témoin vert. */
+    titre('6 septdecies. CONSTRUIRE UNE FONCTION : LA GRILLE SE CLIQUE');
+    if(!P.construireFonction){
+      ignorer('la grille se clique : poser, enlever, vérifier',
+        'ce niveau n\'a pas l\'exercice de construction');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.construireFonction.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* mouse.click ne fait pas défiler : la rangée du bas (y = −4) tombait
+         hors de la fenêtre et le clic se perdait sans erreur — on centre la
+         grille d'abord, et on relit le rectangle à CHAQUE clic */
+      const clicNoeud = async (x, y) => {
+        const pos = await s.page.evaluate(([x, y]) => {
+          const svg = document.getElementById('cfxGrille');
+          svg.scrollIntoView({ block: 'center' });
+          const r = svg.getBoundingClientRect();
+          return { px: r.left + cfxSx(x) * r.width / 620, py: r.top + cfxSy(y) * r.height / 430 };
+        }, [x, y]);
+        await s.page.mouse.click(pos.px, pos.py);
+      };
+      const q0 = await s.page.evaluate(() => JSON.parse(JSON.stringify(test.questions[test.idx])));
+      for(let i = 0; i < 11; i++) await clicNoeud(-5 + i, q0.w[i]);
+      const pose = await s.page.evaluate(() => ({
+        rep: (test.questions[test.idx].rep || []).join(','),
+        points: document.querySelectorAll('#cfxGrille .cfx-pt').length,
+        courbe: !!document.querySelector('#cfxGrille .cfx-courbe')
+      }));
+      if(pose.rep !== q0.w.join(','))
+        dits.push('les clics ne posent pas les points visés : ' + pose.rep + ' au lieu de ' + q0.w.join(','));
+      if(pose.points !== 11) dits.push(pose.points + ' point(s) dessiné(s) au lieu de 11');
+      if(!pose.courbe) dits.push('la courbe ne se dessine pas à travers les points posés');
+      /* le RETRAIT : recliquer un point l'enlève */
+      await clicNoeud(-5, q0.w[0]);
+      const ote = await s.page.evaluate(() => ({
+        v: String(test.questions[test.idx].rep[0]),
+        points: document.querySelectorAll('#cfxGrille .cfx-pt').length
+      }));
+      if(ote.v !== 'null' || ote.points !== 10)
+        dits.push('recliquer un point ne l\'enlève pas (' + ote.v + ', ' + ote.points + ' points)');
+      await clicNoeud(-5, q0.w[0]);
+      /* la vérification : 5/5, les consignes bleues */
+      await s.page.evaluate(() => checkCfxAnswer());
+      await s.page.waitForTimeout(200);
+      const fin = await s.page.evaluate(() => ({
+        score: test.score,
+        ok: document.querySelectorAll('#cfxHost .cfx-consigne.ok').length,
+        sol: !!document.querySelector('#cfxHost .cfx-sol')
+      }));
+      if(fin.score !== 5 || fin.ok !== 5) dits.push('le témoin cliqué ne fait pas 5/5 (' + fin.score + ', ' + fin.ok + ' consignes bleues)');
+      if(fin.sol) dits.push('la courbe verte s\'affiche sur une copie toute juste');
+      /* le tracé suivant, une copie FAUSSE : le témoin vert se montre */
+      await s.page.evaluate(() => nextCfxQuestion());
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => JSON.parse(JSON.stringify(test.questions[test.idx])));
+      for(let i = 0; i < 11; i++) await clicNoeud(-5 + i, q1.w[i]);
+      const casse = (q1.a1 + 5);
+      await clicNoeud(q1.a1, q1.w[casse]);                     /* on retire la bonne valeur… */
+      await clicNoeud(q1.a1, q1.w[casse] > -4 ? q1.w[casse] - 1 : q1.w[casse] + 1);   /* …et on en pose une fausse */
+      await s.page.evaluate(() => checkCfxAnswer());
+      await s.page.waitForTimeout(200);
+      const faux = await s.page.evaluate(() => ({
+        bad: document.querySelectorAll('#cfxHost .cfx-consigne.bad').length,
+        sol: !!document.querySelector('#cfxHost .cfx-sol')
+      }));
+      if(!faux.bad) dits.push('la copie faussée ne rougit aucune consigne');
+      if(!faux.sol) dits.push('le témoin vert ne se montre pas sur la copie fausse');
+      verifier('la grille se clique : poser, enlever, vérifier', !dits.length, dits.slice(0,3).join(' | '));
+      verifier('l\'écran de construction ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent

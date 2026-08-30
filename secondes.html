@@ -783,6 +783,18 @@
   #scr-eqg .itv-ligne{max-width:1160px}
   #scr-ifg .itv-ligne{max-width:1160px}
   #scr-eig .itv-ligne{max-width:1160px}
+  /* ---- Construire une fonction : la grille cliquable ---- */
+  #scr-cfx{padding-bottom:84px}
+  .cfx-svg{display:block;width:100%;max-width:620px;height:auto;margin:0 auto;touch-action:manipulation;cursor:pointer}
+  .cfx-pt{fill:var(--blue)}
+  .cfx-courbe{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+  /* le témoin est une CORRECTION : vert, en tirets pour laisser voir la
+     courbe de l'élève dessous */
+  .cfx-sol{fill:none;stroke:var(--green);stroke-width:2.6;stroke-dasharray:8 5;stroke-linejoin:round;stroke-linecap:round}
+  .cfx-consignes{margin:4px auto 10px;max-width:760px;text-align:left}
+  .cfx-consigne{display:block;padding:5px 12px;margin:4px 0;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface)}
+  .cfx-consigne.ok{border-color:var(--blue);background:#EAF0FF}
+  .cfx-consigne.bad{border-color:var(--red);background:#fdeaea}
   .ifg-bout{fill:var(--blue)}
   .ifg-boutg{fill:#C2410C}
   /* La droite de g : en POINTILLÉS, comme sur la fiche — et en ORANGE,
@@ -1552,6 +1564,20 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       </div>
     </div>
   </section>
+  <section class="screen" id="scr-cfx">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCfx"></span><span class="q-idx" id="cfxIdx">Tracé 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Consignes respectées</span>&nbsp;<b id="cfxLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="cfxInstr">Trace une courbe sur le domaine [−5 ; 5] en respectant TOUTES les consignes. Pose un point par colonne : clique une case pour poser le point, reclique dessus pour l’enlever.</p>
+      <div class="mp-stage"><div style="width:100%" id="cfxHost"></div></div>
+      <div class="mp-feedback" id="cfxFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="cfxActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkCfxAnswer()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
   <section class="screen" id="scr-eig">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagEig"></span><span class="q-idx" id="eigIdx">Question 1 / 4</span></span>
@@ -2072,7 +2098,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=115;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=116;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2564,6 +2590,7 @@ const TESTS={
   'antecedent-nombre': { name:'Antécédents d\u2019un nombre', icon:'\ud83e\udded', desc:'C\u2019est l\u2019inverse de {image-nombre} : on te donne la hauteur, et la ligne de niveau — un trait horizontal — te fait retrouver le ou les nombres de départ.', start:()=>startAnt() },
   'equation-graphique': { name:'Équations graphiques', icon:'\ud83d\udcc8', desc:'La courbe de f et la droite de g : lis des images, retrouve des antécédents par f ET par g, puis résous f\u2009(x)\u2009=\u2009k, g\u2009(x)\u2009=\u2009k, f\u2009(x)\u2009=\u2009g\u2009(x) et trois inéquations — pour chaque équation ou inéquation, choisis d\u2019abord le bon dessin parmi quatre, comme dans {resolutions-graphiques}.', start:()=>startEqg() },
   'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
+  'construire-fonction': { name:'Construire une fonction', icon:'✏️', desc:'Le chemin INVERSE de toute la lecture graphique : on te donne les consignes — une valeur, une image, un antécédent, f\u2009(x)\u2009=\u20090 et une inéquation — et c\u2019est toi qui traces une courbe qui les respecte, point par point.', start:()=>startCfx() },
   'resolutions-graphiques': { name:'Résolutions graphiques', icon:'🧭', desc:'Une courbe, une droite horizontale, quatre dessins proposés : pour chaque équation ou inéquation, choisis le dessin qui la montre, puis écris la solution — S = { … } avec des accolades, ou un intervalle comme dans {inequation-graphique}.', start:()=>startEig() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
@@ -2615,7 +2642,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2673,6 +2700,7 @@ function liveCheckCurrent(){
   else if(k==='itq') checkItqAnswer(true);
   else if(k==='ing') checkIngAnswer(true);
   else if(k==='eqg') checkEqgAnswer(true);
+  else if(k==='cfx') cfxLive();
   else if(k==='ifg') checkIfgAnswer(true);
   else if(k==='eig') checkEigAnswer(true);
   else if(k==='app') checkAppAnswer(true);
@@ -3190,6 +3218,7 @@ function conseilPaire(){
   else if(test.kind==='itq' && q) b=ctxItq(q);
   else if(test.kind==='ing' && q) b=ctxIng(q);
   else if(test.kind==='eqg' && q) b=ctxEqg(q);
+  else if(test.kind==='cfx' && q) b=ctxCfx(q);
   else if(test.kind==='ifg' && q) b=ctxIfg(q);
   else if(test.kind==='eig' && q) b=ctxEig(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
@@ -3425,6 +3454,7 @@ const QIA_SUGG={
   eqg:["Comment lire g\u2009(x) quand g est une droite ?","Quelle diff\u00e9rence entre r\u00e9soudre f\u2009(x) = 2 et lire f\u2009(2) ?","O\u00f9 se lisent les solutions de f\u2009(x) = g\u2009(x) ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
   ifg:["C\u2019est quoi, le domaine de d\u00e9finition d\u2019une fonction ?","Comment lire une image quand il y a DEUX courbes ?","Pourquoi f\u2009(x) > g\u2009(x) ne se regarde que l\u00e0 o\u00f9 les deux courbes existent ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
   eig:["Quelle différence entre résoudre f (x) = 2 et f (x) ≥ 2 ?","Pourquoi S s’écrit avec des accolades pour une équation et des crochets pour une inéquation ?","Comment savoir combien de points doit montrer le bon dessin ?","Le signe ≥ donne quel crochet ?"],
+  cfx:["Comment placer un point pour respecter f ( −2 ) = 3 ?","Que veut dire « l’antécédent de −4 est 3 » pour mon tracé ?","Pourquoi ma courbe ne doit-elle pas recouper l’axe ailleurs que sur S ?","Comment respecter une inéquation dont la solution est un intervalle ?"],
   ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
   sfl:["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelles \u00e9tapes dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Comment savoir si ma fraction est bien simplifi\u00e9e\u00a0?","Est-ce que je peux choisir un autre d\u00e9nominateur commun\u00a0?"],
@@ -3771,7 +3801,14 @@ const RAP_EQG=`<b>Deux courbes sur un même dessin</b><br>
 \u2022 <b>Résoudre f\u2009(x) = k</b> : on cherche TOUS les x où la courbe est à la hauteur k. Les solutions se lisent sur l'axe des abscisses — comme dans {antecedent-nombre}.<br>
 \u2022 <b>Résoudre f\u2009(x) = g\u2009(x)</b> : on cherche les x où les deux courbes se CROISENT. Chaque croisement donne une solution, lue en descendant sur l'axe des abscisses.<br>
 \u2022 <b>Résoudre f\u2009(x) &gt; g\u2009(x)</b> : on cherche les x où C<sub>f</sub> est AU-DESSUS de C<sub>g</sub> — comme dans {inequation-graphique}, mais la droite n'est plus horizontale. La solution s'écrit en intervalle, avec les croisements pour bornes : crochet fermé si le signe accepte l'égalité (\u2265), ouvert sinon (&gt;). Les bouts du dessin (\u22123 et 3) sont toujours pris.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAP_CFX=`<b>Construire une courbe qui respecte des consignes</b><br>
+C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un geste sur le dessin.<br><br>
+• <b>f (a) = v</b> ou « l’image de a est v » : le point de la colonne a se pose à la hauteur v.<br>
+• <b>« L’antécédent de y est b »</b> : la courbe passe à la hauteur y au-dessus de b — et NULLE PART ailleurs à cette hauteur, sinon y aurait plusieurs antécédents.<br>
+• <b>f (x) = 0 avec S = { … }</b> : la courbe coupe l’axe des abscisses exactement en ces points — pas un de moins, pas un de plus.<br>
+• <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles, et elle TOUCHE la hauteur k à chaque bord.<br><br>
+Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -3880,7 +3917,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','construire-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4238,7 +4275,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest]};
+  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4362,7 +4399,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig'];
+  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -4398,7 +4435,7 @@ function show(name){
   }
   $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='ing'||name==='eqg'||name==='ifg'||name==='eig'||name==='app'||name==='sf'||name==='sfl'||name==='plc'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='ing'||name==='eqg'||name==='ifg'||name==='eig'||name==='cfx'||name==='app'||name==='sf'||name==='sfl'||name==='plc'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -6772,6 +6809,279 @@ function ctxEqg(q){
   return {nombre:'', contexte:c};
 }
 
+
+/* ================= Exercice Seconde : Construire une fonction (kind 'cfx') =================
+   Repris de la fiche « BONUS » : TRACER une courbe sur [−5 ; 5] qui respecte
+   cinq consignes — une valeur, une image, un antécédent, l'équation
+   f(x) = 0 et une inéquation f(x) signe k. C'est l'INVERSE de toute la
+   famille des lectures graphiques : l'élève construit, la page lit.
+   L'élève pose UN point par colonne (les 11 graduations entières) ; la
+   courbe se dessine à travers ses points par les cubiques de lvTangents —
+   monotones entre deux graduations, donc tout se lit aux graduations.
+   LE JUGE NE COMPARE JAMAIS AU TÉMOIN : le tirage construit une courbe
+   témoin, en DÉRIVE les consignes, et le juge ne relit que les consignes —
+   toute courbe qui les respecte est juste, il y en a beaucoup. Le témoin ne
+   sert qu'à la correction verte. Chaque consigne est une RÉPONSE
+   (pts-case), comptée dans la note. */
+const CFX_X0=-5, CFX_NX=11, CFX_YMIN=-4, CFX_YMAX=4;
+function cfxTraverse(pts,y){
+  for(let i=0;i<pts.length-1;i++){ const lo=Math.min(pts[i],pts[i+1]),hi=Math.max(pts[i],pts[i+1]); if(y>lo&&y<hi) return true; }
+  return false;
+}
+function cfxAnt(pts,y){ const o=[]; for(let i=0;i<pts.length;i++){ if(pts[i]===y) o.push(CFX_X0+i); } return o; }
+/* les x où pts (op) k, en intervalles maximaux — exact parce que le juge
+   refuse à côté toute traversée de k entre deux graduations */
+function cfxEnsemble(pts,k,op){
+  const ok=function(i){ return op==='le' ? pts[i]<=k : pts[i]>=k; };
+  const out=[]; let deb=null;
+  for(let i=0;i<pts.length;i++){
+    if(ok(i)){ if(deb===null) deb=i; }
+    else if(deb!==null){ out.push([CFX_X0+deb, CFX_X0+i-1]); deb=null; }
+  }
+  if(deb!==null) out.push([CFX_X0+deb, CFX_X0+pts.length-1]);
+  return out;
+}
+function cfxEnsTexte(iv){
+  return iv.map(function(p){ return p[0]===p[1] ? '{ '+itvNum(p[0])+' }' : '[ '+itvNum(p[0])+' ; '+itvNum(p[1])+' ]'; }).join(' ∪ ');
+}
+/* La colonne de l'antécédent — DÉRIVÉE du témoin par la fonction que le juge
+   et l'énoncé partagent : un énoncé ne peut pas contredire sa correction. */
+function cfxB(q){ return cfxAnt(q.w,q.ya)[0]; }
+function cfxGen(){
+  for(let att=0;att<4000;att++){
+    /* le témoin : une marche entière SANS palier (deux valeurs voisines
+       égales feraient un segment plat — l'équation et l'antécédent y
+       perdraient leur sens) ; sans palier, un changement de signe passe
+       forcément PAR un zéro, donc 0 n'est jamais traversé entre deux
+       graduations */
+    const w=[pick([-3,-2,-1,1,2,3])];
+    for(let i=1;i<CFX_NX;i++){
+      const cands=[];
+      for(let v=CFX_YMIN;v<=CFX_YMAX;v++){ if(v!==w[i-1]&&Math.abs(v-w[i-1])<=3) cands.push(v); }
+      w.push(pick(cands));
+    }
+    /* palier au sens LARGE : un signe qui ne change qu'en passant par zéro */
+    let saut=false;
+    for(let i=0;i<CFX_NX-1;i++){ if(w[i]*w[i+1]<0) saut=true; }
+    if(saut) continue;                       /* 0 traversé entre deux graduations */
+    const zeros=cfxAnt(w,0);
+    if(zeros.length<2||zeros.length>3) continue;
+    /* ya : une hauteur non nulle, jamais traversée, à UN SEUL antécédent */
+    const yaC=[];
+    for(let y=CFX_YMIN;y<=CFX_YMAX;y++){
+      if(y===0||cfxTraverse(w,y)) continue;
+      if(cfxAnt(w,y).length===1) yaC.push(y);
+    }
+    if(!yaC.length) continue;
+    const ya=pick(yaC);
+    /* k : non nul, différent de ya, jamais traversé, et un ensemble
+       LISIBLE — un ou deux intervalles, jamais réduits à un point, jamais
+       le domaine entier */
+    const kC=[];
+    for(let k=CFX_YMIN;k<=CFX_YMAX;k++){
+      if(k===0||k===ya||cfxTraverse(w,k)) continue;
+      ['le','ge'].forEach(function(op){
+        const S=cfxEnsemble(w,k,op);
+        if(S.length<1||S.length>2) return;
+        if(S.some(function(pr){ return pr[0]===pr[1]; })) return;
+        if(S.length===1&&S[0][0]===CFX_X0&&S[0][1]===CFX_X0+CFX_NX-1) return;
+        kC.push({k:k,op:op});
+      });
+    }
+    if(!kC.length) continue;
+    const ko=pick(kC);
+    /* a1 et a2 : deux colonnes distinctes, hors de la colonne de
+       l'antécédent, à valeur non nulle (une valeur nulle répéterait
+       l'équation) */
+    const b=cfxAnt(w,ya)[0];
+    const aC=[];
+    for(let x=CFX_X0;x<=CFX_X0+CFX_NX-1;x++){ if(x!==b&&w[x-CFX_X0]!==0) aC.push(x); }
+    if(aC.length<2) continue;
+    const a1=pick(aC);
+    const a2=pick(aC.filter(function(x){ return x!==a1; }));
+    return {w:w, a1:a1, a2:a2, ya:ya, k:ko.k, op:ko.op};
+  }
+  return Object.assign({}, CFX_REPLI);
+}
+/* Le repli — un tirage RÉEL, relevé sur le générateur puis figé, éprouvé par
+   les mêmes contrôles que le tirage. */
+const CFX_REPLI={w:[-2,-1,-2,0,3,4,3,2,0,3,0], a1:-1, a2:2, ya:4, k:3, op:'le'};
+function cfxConsignes(q){
+  const S0=cfxAnt(q.w,0), S5=cfxEnsemble(q.w,q.k,q.op);
+  const fx='f (x)';
+  return [
+    {id:'cfx-c0', txt:'f ( '+itvNum(q.a1)+' ) = '+itvNum(q.w[q.a1-CFX_X0])},
+    {id:'cfx-c1', txt:'L’image de '+itvNum(q.a2)+' est '+itvNum(q.w[q.a2-CFX_X0])+'.'},
+    {id:'cfx-c2', txt:'L’antécédent de '+itvNum(q.ya)+' est '+itvNum(cfxB(q))+'.'},
+    {id:'cfx-c3', txt:'L’équation '+fx+' = 0 admet pour solution S = { '+S0.map(itvNum).join(' ; ')+' }.'},
+    {id:'cfx-c4', txt:'L’inéquation '+fx+' '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' admet pour solution S = '+cfxEnsTexte(S5)+'.'}
+  ];
+}
+/* Chaque consigne se juge sur la courbe de l'ÉLÈVE seule — jamais sur le
+   témoin. L'exactitude des ensembles passe par le refus des traversées :
+   entre deux graduations la spline est monotone, donc tout bord d'ensemble
+   vit sur une graduation. */
+function cfxJuge(q){
+  const P=q.rep||[];
+  let poses=0; for(let i=0;i<CFX_NX;i++){ if(typeof P[i]==='number') poses++; }
+  if(poses<CFX_NX) return {complet:false, manque:CFX_NX-poses, subs:[], nCorrect:0, nTotal:5, allOk:false};
+  const S0=cfxAnt(q.w,0), S5=cfxEnsemble(q.w,q.k,q.op), b=cfxB(q);
+  const subs=[
+    {id:'cfx-c0', ok:P[q.a1-CFX_X0]===q.w[q.a1-CFX_X0]},
+    {id:'cfx-c1', ok:P[q.a2-CFX_X0]===q.w[q.a2-CFX_X0]},
+    {id:'cfx-c2', ok:P[b-CFX_X0]===q.ya && cfxAnt(P,q.ya).length===1 && !cfxTraverse(P,q.ya)},
+    {id:'cfx-c3', ok:!cfxTraverse(P,0) && JSON.stringify(cfxAnt(P,0))===JSON.stringify(S0)},
+    {id:'cfx-c4', ok:!cfxTraverse(P,q.k) && JSON.stringify(cfxEnsemble(P,q.k,q.op))===JSON.stringify(S5)}
+  ];
+  const n=subs.filter(function(x){ return x.ok; }).length;
+  return {complet:true, subs:subs, nCorrect:n, nTotal:5, allOk:n===5};
+}
+/* Le chemin de la courbe sur une SUITE de colonnes posées — les tangentes de
+   lvTangents, recalculées sur le morceau : lvPath ne connaît que 7 points. */
+function cfxPath(pts, sx, sy, i0){
+  const m=lvTangents(pts);
+  let d='M '+sx(CFX_X0+i0).toFixed(1)+' '+sy(pts[0]).toFixed(1);
+  for(let i=0;i<pts.length-1;i++){
+    const x0=CFX_X0+i0+i, y0=pts[i], y1=pts[i+1];
+    d+=' C '+sx(x0+1/3).toFixed(1)+' '+sy(y0+m[i]/3).toFixed(1)+' '+sx(x0+2/3).toFixed(1)+' '+sy(y1-m[i+1]/3).toFixed(1)+' '+sx(x0+1).toFixed(1)+' '+sy(y1).toFixed(1);
+  }
+  return d;
+}
+const CFX_W=620, CFX_H=430, CFX_PL=34, CFX_PR=16, CFX_PT=14, CFX_PB=26;
+function cfxSx(x){ return CFX_PL+(x-CFX_X0)*(CFX_W-CFX_PL-CFX_PR)/(CFX_NX-1); }
+function cfxSy(y){ return CFX_PT+(CFX_YMAX-y)*(CFX_H-CFX_PT-CFX_PB)/(CFX_YMAX-CFX_YMIN); }
+function cfxSVG(q, avecTemoin){
+  const sx=cfxSx, sy=cfxSy;
+  let out='';
+  for(let x=CFX_X0;x<=CFX_X0+CFX_NX-1;x++) out+='<line class="lv-grid" x1="'+sx(x).toFixed(1)+'" y1="'+sy(CFX_YMAX).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(CFX_YMIN).toFixed(1)+'"/>';
+  for(let y=CFX_YMIN;y<=CFX_YMAX;y++) out+='<line class="lv-grid" x1="'+sx(CFX_X0).toFixed(1)+'" y1="'+sy(y).toFixed(1)+'" x2="'+sx(CFX_X0+CFX_NX-1).toFixed(1)+'" y2="'+sy(y).toFixed(1)+'"/>';
+  out+='<line class="lv-axis" x1="'+sx(CFX_X0).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+(sx(CFX_X0+CFX_NX-1)+6).toFixed(1)+'" y2="'+sy(0).toFixed(1)+'"/>'
+     +'<line class="lv-axis" x1="'+sx(0).toFixed(1)+'" y1="'+sy(CFX_YMIN).toFixed(1)+'" x2="'+sx(0).toFixed(1)+'" y2="'+(sy(CFX_YMAX)-6).toFixed(1)+'"/>';
+  for(let x=CFX_X0;x<=CFX_X0+CFX_NX-1;x++){ if(x!==0) out+='<text class="lv-ax" x="'+sx(x).toFixed(1)+'" y="'+(sy(0)+13).toFixed(1)+'" text-anchor="middle">'+numFmt(x)+'</text>'; }
+  for(let y=CFX_YMIN;y<=CFX_YMAX;y++){ if(y!==0) out+='<text class="lv-ax" x="'+(sx(0)-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" text-anchor="end">'+numFmt(y)+'</text>'; }
+  /* le témoin (correction verte) SOUS la courbe de l'élève */
+  if(avecTemoin) out+='<path class="cfx-sol" d="'+cfxPath(q.w,sx,sy,0)+'"/>';
+  /* la courbe de l'élève : chaque suite de colonnes posées consécutives */
+  const P=q.rep||[];
+  let run=[];
+  const runs=[];
+  for(let i=0;i<=CFX_NX;i++){
+    if(i<CFX_NX&&typeof P[i]==='number') run.push(i);
+    else { if(run.length) runs.push(run); run=[]; }
+  }
+  runs.forEach(function(r){
+    if(r.length>=2) out+='<path class="cfx-courbe" d="'+cfxPath(r.map(function(i){ return P[i]; }),sx,sy,r[0])+'"/>';
+  });
+  for(let i=0;i<CFX_NX;i++){ if(typeof P[i]==='number') out+='<circle class="cfx-pt" cx="'+sx(CFX_X0+i).toFixed(1)+'" cy="'+sy(P[i]).toFixed(1)+'" r="6"/>'; }
+  return '<svg viewBox="0 0 '+CFX_W+' '+CFX_H+'" xmlns="http://www.w3.org/2000/svg" class="cfx-svg" id="cfxGrille">'+out+'</svg>';
+}
+let _cfxSaveTimer=null;
+function renderCfx(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('cfxIdx').textContent='Tracé '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagCfx').innerHTML=modeTagHTML();
+  $('cfxLiveScore').textContent=test.score;
+  $('cfxFeedback').textContent=''; $('cfxFeedback').className='mp-feedback';
+  $('cfxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCfxAnswer()">Vérifier</button>';
+  const cons=cfxConsignes(q).map(function(c){ return '<span class="cfx-consigne pts-case" id="'+c.id+'">● '+c.txt+'</span>'; }).join('');
+  $('cfxHost').innerHTML='<div class="cfx-consignes">'+cons+'</div>'+cfxSVG(q,false);
+  cfxBrancher();
+}
+/* Un seul écouteur, DÉLÉGUÉ à l'hôte : le SVG est réécrit à chaque pose, un
+   écouteur posé dessus mourrait avec lui. */
+function cfxBrancher(){
+  const host=$('cfxHost');
+  if(host.__cfxPret) return;
+  host.__cfxPret=true;
+  host.addEventListener('pointerdown', function(ev){
+    if(test.kind!=='cfx'||test.locked) return;
+    const svg=ev.target.closest('#cfxGrille'); if(!svg) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const r=svg.getBoundingClientRect();
+    const mx=(ev.clientX-r.left)*CFX_W/r.width, my=(ev.clientY-r.top)*CFX_H/r.height;
+    const x=Math.round(CFX_X0+(mx-CFX_PL)*(CFX_NX-1)/(CFX_W-CFX_PL-CFX_PR));
+    const y=Math.round(CFX_YMAX-(my-CFX_PT)*(CFX_YMAX-CFX_YMIN)/(CFX_H-CFX_PT-CFX_PB));
+    if(x<CFX_X0||x>CFX_X0+CFX_NX-1||y<CFX_YMIN||y>CFX_YMAX) return;
+    if(!Array.isArray(q.rep)) q.rep=new Array(CFX_NX).fill(null);
+    const i=x-CFX_X0;
+    q.rep[i]=(q.rep[i]===y)?null:y;
+    const anc=$('cfxGrille'); if(anc) anc.outerHTML=cfxSVG(q,false);
+    cfxLive();
+    recoveryDirty=true; clearTimeout(_cfxSaveTimer); _cfxSaveTimer=setTimeout(autoSave,1200);
+  });
+}
+/* Soutien : les consignes se relisent à chaque pose — mais SEULEMENT quand
+   les 11 colonnes sont posées : une courbe à moitié tracée n'est pas fausse. */
+function cfxLive(){
+  if(test.kind!=='cfx'||test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const res=(isSoutien())?cfxJuge(q):null;
+  cfxConsignes(q).forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(res&&res.complet){ const sub=res.subs.find(function(x){ return x.id===c.id; }); if(sub) el.classList.add(sub.ok?'ok':'bad'); }
+  });
+}
+function cfxWhy(q,res){
+  const b=cfxB(q), S0=cfxAnt(q.w,0);
+  const dic={
+    'cfx-c0':'f ( '+itvNum(q.a1)+' ) = '+itvNum(q.w[q.a1-CFX_X0])+' : le point de la colonne '+itvNum(q.a1)+' doit être à la hauteur '+itvNum(q.w[q.a1-CFX_X0])+'.',
+    'cfx-c1':'l’image de '+itvNum(q.a2)+' est la hauteur du point de la colonne '+itvNum(q.a2)+' : elle doit valoir '+itvNum(q.w[q.a2-CFX_X0])+'.',
+    'cfx-c2':'l’antécédent de '+itvNum(q.ya)+' est '+itvNum(b)+' : la courbe doit passer à la hauteur '+itvNum(q.ya)+' au-dessus de '+itvNum(b)+' — et NULLE PART ailleurs, sinon '+itvNum(q.ya)+' aurait d’autres antécédents.',
+    'cfx-c3':'S = { '+S0.map(itvNum).join(' ; ')+' } : la courbe doit couper l’axe des abscisses exactement là — pas une fois de moins, pas une fois de plus, et sans le traverser entre deux graduations.',
+    'cfx-c4':'f (x) '+ING_SIGNE[q.op]+' '+itvNum(q.k)+' : la courbe doit être '+(q.op==='le'?'au-dessous':'au-dessus')+' de la hauteur '+itvNum(q.k)+' exactement sur '+cfxEnsTexte(cfxEnsemble(q.w,q.k,q.op))+', et la toucher à chaque bord.'
+  };
+  const faux=res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return dic[x.id]; });
+  return 'Ta courbe ne respecte pas '+(faux.length===1?'une consigne':faux.length+' consignes')+' : '+faux.join(' ');
+}
+function checkCfxAnswer(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=cfxJuge(q);
+  if(!res.complet){
+    $('cfxFeedback').textContent='Pose un point dans chaque colonne — il en manque '+res.manque+'.';
+    $('cfxFeedback').className='mp-feedback bad';
+    return;
+  }
+  res.subs.forEach(function(x){ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad'); el.classList.add(x.ok?'ok':'bad');
+  });
+  if(!res.allOk && isSoutien()){ soutienAgain('cfxFeedback','cfxActions','checkCfxAnswer','cfxHost'); return; }
+  test.locked=true;
+  test.score+=res.nCorrect; $('cfxLiveScore').textContent=test.score;
+  if(res.allOk){ $('cfxFeedback').textContent=pick(['Bravo, ta courbe respecte tout !','Parfait !','Excellent tracé !']); $('cfxFeedback').className='mp-feedback good'; }
+  else {
+    $('cfxFeedback').textContent=cfxWhy(q,res)+' La courbe verte montre UNE solution possible — la tienne pouvait être différente.';
+    $('cfxFeedback').className='mp-feedback bad';
+    const anc=$('cfxGrille'); if(anc) anc.outerHTML=cfxSVG(q,true);
+  }
+  const answer=cfxConsignes(q).map(function(c){ return c.txt; }).join(' | ');
+  const given=(q.rep||[]).join(',');
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Construire une fonction — '+res.nCorrect+'/'+res.nTotal+' consignes', answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('cfxActions').innerHTML='<button class="btn btn-primary" id="cfxNext" onclick="nextCfxQuestion()">'+(last?'Voir mes résultats':'Tracé suivant')+'</button>';
+  const nb=$('cfxNext'); if(nb) nb.focus();
+}
+function nextCfxQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderCfx(); autoSave(); } else finishTest(); }
+async function startCfx(){
+  if(!currentEleve){ accueil(); return; }
+  const n=(currentMode==='soutien')?1:2;
+  const qs=[]; for(let i=0;i<n;i++){ const q=cfxGen(); q.rep=new Array(CFX_NX).fill(null); qs.push(q); }
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'cfx', questions:qs, idx:0, score:0,
+    maxScore:5*qs.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('cfx'); renderCfx();
+}
+function ctxCfx(q){
+  const res=cfxJuge(q);
+  let c='L’élève doit TRACER une courbe sur [−5 ; 5] (un point entier par colonne) qui respecte cinq consignes : '
+    +cfxConsignes(q).map(function(x){ return x.txt; }).join(' · ');
+  if(!res.complet) c+=' Il n’a pas encore posé toutes les colonnes (il en manque '+res.manque+').';
+  else if(!res.allOk) c+=' Sa courbe ne respecte pas : '+res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return cfxConsignes(q).find(function(cc){ return cc.id===x.id; }).txt; }).join(' · ');
+  return {nombre:'', contexte:c};
+}
 
 /* ================= Exercice Seconde : Lecture de deux courbes (kind 'ifg') =================
    Repris de la fiche « images et antécédents avec f et g » : DEUX courbes

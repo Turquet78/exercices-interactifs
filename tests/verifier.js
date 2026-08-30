@@ -2592,6 +2592,7 @@ function exercices(suite){
     equationGraphique(w, P);
     lectureDeuxCourbes(w, P);
     courbesFGSeDistinguent(w, P);
+    construireFonction(w, P);
     resolutionsGraphiques(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -6517,6 +6518,133 @@ function equationGraphique(w, P){
    solutions voisines à une hauteur interrogée seraient un segment entier posé
    à cette hauteur — pour les antécédents comme pour les équations, sur f
    comme sur g. */
+/* Construire une fonction : l'INVERSE de la lecture graphique — le tirage
+   fabrique un témoin, en DÉRIVE cinq consignes, et le juge ne relit que les
+   consignes : toute courbe qui les respecte est juste, différente du témoin
+   ou pas. Les bords : le témoin lisible (pas de palier, 0 jamais traversé
+   entre deux graduations, 2-3 zéros, antécédent unique, ensemble de
+   l'inéquation en 1-2 intervalles jamais réduits à un point), les consignes
+   qui ne se recouvrent pas, le témoin qui respecte SES consignes par le juge
+   même, la copie ALTERNATIVE acceptée, chaque consigne qui rougit seule, la
+   copie incomplète sans couleur, le témoin vert en entraînement seulement. */
+function construireFonction(w, P){
+  const present = evaluer(w, "typeof startCfx==='function' && typeof cfxGen==='function' && typeof cfxJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('construire une fonction : des consignes dérivées d\'un témoin, une courbe libre jugée sur elles seules',
+      'ce niveau n\'a pas l\'exercice de construction');
+    return;
+  }
+  verifierEval(w, 'construire une fonction : des consignes dérivées d\'un témoin, une courbe libre jugée sur elles seules', `(function(){
+    const vus=[];
+    const traverse=function(pts,y){ for(let i=0;i<pts.length-1;i++){ const lo=Math.min(pts[i],pts[i+1]),hi=Math.max(pts[i],pts[i+1]); if(y>lo&&y<hi) return true; } return false; };
+    const ant=function(pts,y){ const o=[]; for(let i=0;i<pts.length;i++){ if(pts[i]===y) o.push(-5+i); } return o; };
+    const ens=function(pts,k,op){
+      const okI=function(i){ return op==='le' ? pts[i]<=k : pts[i]>=k; };
+      const out=[]; let deb=null;
+      for(let i=0;i<pts.length;i++){
+        if(okI(i)){ if(deb===null) deb=i; }
+        else if(deb!==null){ out.push([-5+deb,-5+i-1]); deb=null; }
+      }
+      if(deb!==null) out.push([-5+deb,-5+pts.length-1]);
+      return out;
+    };
+    /* les gardes d'UN tirage — jouées sur 300 tirages ET sur le repli figé */
+    const gardes=function(q,nom){
+      const cles=Object.keys(q).filter(function(k){ return ['w','a1','a2','ya','k','op','rep'].indexOf(k)<0; });
+      if(cles.length) vus.push(nom+' : la question range autre chose que le témoin, les colonnes, la hauteur et le signe : '+cles.join(','));
+      if(!Array.isArray(q.w)||q.w.length!==11||q.w.some(function(v){ return !Number.isInteger(v)||v<-4||v>4; })){ vus.push(nom+' : le témoin n\\'est pas fait de 11 hauteurs entières de −4 à 4'); return; }
+      for(let i=0;i<10;i++){
+        if(q.w[i]===q.w[i+1]) vus.push(nom+' : le témoin a un PALIER (colonnes '+(i-5)+' et '+(i-4)+') — équation et antécédent y perdent leur sens');
+        if(q.w[i]*q.w[i+1]<0) vus.push(nom+' : le témoin traverse 0 entre deux graduations — un zéro illisible');
+      }
+      const z=ant(q.w,0);
+      if(z.length<2||z.length>3) vus.push(nom+' : '+z.length+' zéro(s) au lieu de 2 ou 3');
+      if(q.ya===0||traverse(q.w,q.ya)||ant(q.w,q.ya).length!==1) vus.push(nom+' : la hauteur de l\\'antécédent est nulle, traversée ou à plusieurs antécédents');
+      if(q.k===0||q.k===q.ya||traverse(q.w,q.k)) vus.push(nom+' : la hauteur de l\\'inéquation est nulle, égale à celle de l\\'antécédent, ou traversée');
+      const S=ens(q.w,q.k,q.op);
+      if(S.length<1||S.length>2) vus.push(nom+' : S de l\\'inéquation a '+S.length+' morceau(x) au lieu de 1 ou 2');
+      if(S.some(function(pr){ return pr[0]===pr[1]; })) vus.push(nom+' : un morceau de S est réduit à un point');
+      if(S.length===1&&S[0][0]===-5&&S[0][1]===5) vus.push(nom+' : S est le domaine entier — l\\'inéquation ne demande rien');
+      const b=ant(q.w,q.ya)[0];
+      if(q.a1===q.a2||q.a1===b||q.a2===b) vus.push(nom+' : les colonnes des consignes se recouvrent');
+      if(q.w[q.a1+5]===0||q.w[q.a2+5]===0) vus.push(nom+' : une valeur donnée est nulle — elle répéterait l\\'équation');
+      /* le témoin respecte SES consignes, par le juge même de la page */
+      const qq=Object.assign({},q); qq.rep=q.w.slice();
+      if(!cfxJuge(qq).allOk) vus.push(nom+' : le témoin ne respecte pas ses propres consignes');
+    };
+    const opsV=new Set();
+    for(let t=0;t<300 && !vus.length;t++){ const q=cfxGen(); gardes(q,'tirage '+t); opsV.add(q.op); }
+    if(!vus.length && opsV.size<2) vus.push('le signe de l\\'inéquation ne varie jamais sur 300 séances');
+    gardes(Object.assign({},CFX_REPLI),'le REPLI');
+    if(vus.length) return vus.join(' | ');
+    /* ---- les gestes, sur le repli — la correction est la fonction qui juge ---- */
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null; currentTestId='construire-fonction';
+    const monte=function(mode,rep){
+      currentMode=mode;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cfx', questions:[Object.assign({},CFX_REPLI,{rep:rep})], idx:0, score:0, maxScore:5, answers:[], startTime:Date.now(), locked:false});
+      renderCfx();
+    };
+    const etats=function(){ return [].map.call(document.querySelectorAll('#cfxHost .cfx-consigne'),
+      function(c){ return c.classList.contains('ok')?'+':(c.classList.contains('bad')?'-':'.'); }).join(''); };
+    /* 1. les cinq consignes sont des RÉPONSES (pts-case), rien n'est peint au rendu */
+    monte('train', CFX_REPLI.w.slice());
+    if(document.querySelectorAll('#cfxHost .cfx-consigne.pts-case').length!==5)
+      vus.push('les consignes ne portent pas toutes la classe pts-case : la note affichée ne les compterait pas');
+    if(etats()!=='.....') vus.push('une consigne est peinte avant la vérification ('+etats()+')');
+    /* 2. une copie INCOMPLÈTE ne reçoit aucune couleur, et le message compte les manques */
+    const rep7=CFX_REPLI.w.slice(); rep7[2]=null; rep7[6]=null; rep7[9]=null;
+    monte('train', rep7);
+    checkCfxAnswer();
+    if(etats()!=='.....') vus.push('une copie incomplète peint des consignes ('+etats()+') : une courbe à moitié tracée n\\'est pas fausse');
+    if(document.getElementById('cfxFeedback').textContent.indexOf('il en manque 3')<0)
+      vus.push('le message de la copie incomplète ne compte pas les colonnes manquantes : '+document.getElementById('cfxFeedback').textContent.slice(0,60));
+    if(test.locked) vus.push('une copie incomplète verrouille la question');
+    /* 3. le témoin recopié : 5/5 — et pas de courbe verte (rien à corriger) */
+    monte('train', CFX_REPLI.w.slice());
+    checkCfxAnswer();
+    if(test.score!==5||etats()!=='+++++') vus.push('le témoin recopié ne fait pas 5/5 ('+test.score+', '+etats()+')');
+    if(document.querySelector('#cfxHost .cfx-sol')) vus.push('la courbe verte s\\'affiche sur une copie toute juste');
+    /* 4. LE POINT CLÉ : une copie DIFFÉRENTE du témoin qui respecte tout est
+       acceptée — le juge lit les consignes, jamais le témoin */
+    const alt=CFX_REPLI.w.slice(); alt[1]=-3;
+    monte('train', alt);
+    checkCfxAnswer();
+    if(test.score!==5) vus.push('une courbe différente du témoin mais qui respecte TOUT est refusée ('+test.score+'/5) : le juge compare au témoin');
+    /* 5. chaque consigne rougit là où sa violation vit — motifs épinglés */
+    const cas=[
+      ['P[4]=2',  '-+++-', 'la valeur f(a1) changée (et la traversée de k qu\\'elle crée)'],
+      ['P[7]=1',  '+-+++', 'l\\'image de a2 changée'],
+      ['P[2]=4',  '++---', 'un second antécédent de ya (et les traversées qu\\'il crée)'],
+      ['P[3]=1',  '+++-+', 'un zéro perdu'],
+      ['P[5]=3',  '++-+-', 'le sommet aplati : l\\'antécédent disparaît et S change']
+    ];
+    cas.forEach(function(c){
+      const Pm=CFX_REPLI.w.slice(); eval(c[0].replace('P','Pm'));
+      monte('train', Pm);
+      checkCfxAnswer();
+      if(etats()!==c[1]) vus.push(c[2]+' : consignes '+etats()+' au lieu de '+c[1]);
+    });
+    /* 6. sur une copie fausse en ENTRAÎNEMENT : le témoin vert se montre, la
+       question se verrouille, le bouton suivant arrive */
+    if(!document.querySelector('#cfxHost .cfx-sol')) vus.push('le témoin vert ne se montre pas sur une copie fausse en entraînement');
+    if(!test.locked) vus.push('la copie fausse d\\'entraînement ne verrouille pas');
+    if(!document.getElementById('cfxNext')) vus.push('pas de bouton pour continuer après la vérification');
+    /* 7. en SOUTIEN : pas de témoin, pas de verrou — l\\'élève corrige lui-même */
+    const Pm=CFX_REPLI.w.slice(); Pm[3]=1;
+    monte('soutien', Pm);
+    checkCfxAnswer();
+    if(document.querySelector('#cfxHost .cfx-sol')) vus.push('le témoin vert fuit en soutien : il souffle la réponse que le barème fait payer');
+    if(test.locked) vus.push('le soutien verrouille au lieu de laisser corriger');
+    if(etats()!=='+++-+') vus.push('le soutien ne peint pas la consigne fausse ('+etats()+')');
+    /* 8. deux tracés en entraînement, un seul en soutien */
+    currentMode='train'; startCfx();
+    if(test.questions.length!==2||test.maxScore!==10) vus.push('l\\'entraînement ne fait pas deux tracés sur 10 ('+test.questions.length+', '+test.maxScore+')');
+    currentMode='soutien'; startCfx();
+    if(test.questions.length!==1) vus.push('le soutien ne fait pas un seul tracé');
+    return vus.join(' | ');
+  })()`, function(v){ return v===''; });
+}
 /* Les courbes de f et de g se DISTINGUENT (signalé par Turquet, août 2026 :
    « on a du mal quelquefois à savoir quelle est la courbe f et quelle est
    g ») : f et g portaient deux BLEUS (#2B50C8 et #4a5a80), que seuls les

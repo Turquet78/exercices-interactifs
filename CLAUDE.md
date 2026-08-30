@@ -997,6 +997,52 @@ case vide rougie, la bonne carte qui ne se montre plus, le soutien qui peint
 le vide — chacun rougit en nommant son défaut, sauf celui du garde-fou mort,
 dont le vert disait vrai.
 
+**Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
+le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
+Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
+cinq consignes — une valeur, une image, un antécédent, l'équation
+f(x) = 0 avec S = { … }, une inéquation f(x) signe k avec S en
+intervalles — et c'est l'ÉLÈVE qui trace : un point entier par colonne sur
+[−5 ; 5] × [−4 ; 4], posé et retiré au clic, la courbe (les cubiques de
+`lvTangents`, monotones entre deux graduations) se dessinant à travers ses
+points au fil de la pose.
+**Le tirage fabrique un TÉMOIN, en dérive les consignes, puis le juge
+l'oublie** : il ne relit que les consignes sur la courbe de l'élève —
+beaucoup de courbes différentes sont justes, et le contrôle épingle une
+copie ALTERNATIVE acceptée à 5/5, le bord qui attraperait un juge qui
+comparerait au témoin. Le témoin ne sert qu'à la correction VERTE (jamais
+en soutien). L'exactitude des ensembles passe par le refus des TRAVERSÉES :
+entre deux graduations la spline est monotone, donc tout bord d'ensemble
+vit sur une graduation — une courbe qui plonge à travers la hauteur k entre
+deux colonnes change S, et le juge le voit (un « faux sabotage » l'a
+montré : la copie que je croyais valide créait une traversée, et le 4/5
+disait vrai).
+**Le témoin est SANS PALIER** (deux valeurs voisines égales feraient un
+segment plat — l'équation et l'antécédent y perdraient leur sens), et sans
+palier un changement de signe passe forcément PAR un zéro : 0 n'est jamais
+traversé entre deux graduations. 2-3 zéros, l'antécédent unique, S de
+l'inéquation en 1-2 intervalles jamais réduits à un point ni au domaine
+entier, les colonnes des consignes disjointes, et une valeur donnée jamais
+nulle (elle répéterait l'équation). Le premier repli, inventé À LA MAIN,
+était invalide (k traversé) — la règle « un repli RÉEL, relevé sur le
+générateur » existe précisément pour ça ; celui qui est figé passe par les
+gardes mêmes du contrôle.
+**Chaque consigne est une RÉPONSE** (`pts-case`, la leçon des barres de
+{simplifier-barres}) : cinq cases dans la note, peintes ok/bad à la
+vérification — et une courbe INCOMPLÈTE ne reçoit aucune couleur : une
+courbe à moitié tracée n'est pas fausse, le message compte les colonnes
+manquantes. L'écouteur des clics est DÉLÉGUÉ à l'hôte : le SVG est réécrit
+à chaque pose, un écouteur posé dessus mourrait avec lui. Et jsdom n'ayant
+pas de mise en page (un rectangle de SVG y vaut zéro), le calcul
+clic → nœud ne se voit qu'au banc navigateur, qui clique pour de vrai :
+poser les 11 colonnes, retirer un point, vérifier 5/5, fausser une copie et
+voir le témoin vert. Un piège de banc s'y est montré : `mouse.click` ne fait
+pas défiler, et le clic sur la rangée du bas (y = −4) tombait hors de la
+fenêtre — perdu sans erreur ; la grille se centre avant de cliquer. Éprouvé
+par DIX sabotages nommés, dont un que seul le navigateur voit : l'écouteur
+posé sur le SVG au lieu de l'hôte ne pose qu'un point, puis meurt avec la
+première réécriture.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en
