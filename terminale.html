@@ -500,9 +500,11 @@
   .sa2-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:1.25rem}
   .sa2-eq{min-width:74px;text-align:right;font-weight:600}
   .sa2-t{white-space:nowrap}
+  /* La largeur est posée en JavaScript (sa2Ajuster) : un input ne sait pas se
+     dimensionner sur son contenu en CSS. On ne garde ici qu'un plafond, pour
+     qu'une saisie absurde ne pousse pas la ligne hors de l'écran. */
   .sa2-in{font-family:"Fredoka",system-ui,sans-serif;font-size:1.2rem;font-weight:600;text-align:center;
-          width:5.2em;max-width:220px;padding:2px 6px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-  .sa2-in.sa2-mot{width:3.6em}
+          max-width:220px;padding:2px 6px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
   .sa2-in:focus{outline:none;border-color:var(--blue)}
   .sa2-in.ok{border-color:var(--blue);background:#eaf1ff}
   .sa2-in.bad{border-color:#dc2626;background:#fee2e2}
@@ -2180,7 +2182,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=265;
+const APP_VERSION=266;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -13064,7 +13066,7 @@ const SA=(function(){
       'sa-d2': raw=>checkFn(raw, e=>q.V0*Math.pow(q.a,e.n)-q.k, envsN(), ['n'])
     };
   }
-  return { genSession, sols, validators, fmtH, numStr, sgnH, lx,
+  return { genSession, sols, validators, fmtH, numStr, sgnH, lx, POOL_MODEL,
            _t:{ latexToArith, parseExpr, evalAst, compile, checkFn, checkConst,
                 envsXW, envsX, envsV, envsY, envsN, mk } };
 })();
@@ -14012,20 +14014,19 @@ function sa2Mot(raw){ return String(raw==null?'':raw).toLowerCase().replace(/[\s
 
 /* Les réponses attendues, calculées depuis la question et elle seule. */
 function sa2Attendu(q){
-  const A=Math.abs;
   return {
     'sa2-i1':['mot', 'n+1'],
-    'sa2-a1':['nb', q.a],      'sa2-b1':['nb', A(q.b)],
-    'sa2-a2':['nb', q.a],      'sa2-bk':['nb', A(q.bk)],
+    'sa2-a1':['nb', q.a],      'sa2-b1':['nb', q.b],
+    'sa2-a2':['nb', q.a],      'sa2-bk':['nb', q.bk],
     'sa2-a3':['nb', q.a],      'sa2-d1':['nb', q.a],
-    'sa2-n2':['nb', A(q.bk)],  'sa2-d2':['nb', q.a],
-    'sa2-k1':['nb', A(q.k)],
+    'sa2-n2':['nb', q.bk],     'sa2-d2':['nb', q.a],
+    'sa2-k1':['nb', q.k],
     'sa2-a4':['nb', q.a],
     'sa2-i2':['mot', '0'],     'sa2-u0':['nb', q.u0],   'sa2-v0':['nb', q.V0],
     'sa2-type':['choix', 'geo'], 'sa2-q':['nb', q.a],
     'sa2-i3':['mot', '0'],     'sa2-v0b':['nb', q.V0],  'sa2-q2':['nb', q.a],
-    'sa2-k2':['nb', A(q.k)],
-    'sa2-v0c':['nb', q.V0],    'sa2-q3':['nb', q.a],    'sa2-k3':['nb', A(q.k)]
+    'sa2-k2':['nb', -q.k],
+    'sa2-v0c':['nb', q.V0],    'sa2-q3':['nb', q.a],    'sa2-k3':['nb', -q.k]
   };
 }
 const SA2_IDS=['sa2-i1','sa2-a1','sa2-b1','sa2-a2','sa2-bk','sa2-a3','sa2-d1','sa2-n2','sa2-d2',
@@ -14041,24 +14042,55 @@ function sa2Juste(type, attendu, raw){
 function sa2Libelle(type, attendu, q){
   if(type==='choix') return 'géométrique';
   if(type==='mot')   return attendu;
-  return SA.fmtH(attendu);
+  /* le signe fait partie du nombre : la correction l'écrit comme l'élève
+     devait le taper — « +200 », « −3800 ». */
+  return (attendu>0?'+':'')+SA.fmtH(attendu);
 }
 
-/* Une case : un nombre (clavier numérique sur tablette) ou un mot (clavier du système). */
+/* Une case : un nombre (clavier numérique sur tablette) ou un mot (clavier du système).
+   Elle est ÉTROITE au repos et GRANDIT sous la frappe (demande de Turquet, août
+   2026) : une case large laisse croire qu'on attend un long calcul, et une case
+   fixe couperait « 10 000 » ou « −3800 ». La largeur se règle en JavaScript —
+   un input ne sait pas se dimensionner tout seul en CSS — et elle est réajustée
+   APRÈS la correction, sans quoi la réponse écrite en bleu serait tronquée. */
+const SA2_LARGEUR_MIN=3.2;                 /* en « ch » : de quoi loger « −6 » */
+function sa2Ajuster(el){
+  if(!el) return;
+  const n=String(el.value==null?'':el.value).length;
+  el.style.width=Math.max(SA2_LARGEUR_MIN, n+1.2)+'ch';
+}
+function sa2AjusterTout(){ SA2_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
 function sa2In(id, mot){
   return '<input class="sa2-in'+(mot?' sa2-mot':'')+'" id="'+id+'" type="text" autocomplete="off"'
-    + (mot?'':' inputmode="numeric"') + ' aria-label="case à compléter">';
+    + (mot?'':' inputmode="numeric"') + ' oninput="sa2Ajuster(this)" aria-label="case à compléter">';
 }
 function sa2Frac(hautHTML, basHTML){
   return '<span class="sa2-frac"><span class="num">'+hautHTML+'</span><span class="bar"></span><span class="den">'+basHTML+'</span></span>';
 }
 
+/* LE TIRAGE DE CET EXERCICE : des raisons DÉCIMALES strictement entre 0 et 1
+   (demande de Turquet, août 2026) — c'est le 0,95 de la fiche, et c'est ce qui
+   rend la factorisation intéressante. On PUISE dans le vivier de
+   {suite-auxiliaire} plutôt que d'écrire un second, et on le FILTRE plutôt que
+   de faire confiance à son contenu : une entrée à raison entière ajoutée
+   demain ne doit pas entrer ici en silence. Le repli garde le cas de la fiche,
+   qui passe par les mêmes gardes que le tirage.
+   Les deux questions d'une séance sont DISTINCTES : deux fois le même calcul
+   n'apprendrait rien de plus. */
+function sa2GenSession(){
+  const vivier=(SA.POOL_MODEL||[]).filter(function(p){ return p[0]>0 && p[0]<1 && p[0]!==Math.round(p[0]); });
+  if(vivier.length<2) return [ SA._t.mk(0.95,-4000,10000), SA._t.mk(0.9,-2500,10000) ];
+  const i=Math.floor(Math.random()*vivier.length);
+  let j=Math.floor(Math.random()*(vivier.length-1)); if(j>=i) j++;
+  const f=function(p){ return SA._t.mk(p[0], -p[1], p[2]); };
+  return [ f(vivier[i]), f(vivier[j]) ];
+}
 async function startSA2(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   cfg=await loadConfig();
   currentTestId='suite-auxiliaire-2'; test.kind='sa2';
-  test.questions=SA.genSession();
+  test.questions=sa2GenSession();
   test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
   show('sa2'); renderSA2();
 }
@@ -14073,8 +14105,12 @@ function renderSA2(){
 
   const U='<i>U</i>', V='<i>V</i>', n='<i>n</i>';
   const Un=U+'<sub>'+n+'</sub>', Vn=V+'<sub>'+n+'</sub>', Vn1=V+'<sub>'+n+'+1</sub>';
-  const sgnB=(q.b<0?' − ':' + '), sgnBK=(q.bk<0?' − ':' + '), sgnK=(q.k<0?' − ':' + ');
-  const sgnMK=(q.k<0?' + ':' − ');           /* Uₙ = Vₙ − k : le signe OPPOSÉ */
+  /* LA PAGE N'ÉCRIT PLUS LE SIGNE DEVANT UNE CASE (demande de Turquet, août
+     2026) : c'est l'élève qui le pose, et la case porte le nombre SIGNÉ. Un
+     signe imprimé faisait la moitié du travail — savoir si l'on ajoute ou si
+     l'on retire EST une partie de la démonstration. Les signes qui restent
+     écrits sont ceux de l'ÉNONCÉ (la définition de Vₙ), jamais ceux d'une
+     réponse. */
 
   $('sa2Prompt').innerHTML='Soit <b>('+U+'<sub>'+n+'</sub>)</b> la suite définie par&nbsp;: <b>'+U+'<sub>0</sub> = '+F(q.u0)
     +'</b> et, pour tout entier naturel '+n+', <b>'+U+'<sub>'+n+'+1</sub> = '+F(q.a)+' '+Un+S(q.b)+'</b>.';
@@ -14086,16 +14122,16 @@ function renderSA2(){
   L.innerHTML=
     '<div class="sa2-row"><span class="sa2-eq">'+Vn1+' =</span>'
       +'<span class="sa2-t">'+U+'<sub>'+sa2In('sa2-i1',true)+'</sub>'+S(q.k)+' = </span>'
-      +sa2In('sa2-a1')+'<span class="sa2-t"> '+Un+sgnB+'</span>'+sa2In('sa2-b1')
+      +sa2In('sa2-a1')+'<span class="sa2-t"> '+Un+' '+'</span>'+sa2In('sa2-b1')
       +'<span class="sa2-t">'+S(q.k)+'</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a2')
-      +'<span class="sa2-t"> '+Un+sgnBK+'</span>'+sa2In('sa2-bk')+'</div>'
+      +'<span class="sa2-t"> '+Un+' '+'</span>'+sa2In('sa2-bk')+'</div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' (</span>'
       +sa2Frac(sa2In('sa2-a3')+' '+Un, sa2In('sa2-d1'))
-      +'<span class="sa2-t">'+sgnBK+'</span>'
+      +'<span class="sa2-t">&nbsp;</span>'
       +sa2Frac(sa2In('sa2-n2'), sa2In('sa2-d2'))
       +'<span class="sa2-t">)</span></div>'
-    +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' ( '+Un+sgnK+'</span>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span><span class="sa2-t">'+F(q.a)+' ( '+Un+' '+'</span>'
       +sa2In('sa2-k1')+'<span class="sa2-t">)</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a4')
       +'<span class="sa2-t"> × '+Vn+'</span></div>';
@@ -14121,11 +14157,12 @@ function renderSA2(){
   $('sa2LadderD').innerHTML=
     '<div class="sa2-row"><span class="sa2-t">Comme '+Vn+' = '+Un+S(q.k)+', on a :</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">'+Un+' =</span>'
-      +'<span class="sa2-t">'+Vn+sgnMK+'</span>'+sa2In('sa2-k2')
+      +'<span class="sa2-t">'+Vn+' '+'</span>'+sa2In('sa2-k2')
       +'<span class="sa2-t"> = </span>'+sa2In('sa2-v0c')
       +'<span class="sa2-t"> × </span>'+sa2In('sa2-q3')
-      +'<span class="sa2-t"><sup>'+n+'</sup>'+sgnMK+'</span>'+sa2In('sa2-k3')+'</div>';
+      +'<span class="sa2-t"><sup>'+n+'</sup> '+'</span>'+sa2In('sa2-k3')+'</div>';
 
+  sa2AjusterTout();
   /* correction en direct du mode soutien */
   if(isSoutien()){
     SA2_IDS.forEach(id=>{ const el=$(id); if(!el) return;
@@ -14183,6 +14220,7 @@ function checkSA2(live){
       +'<br>La clé : on factorise par '+SA.fmtH(q.a)+' pour faire réapparaître '+'<i>U</i><sub><i>n</i></sub>'+SA.sgnH(q.k)+', c’est-à-dire <i>V</i><sub><i>n</i></sub>.';
     $('sa2Feedback').className='mp-feedback bad';
     SA2_IDS.forEach(id=>{ const [type,bon]=att[id]; corrCase(id, sa2Libelle(type,bon,q), verd[id]===true); });
+    sa2AjusterTout();          /* la réponse écrite en bleu ne doit pas être coupée */
   }
   test.answers.push({...(ptsExo()||{}),
     q:'V(n+1) = '+SA.fmtH(q.a)+' × V(n) ; V0 = '+SA.fmtH(q.V0)+' ; U(n) = '+SA.fmtH(q.V0)+' × '+SA.fmtH(q.a)+'^n'+SA.sgnH(-q.k),
