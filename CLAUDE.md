@@ -1859,6 +1859,78 @@ l'écran, sans que rien ne le dise. Le défaut ne s'écrit jamais dans le JSON (
 devoir sans bonus garde exactement la forme qu'il avait avant que le réglage
 n'existe). Onze sabotages, chacun rougissant en nommant son défaut.
 
+**Le carnet de notes du professeur : une moyenne par élève, un devoir par
+colonne.** Le bilan d'un devoir ne montrait qu'UN devoir à la fois ; le
+professeur voulait le tableau entier, rangé par ordre alphabétique, et
+téléchargeable (demande de Turquet, août 2026 — devoirs ET fiches, les trois
+niveaux). Il vit au-dessus du bilan, dans l'onglet « Devoir maison », et suit
+la famille choisie : les fiches ont leur tableau, les devoirs le leur.
+**Deux décisions de Turquet sont DANS les chiffres**, et chacune se voit :
+un devoir **non fait compte 0** et reste au dénominateur — c'est la moyenne
+d'un bulletin, elle dit le travail rendu autant que le niveau ; et chaque note
+est **ramenée sur 20** avant d'être moyennée, sans quoi un devoir à 3
+exercices (sur 30) pèserait une fois et demie un devoir à 2 (sur 20), et la
+moyenne d'un élève changerait le jour où l'on ajoute un exercice à un vieux
+devoir.
+**Le zéro s'ÉCRIT « 0 », jamais « — ».** C'est la leçon des cases justes
+comptées `good` : l'écran ne doit pas dire autre chose que la note. Un tiret
+devant une moyenne qui compte 0 laisserait croire que le devoir est hors du
+calcul, et le professeur chercherait longtemps d'où vient l'écart. La colonne
+« faits » porte, elle, la différence entre un 0 obtenu et un 0 d'absence.
+**Quels devoirs comptent** : un devoir JAMAIS montré aux élèves ne peut pas
+avoir été fait — le compter 0 pour toute la classe serait un mensonge, et la
+moyenne s'effondrerait à chaque brouillon créé dans l'éditeur. Un devoir entre
+donc dans le tableau s'il est AFFICHÉ, **ou** si au moins un élève y a une
+note : un devoir retiré après coup garde ainsi les notes qu'il a produites. Un
+devoir sans exercice n'a pas de maximum et reste dehors.
+**L'ordre alphabétique est tenu par la PAGE, pas par la base.**
+`localeCompare` en français range « Émile » avec les E ; l'ordre d'un
+`order('prenom')` dépend de la collation du serveur — invisible ici, et faux le
+jour où elle change. Le banc sème exprès dans le désordre, accents compris.
+**UN SEUL ENTONNOIR pour la note d'un devoir** : `dmNoteDevoir()`. Le bilan par
+devoir, son détail par élève et le tableau des moyennes la lisent tous — deux
+calculs auraient donné deux notes, et le professeur aurait lu l'une dans le
+tableau et l'autre dans le bilan juste en dessous, sans que rien ne rougisse.
+C'est la leçon d'`exercicesDevoir()` et de `dmTotal()`, une fois de plus. Le
+reste du moteur est le **même texte dans les trois fichiers** et un contrôle le
+compare au caractère près ; trois fonctions divergent volontairement et sont
+NOMMÉES dans le contrôle — `dmNbExos()` et `dmNoteDevoir()` (la Première lit sa
+liste par `exercicesDevoir()`, la Terminale ajoute la note POSÉE par le
+professeur) et `renderDmMoyennes()`, qui nomme les tables du niveau.
+**Le fichier EST le tableau.** Le CSV ne recalcule rien et ne relit pas la
+base : il reprend `dmMoyDernier`, ce que le professeur a sous les yeux. Deux
+calculs auraient donné deux tableaux, et c'est le FICHIER — celui qu'on garde —
+qui aurait menti. Il sépare au **point-virgule** et non à la virgule : c'est le
+séparateur de liste des Windows français, et Excel range sinon la ligne entière
+dans une seule colonne ; le BOM en tête lui dit que le fichier est en UTF-8,
+sans quoi « élève » s'affiche « Ã©lÃ¨ve ». (L'export brut de tous les résultats,
+lui, sépare encore à la virgule : il est antérieur, et personne n'a demandé à
+le changer.) Rien n'attend entre le clic et l'enregistrement — un `await`
+glissé là ferait traiter le téléchargement comme une fenêtre surgissante, que
+Chrome bloque sans un mot : le piège déjà payé sur l'ouverture des cours en PDF.
+**Deux bords ne se voient que dans un navigateur**, et le banc navigateur les
+tient : le téléchargement doit VRAIMENT avoir lieu (jsdom n'en a aucun ; on
+CLIQUE et on attend l'événement du navigateur, puis on relit le fichier reçu),
+et à douze devoirs le tableau est plus large que la carte — c'est LUI qui doit
+défiler (`.dm-moywrap`), jamais la page, qui emmènerait tout le tableau de bord
+en travers. Onze sabotages sur le banc principal, chacun rougissant en nommant
+son défaut.
+**Et un SEPTIÈME garde-fou mort y a été écrit, puis retiré** — celui-ci est
+instructif parce qu'il est né d'une MESURE FAUSSE. Un premier sondage semait
+les douze devoirs AVANT d'ouvrir l'onglet, or ouvrir l'onglet recharge la liste
+depuis la configuration : le banc mesurait un tableau à UN devoir en croyant en
+mesurer vingt, concluait que le tableau « s'écrasait », et un
+`width:max-content` a été posé pour un défaut qui n'existait pas. C'est le
+SABOTAGE qui l'a démasqué — le retirer ne faisait rougir personne —, puis la
+mesure refaite proprement : sans lui le tableau défile déjà (990 px dans 648 à
+douze devoirs, contre 1159 avec), la page ne déborde jamais et aucune cellule
+ne rogne son contenu ; il ne gagnait que la largeur naturelle des en-têtes.
+**Une mesure qui accuse la page mérite d'être mesurée elle-même avant qu'on
+corrige quoi que ce soit** — et le contrôle qui manquait vraiment est celui de
+la LISIBILITÉ : un tableau qui se comprime ne déborde nulle part, si bien que
+le contrôle du défilement reste vert sur un écran illisible. Il exige donc
+désormais qu'aucune cellule ne coupe son contenu.
+
 **Une fiche de travail se fait DANS L'ORDRE ; un devoir reste tout ouvert.**
 Les deux phrases sont deux décisions de Turquet, à un mois d'écart, et elles
 ne se contredisent pas : à la maison chacun avance comme il veut, en classe le
