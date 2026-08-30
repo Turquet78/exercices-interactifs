@@ -865,6 +865,32 @@ le piège rendu invisible, les dessins non mélangés, la carte qui ne compte
 plus, la bonne carte qui ne se montre plus, le tirage re-tiré, la ligne
 horizontale sur toutes les cartes — chacun rougit en nommant son défaut.
 
+**Puis les antécédents et les inéquations à k, et le 2.5 est devenu la fiche
+entière : HUIT questions** (demande de Turquet, août 2026) — images,
+antécédents de ka par f ET par g, f(x) = k puis f(x) signe k, g(x) = kg puis
+g(x) signe kg, f(x) = g(x), f(x) signe g(x) : chaque équation est SUIVIE de
+son inéquation à la même hauteur (la progression du 2.7), et chacune fait
+choisir le bon dessin parmi quatre. Les antécédents ont leurs quatre cartes
+sur permE (l'oubli est le point de G — l'élève qui ne regarde que f) ;
+f(x) signe k partage permI avec f(x) signe g(x) (les mêmes quatre
+coloriages, contre la ligne au lieu de la droite) ; g(x) signe kg a gagné
+permG — quatre demi-droites, côté × marque — parce qu'une droite ne croise
+la ligne qu'une fois : sa solution est TOUT UN CÔTÉ de xg, un seul
+intervalle, jamais d'union. Deux leçons de tirage payées comptant :
+**les solutions de f(x) = k sont INTÉRIEURES désormais** — l'union
+« [−3 ; x1] ∪ [x2 ; 3] » de la nouvelle inéquation mentirait si une solution
+tombait au bord, et le repli qui venait d'être figé avait exactement ce
+défaut ; et **la hauteur des antécédents accepte UN antécédent par f** (un
+sommet) — exiger deux hauteurs à deux solutions rendait le tirage exsangue
+(0,03 % d'essais viables, le repli sortait une séance sur trois, mesuré
+deux fois), quand le singulier est un visage que {lecture-deux-courbes}
+cultive déjà ; on préfère deux quand la courbe les offre, et le contrôle
+exige que les deux visages sortent. ka se choisit AVANT k — choisir k
+d'abord volait la seule hauteur lisible sur g. Le tirage fait 4 000 essais
+(un sur ~400 est viable), et les DEUX tirages épinglés du contrôle — le
+repli au pluriel, un second au singulier — passent par les mêmes gardes que
+le tirage. Éprouvé par les sabotages nommés du contrôle réécrit.
+
 **Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
 est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
 Turquet, août 2026) est repris de la fiche « images et antécédents avec f et
@@ -908,6 +934,23 @@ autorisé, les bornes redevenues −3 et 3 — chacun rougit en nommant son
 défaut. Et un FAUX sabotage s'est montré : passer la marge de 1 à 0,5 ne
 change rien, les valeurs étant entières — un écart nul EST un croisement, la
 marge aux graduations est tenue par le compte des croisements.
+
+**Deux bleus ne font pas deux courbes.** Signalé par Turquet (août 2026) sur
+le 2.5 et le 2.6 : « on a du mal quelquefois à savoir quelle est la courbe f
+et quelle est la courbe g ». f était en bleu vif et g en bleu ardoise
+(#4a5a80) — deux bleus, que seuls les pointillés et de petites étiquettes
+séparaient, illisibles surtout sur les petites cartes des propositions. g est
+passée à l'ORANGE de {croiser-denominateurs} (#C2410C), choisi jadis pour ne
+pas se confondre avec les verdicts ni avec le bleu pour un daltonien ;
+l'étiquette Cg est grandie, et une LÉGENDE s'affiche sous le titre des deux
+exercices — cartes comprises, puisqu'elle vit au niveau de l'écran. Ses
+échantillons sont dessinés avec les CLASSES mêmes des courbes (`lv-curve`,
+`eqg-g`) : une légende à couleurs propres pourrait contredire le dessin le
+jour où l'une des deux change. Et la couleur ne porte jamais seule : les
+pointillés restent, et la légende dit « trait plein / pointillés » avec des
+mots. Un contrôle tient les trois bords — dominantes OPPOSÉES des deux encres
+(étiquette Cg et bouts de g compris), légende sur les deux exercices,
+échantillons par les classes — éprouvé par cinq sabotages nommés.
 
 **Résoudre, c'est d'abord choisir le dessin — équations et inéquations sur
 les mêmes quatre cartes.** {resolutions-graphiques} (Seconde, 2.7, demande de
@@ -953,6 +996,52 @@ non mélangés, l'ordre des abscisses imposé, le doublon compté deux fois, la
 case vide rougie, la bonne carte qui ne se montre plus, le soutien qui peint
 le vide — chacun rougit en nommant son défaut, sauf celui du garde-fou mort,
 dont le vert disait vrai.
+
+**Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
+le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
+Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
+cinq consignes — une valeur, une image, un antécédent, l'équation
+f(x) = 0 avec S = { … }, une inéquation f(x) signe k avec S en
+intervalles — et c'est l'ÉLÈVE qui trace : un point entier par colonne sur
+[−5 ; 5] × [−4 ; 4], posé et retiré au clic, la courbe (les cubiques de
+`lvTangents`, monotones entre deux graduations) se dessinant à travers ses
+points au fil de la pose.
+**Le tirage fabrique un TÉMOIN, en dérive les consignes, puis le juge
+l'oublie** : il ne relit que les consignes sur la courbe de l'élève —
+beaucoup de courbes différentes sont justes, et le contrôle épingle une
+copie ALTERNATIVE acceptée à 5/5, le bord qui attraperait un juge qui
+comparerait au témoin. Le témoin ne sert qu'à la correction VERTE (jamais
+en soutien). L'exactitude des ensembles passe par le refus des TRAVERSÉES :
+entre deux graduations la spline est monotone, donc tout bord d'ensemble
+vit sur une graduation — une courbe qui plonge à travers la hauteur k entre
+deux colonnes change S, et le juge le voit (un « faux sabotage » l'a
+montré : la copie que je croyais valide créait une traversée, et le 4/5
+disait vrai).
+**Le témoin est SANS PALIER** (deux valeurs voisines égales feraient un
+segment plat — l'équation et l'antécédent y perdraient leur sens), et sans
+palier un changement de signe passe forcément PAR un zéro : 0 n'est jamais
+traversé entre deux graduations. 2-3 zéros, l'antécédent unique, S de
+l'inéquation en 1-2 intervalles jamais réduits à un point ni au domaine
+entier, les colonnes des consignes disjointes, et une valeur donnée jamais
+nulle (elle répéterait l'équation). Le premier repli, inventé À LA MAIN,
+était invalide (k traversé) — la règle « un repli RÉEL, relevé sur le
+générateur » existe précisément pour ça ; celui qui est figé passe par les
+gardes mêmes du contrôle.
+**Chaque consigne est une RÉPONSE** (`pts-case`, la leçon des barres de
+{simplifier-barres}) : cinq cases dans la note, peintes ok/bad à la
+vérification — et une courbe INCOMPLÈTE ne reçoit aucune couleur : une
+courbe à moitié tracée n'est pas fausse, le message compte les colonnes
+manquantes. L'écouteur des clics est DÉLÉGUÉ à l'hôte : le SVG est réécrit
+à chaque pose, un écouteur posé dessus mourrait avec lui. Et jsdom n'ayant
+pas de mise en page (un rectangle de SVG y vaut zéro), le calcul
+clic → nœud ne se voit qu'au banc navigateur, qui clique pour de vrai :
+poser les 11 colonnes, retirer un point, vérifier 5/5, fausser une copie et
+voir le témoin vert. Un piège de banc s'y est montré : `mouse.click` ne fait
+pas défiler, et le clic sur la rangée du bas (y = −4) tombait hors de la
+fenêtre — perdu sans erreur ; la grille se centre avant de cliquer. Éprouvé
+par DIX sabotages nommés, dont un que seul le navigateur voit : l'écouteur
+posé sur le SVG au lieu de l'hôte ne pose qu'un point, puis meurt avec la
+première réécriture.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
