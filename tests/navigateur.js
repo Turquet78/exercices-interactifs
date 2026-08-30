@@ -1224,6 +1224,105 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 septies bis. LE PROFESSEUR RENOMME UN ÉLÈVE, POUR DE VRAI ===== */
+    /* Le banc principal exerce renameStudent() avec un prompt() postiche : il
+       dit que la fonction fait ce qu'il faut, pas qu'on peut l'atteindre. Ici
+       on CLIQUE le bouton, on répond à la vraie fenêtre du navigateur, et on
+       relit la liste — c'est la règle « ne jamais livrer sans avoir exécuté ».
+       Et il MESURE la rangée : elle porte trois boutons depuis aujourd'hui, et
+       seul un vrai navigateur sait si le troisième reste atteignable. Le bord
+       est un PETIT téléphone — 320 px : au-delà, rien ne se voit (mesuré). Ce
+       qui cède là n'est pas la rangée mais la PAGE, qui s'élargit sous l'écran
+       et emporte « Retirer » à droite, hors de portée, sans que rien ne
+       rougisse nulle part. */
+    titre('6 septies bis. LE PROFESSEUR RENOMME UN ÉLÈVE');
+    if(!/async function renameStudent\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('le professeur renomme un élève depuis sa liste', 'ce niveau n\'a pas renameStudent()');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      await s.page.evaluate(t => {
+        window.__faux.semer(t, [
+          { id: 'e1', prenom: 'Theo', cle: 'cle-1', user_id: 'compte-1' },
+          { id: 'e2', prenom: 'Léa',  cle: 'cle-2', user_id: 'compte-2' }]);
+        show('teacher'); teacherTab('students');
+      }, P.tableEleves);
+      await s.page.waitForTimeout(600);
+
+      /* 1. LA RANGÉE TIENT, y compris sur un petit téléphone. On mesure avant
+         de cliquer : un bouton qu'on ne peut pas atteindre n'a pas besoin
+         d'être juste.
+         ET LE PREMIER JET MESURAIT AUTRE CHOSE : il comparait chaque bouton à
+         SA rangée, et restait vert sous les deux sabotages. En flex, une
+         rangée qui ne se replie pas ne laisse pas déborder ses boutons — elle
+         GRANDIT avec eux. C'est la PAGE qui déborde alors, et « Retirer » qui
+         sort de l'écran par la droite. Le bord est plus bas qu'on ne croit :
+         mesuré, à 420 px le repli des boutons ne change RIEN ; c'est à 320 px
+         que la page passe à 341 px et que « Retirer » devient inatteignable. */
+      const mesurer = () => s.page.evaluate(() => {
+        const vue = window.innerWidth, hors = [], vides = [];
+        document.querySelectorAll('#rosterList li button').forEach(b => {
+          const r = b.getBoundingClientRect();
+          if(r.width < 1) vides.push(b.textContent.trim());
+          else if(r.right > vue + 1 || r.left < -1) hors.push(b.textContent.trim());
+        });
+        return { debord: document.documentElement.scrollWidth - vue, hors: hors, vides: vides,
+                 rangees: document.querySelectorAll('#rosterList li').length,
+                 boutons: document.querySelectorAll('#rosterList li:first-child button').length };
+      });
+      const large = await mesurer();
+      await s.page.setViewportSize({ width: 320, height: 900 });
+      await s.page.waitForTimeout(400);
+      const etroit = await mesurer();
+      const plainte = (m, ou) => (m.debord > 1 || m.hors.length || m.vides.length)
+        ? (ou + ' : ' + (m.debord > 1 ? 'la page déborde de ' + m.debord + ' px' : '') +
+           (m.hors.length ? ' — hors de l\'écran : ' + m.hors.join(', ') : '') +
+           (m.vides.length ? ' — bouton sans surface : ' + m.vides.join(', ') : '')) : '';
+      verifier('les trois boutons d\'un élève restent atteignables, même sur un petit téléphone',
+        large.rangees === 2 && large.boutons === 3
+          && !plainte(large, '1280 px') && !plainte(etroit, '320 px'),
+        large.rangees !== 2 ? (large.rangees + ' rangée(s) affichée(s) au lieu de 2')
+          : large.boutons !== 3 ? ('boutons sur la première rangée : ' + large.boutons)
+          : (plainte(large, 'à 1280 px') + ' ' + plainte(etroit, 'à 320 px')).trim());
+      await s.page.setViewportSize({ width: 1280, height: 900 });
+      await s.page.waitForTimeout(300);
+
+      /* 2. LE CLIC, et la vraie fenêtre du navigateur. prompt() n'existe pas
+         dans jsdom : c'est ici, et seulement ici, que le chemin entier se
+         parcourt — le bouton, la question posée au professeur, l'écriture en
+         base, et la liste redessinée. */
+      let demande = '';
+      s.page.on('dialog', d => { demande = d.message(); d.accept('Théo').catch(() => {}); });
+      /* Playwright 1.6x n'a plus page.$ : on vise par localisateur. Et on vise
+         la RANGÉE de Theo, pas la première venue — la liste est triée par
+         prénom, « Léa » y passe devant, et le banc renommait l'autre élève. */
+      const cible = s.page.locator('#rosterList li').filter({ hasText: 'Theo' })
+                          .first().locator('button', { hasText: 'Renommer' });
+      if(await cible.count() === 0){
+        verifier('cliquer « Renommer » change le prénom, et la liste le montre', false,
+          'aucun bouton « Renommer » dans la liste du professeur');
+      } else {
+        await cible.click();
+        await s.page.waitForTimeout(800);
+        const apresClic = await s.page.evaluate(t => ({
+          base: (window.__faux.tables[t] || []).map(l => l.prenom).join(','),
+          affiche: (document.getElementById('rosterList') || {}).textContent || '',
+        }), P.tableEleves);
+        verifier('cliquer « Renommer » change le prénom, et la liste le montre',
+          apresClic.base === 'Théo,Léa' && /Théo/.test(apresClic.affiche),
+          'en base : « ' + apresClic.base + ' » — affiché : « ' +
+          apresClic.affiche.replace(/\s+/g, ' ').trim().slice(0, 80) + ' »');
+        verifier('la question posée au professeur nomme l\'élève et le rassure sur son code',
+          /Theo/.test(demande) && /code/i.test(demande),
+          'le navigateur a demandé : « ' + String(demande).replace(/\s+/g, ' ').slice(0, 90) + ' »');
+      }
+
+      verifier('renommer n\'a levé aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

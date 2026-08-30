@@ -163,6 +163,29 @@ begin
   end;
   perform pg_temp.exige('elle ne peut pas supprimer un camarade', ok);
 
+  -- Ni le RENOMMER. Le professeur peut changer un prénom depuis sa liste, et ce
+  -- droit est donc EXERCÉ pour de vrai (section 3, « il renomme un élève ») : la
+  -- politique d'UPDATE sur cette table est la seule chose qui le réserve à lui.
+  -- Un élève qui renommerait un camarade brouillerait l'écran de connexion, où
+  -- chacun se reconnaît à son prénom — et pourrait s'y faire passer pour un
+  -- autre. Le refus est MUET, comme partout : la ligne qu'on n'a pas le droit de
+  -- toucher est une ligne qui n'existe pas.
+  begin
+    update public.eleves_2nde set prenom = 'Pirate' where prenom = 'Bob';
+    ok := not found;
+  exception when insufficient_privilege then ok := true;
+  end;
+  perform pg_temp.exige('elle ne peut pas renommer un camarade', ok);
+
+  -- Ni SE renommer : la liste de la classe appartient au professeur, et se
+  -- donner le prénom d'un camarade est le même défaut par l'autre bout.
+  begin
+    update public.eleves_2nde set prenom = 'Bob' where cle = 'cle-alice';
+    ok := not found;
+  exception when insufficient_privilege then ok := true;
+  end;
+  perform pg_temp.exige('elle ne peut pas se renommer elle-même', ok);
+
   -- Ni verrouiller/déverrouiller les évaluations.
   begin
     update public.parametres_2nde set valeurs = '{"pirate":true}' where id = 1;

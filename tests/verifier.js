@@ -3290,7 +3290,7 @@ function coursEnPdf(w, apres){
   const TP = (src.match(/from\('(parametres[a-z0-9_]*)'\)/) || [])[1];
   if(!TP || !/BUCKET_COURS/.test(src)){
     ignorer('le professeur peut déposer un cours en PDF', 'ce niveau n’a pas de dépôt de cours');
-    return fichesDeTravail(w, apres);
+    return renommerEleve(w, apres);
   }
 
   evalPromis(w, `(async function(){
@@ -3411,7 +3411,7 @@ function coursEnPdf(w, apres){
     verifier('l’onglet du PDF s’ouvre avant l’attente, sinon le navigateur le bloque',
       r.ok && b.ordreOnglet === true,
       souci || 'window.open() est appelé après createSignedUrl() dans ouvrirCours()');
-    fichesDeTravail(w, apres);
+    renommerEleve(w, apres);
   });
 }
 
@@ -5875,6 +5875,144 @@ function ordreCroissant(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- Le professeur change le prénom d'un élève ---------------------
+   Un prénom se tape à la rentrée, et il se tape parfois de travers : « Theo »
+   pour « Théo », un nom de famille à la place du prénom, deux « Léa » qu'il
+   faut distinguer. Jusqu'ici il n'y avait qu'un chemin — retirer l'élève et le
+   recréer — et il emportait TOUT son historique.
+
+   Ce geste ne passe pas par la fonction Edge, à la différence du code, de
+   l'ajout et du retrait : il ne demande aucun droit que le navigateur du
+   professeur n'ait déjà (la politique « prof_modif » lui ouvre l'UPDATE), et
+   il ne touche à rien de secret — le compte Supabase est dérivé de « cle »,
+   jamais du prénom. Le contrôle EXIGE cette propriété plutôt que de la
+   supposer : un renommage qui partirait vers admin-eleve serait un bouton mort
+   jusqu'au prochain redéploiement à la main, et rien ne le dirait.
+
+   Six bords, et chacun a son défaut :
+     · le renommage ordinaire — sinon le bouton ne sert à rien ;
+     · « Annuler » et le prénom vide n'écrivent rien ;
+     · un prénom DÉJÀ PRIS est refusé : deux élèves du même nom ne se
+       distinguent plus sur l'écran de connexion, et l'un prendrait la place de
+       l'autre ;
+     · mais l'élève LUI-MÊME passe : « marie » doit pouvoir devenir « Marie »,
+       et un contrôle de doublon trop large le refuserait ;
+     · le REFUS MUET de la base — PostgREST rend « 0 ligne » sans erreur, comme
+       pour une suppression : sans le compte des lignes touchées, la page
+       annonce « Prénom modifié ✓ » sur un prénom qui n'a pas bougé ;
+     · et rien d'autre ne bouge : ni la clé du compte, ni l'identifiant qui
+       porte les notes. Renommer ne doit ni changer le code de l'élève, ni
+       détacher son historique. */
+function renommerEleve(w, apres){
+  const present = evaluer(w, "typeof renameStudent==='function' && typeof renderRoster==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le professeur peut changer le prénom d’un élève', 'ce niveau n’a pas renameStudent()');
+    return fichesDeTravail(w, apres);
+  }
+  const TE = P.tableEleves, TR = P.tableResultats;
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const dits=[]; const vraiToast=toast; toast=function(m,k){ dits.push((k||'ok')+':'+m); };
+    const vraiPrompt=window.prompt;
+    const bilan={};
+    const semer=function(){
+      window.__faux.tables['${TE}']=[
+        {id:'e1',prenom:'Theo',cle:'cle-1',user_id:'compte-1'},
+        {id:'e2',prenom:'Léa', cle:'cle-2',user_id:'compte-2'}];
+      /* une note DÉJÀ obtenue : elle désigne l'élève par eleve_id, et doit le
+         désigner encore après le renommage */
+      window.__faux.tables['${TR}']=[{id:'r1',eleve_id:'e1',percent:80,details:{test:'x',mode:'train'}}];
+      window.__faux.journal.length=0; dits.length=0;
+    };
+    const lu=function(id){ return (window.__faux.tables['${TE}']||[]).filter(function(l){return l.id===id;})[0]||{}; };
+    try{
+      /* 1. le renommage ordinaire — et le roster montre le nouveau nom */
+      semer(); window.prompt=function(){ return ' Théo '; };
+      await renameStudent('e1','Theo');
+      bilan.nom=lu('e1').prenom;
+      bilan.dits=dits.join(' | ');
+      /* rien d'autre n'a bougé : ni la clé du compte, ni l'identifiant des notes */
+      bilan.cle=lu('e1').cle; bilan.compte=lu('e1').user_id;
+      bilan.note=(window.__faux.tables['${TR}'][0]||{}).eleve_id;
+      /* et le geste n'est PAS passé par la fonction Edge : elle ne se déploie
+         qu'à la main, un bouton qui l'appellerait serait mort jusque-là */
+      bilan.edge=window.__faux.operations('invoke').length;
+      await renderRoster();
+      const ul=document.getElementById('rosterList');
+      bilan.affiche=(ul?ul.textContent:'').indexOf('Théo')>=0;
+      bilan.bouton=(ul?ul.innerHTML:'').indexOf('renameStudent(')>=0;
+
+      /* 2. « Annuler » : rien n'est écrit, rien n'est dit */
+      semer(); window.prompt=function(){ return null; };
+      await renameStudent('e1','Theo');
+      bilan.annule=lu('e1').prenom+' /'+window.__faux.operations('update','${TE}').length+' /'+dits.length;
+
+      /* 3. un prénom vide n'écrit rien, et le dit */
+      semer(); window.prompt=function(){ return '   '; };
+      await renameStudent('e1','Theo');
+      bilan.vide=lu('e1').prenom+' /'+window.__faux.operations('update','${TE}').length+' /'+dits.join(' | ');
+
+      /* 4. le prénom d'un AUTRE élève est refusé, à la casse près */
+      semer(); window.prompt=function(){ return 'léa'; };
+      await renameStudent('e1','Theo');
+      bilan.doublon=lu('e1').prenom+' /'+window.__faux.operations('update','${TE}').length+' /'+dits.join(' | ');
+
+      /* 5. mais SON PROPRE prénom passe : « Theo » doit pouvoir devenir « THEO » */
+      semer(); window.prompt=function(){ return 'THEO'; };
+      await renameStudent('e1','Theo');
+      bilan.casse=lu('e1').prenom;
+
+      /* 6. LE REFUS MUET : la base ne change rien et ne dit rien. Le double sert
+         les autres bords ; celui-ci demande un sb à lui — deux contrôles qui se
+         rendent sb à tour de rôle se le reprennent en plein vol, le piège
+         documenté — et il est rendu tout de suite après. */
+      semer();
+      const sbSauve=sb;
+      sb={ from:function(){ const q={
+        select:function(){ return q; }, ilike:function(){ return q; },
+        update:function(){ return q; }, eq:function(){ return q; },
+        then:function(ok,ko){ return Promise.resolve({data:[],error:null}).then(ok,ko); } }; return q; } };
+      window.prompt=function(){ return 'Théodore'; };
+      await renameStudent('e1','Theo');
+      sb=sbSauve;
+      bilan.muet=dits.join(' | ');
+    } finally { toast=vraiToast; window.prompt=vraiPrompt; }
+    return bilan;
+  })()`, r => {
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+
+    verifier('le professeur change le prénom d’un élève, espaces en trop retirés',
+      r.ok && b.nom === 'Théo' && /ok:/.test(String(b.dits||'')),
+      souci || 'prénom en base : « ' + b.nom + ' » — dit : ' + b.dits);
+    verifier('renommer ne touche ni au compte de l’élève ni à ses notes',
+      r.ok && b.cle === 'cle-1' && b.compte === 'compte-1' && b.note === 'e1' && b.edge === 0,
+      souci || 'clé : ' + b.cle + ', compte : ' + b.compte + ', note rattachée à : ' + b.note +
+               ', appels à la fonction Edge : ' + b.edge);
+    verifier('la liste du professeur montre le nouveau prénom, et offre le bouton',
+      r.ok && b.affiche === true && b.bouton === true,
+      souci || 'nouveau nom affiché : ' + b.affiche + ' — bouton présent : ' + b.bouton);
+    verifier('« Annuler » ne renomme rien',
+      r.ok && b.annule === 'Theo /0 /0',
+      souci || 'après annulation : ' + b.annule + ' — attendu « Theo /0 /0 »');
+    verifier('un prénom vide est refusé, et le professeur le lit',
+      r.ok && /^Theo \/0 \//.test(String(b.vide||'')) && /err:/.test(String(b.vide||'')),
+      souci || 'après un prénom vide : ' + b.vide);
+    verifier('le prénom d’un autre élève est refusé, même écrit autrement',
+      r.ok && /^Theo \/0 \//.test(String(b.doublon||'')) && /err:/.test(String(b.doublon||'')),
+      souci || 'après un doublon : ' + b.doublon);
+    verifier('mais changer la casse de SON prénom reste possible',
+      r.ok && b.casse === 'THEO',
+      souci || 'prénom en base : « ' + b.casse + ' » — attendu « THEO »');
+    verifier('un changement que la base refuse EN SILENCE n’est pas annoncé comme fait',
+      r.ok && /err:/.test(String(b.muet||'')) && !/ok:/.test(String(b.muet||'')),
+      souci || 'le professeur a lu « ' + b.muet + ' » — sous RLS, PostgREST rend « 0 ligne » sans erreur');
+    fichesDeTravail(w, apres);
+  });
+}
+
 /* Les FICHES DE TRAVAIL EN CLASSE — la seconde famille de devoirs (demande de
    Turquet, août 2026). Même moteur, deux clés de stockage : le portail lit
    valeurs.devoirs, et une fiche rangée dedans y serait publiée.
