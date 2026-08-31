@@ -1655,6 +1655,46 @@ function branchements(w){
     !nomsRap.length ? 'aucun rappel trouvé : le contrôle ne mesure rien'
                     : rapsPlats.slice(0, 3).join(' | '));
 
+  /* ---- Un tableau COUPÉ en plein vol reste un tableau -------------------
+     Signalé par Turquet (août 2026) sur un iPad : la fenêtre « Question à
+     l'IA » affichait « begin{array}{c|ccc} x & -3 & … hline g(x) & + & 0 »
+     en toutes lettres. Cause : la réponse du modèle est coupée par la limite
+     de longueur du serveur AVANT son \\end{array}, et iaTableau n'attrapait
+     que les tableaux fermés — le fragment repartait en texte, c'est-à-dire en
+     code brut sous les yeux de l'élève. Trois bords, et n'en tenir qu'un ne
+     tient rien : le tableau COMPLET se rend toujours (pas de régression), le
+     tableau COUPÉ se rend aussi et dit sa coupure, et AUCUN mot du LaTeX ne
+     reste affiché — c'est ce dernier qui nomme le défaut signalé. */
+  verifierEval(w, 'un tableau de l\'IA coupé en plein vol reste un tableau, jamais du code brut', `(function(){
+    const vus=[];
+    if(typeof conseilHTML!=='function') return 'conseilHTML() introuvable : le contrôle ne mesure rien';
+    /* AUCUN antislash littéral ici : la chaîne traverse le template de ce
+       fichier PUIS l'évaluation dans la page, et « b » précédé d'un antislash
+       y devient un caractère de contrôle — le premier jet du contrôle
+       rougissait sur du code parfaitement juste. */
+    const B=String.fromCharCode(92), NL=String.fromCharCode(10);
+    const CORPS='x & -3 & -1 & 2 & 4 '+B+B+' '+B+'hline g(x) & + & 0 & - & 0 & +';
+    const OUVRE='Voici :'+NL+B+'begin{array}{c|ccc}'+NL+CORPS;
+    const lire=function(t){ const d=document.createElement('div'); d.innerHTML=conseilHTML(t);
+      return { n:d.querySelectorAll('table.qia-arr').length, txt:(d.textContent||'') }; };
+    /* 1. le tableau COMPLET — le bord qui empêche la régression */
+    const plein=lire(OUVRE+NL+B+'end{array}'+NL+'Voilà.');
+    if(plein.n!==1) vus.push('un tableau COMPLET ne se rend plus en tableau ('+plein.n+')');
+    if(plein.txt.indexOf(String.fromCharCode(8230))>=0) vus.push('un tableau complet est marqué coupé');
+    if(plein.txt.indexOf('Voilà')<0) vus.push('le texte qui suit le tableau a disparu');
+    /* 2. le tableau COUPÉ avant son end : le cas signalé sur iPad */
+    const coupe=lire(OUVRE);
+    if(coupe.n!==1) vus.push('un tableau COUPÉ ne se rend pas en tableau : l\\'élève lit le code brut');
+    if(coupe.txt.indexOf(String.fromCharCode(8230))<0) vus.push('le tableau coupé ne dit pas sa coupure');
+    /* 3. aucun mot du LaTeX ne reste sous les yeux de l'élève */
+    [['complet',plein],['coupé',coupe]].forEach(function(p){
+      ['begin{','end{','hline','&',B].forEach(function(mot){
+        if(p[1].txt.indexOf(mot)>=0) vus.push('le tableau '+p[0]+' laisse « '+mot+' » affiché à l\\'élève');
+      });
+    });
+    return vus.slice(0,3).join(' | ');
+  })()`, v => v === '', undefined);
+
   verifierEval(w, 'les deux aides réclament des écritures mathématiques au modèle', `(function(){
     const CLAUSE='LaTeX entre \\\\( et \\\\)';
     const vus=[];

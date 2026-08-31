@@ -2194,7 +2194,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=125;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=126;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3122,7 +3122,15 @@ function iaTabCell(c){
   return r!=null?r:esc(s);
 }
 function iaTableau(t,tabs){
-  return String(t==null?'':t).replace(/(?:\\[\[(]\s*)?\\?begin\{(array|tabular|matrix|pmatrix)\}(\{[^{}]*\})?([\s\S]*?)\\?end\{\1\}(?:\s*\\[\])])?/g,function(m,env,spec,corps){
+  /* Le \end{…} est FACULTATIF, et c'est un vrai defaut de production : une
+     reponse coupee en plein vol (limite de longueur cote serveur) s'arrete au
+     milieu du tableau, et sans cette tolerance l'eleve lisait le CODE BRUT —
+     « begin{array}{c|ccc} x & -3 & … hline g(x) & + & 0 & - » (signale par
+     Turquet sur un iPad, aout 2026). On rend alors les lignes RECUES et on
+     marque la coupure : un tableau a moitie ecrit reste lisible, du LaTeX nu
+     ne l'est jamais. C'est la doctrine d'iaCoupe, etendue aux tableaux. */
+  return String(t==null?'':t).replace(/(?:\\[\[(]\s*)?\\?begin\{(array|tabular|matrix|pmatrix)\}(\{[^{}]*\})?([\s\S]*?)(?:\\?end\{\1\}(?:\s*\\[\])])?|$)/g,function(m,env,spec,corps){
+    const coupe=!/end\{/.test(m);
     let lignes=corps.split(/\\\\/);
     if(lignes.length===1) lignes=corps.split(/\n/);
     const rows=[]; let bord=false;
@@ -3137,7 +3145,7 @@ function iaTableau(t,tabs){
       let tr='<tr'+(r.b?' class="qia-arr-h"':'')+'>';
       for(let i=0;i<nc;i++) tr+='<td>'+(r.c[i]||'')+'</td>';
       return tr+'</tr>';
-    }).join('')+'</table>';
+    }).join('')+'</table>'+(coupe?' \u2026':'');
     tabs.push(html); return '\uE002'+(tabs.length-1)+'\uE003';
   });
 }
