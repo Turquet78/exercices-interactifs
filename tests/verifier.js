@@ -2608,6 +2608,7 @@ function exercices(suite){
     ordreCroissant(w, P);
     imageNombre(w, P);
     tangenteExp(w, P);
+    signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     phraseCouleurs(w);
     antecedentNombre(w, P);
@@ -5915,6 +5916,70 @@ function tangenteExp(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* ---------- 1.4 / 1.5 : un + 0 inutile ne s'écrit pas, l'écriture nue est juste ---------- */
+/* Signalé par Turquet (août 2026), captures des deux exercices : quand la racine
+   d'un facteur vaut 0, l'énoncé écrivait « −x + 0 » et l'élève qui recopiait
+   « −x » — l'écriture du cahier — rougissait. Cinq bords, et n'en tenir qu'un ne
+   tient rien : l'écriture nue acceptée (les deux captures épinglées), l'écriture
+   au + 0 encore acceptée (une pause d'avant le changement l'affiche toujours),
+   la constante RESTE exigée quand b ≠ 0 (« 3x » pour 3x − 6 est faux), les
+   étiquettes du tirage n'écrivent plus + 0 (énoncé, tableau, correction — un
+   seul entonnoir, spFacteur), et le tirage produit ENCORE des racines nulles :
+   un contrôle qui n'a rien à mesurer ne mesure rien, et doit le dire. */
+function signeProduitPlusZero(w, P){
+  const present = evaluer(w, "typeof spFactForms==='function' && typeof spMatchFact==='function' && typeof genSP==='function' && typeof genSPC==='function' && typeof genSPQ==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le 1.4 et le 1.5 : un + 0 inutile ne s\'écrit pas, l\'écriture nue est juste',
+      'ce niveau n\'a pas la famille des signes de produit et de quotient');
+    return;
+  }
+  verifierEval(w, 'le 1.4 et le 1.5 : un + 0 inutile ne s\'écrit pas, l\'écriture nue est juste', `(function(){
+    const vus=[];
+
+    /* ---- 1. les deux captures : l'écriture nue est juste ---- */
+    const qCap={fac:[{a:-1,b:0},{a:2,b:-8}]};              /* le 1.4 de la capture : (−2x−8)/(−x+0) */
+    if(spMatchFact(qCap,'\\u2212x')!==0) vus.push('« \\u2212x » rougit encore pour \\u2212x + 0 (la capture du 1.4)');
+    if(spMatchFact({fac:[{a:3,b:0},{a:-2,b:4}]},'3x')!==0) vus.push('« 3x » rougit encore pour 3x + 0 (la capture du 1.5)');
+
+    /* ---- 2. l'écriture au + 0 reste juste (pause d'avant le changement) ---- */
+    if(spMatchFact(qCap,'\\u2212x+0')!==0) vus.push('« \\u2212x+0 » n\\'est plus accepté : une pause d\\'avant le changement rougirait');
+    if(spMatchFact(qCap,'0+\\u2212x')!==0) vus.push('« 0+\\u2212x » n\\'est plus accepté');
+    if(spMatchFact(qCap,'\\u2212x\\u22120')!==0) vus.push('« \\u2212x\\u22120 » n\\'est plus accepté');
+
+    /* ---- 3. la constante reste EXIGÉE quand b ≠ 0, et une nue fausse reste fausse ---- */
+    if(spMatchFact({fac:[{a:3,b:-6},{a:1,b:2}]},'3x')!==-1) vus.push('« 3x » passe pour 3x \\u2212 6 : la constante n\\'est plus exigée');
+    if(spMatchFact(qCap,'x')!==-1) vus.push('« x » passe pour \\u2212x + 0');
+    if(spMatchFact(qCap,'\\u2212x+1')!==-1) vus.push('« \\u2212x + 1 » passe pour \\u2212x + 0');
+
+    /* ---- 3 bis. le carré suit (le 1.5 délègue à spFactForms) ---- */
+    if(typeof spCarreOk==='function'){
+      if(!spCarreOk({a:-2,b:0},'(\\u22122x)^2')) vus.push('« (\\u22122x)\\u00b2 » rougit pour un carré à b = 0');
+      if(!spCarreOk({a:-2,b:0},'(\\u22122x+0)^2')) vus.push('« (\\u22122x+0)\\u00b2 » n\\'est plus accepté au carré');
+      if(spCarreOk({a:-2,b:4},'(\\u22122x)^2')) vus.push('« (\\u22122x)\\u00b2 » passe pour (\\u22122x+4)\\u00b2');
+    }
+
+    /* ---- 4. le tirage n'écrit plus + 0, la constante s'écrit encore ailleurs ---- */
+    let avecZero=0, avecCte=0;
+    for(let t=0;t<400;t++){
+      const q=[genSP,genSPC,genSPQ][t%3]();
+      q.fac.forEach(function(F){
+        const lab=String(F.labPlain||'')+' '+String(F.labTex||'');
+        if(F.b===0){ avecZero++;
+          if(/[+\\u2212-]\\s*0/.test(lab)) vus.push('une étiquette écrit encore + 0 : '+F.labPlain);
+        } else { avecCte++;
+          if(String(lab).indexOf(String(Math.abs(F.b)))<0) vus.push('une étiquette a perdu sa constante : '+F.labPlain);
+        }
+      });
+      if(/[+\\u2212-]\\s*0[^0-9]/.test(String(q.fPlain)+'|'+String(q.fTex)+'|')) vus.push('l\\'énoncé écrit encore + 0 : '+q.fPlain);
+    }
+    /* ---- 5. le bord a toujours un témoin ---- */
+    if(avecZero===0) vus.push('aucun facteur à b = 0 sur 400 tirages : le bord n\\'a plus de témoin');
+    if(avecCte===0) vus.push('aucun facteur à constante sur 400 tirages');
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* ---------- Les antécédents d'un nombre : la ligne de niveau ne coupe qu'aux graduations ---------- */
 /* {antecedent-nombre} (Seconde, 2.3), l'inverse de {image-nombre}. Le risque
    propre à cet exercice est la hauteur ILLISIBLE : une hauteur strictement
@@ -9030,7 +9095,7 @@ function reglagesDevoirs(w, apres){
   if(!R || !present.ok || !present.valeur){
     ignorer('les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien',
       'ce niveau n\'a pas les réglages par exercice des devoirs');
-    return verdictColore(w, apres);
+    return parcoursNbDevoir(w, apres);
   }
   /* Première : l'éditeur passe par saveDM(), qu'on ne peut pas cliquer ici —
      on tient au moins la trace des réglages dans son corps, et les setters
@@ -9130,6 +9195,75 @@ function reglagesDevoirs(w, apres){
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
     const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    parcoursNbDevoir(w, apres);
+  });
+}
+/* LE RÉGLAGE « QUESTIONS » RÈGLE LE PARCOURS DU 1.6 PAR NIVEAU (demande de
+   Turquet, août 2026). L'exercice a cinq niveaux qui retirent chacun leurs
+   questions : la coupe générique, qui ne connaît qu'un tableau, ne
+   raccourcissait que le niveau 1 en laissant perLevel à 5 — l'écran mentait
+   (« Question 1 / 5 »), la fin de niveau n'arrivait jamais et la 3e question
+   lisait un tirage inexistant. Le démarreur lit donc le réglage lui-même
+   (le motif de tmNbDevoir), et le seuil de passage suit : « 4 sur 5 » est
+   UNE erreur permise, pas 80 % — max(1, n−1). Cinq bords, et n'en tenir
+   qu'un ne tient rien : la taille du niveau 1, la taille des niveaux
+   SUIVANTS (le cœur — ils retirent), le seuil qui suit, la valeur bricolée
+   qui retombe sur le format normal, et la non-fuite hors devoir. */
+function parcoursNbDevoir(w, apres){
+  const nom='le réglage « Questions » d\'un devoir règle le parcours du 1.6 par niveau';
+  const present = evaluer(w, "typeof startFracParcours==='function' && typeof fracpNbDevoir==='function' && typeof lancerDevoirExo==='function'");
+  if(!present.ok || !present.valeur){
+    const aParcours = evaluer(w, "typeof startFracParcours==='function'");
+    if(aParcours.ok && aParcours.valeur){ verifier(nom, false, 'le parcours existe mais fracpNbDevoir ou lancerDevoirExo manque'); }
+    else ignorer(nom, 'ce niveau n\'a pas le parcours des fractions décimales');
+    return verdictColore(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-parc',prenom:'Contrôle'}; currentMode='train';
+    mesDevoirs=[{id:'dev-p',num:1,actif:true,titre:'Parcours',cours:'',
+                 exercices:[{id:'fractions-decimales',modes:['train'],nbQ:2}]}];
+
+    /* ---- 1. nbQ=2 : le niveau 1 tire à 2, le seuil suit, l'écran le dit ---- */
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    if(test.perLevel!==2) vus.push('nbQ=2 : perLevel vaut '+test.perLevel+' au lieu de 2');
+    if(test.passNeeded!==1) vus.push('nbQ=2 : le seuil vaut '+test.passNeeded+' au lieu de 1 (une erreur permise)');
+    if((test.questions||[]).length!==2) vus.push('nbQ=2 : le niveau 1 tire '+(test.questions||[]).length+' questions au lieu de 2');
+    const entete=(document.getElementById('fqIdx')||{textContent:''}).textContent;
+    if(entete.indexOf('/ 2')<0) vus.push('l\\'en-tête ne dit pas « / 2 » ('+entete+')');
+
+    /* ---- 2. un niveau raté à 0/2 le dit en bon français ---- */
+    test.levelScore=0; test.idx=test.perLevel-1; endLevel();
+    const msgRate=(document.getElementById('fFeedback')||{textContent:''}).textContent;
+    if(msgRate.indexOf('1 bonnes')>=0) vus.push('le message du niveau raté écrit « 1 bonnes réponses »');
+
+    /* ---- 3. LE CŒUR : le niveau suivant retire à la même taille ---- */
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    test.levelScore=1; test.idx=test.perLevel-1; endLevel();
+    if(!(test.results[test.results.length-1]||{}).passed) vus.push('à 1 juste sur 2, le niveau ne passe plus (une erreur permise)');
+    goNextLevel();
+    if(test.levelIdx!==1) vus.push('goNextLevel n\\'avance pas au niveau 2');
+    if((test.questions||[]).length!==2) vus.push('le niveau 2 retire '+(test.questions||[]).length+' questions au lieu des 2 réglées');
+
+    /* ---- 4. une valeur bricolée retombe sur le format normal ---- */
+    mesDevoirs[0].exercices[0].nbQ=99;
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    if(test.perLevel!==5||test.passNeeded!==4) vus.push('nbQ=99 : le parcours ne retombe pas sur 5 questions / seuil 4 ('+test.perLevel+'/'+test.passNeeded+')');
+    mesDevoirs[0].exercices[0].nbQ='abc';
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    if(test.perLevel!==5) vus.push('nbQ illisible : le parcours ne retombe pas sur 5 ('+test.perLevel+')');
+
+    /* ---- 5. le réglage ne FUIT pas hors du devoir ---- */
+    mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId='fractions-decimales';
+    await Promise.resolve(TESTS['fractions-decimales'].start());
+    if(test.perLevel!==5||test.passNeeded!==4||(test.questions||[]).length!==5)
+      vus.push('hors devoir, le parcours porte le réglage du devoir ('+test.perLevel+' par niveau, seuil '+test.passNeeded+')');
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
     verdictColore(w, apres);

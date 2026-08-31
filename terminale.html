@@ -2250,7 +2250,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=273;
+const APP_VERSION=274;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -12318,8 +12318,13 @@ function suQbHTML(){
 function spFacteur(){
   const a=pick([-3,-2,-1,1,2,3]); const r=rand(-4,4); const b=-a*r;
   const ax=(a===1?'x':(a===-1?'-x':a+'x'));
-  const texB=ax+(b>=0?'+':'-')+Math.abs(b);
-  const plainB=ax.replace('-','\u2212')+(b>=0?' + ':' \u2212 ')+Math.abs(b);
+  /* b = 0 : \u00ab 3x + 0 \u00bb n'existe pas au cahier (signal\u00e9 par Turquet, ao\u00fbt 2026,
+     sur le 1.4 et le 1.5) \u2014 l'\u00e9nonc\u00e9, les \u00e9tiquettes du tableau, la correction
+     verte et le rappel \u00e9crivent l'affine NUE (\u00ab 3x \u00bb, \u00ab \u2212x \u00bb), tous servis par
+     ce seul entonnoir ; le juge (spFactForms) accepte l'\u00e9criture nue ET les
+     \u00e9critures au + 0. */
+  const texB=(b===0)?ax:ax+(b>=0?'+':'-')+Math.abs(b);
+  const plainB=(b===0)?ax.replace('-','\u2212'):ax.replace('-','\u2212')+(b>=0?' + ':' \u2212 ')+Math.abs(b);
   return {a:a, r:r, texB:texB, plainB:plainB, tex:'\\left('+texB+'\\right)', plain:'('+plainB+')'};
 }
 function spDeuxFacteurs(){
@@ -12403,6 +12408,12 @@ function spNorm(t){
 }
 function spFactForms(F){
   const ax=(F.a===1?'x':(F.a===-1?'-x':F.a+'x'));
+  /* b = 0 : l'écriture NUE est la bonne (« −x » pour −x + 0 — signalé par
+     Turquet, août 2026 : « +0 ne sert à rien ») ; « 3x+0 », « 0+3x » et
+     « 3x−0 » restent justes — un + 0 inutile ne rend pas faux, et une
+     question mise en pause avant ce changement affiche encore le sien.
+     Quand b ≠ 0, la constante reste EXIGÉE : « 3x » pour 3x − 6 est faux. */
+  if(F.b===0) return [ax, ax+'+0', '0+'+ax, ax+'-0'].map(spNorm);
   const bA=Math.abs(F.b), sg=F.b>=0?'+':'-';
   const forms=[ax+sg+bA];
   forms.push(F.b>=0 ? bA+'+'+ax : '-'+bA+'+'+ax);
