@@ -1595,6 +1595,242 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septies sexies. la case où l'élève écrit ne se colore pas ===== */
+    /* Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge
+       ni bleue tant que l'élève y écrit. Elle attend qu'il la QUITTE — case
+       suivante, clic ailleurs — ou qu'il vérifie.
+
+       LE CONTRÔLE TAPE POUR DE VRAI, et c'est tout son intérêt. Le banc
+       principal éprouve le garde sur une case d'essai et une correction
+       d'essai ; ici on ouvre un exercice, on clique dans sa case, on frappe au
+       clavier et on lit la couleur — le garde doit tenir contre du vrai code de
+       correction, celui qui repeint l'écran entier à chaque touche.
+
+       DEUX BORDS, et le second empêche le premier d'être creux : la case ne
+       doit rien porter pendant la frappe, MAIS la couleur doit avoir été
+       CALCULÉE (retenue) — sans cette exigence, le contrôle resterait vert sur
+       une case que personne ne juge, en parlant d'autre chose. Puis la touche
+       Tab, qui est le geste « je passe à la suivante », doit la faire paraître. */
+    titre('6 septies sexies. LA CASE OÙ L\'ÉLÈVE ÉCRIT NE SE COLORE PAS');
+    if(!P.gardeSaisie){
+      ignorer('en soutien, la case où l\'élève écrit ne se colore pas',
+        'ce niveau ne déclare pas de case témoin pour le garde de la saisie');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('en soutien, la case où l\'élève écrit ne se colore pas',
+          'connexion impossible — rien à mesurer');
+      } else {
+        const G = P.gardeSaisie;
+        await s.page.evaluate(id => openTest(id), G.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(700);
+        const boite = s.page.locator(G.champ).first();
+        const etat = () => boite.evaluate(el => ({
+          classes: ['ok','bad'].filter(c => el.classList.contains(c)).join(','),
+          retenue: (el.dataset && el.dataset.couleurDifferee) || '',
+          focus: document.activeElement === el,
+        }));
+        let pendant = null, apres = null, rejuge = null, souci = '';
+        try{
+          await boite.waitFor({ timeout: 8000 });
+          await boite.click();
+          await boite.type(G.valeur, { delay: 40 });
+          await s.page.waitForTimeout(120);
+          pendant = await etat();
+          /* Tab : « je passe à la case suivante » — l'un des trois gestes que
+             Turquet a nommés, et le seul qui ne demande pas de savoir où
+             cliquer sans tomber sur une autre case. */
+          await s.page.keyboard.press('Tab');
+          await s.page.waitForTimeout(200);
+          apres = await etat();
+          /* et une case DÉJÀ jugée se re-juge sous les doigts : sans ce bord,
+             l'élève qui corrige son rouge devrait cliquer ailleurs pour savoir
+             s'il a réussi. */
+          await boite.click();
+          await s.page.keyboard.press('Control+a');
+          await s.page.keyboard.type('1', { delay: 40 });
+          await s.page.waitForTimeout(120);
+          rejuge = await etat();
+        }catch(e){ souci = e.message; }
+
+        verifier('la case témoin du garde est bien celle qu\'on croit tenir',
+          !!pendant && pendant.focus === true,
+          souci || 'la case « ' + G.champ + ' » de ' + G.exercice + ' n\'a pas reçu le focus : rien n\'est mesuré');
+        verifier('pendant la frappe, la case ne se colore pas — mais la couleur est calculée',
+          !!pendant && pendant.classes === '' && pendant.retenue !== '',
+          souci || 'classes : « ' + (pendant && pendant.classes) + ' », couleur retenue : « ' +
+                   (pendant && pendant.retenue) + ' » (vide = personne ne juge cette case, le contrôle ne mesure rien)');
+        verifier('en passant à la case suivante, la couleur arrive',
+          !!apres && apres.classes !== '',
+          souci || 'classes après Tab : « ' + (apres && apres.classes) + ' »');
+        verifier('une case déjà jugée se re-juge sous les doigts',
+          !!rejuge && rejuge.classes !== '' && rejuge.focus === true,
+          souci || 'classes en frappant dans une case déjà jugée : « ' + (rejuge && rejuge.classes) + ' »');
+        verifier('le garde de la saisie n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies septies. les cases du 6.3 : l'encre et la place ===== */
+    /* Deux demandes de Turquet (août 2026), et les deux ne se mesurent que
+       dans un navigateur.
+
+       L'ENCRE. Les cases étaient en Fredoka 1,2 rem GRASSE au milieu d'un texte
+       en Nunito 20 px maigre : une écriture d'un autre alphabet posée au milieu
+       du calcul. Elles prennent maintenant la police de la rangée qui les
+       entoure — famille, taille et graisse — et « font:inherit » ne se vérifie
+       qu'en lisant ce que le navigateur a RÉSOLU.
+
+       LA PLACE. « une partie de 2000 est effacée » : la largeur est posée en
+       « ch », et la page étant en « box-sizing:border-box », ces ch
+       comprenaient le rembourrage et la bordure — le texte était amputé de
+       16 px. On mesure donc la LARGEUR DU TEXTE dans la police effective de la
+       case (un canevas, jamais une estimation) et on exige que le contenu tienne
+       avec une marge. Mesurer « scrollWidth > clientWidth » n'aurait rien dit :
+       un input rend 1 px de plus même VIDE, et ce bruit noierait le défaut. */
+    titre('6 septies septies. LE 6.3 : L\'ENCRE, LA PLACE ET LA PHRASE');
+    if(!/function sa2Ajuster\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('les cases du 6.3 prennent la police de leur rangée', 'ce niveau n\'a pas le 6.3');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('les cases du 6.3 prennent la police de leur rangée', 'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(() => openTest('suite-auxiliaire-2'));
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='train'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        const m = await s.page.evaluate(() => {
+          const res = { cases: 0, encre: [], serre: [] };
+          const rangee = document.querySelector('#scr-sa2 .sa2-row');
+          if(!rangee) return res;
+          const sr = getComputedStyle(rangee);
+          res.rangee = sr.fontFamily.split(',')[0].replace(/["']/g, '') + ' ' + sr.fontSize + ' ' + sr.fontWeight;
+          const ctx = document.createElement('canvas').getContext('2d');
+          const large = (el, txt) => {
+            const st = getComputedStyle(el);
+            ctx.font = st.fontStyle + ' ' + st.fontWeight + ' ' + st.fontSize + ' ' + st.fontFamily;
+            return ctx.measureText(txt).width;
+          };
+          [...document.querySelectorAll('#scr-sa2 .sa2-in')].forEach(el => {
+            res.cases++;
+            const st = getComputedStyle(el);
+            const idx = el.classList.contains('sa2-mot');
+            /* une case de NOMBRE écrit comme sa rangée ; une case d'INDICE est
+               volontairement plus petite (décision antérieure de Turquet) mais
+               garde la même famille et la même graisse. */
+            const memeFamille = st.fontFamily.split(',')[0].replace(/["']/g, '')
+                              === sr.fontFamily.split(',')[0].replace(/["']/g, '');
+            const grasse = parseInt(st.fontWeight, 10) >= 600;
+            const memeTaille = idx ? true : st.fontSize === sr.fontSize;
+            if(!memeFamille || grasse || !memeTaille)
+              res.encre.push(el.id + ' : ' + st.fontFamily.split(',')[0] + ' ' + st.fontSize + ' ' + st.fontWeight);
+            /* la place : le contenu doit tenir, marge comprise */
+            ['2000', '10000', '\u22123800', 'n+1', '0,8'].forEach(v => {
+              el.value = v; sa2Ajuster(el);
+              const s2 = getComputedStyle(el);
+              const dispo = el.clientWidth - (parseFloat(s2.paddingLeft) || 0) - (parseFloat(s2.paddingRight) || 0);
+              const texte = large(el, v);
+              if(dispo < texte + 2)
+                res.serre.push(el.id + ' « ' + v + ' » : ' + Math.round(dispo) + ' px pour ' + Math.round(texte));
+            });
+            el.value = ''; sa2Ajuster(el);
+          });
+          return res;
+        });
+
+        verifier('les cases du 6.3 sont bien là pour être mesurées',
+          m.cases >= 10, 'seulement ' + m.cases + ' case(s) trouvée(s) : le contrôle ne mesure rien');
+        verifier('les cases du 6.3 écrivent comme la rangée qui les entoure, sans gras',
+          m.cases >= 10 && m.encre.length === 0,
+          'rangée : ' + m.rangee + ' — cases qui s\'en écartent : ' + m.encre.slice(0, 4).join(' | '));
+        verifier('aucune case du 6.3 ne rogne ce qu\'on y écrit',
+          m.cases >= 10 && m.serre.length === 0,
+          'trop serrées : ' + m.serre.slice(0, 4).join(' | '));
+        verifier('les cases du 6.3 n\'ont levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+
+        /* LA PHRASE DE LA CORRECTION PORTE LES COULEURS QU'ELLE NOMME.
+           Troisième demande de Turquet sur cette capture : « les cases justes
+           sont en bleu » doit s'écrire en BLEU, « les fausses sont rouges » en
+           ROUGE, « avec la bonne réponse en vert » en VERT, le reste en noir.
+           Lire les classes dans le HTML ne prouverait RIEN : la phrase vit dans
+           un « .mp-feedback », et une règle plus SPÉCIFIQUE posée là pour une
+           autre famille de textes bat la nôtre sans que le HTML change d'un
+           caractère — c'est exactement ce qui est arrivé avec « fb-ok », déjà
+           pris par les morceaux [OK] du retour de l'IA. On mesure donc l'encre
+           RÉSOLUE.
+           Et on la compare à l'encre des CASES, jamais à une dominante :
+           « bleu » n'est pas un intervalle de teintes, c'est la couleur que la
+           page donne à une case juste. Une convention qui tournerait
+           emmènerait les deux du même côté, et « le reste en noir » se dit
+           « la même encre que le texte ordinaire » — #1E2A4A est un noir bleuté
+           qu'aucune dominante ne sait ranger. */
+        const c = await s.page.evaluate(() => {
+          const q = test.questions[test.idx];
+          const att = sa2Attendu(q);
+          /* une seule case, FAUSSE : c'est le chemin qui écrit la phrase */
+          const id = SA2_IDS.find(x => document.getElementById(x)
+                                    && document.getElementById(x).tagName === 'INPUT');
+          const el = document.getElementById(id);
+          el.value = String(att[id][1]) + '9';        /* jamais la bonne réponse */
+          checkSA2();
+          const fb = document.getElementById('sa2Feedback');
+          /* LES ENCRES DE RÉFÉRENCE SONT LES VARIABLES DE LA CONVENTION, pas
+             une teinte recopiée : « --blue » est la couleur que la feuille
+             donne au JUSTE, « --red » au faux, « --green » à la correction —
+             les mêmes que relit « 9 bis » sur les règles de verdict. Le jour
+             où la convention tourne, la phrase tourne avec elle et le contrôle
+             reste juste. (Prendre la couleur du TEXTE d'une case ne dirait
+             rien : sur un « input », ce sont la bordure et le fond qui
+             changent, l'encre reste celle du texte ordinaire.)
+             On résout chaque variable en peignant un témoin : la feuille rend
+             « #2B50C8 » là où le navigateur rend « rgb(43, 80, 200) ». */
+          const encre = (e) => getComputedStyle(e).color;
+          const temoin = document.createElement('span');
+          document.body.appendChild(temoin);
+          const parVar = (v) => { temoin.style.color = 'var(' + v + ')'; return encre(temoin); };
+          const ref = { ok: parVar('--blue'), bad: parVar('--red'), sol: parVar('--green') };
+          temoin.style.color = '';
+          ref.ordinaire = encre(temoin);
+          temoin.remove();
+          const lis = (sel) => { const t = fb.querySelector(sel); return t ? encre(t) : 'absent'; };
+          return {
+            ecrite: /cases justes/.test(fb.textContent),
+            ok: lis('.msg-ok'), bad: lis('.msg-bad'), sol: lis('.msg-sol'),
+            neutre: lis('.msg-neutre'), ref: ref,
+            texte: fb.textContent.slice(0, 60),
+          };
+        });
+        verifier('la phrase de la correction est bien celle qu\'on mesure',
+          c.ecrite, 'texte affiché : « ' + c.texte + ' »');
+        verifier('« tes cases justes sont en bleu » prend le BLEU de la convention',
+          c.ok === c.ref.ok, 'la phrase écrit ' + c.ok + ', le bleu de la convention est ' + c.ref.ok);
+        verifier('« les fausses sont rouges » prend le ROUGE de la convention',
+          c.bad === c.ref.bad, 'la phrase écrit ' + c.bad + ', le rouge de la convention est ' + c.ref.bad);
+        verifier('« avec la bonne réponse en vert » prend le VERT de la convention',
+          c.sol === c.ref.sol, 'la phrase écrit ' + c.sol + ', le vert de la convention est ' + c.ref.sol);
+        verifier('le reste de la phrase garde l\'encre ordinaire du texte',
+          c.neutre === c.ref.ordinaire,
+          'la phrase écrit ' + c.neutre + ', le texte ordinaire ' + c.ref.ordinaire);
+        verifier('les trois encres de la phrase sont bien DISTINCTES',
+          c.ok !== c.bad && c.bad !== c.sol && c.ok !== c.sol,
+          'juste ' + c.ok + ' | faux ' + c.bad + ' | correction ' + c.sol);
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

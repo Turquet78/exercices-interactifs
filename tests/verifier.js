@@ -2609,6 +2609,7 @@ function exercices(suite){
     imageNombre(w, P);
     tangenteExp(w, P);
     suiteAuxiliaireCompleter(w, P);
+    phraseCouleurs(w);
     antecedentNombre(w, P);
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
@@ -5443,6 +5444,83 @@ function imageNombre(w, P){
        doit pas compter faux, ce n'est pas l'orthographe qu'on évalue ;
      · et l'exercice a son identité propre — la note, le rappel, les questions
        à l'IA — alors qu'il partage le moteur de tirage. */
+/* ---------- La phrase qui explique la correction PORTE ses couleurs -------
+   Elle NOMME trois couleurs (demande de Turquet, août 2026) : « tes cases
+   justes sont en bleu » s'écrit en bleu, « les fausses sont rouges » en rouge,
+   « avec la bonne réponse en vert » en vert, le reste en encre ordinaire. Elle
+   vivait dans un « .mp-feedback.bad », donc TOUT y était rouge — elle annonçait
+   le bleu et le vert en rouge, l'inverse de ce qu'elle enseigne.
+
+   DEUX BORDS, et le second est celui qui dure : la phrase doit porter ses
+   couleurs, ET n'être écrite qu'à UN endroit. Elle était recopiée six fois mot
+   pour mot ; six copies, ce sont six chances de n'en corriger que cinq le jour
+   où la convention change — et elle a déjà changé une fois dans ce projet. */
+function phraseCouleurs(w){
+  const src = lire(CIBLE);
+  const present = evaluer(w, "typeof msgCorrCouleurs==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la phrase de correction porte les couleurs qu’elle nomme',
+      'ce niveau n’écrit pas cette phrase');
+    return;
+  }
+  const r = evaluer(w, "msgCorrCouleurs(false)+'||'+msgCorrCouleurs(true)");
+  const t = r.ok ? String(r.valeur||'') : '';
+  const [simple, oubli] = t.split('||');
+
+  /* chaque fragment porte SA classe — et on regarde le fragment, pas seulement
+     la présence de la classe : une classe posée sur toute la phrase la
+     satisferait sans rien colorer de juste. */
+  const porte = (txt, cls, mot) => {
+    const i = txt.indexOf('class="' + cls + '"');
+    if(i < 0) return false;
+    const fin = txt.indexOf('</span>', i);
+    return fin > i && txt.slice(i, fin).indexOf(mot) >= 0;
+  };
+  verifier('« tes cases justes sont en bleu » s’écrit en bleu',
+    porte(simple, 'msg-ok', 'justes'), 'fragment non trouvé dans un « msg-ok » : ' + simple.slice(0, 120));
+  verifier('« les fausses sont rouges » s’écrit en rouge',
+    porte(simple, 'msg-bad', 'fausses'), 'fragment non trouvé dans un « msg-bad »');
+  verifier('« avec la bonne réponse en vert » s’écrit en vert',
+    porte(simple, 'msg-sol', 'bonne r'), 'fragment non trouvé dans un « msg-sol »');
+  verifier('le reste de la phrase revient à l’encre ordinaire',
+    simple.indexOf('class="msg-neutre"') >= 0,
+    'sans « msg-neutre », toute la phrase hérite du rouge de .mp-feedback.bad');
+  verifier('la variante « cases oubliées » garde les mêmes couleurs',
+    porte(oubli, 'msg-ok', 'justes') && oubli.indexOf('oubli') >= 0,
+    'la seconde forme de la phrase a divergé');
+
+  /* Les trois encres sont celles des CASES : une phrase qui se peindrait avec
+     ses propres couleurs pourrait dire autre chose que ce que l'élève voit. */
+  const css = (src.match(/\.msg-ok\{[^}]*\}\s*\.msg-bad\{[^}]*\}\s*\.msg-sol\{[^}]*\}/) || [])[0] || '';
+  verifier('les trois encres sont les variables de la convention, pas des couleurs à elles',
+    /var\(--blue\)/.test(css) && /var\(--red\)/.test(css) && /var\(--green\)/.test(css),
+    'règles lues : ' + (css || '(aucune)'));
+
+  /* ET LES NOMS SONT À ELLE SEULE. Le premier jet réutilisait « fb-ok », déjà
+     pris par les morceaux [OK] du retour de l'IA et peint en VERT par une règle
+     plus spécifique — « .mp-feedback .fb-ok » — juste là où la phrase vit :
+     « tes cases justes sont en bleu » s'écrivait en vert sans qu'un caractère
+     du HTML ne le dise. Ici on refuse la COLLISION, qui est ce qu'un banc hors
+     navigateur peut voir ; l'encre résolue, elle, se mesure au banc navigateur. */
+  ['msg-ok', 'msg-bad', 'msg-sol', 'msg-neutre'].forEach(cls => {
+    const ailleurs = (src.match(new RegExp('class="' + cls + '"', 'g')) || []).length;
+    const regles   = (src.match(new RegExp('\\.' + cls + '\\{', 'g')) || []).length;
+    verifier('« ' + cls + ' » ne sert qu’à la phrase de correction',
+      ailleurs >= 1 && regles === 1,
+      regles + ' règle(s) CSS pour « ' + cls + ' » : une seconde, plus spécifique, '
+      + 'la repeindrait sans que le HTML change');
+  });
+
+  /* UN SEUL ENDROIT L'ÉCRIT. On compte les appels, et on refuse que la phrase
+     revienne en toutes lettres ailleurs que dans la fonction. */
+  const appels = (src.match(/msgCorrCouleurs\(/g) || []).length - 1;   /* moins sa définition */
+  const enDur  = (src.match(/tes cases justes sont en <b>bleu<\/b>/g) || []).length;
+  verifier('la phrase n’est écrite qu’à un seul endroit, et six écrans l’appellent',
+    appels >= 6 && enDur === 1,
+    appels + ' appel(s), et la phrase est écrite en toutes lettres ' + enDur +
+    ' fois (1 attendu : la fonction elle-même)');
+}
+
 function suiteAuxiliaireCompleter(w, P){
   const present = evaluer(w, "typeof startSA2==='function' && typeof sa2Attendu==='function'");
   if(!present.ok || !present.valeur){
@@ -6487,6 +6565,182 @@ function repondreSignalementCtrl(w, apres){
     verifier('l’accueil appelle vraiment les réponses, et n’en lit que les colonnes utiles',
       r.ok && b.branche === true && b.colonnes === true,
       souci || 'appelée par ouvrirEspaceSuite : ' + b.branche + ' — colonnes nommées : ' + b.colonnes);
+    gardeSaisie(w, apres);
+  });
+}
+
+/* ---------- La case où l'élève écrit ne se colore pas ---------------------
+   Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge ni
+   bleue tant qu'il y écrit. Elle attend qu'il la QUITTE — case suivante, clic
+   ailleurs — ou qu'il vérifie. Colorée à la frappe, elle déclare fausse une
+   réponse qu'il n'a pas fini d'écrire : « 1 » rougit le temps qu'on tape « 12 ».
+
+   LE CONTRÔLE N'OUVRE AUCUN EXERCICE, ET C'EST VOULU. Le garde vit au niveau du
+   document et ne connaît aucune correction : il agit sur le RÉSULTAT de
+   n'importe quelle correction en direct, pas sur son branchement. On lui pose
+   donc une case d'essai et une correction d'essai — qui juge l'écran entier à
+   chaque frappe, comme les vraies — et on mesure ce que le garde en fait. Un
+   contrôle adossé à un exercice précis n'aurait rien dit des trente autres, ni
+   de celui qu'on ajoutera demain. Le banc navigateur, lui, TAPE dans un vrai
+   exercice : c'est là que se vérifie que le garde tient sur du vrai code.
+
+   Six bords, chacun silencieux :
+   — pendant la frappe, aucune couleur ;
+   — en sortant, la couleur arrive — sans elle le soutien ne corrigerait plus rien ;
+   — une case DÉJÀ jugée se re-juge à la frappe, sinon l'élève qui corrige son
+     rouge devrait cliquer ailleurs pour savoir s'il a réussi ;
+   — la couleur différée SE PÉRIME : vider la case l'emporte, sinon on reposerait
+     en sortant un verdict qui ne correspond plus à ce qui est écrit ;
+   — la VÉRIFICATION passe outre : elle ne naît pas d'une frappe ;
+   — hors soutien, et sur un écran verrouillé, le garde ne touche à rien. */
+function gardeSaisie(w, apres){
+  const present = evaluer(w, "typeof caseQuiSeColore==='function' && typeof verdictDe==='function' && typeof gardeSurveiller==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la case où l’élève écrit ne se colore pas', 'ce niveau n’a pas le garde de la saisie');
+    return moyennesDevoirs(w, apres);
+  }
+
+  /* Le garde est le MÊME TEXTE dans les trois fichiers : trois copies auraient
+     fini par diverger, et un niveau se serait remis à colorer sous les doigts
+     de l'élève sans que rien ne le dise. */
+  const DEBUT = "/* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============";
+  const FIN   = "/* enregistrement différé du travail en cours";
+  const bloc = txt => {
+    const a = txt.indexOf(DEBUT); if(a < 0) return null;
+    const b = txt.indexOf(FIN, a); if(b < 0) return null;
+    return txt.slice(a, b);
+  };
+  const ici = bloc(lire(CIBLE));
+  verifier('le garde de la saisie est bien posé dans ce fichier', ici !== null,
+    'le bloc du garde est introuvable ou tronqué');
+  let modele; try{ modele = lire('terminale.html'); }catch(e){ modele = undefined; }
+  if(ici !== null && modele && CIBLE !== 'terminale.html'){
+    verifier('le garde de la saisie est identique à celui de la Terminale, au caractère près',
+      ici === bloc(modele), 'les deux copies du garde ont divergé');
+  }
+
+  evalPromis(w, `(async function(){
+    const bilan={};
+    /* On avance d'une MICRO-tâche, jamais d'un minuteur : le garde en emploie
+       une, donc elle passe avant. Un setTimeout laisserait tourner entre-temps
+       les minuteurs des contrôles précédents — l'un d'eux a volé le focus de la
+       case d'essai, le garde a cru qu'on la quittait, et la mesure accusait la
+       page d'un défaut qu'elle n'avait pas (le piège documenté des minuteurs
+       qui s'exécutent pendant une attente). */
+    const attendre=async()=>{ await Promise.resolve(); await Promise.resolve(); };
+    /* une case d'essai posée sur l'écran visible : le garde exige « .screen.on »,
+       comme toutes les corrections en direct */
+    const ecran=document.querySelector('.screen.on')||document.querySelector('.screen');
+    const avaitOn=ecran.classList.contains('on'); ecran.classList.add('on');
+    const hote=document.createElement('div'); ecran.appendChild(hote);
+    const boite=document.createElement('input'); boite.type='text'; hote.appendChild(boite);
+    /* LA CORRECTION D'ESSAI : elle repeint la case à chaque frappe, exactement
+       comme les vraies — c'est ce comportement-là que le garde doit tempérer. */
+    let verdict='bad';
+    const corriger=function(){
+      boite.classList.remove('ok','bad');
+      if(String(boite.value).trim()!=='') boite.classList.add(verdict);
+    };
+    hote.addEventListener('input', corriger);
+    const modeAvant=currentMode, verrouAvant=test.locked, kindAvant=test.kind;
+    /* Le répartiteur des corrections en direct (liveCheckCurrent) est branché
+       sur le même événement : on lui donne un « kind » qu'il ne connaît pas,
+       sans quoi il rejouerait la correction de l'exercice laissé par le
+       contrôle précédent — qui redessine son écran et emporte le focus. Ce
+       contrôle-ci mesure le GARDE, pas les corrections ; le banc navigateur,
+       lui, tape dans un vrai exercice. */
+    test.kind='__garde-essai';
+    const classes=()=>['ok','bad'].filter(c=>boite.classList.contains(c)).join(',');
+    const frapper=async function(v){
+      boite.value=v;
+      boite.dispatchEvent(new window.Event('input',{bubbles:true}));
+      await attendre();
+    };
+    const sortir=async function(){
+      boite.blur();
+      boite.dispatchEvent(new window.Event('focusout',{bubbles:true}));
+      await attendre();
+    };
+    /* On SORT de la case avant d'y revenir : le garde s'arme à l'entrée, et
+       focus() sur une case déjà focalisée ne lève aucun « focusin ». */
+    const neuve=function(){ boite.blur(); boite.classList.remove('ok','bad');
+                            delete boite.dataset.couleurDifferee;
+                            boite.value=''; boite.focus(); };
+    try{
+      currentMode='soutien'; test.locked=false;
+
+      /* 1. on écrit : rien ne se colore, mais la couleur est RETENUE */
+      neuve(); await frapper('1');
+      bilan.pendant=classes(); bilan.retenue=boite.dataset.couleurDifferee||'';
+
+      /* 2. on quitte la case : la couleur arrive */
+      await sortir();
+      bilan.sortie=classes();
+
+      /* 3. une case DÉJÀ jugée se re-juge sous les doigts */
+      boite.focus(); verdict='ok'; await frapper('12');
+      bilan.rejuge=classes();
+
+      /* 4. la couleur différée se périme : on vide la case */
+      neuve(); verdict='bad'; await frapper('1');
+      const retenuAvantVide=boite.dataset.couleurDifferee||'';
+      await frapper('');
+      bilan.perime=retenuAvantVide+'/'+(boite.dataset.couleurDifferee||'-');
+      await sortir();
+      bilan.videSortie=classes();
+
+      /* 5. la VÉRIFICATION passe outre, par ses DEUX chemins. Un clic sur
+         « Vérifier » donne le focus au bouton et le garde rend la main de
+         lui-même ; restent la touche ENTRÉE, qui ne déplace rien (le calcul
+         mental valide ainsi), et le VERROU que pose une vérification qui
+         termine la question. N'en tenir qu'un ne tient rien. */
+      neuve(); await frapper('1');
+      boite.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+      corriger(); await attendre();
+      bilan.entree=classes();
+
+      neuve(); await frapper('1');
+      test.locked=true; corriger(); await attendre();
+      bilan.verifVerrou=classes(); test.locked=false;
+
+      /* 6. hors soutien, le garde ne touche à rien. Le mode se pose AVANT
+         d'entrer dans la case : le garde s'arme à l'entrée, et le changer
+         ensuite mesurerait un garde déjà armé — le contrôle parlerait
+         d'autre chose. */
+      currentMode='train'; neuve(); await frapper('1');
+      bilan.train=classes();
+
+      /* 7. écran verrouillé : la correction finale garde ses couleurs */
+      currentMode='soutien'; test.locked=true; neuve(); await frapper('1');
+      bilan.verrou=classes();
+    } finally {
+      currentMode=modeAvant; test.locked=verrouAvant; test.kind=kindAvant;
+      hote.remove(); if(!avaitOn) ecran.classList.remove('on');
+    }
+    return bilan;
+  })()`, r => {
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+
+    verifier('pendant la frappe, la case ne se colore pas — et la couleur est retenue',
+      r.ok && b.pendant === '' && b.retenue === 'bad',
+      souci || 'classes pendant la frappe : « ' + b.pendant + ' », couleur retenue : « ' + b.retenue + ' »');
+    verifier('en quittant la case, la couleur arrive',
+      r.ok && b.sortie === 'bad',
+      souci || 'classes après la sortie : « ' + b.sortie + ' » — attendu « bad »');
+    verifier('une case déjà jugée se re-juge sous les doigts, sans attendre la sortie',
+      r.ok && b.rejuge === 'ok',
+      souci || 'classes pendant la frappe : « ' + b.rejuge + ' » — attendu « ok »');
+    verifier('la couleur différée se périme quand la case est vidée',
+      r.ok && b.perime === 'bad/-' && b.videSortie === '',
+      souci || 'retenue avant/après le vidage : ' + b.perime + ' — classes en sortant : « ' + b.videSortie + ' »');
+    verifier('« Vérifier » colore même la case qu’on n’a pas quittée',
+      r.ok && b.entree === 'bad' && b.verifVerrou === 'bad',
+      souci || 'après Entrée : « ' + b.entree + ' », après le verrou : « ' + b.verifVerrou +
+               ' » — attendu « bad » des deux côtés');
+    verifier('hors soutien et sur un écran verrouillé, le garde ne touche à rien',
+      r.ok && b.train === 'bad' && b.verrou === 'bad',
+      souci || 'en entraînement : « ' + b.train + ' », verrouillé : « ' + b.verrou + ' »');
     moyennesDevoirs(w, apres);
   });
 }

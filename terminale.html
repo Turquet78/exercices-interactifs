@@ -429,6 +429,25 @@
   .mp-feedback{min-height:26px;text-align:center;font-family:"Fredoka";font-weight:500;font-size:1.05rem;margin:16px 0 2px}
   .mp-feedback.good{color:var(--green)}.mp-feedback.bad{color:var(--red)}
   .mp-feedback.muted{color:var(--ink-soft)}
+  /* LA PHRASE QUI EXPLIQUE LA CORRECTION PORTE LES COULEURS QU'ELLE NOMME
+     (demande de Turquet, août 2026). Elle vit dans un « .mp-feedback.bad »,
+     donc tout y était ROUGE : elle annonçait le bleu et le vert en rouge, ce
+     qui est exactement l'inverse de ce qu'elle enseigne. « msg-neutre » rend
+     l'encre ordinaire au reste de la phrase, et les trois fragments prennent
+     l'encre dont ils parlent — les mêmes variables que les cases, pour qu'un
+     changement de convention ne puisse pas les séparer.
+     LES NOMS SONT À ELLE SEULE, et c'est une leçon payée : le premier jet
+     réutilisait « fb-ok », qui désigne DÉJÀ tout autre chose dans ce fichier —
+     les morceaux [OK] du retour de l'IA, peints en VERT par une règle plus
+     spécifique (« .mp-feedback .fb-ok », dix lignes plus bas). La phrase vit
+     précisément dans un « .mp-feedback » : « tes cases justes sont en bleu »
+     s'écrivait donc en VERT, sans qu'un caractère du HTML ne le dise. Aucun
+     banc hors navigateur ne pouvait le voir — c'est la CASCADE qui trompait,
+     pas le balisage ; le banc navigateur mesure l'encre RÉSOLUE et l'a nommée
+     à la première exécution. Deux familles sous un même nom de classe, ce
+     sont deux vérités possibles. */
+  .msg-neutre{color:var(--ink)}
+  .msg-ok{color:var(--blue)} .msg-bad{color:var(--red)} .msg-sol{color:var(--green)}
   .mp-feedback.conseil{color:var(--ink);background:#FFF7E6;border:1.5px solid #F0D9A0;border-radius:12px;padding:12px 14px;text-align:left}
   /* Retour IA phrase par phrase : le juste en vert, le faux/oubli en rouge (balises [OK]/[KO]) */
   .mp-feedback .fb-ok{color:var(--green);font-weight:600}
@@ -520,9 +539,19 @@
   /* La largeur est posée en JavaScript (sa2Ajuster) : un input ne sait pas se
      dimensionner sur son contenu en CSS. On ne garde ici qu'un plafond, pour
      qu'une saisie absurde ne pousse pas la ligne hors de l'écran. */
-  .sa2-in{font-family:"Fredoka",system-ui,sans-serif;font-size:1.2rem;font-weight:600;text-align:center;
+  /* « font:inherit » plutôt qu'une police à elle : la case prend la FAMILLE, la
+     TAILLE et la graisse de la rangée qui l'entoure (demande de Turquet, août
+     2026). Elle était en Fredoka 1,2 rem grasse au milieu d'un texte en Nunito
+     20 px maigre — une écriture d'un autre alphabet posée au milieu du calcul.
+     La case d'INDICE reste plus petite (décision antérieure de Turquet) : en
+     « em », donc relative à la rangée elle aussi, et non à une taille figée. */
+  /* « content-box » là où toute la page est en « border-box », et c'est
+     VOLONTAIRE : sa2Ajuster écrit une largeur en « ch » qui est celle du
+     TEXTE. En border-box, le rembourrage et la bordure s'y taillaient leur
+     part et le dernier chiffre de « 2000 » disparaissait. */
+  .sa2-in{font:inherit;text-align:center;box-sizing:content-box;
           max-width:220px;padding:2px 6px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
-  .sa2-in.sa2-mot{font-size:0.95rem;padding:1px 4px}
+  .sa2-in.sa2-mot{font-size:0.8em;padding:1px 4px}
   .sa2-in:focus{outline:none;border-color:var(--blue)}
   .sa2-in.ok{border-color:var(--blue);background:#eaf1ff}
   .sa2-in.bad{border-color:#dc2626;background:#fee2e2}
@@ -2203,7 +2232,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=268;
+const APP_VERSION=270;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -3086,6 +3115,26 @@ function soutienAgain(fbId, actionsId, fn, host){
   if(host){ const bad=$(host)&&$(host).querySelector('.bad'); if(bad&&!bad.disabled)setTimeout(()=>bad.focus(),40); }
 }
 /* ---------- (soutien simplifié : géré directement dans submitAnswer) ---------- */
+/* ---------- LA PHRASE QUI EXPLIQUE LA CORRECTION -----------------------
+   Elle NOMME trois couleurs, donc elle les PORTE (demande de Turquet, août
+   2026) : « tes cases justes sont en bleu » s'écrit en bleu, « les fausses
+   sont rouges » en rouge, « avec la bonne réponse en vert » en vert, et le
+   reste en encre ordinaire. Elle vivait dans un « .mp-feedback.bad », donc
+   TOUT y était rouge — elle annonçait le bleu et le vert en rouge, c'est-à-dire
+   l'inverse de ce qu'elle enseigne.
+
+   UN SEUL ENDROIT L'ÉCRIT, pour SIX écrans. Elle était recopiée six fois, mot
+   pour mot ; six copies d'une même phrase, ce sont six chances de la corriger à
+   moitié le jour où la convention change — et la convention des couleurs a déjà
+   tourné une fois dans ce projet. */
+function msgCorrCouleurs(oubliees){
+  return '<span class="msg-neutre">Quelques erreurs \u2014 '
+    + '<span class="msg-ok">tes cases justes sont en <b>bleu</b></span> ; '
+    + '<span class="msg-bad">les fausses sont <b>rouges</b></span>, '
+    + '<span class="msg-sol">avec la bonne r\u00e9ponse en <b>vert</b></span> juste \u00e0 c\u00f4t\u00e9'
+    + (oubliees ? ' ; <span class="msg-sol">les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b></span>.' : '.')
+    + '</span>';
+}
 function liveCheckCurrent(){ /* le moteur générique gère le soutien dans submitAnswer */ }
 function modeTagHTML(){
   if(currentMode==='eval') return '<span class="mode-tag eval">🔓 Évaluation</span>';
@@ -11566,7 +11615,7 @@ function checkS1(live){
     $('s1Feedback').className='mp-feedback good';
   } else {
     const aPos=c.a>0;
-    $('s1Feedback').innerHTML=`Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne réponse en <b>vert</b> juste à côté.<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
+    $('s1Feedback').innerHTML=msgCorrCouleurs(false)+`<br>Racine : <b><i>x</i> = ${c.rootStr}</b>. Comme <i>a</i> = ${numFmt(c.a)} ${aPos?'&gt; 0':'&lt; 0'}, <i>f</i> est ${aPos?'négative puis positive':'positive puis négative'}.`;
     $('s1Feedback').className='mp-feedback bad';
     const corr=(id,val)=>corrCase(id,val,verd[id]===true);
     if(c.level!==1){ corr('s1-num',numFmt(c.negb)); corr('s1-den',numFmt(c.a)); }
@@ -12549,7 +12598,7 @@ function checkSP(){
       : (q.quo
       ? 'Retiens : chaque expression affine est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour celle qui s\u2019annule l\u00e0 ; le signe de f suit la <b>r\u00e8gle des signes</b>, et \u00e0 la valeur interdite f n\u2019existe pas : <b>double barre \u2016</b>.'
       : 'Retiens : chaque facteur est du <b>signe de a \u00e0 droite</b> de sa racine ; sur un trait, <b>0</b> seulement pour le facteur qui s\u2019annule l\u00e0 (et pour f) ; le signe de f est le <b>produit des signes</b>.');
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9.<br>'+aide;
+    fb.innerHTML=msgCorrCouleurs(false)+'<br>'+aide;
     fb.className='mp-feedback bad';
   }
   test.answers.push({...(ptsExo()||{}), q:q.fPlain+' \u2014 tableau de signe construit (facteurs, racines, z\u00e9ros et signes)',
@@ -12750,7 +12799,7 @@ function checkSU(){
     const sh=c.p===0?'<i>n</i>':('(<i>n</i> \u2212 '+c.p+')');
     const form=arith ? (suU('<i>n</i>')+' = '+suU(c.p)+' + <i>r</i> \u00d7 '+sh)
                      : (suU('<i>n</i>')+' = '+suU(c.p)+' \u00d7 <i>q</i><sup>'+(c.p===0?'<i>n</i>':('<i>n</i>\u2212'+c.p))+'</sup>');
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b>.<br>'
+    fb.innerHTML=msgCorrCouleurs(true)+'<br>'
       +'On passe de '+suU('<i>n</i>')+' \u00e0 '+suU('<i>n</i>+1')+' en '+geste+'.<br>'
       +'Le premier terme donn\u00e9 est '+suU(c.p)+', donc la formule explicite s\u2019\u00e9crit '+form+'.';
     fb.className='mp-feedback bad';
@@ -13599,7 +13648,7 @@ function checkENC(){
         else { el.insertAdjacentHTML('afterend','<span class="mf-cor">'+encTex(x.cible.lat, x.cible.s)+'</span>'); }
         try{ el.readOnly=true; }catch(e){}
       } });
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b>.<br>'
+    fb.innerHTML=msgCorrCouleurs(true)+'<br>'
       +'Retiens : <b>ajouter</b> un nombre ou <b>multiplier par un nombre positif</b> conserve l\u2019ordre ; '
       +'la <b>racine carr\u00e9e</b> (croissante sur [0 ; +\u221e[) le conserve ; '
       +'l\u2019<b>inverse</b> (d\u00e9croissante sur ]0 ; +\u221e[) et la <b>multiplication par un nombre n\u00e9gatif</b> (l\u2019<b>oppos\u00e9</b>) l\u2019<b>\u00e9changent</b>.';
@@ -13862,7 +13911,7 @@ function checkREC(){
         else el.insertAdjacentHTML('afterend','<span class="mf-cor">'+encTex(recCorrLat(x), recCorrS(x))+'</span>');
         try{ el.readOnly=true; }catch(e){}
       } });
-    fb.innerHTML='Quelques erreurs \u2014 tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne r\u00e9ponse en <b>vert</b> juste \u00e0 c\u00f4t\u00e9 ; les cases oubli\u00e9es ont \u00e9t\u00e9 compl\u00e9t\u00e9es, en <b>vert</b>.<br>'
+    fb.innerHTML=msgCorrCouleurs(true)+'<br>'
       +'Retiens : on <b>suppose</b> pour <i>n</i>, on <b>montre</b> pour <i>n</i>+1, en reconstruisant le calcul de U<sub><i>n</i>+1</sub> \u00e9tape par \u00e9tape.';
     fb.className='mp-feedback bad';
   }
@@ -14197,6 +14246,12 @@ function sa2Ajuster(el){
   if(!el) return;
   const n=String(el.value==null?'':el.value).length;
   const mini=el.classList.contains('sa2-mot') ? SA2_LARGEUR_MIN_IDX : SA2_LARGEUR_MIN;
+  /* Ces « ch » sont la largeur du TEXTE, et rien d'autre : la feuille pose
+     « box-sizing:content-box » sur ces cases-là, exprès. Sous le border-box du
+     reste de la page, la largeur écrite ici aurait compris le rembourrage et la
+     bordure, et le texte aurait été amputé d'autant — « 2000 » y perdait son
+     dernier chiffre (signalé par Turquet sur une capture, août 2026) et « n+1 »
+     trois pixels, la réserve de 1,2 ch ne couvrant pas les 16 px du cadre. */
   el.style.width=Math.max(mini, n+1.2)+'ch';
 }
 function sa2AjusterTout(){ SA2_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
@@ -14356,7 +14411,7 @@ function checkSA2(live){
     $('sa2Feedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, la démonstration est complète !']);
     $('sa2Feedback').className='mp-feedback good';
   } else {
-    $('sa2Feedback').innerHTML='Quelques erreurs — tes cases justes sont en <b>bleu</b> ; les fausses restent en <b>rouge</b>, avec la bonne réponse en <b>vert</b> juste à côté.'
+    $('sa2Feedback').innerHTML=msgCorrCouleurs(false)
       +'<br>La clé : on factorise par '+SA.fmtH(q.a)+' pour faire réapparaître '+'<i>U</i><sub><i>n</i></sub>'+SA.sgnH(q.k)+', c’est-à-dire <i>V</i><sub><i>n</i></sub>.';
     $('sa2Feedback').className='mp-feedback bad';
     SA2_IDS.forEach(id=>{ const [type,bon]=att[id]; corrCase(id, sa2Libelle(type,bon,q), verd[id]===true); });
@@ -15464,6 +15519,100 @@ async function exportCSV(){
 $('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitAnswer();}});
 /* mode soutien : couleur immédiate case par case */
 /* (plus de coloration case-par-case : le moteur générique gère le feedback) */
+/* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============
+   Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge ni
+   bleue tant que l'élève est en train d'y écrire. Elle attend qu'il la QUITTE —
+   case suivante, clic ailleurs — ou qu'il vérifie. Colorée à la frappe, elle
+   déclare fausse une réponse qu'il n'a pas fini d'écrire : « 1 » rougit le temps
+   qu'on tape « 12 », et l'élève apprend à se méfier d'une couleur qui ment.
+
+   UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE. Les corrections en direct
+   sont des dizaines, réparties dans les trois fichiers, et chacune juge l'écran
+   ENTIER sans savoir quelle case porte le curseur : les rebrancher une par une
+   aurait laissé dehors celles qu'on ajoutera demain. On SURVEILLE donc la case
+   qui a le curseur, on lui RETIRE toute couleur qui s'y pose, et on la REPOSE
+   telle quelle quand l'élève la quitte. Un exercice neuf est couvert le jour où
+   il naît, sans rien déclarer.
+
+   ET C'EST UN OBSERVATEUR, PAS UNE MICRO-TÂCHE APRÈS LA FRAPPE. Le premier jet
+   effaçait la couleur juste après l'événement, en supposant que la correction
+   avait déjà peint. Beaucoup peignent en effet tout de suite — mais pas toutes :
+   certaines passent par un minuteur, et leur couleur arrivait APRÈS le ménage.
+   Le banc navigateur l'a montré du premier coup, sur {image-nombre} : la case
+   restait rouge sous les doigts alors que jsdom, lui, passait au vert. On ne
+   suppose donc plus rien du MOMENT : on regarde la case, et toute couleur qui
+   s'y pose est retirée, d'où qu'elle vienne et quand qu'elle vienne.
+
+   La couleur reposée est celle que la correction avait CALCULÉE : rien n'est
+   rejugé à la sortie, donc aucune correction ne tourne deux fois et le verdict
+   ne peut pas diverger de celui de la frappe.
+
+   TROIS BORDS, et n'en tenir qu'un ne tient rien :
+   — une case DÉJÀ jugée quand on y entre se re-juge à chaque frappe : on ne la
+     surveille pas. Sans ce bord, l'élève qui corrige sa case rouge devrait
+     cliquer ailleurs pour savoir s'il a réussi ;
+   — la couleur retenue SE PÉRIME : quand la correction efface sans repeindre —
+     l'élève a vidé sa case — la retenue s'en va, sinon on reposerait en sortant
+     un verdict qui ne correspond plus à ce qui est écrit. Le compteur distingue
+     l'effacement de la CORRECTION de celui que le garde vient de faire ;
+   — la VÉRIFICATION passe outre. Elle repeint une case qui n'a plus le curseur,
+     ou une case verrouillée : dans les deux cas le garde ne surveille plus, et
+     « Vérifier » colore même la case qu'on n'a pas quittée.
+
+   Les champs mathématiques n'étaient déjà colorés qu'à la sortie (la greffe
+   MathLive appelle dexpLiveCheck sur « focusout ») : le garde est inerte pour
+   eux, et c'est le signe qu'il dit la même chose qu'eux. */
+function caseQuiSeColore(el){
+  return !!el && (el.tagName==='INPUT' || el.tagName==='MATH-FIELD')
+      && !!el.closest && !!el.closest('.screen.on');
+}
+function verdictDe(el){
+  return el.classList.contains('ok') ? 'ok' : el.classList.contains('bad') ? 'bad' : '';
+}
+let gardeCase=null, gardeObs=null, gardeMoi=0;
+function gardeArret(){
+  if(gardeObs){ gardeObs.disconnect(); gardeObs=null; }
+  gardeCase=null; gardeMoi=0;
+}
+function gardeSurveiller(el){
+  gardeArret(); gardeCase=el; delete el.dataset.couleurDifferee;
+  gardeObs=new MutationObserver(function(){
+    if(gardeCase!==el) return;
+    /* le mode et le verrou sont relus À CHAQUE fois : une VÉRIFICATION qui
+       verrouille l'écran rend la main au milieu de la surveillance, et sa
+       couleur reste. */
+    if(!isSoutien() || test.locked || el.classList.contains('sol')){ gardeArret(); return; }
+    const v=verdictDe(el);
+    if(v){ el.dataset.couleurDifferee=v; gardeMoi++; el.classList.remove('ok','bad'); }
+    else if(gardeMoi>0){ gardeMoi--; }              /* c'est nous qui venons d'effacer */
+    else { delete el.dataset.couleurDifferee; }     /* la correction a effacé : la retenue se périme */
+  });
+  gardeObs.observe(el,{attributes:true, attributeFilter:['class']});
+}
+function gardeRendreLaMain(el){
+  if(!el || el!==gardeCase) return;
+  gardeArret();
+  const differee=el.dataset && el.dataset.couleurDifferee;
+  if(el.dataset) delete el.dataset.couleurDifferee;
+  if(!differee || !isSoutien() || test.locked || verdictDe(el) || el.classList.contains('sol')) return;
+  el.classList.add(differee);
+}
+document.addEventListener('focusin', function(e){
+  const el=e.target;
+  if(!isSoutien() || test.locked || !caseQuiSeColore(el)
+     || el.classList.contains('sol') || verdictDe(el)){ gardeArret(); return; }
+  gardeSurveiller(el);
+}, true);
+document.addEventListener('focusout', function(e){ gardeRendreLaMain(e.target); }, true);
+/* ENTRÉE VALIDE SANS QUITTER LA CASE — le calcul mental et les opérations
+   posées le font depuis toujours. Un clic sur « Vérifier » donne le focus au
+   bouton, donc le garde rend la main de lui-même ; la touche Entrée, elle, ne
+   déplace rien. Sans cette ligne, la couleur de la vérification serait retirée
+   au moment précis où l'élève la demande. */
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter') gardeRendreLaMain(gardeCase);
+}, true);
+
 /* enregistrement différé du travail en cours (entraînement & soutien) : protège même en cas de fermeture/plantage */
 let _draftSaveTimer=null;
 document.addEventListener('input',e=>{

@@ -186,6 +186,13 @@ module.exports = {
        Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
        le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
+    /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
+       tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
+       case qui soit un vrai « input » ET que la correction en direct JUGE à
+       chaque frappe — c'est là que le défaut vivait. Le banc exige d'ailleurs
+       qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
+       vert sur une case que personne ne juge, en parlant d'autre chose. */
+    gardeSaisie: { exercice: 'multiplication-posee', champ: '.mp-box', valeur: '9' },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
@@ -401,6 +408,13 @@ module.exports = {
     nbQuestionsFractions: { sf: 4, mlt: 4 },
     /* Le pavé numérique compact : la SECONDE source de sa liste de touches,
        et la case réelle que le banc navigateur pilote en mode tactile. */
+    /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
+       tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
+       case qui soit un vrai « input » ET que la correction en direct JUGE à
+       chaque frappe — c'est là que le défaut vivait. Le banc exige d'ailleurs
+       qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
+       vert sur une case que personne ne juge, en parlant d'autre chose. */
+    gardeSaisie: { exercice: 'image-nombre', champ: '#img-c', valeur: '9' },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
     reglagesDevoirs: { exercice: 'pourcentage' },
@@ -500,6 +514,13 @@ module.exports = {
        la voir tenir, et le total du devoir la suivre. */
     notesDevoir: { exercice: 'derivee-exp', tableParametres: 'parametres', tableResultats: 'resultats' },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
+    /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
+       tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
+       case qui soit un vrai « input » ET que la correction en direct JUGE à
+       chaque frappe — c'est là que le défaut vivait. Le banc exige d'ailleurs
+       qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
+       vert sur une case que personne ne juge, en parlant d'autre chose. */
+    gardeSaisie: { exercice: 'equation-tangente', champ: '#tg-fa', valeur: '9' },
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
     /* Le signe du premier degré : 5 questions par séance (demande de Turquet,
