@@ -2928,6 +2928,33 @@ premier jet ne voyait que `1/2` et laissait passer `P/100`, `x/100`, `100/b`,
 `u/v` — ça ne s'est vu que sur une capture d'écran. Le NAVIGATEUR ouvre chaque
 rappel qui porte une formule et exige qu'elle soit dessinée : lui seul voit qu'on
 a débranché `rapMaths()`, le statique n'y verrait rien.
+**Un tableau COUPÉ en plein vol reste un tableau.** Signalé par Turquet (août
+2026) sur un iPad, dans « Question à l'IA » comme dans la rédaction d'un
+exercice : l'élève lisait `begin{array}{c|ccc} x & −3 & … hline g(x) & + & 0`
+en toutes lettres. Le moteur savait pourtant rendre les tableaux
+(`iaTableau` les convertit en `<table class="qia-arr">`) — la sonde l'a
+montré sur les QUATRE écritures que le modèle emploie (nue, `\[ \]`, `$$ $$`,
+`\( \)`) : toutes se rendent. **Ce qui échouait est la réponse TRONQUÉE** par
+la limite de longueur du serveur, coupée avant son `\end{array}` : la regex
+exigeait la fermeture, le fragment repartait en texte, et le code brut
+s'affichait. Le `\end{…}` est donc FACULTATIF désormais — on rend les lignes
+REÇUES et on marque la coupure par « … », la doctrine d'`iaCoupe` étendue aux
+tableaux : un tableau à moitié écrit reste lisible, du LaTeX nu ne l'est
+jamais. Le moteur étant le MÊME TEXTE dans les trois fichiers, la correction
+y est portée à l'identique (le contrôle des huit fonctions le vérifie).
+Trois bords au contrôle, et n'en tenir qu'un ne tient rien : le tableau
+COMPLET se rend toujours (la non-régression), le COUPÉ se rend et dit sa
+coupure, et AUCUN mot du LaTeX (`begin{`, `end{`, `hline`, `&`, l'antislash)
+ne reste affiché — c'est ce dernier qui nomme le défaut signalé.
+**Et le contrôle s'est pris en défaut avant la page** : ses chaînes traversent
+le template littéral de `verifier.js` PUIS l'évaluation dans la page, et
+`\begin` y devenait un caractère de contrôle — le premier jet rougissait sur
+du code parfaitement juste. Il n'écrit plus aucun antislash littéral
+(`String.fromCharCode(92)`), et c'est la règle pour tout contrôle qui pose du
+LaTeX. La largeur, elle, a été mesurée et ne pose pas de problème : sur un
+écran d'iPad (768 px), le tableau rendu fait 315 px et ne déborde ni de sa
+boîte ni de la page.
+
 Un piège de banc s'y est montré, et il vaut pour tout le dépôt : **comparer deux
 fonctions en comptant les accolades ne marche pas ici**. Ces fonctions sont
 pleines d'expressions régulières où `{ }` abondent ; un compteur naïf avalait
