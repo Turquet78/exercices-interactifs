@@ -3501,6 +3501,45 @@ et n'en tenir qu'un ne tient rien : le sabotage du second est resté vert
 pendant que le premier rougissait. Neuf sabotages en tout, chacun rougissant en
 nommant son défaut.
 
+**Puis l'encre des cases, la place du 2000, et la phrase qui porte ses
+couleurs** (demande de Turquet, août 2026, sur une capture du 6.3). Trois
+demandes, et aucune ne se mesure hors d'un navigateur.
+· **La case écrit comme la rangée qui l'entoure** — même police, même taille,
+  sans gras : `font:inherit`, là où Fredoka 600 faisait de la réponse une
+  écriture d'un autre alphabet. La case d'INDICE reste plus petite (décision
+  antérieure), mais garde famille et graisse. Le contrôle lit l'encre RÉSOLUE.
+· **« une partie de 2000 est effacée »** : la largeur se pose en `ch`, et la
+  page étant en `box-sizing:border-box`, ces ch comprenaient rembourrage et
+  bordure — 16 px mangés sur le texte. La case passe en `content-box` : les ch
+  redeviennent la place du TEXTE. Mesurer `scrollWidth > clientWidth` n'aurait
+  rien dit — un input rend 1 px de plus même VIDE — : le contrôle mesure la
+  largeur du texte au CANEVAS, dans la police effective de la case, et exige
+  qu'il tienne avec une marge.
+· **La phrase de la correction porte les couleurs qu'elle nomme** : « tes
+  cases justes sont en bleu » en BLEU, « les fausses sont rouges » en ROUGE,
+  « avec la bonne réponse en vert » en VERT, le reste en encre ordinaire. Elle
+  vit dans un `.mp-feedback.bad`, où tout était rouge — elle annonçait le bleu
+  en rouge. UN SEUL endroit l'écrit (`msgCorrCouleurs`), six écrans
+  l'appellent : deux copies auraient fini par dire deux choses.
+**Et le premier jet a payé une leçon de CASCADE que rien d'autre n'enseigne** :
+il nommait ses fragments `fb-ok` — une classe qui désigne DÉJÀ les morceaux
+[OK] du retour de l'IA, peints en VERT par une règle plus spécifique
+(`.mp-feedback .fb-ok`) posée exactement là où la phrase vit. « tes cases
+justes sont en bleu » s'écrivait donc en vert, sans qu'un caractère du HTML ne
+le dise : la cascade trompait, pas le balisage, et AUCUN banc hors navigateur
+ne pouvait le voir — le contrôle jsdom lisait les classes et restait vert. Le
+banc navigateur, qui mesure l'encre résolue, l'a nommé à la première
+exécution. Les classes sont à elle seule désormais (`msg-…`), un contrôle
+refuse qu'une seconde règle les reprenne, et le navigateur compare chaque
+fragment aux VARIABLES de la convention (`--blue`, `--red`, `--green`) — jamais
+à une dominante : « le reste en noir » est #1E2A4A, un noir bleuté qu'aucune
+dominante ne sait ranger, et il se compare à l'encre du texte ordinaire. Huit
+sabotages, chacun rougissant en nommant son défaut — et la campagne elle-même
+s'est prise en défaut : interrompue pendant qu'un banc tournait, elle n'avait
+RIEN restauré (`execFileSync` bloque la boucle, le signal attend), et la
+mesure suivante partait d'un fichier déjà saboté. Une campagne de sabotage
+restaure depuis une COPIE PROPRE hors dépôt, jamais depuis sa mémoire.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons

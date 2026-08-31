@@ -2609,6 +2609,7 @@ function exercices(suite){
     imageNombre(w, P);
     tangenteExp(w, P);
     suiteAuxiliaireCompleter(w, P);
+    phraseCouleurs(w);
     antecedentNombre(w, P);
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
@@ -5443,6 +5444,83 @@ function imageNombre(w, P){
        doit pas compter faux, ce n'est pas l'orthographe qu'on évalue ;
      · et l'exercice a son identité propre — la note, le rappel, les questions
        à l'IA — alors qu'il partage le moteur de tirage. */
+/* ---------- La phrase qui explique la correction PORTE ses couleurs -------
+   Elle NOMME trois couleurs (demande de Turquet, août 2026) : « tes cases
+   justes sont en bleu » s'écrit en bleu, « les fausses sont rouges » en rouge,
+   « avec la bonne réponse en vert » en vert, le reste en encre ordinaire. Elle
+   vivait dans un « .mp-feedback.bad », donc TOUT y était rouge — elle annonçait
+   le bleu et le vert en rouge, l'inverse de ce qu'elle enseigne.
+
+   DEUX BORDS, et le second est celui qui dure : la phrase doit porter ses
+   couleurs, ET n'être écrite qu'à UN endroit. Elle était recopiée six fois mot
+   pour mot ; six copies, ce sont six chances de n'en corriger que cinq le jour
+   où la convention change — et elle a déjà changé une fois dans ce projet. */
+function phraseCouleurs(w){
+  const src = lire(CIBLE);
+  const present = evaluer(w, "typeof msgCorrCouleurs==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la phrase de correction porte les couleurs qu’elle nomme',
+      'ce niveau n’écrit pas cette phrase');
+    return;
+  }
+  const r = evaluer(w, "msgCorrCouleurs(false)+'||'+msgCorrCouleurs(true)");
+  const t = r.ok ? String(r.valeur||'') : '';
+  const [simple, oubli] = t.split('||');
+
+  /* chaque fragment porte SA classe — et on regarde le fragment, pas seulement
+     la présence de la classe : une classe posée sur toute la phrase la
+     satisferait sans rien colorer de juste. */
+  const porte = (txt, cls, mot) => {
+    const i = txt.indexOf('class="' + cls + '"');
+    if(i < 0) return false;
+    const fin = txt.indexOf('</span>', i);
+    return fin > i && txt.slice(i, fin).indexOf(mot) >= 0;
+  };
+  verifier('« tes cases justes sont en bleu » s’écrit en bleu',
+    porte(simple, 'msg-ok', 'justes'), 'fragment non trouvé dans un « msg-ok » : ' + simple.slice(0, 120));
+  verifier('« les fausses sont rouges » s’écrit en rouge',
+    porte(simple, 'msg-bad', 'fausses'), 'fragment non trouvé dans un « msg-bad »');
+  verifier('« avec la bonne réponse en vert » s’écrit en vert',
+    porte(simple, 'msg-sol', 'bonne r'), 'fragment non trouvé dans un « msg-sol »');
+  verifier('le reste de la phrase revient à l’encre ordinaire',
+    simple.indexOf('class="msg-neutre"') >= 0,
+    'sans « msg-neutre », toute la phrase hérite du rouge de .mp-feedback.bad');
+  verifier('la variante « cases oubliées » garde les mêmes couleurs',
+    porte(oubli, 'msg-ok', 'justes') && oubli.indexOf('oubli') >= 0,
+    'la seconde forme de la phrase a divergé');
+
+  /* Les trois encres sont celles des CASES : une phrase qui se peindrait avec
+     ses propres couleurs pourrait dire autre chose que ce que l'élève voit. */
+  const css = (src.match(/\.msg-ok\{[^}]*\}\s*\.msg-bad\{[^}]*\}\s*\.msg-sol\{[^}]*\}/) || [])[0] || '';
+  verifier('les trois encres sont les variables de la convention, pas des couleurs à elles',
+    /var\(--blue\)/.test(css) && /var\(--red\)/.test(css) && /var\(--green\)/.test(css),
+    'règles lues : ' + (css || '(aucune)'));
+
+  /* ET LES NOMS SONT À ELLE SEULE. Le premier jet réutilisait « fb-ok », déjà
+     pris par les morceaux [OK] du retour de l'IA et peint en VERT par une règle
+     plus spécifique — « .mp-feedback .fb-ok » — juste là où la phrase vit :
+     « tes cases justes sont en bleu » s'écrivait en vert sans qu'un caractère
+     du HTML ne le dise. Ici on refuse la COLLISION, qui est ce qu'un banc hors
+     navigateur peut voir ; l'encre résolue, elle, se mesure au banc navigateur. */
+  ['msg-ok', 'msg-bad', 'msg-sol', 'msg-neutre'].forEach(cls => {
+    const ailleurs = (src.match(new RegExp('class="' + cls + '"', 'g')) || []).length;
+    const regles   = (src.match(new RegExp('\\.' + cls + '\\{', 'g')) || []).length;
+    verifier('« ' + cls + ' » ne sert qu’à la phrase de correction',
+      ailleurs >= 1 && regles === 1,
+      regles + ' règle(s) CSS pour « ' + cls + ' » : une seconde, plus spécifique, '
+      + 'la repeindrait sans que le HTML change');
+  });
+
+  /* UN SEUL ENDROIT L'ÉCRIT. On compte les appels, et on refuse que la phrase
+     revienne en toutes lettres ailleurs que dans la fonction. */
+  const appels = (src.match(/msgCorrCouleurs\(/g) || []).length - 1;   /* moins sa définition */
+  const enDur  = (src.match(/tes cases justes sont en <b>bleu<\/b>/g) || []).length;
+  verifier('la phrase n’est écrite qu’à un seul endroit, et six écrans l’appellent',
+    appels >= 6 && enDur === 1,
+    appels + ' appel(s), et la phrase est écrite en toutes lettres ' + enDur +
+    ' fois (1 attendu : la fonction elle-même)');
+}
+
 function suiteAuxiliaireCompleter(w, P){
   const present = evaluer(w, "typeof startSA2==='function' && typeof sa2Attendu==='function'");
   if(!present.ok || !present.valeur){
