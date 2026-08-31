@@ -1665,32 +1665,45 @@ function branchements(w){
      tient rien : le tableau COMPLET se rend toujours (pas de régression), le
      tableau COUPÉ se rend aussi et dit sa coupure, et AUCUN mot du LaTeX ne
      reste affiché — c'est ce dernier qui nomme le défaut signalé. */
-  verifierEval(w, 'un tableau de l\'IA coupé en plein vol reste un tableau, jamais du code brut', `(function(){
+  verifierEval(w, 'un tableau de l\'IA s\'affiche en tableau, quelle que soit son écriture', `(function(){
     const vus=[];
     if(typeof conseilHTML!=='function') return 'conseilHTML() introuvable : le contrôle ne mesure rien';
     /* AUCUN antislash littéral ici : la chaîne traverse le template de ce
        fichier PUIS l'évaluation dans la page, et « b » précédé d'un antislash
        y devient un caractère de contrôle — le premier jet du contrôle
        rougissait sur du code parfaitement juste. */
-    const B=String.fromCharCode(92), NL=String.fromCharCode(10);
-    const CORPS='x & -3 & -1 & 2 & 4 '+B+B+' '+B+'hline g(x) & + & 0 & - & 0 & +';
-    const OUVRE='Voici :'+NL+B+'begin{array}{c|ccc}'+NL+CORPS;
+    const B=String.fromCharCode(92), NL=String.fromCharCode(10), PTS=String.fromCharCode(8230);
     const lire=function(t){ const d=document.createElement('div'); d.innerHTML=conseilHTML(t);
       return { n:d.querySelectorAll('table.qia-arr').length, txt:(d.textContent||'') }; };
-    /* 1. le tableau COMPLET — le bord qui empêche la régression */
-    const plein=lire(OUVRE+NL+B+'end{array}'+NL+'Voilà.');
-    if(plein.n!==1) vus.push('un tableau COMPLET ne se rend plus en tableau ('+plein.n+')');
-    if(plein.txt.indexOf(String.fromCharCode(8230))>=0) vus.push('un tableau complet est marqué coupé');
-    if(plein.txt.indexOf('Voilà')<0) vus.push('le texte qui suit le tableau a disparu');
-    /* 2. le tableau COUPÉ avant son end : le cas signalé sur iPad */
-    const coupe=lire(OUVRE);
-    if(coupe.n!==1) vus.push('un tableau COUPÉ ne se rend pas en tableau : l\\'élève lit le code brut');
-    if(coupe.txt.indexOf(String.fromCharCode(8230))<0) vus.push('le tableau coupé ne dit pas sa coupure');
-    /* 3. aucun mot du LaTeX ne reste sous les yeux de l'élève */
-    [['complet',plein],['coupé',coupe]].forEach(function(p){
-      ['begin{','end{','hline','&',B].forEach(function(mot){
-        if(p[1].txt.indexOf(mot)>=0) vus.push('le tableau '+p[0]+' laisse « '+mot+' » affiché à l\\'élève');
+    const CORPS='x & -3 & -1 & 2 & 4 '+B+B+' '+B+'hline g(x) & + & 0 & - & 0 & +';
+    const OUVRE='Voici :'+NL+B+'begin{array}{c|ccc}'+NL+CORPS;
+    /* les TROIS écritures que le modèle emploie, plus leurs variantes */
+    const cas={
+      'array complet'  : OUVRE+NL+B+'end{array}'+NL+'Voilà.',
+      'array espacé'   : 'Voici : '+B+'begin {array}{c|c} x & 1 '+B+B+' g(x) & + '+B+'end {array} fin.',
+      'array crocheté' : 'Voici : '+B+'begin{array}[t]{c|c} x & 1 '+B+B+' g(x) & + '+B+'end{array} fin.',
+      'markdown'       : 'Voici :'+NL+NL+'| x | -3 | 2 |'+NL+'|---|---|---|'+NL+'| g(x) | + | 0 |'+NL+NL+'Voilà.',
+      'markdown sans séparateur' : 'Voici :'+NL+NL+'| x | -3 | 2 |'+NL+'| g(x) | + | 0 |'+NL+NL+'Voilà.'
+    };
+    Object.keys(cas).forEach(function(k){
+      const r=lire(cas[k]);
+      if(r.n!==1) vus.push('« '+k+' » ne se rend pas en tableau ('+r.n+') : l\\'élève lit le code brut');
+      ['begin{','begin {','end{','hline','|---',B].forEach(function(mot){
+        if(r.txt.indexOf(mot)>=0) vus.push('« '+k+' » laisse « '+mot+' » affiché à l\\'élève');
       });
+      if(r.txt.indexOf('[t]')>=0) vus.push('« '+k+' » affiche sa spécification [t] dans le tableau');
+    });
+    if(lire(cas['array complet']).txt.indexOf('Voilà')<0) vus.push('le texte qui suit le tableau a disparu');
+    /* le tableau COUPÉ en plein vol : rendu quand même, et il dit sa coupure */
+    [['array',OUVRE],['markdown','Voici :'+NL+NL+'| x | -3 | 2 |'+NL+'|---|---|---|'+NL+'| g(x) | + | 0']].forEach(function(p){
+      const r=lire(p[1]);
+      if(r.n!==1) vus.push('un tableau '+p[0]+' COUPÉ ne se rend pas en tableau');
+      if(r.txt.indexOf(PTS)<0) vus.push('le tableau '+p[0]+' coupé ne dit pas sa coupure');
+    });
+    /* et le bord OPPOSÉ : une phrase à barres verticales n'est pas un tableau */
+    ['On note |x| la valeur absolue.'+NL+'Et |y| aussi, c\\\'est pareil.', 'Si |x| > 3 alors x > 3.',
+     '|x| est la distance a zero.'+NL+'|y| aussi, sur la droite.'].forEach(function(t){
+      if(lire(t).n) vus.push('une phrase à barres verticales est avalée comme un tableau');
     });
     return vus.slice(0,3).join(' | ');
   })()`, v => v === '', undefined);

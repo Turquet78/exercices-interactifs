@@ -2250,7 +2250,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=275;
+const APP_VERSION=276;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2770,15 +2770,31 @@ function iaTabCell(c){
   return r!=null?r:esc(s);
 }
 function iaTableau(t,tabs){
-  /* Le \end{…} est FACULTATIF, et c'est un vrai defaut de production : une
-     reponse coupee en plein vol (limite de longueur cote serveur) s'arrete au
-     milieu du tableau, et sans cette tolerance l'eleve lisait le CODE BRUT —
-     « begin{array}{c|ccc} x & -3 & … hline g(x) & + & 0 & - » (signale par
-     Turquet sur un iPad, aout 2026). On rend alors les lignes RECUES et on
-     marque la coupure : un tableau a moitie ecrit reste lisible, du LaTeX nu
-     ne l'est jamais. C'est la doctrine d'iaCoupe, etendue aux tableaux. */
-  return String(t==null?'':t).replace(/(?:\\[\[(]\s*)?\\?begin\{(array|tabular|matrix|pmatrix)\}(\{[^{}]*\})?([\s\S]*?)(?:\\?end\{\1\}(?:\s*\\[\])])?|$)/g,function(m,env,spec,corps){
-    const coupe=!/end\{/.test(m);
+  /* TROIS ECRITURES, pas une seule — le modele choisit la sienne, et celle
+     qu'on ne sait pas lire s'affiche en CODE BRUT sous les yeux de l'eleve
+     (signale deux fois par Turquet, aout 2026, sur un tableau de signes) :
+       · \begin{array}…\end{array}, avec ou sans espace avant l'accolade, avec
+         ou sans specification ([t], {c|ccc}) ;
+       · le \end{…} FACULTATIF : une reponse coupee en plein vol par la limite
+         de longueur du serveur s'arrete au milieu du tableau — on rend les
+         lignes RECUES et on marque la coupure par « … » ;
+       · le tableau MARKDOWN (| x | -3 | … | et sa ligne |---|), que le modele
+         produit au moins aussi souvent que l'environnement LaTeX.
+     Un tableau a moitie lu reste lisible ; du LaTeX nu ne l'est jamais. */
+  const pose=function(rows, coupe){
+    if(!rows.length) return null;
+    const nc=Math.max.apply(null,rows.map(function(r){ return r.c.length; }));
+    const html='<table class="qia-arr">'+rows.map(function(r){
+      let tr='<tr'+(r.b?' class="qia-arr-h"':'')+'>';
+      for(let i=0;i<nc;i++) tr+='<td>'+(r.c[i]||'')+'</td>';
+      return tr+'</tr>';
+    }).join('')+'</table>'+(coupe?' …':'');
+    tabs.push(html); return ''+(tabs.length-1)+'';
+  };
+  let s=String(t==null?'':t);
+  /* 1. l'environnement LaTeX */
+  s=s.replace(/(?:\\[\[(]\s*)?\\?begin\s*\{(array|tabular|matrix|pmatrix|bmatrix)\}\s*(?:\[[^\]]*\])?\s*(\{[^{}]*\})?([\s\S]*?)(?:\\?end\s*\{\1\}(?:\s*\\[\])])?|$)/g,function(m,env,spec,corps){
+    const coupe=!/end\s*\{/.test(m);
     let lignes=corps.split(/\\\\/);
     if(lignes.length===1) lignes=corps.split(/\n/);
     const rows=[]; let bord=false;
@@ -2787,15 +2803,34 @@ function iaTableau(t,tabs){
       if(l==='') return;   /* ligne reduite a \hline : la bordure ira a la ligne suivante */
       rows.push({b:bord, c:l.split('&').map(iaTabCell)}); bord=false;
     });
-    if(!rows.length) return m;
-    const nc=Math.max.apply(null,rows.map(function(r){ return r.c.length; }));
-    const html='<table class="qia-arr">'+rows.map(function(r){
-      let tr='<tr'+(r.b?' class="qia-arr-h"':'')+'>';
-      for(let i=0;i<nc;i++) tr+='<td>'+(r.c[i]||'')+'</td>';
-      return tr+'</tr>';
-    }).join('')+'</table>'+(coupe?' \u2026':'');
-    tabs.push(html); return '\uE002'+(tabs.length-1)+'\uE003';
+    return pose(rows, coupe) || m;
   });
+  /* 2. le tableau MARKDOWN — un bloc de lignes « | … | » dont l'UNE est une
+        ligne de separation (|---|) : sans cette exigence, une phrase qui
+        contient des barres verticales serait avalee comme un tableau. */
+  s=s.replace(/(?:^|\n)((?:[ \t]*\|[^\n]*(?:\n|$)){2,})/g,function(m,bloc){
+    const brutes=bloc.split(/\n/).filter(function(l){ return /\|/.test(l); });
+    /* CE QUI FAIT UN TABLEAU, et le bord est etroit des deux cotes : une ligne
+       de SEPARATION (|---|), ou bien deux lignes au moins qui commencent ET
+       finissent par une barre. Sans cette seconde porte, un tableau markdown
+       ecrit sans separateur — le modele en produit — restait du code brut ;
+       sans la premiere, un texte dont les lignes commencent par une barre
+       (« |x| est la distance a zero ») serait avale en tableau. */
+    const sep=brutes.some(function(l){ return /^[ \t]*\|[\s:|-]*\|[ \t]*$/.test(l) && /-/.test(l); });
+    const pleines=brutes.filter(function(l){ return /^[ \t]*\|.*\|[ \t]*$/.test(l); }).length;
+    if(!sep && pleines<2) return m;
+    const rows=[]; let bord=false, coupe=false;
+    brutes.forEach(function(L){
+      const l=L.trim();
+      if(/^\|[\s:|-]*\|$/.test(l) && /-/.test(l)){ bord=true; return; }   /* separateur : la bordure ira a la ligne suivante */
+      if(!/\|$/.test(l)) coupe=true;   /* derniere ligne sans barre finale : la reponse a ete coupee */
+      const cells=l.replace(/^\|/,'').replace(/\|$/,'').split('|').map(iaTabCell);
+      rows.push({b:bord, c:cells}); bord=false;
+    });
+    const jeton=pose(rows,coupe);
+    return jeton ? (m.charAt(0)==='\n'?'\n':'')+jeton+'\n' : m;
+  });
+  return s;
 }
 /* Reponse de l'IA coupee en plein vol (limite de longueur cote serveur) : un \\( ouvert
    sans \\) fermant, ou des accolades jamais refermees en fin de texte, laisseraient un
