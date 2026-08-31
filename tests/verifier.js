@@ -3207,6 +3207,64 @@ function devoirPapierClique(w, apres){
       if(nb2!==3) vus.push('la vue professeur montre '+nb2+' question(s) au lieu de 3');
       REJEU=false;
     }
+
+    /* ---- 7. un exercice à ÉCRAN DE NIVEAU s'énonce quand même (le 1.2) ----
+       startS2() montrait « Choisis ton niveau » sans rien tirer, et les trois
+       entonnoirs du devoir passaient dans le vide (signalé par Turquet, août
+       2026, sur le DM n°2) : l'énoncé photographiait les questions RESTÉES du
+       1.1 abandonné, la première entrée retombait sur le chemin direct — pas
+       de choix papier —, et le vrai tirage arrivait APRÈS la coupe nbQ (5
+       questions quel que soit le réglage). Dans un devoir, start() tire
+       directement le niveau 1 — le seul qui existe. */
+    mesDevoirs=[{id:'dev-2', num:2, titre:'DM 2', actif:true,
+                 exercices:[{id:'signe-premier-degre',modes:['train']},{id:'signe-second-degre',modes:['train'],nbQ:2}]}];
+    currentDM=null;
+    /* l'abandon du 1.1 : ses questions restent dans test — on les y met */
+    test.kind='s1'; test.idx=0; test.locked=false;
+    test.questions=[genS1L1(0),genS1L1(1)];
+    let suite7=0;
+    await dmEnonce('dev-2','signe-second-degre', function(){ suite7++; });
+    const on7=document.querySelector('.screen.on');
+    if(!on7||on7.id!=='scr-dmenonce')
+      vus.push('1.2 : le choix papier/ordinateur n\\'est pas proposé ('+(on7?on7.id:'aucun écran')+') — la première entrée retombe sur le chemin direct');
+    if(test.kind!=='s2'||!(test.questions||[]).length||test.questions[0].nroots===undefined)
+      vus.push('1.2 : l\\'énoncé n\\'est pas tiré par l\\'exercice lui-même (kind '+test.kind+') — il photographie ce qui restait du 1.1');
+    const txt7=(document.getElementById('dmeCorps').textContent||'');
+    if(txt7.indexOf('Résous d’abord l’équation')>=0)
+      vus.push('1.2 : l\\'énoncé montre les questions du PREMIER degré — celles de l\\'exercice précédent');
+    const nb7=document.querySelectorAll('#dmeCorps .dme-q').length;
+    if(nb7!==2) vus.push('1.2 : l\\'énoncé montre '+nb7+' question(s) au lieu des 2 réglées par le devoir');
+    dmeOrdinateur();
+    if(suite7!==1) vus.push('1.2 : « sur l\\'ordinateur » n\\'appelle pas la suite ('+suite7+')');
+    /* « sur l'ordinateur » : le niveau se tire sans écran de menu, coupe comprise */
+    await lancerDevoirExo('dev-2','signe-second-degre','train');
+    const on7b=document.querySelector('.screen.on');
+    if(!on7b||on7b.id!=='scr-s2')
+      vus.push('1.2 lancé depuis le devoir : l\\'écran est '+(on7b?on7b.id:'aucun')+' au lieu de l\\'exercice — le menu du niveau s\\'interpose encore');
+    if((test.questions||[]).length!==2)
+      vus.push('1.2 lancé depuis le devoir : '+(test.questions||[]).length+' question(s) au lieu des 2 réglées — la coupe passe avant le tirage');
+    /* et au menu LIBRE, l'écran de choix du niveau demeure */
+    currentDM=null;
+    await startS2();
+    const on7c=document.querySelector('.screen.on');
+    if(!on7c||on7c.id!=='scr-s2lvl')
+      vus.push('hors devoir, le 1.2 ne montre plus son choix de niveau ('+(on7c?on7c.id:'aucun')+')');
+
+    /* ---- 8. la photo n'utilise JAMAIS un tirage qui n'est pas le sien ----
+       Pour tout exercice FUTUR dont le start() ne tirerait pas : la référence
+       de test.questions n'a pas bougé, donc pas d'énoncé — le repli direct,
+       sans mensonge. */
+    TESTS['__essai-sans-tirage']={ name:'Essai', icon:'?', desc:'', start:function(){ show('s2lvl'); } };
+    mesDevoirs[0].exercices.push({id:'__essai-sans-tirage',modes:['train']});
+    test.kind='s1'; test.idx=0; test.locked=false; test.questions=[genS1L1(0)];
+    let suite8=0;
+    await dmEnonce('dev-2','__essai-sans-tirage', function(){ suite8++; });
+    delete TESTS['__essai-sans-tirage'];
+    if(suite8!==1) vus.push('un start() qui ne tire pas ne retombe plus sur le chemin direct ('+suite8+')');
+    const on8=document.querySelector('.screen.on');
+    if(on8&&on8.id==='scr-dmenonce')
+      vus.push('un start() qui ne tire pas AFFICHE quand même un énoncé — la photo d\\'un tirage étranger');
+
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
     const nom='le devoir sur papier : l\'énoncé d\'abord, et il part avec le prénom';

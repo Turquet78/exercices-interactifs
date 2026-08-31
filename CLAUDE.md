@@ -3542,6 +3542,39 @@ ne mesurerait rien là où il tourne. Éprouvé par sabotage des deux côtés. U
 page : `Object.assign({id:'s1'}, ligne)` laissait l'id du double écraser celui
 du script, et la vue accusait la page d'un défaut qu'elle n'avait pas.
 
+**Un démarreur qui ne tire pas casse les trois promesses du circuit d'un
+coup.** Signalé par Turquet (août 2026) sur le DM n°2, en trois symptômes qui
+semblaient trois bugs : après avoir abandonné le 1.1, l'énoncé du 1.2
+montrait des questions du PREMIER degré ; en commençant le devoir directement
+par le 1.2, le choix papier/ordinateur n'était pas proposé ; et le 1.2 en
+devoir posait 5 questions quand le devoir en réglait moins. Une seule cause :
+`startS2()` n'ouvre qu'un écran de CHOIX DE NIVEAU — le tirage n'arrive que
+dans `startS2Run(1)` — alors que les entonnoirs du devoir passent JUSTE APRÈS
+`start()` en supposant le tirage fait. L'énoncé photographiait donc
+`test.questions` resté de l'exercice PRÉCÉDENT (le 1.1 abandonné traînait là —
+et à la première entrée, rien : le repli « kind inconnu » prenait le chemin
+direct, d'où le choix papier absent), et la coupe `nbQ` tombait AVANT le vrai
+tirage, qui repartait à 5.
+**Dans un devoir, `startS2()` tire directement** : un seul niveau existe (le
+2 est « bientôt disponible »), l'écran de choix n'y choisit rien. Hors
+devoir, rien ne change.
+**Et `dmEnonce` tient la promesse au lieu de la supposer** : il note
+`test.questions` AVANT d'appeler `start()`, et si le tableau n'a pas changé
+d'identité — un démarreur ajouté demain qui ouvrirait son menu sans tirer —
+il retombe sur le chemin direct au lieu de photographier le tirage d'un
+autre exercice : un énoncé qui ment est pire qu'un choix qui manque. Trois
+sabotages, chacun rougissant avec les mots du signalement (« il photographie
+ce qui restait du 1.1 », « le choix papier/ordinateur n'est pas proposé »,
+« 5 question(s) au lieu des 2 réglées »), plus le menu qui s'interpose.
+**Un piège de SONDE s'y est montré, le second en deux jours** : la trajectoire
+rejouée en Chromium accusait la coupe nbQ de ne pas mordre — or les chemins de
+devoir RECHARGENT `mesDevoirs` depuis `loadConfig()`, si bien qu'un réglage
+semé dans le seul global de la page est écrasé par le double VIDE à la
+première recharge. En production la recharge rend la vraie configuration ; la
+sonde mesurait un devoir sans réglages, pas la page. Un réglage de devoir se
+sème dans le DOUBLE (`__faux.semer('parametres', …)`), jamais dans le seul
+global.
+
 **La même démonstration, mais l'élève ne pose que des nombres.**
 {suite-auxiliaire-2} (Terminale, 6.3, demande de Turquet, août 2026) est repris
 de la fiche « Exercice suite Vn » : U₀ = 10 000, Uₙ₊₁ = 0,95 Uₙ + 200,
