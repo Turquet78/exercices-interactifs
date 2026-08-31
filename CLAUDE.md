@@ -2511,6 +2511,45 @@ navigateur MESURE (« 6 quater bis ») : la police rendue, la case qui
 s'élargit sur « 100000 », rien de coupé, la barre qui suit — seul un
 navigateur sait où un nombre se coupe.
 
+**La fraction décimale du 1.6 se juge case par case, à l'ancre canonique.**
+Demande de Turquet (août 2026), ses exemples pour 2,3 → 23/10 pris tels
+quels : le 1.6 peignait encore la PAIRE entière — 23/100 rougissait ses deux
+cases — et ses cases gardaient une largeur FIXE pendant que tous les autres
+écrans à fractions suivaient la saisie. Deux corrections, un juge :
+· **UN SEUL juge pour le direct et la vérification** (`fracDecVerdict`, servi
+  par `fracDecLive` et `marqueFracDec`) : deux verdicts auraient fini par se
+  contredire sous les yeux de l'élève. Toute écriture ÉGALE reste acceptée —
+  230/100 vaut le point, « même si ce n'est pas la fraction décimale la plus
+  simple » — ; quand la paire ne colle pas, chaque case se juge SEULE contre
+  la valeur canonique (23/100 : le 23 bleu, le 100 rouge ; 230/10 : le 230
+  rouge, le 10 bleu) — la règle du 616/100000, enfin appliquée ici. Une case
+  SEULE ne dépend pas de l'autre : 23 en haut ou 10 en bas est bleu sans que
+  sa voisine soit remplie ; 230 seul ne reçoit RIEN — il attend son 100, le
+  silence est honnête — et rougit seulement quand il ne mène nulle part (24).
+  Le cadran `pow10` restreint promesse et paire aux dénominateurs en
+  puissance de 10 pour les étapes des niveaux 4 et 5.
+· **En entraînement, la case vide reçoit la complétion de la ROUTE de
+  l'élève** quand sa case écrite y mène — 230 seul appelle 100, jamais 10 :
+  écrire 10 en vert sous son 230 lui donnerait tort sur une idée juste — et
+  la canonique sinon. Le message du soutien ne parle de « cases en rouge »
+  que s'il y en a.
+· **Les cases grandissent avec la saisie** : le groupe `#fHost` a rejoint la
+  règle des autres écrans (`width:auto`, plafond `pm-mf` relevé, barre
+  étirée) — et le contrôle a pris le premier jet en défaut à sa première
+  exécution : le dénominateur grandissait, la barre suivait, le NUMÉRATEUR
+  restait à 76 px — dans une colonne flex centrée, « l'autre case suit la
+  plus large » exige `align-self:stretch`, et seul un navigateur le mesure.
+Le contrôle épingle les cinq exemples de Turquet au CLIC et en DIRECT, plus
+les bords de la doctrine ; la liste `caseQuiGrandit` du banc navigateur est
+devenue une LISTE (la leçon d'aideMaintenue) et mesure les deux écrans. Huit
+sabotages, chacun rougissant en nommant son défaut — le huitième (la
+croissance CSS retirée) ne rougit qu'au navigateur, jsdom restant vert.
+**Un piège de sonde s'y est montré, hors banc** : écrire `.value` sur un
+math-field AVANT que MathLive ne soit chargé tombe dans le vide — la greffe
+définit l'accès, le module absent ne rend rien — et la capture d'écran
+accusait la page d'ignorer une copie qu'elle n'avait jamais reçue. Le banc,
+lui, sert le VRAI MathLive depuis son cache : ses mesures disaient vrai.
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,

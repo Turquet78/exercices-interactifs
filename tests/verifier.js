@@ -10464,6 +10464,112 @@ function premiere(w){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 
+  /* ---- La fraction décimale du 1.6, case par case ----------------------
+     Demande de Turquet (août 2026), ses exemples pour 2,3 -> 23/10 épinglés
+     tels quels : 23 seul en haut est BLEU (sans que l'autre case soit remplie
+     ou qu'elle soit fausse) ; 10 seul en bas est bleu ; 23/100 fait 23 bleu
+     et 100 rouge ; 230/10 fait 230 rouge et 10 bleu ; 230/100 fait les DEUX
+     bleus, même si ce n'est pas la fraction décimale la plus simple. S'y
+     ajoutent les bords de la doctrine : 230 seul ne reçoit RIEN (il attend
+     son 100 — le silence est honnête) et sa case vide reçoit 100 en vert,
+     jamais 10 — compléter la ROUTE de l'élève, pas la contredire ; 24 seul
+     rougit (aucun dénominateur n'y mène) ; et le message du soutien ne parle
+     de « cases en rouge » que s'il y en a. On CLIQUE « Vérifier » et on relit
+     les CLASSES — les contrôles lisaient le verdict, l'élève regarde la
+     couleur — puis on rejoue les mêmes gestes en direct (soutien), et le
+     niveau 4 au cadran puissance de 10. */
+  verifierEval(w, 'la fraction décimale du 1.6 se juge case par case, à l\'ancre canonique', `(function(){
+    if(typeof fracDecVerdict!=='function' || typeof marqueFracDec!=='function')
+      return 'le juge par case du 1.6 n\\'existe plus';
+    const vus=[];
+    const sauve={ questions:test.questions, idx:test.idx, kind:test.kind, locked:test.locked,
+                  mode:currentMode, levels:test.levels, perLevel:test.perLevel, levelIdx:test.levelIdx,
+                  level:test.level, levelScore:test.levelScore, score:test.score };
+    try{
+      const Q23={ level:'frac-n2', decString:'2,3', numer:23, denom:10, qtext:'2,3', atext:'23/10' };
+      const poser=function(vn,vd){
+        test.kind='fracp'; test.levels=['frac-n2']; test.perLevel=5; test.levelIdx=0;
+        test.level='frac-n2'; test.levelScore=0; test.idx=0; test.score=0; test.locked=false;
+        test.questions=[Object.assign({},Q23)];
+        show('ftest'); renderFTest();
+        document.getElementById('fNum').value=vn; document.getElementById('fDen').value=vd;
+      };
+      const cls=function(id){ const e=document.getElementById(id);
+        return e.classList.contains('ok')?'ok':e.classList.contains('bad')?'bad':e.classList.contains('sol')?'sol':''; };
+      const cas=function(nom,vn,vd,attN,attD,solAtt){
+        poser(vn,vd); checkFAnswer();
+        if(cls('fNum')!==attN||cls('fDen')!==attD)
+          vus.push(nom+' : lu '+(cls('fNum')||'rien')+'/'+(cls('fDen')||'rien')+' au lieu de '+(attN||'rien')+'/'+(attD||'rien'));
+        if(solAtt!==undefined){
+          const v=document.getElementById(attN==='sol'?'fNum':'fDen').value;
+          if(String(v)!==String(solAtt)) vus.push(nom+' : la case vide reçoit '+v+' au lieu de '+solAtt);
+        }
+      };
+      /* — au clic, en entraînement : les exemples de Turquet, mot pour mot — */
+      currentMode='train';
+      cas('23 seul en haut','23','','ok','sol','10');
+      cas('10 seul en bas','','10','sol','ok','23');
+      cas('23/100','23','100','ok','bad');
+      cas('230/10','230','10','bad','ok');
+      cas('230/100 (pas la plus simple)','230','100','ok','ok');
+      cas('230 seul — le silence est honnête','230','','','sol','100');
+      cas('24 seul — aucun dénominateur n\\'y mène','24','','bad','sol');
+      /* — en direct, en soutien : les mêmes verdicts sous les doigts — */
+      currentMode='soutien';
+      const vif=function(nom,vn,vd,attN,attD){
+        poser(vn,vd); checkFAnswer(true);
+        if(cls('fNum')!==attN||cls('fDen')!==attD)
+          vus.push('direct, '+nom+' : lu '+(cls('fNum')||'rien')+'/'+(cls('fDen')||'rien')+' au lieu de '+(attN||'rien')+'/'+(attD||'rien'));
+      };
+      vif('23 seul','23','','ok','');
+      vif('10 seul','','10','','ok');
+      vif('23/100','23','100','ok','bad');
+      vif('230/10','230','10','bad','ok');
+      vif('230/100','230','100','ok','ok');
+      vif('230 seul','230','','','');
+      vif('24 seul','24','','bad','');
+      /* — le message du soutien dit la vérité — */
+      poser('230',''); checkFAnswer();
+      if(/rouge/.test(document.getElementById('fFeedback').textContent))
+        vus.push('soutien : « corrige les cases en rouge » alors qu\\'aucune case n\\'est rouge');
+      poser('230','10'); checkFAnswer();
+      if(!/rouge/.test(document.getElementById('fFeedback').textContent))
+        vus.push('soutien : le message ne nomme plus les cases en rouge quand il y en a');
+      /* — le niveau 4 : même règle, au cadran puissance de 10 — */
+      currentMode='train';
+      const q4=genFrac('frac-n4');
+      test.kind='fracp'; test.levels=['frac-n4']; test.perLevel=5; test.levelIdx=0;
+      test.level='frac-n4'; test.levelScore=0; test.idx=0; test.score=0; test.locked=false;
+      test.questions=[q4]; show('ftest'); renderFTest();
+      document.getElementById('f5n').value=String(q4.pn);
+      document.getElementById('f5d').value=String(q4.pd*10);
+      document.getElementById('fDec').value='';
+      checkFAnswer();
+      const c4=function(id){ const e=document.getElementById(id);
+        return e.classList.contains('ok')?'ok':e.classList.contains('bad')?'bad':''; };
+      if(c4('f5n')!=='ok'||c4('f5d')!=='bad')
+        vus.push('niveau 4, pn/(pd×10) : lu '+(c4('f5n')||'rien')+'/'+(c4('f5d')||'rien')+' au lieu de ok/bad — l\\'ancre canonique ne monte pas aux étapes');
+      test.locked=false;
+      document.getElementById('f5n').value=String(q4.pn*10);
+      document.getElementById('f5d').value=String(q4.pd*10);
+      checkFAnswer();
+      if(c4('f5n')!=='ok'||c4('f5d')!=='ok')
+        vus.push('niveau 4, (pn×10)/(pd×10) : la fraction égale n\\'est plus acceptée aux deux cases');
+      test.locked=false;
+      document.getElementById('f5n').value=String(q4.pn*3);
+      document.getElementById('f5d').value=String(q4.pd*3);
+      checkFAnswer();
+      if(c4('f5n')!=='bad'||c4('f5d')!=='bad')
+        vus.push('niveau 4, (3·pn)/(3·pd) : une fraction égale NON décimale passe aux cases — le cadran puissance de 10 ne mord plus');
+    } finally {
+      test.questions=sauve.questions; test.idx=sauve.idx; test.kind=sauve.kind; test.locked=sauve.locked;
+      test.levels=sauve.levels; test.perLevel=sauve.perLevel; test.levelIdx=sauve.levelIdx;
+      test.level=sauve.level; test.levelScore=sauve.levelScore; test.score=sauve.score;
+      currentMode=sauve.mode;
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
   /* ---- Un devoir peut allonger la séance des tables --------------------
      Le format normal est TM_NB calculs — c'est ce que l'élève trouve au menu.
      Un devoir peut en demander davantage sur le niveau 1, et sur lui seul : le

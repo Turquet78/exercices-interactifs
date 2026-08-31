@@ -837,6 +837,15 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 #fHost math-field.pm-mf{font-size:1.7rem;line-height:1.15;}
 @media(max-width:900px){ #fHost math-field.pm-mf{font-size:1.4rem;} }
 #fpHost .f-frac-input{align-items:stretch;}
+/* LE 1.6 REJOINT LE GROUPE (demande de Turquet, août 2026) : ses cases
+   gardaient une largeur FIXE (76 px) pendant que tous les autres écrans à
+   fractions suivaient la saisie — « 230 » s'y écrivait à l'étroit. Ce sont des
+   math-field : le plafond générique de pm-mf (150 px) doit être relevé AUSSI,
+   sans quoi width:auto s'arrête à mi-course sans que rien ne le dise. */
+#fHost .f-num,#fHost .f-den{width:auto;min-width:76px;max-width:320px;align-self:stretch;}
+#fHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#fHost math-field.pm-mf{max-width:320px;}
+#fHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 #fpHost .f-num,#fpHost .f-den{width:auto;min-width:84px;max-width:220px;}
 #fpHost .f-dec{width:auto;min-width:96px;max-width:220px;}
 #fpHost .f-fbar{width:auto;align-self:stretch;height:4px;}
@@ -1748,7 +1757,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=189;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=190;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2316,6 +2325,72 @@ function marqueFracSaufVide(idn,idd,tn,td,soutien){
   marqueSaufVide(idn, ok||(vd!==''&&n===tn), soutien);
   marqueSaufVide(idd, ok||(vd!==''&&d===td), soutien);
   return ok;
+}
+/* ---- La fraction décimale du 1.6, case par case (demande de Turquet, août
+   2026). Attendu tn/td (ex. 23/10 pour 2,3), toute écriture ÉGALE acceptée —
+   230/100 vaut le point, même si ce n'est pas la plus simple. Quand la paire
+   ne colle pas, chaque case se juge SEULE contre la valeur canonique : sur
+   23/100, le 23 reste bleu et seul le 100 rougit ; sur 230/10, c'est le 230
+   qui rougit et le 10 qui reste bleu — la règle du 616/100000, appliquée ici.
+   Et une case SEULE ne dépend pas de l'autre : 23 en haut, ou 10 en bas, est
+   bleu sans que sa voisine soit remplie — la valeur canonique est juste par
+   elle-même ; une case qui peut encore mener à une fraction égale (230 seul,
+   qui attend son 100) ne reçoit RIEN — le silence est honnête — et rougit
+   seulement quand elle ne mène nulle part (24 seul : aucun dénominateur ne
+   rendra 24/d égal à 2,3). « pow10 » restreint promesse et paire aux
+   dénominateurs en puissance de 10 (les étapes des niveaux 4 et 5).
+   UN SEUL juge pour le direct et la vérification : deux verdicts auraient
+   fini par se contredire sous les yeux de l'élève. */
+function fracDecVerdict(vn,vd,tn,td,pow10){
+  const okD=d=>d>0&&(!pow10||isPow10(d));
+  const n=parseInt(vn,10), d=parseInt(vd,10);
+  if(vn!==''&&vd!==''){
+    const ok=!isNaN(n)&&!isNaN(d)&&okD(d)&&n*td===tn*d;
+    return { ok, cn: (ok||n===tn)?'ok':'bad', cd: (ok||(okD(d)&&d===td))?'ok':'bad' };
+  }
+  const seul=(v,estNum)=>{
+    if(v==='') return null;
+    const x=parseInt(v,10); if(isNaN(x)) return 'bad';
+    if(estNum){
+      if(x===tn) return 'ok';
+      const mene = tn>0 && x>0 && (x*td)%tn===0 && okD(x*td/tn);
+      return mene?null:'bad';
+    }
+    if(x===td) return 'ok';
+    if(!okD(x)) return 'bad';
+    return (td>0 && (tn*x)%td===0) ? null : 'bad';
+  };
+  return { ok:false, cn:seul(vn,true), cd:seul(vd,false) };
+}
+function fracDecLive(idn,idd,tn,td,pow10){
+  const en=$(idn), ed=$(idd); if(!en||!ed) return;
+  const v=fracDecVerdict(en.value.trim(), ed.value.trim(), tn, td, pow10);
+  const peint=(el,c)=>{ if(el.disabled) return; el.classList.remove('ok','bad'); if(c) el.classList.add(c); };
+  peint(en,v.cn); peint(ed,v.cd);
+}
+/* La vérification : mêmes verdicts, plus le sort des cases vides. En
+   ENTRAÎNEMENT la case vide reçoit la complétion en vert — celle de la ROUTE
+   de l'élève quand sa case écrite y mène (230 seul appelle 100, pas 10), la
+   canonique sinon : écrire 10 en vert sous son 230 lui donnerait tort sur une
+   idée juste. En SOUTIEN la case écrite qui peut encore mener quelque part ne
+   reçoit rien et reste modifiable. */
+function marqueFracDec(idn,idd,tn,td,soutien,pow10){
+  const en=$(idn), ed=$(idd); if(!en||!ed) return false;
+  const vn=String(en.value==null?'':en.value).trim(), vd=String(ed.value==null?'':ed.value).trim();
+  const v=fracDecVerdict(vn,vd,tn,td,pow10);
+  const pose=(el,c,val)=>{
+    el.classList.remove('ok','bad','sol');
+    const vide=String(el.value==null?'':el.value).trim()==='';
+    if(vide){ if(!soutien && val!=null){ el.value=String(val); el.classList.add('sol'); } }
+    else if(c) el.classList.add(c);
+    el.disabled=(c==='ok')||!soutien;
+  };
+  let solN=tn, solD=td;
+  const n=parseInt(vn,10), d=parseInt(vd,10);
+  if(vn!==''&&vd===''&&!isNaN(n)&&v.cn!=='bad') solD=n*td/tn;      /* la route de l'élève */
+  if(vd!==''&&vn===''&&!isNaN(d)&&v.cd!=='bad') solN=tn*d/td;
+  pose(en, v.cn, solN); pose(ed, v.cd, solD);
+  return v.ok;
 }
 function liveColorFracPow10(idn,idd,tn,td){           // fraction décimale (dénominateur = puissance de 10)
   const en=$(idn), ed=$(idd); if(!en||!ed) return;
@@ -4943,11 +5018,11 @@ function checkFAnswer(live){
   const soutien=isSoutien();
   const q=test.questions[test.idx];
   if(live){
-    if(q.level==='frac-n5'){ liveColorFracPow10('f5an','f5ad',q.fnA,q.fdA); liveColorFracPow10('f5bn','f5bd',q.fnB,q.fdB); liveColorFracPow10('f5pn','f5pd',q.pn,q.pd); liveColorDec('fDec',q.pn,q.pd); }
-    else if(q.level==='frac-n4'){ liveColorFracPow10('f5n','f5d',q.pn,q.pd); liveColorDec('fDec',q.pn,q.pd); }
+    if(q.level==='frac-n5'){ fracDecLive('f5an','f5ad',q.fnA,q.fdA,true); fracDecLive('f5bn','f5bd',q.fnB,q.fdB,true); fracDecLive('f5pn','f5pd',q.pn,q.pd,true); liveColorDec('fDec',q.pn,q.pd); }
+    else if(q.level==='frac-n4'){ fracDecLive('f5n','f5d',q.pn,q.pd,true); liveColorDec('fDec',q.pn,q.pd); }
     else if(q.level==='frac-n1'){ liveColorN1('fDec',q.num,q.d); }
-    else if(q.level==='frac-n2'){ liveColorFrac('fNum','fDen',q.numer,q.denom,false); }
-    else { liveColorFrac('fNum','fDen',q.pn,q.pd,false); }
+    else if(q.level==='frac-n2'){ fracDecLive('fNum','fDen',q.numer,q.denom,false); }
+    else { fracDecLive('fNum','fDen',q.pn,q.pd,false); }
     return;
   }
   /* UNE CASE LAISSÉE VIDE NE ROUGIT PAS. Rouge veut dire FAUX, et l'élève n'a
@@ -4983,9 +5058,11 @@ function checkFAnswer(live){
     const eDec=$('fDec'), vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
     const okDec = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
     correct = a.ok && b.ok && okProd && okDec;
-    marque($('f5an'), a.ok, q.fnA); marque($('f5ad'), a.ok, q.fdA);
-    marque($('f5bn'), b.ok, q.fnB); marque($('f5bd'), b.ok, q.fdB);
-    marque(pN, okProd, q.pn); marque(pD, okProd, q.pd);
+    /* la peinture passe au juge PAR CASE (l'ancre canonique) ; le compte,
+       lui, ne bouge pas : correct reste le verdict des paires complètes */
+    marqueFracDec('f5an','f5ad',q.fnA,q.fdA,soutien,true);
+    marqueFracDec('f5bn','f5bd',q.fnB,q.fdB,soutien,true);
+    marqueFracDec('f5pn','f5pd',q.pn,q.pd,soutien,true);
     marque(eDec, okDec, q.atext);
     given = `${pFilled?Np+'/'+Dp:'?'} = ${vDec||'?'}`;
   } else if(q.level==='frac-n4'){
@@ -4997,7 +5074,7 @@ function checkFAnswer(live){
     const vDec=eDec.value.trim(), frDec=parseDecToFrac(vDec);
     const step2 = !!frDec && frDec.n*q.pd===q.pn*frDec.d;
     correct = step1 && step2;
-    marque(eN, step1, q.pn); marque(eD, step1, q.pd);
+    marqueFracDec('f5n','f5d',q.pn,q.pd,soutien,true);
     marque(eDec, step2, q.atext);
     given = `${frFilled?Nf+'/'+Df:'?'} = ${vDec||'?'}`;
   } else if(q.level==='frac-n1'){
@@ -5022,11 +5099,15 @@ function checkFAnswer(live){
     given=filled?`${N}/${D}`:null;
     if(q.level==='frac-n2') correct=filled&&!isNaN(N)&&!isNaN(D)&&D>0&&N*q.denom===q.numer*D;  // toute fraction égale acceptée (même non décimale)
     else correct=filled&&!isNaN(N)&&!isNaN(D)&&D!==0&&N*q.pd===q.pn*D;
-    marque(eN, correct, (q.level==='frac-n2')?q.numer:q.pn);
-    marque(eD, correct, (q.level==='frac-n2')?q.denom:q.pd);
+    marqueFracDec('fNum','fDen',
+      (q.level==='frac-n2')?q.numer:q.pn, (q.level==='frac-n2')?q.denom:q.pd, soutien, false);
   }
   if(!correct && soutien){
-    $('fFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    /* une case qui peut encore mener quelque part reste SANS couleur : quand
+       rien n'est rouge, « corrige les cases en rouge » parlerait d'autre chose */
+    $('fFeedback').textContent=$('fHost').querySelector('.bad')
+      ? 'Presque ! Corrige les cases en rouge, puis revérifie.'
+      : 'Complète ta réponse, puis revérifie.';
     $('fFeedback').className='mp-feedback bad';
     $('fActions').innerHTML='<button class="btn btn-primary" onclick="checkFAnswer()">Revérifier</button>';
     return;
