@@ -2608,6 +2608,7 @@ function exercices(suite){
     ordreCroissant(w, P);
     imageNombre(w, P);
     tangenteExp(w, P);
+    signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     phraseCouleurs(w);
     antecedentNombre(w, P);
@@ -5910,6 +5911,70 @@ function tangenteExp(w, P){
       'tx-f-m2':4,'tx-f-t1':-4,'tx-f-t2':2,'tx-f-m3':4,'tx-f-b3':-2 };
     poser(B0); checkTX();
     if(test.score!==1) vus.push('avec b = 0, la copie juste vaut '+test.score+' au lieu de 1');
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 1.4 / 1.5 : un + 0 inutile ne s'écrit pas, l'écriture nue est juste ---------- */
+/* Signalé par Turquet (août 2026), captures des deux exercices : quand la racine
+   d'un facteur vaut 0, l'énoncé écrivait « −x + 0 » et l'élève qui recopiait
+   « −x » — l'écriture du cahier — rougissait. Cinq bords, et n'en tenir qu'un ne
+   tient rien : l'écriture nue acceptée (les deux captures épinglées), l'écriture
+   au + 0 encore acceptée (une pause d'avant le changement l'affiche toujours),
+   la constante RESTE exigée quand b ≠ 0 (« 3x » pour 3x − 6 est faux), les
+   étiquettes du tirage n'écrivent plus + 0 (énoncé, tableau, correction — un
+   seul entonnoir, spFacteur), et le tirage produit ENCORE des racines nulles :
+   un contrôle qui n'a rien à mesurer ne mesure rien, et doit le dire. */
+function signeProduitPlusZero(w, P){
+  const present = evaluer(w, "typeof spFactForms==='function' && typeof spMatchFact==='function' && typeof genSP==='function' && typeof genSPC==='function' && typeof genSPQ==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le 1.4 et le 1.5 : un + 0 inutile ne s\'écrit pas, l\'écriture nue est juste',
+      'ce niveau n\'a pas la famille des signes de produit et de quotient');
+    return;
+  }
+  verifierEval(w, 'le 1.4 et le 1.5 : un + 0 inutile ne s\'écrit pas, l\'écriture nue est juste', `(function(){
+    const vus=[];
+
+    /* ---- 1. les deux captures : l'écriture nue est juste ---- */
+    const qCap={fac:[{a:-1,b:0},{a:2,b:-8}]};              /* le 1.4 de la capture : (−2x−8)/(−x+0) */
+    if(spMatchFact(qCap,'\\u2212x')!==0) vus.push('« \\u2212x » rougit encore pour \\u2212x + 0 (la capture du 1.4)');
+    if(spMatchFact({fac:[{a:3,b:0},{a:-2,b:4}]},'3x')!==0) vus.push('« 3x » rougit encore pour 3x + 0 (la capture du 1.5)');
+
+    /* ---- 2. l'écriture au + 0 reste juste (pause d'avant le changement) ---- */
+    if(spMatchFact(qCap,'\\u2212x+0')!==0) vus.push('« \\u2212x+0 » n\\'est plus accepté : une pause d\\'avant le changement rougirait');
+    if(spMatchFact(qCap,'0+\\u2212x')!==0) vus.push('« 0+\\u2212x » n\\'est plus accepté');
+    if(spMatchFact(qCap,'\\u2212x\\u22120')!==0) vus.push('« \\u2212x\\u22120 » n\\'est plus accepté');
+
+    /* ---- 3. la constante reste EXIGÉE quand b ≠ 0, et une nue fausse reste fausse ---- */
+    if(spMatchFact({fac:[{a:3,b:-6},{a:1,b:2}]},'3x')!==-1) vus.push('« 3x » passe pour 3x \\u2212 6 : la constante n\\'est plus exigée');
+    if(spMatchFact(qCap,'x')!==-1) vus.push('« x » passe pour \\u2212x + 0');
+    if(spMatchFact(qCap,'\\u2212x+1')!==-1) vus.push('« \\u2212x + 1 » passe pour \\u2212x + 0');
+
+    /* ---- 3 bis. le carré suit (le 1.5 délègue à spFactForms) ---- */
+    if(typeof spCarreOk==='function'){
+      if(!spCarreOk({a:-2,b:0},'(\\u22122x)^2')) vus.push('« (\\u22122x)\\u00b2 » rougit pour un carré à b = 0');
+      if(!spCarreOk({a:-2,b:0},'(\\u22122x+0)^2')) vus.push('« (\\u22122x+0)\\u00b2 » n\\'est plus accepté au carré');
+      if(spCarreOk({a:-2,b:4},'(\\u22122x)^2')) vus.push('« (\\u22122x)\\u00b2 » passe pour (\\u22122x+4)\\u00b2');
+    }
+
+    /* ---- 4. le tirage n'écrit plus + 0, la constante s'écrit encore ailleurs ---- */
+    let avecZero=0, avecCte=0;
+    for(let t=0;t<400;t++){
+      const q=[genSP,genSPC,genSPQ][t%3]();
+      q.fac.forEach(function(F){
+        const lab=String(F.labPlain||'')+' '+String(F.labTex||'');
+        if(F.b===0){ avecZero++;
+          if(/[+\\u2212-]\\s*0/.test(lab)) vus.push('une étiquette écrit encore + 0 : '+F.labPlain);
+        } else { avecCte++;
+          if(String(lab).indexOf(String(Math.abs(F.b)))<0) vus.push('une étiquette a perdu sa constante : '+F.labPlain);
+        }
+      });
+      if(/[+\\u2212-]\\s*0[^0-9]/.test(String(q.fPlain)+'|'+String(q.fTex)+'|')) vus.push('l\\'énoncé écrit encore + 0 : '+q.fPlain);
+    }
+    /* ---- 5. le bord a toujours un témoin ---- */
+    if(avecZero===0) vus.push('aucun facteur à b = 0 sur 400 tirages : le bord n\\'a plus de témoin');
+    if(avecCte===0) vus.push('aucun facteur à constante sur 400 tirages');
 
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);

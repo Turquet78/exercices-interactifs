@@ -3447,6 +3447,30 @@ QUE par le banc navigateur : la règle `#s1help.open` retirée, jsdom lit la
 classe et reste vert pendant que la fenêtre a un rectangle NUL — le piège
 documenté de `[hidden]`, par la porte d'à côté.
 
+**Au 1.4 et au 1.5, un + 0 inutile ne s'écrit pas — et l'écriture nue est
+juste.** Signalé par Turquet (août 2026) sur deux captures : quand la racine
+d'un facteur vaut 0, le tirage fabriquait « −x + 0 » et « 3x + 0 » — l'énoncé
+les affichait tels quels, et l'élève qui recopiait « −x », l'écriture du
+cahier, ROUGISSAIT (« la case rouge doit être bonne car +0 ne sert à rien »).
+Une réponse juste comptée fausse : le pire défaut du projet, par la porte du
+formatage.
+**Deux faces, un entonnoir chacune.** `spFacteur()` écrit l'affine NUE quand
+b = 0 — et comme l'énoncé, les étiquettes du tableau, la correction verte
+(`spCorr`) et le rappel de cours lisent tous ses `tex`/`plain`, une seule
+branche corrige les quatre affichages d'un coup. `spFactForms()` — le juge,
+que `spMatchFact` et `spCarreOk` partagent, donc le 1.4 ET le 1.5 — accepte
+l'écriture nue et GARDE les écritures au + 0 (« 3x+0 », « 0+3x », « 3x−0 ») :
+une question mise en pause avant le changement affiche encore son « + 0 », et
+la recopier doit rester juste — les formes se recalculent depuis a et b, pas
+depuis les étiquettes rangées, c'est ce qui rend les vieilles pauses sûres.
+**Le bord opposé compte autant** : quand b ≠ 0, la constante reste EXIGÉE —
+« 3x » pour 3x − 6 est faux, et un contrôle qui ne tiendrait que
+l'acceptation laisserait passer un juge devenu laxiste. Le contrôle épingle
+les deux captures, tient les deux bords, balaie 400 tirages (aucune étiquette
+au + 0, aucune constante perdue) et EXIGE que le tirage produise encore des
+racines nulles — un contrôle qui n'a rien à mesurer ne mesure rien, et doit
+le dire. Cinq sabotages, chacun rougissant en nommant son défaut.
+
 **La tangente à (ax+b)eˣ démontre ce que l'énoncé annonce — et les deux lisent
 la même fonction.** {tangente-exp} (Terminale, à côté d'{equation-tangente},
 demande de Turquet, août 2026) est repris de la fiche papier : f(x) = (ax+b)eˣ
