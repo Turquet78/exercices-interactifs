@@ -1831,6 +1831,104 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septies octies. les trois boutons du 1.1 ===== */
+    /* Demande de Turquet (août 2026) : la racine du 1.1 peut être π, tapée
+       dans des cases en texte brut — π s'insère au jeton, ⌨️ montre le clavier
+       de la PAGE (le pavé), ☰ dit les raccourcis vrais de l'écran. Le banc
+       principal exerce les fonctions ; ici on CLIQUE les vrais boutons et on
+       mesure au RECTANGLE — jsdom n'a pas de mise en page, et une fenêtre
+       « ouverte » chez lui peut être invisible ici (le piège documenté de
+       [hidden] battu par un display de la page). */
+    titre('6 septies octies. LES TROIS BOUTONS DU 1.1');
+    if(!/function s1Pi\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('les trois boutons du 1.1 font ce qu\'ils disent', 'ce niveau n\'a pas les boutons du 1.1');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('les trois boutons du 1.1 font ce qu\'ils disent', 'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(() => openTest('signe-premier-degre'));
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='train'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(600);
+
+        /* le jeton π, CLIQUÉ, écrit dans la case qui a le focus */
+        const rect = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+        const jeton = async (fn) => {
+          const b = await s.page.$('#scr-s1 .s1-jetons button[onclick*="' + fn + '("]');
+          if(b) await b.click();
+          return b;
+        };
+        await s.page.focus('#s1-val');
+        const bPi = await jeton('s1Pi');
+        const m1 = await s.page.evaluate(() => ({
+          val: (document.getElementById('s1-val') || {}).value,
+          focusGarde: document.activeElement && document.activeElement.id === 's1-val',
+        }));
+        verifier('le jeton π écrit π dans la case, sans lui voler le focus',
+          !!bPi && m1.val === 'π' && m1.focusGarde,
+          bPi ? ('lu « ' + m1.val + ' », focus sur ' + (m1.focusGarde ? 'la case' : 'autre chose')) : 'jeton π introuvable');
+
+        /* « tape pi » devient π sous les doigts — au vrai clavier */
+        await s.page.evaluate(() => { const el = document.getElementById('s1-root'); el.value = ''; el.focus(); });
+        await s.page.keyboard.type('pi');
+        const m2 = await s.page.evaluate(() => (document.getElementById('s1-root') || {}).value);
+        verifier('« pi » tapé au clavier devient π sous les doigts', m2 === 'π', 'lu « ' + m2 + ' »');
+
+        /* ⌨️ montre le pavé — au RECTANGLE — et une touche cliquée écrit */
+        await jeton('s1KB');
+        await s.page.waitForTimeout(150);
+        const m3 = await s.page.evaluate(() => {
+          const p = document.getElementById('paveNum');
+          if(!p) return { la: false };
+          const r = p.getBoundingClientRect();
+          return { la: true, visible: r.width > 0 && r.height > 0 };
+        });
+        let ecrit = '';
+        if(m3.la && m3.visible){
+          await s.page.evaluate(() => { const el = document.getElementById('s1-val'); el.value = ''; el.focus(); });
+          const t3 = await s.page.$('#paveNum button[data-t="3"]');
+          if(t3) await t3.click();
+          ecrit = await s.page.evaluate(() => (document.getElementById('s1-val') || {}).value);
+        }
+        verifier('⌨️ montre le clavier de la page, et ses touches écrivent dans la case',
+          m3.la && m3.visible && ecrit === '3',
+          !m3.la ? 'le pavé n\'existe pas' : !m3.visible ? 'le pavé est là mais invisible (rectangle nul)' : 'touche « 3 » : lu « ' + ecrit + ' »');
+        await jeton('s1KB');   /* refermé pour la suite */
+
+        /* ☰ ouvre la fenêtre des raccourcis — au RECTANGLE — et ✕ la referme */
+        await jeton('s1Raccourcis');
+        await s.page.waitForTimeout(150);
+        const m4 = await s.page.evaluate(() => {
+          const w = document.getElementById('s1help');
+          if(!w) return { la: false };
+          const r = w.getBoundingClientRect();
+          return { la: true, visible: r.width > 0 && r.height > 0, pi: /pi/.test(w.textContent) && w.textContent.indexOf('π') >= 0 };
+        });
+        let ferme = false;
+        if(m4.la && m4.visible){
+          await s.page.click('#s1help .kbwin-close');
+          await s.page.waitForTimeout(100);
+          ferme = await s.page.evaluate(() => {
+            const r = document.getElementById('s1help').getBoundingClientRect();
+            return !(r.width > 0 && r.height > 0);
+          });
+        }
+        verifier('☰ ouvre les raccourcis de l\'écran — « pi → π » — et ✕ la referme',
+          m4.la && m4.visible && m4.pi && ferme,
+          !m4.la ? 'la fenêtre n\'existe pas' : !m4.visible ? 'fenêtre invisible (rectangle nul)'
+            : !m4.pi ? 'la fenêtre ne dit plus « pi → π »' : '✕ ne la referme pas (rectangle encore non nul)');
+
+        verifier('les trois boutons du 1.1 n\'ont levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

@@ -2627,6 +2627,7 @@ function exercices(suite){
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
+    jetonsSignePremier(w, P);
     variationsDerivee(w, P);
     /* LA LISTE DE LA PAGE ne doit nommer que des exercices qui existent. Le
        banc navigateur compare ce qui est AFFICHÉ à la liste de tests/profils.js,
@@ -8716,6 +8717,122 @@ function signePremierDegre(w, P){
       });
       for(let i=1;i<qs.length;i++){ if(qs[i].level<qs[i-1].level)
         vus.push('les niveaux ne se suivent plus dans l\\'ordre : '+qs.map(function(q){ return q.level; }).join(',')); }
+    }
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- Les trois boutons du 1.1 : pi, le clavier de la page, les raccourcis --
+   Demande de Turquet (août 2026) : la racine du niveau 1 peut être π, tapée
+   dans des cases en texte brut, et l'écran n'offrait RIEN — « pi » était
+   accepté par s1RootOK sans que rien ne le dise. Trois boutons, chacun VRAI,
+   et un contrôle par bord :
+   · π insère AU CURSEUR et lève l'événement input — sans lui, la correction en
+     direct du soutien ne voit jamais la frappe (la leçon documentée du pavé) ;
+   · sans focus, π va dans la case de la racine — un bouton qui exigerait de
+     cliquer la case d'abord serait mort au premier essai ;
+   · il ne force JAMAIS une case verrouillée — après la vérification, l'écran
+     est figé et doit le rester ;
+   · « tape pi » se VOIT : la valeur complète pi (ou -pi) devient π, et un
+     « p » seul n'est jamais mangé — convertir trop tôt interdirait de taper ;
+   · ⌨️ montre le clavier de la PAGE (le pavé — l'écran n'a aucun math-field,
+     le clavier MathLive n'y saurait rien écrire) et le second clic le cache ;
+   · ☰ dit les raccourcis VRAIS de cet écran, « pi » en tête — la table
+     MathLive n'y vaut rien ;
+   · les cases sont déclarées numériques : sur tablette, le pavé remplace le
+     clavier du système, la convention de spBox que ces cases n'avaient pas.
+   Le banc navigateur mesure les mêmes gestes au RECTANGLE — jsdom n'a pas de
+   mise en page, une fenêtre « ouverte » ici peut être invisible là-bas. */
+function jetonsSignePremier(w, P){
+  const present = evaluer(w, "typeof s1Pi==='function' && typeof s1KB==='function' && typeof s1Raccourcis==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le 1.1 offre π, le clavier à l\'écran et les raccourcis',
+      'ce niveau n\'a pas les trois boutons du signe du premier degré');
+    return;
+  }
+  verifierEval(w, 'le 1.1 offre π, le clavier à l\'écran et les raccourcis', `(function(){
+    const vus=[];
+    const scr=document.getElementById('scr-s1');
+    const rangee=scr && scr.querySelector('.s1-jetons');
+    if(!rangee) return 'la rangée .s1-jetons a disparu de l\\'écran du 1.1';
+    [['s1Pi','π'],['s1KB',null],['s1Raccourcis',null]].forEach(function(d){
+      const b=[...rangee.querySelectorAll('button')].find(x=>(x.getAttribute('onclick')||'').indexOf(d[0]+'(')>=0);
+      if(!b) vus.push('aucun bouton de la rangée n\\'appelle '+d[0]);
+      else if(d[1] && b.textContent.trim()!==d[1]) vus.push('le bouton '+d[0]+' n\\'écrit pas «'+d[1]+'»');
+    });
+
+    /* une question de niveau 1 à racine π, posée puis rendue par la vraie porte */
+    const sauve={ questions:test.questions, idx:test.idx, kind:test.kind, locked:test.locked, mode:currentMode };
+    let q=null; for(let t=0;t<200 && !q;t++){ const c=genS1L1(0); if(c.rootKind==='sym' && (c.rootAccept||[]).some(a=>a.indexOf('pi')>=0)) q=c; }
+    if(!q) return 'genS1L1 ne produit plus de racine π : le contrôle ne peut rien mesurer';
+    try{
+      currentMode='train'; test.kind='s1'; test.questions=[q]; test.idx=0; test.locked=false;
+      renderS1();
+      const val=document.getElementById('s1-val'), root=document.getElementById('s1-root');
+      if(!val || !root) return 'les cases s1-val / s1-root ne se rendent plus';
+
+      /* π au curseur + événement input */
+      if((val.getAttribute('inputmode')!=='numeric') && !val.hasAttribute('data-pave'))
+        vus.push('les cases du 1.1 ne se déclarent plus numériques : sur tablette, le clavier du système reviendra');
+      let entendu=0; const oreille=function(){ entendu++; };
+      document.addEventListener('input', oreille);
+      val.focus(); val.value='';
+      s1Pi();
+      if(val.value!=='π') vus.push('π ne s\\'insère pas dans la case qui a le focus (lu « '+val.value+' »)');
+      if(!entendu) vus.push('π n\\'a levé aucun événement input : la correction en direct du soutien ne le verra jamais');
+
+      /* sans focus : la case de la racine */
+      renderS1();   /* cases neuves : plus de focus, plus de dernière case */
+      document.body.focus && document.body.focus();
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      s1Pi();
+      const v2=document.getElementById('s1-val');
+      if(v2.value!=='π') vus.push('sans focus, π ne retombe pas sur la case de la racine (lu « '+v2.value+' »)');
+
+      /* jamais une case verrouillée */
+      renderS1();
+      ['s1-val','s1-root'].forEach(id=>{ const el=document.getElementById(id); if(el) el.disabled=true; });
+      s1Pi();
+      const v3=document.getElementById('s1-val');
+      if(v3.value) vus.push('π force une case verrouillée : l\\'écran vérifié n\\'est plus figé');
+
+      /* « tape pi » se voit — et « p » seul n'est pas mangé */
+      renderS1();
+      const r4=document.getElementById('s1-root');
+      r4.focus(); r4.value='p';
+      r4.dispatchEvent(new Event('input',{bubbles:true}));
+      if(r4.value!=='p') vus.push('un « p » seul est réécrit (« '+r4.value+' ») : taper pi devient impossible');
+      r4.value='pi'; r4.dispatchEvent(new Event('input',{bubbles:true}));
+      if(r4.value!=='π') vus.push('« pi » tapé ne devient pas π (lu « '+r4.value+' »)');
+      r4.value='-pi'; r4.dispatchEvent(new Event('input',{bubbles:true}));
+      if(r4.value!=='-π') vus.push('« -pi » tapé ne devient pas -π (lu « '+r4.value+' »)');
+
+      /* ⌨️ montre le clavier de la page, le second clic le cache */
+      s1KB();
+      const pave=document.getElementById('paveNum');
+      if(!pave) vus.push('⌨️ ne fait pas naître le pavé : le bouton est mort sur ordinateur');
+      else {
+        if(pave.hidden) vus.push('⌨️ laisse le pavé caché');
+        const v5=document.getElementById('s1-val');
+        if(v5 && !v5.hasAttribute('data-pave')) vus.push('le pavé n\\'est pas branché sur les cases du 1.1');
+        s1KB();
+        if(!pave.hidden) vus.push('le second clic sur ⌨️ ne cache pas le pavé');
+      }
+
+      /* ☰ dit les raccourcis vrais, et se referme */
+      s1Raccourcis();
+      const aide=document.getElementById('s1help');
+      if(!aide || !aide.classList.contains('open')) vus.push('☰ n\\'ouvre pas la fenêtre des raccourcis');
+      else {
+        const t=aide.textContent||'';
+        if(!/pi/.test(t) || t.indexOf('π')<0) vus.push('la fenêtre des raccourcis ne dit plus « pi → π »');
+        aide.querySelector('.kbwin-close').click();
+        if(aide.classList.contains('open')) vus.push('✕ ne referme pas la fenêtre des raccourcis');
+      }
+    } finally {
+      window.__paveManuel=false;
+      const pv=document.getElementById('paveNum'); if(pv){ pv.hidden=true; }
+      const ad=document.getElementById('s1help'); if(ad) ad.classList.remove('open');
+      test.questions=sauve.questions; test.idx=sauve.idx; test.kind=sauve.kind; test.locked=sauve.locked; currentMode=sauve.mode;
     }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
