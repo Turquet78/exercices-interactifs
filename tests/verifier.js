@@ -10373,6 +10373,63 @@ function premiere(w){
     })();
     if(deux.length) vus0.push('retenue de soustraction — '+deux.join(' ; '));
 
+    /* LA RETENUE DU HAUT REDESCEND TOUTE SEULE (demande de Turquet, août
+       2026) : le petit 1 du haut et le « +1 » du bas sont UNE retenue écrite
+       deux fois — l'élève ne l'écrit plus qu'en haut, la page pose la seconde
+       inscription et l'efface s'il efface. Quatre bords, et n'en tenir qu'un
+       ne tient rien : la descente, l'effacement, la VALEUR copiée telle
+       quelle — un miroir qui écrirait « 1 » sous un 7 corrigerait l'élève au
+       lieu de le refléter —, et AUCUN événement levé sur la case du bas, dont
+       l'écouteur générique volerait le focus (l'avance automatique) à l'élève
+       en train d'écrire en haut. Plus la CONSIGNE, qui doit dire le nouveau
+       geste : une page qui pose le +1 toute seule pendant que la consigne
+       demande de l'écrire ferait chercher une case à remplir. */
+    let miroir=[];
+    test.kind='asp'; test.idx=0;
+    test.questions=[{plus:false,a:432,b:87,ua:2,da:3,ha:4,ub:7,db:8,
+                     ret:{d:1,h:1,m:0},res:[3,4,5],text:'432 - 87',answer:345}];
+    show('asptest'); renderASPTest();
+    (function(){
+      const paire=function(nom){ return [
+        document.querySelector('#aspHost .asp-ret[data-ret="'+nom+'"]:not([data-bas])'),
+        document.querySelector('#aspHost .asp-ret[data-bas][data-ret="'+nom+'"]')]; };
+      const tape=function(el,v){ el.value=v; el.dispatchEvent(new Event('input',{bubbles:true})); };
+      const [haut,bas]=paire('d');
+      if(!haut||!bas){ miroir.push('les deux inscriptions de la retenue des unités ne s\\'apparient plus'); return; }
+      let entendu=0; const oreille=function(){ entendu++; };
+      bas.addEventListener('input',oreille);
+      tape(haut,'1');
+      if(bas.value!=='1') miroir.push('le 1 écrit en haut ne redescend pas en « +1 » (case du bas : « '+bas.value+' »)');
+      tape(haut,'');
+      if(bas.value!=='') miroir.push('la retenue effacée en haut reste écrite en bas (« '+bas.value+' »)');
+      tape(haut,'7');
+      if(bas.value!=='7') miroir.push('le miroir n\\'écrit pas ce que l\\'élève a posé (7 en haut → « '+bas.value+' » en bas)');
+      if(entendu) miroir.push('le miroir lève un événement input sur la case du bas : son écouteur y volerait le focus');
+      bas.removeEventListener('input',oreille);
+      const [h1,h2]=paire('h');
+      if(!h1||!h2) miroir.push('les deux inscriptions de la retenue des dizaines ne s\\'apparient plus');
+      else { tape(h1,'1'); if(h2.value!=='1') miroir.push('la retenue des dizaines ne redescend pas — corriger une paire ne corrige rien'); }
+      /* et l'avance automatique SAUTE la case du bas : la page la remplit,
+         le curseur qui s'y parquerait laisserait l'élève devant une case déjà
+         pleine. Sur une soustraction à UNE retenue, la case du bas est la
+         voisine immédiate dans l'ordre de tabulation — c'est là que le
+         parcage se voit. */
+      test.questions=[{plus:false,a:342,b:19,ua:2,da:4,ha:3,ub:9,db:1,
+                       ret:{d:1,h:0,m:0},res:[3,2,3],text:'342 - 19',answer:323}];
+      renderASPTest();
+      const seul=document.querySelector('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+      if(seul){
+        seul.focus(); tape(seul,'1');
+        const a=document.activeElement;
+        if(a && a.hasAttribute && a.hasAttribute('data-bas'))
+          miroir.push('l\\'avance automatique parque le curseur sur la case du bas, que la page vient de remplir');
+      }
+      const instr=(document.getElementById('aspInstr')||{textContent:''}).textContent;
+      if(!/tout seul/.test(instr))
+        miroir.push('la consigne ne dit plus que le +1 s\\'écrit tout seul : l\\'élève cherchera une case à remplir');
+    })();
+    if(miroir.length) vus0.push('miroir de la retenue — '+miroir.join(' ; '));
+
     /* Aucune case de retenue là où il n'y en a pas : une case vide à remplir de
        rien n'apprend rien (décision de Turquet, août 2026). On pose donc une
        opération dont UNE SEULE colonne porte une retenue, et on compte.

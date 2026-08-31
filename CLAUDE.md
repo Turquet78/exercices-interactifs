@@ -600,6 +600,22 @@ lire ; aucun élève ne l'aurait pu. L'énoncé le dit maintenant, et il change
 selon l'opération. La soustraction n'a donc **que trois rangées** là où
 l'addition en a quatre — un contrôle du navigateur qui en exigeait quatre
 partout rougissait sur une soustraction parfaitement dessinée.
+**Et la retenue du haut REDESCEND toute seule** (demande de Turquet, août
+2026, Première) : les deux marques sont UNE retenue écrite deux fois, l'élève
+ne l'écrit donc plus qu'en haut — la page pose le « +1 » du bas et l'efface
+s'il efface. Le miroir copie la VALEUR écrite, juste ou non : un miroir qui
+écrirait « 1 » sous un 7 corrigerait l'élève au lieu de le refléter. Il ne
+lève AUCUN événement sur la case du bas — son écouteur générique y volerait le
+focus — et l'avance automatique SAUTE ces cases : la page les remplit, le
+curseur qui s'y parquerait laisserait l'élève devant une case déjà pleine
+(elles restent atteignables au clic et à Tab). En soutien, la case remplie par
+la page prend sa couleur à la sortie de la case, comme toute case non touchée
+— et le premier jet du banc navigateur s'y est pris en défaut : il tabulait
+UNE fois, atterrissait DANS la case du bas, et mesurait une case encore sous
+le curseur, où le garde de la saisie diffère la couleur à bon droit. La
+consigne dit le nouveau geste — une page qui pose le +1 pendant que la
+consigne demande de l'écrire ferait chercher une case à remplir. Sept
+sabotages, chacun rougissant en nommant son défaut.
 Les colonnes de cet exercice sont plus larges (`--asp-col`, 78 px mesurés) :
 il faut la place d'écrire une marque DEVANT le chiffre sans la poser dessus. La
 largeur vit à un seul endroit, le trait la relit.

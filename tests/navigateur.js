@@ -1953,6 +1953,92 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septies nonies. la retenue qui redescend toute seule ===== */
+    /* Demande de Turquet (août 2026, Première) : à la soustraction posée, le
+       petit 1 écrit en haut redescend TOUT SEUL en « +1 » devant le chiffre
+       du bas de la colonne suivante — une retenue, deux inscriptions, une
+       seule écrite par l'élève. Le banc principal exerce le miroir à
+       l'événement ; ici on TAPE au vrai clavier — parce que le bord le plus
+       sournois est le FOCUS : un miroir qui lèverait input sur la case du bas
+       déclencherait son avance automatique et volerait le curseur à l'élève
+       en plein geste. Et en SOUTIEN, la case remplie par la page reçoit sa
+       couleur à la sortie de la case, comme toute case non touchée. */
+    titre('6 septies nonies. LA RETENUE QUI REDESCEND TOUTE SEULE');
+    if(!/function renderASPTest\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('la retenue du haut redescend toute seule', 'ce niveau n\'a pas la soustraction posée');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('la retenue du haut redescend toute seule', 'connexion impossible — rien à mesurer');
+      } else {
+        const poserSoustraction = async (mode) => {
+          await s.page.evaluate(() => openTest('addition-soustraction'));
+          await s.page.waitForTimeout(300);
+          await s.page.evaluate((m) => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='" + m + "'") >= 0);
+            if(b) b.click();
+          }, mode);
+          await s.page.waitForTimeout(400);
+          /* la question ÉPINGLÉE du banc principal : 432 − 87, les deux retenues */
+          await s.page.evaluate(() => {
+            test.kind = 'asp'; test.idx = 0; test.locked = false;
+            test.questions = [{ plus: false, a: 432, b: 87, ua: 2, da: 3, ha: 4, ub: 7, db: 8,
+              ret: { d: 1, h: 1, m: 0 }, res: [3, 4, 5], text: '432 - 87', answer: 345 }];
+            renderASPTest();
+          });
+          await s.page.waitForTimeout(200);
+        };
+
+        await poserSoustraction('train');
+        await s.page.focus('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+        await s.page.keyboard.type('1');
+        await s.page.waitForTimeout(100);
+        const m1 = await s.page.evaluate(() => {
+          const bas = document.querySelector('#aspHost .asp-ret[data-bas][data-ret="d"]');
+          const a = document.activeElement;
+          return { bas: bas ? bas.value : '(case absente)',
+                   suivante: !!(a && a.getAttribute && a.getAttribute('data-ret') === 'h' && !a.hasAttribute('data-bas')) };
+        });
+        verifier('le 1 tapé en haut redescend en « +1 » sous les doigts',
+          m1.bas === '1', 'case du bas : « ' + m1.bas + ' »');
+        verifier('le curseur file à la retenue suivante, jamais sur la case que la page remplit',
+          m1.suivante, 'le focus n\'est pas sur la retenue des dizaines');
+
+        await s.page.focus('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+        await s.page.keyboard.press('Backspace');
+        await s.page.waitForTimeout(100);
+        const m2 = await s.page.evaluate(() =>
+          (document.querySelector('#aspHost .asp-ret[data-bas][data-ret="d"]') || {}).value);
+        verifier('la retenue effacée en haut s\'efface en bas',
+          m2 === '', 'case du bas : « ' + m2 + ' »');
+
+        /* en soutien : la couleur arrive à la sortie de la case, sur les DEUX.
+           On quitte les retenues en CLIQUANT une case du résultat — le geste
+           réel de l'élève qui continue son calcul. Le premier jet tabulait UNE
+           fois : le focus atterrissait DANS la case du bas, où le garde de la
+           saisie diffère la couleur — la page avait raison, le banc mesurait
+           une case encore sous le curseur. */
+        await poserSoustraction('soutien');
+        await s.page.focus('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+        await s.page.keyboard.type('1');
+        await s.page.click('#aspHost .mp-box');
+        await s.page.waitForTimeout(250);
+        const m3 = await s.page.evaluate(() => {
+          const haut = document.querySelector('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+          const bas = document.querySelector('#aspHost .asp-ret[data-bas][data-ret="d"]');
+          return { haut: haut ? haut.className : '?', bas: bas ? bas.className : '?' };
+        });
+        verifier('en soutien, la retenue redescendue prend sa couleur à la sortie de la case',
+          /\bok\b/.test(m3.haut) && /\bok\b/.test(m3.bas),
+          'classes — haut : « ' + m3.haut + ' », bas : « ' + m3.bas + ' »');
+
+        verifier('la retenue qui redescend n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une
