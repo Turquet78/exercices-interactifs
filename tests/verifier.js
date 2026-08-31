@@ -2624,6 +2624,7 @@ function exercices(suite){
     construireFonction(w, P);
     exercicesBonus(w, P);
     resolutionsGraphiques(w, P);
+    tableauSignesGraphique(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -8392,6 +8393,163 @@ function lectureDeuxCourbes(w, P){
    la TANGENCE : une hauteur qui touche la courbe sans la traverser
    laisserait l'inéquation sans aucun des quatre dessins proposés — l'énoncé
    mentirait avant que l'élève ne commence. */
+/* ---------- Le tableau de signes graphique : rouge au-dessus, bleu en dessous ---------- */
+/* {tableau-signes-graphique} (Seconde, demande de Turquet, août 2026). Les bords :
+   le tirage par sa propre arithmétique (2 racines intérieures, vrais croisements,
+   zéro jamais traversé entre graduations, rien d'autre que pts dans la question,
+   les DEUX visages dans chaque séance, le compte à deux sources) ; les gestes
+   CLIQUÉS sur les deux visages — couleurs lues, jamais le verdict seul — avec la
+   règle des paires sur S = { ; }, l'union jugée au mieux, les crochets STRICTS,
+   la case vide en sol (train) et sans couleur (soutien), le badge au libellé, et
+   la peinture des morceaux (rouge au-dessus, bleu en dessous, comptés par côté). */
+function tableauSignesGraphique(w, P){
+  const nom='le tableau de signes graphique : rouge au-dessus, bleu en dessous, et trois solutions';
+  const present = evaluer(w, "typeof startTsg==='function' && typeof tsgBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du tableau de signes graphique');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-signes-graphique';
+
+    /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
+    for(let t=0;t<250 && !vus.length;t++){
+      const qs=tsgBuildQuestions();
+      if(qs.length!==${P.nbQuestionsTableauSignes||5}){ vus.push(qs.length+' questions au lieu de ${P.nbQuestionsTableauSignes||5}'); break; }
+      const sides=[];
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
+        const pts=q.pts, so=[];
+        for(let x=-3;x<=3;x++){ if(pts[x+3]===0) so.push(x); }
+        if(pts.some(function(v){ return v<-3||v>3||!Number.isInteger(v); })) vus.push('une valeur sort de [−3 ; 3] : '+pts.join(','));
+        if(so.length!==2){ vus.push('f a '+so.length+' racine(s) au lieu de 2 ('+pts.join(',')+')'); return; }
+        if(so[0]<=-3||so[1]>=3) vus.push('une racine tombe au bord du dessin');
+        so.forEach(function(x){ if(pts[x+2]*pts[x+4]>=0)
+          vus.push('la courbe TOUCHE zéro en x='+x+' sans le traverser (ou deux racines voisines) : le tableau mentirait'); });
+        for(let j=0;j<6;j++){ const lo=Math.min(pts[j],pts[j+1]), hi=Math.max(pts[j],pts[j+1]);
+          if(0>lo&&0<hi) vus.push('zéro est traversé ENTRE deux graduations : une racine illisible'); }
+        let s=0; for(let x=so[0]+1;x<so[1]&&!s;x++){ if(pts[x+3]!==0) s=pts[x+3]>0?1:-1; }
+        sides.push(s||1);
+      });
+      if(!vus.length && !(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0))
+        vus.push('une séance sans les deux visages ('+sides.join(',')+') : l\\'élève apprendrait que le tableau est toujours le même');
+    }
+
+    /* ---- 1 bis. les deux ENCRES, lues dans la feuille de styles (le motif
+       du 2.6) : rouge à dominante chaude au-dessus, bleu en dessous — un CSS
+       perdu rendrait les deux morceaux de la même couleur sans rien casser ---- */
+    let css=''; document.querySelectorAll('style').forEach(function(st){ css+=st.textContent; });
+    const regle=function(sel,prop){
+      const i=css.indexOf(sel+'{'); if(i<0) return null;
+      const bloc=css.slice(i+sel.length+1, css.indexOf('}',i));
+      const j=bloc.indexOf(prop+':'); if(j<0) return null;
+      let v=bloc.slice(j+prop.length+1); const k=v.indexOf(';'); if(k>=0) v=v.slice(0,k);
+      return v.trim();
+    };
+    const hex=function(v){
+      if(!v) return null;
+      if(v.indexOf('var(')===0){ const nom=v.slice(4,v.indexOf(')')).trim(); const i=css.indexOf(nom+':'); if(i<0) return null; v=css.slice(i+nom.length+1, i+nom.length+30); }
+      const h=v.match(/#([0-9a-fA-F]{6})/); if(!h) return null;
+      return {r:parseInt(h[1].slice(0,2),16), b:parseInt(h[1].slice(4,6),16), brut:('#'+h[1]).toUpperCase()};
+    };
+    const rouge=hex(regle('.tsg-pos','stroke')), bleu=hex(regle('.tsg-neg','stroke'));
+    if(!rouge||!bleu) vus.push('impossible de lire les encres de .tsg-pos ou .tsg-neg : le contrôle ne mesure rien');
+    else {
+      if(!(rouge.r>rouge.b+40)) vus.push('la partie f > 0 n\\'est pas à dominante ROUGE ('+rouge.brut+') : la phrase « rouge » mentirait');
+      if(!(bleu.b>bleu.r+40)) vus.push('la partie f < 0 n\\'est pas à dominante BLEUE ('+bleu.brut+')');
+    }
+    /* et les MOTS « rouge » et « bleu » de l'énoncé portent LEUR encre — la
+       règle « .mp-instr b » peint tous les gras en rouge : « bleu » écrit en
+       rouge dirait l'inverse de ce que l'exercice enseigne (la leçon de la
+       phrase des couleurs du 6.3) */
+    const motsR=[].map.call(document.querySelectorAll('#scr-tsg .mp-instr .tsg-mot-rouge'), function(e){ return e.textContent.trim(); });
+    const motsB=[].map.call(document.querySelectorAll('#scr-tsg .mp-instr .tsg-mot-bleu'), function(e){ return e.textContent.trim(); });
+    if(motsR.indexOf('rouge')<0||motsR.indexOf('au-dessus')<0) vus.push('l\\'énoncé n\\'écrit pas « au-dessus » ET « rouge » à l\\'encre rouge ('+motsR.join(',')+')');
+    if(motsB.indexOf('bleu')<0||motsB.indexOf('en dessous')<0) vus.push('l\\'énoncé n\\'écrit pas « en dessous » ET « bleu » à l\\'encre bleue ('+motsB.join(',')+') — en gras ordinaire, ils s\\'écriraient en ROUGE');
+    /* et AUCUN gras ordinaire ne subsiste dans cet énoncé : « .mp-instr b » le
+       peindrait en rouge, au milieu d'une phrase qui parle de deux couleurs */
+    if(document.querySelectorAll('#scr-tsg .mp-instr b').length)
+      vus.push('un <b> subsiste dans l\\'énoncé : la règle .mp-instr b le peint en ROUGE, quoi qu\\'il dise');
+    const mr=hex(regle('.tsg-mot-rouge','color')), mb=hex(regle('.tsg-mot-bleu','color'));
+    if(!mr||!(mr.r>mr.b+40)) vus.push('l\\'encre du mot « rouge » n\\'est pas rouge ('+(mr?mr.brut:'introuvable')+')');
+    if(!mb||!(mb.b>mb.r+40)) vus.push('l\\'encre du mot « bleu » n\\'est pas bleue ('+(mb?mb.brut:'introuvable')+')');
+
+    /* ---- 2. les gestes, cliqués, couleurs lues — sur les DEUX visages ---- */
+    /* Q0 est LE REPLI du tirage (côté négatif : + − +) ; Q1 un tirage relevé
+       au côté positif (− + −). Les deux passent par les gardes du point 1. */
+    const Q0={pts:[3,2,0,-1,-3,0,1]};   /* racines −1 et 2, milieu NÉGATIF */
+    const Q1={pts:[-3,-2,-1,0,1,0,-2]}; /* racines 0 et 2, milieu POSITIF */
+    function pose(q, valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'tsg', questions:[q], idx:0, score:0, maxScore:21, answers:[], startTime:Date.now(), locked:false});
+      renderTsgTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkTsgAnswer();
+      return { fb:document.getElementById('tsgFeedback').textContent, score:test.score };
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JUSTE0={ 'tsg-c1':'rouge','tsg-g1':'+','tsg-c2':'bleu','tsg-g2':'-',
+      'tsg-t0':'+','tsg-t1':'-','tsg-t2':'+', 'tsg-e0':'-1','tsg-e1':'2',
+      'tsg-p-co1':'[','tsg-p-b1':'-3','tsg-p-b2':'-1','tsg-p-cf1':'[',
+      'tsg-p-co2':']','tsg-p-b3':'2','tsg-p-b4':'3','tsg-p-cf2':']',
+      'tsg-n-co1':']','tsg-n-b1':'-1','tsg-n-b2':'2','tsg-n-cf1':'[' };
+    let r=pose(Q0, JUSTE0);
+    if(r.score!==21) vus.push('la copie juste (côté négatif) vaut '+r.score+' au lieu de 21');
+    ['tsg-c1','tsg-t1','tsg-e0','tsg-p-cf1','tsg-n-co1'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n\\'est pas peinte ok ('+cls(id)+')'); });
+    /* le dessin vit dans le cadre de LECTURE, jamais dans la grille des quatre
+       propositions — qui le réduirait au quart de la largeur (mesuré : 280 px
+       contre 600), et les graduations y deviennent illisibles */
+    if(!document.querySelector('#tsgHost .lv-graph')) vus.push('le dessin n\\'est pas dans le cadre de lecture (.lv-graph)');
+    if(document.querySelector('#tsgHost .ing-cartes')) vus.push('le dessin est posé dans la grille à quatre colonnes des propositions : il s\\'affiche au quart de la largeur');
+    /* la peinture des morceaux : côté négatif → 2 morceaux ROUGES (dehors), 1 BLEU (milieu) */
+    let nPos=document.querySelectorAll('#tsgHost .tsg-pos').length, nNeg=document.querySelectorAll('#tsgHost .tsg-neg').length;
+    if(nPos!==2||nNeg!==1) vus.push('côté négatif : '+nPos+' morceau(x) rouge(s) et '+nNeg+' bleu(s) au lieu de 2 et 1');
+
+    /* le second visage : côté positif — simple pour f>0, union pour f<0 */
+    const JUSTE1={ 'tsg-c1':'rouge','tsg-g1':'+','tsg-c2':'bleu','tsg-g2':'-',
+      'tsg-t0':'-','tsg-t1':'+','tsg-t2':'-', 'tsg-e0':'0','tsg-e1':'2',
+      'tsg-p-co1':']','tsg-p-b1':'0','tsg-p-b2':'2','tsg-p-cf1':'[',
+      'tsg-n-co1':'[','tsg-n-b1':'-3','tsg-n-b2':'0','tsg-n-cf1':'[',
+      'tsg-n-co2':']','tsg-n-b3':'2','tsg-n-b4':'3','tsg-n-cf2':']' };
+    r=pose(Q1, JUSTE1);
+    if(r.score!==21) vus.push('la copie juste (côté positif) vaut '+r.score+' au lieu de 21');
+    nPos=document.querySelectorAll('#tsgHost .tsg-pos').length; nNeg=document.querySelectorAll('#tsgHost .tsg-neg').length;
+    if(nPos!==1||nNeg!==2) vus.push('côté positif : '+nPos+' morceau(x) rouge(s) et '+nNeg+' bleu(s) au lieu de 1 et 2');
+
+    /* S = { ; } : l'ordre est LIBRE, et le doublon est défendable UNE fois */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsg-e0':'2','tsg-e1':'-1'}));
+    if(r.score!==21) vus.push('S = { 2 ; −1 } dans l\\'autre ordre ne vaut plus le point ('+r.score+')');
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsg-e0':'-1','tsg-e1':'-1'}));
+    if(cls('tsg-e0').indexOf('ok')<0||cls('tsg-e1').indexOf('bad')<0)
+      vus.push('le doublon −1 ; −1 devrait être défendable une fois, faux la seconde ('+cls('tsg-e0')+' / '+cls('tsg-e1')+')');
+    /* l'union à l'envers : les deux intervalles échangés restent justes */
+    r=pose(Q0, Object.assign({},JUSTE0,
+      {'tsg-p-co1':']','tsg-p-b1':'2','tsg-p-b2':'3','tsg-p-cf1':']',
+       'tsg-p-co2':'[','tsg-p-b3':'-3','tsg-p-b4':'-1','tsg-p-cf2':'['}));
+    if(r.score!==21) vus.push('l\\'union écrite dans l\\'autre ordre ne vaut plus le point ('+r.score+')');
+    /* les crochets sont STRICTS : un crochet qui PREND la racine rougit */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsg-n-co1':'['}));
+    if(cls('tsg-n-co1').indexOf('bad')<0) vus.push('un crochet fermé sur une racine (inégalité stricte) ne rougit pas');
+    /* la case fausse porte le badge au LIBELLÉ ; la case vide reçoit sol en train */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsg-c1':'bleu','tsg-t1':''}));
+    if(cls('tsg-c1').indexOf('bad')<0) vus.push('la couleur fausse ne rougit pas');
+    { const el=document.getElementById('tsg-c1'), b=el&&el.nextElementSibling;
+      if(!b||!b.classList.contains('mf-cor')||b.textContent!=='rouge') vus.push('le badge de la couleur fausse n\\'écrit pas « rouge »'); }
+    if(cls('tsg-t1').indexOf('sol')<0||cls('tsg-t1').indexOf('bad')>=0) vus.push('en entraînement, la case vide du tableau ne reçoit pas la correction sol ('+cls('tsg-t1')+')');
+    /* en SOUTIEN : la case vide ne reçoit RIEN, la fausse rougit sans badge */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsg-g2':'','tsg-t2':'-'}), 'soutien');
+    if(cls('tsg-g2').indexOf('sol')>=0||cls('tsg-g2').indexOf('bad')>=0) vus.push('en soutien, la case vide reçoit une couleur ('+cls('tsg-g2')+')');
+    if(cls('tsg-t2').indexOf('bad')<0) vus.push('en soutien, le signe faux ne rougit pas');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function resolutionsGraphiques(w, P){
   const present = evaluer(w, "typeof startEig==='function' && typeof eigBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
