@@ -1748,7 +1748,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=187;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=189;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4496,7 +4496,7 @@ function renderASPTest(){
   $('aspInstr').innerHTML='Pose l\u2019opération et complète le <b style="color:var(--blue-dark)">résultat</b> (cases bleues). '
     +(q.plus
       ? 'La <b style="color:var(--red)">retenue</b> s\u2019écrit au-dessus de la colonne où elle s\u2019ajoute.'
-      : 'Quand on ne peut pas soustraire, on ajoute <b>10</b> en haut — le petit <b style="color:var(--red)">1</b> devant le chiffre — et on compense par <b style="color:var(--red)">+1</b> devant le chiffre du bas de la colonne suivante.')
+      : 'Quand on ne peut pas soustraire, on ajoute <b>10</b> en haut — écris le petit <b style="color:var(--red)">1</b> devant le chiffre : le <b style="color:var(--red)">+1</b> de compensation s\u2019écrit tout seul devant le chiffre du bas de la colonne suivante.')
     +' Les cases rouges sont <b>facultatives</b>, mais si tu les écris, elles doivent être justes.';
   $('aspActions').innerHTML='<button class="btn btn-primary" id="aspCheck" onclick="checkASPAnswer()">Vérifier</button>';
   const cell=(inner)=>'<div class="mp-cl">'+(inner||'')+'</div>';
@@ -4518,9 +4518,12 @@ function renderASPTest(){
      FACULTATIVES — on les propose sur toutes les colonnes plutôt que sur les
      seules qui en portent une, sinon leur simple présence dirait à l'élève où
      la retenue tombe. */
-  /* Petite case de retenue posée DANS une cellule, devant le chiffre. */
-  const pet=(exp,tab,plus)=>(plus?'<span class="asp-plus">+</span>':'')
-    +'<input class="asp-ret" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" tabindex="'+tab+'" aria-label="retenue">';
+  /* Petite case de retenue posée DANS une cellule, devant le chiffre.
+     « nom » désigne LA retenue (d : celle des unités, h : celle des dizaines)
+     et « bas » sa seconde inscription — le « +1 » de la colonne suivante :
+     c'est ce qui permet au miroir ci-dessous d'apparier les deux cases. */
+  const pet=(exp,tab,nom,bas)=>(bas?'<span class="asp-plus">+</span>':'')
+    +'<input class="asp-ret" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="'+exp+'" data-ret="'+nom+'"'+(bas?' data-bas="1"':'')+' tabindex="'+tab+'" aria-label="retenue'+(bas?' reportée':'')+'">';
   let rowRet='', rowA, rowB;
   if(q.plus){
     /* ADDITION : la retenue entre dans la colonne, on l'écrit AU-DESSUS. */
@@ -4548,10 +4551,10 @@ function renderASPTest(){
     /* Là encore : rien à écrire, donc pas de case. Chaque retenue reste posée
        à SES deux places — devant le chiffre du haut, et en « +1 » devant le
        chiffre du bas de la colonne suivante. */
-    const m=(v,tab,plus)=>v?pet(v,tab,plus):'';
-    rowA=rangee('', [dig(q.ha), dig(q.da)+m(q.ret.h,nRes+2), dig(q.ua)+m(q.ret.d,nRes+1)]);
+    const m=(v,tab,nom,bas)=>v?pet(v,tab,nom,bas):'';
+    rowA=rangee('', [dig(q.ha), dig(q.da)+m(q.ret.h,nRes+2,'h'), dig(q.ua)+m(q.ret.d,nRes+1,'d')]);
     rowB=rangee('<span class="mp-sign">\u2212</span>',
-                [m(q.ret.h,nRes+4,true), dig(q.db)+m(q.ret.d,nRes+3,true), dig(q.ub)]);
+                [m(q.ret.h,nRes+4,'h',true), dig(q.db)+m(q.ret.d,nRes+3,'d',true), dig(q.ub)]);
   }
   const rowLine='<div class="mp-lrow"><div class="mp-cl op"></div><div class="mp-line" style="width:calc(var(--asp-col) * '+nCols+')"></div></div>';
   /* Les cases du résultat : autant que de chiffres, pas plus. Une case en trop
@@ -4559,8 +4562,29 @@ function renderASPTest(){
   const rowRes =rangee('', q.res.map((d,i)=>inp('mp-box',d,nRes-i)));
   $('aspHost').innerHTML=rowRet+rowA+rowB+rowLine+rowRes;
   const ins=[...$('aspHost').querySelectorAll('input')].sort((x,y)=>(+x.tabIndex)-(+y.tabIndex));
+  /* LA RETENUE DU HAUT REDESCEND TOUTE SEULE (demande de Turquet, août 2026) :
+     sur le cahier, le petit 1 du haut et le « +1 » du bas de la colonne
+     suivante sont UNE seule retenue, écrite deux fois. L'élève ne l'écrit
+     donc plus qu'une fois, en haut — la page pose la seconde inscription, et
+     l'efface s'il efface. Le miroir copie la VALEUR écrite, juste ou non :
+     deux inscriptions d'un même nombre, jamais une correction — un miroir qui
+     écrirait « 1 » sous un 7 ferait le travail à la place de l'élève.
+     Et il ne lève AUCUN événement sur la case du bas : son écouteur générique
+     y volerait le focus (l'avance automatique). En soutien, la couleur arrive
+     par la relecture de l'écran à la sortie de la case, comme pour toute case
+     que l'élève n'a pas touchée. */
+  const miroirRetenue=(el)=>{
+    if(!el.classList.contains('asp-ret') || el.hasAttribute('data-bas')) return;
+    const bas=$('aspHost').querySelector('.asp-ret[data-bas][data-ret="'+el.dataset.ret+'"]');
+    if(bas && !bas.disabled) bas.value=el.value;
+  };
+  /* Et l'avance automatique SAUTE les cases du bas : la page les remplit,
+     l'élève n'a plus rien à y taper — le curseur qui s'y parquerait le
+     laisserait devant une case déjà pleine. Elles restent atteignables au
+     clic et à la touche Tab pour qui veut les reprendre. */
+  const suivant=(i)=>{ for(let j=i+1;j<ins.length;j++){ if(!ins[j].hasAttribute('data-bas')) return ins[j]; } return null; };
   ins.forEach((el,i)=>{
-    el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value&&i<ins.length-1)ins[i+1].focus(); });
+    el.addEventListener('input',()=>{ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); miroirRetenue(el); const n=el.value?suivant(i):null; if(n)n.focus(); });
     el.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault();checkASPAnswer();} if(ev.key==='Backspace'&&!el.value&&i>0)ins[i-1].focus(); });
   });
   setTimeout(()=>ins[0]&&ins[0].focus(),70);
@@ -11145,7 +11169,7 @@ const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎
    Le signe moins INSÈRE le tiret du clavier (« - »), jamais le signe
    typographique « − » : les lecteurs des exercices comprennent les deux, mais
    lvReadInt() passe par parseFloat, qui ne connaît que le tiret. */
-function paveActif(){ return window.__paveForce===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
+function paveActif(){ return window.__paveForce===true || window.__paveManuel===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
 function paveHTML(){
   return '<div id="paveNum" hidden>'+PAVE_TOUCHES.map(function(t){
     return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'</div>';

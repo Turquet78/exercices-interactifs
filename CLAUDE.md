@@ -600,6 +600,22 @@ lire ; aucun élève ne l'aurait pu. L'énoncé le dit maintenant, et il change
 selon l'opération. La soustraction n'a donc **que trois rangées** là où
 l'addition en a quatre — un contrôle du navigateur qui en exigeait quatre
 partout rougissait sur une soustraction parfaitement dessinée.
+**Et la retenue du haut REDESCEND toute seule** (demande de Turquet, août
+2026, Première) : les deux marques sont UNE retenue écrite deux fois, l'élève
+ne l'écrit donc plus qu'en haut — la page pose le « +1 » du bas et l'efface
+s'il efface. Le miroir copie la VALEUR écrite, juste ou non : un miroir qui
+écrirait « 1 » sous un 7 corrigerait l'élève au lieu de le refléter. Il ne
+lève AUCUN événement sur la case du bas — son écouteur générique y volerait le
+focus — et l'avance automatique SAUTE ces cases : la page les remplit, le
+curseur qui s'y parquerait laisserait l'élève devant une case déjà pleine
+(elles restent atteignables au clic et à Tab). En soutien, la case remplie par
+la page prend sa couleur à la sortie de la case, comme toute case non touchée
+— et le premier jet du banc navigateur s'y est pris en défaut : il tabulait
+UNE fois, atterrissait DANS la case du bas, et mesurait une case encore sous
+le curseur, où le garde de la saisie diffère la couleur à bon droit. La
+consigne dit le nouveau geste — une page qui pose le +1 pendant que la
+consigne demande de l'écrire ferait chercher une case à remplir. Sept
+sabotages, chacun rougissant en nommant son défaut.
 Les colonnes de cet exercice sont plus larges (`--asp-col`, 78 px mesurés) :
 il faut la place d'écrire une marque DEVANT le chiffre sans la poser dessus. La
 largeur vit à un seul endroit, le trait la relit.
@@ -3325,6 +3341,45 @@ niveau 1, 2 du niveau 2 (la racine en fraction), 1 du niveau 3 (la racine
 COMPOSITION : un niveau qui disparaîtrait de la séance ne casserait rien, et
 personne ne le verrait — une aide absente ne se signale pas.
 
+**Le 1.1 a trois boutons, et chacun fait ce qu'il dit.** La racine du
+niveau 1 peut être π — le SEUL symbole de toute la famille des tableaux de
+signes, à taper dans des cases en texte brut : « pi » était accepté par
+`s1RootOK` depuis toujours, mais rien ne le disait, et aucun clavier ne porte
+π (demande de Turquet, août 2026 : « un bouton pour lettre pi, un bouton pour
+le clavier virtuel math et le bouton pour les raccourcis »).
+**Un bouton qui ne ferait rien serait pire que pas de bouton** — la doctrine
+du bouton MORT — et c'est ce qui a décidé de chacun des trois :
+· **π INSÈRE au curseur par `paveInserer`**, le moteur d'insertion du pavé,
+  déjà éprouvé : il pose la sélection ET lève l'événement `input`, sans quoi la
+  correction en direct du soutien ne verrait jamais la frappe — la leçon
+  documentée du pavé, qui aurait été repayée ici. Cible : la case qui a le
+  focus, sinon la dernière visitée, sinon celle de la racine — jamais une case
+  verrouillée : l'écran vérifié reste figé.
+· **⌨️ montre le clavier de la PAGE — le pavé — et non le clavier MathLive** :
+  l'écran n'a aucun `math-field` (toute la famille des tableaux est en champs
+  texte), et le clavier MathLive ne sait pas y écrire — un ⌨️ qui l'ouvrirait
+  serait un bouton mort. `__paveManuel` ouvre au pavé une porte qu'il n'avait
+  que sur écran tactile, et elle RESTE ouverte tant qu'on ne reclique pas : un
+  clavier demandé reste demandé. Sur tablette, le pavé vient déjà tout seul —
+  les cases du 1.1 sont enfin déclarées `inputmode="numeric"`, la convention
+  de `spBox` qu'elles n'avaient jamais reçue : c'était le clavier du SYSTÈME,
+  une moitié d'écran, qui s'ouvrait sur elles.
+· **☰ dit les raccourcis VRAIS de cet écran** — « tape pi », le signe moins,
+  la fraction à la barre, la virgule — dans sa propre fenêtre (`#s1help`, le
+  cadre de `#kbhelp`) : la table MathLive de `mlDexp.showShortcuts()` n'a pas
+  UNE ligne qui vaille dans un champ texte, l'afficher ici mentirait.
+**Et « tape pi » se VOIT** : la valeur complète `pi` (ou `-pi`, à la casse
+près) devient π sous les doigts, comme dans un champ MathLive — en phase de
+CAPTURE, pour que la correction en direct, attachée en phase de bulle, lise la
+case déjà convertie. On ne convertit que la valeur ENTIÈRE : un « p » seul
+n'est jamais mangé, sans quoi taper « pi » deviendrait impossible.
+La photo du circuit papier retire les rangées d'outils (`.s1-jetons`, et
+`.sa-jetons` qui laissait traîner son « Insérer : » sans boutons). Neuf
+sabotages, chacun rougissant en nommant son défaut — et le neuvième n'est vu
+QUE par le banc navigateur : la règle `#s1help.open` retirée, jsdom lit la
+classe et reste vert pendant que la fenêtre a un rectangle NUL — le piège
+documenté de `[hidden]`, par la porte d'à côté.
+
 **La tangente à (ax+b)eˣ démontre ce que l'énoncé annonce — et les deux lisent
 la même fonction.** {tangente-exp} (Terminale, à côté d'{equation-tangente},
 demande de Turquet, août 2026) est repris de la fiche papier : f(x) = (ax+b)eˣ
@@ -3539,6 +3594,21 @@ s'est prise en défaut : interrompue pendant qu'un banc tournait, elle n'avait
 RIEN restauré (`execFileSync` bloque la boucle, le signal attend), et la
 mesure suivante partait d'un fichier déjà saboté. Une campagne de sabotage
 restaure depuis une COPIE PROPRE hors dépôt, jamais depuis sa mémoire.
+
+**La chaîne du a) du 6.3 pose UNE étape par ligne, les « = » alignés.**
+Demande de Turquet (août 2026, sur une capture) : la première rangée empilait
+DEUX étapes — « Vₙ₊₁ = U… − k = a·Uₙ + b − k » — quand toutes les suivantes
+n'en posaient qu'une. Le remplacement de Uₙ₊₁ descend sur sa propre ligne, et
+son « = » tombe dans la colonne des « = » (`.sa2-eq`, largeur fixe alignée à
+droite), sous celui de la ligne du dessus — la présentation du cahier, que
+l'échelle portait déjà pour les étapes suivantes.
+Deux bords, chacun chez le banc qui SAIT le voir : le banc principal tient la
+STRUCTURE — six rangées, et aucun « = » hors de la colonne, sans quoi deux
+étapes se recollent sans qu'un contrôle de calcul ne bronche — et le banc
+navigateur mesure l'ALIGNEMENT au pixel, bord droit de chaque `.sa2-eq` :
+une étiquette « Vₙ₊₁ = » qui déborderait de la largeur réservée enverrait son
+« = » à droite des autres sans qu'aucune classe ne change — jsdom reste vert,
+le navigateur nomme l'écart (55 px au sabotage). Éprouvé par deux sabotages.
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par

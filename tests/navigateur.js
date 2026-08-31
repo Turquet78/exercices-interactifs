@@ -1758,7 +1758,31 @@ async function parcours(page, N){
         verifier('aucune case du 6.3 ne rogne ce qu\'on y écrit',
           m.cases >= 10 && m.serre.length === 0,
           'trop serrées : ' + m.serre.slice(0, 4).join(' | '));
-        verifier('les cases du 6.3 n\'ont levé aucune erreur JavaScript',
+        /* UNE ÉTAPE PAR LIGNE, LES « = » ALIGNÉS (demande de Turquet, août
+           2026). Le banc principal tient la structure — aucun « = » hors de
+           la colonne — mais l'ALIGNEMENT est une affaire de pixels : chaque
+           « = » de la chaîne du a) est right-aligné dans sa colonne .sa2-eq,
+           et si l'étiquette « Vₙ₊₁ = » débordait de la largeur réservée, son
+           « = » partirait à droite des autres sans qu'aucune classe ne
+           change. On mesure donc le bord DROIT de chaque .sa2-eq. */
+        const al = await s.page.evaluate(() => {
+          const eqs = [...document.querySelectorAll('#sa2LadderA .sa2-eq')];
+          const droits = eqs.map(e => Math.round(e.getBoundingClientRect().right * 10) / 10);
+          return {
+            n: eqs.length,
+            finissentPar: eqs.every(e => /=\s*$/.test(e.textContent)),
+            droits: droits,
+            ecart: droits.length ? Math.max(...droits) - Math.min(...droits) : 999,
+          };
+        });
+        verifier('la chaîne du a) du 6.3 : un « = » par ligne, tous dans la colonne',
+          al.n === 6 && al.finissentPar,
+          al.n + ' rangée(s) à « = » — chacune doit finir par « = »');
+        verifier('les « = » de la chaîne du a) sont alignés, celui du haut compris',
+          al.ecart <= 1.5,
+          'bords droits : ' + al.droits.join(' / ') + ' (écart ' + Math.round(al.ecart) + ' px)');
+
+                verifier('les cases du 6.3 n\'ont levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
 
         /* LA PHRASE DE LA CORRECTION PORTE LES COULEURS QU'ELLE NOMME.
@@ -1827,6 +1851,190 @@ async function parcours(page, N){
         verifier('les trois encres de la phrase sont bien DISTINCTES',
           c.ok !== c.bad && c.bad !== c.sol && c.ok !== c.sol,
           'juste ' + c.ok + ' | faux ' + c.bad + ' | correction ' + c.sol);
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies octies. les trois boutons du 1.1 ===== */
+    /* Demande de Turquet (août 2026) : la racine du 1.1 peut être π, tapée
+       dans des cases en texte brut — π s'insère au jeton, ⌨️ montre le clavier
+       de la PAGE (le pavé), ☰ dit les raccourcis vrais de l'écran. Le banc
+       principal exerce les fonctions ; ici on CLIQUE les vrais boutons et on
+       mesure au RECTANGLE — jsdom n'a pas de mise en page, et une fenêtre
+       « ouverte » chez lui peut être invisible ici (le piège documenté de
+       [hidden] battu par un display de la page). */
+    titre('6 septies octies. LES TROIS BOUTONS DU 1.1');
+    if(!/function s1Pi\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('les trois boutons du 1.1 font ce qu\'ils disent', 'ce niveau n\'a pas les boutons du 1.1');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('les trois boutons du 1.1 font ce qu\'ils disent', 'connexion impossible — rien à mesurer');
+      } else {
+        await s.page.evaluate(() => openTest('signe-premier-degre'));
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='train'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(600);
+
+        /* le jeton π, CLIQUÉ, écrit dans la case qui a le focus */
+        const rect = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+        const jeton = async (fn) => {
+          const b = await s.page.$('#scr-s1 .s1-jetons button[onclick*="' + fn + '("]');
+          if(b) await b.click();
+          return b;
+        };
+        await s.page.focus('#s1-val');
+        const bPi = await jeton('s1Pi');
+        const m1 = await s.page.evaluate(() => ({
+          val: (document.getElementById('s1-val') || {}).value,
+          focusGarde: document.activeElement && document.activeElement.id === 's1-val',
+        }));
+        verifier('le jeton π écrit π dans la case, sans lui voler le focus',
+          !!bPi && m1.val === 'π' && m1.focusGarde,
+          bPi ? ('lu « ' + m1.val + ' », focus sur ' + (m1.focusGarde ? 'la case' : 'autre chose')) : 'jeton π introuvable');
+
+        /* « tape pi » devient π sous les doigts — au vrai clavier */
+        await s.page.evaluate(() => { const el = document.getElementById('s1-root'); el.value = ''; el.focus(); });
+        await s.page.keyboard.type('pi');
+        const m2 = await s.page.evaluate(() => (document.getElementById('s1-root') || {}).value);
+        verifier('« pi » tapé au clavier devient π sous les doigts', m2 === 'π', 'lu « ' + m2 + ' »');
+
+        /* ⌨️ montre le pavé — au RECTANGLE — et une touche cliquée écrit */
+        await jeton('s1KB');
+        await s.page.waitForTimeout(150);
+        const m3 = await s.page.evaluate(() => {
+          const p = document.getElementById('paveNum');
+          if(!p) return { la: false };
+          const r = p.getBoundingClientRect();
+          return { la: true, visible: r.width > 0 && r.height > 0 };
+        });
+        let ecrit = '';
+        if(m3.la && m3.visible){
+          await s.page.evaluate(() => { const el = document.getElementById('s1-val'); el.value = ''; el.focus(); });
+          const t3 = await s.page.$('#paveNum button[data-t="3"]');
+          if(t3) await t3.click();
+          ecrit = await s.page.evaluate(() => (document.getElementById('s1-val') || {}).value);
+        }
+        verifier('⌨️ montre le clavier de la page, et ses touches écrivent dans la case',
+          m3.la && m3.visible && ecrit === '3',
+          !m3.la ? 'le pavé n\'existe pas' : !m3.visible ? 'le pavé est là mais invisible (rectangle nul)' : 'touche « 3 » : lu « ' + ecrit + ' »');
+        await jeton('s1KB');   /* refermé pour la suite */
+
+        /* ☰ ouvre la fenêtre des raccourcis — au RECTANGLE — et ✕ la referme */
+        await jeton('s1Raccourcis');
+        await s.page.waitForTimeout(150);
+        const m4 = await s.page.evaluate(() => {
+          const w = document.getElementById('s1help');
+          if(!w) return { la: false };
+          const r = w.getBoundingClientRect();
+          return { la: true, visible: r.width > 0 && r.height > 0, pi: /pi/.test(w.textContent) && w.textContent.indexOf('π') >= 0 };
+        });
+        let ferme = false;
+        if(m4.la && m4.visible){
+          await s.page.click('#s1help .kbwin-close');
+          await s.page.waitForTimeout(100);
+          ferme = await s.page.evaluate(() => {
+            const r = document.getElementById('s1help').getBoundingClientRect();
+            return !(r.width > 0 && r.height > 0);
+          });
+        }
+        verifier('☰ ouvre les raccourcis de l\'écran — « pi → π » — et ✕ la referme',
+          m4.la && m4.visible && m4.pi && ferme,
+          !m4.la ? 'la fenêtre n\'existe pas' : !m4.visible ? 'fenêtre invisible (rectangle nul)'
+            : !m4.pi ? 'la fenêtre ne dit plus « pi → π »' : '✕ ne la referme pas (rectangle encore non nul)');
+
+        verifier('les trois boutons du 1.1 n\'ont levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 septies nonies. la retenue qui redescend toute seule ===== */
+    /* Demande de Turquet (août 2026, Première) : à la soustraction posée, le
+       petit 1 écrit en haut redescend TOUT SEUL en « +1 » devant le chiffre
+       du bas de la colonne suivante — une retenue, deux inscriptions, une
+       seule écrite par l'élève. Le banc principal exerce le miroir à
+       l'événement ; ici on TAPE au vrai clavier — parce que le bord le plus
+       sournois est le FOCUS : un miroir qui lèverait input sur la case du bas
+       déclencherait son avance automatique et volerait le curseur à l'élève
+       en plein geste. Et en SOUTIEN, la case remplie par la page reçoit sa
+       couleur à la sortie de la case, comme toute case non touchée. */
+    titre('6 septies nonies. LA RETENUE QUI REDESCEND TOUTE SEULE');
+    if(!/function renderASPTest\(/.test(fs.readFileSync(path.join(RACINE, CIBLE), 'utf8'))){
+      ignorer('la retenue du haut redescend toute seule', 'ce niveau n\'a pas la soustraction posée');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('la retenue du haut redescend toute seule', 'connexion impossible — rien à mesurer');
+      } else {
+        const poserSoustraction = async (mode) => {
+          await s.page.evaluate(() => openTest('addition-soustraction'));
+          await s.page.waitForTimeout(300);
+          await s.page.evaluate((m) => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='" + m + "'") >= 0);
+            if(b) b.click();
+          }, mode);
+          await s.page.waitForTimeout(400);
+          /* la question ÉPINGLÉE du banc principal : 432 − 87, les deux retenues */
+          await s.page.evaluate(() => {
+            test.kind = 'asp'; test.idx = 0; test.locked = false;
+            test.questions = [{ plus: false, a: 432, b: 87, ua: 2, da: 3, ha: 4, ub: 7, db: 8,
+              ret: { d: 1, h: 1, m: 0 }, res: [3, 4, 5], text: '432 - 87', answer: 345 }];
+            renderASPTest();
+          });
+          await s.page.waitForTimeout(200);
+        };
+
+        await poserSoustraction('train');
+        await s.page.focus('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+        await s.page.keyboard.type('1');
+        await s.page.waitForTimeout(100);
+        const m1 = await s.page.evaluate(() => {
+          const bas = document.querySelector('#aspHost .asp-ret[data-bas][data-ret="d"]');
+          const a = document.activeElement;
+          return { bas: bas ? bas.value : '(case absente)',
+                   suivante: !!(a && a.getAttribute && a.getAttribute('data-ret') === 'h' && !a.hasAttribute('data-bas')) };
+        });
+        verifier('le 1 tapé en haut redescend en « +1 » sous les doigts',
+          m1.bas === '1', 'case du bas : « ' + m1.bas + ' »');
+        verifier('le curseur file à la retenue suivante, jamais sur la case que la page remplit',
+          m1.suivante, 'le focus n\'est pas sur la retenue des dizaines');
+
+        await s.page.focus('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+        await s.page.keyboard.press('Backspace');
+        await s.page.waitForTimeout(100);
+        const m2 = await s.page.evaluate(() =>
+          (document.querySelector('#aspHost .asp-ret[data-bas][data-ret="d"]') || {}).value);
+        verifier('la retenue effacée en haut s\'efface en bas',
+          m2 === '', 'case du bas : « ' + m2 + ' »');
+
+        /* en soutien : la couleur arrive à la sortie de la case, sur les DEUX.
+           On quitte les retenues en CLIQUANT une case du résultat — le geste
+           réel de l'élève qui continue son calcul. Le premier jet tabulait UNE
+           fois : le focus atterrissait DANS la case du bas, où le garde de la
+           saisie diffère la couleur — la page avait raison, le banc mesurait
+           une case encore sous le curseur. */
+        await poserSoustraction('soutien');
+        await s.page.focus('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+        await s.page.keyboard.type('1');
+        await s.page.click('#aspHost .mp-box');
+        await s.page.waitForTimeout(250);
+        const m3 = await s.page.evaluate(() => {
+          const haut = document.querySelector('#aspHost .asp-ret[data-ret="d"]:not([data-bas])');
+          const bas = document.querySelector('#aspHost .asp-ret[data-bas][data-ret="d"]');
+          return { haut: haut ? haut.className : '?', bas: bas ? bas.className : '?' };
+        });
+        verifier('en soutien, la retenue redescendue prend sa couleur à la sortie de la case',
+          /\bok\b/.test(m3.haut) && /\bok\b/.test(m3.bas),
+          'classes — haut : « ' + m3.haut + ' », bas : « ' + m3.bas + ' »');
+
+        verifier('la retenue qui redescend n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;
     }
