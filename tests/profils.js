@@ -269,7 +269,14 @@ module.exports = {
     /* La case du produit du 1.7 : la police du groupe de référence, et la
        largeur qui suit la saisie — « 100000 » écrit en entier, jamais coupé
        (demande de Turquet, août 2026, sur une capture du 1.7). */
-    caseQuiGrandit: { exercice: 'mult-decimaux', hote: 'mdHost', num: 'md3n', den: 'md3d', grand: '100000' },
+    /* une liste : une case qui grandirait sur un écran et pas sur l'autre ne
+       se verrait nulle part ailleurs — la leçon d'aideMaintenue. Le 1.6 ouvre
+       sur son niveau 1 (sans fraction) : « niveauFracp » dit au banc quel
+       niveau poser avant de mesurer. */
+    caseQuiGrandit: [
+      { exercice: 'mult-decimaux', hote: 'mdHost', num: 'md3n', den: 'md3d', grand: '100000' },
+      { exercice: 'fractions-decimales', hote: 'fHost', num: 'fNum', den: 'fDen', grand: '230230', niveauFracp: 'frac-n2' },
+    ],
 
     /* L'étiquette de la colonne de gauche de « Fraction et pourcentage » doit
        nommer le DÉNOMINATEUR de la fraction étudiée — « pour 5 » devant 2/5 —

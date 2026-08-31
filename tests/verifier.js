@@ -3207,6 +3207,64 @@ function devoirPapierClique(w, apres){
       if(nb2!==3) vus.push('la vue professeur montre '+nb2+' question(s) au lieu de 3');
       REJEU=false;
     }
+
+    /* ---- 7. un exercice à ÉCRAN DE NIVEAU s'énonce quand même (le 1.2) ----
+       startS2() montrait « Choisis ton niveau » sans rien tirer, et les trois
+       entonnoirs du devoir passaient dans le vide (signalé par Turquet, août
+       2026, sur le DM n°2) : l'énoncé photographiait les questions RESTÉES du
+       1.1 abandonné, la première entrée retombait sur le chemin direct — pas
+       de choix papier —, et le vrai tirage arrivait APRÈS la coupe nbQ (5
+       questions quel que soit le réglage). Dans un devoir, start() tire
+       directement le niveau 1 — le seul qui existe. */
+    mesDevoirs=[{id:'dev-2', num:2, titre:'DM 2', actif:true,
+                 exercices:[{id:'signe-premier-degre',modes:['train']},{id:'signe-second-degre',modes:['train'],nbQ:2}]}];
+    currentDM=null;
+    /* l'abandon du 1.1 : ses questions restent dans test — on les y met */
+    test.kind='s1'; test.idx=0; test.locked=false;
+    test.questions=[genS1L1(0),genS1L1(1)];
+    let suite7=0;
+    await dmEnonce('dev-2','signe-second-degre', function(){ suite7++; });
+    const on7=document.querySelector('.screen.on');
+    if(!on7||on7.id!=='scr-dmenonce')
+      vus.push('1.2 : le choix papier/ordinateur n\\'est pas proposé ('+(on7?on7.id:'aucun écran')+') — la première entrée retombe sur le chemin direct');
+    if(test.kind!=='s2'||!(test.questions||[]).length||test.questions[0].nroots===undefined)
+      vus.push('1.2 : l\\'énoncé n\\'est pas tiré par l\\'exercice lui-même (kind '+test.kind+') — il photographie ce qui restait du 1.1');
+    const txt7=(document.getElementById('dmeCorps').textContent||'');
+    if(txt7.indexOf('Résous d’abord l’équation')>=0)
+      vus.push('1.2 : l\\'énoncé montre les questions du PREMIER degré — celles de l\\'exercice précédent');
+    const nb7=document.querySelectorAll('#dmeCorps .dme-q').length;
+    if(nb7!==2) vus.push('1.2 : l\\'énoncé montre '+nb7+' question(s) au lieu des 2 réglées par le devoir');
+    dmeOrdinateur();
+    if(suite7!==1) vus.push('1.2 : « sur l\\'ordinateur » n\\'appelle pas la suite ('+suite7+')');
+    /* « sur l'ordinateur » : le niveau se tire sans écran de menu, coupe comprise */
+    await lancerDevoirExo('dev-2','signe-second-degre','train');
+    const on7b=document.querySelector('.screen.on');
+    if(!on7b||on7b.id!=='scr-s2')
+      vus.push('1.2 lancé depuis le devoir : l\\'écran est '+(on7b?on7b.id:'aucun')+' au lieu de l\\'exercice — le menu du niveau s\\'interpose encore');
+    if((test.questions||[]).length!==2)
+      vus.push('1.2 lancé depuis le devoir : '+(test.questions||[]).length+' question(s) au lieu des 2 réglées — la coupe passe avant le tirage');
+    /* et au menu LIBRE, l'écran de choix du niveau demeure */
+    currentDM=null;
+    await startS2();
+    const on7c=document.querySelector('.screen.on');
+    if(!on7c||on7c.id!=='scr-s2lvl')
+      vus.push('hors devoir, le 1.2 ne montre plus son choix de niveau ('+(on7c?on7c.id:'aucun')+')');
+
+    /* ---- 8. la photo n'utilise JAMAIS un tirage qui n'est pas le sien ----
+       Pour tout exercice FUTUR dont le start() ne tirerait pas : la référence
+       de test.questions n'a pas bougé, donc pas d'énoncé — le repli direct,
+       sans mensonge. */
+    TESTS['__essai-sans-tirage']={ name:'Essai', icon:'?', desc:'', start:function(){ show('s2lvl'); } };
+    mesDevoirs[0].exercices.push({id:'__essai-sans-tirage',modes:['train']});
+    test.kind='s1'; test.idx=0; test.locked=false; test.questions=[genS1L1(0)];
+    let suite8=0;
+    await dmEnonce('dev-2','__essai-sans-tirage', function(){ suite8++; });
+    delete TESTS['__essai-sans-tirage'];
+    if(suite8!==1) vus.push('un start() qui ne tire pas ne retombe plus sur le chemin direct ('+suite8+')');
+    const on8=document.querySelector('.screen.on');
+    if(on8&&on8.id==='scr-dmenonce')
+      vus.push('un start() qui ne tire pas AFFICHE quand même un énoncé — la photo d\\'un tirage étranger');
+
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
     const nom='le devoir sur papier : l\'énoncé d\'abord, et il part avec le prénom';
@@ -10461,6 +10519,112 @@ function premiere(w){
     if(desequilibres) vus.push(desequilibres+' séance(s) sans 5 additions sur 10');
     if(ordre) vus.push(ordre+' calcul(s) hors de l\\'alternance addition/soustraction');
     if(plus!==moins)  vus.push('au total '+plus+' additions pour '+moins+' soustractions');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  /* ---- La fraction décimale du 1.6, case par case ----------------------
+     Demande de Turquet (août 2026), ses exemples pour 2,3 -> 23/10 épinglés
+     tels quels : 23 seul en haut est BLEU (sans que l'autre case soit remplie
+     ou qu'elle soit fausse) ; 10 seul en bas est bleu ; 23/100 fait 23 bleu
+     et 100 rouge ; 230/10 fait 230 rouge et 10 bleu ; 230/100 fait les DEUX
+     bleus, même si ce n'est pas la fraction décimale la plus simple. S'y
+     ajoutent les bords de la doctrine : 230 seul ne reçoit RIEN (il attend
+     son 100 — le silence est honnête) et sa case vide reçoit 100 en vert,
+     jamais 10 — compléter la ROUTE de l'élève, pas la contredire ; 24 seul
+     rougit (aucun dénominateur n'y mène) ; et le message du soutien ne parle
+     de « cases en rouge » que s'il y en a. On CLIQUE « Vérifier » et on relit
+     les CLASSES — les contrôles lisaient le verdict, l'élève regarde la
+     couleur — puis on rejoue les mêmes gestes en direct (soutien), et le
+     niveau 4 au cadran puissance de 10. */
+  verifierEval(w, 'la fraction décimale du 1.6 se juge case par case, à l\'ancre canonique', `(function(){
+    if(typeof fracDecVerdict!=='function' || typeof marqueFracDec!=='function')
+      return 'le juge par case du 1.6 n\\'existe plus';
+    const vus=[];
+    const sauve={ questions:test.questions, idx:test.idx, kind:test.kind, locked:test.locked,
+                  mode:currentMode, levels:test.levels, perLevel:test.perLevel, levelIdx:test.levelIdx,
+                  level:test.level, levelScore:test.levelScore, score:test.score };
+    try{
+      const Q23={ level:'frac-n2', decString:'2,3', numer:23, denom:10, qtext:'2,3', atext:'23/10' };
+      const poser=function(vn,vd){
+        test.kind='fracp'; test.levels=['frac-n2']; test.perLevel=5; test.levelIdx=0;
+        test.level='frac-n2'; test.levelScore=0; test.idx=0; test.score=0; test.locked=false;
+        test.questions=[Object.assign({},Q23)];
+        show('ftest'); renderFTest();
+        document.getElementById('fNum').value=vn; document.getElementById('fDen').value=vd;
+      };
+      const cls=function(id){ const e=document.getElementById(id);
+        return e.classList.contains('ok')?'ok':e.classList.contains('bad')?'bad':e.classList.contains('sol')?'sol':''; };
+      const cas=function(nom,vn,vd,attN,attD,solAtt){
+        poser(vn,vd); checkFAnswer();
+        if(cls('fNum')!==attN||cls('fDen')!==attD)
+          vus.push(nom+' : lu '+(cls('fNum')||'rien')+'/'+(cls('fDen')||'rien')+' au lieu de '+(attN||'rien')+'/'+(attD||'rien'));
+        if(solAtt!==undefined){
+          const v=document.getElementById(attN==='sol'?'fNum':'fDen').value;
+          if(String(v)!==String(solAtt)) vus.push(nom+' : la case vide reçoit '+v+' au lieu de '+solAtt);
+        }
+      };
+      /* — au clic, en entraînement : les exemples de Turquet, mot pour mot — */
+      currentMode='train';
+      cas('23 seul en haut','23','','ok','sol','10');
+      cas('10 seul en bas','','10','sol','ok','23');
+      cas('23/100','23','100','ok','bad');
+      cas('230/10','230','10','bad','ok');
+      cas('230/100 (pas la plus simple)','230','100','ok','ok');
+      cas('230 seul — le silence est honnête','230','','','sol','100');
+      cas('24 seul — aucun dénominateur n\\'y mène','24','','bad','sol');
+      /* — en direct, en soutien : les mêmes verdicts sous les doigts — */
+      currentMode='soutien';
+      const vif=function(nom,vn,vd,attN,attD){
+        poser(vn,vd); checkFAnswer(true);
+        if(cls('fNum')!==attN||cls('fDen')!==attD)
+          vus.push('direct, '+nom+' : lu '+(cls('fNum')||'rien')+'/'+(cls('fDen')||'rien')+' au lieu de '+(attN||'rien')+'/'+(attD||'rien'));
+      };
+      vif('23 seul','23','','ok','');
+      vif('10 seul','','10','','ok');
+      vif('23/100','23','100','ok','bad');
+      vif('230/10','230','10','bad','ok');
+      vif('230/100','230','100','ok','ok');
+      vif('230 seul','230','','','');
+      vif('24 seul','24','','bad','');
+      /* — le message du soutien dit la vérité — */
+      poser('230',''); checkFAnswer();
+      if(/rouge/.test(document.getElementById('fFeedback').textContent))
+        vus.push('soutien : « corrige les cases en rouge » alors qu\\'aucune case n\\'est rouge');
+      poser('230','10'); checkFAnswer();
+      if(!/rouge/.test(document.getElementById('fFeedback').textContent))
+        vus.push('soutien : le message ne nomme plus les cases en rouge quand il y en a');
+      /* — le niveau 4 : même règle, au cadran puissance de 10 — */
+      currentMode='train';
+      const q4=genFrac('frac-n4');
+      test.kind='fracp'; test.levels=['frac-n4']; test.perLevel=5; test.levelIdx=0;
+      test.level='frac-n4'; test.levelScore=0; test.idx=0; test.score=0; test.locked=false;
+      test.questions=[q4]; show('ftest'); renderFTest();
+      document.getElementById('f5n').value=String(q4.pn);
+      document.getElementById('f5d').value=String(q4.pd*10);
+      document.getElementById('fDec').value='';
+      checkFAnswer();
+      const c4=function(id){ const e=document.getElementById(id);
+        return e.classList.contains('ok')?'ok':e.classList.contains('bad')?'bad':''; };
+      if(c4('f5n')!=='ok'||c4('f5d')!=='bad')
+        vus.push('niveau 4, pn/(pd×10) : lu '+(c4('f5n')||'rien')+'/'+(c4('f5d')||'rien')+' au lieu de ok/bad — l\\'ancre canonique ne monte pas aux étapes');
+      test.locked=false;
+      document.getElementById('f5n').value=String(q4.pn*10);
+      document.getElementById('f5d').value=String(q4.pd*10);
+      checkFAnswer();
+      if(c4('f5n')!=='ok'||c4('f5d')!=='ok')
+        vus.push('niveau 4, (pn×10)/(pd×10) : la fraction égale n\\'est plus acceptée aux deux cases');
+      test.locked=false;
+      document.getElementById('f5n').value=String(q4.pn*3);
+      document.getElementById('f5d').value=String(q4.pd*3);
+      checkFAnswer();
+      if(c4('f5n')!=='bad'||c4('f5d')!=='bad')
+        vus.push('niveau 4, (3·pn)/(3·pd) : une fraction égale NON décimale passe aux cases — le cadran puissance de 10 ne mord plus');
+    } finally {
+      test.questions=sauve.questions; test.idx=sauve.idx; test.kind=sauve.kind; test.locked=sauve.locked;
+      test.levels=sauve.levels; test.perLevel=sauve.perLevel; test.levelIdx=sauve.levelIdx;
+      test.level=sauve.level; test.levelScore=sauve.levelScore; test.score=sauve.score;
+      currentMode=sauve.mode;
+    }
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 

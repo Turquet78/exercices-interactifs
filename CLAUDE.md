@@ -2511,6 +2511,45 @@ navigateur MESURE (« 6 quater bis ») : la police rendue, la case qui
 s'élargit sur « 100000 », rien de coupé, la barre qui suit — seul un
 navigateur sait où un nombre se coupe.
 
+**La fraction décimale du 1.6 se juge case par case, à l'ancre canonique.**
+Demande de Turquet (août 2026), ses exemples pour 2,3 → 23/10 pris tels
+quels : le 1.6 peignait encore la PAIRE entière — 23/100 rougissait ses deux
+cases — et ses cases gardaient une largeur FIXE pendant que tous les autres
+écrans à fractions suivaient la saisie. Deux corrections, un juge :
+· **UN SEUL juge pour le direct et la vérification** (`fracDecVerdict`, servi
+  par `fracDecLive` et `marqueFracDec`) : deux verdicts auraient fini par se
+  contredire sous les yeux de l'élève. Toute écriture ÉGALE reste acceptée —
+  230/100 vaut le point, « même si ce n'est pas la fraction décimale la plus
+  simple » — ; quand la paire ne colle pas, chaque case se juge SEULE contre
+  la valeur canonique (23/100 : le 23 bleu, le 100 rouge ; 230/10 : le 230
+  rouge, le 10 bleu) — la règle du 616/100000, enfin appliquée ici. Une case
+  SEULE ne dépend pas de l'autre : 23 en haut ou 10 en bas est bleu sans que
+  sa voisine soit remplie ; 230 seul ne reçoit RIEN — il attend son 100, le
+  silence est honnête — et rougit seulement quand il ne mène nulle part (24).
+  Le cadran `pow10` restreint promesse et paire aux dénominateurs en
+  puissance de 10 pour les étapes des niveaux 4 et 5.
+· **En entraînement, la case vide reçoit la complétion de la ROUTE de
+  l'élève** quand sa case écrite y mène — 230 seul appelle 100, jamais 10 :
+  écrire 10 en vert sous son 230 lui donnerait tort sur une idée juste — et
+  la canonique sinon. Le message du soutien ne parle de « cases en rouge »
+  que s'il y en a.
+· **Les cases grandissent avec la saisie** : le groupe `#fHost` a rejoint la
+  règle des autres écrans (`width:auto`, plafond `pm-mf` relevé, barre
+  étirée) — et le contrôle a pris le premier jet en défaut à sa première
+  exécution : le dénominateur grandissait, la barre suivait, le NUMÉRATEUR
+  restait à 76 px — dans une colonne flex centrée, « l'autre case suit la
+  plus large » exige `align-self:stretch`, et seul un navigateur le mesure.
+Le contrôle épingle les cinq exemples de Turquet au CLIC et en DIRECT, plus
+les bords de la doctrine ; la liste `caseQuiGrandit` du banc navigateur est
+devenue une LISTE (la leçon d'aideMaintenue) et mesure les deux écrans. Huit
+sabotages, chacun rougissant en nommant son défaut — le huitième (la
+croissance CSS retirée) ne rougit qu'au navigateur, jsdom restant vert.
+**Un piège de sonde s'y est montré, hors banc** : écrire `.value` sur un
+math-field AVANT que MathLive ne soit chargé tombe dans le vide — la greffe
+définit l'accès, le module absent ne rend rien — et la capture d'écran
+accusait la page d'ignorer une copie qu'elle n'avait jamais reçue. Le banc,
+lui, sert le VRAI MathLive depuis son cache : ses mesures disaient vrai.
+
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
 2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
 2026, en trois temps : les hausses seules, « pour les diminutions aussi »,
@@ -3502,6 +3541,39 @@ contrôle tient ces deux bords en STRUCTURE — jamais par `getElementById`, qui
 ne mesurerait rien là où il tourne. Éprouvé par sabotage des deux côtés. Un piège d'outillage s'est montré dans le SCRIPT DE VUE, pas dans la
 page : `Object.assign({id:'s1'}, ligne)` laissait l'id du double écraser celui
 du script, et la vue accusait la page d'un défaut qu'elle n'avait pas.
+
+**Un démarreur qui ne tire pas casse les trois promesses du circuit d'un
+coup.** Signalé par Turquet (août 2026) sur le DM n°2, en trois symptômes qui
+semblaient trois bugs : après avoir abandonné le 1.1, l'énoncé du 1.2
+montrait des questions du PREMIER degré ; en commençant le devoir directement
+par le 1.2, le choix papier/ordinateur n'était pas proposé ; et le 1.2 en
+devoir posait 5 questions quand le devoir en réglait moins. Une seule cause :
+`startS2()` n'ouvre qu'un écran de CHOIX DE NIVEAU — le tirage n'arrive que
+dans `startS2Run(1)` — alors que les entonnoirs du devoir passent JUSTE APRÈS
+`start()` en supposant le tirage fait. L'énoncé photographiait donc
+`test.questions` resté de l'exercice PRÉCÉDENT (le 1.1 abandonné traînait là —
+et à la première entrée, rien : le repli « kind inconnu » prenait le chemin
+direct, d'où le choix papier absent), et la coupe `nbQ` tombait AVANT le vrai
+tirage, qui repartait à 5.
+**Dans un devoir, `startS2()` tire directement** : un seul niveau existe (le
+2 est « bientôt disponible »), l'écran de choix n'y choisit rien. Hors
+devoir, rien ne change.
+**Et `dmEnonce` tient la promesse au lieu de la supposer** : il note
+`test.questions` AVANT d'appeler `start()`, et si le tableau n'a pas changé
+d'identité — un démarreur ajouté demain qui ouvrirait son menu sans tirer —
+il retombe sur le chemin direct au lieu de photographier le tirage d'un
+autre exercice : un énoncé qui ment est pire qu'un choix qui manque. Trois
+sabotages, chacun rougissant avec les mots du signalement (« il photographie
+ce qui restait du 1.1 », « le choix papier/ordinateur n'est pas proposé »,
+« 5 question(s) au lieu des 2 réglées »), plus le menu qui s'interpose.
+**Un piège de SONDE s'y est montré, le second en deux jours** : la trajectoire
+rejouée en Chromium accusait la coupe nbQ de ne pas mordre — or les chemins de
+devoir RECHARGENT `mesDevoirs` depuis `loadConfig()`, si bien qu'un réglage
+semé dans le seul global de la page est écrasé par le double VIDE à la
+première recharge. En production la recharge rend la vraie configuration ; la
+sonde mesurait un devoir sans réglages, pas la page. Un réglage de devoir se
+sème dans le DOUBLE (`__faux.semer('parametres', …)`), jamais dans le seul
+global.
 
 **La même démonstration, mais l'élève ne pose que des nombres.**
 {suite-auxiliaire-2} (Terminale, 6.3, demande de Turquet, août 2026) est repris
