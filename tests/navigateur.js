@@ -1758,7 +1758,31 @@ async function parcours(page, N){
         verifier('aucune case du 6.3 ne rogne ce qu\'on y écrit',
           m.cases >= 10 && m.serre.length === 0,
           'trop serrées : ' + m.serre.slice(0, 4).join(' | '));
-        verifier('les cases du 6.3 n\'ont levé aucune erreur JavaScript',
+        /* UNE ÉTAPE PAR LIGNE, LES « = » ALIGNÉS (demande de Turquet, août
+           2026). Le banc principal tient la structure — aucun « = » hors de
+           la colonne — mais l'ALIGNEMENT est une affaire de pixels : chaque
+           « = » de la chaîne du a) est right-aligné dans sa colonne .sa2-eq,
+           et si l'étiquette « Vₙ₊₁ = » débordait de la largeur réservée, son
+           « = » partirait à droite des autres sans qu'aucune classe ne
+           change. On mesure donc le bord DROIT de chaque .sa2-eq. */
+        const al = await s.page.evaluate(() => {
+          const eqs = [...document.querySelectorAll('#sa2LadderA .sa2-eq')];
+          const droits = eqs.map(e => Math.round(e.getBoundingClientRect().right * 10) / 10);
+          return {
+            n: eqs.length,
+            finissentPar: eqs.every(e => /=\s*$/.test(e.textContent)),
+            droits: droits,
+            ecart: droits.length ? Math.max(...droits) - Math.min(...droits) : 999,
+          };
+        });
+        verifier('la chaîne du a) du 6.3 : un « = » par ligne, tous dans la colonne',
+          al.n === 6 && al.finissentPar,
+          al.n + ' rangée(s) à « = » — chacune doit finir par « = »');
+        verifier('les « = » de la chaîne du a) sont alignés, celui du haut compris',
+          al.ecart <= 1.5,
+          'bords droits : ' + al.droits.join(' / ') + ' (écart ' + Math.round(al.ecart) + ' px)');
+
+                verifier('les cases du 6.3 n\'ont levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
 
         /* LA PHRASE DE LA CORRECTION PORTE LES COULEURS QU'ELLE NOMME.

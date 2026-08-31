@@ -5572,6 +5572,23 @@ function suiteAuxiliaireCompleter(w, P){
     const q=SA._t.mk(0.95,-4000,10000);      /* le cas EXACT de la fiche, épinglé */
     test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
     show('sa2'); renderSA2();
+
+    /* UNE ÉTAPE PAR LIGNE dans la chaîne du a) (demande de Turquet, août
+       2026) : la première rangée empilait deux étapes — « Vₙ₊₁ = U… − k =
+       a·Uₙ + b − k » — quand toutes les suivantes n'en posent qu'une. Le
+       « = » d'une étape vit dans la colonne des « = » (.sa2-eq) et nulle part
+       ailleurs : un « = » qui reviendrait dans le CONTENU d'une rangée
+       recollerait deux étapes sans qu'un contrôle de calcul ne bronche.
+       L'ALIGNEMENT de la colonne, lui, ne se voit qu'au banc navigateur. */
+    const rangsA=[...document.querySelectorAll('#sa2LadderA .sa2-row')];
+    if(rangsA.length!==6) vus.push('la chaîne du a) fait '+rangsA.length+' rangée(s) au lieu de 6 — une étape par ligne');
+    rangsA.forEach(function(r,i){
+      const contenu=[...r.childNodes].filter(function(e){ return !(e.classList&&e.classList.contains('sa2-eq')); })
+        .map(function(e){ return e.textContent||''; }).join('');
+      if(contenu.indexOf('=')>=0)
+        vus.push('rangée '+(i+1)+' du a) : un « = » traîne hors de la colonne des « = » (« '+contenu.trim().slice(0,30)+' ») — deux étapes sur une ligne');
+    });
+
     const att=sa2Attendu(q);
     const poser=function(id,v){ const e=document.getElementById(id); if(!e) return false;
       e.value=v; return true; };

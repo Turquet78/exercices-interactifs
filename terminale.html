@@ -2250,7 +2250,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=271;
+const APP_VERSION=272;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -14429,11 +14429,17 @@ function renderSA2(){
   $('sa2Aux').innerHTML='Soit la suite <b>('+Vn+')</b> définie par&nbsp;: <b>'+Vn+' = '+Un+S(q.k)+'</b>.';
   $('sa2TitreA').innerHTML='Montrer que la suite ('+Vn+') est <b>géométrique de raison '+F(q.a)+'</b>. Compléter&nbsp;:';
 
-  /* a) la chaîne de la fiche */
+  /* a) la chaîne de la fiche — UNE étape par ligne, les « = » alignés
+     (demande de Turquet, août 2026) : la première rangée empilait DEUX
+     étapes — « Vₙ₊₁ = U… − k = a·Uₙ + b − k » — quand toutes les suivantes
+     n'en posent qu'une. Le remplacement de Uₙ₊₁ descend donc sur sa propre
+     ligne, et son « = » tombe dans la colonne des « = » (.sa2-eq), sous
+     celui de la ligne du dessus — la présentation du cahier. */
   const L=$('sa2LadderA');
   L.innerHTML=
     '<div class="sa2-row"><span class="sa2-eq">'+Vn1+' =</span>'
-      +'<span class="sa2-t">'+U+'<sub>'+sa2In('sa2-i1',true)+'</sub>'+S(q.k)+' = </span>'
+      +'<span class="sa2-t">'+U+'<sub>'+sa2In('sa2-i1',true)+'</sub>'+S(q.k)+'</span></div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'
       +sa2In('sa2-a1')+'<span class="sa2-t"> '+Un+' '+'</span>'+sa2In('sa2-b1')
       +'<span class="sa2-t">'+S(q.k)+'</span></div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+sa2In('sa2-a2')

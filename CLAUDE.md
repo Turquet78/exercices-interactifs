@@ -3579,6 +3579,21 @@ RIEN restauré (`execFileSync` bloque la boucle, le signal attend), et la
 mesure suivante partait d'un fichier déjà saboté. Une campagne de sabotage
 restaure depuis une COPIE PROPRE hors dépôt, jamais depuis sa mémoire.
 
+**La chaîne du a) du 6.3 pose UNE étape par ligne, les « = » alignés.**
+Demande de Turquet (août 2026, sur une capture) : la première rangée empilait
+DEUX étapes — « Vₙ₊₁ = U… − k = a·Uₙ + b − k » — quand toutes les suivantes
+n'en posaient qu'une. Le remplacement de Uₙ₊₁ descend sur sa propre ligne, et
+son « = » tombe dans la colonne des « = » (`.sa2-eq`, largeur fixe alignée à
+droite), sous celui de la ligne du dessus — la présentation du cahier, que
+l'échelle portait déjà pour les étapes suivantes.
+Deux bords, chacun chez le banc qui SAIT le voir : le banc principal tient la
+STRUCTURE — six rangées, et aucun « = » hors de la colonne, sans quoi deux
+étapes se recollent sans qu'un contrôle de calcul ne bronche — et le banc
+navigateur mesure l'ALIGNEMENT au pixel, bord droit de chaque `.sa2-eq` :
+une étiquette « Vₙ₊₁ = » qui déborderait de la largeur réservée enverrait son
+« = » à droite des autres sans qu'aucune classe ne change — jsdom reste vert,
+le navigateur nomme l'écart (55 px au sabotage). Éprouvé par deux sabotages.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
