@@ -517,6 +517,58 @@ porte. Treize sabotages en tout, chacun rougissant en nommant son défaut, plus
 deux mutations au banc de la base (la lecture redevenue réservée au professeur,
 et l'élève reçu au droit d'écrire).
 
+**La case où l'élève ÉCRIT ne se colore pas.** Décision de Turquet (août
+2026) : en SOUTIEN, une case ne devient ni rouge ni bleue tant qu'il y écrit.
+Elle attend qu'il la QUITTE — case suivante, clic ailleurs — ou qu'il vérifie.
+Colorée à la frappe, elle déclare fausse une réponse qu'il n'a pas fini
+d'écrire : « 1 » rougit le temps qu'on tape « 12 », et l'élève apprend à se
+méfier d'une couleur qui ment.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE.** Les corrections en direct
+sont des dizaines, réparties dans les trois fichiers, et chacune juge l'écran
+ENTIER sans savoir quelle case porte le curseur : les rebrancher une par une
+aurait laissé dehors celles qu'on ajoutera demain. Le garde SURVEILLE donc la
+case qui a le curseur, lui RETIRE toute couleur qui s'y pose, et la REPOSE
+telle quelle à la sortie — la couleur reposée est celle que la correction avait
+CALCULÉE, donc aucune correction ne tourne deux fois et le verdict ne peut pas
+diverger de celui de la frappe. Le motif existait déjà, dans le moteur de fiche
+de la Terminale (`F.mf` : `focusout` juge, `input` ne re-juge qu'une case déjà
+marquée) — une leçon apprise dans un coin qui n'avait pas gagné les autres,
+encore.
+**Et c'est un OBSERVATEUR, pas une micro-tâche après la frappe.** Le premier jet
+effaçait la couleur juste après l'événement, en supposant que la correction
+avait déjà peint. Beaucoup peignent en effet tout de suite — mais pas toutes :
+certaines passent par un minuteur, et leur couleur arrivait APRÈS le ménage. Le
+banc NAVIGATEUR l'a montré du premier coup sur {image-nombre} (la case restait
+rouge sous les doigts) pendant que jsdom, où la correction d'essai peint
+synchroniquement, passait au vert : **le contrôle jsdom disait vrai sur son
+propre montage et faux sur la page.** On ne suppose plus rien du MOMENT.
+**Trois bords, et n'en tenir qu'un ne tient rien** : une case DÉJÀ jugée quand
+on y entre se re-juge à chaque frappe (sinon l'élève qui corrige son rouge
+devrait cliquer ailleurs pour savoir s'il a réussi) ; la couleur retenue SE
+PÉRIME quand la correction efface sans repeindre — l'élève a vidé sa case —, un
+compteur distinguant cet effacement-là de celui que le garde vient de faire ;
+et la VÉRIFICATION passe outre. Ce dernier a DEUX chemins : un clic sur
+« Vérifier » donne le focus au bouton, donc le garde rend la main de lui-même,
+mais la touche ENTRÉE ne déplace rien — le calcul mental et les opérations
+posées valident ainsi — et le garde y rend la main explicitement ; le mode et
+`test.locked` sont en plus relus À CHAQUE observation, si bien qu'une
+vérification qui verrouille l'écran reprend la main au milieu de la
+surveillance.
+Le garde est le **même texte dans les trois fichiers**, comparé bloc à bloc par
+un contrôle. Les champs mathématiques n'étaient déjà colorés qu'à la sortie
+(la greffe MathLive appelle `dexpLiveCheck` sur `focusout`) : le garde est
+inerte pour eux, et c'est le signe qu'il dit la même chose qu'eux.
+Deux bancs, et ils ne voient pas la même chose. Le PRINCIPAL pose une case
+d'essai et une correction d'essai — il n'ouvre aucun exercice, exprès : le garde
+agit sur le RÉSULTAT de n'importe quelle correction, pas sur son branchement. Le
+NAVIGATEUR, lui, TAPE dans un vrai exercice (déclaré par niveau dans
+`tests/profils.js`, `gardeSaisie`) et exige qu'une couleur ait bien été CALCULÉE
+— sans quoi il resterait vert sur une case que personne ne juge, en parlant
+d'autre chose. Un piège de banc s'y est montré : mesurer avec un `setTimeout`
+laissait tourner les minuteurs des contrôles précédents, l'un d'eux volait le
+focus de la case d'essai, le garde croyait qu'on la quittait — et la mesure
+accusait la page. On avance d'une MICRO-tâche.
+
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
 rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de

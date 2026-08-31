@@ -1595,6 +1595,89 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 septies sexies. la case où l'élève écrit ne se colore pas ===== */
+    /* Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge
+       ni bleue tant que l'élève y écrit. Elle attend qu'il la QUITTE — case
+       suivante, clic ailleurs — ou qu'il vérifie.
+
+       LE CONTRÔLE TAPE POUR DE VRAI, et c'est tout son intérêt. Le banc
+       principal éprouve le garde sur une case d'essai et une correction
+       d'essai ; ici on ouvre un exercice, on clique dans sa case, on frappe au
+       clavier et on lit la couleur — le garde doit tenir contre du vrai code de
+       correction, celui qui repeint l'écran entier à chaque touche.
+
+       DEUX BORDS, et le second empêche le premier d'être creux : la case ne
+       doit rien porter pendant la frappe, MAIS la couleur doit avoir été
+       CALCULÉE (retenue) — sans cette exigence, le contrôle resterait vert sur
+       une case que personne ne juge, en parlant d'autre chose. Puis la touche
+       Tab, qui est le geste « je passe à la suivante », doit la faire paraître. */
+    titre('6 septies sexies. LA CASE OÙ L\'ÉLÈVE ÉCRIT NE SE COLORE PAS');
+    if(!P.gardeSaisie){
+      ignorer('en soutien, la case où l\'élève écrit ne se colore pas',
+        'ce niveau ne déclare pas de case témoin pour le garde de la saisie');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('en soutien, la case où l\'élève écrit ne se colore pas',
+          'connexion impossible — rien à mesurer');
+      } else {
+        const G = P.gardeSaisie;
+        await s.page.evaluate(id => openTest(id), G.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(700);
+        const boite = s.page.locator(G.champ).first();
+        const etat = () => boite.evaluate(el => ({
+          classes: ['ok','bad'].filter(c => el.classList.contains(c)).join(','),
+          retenue: (el.dataset && el.dataset.couleurDifferee) || '',
+          focus: document.activeElement === el,
+        }));
+        let pendant = null, apres = null, rejuge = null, souci = '';
+        try{
+          await boite.waitFor({ timeout: 8000 });
+          await boite.click();
+          await boite.type(G.valeur, { delay: 40 });
+          await s.page.waitForTimeout(120);
+          pendant = await etat();
+          /* Tab : « je passe à la case suivante » — l'un des trois gestes que
+             Turquet a nommés, et le seul qui ne demande pas de savoir où
+             cliquer sans tomber sur une autre case. */
+          await s.page.keyboard.press('Tab');
+          await s.page.waitForTimeout(200);
+          apres = await etat();
+          /* et une case DÉJÀ jugée se re-juge sous les doigts : sans ce bord,
+             l'élève qui corrige son rouge devrait cliquer ailleurs pour savoir
+             s'il a réussi. */
+          await boite.click();
+          await s.page.keyboard.press('Control+a');
+          await s.page.keyboard.type('1', { delay: 40 });
+          await s.page.waitForTimeout(120);
+          rejuge = await etat();
+        }catch(e){ souci = e.message; }
+
+        verifier('la case témoin du garde est bien celle qu\'on croit tenir',
+          !!pendant && pendant.focus === true,
+          souci || 'la case « ' + G.champ + ' » de ' + G.exercice + ' n\'a pas reçu le focus : rien n\'est mesuré');
+        verifier('pendant la frappe, la case ne se colore pas — mais la couleur est calculée',
+          !!pendant && pendant.classes === '' && pendant.retenue !== '',
+          souci || 'classes : « ' + (pendant && pendant.classes) + ' », couleur retenue : « ' +
+                   (pendant && pendant.retenue) + ' » (vide = personne ne juge cette case, le contrôle ne mesure rien)');
+        verifier('en passant à la case suivante, la couleur arrive',
+          !!apres && apres.classes !== '',
+          souci || 'classes après Tab : « ' + (apres && apres.classes) + ' »');
+        verifier('une case déjà jugée se re-juge sous les doigts',
+          !!rejuge && rejuge.classes !== '' && rejuge.focus === true,
+          souci || 'classes en frappant dans une case déjà jugée : « ' + (rejuge && rejuge.classes) + ' »');
+        verifier('le garde de la saisie n\'a levé aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 decies. l'écran d'exercice prend toute la largeur ===== */
     /* Un enchaînement d'égalités se lit d'un trait : « a × b = c = d ». Coupé
        en blocs empilés, il se lit comme des calculs séparés — et c'est une

@@ -2146,7 +2146,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=122;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=123;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -12939,6 +12939,100 @@ async function startItv(){
 /* ---------- Test 5 : multiplier des décimaux (méthode en 4 étapes) ---------- */
 function fracEqual(n,d,N,D){ return !isNaN(n)&&!isNaN(d)&&d!==0 && n*D===N*d; }   // n/d == N/D
 function twoNZ(){ return rand(1,9)*10+rand(1,9); }                                // 11-99, deux chiffres non nuls
+
+/* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============
+   Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge ni
+   bleue tant que l'élève est en train d'y écrire. Elle attend qu'il la QUITTE —
+   case suivante, clic ailleurs — ou qu'il vérifie. Colorée à la frappe, elle
+   déclare fausse une réponse qu'il n'a pas fini d'écrire : « 1 » rougit le temps
+   qu'on tape « 12 », et l'élève apprend à se méfier d'une couleur qui ment.
+
+   UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE. Les corrections en direct
+   sont des dizaines, réparties dans les trois fichiers, et chacune juge l'écran
+   ENTIER sans savoir quelle case porte le curseur : les rebrancher une par une
+   aurait laissé dehors celles qu'on ajoutera demain. On SURVEILLE donc la case
+   qui a le curseur, on lui RETIRE toute couleur qui s'y pose, et on la REPOSE
+   telle quelle quand l'élève la quitte. Un exercice neuf est couvert le jour où
+   il naît, sans rien déclarer.
+
+   ET C'EST UN OBSERVATEUR, PAS UNE MICRO-TÂCHE APRÈS LA FRAPPE. Le premier jet
+   effaçait la couleur juste après l'événement, en supposant que la correction
+   avait déjà peint. Beaucoup peignent en effet tout de suite — mais pas toutes :
+   certaines passent par un minuteur, et leur couleur arrivait APRÈS le ménage.
+   Le banc navigateur l'a montré du premier coup, sur {image-nombre} : la case
+   restait rouge sous les doigts alors que jsdom, lui, passait au vert. On ne
+   suppose donc plus rien du MOMENT : on regarde la case, et toute couleur qui
+   s'y pose est retirée, d'où qu'elle vienne et quand qu'elle vienne.
+
+   La couleur reposée est celle que la correction avait CALCULÉE : rien n'est
+   rejugé à la sortie, donc aucune correction ne tourne deux fois et le verdict
+   ne peut pas diverger de celui de la frappe.
+
+   TROIS BORDS, et n'en tenir qu'un ne tient rien :
+   — une case DÉJÀ jugée quand on y entre se re-juge à chaque frappe : on ne la
+     surveille pas. Sans ce bord, l'élève qui corrige sa case rouge devrait
+     cliquer ailleurs pour savoir s'il a réussi ;
+   — la couleur retenue SE PÉRIME : quand la correction efface sans repeindre —
+     l'élève a vidé sa case — la retenue s'en va, sinon on reposerait en sortant
+     un verdict qui ne correspond plus à ce qui est écrit. Le compteur distingue
+     l'effacement de la CORRECTION de celui que le garde vient de faire ;
+   — la VÉRIFICATION passe outre. Elle repeint une case qui n'a plus le curseur,
+     ou une case verrouillée : dans les deux cas le garde ne surveille plus, et
+     « Vérifier » colore même la case qu'on n'a pas quittée.
+
+   Les champs mathématiques n'étaient déjà colorés qu'à la sortie (la greffe
+   MathLive appelle dexpLiveCheck sur « focusout ») : le garde est inerte pour
+   eux, et c'est le signe qu'il dit la même chose qu'eux. */
+function caseQuiSeColore(el){
+  return !!el && (el.tagName==='INPUT' || el.tagName==='MATH-FIELD')
+      && !!el.closest && !!el.closest('.screen.on');
+}
+function verdictDe(el){
+  return el.classList.contains('ok') ? 'ok' : el.classList.contains('bad') ? 'bad' : '';
+}
+let gardeCase=null, gardeObs=null, gardeMoi=0;
+function gardeArret(){
+  if(gardeObs){ gardeObs.disconnect(); gardeObs=null; }
+  gardeCase=null; gardeMoi=0;
+}
+function gardeSurveiller(el){
+  gardeArret(); gardeCase=el; delete el.dataset.couleurDifferee;
+  gardeObs=new MutationObserver(function(){
+    if(gardeCase!==el) return;
+    /* le mode et le verrou sont relus À CHAQUE fois : une VÉRIFICATION qui
+       verrouille l'écran rend la main au milieu de la surveillance, et sa
+       couleur reste. */
+    if(!isSoutien() || test.locked || el.classList.contains('sol')){ gardeArret(); return; }
+    const v=verdictDe(el);
+    if(v){ el.dataset.couleurDifferee=v; gardeMoi++; el.classList.remove('ok','bad'); }
+    else if(gardeMoi>0){ gardeMoi--; }              /* c'est nous qui venons d'effacer */
+    else { delete el.dataset.couleurDifferee; }     /* la correction a effacé : la retenue se périme */
+  });
+  gardeObs.observe(el,{attributes:true, attributeFilter:['class']});
+}
+function gardeRendreLaMain(el){
+  if(!el || el!==gardeCase) return;
+  gardeArret();
+  const differee=el.dataset && el.dataset.couleurDifferee;
+  if(el.dataset) delete el.dataset.couleurDifferee;
+  if(!differee || !isSoutien() || test.locked || verdictDe(el) || el.classList.contains('sol')) return;
+  el.classList.add(differee);
+}
+document.addEventListener('focusin', function(e){
+  const el=e.target;
+  if(!isSoutien() || test.locked || !caseQuiSeColore(el)
+     || el.classList.contains('sol') || verdictDe(el)){ gardeArret(); return; }
+  gardeSurveiller(el);
+}, true);
+document.addEventListener('focusout', function(e){ gardeRendreLaMain(e.target); }, true);
+/* ENTRÉE VALIDE SANS QUITTER LA CASE — le calcul mental et les opérations
+   posées le font depuis toujours. Un clic sur « Vérifier » donne le focus au
+   bouton, donc le garde rend la main de lui-même ; la touche Entrée, elle, ne
+   déplace rien. Sans cette ligne, la couleur de la vérification serait retirée
+   au moment précis où l'élève la demande. */
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter') gardeRendreLaMain(gardeCase);
+}, true);
 
 /* enregistrement différé du travail en cours (entraînement & soutien) : protège même en cas de fermeture/plantage */
 let _draftSaveTimer=null;
