@@ -508,7 +508,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig{padding-bottom:84px}
+  #scr-lv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -811,6 +811,34 @@
   @media(max-width:520px){ .ing-cartes{grid-template-columns:1fr} }
   .ing-niv{stroke:#7EB6E8;stroke-width:3;fill:none}
   .ing-rouge{stroke:#E5232B;stroke-width:4;fill:none;stroke-linecap:round}
+  /* {tableau-signes-graphique} : la partie AU-DESSUS de l'axe en rouge (f>0),
+     EN DESSOUS en bleu (f<0) — même épaisseur, aucune moitié ne domine l'autre */
+  .tsg-pos{stroke:#E5232B;stroke-width:4;fill:none;stroke-linecap:round}
+  .tsg-neg{stroke:var(--blue);stroke-width:4;fill:none;stroke-linecap:round}
+  /* les mots « rouge » et « bleu » de l'énoncé portent LEUR encre : la règle
+     « .mp-instr b » peint tous les gras en rouge, et « bleu » écrit en rouge
+     dirait l'inverse de ce que l'exercice enseigne */
+  .tsg-mot-rouge{color:#E5232B;font-weight:800}
+  .tsg-mot-bleu{color:var(--blue);font-weight:800}
+  /* « width:100% » et non la seule max-width : dans une colonne flex, un
+     enfant prend sa largeur INTRINSÈQUE — le dessin restait à 300 px, la
+     leçon d'align-self:stretch du 1.6, retombée telle quelle */
+  .tsg-graph{width:100%;max-width:620px;margin:0 auto 14px}
+  .tsg-graph .lv-svg{max-width:600px}
+  /* le tableau de signes « comme en Terminale » : traits horizontaux, trait
+     vertical aux seules racines (le 0 posé dessus), bornes ±∞ ouvertes */
+  .tsg-corps{flex-direction:column;align-items:flex-start}
+  .tsg-tbl{width:100%;max-width:560px;border-collapse:collapse;table-layout:fixed;background:var(--surface);margin-top:6px}
+  .tsg-tbl td{border:none;border-bottom:1.6px solid var(--grid);padding:10px 5px;text-align:center;vertical-align:middle;font-size:.95rem}
+  .tsg-tbl tr:first-child td{border-top:1.6px solid var(--grid)}
+  .tsg-tbl td.lab{text-align:right;font-weight:700;color:var(--ink);background:var(--paper);white-space:nowrap;width:27%;font-size:.9rem;border-right:1.6px solid var(--grid)}
+  .tsg-tbl td.bnd{font-weight:700;color:var(--ink-soft)}
+  .tsg-tbl td.tsg-bl{text-align:left}
+  .tsg-tbl td.tsg-br{text-align:right}
+  .tsg-tbl td.tsg-root{font-weight:800;color:var(--ink)}
+  .tsg-tbl td.tsg-zero{font-weight:800;color:var(--ink);background:linear-gradient(var(--ink-soft),var(--ink-soft)) center/2px 100% no-repeat}
+  .tsg-tbl td.tsg-zero span{display:inline-block;background:var(--surface);padding:2px 7px}
+  .tsg-tbl .itv-sel{width:64px;min-width:64px}
   .ing-pt{fill:#E5232B}
   .ing-vide{fill:#fff;stroke:#E5232B;stroke-width:2.5}
   /* « le prendre / pas le prendre » ne tient pas dans 92 px */
@@ -822,6 +850,10 @@
   #scr-eqg .itv-ligne{max-width:1160px}
   #scr-ifg .itv-ligne{max-width:1160px}
   #scr-eig .itv-ligne{max-width:1160px}
+  /* l'union à huit cases (« S = [ −3 ; −2 [ ∪ ] 2 ; 3 ] ») ne tient pas dans
+     la colonne de 560 px des intervalles : elle s'y repliait en deux lignes,
+     et une solution coupée en deux se lit comme deux solutions */
+  #scr-tsg .itv-ligne{max-width:1160px}
   /* ---- Construire une fonction : la grille cliquable ---- */
   #scr-cfx{padding-bottom:84px}
   /* Le fond est OPAQUE (signalé par Turquet, août 2026) : le quadrillage
@@ -1639,6 +1671,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-tsg">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagTsg"></span><span class="q-idx" id="tsgIdx">Question 1 / 5</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="tsgLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Sur le dessin, la partie de la courbe <span class="tsg-mot-rouge">au-dessus</span> de l&rsquo;axe des abscisses est en <span class="tsg-mot-rouge">rouge</span>, la partie <span class="tsg-mot-bleu">en dessous</span> en <span class="tsg-mot-bleu">bleu</span>. Compl&egrave;te les phrases, le tableau de signes, puis les trois solutions.</p>
+      <p class="ens-note">Dans le tableau, les racines et les z&eacute;ros sont d&eacute;j&agrave; &eacute;crits : tu ne places que les <b>signes</b>.</p>
+      <div class="mp-stage"><div style="width:100%" id="tsgHost"></div></div>
+      <div class="mp-feedback" id="tsgFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="tsgActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkTsgAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-results">
     <div class="card">
       <div class="result-head"><h2 id="resultMsg">Bravo !</h2><p id="resultSub"></p></div>
@@ -2146,7 +2194,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=124;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=125;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2645,6 +2693,7 @@ const TESTS={
   'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
   'construire-fonction': { name:'Construire une fonction', icon:'✏️', desc:'Le chemin INVERSE de toute la lecture graphique : on te donne les consignes — une valeur, une image, un antécédent, f\u2009(x)\u2009=\u20090 et une inéquation — et c\u2019est toi qui traces une courbe qui les respecte, point par point.', start:()=>startCfx() },
   'resolutions-graphiques': { name:'Résolutions graphiques', icon:'🧭', desc:'Une courbe, une droite horizontale, quatre dessins proposés : pour chaque équation ou inéquation, choisis le dessin qui la montre, puis écris la solution — S = { … } avec des accolades, ou un intervalle comme dans {inequation-graphique}.', start:()=>startEig() },
+  'tableau-signes-graphique': { name:'Tableau de signes', icon:'±', desc:'Une courbe du style de {resolutions-graphiques}, coloriée : la partie au-dessus de l’axe en ROUGE (f (x) > 0), en dessous en BLEU (f (x) < 0). Complète les phrases couleur/signe, place les signes dans le tableau — les racines et les zéros sont donnés, comme en Terminale — puis résous f (x) = 0, f (x) > 0 et f (x) < 0.', start:()=>startTsg() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -2695,7 +2744,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2756,6 +2805,7 @@ function liveCheckCurrent(){
   else if(k==='cfx') cfxLive();
   else if(k==='ifg') checkIfgAnswer(true);
   else if(k==='eig') checkEigAnswer(true);
+  else if(k==='tsg') checkTsgAnswer(true);
   else if(k==='app') checkAppAnswer(true);
   else if(k==='sf') checkSFAnswer(true);
   else if(k==='plc') checkPlcAnswer(true);
@@ -3274,6 +3324,7 @@ function conseilPaire(){
   else if(test.kind==='cfx' && q) b=ctxCfx(q);
   else if(test.kind==='ifg' && q) b=ctxIfg(q);
   else if(test.kind==='eig' && q) b=ctxEig(q);
+  else if(test.kind==='tsg' && q) b=ctxTsg(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
@@ -3507,6 +3558,7 @@ const QIA_SUGG={
   eqg:["Comment lire g\u2009(x) quand g est une droite ?","Quelle diff\u00e9rence entre r\u00e9soudre f\u2009(x) = 2 et lire f\u2009(2) ?","O\u00f9 se lisent les solutions de f\u2009(x) = g\u2009(x) ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
   ifg:["C\u2019est quoi, le domaine de d\u00e9finition d\u2019une fonction ?","Comment lire une image quand il y a DEUX courbes ?","Pourquoi f\u2009(x) > g\u2009(x) ne se regarde que l\u00e0 o\u00f9 les deux courbes existent ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
   eig:["Quelle différence entre résoudre f (x) = 2 et f (x) ≥ 2 ?","Pourquoi S s’écrit avec des accolades pour une équation et des crochets pour une inéquation ?","Comment savoir combien de points doit montrer le bon dessin ?","Le signe ≥ donne quel crochet ?"],
+  tsg:["Pourquoi écrit-on 0 dans le tableau sous une racine, et pas un signe ?","Pourquoi les racines sont-elles EXCLUES de S quand on résout f (x) > 0 ?","Comment lire le signe de f (x) sur le dessin ?","Pourquoi S s’écrit avec des accolades pour f (x) = 0 et des crochets pour f (x) > 0 ?"],
   cfx:["Comment placer un point pour respecter f ( −2 ) = 3 ?","Que veut dire « l’antécédent de −4 est 3 » pour mon tracé ?","Pourquoi ma courbe ne doit-elle pas recouper l’axe ailleurs que sur S ?","Comment respecter une inéquation dont la solution est un intervalle ?"],
   ing:["Comment savoir si je prends le dessin du dessus ou du dessous ?","Le signe \u2265 donne quel crochet ?","Pourquoi les bouts de la courbe sont-ils toujours pris ?","Comment écrire la solution quand il y a deux morceaux rouges ?"],
   app:["Comment savoir si un nombre est dans un intervalle ?","La borne fait-elle partie de l’intervalle ?","Comment comparer 2,09 et 2,1 ?","Combien vaut √15 à peu près ?"],
@@ -3844,6 +3896,12 @@ const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
 • <b>Un antécédent</b> se trouve avec la ligne de niveau — un trait horizontal à la hauteur donnée : chaque croisement avec la courbe donne un antécédent, comme dans {antecedent-nombre}. La même hauteur peut avoir UN antécédent par f et PLUSIEURS par g.<br>
 • <b>Résoudre f\u2009(x) = g\u2009(x)</b> : chercher les x où les deux courbes se CROISENT — mais seulement là où les deux existent.<br>
 • <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Les bouts de S sont les bouts du domaine COMMUN, et ils sont toujours pris ; les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
+const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
+• <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
+• <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
+• <b>Résoudre f (x) = 0</b> : les solutions sont les racines. On écrit S = { −2 ; 1 } avec des ACCOLADES : ce sont quelques nombres, pas un intervalle.<br>
+• <b>Résoudre f (x) &gt; 0 ou f (x) &lt; 0</b> : la solution s'écrit en INTERVALLE, lue dans le tableau. L'inégalité est STRICTE, donc les racines sont EXCLUES — crochet ouvert. Les bouts du dessin (−3 et 3) sont toujours pris.<br>
+• Deux morceaux du même signe s'écrivent avec le symbole ∪ : par exemple S = [−3 ; −2[ ∪ ]1 ; 3].`;
 const RAP_EIG=`<b>Résoudre graphiquement, avec la droite y = k</b><br>
 • <b>Résoudre f (x) = k</b> : on trace la droite horizontale y = k et on cherche TOUS les points où la courbe la croise. Les solutions sont les ABSCISSES de ces points, lues en descendant sur l'axe horizontal — comme dans {antecedent-nombre}. On écrit S = { −2 ; 1 } avec des ACCOLADES : ce sont quelques nombres, pas un intervalle.<br>
 • <b>Le bon dessin d'une équation</b> montre la ligne à la BONNE hauteur, avec un point à CHAQUE croisement — ni point oublié, ni point en trop, ni l'autre hauteur.<br>
@@ -3861,7 +3919,7 @@ C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un g
 • <b>f (x) = 0 avec S = { … }</b> : la courbe coupe l’axe des abscisses exactement en ces points — pas un de moins, pas un de plus.<br>
 • <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles, et elle TOUCHE la hauteur k à chaque bord.<br><br>
 Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -3970,7 +4028,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','construire-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4328,7 +4386,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4452,7 +4510,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','cfx'];
+  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -4488,7 +4546,7 @@ function show(name){
   }
   $('testCtrls').hidden=!surExercice;
   const pill=$('userPill');
-  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='ing'||name==='eqg'||name==='ifg'||name==='eig'||name==='cfx'||name==='app'||name==='sf'||name==='sfl'||name==='plc'||name==='results') && currentEleve){
+  if((name==='space'||name==='choose'||name==='mode'||name==='lv'||name==='test'||name==='mtest'||name==='ftest'||name==='ptest'||name==='mdtest'||name==='utest'||name==='atest'||name==='dtest'||name==='ens'||name==='def'||name==='pge'||name==='itv'||name==='itq'||name==='ing'||name==='eqg'||name==='ifg'||name==='eig'||name==='tsg'||name==='cfx'||name==='app'||name==='sf'||name==='sfl'||name==='plc'||name==='results') && currentEleve){
     pill.hidden=false;
     pill.innerHTML=`${esc(currentEleve.prenom)} <button onclick="logout()">Se déconnecter</button>`;
   }else if(name==='teacher'){
@@ -8098,6 +8156,226 @@ function ctxEig(q){
   if(eigEstEq(q)) quoi='résoudre graphiquement f (x) = '+K+' : choisir parmi quatre dessins celui qui montre la droite y = '+K+' avec un point à CHAQUE croisement (ni oubli, ni point en trop, ni l’autre hauteur), puis lire les abscisses et écrire S = '+eigPlain(q);
   else quoi='résoudre graphiquement f (x) '+ING_SIGNE[eigOp(q)]+' '+K+' : choisir le dessin dont la partie rouge correspond, dire où elle commence et s’arrête, puis écrire S = '+eigPlain(q);
   let c='L’élève a sous les yeux une courbe et quatre dessins proposés, et doit '+quoi+'.';
+  if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
+  return {nombre:'', contexte:c};
+}
+
+/* ================= Exercice Seconde : Tableau de signes (kind 'tsg') =================
+   Demande de Turquet (août 2026) : une courbe du style de {resolutions-graphiques},
+   la partie AU-DESSUS de l'axe en ROUGE (f(x) > 0), la partie EN DESSOUS en BLEU
+   (f(x) < 0). L'élève complète les deux phrases couleur/signe, puis le tableau de
+   signes « comme en Terminale » — SEULS les signes se placent, les racines et les
+   zéros sont donnés —, puis résout f(x) = 0 (S = { … ; … }, la règle des paires),
+   f(x) > 0 et f(x) < 0 (crochets OUVERTS aux racines — inégalités strictes —,
+   bords −3 et 3 toujours pris). Cinq questions, chacune son tirage, et les DEUX
+   visages (+ − + et − + −) sortent dans la séance.
+   La bonne réponse n'est jamais rangée à côté de la question : la question ne
+   porte que la courbe (pts), et tout se recalcule par les fonctions qui corrigent. */
+const TSG_NB=5;
+function tsgSols(pts){ const out=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===0) out.push(x); } return out; }
+/* Le tirage garde une courbe où le signe se LIT : exactement deux racines,
+   strictement intérieures, chacune un vrai CROISEMENT (les voisins de part et
+   d'autre de zéro — exclut la tangence ET les racines voisines, le palier du
+   2.5), et zéro jamais traversé entre deux graduations (la spline est monotone
+   entre deux points voisins : une traversée hors graduation serait illisible). */
+function tsgOkPts(pts){
+  for(let i=0;i<6;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(0>lo&&0<hi) return false; }
+  const so=tsgSols(pts);
+  if(so.length!==2||so[0]<=-3||so[1]>=3) return false;
+  return so.every(function(x){ return pts[x+2]*pts[x+4]<0; });
+}
+function tsgGen(){
+  for(let att=0;att<800;att++){
+    const pts=lvGenPts(pick([2,3])).pts;
+    if(tsgOkPts(pts)) return {pts:pts};
+  }
+  /* repli RÉEL, relevé sur le générateur (sonde, août 2026 : 12,7 % des
+     tirages bruts passent le filtre — à 800 essais le repli ne sert à peu
+     près jamais) ; il passe par tsgOkPts comme les autres */
+  return {pts:[3,2,0,-1,-3,0,1]};
+}
+/* Le signe du MILIEU, lu sur une graduation intérieure entre les deux racines. */
+function tsgSide(q){
+  const so=tsgSols(q.pts);
+  for(let x=so[0]+1;x<so[1];x++){ if(q.pts[x+3]!==0) return q.pts[x+3]>0?1:-1; }
+  return 1;
+}
+/* Les DEUX visages dans chaque séance : au moins un milieu positif et un
+   négatif — sans quoi l'élève apprendrait que le tableau est toujours le même. */
+function tsgBuildQuestions(){
+  const out=[]; for(let i=0;i<TSG_NB;i++) out.push(tsgGen());
+  for(let att=0;att<200;att++){
+    const sides=out.map(function(q){ return tsgSide(q); });
+    if(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0) break;
+    out[att%TSG_NB]=tsgGen();
+  }
+  return out;
+}
+/* La liste des cases et leur bonne réponse CANONIQUE (le jugement passe par
+   tsgJuge, où S = { … ; … } est à ordre libre et l'union jugée au mieux). */
+function tsgCases(q){
+  const so=tsgSols(q.pts), x1=so[0], x2=so[1], s=tsgSide(q);
+  const mid=s>0?'+':'-', dehors=s>0?'-':'+';
+  const simple=function(p){ return [{id:p+'co1',bon:']'},{id:p+'b1',bon:String(x1)},{id:p+'b2',bon:String(x2)},{id:p+'cf1',bon:'['}]; };
+  const union=function(p){ return [
+    {id:p+'co1',bon:'['},{id:p+'b1',bon:'-3'},{id:p+'b2',bon:String(x1)},{id:p+'cf1',bon:'['},
+    {id:p+'co2',bon:']'},{id:p+'b3',bon:String(x2)},{id:p+'b4',bon:'3'},{id:p+'cf2',bon:']'}]; };
+  return [
+    {id:'tsg-c1',bon:'rouge'},{id:'tsg-g1',bon:'+'},
+    {id:'tsg-c2',bon:'bleu'},{id:'tsg-g2',bon:'-'},
+    {id:'tsg-t0',bon:dehors},{id:'tsg-t1',bon:mid},{id:'tsg-t2',bon:dehors},
+    {id:'tsg-e0',bon:String(x1)},{id:'tsg-e1',bon:String(x2)}
+  ].concat(s>0?simple('tsg-p-'):union('tsg-p-'))
+   .concat(s>0?union('tsg-n-'):simple('tsg-n-'));
+}
+function tsgJuge(q){
+  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  const so=tsgSols(q.pts), x1=so[0], x2=so[1], s=tsgSide(q);
+  const mid=s>0?'+':'-', dehors=s>0?'-':'+';
+  const groupe=function(ids,spec){ return ids.map(function(id,i){ return {id:id, val:spec[i], ok:lire(id)===spec[i]}; }); };
+  const nOk=function(l){ return l.filter(function(x){ return x.ok; }).length; };
+  let subs=groupe(['tsg-c1','tsg-g1','tsg-c2','tsg-g2'], ['rouge','+','bleu','-']);
+  subs=subs.concat(groupe(['tsg-t0','tsg-t1','tsg-t2'], [dehors,mid,dehors]));
+  /* S = { x1 ; x2 } : ordre libre, le même nombre posé deux fois est défendable
+     une fois, faux la seconde — la règle des paires. */
+  const left=[String(x1),String(x2)], rows=[];
+  for(let i=0;i<2;i++){ const v=lire('tsg-e'+i); const j=(v!=='')?left.indexOf(v):-1;
+    rows.push({id:'tsg-e'+i, v:v, ok:j>=0}); if(j>=0) left.splice(j,1); }
+  subs=subs.concat(rows.map(function(r){ return {id:r.id, val:(r.ok? r.v : left.shift()), ok:r.ok}; }));
+  /* Les inégalités sont STRICTES : crochets ouverts aux racines ; les bords du
+     domaine (−3 et 3), où f n'est pas nulle, sont toujours pris. */
+  const specSimple=[']',String(x1),String(x2),'['];
+  const specU1=['[','-3',String(x1),'['], specU2=[']',String(x2),'3',']'];
+  const pS=(s>0)?'tsg-p-':'tsg-n-', pU=(s>0)?'tsg-n-':'tsg-p-';
+  subs=subs.concat(groupe([pS+'co1',pS+'b1',pS+'b2',pS+'cf1'], specSimple));
+  /* l'ordre des deux intervalles de l'union est LIBRE — jugés au MIEUX, le motif du 2.7 */
+  const g1=[pU+'co1',pU+'b1',pU+'b2',pU+'cf1'], g2=[pU+'co2',pU+'b3',pU+'b4',pU+'cf2'];
+  const ab=groupe(g1,specU1).concat(groupe(g2,specU2));
+  const ba=groupe(g1,specU2).concat(groupe(g2,specU1));
+  subs=subs.concat(nOk(ba)>nOk(ab)?ba:ab);
+  const nCorrect=nOk(subs);
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+function tsgPlain(q,quoi){
+  const so=tsgSols(q.pts), X1=itvNum(so[0]), X2=itvNum(so[1]), s=tsgSide(q);
+  if(quoi==='eq') return '{ '+X1+' ; '+X2+' }';
+  const milieu=']'+X1+' ; '+X2+'[', bouts='[−3 ; '+X1+'[ ∪ ]'+X2+' ; 3]';
+  if(quoi==='pos') return s>0?milieu:bouts;
+  return s>0?bouts:milieu;
+}
+function tsgWhy(q){
+  const so=tsgSols(q.pts), X1=itvNum(so[0]), X2=itvNum(so[1]);
+  return 'La partie ROUGE est au-dessus de l’axe : là, f(x) > 0, signe +. La partie BLEUE est en dessous : f(x) < 0, signe −.'
+    +' Le tableau se lit sur le dessin, morceau par morceau, et un 0 s’écrit sous chaque racine.'
+    +' f(x) = 0 aux racines : S = { '+X1+' ; '+X2+' }.'
+    +' Pour f(x) > 0 et f(x) < 0, les inégalités sont STRICTES : les racines sont EXCLUES (crochet ouvert) ; les bouts de la courbe (−3 et 3) sont pris.'
+    +' Donc S = '+tsgPlain(q,'pos')+' pour f(x) > 0, et S = '+tsgPlain(q,'neg')+' pour f(x) < 0.';
+}
+let _tsgSaveTimer=null;
+function renderTsgTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tsgIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagTsg').innerHTML=modeTagHTML();
+  $('tsgLiveScore').textContent=test.score;
+  $('tsgFeedback').textContent=''; $('tsgFeedback').className='mp-feedback';
+  $('tsgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkTsgAnswer()">Vérifier</button>';
+  const so=tsgSols(q.pts), x1=so[0], x2=so[1], s=tsgSide(q);
+  /* chaque morceau de la courbe porte la couleur de son SIGNE — rouge au-dessus
+     de l'axe, bleu en dessous — par-dessus le tracé de lvGraphSVG (lvPath par
+     morceaux : les tangentes restent celles de la courbe entière) */
+  const extra=function(sx,sy){
+    const m=function(ia,ib,pos){ return '<path class="'+(pos?'tsg-pos':'tsg-neg')+'" d="'+lvPath(q.pts,sx,sy,ia,ib)+'"/>'; };
+    return m(0,x1+3,s<0)+m(x1+3,x2+3,s>0)+m(x2+3,6,s<0);
+  };
+  const optN=[]; for(let v=-3;v<=3;v++) optN.push([String(v),itvNum(v)]);
+  const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };
+  const selC=function(id,aria){ return itvSelHTML(id,[['rouge','rouge'],['bleu','bleu']],aria,'xl'); };
+  const selS=function(id,aria){ return itvSelHTML(id,[['+','+'],['-','−']],aria); };
+  const phrase=function(lbl,op,idC,idG){ return '<div class="itv-ligne"><span class="itv-lbl">'+lbl+'</span><span class="itv-corps">'
+    +'<span class="itv-fixe"><i>f</i> (<i>x</i>) '+op+' 0 est représentée par la couleur</span>'+selC(idC,'Couleur de la partie f(x) '+op+' 0')
+    +'<span class="itv-fixe">et représente le signe</span>'+selS(idG,'Signe de la partie f(x) '+op+' 0')
+    +'<span class="itv-fixe">.</span></span></div>'; };
+  const table='<table class="tsg-tbl"><tbody>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+itvNum(x1)+'</td><td></td><td class="tsg-root">'+itvNum(x2)+'</td><td class="bnd tsg-br">+∞</td></tr>'
+    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('tsg-t0','Signe avant '+itvNum(x1))+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsg-t1','Signe entre les deux racines')+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsg-t2','Signe après '+itvNum(x2))+'</td></tr>'
+    +'</tbody></table>';
+  const inter=function(co,b1,b2,cf){ return itvSelHTML(co,ITV_OPT_CROCHET,'Crochet ouvrant')+selN(b1,'Borne de gauche')
+    +'<span class="itv-fixe">;</span>'+selN(b2,'Borne de droite')+itvSelHTML(cf,ITV_OPT_CROCHET,'Crochet fermant'); };
+  const ligneIneq=function(lbl,op,pfx,unio){
+    let sol='<div class="itv-ligne"><span class="itv-lbl">'+lbl+'</span><span class="itv-corps">'
+      +'<span class="itv-fixe"><i>f</i> (<i>x</i>) '+op+' 0 : S =</span>'+inter(pfx+'co1',pfx+'b1',pfx+'b2',pfx+'cf1');
+    if(unio) sol+='<span class="itv-fixe">∪</span>'+inter(pfx+'co2',pfx+'b3',pfx+'b4',pfx+'cf2');
+    return sol+'</span></div>';
+  };
+  $('tsgHost').innerHTML='<div class="itv-fiche">'
+    +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
+    /* le dessin est SEUL et sert de support de LECTURE : il vit dans le cadre
+       de {lecture-variations} (.lv-graph), jamais dans la grille à quatre
+       colonnes des propositions — qui le réduirait au quart de la largeur, et
+       l'élève doit y lire les racines sur les graduations. Le cadre porte un
+       fond opaque : le quadrillage décoratif de la page ne doit pas se
+       superposer au quadrillage du dessin (la leçon de {construire-fonction}). */
+    +'<div class="lv-graph tsg-graph">'+lvGraphSVG(q.pts, extra)+'</div>'
+    +phrase('Phrases','&gt;','tsg-c1','tsg-g1')
+    +phrase('','&lt;','tsg-c2','tsg-g2')
+    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps">'
+    +'<span class="itv-fixe">Place les signes — les racines et les zéros sont déjà écrits.</span>'+table+'</span></div>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Équation</span><span class="itv-corps">'
+    +'<span class="itv-fixe"><i>f</i> (<i>x</i>) = 0 : S = {</span>'+selN('tsg-e0','Première solution')
+    +'<span class="itv-fixe">;</span>'+selN('tsg-e1','Seconde solution')+'<span class="itv-fixe">} , dans l’ordre que tu veux.</span></span></div>'
+    +ligneIneq('Inéquation','&gt;','tsg-p-',s<0)
+    +ligneIneq('','&lt;','tsg-n-',s>0)
+    +'</div>';
+  tsgCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.addEventListener('change',function(){ if(isSoutien()) tsgLive(); clearTimeout(_tsgSaveTimer); _tsgSaveTimer=setTimeout(autoSave,1000); });
+  });
+}
+/* Mode soutien : chaque case au fil du choix — la case vide ne reçoit RIEN. */
+function tsgLive(){
+  if(test.kind!=='tsg' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  tsgJuge(q).subs.forEach(function(s){ const sel=$(s.id); if(!sel) return;
+    sel.classList.remove('ok','bad');
+    if(sel.value==='') return;
+    sel.classList.add(s.ok?'ok':'bad');
+  });
+}
+function checkTsgAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ tsgLive(); return; }
+  const res=tsgJuge(q);
+  res.subs.forEach(function(s){ const el=$(s.id); s.vide=!el||String(el.value==null?'':el.value).trim()===''; corrChoix(el, s.val, s.ok); });
+  if(!res.allOk && isSoutien()){ soutienAgain('tsgFeedback','tsgActions','checkTsgAnswer','tsgHost'); return; }
+  test.locked=true;
+  test.score+=res.nCorrect; $('tsgLiveScore').textContent=test.score;
+  if(res.allOk){ $('tsgFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('tsgFeedback').className='mp-feedback good'; }
+  else { $('tsgFeedback').textContent=msgAvecVides(res.subs, tsgWhy(q)); $('tsgFeedback').className='mp-feedback bad'; }
+  const answer=tsgCases(q).map(function(c){ return c.bon; }).join(' ');
+  const given=res.subs.map(function(s){ const el=$(s.id); return el?String(el.value):''; }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Tableau de signes → S = '+tsgPlain(q,'eq')+' — '+res.nCorrect+'/'+res.subs.length+' justes', answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('tsgActions').innerHTML='<button class="btn btn-primary" id="tsgNext" onclick="nextTsgQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('tsgNext'); if(nb) nb.focus();
+}
+function nextTsgQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTsgTest(); autoSave(); } else finishTest(); }
+async function startTsg(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=tsgBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'tsg', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(s,q){ return s+tsgCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('tsg'); renderTsgTest();
+}
+function ctxTsg(q){
+  const res=tsgJuge(q);
+  const faux=res.subs.filter(function(s){ const el=$(s.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !s.ok; }).length;
+  let c='L’élève a sous les yeux une courbe dont la partie au-dessus de l’axe des abscisses est ROUGE (f(x) > 0) et la partie en dessous BLEUE (f(x) < 0).'
+    +' Il doit compléter deux phrases couleur/signe, placer les signes dans un tableau de signes dont les racines et les zéros sont donnés,'
+    +' puis résoudre f(x) = 0 (S = '+tsgPlain(q,'eq')+'), f(x) > 0 (S = '+tsgPlain(q,'pos')+') et f(x) < 0 (S = '+tsgPlain(q,'neg')+') — inégalités strictes : racines exclues, bords −3 et 3 pris.';
   if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
   return {nombre:'', contexte:c};
 }

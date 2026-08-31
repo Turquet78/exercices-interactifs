@@ -1177,6 +1177,65 @@ case vide rougie, la bonne carte qui ne se montre plus, le soutien qui peint
 le vide — chacun rougit en nommant son défaut, sauf celui du garde-fou mort,
 dont le vert disait vrai.
 
+**Le tableau de signes se lit sur une courbe à deux encres.**
+{tableau-signes-graphique} (Seconde, 2.8, demande de Turquet, août 2026) : une
+courbe du style de {resolutions-graphiques}, la partie AU-DESSUS de l'axe en
+ROUGE (f(x) > 0), EN DESSOUS en BLEU (f(x) < 0). L'élève complète les deux
+phrases couleur/signe, place les signes dans un tableau « comme en
+Terminale » — SEULS les signes se placent, les racines et les zéros sont
+donnés — puis résout f(x) = 0 (S = { … ; … }), f(x) > 0 et f(x) < 0. Cinq
+questions, chacune son tirage.
+**Tout est repris, rien n'est recopié** : la courbe est celle de
+{lecture-variations} (`lvGraphSVG`, `lvPath` par morceaux — les deux encres
+sont deux morceaux posés par-dessus, à la même épaisseur, découpés aux
+racines) ; le filtre du tirage est celui du 2.7 posé à la hauteur zéro
+(exactement deux racines intérieures, chacune un vrai CROISEMENT — la
+tangence et les racines voisines mentiraient —, zéro jamais traversé entre
+deux graduations) ; les cases sont les sélecteurs de la famille `.itv-sel`
+(`corrChoix`, `msgAvecVides`), S = { ; } suit la règle des paires, et l'union
+de l'inéquation est jugée au MIEUX, ses deux intervalles à ordre libre.
+**Les inégalités sont STRICTES, et les crochets le disent** : les racines
+sont EXCLUES (crochet ouvert), les bords du domaine (−3 et 3), où f n'est
+jamais nulle, sont toujours pris. **Les DEUX visages sortent dans chaque
+séance** (+ − + et − + −) — sans quoi l'élève apprendrait que le tableau est
+toujours le même ; la sonde a mesuré le tirage (12,7 % des courbes brutes
+passent le filtre — le repli, RÉEL et relevé sur le générateur, ne sert à
+peu près jamais) et les côtés sortent moitié-moitié. La question ne porte
+QUE la courbe (`pts`) : le contrôle refuse tout autre champ.
+**Le piège s'est montré sur la capture, pas au banc : « bleu » écrit en
+ROUGE.** La règle `.mp-instr b{color:var(--red)}` peint tous les gras d'un
+énoncé en rouge — le mot « bleu » de l'énoncé s'écrivait donc à l'encre
+rouge, dans l'exercice même qui enseigne la correspondance couleur↔signe.
+**Et il vivait un mot plus loin**, ce que la seconde capture a montré :
+« en dessous » restait en gras, donc en ROUGE, juste avant « en bleu ».
+Les QUATRE mots portent LEUR encre (`.tsg-mot-rouge`, `.tsg-mot-bleu` — la
+leçon de la phrase des couleurs du 6.3), aucun `<b>` ne subsiste dans cet
+énoncé, et le contrôle exige les trois choses : les mots présents, les
+dominantes opposées lues dans la feuille de styles (le motif du 2.6), et
+aucun gras restant — sans quoi le prochain mot ajouté repasserait en rouge
+sans que rien ne le dise. Douze sabotages, chacun rougissant en nommant son
+défaut — dont la copie juste qui ne vaut plus 21, le doublon compté deux
+fois, l'union à ordre imposé, la peinture échangée (rouge en dessous), et
+chacun des deux mots revenu au gras ordinaire.
+**Et DEUX défauts de mise en page ne se sont vus que sur la capture**, tous
+deux hérités d'un conteneur emprunté :
+· le dessin était posé dans la grille des QUATRE propositions
+  (`.ing-cartes`) alors qu'il est SEUL et sert de support de lecture : il
+  s'affichait au quart de la largeur (280 px), graduations illisibles. Il vit
+  dans le cadre de {lecture-variations} (`.lv-graph`, fond opaque — la leçon
+  de {construire-fonction}), et il a fallu `width:100%` en plus de la
+  `max-width` : dans une colonne flex, un enfant prend sa largeur
+  INTRINSÈQUE, exactement l'`align-self:stretch` du 1.6 — 280 px sont
+  devenus 600. Le contrôle tient la STRUCTURE (le dessin dans le cadre de
+  lecture, jamais dans la grille des cartes) ;
+· l'union à huit cases se REPLIAIT dans la colonne de 560 px des
+  intervalles, et une solution coupée en deux se lit comme deux solutions
+  (`#scr-tsg .itv-ligne{max-width:1160px}`, comme le 2.4, le 2.5 et le 2.7).
+  **Le contrôle universel « aucune rangée ne se replie » ne l'a pas vu** : il
+  ne mesure que les rangées `.pt-row` des exercices déclarés dans
+  `pleineLargeur`, jamais la famille `.itv-ligne` — la règle est universelle,
+  son contrôle ne l'est pas encore. Le dire vaut mieux que le taire.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
