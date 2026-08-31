@@ -9030,7 +9030,7 @@ function reglagesDevoirs(w, apres){
   if(!R || !present.ok || !present.valeur){
     ignorer('les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien',
       'ce niveau n\'a pas les réglages par exercice des devoirs');
-    return verdictColore(w, apres);
+    return parcoursNbDevoir(w, apres);
   }
   /* Première : l'éditeur passe par saveDM(), qu'on ne peut pas cliquer ici —
      on tient au moins la trace des réglages dans son corps, et les setters
@@ -9130,6 +9130,75 @@ function reglagesDevoirs(w, apres){
     return vus.slice(0,4).join(' | ');
   })()`, function(r){
     const nom='les réglages par exercice d\'un devoir : nombre de questions et plafond du soutien';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    parcoursNbDevoir(w, apres);
+  });
+}
+/* LE RÉGLAGE « QUESTIONS » RÈGLE LE PARCOURS DU 1.6 PAR NIVEAU (demande de
+   Turquet, août 2026). L'exercice a cinq niveaux qui retirent chacun leurs
+   questions : la coupe générique, qui ne connaît qu'un tableau, ne
+   raccourcissait que le niveau 1 en laissant perLevel à 5 — l'écran mentait
+   (« Question 1 / 5 »), la fin de niveau n'arrivait jamais et la 3e question
+   lisait un tirage inexistant. Le démarreur lit donc le réglage lui-même
+   (le motif de tmNbDevoir), et le seuil de passage suit : « 4 sur 5 » est
+   UNE erreur permise, pas 80 % — max(1, n−1). Cinq bords, et n'en tenir
+   qu'un ne tient rien : la taille du niveau 1, la taille des niveaux
+   SUIVANTS (le cœur — ils retirent), le seuil qui suit, la valeur bricolée
+   qui retombe sur le format normal, et la non-fuite hors devoir. */
+function parcoursNbDevoir(w, apres){
+  const nom='le réglage « Questions » d\'un devoir règle le parcours du 1.6 par niveau';
+  const present = evaluer(w, "typeof startFracParcours==='function' && typeof fracpNbDevoir==='function' && typeof lancerDevoirExo==='function'");
+  if(!present.ok || !present.valeur){
+    const aParcours = evaluer(w, "typeof startFracParcours==='function'");
+    if(aParcours.ok && aParcours.valeur){ verifier(nom, false, 'le parcours existe mais fracpNbDevoir ou lancerDevoirExo manque'); }
+    else ignorer(nom, 'ce niveau n\'a pas le parcours des fractions décimales');
+    return verdictColore(w, apres);
+  }
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-parc',prenom:'Contrôle'}; currentMode='train';
+    mesDevoirs=[{id:'dev-p',num:1,actif:true,titre:'Parcours',cours:'',
+                 exercices:[{id:'fractions-decimales',modes:['train'],nbQ:2}]}];
+
+    /* ---- 1. nbQ=2 : le niveau 1 tire à 2, le seuil suit, l'écran le dit ---- */
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    if(test.perLevel!==2) vus.push('nbQ=2 : perLevel vaut '+test.perLevel+' au lieu de 2');
+    if(test.passNeeded!==1) vus.push('nbQ=2 : le seuil vaut '+test.passNeeded+' au lieu de 1 (une erreur permise)');
+    if((test.questions||[]).length!==2) vus.push('nbQ=2 : le niveau 1 tire '+(test.questions||[]).length+' questions au lieu de 2');
+    const entete=(document.getElementById('fqIdx')||{textContent:''}).textContent;
+    if(entete.indexOf('/ 2')<0) vus.push('l\\'en-tête ne dit pas « / 2 » ('+entete+')');
+
+    /* ---- 2. un niveau raté à 0/2 le dit en bon français ---- */
+    test.levelScore=0; test.idx=test.perLevel-1; endLevel();
+    const msgRate=(document.getElementById('fFeedback')||{textContent:''}).textContent;
+    if(msgRate.indexOf('1 bonnes')>=0) vus.push('le message du niveau raté écrit « 1 bonnes réponses »');
+
+    /* ---- 3. LE CŒUR : le niveau suivant retire à la même taille ---- */
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    test.levelScore=1; test.idx=test.perLevel-1; endLevel();
+    if(!(test.results[test.results.length-1]||{}).passed) vus.push('à 1 juste sur 2, le niveau ne passe plus (une erreur permise)');
+    goNextLevel();
+    if(test.levelIdx!==1) vus.push('goNextLevel n\\'avance pas au niveau 2');
+    if((test.questions||[]).length!==2) vus.push('le niveau 2 retire '+(test.questions||[]).length+' questions au lieu des 2 réglées');
+
+    /* ---- 4. une valeur bricolée retombe sur le format normal ---- */
+    mesDevoirs[0].exercices[0].nbQ=99;
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    if(test.perLevel!==5||test.passNeeded!==4) vus.push('nbQ=99 : le parcours ne retombe pas sur 5 questions / seuil 4 ('+test.perLevel+'/'+test.passNeeded+')');
+    mesDevoirs[0].exercices[0].nbQ='abc';
+    await lancerDevoirExo('dev-p','fractions-decimales','train');
+    if(test.perLevel!==5) vus.push('nbQ illisible : le parcours ne retombe pas sur 5 ('+test.perLevel+')');
+
+    /* ---- 5. le réglage ne FUIT pas hors du devoir ---- */
+    mesDevoirs[0].exercices[0].nbQ=2; currentDM=null; currentTestId='fractions-decimales';
+    await Promise.resolve(TESTS['fractions-decimales'].start());
+    if(test.perLevel!==5||test.passNeeded!==4||(test.questions||[]).length!==5)
+      vus.push('hors devoir, le parcours porte le réglage du devoir ('+test.perLevel+' par niveau, seuil '+test.passNeeded+')');
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
     verdictColore(w, apres);

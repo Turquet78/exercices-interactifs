@@ -1757,7 +1757,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=190;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=191;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4941,12 +4941,29 @@ function genFrac(level){
   return {level, dispA:A.disp, dispB:B.disp, fnA:A.n, fdA:A.d, fnB:B.n, fdB:B.d, pn, pd,
           qtext:`${A.disp} × ${B.disp}`, atext:ds};
 }
+/* LE RÉGLAGE « QUESTIONS » D'UN DEVOIR RÈGLE CE PARCOURS PAR NIVEAU (demande de
+   Turquet, août 2026) : l'exercice a cinq niveaux qui RETIRENT chacun leurs
+   questions (goNextLevel), et la coupe générique de dmAppliquerNbQ, qui ne
+   connaît qu'UN tableau, ne raccourcissait que le niveau 1 en laissant
+   perLevel à 5 — l'écran annonçait « Question 1 / 5 », la fin de niveau
+   (idx===perLevel-1) n'arrivait jamais, et la 3e question lisait un tirage qui
+   n'existe pas : écran figé. Le démarreur lit donc le réglage LUI-MÊME (le
+   motif de tmNbDevoir), tous les niveaux tirent à cette taille, et la coupe
+   générique n'a plus rien à couper (length <= n). Le seuil de passage SUIT :
+   « 4 sur 5 » n'a jamais été 80 %, c'est UNE erreur permise — max(1, n−1).
+   Une valeur hors du format normal (1..5) retombe sur 5 : on ne sait que
+   réduire, et un réglage bricolé dans le JSON ne fabrique pas de séance
+   infaisable. Hors devoir, dmReglageExo() rend null : rien ne change. */
+function fracpNbDevoir(){
+  const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
+  return (Number.isFinite(n)&&n>=1&&n<=5)?n:5;
+}
 async function startFracParcours(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='fracp';
   test.levels=['frac-n1','frac-n2','frac-n3','frac-n4','frac-n5'];
-  test.perLevel=5; test.passNeeded=4;
+  test.perLevel=fracpNbDevoir(); test.passNeeded=Math.max(1,test.perLevel-1);
   test.levelIdx=0; test.level=test.levels[0]; test.levelScore=0;
   test.idx=0; test.score=0; test.answers=[]; test.results=[];
   test.startTime=Date.now(); test.locked=false;
@@ -5148,7 +5165,8 @@ function endLevel(){
     $('fFeedback').textContent='Bravo, tu as réussi tout le parcours !'; $('fFeedback').className='mp-feedback good';
     $('fActions').innerHTML=`<button class="btn btn-primary" onclick="finishParcours()">Voir mes résultats</button>`;
   } else {
-    $('fFeedback').textContent=`Il faut au moins ${test.passNeeded} bonnes réponses sur ${test.perLevel} pour débloquer le niveau suivant.`; $('fFeedback').className='mp-feedback bad';
+    const s=test.passNeeded>1?'s':'';   /* « 1 bonnes réponses » n'existe pas : le seuil peut valoir 1 depuis le réglage par niveau */
+    $('fFeedback').textContent=`Il faut au moins ${test.passNeeded} bonne${s} réponse${s} sur ${test.perLevel} pour débloquer le niveau suivant.`; $('fFeedback').className='mp-feedback bad';
     $('fActions').innerHTML=`<button class="btn btn-primary" onclick="finishParcours()">Voir mes résultats</button>`;
   }
 }
