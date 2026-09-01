@@ -579,6 +579,11 @@ module.exports = {
        des devoirs et des réglages. Un niveau qui n'aurait pas ce dépôt le dit
        en retirant cette ligne — le banc affiche alors « non applicable » au
        lieu de rougir. */
+    /* La RÉCURRENCE RÉDIGÉE : l'exercice que le banc navigateur pilote en
+       TAPANT une démonstration entière. Rien de cet écran ne se mesure hors
+       d'un vrai MathLive — la prose française et ses accents, la barre
+       d'espace qui doit SORTIR d'un indice, et l'encre RÉSOLUE du bilan. */
+    recurrenceRedigee: { exercice: 'recurrence-redaction' },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

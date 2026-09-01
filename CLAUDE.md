@@ -3962,6 +3962,108 @@ une étiquette « Vₙ₊₁ = » qui déborderait de la largeur réservée enve
 « = » à droite des autres sans qu'aucune classe ne change — jsdom reste vert,
 le navigateur nomme l'écart (55 px au sabotage). Éprouvé par deux sabotages.
 
+**Rédiger une récurrence, c'est l'écrire EN ENTIER — et deux juges s'en
+partagent la lecture.** {recurrence-redaction} (Terminale, 6.7, demande de
+Turquet, septembre 2026) : « des énoncés comme le 6.5, mais la rédaction
+entière dans une seule case comme celle du 2.2, sans le "f'(x) =" devant ».
+Le tirage est celui du {recurrence-encadrement} — `genRCA` et `genRCH`,
+appelés TELS QUELS : un second générateur aurait fini par diverger, et deux
+exercices voisins se seraient contredits sous les yeux de l'élève. Même
+moteur de tirage, pas la même identité (`currentTestId`, `RAPPELS.rr`,
+`QIA_SUGG.rr`). Ce qui change est la SAISIE, et c'est tout le sujet : le 6.5
+guide la démonstration case par case — il apprend le SQUELETTE ; celui-ci ne
+donne rien, pas une amorce, et c'est à l'élève d'écrire les mots. La feuille
+est `mlFeuille` en mode « rédaction », le composant du 3.5 : lignes libres,
+sans préfixe, barre d'espace active et raccourcis MathLive réduits à une
+liste blanche — sans quoi « on » deviendrait un symbole au milieu d'une
+phrase.
+**DEUX JUGES, ET ILS NE JUGENT PAS LA MÊME CHOSE.** La PAGE juge la
+STRUCTURE : elle ne prononce que des faits PROUVABLES — un mot est écrit ou
+il ne l'est pas, un nombre est là ou il n'y est pas. C'est la doctrine du
+juge des rédactions de la Seconde et de la Première, transposée : un verdict
+qu'on peut prouver ne se confie pas à un modèle. Le MODÈLE juge le CALCUL et
+la logique, ce qu'aucune expression régulière ne saura lire. Sept critères
+côté page — le mot « initialisation », sa vérification CHIFFRÉE (la valeur de
+U au rang de départ, encadrée par les deux bornes), le mot qui la conclut
+(« vrai », « bon », « vérifiée »…), le mot « hérédité », « on suppose… »,
+« on montre que… », et la justification par la CROISSANCE de f — chacun
+annoncé à l'écran AVANT que l'élève n'écrive : un critère qu'on mesure sans
+l'avoir demandé donnerait tort à une copie honnête.
+**Le verdict de la page PRIME dans le sens du REFUS**, et il part au modèle
+avec l'énoncé : une structure incomplète ne peut pas valoir le point, quoi
+qu'en dise la prose, et le modèle reçoit la liste de ce qui manque avec
+l'ordre de ne pas la répéter — l'élève la lit déjà, en rouge, juste
+au-dessus. Modèle en panne : on n'enregistre rien et on ne verrouille pas —
+le bilan de la page reste vrai, mais la note se joue sur le calcul, que
+personne n'a relu.
+**Le bilan s'écrit en VERT pour ce qui va, en ROUGE pour ce qui manque**
+(demande de Turquet) : ce sont `fb-ok` et `fb-ko`, les classes dont le retour
+de l'IA se sert depuis toujours — la convention d'août 2026 (juste en bleu,
+correction en vert) porte sur les CASES, et il n'y en a AUCUNE sur cet écran.
+La couleur ne porte jamais seule : chaque ligne commence par ✓ ou ✗.
+**LA LÉNIENCE EST DÉLIBÉRÉE.** Un faux NÉGATIF donne tort à un élève qui a
+raison — le pire défaut du projet ; un faux positif ne coûte rien, le modèle
+relit le calcul de toute façon. Les mots se cherchent donc sans accents, sans
+espaces et sans ponctuation (« l'hérédité », « heredite » et « HÉRÉDITÉ » sont
+le même mot), et l'ordre des moments est libre — une copie qui écrit
+l'hérédité avant l'initialisation n'est pas fausse.
+**Une seule ASYMÉTRIE dans le juge, et elle a sa raison** : « suppos » et
+« heredit » sont des RACINES, « montre » ne peut pas en être une. L'énoncé dit
+« Démontrer par récurrence », et un élève qui recopie ce titre en tête de sa
+copie aurait satisfait le critère sans avoir énoncé le BUT de l'hérédité. On
+exige donc les formes conjuguées (« montrons », « on montre », « montrer
+que »…) — c'est le seul mot de la liste qui se trouve aussi dans l'énoncé, et
+le contrôle épingle ce piège.
+**LA BARRE D'ESPACE SORT DE L'INDICE, et ce défaut-là n'a été trouvé qu'en
+TAPANT.** Le mode « rédaction » pose une VRAIE espace (sans quoi « on suppose »
+s'écrirait « onsuppose »), et la convention de MathLive — l'espace SORT d'un
+indice — disparaît avec elle : un élève qui tapait « U_n » restait PRISONNIER
+de l'indice, et toute la suite de sa phrase tombait dedans. La lecture rendait
+« U_(0 =3 et 0 ≤ 3 ≤ 6 donc…) », une phrase illisible pour le modèle, sans la
+moindre erreur nulle part. `rrEspace` lit la PROFONDEUR du curseur
+(`getElementInfo(...).depth` vaut 0 au sommet, 1 dans un indice) plutôt que de
+la deviner, et sort du groupe ; au sommet il laisse faire MathLive. L'écouteur
+est posé en CAPTURE sur la feuille, UNE fois : les lignes naissent au fil des
+« Entrée », et un écouteur posé ligne par ligne aurait laissé les suivantes
+dehors. `mlFeuille` n'est pas touchée — c'est le MÊME TEXTE dans les trois
+fichiers, et un contrôle le compare au caractère près. **Et l'écran le DIT** :
+l'indication sous la feuille annonce la barre d'espace, comme la consigne du
+1.6 annonce le « +1 » que la page pose.
+**Les JETONS donnent les symboles, jamais les mots** : ≤, Uₙ et Uₙ₊₁ — qu'aucun
+clavier ne porte — sont sur des boutons ; « hérédité » et « on suppose » ne le
+sont pas. Un bouton qui écrirait à la place de l'élève exactement ce que
+l'exercice lui demande de savoir viderait l'exercice.
+**La reprise après une pause remet la rédaction.** Elle voyage DANS `test` —
+que `snapshotTest` photographie en entier — et non dans `_boxes`, qui ne sait
+restaurer que des cases à id : la feuille n'en a aucune. Le curseur revient AU
+BOUT de ce qui est écrit, `setValue` le remettant au début — sans quoi l'élève
+reprenait au milieu de sa propre phrase (vu à la sonde).
+**Rien à redéployer chez Supabase** : la fonction Edge porte un correcteur
+GÉNÉRIQUE, tout appel `verif` qui n'est pas l'un des deux exercices de dérivée
+historiques décrit lui-même son énoncé et sa règle. La règle vit donc dans la
+PAGE et part avec elle — la leçon de `MAX_CTX`. Mais la fonction TRONQUE
+« attendu » en silence : la borne est LUE dans sa source, jamais recopiée, et
+la marge s'affiche à chaque exécution (2428 caractères pour 4000).
+**Deux bancs, et ils ne voient pas la même chose.** Le PRINCIPAL éprouve le
+juge critère par critère dans les deux sens, la lénience, le piège de l'énoncé
+recopié, la règle envoyée au modèle, la note et la peinture — sur des chaînes
+qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
+vrai MathLive : la prose française et ses accents ressortent telles quelles,
+la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
+dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Vingt-deux
+sabotages en tout (quatorze au banc principal, huit au navigateur), chacun
+rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
+la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
+l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur
+la dernière case visitée. La leçon du sabotage impossible, retombée telle
+quelle.
+**Et la photo du circuit papier retire enfin la rangée `.rc-jetons`** : elle
+n'était pas dans la liste de `dmEnonceQ`, si bien qu'un « Insérer : » sans
+boutons traînait sur la feuille du professeur — le défaut déjà corrigé pour
+`.sa-jetons`, resté en place sur le 6.5. Un exercice ajouté à côté d'un
+manque le fait voir.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons
