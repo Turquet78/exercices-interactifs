@@ -3078,7 +3078,7 @@ function etudeCompleteClique(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('l\'étude complète cliquée : la note compte les cases ET la dérivée lue par l\'IA',
       'ce niveau n\'a pas l\'exercice de l\'étude complète');
-    return devoirPapierClique(w, apres);
+    return recurrenceRedigee(w, apres);
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -3144,7 +3144,7 @@ function etudeCompleteClique(w, apres){
     const nom='l\'étude complète cliquée : la note compte les cases ET la dérivée lue par l\'IA';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    devoirPapierClique(w, apres);
+    recurrenceRedigee(w, apres);
   });
 }
 /* ---------- Le devoir sur papier : l'énoncé d'abord, et il part avec le prénom ----------
@@ -3157,6 +3157,241 @@ function etudeCompleteClique(w, apres){
    marque dmPapier, tirage fidèle, double clic muet, échec DIT), puis la vue
    professeur (ligne distinguée, énoncé rejoué, verrou REJEU). Il vit dans la
    chaîne séquentielle parce qu'il remplace sb — le piège documenté. */
+/* ---- 6.7 : LA RÉCURRENCE RÉDIGÉE — deux juges, et ils ne jugent pas la même chose ----
+   L'élève écrit la démonstration ENTIÈRE dans une feuille libre. La PAGE juge
+   la STRUCTURE — des faits prouvables : un mot est écrit ou il ne l'est pas, un
+   nombre est là ou il n'y est pas — et le MODÈLE juge le CALCUL. Le verdict de
+   la page PRIME dans le sens du REFUS : une structure incomplète ne peut pas
+   valoir le point, quoi qu'en dise la prose.
+
+   Sept bords tenus ici, et n'en tenir qu'un ne tient rien :
+
+   — LE JUGE, critère par critère, dans les DEUX sens. Un critère qui serait
+     « toujours vrai » ne mesurerait rien : chaque mot est éprouvé présent ET
+     absent, sur une copie où tout le reste est juste.
+   — LA LÉNIENCE, qui est délibérée : accents, majuscules, ponctuation et ordre
+     des moments ne doivent JAMAIS faire rougir une copie complète. Un faux
+     négatif donne tort à un élève qui a raison — le pire défaut du projet.
+   — LE PIÈGE DE L'ÉNONCÉ : « Démontrer par récurrence » recopié en tête de
+     copie ne vaut PAS « on montre que… ». C'est le seul mot de la liste qui se
+     trouve aussi dans l'énoncé, d'où l'asymétrie du juge (racines pour
+     « suppos » et « heredit », formes conjuguées pour « montre »).
+   — L'ÉNONCÉ NE CONTREDIT PAS SA CORRECTION : f(m) et f(M) rangés par le
+     tirage sont recalculés ici par une arithmétique indépendante, et
+     l'intervalle doit être STABLE — sans quoi la dernière ligne du modèle
+     (« or m ≤ f(m) et f(M) ≤ M ») serait fausse.
+   — LA RÈGLE ENVOYÉE AU MODÈLE : les quatre moments nommés, la clause
+     anti-recopie, le verdict de la page transmis quand il manque quelque
+     chose, et la borne de troncature de la fonction Edge — LUE dans sa source,
+     jamais recopiée.
+   — LE VERDICT DE LA PAGE PRIME : un modèle qui accepte une copie sans le mot
+     « hérédité » ne donne pas le point.
+   — LA PEINTURE : ce qui va s'écrit en vert (fb-ok), ce qui manque en rouge
+     (fb-ko) — la demande de Turquet. Les contrôles qui lisent le VERDICT et
+     jamais la couleur ont laissé passer quatre sabotages sur les fractions :
+     on relit donc les classes réellement posées. */
+function recurrenceRedigee(w, apres){
+  const present = evaluer(w, "typeof rrJuge==='function' && typeof checkRR==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture',
+      'ce niveau n\'a pas l\'exercice de récurrence rédigée');
+    return devoirPapierClique(w, apres);
+  }
+  let borne;
+  try{
+    borne = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8')
+      .match(/attendu\s*=\s*\(payload\.attendu[^;]*?slice\(0,\s*(\d+)\)/) || [])[1], 10);
+  }catch(e){ borne = undefined; }
+  if(!borne){
+    verifier('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture',
+      false, 'la troncature de « attendu » est introuvable dans supabase/functions/corriger-definition/index.ts');
+    return devoirPapierClique(w, apres);
+  }
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[], BORNE=${borne};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return texte; },focus:function(){},setValue:function(){},executeCommand:function(){}}}],
+      verrouiller:function(){} }; };
+    let MODELE={correct:true, panne:false}, envoye=null, appels=0;
+    sb.functions={ invoke:async function(nom, opts){
+      appels++; envoye=(opts&&opts.body)||null;
+      if(MODELE.panne) throw new Error('panne simulée');
+      return { data:{ correct:MODELE.correct, feedback:'Retour du modèle stubbé.' } };
+    } };
+
+    /* ---------- 1. LE TIRAGE : celui du 6.5, et il ne se contredit pas ---------- */
+    const rangs={};
+    for(let i=0;i<300;i++){
+      const c=(i%2)?genRCH(i%4<2?0:1):genRCA(i%4<2?1:0);
+      rangs[c.n0]=1;
+      const f=(c.fam==='aff')?(x=>c.a*x+c.b):(x=>c.p*x/(x+c.q));
+      if(Math.abs(f(c.m)-c.fm)>1e-9 || Math.abs(f(c.M)-c.fM)>1e-9){
+        vus.push('l\\'énoncé contredit sa correction : f('+c.m+') rangé '+c.fm+', calculé '+f(c.m)); break; }
+      if(!(c.m<=c.fm+1e-9 && c.fM<=c.M+1e-9)){
+        vus.push('intervalle non stable ('+c.m+' ; '+c.M+') : f('+c.m+')='+c.fm+', f('+c.M+')='+c.fM); break; }
+      if(!(c.m<=c.u0 && c.u0<=c.M)){ vus.push('U0='+c.u0+' hors de ['+c.m+' ; '+c.M+']'); break; }
+    }
+    if(!rangs[0] || !rangs[1]) vus.push('les deux rangs de départ ne sortent pas');
+    await startRR();
+    if(currentTestId!=='recurrence-redaction') vus.push('startRR ne pose pas son identifiant : '+currentTestId);
+    if(test.kind!=='rr') vus.push('startRR ne pose pas son kind : '+test.kind);
+    if(test.questions.length!==2) vus.push(test.questions.length+' question(s) au lieu de 2');
+    if([test.questions[0].n0,test.questions[1].n0].sort().join()!=='0,1')
+      vus.push('les deux rangs de départ ne sont pas 0 et 1');
+    if(test.maxScore!==test.questions.length) vus.push('barème posé à '+test.maxScore);
+
+    /* ---------- 2. LE JUGE, CRITÈRE PAR CRITÈRE, DANS LES DEUX SENS ---------- */
+    const c0={fam:'aff', n0:0, m:0, M:6, u0:3, fm:3, fM:4.5,
+              recPlain:'0,5U\\u2099 + 3', fPlain:'0,5x + 3'};
+    const PLEINE='Initialisation : U_(0) = 3 et 0 <= 3 <= 6 donc la propriété est vraie au rang 0.\\n'
+      +'Hérédité : on suppose que 0 <= U_(n) <= 6. On montre que 0 <= U_(n+1) <= 6.\\n'
+      +'f est croissante sur [0 ; 6] donc 3 <= U_(n+1) <= 4,5 <= 6.\\n'
+      +'Conclusion : pour tout n >= 0, 0 <= U_(n) <= 6.';
+    const manquants=function(txt){ return rrJuge(c0,txt).crit.filter(function(x){ return !x.ok; }).map(function(x){ return x.cle; }); };
+    if(manquants(PLEINE).length) vus.push('une copie COMPLÈTE est refusée sur : '+manquants(PLEINE).join(', '));
+
+    /* le bord opposé de chaque critère : on RETIRE une seule chose, tout le
+       reste restant juste — sinon le contrôle mesurerait la copie, pas le mot */
+    const retraits=[
+      ['init',   PLEINE.replace('Initialisation :','Au départ :')],
+      ['hered',  PLEINE.replace('Hérédité :','Ensuite :')],
+      ['suppos', PLEINE.replace('on suppose que','on a')],
+      ['montre', PLEINE.replace('On montre que','Alors')],
+      ['croiss', PLEINE.replace('f est croissante sur [0 ; 6] donc','f appliquée donne')],
+      ['vrai',   PLEINE.replace('donc la propriété est vraie au rang 0.','.')],
+      ['calc',   PLEINE.replace('U_(0) = 3 et 0 <= 3 <= 6 ','')]
+    ];
+    retraits.forEach(function(p){
+      const m=manquants(p[1]);
+      if(m.length!==1 || m[0]!==p[0])
+        vus.push('en retirant « '+p[0]+' », le juge relève ['+m.join(', ')+'] au lieu de ['+p[0]+'] seul');
+    });
+
+    /* ---------- 3. LA LÉNIENCE EST DÉLIBÉRÉE ---------- */
+    const SANS_ACCENT='initialisation : U_(0)=3 et 0<=3<=6 : c est vrai au rang 0\\n'
+      +'heredite : on suppose 0<=U_(n)<=6, on montre que 0<=U_(n+1)<=6\\n'
+      +'f est croissante donc 3<=U_(n+1)<=4,5<=6\\nconclusion : vrai pour tout n';
+    if(manquants(SANS_ACCENT).length)
+      vus.push('une copie sans accents ni majuscules est refusée sur : '+manquants(SANS_ACCENT).join(', '));
+    const ORDRE='Hérédité : on suppose que 0 <= U_(n) <= 6, on montre que 0 <= U_(n+1) <= 6, f est croissante.\\n'
+      +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6 donc c est vrai au rang 0.';
+    if(manquants(ORDRE).length)
+      vus.push('une copie dont l\\'hérédité précède l\\'initialisation est refusée sur : '+manquants(ORDRE).join(', '));
+
+    /* ---------- 4. LE PIÈGE DE L'ÉNONCÉ RECOPIÉ ---------- */
+    const TITRE='Démontrer par récurrence que 0 <= U_(n) <= 6.\\n'
+      +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6, c est vrai. Hérédité : on suppose. f est croissante.';
+    if(manquants(TITRE).indexOf('montre')<0)
+      vus.push('« Démontrer par récurrence » recopié de l\\'énoncé vaut « on montre que… »');
+
+    /* ---------- 5. LA RÈGLE ENVOYÉE AU MODÈLE ---------- */
+    const jOK=rrJuge(c0,PLEINE), jKO=rrJuge(c0,TITRE);
+    const rOK=rrAttenduIA(c0,jOK), rKO=rrAttenduIA(c0,jKO), q0=rrQuestionIA(c0);
+    ['INITIALISATION','HYPOTHÈSE','HÉRÉDITÉ','CONCLUSION','RÈGLE DE DÉCISION','ANTI-RECOPIE'].forEach(function(mot){
+      if(rOK.indexOf(mot)<0) vus.push('la règle ne nomme pas « '+mot+' »');
+    });
+    const absent=jKO.crit.filter(function(x){ return !x.ok; })[0];
+    if(!absent) vus.push('le piège de l\\'énoncé recopié ne manque plus rien : le contrôle suivant ne mesure rien');
+    else {
+      if(rKO.indexOf('MANQUE')<0) vus.push('le verdict de la page ne part pas au modèle quand il manque quelque chose');
+      if(rKO.indexOf(absent.court)<0) vus.push('le verdict de la page ne NOMME pas ce qui manque');
+    }
+    if(rOK.indexOf('MANQUE')>=0) vus.push('la page annonce un manque alors que la structure est complète');
+    if(q0.indexOf('croissante')<0) vus.push('l\\'énoncé envoyé au modèle ne dit pas que f est croissante');
+    /* la borne de troncature de la fonction Edge, LUE dans sa source : au-delà,
+       la règle arrive coupée en son milieu et le modèle corrige avec la moitié
+       qu'il a reçue, sans que rien ne le dise */
+    let pire=0, pireId='';
+    for(let i=0;i<60;i++){
+      const c=(i%2)?genRCH(i%2):genRCA(i%2), j=rrJuge(c,'');
+      const n=rrAttenduIA(c,j).length;
+      if(n>pire){ pire=n; pireId=(c.fam||'')+' n0='+c.n0; }
+    }
+    if(pire>BORNE) vus.push('la règle envoyée au modèle fait '+pire+' caractères ('+pireId+') : la fonction Edge tronque à '+BORNE);
+    window.__rrMarge=BORNE-pire; window.__rrPire=pire;
+
+    /* ---------- 6. checkRR CLIQUÉ : la note, le verdict, la peinture ---------- */
+    const fbEl=function(){ return document.getElementById('rrFeedback'); };
+    /* on compte DANS le bilan de la page, et non dans toute la boîte : la prose
+       du modèle porte elle aussi des balises [OK]/[KO], et le contrôle
+       mesurerait alors la prose autant que le bilan. */
+    const peint=function(){ const e=fbEl(); if(!e) return {ok:0,ko:0,txt:''};
+      const b=e.querySelector('.rr-crit');
+      return { ok:b?b.querySelectorAll('.fb-ok').length:0, ko:b?b.querySelectorAll('.fb-ko').length:0,
+               txt:e.textContent||'', cls:e.className||'' }; };
+    function arme(copie){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'rr', questions:[c0], idx:0, score:0, answers:[],
+        startTime:Date.now(), locked:false});
+      test.maxScore=1; rrFeuille=feuille(copie); envoye=null; appels=0;
+      const f=fbEl(); if(f){ f.textContent=''; f.className='mp-feedback'; }
+      const a=document.getElementById('rrActions'); if(a) a.innerHTML='';
+    }
+    /* la feuille vide : on n'appelle pas le modèle, et rien n'est verrouillé */
+    arme('');
+    await checkRR();
+    if(appels!==0) vus.push('une feuille vide part quand même au modèle');
+    if(test.locked) vus.push('une feuille vide verrouille l\\'écran');
+
+    /* la copie complète, le modèle d'accord : le point, tout en vert */
+    arme(PLEINE); MODELE={correct:true, panne:false};
+    await checkRR();
+    let p=peint();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true)
+      vus.push('copie complète et calcul juste : score '+test.score);
+    if(p.ko!==0 || p.ok!==7) vus.push('copie complète : '+p.ok+' ligne(s) verte(s) et '+p.ko+' rouge(s) — attendu 7 et 0');
+    if(!envoye || envoye.action!=='verif' || envoye.reponse.indexOf('Initialisation')<0)
+      vus.push('la copie de l\\'élève ne part pas au modèle');
+
+    /* LE VERDICT DE LA PAGE PRIME : le modèle accepte, la structure est
+       incomplète, la page refuse quand même — et le dit en rouge */
+    arme(PLEINE.replace('Hérédité :','Ensuite :')); MODELE={correct:true, panne:false};
+    await checkRR();
+    p=peint();
+    if(test.score!==0 || test.answers[0].correct!==false)
+      vus.push('le modèle accepte une copie sans le mot « hérédité » et la page le suit : score '+test.score);
+    if(p.ko!==1 || p.ok!==6) vus.push('mot manquant : '+p.ok+' vert(s) et '+p.ko+' rouge(s) — attendu 6 et 1');
+
+    /* le bord opposé : structure complète, calcul refusé par le modèle */
+    arme(PLEINE); MODELE={correct:false, panne:false};
+    await checkRR();
+    if(test.score!==0 || test.answers[0].correct!==false)
+      vus.push('le modèle refuse le calcul et la page donne quand même le point : score '+test.score);
+    if(peint().txt.indexOf('Initialisation :')<0)
+      vus.push('une copie refusée ne montre pas la démonstration de référence');
+
+    /* le modèle en panne : la page ne compte rien et ne verrouille pas —
+       la note se joue sur le CALCUL, que personne n'a relu */
+    arme(PLEINE); MODELE={correct:true, panne:true};
+    await checkRR();
+    if(test.score!==0 || test.answers.length!==0)
+      vus.push('modèle en panne : la page compte quand même (score '+test.score+')');
+    if(test.locked) vus.push('modèle en panne : l\\'écran est verrouillé');
+    if(peint().ok+peint().ko!==7) vus.push('modèle en panne : le bilan de la page n\\'est plus affiché');
+
+    /* en SOUTIEN, un refus ne verrouille pas : l'élève corrige et revérifie */
+    currentMode='soutien';
+    arme(PLEINE); MODELE={correct:false, panne:false};
+    await checkRR();
+    if(test.locked) vus.push('en soutien, un refus verrouille l\\'écran');
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok){ verifier('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture', false,
+      'erreur JavaScript : ' + r.erreur); return devoirPapierClique(w, apres); }
+    verifier('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture',
+      r.valeur === '', r.valeur);
+    const marge = evaluer(w, 'window.__rrMarge'), pire = evaluer(w, 'window.__rrPire');
+    if(r.valeur === '' && marge.ok && typeof marge.valeur === 'number')
+      console.log('   · la règle la plus longue envoyée au modèle : ' + pire.valeur
+        + ' caractères, ' + marge.valeur + ' de marge sur ' + borne);
+    devoirPapierClique(w, apres);
+  });
+}
 function devoirPapierClique(w, apres){
   const present = evaluer(w, "typeof dmEnonce==='function' && typeof dmePapier==='function'");
   if(!present.ok || !present.valeur){

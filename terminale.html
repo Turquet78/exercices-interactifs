@@ -457,6 +457,20 @@
   .set-h{font-family:"Fredoka";font-weight:600;font-size:1.05rem;margin:20px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
   .set-h.first{border-top:none;padding-top:0;margin-top:2px}
 
+  /* ===== 6.7 Récurrence rédigée : la feuille, ce qu'on attend, et le bilan =====
+     Aucune règle de VERDICT ici : le bilan emprunte fb-ok / fb-ko, les classes
+     du retour de l'IA (vert ce qui va, rouge ce qui manque) — la convention
+     d'août 2026 (juste en bleu, correction en vert) porte sur les CASES, et il
+     n'y en a aucune sur cet écran. */
+  #rrSheet{min-height:170px}
+  .rr-attendu{margin:2px 0 10px;padding-left:20px;text-align:left;font-size:.95rem;color:var(--ink-soft);line-height:1.45}
+  .rr-attendu b,.rr-attendu i{color:var(--ink)}
+  .rr-bilan{text-align:left}
+  .rr-crit{list-style:none;margin:4px 0 2px;padding:0}
+  .rr-crit li{margin:3px 0;line-height:1.4}
+  .rr-ia{margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
+  .rr-mot{margin:8px 0 0;text-align:left}
+  .rr-mot.good{color:var(--green);font-weight:600}
   /* ===== Test 3 : fractions décimales ===== */
   .f-wrap{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:6px 0}
   .f-eq{font-family:"Fredoka";font-weight:500;font-size:2rem;color:var(--ink)}
@@ -559,7 +573,7 @@
   .sa2-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}
   .sa2-frac .bar{display:block;width:100%;min-width:4.4em;height:2px;background:var(--ink);margin:3px 0}
   .sa2-frac .num,.sa2-frac .den{display:flex;align-items:center;gap:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rr,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1731,6 +1745,27 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <section class="screen" id="scr-rr">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="rrModeTag"></span><span class="q-idx" id="rrQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rrLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="rrPrompt"></p>
+      <p class="tvi-instr">Rédige la démonstration <b>entière</b>, comme sur ta copie. Rien n&rsquo;est écrit d&rsquo;avance&nbsp;: à toi les mots.</p>
+      <ul class="rr-attendu">
+        <li><b>Initialisation</b>&nbsp;: écris le mot, vérifie l&rsquo;encadrement avec la <b>valeur</b> de U au rang de départ, et dis que c&rsquo;est <b>vrai</b> à ce rang.</li>
+        <li><b>Hérédité</b>&nbsp;: écris le mot, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;».</li>
+        <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> sur l&rsquo;intervalle. Puis élargis, et <b>conclus</b>.</li>
+      </ul>
+      <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
+      <div class="dexp2-sheet" id="rrSheet"></div>
+      <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>U</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort&nbsp;— une seconde espace sépare les mots&nbsp;; les boutons ci-dessus écrivent &#8804; et les indices d&rsquo;un coup. Les accents et les majuscules ne comptent pas&nbsp;: «&nbsp;heredite&nbsp;» vaut «&nbsp;hérédité&nbsp;».<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
+      <div class="mp-feedback" id="rrFeedback"></div>
+      <div class="mp-actions" id="rrActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-tg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tgModeTag"></span><span class="q-idx" id="tgQIdx">Question 1 / 4</span></span>
@@ -2250,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=277;
+const APP_VERSION=278;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2403,6 +2438,7 @@ const TESTS={
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
   'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au {suites-encadrement}.', start:()=>startREC() },
+  'recurrence-redaction': { name:'R\u00e9currence \u2014 r\u00e9diger la d\u00e9monstration', icon:'\u270d\ufe0f', desc:'Les \u00e9nonc\u00e9s du {recurrence-encadrement}, mais plus une seule case : tu \u00e9cris la d\u00e9monstration ENTI\u00c8RE dans la feuille, comme sur ta copie \u2014 initialisation v\u00e9rifi\u00e9e et conclue, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (\u00ab on suppose\u2026 on montre\u2026 \u00bb), justification par la croissance de f. La page relit la structure, l\u2019IA relit le calcul : ce qui va s\u2019\u00e9crit en vert, ce qui manque en rouge.', start:()=>startRR() },
   'suite-auxiliaire-2': { name:'Suites \u2014 suite auxiliaire \u00e0 compl\u00e9ter', icon:'\u270f\ufe0f', desc:'La m\u00eame d\u00e9monstration que {suite-auxiliaire}, mais guid\u00e9e\u00a0: chaque case attend simplement un NOMBRE ou un MOT. La page \u00e9crit les signes et les symboles, tu poses les nombres \u2014 comme sur la fiche papier.', start:()=>startSA2() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
@@ -2417,7 +2453,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-complete'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -2994,6 +3030,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='afq' && test.questions && test.questions[test.idx]){ c=afqConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
+  else if(test && test.kind==='rr' && test.questions && test.questions[test.idx]){ c=rrConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -3368,7 +3405,7 @@ async function dmEnonce(devoirId, testId, continuer){
    retours disparaissent. */
 function dmEnonceQ(section){
   const c=section.cloneNode(true);
-  c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,button').forEach(function(e){ e.remove(); });
+  c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,button').forEach(function(e){ e.remove(); });
   c.querySelectorAll('input,select,math-field,.dexp2-sheet').forEach(function(e){
     const b=document.createElement('span'); b.className='dme-blank'; e.replaceWith(b); });
   /* Une photo ne porte AUCUN id : les conteneurs clonés (s1Res, s1Table, …)
@@ -3777,7 +3814,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rr:['rr',renderRR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3899,7 +3936,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','lr','ec','afp','afq'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','rr','lr','ec','afp','afq'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -10905,6 +10942,371 @@ function rcConseilCtx(){
    +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
+/* ===== 6.7 RÉCURRENCE — LA RÉDACTION COMPLÈTE (demande de Turquet, septembre 2026) =====
+   « Des énoncés comme le 6.5, mais la rédaction ENTIÈRE dans une seule case comme
+   celle du 2.2, sans le "f'(x) =" devant. »
+   Le tirage est celui du {recurrence-encadrement} — genRCA et genRCH, appelés
+   TELS QUELS : un second générateur aurait fini par diverger, et deux exercices
+   voisins se seraient contredits sous les yeux de l'élève. Même moteur de
+   tirage, pas la même identité : la note passe par currentTestId, le rappel par
+   RAPPELS.rr, les questions par QIA_SUGG.rr.
+   Ce qui change est la SAISIE, et c'est tout le sujet : le 6.5 guide la
+   démonstration case par case — il apprend le SQUELETTE ; celui-ci ne donne
+   rien, pas une amorce, et c'est à l'élève d'écrire les mots. La feuille est
+   mlFeuille en mode « rédaction » (le composant du 3.5) : lignes libres, sans
+   préfixe, barre d'espace active et raccourcis MathLive réduits à une liste
+   blanche — sans quoi « on » deviendrait un symbole au milieu d'une phrase.
+
+   DEUX JUGES, ET ILS NE JUGENT PAS LA MÊME CHOSE.
+   La PAGE juge la STRUCTURE : elle mesure des faits prouvables — un mot est
+   écrit ou il ne l'est pas, un nombre est là ou il n'y est pas. C'est la
+   doctrine du juge des rédactions de la Seconde et de la Première : un verdict
+   qu'on peut prouver ne se confie pas à un modèle. Le MODÈLE juge le CALCUL et
+   la logique — ce qu'aucune expression régulière ne saura lire.
+   Le verdict de la page PRIME dans le sens du REFUS : une structure incomplète
+   ne peut pas valoir le point, quoi qu'en dise la prose. Elle est transmise au
+   modèle avec l'énoncé, pour que sa prose ne dise pas le contraire de ce que
+   l'élève lit juste au-dessus.
+   Le bilan s'écrit en VERT pour ce qui va, en ROUGE pour ce qui manque
+   (demande de Turquet) : ce sont les classes fb-ok / fb-ko, celles-là mêmes
+   dont le retour de l'IA se sert depuis toujours — la convention d'août 2026
+   (juste en bleu, correction en vert) porte sur les CASES, et il n'y en a
+   aucune ici. La couleur ne porte jamais seule : chaque ligne commence par ✓
+   ou ✗.
+
+   LA LENIENCE EST DÉLIBÉRÉE, et elle a un sens. Un faux NÉGATIF donne tort à
+   un élève qui a raison — le pire défaut du projet. Un faux positif, lui, ne
+   coûte rien : le modèle relit quand même le calcul, et c'est lui qui tranche.
+   Les mots se cherchent donc sans accents, sans espaces et sans ponctuation
+   (« l'hérédité », « heredite » et « HÉRÉDITÉ » sont le même mot). */
+
+/* La feuille rend le texte « en clair » par mlDexp.toPlain, qui ne connaît pas
+   toutes les commandes : « \le » y reste écrit tel quel. On les rend lisibles
+   ICI plutôt que dans toPlain, partagé par tout le fichier — ce que le juge lit
+   et ce qui part au modèle doivent être du français, pas du LaTeX. */
+function rrClair(s){
+  return String(s==null?'':s)
+    .replace(/\\(?:le|leq)(?![a-zA-Z])/g,' ≤ ')
+    .replace(/\\(?:ge|geq)(?![a-zA-Z])/g,' ≥ ')
+    .replace(/\\lbrack/g,'[').replace(/\\rbrack/g,']')
+    .replace(/\\(?:text|mathrm|textrm|operatorname)(?![a-zA-Z])/g,' ')
+    .replace(/\\[a-zA-Z]+/g,' ')
+    .replace(/\\/g,' ')
+    .replace(/[ \t]+/g,' ')
+    .replace(/ *\n */g,'\n')
+    .trim();
+}
+/* Texte de la feuille, prêt à lire : une ligne par ligne écrite. */
+function rrTexte(){ return rrClair(rrFeuille?rrFeuille.lire():''); }
+/* Sans accents, en minuscules : « hérédité » et « heredite » sont le même mot. */
+function rrNorm(s){
+  return rrClair(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+/* Texte réduit aux lettres et aux chiffres, AVEC la table des positions
+   d'origine : les marqueurs se cherchent sur le texte réduit (« on suppose »,
+   « on  suppose » et « on,suppose » se valent), et on retrouve où ils tombent
+   pour découper la partie « initialisation ». */
+function rrReduit(t){
+  let red='', pos=[];
+  for(let i=0;i<t.length;i++){ if(/[a-z0-9]/.test(t[i])){ red+=t[i]; pos.push(i); } }
+  return {red:red, pos:pos};
+}
+/* Les mots cherchés. « suppos » et « heredit » sont des RACINES : elles
+   couvrent supposons / on suppose / supposé et hérédité / héréditaire.
+   « montre », lui, ne peut PAS être une racine : l'énoncé dit « Démontrer par
+   récurrence », et un élève qui recopie ce titre en tête de sa copie aurait
+   satisfait le critère sans avoir énoncé le BUT de l'hérédité. On exige donc
+   les formes conjuguées — asymétrie voulue, et c'est le seul mot de l'énoncé
+   qui se trouve aussi dans la liste. */
+const RR_MOTS={
+  init:   /initialis/,
+  vrai:   /(vrai|bonne|bon|verifi|valable|juste|correct|exact|satisfait|etablie|amorcee|initialisee)/,
+  hered:  /heredit/,
+  suppos: /(suppos|hypothese)/,
+  montre: /(montrons|onmontre|nousmontrons|demontrons|ondemontre|prouvons|onprouve|montrerque|ilfautmontrer|onveutmontrer|onchercheamontrer)/,
+  croiss: /croissan/
+};
+/* Le juge de la page. Il ne prononce que des faits prouvables ; le calcul, lui,
+   part au modèle. Chaque critère porte son libellé (ce que l'élève lit) et une
+   version COURTE (ce que le modèle reçoit, pour ne pas répéter la liste). */
+function rrJuge(c, txt){
+  const t=rrNorm(txt), ix=rrReduit(t);
+  const ou=re=>{ const k=ix.red.search(re); return k<0?-1:ix.pos[k]; };
+  const pInit=ou(RR_MOTS.init), pHer=ou(RR_MOTS.hered), pSup=ou(RR_MOTS.suppos), pMon=ou(RR_MOTS.montre);
+  /* La partie « initialisation » va du mot (ou du début) jusqu'au premier
+     marqueur d'hérédité qui le SUIT. Une copie qui écrirait l'hérédité en
+     premier n'a pas de marqueur après : on prend alors tout ce qui reste,
+     plutôt qu'un segment vide qui accuserait une copie complète. */
+  const debut=(pInit>=0)?pInit:0;
+  const apres=[pHer,pSup,pMon].filter(x=>x>debut);
+  const seg=t.slice(debut, apres.length?Math.min.apply(null,apres):t.length);
+  const nb=(seg.match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
+  const a=v=>nb.some(x=>Math.abs(x-v)<1e-9);
+  const segRed=rrReduit(seg).red;
+  const crit=[
+    {cle:'init',   ok:pInit>=0,
+     l:'le mot <b>« initialisation »</b>', court:'le mot « initialisation »'},
+    {cle:'calc',   ok:a(c.u0)&&a(c.m)&&a(c.M),
+     l:'l’initialisation <b>vérifiée</b> : la valeur de U au rang de départ, et son encadrement par les deux bornes',
+     court:'la vérification chiffrée de l’initialisation (la valeur de U au rang de départ, encadrée par les deux bornes)'},
+    {cle:'vrai',   ok:RR_MOTS.vrai.test(segRed),
+     l:'la <b>conclusion</b> de l’initialisation — le mot qui dit que c’est <b>vrai</b> à ce rang',
+     court:'le mot qui conclut l’initialisation (« c’est vrai », « la propriété est vraie au rang de départ »)'},
+    {cle:'hered',  ok:pHer>=0,
+     l:'le mot <b>« hérédité »</b>', court:'le mot « hérédité »'},
+    {cle:'suppos', ok:pSup>=0,
+     l:'l’hypothèse : <b>« on suppose… »</b> (ou « supposons… »)',
+     court:'l’hypothèse de récurrence annoncée (« on suppose… »)'},
+    {cle:'montre', ok:pMon>=0,
+     l:'le but : <b>« on montre que… »</b> (ou « montrons que… »)',
+     court:'le but de l’hérédité annoncé (« on montre que… »)'},
+    {cle:'croiss', ok:RR_MOTS.croiss.test(ix.red),
+     l:'la justification : <i>f</i> est <b>croissante</b> sur l’intervalle',
+     court:'la justification par la croissance de f'}
+  ];
+  return {crit:crit, toutOk:crit.every(x=>x.ok)};
+}
+/* Le bilan de la page : vert ce qui va, rouge ce qui manque — et le ✓ ou le ✗
+   devant, parce que la couleur ne porte jamais seule. */
+function rrBilanHTML(j){
+  return '<div class="rr-bilan"><b>Ta rédaction, point par point :</b><ul class="rr-crit">'
+    + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + '</ul></div>';
+}
+/* La démonstration de référence : elle sert la correction affichée en
+   entraînement ET l'attendu envoyé au modèle. Un seul texte — deux auraient
+   fini par se contredire. */
+function rrModele(c){
+  const m=numFmt(c.m), M=numFmt(c.M), n0=numFmt(c.n0), U='Uₙ', U1='Uₙ₊₁';
+  return 'Initialisation : U'+n0+' = '+numFmt(c.u0)+' et '+m+' ≤ '+numFmt(c.u0)+' ≤ '+M+', donc la propriété est vraie au rang '+n0+'.\n'
+   +'Hérédité : soit n ≥ '+n0+'. On suppose que '+m+' ≤ '+U+' ≤ '+M+'. On montre que '+m+' ≤ '+U1+' ≤ '+M+'.\n'
+   +'f est croissante sur [ '+m+' ; '+M+' ], donc f('+m+') ≤ f('+U+') ≤ f('+M+'), c’est-à-dire '+numFmt(c.fm)+' ≤ '+U1+' ≤ '+numFmt(c.fM)+'.\n'
+   +'Or '+m+' ≤ '+numFmt(c.fm)+' et '+numFmt(c.fM)+' ≤ '+M+', donc '+m+' ≤ '+U1+' ≤ '+M+' : la propriété est héréditaire.\n'
+   +'Conclusion : vraie au rang '+n0+' et héréditaire, donc pour tout entier n ≥ '+n0+', '+m+' ≤ '+U+' ≤ '+M+'.';
+}
+function rrRecPlain(c){ return String(c.recPlain).replace(/ₙ/g,'(n)'); }
+function rrQuestionIA(c){
+  return 'DÉMONTRER PAR RÉCURRENCE, rédaction entièrement libre. Suite (U(n)) définie pour n ≥ '+numFmt(c.n0)
+   +' par U('+numFmt(c.n0)+') = '+numFmt(c.u0)+' et U(n+1) = '+rrRecPlain(c)+' = f(U(n)), avec f(x) = '+c.fPlain+'. '
+   +'L’énoncé ADMET que f est croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] : l’élève n’a pas à le démontrer, seulement à s’en servir. '
+   +'Il doit démontrer que '+numFmt(c.m)+' ≤ U(n) ≤ '+numFmt(c.M)+' pour tout entier n ≥ '+numFmt(c.n0)+'. '
+   +'Il écrit sa démonstration ENTIÈRE dans un champ mathématique multi-lignes : aucune case à remplir, aucune amorce, rien de pré-écrit ; le nombre de lignes, leur ordre et leur découpage sont libres.';
+}
+function rrAttenduIA(c,j){
+  const manque=j.crit.filter(x=>!x.ok);
+  return 'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
+   +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE moments de la récurrence sont présents ET justes — '
+   +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
+   +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque ; '
+   +'(3) HÉRÉDITÉ démontrée : on applique f aux trois membres en JUSTIFIANT par la croissance de f, ce qui donne '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.fM)+', puis on ÉLARGIT pour retrouver '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' ; '
+   +'(4) CONCLUSION pour tout entier n ≥ '+numFmt(c.n0)+'. '
+   +'Une seule de ces quatre parties fausse ou absente donne correct:false. '
+   +'NE COMPTE PAS FAUX : l’ordre et le découpage des lignes (champ libre) ; l’orthographe, les accents et les majuscules ; l’écriture des indices (Un, U_n, U(n), Un+1, U(n+1)) ; les symboles « ≤ » et « <= » ; les tournures (« soit n… », « pour tout n… », « d’après l’hypothèse de récurrence ») ; une valeur approchée au dixième. '
+   +'CE QUE LA PAGE A DÉJÀ MESURÉ elle-même, et qu’elle affiche AU-DESSUS de ton texte : la présence des mots de structure et des nombres de l’initialisation. '
+   +(manque.length
+      ? ('Elle a relevé qu’il MANQUE : '+manque.map(x=>x.court).join(' ; ')+'. Tu ne dois donc PAS écrire que la rédaction est complète, et tu ne dois PAS répéter cette liste — occupe-toi du CALCUL et de la logique. ')
+      : 'Elle n’a rien relevé de manquant dans la structure : ne parle pas de la structure, occupe-toi du CALCUL et de la logique. ')
+   +'FEEDBACK : 2 à 4 phrases, tutoiement, ton chaleureux. Dis ce qui est JUSTE dans le calcul et ce qui cloche. '
+   +'CONTRAINTE ANTI-RECOPIE : n’écris jamais la démonstration de référence, ni aucune phrase recopiable telle quelle dans une rédaction, et ne donne AUCUN des nombres de cet exercice.';
+}
+/* Les jetons : les SYMBOLES sont donnés (≤ et les indices de U, qu'aucun
+   clavier ne porte), les MOTS ne le sont pas — un bouton « hérédité » écrirait
+   à la place de l'élève exactement ce que l'exercice lui demande de savoir. */
+let rrFeuille=null, rrLastMF=null, rrBusy=false;
+function rrActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && a.closest && a.closest('#rrSheet')) return a;
+  if(rrLastMF && document.contains(rrLastMF) && !rrLastMF.readOnly) return rrLastMF;
+  return document.querySelector('#rrSheet math-field:not([readonly])');
+}
+function rrInsert(lx){
+  const el=rrActiveMF(); if(!el || el.readOnly) return;
+  try{ el.focus(); }catch(e){}
+  try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }
+}
+function rrKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=rrActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function rrMenu(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;
+  const t=rrActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+  try{
+    const r=t.getBoundingClientRect();
+    t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
+      clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
+  }catch(e){}
+}
+/* LA BARRE D'ESPACE SORT DE L'INDICE, et écrit une espace partout ailleurs.
+   En mode « rédaction », mlFeuille pose mathModeSpace = espace vraie — sans quoi
+   « on suppose » s'écrirait « onsuppose ». Mais la convention de MathLive veut
+   que l'espace SORTE d'un indice, d'un exposant ou d'une fraction, et cette
+   convention-là disparaît avec elle : un élève qui tape « U_n » reste PRISONNIER
+   de l'indice, et toute la suite de sa phrase — « ≤ 6 donc… » — tombe DANS
+   l'indice de U. Le banc navigateur l'a montré du premier coup en tapant une
+   copie complète : la lecture rendait « U_(0 =3 et 0 ≤ 3 ≤ 6 donc…) », c'est-à-
+   dire une phrase illisible pour le modèle. Rien de tout cela ne se voit hors
+   d'un vrai MathLive — jsdom n'en a pas.
+   L'écouteur est posé en CAPTURE sur la feuille, une seule fois : les lignes
+   naissent au fil des « Entrée », et un écouteur posé ligne par ligne aurait
+   laissé les suivantes dehors. La profondeur se LIT (getElementInfo(...).depth
+   vaut 0 au sommet, 1 dans un indice) plutôt que de se deviner ; au sommet on
+   laisse faire MathLive, qui écrit l'espace.
+   mlFeuille n'est pas touchée : c'est le MÊME TEXTE dans les trois fichiers, et
+   un contrôle le compare au caractère près. */
+function rrEspace(e){
+  if(e.key!==' ' && e.key!=='Spacebar') return;
+  if(e.ctrlKey||e.altKey||e.metaKey) return;
+  const mf=e.target;
+  if(!mf || mf.tagName!=='MATH-FIELD' || mf.readOnly) return;
+  let prof=0;
+  try{ const i=mf.getElementInfo(mf.position); prof=(i&&typeof i.depth==='number')?i.depth:0; }catch(err){ return; }
+  if(prof<=0) return;                       /* au sommet : MathLive écrit l'espace */
+  e.preventDefault(); e.stopPropagation();
+  try{ mf.executeCommand('moveAfterParent'); }catch(err){}
+}
+async function startRR(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='recurrence-redaction'; test.kind='rr';
+  const n0s=(rand(0,1)===0)?[0,1]:[1,0];   /* les DEUX rangs de départ, ordre mélangé — comme au 6.5 */
+  test.questions=[genRCA(n0s[0]), genRCH(n0s[1])];
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  delete test.rrLignes;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('rr'); renderRR();
+}
+function renderRR(){
+  const c=test.questions[test.idx]; test.locked=false; rrBusy=false;
+  window.__conseilsDonnes=[];
+  $('rrQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('rrModeTag').innerHTML=modeTagHTML();
+  $('rrLiveScore').textContent=test.score;
+  const sub='<i>n</i> ≥ '+numFmt(c.n0);
+  $('rrPrompt').innerHTML='On prend la suite (<i>U</i><sub>n</sub>)<sub>'+sub+'</sub> telle que&nbsp;: '
+    +'<i>U</i><sub>'+numFmt(c.n0)+'</sub> = <b>'+numFmt(c.u0)+'</b> &nbsp;et&nbsp; '
+    +mlTex('U_{n+1}='+c.recTex+'=f(U_n)', '<i>U</i><sub>n+1</sub> = '+esc(c.recPlain)+' = <i>f</i> (<i>U</i><sub>n</sub>)')
+    +' &nbsp;avec&nbsp; '+mlTex('f(x)='+c.fTex, '<i>f</i> (<i>x</i>) = '+esc(c.fPlain))+'.'
+    +'<br>On admet que <i>f</i> (<i>x</i>) est <b>croissante</b> sur [&nbsp;'+numFmt(c.m)+'&nbsp;;&nbsp;'+numFmt(c.M)+'&nbsp;].'
+    +'<br><b>Démontrer par récurrence que&nbsp;: '+numFmt(c.m)+' ≤ <i>U</i><sub>n</sub> ≤ '+numFmt(c.M)+'&nbsp; pour tout entier '+sub+'.</b>';
+  rrFeuille=mlFeuille({ conteneur:'rrSheet', mode:'redaction' });
+  /* La reprise après une pause remet la rédaction : elle voyage DANS test — que
+     snapshotTest photographie en entier —, et non dans _boxes, qui ne sait
+     restaurer que des cases à id. Une rédaction perdue est du travail perdu. */
+  const brouillon=Array.isArray(test.rrLignes)?test.rrLignes:null;
+  if(brouillon && brouillon.length){
+    brouillon.forEach(function(v,i){
+      const L=rrFeuille.lignes[i]||rrFeuille.ajouterLigne(i-1);
+      if(L){ try{ L.mf.setValue(String(v)); }catch(e){} }
+    });
+  }
+  /* La feuille est un élément STATIQUE du document : ses écouteurs se posent une
+     seule fois, sinon chaque rendu en empilerait une paire de plus. */
+  const sh=$('rrSheet');
+  if(sh && !sh.__rrBranche){
+    sh.__rrBranche=true;
+    const noter=function(){ try{ test.rrLignes=rrFeuille.lignes.map(function(L){ return L.mf.getValue(); }); }catch(e){} };
+    sh.addEventListener('keydown', rrEspace, true);
+    sh.addEventListener('input', noter);
+    sh.addEventListener('focusout', noter);
+    sh.addEventListener('focusin', function(e){ if(e.target && e.target.tagName==='MATH-FIELD') rrLastMF=e.target; });
+  }
+  $('rrFeedback').textContent=''; $('rrFeedback').className='mp-feedback';
+  $('rrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRR()">Vérifier ma rédaction</button>';
+  /* Une reprise reprend AU BOUT de ce qui est écrit : setValue remet le curseur
+     au début, et l'élève écrivait alors au milieu de sa propre phrase. */
+  setTimeout(function(){
+    if(!rrFeuille || !rrFeuille.lignes.length) return;
+    const L=brouillon&&brouillon.length ? rrFeuille.lignes[rrFeuille.lignes.length-1] : rrFeuille.lignes[0];
+    try{ L.mf.focus(); }catch(e){}
+    if(brouillon&&brouillon.length){ try{ L.mf.executeCommand('moveToMathfieldEnd'); }catch(e){} }
+  },60);
+}
+async function checkRR(){
+  if(test.locked||rrBusy) return;
+  const c=test.questions[test.idx], fb=$('rrFeedback');
+  const rep=rrTexte().trim();
+  if(rep.replace(/\s/g,'').length<12){
+    fb.textContent='Écris d’abord ta démonstration : initialisation, hérédité, conclusion.';
+    fb.className='mp-feedback bad';
+    if(rrFeuille&&rrFeuille.lignes[0]) rrFeuille.lignes[0].mf.focus();
+    return;
+  }
+  if(tvi2CopieConseil(rep)){
+    fb.textContent='On dirait le texte du conseil recopié tel quel. Le conseil te guide — à toi d’écrire la démonstration avec tes propres mots. Cette tentative n’est pas comptée.';
+    fb.className='mp-feedback bad';
+    return;
+  }
+  const j=rrJuge(c,rep);
+  rrBusy=true;
+  $('rrActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.innerHTML=rrBilanHTML(j)+'<p class="rr-mot">L’IA relit ton calcul…</p>';
+  fb.className='mp-feedback iafb';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+      question:rrQuestionIA(c), attendu:rrAttenduIA(c,j), reponse:rep, balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  rrBusy=false;
+  if(!res || res.error){
+    /* Le bilan de la page reste VRAI — ce sont des faits mesurés —, mais la
+       note se joue sur le CALCUL, que personne n'a relu : on ne compte rien et
+       on ne verrouille pas. */
+    fb.innerHTML=rrBilanHTML(j)+'<p class="rr-mot">'+esc((res&&res.error)||'La relecture du calcul est indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.')+'</p>';
+    fb.className='mp-feedback iafb';
+    $('rrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRR()">Réessayer</button>';
+    return;
+  }
+  /* LE VERDICT DE LA PAGE PRIME DANS LE SENS DU REFUS. Ce qu'elle mesure est
+     prouvable ; le modèle, lui, juge le calcul. Une structure incomplète ne
+     peut pas valoir le point, quoi qu'en dise la prose. */
+  const correct = j.toutOk && res.correct===true;
+  const fbHTML=conseilHTML(res.feedback||'');
+  const bilan=rrBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
+  if(!correct && isSoutien()){
+    fb.innerHTML=bilan; fb.className='mp-feedback iafb';
+    $('rrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRR()">Revérifier</button>';
+    if(rrFeuille&&rrFeuille.lignes.length) rrFeuille.lignes[rrFeuille.lignes.length-1].mf.focus();
+    return;
+  }
+  test.locked=true;
+  if(rrFeuille) rrFeuille.verrouiller();
+  if(correct){
+    test.score++; $('rrLiveScore').textContent=test.score;
+    fb.innerHTML=bilan+'<p class="rr-mot good">'+esc(pick(['Parfait !','Très bien rédigé !','Excellent !','Bravo, récurrence complète !']))+'</p>';
+  } else {
+    fb.innerHTML=bilan+'<div class="rr-mot">Une rédaction complète ressemble à ceci :</div>'
+      +'<div class="tvi-model">'+esc(rrModele(c)).replace(/\n/g,'<br>')+'</div>';
+  }
+  fb.className='mp-feedback iafb';
+  test.answers.push({...(ptsExo()||{}),q:'Récurrence rédigée ('+(c.fam==='aff'?'affine':'quotient')+', n ≥ '+numFmt(c.n0)+') : '+numFmt(c.m)+' ≤ Un ≤ '+numFmt(c.M),
+    answer:'démonstration rédigée', given:correct?'✓':'incomplet', correct:correct, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('rrActions').innerHTML='<button class="btn btn-primary" onclick="nextRR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextRR(){ delete test.rrLignes; if(test.idx<test.questions.length-1){ test.idx++; renderRR(); } else finishTest(); }
+function rrConseilCtx(){
+  const c=test.questions[test.idx], rep=rrTexte().trim(), j=rrJuge(c,rep);
+  const manque=j.crit.filter(x=>!x.ok).map(x=>x.court);
+  return 'Exercice 6.7 : RÉCURRENCE — la rédaction complète, écrite librement par l’élève. '
+   +'Suite (U_n) pour n ≥ '+numFmt(c.n0)+', U_'+numFmt(c.n0)+' = '+numFmt(c.u0)+', U_{n+1} = f(U_n) avec f(x) = '+c.fPlain
+   +', croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] (admis par l’énoncé). À démontrer : '+numFmt(c.m)+' ≤ U_n ≤ '+numFmt(c.M)+' pour n ≥ '+numFmt(c.n0)+'. '
+   +'Il n’y a AUCUNE case : l’élève écrit tout dans une feuille multi-lignes — initialisation vérifiée et conclue, hérédité (on suppose… on montre…), application de f justifiée par sa croissance, élargissement, conclusion. '
+   +'Réponses attendues, à ne JAMAIS révéler : f('+numFmt(c.m)+') = '+numFmt(c.fm)+' et f('+numFmt(c.M)+') = '+numFmt(c.fM)+' ; chaîne finale '+numFmt(c.m)+' ≤ U_{n+1} ≤ '+numFmt(c.fM)+' ≤ '+numFmt(c.M)+'. '
+   +(rep ? 'Voici ce que l’élève a écrit pour l’instant : « '+rep.slice(0,900).replace(/\n/g,' / ')+' ». ' : 'L’élève n’a encore rien écrit : aide-le à démarrer par le premier moment d’une récurrence. ')
+   +(manque.length ? 'La page a relevé qu’il manque : '+manque.join(' ; ')+'. ' : 'La page ne relève rien de manquant dans la structure. ')
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUN de ces nombres, et n’écris jamais une phrase que l’élève pourrait recopier telle quelle dans sa rédaction — désigne chaque manque par son RÔLE. '
+   +'Méthode à faire appliquer : vérifier la propriété au rang de départ et le DIRE ; supposer l’encadrement au rang n ; annoncer ce qu’on montre au rang n+1 ; appliquer f aux trois membres en justifiant par la CROISSANCE de f (les inégalités sont conservées) ; remplacer f(U_n) par U_{n+1} ; élargir l’encadrement pour retrouver les bornes de départ ; conclure. '
+   +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
+   +'Aide-le sur le PREMIER moment qui manque ou qui cloche, sans donner la rédaction.';
+}
 /* ====================== TEST : Équation de tangente (lecture graphique) ====================== */
 /* Pour chaque cas on choisit des entiers a (abscisse du point A), fa = f(a) et m = f'(a) (la pente),
    puis une parabole  f(x) = c(x−a)² + m(x−a) + fa  qui passe par A(a ; fa) avec la pente m.
@@ -12254,6 +12656,15 @@ const RAP_EQ=
 +'<li><b>D\u00e9riv\u00e9e d\u2019un quotient</b> : \\(\\left(\\frac{u}{v}\\right)^{\\prime}=\\frac{u^{\\prime}v-uv^{\\prime}}{v^{2}}\\). Pour f(x) = \\(\\frac{ax+b}{cx+d}\\), on <b>d\u00e9veloppe</b> le num\u00e9rateur : a(cx+d) \u2212 c(ax+b) = acx + ad \u2212 acx \u2212 cb \u2014 les termes en x <b>se compensent</b>, il reste la <b>constante</b> ad \u2212 cb.</li>'
 +'<li>Un <b>carr\u00e9</b> est toujours positif (nul seulement en la valeur interdite) : le signe de f\u2009\u2032 est donc celui de sa constante, le <b>m\u00eame des deux c\u00f4t\u00e9s</b> \u2014 f\u2009\u2032 ne s\u2019annule jamais.</li>'
 +'<li>Dans le tableau, on place une <b>double barre</b> \u2551 \u00e0 la valeur interdite (f n\u2019y existe pas) : f est <b>monotone sur chacun</b> des deux intervalles \u2014 croissante si la constante est positive, d\u00e9croissante sinon \u2014 mais on ne compare JAMAIS les deux c\u00f4t\u00e9s entre eux.</li></ul></div>';
+const RAP_RR=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 R\u00c9DIGER une r\u00e9currence</h4>'
++'<p>Une r\u00e9currence se r\u00e9dige toujours dans le m\u00eame ordre, et chaque moment s\u2019ANNONCE : le correcteur doit voir o\u00f9 tu en es sans avoir \u00e0 le deviner.</p>'
++'<ul><li><b>Initialisation</b> \u2014 on \u00e9crit le mot, on remplace U par sa <b>valeur</b> au rang de d\u00e9part, on v\u00e9rifie l\u2019encadrement, et on <b>dit</b> que la propri\u00e9t\u00e9 est <b>vraie</b> \u00e0 ce rang. Une v\u00e9rification qui ne conclut pas ne prouve rien.</li>'
++'<li><b>H\u00e9r\u00e9dit\u00e9</b> \u2014 on \u00e9crit le mot, puis les deux phrases qui l\u2019ouvrent : \u00ab <b>on suppose</b> que m \u2264 U\u2099 \u2264 M \u00bb (l\u2019hypoth\u00e8se) et \u00ab <b>on montre</b> que m \u2264 U\u2099\u208a\u2081 \u2264 M \u00bb (le but). Sans elles, on ne sait plus ce qui est suppos\u00e9 et ce qui est \u00e0 d\u00e9montrer.</li>'
++'<li>On applique <i>f</i> aux trois membres, <b>en le justifiant</b> : comme <i>f</i> est <b>croissante</b> sur l\u2019intervalle, les in\u00e9galit\u00e9s sont <b>conserv\u00e9es</b>. C\u2019est la seule raison qui autorise ce passage \u2014 elle s\u2019\u00e9crit.</li>'
++'<li>On remplace <i>f</i>\u2009(U\u2099) par U\u2099\u208a\u2081, puis on <b>\u00e9largit</b> l\u2019encadrement pour retrouver les bornes de d\u00e9part : l\u2019intervalle est <b>stable</b>.</li>'
++'<li><b>Conclusion</b> \u2014 vraie au rang de d\u00e9part et h\u00e9r\u00e9ditaire, donc vraie pour tout entier n \u2265 n\u2080.</li></ul>'
++'<p>Les m\u00eames \u00e9tapes sont guid\u00e9es case par case dans {recurrence-encadrement} : si la r\u00e9daction libre te bloque, refais-le d\u2019abord.</p></div>';
 const RAP_RC=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9montrer un encadrement par r\u00e9currence</h4>'
 +'<ul><li><b>Initialisation</b> : on v\u00e9rifie la propri\u00e9t\u00e9 au rang de d\u00e9part (0 ou 1) en rempla\u00e7ant U par sa <b>valeur</b>.</li>'
@@ -12281,7 +12692,7 @@ const RAP_AFP=`<b>Associer une fonction f à sa dérivée f\u2009\u2032</b><br>
 \u2022 <b>Le signe de f\u2009\u2032 se lit sur les VARIATIONS de f</b> : f croît \u21d4 f\u2009\u2032 &gt; 0, f décroît \u21d4 f\u2009\u2032 &lt; 0. Et f\u2009\u2032 s'annule (0 dans le tableau) aux <b>sommets et creux</b> de f — là où la tangente est horizontale.<br>
 \u2022 <b>Les variations de f se lisent sur le SIGNE de f\u2009\u2032</b> : quand la courbe de f\u2009\u2032 est AU-DESSUS de l'axe des abscisses, f croît ; au-dessous, f décroît ; f\u2009\u2032 coupe l'axe exactement là où f change de sens.<br>
 \u2022 <b>Deux courbes sont COMPATIBLES</b> quand leurs deux tableaux coïncident : les zéros de f\u2009\u2032 tombent sous les sommets de f, et f\u2009\u2032 est positive là où f croît. Un seul désaccord — un zéro décalé, un signe inversé — et f\u2009\u2032 dessinée ne peut pas être la dérivée de f dessinée.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rr:RAP_RR, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -16003,6 +16414,7 @@ const QIA_SUGG={
   ec:["Pourquoi une exponentielle ne s\u2019annule-t-elle jamais ?","Comment dériver un produit u\u00b7v ?","Comment trouver le signe de f\u2032 ?","Comment retrouver l\u2019équation de la tangente en x = 1 ?"],
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
   rc:["Quelles sont les \u00e9tapes d\u2019une r\u00e9currence ?","Pourquoi f croissante conserve-t-elle les in\u00e9galit\u00e9s ?","Comment conclure quand f(M) est plus petit que M ?","\u00c0 quoi sert l\u2019initialisation ?"],
+  rr:["Faire un rappel de cours pour cet exercice.","Comment r\u00e9dige-t-on une r\u00e9currence ?","Que faut-il \u00e9crire dans l\u2019initialisation ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb ?","Pourquoi faut-il justifier que f est croissante ?"],
   eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi le signe de f\u2032 est-il celui de son num\u00e9rateur ?","Que signifie la double barre dans le tableau ?"],
   ef:["Pourquoi e\u02e3 est-il toujours strictement positif ?","Comment trouver le signe d\u2019un produit ?","Quel est le lien entre le signe de f\u2032 et les variations de f ?","O\u00f9 f admet-elle un extremum ?"],
   sp:["Faire un rappel de cours pour cet exercice.","Comment trouver la racine de ax + b ?","Que met-on sur un trait vertical du tableau ?","Comment trouver le signe du produit sur un intervalle ?"],
@@ -16275,7 +16687,7 @@ function qiaIlluMission(){
     dexp:['tangente','signe-variations'], dexpq:['tangente','signe-variations'],
     eq:['tv-double-barre','asymptote-v','tableau-signe','signe-variations'],
     su:['fonction-croissante','fonction-decroissante'], sa:['fonction-croissante','fonction-decroissante'], enc:['fonction-croissante','fonction-decroissante'],
-    rc:['fonction-croissante','fonction-decroissante']
+    rc:['fonction-croissante','fonction-decroissante'], rr:['fonction-croissante','fonction-decroissante']
   };
   const ids=(test && CAT[test.kind]) || ['coeff-directeur','fonction-croissante','fonction-decroissante','tvi-unique','signe-variations','tangente','tableau-signe'];
   const lst=ids.map(function(id){ return '[ILLU:'+id+'] '+TXT[id]; }).join(' ; ');
@@ -16857,7 +17269,7 @@ const KB_N = {latex:"n"};
 const KB_USQ = {tooltip:"U indice", insert:"U_{#0}",
   label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><text x="3.5" y="16.5" style="font:italic 700 18px KaTeX_Math,Georgia,serif;fill:currentColor">U</text><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>'};
 function kbVarsFor(id){
-  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete' || id === 'recurrence-redaction') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;

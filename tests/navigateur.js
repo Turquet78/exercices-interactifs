@@ -2765,8 +2765,9 @@ async function parcours(page, N){
     titre('6 quaterdecies. LA SAISIE LIBRE : LA FEUILLE DE CALCUL');
     if(!P.saisieLibre){
       ignorer('la feuille de calcul écrit, ajoute des lignes, et sa lecture part au modèle',
-        'ce niveau n\'a pas d\'exercice à saisie libre');
-      ignorer('le verdict de l\'IA fait la note', 'ce niveau n\'a pas d\'exercice à saisie libre');
+        'ce niveau n\'a pas la feuille de somme de fractions (sfl) que ce contrôle pilote');
+      ignorer('le verdict de l\'IA fait la note',
+        'ce niveau n\'a pas la feuille de somme de fractions (sfl) que ce contrôle pilote');
     } else if(!ml){
       ignorer('la feuille de calcul écrit, ajoute des lignes, et sa lecture part au modèle', 'MathLive absent');
       ignorer('le verdict de l\'IA fait la note', 'MathLive absent');
@@ -2920,6 +2921,168 @@ async function parcours(page, N){
         sauve.score === lina.avant + 1 && sauve.note === true && /\bgood\b/.test(sauve.classe),
         'score ' + sauve.score + ' (avant : ' + lina.avant + '), note ' + sauve.note + ', classe ' + JSON.stringify(sauve.classe));
       verifier('la saisie libre ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 octodecies. LA RÉCURRENCE RÉDIGÉE : LA PROSE FRANÇAISE DANS UN
+       CHAMP MATHÉMATIQUE =====
+       L'élève écrit sa démonstration ENTIÈRE dans la feuille MathLive : des
+       phrases françaises, des accents, et des indices au milieu. Rien de tout
+       cela ne se mesure hors d'un vrai MathLive — jsdom n'en a pas, et le juge
+       de la page y est éprouvé sur des chaînes que le banc écrit lui-même.
+       Ici on TAPE, comme un élève, et on regarde ce que la page a vraiment lu.
+
+       Le premier passage de cette sonde a trouvé un défaut que rien d'autre ne
+       pouvait voir : en mode « rédaction », mlFeuille pose une VRAIE espace
+       (sans quoi « on suppose » s'écrirait « onsuppose »), et la convention de
+       MathLive — l'espace SORT d'un indice — disparaît avec elle. Un élève qui
+       tapait « U_n » restait prisonnier de l'indice, et toute la suite de sa
+       phrase tombait DEDANS : la lecture rendait « U_(0 =3 et 0 ≤ 3 ≤ 6 donc…) »,
+       une phrase illisible pour le modèle, sans la moindre erreur nulle part.
+
+       Cinq bords, et n'en tenir qu'un ne tient rien :
+       — la prose FRANÇAISE ressort telle qu'elle est entrée, accents compris ;
+       — la barre d'espace SORT de l'indice, et écrit une espace ailleurs ;
+       — Entrée ajoute une ligne, et la feuille se lit d'un trait ;
+       — les jetons (≤, Uₙ, Uₙ₊₁) tombent dans la ligne où l'élève écrit ;
+       — le bilan est PEINT : vert ce qui va, rouge ce qui manque — mesuré à
+         l'encre RÉSOLUE, jamais à la classe, la leçon de la phrase du 6.3. */
+    titre('6 octodecies. LA RÉCURRENCE RÉDIGÉE : LA PROSE DANS UN CHAMP MATHÉMATIQUE');
+    if(!P.recurrenceRedigee){
+      ignorer('la feuille rend la prose française telle qu\'elle est écrite',
+        'ce niveau n\'a pas l\'exercice de récurrence rédigée');
+      ignorer('le bilan de la page est peint : vert ce qui va, rouge ce qui manque',
+        'ce niveau n\'a pas l\'exercice de récurrence rédigée');
+    } else if(!ml){
+      ignorer('la feuille rend la prose française telle qu\'elle est écrite', 'MathLive absent');
+      ignorer('le bilan de la page est peint : vert ce qui va, rouge ce qui manque', 'MathLive absent');
+    } else {
+      const R = P.recurrenceRedigee;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), R.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1400);
+      /* La question est ÉPINGLÉE : la copie qu'on tape doit coller à l'énoncé
+         tiré, sinon le juge refuserait à bon droit et le contrôle mesurerait
+         autre chose que ce qu'il croit mesurer. */
+      await s.page.evaluate(() => {
+        window.__verdict = true; window.__envoye = null;
+        const vrai = sb.functions.invoke.bind(sb.functions);
+        sb.functions.invoke = function(nom, opts){
+          if(opts && opts.body && opts.body.action === 'verif'){
+            window.__envoye = opts.body;
+            return Promise.resolve({ data:{ correct: window.__verdict, feedback:'Retour de contrôle.' }, error:null });
+          }
+          return vrai(nom, opts);
+        };
+        test.questions[test.idx] = { fam:'aff', n0:0, a:0.5, b:3, m:0, M:6, u0:3, fm:3, fM:4.5,
+          fTex:'0{,}5x+3', recTex:'0{,}5U_{n}+3', fPlain:'0,5x + 3', recPlain:'0,5Uₙ + 3' };
+        delete test.rrLignes; renderRR();
+      });
+      await s.page.waitForTimeout(900);
+      /* on tape la démonstration, ligne par ligne, exactement comme un élève */
+      await s.page.evaluate(() => rrFeuille.lignes[0].mf.focus());
+      const COPIE = [
+        'Initialisation : U_0 = 3 et 0 <= 3 <= 6 donc la propriete est vraie au rang 0',
+        'Hérédité : on suppose que 0 <= U_n <= 6. On montre que 0 <= U_n+1 <= 6',
+        'f est croissante sur [0 ; 6] donc 3 <= U_n+1 <= 4,5 <= 6',
+        'Conclusion : pour tout n >= 0 la propriete est vraie'
+      ];
+      for(let i = 0; i < COPIE.length; i++){
+        await s.page.keyboard.type(COPIE[i], { delay: 12 });
+        if(i < COPIE.length - 1){ await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(260); }
+      }
+      await s.page.waitForTimeout(400);
+      const vu = await s.page.evaluate(() => {
+        const txt = rrTexte(), j = rrJuge(test.questions[test.idx], txt);
+        /* le jeton doit tomber dans la ligne où l'élève écrit, pas dans la
+           première venue — la leçon de la feuille de la Seconde */
+        const avant = rrFeuille.lignes.map(L => L.mf.getValue());
+        let ou = -1;
+        try{
+          const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+          L.mf.focus(); rrInsert('U_{n+1}');
+          const apres = rrFeuille.lignes.map(M => M.mf.getValue());
+          for(let i = 0; i < apres.length; i++) if(apres[i] !== avant[i]){ ou = i; break; }
+          L.mf.setValue(avant[avant.length - 1]);
+        }catch(e){}
+        return { lignes: rrFeuille.lignes.length, txt: txt, crit: j.crit.map(x => (x.ok ? '' : x.cle)).filter(Boolean),
+                 jetonLigne: ou, derniere: rrFeuille.lignes.length - 1,
+                 clavier: [...document.querySelectorAll('#scr-rr button')]
+                   .some(b => /clavier math/i.test(b.getAttribute('title') || '')) };
+      });
+      verifier('la feuille rend la prose française telle qu\'elle est écrite',
+        /Hérédité/.test(vu.txt) && /on suppose que/.test(vu.txt) && /croissante/.test(vu.txt),
+        'lu : ' + JSON.stringify(vu.txt.slice(0, 160)));
+      /* LE BORD QUI A SERVI : la barre d'espace sort de l'indice. Sans lui,
+         « U_n <= 6 » s'écrit « U_(n ≤ 6) » et la phrase entière tombe dans
+         l'indice de U. On exige donc l'indice FERMÉ puis la suite DEHORS. */
+      verifier('la barre d\'espace sort de l\'indice, et la phrase continue dehors',
+        /U_\(n\)\s*≤/.test(vu.txt) && !/U_\(n[^)]*≤/.test(vu.txt),
+        'lu : ' + JSON.stringify(vu.txt.slice(0, 200)));
+      verifier('Entrée ajoute une ligne, et la feuille se lit d\'un trait',
+        vu.lignes === 4 && vu.txt.split('\n').length === 4,
+        vu.lignes + ' ligne(s), lecture en ' + vu.txt.split('\n').length + ' morceau(x)');
+      verifier('la copie tapée passe les sept critères de la page',
+        vu.crit.length === 0, 'refusée sur : ' + vu.crit.join(', '));
+      verifier('un jeton tombe dans la ligne où l\'élève écrit',
+        vu.jetonLigne === vu.derniere && vu.clavier,
+        'inséré dans la ligne ' + vu.jetonLigne + ' au lieu de ' + vu.derniere
+          + ', bouton clavier : ' + vu.clavier);
+      /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
+         une règle plus spécifique peut la repeindre, et c'est arrivé sur la
+         phrase des couleurs du 6.3 sans qu'un caractère du HTML ne le dise. */
+      await s.page.click('#rrActions .btn-primary');
+      await s.page.waitForTimeout(900);
+      const tout = await s.page.evaluate(() => {
+        const b = document.querySelector('#rrFeedback .rr-crit');
+        const enc = e => getComputedStyle(e).color;
+        return { score: test.score, envoye: (window.__envoye || {}).reponse || '',
+                 verts: b ? [...b.querySelectorAll('.fb-ok')].map(enc) : [],
+                 rouges: b ? [...b.querySelectorAll('.fb-ko')].map(enc) : [] };
+      });
+      /* la copie est complète : sept lignes vertes, aucune rouge */
+      const dominante = c => { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(c || ''); if(!m) return '?';
+        const r = +m[1], v = +m[2], b = +m[3];
+        return (v > r + 20 && v > b + 20) ? 'vert' : (r > v + 20 && r > b + 20) ? 'rouge' : 'autre'; };
+      verifier('une copie complète : sept lignes VERTES, aucune rouge',
+        tout.verts.length === 7 && tout.rouges.length === 0
+          && tout.verts.every(c => dominante(c) === 'vert'),
+        tout.verts.length + ' verte(s) ' + JSON.stringify(tout.verts.slice(0, 1))
+          + ', ' + tout.rouges.length + ' rouge(s)');
+      verifier('la copie tapée part au modèle telle qu\'elle est lue',
+        tout.envoye.indexOf('Initialisation') === 0 && tout.envoye.split('\n').length === 4 && tout.score === 1,
+        'envoyé : ' + JSON.stringify(tout.envoye.slice(0, 120)) + ', score ' + tout.score);
+      /* et le bord opposé : une copie à qui il manque un mot se peint EN ROUGE
+         sur cette ligne-là, et en vert sur les autres */
+      await s.page.evaluate(() => {
+        delete test.rrLignes; test.locked = false; test.score = 0; test.answers = [];
+        renderRR();
+      });
+      await s.page.waitForTimeout(800);
+      await s.page.evaluate(() => rrFeuille.lignes[0].mf.focus());
+      await s.page.keyboard.type('Initialisation : U_0 = 3 et 0 <= 3 <= 6 donc vrai au rang 0. '
+        + 'On suppose que 0 <= U_n <= 6. On montre que 0 <= U_n+1 <= 6. f est croissante.', { delay: 10 });
+      await s.page.waitForTimeout(300);
+      await s.page.click('#rrActions .btn-primary');
+      await s.page.waitForTimeout(900);
+      const manque = await s.page.evaluate(() => {
+        const b = document.querySelector('#rrFeedback .rr-crit');
+        const enc = e => getComputedStyle(e).color;
+        return { score: test.score,
+                 verts: b ? b.querySelectorAll('.fb-ok').length : 0,
+                 rouges: b ? [...b.querySelectorAll('.fb-ko')].map(enc) : [] };
+      });
+      verifier('le bilan de la page est peint : vert ce qui va, rouge ce qui manque',
+        manque.rouges.length === 1 && manque.verts === 6
+          && dominante(manque.rouges[0]) === 'rouge' && manque.score === 0,
+        manque.verts + ' verte(s), ' + manque.rouges.length + ' rouge(s) '
+          + JSON.stringify(manque.rouges) + ', score ' + manque.score
+          + ' — attendu 6 vertes, 1 rouge (le mot « hérédité »), et aucun point');
+      verifier('la récurrence rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
