@@ -5406,9 +5406,9 @@ function dmPoidsQuestion(kind, q){
    15/20 à l'exercice 1 alors que tout est bon ». 3 questions réglées sur 4
    tirées, et test.maxScore restait celui du tirage ENTIER : une copie sans
    faute valait 3/4, c'est-à-dire 75 %, c'est-à-dire 7,5/10, c'est-à-dire
-   15/20. Le pire défaut du projet — l'exercice apprend l'inverse de ce qu'il
-   enseigne — et il frappait TOUT exercice dont un devoir règle le nombre de
-   questions, sur les trois niveaux.
+   15/20. Le pire défaut du projet : l'exercice apprend l'inverse de ce qu'il
+   enseigne. C'est ICI qu'il notait, finishTest lisant « test.maxScore ||
+   test.questions.length » (enregistrerNotePartielle aussi).
    Trois voies, dans cet ordre : le poids exact par question (ci-dessus) ; à
    défaut le poids HOMOGÈNE, quand maxScore se divise exactement par le
    nombre de questions tirées — le cas de tout exercice noté par question ;
@@ -9646,11 +9646,7 @@ async function startPercent(){
   test.kind='pct';
   test.questions=Array.from({length:8},genPercent);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global, et ICI finishTest le lit — sans cette ligne il notait sur celui de l'exercice précédent (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('ptest'); renderPTest();
 }
@@ -9780,11 +9776,7 @@ async function startAug(){
   test.kind='aug';
   test.questions=Array.from({length:6},genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global, et ICI finishTest le lit — sans cette ligne il notait sur celui de l'exercice précédent (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('atest'); renderATest();
 }
@@ -9965,11 +9957,7 @@ async function startDim(){
   test.kind='dim';
   test.questions=Array.from({length:6},genDim);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global, et ICI finishTest le lit — sans cette ligne il notait sur celui de l'exercice précédent (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dtest'); renderDTest();
 }

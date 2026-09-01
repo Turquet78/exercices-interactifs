@@ -4767,9 +4767,10 @@ function dmPoidsQuestion(kind, q){
    15/20 à l'exercice 1 alors que tout est bon ». 3 questions réglées sur 4
    tirées, et test.maxScore restait celui du tirage ENTIER : une copie sans
    faute valait 3/4, c'est-à-dire 75 %, c'est-à-dire 7,5/10, c'est-à-dire
-   15/20. Le pire défaut du projet — l'exercice apprend l'inverse de ce qu'il
-   enseigne — et il frappait TOUT exercice dont un devoir règle le nombre de
-   questions, sur les trois niveaux.
+   15/20. Le pire défaut du projet : l'exercice apprend l'inverse de ce qu'il
+   enseigne. Ce niveau-ci n'en souffrait PAS pour la note — son finishTest
+   note sur le nombre de questions, seule la Seconde lit maxScore — mais la
+   coupe le lit : un barème étranger lui ferait refuser de couper, en silence.
    Trois voies, dans cet ordre : le poids exact par question (ci-dessus) ; à
    défaut le poids HOMOGÈNE, quand maxScore se divise exactement par le
    nombre de questions tirées — le cas de tout exercice noté par question ;
@@ -5039,11 +5040,7 @@ async function startSuites(){
   currentTestId='suites'; test.kind='gen';
   test.questions=Array.from({length:5},genSuite);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('test'); renderQuestion();
 }
@@ -5054,11 +5051,7 @@ async function startDerivees(){
   currentTestId='derivees'; test.kind='gen';
   test.questions=Array.from({length:5},genDeriv);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('test'); renderQuestion();
 }
@@ -5356,11 +5349,7 @@ async function startTVI(){
   const n=5;
   test.questions=Array.from({length:n}, genTVI);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tvi'); renderTVI();
 }
@@ -5607,11 +5596,7 @@ async function startTVI3(){
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const tmp=plan[i]; plan[i]=plan[j]; plan[j]=tmp; }
   test.questions=plan.map(g=>genTVI3(g));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tvi3'); renderTVI3();
 }
@@ -6001,6 +5986,8 @@ async function startLR(){
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
   test.questions=plan.map(function(f){ return genLR(f); });
   test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
   show('lr'); renderLR();
 }
 
@@ -6153,11 +6140,7 @@ async function startTVINS(){
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
   test.questions=plan.map(sh=>genTVINS(sh));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tvins'); renderTVINS();
 }
@@ -6557,11 +6540,7 @@ async function startTVG(){
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t2=plan[i]; plan[i]=plan[j]; plan[j]=t2; }
   test.questions=plan.map(fm=>genTVG(fm));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tvg'); renderTVG();
 }
@@ -6759,11 +6738,7 @@ async function startDHV(){
   const iH=rand(0,1), iV=rand(0,1);
   test.questions=[genDHVQ(iH===0,iV===0), genDHVQ(iH===1,iV===1)];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dhv'); renderDHV();
 }
@@ -7114,11 +7089,7 @@ async function startLG(){
   for(let i=fams.length-1;i>0;i--){ const j=rand(0,i); const t2=fams[i]; fams[i]=fams[j]; fams[j]=t2; }
   test.questions=fams.slice(0,5).map(fm=>genLG(fm));   /* 5 essais parmi les 6 familles */
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('lg'); renderLG();
 }
@@ -7440,11 +7411,7 @@ async function startLG2(){
   for(let i=fams.length-1;i>0;i--){ const j=rand(0,i); const t2=fams[i]; fams[i]=fams[j]; fams[j]=t2; }
   test.questions=fams.slice(0,5).map(fm=>{ const q=(fm==='cubv')?genLGCubV():genLG(fm); q.tv=lg2Table(q); return q; });
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('lg2'); renderLG2();
 }
@@ -7689,11 +7656,7 @@ async function startLG3(){
   for(let i=fams.length-1;i>0;i--){ const j=rand(0,i); const t2=fams[i]; fams[i]=fams[j]; fams[j]=t2; }
   test.questions=fams.slice(0,5).map(fm=>lg3Question(fm));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('lg3'); renderLG3();
 }
@@ -7860,11 +7823,7 @@ async function startTVI2(){
   const n=5;
   test.questions=Array.from({length:n}, genTVI);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tvi2'); renderTVI2();
 }
@@ -8212,11 +8171,7 @@ async function startDexp(){
   currentTestId='derivee-exp'; test.kind='dexp'; test.dexpLevel=1;
   test.questions=Array.from({length:5}, genDexp);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dexp'); renderDexp();
 }
@@ -8227,11 +8182,7 @@ async function startDexp2(){
   currentTestId='derivee-exp-2'; test.kind='dexp'; test.dexpLevel=2;
   test.questions=Array.from({length:5}, genDexp);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dexp'); renderDexp2();
 }
@@ -8711,11 +8662,7 @@ async function startDexp3(){
   currentTestId='derivee-exp-3'; test.kind='dexp'; test.dexpLevel=3;
   test.questions=Array.from({length:5}, genDexp3);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dexp'); renderDexp3();
 }
@@ -8959,11 +8906,7 @@ async function startDexpQ2(){
   currentTestId='derivee-exp-quotient-2'; test.kind='dexpq'; test.dexpLevel=2;
   test.questions=Array.from({length:5}, genDexpQ);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dexp'); renderDexpQ2();
 }
@@ -9035,11 +8978,7 @@ async function startDexpQ(){
   currentTestId='derivee-exp-quotient'; test.kind='dexpq'; test.dexpLevel=1;
   test.questions=Array.from({length:5}, genDexpQ);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('dexp'); renderDexpQ();
 }
@@ -9433,11 +9372,7 @@ async function startSV(){
   const kinds=svShuffle(['maxRight','minRight','maxLeft','minLeft']);
   test.questions=Array.from({length:n}, (_,i)=>genSVCase(i,kinds));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('sv'); renderSV();
 }
@@ -9967,11 +9902,7 @@ async function startAfp(){
   currentTestId='associer-derivee'; test.kind='afp';
   test.questions=afpBuildQuestions();
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('afp'); renderAfp();
 }
@@ -10221,11 +10152,7 @@ async function startAfq(){
   currentTestId='variations-depuis-derivee'; test.kind='afq';
   test.questions=afqBuildQuestions();
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('afq'); renderAfq();
 }
@@ -10319,11 +10246,7 @@ async function startEF(){
      f(x) = ax\u00b7e^(bx\u00b2) dont f' = (dx\u00b2+e)e^(bx\u00b2) (racines \u00b1r) \u2014 et une 4e au hasard. */
   test.questions=[genEF('a1'),genEF('a2'),genEF('p2'),genEF(pick(['a1','a2','p2']))];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('ef'); renderEF();
 }
@@ -10598,11 +10521,7 @@ async function startEQ(){
   const modes=(rand(0,1)===0)?['croi','decr']:['decr','croi'];   /* une croissante ET une decroissante, ordre melange */
   test.questions=[genEQ(modes[0]),genEQ(modes[1])];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('eq'); renderEQ();
 }
@@ -10877,11 +10796,7 @@ async function startRC(){
   const n0s=(rand(0,1)===0)?[0,1]:[1,0];   /* les DEUX rangs de depart evalues, ordre melange */
   test.questions=[genRCA(n0s[0]), genRCH(n0s[1])];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('rc'); renderRC();
 }
@@ -11117,11 +11032,7 @@ async function startTG(){
   const n=5;
   test.questions=Array.from({length:n}, (_,i)=>genTGCase(i));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tg'); renderTG();
 }
@@ -11292,11 +11203,7 @@ async function startTX(){
   const qs=[]; for(let i=0;i<TX_N;i++) qs.push(genTXCase(qs));
   test.questions=qs;
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('tx'); renderTX();
 }
@@ -11526,11 +11433,7 @@ async function startEC(){
   currentTestId='etude-exponentielle'; test.kind='ec';
   test.questions=[genECCase()];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   test.maxScore=ecMax(test.questions[0]);
   show('ec'); renderEC();
@@ -11898,11 +11801,7 @@ async function startS1(){
   currentTestId='signe-premier-degre'; test.kind='s1';
   test.questions=s1BuildQuestions();
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('s1'); renderS1();
 }
@@ -12077,11 +11976,7 @@ async function startS2Run(level){
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t=plan[i]; plan[i]=plan[j]; plan[j]=t; }  // mélange
   test.questions=plan.map(nr=>genS2Root(nr));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('s2'); renderS2();
 }
@@ -12894,11 +12789,7 @@ async function startSPC(){
   currentTestId='signe-quotient-carre'; test.kind='sp';
   test.questions=[genSPC(),genSPC()];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('sp'); renderSP();
 }
@@ -12910,11 +12801,7 @@ async function startSP(){
   /* progression : d'abord un produit, puis un quotient, puis l'un des deux au hasard */
   test.questions=[genSP(),genSPQ(),(rand(0,1)?genSP():genSPQ())];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('sp'); renderSP();
 }
@@ -13143,11 +13030,7 @@ async function startSU(){
   for(let i=plan.length-1;i>0;i--){ const j=rand(0,i); const t=plan[i]; plan[i]=plan[j]; plan[j]=t; }
   test.questions=plan.map(p=>genSU(p[0],p[1]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('su'); renderSU();
 }
@@ -13966,11 +13849,7 @@ async function startENC(){
      puis A - B/(x+c) (deux retournements de l'ordre : inverse puis oppose) */
   test.questions=[genENC('aff'),genENC('rac'),genENC('inv'),genENC('quo')];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('enc'); renderENC();
 }
@@ -14243,11 +14122,7 @@ async function startREC(){
   const a0=rand(0,1), s0=rand(0,1);
   test.questions=[recBuild('aff',a0,s0?'cr':'de'),recBuild('quo',1-a0,s0?'de':'cr')];
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('rec'); renderREC();
 }
@@ -14431,11 +14306,7 @@ async function startSA(){
   currentTestId='suite-auxiliaire'; test.kind='sa';
   test.questions=SA.genSession();
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
-  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
-     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
-     note se calculait sur un barème étranger (trouvé en septembre 2026 en
-     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
-     question : le barème est le nombre de questions. */
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
   show('sa'); renderSA();
 }
@@ -14715,6 +14586,8 @@ async function startSA2(){
   currentTestId='suite-auxiliaire-2'; test.kind='sa2';
   test.questions=sa2GenSession();
   test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
   show('sa2'); renderSA2();
 }
 function renderSA2(){
