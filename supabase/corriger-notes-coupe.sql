@@ -58,6 +58,7 @@
 --     une copie « sans faute jusqu'ici » n'est pas une copie à 100 % ;
 --   · les notes hors devoir (sans details.dm) : la coupe ne s'applique qu'aux
 --     exercices lancés depuis un devoir ou une fiche ;
+--   · la Première et la Terminale, indemnes.
 --
 --  L'IDEMPOTENCE NE TIENT À AUCUN GARDE-FOU, et c'est le détecteur qui la
 --  donne : une ligne réparée porte total = score, donc « total > score » est
@@ -65,7 +66,6 @@
 --  réparées » avait d'abord été écrit ici ; le sabotage l'a montré INERTE — le
 --  retirer ne changeait rien — et un garde-fou qui n'écarte jamais rien fait
 --  croire qu'on vérifie quelque chose. C'est le banc qui EXIGE la propriété.
---   · la Première et la Terminale, indemnes.
 --
 --  REVENIR EN ARRIÈRE, si besoin :
 --    update public.resultats_2nde
