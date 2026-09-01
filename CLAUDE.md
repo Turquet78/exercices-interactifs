@@ -2127,6 +2127,52 @@ retirer la ligne de la voie exacte laissait un `else if` orphelin, donc une
 page qui ne se charge plus — **un sabotage qui casse la syntaxe ne dit rien du
 contrôle visé**, il fallait débrancher la voie sans la retirer.
 
+**Et les notes DÉJÀ enregistrées se réparent — celles qu'on peut PROUVER.**
+Demande de Turquet (septembre 2026) : « peux-tu corriger les notes des élèves
+en Seconde sur la fiche 3 ». `supabase/corriger-notes-coupe.sql` se colle dans
+l'éditeur SQL, comme les migrations.
+**Une copie SANS FAUTE vaut 100 %, et c'est exact.** Le score n'additionne que
+des réponses justes : sans aucune faute il atteint EXACTEMENT le barème de la
+séance réellement posée, quel que soit le poids des questions et sans qu'on ait
+à connaître le réglage du devoir ni le tirage. Une copie sans faute à moins de
+100 % porte donc, par construction, un barème qui n'est pas le sien : le score
+EST le barème juste. **Le détecteur et la réparation sont la même chose** —
+aucune ligne n'est corrigée sans que son propre contenu ne démontre qu'elle est
+fausse — et c'est aussi ce qui donne l'IDEMPOTENCE sans aucun garde-fou :
+réparée, la ligne porte total = score, donc elle ne peut plus être reprise.
+**Ce qu'il REFUSE de faire compte autant.** Une copie qui a des fautes est
+sous-notée elle aussi, et pourtant elle n'est pas touchée : son barème juste
+n'est écrit nulle part. Le déduire de celui d'un camarade supposerait que les
+questions pèsent toutes le même poids (faux pour plusieurs exercices — une
+équation vaut 5 cases, une inéquation 17) ET que sa séance ait été coupée
+pareil : deux choses que la ligne ne dit pas. **Un pourcentage remonté à tort
+serait invisible et définitif, là où une note laissée trop basse se voit et se
+rattrape** — l'élève refait l'exercice, la meilleure note l'emporte, le carnet
+se corrige seul. C'est la doctrine des TROIS positions du juge des rédactions,
+transposée : on ne répare que sur un fait prouvable, on s'abstient sinon. Une
+première version réparait ces copies sur le barème d'un groupe ; elle a été
+retirée avant le premier banc.
+**Le second bord est de le DIRE** : les copies non réparées sont listées, avec
+leur devoir, plutôt que tues — un carnet à moitié juste dont on ignore la
+moitié serait pire. Et l'ancien barème est conservé dans la ligne
+(`details.correction_bareme`), donc rien n'est perdu et le retour arrière tient
+en une requête.
+**Seule la Seconde est concernée**, comme le défaut lui-même.
+**Deux sabotages sont restés verts, et ils ne disaient pas la même chose.**
+Retirer « ignorer les lignes déjà réparées » ne changeait rien — HUITIÈME
+garde-fou mort du projet, retiré : l'idempotence vient du détecteur. Mais
+retirer « ignorer les brouillons de pause » ne changeait rien non plus, pour
+une raison qui ne vit PAS dans ce fichier — une pause ne porte pas de `misses`,
+et c'est `snapshotTest()` qui en décide, ailleurs. Ce garde-là RESTE, et le banc
+sème désormais une pause qui porterait des `misses` pour rendre le bord
+atteignable : **un garde inerte parce qu'une autre règle du même fichier le
+couvre n'est pas un garde inerte par accident dans un fichier voisin.** Huit
+sabotages en tout, chacun rougissant en nommant son défaut.
+Le banc vit dans `npm run test:base`, seul endroit qui sache lever une vraie
+base : copie parfaite réparée, copie fautive laissée ET nommée, note partielle
+et brouillon de pause épargnés, note hors devoir intacte, Première intacte,
+aucune note baissée, idempotence, retour arrière au caractère près.
+
 **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
 « Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa
@@ -4040,7 +4086,11 @@ fuites. `npm run test:base` comble ce trou sans jamais toucher au projet : il
 lève un PostgreSQL jetable, y recrée l'état d'avant, y joue les vraies
 migrations (001, 002, 003, 004 et 008 — les 005 à 007 sont du `storage`, propre
 à Supabase, que ce banc ne sait pas lever), puis joue chaque rôle — visiteur,
-deux élèves, professeur — et vérifie ce que chacun obtient. Il exige PostgreSQL installé localement ; à défaut il le dit
+deux élèves, professeur — et vérifie ce que chacun obtient. Il éprouve aussi
+les scripts qui ÉCRIVENT dans la base vivante — la restauration d'une
+sauvegarde, le reliage des comptes, la réparation des notes faussées par la
+coupe : ce sont les gestes les plus dangereux du dépôt, et aucun autre banc ne
+peut les voir. Il exige PostgreSQL installé localement ; à défaut il le dit
 bruyamment plutôt que de passer au vert.
 
 Ce qu'aucun banc ne voit, et qui reste à vérifier à la main sur le projet : le

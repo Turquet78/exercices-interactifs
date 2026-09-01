@@ -740,6 +740,162 @@ bilan('une note dont l\'élève a disparu est signalée comme telle',
   /MANQUANTE\s+id=13.*n'est plus dans la base/.test(orphelin), orphelin);
 psql('postgres', ['-c', 'drop database if exists vive']);
 
+/* ---------------------------------------------------------------------------
+   6. Réparer les notes faussées par la coupe du nombre de questions
+   -------------------------------------------------------------------------
+   Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont
+   15/20 alors que tout est bon ». La coupe retirait des questions sans toucher
+   au barème ; les notes déjà en base portent encore le mauvais dénominateur.
+   supabase/corriger-notes-coupe.sql les répare — mais SEULEMENT là où le
+   barème juste se PROUVE, et ce banc éprouve les deux bords : ce qu'il répare,
+   et ce qu'il refuse de deviner.
+
+   Le geste écrit dans la base vivante : il ne doit jamais baisser une note, ne
+   jamais toucher une ligne qui n'est pas de son ressort, et ne rien faire de
+   plus quand on le rejoue. */
+console.log('\n6. RÉPARER LES NOTES FAUSSÉES PAR LA COUPE');
+const REPARER = path.join(RACINE, 'supabase/corriger-notes-coupe.sql');
+monter('notes');
+psql('notes', ['-f', MIG]);
+psql('notes', ['-f', MIG2]);
+
+/* Deux élèves, une fiche n°3 et un devoir n°1 — les titres que le rapport doit
+   savoir nommer. */
+const E1 = '11111111-1111-4111-8111-111111111111';
+const E2 = '22222222-2222-4222-8222-222222222222';
+psql('notes', ['-c',
+  "insert into public.eleves_2nde (id,prenom,cle) values "
+  + "('" + E1 + "','Alice','a1'),('" + E2 + "','Bob','b1')"]);
+psql('notes', ['-c',
+  "insert into public.parametres_2nde (id,valeurs) values (1, '"
+  + JSON.stringify({
+      fiches:[{id:'fc_3', num:3, titre:'Fractions', exercices:[{id:'somme-fractions', nbQ:3}]}],
+      devoirs:[{id:'dm_1', num:1, titre:'Lecture graphique', exercices:[{id:'resolutions-graphiques', nbQ:3}]}]
+    }).replace(/'/g, "''") + "'::jsonb)"]);
+
+/* Chaque ligne : [id, élève, score, total, percent, details]. Les commentaires
+   disent ce que le script DOIT en faire. */
+const NOTES = [
+  /* --- fiche 3, un point par question, 3 posées sur 4 tirées --- */
+  ['a1', E1, 3, 4, 75,  {test:'somme-fractions', mode:'train', dm:'fc_3', misses:[]}],            /* R1 → 100 */
+  ['a2', E2, 2, 4, 50,  {test:'somme-fractions', mode:'train', dm:'fc_3', misses:[{q:'x'}]}],     /* R2 → 67 */
+  ['a3', E2, 3, 4, 75,  {test:'somme-fractions', mode:'soutien', dm:'fc_3', misses:[]}],          /* R1 → 100 */
+  /* --- devoir 1, questions de poids INÉGAUX : 19 puis 21 cases sur 28 --- */
+  ['b1', E1, 19, 28, 68, {test:'resolutions-graphiques', mode:'train', dm:'dm_1', misses:[]}],    /* R1 → 100 */
+  ['b2', E2, 9,  28, 32, {test:'resolutions-graphiques', mode:'train', dm:'dm_1',
+                          misses:[{q:'x'},{q:'y'}]}],                                            /* laissée : 9+2≠19 */
+  ['b3', E2, 21, 28, 75, {test:'resolutions-graphiques', mode:'soutien', dm:'dm_1', misses:[]}],  /* R1 → 100 */
+  ['b4', E1, 10, 28, 36, {test:'resolutions-graphiques', mode:'soutien', dm:'dm_1',
+                          misses:[{q:'z'}]}],                                                    /* laissée : 19≠21 */
+  /* --- ce à quoi le script ne doit PAS toucher --- */
+  ['c1', E1, 2, 4, 50,  {test:'somme-fractions', mode:'train', dm:'fc_3', misses:[], partiel:true}],
+  ['c2', E1, 1, 4, 25,  {test:'somme-fractions', mode:'train', dm:'fc_3', state:'paused'}],
+  ['c3', E1, 3, 4, 75,  {test:'somme-fractions', mode:'train', misses:[]}],
+  ['c4', E2, 4, 4, 100, {test:'somme-fractions', mode:'train', dm:'fc_3', misses:[]}],
+  /* Un brouillon de pause qui porterait des « misses » : aujourd'hui snapshotTest()
+     n'en pose pas, si bien que le filtre des misses écarte déjà les pauses et que
+     retirer « state <> paused » ne changeait RIEN — un sabotage impossible, pas un
+     garde-fou mort. Le garde reste, parce que ce qui le couvre vit dans un AUTRE
+     fichier et peut changer ; et cette ligne rend le bord atteignable. */
+  ['c5', E1, 1, 4, 25,  {test:'somme-fractions', mode:'train', dm:'fc_3', state:'paused', misses:[]}],
+];
+NOTES.forEach(function(n){
+  psql('notes', ['-c',
+    "insert into public.resultats_2nde (id,eleve_id,score,total,percent,duration_sec,details) values ("
+    + "'00000000-0000-4000-8000-0000000000" + (NOTES.indexOf(n)+10) + "','" + n[1] + "',"
+    + n[2] + ',' + n[3] + ',' + n[4] + ",30,'" + JSON.stringify(n[5]).replace(/'/g, "''") + "'::jsonb)"]);
+});
+/* une note de Première : indemne du défaut, le script ne doit pas la connaître */
+psql('notes', ['-c', "insert into public.eleves_1ere (id,prenom,cle) values (91,'Chloé','c1')"]);
+psql('notes', ['-c', "insert into public.resultats_1ere (eleve_id,score,total,percent,duration_sec,details) "
+  + "values (91,3,4,75,30,'{\"test\":\"pourcentage\",\"dm\":\"fc_3\",\"misses\":[]}'::jsonb)"]);
+
+function lire(bd, ordre){
+  return String(psql(bd, ['-tAc',
+    "select string_agg(x, ' | ' order by x) from (select details->>'test' || '/' || percent || '/' || total"
+    + " || (case when details ? 'correction_bareme' then '*' else '' end) as x"
+    + " from public.resultats_2nde) t"])).trim();
+}
+function pct(bd, rang){
+  return String(psql(bd, ['-tAc',
+    "select percent || '/' || total from public.resultats_2nde where id = "
+    + "'00000000-0000-4000-8000-0000000000" + rang + "'"])).trim();
+}
+const avantTout = String(psql('notes', ['-tAc',
+  "select string_agg(id::text || '=' || percent, ',' order by id::text) from public.resultats_2nde"])).trim();
+
+const rapport = psql('notes', ['-f', REPARER]);
+if(process.env.VOIR_RAPPORT) console.log(rapport.replace(/^psql:[^ ]* /gm,'').replace(/^NOTICE:  ?/gm,'      '));
+
+bilan('la copie SANS FAUTE de la fiche 3 repasse à 100 % (le cas signalé)',
+  pct('notes', 10) === '100/3', pct('notes', 10));
+bilan('et celle du second élève aussi, quel que soit le mode',
+  pct('notes', 12) === '100/3', pct('notes', 12));
+bilan('la copie AVEC faute est LAISSÉE : son barème n\'est écrit nulle part',
+  pct('notes', 11) === '50/4', pct('notes', 11));
+bilan('sur des questions de poids inégaux, la copie sans faute vaut quand même 100 %',
+  pct('notes', 13) === '100/19' && pct('notes', 15) === '100/21',
+  pct('notes', 13) + ' et ' + pct('notes', 15));
+bilan('les copies avec faute y sont laissées aussi',
+  pct('notes', 14) === '32/28' && pct('notes', 16) === '36/28',
+  pct('notes', 14) + ' et ' + pct('notes', 16));
+/* Le second bord de l'abstention : se taire sur ce qu'on n'a pas réparé serait
+   laisser le professeur devant un carnet à moitié juste sans le savoir. */
+bilan('toutes les copies avec faute sont NOMMÉES dans le rapport, jamais tues',
+  /NON RÉPARÉES : 3 copie/.test(rapport)
+  && /resolutions-graphiques \(devoir dm_1\) : 2 note/.test(rapport)
+  && /somme-fractions \(devoir fc_3\) : 1 note/.test(rapport), rapport);
+bilan('le rapport nomme la fiche comme le professeur la connaît',
+  /fiche n°3 « Fractions »/.test(rapport) && /devoir n°1 « Lecture graphique »/.test(rapport), rapport);
+bilan('une note PARTIELLE n\'est jamais remise à 100 % : l\'élève n\'a pas fini',
+  pct('notes', 17) === '50/4', pct('notes', 17));
+bilan('un brouillon de pause n\'est pas touché', pct('notes', 18) === '25/4', pct('notes', 18));
+bilan('même un brouillon de pause qui porterait des « misses »',
+  pct('notes', 21) === '25/4', pct('notes', 21));
+bilan('une note hors devoir n\'est pas touchée : la coupe ne l\'a jamais vue',
+  pct('notes', 19) === '75/4', pct('notes', 19));
+bilan('une note déjà juste reste telle quelle, sans marque de correction',
+  pct('notes', 20) === '100/4'
+  && String(psql('notes', ['-tAc', "select count(*) from public.resultats_2nde where id="
+     + "'00000000-0000-4000-8000-000000000020' and details ? 'correction_bareme'"])).trim() === '0',
+  pct('notes', 20));
+bilan('la Première n\'est pas touchée', String(psql('notes', ['-tAc',
+  'select percent from public.resultats_1ere'])).trim() === '75');
+
+/* L'ancien état est CONSERVÉ : rien n'est perdu, et le retour arrière du
+   fichier peut s'appuyer dessus. */
+const garde = String(psql('notes', ['-tAc',
+  "select details->'correction_bareme'->>'total_avant' || '/' || (details->'correction_bareme'->>'percent_avant')"
+  + " from public.resultats_2nde where id='00000000-0000-4000-8000-000000000010'"])).trim();
+bilan('l\'ancien barème et l\'ancien pourcentage sont gardés dans la ligne',
+  garde === '4/75', garde);
+
+/* AUCUNE note ne baisse — l'invariant qui rend le geste sûr. */
+const apresTout = String(psql('notes', ['-tAc',
+  "select string_agg(id::text || '=' || percent, ',' order by id::text) from public.resultats_2nde"])).trim();
+const baisses = avantTout.split(',').filter(function(x, i){
+  const ap = apresTout.split(',')[i];
+  return parseFloat(ap.split('=')[1]) < parseFloat(x.split('=')[1]);
+});
+bilan('aucune note n\'a baissé', baisses.length === 0, baisses.join(' '));
+
+/* IDEMPOTENCE : le rejouer ne trouve plus rien et ne change plus rien. */
+const etat1 = lire('notes');
+const rapport2 = psql('notes', ['-f', REPARER]);
+bilan('le rejouer ne change plus aucune valeur', lire('notes') === etat1, lire('notes'));
+bilan('et il le dit plutôt que de rester muet',
+  /RÉPARÉES : 0 copie/.test(rapport2) && /4 déjà réparée/.test(rapport2), rapport2);
+
+/* Le retour arrière rend exactement l'état d'avant. */
+psql('notes', ['-c',
+  "update public.resultats_2nde set total=(details->'correction_bareme'->>'total_avant')::int,"
+  + " percent=(details->'correction_bareme'->>'percent_avant')::numeric,"
+  + " details=details-'correction_bareme' where details ? 'correction_bareme'"]);
+bilan('le retour arrière rend exactement l\'état d\'avant', String(psql('notes', ['-tAc',
+  "select string_agg(id::text || '=' || percent, ',' order by id::text) from public.resultats_2nde"])).trim()
+  === avantTout);
+psql('postgres', ['-c', 'drop database if exists notes']);
+
 /* ------------------------------------------------------------------------- */
 console.log('\n──────────────────────────────────────────────────────────');
 if(echecs){
