@@ -1757,7 +1757,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=193;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=194;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3397,13 +3397,54 @@ function dmReglageExo(){
    tirage ne connaît pas de rallonge générique, et une valeur au-delà du
    format normal retombe dessus. Après une reprise de pause, c'est le tirage
    sauvegardé qui fait foi — il porte déjà la coupe. */
+/* LE POIDS D'UNE QUESTION, lu par la CONVENTION DE NOMMAGE que les exercices à
+   cases suivent déjà (xxxCases(q).length, xxxSubCount(q)) : aucune table à
+   tenir, un exercice ajouté demain est couvert dès qu'il nomme sa fonction
+   comme les autres. */
+function dmPoidsQuestion(kind, q){
+  const w=(typeof window!=='undefined')?window:null; if(!w||!kind) return null;
+  const f=w[kind+'Cases'];
+  if(typeof f==='function'){ try{ const c=f(q); if(c&&typeof c.length==='number') return c.length; }catch(e){} }
+  const g=w[kind+'SubCount'];
+  if(typeof g==='function'){ try{ const n=g(q); if(typeof n==='number'&&isFinite(n)) return n; }catch(e){} }
+  return null;
+}
+/* LE BARÈME SUIT LA COUPE — sans quoi une copie PARFAITE est comptée fausse.
+   Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont
+   15/20 à l'exercice 1 alors que tout est bon ». 3 questions réglées sur 4
+   tirées, et test.maxScore restait celui du tirage ENTIER : une copie sans
+   faute valait 3/4, c'est-à-dire 75 %, c'est-à-dire 7,5/10, c'est-à-dire
+   15/20. Le pire défaut du projet — l'exercice apprend l'inverse de ce qu'il
+   enseigne — et il frappait TOUT exercice dont un devoir règle le nombre de
+   questions, sur les trois niveaux.
+   Trois voies, dans cet ordre : le poids exact par question (ci-dessus) ; à
+   défaut le poids HOMOGÈNE, quand maxScore se divise exactement par le
+   nombre de questions tirées — le cas de tout exercice noté par question ;
+   et si ni l'un ni l'autre ne s'applique, ON NE COUPE PAS : mieux vaut une
+   séance plus longue que la promesse qu'une note juste. */
 function dmAppliquerNbQ(){
   const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
   if(!Number.isFinite(n)||n<1) return;
   if(!Array.isArray(test.questions)||test.questions.length<=n) return;
-  const avant=test.questions;
-  test.questions=test.questions.slice(0,n); test.idx=0;
-  if(!afficherEcranDe(test.kind)) test.questions=avant;   /* kind inconnu : séance intacte */
+  const avant=test.questions, gardees=avant.slice(0,n);
+  let nouveau=null;
+  if(test.maxScore){
+    /* LA FORMULE SE VÉRIFIE SUR LE TIRAGE ENTIER AVANT DE SERVIR : la
+       convention de nommage rend des CASES, or certains exercices notent à la
+       QUESTION (somme-fractions : 9 cases, 1 point) — appliquée sans ce
+       garde-fou elle portait le barème de 4 à 27, et une copie parfaite
+       tombait à 11 %. On ne s'en sert que si la somme des poids RETROUVE le
+       maxScore posé par le démarreur. */
+    let total=0, partiel=0, connu=true;
+    avant.forEach(function(q,i){ const p=dmPoidsQuestion(test.kind,q);
+      if(p==null){ connu=false; return; } total+=p; if(i<n) partiel+=p; });
+    if(connu && total===test.maxScore) nouveau=partiel;
+    else if(test.maxScore%avant.length===0) nouveau=(test.maxScore/avant.length)*n;
+    else return;   /* poids inconnu ET inhomogène : la séance reste entière, la note reste juste */
+  }
+  test.questions=gardees; test.idx=0;
+  if(!afficherEcranDe(test.kind)){ test.questions=avant; return; }   /* kind inconnu : séance intacte */
+  if(nouveau!=null) test.maxScore=nouveau;
 }
 /* L'entonnoir du lancement DEPUIS un devoir : un seul chemin, qui pose le
    contexte puis applique les réglages du devoir. */
@@ -4110,6 +4151,12 @@ async function startAddSub(){
   test.kind='asp';
   test.questions=tirageAddSub(cfg.mpCount||10);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('asptest'); renderASPTest();
 }
 
@@ -4121,6 +4168,12 @@ async function startTest(){
   test.kind='cm'; test.qId='calcul-mental';
   test.questions=Array.from({length:cfg.count},()=>genQuestion(cfg));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   test.demarre=false;                                  /* l'eleve lance lui-meme le test */
   show('test'); renderQuestion();
 }
@@ -4737,6 +4790,12 @@ async function startMultPosee(){
   test.kind='mp';
   test.questions=Array.from({length:n},genMultPosee);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('mtest'); renderMTest();
 }
 function renderMTest(){
@@ -5435,6 +5494,12 @@ async function startPercent(){
   test.kind='pct';
   test.questions=Array.from({length:PCT_NB},genPercent);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('ptest'); renderPTest();
 }
 function renderPTest(){
@@ -5541,6 +5606,12 @@ async function startFP(){
   test.kind='fp';
   test.questions=genFPSerie(6);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('fptest'); renderFPTest();
 }
 function renderFPTest(){
@@ -5702,6 +5773,12 @@ async function startPctCol(){
   test.kind='pcol';
   test.questions=Array.from({length:6},genPctCol);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('pcol'); renderPctCol();
 }
 function renderPctCol(){
@@ -5912,6 +5989,12 @@ async function startEvolAdd(id, gen){
   test.kind='ag2'; test.qId=id;
   test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('ag2test'); renderAG2Test();
 }
 async function startAugAdd(){ return startEvolAdd('augmenter-addition', genAugAdd); }
@@ -6106,6 +6189,12 @@ async function startA2Q(id, gen){
   test.kind='ag2q'; test.qId=id;
   test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('a2qtest'); renderWTest();
 }
 function genAugTauxAdd(){
@@ -6415,6 +6504,12 @@ async function startSyn(){
   const incs=qdMelanger(['fin','ini','pct']);
   test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn(undefined, incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
 /* {synthese-augmentations} (2.2.8, demande de Turquet, août 2026) : la
@@ -6430,6 +6525,12 @@ async function startSynAug(){
   const incs=qdMelanger(['fin','ini','pct']);
   test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
 function choisirSy(i){
@@ -6857,6 +6958,12 @@ async function startQCM(id, gen){
   test.kind='pctq'; test.qId=id;
   test.questions=Array.from({length:QD_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('qtest'); renderQTest();
 }
 /* La vérification s'affiche EN MÊME TEMPS que les propositions, et l'élève
@@ -7036,7 +7143,13 @@ async function startPctSyntheseLibre(){
   recoveryRowId=null; recoveryClosed=false;
   test.kind='psl'; test.qId='pourcentage-synthese-libre';
   test.questions=plan.map(g=>g());
-  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;test.pslBusy=false;
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;test.pslBusy=false;
   show('psl'); renderPsl();
 }
 /* La justification s'écrit AVANT ou APRÈS le choix de la proposition, au gré
@@ -7201,7 +7314,13 @@ async function startSynAugLibre(){
   test.kind='sal'; test.qId='synthese-augmentations-libre';
   const incs=qdMelanger(['fin','ini','pct']);
   test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn('aug', incs[i%incs.length]));
-  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;test.salBusy=false;
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;test.salBusy=false;
   show('sal'); renderSal();
 }
 /* {synthese-diminutions-libre} (2.3.8, demande de Turquet, août 2026) : le
@@ -7214,7 +7333,13 @@ async function startSynDimLibre(){
   test.kind='sal'; test.qId='synthese-diminutions-libre';
   const incs=qdMelanger(['fin','ini','pct']);
   test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn('dim', incs[i%incs.length]));
-  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;test.salBusy=false;
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;test.salBusy=false;
   show('sal'); renderSal();
 }
 /* Choisir ne redessine JAMAIS l'écran (la leçon du 2.1.7) : un redessin
@@ -7610,6 +7735,12 @@ async function startAug(){
   test.kind='aug';
   test.questions=Array.from({length:EVOL_NB},genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('atest'); renderATest();
 }
 function renderATest(){
@@ -8010,6 +8141,12 @@ async function startAUGQ(id, gen){
   test.kind='augq'; test.qId=id;
   test.questions=Array.from({length:EVOL_NB},gen);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('vtest'); renderVTest();
 }
 /* Changer de proposition remet les cases à zéro : le coefficient et le produit changent. */
@@ -8192,6 +8329,12 @@ async function startDim(){
   test.kind='dim';
   test.questions=Array.from({length:EVOL_NB},genDim);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('dtest'); renderDTest();
 }
 function renderDTest(){
@@ -8373,6 +8516,12 @@ async function startHausses(){
   test.kind='hs'; test.qId='hausses-successives';
   test.questions=Array.from({length:EVOL_NB},genHausses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('hstest'); renderHSTest();
 }
 function renderHSTest(){
@@ -9140,6 +9289,12 @@ async function startBaisses(){
   test.kind='bs'; test.qId='baisses-successives';
   test.questions=Array.from({length:EVOL_NB},genBaisses);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('bstest'); renderBSTest();
 }
 function renderBSTest(){
@@ -9341,6 +9496,12 @@ async function startLireCoef(){
   test.kind='lc'; test.qId='lire-coefficient';
   test.questions=Array.from({length:6},genLireCoef);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('lctest'); renderLCTest();
 }
 /* Changer de sens remet la vérification à zéro : le signe et le début du
@@ -9488,6 +9649,12 @@ async function startReconnaitreCoef(){
   test.kind='ck'; test.qId='reconnaitre-coefficient';
   test.questions=qdMelanger(['aug','dim','pre']).map(genCK);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('cktest'); renderCKTest();
 }
 /* Choisir ne redessine JAMAIS l'écran : rien ne dépend du choix, et un
@@ -9639,6 +9806,12 @@ async function startMultDec(){
   test.kind='md';
   test.questions=Array.from({length:6},genMultDec);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('mdtest'); renderMDTest();
 }
 function renderMDTest(){
@@ -9825,6 +9998,12 @@ async function startU(){
   test.kind='u';
   test.questions=Array.from({length:6},genU);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème EST remis : test est global et ces démarreurs le réutilisent —
+     sans cette ligne, maxScore restait celui de l'exercice PRÉCÉDENT et la
+     note se calculait sur un barème étranger (trouvé en septembre 2026 en
+     corrigeant la coupe du nombre de questions). Ici le score compte 1 par
+     question : le barème est le nombre de questions. */
+  test.maxScore=test.questions.length;
   show('utest'); renderUTest();
 }
 function renderUTest(){

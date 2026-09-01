@@ -9300,6 +9300,83 @@ function variationsDerivee(w, P){
    l'énoncé du circuit papier porte la même coupe : la feuille du professeur
    doit montrer exactement la séance de l'élève. SÉQUENTIEL, dans la chaîne
    des contrôles asynchrones — il ré-injecte le double de la base. */
+/* ---------- Le barème suit la coupe du nombre de questions ---------- */
+/* Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont
+   15/20 à l'exercice 1 alors que tout est bon ». La coupe retirait des
+   questions sans toucher test.maxScore : 3 questions réglées sur 4 tirées, et
+   une copie SANS FAUTE valait 3/4 — 75 %, 7,5/10, 15/20. Le pire défaut du
+   projet, et il frappait TOUT exercice dont un devoir règle le nombre de
+   questions.
+   Le contrôle est UNIVERSEL — il passe sur CHAQUE exercice du niveau — et il
+   mesure sur UN SEUL tirage : il démarre l'exercice, note son barème, puis
+   appelle la coupe elle-même (le tirage varie d'un lancement à l'autre, deux
+   lancements ne se comparent pas). Le bord tenu est celui qui compte : le
+   barème PAR QUESTION ne change pas, donc une copie parfaite vaut toujours
+   100 %. Le repli est licite et se compte : quand le poids n'est ni connu ni
+   homogène, la séance reste ENTIÈRE plutôt que de fausser la note.
+   Il vit dans la CHAÎNE séquentielle des contrôles asynchrones : il pose
+   mesDevoirs et currentDM, et un contrôle lancé en parallèle les lui
+   reprenait en plein vol — le piège documenté, retombé tel quel. */
+function baremeSuitLaCoupe(w, apres){
+  const nom='le barème suit la coupe du nombre de questions d\'un devoir';
+  const present = evaluer(w, "typeof lancerDevoirExo==='function' && typeof dmAppliquerNbQ==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les réglages par exercice des devoirs');
+    return apres && apres();
+  }
+  evalPromis(w, `(async function(){
+    const vus=[], intacts=[], coupes=[], homog=[], inegaux=[];
+    const sauveDM=currentDM, sauveId=currentTestId, sauveDevoirs=mesDevoirs;
+    currentEleve={id:'e-bareme',prenom:'Contrôle'}; currentMode='train';
+    for(const id of Object.keys(TESTS)){
+      let nq0=0, ms0=0;
+      try{
+        currentDM=null; currentTestId=id;
+        await Promise.resolve(TESTS[id].start());
+        nq0=(test.questions||[]).length; ms0=test.maxScore||0;
+      }catch(e){ continue; }
+      if(nq0<2) continue;                       /* rien à couper */
+      const cible=nq0-1;
+      /* la coupe, sur le tirage QU'ON VIENT DE MESURER */
+      mesDevoirs=[{id:'d-b',num:1,actif:true,titre:'B',cours:'',exercices:[{id:id,modes:['train'],nbQ:cible}]}];
+      currentDM='d-b'; currentTestId=id;
+      try{ dmAppliquerNbQ(); }catch(e){ vus.push(id+' : la coupe lève ('+e.message+')'); continue; }
+      const nq1=(test.questions||[]).length, ms1=test.maxScore||0;
+      if(nq1===nq0){ intacts.push(id); continue; }          /* repli assumé */
+      if(nq1!==cible){ vus.push(id+' : '+nq1+' question(s) au lieu des '+cible+' réglées'); continue; }
+      coupes.push(id);
+      if(!ms0) continue;                                    /* pas de barème : le total suit les questions */
+      if(!ms1){ vus.push(id+' : le barème a disparu après la coupe'); continue; }
+      /* LE BORD QUI NOMME LE DÉFAUT : le barème du tirage ENTIER ne doit pas
+         survivre à la coupe — c'est lui qui donnait 15/20 à une copie sans
+         faute. */
+      if(ms1===ms0){
+        vus.push(id+' : le barème reste celui du tirage entier ('+ms0+') alors que '+(nq0-nq1)+' question(s) ont été retirées — une copie parfaite ne vaudrait que '+Math.round(nq1/nq0*100)+' %');
+        continue;
+      }
+      if(ms1>ms0){ vus.push(id+' : le barème AUGMENTE après la coupe ('+ms0+' → '+ms1+')'); continue; }
+      /* et l'EXACTITUDE, là où elle se vérifie sans refaire le calcul de la
+         page : quand toutes les questions du tirage pèsent le même poids, le
+         barème par question doit être conservé au centième près. Les autres
+         (une équation vaut 5 cases, une inéquation 17) n'ont pas de rapport
+         constant à conserver : seul le bord ci-dessus les tient, et ils sont
+         comptés à part. */
+      if(ms0%nq0===0 && ms1%nq1===0 && (ms0/nq0)===Math.round(ms0/nq0)){
+        const parQ=ms0/nq0;
+        if(ms1!==parQ*nq1){ homog.push(id); vus.push(id+' : barème '+ms1+' pour '+nq1+' question(s) au lieu de '+(parQ*nq1)+' ('+parQ+' par question)'); continue; }
+        homog.push(id);
+      } else inegaux.push(id);
+    }
+    currentDM=sauveDM; currentTestId=sauveId; mesDevoirs=sauveDevoirs;
+    if(!coupes.length) vus.push('aucun exercice n\\'a pu être coupé : le contrôle ne mesure rien');
+    if(!vus.length && !homog.length) vus.push('aucun exercice à poids homogène mesuré : l\\'exactitude du barème n\\'est pas éprouvée');
+    return vus.slice(0,4).join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    if(apres) apres();
+  });
+}
 function reglagesDevoirs(w, apres){
   const R=P.reglagesDevoirs;
   const present = evaluer(w, "typeof lancerDevoirExo==='function' && typeof dmPlafondSoutien==='function'");
@@ -9429,7 +9506,7 @@ function parcoursNbDevoir(w, apres){
     const aParcours = evaluer(w, "typeof startFracParcours==='function'");
     if(aParcours.ok && aParcours.valeur){ verifier(nom, false, 'le parcours existe mais fracpNbDevoir ou lancerDevoirExo manque'); }
     else ignorer(nom, 'ce niveau n\'a pas le parcours des fractions décimales');
-    return verdictColore(w, apres);
+    return baremeSuitLaCoupe(w, function(){ verdictColore(w, apres); });
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -9477,7 +9554,7 @@ function parcoursNbDevoir(w, apres){
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    verdictColore(w, apres);
+    baremeSuitLaCoupe(w, function(){ verdictColore(w, apres); });
   });
 }
 function verdictColore(w, apres){

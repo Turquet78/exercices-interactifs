@@ -2044,6 +2044,48 @@ niveau 1, celle des niveaux SUIVANTS (le cœur — ils retirent), le seuil qui
 suit, la valeur bricolée, la non-fuite hors devoir. Six sabotages, chacun
 rougissant en nommant son défaut.
 
+**LE BARÈME SUIT LA COUPE — sans quoi une copie PARFAITE est comptée fausse.**
+Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont 15/20
+à l'exercice 1 alors que tout est bon ; c'est pareil pour le suivant ».
+`dmAppliquerNbQ()` retirait des questions **sans toucher `test.maxScore`**,
+calculé par le démarreur sur le tirage ENTIER : 3 questions réglées sur 4
+tirées, et une copie sans faute valait 3/4 — 75 %, donc 7,5/10, donc **15/20**.
+Le pire défaut du projet (l'exercice apprend l'inverse de ce qu'il enseigne),
+et il frappait TOUT exercice dont un devoir ou une fiche règle le nombre de
+questions, sur les TROIS niveaux, depuis que le réglage existe.
+**Trois voies, dans cet ordre.** Le poids exact d'une question se lit par la
+CONVENTION DE NOMMAGE que les exercices à cases suivent déjà
+(`xxxCases(q).length`, `xxxSubCount(q)`) — aucune table à tenir, un exercice
+ajouté demain est couvert dès qu'il nomme sa fonction comme les autres. À
+défaut, le poids HOMOGÈNE : `maxScore` divisé par le nombre de questions
+tirées, le cas de tout exercice noté à la question. Et si ni l'un ni l'autre,
+**on ne coupe pas** : mieux vaut une séance plus longue qu'une note fausse.
+**La formule se vérifie sur le tirage ENTIER avant de servir**, et ce
+garde-fou a été payé comptant : la convention rend des CASES, or
+{somme-fractions} note à la QUESTION (9 cases, 1 point) — appliquée
+directement, elle portait le barème de 4 à 27 et une copie parfaite tombait à
+11 %. On ne s'en sert que si la somme des poids RETROUVE le `maxScore` posé
+par le démarreur.
+**Et un second défaut, latent, s'est montré en corrigeant le premier** :
+`test` est global, et cinquante-neuf démarreurs le RÉUTILISENT sans remettre
+`maxScore` — celui de l'exercice PRÉCÉDENT survivait, et `finishTest` notait
+sur un barème étranger (8 questions sur 60). Personne ne l'avait vu parce
+qu'il fallait enchaîner deux exercices de familles différentes. Ces
+démarreurs posent maintenant leur barème explicitement.
+**Le contrôle est UNIVERSEL** — il passe sur CHAQUE exercice du niveau — et il
+mesure sur UN SEUL tirage : il démarre l'exercice, note son barème, puis
+appelle la coupe elle-même, parce que le tirage varie d'un lancement à
+l'autre et que deux lancements ne se comparent pas (le premier jet accusait
+{lecture-variations} d'un défaut qui n'était que son tirage aléatoire). Le
+bord qui NOMME le défaut : le barème du tirage entier ne survit pas à la
+coupe. Le bord de l'EXACTITUDE ne se vérifie que là où il a un sens — les
+exercices à poids homogène —, car une équation vaut 5 cases quand une
+inéquation en vaut 17 : exiger un rapport constant partout accusait quatre
+exercices parfaitement corrects. Il vit dans la CHAÎNE séquentielle des
+contrôles asynchrones : il pose `mesDevoirs` et `currentDM`, et lancé en
+parallèle il les faisait voler à son voisin — le piège documenté, retombé
+tel quel. Quatre sabotages, chacun rougissant en nommant son défaut.
+
 **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
 « Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa
