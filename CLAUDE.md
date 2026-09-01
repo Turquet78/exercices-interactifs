@@ -2928,30 +2928,43 @@ premier jet ne voyait que `1/2` et laissait passer `P/100`, `x/100`, `100/b`,
 `u/v` — ça ne s'est vu que sur une capture d'écran. Le NAVIGATEUR ouvre chaque
 rappel qui porte une formule et exige qu'elle soit dessinée : lui seul voit qu'on
 a débranché `rapMaths()`, le statique n'y verrait rien.
-**Un tableau COUPÉ en plein vol reste un tableau.** Signalé par Turquet (août
-2026) sur un iPad, dans « Question à l'IA » comme dans la rédaction d'un
-exercice : l'élève lisait `begin{array}{c|ccc} x & −3 & … hline g(x) & + & 0`
-en toutes lettres. Le moteur savait pourtant rendre les tableaux
-(`iaTableau` les convertit en `<table class="qia-arr">`) — la sonde l'a
-montré sur les QUATRE écritures que le modèle emploie (nue, `\[ \]`, `$$ $$`,
-`\( \)`) : toutes se rendent. **Ce qui échouait est la réponse TRONQUÉE** par
-la limite de longueur du serveur, coupée avant son `\end{array}` : la regex
-exigeait la fermeture, le fragment repartait en texte, et le code brut
-s'affichait. Le `\end{…}` est donc FACULTATIF désormais — on rend les lignes
-REÇUES et on marque la coupure par « … », la doctrine d'`iaCoupe` étendue aux
-tableaux : un tableau à moitié écrit reste lisible, du LaTeX nu ne l'est
-jamais. Le moteur étant le MÊME TEXTE dans les trois fichiers, la correction
-y est portée à l'identique (le contrôle des huit fonctions le vérifie).
-Trois bords au contrôle, et n'en tenir qu'un ne tient rien : le tableau
-COMPLET se rend toujours (la non-régression), le COUPÉ se rend et dit sa
-coupure, et AUCUN mot du LaTeX (`begin{`, `end{`, `hline`, `&`, l'antislash)
-ne reste affiché — c'est ce dernier qui nomme le défaut signalé.
-**Et le contrôle s'est pris en défaut avant la page** : ses chaînes traversent
-le template littéral de `verifier.js` PUIS l'évaluation dans la page, et
-`\begin` y devenait un caractère de contrôle — le premier jet rougissait sur
-du code parfaitement juste. Il n'écrit plus aucun antislash littéral
-(`String.fromCharCode(92)`), et c'est la règle pour tout contrôle qui pose du
-LaTeX. La largeur, elle, a été mesurée et ne pose pas de problème : sur un
+**Un tableau de l'IA s'affiche en tableau, quelle que soit son écriture.**
+Signalé DEUX FOIS par Turquet (août 2026) sur un iPad, dans « Question à
+l'IA » comme dans la rédaction d'un exercice : l'élève lisait
+`begin{array}{c|ccc} x & −3 & … hline g(x) & + & 0` en toutes lettres. Le
+moteur savait pourtant convertir `\begin{array}` en `<table class="qia-arr">`
+— et c'est ce qui a fait manquer la cible du premier coup : la sonde ne
+mesurait que les écritures auxquelles je pensais, toutes rendues.
+**Le modèle en emploie TROIS, et une seule suffit à casser l'affichage.**
+La sonde refaite sur ce qu'un modèle produit VRAIMENT a nommé les trous :
+· le tableau **MARKDOWN** (`| x | −3 | … |` et sa ligne `|---|`) n'était pas
+  converti du tout — et c'est la forme la plus courante ;
+· `\begin {array}` avec une **espace** avant l'accolade n'était pas reconnu —
+  l'affichage y perd ses antislashs, la signature exacte de la capture ;
+· `\begin{array}[t]{c|c}` laissait traîner « [t]c∣c » dans le tableau.
+Et le `\end{…}` est **facultatif** des deux côtés : une réponse coupée en
+plein vol par la limite de longueur du serveur s'arrête au milieu du tableau,
+et on rend alors les lignes REÇUES en marquant la coupure par « … » — la
+doctrine d'`iaCoupe`, étendue aux tableaux, sur l'array comme sur le
+markdown. Un tableau à moitié lu reste lisible ; du LaTeX nu ne l'est jamais.
+**Le bord OPPOSÉ compte autant, et il est étroit** : une phrase qui porte des
+barres verticales (« |x| est la distance à zéro ») ne doit pas devenir un
+tableau, et un tableau markdown écrit SANS ligne de séparation — le modèle en
+produit — ne doit pas rester du code brut. Ce qui fait un tableau est donc :
+une ligne de séparation (`|---|`), OU deux lignes au moins qui commencent ET
+finissent par une barre. Le premier jet n'ouvrait que la première porte, et
+son sabotage ne pouvait pas l'atteindre — les phrases témoins ne commençaient
+pas par une barre, la regex les écartait de toute façon : c'est la leçon du
+sabotage IMPOSSIBLE, retombée telle quelle, et le témoin a été refait en même
+temps que la règle. Le moteur étant le MÊME TEXTE dans les trois
+fichiers, la correction y est portée à l'identique (le contrôle des huit
+fonctions le vérifie).
+**Deux fois le contrôle s'est pris en défaut avant la page** : ses chaînes
+traversent le template littéral de `verifier.js` PUIS l'évaluation dans la
+page — `\begin` y devient un caractère de contrôle, et une apostrophe
+échappée `\'` y perd son antislash et casse la chaîne. Un contrôle qui pose
+du LaTeX n'écrit donc AUCUN antislash littéral (`String.fromCharCode(92)`),
+et double ses apostrophes échappées. La largeur, elle, a été mesurée : sur un
 écran d'iPad (768 px), le tableau rendu fait 315 px et ne déborde ni de sa
 boîte ni de la page.
 
