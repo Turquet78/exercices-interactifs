@@ -2076,7 +2076,15 @@ démarreurs posent maintenant leur barème explicitement.
 mesure sur UN SEUL tirage : il démarre l'exercice, note son barème, puis
 appelle la coupe elle-même, parce que le tirage varie d'un lancement à
 l'autre et que deux lancements ne se comparent pas (le premier jet accusait
-{lecture-variations} d'un défaut qui n'était que son tirage aléatoire). Le
+{lecture-variations} d'un défaut qui n'était que son tirage aléatoire).
+**Et l'HOMOGÉNÉITÉ se mesure, elle ne se devine pas** : le contrôle la
+déduisait de la divisibilité du barème par le nombre de questions — or le 2.7
+pèse 5, 9, 5 et 17 cases, dont la somme (44) se divise par 4 un tirage sur
+deux. Il accusait donc une page juste, un essai sur trois, et l'action
+GitHub l'a montré là où trois exécutions locales étaient passées : un
+contrôle intermittent est un contrôle qui parle d'autre chose. Les poids se
+lisent un par un, et l'exactitude n'est exigée que lorsqu'ils sont tous
+égaux. Le
 bord qui NOMME le défaut : le barème du tirage entier ne survit pas à la
 coupe. Le bord de l'EXACTITUDE ne se vérifie que là où il a un sens — les
 exercices à poids homogène —, car une équation vaut 5 cases quand une

@@ -9329,11 +9329,12 @@ function baremeSuitLaCoupe(w, apres){
     const sauveDM=currentDM, sauveId=currentTestId, sauveDevoirs=mesDevoirs;
     currentEleve={id:'e-bareme',prenom:'Contrôle'}; currentMode='train';
     for(const id of Object.keys(TESTS)){
-      let nq0=0, ms0=0;
+      let nq0=0, ms0=0, qAvant=[], kind0='';
       try{
         currentDM=null; currentTestId=id;
         await Promise.resolve(TESTS[id].start());
         nq0=(test.questions||[]).length; ms0=test.maxScore||0;
+        qAvant=(test.questions||[]).slice(); kind0=test.kind;
       }catch(e){ continue; }
       if(nq0<2) continue;                       /* rien à couper */
       const cible=nq0-1;
@@ -9361,9 +9362,22 @@ function baremeSuitLaCoupe(w, apres){
          (une équation vaut 5 cases, une inéquation 17) n'ont pas de rapport
          constant à conserver : seul le bord ci-dessus les tient, et ils sont
          comptés à part. */
-      if(ms0%nq0===0 && ms1%nq1===0 && (ms0/nq0)===Math.round(ms0/nq0)){
-        const parQ=ms0/nq0;
-        if(ms1!==parQ*nq1){ homog.push(id); vus.push(id+' : barème '+ms1+' pour '+nq1+' question(s) au lieu de '+(parQ*nq1)+' ('+parQ+' par question)'); continue; }
+      /* L'HOMOGÉNÉITÉ SE MESURE, elle ne se devine pas : la divisibilité du
+         barème par le nombre de questions ne la prouve pas — le 2.7 pèse
+         5, 9, 5 et 17 cases, dont la somme (44) se divise par 4 pour un
+         tirage sur deux, et le contrôle accusait alors une page juste, un
+         essai sur trois. On lit les poids par la convention de nommage, et
+         on n'exige l'exactitude que lorsqu'ils sont tous ÉGAUX et que leur
+         somme retrouve le barème posé par le démarreur. */
+      let poids=null;
+      if(typeof dmPoidsQuestion==='function'){
+        poids=[]; for(const q of qAvant){ const p=dmPoidsQuestion(kind0,q); if(p==null){ poids=null; break; } poids.push(p); }
+      }
+      const egaux = poids && poids.length===nq0 && poids.every(function(p){ return p===poids[0]; })
+                    && poids.reduce(function(a,b){ return a+b; },0)===ms0;
+      if(egaux){
+        const parQ=poids[0];
+        if(ms1!==parQ*nq1){ vus.push(id+' : barème '+ms1+' pour '+nq1+' question(s) au lieu de '+(parQ*nq1)+' ('+parQ+' par question)'); continue; }
         homog.push(id);
       } else inegaux.push(id);
     }
