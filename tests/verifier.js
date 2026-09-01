@@ -3282,6 +3282,38 @@ function recurrenceRedigee(w, apres){
     if(manquants(ORDRE).length)
       vus.push('une copie dont l\\'hérédité précède l\\'initialisation est refusée sur : '+manquants(ORDRE).join(', '));
 
+    /* ---------- 3 bis. « HÉRÉDITÉ » ANNONCE, IL NE CONCLUT PAS ----------
+       Signalé par Turquet (septembre 2026) sur une copie qui posait le mot tout
+       seul à la DERNIÈRE ligne : la page ne mesurait que sa PRÉSENCE, et le
+       laissait donc passer alors qu'il n'annonçait plus rien. Trois bords, et
+       n'en tenir qu'un ne tient rien : le mot placé avant passe, le mot placé
+       après est refusé, et le LIBELLÉ distingue les deux — un ✗ sur « le mot
+       hérédité » devant une copie qui le porte enverrait l'élève chercher un
+       mot qu'il a écrit.
+       (Le piège documenté des chaînes qui traversent DEUX analyseurs s'est
+       reproduit ici à la première exécution : « \\n » écrit une fois est mangé
+       par le gabarit de ce fichier, et la page reçoit une vraie fin de ligne au
+       milieu d'une chaîne — « Invalid or unexpected token ». Il en faut deux.) */
+    const APRES=PLEINE.replace('Hérédité : on suppose','On suppose')+'\\nHérédité.';
+    const jApres=rrJuge(c0,APRES);
+    const cHer=jApres.crit.filter(function(x){ return x.cle==='hered'; })[0];
+    if(!cHer || cHer.ok) vus.push('« hérédité » posé à la DERNIÈRE ligne passe quand même');
+    if(cHer && !cHer.ok && !/APR/.test(cHer.l))
+      vus.push('« hérédité » mal placé : le libellé ne dit pas qu\\'il est là mais au mauvais endroit — « '+cHer.l+' »');
+    if(cHer && !cHer.ok && !/fin|annon/i.test(cHer.court))
+      vus.push('« hérédité » mal placé : le modèle ne reçoit pas la raison — « '+cHer.court+' »');
+    if(manquants(APRES).join()!=='hered')
+      vus.push('« hérédité » mal placé : le juge relève aussi ['+manquants(APRES).join(', ')+']');
+    /* et le mot ABSENT garde son libellé d'origine : les deux cas ne se disent
+       pas de la même façon */
+    const cAbs=rrJuge(c0,PLEINE.replace('Hérédité :','Ensuite :')).crit.filter(function(x){ return x.cle==='hered'; })[0];
+    if(!cAbs || cAbs.ok || /APR/.test(cAbs.l))
+      vus.push('le mot ABSENT reçoit le libellé du mot MAL PLACÉ — « '+(cAbs?cAbs.l:'?')+' »');
+    /* sans hypothèse ni but, aucun repère : on ne juge que la présence */
+    const jSeul=rrJuge(c0,'Initialisation : U_(0) = 3 et 0 ≤ 3 ≤ 6, vrai. Hérédité. f est croissante.');
+    if(!jSeul.crit.filter(function(x){ return x.cle==='hered'; })[0].ok)
+      vus.push('sans « on suppose » ni « on montre », la position est jugée quand même — il n\\'y a pourtant aucun repère');
+
     /* ---------- 4. LE PIÈGE DE L'ÉNONCÉ RECOPIÉ ---------- */
     const TITRE='Démontrer par récurrence que 0 <= U_(n) <= 6.\\n'
       +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6, c est vrai. Hérédité : on suppose. f est croissante.';
@@ -3294,6 +3326,19 @@ function recurrenceRedigee(w, apres){
     ['INITIALISATION','HYPOTHÈSE','HÉRÉDITÉ','CONCLUSION','RÈGLE DE DÉCISION','ANTI-RECOPIE'].forEach(function(mot){
       if(rOK.indexOf(mot)<0) vus.push('la règle ne nomme pas « '+mot+' »');
     });
+    /* LE MODÈLE NE REFUSE QUE SUR UNE ERREUR MATHÉMATIQUE NOMMÉE. Signalé par
+       Turquet (septembre 2026) : devant une copie claire et juste, le modèle a
+       répondu « ta rédaction est très difficile à lire » et a réclamé le détail
+       du calcul de f(m) et de f(M) — deux motifs que la règle doit lui
+       interdire, faute de quoi une réponse juste est comptée fausse, le pire
+       défaut du projet. Les deux clauses sont exigées séparément : n'en tenir
+       qu'une ne tient rien. */
+    if(rOK.indexOf('INTERDIT DE REFUSER POUR LA FORME')<0)
+      vus.push('la règle n\\'interdit pas au modèle de refuser pour la présentation');
+    if(!/NOMMER l.erreur math/.test(rOK))
+      vus.push('la règle n\\'exige pas qu\\'un refus NOMME l\\'erreur mathématique');
+    if(rOK.indexOf('DEUX LIGNES SUFFISENT')<0 || rOK.indexOf('Ne réclame jamais ce détail')<0)
+      vus.push('la règle n\\'affranchit pas l\\'élève des calculs intermédiaires de f');
     const absent=jKO.crit.filter(function(x){ return !x.ok; })[0];
     if(!absent) vus.push('le piège de l\\'énoncé recopié ne manque plus rien : le contrôle suivant ne mesure rien');
     else {

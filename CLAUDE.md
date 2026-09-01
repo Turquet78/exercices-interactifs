@@ -4014,6 +4014,45 @@ copie aurait satisfait le critère sans avoir énoncé le BUT de l'hérédité. 
 exige donc les formes conjuguées (« montrons », « on montre », « montrer
 que »…) — c'est le seul mot de la liste qui se trouve aussi dans l'énoncé, et
 le contrôle épingle ce piège.
+**Mais « hérédité » ANNONCE la partie, il ne la conclut pas.** Signalé par
+Turquet (septembre 2026) sur une copie qui posait le mot tout seul à la
+DERNIÈRE ligne : la page ne mesurait que sa PRÉSENCE, et laissait donc passer
+un mot qui ne présentait plus rien. Il doit venir AVANT « on suppose » et
+« on montre » — c'est le titre de la partie, et l'écran le demande en toutes
+lettres (« écris le mot d'abord »).
+**Le LIBELLÉ distingue les deux cas, et c'est la moitié qui compte** : un ✗
+sur « le mot hérédité » devant une copie qui le porte serait un mensonge de
+plus — l'élève chercherait un mot qu'il a écrit. Le bilan dit donc « il est
+bien là, mais APRÈS ta démonstration : il doit l'annoncer », et le modèle
+reçoit la même raison.
+**Et quand il n'y a NI hypothèse NI but, on retombe sur la présence seule** :
+sans aucun repère, il n'y a pas de position à juger, et accuser un placement
+qu'on ne peut pas mesurer serait un faux négatif de plus. C'est la lénience
+ci-dessus, appliquée un cran plus bas.
+
+**Le modèle ne juge QUE les mathématiques — et il fallait le lui interdire en
+toutes lettres.** Second signalement du même jour, sur une copie que Turquet
+a jugée claire : le modèle a refusé en écrivant que « la rédaction est très
+difficile à lire : les symboles ≤ et les indices sont mélangés ou mal
+placés », puis a réclamé les calculs de f(2) et de f(4). Les deux reproches
+sont hors sujet, et le second est faux : appliquer f aux trois membres et
+poser les images obtenues EST la démonstration — détailler f(2) n'a jamais
+été exigé.
+**Ce qu'il lit n'est pas ce que l'élève voit**, et c'est la racine du premier
+reproche : la copie lui arrive d'un champ mathématique APLATI en texte
+(« U_(n) », « U_(n+1) »), une écriture parfaitement lisible qu'un modèle peut
+prendre pour du charabia. La règle le lui dit, et lui INTERDIT de refuser
+pour la présentation, pour des symboles « mal placés », ou pour des étapes
+intermédiaires manquantes — l'orthographe, l'ordre et le découpage des lignes
+y étaient déjà.
+**Et tout refus doit NOMMER l'erreur mathématique précise** — quelle ligne,
+quelle valeur, ce qu'elle devrait être ; s'il n'en trouve aucune, la réponse
+est `correct:true`. Sans ce second bord, l'interdiction se contournerait par
+un refus vague, qui est exactement la forme qu'avait le refus signalé.
+Les deux clauses ont été FONDUES en une seule : écrites côte à côte, elles
+répétaient la liste « ne compte pas faux » et la règle passait à 3446
+caractères — 554 de marge sur la troncature. Fondues, elle en fait 3271, et
+la marge est mesurée à chaque exécution.
 **LA BARRE D'ESPACE SORT DE L'INDICE, et ce défaut-là n'a été trouvé qu'en
 TAPANT.** Le mode « rédaction » pose une VRAIE espace (sans quoi « on suppose »
 s'écrirait « onsuppose »), et la convention de MathLive — l'espace SORT d'un
@@ -4043,7 +4082,7 @@ GÉNÉRIQUE, tout appel `verif` qui n'est pas l'un des deux exercices de dériv�
 historiques décrit lui-même son énoncé et sa règle. La règle vit donc dans la
 PAGE et part avec elle — la leçon de `MAX_CTX`. Mais la fonction TRONQUE
 « attendu » en silence : la borne est LUE dans sa source, jamais recopiée, et
-la marge s'affiche à chaque exécution (2428 caractères pour 4000).
+la marge s'affiche à chaque exécution (3271 caractères pour 4000).
 **Deux bancs, et ils ne voient pas la même chose.** Le PRINCIPAL éprouve le
 juge critère par critère dans les deux sens, la lénience, le piège de l'énoncé
 recopié, la règle envoyée au modèle, la note et la peinture — sur des chaînes
@@ -4051,8 +4090,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Vingt-deux
-sabotages en tout (quatorze au banc principal, huit au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Trente et un
+sabotages en tout (vingt-trois au banc principal, huit au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur
