@@ -9300,6 +9300,130 @@ function variationsDerivee(w, P){
    l'énoncé du circuit papier porte la même coupe : la feuille du professeur
    doit montrer exactement la séance de l'élève. SÉQUENTIEL, dans la chaîne
    des contrôles asynchrones — il ré-injecte le double de la base. */
+/* ---------- Le barème suit la coupe, et aucun démarreur n'hérite du sien ---------- */
+/* Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont
+   15/20 à l'exercice 1 alors que tout est bon ». La coupe retirait des
+   questions sans toucher test.maxScore : 3 questions réglées sur 4 tirées, et
+   une copie SANS FAUTE valait 3/4 — 75 %, 7,5/10, 15/20.
+   Le barème n'est LU pour la note que par la Seconde (son finishTest fait
+   « test.maxScore || test.questions.length ») ; la Première et la Terminale
+   notent sur le nombre de questions et sont donc indemnes de ce défaut-là.
+   Mais la COUPE le lit partout : un barème étranger lui fait refuser de
+   couper, en silence, et le réglage « Questions » du devoir cesse d'agir.
+   Deux bords, dans une SEULE visite des exercices — les démarrages coûtent
+   cher et se partagent :
+   · LE BARÈME SUIT LA COUPE. Le contrôle démarre l'exercice, note son barème,
+     puis appelle la coupe elle-même : le tirage varie d'un lancement à
+     l'autre, et deux lancements ne se comparent pas (le premier jet accusait
+     {lecture-variations} de ce qui n'était que son hasard). Le repli est
+     licite et se compte : quand le poids n'est ni connu ni homogène, la
+     séance reste ENTIÈRE plutôt que de fausser la note.
+   · AUCUN DÉMARREUR N'HÉRITE DU BARÈME DU PRÉCÉDENT. test est global ; on y
+     pose un poison avant chaque démarrage et on exige qu'il ait disparu. La
+     liste tenue à la main avait déjà dérivé de cinq démarreurs (startLR,
+     startSA2, startFracParcours, startTM, startTM2) — un contrôle qui passe
+     PARTOUT est la seule chose qui l'empêche. Un démarreur qui n'ouvre qu'un
+     ÉCRAN DE MENU ne tire rien et ne peut donc rien poser : on le reconnaît à
+     l'identité du tableau des questions — le signal de dmEnonce — et on le
+     nomme au lieu de l'accuser (la Terminale en a un, le signe du 2nd degré).
+   Il vit dans la CHAÎNE séquentielle des contrôles asynchrones : il pose
+   mesDevoirs et currentDM, et un contrôle lancé en parallèle les lui
+   reprenait en plein vol — le piège documenté, retombé tel quel. */
+function baremeSuitLaCoupe(w, apres){
+  const nom='le barème suit la coupe du nombre de questions d\'un devoir';
+  const nomFuite='aucun démarreur n\'hérite du barème de l\'exercice précédent';
+  const present = evaluer(w, "typeof lancerDevoirExo==='function' && typeof dmAppliquerNbQ==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les réglages par exercice des devoirs');
+    ignorer(nomFuite, 'ce niveau n\'a pas les réglages par exercice des devoirs');
+    return apres && apres();
+  }
+  evalPromis(w, `(async function(){
+    const POISON=987654;                      /* aucun barème réel ne vaut ça */
+    const vus=[], fuites=[], menus=[], intacts=[], coupes=[], exacts=[], sansEchelle=[];
+    const sauveDM=currentDM, sauveId=currentTestId, sauveDevoirs=mesDevoirs;
+    currentEleve={id:'e-bareme',prenom:'Contrôle'}; currentMode='train';
+    for(const id of Object.keys(TESTS)){
+      let nq0=0, ms0=0, qAvant=[], kind0='';
+      try{
+        currentDM=null; currentTestId=id;
+        const qDavant=test.questions; test.maxScore=POISON;
+        await Promise.resolve(TESTS[id].start());
+        if(test.questions===qDavant){ menus.push(id); continue; }   /* n'a rien tiré : écran de menu */
+        if(test.maxScore===POISON){ fuites.push(id); continue; }    /* le barème du PRÉCÉDENT a survécu */
+        nq0=(test.questions||[]).length; ms0=test.maxScore||0;
+        qAvant=(test.questions||[]).slice(); kind0=test.kind;
+      }catch(e){ continue; }
+      if(nq0<2) continue;                       /* rien à couper */
+      const cible=nq0-1;
+      /* la coupe, sur le tirage QU'ON VIENT DE MESURER */
+      mesDevoirs=[{id:'d-b',num:1,actif:true,titre:'B',cours:'',exercices:[{id:id,modes:['train'],nbQ:cible}]}];
+      currentDM='d-b'; currentTestId=id;
+      try{ dmAppliquerNbQ(); }catch(e){ vus.push(id+' : la coupe lève ('+e.message+')'); continue; }
+      const nq1=(test.questions||[]).length, ms1=test.maxScore||0;
+      if(nq1===nq0){ intacts.push(id); continue; }          /* repli assumé */
+      if(nq1!==cible){ vus.push(id+' : '+nq1+' question(s) au lieu des '+cible+' réglées'); continue; }
+      coupes.push(id);
+      if(!ms0) continue;                                    /* pas de barème : le total suit les questions */
+      if(!ms1){ vus.push(id+' : le barème a disparu après la coupe'); continue; }
+      /* LE BORD QUI NOMME LE DÉFAUT : le barème du tirage ENTIER ne doit pas
+         survivre à la coupe — c'est lui qui donnait 15/20 à une copie sans
+         faute. */
+      if(ms1===ms0){
+        vus.push(id+' : le barème reste celui du tirage entier ('+ms0+') alors que '+(nq0-nq1)+' question(s) ont été retirées — une copie parfaite ne vaudrait que '+Math.round(nq1/nq0*100)+' %');
+        continue;
+      }
+      if(ms1>ms0){ vus.push(id+' : le barème AUGMENTE après la coupe ('+ms0+' → '+ms1+')'); continue; }
+      /* L'EXACTITUDE ne s'exige que là où la bonne réponse se MESURE. Deux
+         familles, et aucune ne se devine :
+         · les poids se LISENT par la convention de nommage et leur somme
+           retrouve le barème posé par le démarreur — l'attendu est alors la
+           somme des n PREMIERS, même quand les questions pèsent
+           différemment ; c'est ce qui départage les deux voies de la page (le
+           2.7 pèse 5+9+5+9 : la voie exacte rend 19 sur trois questions, la
+           voie homogène en rendrait 21) ;
+         · le barème ÉGALE le nombre de questions — un point par question,
+           arithmétique sur les nombres OBSERVÉS, sans rien demander à la
+           page — et l'attendu est n. C'est la famille de la Terminale et de
+           la Première entières.
+         Le reste (un barème de 44 pour 4 questions dont les poids sont
+         illisibles) n'a pas d'attendu mesurable : seul le premier bord le
+         tient, et il est compté à part. DEVINER l'homogénéité de la
+         DIVISIBILITÉ accusait le 2.7 un tirage sur deux — un contrôle
+         intermittent est un contrôle qui parle d'autre chose. */
+      let poids=null;
+      if(typeof dmPoidsQuestion==='function'){
+        poids=[]; for(const q of qAvant){ const p=dmPoidsQuestion(kind0,q); if(p==null){ poids=null; break; } poids.push(p); }
+      }
+      const somme = poids ? poids.reduce(function(a,b){ return a+b; },0) : null;
+      if(poids && poids.length===nq0 && somme===ms0){
+        let attendu=0; for(let i=0;i<nq1;i++) attendu+=poids[i];
+        if(ms1!==attendu){ vus.push(id+' : barème '+ms1+' au lieu de '+attendu+' (poids '+poids.join('+')+', '+nq1+' question(s) gardées)'); continue; }
+        exacts.push(id);
+      } else if(ms0===nq0){
+        if(ms1!==nq1){ vus.push(id+' : barème '+ms1+' pour '+nq1+' question(s) alors que chaque question vaut 1 point'); continue; }
+        exacts.push(id);
+      } else sansEchelle.push(id);
+    }
+    currentDM=sauveDM; currentTestId=sauveId; mesDevoirs=sauveDevoirs;
+    if(!coupes.length) vus.push('aucun exercice n\\'a pu être coupé : le contrôle ne mesure rien');
+    if(!vus.length && !exacts.length) vus.push('aucun barème mesurable : l\\'exactitude de la coupe n\\'est pas éprouvée');
+    let fuite='';
+    if(fuites.length) fuite=fuites.length+' démarreur(s) gardent le barème du précédent : '+fuites.slice(0,5).join(', ');
+    else if(!coupes.length && !intacts.length) fuite='aucun exercice démarré : le poison n\\'a rien à éprouver';
+    return JSON.stringify({coupe:vus.slice(0,4).join(' | '), fuite:fuite, menus:menus});
+  })()`, function(r){
+    if(!r.ok){ verifier(nom, false, 'erreur JavaScript : '+r.erreur); verifier(nomFuite, false, 'erreur JavaScript : '+r.erreur); }
+    else{
+      let d={coupe:'lecture impossible',fuite:'lecture impossible',menus:[]};
+      try{ d=JSON.parse(r.valeur); }catch(e){}
+      verifier(nom, d.coupe==='', d.coupe);
+      verifier(nomFuite, d.fuite==='', d.fuite);
+      if((d.menus||[]).length) console.log('   · démarreur(s) qui ouvrent un menu sans tirer : '+d.menus.join(', '));
+    }
+    if(apres) apres();
+  });
+}
 function reglagesDevoirs(w, apres){
   const R=P.reglagesDevoirs;
   const present = evaluer(w, "typeof lancerDevoirExo==='function' && typeof dmPlafondSoutien==='function'");
@@ -9429,7 +9553,7 @@ function parcoursNbDevoir(w, apres){
     const aParcours = evaluer(w, "typeof startFracParcours==='function'");
     if(aParcours.ok && aParcours.valeur){ verifier(nom, false, 'le parcours existe mais fracpNbDevoir ou lancerDevoirExo manque'); }
     else ignorer(nom, 'ce niveau n\'a pas le parcours des fractions décimales');
-    return verdictColore(w, apres);
+    return baremeSuitLaCoupe(w, function(){ verdictColore(w, apres); });
   }
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -9477,7 +9601,7 @@ function parcoursNbDevoir(w, apres){
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    verdictColore(w, apres);
+    baremeSuitLaCoupe(w, function(){ verdictColore(w, apres); });
   });
 }
 function verdictColore(w, apres){

@@ -2044,6 +2044,89 @@ niveau 1, celle des niveaux SUIVANTS (le cœur — ils retirent), le seuil qui
 suit, la valeur bricolée, la non-fuite hors devoir. Six sabotages, chacun
 rougissant en nommant son défaut.
 
+**LE BARÈME SUIT LA COUPE — sans quoi une copie PARFAITE est comptée fausse.**
+Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont 15/20
+à l'exercice 1 alors que tout est bon ; c'est pareil pour le suivant ».
+`dmAppliquerNbQ()` retirait des questions **sans toucher `test.maxScore`**,
+calculé par le démarreur sur le tirage ENTIER : 3 questions réglées sur 4
+tirées, et une copie sans faute valait 3/4 — 75 %, donc 7,5/10, donc **15/20**.
+Le pire défaut du projet : l'exercice apprend l'inverse de ce qu'il enseigne.
+**Le barème n'est LU pour la note que par la Seconde**, et le dire juste
+importe — le premier jet de ce paragraphe annonçait « les TROIS niveaux »,
+sans avoir regardé. Son `finishTest` fait `test.maxScore ||
+test.questions.length` (son `enregistrerNotePartielle` aussi) ; ceux de la
+Première et de la Terminale notent sur le nombre de QUESTIONS et sont donc
+indemnes de ce défaut-là. Mais la COUPE, elle, lit `maxScore` partout : un
+barème étranger lui fait refuser de couper, en silence, et le réglage
+« Questions » du devoir cesse d'agir — c'est ce qui rend le second défaut
+ci-dessous coûteux dans les trois fichiers.
+**Trois voies, dans cet ordre.** Le poids exact d'une question se lit par la
+CONVENTION DE NOMMAGE que les exercices à cases suivent déjà
+(`xxxCases(q).length`, `xxxSubCount(q)`) — aucune table à tenir, un exercice
+ajouté demain est couvert dès qu'il nomme sa fonction comme les autres. À
+défaut, le poids HOMOGÈNE : `maxScore` divisé par le nombre de questions
+tirées, le cas de tout exercice noté à la question. Et si ni l'un ni l'autre,
+**on ne coupe pas** : mieux vaut une séance plus longue qu'une note fausse.
+**La formule se vérifie sur le tirage ENTIER avant de servir**, et ce
+garde-fou a été payé comptant : la convention rend des CASES, or
+{somme-fractions} note à la QUESTION (9 cases, 1 point) — appliquée
+directement, elle portait le barème de 4 à 27 et une copie parfaite tombait à
+11 %. On ne s'en sert que si la somme des poids RETROUVE le `maxScore` posé
+par le démarreur.
+**Et un second défaut, latent, s'est montré en corrigeant le premier** :
+`test` est global, et les démarreurs le RÉUTILISENT sans remettre `maxScore` —
+celui de l'exercice PRÉCÉDENT survivait. Personne ne l'avait vu parce qu'il
+fallait enchaîner deux exercices de familles différentes. Chaque démarreur
+pose maintenant son barème, et le parcours du 1.6 — dont le total est ce qui
+a été RÉPONDU — pose zéro, ce qui est sa vérité.
+**La liste tenue à la main avait déjà dérivé de cinq démarreurs** (`startLR`,
+`startSA2`, `startFracParcours`, `startTM`, `startTM2`) : cinquante-neuf
+corrigés d'un côté, cinq oubliés de l'autre, et rien ne le disait. C'est la
+leçon habituelle — **un contrôle qui passe PARTOUT est la seule chose qui
+empêche une liste de dériver** : on pose un POISON dans `test.maxScore`, on
+démarre chaque exercice, et on exige que le poison ait disparu. Un démarreur
+qui n'ouvre qu'un ÉCRAN DE MENU ne tire rien et ne peut donc rien poser : on
+le reconnaît à l'IDENTITÉ du tableau des questions — le signal de `dmEnonce`,
+repris tel quel — et on le NOMME au lieu de l'accuser (la Terminale en a un,
+le signe du 2nd degré). Sans cette distinction, le contrôle accusait une page
+juste.
+**Le contrôle est UNIVERSEL** — il passe sur CHAQUE exercice du niveau — et il
+mesure sur UN SEUL tirage : il démarre l'exercice, note son barème, puis
+appelle la coupe elle-même, parce que le tirage varie d'un lancement à
+l'autre et que deux lancements ne se comparent pas (le premier jet accusait
+{lecture-variations} d'un défaut qui n'était que son tirage aléatoire). Les
+deux bords vivent dans une SEULE visite : les démarrages coûtent cher et se
+partagent.
+**Et l'EXACTITUDE ne s'exige que là où la bonne réponse se MESURE.** Le
+premier jet déduisait l'homogénéité de la DIVISIBILITÉ du barème par le
+nombre de questions — or le 2.7 pèse 5, 9, 5 et 17 cases, dont la somme (44)
+se divise par 4 un tirage sur deux. Il accusait donc une page juste, un essai
+sur trois, et l'action GitHub l'a montré là où trois exécutions locales
+étaient passées : **un contrôle intermittent est un contrôle qui parle d'autre
+chose.** Le second jet mesurait bien les poids, mais n'exigeait l'exactitude
+que lorsqu'ils sont tous ÉGAUX — et la Terminale, qui n'a aucune fonction de
+la convention, n'avait alors plus rien à mesurer : le contrôle rougissait en
+le disant. C'est le bon réflexe et c'était le mauvais périmètre.
+Deux familles, donc, et aucune ne se devine : les poids se LISENT et leur
+somme retrouve le barème — l'attendu est la somme des n PREMIERS, même quand
+les questions pèsent différemment, et c'est ce qui DÉPARTAGE les deux voies de
+la page (le 2.7 rend 19 sur trois questions par la voie exacte, 27 par la voie
+homogène) ; ou le barème ÉGALE le nombre de questions — un point par question,
+arithmétique sur les nombres OBSERVÉS, sans rien demander à la page, et c'est
+la famille de la Terminale et de la Première entières. Le reste (44 pour 4
+questions dont les poids sont illisibles) n'a pas d'attendu mesurable : seul
+le bord qui NOMME le défaut le tient — le barème du tirage entier ne survit
+pas à la coupe.
+Il vit dans la CHAÎNE séquentielle des contrôles asynchrones : il pose
+`mesDevoirs` et `currentDM`, et lancé en parallèle il les faisait voler à son
+voisin — le piège documenté, retombé tel quel. Neuf sabotages, chacun
+rougissant en nommant son défaut — dont les deux gardes « le contrôle ne
+mesure rien » : celui de la coupe débranchée, et celui d'un niveau où plus
+aucun barème ne serait mesurable. Un dixième est resté vert et disait vrai :
+retirer la ligne de la voie exacte laissait un `else if` orphelin, donc une
+page qui ne se charge plus — **un sabotage qui casse la syntaxe ne dit rien du
+contrôle visé**, il fallait débrancher la voie sans la retirer.
+
 **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
 « Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa

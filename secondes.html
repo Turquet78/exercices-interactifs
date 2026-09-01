@@ -2194,7 +2194,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=127;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=128;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5389,13 +5389,54 @@ function dmReglageExo(){
    ne sait que RÉDUIRE : une valeur au-delà du format normal y retombe. Après
    une reprise de pause, le tirage sauvegardé fait foi — il porte déjà la
    coupe. Un kind absent de la table du rejeu garde sa séance entière. */
+/* LE POIDS D'UNE QUESTION, lu par la CONVENTION DE NOMMAGE que les exercices à
+   cases suivent déjà (xxxCases(q).length, xxxSubCount(q)) : aucune table à
+   tenir, un exercice ajouté demain est couvert dès qu'il nomme sa fonction
+   comme les autres. */
+function dmPoidsQuestion(kind, q){
+  const w=(typeof window!=='undefined')?window:null; if(!w||!kind) return null;
+  const f=w[kind+'Cases'];
+  if(typeof f==='function'){ try{ const c=f(q); if(c&&typeof c.length==='number') return c.length; }catch(e){} }
+  const g=w[kind+'SubCount'];
+  if(typeof g==='function'){ try{ const n=g(q); if(typeof n==='number'&&isFinite(n)) return n; }catch(e){} }
+  return null;
+}
+/* LE BARÈME SUIT LA COUPE — sans quoi une copie PARFAITE est comptée fausse.
+   Signalé par Turquet (septembre 2026) : « dans la fiche 3, les élèves ont
+   15/20 à l'exercice 1 alors que tout est bon ». 3 questions réglées sur 4
+   tirées, et test.maxScore restait celui du tirage ENTIER : une copie sans
+   faute valait 3/4, c'est-à-dire 75 %, c'est-à-dire 7,5/10, c'est-à-dire
+   15/20. Le pire défaut du projet : l'exercice apprend l'inverse de ce qu'il
+   enseigne. C'est ICI qu'il notait, finishTest lisant « test.maxScore ||
+   test.questions.length » (enregistrerNotePartielle aussi).
+   Trois voies, dans cet ordre : le poids exact par question (ci-dessus) ; à
+   défaut le poids HOMOGÈNE, quand maxScore se divise exactement par le
+   nombre de questions tirées — le cas de tout exercice noté par question ;
+   et si ni l'un ni l'autre ne s'applique, ON NE COUPE PAS : mieux vaut une
+   séance plus longue que la promesse qu'une note juste. */
 function dmAppliquerNbQ(){
   const ex=dmReglageExo(); const n=ex?parseInt(ex.nbQ,10):NaN;
   if(!Number.isFinite(n)||n<1) return;
   if(!Array.isArray(test.questions)||test.questions.length<=n) return;
-  const avant=test.questions;
-  test.questions=test.questions.slice(0,n); test.idx=0;
-  if(!afficherEcranDe(test.kind)) test.questions=avant;
+  const avant=test.questions, gardees=avant.slice(0,n);
+  let nouveau=null;
+  if(test.maxScore){
+    /* LA FORMULE SE VÉRIFIE SUR LE TIRAGE ENTIER AVANT DE SERVIR : la
+       convention de nommage rend des CASES, or certains exercices notent à la
+       QUESTION (somme-fractions : 9 cases, 1 point) — appliquée sans ce
+       garde-fou elle portait le barème de 4 à 27, et une copie parfaite
+       tombait à 11 %. On ne s'en sert que si la somme des poids RETROUVE le
+       maxScore posé par le démarreur. */
+    let total=0, partiel=0, connu=true;
+    avant.forEach(function(q,i){ const p=dmPoidsQuestion(test.kind,q);
+      if(p==null){ connu=false; return; } total+=p; if(i<n) partiel+=p; });
+    if(connu && total===test.maxScore) nouveau=partiel;
+    else if(test.maxScore%avant.length===0) nouveau=(test.maxScore/avant.length)*n;
+    else return;   /* poids inconnu ET inhomogène : la séance reste entière, la note reste juste */
+  }
+  test.questions=gardees; test.idx=0;
+  if(!afficherEcranDe(test.kind)){ test.questions=avant; return; }   /* kind inconnu : séance intacte */
+  if(nouveau!=null) test.maxScore=nouveau;
 }
 /* L'entonnoir du lancement DEPUIS un devoir : un seul chemin, qui pose le
    contexte puis applique les réglages du devoir. */
@@ -9605,6 +9646,8 @@ async function startPercent(){
   test.kind='pct';
   test.questions=Array.from({length:8},genPercent);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global, et ICI finishTest le lit — sans cette ligne il notait sur celui de l'exercice précédent (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
   show('ptest'); renderPTest();
 }
 function renderPTest(){
@@ -9733,6 +9776,8 @@ async function startAug(){
   test.kind='aug';
   test.questions=Array.from({length:6},genAug);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global, et ICI finishTest le lit — sans cette ligne il notait sur celui de l'exercice précédent (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
   show('atest'); renderATest();
 }
 function renderATest(){
@@ -9912,6 +9957,8 @@ async function startDim(){
   test.kind='dim';
   test.questions=Array.from({length:6},genDim);
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global, et ICI finishTest le lit — sans cette ligne il notait sur celui de l'exercice précédent (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
   show('dtest'); renderDTest();
 }
 function renderDTest(){
