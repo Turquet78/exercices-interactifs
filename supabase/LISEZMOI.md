@@ -480,6 +480,36 @@ pas été élargie.
 
 ---
 
+## 3 octies. Réparer les notes faussées par la coupe (une seule fois)
+
+*À ne jouer que si vous avez réglé le NOMBRE DE QUESTIONS d'un exercice dans un
+devoir ou une fiche de Seconde avant septembre 2026.*
+
+Jusqu'à la v128, la coupe retirait des questions **sans toucher au barème** :
+trois questions posées sur quatre tirées, et une copie sans faute valait 3/4 —
+75 %, donc 7,5/10, donc **15/20** (signalé par Turquet sur la fiche 3). La page
+est corrigée ; les notes déjà enregistrées portent encore le mauvais
+dénominateur.
+
+Collez **`corriger-notes-coupe.sql`** dans l'éditeur SQL et exécutez-le. Il est
+idempotent, il ne baisse jamais une note, et il conserve l'ancien barème dans
+la ligne (le fichier dit comment revenir en arrière).
+
+Il ne répare **que les copies sans faute**, et c'est volontaire : là, le score
+est par construction le barème de la séance réellement posée, donc la note
+juste est 100 % — aucune supposition. Une copie qui a des fautes est
+sous-notée elle aussi, mais son barème n'est écrit nulle part ; le deviner
+ferait courir le risque de remonter une note à tort, ce qu'on ne saurait plus
+voir. Ces copies-là sont **listées** à la fin du rapport : faites refaire
+l'exercice, la meilleure note l'emporte et le carnet se corrige de lui-même.
+
+**Seule la Seconde est concernée** : la Première et la Terminale notent sur le
+nombre de questions et n'ont jamais mal noté.
+
+`npm run test:base` rejoue le script sur un PostgreSQL jetable — la copie
+parfaite remise à 100 %, la copie fautive laissée et nommée, la note partielle
+et le brouillon de pause épargnés, l'idempotence et le retour arrière.
+
 ## 4. Vous déclarer professeur (1 min)
 
 Toujours dans **SQL Editor**, avec l'UUID de l'étape 2 :
