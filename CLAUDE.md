@@ -4053,6 +4053,51 @@ Les deux clauses ont été FONDUES en une seule : écrites côte à côte, elles
 répétaient la liste « ne compte pas faux » et la règle passait à 3446
 caractères — 554 de marge sur la troncature. Fondues, elle en fait 3271, et
 la marge est mesurée à chaque exécution.
+
+**Puis la clause a échoué en production, et le verdict a changé de camp.** Le
+lendemain de sa mise en ligne, le modèle a RE-refusé une copie juste — sept
+critères verts à l'écran — en la disant « très difficile à lire : les
+symboles ≤ et les indices sont mélangés », en réclamant les calculs de f(2)
+et f(4) que la règle venait d'affranchir, et en exigeant une conclusion que
+l'exercice ne demande pas (signalé par Turquet, septembre 2026). Une consigne
+répétée n'est pas une seconde mesure — c'est la leçon du diagnostic,
+transposée : **un verdict qu'on peut prouver ne se confie pas à un modèle**,
+et il fallait le tenir dans les DEUX sens, pas seulement celui du refus.
+**Le verdict de la page a maintenant TROIS positions**, la doctrine de
+libreJuge et de salJuge transposée à la prose : elle REFUSE sur un fait
+prouvable (structure incomplète, ou une comparaison numérique fausse) ; elle
+ACCEPTE — et son verdict PRIME, part au modèle en tête (« VERDICT DE LA
+PAGE, PRIORITAIRE ») et remplace toute prose qui le conteste — quand TOUT ce
+que l'exercice annonce est positivement vérifié : les sept critères, les
+IMAGES f(m) et f(M) écrites (les nombres que l'élève calcule, ceux que
+l'énoncé ne donne pas), et aucune comparaison fausse ; elle S'ABSTIENT sinon,
+et le modèle reste alors seul juge, comme avant. En panne, le juge répond
+seul là où il a tout vérifié — la leçon de libreJuge — et continue de ne
+rien compter là où il s'abstient. La copie de production est ÉPINGLÉE au
+contrôle : si elle ne passe pas au juge, c'est le juge qui a tort.
+**Le micro-juge des comparaisons ne lit que ce qu'il peut prouver** : sur
+chaque ligne, les paires adjacentes d'une chaîne de ≤, <, ≥, > ou = dont les
+DEUX côtés sont PUREMENT numériques — « 8 ≤ 7 » est faux et se nomme dans le
+bilan, « f(8) = 7 » ne se juge pas, son côté gauche n'étant pas le nombre 8.
+Ce garde n'est pas une précaution de papier : un extracteur laxiste lit
+« 1 » dans l'INDICE de U₍ₙ₊₁₎ et fabrique « 3 ≤ 1 » sur la copie de
+production elle-même — le sabotage l'a montré. Sur un refus que la page sait
+prononcer, le modèle n'est pas appelé : la phrase du juge s'affiche, jamais
+une prose (la leçon du quotient de la Première).
+**Et la CONCLUSION n'est PAS exigée** (décision de Turquet, septembre 2026 :
+« on n'oblige pas les élèves à faire une conclusion ») : la règle le dit en
+toutes lettres et ne compte plus que TROIS moments, l'écran ne dit plus
+« et conclus », et le conseil la présente comme facultative — un critère
+exigé d'un côté et pas de l'autre ferait mentir l'écran. La démonstration de
+référence, elle, GARDE sa ligne de conclusion : montrer mieux que le minimum
+n'est pas l'exiger.
+**Deux bords du contrôle ont été RETOURNÉS, pas retirés** : « le refus du
+modèle prime sur structure complète » est devenu « il ne prime plus quand la
+page a tout vérifié — et sa prose n'atteint plus l'écran », et la panne s'est
+scindée en deux selon le verdict. Le banc navigateur exige en plus que le
+verdict d'ACCEPTATION tienne sur du VRAI MathLive — la sérialisation réelle
+ne doit ni cacher les images ni fabriquer une comparaison fausse, et c'est
+exactement la surface par laquelle la production a échoué.
 **LA BARRE D'ESPACE SORT DE L'INDICE, et ce défaut-là n'a été trouvé qu'en
 TAPANT.** Le mode « rédaction » pose une VRAIE espace (sans quoi « on suppose »
 s'écrirait « onsuppose »), et la convention de MathLive — l'espace SORT d'un
@@ -4082,7 +4127,8 @@ GÉNÉRIQUE, tout appel `verif` qui n'est pas l'un des deux exercices de dériv�
 historiques décrit lui-même son énoncé et sa règle. La règle vit donc dans la
 PAGE et part avec elle — la leçon de `MAX_CTX`. Mais la fonction TRONQUE
 « attendu » en silence : la borne est LUE dans sa source, jamais recopiée, et
-la marge s'affiche à chaque exécution (3271 caractères pour 4000).
+la marge s'affiche à chaque exécution (3403 caractères pour 4000, la règle
+de l'acceptation mesurée avec celle du refus).
 **Deux bancs, et ils ne voient pas la même chose.** Le PRINCIPAL éprouve le
 juge critère par critère dans les deux sens, la lénience, le piège de l'énoncé
 recopié, la règle envoyée au modèle, la note et la peinture — sur des chaînes
@@ -4090,8 +4136,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Trente et un
-sabotages en tout (vingt-trois au banc principal, huit au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Quarante-trois
+sabotages en tout (trente-quatre au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur

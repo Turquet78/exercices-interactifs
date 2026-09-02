@@ -3251,6 +3251,16 @@ function recurrenceRedigee(w, apres){
       +'Hérédité : on suppose que 0 <= U_(n) <= 6. On montre que 0 <= U_(n+1) <= 6.\\n'
       +'f est croissante sur [0 ; 6] donc 3 <= U_(n+1) <= 4,5 <= 6.\\n'
       +'Conclusion : pour tout n >= 0, 0 <= U_(n) <= 6.';
+    /* la copie de PRODUCTION (Turquet, septembre 2026), transposée aux nombres
+       de c0 : sept critères verts À L'ÉCRAN, et le modèle l'a pourtant refusée
+       en la disant « difficile à lire ». Si elle ne passe pas au juge de la
+       page, c'est le juge qui a tort. */
+    const PROD='initialisation : 0 ≤ U_(0) = 3 ≤ 6 vrai\\nhérédité :\\non suppose : 0 ≤ U_(n) ≤ 6\\non montre : 0 ≤ U_(n+1) ≤ 6\\n0 ≤ U_(n) ≤ 6\\nf(0) ≤ f(U_(n)) ≤ f(6) car f croissante\\n0 ≤ 3 ≤ U_(n+1) ≤ 4,5 ≤ 6';
+    /* la même sans les IMAGES : la page ne peut plus tout vérifier, elle
+       s'abstient et le modèle reste seul juge */
+    const SANSIMG=PLEINE.replace('donc 3 <= U_(n+1) <= 4,5 <= 6','donc l encadrement demandé suit');
+    /* une comparaison numérique FAUSSE : un refus que la page sait prononcer */
+    const FAUSSE=PLEINE+'\\nOr 4,5 ≤ 6 ≤ 3.';
     const manquants=function(txt){ return rrJuge(c0,txt).crit.filter(function(x){ return !x.ok; }).map(function(x){ return x.cle; }); };
     if(manquants(PLEINE).length) vus.push('une copie COMPLÈTE est refusée sur : '+manquants(PLEINE).join(', '));
 
@@ -3314,6 +3324,40 @@ function recurrenceRedigee(w, apres){
     if(!jSeul.crit.filter(function(x){ return x.cle==='hered'; })[0].ok)
       vus.push('sans « on suppose » ni « on montre », la position est jugée quand même — il n\\'y a pourtant aucun repère');
 
+    /* ---------- 3 ter. LE VERDICT À TROIS POSITIONS, ET LE MICRO-JUGE DES
+       COMPARAISONS ----------
+       Un verdict qu'on peut prouver ne se confie pas à un modèle : celui-ci a
+       refusé EN PRODUCTION une copie juste, malgré la clause d'interdiction —
+       la consigne ne suffit pas, c'est la page qui tranche ce qu'elle sait
+       prouver. Accepter exige TOUT : la structure, les images par f écrites,
+       aucune comparaison fausse ; il manque une pièce, la page s'abstient. */
+    if(rrJuge(c0,PROD).verdict!=='accepte')
+      vus.push('la copie de production n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PROD).verdict+') — le juge a tort, pas la copie');
+    if(rrJuge(c0,PLEINE).verdict!=='accepte')
+      vus.push('la copie complète n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PLEINE).verdict+')');
+    if(rrJuge(c0,SANSIMG).verdict!=='abstention')
+      vus.push('sans les images f(m) et f(M), la page devrait s\\'abstenir (verdict '+rrJuge(c0,SANSIMG).verdict+')');
+    const jF=rrJuge(c0,FAUSSE);
+    if(jF.verdict!=='refus' || jF.fausses.join()!=='6 ≤ 3')
+      vus.push('« 6 ≤ 3 » ne fait pas refuser : verdict '+jF.verdict+', fausses ['+jF.fausses.join(', ')+']');
+    /* le micro-juge, vérité par vérité — chaque direction, l'égalité, les
+       décimales à la française */
+    [['or 2 ≤ 8 ≤ 6','8 ≤ 6'], ['9 ≥ 12','9 ≥ 12'], ['2 = 3','2 = 3'],
+     ['2 < 2','2 < 2'], ['8 > 8','8 > 8'], ['0,5 ≤ 0,4','0,5 ≤ 0,4']].forEach(function(cas){
+      const f=rrFausses(cas[0]);
+      if(f.join()!==cas[1]) vus.push('« '+cas[0]+' » : relevé ['+f.join(', ')+'] au lieu de ['+cas[1]+']');
+    });
+    /* LE GARDE DES CÔTÉS PURS : « f(6) = 4,5 » est une phrase juste dont le
+       côté gauche n'est PAS le nombre 6 — un extracteur qui lirait les
+       chiffres d'un côté impur y verrait « 6 = 4,5 » et refuserait une copie
+       correcte, le pire défaut du projet. Ne pas savoir n'est pas faux. */
+    ['f(6) = 4,5 et f(0) = 3', 'pour n ≥ 1, 0 ≤ u_(n)',
+     'initialisation : 0 ≤ u_(0) = 3 ≤ 6 vrai',
+     'f est croissante sur [0 ; 6] donc rien ne bouge'].forEach(function(ph){
+      const f=rrFausses(ph);
+      if(f.length) vus.push('une phrase juste est accusée : « '+ph+' » relève ['+f.join(', ')+']');
+    });
+
     /* ---------- 4. LE PIÈGE DE L'ÉNONCÉ RECOPIÉ ---------- */
     const TITRE='Démontrer par récurrence que 0 <= U_(n) <= 6.\\n'
       +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6, c est vrai. Hérédité : on suppose. f est croissante.';
@@ -3339,6 +3383,26 @@ function recurrenceRedigee(w, apres){
       vus.push('la règle n\\'exige pas qu\\'un refus NOMME l\\'erreur mathématique');
     if(rOK.indexOf('DEUX LIGNES SUFFISENT')<0 || rOK.indexOf('Ne réclame jamais ce détail')<0)
       vus.push('la règle n\\'affranchit pas l\\'élève des calculs intermédiaires de f');
+    /* LA CONCLUSION N'EST PAS EXIGÉE (décision de Turquet, septembre 2026 :
+       « on n'oblige pas les élèves à faire une conclusion ») : la règle le dit
+       en toutes lettres, ne compte plus que TROIS moments, et l'écran ne la
+       demande plus — un critère exigé d'un côté et pas de l'autre ferait
+       mentir l'écran. */
+    if(!/CONCLUSION[^.]*PAS exigée/.test(rOK))
+      vus.push('la règle ne dit plus que la conclusion n\\'est PAS exigée');
+    if(rOK.indexOf('TROIS moments')<0 || rOK.indexOf('QUATRE moments')>=0 || rOK.indexOf('(4) CONCLUSION')>=0)
+      vus.push('la règle exige encore la conclusion comme un quatrième moment');
+    const attEcran=(document.querySelector('#scr-rr .rr-attendu')||{textContent:''}).textContent;
+    if(!/pas exigée/.test(attEcran) || /et\s+conclus\b/.test(attEcran))
+      vus.push('l\\'écran demande encore de conclure : « '+attEcran.slice(-120)+' »');
+    /* le verdict d'ACCEPTATION part au modèle, en tête et prioritaire — et
+       seulement quand la page a tout vérifié */
+    if(rOK.indexOf('VERDICT DE LA PAGE, PRIORITAIRE')<0)
+      vus.push('le verdict d\\'acceptation de la page ne part pas au modèle');
+    if(rKO.indexOf('VERDICT DE LA PAGE, PRIORITAIRE')>=0)
+      vus.push('la page déclare correcte une copie qu\\'elle refuse');
+    if(rrAttenduIA(c0,rrJuge(c0,SANSIMG)).indexOf('VERDICT DE LA PAGE, PRIORITAIRE')>=0)
+      vus.push('la page déclare correcte une copie sur laquelle elle s\\'abstient');
     const absent=jKO.crit.filter(function(x){ return !x.ok; })[0];
     if(!absent) vus.push('le piège de l\\'énoncé recopié ne manque plus rien : le contrôle suivant ne mesure rien');
     else {
@@ -3353,7 +3417,10 @@ function recurrenceRedigee(w, apres){
     let pire=0, pireId='';
     for(let i=0;i<60;i++){
       const c=(i%2)?genRCH(i%2):genRCA(i%2), j=rrJuge(c,'');
-      const n=rrAttenduIA(c,j).length;
+      /* la règle la plus longue est celle de l'ACCEPTATION — le verdict de la
+         page part en tête ; mesurer la seule copie vide mesurerait l'autre */
+      const n=Math.max(rrAttenduIA(c,j).length,
+                       rrAttenduIA(c,{verdict:'accepte',crit:[]}).length);
       if(n>pire){ pire=n; pireId=(c.fam||'')+' n0='+c.n0; }
     }
     if(pire>BORNE) vus.push('la règle envoyée au modèle fait '+pire+' caractères ('+pireId+') : la fonction Edge tronque à '+BORNE);
@@ -3401,28 +3468,73 @@ function recurrenceRedigee(w, apres){
       vus.push('le modèle accepte une copie sans le mot « hérédité » et la page le suit : score '+test.score);
     if(p.ko!==1 || p.ok!==6) vus.push('mot manquant : '+p.ok+' vert(s) et '+p.ko+' rouge(s) — attendu 6 et 1');
 
-    /* le bord opposé : structure complète, calcul refusé par le modèle */
+    /* LE BORD RETOURNÉ (septembre 2026) : sur une copie que la page a TOUT
+       vérifiée, le refus du modèle ne prime plus — c'est lui qui avait
+       refusé une copie juste en production, malgré la clause. Le point est
+       donné, et sa prose de refus n'a plus de chemin vers l'écran : la
+       phrase du juge la remplace. */
     arme(PLEINE); MODELE={correct:false, panne:false};
+    await checkRR();
+    p=peint();
+    if(test.score!==1 || test.answers[0].correct!==true)
+      vus.push('la page a tout vérifié et le refus du modèle prime encore : score '+test.score);
+    if(p.txt.indexOf('Retour du modèle stubbé')>=0)
+      vus.push('la prose d\\'un modèle qui conteste le verdict de la page atteint l\\'écran');
+    if(p.txt.indexOf('démonstration complète')<0)
+      vus.push('la phrase du juge ne remplace pas la prose du modèle en désaccord');
+
+    /* là où la page S'ABSTIENT (les images par f manquent), le modèle reste
+       seul juge — dans les deux sens */
+    arme(SANSIMG); MODELE={correct:false, panne:false};
     await checkRR();
     if(test.score!==0 || test.answers[0].correct!==false)
-      vus.push('le modèle refuse le calcul et la page donne quand même le point : score '+test.score);
+      vus.push('abstention : le refus du modèle ne compte plus (score '+test.score+')');
     if(peint().txt.indexOf('Initialisation :')<0)
       vus.push('une copie refusée ne montre pas la démonstration de référence');
+    arme(SANSIMG); MODELE={correct:true, panne:false};
+    await checkRR();
+    if(test.score!==1 || test.answers[0].correct!==true)
+      vus.push('abstention : l\\'accord du modèle ne compte plus (score '+test.score+')');
 
-    /* le modèle en panne : la page ne compte rien et ne verrouille pas —
-       la note se joue sur le CALCUL, que personne n'a relu */
+    /* UNE COMPARAISON FAUSSE EST UN REFUS QUE LA PAGE SAIT PRONONCER : le
+       modèle n'est pas appelé, le bilan la NOMME, et l'accord du modèle ne
+       pourrait de toute façon rien y changer */
+    arme(FAUSSE); MODELE={correct:true, panne:false};
+    await checkRR();
+    p=peint();
+    if(appels!==0) vus.push('le modèle est appelé sur un refus que la page sait prononcer');
+    if(test.score!==0 || test.answers[0].correct!==false)
+      vus.push('« 6 ≤ 3 » écrit dans la copie et le point est donné quand même : score '+test.score);
+    if(p.txt.indexOf('6 ≤ 3')<0) vus.push('la comparaison fausse n\\'est pas nommée dans le bilan');
+    if(p.ko!==1 || p.ok!==7) vus.push('comparaison fausse : '+p.ok+' vert(s) et '+p.ko+' rouge(s) — attendu 7 et 1');
+
+    /* LA PANNE, RETOURNÉE À MOITIÉ : sur une copie que la page a tout
+       vérifiée, le juge répond SEUL au lieu de bloquer l'élève (la leçon de
+       libreJuge) ; là où elle s'abstient, rien n'est compté ni verrouillé —
+       la note se jouerait sur un calcul que personne n'a relu. */
     arme(PLEINE); MODELE={correct:true, panne:true};
     await checkRR();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true)
+      vus.push('modèle en panne sur une copie vérifiée : la page ne conclut pas seule (score '+test.score+')');
+    if(!test.locked) vus.push('modèle en panne sur une copie vérifiée : l\\'écran n\\'est pas verrouillé');
+    arme(SANSIMG); MODELE={correct:true, panne:true};
+    await checkRR();
     if(test.score!==0 || test.answers.length!==0)
-      vus.push('modèle en panne : la page compte quand même (score '+test.score+')');
-    if(test.locked) vus.push('modèle en panne : l\\'écran est verrouillé');
+      vus.push('modèle en panne sur une abstention : la page compte quand même (score '+test.score+')');
+    if(test.locked) vus.push('modèle en panne sur une abstention : l\\'écran est verrouillé');
     if(peint().ok+peint().ko!==7) vus.push('modèle en panne : le bilan de la page n\\'est plus affiché');
 
-    /* en SOUTIEN, un refus ne verrouille pas : l'élève corrige et revérifie */
+    /* en SOUTIEN, un refus ne verrouille pas : l'élève corrige et revérifie —
+       éprouvé sur les deux refus qui existent encore, celui du modèle (la
+       page s'abstient) et celui de la page (comparaison fausse) */
     currentMode='soutien';
-    arme(PLEINE); MODELE={correct:false, panne:false};
+    arme(SANSIMG); MODELE={correct:false, panne:false};
     await checkRR();
-    if(test.locked) vus.push('en soutien, un refus verrouille l\\'écran');
+    if(test.locked) vus.push('en soutien, un refus du modèle verrouille l\\'écran');
+    arme(FAUSSE); MODELE={correct:true, panne:false};
+    await checkRR();
+    if(test.locked) vus.push('en soutien, une comparaison fausse verrouille l\\'écran');
+    if(peint().txt.indexOf('6 ≤ 3')<0) vus.push('en soutien, la comparaison fausse n\\'est pas nommée');
     currentMode='train';
     return vus.join(' | ');
   })()`, function(r){
