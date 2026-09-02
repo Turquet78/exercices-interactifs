@@ -8381,7 +8381,7 @@ function ordreDesFiches(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur',
       'ce niveau n\'a pas les fiches de travail en classe');
-    return reglagesDevoirs(w, apres);
+    return ordreDesDevoirs(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -8500,6 +8500,93 @@ function ordreDesFiches(w, apres){
     return vus.join(' | ');
   })()`, function(r){
     const nom='les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur';
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    reglagesDevoirs(w, apres);
+  });
+}
+/* L'ORDRE DES EXERCICES D'UN DEVOIR SE RÈGLE EN TERMINALE (demande de
+   Turquet, septembre 2026 — « comme en 1ère ») : la Terminale n'a pas de
+   fiches, ses devoirs à la maison sont sa seule famille, et son éditeur ne
+   savait pas régler l'ordre — pire, sa relecture du formulaire réécrivait
+   `exercices` dans l'ordre du MENU (TEST_ORDER), le piège payé par la
+   Seconde sur ses fiches, au même endroit : un ordre réglé aurait été
+   écrasé à chaque enregistrement, sans erreur nulle part. Quatre bords :
+     · la RELECTURE préserve l'ordre rangé, et un nouveau coché arrive à la
+       FIN — jamais à son rang de menu ;
+     · le RUBAN est dans l'éditeur et ses flèches déplacent, l'enregistrement
+       emporte l'ordre tel quel ;
+     · l'ÉCRAN DE L'ÉLÈVE affiche les exercices dans l'ordre du tableau —
+       c'est lui que la demande vise ;
+     · et AUCUN verrou n'en découle : un devoir reste tout ouvert (décision
+       de Turquet, août 2026 — le verrou est la règle des FICHES, qui
+       n'existent pas ici). */
+function ordreDesDevoirs(w, apres){
+  const nom='l\'ordre des exercices d\'un devoir se règle, s\'affiche chez l\'élève, et ne verrouille rien';
+  const present = evaluer(w, "typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function' && typeof renderDevoirDetail==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas cet éditeur de devoirs');
+    return reglagesDevoirs(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    mesResultats=[];
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{devoirs:[]}}]);
+    const ids=TEST_ORDER.slice(0,3);
+    const A=ids[2], B=ids[0], C=ids[1];      /* un ordre qui n'est PAS celui du menu */
+    const idsDe=function(arr){ return (arr||[]).map(function(e){ return e.id; }).join('>'); };
+    const menuDe=function(liste){ return TEST_ORDER.filter(function(id){ return liste.indexOf(id)>=0; }).join('>'); };
+    /* le contrôle doit avoir quelque chose à mesurer : l'ordre témoin diffère du menu */
+    if(A+'>'+B===menuDe([A,B])) vus.push('l\\'ordre témoin est celui du menu : le contrôle ne mesure rien');
+
+    /* 1. la relecture PRÉSERVE l'ordre rangé, le nouveau coché arrive à la fin */
+    dmList=[{id:'dm_o',num:1,actif:true,titre:'Devoir ordonné',cours:'',exercices:[{id:A,modes:['train']},{id:B,modes:['train']}]}];
+    dmSelId='dm_o';
+    renderDevoirEditor();
+    if(!document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre manque dans l\\'éditeur du devoir');
+    else {
+      const fleches=document.querySelectorAll('#dmOrdre .dm-fleche').length;
+      if(fleches!==4) vus.push('le ruban devrait porter 4 flèches pour 2 exercices, il en montre '+fleches);
+    }
+    readEditorIntoDevoir();
+    if(idsDe(dmList[0].exercices)!==A+'>'+B)
+      vus.push('la relecture réordonne le devoir sur le menu : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B);
+    const cb=document.querySelector('#dmExos input[data-ex="'+C+'"][data-mode="train"]');
+    if(!cb){ vus.push('la case de l\\'exercice témoin est introuvable dans l\\'éditeur'); }
+    else {
+      cb.checked=true; readEditorIntoDevoir();
+      if(idsDe(dmList[0].exercices)!==A+'>'+B+'>'+C)
+        vus.push('le nouveau coché n\\'arrive pas à la fin : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B+'>'+C);
+
+      /* 2. la flèche déplace, et l'enregistrement emporte l'ordre tel quel */
+      dmOrdreBouge(C,-1);
+      if(idsDe(dmList[0].exercices)!==A+'>'+C+'>'+B)
+        vus.push('la flèche ne déplace pas l\\'exercice : '+idsDe(dmList[0].exercices));
+      await persistDevoirs();
+      const v=(window.__faux.tables['${TABLE}']||[{}])[0].valeurs||{};
+      if(idsDe((v.devoirs||[{}])[0].exercices)!==A+'>'+C+'>'+B)
+        vus.push('l\\'enregistrement perd l\\'ordre : '+idsDe((v.devoirs||[{}])[0].exercices));
+    }
+
+    /* 3. l'écran de l'élève affiche dans l'ordre du tableau, sans rien verrouiller */
+    mesDevoirs=JSON.parse(JSON.stringify(dmList));
+    renderDevoirDetail('dm_o');
+    const cartes=[].slice.call(document.querySelectorAll('#devoirsBody [onclick]')).filter(function(el){
+      return (el.getAttribute('onclick')||'').indexOf('openTestDevoir')===0; });
+    const ordreEcran=cartes.map(function(el){
+      const m=(el.getAttribute('onclick')||'').split("'");   /* openTestDevoir('dm_o','ID') */
+      return m.length>3?m[3]:'?'; }).join('>');
+    if(ordreEcran!==idsDe(mesDevoirs[0].exercices))
+      vus.push('l\\'écran de l\\'élève ne suit pas l\\'ordre réglé : '+ordreEcran+' au lieu de '+idsDe(mesDevoirs[0].exercices));
+    if(document.querySelectorAll('#devoirsBody .locked').length ||
+       cartes.some(function(el){ return el.disabled; }))
+      vus.push('la page du devoir verrouille des exercices : un devoir reste tout ouvert');
+    return vus.join(' | ');
+  })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
     reglagesDevoirs(w, apres);

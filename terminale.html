@@ -190,6 +190,8 @@
   .dm-exo-name{font-family:"Fredoka";font-weight:600;flex:1;min-width:150px}
   .dm-mode{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.92rem;color:var(--ink-soft);cursor:pointer}
   .dm-mode input{width:16px;height:16px}
+  .dm-fleche{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:.85rem;color:var(--ink-soft)}
+  .dm-fleche:disabled{opacity:.35;cursor:default}
   .dm-rescard{border:1.5px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:10px}
   .dm-resname{font-family:"Fredoka";font-weight:600;font-size:1.05rem;display:flex;align-items:center;gap:10px;margin-bottom:9px}
   .dm-prog{font-size:.8rem;font-weight:700;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);padding:2px 9px;border-radius:999px}
@@ -2311,7 +2313,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=288;
+const APP_VERSION=289;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -16406,13 +16408,30 @@ function renderDevoirEditor(){
        retombe — et la NOTE MAXIMALE EN SOUTIEN (5/10 par défaut). */
     return `<div class="dm-exo">
       <span class="dm-exo-name">${esc(testLabel(id))}</span>
-      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''}> Soutien</label>
-      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''}> Entraînement</label>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="soutien" ${s?'checked':''} onchange="dmExoCoche()"> Soutien</label>
+      <label class="dm-mode"><input type="checkbox" data-ex="${id}" data-mode="train" ${t?'checked':''} onchange="dmExoCoche()"> Entraînement</label>
       <label class="dm-mode">Questions <select data-nbq="${id}"><option value="">normal</option>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}"${nbQ===n?' selected':''}>${n}</option>`).join('')}</select></label>
       <label class="dm-mode">Soutien <select data-smax="${id}">${[5,6,7,8,9,10].map(n=>`<option value="${n}"${smax===n?' selected':''}>${n}/10</option>`).join('')}</select></label>
       <label class="dm-mode" title="Un exercice bonus vaut 1 point : il remonte la note sans la faire dépasser le maximum."><input type="checkbox" data-bonus="${id}" ${byBonus[id]?'checked':''}> Bonus (+1 pt)</label>
     </div>`;
   }).join('');
+  /* L'ORDRE DES EXERCICES DU DEVOIR SE RÈGLE ICI (demande de Turquet,
+     septembre 2026 — « comme en 1ère ») : l'ordre rangé est celui du tableau
+     dev.exercices, celui-là même que la liste de l'élève, la page du devoir,
+     l'énoncé papier et le carnet lisent — l'AFFICHAGE suit, rien d'autre.
+     AUCUN verrou n'en découle : un devoir reste tout ouvert (décision de
+     Turquet, août 2026 — le verrou n'existe que sur les fiches de la Seconde
+     et de la Première), l'élève fait les exercices comme il veut. */
+  const exOrd=(dev.exercices||[]).filter(e=>TESTS[e.id]);
+  $('dmExos').insertAdjacentHTML('beforeend', `
+    <label class="lab" style="margin-top:16px;display:block">Ordre des exercices du devoir</label>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Les exercices s'affichent aux élèves dans cet ordre — chacun reste libre de les faire comme il veut. Déplace un exercice avec ▲ et ▼.</p>
+    <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo">
+      <span class="dm-exo-name"><b>${i+1}.</b> ${esc(testLabel(ex.id))}</span>
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
+        <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
+      </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d’abord un mode sur les exercices du devoir : ils apparaîtront ici, dans l’ordre où tu les choisis.</p>'}</div>`);
 }
 /* Lit le formulaire dans le devoir sélectionné (en mémoire), sans écrire en base. */
 function readEditorIntoDevoir(){
@@ -16427,9 +16446,33 @@ function readEditorIntoDevoir(){
   document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=10) nbqs[s.dataset.nbq]=n; });
   document.querySelectorAll('#dmExos select[data-smax]').forEach(s=>{ const n=parseInt(s.value,10); if(n>=6&&n<=10) smaxs[s.dataset.smax]=n; });   /* 5 = le défaut, ne s'écrit pas */
   document.querySelectorAll('#dmExos input[data-bonus]').forEach(cb=>{ if(cb.checked) bonus[cb.dataset.bonus]=true; });   /* le défaut (pas bonus) ne s'écrit pas */
-  dev.exercices=TEST_ORDER.filter(id=>map[id]&&map[id].length).map(id=>Object.assign({id,modes:map[id]}, bonus[id]?{bonus:true}:{},
+  /* L'ORDRE RANGÉ EST CELUI DU DEVOIR (demande de Turquet, septembre 2026) :
+     relire le formulaire PRÉSERVE l'ordre déjà rangé et ajoute les nouveaux
+     cochés à la fin — l'ordre du menu (TEST_ORDER) écraserait celui que le
+     professeur vient de régler, à chaque enregistrement et à chaque
+     changement de devoir, sans erreur nulle part. C'est le piège payé par la
+     Seconde sur ses fiches, au même endroit. */
+  const coches=TEST_ORDER.filter(id=>map[id]&&map[id].length);
+  const ordre=(dev.exercices||[]).map(e=>e.id).filter(id=>coches.includes(id))
+    .concat(coches.filter(id=>!(dev.exercices||[]).some(e=>e.id===id)));
+  dev.exercices=ordre.map(id=>Object.assign({id,modes:map[id]}, bonus[id]?{bonus:true}:{},
     nbqs[id]?{nbQ:nbqs[id]}:{}, smaxs[id]?{smax:smaxs[id]}:{}));
 }
+/* Le ruban d'ordre : les flèches relisent d'abord le formulaire (cases
+   cochées, entête) — un re-rendu sans cette lecture effacerait ce qui vient
+   d'être coché sans être encore enregistré. */
+function dmOrdreBouge(id,delta){
+  readEditorIntoDevoir();
+  const dev=selectedDevoir(); if(!dev) return;
+  const arr=dev.exercices||[]; const i=arr.findIndex(e=>e.id===id), j=i+delta;
+  if(i<0||j<0||j>=arr.length) return;
+  const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
+  renderDevoirEditor();
+}
+/* Cocher ou décocher un mode met le ruban d'ordre à jour : sans ce re-rendu,
+   l'exercice tout juste coché n'apparaîtrait dans le ruban qu'au prochain
+   changement de devoir. */
+function dmExoCoche(){ readEditorIntoDevoir(); renderDevoirEditor(); }
 async function persistDevoirs(){
   const cur=await loadConfig();
   const {error}=await sb.from('parametres').upsert({id:1,valeurs:Object.assign({},cur,{devoirs:dmList})});
