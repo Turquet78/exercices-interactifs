@@ -3924,11 +3924,15 @@ function suiteAuxRedigee(w, apres){
       if(r!==cx[0]) vus.push('cas « '+cx[0]+' » : rate ['+r+'] au lieu de ['+cx[0]+']');
       if(jx.verdict!=='refus') vus.push('cas « '+cx[0]+' » : verdict '+jx.verdict+' au lieu de refus');
     });
-    /* la lénience restante : l'ordre commuté, et le + tapé hors de l'indice */
+    /* la lénience restante : l'ordre commuté, et le + tapé hors de l'indice —
+       le juge d'égalités doit les LIRE comme l'élève les entend, sans quoi il
+       fabriquerait une égalité fausse sur une copie juste */
     j=sarJuge(C0,{...PLEINE, a:PA.split('\\n').slice(0,4).join('\\n')+'\\n= V_(n) × 0,95'});
     if(rate(j)) vus.push('« V_(n) × 0,95 » commuté est refusé : '+rate(j));
+    if(j.fausses.length) vus.push('« V_(n) × 0,95 » commuté fabrique une égalité fausse : '+j.fausses[0]);
     j=sarJuge(C0,{...PLEINE, a:'V_(n)+1 = U_(n)+1 − 4000\\n'+PA.split('\\n').slice(1).join('\\n')});
     if(rate(j)) vus.push('le + tapé hors de l\\'indice est refusé : '+rate(j));
+    if(j.fausses.length) vus.push('le + tapé hors de l\\'indice, lu « V(n) + 1 », fabrique une égalité fausse : '+j.fausses[0]);
     /* la factorisation directe — sans le nombre intermédiaire 3800 — est une
        copie JUSTE que la page ne sait pas tout vérifier : abstention, jamais
        refus */
@@ -3938,6 +3942,67 @@ function suiteAuxRedigee(w, apres){
     /* une comparaison numérique fausse est un refus prouvable, nommé */
     j=sarJuge(C0,{...PLEINE, b:PB+'\\n6000 = 5000'});
     if(j.verdict!=='refus' || j.fausses[0]!=='6000 = 5000') vus.push('« 6000 = 5000 » : verdict '+j.verdict+', fausses ['+j.fausses.join(' ; ')+']');
+    /* LA CAPTURE DE PRODUCTION, épinglée (Turquet, septembre 2026) : la chaîne
+       du a) avale le − 5200 (« … + 2800 − 8000 = 0,65 U(n) ») et le modèle
+       écrivait « ta démonstration en (a) est correcte » — les trois critères
+       du a) sont des faits de PRÉSENCE, tous vrais sur cette copie. L'égalité
+       fausse est un refus PROUVABLE, nommé par sarFaussesExpr, quel que soit
+       l'état des autres parties. */
+    const CCAP={p:35,a:0.65,b:2800,k:8000,u0:14000,v0:6000};
+    const CHCAP='V_(n+1) = U_(n+1) − 8000 = 0,65 U_(n) + 2800 − 8000 = 0,65 U_(n) = 0,65 ( U_(n) − 8000 ) = 0,65 V_(n)';
+    const CAPTURE={a:CHCAP,
+      b:'V_0 = U_0 − 8000 = 14 000 − 8000 = 6000',
+      c:'(V_(n)) est une suite geometrique de raison 0,65 et de premier terme 6000\\nV_(n) = 6000 × 0,65^(n)',
+      d:'V_(n) = U_(n) − 8000 donc U_(n) = V_(n) + 8000\\nU_(n) = 6000 × 0,65^(n) + 8000'};
+    j=sarJuge(CCAP,{a:CHCAP,b:'',c:'',d:''});
+    if(j.verdict!=='refus' || j.fausses[0]!=='0,65 u_(n) + 2800 − 8000 = 0,65 u_(n)')
+      vus.push('la chaîne de la capture ne rougit pas en se nommant : verdict '+j.verdict+', fausses ['+j.fausses.join(' ; ')+']');
+    j=sarJuge(CCAP,CAPTURE);
+    if(j.verdict!=='refus' || !j.fausses.length)
+      vus.push('la capture aux quatre parties complètes passe encore ('+j.verdict+') : la structure masque l\\'égalité fausse');
+    /* et la même chaîne écrite comme au cahier — une étape par ligne, le « = »
+       en tête — rougit pareil : une ligne qui commence par « = » poursuit la
+       chaîne de la ligne du dessus */
+    j=sarJuge(CCAP,{...CAPTURE, a:CHCAP.split(' = ').map(function(m,ix){ return ix?'= '+m:m; }).join('\\n')});
+    if(j.verdict!=='refus' || !j.fausses.some(function(f){ return f.indexOf('= 0,65 u_(n)')>=0; }))
+      vus.push('la chaîne fausse écrite une étape par ligne ne rougit plus : fausses ['+j.fausses.join(' ; ')+']');
+    /* la jumelle JUSTE — le − 5200 écrit — ne rougit pas, et passe au juge :
+       si elle ne passe pas, c'est le juge qui a tort */
+    j=sarJuge(CCAP,{...CAPTURE, a:CHCAP.replace('= 0,65 U_(n) =','= 0,65 U_(n) − 5200 =')});
+    if(j.fausses.length) vus.push('la jumelle JUSTE de la capture rougit : '+j.fausses[0]);
+    if(j.verdict!=='accepte') vus.push('la jumelle juste de la capture ne passe pas au juge ('+j.verdict+', rate : '+rate(j)+')');
+    /* une ligne SANS « = » rompt la chaîne : recoller par-dessus la prose
+       jugerait ensemble deux calculs qui ne se suivent pas — un faux négatif */
+    j=sarJuge(C0,{...PLEINE, a:'V_(n+1) = U_(n+1) − 4000\\npour V_0 :\\n= 10000 − 4000'});
+    if(j.fausses.length) vus.push('une ligne de prose ne rompt plus la chaîne : '+j.fausses[0]);
+    /* CHAQUE égalité se VÉRIFIE (demande de Turquet, septembre 2026) : les
+       morceaux s'évaluent en n = 1, 2 et 3 — puissances comprises, quelle que
+       soit la base — les mots coupent la chaîne, et une égalité restée
+       INVÉRIFIABLE interdit l'acceptation forcée : abstention, jamais
+       « accepte ». */
+    j=sarJuge(C0,{...PLEINE, d:'V_(n) = U_(n) − 4000 donc U_(n) = V_(n) + 4000\\nU_(n) = 6000 × 0,95^(n)'});
+    if(!j.fausses.some(function(f){ return f==='u_(n) = 6000 × 0,95^(n)'; }))
+      vus.push('le « + 4000 » avalé au d) ne rougit pas — la puissance n\\'est pas évaluée (fausses ['+j.fausses.join(' ; ')+'])');
+    j=sarJuge(C0,{...PLEINE, c:PC.replace('0,95^(n)','0,9^(n)')});
+    if(j.verdict!=='refus'||!j.fausses.length)
+      vus.push('la puissance à la MAUVAISE base (0,9 pour 0,95) ne rougit pas ('+j.verdict+', fausses ['+j.fausses.join(' ; ')+'])');
+    j=sarJuge(C0,{...PLEINE, d:'V_(n) = U_(n) − 4000 donc U_(n) = V_(n) − 4000\\nU_(n) = 6000 × 0,95^(n) + 4000'});
+    if(!j.fausses.some(function(f){ return f==='u_(n) = v_(n) − 4000'; }))
+      vus.push('l\\'égalité fausse derrière un « donc » n\\'est pas vue — les mots ne coupent plus la chaîne (fausses ['+j.fausses.join(' ; ')+'])');
+    j=sarJuge(C0,{...PLEINE, b:PB+'\\nU_(1) = 9 700'});
+    if(j.verdict!=='abstention'||j.fausses.length)
+      vus.push('une égalité INVÉRIFIABLE (U_(1)) laisse encore l\\'acceptation forcée : '+j.verdict+(j.fausses.length?', fausses : '+j.fausses[0]:''));
+    j=sarJuge(C0,{...PLEINE, c:PC+'\\nla raison est = 0,95'});
+    if(j.verdict!=='accepte') vus.push('une phrase qui porte un « = » bloque l\\'acceptation ('+j.verdict+')');
+    j=sarJuge(C0,{...PLEINE, a:PA+'\\nV_(n+1) = 6000 × 0,95^(n)+1'});
+    if(j.fausses.length) vus.push('« ^(n)+1 » — l\\'exposant n+1 tapé hors parenthèse — est lu « puissance n, plus 1 » : '+j.fausses[0]);
+    if(j.verdict!=='abstention') vus.push('« ^(n)+1 », invérifiable, devrait retomber en abstention ('+j.verdict+')');
+    j=sarJuge(C0,{...PLEINE, a:PA+'\\nV_(n+1) = 6000 × 0,95^(n+1)'});
+    if(j.verdict!=='accepte'||j.fausses.length)
+      vus.push('l\\'exposant (n+1) écrit en clair n\\'est pas vérifié vrai ('+j.verdict+(j.fausses.length?', '+j.fausses[0]:'')+')');
+    j=sarJuge(C0,{...PLEINE, c:PC+'\\nV_(n) = 6000 × (95)/(100)^(n)'});
+    if(j.fausses.length) vus.push('la fraction élevée à une puissance — (95)/(100)^(n) — rougit au lieu de s\\'abstenir : '+j.fausses[0]);
+    if(j.verdict!=='abstention') vus.push('(95)/(100)^(n), dont la sérialisation perd la portée de l\\'exposant, devrait s\\'abstenir ('+j.verdict+')');
 
     /* ---------- 3. LA RÈGLE envoyée au modèle ---------- */
     j=sarJuge(C0,PLEINE);
@@ -4002,6 +4067,16 @@ function suiteAuxRedigee(w, apres){
     if(appels!==0) vus.push('le modèle est appelé sur une copie vide');
     if(peint().ok+peint().ko!==0) vus.push('la copie vide reçoit des couleurs');
     if(test.answers.length || test.score) vus.push('la copie vide est comptée');
+    /* la capture de production, CLIQUÉE : un modèle qui dirait encore
+       « correct » n'est même plus interrogé — l'égalité fausse de la chaîne
+       est un refus que la page prononce seule, et le bilan la nomme */
+    test.questions[0]=CCAP;
+    arme(CAPTURE); MODELE={correct:true, panne:false};
+    await checkSAR();
+    if(appels!==0) vus.push('la chaîne fausse de la capture part quand même au modèle');
+    if(test.score!==0 || !test.answers.length || test.answers[0].correct!==false)
+      vus.push('la chaîne fausse de la capture vaut le point (score '+test.score+')');
+    if(peint().txt.indexOf('= 0,65 u_(n)')<0) vus.push('l\\'égalité fausse de la capture n\\'est pas nommée dans le bilan');
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok){ verifier('la suite auxiliaire rédigée : le tirage, le juge de la page et la note', false,

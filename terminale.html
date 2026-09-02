@@ -2311,7 +2311,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=286;
+const APP_VERSION=288;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11544,18 +11544,175 @@ function sarPuissA(ligne,a){
     return new RegExp(e.split('.').join('\\.')+' ?\\)? ?\\^ ?\\(?n').test(ligne);
   });
 }
-/* Le juge de la page — des faits PROUVABLES, partie par partie ; le calcul part
-   au modèle (la doctrine du {recurrence-redaction}). La LÉNIENCE est
-   délibérée : un faux négatif donne tort à un élève qui a raison, un faux
+/* LE JUGE D'ÉGALITÉS DE LA CHAÎNE — la structure ne suffit pas, et une capture
+   de production l'a payé (signalée par Turquet, septembre 2026) : la chaîne du
+   a) portait « 0,65 Uₙ + 2800 − 8000 = 0,65 Uₙ » — le − 5200 avalé, une
+   égalité FAUSSE — et le modèle a écrit « Ta démonstration en (a) est
+   correcte », les trois critères du a) étant des faits de PRÉSENCE, tous
+   vrais sur cette copie. Un verdict arithmétique ne se confie pas à un
+   modèle. Puis Turquet a levé la barre (« il faut vérifier que chacune des
+   égalités est vraie ») : le premier lecteur, linéaire en Uₙ, laissait les
+   puissances du c) et du d) hors de portée. Chaque morceau s'ÉVALUE donc
+   NUMÉRIQUEMENT, en TROIS points (n = 1, 2 et 3), sous les valeurs vraies de
+   l'énoncé — Uₙ par la récurrence, Vₙ = Uₙ − k, les puissances calculées
+   telles qu'écrites, quelle que soit leur base : « 0,9ⁿ » à la place de
+   « 0,95ⁿ » se REFUSE en se nommant au lieu de rester un angle mort. Deux
+   morceaux adjacents lisibles qui diffèrent en un point font une égalité
+   FAUSSE — une identité en n fausse en n = 1 est fausse — et le modèle n'est
+   pas appelé ; égaux aux trois points, l'égalité est VÉRIFIÉE.
+   TROIS positions pour le lecteur aussi : un morceau qu'il ne sait pas lire
+   EN ENTIER — une lettre étrangère, un indice chiffré (U₁), « ^(n)+1 » dont
+   rien ne dit si le +1 est dans l'exposant (la leçon du 6.7, remontée à
+   l'étage), la fraction élevée à une puissance « (95)/(100)^(n) » où la
+   sérialisation ne dit plus la portée de l'exposant, deux nombres côte à
+   côte sans opérateur — ne se juge pas, parce que refuser une écriture qu'on
+   devine recréerait le faux négatif qu'on corrige. Mais il COMPTE : une
+   égalité restée INVÉRIFIABLE interdit l'acceptation forcée — le verdict
+   retombe en abstention et le modèle juge seul, parce qu'on n'accepte que ce
+   qu'on a vérifié. Les formes « n+1 » s'essaient AVANT « n », parenthèse
+   d'indice fermée puis « +1 » comprise : lue « Vₙ + 1 », une définition
+   juste deviendrait fausse. Une ligne qui COMMENCE par « = » poursuit la
+   chaîne de la ligne du dessus — la présentation du cahier, celle que le 6.3
+   enseigne — quand une ligne sans « = » la rompt ; et les MOTS coupent
+   pareil : « Vₙ = Uₙ − k donc Uₙ = Vₙ + k » est DEUX égalités séparées par
+   « donc », chacune vérifiée — recoller par-dessus la prose jugerait
+   ensemble deux calculs qui ne se suivent pas. Une phrase reste une
+   phrase : « la raison est = 0,95 » n'affirme aucun calcul, elle ne se juge
+   pas et ne bloque rien. */
+function sarExprVal(cq, seg, n){
+  let s=String(seg==null?'':seg).toLowerCase()
+    .replace(/[−–—]/g,'-').replace(/,/g,'.').replace(/[×·⋅]/g,'*');
+  s=s.replace(/^[\s;:!?€]+/,'').replace(/[\s.;:!?€]+$/,'');
+  s=s.replace(/(\d)[ ](?=\d{3}(?!\d))/g,'$1');
+  s=s.replace(/(\d)[ ](?=\d{3}(?!\d))/g,'$1');
+  if(/\d\s+[\d.]/.test(s)) return null;          /* deux nombres sans opérateur : on ne devine pas */
+  s=s.replace(/\s+/g,'');
+  if(s==='' || /[^0-9uvn_+\-*/().^]/.test(s)) return null;
+  const u=[cq.u0]; for(let j=1;j<=n+1;j++) u[j]=cq.a*u[j-1]+cq.b;
+  const T={ un:u[n], un1:u[n+1], u0:cq.u0, vn:u[n]-cq.k, vn1:u[n+1]-cq.k, v0:cq.u0-cq.k };
+  let i=0, facteurExp=false;
+  function motif(){
+    const r=s.slice(i);
+    let m=/^[uv]_?\(n\+1\)(?!\d)/.exec(r)||/^[uv]_?n\+1(?!\d)/.exec(r)||/^[uv]_?\(n\)\+1(?!\d)/.exec(r);
+    if(m){ i+=m[0].length; return r[0]==='u'?T.un1:T.vn1; }
+    m=/^[uv]_?\(?0\)?(?!\d)/.exec(r);
+    if(m){ i+=m[0].length; return r[0]==='u'?T.u0:T.v0; }
+    m=/^[uv]_?\(?n\)?(?![a-z0-9])/.exec(r);
+    if(m){ i+=m[0].length; return r[0]==='u'?T.un:T.vn; }
+    return null;
+  }
+  function exposant(){
+    const r=s.slice(i);
+    let m=/^\^\(n\+1\)(?!\d)/.exec(r);
+    if(m){ i+=m[0].length; return n+1; }
+    if((m=/^\^\(?n\)?(?![a-z0-9])/.exec(r))){
+      i+=m[0].length;
+      if(/^\+1(?!\d)/.test(s.slice(i))) return null;   /* « ^(n)+1 » : indiscernable de l'exposant n+1 tapé hors parenthèse */
+      return n;
+    }
+    if((m=/^\^\(?(\d{1,2})\)?(?!\d)/.exec(r))){ i+=m[0].length; return parseInt(m[1],10); }
+    return null;
+  }
+  function facteur(){
+    facteurExp=false;
+    let v;
+    if(s[i]==='('){ i++; v=expr(); if(v===null||s[i]!==')') return null; i++; }
+    else if((v=motif())===null){
+      const m=/^\d+(?:\.\d+)?/.exec(s.slice(i));
+      if(!m) return null;
+      i+=m[0].length; v=parseFloat(m[0]);
+    }
+    if(s[i]==='^'){
+      const e=exposant(); if(e===null) return null;
+      facteurExp=true; v=Math.pow(v,e);
+      if(!isFinite(v)) return null;
+    }
+    return v;
+  }
+  function terme(){
+    let f=facteur(); if(f===null) return null;
+    for(;;){
+      if(s[i]==='*'){ i++; const g=facteur(); if(g===null) return null; f=f*g; }
+      else if(s[i]==='/'){
+        i++; const g=facteur(); if(g===null) return null;
+        if(facteurExp) return null;              /* (95)/(100)^(n) : la portée de l'exposant est perdue à l'aplatissement */
+        if(Math.abs(g)<1e-12) return null;
+        f=f/g;
+      }
+      else if(s[i]==='('||s[i]==='u'||s[i]==='v'){ const g=facteur(); if(g===null) return null; f=f*g; }
+      else break;
+      if(!isFinite(f)) return null;
+    }
+    return f;
+  }
+  function expr(){
+    let sg=(s[i]==='-')?-1:1; if(s[i]==='+'||s[i]==='-') i++;
+    let t=terme(); if(t===null) return null;
+    let acc=sg*t;
+    while(s[i]==='+'||s[i]==='-'){
+      sg=(s[i]==='-')?-1:1; i++;
+      t=terme(); if(t===null) return null;
+      acc+=sg*t;
+    }
+    return acc;
+  }
+  const e=expr();
+  return (e!==null && i===s.length && isFinite(e)) ? e : null;
+}
+/* Un morceau se lit aux trois points d'un coup : illisible à l'un, illisible
+   partout — la structure ne dépend pas de n. */
+function sarLit(cq, seg){
+  const v=[];
+  for(let n=1;n<=3;n++){ const x=sarExprVal(cq,seg,n); if(x===null) return null; v.push(x); }
+  return v;
+}
+function sarFaussesExpr(cq, texte){
+  const fausses=[]; let illisibles=0;
+  /* Les MOTS coupent la chaîne — seuls les « un » / « vn » nus (Uₙ, Vₙ tapés
+     sans indice, la lénience des motifs) survivent au découpage. */
+  const decoupe=String(texte==null?'':texte).replace(/[a-z]{2,}/g, function(m){ return (m==='un'||m==='vn')?m:'\n'; });
+  const prose=function(t){ return /[a-z]{2,}/.test(String(t).replace(/un|vn/g,'')); };
+  const math=function(t){ return /[0-9uvn]/.test(t) && !prose(t); };
+  let prev=null;                                  /* dernier morceau de la ligne du dessus, si la chaîne continue */
+  decoupe.split('\n').forEach(function(ligne){
+    if(ligne.indexOf('=')<0){ prev=null; return; }
+    let morceaux=ligne.split('=');
+    if(morceaux[0].trim()==='') morceaux=(prev===null?[]:[prev]).concat(morceaux.slice(1));
+    for(let i=0;i+1<morceaux.length;i++){
+      const gT=morceaux[i], dT=morceaux[i+1];
+      if(gT.trim()===''||dT.trim()==='') continue;                       /* un « = » sans côté n'affirme rien */
+      if(rrValeurPure(gT)!==null && rrValeurPure(dT)!==null) continue;   /* rrFausses juge déjà ces deux-là */
+      const g=sarLit(cq,gT), d=sarLit(cq,dT);
+      if(!g||!d){
+        if(math(gT)&&math(dT)) illisibles++;      /* une égalité qu'on ne sait pas VÉRIFIER ne se force pas en « accepté » */
+        continue;
+      }
+      if([0,1,2].some(function(p){ return Math.abs(g[p]-d[p])>1e-6; })){
+        fausses.push(gT.trim()+' = '+dT.trim());
+        break;                                     /* une égalité nommée par ligne suffit */
+      }
+    }
+    const dern=ligne.split('=').pop();
+    prev=dern.trim()===''?null:dern;
+  });
+  return {fausses:fausses, illisibles:illisibles};
+}
+/* Le juge de la page — des faits PROUVABLES, partie par partie ; le reste du
+   calcul part au modèle (la doctrine du {recurrence-redaction}). La LÉNIENCE
+   est délibérée : un faux négatif donne tort à un élève qui a raison, un faux
    positif ne coûte rien — le modèle relit le calcul de toute façon.
    « geometrique » sans accent vaut « géométrique » (rrNorm), et chaque
    critère se juge sur la SEULE feuille de sa question. Le verdict a TROIS
    positions : refus sur un fait prouvable (une partie absente, une
-   comparaison numérique fausse — rrFausses, le micro-juge du 6.7), acceptation
+   comparaison numérique fausse — rrFausses, le micro-juge du 6.7 — ou une
+   égalité fausse dans la chaîne — sarFaussesExpr, ci-dessus), acceptation
    quand tout est positivement vérifié Y COMPRIS le nombre CALCULÉ de la
-   chaîne du a) — k − b, c'est-à-dire a·k, le « −3800 » de la fiche —, et
-   abstention sinon : la factorisation directe a(Uₙ − k), parfaitement juste,
-   ne l'écrit jamais, et c'est alors le modèle qui décide seul. */
+   chaîne du a) — k − b, c'est-à-dire a·k, le « −3800 » de la fiche — ET
+   chaque égalité écrite vérifiée vraie (demande de Turquet, septembre
+   2026), et abstention sinon : la factorisation directe a(Uₙ − k),
+   parfaitement juste, n'écrit jamais ce nombre, et une égalité restée
+   INVÉRIFIABLE laisse pareillement le modèle décider seul — on n'accepte
+   que ce qu'on a vérifié. */
 function sarJuge(c, parts){
   const P={}; ['a','b','c','d'].forEach(function(x){ P[x]=rrNorm(parts&&parts[x]||''); });
   const une=function(x,f){ return P[x].split('\n').some(f); };
@@ -11595,11 +11752,12 @@ function sarJuge(c, parts){
     court:'d) l’expression finale de U(n) en fonction de n (avec le + '+K+')'}
   ];
   const tout=['a','b','c','d'].map(x=>P[x]).join('\n');
-  const fausses=rrFausses(tout);
+  let fausses=rrFausses(tout), illisibles=0;
+  ['a','b','c','d'].forEach(function(x){ const r=sarFaussesExpr(c,P[x]); fausses=fausses.concat(r.fausses); illisibles+=r.illisibles; });
   const inter=sarPorte(tout, c.k-c.b);
   const toutOk=crit.every(x=>x.ok);
-  const verdict=(!toutOk||fausses.length)?'refus':(inter?'accepte':'abstention');
-  return {crit:crit, toutOk:toutOk, fausses:fausses, inter:inter, verdict:verdict};
+  const verdict=(!toutOk||fausses.length)?'refus':((inter&&!illisibles)?'accepte':'abstention');
+  return {crit:crit, toutOk:toutOk, fausses:fausses, illisibles:illisibles, inter:inter, verdict:verdict};
 }
 function sarBilanHTML(j){
   const faux=(j.fausses&&j.fausses.length)
@@ -11631,7 +11789,7 @@ function sarAttenduIA(c,j){
   const A=numFmt(c.a), K=numFmt(c.k), B=numFmt(c.b), V0=numFmt(c.v0);
   const manque=j.crit.filter(x=>!x.ok);
   const prime=(j.verdict==='accepte')
-   ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ les quatre parties — la chaîne du a) avec son nombre intermédiaire '+numFmt(c.k-c.b)+' écrit, V(0) = '+V0+', la nature nommée avec l’expression de V(n), U(n) reconstruit — et aucune comparaison numérique fausse. La copie est CORRECTE : réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
+   ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ les quatre parties — la chaîne du a) avec son nombre intermédiaire '+numFmt(c.k-c.b)+' écrit, V(0) = '+V0+', la nature nommée avec l’expression de V(n), U(n) reconstruit — et elle a ÉVALUÉ chaque égalité écrite dans la copie, nombres, chaîne en U(n) et puissances comprises : toutes sont vraies. La copie est CORRECTE : réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
    : '';
   return prime+'RÉDACTION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+sarModele(c).replace(/\n/g,' ')+' '
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE parties sont présentes ET justes — '
@@ -11768,9 +11926,11 @@ async function checkSAR(){
   $('sarActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   fb.innerHTML=sarBilanHTML(j)+'<p class="rr-mot">L’IA relit ton calcul…</p>';
   fb.className='mp-feedback iafb';
-  /* Une comparaison fausse est un refus que la page sait PRONONCER : le modèle
-     n'est pas appelé — sur un refus prouvable, c'est la phrase du juge qui
-     s'affiche, jamais une prose (la doctrine du 6.7). */
+  /* Une égalité fausse — entre deux nombres (rrFausses) ou entre deux morceaux
+     de la chaîne en Uₙ (sarFaussesExpr, la capture de septembre 2026) — est un
+     refus que la page sait PRONONCER : le modèle n'est pas appelé — sur un
+     refus prouvable, c'est la phrase du juge qui s'affiche, jamais une prose
+     (la doctrine du 6.7). */
   let res=null;
   if(!j.fausses.length){
     try{

@@ -4314,6 +4314,63 @@ sabotages, chacun rougissant en nommant son défaut — et les quinze
 branchements de l'exercice neuf sont passés au premier coup : les contrôles
 universels des deux bancs couvraient le 6.8 sans rien déclarer, exactement
 ce pour quoi ils existent.
+**Puis la structure a béni une chaîne FAUSSE, et le juge a appris à lire les
+égalités** (capture de Turquet, septembre 2026 : « il y a un problème dans la
+question a) et tu dis que c'est bon !!! »). La chaîne du a) portait
+« 0,65 Uₙ + 2800 − 8000 = 0,65 Uₙ » — le − 5200 avalé — et la page affichait
+trois ✓ sur le a) pendant que le modèle écrivait « Ta démonstration en (a)
+est correcte » : les critères du a) sont des faits de PRÉSENCE, tous vrais
+sur cette copie, et le calcul était confié au modèle — le refus halluciné de
+production, dans l'autre sens. Un verdict arithmétique ne se confie pas à un
+modèle, une fois de plus : `sarLinExpr` lit chaque morceau d'une chaîne en
+expression LINÉAIRE en Uₙ — un couple (coefficient, constante), exact sous
+les substitutions de l'énoncé — et `sarFaussesExpr` refuse, en la NOMMANT,
+toute égalité entre deux morceaux lisibles qui ne valent pas la même chose ;
+le modèle n'est plus appelé, c'est la phrase du juge qui s'affiche.
+**Les trois positions valent pour le LECTEUR aussi** : un morceau qu'il ne
+sait pas lire EN ENTIER — une puissance, une fraction, de la prose, deux
+nombres côte à côte sans opérateur — ne se juge pas, parce que refuser une
+écriture qu'on devine recréerait le faux négatif qu'on corrige. Les formes
+« n+1 » s'essaient AVANT « n », la parenthèse d'indice fermée puis « +1 »
+comprise : lue « Vₙ + 1 », la définition JUSTE du + tapé hors de l'indice
+deviendrait fausse — le sabotage l'a montré en toutes lettres. Une ligne qui
+COMMENCE par « = » poursuit la chaîne de la ligne du dessus — la
+présentation du cahier, celle que le 6.3 enseigne — et une ligne SANS « = »
+la rompt : recoller par-dessus la prose jugerait ensemble deux calculs qui
+ne se suivent pas. La capture est ÉPINGLÉE au contrôle dans les DEUX styles
+d'écriture (la chaîne d'un trait, et une étape par ligne), sa jumelle JUSTE
+— le − 5200 écrit — doit passer au juge, et le banc navigateur rejoue la
+chaîne fausse sur du VRAI MathLive : l'égalité nommée, le point refusé, le
+modèle jamais interrogé. Trois sabotages de plus, chacun rougissant en
+nommant son défaut.
+**Puis Turquet a levé la barre — « il faut vérifier que chacune des égalités
+est vraie » — et le lecteur linéaire est devenu un ÉVALUATEUR en trois
+points** (septembre 2026). Le premier lecteur ne lisait que le linéaire en
+Uₙ : les puissances du c) et du d) restaient des angles morts — « Uₙ =
+6000 × 0,95ⁿ » sans son « + 4000 » ne rougissait pas, faute de savoir lire
+l'exposant. `sarExprVal` évalue maintenant chaque morceau NUMÉRIQUEMENT en
+n = 1, 2 et 3, sous les valeurs vraies de l'énoncé — Uₙ par la récurrence,
+les puissances calculées telles qu'écrites, QUELLE QUE SOIT leur base : une
+identité fausse en un point est fausse, et « 0,9ⁿ » à la place de « 0,95ⁿ »
+se refuse en se nommant. Égaux aux trois points, l'égalité est VÉRIFIÉE — et
+c'est la moitié qui change tout : **une égalité restée INVÉRIFIABLE interdit
+l'acceptation forcée**. Le bloc « VERDICT DE LA PAGE, PRIORITAIRE » ne part
+plus que si CHAQUE égalité écrite a été évaluée vraie ; un indice chiffré
+(U₁), une lettre étrangère, « ^(n)+1 » dont rien ne dit si le +1 est dans
+l'exposant (la leçon du 6.7 remontée à l'étage), la fraction élevée à une
+puissance « (95)/(100)^(n) » dont l'aplatissement perd la portée — tout cela
+retombe en ABSTENTION : le modèle juge seul, on n'accepte que ce qu'on a
+vérifié. **Les MOTS coupent la chaîne comme les lignes** : « Vₙ = Uₙ − k
+donc Uₙ = Vₙ + k » est deux égalités, chacune vérifiée — et la fausse
+derrière un « donc » rougit, quand une phrase (« la raison est = 0,95 »)
+n'affirme aucun calcul et ne bloque rien. Les milliers à l'espace, l'euro en
+unité et le point final sont tolérés ; « 65% » ne l'est pas — le strip du %
+ferait 65 ≠ 0,65, un faux flag sur une écriture juste, donc illisible. Le
+banc épingle chaque bord des deux côtés, le navigateur évalue la puissance
+sur la sérialisation réelle, et trois sabotages rougissent en nommant leur
+défaut — l'acceptation forcée malgré l'invérifiable, les puissances
+débranchées (la copie de la fiche même retombe en abstention : un contrôle
+qui n'a rien à mesurer le dit), les mots qui ne coupent plus.
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par

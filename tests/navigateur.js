@@ -3354,6 +3354,56 @@ async function parcours(page, N){
         sansC.ko === 2 && sansC.nomme && sansC.score === 0,
         sansC.ko + ' rouge(s)' + (sansC.nomme ? ' (les deux disent « c) »)' : ' — les croix ne nomment pas c)')
           + ', score ' + sansC.score);
+      /* LA CAPTURE DE PRODUCTION (Turquet, septembre 2026) : la chaîne du a)
+         avale le − 3800 (« … + 200 − 4000 » suivi de « = 0,95 Uₙ ») — une
+         égalité FAUSSE que la structure ne voit pas, les trois critères du a)
+         étant des faits de présence. Sur la sérialisation RÉELLE de MathLive,
+         le juge d'égalités la nomme, le point n'est pas donné, et le modèle —
+         stubbé pour dire « correct » — n'est même plus interrogé. */
+      await s.page.evaluate(c => { window.__envoye = null; test.questions[0] = c; test.idx = 0; test.score = 0; test.answers = []; renderSAR(); }, C0);
+      await s.page.waitForTimeout(600);
+      await poserTout({ ...COPIE, a: COPIE.a.map(l => l === '=0.95U_n-3800' ? '=0.95U_n' : l) });
+      await s.page.waitForTimeout(300);
+      await s.page.click('#sarActions .btn-primary');
+      await s.page.waitForTimeout(900);
+      const fausse = await s.page.evaluate(() => {
+        const kos = [...document.querySelectorAll('#sarFeedback .fb-ko')].map(e => e.textContent.trim());
+        /* la sérialisation réelle écrit l'indice « u_(n) » ou « u_n » selon le
+           chemin (frappe ou setValue) : le contrôle accepte les deux graphies,
+           il exige l'ÉGALITÉ fautive — « … = 0.95 Uₙ » — nommée en clair */
+        return { ko: kos.length, ok: document.querySelectorAll('#sarFeedback .fb-ok').length,
+          nomme: kos.some(t => t.indexOf('c’est faux') >= 0 && /= 0[.,]95 ?u_\(?n\)? ?»/.test(t)),
+          texte: kos.length ? kos[0].slice(0, 140) : '(aucune croix rouge)',
+          score: test.score, correct: test.answers.length ? test.answers[0].correct : null,
+          modele: window.__envoye !== null };
+      });
+      verifier('le 6.8 : la chaîne fausse de la capture rougit en se nommant, sans appeler le modèle',
+        fausse.ko === 1 && fausse.ok === 8 && fausse.nomme && fausse.score === 0 && fausse.correct === false && !fausse.modele,
+        fausse.ok + ' verte(s), ' + fausse.ko + ' rouge(s)'
+          + (fausse.nomme ? ' (l’égalité fausse est nommée)' : ' — l’égalité fausse n’est pas nommée : « ' + fausse.texte + ' »')
+          + ', score ' + fausse.score + (fausse.modele ? ', et le modèle a été appelé' : ''));
+      /* CHAQUE égalité se vérifie, PUISSANCES comprises, sur la sérialisation
+         RÉELLE de MathLive (demande de Turquet, septembre 2026) : le « + 4000 »
+         avalé dans « Uₙ = 6000 × 0,95ⁿ » rougit en se nommant — l'évaluation
+         en trois points lit l'exposant que le lecteur linéaire ne lisait
+         pas — et le modèle n'est pas appelé. */
+      await s.page.evaluate(c => { window.__envoye = null; test.questions[0] = c; test.idx = 0; test.score = 0; test.answers = []; renderSAR(); }, C0);
+      await s.page.waitForTimeout(600);
+      await poserTout({ ...COPIE, d: ['V_n=U_n-4000\\;donc\\;U_n=V_n+4000', 'U_n=6000\\times0.95^n'] });
+      await s.page.waitForTimeout(300);
+      await s.page.click('#sarActions .btn-primary');
+      await s.page.waitForTimeout(900);
+      const puiss = await s.page.evaluate(() => {
+        const kos = [...document.querySelectorAll('#sarFeedback .fb-ko')].map(e => e.textContent.trim());
+        return { ko: kos.length,
+          nomme: kos.some(t => t.indexOf('c’est faux') >= 0 && /0\.95\^\(?n\)?/.test(t)),
+          texte: kos.length ? kos[kos.length - 1].slice(0, 140) : '(aucune croix rouge)',
+          score: test.score, modele: window.__envoye !== null };
+      });
+      verifier('le 6.8 : la puissance s’évalue sur la sérialisation réelle — le + 4000 avalé rougit en se nommant',
+        puiss.nomme && puiss.score === 0 && !puiss.modele,
+        puiss.ko + ' rouge(s)' + (puiss.nomme ? ' (l’égalité de la puissance est nommée)' : ' — l’égalité de la puissance n’est pas nommée : « ' + puiss.texte + ' »')
+          + ', score ' + puiss.score + (puiss.modele ? ', et le modèle a été appelé' : ''));
       verifier('la suite auxiliaire rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
