@@ -3285,6 +3285,55 @@ function recurrenceRedigee(w, apres){
         vus.push('en retirant « '+p[0]+' », le juge relève ['+m.join(', ')+'] au lieu de ['+p[0]+'] seul');
     });
 
+    /* ---------- 2 bis. LA RANGÉE D'INSERTION : ≥, ET LE BOUTON U-DÉPART QUI
+       SUIT L'ÉNONCÉ ----------
+       Demande de Turquet (septembre 2026) : « rajouter les touches ≤ et ≥ et
+       le bouton U0 ou U1 en fonction de l'énoncé ». Les touches qu'aucun
+       clavier ne porte vivent sur les boutons « Insérer » — la doctrine des
+       jetons. Le bord qui compte est le bouton FIGÉ, le plus sournois : un U₀
+       écrit sous un énoncé qui commence à U₁ serait recopié dans
+       l'initialisation — la leçon du numéro d'exercice de show(). Libellé et
+       insertion lisent la même source (q.n0) ; le contrôle éprouve les DEUX,
+       sur les DEUX rangs, en CLIQUANT le vrai bouton. */
+    const outilsL=[...document.querySelectorAll('#rrOutils button')].map(function(b){ return b.textContent.trim(); });
+    if(outilsL.indexOf('≤')<0 || outilsL.indexOf('≥')<0)
+      vus.push('la rangée d\\'insertion ne porte pas ≤ ET ≥ : ['+outilsL.join(' ')+']');
+    if(!document.getElementById('rrJ0') || typeof rrInsertU0!=='function' || typeof rrRangU0!=='function')
+      vus.push('le bouton U-départ (rrJ0 / rrInsertU0 / rrRangU0) manque');
+    else {
+      const rec=[];
+      const brancheRec=function(){
+        const mf=document.createElement('math-field');
+        mf.executeCommand=function(a){ rec.push(Array.isArray(a)?a[1]:String(a)); };
+        mf.insert=function(x){ rec.push(x); };
+        mf.focus=function(){}; mf.readOnly=false;
+        document.getElementById('rrSheet').appendChild(mf);
+        rrLastMF=mf;
+      };
+      const mesure=function(n0){
+        test.questions=[Object.assign({}, c0, {n0:n0, recTex:'0{,}5U_{n}+3', fTex:'0{,}5x+3'})];
+        test.idx=0; renderRR();
+        brancheRec(); rec.length=0;
+        document.getElementById('rrJ0').click();
+        return { l:document.getElementById('rrJ0').textContent.trim(), i:rec.join('') };
+      };
+      const r0=mesure(0), r1=mesure(1);
+      if(r0.l!=='U₀' || r0.i!=='U_0')
+        vus.push('au rang 0, le bouton U-départ dit « '+r0.l+' » et insère « '+r0.i+' »');
+      if(r1.l!=='U₁' || r1.i!=='U_1')
+        vus.push('au rang 1 — le bord FIGÉ —, le bouton U-départ dit « '+r1.l+' » et insère « '+r1.i+' »');
+      /* et ≥ n'est pas un bouton mort : cliqué, il insère la commande que
+         rrClair traduit en « ≥ » (aucun antislash littéral dans ce contrôle —
+         le piège documenté des deux analyseurs) */
+      const bGe=[...document.querySelectorAll('#rrOutils button')].filter(function(b){ return b.textContent.trim()==='≥'; })[0];
+      rec.length=0;
+      if(bGe) bGe.click();
+      if(!bGe || rec.join('')!==String.fromCharCode(92)+'ge')
+        vus.push('le bouton ≥ n\\'insère pas la commande ge : reçu « '+rec.join(' ')+' »');
+      if(rrClair(rec.join('')).indexOf('≥')<0)
+        vus.push('la commande du bouton ≥ n\\'est pas lue « ≥ » par le juge');
+    }
+
     /* ---------- 3. LA LÉNIENCE EST DÉLIBÉRÉE ---------- */
     const SANS_ACCENT='initialisation : U_(0)=3 et 0<=3<=6 : c est vrai au rang 0\\n'
       +'heredite : on suppose 0<=U_(n)<=6, on montre que 0<=U_(n+1)<=6\\n'
@@ -3411,6 +3460,44 @@ function recurrenceRedigee(w, apres){
     if(manquants('on montre\\nf(0) <= f(U_(n+1)) <= f(6) car f croissante sur [0 ; 6]').indexOf('montre')<0)
       vus.push('U(n+1) posé DANS un f(…) passe pour la propriété au rang n+1');
 
+    /* ---------- 3 quinquies. « SUPOSE » ET LE +1 SORTI DE L'INDICE ----------
+       Capture de Turquet (septembre 2026) : deux ✗ sur une copie que l'œil lit
+       juste. « on supose » — un seul p — échappait à la racine « suppos » ; et
+       la propriété au rang n+1 tapée jeton Uₙ puis « +1 », ou U_n-espace-+1,
+       se sérialise « U_(n)+1 » — le + HORS de l'indice, ce que l'écran ne
+       distingue pas de Uₙ₊₁ (sonde sur vrai MathLive ; le témoin qui tape
+       U_n+1 d'un trait laisse le +1 DANS l'indice, et passait déjà). La
+       lénience est délibérée : un faux négatif donne tort à un élève qui a
+       raison, et le modèle relit le calcul de toute façon. */
+    const CAPTURE2='initialisation : U_(0) = 3 et 0 ≤ 3 ≤ 6 vrai\\n'
+      +'hérédité : on supose que 0 ≤ U_(n) ≤ 6\\n'
+      +'on montre 0 ≤ U_(n)+1 ≤ 6\\n'
+      +'f(0) ≤ f(U_(n)) ≤ f(6) car f croissante sur [0 ; 6]\\n'
+      +'3 ≤ U_(n)+1 ≤ 4,5';
+    const jCap2=rrJuge(c0,CAPTURE2);
+    if(jCap2.verdict!=='accepte')
+      vus.push('la copie de la capture (« supose », +1 hors indice) devrait passer au juge : verdict '+jCap2.verdict+', ['+manquants(CAPTURE2).join(', ')+']');
+    if(manquants('hérédité : on supose 0 ≤ U_(n) ≤ 6\\non montre que 0 ≤ U_(n+1) ≤ 6').indexOf('suppos')>=0)
+      vus.push('« on supose » — un seul p — devrait valoir l\\'hypothèse : l\\'orthographe n\\'est pas ce qu\\'on évalue');
+    /* le bord opposé : une copie SANS hypothèse la liste toujours */
+    if(manquants(CAPTURE2.replace('on supose que','d apres l heredite')).indexOf('suppos')<0)
+      vus.push('une copie sans aucune hypothèse ne liste plus « suppos »');
+    /* chaque forme du +1 sorti, seule, tout le reste juste — collée (le jeton
+       puis +1) et espacée (flèche pour sortir, espace, +1) */
+    ['on montre que 0 ≤ U_(n)+1 ≤ 6','on montre que 0 ≤ U_(n) + 1 ≤ 6'].forEach(function(f2){
+      const m2=manquants('initialisation U_(0) = 3 et 0 ≤ 3 ≤ 6 vrai\\nhérédité on suppose 0 ≤ U_(n) ≤ 6\\n'+f2+'\\nf est croissante sur [0 ; 6]');
+      if(m2.length) vus.push('« '+f2+' » devrait satisfaire la propriété au rang n+1 : ['+m2.join(', ')+']');
+    });
+    /* les bords opposés du motif élargi : le +1 sorti exige toujours ses DEUX
+       bornes ; « f(U_(n))+1 » n'est pas la propriété (la parenthèse fermée est
+       celle de f) ; et la prose « un + 1 » n'a pas de parenthèse d'indice */
+    if(manquants('on montre que 0 ≤ U_(n)+1 et rien de plus\\nf est croissante sur [0 ; 6]').indexOf('montre')<0)
+      vus.push('le +1 sorti de l\\'indice passe sans sa seconde borne');
+    if(manquants('on montre\\n0 ≤ f(U_(n))+1 ≤ 6 car f croissante sur [0 ; 6]').indexOf('montre')<0)
+      vus.push('« f(U_(n))+1 » passe pour la propriété au rang n+1');
+    if(manquants('on montre\\nil en manque un + 1 au plus, entre 0 et 6').indexOf('montre')<0)
+      vus.push('la prose « un + 1 » passe pour la propriété au rang n+1');
+
     /* ---------- 4. LE PIÈGE DE L'ÉNONCÉ RECOPIÉ ---------- */
     const TITRE='Démontrer par récurrence que 0 <= U_(n) <= 6.\\n'
       +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6, c est vrai. Hérédité : on suppose. f est croissante.';
@@ -3436,6 +3523,12 @@ function recurrenceRedigee(w, apres){
       vus.push('la règle n\\'exige pas qu\\'un refus NOMME l\\'erreur mathématique');
     if(rOK.indexOf('DEUX LIGNES SUFFISENT')<0 || rOK.indexOf('Ne réclame jamais ce détail')<0)
       vus.push('la règle n\\'affranchit pas l\\'élève des calculs intermédiaires de f');
+    /* le +1 tapé hors de l'indice s'aplatit « U_(n)+1 » : la page l'accepte
+       (3 quinquies), et la règle doit apprendre au modèle à le LIRE — sans
+       quoi, sur une abstention, il relirait « Uₙ plus un » dans un calcul
+       juste et le refuserait, la panne de production par une autre porte. */
+    if(rOK.indexOf('« U_(n)+1 » se lit U indice n+1')<0)
+      vus.push('la règle n\\'apprend pas au modèle à lire « U_(n)+1 » comme U indice n+1');
     /* LA CONCLUSION N'EST PAS EXIGÉE (décision de Turquet, septembre 2026 :
        « on n'oblige pas les élèves à faire une conclusion ») : la règle le dit
        en toutes lettres, ne compte plus que TROIS moments, et l'écran ne la
