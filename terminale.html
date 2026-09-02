@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=283;
+const APP_VERSION=284;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11227,7 +11227,7 @@ function rrAttenduIA(c,j){
    +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
    +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque, et le BUT annoncé avec la propriété au rang n+1 : « on montre que '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' » ; '
    +'(3) HÉRÉDITÉ démontrée : on applique f aux trois membres en JUSTIFIANT par la croissance de f, ce qui donne '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.fM)+', puis on ÉLARGIT pour retrouver '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+'. '
-   +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] » puis, à la ligne suivante, l’encadrement obtenu — l’intervalle de croissance doit être ÉCRIT. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. '
+   +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] » puis, à la ligne suivante, l’encadrement obtenu — l’intervalle de croissance doit être ÉCRIT. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. Une CHAÎNE d’encadrements suffit aussi : « '+numFmt(c.m)+' ≤ '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' » écrit les images et conclut d’un coup — n’exige jamais qu’elles soient posées sur une ligne à part. '
    +'La CONCLUSION finale (« donc pour tout entier n… ») n’est PAS exigée : l’exercice ne la demande pas — ne reproche JAMAIS son absence et ne la compte jamais comme manquante. '
    +'Une seule de ces trois parties fausse ou absente donne correct:false. '
    +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », que les symboles ou les indices seraient mélangés ou mal placés, ou qu’il manquerait des étapes intermédiaires. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « U_(n+1) » est U indice n+1 — et « U_(n)+1 » se lit U indice n+1 lui aussi, le + ayant simplement été tapé hors de l’indice —, « ≤ » est l’inégalité : c’est parfaitement lisible. Ne compte pas faux non plus l’ordre et le découpage des lignes (champ libre), l’orthographe, les accents, les majuscules, les tournures, ni une valeur approchée au dixième. Tout refus doit NOMMER l’erreur mathématique précise — quelle ligne, quelle valeur, et ce qu’elle devrait être ; un refus qui n’en nomme aucune est interdit, et si tu n’en trouves pas, la réponse est correct:true. '
@@ -17613,6 +17613,16 @@ function toPlain(latex){
   s = s.replace(/\\placeholder\{([^{}]*)\}/g, "$1");
   s = s.replace(/\{,\}/g, ".");
   s = s.replace(/\\pi/g, "pi").replace(/\\ln/g, "ln").replace(/\\arccos/g, "arccos").replace(/\\arcsin/g, "arcsin").replace(/\\arctan/g, "arctan").replace(/\\cos/g, "cos").replace(/\\sin/g, "sin").replace(/\\tan/g, "tan");
+  /* Les relations et les habillages de style se convertissent AVANT la
+     suppression des espaces, ou ils meurent : « \le f » recollé devient \lef,
+     un faux nom de commande que le nettoyage aval efface AVEC son f, et
+     « \mathbf{U} » privé de ses accolades devient \mathbfU, effacé avec son
+     U — une copie écrite au clavier virtuel perdait ses ≤ et ses U à
+     l'aplatissement, et le juge comme le modèle lisaient « f(0)(Uₙ)(8) »
+     (capture de Turquet, septembre 2026). L'habillage est retiré, son
+     argument reste : les accolades tombent plus bas. */
+  s = s.replace(/\\(?:leqslant|leq|le)(?![a-zA-Z])/g, "≤").replace(/\\(?:geqslant|geq|ge)(?![a-zA-Z])/g, "≥");
+  s = s.replace(/\\(?:boldsymbol|mathbf|mathrm|mathbb|mathit|mathsf|mathcal|mathfrak|mathscr|textbf|textit|text)(?![a-zA-Z])/g, "");
   s = s.replace(/\\longrightarrow|\\rightarrow|\\to(?![a-zA-Z])/g, "\u2192").replace(/\\infty/g, "\u221e").replace(/\\int(?![a-zA-Z])/g, "\u222b").replace(/\\lim(?![a-zA-Z])/g, "lim").replace(/\\in(?![a-zA-Z])/g, "\u2208");
   s = s.replace(/\\[,;:]|\\ |~/g, "\u0001").replace(/\\!/g, "");   /* espaces LaTeX -> marqueur, restaure en une espace apres le nettoyage */
   s = struct(s);

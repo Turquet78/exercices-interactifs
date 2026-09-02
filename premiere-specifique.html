@@ -1757,7 +1757,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=194;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=195;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -13108,6 +13108,16 @@ function toPlain(latex){
   s = s.replace(/\\placeholder\{([^{}]*)\}/g, "$1");
   s = s.replace(/\{,\}/g, ".");
   s = s.replace(/\\pi/g, "pi").replace(/\\ln/g, "ln").replace(/\\arccos/g, "arccos").replace(/\\arcsin/g, "arcsin").replace(/\\arctan/g, "arctan").replace(/\\cos/g, "cos").replace(/\\sin/g, "sin").replace(/\\tan/g, "tan");
+  /* Les relations et les habillages de style se convertissent AVANT la
+     suppression des espaces, ou ils meurent : « \le f » recollé devient \lef,
+     un faux nom de commande que le nettoyage aval efface AVEC son f, et
+     « \mathbf{U} » privé de ses accolades devient \mathbfU, effacé avec son
+     U — une copie écrite au clavier virtuel perdait ses ≤ et ses U à
+     l'aplatissement, et le juge comme le modèle lisaient « f(0)(Uₙ)(8) »
+     (capture de Turquet, septembre 2026). L'habillage est retiré, son
+     argument reste : les accolades tombent plus bas. */
+  s = s.replace(/\\(?:leqslant|leq|le)(?![a-zA-Z])/g, "≤").replace(/\\(?:geqslant|geq|ge)(?![a-zA-Z])/g, "≥");
+  s = s.replace(/\\(?:boldsymbol|mathbf|mathrm|mathbb|mathit|mathsf|mathcal|mathfrak|mathscr|textbf|textit|text)(?![a-zA-Z])/g, "");
   s = s.replace(/\\longrightarrow|\\rightarrow|\\to(?![a-zA-Z])/g, "\u2192").replace(/\\infty/g, "\u221e").replace(/\\int(?![a-zA-Z])/g, "\u222b").replace(/\\lim(?![a-zA-Z])/g, "lim").replace(/\\in(?![a-zA-Z])/g, "\u2208");
   s = s.replace(/\\[,;:]|\\ |~/g, "\u0001").replace(/\\!/g, "");   /* espaces LaTeX -> marqueur, restaure en une espace apres le nettoyage */
   s = struct(s);

@@ -1494,6 +1494,28 @@ function branchements(w){
       false, 'terminale.html est introuvable');
   }
 
+  /* ---- L'APLATISSEUR EST LE MÊME TEXTE DANS LES TROIS FICHIERS ----
+     toPlain() (et ses aides readArg/struct) est ce que TOUT juge et TOUT envoi
+     au modèle lisent d'un champ mathématique. Il était identique par
+     discipline seule — aucun contrôle ne le comparait — jusqu'au jour où il a
+     fallu le corriger dans les trois fichiers d'un coup (les ≤ et les U
+     stylés mangés à l'aplatissement, capture de Turquet, septembre 2026) :
+     une moitié corrigée d'un seul côté aurait fait diverger la lecture d'un
+     niveau sans que rien ne rougisse. */
+  const MOTEUR_PLAIN = ['readArg','struct','toPlain'];
+  const manquantesP = MOTEUR_PLAIN.filter(n => corpsDe(src, n) === null);
+  verifier('l’aplatisseur des champs mathématiques est au complet',
+    manquantesP.length === 0, 'manque : ' + manquantesP.join(', '));
+  if(!manquantesP.length && origine){
+    const differentesP = MOTEUR_PLAIN.filter(n => corpsDe(src, n) !== corpsDe(origine, n));
+    verifier('l’aplatisseur est identique à celui de la Terminale, au caractère près',
+      differentesP.length === 0,
+      differentesP.length ? 'diverge sur : ' + differentesP.join(', ') : undefined);
+  } else if(!origine){
+    verifier('l’aplatisseur est identique à celui de la Terminale, au caractère près',
+      false, 'terminale.html est introuvable');
+  }
+
   /* ---- LE MOTEUR DES MOYENNES EST LE MÊME TEXTE DANS LES TROIS FICHIERS ---
      Le carnet de notes du professeur — élèves en lignes, un devoir par colonne,
      la moyenne au bout, le tout téléchargeable — vit dans les trois niveaux.
@@ -3498,6 +3520,58 @@ function recurrenceRedigee(w, apres){
     if(manquants('on montre\\nil en manque un + 1 au plus, entre 0 et 6').indexOf('montre')<0)
       vus.push('la prose « un + 1 » passe pour la propriété au rang n+1');
 
+    /* ---------- 3 sexies. LE U STYLÉ ET LE ≤ MANGÉS À L'APLATISSEMENT ------
+       Capture de Turquet (septembre 2026, v283) : ✗ « la propriété au rang
+       n+1 n'est écrite nulle part » sur une copie qui la portait — mais en
+       U STYLÉ (l'habillage du clavier virtuel). toPlain retirait les
+       accolades du groupe et rrClair effaçait le faux nom de commande AVEC
+       son U ; et « ≤ f » recollé par la suppression des espaces devenait un
+       faux nom lui aussi, effacé avec son f — le modèle lisait
+       « f(0)(Uₙ)(8) » et exigeait des calculs déjà faits. La sonde sur vrai
+       MathLive a nommé les deux formes ; le correctif vit dans toPlain,
+       AVANT la suppression des espaces, et sert tous les juges d'un coup. */
+    const B2=String.fromCharCode(92);
+    /* le vrai toPlain est INJECTÉ depuis la SOURCE : dans ce banc, le double
+       du harnais remplace window.mlDexp par un passe-plat (jsdom n'a pas
+       MathLive), et un passe-plat mesuré passerait au vert en parlant
+       d'autre chose. La source fait foi — c'est elle qu'on met en ligne, et
+       le contrôle d'identité la compare aux deux autres niveaux. */
+    ${['readArg','struct','toPlain'].map(n => { const f = corpsFonctions(lire(CIBLE), /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === n); return f ? f.texte : ''; }).join('\n')}
+    const tp=(typeof toPlain==='function')?toPlain:null;
+    if(!tp) vus.push('toPlain introuvable dans la source : le contrôle de l\\'aplatisseur n\\'a rien à mesurer, et doit le dire');
+    if(tp){
+      if(tp(B2+'mathbf{U}_{n+1}')!=='U_(n+1)')
+        vus.push('toPlain mange le U stylé (mathbf) : « '+tp(B2+'mathbf{U}_{n+1}')+' »');
+      ['mathrm','mathbb','text'].forEach(function(w){
+        if(tp(B2+w+'{U}_{n}')!=='U_(n)')
+          vus.push('toPlain mange le U stylé ('+w+') : « '+tp(B2+w+'{U}_{n}')+' »');
+      });
+      const APPL=tp('f'+B2+'left(0'+B2+'right)'+B2+'le f'+B2+'left(U_{n}'+B2+'right)'+B2+'leqslant f'+B2+'left(8'+B2+'right)');
+      if(APPL!=='f(0)≤f(U_(n))≤f(8)')
+        vus.push('toPlain perd les ≤ collés à f : « '+APPL+' »');
+      if(tp('n'+B2+'ge 1')!=='n≥1')
+        vus.push('toPlain perd le ≥ : « '+tp('n'+B2+'ge 1')+' »');
+      /* les bords opposés : left/right restent des parenthèses — jamais un ≤
+         fabriqué — et ln reste ln */
+      if(tp(B2+'left(x'+B2+'right)')!=='(x)')
+        vus.push('left/right ne rendent plus (x) : « '+tp(B2+'left(x'+B2+'right)')+' »');
+      if(tp(B2+'ln(x)')!=='ln(x)')
+        vus.push('ln perdu par l\\'aplatisseur : « '+tp(B2+'ln(x)')+' »');
+      /* la copie de la capture, en LATEX, à travers la vraie chaîne
+         toPlain -> rrClair -> rrJuge : si elle ne passe pas, le juge a tort */
+      const SP2=B2+';', LQ2=B2+'leqslant';
+      const CAP3=[
+        'initialisation'+SP2+':'+SP2+'0'+SP2+LQ2+SP2+B2+'mathbf{U}_{0}=3'+SP2+LQ2+SP2+'6'+SP2+'vrai',
+        'hérédité'+SP2+':'+SP2+'on'+SP2+'suppose'+SP2+'0'+SP2+LQ2+SP2+B2+'mathbf{U}_{n}'+SP2+LQ2+SP2+'6',
+        'on'+SP2+'montre'+SP2+'0'+SP2+LQ2+SP2+B2+'mathbf{U}_{n+1}'+SP2+LQ2+SP2+'6',
+        'f'+B2+'left(0'+B2+'right)'+LQ2+' f'+B2+'left('+B2+'mathbf{U}_{n}'+B2+'right)'+LQ2+' f'+B2+'left(6'+B2+'right)'+SP2+'car'+SP2+'f'+SP2+'est'+SP2+'croissante'+SP2+'sur'+SP2+B2+'lbrack0;6'+B2+'rbrack',
+        '0'+SP2+LQ2+SP2+'3'+SP2+LQ2+SP2+B2+'mathbf{U}_{n+1}'+SP2+LQ2+SP2+'4,5'+SP2+LQ2+SP2+'6'
+      ].map(function(l){ return tp(l); }).join(String.fromCharCode(10));
+      const jCap3=rrJuge(c0, rrClair(CAP3));
+      if(jCap3.verdict!=='accepte')
+        vus.push('la copie de la capture (U stylé, ≤ du clavier virtuel) devrait passer au juge : verdict '+jCap3.verdict+', ['+jCap3.crit.filter(function(x){return !x.ok;}).map(function(x){return x.cle;}).join(', ')+']');
+    }
+
     /* ---------- 4. LE PIÈGE DE L'ÉNONCÉ RECOPIÉ ---------- */
     const TITRE='Démontrer par récurrence que 0 <= U_(n) <= 6.\\n'
       +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6, c est vrai. Hérédité : on suppose. f est croissante.';
@@ -3529,6 +3603,13 @@ function recurrenceRedigee(w, apres){
        juste et le refuserait, la panne de production par une autre porte. */
     if(rOK.indexOf('« U_(n)+1 » se lit U indice n+1')<0)
       vus.push('la règle n\\'apprend pas au modèle à lire « U_(n)+1 » comme U indice n+1');
+    /* et la CHAÎNE d'encadrements suffit (décision de Turquet, septembre
+       2026 : « on n'est pas obligé de justifier le calcul de f(0) et f(8)
+       si ils sont bien en dessous ») : les images écrites dans la chaîne
+       prouvent qu'elles ont été calculées — le modèle n'exige jamais une
+       ligne à part, c'est le reproche exact de la capture. */
+    if(!/CHAÎNE d.encadrements/.test(rOK) || rOK.indexOf('ligne à part')<0)
+      vus.push('la règle n\\'affranchit pas la chaîne d\\'encadrements — le modèle peut encore exiger f(m) et f(M) sur une ligne à part');
     /* LA CONCLUSION N'EST PAS EXIGÉE (décision de Turquet, septembre 2026 :
        « on n'oblige pas les élèves à faire une conclusion ») : la règle le dit
        en toutes lettres, ne compte plus que TROIS moments, et l'écran ne la

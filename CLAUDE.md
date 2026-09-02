@@ -4188,6 +4188,38 @@ juge qui a tort), et le banc navigateur REFAIT le geste — le jeton Uₙ puis
 « +1 », « supose » compris — puis relit la sérialisation qu'il croit mesurer
 avant d'exiger le verdict. Quatre sabotages de plus, chacun rougissant en
 nommant son défaut.
+**Puis l'APLATISSEUR lui-même a été pris à mentir sur la copie** (capture de
+Turquet, septembre 2026, v283) : ✗ « la propriété au rang n+1 n'est écrite
+nulle part » sur une copie qui la portait — « mais c'est bien la !!! » — et
+le modèle exigeait les calculs de f(0) et f(8) devant une ligne qu'il citait
+« f(0)(Uₙ)(8) ». La sonde sur vrai MathLive a nommé les deux morsures, dans
+`toPlain()` :
+· un U STYLÉ — `mathbf`, `mathrm`, `text`, `mathbb`, l'habillage des
+  variantes du clavier virtuel — perdait ses accolades et devenait
+  `\mathbfU`, un faux nom de commande que le nettoyage aval efface AVEC son
+  U : le juge cherchait un « u » qui n'existait plus ;
+· « `\le` devant une lettre » mourait de la même mort : la suppression des
+  espaces le RECOLLE au `f` suivant (`\lef`), effacé avec son f — les trois
+  écritures (`\le`, `\leq`, `\leqslant`) perdaient le ≤ ET le f, et le
+  modèle disait vrai sur ce qu'il recevait : c'est l'aplatissement qui
+  mentait sur la copie.
+Le correctif vit dans `toPlain`, AVANT la suppression des espaces — les
+relations converties, l'habillage retiré et son argument gardé — et sert
+d'un coup TOUS les juges et TOUS les envois au modèle des trois niveaux :
+`toPlain` est le même texte dans les trois fichiers, et il était identique
+par discipline seule — il a maintenant son contrôle d'identité
+(`readArg`/`struct`/`toPlain`), comme `mlFeuille`. Le banc jsdom éprouve le
+toPlain de la SOURCE (le double du harnais pose un mlDexp passe-plat — un
+passe-plat mesuré passerait au vert en parlant d'autre chose), la capture
+est épinglée en LATEX à travers la vraie chaîne toPlain → rrClair → rrJuge,
+les bords opposés sont tenus (`\left(x\right)` reste `(x)`, `\ln` reste
+`ln`), et le banc navigateur fait le trajet setValue → lecture réelle.
+**Et la règle du modèle a gagné la décision de Turquet** (« on n'est pas
+obligé de justifier le calcul de f(0) et f(8) si ils sont bien en dessous ») :
+une CHAÎNE d'encadrements — « 0 ≤ 2 ≤ U(n+1) ≤ 8 » — écrit les images et
+conclut d'un coup, le modèle n'exige jamais qu'elles soient posées sur une
+ligne à part. Trois sabotages de plus, chacun rougissant en nommant son
+défaut.
 **La reprise après une pause remet la rédaction.** Elle voyage DANS `test` —
 que `snapshotTest` photographie en entier — et non dans `_boxes`, qui ne sait
 restaurer que des cases à id : la feuille n'en a aucune. Le curseur revient AU
@@ -4198,7 +4230,7 @@ GÉNÉRIQUE, tout appel `verif` qui n'est pas l'un des deux exercices de dériv�
 historiques décrit lui-même son énoncé et sa règle. La règle vit donc dans la
 PAGE et part avec elle — la leçon de `MAX_CTX`. Mais la fonction TRONQUE
 « attendu » en silence : la borne est LUE dans sa source, jamais recopiée, et
-la marge s'affiche à chaque exécution (3597 caractères pour 4000, la règle
+la marge s'affiche à chaque exécution (3867 caractères pour 4000, la règle
 de l'acceptation mesurée avec celle du refus).
 **Deux bancs, et ils ne voient pas la même chose.** Le PRINCIPAL éprouve le
 juge critère par critère dans les deux sens, la lénience, le piège de l'énoncé
@@ -4207,8 +4239,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante et un
-sabotages en tout (cinquante-deux au banc principal, neuf au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante-quatre
+sabotages en tout (cinquante-cinq au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur
