@@ -8295,7 +8295,9 @@ function fichesDeTravail(w, apres){
       details:{test:exId,mode:'train',dm:'fc_temoin'}}]);
     await openDevoirsEleve('fiche');
     corps=document.getElementById('devoirsBody').textContent;
-    if(corps.indexOf('Note : 8 / 10')<0) vus.push('la note obtenue ne s\\'affiche pas sur la liste : '+corps.slice(0,110));
+    /* 8/10 en points bruts, RAMENÉS SUR 20 pour une fiche (demande de
+       Turquet, septembre 2026) : la carte dit « 16 / 20 », jamais « 8 / 10 » */
+    if(corps.indexOf('Note : 16 / 20')<0) vus.push('la note obtenue ne s\\'affiche pas sur 20 sur la liste : '+corps.slice(0,110));
     window.__faux.semer('${P.tableResultats||'resultats'}',[]);
     await openDevoirsEleve();
     corps=document.getElementById('devoirsBody').textContent;
@@ -8502,6 +8504,100 @@ function ordreDesFiches(w, apres){
     const nom='les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
+    noteFicheSur20(w, apres);
+  });
+}
+/* LA NOTE D'UNE FICHE SE LIT SUR 20 (demande de Turquet, septembre 2026) :
+   c'est une note de classe, celle qu'on reporte dans un bulletin — « 24/30 »
+   obligeait à convertir de tête. La note est RAMENÉE proportionnellement à
+   l'affichage (18 bruts sur 30 → 12/20), rien ne change en base, et les
+   devoirs à la maison gardent leurs points bruts. Quatre bords, et n'en
+   tenir qu'un ne tient rien :
+     · la LISTE de l'élève dit « 12 / 20 » — proportionnel, jamais plafonné
+       (un plafonnement à 20 dirait 18, et le témoin 18/30 les distingue) ;
+     · la PAGE de la fiche dit la note ET la phrase qui l'explique — un
+       élève qui lit 12/20 sous des exercices notés /10 doit savoir
+       pourquoi ;
+     · le BILAN du professeur dit la même note que l'écran de l'élève —
+       l'entonnoir est unique, deux conversions auraient divergé ;
+     · et le bord OPPOSÉ : un devoir garde « 18 / 30 » partout, sans la
+       phrase — la demande nomme les fiches, pas les devoirs. */
+function noteFicheSur20(w, apres){
+  const nom='la note d\'une fiche se lit sur 20, celle d\'un devoir reste en points bruts';
+  const present = evaluer(w, "typeof GENRE_DEVOIRS!=='undefined' && typeof dmNoteAff==='function' && typeof openDevoirsEleve==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas les fiches de travail en classe');
+    return reglagesDevoirs(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'};
+    const ids=Object.keys(TESTS).slice(0,3);
+    const trois=ids.map(function(id){ return {id:id,modes:['train']}; });
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{
+      devoirs:[{id:'dm_n20',num:1,actif:true,titre:'Devoir brut',cours:'',exercices:JSON.parse(JSON.stringify(trois))}],
+      fiches:[{id:'fc_n20',num:1,actif:true,titre:'Fiche vingt',cours:'',exercices:JSON.parse(JSON.stringify(trois))}]
+    }}]);
+    /* 18 points bruts sur 30 (100 % + 80 % + rien) : ramenés, 12/20 —
+       plafonnés, on lirait 18 : le témoin distingue les deux */
+    const notes=function(dm){ return [
+      {id:'n1'+dm,eleve_id:'e-controle',score:10,total:10,percent:100,details:{test:ids[0],mode:'train',dm:dm}},
+      {id:'n2'+dm,eleve_id:'e-controle',score:8,total:10,percent:80,details:{test:ids[1],mode:'train',dm:dm}} ]; };
+    window.__faux.semer('${P.tableResultats||'resultats'}', notes('fc_n20').concat(notes('dm_n20')));
+    window.__faux.semer('${P.tableEleves||'eleves'}',[{id:'e-controle',prenom:'Contrôle'}]);
+
+    /* 1. la liste de l'élève */
+    await openDevoirsEleve('fiche');
+    let corps=document.getElementById('devoirsBody').textContent;
+    if(corps.indexOf('Note : 12 / 20')<0) vus.push('la carte de la fiche ne dit pas « 12 / 20 » : '+corps.slice(0,120));
+    /* 2. la page de la fiche, et la phrase qui explique */
+    await ouvrirDevoirDetail('fc_n20');
+    corps=document.getElementById('devoirsBody').textContent;
+    if(corps.indexOf('Note de la fiche : 12 / 20')<0) vus.push('la page de la fiche ne dit pas « Note de la fiche : 12 / 20 » : '+corps.slice(0,140));
+    if(corps.indexOf('ramenée sur 20')<0) vus.push('la page de la fiche ne dit pas que la note est ramenée sur 20');
+    /* 3. le bord opposé : le devoir en points bruts, sans la phrase */
+    await openDevoirsEleve();
+    corps=document.getElementById('devoirsBody').textContent;
+    if(corps.indexOf('Note : 18 / 30')<0) vus.push('la carte du devoir ne garde pas ses points bruts (18 / 30) : '+corps.slice(0,120));
+    await ouvrirDevoirDetail('dm_n20');
+    corps=document.getElementById('devoirsBody').textContent;
+    if(corps.indexOf('Note du devoir : 18 / 30')<0) vus.push('la page du devoir ne dit pas « Note du devoir : 18 / 30 » : '+corps.slice(0,140));
+    if(corps.indexOf('ramenée sur 20')>=0) vus.push('la phrase « ramenée sur 20 » fuit sur un devoir');
+
+    /* 4. le bilan du professeur — la fonction diverge d'un niveau à l'autre */
+    const bilanDe=async function(genre, id){
+      dmGenre=genre;
+      const liste=[{id:id,num:1,actif:true,titre:genre==='fiche'?'Fiche vingt':'Devoir brut',cours:'',exercices:JSON.parse(JSON.stringify(trois))}];
+      dmSelId=id;
+      if(typeof renderDevoirResultats==='function' && typeof selectedDevoir==='function'){
+        dmList=liste; await renderDevoirResultats();
+      } else if(typeof renderDmResults==='function'){
+        dmAdminList=liste; await renderDmResults();
+      } else return null;
+      return (document.getElementById('dmResults')||{textContent:''}).textContent;
+    };
+    let bil=await bilanDe('fiche','fc_n20');
+    if(bil===null) vus.push('aucun bilan professeur à exercer');
+    else {
+      if(bil.indexOf('12 / 20')<0) vus.push('le bilan de la fiche chez le professeur ne dit pas « 12 / 20 » : '+bil.slice(0,140));
+      /* la moyenne et la note de l'ÉLÈVE passent toutes deux sur 20 : un
+         « 18 / 30 » qui resterait dans le bilan d'une fiche est un affichage
+         débranché de l'entonnoir — le premier sabotage l'a montré, la
+         moyenne convertie suffisait à faire trouver « 12 / 20 » */
+      if(bil.indexOf('18 / 30')>=0 || bil.indexOf('18 / 20')>=0)
+        vus.push('le bilan de la fiche montre encore des points bruts : '+bil.slice(0,140));
+      if(bil.indexOf('ramenée sur 20')<0) vus.push('le bilan de la fiche ne dit pas que la note est ramenée sur 20');
+      bil=await bilanDe('dm','dm_n20');
+      if(bil.indexOf('18 / 30')<0) vus.push('le bilan du devoir ne garde pas ses points bruts : '+bil.slice(0,140));
+    }
+    dmGenre='dm';
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
     reglagesDevoirs(w, apres);
   });
 }
@@ -8526,7 +8622,7 @@ function ordreDesDevoirs(w, apres){
   const present = evaluer(w, "typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function' && typeof renderDevoirDetail==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas cet éditeur de devoirs');
-    return reglagesDevoirs(w, apres);
+    return noteFicheSur20(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
@@ -8589,7 +8685,7 @@ function ordreDesDevoirs(w, apres){
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    reglagesDevoirs(w, apres);
+    noteFicheSur20(w, apres);
   });
 }
 /* Les phrases qui commentent une vérification par l'IA sont VERTES quand c'est

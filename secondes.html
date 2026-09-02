@@ -2194,7 +2194,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=129;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=130;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2630,10 +2630,26 @@ const GENRE_DEVOIRS={
      pas fait (demande de Turquet, août 2026, pour les fiches de travail en
      classe). Les devoirs à la maison restent tous ouverts, comme avant : la
      différence vit ICI, dans GENRE_DEVOIRS, et nulle part ailleurs. */
+  /* \u00AB sur20:true \u00BB : la NOTE d'une fiche se lit SUR 20 (demande de Turquet,
+     septembre 2026) \u2014 c'est une note de classe, celle qu'on reporte dans un
+     bulletin, et \u00AB 24 / 30 \u00BB obligeait \u00E0 convertir de t\u00EAte. Comme l'ordre
+     impos\u00E9, la diff\u00E9rence vit ICI et nulle part ailleurs. */
   fiche:{ cle:'fiches',  titre:'Fiches de travail en classe', badge:'Fiche',  vide:'Aucune fiche de travail pour l\u2019instant.',
           defTitre:'Fiche de travail en classe', ouvrir:'Ouvrir la fiche \u2192', note:'Note de la fiche', ajouter:'\uFF0B Nouvelle fiche', familleProf:'Mes fiches de travail en classe',
-          ordre:true }
+          ordre:true, sur20:true }
 };
+/* LA NOTE AFFICH\u00C9E d'un devoir ou d'une fiche : les points bruts pour un
+   devoir (\u00AB 12 / 30 \u00BB), la note RAMEN\u00C9E proportionnellement sur 20 pour une
+   fiche (\u00AB 24 / 30 \u00BB devient \u00AB 16 / 20 \u00BB). Rien ne change en base \u2014 les
+   notes par exercice restent sur 10, et le carnet des moyennes ramenait
+   d\u00E9j\u00E0 tout sur 20 pour moyenner. UN SEUL entonnoir : la liste de l'\u00E9l\u00E8ve,
+   la page de la fiche et le bilan du professeur le lisent tous \u2014 deux
+   conversions auraient fini par diverger (la le\u00E7on de dmTotal). */
+function dmNoteAff(genre, somme, totMax){
+  const g=GENRE_DEVOIRS[genre||'dm'];
+  if(g && g.sur20 && totMax>0) return { note: somme*20/totMax, sur: 20 };
+  return { note: somme, sur: totMax };
+}
 let genreEleve='dm';
 /* Les deux familles, étiquetées, dans UNE liste : le détail d'un devoir et le
    retour après un exercice cherchent par identifiant, sans savoir d'où il
@@ -5464,7 +5480,8 @@ function renderDevoirsList(){
       const nd=noteDevoirExo(dmBest(dev.id,ex.id,'soutien'), dmBest(dev.id,ex.id,'train'), ex.smax);
       return {note:nd.note, fait:nd.fait, bonus:dmEstBonus(ex)};
     }));
-    const note=tot.fait?`<span class="dl-prog">Note : ${fmtNote(tot.somme)} / ${tot.totMax}</span>`
+    const aff=dmNoteAff(dev.genre, tot.somme, tot.totMax);
+    const note=tot.fait?`<span class="dl-prog">Note : ${fmtNote(aff.note)} / ${aff.sur}</span>`
                        :`<span class="ex-bilan todo">À faire</span>`;
     const recent=isLast?((dev.genre||'dm')==='fiche'?' · la plus récente':' · le plus récent'):'';
     return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
@@ -5542,13 +5559,14 @@ function renderDevoirDetail(devoirId){
   }).join('');
   const G=GENRE_DEVOIRS[(dev.genre||'dm')];
   const tot=dmTotal(parts);
-  const totLbl=faitQqch?`${G.note} : ${fmtNote(tot.somme)} / ${tot.totMax}`:`${G.note} : — / ${tot.totMax}`;
+  const aff=dmNoteAff(dev.genre, tot.somme, tot.totMax);
+  const totLbl=faitQqch?`${G.note} : ${fmtNote(aff.note)} / ${aff.sur}`:`${G.note} : — / ${aff.sur}`;
   $('devoirsBody').innerHTML=`
     <button class="btn-link" onclick="renderDevoirsList()">← ${dev.genre==='fiche'?'Toutes les fiches':'Tous les devoirs'}</button>
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
     ${cours}
-    <p class="lead" style="margin-top:14px">${ordreImpose?'Les exercices de cette fiche se font <b>dans l\u2019ordre</b> : le suivant se débloque quand le précédent est fait. ':''}Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
+    <p class="lead" style="margin-top:14px">${ordreImpose?'Les exercices de cette fiche se font <b>dans l\u2019ordre</b> : le suivant se débloque quand le précédent est fait. ':''}Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.${G.sur20?' La note de la fiche est ramenée sur 20.':''}</p>
     <div class="choices">${cards}</div>`;
 }
 async function openTestDevoir(devoirId, testId){
@@ -9513,16 +9531,20 @@ async function renderDevoirResultats(){
     const totMax=dmTotal(exos.map(ex=>({note:0,fait:false,bonus:dmEstBonus(ex)}))).totMax;
     const actifs=synth.filter(x=>x.fait);
     const moy=actifs.length? actifs.reduce((a,x)=>a+x.somme,0)/actifs.length : null;
+    /* la note d'une fiche s'AFFICHE sur 20 — même entonnoir que l'écran de
+       l'élève ; le pourcentage du badge, lui, est invariant par la conversion
+       et reste calculé sur les points bruts */
+    const surAff=dmNoteAff(dmGenre,0,totMax).sur;
     // 1) Bilan de la classe (tableau récapitulatif par élève)
     const bilanRows=synth.map(x=>{
-      const nb=x.fait?`<span class="dm-note">${fmtNote(x.somme)} / ${totMax}</span>`:`<span class="dm-note none">— / ${totMax}</span>`;
+      const nb=x.fait?`<span class="dm-note">${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}</span>`:`<span class="dm-note none">— / ${surAff}</span>`;
       const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
       return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
     }).join('');
     const bilan=`<div class="panel">
       <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
-        <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(moy)+' / '+totMax)}</span></div>
-      <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''}). « Exercices faits » = nombre d'exercices commencés sur ${exos.length}.</p>
+        <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(dmNoteAff(dmGenre,moy,totMax).note)+' / '+surAff)}</span></div>
+      <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''})${GENRE_DEVOIRS[dmGenre].sur20?' ; la note de la fiche est ramenée sur 20':''}. « Exercices faits » = nombre d'exercices commencés sur ${exos.length}.</p>
       <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
     </div>`;
     // 2) Détail par élève
@@ -9532,7 +9554,7 @@ async function renderDevoirResultats(){
         const nb=nd.fait?`<span class="dm-note">${fmtNote(nd.note)}/10</span>`:`<span class="dm-note none">—/10</span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${nb}</span></div>`;
       }).join('');
-      const totLbl=x.fait?`Note : ${fmtNote(x.somme)} / ${totMax}`:`Note : — / ${totMax}`;
+      const totLbl=x.fait?`Note : ${fmtNote(dmNoteAff(dmGenre,x.somme,totMax).note)} / ${surAff}`:`Note : — / ${surAff}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
     box.innerHTML=bilan+'<div class="set-h">Détail par élève</div>'+cards;

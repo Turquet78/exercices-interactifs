@@ -2380,6 +2380,37 @@ notes réellement obtenues. Un devoir enregistré alors porte encore `rep` et
 contrôles tiennent les deux bords — que le réglage ne revienne pas par
 l'éditeur, et que les vieilles notes se lisent toujours.
 
+**La note d'une FICHE se lit SUR 20 — celle d'un devoir reste en points
+bruts.** Demande de Turquet (septembre 2026) : « en Première et Seconde il
+faut que les notes des fiches de travail soient sur 20 ». Une fiche est une
+note de classe, celle qu'on reporte dans un bulletin — « 24 / 30 » obligeait
+à convertir de tête. La note est RAMENÉE proportionnellement à l'affichage
+(18 points bruts sur 30 → « 12 / 20 »), et rien ne change en base : les
+notes par exercice restent sur 10, et le carnet des moyennes ramenait déjà
+tout sur 20 pour moyenner — cette demande aligne simplement ce que le
+professeur et l'élève LISENT sur ce que la moyenne comptait déjà.
+**La règle vit dans `GENRE_DEVOIRS` (`sur20:true` sur la famille des
+fiches)**, comme l'ordre imposé — écrite ailleurs, elle aurait fini par fuir
+sur les devoirs — et UN SEUL entonnoir convertit (`dmNoteAff`) : la liste de
+l'élève, la page de la fiche et le bilan du professeur le lisent tous. Le
+POURCENTAGE des badges reste calculé sur les points bruts : il est invariant
+par la conversion. **Et l'écran DIT la règle** (« La note de la fiche est
+ramenée sur 20 », sur la page de la fiche et le bilan) : un élève qui lit
+« 12 / 20 » sous des exercices notés /10 doit savoir pourquoi — l'écran ne
+dit pas autre chose que la note.
+Le contrôle tient quatre bords : la conversion PROPORTIONNELLE et jamais un
+plafonnement (le témoin 18/30 les distingue — plafonné dirait 18/20), la
+page et sa phrase, le bilan du professeur SANS aucun point brut résiduel, et
+le bord opposé — un devoir garde « 18 / 30 » partout, sans la phrase. Le
+contrôle historique de la liste des fiches a été RETOURNÉ (« Note : 8 / 10 »
+attendu est devenu « 16 / 20 »). Cinq sabotages, chacun rougissant en
+nommant son défaut — et l'un d'eux a d'abord traversé en montrant un trou du
+CONTRÔLE : le bilan porte la note de l'élève ET la moyenne, la moyenne
+convertie suffisait à faire trouver « 12 / 20 » pendant que la note de
+l'élève restait brute — le bilan d'une fiche ne doit plus montrer AUCUN
+point brut, et c'est ce bord qui attrape l'affichage débranché de
+l'entonnoir.
+
 **L'ordre des exercices d'un DEVOIR se règle en Terminale — l'affichage,
 jamais un verrou.** Demande de Turquet (septembre 2026) : « en Terminale je
 n'arrive pas à changer l'ordre des exercices dans les devoirs maison comme en
