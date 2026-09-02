@@ -3675,6 +3675,107 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 octodecies. placer le point, lire l'image : le graphe se CLIQUE ===== */
+    /* Le calcul clic → nœud est calibré sur les GRADUATIONS du SVG rendu —
+       la seule façon de le voir est de cliquer pour de vrai (la leçon de
+       {construire-fonction} : jsdom n'a pas de mise en page). On clique le
+       BON nœud, un point décalé d'un tiers de maille (il s'accroche au plus
+       proche), on vérifie 3/3 ; puis un point FAUX pour voir le bon point en
+       vert ; et le retrait, qui redésactive les cases sans les vider. */
+    titre('6 octodecies. PLACER LE POINT, LIRE L\'IMAGE : LE GRAPHE SE CLIQUE');
+    if(!P.placerImage){
+      ignorer('le point se pose au clic, les cases attendent le point',
+        'ce niveau n\'a pas l\'exercice du point à placer');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.placerImage.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* la position d'un nœud, lue dans les graduations du SVG rendu — et le
+         rectangle est relu à CHAQUE clic, la grille étant redessinée */
+      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+        const svg = document.querySelector('#pimGraph .lv-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const vx = [], hy = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+          else hy.push(parseFloat(l.getAttribute('y1')));
+        });
+        const pasX = (vx[1] - vx[0]) * r.width / vb.width, pasY = (hy[0] - hy[1]) * r.height / vb.height;
+        return { px: r.left + vx[x + 3] * r.width / vb.width + (dx || 0) * pasX,
+                 py: r.top + hy[y + 3] * r.height / vb.height + (dy || 0) * pasY };
+      }, [x, y, dx || 0, dy || 0]);
+      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const etat = async () => await s.page.evaluate(() => ({
+        rep: JSON.stringify(test.questions[test.idx].rep),
+        pt: !!document.querySelector('#pimGraph .pim-pt'),
+        sol: !!document.querySelector('#pimGraph .pim-sol'),
+        fxOff: document.getElementById('pim-fx').disabled,
+        fx: document.getElementById('pim-fx').value
+      }));
+      const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { x0: q.x0, y0: q.pts[q.x0 + 3] }; });
+      /* les cases attendent le point */
+      let e = await etat();
+      if(!e.fxOff) dits.push('les cases s\'écrivent avant que le point soit posé');
+      /* le clic pose le nœud visé, et les cases s\'ouvrent */
+      await clicNoeud(q0.x0, q0.y0);
+      e = await etat();
+      if(e.rep !== JSON.stringify({ x: q0.x0, y: q0.y0 })) dits.push('le clic ne pose pas le nœud visé : ' + e.rep);
+      if(!e.pt) dits.push('le point posé ne se dessine pas');
+      if(e.fxOff) dits.push('les cases restent désactivées une fois le point posé');
+      /* recliquer RETIRE, et les cases se redésactivent sans se vider */
+      await s.page.evaluate(() => { document.getElementById('pim-fx').value = '7'; });
+      await clicNoeud(q0.x0, q0.y0);
+      e = await etat();
+      if(e.rep !== 'null') dits.push('recliquer le point ne le retire pas : ' + e.rep);
+      if(!e.fxOff) dits.push('retirer le point ne redésactive pas les cases');
+      if(e.fx !== '7') dits.push('retirer le point vide la case (elle portait 7)');
+      /* un clic à un TIERS de maille s\'accroche au nœud le plus proche */
+      await clicNoeud(q0.x0, q0.y0, 0.33, -0.3);
+      e = await etat();
+      if(e.rep !== JSON.stringify({ x: q0.x0, y: q0.y0 })) dits.push('le clic décalé d\'un tiers de maille ne s\'accroche pas au nœud le plus proche : ' + e.rep);
+      /* la copie juste : 3/3 */
+      await s.page.evaluate(([x, y]) => {
+        document.getElementById('pim-fx').value = String(x);
+        document.getElementById('pim-fv').value = String(y);
+      }, [q0.x0, q0.y0]);
+      await s.page.click('#pimValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({ score: test.score, sol: !!document.querySelector('#pimGraph .pim-sol') }));
+      if(fin.score !== 3) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 3');
+      if(fin.sol) dits.push('le bon point se montre sur une copie toute juste');
+      /* question suivante, point FAUX : le bon point se montre en vert, d\'étendue non nulle */
+      await s.page.evaluate(() => nextPimQuestion());
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { x0: q.x0, y0: q.pts[q.x0 + 3] }; });
+      await clicNoeud(q1.x0, q1.y0 === 3 ? 2 : q1.y0 + 1);
+      await s.page.evaluate(([x, y]) => {
+        document.getElementById('pim-fx').value = String(x);
+        document.getElementById('pim-fv').value = String(y);
+      }, [q1.x0, q1.y0]);
+      await s.page.click('#pimValidate');
+      await s.page.waitForTimeout(300);
+      const faux = await s.page.evaluate(() => {
+        const sol = document.querySelector('#pimGraph .pim-sol');
+        const r = sol ? sol.getBoundingClientRect() : null;
+        return { sol: !!sol, large: r ? r.width > 4 : false,
+                 bad: !!document.querySelector('#pimGraph .pim-pt.bad'),
+                 score: test.score };
+      });
+      if(!faux.sol) dits.push('le bon point ne se montre pas sur un point faux');
+      else if(!faux.large) dits.push('le bon point vert est dessiné mais d\'étendue nulle');
+      if(!faux.bad) dits.push('le point faux de l\'élève ne rougit pas sur le dessin');
+      if(faux.score !== 5) dits.push('le point faux ne coûte pas exactement son point (score ' + faux.score + ' au lieu de 5)');
+      verifier('le point se pose au clic, les cases attendent le point', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran du point à placer ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent
