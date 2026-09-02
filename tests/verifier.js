@@ -3975,6 +3975,34 @@ function suiteAuxRedigee(w, apres){
        jugerait ensemble deux calculs qui ne se suivent pas — un faux négatif */
     j=sarJuge(C0,{...PLEINE, a:'V_(n+1) = U_(n+1) − 4000\\npour V_0 :\\n= 10000 − 4000'});
     if(j.fausses.length) vus.push('une ligne de prose ne rompt plus la chaîne : '+j.fausses[0]);
+    /* CHAQUE égalité se VÉRIFIE (demande de Turquet, septembre 2026) : les
+       morceaux s'évaluent en n = 1, 2 et 3 — puissances comprises, quelle que
+       soit la base — les mots coupent la chaîne, et une égalité restée
+       INVÉRIFIABLE interdit l'acceptation forcée : abstention, jamais
+       « accepte ». */
+    j=sarJuge(C0,{...PLEINE, d:'V_(n) = U_(n) − 4000 donc U_(n) = V_(n) + 4000\\nU_(n) = 6000 × 0,95^(n)'});
+    if(!j.fausses.some(function(f){ return f==='u_(n) = 6000 × 0,95^(n)'; }))
+      vus.push('le « + 4000 » avalé au d) ne rougit pas — la puissance n\\'est pas évaluée (fausses ['+j.fausses.join(' ; ')+'])');
+    j=sarJuge(C0,{...PLEINE, c:PC.replace('0,95^(n)','0,9^(n)')});
+    if(j.verdict!=='refus'||!j.fausses.length)
+      vus.push('la puissance à la MAUVAISE base (0,9 pour 0,95) ne rougit pas ('+j.verdict+', fausses ['+j.fausses.join(' ; ')+'])');
+    j=sarJuge(C0,{...PLEINE, d:'V_(n) = U_(n) − 4000 donc U_(n) = V_(n) − 4000\\nU_(n) = 6000 × 0,95^(n) + 4000'});
+    if(!j.fausses.some(function(f){ return f==='u_(n) = v_(n) − 4000'; }))
+      vus.push('l\\'égalité fausse derrière un « donc » n\\'est pas vue — les mots ne coupent plus la chaîne (fausses ['+j.fausses.join(' ; ')+'])');
+    j=sarJuge(C0,{...PLEINE, b:PB+'\\nU_(1) = 9 700'});
+    if(j.verdict!=='abstention'||j.fausses.length)
+      vus.push('une égalité INVÉRIFIABLE (U_(1)) laisse encore l\\'acceptation forcée : '+j.verdict+(j.fausses.length?', fausses : '+j.fausses[0]:''));
+    j=sarJuge(C0,{...PLEINE, c:PC+'\\nla raison est = 0,95'});
+    if(j.verdict!=='accepte') vus.push('une phrase qui porte un « = » bloque l\\'acceptation ('+j.verdict+')');
+    j=sarJuge(C0,{...PLEINE, a:PA+'\\nV_(n+1) = 6000 × 0,95^(n)+1'});
+    if(j.fausses.length) vus.push('« ^(n)+1 » — l\\'exposant n+1 tapé hors parenthèse — est lu « puissance n, plus 1 » : '+j.fausses[0]);
+    if(j.verdict!=='abstention') vus.push('« ^(n)+1 », invérifiable, devrait retomber en abstention ('+j.verdict+')');
+    j=sarJuge(C0,{...PLEINE, a:PA+'\\nV_(n+1) = 6000 × 0,95^(n+1)'});
+    if(j.verdict!=='accepte'||j.fausses.length)
+      vus.push('l\\'exposant (n+1) écrit en clair n\\'est pas vérifié vrai ('+j.verdict+(j.fausses.length?', '+j.fausses[0]:'')+')');
+    j=sarJuge(C0,{...PLEINE, c:PC+'\\nV_(n) = 6000 × (95)/(100)^(n)'});
+    if(j.fausses.length) vus.push('la fraction élevée à une puissance — (95)/(100)^(n) — rougit au lieu de s\\'abstenir : '+j.fausses[0]);
+    if(j.verdict!=='abstention') vus.push('(95)/(100)^(n), dont la sérialisation perd la portée de l\\'exposant, devrait s\\'abstenir ('+j.verdict+')');
 
     /* ---------- 3. LA RÈGLE envoyée au modèle ---------- */
     j=sarJuge(C0,PLEINE);
