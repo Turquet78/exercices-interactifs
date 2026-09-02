@@ -881,6 +881,55 @@ bleu d'une case vide s'écrivait avec l'encre d'une saisie ordinaire, sur
 {lecture-variations} aussi. La règle est posée maintenant, et elle répare les
 deux exercices d'un coup.
 
+**Placer le point AVANT de lire l'image — le même dessin, le geste en plus.**
+{placer-image} (Seconde, Fonctions, demande de Turquet, septembre 2026 — « il
+faut que l'élève place le point sur le graphique avant de donner le résultat »)
+suit {image-nombre} dans le menu : même courbe, même « f(…) = … », mais l'élève
+POSE d'abord le point sur le graphique, au clic, et les cases n'ouvrent
+qu'ensuite.
+**Le tirage est PARTAGÉ, pas recopié** : `imgTirage()` est extrait de
+`startImg` et sert les deux exercices — un second tirage aurait fini par
+diverger, et deux exercices voisins se seraient contredits sous les yeux de
+l'élève. Le dessin et la peinture des cases sont ceux de {lecture-variations}
+(`lvGraphSVG`, `lvMarkFields`), comme pour toute la famille.
+**La question ne porte que la courbe, l'abscisse et le point posé — et c'est
+la PROJECTION de `startPim` qui le tient** : elle recopie `{pts, x0, rep}` et
+JETTE tout champ étranger. Le sabotage l'a montré des deux côtés : `y0` rangé
+dans le TIRAGE partagé rougit chez {image-nombre} et ne peut pas atteindre
+pim — la projection l'écarte, le vert disait vrai, c'est le sabotage
+impossible documenté — ; le sabotage utile vise la projection elle-même, et
+le contrôle de pim refuse alors le champ en le nommant.
+**Les cases ATTENDENT le point.** Désactivées tant qu'aucun point n'est posé,
+ouvertes dès qu'il l'est, redésactivées SANS être vidées quand l'élève retire
+son point (re-clic sur le même nœud) ; « Vérifier » sans point ne peint rien
+et ne verrouille rien — le message demande le point. La demande de l'exercice
+(« place le point AVANT de donner le résultat ») est tenue par l'ÉTAT des
+cases, pas par une consigne qu'on peut ne pas lire.
+**Le clic est DÉLÉGUÉ à l'hôte et calibré sur les GRADUATIONS.** Le SVG est
+réécrit à chaque pose — un écouteur posé dessus mourrait avec lui, la leçon
+de {construire-fonction} — et `pimNoeud()` lit les lignes du quadrillage dans
+le SVG RENDU pour convertir le clic en nœud : aucune coordonnée recopiée, une
+échelle qui changerait resterait mesurée juste (la leçon du schéma des
+intervalles). Un clic décalé s'accroche au nœud le plus proche. jsdom n'a pas
+de mise en page — un rectangle de SVG y vaut zéro — : seul le banc navigateur
+CLIQUE pour de vrai, et son sabotage à lui inverse l'axe des y dans le
+calibrage — « le point se pose au clic » rougit, preuve que le scénario
+mesure le clic et non un état posé à la main.
+**Le point est une RÉPONSE** (`pts-case`, la leçon des barres de
+{simplifier-barres}) : chaque question vaut trois réponses — le point et les
+deux cases — et la pastille sous le dessin dit l'état (« Place d'abord le
+point… », puis « Point posé en (2 ; 3) »). Le point faux reste ROUGE et le
+bon point se montre en VERT à côté (l'anneau `pim-sol`) — jamais en soutien,
+où l'élève corrige lui-même — et une case vide ne rougit jamais.
+**Et le rappel de cours est en HTML pur, sans un seul `\(`.** Sa seule
+« formule » est f(2) = 3, qui n'a pas besoin de LaTeX — or le contrôle
+navigateur des fractions empilées OUVRE tout rappel qui porte une formule et
+exige qu'une fraction s'y DESSINE : une formule sans fraction le laisse sans
+rien à mesurer, ce qu'il refuse — il ne sait pas la distinguer d'un
+`rapMaths()` débranché. Une formule qui n'empile rien s'écrit sans LaTeX.
+Éprouvé en le cassant six fois — cinq au banc principal, un au navigateur —,
+chacun rougissant en nommant son défaut.
+
 **Et le chemin inverse de l'image est un autre exercice : les antécédents.**
 {antecedent-nombre} (Seconde, 2.3, demande de Turquet, août 2026) est repris de
 la fiche papier : on donne une HAUTEUR, et il faut retrouver le ou les nombres

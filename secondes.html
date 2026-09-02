@@ -869,6 +869,17 @@
   .cfx-consigne{display:block;padding:5px 12px;margin:4px 0;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface)}
   .cfx-consigne.ok{border-color:var(--blue);background:#EAF0FF}
   .cfx-consigne.bad{border-color:var(--red);background:#fdeaea}
+  /* {placer-image} : le point posé par l'élève est BLEU (sa réponse), rouge
+     quand il est faux ; le bon point — la correction — est un anneau VERT,
+     la convention commune (le motif de .cfx-sol). */
+  #scr-pim{padding-bottom:84px}
+  #pimGraph .lv-svg{cursor:pointer;touch-action:manipulation}
+  .pim-pt{fill:var(--blue)}
+  .pim-pt.bad{fill:var(--red)}
+  .pim-sol{fill:none;stroke:var(--green);stroke-width:2.6}
+  .pim-case{display:inline-block;padding:5px 12px;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface)}
+  .pim-case.ok{border-color:var(--blue);background:#EAF0FF}
+  .pim-case.bad{border-color:var(--red);background:#fdeaea}
   .ifg-bout{fill:var(--blue)}
   .ifg-boutg{fill:#C2410C}
   /* La droite de g : en POINTILLÉS, comme sur la fiche — et en ORANGE,
@@ -1583,6 +1594,17 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-pim">
+    <div class="card lv-card">
+      <div class="q-head"><span id="pimIdx" class="q-idx">Question 1 / 4</span><span id="pimModeTag"></span></div>
+      <p class="lv-instr" id="pimInstr"></p>
+      <div class="lv-graph" id="pimGraph"></div>
+      <div id="pimBody"></div>
+      <div class="lv-feedback"><span id="pimMark" class="mark"></span> <span id="pimCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="pimRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="pimConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="pimQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="pimValidate" onclick="submitPim()">Valider</button></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-ant">
     <div class="card lv-card">
       <div class="q-head"><span id="antIdx" class="q-idx">Question 1 / 4</span><span id="antModeTag"></span></div>
@@ -2194,7 +2216,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=130;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=131;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2704,6 +2726,7 @@ const TESTS={
   'plus-petit-ensemble': { name:'Le plus petit ensemble', icon:'🎯', desc:'Pour un nombre donné, trouve le plus petit ensemble qui le contient (ℕ, ℤ, 𝔻, ℚ, ℝ). En soutien : bouton Rappels du cours.', start:()=>startPge() },
   'lecture-variations': { name:'Lecture graphique \u2014 variations', icon:'\ud83d\udcc8', desc:'Lis une courbe : complète le tableau de valeurs, le sens de variation et le tableau de variation.', start:()=>startLV() },
   'image-nombre': { name:'Image d\u2019un nombre', icon:'\ud83d\udccd', desc:'Lis l\u2019image d\u2019un nombre sur une courbe : le trait vertical montre la hauteur, puis écris f(x) = … et complète le tableau de valeurs.', start:()=>startImg() },
+  'placer-image': { name:'Placer le point, lire l\u2019image', icon:'\ud83c\udfaf', desc:'Place toi-même le point de la courbe sur le graphique — le même genre de courbe que {image-nombre} — puis complète f(…) = … : l\u2019image est la hauteur du point que tu viens de poser.', start:()=>startPim() },
   'antecedent-nombre': { name:'Antécédents d\u2019un nombre', icon:'\ud83e\udded', desc:'C\u2019est l\u2019inverse de {image-nombre} : on te donne la hauteur, et la ligne de niveau — un trait horizontal — te fait retrouver le ou les nombres de départ.', start:()=>startAnt() },
   'equation-graphique': { name:'Équations graphiques', icon:'\ud83d\udcc8', desc:'La courbe de f et la droite de g : lis des images, retrouve des antécédents par f ET par g, puis résous f\u2009(x)\u2009=\u2009k, g\u2009(x)\u2009=\u2009k, f\u2009(x)\u2009=\u2009g\u2009(x) et trois inéquations — pour chaque équation ou inéquation, choisis d\u2019abord le bon dessin parmi quatre, comme dans {resolutions-graphiques}.', start:()=>startEqg() },
   'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
@@ -2760,7 +2783,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','placer-image','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2819,6 +2842,7 @@ function liveCheckCurrent(){
   else if(k==='ing') checkIngAnswer(true);
   else if(k==='eqg') checkEqgAnswer(true);
   else if(k==='cfx') cfxLive();
+  else if(k==='pim') pimLive();
   else if(k==='ifg') checkIfgAnswer(true);
   else if(k==='eig') checkEigAnswer(true);
   else if(k==='tsg') checkTsgAnswer(true);
@@ -3611,6 +3635,7 @@ const QIA_SUGG={
   pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
+  pim:["Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
   ant:["C\u2019est quoi, un antécédent ?","Quelle est la différence entre image et antécédent ?","À quoi sert la ligne de niveau ?"],
   itv:["C’est quoi, un intervalle ?","Comment savoir si le crochet est ouvert ou fermé ?","Pourquoi le crochet est toujours ouvert du côté de l’infini ?","Quelle différence entre < et ≤ ?"],
   itq:["Comment passer d’une inégalité à un intervalle ?","Quelle différence entre « −1 ≤ x » et « x ≤ −1 » ?","Le signe ≤ donne quel crochet ?","Comment savoir de quel côté part le trait rouge ?"],
@@ -3978,7 +4003,12 @@ C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un g
 • <b>f (x) = 0 avec S = { … }</b> : la courbe coupe l’axe des abscisses exactement en ces points — pas un de moins, pas un de plus.<br>
 • <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles, et elle TOUCHE la hauteur k à chaque bord.<br><br>
 Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAP_PIM=`<b>Placer un point, lire une image</b><br>
+Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situé juste au-dessus (ou en dessous) de <i>a</i>.<br>
+Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), monte ou descends tout droit jusqu'à la courbe, et pose le point à cet endroit.<br>
+La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
+Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4087,7 +4117,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','placer-image','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4445,7 +4475,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4569,7 +4599,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','img','pim','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -5967,19 +5997,27 @@ function imgTrait(x0,y0){
   };
 }
 function imgGraphSVG(q,montrer){ return lvGraphSVG(q.pts, montrer ? imgTrait(q.x0, imgY(q)) : null); }
-function startImg(){
-  /* jamais 0 — le trait vertical n'y montre rien — et quatre abscisses
-     DISTINCTES : la même question deux fois n'apprend rien de plus. */
+/* LE TIRAGE DU 2.2, PARTAGÉ avec {placer-image} : jamais 0 — le trait
+   vertical n'y montre rien, et le point tomberait sur l'axe des ordonnées —,
+   jamais d'image nulle — le trait serait invisible, le point posé SUR l'axe
+   des abscisses —, quatre abscisses DISTINCTES. Un second tirage aurait fini
+   par diverger, et deux exercices voisins se seraient contredits sous les
+   yeux de l'élève. */
+function imgTirage(nb){
   const xs=[-3,-2,-1,1,2,3];
   for(let i=xs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=xs[i]; xs[i]=xs[j]; xs[j]=t; }
   const qs=[];
-  for(let i=0;i<IMG_NB;i++){
+  for(let i=0;i<nb;i++){
     /* une image nulle rendrait le trait invisible : on retire la courbe, pas
-       l'abscisse — les quatre abscisses restent distinctes */
+       l'abscisse — les abscisses restent distinctes */
     let pts=lvGenPts(pick([2,3])).pts;
     for(let att=0; att<80 && pts[xs[i]+3]===0; att++) pts=lvGenPts(pick([2,3])).pts;
     qs.push({pts:pts, x0:xs[i]});
   }
+  return qs;
+}
+function startImg(){
+  const qs=imgTirage(IMG_NB);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
   Object.assign(test,{kind:'img', questions:qs, idx:0, score:0, maxScore:qs.length*5, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
@@ -6055,6 +6093,165 @@ function submitImg(){
   lvBoutonSuivant('imgValidate', nextImgQuestion);
 }
 function nextImgQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderImg(); autoSave(); } else finishTest(); }
+
+/* ================= Exercice Seconde : Placer le point, lire l'image (kind 'pim') =================
+   Demande de Turquet (septembre 2026) : « comme le 2.2, avec le même genre de
+   graphique — il faut que l'élève place le point sur le graphique AVANT de
+   donner le résultat en complétant f(…) = … ». Le tirage est celui du 2.2
+   (imgTirage, partagé), le dessin celui de {lecture-variations} : un moteur
+   recopié aurait fini par diverger. Ce qui change est le GESTE : le point se
+   POSE au clic — l'écouteur est DÉLÉGUÉ à l'hôte, le SVG étant réécrit à
+   chaque pose (la leçon de {construire-fonction}) — et les cases f(…) = …
+   restent DÉSACTIVÉES tant qu'aucun point n'est posé : c'est la demande.
+   Le clic s'accroche au NŒUD de grille le plus proche, et les graduations
+   sont lues dans le DESSIN lui-même — aucune coordonnée recopiée : une
+   échelle qui changerait dans lvGraphSVG resterait cliquée juste (la leçon
+   du schéma des intervalles, appliquée au geste).
+   La bonne réponse n'est jamais rangée à côté de la question : le point
+   attendu est (x0 ; q.pts[x0+3]) — les données MÊMES qui dessinent la
+   courbe, lues par pimCheck, la fonction qui corrige. */
+const PIM_NB=4;
+function pimSVG(q, verdict){
+  return lvGraphSVG(q.pts, function(sx,sy){
+    let out='';
+    if(verdict && verdict.sol) out+='<circle cx="'+sx(q.x0).toFixed(1)+'" cy="'+sy(imgY(q)).toFixed(1)+'" r="6" class="pim-sol"/>';
+    if(q.rep) out+='<circle cx="'+sx(q.rep.x).toFixed(1)+'" cy="'+sy(q.rep.y).toFixed(1)+'" r="4.5" class="pim-pt'+(verdict?(verdict.ok?' ok':' bad'):'')+'"/>';
+    return out;
+  });
+}
+/* Le clic s'accroche au nœud le plus proche — les 7 verticales et les 7
+   horizontales de la grille, relues dans le SVG rendu. */
+function pimNoeud(svg, ev){
+  const r=svg.getBoundingClientRect(); if(!r.width||!r.height) return null;
+  const vb=svg.viewBox.baseVal;
+  const mx=(ev.clientX-r.left)*vb.width/r.width, my=(ev.clientY-r.top)*vb.height/r.height;
+  const vx=[], hy=[];
+  svg.querySelectorAll('line.lv-grid').forEach(function(l){
+    if(l.getAttribute('x1')===l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+    else hy.push(parseFloat(l.getAttribute('y1')));
+  });
+  if(vx.length!==7||hy.length!==7) return null;
+  let bi=0; vx.forEach(function(v,i){ if(Math.abs(v-mx)<Math.abs(vx[bi]-mx)) bi=i; });
+  let bj=0; hy.forEach(function(v,j){ if(Math.abs(v-my)<Math.abs(hy[bj]-my)) bj=j; });
+  return { x: bi-3, y: bj-3 };
+}
+function startPim(){
+  const qs=imgTirage(PIM_NB).map(function(q){ return {pts:q.pts, x0:q.x0, rep:null}; });
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'pim', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('pim'); renderPim();
+}
+function renderPim(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  const X=numFmt(q.x0);
+  $('pimIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('pimModeTag').innerHTML=modeTagHTML();
+  { const cb=$('pimConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('pimRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('pimQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('pimInstr').textContent='Place sur le graphique le point de la courbe d’abscisse '+X+' : clique sur la courbe juste au-dessus (ou en dessous) de '+X+'. Tu peux déplacer ton point en cliquant ailleurs, ou le retirer en recliquant dessus. Quand il est posé, complète l’écriture f (…) = … : l’image de '+X+' est la hauteur de ton point.';
+  $('pimGraph').innerHTML=pimSVG(q,null);
+  $('pimBody').innerHTML=
+    '<div class="img-line"><span class="pts-case pim-case" id="pim-pt">● Place d’abord le point sur le graphique</span></div>'
+    +'<div class="img-line"><i>f</i> ( <input id="pim-fx" class="lv-in sm" inputmode="numeric" autocomplete="off"> ) = <input id="pim-fv" class="lv-in sm" inputmode="numeric" autocomplete="off"></div>';
+  $('pimBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',pimLive); el.addEventListener('change',pimLive); });
+  pimMajCases();
+  $('pimMark').className='mark'; $('pimMark').textContent=''; $('pimCorr').innerHTML='';
+  const b=$('pimValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitPim;
+  pimBrancher();
+}
+/* Un seul écouteur, DÉLÉGUÉ à l'hôte : le SVG est réécrit à chaque pose, un
+   écouteur posé dessus mourrait avec lui (la leçon de {construire-fonction}). */
+let _pimSaveTimer=null;
+function pimBrancher(){
+  const host=$('pimGraph');
+  if(host.__pimPret) return;
+  host.__pimPret=true;
+  host.addEventListener('pointerdown', function(ev){
+    if(test.kind!=='pim'||test.locked) return;
+    const svg=ev.target.closest('.lv-svg'); if(!svg) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const n=pimNoeud(svg,ev); if(!n) return;
+    q.rep=(q.rep && q.rep.x===n.x && q.rep.y===n.y)?null:n;
+    $('pimGraph').innerHTML=pimSVG(q,null);
+    pimMajCases(); pimLive();
+    recoveryDirty=true; clearTimeout(_pimSaveTimer); _pimSaveTimer=setTimeout(autoSave,1200);
+  });
+}
+/* Les cases s'écrivent APRÈS le point (la demande : « il faut que l'élève
+   place le point avant de donner le résultat ») : désactivées tant qu'aucun
+   point n'est posé — retirer son point les redésactive, sans effacer ce qui
+   y était écrit. */
+function pimMajCases(){
+  const q=test.questions[test.idx]; if(!q) return;
+  const pose=!!q.rep;
+  ['pim-fx','pim-fv'].forEach(function(id){ const el=$(id); if(el) el.disabled=!pose||!!test.locked; });
+  const c=$('pim-pt'); if(!c) return;
+  c.textContent=pose ? '● Point posé en ( '+numFmt(q.rep.x)+' ; '+numFmt(q.rep.y)+' )'
+                     : '● Place d’abord le point sur le graphique';
+}
+function pimCheck(q){
+  const y0=imgY(q);
+  const subs=[
+    {id:'pim-fx', val:q.x0, ok: lvReadInt('pim-fx')===q.x0},
+    {id:'pim-fv', val:y0,   ok: lvReadInt('pim-fv')===y0},
+  ];
+  const ptOk = !!q.rep && q.rep.x===q.x0 && q.rep.y===y0;
+  const nCorrect=subs.filter(x=>x.ok).length + (ptOk?1:0);
+  return {subs:subs, ptOk:ptOk, ptPose:!!q.rep, nCorrect:nCorrect, nTotal:3, allOk:nCorrect===3};
+}
+/* Soutien : chaque case au fil de la frappe, la pastille du point à la pose —
+   et une case vide comme un point non posé ne reçoivent RIEN. */
+function pimLive(){
+  if(test.kind!=='pim' || !isSoutien()) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const res=pimCheck(q);
+  res.subs.forEach(x=>{ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if((el.value||'').trim()!=='') el.classList.add(x.ok?'ok':'bad');
+  });
+  const c=$('pim-pt'); if(c){ c.classList.remove('ok','bad'); if(res.ptPose) c.classList.add(res.ptOk?'ok':'bad'); }
+}
+function submitPim(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  /* pas de point : rien ne se peint, rien ne se verrouille — on redit le
+     geste attendu. Un point absent n'est pas une erreur, c'est un début. */
+  if(!q.rep){
+    const mk=$('pimMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('pimCorr').textContent='Place d’abord le point sur le graphique : clique sur la courbe juste au-dessus (ou en dessous) de '+numFmt(q.x0)+'.';
+    return;
+  }
+  const res=pimCheck(q);
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const c=$('pim-pt'); if(c){ c.classList.remove('ok','bad'); c.classList.add(res.ptOk?'ok':'bad'); }
+    $('pimGraph').innerHTML=pimSVG(q,{ok:res.ptOk});
+    const mk=$('pimMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('pimCorr').textContent='Pas tout à fait — corrige ce qui est en rouge (ton point se déplace en cliquant ailleurs), puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  const c=$('pim-pt'); if(c){ c.classList.remove('ok','bad'); c.classList.add(res.ptOk?'ok':'bad'); }
+  /* le point de l'élève garde sa couleur ; le BON point — la correction —
+     ne se montre en vert que s'il n'y est pas, et jamais en soutien (on y
+     arrive seulement tout juste) */
+  $('pimGraph').innerHTML=pimSVG(q,{ok:res.ptOk, sol:!res.ptOk});
+  pimMajCases();
+  const mk=$('pimMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('pimValidate').disabled=true;
+  const y0=imgY(q), X=numFmt(q.x0), Y=numFmt(y0);
+  if(!res.allOk) $('pimCorr').innerHTML='Le point vert montre la bonne position : sur la courbe, juste au-dessus (ou en dessous) de '+X+', à la hauteur '+Y+'. Donc f ('+X+') = '+Y+' : l’image de '+X+' est '+Y+'.';
+  else $('pimCorr').innerHTML='<span class="lv-ok">Parfait — ton point est au bon endroit, et f ('+X+') = '+Y+' !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Point et image de '+X+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'pim'});
+  lvBoutonSuivant('pimValidate', nextPimQuestion);
+}
+function nextPimQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPim(); autoSave(); } else finishTest(); }
 
 /* ================= Exercice Seconde : Antécédents d'un nombre (kind 'ant') =================
    Le chemin INVERSE de {image-nombre}, repris de la fiche papier : on donne une
@@ -13542,7 +13739,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderAnt','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderPim','renderAnt','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

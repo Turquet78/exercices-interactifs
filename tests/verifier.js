@@ -2682,6 +2682,7 @@ function exercices(suite){
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     imageNombre(w, P);
+    placerImage(w, P);
     tangenteExp(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
@@ -6341,6 +6342,121 @@ function etudeExponentielle(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* {placer-image} (Seconde, à côté du 2.2 — demande de Turquet, septembre
+   2026 : « il faut que l'élève place le point sur le graphique avant de
+   donner le résultat en complétant f(…) = … »). Cinq bords :
+     · le tirage est CELUI du 2.2 (imgTirage, partagé — un second tirage
+       aurait fini par diverger) : jamais 0, jamais d'image nulle, abscisses
+       distinctes, et RIEN d'autre que la courbe, l'abscisse et le point posé
+       dans la question ;
+     · les cases f(…) = … sont DÉSACTIVÉES tant qu'aucun point n'est posé —
+       c'est la demande — et retirer son point les redésactive sans effacer
+       ce qui y était écrit ;
+     · vérifier SANS point ne peint rien et ne verrouille rien : un point
+       absent n'est pas une erreur, c'est un début ;
+     · la note compte TROIS réponses (le point, l'abscisse, l'image) et le
+       point faux coûte exactement son point ;
+     · le bon point ne se montre en vert qu'en ENTRAÎNEMENT sur un point
+       faux — jamais en soutien, où l'élève corrige lui-même, et jamais
+       avant la vérification.
+   Le CLIC, lui, ne se mesure que dans un vrai navigateur : jsdom n'a pas de
+   mise en page, un rectangle de SVG y vaut zéro (la leçon de
+   {construire-fonction}) — le banc navigateur clique pour de vrai. */
+function placerImage(w, P){
+  const present = evaluer(w, "typeof startPim==='function' && typeof pimCheck==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('placer le point, lire l\'image : le point d\'abord, les cases ensuite', 'ce niveau n\'a pas cet exercice');
+    return;
+  }
+  verifierEval(w, 'placer le point, lire l\'image : le point d\'abord, les cases ensuite', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='placer-image';
+
+    /* 1. le tirage : partagé avec le 2.2, mêmes gardes, rien d'autre dans la question */
+    const srcImg=String(startImg), srcPim=String(startPim);
+    if(srcImg.indexOf('imgTirage(')<0) vus.push('startImg ne tire plus par imgTirage : les deux tirages peuvent diverger');
+    if(srcPim.indexOf('imgTirage(')<0) vus.push('startPim ne tire plus par imgTirage : les deux tirages peuvent diverger');
+    for(let t=0;t<200 && !vus.length;t++){
+      startPim(); clearTimeout(test.fbTimer);
+      if(test.questions.length!==4){ vus.push(test.questions.length+' questions au lieu de 4'); break; }
+      const xs=test.questions.map(function(q){ return q.x0; });
+      if(xs.some(function(x){ return x===0; })) vus.push('une question demande l\\'abscisse 0 — le point tomberait sur l\\'axe des ordonnées');
+      if(new Set(xs).size!==4) vus.push('deux questions demandent la même abscisse : '+xs.join(','));
+      test.questions.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='x0'&&k!=='rep'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'abscisse et le point : '+cles.join(','));
+        if(q.pts[q.x0+3]===0) vus.push('l\\'image demandée vaut 0 : le point serait posé sur l\\'axe des abscisses');
+      });
+    }
+    if(vus.length) return vus.join(' | ');
+
+    /* montage : une question CHOISIE (x0 positif, image négative — le signe
+       moins passe par numFmt) */
+    startPim(); clearTimeout(test.fbTimer);
+    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], x0:2, rep:null};
+    const q=test.questions[0], y0=q.pts[q.x0+3];
+    test.idx=0; test.locked=false; renderPim();
+    const el=function(id){ return document.getElementById(id); };
+    const peint=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+
+    /* 2. les cases attendent le point — et le bon point n'est pas déjà montré */
+    if(!el('pim-fx').disabled || !el('pim-fv').disabled) vus.push('les cases s\\'écrivent avant que le point soit posé');
+    if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point est déjà montré avant la vérification');
+    el('pim-fx').value='9';
+    q.rep={x:q.x0,y:y0}; pimMajCases();
+    if(el('pim-fx').disabled) vus.push('les cases restent désactivées une fois le point posé');
+    if(el('pim-fx').value!=='9') vus.push('poser le point efface ce que la case portait');
+    q.rep=null; pimMajCases();
+    if(!el('pim-fx').disabled) vus.push('retirer le point ne redésactive pas les cases');
+    if(el('pim-fx').value!=='9') vus.push('retirer le point efface la case');
+
+    /* 3. vérifier sans point : rien ne se peint, rien ne se verrouille */
+    el('pim-fx').value=''; submitPim();
+    if(test.locked) vus.push('vérifier sans point verrouille la question');
+    if(peint('pim-fx')!=='rien'||peint('pim-fv')!=='rien'||peint('pim-pt')!=='rien') vus.push('vérifier sans point pose une couleur');
+    if(el('pimCorr').textContent.indexOf('Place d’abord le point')<0)
+      vus.push('vérifier sans point ne redit pas le geste attendu : '+el('pimCorr').textContent.slice(0,80));
+
+    /* 4. copie juste : TROIS réponses comptées, rien ne se révèle */
+    q.rep={x:q.x0,y:y0}; pimMajCases();
+    el('pim-fx').value=String(q.x0); el('pim-fv').value=String(y0);
+    const avant=test.score; submitPim(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==3) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 3 (le point est une réponse)');
+    if(peint('pim-pt')!=='vert') vus.push('la pastille du point juste n\\'est pas marquée ok');
+    if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point se montre alors que celui de l\\'élève est juste');
+
+    /* 5. point faux en entraînement : il coûte SON point, le bon point se montre en vert */
+    test.idx=1; test.locked=false; renderPim();
+    const q2=test.questions[1], y2=q2.pts[q2.x0+3];
+    q2.rep={x:q2.x0, y:(y2===3?2:y2+1)}; pimMajCases();
+    el('pim-fx').value=String(q2.x0); el('pim-fv').value=String(y2);
+    const avant2=test.score; submitPim(); clearTimeout(test.fbTimer);
+    if(test.score-avant2!==2) vus.push('le point faux coûte '+(3-(test.score-avant2))+' point(s) au lieu de 1');
+    if(peint('pim-pt')!=='rouge') vus.push('la pastille du point faux ne rougit pas');
+    if(!document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point ne se montre pas en vert sur un point faux (entraînement)');
+    if(!document.querySelector('#pimGraph .pim-pt.bad')) vus.push('le point faux de l\\'élève ne rougit pas sur le dessin');
+
+    /* 6. en soutien, rien ne se révèle, et une case vide ne rougit jamais */
+    currentMode='soutien';
+    test.idx=2; test.locked=false; renderPim();
+    const q3=test.questions[2], y3=q3.pts[q3.x0+3];
+    q3.rep={x:q3.x0, y:(y3===3?2:y3+1)}; pimMajCases();
+    el('pim-fx').value=String(q3.x0); el('pim-fv').value=String(y3);
+    submitPim(); clearTimeout(test.fbTimer);
+    if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point se révèle en SOUTIEN — l\\'élève doit corriger lui-même');
+    if(test.locked) vus.push('le soutien verrouille une copie fausse au lieu de laisser corriger');
+    test.idx=3; test.locked=false; renderPim();
+    const q4=test.questions[3], y4=q4.pts[q4.x0+3];
+    q4.rep={x:q4.x0,y:y4}; pimMajCases();
+    el('pim-fx').value=''; el('pim-fv').value=String(y4);
+    submitPim(); clearTimeout(test.fbTimer);
+    if(peint('pim-fx')==='rouge') vus.push('une case laissée vide rougit à la vérification en soutien');
+    currentMode='train';
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
 function imageNombre(w, P){
   const present = evaluer(w, "typeof startImg==='function' && typeof imgCheck==='function'");
   if(!present.ok || !present.valeur){
