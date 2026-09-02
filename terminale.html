@@ -1758,9 +1758,9 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
         <li><b>Hérédité</b>&nbsp;: écris le mot <b>d&rsquo;abord</b> — il annonce la partie —, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;» suivi de la <b>propriété au rang n+1</b> (l&rsquo;encadrement de U<sub>n+1</sub> par les deux bornes).</li>
         <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> — <b>écris l&rsquo;intervalle</b> («&nbsp;croissante sur [&hellip;&nbsp;; &hellip;]&nbsp;»). Puis <b>élargis</b> pour retrouver l&rsquo;encadrement demandé. (La conclusion finale n&rsquo;est pas exigée.)</li>
       </ul>
-      <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
+      <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\ge')">&#8805;</button><button type="button" class="sa-jeton" id="rrJ0" onmousedown="event.preventDefault()" onclick="rrInsertU0()">U&#8320;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
       <div class="dexp2-sheet" id="rrSheet"></div>
-      <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>U</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort&nbsp;— une seconde espace sépare les mots&nbsp;; les boutons ci-dessus écrivent &#8804; et les indices d&rsquo;un coup. Les accents et les majuscules ne comptent pas&nbsp;: «&nbsp;heredite&nbsp;» vaut «&nbsp;hérédité&nbsp;».<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
+      <p class="dexp-hint">Une étape par ligne. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>U</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort&nbsp;— une seconde espace sépare les mots&nbsp;; les boutons ci-dessus écrivent &#8804;, &#8805; et les indices d&rsquo;un coup. Les accents et les majuscules ne comptent pas&nbsp;: «&nbsp;heredite&nbsp;» vaut «&nbsp;hérédité&nbsp;».<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
       <div class="mp-feedback" id="rrFeedback"></div>
       <div class="mp-actions" id="rrActions"></div>
     </div>
@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=281;
+const APP_VERSION=282;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11241,6 +11241,17 @@ function rrInsert(lx){
   try{ el.focus(); }catch(e){}
   try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }
 }
+/* LE BOUTON U-DÉPART SUIT L'ÉNONCÉ (demande de Turquet, septembre 2026) : il
+   insère U₀ quand la suite démarre au rang 0, U₁ quand elle démarre au rang 1.
+   L'insertion relit q.n0 AU CLIC ; le libellé est posé par renderRR() depuis la
+   même source — les deux ne peuvent pas diverger. Un bouton FIGÉ serait le bord
+   le plus sournois : U₀ écrit sous un énoncé qui commence à U₁, et l'élève le
+   recopie dans son initialisation — la leçon du numéro d'exercice de show(). */
+function rrRangU0(){
+  const q=test&&test.questions&&test.questions[test.idx];
+  return (q&&q.n0===1)?1:0;
+}
+function rrInsertU0(){ rrInsert('U_'+rrRangU0()); }
 function rrKB(){
   const vk=window.mathVirtualKeyboard; if(!vk) return;
   if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
@@ -11306,6 +11317,7 @@ function renderRR(){
   $('rrModeTag').innerHTML=modeTagHTML();
   $('rrLiveScore').textContent=test.score;
   const sub='<i>n</i> ≥ '+numFmt(c.n0);
+  const bU0=$('rrJ0'); if(bU0) bU0.textContent='U'+(rrRangU0()===1?'₁':'₀');
   $('rrPrompt').innerHTML='On prend la suite (<i>U</i><sub>n</sub>)<sub>'+sub+'</sub> telle que&nbsp;: '
     +'<i>U</i><sub>'+numFmt(c.n0)+'</sub> = <b>'+numFmt(c.u0)+'</b> &nbsp;et&nbsp; '
     +mlTex('U_{n+1}='+c.recTex+'=f(U_n)', '<i>U</i><sub>n+1</sub> = '+esc(c.recPlain)+' = <i>f</i> (<i>U</i><sub>n</sub>)')

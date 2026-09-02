@@ -4142,10 +4142,25 @@ dehors. `mlFeuille` n'est pas touchée — c'est le MÊME TEXTE dans les trois
 fichiers, et un contrôle le compare au caractère près. **Et l'écran le DIT** :
 l'indication sous la feuille annonce la barre d'espace, comme la consigne du
 1.6 annonce le « +1 » que la page pose.
-**Les JETONS donnent les symboles, jamais les mots** : ≤, Uₙ et Uₙ₊₁ — qu'aucun
-clavier ne porte — sont sur des boutons ; « hérédité » et « on suppose » ne le
-sont pas. Un bouton qui écrirait à la place de l'élève exactement ce que
-l'exercice lui demande de savoir viderait l'exercice.
+**Les JETONS donnent les symboles, jamais les mots** : ≤, ≥, le U de DÉPART,
+Uₙ et Uₙ₊₁ — qu'aucun clavier ne porte — sont sur des boutons ; « hérédité »
+et « on suppose » ne le sont pas. Un bouton qui écrirait à la place de l'élève
+exactement ce que l'exercice lui demande de savoir viderait l'exercice.
+**Et le bouton U-DÉPART SUIT L'ÉNONCÉ** (demande de Turquet, septembre 2026 :
+« les touches ≤ et ≥ et le bouton U0 ou U1 en fonction de l'énoncé ») : il dit
+U₀ quand la suite démarre au rang 0, U₁ au rang 1 — et les deux rangs sortent
+dans chaque séance, donc il CHANGE entre les deux questions. Le bord qui
+compte est le bouton FIGÉ, le plus sournois — la leçon du numéro d'exercice de
+`show()` : un U₀ écrit sous un énoncé qui commence à U₁ serait recopié tel
+quel dans l'initialisation. Le libellé est posé par `renderRR()` et
+l'insertion relit `q.n0` AU CLIC (`rrInsertU0`/`rrRangU0`) — la même source,
+ils ne peuvent pas diverger — et le contrôle CLIQUE le vrai bouton sur les
+DEUX rangs, libellé et insertion, plus ≥ (aucun antislash littéral dans ce
+contrôle — le piège documenté des deux analyseurs, `String.fromCharCode(92)`).
+Le banc navigateur clique ≥ et U₀ sur du VRAI MathLive et relit la ligne. La
+photo du circuit papier les retire avec la rangée, sans rien déclarer. Quatre
+sabotages de plus, chacun rougissant en nommant son défaut — le premier a
+montré exactement la divergence visée : « le bouton dit U₀ et insère U_1 ».
 **La reprise après une pause remet la rédaction.** Elle voyage DANS `test` —
 que `snapshotTest` photographie en entier — et non dans `_boxes`, qui ne sait
 restaurer que des cases à id : la feuille n'en a aucune. Le curseur revient AU
@@ -4165,8 +4180,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Cinquante-trois
-sabotages en tout (quarante-quatre au banc principal, neuf au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Cinquante-sept
+sabotages en tout (quarante-huit au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur

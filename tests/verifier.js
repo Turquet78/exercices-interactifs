@@ -3285,6 +3285,55 @@ function recurrenceRedigee(w, apres){
         vus.push('en retirant « '+p[0]+' », le juge relève ['+m.join(', ')+'] au lieu de ['+p[0]+'] seul');
     });
 
+    /* ---------- 2 bis. LA RANGÉE D'INSERTION : ≥, ET LE BOUTON U-DÉPART QUI
+       SUIT L'ÉNONCÉ ----------
+       Demande de Turquet (septembre 2026) : « rajouter les touches ≤ et ≥ et
+       le bouton U0 ou U1 en fonction de l'énoncé ». Les touches qu'aucun
+       clavier ne porte vivent sur les boutons « Insérer » — la doctrine des
+       jetons. Le bord qui compte est le bouton FIGÉ, le plus sournois : un U₀
+       écrit sous un énoncé qui commence à U₁ serait recopié dans
+       l'initialisation — la leçon du numéro d'exercice de show(). Libellé et
+       insertion lisent la même source (q.n0) ; le contrôle éprouve les DEUX,
+       sur les DEUX rangs, en CLIQUANT le vrai bouton. */
+    const outilsL=[...document.querySelectorAll('#rrOutils button')].map(function(b){ return b.textContent.trim(); });
+    if(outilsL.indexOf('≤')<0 || outilsL.indexOf('≥')<0)
+      vus.push('la rangée d\\'insertion ne porte pas ≤ ET ≥ : ['+outilsL.join(' ')+']');
+    if(!document.getElementById('rrJ0') || typeof rrInsertU0!=='function' || typeof rrRangU0!=='function')
+      vus.push('le bouton U-départ (rrJ0 / rrInsertU0 / rrRangU0) manque');
+    else {
+      const rec=[];
+      const brancheRec=function(){
+        const mf=document.createElement('math-field');
+        mf.executeCommand=function(a){ rec.push(Array.isArray(a)?a[1]:String(a)); };
+        mf.insert=function(x){ rec.push(x); };
+        mf.focus=function(){}; mf.readOnly=false;
+        document.getElementById('rrSheet').appendChild(mf);
+        rrLastMF=mf;
+      };
+      const mesure=function(n0){
+        test.questions=[Object.assign({}, c0, {n0:n0, recTex:'0{,}5U_{n}+3', fTex:'0{,}5x+3'})];
+        test.idx=0; renderRR();
+        brancheRec(); rec.length=0;
+        document.getElementById('rrJ0').click();
+        return { l:document.getElementById('rrJ0').textContent.trim(), i:rec.join('') };
+      };
+      const r0=mesure(0), r1=mesure(1);
+      if(r0.l!=='U₀' || r0.i!=='U_0')
+        vus.push('au rang 0, le bouton U-départ dit « '+r0.l+' » et insère « '+r0.i+' »');
+      if(r1.l!=='U₁' || r1.i!=='U_1')
+        vus.push('au rang 1 — le bord FIGÉ —, le bouton U-départ dit « '+r1.l+' » et insère « '+r1.i+' »');
+      /* et ≥ n'est pas un bouton mort : cliqué, il insère la commande que
+         rrClair traduit en « ≥ » (aucun antislash littéral dans ce contrôle —
+         le piège documenté des deux analyseurs) */
+      const bGe=[...document.querySelectorAll('#rrOutils button')].filter(function(b){ return b.textContent.trim()==='≥'; })[0];
+      rec.length=0;
+      if(bGe) bGe.click();
+      if(!bGe || rec.join('')!==String.fromCharCode(92)+'ge')
+        vus.push('le bouton ≥ n\\'insère pas la commande ge : reçu « '+rec.join(' ')+' »');
+      if(rrClair(rec.join('')).indexOf('≥')<0)
+        vus.push('la commande du bouton ≥ n\\'est pas lue « ≥ » par le juge');
+    }
+
     /* ---------- 3. LA LÉNIENCE EST DÉLIBÉRÉE ---------- */
     const SANS_ACCENT='initialisation : U_(0)=3 et 0<=3<=6 : c est vrai au rang 0\\n'
       +'heredite : on suppose 0<=U_(n)<=6, on montre que 0<=U_(n+1)<=6\\n'

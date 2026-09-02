@@ -3042,6 +3042,30 @@ async function parcours(page, N){
         vu.jetonLigne === vu.derniere && vu.clavier,
         'inséré dans la ligne ' + vu.jetonLigne + ' au lieu de ' + vu.derniere
           + ', bouton clavier : ' + vu.clavier);
+      /* LES BOUTONS ≥ ET U-DÉPART, CLIQUÉS POUR DE VRAI (demande de Turquet,
+         septembre 2026) : un bouton mort ne se voit qu'au clic réel, et seul
+         un vrai MathLive dit ce que l'insertion écrit. La question épinglée
+         démarre au rang 0 : le bouton doit dire U₀ et écrire U_0. On restaure
+         la ligne ensuite — la copie tapée sert encore aux contrôles suivants. */
+      await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        window.__rrAvantBtn = L.mf.getValue(); L.mf.focus();
+      });
+      const btns = await s.page.$$('#rrOutils button');
+      const btnTxt = await Promise.all(btns.map(h => h.evaluate(b => b.textContent.trim())));
+      const iGe = btnTxt.indexOf('≥'), iU0 = btnTxt.indexOf('U₀');
+      if(iGe >= 0) await btns[iGe].click();
+      if(iU0 >= 0) await btns[iU0].click();
+      await s.page.waitForTimeout(200);
+      const insere = await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        const v = L.mf.getValue();
+        L.mf.setValue(window.__rrAvantBtn || '');
+        return v;
+      });
+      verifier('les boutons ≥ et U-départ écrivent au clic — et U-départ dit U₀ au rang 0',
+        iGe >= 0 && iU0 >= 0 && /\\ge/.test(insere) && /U_\{?0\}?/.test(insere),
+        'boutons [' + btnTxt.join(' ') + '], la ligne a reçu : ' + JSON.stringify(insere.slice(-80)));
       /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
          une règle plus spécifique peut la repeindre, et c'est arrivé sur la
          phrase des couleurs du 6.3 sans qu'un caractère du HTML ne le dise. */
