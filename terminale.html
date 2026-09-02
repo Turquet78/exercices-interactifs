@@ -1755,7 +1755,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-instr">Rédige la démonstration <b>entière</b>, comme sur ta copie. Rien n&rsquo;est écrit d&rsquo;avance&nbsp;: à toi les mots.</p>
       <ul class="rr-attendu">
         <li><b>Initialisation</b>&nbsp;: écris le mot, vérifie l&rsquo;encadrement avec la <b>valeur</b> de U au rang de départ, et dis que c&rsquo;est <b>vrai</b> à ce rang.</li>
-        <li><b>Hérédité</b>&nbsp;: écris le mot, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;».</li>
+        <li><b>Hérédité</b>&nbsp;: écris le mot <b>d&rsquo;abord</b> — il annonce la partie —, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;».</li>
         <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> sur l&rsquo;intervalle. Puis élargis, et <b>conclus</b>.</li>
       </ul>
       <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=278;
+const APP_VERSION=279;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11043,6 +11043,23 @@ function rrJuge(c, txt){
   const nb=(seg.match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
   const a=v=>nb.some(x=>Math.abs(x-v)<1e-9);
   const segRed=rrReduit(seg).red;
+  /* LE MOT « HÉRÉDITÉ » ANNONCE LA PARTIE, il ne la conclut pas : il se place
+     AVANT « on suppose » et « on montre » (signalé par Turquet, septembre
+     2026, sur une copie qui le posait tout seul à la DERNIÈRE ligne). La page
+     ne mesurait que la PRÉSENCE, et laissait donc passer un mot qui ne
+     présentait plus rien.
+     Le libellé distingue les deux cas, et c'est la moitié qui compte : un ✗
+     sur « le mot hérédité » devant une copie qui le porte serait un mensonge
+     de plus — l'élève chercherait un mot qu'il a écrit. Quand il n'y a ni
+     hypothèse ni but, il n'y a aucun repère : on retombe sur la présence
+     seule plutôt que d'accuser une position qu'on ne peut pas juger. */
+  const herLa=pHer>=0, herOk=herLa && (pSup<0||pHer<pSup) && (pMon<0||pHer<pMon);
+  const herL=(herOk||!herLa)
+    ? 'le mot <b>« hérédité »</b>, écrit <b>avant</b> « on suppose » et « on montre »'
+    : 'le mot « hérédité » est bien là, mais APRÈS ta démonstration : il doit l’<b>annoncer</b> — place-le avant « on suppose »';
+  const herC=(herOk||!herLa)
+    ? 'le mot « hérédité »'
+    : 'le mot « hérédité », écrit à la fin au lieu d’annoncer la partie';
   const crit=[
     {cle:'init',   ok:pInit>=0,
      l:'le mot <b>« initialisation »</b>', court:'le mot « initialisation »'},
@@ -11052,8 +11069,7 @@ function rrJuge(c, txt){
     {cle:'vrai',   ok:RR_MOTS.vrai.test(segRed),
      l:'la <b>conclusion</b> de l’initialisation — le mot qui dit que c’est <b>vrai</b> à ce rang',
      court:'le mot qui conclut l’initialisation (« c’est vrai », « la propriété est vraie au rang de départ »)'},
-    {cle:'hered',  ok:pHer>=0,
-     l:'le mot <b>« hérédité »</b>', court:'le mot « hérédité »'},
+    {cle:'hered',  ok:herOk, l:herL, court:herC},
     {cle:'suppos', ok:pSup>=0,
      l:'l’hypothèse : <b>« on suppose… »</b> (ou « supposons… »)',
      court:'l’hypothèse de récurrence annoncée (« on suppose… »)'},
@@ -11098,10 +11114,11 @@ function rrAttenduIA(c,j){
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE moments de la récurrence sont présents ET justes — '
    +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
    +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque ; '
-   +'(3) HÉRÉDITÉ démontrée : on applique f aux trois membres en JUSTIFIANT par la croissance de f, ce qui donne '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.fM)+', puis on ÉLARGIT pour retrouver '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' ; '
+   +'(3) HÉRÉDITÉ démontrée : on applique f aux trois membres en JUSTIFIANT par la croissance de f, ce qui donne '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.fM)+', puis on ÉLARGIT pour retrouver '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+'. '
+   +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante » puis, à la ligne suivante, l’encadrement obtenu. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. '
    +'(4) CONCLUSION pour tout entier n ≥ '+numFmt(c.n0)+'. '
    +'Une seule de ces quatre parties fausse ou absente donne correct:false. '
-   +'NE COMPTE PAS FAUX : l’ordre et le découpage des lignes (champ libre) ; l’orthographe, les accents et les majuscules ; l’écriture des indices (Un, U_n, U(n), Un+1, U(n+1)) ; les symboles « ≤ » et « <= » ; les tournures (« soit n… », « pour tout n… », « d’après l’hypothèse de récurrence ») ; une valeur approchée au dixième. '
+   +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », que les symboles ou les indices seraient mélangés ou mal placés, ou qu’il manquerait des étapes intermédiaires. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « U_(n+1) » est U indice n+1, « ≤ » est l’inégalité — c’est parfaitement lisible. Ne compte pas faux non plus l’ordre et le découpage des lignes (champ libre), l’orthographe, les accents, les majuscules, les tournures, ni une valeur approchée au dixième. Tout refus doit NOMMER l’erreur mathématique précise — quelle ligne, quelle valeur, et ce qu’elle devrait être ; un refus qui n’en nomme aucune est interdit, et si tu n’en trouves pas, la réponse est correct:true. '
    +'CE QUE LA PAGE A DÉJÀ MESURÉ elle-même, et qu’elle affiche AU-DESSUS de ton texte : la présence des mots de structure et des nombres de l’initialisation. '
    +(manque.length
       ? ('Elle a relevé qu’il MANQUE : '+manque.map(x=>x.court).join(' ; ')+'. Tu ne dois donc PAS écrire que la rédaction est complète, et tu ne dois PAS répéter cette liste — occupe-toi du CALCUL et de la logique. ')
