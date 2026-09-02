@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=282;
+const APP_VERSION=283;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11017,12 +11017,16 @@ function rrReduit(t){
    récurrence », et un élève qui recopie ce titre en tête de sa copie aurait
    satisfait le critère sans avoir énoncé le BUT de l'hérédité. On exige donc
    les formes conjuguées — asymétrie voulue, et c'est le seul mot de l'énoncé
-   qui se trouve aussi dans la liste. */
+   qui se trouve aussi dans la liste.
+   « supose » à un seul p reste l'hypothèse (sup+os) : l'orthographe n'est pas
+   ce qu'on évalue — la règle du modèle le dit déjà —, et un ✗ sur « on
+   supose » donnait tort à une copie honnête (capture de Turquet, septembre
+   2026). */
 const RR_MOTS={
   init:   /initialis/,
   vrai:   /(vrai|bonne|bon|verifi|valable|juste|correct|exact|satisfait|etablie|amorcee|initialisee)/,
   hered:  /heredit/,
-  suppos: /(suppos|hypothese)/,
+  suppos: /(sup+os|hypothese)/,
   montre: /(montrons|onmontre|nousmontrons|demontrons|ondemontre|prouvons|onprouve|montrerque|ilfautmontrer|onveutmontrer|onchercheamontrer)/,
   croiss: /croissan/
 };
@@ -11099,6 +11103,14 @@ function rrJuge(c, txt){
        les DEUX bornes. N'importe quelle ligne : l'annonce après « on montre »
        comme la conclusion élargie la portent, et l'ordre des moments reste
        libre.
+       Et « U_(n)+1 » EST cette propriété (capture de Turquet, septembre
+       2026) : le jeton Uₙ suivi de « +1 », comme U_n-espace-+1, écrivent le
+       +1 HORS de l'indice — la sonde sur vrai MathLive l'a montré —, ce que
+       l'œil ne distingue pas de Uₙ₊₁ à l'écran ; seul le témoin qui tape
+       U_n+1 d'un trait le laisse DANS l'indice. Le motif accepte donc AUSSI
+       la forme au +1 sorti : la parenthèse de l'indice FERMÉE puis « +1 » —
+       jamais la prose « un + 1 », qui n'a pas cette parenthèse, et jamais un
+       « f(U_(n))+1 », où la parenthèse fermée est celle de f.
      · L'intervalle de croissance : après le mot « croissant… », un marqueur
        (« sur », « entre », « [ ») PUIS les deux bornes. Le marqueur est ce
        qui empêche « croissante donc f(m) ≤ f(U(n)) ≤ f(M) » de passer — les
@@ -11110,7 +11122,7 @@ function rrJuge(c, txt){
   let butOk=false, intOk=false;
   lignes.forEach(function(lg){
     if(!butOk){
-      const re=/u[_ ]?\(?n\+1\)?/g; let m2;
+      const re=/u[_ ]?(?:\(?n\+1\)?|\(n\) ?\+ ?1)/g; let m2;
       while((m2=re.exec(lg))){
         if(!/f ?\($/.test(lg.slice(Math.max(0,m2.index-3),m2.index)) &&
            porte(lg,c.m) && porte(lg,c.M)){ butOk=true; break; }
@@ -11218,7 +11230,7 @@ function rrAttenduIA(c,j){
    +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] » puis, à la ligne suivante, l’encadrement obtenu — l’intervalle de croissance doit être ÉCRIT. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. '
    +'La CONCLUSION finale (« donc pour tout entier n… ») n’est PAS exigée : l’exercice ne la demande pas — ne reproche JAMAIS son absence et ne la compte jamais comme manquante. '
    +'Une seule de ces trois parties fausse ou absente donne correct:false. '
-   +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », que les symboles ou les indices seraient mélangés ou mal placés, ou qu’il manquerait des étapes intermédiaires. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « U_(n+1) » est U indice n+1, « ≤ » est l’inégalité — c’est parfaitement lisible. Ne compte pas faux non plus l’ordre et le découpage des lignes (champ libre), l’orthographe, les accents, les majuscules, les tournures, ni une valeur approchée au dixième. Tout refus doit NOMMER l’erreur mathématique précise — quelle ligne, quelle valeur, et ce qu’elle devrait être ; un refus qui n’en nomme aucune est interdit, et si tu n’en trouves pas, la réponse est correct:true. '
+   +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », que les symboles ou les indices seraient mélangés ou mal placés, ou qu’il manquerait des étapes intermédiaires. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « U_(n+1) » est U indice n+1 — et « U_(n)+1 » se lit U indice n+1 lui aussi, le + ayant simplement été tapé hors de l’indice —, « ≤ » est l’inégalité : c’est parfaitement lisible. Ne compte pas faux non plus l’ordre et le découpage des lignes (champ libre), l’orthographe, les accents, les majuscules, les tournures, ni une valeur approchée au dixième. Tout refus doit NOMMER l’erreur mathématique précise — quelle ligne, quelle valeur, et ce qu’elle devrait être ; un refus qui n’en nomme aucune est interdit, et si tu n’en trouves pas, la réponse est correct:true. '
    +'CE QUE LA PAGE A DÉJÀ MESURÉ elle-même, et qu’elle affiche AU-DESSUS de ton texte : la présence des mots de structure et des nombres de l’initialisation. '
    +(manque.length
       ? ('Elle a relevé qu’il MANQUE : '+manque.map(x=>x.court).join(' ; ')+'. Tu ne dois donc PAS écrire que la rédaction est complète, et tu ne dois PAS répéter cette liste — occupe-toi du CALCUL et de la logique. ')

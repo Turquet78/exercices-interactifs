@@ -3066,6 +3066,52 @@ async function parcours(page, N){
       verifier('les boutons ≥ et U-départ écrivent au clic — et U-départ dit U₀ au rang 0',
         iGe >= 0 && iU0 >= 0 && /\\ge/.test(insere) && /U_\{?0\}?/.test(insere),
         'boutons [' + btnTxt.join(' ') + '], la ligne a reçu : ' + JSON.stringify(insere.slice(-80)));
+      /* LE GESTE DE LA CAPTURE (Turquet, septembre 2026) : le jeton Uₙ suivi
+         de « +1 » écrit le +1 HORS de l'indice — « U_(n)+1 » à la lecture,
+         que l'œil ne distingue pas de Uₙ₊₁ à l'écran — et « on supose » perd
+         un p. Seul un vrai MathLive produit cette sérialisation ; le témoin
+         tapé plus haut (U_n+1 d'un trait) laisse le +1 DANS l'indice, il ne
+         passe pas par ce chemin-là. On REFAIT donc le geste, on relit ce que
+         la page reçoit — le contrôle mesure ce qu'il croit mesurer — et on
+         exige que le juge n'y voie plus deux manques. La ligne d'essai est
+         retirée ensuite : la copie tapée sert encore aux contrôles suivants. */
+      await s.page.evaluate(() => rrFeuille.lignes[rrFeuille.lignes.length - 1].mf.focus());
+      await s.page.keyboard.press('End');
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(300);
+      await s.page.keyboard.type('on supose que 0 <= ', { delay: 12 });
+      const iUn = btnTxt.indexOf('Uₙ');
+      const rejouer = async () => {
+        if(iUn >= 0) await btns[iUn].click();
+        await s.page.waitForTimeout(150);
+        await s.page.evaluate(() => rrFeuille.lignes[rrFeuille.lignes.length - 1].mf.focus());
+        await s.page.keyboard.press('End');
+      };
+      await rejouer();
+      await s.page.keyboard.type(' <= 6 et on montre 0 <= ', { delay: 12 });
+      await rejouer();
+      await s.page.keyboard.type('+1 <= 6', { delay: 12 });
+      await s.page.waitForTimeout(300);
+      const geste = await s.page.evaluate(() => {
+        const lignes = rrTexte().split('\n');
+        const derniere = lignes[lignes.length - 1];
+        const rate = rrJuge(test.questions[test.idx], derniere)
+          .crit.filter(x => !x.ok).map(x => x.cle);
+        rrFeuille.lignes[rrFeuille.lignes.length - 1].mf.setValue('');
+        return { derniere: derniere,
+                 forme: /U_\(n\)\s*\+\s*1/.test(derniere) && /supose/.test(derniere),
+                 suppose: rate.indexOf('suppos') < 0, montre: rate.indexOf('montre') < 0 };
+      });
+      await s.page.evaluate(() => rrFeuille.lignes[rrFeuille.lignes.length - 1].mf.focus());
+      await s.page.keyboard.press('Backspace');
+      await s.page.waitForTimeout(300);
+      const apresRetrait = await s.page.evaluate(() => rrFeuille.lignes.length);
+      verifier('le geste de la capture — le jeton Uₙ puis « +1 », et « supose » — passe au juge',
+        geste.forme && geste.suppose && geste.montre && apresRetrait === 4,
+        'lu : ' + JSON.stringify(geste.derniere.slice(0, 120))
+          + (geste.forme ? '' : ' (la sérialisation mesurée n’est pas « U_(n)+1 » — le contrôle parlerait d’autre chose)')
+          + ', suppos ' + (geste.suppose ? 'accepté' : 'REFUSÉ') + ', montre ' + (geste.montre ? 'accepté' : 'REFUSÉ')
+          + ', ' + apresRetrait + ' ligne(s) après retrait');
       /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
          une règle plus spécifique peut la repeindre, et c'est arrivé sur la
          phrase des couleurs du 6.3 sans qu'un caractère du HTML ne le dise. */

@@ -4161,6 +4161,33 @@ Le banc navigateur clique ≥ et U₀ sur du VRAI MathLive et relit la ligne. La
 photo du circuit papier les retire avec la rangée, sans rien déclarer. Quatre
 sabotages de plus, chacun rougissant en nommant son défaut — le premier a
 montré exactement la divergence visée : « le bouton dit U₀ et insère U_1 ».
+**Et la lettre du juge a buté sur l'orthographe et sur la SAISIE de
+l'indice** (capture de Turquet, septembre 2026) : deux ✗ sur une copie que
+l'œil lit juste — le faux négatif, deux fois, par deux portes.
+· « on supose » — un seul p — échappait à la racine « suppos » : elle
+  s'écrit `sup+os` désormais, parce que l'orthographe n'est pas ce qu'on
+  évalue — la règle du modèle le disait déjà, le juge de la page ne le
+  faisait pas encore (la leçon de « géometrique », revenue par le juge
+  maison). Le bord opposé est tenu : une copie sans aucune hypothèse liste
+  toujours le manque.
+· La propriété au rang n+1 tapée jeton Uₙ puis « +1 », ou U_n-espace-+1, se
+  sérialise « U_(n)+1 » : le + est HORS de l'indice, et l'écran ne le montre
+  pas — l'œil lit Uₙ₊₁. La SONDE sur vrai MathLive l'a nommé AVANT tout
+  correctif : le témoin du banc, qui tape « U_n+1 » d'un trait, laisse le +1
+  DANS l'indice (c'est l'espace suivante qui l'en sort) et passait déjà — le
+  geste diffère, la sérialisation aussi, et corriger sur une supposition
+  aurait visé à côté. Le motif accepte donc AUSSI la parenthèse d'indice
+  FERMÉE puis « +1 », et rien d'autre : la prose « un + 1 » n'a pas cette
+  parenthèse, « f(U_(n))+1 » ferme celle de f, et les deux bornes restent
+  exigées — chaque bord opposé a son contrôle.
+· Et la règle du modèle apprend à LIRE « U_(n)+1 » : sur une abstention, le
+  modèle seul juge relirait « Uₙ plus un » dans un calcul juste et le
+  refuserait — le refus halluciné de production, par une autre porte.
+La capture est épinglée au contrôle (si elle ne passe pas au juge, c'est le
+juge qui a tort), et le banc navigateur REFAIT le geste — le jeton Uₙ puis
+« +1 », « supose » compris — puis relit la sérialisation qu'il croit mesurer
+avant d'exiger le verdict. Quatre sabotages de plus, chacun rougissant en
+nommant son défaut.
 **La reprise après une pause remet la rédaction.** Elle voyage DANS `test` —
 que `snapshotTest` photographie en entier — et non dans `_boxes`, qui ne sait
 restaurer que des cases à id : la feuille n'en a aucune. Le curseur revient AU
@@ -4180,8 +4207,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Cinquante-sept
-sabotages en tout (quarante-huit au banc principal, neuf au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante et un
+sabotages en tout (cinquante-deux au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur
