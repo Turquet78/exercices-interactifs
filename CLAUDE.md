@@ -4220,6 +4220,25 @@ une CHAÎNE d'encadrements — « 0 ≤ 2 ≤ U(n+1) ≤ 8 » — écrit les ima
 conclut d'un coup, le modèle n'exige jamais qu'elles soient posées sur une
 ligne à part. Trois sabotages de plus, chacun rougissant en nommant son
 défaut.
+**Puis le clavier À L'ÉCRAN a gagné les quatre inégalités** (demande de
+Turquet, septembre 2026 : « les touches inférieur ou égale et supérieur ou
+égale… et strictement < et strictement > aussi ») : sur le 6.7, la première
+rangée du clavier virtuel — celle que `kbVarsFor()` fait varier selon
+l'exercice, Uₓ et n pour les suites — porte aussi ≤, ≥, < et >. La demande
+nomme le 6.7, et la table de routage l'y tient : les touches ne fuient pas
+sur les autres suites — le bord opposé a son contrôle. Les raccourcis
+« <= » et « >= », eux, existaient déjà — la liste blanche du mode rédaction
+les garde depuis le premier jour — : le contrôle les ÉPINGLE au lieu de les
+supposer, et la fenêtre des raccourcis (☰) les DIT désormais, parce qu'un
+raccourci que rien ne dit est une aide que personne ne demande. Deux bancs,
+la répartition habituelle : jsdom ÉVALUE `kbVarsFor` depuis la SOURCE (le
+clavier vit dans la greffe module, qu'il ne sait pas charger) — la vraie
+table de routage, pas une recherche de texte ; le NAVIGATEUR ouvre le
+clavier par le vrai bouton ⌨️, CLIQUE les quatre touches RENDUES et relit
+la ligne aplatie — la doctrine du bouton mort —, tape « >= » et lit ≥, puis
+REFERME le clavier : resté ouvert, il recouvrirait les boutons que la suite
+du banc clique. Quatre sabotages de plus, chacun rougissant en nommant son
+défaut.
 **La reprise après une pause remet la rédaction.** Elle voyage DANS `test` —
 que `snapshotTest` photographie en entier — et non dans `_boxes`, qui ne sait
 restaurer que des cases à id : la feuille n'en a aucune. Le curseur revient AU
@@ -4239,8 +4258,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante-quatre
-sabotages en tout (cinquante-cinq au banc principal, neuf au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante-huit
+sabotages en tout (cinquante-neuf au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur
@@ -4251,6 +4270,50 @@ n'était pas dans la liste de `dmEnonceQ`, si bien qu'un « Insérer : » sans
 boutons traînait sur la feuille du professeur — le défaut déjà corrigé pour
 `.sa-jetons`, resté en place sur le 6.5. Un exercice ajouté à côté d'un
 manque le fait voir.
+
+**Et les suites auxiliaires se rédigent à leur tour : quatre questions,
+quatre feuilles.** {suite-auxiliaire-redaction} (Terminale, demande de
+Turquet, septembre 2026) : les suites du {suite-auxiliaire-2}, mais plus une
+seule case — chaque question s'écrit dans une feuille libre du
+{recurrence-redaction} : a) la chaîne Vₙ₊₁ = Uₙ₊₁ − k, le remplacement par
+la récurrence, l'aboutissement à a × Vₙ ; b) V₀ ; c) la nature de la suite
+et Vₙ en fonction de n ; d) la formule Vₙ = Uₙ − k pour retrouver Uₙ.
+**Le tirage part de k et en dérive b** — la leçon de {simplifier-barres},
+tirer depuis l'arrivée : le coefficient est STRICTEMENT entre 0,5 et 1 (une
+baisse de 5 à 45 %, demande de Turquet), b = k·p/100 est alors un multiple
+de 100 entre 100 et 10000 (« le plus simple possible »), et b = k(1 − a)
+est une identité d'ENTIERS (b·100 = k·p) que le contrôle refait par sa
+propre arithmétique — la leçon du 6.3 : sans elle, la chaîne du a) est
+fausse avant que l'élève ne commence. U₀ est un multiple de 1000 strictement
+au-dessus de k, et les deux questions d'une séance ne portent jamais la
+même baisse.
+**Le juge de la page juge chaque critère sur la feuille de SA question** —
+huit faits prouvables : la définition en n+1 (avec k), le remplacement (a et
+b sur une même ligne), l'aboutissement (a et Vₙ), V₀ à la bonne valeur, le
+mot de la nature (racine `geometri` — jamais écrit dans un libellé, une
+suggestion d'aide ni le conseil : c'est LA réponse du c)), l'expression
+V₀ × aⁿ, la formule Uₙ/Vₙ/k, l'expression finale avec le « + k ». La
+lénience du 6.7 est reprise porte à porte — « geometrique » sans accent,
+l'écriture décimale au point, « V_(n)+1 » le + tapé hors de l'indice,
+l'ordre commuté Vₙ × 0,95 — plus une porte NEUVE : « 10 000 » à l'espace
+des MILLIERS est UN nombre (`sarNombres` le recolle) — les valeurs montent
+à 20000 ici, et l'écriture du cahier avec.
+**Le verdict a les trois positions du 6.7**, et l'abstention a un visage
+précis : la factorisation directe a(Uₙ − k), parfaitement juste, n'écrit
+jamais le nombre intermédiaire k − b (le « −3800 » de la fiche) — la page
+accepte quand il y est, s'abstient quand il n'y est pas, et le modèle
+décide alors seul. Le refus prime dans les deux sens, la règle nomme les
+quatre parties et interdit le refus pour la forme, et une comparaison
+fausse se prononce sans appeler le modèle.
+**Deux pièges de banc s'y sont montrés, tous deux du BANC** : les deux
+premières frappes d'une sonde tombent dans le vide si le champ n'est pas
+CLIQUÉ avant de taper — la mesure accusait la page d'avaler « V_ » — et un
+ré-épinglage qui ne remet pas `test.score` mesurait le point du passage
+PRÉCÉDENT. Une mesure qui accuse la page se mesure elle-même d'abord. Cinq
+sabotages, chacun rougissant en nommant son défaut — et les quinze
+branchements de l'exercice neuf sont passés au premier coup : les contrôles
+universels des deux bancs couvraient le 6.8 sans rien déclarer, exactement
+ce pour quoi ils existent.
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par

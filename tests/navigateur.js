@@ -3137,6 +3137,65 @@ async function parcours(page, N){
         /U_\(n\+1\)/.test(style.derniere) && /≤/.test(style.derniere) && style.montre,
         'lu : ' + JSON.stringify(style.derniere.slice(0, 120))
           + ', montre ' + (style.montre ? 'accepté' : 'REFUSÉ'));
+      /* LES TOUCHES ≤ ≥ < > DU CLAVIER À L'ÉCRAN (demande de Turquet, septembre
+         2026) : une touche se prouve en la CLIQUANT sur le clavier RENDU — la
+         doctrine du bouton mort ; jsdom lit déjà la table de la greffe. On ouvre
+         par le vrai bouton ⌨️ du 6.7, on clique les quatre touches, on relit la
+         ligne APLATIE, puis on tape « >= » — le raccourci jumeau du « <= » que
+         le témoin tient déjà. Le clavier est REFERMÉ ensuite : ouvert, il
+         recouvrirait les boutons que la suite du banc clique. */
+      await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        window.__rrAvantKb = L.mf.getValue();
+        L.mf.setValue(''); L.mf.focus();
+      });
+      await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
+      await s.page.waitForTimeout(800);
+      const kbRects = await s.page.evaluate(() => {
+        const vk = window.mathVirtualKeyboard;
+        const caps = Array.from(document.querySelectorAll('#kbwin [class*="keycap"], body > .ML__keyboard [class*="keycap"]'));
+        const de = t => { const c = caps.find(k => k.textContent.trim() === t);
+          if(!c) return null; const r = c.getBoundingClientRect();
+          return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
+        return { ouvert: !!(vk && vk.visible), le: de('≤'), ge: de('≥'), lt: de('<'), gt: de('>') };
+      });
+      for(const t of ['le', 'ge', 'lt', 'gt']){
+        if(kbRects[t]){ await s.page.mouse.click(kbRects[t].x, kbRects[t].y); await s.page.waitForTimeout(120); }
+      }
+      const kbTape = await s.page.evaluate(() => {
+        const lignes = rrTexte().split('\n');
+        return lignes[lignes.length - 1];
+      });
+      await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        L.mf.setValue(''); L.mf.focus();
+      });
+      await s.page.keyboard.type('n>=1', { delay: 40 });
+      await s.page.waitForTimeout(250);
+      const kbRacc = await s.page.evaluate(() => {
+        const lignes = rrTexte().split('\n');
+        return lignes[lignes.length - 1];
+      });
+      await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
+      await s.page.waitForTimeout(400);
+      const kbFerme = await s.page.evaluate(() => {
+        const vk = window.mathVirtualKeyboard;
+        const w = document.getElementById('kbwin');
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        L.mf.setValue(window.__rrAvantKb || '');
+        return !(vk && vk.visible) && !(w && w.classList.contains('open'));
+      });
+      verifier('les touches ≤ ≥ < > du clavier à l\'écran écrivent dans la ligne du 6.7',
+        kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt
+          && kbTape.indexOf('≤') >= 0 && kbTape.indexOf('≥') >= 0
+          && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0 && kbFerme,
+        (kbRects.ouvert ? '' : 'le clavier ne s\'ouvre pas au ⌨️ ; ')
+          + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt'].filter(t => kbRects[t]).join(' ')
+          + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
+          + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
+      verifier('le raccourci « >= » écrit ≥ dans la feuille du 6.7',
+        /n≥1/.test(kbRacc),
+        'lu : ' + JSON.stringify(kbRacc.slice(0, 60)));
       /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
          une règle plus spécifique peut la repeindre, et c'est arrivé sur la
          phrase des couleurs du 6.3 sans qu'un caractère du HTML ne le dise. */
@@ -3191,6 +3250,111 @@ async function parcours(page, N){
           + JSON.stringify(manque.rouges) + ', score ' + manque.score
           + ' — attendu 6 vertes, 1 rouge (le mot « hérédité »), et aucun point');
       verifier('la récurrence rédigée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 novodecies. {suite-auxiliaire-redaction} : les quatre feuilles sur du VRAI MathLive ===== */
+    /* Le 6.8 rédige ses QUATRE questions dans quatre feuilles : seul un vrai
+       MathLive fait le trajet frappe → sérialisation → juge. On TAPE la
+       définition de la question a) — V_n puis « +1 », le + sorti de l'indice
+       par la barre d'espace, la leçon du 6.7 — et on relit ce que le juge en
+       fait ; puis la copie de la fiche est posée dans les quatre feuilles,
+       « Vérifier » est CLIQUÉ (modèle stubbé) et la note se lit sur ce que le
+       bouton enregistre. Le bord opposé : la feuille c) vidée rougit ses deux
+       critères en se NOMMANT, et le point n'est pas donné malgré l'accord du
+       modèle stubbé — le refus de la page prime. */
+    titre('6 novodecies. LA SUITE AUXILIAIRE RÉDIGÉE : QUATRE FEUILLES, UN JUGE');
+    if(!P.suiteAuxRedigee){
+      ignorer('le 6.8 : le geste tapé et la copie de la fiche passent sur du vrai MathLive',
+        'ce niveau n\'a pas l\'exercice de suite auxiliaire rédigée');
+      ignorer('le 6.8 : la partie c) vidée rougit en se nommant, sans le point',
+        'ce niveau n\'a pas l\'exercice de suite auxiliaire rédigée');
+    } else if(!ml){
+      ignorer('le 6.8 : le geste tapé et la copie de la fiche passent sur du vrai MathLive', 'MathLive absent');
+      ignorer('le 6.8 : la partie c) vidée rougit en se nommant, sans le point', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.suiteAuxRedigee.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1400);
+      /* la question est ÉPINGLÉE (le cas de la fiche : p=5, k=4000, U₀=10000),
+         et le modèle stubbé — la copie doit coller à l'énoncé tiré, sinon le
+         juge refuserait à bon droit */
+      const C0 = { p: 5, a: 0.95, b: 200, k: 4000, u0: 10000, v0: 6000 };
+      await s.page.evaluate(c => {
+        window.__envoye = null;
+        sb.functions.invoke = async function(nom, opts){
+          if(opts && opts.body && opts.body.action === 'verif'){
+            window.__envoye = opts.body;
+            return { data: { correct: true, feedback: 'Retour du modèle stubbé.' } };
+          }
+          return { data: {} };
+        };
+        test.questions[0] = c; test.idx = 0; renderSAR();
+      }, C0);
+      await s.page.waitForTimeout(600);
+      /* LE GESTE : V_n, la barre d'espace qui sort de l'indice, « +1 ». Le
+         champ se CLIQUE avant de taper — un focus() posé pendant que MathLive
+         s'installe avale les premières frappes, et la mesure accuserait la
+         page d'un défaut qu'elle n'a pas. */
+      await s.page.click('#sarSheetA math-field');
+      await s.page.waitForTimeout(400);
+      await s.page.keyboard.type('V_n +1 = U_n +1 - 4000', { delay: 30 });
+      await s.page.waitForTimeout(250);
+      const geste = await s.page.evaluate(() => {
+        const l = sarTexteDe('a').split('\n')[0];
+        const j = sarJuge(test.questions[0], { a: sarTexteDe('a'), b: '', c: '', d: '' });
+        return { ligne: l, def: j.crit[0].ok };
+      });
+      /* LA COPIE DE LA FICHE, posée dans les quatre feuilles, puis le CLIC */
+      const COPIE = {
+        a: ['V_{n+1}=U_{n+1}-4000', '=0.95U_n+200-4000', '=0.95U_n-3800', '=0.95(U_n-4000)', '=0.95V_n'],
+        b: ['V_0=U_0-4000=10000-4000=6000'],
+        c: ['(V_n)\\;est\\;une\\;suite\\;geometrique\\;de\\;raison\\;0.95\\;et\\;de\\;premier\\;terme\\;6000', 'V_n=6000\\times0.95^n'],
+        d: ['V_n=U_n-4000\\;donc\\;U_n=V_n+4000', 'U_n=6000\\times0.95^n+4000']
+      };
+      const poserTout = cp => s.page.evaluate(c => {
+        ['a', 'b', 'c', 'd'].forEach(p => {
+          const F = sarFeuilles[p];
+          while(F.lignes.length < c[p].length) F.ajouterLigne(F.lignes.length - 1);
+          F.lignes.forEach((L, i) => L.mf.setValue(c[p][i] || ''));
+        });
+      }, cp);
+      await poserTout(COPIE);
+      await s.page.waitForTimeout(300);
+      await s.page.click('#sarActions .btn-primary');
+      await s.page.waitForTimeout(900);
+      const plein = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#sarFeedback .fb-ok').length,
+        ko: document.querySelectorAll('#sarFeedback .fb-ko').length,
+        score: test.score, locked: test.locked,
+        regle: !!(window.__envoye && String(window.__envoye.attendu || '').indexOf('RÈGLE DE DÉCISION') >= 0)
+      }));
+      verifier('le 6.8 : le geste tapé et la copie de la fiche passent sur du vrai MathLive',
+        geste.def && plein.ok === 8 && plein.ko === 0 && plein.score === 1 && plein.locked && plein.regle,
+        'geste lu : ' + JSON.stringify(geste.ligne.slice(0, 60)) + (geste.def ? '' : ' — la définition tapée n\'est pas reconnue')
+          + ' ; copie pleine : ' + plein.ok + ' verte(s), ' + plein.ko + ' rouge(s), score ' + plein.score
+          + (plein.regle ? '' : ', la règle ne part pas au modèle'));
+      /* LE BORD OPPOSÉ : c) vidée — deux critères rouges qui se NOMMENT, et le
+         refus de la page prime sur l'accord du modèle stubbé */
+      await s.page.evaluate(c => { test.questions[0] = c; test.idx = 0; test.score = 0; test.answers = []; renderSAR(); }, C0);
+      await s.page.waitForTimeout(600);
+      await poserTout({ ...COPIE, c: [''] });
+      await s.page.waitForTimeout(300);
+      await s.page.click('#sarActions .btn-primary');
+      await s.page.waitForTimeout(900);
+      const sansC = await s.page.evaluate(() => {
+        const kos = [...document.querySelectorAll('#sarFeedback .fb-ko')].map(e => e.textContent);
+        return { ko: kos.length, nomme: kos.every(t => t.trim().indexOf('✗ c)') === 0), score: test.score };
+      });
+      verifier('le 6.8 : la partie c) vidée rougit en se nommant, sans le point',
+        sansC.ko === 2 && sansC.nomme && sansC.score === 0,
+        sansC.ko + ' rouge(s)' + (sansC.nomme ? ' (les deux disent « c) »)' : ' — les croix ne nomment pas c)')
+          + ', score ' + sansC.score);
+      verifier('la suite auxiliaire rédigée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }

@@ -3217,8 +3217,49 @@ function recurrenceRedigee(w, apres){
   if(!present.ok || !present.valeur){
     ignorer('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture',
       'ce niveau n\'a pas l\'exercice de récurrence rédigée');
-    return devoirPapierClique(w, apres);
+    return suiteAuxRedigee(w, apres);
   }
+
+  /* ---------- 0. Le clavier à l'écran du 6.7 porte ≤ ≥ < > (demande de Turquet,
+     septembre 2026), et la liste blanche du mode rédaction garde les raccourcis
+     "<=" et ">=". Le clavier virtuel vit dans la greffe module, invisible à
+     jsdom : on ÉVALUE kbVarsFor depuis la SOURCE — la vraie table de routage,
+     pas une recherche de texte — et on tient le bord opposé : les touches ne
+     fuient pas sur les autres suites, la demande nomme le 6.7. Le clic des
+     touches RENDUES, lui, est au banc navigateur — la doctrine du bouton mort. */
+  {
+    const pbs = [];
+    const srcKb = lire(CIBLE);
+    const fKb = corpsFonctions(srcKb, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+      .find(o => o.nom === 'kbVarsFor');
+    if(!fKb) pbs.push('kbVarsFor est introuvable dans la source');
+    else{
+      let kv = null;
+      try{ kv = new Function('KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({ usq: 1 }, { n: 1 }); }
+      catch(e){ pbs.push('kbVarsFor ne s\'évalue pas : ' + e.message); }
+      if(kv){
+        const touches = id => (kv(id) || []).map(k => k && (k.latex || k.key)).filter(Boolean);
+        const rr = touches('recurrence-redaction');
+        ['\\le', '\\ge', '<', '>'].forEach(l => {
+          if(rr.indexOf(l) === -1) pbs.push('la touche « ' + l + ' » manque au clavier du 6.7 (rangée : ' + rr.join(' ') + ')');
+        });
+        const sa = touches('suite-auxiliaire');
+        if(sa.some(l => l === '\\le' || l === '\\ge' || l === '<' || l === '>'))
+          pbs.push('les touches d\'inégalité fuient hors du 6.7 (suite-auxiliaire : ' + sa.join(' ') + ')');
+      }
+    }
+    const garder = (srcKb.match(/const garder = \[([^\]]*)\]/) || [])[1] || '';
+    if(garder.indexOf('">="') === -1) pbs.push('le raccourci ">=" n\'est plus gardé par la liste blanche du mode rédaction');
+    if(garder.indexOf('"<="') === -1) pbs.push('le raccourci "<=" n\'est plus gardé par la liste blanche du mode rédaction');
+    /* et l'aide ☰ les DIT — un raccourci que rien ne dit est une aide que
+       personne ne demande. Les entités traversent innerHTML, donc &lt;= EST
+       « <= » à l'écran. */
+    if(!/&lt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « <= »');
+    if(!/&gt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « >= »');
+    verifier('le 6.7 : le clavier à l\'écran porte ≤ ≥ < > et garde les raccourcis <= et >=',
+      pbs.length === 0, pbs.join(' | '));
+  }
+
   let borne;
   try{
     borne = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8')
@@ -3227,7 +3268,7 @@ function recurrenceRedigee(w, apres){
   if(!borne){
     verifier('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture',
       false, 'la troncature de « attendu » est introuvable dans supabase/functions/corriger-definition/index.ts');
-    return devoirPapierClique(w, apres);
+    return suiteAuxRedigee(w, apres);
   }
 
   evalPromis(w, `(async function(){
@@ -3778,12 +3819,198 @@ function recurrenceRedigee(w, apres){
     return vus.join(' | ');
   })()`, function(r){
     if(!r.ok){ verifier('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture', false,
-      'erreur JavaScript : ' + r.erreur); return devoirPapierClique(w, apres); }
+      'erreur JavaScript : ' + r.erreur); return suiteAuxRedigee(w, apres); }
     verifier('la récurrence rédigée : le juge de la page, la règle du modèle et la peinture',
       r.valeur === '', r.valeur);
     const marge = evaluer(w, 'window.__rrMarge'), pire = evaluer(w, 'window.__rrPire');
     if(r.valeur === '' && marge.ok && typeof marge.valeur === 'number')
       console.log('   · la règle la plus longue envoyée au modèle : ' + pire.valeur
+        + ' caractères, ' + marge.valeur + ' de marge sur ' + borne);
+    suiteAuxRedigee(w, apres);
+  });
+}
+/* ---------- Le 6.8 : la suite auxiliaire RÉDIGÉE ({suite-auxiliaire-redaction},
+   demande de Turquet, septembre 2026). Le tirage part de k et en dérive b : le
+   contrôle refait b = k(1 − a) en ENTIERS par sa propre arithmétique (la leçon
+   du 6.3) et tient les bornes de la demande — a strictement entre 0,5 et 1,
+   une baisse de 5 à 45 %, b multiple de 100 entre 100 et 10000. Le juge de la
+   page s'éprouve cas par cas dans les DEUX sens sur le cas de la FICHE
+   (p = 5, k = 4000, U₀ = 10000), lénience comprise — « geometrique » sans
+   accent, « 0.95 » au point, « 10 000 » à l'espace des milliers, le + tapé
+   hors de l'indice, l'ordre commuté V(n) × 0,95. La règle du modèle nomme les
+   quatre parties et le verdict de la page prime dans les deux sens ; et
+   checkSAR est CLIQUÉ, modèle stubbé — la note se lit sur ce que le bouton
+   enregistre, jamais sur le verdict seul (la leçon des sommes). ---------- */
+function suiteAuxRedigee(w, apres){
+  const present = evaluer(w, "typeof sarJuge==='function' && typeof checkSAR==='function' && typeof sarGen==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la suite auxiliaire rédigée : le tirage, le juge de la page et la note',
+      'ce niveau n\'a pas l\'exercice de suite auxiliaire rédigée');
+    return devoirPapierClique(w, apres);
+  }
+  let borne;
+  try{
+    borne = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8')
+      .match(/attendu\s*=\s*\(payload\.attendu[^;]*?slice\(0,\s*(\d+)\)/) || [])[1], 10);
+  }catch(e){ borne = undefined; }
+  if(!borne){
+    verifier('la suite auxiliaire rédigée : le tirage, le juge de la page et la note',
+      false, 'la troncature de « attendu » est introuvable dans supabase/functions/corriger-definition/index.ts');
+    return devoirPapierClique(w, apres);
+  }
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[], BORNE=${borne};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const feuille=function(texte){ return { lire:function(){ return texte; },
+      lignes:[{mf:{getValue:function(){ return texte; },focus:function(){},setValue:function(){},executeCommand:function(){}}}],
+      verrouiller:function(){} }; };
+    let MODELE={correct:true, panne:false}, envoye=null, appels=0;
+    sb.functions={ invoke:async function(nom, opts){
+      appels++; envoye=(opts&&opts.body)||null;
+      if(MODELE.panne) throw new Error('panne simulée');
+      return { data:{ correct:MODELE.correct, feedback:'Retour du modèle stubbé.' } };
+    } };
+
+    /* ---------- 1. LE TIRAGE : b = k(1 − a) refait en entiers, et les bornes de la demande ---------- */
+    const PLIST=[5,10,15,20,25,30,35,40,45];
+    for(let i=0;i<400;i++){
+      const c=sarGen(i%2?5:null);
+      if(i%2 && c.p===5){ vus.push('sarGen(5) rend p=5 : les deux questions peuvent porter la même baisse'); break; }
+      if(PLIST.indexOf(c.p)<0){ vus.push('p='+c.p+' hors de la liste des baisses'); break; }
+      if(!(c.a>0.5+1e-9 && c.a<1-1e-9)){ vus.push('a='+c.a+' n\\'est pas strictement entre 0,5 et 1'); break; }
+      if(Math.abs(c.a-(100-c.p)/100)>1e-12){ vus.push('a='+c.a+' ne vaut pas 1 − p/100 (p='+c.p+')'); break; }
+      if(c.b*100!==c.k*c.p){ vus.push('b = k(1 − a) faux en entiers : b·100='+(c.b*100)+' contre k·p='+(c.k*c.p)); break; }
+      if(c.b%100!==0 || c.b<100 || c.b>10000){ vus.push('b='+c.b+' n\\'est pas un multiple de 100 entre 100 et 10000'); break; }
+      if(c.k%1000!==0 || c.k<2000){ vus.push('k='+c.k+' n\\'est pas un multiple de 1000 (au moins 2000)'); break; }
+      if(c.u0%1000!==0 || c.u0<=c.k){ vus.push('U0='+c.u0+' n\\'est pas un multiple de 1000 strictement au-dessus de k='+c.k); break; }
+      if(c.v0!==c.u0-c.k || c.v0<1000){ vus.push('V0='+c.v0+' ne vaut pas U0 − k, ou descend sous 1000'); break; }
+    }
+    await startSAR();
+    if(currentTestId!=='suite-auxiliaire-redaction') vus.push('startSAR ne pose pas son identifiant : '+currentTestId);
+    if(test.kind!=='sar') vus.push('startSAR ne pose pas son kind : '+test.kind);
+    if(test.questions.length!==2) vus.push(test.questions.length+' question(s) au lieu de 2');
+    if(test.questions[0].p===test.questions[1].p) vus.push('les deux questions portent la même baisse ('+test.questions[0].p+' %)');
+    if(test.maxScore!==test.questions.length) vus.push('barème posé à '+test.maxScore);
+
+    /* ---------- 2. LE JUGE, cas par cas sur le cas de la FICHE, épinglé ---------- */
+    const C0={p:5,a:0.95,b:200,k:4000,u0:10000,v0:6000};
+    test.questions[0]=C0; test.idx=0; test.locked=false;
+    /* La copie pleine porte EXPRÈS la lénience : « 10 000 » à l'espace des
+       milliers, « geometrique » sans accent, « 0.95 » au point. */
+    const PA='V_(n+1) = U_(n+1) − 4000\\n= 0,95 U_(n) + 200 − 4000\\n= 0,95 U_(n) − 3800\\n= 0,95 ( U_(n) − 4000 )\\n= 0,95 V_(n)';
+    const PB='V_0 = U_0 − 4000 = 10 000 − 4000 = 6000';
+    const PC='(V_(n)) est une suite geometrique de raison 0.95 et de premier terme 6000\\nV_(n) = 6000 × 0,95^(n)';
+    const PD='V_(n) = U_(n) − 4000 donc U_(n) = V_(n) + 4000\\nU_(n) = 6000 × 0,95^(n) + 4000';
+    const PLEINE={a:PA,b:PB,c:PC,d:PD};
+    const rate=function(jx){ return jx.crit.filter(x=>!x.ok).map(x=>x.cle).join(','); };
+    let j=sarJuge(C0,PLEINE);
+    if(j.verdict!=='accepte') vus.push('la copie de la fiche ne passe pas au juge ('+j.verdict+', rate : '+rate(j)+') : c\\'est le juge qui a tort');
+    if(j.fausses.length) vus.push('la copie de la fiche porte une « comparaison fausse » : '+j.fausses[0]);
+    const cas=[
+      ['a-def', {...PLEINE, a:'= 0,95 U_(n) + 200 − 4000\\n= 0,95 U_(n) − 3800\\n= 0,95 V_(n)'}],
+      ['a-rec', {...PLEINE, a:'V_(n+1) = U_(n+1) − 4000\\n= 0,95 V_(n)'}],
+      ['a-fin', {...PLEINE, a:'V_(n+1) = U_(n+1) − 4000\\n= 0,95 U_(n) + 200 − 4000\\n= 0,95 U_(n) − 3800'}],
+      ['b',     {...PLEINE, b:'V_0 = U_0 − 4000 = 5000'}],
+      ['c-mot', {...PLEINE, c:'la raison est 0,95\\nV_(n) = 6000 × 0,95^(n)'}],
+      ['c-exp', {...PLEINE, c:'(V_(n)) est une suite geometrique de raison 0,95'}],
+      ['d-for', {...PLEINE, d:'U_(n) = 6000 × 0,95^(n) + 4000'}],
+      ['d-res', {...PLEINE, d:'V_(n) = U_(n) − 4000 donc U_(n) = V_(n) + 4000'}]
+    ];
+    cas.forEach(function(cx){
+      const jx=sarJuge(C0,cx[1]), r=rate(jx);
+      if(r!==cx[0]) vus.push('cas « '+cx[0]+' » : rate ['+r+'] au lieu de ['+cx[0]+']');
+      if(jx.verdict!=='refus') vus.push('cas « '+cx[0]+' » : verdict '+jx.verdict+' au lieu de refus');
+    });
+    /* la lénience restante : l'ordre commuté, et le + tapé hors de l'indice */
+    j=sarJuge(C0,{...PLEINE, a:PA.split('\\n').slice(0,4).join('\\n')+'\\n= V_(n) × 0,95'});
+    if(rate(j)) vus.push('« V_(n) × 0,95 » commuté est refusé : '+rate(j));
+    j=sarJuge(C0,{...PLEINE, a:'V_(n)+1 = U_(n)+1 − 4000\\n'+PA.split('\\n').slice(1).join('\\n')});
+    if(rate(j)) vus.push('le + tapé hors de l\\'indice est refusé : '+rate(j));
+    /* la factorisation directe — sans le nombre intermédiaire 3800 — est une
+       copie JUSTE que la page ne sait pas tout vérifier : abstention, jamais
+       refus */
+    const ABST={...PLEINE, a:PA.replace('= 0,95 U_(n) − 3800\\n','')};
+    j=sarJuge(C0,ABST);
+    if(j.verdict!=='abstention') vus.push('la factorisation directe donne « '+j.verdict+' » au lieu d\\'une abstention'+(rate(j)?' (rate : '+rate(j)+')':''));
+    /* une comparaison numérique fausse est un refus prouvable, nommé */
+    j=sarJuge(C0,{...PLEINE, b:PB+'\\n6000 = 5000'});
+    if(j.verdict!=='refus' || j.fausses[0]!=='6000 = 5000') vus.push('« 6000 = 5000 » : verdict '+j.verdict+', fausses ['+j.fausses.join(' ; ')+']');
+
+    /* ---------- 3. LA RÈGLE envoyée au modèle ---------- */
+    j=sarJuge(C0,PLEINE);
+    const regle=sarAttenduIA(C0,j);
+    const iRD=regle.indexOf('RÈGLE DE DÉCISION');
+    const apresRD=iRD<0?'':regle.slice(iRD);
+    if(iRD<0) vus.push('la règle n\\'a plus de « RÈGLE DE DÉCISION »');
+    if(apresRD.indexOf('V(n+1) = U(n+1) − 4000')<0) vus.push('la règle ne nomme plus la chaîne du a)');
+    if(apresRD.indexOf('GÉOMÉTRIQUE')<0) vus.push('la règle ne nomme plus la nature attendue au c)');
+    if(apresRD.indexOf('U(n) = 6000 × 0,95^n + 4000')<0) vus.push('la règle ne nomme plus l\\'expression finale du d)');
+    if(regle.indexOf('VERDICT DE LA PAGE, PRIORITAIRE')<0) vus.push('le verdict d\\'acceptation ne prime plus dans la règle');
+    if(regle.indexOf('INTERDIT DE REFUSER POUR LA FORME')<0) vus.push('la règle n\\'interdit plus le refus pour la forme');
+    const jAbs=sarJuge(C0,ABST);
+    if(sarAttenduIA(C0,jAbs).indexOf('VERDICT DE LA PAGE, PRIORITAIRE')>=0) vus.push('le bloc prioritaire part sur une abstention');
+    const pire=Math.max(regle.length, sarAttenduIA(C0,jAbs).length, sarAttenduIA(C0,sarJuge(C0,{a:'',b:'',c:'',d:''})).length);
+    window.__sarMarge=BORNE-pire; window.__sarPire=pire;
+    if(pire>BORNE) vus.push('la règle dépasse la troncature de la fonction Edge : '+pire+' caractères pour '+BORNE);
+
+    /* ---------- 4. checkSAR CLIQUÉ : la note se lit sur ce que le bouton enregistre ---------- */
+    const arme=function(cp){ sarFeuilles={a:feuille(cp.a),b:feuille(cp.b),c:feuille(cp.c),d:feuille(cp.d)};
+      test.idx=0; test.locked=false; test.score=0; test.answers=[]; sarBusy=false; appels=0; envoye=null;
+      $('sarFeedback').textContent=''; $('sarFeedback').className='mp-feedback'; };
+    const peint=function(){ const f=$('sarFeedback');
+      return { ok:f.querySelectorAll('.fb-ok').length, ko:f.querySelectorAll('.fb-ko').length, txt:f.textContent }; };
+    arme(PLEINE); MODELE={correct:true, panne:false};
+    await checkSAR();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true) vus.push('copie pleine, modèle d\\'accord : score '+test.score);
+    if(!envoye || String(envoye.attendu||'').indexOf('RÈGLE DE DÉCISION')<0) vus.push('la règle ne part pas au modèle');
+    if(peint().ok!==8) vus.push('copie pleine : '+peint().ok+' coche(s) verte(s) au lieu de 8');
+    if(!test.locked) vus.push('copie pleine : l\\'écran n\\'est pas verrouillé');
+    arme(PLEINE); MODELE={correct:false, panne:false};
+    await checkSAR();
+    if(test.score!==1 || test.answers[0].correct!==true) vus.push('le refus du modèle prime encore sur une copie que la page a TOUT vérifiée (score '+test.score+')');
+    const SANSC={...PLEINE, c:''};
+    arme(SANSC); MODELE={correct:true, panne:false};
+    await checkSAR();
+    if(test.score!==0 || test.answers[0].correct!==false) vus.push('c) vide et l\\'accord du modèle donne le point (score '+test.score+')');
+    if(peint().ko!==2) vus.push('c) vide : '+peint().ko+' croix rouge(s) au lieu de 2');
+    if(!envoye || String(envoye.attendu||'').indexOf('MANQUE')<0) vus.push('le manque relevé ne part pas au modèle');
+    arme({...PLEINE, b:PB+'\\n6000 = 5000'}); MODELE={correct:true, panne:false};
+    await checkSAR();
+    if(appels!==0) vus.push('le modèle est appelé sur un refus que la page sait prononcer');
+    if(test.score!==0 || test.answers[0].correct!==false) vus.push('« 6000 = 5000 » écrit et le point est donné (score '+test.score+')');
+    if(peint().txt.indexOf('6000 = 5000')<0) vus.push('la comparaison fausse n\\'est pas nommée dans le bilan');
+    arme(PLEINE); MODELE={correct:true, panne:true};
+    await checkSAR();
+    if(test.score!==1 || !test.answers.length || test.answers[0].correct!==true)
+      vus.push('modèle en panne sur une copie tout vérifiée : la page ne conclut pas seule (score '+test.score+')');
+    if(!test.locked) vus.push('modèle en panne sur une copie tout vérifiée : l\\'écran n\\'est pas verrouillé');
+    arme(ABST); MODELE={correct:true, panne:true};
+    await checkSAR();
+    if(test.score!==0 || test.answers.length!==0) vus.push('modèle en panne sur une abstention : la page compte quand même (score '+test.score+')');
+    if(test.locked) vus.push('modèle en panne sur une abstention : l\\'écran est verrouillé');
+    if(peint().ok+peint().ko!==8) vus.push('modèle en panne : le bilan de la page n\\'est plus affiché');
+    currentMode='soutien';
+    arme(SANSC); MODELE={correct:true, panne:false};
+    await checkSAR();
+    if(test.locked) vus.push('en soutien, un refus verrouille l\\'écran');
+    currentMode='train';
+    arme({a:'',b:'',c:'',d:''}); MODELE={correct:true, panne:false};
+    await checkSAR();
+    if(appels!==0) vus.push('le modèle est appelé sur une copie vide');
+    if(peint().ok+peint().ko!==0) vus.push('la copie vide reçoit des couleurs');
+    if(test.answers.length || test.score) vus.push('la copie vide est comptée');
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok){ verifier('la suite auxiliaire rédigée : le tirage, le juge de la page et la note', false,
+      'erreur JavaScript : ' + r.erreur); return devoirPapierClique(w, apres); }
+    verifier('la suite auxiliaire rédigée : le tirage, le juge de la page et la note',
+      r.valeur === '', r.valeur);
+    const marge = evaluer(w, 'window.__sarMarge'), pire = evaluer(w, 'window.__sarPire');
+    if(r.valeur === '' && marge.ok && typeof marge.valeur === 'number')
+      console.log('   · la règle la plus longue envoyée au modèle (6.8) : ' + pire.valeur
         + ' caractères, ' + marge.valeur + ' de marge sur ' + borne);
     devoirPapierClique(w, apres);
   });
