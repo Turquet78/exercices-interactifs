@@ -3219,6 +3219,47 @@ function recurrenceRedigee(w, apres){
       'ce niveau n\'a pas l\'exercice de récurrence rédigée');
     return devoirPapierClique(w, apres);
   }
+
+  /* ---------- 0. Le clavier à l'écran du 6.7 porte ≤ ≥ < > (demande de Turquet,
+     septembre 2026), et la liste blanche du mode rédaction garde les raccourcis
+     "<=" et ">=". Le clavier virtuel vit dans la greffe module, invisible à
+     jsdom : on ÉVALUE kbVarsFor depuis la SOURCE — la vraie table de routage,
+     pas une recherche de texte — et on tient le bord opposé : les touches ne
+     fuient pas sur les autres suites, la demande nomme le 6.7. Le clic des
+     touches RENDUES, lui, est au banc navigateur — la doctrine du bouton mort. */
+  {
+    const pbs = [];
+    const srcKb = lire(CIBLE);
+    const fKb = corpsFonctions(srcKb, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+      .find(o => o.nom === 'kbVarsFor');
+    if(!fKb) pbs.push('kbVarsFor est introuvable dans la source');
+    else{
+      let kv = null;
+      try{ kv = new Function('KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({ usq: 1 }, { n: 1 }); }
+      catch(e){ pbs.push('kbVarsFor ne s\'évalue pas : ' + e.message); }
+      if(kv){
+        const touches = id => (kv(id) || []).map(k => k && (k.latex || k.key)).filter(Boolean);
+        const rr = touches('recurrence-redaction');
+        ['\\le', '\\ge', '<', '>'].forEach(l => {
+          if(rr.indexOf(l) === -1) pbs.push('la touche « ' + l + ' » manque au clavier du 6.7 (rangée : ' + rr.join(' ') + ')');
+        });
+        const sa = touches('suite-auxiliaire');
+        if(sa.some(l => l === '\\le' || l === '\\ge' || l === '<' || l === '>'))
+          pbs.push('les touches d\'inégalité fuient hors du 6.7 (suite-auxiliaire : ' + sa.join(' ') + ')');
+      }
+    }
+    const garder = (srcKb.match(/const garder = \[([^\]]*)\]/) || [])[1] || '';
+    if(garder.indexOf('">="') === -1) pbs.push('le raccourci ">=" n\'est plus gardé par la liste blanche du mode rédaction');
+    if(garder.indexOf('"<="') === -1) pbs.push('le raccourci "<=" n\'est plus gardé par la liste blanche du mode rédaction');
+    /* et l'aide ☰ les DIT — un raccourci que rien ne dit est une aide que
+       personne ne demande. Les entités traversent innerHTML, donc &lt;= EST
+       « <= » à l'écran. */
+    if(!/&lt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « <= »');
+    if(!/&gt;=<\/kbd>/.test(srcKb)) pbs.push('la fenêtre des raccourcis (☰) ne dit plus « >= »');
+    verifier('le 6.7 : le clavier à l\'écran porte ≤ ≥ < > et garde les raccourcis <= et >=',
+      pbs.length === 0, pbs.join(' | '));
+  }
+
   let borne;
   try{
     borne = parseInt((fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8')

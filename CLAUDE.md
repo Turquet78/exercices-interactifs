@@ -4220,6 +4220,25 @@ une CHAÎNE d'encadrements — « 0 ≤ 2 ≤ U(n+1) ≤ 8 » — écrit les ima
 conclut d'un coup, le modèle n'exige jamais qu'elles soient posées sur une
 ligne à part. Trois sabotages de plus, chacun rougissant en nommant son
 défaut.
+**Puis le clavier À L'ÉCRAN a gagné les quatre inégalités** (demande de
+Turquet, septembre 2026 : « les touches inférieur ou égale et supérieur ou
+égale… et strictement < et strictement > aussi ») : sur le 6.7, la première
+rangée du clavier virtuel — celle que `kbVarsFor()` fait varier selon
+l'exercice, Uₓ et n pour les suites — porte aussi ≤, ≥, < et >. La demande
+nomme le 6.7, et la table de routage l'y tient : les touches ne fuient pas
+sur les autres suites — le bord opposé a son contrôle. Les raccourcis
+« <= » et « >= », eux, existaient déjà — la liste blanche du mode rédaction
+les garde depuis le premier jour — : le contrôle les ÉPINGLE au lieu de les
+supposer, et la fenêtre des raccourcis (☰) les DIT désormais, parce qu'un
+raccourci que rien ne dit est une aide que personne ne demande. Deux bancs,
+la répartition habituelle : jsdom ÉVALUE `kbVarsFor` depuis la SOURCE (le
+clavier vit dans la greffe module, qu'il ne sait pas charger) — la vraie
+table de routage, pas une recherche de texte ; le NAVIGATEUR ouvre le
+clavier par le vrai bouton ⌨️, CLIQUE les quatre touches RENDUES et relit
+la ligne aplatie — la doctrine du bouton mort —, tape « >= » et lit ≥, puis
+REFERME le clavier : resté ouvert, il recouvrirait les boutons que la suite
+du banc clique. Quatre sabotages de plus, chacun rougissant en nommant son
+défaut.
 **La reprise après une pause remet la rédaction.** Elle voyage DANS `test` —
 que `snapshotTest` photographie en entier — et non dans `_boxes`, qui ne sait
 restaurer que des cases à id : la feuille n'en a aucune. Le curseur revient AU
@@ -4239,8 +4258,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante-quatre
-sabotages en tout (cinquante-cinq au banc principal, neuf au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Soixante-huit
+sabotages en tout (cinquante-neuf au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur

@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=284;
+const APP_VERSION=285;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -17431,7 +17431,13 @@ const KB_N = {latex:"n"};
 const KB_USQ = {tooltip:"U indice", insert:"U_{#0}",
   label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><text x="3.5" y="16.5" style="font:italic 700 18px KaTeX_Math,Georgia,serif;fill:currentColor">U</text><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>'};
 function kbVarsFor(id){
-  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete' || id === 'recurrence-redaction') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  /* 6.7 (récurrence rédigée) : les touches ≤ ≥ < > sur le clavier à l'écran
+     (demande de Turquet, septembre 2026) — l'encadrement s'écrit au doigt, et
+     les raccourcis "<=" / ">=" restent tenus par la liste blanche _motsFR. */
+  if(id === 'recurrence-redaction') return [KB_USQ, KB_N,
+    {latex:"\\le",tooltip:"inférieur ou égal"},{latex:"\\ge",tooltip:"supérieur ou égal"},
+    {latex:"<",tooltip:"strictement inférieur"},{latex:">",tooltip:"strictement supérieur"}];
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
@@ -17781,6 +17787,8 @@ function setupKeyboard(){
       "<tr><td><kbd>sin</kbd></td><td>fonctions trigonométriques (aussi cos, tan, arcsin, arccos, arctan)</td></tr>"+
       "<tr><td><kbd>in</kbd></td><td>∈ (appartient)</td></tr>"+
       "<tr><td><kbd>_</kbd></td><td>indice u<sub>n</sub></td></tr>"+
+      "<tr><td><kbd>&lt;=</kbd></td><td>≤ (inférieur ou égal)</td></tr>"+
+      "<tr><td><kbd>&gt;=</kbd></td><td>≥ (supérieur ou égal)</td></tr>"+
       '</table></div>';
     document.body.appendChild(helpWin);
     helpWin.addEventListener("pointerdown", (e)=>{ e.preventDefault(); });  /* ne vole jamais le focus */

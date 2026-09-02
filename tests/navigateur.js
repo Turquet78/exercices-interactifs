@@ -3137,6 +3137,65 @@ async function parcours(page, N){
         /U_\(n\+1\)/.test(style.derniere) && /≤/.test(style.derniere) && style.montre,
         'lu : ' + JSON.stringify(style.derniere.slice(0, 120))
           + ', montre ' + (style.montre ? 'accepté' : 'REFUSÉ'));
+      /* LES TOUCHES ≤ ≥ < > DU CLAVIER À L'ÉCRAN (demande de Turquet, septembre
+         2026) : une touche se prouve en la CLIQUANT sur le clavier RENDU — la
+         doctrine du bouton mort ; jsdom lit déjà la table de la greffe. On ouvre
+         par le vrai bouton ⌨️ du 6.7, on clique les quatre touches, on relit la
+         ligne APLATIE, puis on tape « >= » — le raccourci jumeau du « <= » que
+         le témoin tient déjà. Le clavier est REFERMÉ ensuite : ouvert, il
+         recouvrirait les boutons que la suite du banc clique. */
+      await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        window.__rrAvantKb = L.mf.getValue();
+        L.mf.setValue(''); L.mf.focus();
+      });
+      await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
+      await s.page.waitForTimeout(800);
+      const kbRects = await s.page.evaluate(() => {
+        const vk = window.mathVirtualKeyboard;
+        const caps = Array.from(document.querySelectorAll('#kbwin [class*="keycap"], body > .ML__keyboard [class*="keycap"]'));
+        const de = t => { const c = caps.find(k => k.textContent.trim() === t);
+          if(!c) return null; const r = c.getBoundingClientRect();
+          return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
+        return { ouvert: !!(vk && vk.visible), le: de('≤'), ge: de('≥'), lt: de('<'), gt: de('>') };
+      });
+      for(const t of ['le', 'ge', 'lt', 'gt']){
+        if(kbRects[t]){ await s.page.mouse.click(kbRects[t].x, kbRects[t].y); await s.page.waitForTimeout(120); }
+      }
+      const kbTape = await s.page.evaluate(() => {
+        const lignes = rrTexte().split('\n');
+        return lignes[lignes.length - 1];
+      });
+      await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        L.mf.setValue(''); L.mf.focus();
+      });
+      await s.page.keyboard.type('n>=1', { delay: 40 });
+      await s.page.waitForTimeout(250);
+      const kbRacc = await s.page.evaluate(() => {
+        const lignes = rrTexte().split('\n');
+        return lignes[lignes.length - 1];
+      });
+      await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
+      await s.page.waitForTimeout(400);
+      const kbFerme = await s.page.evaluate(() => {
+        const vk = window.mathVirtualKeyboard;
+        const w = document.getElementById('kbwin');
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        L.mf.setValue(window.__rrAvantKb || '');
+        return !(vk && vk.visible) && !(w && w.classList.contains('open'));
+      });
+      verifier('les touches ≤ ≥ < > du clavier à l\'écran écrivent dans la ligne du 6.7',
+        kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt
+          && kbTape.indexOf('≤') >= 0 && kbTape.indexOf('≥') >= 0
+          && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0 && kbFerme,
+        (kbRects.ouvert ? '' : 'le clavier ne s\'ouvre pas au ⌨️ ; ')
+          + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt'].filter(t => kbRects[t]).join(' ')
+          + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
+          + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
+      verifier('le raccourci « >= » écrit ≥ dans la feuille du 6.7',
+        /n≥1/.test(kbRacc),
+        'lu : ' + JSON.stringify(kbRacc.slice(0, 60)));
       /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
          une règle plus spécifique peut la repeindre, et c'est arrivé sur la
          phrase des couleurs du 6.3 sans qu'un caractère du HTML ne le dise. */
