@@ -2380,6 +2380,32 @@ notes réellement obtenues. Un devoir enregistré alors porte encore `rep` et
 contrôles tiennent les deux bords — que le réglage ne revienne pas par
 l'éditeur, et que les vieilles notes se lisent toujours.
 
+**L'ordre des exercices d'un DEVOIR se règle en Terminale — l'affichage,
+jamais un verrou.** Demande de Turquet (septembre 2026) : « en Terminale je
+n'arrive pas à changer l'ordre des exercices dans les devoirs maison comme en
+1ère ». La Terminale n'a pas de fiches : ses devoirs sont sa seule famille, et
+son éditeur ne réglait pas l'ordre — pire, sa relecture du formulaire
+(`readEditorIntoDevoir`) réécrivait `exercices` dans l'ordre du MENU
+(`TEST_ORDER`) : le piège payé par la Seconde sur ses fiches, au même
+endroit — un ordre réglé aurait été écrasé à chaque enregistrement et à
+chaque changement de devoir, sans erreur nulle part. La relecture PRÉSERVE
+donc l'ordre rangé et ajoute les nouveaux cochés à la FIN ; le ruban ▲▼ de la
+Première est porté sous la liste des exercices, et cocher un mode le met à
+jour (`dmExoCoche` — sans ce re-rendu, l'exercice tout juste coché
+n'apparaîtrait dans le ruban qu'au prochain changement de devoir).
+**Rien d'autre n'a bougé, et c'est ce qui rend le geste sûr** : la liste de
+l'élève, la page du devoir, l'énoncé papier et le carnet itèrent déjà le
+tableau `exercices` — l'ordre les suit d'eux-mêmes, et `ensureDevoir()` garde
+ce tableau tel quel. **Et AUCUN verrou n'en découle** : « un devoir reste
+tout ouvert » (la décision d'août 2026, ci-dessus) tient — l'ordre réglé est
+celui de l'AFFICHAGE, l'élève fait les exercices comme il veut, et le
+contrôle exige ce bord-là aussi : aucune carte verrouillée sur la page du
+devoir. Quatre bords au contrôle — la relecture qui préserve et le nouveau
+coché en dernier, les flèches rendues (un ruban vidé garderait son `#dmOrdre`
+et resterait vert sans ce compte), le déplacement que l'enregistrement
+emporte tel quel, et l'écran de l'élève qui suit l'ordre du tableau — éprouvé
+par quatre sabotages, chacun rougissant en nommant son défaut.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
