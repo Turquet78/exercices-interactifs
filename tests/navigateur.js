@@ -3010,6 +3010,7 @@ async function parcours(page, N){
           L.mf.setValue(avant[avant.length - 1]);
         }catch(e){}
         return { lignes: rrFeuille.lignes.length, txt: txt, crit: j.crit.map(x => (x.ok ? '' : x.cle)).filter(Boolean),
+                 verdict: j.verdict, fausses: (j.fausses || []).join(', '),
                  jetonLigne: ou, derniere: rrFeuille.lignes.length - 1,
                  clavier: [...document.querySelectorAll('#scr-rr button')]
                    .some(b => /clavier math/i.test(b.getAttribute('title') || '')) };
@@ -3028,6 +3029,15 @@ async function parcours(page, N){
         vu.lignes + ' ligne(s), lecture en ' + vu.txt.split('\n').length + ' morceau(x)');
       verifier('la copie tapée passe les sept critères de la page',
         vu.crit.length === 0, 'refusée sur : ' + vu.crit.join(', '));
+      /* LE VERDICT D'ACCEPTATION TIENT SUR DU VRAI MATHLIVE — c'est le bord
+         que la production a payé : la copie arrive au juge APLATIE par la
+         vraie sérialisation, et celle-ci ne doit ni cacher les images par f
+         ni fabriquer une comparaison numérique fausse. jsdom l'éprouve sur
+         des chaînes qu'il écrit lui-même ; seul un vrai MathLive écrit les
+         siennes. */
+      verifier('le juge accepte la copie tapée : le modèle ne peut plus la refuser',
+        vu.verdict === 'accepte',
+        'verdict « ' + vu.verdict + ' », comparaisons relevées : [' + vu.fausses + ']');
       verifier('un jeton tombe dans la ligne où l\'élève écrit',
         vu.jetonLigne === vu.derniere && vu.clavier,
         'inséré dans la ligne ' + vu.jetonLigne + ' au lieu de ' + vu.derniere

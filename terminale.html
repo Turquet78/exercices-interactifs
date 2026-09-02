@@ -1756,7 +1756,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <ul class="rr-attendu">
         <li><b>Initialisation</b>&nbsp;: écris le mot, vérifie l&rsquo;encadrement avec la <b>valeur</b> de U au rang de départ, et dis que c&rsquo;est <b>vrai</b> à ce rang.</li>
         <li><b>Hérédité</b>&nbsp;: écris le mot <b>d&rsquo;abord</b> — il annonce la partie —, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;».</li>
-        <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> sur l&rsquo;intervalle. Puis élargis, et <b>conclus</b>.</li>
+        <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> sur l&rsquo;intervalle. Puis <b>élargis</b> pour retrouver l&rsquo;encadrement demandé. (La conclusion finale n&rsquo;est pas exigée.)</li>
       </ul>
       <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
       <div class="dexp2-sheet" id="rrSheet"></div>
@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=279;
+const APP_VERSION=280;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11026,6 +11026,35 @@ const RR_MOTS={
   montre: /(montrons|onmontre|nousmontrons|demontrons|ondemontre|prouvons|onprouve|montrerque|ilfautmontrer|onveutmontrer|onchercheamontrer)/,
   croiss: /croissan/
 };
+/* LES COMPARAISONS NUMÉRIQUES SE JUGENT DANS LA PAGE — un verdict qu'on peut
+   prouver ne se confie pas à un modèle (la leçon de libreJuge et de salJuge,
+   payée une nouvelle fois en production : le modèle a refusé une copie juste
+   en la disant « difficile à lire », signalé par Turquet, septembre 2026).
+   On ne juge une comparaison que si ses DEUX côtés sont PUREMENT numériques :
+   « f(8) = 7 » est une phrase parfaitement juste dont le côté gauche n'est pas
+   le nombre 8 — un extracteur qui prendrait les chiffres d'un côté impur y
+   lirait « 8 = 7 » et refuserait une copie correcte, le pire défaut du projet.
+   Ne pas savoir n'est pas faux : un côté impur ne se juge pas. */
+function rrValeurPure(s){
+  const p=String(s==null?'':s).trim().replace(/^[([{\s]+/,'').replace(/[)\]}.,;:!?\s]+$/,'');
+  return /^[+\-−]?\d+(?:[.,]\d+)?$/.test(p) ? parseFloat(p.replace('−','-').replace(',','.')) : null;
+}
+function rrFausses(t){
+  const out=[], ecrit=v=>String(v).replace('.',',');
+  String(t==null?'':t).split('\n').forEach(function(ligne){
+    const m=ligne.split(/([≤≥<>=])/);
+    for(let i=1;i<m.length;i+=2){
+      const g=rrValeurPure(m[i-1]), d=rrValeurPure(m[i+1]);
+      if(g===null||d===null) continue;
+      const op=m[i], e=1e-9;
+      const faux = op==='≤' ? g>d+e : op==='<' ? !(g<d-e)
+                 : op==='≥' ? g<d-e : op==='>' ? !(g>d+e)
+                 : Math.abs(g-d)>e;
+      if(faux) out.push(ecrit(g)+' '+op+' '+ecrit(d));
+    }
+  });
+  return out;
+}
 /* Le juge de la page. Il ne prononce que des faits prouvables ; le calcul, lui,
    part au modèle. Chaque critère porte son libellé (ce que l'élève lit) et une
    version COURTE (ce que le modèle reçoit, pour ne pas répéter la liste). */
@@ -11080,13 +11109,32 @@ function rrJuge(c, txt){
      l:'la justification : <i>f</i> est <b>croissante</b> sur l’intervalle',
      court:'la justification par la croissance de f'}
   ];
-  return {crit:crit, toutOk:crit.every(x=>x.ok)};
+  /* LE VERDICT, À TROIS POSITIONS — refuser sur un fait prouvable, accepter
+     quand tout ce qui est annoncé est positivement vérifié, s'abstenir sinon
+     (le modèle décide alors seul, comme avant). L'acceptation exige EN PLUS de
+     la structure : les IMAGES f(m) et f(M) écrites quelque part — les nombres
+     que l'élève calcule, ceux que l'énoncé ne donne pas — et aucune
+     comparaison numérique fausse. Une copie qui porte tout cela est une
+     démonstration complète : le modèle ne peut plus la refuser (signalé par
+     Turquet, septembre 2026 — il refusait une copie juste malgré la clause). */
+  const fausses=rrFausses(t);
+  const nbT=(t.match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
+  const aT=v=>nbT.some(x=>Math.abs(x-v)<1e-9);
+  const images=aT(c.fm)&&aT(c.fM);
+  const toutOk=crit.every(x=>x.ok);
+  const verdict=(!toutOk||fausses.length)?'refus':(images?'accepte':'abstention');
+  return {crit:crit, toutOk:toutOk, fausses:fausses, images:images, verdict:verdict};
 }
 /* Le bilan de la page : vert ce qui va, rouge ce qui manque — et le ✓ ou le ✗
    devant, parce que la couleur ne porte jamais seule. */
 function rrBilanHTML(j){
+  const faux=(j.fausses&&j.fausses.length)
+    ? '<li><span class="fb-ko">✗ tu as écrit « '+esc(j.fausses[0])+' », et c’est faux — reprends ce calcul'
+      +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
+    : '';
   return '<div class="rr-bilan"><b>Ta rédaction, point par point :</b><ul class="rr-crit">'
     + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + faux
     + '</ul></div>';
 }
 /* La démonstration de référence : elle sert la correction affichée en
@@ -11110,14 +11158,21 @@ function rrQuestionIA(c){
 }
 function rrAttenduIA(c,j){
   const manque=j.crit.filter(x=>!x.ok);
-  return 'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
-   +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE moments de la récurrence sont présents ET justes — '
+  /* Quand la page a TOUT vérifié, son verdict part en tête et PRIME : le
+     modèle ne fait plus que rédiger. C'est la doctrine de salJuge, appliquée
+     ici dans le sens de l'ACCEPTATION, après qu'un refus halluciné du modèle a
+     compté fausse une copie juste en production (Turquet, septembre 2026). */
+  const prime=(j.verdict==='accepte')
+   ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ la structure complète, les nombres de l’initialisation, les images f('+numFmt(c.m)+') = '+numFmt(c.fm)+' et f('+numFmt(c.M)+') = '+numFmt(c.fM)+' écrites, et aucune comparaison numérique fausse — la copie est CORRECTE. Réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
+   : '';
+  return prime+'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
+   +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les TROIS moments de la récurrence sont présents ET justes — '
    +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
    +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque ; '
    +'(3) HÉRÉDITÉ démontrée : on applique f aux trois membres en JUSTIFIANT par la croissance de f, ce qui donne '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.fM)+', puis on ÉLARGIT pour retrouver '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+'. '
    +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante » puis, à la ligne suivante, l’encadrement obtenu. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. '
-   +'(4) CONCLUSION pour tout entier n ≥ '+numFmt(c.n0)+'. '
-   +'Une seule de ces quatre parties fausse ou absente donne correct:false. '
+   +'La CONCLUSION finale (« donc pour tout entier n… ») n’est PAS exigée : l’exercice ne la demande pas — ne reproche JAMAIS son absence et ne la compte jamais comme manquante. '
+   +'Une seule de ces trois parties fausse ou absente donne correct:false. '
    +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », que les symboles ou les indices seraient mélangés ou mal placés, ou qu’il manquerait des étapes intermédiaires. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « U_(n+1) » est U indice n+1, « ≤ » est l’inégalité — c’est parfaitement lisible. Ne compte pas faux non plus l’ordre et le découpage des lignes (champ libre), l’orthographe, les accents, les majuscules, les tournures, ni une valeur approchée au dixième. Tout refus doit NOMMER l’erreur mathématique précise — quelle ligne, quelle valeur, et ce qu’elle devrait être ; un refus qui n’en nomme aucune est interdit, et si tu n’en trouves pas, la réponse est correct:true. '
    +'CE QUE LA PAGE A DÉJÀ MESURÉ elle-même, et qu’elle affiche AU-DESSUS de ton texte : la présence des mots de structure et des nombres de l’initialisation. '
    +(manque.length
@@ -11250,7 +11305,7 @@ async function checkRR(){
   const c=test.questions[test.idx], fb=$('rrFeedback');
   const rep=rrTexte().trim();
   if(rep.replace(/\s/g,'').length<12){
-    fb.textContent='Écris d’abord ta démonstration : initialisation, hérédité, conclusion.';
+    fb.textContent='Écris d’abord ta démonstration : l’initialisation, puis l’hérédité.';
     fb.className='mp-feedback bad';
     if(rrFeuille&&rrFeuille.lignes[0]) rrFeuille.lignes[0].mf.focus();
     return;
@@ -11265,27 +11320,48 @@ async function checkRR(){
   $('rrActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
   fb.innerHTML=rrBilanHTML(j)+'<p class="rr-mot">L’IA relit ton calcul…</p>';
   fb.className='mp-feedback iafb';
+  /* Une comparaison fausse est un refus que la page sait PRONONCER : elle est
+     nommée dans le bilan, et le modèle n'est pas appelé — sur un refus
+     prouvable, c'est la phrase du juge qui s'affiche, jamais une prose (la
+     leçon du quotient de la Première). */
   let res=null;
-  try{
-    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
-      question:rrQuestionIA(c), attendu:rrAttenduIA(c,j), reponse:rep, balises:true } });
-    if(r.error) throw r.error; res=r.data;
-  }catch(e){ res=null; }
-  rrBusy=false;
-  if(!res || res.error){
-    /* Le bilan de la page reste VRAI — ce sont des faits mesurés —, mais la
-       note se joue sur le CALCUL, que personne n'a relu : on ne compte rien et
-       on ne verrouille pas. */
-    fb.innerHTML=rrBilanHTML(j)+'<p class="rr-mot">'+esc((res&&res.error)||'La relecture du calcul est indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.')+'</p>';
-    fb.className='mp-feedback iafb';
-    $('rrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRR()">Réessayer</button>';
-    return;
+  if(!j.fausses.length){
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:rrQuestionIA(c), attendu:rrAttenduIA(c,j), reponse:rep, balises:true } });
+      if(r.error) throw r.error; res=r.data;
+    }catch(e){ res=null; }
   }
-  /* LE VERDICT DE LA PAGE PRIME DANS LE SENS DU REFUS. Ce qu'elle mesure est
-     prouvable ; le modèle, lui, juge le calcul. Une structure incomplète ne
-     peut pas valoir le point, quoi qu'en dise la prose. */
-  const correct = j.toutOk && res.correct===true;
-  const fbHTML=conseilHTML(res.feedback||'');
+  rrBusy=false;
+  if((!res || res.error) && !j.fausses.length){
+    if(j.verdict==='accepte'){
+      /* Tout ce que l'exercice demande est positivement vérifié PAR LA PAGE :
+         le juge répond seul au lieu de bloquer l'élève — la leçon de
+         libreJuge. */
+      res={correct:true, feedback:''};
+    } else {
+      /* Le bilan de la page reste VRAI — ce sont des faits mesurés —, mais la
+         note se joue sur le CALCUL, que personne n'a relu : on ne compte rien
+         et on ne verrouille pas. */
+      fb.innerHTML=rrBilanHTML(j)+'<p class="rr-mot">'+esc((res&&res.error)||'La relecture du calcul est indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.')+'</p>';
+      fb.className='mp-feedback iafb';
+      $('rrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRR()">Réessayer</button>';
+      return;
+    }
+  }
+  /* LE VERDICT DE LA PAGE PRIME, DANS LES DEUX SENS. Ce qu'elle mesure est
+     prouvable : une structure incomplète ou une comparaison fausse ne peut pas
+     valoir le point, quoi qu'en dise la prose — et une copie dont TOUT ce qui
+     est annoncé est vérifié ne peut plus être refusée par une prose qui
+     déraille (le refus halluciné de septembre 2026). Le modèle ne tranche seul
+     que là où la page s'abstient. */
+  const correct = j.verdict==='accepte' ? true
+                : j.verdict==='refus'   ? false
+                : (res.correct===true);
+  let prose = j.fausses.length ? '' : (res&&res.feedback)||'';
+  if(j.verdict==='accepte' && !(res && res.correct===true))
+    prose='Ta rédaction porte les trois moments de la récurrence, l’initialisation vérifiée et les bonnes images par f : c’est une démonstration complète.';
+  const fbHTML=conseilHTML(prose);
   const bilan=rrBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
   if(!correct && isSoutien()){
     fb.innerHTML=bilan; fb.className='mp-feedback iafb';
@@ -11315,12 +11391,12 @@ function rrConseilCtx(){
   return 'Exercice 6.7 : RÉCURRENCE — la rédaction complète, écrite librement par l’élève. '
    +'Suite (U_n) pour n ≥ '+numFmt(c.n0)+', U_'+numFmt(c.n0)+' = '+numFmt(c.u0)+', U_{n+1} = f(U_n) avec f(x) = '+c.fPlain
    +', croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] (admis par l’énoncé). À démontrer : '+numFmt(c.m)+' ≤ U_n ≤ '+numFmt(c.M)+' pour n ≥ '+numFmt(c.n0)+'. '
-   +'Il n’y a AUCUNE case : l’élève écrit tout dans une feuille multi-lignes — initialisation vérifiée et conclue, hérédité (on suppose… on montre…), application de f justifiée par sa croissance, élargissement, conclusion. '
+   +'Il n’y a AUCUNE case : l’élève écrit tout dans une feuille multi-lignes — initialisation vérifiée et conclue, hérédité (on suppose… on montre…), application de f justifiée par sa croissance, élargissement — la conclusion finale n’est pas exigée. '
    +'Réponses attendues, à ne JAMAIS révéler : f('+numFmt(c.m)+') = '+numFmt(c.fm)+' et f('+numFmt(c.M)+') = '+numFmt(c.fM)+' ; chaîne finale '+numFmt(c.m)+' ≤ U_{n+1} ≤ '+numFmt(c.fM)+' ≤ '+numFmt(c.M)+'. '
    +(rep ? 'Voici ce que l’élève a écrit pour l’instant : « '+rep.slice(0,900).replace(/\n/g,' / ')+' ». ' : 'L’élève n’a encore rien écrit : aide-le à démarrer par le premier moment d’une récurrence. ')
    +(manque.length ? 'La page a relevé qu’il manque : '+manque.join(' ; ')+'. ' : 'La page ne relève rien de manquant dans la structure. ')
    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUN de ces nombres, et n’écris jamais une phrase que l’élève pourrait recopier telle quelle dans sa rédaction — désigne chaque manque par son RÔLE. '
-   +'Méthode à faire appliquer : vérifier la propriété au rang de départ et le DIRE ; supposer l’encadrement au rang n ; annoncer ce qu’on montre au rang n+1 ; appliquer f aux trois membres en justifiant par la CROISSANCE de f (les inégalités sont conservées) ; remplacer f(U_n) par U_{n+1} ; élargir l’encadrement pour retrouver les bornes de départ ; conclure. '
+   +'Méthode à faire appliquer : vérifier la propriété au rang de départ et le DIRE ; supposer l’encadrement au rang n ; annoncer ce qu’on montre au rang n+1 ; appliquer f aux trois membres en justifiant par la CROISSANCE de f (les inégalités sont conservées) ; remplacer f(U_n) par U_{n+1} ; élargir l’encadrement pour retrouver les bornes de départ ; conclure s’il le souhaite (la conclusion n’est pas exigée). '
    +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
    +'Aide-le sur le PREMIER moment qui manque ou qui cloche, sans donner la rédaction.';
 }
