@@ -1755,8 +1755,8 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       <p class="tvi-instr">Rédige la démonstration <b>entière</b>, comme sur ta copie. Rien n&rsquo;est écrit d&rsquo;avance&nbsp;: à toi les mots.</p>
       <ul class="rr-attendu">
         <li><b>Initialisation</b>&nbsp;: écris le mot, vérifie l&rsquo;encadrement avec la <b>valeur</b> de U au rang de départ, et dis que c&rsquo;est <b>vrai</b> à ce rang.</li>
-        <li><b>Hérédité</b>&nbsp;: écris le mot <b>d&rsquo;abord</b> — il annonce la partie —, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;».</li>
-        <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> sur l&rsquo;intervalle. Puis <b>élargis</b> pour retrouver l&rsquo;encadrement demandé. (La conclusion finale n&rsquo;est pas exigée.)</li>
+        <li><b>Hérédité</b>&nbsp;: écris le mot <b>d&rsquo;abord</b> — il annonce la partie —, puis «&nbsp;<b>on suppose</b> que…&nbsp;» et «&nbsp;<b>on montre</b> que…&nbsp;» suivi de la <b>propriété au rang n+1</b> (l&rsquo;encadrement de U<sub>n+1</sub> par les deux bornes).</li>
+        <li>Applique <i>f</i> aux trois membres en le <b>justifiant</b>&nbsp;: <i>f</i> est <b>croissante</b> — <b>écris l&rsquo;intervalle</b> («&nbsp;croissante sur [&hellip;&nbsp;; &hellip;]&nbsp;»). Puis <b>élargis</b> pour retrouver l&rsquo;encadrement demandé. (La conclusion finale n&rsquo;est pas exigée.)</li>
       </ul>
       <div class="rc-jetons" id="rrOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('\\le')">&#8804;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="rrInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rrMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
       <div class="dexp2-sheet" id="rrSheet"></div>
@@ -2285,7 +2285,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=280;
+const APP_VERSION=281;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -11089,6 +11089,55 @@ function rrJuge(c, txt){
   const herC=(herOk||!herLa)
     ? 'le mot « hérédité »'
     : 'le mot « hérédité », écrit à la fin au lieu d’annoncer la partie';
+  /* LE BUT PORTE LA PROPRIÉTÉ AU RANG n+1, ET LA CROISSANCE NOMME SON
+     INTERVALLE (signalés par Turquet, septembre 2026, sur une copie aux sept
+     critères verts : « on montre » n'était suivi de rien, et « car f
+     croissante » ne disait pas sur quel intervalle). Deux faits prouvables de
+     plus, annoncés à l'écran avant que l'élève n'écrive.
+     · La propriété au rang n+1 : une ligne qui porte U(n+1) — hors d'un
+       f(…), sans quoi la ligne d'application satisferait le critère — avec
+       les DEUX bornes. N'importe quelle ligne : l'annonce après « on montre »
+       comme la conclusion élargie la portent, et l'ordre des moments reste
+       libre.
+     · L'intervalle de croissance : après le mot « croissant… », un marqueur
+       (« sur », « entre », « [ ») PUIS les deux bornes. Le marqueur est ce
+       qui empêche « croissante donc f(m) ≤ f(U(n)) ≤ f(M) » de passer — les
+       bornes y suivent le mot sans que l'intervalle soit écrit, c'est
+       précisément la copie signalée. */
+  const lignes=t.split('\n');
+  const numsDe=s2=>(String(s2).match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
+  const porte=(s2,v)=>numsDe(s2).some(x=>Math.abs(x-v)<1e-9);
+  let butOk=false, intOk=false;
+  lignes.forEach(function(lg){
+    if(!butOk){
+      const re=/u[_ ]?\(?n\+1\)?/g; let m2;
+      while((m2=re.exec(lg))){
+        if(!/f ?\($/.test(lg.slice(Math.max(0,m2.index-3),m2.index)) &&
+           porte(lg,c.m) && porte(lg,c.M)){ butOk=true; break; }
+      }
+    }
+    if(!intOk){
+      const rc=/croissan/g; let m3;
+      while((m3=rc.exec(lg))){
+        const queue=lg.slice(m3.index);
+        const k=queue.search(/sur|entre|\[/);
+        if(k>=0 && porte(queue.slice(k),c.m) && porte(queue.slice(k),c.M)){ intOk=true; break; }
+      }
+    }
+  });
+  const monLa=pMon>=0, crLa=RR_MOTS.croiss.test(ix.red);
+  const monL=(monLa&&butOk)||!monLa
+    ? 'le but : <b>« on montre que… »</b>, suivi de la <b>propriété au rang n+1</b> — '+numFmt(c.m)+' ≤ U<sub>n+1</sub> ≤ '+numFmt(c.M)
+    : '« on montre » est là, mais la propriété au rang n+1 n’est écrite nulle part : écris «\u00a0on montre que '+numFmt(c.m)+' ≤ U<sub>n+1</sub> ≤ '+numFmt(c.M)+'\u00a0»';
+  const monC=(monLa&&butOk)||!monLa
+    ? 'le but de l’hérédité annoncé (« on montre que… »), avec la propriété au rang n+1'
+    : 'la propriété au rang n+1 écrite (le mot « on montre » est là, mais l’encadrement de U(n+1) par les deux bornes ne l’est pas)';
+  const crL=(crLa&&intOk)||!crLa
+    ? 'la justification : <i>f</i> est <b>croissante</b>, avec son <b>intervalle</b> écrit — «\u00a0sur ['+numFmt(c.m)+'\u00a0; '+numFmt(c.M)+']\u00a0»'
+    : '« f croissante » est là, mais SANS son intervalle : écris «\u00a0croissante sur ['+numFmt(c.m)+'\u00a0; '+numFmt(c.M)+']\u00a0»';
+  const crC=(crLa&&intOk)||!crLa
+    ? 'la justification par la croissance de f, avec l’intervalle écrit'
+    : 'l’intervalle de croissance écrit (le mot « croissante » est là, mais pas « sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] »)';
   const crit=[
     {cle:'init',   ok:pInit>=0,
      l:'le mot <b>« initialisation »</b>', court:'le mot « initialisation »'},
@@ -11102,12 +11151,8 @@ function rrJuge(c, txt){
     {cle:'suppos', ok:pSup>=0,
      l:'l’hypothèse : <b>« on suppose… »</b> (ou « supposons… »)',
      court:'l’hypothèse de récurrence annoncée (« on suppose… »)'},
-    {cle:'montre', ok:pMon>=0,
-     l:'le but : <b>« on montre que… »</b> (ou « montrons que… »)',
-     court:'le but de l’hérédité annoncé (« on montre que… »)'},
-    {cle:'croiss', ok:RR_MOTS.croiss.test(ix.red),
-     l:'la justification : <i>f</i> est <b>croissante</b> sur l’intervalle',
-     court:'la justification par la croissance de f'}
+    {cle:'montre', ok:monLa&&butOk, l:monL, court:monC},
+    {cle:'croiss', ok:crLa&&intOk, l:crL, court:crC}
   ];
   /* LE VERDICT, À TROIS POSITIONS — refuser sur un fait prouvable, accepter
      quand tout ce qui est annoncé est positivement vérifié, s'abstenir sinon
@@ -11168,9 +11213,9 @@ function rrAttenduIA(c,j){
   return prime+'DÉMONSTRATION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+rrModele(c).replace(/\n/g,' ')+' '
    +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les TROIS moments de la récurrence sont présents ET justes — '
    +'(1) INITIALISATION vérifiée au rang '+numFmt(c.n0)+' avec la valeur de U à ce rang et son encadrement, puis conclue ; '
-   +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque ; '
+   +'(2) HYPOTHÈSE de récurrence énoncée pour un entier n quelconque, et le BUT annoncé avec la propriété au rang n+1 : « on montre que '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+' » ; '
    +'(3) HÉRÉDITÉ démontrée : on applique f aux trois membres en JUSTIFIANT par la croissance de f, ce qui donne '+numFmt(c.fm)+' ≤ U(n+1) ≤ '+numFmt(c.fM)+', puis on ÉLARGIT pour retrouver '+numFmt(c.m)+' ≤ U(n+1) ≤ '+numFmt(c.M)+'. '
-   +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante » puis, à la ligne suivante, l’encadrement obtenu. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. '
+   +'DEUX LIGNES SUFFISENT POUR CETTE ÉTAPE : « f('+numFmt(c.m)+') ≤ f(U(n)) ≤ f('+numFmt(c.M)+') car f est croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] » puis, à la ligne suivante, l’encadrement obtenu — l’intervalle de croissance doit être ÉCRIT. Les calculs intermédiaires ne sont PAS exigés : l’élève a le droit de donner directement les valeurs de f('+numFmt(c.m)+') et de f('+numFmt(c.M)+') sans écrire comment il les obtient. Ne réclame jamais ce détail. '
    +'La CONCLUSION finale (« donc pour tout entier n… ») n’est PAS exigée : l’exercice ne la demande pas — ne reproche JAMAIS son absence et ne la compte jamais comme manquante. '
    +'Une seule de ces trois parties fausse ou absente donne correct:false. '
    +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », que les symboles ou les indices seraient mélangés ou mal placés, ou qu’il manquerait des étapes intermédiaires. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « U_(n+1) » est U indice n+1, « ≤ » est l’inégalité — c’est parfaitement lisible. Ne compte pas faux non plus l’ordre et le découpage des lignes (champ libre), l’orthographe, les accents, les majuscules, les tournures, ni une valeur approchée au dixième. Tout refus doit NOMMER l’erreur mathématique précise — quelle ligne, quelle valeur, et ce qu’elle devrait être ; un refus qui n’en nomme aucune est interdit, et si tu n’en trouves pas, la réponse est correct:true. '
@@ -11396,7 +11441,7 @@ function rrConseilCtx(){
    +(rep ? 'Voici ce que l’élève a écrit pour l’instant : « '+rep.slice(0,900).replace(/\n/g,' / ')+' ». ' : 'L’élève n’a encore rien écrit : aide-le à démarrer par le premier moment d’une récurrence. ')
    +(manque.length ? 'La page a relevé qu’il manque : '+manque.join(' ; ')+'. ' : 'La page ne relève rien de manquant dans la structure. ')
    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUN de ces nombres, et n’écris jamais une phrase que l’élève pourrait recopier telle quelle dans sa rédaction — désigne chaque manque par son RÔLE. '
-   +'Méthode à faire appliquer : vérifier la propriété au rang de départ et le DIRE ; supposer l’encadrement au rang n ; annoncer ce qu’on montre au rang n+1 ; appliquer f aux trois membres en justifiant par la CROISSANCE de f (les inégalités sont conservées) ; remplacer f(U_n) par U_{n+1} ; élargir l’encadrement pour retrouver les bornes de départ ; conclure s’il le souhaite (la conclusion n’est pas exigée). '
+   +'Méthode à faire appliquer : vérifier la propriété au rang de départ et le DIRE ; supposer l’encadrement au rang n ; annoncer ce qu’on montre au rang n+1 — la propriété ELLE-MÊME, pas seulement les mots ; appliquer f aux trois membres en justifiant par la CROISSANCE de f en ÉCRIVANT son intervalle (« croissante sur ['+numFmt(c.m)+' ; '+numFmt(c.M)+'] » — les inégalités sont conservées) ; remplacer f(U_n) par U_{n+1} ; élargir l’encadrement pour retrouver les bornes de départ ; conclure s’il le souhaite (la conclusion n’est pas exigée). '
    +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
    +'Aide-le sur le PREMIER moment qui manque ou qui cloche, sans donner la rédaction.';
 }

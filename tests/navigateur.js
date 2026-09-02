@@ -3067,7 +3067,10 @@ async function parcours(page, N){
         tout.envoye.indexOf('Initialisation') === 0 && tout.envoye.split('\n').length === 4 && tout.score === 1,
         'envoyé : ' + JSON.stringify(tout.envoye.slice(0, 120)) + ', score ' + tout.score);
       /* et le bord opposé : une copie à qui il manque un mot se peint EN ROUGE
-         sur cette ligne-là, et en vert sur les autres */
+         sur cette ligne-là, et en vert sur les autres. Le témoin a SUIVI la
+         barre de septembre 2026 : « croissante » porte son intervalle, sans
+         quoi deux lignes rougiraient et le contrôle mesurerait la barre au
+         lieu du mot manquant. */
       await s.page.evaluate(() => {
         delete test.rrLignes; test.locked = false; test.score = 0; test.answers = [];
         renderRR();
@@ -3075,7 +3078,7 @@ async function parcours(page, N){
       await s.page.waitForTimeout(800);
       await s.page.evaluate(() => rrFeuille.lignes[0].mf.focus());
       await s.page.keyboard.type('Initialisation : U_0 = 3 et 0 <= 3 <= 6 donc vrai au rang 0. '
-        + 'On suppose que 0 <= U_n <= 6. On montre que 0 <= U_n+1 <= 6. f est croissante.', { delay: 10 });
+        + 'On suppose que 0 <= U_n <= 6. On montre que 0 <= U_n+1 <= 6. f est croissante sur [0 ; 6].', { delay: 10 });
       await s.page.waitForTimeout(300);
       await s.page.click('#rrActions .btn-primary');
       await s.page.waitForTimeout(900);
