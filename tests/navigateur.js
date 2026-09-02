@@ -3112,6 +3112,31 @@ async function parcours(page, N){
           + (geste.forme ? '' : ' (la sérialisation mesurée n’est pas « U_(n)+1 » — le contrôle parlerait d’autre chose)')
           + ', suppos ' + (geste.suppose ? 'accepté' : 'REFUSÉ') + ', montre ' + (geste.montre ? 'accepté' : 'REFUSÉ')
           + ', ' + apresRetrait + ' ligne(s) après retrait');
+      /* LE U STYLÉ ET LE ≤ DU CLAVIER VIRTUEL (capture de Turquet, septembre
+         2026, v283) : \mathbf{U} perdait son U et « \le f » perdait les deux
+         à l'aplatissement — le juge et le modèle lisaient « f(0)(Uₙ)(8) ».
+         Seul un vrai MathLive fait le trajet setValue -> lecture réelle :
+         jsdom éprouve toPlain sur des chaînes qu'il écrit lui-même, ici la
+         valeur passe par le champ. La ligne est restaurée ensuite. */
+      await s.page.evaluate(() => {
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        window.__rrAvantStyle = L.mf.getValue();
+        L.mf.setValue('on\\;montre\\;0\\;\\leqslant\\;\\mathbf{U}_{n+1}\\;\\leqslant\\;6');
+      });
+      await s.page.waitForTimeout(150);
+      const style = await s.page.evaluate(() => {
+        const lignes = rrTexte().split('\n');
+        const derniere = lignes[lignes.length - 1];
+        const rate = rrJuge(test.questions[test.idx], derniere)
+          .crit.filter(x => !x.ok).map(x => x.cle);
+        const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
+        L.mf.setValue(window.__rrAvantStyle || '');
+        return { derniere: derniere, montre: rate.indexOf('montre') < 0 };
+      });
+      verifier('le U stylé et le ≤ du clavier virtuel survivent à l\'aplatissement',
+        /U_\(n\+1\)/.test(style.derniere) && /≤/.test(style.derniere) && style.montre,
+        'lu : ' + JSON.stringify(style.derniere.slice(0, 120))
+          + ', montre ' + (style.montre ? 'accepté' : 'REFUSÉ'));
       /* LE BILAN PEINT, à l'encre RÉSOLUE : une classe posée ne prouve rien —
          une règle plus spécifique peut la repeindre, et c'est arrivé sur la
          phrase des couleurs du 6.3 sans qu'un caractère du HTML ne le dise. */
