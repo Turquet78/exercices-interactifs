@@ -3253,9 +3253,13 @@ function recurrenceRedigee(w, apres){
       +'Conclusion : pour tout n >= 0, 0 <= U_(n) <= 6.';
     /* la copie de PRODUCTION (Turquet, septembre 2026), transposée aux nombres
        de c0 : sept critères verts À L'ÉCRAN, et le modèle l'a pourtant refusée
-       en la disant « difficile à lire ». Si elle ne passe pas au juge de la
-       page, c'est le juge qui a tort. */
+       en la disant « difficile à lire ». La barre a MONTÉ depuis (Turquet,
+       septembre 2026) : « croissante » doit nommer son intervalle, que cette
+       copie n'écrit pas — elle est donc refusée sur « croiss » SEUL, et c'est
+       sa jumelle À intervalle qui doit passer au juge. Si CELLE-LÀ ne passe
+       pas, c'est le juge qui a tort. */
     const PROD='initialisation : 0 ≤ U_(0) = 3 ≤ 6 vrai\\nhérédité :\\non suppose : 0 ≤ U_(n) ≤ 6\\non montre : 0 ≤ U_(n+1) ≤ 6\\n0 ≤ U_(n) ≤ 6\\nf(0) ≤ f(U_(n)) ≤ f(6) car f croissante\\n0 ≤ 3 ≤ U_(n+1) ≤ 4,5 ≤ 6';
+    const PROD_INT=PROD.replace('car f croissante','car f croissante sur [0 ; 6]');
     /* la même sans les IMAGES : la page ne peut plus tout vérifier, elle
        s'abstient et le modèle reste seul juge */
     const SANSIMG=PLEINE.replace('donc 3 <= U_(n+1) <= 4,5 <= 6','donc l encadrement demandé suit');
@@ -3284,10 +3288,10 @@ function recurrenceRedigee(w, apres){
     /* ---------- 3. LA LÉNIENCE EST DÉLIBÉRÉE ---------- */
     const SANS_ACCENT='initialisation : U_(0)=3 et 0<=3<=6 : c est vrai au rang 0\\n'
       +'heredite : on suppose 0<=U_(n)<=6, on montre que 0<=U_(n+1)<=6\\n'
-      +'f est croissante donc 3<=U_(n+1)<=4,5<=6\\nconclusion : vrai pour tout n';
+      +'f est croissante entre 0 et 6 donc 3<=U_(n+1)<=4,5<=6\\nconclusion : vrai pour tout n';
     if(manquants(SANS_ACCENT).length)
       vus.push('une copie sans accents ni majuscules est refusée sur : '+manquants(SANS_ACCENT).join(', '));
-    const ORDRE='Hérédité : on suppose que 0 <= U_(n) <= 6, on montre que 0 <= U_(n+1) <= 6, f est croissante.\\n'
+    const ORDRE='Hérédité : on suppose que 0 <= U_(n) <= 6, on montre que 0 <= U_(n+1) <= 6, f est croissante sur [0 ; 6].\\n'
       +'Initialisation : U_(0) = 3 et 0 <= 3 <= 6 donc c est vrai au rang 0.';
     if(manquants(ORDRE).length)
       vus.push('une copie dont l\\'hérédité précède l\\'initialisation est refusée sur : '+manquants(ORDRE).join(', '));
@@ -3331,8 +3335,14 @@ function recurrenceRedigee(w, apres){
        la consigne ne suffit pas, c'est la page qui tranche ce qu'elle sait
        prouver. Accepter exige TOUT : la structure, les images par f écrites,
        aucune comparaison fausse ; il manque une pièce, la page s'abstient. */
-    if(rrJuge(c0,PROD).verdict!=='accepte')
-      vus.push('la copie de production n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PROD).verdict+') — le juge a tort, pas la copie');
+    if(rrJuge(c0,PROD_INT).verdict!=='accepte')
+      vus.push('la copie de production, l\\'intervalle écrit, n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PROD_INT).verdict+') — le juge a tort, pas la copie');
+    /* LA BARRE A MONTÉ (septembre 2026) : la même copie SANS l'intervalle est
+       refusée sur « croiss » seul — et le libellé dit « il est là, mais
+       sans… », jamais « le mot manque » devant une copie qui le porte (la
+       règle de herL, transposée) */
+    if(manquants(PROD).join()!=='croiss')
+      vus.push('la copie de production sans l\\'intervalle devrait échouer sur croiss seul : ['+manquants(PROD).join(', ')+']');
     if(rrJuge(c0,PLEINE).verdict!=='accepte')
       vus.push('la copie complète n\\'est pas acceptée par la page (verdict '+rrJuge(c0,PLEINE).verdict+')');
     if(rrJuge(c0,SANSIMG).verdict!=='abstention')
@@ -3357,6 +3367,49 @@ function recurrenceRedigee(w, apres){
       const f=rrFausses(ph);
       if(f.length) vus.push('une phrase juste est accusée : « '+ph+' » relève ['+f.join(', ')+']');
     });
+
+    /* ---------- 3 quater. LE BUT PORTE LA PROPRIÉTÉ AU RANG n+1, ET LA
+       CROISSANCE NOMME SON INTERVALLE ----------
+       Signalés par Turquet (septembre 2026) sur une copie aux sept critères
+       verts : « tu dis que c'est bon mais il manque la propriété au rang n+1
+       après on montre » et « je veux que l'élève précise sur quel intervalle
+       la fonction est croissante ». Deux faits prouvables de plus, pliés dans
+       les critères EXISTANTS « montre » et « croiss » : la barre de
+       l'acceptation monte d'elle-même, sans nouveau bord à brancher. */
+    const CAPTURE='initialisation 0 ≤ U_(0) = 3 ≤ 6 vrai\\nhérédité : on suppose 0 ≤ U_(n) ≤ 6\\non montre\\n0 ≤ U_(n) ≤ 6\\nf(0) ≤ f(U_(n)) ≤ f(6) car f croissante\\n3 ≤ U_(n+1) ≤ 4,5';
+    const jCap=rrJuge(c0,CAPTURE);
+    if(jCap.verdict!=='refus' || manquants(CAPTURE).join()!=='montre,croiss')
+      vus.push('la copie de la capture (but nu, croissante sans intervalle) devrait être refusée sur montre et croiss : verdict '+jCap.verdict+', ['+manquants(CAPTURE).join(', ')+']');
+    const cMon=jCap.crit.filter(function(x){ return x.cle==='montre'; })[0];
+    const cCr=jCap.crit.filter(function(x){ return x.cle==='croiss'; })[0];
+    if(!cMon || cMon.ok || !/nulle part/.test(cMon.l))
+      vus.push('« on montre » nu : le libellé ne dit pas que le mot est là sans la propriété — « '+(cMon?cMon.l:'?')+' »');
+    if(cMon && !/est là/.test(cMon.court||''))
+      vus.push('« on montre » nu : le modèle ne reçoit pas la raison — « '+cMon.court+' »');
+    if(!cCr || cCr.ok || !/SANS son intervalle/.test(cCr.l))
+      vus.push('« croissante » sans intervalle : le libellé ne le dit pas — « '+(cCr?cCr.l:'?')+' »');
+    /* chaque bord SEUL, tout le reste juste. La propriété se retire PARTOUT —
+       l'annonce ET l'élargissement final : n'en retirer qu'une ne retire
+       rien, l'autre ligne satisfait le critère, et c'est VOULU (l'ordre des
+       moments est libre, la conclusion élargie ÉNONCE la propriété) */
+    const SANSBUT=PLEINE.replace('On montre que 0 <= U_(n+1) <= 6.','On montre que ça passe au rang suivant.')
+      .replace('donc 3 <= U_(n+1) <= 4,5 <= 6','donc tout reste encadré');
+    if(manquants(SANSBUT).join()!=='montre')
+      vus.push('la propriété au rang n+1 retirée partout devrait échouer sur montre seul : ['+manquants(SANSBUT).join(', ')+']');
+    if(manquants(PLEINE.replace('On montre que 0 <= U_(n+1) <= 6.','On montre que ça passe au rang suivant.')).length)
+      vus.push('l\\'encadrement final au rang n+1 devrait suffire au critère du but — l\\'ordre des moments est libre');
+    if(manquants(PLEINE.replace('croissante sur [0 ; 6]','croissante')).join()!=='croiss')
+      vus.push('l\\'intervalle retiré devrait échouer sur croiss seul : ['+manquants(PLEINE.replace('croissante sur [0 ; 6]','croissante')).join(', ')+']');
+    /* le MARQUEUR (« sur », « entre », « [ ») est ce qui compte : des bornes
+       qui SUIVENT le mot sans intervalle écrit ne passent pas — c'est la
+       forme exacte de la copie signalée ; « entre 0 et 6 » passe, tenu par
+       SANS_ACCENT ci-dessus */
+    if(manquants(PLEINE.replace('f est croissante sur [0 ; 6] donc','f est croissante donc f(0) <= f(U_(n)) <= f(6) et')).indexOf('croiss')<0)
+      vus.push('« croissante donc f(0) ≤ f(U(n)) ≤ f(6) » passe pour un intervalle écrit');
+    /* et la ligne d'APPLICATION ne satisfait pas le but : U(n+1) y vit dans
+       un f(…), ce n'est pas la propriété énoncée */
+    if(manquants('on montre\\nf(0) <= f(U_(n+1)) <= f(6) car f croissante sur [0 ; 6]').indexOf('montre')<0)
+      vus.push('U(n+1) posé DANS un f(…) passe pour la propriété au rang n+1');
 
     /* ---------- 4. LE PIÈGE DE L'ÉNONCÉ RECOPIÉ ---------- */
     const TITRE='Démontrer par récurrence que 0 <= U_(n) <= 6.\\n'
@@ -3393,8 +3446,20 @@ function recurrenceRedigee(w, apres){
     if(rOK.indexOf('TROIS moments')<0 || rOK.indexOf('QUATRE moments')>=0 || rOK.indexOf('(4) CONCLUSION')>=0)
       vus.push('la règle exige encore la conclusion comme un quatrième moment');
     const attEcran=(document.querySelector('#scr-rr .rr-attendu')||{textContent:''}).textContent;
-    if(!/pas exigée/.test(attEcran) || /et\s+conclus\b/.test(attEcran))
+    if(!/pas exigée/.test(attEcran) || /et\\s+conclus\\b/.test(attEcran))
       vus.push('l\\'écran demande encore de conclure : « '+attEcran.slice(-120)+' »');
+    /* les deux critères de septembre 2026 sont ANNONCÉS — à l'élève sur
+       l'écran, au modèle dans la règle : un critère qu'on mesure sans l'avoir
+       demandé donnerait tort à une copie honnête */
+    if(attEcran.indexOf('propriété au rang n+1')<0)
+      vus.push('l\\'écran n\\'annonce pas la propriété au rang n+1');
+    if(!/écris l.intervalle/.test(attEcran) || attEcran.indexOf('croissante sur [')<0)
+      vus.push('l\\'écran ne demande pas d\\'écrire l\\'intervalle de croissance');
+    const apresRegle=rOK.slice(Math.max(0,rOK.indexOf('RÈGLE DE DÉCISION')));
+    if(apresRegle.indexOf('on montre que 0 ≤ U(n+1) ≤ 6')<0)
+      vus.push('la règle n\\'annonce pas la propriété au rang n+1 dans le moment (2)');
+    if(!/intervalle de croissance doit être ÉCRIT/.test(apresRegle) || apresRegle.indexOf('croissante sur [0 ; 6]')<0)
+      vus.push('la règle n\\'exige pas que l\\'intervalle de croissance soit écrit');
     /* le verdict d'ACCEPTATION part au modèle, en tête et prioritaire — et
        seulement quand la page a tout vérifié */
     if(rOK.indexOf('VERDICT DE LA PAGE, PRIORITAIRE')<0)

@@ -4098,6 +4098,35 @@ scindée en deux selon le verdict. Le banc navigateur exige en plus que le
 verdict d'ACCEPTATION tienne sur du VRAI MathLive — la sérialisation réelle
 ne doit ni cacher les images ni fabriquer une comparaison fausse, et c'est
 exactement la surface par laquelle la production a échoué.
+**Puis la barre a MONTÉ : le but porte la propriété au rang n+1, et la
+croissance NOMME son intervalle** (demande de Turquet, septembre 2026, sur une
+copie aux sept critères verts : « tu dis que c'est bon mais il manque la
+propriété au rang n+1 après on montre », « je veux que l'élève précise sur
+quel intervalle la fonction est croissante »). Deux faits prouvables de plus,
+PLIÉS dans les critères existants « montre » et « croiss » plutôt qu'ajoutés à
+côté : la barre de l'acceptation monte d'elle-même, et la copie d'hier aux
+sept ✓ redevient un refus qui NOMME ses deux manques.
+· La propriété au rang n+1 est une ligne qui porte U(n+1) — hors d'un f(…),
+  sans quoi la ligne d'APPLICATION satisferait le critère — avec les DEUX
+  bornes. N'IMPORTE quelle ligne : l'annonce après « on montre » comme
+  l'élargissement final la portent, l'ordre des moments reste libre — la
+  lénience de toujours, et le contrôle tient ce bord-là aussi.
+· L'intervalle : après « croissant… », un MARQUEUR (« sur », « entre »,
+  « [ ») puis les deux bornes. Le marqueur est ce qui empêche « croissante
+  donc f(0) ≤ f(U(n)) ≤ f(6) » de passer — les bornes y suivent le mot sans
+  que l'intervalle soit écrit, et c'est précisément la copie signalée.
+Les libellés suivent la règle du mot « hérédité » : « on montre » est là mais
+la propriété n'est écrite nulle part, « croissante » est là mais SANS son
+intervalle — jamais « le mot manque » devant une copie qui le porte. L'écran
+et la règle du modèle ANNONCENT les deux critères — un critère qu'on mesure
+sans l'avoir demandé donnerait tort à une copie honnête — et la copie de
+production épinglée a SUIVI la barre au lieu d'être retirée : sans
+l'intervalle elle est désormais refusée sur « croiss » seul, et c'est sa
+jumelle à intervalle qui doit passer au juge. Les témoins du banc NAVIGATEUR
+l'ont suivie aussi — sa copie « un seul mot manque » écrivait « f est
+croissante » nue, et deux lignes rougissaient au lieu d'une : la barre
+levée s'est vue jusque sur le vrai MathLive, exactement là où elle devait.
+Dix sabotages de plus, chacun rougissant en nommant son défaut.
 **LA BARRE D'ESPACE SORT DE L'INDICE, et ce défaut-là n'a été trouvé qu'en
 TAPANT.** Le mode « rédaction » pose une VRAIE espace (sans quoi « on suppose »
 s'écrirait « onsuppose »), et la convention de MathLive — l'espace SORT d'un
@@ -4127,7 +4156,7 @@ GÉNÉRIQUE, tout appel `verif` qui n'est pas l'un des deux exercices de dériv�
 historiques décrit lui-même son énoncé et sa règle. La règle vit donc dans la
 PAGE et part avec elle — la leçon de `MAX_CTX`. Mais la fonction TRONQUE
 « attendu » en silence : la borne est LUE dans sa source, jamais recopiée, et
-la marge s'affiche à chaque exécution (3403 caractères pour 4000, la règle
+la marge s'affiche à chaque exécution (3597 caractères pour 4000, la règle
 de l'acceptation mesurée avec celle du refus).
 **Deux bancs, et ils ne voient pas la même chose.** Le PRINCIPAL éprouve le
 juge critère par critère dans les deux sens, la lénience, le piège de l'énoncé
@@ -4136,8 +4165,8 @@ qu'il écrit lui-même. Le NAVIGATEUR TAPE une démonstration entière dans un
 vrai MathLive : la prose française et ses accents ressortent telles quelles,
 la barre d'espace sort de l'indice, Entrée ajoute une ligne, le jeton tombe
 dans la ligne où l'élève écrit, et le bilan est mesuré à l'encre RÉSOLUE —
-jamais à la classe, la leçon de la phrase des couleurs du 6.3. Quarante-trois
-sabotages en tout (trente-quatre au banc principal, neuf au navigateur), chacun
+jamais à la classe, la leçon de la phrase des couleurs du 6.3. Cinquante-trois
+sabotages en tout (quarante-quatre au banc principal, neuf au navigateur), chacun
 rougissant en nommant son défaut ; deux sont d'abord restés VERTS et disaient
 la même chose — l'un cassait la syntaxe (il ne dit rien du contrôle visé),
 l'autre ne pouvait pas ATTEINDRE ce qu'il visait, `rrActiveMF` retombant sur
