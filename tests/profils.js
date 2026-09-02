@@ -584,6 +584,7 @@ module.exports = {
        d'un vrai MathLive — la prose française et ses accents, la barre
        d'espace qui doit SORTIR d'un indice, et l'encre RÉSOLUE du bilan. */
     recurrenceRedigee: { exercice: 'recurrence-redaction' },
+    suiteAuxRedigee: { exercice: 'suite-auxiliaire-redaction' },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

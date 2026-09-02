@@ -573,7 +573,7 @@
   .sa2-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}
   .sa2-frac .bar{display:block;width:100%;min-width:4.4em;height:2px;background:var(--ink);margin:3px 0}
   .sa2-frac .num,.sa2-frac .den{display:flex;align-items:center;gap:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rr,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1229,6 +1229,7 @@ math-field.rc-mf{min-width:64px;max-width:120px;}
   body > .ML__keyboard .MLK__rows > .MLK__row > div > small{font-size:10px;}
 }
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
+.sar-q{font-weight:800;margin:18px 0 6px;font-size:1.02rem}
 .rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
 .rc-uwrap{display:inline-flex;align-items:flex-end;gap:1px;}
 /* police 1rem = 16 px EXACTEMENT : en dessous, Safari iOS zoome la page au focus et le clavier écran déborde */
@@ -1766,6 +1767,31 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <section class="screen" id="scr-sar">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="sarModeTag"></span><span class="q-idx" id="sarQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sarLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="sarPrompt"></p>
+      <p class="tvi-instr">Quatre questions, quatre feuilles&nbsp;: rédige chaque réponse <b>en entier</b>, comme sur ta copie.</p>
+      <div class="rc-jetons" id="sarOutils"><span class="rc-jlbl">Insérer&nbsp;:</span><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="sarInsert('U_0')">U&#8320;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="sarInsert('U_n')">U&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="sarInsert('U_{n+1}')">U&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="sarInsert('V_0')">V&#8320;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="sarInsert('V_n')">V&#8345;</button><button type="button" class="sa-jeton" onmousedown="event.preventDefault()" onclick="sarInsert('V_{n+1}')">V&#8345;&#8330;&#8321;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="sarKB()" title="Clavier mathématique à l&rsquo;écran" aria-label="Afficher ou masquer le clavier mathématique">&#9000;&#65039;</button><button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="sarMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">&#9776;</button></div>
+      <div id="sarParts">
+        <p class="sar-q" id="sarQa"></p>
+        <div class="dexp2-sheet sar-sheet" id="sarSheetA"></div>
+        <p class="sar-q" id="sarQb"></p>
+        <div class="dexp2-sheet sar-sheet" id="sarSheetB"></div>
+        <p class="sar-q" id="sarQc"></p>
+        <div class="dexp2-sheet sar-sheet" id="sarSheetC"></div>
+        <p class="sar-q" id="sarQd"></p>
+        <div class="dexp2-sheet sar-sheet" id="sarSheetD"></div>
+      </div>
+      <p class="dexp-hint">Une étape par ligne&nbsp;: <b>Entrée</b> ajoute une ligne, <b>retour arrière</b> sur une ligne vide la supprime. Après un indice (<i>V</i><sub>n</sub>), la <b>barre d&rsquo;espace</b> en sort — une seconde espace sépare les mots. La touche <b>*</b> écrit le signe ×, et les boutons ci-dessus écrivent les indices d&rsquo;un coup.<span class="hint-souris"> <b>Clic droit</b> sur le champ&nbsp;: clavier à l&rsquo;écran et raccourcis clavier.</span></p>
+      <div class="mp-feedback" id="sarFeedback"></div>
+      <div class="mp-actions" id="sarActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-tg">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="tgModeTag"></span><span class="q-idx" id="tgQIdx">Question 1 / 4</span></span>
@@ -2285,7 +2311,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=285;
+const APP_VERSION=286;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2439,6 +2465,7 @@ const TESTS={
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
   'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au {suites-encadrement}.', start:()=>startREC() },
   'recurrence-redaction': { name:'R\u00e9currence \u2014 r\u00e9diger la d\u00e9monstration', icon:'\u270d\ufe0f', desc:'Les \u00e9nonc\u00e9s du {recurrence-encadrement}, mais plus une seule case : tu \u00e9cris la d\u00e9monstration ENTI\u00c8RE dans la feuille, comme sur ta copie \u2014 initialisation v\u00e9rifi\u00e9e et conclue, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (\u00ab on suppose\u2026 on montre\u2026 \u00bb), justification par la croissance de f. La page relit la structure, l\u2019IA relit le calcul : ce qui va s\u2019\u00e9crit en vert, ce qui manque en rouge.', start:()=>startRR() },
+  'suite-auxiliaire-redaction': { name:'Suite auxiliaire \u2014 r\u00e9diger les r\u00e9ponses', icon:'\ud83d\udcdd', desc:'Les suites auxiliaires du {suite-auxiliaire-2}, mais tu R\u00c9DIGES tout : le coefficient de U\u2099 est une baisse (de 5 % \u00e0 45 %), et chaque question a sa feuille libre, comme dans {recurrence-redaction} \u2014 la cha\u00eene qui m\u00e8ne \u00e0 V\u2099\u208a\u2081 = coefficient \u00d7 V\u2099, le calcul de V\u2080, la nature de la suite (V\u2099), puis U\u2099 en fonction de n. La page relit la structure, l\u2019IA relit le calcul.', start:()=>startSAR() },
   'suite-auxiliaire-2': { name:'Suites \u2014 suite auxiliaire \u00e0 compl\u00e9ter', icon:'\u270f\ufe0f', desc:'La m\u00eame d\u00e9monstration que {suite-auxiliaire}, mais guid\u00e9e\u00a0: chaque case attend simplement un NOMBRE ou un MOT. La page \u00e9crit les signes et les symboles, tu poses les nombres \u2014 comme sur la fiche papier.', start:()=>startSA2() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
@@ -2453,7 +2480,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -3031,6 +3058,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
   else if(test && test.kind==='rr' && test.questions && test.questions[test.idx]){ c=rrConseilCtx(); }
+  else if(test && test.kind==='sar' && test.questions && test.questions[test.idx]){ c=sarConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
     const q=test.questions[test.idx], rep=dexp2Read();
     c='Exercice : dériver f(x) = '+dqFxPlain(q)+", puis donner f'(x) SOUS FORME FACTORISÉE (e^(kx) mis en facteur au numérateur), en appliquant la formule (u/v)' = (u'\u00b7v \u2212 u\u00b7v')/v\u00b2. Démarche attendue à conseiller : poser u = numérateur, v = dénominateur, puis u' et v' ; écrire (u'\u00b7v \u2212 u\u00b7v')/v\u00b2 ; DÉVELOPPER le numérateur et réduire ; puis factoriser le numérateur par e^(kx). Cette démarche est un CONSEIL de méthode : si l'élève factorise directement sans développer, ou laisse le dénominateur sous forme développée, ce n'est PAS une erreur \u2014 ne le lui reproche pas. La dérivée correcte factorisée est : "+dqDfPlain(q)+" ou, de façon équivalente, "+dqDfPlainAlt(q)+" (l'ordre des facteurs du numérateur est indifférent ; le dénominateur peut s'écrire ("+q.vStr+")^2 ou développé : les deux sont justes).";
@@ -3814,7 +3842,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rr:['rr',renderRR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3936,7 +3964,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','rr','lr','ec','afp','afq'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','rr','sar','lr','ec','afp','afq'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -11469,6 +11497,345 @@ function rrConseilCtx(){
    +'Tu peux lui rappeler qu’il trouve le cours complet avec le bouton « Voir le rappel de cours » de cette fenêtre. '
    +'Aide-le sur le PREMIER moment qui manque ou qui cloche, sans donner la rédaction.';
 }
+/* ====================== TEST : Suite auxiliaire rédigée (sar) ====================== */
+/* {suite-auxiliaire-redaction} (demande de Turquet, septembre 2026) : les suites
+   auxiliaires du {suite-auxiliaire-2}, mais CHAQUE question se rédige dans une
+   feuille libre du style du {recurrence-redaction} — quatre questions, quatre
+   feuilles : a) la chaîne Vₙ₊₁ = Uₙ₊₁ − k, remplacement par la récurrence,
+   aboutir à a × Vₙ ; b) V₀ ; c) la nature de la suite et Vₙ en fonction de n ;
+   d) la formule Vₙ = Uₙ − k pour retrouver Uₙ.
+   LE TIRAGE PART DE k (la leçon de {simplifier-barres} : tirer depuis
+   l'arrivée). Le coefficient a est STRICTEMENT entre 0,5 et 1 — une baisse de
+   5 à 45 % — et b = k·p/100 en DÉCOULE : b = k(1 − a) est alors une identité
+   d'ENTIERS (b·100 = k·p), b est un multiple de 100 entre 100 et 10000 (le
+   plus simple possible, demande de Turquet), k un multiple de 2000 et U₀ un
+   multiple de 1000 STRICTEMENT au-dessus de k — V₀ = U₀ − k reste rond et
+   positif. La bonne réponse n'est jamais rangée à côté de la question : tout
+   se recalcule de p, k et U₀, et le contrôle refait b = k(1 − a) par sa
+   propre arithmétique (la leçon du 6.3). */
+const SAR_P=[5,10,15,20,25,30,35,40,45];
+function sarGen(pEvite){
+  let p; do{ p=SAR_P[rand(0,SAR_P.length-1)]; }while(p===pEvite);
+  const m=rand(1,5), k=2000*m, b=20*p*m, u0=k+1000*rand(1,10);
+  return { p:p, a:(100-p)/100, b:b, k:k, u0:u0, v0:u0-k };
+}
+/* Les nombres d'une copie : « 10 000 » écrit avec l'espace des milliers est UN
+   nombre, pas deux — le couper donnerait tort à une copie juste. Deux passes,
+   pour « 1 000 000 » un jour. */
+function sarNombres(s){
+  let t=String(s==null?'':s);
+  t=t.replace(/(\d)[  ](?=\d{3}(?!\d))/g,'$1');
+  t=t.replace(/(\d)[  ](?=\d{3}(?!\d))/g,'$1');
+  return (t.match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.')));
+}
+function sarPorte(s,v){ return sarNombres(s).some(x=>Math.abs(x-v)<1e-9); }
+/* V et U indicés, sous TOUTES les écritures que la saisie produit : « v_(n+1) »
+   comme « v_(n)+1 » — le +1 tapé hors de l'indice, la leçon du 6.7 — et le
+   « vn » tapé sans indice. Le motif « rang n » refuse n+1 par sa garde. */
+const SAR_VN1=/v[_ ]?(?:\(?n\+1\)?|\(n\) ?\+ ?1)/;
+const SAR_UN1=/u[_ ]?(?:\(?n\+1\)?|\(n\) ?\+ ?1)/;
+const SAR_VN=/v[_ ]?\(?n\)?(?![+\d])/;
+const SAR_UN=/u[_ ]?\(?n\)?(?![+\d])/;
+const SAR_V0=/v[_ ]?\(?0\)?/;
+/* a suivi d'un exposant n — « 0,95^(n) », « 0,95^n », « (0,95)^n » — la virgule
+   et le point se valent. */
+function sarPuissA(ligne,a){
+  return [String(a).replace('.',','), String(a)].some(function(e){
+    return new RegExp(e.split('.').join('\\.')+' ?\\)? ?\\^ ?\\(?n').test(ligne);
+  });
+}
+/* Le juge de la page — des faits PROUVABLES, partie par partie ; le calcul part
+   au modèle (la doctrine du {recurrence-redaction}). La LÉNIENCE est
+   délibérée : un faux négatif donne tort à un élève qui a raison, un faux
+   positif ne coûte rien — le modèle relit le calcul de toute façon.
+   « geometrique » sans accent vaut « géométrique » (rrNorm), et chaque
+   critère se juge sur la SEULE feuille de sa question. Le verdict a TROIS
+   positions : refus sur un fait prouvable (une partie absente, une
+   comparaison numérique fausse — rrFausses, le micro-juge du 6.7), acceptation
+   quand tout est positivement vérifié Y COMPRIS le nombre CALCULÉ de la
+   chaîne du a) — k − b, c'est-à-dire a·k, le « −3800 » de la fiche —, et
+   abstention sinon : la factorisation directe a(Uₙ − k), parfaitement juste,
+   ne l'écrit jamais, et c'est alors le modèle qui décide seul. */
+function sarJuge(c, parts){
+  const P={}; ['a','b','c','d'].forEach(function(x){ P[x]=rrNorm(parts&&parts[x]||''); });
+  const une=function(x,f){ return P[x].split('\n').some(f); };
+  const aDef=une('a', l=>SAR_VN1.test(l)&&SAR_UN1.test(l)&&sarPorte(l,c.k));
+  const aRec=une('a', l=>sarPorte(l,c.a)&&sarPorte(l,c.b));
+  const aFin=une('a', l=>sarPorte(l,c.a)&&SAR_VN.test(l));
+  const bOk =une('b', l=>SAR_V0.test(l)&&sarPorte(l,c.v0));
+  const cMot=/geometri/.test(P.c);
+  const cExp=une('c', l=>sarPorte(l,c.v0)&&sarPuissA(l,c.a));
+  const dFor=une('d', l=>SAR_UN.test(l)&&SAR_VN.test(l)&&sarPorte(l,c.k));
+  const dRes=une('d', l=>SAR_UN.test(l)&&sarPuissA(l,c.a)&&sarPorte(l,c.k));
+  const A=numFmt(c.a), K=numFmt(c.k), B=numFmt(c.b);
+  const crit=[
+   {cle:'a-def', ok:aDef,
+    l:'a) la <b>définition au rang n+1</b> : V<sub>n+1</sub> = U<sub>n+1</sub> − '+K,
+    court:'a) la définition de V au rang n+1 (V(n+1) = U(n+1) − '+K+')'},
+   {cle:'a-rec', ok:aRec,
+    l:'a) le <b>remplacement</b> de U<sub>n+1</sub> par la formule de l’énoncé ('+A+'·U<sub>n</sub> + '+B+')',
+    court:'a) le remplacement de U(n+1) par la formule de récurrence ('+A+'·U(n) + '+B+')'},
+   {cle:'a-fin', ok:aFin,
+    l:'a) l’<b>aboutissement</b> : … = '+A+' × V<sub>n</sub>',
+    court:'a) l’aboutissement à '+A+' × V(n)'},
+   {cle:'b', ok:bOk,
+    l:'b) <b>V<sub>0</sub> calculé</b> : la ligne « V<sub>0</sub> = … » aboutit à la bonne valeur',
+    court:'b) le calcul de V0 mené à la bonne valeur'},
+   {cle:'c-mot', ok:cMot,
+    l:'c) la <b>nature</b> de la suite (V<sub>n</sub>), nommée en toutes lettres',
+    court:'c) la nature de la suite (le mot attendu n’est pas écrit)'},
+   {cle:'c-exp', ok:cExp,
+    l:'c) l’<b>expression</b> de V<sub>n</sub> en fonction de n — premier terme × raison<sup>n</sup>',
+    court:'c) l’expression de V(n) en fonction de n (premier terme × raison^n)'},
+   {cle:'d-for', ok:dFor,
+    l:'d) la <b>formule</b> V<sub>n</sub> = U<sub>n</sub> − '+K+' utilisée pour revenir à U<sub>n</sub>',
+    court:'d) la formule V(n) = U(n) − '+K+' utilisée pour revenir à U(n)'},
+   {cle:'d-res', ok:dRes,
+    l:'d) l’<b>expression finale</b> de U<sub>n</sub> en fonction de n (avec le « + '+K+' »)',
+    court:'d) l’expression finale de U(n) en fonction de n (avec le + '+K+')'}
+  ];
+  const tout=['a','b','c','d'].map(x=>P[x]).join('\n');
+  const fausses=rrFausses(tout);
+  const inter=sarPorte(tout, c.k-c.b);
+  const toutOk=crit.every(x=>x.ok);
+  const verdict=(!toutOk||fausses.length)?'refus':(inter?'accepte':'abstention');
+  return {crit:crit, toutOk:toutOk, fausses:fausses, inter:inter, verdict:verdict};
+}
+function sarBilanHTML(j){
+  const faux=(j.fausses&&j.fausses.length)
+    ? '<li><span class="fb-ko">✗ tu as écrit « '+esc(j.fausses[0])+' », et c’est faux — reprends ce calcul'
+      +(j.fausses.length>1?' (une autre comparaison au moins est fausse aussi)':'')+'</span></li>'
+    : '';
+  return '<div class="rr-bilan"><b>Tes quatre réponses, point par point :</b><ul class="rr-crit">'
+    + j.crit.map(x=>'<li><span class="'+(x.ok?'fb-ok':'fb-ko')+'">'+(x.ok?'✓':'✗')+' '+x.l+'</span></li>').join('')
+    + faux
+    + '</ul></div>';
+}
+/* La rédaction de référence : la correction affichée en entraînement ET
+   l'attendu envoyé au modèle — un seul texte, deux auraient fini par se
+   contredire (la leçon de rrModele). */
+function sarModele(c){
+  const A=numFmt(c.a), B=numFmt(c.b), K=numFmt(c.k), U0=numFmt(c.u0), V0=numFmt(c.v0), AK=numFmt(c.k-c.b);
+  return 'a) Vₙ₊₁ = Uₙ₊₁ − '+K+' = '+A+' Uₙ + '+B+' − '+K+' = '+A+' Uₙ − '+AK+' = '+A+' (Uₙ − '+K+') = '+A+' Vₙ.\n'
+   +'b) V₀ = U₀ − '+K+' = '+U0+' − '+K+' = '+V0+'.\n'
+   +'c) (Vₙ) est donc une suite géométrique de raison '+A+' et de premier terme V₀ = '+V0+', donc Vₙ = '+V0+' × '+A+'ⁿ.\n'
+   +'d) Vₙ = Uₙ − '+K+' donc Uₙ = Vₙ + '+K+' = '+V0+' × '+A+'ⁿ + '+K+'.';
+}
+function sarQuestionIA(c){
+  return 'SUITE AUXILIAIRE, rédaction entièrement libre en QUATRE parties. Suite (U(n)) définie par U(0) = '+numFmt(c.u0)
+   +' et U(n+1) = '+numFmt(c.a)+'·U(n) + '+numFmt(c.b)+' (le coefficient '+numFmt(c.a)+' est une baisse de '+numFmt(c.p)+' %). On pose V(n) = U(n) − '+numFmt(c.k)+'. '
+   +'Chaque question a son propre champ multi-lignes, rien n’est pré-écrit : '
+   +'a) démontrer que V(n+1) = '+numFmt(c.a)+' × V(n) ; b) calculer V(0) ; c) en déduire la nature de (V(n)) et exprimer V(n) en fonction de n ; d) en déduire U(n) en fonction de n, avec la formule V(n) = U(n) − '+numFmt(c.k)+'.';
+}
+function sarAttenduIA(c,j){
+  const A=numFmt(c.a), K=numFmt(c.k), B=numFmt(c.b), V0=numFmt(c.v0);
+  const manque=j.crit.filter(x=>!x.ok);
+  const prime=(j.verdict==='accepte')
+   ? 'VERDICT DE LA PAGE, PRIORITAIRE : elle a VÉRIFIÉ les quatre parties — la chaîne du a) avec son nombre intermédiaire '+numFmt(c.k-c.b)+' écrit, V(0) = '+V0+', la nature nommée avec l’expression de V(n), U(n) reconstruit — et aucune comparaison numérique fausse. La copie est CORRECTE : réponds correct:true, obligatoirement. Ton feedback dit en 2 ou 3 phrases ce qui est bien fait ; il ne signale AUCUNE erreur et ne demande RIEN de plus. '
+   : '';
+  return prime+'RÉDACTION DE RÉFÉRENCE (elle te sert à juger ; ne la recopie JAMAIS dans le retour) : '+sarModele(c).replace(/\n/g,' ')+' '
+   +'RÈGLE DE DÉCISION, à appliquer à la lettre : correct:true UNIQUEMENT si les QUATRE parties sont présentes ET justes — '
+   +'(a) la chaîne part de V(n+1) = U(n+1) − '+K+', remplace U(n+1) par '+A+'·U(n) + '+B+', et aboutit à '+A+' × V(n) ; la factorisation directe '+A+'·(U(n) − '+K+'), sans étape intermédiaire, est parfaitement juste — ne réclame jamais ce détail ; '
+   +'(b) V(0) = '+V0+' ; '
+   +'(c) la suite (V(n)) est dite GÉOMÉTRIQUE, et V(n) = '+V0+' × '+A+'^n ; '
+   +'(d) la formule V(n) = U(n) − '+K+' est utilisée et U(n) = '+V0+' × '+A+'^n + '+K+'. '
+   +'Toute écriture équivalente est juste : '+A+' peut s’écrire '+String(100-c.p)+'/100, l’ordre des facteurs est libre. Une seule de ces parties fausse ou absente donne correct:false. '
+   +'INTERDIT DE REFUSER POUR LA FORME : tu ne juges que les MATHÉMATIQUES. Ne refuse JAMAIS au motif que la copie serait « difficile à lire », « mal présentée » ou « pas assez détaillée », ni pour des symboles ou des indices « mal placés », ni pour des étapes intermédiaires manquantes. Le texte t’arrive d’un champ mathématique aplati : « U_(n) » est U indice n, « V_(n+1) » est V indice n+1 — et « V_(n)+1 » se lit V indice n+1 lui aussi, le + ayant simplement été tapé hors de l’indice. Ne compte pas faux non plus l’écriture décimale à virgule ou à point, l’orthographe, les accents, ni le découpage des lignes. Tout refus doit NOMMER l’erreur mathématique précise — quelle partie, quelle valeur, ce qu’elle devrait être ; si tu n’en trouves aucune, la réponse est correct:true. '
+   +'CE QUE LA PAGE A DÉJÀ MESURÉ elle-même, et qu’elle affiche AU-DESSUS de ton texte : la présence des morceaux de chaque partie. '
+   +(manque.length
+      ? ('Elle a relevé qu’il MANQUE : '+manque.map(x=>x.court).join(' ; ')+'. Tu ne dois donc PAS écrire que la rédaction est complète, et tu ne dois PAS répéter cette liste — occupe-toi du CALCUL. ')
+      : 'Elle n’a rien relevé de manquant : ne parle pas de la structure, occupe-toi du CALCUL. ')
+   +'FEEDBACK : 2 à 4 phrases, tutoiement, ton chaleureux. '
+   +'CONTRAINTE ANTI-RECOPIE : n’écris jamais la rédaction de référence, ni aucune phrase recopiable telle quelle, et ne donne AUCUN des nombres de cet exercice.';
+}
+/* Les jetons donnent les INDICES (U₀, Uₙ, Uₙ₊₁, V₀, Vₙ, Vₙ₊₁), qu'aucun
+   clavier ne porte — jamais les mots ni la nature de la suite, qui sont
+   précisément ce que l'exercice évalue. */
+let sarFeuilles=null, sarLastMF=null, sarBusy=false;
+const SAR_PARTIES=['a','b','c','d'];
+function sarActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && a.closest && a.closest('#sarParts')) return a;
+  if(sarLastMF && document.contains(sarLastMF) && !sarLastMF.readOnly) return sarLastMF;
+  return document.querySelector('#sarParts math-field:not([readonly])');
+}
+function sarInsert(lx){
+  const el=sarActiveMF(); if(!el || el.readOnly) return;
+  try{ el.focus(); }catch(e){}
+  try{ el.executeCommand(['insert', lx]); }catch(e){ try{ el.insert(lx); }catch(e2){} }
+}
+function sarKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=sarActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function sarMenu(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;
+  const t=sarActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+  try{
+    const r=t.getBoundingClientRect();
+    t.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,view:window,
+      clientX:r.left+Math.min(40,r.width/2), clientY:r.top+r.height/2}));
+  }catch(e){}
+}
+/* Une feuille par question : la lecture rend chaque partie SÉPARÉMENT — le juge
+   juge chaque critère sur la feuille de SA question. */
+function sarTexteDe(p){ const f=sarFeuilles&&sarFeuilles[p]; return rrClair(f?f.lire():''); }
+function sarTexte(){ return SAR_PARTIES.map(function(p){ return sarTexteDe(p); }).join('\n'); }
+async function startSAR(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-auxiliaire-redaction'; test.kind='sar';
+  const q1=sarGen(null);
+  test.questions=[q1, sarGen(q1.p)];   /* deux suites, jamais la même baisse */
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  delete test.sarLignes;
+  test.maxScore=test.questions.length;
+  show('sar'); renderSAR();
+}
+function renderSAR(){
+  const c=test.questions[test.idx]; test.locked=false; sarBusy=false;
+  window.__conseilsDonnes=[];
+  $('sarQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('sarModeTag').innerHTML=modeTagHTML();
+  $('sarLiveScore').textContent=test.score;
+  const A=numFmt(c.a), U='<i>U</i>', V='<i>V</i>', n='<i>n</i>';
+  const Un=U+'<sub>'+n+'</sub>', Un1=U+'<sub>'+n+'+1</sub>', Vn=V+'<sub>'+n+'</sub>', Vn1=V+'<sub>'+n+'+1</sub>';
+  $('sarPrompt').innerHTML='Soit ('+Un+') la suite définie par&nbsp;: '+U+'<sub>0</sub> = <b>'+numFmt(c.u0)+'</b> &nbsp;et&nbsp; '
+    +Un1+' = <b>'+A+'</b>&nbsp;'+Un+' + <b>'+numFmt(c.b)+'</b> &nbsp;— le coefficient '+A+' correspond à une <b>baisse de '+numFmt(c.p)+'&nbsp;%</b>.'
+    +'<br>On pose&nbsp;: <b>'+Vn+' = '+Un+' − '+numFmt(c.k)+'</b> &nbsp;pour tout entier '+n+' ≥ 0.';
+  $('sarQa').innerHTML='a) Démontre que '+Vn1+' = '+A+' × '+Vn+'&nbsp;: commence par '+Vn1+' = '+Un1+' − '+numFmt(c.k)+', remplace '+Un1+' par la formule de l’énoncé, puis calcule jusqu’à '+A+' × '+Vn+'.';
+  $('sarQb').innerHTML='b) Calcule '+V+'<sub>0</sub>.';
+  $('sarQc').innerHTML='c) Quelle est la <b>nature</b> de la suite ('+Vn+')&nbsp;? Donne sa raison et son premier terme, puis écris '+Vn+' en fonction de '+n+'.';
+  $('sarQd').innerHTML='d) En utilisant la formule '+Vn+' = '+Un+' − '+numFmt(c.k)+', déduis-en '+Un+' en fonction de '+n+'.';
+  sarFeuilles={};
+  SAR_PARTIES.forEach(function(p){ sarFeuilles[p]=mlFeuille({ conteneur:'sarSheet'+p.toUpperCase(), mode:'redaction' }); });
+  /* La reprise après une pause remet les quatre rédactions : elles voyagent
+     DANS test — que snapshotTest photographie en entier —, la leçon du 6.7. */
+  const brouillon=(test.sarLignes&&typeof test.sarLignes==='object')?test.sarLignes:null;
+  if(brouillon){
+    SAR_PARTIES.forEach(function(p){
+      (Array.isArray(brouillon[p])?brouillon[p]:[]).forEach(function(v,i){
+        const F=sarFeuilles[p], L=F.lignes[i]||F.ajouterLigne(i-1);
+        if(L){ try{ L.mf.setValue(String(v)); }catch(e){} }
+      });
+    });
+  }
+  /* Les écouteurs vivent sur l'hôte STATIQUE des quatre feuilles, posés une
+     seule fois — les lignes naissent au fil des « Entrée » (rrEspace est le
+     même garde que celui du 6.7 : la barre d'espace sort de l'indice). */
+  const sh=$('sarParts');
+  if(sh && !sh.__sarBranche){
+    sh.__sarBranche=true;
+    const noter=function(){ try{
+      const o={}; SAR_PARTIES.forEach(function(p){ o[p]=sarFeuilles[p].lignes.map(function(L){ return L.mf.getValue(); }); });
+      test.sarLignes=o;
+    }catch(e){} };
+    sh.addEventListener('keydown', rrEspace, true);
+    sh.addEventListener('input', noter);
+    sh.addEventListener('focusout', noter);
+    sh.addEventListener('focusin', function(e){ if(e.target && e.target.tagName==='MATH-FIELD') sarLastMF=e.target; });
+  }
+  $('sarFeedback').textContent=''; $('sarFeedback').className='mp-feedback';
+  $('sarActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSAR()">Vérifier ma rédaction</button>';
+  setTimeout(function(){
+    const F=sarFeuilles&&sarFeuilles.a; if(!F||!F.lignes.length) return;
+    try{ F.lignes[0].mf.focus(); }catch(e){}
+  },60);
+}
+async function checkSAR(){
+  if(test.locked||sarBusy) return;
+  const c=test.questions[test.idx], fb=$('sarFeedback');
+  const parts={}; SAR_PARTIES.forEach(function(p){ parts[p]=sarTexteDe(p); });
+  const rep=SAR_PARTIES.map(function(p){ return p+') '+parts[p]; }).join('\n').trim();
+  if(SAR_PARTIES.map(function(p){ return parts[p]; }).join('').replace(/\s/g,'').length<12){
+    fb.textContent='Écris d’abord tes réponses : chaque question a sa feuille — a), puis b), c) et d).';
+    fb.className='mp-feedback bad';
+    if(sarFeuilles&&sarFeuilles.a&&sarFeuilles.a.lignes[0]) sarFeuilles.a.lignes[0].mf.focus();
+    return;
+  }
+  if(tvi2CopieConseil(rep)){
+    fb.textContent='On dirait le texte du conseil recopié tel quel. Le conseil te guide — à toi d’écrire les réponses avec tes propres mots. Cette tentative n’est pas comptée.';
+    fb.className='mp-feedback bad';
+    return;
+  }
+  const j=sarJuge(c,parts);
+  sarBusy=true;
+  $('sarActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.innerHTML=sarBilanHTML(j)+'<p class="rr-mot">L’IA relit ton calcul…</p>';
+  fb.className='mp-feedback iafb';
+  /* Une comparaison fausse est un refus que la page sait PRONONCER : le modèle
+     n'est pas appelé — sur un refus prouvable, c'est la phrase du juge qui
+     s'affiche, jamais une prose (la doctrine du 6.7). */
+  let res=null;
+  if(!j.fausses.length){
+    try{
+      const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id, action:'verif',
+        question:sarQuestionIA(c), attendu:sarAttenduIA(c,j), reponse:rep, balises:true } });
+      if(r.error) throw r.error; res=r.data;
+    }catch(e){ res=null; }
+  }
+  sarBusy=false;
+  if((!res || res.error) && !j.fausses.length){
+    if(j.verdict==='accepte'){
+      res={correct:true, feedback:''};
+    } else {
+      fb.innerHTML=sarBilanHTML(j)+'<p class="rr-mot">'+esc((res&&res.error)||'La relecture du calcul est indisponible pour le moment — ta réponse n’est pas comptée : tu peux réessayer.')+'</p>';
+      fb.className='mp-feedback iafb';
+      $('sarActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSAR()">Réessayer</button>';
+      return;
+    }
+  }
+  const correct = j.verdict==='accepte' ? true
+                : j.verdict==='refus'   ? false
+                : (res.correct===true);
+  let prose = j.fausses.length ? '' : (res&&res.feedback)||'';
+  if(j.verdict==='accepte' && !(res && res.correct===true))
+    prose='Tes quatre réponses portent tout ce qui est attendu : la chaîne qui mène à '+numFmt(c.a)+' × Vₙ, le calcul de V₀, la nature de la suite avec son expression, et le retour à Uₙ.';
+  const fbHTML=conseilHTML(prose);
+  const bilan=sarBilanHTML(j)+(fbHTML?'<div class="rr-ia">'+fbHTML+'</div>':'');
+  if(!correct && isSoutien()){
+    fb.innerHTML=bilan; fb.className='mp-feedback iafb';
+    $('sarActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSAR()">Revérifier</button>';
+    if(sarFeuilles&&sarFeuilles.a&&sarFeuilles.a.lignes.length) sarFeuilles.a.lignes[0].mf.focus();
+    return;
+  }
+  test.locked=true;
+  SAR_PARTIES.forEach(function(p){ try{ sarFeuilles[p].verrouiller(); }catch(e){} });
+  if(correct){
+    test.score++; $('sarLiveScore').textContent=test.score;
+    fb.innerHTML=bilan+'<p class="rr-mot good">'+esc(pick(['Parfait !','Très bien rédigé !','Excellent !','Bravo, les quatre questions tiennent !']))+'</p>';
+  } else {
+    fb.innerHTML=bilan+'<div class="rr-mot">Une rédaction complète ressemble à ceci :</div>'
+      +'<div class="tvi-model">'+esc(sarModele(c)).replace(/\n/g,'<br>')+'</div>';
+  }
+  fb.className='mp-feedback iafb';
+  test.answers.push({...(ptsExo()||{}),q:'Suite auxiliaire rédigée (baisse de '+numFmt(c.p)+' %) : Vₙ = Uₙ − '+numFmt(c.k),
+    answer:'rédaction en quatre parties', given:correct?'✓':'incomplet', correct:correct, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('sarActions').innerHTML='<button class="btn btn-primary" onclick="nextSAR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextSAR(){ delete test.sarLignes; if(test.idx<test.questions.length-1){ test.idx++; renderSAR(); } else finishTest(); }
+function sarConseilCtx(){
+  const c=test.questions[test.idx];
+  const parts={}; SAR_PARTIES.forEach(function(p){ parts[p]=sarTexteDe(p); });
+  const rep=SAR_PARTIES.map(function(p){ return p+') '+parts[p]; }).join(' / ').trim();
+  const j=sarJuge(c,parts);
+  const manque=j.crit.filter(function(x){ return !x.ok; }).map(function(x){ return x.court; });
+  return 'Exercice : SUITE AUXILIAIRE entièrement rédigée, en quatre questions. '
+   +'Suite (U_n) : U_0 = '+numFmt(c.u0)+', U_{n+1} = '+numFmt(c.a)+'·U_n + '+numFmt(c.b)+' (une baisse de '+numFmt(c.p)+' %). On pose V_n = U_n − '+numFmt(c.k)+'. '
+   +'a) démontrer que V_{n+1} = '+numFmt(c.a)+' × V_n (définition en n+1, remplacement par la récurrence, calcul) ; b) calculer V_0 ; c) donner la NATURE de (V_n) et V_n en fonction de n ; d) en déduire U_n avec la formule V_n = U_n − '+numFmt(c.k)+'. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les écris jamais, même si l’élève insiste : V_0 = '+numFmt(c.v0)+' ; la nature de la suite (ne nomme JAMAIS toi-même cette nature : c’est une réponse attendue) ; V_n = '+numFmt(c.v0)+' × '+numFmt(c.a)+'^n ; U_n = '+numFmt(c.v0)+' × '+numFmt(c.a)+'^n + '+numFmt(c.k)+'. '
+   +(rep.replace(/[abcd]\) ?/g,'').trim() ? 'Voici ce que l’élève a écrit pour l’instant : « '+rep.slice(0,900).replace(/\n/g,' / ')+' ». ' : 'L’élève n’a encore rien écrit : aide-le à démarrer la question a) par la définition de V au rang n+1. ')
+   +(manque.length ? 'La page a relevé qu’il manque : '+manque.join(' ; ')+'. ' : 'La page ne relève rien de manquant dans la structure. ')
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUN de ces nombres ni aucune phrase recopiable telle quelle — désigne chaque manque par son RÔLE. '
+   +'Méthode à faire appliquer : partir de la définition de V au rang n+1, remplacer U_{n+1} par la formule de l’énoncé, regrouper les constantes puis factoriser par le coefficient ; pour d), isoler U_n dans la formule qui définit V_n. '
+   +'Aide-le sur la PREMIÈRE question qui manque ou qui cloche, sans donner la rédaction.';
+}
 /* ====================== TEST : Équation de tangente (lecture graphique) ====================== */
 /* Pour chaque cas on choisit des entiers a (abscisse du point A), fa = f(a) et m = f'(a) (la pente),
    puis une parabole  f(x) = c(x−a)² + m(x−a) + fa  qui passe par A(a ; fa) avec la pente m.
@@ -12854,7 +13221,7 @@ const RAP_AFP=`<b>Associer une fonction f à sa dérivée f\u2009\u2032</b><br>
 \u2022 <b>Le signe de f\u2009\u2032 se lit sur les VARIATIONS de f</b> : f croît \u21d4 f\u2009\u2032 &gt; 0, f décroît \u21d4 f\u2009\u2032 &lt; 0. Et f\u2009\u2032 s'annule (0 dans le tableau) aux <b>sommets et creux</b> de f — là où la tangente est horizontale.<br>
 \u2022 <b>Les variations de f se lisent sur le SIGNE de f\u2009\u2032</b> : quand la courbe de f\u2009\u2032 est AU-DESSUS de l'axe des abscisses, f croît ; au-dessous, f décroît ; f\u2009\u2032 coupe l'axe exactement là où f change de sens.<br>
 \u2022 <b>Deux courbes sont COMPATIBLES</b> quand leurs deux tableaux coïncident : les zéros de f\u2009\u2032 tombent sous les sommets de f, et f\u2009\u2032 est positive là où f croît. Un seul désaccord — un zéro décalé, un signe inversé — et f\u2009\u2032 dessinée ne peut pas être la dérivée de f dessinée.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rr:RAP_RR, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -16577,6 +16944,7 @@ const QIA_SUGG={
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
   rc:["Quelles sont les \u00e9tapes d\u2019une r\u00e9currence ?","Pourquoi f croissante conserve-t-elle les in\u00e9galit\u00e9s ?","Comment conclure quand f(M) est plus petit que M ?","\u00c0 quoi sert l\u2019initialisation ?"],
   rr:["Faire un rappel de cours pour cet exercice.","Comment r\u00e9dige-t-on une r\u00e9currence ?","Que faut-il \u00e9crire dans l\u2019initialisation ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb ?","Pourquoi faut-il justifier que f est croissante ?"],
+  sar:["Faire un rappel de cours pour cet exercice.","Comment d\u00e9marre-t-on la question a) ?","\u00c0 quoi sert la suite auxiliaire V\u2099 ?","Comment passe-t-on de V\u2099 \u00e0 U\u2099 ?"],
   eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi le signe de f\u2032 est-il celui de son num\u00e9rateur ?","Que signifie la double barre dans le tableau ?"],
   ef:["Pourquoi e\u02e3 est-il toujours strictement positif ?","Comment trouver le signe d\u2019un produit ?","Quel est le lien entre le signe de f\u2032 et les variations de f ?","O\u00f9 f admet-elle un extremum ?"],
   sp:["Faire un rappel de cours pour cet exercice.","Comment trouver la racine de ax + b ?","Que met-on sur un trait vertical du tableau ?","Comment trouver le signe du produit sur un intervalle ?"],
@@ -17437,7 +17805,7 @@ function kbVarsFor(id){
   if(id === 'recurrence-redaction') return [KB_USQ, KB_N,
     {latex:"\\le",tooltip:"inférieur ou égal"},{latex:"\\ge",tooltip:"supérieur ou égal"},
     {latex:"<",tooltip:"strictement inférieur"},{latex:">",tooltip:"strictement supérieur"}];
-  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
