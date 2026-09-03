@@ -873,6 +873,10 @@
      quand il est faux ; le bon point — la correction — est un anneau VERT,
      la convention commune (le motif de .cfx-sol). */
   #scr-pim{padding-bottom:84px}
+  /* La demande (« Déterminer l'image de X ») garde la taille de l'énoncé ;
+     le mode d'emploi du geste — droite, point, écriture — se lit APRÈS, en
+     plus petit et sans gras (demande de Turquet, septembre 2026). */
+  .lv-instr .pim-sous{display:block;font-size:.85rem;font-weight:400;margin-top:6px}
   /* touch-action:none : la droite se fait GLISSER au doigt, le navigateur ne
      doit pas voler le geste pour faire défiler la page (le motif de #adrGraph) */
   #pimGraph .lv-svg{cursor:pointer;touch-action:none}
@@ -2270,7 +2274,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=133;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=134;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6255,7 +6259,11 @@ function renderPim(){
   { const cb=$('pimConseilBtn'); if(cb) cb.hidden=!isSoutien();
     const rb=$('pimRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
     const qb=$('pimQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
-  $('pimInstr').textContent='On cherche le point de la courbe d’abscisse '+X+'. ① Déplace la droite verticale : clique sur le graphique (ou fais glisser) pour la poser sur '+X+', lu sur l’axe des abscisses. ② Clique « ● Placer le point », puis pose le point là où ta droite coupe la courbe — il se déplace en cliquant ailleurs, se retire en recliquant dessus. ③ Complète l’écriture f (…) = … : l’image de '+X+' est la hauteur de ton point.';
+  /* La demande d'abord, en énoncé ; le mode d'emploi du geste après, en plus
+     petit (demande de Turquet, septembre 2026). X est un nombre (numFmt),
+     jamais du texte libre — innerHTML est sûr ici. */
+  $('pimInstr').innerHTML='Déterminer l’image de '+X+'.'
+    +'<span class="pim-sous">① Déplace la droite verticale : clique sur le graphique (ou fais glisser) pour la poser sur '+X+', lu sur l’axe des abscisses. ② Clique « ● Placer le point », puis pose le point là où ta droite coupe la courbe — il se déplace en cliquant ailleurs, se retire en recliquant dessus. ③ Complète l’écriture f (…) = … : l’image de '+X+' est la hauteur de ton point.</span>';
   $('pimGraph').innerHTML=pimSVG(q,null);
   $('pimBody').innerHTML=
     '<div class="img-line"><span class="pts-case pim-case" id="pim-vl"></span> <span class="pts-case pim-case" id="pim-pt">● Place d’abord le point sur le graphique</span></div>'
