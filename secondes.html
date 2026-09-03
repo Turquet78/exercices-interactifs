@@ -873,7 +873,9 @@
      quand il est faux ; le bon point — la correction — est un anneau VERT,
      la convention commune (le motif de .cfx-sol). */
   #scr-pim{padding-bottom:84px}
-  #pimGraph .lv-svg{cursor:pointer;touch-action:manipulation}
+  /* touch-action:none : la droite se fait GLISSER au doigt, le navigateur ne
+     doit pas voler le geste pour faire défiler la page (le motif de #adrGraph) */
+  #pimGraph .lv-svg{cursor:pointer;touch-action:none}
   .pim-pt{fill:var(--blue)}
   .pim-pt.bad{fill:var(--red)}
   .pim-sol{fill:none;stroke:var(--green);stroke-width:2.6}
@@ -1620,6 +1622,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div class="q-head"><span id="pimIdx" class="q-idx">Question 1 / 4</span><span id="pimModeTag"></span></div>
       <p class="lv-instr" id="pimInstr"></p>
       <div class="lv-graph" id="pimGraph"></div>
+      <div class="adr-modes"><button id="pimModeDroite" class="btn btn-ghost" type="button" onclick="pimChoisirMode('droite')">✋ Déplacer la droite</button><button id="pimModePoint" class="btn btn-ghost" type="button" onclick="pimChoisirMode('point')">● Placer le point</button></div>
       <div id="pimBody"></div>
       <div class="lv-feedback"><span id="pimMark" class="mark"></span> <span id="pimCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="pimRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="pimConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="pimQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="pimValidate" onclick="submitPim()">Valider</button></div>
@@ -2249,7 +2252,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=132;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=133;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2759,7 +2762,7 @@ const TESTS={
   'plus-petit-ensemble': { name:'Le plus petit ensemble', icon:'🎯', desc:'Pour un nombre donné, trouve le plus petit ensemble qui le contient (ℕ, ℤ, 𝔻, ℚ, ℝ). En soutien : bouton Rappels du cours.', start:()=>startPge() },
   'lecture-variations': { name:'Lecture graphique \u2014 variations', icon:'\ud83d\udcc8', desc:'Lis une courbe : complète le tableau de valeurs, le sens de variation et le tableau de variation.', start:()=>startLV() },
   'image-nombre': { name:'Image d\u2019un nombre', icon:'\ud83d\udccd', desc:'Lis l\u2019image d\u2019un nombre sur une courbe : le trait vertical montre la hauteur, puis écris f(x) = … et complète le tableau de valeurs.', start:()=>startImg() },
-  'placer-image': { name:'Placer le point, lire l\u2019image', icon:'\ud83c\udfaf', desc:'Place toi-même le point de la courbe sur le graphique — le même genre de courbe que {image-nombre} — puis complète f(…) = … : l\u2019image est la hauteur du point que tu viens de poser.', start:()=>startPim() },
+  'placer-image': { name:'Placer le point, lire l\u2019image', icon:'\ud83c\udfaf', desc:'D\u00e9place d\u2019abord la droite VERTICALE sur l\u2019abscisse demand\u00e9e — le m\u00eame genre de courbe que {image-nombre} —, pose le point l\u00e0 o\u00f9 elle coupe la courbe, puis compl\u00e8te f(\u2026) = \u2026 : l\u2019image est la hauteur du point que tu viens de poser.', start:()=>startPim() },
   'antecedent-nombre': { name:'Antécédents d\u2019un nombre', icon:'\ud83e\udded', desc:'C\u2019est l\u2019inverse de {image-nombre} : on te donne la hauteur, et la ligne de niveau — un trait horizontal — te fait retrouver le ou les nombres de départ.', start:()=>startAnt() },
   'antecedents-droite': { name:'Antécédents : place la droite', icon:'📏', desc:'Le même travail que {antecedent-nombre}, sur un graphique deux fois plus grand : déplace toi-même la droite horizontale à la hauteur demandée, marque les points où elle coupe la courbe — parfois il n’y en a aucun ! — puis complète la phrase des antécédents.', start:()=>startAdr() },
   'equation-graphique': { name:'Équations graphiques', icon:'\ud83d\udcc8', desc:'La courbe de f et la droite de g : lis des images, retrouve des antécédents par f ET par g, puis résous f\u2009(x)\u2009=\u2009k, g\u2009(x)\u2009=\u2009k, f\u2009(x)\u2009=\u2009g\u2009(x) et trois inéquations — pour chaque équation ou inéquation, choisis d\u2019abord le bon dessin parmi quatre, comme dans {resolutions-graphiques}.', start:()=>startEqg() },
@@ -3670,7 +3673,7 @@ const QIA_SUGG={
   pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
-  pim:["Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
+  pim:["Comment je place la droite verticale au bon endroit ?","Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
   ant:["C\u2019est quoi, un antécédent ?","Quelle est la différence entre image et antécédent ?","À quoi sert la ligne de niveau ?"],
   adr:["Comment je place la droite à la bonne hauteur ?","Comment savoir s’il n’y a aucun antécédent ?","Quand est-ce qu’on écrit « est » et quand « sont » ?","Quelle est la différence entre image et antécédent ?"],
   itv:["C’est quoi, un intervalle ?","Comment savoir si le crochet est ouvert ou fermé ?","Pourquoi le crochet est toujours ouvert du côté de l’infini ?","Quelle différence entre < et ≤ ?"],
@@ -4049,7 +4052,7 @@ C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un g
 Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
 const RAP_PIM=`<b>Placer un point, lire une image</b><br>
 Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situé juste au-dessus (ou en dessous) de <i>a</i>.<br>
-Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), monte ou descends tout droit jusqu'à la courbe, et pose le point à cet endroit.<br>
+Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
 const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
@@ -6153,11 +6156,25 @@ function nextImgQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
    du schéma des intervalles, appliquée au geste).
    La bonne réponse n'est jamais rangée à côté de la question : le point
    attendu est (x0 ; q.pts[x0+3]) — les données MÊMES qui dessinent la
-   courbe, lues par pimCheck, la fonction qui corrige. */
+   courbe, lues par pimCheck, la fonction qui corrige.
+   PUIS LA DROITE VERTICALE (demande de Turquet, septembre 2026 : « demander
+   d'abord à l'élève de déplacer une droite verticale au bon endroit sur la
+   courbe avant de placer le point ») : la méthode du trait vertical du 2.2
+   devient un GESTE — l'élève fait GLISSER une droite verticale sur
+   l'abscisse demandée, et le point ne se pose qu'ensuite. C'est le motif
+   d'{antecedents-droite}, transposé à la verticale : mêmes classes (la
+   droite déplaçable est ORANGE, .adr-niv ; la correction en vert pointillé,
+   .adr-sol), mêmes deux modes explicites, même règle du jugement — la
+   droite se juge sur SON abscisse, le point sur SON nœud : une droite mal
+   posée est comptée fausse une fois, elle ne fait pas payer le point une
+   seconde fois. Quatre réponses désormais : la droite, le point, les deux
+   cases. */
 const PIM_NB=4;
 function pimSVG(q, verdict){
   return lvGraphSVG(q.pts, function(sx,sy){
     let out='';
+    if(verdict && verdict.solVl) out+='<line class="adr-sol" x1="'+sx(q.x0).toFixed(1)+'" y1="'+sy(-3.6).toFixed(1)+'" x2="'+sx(q.x0).toFixed(1)+'" y2="'+sy(3.6).toFixed(1)+'"/>';
+    if(q.vl!=null) out+='<line class="adr-niv'+((verdict && !verdict.vlOk)?' bad':'')+'" x1="'+sx(q.vl).toFixed(1)+'" y1="'+sy(-3.6).toFixed(1)+'" x2="'+sx(q.vl).toFixed(1)+'" y2="'+sy(3.6).toFixed(1)+'"/>';
     if(verdict && verdict.sol) out+='<circle cx="'+sx(q.x0).toFixed(1)+'" cy="'+sy(imgY(q)).toFixed(1)+'" r="6" class="pim-sol"/>';
     if(q.rep) out+='<circle cx="'+sx(q.rep.x).toFixed(1)+'" cy="'+sy(q.rep.y).toFixed(1)+'" r="4.5" class="pim-pt'+(verdict?(verdict.ok?' ok':' bad'):'')+'"/>';
     return out;
@@ -6180,26 +6197,39 @@ function pimNoeud(svg, ev){
   return { x: bi-3, y: bj-3 };
 }
 function startPim(){
-  const qs=imgTirage(PIM_NB).map(function(q){ return {pts:q.pts, x0:q.x0, rep:null}; });
+  const qs=imgTirage(PIM_NB).map(function(q){ return {pts:q.pts, x0:q.x0, rep:null, vl:null}; });
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(k=>delete test[k]);
-  Object.assign(test,{kind:'pim', questions:qs, idx:0, score:0, maxScore:qs.length*3, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  Object.assign(test,{kind:'pim', questions:qs, idx:0, score:0, maxScore:qs.length*4, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false, pimMode:'droite'});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('pim'); renderPim();
+}
+/* Deux gestes sur un seul dessin, donc deux MODES explicites — le motif
+   d'{antecedents-droite} : « Déplacer la droite » (le clic pose la droite
+   verticale, le glisser la suit), « Placer le point » (le clic pose ou
+   retire le point). Le second n'ouvre qu'une fois la droite posée : c'est
+   la demande — « déplacer la droite AVANT de placer le point ». */
+function pimChoisirMode(m){
+  if(test.kind!=='pim'||test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  if(m==='point' && q.vl==null) return;
+  test.pimMode=m;
+  pimMajCases();
 }
 function renderPim(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
   const q=test.questions[test.idx]; test.locked=false;
+  if(q.vl==null || test.pimMode!=='point') test.pimMode='droite';
   const X=numFmt(q.x0);
   $('pimIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('pimModeTag').innerHTML=modeTagHTML();
   { const cb=$('pimConseilBtn'); if(cb) cb.hidden=!isSoutien();
     const rb=$('pimRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
     const qb=$('pimQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
-  $('pimInstr').textContent='Place sur le graphique le point de la courbe d’abscisse '+X+' : clique sur la courbe juste au-dessus (ou en dessous) de '+X+'. Tu peux déplacer ton point en cliquant ailleurs, ou le retirer en recliquant dessus. Quand il est posé, complète l’écriture f (…) = … : l’image de '+X+' est la hauteur de ton point.';
+  $('pimInstr').textContent='On cherche le point de la courbe d’abscisse '+X+'. ① Déplace la droite verticale : clique sur le graphique (ou fais glisser) pour la poser sur '+X+', lu sur l’axe des abscisses. ② Clique « ● Placer le point », puis pose le point là où ta droite coupe la courbe — il se déplace en cliquant ailleurs, se retire en recliquant dessus. ③ Complète l’écriture f (…) = … : l’image de '+X+' est la hauteur de ton point.';
   $('pimGraph').innerHTML=pimSVG(q,null);
   $('pimBody').innerHTML=
-    '<div class="img-line"><span class="pts-case pim-case" id="pim-pt">● Place d’abord le point sur le graphique</span></div>'
+    '<div class="img-line"><span class="pts-case pim-case" id="pim-vl"></span> <span class="pts-case pim-case" id="pim-pt">● Place d’abord le point sur le graphique</span></div>'
     +'<div class="img-line"><i>f</i> ( <input id="pim-fx" class="lv-in sm" inputmode="numeric" autocomplete="off"> ) = <input id="pim-fv" class="lv-in sm" inputmode="numeric" autocomplete="off"></div>';
   $('pimBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',pimLive); el.addEventListener('change',pimLive); });
   pimMajCases();
@@ -6214,16 +6244,38 @@ function pimBrancher(){
   const host=$('pimGraph');
   if(host.__pimPret) return;
   host.__pimPret=true;
+  let glisse=false;
+  const marquer=function(){ recoveryDirty=true; clearTimeout(_pimSaveTimer); _pimSaveTimer=setTimeout(autoSave,1200); };
   host.addEventListener('pointerdown', function(ev){
     if(test.kind!=='pim'||test.locked) return;
     const svg=ev.target.closest('.lv-svg'); if(!svg) return;
     const q=test.questions[test.idx]; if(!q) return;
     const n=pimNoeud(svg,ev); if(!n) return;
-    q.rep=(q.rep && q.rep.x===n.x && q.rep.y===n.y)?null:n;
-    $('pimGraph').innerHTML=pimSVG(q,null);
-    pimMajCases(); pimLive();
-    recoveryDirty=true; clearTimeout(_pimSaveTimer); _pimSaveTimer=setTimeout(autoSave,1200);
+    if(test.pimMode==='point'){
+      if(q.vl==null) return;
+      q.rep=(q.rep && q.rep.x===n.x && q.rep.y===n.y)?null:n;
+      $('pimGraph').innerHTML=pimSVG(q,null);
+      pimMajCases(); pimLive(); marquer();
+    } else {
+      glisse=true;
+      if(q.vl!==n.x){ q.vl=n.x; $('pimGraph').innerHTML=pimSVG(q,null); pimMajCases(); pimLive(); }
+      ev.preventDefault();
+    }
   });
+  /* le glisser : la droite suit le pointeur enfoncé et s'accroche à la
+     graduation la plus proche — il se termine sur pointerup/pointercancel au
+     niveau de la FENÊTRE, sans quoi un relâchement hors du dessin la
+     laisserait accrochée au pointeur (le motif d'{antecedents-droite}) */
+  host.addEventListener('pointermove', function(ev){
+    if(!glisse||test.kind!=='pim'||test.locked) return;
+    const svg=host.querySelector('.lv-svg'); if(!svg) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const n=pimNoeud(svg,ev); if(!n||n.x===q.vl) return;
+    q.vl=n.x; $('pimGraph').innerHTML=pimSVG(q,null); pimMajCases(); pimLive();
+  });
+  const fin=function(){ if(glisse){ glisse=false; marquer(); } };
+  window.addEventListener('pointerup', fin);
+  window.addEventListener('pointercancel', fin);
 }
 /* Les cases s'écrivent APRÈS le point (la demande : « il faut que l'élève
    place le point avant de donner le résultat ») : désactivées tant qu'aucun
@@ -6231,21 +6283,31 @@ function pimBrancher(){
    y était écrit. */
 function pimMajCases(){
   const q=test.questions[test.idx]; if(!q) return;
-  const pose=!!q.rep;
-  ['pim-fx','pim-fv'].forEach(function(id){ const el=$(id); if(el) el.disabled=!pose||!!test.locked; });
+  const pose=!!q.rep, dr=(q.vl!=null), fige=!!test.locked;
+  const bd=$('pimModeDroite'), bp=$('pimModePoint');
+  if(bd){ bd.disabled=fige; bd.classList.toggle('sel', test.pimMode!=='point'); }
+  if(bp){ bp.disabled=!dr||fige; bp.classList.toggle('sel', test.pimMode==='point'); }
+  ['pim-fx','pim-fv'].forEach(function(id){ const el=$(id); if(el) el.disabled=!pose||fige; });
+  const v=$('pim-vl');
+  if(v) v.textContent=dr ? '| Droite posée sur x = '+numFmt(q.vl)
+                         : '| Place d’abord la droite verticale sur '+numFmt(q.x0);
   const c=$('pim-pt'); if(!c) return;
   c.textContent=pose ? '● Point posé en ( '+numFmt(q.rep.x)+' ; '+numFmt(q.rep.y)+' )'
                      : '● Place d’abord le point sur le graphique';
 }
+/* CHAQUE RÉPONSE SE JUGE SEULE : la droite sur SON abscisse, le point sur SON
+   nœud — une droite mal posée est comptée fausse une fois, elle ne fait pas
+   payer le point une seconde fois (la règle d'{antecedents-droite}). */
 function pimCheck(q){
   const y0=imgY(q);
   const subs=[
     {id:'pim-fx', val:q.x0, ok: lvReadInt('pim-fx')===q.x0},
     {id:'pim-fv', val:y0,   ok: lvReadInt('pim-fv')===y0},
   ];
+  const vlOk = (q.vl===q.x0);
   const ptOk = !!q.rep && q.rep.x===q.x0 && q.rep.y===y0;
-  const nCorrect=subs.filter(x=>x.ok).length + (ptOk?1:0);
-  return {subs:subs, ptOk:ptOk, ptPose:!!q.rep, nCorrect:nCorrect, nTotal:3, allOk:nCorrect===3};
+  const nCorrect=subs.filter(x=>x.ok).length + (vlOk?1:0) + (ptOk?1:0);
+  return {subs:subs, vlOk:vlOk, ptOk:ptOk, ptPose:!!q.rep, nCorrect:nCorrect, nTotal:4, allOk:nCorrect===4};
 }
 /* Soutien : chaque case au fil de la frappe, la pastille du point à la pose —
    et une case vide comme un point non posé ne reçoivent RIEN. */
@@ -6257,45 +6319,62 @@ function pimLive(){
     el.classList.remove('ok','bad');
     if((el.value||'').trim()!=='') el.classList.add(x.ok?'ok':'bad');
   });
+  const v=$('pim-vl'); if(v){ v.classList.remove('ok','bad'); if(q.vl!=null) v.classList.add(res.vlOk?'ok':'bad'); }
   const c=$('pim-pt'); if(c){ c.classList.remove('ok','bad'); if(res.ptPose) c.classList.add(res.ptOk?'ok':'bad'); }
 }
 function submitPim(){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  /* pas de point : rien ne se peint, rien ne se verrouille — on redit le
-     geste attendu. Un point absent n'est pas une erreur, c'est un début. */
+  /* pas de droite, puis pas de point : rien ne se peint, rien ne se
+     verrouille — on redit le geste attendu. Un geste absent n'est pas une
+     erreur, c'est un début. */
+  if(q.vl==null){
+    const mk=$('pimMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('pimCorr').textContent='Place d\u2019abord la droite verticale : clique sur le graphique au-dessus de '+numFmt(q.x0)+' (tu peux la faire glisser).';
+    return;
+  }
   if(!q.rep){
     const mk=$('pimMark'); mk.textContent='✗'; mk.className='mark bad show';
-    $('pimCorr').textContent='Place d’abord le point sur le graphique : clique sur la courbe juste au-dessus (ou en dessous) de '+numFmt(q.x0)+'.';
+    $('pimCorr').textContent='Place d\u2019abord le point sur le graphique : clique \u00ab \u25cf Placer le point \u00bb, puis pose-le l\u00e0 o\u00f9 ta droite coupe la courbe.';
     return;
   }
   const res=pimCheck(q);
+  const pastille=function(id, ok){ const el=$(id); if(el){ el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); } };
   if(isSoutien() && !res.allOk){
     lvMarkFields(res, false);
-    const c=$('pim-pt'); if(c){ c.classList.remove('ok','bad'); c.classList.add(res.ptOk?'ok':'bad'); }
-    $('pimGraph').innerHTML=pimSVG(q,{ok:res.ptOk});
+    pastille('pim-vl',res.vlOk); pastille('pim-pt',res.ptOk);
+    $('pimGraph').innerHTML=pimSVG(q,{ok:res.ptOk, vlOk:res.vlOk});
     const mk=$('pimMark'); mk.textContent='✗'; mk.className='mark bad show';
-    $('pimCorr').textContent='Pas tout à fait — corrige ce qui est en rouge (ton point se déplace en cliquant ailleurs), puis revérifie.';
+    $('pimCorr').textContent='Pas tout \u00e0 fait — corrige ce qui est en rouge (ta droite et ton point se d\u00e9placent, chacun dans son mode), puis rev\u00e9rifie.';
     return;
   }
   test.locked=true; clearTimeout(test.qTimer);
   lvMarkFields(res, true);
-  const c=$('pim-pt'); if(c){ c.classList.remove('ok','bad'); c.classList.add(res.ptOk?'ok':'bad'); }
-  /* le point de l'élève garde sa couleur ; le BON point — la correction —
-     ne se montre en vert que s'il n'y est pas, et jamais en soutien (on y
-     arrive seulement tout juste) */
-  $('pimGraph').innerHTML=pimSVG(q,{ok:res.ptOk, sol:!res.ptOk});
+  pastille('pim-vl',res.vlOk); pastille('pim-pt',res.ptOk);
+  /* la droite et le point de l'élève gardent leur couleur ; la bonne
+     abscisse (vert pointillé) et le bon point (anneau vert) ne se montrent
+     que s'ils manquent — en soutien on n'arrive ici que tout juste (la
+     branche du soutien incomplet passe avant), donc rien ne se révèle par
+     construction : pas de garde isSoutien(), ce serait le garde-fou mort
+     d'{antecedents-droite} réécrit ici */
+  $('pimGraph').innerHTML=pimSVG(q,{ok:res.ptOk, vlOk:res.vlOk, sol:!res.ptOk, solVl:!res.vlOk});
   pimMajCases();
   const mk=$('pimMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
   test.score += res.nCorrect;
   $('pimValidate').disabled=true;
   const y0=imgY(q), X=numFmt(q.x0), Y=numFmt(y0);
-  if(!res.allOk) $('pimCorr').innerHTML='Le point vert montre la bonne position : sur la courbe, juste au-dessus (ou en dessous) de '+X+', à la hauteur '+Y+'. Donc f ('+X+') = '+Y+' : l’image de '+X+' est '+Y+'.';
-  else $('pimCorr').innerHTML='<span class="lv-ok">Parfait — ton point est au bon endroit, et f ('+X+') = '+Y+' !</span>';
-  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Point et image de '+X+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'pim'});
+  if(!res.allOk){
+    let m='';
+    if(!res.vlOk) m+='La droite verte en pointill\u00e9s montre le bon endroit : sur '+X+', lu sur l\u2019axe des abscisses. ';
+    if(!res.ptOk) m+='Le point vert montre la bonne position : sur la courbe, juste au-dessus (ou en dessous) de '+X+', \u00e0 la hauteur '+Y+'. ';
+    m+='Donc f ('+X+') = '+Y+' : l\u2019image de '+X+' est '+Y+'.';
+    $('pimCorr').innerHTML=m;
+  }
+  else $('pimCorr').innerHTML='<span class="lv-ok">Parfait — ta droite et ton point sont au bon endroit, et f ('+X+') = '+Y+' !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Droite, point et image de '+X+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'pim'});
   lvBoutonSuivant('pimValidate', nextPimQuestion);
 }
-function nextPimQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderPim(); autoSave(); } else finishTest(); }
+function nextPimQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.pimMode='droite'; renderPim(); autoSave(); } else finishTest(); }
 
 /* ================= Exercice Seconde : Antécédents d'un nombre (kind 'ant') =================
    Le chemin INVERSE de {image-nombre}, repris de la fiche papier : on donne une

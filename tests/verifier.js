@@ -6385,8 +6385,9 @@ function placerImage(w, P){
       if(xs.some(function(x){ return x===0; })) vus.push('une question demande l\\'abscisse 0 — le point tomberait sur l\\'axe des ordonnées');
       if(new Set(xs).size!==4) vus.push('deux questions demandent la même abscisse : '+xs.join(','));
       test.questions.forEach(function(q){
-        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='x0'&&k!=='rep'; });
-        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'abscisse et le point : '+cles.join(','));
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='x0'&&k!=='rep'&&k!=='vl'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'abscisse, le point et la droite : '+cles.join(','));
+        if(q.rep!==null || q.vl!==null) vus.push('le tirage pose une réponse à la place de l\\'élève');
         if(q.pts[q.x0+3]===0) vus.push('l\\'image demandée vaut 0 : le point serait posé sur l\\'axe des abscisses');
       });
     }
@@ -6395,16 +6396,22 @@ function placerImage(w, P){
     /* montage : une question CHOISIE (x0 positif, image négative — le signe
        moins passe par numFmt) */
     startPim(); clearTimeout(test.fbTimer);
-    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], x0:2, rep:null};
+    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], x0:2, rep:null, vl:null};
     const q=test.questions[0], y0=q.pts[q.x0+3];
     test.idx=0; test.locked=false; renderPim();
     const el=function(id){ return document.getElementById(id); };
     const peint=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
 
-    /* 2. les cases attendent le point — et le bon point n'est pas déjà montré */
+    /* 2. le point attend la DROITE, les cases attendent le point — et rien
+       n'est déjà montré */
+    if(!el('pimModePoint') || !el('pimModePoint').disabled) vus.push('« Placer le point » s\\'ouvre avant que la droite soit posée');
+    if(document.querySelector('#pimGraph .adr-niv')) vus.push('une droite est dessinée avant que l\\'élève la pose');
+    if(document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse est déjà montrée avant la vérification');
     if(!el('pim-fx').disabled || !el('pim-fv').disabled) vus.push('les cases s\\'écrivent avant que le point soit posé');
     if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point est déjà montré avant la vérification');
+    q.vl=q.x0; pimMajCases();
+    if(el('pimModePoint').disabled) vus.push('« Placer le point » reste fermé une fois la droite posée');
     el('pim-fx').value='9';
     q.rep={x:q.x0,y:y0}; pimMajCases();
     if(el('pim-fx').disabled) vus.push('les cases restent désactivées une fois le point posé');
@@ -6413,44 +6420,68 @@ function placerImage(w, P){
     if(!el('pim-fx').disabled) vus.push('retirer le point ne redésactive pas les cases');
     if(el('pim-fx').value!=='9') vus.push('retirer le point efface la case');
 
-    /* 3. vérifier sans point : rien ne se peint, rien ne se verrouille */
+    /* 3. vérifier sans droite, puis sans point : rien ne se peint, rien ne
+       se verrouille — chaque message redit le geste attendu */
+    q.vl=null; pimMajCases();
     el('pim-fx').value=''; submitPim();
+    if(test.locked) vus.push('vérifier sans droite verrouille la question');
+    if(el('pimCorr').textContent.indexOf('droite verticale')<0)
+      vus.push('vérifier sans droite ne redit pas le geste attendu : '+el('pimCorr').textContent.slice(0,80));
+    q.vl=q.x0; pimMajCases(); submitPim();
     if(test.locked) vus.push('vérifier sans point verrouille la question');
     if(peint('pim-fx')!=='rien'||peint('pim-fv')!=='rien'||peint('pim-pt')!=='rien') vus.push('vérifier sans point pose une couleur');
     if(el('pimCorr').textContent.indexOf('Place d’abord le point')<0)
       vus.push('vérifier sans point ne redit pas le geste attendu : '+el('pimCorr').textContent.slice(0,80));
 
-    /* 4. copie juste : TROIS réponses comptées, rien ne se révèle */
+    /* 4. copie juste : QUATRE réponses comptées (la droite en est une), rien ne se révèle */
     q.rep={x:q.x0,y:y0}; pimMajCases();
     el('pim-fx').value=String(q.x0); el('pim-fv').value=String(y0);
     const avant=test.score; submitPim(); clearTimeout(test.fbTimer);
-    if(test.score-avant!==3) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 3 (le point est une réponse)');
+    if(test.score-avant!==4) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 4 (la droite et le point sont des réponses)');
+    if(peint('pim-vl')!=='vert') vus.push('la pastille de la droite juste n\\'est pas marquée ok');
     if(peint('pim-pt')!=='vert') vus.push('la pastille du point juste n\\'est pas marquée ok');
     if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point se montre alors que celui de l\\'élève est juste');
+    if(document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse se montre alors que la droite de l\\'élève est juste');
 
     /* 5. point faux en entraînement : il coûte SON point, le bon point se montre en vert */
     test.idx=1; test.locked=false; renderPim();
     const q2=test.questions[1], y2=q2.pts[q2.x0+3];
-    q2.rep={x:q2.x0, y:(y2===3?2:y2+1)}; pimMajCases();
+    q2.vl=q2.x0; q2.rep={x:q2.x0, y:(y2===3?2:y2+1)}; pimMajCases();
     el('pim-fx').value=String(q2.x0); el('pim-fv').value=String(y2);
     const avant2=test.score; submitPim(); clearTimeout(test.fbTimer);
-    if(test.score-avant2!==2) vus.push('le point faux coûte '+(3-(test.score-avant2))+' point(s) au lieu de 1');
+    if(test.score-avant2!==3) vus.push('le point faux coûte '+(4-(test.score-avant2))+' point(s) au lieu de 1');
     if(peint('pim-pt')!=='rouge') vus.push('la pastille du point faux ne rougit pas');
     if(!document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point ne se montre pas en vert sur un point faux (entraînement)');
     if(!document.querySelector('#pimGraph .pim-pt.bad')) vus.push('le point faux de l\\'élève ne rougit pas sur le dessin');
 
+    /* 5 bis. DROITE fausse, tout le reste juste : elle coûte exactement SON
+       point — une droite mal posée ne fait pas payer le point une seconde
+       fois — et la bonne abscisse se montre en vert pointillé */
+    test.idx=1; test.locked=false; renderPim();
+    q2.vl=(q2.x0===3?2:q2.x0+1); q2.rep={x:q2.x0, y:y2}; pimMajCases();
+    el('pim-fx').value=String(q2.x0); el('pim-fv').value=String(y2);
+    const avant3=test.score; submitPim(); clearTimeout(test.fbTimer);
+    if(test.score-avant3!==3) vus.push('la droite mal posée coûte '+(4-(test.score-avant3))+' point(s) au lieu de 1');
+    if(peint('pim-vl')!=='rouge') vus.push('la pastille de la droite mal posée ne rougit pas');
+    if(peint('pim-pt')!=='vert') vus.push('le bon point rougit parce que la droite est mal posée');
+    if(!document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse ne se montre pas en vert quand la droite est fausse');
+    if(!document.querySelector('#pimGraph .adr-niv.bad')) vus.push('la droite fausse ne rougit pas sur le dessin');
+
     /* 6. en soutien, rien ne se révèle, et une case vide ne rougit jamais */
     currentMode='soutien';
     test.idx=2; test.locked=false; renderPim();
+    /* la droite ET le point sont faux : si l'une des deux révélations
+       fuyait en soutien, elle aurait ici quelque chose à révéler */
     const q3=test.questions[2], y3=q3.pts[q3.x0+3];
-    q3.rep={x:q3.x0, y:(y3===3?2:y3+1)}; pimMajCases();
+    q3.vl=(q3.x0===3?2:q3.x0+1); q3.rep={x:q3.x0, y:(y3===3?2:y3+1)}; pimMajCases();
     el('pim-fx').value=String(q3.x0); el('pim-fv').value=String(y3);
     submitPim(); clearTimeout(test.fbTimer);
     if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point se révèle en SOUTIEN — l\\'élève doit corriger lui-même');
+    if(document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse se révèle en SOUTIEN — l\\'élève doit corriger lui-même');
     if(test.locked) vus.push('le soutien verrouille une copie fausse au lieu de laisser corriger');
     test.idx=3; test.locked=false; renderPim();
     const q4=test.questions[3], y4=q4.pts[q4.x0+3];
-    q4.rep={x:q4.x0,y:y4}; pimMajCases();
+    q4.vl=q4.x0; q4.rep={x:q4.x0,y:y4}; pimMajCases();
     el('pim-fx').value=''; el('pim-fv').value=String(y4);
     submitPim(); clearTimeout(test.fbTimer);
     if(peint('pim-fx')==='rouge') vus.push('une case laissée vide rougit à la vérification en soutien');

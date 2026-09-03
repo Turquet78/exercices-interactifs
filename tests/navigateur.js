@@ -3678,9 +3678,12 @@ async function parcours(page, N){
     /* ===== 6 octodecies. placer le point, lire l'image : le graphe se CLIQUE ===== */
     /* Le calcul clic → nœud est calibré sur les GRADUATIONS du SVG rendu —
        la seule façon de le voir est de cliquer pour de vrai (la leçon de
-       {construire-fonction} : jsdom n'a pas de mise en page). On clique le
+       {construire-fonction} : jsdom n'a pas de mise en page). D'abord la
+       DROITE VERTICALE (demande de Turquet, septembre 2026) : on la fait
+       GLISSER et on la relâche à un tiers de maille — elle s'accroche à la
+       graduation la plus proche — puis on passe en mode point. On clique le
        BON nœud, un point décalé d'un tiers de maille (il s'accroche au plus
-       proche), on vérifie 3/3 ; puis un point FAUX pour voir le bon point en
+       proche), on vérifie 4/4 ; puis un point FAUX pour voir le bon point en
        vert ; et le retrait, qui redésactive les cases sans les vider. */
     titre('6 octodecies. PLACER LE POINT, LIRE L\'IMAGE : LE GRAPHE SE CLIQUE');
     if(!P.placerImage){
@@ -3718,9 +3721,36 @@ async function parcours(page, N){
         fx: document.getElementById('pim-fx').value
       }));
       const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { x0: q.x0, y0: q.pts[q.x0 + 3] }; });
-      /* les cases attendent le point */
+      /* le point attend la DROITE, les cases attendent le point */
       let e = await etat();
       if(!e.fxOff) dits.push('les cases s\'écrivent avant que le point soit posé');
+      if(!(await s.page.evaluate(() => document.getElementById('pimModePoint').disabled)))
+        dits.push('« Placer le point » s\'ouvre avant que la droite soit posée');
+      /* le GLISSER de la droite verticale : on enfonce loin de la bonne
+         abscisse, on glisse, on relâche un TIERS de maille à côté — elle
+         s'accroche à la graduation la plus proche */
+      const glisserDroite = async (cibleX) => {
+        const depart = cibleX >= 0 ? -2 : 2;
+        let p = await posNoeud(depart, 0);
+        await s.page.mouse.move(p.px, p.py);
+        await s.page.mouse.down();
+        await s.page.waitForTimeout(120);
+        p = await posNoeud(cibleX, 0, cibleX > depart ? -0.3 : 0.3, 0);
+        await s.page.mouse.move(p.px, p.py, { steps: 5 });
+        await s.page.waitForTimeout(120);
+        await s.page.mouse.up();
+        await s.page.waitForTimeout(200);
+      };
+      await glisserDroite(q0.x0);
+      e = await s.page.evaluate(() => ({
+        vl: test.questions[test.idx].vl,
+        niv: !!document.querySelector('#pimGraph .adr-niv'),
+        ptsOff: document.getElementById('pimModePoint').disabled
+      }));
+      if(e.vl !== q0.x0) dits.push('le glisser relâché à un tiers de maille pose la droite sur ' + e.vl + ' au lieu de ' + q0.x0);
+      if(!e.niv) dits.push('la droite posée ne se dessine pas');
+      if(e.ptsOff) dits.push('« Placer le point » reste fermé une fois la droite posée');
+      await s.page.click('#pimModePoint');
       /* le clic pose le nœud visé, et les cases s\'ouvrent */
       await clicNoeud(q0.x0, q0.y0);
       e = await etat();
@@ -3738,7 +3768,7 @@ async function parcours(page, N){
       await clicNoeud(q0.x0, q0.y0, 0.33, -0.3);
       e = await etat();
       if(e.rep !== JSON.stringify({ x: q0.x0, y: q0.y0 })) dits.push('le clic décalé d\'un tiers de maille ne s\'accroche pas au nœud le plus proche : ' + e.rep);
-      /* la copie juste : 3/3 */
+      /* la copie juste : 4/4 — la droite est une réponse */
       await s.page.evaluate(([x, y]) => {
         document.getElementById('pim-fx').value = String(x);
         document.getElementById('pim-fv').value = String(y);
@@ -3746,12 +3776,14 @@ async function parcours(page, N){
       await s.page.click('#pimValidate');
       await s.page.waitForTimeout(300);
       const fin = await s.page.evaluate(() => ({ score: test.score, sol: !!document.querySelector('#pimGraph .pim-sol') }));
-      if(fin.score !== 3) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 3');
+      if(fin.score !== 4) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 4');
       if(fin.sol) dits.push('le bon point se montre sur une copie toute juste');
       /* question suivante, point FAUX : le bon point se montre en vert, d\'étendue non nulle */
       await s.page.evaluate(() => nextPimQuestion());
       await s.page.waitForTimeout(400);
       const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { x0: q.x0, y0: q.pts[q.x0 + 3] }; });
+      await glisserDroite(q1.x0);
+      await s.page.click('#pimModePoint');
       await clicNoeud(q1.x0, q1.y0 === 3 ? 2 : q1.y0 + 1);
       await s.page.evaluate(([x, y]) => {
         document.getElementById('pim-fx').value = String(x);
@@ -3769,7 +3801,7 @@ async function parcours(page, N){
       if(!faux.sol) dits.push('le bon point ne se montre pas sur un point faux');
       else if(!faux.large) dits.push('le bon point vert est dessiné mais d\'étendue nulle');
       if(!faux.bad) dits.push('le point faux de l\'élève ne rougit pas sur le dessin');
-      if(faux.score !== 5) dits.push('le point faux ne coûte pas exactement son point (score ' + faux.score + ' au lieu de 5)');
+      if(faux.score !== 7) dits.push('le point faux ne coûte pas exactement son point (score ' + faux.score + ' au lieu de 7)');
       verifier('le point se pose au clic, les cases attendent le point', !dits.length, dits.slice(0, 3).join(' | '));
       verifier('l\'écran du point à placer ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));

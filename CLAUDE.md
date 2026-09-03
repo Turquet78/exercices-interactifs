@@ -930,6 +930,27 @@ rien à mesurer, ce qu'il refuse — il ne sait pas la distinguer d'un
 Éprouvé en le cassant six fois — cinq au banc principal, un au navigateur —,
 chacun rougissant en nommant son défaut.
 
+**Puis la droite verticale est devenue un GESTE, avant le point.** Demande de
+Turquet (septembre 2026) : « demander d'abord à l'élève de déplacer une droite
+verticale au bon endroit sur la courbe avant de placer le point ». C'est le
+motif d'{antecedents-droite}, transposé à la verticale, et REPRIS plutôt que
+réinventé : mêmes classes (la droite déplaçable est ORANGE, `.adr-niv` ; la
+correction en vert pointillé, `.adr-sol`), mêmes deux modes explicites
+(« Déplacer la droite » / « Placer le point »), même chaîne de portes — le
+mode point et donc le point attendent la droite, les cases attendent le point,
+et chaque « Vérifier » prématuré redit le geste manquant sans rien peindre ni
+verrouiller. **Quatre réponses désormais** (la droite, le point, les deux
+cases), et chacune se juge SEULE : une droite mal posée est comptée fausse une
+fois, elle ne fait pas payer le point une seconde fois. La branche verrouillée
+ne porte AUCUN garde `isSoutien()` sur les révélations : en soutien on n'y
+arrive qu'avec une copie toute juste — le garde-fou mort d'{antecedents-droite}
+n'a pas été réécrit ici, et le contrôle tient le bord par la branche du
+soutien. Le contrôle jsdom a été ÉTENDU (la projection accepte `vl`, la copie
+juste vaut 4, la droite fausse coûte exactement son point, la verticale verte
+se montre en entraînement seulement) et le banc navigateur GLISSE la droite
+pour de vrai — relâchée à un tiers de maille, elle s'accroche — avant de
+cliquer le point, sur les deux questions qu'il joue.
+
 **Et le chemin inverse de l'image est un autre exercice : les antécédents.**
 {antecedent-nombre} (Seconde, 2.3, demande de Turquet, août 2026) est repris de
 la fiche papier : on donne une HAUTEUR, et il faut retrouver le ou les nombres
