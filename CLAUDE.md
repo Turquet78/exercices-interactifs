@@ -961,6 +961,56 @@ réponse rangée dans la question, une case qui ne se juge plus, l'ordre imposé
 le doublon compté deux fois, la case vide colorée en soutien, la ligne absente,
 la ligne posée à la mauvaise hauteur — chacun rougit en nommant son défaut.
 
+**Et les antécédents en GRAND : c'est l'élève qui place la droite.**
+{antecedents-droite} (Seconde, demande de Turquet, septembre 2026) suit
+{antecedent-nombre} dans le menu : le même style de dessin que le 2.4, mais la
+grille est DOUBLÉE — 13 graduations en abscisse ET en ordonnée (−6..6) contre
+7 — et la droite horizontale n'est plus dessinée par la page : l'élève la FAIT
+GLISSER à la hauteur demandée, puis — la droite posée — marque au clic le ou
+les points où elle coupe la courbe, OU RIEN s'il n'y en a pas, puis complète
+la phrase « Les antécédents de k [est / sont / n'existent pas] … ; … ; … ».
+**Le moteur lv n'est PAS réutilisé tel quel, et c'est un arbitrage nommé** :
+lvGenPts, lvPath et lvGraphSVG sont figés sur 7 graduations et comparés au
+caractère près avec terminale.html — les généraliser aurait touché la
+Terminale pour un besoin de Seconde. Seul le cœur mathématique est partagé
+(lvTangents, lvPickSubset, génériques en longueur) : la spline est donc la
+même, et le reste est réécrit à l'échelle 13 dans le seul bloc `adr`.
+**La séance montre les TROIS visages, chacun UNE fois, en ordre mélangé** :
+aucun antécédent, un seul, plusieurs — c'est LA question de l'exercice, et
+c'est pourquoi les TROIS cases de nombres sont toujours affichées : des cases
+au nombre exact révéleraient la réponse qu'on fait chercher. Une case en trop
+restée vide n'est ni fausse ni comptée ; les nombres suivent la règle des
+paires d'{antecedent-nombre} (ordre libre, le doublon défendable une fois).
+**Deux gestes sur un seul dessin, donc deux MODES explicites** (« Déplacer
+la droite » / « Placer les points »), le second fermé tant que la droite
+n'est pas posée — comme la phrase et ses cases : la demande « la droite
+d'abord » est tenue par l'ÉTAT des cases, le motif de {placer-image}. Les
+points vivent SUR la droite (ils la suivent quand elle bouge) et se jugent
+sur les ABSCISSES qu'ils désignent : une droite mal posée est comptée fausse
+UNE fois, elle ne fait pas payer les points une seconde fois — chaque réponse
+se juge seule. « n'existent pas » ferme les cases de nombres sans les vider.
+**Le repli du tirage est RÉEL, relevé sur le générateur** (0 échec sur 2000,
+0 recours au repli sur 300 tirages mesurés), et le contrôle l'éprouve par les
+gardes mêmes du tirage : il assèche le générateur et rejoue ses contrôles sur
+ce qui sort alors. La hauteur reste LISIBLE (recomptée par la propre
+arithmétique du contrôle), et la question ne range que la courbe, la hauteur
+et les réponses de l'élève (dr, rep).
+**Un garde-fou mort y a été écrit, puis retiré** — dans la branche verrouillée
+de la vérification, un `!isSoutien()` protégeait la révélation verte : on n'y
+arrive en soutien qu'avec une copie toute juste (la branche du soutien
+incomplet passe avant), donc il n'écartait jamais rien — le sabotage l'a
+montré en restant vert, et le contrôle tient ce bord par la branche du
+soutien. **Et un sabotage a d'abord frappé le VOISIN** : les trois lignes du
+filtre de lisibilité d'adrCibles sont identiques à celles d'antCibles, et le
+remplacement de la « première occurrence » a saboté le 2.3 pendant que le
+contrôle du nouvel exercice restait vert à bon droit — un sabotage se pose
+sur une ancre PROPRE à sa cible, sans quoi il mesure autre chose. Neuf
+sabotages en tout, chacun rougissant en nommant son défaut. Le banc
+navigateur, lui, GLISSE pour de vrai — jsdom n'a pas de mise en page : le
+geste central de l'exercice ne se voit que là — relâche la droite à un tiers
+de maille (elle s'accroche), clique les croisements, retire un point, et
+relit la note et les couleurs.
+
 **Résoudre une inéquation, c'est d'abord choisir le dessin qui la montre.**
 {inequation-graphique} (Seconde, 2.4, demande de Turquet, août 2026) est repris
 de la fiche papier : UNE courbe, la droite y = k, et quatre dessins qui ne

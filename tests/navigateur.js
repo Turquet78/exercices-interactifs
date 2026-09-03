@@ -3776,6 +3776,142 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
+    /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
+       le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
+       les points se posent au clic SUR la droite. jsdom n'a pas de mise en
+       page (un rectangle de SVG y vaut zéro) : le glisser, le calibrage
+       geste → nœud sur la grille DOUBLÉE (13 graduations) et l'ouverture des
+       cases ne se voient qu'ici. Le banc principal, lui, pose dr et rep à la
+       main — c'est la répartition de {placer-image}. */
+    titre('6 undevicies. ANTÉCÉDENTS : LA DROITE SE FAIT GLISSER');
+    if(!P.antecedentsDroite){
+      ignorer('la droite se fait glisser, les points se posent sur elle',
+        'ce niveau n\'a pas l\'exercice des antécédents à droite posée');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.antecedentsDroite.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      /* la position d'un nœud, lue dans les graduations du SVG rendu — le
+         rectangle est relu à CHAQUE geste, le dessin étant réécrit */
+      const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {
+        const svg = document.querySelector('#adrGraph .lv-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const vx = [], hy = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+          else hy.push(parseFloat(l.getAttribute('y1')));
+        });
+        const pasX = (vx[1] - vx[0]) * r.width / vb.width, pasY = Math.abs(hy[1] - hy[0]) * r.height / vb.height;
+        return { px: r.left + vx[x + 6] * r.width / vb.width + (dx || 0) * pasX,
+                 py: r.top + hy[y + 6] * r.height / vb.height + (dy || 0) * pasY };
+      }, [x, y, dx || 0, dy || 0]);
+      const clicNoeud = async (x, y, dx, dy) => { const p = await posNoeud(x, y, dx, dy); await s.page.mouse.click(p.px, p.py); await s.page.waitForTimeout(120); };
+      const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { y0: q.y0, ants: adrAnts(q) }; });
+      /* le dessin porte bien la grille DOUBLÉE, et les cases attendent la droite */
+      let e = await s.page.evaluate(() => ({
+        grille: document.querySelectorAll('#adrGraph line.lv-grid').length,
+        vOff: document.getElementById('adr-v').disabled,
+        ptsOff: document.getElementById('adrModePoints').disabled,
+        niv: !!document.querySelector('#adrGraph .adr-niv')
+      }));
+      if(e.grille !== 26) dits.push('le dessin rendu porte ' + e.grille + ' lignes de grille au lieu de 26 (13 + 13)');
+      if(!e.vOff) dits.push('la phrase se remplit avant que la droite soit posée');
+      if(!e.ptsOff) dits.push('« Placer les points » s\'ouvre avant que la droite soit posée');
+      if(e.niv) dits.push('une droite est dessinée avant que l\'élève la pose');
+      /* le GLISSER : on enfonce loin de la bonne hauteur, on glisse, on
+         relâche un TIERS de maille à côté — la droite s'accroche à la
+         graduation la plus proche */
+      const depart = q0.y0 >= 0 ? -4 : 4;
+      let p = await posNoeud(0, depart);
+      await s.page.mouse.move(p.px, p.py);
+      await s.page.mouse.down();
+      await s.page.waitForTimeout(120);
+      p = await posNoeud(0, q0.y0, 0, q0.y0 > depart ? 0.3 : -0.3);
+      await s.page.mouse.move(p.px, p.py, { steps: 6 });
+      await s.page.waitForTimeout(120);
+      await s.page.mouse.up();
+      await s.page.waitForTimeout(200);
+      e = await s.page.evaluate(() => ({
+        dr: test.questions[test.idx].dr,
+        vOff: document.getElementById('adr-v').disabled,
+        ptsOff: document.getElementById('adrModePoints').disabled,
+        niv: !!document.querySelector('#adrGraph .adr-niv')
+      }));
+      if(e.dr !== q0.y0) dits.push('le glisser relâché à un tiers de maille pose la droite en ' + e.dr + ' au lieu de ' + q0.y0);
+      if(!e.niv) dits.push('la droite posée ne se dessine pas');
+      if(e.vOff) dits.push('la phrase reste fermée une fois la droite posée');
+      if(e.ptsOff) dits.push('« Placer les points » reste fermé une fois la droite posée');
+      /* les points : on passe en mode points, on clique chaque croisement —
+         et un point recliqué se retire */
+      await s.page.click('#adrModePoints');
+      for(const x of q0.ants) await clicNoeud(x, q0.y0);
+      if(q0.ants.length){
+        await clicNoeud(q0.ants[0], q0.y0);          /* retiré… */
+        e = await s.page.evaluate(() => ({ rep: JSON.stringify(test.questions[test.idx].rep.slice().sort((a, b) => a - b)) }));
+        if(e.rep === JSON.stringify(q0.ants)) dits.push('recliquer un point ne le retire pas');
+        await clicNoeud(q0.ants[0], q0.y0);          /* …et reposé */
+      }
+      e = await s.page.evaluate(() => ({
+        rep: JSON.stringify(test.questions[test.idx].rep.slice().sort((a, b) => a - b)),
+        pts: document.querySelectorAll('#adrGraph .pim-pt').length
+      }));
+      if(e.rep !== JSON.stringify(q0.ants)) dits.push('les clics ne posent pas les croisements visés : ' + e.rep + ' au lieu de ' + JSON.stringify(q0.ants));
+      if(e.pts !== q0.ants.length) dits.push(e.pts + ' point(s) dessiné(s) pour ' + q0.ants.length + ' posé(s)');
+      /* la phrase, puis la vérification : toutes les réponses comptées */
+      await s.page.evaluate(ants => {
+        document.getElementById('adr-v').value = ants.length === 0 ? 'aucun' : (ants.length === 1 ? 'est' : 'sont');
+        ants.forEach((x, i) => { document.getElementById('adr-n-' + i).value = String(x); });
+      }, q0.ants);
+      await s.page.click('#adrValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({
+        score: test.score,
+        sol: !!document.querySelector('#adrGraph .adr-sol') || !!document.querySelector('#adrGraph .pim-sol')
+      }));
+      if(fin.score !== 3 + q0.ants.length) dits.push('la copie juste au geste vaut ' + fin.score + ' au lieu de ' + (3 + q0.ants.length));
+      if(fin.sol) dits.push('la correction verte s\'affiche sur une copie toute juste');
+      /* question suivante, la droite posée UNE graduation trop haut : elle
+         rougit sur le dessin, la bonne hauteur se montre en vert pointillé,
+         et elle ne coûte qu'UN point — les points restent justes */
+      await s.page.evaluate(() => nextAdrQuestion());
+      await s.page.waitForTimeout(400);
+      const q1 = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { y0: q.y0, ants: adrAnts(q) }; });
+      const faux = q1.y0 < 6 ? q1.y0 + 1 : q1.y0 - 1;
+      p = await posNoeud(0, faux);
+      await s.page.mouse.move(p.px, p.py); await s.page.mouse.down();
+      await s.page.waitForTimeout(120); await s.page.mouse.up();
+      await s.page.waitForTimeout(200);
+      await s.page.click('#adrModePoints');
+      for(const x of q1.ants) await clicNoeud(x, faux);
+      const av = await s.page.evaluate(() => test.score);
+      await s.page.evaluate(ants => {
+        document.getElementById('adr-v').value = ants.length === 0 ? 'aucun' : (ants.length === 1 ? 'est' : 'sont');
+        ants.forEach((x, i) => { document.getElementById('adr-n-' + i).value = String(x); });
+      }, q1.ants);
+      await s.page.click('#adrValidate');
+      await s.page.waitForTimeout(300);
+      const f2 = await s.page.evaluate(() => {
+        const sol = document.querySelector('#adrGraph .adr-sol');
+        const r = sol ? sol.getBoundingClientRect() : null;
+        return { score: test.score, sol: !!sol, large: r ? r.width > 40 : false,
+                 bad: !!document.querySelector('#adrGraph .adr-niv.bad') };
+      });
+      if(f2.score - av !== 2 + q1.ants.length) dits.push('la droite mal posée coûte ' + (3 + q1.ants.length - (f2.score - av)) + ' point(s) au lieu de 1');
+      if(!f2.sol) dits.push('la bonne hauteur ne se montre pas en vert quand la droite est fausse');
+      else if(!f2.large) dits.push('la droite verte est dessinée mais d\'étendue presque nulle');
+      if(!f2.bad) dits.push('la droite fausse ne rougit pas sur le dessin');
+      verifier('la droite se fait glisser, les points se posent sur elle', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des antécédents à droite posée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent

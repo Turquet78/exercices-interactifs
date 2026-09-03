@@ -2688,6 +2688,7 @@ function exercices(suite){
     suiteAuxiliaireCompleter(w, P);
     phraseCouleurs(w);
     antecedentNombre(w, P);
+    antecedentsDroite(w, P);
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
@@ -7261,6 +7262,212 @@ function antecedentNombre(w, P){
     if(document.getElementById('ant-s-1')) vus.push('une hauteur à un seul antécédent affiche deux cases');
     poser({'ant-s-0':0,'ant-fx-0':0,'ant-fy-0':3}); const av3=test.score; submitAnt(); clearTimeout(test.fbTimer);
     if(test.score-av3!==3) vus.push('la copie juste au singulier vaut '+(test.score-av3)+' au lieu de 3');
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- Antécédents : place la droite — la grille doublée, les trois visages, le juge ---------- */
+/* {antecedents-droite} (Seconde, demande de Turquet, septembre 2026) : le même
+   travail que {antecedent-nombre}, mais la droite horizontale est POSÉE PAR
+   L'ÉLÈVE, la grille est DOUBLÉE (13 graduations en x et en y), et la séance
+   montre les TROIS visages — aucun antécédent, un seul, plusieurs — chacun une
+   fois, en ordre mélangé. Les bords propres à cet exercice :
+   · la hauteur reste LISIBLE (recomptée ici par la propre arithmétique du
+     contrôle), et la question ne range RIEN d'autre que la courbe, la hauteur
+     et les réponses de l'élève (dr, rep) ;
+   · les TROIS cases de nombres sont toujours affichées — des cases au nombre
+     exact révéleraient la réponse que l'exercice fait chercher — et une case
+     en trop restée vide n'est ni fausse ni comptée ;
+   · chaque réponse se juge SEULE : une droite mal posée ne fait pas payer les
+     points une seconde fois ; les nombres suivent la règle des paires ;
+   · les cases attendent la droite (le motif de {placer-image}), « n'existent
+     pas » ferme les cases de nombres, et le repli du tirage passe par les
+     gardes mêmes du tirage. */
+function antecedentsDroite(w, P){
+  const present = evaluer(w, "typeof startAdr==='function' && typeof adrCheck==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('antécédents : place la droite — la grille doublée, les trois visages, le juge',
+      'ce niveau n\'a pas l\'exercice des antécédents à droite posée');
+    return;
+  }
+  verifierEval(w, 'antécédents : place la droite — la grille doublée, les trois visages, le juge', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='antecedents-droite';
+
+    /* ---- 1. le tirage : les trois visages, chacun une fois, en ordre
+       mélangé ; hauteur lisible ; rien d'autre dans la question ---- */
+    const ordres={};
+    for(let t=0;t<60 && !vus.length;t++){
+      const qs=adrTirage();
+      if(qs.length!==3){ vus.push(qs.length+' questions au lieu de 3'); break; }
+      const ns=[];
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='y0'&&k!=='dr'&&k!=='rep'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, la hauteur et les réponses : '+cles.join(','));
+        if(q.dr!==null || (q.rep&&q.rep.length)) vus.push('le tirage pose une réponse à la place de l\\'élève');
+        if(q.pts.length!==13 || q.pts.some(function(y){ return !Number.isInteger(y)||y<-6||y>6; })) vus.push('la grille n\\'est pas doublée : '+q.pts.length+' valeurs, ou hors de [−6;6]');
+        if(!Number.isInteger(q.y0)||q.y0<-6||q.y0>6) vus.push('hauteur hors du quadrillage : '+q.y0);
+        /* la traversée entre deux graduations, recomptée ici */
+        for(let i=0;i<12;i++){ const lo=Math.min(q.pts[i],q.pts[i+1]), hi=Math.max(q.pts[i],q.pts[i+1]);
+          if(q.y0>lo && q.y0<hi) vus.push('la droite y = '+q.y0+' traverse la courbe ENTRE deux graduations ('+q.pts[i]+' → '+q.pts[i+1]+')'); }
+        const n=q.pts.filter(function(v){ return v===q.y0; }).length;
+        if(n>3) vus.push(n+' antécédents pour la hauteur '+q.y0+' : plus que les trois cases');
+        const mn=Math.min.apply(null,q.pts), mx=Math.max.apply(null,q.pts);
+        if(n===0 && !(q.y0<mn||q.y0>mx)) vus.push('une hauteur « sans antécédent » qui touche pourtant la courbe');
+        if(mx-mn<8) vus.push('la courbe n\\'utilise pas la grille doublée (amplitude '+(mx-mn)+')');
+        ns.push(Math.min(n,2));
+      });
+      if(ns.indexOf(0)<0) vus.push('aucune question SANS antécédent dans la séance');
+      if(ns.indexOf(1)<0) vus.push('aucune question à UN SEUL antécédent dans la séance');
+      if(ns.indexOf(2)<0) vus.push('aucune question à PLUSIEURS antécédents dans la séance');
+      ordres[ns.join(',')]=1;
+    }
+    if(!vus.length && Object.keys(ordres).length<2)
+      vus.push('l\\'ordre des trois visages ne varie jamais ('+Object.keys(ordres).join(' / ')+') : l\\'élève apprendrait le rang');
+
+    /* le REPLI passe par les gardes mêmes du tirage : on assèche le
+       générateur et on rejoue les contrôles sur ce qu'il rend alors */
+    const vraiGen=adrGenPts;
+    adrGenPts=function(){ return null; };
+    const repli=adrTirage();
+    adrGenPts=vraiGen;
+    if(repli.length!==3) vus.push('le repli rend '+repli.length+' questions');
+    else{
+      const nsR=repli.map(function(q){
+        for(let i=0;i<12;i++){ const lo=Math.min(q.pts[i],q.pts[i+1]), hi=Math.max(q.pts[i],q.pts[i+1]);
+          if(q.y0>lo && q.y0<hi) vus.push('le repli porte une hauteur illisible ('+q.y0+')'); }
+        return Math.min(q.pts.filter(function(v){ return v===q.y0; }).length,2);
+      });
+      [0,1,2].forEach(function(v){ if(nsR.indexOf(v)<0) vus.push('le repli perd un des trois visages ('+v+')'); });
+    }
+
+    /* ---- 2. le juge, sur des questions CHOISIES (relevées sur le
+       générateur) : trois antécédents en −3, −1 et 4 pour la hauteur 3 ;
+       un seul en 4 pour la hauteur −5 ; aucun pour la hauteur 5 ---- */
+    const Q3={pts:[-2,0,1,3,4,3,2,1,0,2,3,5,6], y0:3};
+    const Q1={pts:[5,4,3,2,1,0,-1,-2,-3,-4,-5,-4,2], y0:-5};
+    const Q0={pts:[3,2,1,0,-1,-2,-3,-4,-5,-6,-5,-4,-2], y0:5};
+    startAdr(); clearTimeout(test.fbTimer);
+    const poser=function(base, dr, rep, verbe, nbs){
+      test.locked=false; test.idx=0; test.adrMode='droite';
+      test.questions[0]={pts:base.pts.slice(), y0:base.y0, dr:null, rep:[]};
+      renderAdr();
+      const qq=test.questions[0];
+      if(dr!==undefined && dr!==null) qq.dr=dr;
+      if(rep) qq.rep=rep.slice();
+      adrDessiner(); adrMaj();
+      const v=document.getElementById('adr-v'); if(v && verbe!==undefined) v.value=verbe;
+      (nbs||[]).forEach(function(x,i){ const el=document.getElementById('adr-n-'+i);
+        if(el) el.value=(x===undefined||x===null)?'':String(x); });
+      adrMaj();
+      return qq;
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+
+    /* les cases ATTENDENT la droite, et la grille rendue est bien doublée */
+    poser(Q3);
+    const svg0=document.getElementById('adrGraph');
+    const grilleV=svg0.querySelectorAll('line.lv-grid').length;
+    if(grilleV!==26) vus.push('le dessin rendu porte '+grilleV+' lignes de grille au lieu de 26 (13 + 13)');
+    if(!Array.prototype.some.call(svg0.querySelectorAll('text.lv-ax'), function(t){ return t.textContent===numFmt(-6); }))
+      vus.push('aucune graduation ne porte −6 : la grille n\\'est pas doublée à l\\'écran');
+    if(!document.getElementById('adr-v').disabled) vus.push('la phrase se remplit avant que la droite soit posée');
+    if(!document.getElementById('adr-n-0').disabled) vus.push('les cases de nombres s\\'écrivent avant que la droite soit posée');
+    if(!document.getElementById('adrModePoints').disabled) vus.push('« Placer les points » s\\'ouvre avant que la droite soit posée');
+    if(svg0.querySelector('.adr-niv')) vus.push('une droite est déjà dessinée avant que l\\'élève la pose');
+    if(svg0.querySelector('.adr-sol')||svg0.querySelector('.pim-sol')) vus.push('la correction est dessinée avant la validation');
+    submitAdr();
+    if(test.locked) vus.push('« Valider » sans droite verrouille la question');
+    if(document.getElementById('adrCorr').textContent.indexOf('Place')<0) vus.push('« Valider » sans droite ne redit pas le geste attendu');
+
+    /* copie juste à TROIS antécédents, nombres dans un AUTRE ordre ;
+       toutes les réponses comptées, et les cases affichées le disent */
+    poser(Q3, 3, [-3,-1,4], 'sont', [-1,4,-3]);
+    let avant=test.score; submitAdr(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==6) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 6');
+    ['adr-dr','adr-pts','adr-v','adr-n-0','adr-n-1','adr-n-2'].forEach(function(id){
+      if(peint(id)!=='vert') vus.push('copie juste : '+id+' est peint en '+peint(id)); });
+    const a=test.answers[test.answers.length-1]||{};
+    if(a.cases!==6||a.justes!==6) vus.push('la note affichée compte '+a.justes+' case(s) juste(s) sur '+a.cases+' au lieu de 6 sur 6');
+    /* la droite, mesurée contre les GRADUATIONS du dessin même */
+    const svg=document.getElementById('adrGraph');
+    const niv=svg.querySelectorAll('.adr-niv');
+    if(niv.length!==1) vus.push(niv.length+' droites dessinées au lieu de 1');
+    else{
+      const ly=Array.prototype.filter.call(svg.querySelectorAll('text.lv-ax'), function(t){
+        return t.textContent===numFmt(3) && t.getAttribute('text-anchor')==='end'; })[0];
+      if(!ly) vus.push('aucune graduation ne porte '+numFmt(3));
+      else if(Math.abs(parseFloat(niv[0].getAttribute('y1'))-(parseFloat(ly.getAttribute('y'))-3.5))>1)
+        vus.push('la droite dessinée n\\'est pas à la hauteur posée');
+    }
+    if(svg.querySelectorAll('.pim-pt').length!==3) vus.push('les points posés ne sont pas dessinés');
+    if(svg.querySelector('.adr-sol')||svg.querySelector('.pim-sol')) vus.push('la correction verte s\\'affiche sur une copie juste');
+
+    /* le MÊME antécédent posé deux fois : défendable une fois, faux la seconde */
+    poser(Q3, 3, [-3,-1,4], 'sont', [-3,-3,4]);
+    avant=test.score; submitAdr(); clearTimeout(test.fbTimer);
+    if(peint('adr-n-0')!=='vert') vus.push('le premier −3 est peint en '+peint('adr-n-0'));
+    if(peint('adr-n-1')==='vert') vus.push('le même antécédent posé deux fois est compté juste deux fois');
+    if(test.score-avant!==5) vus.push('le doublon vaut '+(test.score-avant)+' au lieu de 5');
+
+    /* une case vide en entraînement : jamais rouge, la valeur manquante en vert */
+    poser(Q3, 3, [-3,-1,4], 'sont', [-3,null,4]);
+    submitAdr(); clearTimeout(test.fbTimer);
+    if(peint('adr-n-1')==='rouge') vus.push('une case laissée vide rougit à la vérification');
+    if(peint('adr-n-1')!=='bleu') vus.push('une case vide ne reçoit pas la correction ('+peint('adr-n-1')+')');
+    if(document.getElementById('adr-n-1').value!==String(-1)) vus.push('la correction n\\'écrit pas la valeur manquante');
+
+    /* UNE DROITE MAL POSÉE NE FAIT PAS PAYER LES POINTS : tout le reste juste */
+    poser(Q3, 2, [-3,-1,4], 'sont', [-3,-1,4]);
+    avant=test.score; submitAdr(); clearTimeout(test.fbTimer);
+    if(peint('adr-dr')!=='rouge') vus.push('la droite mal posée n\\'est pas signalée');
+    if(peint('adr-pts')!=='vert') vus.push('les bons croisements rougissent parce que la droite est mal posée');
+    if(test.score-avant!==5) vus.push('la droite mal posée coûte '+(6-(test.score-avant))+' point(s) au lieu de 1');
+    if(!document.querySelector('#adrGraph .adr-sol')) vus.push('la bonne hauteur ne se montre pas en vert quand la droite est fausse');
+    if(!document.querySelector('#adrGraph .adr-niv.bad')) vus.push('la droite fausse ne passe pas au rouge sur le dessin');
+
+    /* des points faux : les anneaux verts montrent les croisements attendus */
+    poser(Q3, 3, [-3,2], 'sont', [-3,-1,4]);
+    submitAdr(); clearTimeout(test.fbTimer);
+    if(peint('adr-pts')!=='rouge') vus.push('des points faux ne rougissent pas');
+    if(document.querySelectorAll('#adrGraph .pim-sol').length!==3) vus.push('les croisements attendus ne se montrent pas en anneaux verts');
+    if(!document.querySelector('#adrGraph .pim-pt.bad')) vus.push('le point posé hors croisement ne rougit pas sur le dessin');
+
+    /* UN SEUL antécédent : « est », une seule case comptée */
+    poser(Q1, -5, [4], 'est', [4,null,null]);
+    avant=test.score; submitAdr(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==4) vus.push('la copie juste au singulier vaut '+(test.score-avant)+' au lieu de 4');
+    if(peint('adr-n-1')!=='rien') vus.push('une case en trop restée vide est peinte en '+peint('adr-n-1'));
+
+    /* AUCUN antécédent : « n'existent pas », aucun point, cases fermées */
+    poser(Q0, 5, [], 'aucun', []);
+    avant=test.score; submitAdr(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==3) vus.push('la copie juste sans antécédent vaut '+(test.score-avant)+' au lieu de 3');
+    if(peint('adr-pts')!=='vert') vus.push('« aucun point posé » n\\'est pas compté juste quand il n\\'y a aucun antécédent');
+    poser(Q0, 5, [], 'aucun', []);
+    if(!document.getElementById('adr-n-0').disabled) vus.push('« n\\'existent pas » laisse les cases de nombres ouvertes');
+    poser(Q0, 5, [], 'sont', []);
+    submitAdr(); clearTimeout(test.fbTimer);
+    if(peint('adr-v')!=='rouge') vus.push('« sont » devant zéro antécédent est peint en '+peint('adr-v'));
+    if(!document.querySelector('#adr-v + .mf-cor')) vus.push('le verbe faux ne montre pas la bonne réponse en vert à côté');
+
+    /* en soutien : la case vide ne reçoit rien, la fausse rougit seule,
+       et la copie incomplète ne verrouille pas */
+    currentMode='soutien';
+    poser(Q3, 3, [-3,-1,4], 'sont', [-3,0,null]);
+    adrLive();
+    if(peint('adr-n-2')!=='rien') vus.push('en soutien, la case vide reçoit '+peint('adr-n-2')+' pendant la frappe');
+    if(peint('adr-n-1')!=='rouge') vus.push('en soutien, la case fausse ne rougit pas pendant la frappe');
+    if(peint('adr-n-0')!=='vert') vus.push('en soutien, une case juste ne verdit pas');
+    submitAdr();
+    if(peint('adr-n-2')!=='rien') vus.push('en soutien, la vérification pose '+peint('adr-n-2')+' sur une case vide');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question');
+    if(document.querySelector('#adrGraph .adr-sol')||document.querySelector('#adrGraph .pim-sol'))
+      vus.push('en soutien, la correction verte se montre quand même');
+    currentMode='train';
 
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
