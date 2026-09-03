@@ -2689,6 +2689,7 @@ function exercices(suite){
     phraseCouleurs(w);
     antecedentNombre(w, P);
     antecedentsDroite(w, P);
+    inequationDroite(w, P);
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
@@ -6385,8 +6386,9 @@ function placerImage(w, P){
       if(xs.some(function(x){ return x===0; })) vus.push('une question demande l\\'abscisse 0 — le point tomberait sur l\\'axe des ordonnées');
       if(new Set(xs).size!==4) vus.push('deux questions demandent la même abscisse : '+xs.join(','));
       test.questions.forEach(function(q){
-        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='x0'&&k!=='rep'; });
-        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'abscisse et le point : '+cles.join(','));
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='x0'&&k!=='rep'&&k!=='vl'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, l\\'abscisse, le point et la droite : '+cles.join(','));
+        if(q.rep!==null || q.vl!==null) vus.push('le tirage pose une réponse à la place de l\\'élève');
         if(q.pts[q.x0+3]===0) vus.push('l\\'image demandée vaut 0 : le point serait posé sur l\\'axe des abscisses');
       });
     }
@@ -6395,16 +6397,22 @@ function placerImage(w, P){
     /* montage : une question CHOISIE (x0 positif, image négative — le signe
        moins passe par numFmt) */
     startPim(); clearTimeout(test.fbTimer);
-    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], x0:2, rep:null};
+    test.questions[0]={pts:[-3,-1,1,3,1,-1,-3], x0:2, rep:null, vl:null};
     const q=test.questions[0], y0=q.pts[q.x0+3];
     test.idx=0; test.locked=false; renderPim();
     const el=function(id){ return document.getElementById(id); };
     const peint=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
 
-    /* 2. les cases attendent le point — et le bon point n'est pas déjà montré */
+    /* 2. le point attend la DROITE, les cases attendent le point — et rien
+       n'est déjà montré */
+    if(!el('pimModePoint') || !el('pimModePoint').disabled) vus.push('« Placer le point » s\\'ouvre avant que la droite soit posée');
+    if(document.querySelector('#pimGraph .adr-niv')) vus.push('une droite est dessinée avant que l\\'élève la pose');
+    if(document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse est déjà montrée avant la vérification');
     if(!el('pim-fx').disabled || !el('pim-fv').disabled) vus.push('les cases s\\'écrivent avant que le point soit posé');
     if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point est déjà montré avant la vérification');
+    q.vl=q.x0; pimMajCases();
+    if(el('pimModePoint').disabled) vus.push('« Placer le point » reste fermé une fois la droite posée');
     el('pim-fx').value='9';
     q.rep={x:q.x0,y:y0}; pimMajCases();
     if(el('pim-fx').disabled) vus.push('les cases restent désactivées une fois le point posé');
@@ -6413,44 +6421,68 @@ function placerImage(w, P){
     if(!el('pim-fx').disabled) vus.push('retirer le point ne redésactive pas les cases');
     if(el('pim-fx').value!=='9') vus.push('retirer le point efface la case');
 
-    /* 3. vérifier sans point : rien ne se peint, rien ne se verrouille */
+    /* 3. vérifier sans droite, puis sans point : rien ne se peint, rien ne
+       se verrouille — chaque message redit le geste attendu */
+    q.vl=null; pimMajCases();
     el('pim-fx').value=''; submitPim();
+    if(test.locked) vus.push('vérifier sans droite verrouille la question');
+    if(el('pimCorr').textContent.indexOf('droite verticale')<0)
+      vus.push('vérifier sans droite ne redit pas le geste attendu : '+el('pimCorr').textContent.slice(0,80));
+    q.vl=q.x0; pimMajCases(); submitPim();
     if(test.locked) vus.push('vérifier sans point verrouille la question');
     if(peint('pim-fx')!=='rien'||peint('pim-fv')!=='rien'||peint('pim-pt')!=='rien') vus.push('vérifier sans point pose une couleur');
     if(el('pimCorr').textContent.indexOf('Place d’abord le point')<0)
       vus.push('vérifier sans point ne redit pas le geste attendu : '+el('pimCorr').textContent.slice(0,80));
 
-    /* 4. copie juste : TROIS réponses comptées, rien ne se révèle */
+    /* 4. copie juste : QUATRE réponses comptées (la droite en est une), rien ne se révèle */
     q.rep={x:q.x0,y:y0}; pimMajCases();
     el('pim-fx').value=String(q.x0); el('pim-fv').value=String(y0);
     const avant=test.score; submitPim(); clearTimeout(test.fbTimer);
-    if(test.score-avant!==3) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 3 (le point est une réponse)');
+    if(test.score-avant!==4) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 4 (la droite et le point sont des réponses)');
+    if(peint('pim-vl')!=='vert') vus.push('la pastille de la droite juste n\\'est pas marquée ok');
     if(peint('pim-pt')!=='vert') vus.push('la pastille du point juste n\\'est pas marquée ok');
     if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point se montre alors que celui de l\\'élève est juste');
+    if(document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse se montre alors que la droite de l\\'élève est juste');
 
     /* 5. point faux en entraînement : il coûte SON point, le bon point se montre en vert */
     test.idx=1; test.locked=false; renderPim();
     const q2=test.questions[1], y2=q2.pts[q2.x0+3];
-    q2.rep={x:q2.x0, y:(y2===3?2:y2+1)}; pimMajCases();
+    q2.vl=q2.x0; q2.rep={x:q2.x0, y:(y2===3?2:y2+1)}; pimMajCases();
     el('pim-fx').value=String(q2.x0); el('pim-fv').value=String(y2);
     const avant2=test.score; submitPim(); clearTimeout(test.fbTimer);
-    if(test.score-avant2!==2) vus.push('le point faux coûte '+(3-(test.score-avant2))+' point(s) au lieu de 1');
+    if(test.score-avant2!==3) vus.push('le point faux coûte '+(4-(test.score-avant2))+' point(s) au lieu de 1');
     if(peint('pim-pt')!=='rouge') vus.push('la pastille du point faux ne rougit pas');
     if(!document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point ne se montre pas en vert sur un point faux (entraînement)');
     if(!document.querySelector('#pimGraph .pim-pt.bad')) vus.push('le point faux de l\\'élève ne rougit pas sur le dessin');
 
+    /* 5 bis. DROITE fausse, tout le reste juste : elle coûte exactement SON
+       point — une droite mal posée ne fait pas payer le point une seconde
+       fois — et la bonne abscisse se montre en vert pointillé */
+    test.idx=1; test.locked=false; renderPim();
+    q2.vl=(q2.x0===3?2:q2.x0+1); q2.rep={x:q2.x0, y:y2}; pimMajCases();
+    el('pim-fx').value=String(q2.x0); el('pim-fv').value=String(y2);
+    const avant3=test.score; submitPim(); clearTimeout(test.fbTimer);
+    if(test.score-avant3!==3) vus.push('la droite mal posée coûte '+(4-(test.score-avant3))+' point(s) au lieu de 1');
+    if(peint('pim-vl')!=='rouge') vus.push('la pastille de la droite mal posée ne rougit pas');
+    if(peint('pim-pt')!=='vert') vus.push('le bon point rougit parce que la droite est mal posée');
+    if(!document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse ne se montre pas en vert quand la droite est fausse');
+    if(!document.querySelector('#pimGraph .adr-niv.bad')) vus.push('la droite fausse ne rougit pas sur le dessin');
+
     /* 6. en soutien, rien ne se révèle, et une case vide ne rougit jamais */
     currentMode='soutien';
     test.idx=2; test.locked=false; renderPim();
+    /* la droite ET le point sont faux : si l'une des deux révélations
+       fuyait en soutien, elle aurait ici quelque chose à révéler */
     const q3=test.questions[2], y3=q3.pts[q3.x0+3];
-    q3.rep={x:q3.x0, y:(y3===3?2:y3+1)}; pimMajCases();
+    q3.vl=(q3.x0===3?2:q3.x0+1); q3.rep={x:q3.x0, y:(y3===3?2:y3+1)}; pimMajCases();
     el('pim-fx').value=String(q3.x0); el('pim-fv').value=String(y3);
     submitPim(); clearTimeout(test.fbTimer);
     if(document.querySelector('#pimGraph .pim-sol')) vus.push('le bon point se révèle en SOUTIEN — l\\'élève doit corriger lui-même');
+    if(document.querySelector('#pimGraph .adr-sol')) vus.push('la bonne abscisse se révèle en SOUTIEN — l\\'élève doit corriger lui-même');
     if(test.locked) vus.push('le soutien verrouille une copie fausse au lieu de laisser corriger');
     test.idx=3; test.locked=false; renderPim();
     const q4=test.questions[3], y4=q4.pts[q4.x0+3];
-    q4.rep={x:q4.x0,y:y4}; pimMajCases();
+    q4.vl=q4.x0; q4.rep={x:q4.x0,y:y4}; pimMajCases();
     el('pim-fx').value=''; el('pim-fv').value=String(y4);
     submitPim(); clearTimeout(test.fbTimer);
     if(peint('pim-fx')==='rouge') vus.push('une case laissée vide rougit à la vérification en soutien');
@@ -7467,6 +7499,173 @@ function antecedentsDroite(w, P){
     if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question');
     if(document.querySelector('#adrGraph .adr-sol')||document.querySelector('#adrGraph .pim-sol'))
       vus.push('en soutien, la correction verte se montre quand même');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- Inéquation : place la droite — la signification, le dessin qui suit, la conclusion ---------- */
+/* {inequation-droite} (Seconde, demande de Turquet, septembre 2026) : placer
+   la droite horizontale, dire ce que SIGNIFIE l'inégalité (au-dessus / en
+   dessous, peut toucher : oui / non), voir le dessin se colorier SELON SA
+   RÉPONSE, puis conclure S = … avec crochets et nombres. Les bords propres :
+   · les QUATRE signes sortent chacun une fois, en ordre mélangé — sans quoi
+     « au-dessus » tomberait toujours juste ;
+   · S est toujours UN SEUL intervalle, et c'est le tirage qui le garantit
+     (cloche pour ≥ et >, son miroir en vallée pour ≤ et <) — recompté ici
+     par la propre arithmétique du contrôle, croisements sur les graduations
+     et hauteur jamais traversée entre deux graduations compris ;
+   · le dessin SUIT la réponse de l'élève (la règle du 2.4.1), n'apparaît
+     qu'une fois les deux choix faits, et passe à la lecture corrigée à la
+     vérification ;
+   · les portes : la phrase attend la droite, la conclusion attend la
+     phrase ; la droite mal posée coûte exactement son point ;
+   · les accolades { } sont offertes et toujours fausses — l'erreur de
+     l'équation — et le badge dit le LIBELLÉ de la bonne réponse. */
+function inequationDroite(w, P){
+  const present = evaluer(w, "typeof startIqd==='function' && typeof iqdCheck==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('inéquation : place la droite — la signification, le dessin qui suit, la conclusion',
+      'ce niveau n\'a pas l\'exercice de l\'inéquation à droite posée');
+    return;
+  }
+  verifierEval(w, 'inéquation : place la droite — la signification, le dessin qui suit, la conclusion', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='inequation-droite';
+
+    /* ---- 1. le tirage ---- */
+    const ordres={};
+    for(let t=0;t<40 && !vus.length;t++){
+      const qs=iqdGen();
+      if(qs.length!==4){ vus.push(qs.length+' questions au lieu de 4'); break; }
+      const ops=qs.map(function(q){ return q.op; });
+      ['ge','gt','le','lt'].forEach(function(op){ if(ops.indexOf(op)<0) vus.push('le signe '+op+' ne sort pas dans la séance'); });
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'&&k!=='k'&&k!=='op'&&k!=='dr'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe, la hauteur, le signe et la droite : '+cles.join(','));
+        if(q.dr!==null) vus.push('le tirage pose la droite à la place de l\\'élève');
+        if(q.pts.length!==7 || q.pts.some(function(y){ return !Number.isInteger(y)||y<-3||y>3; })) vus.push('courbe hors du quadrillage');
+        if(!Number.isInteger(q.k)||q.k===0||q.k<-3||q.k>3) vus.push('hauteur k invalide : '+q.k);
+        const b=[]; for(let x=-3;x<=3;x++){ if(q.pts[x+3]===q.k) b.push(x); }
+        if(b.length!==2) vus.push(b.length+' croisements au lieu de 2 pour k = '+q.k);
+        else if(b[0]<=-3||b[1]>=3) vus.push('un croisement tombe au bord : '+b.join(','));
+        for(let i=0;i<6;i++){ const lo=Math.min(q.pts[i],q.pts[i+1]), hi=Math.max(q.pts[i],q.pts[i+1]);
+          if(q.k>lo && q.k<hi) vus.push('la hauteur '+q.k+' est traversée ENTRE deux graduations'); }
+        /* S est UN SEUL intervalle : le morceau demandé est celui du milieu */
+        if(b.length===2){
+          const dessus=(q.op==='ge'||q.op==='gt'), milieuDessus=q.pts[b[0]+1+3]>q.k;
+          if(dessus!==milieuDessus) vus.push('S serait une UNION pour '+q.op+' (le morceau demandé n\\'est pas celui du milieu)');
+        }
+      });
+      ordres[ops.join(',')]=1;
+    }
+    if(!vus.length && Object.keys(ordres).length<2)
+      vus.push('l\\'ordre des quatre signes ne varie jamais : l\\'élève apprendrait le rang');
+
+    /* ---- 2. le juge, sur des questions CHOISIES : la cloche de la fiche
+       (f (x) ≥ 1, bornes −1 et 1) et son miroir en vallée (f (x) < −1) ---- */
+    const QG={pts:[-3,-2,1,3,1,-1,-3], k:1, op:'ge'};
+    const QL={pts:[3,2,-1,-3,-1,1,3], k:-1, op:'lt'};
+    startIqd(); clearTimeout(test.fbTimer);
+    const poser=function(base, dr, vals){
+      test.locked=false; test.idx=0;
+      test.questions[0]={pts:base.pts.slice(), k:base.k, op:base.op, dr:null};
+      renderIqd();
+      const qq=test.questions[0];
+      if(dr!==undefined && dr!==null){ qq.dr=dr; iqdDessiner(); iqdMaj(); }
+      Object.keys(vals||{}).forEach(function(id){ const el=document.getElementById(id);
+        if(el){ el.value=(vals[id]===null)?'':String(vals[id]); } });
+      iqdDessiner(); iqdMaj();
+      return qq;
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
+    const rouges=function(){ return document.querySelectorAll('#iqdGraph .ing-rouge').length; };
+    const BON={'iqd-pos':'dessus','iqd-tou':'oui','iqd-co':'[','iqd-b1':'-1','iqd-b2':'1','iqd-cf':']'};
+
+    /* les portes, et le dessin qui ATTEND les deux choix */
+    poser(QG);
+    if(!document.getElementById('iqd-pos').disabled) vus.push('la phrase se remplit avant que la droite soit posée');
+    if(!document.getElementById('iqd-co').disabled) vus.push('la conclusion s\\'écrit avant la phrase');
+    if(document.querySelector('#iqdGraph .adr-niv')) vus.push('une droite est dessinée avant que l\\'élève la pose');
+    if(rouges()) vus.push('la partie rouge est dessinée avant toute lecture');
+    submitIqd();
+    if(test.locked) vus.push('vérifier sans droite verrouille la question');
+    if(document.getElementById('iqdCorr').textContent.indexOf('droite')<0) vus.push('vérifier sans droite ne redit pas le geste attendu');
+    poser(QG, 1, {'iqd-pos':'dessus'});
+    if(document.getElementById('iqd-co').disabled===false) vus.push('la conclusion s\\'ouvre avant que la phrase soit complète');
+    if(rouges()) vus.push('la partie rouge se dessine avant que les DEUX choix soient faits');
+
+    /* le dessin SUIT la réponse de l'élève : « en dessous, sans toucher »
+       sur la cloche de ≥ doit colorier les DEUX morceaux extérieurs, ronds
+       vides aux croisements */
+    poser(QG, 1, {'iqd-pos':'dessous','iqd-tou':'non'});
+    if(rouges()!==2) vus.push('« en dessous » sur la cloche ne colorie pas les deux morceaux extérieurs ('+rouges()+' morceau(x))');
+    if(document.querySelectorAll('#iqdGraph .ing-vide').length!==2) vus.push('« sans toucher » ne pose pas les ronds vides aux croisements');
+    poser(QG, 1, {'iqd-pos':'dessus','iqd-tou':'oui'});
+    if(rouges()!==1) vus.push('« au-dessus » sur la cloche ne colorie pas le morceau du milieu ('+rouges()+' morceau(x))');
+    if(document.querySelectorAll('#iqdGraph .ing-vide').length) vus.push('« peut toucher » pose quand même des ronds vides');
+
+    /* copie juste : SEPT réponses comptées, rien ne se révèle */
+    poser(QG, 1, BON);
+    let avant=test.score; submitIqd(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==7) vus.push('la copie juste vaut '+(test.score-avant)+' au lieu de 7');
+    if(['iqd-dr','iqd-pos','iqd-tou','iqd-co','iqd-b1','iqd-b2','iqd-cf'].some(function(id){ return peint(id)!=='vert'; }))
+      vus.push('la copie juste n\\'est pas entièrement verte');
+    const a=test.answers[test.answers.length-1]||{};
+    if(a.cases!==7||a.justes!==7) vus.push('la note affichée compte '+a.justes+' sur '+a.cases+' au lieu de 7 sur 7');
+    if(document.querySelector('#iqdGraph .adr-sol')) vus.push('la correction verte s\\'affiche sur une copie juste');
+
+    /* la droite mal posée coûte exactement SON point */
+    poser(QG, 2, BON);
+    avant=test.score; submitIqd(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==6) vus.push('la droite mal posée coûte '+(7-(test.score-avant))+' point(s) au lieu de 1');
+    if(peint('iqd-dr')!=='rouge') vus.push('la pastille de la droite mal posée ne rougit pas');
+    if(!document.querySelector('#iqdGraph .adr-sol')) vus.push('la bonne hauteur ne se montre pas en vert quand la droite est fausse');
+    if(!document.querySelector('#iqdGraph .adr-niv.bad')) vus.push('la droite fausse ne rougit pas sur le dessin');
+
+    /* la phrase fausse : badge au LIBELLÉ, et le dessin passe à la lecture corrigée */
+    poser(QG, 1, Object.assign({},BON,{'iqd-pos':'dessous'}));
+    submitIqd(); clearTimeout(test.fbTimer);
+    if(peint('iqd-pos')!=='rouge') vus.push('la lecture fausse ne rougit pas');
+    const badge=document.querySelector('#iqd-pos + .mf-cor');
+    if(!badge) vus.push('la lecture fausse ne montre pas la bonne réponse à côté');
+    else if(badge.textContent.indexOf('au-dessus')<0) vus.push('le badge écrit « '+badge.textContent+' » au lieu du libellé « au-dessus »');
+    if(rouges()!==1) vus.push('après la vérification le dessin ne passe pas à la lecture corrigée ('+rouges()+' morceau(x))');
+
+    /* l'accolade — l'erreur de l'équation — est offerte et refusée */
+    poser(QG, 1, Object.assign({},BON,{'iqd-co':'{','iqd-cf':'}'}));
+    avant=test.score; submitIqd(); clearTimeout(test.fbTimer);
+    if(peint('iqd-co')!=='rouge'||peint('iqd-cf')!=='rouge') vus.push('les accolades { } ne sont pas comptées fausses');
+    if(test.score-avant!==5) vus.push('les accolades coûtent '+(7-(test.score-avant))+' point(s) au lieu de 2');
+
+    /* une case vide : jamais rouge, la correction en vert, le message la dit d'abord */
+    poser(QG, 1, Object.assign({},BON,{'iqd-b2':null}));
+    submitIqd(); clearTimeout(test.fbTimer);
+    if(peint('iqd-b2')==='rouge') vus.push('une case laissée vide rougit à la vérification');
+    if(peint('iqd-b2')!=='bleu') vus.push('une case vide ne reçoit pas la correction ('+peint('iqd-b2')+')');
+    if(document.getElementById('iqdCorr').textContent.indexOf('Il te manquait')!==0)
+      vus.push('le message ne dit pas la case vide avant tout : '+document.getElementById('iqdCorr').textContent.slice(0,60));
+
+    /* le signe strict sur la VALLÉE : « en dessous, sans toucher », crochets ouverts */
+    poser(QL, -1, {'iqd-pos':'dessous','iqd-tou':'non','iqd-co':']','iqd-b1':'-1','iqd-b2':'1','iqd-cf':'['});
+    avant=test.score; submitIqd(); clearTimeout(test.fbTimer);
+    if(test.score-avant!==7) vus.push('la copie juste au signe strict (vallée) vaut '+(test.score-avant)+' au lieu de 7');
+
+    /* en soutien : le choix non fait ne reçoit rien, le faux rougit seul,
+       la copie incomplète ne verrouille pas, rien ne se révèle */
+    currentMode='soutien';
+    poser(QG, 2, {'iqd-pos':'dessous','iqd-tou':'oui'});
+    iqdLive();
+    if(peint('iqd-pos')!=='rouge') vus.push('en soutien, la lecture fausse ne rougit pas pendant le travail');
+    if(peint('iqd-tou')!=='vert') vus.push('en soutien, le choix juste ne verdit pas');
+    if(peint('iqd-co')!=='rien') vus.push('en soutien, un choix non fait reçoit '+peint('iqd-co'));
+    submitIqd();
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille la question');
+    if(document.querySelector('#iqdGraph .adr-sol')) vus.push('en soutien, la bonne hauteur se révèle quand même');
+    if(document.querySelector('#iqd-pos + .mf-cor')) vus.push('en soutien, le badge souffle la bonne réponse');
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');

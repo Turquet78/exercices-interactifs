@@ -930,6 +930,27 @@ rien à mesurer, ce qu'il refuse — il ne sait pas la distinguer d'un
 Éprouvé en le cassant six fois — cinq au banc principal, un au navigateur —,
 chacun rougissant en nommant son défaut.
 
+**Puis la droite verticale est devenue un GESTE, avant le point.** Demande de
+Turquet (septembre 2026) : « demander d'abord à l'élève de déplacer une droite
+verticale au bon endroit sur la courbe avant de placer le point ». C'est le
+motif d'{antecedents-droite}, transposé à la verticale, et REPRIS plutôt que
+réinventé : mêmes classes (la droite déplaçable est ORANGE, `.adr-niv` ; la
+correction en vert pointillé, `.adr-sol`), mêmes deux modes explicites
+(« Déplacer la droite » / « Placer le point »), même chaîne de portes — le
+mode point et donc le point attendent la droite, les cases attendent le point,
+et chaque « Vérifier » prématuré redit le geste manquant sans rien peindre ni
+verrouiller. **Quatre réponses désormais** (la droite, le point, les deux
+cases), et chacune se juge SEULE : une droite mal posée est comptée fausse une
+fois, elle ne fait pas payer le point une seconde fois. La branche verrouillée
+ne porte AUCUN garde `isSoutien()` sur les révélations : en soutien on n'y
+arrive qu'avec une copie toute juste — le garde-fou mort d'{antecedents-droite}
+n'a pas été réécrit ici, et le contrôle tient le bord par la branche du
+soutien. Le contrôle jsdom a été ÉTENDU (la projection accepte `vl`, la copie
+juste vaut 4, la droite fausse coûte exactement son point, la verticale verte
+se montre en entraînement seulement) et le banc navigateur GLISSE la droite
+pour de vrai — relâchée à un tiers de maille, elle s'accroche — avant de
+cliquer le point, sur les deux questions qu'il joue.
+
 **Et le chemin inverse de l'image est un autre exercice : les antécédents.**
 {antecedent-nombre} (Seconde, 2.3, demande de Turquet, août 2026) est repris de
 la fiche papier : on donne une HAUTEUR, et il faut retrouver le ou les nombres
@@ -1010,6 +1031,36 @@ navigateur, lui, GLISSE pour de vrai — jsdom n'a pas de mise en page : le
 geste central de l'exercice ne se voit que là — relâche la droite à un tiers
 de maille (elle s'accroche), clique les croisements, retire un point, et
 relit la note et les couleurs.
+
+**Lire une inéquation, c'est d'abord dire ce qu'elle SIGNIFIE — et le dessin
+suit la réponse.** {inequation-droite} (Seconde, demande de Turquet, septembre
+2026) vient juste avant {inequation-graphique}, comme premier pas : l'élève
+PLACE la droite horizontale (le glisser d'{antecedents-droite}, mêmes classes
+orange/verte), puis complète la phrase — « f (x) ≥ k signifie que f (x) est
+[au-dessus / en dessous] de cette droite, et f (x) peut toucher cette droite :
+[oui / non] » —, le dessin se colorie alors SELON SA RÉPONSE (la règle du
+2.4.1 : un dessin qui montrerait d'office la bonne partie ferait la lecture à
+sa place ; il passe à la lecture corrigée à la vérification, quand la phrase
+aussi porte les bonnes réponses), et il conclut S = … en choisissant crochets
+et nombres — les accolades { } sont OFFERTES et toujours fausses : l'erreur de
+l'élève qui confond avec une équation, et elle doit pouvoir se commettre.
+**La signification ne dépend que du SIGNE**, et c'est pourquoi les quatre
+signes sortent chacun UNE fois par séance, en ordre mélangé — sans quoi
+« au-dessus » tomberait toujours juste. **S est toujours UN SEUL intervalle,
+et c'est le tirage qui le garantit** : la courbe est la cloche du 2.4 (ingGen,
+réutilisé tel quel) pour ≥ et >, son MIROIR en vallée (valeurs et hauteur
+passées à l'opposé — les garanties du 2.4 se conservent par symétrie) pour
+≤ et < : le morceau demandé est toujours celui du milieu, [x1 ; x2], la forme
+même que la conclusion à quatre cases demande. Les portes s'enchaînent : la
+phrase attend la droite, la conclusion attend la phrase ; chaque réponse se
+juge seule (la droite mal posée coûte son point et rien d'autre), corrChoix
+porte badges et cases vertes, msgAvecVides dit les cases vides avant tout.
+Sept sabotages jsdom (les signes non mélangés, la vallée perdue — S devenait
+une union —, la droite qui fait payer le reste, le dessin montré d'office,
+la conclusion qui n'attend plus, la case vide rougie, le dessin qui ne passe
+plus à la lecture corrigée) et un sabotage navigateur (le dessin qui inverse
+la lecture — mesuré sur les morceaux RENDUS et leur étendue), chacun
+rougissant en nommant son défaut.
 
 **Résoudre une inéquation, c'est d'abord choisir le dessin qui la montre.**
 {inequation-graphique} (Seconde, 2.4, demande de Turquet, août 2026) est repris
