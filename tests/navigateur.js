@@ -3697,6 +3697,26 @@ async function parcours(page, N){
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(900);
       const dits = [];
+      /* l'énoncé dit la DEMANDE (« Déterminer l'image de … »), le mode
+         d'emploi du geste se lit après en PLUS PETIT — mesuré à l'encre
+         RENDUE : jsdom lit la règle, seul le navigateur voit la taille
+         résolue (la leçon de la cascade du 6.3) */
+      const enonceMes = await s.page.evaluate(() => {
+        const instr = document.getElementById('pimInstr');
+        const sous = instr && instr.querySelector('.pim-sous');
+        if(!instr || !sous) return { manque: true };
+        return { manque: false,
+          debut: instr.textContent.trim().slice(0, 30),
+          fsInstr: parseFloat(getComputedStyle(instr).fontSize),
+          fsSous: parseFloat(getComputedStyle(sous).fontSize) };
+      });
+      if(enonceMes.manque) dits.push('l\'énoncé ou son bloc .pim-sous manque à l\'écran');
+      else {
+        if(enonceMes.debut.indexOf('Déterminer l’image de') !== 0)
+          dits.push('l\'énoncé ne commence pas par « Déterminer l\'image de … » : ' + enonceMes.debut);
+        if(!(enonceMes.fsSous < enonceMes.fsInstr))
+          dits.push('le mode d\'emploi ne se rend pas plus petit que la demande (' + enonceMes.fsSous + 'px contre ' + enonceMes.fsInstr + 'px)');
+      }
       /* la position d'un nœud, lue dans les graduations du SVG rendu — et le
          rectangle est relu à CHAQUE clic, la grille étant redessinée */
       const posNoeud = async (x, y, dx, dy) => await s.page.evaluate(([x, y, dx, dy]) => {

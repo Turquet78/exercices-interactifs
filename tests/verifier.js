@@ -6404,6 +6404,30 @@ function placerImage(w, P){
     const peint=function(id){ const c=el(id)?el(id).className:'';
       return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'bleu':'rien')); };
 
+    /* 1 bis. l'énoncé DIT la demande — « Déterminer l'image de X » — et le
+       mode d'emploi du geste (droite, point) vient APRÈS, en plus petit
+       (demande de Turquet, septembre 2026). Le « plus petit » se lit dans la
+       feuille de styles : les deux tailles comparées viennent de la même
+       feuille, c'est une mesure, pas une source qui se relit elle-même. */
+    const instr=el('pimInstr');
+    if(instr.textContent.indexOf('Déterminer l’image de 2.')!==0)
+      vus.push('l\\'énoncé ne commence pas par « Déterminer l\\'image de 2. » : '+instr.textContent.slice(0,60));
+    const sous=instr.querySelector('.pim-sous');
+    if(!sous) vus.push('le mode d\\'emploi (droite, point) n\\'est plus dans son bloc .pim-sous');
+    else{
+      if(sous.textContent.indexOf('droite verticale')<0 || sous.textContent.indexOf('Placer le point')<0)
+        vus.push('le mode d\\'emploi ne dit plus la droite et le point');
+      if(sous.textContent.indexOf('Déterminer l’image')>=0)
+        vus.push('la demande est tombée dans le bloc en petit au lieu de rester en énoncé');
+      const css=Array.from(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('');
+      const mS=css.match(/\\.pim-sous\\{[^}]*font-size:([0-9.]+)rem/);
+      const mE=css.match(/\\.lv-instr\\{[^}]*font-size:([0-9.]+)rem/);
+      if(!mS) vus.push('aucune règle CSS ne réduit le mode d\\'emploi (.pim-sous sans font-size)');
+      else if(!mE) vus.push('la taille de l\\'énoncé (.lv-instr) est devenue illisible au contrôle — rien à comparer');
+      else if(parseFloat(mS[1])>=parseFloat(mE[1]))
+        vus.push('le mode d\\'emploi ne s\\'écrit pas plus petit que l\\'énoncé ('+mS[1]+'rem contre '+mE[1]+'rem)');
+    }
+
     /* 2. le point attend la DROITE, les cases attendent le point — et rien
        n'est déjà montré */
     if(!el('pimModePoint') || !el('pimModePoint').disabled) vus.push('« Placer le point » s\\'ouvre avant que la droite soit posée');
