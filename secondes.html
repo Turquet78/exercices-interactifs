@@ -880,6 +880,27 @@
   .pim-case{display:inline-block;padding:5px 12px;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface)}
   .pim-case.ok{border-color:var(--blue);background:#EAF0FF}
   .pim-case.bad{border-color:var(--red);background:#fdeaea}
+  /* {antecedents-droite} : la grille doublée (13 graduations) et la droite que
+     l'élève DÉPLACE. La droite est ORANGE — la couleur de g au 2.5/2.6,
+     choisie pour ne se confondre ni avec la courbe bleue, ni avec le bleu,
+     le vert et le rouge des verdicts, ni entre elles pour un daltonien.
+     La couleur ne porte jamais seule : la pastille sous le dessin écrit la
+     hauteur posée. La droite fausse passe au rouge à la vérification, la
+     bonne hauteur se montre en VERT pointillé (la convention commune) ; les
+     points suivent la convention de {placer-image} (.pim-pt / .pim-sol).
+     touch-action:none : on fait GLISSER la droite au doigt, le navigateur ne
+     doit pas voler le geste pour faire défiler la page. */
+  #scr-adr{padding-bottom:84px}
+  #adrGraph .lv-svg{cursor:pointer;touch-action:none;max-width:640px}
+  .adr-niv{stroke:#C2410C;stroke-width:3;fill:none;stroke-linecap:round}
+  .adr-niv.bad{stroke:var(--red)}
+  .adr-sol{stroke:var(--green);stroke-width:2.6;stroke-dasharray:8 5;fill:none}
+  .adr-modes{display:flex;gap:10px;justify-content:center;margin:0 0 12px;flex-wrap:wrap}
+  .adr-modes .btn.sel{border-color:var(--blue);background:#EAF0FF;color:var(--blue-dark)}
+  /* la feuille pose select{width:100%} : sans largeur EXPLICITE, la liste
+     s'étirerait sur toute la ligne (le piège documenté des intervalles) —
+     et « n'existent pas » ne tient pas dans les 62 px de .itv-sel */
+  .adr-verbe{width:auto;min-width:160px;padding:0 10px}
   .ifg-bout{fill:var(--blue)}
   .ifg-boutg{fill:#C2410C}
   /* La droite de g : en POINTILLÉS, comme sur la fiche — et en ORANGE,
@@ -1616,6 +1637,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-adr">
+    <div class="card lv-card">
+      <div class="q-head"><span id="adrIdx" class="q-idx">Question 1 / 3</span><span id="adrModeTag"></span></div>
+      <p class="lv-instr" id="adrInstr"></p>
+      <div class="lv-graph" id="adrGraph"></div>
+      <div class="adr-modes"><button id="adrModeDroite" class="btn btn-ghost" type="button" onclick="adrChoisirMode('droite')">✋ Déplacer la droite</button><button id="adrModePoints" class="btn btn-ghost" type="button" onclick="adrChoisirMode('points')">● Placer les points</button></div>
+      <div id="adrBody"></div>
+      <div class="lv-feedback"><span id="adrMark" class="mark"></span> <span id="adrCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="adrRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="adrConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="adrQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="adrValidate" onclick="submitAdr()">Valider</button></div>
+    </div>
+  </section>
+
   <!-- TEST : INÉQUATION GRAPHIQUE -->
   <section class="screen" id="scr-ing">
     <div class="test-top">
@@ -2216,7 +2249,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=131;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=132;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2728,6 +2761,7 @@ const TESTS={
   'image-nombre': { name:'Image d\u2019un nombre', icon:'\ud83d\udccd', desc:'Lis l\u2019image d\u2019un nombre sur une courbe : le trait vertical montre la hauteur, puis écris f(x) = … et complète le tableau de valeurs.', start:()=>startImg() },
   'placer-image': { name:'Placer le point, lire l\u2019image', icon:'\ud83c\udfaf', desc:'Place toi-même le point de la courbe sur le graphique — le même genre de courbe que {image-nombre} — puis complète f(…) = … : l\u2019image est la hauteur du point que tu viens de poser.', start:()=>startPim() },
   'antecedent-nombre': { name:'Antécédents d\u2019un nombre', icon:'\ud83e\udded', desc:'C\u2019est l\u2019inverse de {image-nombre} : on te donne la hauteur, et la ligne de niveau — un trait horizontal — te fait retrouver le ou les nombres de départ.', start:()=>startAnt() },
+  'antecedents-droite': { name:'Antécédents : place la droite', icon:'📏', desc:'Le même travail que {antecedent-nombre}, sur un graphique deux fois plus grand : déplace toi-même la droite horizontale à la hauteur demandée, marque les points où elle coupe la courbe — parfois il n’y en a aucun ! — puis complète la phrase des antécédents.', start:()=>startAdr() },
   'equation-graphique': { name:'Équations graphiques', icon:'\ud83d\udcc8', desc:'La courbe de f et la droite de g : lis des images, retrouve des antécédents par f ET par g, puis résous f\u2009(x)\u2009=\u2009k, g\u2009(x)\u2009=\u2009k, f\u2009(x)\u2009=\u2009g\u2009(x) et trois inéquations — pour chaque équation ou inéquation, choisis d\u2019abord le bon dessin parmi quatre, comme dans {resolutions-graphiques}.', start:()=>startEqg() },
   'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
   'construire-fonction': { name:'Construire une fonction', icon:'✏️', desc:'Le chemin INVERSE de toute la lecture graphique : on te donne les consignes — une valeur, une image, un antécédent, f\u2009(x)\u2009=\u20090 et une inéquation — et c\u2019est toi qui traces une courbe qui les respecte, point par point.', start:()=>startCfx() },
@@ -2783,7 +2817,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','placer-image','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2843,6 +2877,7 @@ function liveCheckCurrent(){
   else if(k==='eqg') checkEqgAnswer(true);
   else if(k==='cfx') cfxLive();
   else if(k==='pim') pimLive();
+  else if(k==='adr') adrLive();
   else if(k==='ifg') checkIfgAnswer(true);
   else if(k==='eig') checkEigAnswer(true);
   else if(k==='tsg') checkTsgAnswer(true);
@@ -3637,6 +3672,7 @@ const QIA_SUGG={
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
   pim:["Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
   ant:["C\u2019est quoi, un antécédent ?","Quelle est la différence entre image et antécédent ?","À quoi sert la ligne de niveau ?"],
+  adr:["Comment je place la droite à la bonne hauteur ?","Comment savoir s’il n’y a aucun antécédent ?","Quand est-ce qu’on écrit « est » et quand « sont » ?","Quelle est la différence entre image et antécédent ?"],
   itv:["C’est quoi, un intervalle ?","Comment savoir si le crochet est ouvert ou fermé ?","Pourquoi le crochet est toujours ouvert du côté de l’infini ?","Quelle différence entre < et ≤ ?"],
   itq:["Comment passer d’une inégalité à un intervalle ?","Quelle différence entre « −1 ≤ x » et « x ≤ −1 » ?","Le signe ≤ donne quel crochet ?","Comment savoir de quel côté part le trait rouge ?"],
   eqg:["Comment lire g\u2009(x) quand g est une droite ?","Quelle diff\u00e9rence entre r\u00e9soudre f\u2009(x) = 2 et lire f\u2009(2) ?","O\u00f9 se lisent les solutions de f\u2009(x) = g\u2009(x) ?","Comment \u00e9crire S quand il y a deux morceaux ?"],
@@ -3844,6 +3880,14 @@ Un <b>antécédent</b> de <i>Y</i> par la fonction <i>f</i> est un nombre <i>a</
 Un nombre peut avoir <b>plusieurs</b> antécédents — la ligne coupe alors la courbe plusieurs fois — ou un seul.<br>
 Piège classique : ne confonds pas image et antécédent — l'image se lit en MONTANT depuis le nombre (trait vertical), l'antécédent en PARTANT de la hauteur (trait horizontal).`;
 
+/* HTML pur, sans un seul \\( : la seule « formule » est f(a) = Y, qui n'empile
+   rien — la leçon du rappel de {placer-image}. */
+const RAP_ADR=`<b>Antécédents : la droite horizontale que TU places</b><br>
+Un <b>antécédent</b> de <i>Y</i> par la fonction <i>f</i> est un nombre <i>a</i> tel que <i>f</i>(<i>a</i>) = <i>Y</i>.<br>
+<b>La méthode</b> : place la <b>droite horizontale</b> à la hauteur <i>Y</i>, puis regarde où elle coupe la courbe. Chaque point de croisement donne un antécédent, lu en descendant sur l'axe des abscisses.<br>
+La droite peut couper la courbe <b>plusieurs fois</b> (plusieurs antécédents), <b>une seule fois</b> (un seul antécédent)… ou <b>jamais</b> : si la courbe ne monte pas (ou ne descend pas) jusqu'à la hauteur <i>Y</i>, alors <i>Y</i> n'a <b>pas d'antécédent</b> — on ne pose aucun point.<br>
+Piège classique : compter un croisement qui n'existe pas — pose vraiment la droite à la bonne hauteur avant de chercher les points.`;
+
 /* Le rappel de {inequation-graphique} MONTRE les quatre dessins (demande de
    Turquet, août 2026) : la méthode est visuelle, la décrire en mots ne
    suffisait pas. Les dessins sont ceux de l'EXERCICE — lvGraphSVG et
@@ -4008,7 +4052,7 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), monte ou descends tout droit jusqu'à la courbe, et pose le point à cet endroit.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4117,7 +4161,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','placer-image','antecedent-nombre','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4475,7 +4519,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4599,7 +4643,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','pim','ant','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','img','pim','ant','adr','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -6405,6 +6449,404 @@ function submitAnt(){
   lvBoutonSuivant('antValidate', nextAntQuestion);
 }
 function nextAntQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderAnt(); autoSave(); } else finishTest(); }
+
+/* ================= Exercice Seconde : Antécédents — place la droite (kind 'adr') =================
+   Demande de Turquet (septembre 2026) : les antécédents d'un nombre k « avec le
+   même style de dessin que {inequation-graphique} mais avec 2 fois plus de
+   nombres en abscisse et en ordonnées » ; l'élève DÉPLACE d'abord une droite
+   horizontale à la hauteur k, puis — la droite posée — place le ou les points
+   où elle coupe la courbe, OU RIEN s'il n'y en a pas, puis complète la phrase :
+   « Les antécédents de k [est / sont / n'existent pas] … ; … ».
+   LA GRILLE EST DOUBLÉE : 13 graduations (−6..6) en x ET en y, contre 7 chez
+   {lecture-variations}. Le moteur lv ne peut pas servir tel quel — lvGenPts,
+   lvPath et lvGraphSVG sont FIGÉS sur 7 graduations et comparés au caractère
+   près avec terminale.html : les généraliser aurait touché la Terminale pour
+   un besoin de Seconde. Seul le cœur mathématique est partagé (lvTangents et
+   lvPickSubset, génériques en longueur) : la spline est donc la MÊME — un
+   morceau de courbe se lit ici comme là-bas — et le reste est réécrit à
+   l'échelle 13, dans ce bloc et nulle part ailleurs.
+   LA SÉANCE MONTRE LES TROIS VISAGES, chacun UNE fois, en ordre mélangé :
+   aucun antécédent (« n'existent pas »), un seul (« est »), plusieurs
+   (« sont ») — sans quoi l'élève apprendrait que la réponse est toujours du
+   même genre, et c'est précisément la question de l'exercice. Les TROIS cases
+   de nombres sont toujours affichées, quel que soit le compte attendu : des
+   cases au nombre exact révéleraient la réponse que l'exercice fait chercher.
+   La bonne réponse n'est jamais rangée à côté de la question : la question ne
+   porte que la courbe et la hauteur (plus les réponses de l'élève, dr et rep,
+   comme le rep de {placer-image}) ; adrAnts() — que le rendu, la correction et
+   le dessin lisent tous — recalcule les antécédents depuis les données mêmes
+   qui dessinent la courbe. La hauteur est LISIBLE (la leçon d'antCibles : un
+   croisement entre deux graduations serait illisible), jamais sur un palier —
+   les segments sont strictement monotones, un palier est impossible ici. */
+const ADR_NB=3;
+const ADR_R=6;   /* demi-étendue : 13 graduations, « 2 fois plus de nombres » que les 7 du moteur lv */
+function adrAnts(q){ const out=[]; for(let x=-ADR_R;x<=ADR_R;x++){ if(q.pts[x+ADR_R]===q.y0) out.push(x); } return out; }
+/* 13 valeurs entières f(−6..6) dans [−6,6], 2 à 4 segments STRICTEMENT
+   monotones, changements de sens à des abscisses entières — l'algorithme de
+   lvGenPts, réécrit à l'échelle 13. Mesuré : 0 échec sur 2000 tirages. */
+function adrGenPts(){
+  for(let att=0; att<600; att++){
+    const nseg=pick([2,3,3,4]);
+    const turns=[];
+    let okT=true;
+    for(let s=0;s<nseg-1;s++){
+      const dispo=[];
+      for(let i=2;i<=10;i++){ if(turns.every(t=>Math.abs(t-i)>=2)) dispo.push(i); }
+      if(!dispo.length){ okT=false; break; }
+      turns.push(pick(dispo));
+    }
+    if(!okT) continue;
+    turns.sort((a,b)=>a-b);
+    const nodeIdx=[0].concat(turns,[12]);
+    const d0=pick([1,-1]);
+    const y=new Array(13);
+    y[0]= d0>0 ? rand(-6,-2) : rand(2,6);
+    let ok=true;
+    for(let s=0;s<nodeIdx.length-1 && ok;s++){
+      const ai=nodeIdx[s], bi=nodeIdx[s+1], dir=d0*(s%2===0?1:-1), len=bi-ai, cur=y[ai];
+      const cands=[]; for(let v=-ADR_R;v<=ADR_R;v++){ if(dir>0 ? (v-cur>=len) : (cur-v>=len)) cands.push(v); }
+      if(!cands.length){ ok=false; break; }
+      const end=pick(cands);
+      const lo=Math.min(cur,end), hi=Math.max(cur,end);
+      const inner=[]; for(let v=lo+1;v<=hi-1;v++) inner.push(v);
+      if(inner.length<len-1){ ok=false; break; }
+      const chosen=lvPickSubset(inner,len-1);
+      const seq=dir>0?chosen:chosen.slice().reverse();
+      for(let t=1;t<len;t++) y[ai+t]=seq[t-1];
+      y[bi]=end;
+    }
+    if(!ok) continue;
+    const mn=Math.min.apply(null,y), mx=Math.max.apply(null,y);
+    if(mx-mn<8) continue;   /* le double de l'amplitude minimale du moteur lv */
+    return y;
+  }
+  return null;
+}
+/* Les hauteurs LISIBLES : présentes dans la courbe, jamais traversées entre
+   deux graduations (la leçon d'antCibles), 1 à 3 croisements — trois cases. */
+function adrCibles(pts){
+  const ok=[];
+  for(let y=-ADR_R;y<=ADR_R;y++){
+    if(pts.indexOf(y)<0) continue;
+    let traverse=false;
+    for(let i=0;i<12;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(y>lo && y<hi) traverse=true; }
+    if(traverse) continue;
+    const n=pts.filter(v=>v===y).length;
+    if(n>=1 && n<=3) ok.push(y);
+  }
+  return ok;
+}
+/* Les hauteurs par visage : « zero » = au-dessus du maximum ou au-dessous du
+   minimum de la courbe (la droite ne la coupe jamais), « un » / « plus » =
+   une hauteur lisible à 1 / au moins 2 croisements. */
+function adrCandidats(pts, genre){
+  if(genre==='zero'){
+    const mn=Math.min.apply(null,pts), mx=Math.max.apply(null,pts), c=[];
+    for(let y=-ADR_R;y<=ADR_R;y++){ if(y<mn||y>mx) c.push(y); }
+    return c;
+  }
+  return adrCibles(pts).filter(y=>{ const n=pts.filter(v=>v===y).length; return genre==='un' ? n===1 : n>=2; });
+}
+/* Une question par visage, en ordre MÉLANGÉ. dr (hauteur de la droite posée)
+   et rep (abscisses des points posés) sont les réponses de l'élève — le motif
+   du rep de {placer-image} : ils voyagent avec la question dans la pause.
+   Le repli est RÉEL, relevé sur le générateur, et passe par les gardes mêmes
+   du tirage (le contrôle du banc les rejoue sur lui aussi). */
+function adrTirage(){
+  const ordres=ensShuffle(['zero','un','plus']);
+  for(let att=0; att<200; att++){
+    const qs=[];
+    for(let i=0;i<ordres.length;i++){
+      let pts=null, cands=null;
+      for(let t=0;t<120;t++){ pts=adrGenPts(); if(!pts) continue; cands=adrCandidats(pts,ordres[i]); if(cands.length) break; cands=null; }
+      if(!cands || !cands.length) break;
+      qs.push({pts:pts, y0:pick(cands), dr:null, rep:[]});
+    }
+    if(qs.length===ADR_NB) return qs;
+  }
+  return [ {pts:[3,2,1,0,-1,-2,-3,-4,-5,-6,-5,-4,-2], y0:5,  dr:null, rep:[]},
+           {pts:[5,4,3,2,1,0,-1,-2,-3,-4,-5,-4,2],    y0:-5, dr:null, rep:[]},
+           {pts:[-2,0,1,3,4,3,2,1,0,2,3,5,6],         y0:3,  dr:null, rep:[]} ];
+}
+/* La spline de lvPath — les MÊMES tangentes (lvTangents) — généralisée à 13
+   points ; lvPath lui-même est figé sur 7 graduations et comparé au caractère
+   près avec la Terminale. */
+function adrPath(pts, sx, sy){
+  const m=lvTangents(pts);
+  let d='M '+sx(-ADR_R).toFixed(1)+' '+sy(pts[0]).toFixed(1);
+  for(let i=0;i<pts.length-1;i++){
+    const x0=i-ADR_R, x1=i+1-ADR_R, y0=pts[i], y1=pts[i+1];
+    d+=' C '+sx(x0+1/3).toFixed(1)+' '+sy(y0+m[i]/3).toFixed(1)+' '+sx(x1-1/3).toFixed(1)+' '+sy(y1-m[i+1]/3).toFixed(1)+' '+sx(x1).toFixed(1)+' '+sy(y1).toFixed(1);
+  }
+  return d;
+}
+/* Le dessin entier : la grille 13×13 du style de lvGraphSVG, la courbe, puis
+   — par-dessus — la droite de l'ÉLÈVE (orange), ses points (bleus), et à la
+   vérification la droite fausse en rouge, la bonne hauteur en vert pointillé
+   et les croisements attendus en anneaux verts (.pim-sol, la convention de
+   {placer-image} — jamais en soutien, où l'élève corrige lui-même).
+   verdict : {drOk, okx:tableau des abscisses justes, solDr:bool, sols:[x…]|null}. */
+function adrSVG(q, verdict){
+  const R=ADR_R, XA=-R-0.5, XB=R+0.5, YA=-R-0.6, YB=R+0.6, PL=44, PR=644, PT=16, PB=416;
+  const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
+  const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
+  let grid='';
+  for(let x=-R;x<=R;x++) grid+='<line x1="'+sx(x).toFixed(1)+'" y1="'+PT+'" x2="'+sx(x).toFixed(1)+'" y2="'+PB+'" class="lv-grid"/>';
+  for(let y=-R;y<=R;y++) grid+='<line x1="'+PL+'" y1="'+sy(y).toFixed(1)+'" x2="'+PR+'" y2="'+sy(y).toFixed(1)+'" class="lv-grid"/>';
+  const y0=sy(0), x0=sx(0);
+  const axes='<line x1="'+PL+'" y1="'+y0.toFixed(1)+'" x2="'+(PR+6)+'" y2="'+y0.toFixed(1)+'" class="lv-axis"/>'
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+(PB)+'" x2="'+x0.toFixed(1)+'" y2="'+(PT-6)+'" class="lv-axis"/>'
+    +'<polygon points="'+(PR+8)+','+y0.toFixed(1)+' '+(PR)+','+(y0-3.5).toFixed(1)+' '+(PR)+','+(y0+3.5).toFixed(1)+'" class="lv-axfill"/>'
+    +'<polygon points="'+x0.toFixed(1)+','+(PT-8)+' '+(x0-3.5).toFixed(1)+','+(PT)+' '+(x0+3.5).toFixed(1)+','+(PT)+'" class="lv-axfill"/>'
+    +'<text x="'+(PR+6)+'" y="'+(y0+15).toFixed(1)+'" class="lv-ax" text-anchor="middle">x</text>';
+  let labels='';
+  for(let x=-R;x<=R;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
+  for(let y=-R;y<=R;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
+  const cf='<text x="'+sx(-R+0.3).toFixed(1)+'" y="'+(sy(q.pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  let extra='';
+  if(verdict && verdict.solDr)
+    extra+='<line class="adr-sol" x1="'+sx(XA).toFixed(1)+'" y1="'+sy(q.y0).toFixed(1)+'" x2="'+sx(XB).toFixed(1)+'" y2="'+sy(q.y0).toFixed(1)+'"/>';
+  if(q.dr!=null){
+    extra+='<line class="adr-niv'+((verdict && !verdict.drOk)?' bad':'')+'" x1="'+sx(XA).toFixed(1)+'" y1="'+sy(q.dr).toFixed(1)+'" x2="'+sx(XB).toFixed(1)+'" y2="'+sy(q.dr).toFixed(1)+'"/>';
+    (q.rep||[]).forEach(function(x){
+      const juste=!verdict || !verdict.okx || verdict.okx.indexOf(x)>=0;
+      extra+='<circle class="pim-pt'+((verdict && !juste)?' bad':'')+'" cx="'+sx(x).toFixed(1)+'" cy="'+sy(q.dr).toFixed(1)+'" r="5"/>';
+    });
+  }
+  if(verdict && verdict.sols) verdict.sols.forEach(function(x){
+    extra+='<circle class="pim-sol" cx="'+sx(x).toFixed(1)+'" cy="'+sy(q.y0).toFixed(1)+'" r="7"/>';
+  });
+  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy)+'"/>'+cf+extra+'</svg>';
+}
+function adrDessiner(verdict){
+  const q=test.questions[test.idx]; if(!q) return;
+  $('adrGraph').innerHTML=adrSVG(q, verdict||null);
+}
+/* Le clic (et le glisser) s'accrochent au nœud le plus proche — les 13
+   verticales et les 13 horizontales de la grille, relues dans le SVG RENDU :
+   aucune coordonnée recopiée, une échelle qui changerait resterait mesurée
+   juste (la leçon de pimNoeud). */
+function adrNoeud(svg, ev){
+  const r=svg.getBoundingClientRect(); if(!r.width||!r.height) return null;
+  const vb=svg.viewBox.baseVal;
+  const mx=(ev.clientX-r.left)*vb.width/r.width, my=(ev.clientY-r.top)*vb.height/r.height;
+  const vx=[], hy=[];
+  svg.querySelectorAll('line.lv-grid').forEach(function(l){
+    if(l.getAttribute('x1')===l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+    else hy.push(parseFloat(l.getAttribute('y1')));
+  });
+  if(vx.length!==13||hy.length!==13) return null;
+  let bi=0; vx.forEach(function(v,i){ if(Math.abs(v-mx)<Math.abs(vx[bi]-mx)) bi=i; });
+  let bj=0; hy.forEach(function(v,j){ if(Math.abs(v-my)<Math.abs(hy[bj]-my)) bj=j; });
+  return { x: bi-ADR_R, y: bj-ADR_R };
+}
+/* DEUX gestes sur un seul dessin, donc DEUX modes explicites : « Déplacer la
+   droite » (le clic pose la droite, le glisser la suit) et « Placer les
+   points » (le clic pose ou retire un point SUR la droite). Le second n'ouvre
+   qu'une fois la droite posée — c'est la demande : « une fois que la droite
+   est placée, on demande à l'élève de placer le ou les points ». */
+function adrChoisirMode(m){
+  if(test.kind!=='adr'||test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  if(m==='points' && q.dr==null) return;
+  test.adrMode=m;
+  adrMaj();
+}
+/* Un seul écouteur, DÉLÉGUÉ à l'hôte : le SVG est réécrit à chaque pose, un
+   écouteur posé dessus mourrait avec lui (la leçon de {construire-fonction}).
+   Le glisser se termine sur pointerup/pointercancel au niveau de la FENÊTRE :
+   relâché hors du dessin, il resterait sinon accroché au pointeur. */
+let _adrSaveTimer=null;
+function adrBrancher(){
+  const host=$('adrGraph');
+  if(host.__adrPret) return;
+  host.__adrPret=true;
+  let glisse=false;
+  const marquer=function(){ recoveryDirty=true; clearTimeout(_adrSaveTimer); _adrSaveTimer=setTimeout(autoSave,1200); };
+  host.addEventListener('pointerdown', function(ev){
+    if(test.kind!=='adr'||test.locked) return;
+    const svg=ev.target.closest('.lv-svg'); if(!svg) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const n=adrNoeud(svg,ev); if(!n) return;
+    if(test.adrMode==='points'){
+      if(q.dr==null) return;
+      const i=(q.rep||[]).indexOf(n.x);
+      if(i>=0) q.rep.splice(i,1); else q.rep.push(n.x);
+      adrDessiner(); adrMaj(); adrLive(); marquer();
+    } else {
+      glisse=true;
+      if(q.dr!==n.y){ q.dr=n.y; adrDessiner(); adrMaj(); adrLive(); }
+      ev.preventDefault();
+    }
+  });
+  host.addEventListener('pointermove', function(ev){
+    if(!glisse||test.kind!=='adr'||test.locked) return;
+    const svg=host.querySelector('.lv-svg'); if(!svg) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const n=adrNoeud(svg,ev); if(!n||n.y===q.dr) return;
+    q.dr=n.y; adrDessiner(); adrMaj(); adrLive();
+  });
+  const fin=function(){ if(glisse){ glisse=false; marquer(); } };
+  window.addEventListener('pointerup', fin);
+  window.addEventListener('pointercancel', fin);
+}
+/* L'état de l'écran suit la question : les modes, les pastilles, et les cases
+   de la phrase — DÉSACTIVÉES tant que la droite n'est pas posée (le motif de
+   {placer-image} : la demande est tenue par l'ÉTAT des cases, pas par une
+   consigne qu'on peut ne pas lire). « n'existent pas » ferme les cases de
+   nombres sans les vider. */
+function adrMaj(){
+  const q=test.questions[test.idx]; if(!q) return;
+  const pose=(q.dr!=null), fige=!!test.locked;
+  const bd=$('adrModeDroite'), bp=$('adrModePoints');
+  if(bd){ bd.disabled=fige; bd.classList.toggle('sel', test.adrMode!=='points'); }
+  if(bp){ bp.disabled=!pose||fige; bp.classList.toggle('sel', test.adrMode==='points'); }
+  const cd=$('adr-dr');
+  if(cd) cd.textContent = pose ? '― Droite posée à la hauteur '+numFmt(q.dr) : '― Place d’abord la droite à la hauteur '+numFmt(q.y0);
+  const cp=$('adr-pts'), reps=(q.rep||[]).slice().sort((a,b)=>a-b);
+  if(cp) cp.textContent = '● '+(reps.length ? reps.length+' point'+(reps.length>1?'s':'')+' posé'+(reps.length>1?'s':'')+' : '+reps.map(x=>'( '+numFmt(x)+' ; '+numFmt(q.dr)+' )').join('  ') : 'aucun point posé');
+  const v=$('adr-v'); if(v) v.disabled=!pose||fige;
+  const aucun=!!(v && v.value==='aucun');
+  ['adr-n-0','adr-n-1','adr-n-2'].forEach(function(id){ const el=$(id); if(el) el.disabled=!pose||fige||aucun; });
+}
+function startAdr(){
+  const qs=adrTirage();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(k=>delete test[k]);
+  Object.assign(test,{kind:'adr', questions:qs, idx:0, score:0, maxScore:qs.reduce((s,q)=>s+3+adrAnts(q).length,0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false, adrMode:'droite'});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('adr'); renderAdr();
+}
+function renderAdr(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  if(q.dr==null || test.adrMode!=='points') test.adrMode='droite';
+  const Y=numFmt(q.y0);
+  $('adrIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('adrModeTag').innerHTML=modeTagHTML();
+  { const cb=$('adrConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('adrRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('adrQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('adrInstr').textContent='On cherche les antécédents de '+Y+' par la fonction f. ① Déplace la droite horizontale : clique sur le graphique (ou fais glisser) pour la poser à la hauteur '+Y+'. ② Clique « ● Placer les points », puis marque sur la droite chaque point où elle coupe la courbe — s’il n’y en a aucun, n’en pose pas. ③ Complète la phrase avec « est », « sont » ou « n’existent pas », puis les nombres (l’ordre est libre ; laisse vides les cases en trop).';
+  adrDessiner();
+  const inp=id=>'<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off">';
+  $('adrBody').innerHTML=
+    '<div class="img-line"><span class="pts-case pim-case" id="adr-dr"></span> <span class="pts-case pim-case" id="adr-pts"></span></div>'
+    +'<div class="img-line">Les antécédents de '+Y+' <select id="adr-v" class="itv-sel adr-verbe"><option value="">—</option><option value="est">est</option><option value="sont">sont</option><option value="aucun">n’existent pas</option></select> '
+    +inp('adr-n-0')+' ; '+inp('adr-n-1')+' ; '+inp('adr-n-2')+'</div>';
+  $('adrBody').querySelectorAll('input').forEach(el=>{ el.addEventListener('input',adrLive); el.addEventListener('change',adrLive); });
+  const v=$('adr-v'); if(v) v.addEventListener('change',function(){ adrMaj(); adrLive(); });
+  adrMaj();
+  $('adrMark').className='mark'; $('adrMark').textContent=''; $('adrCorr').innerHTML='';
+  const b=$('adrValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitAdr;
+  adrBrancher();
+}
+/* CHAQUE RÉPONSE SE JUGE SEULE — une case juste ne rougit jamais parce qu'une
+   autre est vide ou fausse : la droite se juge sur sa hauteur ; les POINTS se
+   jugent sur les ABSCISSES qu'ils désignent (l'ensemble exact des croisements
+   attendus), pas sur la hauteur de la droite — une droite mal posée est déjà
+   comptée fausse une fois, elle ne fait pas payer les points une seconde
+   fois ; le verbe se juge sur le compte attendu ; et les cases de nombres
+   suivent la règle des paires d'{antecedent-nombre} : chaque case remplie
+   promet d'être l'un des antécédents attendus, pris une fois chacun — le
+   doublon est défendable une fois, faux la seconde — et les cases en trop
+   restées VIDES ne sont ni fausses ni comptées : le nombre de cases ne doit
+   pas dire le nombre d'antécédents. */
+function adrCheck(q){
+  const ants=adrAnts(q), n=ants.length;
+  const drOk = (q.dr===q.y0);
+  const reps=(q.rep||[]).slice().sort((a,b)=>a-b);
+  const ptOk = (q.dr!=null) && reps.length===n && reps.every((x,i)=>x===ants[i]);
+  const vEl=$('adr-v');
+  const vAtt = n===0 ? 'aucun' : (n===1 ? 'est' : 'sont');
+  const vOk = !!vEl && vEl.value===vAtt;
+  const subs=[];
+  let nMatch=0;
+  if(n>0){
+    const left=ants.slice();
+    for(let i=0;i<3;i++){
+      const id='adr-n-'+i, v=lvReadInt(id);
+      if(v===null){ subs.push({id:id, val:null, ok:false, vide:true}); }
+      else{ const j=left.indexOf(v); const ok=(j>=0); if(ok){ left.splice(j,1); nMatch++; } subs.push({id:id, val:v, ok:ok, vide:false}); }
+    }
+    /* les antécédents restés sans correspondance : la valeur que la
+       correction en vert écrira dans les cases vides */
+    subs.forEach(function(s){ if(s.vide && left.length) s.val=left.shift(); });
+  }
+  const fauxNb = subs.some(s=>!s.ok && !s.vide);
+  const manque = subs.some(s=>s.vide && s.val!=null);
+  const nCorrect=(drOk?1:0)+(ptOk?1:0)+(vOk?1:0)+nMatch;
+  return {subs:subs, drOk:drOk, ptOk:ptOk, vOk:vOk, vAtt:vAtt, ants:ants, n:n,
+          okx:ants, nMatch:nMatch, nCorrect:nCorrect, nTotal:3+n,
+          allOk: drOk && ptOk && vOk && nMatch===n && !fauxNb && !manque};
+}
+/* Soutien : chaque case au fil de la frappe — et une case vide, un point non
+   posé, une droite non posée ne reçoivent RIEN. */
+function adrLive(){
+  if(test.kind!=='adr' || !isSoutien()) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const res=adrCheck(q);
+  res.subs.forEach(function(s){ const el=$(s.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if((el.value||'').trim()!=='') el.classList.add(s.ok?'ok':'bad');
+  });
+  const v=$('adr-v'); if(v){ v.classList.remove('ok','bad'); if(v.value!=='') v.classList.add(res.vOk?'ok':'bad'); }
+  const cd=$('adr-dr'); if(cd){ cd.classList.remove('ok','bad'); if(q.dr!=null) cd.classList.add(res.drOk?'ok':'bad'); }
+  const cp=$('adr-pts'); if(cp){ cp.classList.remove('ok','bad'); if((q.rep||[]).length) cp.classList.add(res.ptOk?'ok':'bad'); }
+}
+function submitAdr(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  /* pas de droite : rien ne se peint, rien ne se verrouille — on redit le
+     geste attendu. Une droite absente n'est pas une erreur, c'est un début. */
+  if(q.dr==null){
+    const mk=$('adrMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('adrCorr').textContent='Place d’abord la droite : clique sur le graphique à la hauteur '+numFmt(q.y0)+' (tu peux la faire glisser).';
+    return;
+  }
+  const res=adrCheck(q);
+  const pastille=function(id, ok){ const el=$(id); if(el){ el.classList.remove('ok','bad'); el.classList.add(ok?'ok':'bad'); } };
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const v=$('adr-v'); if(v){ v.classList.remove('ok','bad'); if(v.value!=='') v.classList.add(res.vOk?'ok':'bad'); }
+    pastille('adr-dr',res.drOk); pastille('adr-pts',res.ptOk);
+    adrDessiner({drOk:res.drOk, okx:res.okx, solDr:false, sols:null});
+    const mk=$('adrMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('adrCorr').textContent='Pas tout à fait — corrige ce qui est en rouge (la droite se déplace, un point se retire en recliquant dessus), puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  corrCase('adr-v', res.vAtt, res.vOk);
+  pastille('adr-dr',res.drOk); pastille('adr-pts',res.ptOk);
+  /* la droite fausse passe au rouge ; la bonne hauteur (vert pointillé) et
+     les croisements attendus (anneaux verts) se montrent avec le reste de la
+     correction. Pas de garde isSoutien() ici : en soutien on n'arrive dans
+     cette branche que tout juste (la branche du soutien incomplet passe
+     avant), donc drOk et ptOk sont vrais et rien ne se révèle — un garde
+     l'aurait redit sans jamais rien écarter, le garde-fou mort documenté.
+     C'est le contrôle du banc qui tient ce bord, par la branche du soutien. */
+  adrDessiner({drOk:res.drOk, okx:res.okx,
+               solDr: !res.drOk,
+               sols: (!res.ptOk && res.n>0) ? res.ants : null});
+  adrMaj();
+  const mk=$('adrMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('adrValidate').disabled=true;
+  const Y=numFmt(q.y0), liste=res.ants.map(numFmt).join(' et ');
+  if(!res.allOk){
+    let m='';
+    if(!res.drOk) m+='La droite verte en pointillés montre la bonne hauteur : '+Y+'. ';
+    if(res.n===0) m+='À la hauteur '+Y+', la droite ne coupe jamais la courbe : les antécédents de '+Y+' n’existent pas — on ne pose aucun point.';
+    else m+='La droite y = '+Y+' coupe la courbe au-dessus de '+liste+' (anneaux verts). '+(res.n===1?'L’antécédent de '+Y+' est '+liste:'Les antécédents de '+Y+' sont '+liste)+'.';
+    $('adrCorr').innerHTML=m;
+  } else {
+    $('adrCorr').innerHTML='<span class="lv-ok">Parfait — '+(res.n===0?'les antécédents de '+Y+' n’existent pas, et tu n’as rien posé':(res.n===1?'l’antécédent de '+Y+' est bien '+liste:'les antécédents de '+Y+' sont bien '+liste))+' !</span>';
+  }
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Antécédents de '+Y+' (droite à placer) — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'adr'});
+  lvBoutonSuivant('adrValidate', nextAdrQuestion);
+}
+function nextAdrQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.adrMode='droite'; renderAdr(); autoSave(); } else finishTest(); }
 
 /* ================= Exercice Seconde : Inéquation graphique (kind 'ing') =================
    Repris de la fiche papier : UNE courbe, la droite y = k, et quatre dessins
@@ -13739,7 +14181,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderPim','renderAnt','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderPim','renderAnt','renderAdr','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
