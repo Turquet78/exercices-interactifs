@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
    d'ensembles, qui partagent le kind 'ens'. */
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
-               'plus-petit-ensemble':'pge','lecture-variations':'lv','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','construire-fonction':'cfx','pourcentage':'pct',
+               'plus-petit-ensemble':'pge','lecture-variations':'lv','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','construire-fonction':'cfx','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
@@ -364,6 +364,9 @@ module.exports = {
        geste → nœud (grille doublée, 13 graduations) ne se voient que dans un
        vrai navigateur — jsdom n'a pas de mise en page. */
     antecedentsDroite: { exercice: 'antecedents-droite' },
+    /* {inequation-droite} : la même droite orange se fait glisser — le geste
+       ne se voit que dans un vrai navigateur. */
+    inequationDroite: { exercice: 'inequation-droite' },
     /* Le bouton des zéros de « Placer des nombres sur une droite graduée » :
        l'aide ne dure que le temps de l'appui. Seul un vrai navigateur APPUIE ;
        le banc principal, lui, ne peut qu'appeler la fonction. */
@@ -500,7 +503,7 @@ module.exports = {
     tablesAide: { reste: 'pourcentage',
                   sans: ['definitions-ensembles', 'intervalles', 'intervalles-inegalite',
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
-                         'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-graphique',
+                         'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
                          'tableau-signes-graphique', 'construire-fonction'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,

@@ -3944,6 +3944,104 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies. inéquation : la droite se glisse, le dessin suit la réponse ===== */
+    /* {inequation-droite} : la droite orange se fait GLISSER (jsdom n'a pas
+       de mise en page — seul un navigateur voit le geste), puis la partie
+       rouge se colorie SELON LA RÉPONSE de l'élève dès que les deux choix de
+       la phrase sont faits — mesurée ici sur les morceaux RENDUS, avec leur
+       étendue. */
+    titre('6 vicies. INÉQUATION : LA DROITE SE GLISSE, LE DESSIN SUIT LA RÉPONSE');
+    if(!P.inequationDroite){
+      ignorer('la droite se glisse et le dessin suit la réponse',
+        'ce niveau n\'a pas l\'exercice de l\'inéquation à droite posée');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.inequationDroite.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      const posY = async (y, dy) => await s.page.evaluate(([y, dy]) => {
+        const svg = document.querySelector('#iqdGraph .lv-svg');
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        const vx = [], hy = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+          else hy.push(parseFloat(l.getAttribute('y1')));
+        });
+        const pasY = Math.abs(hy[1] - hy[0]) * r.height / vb.height;
+        return { px: r.left + vx[3] * r.width / vb.width,
+                 py: r.top + hy[y + 3] * r.height / vb.height + (dy || 0) * pasY };
+      }, [y, dy || 0]);
+      const q0 = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return { k: q.k, op: q.op, b: iqdBornes(q), dessus: iqdSens(q.op).dessus, touche: iqdSens(q.op).touche }; });
+      let e = await s.page.evaluate(() => ({
+        posOff: document.getElementById('iqd-pos').disabled,
+        niv: !!document.querySelector('#iqdGraph .adr-niv'),
+        rouges: document.querySelectorAll('#iqdGraph .ing-rouge').length
+      }));
+      if(!e.posOff) dits.push('la phrase se remplit avant que la droite soit posée');
+      if(e.niv) dits.push('une droite est dessinée avant que l\'élève la pose');
+      if(e.rouges) dits.push('la partie rouge est dessinée avant toute lecture');
+      /* le glisser, relâché à un tiers de maille : la droite s'accroche */
+      const depart = q0.k >= 0 ? -2 : 2;
+      let p = await posY(depart);
+      await s.page.mouse.move(p.px, p.py);
+      await s.page.mouse.down();
+      await s.page.waitForTimeout(120);
+      p = await posY(q0.k, q0.k > depart ? 0.3 : -0.3);
+      await s.page.mouse.move(p.px, p.py, { steps: 5 });
+      await s.page.waitForTimeout(120);
+      await s.page.mouse.up();
+      await s.page.waitForTimeout(200);
+      e = await s.page.evaluate(() => ({ dr: test.questions[test.idx].dr, niv: !!document.querySelector('#iqdGraph .adr-niv') }));
+      if(e.dr !== q0.k) dits.push('le glisser relâché à un tiers de maille pose la droite en ' + e.dr + ' au lieu de ' + q0.k);
+      if(!e.niv) dits.push('la droite posée ne se dessine pas');
+      /* la lecture OPPOSÉE d'abord : le dessin doit suivre la réponse, pas la bonne */
+      const choisir = async (pos, tou) => await s.page.evaluate(([pos, tou]) => {
+        const p = document.getElementById('iqd-pos'), t = document.getElementById('iqd-tou');
+        p.value = pos; p.dispatchEvent(new Event('change', { bubbles: true }));
+        t.value = tou; t.dispatchEvent(new Event('change', { bubbles: true }));
+      }, [pos, tou]);
+      await choisir(q0.dessus ? 'dessous' : 'dessus', q0.touche ? 'non' : 'oui');
+      let d = await s.page.evaluate(() => {
+        const rs = Array.prototype.map.call(document.querySelectorAll('#iqdGraph .ing-rouge'),
+          el => el.getBoundingClientRect().width);
+        return { n: rs.length, larges: rs.filter(w => w > 8).length };
+      });
+      if(d.n !== 2) dits.push('la lecture opposée ne colorie pas les deux morceaux extérieurs (' + d.n + ' morceau(x))');
+      else if(d.larges !== 2) dits.push('les morceaux rouges de la lecture opposée sont d\'étendue presque nulle');
+      /* puis la bonne lecture : un seul morceau, d'étendue non nulle */
+      await choisir(q0.dessus ? 'dessus' : 'dessous', q0.touche ? 'oui' : 'non');
+      d = await s.page.evaluate(() => {
+        const rs = Array.prototype.map.call(document.querySelectorAll('#iqdGraph .ing-rouge'),
+          el => el.getBoundingClientRect().width);
+        return { n: rs.length, larges: rs.filter(w => w > 8).length };
+      });
+      if(d.n !== 1) dits.push('la bonne lecture ne colorie pas le morceau du milieu (' + d.n + ' morceau(x))');
+      else if(d.larges !== 1) dits.push('le morceau rouge de la bonne lecture est d\'étendue presque nulle');
+      /* la conclusion, puis la vérification : toutes les réponses comptées */
+      await s.page.evaluate(([co, b1, b2, cf]) => {
+        [['iqd-co', co], ['iqd-b1', b1], ['iqd-b2', b2], ['iqd-cf', cf]].forEach(([id, v]) => {
+          const el = document.getElementById(id);
+          el.value = v; el.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      }, [q0.touche ? '[' : ']', String(q0.b[0]), String(q0.b[1]), q0.touche ? ']' : '[']);
+      await s.page.click('#iqdValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => ({
+        score: test.score, sol: !!document.querySelector('#iqdGraph .adr-sol')
+      }));
+      if(fin.score !== 7) dits.push('la copie juste au geste vaut ' + fin.score + ' au lieu de 7');
+      if(fin.sol) dits.push('la correction verte s\'affiche sur une copie toute juste');
+      verifier('la droite se glisse et le dessin suit la réponse', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran de l\'inéquation à droite posée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 8. le menu en deux étages ===== */
     /* Un thème découpé en parties ne montre plus ses exercices sur sa page :
        elle pose une carte par partie (3.1, 3.2, …) et les exercices s'ouvrent

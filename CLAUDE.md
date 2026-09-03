@@ -1032,6 +1032,36 @@ geste central de l'exercice ne se voit que là — relâche la droite à un tier
 de maille (elle s'accroche), clique les croisements, retire un point, et
 relit la note et les couleurs.
 
+**Lire une inéquation, c'est d'abord dire ce qu'elle SIGNIFIE — et le dessin
+suit la réponse.** {inequation-droite} (Seconde, demande de Turquet, septembre
+2026) vient juste avant {inequation-graphique}, comme premier pas : l'élève
+PLACE la droite horizontale (le glisser d'{antecedents-droite}, mêmes classes
+orange/verte), puis complète la phrase — « f (x) ≥ k signifie que f (x) est
+[au-dessus / en dessous] de cette droite, et f (x) peut toucher cette droite :
+[oui / non] » —, le dessin se colorie alors SELON SA RÉPONSE (la règle du
+2.4.1 : un dessin qui montrerait d'office la bonne partie ferait la lecture à
+sa place ; il passe à la lecture corrigée à la vérification, quand la phrase
+aussi porte les bonnes réponses), et il conclut S = … en choisissant crochets
+et nombres — les accolades { } sont OFFERTES et toujours fausses : l'erreur de
+l'élève qui confond avec une équation, et elle doit pouvoir se commettre.
+**La signification ne dépend que du SIGNE**, et c'est pourquoi les quatre
+signes sortent chacun UNE fois par séance, en ordre mélangé — sans quoi
+« au-dessus » tomberait toujours juste. **S est toujours UN SEUL intervalle,
+et c'est le tirage qui le garantit** : la courbe est la cloche du 2.4 (ingGen,
+réutilisé tel quel) pour ≥ et >, son MIROIR en vallée (valeurs et hauteur
+passées à l'opposé — les garanties du 2.4 se conservent par symétrie) pour
+≤ et < : le morceau demandé est toujours celui du milieu, [x1 ; x2], la forme
+même que la conclusion à quatre cases demande. Les portes s'enchaînent : la
+phrase attend la droite, la conclusion attend la phrase ; chaque réponse se
+juge seule (la droite mal posée coûte son point et rien d'autre), corrChoix
+porte badges et cases vertes, msgAvecVides dit les cases vides avant tout.
+Sept sabotages jsdom (les signes non mélangés, la vallée perdue — S devenait
+une union —, la droite qui fait payer le reste, le dessin montré d'office,
+la conclusion qui n'attend plus, la case vide rougie, le dessin qui ne passe
+plus à la lecture corrigée) et un sabotage navigateur (le dessin qui inverse
+la lecture — mesuré sur les morceaux RENDUS et leur étendue), chacun
+rougissant en nommant son défaut.
+
 **Résoudre une inéquation, c'est d'abord choisir le dessin qui la montre.**
 {inequation-graphique} (Seconde, 2.4, demande de Turquet, août 2026) est repris
 de la fiche papier : UNE courbe, la droite y = k, et quatre dessins qui ne
