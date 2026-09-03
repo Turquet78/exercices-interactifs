@@ -2703,6 +2703,7 @@ function exercices(suite){
     exercicesBonus(w, P);
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
+    lectureSignes(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -10261,6 +10262,144 @@ function tableauSignesGraphique(w, P){
     if(cls('tsg-g2').indexOf('sol')>=0||cls('tsg-g2').indexOf('bad')>=0) vus.push('en soutien, la case vide reçoit une couleur ('+cls('tsg-g2')+')');
     if(cls('tsg-t2').indexOf('bad')<0) vus.push('en soutien, le signe faux ne rougit pas');
     currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {lecture-signes} : le 2.1 transposé au tableau de signes — une courbe
+   conservée, trois parties par graphique (f(x)=0, le signe par intervalle,
+   le tableau entier). Le tirage est celui du 2.8 (tsgGen), les paintures
+   celles du 2.1 (lvMarkFields) : le contrôle refait la lisibilité des
+   racines par sa PROPRE arithmétique, puis juge la copie épinglée sur le
+   repli même du 2.8 — les racines de la partie a à ordre LIBRE (la règle
+   des paires), celles du tableau à LEUR place (un tableau se lit de gauche
+   à droite). */
+function lectureSignes(w, P){
+  const nom='la lecture des signes : trois parties sur la même courbe, du 2.1 vers le tableau';
+  const present = evaluer(w, "typeof startLS==='function' && typeof lsBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice de lecture des signes');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='lecture-signes';
+
+    /* ---- 0. la place au menu : juste AVANT {tableau-signes-graphique} —
+       c'est le premier pas vers le 2.8, l'ordre est la pédagogie ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('lecture-signes')>=0; })[0];
+      const i=th?th.ids.indexOf('lecture-signes'):-1;
+      if(!th || th.ids[i+1]!=='tableau-signes-graphique')
+        vus.push('{lecture-signes} ne précède pas {tableau-signes-graphique} au menu'); }
+
+    /* ---- 1. le tirage : 120 séances, tout par sa propre arithmétique ---- */
+    for(let t=0;t<120 && !vus.length;t++){
+      const qs=lsBuildQuestions(2);
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6 (2 graphiques × 3 parties)'); break; }
+      const sides=[];
+      for(let g=0; g<2; g++){
+        const tri=qs.slice(g*3,g*3+3);
+        if(tri.map(function(q){ return q.part; }).join('')!=='abc')
+          vus.push('les parties du graphique '+(g+1)+' ne sortent pas dans l\\'ordre a,b,c : '+tri.map(function(q){ return q.part; }).join(','));
+        if(tri.some(function(q){ return q.pts.join(',')!==tri[0].pts.join(','); }))
+          vus.push('les trois parties d\\'un graphique ne portent pas la MÊME courbe : le tableau de la partie c parlerait d\\'un autre dessin');
+        tri.forEach(function(q){
+          const cles=Object.keys(q).filter(function(k){ return ['pts','part','gnum','gtot'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question range autre chose que la courbe et la partie : '+cles.join(','));
+          if(q.gnum!==g+1||q.gtot!==2) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
+        });
+        const pts=tri[0].pts, so=[];
+        for(let x=-3;x<=3;x++){ if(pts[x+3]===0) so.push(x); }
+        if(so.length!==2){ vus.push('f a '+so.length+' racine(s) au lieu de 2 ('+pts.join(',')+')'); continue; }
+        if(so[0]<=-3||so[1]>=3) vus.push('une racine tombe au bord du dessin');
+        so.forEach(function(x){ if(pts[x+2]*pts[x+4]>=0)
+          vus.push('la courbe TOUCHE zéro en x='+x+' sans le traverser (ou deux racines voisines) : le tableau mentirait'); });
+        for(let j=0;j<6;j++){ const lo=Math.min(pts[j],pts[j+1]), hi=Math.max(pts[j],pts[j+1]);
+          if(0>lo&&0<hi) vus.push('zéro est traversé ENTRE deux graduations : une racine illisible'); }
+        let s=0; for(let x=so[0]+1;x<so[1]&&!s;x++){ if(pts[x+3]!==0) s=pts[x+3]>0?1:-1; }
+        sides.push(s||1);
+      }
+      if(!vus.length && !(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0))
+        vus.push('une séance sans les deux visages ('+sides.join(',')+') : l\\'élève apprendrait que le tableau est toujours le même');
+    }
+    if(lsBuildQuestions(1).length!==3) vus.push('le soutien (1 graphique) ne pose pas 3 questions');
+
+    /* ---- 2. le jugement, vérifié pour de vrai, couleurs lues — sur le
+       repli du 2.8 : racines −1 et 2, milieu NÉGATIF (signes + − +) ---- */
+    const PTS=[3,2,0,-1,-3,0,1];
+    function pose(part, valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), part:part, gnum:1, gtot:1};
+      Object.assign(test,{kind:'ls', questions:[q], idx:0, score:0, maxScore:lsSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderLS();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      submitLS();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+
+    /* partie a : ordre LIBRE (la règle des paires), le doublon défendable une fois */
+    let r=pose('a', {'ls-a-0':'-1','ls-a-1':'2'});
+    if(r.score!==2||lsSubCount({part:'a'})!==2) vus.push('la copie juste de la partie a vaut '+r.score+' au lieu de 2');
+    r=pose('a', {'ls-a-0':'2','ls-a-1':'-1'});
+    if(r.score!==2) vus.push('S = { 2 ; −1 } dans l\\'autre ordre ne vaut plus le point ('+r.score+')');
+    r=pose('a', {'ls-a-0':'-1','ls-a-1':'-1'});
+    if(r.score!==1||cls('ls-a-0').indexOf('ok')<0||cls('ls-a-1').indexOf('bad')<0)
+      vus.push('le doublon −1 ; −1 devrait être défendable une fois, faux la seconde ('+r.score+' pt, '+cls('ls-a-0')+' / '+cls('ls-a-1')+')');
+    /* la case vide reçoit la correction sol en entraînement… */
+    r=pose('a', {'ls-a-0':'-1'});
+    if(cls('ls-a-1').indexOf('sol')<0||cls('ls-a-1').indexOf('bad')>=0)
+      vus.push('en entraînement, la case vide ne reçoit pas la correction sol ('+cls('ls-a-1')+')');
+    /* …et RIEN en soutien, où la copie incomplète ne verrouille pas */
+    r=pose('a', {'ls-a-0':'-1'}, 'soutien');
+    if(cls('ls-a-1').indexOf('bad')>=0||cls('ls-a-1').indexOf('sol')>=0)
+      vus.push('en soutien, la case vide reçoit une couleur ('+cls('ls-a-1')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+
+    /* partie b : positive / négative sur chaque intervalle */
+    r=pose('b', {'ls-b-0':'positive','ls-b-1':'négative','ls-b-2':'positive'});
+    if(r.score!==3) vus.push('la copie juste de la partie b vaut '+r.score+' au lieu de 3');
+    r=pose('b', {'ls-b-0':'négative','ls-b-1':'négative','ls-b-2':'positive'});
+    if(cls('ls-b-0').indexOf('bad')<0||cls('ls-b-1').indexOf('ok')<0)
+      vus.push('partie b : le signe faux ne rougit pas, ou le juste n\\'est pas marqué ok ('+cls('ls-b-0')+' / '+cls('ls-b-1')+')');
+    /* la LISTE vide reçoit sol en entraînement — et la règle CSS .lv-sel.sol
+       doit exister, sans quoi la correction serait invisible (la leçon des
+       familles de listes : .plc-sel.sol, .lv-in.sol, .itv-sel.sol…) */
+    r=pose('b', {'ls-b-0':'positive','ls-b-1':'négative'});
+    if(cls('ls-b-2').indexOf('sol')<0) vus.push('en entraînement, la liste vide ne reçoit pas la correction sol ('+cls('ls-b-2')+')');
+    { let css=''; document.querySelectorAll('style').forEach(function(st){ css+=st.textContent; });
+      if(css.indexOf('.lv-sel.sol')<0) vus.push('aucune règle CSS ne dessine .lv-sel.sol : la correction d\\'une liste vide s\\'écrirait avec l\\'encre ordinaire'); }
+
+    /* partie c : les racines À LEUR PLACE — un tableau se lit de gauche à
+       droite, l'ordre en fait partie — et les 0 sous les racines */
+    const JC={'ls-c-x-0':'-1','ls-c-x-1':'2','ls-c-s-0':'+','ls-c-s-1':'0','ls-c-s-2':'-','ls-c-s-3':'0','ls-c-s-4':'+'};
+    r=pose('c', JC);
+    if(r.score!==7) vus.push('la copie juste de la partie c vaut '+r.score+' au lieu de 7');
+    r=pose('c', Object.assign({},JC,{'ls-c-x-0':'2','ls-c-x-1':'-1'}));
+    if(cls('ls-c-x-0').indexOf('bad')<0||cls('ls-c-x-1').indexOf('bad')<0)
+      vus.push('les racines échangées devraient être fausses toutes les deux : la position fait partie du tableau ('+cls('ls-c-x-0')+' / '+cls('ls-c-x-1')+')');
+    r=pose('c', Object.assign({},JC,{'ls-c-s-1':'-'}));
+    if(cls('ls-c-s-1').indexOf('bad')<0) vus.push('un signe posé à la place du 0 sous une racine ne rougit pas');
+    /* TOUTES les cases du signe offrent —, +, −, 0 : savoir que le 0 va sous
+       une racine EST évalué — des cases qui ne l'offriraient que sous les
+       racines révéleraient la réponse */
+    pose('c', {});
+    for(let i=0;i<5;i++){ const el=document.getElementById('ls-c-s-'+i);
+      const opts=el?[].map.call(el.options,function(o){ return o.value; }).join(','):'';
+      if(opts!==',+,-,0'){ vus.push('la case ls-c-s-'+i+' n\\'offre pas —, +, −, 0 ('+opts+')'); break; } }
+    /* en soutien, un sélecteur vide ne reçoit rien à la vérification */
+    r=pose('c', Object.assign({},JC,{'ls-c-s-2':''}), 'soutien');
+    if(cls('ls-c-s-2').indexOf('bad')>=0) vus.push('en soutien, le sélecteur vide rougit à la vérification');
+    currentMode='train';
+
+    /* le bouton attend l'élève : sur la dernière question il dit
+       « Voir mes résultats » (le réarmement de lvBoutonSuivant) */
+    r=pose('c', JC);
+    const bt=document.getElementById('lsValidate');
+    if(!bt||bt.disabled||bt.textContent!=='Voir mes résultats')
+      vus.push('après la vérification, le bouton ne devient pas « Voir mes résultats » ('+(bt?bt.textContent:'absent')+')');
 
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
