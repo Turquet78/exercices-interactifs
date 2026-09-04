@@ -2706,6 +2706,7 @@ function exercices(suite){
     lectureSignes(w, P);
     signesVariations(w, P);
     tableauVariationDirect(w, P);
+    grandsTableaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -10689,6 +10690,150 @@ function tableauVariationDirect(w, P){
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
+function grandsTableaux(w, P){
+  const nom='les deux tableaux en grand : le dessin −6..6 et les tableaux du 2.14';
+  const present = evaluer(w, "typeof startGSV==='function' && typeof gsvBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des deux tableaux en grand');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='signes-variations-grand';
+
+    /* ---- 0. la place au menu : juste APRÈS {signes-variations} — le même
+       exercice, en grand ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('signes-variations-grand')>=0; })[0];
+      const i=th?th.ids.indexOf('signes-variations-grand'):-1;
+      if(!th || th.ids[i-1]!=='signes-variations')
+        vus.push('{signes-variations-grand} ne suit pas {signes-variations} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : le tirage est adrGenPts (le générateur MÊME
+       d'{antecedents-droite}), le dessin est adrSVG appelé NU, le tableau de
+       variation passe par varTableHTML/varTableSubs — les fonctions mêmes
+       du 2.1. Les rendus sont ENVELOPPÉS : on lit le SOURCE de la page,
+       jamais String(renderGSV). ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      [["varTableHTML(a,'gsv-v'",'le rendu du tableau gsv-v'],
+       ["varTableSubs(a,'gsv-v')",'le jugement du tableau gsv-v'],
+       ["adrSVG({pts:q.pts, dr:null, rep:[]}, null)",'le dessin (adrSVG, la fonction même du grand graphique, appelée nue)']
+      ].forEach(function(t2){ if(srcPage.indexOf(t2[0])<0) vus.push(t2[1]+' ne passe plus par la fonction partagée'); });
+      if(String(gsvGen).indexOf('adrGenPts')<0)
+        vus.push('le tirage ne passe plus par adrGenPts, le générateur du grand graphique'); }
+
+    /* ---- 1. le tirage : 100 séances, tout refait par sa propre
+       arithmétique — 13 entiers dans [−6,6], jamais de palier, amplitude,
+       exactement deux racines LISIBLES (intérieures, vrais croisements,
+       zéro jamais traversé entre deux graduations), 2 à 4 segments, et les
+       DEUX visages du signe dans chaque séance ---- */
+    function racines(pts){ const out=[]; for(let x=-6;x<=6;x++){ if(pts[x+6]===0) out.push(x); } return out; }
+    function face(pts){ const so=racines(pts); if(so.length<2) return 0; for(let x=so[0]+1;x<so[1];x++){ if(pts[x+6]!==0) return pts[x+6]>0?1:-1; } return 0; }
+    function fautesTirage(pts){
+      const f=[];
+      if(!pts||pts.length!==13||pts.some(function(v){ return v!==Math.round(v)||v<-6||v>6; })){
+        f.push('les valeurs sortent de la grande grille ('+(pts||[]).join(',')+')'); return f; }
+      for(let j=0;j<12;j++){ if(pts[j]===pts[j+1]) f.push('un PALIER ('+pts.join(',')+') : le tableau ne saurait plus dire le sens'); }
+      if(Math.max.apply(null,pts)-Math.min.apply(null,pts)<8)
+        f.push('une courbe trop plate pour la grande grille ('+pts.join(',')+')');
+      for(let j=0;j<12;j++){ const lo=Math.min(pts[j],pts[j+1]), hi=Math.max(pts[j],pts[j+1]);
+        if(0>lo&&0<hi) f.push('zéro traversé ENTRE deux graduations ('+pts.join(',')+') : une racine illisible'); }
+      const so=racines(pts);
+      if(so.length!==2) f.push(so.length+' racine(s) au lieu de 2 ('+pts.join(',')+')');
+      else{
+        if(so[0]<=-6||so[1]>=6) f.push('une racine au bord ('+so.join(';')+')');
+        so.forEach(function(x){ if(!(pts[x+5]*pts[x+7]<0)) f.push('une racine sans vrai croisement (x='+x+') : la tangence mentirait'); });
+      }
+      let n=1; for(let j=1;j<12;j++){ if((pts[j+1]-pts[j])*(pts[j]-pts[j-1])<0) n++; }
+      if(n<2||n>4) f.push(n+' segment(s) de variation : hors du format de la grande grille');
+      return f;
+    }
+    for(let t=0;t<100 && !vus.length;t++){
+      const qs=gsvBuildQuestions(2);
+      if(qs.length!==2){ vus.push(qs.length+' questions au lieu de 2 (un graphique = une page)'); break; }
+      const faces=[];
+      qs.forEach(function(q,g){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','gnum','gtot'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
+        if(q.gnum!==g+1||q.gtot!==2) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
+        fautesTirage(q.pts).forEach(function(x){ vus.push(x); });
+        faces.push(face(q.pts));
+      });
+      if(!vus.length && !(faces.indexOf(1)>=0 && faces.indexOf(-1)>=0))
+        vus.push('une séance d\\'entraînement sans les deux visages du signe ('+faces.join(',')+')');
+    }
+    { const qs=gsvBuildQuestions(1);
+      if(qs.length!==1) vus.push('le soutien (1 graphique) ne pose pas 1 question'); }
+
+    /* ---- 1 bis. le REPLI, lu dans la source du tirage et éprouvé par les
+       gardes mêmes — un repli inventé à la main a déjà été pris invalide ---- */
+    { const sG=String(gsvGen), i0=sG.indexOf('return {pts:['), i1=i0<0?-1:sG.indexOf(']',i0);
+      if(i0<0||i1<0) vus.push('le repli du tirage est introuvable dans gsvGen');
+      else fautesTirage(sG.slice(i0+13,i1).split(',').map(Number)).forEach(function(x){ vus.push('le repli : '+x); }); }
+
+    /* ---- 2. le jugement, vérifié pour de vrai — courbe épinglée (relevée
+       sur le générateur) : racines −3 et 4, milieu +, nœuds (−6;−5) (2;6)
+       (6;−4) ---- */
+    const PTS=[-5,-4,-3,0,1,2,4,5,6,1,0,-3,-4];
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), gnum:1, gtot:1};
+      Object.assign(test,{kind:'gsv', questions:[q], idx:0, score:0, maxScore:gsvSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderGSV();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      submitGSV();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JUSTE={'gsv-s-x-0':'-3','gsv-s-x-1':'4',
+      'gsv-s-s-0':'-','gsv-s-s-1':'0','gsv-s-s-2':'+','gsv-s-s-3':'0','gsv-s-s-4':'-',
+      'gsv-v-x-1':'2','gsv-v-val-0':'-5','gsv-v-val-1':'6','gsv-v-val-2':'-4',
+      'gsv-v-arr-0':'up','gsv-v-arr-1':'down'};
+
+    let r=pose(JUSTE);
+    if(r.score!==13||gsvSubCount({pts:PTS})!==13) vus.push('la copie juste vaut '+r.score+' au lieu de 13');
+    ['gsv-s-x-0','gsv-s-s-2','gsv-v-x-1','gsv-v-arr-1'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n\\'est pas peinte ok ('+cls(id)+')'); });
+
+    /* le dessin rendu : la GRANDE grille (13 verticales, 13 horizontales),
+       et NU — ni droite déplaçable ni point : adrSVG appelé sans élève */
+    { const svg=document.querySelector('#gsvGraph svg');
+      let vx=0, hy=0;
+      if(svg) svg.querySelectorAll('line.lv-grid').forEach(function(l){
+        if(l.getAttribute('x1')===l.getAttribute('x2')) vx++; else hy++; });
+      if(vx!==13||hy!==13) vus.push('le dessin n\\'a pas la grande grille 13×13 ('+vx+' / '+hy+')');
+      if(svg && (svg.querySelector('.adr-niv')||svg.querySelector('.pim-pt')))
+        vus.push('le dessin porte la droite ou les points du grand graphique : il doit être NU'); }
+
+    /* les racines À LEUR PLACE : échangées, fausses toutes les deux */
+    r=pose(Object.assign({},JUSTE,{'gsv-s-x-0':'4','gsv-s-x-1':'-3'}));
+    if(cls('gsv-s-x-0').indexOf('bad')<0||cls('gsv-s-x-1').indexOf('bad')<0)
+      vus.push('les racines échangées devraient être fausses toutes les deux ('+cls('gsv-s-x-0')+' / '+cls('gsv-s-x-1')+')');
+    if(r.score!==11) vus.push('les racines échangées devraient coûter exactement 2 points ('+r.score+')');
+
+    /* chaque case se juge SEULE — un signe faux, une flèche fausse */
+    r=pose(Object.assign({},JUSTE,{'gsv-s-s-2':'-'}));
+    if(r.score!==12||cls('gsv-s-s-2').indexOf('bad')<0||cls('gsv-s-s-1').indexOf('ok')<0)
+      vus.push('le signe du milieu faux devrait coûter exactement son point ('+r.score+', '+cls('gsv-s-s-2')+' / '+cls('gsv-s-s-1')+')');
+    r=pose(Object.assign({},JUSTE,{'gsv-v-arr-1':'up'}));
+    if(r.score!==12||cls('gsv-v-arr-1').indexOf('bad')<0||cls('gsv-v-val-1').indexOf('ok')<0)
+      vus.push('la flèche fausse devrait coûter exactement son point ('+r.score+', '+cls('gsv-v-arr-1')+' / '+cls('gsv-v-val-1')+')');
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'gsv-s-x-0':'','gsv-v-val-2':''}));
+    if(cls('gsv-s-x-0').indexOf('sol')<0||cls('gsv-v-val-2').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('gsv-s-x-0')+' / '+cls('gsv-v-val-2')+')');
+    r=pose(Object.assign({},JUSTE,{'gsv-s-x-0':'','gsv-v-val-2':''}), 'soutien');
+    if(cls('gsv-s-x-0').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('sol')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('gsv-s-x-0')+' / '+cls('gsv-v-val-2')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function resolutionsGraphiques(w, P){
   const present = evaluer(w, "typeof startEig==='function' && typeof eigBuildQuestions==='function'");
   if(!present.ok || !present.valeur){

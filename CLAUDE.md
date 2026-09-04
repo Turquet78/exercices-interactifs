@@ -1484,6 +1484,39 @@ chez {signes-variations} ET ici, la preuve que la fonction est bien partagée ;
 la mesure de la flèche s'est prise en défaut avant la page : elle passait par
 une pose qui SOUMET, et la correction remplissait les flèches avant la mesure.
 
+**Les deux tableaux sur la GRANDE grille : −6..6 en abscisse et en
+ordonnée.** {signes-variations-grand} (Seconde, demande de Turquet, septembre
+2026 — « un exercice avec des dessins qui vont de -6 a 6 en abscisse et
+ordonnée qui demande de faire un tableau de signe et de variation comme les
+autres exercices ») suit {signes-variations} au menu : le même exercice, sur
+le grand dessin d'{antecedents-droite} — 13 graduations dans les deux sens.
+**Tout est repris, rien n'est recopié, et chaque moitié vient de son
+exercice** : le tirage est `adrGenPts()` — le générateur MÊME
+d'{antecedents-droite}, segments strictement monotones, jamais de palier —
+FILTRÉ à la discipline du 2.8 portée à l'échelle 13 (`gsvOkPts` : exactement
+deux racines intérieures, chacune un vrai croisement, zéro jamais traversé
+entre deux graduations — sonde relevée : 9,1 % des tirages bruts passent,
+pire cas 53 essais, le repli RÉEL relevé sur le générateur ne sert à peu
+près jamais et passe par les gardes mêmes, LUS dans la source par le
+contrôle). Le dessin est `adrSVG()`, la fonction même, appelée NUE (pas de
+droite, pas de points — le contrôle mesure la grille 13×13 rendue ET
+l'absence de `.adr-niv`). Le tableau de variation est rendu et jugé par
+`varTableHTML`/`varTableSubs` — les fonctions mêmes du 2.1, entièrement
+génériques sur l'objet d'analyse — sur `gsvAnalyze`, l'analyse à l'échelle
+13 : `lvAnalyze` est figée sur 7 graduations et comparée au caractère près
+avec la Terminale, la leçon d'{antecedents-droite}, donc l'échelle 13 vit
+dans le seul bloc gsv. Le tableau de signes est celui de {signes-variations},
+aux ids près, bornes −∞/+∞ comprises.
+Les racines et les abscisses sont À LEUR PLACE, chaque case se juge SEULE,
+les deux visages du signe sortent dès deux graphiques, la case vide ne
+rougit jamais — les règles de la famille, tenues par le contrôle dédié ET
+par les contrôles universels, qui ont couvert l'exercice au premier passage
+sans rien déclarer. Le rappel est RAP_LSV sous sa propre clé (le précédent
+`ord:RAP_PLC`) : même leçon, pas même identité. Douze sabotages, chacun
+rougissant en nommant son défaut — la flèche jugée à l'envers dans
+`varTableSubs` rougit chez {signes-variations}, {tableau-variation} ET ici,
+la preuve que la fonction est partagée trois fois.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
