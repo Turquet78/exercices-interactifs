@@ -1517,6 +1517,45 @@ rougissant en nommant son défaut — la flèche jugée à l'envers dans
 `varTableSubs` rougit chez {signes-variations}, {tableau-variation} ET ici,
 la preuve que la fonction est partagée trois fois.
 
+**Choisir le BON tableau parmi quatre — le QCM de la grande courbe.**
+{choisir-tableau-variation} (Seconde, demande de Turquet, septembre 2026 —
+« une courbe entre −6 à 6 avec 2 ; 3 ; 4 variations possibles, proposer 4
+tableaux de variations différents et l'élève doit choisir le bon tableau »)
+suit {signes-variations-grand} au menu : c'est le motif de
+{variations-depuis-derivee} de la Terminale, transposé à la lecture DIRECTE
+de la courbe.
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts()` — le
+générateur même du grand dessin, qui produit DÉJÀ 2, 3 ou 4 segments
+monotones — filtré par NOMBRE de segments (sonde : 24 % / 51 % / 25 %, pire
+cas 18 essais — le repli, RÉEL et relevé sur le générateur, un par visage,
+ne sert jamais et repasse par les gardes du contrôle) ; la table vraie est
+lue par `gsvAnalyze()`, la fonction qui corrige le 2.15 — un énoncé ne peut
+pas contredire sa correction ; le dessin est `adrSVG()` appelée nue ; les
+flèches des quatre tableaux sont dessinées par `lvArrowSVG()` sur la
+géométrie `VT_*` du 2.1 — les propositions ont le visage du tableau que
+l'élève connaît.
+**Les quatre tableaux ne diffèrent que par ce qui fait l'erreur** — la leçon
+d'{intervalles-inegalite} : le vrai ; les sens INVERSÉS ; un changement de
+sens DÉCALÉ d'une graduation ; le mauvais NOMBRE de variations (un
+changement en plus ou en moins — le cœur de la demande : compter). Ils ne
+portent PAS de valeurs, comme les tableaux du QCM de la Terminale : des
+valeurs auraient rendu l'inversion éliminable en lisant UN nombre, ou
+incohérente avec ses propres flèches — sans lire les variations, qui sont ce
+qu'on évalue. Les mutations mutent TOUJOURS (quatre signatures deux à deux
+distinctes par construction) et l'espacement ≥ 2 des tournants rend le
+décalage toujours lisible : ces gardes seraient MORTS dans le tirage (sonde
+0 sur 3000), c'est le CONTRÔLE qui exige les propriétés.
+**Les trois visages — 2, 3 et 4 variations — sortent chacun UNE fois par
+séance, en ordre mélangé**, et à visage égal le rang de la bonne varie. La
+question ne porte que la courbe, l'ordre et les indices des mutations (on
+range l'indice, jamais l'objet) ; le contrôle refuse tout autre champ. La
+carte se choisit au CLIC comme dans la liste (le geste tablette du QCM de la
+Terminale), le piège CHOISI se NOMME dans le retour, le badge porte le
+LIBELLÉ (« B », jamais « 1 »), la bonne carte choisie est bleue, la bonne
+MONTRÉE est verte — jamais en soutien, où l'élève corrige lui-même — et la
+case vide ne rougit jamais. Quinze sabotages, chacun rougissant en nommant
+son défaut.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
