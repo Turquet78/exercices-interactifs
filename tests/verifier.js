@@ -2704,6 +2704,7 @@ function exercices(suite){
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
     lectureSignes(w, P);
+    signesVariations(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -10398,6 +10399,141 @@ function lectureSignes(w, P){
        « Voir mes résultats » (le réarmement de lvBoutonSuivant) */
     r=pose('c', JC);
     const bt=document.getElementById('lsValidate');
+    if(!bt||bt.disabled||bt.textContent!=='Voir mes résultats')
+      vus.push('après la vérification, le bouton ne devient pas « Voir mes résultats » ('+(bt?bt.textContent:'absent')+')');
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {signes-variations} : la synthèse du 2.1 et du 2.11 — une courbe, et les
+   DEUX tableaux à compléter directement sur le même écran. Le tirage est
+   tsgGen (racines lisibles) et lvGenPts ne produit jamais de palier : le
+   contrôle refait les deux propriétés par sa PROPRE arithmétique, puis juge
+   la copie épinglée sur le repli du 2.8 — les racines du tableau de signes
+   à leur place, les nœuds et les flèches du tableau de variation jugés
+   chacun seul. Il tient aussi le bord du REFACTOR : la géométrie des
+   flèches (varArrowsCore) doit encore servir le 2.1. */
+function signesVariations(w, P){
+  const nom='les deux tableaux directs : signes et variations sur la même page';
+  const present = evaluer(w, "typeof startLSV==='function' && typeof lsvBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des deux tableaux');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='signes-variations';
+
+    /* ---- 0. la place au menu : juste APRÈS {tableau-signes-graphique} —
+       la synthèse vient quand les deux tableaux ont été appris ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('signes-variations')>=0; })[0];
+      const i=th?th.ids.indexOf('signes-variations'):-1;
+      if(!th || th.ids[i-1]!=='tableau-signes-graphique')
+        vus.push('{signes-variations} ne suit pas {tableau-signes-graphique} au menu'); }
+
+    /* ---- 1. le tirage : 100 séances, tout par sa propre arithmétique ---- */
+    for(let t=0;t<100 && !vus.length;t++){
+      const qs=lsvBuildQuestions(2);
+      if(qs.length!==2){ vus.push(qs.length+' questions au lieu de 2 (un graphique = une page)'); break; }
+      const sides=[];
+      qs.forEach(function(q,g){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','gnum','gtot'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
+        if(q.gnum!==g+1||q.gtot!==2) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
+        const pts=q.pts, so=[];
+        for(let x=-3;x<=3;x++){ if(pts[x+3]===0) so.push(x); }
+        if(so.length!==2){ vus.push('f a '+so.length+' racine(s) au lieu de 2 ('+pts.join(',')+')'); return; }
+        if(so[0]<=-3||so[1]>=3) vus.push('une racine tombe au bord du dessin');
+        so.forEach(function(x){ if(pts[x+2]*pts[x+4]>=0)
+          vus.push('la courbe TOUCHE zéro en x='+x+' sans le traverser : le tableau de signes mentirait'); });
+        for(let j=0;j<6;j++){ const lo=Math.min(pts[j],pts[j+1]), hi=Math.max(pts[j],pts[j+1]);
+          if(0>lo&&0<hi) vus.push('zéro est traversé ENTRE deux graduations : une racine illisible');
+          if(pts[j]===pts[j+1]) vus.push('un PALIER ('+pts.join(',')+') : le tableau de variation ne saurait plus dire le sens'); }
+        const nseg=lvAnalyze(pts).segments.length;
+        if(nseg<2||nseg>3) vus.push(nseg+' segment(s) de variation : le tableau sort du format du 2.1');
+        let s=0; for(let x=so[0]+1;x<so[1]&&!s;x++){ if(pts[x+3]!==0) s=pts[x+3]>0?1:-1; }
+        sides.push(s||1);
+      });
+      if(!vus.length && !(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0))
+        vus.push('une séance sans les deux visages du signe ('+sides.join(',')+')');
+    }
+    if(lsvBuildQuestions(1).length!==1) vus.push('le soutien (1 graphique) ne pose pas 1 question');
+
+    /* ---- 2. le jugement, vérifié pour de vrai — sur le repli du 2.8 :
+       racines −1 et 2, signes + 0 − 0 +, un creux en (1 ; −3) ---- */
+    const PTS=[3,2,0,-1,-3,0,1];
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), gnum:1, gtot:1};
+      Object.assign(test,{kind:'lsv', questions:[q], idx:0, score:0, maxScore:lsvSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderLSV();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      submitLSV();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JUSTE={'lsv-s-x-0':'-1','lsv-s-x-1':'2','lsv-s-s-0':'+','lsv-s-s-1':'0','lsv-s-s-2':'-','lsv-s-s-3':'0','lsv-s-s-4':'+',
+      'lsv-v-x-1':'1','lsv-v-val-0':'3','lsv-v-val-1':'-3','lsv-v-val-2':'1','lsv-v-arr-0':'down','lsv-v-arr-1':'up'};
+
+    let r=pose(JUSTE);
+    if(r.score!==13||lsvSubCount({pts:PTS})!==13) vus.push('la copie juste vaut '+r.score+' au lieu de 13');
+    ['lsv-s-x-0','lsv-s-s-2','lsv-v-x-1','lsv-v-val-1','lsv-v-arr-0'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n\\'est pas peinte ok ('+cls(id)+')'); });
+
+    /* les racines du tableau de signes À LEUR PLACE : échangées, fausses toutes les deux */
+    r=pose(Object.assign({},JUSTE,{'lsv-s-x-0':'2','lsv-s-x-1':'-1'}));
+    if(cls('lsv-s-x-0').indexOf('bad')<0||cls('lsv-s-x-1').indexOf('bad')<0)
+      vus.push('les racines échangées devraient être fausses toutes les deux ('+cls('lsv-s-x-0')+' / '+cls('lsv-s-x-1')+')');
+    if(r.score!==11) vus.push('les racines échangées devraient coûter exactement 2 points ('+r.score+')');
+
+    /* chaque case du tableau de variation se juge SEULE */
+    r=pose(Object.assign({},JUSTE,{'lsv-v-arr-0':'up'}));
+    if(r.score!==12||cls('lsv-v-arr-0').indexOf('bad')<0||cls('lsv-v-val-0').indexOf('ok')<0)
+      vus.push('la flèche fausse devrait coûter exactement son point ('+r.score+', '+cls('lsv-v-arr-0')+' / '+cls('lsv-v-val-0')+')');
+    r=pose(Object.assign({},JUSTE,{'lsv-v-val-1':'2'}));
+    if(cls('lsv-v-val-1').indexOf('bad')<0||cls('lsv-v-x-1').indexOf('ok')<0)
+      vus.push('la valeur fausse d\\'un nœud rougit sa case et elle seule ('+cls('lsv-v-val-1')+' / '+cls('lsv-v-x-1')+')');
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'lsv-s-s-1':'','lsv-v-val-2':''}));
+    if(cls('lsv-s-s-1').indexOf('sol')<0||cls('lsv-v-val-2').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('lsv-s-s-1')+' / '+cls('lsv-v-val-2')+')');
+    r=pose(Object.assign({},JUSTE,{'lsv-s-s-1':'','lsv-v-val-2':''}), 'soutien');
+    if(cls('lsv-s-s-1').indexOf('bad')>=0||cls('lsv-v-val-2').indexOf('bad')>=0||cls('lsv-v-val-2').indexOf('sol')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('lsv-s-s-1')+' / '+cls('lsv-v-val-2')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+    currentMode='train';
+
+    /* toutes les cases du signe offrent —, +, −, 0 */
+    pose({});
+    for(let i=0;i<5;i++){ const el=document.getElementById('lsv-s-s-'+i);
+      const opts=el?[].map.call(el.options,function(o){ return o.value; }).join(','):'';
+      if(opts!==',+,-,0'){ vus.push('la case lsv-s-s-'+i+' n\\'offre pas —, +, −, 0 ('+opts+')'); break; } }
+
+    /* les flèches se DESSINENT quand un sens est choisi (varArrowsCore) */
+    { document.getElementById('lsv-v-arr-0').value='down';
+      lsvArrowChange();
+      const ov=document.getElementById('lsv-v-ov');
+      if(!ov||ov.innerHTML.indexOf('vt-shaft')<0) vus.push('les flèches du tableau de variation ne se dessinent plus'); }
+
+    /* et le REFACTOR n'a pas cassé le 2.1 : la même géométrie sert lv */
+    { Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'lv', questions:[{pts:PTS.slice(), part:'c', gnum:1, gtot:1}], idx:0, score:0, maxScore:6, answers:[], startTime:Date.now(), locked:false});
+      renderLV();
+      const a0=document.getElementById('lv-c-arr-0');
+      if(!a0) vus.push('le tableau de variation du 2.1 ne se rend plus');
+      else { a0.value='down'; lvArrowChange();
+        const ov=document.getElementById('lv-c-ov');
+        if(!ov||ov.innerHTML.indexOf('vt-shaft')<0) vus.push('les flèches du 2.1 ne se dessinent plus (varArrowsCore)');
+        const v0=document.getElementById('lv-c-val-0');
+        /* flèche ↘ : le départ (nœud 0) monte en haut de la case (22px) */
+        if(!v0||v0.style.top!=='22px') vus.push('la valeur du 2.1 ne suit plus la flèche ('+(v0?v0.style.top:'absent')+')'); } }
+
+    /* le bouton attend l'élève : « Voir mes résultats » sur la dernière question */
+    r=pose(JUSTE);
+    const bt=document.getElementById('lsvValidate');
     if(!bt||bt.disabled||bt.textContent!=='Voir mes résultats')
       vus.push('après la vérification, le bouton ne devient pas « Voir mes résultats » ('+(bt?bt.textContent:'absent')+')');
 
