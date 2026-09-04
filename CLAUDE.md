@@ -1327,6 +1327,39 @@ case vide rougie, la bonne carte qui ne se montre plus, le soutien qui peint
 le vide — chacun rougit en nommant son défaut, sauf celui du garde-fou mort,
 dont le vert disait vrai.
 
+**Le tableau de signes s'apprend en trois marches, sur UNE courbe conservée.**
+{lecture-signes} (Seconde, demande de Turquet, septembre 2026 — « un exercice
+comme le 2.1 mais pour les tableaux de signes ») vient juste AVANT
+{tableau-signes-graphique} : le cycle du 2.1 — une courbe gardée, des
+questions qui montent — transposé au signe : a) résoudre f(x) = 0, b) dire le
+signe de f sur chaque intervalle, c) construire le tableau ENTIER, racines et
+zéros compris.
+**Tout est repris, rien n'est recopié** : le tirage est celui du 2.8
+(`tsgGen` — racines lisibles garanties, le contrôle les recompte par sa
+propre arithmétique), le dessin et les peintures ceux du 2.1 (`lvGraphSVG`,
+`lvMarkFields`), le tableau les classes du 2.8. La question ne porte que la
+courbe et la partie (`pts, part, gnum, gtot`) : `tsgSols`/`tsgSide` — les
+fonctions mêmes qui corrigent le 2.8 — recalculent tout, et le contrôle
+refuse tout autre champ.
+**Deux différences avec le 2.8, chacune voulue** : la courbe est NUE — le 2.8
+peint le dessus en rouge et le dessous en bleu pour ENSEIGNER la
+correspondance, ici on la fait LIRE sans aide ; et le tableau ne donne RIEN —
+les racines s'écrivent, et les CINQ cases de la ligne du signe offrent toutes
++, − et 0 : savoir que le 0 va sous une racine EST évalué, des cases qui ne
+l'offriraient que sous les racines révéleraient la réponse.
+**Les racines se jugent DEUX fois, sous DEUX règles, et c'est le cœur** :
+dans S = { … ; … } l'ordre est LIBRE (la règle des paires, le doublon
+défendable une fois) ; dans le tableau elles sont À LEUR PLACE, la plus
+petite à gauche — un tableau se lit de gauche à droite, l'ordre en fait
+partie, et les racines échangées sont fausses toutes les deux.
+**Les deux visages (+ − + et − + −) sortent dès que la séance a deux
+graphiques** ; le soutien n'en a qu'un, rien à équilibrer — le motif du 2.8.
+Et la famille `.lv-sel` a gagné sa règle `.sol` EN NAISSANT — la leçon des
+familles de listes, tenue avant le signalement cette fois : la règle posée
+répare du même coup la partie b du 2.1, dont `lvMarkFields` remplissait les
+listes vides en bleu invisible depuis toujours. Dix sabotages, chacun
+rougissant en nommant son défaut.
+
 **Le tableau de signes se lit sur une courbe à deux encres.**
 {tableau-signes-graphique} (Seconde, 2.8, demande de Turquet, août 2026) : une
 courbe du style de {resolutions-graphiques}, la partie AU-DESSUS de l'axe en

@@ -508,7 +508,7 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1281,6 +1281,10 @@
        posait déjà la classe, mais aucune règle ne la dessinait : la valeur
        s'écrivait avec l'encre d'une saisie ordinaire. */
     .lv-in.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+    /* la famille lv-sel n'avait AUCUNE règle .sol — lvMarkFields remplit
+       pourtant les listes vides en sol depuis toujours (2.1 partie b) : la
+       leçon de .itv-sel.sol, encore. La règle sert le 2.1 ET {lecture-signes}. */
+    .lv-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
 /* ---- Pavé numérique compact des écrans tactiles ---- */
 #paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
   background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
@@ -1614,6 +1618,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="lvBody"></div>
       <div class="lv-feedback"><span id="lvMark" class="mark"></span> <span id="lvCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="lvRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="lvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="lvQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="lvValidate" onclick="submitLV()">Valider</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-ls">
+    <div class="card lv-card">
+      <div class="q-head"><span id="lsIdx" class="q-idx">Question 1 / 6</span><span id="lsModeTag"></span></div>
+      <p class="lv-sub" id="lsSub"></p>
+      <p class="lv-instr" id="lsInstr"></p>
+      <div class="lv-graph" id="lsGraph"></div>
+      <div id="lsBody"></div>
+      <div class="lv-feedback"><span id="lsMark" class="mark"></span> <span id="lsCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="lsRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="lsConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="lsQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="lsValidate" onclick="submitLS()">Valider</button></div>
     </div>
   </section>
 
@@ -2274,7 +2290,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=134;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=135;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2792,6 +2808,7 @@ const TESTS={
   'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
   'construire-fonction': { name:'Construire une fonction', icon:'✏️', desc:'Le chemin INVERSE de toute la lecture graphique : on te donne les consignes — une valeur, une image, un antécédent, f\u2009(x)\u2009=\u20090 et une inéquation — et c\u2019est toi qui traces une courbe qui les respecte, point par point.', start:()=>startCfx() },
   'resolutions-graphiques': { name:'Résolutions graphiques', icon:'🧭', desc:'Une courbe, une droite horizontale, quatre dessins proposés : pour chaque équation ou inéquation, choisis le dessin qui la montre, puis écris la solution — S = { … } avec des accolades, ou un intervalle comme dans {inequation-graphique}.', start:()=>startEig() },
+  'lecture-signes': { name:'Lecture graphique \u2014 tableau de signes', icon:'\ud83d\udea6', desc:'Comme {lecture-variations}, mais pour le signe : lis une courbe, r\u00e9sous f (x) = 0, donne le signe de f sur chaque intervalle, puis construis le tableau de signes en entier \u2014 racines et z\u00e9ros compris.', start:()=>startLS() },
   'tableau-signes-graphique': { name:'Tableau de signes', icon:'±', desc:'Une courbe du style de {resolutions-graphiques}, coloriée : la partie au-dessus de l’axe en ROUGE (f (x) > 0), en dessous en BLEU (f (x) < 0). Complète les phrases couleur/signe, place les signes dans le tableau — les racines et les zéros sont donnés, comme en Terminale — puis résous f (x) = 0, f (x) > 0 et f (x) < 0.', start:()=>startTsg() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
@@ -2843,7 +2860,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2903,6 +2920,7 @@ function liveCheckCurrent(){
   else if(k==='eqg') checkEqgAnswer(true);
   else if(k==='cfx') cfxLive();
   else if(k==='pim') pimLive();
+  else if(k==='ls') lsLive();
   else if(k==='adr') adrLive();
   else if(k==='iqd') iqdLive();
   else if(k==='ifg') checkIfgAnswer(true);
@@ -3696,6 +3714,7 @@ const QIA_SUGG={
   def:["Comment ecrire une definition d\u2019ensemble ?","Quelle difference entre \u2115 et \u2124 ?","Pourquoi un exemple ne suffit pas ?"],
   pge:["Comment trouver le plus petit ensemble ?","Pourquoi calculer la valeur avant de repondre ?"],
   lv:["Comment lire les variations d\u2019une courbe ?","Que veut dire croissante ?","Comment remplir un tableau de variations ?"],
+  ls:["Comment trouver o\u00f9 f (x) = 0 sur le graphique ?","Comment lire le signe de f sur un intervalle ?","Pourquoi \u00e9crit-on 0 sous une racine ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
   pim:["Comment je place la droite verticale au bon endroit ?","Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
   ant:["C\u2019est quoi, un antécédent ?","Quelle est la différence entre image et antécédent ?","À quoi sert la ligne de niveau ?"],
@@ -4060,6 +4079,12 @@ const RAP_IFG=`<b>Lire avec deux courbes, chacune sur son domaine</b><br>
 • <b>Un antécédent</b> se trouve avec la ligne de niveau — un trait horizontal à la hauteur donnée : chaque croisement avec la courbe donne un antécédent, comme dans {antecedent-nombre}. La même hauteur peut avoir UN antécédent par f et PLUSIEURS par g.<br>
 • <b>Résoudre f\u2009(x) = g\u2009(x)</b> : chercher les x où les deux courbes se CROISENT — mais seulement là où les deux existent.<br>
 • <b>Résoudre f\u2009(x) > g\u2009(x)</b> : chercher les x où la courbe de f est AU-DESSUS de celle de g, comme dans {equation-graphique}. Les bouts de S sont les bouts du domaine COMMUN, et ils sont toujours pris ; les croisements suivent le signe — fermé si l'égalité est acceptée (≥), ouvert sinon (>).`;
+const RAP_LS=`<b>Le tableau de signes d’une courbe</b><br>
+On regarde où la courbe est par rapport à l’<b>axe des abscisses</b> (l’axe horizontal).<br>
+La courbe est <b>au-dessus</b> de l’axe → f (x) est <b>positive</b> → signe <b>+</b>.<br>
+La courbe est <b>en dessous</b> → f (x) est <b>négative</b> → signe <b>−</b>.<br>
+La courbe <b>traverse l’axe</b> → f (x) = 0 : ce nombre est une <b>racine</b>, et on écrit <b>0</b> dans le tableau, juste sous la racine.<br>
+Dans la ligne des x, les racines s’écrivent <b>dans l’ordre</b>, de la plus petite à la plus grande.`;
 const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
 • <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
 • <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
@@ -4088,7 +4113,7 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4197,7 +4222,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','construire-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4555,7 +4580,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4679,7 +4704,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','ls','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -9494,6 +9519,168 @@ function ctxTsg(q){
   if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
   return {nombre:'', contexte:c};
 }
+
+/* ================= Exercice Seconde : Lecture graphique — tableau de signes (kind 'ls') =================
+   « comme le 2.1 mais pour les tableaux de signes » (demande de Turquet,
+   septembre 2026). Même cycle que {lecture-variations} : un graphique
+   CONSERVÉ, trois questions qui montent — a) résoudre f(x) = 0, b) le signe
+   de f sur chaque intervalle, c) le tableau de signes ENTIER.
+   Le tirage est celui de {tableau-signes-graphique} — tsgGen, appelé TEL
+   QUEL : racines lisibles garanties (exactement deux, intérieures, de vrais
+   croisements, zéro jamais traversé entre deux graduations). Un second
+   générateur aurait fini par diverger. Même moteur de tirage, pas la même
+   identité (la note passe par currentTestId, le rappel par RAPPELS.ls, les
+   questions par QIA_SUGG.ls).
+   Contrairement au 2.8, la courbe est NUE (pas de rouge/bleu) et rien n'est
+   pré-écrit dans le tableau : construire le tableau EST l'exercice — c'est
+   pourquoi les CINQ cases de la ligne « Signe » offrent toutes +, − et 0 :
+   savoir que 0 va sous une racine fait partie de ce qu'on évalue. Les
+   racines de la ligne des x se jugent À LEUR PLACE (la plus petite à
+   gauche) : un tableau se lit de gauche à droite, l'ordre en fait partie —
+   contrairement au S = { … ; … } de la partie a, à ordre libre (la règle
+   des paires).
+   La bonne réponse n'est jamais rangée à côté de la question : la question
+   ne porte que la courbe (et la partie), tout se recalcule par
+   tsgSols/tsgSide — les fonctions mêmes qui corrigent le 2.8. */
+function lsIntervalles(pts){
+  const so=tsgSols(pts);
+  return [{a:-3,b:so[0]},{a:so[0],b:so[1]},{a:so[1],b:3}];
+}
+function lsSignes(pts){
+  const s=tsgSide({pts:pts}); const mid=s>0?'+':'-', dehors=s>0?'-':'+';
+  return [dehors,mid,dehors];
+}
+function lsPartLabel(q){ return q.part==='a'?'Résoudre f (x) = 0':(q.part==='b'?'Signe sur chaque intervalle':'Tableau de signes'); }
+function lsSubCount(q){ return q.part==='a'?2:(q.part==='b'?3:7); }
+function lsBuildQuestions(nGraphs){
+  const graphs=[];
+  for(let g=0; g<nGraphs; g++) graphs.push(tsgGen());
+  /* les DEUX visages (+ − + et − + −) dans la séance dès que deux graphiques
+     — le motif de tsgBuildQuestions ; à un seul graphique (soutien), rien à
+     équilibrer */
+  for(let att=0; att<200 && nGraphs>1; att++){
+    const sides=graphs.map(function(q){ return tsgSide(q); });
+    if(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0) break;
+    graphs[att%nGraphs]=tsgGen();
+  }
+  const out=[];
+  graphs.forEach(function(gq,g){
+    ['a','b','c'].forEach(function(part){ out.push({pts:gq.pts, part:part, gnum:g+1, gtot:nGraphs}); });
+  });
+  return out;
+}
+function startLS(){
+  const nGraphs=(currentMode==='soutien')?1:2;
+  const qs=lsBuildQuestions(nGraphs);
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'ls', questions:qs, idx:0, score:0, maxScore:qs.reduce(function(n,q){ return n+lsSubCount(q); },0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ls'); renderLS();
+}
+function renderLS(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  const so=tsgSols(q.pts);
+  $('lsIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('lsModeTag').innerHTML=modeTagHTML();
+  { const cb=$('lsConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('lsRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('lsQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('lsSub').textContent='Graphique '+q.gnum+' / '+q.gtot+' \u2014 '+lsPartLabel(q);
+  $('lsGraph').innerHTML=lvGraphSVG(q.pts);
+  let instr='', body='';
+  if(q.part==='a'){
+    instr='Résous f (x) = 0 : lis sur le graphique les nombres où la courbe traverse l\u2019axe des abscisses.';
+    body='<div class="lv-blist"><div class="lv-brow"><i>f</i> (<i>x</i>) = 0 : S = { '
+      +'<input id="ls-a-0" class="lv-in sm" inputmode="numeric" autocomplete="off"> ; '
+      +'<input id="ls-a-1" class="lv-in sm" inputmode="numeric" autocomplete="off"> } , dans l\u2019ordre que tu veux.</div></div>';
+  } else if(q.part==='b'){
+    instr='Pour chaque intervalle, indique si la fonction f est positive ou négative.';
+    const sg=lsSignes(q.pts);
+    body='<div class="lv-blist">'+lsIntervalles(q.pts).map(function(iv,i){
+      return '<div class="lv-brow">Sur l\u2019intervalle <span class="lv-int">[\u2009'+numFmt(iv.a)+'\u2009;\u2009'+numFmt(iv.b)+'\u2009]</span>, f est '
+        +'<select id="ls-b-'+i+'" class="lv-sel"><option value="">\u2014</option><option value="positive">positive</option><option value="négative">négative</option></select>.</div>';
+    }).join('')+'</div>';
+  } else {
+    instr='Construis le tableau de signes : écris les deux racines dans la ligne des x (la plus petite à gauche), puis choisis +, − ou 0 dans chaque case de la ligne du signe.';
+    const selS=function(id,aria){ return '<select id="'+id+'" class="lv-sel arr" aria-label="'+aria+'"><option value="">\u2014</option><option value="+">+</option><option value="-">\u2212</option><option value="0">0</option></select>'; };
+    const table='<table class="tsg-tbl"><tbody>'
+      +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">\u2212\u221e</td><td class="tsg-root"><input id="ls-c-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="ls-c-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">+\u221e</td></tr>'
+      +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('ls-c-s-0','Signe avant la première racine')+'</td><td>'+selS('ls-c-s-1','Sous la première racine')+'</td><td>'+selS('ls-c-s-2','Signe entre les deux racines')+'</td><td>'+selS('ls-c-s-3','Sous la seconde racine')+'</td><td>'+selS('ls-c-s-4','Signe après la seconde racine')+'</td></tr>'
+      +'</tbody></table>';
+    body='<div class="lv-tblwrap">'+table+'</div>';
+  }
+  $('lsInstr').textContent=instr;
+  $('lsBody').innerHTML=body;
+  $('lsBody').querySelectorAll('input,select').forEach(function(el){ el.addEventListener('input',lsLive); el.addEventListener('change',lsLive); });
+  $('lsMark').className='mark'; $('lsMark').textContent=''; $('lsCorr').innerHTML='';
+  const b=$('lsValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitLS;
+  setTimeout(lsLive,0);
+}
+function lsCheckPart(q){
+  const so=tsgSols(q.pts), sg=lsSignes(q.pts), subs=[];
+  if(q.part==='a'){
+    /* S = { x1 ; x2 } : ordre libre, le même nombre posé deux fois est
+       défendable une fois, faux la seconde — la règle des paires */
+    const left=[so[0],so[1]], rows=[];
+    for(let i=0;i<2;i++){ const v=lvReadInt('ls-a-'+i); const j=(v!=null)?left.indexOf(v):-1;
+      rows.push({id:'ls-a-'+i, v:v, ok:j>=0}); if(j>=0) left.splice(j,1); }
+    rows.forEach(function(r){ subs.push({id:r.id, val:(r.ok? r.v : left.shift()), ok:r.ok}); });
+  } else if(q.part==='b'){
+    sg.forEach(function(s,i){ const exp=(s==='+')?'positive':'négative'; const el=$('ls-b-'+i);
+      subs.push({id:'ls-b-'+i, val:exp, ok: !!el && el.value===exp}); });
+  } else {
+    /* les racines À LEUR PLACE : la plus petite à gauche — un tableau se lit
+       de gauche à droite, l'ordre en fait partie */
+    subs.push({id:'ls-c-x-0', val:so[0], ok: lvReadInt('ls-c-x-0')===so[0]});
+    subs.push({id:'ls-c-x-1', val:so[1], ok: lvReadInt('ls-c-x-1')===so[1]});
+    const attendu=[sg[0],'0',sg[1],'0',sg[2]];
+    attendu.forEach(function(v,i){ const el=$('ls-c-s-'+i); subs.push({id:'ls-c-s-'+i, val:v, ok: !!el && el.value===v}); });
+  }
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+/* Mode soutien : chaque case au fil de la frappe — la case vide ne reçoit
+   RIEN, et une racine seule se juge sur sa PROMESSE (la règle des paires de
+   la partie a passe par lsCheckPart, jamais une réimplémentation). */
+function lsLive(){
+  if(test.kind!=='ls' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  lsCheckPart(q).subs.forEach(function(s){ const el=$(s.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    const filled=String(el.value==null?'':el.value).trim()!=='';
+    if(filled) el.classList.add(s.ok?'ok':'bad');
+  });
+}
+function lsCorrectionHTML(q){
+  const so=tsgSols(q.pts), sg=lsSignes(q.pts);
+  const enc=function(v){ return v==='-'?'\u2212':v; };
+  if(q.part==='a') return 'f (x) = 0 : S = { '+numFmt(so[0])+' ; '+numFmt(so[1])+' } \u2014 la courbe traverse l\u2019axe des abscisses en ces deux nombres.';
+  if(q.part==='b') return 'Réponses : '+lsIntervalles(q.pts).map(function(iv,i){ return (sg[i]==='+'?'positive':'négative')+' sur [\u2009'+numFmt(iv.a)+'\u2009;\u2009'+numFmt(iv.b)+'\u2009]'; }).join('\u2003');
+  return 'Racines : x = '+numFmt(so[0])+' et x = '+numFmt(so[1])+'.\u2003Ligne du signe : '+[sg[0],'0',sg[1],'0',sg[2]].map(enc).join('\u2009|\u2009');
+}
+function submitLS(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=lsCheckPart(q);
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const mk=$('lsMark'); mk.textContent='\u2717'; mk.className='mark bad show';
+    $('lsCorr').textContent='Pas tout à fait \u2014 corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  const mk=$('lsMark'); mk.textContent=res.allOk?'\u2713':'\u2717'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('lsValidate').disabled=true;
+  if(!res.allOk) $('lsCorr').innerHTML=lsCorrectionHTML(q);
+  else $('lsCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:lsPartLabel(q)+' (graph. '+q.gnum+') \u2014 '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'ls'});
+  lvBoutonSuivant('lsValidate', nextLsQuestion);
+}
+function nextLsQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderLS(); autoSave(); } else finishTest(); }
 
 /* ---- Moteur : fin de test + écran de résultats (réintégrés) ---- */
 async function finishTest(){
@@ -14555,7 +14742,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
