@@ -1419,6 +1419,38 @@ deux hérités d'un conteneur emprunté :
   `pleineLargeur`, jamais la famille `.itv-ligne` — la règle est universelle,
   son contrôle ne l'est pas encore. Le dire vaut mieux que le taire.
 
+**Les deux tableaux d'une même courbe, complétés DIRECTEMENT.**
+{signes-variations} (Seconde, demande de Turquet, septembre 2026 — « un
+exercice avec un dessin comme le 2.11 ou le 2.1 qui demande directement de
+compléter un tableau de signes et un tableau de variation sur la même
+page ») suit {tableau-signes-graphique} au menu : la synthèse, quand les
+deux tableaux ont été appris — plus de marches, une courbe nue, et les DEUX
+tableaux d'un coup sur le même écran.
+**Une seule courbe sert les deux tableaux, et c'est le tirage qui le
+permet** : `tsgGen()` garantit les racines lisibles (le filtre du 2.8), et
+`lvGenPts` ne produit JAMAIS de palier — ses segments sont strictement
+monotones par construction —, donc le tableau de variation a toujours un
+sens à dire. Le contrôle refait les DEUX propriétés par sa propre
+arithmétique sur chaque tirage, plutôt que de les supposer.
+**Tout est repris, rien n'est recopié** : le tableau de signes est celui de
+{lecture-signes} (jugé par `tsgSols`/`tsgSide`), le tableau de variation
+celui du 2.1 (jugé par `lvAnalyze`), et la GÉOMÉTRIE des flèches est
+désormais partagée — `varArrowsCore(a, préfixe)`, extraite de
+`lvArrowChange` : deux copies auraient fini par diverger, et les deux
+tableaux se seraient dessinés différemment sous les yeux de l'élève. Le
+contrôle tient le bord du refactor : la même géométrie doit encore servir
+le 2.1, flèche dessinée et valeur qui la suit.
+**Toutes les abscisses sont À LEUR PLACE** — les racines du tableau de
+signes comme les changements de sens du tableau de variation : un tableau
+se lit de gauche à droite, l'ordre en fait partie, et les racines échangées
+sont fausses toutes les deux. Chaque case se juge SEULE : une flèche fausse
+coûte exactement son point. Les deux visages du signe sortent dès que la
+séance a deux graphiques (le motif du 2.11) ; le soutien n'en a qu'un. Une
+séance = deux pages (13 à 16 cases chacune). Dix sabotages, chacun
+rougissant en nommant son défaut — et le premier essai du contrôle a rougi
+sur du code JUSTE (la valeur du départ d'une flèche ↘ monte en HAUT de la
+case) : un essai faux se reconnaît à ce qu'il rougit sur une page juste.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
