@@ -2705,6 +2705,7 @@ function exercices(suite){
     tableauSignesGraphique(w, P);
     lectureSignes(w, P);
     signesVariations(w, P);
+    tableauVariationDirect(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -10534,6 +10535,154 @@ function signesVariations(w, P){
     /* le bouton attend l'élève : « Voir mes résultats » sur la dernière question */
     r=pose(JUSTE);
     const bt=document.getElementById('lsvValidate');
+    if(!bt||bt.disabled||bt.textContent!=='Voir mes résultats')
+      vus.push('après la vérification, le bouton ne devient pas « Voir mes résultats » ('+(bt?bt.textContent:'absent')+')');
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+function tableauVariationDirect(w, P){
+  const nom='le tableau de variation direct : les dessins et le tableau du 2.1';
+  const present = evaluer(w, "typeof startTVD==='function' && typeof tvdBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du tableau de variation direct');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-variation';
+
+    /* ---- 0. la place au menu : juste APRÈS {lecture-variations} — c'est
+       son c) sans les marches ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tableau-variation')>=0; })[0];
+      const i=th?th.ids.indexOf('tableau-variation'):-1;
+      if(!th || th.ids[i-1]!=='lecture-variations')
+        vus.push('{tableau-variation} ne suit pas {lecture-variations} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : les TROIS tableaux de variation de la Seconde
+       passent par les fonctions mêmes — varTableHTML au rendu, varTableSubs
+       au jugement — sans quoi « présenté comme dans le 2.1 » cesserait
+       d'être vrai sans que rien ne le dise ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      /* les rendus sont ENVELOPPÉS (jetons + boutons IA) : String(renderLV)
+         rendrait l'enveloppe — on lit le SOURCE de la page */
+      [["varTableHTML(a,'lv-c'",'le rendu du tableau lv-c'],["varTableHTML(a,'lsv-v'",'le rendu du tableau lsv-v'],["varTableHTML(a,'tvd-v'",'le rendu du tableau tvd-v'],
+       ["varTableSubs(a,'lv-c')",'le jugement du tableau lv-c'],["varTableSubs(a,'lsv-v')",'le jugement du tableau lsv-v'],["varTableSubs(lvAnalyze(q.pts), 'tvd-v')",'le jugement du tableau tvd-v']
+      ].forEach(function(t2){ if(srcPage.indexOf(t2[0])<0) vus.push(t2[1]+' ne passe plus par la fonction partagée du 2.1'); });
+      if(srcPage.indexOf("$('tvdCorr').innerHTML=lvCorrectionHTML(q)")<0)
+        vus.push('la correction écrite n\\'est plus celle du 2.1 (lvCorrectionHTML)'); }
+
+    /* ---- 1. le tirage : 100 séances — les dessins du 2.1, tout refait par
+       sa propre arithmétique ---- */
+    for(let t=0;t<100 && !vus.length;t++){
+      const qs=tvdBuildQuestions(2);
+      if(qs.length!==2){ vus.push(qs.length+' questions au lieu de 2 (un graphique = une page)'); break; }
+      const formes=[];
+      qs.forEach(function(q,g){
+        const cles=Object.keys(q).filter(function(k){ return ['pts','gnum','gtot'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
+        if(q.gnum!==g+1||q.gtot!==2) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
+        const pts=q.pts;
+        if(!pts||pts.length!==7||pts.some(function(v){ return v!==Math.round(v)||v<-3||v>3; })){
+          vus.push('les valeurs sortent de la grille du 2.1 ('+(pts||[]).join(',')+')'); return; }
+        for(let j=0;j<6;j++){ if(pts[j]===pts[j+1])
+          vus.push('un PALIER ('+pts.join(',')+') : ce n\\'est plus un dessin du 2.1, et le tableau ne saurait plus dire le sens'); }
+        if(Math.max.apply(null,pts)-Math.min.apply(null,pts)<4)
+          vus.push('une courbe trop plate pour un dessin du 2.1 ('+pts.join(',')+')');
+        let n=1; for(let j=1;j<6;j++){ if((pts[j+1]-pts[j])*(pts[j]-pts[j-1])<0) n++; }
+        if(n<2||n>3) vus.push(n+' segment(s) de variation : hors du format du 2.1');
+        formes.push(n);
+      });
+      if(!vus.length && !(formes.indexOf(2)>=0 && formes.indexOf(3)>=0))
+        vus.push('une séance sans les deux formes du tableau ('+formes.join(',')+')');
+    }
+    { const qs=tvdBuildQuestions(1);
+      if(qs.length!==1) vus.push('le soutien (1 graphique) ne pose pas 1 question');
+      else { const pts=qs[0].pts; let n=1; for(let j=1;j<6;j++){ if((pts[j+1]-pts[j])*(pts[j]-pts[j-1])<0) n++; }
+        if(n!==2) vus.push('le soutien ne garde pas la forme simple (k=2, comme au 2.1)'); } }
+
+    /* ---- 2. le jugement, vérifié pour de vrai — courbe à 3 segments :
+       nœuds (−3;−3) (−1;2) (1;−2) (3;2) ---- */
+    const PTS=[-3,-1,2,0,-2,0,2];
+    function pose(valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), gnum:1, gtot:1};
+      Object.assign(test,{kind:'tvd', questions:[q], idx:0, score:0, maxScore:tvdSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderTVD();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      submitTVD();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JUSTE={'tvd-v-x-1':'-1','tvd-v-x-2':'1','tvd-v-val-0':'-3','tvd-v-val-1':'2','tvd-v-val-2':'-2','tvd-v-val-3':'2',
+      'tvd-v-arr-0':'up','tvd-v-arr-1':'down','tvd-v-arr-2':'up'};
+
+    let r=pose(JUSTE);
+    if(r.score!==9||tvdSubCount({pts:PTS})!==9) vus.push('la copie juste vaut '+r.score+' au lieu de 9');
+    ['tvd-v-x-1','tvd-v-val-2','tvd-v-arr-1'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n\\'est pas peinte ok ('+cls(id)+')'); });
+
+    /* les abscisses À LEUR PLACE : échangées, fausses toutes les deux */
+    r=pose(Object.assign({},JUSTE,{'tvd-v-x-1':'1','tvd-v-x-2':'-1'}));
+    if(cls('tvd-v-x-1').indexOf('bad')<0||cls('tvd-v-x-2').indexOf('bad')<0)
+      vus.push('les abscisses échangées devraient être fausses toutes les deux ('+cls('tvd-v-x-1')+' / '+cls('tvd-v-x-2')+')');
+    if(r.score!==7) vus.push('les abscisses échangées devraient coûter exactement 2 points ('+r.score+')');
+
+    /* chaque case se juge SEULE */
+    r=pose(Object.assign({},JUSTE,{'tvd-v-arr-1':'up'}));
+    if(r.score!==8||cls('tvd-v-arr-1').indexOf('bad')<0||cls('tvd-v-val-1').indexOf('ok')<0)
+      vus.push('la flèche fausse devrait coûter exactement son point ('+r.score+', '+cls('tvd-v-arr-1')+' / '+cls('tvd-v-val-1')+')');
+    r=pose(Object.assign({},JUSTE,{'tvd-v-val-2':'0'}));
+    if(cls('tvd-v-val-2').indexOf('bad')<0||cls('tvd-v-x-2').indexOf('ok')<0)
+      vus.push('la valeur fausse d\\'un nœud rougit sa case et elle seule ('+cls('tvd-v-val-2')+' / '+cls('tvd-v-x-2')+')');
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'tvd-v-x-1':'','tvd-v-val-3':''}));
+    if(cls('tvd-v-x-1').indexOf('sol')<0||cls('tvd-v-val-3').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('tvd-v-x-1')+' / '+cls('tvd-v-val-3')+')');
+    r=pose(Object.assign({},JUSTE,{'tvd-v-x-1':'','tvd-v-val-3':''}), 'soutien');
+    if(cls('tvd-v-x-1').indexOf('bad')>=0||cls('tvd-v-val-3').indexOf('bad')>=0||cls('tvd-v-val-3').indexOf('sol')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('tvd-v-x-1')+' / '+cls('tvd-v-val-3')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+    currentMode='train';
+
+    /* ---- 3. la case ↗/↘ est posée SUR la flèche, à son MILIEU — la
+       convention du 5.5 de la Terminale (demande de Turquet, septembre
+       2026), jamais en dessous. On mesure contre les positions de la page
+       même : les deux extrémités que prennent les valeurs. ---- */
+    { Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q0={pts:PTS.slice(), gnum:1, gtot:1};
+      Object.assign(test,{kind:'tvd', questions:[q0], idx:0, score:0, maxScore:tvdSubCount(q0), answers:[], startTime:Date.now(), locked:false});
+      renderTVD();
+      const selTop=parseFloat((document.getElementById('tvd-v-arr-0')||{style:{}}).style.top);
+      document.getElementById('tvd-v-arr-0').value='down';
+      tvdArrowChange();
+      const t0=parseFloat(document.getElementById('tvd-v-val-0').style.top);
+      const t1=parseFloat(document.getElementById('tvd-v-val-1').style.top);
+      if(!(t0<t1)) vus.push('la flèche ↘ ne place plus ses valeurs haut/bas ('+t0+' / '+t1+')');
+      if(Math.abs(selTop-(t0+t1)/2)>0.6)
+        vus.push('la case ↗/↘ n\\'est pas posée au MILIEU de la flèche ('+selTop+'px pour un milieu à '+((t0+t1)/2)+'px)');
+      const ov=document.getElementById('tvd-v-ov');
+      if(!ov||ov.innerHTML.indexOf('vt-shaft')<0) vus.push('les flèches du tableau ne se dessinent plus'); }
+
+    /* et le 2.1 la reçoit par la MÊME fonction : son c) rendu, mesuré pareil */
+    { Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'lv', questions:[{pts:PTS.slice(), part:'c', gnum:1, gtot:1}], idx:0, score:0, maxScore:9, answers:[], startTime:Date.now(), locked:false});
+      renderLV();
+      const a0=document.getElementById('lv-c-arr-0');
+      if(!a0){ vus.push('le tableau de variation du 2.1 ne se rend plus'); }
+      else { const selTop=parseFloat(a0.style.top);
+        a0.value='down'; lvArrowChange();
+        const t0=parseFloat(document.getElementById('lv-c-val-0').style.top);
+        const t1=parseFloat(document.getElementById('lv-c-val-1').style.top);
+        if(Math.abs(selTop-(t0+t1)/2)>0.6)
+          vus.push('au 2.1 aussi, la case ↗/↘ doit être au milieu de la flèche ('+selTop+'px pour '+((t0+t1)/2)+'px)'); } }
+
+    /* le bouton attend l'élève : « Voir mes résultats » sur la dernière question */
+    r=pose(JUSTE);
+    const bt=document.getElementById('tvdValidate');
     if(!bt||bt.disabled||bt.textContent!=='Voir mes résultats')
       vus.push('après la vérification, le bouton ne devient pas « Voir mes résultats » ('+(bt?bt.textContent:'absent')+')');
 
