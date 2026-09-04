@@ -1451,6 +1451,39 @@ rougissant en nommant son défaut — et le premier essai du contrôle a rougi
 sur du code JUSTE (la valeur du départ d'une flèche ↘ monte en HAUT de la
 case) : un essai faux se reconnaît à ce qu'il rougit sur une page juste.
 
+**Le tableau de variation du 2.1, complété directement — et la case ↗/↘
+posée SUR la flèche.** {tableau-variation} (Seconde, demande de Turquet,
+septembre 2026 — « compléter directement un tableau de variation en utilisant
+des dessins de l'exercice 2.1 et en présentant le tableau de variation comme
+dans le 2.1 ») suit {lecture-variations} au menu : son c) sans les marches.
+**« Présenté comme dans le 2.1 » est tenu par une FONCTION, pas par une
+promesse** : le tableau est rendu par `varTableHTML(a, préfixe, onchange)` et
+jugé par `varTableSubs(a, préfixe)`, extraites du c) du 2.1 — le 2.1, le 2.13
+{signes-variations} et l'exercice neuf passent tous trois par elles (le
+contrôle lit le SOURCE de la page pour l'exiger, jamais `String(renderLV)` :
+les rendus sont ENVELOPPÉS par la greffe des jetons, et la chaîne d'une
+enveloppe parle d'autre chose — le premier jet du contrôle s'y est pris). La
+correction écrite est `lvCorrectionHTML` — la fonction même du 2.1, sa branche
+« tableau ». Le tirage est `lvGenPts`, le générateur MÊME du 2.1 ; les DEUX
+formes du tableau (un ou deux changements de sens) sortent dans chaque séance
+d'entraînement, en ordre mélangé, et le soutien garde la forme simple (k=2),
+comme le 2.1.
+**Et la case ↗/↘ est posée SUR la flèche bleue, à son milieu** (demande de
+Turquet, septembre 2026 : « comme en terminale avec l'exercice 5.5, pas en
+dessous comme actuellement ») : la convention d'`efArrowSel` — `top` au milieu
+de la bande, le halo `box-shadow` qui détache la case du trait — portée par
+`varTableHTML`, donc aux TROIS tableaux d'un coup ; la bande des flèches
+prend la hauteur de la Terminale (22..98, constantes partagées `VT_*` entre
+la géométrie et le tableau), et la consigne du 2.1 disait déjà « au milieu de
+chaque flèche » — l'écran dit enfin ce que la consigne promettait. Le
+contrôle MESURE contre la page même : le `top` de la case doit être le milieu
+des deux extrémités que prennent les valeurs, sur l'exercice neuf ET sur le
+2.1 rendu — aucune coordonnée recopiée. Onze sabotages, chacun rougissant en
+nommant son défaut — la flèche jugée à l'envers dans `varTableSubs` rougit
+chez {signes-variations} ET ici, la preuve que la fonction est bien partagée ;
+la mesure de la flèche s'est prise en défaut avant la page : elle passait par
+une pose qui SOUMET, et la correction remplissait les flèches avant la mesure.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
