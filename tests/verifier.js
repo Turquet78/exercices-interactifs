@@ -2693,6 +2693,7 @@ function exercices(suite){
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
+    toucheEgalClavier(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -7699,6 +7700,44 @@ function inequationDroite(w, P){
 
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
+}
+
+/* ---------- La touche « = » du clavier mathématique à l'écran ---------- */
+/* Demande de Turquet (septembre 2026) : « dans le clavier qui apparaît sur les
+   tablettes il manque le = ». Sur tablette, la greffe coupe le clavier du
+   SYSTÈME sur chaque champ mathématique (inputmode="none") : le clavier
+   virtuel de la page est le SEUL chemin vers un caractère, et sans touche
+   « = » une égalité y était intapable — dans les rédactions, c'est le
+   caractère central. Le pavé numérique compact, lui, ne la reçoit PAS : ses
+   cases attendent des nombres seuls, un « = » y écrirait une réponse fausse.
+   Le clavier vit dans la greffe module, invisible à jsdom : on ÉVALUE
+   buildKbTerm depuis la SOURCE — la vraie disposition, pas une recherche de
+   texte — et on balaie TOUTES ses couches. Le clic de la touche RENDUE, lui,
+   est au banc navigateur (le 6.7) — la doctrine du bouton mort. */
+function toucheEgalClavier(w, P){
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'buildKbTerm');
+  if(!fKb) pbs.push('buildKbTerm est introuvable dans la source');
+  else{
+    let bk = null;
+    try{ bk = new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({}, {}, {}, {}); }
+    catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
+    if(bk){
+      let dispo = null;
+      try{ dispo = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); }
+      const touches = [];
+      ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => (r || []).forEach(k => {
+        if(k) touches.push(k.latex || k.key || k.insert || k.label || '');
+      })));
+      /* un contrôle qui n'a rien à mesurer ne mesure rien, et doit le dire */
+      if(touches.length < 10) pbs.push('la disposition évaluée n\'a presque pas de touches (' + touches.length + ') : le contrôle n\'a rien à mesurer');
+      else if(touches.indexOf('=') === -1) pbs.push('aucune touche « = » sur le clavier mathématique à l\'écran — sur tablette, une égalité est intapable');
+    }
+  }
+  verifier('le clavier mathématique à l\'écran porte la touche « = »',
+    pbs.length === 0, pbs.join(' | '));
 }
 
 /* ---------- Le pavé numérique compact : tactile seulement, et il écrit vraiment ---------- */

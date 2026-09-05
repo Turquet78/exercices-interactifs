@@ -3138,11 +3138,13 @@ async function parcours(page, N){
         'lu : ' + JSON.stringify(style.derniere.slice(0, 120))
           + ', montre ' + (style.montre ? 'accepté' : 'REFUSÉ'));
       /* LES TOUCHES ≤ ≥ < > DU CLAVIER À L'ÉCRAN (demande de Turquet, septembre
-         2026) : une touche se prouve en la CLIQUANT sur le clavier RENDU — la
-         doctrine du bouton mort ; jsdom lit déjà la table de la greffe. On ouvre
-         par le vrai bouton ⌨️ du 6.7, on clique les quatre touches, on relit la
-         ligne APLATIE, puis on tape « >= » — le raccourci jumeau du « <= » que
-         le témoin tient déjà. Le clavier est REFERMÉ ensuite : ouvert, il
+         2026), PLUS « = » (seconde demande du même mois — elle manquait aux
+         trois claviers, et sur tablette le clavier du système est coupé) : une
+         touche se prouve en la CLIQUANT sur le clavier RENDU — la doctrine du
+         bouton mort ; jsdom lit déjà la table de la greffe. On ouvre par le
+         vrai bouton ⌨️ du 6.7, on clique les cinq touches, on relit la ligne
+         APLATIE, puis on tape « >= » — le raccourci jumeau du « <= » que le
+         témoin tient déjà. Le clavier est REFERMÉ ensuite : ouvert, il
          recouvrirait les boutons que la suite du banc clique. */
       await s.page.evaluate(() => {
         const L = rrFeuille.lignes[rrFeuille.lignes.length - 1];
@@ -3157,9 +3159,11 @@ async function parcours(page, N){
         const de = t => { const c = caps.find(k => k.textContent.trim() === t);
           if(!c) return null; const r = c.getBoundingClientRect();
           return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
-        return { ouvert: !!(vk && vk.visible), le: de('≤'), ge: de('≥'), lt: de('<'), gt: de('>') };
+        return { ouvert: !!(vk && vk.visible), le: de('≤'), ge: de('≥'), lt: de('<'), gt: de('>'), eq: de('=') };
       });
-      for(const t of ['le', 'ge', 'lt', 'gt']){
+      /* « = » d'abord : cliqué après « > », un raccourci « >= » pourrait les
+         fondre en ≥ et la mesure parlerait d'autre chose */
+      for(const t of ['eq', 'le', 'ge', 'lt', 'gt']){
         if(kbRects[t]){ await s.page.mouse.click(kbRects[t].x, kbRects[t].y); await s.page.waitForTimeout(120); }
       }
       const kbTape = await s.page.evaluate(() => {
@@ -3185,12 +3189,13 @@ async function parcours(page, N){
         L.mf.setValue(window.__rrAvantKb || '');
         return !(vk && vk.visible) && !(w && w.classList.contains('open'));
       });
-      verifier('les touches ≤ ≥ < > du clavier à l\'écran écrivent dans la ligne du 6.7',
-        kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt
+      verifier('les touches ≤ ≥ < > = du clavier à l\'écran écrivent dans la ligne du 6.7',
+        kbRects.ouvert && kbRects.le && kbRects.ge && kbRects.lt && kbRects.gt && kbRects.eq
           && kbTape.indexOf('≤') >= 0 && kbTape.indexOf('≥') >= 0
-          && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0 && kbFerme,
+          && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
+          && kbTape.indexOf('=') >= 0 && kbFerme,
         (kbRects.ouvert ? '' : 'le clavier ne s\'ouvre pas au ⌨️ ; ')
-          + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt'].filter(t => kbRects[t]).join(' ')
+          + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
           + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
       verifier('le raccourci « >= » écrit ≥ dans la feuille du 6.7',

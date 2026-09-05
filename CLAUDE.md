@@ -4806,6 +4806,23 @@ toute sa raison d'être —, ses touches font 40 px, il ne recouvre ni la case
 qu'on remplit ni les commandes du bas, et une touche cliquée écrit dans la
 case sans lui voler le focus. Éprouvé en le cassant sept fois.
 
+**La touche « = » est sur le clavier mathématique à l'écran** (demande de
+Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
+manque le = »). Aucun des trois claviers virtuels (`buildKbTerm`) ne la
+portait, et la greffe coupe le clavier du SYSTÈME sur chaque champ
+mathématique (`inputmode="none"`) : sur tablette, une égalité était
+INTAPABLE — dans les rédactions, c'est le caractère central — et rien ne
+cassait nulle part. Le pavé numérique compact, lui, ne la reçoit PAS : ses
+cases attendent des nombres seuls, un « = » y écrirait une réponse fausse —
+la doctrine du bouton qui ne sert pas. Le contrôle ÉVALUE `buildKbTerm`
+depuis la SOURCE de chaque fichier (le clavier vit dans la greffe module,
+invisible à jsdom) et balaie TOUTES ses couches — un clavier presque vide se
+signale au lieu de passer : un contrôle qui n'a rien à mesurer le dit. Le
+banc navigateur CLIQUE la touche rendue sur le 6.7, avec ≤ ≥ < et > — « = »
+en premier, parce que cliqué après « > » un raccourci pourrait les fondre en
+≥ et la mesure parlerait d'autre chose. Trois sabotages, un par fichier,
+chacun rougissant en nommant son défaut.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du
