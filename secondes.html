@@ -509,7 +509,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -900,6 +900,15 @@
   #scr-adr{padding-bottom:84px}
   #adrGraph .lv-svg{cursor:pointer;touch-action:none;max-width:640px}
   #gsvGraph .lv-svg{max-width:640px}
+  /* ---- {choisir-tableau-variation} : quatre tableaux à choisir ---- */
+  #vtqGraph .lv-svg{max-width:640px}
+  .vtq-cartes{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));gap:14px;width:100%;max-width:1340px;margin:10px auto}
+  @media(max-width:940px){ .vtq-cartes{grid-template-columns:1fr} }
+  .vtq-carte{position:relative;background:#fff;border:2px solid #DCE7FB;border-radius:14px;padding:26px 8px 10px;cursor:pointer}
+  .vtq-carte.ok{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.18)}
+  .vtq-carte.sol{border-color:var(--green);border-style:dashed;box-shadow:0 0 0 3px rgba(31,169,113,.18)}
+  .vtq-carte.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
+  .vtq-carte .vt-node{fill:var(--blue)}
   .adr-niv{stroke:#C2410C;stroke-width:3;fill:none;stroke-linecap:round}
   .adr-niv.bad{stroke:var(--red)}
   .adr-sol{stroke:var(--green);stroke-width:2.6;stroke-dasharray:8 5;fill:none}
@@ -1671,6 +1680,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-vtq">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagVtq"></span><span class="q-idx" id="vtqIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Bonnes réponses</span>&nbsp;<b id="vtqLiveScore">0</b></span>
+    </div>
+    <div class="card lv-card">
+      <p class="lv-instr">Voici la courbe d’une fonction <i>f</i>, tracée de −6 à 6. Quatre tableaux de variations sont proposés (A, B, C, D) : un seul correspond à la courbe. Choisis-le — en cliquant sa carte, ou dans la liste — puis vérifie.</p>
+      <div class="lv-graph" id="vtqGraph"></div>
+      <div id="vtqHost"></div>
+      <div class="mp-feedback" id="vtqFeedback"></div>
+      <div class="row" style="justify-content:center">
+        <span id="vtqActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" onclick="checkVtqAnswer()">Vérifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-img">
     <div class="card lv-card">
       <div class="q-head"><span id="imgIdx" class="q-idx">Question 1 / 4</span><span id="imgModeTag"></span></div>
@@ -2328,7 +2353,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=138;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=140;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2851,6 +2876,7 @@ const TESTS={
   'tableau-signes-graphique': { name:'Tableau de signes', icon:'±', desc:'Une courbe du style de {resolutions-graphiques}, coloriée : la partie au-dessus de l’axe en ROUGE (f (x) > 0), en dessous en BLEU (f (x) < 0). Complète les phrases couleur/signe, place les signes dans le tableau — les racines et les zéros sont donnés, comme en Terminale — puis résous f (x) = 0, f (x) > 0 et f (x) < 0.', start:()=>startTsg() },
   'signes-variations': { name:'Tableaux de signes et de variation', icon:'\ud83d\udcca', desc:'Le dessin de {lecture-variations}, les deux tableaux d\u2019un coup : compl\u00e8te DIRECTEMENT le tableau de signes (racines et z\u00e9ros compris) et le tableau de variation de la m\u00eame courbe.', start:()=>startLSV() },
   'signes-variations-grand': { name:'Tableaux de signes et de variation en grand', icon:'\ud83d\uddfa\ufe0f', desc:'Comme {signes-variations}, sur le GRAND dessin d\u2019{antecedents-droite} : 13 graduations, de \u22126 \u00e0 6 en abscisse ET en ordonn\u00e9e \u2014 les deux tableaux d\u2019un coup, \u00e0 compl\u00e9ter directement.', start:()=>startGSV() },
+  'choisir-tableau-variation': { name:'Choisir le tableau de variation', icon:'\ud83e\udded', desc:'Une courbe tracée de −6 à 6 — 2, 3 ou 4 variations — et QUATRE tableaux de variations proposés : un seul correspond à la courbe, à toi de le trouver.', start:()=>startVtq() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -2901,7 +2927,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -2965,6 +2991,7 @@ function liveCheckCurrent(){
   else if(k==='lsv') lsvLive();
   else if(k==='tvd') tvdLive();
   else if(k==='gsv') gsvLive();
+  else if(k==='vtq') vtqLive();
   else if(k==='adr') adrLive();
   else if(k==='iqd') iqdLive();
   else if(k==='ifg') checkIfgAnswer(true);
@@ -3532,6 +3559,7 @@ function conseilPaire(){
   else if(test.kind==='ifg' && q) b=ctxIfg(q);
   else if(test.kind==='eig' && q) b=ctxEig(q);
   else if(test.kind==='tsg' && q) b=ctxTsg(q);
+  else if(test.kind==='vtq' && q) b=ctxVtq(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
@@ -3761,6 +3789,7 @@ const QIA_SUGG={
   ls:["Comment trouver o\u00f9 f (x) = 0 sur le graphique ?","Comment lire le signe de f sur un intervalle ?","Pourquoi \u00e9crit-on 0 sous une racine ?"],
   lsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?"],
   gsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Comment lire une valeur sur le grand quadrillage, de \u22126 \u00e0 6 ?"],
+  vtq:["Comment trouver où la courbe change de sens ?","Comment compter le nombre de flèches d’un tableau de variations ?","Deux tableaux se ressemblent : qu’est-ce qui les distingue ?"],
   tvd:["Comment trouver les changements de sens sur le dessin ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?","Comment savoir si la fl\u00e8che monte ou descend ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
   pim:["Comment je place la droite verticale au bon endroit ?","Comment je place le point de la courbe d’abscisse 2 ?","Quelle est la différence entre l’abscisse et l’image ?","Pourquoi f(2) = 3 veut dire que l’image de 2 est 3 ?","Que faire quand la courbe descend sous l’axe ?"],
@@ -4168,7 +4197,7 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, tvd:RAP_TVD, vtq:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4277,7 +4306,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','construire-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','construire-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4635,7 +4664,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4759,7 +4788,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -10076,6 +10105,254 @@ function submitGSV(){
 function nextGsvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderGSV(); autoSave(); } else finishTest(); }
 
 
+/* ================= Exercice Seconde : Choisir le tableau de variation (kind 'vtq') =================
+   Demande de Turquet (septembre 2026) : « Créer un exercice qui donne une
+   courbe entre -6 à 6 avec 2; 3; 4 variations possibles. De proposer 4
+   tableaux de variations différents et l élève doit choisir le bon tableau en
+   seconde. » C'est le motif de {variations-depuis-derivee} de la Terminale
+   (kind afq), transposé à la lecture DIRECTE de la courbe : une courbe sur le
+   grand dessin −6..6 d'{antecedents-droite}, quatre tableaux de variations
+   proposés, un seul est le bon.
+   Tout est repris, rien n'est recopié : le tirage est adrGenPts() — le
+   générateur même du grand dessin, qui produit DÉJÀ 2, 3 ou 4 segments
+   monotones, jamais de palier — filtré par NOMBRE de segments ; la table
+   vraie est lue par gsvAnalyze(), la fonction même qui analyse la courbe pour
+   {signes-variations-grand} — un énoncé ne peut pas contredire sa
+   correction ; le dessin est adrSVG(), appelée nue ; les flèches des tableaux
+   proposés sont dessinées par lvArrowSVG() sur la géométrie VT_* du 2.1 — les
+   propositions ont le visage du tableau que l'élève connaît.
+   Les QUATRE tableaux ne diffèrent que par ce qui fait l'erreur — la leçon
+   d'{intervalles-inegalite} : le VRAI ; celui qui INVERSE les sens ; celui
+   dont un changement de sens est DÉCALÉ d'une graduation ; celui qui n'a pas
+   le BON NOMBRE de variations (un changement en plus ou en moins — le cœur de
+   la demande : compter les variations). Ils ne portent PAS de valeurs, comme
+   les tableaux du QCM de la Terminale : des valeurs auraient rendu
+   l'inversion éliminable en lisant UN nombre (ou incohérente avec ses
+   flèches) — sans lire les variations, qui sont ce qu'on évalue.
+   Les trois visages — 2, 3 et 4 variations — sortent chacun UNE fois par
+   séance, en ordre mélangé, et à visage égal le rang de la bonne varie.
+   La bonne réponse n'est jamais rangée à côté de la question : la question ne
+   porte que la courbe (pts), l'ordre (perm) et les indices des mutations
+   (mut — on range l'indice, jamais l'objet) ; vtqTables() reconstruit les
+   quatre tableaux depuis la courbe même, au rendu comme à la correction. */
+const VTQ_KINDS=['vrai','inverse','decale','nombre'];
+function vtqMelange(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=rand(0,i); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+/* La table VRAIE : abscisses des changements de sens + sens des flèches,
+   lues par gsvAnalyze — la fonction qui corrige {signes-variations-grand}. */
+function vtqTable(pts){
+  const a=gsvAnalyze(pts);
+  return {roots:a.nodes.slice(1,-1).map(function(n){ return n.x; }),
+          fleches:a.segments.map(function(s){ return s.dir==='croissante'?'up':'down'; })};
+}
+/* Les quatre tableaux, par nature, reconstruits depuis la courbe. Une
+   mutation mute TOUJOURS ici (les quatre signatures sont deux à deux
+   distinctes par construction : mêmes abscisses mais flèches opposées,
+   une abscisse déplacée, un autre COMPTE d'abscisses) — le contrôle exige
+   la propriété sur le tirage plutôt que de poser un garde qui n'écarterait
+   jamais rien. */
+function vtqTables(q){
+  const vrai=vtqTable(q.pts);
+  const T={};
+  T.vrai={roots:vrai.roots.slice(), fleches:vrai.fleches.slice()};
+  T.inverse={roots:vrai.roots.slice(), fleches:vrai.fleches.map(function(d){ return d==='up'?'down':'up'; })};
+  const dr=vrai.roots.slice(); dr[q.mut.ti]+=q.mut.dec;
+  T.decale={roots:dr, fleches:vrai.fleches.slice()};
+  let nr;
+  if(q.mut.mode==='add'){ nr=vrai.roots.concat([q.mut.ax]); nr.sort(function(a,b){ return a-b; }); }
+  else { nr=vrai.roots.slice(); nr.splice(q.mut.ri,1); }
+  const nf=[]; for(let i=0;i<=nr.length;i++) nf.push((i%2===0)?vrai.fleches[0]:(vrai.fleches[0]==='up'?'down':'up'));
+  T.nombre={roots:nr, fleches:nf};
+  return T;
+}
+function vtqSignature(t){ return t.roots.join(',')+'|'+t.fleches.join(','); }
+/* Le repli est RÉEL, relevé sur le générateur (sonde, septembre 2026 : sur
+   20000 tirages bruts, 24 % à 2 segments, 51 % à 3, 25 % à 4 — pire cas
+   mesuré 18 essais pour un visage : à 4000 essais le repli ne sert jamais).
+   Il passe par les gardes mêmes du tirage, et le contrôle le rejoue. */
+const VTQ_REPLI={"2":{"pts":[-4,-3,-2,-1,0,1,2,3,4,3,-2,-5,-6],"perm":["vrai","inverse","decale","nombre"],"mut":{"ti":0,"dec":1,"mode":"add","ax":4,"ri":0}},"3":{"pts":[-5,-4,-3,0,1,2,3,1,-3,-2,0,1,3],"perm":["vrai","inverse","decale","nombre"],"mut":{"ti":0,"dec":1,"mode":"add","ax":4,"ri":0}},"4":{"pts":[-5,-4,-2,-1,1,6,0,-6,0,3,4,1,0],"perm":["vrai","inverse","decale","nombre"],"mut":{"ti":1,"dec":-1,"mode":"del","ax":0,"ri":1}}};
+function vtqGen(nseg){
+  for(let att=0; att<4000; att++){
+    const pts=adrGenPts();
+    if(!pts) continue;
+    const v=vtqTable(pts);
+    if(v.fleches.length!==nseg) continue;
+    const turns=v.roots;
+    /* décalage : n'importe quel tournant, ±1 — l'espacement ≥ 2 du générateur
+       garde l'abscisse décalée strictement entre ses voisins et dans ]−6;6[
+       (sonde : 0 tournant espacé de moins de 2 sur 3000 tirages par visage —
+       un garde ici n'écarterait jamais rien, le contrôle exige la propriété) */
+    const ti=rand(0,turns.length-1), dec=pick([-1,1]);
+    /* nombre : à 2 segments un tournant EN PLUS (en moins ferait un tableau à
+       une seule flèche, qui se repère sans lire la courbe), à 4 un EN MOINS,
+       à 3 l'un ou l'autre */
+    const mode = nseg===2?'add' : nseg===4?'del' : pick(['add','del']);
+    let ax=0, ri=0;
+    if(mode==='add'){
+      const cands=[]; for(let x=-4;x<=4;x++){ if(turns.indexOf(x)<0) cands.push(x); }
+      ax=pick(cands);   /* jamais vide : au plus 3 tournants sur 9 positions (sonde : 0 cas sur 3000) */
+    } else ri=rand(0,turns.length-1);
+    return {pts:pts, perm:vtqMelange(VTQ_KINDS.slice()), mut:{ti:ti, dec:dec, mode:mode, ax:ax, ri:ri}};
+  }
+  const r=JSON.parse(JSON.stringify(VTQ_REPLI[String(nseg)]));
+  r.perm=vtqMelange(r.perm);
+  return r;
+}
+function vtqBuildQuestions(){
+  /* les trois visages — 2, 3 et 4 variations — chacun UNE fois, en ordre
+     mélangé : compter les variations EST la question de l'exercice, et un
+     tirage au hasard répéterait souvent le même compte (le motif des trois
+     visages d'{antecedents-droite}) */
+  return vtqMelange([2,3,4]).map(function(f){ return vtqGen(f); });
+}
+/* Un tableau de variations STATIQUE : la géométrie VT_* et les flèches
+   lvArrowSVG du tableau du 2.1 — une proposition à lire, pas à remplir,
+   sans valeurs (voir l'en-tête du bloc). */
+function vtqTableHTML(t){
+  const LVWL=44, WN=VT_WN, WS=VT_WS, H=VT_H, vT=VT_T, vB=VT_B;
+  const xs=[-ADR_R].concat(t.roots,[ADR_R]);
+  const N=xs.length, K=t.fleches.length;
+  const innerW=N*WN+K*WS;
+  let xrow='<td class="vlab" style="width:'+LVWL+'px"><i>x</i></td>';
+  xs.forEach(function(x,j){
+    const isEnd=(j===0||j===N-1);
+    xrow+='<td class="vnx" style="width:'+WN+'px">'+(isEnd?numFmt(x):'<b>'+numFmt(x)+'</b>')+'</td>';
+    if(j<N-1) xrow+='<td class="vax" style="width:'+WS+'px"></td>';
+  });
+  const ncx=function(j){ return j*(WN+WS)+WN/2; };
+  let g='';
+  for(let i=0;i<K;i++){
+    const y0=(t.fleches[i]==='up')?vB:vT, y1=(t.fleches[i]==='up')?vT:vB;
+    g+=lvArrowSVG(ncx(i),y0,ncx(i+1),y1);
+  }
+  for(let j=0;j<N;j++){
+    const right=t.fleches[j]||'', left=(j>0?t.fleches[j-1]:'')||'';
+    let y=(vT+vB)/2;
+    if(right==='up') y=vB; else if(right==='down') y=vT;
+    else if(left==='up') y=vT; else if(left==='down') y=vB;
+    g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4"/>';
+  }
+  return '<div style="overflow-x:auto"><table class="lv-vartbl2" style="width:'+(LVWL+innerW)+'px;margin:0 auto"><tbody>'
+    +'<tr class="vt-xr">'+xrow+'</tr>'
+    +'<tr class="vt-fr"><td class="vlab" style="width:'+LVWL+'px"><i>f</i>(<i>x</i>)</td><td class="vfcell" colspan="'+(N+K)+'" style="height:'+H+'px">'
+    +'<svg class="vt-overlay" viewBox="0 0 '+innerW+' '+H+'" preserveAspectRatio="none">'+g+'</svg></td></tr>'
+    +'</tbody></table></div>';
+}
+async function startVtq(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=vtqBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'vtq', questions:qs, idx:0, score:0,
+    maxScore:qs.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('vtq'); renderVtq();
+}
+let _vtqSaveTimer=null;
+function renderVtq(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('vtqIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagVtq').innerHTML=modeTagHTML();
+  $('vtqLiveScore').textContent=test.score;
+  $('vtqFeedback').textContent=''; $('vtqFeedback').className='mp-feedback';
+  $('vtqActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkVtqAnswer()">Vérifier</button>';
+  $('vtqGraph').innerHTML=adrSVG({pts:q.pts, dr:null, rep:[]}, null);
+  const T=vtqTables(q);
+  const cartes=q.perm.map(function(k,i){
+    return '<div class="vtq-carte" data-carte="'+i+'"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+vtqTableHTML(T[k])+'</div>';
+  }).join('');
+  $('vtqHost').innerHTML='<div class="vtq-cartes">'+cartes+'</div>'
+    +'<div class="itv-ligne" style="justify-content:center"><span class="itv-corps"><span class="itv-fixe">C’est le tableau</span>'
+    +itvSelHTML('vtq-sch', ITQ_LETTRES.map(function(l,i){ return [String(i),l]; }), 'Tableau correspondant')
+    +'</span></div>';
+  /* cliquer une carte la choisit : sur tablette, viser le petit menu est
+     pénible, et la fiche se répond en montrant le tableau du doigt — le
+     motif du QCM de la Terminale */
+  $('vtqHost').querySelectorAll('.vtq-carte').forEach(function(el){
+    el.addEventListener('click', function(){
+      if(test.locked) return;
+      const sel=$('vtq-sch'); if(!sel||sel.disabled) return;
+      sel.value=el.getAttribute('data-carte');
+      if(isSoutien()) vtqLive();
+      clearTimeout(_vtqSaveTimer); _vtqSaveTimer=setTimeout(autoSave,1000);
+    });
+  });
+  const sel=$('vtq-sch');
+  if(sel) sel.addEventListener('change',function(){ if(isSoutien()) vtqLive(); clearTimeout(_vtqSaveTimer); _vtqSaveTimer=setTimeout(autoSave,1000); });
+}
+function vtqBon(q){ return q.perm.indexOf('vrai'); }
+function vtqCases(q){ return [{id:'vtq-sch', bon:String(vtqBon(q))}]; }
+/* Mode soutien : la liste se colore au fil du choix, jamais une case vide. */
+function vtqLive(){
+  if(test.kind!=='vtq' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  vtqCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.classList.remove('ok','bad');
+    if(String(sel.value==null?'':sel.value).trim()==='') return;
+    sel.classList.add(sel.value===c.bon?'ok':'bad');
+  });
+}
+/* Le pourquoi, par NATURE du tableau choisi — le tirage l'a rangée dans perm
+   (le motif de {variations-depuis-derivee} : le piège choisi se NOMME). */
+function vtqPourquoi(kind){
+  if(kind==='inverse') return 'Ce tableau INVERSE les sens : sa flèche monte là où la courbe descend. Suis la courbe de gauche à droite — le tableau doit dire la même chose qu'+'elle, morceau par morceau.';
+  if(kind==='decale') return 'Ce tableau DÉCALE un changement de sens : l’abscisse d’un changement de sens se lit PILE sous le sommet ou le creux de la courbe, sur l’axe des abscisses.';
+  if(kind==='nombre') return 'Ce tableau n’a pas le BON NOMBRE de variations : compte les flèches — la courbe change de sens à chaque sommet et à chaque creux, ni plus, ni moins.';
+  return '';
+}
+function checkVtqAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ vtqLive(); return; }
+  const sel=$('vtq-sch');
+  const raw=sel?String(sel.value==null?'':sel.value).trim():'';
+  const bon=vtqBon(q);
+  const subs=vtqCases(q).map(function(c){ const s=$(c.id); const vide=!s||String(s.value==null?'':s.value).trim()===''; return {c:c, sel:s, vide:vide, ok:!!s&&s.value===c.bon}; });
+  const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
+  if(!allOk && isSoutien()){
+    subs.forEach(function(s){ if(s.sel){ s.sel.classList.remove('ok','bad'); if(!s.vide) s.sel.classList.add(s.ok?'ok':'bad'); } });
+    soutienAgain('vtqFeedback','vtqActions','checkVtqAnswer','vtqHost');
+    return;
+  }
+  test.locked=true;
+  subs.forEach(function(s){ corrChoix(s.sel, s.c.bon, s.ok); });
+  /* les cartes ne se peignent qu'écran VERROUILLÉ : en soutien on n'arrive
+     ici que tout juste — la bonne carte ne se montre jamais en soutien.
+     Choisie et juste = bleu ; montrée = correction, verte ; choisie à tort = rouge. */
+  document.querySelectorAll('#vtqHost .vtq-carte').forEach(function(el,i){
+    el.classList.remove('ok','bad','sol');
+    if(i===bon) el.classList.add(String(i)===raw?'ok':'sol');
+    else if(String(i)===raw) el.classList.add('bad');
+  });
+  test.score+=nCorrect; $('vtqLiveScore').textContent=test.score;
+  if(allOk){
+    $('vtqFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo !']);
+    $('vtqFeedback').className='mp-feedback good';
+  } else {
+    const choisi=(raw==='')?'':q.perm[parseInt(raw,10)];
+    const why=(choisi?vtqPourquoi(choisi)+' ':'')+'Retiens : une flèche par morceau où la courbe monte ou descend, et l’abscisse de chaque changement de sens se lit sur l’axe des abscisses.';
+    $('vtqFeedback').innerHTML='C’était le tableau <b>'+ITQ_LETTRES[bon]+'</b>. '+msgAvecVides(subs, why);
+    $('vtqFeedback').className='mp-feedback bad';
+  }
+  const v=vtqTable(q.pts);
+  test.answers.push({...(ptsExo()||{}), correct:allOk,
+    q:'Courbe −6..6 à '+v.fleches.length+' variations — bonne réponse '+ITQ_LETTRES[bon],
+    answer:ITQ_LETTRES[bon], given:raw===''?'(vide)':ITQ_LETTRES[parseInt(raw,10)]});
+  const last=test.idx===test.questions.length-1;
+  $('vtqActions').innerHTML='<button class="btn btn-primary" id="vtqNext" onclick="nextVtqQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('vtqNext'); if(nb) nb.focus();
+}
+function nextVtqQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderVtq(); autoSave(); } else finishTest(); }
+function ctxVtq(q){
+  const T=vtqTables(q), bon=vtqBon(q);
+  const sel=$('vtq-sch'), v=sel?String(sel.value):'';
+  const dit=function(t){ return 'changements de sens en '+(t.roots.map(numFmt).join(' et ')||'aucun')+', flèches '+t.fleches.map(function(d){ return d==='up'?'↗':'↘'; }).join(' puis '); };
+  return {nombre:'', contexte:'Exercice « Choisir le tableau de variation » : une courbe tracée de −6 à 6, et quatre tableaux de variations proposés (A à D) — l’élève choisit celui qui correspond à la courbe. '
+   +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : le tableau '+ITQ_LETTRES[bon]+'. '
+   +'Contenu des propositions : '+q.perm.map(function(k,i){ return ITQ_LETTRES[i]+' ('+dit(T[k])+')'; }).join(' ; ')+'. '
+   +'Choix actuel de l’élève : '+(v===''?'(aucun)':ITQ_LETTRES[parseInt(v,10)])+'. '
+   +'Méthode à faire appliquer, sans donner la lettre : suivre la courbe de gauche à droite, repérer chaque sommet et chaque creux, compter les morceaux où elle monte ou descend, et lire sur l’axe des abscisses où le sens change.'};
+}
 /* ================= Exercice Seconde : Tableau de variation (kind 'tvd') =================
    Demande de Turquet (septembre 2026) : « compléter directement un tableau de
    variation en utilisant des dessins de l'exercice 2.1 et en présentant le
@@ -15233,7 +15510,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -15262,7 +15539,10 @@ const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
 function buildKbTerm(vars){
   /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
-     pourcentage (pas de variables f/x, inutiles ici). */
+     pourcentage (pas de variables f/x, inutiles ici). La touche « = » (demande de
+     Turquet, septembre 2026) : sur tablette la greffe coupe le clavier du SYSTEME
+     sur chaque champ mathematique (inputmode="none") — sans elle, une egalite
+     etait intapable. */
   return {
     label: "Calcul",
     layers: [
@@ -15272,7 +15552,7 @@ function buildKbTerm(vars){
         [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"\u2212",latex:"-"},{label:"+",latex:"+"},
           {label:"\u2190",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
           {label:"\u2192",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
-        [ {latex:"0"},{label:",",key:","},{label:"%",latex:"\\%"},
+        [ {latex:"0"},{label:",",key:","},{latex:"="},{label:"%",latex:"\\%"},
           {label:"\u2713",class:"action",command:["hideVirtualKeyboard"]} ]
       ] }
     ]

@@ -2693,6 +2693,7 @@ function exercices(suite){
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
+    toucheEgalClavier(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -2707,6 +2708,7 @@ function exercices(suite){
     signesVariations(w, P);
     tableauVariationDirect(w, P);
     grandsTableaux(w, P);
+    qcmTableauVariation(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -7700,6 +7702,44 @@ function inequationDroite(w, P){
   })()`, v => v === '', undefined);
 }
 
+/* ---------- La touche « = » du clavier mathématique à l'écran ---------- */
+/* Demande de Turquet (septembre 2026) : « dans le clavier qui apparaît sur les
+   tablettes il manque le = ». Sur tablette, la greffe coupe le clavier du
+   SYSTÈME sur chaque champ mathématique (inputmode="none") : le clavier
+   virtuel de la page est le SEUL chemin vers un caractère, et sans touche
+   « = » une égalité y était intapable — dans les rédactions, c'est le
+   caractère central. Le pavé numérique compact, lui, ne la reçoit PAS : ses
+   cases attendent des nombres seuls, un « = » y écrirait une réponse fausse.
+   Le clavier vit dans la greffe module, invisible à jsdom : on ÉVALUE
+   buildKbTerm depuis la SOURCE — la vraie disposition, pas une recherche de
+   texte — et on balaie TOUTES ses couches. Le clic de la touche RENDUE, lui,
+   est au banc navigateur (le 6.7) — la doctrine du bouton mort. */
+function toucheEgalClavier(w, P){
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'buildKbTerm');
+  if(!fKb) pbs.push('buildKbTerm est introuvable dans la source');
+  else{
+    let bk = null;
+    try{ bk = new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({}, {}, {}, {}); }
+    catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
+    if(bk){
+      let dispo = null;
+      try{ dispo = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); }
+      const touches = [];
+      ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => (r || []).forEach(k => {
+        if(k) touches.push(k.latex || k.key || k.insert || k.label || '');
+      })));
+      /* un contrôle qui n'a rien à mesurer ne mesure rien, et doit le dire */
+      if(touches.length < 10) pbs.push('la disposition évaluée n\'a presque pas de touches (' + touches.length + ') : le contrôle n\'a rien à mesurer');
+      else if(touches.indexOf('=') === -1) pbs.push('aucune touche « = » sur le clavier mathématique à l\'écran — sur tablette, une égalité est intapable');
+    }
+  }
+  verifier('le clavier mathématique à l\'écran porte la touche « = »',
+    pbs.length === 0, pbs.join(' | '));
+}
+
 /* ---------- Le pavé numérique compact : tactile seulement, et il écrit vraiment ---------- */
 /* Quatre promesses, chacune silencieuse si elle casse. Sur ordinateur, RIEN ne
    change — un pavé qui s'ouvrirait partout volerait la place de l'exercice.
@@ -10828,6 +10868,213 @@ function grandsTableaux(w, P){
     if(cls('gsv-s-x-0').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('sol')>=0)
       vus.push('en soutien, une case vide reçoit une couleur ('+cls('gsv-s-x-0')+' / '+cls('gsv-v-val-2')+')');
     if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+function qcmTableauVariation(w, P){
+  const nom='le QCM du tableau de variation : quatre tableaux, un seul est celui de la courbe';
+  const present = evaluer(w, "typeof startVtq==='function' && typeof vtqBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n’a pas le QCM du tableau de variation');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='choisir-tableau-variation';
+
+    /* ---- 0. la place au menu : juste APRÈS {signes-variations-grand} — la
+       même grande grille, le tableau en QCM ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('choisir-tableau-variation')>=0; })[0];
+      const i=th?th.ids.indexOf('choisir-tableau-variation'):-1;
+      if(!th || th.ids[i-1]!=='signes-variations-grand')
+        vus.push('{choisir-tableau-variation} ne suit pas {signes-variations-grand} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : le tirage est adrGenPts, la table vraie est
+       lue par gsvAnalyze (la fonction qui corrige le 2.15), le dessin est
+       adrSVG appelé NU, les flèches des propositions sont lvArrowSVG sur la
+       géométrie VT_* du 2.1. Le rendu est ENVELOPPÉ : on lit le SOURCE. ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf("$('vtqGraph').innerHTML=adrSVG({pts:q.pts, dr:null, rep:[]}, null)")<0)
+        vus.push('le dessin (adrSVG, la fonction même du grand graphique, appelée nue) ne passe plus par la fonction partagée');
+      if(String(vtqTable).indexOf('gsvAnalyze(')<0)
+        vus.push('la table vraie n’est plus lue par gsvAnalyze, la fonction qui corrige {signes-variations-grand}');
+      if(String(vtqGen).indexOf('adrGenPts')<0)
+        vus.push('le tirage ne passe plus par adrGenPts, le générateur du grand graphique');
+      if(String(vtqTableHTML).indexOf('lvArrowSVG')<0 || String(vtqTableHTML).indexOf('VT_WN')<0)
+        vus.push('les tableaux proposés ne sont plus dessinés par lvArrowSVG sur la géométrie VT_* du 2.1'); }
+
+    /* ---- 1. le tirage : 60 séances, tout refait par sa propre
+       arithmétique — 13 entiers dans [−6,6], jamais de palier, amplitude,
+       tournants espacés d'au moins 2 (la propriété qui rend le décalage
+       sûr : le tirage n'a pas de garde, c'est ICI qu'elle se tient), et les
+       TROIS visages (2, 3, 4 variations) chacun une fois, en ordre mélangé ---- */
+    function analyse(pts){
+      const turns=[], fl=[]; let d0=Math.sign(pts[1]-pts[0]); fl.push(d0>0?'up':'down');
+      for(let j=1;j<12;j++){ const d=Math.sign(pts[j+1]-pts[j]); if(d!==0&&d!==d0){ turns.push(j-6); fl.push(d>0?'up':'down'); d0=d; } }
+      return {turns:turns, fl:fl};
+    }
+    function fautesTirage(pts){
+      const f=[];
+      if(!pts||pts.length!==13||pts.some(function(v){ return v!==Math.round(v)||v<-6||v>6; })){
+        f.push('les valeurs sortent de la grande grille ('+(pts||[]).join(',')+')'); return f; }
+      for(let j=0;j<12;j++){ if(pts[j]===pts[j+1]) f.push('un PALIER ('+pts.join(',')+') : le tableau ne saurait plus dire le sens'); }
+      if(Math.max.apply(null,pts)-Math.min.apply(null,pts)<8)
+        f.push('une courbe trop plate pour la grande grille ('+pts.join(',')+')');
+      const a=analyse(pts);
+      if(a.fl.length<2||a.fl.length>4) f.push(a.fl.length+' segment(s) de variation : hors du format 2-3-4');
+      for(let j=1;j<a.turns.length;j++){ if(a.turns[j]-a.turns[j-1]<2)
+        f.push('deux tournants espacés de moins de 2 ('+a.turns.join(';')+') : le tableau décalé ne resterait pas lisible'); }
+      return f;
+    }
+    function fautesTables(q){
+      const f=[], a=analyse(q.pts), T=vtqTables(q), k=a.turns.length;
+      if(T.vrai.roots.join(',')!==a.turns.join(',')||T.vrai.fleches.join(',')!==a.fl.join(','))
+        f.push('le tableau VRAI ne dit pas la courbe ('+T.vrai.roots.join(';')+' | '+T.vrai.fleches.join(';')+' contre '+a.turns.join(';')+' | '+a.fl.join(';')+')');
+      const sigs=['vrai','inverse','decale','nombre'].map(function(x){ const t=T[x]; return t.roots.join(',')+'|'+t.fleches.join(','); });
+      if(new Set(sigs).size!==4) f.push('deux propositions identiques : deux bonnes réponses, une seule comptée');
+      ['vrai','inverse','decale','nombre'].forEach(function(x){
+        const t=T[x];
+        if(t.fleches.length!==t.roots.length+1) f.push('le tableau '+x+' n’a pas une flèche par morceau');
+        for(let j=0;j<t.roots.length;j++){ if(t.roots[j]<=-6||t.roots[j]>=6||(j>0&&t.roots[j]<=t.roots[j-1])) f.push('le tableau '+x+' a une abscisse hors de ]−6;6[ ou mal rangée ('+t.roots.join(';')+')'); }
+        for(let j=1;j<t.fleches.length;j++){ if(t.fleches[j]===t.fleches[j-1]) f.push('le tableau '+x+' porte deux flèches de même sens côte à côte'); }
+      });
+      if(T.inverse.roots.join(',')!==T.vrai.roots.join(',')||T.inverse.fleches.some(function(d,j){ return d===T.vrai.fleches[j]; }))
+        f.push('le tableau INVERSE ne renverse pas exactement les sens');
+      { let diff=0; if(T.decale.roots.length!==k) f.push('le tableau DÉCALÉ n’a pas le même compte d’abscisses');
+        else{ for(let j=0;j<k;j++){ if(T.decale.roots[j]!==T.vrai.roots[j]){ diff++; if(Math.abs(T.decale.roots[j]-T.vrai.roots[j])!==1) f.push('le décalage n’est pas d’une graduation'); } }
+          if(diff!==1) f.push('le tableau DÉCALÉ change '+diff+' abscisse(s) au lieu d’une'); } }
+      if(Math.abs(T.nombre.roots.length-k)!==1)
+        f.push('le tableau du NOMBRE n’a pas un changement de sens en plus ou en moins ('+T.nombre.roots.length+' contre '+k+')');
+      return f;
+    }
+    const rangParFace={2:{},3:{},4:{}}, ordres={};
+    for(let t=0;t<60 && !vus.length;t++){
+      const qs=vtqBuildQuestions();
+      if(qs.length!==3){ vus.push(qs.length+' questions au lieu de 3'); break; }
+      const faces=[];
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(kk){ return ['pts','perm','mut'].indexOf(kk)<0; });
+        if(cles.length) vus.push('la question range autre chose que la courbe et les indices : '+cles.join(','));
+        const cm=Object.keys(q.mut||{}).filter(function(kk){ return ['ti','dec','mode','ax','ri'].indexOf(kk)<0; });
+        if(cm.length) vus.push('la mutation range un champ étranger : '+cm.join(','));
+        if((q.perm||[]).slice().sort().join(',')!=='decale,inverse,nombre,vrai')
+          vus.push('perm n’est pas une permutation des quatre natures ('+(q.perm||[]).join(',')+')');
+        fautesTirage(q.pts).forEach(function(x){ vus.push(x); });
+        if(!vus.length) fautesTables(q).forEach(function(x){ vus.push(x); });
+        const nseg=analyse(q.pts).fl.length;
+        faces.push(nseg);
+        if(rangParFace[nseg]) rangParFace[nseg][q.perm.indexOf('vrai')]=1;
+      });
+      if(!vus.length && faces.slice().sort().join(',')!=='2,3,4')
+        vus.push('une séance sans les trois visages 2-3-4 variations ('+faces.join(',')+')');
+      ordres[faces.join(',')]=1;
+    }
+    if(!vus.length && Object.keys(ordres).length<2)
+      vus.push('l’ordre des trois visages ne varie pas d’une séance à l’autre');
+    if(!vus.length) [2,3,4].forEach(function(fc){
+      if(Object.keys(rangParFace[fc]).length<2)
+        vus.push('à '+fc+' variations, la bonne réponse tombe toujours au même rang : l’élève apprendrait le rang'); });
+
+    /* ---- 1 bis. le REPLI, lu dans la source et éprouvé par les gardes
+       mêmes du contrôle — un repli inventé à la main a déjà été pris
+       invalide ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      const i0=srcPage.indexOf('const VTQ_REPLI='), i1=i0<0?-1:srcPage.indexOf('};',i0);
+      if(i0<0||i1<0) vus.push('le repli du tirage est introuvable (VTQ_REPLI)');
+      else{
+        let R=null;
+        try{ R=JSON.parse(srcPage.slice(i0+16,i1+1)); }catch(e){ vus.push('le repli VTQ_REPLI ne se lit plus'); }
+        if(R) ['2','3','4'].forEach(function(fc){
+          const q=R[fc];
+          if(!q){ vus.push('le repli du visage '+fc+' manque'); return; }
+          fautesTirage(q.pts).forEach(function(x){ vus.push('le repli : '+x); });
+          const a=analyse(q.pts);
+          if(String(a.fl.length)!==fc) vus.push('le repli du visage '+fc+' a '+a.fl.length+' segments');
+          if(q.mut.ti<0||q.mut.ti>=a.turns.length||(q.mut.mode==='del'&&q.mut.ri>=a.turns.length)||(q.mut.mode==='add'&&(a.turns.indexOf(q.mut.ax)>=0||q.mut.ax<-4||q.mut.ax>4)))
+            vus.push('le repli du visage '+fc+' porte une mutation invalide');
+          if(!vus.length) fautesTables(q).forEach(function(x){ vus.push('le repli : '+x); });
+        });
+      } }
+
+    /* ---- 2. le jugement, vérifié pour de vrai — courbe épinglée (relevée
+       sur le générateur) : 2 variations, tournant x=2, ↗ puis ↘ ---- */
+    const PTS=[-5,-4,-3,0,1,2,4,5,6,1,0,-3,-4];
+    function pose(choix, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), perm:['decale','vrai','nombre','inverse'], mut:{ti:0,dec:1,mode:'add',ax:-2,ri:0}};
+      Object.assign(test,{kind:'vtq', questions:[q], idx:0, score:0, maxScore:1, answers:[], startTime:Date.now(), locked:false});
+      renderVtq();
+      const sel=document.getElementById('vtq-sch'); if(sel) sel.value=choix;
+      checkVtqAnswer();
+      return {score:test.score, sel:sel};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const carte=function(i){ const c=document.querySelectorAll('#vtqHost .vtq-carte')[i]; return c?c.className:'(absente)'; };
+    const fb=function(){ const el=document.getElementById('vtqFeedback'); return el?el.textContent:''; };
+
+    /* la bonne (B) choisie : 1 point, liste bleue, carte bleue */
+    let r=pose('1');
+    if(r.score!==1) vus.push('la bonne réponse ne vaut pas son point ('+r.score+')');
+    if(cls('vtq-sch').indexOf('ok')<0||carte(1).indexOf('ok')<0)
+      vus.push('la bonne réponse choisie n’est pas peinte ok ('+cls('vtq-sch')+' / '+carte(1)+')');
+
+    /* le dessin rendu : la grande grille 13×13, et NU */
+    { const svg=document.querySelector('#vtqGraph svg');
+      let vx=0, hy=0;
+      if(svg) svg.querySelectorAll('line.lv-grid').forEach(function(l){
+        if(l.getAttribute('x1')===l.getAttribute('x2')) vx++; else hy++; });
+      if(vx!==13||hy!==13) vus.push('le dessin n’a pas la grande grille 13×13 ('+vx+' / '+hy+')');
+      if(svg && (svg.querySelector('.adr-niv')||svg.querySelector('.pim-pt')))
+        vus.push('le dessin porte la droite ou les points du grand graphique : il doit être NU'); }
+    /* quatre cartes, chacune un tableau, lettres A à D */
+    { const cartes=document.querySelectorAll('#vtqHost .vtq-carte');
+      if(cartes.length!==4) vus.push(cartes.length+' cartes au lieu de 4');
+      let lettres=''; cartes.forEach(function(c){ const l=c.querySelector('.itq-lettre'); lettres+=l?l.textContent:'?';
+        if(!c.querySelector('table.lv-vartbl2')) vus.push('une carte sans tableau de variations'); });
+      if(lettres!=='ABCD') vus.push('les cartes ne sont pas étiquetées A à D ('+lettres+')'); }
+
+    /* chaque piège choisi se NOMME, la bonne se montre en vert, la lettre
+       du badge est le LIBELLÉ (B), jamais la valeur interne (1) */
+    r=pose('3');
+    if(r.score!==0||cls('vtq-sch').indexOf('bad')<0) vus.push('le tableau inversé choisi devrait être faux ('+r.score+', '+cls('vtq-sch')+')');
+    if(carte(3).indexOf('bad')<0||carte(1).indexOf('sol')<0)
+      vus.push('carte choisie à tort / bonne montrée : attendu bad et sol ('+carte(3)+' / '+carte(1)+')');
+    if(fb().indexOf('INVERSE')<0) vus.push('le piège des sens inversés n’est pas nommé');
+    if(fb().indexOf('C’était le tableau B')<0) vus.push('le retour ne dit pas la bonne lettre');
+    { const sel=document.getElementById('vtq-sch'), badge=sel?sel.nextElementSibling:null;
+      if(!badge||!badge.classList.contains('mf-cor')||badge.textContent!=='B')
+        vus.push('le badge de la bonne réponse doit porter le LIBELLÉ B ('+(badge?badge.textContent:'absent')+')'); }
+    r=pose('0');
+    if(fb().indexOf('DÉCALE')<0) vus.push('le piège du changement décalé n’est pas nommé');
+    r=pose('2');
+    if(fb().indexOf('NOMBRE')<0) vus.push('le piège du nombre de variations n’est pas nommé');
+
+    /* la case vide : correction sol en entraînement, RIEN en soutien */
+    r=pose('');
+    if(cls('vtq-sch').indexOf('sol')<0||cls('vtq-sch').indexOf('bad')>=0)
+      vus.push('en entraînement, la case vide ne reçoit pas la correction sol ('+cls('vtq-sch')+')');
+    if(fb().indexOf('manquait')<0) vus.push('le message ne dit pas la case vide avant tout');
+    r=pose('', 'soutien');
+    if(cls('vtq-sch').indexOf('bad')>=0||cls('vtq-sch').indexOf('sol')>=0)
+      vus.push('en soutien, la case vide reçoit une couleur ('+cls('vtq-sch')+')');
+    if(test.locked) vus.push('en soutien, une copie vide verrouille l’écran');
+
+    /* le soutien : faux → rouge, PAS de bonne carte montrée, on réessaie */
+    r=pose('3', 'soutien');
+    if(test.locked) vus.push('en soutien, un choix faux verrouille l’écran');
+    if(cls('vtq-sch').indexOf('bad')<0) vus.push('en soutien, le choix faux ne rougit pas ('+cls('vtq-sch')+')');
+    if(document.querySelector('#vtqHost .vtq-carte.sol'))
+      vus.push('en soutien, la bonne carte se montre : elle ne doit jamais se montrer en soutien');
+    { const acts=document.getElementById('vtqActions'); if(!acts||acts.textContent.indexOf('Revérifier')<0)
+        vus.push('en soutien, pas de bouton Revérifier après un choix faux'); }
+    { const sel=document.getElementById('vtq-sch'); if(sel){ sel.value='1'; } checkVtqAnswer();
+      if(!test.locked||test.score!==1||cls('vtq-sch').indexOf('ok')<0||carte(1).indexOf('ok')<0)
+        vus.push('en soutien, la copie corrigée juste ne se verrouille pas en bleu ('+test.score+', '+cls('vtq-sch')+' / '+carte(1)+')'); }
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');
