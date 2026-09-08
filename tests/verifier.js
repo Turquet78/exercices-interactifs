@@ -2707,6 +2707,7 @@ function exercices(suite){
     signesVariations(w, P);
     tableauVariationDirect(w, P);
     grandsTableaux(w, P);
+    maximumMinimum(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -10868,6 +10869,216 @@ function grandsTableaux(w, P){
     if(cls('gsv-s-x-0').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('sol')>=0)
       vus.push('en soutien, une case vide reçoit une couleur ('+cls('gsv-s-x-0')+' / '+cls('gsv-v-val-2')+')');
     if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* LE MAXIMUM ET LE MINIMUM SUR UN INTERVALLE (fiche « LE MAXIMUM ET LE
+   MINIMUM », demande de Turquet, septembre 2026). Le risque propre est
+   SILENCIEUX : deux abscisses de même hauteur donneraient deux bonnes réponses
+   à « atteint pour x = … », dont une seule serait comptée — une lecture juste
+   comptée fausse, le pire défaut du projet. Le contrôle recompte l'unicité par
+   sa PROPRE arithmétique sur chaque tirage, puis relit les Bézier que la page
+   DESSINE pour vérifier que la courbe ne dépasse jamais le maximum annoncé :
+   c'est ce qui garantit que les extremums tombent sur des graduations, et il ne
+   le suppose pas. */
+function maximumMinimum(w, P){
+  const nom='le maximum et le minimum : les cinq intervalles de la fiche';
+  const present = evaluer(w, "typeof startMMX==='function' && typeof mmxBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du maximum et du minimum');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='maximum-minimum';
+
+    /* ---- 0. la place au menu : le GRAND dessin, donc juste après
+       {signes-variations-grand}, qui l'introduit ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('maximum-minimum')>=0; })[0];
+      const i=th?th.ids.indexOf('maximum-minimum'):-1;
+      if(!th || th.ids[i-1]!=='signes-variations-grand')
+        vus.push('{maximum-minimum} ne suit pas {signes-variations-grand} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : le tirage est adrGenPts et le dessin adrSVG —
+       les fonctions MÊMES du grand graphique. Les rendus sont ENVELOPPÉS : on
+       lit le SOURCE de la page, jamais String(renderMMX). ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf('adrSVG({pts:q.pts, dr:null, rep:[]}, null, montrer?mmxMethode(q):null)')<0)
+        vus.push('le dessin ne passe plus par adrSVG, la fonction même du grand graphique');
+      if(String(mmxTirage).indexOf('adrGenPts')<0)
+        vus.push('le tirage ne passe plus par adrGenPts, le générateur du grand graphique'); }
+
+    /* ---- 1. le tirage : 120 séances, tout refait par SA PROPRE arithmétique
+       — les cinq intervalles de la fiche, l'unicité du maximum et du minimum
+       sur chacun, et les DEUX visages (un petit intervalle monotone, un petit
+       où la courbe tourne) ---- */
+    function extremums(pts,a,b){
+      let M=pts[a+6], m=pts[a+6], xM=a, xm=a, nM=0, nm=0;
+      for(let x=a;x<=b;x++){ const y=pts[x+6]; if(y>M){ M=y; xM=x; } if(y<m){ m=y; xm=x; } }
+      for(let x=a;x<=b;x++){ if(pts[x+6]===M) nM++; if(pts[x+6]===m) nm++; }
+      return {M:M,xM:xM,m:m,xm:xm,nM:nM,nm:nm};
+    }
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==5){ f.push(qs.length+' question(s) au lieu des 5 de la fiche'); return f; }
+      const pts=qs[0].pts;
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6)+' : la courbe ne dirait plus si elle monte ou descend');
+      qs.forEach(function(q){
+        if(JSON.stringify(q.pts)!==JSON.stringify(pts)) f.push('les cinq questions ne portent pas la MÊME courbe');
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='a,b,pts') f.push('la question porte autre chose que la courbe et l intervalle : '+cles);
+        const r=extremums(q.pts,q.a,q.b);
+        if(r.nM!==1) f.push('sur ['+q.a+' ; '+q.b+'], le maximum est atteint '+r.nM+' fois : deux bonnes réponses, une seule comptée');
+        if(r.nm!==1) f.push('sur ['+q.a+' ; '+q.b+'], le minimum est atteint '+r.nm+' fois : deux bonnes réponses, une seule comptée');
+      });
+      const iv=qs.map(function(q){ return q.a+';'+q.b; }).join(' ');
+      if(iv.indexOf('-6;6 -6;0 0;6 ')!==0) f.push('les trois grands intervalles de la fiche ne viennent pas en tête, dans son ordre : '+iv);
+      const g=qs[3], d=qs[4];
+      if(!(g.a>=-6&&g.b<=0)) f.push('le quatrième intervalle sort de la moitié gauche');
+      if(!(d.a>=0&&d.b<=6)) f.push('le cinquième intervalle sort de la moitié droite');
+      [g,d].forEach(function(q){ const L=q.b-q.a; if(L<2||L>4) f.push('un petit intervalle de longueur '+L+' (2 à 4 attendus)'); });
+      const tourne=[g,d].map(function(q){ const r=extremums(q.pts,q.a,q.b); return (r.xM>q.a&&r.xM<q.b)||(r.xm>q.a&&r.xm<q.b); });
+      if(tourne[0]===tourne[1]) f.push('les deux petits intervalles montrent le MÊME visage ('+(tourne[0]?'la courbe tourne dans les deux':'monotone dans les deux')+')');
+      return f;
+    }
+    const cotes={};
+    for(let t=0;t<120 && !vus.length;t++){
+      const qs=mmxBuildQuestions();
+      fautesTirage(qs).forEach(function(x){ vus.push(x); });
+      if(vus.length) break;
+      const r=extremums(qs[3].pts,qs[3].a,qs[3].b);
+      cotes[((r.xM>qs[3].a&&r.xM<qs[3].b)||(r.xm>qs[3].a&&r.xm<qs[3].b))?'gauche':'droite']=1;
+    }
+    /* le côté du TOURNANT change d une séance à l autre : figé, l élève
+       apprendrait le rang au lieu de lire la courbe */
+    if(!vus.length && !(cotes.gauche&&cotes.droite))
+      vus.push('le tournant tombe toujours du même côté sur 120 séances');
+
+    /* ---- 1 bis. LES EXTREMUMS TOMBENT SUR DES GRADUATIONS — relu sur les
+       Bézier que la page DESSINE, jamais supposé. Les graduations sont lues
+       dans le SVG rendu : aucune coordonnée recopiée, une échelle qui
+       changerait resterait mesurée juste. ---- */
+    function mesureDessin(q){
+      const svg=document.querySelector('#mmxGraph svg'); if(!svg) return ['aucun dessin rendu'];
+      const vx=[], hy=[];
+      svg.querySelectorAll('line.lv-grid').forEach(function(l){
+        if(l.getAttribute('x1')===l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+        else hy.push(parseFloat(l.getAttribute('y1')));
+      });
+      vx.sort(function(a,b){ return a-b; }); hy.sort(function(a,b){ return a-b; });
+      if(vx.length!==13||hy.length!==13) return ['le dessin n a pas la grande grille 13×13 ('+vx.length+' / '+hy.length+')'];
+      const path=svg.querySelector('path.lv-curve'); if(!path) return ['aucune courbe dans le dessin'];
+      const nb=path.getAttribute('d').split(' ').filter(function(s){ return s.length&&'MC'.indexOf(s)<0; }).map(parseFloat);
+      if(nb.length!==2+12*6) return ['la courbe n a pas 12 morceaux de Bézier'];
+      const pasY=(hy[12]-hy[0])/12;                    /* hy[0] = la graduation +6 */
+      const versY=function(py){ return 6-(py-hy[0])/pasY; };
+      const r=extremums(q.pts,q.a,q.b);
+      let haut=-99, bas=99;
+      for(let s=q.a+6; s<q.b+6; s++){
+        const y0=nb[1+s*6], c1=nb[3+s*6], c2=nb[5+s*6], y1=nb[7+s*6];
+        for(let u=0;u<=1.0001;u+=0.02){
+          const py=Math.pow(1-u,3)*y0+3*Math.pow(1-u,2)*u*c1+3*(1-u)*u*u*c2+u*u*u*y1;
+          const v=versY(py); if(v>haut) haut=v; if(v<bas) bas=v;
+        }
+      }
+      const f=[];
+      if(haut>r.M+0.02) f.push('sur ['+q.a+' ; '+q.b+'], la courbe DESSINÉE monte à '+haut.toFixed(2)+' alors que le maximum annoncé est '+r.M);
+      if(bas<r.m-0.02) f.push('sur ['+q.a+' ; '+q.b+'], la courbe DESSINÉE descend à '+bas.toFixed(2)+' alors que le minimum annoncé est '+r.m);
+      if(haut<r.M-0.02||bas>r.m+0.02) f.push('sur ['+q.a+' ; '+q.b+'], les extremums annoncés ne sont pas atteints par la courbe dessinée');
+      return f;
+    }
+
+    /* ---- 1 ter. le REPLI, lu dans la page et éprouvé par les gardes MÊMES —
+       un repli inventé à la main a déjà été pris invalide (la leçon
+       d IFG_FB, et celle de GSV_REPLI) ---- */
+    if(typeof MMX_REPLI!=='object'||!MMX_REPLI) vus.push('le repli (MMX_REPLI) est introuvable');
+    else {
+      const faux=MMX_GROS.concat(MMX_REPLI.petits).map(function(iv){ return {pts:MMX_REPLI.pts, a:iv[0], b:iv[1]}; });
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(mmxTirage).indexOf('MMX_REPLI')<0) vus.push('mmxTirage ne lit plus MMX_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(mmxBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 2. le jugement, sur une courbe ÉPINGLÉE (relevée sur le
+       générateur) : sur [−6 ; −2] elle vaut 3, 2, 0, 1, 4 — maximum 4 à la
+       borne x = −2, minimum 0 À L INTÉRIEUR, en x = −4 ---- */
+    const PTS=[3,2,0,1,4,0,-3,-2,0,2,3,5,6];
+    function pose(valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), a:-6, b:-2};
+      Object.assign(test,{kind:'mmx', questions:[q], idx:0, score:0, maxScore:mmxSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderMMX();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitMMX();
+      return {score:test.score, q:q};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const marques=function(sel){ return document.querySelectorAll('#mmxGraph '+sel).length; };
+    const JUSTE={'mmx-M':'4','mmx-xM':'-2','mmx-m':'0','mmx-xm':'-4','mmx-lo':'0','mmx-hi':'4'};
+
+    /* la méthode n est PAS dessinée avant la vérification : affichée pendant
+       la recherche, elle donnerait les hauteurs qu on demande de lire */
+    let r=pose(JUSTE,'train',true);
+    if(marques('.pim-sol')||marques('.adr-sol')) vus.push('la méthode est dessinée AVANT la vérification');
+    mesureDessin(r.q).forEach(function(x){ vus.push(x); });
+    if(document.querySelector('#mmxGraph .adr-niv')||document.querySelector('#mmxGraph .pim-pt'))
+      vus.push('le dessin porte la droite ou les points du grand graphique : il doit être NU');
+    submitMMX();
+    if(test.score!==6||mmxSubCount(r.q)!==6) vus.push('la copie juste vaut '+test.score+' au lieu de 6');
+    if(marques('.pim-sol')!==2||marques('.adr-sol')!==4)
+      vus.push('la méthode nest pas dessinée à la vérification ('+marques('.pim-sol')+' points, '+marques('.adr-sol')+' traits)');
+    ['mmx-M','mmx-xM','mmx-m','mmx-xm','mmx-lo','mmx-hi'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+
+    /* chaque case se juge SEULE : une abscisse fausse coûte exactement son
+       point, et ne fait pas payer la valeur */
+    r=pose(Object.assign({},JUSTE,{'mmx-xM':'-6'}));
+    if(r.score!==5||cls('mmx-xM').indexOf('bad')<0||cls('mmx-M').indexOf('ok')<0)
+      vus.push('l abscisse du maximum fausse devrait coûter exactement son point ('+r.score+', '+cls('mmx-xM')+' / '+cls('mmx-M')+')');
+    /* la VALEUR et l ABSCISSE ne se confondent pas : écrire la hauteur là où
+       on demande le x est faux, et le contrôle le tient dans les deux sens */
+    r=pose(Object.assign({},JUSTE,{'mmx-xm':'0'}));
+    if(r.score!==5||cls('mmx-xm').indexOf('bad')<0)
+      vus.push('l abscisse du minimum confondue avec sa valeur passe pour juste ('+r.score+')');
+
+    /* L ENCADREMENT REPREND LE MINIMUM PUIS LE MAXIMUM — et la consigne le
+       DIT : sans cette phrase, « −6 ≤ f (x) ≤ 6 » serait un encadrement lui
+       aussi, et une lecture juste serait comptée fausse */
+    r=pose(Object.assign({},JUSTE,{'mmx-lo':'4','mmx-hi':'0'}));
+    if(r.score!==4||cls('mmx-lo').indexOf('bad')<0||cls('mmx-hi').indexOf('bad')<0)
+      vus.push('l encadrement à l envers passe pour juste ('+r.score+')');
+    r=pose(Object.assign({},JUSTE,{'mmx-lo':'-6','mmx-hi':'6'}));
+    if(r.score!==4) vus.push('un encadrement plus large que le minimum et le maximum est accepté ('+r.score+')');
+    { const c=(document.getElementById('mmxInstr').textContent||'');
+      if(c.indexOf('encadrement reprend ces deux nombres')<0)
+        vus.push('la consigne ne dit pas que l encadrement reprend le minimum et le maximum trouvés'); }
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'mmx-m':'','mmx-lo':''}));
+    if(cls('mmx-m').indexOf('sol')<0||cls('mmx-lo').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('mmx-m')+' / '+cls('mmx-lo')+')');
+    r=pose(Object.assign({},JUSTE,{'mmx-m':'','mmx-lo':''}), 'soutien');
+    if(cls('mmx-m').indexOf('bad')>=0||cls('mmx-m').indexOf('sol')>=0||cls('mmx-lo').indexOf('bad')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('mmx-m')+' / '+cls('mmx-lo')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    if(marques('.pim-sol')) vus.push('en soutien, la méthode est montrée sur une copie incomplète');
+
+    /* ---- 2 bis. le SOUTIEN peint au fil de la frappe : la case juste, la
+       case fausse, et la case VIDE qui ne reçoit RIEN ---- */
+    pose({'mmx-M':'4','mmx-xM':'-6'}, 'soutien', true);
+    mmxLive();
+    if(cls('mmx-M').indexOf('ok')<0) vus.push('en soutien, une case juste ne se peint pas à la frappe ('+cls('mmx-M')+')');
+    if(cls('mmx-xM').indexOf('bad')<0) vus.push('en soutien, une case fausse ne se peint pas à la frappe ('+cls('mmx-xM')+')');
+    if(cls('mmx-m').indexOf('ok')>=0||cls('mmx-m').indexOf('bad')>=0) vus.push('en soutien, une case vide se peint à la frappe ('+cls('mmx-m')+')');
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');
