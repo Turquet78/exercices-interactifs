@@ -1562,7 +1562,9 @@ dans `tests/profils.js`) : trois graphiques par séance, les trois formes
 comptées sur les flèches RENDUES — jamais sur le tirage —, et chaque tableau
 mesuré contre son cadre, ni caché derrière le défilement ni sorti de la
 carte. jsdom n'a pas de mise en page : seul un navigateur sait où un
-tableau déborde.
+tableau déborde — la règle retirée, il rougit en nommant l'écart
+(« graphique 1, tableau 2 : 617 px dans 546 ») pendant que le banc jsdom
+reste vert à bon droit.
 
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
