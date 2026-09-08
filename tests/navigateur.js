@@ -869,6 +869,55 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater ter. les trois formes du tableau de variation, et chacune tient dans sa carte =====
+       Demande de Turquet (septembre 2026) : « dans l'exercice 2.15 je veux
+       avoir 3 variations différentes ». Une séance pose donc trois graphiques,
+       un par forme (2, 3 et 4 segments). Le banc jsdom tient le TIRAGE ; lui
+       seul ne voit pas ce que le tableau à quatre segments a montré sur
+       capture : 617 px dans une carte de 600, la borne et la dernière case
+       cachées derrière le défilement du .lv-tblwrap. On compte les formes sur
+       les flèches RENDUES, et on mesure chaque tableau contre son cadre. */
+    titre('6 quater ter. LES TROIS FORMES DU TABLEAU DE VARIATION TIENNENT DANS LEUR CARTE');
+    if(!P.grandsTableaux){
+      ignorer('les trois formes du tableau de variation tiennent dans leur carte',
+        'ce niveau n\'a pas l\'exercice des deux tableaux en grand');
+    } else {
+      const G = P.grandsTableaux;
+      s = await ouvrir(chromium, ml);
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), G.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const n = await s.page.evaluate(() => test.questions.length);
+      verifier('une séance d\'entraînement pose trois graphiques', n === 3, n + ' graphique(s)');
+      const formes = [], debords = [];
+      for(let i = 0; i < n; i++){
+        const vu = await s.page.evaluate(async ({ i, corps, rendu }) => {
+          test.idx = i; window[rendu]();
+          await new Promise(r => setTimeout(r, 400));          /* la géométrie des flèches se pose après le rendu */
+          const c = document.getElementById(corps);
+          const card = c.closest('.card') || c;
+          const cr = card.getBoundingClientRect();
+          const fleches = c.querySelectorAll('select.vt-sel2').length;
+          const tables = [...c.querySelectorAll('.lv-tblwrap')].map(w => {
+            const t = w.querySelector('table'); const tr = t ? t.getBoundingClientRect() : cr;
+            return { cache: w.scrollWidth > w.clientWidth + 1, sort: tr.right > cr.right + 1, table: Math.round(tr.width), cadre: w.clientWidth };
+          });
+          return { fleches, tables, page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+        }, { i, corps: G.corps, rendu: G.rendu });
+        formes.push(vu.fleches);
+        vu.tables.forEach((t, k) => { if(t.cache || t.sort) debords.push('graphique ' + (i + 1) + ', tableau ' + (k + 1) + ' : ' + t.table + ' px dans ' + t.cadre); });
+        if(vu.page) debords.push('graphique ' + (i + 1) + ' : la page défile en largeur');
+      }
+      verifier('les trois formes du tableau sont rendues, chacune une fois (' + G.formes.join(', ') + ' segments)',
+        formes.slice().sort().join(',') === G.formes.slice().sort().join(','),
+        'flèches rendues par graphique : ' + formes.join(', '));
+      verifier('aucun tableau ne déborde de sa carte ni ne se cache derrière un défilement', debords.length === 0,
+        debords.join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —

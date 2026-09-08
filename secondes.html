@@ -1238,6 +1238,13 @@
     /* La réserve du bas est tenue avec celle des autres écrans d'exercice, plus
        haut : deux endroits auraient divergé. */
     .lv-card{max-width:600px;margin:0 auto}
+    /* {signes-variations-grand} : un tableau de variation à QUATRE segments
+       (5 valeurs, 4 flèches) fait 617 px — dans la carte de 600 px il se
+       cachait derrière le défilement du .lv-tblwrap, la borne 6 et la
+       dernière case coupées (vu sur capture, septembre 2026, le jour où cette
+       forme a cessé d'être rare). La carte s'élargit à sa mesure ; le banc
+       navigateur la MESURE, tableau rendu contre son cadre. */
+    #scr-gsv .lv-card{max-width:700px}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
     /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
@@ -2328,7 +2335,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=138;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=139;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -6708,9 +6715,12 @@ function adrAnts(q){ const out=[]; for(let x=-ADR_R;x<=ADR_R;x++){ if(q.pts[x+AD
 /* 13 valeurs entières f(−6..6) dans [−6,6], 2 à 4 segments STRICTEMENT
    monotones, changements de sens à des abscisses entières — l'algorithme de
    lvGenPts, réécrit à l'échelle 13. Mesuré : 0 échec sur 2000 tirages. */
-function adrGenPts(){
+/* nsegVoulu (facultatif) IMPOSE le nombre de segments : {signes-variations-grand}
+   s'en sert pour faire sortir les trois formes du tableau chacune une fois.
+   Appelé sans argument — le cas d'{antecedents-droite} — rien ne change. */
+function adrGenPts(nsegVoulu){
   for(let att=0; att<600; att++){
-    const nseg=pick([2,3,3,4]);
+    const nseg=nsegVoulu||pick([2,3,3,4]);
     const turns=[];
     let okT=true;
     for(let s=0;s<nseg-1;s++){
@@ -9943,16 +9953,26 @@ function gsvOkPts(pts){
   if(so.length!==2||so[0]<=-GSV_R||so[1]>=GSV_R) return false;
   return so.every(function(x){ return pts[x+GSV_R-1]*pts[x+GSV_R+1]<0; });
 }
-function gsvGen(){
-  for(let att=0;att<800;att++){
-    const pts=adrGenPts();
+/* Le repli RÉEL, relevé sur le générateur — UN PAR FORME (2, 3 ou 4 segments),
+   sans quoi une séance de repli perdrait la forme qu'on lui demande. Chacun
+   passe par gsvOkPts et par les gardes du contrôle, qui les LIT ici. Sonde,
+   septembre 2026, forme imposée : 400 séances sur 400 aboutissent pour chaque
+   forme, pire cas 474 essais (3 segments) — à 2000 essais le repli ne sert à
+   peu près jamais. */
+const GSV_REPLI={
+  2:[4,3,0,-5,-4,-3,-1,0,1,2,3,4,5],
+  3:[3,2,1,0,-2,0,2,3,4,5,6,5,2],
+  4:[-4,0,2,5,2,1,3,5,6,4,3,0,-4]
+};
+/* nseg (facultatif) impose la forme : 2, 3 ou 4 segments. Sans lui, la forme
+   est celle du générateur — et celui-ci, filtré, donne la forme simple 84 fois
+   sur 100 (sonde, septembre 2026). */
+function gsvGen(nseg){
+  for(let att=0;att<2000;att++){
+    const pts=adrGenPts(nseg);
     if(pts && gsvOkPts(pts)) return {pts:pts};
   }
-  /* repli RÉEL, relevé sur le générateur (sonde, septembre 2026 : 9,1 % des
-     tirages bruts passent le filtre, pire cas mesuré 53 essais — à 800
-     essais le repli ne sert à peu près jamais) ; il passe par gsvOkPts
-     comme les autres */
-  return {pts:[4,3,0,-5,-4,-3,-1,0,1,2,3,4,5]};
+  return {pts:(GSV_REPLI[nseg]||GSV_REPLI[2]).slice()};
 }
 /* Le signe du MILIEU, lu sur une graduation intérieure entre les deux racines. */
 function gsvSide(q){
@@ -9966,20 +9986,31 @@ function gsvSubCount(q){
   return 7 + (a.nodes.length-2) + a.nodes.length + a.segments.length;
 }
 function gsvBuildQuestions(nGraphs){
+  /* LES TROIS FORMES du tableau de variation — 2, 3 ou 4 segments, c'est-à-dire
+     un, deux ou trois changements de sens — sortent chacune UNE fois dans la
+     séance, en ordre mélangé (demande de Turquet, septembre 2026 : « dans
+     l'exercice 2.15 je veux avoir 3 variations différentes »). Laissé au
+     hasard, le tirage filtré donnait la forme simple 84 fois sur 100 (sonde) :
+     deux graphiques sur deux avaient presque toujours le même tableau. À un
+     seul graphique (soutien), rien à équilibrer : la forme reste au hasard. */
+  const formes=[2,3,4];
+  for(let i=formes.length-1;i>0;i--){ const j=rand(0,i); const t=formes[i]; formes[i]=formes[j]; formes[j]=t; }
+  const formeDe=function(g){ return nGraphs>1 ? formes[g%formes.length] : undefined; };
   const graphs=[];
-  for(let g=0; g<nGraphs; g++) graphs.push(gsvGen());
+  for(let g=0; g<nGraphs; g++) graphs.push(gsvGen(formeDe(g)));
   /* les DEUX visages du signe (+ − + et − + −) dès que deux graphiques — le
-     motif de {signes-variations} ; à un seul graphique (soutien), rien à
-     équilibrer */
+     motif de {signes-variations}. On retire À FORME ÉGALE : sans quoi
+     l'équilibre des signes déferait celui des formes. */
   for(let att=0; att<200 && nGraphs>1; att++){
     const sides=graphs.map(function(q){ return gsvSide(q); });
     if(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0) break;
-    graphs[att%nGraphs]=gsvGen();
+    graphs[att%nGraphs]=gsvGen(formeDe(att%nGraphs));
   }
   return graphs.map(function(gq,g){ return {pts:gq.pts, gnum:g+1, gtot:nGraphs}; });
 }
 function startGSV(){
-  const nGraphs=(currentMode==='soutien')?1:2;
+  /* trois graphiques : un par forme du tableau de variation */
+  const nGraphs=(currentMode==='soutien')?1:3;
   const qs=gsvBuildQuestions(nGraphs);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
