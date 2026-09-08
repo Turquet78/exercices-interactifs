@@ -1688,6 +1688,74 @@ async function parcours(page, N){
         verifier('une case déjà jugée se re-juge sous les doigts',
           !!rejuge && rejuge.classes !== '' && rejuge.focus === true,
           souci || 'classes en frappant dans une case déjà jugée : « ' + (rejuge && rejuge.classes) + ' »');
+
+        /* ----- la bulle « Comprendre mon erreur » (demande de Turquet,
+           septembre 2026) : la même case témoin, quittée FAUSSE, doit faire
+           paraître la bulle — mesurée au RECTANGLE, jamais à la propriété
+           hidden ([hidden] pose display:none depuis la feuille du NAVIGATEUR,
+           le piège documenté). Deux chiffres différents ne peuvent pas être
+           justes tous les deux dans la même case : on essaie « 9 » puis « 4 »
+           pour obtenir un rouge GARANTI — un contrôle qui mesurerait une case
+           parfois juste serait intermittent, le péché documenté. Puis le clic
+           du bouton obtient la réponse du double (« Indice de contrôle. »),
+           et reprendre la case efface la bulle. ----- */
+        let bulle = null, bulleClic = null, bulleReprise = null, bulleSouci = '';
+        try{
+          let rouge = false;
+          for(const v of ['9', '4']){
+            await boite.click();
+            await s.page.keyboard.press('Control+a');
+            await s.page.keyboard.type(v, { delay: 40 });
+            await s.page.keyboard.press('Tab');
+            await s.page.waitForTimeout(350);
+            const c = await etat();
+            if(c.classes === 'bad'){ rouge = true; break; }
+          }
+          if(rouge){
+            bulle = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              if(!b) return { la: false };
+              const r = b.getBoundingClientRect();
+              const t = b.querySelector('[data-bexp-btn]');
+              const cmd = document.getElementById('testCtrls');
+              const rc = cmd ? cmd.getBoundingClientRect() : null;
+              return {
+                la: true, l: Math.round(r.width), h: Math.round(r.height),
+                bouton: !!t && !t.hidden,
+                surCommandes: rc ? !(r.bottom <= rc.top || r.top >= rc.bottom ||
+                                     r.right <= rc.left || r.left >= rc.right) : false,
+              };
+            });
+            await s.page.click('#bexpBulle [data-bexp-btn]');
+            await s.page.waitForTimeout(400);
+            bulleClic = await s.page.evaluate(() => {
+              const fb = document.querySelector('#bexpBulle [data-bexp-r]');
+              return { texte: (fb && fb.textContent) || '',
+                       visible: !!fb && fb.getBoundingClientRect().height > 0 };
+            });
+            await boite.click();
+            await s.page.waitForTimeout(150);
+            bulleReprise = await s.page.evaluate(() => {
+              const b = document.getElementById('bexpBulle');
+              return !b || b.getBoundingClientRect().height === 0;
+            });
+          }
+        }catch(e){ bulleSouci = e.message; }
+        verifier('en soutien, une case rouge quittée fait paraître la bulle « Comprendre mon erreur »',
+          !!bulle && bulle.la && bulle.l > 0 && bulle.h > 0 && bulle.bouton,
+          bulleSouci || (!bulle ? 'aucune case rouge obtenue : le contrôle ne mesure rien'
+                                : 'bulle mesurée : ' + JSON.stringify(bulle)));
+        verifier('la bulle ne recouvre pas les commandes du bas',
+          !!bulle && bulle.surCommandes === false,
+          (bulle && bulle.surCommandes) ? 'la bulle chevauche #testCtrls — la leçon du pavé numérique, et le clic d\'à côté part dans la bulle'
+                                        : (bulleSouci || 'la bulle n\'a pas été mesurée'));
+        verifier('le bouton de la bulle obtient une explication du modèle, affichée dedans',
+          !!bulleClic && bulleClic.visible && bulleClic.texte.indexOf('Indice de contrôle') >= 0,
+          bulleSouci || 'réponse affichée : « ' + ((bulleClic && bulleClic.texte) || '') + ' »');
+        verifier('reprendre la case efface la bulle',
+          bulleReprise === true,
+          bulleSouci || 'la bulle reste affichée pendant que l\'élève corrige sa case');
+
         verifier('le garde de la saisie n\'a levé aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
