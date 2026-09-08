@@ -10765,10 +10765,14 @@ function grandsTableaux(w, P){
     /* ---- 1. le tirage : 100 séances, tout refait par sa propre
        arithmétique — 13 entiers dans [−6,6], jamais de palier, amplitude,
        exactement deux racines LISIBLES (intérieures, vrais croisements,
-       zéro jamais traversé entre deux graduations), 2 à 4 segments, et les
-       DEUX visages du signe dans chaque séance ---- */
+       zéro jamais traversé entre deux graduations), 2 à 4 segments, les
+       DEUX visages du signe dans chaque séance, ET LES TROIS FORMES du
+       tableau de variation — 2, 3 et 4 segments — chacune une fois, à rang
+       variable (demande de Turquet, septembre 2026 : « 3 variations
+       différentes ») ---- */
     function racines(pts){ const out=[]; for(let x=-6;x<=6;x++){ if(pts[x+6]===0) out.push(x); } return out; }
     function face(pts){ const so=racines(pts); if(so.length<2) return 0; for(let x=so[0]+1;x<so[1];x++){ if(pts[x+6]!==0) return pts[x+6]>0?1:-1; } return 0; }
+    function nsegs(pts){ let n=1; for(let j=1;j<12;j++){ if((pts[j+1]-pts[j])*(pts[j]-pts[j-1])<0) n++; } return n; }
     function fautesTirage(pts){
       const f=[];
       if(!pts||pts.length!==13||pts.some(function(v){ return v!==Math.round(v)||v<-6||v>6; })){
@@ -10788,28 +10792,64 @@ function grandsTableaux(w, P){
       if(n<2||n>4) f.push(n+' segment(s) de variation : hors du format de la grande grille');
       return f;
     }
+    const ordres=[];
     for(let t=0;t<100 && !vus.length;t++){
-      const qs=gsvBuildQuestions(2);
-      if(qs.length!==2){ vus.push(qs.length+' questions au lieu de 2 (un graphique = une page)'); break; }
-      const faces=[];
+      const qs=gsvBuildQuestions(3);
+      if(qs.length!==3){ vus.push(qs.length+' questions au lieu de 3 (un graphique = une page, une forme du tableau par page)'); break; }
+      const faces=[], formes=[];
       qs.forEach(function(q,g){
         const cles=Object.keys(q).filter(function(k){ return ['pts','gnum','gtot'].indexOf(k)<0; });
         if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
-        if(q.gnum!==g+1||q.gtot!==2) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
+        if(q.gnum!==g+1||q.gtot!==3) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
         fautesTirage(q.pts).forEach(function(x){ vus.push(x); });
-        faces.push(face(q.pts));
+        faces.push(face(q.pts)); formes.push(nsegs(q.pts));
       });
       if(!vus.length && !(faces.indexOf(1)>=0 && faces.indexOf(-1)>=0))
         vus.push('une séance d\\'entraînement sans les deux visages du signe ('+faces.join(',')+')');
+      if(!vus.length && formes.slice().sort().join(',')!=='2,3,4')
+        vus.push('une séance sans les trois formes du tableau de variation, 2, 3 et 4 segments ('+formes.join(',')+')');
+      ordres.push(formes.join(','));
     }
+    /* à forme égale le rang varie : sur 100 séances, la forme simple ne tombe
+       pas toujours au même rang — sinon l'élève apprendrait le rang */
+    if(!vus.length && ordres.length){
+      const rangs=ordres.map(function(o){ return o.split(',').indexOf('2'); });
+      if(rangs.every(function(r){ return r===rangs[0]; }))
+        vus.push('la forme simple tombe toujours au rang '+(rangs[0]+1)+' : les formes ne sont pas mélangées');
+    }
+    /* le soutien garde UN graphique ; un devoir à deux graphiques garde deux FORMES distinctes */
     { const qs=gsvBuildQuestions(1);
       if(qs.length!==1) vus.push('le soutien (1 graphique) ne pose pas 1 question'); }
+    /* et c'est le DÉMARREUR qui pose trois graphiques en entraînement, un en
+       soutien — le contrôle du tirage seul ne verrait pas un startGSV revenu à 2 */
+    { currentMode='train'; startGSV();
+      if(test.questions.length!==3) vus.push('en entraînement, startGSV pose '+test.questions.length+' graphique(s) au lieu de 3');
+      currentMode='soutien'; startGSV();
+      if(test.questions.length!==1) vus.push('en soutien, startGSV pose '+test.questions.length+' graphique(s) au lieu de 1');
+      currentMode='train'; }
+    for(let t=0;t<30 && !vus.length;t++){
+      const qs=gsvBuildQuestions(2);
+      if(qs.length!==2){ vus.push('à deux graphiques, '+qs.length+' question(s)'); break; }
+      if(nsegs(qs[0].pts)===nsegs(qs[1].pts)) vus.push('à deux graphiques, les deux tableaux ont la même forme ('+nsegs(qs[0].pts)+' segments)');
+    }
 
-    /* ---- 1 bis. le REPLI, lu dans la source du tirage et éprouvé par les
-       gardes mêmes — un repli inventé à la main a déjà été pris invalide ---- */
-    { const sG=String(gsvGen), i0=sG.indexOf('return {pts:['), i1=i0<0?-1:sG.indexOf(']',i0);
-      if(i0<0||i1<0) vus.push('le repli du tirage est introuvable dans gsvGen');
-      else fautesTirage(sG.slice(i0+13,i1).split(',').map(Number)).forEach(function(x){ vus.push('le repli : '+x); }); }
+    /* ---- 1 bis. les REPLIS — un par forme, lus dans la page et éprouvés par
+       les gardes mêmes, forme comprise — un repli inventé à la main a déjà
+       été pris invalide ---- */
+    if(typeof GSV_REPLI!=='object'||!GSV_REPLI) vus.push('le repli par forme (GSV_REPLI) est introuvable');
+    else {
+      [2,3,4].forEach(function(ns){
+        const p=GSV_REPLI[ns];
+        if(!p){ vus.push('pas de repli pour la forme à '+ns+' segments'); return; }
+        fautesTirage(p).forEach(function(x){ vus.push('le repli '+ns+' : '+x); });
+        if(nsegs(p)!==ns) vus.push('le repli de la forme '+ns+' a '+nsegs(p)+' segment(s)');
+      });
+      if(String(gsvGen).indexOf('GSV_REPLI')<0) vus.push('gsvGen ne lit plus GSV_REPLI : le repli servi n\\'est plus celui que le contrôle éprouve');
+      /* et il SERT vraiment la forme demandée quand le générateur est à sec */
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ [2,3,4].forEach(function(ns){ const q=gsvGen(ns); if(nsegs(q.pts)!==ns) vus.push('générateur à sec, gsvGen('+ns+') rend '+nsegs(q.pts)+' segment(s)'); }); }
+        finally{ adrGenPts=vrai; } }
+    }
 
     /* ---- 2. le jugement, vérifié pour de vrai — courbe épinglée (relevée
        sur le générateur) : racines −3 et 4, milieu +, nœuds (−6;−5) (2;6)

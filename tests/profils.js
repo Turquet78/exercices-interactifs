@@ -509,6 +509,13 @@ module.exports = {
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
+    /* {signes-variations-grand} : trois graphiques, un par forme du tableau de
+       variation (2, 3 et 4 segments — demande de Turquet, septembre 2026), et
+       le tableau à quatre segments (617 px) doit TENIR dans sa carte : dans
+       celle de 600 px il se cachait derrière le défilement du .lv-tblwrap, la
+       borne et la dernière case coupées. Seul un navigateur mesure un tableau
+       rendu contre son cadre. */
+    grandsTableaux: { exercice: 'signes-variations-grand', corps: 'gsvBody', rendu: 'renderGSV', formes: [2, 3, 4] },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",

@@ -1517,6 +1517,55 @@ rougissant en nommant son défaut — la flèche jugée à l'envers dans
 `varTableSubs` rougit chez {signes-variations}, {tableau-variation} ET ici,
 la preuve que la fonction est partagée trois fois.
 
+**Puis les TROIS formes du tableau de variation, chacune UNE fois par
+séance.** Demande de Turquet (septembre 2026) : « dans l'exercice 2.15 je
+veux avoir 3 variations différentes ». La sonde a d'abord MESURÉ ce que le
+tirage donnait : filtré par `gsvOkPts`, `adrGenPts` sortait la forme simple —
+un seul changement de sens — 84 fois sur 100, et les formes à deux et trois
+changements 8 fois chacune. À deux graphiques par séance, l'élève voyait donc
+presque toujours deux fois le même tableau, et n'apprenait qu'une seule
+taille de tableau. Une séance d'entraînement pose maintenant TROIS
+graphiques, un par forme (2, 3 et 4 segments), en ordre mélangé — le motif
+du 2.2 (« les DEUX formes… en ordre mélangé ») porté à trois ; le soutien
+garde un graphique, forme au hasard, comme avant.
+**La forme s'IMPOSE au générateur plutôt que de se trier après coup** :
+`adrGenPts` a gagné un paramètre facultatif, le nombre de segments, et
+appelé sans argument — le cas d'{antecedents-droite} — il ne change pas
+d'une ligne ; `gsvGen(nseg)` le lui passe. Trier des tirages libres jusqu'à
+tomber sur la forme rare aurait fait la même chose en plus lent, sans le
+dire. Mesuré, forme imposée : 400 séances sur 400 aboutissent pour chaque
+forme, pire cas 474 essais (trois segments : 1,4 % des tirages bruts) — à
+2000 essais le repli ne sert à peu près jamais.
+**Et le repli est UN PAR FORME** (`GSV_REPLI`), chacun RÉEL, relevé sur le
+générateur : un repli unique aurait rendu la forme simple à une séance qui
+en demandait trois, sans que rien ne le dise. L'équilibre des deux visages
+du signe retire À FORME ÉGALE — sans quoi il déferait l'équilibre des
+formes, et le sabotage l'a montré (2,2,4).
+Le contrôle tient chaque bord : trois questions, les trois formes chacune
+une fois sur 100 séances, la forme simple qui change de rang, les deux
+visages toujours, un devoir coupé à deux graphiques à deux formes
+distinctes, chaque repli passé par les gardes ET par sa forme, `gsvGen` qui
+lit `GSV_REPLI`, le générateur mis à sec qui rend encore la forme demandée —
+et le DÉMARREUR lui-même, trois graphiques en entraînement et un en soutien :
+le contrôle du tirage seul n'aurait pas vu un `startGSV` revenu à deux. Sept
+sabotages, chacun rougissant en nommant son défaut.
+**Et un défaut de mise en page ne s'est vu que sur la capture, le jour où la
+forme rare a cessé de l'être** : le tableau à quatre segments (5 valeurs,
+4 flèches) fait 617 px, et la carte du 2.15 en faisait 600 — dans son
+`.lv-tblwrap` à `overflow-x:auto`, la borne 6 et la dernière case se
+cachaient derrière un défilement que rien ne signalait. À 8 séances sur 100
+personne ne l'avait vu ; à toutes les séances il se voyait tout de suite.
+La carte de ce seul écran passe à 700 px (`#scr-gsv .lv-card`) : le 2.14
+n'est pas concerné, son tableau le plus large fait 487 px. Le banc
+NAVIGATEUR tient ce bord (« 6 quater ter », déclaré par `grandsTableaux`
+dans `tests/profils.js`) : trois graphiques par séance, les trois formes
+comptées sur les flèches RENDUES — jamais sur le tirage —, et chaque tableau
+mesuré contre son cadre, ni caché derrière le défilement ni sorti de la
+carte. jsdom n'a pas de mise en page : seul un navigateur sait où un
+tableau déborde — la règle retirée, il rougit en nommant l'écart
+(« graphique 1, tableau 2 : 617 px dans 546 ») pendant que le banc jsdom
+reste vert à bon droit.
+
 **Choisir le BON tableau parmi quatre — le QCM de la grande courbe.**
 {choisir-tableau-variation} (Seconde, demande de Turquet, septembre 2026 —
 « une courbe entre −6 à 6 avec 2 ; 3 ; 4 variations possibles, proposer 4
