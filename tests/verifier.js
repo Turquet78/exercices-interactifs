@@ -11701,7 +11701,7 @@ function tableauVraiFaux(w, P){
       if(document.querySelectorAll('#tvfBody select').length!==18) vus.push('il n y a pas dix-huit cases pour les quatre affirmations (5 + 5 + 4 + 4)');
       if(document.getElementById('tvf-s-0')||!document.getElementById('tvf-m-0')||!document.getElementById('tvf-M-0')) vus.push('un signe se justifie par l ENCADREMENT, pas par le sens : il lui faut les deux valeurs et pas de case de sens');
       if(!document.getElementById('tvf-s-2')||document.getElementById('tvf-m-2')) vus.push('une comparaison de deux images se justifie par le SENS, pas par un encadrement');
-      { const oy=Array.prototype.map.call(document.getElementById('tvf-m-0').options, function(o){ return o.value; }).filter(Boolean).join(',');
+      if(document.getElementById('tvf-m-0')){ const oy=Array.prototype.map.call(document.getElementById('tvf-m-0').options, function(o){ return o.value; }).filter(Boolean).join(',');
         if(oy!=='-4,0,1,3') vus.push('les valeurs proposées pour l encadrement ne sont pas les valeurs écrites du tableau, rangées : '+oy); }
       { const b=document.getElementById('tvfBody').textContent; if(b.indexOf('la fonction est comprise entre')<0||b.indexOf('car sur [')<0) vus.push('la rangée d un signe ne dit pas « car sur [ … ], la fonction est comprise entre … et … »'); }
       const b=document.getElementById('tvfBody').textContent;
