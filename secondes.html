@@ -509,7 +509,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-mmx,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-mmx,#scr-mmt,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -1260,6 +1260,9 @@
     /* {maximum-minimum} : le même GRAND dessin, et des phrases plus longues
        que le tableau — la carte du 2.15 leur va. */
     #scr-mmx .lv-card{max-width:700px}
+    /* {maximum-minimum-tableau} : le tableau à quatre segments fait 617 px,
+       comme au 2.15 — la même carte. */
+    #scr-mmt .lv-card{max-width:700px}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
     /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
@@ -1356,6 +1359,13 @@
     .lv-arrow-ctrl b{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;border-radius:50%;background:var(--blue);color:#fff;font-size:.82rem;flex:none}
     /* ---- Menu de sens, dans le tableau, au milieu de chaque flèche ---- */
     .vfcell .vt-sel2{position:absolute;transform:translate(-50%,-50%);width:48px;box-sizing:border-box;font-size:.98rem;padding:2px 0;border:1.4px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);font-family:inherit;-webkit-appearance:none;-moz-appearance:none;appearance:none;text-align:center;text-align-last:center;z-index:3;cursor:pointer;box-shadow:0 0 0 3px var(--surface)}
+    /* {maximum-minimum-tableau} : le tableau se LIT au lieu de se remplir —
+       même géométrie, mêmes positions, la valeur écrite là où la case de
+       saisie se poserait. La correction pose l'anneau vert sur les deux
+       extremums, et les colonnes des bornes de l'intervalle se marquent. */
+    .vfcell .vt-lect{position:absolute;transform:translate(-50%,-50%);min-width:38px;text-align:center;font-weight:700;font-size:1.02rem;color:var(--ink);background:var(--surface);padding:1px 4px;border-radius:6px;z-index:2}
+    .vfcell .vt-lect.mmt-sol{box-shadow:0 0 0 2.6px var(--green);color:var(--green)}
+    .lv-vartbl2 tr.vt-xr td.mmt-bord{box-shadow:inset 0 -3px 0 var(--green)}
     .vfcell .vt-sel2:focus{outline:none;border-color:var(--blue)}
     .vfcell .vt-sel2.ok{border-color:var(--blue);background:#EAF0FF}
     .vfcell .vt-sel2.bad{border-color:var(--red);background:#fdeaea}
@@ -1702,6 +1712,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="mmxBody"></div>
       <div class="lv-feedback"><span id="mmxMark" class="mark"></span> <span id="mmxCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="mmxRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="mmxConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="mmxQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="mmxValidate" onclick="submitMMX()">Valider</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-mmt">
+    <div class="card lv-card">
+      <div class="q-head"><span id="mmtIdx" class="q-idx">Question 1 / 4</span><span id="mmtModeTag"></span></div>
+      <p class="lv-sub" id="mmtSub"></p>
+      <p class="lv-instr" id="mmtInstr"></p>
+      <div class="lv-tblwrap" id="mmtTable"></div>
+      <div id="mmtBody"></div>
+      <div class="lv-feedback"><span id="mmtMark" class="mark"></span> <span id="mmtCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="mmtRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="mmtConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="mmtQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="mmtValidate" onclick="submitMMT()">Valider</button></div>
     </div>
   </section>
 
@@ -2362,7 +2384,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=140;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=141;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2886,6 +2908,7 @@ const TESTS={
   'signes-variations': { name:'Tableaux de signes et de variation', icon:'\ud83d\udcca', desc:'Le dessin de {lecture-variations}, les deux tableaux d\u2019un coup : compl\u00e8te DIRECTEMENT le tableau de signes (racines et z\u00e9ros compris) et le tableau de variation de la m\u00eame courbe.', start:()=>startLSV() },
   'signes-variations-grand': { name:'Tableaux de signes et de variation en grand', icon:'\ud83d\uddfa\ufe0f', desc:'Comme {signes-variations}, sur le GRAND dessin d\u2019{antecedents-droite} : 13 graduations, de \u22126 \u00e0 6 en abscisse ET en ordonn\u00e9e \u2014 les deux tableaux d\u2019un coup, \u00e0 compl\u00e9ter directement.', start:()=>startGSV() },
   'maximum-minimum': { name:'Maximum et minimum', icon:'\ud83d\udd3a', desc:'Sur le GRAND dessin d\u2019{antecedents-droite} : la m\u00eame courbe et cinq intervalles \u2014 donne \u00e0 chaque fois le maximum et le minimum de la fonction, l\u2019abscisse o\u00f9 chacun est atteint, puis l\u2019encadrement \u2026 \u2264 f\u2009(x)\u2009\u2264 \u2026', start:()=>startMMX() },
+  'maximum-minimum-tableau': { name:'Maximum et minimum sur un tableau', icon:'📋', desc:'Les mêmes questions que {maximum-minimum}, mais sans dessin : on te donne le TABLEAU DE VARIATION de f, et c’est lui qu’il faut lire pour trouver le maximum, le minimum et l’encadrement sur chaque intervalle.', start:()=>startMMT() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -2936,7 +2959,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3001,6 +3024,7 @@ function liveCheckCurrent(){
   else if(k==='tvd') tvdLive();
   else if(k==='gsv') gsvLive();
   else if(k==='mmx') mmxLive();
+  else if(k==='mmt') mmtLive();
   else if(k==='adr') adrLive();
   else if(k==='iqd') iqdLive();
   else if(k==='ifg') checkIfgAnswer(true);
@@ -3569,6 +3593,7 @@ function conseilPaire(){
   else if(test.kind==='eig' && q) b=ctxEig(q);
   else if(test.kind==='tsg' && q) b=ctxTsg(q);
   else if(test.kind==='mmx' && q) b=ctxMmx(q);
+  else if(test.kind==='mmt' && q) b=ctxMmt(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
@@ -3798,6 +3823,7 @@ const QIA_SUGG={
   ls:["Comment trouver o\u00f9 f (x) = 0 sur le graphique ?","Comment lire le signe de f sur un intervalle ?","Pourquoi \u00e9crit-on 0 sous une racine ?"],
   lsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?"],
   gsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Comment lire une valeur sur le grand quadrillage, de \u22126 \u00e0 6 ?"],
+  mmt:["Comment lire le maximum dans un tableau de variation ?","Pourquoi les extremums sont-ils toujours des valeurs \u00e9crites dans le tableau ?","Comment savoir o\u00f9 le maximum est atteint quand la fl\u00e8che monte ?"],
   mmx:["Comment lire le maximum de la fonction sur un intervalle ?","Quelle diff\u00e9rence entre la valeur du maximum et l\u2019abscisse o\u00f9 il est atteint ?","Comment \u00e9crire l\u2019encadrement une fois le maximum et le minimum trouv\u00e9s ?"],
   tvd:["Comment trouver les changements de sens sur le dessin ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?","Comment savoir si la fl\u00e8che monte ou descend ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
@@ -4188,6 +4214,12 @@ const RAP_MMX=`<b>Le maximum et le minimum sur un intervalle</b><br>
 • Le maximum et le minimum ne sont pas toujours aux bouts de l’intervalle : quand la courbe TOURNE à l’intérieur, l’un des deux est ce sommet ou ce creux. Quand elle ne fait que monter (ou que descendre), les deux sont aux bornes.<br>
 • L’<b>encadrement</b> est la conclusion : toute la courbe du morceau est comprise entre le minimum et le maximum, donc m ≤ f (x) ≤ M. On y remet les deux nombres qu’on vient de trouver, le plus petit à gauche.<br>
 • Attention : le maximum sur un PETIT intervalle n’est pas forcément celui de la courbe entière — on ne regarde QUE le morceau demandé.`;
+const RAP_MMT=`<b>Lire un maximum et un minimum dans un tableau de variation</b><br>
+• Un tableau de variation ne donne la valeur de f QU’AUX abscisses écrites sur la première ligne : les bords du domaine et les endroits où la fonction change de sens. Entre deux de ces abscisses, la flèche dit tout : f ne fait que MONTER (↗) ou que DESCENDRE (↘), sans jamais repartir en arrière.<br>
+• C’est pour cela que les extremums sont toujours des valeurs ÉCRITES : sur un morceau où f ne fait que monter, le minimum est à GAUCHE et le maximum à DROITE ; si elle ne fait que descendre, c’est l’inverse.<br>
+• Quand le morceau contient un changement de sens, l’un des deux extremums est ce sommet (ou ce creux) : on compare alors les valeurs des bords ET celle du changement de sens, et on garde la plus grande pour M, la plus petite pour m.<br>
+• On répond toujours DEUX choses : la <b>valeur</b> (elle est écrite dans la ligne du bas) et l’<b>abscisse</b> où elle est atteinte (elle est écrite juste au-dessus, dans la ligne des x).<br>
+• L’<b>encadrement</b> conclut : sur ce morceau, f reste entre le minimum et le maximum, donc m ≤ f (x) ≤ M — on y remet les deux nombres qu’on vient de trouver, le plus petit à gauche.`;
 const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
 • <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
 • <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
@@ -4216,7 +4248,7 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, mmx:RAP_MMX, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, mmx:RAP_MMX, mmt:RAP_MMT, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4683,7 +4715,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], mmx:['mmx',renderMMX], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4807,7 +4839,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','mmx','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','mmx','mmt','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -6058,6 +6090,19 @@ function lvArrowSVG(x0,y0,x1,y1){
    auraient fini par diverger, et les deux tableaux se seraient dessinés
    différemment sous les yeux de l'élève. */
 const VT_WN=52, VT_WS=78, VT_T=22, VT_B=98, VT_H=120;
+/* La HAUTEUR d'une valeur dans la bande des flèches : au bas d'une flèche qui
+   monte à sa droite, en haut d'une flèche qui descend, et ainsi de suite. Un
+   seul endroit la décide — le tableau qui se REMPLIT (varArrowsCore, à partir
+   des flèches choisies par l'élève) et celui qui se LIT (varTableHTML en mode
+   lecture, à partir des sens vrais) la lisent tous deux : deux règles auraient
+   fini par dessiner deux tableaux différents sous les yeux de l'élève. */
+function varTopPour(droite, gauche){
+  if(droite==='up') return VT_B;
+  if(droite==='down') return VT_T;
+  if(gauche==='up') return VT_T;
+  if(gauche==='down') return VT_B;
+  return (VT_T+VT_B)/2;
+}
 function varArrowsCore(a, p){
   const N=a.nodes.length, K=a.segments.length;
   const LVWN=VT_WN, LVWS=VT_WS, vT=VT_T, vB=VT_B;
@@ -6065,9 +6110,7 @@ function varArrowsCore(a, p){
   for(let j=0;j<N;j++){
     const right = $(p+'-arr-'+j) ? $(p+'-arr-'+j).value : '';
     const left  = (j>0 && $(p+'-arr-'+(j-1))) ? $(p+'-arr-'+(j-1)).value : '';
-    let y=(vT+vB)/2;
-    if(right==='up') y=vB; else if(right==='down') y=vT;
-    else if(left==='up') y=vT; else if(left==='down') y=vB;
+    const y=varTopPour(right,left);
     const inp=$(p+'-val-'+j); if(inp) inp.style.top=y+'px';
   }
   const ov=$(p+'-ov');
@@ -6097,21 +6140,34 @@ function lvArrowChange(){
    doit être sur la flèche bleue du tableau de variation comme en terminale
    avec l'exercice 5.5, pas en dessous ») : son halo la détache du trait, et
    la consigne du 2.1 disait déjà « au milieu de chaque flèche ». */
-function varTableHTML(a, p, fn){
+/* « lecture » (facultatif) rend le tableau DÉJÀ REMPLI, à lire : les abscisses
+   écrites, les valeurs posées à la place exacte qu'aurait leur case, les
+   flèches tracées. {maximum-minimum-tableau} s'en sert ; appelée sans lui —
+   le 2.1, le 2.13, le 2.14 et le 2.15 — la fonction ne change pas d'une ligne,
+   et les deux tableaux ne peuvent pas diverger puisque c'est le même. */
+function varTableHTML(a, p, fn, lecture){
   const K=a.segments.length, N=a.nodes.length;
   const LVWL=44, LVWN=VT_WN, LVWS=VT_WS, LVH=VT_H, vTop=VT_T, vBot=VT_B;
   const innerW=N*LVWN + K*LVWS;
+  const sens=function(i){ return (i>=0 && i<K && a.segments[i].dir==='croissante') ? 'up' : (i>=0 && i<K ? 'down' : ''); };
   let xrow='<td class="vlab" style="width:'+LVWL+'px"><i>x</i></td>';
   a.nodes.forEach(function(nd,j){
     const isEnd=(j===0||j===N-1);
-    xrow+= '<td class="vnx" style="width:'+LVWN+'px">'+ (isEnd ? numFmt(nd.x) : '<input id="'+p+'-x-'+j+'" class="lv-in xv-in" inputmode="numeric" autocomplete="off">') +'</td>';
+    xrow+= '<td class="vnx" id="'+p+'-cx-'+j+'" style="width:'+LVWN+'px">'+ ((lecture||isEnd) ? numFmt(nd.x) : '<input id="'+p+'-x-'+j+'" class="lv-in xv-in" inputmode="numeric" autocomplete="off">') +'</td>';
     if(j<K) xrow+='<td class="vax" style="width:'+LVWS+'px"></td>';
   });
   const ncx=function(j){ return j*(LVWN+LVWS) + LVWN/2; };
   const scx=function(i){ return i*(LVWN+LVWS) + LVWN + LVWS/2; };
-  let inner='<svg class="vt-overlay" id="'+p+'-ov" viewBox="0 0 '+innerW+' '+LVH+'" preserveAspectRatio="none"></svg>';
-  a.nodes.forEach(function(nd,j){ inner+='<input id="'+p+'-val-'+j+'" class="lv-in sm vv" inputmode="numeric" autocomplete="off" style="left:'+ncx(j)+'px;top:'+((vTop+vBot)/2)+'px">'; });
-  a.segments.forEach(function(seg,i){ inner+='<select id="'+p+'-arr-'+i+'" class="vt-sel2" onchange="'+fn+'()" style="left:'+scx(i)+'px;top:'+((vTop+vBot)/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; });
+  let ov='';
+  if(lecture) for(let i=0;i<K;i++){ const v=sens(i); ov+=lvArrowSVG(ncx(i), (v==='up')?vBot:vTop, ncx(i+1), (v==='up')?vTop:vBot); }
+  let inner='<svg class="vt-overlay" id="'+p+'-ov" viewBox="0 0 '+innerW+' '+LVH+'" preserveAspectRatio="none">'+ov+'</svg>';
+  a.nodes.forEach(function(nd,j){
+    const haut=lecture ? varTopPour(sens(j), sens(j-1)) : ((vTop+vBot)/2);
+    inner+= lecture
+      ? '<span id="'+p+'-val-'+j+'" class="vt-lect" style="left:'+ncx(j)+'px;top:'+haut+'px">'+numFmt(nd.y)+'</span>'
+      : '<input id="'+p+'-val-'+j+'" class="lv-in sm vv" inputmode="numeric" autocomplete="off" style="left:'+ncx(j)+'px;top:'+haut+'px">';
+  });
+  if(!lecture) a.segments.forEach(function(seg,i){ inner+='<select id="'+p+'-arr-'+i+'" class="vt-sel2" onchange="'+fn+'()" style="left:'+scx(i)+'px;top:'+((vTop+vBot)/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; });
   const frow='<td class="vlab" style="width:'+LVWL+'px"><i>f</i>(<i>x</i>)</td><td class="vfcell" colspan="'+(N+K)+'" style="height:'+LVH+'px">'+inner+'</td>';
   return '<table class="lv-vartbl2" style="width:'+(LVWL+innerW)+'px"><tbody><tr class="vt-xr">'+xrow+'</tr><tr class="vt-fr">'+frow+'</tr></tbody></table>';
 }
@@ -10365,6 +10421,188 @@ function submitMMX(){
   lvBoutonSuivant('mmxValidate', nextMmxQuestion);
 }
 function nextMmxQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMMX(); autoSave(); } else finishTest(); }
+
+
+/* ================= Exercice Seconde : Maximum et minimum, sur un TABLEAU
+   (kind 'mmt') =================
+   Demande de Turquet (septembre 2026) : « comme le 2.16 mais à partir d'un
+   tableau de variation et non d'un graphique ». Mêmes questions, même
+   écriture — le maximum et son abscisse, le minimum et la sienne, puis
+   l'encadrement — mais l'élève ne lit plus une courbe : il lit un TABLEAU DE
+   VARIATION déjà rempli, et doit comprendre qu'entre deux flèches la fonction
+   ne fait que monter (ou que descendre), donc que les extremums d'un morceau
+   se trouvent aux valeurs ÉCRITES.
+   Tout est repris, rien n'est recopié : le tirage est `adrGenPts()`, l'analyse
+   `gsvAnalyze` (l'échelle 13 du 2.15), les réponses `mmxAns()` — la fonction
+   MÊME qui corrige le 2.16, donc les deux exercices ne peuvent pas se
+   contredire — l'unicité `mmxUnique`, les visages `mmxInterieur`, l'écriture
+   de l'intervalle `mmxIntervalle`, la peinture `lvMarkFields`. Le tableau est
+   rendu par `varTableHTML` en mode LECTURE : la même fonction que le tableau
+   qu'on remplit au 2.1, donc la même géométrie.
+   LE RISQUE PROPRE EST QUE LA QUESTION SOIT ILLISIBLE, et il est silencieux :
+   un tableau ne donne la valeur de f QU'AUX abscisses écrites — demander le
+   maximum sur [−5 ; −2] quand le tableau ne connaît que −6, −4, 1 et 6, c'est
+   réclamer une hauteur que rien ne dit. LES BORNES DE CHAQUE INTERVALLE SONT
+   DONC DES ABSCISSES DU TABLEAU, et le contrôle recalcule les nœuds par sa
+   propre arithmétique pour l'exiger.
+   La bonne réponse n'est jamais rangée à côté de la question : elle ne porte
+   que la courbe et l'intervalle. */
+const MMT_NB=4;
+/* Les abscisses ÉCRITES dans le tableau : les bornes et les changements de
+   sens — les seules où la valeur de f se lit. */
+function mmtNoeuds(pts){ return gsvAnalyze(pts).nodes.map(function(nd){ return nd.x; }); }
+/* Tous les intervalles LISIBLES : une paire d'abscisses du tableau dont le
+   maximum et le minimum sont chacun atteints en un seul point. */
+function mmtIntervalles(pts){
+  const ns=mmtNoeuds(pts), out=[];
+  for(let i=0;i<ns.length-1;i++) for(let j=i+1;j<ns.length;j++){
+    if(mmxUnique(pts,ns[i],ns[j])) out.push([ns[i],ns[j]]);
+  }
+  return out;
+}
+/* Le repli RÉEL, relevé sur le générateur (sonde, septembre 2026) : il passe
+   par les gardes MÊMES du tirage, que le contrôle rejoue sur lui. */
+const MMT_REPLI={ pts:[3,1,0,-5,-6,-3,-2,-1,-2,-4,-5,-3,0], petits:[[-6,4],[4,6],[1,4]] };
+function mmtTirage(){
+  for(let att=0; att<3000; att++){
+    /* 3 ou 4 segments : il faut au moins quatre abscisses écrites pour que la
+       séance ait quatre intervalles différents à demander. */
+    const pts=adrGenPts(pick([3,4]));
+    if(!pts) continue;
+    const ns=mmtNoeuds(pts), tout=[ns[0],ns[ns.length-1]];
+    if(!mmxUnique(pts,tout[0],tout[1])) continue;
+    const autres=mmtIntervalles(pts).filter(function(iv){ return !(iv[0]===tout[0] && iv[1]===tout[1]); });
+    /* les DEUX visages : un morceau où la fonction ne fait que monter (ou que
+       descendre) — ses extremums sont aux bornes — et un qui contient un
+       changement de sens, où l'un des deux est À L'INTÉRIEUR. */
+    const tourne=autres.filter(function(iv){ return mmxInterieur(pts,iv[0],iv[1]); });
+    const monotone=autres.filter(function(iv){ return !mmxInterieur(pts,iv[0],iv[1]); });
+    if(!tourne.length || !monotone.length || autres.length<MMT_NB-1) continue;
+    const a=pick(tourne), b=pick(monotone);
+    const reste=autres.filter(function(iv){ return !(iv[0]===a[0]&&iv[1]===a[1]) && !(iv[0]===b[0]&&iv[1]===b[1]); });
+    if(!reste.length) continue;
+    const trois=[a,b,pick(reste)];
+    for(let i=trois.length-1;i>0;i--){ const j=rand(0,i); const t=trois[i]; trois[i]=trois[j]; trois[j]=t; }
+    return {pts:pts, petits:trois};
+  }
+  return {pts:MMT_REPLI.pts.slice(), petits:MMT_REPLI.petits.map(function(v){ return v.slice(); })};
+}
+function mmtSubCount(q){ return 6; }
+function mmtBuildQuestions(){
+  const t=mmtTirage(), ns=mmtNoeuds(t.pts);
+  /* le tableau ENTIER d'abord — la lecture la plus simple —, puis trois
+     morceaux, comme la fiche du 2.16 va du grand au petit */
+  return [[ns[0],ns[ns.length-1]]].concat(t.petits).map(function(iv){ return {pts:t.pts.slice(), a:iv[0], b:iv[1]}; });
+}
+function startMMT(){
+  const qs=mmtBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'mmt', questions:qs, idx:0, score:0, maxScore:qs.reduce(function(n,q){ return n+mmtSubCount(q); },0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('mmt'); renderMMT();
+}
+/* La MÉTHODE, montrée à la VALIDATION et jamais avant : les deux colonnes des
+   bornes se soulignent, et les deux valeurs cherchées prennent l'anneau vert.
+   Montrée pendant la recherche, elle désignerait les nombres qu'on demande de
+   trouver. */
+function mmtMethode(q, montrer){
+  const ns=mmtNoeuds(q.pts), r=mmxAns(q);
+  ns.forEach(function(x,j){
+    const c=$('mmt-v-cx-'+j); if(c) c.classList.toggle('mmt-bord', !!montrer && (x===q.a || x===q.b));
+    const v=$('mmt-v-val-'+j); if(v) v.classList.toggle('mmt-sol', !!montrer && (x===r.xM || x===r.xm));
+  });
+}
+function renderMMT(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  $('mmtIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('mmtModeTag').innerHTML=modeTagHTML();
+  { const cb=$('mmtConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('mmtRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('mmtQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('mmtSub').textContent='Le même tableau pour les '+test.questions.length+' questions — seul l’intervalle change.';
+  /* le tableau du 2.1, rendu en LECTURE : rien à remplir, tout à lire */
+  $('mmtTable').innerHTML=varTableHTML(gsvAnalyze(q.pts), 'mmt-v', '', true);
+  $('mmtInstr').textContent='Lis le tableau de variation de la fonction f, défini sur [ −6 ; 6 ], puis complète. Entre deux flèches, f ne fait que monter (ou que descendre) : le maximum et le minimum d’un morceau sont donc parmi les valeurs ÉCRITES dans le tableau. L’encadrement reprend ces deux nombres.';
+  const iv=mmxIntervalle(q);
+  const inp=function(id,aria){ return '<input id="'+id+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="'+aria+'">'; };
+  $('mmtBody').innerHTML=
+     '<p class="mmx-quand">Quand <i>x</i> est dans l’intervalle '+iv+' :</p>'
+    +'<ul class="mmx-liste">'
+    +'<li><span class="mmx-puce">•</span>le <strong>maximum</strong> de la fonction est M = '+inp('mmt-M','Le maximum')+' atteint pour <i>x</i> = '+inp('mmt-xM','L’abscisse du maximum')+'</li>'
+    +'<li><span class="mmx-puce">•</span>le <strong>minimum</strong> de la fonction est m = '+inp('mmt-m','Le minimum')+' atteint pour <i>x</i> = '+inp('mmt-xm','L’abscisse du minimum')+'</li>'
+    +'</ul>'
+    +'<p class="mmx-donc">Donc quand <i>x</i> est dans l’intervalle '+iv+', un <strong>encadrement</strong> de la fonction est <span class="mmx-enc">'+inp('mmt-lo','La borne du bas de l’encadrement')+' ≤ <i>f</i> (<i>x</i>) ≤ '+inp('mmt-hi','La borne du haut de l’encadrement')+'</span></p>';
+  $('mmtBody').querySelectorAll('input').forEach(function(el){ el.addEventListener('input',mmtLive); el.addEventListener('change',mmtLive); });
+  $('mmtMark').className='mark'; $('mmtMark').textContent=''; $('mmtCorr').innerHTML='';
+  const b=$('mmtValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitMMT;
+  mmtMethode(q,false);
+  setTimeout(mmtLive,0);
+}
+function mmtCheckPart(q){
+  const r=mmxAns(q), subs=[];
+  subs.push({id:'mmt-M',  val:r.M,  ok: lvReadInt('mmt-M')===r.M});
+  subs.push({id:'mmt-xM', val:r.xM, ok: lvReadInt('mmt-xM')===r.xM});
+  subs.push({id:'mmt-m',  val:r.m,  ok: lvReadInt('mmt-m')===r.m});
+  subs.push({id:'mmt-xm', val:r.xm, ok: lvReadInt('mmt-xm')===r.xm});
+  subs.push({id:'mmt-lo', val:r.m,  ok: lvReadInt('mmt-lo')===r.m});
+  subs.push({id:'mmt-hi', val:r.M,  ok: lvReadInt('mmt-hi')===r.M});
+  const nCorrect=subs.filter(function(x){ return x.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+function mmtLive(){
+  if(test.kind!=='mmt' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  mmtCheckPart(q).subs.forEach(function(x){ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    const filled=String(el.value==null?'':el.value).trim()!=='';
+    if(filled) el.classList.add(x.ok?'ok':'bad');
+  });
+}
+function mmtCorrectionHTML(q){
+  const r=mmxAns(q);
+  return 'Sur '+mmxIntervalle(q)+' : maximum M = '+numFmt(r.M)+' atteint pour x = '+numFmt(r.xM)
+    +' ; minimum m = '+numFmt(r.m)+' atteint pour x = '+numFmt(r.xm)
+    +' ; donc '+numFmt(r.m)+' ≤ f (x) ≤ '+numFmt(r.M)+'.';
+}
+/* Ce que le modèle sait de l'écran : le tableau LU comme l'élève le voit —
+   les abscisses écrites, les valeurs, les sens — et l'intervalle demandé.
+   ctxVisible() n'enverrait que la consigne : le tableau vit dans un SVG et des
+   positions absolues, l'intervalle dans le corps de la question. */
+function ctxMmt(q){
+  const a=gsvAnalyze(q.pts), r=mmxAns(q);
+  const faux=mmtCheckPart(q).subs.filter(function(s){ const el=$(s.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !s.ok; }).length;
+  let c='L’élève a sous les yeux un TABLEAU DE VARIATION déjà rempli (il ne lit pas de courbe). La fonction f est définie sur [−6 ; 6] et le tableau écrit : '
+    +a.nodes.map(function(nd){ return 'f('+numFmt(nd.x)+') = '+numFmt(nd.y); }).join(', ')
+    +' — et f est '+a.segments.map(function(sg){ return sg.dir+' sur ['+numFmt(sg.fromX)+' ; '+numFmt(sg.toX)+']'; }).join(', ')+'.'
+    +' On lui demande, sur l’intervalle '+mmxIntervalle(q)+' : le maximum M et l’abscisse où il est atteint, le minimum m et l’abscisse où il est atteint, puis l’encadrement m ≤ f (x) ≤ M.'
+    +' Réponses attendues : M = '+numFmt(r.M)+' pour x = '+numFmt(r.xM)+', m = '+numFmt(r.m)+' pour x = '+numFmt(r.xm)+'.';
+  if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
+  return {nombre:'', contexte:c};
+}
+function submitMMT(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=mmtCheckPart(q);
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const mk=$('mmtMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('mmtCorr').textContent='Pas tout à fait — corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  mmtMethode(q,true);
+  const mk=$('mmtMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('mmtValidate').disabled=true;
+  if(!res.allOk) $('mmtCorr').innerHTML=mmtCorrectionHTML(q);
+  else $('mmtCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Maximum et minimum (tableau) sur '+mmxIntervalle(q)+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'mmt'});
+  lvBoutonSuivant('mmtValidate', nextMmtQuestion);
+}
+function nextMmtQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMMT(); autoSave(); } else finishTest(); }
 
 
 /* ================= Exercice Seconde : Tableau de variation (kind 'tvd') =================
@@ -15524,7 +15762,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderMMX','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderMMX','renderMMT','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

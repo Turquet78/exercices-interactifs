@@ -1625,6 +1625,65 @@ tenant — une SPAN mesurée par le nombre de boîtes qu'elle rend, deux voulant
 dire qu'elle s'est repliée et qu'une solution se lit en deux morceaux ; il
 mesure aussi les deux anneaux verts contre les graduations rendues.
 
+**Et le même exercice SANS dessin : le tableau de variation se lit.**
+{maximum-minimum-tableau} (Seconde, demande de Turquet, septembre 2026 —
+« comme le 2.16 mais à partir d'un tableau de variation et non d'un
+graphique ») suit {maximum-minimum} au menu : mêmes questions, même écriture,
+mais l'élève ne lit plus une courbe — il lit un TABLEAU DE VARIATION déjà
+rempli. Quatre questions sur le même tableau : le domaine entier d'abord,
+puis trois morceaux.
+**Ce qu'il fait travailler est une idée, pas une lecture** : entre deux
+flèches, f ne fait que monter (ou que descendre), donc les extremums d'un
+morceau sont forcément parmi les valeurs ÉCRITES — sur un morceau croissant
+le minimum est à gauche et le maximum à droite, et quand le morceau contient
+un changement de sens, l'un des deux est ce sommet ou ce creux.
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts()`,
+l'analyse `gsvAnalyze` (l'échelle 13 du 2.15), et les réponses sont données
+par `mmxAns()` — la fonction MÊME qui corrige le 2.16, si bien que les deux
+exercices ne peuvent pas se contredire ; l'unicité (`mmxUnique`), les visages
+(`mmxInterieur`), l'écriture de l'intervalle et la peinture des cases sont
+les siennes aussi.
+**LE RISQUE PROPRE EST LA QUESTION ILLISIBLE, et il est silencieux** : un
+tableau ne donne la valeur de f QU'AUX abscisses écrites — demander le
+maximum sur [−5 ; −2] quand le tableau ne connaît que −6, −4, 1 et 6, c'est
+réclamer une hauteur que rien ne dit, et l'élève ne peut que deviner. Les
+bornes de chaque intervalle sont donc des abscisses DU TABLEAU, et le
+contrôle recalcule ces abscisses par sa propre arithmétique plutôt que de
+faire confiance à la page. L'unicité du maximum et du minimum est exigée
+comme au 2.16, et les deux visages sortent dans chaque séance — un morceau
+monotone, un morceau qui tourne. Sonde : 76 % (trois segments) et 67 %
+(quatre) des courbes conviennent, 1,4 essai en moyenne, pire cas 5 sur 400
+séances, 0 recours au repli — lequel est RÉEL, relevé sur le générateur, et
+passe par les gardes mêmes (le premier, inventé à la main, plaçait une borne
+hors du tableau : le contrôle l'a nommé, comme au 2.16).
+**Le tableau est rendu par `varTableHTML` en mode LECTURE** — la fonction
+MÊME qui rend le tableau qu'on REMPLIT au 2.1, au 2.13, au 2.14 et au
+2.15 : les deux ne peuvent donc pas se dessiner différemment. La hauteur
+d'une valeur dans la bande des flèches vit désormais à un seul endroit
+(`varTopPour`), lu par le tableau qui se remplit comme par celui qui se lit.
+**Et le BORD OPPOSÉ compte autant** : un mode lecture qui fuirait viderait
+d'un coup les quatre exercices qui complètent ce tableau. Le premier jet du
+contrôle demandait « au moins une case » et restait VERT sous le sabotage
+qui change les VALEURS en texte — les abscisses et les flèches restaient des
+cases, et il parlait d'autre chose ; pire, aucun autre banc ne le voyait,
+jsdom laissant poser une valeur sur n'importe quel élément, si bien que les
+copies témoins des quatre exercices continuaient de passer. Le contrôle
+regarde donc la BALISE de chaque case, une par une.
+**La méthode est montrée à la VALIDATION** : les deux colonnes des bornes se
+soulignent en vert, et les deux valeurs cherchées prennent l'anneau vert.
+Montrée pendant la recherche, elle désignerait les nombres qu'on demande de
+trouver.
+Dix-neuf sabotages, chacun rougissant en nommant son défaut. Un piège
+d'outillage s'y est montré, jumeau de celui de l'antislash : un ACCENT GRAVE
+écrit dans un commentaire du contrôle referme le template littéral de
+`verifier.js` — le code évalué se coupe en son milieu, et le banc s'arrête
+sur « erreur JavaScript non rattrapée » au lieu de nommer quoi que ce soit.
+Le banc NAVIGATEUR (« 6 quater quinquies », déclaré par `maxMinTableau`)
+tient ce que jsdom ne voit pas : le tableau rendu sans une seule case, ses
+flèches tracées, ses valeurs qui montent et descendent avec elles — mesurées
+sur les RECTANGLES rendus, jamais sur un « top » écrit — et le tableau qui
+tient dans sa carte.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
