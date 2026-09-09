@@ -1052,6 +1052,73 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater sexies. l'union « S = [ ; ] ∪ [ ; ] » d'un seul tenant =====
+       {tableau-equations} : le banc jsdom tient le tirage, la cohérence des
+       abscisses données et le jugement. Ce qu'il ne voit pas : la ligne de
+       réponse à huit cases qui se REPLIERAIT — une solution coupée en deux
+       se lit comme deux solutions (la leçon du 2.11) — ou qui défilerait à
+       la largeur d'un écran d'ordinateur, et le tableau qui déborderait de
+       sa carte. Seul un navigateur sait où une rangée se replie. Il CHOISIT
+       aussi les huit cases pour de vrai et relit les couleurs. */
+    titre('6 quater sexies. L\'UNION D\'UN SEUL TENANT');
+    if(!P.tableauEquations){
+      ignorer('l\'union à huit cases tient sur une seule rangée',
+        'ce niveau n\'a pas l\'exercice des équations sur tableau de variation');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.tableauEquations.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* la première question (les comptes) : on la joue juste, par les
+         fonctions de la page, puis on passe à l'inéquation */
+      const vu1 = await s.page.evaluate(() => {
+        const q = test.questions[0], nodes = tveNoeuds(q.pts);
+        q.ks.forEach((k, i) => { document.getElementById('tve-n-' + i).value = String(tveNbSol(nodes, k)); });
+        submitTVE();
+        const hote = document.getElementById('tveTable');
+        return { score: test.score, cases: hote.querySelectorAll('input, select').length,
+                 fleches: hote.querySelectorAll('.vt-shaft').length };
+      });
+      verifier('les quatre comptes justes valent 4', vu1.score === 4, 'note ' + vu1.score);
+      verifier('le tableau est rendu rempli, sans une seule case à remplir', vu1.cases === 0, vu1.cases + ' case(s)');
+      verifier('les trois flèches sont tracées', vu1.fleches === 3, vu1.fleches + ' flèche(s)');
+      await s.page.click('#tveValidate');
+      await s.page.waitForTimeout(500);
+      const vu2 = await s.page.evaluate(() => {
+        const sels = Array.from(document.querySelectorAll('#tveBody .tve-sol select'));
+        const tops = sels.map(e => Math.round(e.getBoundingClientRect().top));
+        const wrap = document.querySelector('#tveBody .tve-solwrap');
+        const hote = document.getElementById('tveTable'), card = hote.closest('.card');
+        const t = hote.querySelector('table').getBoundingClientRect(), cr = card.getBoundingClientRect();
+        return { n: sels.length, tops: tops, unLigne: new Set(tops).size === 1,
+                 defile: wrap.scrollWidth > wrap.clientWidth + 1, largeur: wrap.scrollWidth, cadre: wrap.clientWidth,
+                 tableSort: t.right > cr.right + 1 || hote.scrollWidth > hote.clientWidth + 1,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 type: test.questions[test.idx].type };
+      });
+      verifier('la seconde question est une inéquation à huit cases', vu2.type === 'ineq' && vu2.n === 8, vu2.type + ', ' + vu2.n + ' case(s)');
+      verifier('les huit cases de l\'union sont sur une seule rangée', vu2.unLigne, 'hauts : ' + vu2.tops.join(','));
+      verifier('la rangée de l\'union ne défile pas à 1400 px', !vu2.defile && !vu2.page, vu2.largeur + ' px dans ' + vu2.cadre);
+      verifier('le tableau ne déborde pas de sa carte', !vu2.tableSort, '');
+      /* on CHOISIT la solution pour de vrai, dans les listes */
+      const bonnes = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], S = tveSolve(tveNoeuds(q.pts), q.k, q.op, q.cr);
+        const spec = iv => [iv.aOuv ? ']' : '[', String(iv.a), String(iv.b), iv.bOuv ? '[' : ']'];
+        return spec(S[0]).concat(spec(S[1]));
+      });
+      for(let i = 0; i < 8; i++) await s.page.selectOption('#' + ['tve-co1','tve-b1','tve-b2','tve-cf1','tve-co2','tve-b3','tve-b4','tve-cf2'][i], bonnes[i]);
+      await s.page.click('#tveValidate');
+      await s.page.waitForTimeout(400);
+      const vu3 = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#tveBody select.ok').length, score: test.score,
+        bleu: getComputedStyle(document.querySelector('#tveBody select.ok') || document.body).borderColor
+      }));
+      verifier('les huit cases choisies justes sont peintes ok et valent 8', vu3.ok === 8 && vu3.score === 12, vu3.ok + ' ok, note ' + vu3.score);
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —

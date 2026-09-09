@@ -1684,6 +1684,81 @@ flèches tracées, ses valeurs qui montent et descendent avec elles — mesurée
 sur les RECTANGLES rendus, jamais sur un « top » écrit — et le tableau qui
 tient dans sa carte.
 
+**Le RAISONNEMENT du tableau : combien de solutions, et où f est au-dessus.**
+{tableau-equations} (Seconde, demande de Turquet, septembre 2026, repris de
+la fiche « raisonnement tableau de variation », Exercice 8) suit
+{maximum-minimum-tableau} au menu : un tableau de variation, et rien
+d'autre — 1) à 4) « L'équation f(x) = k a combien de solutions ? », 5) et 6)
+« On donne f(−5) = 0 et f(2) = 0. Résoudre f(x) ≥ 0. S = … ». Une séance =
+TROIS questions sur le même tableau : les quatre comptes de la fiche sur un
+seul écran, puis deux inéquations.
+**Ce qu'il fait travailler** : entre deux valeurs écrites, une flèche dit que
+f ne fait que monter (ou que descendre), donc qu'elle passe EXACTEMENT UNE
+fois par chaque hauteur strictement comprise entre ses deux bouts — et
+jamais par une autre ; une valeur ÉCRITE se compte une seule fois, même si
+deux flèches en partent. C'est le piège de la fiche — trois de ses quatre
+hauteurs sont des valeurs écrites du tableau — et le tirage l'impose : au
+moins une hauteur écrite, et les quatre comptes prennent au moins trois
+valeurs différentes (sonde : les comptes 0, 1, 2 et 3 sortent tous).
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts(3)` — la
+forme de la fiche, trois flèches, la seule où les quatre comptes sont tous
+possibles et où une inéquation donne deux morceaux dans les deux sens —,
+l'analyse `gsvAnalyze`, le tableau `varTableHTML` en mode LECTURE (la
+fonction même du 2.17), les cases de l'union les sélecteurs de la famille
+`.itv-sel` (`corrChoix`, `msgAvecVides`), l'union jugée au MIEUX à ordre
+libre (le motif du 2.11).
+**LE RISQUE PROPRE EST L'ÉNONCÉ QUI CONTREDIT SON TABLEAU — et la fiche
+elle-même le porte.** Sa question 6 donne « f(3) = 1 et f(5) = 1 » alors que
+le tableau fait DESCENDRE f de 3 à 2 sur [4 ; 6] : f(5) ne peut pas valoir
+1, et l'élève qui suit la donnée écrit un S que le tableau dément. Une
+abscisse donnée est donc tirée strictement À L'INTÉRIEUR d'une flèche que
+k traverse strictement, une par flèche traversée, et le contrôle refait
+cette vérification par sa propre arithmétique sur chaque tirage — c'est le
+bord qu'il nomme « le défaut de la question 6 de la fiche ».
+**Les deux inéquations d'une séance sont de SENS opposés et de STRICTESSE
+opposée** : sans quoi l'élève apprendrait que le crochet est toujours le
+même. Chacune a EXACTEMENT deux morceaux — la forme de la fiche, et la
+seule qui laisse la ligne de réponse constante : des cases au nombre exact
+révéleraient combien de morceaux chercher (la leçon des trois cases
+d'{antecedents-droite}). k n'est jamais une valeur écrite (un morceau réduit
+à un point n'a pas sa place dans « [ ; ] ∪ [ ; ] » — c'est aussi ce que la
+question 6 de la fiche aurait donné, {−6} ∪ …). Les bornes se CHOISISSENT
+dans une liste qui offre les bords du tableau, les abscisses données ET les
+abscisses écrites du tableau — le piège : les prendre pour bornes alors que
+f n'y vaut pas k. Le crochet est ouvert à une abscisse donnée si l'inégalité
+est stricte, toujours fermé aux bords −6 et 6.
+**Le contrôle compare la page à LA FICHE** — ses réponses 2, 1, 2, 2 et son
+S = [−6 ; −5] ∪ [2 ; 6] — et refait le tirage par une SECONDE arithmétique,
+qui compte sur les treize valeurs de la grille et non sur les nœuds : deux
+méthodes qui n'ont rien en commun doivent tomber d'accord. Sonde : 95 % des
+courbes à trois flèches conviennent, 1,05 essai en moyenne, pire cas 3 sur
+400 séances, 0 recours au repli — lequel est RÉEL, relevé sur le
+générateur, et passe par les gardes mêmes (le premier, inventé à la main,
+donnait un seul morceau à chaque inéquation : le contrôle l'a nommé). Le
+banc NAVIGATEUR (« 6 quater sexies », déclaré par `tableauEquations`)
+tient ce que jsdom ne voit pas : l'union à huit cases sur UNE SEULE rangée,
+sans défilement à 1400 px — coupée en deux, elle se lirait comme deux
+solutions —, et il CHOISIT les huit cases pour de vrai avant de relire les
+couleurs. La carte de cet écran fait 920 px pour cette ligne ; sur un écran
+plus étroit elle DÉFILE au lieu de se replier.
+Vingt sabotages, chacun rougissant en nommant son défaut — la valeur écrite
+comptée deux fois, le crochet fermé sur une inégalité stricte, l'abscisse
+donnée hors de sa flèche (le contrôle répond « le défaut de la question 6 de
+la fiche »), la hauteur écrite, la strictesse jumelle, le compte toujours le
+même, le morceau unique, la réponse rangée dans la question, le tableau
+redevenu à remplir, la case vide peinte en soutien, le repli inventé, les
+abscisses écrites retirées des listes, les deux morceaux qui ne se recollent
+plus, le bord du tableau ouvert… **Et l'un d'eux a d'abord frappé le
+VOISIN** : la ligne « jugé au mieux » de l'union est la même, au caractère
+près, dans le 2.6 — `replace` a saboté {lecture-deux-courbes} pendant que
+le contrôle du 2.18 restait vert à bon droit. Un sabotage se pose sur une
+ancre PROPRE à sa cible, sans quoi il mesure autre chose ; rejoué sur la
+ligne d'au-dessus, il rougit (« les deux morceaux dans l'autre ordre valent
+0 au lieu de 8 »). Et un défaut de mise en page ne s'est vu que sur la
+capture : sur deux colonnes, « a combien de solutions ? » se repliait et la
+case tombait seule à la ligne suivante — la phrase est plus courte, et « ? »
+reste soudé à sa case.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
