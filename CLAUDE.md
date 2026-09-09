@@ -1605,6 +1605,267 @@ MONTRÉE est verte — jamais en soutien, où l'élève corrige lui-même — et
 case vide ne rougit jamais. Quinze sabotages, chacun rougissant en nommant
 son défaut.
 
+**Le maximum et le minimum se lisent sur un MORCEAU de courbe — et le risque
+est l'extremum PARTAGÉ.** {maximum-minimum} (Seconde, demande de Turquet,
+septembre 2026, repris de la fiche « LE MAXIMUM ET LE MINIMUM ») suit
+{signes-variations-grand} au menu : le grand dessin d'{antecedents-droite},
+UNE courbe gardée, et les cinq questions de la fiche — l'intervalle entier
+[−6 ; 6], chaque moitié, puis un petit intervalle dans chacune. À chaque
+fois : « le maximum de la fonction est M = … atteint pour x = … », « le
+minimum … m = … atteint pour x = … », puis « un encadrement de la fonction
+est … ≤ f (x) ≤ … ». Six cases par question, trente pour la séance.
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts()`, le
+générateur MÊME d'{antecedents-droite} (13 valeurs entières, segments
+strictement monotones), le dessin est `adrSVG()`, la fonction même, appelée
+NUE — elle a seulement gagné le paramètre « dessus », la convention de
+l'`extra` de `lvGraphSVG`, pour que la méthode se trace par-dessus —, et la
+peinture des cases est `lvMarkFields`, la lecture `lvReadInt`, le bouton
+`lvBoutonSuivant`.
+**Le risque propre est SILENCIEUX** : si deux abscisses de l'intervalle
+portent la même hauteur maximale, « atteint pour x = … » a DEUX réponses et
+la page en compterait une fausse — une lecture juste comptée fausse, le pire
+défaut du projet. Le tirage exige donc l'unicité du maximum ET du minimum sur
+CHACUN des cinq intervalles, et le contrôle la recompte par sa propre
+arithmétique, tirage après tirage.
+**Les extremums tombent sur des graduations, et le contrôle ne le suppose
+pas** : entre deux graduations la spline est monotone et les segments le sont
+aussi, donc elle ne peut ni dépasser ni redescendre — le banc relit les
+Bézier qu'`adrPath` écrit, converties par les GRADUATIONS lues dans le SVG
+rendu (aucune coordonnée recopiée), et exige que la courbe dessinée ne monte
+jamais au-dessus du maximum annoncé. Sabotage à l'appui : les tangentes
+multipliées par 4 le font rougir en nommant l'écart.
+**Les deux visages sortent dans chaque séance** : un petit intervalle où la
+courbe est MONOTONE — les deux extremums sont aux bornes — et un où elle
+TOURNE, un extremum à l'intérieur. Sans eux, l'élève apprendrait que la
+réponse est toujours du même genre. Le côté qui porte le tournant est TIRÉ :
+à visage égal, le rang change. Sonde : 69 % des courbes passent l'unicité des
+trois grands intervalles, 67 % offrent les deux visages ; 2,0 essais en
+moyenne, pire cas 11 sur 400 séances, 0 recours au repli — lequel est RÉEL,
+relevé sur le générateur, et passe par les gardes mêmes du tirage (le premier,
+inventé à la main, perdait les deux visages : le contrôle l'a nommé).
+**L'encadrement REPREND le minimum et le maximum trouvés, et la consigne le
+DIT** : sans cette phrase, « −6 ≤ f (x) ≤ 6 » serait un encadrement lui aussi
+et une lecture juste serait comptée fausse — c'est ce qui rend la question
+décidable, la leçon du dénominateur donné de {simplifier-barres}. Un contrôle
+exige la phrase.
+**La méthode est dessinée à la VALIDATION, jamais avant** : les deux bords de
+l'intervalle, la bande verte entre le minimum et le maximum — l'encadrement,
+dessiné — et les deux anneaux aux points où ils sont atteints. Affichée
+pendant la recherche, elle donnerait les hauteurs qu'on demande de lire.
+La bonne réponse n'est jamais rangée à côté de la question : elle ne porte que
+la courbe et l'intervalle (le contrôle refuse tout autre champ), et `mmxAns()`
+— que la correction, le message et le dessin de la méthode lisent tous — la
+recalcule. Chaque case se juge SEULE, la case vide ne rougit jamais, et le
+soutien peint au fil de la frappe. Dix-sept sabotages, chacun rougissant en
+nommant son défaut. Le banc NAVIGATEUR (« 6 quater quater », déclaré par
+`maxMin` dans `tests/profils.js`) tient les deux bords que jsdom ne voit pas :
+le grand dessin rendu à une taille lisible, et « … ≤ f (x) ≤ … » d'un seul
+tenant — une SPAN mesurée par le nombre de boîtes qu'elle rend, deux voulant
+dire qu'elle s'est repliée et qu'une solution se lit en deux morceaux ; il
+mesure aussi les deux anneaux verts contre les graduations rendues.
+
+**Et le même exercice SANS dessin : le tableau de variation se lit.**
+{maximum-minimum-tableau} (Seconde, demande de Turquet, septembre 2026 —
+« comme le 2.16 mais à partir d'un tableau de variation et non d'un
+graphique ») suit {maximum-minimum} au menu : mêmes questions, même écriture,
+mais l'élève ne lit plus une courbe — il lit un TABLEAU DE VARIATION déjà
+rempli. Quatre questions sur le même tableau : le domaine entier d'abord,
+puis trois morceaux.
+**Ce qu'il fait travailler est une idée, pas une lecture** : entre deux
+flèches, f ne fait que monter (ou que descendre), donc les extremums d'un
+morceau sont forcément parmi les valeurs ÉCRITES — sur un morceau croissant
+le minimum est à gauche et le maximum à droite, et quand le morceau contient
+un changement de sens, l'un des deux est ce sommet ou ce creux.
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts()`,
+l'analyse `gsvAnalyze` (l'échelle 13 du 2.15), et les réponses sont données
+par `mmxAns()` — la fonction MÊME qui corrige le 2.16, si bien que les deux
+exercices ne peuvent pas se contredire ; l'unicité (`mmxUnique`), les visages
+(`mmxInterieur`), l'écriture de l'intervalle et la peinture des cases sont
+les siennes aussi.
+**LE RISQUE PROPRE EST LA QUESTION ILLISIBLE, et il est silencieux** : un
+tableau ne donne la valeur de f QU'AUX abscisses écrites — demander le
+maximum sur [−5 ; −2] quand le tableau ne connaît que −6, −4, 1 et 6, c'est
+réclamer une hauteur que rien ne dit, et l'élève ne peut que deviner. Les
+bornes de chaque intervalle sont donc des abscisses DU TABLEAU, et le
+contrôle recalcule ces abscisses par sa propre arithmétique plutôt que de
+faire confiance à la page. L'unicité du maximum et du minimum est exigée
+comme au 2.16, et les deux visages sortent dans chaque séance — un morceau
+monotone, un morceau qui tourne. Sonde : 76 % (trois segments) et 67 %
+(quatre) des courbes conviennent, 1,4 essai en moyenne, pire cas 5 sur 400
+séances, 0 recours au repli — lequel est RÉEL, relevé sur le générateur, et
+passe par les gardes mêmes (le premier, inventé à la main, plaçait une borne
+hors du tableau : le contrôle l'a nommé, comme au 2.16).
+**Le tableau est rendu par `varTableHTML` en mode LECTURE** — la fonction
+MÊME qui rend le tableau qu'on REMPLIT au 2.1, au 2.13, au 2.14 et au
+2.15 : les deux ne peuvent donc pas se dessiner différemment. La hauteur
+d'une valeur dans la bande des flèches vit désormais à un seul endroit
+(`varTopPour`), lu par le tableau qui se remplit comme par celui qui se lit.
+**Et le BORD OPPOSÉ compte autant** : un mode lecture qui fuirait viderait
+d'un coup les quatre exercices qui complètent ce tableau. Le premier jet du
+contrôle demandait « au moins une case » et restait VERT sous le sabotage
+qui change les VALEURS en texte — les abscisses et les flèches restaient des
+cases, et il parlait d'autre chose ; pire, aucun autre banc ne le voyait,
+jsdom laissant poser une valeur sur n'importe quel élément, si bien que les
+copies témoins des quatre exercices continuaient de passer. Le contrôle
+regarde donc la BALISE de chaque case, une par une.
+**La méthode est montrée à la VALIDATION** : les deux colonnes des bornes se
+soulignent en vert, et les deux valeurs cherchées prennent l'anneau vert.
+Montrée pendant la recherche, elle désignerait les nombres qu'on demande de
+trouver.
+Dix-neuf sabotages, chacun rougissant en nommant son défaut. Un piège
+d'outillage s'y est montré, jumeau de celui de l'antislash : un ACCENT GRAVE
+écrit dans un commentaire du contrôle referme le template littéral de
+`verifier.js` — le code évalué se coupe en son milieu, et le banc s'arrête
+sur « erreur JavaScript non rattrapée » au lieu de nommer quoi que ce soit.
+Le banc NAVIGATEUR (« 6 quater quinquies », déclaré par `maxMinTableau`)
+tient ce que jsdom ne voit pas : le tableau rendu sans une seule case, ses
+flèches tracées, ses valeurs qui montent et descendent avec elles — mesurées
+sur les RECTANGLES rendus, jamais sur un « top » écrit — et le tableau qui
+tient dans sa carte.
+
+**Le RAISONNEMENT du tableau : combien de solutions, et où f est au-dessus.**
+{tableau-equations} (Seconde, demande de Turquet, septembre 2026, repris de
+la fiche « raisonnement tableau de variation », Exercice 8) suit
+{maximum-minimum-tableau} au menu : un tableau de variation, et rien
+d'autre — 1) à 4) « L'équation f(x) = k a combien de solutions ? », 5) et 6)
+« On donne f(−5) = 0 et f(2) = 0. Résoudre f(x) ≥ 0. S = … ». Une séance =
+TROIS questions sur le même tableau : les quatre comptes de la fiche sur un
+seul écran, puis deux inéquations.
+**Ce qu'il fait travailler** : entre deux valeurs écrites, une flèche dit que
+f ne fait que monter (ou que descendre), donc qu'elle passe EXACTEMENT UNE
+fois par chaque hauteur strictement comprise entre ses deux bouts — et
+jamais par une autre ; une valeur ÉCRITE se compte une seule fois, même si
+deux flèches en partent. C'est le piège de la fiche — trois de ses quatre
+hauteurs sont des valeurs écrites du tableau — et le tirage l'impose : au
+moins une hauteur écrite, et les quatre comptes prennent au moins trois
+valeurs différentes (sonde : les comptes 0, 1, 2 et 3 sortent tous).
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts(3)` — la
+forme de la fiche, trois flèches, la seule où les quatre comptes sont tous
+possibles et où une inéquation donne deux morceaux dans les deux sens —,
+l'analyse `gsvAnalyze`, le tableau `varTableHTML` en mode LECTURE (la
+fonction même du 2.17), les cases de l'union les sélecteurs de la famille
+`.itv-sel` (`corrChoix`, `msgAvecVides`), l'union jugée au MIEUX à ordre
+libre (le motif du 2.11).
+**LE RISQUE PROPRE EST L'ÉNONCÉ QUI CONTREDIT SON TABLEAU — et la fiche
+elle-même le porte.** Sa question 6 donne « f(3) = 1 et f(5) = 1 » alors que
+le tableau fait DESCENDRE f de 3 à 2 sur [4 ; 6] : f(5) ne peut pas valoir
+1, et l'élève qui suit la donnée écrit un S que le tableau dément. Une
+abscisse donnée est donc tirée strictement À L'INTÉRIEUR d'une flèche que
+k traverse strictement, une par flèche traversée, et le contrôle refait
+cette vérification par sa propre arithmétique sur chaque tirage — c'est le
+bord qu'il nomme « le défaut de la question 6 de la fiche ».
+**Les deux inéquations d'une séance sont de SENS opposés et de STRICTESSE
+opposée** : sans quoi l'élève apprendrait que le crochet est toujours le
+même. Chacune a EXACTEMENT deux morceaux — la forme de la fiche, et la
+seule qui laisse la ligne de réponse constante : des cases au nombre exact
+révéleraient combien de morceaux chercher (la leçon des trois cases
+d'{antecedents-droite}). k n'est jamais une valeur écrite (un morceau réduit
+à un point n'a pas sa place dans « [ ; ] ∪ [ ; ] » — c'est aussi ce que la
+question 6 de la fiche aurait donné, {−6} ∪ …). Les bornes se CHOISISSENT
+dans une liste qui offre les bords du tableau, les abscisses données ET les
+abscisses écrites du tableau — le piège : les prendre pour bornes alors que
+f n'y vaut pas k. Le crochet est ouvert à une abscisse donnée si l'inégalité
+est stricte, toujours fermé aux bords −6 et 6.
+**Le contrôle compare la page à LA FICHE** — ses réponses 2, 1, 2, 2 et son
+S = [−6 ; −5] ∪ [2 ; 6] — et refait le tirage par une SECONDE arithmétique,
+qui compte sur les treize valeurs de la grille et non sur les nœuds : deux
+méthodes qui n'ont rien en commun doivent tomber d'accord. Sonde : 95 % des
+courbes à trois flèches conviennent, 1,05 essai en moyenne, pire cas 3 sur
+400 séances, 0 recours au repli — lequel est RÉEL, relevé sur le
+générateur, et passe par les gardes mêmes (le premier, inventé à la main,
+donnait un seul morceau à chaque inéquation : le contrôle l'a nommé). Le
+banc NAVIGATEUR (« 6 quater sexies », déclaré par `tableauEquations`)
+tient ce que jsdom ne voit pas : l'union à huit cases sur UNE SEULE rangée,
+sans défilement à 1400 px — coupée en deux, elle se lirait comme deux
+solutions —, et il CHOISIT les huit cases pour de vrai avant de relire les
+couleurs. La carte de cet écran fait 920 px pour cette ligne ; sur un écran
+plus étroit elle DÉFILE au lieu de se replier.
+Vingt sabotages, chacun rougissant en nommant son défaut — la valeur écrite
+comptée deux fois, le crochet fermé sur une inégalité stricte, l'abscisse
+donnée hors de sa flèche (le contrôle répond « le défaut de la question 6 de
+la fiche »), la hauteur écrite, la strictesse jumelle, le compte toujours le
+même, le morceau unique, la réponse rangée dans la question, le tableau
+redevenu à remplir, la case vide peinte en soutien, le repli inventé, les
+abscisses écrites retirées des listes, les deux morceaux qui ne se recollent
+plus, le bord du tableau ouvert… **Et l'un d'eux a d'abord frappé le
+VOISIN** : la ligne « jugé au mieux » de l'union est la même, au caractère
+près, dans le 2.6 — `replace` a saboté {lecture-deux-courbes} pendant que
+le contrôle du 2.18 restait vert à bon droit. Un sabotage se pose sur une
+ancre PROPRE à sa cible, sans quoi il mesure autre chose ; rejoué sur la
+ligne d'au-dessus, il rougit (« les deux morceaux dans l'autre ordre valent
+0 au lieu de 8 »). Et un défaut de mise en page ne s'est vu que sur la
+capture : sur deux colonnes, « a combien de solutions ? » se repliait et la
+case tombait seule à la ligne suivante — la phrase est plus courte, et « ? »
+reste soudé à sa case.
+
+**Vrai ou faux, en JUSTIFIANT — et la fiche pose une question qu'on ne peut
+pas trancher.** {tableau-vrai-faux} (Seconde, demande de Turquet, septembre
+2026, repris de la fiche « tableau de variation V/F », Exercice 9) suit
+{tableau-equations} au menu : un tableau de variation, et SEPT affirmations —
+« f(−5) est positif », « f(3) ≤ 6 », « f(1) ≤ f(2) » — à dire vraies ou
+fausses en justifiant : « car la fonction est [croissante / décroissante]
+sur [ … ; … ] ». Quatre cases par affirmation (Vrai/Faux, le sens, les deux
+bornes), sept affirmations sur DEUX écrans (quatre, puis trois) numérotées à
+la suite comme sur la fiche, 28 cases — la composition de la fiche est
+gardée : deux signes, deux comparaisons à un nombre, trois comparaisons de
+deux images.
+**Ce qu'il fait travailler est le raisonnement du 2.18 poussé jusqu'à la
+preuve** : entre deux valeurs écrites, f ne fait que monter (ou que
+descendre), donc f(a) est STRICTEMENT entre les deux valeurs écrites aux
+bouts de sa flèche — on ne connaît pas f(a), on sait entre quoi et quoi il
+est — et f(a) ≤ f(b) se lit dans le SENS de la flèche.
+**LE RISQUE PROPRE EST L'AFFIRMATION INDÉCIDABLE, et la fiche elle-même le
+porte** : sa question 2 demande si f(5) est positif alors que f DESCEND de 5
+à −2 sur [4 ; 6] — f(5) est strictement entre −2 et 5, il peut être positif
+comme négatif, et ni « Vrai » ni « Faux » n'est une réponse juste : l'élève
+qui répond ce que le tableau lui permet de dire serait compté faux, le pire
+défaut du projet. Chaque affirmation est donc tirée DÉCIDABLE — le signe sur
+une flèche qui ne traverse pas 0, la comparaison à k pour un k hors de la
+flèche (et à deux unités au plus d'un de ses bouts : « f(3) ≤ 6 » quand f
+monte jusqu'à 5, le k de la fiche), f(a) ≤ f(b) pour a et b sur la MÊME
+flèche —, `tvfVerite` rend null plutôt que de trancher, et le contrôle EXIGE
+ce null sur la question 2 de la fiche, épinglée. Sonde : 35 % des courbes à
+trois flèches conviennent — le facteur limitant est la flèche sans 0 —,
+2,8 essais en moyenne, pire cas 17 sur 400 séances, 0 recours au repli,
+lequel est RÉEL, relevé sur le générateur.
+**La bonne réponse n'est jamais rangée à côté de la question** : elle ne
+porte que la courbe et les affirmations (type, nombres, variante — le
+contrôle refuse tout autre champ), et `tvfVerite`, la fonction même qui
+corrige, recalcule tout. **Le contrôle la refait par une SECONDE méthode qui
+n'a rien en commun avec la page** : a étant entier, f(a) est la valeur
+`pts[a+6]` de la GRILLE — la page, elle, ne lit que les nœuds du tableau, et
+ne connaît jamais f(a). La vérité par la grille et la vérité par le tableau
+doivent tomber d'accord, tirage après tirage (0 désaccord sur 400).
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts(3)`,
+l'analyse `gsvAnalyze` — ses segments disent « croissante » et
+« décroissante », les mots mêmes que la justification demande —, le tableau
+`varTableHTML` en mode lecture (la fonction même du 2.17), les cases les
+sélecteurs de la famille `.itv-sel` (`corrChoix`, `msgAvecVides`). Chaque
+case se juge SEULE : un « Vrai » faux ne fait pas payer une justification
+juste, et la borne 6 prise pour −1 — l'intervalle qui ENJAMBE un changement
+de sens, le piège des bornes proposées — coûte exactement son point. Au
+moins trois vraies et trois fausses par séance, les deux sens parmi les
+justifications, jamais deux affirmations sur le même nombre : la sonde a vu
+sortir « f(5) est positif » ET « f(5) est négatif » dans la même séance —
+l'une répond à l'autre. Le message n'explique que les affirmations qui
+portent une VRAIE faute, la case vide d'abord (`msgAvecVides`).
+**Deux défauts ne se sont vus que sur la capture.** `String(renderTVF)`
+dans le contrôle du partage lisait l'ENVELOPPE de la greffe des jetons — le
+piège documenté du 2.14, retombé tel quel : on lit la SOURCE. Et à la
+largeur du 2.18 (920 px), la rangée corrigée DÉFILAIT : les badges verts de
+la correction l'élargissent, et la bonne borne se cachait derrière le
+défilement — la carte fait 1040 px. Le banc NAVIGATEUR (« 6 quater
+septies », déclaré par `tableauVraiFaux`) tient ce que jsdom ne voit pas :
+chaque affirmation et sa justification sur UNE rangée — coupée en deux, la
+justification se lirait sans son affirmation —, sans défilement à 1400 px,
+et il CHOISIT les vingt-huit cases pour de vrai sur les deux pages.
+Vingt-deux sabotages, chacun rougissant en nommant son défaut — sauf un, qui
+rougit sans rien nommer : k tiré n'importe où ET le garde des indécidables
+retiré fait tomber le TIRAGE en erreur avant que le contrôle ne mesure quoi
+que ce soit. Un sabotage qui casse la page ne dit rien du contrôle visé ; le
+bord de l'indécidable est tenu par le repli inventé à la main (une
+affirmation sur une flèche qui traverse 0), que le contrôle nomme.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :

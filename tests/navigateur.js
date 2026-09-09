@@ -918,6 +918,271 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater quater. le maximum et le minimum : le dessin lisible, et
+       l'encadrement d'un seul tenant =====
+       Le banc jsdom tient le tirage, le jugement et la méthode dessinée — il
+       lit le SVG comme une chaîne. Ce qu'il ne voit pas : un CSS perdu qui
+       rendrait le grand dessin minuscule sans qu'aucune erreur ne se lève, et
+       « □ ≤ f (x) ≤ □ » coupé en deux par un repli, qui se lirait comme deux
+       morceaux de phrase (la leçon des unions du 2.11, mesurée cette fois sur
+       une SPAN et non sur une rangée). Et les deux anneaux verts de la
+       correction sont mesurés contre les GRADUATIONS du dessin rendu : aucune
+       coordonnée recopiée, une échelle qui changerait resterait mesurée juste. */
+    titre('6 quater quater. LE MAXIMUM ET LE MINIMUM : LE DESSIN ET L\'ENCADREMENT');
+    if(!P.maxMin){
+      ignorer('le maximum et le minimum : le dessin lisible et l\'encadrement d\'un seul tenant',
+        'ce niveau n\'a pas l\'exercice du maximum et du minimum');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.maxMin.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const vu = await s.page.evaluate(() => {
+        const svg = document.querySelector('#mmxGraph svg');
+        const enc = document.querySelector('.mmx-enc');
+        const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        return {
+          dessin: { l: Math.round(r.width), h: Math.round(r.height) },
+          /* getClientRects() rend UNE boîte par ligne : deux boîtes = la
+             ligne s'est repliée entre les deux cases de l'encadrement */
+          lignesEnc: enc ? enc.getClientRects().length : -1,
+          page: document.documentElement.scrollWidth > document.documentElement.clientWidth
+        };
+      });
+      verifier('le grand dessin est rendu à une taille lisible',
+        vu.dessin.l >= 400 && vu.dessin.h >= 200, vu.dessin.l + '×' + vu.dessin.h + ' px');
+      verifier('l\'encadrement « … ≤ f (x) ≤ … » tient sur une seule ligne',
+        vu.lignesEnc === 1, vu.lignesEnc + ' ligne(s) rendue(s)');
+      verifier('la page ne défile pas en largeur sur cet écran', !vu.page, 'la page déborde');
+      /* la correction : les deux anneaux verts tombent SUR les graduations du
+         maximum et du minimum, mesurés dans le dessin rendu */
+      const corr = await s.page.evaluate(async () => {
+        const q = test.questions[test.idx], r = mmxAns(q);
+        ['mmx-M','mmx-xM','mmx-m','mmx-xm','mmx-lo','mmx-hi'].forEach((id, i) => {
+          document.getElementById(id).value = String([r.M, r.xM, r.m, r.xm, r.m, r.M][i]);
+        });
+        submitMMX();
+        await new Promise(x => setTimeout(x, 250));
+        const svg = document.querySelector('#mmxGraph svg');
+        const vx = [], hy = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          const b = l.getBoundingClientRect();
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push((b.left + b.right) / 2);
+          else hy.push((b.top + b.bottom) / 2);
+        });
+        vx.sort((a, b) => a - b); hy.sort((a, b) => a - b);   /* hy[0] = la graduation +6 */
+        const anneaux = [...svg.querySelectorAll('.pim-sol')].map(c => {
+          const b = c.getBoundingClientRect();
+          return { x: (b.left + b.right) / 2, y: (b.top + b.bottom) / 2, taille: Math.round(b.width) };
+        });
+        const ecart = (att, obt) => Math.abs(att - obt);
+        const vise = [{ x: vx[r.xM + 6], y: hy[6 - r.M] }, { x: vx[r.xm + 6], y: hy[6 - r.m] }];
+        const loin = vise.filter(p => !anneaux.some(a => ecart(a.x, p.x) < 3 && ecart(a.y, p.y) < 3));
+        return { n: anneaux.length, minuscules: anneaux.filter(a => a.taille < 8).length,
+                 loin: loin.length, note: test.score, grille: vx.length + '/' + hy.length };
+      });
+      verifier('la correction pose les deux anneaux verts sur les graduations du maximum et du minimum',
+        corr.n === 2 && corr.loin === 0 && corr.minuscules === 0,
+        corr.n + ' anneau(x), ' + corr.loin + ' hors graduation, ' + corr.minuscules + ' minuscule(s), grille ' + corr.grille);
+      verifier('la copie juste vaut les six cases de la question', corr.note === 6, 'note ' + corr.note);
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quater quinquies. le tableau de variation se LIT =====
+       Le banc jsdom tient le tirage, le jugement et la structure du tableau —
+       il lit les positions dans l'attribut « style ». Ce qu'il ne voit pas :
+       un tableau qui déborde de sa carte ou se cache derrière un défilement
+       (la leçon du 2.15), et des valeurs RENDUES qui ne monteraient pas avec
+       leurs flèches — jsdom n'a pas de mise en page, un « top » écrit n'est
+       pas un « top » rendu. */
+    titre('6 quater quinquies. LE TABLEAU DE VARIATION SE LIT');
+    if(!P.maxMinTableau){
+      ignorer('le tableau de variation se lit, et tient dans sa carte',
+        'ce niveau n\'a pas l\'exercice du maximum et du minimum sur tableau');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.maxMinTableau.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const vu = await s.page.evaluate(() => {
+        const hote = document.getElementById('mmtTable');
+        const card = hote.closest('.card') || hote;
+        const t = hote.querySelector('table');
+        const cr = card.getBoundingClientRect(), tr = t ? t.getBoundingClientRect() : cr;
+        const q = test.questions[test.idx], a = gsvAnalyze(q.pts);
+        /* les valeurs RENDUES : une flèche qui monte doit poser sa valeur de
+           départ PLUS BAS que celle d'arrivée */
+        const mil = j => { const e = document.getElementById('mmt-v-val-' + j);
+          if(!e) return null; const r = e.getBoundingClientRect();
+          return r.width && r.height ? (r.top + r.bottom) / 2 : null; };
+        const travers = [];
+        a.segments.forEach((sg, i) => {
+          const y0 = mil(i), y1 = mil(i + 1);
+          if(y0 == null || y1 == null){ travers.push('valeur ' + i + ' invisible'); return; }
+          const monte = sg.dir === 'croissante';
+          if(monte ? !(y0 > y1) : !(y0 < y1))
+            travers.push('segment ' + i + ' (' + sg.dir + ') : ' + Math.round(y0) + ' puis ' + Math.round(y1));
+        });
+        const enc = document.querySelector('#scr-mmt .mmx-enc');
+        return {
+          cases: hote.querySelectorAll('input, select').length,
+          fleches: hote.querySelectorAll('.vt-shaft').length, segments: a.segments.length,
+          travers: travers,
+          cache: hote.scrollWidth > hote.clientWidth + 1,
+          sort: tr.right > cr.right + 1,
+          largeur: Math.round(tr.width), cadre: hote.clientWidth,
+          lignesEnc: enc ? enc.getClientRects().length : -1,
+          page: document.documentElement.scrollWidth > document.documentElement.clientWidth
+        };
+      });
+      verifier('le tableau est rendu rempli, sans une seule case à remplir',
+        vu.cases === 0, vu.cases + ' case(s) de saisie dans le tableau');
+      verifier('chaque segment a sa flèche tracée',
+        vu.fleches === vu.segments, vu.fleches + ' flèche(s) pour ' + vu.segments + ' segment(s)');
+      verifier('les valeurs rendues montent et descendent avec leurs flèches',
+        vu.travers.length === 0, vu.travers.join(' | '));
+      verifier('le tableau ne déborde pas de sa carte ni ne se cache derrière un défilement',
+        !vu.cache && !vu.sort && !vu.page, vu.largeur + ' px dans ' + vu.cadre);
+      verifier('l\'encadrement « … ≤ f (x) ≤ … » tient sur une seule ligne',
+        vu.lignesEnc === 1, vu.lignesEnc + ' ligne(s) rendue(s)');
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quater sexies. l'union « S = [ ; ] ∪ [ ; ] » d'un seul tenant =====
+       {tableau-equations} : le banc jsdom tient le tirage, la cohérence des
+       abscisses données et le jugement. Ce qu'il ne voit pas : la ligne de
+       réponse à huit cases qui se REPLIERAIT — une solution coupée en deux
+       se lit comme deux solutions (la leçon du 2.11) — ou qui défilerait à
+       la largeur d'un écran d'ordinateur, et le tableau qui déborderait de
+       sa carte. Seul un navigateur sait où une rangée se replie. Il CHOISIT
+       aussi les huit cases pour de vrai et relit les couleurs. */
+    titre('6 quater sexies. L\'UNION D\'UN SEUL TENANT');
+    if(!P.tableauEquations){
+      ignorer('l\'union à huit cases tient sur une seule rangée',
+        'ce niveau n\'a pas l\'exercice des équations sur tableau de variation');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.tableauEquations.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* la première question (les comptes) : on la joue juste, par les
+         fonctions de la page, puis on passe à l'inéquation */
+      const vu1 = await s.page.evaluate(() => {
+        const q = test.questions[0], nodes = tveNoeuds(q.pts);
+        q.ks.forEach((k, i) => { document.getElementById('tve-n-' + i).value = String(tveNbSol(nodes, k)); });
+        submitTVE();
+        const hote = document.getElementById('tveTable');
+        return { score: test.score, cases: hote.querySelectorAll('input, select').length,
+                 fleches: hote.querySelectorAll('.vt-shaft').length };
+      });
+      verifier('les quatre comptes justes valent 4', vu1.score === 4, 'note ' + vu1.score);
+      verifier('le tableau est rendu rempli, sans une seule case à remplir', vu1.cases === 0, vu1.cases + ' case(s)');
+      verifier('les trois flèches sont tracées', vu1.fleches === 3, vu1.fleches + ' flèche(s)');
+      await s.page.click('#tveValidate');
+      await s.page.waitForTimeout(500);
+      const vu2 = await s.page.evaluate(() => {
+        const sels = Array.from(document.querySelectorAll('#tveBody .tve-sol select'));
+        const tops = sels.map(e => Math.round(e.getBoundingClientRect().top));
+        const wrap = document.querySelector('#tveBody .tve-solwrap');
+        const hote = document.getElementById('tveTable'), card = hote.closest('.card');
+        const t = hote.querySelector('table').getBoundingClientRect(), cr = card.getBoundingClientRect();
+        return { n: sels.length, tops: tops, unLigne: new Set(tops).size === 1,
+                 defile: wrap.scrollWidth > wrap.clientWidth + 1, largeur: wrap.scrollWidth, cadre: wrap.clientWidth,
+                 tableSort: t.right > cr.right + 1 || hote.scrollWidth > hote.clientWidth + 1,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 type: test.questions[test.idx].type };
+      });
+      verifier('la seconde question est une inéquation à huit cases', vu2.type === 'ineq' && vu2.n === 8, vu2.type + ', ' + vu2.n + ' case(s)');
+      verifier('les huit cases de l\'union sont sur une seule rangée', vu2.unLigne, 'hauts : ' + vu2.tops.join(','));
+      verifier('la rangée de l\'union ne défile pas à 1400 px', !vu2.defile && !vu2.page, vu2.largeur + ' px dans ' + vu2.cadre);
+      verifier('le tableau ne déborde pas de sa carte', !vu2.tableSort, '');
+      /* on CHOISIT la solution pour de vrai, dans les listes */
+      const bonnes = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], S = tveSolve(tveNoeuds(q.pts), q.k, q.op, q.cr);
+        const spec = iv => [iv.aOuv ? ']' : '[', String(iv.a), String(iv.b), iv.bOuv ? '[' : ']'];
+        return spec(S[0]).concat(spec(S[1]));
+      });
+      for(let i = 0; i < 8; i++) await s.page.selectOption('#' + ['tve-co1','tve-b1','tve-b2','tve-cf1','tve-co2','tve-b3','tve-b4','tve-cf2'][i], bonnes[i]);
+      await s.page.click('#tveValidate');
+      await s.page.waitForTimeout(400);
+      const vu3 = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#tveBody select.ok').length, score: test.score,
+        bleu: getComputedStyle(document.querySelector('#tveBody select.ok') || document.body).borderColor
+      }));
+      verifier('les huit cases choisies justes sont peintes ok et valent 8', vu3.ok === 8 && vu3.score === 12, vu3.ok + ' ok, note ' + vu3.score);
+      await s.nav.close(); s = null;
+    }
+
+    /* ===== 6 quater septies. l'affirmation et sa justification d'un seul tenant =====
+       {tableau-vrai-faux} : le banc jsdom tient le tirage, la décidabilité
+       et le jugement. Ce qu'il ne voit pas : la rangée d'une affirmation —
+       « 1) f (−5) est positif. [Vrai] car la fonction est [décroissante]
+       sur [ −6 ; −1 ] » — qui se REPLIERAIT, la justification tombant sous
+       son affirmation, ou qui défilerait à la largeur d'un écran
+       d'ordinateur. Seul un navigateur sait où une rangée se replie. Il
+       CHOISIT aussi les vingt-huit cases pour de vrai, sur les deux pages,
+       et relit les couleurs et la note. */
+    titre('6 quater septies. L\'AFFIRMATION ET SA JUSTIFICATION D\'UN SEUL TENANT');
+    if(!P.tableauVraiFaux){
+      ignorer('chaque affirmation tient sur une seule rangée',
+        'ce niveau n\'a pas l\'exercice du vrai ou faux sur tableau de variation');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.tableauVraiFaux.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const mesurer = () => s.page.evaluate(() => {
+        const lignes = Array.from(document.querySelectorAll('#tvfBody .tvf-ligne'));
+        const replis = lignes.map((l, i) => {
+          const tops = Array.from(l.querySelectorAll('select, .tvf-aff, .tvf-num')).map(e => Math.round(e.getBoundingClientRect().top + e.getBoundingClientRect().height / 2));
+          return (Math.max(...tops) - Math.min(...tops) > 8) ? (i + 1) : 0;
+        }).filter(Boolean);
+        const defile = Array.from(document.querySelectorAll('#tvfBody .tvf-wrap')).filter(w => w.scrollWidth > w.clientWidth + 1).length;
+        const hote = document.getElementById('tvfTable'), card = hote.closest('.card');
+        const t = hote.querySelector('table').getBoundingClientRect(), cr = card.getBoundingClientRect();
+        return { n: lignes.length, sels: document.querySelectorAll('#tvfBody select').length, replis, defile,
+                 tableSort: t.right > cr.right + 1 || hote.scrollWidth > hote.clientWidth + 1,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 cases: hote.querySelectorAll('input, select').length, fleches: hote.querySelectorAll('.vt-shaft').length };
+      });
+      const vu1 = await mesurer();
+      verifier('la première page pose quatre affirmations à seize cases', vu1.n === 4 && vu1.sels === 16, vu1.n + ' rangée(s), ' + vu1.sels + ' case(s)');
+      verifier('le tableau est rendu rempli, ses trois flèches tracées', vu1.cases === 0 && vu1.fleches === 3, vu1.cases + ' case(s), ' + vu1.fleches + ' flèche(s)');
+      verifier('chaque affirmation tient sur une seule rangée', vu1.replis.length === 0, 'rangée(s) repliée(s) : ' + vu1.replis.join(','));
+      verifier('aucune rangée ne défile à 1400 px, ni la page', vu1.defile === 0 && !vu1.page, vu1.defile + ' rangée(s) qui défile(nt)');
+      verifier('le tableau ne déborde pas de sa carte', !vu1.tableSort, '');
+      /* on CHOISIT les réponses pour de vrai, dans les listes, sur les deux pages */
+      const jouer = async () => {
+        const bonnes = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], nodes = tvfNoeuds(q.pts);
+          return q.aff.map((af, j) => { const v = tvfVerite(nodes, af);
+            return [['tvf-vf-' + j, v.vrai ? 'V' : 'F'], ['tvf-s-' + j, v.sens === 'croissante' ? 'c' : 'd'], ['tvf-a-' + j, String(v.a)], ['tvf-b-' + j, String(v.b)]]; }).flat();
+        });
+        for(const [id, val] of bonnes) await s.page.selectOption('#' + id, val);
+        await s.page.click('#tvfValidate');
+        await s.page.waitForTimeout(400);
+        return s.page.evaluate(() => ({ ok: document.querySelectorAll('#tvfBody select.ok').length, score: test.score, idx: test.idx }));
+      };
+      const j1 = await jouer();
+      verifier('les seize cases choisies justes sont peintes ok et valent 16', j1.ok === 16 && j1.score === 16, j1.ok + ' ok, note ' + j1.score);
+      await s.page.click('#tvfValidate');
+      await s.page.waitForTimeout(500);
+      const vu2 = await mesurer();
+      const num = await s.page.evaluate(() => (document.getElementById('tvfBody').textContent.indexOf('5)') >= 0));
+      verifier('la seconde page pose trois affirmations numérotées à la suite, d\'un seul tenant', vu2.n === 3 && vu2.sels === 12 && num && vu2.replis.length === 0, vu2.n + ' rangée(s), ' + vu2.sels + ' case(s), 5) ' + (num ? 'présent' : 'absent') + ', repli : ' + vu2.replis.join(','));
+      const j2 = await jouer();
+      verifier('les douze cases de la seconde page portent la note à 28', j2.ok === 12 && j2.score === 28, j2.ok + ' ok, note ' + j2.score);
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —

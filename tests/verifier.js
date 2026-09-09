@@ -2709,6 +2709,10 @@ function exercices(suite){
     tableauVariationDirect(w, P);
     grandsTableaux(w, P);
     qcmTableauVariation(w, P);
+    maximumMinimum(w, P);
+    maximumMinimumTableau(w, P);
+    tableauEquations(w, P);
+    tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -10908,6 +10912,879 @@ function grandsTableaux(w, P){
     if(cls('gsv-s-x-0').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('bad')>=0||cls('gsv-v-val-2').indexOf('sol')>=0)
       vus.push('en soutien, une case vide reçoit une couleur ('+cls('gsv-s-x-0')+' / '+cls('gsv-v-val-2')+')');
     if(test.locked) vus.push('en soutien, une copie incomplète verrouille l\\'écran');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* LE MAXIMUM ET LE MINIMUM SUR UN INTERVALLE (fiche « LE MAXIMUM ET LE
+   MINIMUM », demande de Turquet, septembre 2026). Le risque propre est
+   SILENCIEUX : deux abscisses de même hauteur donneraient deux bonnes réponses
+   à « atteint pour x = … », dont une seule serait comptée — une lecture juste
+   comptée fausse, le pire défaut du projet. Le contrôle recompte l'unicité par
+   sa PROPRE arithmétique sur chaque tirage, puis relit les Bézier que la page
+   DESSINE pour vérifier que la courbe ne dépasse jamais le maximum annoncé :
+   c'est ce qui garantit que les extremums tombent sur des graduations, et il ne
+   le suppose pas. */
+function maximumMinimum(w, P){
+  const nom='le maximum et le minimum : les cinq intervalles de la fiche';
+  const present = evaluer(w, "typeof startMMX==='function' && typeof mmxBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du maximum et du minimum');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='maximum-minimum';
+
+    /* ---- 0. la place au menu : le GRAND dessin, donc juste après
+       {signes-variations-grand}, qui l'introduit ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('maximum-minimum')>=0; })[0];
+      const i=th?th.ids.indexOf('maximum-minimum'):-1;
+      if(!th || th.ids[i-1]!=='signes-variations-grand')
+        vus.push('{maximum-minimum} ne suit pas {signes-variations-grand} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : le tirage est adrGenPts et le dessin adrSVG —
+       les fonctions MÊMES du grand graphique. Les rendus sont ENVELOPPÉS : on
+       lit le SOURCE de la page, jamais String(renderMMX). ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf('adrSVG({pts:q.pts, dr:null, rep:[]}, null, montrer?mmxMethode(q):null)')<0)
+        vus.push('le dessin ne passe plus par adrSVG, la fonction même du grand graphique');
+      if(String(mmxTirage).indexOf('adrGenPts')<0)
+        vus.push('le tirage ne passe plus par adrGenPts, le générateur du grand graphique'); }
+
+    /* ---- 1. le tirage : 120 séances, tout refait par SA PROPRE arithmétique
+       — les cinq intervalles de la fiche, l'unicité du maximum et du minimum
+       sur chacun, et les DEUX visages (un petit intervalle monotone, un petit
+       où la courbe tourne) ---- */
+    function extremums(pts,a,b){
+      let M=pts[a+6], m=pts[a+6], xM=a, xm=a, nM=0, nm=0;
+      for(let x=a;x<=b;x++){ const y=pts[x+6]; if(y>M){ M=y; xM=x; } if(y<m){ m=y; xm=x; } }
+      for(let x=a;x<=b;x++){ if(pts[x+6]===M) nM++; if(pts[x+6]===m) nm++; }
+      return {M:M,xM:xM,m:m,xm:xm,nM:nM,nm:nm};
+    }
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==5){ f.push(qs.length+' question(s) au lieu des 5 de la fiche'); return f; }
+      const pts=qs[0].pts;
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6)+' : la courbe ne dirait plus si elle monte ou descend');
+      qs.forEach(function(q){
+        if(JSON.stringify(q.pts)!==JSON.stringify(pts)) f.push('les cinq questions ne portent pas la MÊME courbe');
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='a,b,pts') f.push('la question porte autre chose que la courbe et l intervalle : '+cles);
+        const r=extremums(q.pts,q.a,q.b);
+        if(r.nM!==1) f.push('sur ['+q.a+' ; '+q.b+'], le maximum est atteint '+r.nM+' fois : deux bonnes réponses, une seule comptée');
+        if(r.nm!==1) f.push('sur ['+q.a+' ; '+q.b+'], le minimum est atteint '+r.nm+' fois : deux bonnes réponses, une seule comptée');
+      });
+      const iv=qs.map(function(q){ return q.a+';'+q.b; }).join(' ');
+      if(iv.indexOf('-6;6 -6;0 0;6 ')!==0) f.push('les trois grands intervalles de la fiche ne viennent pas en tête, dans son ordre : '+iv);
+      const g=qs[3], d=qs[4];
+      if(!(g.a>=-6&&g.b<=0)) f.push('le quatrième intervalle sort de la moitié gauche');
+      if(!(d.a>=0&&d.b<=6)) f.push('le cinquième intervalle sort de la moitié droite');
+      [g,d].forEach(function(q){ const L=q.b-q.a; if(L<2||L>4) f.push('un petit intervalle de longueur '+L+' (2 à 4 attendus)'); });
+      const tourne=[g,d].map(function(q){ const r=extremums(q.pts,q.a,q.b); return (r.xM>q.a&&r.xM<q.b)||(r.xm>q.a&&r.xm<q.b); });
+      if(tourne[0]===tourne[1]) f.push('les deux petits intervalles montrent le MÊME visage ('+(tourne[0]?'la courbe tourne dans les deux':'monotone dans les deux')+')');
+      return f;
+    }
+    const cotes={};
+    for(let t=0;t<120 && !vus.length;t++){
+      const qs=mmxBuildQuestions();
+      fautesTirage(qs).forEach(function(x){ vus.push(x); });
+      if(vus.length) break;
+      const r=extremums(qs[3].pts,qs[3].a,qs[3].b);
+      cotes[((r.xM>qs[3].a&&r.xM<qs[3].b)||(r.xm>qs[3].a&&r.xm<qs[3].b))?'gauche':'droite']=1;
+    }
+    /* le côté du TOURNANT change d une séance à l autre : figé, l élève
+       apprendrait le rang au lieu de lire la courbe */
+    if(!vus.length && !(cotes.gauche&&cotes.droite))
+      vus.push('le tournant tombe toujours du même côté sur 120 séances');
+
+    /* ---- 1 bis. LES EXTREMUMS TOMBENT SUR DES GRADUATIONS — relu sur les
+       Bézier que la page DESSINE, jamais supposé. Les graduations sont lues
+       dans le SVG rendu : aucune coordonnée recopiée, une échelle qui
+       changerait resterait mesurée juste. ---- */
+    function mesureDessin(q){
+      const svg=document.querySelector('#mmxGraph svg'); if(!svg) return ['aucun dessin rendu'];
+      const vx=[], hy=[];
+      svg.querySelectorAll('line.lv-grid').forEach(function(l){
+        if(l.getAttribute('x1')===l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+        else hy.push(parseFloat(l.getAttribute('y1')));
+      });
+      vx.sort(function(a,b){ return a-b; }); hy.sort(function(a,b){ return a-b; });
+      if(vx.length!==13||hy.length!==13) return ['le dessin n a pas la grande grille 13×13 ('+vx.length+' / '+hy.length+')'];
+      const path=svg.querySelector('path.lv-curve'); if(!path) return ['aucune courbe dans le dessin'];
+      const nb=path.getAttribute('d').split(' ').filter(function(s){ return s.length&&'MC'.indexOf(s)<0; }).map(parseFloat);
+      if(nb.length!==2+12*6) return ['la courbe n a pas 12 morceaux de Bézier'];
+      const pasY=(hy[12]-hy[0])/12;                    /* hy[0] = la graduation +6 */
+      const versY=function(py){ return 6-(py-hy[0])/pasY; };
+      const r=extremums(q.pts,q.a,q.b);
+      let haut=-99, bas=99;
+      for(let s=q.a+6; s<q.b+6; s++){
+        const y0=nb[1+s*6], c1=nb[3+s*6], c2=nb[5+s*6], y1=nb[7+s*6];
+        for(let u=0;u<=1.0001;u+=0.02){
+          const py=Math.pow(1-u,3)*y0+3*Math.pow(1-u,2)*u*c1+3*(1-u)*u*u*c2+u*u*u*y1;
+          const v=versY(py); if(v>haut) haut=v; if(v<bas) bas=v;
+        }
+      }
+      const f=[];
+      if(haut>r.M+0.02) f.push('sur ['+q.a+' ; '+q.b+'], la courbe DESSINÉE monte à '+haut.toFixed(2)+' alors que le maximum annoncé est '+r.M);
+      if(bas<r.m-0.02) f.push('sur ['+q.a+' ; '+q.b+'], la courbe DESSINÉE descend à '+bas.toFixed(2)+' alors que le minimum annoncé est '+r.m);
+      if(haut<r.M-0.02||bas>r.m+0.02) f.push('sur ['+q.a+' ; '+q.b+'], les extremums annoncés ne sont pas atteints par la courbe dessinée');
+      return f;
+    }
+
+    /* ---- 1 ter. le REPLI, lu dans la page et éprouvé par les gardes MÊMES —
+       un repli inventé à la main a déjà été pris invalide (la leçon
+       d IFG_FB, et celle de GSV_REPLI) ---- */
+    if(typeof MMX_REPLI!=='object'||!MMX_REPLI) vus.push('le repli (MMX_REPLI) est introuvable');
+    else {
+      const faux=MMX_GROS.concat(MMX_REPLI.petits).map(function(iv){ return {pts:MMX_REPLI.pts, a:iv[0], b:iv[1]}; });
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(mmxTirage).indexOf('MMX_REPLI')<0) vus.push('mmxTirage ne lit plus MMX_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(mmxBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 2. le jugement, sur une courbe ÉPINGLÉE (relevée sur le
+       générateur) : sur [−6 ; −2] elle vaut 3, 2, 0, 1, 4 — maximum 4 à la
+       borne x = −2, minimum 0 À L INTÉRIEUR, en x = −4 ---- */
+    const PTS=[3,2,0,1,4,0,-3,-2,0,2,3,5,6];
+    function pose(valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), a:-6, b:-2};
+      Object.assign(test,{kind:'mmx', questions:[q], idx:0, score:0, maxScore:mmxSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderMMX();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitMMX();
+      return {score:test.score, q:q};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const marques=function(sel){ return document.querySelectorAll('#mmxGraph '+sel).length; };
+    const JUSTE={'mmx-M':'4','mmx-xM':'-2','mmx-m':'0','mmx-xm':'-4','mmx-lo':'0','mmx-hi':'4'};
+
+    /* la méthode n est PAS dessinée avant la vérification : affichée pendant
+       la recherche, elle donnerait les hauteurs qu on demande de lire */
+    let r=pose(JUSTE,'train',true);
+    if(marques('.pim-sol')||marques('.adr-sol')) vus.push('la méthode est dessinée AVANT la vérification');
+    mesureDessin(r.q).forEach(function(x){ vus.push(x); });
+    if(document.querySelector('#mmxGraph .adr-niv')||document.querySelector('#mmxGraph .pim-pt'))
+      vus.push('le dessin porte la droite ou les points du grand graphique : il doit être NU');
+    submitMMX();
+    if(test.score!==6||mmxSubCount(r.q)!==6) vus.push('la copie juste vaut '+test.score+' au lieu de 6');
+    if(marques('.pim-sol')!==2||marques('.adr-sol')!==4)
+      vus.push('la méthode nest pas dessinée à la vérification ('+marques('.pim-sol')+' points, '+marques('.adr-sol')+' traits)');
+    ['mmx-M','mmx-xM','mmx-m','mmx-xm','mmx-lo','mmx-hi'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+
+    /* chaque case se juge SEULE : une abscisse fausse coûte exactement son
+       point, et ne fait pas payer la valeur */
+    r=pose(Object.assign({},JUSTE,{'mmx-xM':'-6'}));
+    if(r.score!==5||cls('mmx-xM').indexOf('bad')<0||cls('mmx-M').indexOf('ok')<0)
+      vus.push('l abscisse du maximum fausse devrait coûter exactement son point ('+r.score+', '+cls('mmx-xM')+' / '+cls('mmx-M')+')');
+    /* la VALEUR et l ABSCISSE ne se confondent pas : écrire la hauteur là où
+       on demande le x est faux, et le contrôle le tient dans les deux sens */
+    r=pose(Object.assign({},JUSTE,{'mmx-xm':'0'}));
+    if(r.score!==5||cls('mmx-xm').indexOf('bad')<0)
+      vus.push('l abscisse du minimum confondue avec sa valeur passe pour juste ('+r.score+')');
+
+    /* L ENCADREMENT REPREND LE MINIMUM PUIS LE MAXIMUM — et la consigne le
+       DIT : sans cette phrase, « −6 ≤ f (x) ≤ 6 » serait un encadrement lui
+       aussi, et une lecture juste serait comptée fausse */
+    r=pose(Object.assign({},JUSTE,{'mmx-lo':'4','mmx-hi':'0'}));
+    if(r.score!==4||cls('mmx-lo').indexOf('bad')<0||cls('mmx-hi').indexOf('bad')<0)
+      vus.push('l encadrement à l envers passe pour juste ('+r.score+')');
+    r=pose(Object.assign({},JUSTE,{'mmx-lo':'-6','mmx-hi':'6'}));
+    if(r.score!==4) vus.push('un encadrement plus large que le minimum et le maximum est accepté ('+r.score+')');
+    { const c=(document.getElementById('mmxInstr').textContent||'');
+      if(c.indexOf('encadrement reprend ces deux nombres')<0)
+        vus.push('la consigne ne dit pas que l encadrement reprend le minimum et le maximum trouvés'); }
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'mmx-m':'','mmx-lo':''}));
+    if(cls('mmx-m').indexOf('sol')<0||cls('mmx-lo').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('mmx-m')+' / '+cls('mmx-lo')+')');
+    r=pose(Object.assign({},JUSTE,{'mmx-m':'','mmx-lo':''}), 'soutien');
+    if(cls('mmx-m').indexOf('bad')>=0||cls('mmx-m').indexOf('sol')>=0||cls('mmx-lo').indexOf('bad')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('mmx-m')+' / '+cls('mmx-lo')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    if(marques('.pim-sol')) vus.push('en soutien, la méthode est montrée sur une copie incomplète');
+
+    /* ---- 2 bis. le SOUTIEN peint au fil de la frappe : la case juste, la
+       case fausse, et la case VIDE qui ne reçoit RIEN ---- */
+    pose({'mmx-M':'4','mmx-xM':'-6'}, 'soutien', true);
+    mmxLive();
+    if(cls('mmx-M').indexOf('ok')<0) vus.push('en soutien, une case juste ne se peint pas à la frappe ('+cls('mmx-M')+')');
+    if(cls('mmx-xM').indexOf('bad')<0) vus.push('en soutien, une case fausse ne se peint pas à la frappe ('+cls('mmx-xM')+')');
+    if(cls('mmx-m').indexOf('ok')>=0||cls('mmx-m').indexOf('bad')>=0) vus.push('en soutien, une case vide se peint à la frappe ('+cls('mmx-m')+')');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* LE MAXIMUM ET LE MINIMUM SUR UN TABLEAU DE VARIATION (demande de Turquet,
+   septembre 2026 : « comme le 2.16 mais à partir d'un tableau de variation »).
+   Le risque propre est que la question soit ILLISIBLE : un tableau ne donne la
+   valeur de f QU'AUX abscisses écrites, donc demander le maximum sur un
+   intervalle dont une borne n'y est pas revient à réclamer une hauteur que
+   rien ne dit. Le contrôle recalcule les abscisses du tableau par sa PROPRE
+   arithmétique, et mesure le tableau RENDU : ses valeurs doivent monter et
+   descendre avec ses flèches, sans quoi il ne dit plus la variation. */
+function maximumMinimumTableau(w, P){
+  const nom='le maximum et le minimum lus dans un tableau de variation';
+  const present = evaluer(w, "typeof startMMT==='function' && typeof mmtBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du maximum et du minimum sur tableau');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='maximum-minimum-tableau';
+
+    /* ---- 0. la place au menu : le même exercice sans le dessin, donc juste
+       après {maximum-minimum} ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('maximum-minimum-tableau')>=0; })[0];
+      const i=th?th.ids.indexOf('maximum-minimum-tableau'):-1;
+      if(!th || th.ids[i-1]!=='maximum-minimum')
+        vus.push('{maximum-minimum-tableau} ne suit pas {maximum-minimum} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : les réponses sont celles du 2.16 (mmxAns, la
+       fonction MÊME qui le corrige — deux exercices voisins ne peuvent pas se
+       contredire), le tableau est varTableHTML en mode LECTURE, le tirage
+       adrGenPts. On lit le SOURCE de la page : les rendus sont enveloppés. ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf("varTableHTML(gsvAnalyze(q.pts), 'mmt-v', '', true)")<0)
+        vus.push('le tableau ne passe plus par varTableHTML en mode lecture');
+      if(String(mmtCheckPart).indexOf('mmxAns')<0)
+        vus.push('le jugement ne passe plus par mmxAns, la fonction qui corrige le 2.16');
+      if(String(mmtTirage).indexOf('adrGenPts')<0)
+        vus.push('le tirage ne passe plus par adrGenPts'); }
+
+    /* ---- 0 ter. LE BORD OPPOSÉ : sans le mode lecture, le tableau garde ses
+       cases — le 2.1, le 2.13, le 2.14 et le 2.15 s'en servent, et un mode
+       lecture qui fuirait les viderait tous les quatre d'un coup ---- */
+    /* Chercher « au moins un input » ne prouvait RIEN : le sabotage qui change
+       les VALEURS en texte laisse les abscisses et les flèches en cases, et le
+       contrôle passait au vert sur un tableau que l'élève ne peut plus
+       remplir — aucun autre banc ne l'a vu (jsdom laisse poser une valeur sur
+       n'importe quel élément, si bien que les copies témoins des quatre
+       exercices continuaient de passer). On regarde donc la BALISE de chaque
+       case, une par une. Aucun accent grave ici : ce texte vit dans le
+       template littéral de verifier.js, et un seul le refermerait — le piège
+       de l'antislash, par la porte d'à côté. */
+    { const a={nodes:[{x:-6,y:1},{x:0,y:4},{x:6,y:-2}], segments:[{fromX:-6,toX:0,dir:'croissante'},{fromX:0,toX:6,dir:'décroissante'}]};
+      const plein=varTableHTML(a,'zz','rien'), lu=varTableHTML(a,'zz','rien',true);
+      const balise=function(html,id){ const i=html.indexOf('id="'+id+'"'); if(i<0) return '(absent)';
+        const j=html.lastIndexOf('<',i); return html.slice(j+1, html.indexOf(' ', j+1)); };
+      [['zz-val-0','input','la valeur'],['zz-arr-0','select','la flèche'],['zz-x-1','input','l abscisse']].forEach(function(t2){
+        const b=balise(plein,t2[0]);
+        if(b!==t2[1]) vus.push('dans le tableau à REMPLIR, '+t2[2]+' n est plus une case ('+b+') : les quatre exercices qui le complètent deviennent inutilisables');
+      });
+      if(balise(lu,'zz-val-0')!=='span') vus.push('dans le tableau à LIRE, la valeur n est pas écrite ('+balise(lu,'zz-val-0')+')');
+      if(lu.indexOf('<input')>=0 || lu.indexOf('<select')>=0)
+        vus.push('le tableau à LIRE porte encore des cases de saisie'); }
+
+    /* ---- 1. le tirage : 120 séances, tout refait par SA PROPRE arithmétique
+       — les abscisses du tableau, l'unicité des extremums, les deux visages ---- */
+    function noeuds(pts){
+      const d=[]; for(let i=0;i<12;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+      const out=[-6];
+      for(let i=1;i<=11;i++) if(d[i-1]!==d[i]) out.push(i-6);
+      out.push(6);
+      return out;
+    }
+    function extremums(pts,a,b){
+      let M=pts[a+6], m=pts[a+6], xM=a, xm=a, nM=0, nm=0;
+      for(let x=a;x<=b;x++){ const y=pts[x+6]; if(y>M){ M=y; xM=x; } if(y<m){ m=y; xm=x; } }
+      for(let x=a;x<=b;x++){ if(pts[x+6]===M) nM++; if(pts[x+6]===m) nm++; }
+      return {M:M,xM:xM,m:m,xm:xm,nM:nM,nm:nm};
+    }
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==4){ f.push(qs.length+' question(s) au lieu de 4'); return f; }
+      const pts=qs[0].pts, ns=noeuds(pts);
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6)+' : le tableau ne dirait plus si f monte ou descend');
+      if(ns.length<4) f.push('le tableau n a que '+ns.length+' abscisses : pas de quoi poser quatre intervalles différents');
+      qs.forEach(function(q){
+        if(JSON.stringify(q.pts)!==JSON.stringify(pts)) f.push('les quatre questions ne portent pas le MÊME tableau');
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='a,b,pts') f.push('la question porte autre chose que la courbe et l intervalle : '+cles);
+        /* LE BORD PROPRE : une borne hors du tableau réclame une valeur que
+           l élève ne peut pas lire */
+        if(ns.indexOf(q.a)<0||ns.indexOf(q.b)<0)
+          f.push('l intervalle ['+q.a+' ; '+q.b+'] a une borne qui n est pas une abscisse du tableau ('+ns.join(', ')+')');
+        const r=extremums(q.pts,q.a,q.b);
+        if(r.nM!==1) f.push('sur ['+q.a+' ; '+q.b+'], le maximum est atteint '+r.nM+' fois : deux bonnes réponses, une seule comptée');
+        if(r.nm!==1) f.push('sur ['+q.a+' ; '+q.b+'], le minimum est atteint '+r.nm+' fois : deux bonnes réponses, une seule comptée');
+      });
+      if(qs[0].a!==ns[0]||qs[0].b!==ns[ns.length-1])
+        f.push('la première question ne porte pas le tableau ENTIER : ['+qs[0].a+' ; '+qs[0].b+']');
+      const cles3=qs.slice(1).map(function(q){ return q.a+';'+q.b; });
+      if(new Set(cles3).size!==3) f.push('deux des trois morceaux sont le même intervalle');
+      const tourne=qs.slice(1).map(function(q){ const r=extremums(q.pts,q.a,q.b); return (r.xM>q.a&&r.xM<q.b)||(r.xm>q.a&&r.xm<q.b); });
+      if(tourne.indexOf(true)<0||tourne.indexOf(false)<0)
+        f.push('les trois morceaux montrent le MÊME visage ('+(tourne[0]?'la fonction tourne dans les trois':'monotone dans les trois')+')');
+      return f;
+    }
+    for(let t=0;t<120 && !vus.length;t++) fautesTirage(mmtBuildQuestions()).forEach(function(x){ vus.push(x); });
+
+    /* ---- 2. le REPLI, lu dans la page et éprouvé par les gardes MÊMES ---- */
+    if(typeof MMT_REPLI!=='object'||!MMT_REPLI) vus.push('le repli (MMT_REPLI) est introuvable');
+    else {
+      const nsR=noeuds(MMT_REPLI.pts);
+      const faux=[[nsR[0],nsR[nsR.length-1]]].concat(MMT_REPLI.petits).map(function(iv){ return {pts:MMT_REPLI.pts, a:iv[0], b:iv[1]}; });
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(mmtTirage).indexOf('MMT_REPLI')<0) vus.push('mmtTirage ne lit plus MMT_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(mmtBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 3. le jugement et le TABLEAU RENDU, sur une courbe ÉPINGLÉE :
+       nœuds −6, −4, −1, 3, 6 pour les valeurs 4, −2, 6, 0, 4. Sur [−4 ; 3],
+       le maximum est 6 en x = −1 (à l INTÉRIEUR) et le minimum −2 en −4. ---- */
+    const PTS=[4,-1,-2,0,4,6,4,3,2,0,2,3,4];
+    function pose(valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), a:-4, b:3};
+      Object.assign(test,{kind:'mmt', questions:[q], idx:0, score:0, maxScore:mmtSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderMMT();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitMMT();
+      return {score:test.score, q:q};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JUSTE={'mmt-M':'6','mmt-xM':'-1','mmt-m':'-2','mmt-xm':'-4','mmt-lo':'-2','mmt-hi':'6'};
+
+    let r=pose(JUSTE,'train',true);
+    /* le tableau se LIT : les abscisses et les valeurs sont écrites, les
+       flèches tracées, et rien à remplir */
+    { const hote=document.getElementById('mmtTable'), ns=noeuds(PTS);
+      const txt=(hote.textContent||'').replace(/\\s+/g,'');
+      ns.forEach(function(x){ if(txt.indexOf(String(x).replace('-','\\u2212'))<0 && txt.indexOf(String(x))<0) vus.push('l abscisse '+x+' n est pas écrite dans le tableau'); });
+      ns.forEach(function(x){ const v=PTS[x+6]; if(txt.indexOf(String(v).replace('-','\\u2212'))<0 && txt.indexOf(String(v))<0) vus.push('la valeur f('+x+') = '+v+' n est pas écrite dans le tableau'); });
+      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir : ce serait l exercice du 2.15');
+      const fleches=(hote.innerHTML.match(/vt-shaft/g)||[]).length;
+      if(fleches!==ns.length-1) vus.push(fleches+' flèche(s) tracée(s) pour '+(ns.length-1)+' segment(s)');
+      /* LA VARIATION SE VOIT : la valeur qui commence une flèche montante est
+         plus BAS que celle qui la finit. Mesuré sur les positions rendues,
+         jamais sur une constante recopiée. */
+      const haut=function(j){ const el=document.getElementById('mmt-v-val-'+j); if(!el) return null;
+        const m=/top:\\s*([-0-9.]+)px/.exec(el.getAttribute('style')||''); return m?parseFloat(m[1]):null; };
+      for(let i=0;i<ns.length-1;i++){
+        const monte=PTS[ns[i+1]+6]>PTS[ns[i]+6], y0=haut(i), y1=haut(i+1);
+        if(y0==null||y1==null){ vus.push('la valeur du nœud '+i+' n est pas posée'); break; }
+        if(monte ? !(y0>y1) : !(y0<y1))
+          vus.push('entre x = '+ns[i]+' et x = '+ns[i+1]+', f '+(monte?'monte':'descend')+' mais les valeurs ne le montrent pas ('+y0+' puis '+y1+')');
+      }
+      /* la méthode n est PAS montrée avant la vérification */
+      if(hote.querySelectorAll('.mmt-sol').length||hote.querySelectorAll('.mmt-bord').length)
+        vus.push('la méthode est montrée AVANT la vérification'); }
+    submitMMT();
+    if(test.score!==6||mmtSubCount(r.q)!==6) vus.push('la copie juste vaut '+test.score+' au lieu de 6');
+    { const hote=document.getElementById('mmtTable');
+      if(hote.querySelectorAll('.mmt-sol').length!==2) vus.push('la correction ne marque pas les deux extremums dans le tableau ('+hote.querySelectorAll('.mmt-sol').length+')');
+      if(hote.querySelectorAll('.mmt-bord').length!==2) vus.push('la correction ne marque pas les deux bornes de l intervalle ('+hote.querySelectorAll('.mmt-bord').length+')'); }
+    ['mmt-M','mmt-xM','mmt-m','mmt-xm','mmt-lo','mmt-hi'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+
+    /* chaque case se juge SEULE */
+    r=pose(Object.assign({},JUSTE,{'mmt-xM':'-4'}));
+    if(r.score!==5||cls('mmt-xM').indexOf('bad')<0||cls('mmt-M').indexOf('ok')<0)
+      vus.push('l abscisse du maximum fausse devrait coûter exactement son point ('+r.score+', '+cls('mmt-xM')+' / '+cls('mmt-M')+')');
+    /* l abscisse d un extremum INTÉRIEUR est bien celle du changement de sens */
+    r=pose(Object.assign({},JUSTE,{'mmt-xM':'3'}));
+    if(r.score!==5) vus.push('le maximum lu à la mauvaise abscisse passe pour juste ('+r.score+')');
+    /* l encadrement reprend le minimum puis le maximum */
+    r=pose(Object.assign({},JUSTE,{'mmt-lo':'6','mmt-hi':'-2'}));
+    if(r.score!==4||cls('mmt-lo').indexOf('bad')<0||cls('mmt-hi').indexOf('bad')<0)
+      vus.push('l encadrement à l envers passe pour juste ('+r.score+')');
+    { const c=(document.getElementById('mmtInstr').textContent||'');
+      if(c.indexOf('encadrement reprend ces deux nombres')<0)
+        vus.push('la consigne ne dit pas que l encadrement reprend le minimum et le maximum trouvés');
+      if(c.indexOf('valeurs ÉCRITES')<0)
+        vus.push('la consigne ne dit pas que les extremums sont parmi les valeurs écrites dans le tableau'); }
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'mmt-m':'','mmt-lo':''}));
+    if(cls('mmt-m').indexOf('sol')<0||cls('mmt-lo').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('mmt-m')+' / '+cls('mmt-lo')+')');
+    r=pose(Object.assign({},JUSTE,{'mmt-m':'','mmt-lo':''}), 'soutien');
+    if(cls('mmt-m').indexOf('bad')>=0||cls('mmt-m').indexOf('sol')>=0||cls('mmt-lo').indexOf('bad')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('mmt-m')+' / '+cls('mmt-lo')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    if(document.getElementById('mmtTable').querySelectorAll('.mmt-sol').length)
+      vus.push('en soutien, la méthode est montrée sur une copie incomplète');
+
+    /* le SOUTIEN peint au fil de la frappe, la case vide ne reçoit RIEN */
+    pose({'mmt-M':'6','mmt-xM':'3'}, 'soutien', true);
+    mmtLive();
+    if(cls('mmt-M').indexOf('ok')<0) vus.push('en soutien, une case juste ne se peint pas à la frappe ('+cls('mmt-M')+')');
+    if(cls('mmt-xM').indexOf('bad')<0) vus.push('en soutien, une case fausse ne se peint pas à la frappe ('+cls('mmt-xM')+')');
+    if(cls('mmt-m').indexOf('ok')>=0||cls('mmt-m').indexOf('bad')>=0) vus.push('en soutien, une case vide se peint à la frappe ('+cls('mmt-m')+')');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {tableau-equations} (Seconde) : un tableau de variation, « combien de
+   solutions a f(x) = k ? » puis deux inéquations dont l'énoncé DONNE les
+   abscisses où f vaut k. Le contrôle compare la page à LA FICHE (Exercice 8),
+   refait le tirage par sa propre arithmétique — dont la COHÉRENCE des
+   abscisses données avec le tableau, le défaut que la fiche elle-même porte
+   à sa question 6 —, puis CLIQUE et relit les couleurs. Aucun accent grave
+   dans ce texte : il vit dans un template littéral. */
+function tableauEquations(w, P){
+  const nom='les équations et inéquations lues dans un tableau de variation';
+  const present = evaluer(w, "typeof startTVE==='function' && typeof tveBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des équations sur tableau de variation');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-equations';
+
+    /* ---- 0. la place au menu : juste après {maximum-minimum-tableau}, le
+       tableau qui se lit ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tableau-equations')>=0; })[0];
+      const i=th?th.ids.indexOf('tableau-equations'):-1;
+      if(!th || th.ids[i-1]!=='maximum-minimum-tableau')
+        vus.push('{tableau-equations} ne suit pas {maximum-minimum-tableau} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : le tableau est varTableHTML en mode lecture, le
+       tirage adrGenPts, le juge lit tveNbSol et tveSolve (les fonctions mêmes
+       que l énoncé et la correction lisent), les cases de l union passent par
+       corrChoix et msgAvecVides — la convention commune des listes ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf("varTableHTML(gsvAnalyze(q.pts), 'tve-v', '', true)")<0)
+        vus.push('le tableau ne passe plus par varTableHTML en mode lecture');
+      if(String(tveTirage).indexOf('adrGenPts')<0) vus.push('le tirage ne passe plus par adrGenPts');
+      if(String(tveJuge).indexOf('tveNbSol')<0||String(tveJuge).indexOf('tveSolve')<0)
+        vus.push('le juge ne lit plus tveNbSol / tveSolve');
+      if(String(submitTVE).indexOf('corrChoix')<0||String(submitTVE).indexOf('msgAvecVides')<0)
+        vus.push('la vérification ne passe plus par corrChoix / msgAvecVides'); }
+
+    /* ---- 1. LA FICHE : x = −6, −1, 4, 6 pour f = 1, −4, 3, 2. Ses réponses
+       1) à 4) sont 2, 1, 2, 2 ; sa question 5 — f(−5) = 0 et f(2) = 0,
+       résoudre f(x) ≥ 0 — donne [−6 ; −5] ∪ [2 ; 6]. Si le code et le papier
+       divergent, c est le code qui a tort. ---- */
+    { const F=[{x:-6,y:1},{x:-1,y:-4},{x:4,y:3},{x:6,y:2}];
+      [[0,2],[3,1],[2,2],[1,2]].forEach(function(t){ const n=tveNbSol(F,t[0]); if(n!==t[1]) vus.push('la fiche : f(x) = '+t[0]+' a '+t[1]+' solution(s), la page en compte '+n); });
+      const S=tveSolve(F,0,'>=',[-5,2]);
+      if(tveEcrit(S)!=='[\\u22126 ; \\u22125] \\u222a [2 ; 6]') vus.push('la fiche : f(x) ≥ 0 donne [−6 ; −5] ∪ [2 ; 6], la page écrit '+tveEcrit(S));
+      const S2=tveSolve(F,0,'>',[-5,2]);
+      if(tveEcrit(S2)!=='[\\u22126 ; \\u22125[ \\u222a ]2 ; 6]') vus.push('f(x) > 0 : les croisements devraient être exclus, la page écrit '+tveEcrit(S2));
+      /* et le défaut de la fiche elle-même : f(5) = 1 est IMPOSSIBLE quand f
+         descend de 3 à 2 sur [4 ; 6] — la page ne doit jamais donner une
+         abscisse hors d une flèche que k traverse (le garde est dans le
+         tirage, éprouvé au point 2) */ }
+
+    /* ---- 2. le tirage : 120 séances, tout refait par SA PROPRE arithmétique,
+       sur les 13 VALEURS du générateur (la page, elle, ne lit que les nœuds) ---- */
+    function noeuds(pts){
+      const d=[]; for(let i=0;i<12;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+      const out=[{x:-6,y:pts[0]}];
+      for(let i=1;i<=11;i++) if(d[i-1]!==d[i]) out.push({x:i-6,y:pts[i]});
+      out.push({x:6,y:pts[12]});
+      return out;
+    }
+    /* le compte par les valeurs de la GRILLE : une solution à chaque valeur
+       égale à k, une entre deux valeurs voisines qui l encadrent strictement —
+       une seconde méthode, qui n a pas les nœuds en commun avec la page */
+    function nbSolGrille(pts,k){ let n=0; for(let i=0;i<13;i++){ if(pts[i]===k) n++; if(i<12){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(k>lo&&k<hi) n++; } } return n; }
+    /* la solution par CELLULES : entre deux points voisins de la liste
+       « abscisses écrites + abscisses données », le signe de f − k est celui
+       du bout ÉCRIT de la cellule */
+    function solve(ns,k,op,cr){
+      const dessus=(op==='>='||op==='>'), strict=(op==='>'||op==='<');
+      const pts=[]; ns.forEach(function(nd){ pts.push({x:nd.x,y:nd.y,ecrit:true}); }); cr.forEach(function(c){ pts.push({x:c,ecrit:false}); });
+      pts.sort(function(a,b){ return a.x-b.x; });
+      const cells=[];
+      for(let i=0;i<pts.length-1;i++){ const A=pts[i], B=pts[i+1]; const ref=A.ecrit?A:B; if(!ref.ecrit) return null;
+        const ok=dessus?(ref.y>k):(ref.y<k); cells.push({a:A.x,b:B.x,ok:ok,aOuv:!A.ecrit&&strict,bOuv:!B.ecrit&&strict,aEcrit:A.ecrit}); }
+      const out=[];
+      cells.forEach(function(c){ if(!c.ok) return; const l=out[out.length-1]; if(l&&l.b===c.a&&c.aEcrit){ l.b=c.b; l.bOuv=c.bOuv; } else out.push({a:c.a,b:c.b,aOuv:c.aOuv,bOuv:c.bOuv}); });
+      return out;
+    }
+    const vusOrient=new Set(), vusCrois=new Set(), vusComptes=new Set();
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==3){ f.push(qs.length+' question(s) au lieu de 3'); return f; }
+      const pts=qs[0].pts, ns=noeuds(pts);
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6)+' : le tableau ne dirait plus si f monte ou descend');
+      if(ns.length!==4) f.push('le tableau a '+ns.length+' abscisses au lieu de 4 : ce n est pas la forme de la fiche (trois flèches)');
+      vusOrient.add(ns.length>1 && ns[1].y<ns[0].y ? 'bas' : 'haut');
+      qs.forEach(function(q,i){
+        if(JSON.stringify(q.pts)!==JSON.stringify(pts)) f.push('les trois questions ne portent pas le MÊME tableau');
+        const cles=Object.keys(q).sort().join(',');
+        if(i===0){ if(cles!=='ks,pts,type'||q.type!=='nb') f.push('la première question n est pas les comptes de la fiche : '+cles+' / '+q.type); }
+        else if(cles!=='cr,k,op,pts,type'||q.type!=='ineq') f.push('la question '+(i+1)+' porte autre chose que la courbe, la hauteur, le signe et les abscisses données : '+cles);
+      });
+      const q0=qs[0];
+      if(q0.type==='nb'){
+        if(!Array.isArray(q0.ks)||q0.ks.length!==4||new Set(q0.ks).size!==4) f.push('les quatre hauteurs ne sont pas quatre entiers distincts');
+        else {
+          if(q0.ks.some(function(k){ return !Number.isInteger(k)||k<-6||k>6; })) f.push('une hauteur sort de [−6 ; 6]');
+          const ys=ns.map(function(nd){ return nd.y; });
+          if(!q0.ks.some(function(k){ return ys.indexOf(k)>=0; })) f.push('aucune des quatre hauteurs n est une valeur ÉCRITE du tableau : le piège du bord partagé ne sort pas');
+          const cs=q0.ks.map(function(k){ return nbSolGrille(pts,k); });
+          cs.forEach(function(c){ vusComptes.add(c); });
+          if(new Set(cs).size<3) f.push('les quatre comptes ne prennent que '+new Set(cs).size+' valeur(s) : '+cs.join(','));
+          q0.ks.forEach(function(k,i){ if(tveNbSol(tveNoeuds(pts),k)!==cs[i]) f.push('f(x) = '+k+' : la page compte '+tveNbSol(tveNoeuds(pts),k)+' solution(s), la grille en donne '+cs[i]); });
+        }
+      }
+      const iqs=qs.slice(1).filter(function(q){ return q.type==='ineq'; });
+      if(iqs.length===2){
+        const ys=ns.map(function(nd){ return nd.y; });
+        iqs.forEach(function(q){
+          if(['>=','>','<=','<'].indexOf(q.op)<0) f.push('signe inconnu : '+q.op);
+          if(ys.indexOf(q.k)>=0) f.push('la hauteur '+q.k+' d une inéquation est une valeur ÉCRITE : un morceau réduit à un point');
+          /* LA COHÉRENCE DES ABSCISSES DONNÉES — le défaut de la fiche : chaque
+             abscisse donnée est strictement DANS une flèche que k traverse
+             strictement, une par flèche traversée, dans l ordre */
+          const trav=[]; for(let i=0;i<ns.length-1;i++){ const lo=Math.min(ns[i].y,ns[i+1].y), hi=Math.max(ns[i].y,ns[i+1].y); if(q.k>lo&&q.k<hi) trav.push(i); }
+          if(!Array.isArray(q.cr)||q.cr.length!==trav.length) f.push('f(x) = '+q.k+' traverse '+trav.length+' flèche(s) mais l énoncé donne '+(q.cr||[]).length+' abscisse(s)');
+          else trav.forEach(function(i,j){ const c=q.cr[j]; if(!Number.isInteger(c)||!(c>ns[i].x&&c<ns[i+1].x)) f.push('l abscisse donnée f('+c+') = '+q.k+' n est pas strictement entre '+ns[i].x+' et '+ns[i+1].x+' : l énoncé contredit le tableau (le défaut de la question 6 de la fiche)'); });
+          vusCrois.add((q.cr||[]).length);
+          const S=solve(ns,q.k,q.op,q.cr||[]);
+          if(!S||S.length!==2) f.push('f(x) '+q.op+' '+q.k+' donne '+(S?S.length:'?')+' morceau(x) au lieu de 2');
+          else { const Sp=tveSolve(tveNoeuds(pts),q.k,q.op,q.cr); if(JSON.stringify(Sp)!==JSON.stringify(S)) f.push('la page résout f(x) '+q.op+' '+q.k+' en '+tveEcrit(Sp)+', le contrôle en '+tveEcrit(S)); }
+        });
+        const d=iqs.map(function(q){ return q.op==='>='||q.op==='>'; }), s=iqs.map(function(q){ return q.op==='>'||q.op==='<'; });
+        if(d[0]===d[1]) f.push('les deux inéquations sont du même côté ('+iqs.map(function(q){ return q.op; }).join(' et ')+')');
+        if(s[0]===s[1]) f.push('les deux inéquations ont la même strictesse ('+iqs.map(function(q){ return q.op; }).join(' et ')+') : le crochet est toujours le même');
+        if(iqs[0].k===iqs[1].k) f.push('les deux inéquations portent la même hauteur');
+      }
+      return f;
+    }
+    for(let t=0;t<120 && !vus.length;t++) fautesTirage(tveBuildQuestions()).forEach(function(x){ vus.push(x); });
+    if(!vus.length){
+      if(vusOrient.size<2) vus.push('sur 120 séances, une seule orientation du tableau ('+Array.from(vusOrient).join(',')+')');
+      if(!vusCrois.has(2)||!vusCrois.has(3)) vus.push('sur 120 séances, les inéquations à 2 ET à 3 abscisses données ne sortent pas toutes deux ('+Array.from(vusCrois).join(',')+')');
+      [0,1,2,3].forEach(function(c){ if(!vusComptes.has(c)) vus.push('sur 120 séances, le compte '+c+' ne sort jamais'); });
+    }
+
+    /* ---- 3. le REPLI, lu dans la page et éprouvé par les gardes MÊMES ---- */
+    if(typeof TVE_REPLI!=='object'||!TVE_REPLI) vus.push('le repli (TVE_REPLI) est introuvable');
+    else {
+      const faux=[{pts:TVE_REPLI.pts, type:'nb', ks:TVE_REPLI.ks}].concat(TVE_REPLI.ineqs.map(function(iq){ return {pts:TVE_REPLI.pts, type:'ineq', k:iq.k, op:iq.op, cr:iq.cr}; }));
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(tveTirage).indexOf('TVE_REPLI')<0) vus.push('tveTirage ne lit plus TVE_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(tveBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 4. le jugement et l ÉCRAN, sur un tableau ÉPINGLÉ : la fiche à
+       une valeur près (f(6) = 0, le générateur exige deux unités par pas) —
+       x = −6, −1, 4, 6 pour f = 1, −4, 3, 0. ---- */
+    const PTS=[1,0,-1,-2,-3,-4,-3,-1,0,2,3,2,0];
+    const QNB={pts:PTS.slice(), type:'nb', ks:[0,3,2,1]};        /* comptes 3, 1, 2, 3 */
+    const QIQ={pts:PTS.slice(), type:'ineq', k:-1, op:'>', cr:[-4,1]};  /* [−6 ; −4[ ∪ ]1 ; 6] */
+    function pose(q, valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const qq=JSON.parse(JSON.stringify(q));
+      Object.assign(test,{kind:'tve', questions:[qq], idx:0, score:0, maxScore:tveSubCount(qq), answers:[], startTime:Date.now(), locked:false});
+      renderTVE();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitTVE();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JNB={'tve-n-0':'3','tve-n-1':'1','tve-n-2':'2','tve-n-3':'3'};
+    const JIQ={'tve-co1':'[','tve-b1':'-6','tve-b2':'-4','tve-cf1':'[','tve-co2':']','tve-b3':'1','tve-b4':'6','tve-cf2':']'};
+    const JIQ_INV={'tve-co1':']','tve-b1':'1','tve-b2':'6','tve-cf1':']','tve-co2':'[','tve-b3':'-6','tve-b4':'-4','tve-cf2':'['};
+
+    /* l écran des comptes : le tableau se LIT, quatre cases, la consigne dit la règle */
+    pose(QNB, JNB, 'train', true);
+    { const hote=document.getElementById('tveTable');
+      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir');
+      if((hote.innerHTML.match(/vt-shaft/g)||[]).length!==3) vus.push('les trois flèches ne sont pas tracées');
+      if(document.querySelectorAll('#tveBody input').length!==4) vus.push('il n y a pas quatre cases pour les quatre comptes');
+      const c=document.getElementById('tveInstr').textContent||'';
+      if(c.indexOf('UNE fois')<0||c.indexOf('une seule fois')<0) vus.push('la consigne ne dit pas la règle (une fois par hauteur entre deux valeurs, une valeur écrite comptée une seule fois)');
+      if(tveSubCount(QNB)!==4||tveSubCount(QIQ)!==8) vus.push('le barème n est pas 4 + 8'); }
+    submitTVE();
+    if(test.score!==4) vus.push('la copie juste des comptes vaut '+test.score+' au lieu de 4');
+    Object.keys(JNB).forEach(function(id){ if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+    /* le piège du bord partagé : compter 3 DEUX fois (k = 3 est écrit en x = 4, où deux flèches se touchent) */
+    let r=pose(QNB, Object.assign({},JNB,{'tve-n-1':'2'}));
+    if(r.score!==3||cls('tve-n-1').indexOf('bad')<0) vus.push('la valeur écrite comptée deux fois passe pour juste ('+r.score+', '+cls('tve-n-1')+')');
+    if((document.getElementById('tveCorr').textContent||'').indexOf('comptée une fois')<0) vus.push('la correction n explique pas qu une valeur écrite se compte une fois');
+    /* la case vide : sol en entraînement, RIEN en soutien */
+    r=pose(QNB, Object.assign({},JNB,{'tve-n-2':''}));
+    if(cls('tve-n-2').indexOf('sol')<0||document.getElementById('tve-n-2').value!=='2') vus.push('en entraînement, la case vide ne reçoit pas la correction sol ('+cls('tve-n-2')+')');
+    r=pose(QNB, Object.assign({},JNB,{'tve-n-2':''}), 'soutien');
+    if(cls('tve-n-2').indexOf('bad')>=0||cls('tve-n-2').indexOf('sol')>=0) vus.push('en soutien, une case vide reçoit une couleur ('+cls('tve-n-2')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    pose(QNB, {'tve-n-0':'3','tve-n-1':'2'}, 'soutien', true); tveLive();
+    if(cls('tve-n-0').indexOf('ok')<0||cls('tve-n-1').indexOf('bad')<0||cls('tve-n-2').indexOf('ok')>=0||cls('tve-n-2').indexOf('bad')>=0)
+      vus.push('en soutien, la frappe ne peint pas comme il faut ('+cls('tve-n-0')+' / '+cls('tve-n-1')+' / '+cls('tve-n-2')+')');
+
+    /* l écran d une inéquation : la donnée est écrite, les nombres proposés
+       sont les bords, les abscisses données ET les abscisses écrites (le piège) */
+    pose(QIQ, JIQ, 'train', true);
+    { const d=(document.querySelector('#tveBody .tve-donne')||{}).textContent||'';
+      if(d.indexOf('(\\u22124) = \\u22121')<0||d.indexOf('(1) = \\u22121')<0) vus.push('la phrase « On donne » n écrit pas les deux abscisses données : '+d);
+      const opts=Array.prototype.map.call(document.getElementById('tve-b1').options, function(o){ return o.value; });
+      ['-6','6','-4','1','-1','4'].forEach(function(v){ if(opts.indexOf(v)<0) vus.push('la liste des bornes n offre pas '+v); });
+      if(document.querySelectorAll('#tveBody select').length!==8) vus.push('il n y a pas huit cases pour l union');
+      const s=document.querySelector('#tveBody .tve-sol').textContent;
+      if(s.indexOf('>')<0||s.indexOf('\\u22121')<0) vus.push('l inéquation à résoudre n est pas écrite avec son signe et sa hauteur'); }
+    submitTVE();
+    if(test.score!==8) vus.push('la copie juste de l union vaut '+test.score+' au lieu de 8');
+    /* l ordre des deux morceaux est LIBRE */
+    r=pose(QIQ, JIQ_INV);
+    if(r.score!==8) vus.push('les deux morceaux dans l autre ordre valent '+r.score+' au lieu de 8');
+    /* le piège : une abscisse ÉCRITE prise pour borne, à la place de l abscisse donnée */
+    r=pose(QIQ, Object.assign({},JIQ,{'tve-b3':'-1'}));
+    if(r.score!==7||cls('tve-b3').indexOf('bad')<0||cls('tve-b4').indexOf('ok')<0) vus.push('l abscisse écrite prise pour borne devrait coûter exactement son point ('+r.score+', '+cls('tve-b3')+' / '+cls('tve-b4')+')');
+    if(!document.querySelector('#tveBody .mf-cor')) vus.push('la bonne borne ne s affiche pas en vert à côté de la case fausse');
+    /* le crochet à une abscisse donnée est OUVERT (inégalité stricte), au bord du tableau il est FERMÉ */
+    r=pose(QIQ, Object.assign({},JIQ,{'tve-cf1':']'}));
+    if(r.score!==7||cls('tve-cf1').indexOf('bad')<0) vus.push('le crochet fermé à un croisement d une inégalité stricte passe pour juste ('+r.score+')');
+    r=pose(QIQ, Object.assign({},JIQ,{'tve-co1':']'}));
+    if(r.score!==7||cls('tve-co1').indexOf('bad')<0) vus.push('le crochet ouvert au bord du tableau passe pour juste ('+r.score+')');
+    /* et l inégalité LARGE ferme les crochets aux croisements */
+    r=pose(Object.assign({},QIQ,{op:'>='}), Object.assign({},JIQ,{'tve-cf1':']','tve-co2':'['}));
+    if(r.score!==8) vus.push('f(x) ≥ −1 : les crochets fermés aux croisements valent '+r.score+' au lieu de 8');
+    /* la case vide : sol en entraînement (message « il te manquait »), RIEN en soutien */
+    r=pose(QIQ, Object.assign({},JIQ,{'tve-b2':''}));
+    if(cls('tve-b2').indexOf('sol')<0||document.getElementById('tve-b2').value!=='-4') vus.push('en entraînement, la case vide de l union ne reçoit pas la correction sol ('+cls('tve-b2')+')');
+    if((document.getElementById('tveCorr').textContent||'').indexOf('Il te manquait')<0) vus.push('le message ne dit pas la case vide avant tout');
+    r=pose(QIQ, Object.assign({},JIQ,{'tve-b2':''}), 'soutien');
+    if(cls('tve-b2').indexOf('bad')>=0||cls('tve-b2').indexOf('sol')>=0) vus.push('en soutien, une case vide de l union reçoit une couleur ('+cls('tve-b2')+')');
+    if(test.locked) vus.push('en soutien, une union incomplète verrouille l écran');
+    pose(QIQ, {'tve-co1':'[','tve-b1':'6'}, 'soutien', true); tveLive();
+    if(cls('tve-co1').indexOf('ok')<0||cls('tve-b1').indexOf('bad')<0||cls('tve-b2').indexOf('ok')>=0||cls('tve-b2').indexOf('bad')>=0)
+      vus.push('en soutien, le choix ne peint pas comme il faut ('+cls('tve-co1')+' / '+cls('tve-b1')+' / '+cls('tve-b2')+')');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {tableau-vrai-faux} (Seconde) : un tableau de variation, sept affirmations
+   Vrai/Faux JUSTIFIÉES — le sens de variation et l'intervalle de la flèche.
+   Le contrôle compare la page à LA FICHE (Exercice 9) — et exige que sa
+   question 2, INDÉCIDABLE (f(5) positif quand f descend de 5 à −2), soit
+   refusée par la page —, refait chaque affirmation par la GRILLE (f(a) est
+   la valeur pts[a+6], que la page ne lit jamais), puis CLIQUE et relit les
+   couleurs. Aucun accent grave ni antislash littéral dans ce texte : il vit
+   dans un template littéral. */
+function tableauVraiFaux(w, P){
+  const nom='le vrai ou faux justifié sur un tableau de variation';
+  const present = evaluer(w, "typeof startTVF==='function' && typeof tvfBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du vrai ou faux sur tableau de variation');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-vrai-faux';
+
+    /* ---- 0. la place au menu : juste après {tableau-equations} ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tableau-vrai-faux')>=0; })[0];
+      const i=th?th.ids.indexOf('tableau-vrai-faux'):-1;
+      if(!th || th.ids[i-1]!=='tableau-equations') vus.push('{tableau-vrai-faux} ne suit pas {tableau-equations} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf("varTableHTML(gsvAnalyze(q.pts), 'tvf-v', '', true)")<0) vus.push('le tableau ne passe plus par varTableHTML en mode lecture');
+      if(String(tvfTirage).indexOf('adrGenPts')<0) vus.push('le tirage ne passe plus par adrGenPts');
+      if(String(tvfJuge).indexOf('tvfVerite')<0) vus.push('le juge ne lit plus tvfVerite');
+      /* la SOURCE, jamais String(renderTVF) : les rendus sont ENVELOPPÉS par la
+         greffe des jetons, et la chaîne d une enveloppe parle d autre chose */
+      if(srcPage.indexOf("itvSelHTML(ids[0],TVF_OPT_VF")<0||srcPage.indexOf("itvSelHTML(ids[1],TVF_OPT_SENS")<0) vus.push('les cases ne sont plus les sélecteurs de la famille itv-sel');
+      if(String(submitTVF).indexOf('corrChoix')<0||String(submitTVF).indexOf('msgAvecVides')<0) vus.push('la vérification ne passe plus par corrChoix / msgAvecVides'); }
+
+    /* ---- 1. LA FICHE : x = −6, −1, 4, 6 pour f = −2, −4, 5, −2. Ses sept
+       affirmations, et ce qu elles valent : 1) F, 3) V, 4) V, 5) F, 6) V,
+       7) F — et la 2), « f(5) est positif », est INDÉCIDABLE : f descend de 5
+       à −2 sur [4 ; 6], f(5) est strictement entre −2 et 5. La page doit le
+       DIRE (null), jamais trancher. ---- */
+    { const F=[{x:-6,y:-2},{x:-1,y:-4},{x:4,y:5},{x:6,y:-2}];
+      const att=[ [{t:'signe',a:-5,v:0}, false,'décroissante',-6,-1], [{t:'cst',a:-5,k:-2,v:0}, true,'décroissante',-6,-1],
+                  [{t:'cst',a:3,k:6,v:0}, true,'croissante',-1,4], [{t:'cmp',a:4,b:5,v:0}, false,'décroissante',4,6],
+                  [{t:'cmp',a:1,b:2,v:0}, true,'croissante',-1,4], [{t:'cmp',a:-5,b:-4,v:0}, false,'décroissante',-6,-1] ];
+      att.forEach(function(t){ const v=tvfVerite(F,t[0]);
+        if(!v||v.vrai!==t[1]||v.sens!==t[2]||v.a!==t[3]||v.b!==t[4]) vus.push('la fiche : '+tvfTextePlain(t[0])+' vaut '+(t[1]?'VRAI':'FAUX')+' ('+t[2]+' sur ['+t[3]+' ; '+t[4]+']), la page dit '+JSON.stringify(v)); });
+      if(tvfVerite(F,{t:'signe',a:5,v:0})!==null) vus.push('la question 2 de la fiche (f(5) positif quand f descend de 5 à −2) est indécidable, et la page tranche : '+JSON.stringify(tvfVerite(F,{t:'signe',a:5,v:0})));
+      if(tvfVerite(F,{t:'cst',a:5,k:1,v:0})!==null) vus.push('f(5) ≤ 1 est indécidable sur la fiche, et la page tranche'); }
+
+    /* ---- 2. le tirage : 120 séances, tout refait par SA PROPRE arithmétique
+       sur les 13 VALEURS — f(a) = pts[a+6], que la page ne lit jamais ---- */
+    function noeuds(pts){
+      const d=[]; for(let i=0;i<12;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+      const out=[{x:-6,y:pts[0]}];
+      for(let i=1;i<=11;i++) if(d[i-1]!==d[i]) out.push({x:i-6,y:pts[i]});
+      out.push({x:6,y:pts[12]});
+      return out;
+    }
+    function grille(pts, af){ const f=function(x){ return pts[x+6]; };
+      if(af.t==='signe') return af.v===0 ? f(af.a)>0 : f(af.a)<0;
+      if(af.t==='cst') return af.v===0 ? f(af.a)<=af.k : f(af.a)>=af.k;
+      return af.v===0 ? f(af.a)<=f(af.b) : f(af.a)>=f(af.b); }
+    /* la flèche et la DÉCIDABILITÉ, lues dans le tableau : ce que l élève voit */
+    function fleche(ns, af){ for(let i=0;i<ns.length-1;i++){ if(af.t==='cmp'){ if(af.a>=ns[i].x&&af.b<=ns[i+1].x) return i; } else if(af.a>ns[i].x&&af.a<ns[i+1].x) return i; } return -1; }
+    function decidable(ns, af, i){ const lo=Math.min(ns[i].y,ns[i+1].y), hi=Math.max(ns[i].y,ns[i+1].y);
+      if(af.t==='signe') return lo>=0||hi<=0; if(af.t==='cst') return !(af.k>lo&&af.k<hi); return af.a<af.b; }
+    const vusVar=new Set(), vusNV=new Set(), vusSens=new Set();
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==2){ f.push(qs.length+' question(s) au lieu de 2'); return f; }
+      const pts=qs[0].pts, ns=noeuds(pts);
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6));
+      if(ns.length!==4) f.push('le tableau a '+ns.length+' abscisses au lieu de 4 : ce n est pas la forme de la fiche (trois flèches)');
+      if(JSON.stringify(qs[1].pts)!==JSON.stringify(pts)) f.push('les deux questions ne portent pas le MÊME tableau');
+      qs.forEach(function(q,i){ const cles=Object.keys(q).sort().join(','); if(cles!=='aff,n0,pts') f.push('la question '+(i+1)+' porte autre chose que la courbe et les affirmations : '+cles); });
+      if(qs[0].n0!==0||qs[1].n0!==4||!Array.isArray(qs[0].aff)||!Array.isArray(qs[1].aff)||qs[0].aff.length!==4||qs[1].aff.length!==3) f.push('les affirmations ne sont pas 4 puis 3, numérotées à la suite ('+qs[0].n0+'/'+(qs[0].aff||[]).length+', '+qs[1].n0+'/'+(qs[1].aff||[]).length+')');
+      const aff=(qs[0].aff||[]).concat(qs[1].aff||[]);
+      if(aff.map(function(a){ return a.t; }).join(',')!=='signe,signe,cst,cst,cmp,cmp,cmp') f.push('la composition n est pas celle de la fiche (2 signes, 2 comparaisons à k, 3 comparaisons d images) : '+aff.map(function(a){ return a.t; }).join(','));
+      const cles=new Set(); let nV=0; const sens=new Set();
+      aff.forEach(function(af,j){
+        const attendu=af.t==='signe'?'a,t,v':af.t==='cst'?'a,k,t,v':'a,b,t,v';
+        if(Object.keys(af).sort().join(',')!==attendu) f.push('l affirmation '+(j+1)+' porte autre chose que son type, ses nombres et sa variante : '+Object.keys(af).sort().join(','));
+        if(af.v!==0&&af.v!==1) f.push('variante inconnue : '+af.v);
+        const k=af.t+'|'+af.a+'|'+(af.t==='cmp'?af.b:af.t==='cst'?af.k:'');
+        if(cles.has(k)) f.push('deux affirmations sur le même nombre : '+tvfTextePlain(af)); cles.add(k);
+        const i=fleche(ns,af);
+        if(i<0){ f.push(tvfTextePlain(af)+' : le ou les nombres ne sont pas sur une flèche du tableau'); return; }
+        if(af.t!=='cmp'&&!(af.a>ns[i].x&&af.a<ns[i+1].x)) f.push(tvfTextePlain(af)+' : a n est pas strictement dans sa flèche');
+        if(af.t==='cst'){ const lo=Math.min(ns[i].y,ns[i+1].y), hi=Math.max(ns[i].y,ns[i+1].y); if(!Number.isInteger(af.k)||af.k<-6||af.k>6||!((af.k<=lo&&af.k>=lo-2)||(af.k>=hi&&af.k<=hi+2))) f.push(tvfTextePlain(af)+' : k = '+af.k+' n est pas à deux unités au plus d un bout de la flèche ('+lo+'..'+hi+')'); }
+        if(!decidable(ns,af,i)){ f.push(tvfTextePlain(af)+' est INDÉCIDABLE dans le tableau (le défaut de la question 2 de la fiche)'); return; }
+        const vg=grille(pts,af), vp=tvfVerite(tvfNoeuds(pts),af);
+        if(!vp) f.push('la page ne sait pas juger '+tvfTextePlain(af));
+        else { if(vp.vrai!==vg) f.push(tvfTextePlain(af)+' : la grille dit '+(vg?'VRAI':'FAUX')+', la page '+(vp.vrai?'VRAI':'FAUX'));
+          const d=ns[i+1].y>ns[i].y?'croissante':'décroissante';
+          if(vp.sens!==d||vp.a!==ns[i].x||vp.b!==ns[i+1].x) f.push(tvfTextePlain(af)+' : la justification attendue est '+d+' sur ['+ns[i].x+' ; '+ns[i+1].x+'], la page attend '+vp.sens+' sur ['+vp.a+' ; '+vp.b+']');
+          if(vg) nV++; sens.add(d); vusSens.add(d); }
+        vusVar.add(af.t+af.v);
+      });
+      if(nV<3||aff.length-nV<3) f.push('la séance a '+nV+' affirmation(s) vraie(s) sur 7 : il en faut au moins trois vraies et trois fausses');
+      if(sens.size<2) f.push('les justifications ne demandent qu un seul sens de variation');
+      vusNV.add(nV);
+      return f;
+    }
+    for(let t=0;t<120 && !vus.length;t++) fautesTirage(tvfBuildQuestions()).forEach(function(x){ vus.push(x); });
+    if(!vus.length){
+      ['signe0','signe1','cst0','cst1','cmp0','cmp1'].forEach(function(v){ if(!vusVar.has(v)) vus.push('sur 120 séances, la variante '+v+' ne sort jamais'); });
+      if(!vusNV.has(3)||!vusNV.has(4)) vus.push('sur 120 séances, les séances à 3 ET à 4 vraies ne sortent pas toutes deux ('+Array.from(vusNV).join(',')+')');
+    }
+
+    /* ---- 3. le REPLI, lu dans la page et éprouvé par les gardes MÊMES ---- */
+    if(typeof TVF_REPLI!=='object'||!TVF_REPLI) vus.push('le repli (TVF_REPLI) est introuvable');
+    else {
+      const faux=[{pts:TVF_REPLI.pts, n0:0, aff:TVF_REPLI.aff.slice(0,4)},{pts:TVF_REPLI.pts, n0:4, aff:TVF_REPLI.aff.slice(4)}];
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(tvfTirage).indexOf('TVF_REPLI')<0) vus.push('tvfTirage ne lit plus TVF_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(tvfBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 4. le jugement et l ÉCRAN, sur un tableau ÉPINGLÉ : x = −6, −1, 4,
+       6 pour f = 1, −4, 3, 0. Quatre affirmations : f(5) positif → VRAI
+       (décroissante sur [4 ; 6], f entre 0 et 3) ; f(−3) ≤ 1 → VRAI
+       (décroissante sur [−6 ; −1]) ; f(−5) ≤ f(−2) → FAUX (décroissante sur
+       [−6 ; −1]) ; f(0) ≤ f(3) → VRAI (croissante sur [−1 ; 4]). ---- */
+    const PTS=[1,0,-1,-2,-3,-4,-3,-1,0,2,3,2,0];
+    const Q={pts:PTS.slice(), n0:0, aff:[{t:'signe',a:5,v:0},{t:'cst',a:-3,k:1,v:0},{t:'cmp',a:-5,b:-2,v:0},{t:'cmp',a:0,b:3,v:0}]};
+    const Q2={pts:PTS.slice(), n0:4, aff:[{t:'cmp',a:4,b:6,v:1},{t:'signe',a:5,v:1},{t:'cst',a:2,k:3,v:1}]};
+    function pose(q, valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const qq=JSON.parse(JSON.stringify(q));
+      Object.assign(test,{kind:'tvf', questions:[qq], idx:0, score:0, maxScore:tvfSubCount(qq), answers:[], startTime:Date.now(), locked:false});
+      renderTVF();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitTVF();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const J={'tvf-vf-0':'V','tvf-s-0':'d','tvf-a-0':'4','tvf-b-0':'6',
+             'tvf-vf-1':'V','tvf-s-1':'d','tvf-a-1':'-6','tvf-b-1':'-1',
+             'tvf-vf-2':'F','tvf-s-2':'d','tvf-a-2':'-6','tvf-b-2':'-1',
+             'tvf-vf-3':'V','tvf-s-3':'c','tvf-a-3':'-1','tvf-b-3':'4'};
+    const corr=function(){ return document.getElementById('tvfCorr').textContent||''; };
+
+    /* l écran : le tableau se LIT, seize cases, les affirmations écrites, les
+       bornes proposées sont les abscisses écrites, la consigne dit la règle */
+    pose(Q, J, 'train', true);
+    { const hote=document.getElementById('tvfTable');
+      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir');
+      if((hote.innerHTML.match(/vt-shaft/g)||[]).length!==3) vus.push('les trois flèches ne sont pas tracées');
+      if(document.querySelectorAll('#tvfBody select').length!==16) vus.push('il n y a pas seize cases pour les quatre affirmations');
+      const b=document.getElementById('tvfBody').textContent;
+      ['f (5) est positif.','f (\\u22123) \\u2264 1.','f (\\u22125) \\u2264 f (\\u22122).','f (0) \\u2264 f (3).'].forEach(function(t){ if(b.indexOf(t)<0) vus.push('l affirmation « '+t+' » n est pas écrite à l écran'); });
+      ['1)','2)','3)','4)'].forEach(function(t){ if(b.indexOf(t)<0) vus.push('la numérotation '+t+' manque'); });
+      const opts=Array.prototype.map.call(document.getElementById('tvf-a-0').options, function(o){ return o.value; });
+      if(opts.filter(Boolean).join(',')!=='-6,-1,4,6') vus.push('les bornes proposées ne sont pas les abscisses écrites du tableau : '+opts.join(','));
+      const vf=Array.prototype.map.call(document.getElementById('tvf-vf-0').options, function(o){ return o.textContent; }).join(',');
+      if(vf.indexOf('Vrai')<0||vf.indexOf('Faux')<0) vus.push('la case Vrai/Faux ne propose pas Vrai et Faux : '+vf);
+      const se=Array.prototype.map.call(document.getElementById('tvf-s-0').options, function(o){ return o.textContent; }).join(',');
+      if(se.indexOf('croissante')<0||se.indexOf('décroissante')<0) vus.push('la case du sens ne propose pas croissante et décroissante : '+se);
+      const c=document.getElementById('tvfInstr').textContent||'';
+      if(c.indexOf('STRICTEMENT')<0||c.indexOf('sens de la flèche')<0||c.indexOf('JUSTIFIE')<0) vus.push('la consigne ne dit pas la règle (f(a) strictement entre les bouts, le sens de la flèche, justifier)');
+      if(tvfSubCount(Q)!==16||tvfSubCount(Q2)!==12) vus.push('le barème n est pas 16 + 12'); }
+    submitTVF();
+    if(test.score!==16) vus.push('la copie juste vaut '+test.score+' au lieu de 16');
+    Object.keys(J).forEach(function(id){ if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+    if(corr().indexOf('Parfait')<0) vus.push('la copie juste n est pas saluée');
+    /* la seconde page : trois affirmations numérotées 5) à 7), douze cases */
+    pose(Q2, {}, 'train', true);
+    { const b=document.getElementById('tvfBody').textContent; if(b.indexOf('5)')<0||b.indexOf('7)')<0||b.indexOf('1)')>=0) vus.push('la seconde page ne numérote pas ses affirmations 5) à 7)');
+      if(document.querySelectorAll('#tvfBody select').length!==12) vus.push('la seconde page n a pas douze cases');
+      if(b.indexOf('f (4) \\u2265 f (6).')<0||b.indexOf('est négatif.')<0||b.indexOf('f (2) \\u2265 3.')<0) vus.push('les variantes ≥ et « négatif » ne s écrivent pas : '+b.slice(0,120)); }
+    /* chaque case se juge SEULE : un Vrai faux ne fait pas payer sa justification */
+    let r=pose(Q, Object.assign({},J,{'tvf-vf-0':'F'}));
+    if(r.score!==15||cls('tvf-vf-0').indexOf('bad')<0||cls('tvf-s-0').indexOf('ok')<0||cls('tvf-a-0').indexOf('ok')<0) vus.push('un Vrai/Faux faux devrait coûter exactement son point ('+r.score+', '+cls('tvf-vf-0')+' / '+cls('tvf-s-0')+')');
+    if(!document.querySelector('#tvfBody .mf-cor')||document.querySelector('#tvfBody .mf-cor').textContent!=='Vrai') vus.push('la bonne réponse ne s affiche pas en vert (« Vrai ») à côté de la case fausse');
+    { const m=corr(); if(m.indexOf('1) f (5) est positif')<0||m.indexOf('VRAI')<0) vus.push('la correction ne nomme pas l affirmation fautive avec son verdict : '+m.slice(0,140));
+      if(m.indexOf('2)')>=0||m.indexOf('3)')>=0) vus.push('la correction explique des affirmations JUSTES : '+m.slice(0,200)); }
+    /* le piège : l intervalle qui ENJAMBE un changement de sens, [−6 ; 6] */
+    r=pose(Q, Object.assign({},J,{'tvf-b-2':'6'}));
+    if(r.score!==15||cls('tvf-b-2').indexOf('bad')<0||cls('tvf-a-2').indexOf('ok')<0) vus.push('la borne 6 à la place de −1 devrait coûter exactement son point ('+r.score+', '+cls('tvf-b-2')+' / '+cls('tvf-a-2')+')');
+    if(!document.querySelector('#tvfBody .mf-cor')||document.querySelector('#tvfBody .mf-cor').textContent!=='\\u22121') vus.push('la bonne borne (−1) ne s affiche pas en vert à côté de la case fausse');
+    /* le sens à l envers coûte son point, et la correction dit le sens */
+    r=pose(Q, Object.assign({},J,{'tvf-s-3':'d'}));
+    if(r.score!==15||cls('tvf-s-3').indexOf('bad')<0) vus.push('le sens à l envers devrait coûter exactement son point ('+r.score+')');
+    if(corr().indexOf('4) f (0)')<0||corr().indexOf('croissante sur [ \\u22121 ; 4 ]')<0) vus.push('la correction ne dit pas le sens et l intervalle de la flèche : '+corr().slice(0,160));
+    /* la case vide : sol en entraînement (« il te manquait »), RIEN en soutien */
+    r=pose(Q, Object.assign({},J,{'tvf-vf-1':''}));
+    if(cls('tvf-vf-1').indexOf('sol')<0||document.getElementById('tvf-vf-1').value!=='V') vus.push('en entraînement, la case vide ne reçoit pas la correction sol ('+cls('tvf-vf-1')+')');
+    if(corr().indexOf('Il te manquait')<0||corr().indexOf('Le reste est juste')<0) vus.push('le message ne dit pas la case vide avant tout, et rien d autre quand tout le reste est juste : '+corr().slice(0,140));
+    r=pose(Q, Object.assign({},J,{'tvf-vf-1':''}), 'soutien');
+    if(cls('tvf-vf-1').indexOf('bad')>=0||cls('tvf-vf-1').indexOf('sol')>=0) vus.push('en soutien, une case vide reçoit une couleur ('+cls('tvf-vf-1')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    pose(Q, {'tvf-vf-0':'V','tvf-s-0':'c'}, 'soutien', true); tvfLive();
+    if(cls('tvf-vf-0').indexOf('ok')<0||cls('tvf-s-0').indexOf('bad')<0||cls('tvf-a-0').indexOf('ok')>=0||cls('tvf-a-0').indexOf('bad')>=0)
+      vus.push('en soutien, le choix ne peint pas comme il faut ('+cls('tvf-vf-0')+' / '+cls('tvf-s-0')+' / '+cls('tvf-a-0')+')');
+    /* en soutien, la copie toute juste verrouille et vaut le point entier */
+    r=pose(Q, J, 'soutien');
+    if(r.score!==16||!test.locked) vus.push('en soutien, la copie juste vaut '+r.score+' (verrouillée : '+test.locked+')');
+    /* le contexte envoyé au modèle porte les affirmations et leurs verdicts */
+    pose(Q, {}, 'train', true);
+    { const c=ctxTvf(Q).contexte; if(c.indexOf('f (5) est positif')<0||c.indexOf('VRAI, décroissante sur [4 ; 6]')<0) vus.push('le contexte du modèle ne porte pas les affirmations et leurs réponses attendues : '+c.slice(-160)); }
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');
