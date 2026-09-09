@@ -1566,6 +1566,65 @@ tableau déborde — la règle retirée, il rougit en nommant l'écart
 (« graphique 1, tableau 2 : 617 px dans 546 ») pendant que le banc jsdom
 reste vert à bon droit.
 
+**Le maximum et le minimum se lisent sur un MORCEAU de courbe — et le risque
+est l'extremum PARTAGÉ.** {maximum-minimum} (Seconde, demande de Turquet,
+septembre 2026, repris de la fiche « LE MAXIMUM ET LE MINIMUM ») suit
+{signes-variations-grand} au menu : le grand dessin d'{antecedents-droite},
+UNE courbe gardée, et les cinq questions de la fiche — l'intervalle entier
+[−6 ; 6], chaque moitié, puis un petit intervalle dans chacune. À chaque
+fois : « le maximum de la fonction est M = … atteint pour x = … », « le
+minimum … m = … atteint pour x = … », puis « un encadrement de la fonction
+est … ≤ f (x) ≤ … ». Six cases par question, trente pour la séance.
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts()`, le
+générateur MÊME d'{antecedents-droite} (13 valeurs entières, segments
+strictement monotones), le dessin est `adrSVG()`, la fonction même, appelée
+NUE — elle a seulement gagné le paramètre « dessus », la convention de
+l'`extra` de `lvGraphSVG`, pour que la méthode se trace par-dessus —, et la
+peinture des cases est `lvMarkFields`, la lecture `lvReadInt`, le bouton
+`lvBoutonSuivant`.
+**Le risque propre est SILENCIEUX** : si deux abscisses de l'intervalle
+portent la même hauteur maximale, « atteint pour x = … » a DEUX réponses et
+la page en compterait une fausse — une lecture juste comptée fausse, le pire
+défaut du projet. Le tirage exige donc l'unicité du maximum ET du minimum sur
+CHACUN des cinq intervalles, et le contrôle la recompte par sa propre
+arithmétique, tirage après tirage.
+**Les extremums tombent sur des graduations, et le contrôle ne le suppose
+pas** : entre deux graduations la spline est monotone et les segments le sont
+aussi, donc elle ne peut ni dépasser ni redescendre — le banc relit les
+Bézier qu'`adrPath` écrit, converties par les GRADUATIONS lues dans le SVG
+rendu (aucune coordonnée recopiée), et exige que la courbe dessinée ne monte
+jamais au-dessus du maximum annoncé. Sabotage à l'appui : les tangentes
+multipliées par 4 le font rougir en nommant l'écart.
+**Les deux visages sortent dans chaque séance** : un petit intervalle où la
+courbe est MONOTONE — les deux extremums sont aux bornes — et un où elle
+TOURNE, un extremum à l'intérieur. Sans eux, l'élève apprendrait que la
+réponse est toujours du même genre. Le côté qui porte le tournant est TIRÉ :
+à visage égal, le rang change. Sonde : 69 % des courbes passent l'unicité des
+trois grands intervalles, 67 % offrent les deux visages ; 2,0 essais en
+moyenne, pire cas 11 sur 400 séances, 0 recours au repli — lequel est RÉEL,
+relevé sur le générateur, et passe par les gardes mêmes du tirage (le premier,
+inventé à la main, perdait les deux visages : le contrôle l'a nommé).
+**L'encadrement REPREND le minimum et le maximum trouvés, et la consigne le
+DIT** : sans cette phrase, « −6 ≤ f (x) ≤ 6 » serait un encadrement lui aussi
+et une lecture juste serait comptée fausse — c'est ce qui rend la question
+décidable, la leçon du dénominateur donné de {simplifier-barres}. Un contrôle
+exige la phrase.
+**La méthode est dessinée à la VALIDATION, jamais avant** : les deux bords de
+l'intervalle, la bande verte entre le minimum et le maximum — l'encadrement,
+dessiné — et les deux anneaux aux points où ils sont atteints. Affichée
+pendant la recherche, elle donnerait les hauteurs qu'on demande de lire.
+La bonne réponse n'est jamais rangée à côté de la question : elle ne porte que
+la courbe et l'intervalle (le contrôle refuse tout autre champ), et `mmxAns()`
+— que la correction, le message et le dessin de la méthode lisent tous — la
+recalcule. Chaque case se juge SEULE, la case vide ne rougit jamais, et le
+soutien peint au fil de la frappe. Dix-sept sabotages, chacun rougissant en
+nommant son défaut. Le banc NAVIGATEUR (« 6 quater quater », déclaré par
+`maxMin` dans `tests/profils.js`) tient les deux bords que jsdom ne voit pas :
+le grand dessin rendu à une taille lisible, et « … ≤ f (x) ≤ … » d'un seul
+tenant — une SPAN mesurée par le nombre de boîtes qu'elle rend, deux voulant
+dire qu'elle s'est repliée et qu'une solution se lit en deux morceaux ; il
+mesure aussi les deux anneaux verts contre les graduations rendues.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :

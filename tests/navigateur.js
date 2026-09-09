@@ -918,6 +918,78 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater quater. le maximum et le minimum : le dessin lisible, et
+       l'encadrement d'un seul tenant =====
+       Le banc jsdom tient le tirage, le jugement et la méthode dessinée — il
+       lit le SVG comme une chaîne. Ce qu'il ne voit pas : un CSS perdu qui
+       rendrait le grand dessin minuscule sans qu'aucune erreur ne se lève, et
+       « □ ≤ f (x) ≤ □ » coupé en deux par un repli, qui se lirait comme deux
+       morceaux de phrase (la leçon des unions du 2.11, mesurée cette fois sur
+       une SPAN et non sur une rangée). Et les deux anneaux verts de la
+       correction sont mesurés contre les GRADUATIONS du dessin rendu : aucune
+       coordonnée recopiée, une échelle qui changerait resterait mesurée juste. */
+    titre('6 quater quater. LE MAXIMUM ET LE MINIMUM : LE DESSIN ET L\'ENCADREMENT');
+    if(!P.maxMin){
+      ignorer('le maximum et le minimum : le dessin lisible et l\'encadrement d\'un seul tenant',
+        'ce niveau n\'a pas l\'exercice du maximum et du minimum');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.maxMin.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const vu = await s.page.evaluate(() => {
+        const svg = document.querySelector('#mmxGraph svg');
+        const enc = document.querySelector('.mmx-enc');
+        const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+        return {
+          dessin: { l: Math.round(r.width), h: Math.round(r.height) },
+          /* getClientRects() rend UNE boîte par ligne : deux boîtes = la
+             ligne s'est repliée entre les deux cases de l'encadrement */
+          lignesEnc: enc ? enc.getClientRects().length : -1,
+          page: document.documentElement.scrollWidth > document.documentElement.clientWidth
+        };
+      });
+      verifier('le grand dessin est rendu à une taille lisible',
+        vu.dessin.l >= 400 && vu.dessin.h >= 200, vu.dessin.l + '×' + vu.dessin.h + ' px');
+      verifier('l\'encadrement « … ≤ f (x) ≤ … » tient sur une seule ligne',
+        vu.lignesEnc === 1, vu.lignesEnc + ' ligne(s) rendue(s)');
+      verifier('la page ne défile pas en largeur sur cet écran', !vu.page, 'la page déborde');
+      /* la correction : les deux anneaux verts tombent SUR les graduations du
+         maximum et du minimum, mesurés dans le dessin rendu */
+      const corr = await s.page.evaluate(async () => {
+        const q = test.questions[test.idx], r = mmxAns(q);
+        ['mmx-M','mmx-xM','mmx-m','mmx-xm','mmx-lo','mmx-hi'].forEach((id, i) => {
+          document.getElementById(id).value = String([r.M, r.xM, r.m, r.xm, r.m, r.M][i]);
+        });
+        submitMMX();
+        await new Promise(x => setTimeout(x, 250));
+        const svg = document.querySelector('#mmxGraph svg');
+        const vx = [], hy = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          const b = l.getBoundingClientRect();
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push((b.left + b.right) / 2);
+          else hy.push((b.top + b.bottom) / 2);
+        });
+        vx.sort((a, b) => a - b); hy.sort((a, b) => a - b);   /* hy[0] = la graduation +6 */
+        const anneaux = [...svg.querySelectorAll('.pim-sol')].map(c => {
+          const b = c.getBoundingClientRect();
+          return { x: (b.left + b.right) / 2, y: (b.top + b.bottom) / 2, taille: Math.round(b.width) };
+        });
+        const ecart = (att, obt) => Math.abs(att - obt);
+        const vise = [{ x: vx[r.xM + 6], y: hy[6 - r.M] }, { x: vx[r.xm + 6], y: hy[6 - r.m] }];
+        const loin = vise.filter(p => !anneaux.some(a => ecart(a.x, p.x) < 3 && ecart(a.y, p.y) < 3));
+        return { n: anneaux.length, minuscules: anneaux.filter(a => a.taille < 8).length,
+                 loin: loin.length, note: test.score, grille: vx.length + '/' + hy.length };
+      });
+      verifier('la correction pose les deux anneaux verts sur les graduations du maximum et du minimum',
+        corr.n === 2 && corr.loin === 0 && corr.minuscules === 0,
+        corr.n + ' anneau(x), ' + corr.loin + ' hors graduation, ' + corr.minuscules + ' minuscule(s), grille ' + corr.grille);
+      verifier('la copie juste vaut les six cases de la question', corr.note === 6, 'note ' + corr.note);
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —
