@@ -11803,12 +11803,12 @@ function qcmTableauVariation(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='choisir-tableau-variation';
 
-    /* ---- 0. la place au menu : juste APRÈS {signes-variations-grand} — la
-       même grande grille, le tableau en QCM ---- */
+    /* ---- 0. la place au menu : dans la famille de la grande grille, juste
+       APRÈS {tableau-vrai-faux} — le dernier des exercices sur tableau ---- */
     { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('choisir-tableau-variation')>=0; })[0];
       const i=th?th.ids.indexOf('choisir-tableau-variation'):-1;
-      if(!th || th.ids[i-1]!=='signes-variations-grand')
-        vus.push('{choisir-tableau-variation} ne suit pas {signes-variations-grand} au menu'); }
+      if(!th || th.ids[i-1]!=='tableau-vrai-faux')
+        vus.push('{choisir-tableau-variation} ne suit pas {tableau-vrai-faux} au menu'); }
 
     /* ---- 0 bis. le PARTAGE : le tirage est adrGenPts, la table vraie est
        lue par gsvAnalyze (la fonction qui corrige le 2.15), le dessin est

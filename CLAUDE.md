@@ -1570,7 +1570,8 @@ reste vert à bon droit.
 {choisir-tableau-variation} (Seconde, demande de Turquet, septembre 2026 —
 « une courbe entre −6 à 6 avec 2 ; 3 ; 4 variations possibles, proposer 4
 tableaux de variations différents et l'élève doit choisir le bon tableau »)
-suit {signes-variations-grand} au menu : c'est le motif de
+suit {tableau-vrai-faux} au menu — le dernier des exercices sur
+tableau de la grande grille : c'est le motif de
 {variations-depuis-derivee} de la Terminale, transposé à la lecture DIRECTE
 de la courbe.
 **Tout est repris, rien n'est recopié** : le tirage est `adrGenPts()` — le
