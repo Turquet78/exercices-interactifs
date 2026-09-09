@@ -509,7 +509,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-mmx,#scr-mmt,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-mmx,#scr-mmt,#scr-tve,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -912,6 +912,19 @@
   .mmx-donc{margin-top:18px;line-height:2.1}
   .mmx-enc{white-space:nowrap;display:inline-block}
   .mmx-liste .lv-in,.mmx-donc .lv-in{width:56px;font-size:1rem}
+  /* {tableau-equations} : les quatre « combien de solutions ? » sur deux
+     colonnes, comme la fiche ; la phrase « On donne f(−5) = 0 … » dans son
+     propre encadré, parce que c'est une DONNÉE de l'énoncé et non une
+     consigne ; l'union sur une seule rangée qui défile plutôt que de se
+     replier. */
+  .tve-liste{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+  .tve-liste li{line-height:2.1;font-weight:700}
+  .tve-liste .lv-in{width:56px;font-size:1rem}
+  .tve-donne{margin:14px 0 6px;padding:8px 14px;border-radius:12px;background:#F7FAFF;border:1.5px dashed #BBD0F7;font-weight:700;line-height:1.7}
+  .tve-solwrap{overflow-x:auto;margin:10px 0 0;padding-bottom:4px}
+  .tve-sol{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;width:max-content;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink);background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:14px;padding:10px 14px}
+  .tve-sol .itv-sel.crochet{width:50px}
+  @media(max-width:520px){ .tve-liste{grid-template-columns:1fr} }
   .adr-niv{stroke:#C2410C;stroke-width:3;fill:none;stroke-linecap:round}
   .adr-niv.bad{stroke:var(--red)}
   .adr-sol{stroke:var(--green);stroke-width:2.6;stroke-dasharray:8 5;fill:none}
@@ -1263,6 +1276,12 @@
     /* {maximum-minimum-tableau} : le tableau à quatre segments fait 617 px,
        comme au 2.15 — la même carte. */
     #scr-mmt .lv-card{max-width:700px}
+    /* {tableau-equations} : la solution d'une inéquation est une UNION à huit
+       cases — « S = [ −6 ; −5 ] ∪ [ 2 ; 6 ] » — qui doit se lire d'un seul
+       tenant : coupée en deux, elle se lit comme deux solutions (la leçon du
+       2.11). La carte prend la largeur de cette ligne ; sur un écran plus
+       étroit, la ligne DÉFILE au lieu de se replier (.tve-solwrap). */
+    #scr-tve .lv-card{max-width:920px}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
     /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
@@ -1724,6 +1743,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="mmtBody"></div>
       <div class="lv-feedback"><span id="mmtMark" class="mark"></span> <span id="mmtCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="mmtRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="mmtConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="mmtQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="mmtValidate" onclick="submitMMT()">Valider</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-tve">
+    <div class="card lv-card">
+      <div class="q-head"><span id="tveIdx" class="q-idx">Question 1 / 3</span><span id="tveModeTag"></span></div>
+      <p class="lv-sub" id="tveSub"></p>
+      <p class="lv-instr" id="tveInstr"></p>
+      <div class="lv-tblwrap" id="tveTable"></div>
+      <div id="tveBody"></div>
+      <div class="lv-feedback"><span id="tveMark" class="mark"></span> <span id="tveCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="tveRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="tveConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="tveQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="tveValidate" onclick="submitTVE()">Valider</button></div>
     </div>
   </section>
 
@@ -2384,7 +2415,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=141;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=142;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2909,6 +2940,7 @@ const TESTS={
   'signes-variations-grand': { name:'Tableaux de signes et de variation en grand', icon:'\ud83d\uddfa\ufe0f', desc:'Comme {signes-variations}, sur le GRAND dessin d\u2019{antecedents-droite} : 13 graduations, de \u22126 \u00e0 6 en abscisse ET en ordonn\u00e9e \u2014 les deux tableaux d\u2019un coup, \u00e0 compl\u00e9ter directement.', start:()=>startGSV() },
   'maximum-minimum': { name:'Maximum et minimum', icon:'\ud83d\udd3a', desc:'Sur le GRAND dessin d\u2019{antecedents-droite} : la m\u00eame courbe et cinq intervalles \u2014 donne \u00e0 chaque fois le maximum et le minimum de la fonction, l\u2019abscisse o\u00f9 chacun est atteint, puis l\u2019encadrement \u2026 \u2264 f\u2009(x)\u2009\u2264 \u2026', start:()=>startMMX() },
   'maximum-minimum-tableau': { name:'Maximum et minimum sur un tableau', icon:'📋', desc:'Les mêmes questions que {maximum-minimum}, mais sans dessin : on te donne le TABLEAU DE VARIATION de f, et c’est lui qu’il faut lire pour trouver le maximum, le minimum et l’encadrement sur chaque intervalle.', start:()=>startMMT() },
+  'tableau-equations': { name:'Équations et inéquations dans un tableau', icon:'🔢', desc:'Un tableau de variation, et rien d’autre : combien de solutions a l’équation f (x) = k ? Puis résoudre f (x) ≥ k ou f (x) < k en écrivant S avec les bonnes bornes et les bons crochets. Les flèches disent tout — il faut raisonner, comme dans {maximum-minimum-tableau}.', start:()=>startTVE() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -2959,7 +2991,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3025,6 +3057,7 @@ function liveCheckCurrent(){
   else if(k==='gsv') gsvLive();
   else if(k==='mmx') mmxLive();
   else if(k==='mmt') mmtLive();
+  else if(k==='tve') tveLive();
   else if(k==='adr') adrLive();
   else if(k==='iqd') iqdLive();
   else if(k==='ifg') checkIfgAnswer(true);
@@ -3594,6 +3627,7 @@ function conseilPaire(){
   else if(test.kind==='tsg' && q) b=ctxTsg(q);
   else if(test.kind==='mmx' && q) b=ctxMmx(q);
   else if(test.kind==='mmt' && q) b=ctxMmt(q);
+  else if(test.kind==='tve' && q) b=ctxTve(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
@@ -3824,6 +3858,7 @@ const QIA_SUGG={
   lsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?"],
   gsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Comment lire une valeur sur le grand quadrillage, de \u22126 \u00e0 6 ?"],
   mmt:["Comment lire le maximum dans un tableau de variation ?","Pourquoi les extremums sont-ils toujours des valeurs \u00e9crites dans le tableau ?","Comment savoir o\u00f9 le maximum est atteint quand la fl\u00e8che monte ?"],
+  tve:["Comment savoir combien de fois une fl\u00e8che passe par une hauteur ?","Pourquoi une valeur \u00e9crite dans le tableau ne compte-t-elle qu\u2019une seule fois ?","Comment choisir le crochet \u00e0 une borne donn\u00e9e par l\u2019\u00e9nonc\u00e9 ?"],
   mmx:["Comment lire le maximum de la fonction sur un intervalle ?","Quelle diff\u00e9rence entre la valeur du maximum et l\u2019abscisse o\u00f9 il est atteint ?","Comment \u00e9crire l\u2019encadrement une fois le maximum et le minimum trouv\u00e9s ?"],
   tvd:["Comment trouver les changements de sens sur le dessin ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?","Comment savoir si la fl\u00e8che monte ou descend ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
@@ -4220,6 +4255,12 @@ const RAP_MMT=`<b>Lire un maximum et un minimum dans un tableau de variation</b>
 • Quand le morceau contient un changement de sens, l’un des deux extremums est ce sommet (ou ce creux) : on compare alors les valeurs des bords ET celle du changement de sens, et on garde la plus grande pour M, la plus petite pour m.<br>
 • On répond toujours DEUX choses : la <b>valeur</b> (elle est écrite dans la ligne du bas) et l’<b>abscisse</b> où elle est atteinte (elle est écrite juste au-dessus, dans la ligne des x).<br>
 • L’<b>encadrement</b> conclut : sur ce morceau, f reste entre le minimum et le maximum, donc m ≤ f (x) ≤ M — on y remet les deux nombres qu’on vient de trouver, le plus petit à gauche.`;
+const RAP_TVE=`<b>Équations et inéquations lues dans un tableau de variation</b><br>
+• Entre deux valeurs écrites, la flèche dit que f ne fait que MONTER (↗) ou que DESCENDRE (↘). Elle passe donc EXACTEMENT UNE fois par chaque hauteur comprise strictement entre ses deux bouts — et JAMAIS par une hauteur qui n’est pas entre les deux.<br>
+• <b>Compter les solutions de f (x) = k</b> : on regarde chaque flèche. Si k est strictement entre ses deux bouts, elle donne UNE solution. Si k est une valeur ÉCRITE dans le tableau, la solution est l’abscisse écrite juste au-dessus — et on la compte UNE seule fois, même si deux flèches partent de là.<br>
+• <b>Résoudre f (x) ≥ k</b> : on cherche les x où f est AU-DESSUS de k (EN DESSOUS pour ≤). L’énoncé DONNE les abscisses où f vaut exactement k — elles ne se lisent pas dans le tableau — : ce sont les bornes des morceaux. Les bords du tableau (−6 et 6) sont pris quand f y est du bon côté.<br>
+• Le <b>crochet</b> : FERMÉ à une borne donnée si l’inégalité accepte l’égalité (≥, ≤), OUVERT sinon (&gt;, &lt;). Aux bords −6 et 6 du tableau, il est toujours fermé.<br>
+• Deux morceaux s’écrivent avec ∪ : par exemple S = [−6 ; −5] ∪ [2 ; 6].`;
 const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
 • <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
 • <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
@@ -4248,7 +4289,7 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, mmx:RAP_MMX, mmt:RAP_MMT, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4715,7 +4756,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4839,7 +4880,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','mmx','mmt','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','mmx','mmt','tve','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -10605,6 +10646,312 @@ function submitMMT(){
 function nextMmtQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderMMT(); autoSave(); } else finishTest(); }
 
 
+/* ================= Exercice Seconde : Équations et inéquations dans un tableau (kind 'tve') =================
+   Repris de la fiche « raisonnement tableau de variation » (Exercice 8,
+   demande de Turquet, septembre 2026) : un tableau de variation donné, et
+   rien d'autre — 1) à 4) « L'équation f(x) = k a combien de solutions ? »,
+   5) et 6) « On donne f(−5) = 0 et f(2) = 0. Résoudre f(x) ≥ 0. S = … ».
+   C'est le RAISONNEMENT du tableau : entre deux valeurs écrites, une flèche
+   dit que f ne fait que monter (ou que descendre), donc qu'elle passe UNE
+   fois par chaque hauteur strictement comprise entre ses deux bouts — et
+   jamais par une autre.
+   Tout est repris, rien n'est recopié : le tirage est adrGenPts(3) — la forme
+   de la fiche, trois flèches —, l'analyse gsvAnalyze, le tableau varTableHTML
+   en mode LECTURE (la fonction même du 2.17), les cases de l'union sont les
+   sélecteurs de la famille .itv-sel (corrChoix, msgAvecVides), l'union est
+   jugée au MIEUX à ordre libre (le motif du 2.11).
+   Une séance = TROIS questions sur le même tableau : les quatre comptes de
+   la fiche sur un seul écran, puis deux inéquations.
+   LE RISQUE PROPRE EST L'ÉNONCÉ QUI CONTREDIT SON TABLEAU, et la fiche
+   elle-même le porte : sa question 6 donne « f(5) = 1 » alors que le tableau
+   fait descendre f de 3 à 2 sur [4 ; 6] — f(5) ne peut pas valoir 1, et
+   l'élève qui suit la donnée écrit un S que le tableau dément. Ici chaque
+   abscisse DONNÉE est tirée strictement À L'INTÉRIEUR d'une flèche que k
+   traverse strictement, et le contrôle refait cette vérification par sa
+   propre arithmétique sur chaque tirage.
+   La bonne réponse n'est jamais rangée à côté de la question : elle ne
+   porte que la courbe, les hauteurs, le signe et les abscisses données —
+   tveNbSol et tveSolve, les fonctions mêmes qui corrigent, recalculent tout. */
+const TVE_NB_HAUTEURS=4;
+function tveNoeuds(pts){ return gsvAnalyze(pts).nodes; }
+/* Le nombre de solutions de f(x) = k, lu dans le tableau : UNE par abscisse
+   écrite où f vaut k (comptée une seule fois, même si deux flèches en
+   partent), plus UNE par flèche que k traverse STRICTEMENT. */
+function tveNbSol(nodes, k){
+  let n=0;
+  nodes.forEach(function(nd){ if(nd.y===k) n++; });
+  for(let i=0;i<nodes.length-1;i++){ const lo=Math.min(nodes[i].y,nodes[i+1].y), hi=Math.max(nodes[i].y,nodes[i+1].y); if(k>lo && k<hi) n++; }
+  return n;
+}
+/* Les flèches que k traverse strictement (indices de segment). */
+function tveTraversees(nodes, k){
+  const out=[];
+  for(let i=0;i<nodes.length-1;i++){ const lo=Math.min(nodes[i].y,nodes[i+1].y), hi=Math.max(nodes[i].y,nodes[i+1].y); if(k>lo && k<hi) out.push(i); }
+  return out;
+}
+const TVE_OPS={'>=':'≥','>':'>','<=':'≤','<':'<'};
+/* La solution de f(x) op k, avec les abscisses de croisement DONNÉES (cr :
+   une par flèche traversée, dans l'ordre des flèches). k n'est jamais une
+   valeur écrite : le signe de f − k est donc constant entre deux points de
+   la liste « abscisses écrites + croisements », et se lit au bout écrit du
+   morceau. Un croisement est une borne OUVERTE si l'inégalité est stricte ;
+   une abscisse écrite (bord du tableau) est toujours prise quand f y est du
+   bon côté, et deux morceaux qui se touchent en une abscisse écrite se
+   RECOLLENT — l'intervalle passe par-dessus le changement de sens. */
+function tveSolve(nodes, k, op, cr){
+  const dessus=(op==='>='||op==='>'), strict=(op==='>'||op==='<');
+  const bon=function(y){ return dessus ? (y>k) : (y<k); };
+  const trav=tveTraversees(nodes,k), pieces=[];
+  for(let i=0;i<nodes.length-1;i++){
+    const xa=nodes[i].x, xb=nodes[i+1].x, ya=nodes[i].y, yb=nodes[i+1].y, j=trav.indexOf(i);
+    if(j<0) pieces.push({a:xa, b:xb, aCr:false, bCr:false, ok:bon(ya)});
+    else { const c=cr[j]; pieces.push({a:xa, b:c, aCr:false, bCr:true, ok:bon(ya)}); pieces.push({a:c, b:xb, aCr:true, bCr:false, ok:bon(yb)}); }
+  }
+  const out=[];
+  pieces.forEach(function(p){
+    if(!p.ok) return;
+    const last=out[out.length-1];
+    if(last && last.b===p.a && !p.aCr){ last.b=p.b; last.bOuv=p.bCr&&strict; }
+    else out.push({a:p.a, b:p.b, aOuv:p.aCr&&strict, bOuv:p.bCr&&strict});
+  });
+  return out;
+}
+function tveEcrit(S){
+  return S.map(function(iv){ return (iv.aOuv?']':'[')+itvNum(iv.a)+' ; '+itvNum(iv.b)+(iv.bOuv?'[':']'); }).join(' ∪ ');
+}
+/* Les quatre hauteurs de la fiche : au moins une est une valeur ÉCRITE du
+   tableau — le piège du bord partagé, qu'on ne compte qu'une fois — et les
+   quatre comptes prennent au moins TROIS valeurs différentes, sans quoi
+   l'élève apprendrait que la réponse est toujours la même. */
+function tveHauteurs(nodes){
+  const ys=nodes.map(function(nd){ return nd.y; });
+  for(let att=0;att<80;att++){
+    const ks=[];
+    while(ks.length<TVE_NB_HAUTEURS){ const k=rand(-6,6); if(ks.indexOf(k)<0) ks.push(k); }
+    if(!ks.some(function(k){ return ys.indexOf(k)>=0; })) continue;
+    const comptes=new Set(ks.map(function(k){ return tveNbSol(nodes,k); }));
+    if(comptes.size<3) continue;
+    return ks;
+  }
+  return null;
+}
+/* Les deux inéquations d'une séance : SENS opposés (au-dessus / en dessous)
+   et STRICTESSE opposée (un crochet fermé, un ouvert) — sans quoi l'élève
+   apprendrait que le crochet est toujours le même. Chacune a EXACTEMENT deux
+   morceaux : la forme de la fiche (« S = [−6 ; −5] ∪ [2 ; 6] »), et la seule
+   qui laisse la ligne de réponse constante — des cases au nombre exact
+   révéleraient combien de morceaux chercher. k n'est jamais une valeur
+   écrite, et chaque croisement reçoit une abscisse ENTIÈRE strictement à
+   l'intérieur de sa flèche : c'est ce que l'énoncé DONNE. */
+function tveIneqs(nodes){
+  const ys=nodes.map(function(nd){ return nd.y; }), ymin=Math.min.apply(null,ys), ymax=Math.max.apply(null,ys);
+  const dessus=Math.random()<0.5, strict=Math.random()<0.5;
+  const ops=[ (dessus?(strict?'>':'>='):(strict?'<':'<=')), (dessus?(strict?'<=':'<'):(strict?'>=':'>')) ];
+  const out=[];
+  for(let n=0;n<2;n++){
+    const op=ops[n], cands=[];
+    for(let k=ymin+1;k<ymax;k++){
+      if(ys.indexOf(k)>=0) continue;
+      if(out.length && out[0].k===k) continue;
+      const trav=tveTraversees(nodes,k);
+      const cr=trav.map(function(i){ return rand(nodes[i].x+1, nodes[i+1].x-1); });
+      if(tveSolve(nodes,k,op,cr).length===2) cands.push({k:k, op:op, cr:cr});
+    }
+    if(!cands.length) return null;
+    out.push(pick(cands));
+  }
+  return out;
+}
+/* Le repli RÉEL, relevé sur le générateur (sonde, septembre 2026 : 95 % des
+   courbes à trois flèches conviennent, 1,05 essai en moyenne, pire cas 3 sur
+   400 séances, 0 recours au repli) : il passe par les gardes MÊMES du tirage,
+   que le contrôle rejoue sur lui. Le premier, inventé à la main, donnait un
+   seul morceau à chaque inéquation — le contrôle l'a nommé. */
+const TVE_REPLI={ pts:[-6,-1,5,4,-5,-6,-5,-3,-2,-1,0,1,2], ks:[-5,-1,5,-6], ineqs:[{k:3,op:'<',cr:[-5,-2]},{k:1,op:'>=',cr:[-5,-3,0]}] };
+function tveTirage(){
+  for(let att=0;att<3000;att++){
+    /* la forme de la fiche : TROIS flèches — la seule où les quatre comptes
+       0, 1, 2 et 3 sont tous possibles, et où une inéquation donne deux
+       morceaux dans les deux sens */
+    const pts=adrGenPts(3);
+    if(!pts) continue;
+    const nodes=tveNoeuds(pts);
+    if(nodes.length!==4) continue;
+    const ks=tveHauteurs(nodes); if(!ks) continue;
+    const ineqs=tveIneqs(nodes); if(!ineqs) continue;
+    return {pts:pts, ks:ks, ineqs:ineqs};
+  }
+  return {pts:TVE_REPLI.pts.slice(), ks:TVE_REPLI.ks.slice(), ineqs:TVE_REPLI.ineqs.map(function(iq){ return {k:iq.k, op:iq.op, cr:iq.cr.slice()}; })};
+}
+function tveSubCount(q){ return q.type==='nb' ? q.ks.length : 8; }
+function tveBuildQuestions(){
+  const t=tveTirage();
+  /* les quatre comptes d'abord — l'ordre de la fiche — puis les deux inéquations */
+  return [{pts:t.pts.slice(), type:'nb', ks:t.ks.slice()}]
+    .concat(t.ineqs.map(function(iq){ return {pts:t.pts.slice(), type:'ineq', k:iq.k, op:iq.op, cr:iq.cr.slice()}; }));
+}
+function startTVE(){
+  const qs=tveBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'tve', questions:qs, idx:0, score:0, maxScore:qs.reduce(function(n,q){ return n+tveSubCount(q); },0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('tve'); renderTVE();
+}
+/* Les ids des huit cases de l'union, dans l'ordre de lecture. */
+const TVE_IDS_UNION=['tve-co1','tve-b1','tve-b2','tve-cf1','tve-co2','tve-b3','tve-b4','tve-cf2'];
+/* Les nombres proposés aux bornes : les bords du tableau, les abscisses
+   données par l'énoncé, et les abscisses ÉCRITES du tableau — le piège : les
+   prendre pour bornes alors que f n'y vaut pas k. */
+function tveNombres(q){
+  const nodes=tveNoeuds(q.pts), s=new Set();
+  nodes.forEach(function(nd){ s.add(nd.x); });
+  q.cr.forEach(function(c){ s.add(c); });
+  return Array.from(s).sort(function(a,b){ return a-b; });
+}
+function tveDonne(q){
+  return q.cr.map(function(c){ return '<i>f</i> ('+itvNum(c)+') = '+itvNum(q.k); }).join(q.cr.length>2?', ':' et ');
+}
+let _tveSaveTimer=null;
+function renderTVE(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tveIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('tveModeTag').innerHTML=modeTagHTML();
+  { const cb=$('tveConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('tveRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('tveQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('tveSub').textContent='Le même tableau pour les '+test.questions.length+' questions.';
+  /* le tableau du 2.1, rendu en LECTURE : rien à remplir, tout à lire */
+  $('tveTable').innerHTML=varTableHTML(gsvAnalyze(q.pts), 'tve-v', '', true);
+  $('tveInstr').textContent='Le tableau de variation d’une fonction f définie sur [ −6 ; 6 ] est donné, et c’est tout. Entre deux valeurs écrites, la flèche dit que f ne fait que monter (ou que descendre) : elle passe donc UNE fois par chaque hauteur comprise entre ces deux valeurs, et jamais par une autre. Une valeur écrite ne se compte qu’une seule fois.';
+  let body='';
+  if(q.type==='nb'){
+    body='<ul class="tve-liste">'+q.ks.map(function(k,i){
+      /* la phrase est courte et « ? » reste collé à sa case : sur deux
+         colonnes, « solutions ? » se repliait et la case tombait seule à la
+         ligne suivante — vu sur capture, pas au banc */
+      return '<li>'+(i+1)+') <i>f</i> (<i>x</i>) = '+itvNum(k)+' a combien de <span style="white-space:nowrap">solutions ? <input id="tve-n-'+i+'" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="Nombre de solutions de f(x) = '+itvNum(k)+'"></span></li>';
+    }).join('')+'</ul>';
+  } else {
+    const optN=tveNombres(q).map(function(v){ return [String(v), itvNum(v)]; });
+    const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };
+    const selC=function(id,aria){ return itvSelHTML(id,ITV_OPT_CROCHET,aria,'crochet'); };
+    const inter=function(co,b1,b2,cf){ return selC(co,'Crochet ouvrant')+selN(b1,'Borne de gauche')+'<span class="itv-fixe">;</span>'+selN(b2,'Borne de droite')+selC(cf,'Crochet fermant'); };
+    body='<p class="tve-donne">On donne '+tveDonne(q)+'.</p>'
+      +'<div class="tve-solwrap"><div class="tve-sol"><span class="itv-fixe">Résoudre <i>f</i> (<i>x</i>) '+TVE_OPS[q.op]+' '+itvNum(q.k)+' :&nbsp; S =</span>'
+      +inter('tve-co1','tve-b1','tve-b2','tve-cf1')+'<span class="itv-fixe">∪</span>'+inter('tve-co2','tve-b3','tve-b4','tve-cf2')
+      +'</div></div>'
+      +'<p class="ens-note">Les deux morceaux, dans l’ordre que tu veux.</p>';
+  }
+  $('tveBody').innerHTML=body;
+  $('tveBody').querySelectorAll('input,select').forEach(function(el){
+    el.addEventListener('input',tveLive); el.addEventListener('change',function(){ tveLive(); clearTimeout(_tveSaveTimer); _tveSaveTimer=setTimeout(autoSave,1000); });
+  });
+  $('tveMark').className='mark'; $('tveMark').textContent=''; $('tveCorr').innerHTML='';
+  const b=$('tveValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitTVE;
+  setTimeout(tveLive,0);
+}
+function tveJuge(q){
+  const nodes=tveNoeuds(q.pts);
+  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  let subs;
+  if(q.type==='nb'){
+    subs=q.ks.map(function(k,i){ const n=tveNbSol(nodes,k); return {id:'tve-n-'+i, val:n, ok: lvReadInt('tve-n-'+i)===n}; });
+  } else {
+    const S=tveSolve(nodes,q.k,q.op,q.cr);
+    const spec=function(iv){ return [iv.aOuv?']':'[', String(iv.a), String(iv.b), iv.bOuv?'[':']']; };
+    const groupe=function(ids,sp){ return ids.map(function(id,i){ return {id:id, val:sp[i], ok:lire(id)===sp[i]}; }); };
+    const nOk=function(l){ return l.filter(function(x){ return x.ok; }).length; };
+    const g1=TVE_IDS_UNION.slice(0,4), g2=TVE_IDS_UNION.slice(4), s0=spec(S[0]), s1=spec(S[1]||S[0]);
+    /* l'ordre des deux morceaux est LIBRE — jugés au MIEUX, le motif du 2.11 */
+    const ab=groupe(g1,s0).concat(groupe(g2,s1)), ba=groupe(g1,s1).concat(groupe(g2,s0));
+    subs=nOk(ba)>nOk(ab)?ba:ab;
+  }
+  const nCorrect=subs.filter(function(x){ return x.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+/* Mode soutien : chaque case au fil de la saisie — la case vide ne reçoit RIEN. */
+function tveLive(){
+  if(test.kind!=='tve' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  tveJuge(q).subs.forEach(function(s){ const el=$(s.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(String(el.value==null?'':el.value).trim()==='') return;
+    el.classList.add(s.ok?'ok':'bad');
+  });
+}
+/* L'explication d'un compte : quelles flèches passent par k, quelle abscisse
+   écrite porte k. */
+function tveExplique(nodes, k){
+  const parts=[];
+  nodes.forEach(function(nd){ if(nd.y===k) parts.push('f ('+itvNum(nd.x)+') = '+itvNum(k)+' est écrit dans le tableau (une solution, comptée une fois)'); });
+  for(let i=0;i<nodes.length-1;i++){
+    const lo=Math.min(nodes[i].y,nodes[i+1].y), hi=Math.max(nodes[i].y,nodes[i+1].y);
+    if(k>lo && k<hi) parts.push('entre '+itvNum(nodes[i].x)+' et '+itvNum(nodes[i+1].x)+', f va de '+itvNum(nodes[i].y)+' à '+itvNum(nodes[i+1].y)+' : elle passe une fois par '+itvNum(k));
+  }
+  const n=tveNbSol(nodes,k);
+  if(!parts.length){ const ys=nodes.map(function(nd){ return nd.y; }); parts.push('aucune flèche ne va jusqu’à '+itvNum(k)+' : f reste '+(k>Math.max.apply(null,ys)?'en dessous':'au-dessus')); }
+  return 'f (x) = '+itvNum(k)+' : '+parts.join(' ; ')+' — donc '+n+' solution'+(n>1?'s':'')+'.';
+}
+function tveWhy(q){
+  const nodes=tveNoeuds(q.pts);
+  if(q.type==='nb') return q.ks.map(function(k){ return tveExplique(nodes,k); }).join(' ');
+  const S=tveSolve(nodes,q.k,q.op,q.cr), dessus=(q.op==='>='||q.op==='>'), strict=(q.op==='>'||q.op==='<');
+  return 'f (x) '+TVE_OPS[q.op]+' '+itvNum(q.k)+' là où la ligne du bas est '+(dessus?'AU-DESSUS':'EN DESSOUS')+' de '+itvNum(q.k)+'.'
+    +' Les abscisses données ('+q.cr.map(function(c){ return 'f ('+itvNum(c)+') = '+itvNum(q.k); }).join(', ')+') sont les bornes des morceaux ;'
+    +' les bords du tableau (−6 et 6) sont pris quand f y est du bon côté ;'
+    +' à une abscisse donnée, le crochet est '+(strict?'OUVERT, parce que l’inégalité est stricte':'FERMÉ, parce que l’inégalité accepte l’égalité')+'.'
+    +' Donc S = '+tveEcrit(S)+'.';
+}
+function submitTVE(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=tveJuge(q);
+  const peindre=function(final){
+    if(q.type==='nb') lvMarkFields(res, final);
+    else res.subs.forEach(function(s){ const el=$(s.id); s.vide=!el||String(el.value==null?'':el.value).trim()===''; corrChoix(el, s.val, s.ok); });
+  };
+  if(isSoutien() && !res.allOk){
+    peindre(false);
+    const mk=$('tveMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('tveCorr').textContent='Pas tout à fait — corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  peindre(true);
+  const mk=$('tveMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('tveValidate').disabled=true;
+  if(!res.allOk) $('tveCorr').textContent=(q.type==='nb') ? tveWhy(q) : msgAvecVides(res.subs, tveWhy(q));
+  else $('tveCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
+  const libelle=(q.type==='nb') ? 'Nombre de solutions de f(x) = '+q.ks.map(itvNum).join(', ') : 'f(x) '+TVE_OPS[q.op]+' '+itvNum(q.k)+' → S = '+tveEcrit(tveSolve(tveNoeuds(q.pts),q.k,q.op,q.cr));
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:libelle+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'tve'});
+  lvBoutonSuivant('tveValidate', nextTveQuestion);
+}
+function nextTveQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVE(); autoSave(); } else finishTest(); }
+/* Ce que le modèle sait de l'écran : le tableau LU comme l'élève le voit, la
+   question posée, et les réponses attendues — déclarées secrètes par la
+   clause qui accompagne tout contexte. */
+function ctxTve(q){
+  const a=gsvAnalyze(q.pts), nodes=a.nodes;
+  const faux=tveJuge(q).subs.filter(function(s){ const el=$(s.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !s.ok; }).length;
+  let c='L’élève a sous les yeux un TABLEAU DE VARIATION déjà rempli, et rien d’autre (pas de courbe). La fonction f est définie sur [−6 ; 6] et le tableau écrit : '
+    +nodes.map(function(nd){ return 'f('+numFmt(nd.x)+') = '+numFmt(nd.y); }).join(', ')
+    +' — f est '+a.segments.map(function(sg){ return sg.dir+' sur ['+numFmt(sg.fromX)+' ; '+numFmt(sg.toX)+']'; }).join(', ')+'.';
+  if(q.type==='nb'){
+    c+=' On lui demande combien de solutions a l’équation f(x) = k pour k = '+q.ks.map(numFmt).join(', ')+'. Méthode : une flèche donne une solution pour chaque hauteur strictement comprise entre ses deux bouts ; une valeur écrite dans le tableau compte une seule fois.'
+      +' Réponses attendues : '+q.ks.map(function(k){ return 'f(x) = '+numFmt(k)+' → '+tveNbSol(nodes,k); }).join(', ')+'.';
+  } else {
+    const S=tveSolve(nodes,q.k,q.op,q.cr);
+    c+=' On donne '+q.cr.map(function(cc){ return 'f('+numFmt(cc)+') = '+numFmt(q.k); }).join(' et ')+', et on lui demande de résoudre f(x) '+TVE_OPS[q.op]+' '+numFmt(q.k)+' en écrivant S comme une union de deux intervalles (crochets et bornes choisis dans des listes).'
+      +' Réponse attendue : S = '+tveEcrit(S)+'.';
+  }
+  if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
+  return {nombre:'', contexte:c};
+}
+
+
 /* ================= Exercice Seconde : Tableau de variation (kind 'tvd') =================
    Demande de Turquet (septembre 2026) : « compléter directement un tableau de
    variation en utilisant des dessins de l'exercice 2.1 et en présentant le
@@ -15762,7 +16109,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderMMX','renderMMT','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderMMX','renderMMT','renderTVE','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
