@@ -1840,7 +1840,11 @@ lieu de se replier. Le banc NAVIGATEUR (« 6 quater
 septies », déclaré par `tableauVraiFaux`) tient ce que jsdom ne voit pas :
 chaque affirmation et sa justification sur UNE rangée — coupée en deux, la
 justification se lirait sans son affirmation —, sans défilement à 1400 px,
-et il CHOISIT les trente-deux cases pour de vrai sur les deux pages.
+et il CHOISIT les trente-deux cases pour de vrai sur les deux pages — et
+c'est lui qui a repris mon compte : je les avais comptées 18 + 14, la
+composition de la copie ÉPINGLÉE du banc jsdom (types mêlés), quand le
+tirage réel pose quatre encadrements puis trois comparaisons, 20 + 12. Un
+compte recopié d'un banc à l'autre n'est pas une mesure.
 Vingt-quatre sabotages, chacun rougissant en nommant son défaut — sauf un, qui
 rougit sans rien nommer : k tiré n'importe où ET le garde des indécidables
 retiré fait tomber le TIRAGE en erreur avant que le contrôle ne mesure quoi

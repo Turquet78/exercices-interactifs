@@ -1155,7 +1155,7 @@ async function parcours(page, N){
                  cases: hote.querySelectorAll('input, select').length, fleches: hote.querySelectorAll('.vt-shaft').length };
       });
       const vu1 = await mesurer();
-      verifier('la première page pose quatre affirmations à dix-huit cases (5 + 5 + 4 + 4)', vu1.n === 4 && vu1.sels === 18, vu1.n + ' rangée(s), ' + vu1.sels + ' case(s)');
+      verifier('la première page pose quatre affirmations d encadrement à vingt cases (5 + 5 + 5 + 5)', vu1.n === 4 && vu1.sels === 20, vu1.n + ' rangée(s), ' + vu1.sels + ' case(s)');
       verifier('le tableau est rendu rempli, ses trois flèches tracées', vu1.cases === 0 && vu1.fleches === 3, vu1.cases + ' case(s), ' + vu1.fleches + ' flèche(s)');
       verifier('chaque affirmation tient sur une seule rangée', vu1.replis.length === 0, 'rangée(s) repliée(s) : ' + vu1.replis.join(','));
       verifier('aucune rangée ne défile à 1400 px, ni la page', vu1.defile === 0 && !vu1.page, vu1.defile + ' rangée(s) qui défile(nt)');
@@ -1188,16 +1188,16 @@ async function parcours(page, N){
         return s.page.evaluate(() => ({ ok: document.querySelectorAll('#tvfBody select.ok').length, bad: document.querySelectorAll('#tvfBody select.bad').length, badges: document.querySelectorAll('#tvfBody .mf-cor').length, score: test.score, idx: test.idx }));
       };
       const j1 = await jouer(['tvf-vf-0', 'tvf-a-0', 'tvf-m-0']);
-      verifier('quinze cases justes et trois fausses sur la première page : 15 ok, 3 bad, note 15', j1.ok === 15 && j1.bad === 3 && j1.score === 15, j1.ok + ' ok, ' + j1.bad + ' bad, note ' + j1.score);
+      verifier('dix-sept cases justes et trois fausses sur la première page : 17 ok, 3 bad, note 17', j1.ok === 17 && j1.bad === 3 && j1.score === 17, j1.ok + ' ok, ' + j1.bad + ' bad, note ' + j1.score);
       const vuC = await mesurer();
       verifier('la rangée corrigée porte ses trois badges verts d\'un seul tenant, sans défiler', j1.badges === 3 && vuC.replis.length === 0 && vuC.defile === 0 && !vuC.page, j1.badges + ' badge(s), repli : ' + vuC.replis.join(',') + ', ' + vuC.defile + ' rangée(s) qui défile(nt)');
       await s.page.click('#tvfValidate');
       await s.page.waitForTimeout(500);
       const vu2 = await mesurer();
       const num = await s.page.evaluate(() => (document.getElementById('tvfBody').textContent.indexOf('5)') >= 0));
-      verifier('la seconde page pose trois affirmations numérotées à la suite, d\'un seul tenant', vu2.n === 3 && vu2.sels === 14 && num && vu2.replis.length === 0, vu2.n + ' rangée(s), ' + vu2.sels + ' case(s), 5) ' + (num ? 'présent' : 'absent') + ', repli : ' + vu2.replis.join(','));
+      verifier('la seconde page pose trois affirmations numérotées à la suite, d\'un seul tenant', vu2.n === 3 && vu2.sels === 12 && num && vu2.replis.length === 0, vu2.n + ' rangée(s), ' + vu2.sels + ' case(s), 5) ' + (num ? 'présent' : 'absent') + ', repli : ' + vu2.replis.join(','));
       const j2 = await jouer();
-      verifier('les quatorze cases justes de la seconde page portent la note à 29', j2.ok === 14 && j2.score === 29, j2.ok + ' ok, note ' + j2.score);
+      verifier('les douze cases justes de la seconde page (trois comparaisons, le sens) portent la note à 29', j2.ok === 12 && j2.score === 29, j2.ok + ' ok, note ' + j2.score);
       await s.nav.close(); s = null;
     }
 
