@@ -1119,6 +1119,70 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater septies. l'affirmation et sa justification d'un seul tenant =====
+       {tableau-vrai-faux} : le banc jsdom tient le tirage, la décidabilité
+       et le jugement. Ce qu'il ne voit pas : la rangée d'une affirmation —
+       « 1) f (−5) est positif. [Vrai] car la fonction est [décroissante]
+       sur [ −6 ; −1 ] » — qui se REPLIERAIT, la justification tombant sous
+       son affirmation, ou qui défilerait à la largeur d'un écran
+       d'ordinateur. Seul un navigateur sait où une rangée se replie. Il
+       CHOISIT aussi les vingt-huit cases pour de vrai, sur les deux pages,
+       et relit les couleurs et la note. */
+    titre('6 quater septies. L\'AFFIRMATION ET SA JUSTIFICATION D\'UN SEUL TENANT');
+    if(!P.tableauVraiFaux){
+      ignorer('chaque affirmation tient sur une seule rangée',
+        'ce niveau n\'a pas l\'exercice du vrai ou faux sur tableau de variation');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.tableauVraiFaux.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const mesurer = () => s.page.evaluate(() => {
+        const lignes = Array.from(document.querySelectorAll('#tvfBody .tvf-ligne'));
+        const replis = lignes.map((l, i) => {
+          const tops = Array.from(l.querySelectorAll('select, .tvf-aff, .tvf-num')).map(e => Math.round(e.getBoundingClientRect().top + e.getBoundingClientRect().height / 2));
+          return (Math.max(...tops) - Math.min(...tops) > 8) ? (i + 1) : 0;
+        }).filter(Boolean);
+        const defile = Array.from(document.querySelectorAll('#tvfBody .tvf-wrap')).filter(w => w.scrollWidth > w.clientWidth + 1).length;
+        const hote = document.getElementById('tvfTable'), card = hote.closest('.card');
+        const t = hote.querySelector('table').getBoundingClientRect(), cr = card.getBoundingClientRect();
+        return { n: lignes.length, sels: document.querySelectorAll('#tvfBody select').length, replis, defile,
+                 tableSort: t.right > cr.right + 1 || hote.scrollWidth > hote.clientWidth + 1,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                 cases: hote.querySelectorAll('input, select').length, fleches: hote.querySelectorAll('.vt-shaft').length };
+      });
+      const vu1 = await mesurer();
+      verifier('la première page pose quatre affirmations à seize cases', vu1.n === 4 && vu1.sels === 16, vu1.n + ' rangée(s), ' + vu1.sels + ' case(s)');
+      verifier('le tableau est rendu rempli, ses trois flèches tracées', vu1.cases === 0 && vu1.fleches === 3, vu1.cases + ' case(s), ' + vu1.fleches + ' flèche(s)');
+      verifier('chaque affirmation tient sur une seule rangée', vu1.replis.length === 0, 'rangée(s) repliée(s) : ' + vu1.replis.join(','));
+      verifier('aucune rangée ne défile à 1400 px, ni la page', vu1.defile === 0 && !vu1.page, vu1.defile + ' rangée(s) qui défile(nt)');
+      verifier('le tableau ne déborde pas de sa carte', !vu1.tableSort, '');
+      /* on CHOISIT les réponses pour de vrai, dans les listes, sur les deux pages */
+      const jouer = async () => {
+        const bonnes = await s.page.evaluate(() => {
+          const q = test.questions[test.idx], nodes = tvfNoeuds(q.pts);
+          return q.aff.map((af, j) => { const v = tvfVerite(nodes, af);
+            return [['tvf-vf-' + j, v.vrai ? 'V' : 'F'], ['tvf-s-' + j, v.sens === 'croissante' ? 'c' : 'd'], ['tvf-a-' + j, String(v.a)], ['tvf-b-' + j, String(v.b)]]; }).flat();
+        });
+        for(const [id, val] of bonnes) await s.page.selectOption('#' + id, val);
+        await s.page.click('#tvfValidate');
+        await s.page.waitForTimeout(400);
+        return s.page.evaluate(() => ({ ok: document.querySelectorAll('#tvfBody select.ok').length, score: test.score, idx: test.idx }));
+      };
+      const j1 = await jouer();
+      verifier('les seize cases choisies justes sont peintes ok et valent 16', j1.ok === 16 && j1.score === 16, j1.ok + ' ok, note ' + j1.score);
+      await s.page.click('#tvfValidate');
+      await s.page.waitForTimeout(500);
+      const vu2 = await mesurer();
+      const num = await s.page.evaluate(() => (document.getElementById('tvfBody').textContent.indexOf('5)') >= 0));
+      verifier('la seconde page pose trois affirmations numérotées à la suite, d\'un seul tenant', vu2.n === 3 && vu2.sels === 12 && num && vu2.replis.length === 0, vu2.n + ' rangée(s), ' + vu2.sels + ' case(s), 5) ' + (num ? 'présent' : 'absent') + ', repli : ' + vu2.replis.join(','));
+      const j2 = await jouer();
+      verifier('les douze cases de la seconde page portent la note à 28', j2.ok === 12 && j2.score === 28, j2.ok + ' ok, note ' + j2.score);
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —

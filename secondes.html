@@ -509,7 +509,7 @@
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
   #scr-lsv .lsv-titre,#scr-gsv .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-mmx,#scr-mmt,#scr-tve,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -925,6 +925,18 @@
   .tve-sol{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;width:max-content;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink);background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:14px;padding:10px 14px}
   .tve-sol .itv-sel.crochet{width:50px}
   @media(max-width:520px){ .tve-liste{grid-template-columns:1fr} }
+  /* {tableau-vrai-faux} : une affirmation par rangée — « 1) f (−5) est
+     positif. [Vrai] car la fonction est [décroissante] sur [ −6 ; −1 ] » —
+     d'un seul tenant : coupée en deux, la justification se lirait sans son
+     affirmation. Sur un écran étroit, la rangée DÉFILE au lieu de se replier
+     (la leçon de l'union du 2.18). */
+  .tvf-liste{list-style:none;padding:0;margin:14px 0 0}
+  .tvf-wrap{overflow-x:auto;padding-bottom:2px;margin:8px 0}
+  .tvf-ligne{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;width:max-content;min-width:100%;box-sizing:border-box;font-weight:700;line-height:1.6;background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:14px;padding:8px 14px}
+  .tvf-num{color:var(--blue);font-family:"Fredoka";font-weight:600;font-size:1.1rem}
+  .tvf-aff{font-family:"Fredoka";font-weight:600;font-size:1.15rem;color:var(--ink);min-width:150px}
+  .tvf-ligne .itv-sel.vf{width:84px}
+  .tvf-ligne .itv-sel.sens{width:150px;font-size:1.05rem}
   .adr-niv{stroke:#C2410C;stroke-width:3;fill:none;stroke-linecap:round}
   .adr-niv.bad{stroke:var(--red)}
   .adr-sol{stroke:var(--green);stroke-width:2.6;stroke-dasharray:8 5;fill:none}
@@ -1282,6 +1294,11 @@
        2.11). La carte prend la largeur de cette ligne ; sur un écran plus
        étroit, la ligne DÉFILE au lieu de se replier (.tve-solwrap). */
     #scr-tve .lv-card{max-width:920px}
+    /* {tableau-vrai-faux} : la rangée d'une affirmation — texte, Vrai/Faux,
+       sens, intervalle — fait 830 px à vide, et les badges verts de la
+       correction l'élargissent : à 920 px (la carte du 2.18) la rangée
+       corrigée DÉFILAIT et cachait la bonne borne — vu sur capture. */
+    #scr-tvf .lv-card{max-width:1040px}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
     /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
@@ -1755,6 +1772,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="tveBody"></div>
       <div class="lv-feedback"><span id="tveMark" class="mark"></span> <span id="tveCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="tveRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="tveConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="tveQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="tveValidate" onclick="submitTVE()">Valider</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="scr-tvf">
+    <div class="card lv-card">
+      <div class="q-head"><span id="tvfIdx" class="q-idx">Question 1 / 2</span><span id="tvfModeTag"></span></div>
+      <p class="lv-sub" id="tvfSub"></p>
+      <p class="lv-instr" id="tvfInstr"></p>
+      <div class="lv-tblwrap" id="tvfTable"></div>
+      <div id="tvfBody"></div>
+      <div class="lv-feedback"><span id="tvfMark" class="mark"></span> <span id="tvfCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="tvfRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="tvfConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="tvfQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="tvfValidate" onclick="submitTVF()">Valider</button></div>
     </div>
   </section>
 
@@ -2415,7 +2444,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=142;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=143;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2941,6 +2970,7 @@ const TESTS={
   'maximum-minimum': { name:'Maximum et minimum', icon:'\ud83d\udd3a', desc:'Sur le GRAND dessin d\u2019{antecedents-droite} : la m\u00eame courbe et cinq intervalles \u2014 donne \u00e0 chaque fois le maximum et le minimum de la fonction, l\u2019abscisse o\u00f9 chacun est atteint, puis l\u2019encadrement \u2026 \u2264 f\u2009(x)\u2009\u2264 \u2026', start:()=>startMMX() },
   'maximum-minimum-tableau': { name:'Maximum et minimum sur un tableau', icon:'📋', desc:'Les mêmes questions que {maximum-minimum}, mais sans dessin : on te donne le TABLEAU DE VARIATION de f, et c’est lui qu’il faut lire pour trouver le maximum, le minimum et l’encadrement sur chaque intervalle.', start:()=>startMMT() },
   'tableau-equations': { name:'Équations et inéquations dans un tableau', icon:'🔢', desc:'Un tableau de variation, et rien d’autre : combien de solutions a l’équation f (x) = k ? Puis résoudre f (x) ≥ k ou f (x) < k en écrivant S avec les bonnes bornes et les bons crochets. Les flèches disent tout — il faut raisonner, comme dans {maximum-minimum-tableau}.', start:()=>startTVE() },
+  'tableau-vrai-faux': { name:'Vrai ou faux sur un tableau', icon:'⚖️', desc:'Un tableau de variation et sept affirmations — « f (−5) est positif », « f (3) ≤ 6 », « f (1) ≤ f (2) »… Vrai ou faux ? Puis justifie : la fonction est croissante ou décroissante, et sur quel intervalle. Le raisonnement de {tableau-equations}, poussé jusqu’à la preuve.', start:()=>startTVF() },
   'inequation-graphique': { name:'Inéquation graphique', icon:'\ud83c\udfaf', desc:'La courbe de f et une droite horizontale : choisis, parmi quatre dessins coloriés, celui qui montre f\u2009(x)\u2009\u2265\u20092, dis où la partie rouge commence et s\u2019arrête, puis écris la solution en intervalle.', start:()=>startIng() },
   'pourcentage': { name:'Pourcentage d\u2019un nombre', icon:'％', desc:'Calcule le pourcentage d\u2019un nombre en 3 étapes.', start:()=>startPercent() },
   'augmenter-pourcentage': { name:'Augmenter d\u2019un pourcentage', icon:'\ud83d\udcc8', desc:'Augmente une quantité d\u2019un pourcentage, en 4 étapes.', start:()=>startAug() },
@@ -2991,7 +3021,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','construire-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','construire-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3058,6 +3088,7 @@ function liveCheckCurrent(){
   else if(k==='mmx') mmxLive();
   else if(k==='mmt') mmtLive();
   else if(k==='tve') tveLive();
+  else if(k==='tvf') tvfLive();
   else if(k==='adr') adrLive();
   else if(k==='iqd') iqdLive();
   else if(k==='ifg') checkIfgAnswer(true);
@@ -3628,6 +3659,7 @@ function conseilPaire(){
   else if(test.kind==='mmx' && q) b=ctxMmx(q);
   else if(test.kind==='mmt' && q) b=ctxMmt(q);
   else if(test.kind==='tve' && q) b=ctxTve(q);
+  else if(test.kind==='tvf' && q) b=ctxTvf(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
@@ -3859,6 +3891,7 @@ const QIA_SUGG={
   gsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Comment lire une valeur sur le grand quadrillage, de \u22126 \u00e0 6 ?"],
   mmt:["Comment lire le maximum dans un tableau de variation ?","Pourquoi les extremums sont-ils toujours des valeurs \u00e9crites dans le tableau ?","Comment savoir o\u00f9 le maximum est atteint quand la fl\u00e8che monte ?"],
   tve:["Comment savoir combien de fois une fl\u00e8che passe par une hauteur ?","Pourquoi une valeur \u00e9crite dans le tableau ne compte-t-elle qu\u2019une seule fois ?","Comment choisir le crochet \u00e0 une borne donn\u00e9e par l\u2019\u00e9nonc\u00e9 ?"],
+  tvf:["Comment savoir si f (a) est positif sans conna\u00eetre f (a) ?","Pourquoi f (a) \u2264 f (b) se lit-il dans le sens de la fl\u00e8che ?","Quel intervalle \u00e9crire dans la justification ?"],
   mmx:["Comment lire le maximum de la fonction sur un intervalle ?","Quelle diff\u00e9rence entre la valeur du maximum et l\u2019abscisse o\u00f9 il est atteint ?","Comment \u00e9crire l\u2019encadrement une fois le maximum et le minimum trouv\u00e9s ?"],
   tvd:["Comment trouver les changements de sens sur le dessin ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?","Comment savoir si la fl\u00e8che monte ou descend ?"],
   img:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","À quoi sert le trait vertical ?","Quelle est la différence entre un nombre et son image ?"],
@@ -4261,6 +4294,12 @@ const RAP_TVE=`<b>Équations et inéquations lues dans un tableau de variation</
 • <b>Résoudre f (x) ≥ k</b> : on cherche les x où f est AU-DESSUS de k (EN DESSOUS pour ≤). L’énoncé DONNE les abscisses où f vaut exactement k — elles ne se lisent pas dans le tableau — : ce sont les bornes des morceaux. Les bords du tableau (−6 et 6) sont pris quand f y est du bon côté.<br>
 • Le <b>crochet</b> : FERMÉ à une borne donnée si l’inégalité accepte l’égalité (≥, ≤), OUVERT sinon (&gt;, &lt;). Aux bords −6 et 6 du tableau, il est toujours fermé.<br>
 • Deux morceaux s’écrivent avec ∪ : par exemple S = [−6 ; −5] ∪ [2 ; 6].`;
+const RAP_TVF=`<b>Vrai ou faux avec un tableau de variation</b><br>
+• Entre deux valeurs écrites, la flèche dit que f ne fait que MONTER (↗) ou que DESCENDRE (↘). Pour un nombre a entre deux abscisses écrites, f (a) est donc STRICTEMENT entre les deux valeurs écrites aux bouts de la flèche : on ne connaît pas f (a), mais on sait entre quoi et quoi il se trouve.<br>
+• <b>« f (a) est positif »</b> : si les deux bouts de la flèche sont positifs (ou l’un d’eux vaut 0), f (a) est positif ; s’ils sont négatifs, f (a) est négatif. Si la flèche va d’un négatif à un positif, on ne peut PAS savoir — l’exercice ne pose jamais cette question-là.<br>
+• <b>« f (a) ≤ k »</b> : VRAI si k est au niveau ou au-dessus du plus GRAND des deux bouts ; FAUX si k est au niveau ou en dessous du plus PETIT.<br>
+• <b>« f (a) ≤ f (b) »</b> avec a &lt; b sur la MÊME flèche : VRAI si f est croissante sur cette flèche, FAUX si elle est décroissante — les images se rangent dans le sens de la flèche.<br>
+• La <b>justification</b> nomme le sens de f et l’intervalle de la flèche, entre ses deux abscisses écrites : par exemple « décroissante sur [ −6 ; −1 ] ». Jamais un intervalle qui enjambe un changement de sens.`;
 const RAP_TSG=`<b>Le tableau de signes se lit sur le dessin</b><br>
 • <b>Au-dessus de l'axe des abscisses</b> (en ROUGE sur le dessin) : f (x) &gt; 0, on écrit le signe <b>+</b>. <b>En dessous</b> (en BLEU) : f (x) &lt; 0, signe <b>−</b>.<br>
 • <b>Aux racines</b> — les x où la courbe COUPE l'axe — f (x) = 0 : on écrit <b>0</b> dans le tableau, jamais un signe.<br>
@@ -4289,7 +4328,7 @@ Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situ�
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
 La <b>hauteur</b> de ce point, lue sur l'axe vertical, est <b>l'image de <i>a</i></b> : on la note <i>f</i>(<i>a</i>).<br>
 Exemple : si le point de la courbe d'abscisse 2 est à la hauteur 3, alors <i>f</i>(2) = 3 — l'image de 2 est 3.`;
-const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4756,7 +4795,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
+  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -4880,7 +4919,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','mmx','mmt','tve','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -10952,6 +10991,267 @@ function ctxTve(q){
 }
 
 
+/* ================= Exercice Seconde : Vrai ou faux sur un tableau (kind 'tvf') =================
+   Repris de la fiche « tableau de variation V/F » (Exercice 9, demande de
+   Turquet, septembre 2026) : un tableau de variation donné, et SEPT
+   affirmations — « f(−5) est positif », « f(3) ≤ 6 », « f(1) ≤ f(2) » — à
+   dire VRAIES ou FAUSSES en JUSTIFIANT : « car la fonction est
+   [croissante / décroissante] sur [ … ; … ] ». C'est le raisonnement du 2.18
+   poussé jusqu'à la preuve : entre deux valeurs écrites, f ne fait que monter
+   (ou que descendre), donc f(a) est STRICTEMENT entre les deux valeurs
+   écrites aux bouts de sa flèche, et f(a) ≤ f(b) se lit dans le SENS de la
+   flèche.
+   Tout est repris, rien n'est recopié : le tirage est adrGenPts(3) — trois
+   flèches, la forme de la fiche —, l'analyse gsvAnalyze (ses segments disent
+   « croissante » / « décroissante », les mots mêmes que la justification
+   demande), le tableau varTableHTML en mode LECTURE, les cases les
+   sélecteurs de la famille .itv-sel (corrChoix, msgAvecVides).
+   LE RISQUE PROPRE EST L'AFFIRMATION INDÉCIDABLE, et la fiche elle-même le
+   porte : sa question 2 demande si f(5) est positif quand f DESCEND de 5 à
+   −2 sur [4 ; 6] — f(5) est strictement entre −2 et 5, il peut être positif
+   comme négatif, et ni « Vrai » ni « Faux » n'est une réponse juste. Ici
+   chaque affirmation est tirée DÉCIDABLE : le signe ne se demande que sur
+   une flèche qui ne traverse pas 0, la comparaison à k que pour un k hors de
+   la flèche, et f(a) ≤ f(b) que pour a et b sur la MÊME flèche.
+   La bonne réponse n'est jamais rangée à côté de la question : la question
+   ne porte que la courbe et les affirmations, et tvfVerite — la fonction
+   même qui corrige — recalcule tout ; le contrôle la refait sur les treize
+   valeurs de la GRILLE, que la page ne lit jamais. */
+const TVF_COMPOSITION=['signe','signe','cst','cst','cmp','cmp','cmp'];
+const TVF_PAR_ECRAN=4;
+function tvfNoeuds(pts){ return gsvAnalyze(pts).nodes; }
+/* La flèche qui porte a STRICTEMENT en son intérieur (signe, comparaison à
+   k), ou le morceau [a ; b] tout entier (comparaison de deux images) : son
+   indice, ou −1. */
+function tvfFleche(nodes, a, b){
+  for(let i=0;i<nodes.length-1;i++){
+    if(b==null){ if(a>nodes[i].x && a<nodes[i+1].x) return i; }
+    else if(a>=nodes[i].x && b<=nodes[i+1].x) return i;
+  }
+  return -1;
+}
+/* La vérité d'une affirmation, lue dans le TABLEAU seul — ce que l'élève a
+   sous les yeux. Rend null quand le tableau ne permet pas de trancher (le
+   défaut de la question 2 de la fiche) : le tirage écarte, le contrôle
+   exige. Sinon {vrai, seg, sens, a, b, lo, hi} — la justification attendue
+   est la flèche : son sens et son intervalle. */
+function tvfVerite(nodes, af){
+  const cmp=(af.t==='cmp');
+  const i=tvfFleche(nodes, af.a, cmp?af.b:null);
+  if(i<0) return null;
+  const ya=nodes[i].y, yb=nodes[i+1].y, lo=Math.min(ya,yb), hi=Math.max(ya,yb), croiss=(yb>ya);
+  let vrai;
+  if(af.t==='signe'){
+    /* f(a) est strictement entre lo et hi : positif si lo ≥ 0, négatif si
+       hi ≤ 0 — et INDÉCIDABLE si la flèche traverse 0 */
+    const pos=(lo>=0), neg=(hi<=0);
+    if(!pos && !neg) return null;
+    vrai = (af.v===0) ? pos : neg;
+  } else if(af.t==='cst'){
+    /* f(a) ≤ k : vrai si hi ≤ k, faux si lo ≥ k, indécidable entre les
+       deux ; f(a) ≥ k en miroir */
+    if(af.k>lo && af.k<hi) return null;
+    vrai = (af.v===0) ? (hi<=af.k) : (lo>=af.k);
+  } else {
+    /* a < b sur la MÊME flèche : f(a) ≤ f(b) est vrai si f monte,
+       f(a) ≥ f(b) si elle descend */
+    if(!(af.a<af.b)) return null;
+    vrai = (af.v===0) ? croiss : !croiss;
+  }
+  return {vrai:vrai, seg:i, sens:croiss?'croissante':'décroissante', a:nodes[i].x, b:nodes[i+1].x, lo:lo, hi:hi};
+}
+function tvfTexte(af){
+  const F=function(x){ return '<i>f</i> ('+itvNum(x)+')'; };
+  if(af.t==='signe') return F(af.a)+' est '+(af.v===0?'positif':'négatif')+'.';
+  if(af.t==='cst') return F(af.a)+' '+(af.v===0?'≤':'≥')+' '+itvNum(af.k)+'.';
+  return F(af.a)+' '+(af.v===0?'≤':'≥')+' '+F(af.b)+'.';
+}
+function tvfTextePlain(af){ return tvfTexte(af).replace(/<[^>]+>/g,''); }
+/* Les sept affirmations de la fiche, dans son ordre — deux signes, deux
+   comparaisons à un nombre, trois comparaisons de deux images — toutes
+   DÉCIDABLES, jamais deux fois la même, au moins trois vraies ET trois
+   fausses (sans quoi l'élève apprendrait que la réponse est toujours du même
+   côté), et les deux sens de variation parmi les justifications. La
+   comparaison à k se pose PRÈS de la flèche (à deux unités au plus du bout
+   le plus proche) : « f(3) ≤ 6 » quand f monte jusqu'à 5 — le k de la fiche. */
+function tvfAffirmations(nodes){
+  const segs=[]; for(let i=0;i<nodes.length-1;i++) segs.push({xa:nodes[i].x, xb:nodes[i+1].x, lo:Math.min(nodes[i].y,nodes[i+1].y), hi:Math.max(nodes[i].y,nodes[i+1].y)});
+  const interieur=segs.filter(function(s){ return s.xb-s.xa>=2; });
+  const sansZero=interieur.filter(function(s){ return s.lo>=0 || s.hi<=0; });
+  if(!sansZero.length) return null;
+  for(let att=0;att<60;att++){
+    const aff=TVF_COMPOSITION.map(function(t){
+      if(t==='signe'){ const s=pick(sansZero); return {t:'signe', a:rand(s.xa+1,s.xb-1), v:rand(0,1)}; }
+      if(t==='cst'){ const s=pick(interieur); const ks=[]; for(let k=-6;k<=6;k++) if((k<=s.lo && k>=s.lo-2)||(k>=s.hi && k<=s.hi+2)) ks.push(k); return {t:'cst', a:rand(s.xa+1,s.xb-1), k:pick(ks), v:rand(0,1)}; }
+      const s=pick(segs), a=rand(s.xa,s.xb-1), b=rand(a+1,s.xb); return {t:'cmp', a:a, b:b, v:rand(0,1)};
+    });
+    /* jamais deux affirmations sur le MÊME nombre (ou la même paire), fût-ce
+       en miroir : « f(5) est positif » et « f(5) est négatif » se répondent
+       l une l autre, et la sonde les a vues sortir ensemble */
+    if(new Set(aff.map(function(af){ return af.t+'|'+af.a+'|'+(af.t==='cmp'?af.b:af.t==='cst'?af.k:''); })).size!==aff.length) continue;
+    const vs=aff.map(function(af){ return tvfVerite(nodes,af); });
+    if(vs.some(function(v){ return !v; })) continue;
+    const nV=vs.filter(function(v){ return v.vrai; }).length;
+    if(nV<3 || aff.length-nV<3) continue;
+    if(new Set(vs.map(function(v){ return v.sens; })).size<2) continue;
+    return aff;
+  }
+  return null;
+}
+/* Le repli RÉEL, relevé sur le générateur (sonde, septembre 2026 : 35 % des
+   courbes à trois flèches conviennent — le facteur limitant est la flèche qui
+   ne traverse pas 0 —, 2,8 essais en moyenne, pire cas 17 sur 400 séances,
+   0 recours au repli) : il passe par les gardes MÊMES du tirage, que le
+   contrôle rejoue sur lui. */
+const TVF_REPLI={ pts:[-6,-4,-3,-2,0,-1,-2,-3,-1,0,1,2,3],
+  aff:[{t:'signe',a:-1,v:0},{t:'signe',a:-4,v:1},{t:'cst',a:2,k:4,v:1},{t:'cst',a:-3,k:0,v:0},{t:'cmp',a:3,b:4,v:0},{t:'cmp',a:0,b:1,v:0},{t:'cmp',a:2,b:5,v:0}] };
+function tvfTirage(){
+  for(let att=0;att<3000;att++){
+    /* la forme de la fiche : TROIS flèches */
+    const pts=adrGenPts(3);
+    if(!pts) continue;
+    const nodes=tvfNoeuds(pts);
+    if(nodes.length!==4) continue;
+    const aff=tvfAffirmations(nodes); if(!aff) continue;
+    return {pts:pts, aff:aff};
+  }
+  return {pts:TVF_REPLI.pts.slice(), aff:TVF_REPLI.aff.map(function(af){ return Object.assign({},af); })};
+}
+function tvfSubCount(q){ return q.aff.length*4; }
+function tvfBuildQuestions(){
+  const t=tvfTirage();
+  /* sept affirmations sur DEUX écrans — quatre, puis trois — numérotées à
+     la suite comme sur la fiche ; le même tableau pour les deux */
+  return [{pts:t.pts.slice(), n0:0, aff:t.aff.slice(0,TVF_PAR_ECRAN)},
+          {pts:t.pts.slice(), n0:TVF_PAR_ECRAN, aff:t.aff.slice(TVF_PAR_ECRAN)}];
+}
+function startTVF(){
+  const qs=tvfBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'tvf', questions:qs, idx:0, score:0, maxScore:qs.reduce(function(n,q){ return n+tvfSubCount(q); },0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('tvf'); renderTVF();
+}
+const TVF_OPT_VF=[['V','Vrai'],['F','Faux']];
+const TVF_OPT_SENS=[['c','croissante'],['d','décroissante']];
+/* Les quatre cases d'une affirmation : Vrai/Faux, le sens, les deux bornes. */
+function tvfIds(j){ return ['tvf-vf-'+j,'tvf-s-'+j,'tvf-a-'+j,'tvf-b-'+j]; }
+let _tvfSaveTimer=null;
+function renderTVF(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tvfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('tvfModeTag').innerHTML=modeTagHTML();
+  { const cb=$('tvfConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('tvfRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('tvfQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('tvfSub').textContent='Le même tableau pour les '+test.questions.length+' questions — affirmations '+(q.n0+1)+' à '+(q.n0+q.aff.length)+'.';
+  /* le tableau du 2.1, rendu en LECTURE : rien à remplir, tout à lire */
+  $('tvfTable').innerHTML=varTableHTML(gsvAnalyze(q.pts), 'tvf-v', '', true);
+  $('tvfInstr').textContent='Le tableau de variation d’une fonction f définie sur [ −6 ; 6 ] est donné, et c’est tout. Entre deux valeurs écrites, f ne fait que monter (ou que descendre) : f (a) est donc STRICTEMENT entre les deux valeurs écrites aux bouts de sa flèche, et deux images sur la même flèche se rangent dans le sens de la flèche. Pour chaque affirmation, réponds Vrai ou Faux, puis JUSTIFIE : la fonction est croissante ou décroissante, sur l’intervalle du tableau qui contient le ou les nombres de l’affirmation.';
+  /* les bornes proposées : les abscisses ÉCRITES du tableau — dont les deux
+     bords, le piège de l'intervalle qui enjambe un changement de sens */
+  const optX=tvfNoeuds(q.pts).map(function(nd){ return [String(nd.x), itvNum(nd.x)]; });
+  $('tvfBody').innerHTML='<ul class="tvf-liste">'+q.aff.map(function(af,j){
+    const ids=tvfIds(j);
+    return '<li class="tvf-wrap"><div class="tvf-ligne"><span class="tvf-num">'+(q.n0+j+1)+')</span><span class="tvf-aff">'+tvfTexte(af)+'</span>'
+      +itvSelHTML(ids[0],TVF_OPT_VF,'Vrai ou faux','vf')
+      +'<span class="itv-fixe">car la fonction est</span>'
+      +itvSelHTML(ids[1],TVF_OPT_SENS,'Sens de variation','sens')
+      +'<span class="itv-fixe">sur [</span>'+itvSelHTML(ids[2],optX,'Borne de gauche')+'<span class="itv-fixe">;</span>'+itvSelHTML(ids[3],optX,'Borne de droite')+'<span class="itv-fixe">]</span>'
+      +'</div></li>';
+  }).join('')+'</ul>';
+  $('tvfBody').querySelectorAll('select').forEach(function(el){
+    el.addEventListener('change',function(){ tvfLive(); clearTimeout(_tvfSaveTimer); _tvfSaveTimer=setTimeout(autoSave,1000); });
+  });
+  $('tvfMark').className='mark'; $('tvfMark').textContent=''; $('tvfCorr').innerHTML='';
+  const b=$('tvfValidate'); b.disabled=false; b.textContent='Valider'; b.onclick=submitTVF;
+  setTimeout(tvfLive,0);
+}
+/* Chaque case se juge SEULE : un « Vrai » faux ne fait pas payer une
+   justification juste, et une borne fausse ne coûte que son point. */
+function tvfJuge(q){
+  const nodes=tvfNoeuds(q.pts);
+  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  const subs=[];
+  q.aff.forEach(function(af,j){
+    const v=tvfVerite(nodes,af); if(!v) return;
+    const attendu=[v.vrai?'V':'F', v.sens==='croissante'?'c':'d', String(v.a), String(v.b)];
+    tvfIds(j).forEach(function(id,i){ subs.push({id:id, val:attendu[i], ok:lire(id)===attendu[i], aff:j}); });
+  });
+  const nCorrect=subs.filter(function(x){ return x.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+/* Mode soutien : chaque case au fil du choix — la case vide ne reçoit RIEN. */
+function tvfLive(){
+  if(test.kind!=='tvf' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  tvfJuge(q).subs.forEach(function(s){ const el=$(s.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    if(String(el.value==null?'':el.value).trim()==='') return;
+    el.classList.add(s.ok?'ok':'bad');
+  });
+}
+/* L'explication d'une affirmation : la flèche, ses bouts, l'encadrement de
+   f(a) qui en découle — et le verdict. */
+function tvfExplique(nodes, af, num){
+  const v=tvfVerite(nodes,af); if(!v) return '';
+  let s=num+') '+tvfTextePlain(af)+' → '+(v.vrai?'VRAI':'FAUX')+', car f est '+v.sens+' sur [ '+itvNum(v.a)+' ; '+itvNum(v.b)+' ]';
+  if(af.t==='cmp') s+=' et '+itvNum(af.a)+' < '+itvNum(af.b)+' : f ('+itvNum(af.a)+') est donc '+(v.sens==='croissante'?'plus petit':'plus grand')+' que f ('+itvNum(af.b)+').';
+  else {
+    s+=', où f va de '+itvNum(nodes[v.seg].y)+' à '+itvNum(nodes[v.seg+1].y)+' : f ('+itvNum(af.a)+') est strictement entre '+itvNum(v.lo)+' et '+itvNum(v.hi);
+    if(af.t==='signe') s+=', donc '+(v.lo>=0?'positif':'négatif')+'.';
+    else s+=', donc '+(v.vrai?'bien':'pas')+' '+(af.v===0?'≤':'≥')+' '+itvNum(af.k)+'.';
+  }
+  return s;
+}
+/* Le message n'explique que les affirmations qui portent une VRAIE faute —
+   expliquer une erreur qui n'existe pas donne tort à une lecture juste. */
+function tvfWhy(q, subs){
+  const nodes=tvfNoeuds(q.pts);
+  const fautives=new Set(subs.filter(function(s){ return !s.ok && !s.vide; }).map(function(s){ return s.aff; }));
+  return q.aff.map(function(af,j){ return fautives.has(j) ? tvfExplique(nodes,af,q.n0+j+1) : ''; }).filter(Boolean).join(' ');
+}
+function submitTVF(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=tvfJuge(q);
+  res.subs.forEach(function(s){ const el=$(s.id); s.vide=!el||String(el.value==null?'':el.value).trim()===''; });
+  const peindre=function(){ res.subs.forEach(function(s){ corrChoix($(s.id), s.val, s.ok); }); };
+  if(isSoutien() && !res.allOk){
+    peindre();
+    const mk=$('tvfMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('tvfCorr').textContent='Pas tout à fait — corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  peindre();
+  const mk=$('tvfMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('tvfValidate').disabled=true;
+  if(!res.allOk) $('tvfCorr').textContent=msgAvecVides(res.subs, tvfWhy(q, res.subs));
+  else $('tvfCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Affirmations '+(q.n0+1)+' à '+(q.n0+q.aff.length)+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'tvf'});
+  lvBoutonSuivant('tvfValidate', nextTvfQuestion);
+}
+function nextTvfQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTVF(); autoSave(); } else finishTest(); }
+/* Ce que le modèle sait de l'écran : le tableau LU comme l'élève le voit, les
+   affirmations, et les réponses attendues — déclarées secrètes par la clause
+   qui accompagne tout contexte. */
+function ctxTvf(q){
+  const a=gsvAnalyze(q.pts), nodes=a.nodes;
+  const faux=tvfJuge(q).subs.filter(function(s){ const el=$(s.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !s.ok; }).length;
+  let c='L’élève a sous les yeux un TABLEAU DE VARIATION déjà rempli, et rien d’autre (pas de courbe). La fonction f est définie sur [−6 ; 6] et le tableau écrit : '
+    +nodes.map(function(nd){ return 'f('+numFmt(nd.x)+') = '+numFmt(nd.y); }).join(', ')
+    +' — f est '+a.segments.map(function(sg){ return sg.dir+' sur ['+numFmt(sg.fromX)+' ; '+numFmt(sg.toX)+']'; }).join(', ')+'.'
+    +' Pour chaque affirmation il doit dire Vrai ou Faux, puis justifier par le sens de variation (croissante ou décroissante) et l’intervalle du tableau qui contient le ou les nombres. Méthode : entre deux valeurs écrites, f(a) est strictement entre les deux valeurs écrites aux bouts de la flèche ; deux images sur la même flèche se rangent dans le sens de la flèche.'
+    +' Affirmations et réponses attendues : '+q.aff.map(function(af,j){ const v=tvfVerite(nodes,af); return (q.n0+j+1)+') '+tvfTextePlain(af)+' → '+(v?(v.vrai?'VRAI':'FAUX')+', '+v.sens+' sur ['+numFmt(v.a)+' ; '+numFmt(v.b)+']':'?'); }).join(' ; ')+'.';
+  if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
+  return {nombre:'', contexte:c};
+}
+
+
 /* ================= Exercice Seconde : Tableau de variation (kind 'tvd') =================
    Demande de Turquet (septembre 2026) : « compléter directement un tableau de
    variation en utilisant des dessins de l'exercice 2.1 et en présentant le
@@ -16109,7 +16409,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderMMX','renderMMT','renderTVE','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

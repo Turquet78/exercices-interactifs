@@ -2710,6 +2710,7 @@ function exercices(suite){
     maximumMinimum(w, P);
     maximumMinimumTableau(w, P);
     tableauEquations(w, P);
+    tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -11533,6 +11534,217 @@ function tableauEquations(w, P){
     pose(QIQ, {'tve-co1':'[','tve-b1':'6'}, 'soutien', true); tveLive();
     if(cls('tve-co1').indexOf('ok')<0||cls('tve-b1').indexOf('bad')<0||cls('tve-b2').indexOf('ok')>=0||cls('tve-b2').indexOf('bad')>=0)
       vus.push('en soutien, le choix ne peint pas comme il faut ('+cls('tve-co1')+' / '+cls('tve-b1')+' / '+cls('tve-b2')+')');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {tableau-vrai-faux} (Seconde) : un tableau de variation, sept affirmations
+   Vrai/Faux JUSTIFIÉES — le sens de variation et l'intervalle de la flèche.
+   Le contrôle compare la page à LA FICHE (Exercice 9) — et exige que sa
+   question 2, INDÉCIDABLE (f(5) positif quand f descend de 5 à −2), soit
+   refusée par la page —, refait chaque affirmation par la GRILLE (f(a) est
+   la valeur pts[a+6], que la page ne lit jamais), puis CLIQUE et relit les
+   couleurs. Aucun accent grave ni antislash littéral dans ce texte : il vit
+   dans un template littéral. */
+function tableauVraiFaux(w, P){
+  const nom='le vrai ou faux justifié sur un tableau de variation';
+  const present = evaluer(w, "typeof startTVF==='function' && typeof tvfBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du vrai ou faux sur tableau de variation');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-vrai-faux';
+
+    /* ---- 0. la place au menu : juste après {tableau-equations} ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tableau-vrai-faux')>=0; })[0];
+      const i=th?th.ids.indexOf('tableau-vrai-faux'):-1;
+      if(!th || th.ids[i-1]!=='tableau-equations') vus.push('{tableau-vrai-faux} ne suit pas {tableau-equations} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf("varTableHTML(gsvAnalyze(q.pts), 'tvf-v', '', true)")<0) vus.push('le tableau ne passe plus par varTableHTML en mode lecture');
+      if(String(tvfTirage).indexOf('adrGenPts')<0) vus.push('le tirage ne passe plus par adrGenPts');
+      if(String(tvfJuge).indexOf('tvfVerite')<0) vus.push('le juge ne lit plus tvfVerite');
+      /* la SOURCE, jamais String(renderTVF) : les rendus sont ENVELOPPÉS par la
+         greffe des jetons, et la chaîne d une enveloppe parle d autre chose */
+      if(srcPage.indexOf("itvSelHTML(ids[0],TVF_OPT_VF")<0||srcPage.indexOf("itvSelHTML(ids[1],TVF_OPT_SENS")<0) vus.push('les cases ne sont plus les sélecteurs de la famille itv-sel');
+      if(String(submitTVF).indexOf('corrChoix')<0||String(submitTVF).indexOf('msgAvecVides')<0) vus.push('la vérification ne passe plus par corrChoix / msgAvecVides'); }
+
+    /* ---- 1. LA FICHE : x = −6, −1, 4, 6 pour f = −2, −4, 5, −2. Ses sept
+       affirmations, et ce qu elles valent : 1) F, 3) V, 4) V, 5) F, 6) V,
+       7) F — et la 2), « f(5) est positif », est INDÉCIDABLE : f descend de 5
+       à −2 sur [4 ; 6], f(5) est strictement entre −2 et 5. La page doit le
+       DIRE (null), jamais trancher. ---- */
+    { const F=[{x:-6,y:-2},{x:-1,y:-4},{x:4,y:5},{x:6,y:-2}];
+      const att=[ [{t:'signe',a:-5,v:0}, false,'décroissante',-6,-1], [{t:'cst',a:-5,k:-2,v:0}, true,'décroissante',-6,-1],
+                  [{t:'cst',a:3,k:6,v:0}, true,'croissante',-1,4], [{t:'cmp',a:4,b:5,v:0}, false,'décroissante',4,6],
+                  [{t:'cmp',a:1,b:2,v:0}, true,'croissante',-1,4], [{t:'cmp',a:-5,b:-4,v:0}, false,'décroissante',-6,-1] ];
+      att.forEach(function(t){ const v=tvfVerite(F,t[0]);
+        if(!v||v.vrai!==t[1]||v.sens!==t[2]||v.a!==t[3]||v.b!==t[4]) vus.push('la fiche : '+tvfTextePlain(t[0])+' vaut '+(t[1]?'VRAI':'FAUX')+' ('+t[2]+' sur ['+t[3]+' ; '+t[4]+']), la page dit '+JSON.stringify(v)); });
+      if(tvfVerite(F,{t:'signe',a:5,v:0})!==null) vus.push('la question 2 de la fiche (f(5) positif quand f descend de 5 à −2) est indécidable, et la page tranche : '+JSON.stringify(tvfVerite(F,{t:'signe',a:5,v:0})));
+      if(tvfVerite(F,{t:'cst',a:5,k:1,v:0})!==null) vus.push('f(5) ≤ 1 est indécidable sur la fiche, et la page tranche'); }
+
+    /* ---- 2. le tirage : 120 séances, tout refait par SA PROPRE arithmétique
+       sur les 13 VALEURS — f(a) = pts[a+6], que la page ne lit jamais ---- */
+    function noeuds(pts){
+      const d=[]; for(let i=0;i<12;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+      const out=[{x:-6,y:pts[0]}];
+      for(let i=1;i<=11;i++) if(d[i-1]!==d[i]) out.push({x:i-6,y:pts[i]});
+      out.push({x:6,y:pts[12]});
+      return out;
+    }
+    function grille(pts, af){ const f=function(x){ return pts[x+6]; };
+      if(af.t==='signe') return af.v===0 ? f(af.a)>0 : f(af.a)<0;
+      if(af.t==='cst') return af.v===0 ? f(af.a)<=af.k : f(af.a)>=af.k;
+      return af.v===0 ? f(af.a)<=f(af.b) : f(af.a)>=f(af.b); }
+    /* la flèche et la DÉCIDABILITÉ, lues dans le tableau : ce que l élève voit */
+    function fleche(ns, af){ for(let i=0;i<ns.length-1;i++){ if(af.t==='cmp'){ if(af.a>=ns[i].x&&af.b<=ns[i+1].x) return i; } else if(af.a>ns[i].x&&af.a<ns[i+1].x) return i; } return -1; }
+    function decidable(ns, af, i){ const lo=Math.min(ns[i].y,ns[i+1].y), hi=Math.max(ns[i].y,ns[i+1].y);
+      if(af.t==='signe') return lo>=0||hi<=0; if(af.t==='cst') return !(af.k>lo&&af.k<hi); return af.a<af.b; }
+    const vusVar=new Set(), vusNV=new Set(), vusSens=new Set();
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==2){ f.push(qs.length+' question(s) au lieu de 2'); return f; }
+      const pts=qs[0].pts, ns=noeuds(pts);
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6));
+      if(ns.length!==4) f.push('le tableau a '+ns.length+' abscisses au lieu de 4 : ce n est pas la forme de la fiche (trois flèches)');
+      if(JSON.stringify(qs[1].pts)!==JSON.stringify(pts)) f.push('les deux questions ne portent pas le MÊME tableau');
+      qs.forEach(function(q,i){ const cles=Object.keys(q).sort().join(','); if(cles!=='aff,n0,pts') f.push('la question '+(i+1)+' porte autre chose que la courbe et les affirmations : '+cles); });
+      if(qs[0].n0!==0||qs[1].n0!==4||!Array.isArray(qs[0].aff)||!Array.isArray(qs[1].aff)||qs[0].aff.length!==4||qs[1].aff.length!==3) f.push('les affirmations ne sont pas 4 puis 3, numérotées à la suite ('+qs[0].n0+'/'+(qs[0].aff||[]).length+', '+qs[1].n0+'/'+(qs[1].aff||[]).length+')');
+      const aff=(qs[0].aff||[]).concat(qs[1].aff||[]);
+      if(aff.map(function(a){ return a.t; }).join(',')!=='signe,signe,cst,cst,cmp,cmp,cmp') f.push('la composition n est pas celle de la fiche (2 signes, 2 comparaisons à k, 3 comparaisons d images) : '+aff.map(function(a){ return a.t; }).join(','));
+      const cles=new Set(); let nV=0; const sens=new Set();
+      aff.forEach(function(af,j){
+        const attendu=af.t==='signe'?'a,t,v':af.t==='cst'?'a,k,t,v':'a,b,t,v';
+        if(Object.keys(af).sort().join(',')!==attendu) f.push('l affirmation '+(j+1)+' porte autre chose que son type, ses nombres et sa variante : '+Object.keys(af).sort().join(','));
+        if(af.v!==0&&af.v!==1) f.push('variante inconnue : '+af.v);
+        const k=af.t+'|'+af.a+'|'+(af.t==='cmp'?af.b:af.t==='cst'?af.k:'');
+        if(cles.has(k)) f.push('deux affirmations sur le même nombre : '+tvfTextePlain(af)); cles.add(k);
+        const i=fleche(ns,af);
+        if(i<0){ f.push(tvfTextePlain(af)+' : le ou les nombres ne sont pas sur une flèche du tableau'); return; }
+        if(af.t!=='cmp'&&!(af.a>ns[i].x&&af.a<ns[i+1].x)) f.push(tvfTextePlain(af)+' : a n est pas strictement dans sa flèche');
+        if(af.t==='cst'){ const lo=Math.min(ns[i].y,ns[i+1].y), hi=Math.max(ns[i].y,ns[i+1].y); if(!Number.isInteger(af.k)||af.k<-6||af.k>6||!((af.k<=lo&&af.k>=lo-2)||(af.k>=hi&&af.k<=hi+2))) f.push(tvfTextePlain(af)+' : k = '+af.k+' n est pas à deux unités au plus d un bout de la flèche ('+lo+'..'+hi+')'); }
+        if(!decidable(ns,af,i)){ f.push(tvfTextePlain(af)+' est INDÉCIDABLE dans le tableau (le défaut de la question 2 de la fiche)'); return; }
+        const vg=grille(pts,af), vp=tvfVerite(tvfNoeuds(pts),af);
+        if(!vp) f.push('la page ne sait pas juger '+tvfTextePlain(af));
+        else { if(vp.vrai!==vg) f.push(tvfTextePlain(af)+' : la grille dit '+(vg?'VRAI':'FAUX')+', la page '+(vp.vrai?'VRAI':'FAUX'));
+          const d=ns[i+1].y>ns[i].y?'croissante':'décroissante';
+          if(vp.sens!==d||vp.a!==ns[i].x||vp.b!==ns[i+1].x) f.push(tvfTextePlain(af)+' : la justification attendue est '+d+' sur ['+ns[i].x+' ; '+ns[i+1].x+'], la page attend '+vp.sens+' sur ['+vp.a+' ; '+vp.b+']');
+          if(vg) nV++; sens.add(d); vusSens.add(d); }
+        vusVar.add(af.t+af.v);
+      });
+      if(nV<3||aff.length-nV<3) f.push('la séance a '+nV+' affirmation(s) vraie(s) sur 7 : il en faut au moins trois vraies et trois fausses');
+      if(sens.size<2) f.push('les justifications ne demandent qu un seul sens de variation');
+      vusNV.add(nV);
+      return f;
+    }
+    for(let t=0;t<120 && !vus.length;t++) fautesTirage(tvfBuildQuestions()).forEach(function(x){ vus.push(x); });
+    if(!vus.length){
+      ['signe0','signe1','cst0','cst1','cmp0','cmp1'].forEach(function(v){ if(!vusVar.has(v)) vus.push('sur 120 séances, la variante '+v+' ne sort jamais'); });
+      if(!vusNV.has(3)||!vusNV.has(4)) vus.push('sur 120 séances, les séances à 3 ET à 4 vraies ne sortent pas toutes deux ('+Array.from(vusNV).join(',')+')');
+    }
+
+    /* ---- 3. le REPLI, lu dans la page et éprouvé par les gardes MÊMES ---- */
+    if(typeof TVF_REPLI!=='object'||!TVF_REPLI) vus.push('le repli (TVF_REPLI) est introuvable');
+    else {
+      const faux=[{pts:TVF_REPLI.pts, n0:0, aff:TVF_REPLI.aff.slice(0,4)},{pts:TVF_REPLI.pts, n0:4, aff:TVF_REPLI.aff.slice(4)}];
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(tvfTirage).indexOf('TVF_REPLI')<0) vus.push('tvfTirage ne lit plus TVF_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(tvfBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 4. le jugement et l ÉCRAN, sur un tableau ÉPINGLÉ : x = −6, −1, 4,
+       6 pour f = 1, −4, 3, 0. Quatre affirmations : f(5) positif → VRAI
+       (décroissante sur [4 ; 6], f entre 0 et 3) ; f(−3) ≤ 1 → VRAI
+       (décroissante sur [−6 ; −1]) ; f(−5) ≤ f(−2) → FAUX (décroissante sur
+       [−6 ; −1]) ; f(0) ≤ f(3) → VRAI (croissante sur [−1 ; 4]). ---- */
+    const PTS=[1,0,-1,-2,-3,-4,-3,-1,0,2,3,2,0];
+    const Q={pts:PTS.slice(), n0:0, aff:[{t:'signe',a:5,v:0},{t:'cst',a:-3,k:1,v:0},{t:'cmp',a:-5,b:-2,v:0},{t:'cmp',a:0,b:3,v:0}]};
+    const Q2={pts:PTS.slice(), n0:4, aff:[{t:'cmp',a:4,b:6,v:1},{t:'signe',a:5,v:1},{t:'cst',a:2,k:3,v:1}]};
+    function pose(q, valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const qq=JSON.parse(JSON.stringify(q));
+      Object.assign(test,{kind:'tvf', questions:[qq], idx:0, score:0, maxScore:tvfSubCount(qq), answers:[], startTime:Date.now(), locked:false});
+      renderTVF();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitTVF();
+      return {score:test.score};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const J={'tvf-vf-0':'V','tvf-s-0':'d','tvf-a-0':'4','tvf-b-0':'6',
+             'tvf-vf-1':'V','tvf-s-1':'d','tvf-a-1':'-6','tvf-b-1':'-1',
+             'tvf-vf-2':'F','tvf-s-2':'d','tvf-a-2':'-6','tvf-b-2':'-1',
+             'tvf-vf-3':'V','tvf-s-3':'c','tvf-a-3':'-1','tvf-b-3':'4'};
+    const corr=function(){ return document.getElementById('tvfCorr').textContent||''; };
+
+    /* l écran : le tableau se LIT, seize cases, les affirmations écrites, les
+       bornes proposées sont les abscisses écrites, la consigne dit la règle */
+    pose(Q, J, 'train', true);
+    { const hote=document.getElementById('tvfTable');
+      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir');
+      if((hote.innerHTML.match(/vt-shaft/g)||[]).length!==3) vus.push('les trois flèches ne sont pas tracées');
+      if(document.querySelectorAll('#tvfBody select').length!==16) vus.push('il n y a pas seize cases pour les quatre affirmations');
+      const b=document.getElementById('tvfBody').textContent;
+      ['f (5) est positif.','f (\\u22123) \\u2264 1.','f (\\u22125) \\u2264 f (\\u22122).','f (0) \\u2264 f (3).'].forEach(function(t){ if(b.indexOf(t)<0) vus.push('l affirmation « '+t+' » n est pas écrite à l écran'); });
+      ['1)','2)','3)','4)'].forEach(function(t){ if(b.indexOf(t)<0) vus.push('la numérotation '+t+' manque'); });
+      const opts=Array.prototype.map.call(document.getElementById('tvf-a-0').options, function(o){ return o.value; });
+      if(opts.filter(Boolean).join(',')!=='-6,-1,4,6') vus.push('les bornes proposées ne sont pas les abscisses écrites du tableau : '+opts.join(','));
+      const vf=Array.prototype.map.call(document.getElementById('tvf-vf-0').options, function(o){ return o.textContent; }).join(',');
+      if(vf.indexOf('Vrai')<0||vf.indexOf('Faux')<0) vus.push('la case Vrai/Faux ne propose pas Vrai et Faux : '+vf);
+      const se=Array.prototype.map.call(document.getElementById('tvf-s-0').options, function(o){ return o.textContent; }).join(',');
+      if(se.indexOf('croissante')<0||se.indexOf('décroissante')<0) vus.push('la case du sens ne propose pas croissante et décroissante : '+se);
+      const c=document.getElementById('tvfInstr').textContent||'';
+      if(c.indexOf('STRICTEMENT')<0||c.indexOf('sens de la flèche')<0||c.indexOf('JUSTIFIE')<0) vus.push('la consigne ne dit pas la règle (f(a) strictement entre les bouts, le sens de la flèche, justifier)');
+      if(tvfSubCount(Q)!==16||tvfSubCount(Q2)!==12) vus.push('le barème n est pas 16 + 12'); }
+    submitTVF();
+    if(test.score!==16) vus.push('la copie juste vaut '+test.score+' au lieu de 16');
+    Object.keys(J).forEach(function(id){ if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+    if(corr().indexOf('Parfait')<0) vus.push('la copie juste n est pas saluée');
+    /* la seconde page : trois affirmations numérotées 5) à 7), douze cases */
+    pose(Q2, {}, 'train', true);
+    { const b=document.getElementById('tvfBody').textContent; if(b.indexOf('5)')<0||b.indexOf('7)')<0||b.indexOf('1)')>=0) vus.push('la seconde page ne numérote pas ses affirmations 5) à 7)');
+      if(document.querySelectorAll('#tvfBody select').length!==12) vus.push('la seconde page n a pas douze cases');
+      if(b.indexOf('f (4) \\u2265 f (6).')<0||b.indexOf('est négatif.')<0||b.indexOf('f (2) \\u2265 3.')<0) vus.push('les variantes ≥ et « négatif » ne s écrivent pas : '+b.slice(0,120)); }
+    /* chaque case se juge SEULE : un Vrai faux ne fait pas payer sa justification */
+    let r=pose(Q, Object.assign({},J,{'tvf-vf-0':'F'}));
+    if(r.score!==15||cls('tvf-vf-0').indexOf('bad')<0||cls('tvf-s-0').indexOf('ok')<0||cls('tvf-a-0').indexOf('ok')<0) vus.push('un Vrai/Faux faux devrait coûter exactement son point ('+r.score+', '+cls('tvf-vf-0')+' / '+cls('tvf-s-0')+')');
+    if(!document.querySelector('#tvfBody .mf-cor')||document.querySelector('#tvfBody .mf-cor').textContent!=='Vrai') vus.push('la bonne réponse ne s affiche pas en vert (« Vrai ») à côté de la case fausse');
+    { const m=corr(); if(m.indexOf('1) f (5) est positif')<0||m.indexOf('VRAI')<0) vus.push('la correction ne nomme pas l affirmation fautive avec son verdict : '+m.slice(0,140));
+      if(m.indexOf('2)')>=0||m.indexOf('3)')>=0) vus.push('la correction explique des affirmations JUSTES : '+m.slice(0,200)); }
+    /* le piège : l intervalle qui ENJAMBE un changement de sens, [−6 ; 6] */
+    r=pose(Q, Object.assign({},J,{'tvf-b-2':'6'}));
+    if(r.score!==15||cls('tvf-b-2').indexOf('bad')<0||cls('tvf-a-2').indexOf('ok')<0) vus.push('la borne 6 à la place de −1 devrait coûter exactement son point ('+r.score+', '+cls('tvf-b-2')+' / '+cls('tvf-a-2')+')');
+    if(!document.querySelector('#tvfBody .mf-cor')||document.querySelector('#tvfBody .mf-cor').textContent!=='\\u22121') vus.push('la bonne borne (−1) ne s affiche pas en vert à côté de la case fausse');
+    /* le sens à l envers coûte son point, et la correction dit le sens */
+    r=pose(Q, Object.assign({},J,{'tvf-s-3':'d'}));
+    if(r.score!==15||cls('tvf-s-3').indexOf('bad')<0) vus.push('le sens à l envers devrait coûter exactement son point ('+r.score+')');
+    if(corr().indexOf('4) f (0)')<0||corr().indexOf('croissante sur [ \\u22121 ; 4 ]')<0) vus.push('la correction ne dit pas le sens et l intervalle de la flèche : '+corr().slice(0,160));
+    /* la case vide : sol en entraînement (« il te manquait »), RIEN en soutien */
+    r=pose(Q, Object.assign({},J,{'tvf-vf-1':''}));
+    if(cls('tvf-vf-1').indexOf('sol')<0||document.getElementById('tvf-vf-1').value!=='V') vus.push('en entraînement, la case vide ne reçoit pas la correction sol ('+cls('tvf-vf-1')+')');
+    if(corr().indexOf('Il te manquait')<0||corr().indexOf('Le reste est juste')<0) vus.push('le message ne dit pas la case vide avant tout, et rien d autre quand tout le reste est juste : '+corr().slice(0,140));
+    r=pose(Q, Object.assign({},J,{'tvf-vf-1':''}), 'soutien');
+    if(cls('tvf-vf-1').indexOf('bad')>=0||cls('tvf-vf-1').indexOf('sol')>=0) vus.push('en soutien, une case vide reçoit une couleur ('+cls('tvf-vf-1')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    pose(Q, {'tvf-vf-0':'V','tvf-s-0':'c'}, 'soutien', true); tvfLive();
+    if(cls('tvf-vf-0').indexOf('ok')<0||cls('tvf-s-0').indexOf('bad')<0||cls('tvf-a-0').indexOf('ok')>=0||cls('tvf-a-0').indexOf('bad')>=0)
+      vus.push('en soutien, le choix ne peint pas comme il faut ('+cls('tvf-vf-0')+' / '+cls('tvf-s-0')+' / '+cls('tvf-a-0')+')');
+    /* en soutien, la copie toute juste verrouille et vaut le point entier */
+    r=pose(Q, J, 'soutien');
+    if(r.score!==16||!test.locked) vus.push('en soutien, la copie juste vaut '+r.score+' (verrouillée : '+test.locked+')');
+    /* le contexte envoyé au modèle porte les affirmations et leurs verdicts */
+    pose(Q, {}, 'train', true);
+    { const c=ctxTvf(Q).contexte; if(c.indexOf('f (5) est positif')<0||c.indexOf('VRAI, décroissante sur [4 ; 6]')<0) vus.push('le contexte du modèle ne porte pas les affirmations et leurs réponses attendues : '+c.slice(-160)); }
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');
