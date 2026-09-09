@@ -990,6 +990,68 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater quinquies. le tableau de variation se LIT =====
+       Le banc jsdom tient le tirage, le jugement et la structure du tableau —
+       il lit les positions dans l'attribut « style ». Ce qu'il ne voit pas :
+       un tableau qui déborde de sa carte ou se cache derrière un défilement
+       (la leçon du 2.15), et des valeurs RENDUES qui ne monteraient pas avec
+       leurs flèches — jsdom n'a pas de mise en page, un « top » écrit n'est
+       pas un « top » rendu. */
+    titre('6 quater quinquies. LE TABLEAU DE VARIATION SE LIT');
+    if(!P.maxMinTableau){
+      ignorer('le tableau de variation se lit, et tient dans sa carte',
+        'ce niveau n\'a pas l\'exercice du maximum et du minimum sur tableau');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.maxMinTableau.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const vu = await s.page.evaluate(() => {
+        const hote = document.getElementById('mmtTable');
+        const card = hote.closest('.card') || hote;
+        const t = hote.querySelector('table');
+        const cr = card.getBoundingClientRect(), tr = t ? t.getBoundingClientRect() : cr;
+        const q = test.questions[test.idx], a = gsvAnalyze(q.pts);
+        /* les valeurs RENDUES : une flèche qui monte doit poser sa valeur de
+           départ PLUS BAS que celle d'arrivée */
+        const mil = j => { const e = document.getElementById('mmt-v-val-' + j);
+          if(!e) return null; const r = e.getBoundingClientRect();
+          return r.width && r.height ? (r.top + r.bottom) / 2 : null; };
+        const travers = [];
+        a.segments.forEach((sg, i) => {
+          const y0 = mil(i), y1 = mil(i + 1);
+          if(y0 == null || y1 == null){ travers.push('valeur ' + i + ' invisible'); return; }
+          const monte = sg.dir === 'croissante';
+          if(monte ? !(y0 > y1) : !(y0 < y1))
+            travers.push('segment ' + i + ' (' + sg.dir + ') : ' + Math.round(y0) + ' puis ' + Math.round(y1));
+        });
+        const enc = document.querySelector('#scr-mmt .mmx-enc');
+        return {
+          cases: hote.querySelectorAll('input, select').length,
+          fleches: hote.querySelectorAll('.vt-shaft').length, segments: a.segments.length,
+          travers: travers,
+          cache: hote.scrollWidth > hote.clientWidth + 1,
+          sort: tr.right > cr.right + 1,
+          largeur: Math.round(tr.width), cadre: hote.clientWidth,
+          lignesEnc: enc ? enc.getClientRects().length : -1,
+          page: document.documentElement.scrollWidth > document.documentElement.clientWidth
+        };
+      });
+      verifier('le tableau est rendu rempli, sans une seule case à remplir',
+        vu.cases === 0, vu.cases + ' case(s) de saisie dans le tableau');
+      verifier('chaque segment a sa flèche tracée',
+        vu.fleches === vu.segments, vu.fleches + ' flèche(s) pour ' + vu.segments + ' segment(s)');
+      verifier('les valeurs rendues montent et descendent avec leurs flèches',
+        vu.travers.length === 0, vu.travers.join(' | '));
+      verifier('le tableau ne déborde pas de sa carte ni ne se cache derrière un défilement',
+        !vu.cache && !vu.sort && !vu.page, vu.largeur + ' px dans ' + vu.cadre);
+      verifier('l\'encadrement « … ≤ f (x) ≤ … » tient sur une seule ligne',
+        vu.lignesEnc === 1, vu.lignesEnc + ' ligne(s) rendue(s)');
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —

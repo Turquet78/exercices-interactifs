@@ -2708,6 +2708,7 @@ function exercices(suite){
     tableauVariationDirect(w, P);
     grandsTableaux(w, P);
     maximumMinimum(w, P);
+    maximumMinimumTableau(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     associerDerivee(w, P);
@@ -11079,6 +11080,216 @@ function maximumMinimum(w, P){
     if(cls('mmx-M').indexOf('ok')<0) vus.push('en soutien, une case juste ne se peint pas à la frappe ('+cls('mmx-M')+')');
     if(cls('mmx-xM').indexOf('bad')<0) vus.push('en soutien, une case fausse ne se peint pas à la frappe ('+cls('mmx-xM')+')');
     if(cls('mmx-m').indexOf('ok')>=0||cls('mmx-m').indexOf('bad')>=0) vus.push('en soutien, une case vide se peint à la frappe ('+cls('mmx-m')+')');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* LE MAXIMUM ET LE MINIMUM SUR UN TABLEAU DE VARIATION (demande de Turquet,
+   septembre 2026 : « comme le 2.16 mais à partir d'un tableau de variation »).
+   Le risque propre est que la question soit ILLISIBLE : un tableau ne donne la
+   valeur de f QU'AUX abscisses écrites, donc demander le maximum sur un
+   intervalle dont une borne n'y est pas revient à réclamer une hauteur que
+   rien ne dit. Le contrôle recalcule les abscisses du tableau par sa PROPRE
+   arithmétique, et mesure le tableau RENDU : ses valeurs doivent monter et
+   descendre avec ses flèches, sans quoi il ne dit plus la variation. */
+function maximumMinimumTableau(w, P){
+  const nom='le maximum et le minimum lus dans un tableau de variation';
+  const present = evaluer(w, "typeof startMMT==='function' && typeof mmtBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du maximum et du minimum sur tableau');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='maximum-minimum-tableau';
+
+    /* ---- 0. la place au menu : le même exercice sans le dessin, donc juste
+       après {maximum-minimum} ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('maximum-minimum-tableau')>=0; })[0];
+      const i=th?th.ids.indexOf('maximum-minimum-tableau'):-1;
+      if(!th || th.ids[i-1]!=='maximum-minimum')
+        vus.push('{maximum-minimum-tableau} ne suit pas {maximum-minimum} au menu'); }
+
+    /* ---- 0 bis. le PARTAGE : les réponses sont celles du 2.16 (mmxAns, la
+       fonction MÊME qui le corrige — deux exercices voisins ne peuvent pas se
+       contredire), le tableau est varTableHTML en mode LECTURE, le tirage
+       adrGenPts. On lit le SOURCE de la page : les rendus sont enveloppés. ---- */
+    { const srcPage=document.documentElement.outerHTML;
+      if(srcPage.indexOf("varTableHTML(gsvAnalyze(q.pts), 'mmt-v', '', true)")<0)
+        vus.push('le tableau ne passe plus par varTableHTML en mode lecture');
+      if(String(mmtCheckPart).indexOf('mmxAns')<0)
+        vus.push('le jugement ne passe plus par mmxAns, la fonction qui corrige le 2.16');
+      if(String(mmtTirage).indexOf('adrGenPts')<0)
+        vus.push('le tirage ne passe plus par adrGenPts'); }
+
+    /* ---- 0 ter. LE BORD OPPOSÉ : sans le mode lecture, le tableau garde ses
+       cases — le 2.1, le 2.13, le 2.14 et le 2.15 s'en servent, et un mode
+       lecture qui fuirait les viderait tous les quatre d'un coup ---- */
+    /* Chercher « au moins un input » ne prouvait RIEN : le sabotage qui change
+       les VALEURS en texte laisse les abscisses et les flèches en cases, et le
+       contrôle passait au vert sur un tableau que l'élève ne peut plus
+       remplir — aucun autre banc ne l'a vu (jsdom laisse poser une valeur sur
+       n'importe quel élément, si bien que les copies témoins des quatre
+       exercices continuaient de passer). On regarde donc la BALISE de chaque
+       case, une par une. Aucun accent grave ici : ce texte vit dans le
+       template littéral de verifier.js, et un seul le refermerait — le piège
+       de l'antislash, par la porte d'à côté. */
+    { const a={nodes:[{x:-6,y:1},{x:0,y:4},{x:6,y:-2}], segments:[{fromX:-6,toX:0,dir:'croissante'},{fromX:0,toX:6,dir:'décroissante'}]};
+      const plein=varTableHTML(a,'zz','rien'), lu=varTableHTML(a,'zz','rien',true);
+      const balise=function(html,id){ const i=html.indexOf('id="'+id+'"'); if(i<0) return '(absent)';
+        const j=html.lastIndexOf('<',i); return html.slice(j+1, html.indexOf(' ', j+1)); };
+      [['zz-val-0','input','la valeur'],['zz-arr-0','select','la flèche'],['zz-x-1','input','l abscisse']].forEach(function(t2){
+        const b=balise(plein,t2[0]);
+        if(b!==t2[1]) vus.push('dans le tableau à REMPLIR, '+t2[2]+' n est plus une case ('+b+') : les quatre exercices qui le complètent deviennent inutilisables');
+      });
+      if(balise(lu,'zz-val-0')!=='span') vus.push('dans le tableau à LIRE, la valeur n est pas écrite ('+balise(lu,'zz-val-0')+')');
+      if(lu.indexOf('<input')>=0 || lu.indexOf('<select')>=0)
+        vus.push('le tableau à LIRE porte encore des cases de saisie'); }
+
+    /* ---- 1. le tirage : 120 séances, tout refait par SA PROPRE arithmétique
+       — les abscisses du tableau, l'unicité des extremums, les deux visages ---- */
+    function noeuds(pts){
+      const d=[]; for(let i=0;i<12;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+      const out=[-6];
+      for(let i=1;i<=11;i++) if(d[i-1]!==d[i]) out.push(i-6);
+      out.push(6);
+      return out;
+    }
+    function extremums(pts,a,b){
+      let M=pts[a+6], m=pts[a+6], xM=a, xm=a, nM=0, nm=0;
+      for(let x=a;x<=b;x++){ const y=pts[x+6]; if(y>M){ M=y; xM=x; } if(y<m){ m=y; xm=x; } }
+      for(let x=a;x<=b;x++){ if(pts[x+6]===M) nM++; if(pts[x+6]===m) nm++; }
+      return {M:M,xM:xM,m:m,xm:xm,nM:nM,nm:nm};
+    }
+    function fautesTirage(qs){
+      const f=[];
+      if(qs.length!==4){ f.push(qs.length+' question(s) au lieu de 4'); return f; }
+      const pts=qs[0].pts, ns=noeuds(pts);
+      if(pts.length!==13) f.push('la courbe n a pas 13 valeurs');
+      if(pts.some(function(v){ return !Number.isInteger(v)||v<-6||v>6; })) f.push('une valeur sort de [−6 ; 6] ou n est pas entière');
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) f.push('un palier en x = '+(i-6)+' : le tableau ne dirait plus si f monte ou descend');
+      if(ns.length<4) f.push('le tableau n a que '+ns.length+' abscisses : pas de quoi poser quatre intervalles différents');
+      qs.forEach(function(q){
+        if(JSON.stringify(q.pts)!==JSON.stringify(pts)) f.push('les quatre questions ne portent pas le MÊME tableau');
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='a,b,pts') f.push('la question porte autre chose que la courbe et l intervalle : '+cles);
+        /* LE BORD PROPRE : une borne hors du tableau réclame une valeur que
+           l élève ne peut pas lire */
+        if(ns.indexOf(q.a)<0||ns.indexOf(q.b)<0)
+          f.push('l intervalle ['+q.a+' ; '+q.b+'] a une borne qui n est pas une abscisse du tableau ('+ns.join(', ')+')');
+        const r=extremums(q.pts,q.a,q.b);
+        if(r.nM!==1) f.push('sur ['+q.a+' ; '+q.b+'], le maximum est atteint '+r.nM+' fois : deux bonnes réponses, une seule comptée');
+        if(r.nm!==1) f.push('sur ['+q.a+' ; '+q.b+'], le minimum est atteint '+r.nm+' fois : deux bonnes réponses, une seule comptée');
+      });
+      if(qs[0].a!==ns[0]||qs[0].b!==ns[ns.length-1])
+        f.push('la première question ne porte pas le tableau ENTIER : ['+qs[0].a+' ; '+qs[0].b+']');
+      const cles3=qs.slice(1).map(function(q){ return q.a+';'+q.b; });
+      if(new Set(cles3).size!==3) f.push('deux des trois morceaux sont le même intervalle');
+      const tourne=qs.slice(1).map(function(q){ const r=extremums(q.pts,q.a,q.b); return (r.xM>q.a&&r.xM<q.b)||(r.xm>q.a&&r.xm<q.b); });
+      if(tourne.indexOf(true)<0||tourne.indexOf(false)<0)
+        f.push('les trois morceaux montrent le MÊME visage ('+(tourne[0]?'la fonction tourne dans les trois':'monotone dans les trois')+')');
+      return f;
+    }
+    for(let t=0;t<120 && !vus.length;t++) fautesTirage(mmtBuildQuestions()).forEach(function(x){ vus.push(x); });
+
+    /* ---- 2. le REPLI, lu dans la page et éprouvé par les gardes MÊMES ---- */
+    if(typeof MMT_REPLI!=='object'||!MMT_REPLI) vus.push('le repli (MMT_REPLI) est introuvable');
+    else {
+      const nsR=noeuds(MMT_REPLI.pts);
+      const faux=[[nsR[0],nsR[nsR.length-1]]].concat(MMT_REPLI.petits).map(function(iv){ return {pts:MMT_REPLI.pts, a:iv[0], b:iv[1]}; });
+      fautesTirage(faux).forEach(function(x){ vus.push('le repli : '+x); });
+      if(String(mmtTirage).indexOf('MMT_REPLI')<0) vus.push('mmtTirage ne lit plus MMT_REPLI : le repli servi n est plus celui que le contrôle éprouve');
+      { const vrai=adrGenPts; adrGenPts=function(){ return null; };
+        try{ fautesTirage(mmtBuildQuestions()).forEach(function(x){ vus.push('générateur à sec : '+x); }); }
+        finally{ adrGenPts=vrai; } }
+    }
+
+    /* ---- 3. le jugement et le TABLEAU RENDU, sur une courbe ÉPINGLÉE :
+       nœuds −6, −4, −1, 3, 6 pour les valeurs 4, −2, 6, 0, 4. Sur [−4 ; 3],
+       le maximum est 6 en x = −1 (à l INTÉRIEUR) et le minimum −2 en −4. ---- */
+    const PTS=[4,-1,-2,0,4,6,4,3,2,0,2,3,4];
+    function pose(valeurs, mode, sansValider){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      const q={pts:PTS.slice(), a:-4, b:3};
+      Object.assign(test,{kind:'mmt', questions:[q], idx:0, score:0, maxScore:mmtSubCount(q), answers:[], startTime:Date.now(), locked:false});
+      renderMMT();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      if(!sansValider) submitMMT();
+      return {score:test.score, q:q};
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    const JUSTE={'mmt-M':'6','mmt-xM':'-1','mmt-m':'-2','mmt-xm':'-4','mmt-lo':'-2','mmt-hi':'6'};
+
+    let r=pose(JUSTE,'train',true);
+    /* le tableau se LIT : les abscisses et les valeurs sont écrites, les
+       flèches tracées, et rien à remplir */
+    { const hote=document.getElementById('mmtTable'), ns=noeuds(PTS);
+      const txt=(hote.textContent||'').replace(/\\s+/g,'');
+      ns.forEach(function(x){ if(txt.indexOf(String(x).replace('-','\\u2212'))<0 && txt.indexOf(String(x))<0) vus.push('l abscisse '+x+' n est pas écrite dans le tableau'); });
+      ns.forEach(function(x){ const v=PTS[x+6]; if(txt.indexOf(String(v).replace('-','\\u2212'))<0 && txt.indexOf(String(v))<0) vus.push('la valeur f('+x+') = '+v+' n est pas écrite dans le tableau'); });
+      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir : ce serait l exercice du 2.15');
+      const fleches=(hote.innerHTML.match(/vt-shaft/g)||[]).length;
+      if(fleches!==ns.length-1) vus.push(fleches+' flèche(s) tracée(s) pour '+(ns.length-1)+' segment(s)');
+      /* LA VARIATION SE VOIT : la valeur qui commence une flèche montante est
+         plus BAS que celle qui la finit. Mesuré sur les positions rendues,
+         jamais sur une constante recopiée. */
+      const haut=function(j){ const el=document.getElementById('mmt-v-val-'+j); if(!el) return null;
+        const m=/top:\\s*([-0-9.]+)px/.exec(el.getAttribute('style')||''); return m?parseFloat(m[1]):null; };
+      for(let i=0;i<ns.length-1;i++){
+        const monte=PTS[ns[i+1]+6]>PTS[ns[i]+6], y0=haut(i), y1=haut(i+1);
+        if(y0==null||y1==null){ vus.push('la valeur du nœud '+i+' n est pas posée'); break; }
+        if(monte ? !(y0>y1) : !(y0<y1))
+          vus.push('entre x = '+ns[i]+' et x = '+ns[i+1]+', f '+(monte?'monte':'descend')+' mais les valeurs ne le montrent pas ('+y0+' puis '+y1+')');
+      }
+      /* la méthode n est PAS montrée avant la vérification */
+      if(hote.querySelectorAll('.mmt-sol').length||hote.querySelectorAll('.mmt-bord').length)
+        vus.push('la méthode est montrée AVANT la vérification'); }
+    submitMMT();
+    if(test.score!==6||mmtSubCount(r.q)!==6) vus.push('la copie juste vaut '+test.score+' au lieu de 6');
+    { const hote=document.getElementById('mmtTable');
+      if(hote.querySelectorAll('.mmt-sol').length!==2) vus.push('la correction ne marque pas les deux extremums dans le tableau ('+hote.querySelectorAll('.mmt-sol').length+')');
+      if(hote.querySelectorAll('.mmt-bord').length!==2) vus.push('la correction ne marque pas les deux bornes de l intervalle ('+hote.querySelectorAll('.mmt-bord').length+')'); }
+    ['mmt-M','mmt-xM','mmt-m','mmt-xm','mmt-lo','mmt-hi'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n est pas peinte ok ('+cls(id)+')'); });
+
+    /* chaque case se juge SEULE */
+    r=pose(Object.assign({},JUSTE,{'mmt-xM':'-4'}));
+    if(r.score!==5||cls('mmt-xM').indexOf('bad')<0||cls('mmt-M').indexOf('ok')<0)
+      vus.push('l abscisse du maximum fausse devrait coûter exactement son point ('+r.score+', '+cls('mmt-xM')+' / '+cls('mmt-M')+')');
+    /* l abscisse d un extremum INTÉRIEUR est bien celle du changement de sens */
+    r=pose(Object.assign({},JUSTE,{'mmt-xM':'3'}));
+    if(r.score!==5) vus.push('le maximum lu à la mauvaise abscisse passe pour juste ('+r.score+')');
+    /* l encadrement reprend le minimum puis le maximum */
+    r=pose(Object.assign({},JUSTE,{'mmt-lo':'6','mmt-hi':'-2'}));
+    if(r.score!==4||cls('mmt-lo').indexOf('bad')<0||cls('mmt-hi').indexOf('bad')<0)
+      vus.push('l encadrement à l envers passe pour juste ('+r.score+')');
+    { const c=(document.getElementById('mmtInstr').textContent||'');
+      if(c.indexOf('encadrement reprend ces deux nombres')<0)
+        vus.push('la consigne ne dit pas que l encadrement reprend le minimum et le maximum trouvés');
+      if(c.indexOf('valeurs ÉCRITES')<0)
+        vus.push('la consigne ne dit pas que les extremums sont parmi les valeurs écrites dans le tableau'); }
+
+    /* la case vide reçoit la correction sol en entraînement, RIEN en soutien */
+    r=pose(Object.assign({},JUSTE,{'mmt-m':'','mmt-lo':''}));
+    if(cls('mmt-m').indexOf('sol')<0||cls('mmt-lo').indexOf('sol')<0)
+      vus.push('en entraînement, les cases vides ne reçoivent pas la correction sol ('+cls('mmt-m')+' / '+cls('mmt-lo')+')');
+    r=pose(Object.assign({},JUSTE,{'mmt-m':'','mmt-lo':''}), 'soutien');
+    if(cls('mmt-m').indexOf('bad')>=0||cls('mmt-m').indexOf('sol')>=0||cls('mmt-lo').indexOf('bad')>=0)
+      vus.push('en soutien, une case vide reçoit une couleur ('+cls('mmt-m')+' / '+cls('mmt-lo')+')');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l écran');
+    if(document.getElementById('mmtTable').querySelectorAll('.mmt-sol').length)
+      vus.push('en soutien, la méthode est montrée sur une copie incomplète');
+
+    /* le SOUTIEN peint au fil de la frappe, la case vide ne reçoit RIEN */
+    pose({'mmt-M':'6','mmt-xM':'3'}, 'soutien', true);
+    mmtLive();
+    if(cls('mmt-M').indexOf('ok')<0) vus.push('en soutien, une case juste ne se peint pas à la frappe ('+cls('mmt-M')+')');
+    if(cls('mmt-xM').indexOf('bad')<0) vus.push('en soutien, une case fausse ne se peint pas à la frappe ('+cls('mmt-xM')+')');
+    if(cls('mmt-m').indexOf('ok')>=0||cls('mmt-m').indexOf('bad')>=0) vus.push('en soutien, une case vide se peint à la frappe ('+cls('mmt-m')+')');
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');
