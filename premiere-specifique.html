@@ -1757,7 +1757,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=196;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=197;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -12924,7 +12924,10 @@ const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
 function buildKbTerm(vars){
   /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
-     pourcentage (pas de variables f/x, inutiles ici). */
+     pourcentage (pas de variables f/x, inutiles ici). La touche « = » (demande de
+     Turquet, septembre 2026) : sur tablette la greffe coupe le clavier du SYSTEME
+     sur chaque champ mathematique (inputmode="none") — sans elle, une egalite
+     etait intapable. */
   return {
     label: "Calcul",
     layers: [
@@ -12934,7 +12937,7 @@ function buildKbTerm(vars){
         [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"\u2212",latex:"-"},{label:"+",latex:"+"},
           {label:"\u2190",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
           {label:"\u2192",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
-        [ {latex:"0"},{label:",",key:","},{label:"%",latex:"\\%"},
+        [ {latex:"0"},{label:",",key:","},{latex:"="},{label:"%",latex:"\\%"},
           {label:"\u2713",class:"action",command:["hideVirtualKeyboard"]} ]
       ] }
     ]

@@ -2313,7 +2313,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=289;
+const APP_VERSION=290;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -17986,7 +17986,10 @@ function buildKbTerm(vars){
         [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{latex:"e"},{latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
         [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},{label:"ln",insert:"\\ln\\left(#0\\right)"},{label:"(",key:"("},{label:")",key:")"} ],
         [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},KB_EXP,{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
-        [ {latex:"0"},{latex:","},{latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"+"},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+        /* « = » (demande de Turquet, septembre 2026) : la greffe coupe le clavier du
+           SYSTEME sur chaque champ mathematique (inputmode="none") — sur tablette,
+           sans cette touche, une egalite etait intapable dans les redactions. */
+        [ {latex:"0"},{latex:","},{latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"+"},{latex:"="},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
       ]},
       { id: "term-fn", rows: [
         [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},{latex:"\\pi"},{latex:"\\in"},KB_IDX ],
