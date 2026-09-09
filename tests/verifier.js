@@ -2684,6 +2684,7 @@ function exercices(suite){
     imageNombre(w, P);
     placerImage(w, P);
     tangenteExp(w, P);
+    recurrenceFormule(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     phraseCouleurs(w);
@@ -7082,6 +7083,150 @@ function tangenteExp(w, P){
     poser(B0); checkTX();
     if(test.score!==1) vus.push('avec b = 0, la copie juste vaut '+test.score+' au lieu de 1');
 
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 6.6 : la récurrence qui démontre une FORMULE explicite ---------- */
+/* Fiche « Exercice 4 » (demande de Turquet, septembre 2026) : U0 = 1,
+   U_{n+1} = 0,5 Un + 1, démontrer Un = 2 − 0,5^n — le squelette guidé du 6.5,
+   appliqué à une formule. Les bords tenus : le tirage refait par sa propre
+   arithmétique (b = k(1−a) ENTIER, u0 = k ± 1, rien d'autre dans la question),
+   les DEUX visages ± chacun une fois en ordre mélangé, les lignes libres jugées
+   À LA VALEUR (toute écriture égale acceptée, la fausse refusée), la DERNIÈRE
+   qui exige la forme réduite (le développement recopié n'y suffit pas), chaque
+   case jugée SEULE, la case vide sans couleur en soutien et remplie en sol en
+   entraînement (rouge gardé + bonne réponse à côté), et le contexte du modèle
+   qui porte l'énoncé, les saisies et la clause anti-recopie. */
+function recurrenceFormule(w, P){
+  const nom='la récurrence qui démontre une formule explicite (fiche « Exercice 4 »)';
+  const present = evaluer(w, "typeof startRF==='function' && typeof rfBuildQuestions==='function' && typeof genRF==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la récurrence de la formule explicite');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='recurrence-formule';
+
+    /* ---- 0. la place au menu : juste APRÈS {recurrence-encadrement} — la
+       même fiche guidée, la formule au lieu de l'encadrement ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('recurrence-formule')>=0; })[0];
+      const i=th?th.ids.indexOf('recurrence-formule'):-1;
+      if(!th || th.ids[i-1]!=='recurrence-encadrement')
+        vus.push('{recurrence-formule} ne suit pas {recurrence-encadrement} au menu'); }
+
+    /* ---- 1. le tirage, refait par sa propre arithmétique : b = k(1−a)
+       ENTIER, u0 = k ± 1, n0 = 0, RIEN d'autre dans la question — l'énoncé ne
+       peut pas contredire la correction, elle recalcule les mêmes nombres ---- */
+    for(let t=0;t<200 && vus.length<4;t++){
+      [1,-1].forEach(function(c){
+        const q=genRF(c);
+        if(Math.abs(q.b - q.k*(1-q.a))>1e-9) vus.push('b ne vaut plus k(1−a) : '+JSON.stringify(q));
+        if(!Number.isInteger(q.b)||q.b<1) vus.push('b n\\'est plus un entier ≥ 1 : '+q.b+' (a='+q.a+', k='+q.k+')');
+        if(q.u0!==q.k+c) vus.push('u0 ne vaut plus k '+(c>0?'+':'−')+' 1 : '+JSON.stringify(q));
+        if(q.n0!==0) vus.push('le rang de départ n\\'est plus 0');
+        if([0.5,0.25,0.75,0.2].indexOf(q.a)<0) vus.push('a hors du vivier : '+q.a);
+        const cles=Object.keys(q).filter(function(k){ return ['a','k','b','c','u0','n0'].indexOf(k)<0; });
+        if(cles.length) vus.push('la question range autre chose que a,k,b,c,u0,n0 : '+cles.join(','));
+      });
+    }
+
+    /* ---- 2. la séance : les DEUX visages (+ a^n et − a^n) chacun une fois,
+       l'ordre MÉLANGÉ, jamais deux fois le même couple (a,k) ---- */
+    { let premiers={}, deuxMemes=0;
+      for(let t=0;t<80;t++){
+        const qs=rfBuildQuestions();
+        if(qs.length!==2){ vus.push(qs.length+' questions au lieu de 2'); break; }
+        if(qs[0].c+qs[1].c!==0){ vus.push('les deux visages ± ne sortent pas chacun une fois ('+qs[0].c+','+qs[1].c+')'); break; }
+        if(qs[0].a===qs[1].a && qs[0].k===qs[1].k) deuxMemes++;
+        premiers[qs[0].c]=1;
+      }
+      if(Object.keys(premiers).length<2) vus.push('le visage de la première question ne varie pas : l\\'élève apprend l\\'ordre');
+      if(deuxMemes) vus.push('les deux questions posent parfois le même couple (a,k) : '+deuxMemes+' fois sur 80'); }
+
+    /* ---- montage : la question de la fiche même — U0 = 1, U_{n+1} = 0,5 Un + 1,
+       démontrer Un = 2 − 0,5^n ---- */
+    const Q={a:0.5,k:2,b:1,c:-1,u0:1,n0:0};
+    const IDS=['rf-n0','rf-i1','rf-i2','rf-i3','rf-i4','rf-h1','rf-m1','rf-s1','rf-d1','rf-d2','rf-ccl'];
+    const BON={'rf-n0':'0','rf-i1':'0','rf-i2':'0','rf-i3':'1','rf-i4':'vrai','rf-h1':'n','rf-m1':'n+1',
+      'rf-s1':'2-0,5^(n)','rf-d1':'1-0,5^(n+1)+1','rf-d2':'2-0,5^(n+1)','rf-ccl':'tout'};
+    const poser=function(vals){
+      Object.assign(test,{kind:'rf', questions:[JSON.parse(JSON.stringify(Q))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:1});
+      renderRF();
+      IDS.forEach(function(id){ const el=document.getElementById(id);
+        if(el){ const v=vals[id]; el.value=(v===undefined||v===null)?'':String(v); } });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+
+    /* ---- 3. la copie de la fiche passe entière, vaut le point, se verrouille ---- */
+    poser(BON); checkRF();
+    { const pas=IDS.filter(function(id){ return peint(id)!=='vert'; });
+      if(pas.length) vus.push('la copie de la fiche ne passe pas entière au vert : '+pas.join(','));
+      if(test.score!==1||!test.locked) vus.push('la copie de la fiche vaut '+test.score+' (verrouillée : '+test.locked+')'); }
+
+    /* ---- 4. toute écriture ÉGALE est acceptée sur les lignes libres ---- */
+    [['rf-s1','-0,5^n+2'],['rf-s1','2-0,5^{n}'],['rf-d1','2-0,5×0,5^(n)'],['rf-d1','1+1-0,5^(n+1)']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkRF();
+      if(test.score!==1) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
+
+    /* ---- 5. la DERNIÈRE ligne exige la forme réduite : le développement
+       recopié y est refusé, l'autre ordre de la forme réduite accepté ---- */
+    { const v=Object.assign({},BON); v['rf-d2']='1-0,5^(n+1)+1';
+      poser(v); checkRF();
+      if(peint('rf-d2')!=='rouge'||test.score!==0) vus.push('la ligne finale accepte le développement non réduit'); }
+    { const v=Object.assign({},BON); v['rf-d2']='-0,5^(n+1)+2';
+      poser(v); checkRF();
+      if(test.score!==1) vus.push('la forme réduite dans l\\'autre ordre (−0,5^(n+1) + 2) est refusée'); }
+
+    /* ---- 6. une égalité FAUSSE rougit sa case, et elle seule ---- */
+    { const v=Object.assign({},BON); v['rf-d1']='2-0,5^(n)';   /* l'hypothèse recopiée : numériquement fausse ici */
+      poser(v); checkRF();
+      if(peint('rf-d1')!=='rouge') vus.push('la ligne de développement fausse ne rougit pas');
+      if(test.score!==0) vus.push('une ligne fausse vaut quand même le point');
+      const autres=IDS.filter(function(id){ return id!=='rf-d1' && peint(id)!=='vert'; });
+      if(autres.length) vus.push('une ligne fausse fait payer ses voisines : '+autres.join(',')); }
+
+    /* ---- 7. les exposants : n avec ou sans parenthèses, n+1 groupé ; « n »
+       au BUT est refusé — c'est l'erreur visée ---- */
+    [['rf-h1','(n)'],['rf-m1','(n+1)'],['rf-m1','{n+1}']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkRF();
+      if(test.score!==1) vus.push('l\\'exposant « '+p[1]+' » est refusé en '+p[0]); });
+    { const v=Object.assign({},BON); v['rf-m1']='n';
+      poser(v); checkRF();
+      if(peint('rf-m1')!=='rouge') vus.push('le but au rang n (au lieu de n+1) ne rougit pas'); }
+
+    /* ---- 8. la case vide : en SOUTIEN aucune couleur ; en ENTRAÎNEMENT la
+       correction la remplit en sol, la fausse garde son rouge et la bonne
+       réponse s'affiche à côté (badge mf-cor) ---- */
+    currentMode='soutien';
+    { const v=Object.assign({},BON); delete v['rf-s1'];
+      poser(v); checkRF();
+      if(peint('rf-s1')!=='rien') vus.push('en soutien, la case vide reçoit une couleur : '+peint('rf-s1'));
+      if(test.locked) vus.push('en soutien, une copie incomplète verrouille');
+      const fb=document.getElementById('rfFeedback').textContent;
+      if(fb.indexOf('manque')<0||fb.indexOf('1 case')<0) vus.push('le message du soutien ne dit pas la case manquante : '+fb); }
+    currentMode='train';
+    { const v=Object.assign({},BON); delete v['rf-s1']; v['rf-d2']='9';
+      poser(v); checkRF();
+      if(peint('rf-s1')!=='sol') vus.push('en entraînement, la case vide n\\'est pas remplie en sol : '+peint('rf-s1'));
+      if(peint('rf-d2')!=='rouge') vus.push('la case fausse ne garde pas son rouge sous la correction');
+      const el=document.getElementById('rf-d2');
+      const badge=el && el.nextElementSibling && /mf-cor/.test(el.nextElementSibling.className||'');
+      if(!badge) vus.push('la bonne réponse ne s\\'affiche pas à côté de la case fausse (badge mf-cor)'); }
+
+    /* ---- 9. le contexte envoyé au modèle : l'énoncé, les saisies, la clause ---- */
+    poser(BON);
+    { const c=rfConseilCtx();
+      if(c.indexOf('0,5')<0||c.indexOf('récurrence')<0) vus.push('le contexte du modèle ne porte pas l\\'énoncé : '+c.slice(0,80));
+      if(c.indexOf('ANTI-RECOPIE')<0||c.indexOf('JAMAIS révéler')<0) vus.push('le contexte du modèle a perdu la clause de secret');
+      if(c.indexOf('Saisies actuelles')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève'); }
+
+    currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }

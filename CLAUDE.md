@@ -4675,6 +4675,35 @@ une étiquette « Vₙ₊₁ = » qui déborderait de la largeur réservée enve
 « = » à droite des autres sans qu'aucune classe ne change — jsdom reste vert,
 le navigateur nomme l'écart (55 px au sabotage). Éprouvé par deux sabotages.
 
+**Démontrer une FORMULE par récurrence, dans le squelette guidé du 6.5.**
+{recurrence-formule} (Terminale, fiche « Exercice 4 », demande de Turquet,
+septembre 2026) suit {recurrence-encadrement} au menu : on donne U₀ et
+Uₙ₊₁ = aUₙ + b, et la formule Uₙ = k ± aⁿ à démontrer — initialisation
+CALCULÉE (rang, indice, exposant, valeur, « c'est vrai »), hypothèse et but
+dont les EXPOSANTS n et n+1 s'écrivent dans des cases levées, puis la chaîne
+de la fiche : substituer l'hypothèse dans a × ( … ) + b, développer, réduire.
+**Le tirage part de l'ARRIVÉE** (la leçon de {simplifier-barres}) : a et k
+sont choisis pour que b = k(1−a) soit ENTIER et u0 = k ± 1 — l'énoncé est
+fait des nombres mêmes que la correction recalcule, il ne peut pas la
+contredire, et le contrôle refait l'identité par sa propre arithmétique (la
+leçon du 6.3). Les DEUX visages (k + aⁿ et k − aⁿ) sortent chacun une fois,
+en ordre mélangé, jamais sur le même couple (a, k).
+**Les deux lignes de calcul sont LIBRES et se jugent À LA VALEUR** (n = 0..3,
+la doctrine de sarExprVal) : toute écriture égale est acceptée, l'égalité
+fausse rougit sa case et elle seule. **La DERNIÈRE ligne exige en plus la
+forme réduite** k ± a^(n+1), dans les deux ordres — le développement recopié
+n'y suffit pas : c'est elle qui fait la démonstration. Une écriture à
+l'exposant NON groupé (2 − 0,5^n + 1) est numériquement fausse et rougit à
+bon droit. La lecture passe par compileExprExp après n → x, et un « − » de
+tête devant une puissance est réécrit « 0− » : JS refuse -a**x nu — le
+piège s'est montré à la sonde, avant le premier contrôle.
+**Une case vide ne reçoit jamais de couleur** — tenue ici dès le premier
+jour, là où le 6.5 vit encore dans la liste des dispenses — et l'entraînement
+révèle par la convention COMMUNE : le rouge garde la saisie et la bonne
+réponse s'affiche à côté (badge mf-cor), la case vide est remplie en sol.
+Le contexte du modèle porte l'énoncé, les saisies et la clause anti-recopie.
+Onze sabotages, chacun rougissant en nommant son défaut.
+
 **Rédiger une récurrence, c'est l'écrire EN ENTIER — et deux juges s'en
 partagent la lecture.** {recurrence-redaction} (Terminale, 6.7, demande de
 Turquet, septembre 2026) : « des énoncés comme le 6.5, mais la rédaction
