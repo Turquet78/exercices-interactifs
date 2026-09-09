@@ -1765,11 +1765,24 @@ pas trancher.** {tableau-vrai-faux} (Seconde, demande de Turquet, septembre
 {tableau-equations} au menu : un tableau de variation, et SEPT affirmations —
 « f(−5) est positif », « f(3) ≤ 6 », « f(1) ≤ f(2) » — à dire vraies ou
 fausses en justifiant : « car la fonction est [croissante / décroissante]
-sur [ … ; … ] ». Quatre cases par affirmation (Vrai/Faux, le sens, les deux
-bornes), sept affirmations sur DEUX écrans (quatre, puis trois) numérotées à
-la suite comme sur la fiche, 28 cases — la composition de la fiche est
-gardée : deux signes, deux comparaisons à un nombre, trois comparaisons de
-deux images.
+sur [ … ; … ] ». Sept affirmations sur DEUX écrans (quatre, puis trois)
+numérotées à la suite comme sur la fiche, 32 cases — la composition de la
+fiche est gardée : deux signes, deux comparaisons à un nombre, trois
+comparaisons de deux images.
+**LA JUSTIFICATION DÉPEND DU TYPE, et c'est Turquet qui l'a redressée sur la
+première mise en ligne** (septembre 2026 : « la justification n'est pas la
+variation de la fonction mais le fait que les images sont comprises entre 3
+et 6 sur l'intervalle [1 ; 4] »). Le premier jet faisait justifier toute
+affirmation par le sens de f — or le sens ne prouve rien sur « f(3) est
+négatif » : ce qui le prouve, c'est l'ENCADREMENT que la flèche donne. Un
+signe ou une comparaison à k se justifie donc par « car sur [ 1 ; 4 ], la
+fonction est comprise entre 3 et 6 » — cinq cases : Vrai/Faux, les deux
+bornes, les deux valeurs (la paire à ordre LIBRE, « entre 6 et 3 » vaut
+« entre 3 et 6 », la règle des paires) ; une comparaison de deux images garde
+le sens — « croissante sur [ −1 ; 4 ] », quatre cases — parce qu'un
+encadrement ne dit rien de f(a) ≤ f(b). Les valeurs proposées sont les
+valeurs ÉCRITES du tableau : la valeur lue sur une AUTRE flèche est le piège,
+et elle ne coûte que son point.
 **Ce qu'il fait travailler est le raisonnement du 2.18 poussé jusqu'à la
 preuve** : entre deux valeurs écrites, f ne fait que monter (ou que
 descendre), donc f(a) est STRICTEMENT entre les deux valeurs écrites aux
@@ -1815,12 +1828,20 @@ dans le contrôle du partage lisait l'ENVELOPPE de la greffe des jetons — le
 piège documenté du 2.14, retombé tel quel : on lit la SOURCE. Et à la
 largeur du 2.18 (920 px), la rangée corrigée DÉFILAIT : les badges verts de
 la correction l'élargissent, et la bonne borne se cachait derrière le
-défilement — la carte fait 1040 px. Le banc NAVIGATEUR (« 6 quater
+défilement — la carte est passée à 1040 px, puis à 1300 quand la
+justification a gagné sa cinquième case : à 1040, UN seul badge sur une
+rangée d'encadrement cachait déjà la dernière valeur. Vu sur la sonde, pas
+au banc — celui-ci ne jouait qu'une copie JUSTE, donc sans aucun badge, et
+une rangée juste ne mesure rien de la largeur corrigée : il choisit
+désormais TROIS cases fausses sur la première rangée et mesure la rangée
+une fois ses badges posés. À 1300 la rangée absorbe trois badges sur un
+écran de 1280 px, et cinq à 1400 ; au-delà elle DÉFILE (`.tvf-wrap`) au
+lieu de se replier. Le banc NAVIGATEUR (« 6 quater
 septies », déclaré par `tableauVraiFaux`) tient ce que jsdom ne voit pas :
 chaque affirmation et sa justification sur UNE rangée — coupée en deux, la
 justification se lirait sans son affirmation —, sans défilement à 1400 px,
-et il CHOISIT les vingt-huit cases pour de vrai sur les deux pages.
-Vingt-deux sabotages, chacun rougissant en nommant son défaut — sauf un, qui
+et il CHOISIT les trente-deux cases pour de vrai sur les deux pages.
+Vingt-quatre sabotages, chacun rougissant en nommant son défaut — sauf un, qui
 rougit sans rien nommer : k tiré n'importe où ET le garde des indécidables
 retiré fait tomber le TIRAGE en erreur avant que le contrôle ne mesure quoi
 que ce soit. Un sabotage qui casse la page ne dit rien du contrôle visé ; le

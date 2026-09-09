@@ -1122,12 +1122,13 @@ async function parcours(page, N){
     /* ===== 6 quater septies. l'affirmation et sa justification d'un seul tenant =====
        {tableau-vrai-faux} : le banc jsdom tient le tirage, la décidabilité
        et le jugement. Ce qu'il ne voit pas : la rangée d'une affirmation —
-       « 1) f (−5) est positif. [Vrai] car la fonction est [décroissante]
-       sur [ −6 ; −1 ] » — qui se REPLIERAIT, la justification tombant sous
-       son affirmation, ou qui défilerait à la largeur d'un écran
-       d'ordinateur. Seul un navigateur sait où une rangée se replie. Il
-       CHOISIT aussi les vingt-huit cases pour de vrai, sur les deux pages,
-       et relit les couleurs et la note. */
+       « 1) f (−5) est positif. [Vrai] car sur [ −6 ; −1 ], la fonction est
+       comprise entre [ −4 ] et [ 1 ] » — qui se REPLIERAIT, la justification
+       tombant sous son affirmation, ou qui défilerait à la largeur d'un
+       écran d'ordinateur, surtout une fois les badges de la correction
+       posés. Seul un navigateur sait où une rangée se replie. Il CHOISIT
+       aussi les trente-deux cases pour de vrai, sur les deux pages — trois
+       fausses exprès —, et relit les couleurs et la note. */
     titre('6 quater septies. L\'AFFIRMATION ET SA JUSTIFICATION D\'UN SEUL TENANT');
     if(!P.tableauVraiFaux){
       ignorer('chaque affirmation tient sur une seule rangée',
@@ -1154,32 +1155,49 @@ async function parcours(page, N){
                  cases: hote.querySelectorAll('input, select').length, fleches: hote.querySelectorAll('.vt-shaft').length };
       });
       const vu1 = await mesurer();
-      verifier('la première page pose quatre affirmations à seize cases', vu1.n === 4 && vu1.sels === 16, vu1.n + ' rangée(s), ' + vu1.sels + ' case(s)');
+      verifier('la première page pose quatre affirmations à dix-huit cases (5 + 5 + 4 + 4)', vu1.n === 4 && vu1.sels === 18, vu1.n + ' rangée(s), ' + vu1.sels + ' case(s)');
       verifier('le tableau est rendu rempli, ses trois flèches tracées', vu1.cases === 0 && vu1.fleches === 3, vu1.cases + ' case(s), ' + vu1.fleches + ' flèche(s)');
       verifier('chaque affirmation tient sur une seule rangée', vu1.replis.length === 0, 'rangée(s) repliée(s) : ' + vu1.replis.join(','));
       verifier('aucune rangée ne défile à 1400 px, ni la page', vu1.defile === 0 && !vu1.page, vu1.defile + ' rangée(s) qui défile(nt)');
       verifier('le tableau ne déborde pas de sa carte', !vu1.tableSort, '');
-      /* on CHOISIT les réponses pour de vrai, dans les listes, sur les deux pages */
-      const jouer = async () => {
+      /* on CHOISIT les réponses pour de vrai, dans les listes, sur les deux
+         pages — et sur la première, TROIS cases de la rangée 1 sont choisies
+         FAUSSES exprès : ce sont les badges verts de la correction qui
+         élargissent une rangée, et une rangée d'encadrement (cinq cases) est
+         la plus longue de l'écran. Une rangée juste ne mesure rien de cela. */
+      const jouer = async (fautes) => {
         const bonnes = await s.page.evaluate(() => {
           const q = test.questions[test.idx], nodes = tvfNoeuds(q.pts);
+          /* la justification suit le TYPE : l'encadrement pour un signe ou une
+             comparaison à k, le sens pour une comparaison de deux images */
           return q.aff.map((af, j) => { const v = tvfVerite(nodes, af);
-            return [['tvf-vf-' + j, v.vrai ? 'V' : 'F'], ['tvf-s-' + j, v.sens === 'croissante' ? 'c' : 'd'], ['tvf-a-' + j, String(v.a)], ['tvf-b-' + j, String(v.b)]]; }).flat();
+            return af.t === 'cmp'
+              ? [['tvf-vf-' + j, v.vrai ? 'V' : 'F'], ['tvf-s-' + j, v.sens === 'croissante' ? 'c' : 'd'], ['tvf-a-' + j, String(v.a)], ['tvf-b-' + j, String(v.b)]]
+              : [['tvf-vf-' + j, v.vrai ? 'V' : 'F'], ['tvf-a-' + j, String(v.a)], ['tvf-b-' + j, String(v.b)], ['tvf-m-' + j, String(v.lo)], ['tvf-M-' + j, String(v.hi)]]; }).flat();
         });
-        for(const [id, val] of bonnes) await s.page.selectOption('#' + id, val);
+        for(const [id, val] of bonnes){
+          let choix = val;
+          if((fautes || []).indexOf(id) >= 0){
+            const autres = await s.page.$$eval('#' + id + ' option', (os, v) => os.map(o => o.value).filter(x => x && x !== v), val);
+            choix = autres[0];
+          }
+          await s.page.selectOption('#' + id, choix);
+        }
         await s.page.click('#tvfValidate');
         await s.page.waitForTimeout(400);
-        return s.page.evaluate(() => ({ ok: document.querySelectorAll('#tvfBody select.ok').length, score: test.score, idx: test.idx }));
+        return s.page.evaluate(() => ({ ok: document.querySelectorAll('#tvfBody select.ok').length, bad: document.querySelectorAll('#tvfBody select.bad').length, badges: document.querySelectorAll('#tvfBody .mf-cor').length, score: test.score, idx: test.idx }));
       };
-      const j1 = await jouer();
-      verifier('les seize cases choisies justes sont peintes ok et valent 16', j1.ok === 16 && j1.score === 16, j1.ok + ' ok, note ' + j1.score);
+      const j1 = await jouer(['tvf-vf-0', 'tvf-a-0', 'tvf-m-0']);
+      verifier('quinze cases justes et trois fausses sur la première page : 15 ok, 3 bad, note 15', j1.ok === 15 && j1.bad === 3 && j1.score === 15, j1.ok + ' ok, ' + j1.bad + ' bad, note ' + j1.score);
+      const vuC = await mesurer();
+      verifier('la rangée corrigée porte ses trois badges verts d\'un seul tenant, sans défiler', j1.badges === 3 && vuC.replis.length === 0 && vuC.defile === 0 && !vuC.page, j1.badges + ' badge(s), repli : ' + vuC.replis.join(',') + ', ' + vuC.defile + ' rangée(s) qui défile(nt)');
       await s.page.click('#tvfValidate');
       await s.page.waitForTimeout(500);
       const vu2 = await mesurer();
       const num = await s.page.evaluate(() => (document.getElementById('tvfBody').textContent.indexOf('5)') >= 0));
-      verifier('la seconde page pose trois affirmations numérotées à la suite, d\'un seul tenant', vu2.n === 3 && vu2.sels === 12 && num && vu2.replis.length === 0, vu2.n + ' rangée(s), ' + vu2.sels + ' case(s), 5) ' + (num ? 'présent' : 'absent') + ', repli : ' + vu2.replis.join(','));
+      verifier('la seconde page pose trois affirmations numérotées à la suite, d\'un seul tenant', vu2.n === 3 && vu2.sels === 14 && num && vu2.replis.length === 0, vu2.n + ' rangée(s), ' + vu2.sels + ' case(s), 5) ' + (num ? 'présent' : 'absent') + ', repli : ' + vu2.replis.join(','));
       const j2 = await jouer();
-      verifier('les douze cases de la seconde page portent la note à 28', j2.ok === 12 && j2.score === 28, j2.ok + ' ok, note ' + j2.score);
+      verifier('les quatorze cases justes de la seconde page portent la note à 29', j2.ok === 14 && j2.score === 29, j2.ok + ' ok, note ' + j2.score);
       await s.nav.close(); s = null;
     }
 
