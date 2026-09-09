@@ -1759,6 +1759,74 @@ capture : sur deux colonnes, « a combien de solutions ? » se repliait et la
 case tombait seule à la ligne suivante — la phrase est plus courte, et « ? »
 reste soudé à sa case.
 
+**Vrai ou faux, en JUSTIFIANT — et la fiche pose une question qu'on ne peut
+pas trancher.** {tableau-vrai-faux} (Seconde, demande de Turquet, septembre
+2026, repris de la fiche « tableau de variation V/F », Exercice 9) suit
+{tableau-equations} au menu : un tableau de variation, et SEPT affirmations —
+« f(−5) est positif », « f(3) ≤ 6 », « f(1) ≤ f(2) » — à dire vraies ou
+fausses en justifiant : « car la fonction est [croissante / décroissante]
+sur [ … ; … ] ». Quatre cases par affirmation (Vrai/Faux, le sens, les deux
+bornes), sept affirmations sur DEUX écrans (quatre, puis trois) numérotées à
+la suite comme sur la fiche, 28 cases — la composition de la fiche est
+gardée : deux signes, deux comparaisons à un nombre, trois comparaisons de
+deux images.
+**Ce qu'il fait travailler est le raisonnement du 2.18 poussé jusqu'à la
+preuve** : entre deux valeurs écrites, f ne fait que monter (ou que
+descendre), donc f(a) est STRICTEMENT entre les deux valeurs écrites aux
+bouts de sa flèche — on ne connaît pas f(a), on sait entre quoi et quoi il
+est — et f(a) ≤ f(b) se lit dans le SENS de la flèche.
+**LE RISQUE PROPRE EST L'AFFIRMATION INDÉCIDABLE, et la fiche elle-même le
+porte** : sa question 2 demande si f(5) est positif alors que f DESCEND de 5
+à −2 sur [4 ; 6] — f(5) est strictement entre −2 et 5, il peut être positif
+comme négatif, et ni « Vrai » ni « Faux » n'est une réponse juste : l'élève
+qui répond ce que le tableau lui permet de dire serait compté faux, le pire
+défaut du projet. Chaque affirmation est donc tirée DÉCIDABLE — le signe sur
+une flèche qui ne traverse pas 0, la comparaison à k pour un k hors de la
+flèche (et à deux unités au plus d'un de ses bouts : « f(3) ≤ 6 » quand f
+monte jusqu'à 5, le k de la fiche), f(a) ≤ f(b) pour a et b sur la MÊME
+flèche —, `tvfVerite` rend null plutôt que de trancher, et le contrôle EXIGE
+ce null sur la question 2 de la fiche, épinglée. Sonde : 35 % des courbes à
+trois flèches conviennent — le facteur limitant est la flèche sans 0 —,
+2,8 essais en moyenne, pire cas 17 sur 400 séances, 0 recours au repli,
+lequel est RÉEL, relevé sur le générateur.
+**La bonne réponse n'est jamais rangée à côté de la question** : elle ne
+porte que la courbe et les affirmations (type, nombres, variante — le
+contrôle refuse tout autre champ), et `tvfVerite`, la fonction même qui
+corrige, recalcule tout. **Le contrôle la refait par une SECONDE méthode qui
+n'a rien en commun avec la page** : a étant entier, f(a) est la valeur
+`pts[a+6]` de la GRILLE — la page, elle, ne lit que les nœuds du tableau, et
+ne connaît jamais f(a). La vérité par la grille et la vérité par le tableau
+doivent tomber d'accord, tirage après tirage (0 désaccord sur 400).
+**Tout est repris, rien n'est recopié** : le tirage est `adrGenPts(3)`,
+l'analyse `gsvAnalyze` — ses segments disent « croissante » et
+« décroissante », les mots mêmes que la justification demande —, le tableau
+`varTableHTML` en mode lecture (la fonction même du 2.17), les cases les
+sélecteurs de la famille `.itv-sel` (`corrChoix`, `msgAvecVides`). Chaque
+case se juge SEULE : un « Vrai » faux ne fait pas payer une justification
+juste, et la borne 6 prise pour −1 — l'intervalle qui ENJAMBE un changement
+de sens, le piège des bornes proposées — coûte exactement son point. Au
+moins trois vraies et trois fausses par séance, les deux sens parmi les
+justifications, jamais deux affirmations sur le même nombre : la sonde a vu
+sortir « f(5) est positif » ET « f(5) est négatif » dans la même séance —
+l'une répond à l'autre. Le message n'explique que les affirmations qui
+portent une VRAIE faute, la case vide d'abord (`msgAvecVides`).
+**Deux défauts ne se sont vus que sur la capture.** `String(renderTVF)`
+dans le contrôle du partage lisait l'ENVELOPPE de la greffe des jetons — le
+piège documenté du 2.14, retombé tel quel : on lit la SOURCE. Et à la
+largeur du 2.18 (920 px), la rangée corrigée DÉFILAIT : les badges verts de
+la correction l'élargissent, et la bonne borne se cachait derrière le
+défilement — la carte fait 1040 px. Le banc NAVIGATEUR (« 6 quater
+septies », déclaré par `tableauVraiFaux`) tient ce que jsdom ne voit pas :
+chaque affirmation et sa justification sur UNE rangée — coupée en deux, la
+justification se lirait sans son affirmation —, sans défilement à 1400 px,
+et il CHOISIT les vingt-huit cases pour de vrai sur les deux pages.
+Vingt-deux sabotages, chacun rougissant en nommant son défaut — sauf un, qui
+rougit sans rien nommer : k tiré n'importe où ET le garde des indécidables
+retiré fait tomber le TIRAGE en erreur avant que le contrôle ne mesure quoi
+que ce soit. Un sabotage qui casse la page ne dit rien du contrôle visé ; le
+bord de l'indécidable est tenu par le repli inventé à la main (une
+affirmation sur une flèche qui traverse 0), que le contrôle nomme.
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
