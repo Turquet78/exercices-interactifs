@@ -4752,6 +4752,32 @@ réponse s'affiche à côté (badge mf-cor), la case vide est remplie en sol.
 Le contexte du modèle porte l'énoncé, les saisies et la clause anti-recopie.
 Onze sabotages, chacun rougissant en nommant son défaut.
 
+**Puis la touche morte « ^ » d'AZERTY, et le badge en écriture mathématique**
+(signalé par Turquet, septembre 2026, sur le 6.6 : « quand je tape ^n il
+rajoute le signe intersection », « il donne une correction à côté qui n'est
+pas en écriture mathématique »). Sur un clavier AZERTY « ^ » est une touche
+MORTE : le navigateur livre du TEXTE composé, jamais une frappe — et MathLive
+AVALE le « ^ » (Windows : le n s'écrit sur la ligne, faux sans rien montrer)
+ou GARDE le « ˆ » U+02C6 tel quel (Mac : le chapeau que l'élève lit comme un
+signe ∩). Sondé sur du vrai MathLive AVANT tout correctif : seul
+`beforeinput` (annulable) porte ce texte avant traitement. `chapeauMorte` —
+posé sur le document en phase de capture, pour TOUS les champs mathématiques
+de la Terminale : les dérivées tapent x^2 avec la même touche — remplace le
+geste : le texte avant le chapeau s'insère tel quel, puis un vrai exposant
+(insert('^{#?}') — le curseur tombe dedans), puis la suite. ON NE TOUCHE
+QU'AU TEXTE TAPÉ NU : les dispatchs internes de MathLive portent
+« #@^{#?} » et des accolades — les intercepter doublerait l'exposant de la
+frappe directe QWERTY, qui marche déjà (sondé aussi). Et le badge `mf-cor`
+du 6.6 écrit l'exposant RENDU (`rfCorHTML` : « ^(n+1) » devient un
+`<sup>`) — un exposant n'empile rien, pas de LaTeX. Deux bancs, la
+répartition habituelle : jsdom éprouve le gestionnaire NOMMÉ sur un champ
+factice — sept bords, les opposés compris (le dispatch interne ignoré, la
+case verrouillée figée, le champ non mathématique intouché) — et le
+NAVIGATEUR tape les deux touches mortes ET la frappe directe dans la case
+rf-s1, puis relit le LaTeX et le juge. Sept sabotages, chacun rougissant en
+nommant son défaut — dont l'écouteur DÉBRANCHÉ, la fonction restée juste :
+jsdom vert à bon droit, seul le navigateur voit le branchement.
+
 **Rédiger une récurrence, c'est l'écrire EN ENTIER — et deux juges s'en
 partagent la lecture.** {recurrence-redaction} (Terminale, 6.7, demande de
 Turquet, septembre 2026) : « des énoncés comme le 6.5, mais la rédaction

@@ -7430,6 +7430,53 @@ function recurrenceFormule(w, P){
       if(c.indexOf('ANTI-RECOPIE')<0||c.indexOf('JAMAIS révéler')<0) vus.push('le contexte du modèle a perdu la clause de secret');
       if(c.indexOf('Saisies actuelles')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève'); }
 
+    /* ---- 10. la touche morte « ^ » d'AZERTY (signalé par Turquet, septembre
+       2026 : « quand je tape ^n il rajoute le signe intersection ») : le
+       gestionnaire NOMMÉ remplace le texte composé par un vrai exposant — et
+       ne touche à RIEN d'autre. Chaque bord opposé compte : intercepter les
+       dispatchs internes de MathLive (« #@^{#?} ») doublerait l'exposant de la
+       frappe directe QWERTY. Le geste réel, sur du vrai MathLive, est au banc
+       navigateur — jsdom n'a ni MathLive ni touche morte. ---- */
+    if(typeof chapeauMorte!=='function')
+      vus.push('chapeauMorte a disparu : la touche morte ^ d\\'AZERTY retombe dans MathLive');
+    else {
+      const essai=function(data, type, ro, tag){
+        const inserts=[]; let stop=0, prev=0;
+        const ev={ target:{ tagName:(tag||'MATH-FIELD'), readOnly:!!ro, insert:function(s){ inserts.push(s); } },
+          inputType:(type||'insertText'), data:data,
+          preventDefault:function(){ prev=1; }, stopImmediatePropagation:function(){ stop=1; } };
+        chapeauMorte(ev);
+        return { inserts:inserts, intercepte:(prev&&stop) };
+      };
+      const eA=essai('^n');
+      if(!eA.intercepte || eA.inserts.join('|')!=='^{#?}|n')
+        vus.push('« ^n » composé ne devient pas un exposant au curseur dedans : '+JSON.stringify(eA.inserts));
+      const eB=essai('0,5^');
+      if(!eB.intercepte || eB.inserts.join('|')!=='0,5|^{#?}')
+        vus.push('le texte tapé AVANT le chapeau se perd : '+JSON.stringify(eB.inserts));
+      const eC=essai('ˆ');
+      if(!eC.intercepte || eC.inserts.join('|')!=='^{#?}')
+        vus.push('le chapeau composé U+02C6 (touche morte Mac) n\\'est pas converti : '+JSON.stringify(eC.inserts));
+      if(essai('#@^{#?}').intercepte)
+        vus.push('le gestionnaire intercepte les dispatchs INTERNES de MathLive : la frappe directe doublerait son exposant');
+      if(essai('^n','insertText',true).intercepte)
+        vus.push('une case verrouillée n\\'est plus figée sous la touche morte');
+      if(essai('^n','insertText',false,'INPUT').intercepte)
+        vus.push('le gestionnaire touche un champ qui n\\'est pas un math-field');
+      if(essai('n').intercepte)
+        vus.push('le gestionnaire intercepte du texte sans chapeau');
+    }
+
+    /* ---- 11. le badge de correction écrit l'exposant RENDU, jamais
+       « ^(n+1) » en toutes lettres (signalé par Turquet, septembre 2026 : « il
+       donne une correction à côté qui n'est pas en écriture mathématique ») ---- */
+    { const v=Object.assign({},BON); v['rf-d2']='9';
+      poser(v); checkRF();
+      const el=document.getElementById('rf-d2'), badge=el&&el.nextElementSibling;
+      const html=(badge&&/mf-cor/.test(badge.className||''))?badge.innerHTML:'(pas de badge)';
+      if(html.indexOf('<sup>n+1</sup>')<0) vus.push('le badge n\\'écrit pas l\\'exposant rendu (<sup>n+1</sup>) : '+html);
+      if(html.indexOf('^(')>=0) vus.push('le badge écrit encore « ^( » en toutes lettres : '+html); }
+
     currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);

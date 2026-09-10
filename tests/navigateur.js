@@ -3814,6 +3814,79 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 novodecies bis. LA TOUCHE MORTE « ^ » ÉCRIT UN EXPOSANT ===== */
+    /* Signalé par Turquet sur le 6.6 (septembre 2026) : « quand je tape ^n il
+       rajoute le signe intersection ». Sur un clavier AZERTY « ^ » est une
+       touche MORTE : le navigateur livre du TEXTE composé — « ^ » (Windows,
+       que MathLive AVALE : le n s'écrit sur la ligne, faux sans rien montrer)
+       ou « ˆ » U+02C6 (Mac, que MathLive garde tel quel — le chapeau que
+       l'élève lit comme un signe ∩). `chapeauMorte` remplace ce texte par un
+       vrai exposant au `beforeinput`. Rien de tout cela ne se voit hors d'un
+       vrai MathLive : jsdom n'a ni composition ni exposant — il n'éprouve que
+       le gestionnaire sur un champ factice. On TAPE donc les deux variantes
+       dans la case rf-s1 — insertText, le chemin même d'une touche morte — et
+       on exige le LaTeX en exposant ET le juge au vert ; puis la frappe
+       DIRECTE (QWERTY), qui doit rester intacte : l'intercepter aussi
+       doublerait son exposant. */
+    titre('6 novodecies bis. LA TOUCHE MORTE « ^ » ÉCRIT UN EXPOSANT');
+    if(!P.chapeauMorte){
+      ignorer('la touche morte ^ écrit un exposant dans un champ mathématique',
+        'ce niveau ne déclare pas chapeauMorte (le gestionnaire vit en Terminale)');
+    } else if(!ml){
+      ignorer('la touche morte ^ écrit un exposant dans un champ mathématique', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.chapeauMorte.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1200);
+      /* la question est ÉPINGLÉE (la fiche même) : le juge doit pouvoir dire
+         vrai sur ce qu'on tape, sinon le contrôle mesurerait un tirage */
+      await s.page.evaluate(() => {
+        test.questions[test.idx] = { a: 0.5, k: 2, b: 1, c: -1, u0: 1, n0: 0 };
+        renderRF();
+      });
+      await s.page.waitForTimeout(500);
+      const taperRF = async gestes => {
+        await s.page.evaluate(() => { const el = document.getElementById('rf-s1'); el.setValue(''); el.focus(); });
+        await s.page.waitForTimeout(150);
+        await gestes();
+        await s.page.waitForTimeout(200);
+        return s.page.evaluate(() => {
+          const el = document.getElementById('rf-s1');
+          const q = test.questions[test.idx];
+          return { latex: el.value, juge: rfOkCase(q, rfCases(q).find(k => k.id === 'rf-s1'), dexpCellValue('rf-s1')) };
+        });
+      };
+      const morteW = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await s.page.keyboard.insertText('^');           /* la touche morte de Windows */
+        await s.page.keyboard.press('n');
+      });
+      const morteM = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await s.page.keyboard.insertText('ˆ');           /* la touche morte du Mac : U+02C6 */
+        await s.page.keyboard.press('n');
+      });
+      const directe = await taperRF(async () => {
+        await s.page.keyboard.type('2-0,5');
+        await s.page.keyboard.press('^');                /* la frappe directe QWERTY */
+        await s.page.keyboard.press('n');
+      });
+      verifier('la touche morte ^ (Windows et Mac) écrit un exposant, et le juge dit vrai',
+        /\^\{n\}/.test(morteW.latex) && morteW.juge
+          && /\^\{n\}/.test(morteM.latex) && morteM.juge && morteM.latex.indexOf('ˆ') < 0,
+        'Windows : ' + JSON.stringify(morteW.latex) + ' (juge ' + morteW.juge + '), '
+          + 'Mac : ' + JSON.stringify(morteM.latex) + ' (juge ' + morteM.juge + ')');
+      verifier('la frappe directe ^ reste intacte : un seul exposant, le juge dit vrai',
+        /\^\{n\}/.test(directe.latex) && directe.juge && directe.latex.indexOf('^{^') < 0,
+        'lu : ' + JSON.stringify(directe.latex) + ' (juge ' + directe.juge + ')');
+      verifier('la touche morte ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies bis. {recurrence-fractions} : des fractions IMBRIQUÉES à cases ===== */
     /* Le 6.10 pose la chaîne de la fiche « récurrence et fractions » — une
        fraction dont le numérateur et le dénominateur sont eux-mêmes des

@@ -622,6 +622,10 @@ module.exports = {
        d'espace qui doit SORTIR d'un indice, et l'encre RÉSOLUE du bilan. */
     recurrenceRedigee: { exercice: 'recurrence-redaction' },
     suiteAuxRedigee: { exercice: 'suite-auxiliaire-redaction' },
+    /* La touche morte « ^ » d'AZERTY (signalée par Turquet sur le 6.6) : le
+       gestionnaire chapeauMorte vit en Terminale — seul niveau où l'élève
+       TAPE des exposants — et seul un vrai MathLive voit le texte composé. */
+    chapeauMorte: { exercice: 'recurrence-formule' },
     /* La RÉCURRENCE EN FRACTIONS (6.10) : des fractions IMBRIQUÉES à cases,
        que seul un navigateur sait dessiner — la barre extérieure doit
        envelopper les barres intérieures, aucune rangée ne doit défiler, et
