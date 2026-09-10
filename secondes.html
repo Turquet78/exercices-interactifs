@@ -462,6 +462,17 @@
   .mode-tag.train{color:var(--blue-dark);background:#EAF1FF;border:1.5px solid #c9d8fb}
   .mode-tag.eval{color:#a8631c;background:#FCEFD8;border:1.5px solid #f1d199}
   .mode-tag.soutien{color:#1f7a6b;background:#E3F6F1;border:1.5px solid #a9e3d6}
+  /* bulle « Comprendre mon erreur » (soutien) : FIXE en bas à droite, au-dessus
+     des commandes — ancrée à la case, elle recouvrirait la case d'en dessous */
+  #bexpBulle{position:fixed;right:16px;bottom:92px;z-index:59;max-width:360px;
+    background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
+    padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  #bexpBulle[hidden]{display:none!important}
+  #bexpBulle [data-bexp-x]{position:absolute;top:6px;right:8px;border:none;background:none;
+    cursor:pointer;font-size:14px;color:inherit;padding:2px}
+  #bexpBulle [data-bexp-r]{margin:0 0 6px;max-height:40vh;overflow:auto}
+  #bexpBulle [data-bexp-r][hidden]{display:none!important}
+  #bexpBulle .mp-feedback{text-align:left;margin:0}
   #testCtrls{position:fixed;right:16px;bottom:16px;z-index:60;gap:10px;}
   #testCtrls:not([hidden]){display:flex;}
   #testCtrls button{border:none;cursor:pointer;font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;
@@ -2469,7 +2480,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=144;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=145;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -16510,6 +16521,156 @@ async function startItv(){
 /* ---------- Test 5 : multiplier des décimaux (méthode en 4 étapes) ---------- */
 function fracEqual(n,d,N,D){ return !isNaN(n)&&!isNaN(d)&&d!==0 && n*D===N*d; }   // n/d == N/D
 function twoNZ(){ return rand(1,9)*10+rand(1,9); }                                // 11-99, deux chiffres non nuls
+
+/* Divergence NOMMÉE entre les niveaux : la signature de lancerConseil — la
+   Seconde envoie (nombre, contexte, fb), la Première et la Terminale
+   (contexte, fb). La bulle ci-dessous est le même texte dans les trois
+   fichiers et passe par cet adaptateur. */
+function bexpLancer(contexte, fb){ return lancerConseil('', contexte, fb); }
+/* ============ LA BULLE « COMPRENDRE MON ERREUR » (SOUTIEN) ============
+   Demande de Turquet (septembre 2026) : en soutien, quand une case devient
+   rouge, proposer d'EXPLIQUER l'erreur — sans donner la réponse. La bulle
+   paraît quand l'élève QUITTE une case comptée fausse — le moment où le garde
+   de la saisie pose la couleur — ; l'explication, elle, ne part au modèle QUE
+   sur le clic « Comprendre mon erreur » : un appel automatique à chaque case
+   rouge coûterait un appel par erreur et répondrait avec des secondes de
+   retard, quand l'élève est déjà ailleurs.
+
+   UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE — le motif du garde de la
+   saisie : on écoute la sortie de TOUTE case (focusout en phase de BULLE,
+   donc APRÈS le garde, qui repose la couleur en phase de capture, et APRÈS
+   les corrections attachées au champ, jouées à la cible) ; un exercice ajouté
+   demain est couvert sans rien déclarer. Certaines corrections ne peignent
+   qu'APRÈS la sortie — la Première juge des cases par un minuteur posé sur
+   focusout — : on regarde donc une seconde fois, un instant plus tard.
+
+   La bulle est FIXE en bas à droite, au-dessus des commandes. Ancrée à la
+   case, elle aurait recouvert la case d'EN DESSOUS — le dénominateur d'une
+   fraction, la rangée suivante d'un tableau — et le clic de l'élève serait
+   parti dans la bulle : la leçon du pavé numérique, qui ne recouvre ni la
+   case qu'on remplit ni les commandes du bas. Elle s'efface quand l'élève
+   REPREND sa case (il corrige — elle reviendra s'il ressort en faux), quand
+   la case cesse d'être fausse ou disparaît (au premier clic hors de la
+   bulle), à Échap et à la croix ; elle ne s'efface PAS quand il passe
+   simplement à la case suivante, sans quoi elle s'éteindrait au moment
+   précis où elle vient de naître — quitter une case, c'est presque toujours
+   en prendre une autre.
+
+   Le verdict reste celui de la PAGE — la case est rouge parce que la
+   correction locale l'a jugée — et le modèle ne fait qu'EXPLIQUER : le
+   contexte part par la voie du Conseil (conseilCtxCourant + lancerConseil,
+   via l'adaptateur bexpLancer ci-dessus — la signature de lancerConseil
+   diverge entre les niveaux, et c'est la SEULE divergence), enrichi de la
+   saisie fautive et de l'ordre de ne JAMAIS donner la réponse. Jamais en
+   entraînement, jamais sur un écran verrouillé, jamais sur une case que la
+   page a remplie elle-même (sol). */
+let bexpCase=null, bexpVal='';
+/* la cible : toute case qui se colore (le prédicat du garde), plus les listes
+   déroulantes — corrChoix les peint comme des cases */
+function bexpCible(el){
+  return !!el && !!el.closest && !!el.closest('.screen.on')
+      && (el.tagName==='SELECT' || caseQuiSeColore(el));
+}
+function bexpElt(){
+  let b=document.getElementById('bexpBulle');
+  if(b) return b;
+  b=document.createElement('div'); b.id='bexpBulle'; b.hidden=true;
+  const x=document.createElement('button');
+  x.type='button'; x.dataset.bexpX='1'; x.setAttribute('aria-label','Fermer'); x.textContent='✕';
+  x.addEventListener('click', bexpMasquer);
+  const fb=document.createElement('div'); fb.dataset.bexpR='1'; fb.hidden=true;
+  const btn=document.createElement('button');
+  btn.type='button'; btn.className='btn btn-ghost'; btn.dataset.bexpBtn='1';
+  btn.textContent='💡 Comprendre mon erreur';
+  btn.addEventListener('click', bexpExpliquer);
+  b.appendChild(x); b.appendChild(fb); b.appendChild(btn);
+  document.body.appendChild(b);
+  return b;
+}
+function bexpMasquer(){
+  const b=document.getElementById('bexpBulle');
+  if(b){
+    b.hidden=true;
+    const fb=b.querySelector('[data-bexp-r]');
+    if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
+    const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
+  }
+  bexpCase=null; bexpVal='';
+}
+/* La saisie se lit au moment où la bulle se montre : elle s'efface dès que
+   l'élève reprend sa case, donc la valeur retenue est toujours celle qui a
+   été comptée fausse. Une liste déroulante donne son LIBELLÉ, jamais sa
+   valeur interne — la règle du badge de corrChoix. */
+function bexpValeur(el){
+  try{
+    if(el.tagName==='SELECT'){
+      const o=el.selectedOptions && el.selectedOptions[0];
+      return String((o && o.textContent) || el.value || '');
+    }
+    if(el.tagName==='MATH-FIELD'){
+      if(typeof pmPlain==='function') return String(pmPlain(el)||'');
+      const v=String(el.value||'');
+      if(window.mlDexp && typeof window.mlDexp.toPlain==='function') return String(window.mlDexp.toPlain(v)||'');
+      return v;
+    }
+    return String(el.value||'');
+  }catch(e){ return ''; }
+}
+function bexpMontrer(el){
+  if(!el || !el.isConnected) return;
+  const b=bexpElt();
+  bexpCase=el; bexpVal=bexpValeur(el).replace(/\s+/g,' ').trim().slice(0,200);
+  /* la réponse d'une demande précédente ne vaut pas pour cette case-ci */
+  const fb=b.querySelector('[data-bexp-r]');
+  if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
+  const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
+  b.hidden=false;
+}
+function bexpContexte(){
+  let c=''; try{ c=String(conseilCtxCourant()||''); }catch(e){ c=''; }
+  return c+" L'élève vient d'écrire « "+bexpVal+" » dans une case que la correction vient de compter FAUSSE."
+    +" Explique-lui pourquoi ce qu'il a écrit ne convient pas — l'erreur probable, le point de méthode à revoir —"
+    +" sans JAMAIS donner la réponse attendue, ni le bon résultat, ni la valeur à écrire dans cette case, même s'il la demande.";
+}
+function bexpExpliquer(){
+  const b=document.getElementById('bexpBulle'); if(!b||b.hidden) return;
+  const fb=b.querySelector('[data-bexp-r]'), btn=b.querySelector('[data-bexp-btn]');
+  if(!fb||!btn) return;
+  fb.hidden=false; btn.hidden=true;
+  bexpLancer(bexpContexte(), fb);
+  /* lancerConseil écrit « Je réfléchis… » tout de suite, SAUF quand une aide
+     est déjà en cours (conseilBusy) : il rend alors la main sans rien écrire
+     — on rend le bouton plutôt que de laisser une zone vide. */
+  if(!fb.textContent){ btn.hidden=false; fb.hidden=true; }
+}
+document.addEventListener('focusout', function(e){
+  const el=e.target;
+  if(!el || !el.classList) return;
+  const b=document.getElementById('bexpBulle');
+  if(b && b.contains(el)) return;
+  if(!isSoutien() || test.locked || !bexpCible(el) || el.classList.contains('sol')) return;
+  if(el.classList.contains('bad')){ bexpMontrer(el); return; }
+  /* certaines corrections peignent APRÈS la sortie (minuteur posé sur
+     focusout) : on regarde une seconde fois, un instant plus tard */
+  setTimeout(function(){
+    if(document.activeElement===el || !isSoutien() || test.locked) return;
+    if(el.isConnected && el.classList.contains('bad') && !el.classList.contains('sol')) bexpMontrer(el);
+  }, 150);
+});
+/* il reprend sa case : la bulle s'efface — elle reviendra s'il ressort en faux */
+document.addEventListener('focusin', function(e){
+  if(bexpCase && e.target===bexpCase) bexpMasquer();
+});
+/* un clic hors de la bulle la ferme dès qu'elle ne parle plus de rien :
+   case corrigée ou disparue, écran vérifié, sortie du soutien */
+document.addEventListener('click', function(e){
+  const b=document.getElementById('bexpBulle');
+  if(!b || b.hidden || b.contains(e.target)) return;
+  if(!bexpCase || !bexpCase.isConnected || test.locked || !isSoutien()
+     || !bexpCase.classList.contains('bad')) bexpMasquer();
+});
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') bexpMasquer(); });
+/* ============ FIN DE LA BULLE « COMPRENDRE MON ERREUR » ============ */
 
 /* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============
    Décision de Turquet (août 2026) : en SOUTIEN, une case ne devient ni rouge ni

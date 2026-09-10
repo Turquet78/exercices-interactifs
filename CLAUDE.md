@@ -569,6 +569,54 @@ laissait tourner les minuteurs des contrôles précédents, l'un d'eux volait le
 focus de la case d'essai, le garde croyait qu'on la quittait — et la mesure
 accusait la page. On avance d'une MICRO-tâche.
 
+**La case rouge propose de COMPRENDRE l'erreur — et l'explication ne part que
+sur un clic.** Demande de Turquet (septembre 2026) : en soutien, quand une case
+devient rouge, expliquer l'erreur à l'aide de l'IA, dans une bulle, sans donner
+la réponse. La bulle « 💡 Comprendre mon erreur » paraît quand l'élève QUITTE
+une case comptée fausse — le moment où le garde de la saisie pose la couleur —
+et l'appel au modèle n'a lieu QUE si l'élève clique : automatique, il aurait
+coûté un appel par case rouge et répondu avec des secondes de retard, quand
+l'élève est déjà ailleurs.
+**UN SEUL ENDROIT, ET IL NE CONNAÎT AUCUN EXERCICE** — le motif du garde : un
+écouteur `focusout` en phase de BULLE, donc après le garde (qui repose la
+couleur en phase de capture) et après les corrections attachées au champ ; un
+exercice ajouté demain est couvert sans rien déclarer. Les corrections qui
+peignent APRÈS la sortie — le minuteur que la Première pose sur `focusout` —
+sont rattrapées par un second regard, un instant plus tard.
+**La bulle est FIXE en bas à droite, au-dessus des commandes.** Ancrée à la
+case, elle aurait recouvert la case d'EN DESSOUS — le dénominateur d'une
+fraction, la rangée suivante d'un tableau — et le clic de l'élève serait parti
+dans la bulle : la leçon du pavé numérique, qui ne recouvre ni la case qu'on
+remplit ni les commandes du bas. Elle s'efface quand l'élève REPREND sa case —
+il corrige, elle reviendra s'il ressort en faux — et jamais quand il passe
+simplement à la case suivante : quitter une case, c'est presque toujours en
+prendre une autre, et la bulle s'éteindrait au moment précis où elle vient de
+naître.
+**Le verdict reste celui de la PAGE, le modèle ne fait qu'EXPLIQUER** — la
+doctrine du juge, prise du bon côté : la case est rouge parce que la correction
+locale l'a jugée, et rien de ce que dit le modèle ne change une couleur ni une
+note. Le contexte part par la voie du Conseil (`conseilCtxCourant` +
+`lancerConseil`, donc `LANGUE_SIMPLE` et les clauses existantes), enrichi de la
+SAISIE fautive — le libellé pour une liste, jamais la valeur interne — et de
+l'ordre de ne JAMAIS donner la réponse : le contexte seul serait pire que pas
+de contexte du tout. Le bloc est le MÊME TEXTE dans les trois fichiers ; seul
+l'adaptateur `bexpLancer` diverge, VOLONTAIREMENT (la signature de
+`lancerConseil` n'est pas la même selon les niveaux), et un contrôle exige
+qu'il passe par `lancerConseil` — un appel qui partirait tout seul perdrait les
+garde-fous du Conseil sans que rien ne le dise. Jamais en entraînement, jamais
+sur un écran verrouillé, jamais sur une case remplie par la page (`sol`).
+Deux bancs, la répartition habituelle : jsdom pose la case d'essai du garde,
+ENVELOPPE l'invoke du double pour lire ce qui part vraiment — l'action, la
+saisie, la clause — et le rend en sortant (le piège documenté du `sb` volé) ;
+le navigateur mesure la bulle au RECTANGLE — jamais à la propriété `hidden` —
+sur la case témoin du garde quittée FAUSSE (deux chiffres différents ne
+peuvent pas être justes tous les deux dans la même case : le rouge est
+GARANTI, jamais intermittent), clique le vrai bouton, lit la réponse du double
+et vérifie qu'elle ne recouvre pas les commandes du bas. Sept sabotages,
+chacun rougissant en nommant son défaut — dont un que seul le navigateur
+voit : la bulle descendue sur les commandes, où le clic d'à côté part dans la
+bulle et le bouton devient incliquable.
+
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
 rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de

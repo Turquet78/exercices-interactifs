@@ -8668,7 +8668,7 @@ function gardeSaisie(w, apres){
   const present = evaluer(w, "typeof caseQuiSeColore==='function' && typeof verdictDe==='function' && typeof gardeSurveiller==='function'");
   if(!present.ok || !present.valeur){
     ignorer('la case où l’élève écrit ne se colore pas', 'ce niveau n’a pas le garde de la saisie');
-    return moyennesDevoirs(w, apres);
+    return bulleErreur(w, apres);
   }
 
   /* Le garde est le MÊME TEXTE dans les trois fichiers : trois copies auraient
@@ -8812,6 +8812,171 @@ function gardeSaisie(w, apres){
     verifier('hors soutien et sur un écran verrouillé, le garde ne touche à rien',
       r.ok && b.train === 'bad' && b.verrou === 'bad',
       souci || 'en entraînement : « ' + b.train + ' », verrouillé : « ' + b.verrou + ' »');
+    bulleErreur(w, apres);
+  });
+}
+
+/* ---------- La bulle « Comprendre mon erreur » (soutien) ------------------
+   Demande de Turquet (septembre 2026) : en soutien, quand une case devient
+   rouge, proposer d'expliquer l'erreur — sans donner la réponse. La bulle
+   paraît quand l'élève QUITTE une case comptée fausse ; l'explication ne part
+   au modèle QUE sur le clic.
+
+   LE CONTRÔLE N'OUVRE AUCUN EXERCICE, comme celui du garde : la bulle vit au
+   niveau du document et agit sur le RÉSULTAT de n'importe quelle correction.
+   On pose la même case d'essai et la même correction d'essai, et on mesure ce
+   qui se montre — et ce qui PART : on enveloppe l'invoke du double pour lire
+   le contexte envoyé, et on le REND en sortant (le piège documenté du sb volé
+   en plein vol : l'enveloppe vit le temps du contrôle, dans la chaîne
+   séquentielle).
+
+   Les bords, et n'en tenir qu'un ne tient rien :
+   — case fausse quittée → la bulle se montre, avec son bouton ;
+   — le clic envoie l'action « conseil » avec la SAISIE de l'élève et l'ordre
+     de ne JAMAIS donner la réponse — le contexte seul serait pire que pas de
+     contexte du tout —, et la réponse du modèle s'affiche dans la bulle ;
+   — reprendre sa case efface la bulle (l'élève corrige) ;
+   — une case JUSTE quittée, l'entraînement et l'écran verrouillé ne montrent
+     rien : la bulle est une aide du soutien, pas un badge de plus.
+   jsdom lit ici la propriété hidden — il n'a pas de mise en page ; le
+   RECTANGLE, seul juge d'un affichage, est mesuré par le banc navigateur. */
+function bulleErreur(w, apres){
+  const present = evaluer(w, "typeof bexpMontrer==='function' && typeof bexpLancer==='function' && typeof bexpContexte==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la bulle « Comprendre mon erreur » du soutien', 'ce niveau n’a pas la bulle');
+    return moyennesDevoirs(w, apres);
+  }
+
+  /* La bulle est le MÊME TEXTE dans les trois fichiers — le motif du garde :
+     trois copies auraient fini par diverger. Seul l'adaptateur bexpLancer
+     diverge, VOLONTAIREMENT (la signature de lancerConseil n'est pas la même
+     selon les niveaux), et il doit passer par lancerConseil : c'est la voie du
+     Conseil, avec ses clauses et sa langue simple — un appel qui partirait
+     tout seul perdrait les garde-fous sans que rien ne le dise. */
+  const DEBUT_B = '/* ============ LA BULLE « COMPRENDRE MON ERREUR » (SOUTIEN) ============';
+  const FIN_B   = '/* ============ FIN DE LA BULLE « COMPRENDRE MON ERREUR » ============';
+  const blocB = txt => {
+    const a = txt.indexOf(DEBUT_B); if(a < 0) return null;
+    const b = txt.indexOf(FIN_B, a); if(b < 0) return null;
+    return txt.slice(a, b);
+  };
+  const srcIci = lire(CIBLE);
+  const ici = blocB(srcIci);
+  verifier('la bulle du soutien est bien posée dans ce fichier', ici !== null,
+    'le bloc de la bulle est introuvable ou tronqué');
+  let modele; try{ modele = lire('terminale.html'); }catch(e){ modele = undefined; }
+  if(ici !== null && modele && CIBLE !== 'terminale.html'){
+    verifier('la bulle du soutien est identique à celle de la Terminale, au caractère près',
+      ici === blocB(modele), 'les deux copies de la bulle ont divergé');
+  }
+  const adapt = (srcIci.match(/function bexpLancer\([^)]*\)\{[^\n]*/) || [''])[0];
+  verifier('l’adaptateur bexpLancer passe par lancerConseil, la voie du Conseil',
+    /lancerConseil\(/.test(adapt),
+    'bexpLancer n’appelle plus lancerConseil : l’explication partirait sans les garde-fous du Conseil');
+
+  evalPromis(w, `(async function(){
+    const bilan={};
+    const attendre=async()=>{ await Promise.resolve(); await Promise.resolve(); };
+    const ecran=document.querySelector('.screen.on')||document.querySelector('.screen');
+    const avaitOn=ecran.classList.contains('on'); ecran.classList.add('on');
+    const hote=document.createElement('div'); ecran.appendChild(hote);
+    const boite=document.createElement('input'); boite.type='text'; hote.appendChild(boite);
+    let verdict='bad';
+    const corriger=function(){
+      boite.classList.remove('ok','bad');
+      if(String(boite.value).trim()!=='') boite.classList.add(verdict);
+    };
+    hote.addEventListener('input', corriger);
+    const modeAvant=currentMode, verrouAvant=test.locked, kindAvant=test.kind;
+    test.kind='__bulle-essai';
+    const eleveAvant=currentEleve; if(!currentEleve) currentEleve={id:'essai-bulle'};
+    const invokeAvant=sb.functions.invoke; let envoye=null;
+    sb.functions.invoke=function(nom, opts){
+      envoye={ nom:nom, body:(opts && opts.body) || {} };
+      return Promise.resolve({ data:{ feedback:'essai de bulle' }, error:null });
+    };
+    const frapper=async function(v){
+      boite.value=v;
+      boite.dispatchEvent(new window.Event('input',{bubbles:true}));
+      await attendre();
+    };
+    const sortir=async function(){
+      boite.blur();
+      boite.dispatchEvent(new window.Event('focusout',{bubbles:true}));
+      await attendre();
+    };
+    const bulle=()=>document.getElementById('bexpBulle');
+    const visible=()=>{ const b=bulle(); return !!b && !b.hidden; };
+    try{
+      currentMode='soutien'; test.locked=false;
+
+      /* 1. case fausse quittée : la bulle se montre, bouton offert */
+      boite.focus(); await frapper('1'); await sortir();
+      bilan.montre=visible();
+      bilan.bouton=(function(){ const b=bulle(), t=b && b.querySelector('[data-bexp-btn]'); return !!t && !t.hidden; })();
+
+      /* 2. le clic demande l'explication : la saisie et l'interdiction de
+         donner la réponse partent AVEC le contexte */
+      const btn=bulle() && bulle().querySelector('[data-bexp-btn]');
+      if(btn) btn.click();
+      await attendre(); await attendre(); await attendre();
+      bilan.action=envoye && envoye.body.action;
+      const ctx=String((envoye && envoye.body.contexte) || '');
+      bilan.saisie=ctx.indexOf('\\u00ab 1 \\u00bb')>=0;
+      bilan.secret=ctx.indexOf('sans JAMAIS donner la r\\u00e9ponse attendue')>=0;
+      const fb=bulle() && bulle().querySelector('[data-bexp-r]');
+      bilan.reponse=!!fb && !fb.hidden && fb.textContent.indexOf('essai de bulle')>=0;
+
+      /* 3. il reprend sa case : la bulle s'efface */
+      boite.focus(); boite.dispatchEvent(new window.Event('focusin',{bubbles:true}));
+      await attendre();
+      bilan.reprise=visible();
+
+      /* 4. une case JUSTE quittée ne montre rien */
+      bexpMasquer(); verdict='ok';
+      boite.blur(); boite.focus(); await frapper('2'); await sortir();
+      bilan.juste=visible();
+
+      /* 5. hors soutien, rien — le mode se pose AVANT d'entrer dans la case */
+      verdict='bad'; currentMode='train';
+      boite.blur(); boite.focus(); await frapper('3'); await sortir();
+      bilan.train=visible();
+
+      /* 6. écran verrouillé, rien : après « Vérifier », le message et le
+         Conseil parlent déjà */
+      currentMode='soutien'; test.locked=true;
+      boite.blur(); boite.focus(); await frapper('4'); await sortir();
+      bilan.verrou=visible();
+    } finally {
+      sb.functions.invoke=invokeAvant;
+      currentEleve=eleveAvant;
+      currentMode=modeAvant; test.locked=verrouAvant; test.kind=kindAvant;
+      try{ bexpMasquer(); }catch(e){}
+      hote.remove(); if(!avaitOn) ecran.classList.remove('on');
+    }
+    return bilan;
+  })()`, r => {
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+
+    verifier('en soutien, une case fausse quittée fait paraître la bulle et son bouton',
+      r.ok && b.montre === true && b.bouton === true,
+      souci || 'bulle visible : ' + b.montre + ', bouton offert : ' + b.bouton);
+    verifier('le clic envoie l’action « conseil » avec la saisie de l’élève',
+      r.ok && b.action === 'conseil' && b.saisie === true,
+      souci || 'action : « ' + b.action + ' », saisie « 1 » dans le contexte : ' + b.saisie);
+    verifier('le contexte interdit de donner la réponse — sans la clause, la bulle ouvrirait ce que le barème fait payer',
+      r.ok && b.secret === true,
+      souci || 'la clause « sans JAMAIS donner la réponse attendue » ne part plus avec le contexte');
+    verifier('la réponse du modèle s’affiche dans la bulle',
+      r.ok && b.reponse === true,
+      souci || 'la réponse du double n’est pas arrivée dans la bulle');
+    verifier('reprendre sa case efface la bulle',
+      r.ok && b.reprise === false,
+      souci || 'la bulle reste affichée pendant que l’élève corrige sa case');
+    verifier('case juste, entraînement, écran verrouillé : la bulle ne se montre pas',
+      r.ok && b.juste === false && b.train === false && b.verrou === false,
+      souci || 'case juste : ' + b.juste + ', entraînement : ' + b.train + ', verrouillé : ' + b.verrou);
     moyennesDevoirs(w, apres);
   });
 }
