@@ -632,6 +632,11 @@ module.exports = {
        les cases doivent grandir sous « 3n+9 ». Le banc TAPE la copie de la
        fiche pour de vrai avant de relire la note. */
     recurrenceFractions: { exercice: 'recurrence-fractions' },
+    /* Le 4.6 (l'étude menée au TVI) : ce que jsdom ne voit pas — le tableau
+       du 5.3 RENDU (flèches dessinées à taille non nulle), la page qui ne
+       déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case
+       et lève l'événement input. */
+    alphaSigne: { exercice: 'tvi-alpha-signe' },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

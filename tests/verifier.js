@@ -2685,6 +2685,7 @@ function exercices(suite){
     placerImage(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
+    alphaSigne(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     recurrenceFractions(w, P);
@@ -7476,6 +7477,174 @@ function recurrenceFormule(w, P){
       const html=(badge&&/mf-cor/.test(badge.className||''))?badge.innerHTML:'(pas de badge)';
       if(html.indexOf('<sup>n+1</sup>')<0) vus.push('le badge n\\'écrit pas l\\'exposant rendu (<sup>n+1</sup>) : '+html);
       if(html.indexOf('^(')>=0) vus.push('le badge écrit encore « ^( » en toutes lettres : '+html); }
+
+    currentMode='train';
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- 4.6 : l'étude menée au TVI — la solution α et le signe ---------- */
+/* Repris de la fiche « Exercice 2 : Étude de f(x) = (x+2)e^(−x) » (demande de
+   Turquet, septembre 2026) : le tirage est genECCase() — le générateur MÊME du
+   5.5 —, l'arithmétique ecAns(), le tableau ecTab()/efTableHTML. Le contrôle
+   REFAIT l'arithmétique par ses propres moyens (f numérique, dérivée par
+   différence finie, exponentielle de Math) plutôt que de faire confiance à
+   ecAns : un énoncé ne peut pas contredire sa correction. La fiche écrit
+   « f(x) = 1 » au milieu de son e) et « f(x) = 0 » dans son titre : c'est
+   f(x) = 0 qui est tenu — le f) ne se déduit de α que si f(α) = 0. */
+function alphaSigne(w, P){
+  const nom='le 4.6 : l\'étude menée au TVI — la solution α et le signe';
+  const present = evaluer(w, "typeof startASG==='function' && typeof asgGen==='function' && typeof asgCases==='function' && typeof genECCase==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'étude menée au TVI');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tvi-alpha-signe';
+
+    /* ---- 0. la place au menu : DERNIER du thème TVI, après le 4.5 ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tvi-alpha-signe')>=0; })[0];
+      const i=th?th.ids.indexOf('tvi-alpha-signe'):-1;
+      if(!th || th.nom!=='TVI' || i!==th.ids.length-1 || th.ids[i-1]!=='tvi-lecture-graphique')
+        vus.push('{tvi-alpha-signe} n\\'est pas le dernier du thème TVI, après {tvi-lecture-graphique}'); }
+
+    /* ---- 1. le tirage : les DEUX visages a = ±1 chacun une fois, b jamais le
+       même, b dans le vivier du 5.5 (jamais 0 ni −1), la question ne porte que
+       (a, b) — la bonne réponse n\\'est jamais rangée à côté de la question ---- */
+    { let premiers={};
+      for(let t=0;t<120 && vus.length<4;t++){
+        const qs=asgGen();
+        if(qs.length!==2){ vus.push(qs.length+' questions au lieu de 2'); break; }
+        if(qs[0].a+qs[1].a!==0) vus.push('les deux visages a = ±1 ne sortent pas chacun une fois ('+qs[0].a+','+qs[1].a+')');
+        if(qs[0].b===qs[1].b) vus.push('les deux questions portent le même b : '+qs[0].b);
+        qs.forEach(function(q){
+          if([-4,-3,-2,1,2,3,4].indexOf(q.b)<0) vus.push('b hors du vivier du 5.5 : '+q.b);
+          const cles=Object.keys(q).filter(function(k){ return ['a','b'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question range autre chose que a et b : '+cles.join(','));
+        });
+        premiers[qs[0].a]=1;
+      }
+      if(Object.keys(premiers).length<2) vus.push('le visage de la première question ne varie pas : l\\'élève apprend l\\'ordre'); }
+
+    /* ---- 2. l\\'arithmétique, refaite par le contrôle : f(−b) = 0 exactement,
+       la dérivée s\\'annule en 1−b, f est strictement monotone sur la branche,
+       M = a·e^(b−1), et les cases attendues (limites, signes du tableau, signe
+       de f, α) disent la MÊME chose que la fonction numérique ---- */
+    for(let t=0;t<60 && vus.length<4;t++){
+      asgGen().forEach(function(q){
+        const f=function(x){ return (q.a*x + q.a*q.b)*Math.exp(-x); };
+        const r=1-q.b, alpha=-q.b;
+        if(f(alpha)!==0) vus.push('f(−b) ne vaut pas exactement 0 (a='+q.a+', b='+q.b+') : '+f(alpha));
+        const d=(f(r+1e-6)-f(r-1e-6))/2e-6;
+        if(Math.abs(d)>1e-4) vus.push('la dérivée ne s\\'annule pas en 1−b (a='+q.a+', b='+q.b+') : '+d);
+        let mono=true;
+        for(let i=0;i<8;i++){ const x1=r-8+i, x2=x1+1;
+          if(q.a===1 ? f(x2)<=f(x1) : f(x2)>=f(x1)) mono=false; }
+        if(!mono) vus.push('f n\\'est pas strictement monotone sur la branche du TVI (a='+q.a+', b='+q.b+')');
+        if(Math.abs(f(r) - q.a*Math.exp(q.b-1))>1e-9) vus.push('l\\'extremum ne vaut pas a·e^(b−1) (a='+q.a+', b='+q.b+')');
+        const cs={}; asgCases(q).forEach(function(x){ cs[x.id]=x; });
+        if(cs['asg-e6'].good!==alpha || cs['asg-f0'].good!==alpha) vus.push('α attendu n\\'est pas la racine −b (a='+q.a+', b='+q.b+')');
+        const sG=f(alpha-1)>0?'+':'−', sD=f(alpha+0.5)>0?'+':'−';
+        if(cs['asg-f1'].good!==sG || cs['asg-f2'].good!==sD)
+          vus.push('le signe de f attendu contredit la fonction (a='+q.a+', b='+q.b+') : '+cs['asg-f1'].good+cs['asg-f2'].good+' contre '+sG+sD);
+        if(Math.abs(f(40))>1e-9) vus.push('f ne tend pas vers 0 en +∞ (a='+q.a+', b='+q.b+')');
+        const gauche=f(-40);
+        if(cs['asg-lb'].lim!==(gauche<0?'−∞':'+∞')) vus.push('la limite attendue en −∞ contredit la fonction (a='+q.a+', b='+q.b+')');
+        if(cs['asg-lat'].good!=='ah'||cs['asg-lae'].good!==0) vus.push('l\\'asymptote attendue en +∞ n\\'est plus y = 0');
+        const A=ecAns(q);
+        for(let i=0;i<5;i++){ const x=r-4+2*i;
+          const fp=(f(x+1e-6)-f(x-1e-6))/2e-6, aff=A.dp*x+A.dq;
+          if(fp*aff<0 || Math.abs(fp - aff*Math.exp(-x))>1e-4){ vus.push('f′ ne vaut pas (dp·x+dq)e^(−x) (a='+q.a+', b='+q.b+')'); break; } }
+      });
+    }
+
+    /* ---- montage : la question de la fiche même — f(x) = (x + 2)e^(−x) ---- */
+    const Q={a:1,b:2}, Q2={a:-1,b:3};
+    const IDS=['asg-la','asg-lat','asg-lae','asg-lb','asg-lbt','asg-b1','asg-b2','asg-b3','asg-c1','asg-c2',
+      'ef-r0','ef-l0s0','ef-l0s1','ef-l1s0','ef-l1s1','ef-l2s0','ef-l2s1','ef-a0','ef-a1','ef-e0t','ef-e0x',
+      'asg-d1','asg-d2','asg-d3','asg-d4','asg-d5','asg-e1','asg-e2','asg-e3','asg-e4','asg-e5','asg-e6',
+      'asg-f0','asg-f1','asg-f2'];
+    const BON={'asg-la':'0','asg-lat':'ah','asg-lae':'0','asg-lb':'-∞','asg-lbt':'rien',
+      'asg-b1':'1','asg-b2':'-1','asg-b3':'-x-1','asg-c1':'1','asg-c2':'-1',
+      'ef-r0':'-1','ef-l0s0':'+','ef-l0s1':'−','ef-l1s0':'+','ef-l1s1':'+','ef-l2s0':'+','ef-l2s1':'−',
+      'ef-a0':'up','ef-a1':'down','ef-e0t':'max','ef-e0x':'-1',
+      'asg-d1':'-1','asg-d2':'-1','asg-d3':'-1','asg-d4':'1','asg-d5':'1',
+      'asg-e1':'continue','asg-e2':'croissante','asg-e3':'-∞','asg-e4':'TVI','asg-e5':'unique','asg-e6':'-2',
+      'asg-f0':'-2','asg-f1':'−','asg-f2':'+'};
+    const poser=function(vals){
+      Object.assign(test,{kind:'asg', questions:[JSON.parse(JSON.stringify(Q)),JSON.parse(JSON.stringify(Q2))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:2});
+      renderASG();
+      IDS.forEach(function(id){ const el=document.getElementById(id);
+        if(el){ const v=vals[id]; el.value=(v===undefined||v===null)?'':String(v); } });
+    };
+    const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+
+    /* ---- 3. les hôtes FANTÔMES : le tableau porte les ids ef-* des écrans du
+       5.3, du 5.5 et de la fiche 9 — un reste dans un hôte AMONT gagnerait
+       getElementById, et la vérification lirait un tableau fantôme ---- */
+    document.getElementById('efTable').innerHTML='<input id="ef-r0" value="fantôme">';
+    document.getElementById('ecForm').innerHTML='<input id="ef-a0" value="fantôme">';
+    poser(BON);
+    { const h1=document.getElementById('efTable').innerHTML, h2=document.getElementById('ecForm').innerHTML;
+      if(h1!==''||h2!=='') vus.push('les hôtes amont ne sont pas vidés au rendu : le tableau fantôme reprendrait la main');
+      const el=document.getElementById('ef-r0');
+      if(!el || !el.closest('#asgForm')) vus.push('getElementById(ef-r0) ne rend pas la case de CET écran'); }
+
+    /* ---- 4. la copie de la fiche passe entière, vaut le point, se verrouille ---- */
+    poser(BON); checkASG();
+    { const pas=IDS.filter(function(id){ return peint(id)!=='vert'; });
+      if(pas.length) vus.push('la copie de la fiche ne passe pas entière au vert : '+pas.join(','));
+      if(test.score!==1||!test.locked) vus.push('la copie de la fiche vaut '+test.score+' (verrouillée : '+test.locked+')'); }
+
+    /* ---- 5. toute écriture ÉGALE est acceptée : la dérivée comme fonction,
+       les limites au mot « inf », α en écriture décimale ---- */
+    [['asg-b3','-(x+1)'],['asg-b3','-1x-1'],['asg-lb','-inf'],['asg-la','0,0'],['asg-e6','-2,00'],['asg-b2','-']].forEach(function(p){
+      const v=Object.assign({},BON); v[p[0]]=p[1];
+      poser(v); checkASG();
+      if(test.score!==1) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
+
+    /* ---- 6. une case fausse rougit, elle seule, avec la bonne réponse en
+       badge — le libellé pour un select (« TVI », jamais une valeur interne) ---- */
+    { const v=Object.assign({},BON); v['asg-b3']='x+1'; v['asg-e4']='continue';
+      poser(v); checkASG();
+      if(peint('asg-b3')!=='rouge') vus.push('la dérivée fausse (x+1) ne rougit pas');
+      if(peint('asg-e4')!=='rouge') vus.push('le théorème faux ne rougit pas');
+      if(test.score!==0) vus.push('une copie fausse vaut quand même le point');
+      const autres=IDS.filter(function(id){ return id!=='asg-b3'&&id!=='asg-e4'&&peint(id)!=='vert'; });
+      if(autres.length) vus.push('une case fausse fait payer ses voisines : '+autres.join(','));
+      const el=document.getElementById('asg-e4'), badge=el&&el.nextElementSibling;
+      const txt=(badge&&/mf-cor/.test(badge.className||''))?badge.textContent:'(pas de badge)';
+      if(txt!=='TVI') vus.push('le badge du select ne porte pas le libellé TVI : '+txt); }
+
+    /* ---- 7. la case vide : en SOUTIEN aucune couleur et rien ne se
+       verrouille ; en ENTRAÎNEMENT la correction la remplit en sol ---- */
+    currentMode='soutien';
+    { const v=Object.assign({},BON); delete v['asg-e6']; delete v['asg-f1'];
+      poser(v); checkASG();
+      if(peint('asg-e6')!=='rien'||peint('asg-f1')!=='rien') vus.push('en soutien, une case vide reçoit une couleur : '+peint('asg-e6')+'/'+peint('asg-f1'));
+      if(test.locked) vus.push('en soutien, une copie incomplète verrouille');
+      const fb=document.getElementById('asgFeedback').textContent;
+      if(fb.indexOf('manque')<0||fb.indexOf('2 case')<0) vus.push('le message du soutien ne dit pas les cases manquantes : '+fb); }
+    currentMode='train';
+    { const v=Object.assign({},BON); delete v['asg-e6']; v['asg-f2']='−';
+      poser(v); checkASG();
+      if(peint('asg-e6')!=='sol') vus.push('en entraînement, la case vide n\\'est pas remplie en sol : '+peint('asg-e6'));
+      if(document.getElementById('asg-e6').value!=='−2') vus.push('la case vide remplie ne porte pas α : '+document.getElementById('asg-e6').value);
+      if(peint('asg-f2')!=='rouge') vus.push('le signe faux ne garde pas son rouge sous la correction');
+      const fb=document.getElementById('asgFeedback').textContent;
+      if(fb.indexOf('bleu')<0) vus.push('le message de la correction n\\'est pas la phrase des couleurs : '+fb); }
+
+    /* ---- 8. le contexte envoyé au modèle : l\\'énoncé, les saisies, la
+       clause de secret — et JAMAIS la valeur de α ---- */
+    poser(BON); document.getElementById('asg-e6').value='';
+    { const c=asgConseilCtx();
+      if(c.indexOf('e^(−x)')<0||c.indexOf('TVI')<0) vus.push('le contexte du modèle ne porte pas l\\'énoncé : '+c.slice(0,80));
+      if(c.indexOf('STRICTEMENT SECRÈTES')<0) vus.push('le contexte du modèle a perdu la clause de secret');
+      if(c.indexOf('Saisies')<0) vus.push('le contexte du modèle ne porte plus les saisies de l\\'élève');
+      if(/α[^.]*−2/.test(c.replace(/« [^»]* »/g,''))) vus.push('le contexte du modèle révèle α'); }
 
     currentMode='train';
     return vus.slice(0,4).join(' | ');
