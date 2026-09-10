@@ -2370,7 +2370,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=292;
+const APP_VERSION=293;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -16305,7 +16305,7 @@ function rfrAttendu(q){
     'rfr-c1':L(1,a), 'rfr-c2':L(1,b), 'rfr-c3':L(1,a), 'rfr-c4':L(1,b),
     'rfr-c5':L(1,a), 'rfr-c6':L(1,b), 'rfr-c7':L(1,b), 'rfr-c8':L(1,b),
     'rfr-c9':L(1,a), 'rfr-c10':L(1,b), 'rfr-c11':L(1,b), 'rfr-c12':L(1,b),
-    'rfr-c13':L(al,al*a), 'rfr-c14':L(1,b), 'rfr-c15':L(1,b),
+    'rfr-c13':L(al,al*a), 'rfr-c14':L(-1,-b), 'rfr-c15':L(1,b),
     'rfr-c16':L(1,a), 'rfr-c17':L(de,de*b), 'rfr-c18':L(1,b),
     'rfr-c19':['prop', a+1, d, 'rfr-c20'], 'rfr-c20':['prop', b+1, d, 'rfr-c19'],
     'rfr-c21':L(1,a+1), 'rfr-c22':L(1,b+1)
@@ -16391,11 +16391,11 @@ function renderRFR(){
     +'<div class="sa2-row"><span class="sa2-eq">'+Un1+' =</span>'+recur+'</div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(T(al+' ×')+inF('rfr-c1','rfr-c2')+T('− 1'), inF('rfr-c3','rfr-c4')+T('+ '+de))+'</div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(T(al+' ×')+inF('rfr-c5','rfr-c6')+T('− <b>1</b> ×')+inF('rfr-c7','rfr-c8'), inF('rfr-c9','rfr-c10')+T('+ <b>'+de+'</b> ×')+inF('rfr-c11','rfr-c12'))+'</div>'
-    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(F(rfrIn('rfr-c13',true)+T('−')+rfrIn('rfr-c14',true), rfrIn('rfr-c15',true)), F(rfrIn('rfr-c16',true)+T('+')+rfrIn('rfr-c17',true), rfrIn('rfr-c18',true)))+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(F(rfrIn('rfr-c13',true)+T('+')+rfrIn('rfr-c14',true), rfrIn('rfr-c15',true)), F(rfrIn('rfr-c16',true)+T('+')+rfrIn('rfr-c17',true), rfrIn('rfr-c18',true)))+'</div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+inF('rfr-c19','rfr-c20')+'</div>'
     +'<div class="sa2-row"><span class="sa2-eq">=</span>'+inF('rfr-c21','rfr-c22')+'</div>'
     +'</div>'
-    +'<p class="dexp-hint">Dans les cases, écris les nombres en fraction (5/3) ou en entier, et les expressions avec la lettre n : « n+3 », « 3n+9 » ou « 3(n+3) » — toute écriture égale est acceptée.</p>';
+    +'<p class="dexp-hint">Dans les cases, écris les nombres en fraction (5/3) ou en entier, et les expressions avec la lettre n : « n+3 », « 3n+9 » ou « 3(n+3) » — toute écriture égale est acceptée. Le − 1 × (…) se distribue dans la parenthèse : on écrit « + » puis « −n−1 ».</p>';
   rfrAjusterTout();
   setTimeout(rfrAjusterTout,0);   /* après une reprise de pause, les cases restaurées reprennent leur largeur */
   if(isSoutien()){
@@ -16445,7 +16445,7 @@ function checkRFR(live){
     $('rfrFeedback').className='mp-feedback good';
   } else {
     $('rfrFeedback').innerHTML=msgCorrCouleurs(false)
-      +'<br>La clé : on remplace '+'<i>U</i><sub><i>n</i></sub>'+' par sa formule dans la récurrence, on écrit '+(q.a-q.b-1===1?'le 1':'le 1 et le '+numFmt(q.a-q.b-1))+' sur le dénominateur ('+'<i>n</i> + '+numFmt(q.b)+'), on regroupe, puis on simplifie par ('+'<i>n</i> + '+numFmt(q.b)+') et par '+numFmt(q.a-q.b)+' pour retrouver la formule au rang <i>n</i> + 1.';
+      +'<br>La clé : on remplace '+'<i>U</i><sub><i>n</i></sub>'+' par sa formule dans la récurrence, on écrit '+(q.a-q.b-1===1?'le 1':'le 1 et le '+numFmt(q.a-q.b-1))+' sur le dénominateur ('+'<i>n</i> + '+numFmt(q.b)+'), on distribue le − dans la parenthèse, on regroupe, puis on simplifie par ('+'<i>n</i> + '+numFmt(q.b)+') et par '+numFmt(q.a-q.b)+' pour retrouver la formule au rang <i>n</i> + 1.';
     $('rfrFeedback').className='mp-feedback bad';
     RFR_IDS.forEach(function(id){ corrCase(id, rfrLibelle(att[id]), verd[id]===true); });
     rfrAjusterTout();          /* la réponse écrite en vert ne doit pas être coupée */
@@ -16468,7 +16468,7 @@ function rfrConseilCtx(){
     +' et U(n+1) = ('+(d+1)+'U(n) − 1)/(U(n) + '+(d-1)+'). a) On vérifie la formule explicite U(n) = (n+'+a+')/(n+'+b+') sur U0, U1, U2, par la récurrence puis par la formule. '
     +'b) On démontre par récurrence que U(n) = (n+'+a+')/(n+'+b+') : initialisation (rang 0), hypothèse au rang n, but au rang n+1, puis la chaîne de calcul étape par étape — on place la formule de U(n) dans la formule de récurrence, on écrit le 1 et le '+(d-1)+' en fractions sur (n+'+b+'), on met au même dénominateur, on simplifie par (n+'+b+') puis par '+d+', et on doit retrouver (n+'+(a+1)+')/(n+'+(b+1)+'). '
     +'L’élève ne tape que des nombres ou des expressions en n : la page écrit les signes et les barres de fraction. '
-    +'Réponses attendues, à ne JAMAIS révéler : U1 = '+rfrFrStr(a+1,b+1)+', U2 = '+rfrFrStr(a+2,b+2)+', numérateur mis au même dénominateur '+rfrLinStr(d+1,(d+1)*a)+' − ('+rfrLinStr(1,b)+'), dénominateur ('+rfrLinStr(1,a)+') + '+rfrLinStr(d-1,(d-1)*b)+', puis '+rfrLibelle(att['rfr-c19'])+' sur '+rfrLibelle(att['rfr-c20'])+', enfin '+rfrLinStr(1,a+1)+' sur '+rfrLinStr(1,b+1)+'. '
+    +'Réponses attendues, à ne JAMAIS révéler : U1 = '+rfrFrStr(a+1,b+1)+', U2 = '+rfrFrStr(a+2,b+2)+', numérateur mis au même dénominateur '+rfrLinStr(d+1,(d+1)*a)+' + ('+rfrLinStr(-1,-b)+') (le − distribué dans la parenthèse), dénominateur ('+rfrLinStr(1,a)+') + '+rfrLinStr(d-1,(d-1)*b)+', puis '+rfrLibelle(att['rfr-c19'])+' sur '+rfrLibelle(att['rfr-c20'])+', enfin '+rfrLinStr(1,a+1)+' sur '+rfrLinStr(1,b+1)+'. '
     +'Saisies actuelles de l’élève : '+etat+'. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs ni de ces expressions. '
     +'Méthode : remplacer U(n) par (n+'+a+')/(n+'+b+') dans la formule de récurrence ; écrire les nombres seuls comme des fractions de même dénominateur (n+'+b+') ; regrouper au numérateur et au dénominateur ; les deux (n+'+b+') se simplifient ; il reste un facteur commun '+d+' à simplifier ; on doit retrouver la formule explicite au rang n+1. '

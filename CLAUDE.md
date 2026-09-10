@@ -5191,6 +5191,18 @@ désigne pas. Deux sabotages de plus ne rougissent QU'AU NAVIGATEUR — la
 case qui ne grandit plus sous la frappe (« 57 px → 57 px, texte coupé »),
 et la barre extérieure raccourcie (« 6 barres trop courtes, de 56 px ») —
 jsdom restant vert à bon droit sur l'un comme sur l'autre.
+**Puis le « − 1 × (n+b) » s'est DISTRIBUÉ dans la parenthèse** (demande de
+Turquet, septembre 2026, sur une capture du 6.10 : « je veux que −1 soit
+distribué dans le facteur n+1, il doit donc y avoir un plus entre 5n+25 et
+le développement du −1 dans (n+1) »). La rangée F3 écrivait « [5n+25] −
+[n+1] » — le signe posé par la page, la parenthèse laissée à l'élève ; elle
+écrit « [5n+25] + [−n−1] » : c'est l'élève qui distribue le signe, et c'est
+le geste du cahier que la première version lui épargnait. `rfrAttendu`
+attend donc « −n−b » dans la seconde case (la lecture affine accepte
+« -n-1 » au tiret comme au signe moins), l'ancienne écriture « n+1 » y est
+REFUSÉE — le contrôle l'épingle parmi les refus, et exige le « + » rendu
+entre les deux cases —, et la consigne, le message et le contexte du modèle
+disent le nouveau geste. Le dénominateur, lui, portait déjà son « + ».
 
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par

@@ -7031,7 +7031,7 @@ function recurrenceFractions(w, P){
     const att=rfrAttendu(q);
     const lib=function(id){ return rfrLibelle(att[id]); };
     const attendus={'rfr-r1':'2','rfr-r2':'5/3','rfr-i1':'3','rfr-i4':'3','rfr-n0':'0','rfr-h1':'n+3','rfr-h2':'n+1',
-      'rfr-m1':'n+4','rfr-m2':'n+2','rfr-c13':'3n+9','rfr-c14':'n+1','rfr-c16':'n+3','rfr-c17':'n+1',
+      'rfr-m1':'n+4','rfr-m2':'n+2','rfr-c13':'3n+9','rfr-c14':'−n−1','rfr-c16':'n+3','rfr-c17':'n+1',
       'rfr-c19':'2n+8','rfr-c20':'2n+4','rfr-c21':'n+4','rfr-c22':'n+2'};
     Object.keys(attendus).forEach(function(id){ if(lib(id)!==attendus[id]) vus.push('la fiche : '+id+' attend « '+lib(id)+' » au lieu de « '+attendus[id]+' »'); });
     if(Math.abs(att['rfr-r2'][1]-5/3)>1e-9) vus.push('la fiche : U2 vaut '+att['rfr-r2'][1]+' au lieu de 5/3');
@@ -7050,6 +7050,12 @@ function recurrenceFractions(w, P){
       if(contenu.indexOf('=')>=0) vus.push('rangée '+(i+1)+' de la chaîne : un « = » traîne hors de la colonne des « = »');
     });
     if(document.querySelectorAll('#rfrLegende li').length!==6) vus.push('la légende de la fiche n’a pas ses six repères');
+    /* le − 1 × (n+b) se DISTRIBUE dans la parenthèse (demande de Turquet, septembre
+       2026) : la rangée F3 écrit « + » entre ses deux cases du numérateur, et la
+       seconde attend « −n−1 » — jamais « n+1 » derrière un « − » écrit par la page */
+    { const r3=rangs[3], num=r3?r3.querySelector('.sa2-frac .sa2-frac .num'):null;
+      const signe=num?String(num.textContent||'').replace(/\\s/g,''):'(rangée absente)';
+      if(signe!=='+') vus.push('la rangée F3 écrit « '+signe+' » entre les deux cases du numérateur au lieu de « + » : le − doit être distribué dans (n+b)'); }
     const tB=(document.getElementById('rfrPartB')||{}).textContent||'';
     ['Initialisation','suppose','Montrons'].forEach(function(m){ if(tB.indexOf(m)<0) vus.push('la partie b) ne dit pas « '+m+' »'); });
     const tP=(document.getElementById('rfrPrompt')||{}).textContent||'';
@@ -7107,11 +7113,11 @@ function recurrenceFractions(w, P){
     rejouer();
     RFR_IDS.forEach(function(id){ poser(id, lib(id)); });
     poser('rfr-r2','1,67'); poser('rfr-h2','n^2'); poser('rfr-h1','n*n+3'); poser('rfr-c13','3n+3');
-    poser('rfr-c19','n+4'); poser('rfr-c20','2n+4');
+    poser('rfr-c19','n+4'); poser('rfr-c20','2n+4'); poser('rfr-c14','n+1');   /* le − non distribué */
     checkRFR();
     const r7=rouges();
-    ['rfr-r2','rfr-h2','rfr-h1','rfr-c13','rfr-c19','rfr-c20'].forEach(function(id){ if(r7.indexOf(id)<0) vus.push('la case fausse '+id+' n’est pas refusée'); });
-    if(r7.length!==6) vus.push('sur cette copie, '+r7.length+' case(s) rougissent au lieu de 6 : '+r7.join(', '));
+    ['rfr-r2','rfr-h2','rfr-h1','rfr-c13','rfr-c19','rfr-c20','rfr-c14'].forEach(function(id){ if(r7.indexOf(id)<0) vus.push('la case fausse '+id+' n’est pas refusée'); });
+    if(r7.length!==7) vus.push('sur cette copie, '+r7.length+' case(s) rougissent au lieu de 7 : '+r7.join(', '));
     if(test.score!==0) vus.push('une copie fautive vaut le point');
     /* la case fausse garde sa saisie, la bonne réponse s’écrit à côté */
     const el=document.getElementById('rfr-c13');
