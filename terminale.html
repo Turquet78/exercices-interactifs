@@ -586,7 +586,20 @@
   .sa2-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 2px}
   .sa2-frac .bar{display:block;width:100%;min-width:4.4em;height:2px;background:var(--ink);margin:3px 0}
   .sa2-frac .num,.sa2-frac .den{display:flex;align-items:center;gap:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
+  /* RÉCURRENCE EN FRACTIONS (6.10) — les cases et les fractions du 6.3, avec des
+     fractions IMBRIQUÉES : une fraction de fractions garde sa barre plus large
+     que celles qu'elle contient, et la barre intérieure ne réclame pas la
+     largeur d'une barre de premier niveau. Les repères (1)-(6) de la fiche
+     sont posés dans une liste numérotée à part. */
+  .rfr-legende{margin:4px 0 10px;padding:8px 14px 8px 34px;background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:12px;font-size:.95rem;color:var(--ink-soft);columns:2;column-gap:24px}
+  .rfr-legende li{break-inside:avoid;margin:2px 0}
+  .rfr-note{color:var(--ink-soft);font-weight:600;font-size:.92em}
+  .rfr-puce{color:var(--blue);font-weight:700}
+  .rfr-row{row-gap:10px}
+  .rfr-chaine{margin-top:6px;padding-left:8px;border-left:3px solid #DCE7FB}
+  .rfr-chaine .sa2-frac .sa2-frac .bar{min-width:3em}
+  .rfr-chaine>.sa2-row>.sa2-frac>.bar{min-width:6em}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rfr,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1227,6 +1240,16 @@ math-field.enc-mf{min-width:74px;max-width:130px;font-size:1.02rem;}
 .rc-fix{font-weight:700;}
 math-field.rc-mf{min-width:64px;max-width:120px;}
 .rc-ccl{margin-top:12px;}
+  /* ---- {recurrence-formule} : la fiche de la formule explicite. L'exposant est
+     une petite case LEVÉE (le geste du cahier : le rang s'écrit en l'air) ; les
+     deux lignes de calcul sont des cases LARGES — la fiche y met des pointillés
+     entiers, l'élève y écrit une expression complète. ---- */
+  .rf-ligne{margin:10px 0;line-height:2.3;white-space:nowrap;overflow-x:auto;padding-bottom:2px;}
+  math-field.rf-mf{min-width:56px;max-width:130px;}
+  math-field.rf-mf.rf-exp{min-width:30px;max-width:64px;font-size:.8rem;position:relative;top:-0.55em;padding:0 2px;--_padding:0;}
+  body math-field.dexp-mf.rf-exp{border-width:1.5px;border-radius:7px;min-height:1.3em;}
+  math-field.rf-mf.rf-wide{min-width:230px;max-width:420px;}
+  .rf-eq{display:inline-block;min-width:26px;text-align:center;font-weight:700;}
 /* ---- Clavier ancré du téléphone en PAYSAGE : touches et symboles réduits, clavier moins haut.
    Variables officielles MathLive, lues par .MLK__rows ; la fenêtre flottante de l'ordinateur
    (imbriquée dans #kbwin, pas enfant direct du body) n'est pas concernée. ---- */
@@ -1759,6 +1782,19 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
     </div>
   </section>
 
+  <section class="screen" id="scr-rf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="rfModeTag"></span><span class="q-idx" id="rfQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rfLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card sv-card">
+      <p class="tvi-prompt" id="rfPrompt"></p>
+      <div class="sv-tables" id="rfBody"></div>
+      <div class="mp-feedback" id="rfFeedback"></div>
+      <div class="mp-actions" id="rfActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-rr">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="rrModeTag"></span><span class="q-idx" id="rrQIdx">Question 1 / 2</span></span>
@@ -2010,6 +2046,27 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
       </div>
       <div class="mp-feedback" id="sa2Feedback"></div>
       <div class="mp-actions" id="sa2Actions"></div>
+    </div>
+  </section>
+  <!-- 6.10 RÉCURRENCE — LA FORMULE EXPLICITE EN FRACTION (fiche « récurrence et fractions ») -->
+  <section class="screen" id="scr-rfr">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="rfrModeTag"></span><span class="q-idx" id="rfrQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rfrLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="tvi-prompt s1-prompt" id="rfrPrompt"></p>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">a)</span> On vérifie la formule.</p>
+        <div class="sa2-ladder" id="rfrPartA"></div>
+      </div>
+      <div class="sa-part">
+        <p class="sa-ptitle"><span class="sa-plab">b)</span> <span id="rfrTitreB"></span></p>
+        <ol class="rfr-legende" id="rfrLegende"></ol>
+        <div class="sa2-ladder" id="rfrPartB"></div>
+      </div>
+      <div class="mp-feedback" id="rfrFeedback"></div>
+      <div class="mp-actions" id="rfrActions"></div>
     </div>
   </section>
   <!-- 6.3 SUITES — ENCADREMENTS (préparer la récurrence) -->
@@ -2324,7 +2381,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=290;
+const APP_VERSION=294;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2476,10 +2533,12 @@ const TESTS={
   'signe-second-degre': { name:'Signe du 2nd degr\u00e9', icon:'x\u00b2', desc:'Nombre de racines, signe du coefficient de x\u00b2, puis tableau de signe de ax\u00b2 + bx + c.', start:()=>startS2() },
   'suite-explicite': { name:'Suites \u2014 type, raison et formule explicite', icon:'\ud83d\udd22', desc:'Reconna\u00eets si la suite est arithm\u00e9tique ou g\u00e9om\u00e9trique, donne sa raison, puis \u00e9cris sa formule explicite en fonction de n.', start:()=>startSU() },
   'suite-auxiliaire': { name:'Suites \u2014 suite auxiliaire g\u00e9om\u00e9trique', icon:'\ud83e\uddee', desc:'La suite (U\u2099) v\u00e9rifie U\u2099\u208a\u2081 = a\u00b7U\u2099 + b : d\u00e9montre pas \u00e0 pas que la suite auxiliaire (V\u2099) est g\u00e9om\u00e9trique, d\u00e9termine V\u2080, puis d\u00e9duis-en V\u2099 et U\u2099 en fonction de n \u2014 comme sur la fiche.', start:()=>startSA() },
+  'recurrence-formule': { name:'R\u00e9currence \u2014 d\u00e9montrer une formule', icon:'a\u207f', desc:'On te donne U\u2080 et U\u2099\u208a\u2081 = aU\u2099 + b, et une FORMULE explicite \u2014 U\u2099 = 2 \u2212 0,5\u207f\u2026 D\u00e9montre-la par r\u00e9currence, comme sur la fiche : initialisation calcul\u00e9e, hypoth\u00e8se, but au rang n + 1, puis la cha\u00eene qui substitue l\u2019hypoth\u00e8se et r\u00e9duit.', start:()=>startRF() },
   'recurrence-complete': { name:'R\u00e9currence \u2014 conjecturer puis d\u00e9montrer', icon:'\ud83e\udded', desc:'La fiche compl\u00e8te : calcule les premiers termes au dixi\u00e8me pr\u00e8s, lis les termes affich\u00e9s par le programme et conjecture (sens, limite, majorant, minorant), puis d\u00e9montre 0 \u2264 U\u2099 \u2264 M par r\u00e9currence \u2014 initialisation, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (on suppose\u2026 on montre\u2026) et cha\u00eene d\u2019encadrements comme au {suites-encadrement}.', start:()=>startREC() },
   'recurrence-redaction': { name:'R\u00e9currence \u2014 r\u00e9diger la d\u00e9monstration', icon:'\u270d\ufe0f', desc:'Les \u00e9nonc\u00e9s du {recurrence-encadrement}, mais plus une seule case : tu \u00e9cris la d\u00e9monstration ENTI\u00c8RE dans la feuille, comme sur ta copie \u2014 initialisation v\u00e9rifi\u00e9e et conclue, vocabulaire de l\u2019h\u00e9r\u00e9dit\u00e9 (\u00ab on suppose\u2026 on montre\u2026 \u00bb), justification par la croissance de f. La page relit la structure, l\u2019IA relit le calcul : ce qui va s\u2019\u00e9crit en vert, ce qui manque en rouge.', start:()=>startRR() },
   'suite-auxiliaire-redaction': { name:'Suite auxiliaire \u2014 r\u00e9diger les r\u00e9ponses', icon:'\ud83d\udcdd', desc:'Les suites auxiliaires du {suite-auxiliaire-2}, mais tu R\u00c9DIGES tout : le coefficient de U\u2099 est une baisse (de 5 % \u00e0 45 %), et chaque question a sa feuille libre, comme dans {recurrence-redaction} \u2014 la cha\u00eene qui m\u00e8ne \u00e0 V\u2099\u208a\u2081 = coefficient \u00d7 V\u2099, le calcul de V\u2080, la nature de la suite (V\u2099), puis U\u2099 en fonction de n. La page relit la structure, l\u2019IA relit le calcul.', start:()=>startSAR() },
   'suite-auxiliaire-2': { name:'Suites \u2014 suite auxiliaire \u00e0 compl\u00e9ter', icon:'\u270f\ufe0f', desc:'La m\u00eame d\u00e9monstration que {suite-auxiliaire}, mais guid\u00e9e\u00a0: chaque case attend simplement un NOMBRE ou un MOT. La page \u00e9crit les signes et les symboles, tu poses les nombres \u2014 comme sur la fiche papier.', start:()=>startSA2() },
+  'recurrence-fractions': { name:'R\u00e9currence \u2014 la formule explicite en fraction', icon:'n+3', desc:'La fiche \u00ab r\u00e9currence et fractions \u00bb : une suite U\u2099\u208a\u2081 = (3U\u2099 \u2212 1)/(U\u2099 + 1) et sa formule explicite U\u2099 = (n+3)/(n+1). a) Tu v\u00e9rifies la formule sur U\u2080, U\u2081, U\u2082 par les deux voies ; b) tu la d\u00e9montres par r\u00e9currence \u2014 initialisation, hypoth\u00e8se, but, puis la cha\u00eene de calcul \u00e9tape par \u00e9tape : la formule de U\u2099 plac\u00e9e dans la r\u00e9currence, le m\u00eame d\u00e9nominateur, les simplifications, et on doit retrouver la formule au rang n+1.', start:()=>startRFR() },
   'suites-encadrement': { name:'Suites \u2014 encadrements (pr\u00e9parer la r\u00e9currence)', icon:'\u2264', desc:'\u00c0 partir de m \u2264 x \u2264 M, encadre pas \u00e0 pas 0,5x + b, \u221a(x + c), k/(x + 1) ou a \u2212 b/(x + c), justifie chaque \u00e9tape, puis conclus que f(x) \u2208 [m ; M] \u2014 la cl\u00e9 de l\u2019h\u00e9r\u00e9dit\u00e9 dans une r\u00e9currence.', start:()=>startENC() }
 };
 /* ---------- Thèmes : regroupement + numérotation des exercices ----------
@@ -2493,7 +2552,7 @@ const THEMES=[
   { num:3, nom:'Limites de fonctions', ids:['equation-droite-h-v','limites-graphiques','limites-graphiques-2','limites-graphiques-3','limites-redaction'] },
   { num:4, nom:'TVI',                ids:['tvi','tvi-redaction','tvi-contre-exemples','tvi-nombre-solutions','tvi-lecture-graphique'] },
   { num:5, nom:'Étude de fonction',  ids:['equation-tangente','tangente-exp','etude-fonction','etude-quotient','etude-exponentielle'] },
-  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction'] }
+  { num:6, nom:'Suites',             ids:['suite-explicite','suite-auxiliaire','suite-auxiliaire-2','suites-encadrement','recurrence-encadrement','recurrence-formule','recurrence-complete','recurrence-redaction','suite-auxiliaire-redaction','recurrence-fractions'] }
 ];
 /* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
 const TEST_NUM={};
@@ -2627,7 +2686,7 @@ document.addEventListener('keydown', navCases);
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-dexp','scr-lr','scr-ec'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-dexp','scr-lr','scr-ec'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -3061,6 +3120,7 @@ function conseilCtxCourant(){
   if(test && test.kind==='su' && test.questions && test.questions[test.idx]){ c=suConseilCtx(); }
   else if(test && test.kind==='sa' && test.questions && test.questions[test.idx]){ c=saConseilCtx(); }
   else if(test && test.kind==='sa2' && test.questions && test.questions[test.idx]){ c=sa2ConseilCtx(); }
+  else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='enc' && test.questions && test.questions[test.idx]){ c=encConseilCtx(); }
   else if(test && test.kind==='rec' && test.questions && test.questions[test.idx]){ c=recConseilCtx(); }
   else if(test && test.kind==='sp' && test.questions && test.questions[test.idx]){ c=spConseilCtx(); }
@@ -3070,6 +3130,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='afq' && test.questions && test.questions[test.idx]){ c=afqConseilCtx(); }
   else if(test && test.kind==='eq' && test.questions && test.questions[test.idx]){ c=eqConseilCtx(); }
   else if(test && test.kind==='rc' && test.questions && test.questions[test.idx]){ c=rcConseilCtx(); }
+  else if(test && test.kind==='rf' && test.questions && test.questions[test.idx]){ c=rfConseilCtx(); }
   else if(test && test.kind==='rr' && test.questions && test.questions[test.idx]){ c=rrConseilCtx(); }
   else if(test && test.kind==='sar' && test.questions && test.questions[test.idx]){ c=sarConseilCtx(); }
   else if(test && test.kind==='dexpq' && test.dexpLevel===2 && test.questions && test.questions[test.idx]){
@@ -3855,7 +3916,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], rfr:['rfr',renderRFR], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -3977,7 +4038,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','rr','sar','lr','ec','afp','afq'];
+  const testScreens=['test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','enc','rec','ef','eq','rc','rf','rfr','rr','sar','lr','ec','afp','afq'];
   if(testScreens.includes(name)){   /* numéro + titre de l'exercice en tête */
     const sec=$('scr-'+name);
     let t=sec.querySelector('.exo-title');
@@ -10983,6 +11044,272 @@ function rcConseilCtx(){
    +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
+/* ===== 6.6 RÉCURRENCE — DÉMONTRER UNE FORMULE EXPLICITE (fiche « Exercice 4 »,
+   demande de Turquet, septembre 2026) =====
+   On donne U0 et U_{n+1} = aU_n + b, et la FORMULE U_n = k ± a^n : l'élève la
+   démontre par récurrence dans le squelette de la fiche — initialisation calculée
+   (rang en indice, exposant, valeur, « c'est vrai »), hypothèse et but (les
+   EXPOSANTS n et n+1 s'écrivent dans des cases levées), puis la chaîne :
+   substituer l'hypothèse dans a × ( … ) + b, développer, réduire.
+   Le tirage part de l'ARRIVÉE (la leçon de {simplifier-barres}) : a et k sont
+   choisis pour que b = k(1−a) soit ENTIER, u0 = k ± 1 — l'énoncé est fait des
+   nombres mêmes que la correction recalcule, il ne peut pas la contredire.
+   Les DEUX visages (k + a^n et k − a^n) sortent chacun une fois, ordre mélangé.
+   Les deux lignes de calcul sont LIBRES et se jugent À LA VALEUR (n = 0..3, la
+   doctrine de sarExprVal : toute écriture égale est acceptée) ; la DERNIÈRE exige
+   en plus la forme réduite k ± a^(n+1) — c'est elle qui fait la démonstration.
+   Une case vide ne reçoit JAMAIS de couleur ; en entraînement la correction est
+   celle de la convention commune (rouge gardé + bonne réponse à côté, vide rempli). */
+const RF_POOL=[[0.5,[2,4,6]],[0.25,[4,8]],[0.75,[4,8]],[0.2,[5,10]]];
+function rfBuildQuestions(){
+  const cs=(rand(0,1)===0)?[1,-1]:[-1,1];   /* les DEUX visages (+ a^n et − a^n), ordre mélangé */
+  const q1=genRF(cs[0]), q2=genRF(cs[1],[q1.a,q1.k]);
+  return [q1,q2];
+}
+function genRF(c, pasCeCouple){
+  for(let t=0;t<50;t++){
+    const A=pick(RF_POOL), a=A[0], k=pick(A[1]);
+    if(pasCeCouple && pasCeCouple[0]===a && pasCeCouple[1]===k) continue;
+    const b=Math.round(k*(1-a)*1000)/1000;   /* entier par construction du vivier — le contrôle l'exige */
+    return { a:a, k:k, b:b, c:c, u0:k+c, n0:0 };
+  }
+  return { a:0.5, k:2, b:1, c:c, u0:2+c, n0:0 };   /* repli : la fiche elle-même */
+}
+/* Toutes les cases, dans l'ordre de lecture. */
+function rfCases(q){
+  return [
+    {id:'rf-n0', type:'num', good:q.n0},
+    {id:'rf-i1', type:'num', good:q.n0},
+    {id:'rf-i2', type:'num', good:q.n0},
+    {id:'rf-i3', type:'num', good:q.u0},
+    {id:'rf-i4', type:'sel', good:'vrai'},
+    {id:'rf-h1', type:'sym', goods:['n']},
+    {id:'rf-m1', type:'sym', goods:['n+1']},
+    {id:'rf-s1', type:'exp', fn:'hyp'},
+    {id:'rf-d1', type:'exp', fn:'cible'},
+    {id:'rf-d2', type:'red'},
+    {id:'rf-ccl', type:'sel', good:'tout'}
+  ];
+}
+/* Lecture d'une expression en n : on passe en x puis par compileExprExp — un
+   « − » de tête devant une puissance est réécrit « 0− » (JS refuse -a**x nu). */
+function rfClean(raw){
+  return String(raw||'').toLowerCase()
+    .replace(/\s+/g,'').replace(/,/g,'.')
+    .replace(/[−–—]/g,'-')
+    .replace(/[×⋅·]/g,'*')
+    .replace(/\{/g,'(').replace(/\}/g,')')
+    .replace(/n/g,'x');
+}
+function rfFn(raw){
+  let t=rfClean(raw); if(t==='') return null;
+  t=t.replace(/(^|\()-/g,'$10-');
+  return compileExprExp(t);
+}
+function rfHypFn(q){ return x=>q.k + q.c*Math.pow(q.a,x); }
+function rfCibleFn(q){ return x=>q.k + q.c*Math.pow(q.a,x+1); }
+function rfValEq(raw, ref){
+  const f=rfFn(raw); if(!f) return false;
+  for(const x of [0,1,2,3]){ let v; try{ v=f(x); }catch(e){ return false; }
+    if(typeof v!=='number'||!isFinite(v)||Math.abs(v-ref(x))>1e-9*(1+Math.abs(ref(x)))) return false; }
+  return true;
+}
+/* La ligne finale : égale à la cible ET écrite réduite — k ± a^(n+1), dans les
+   deux ordres. L'égalité à la valeur passe d'abord : une écriture à l'exposant
+   NON groupé (2 − 0,5^n + 1) est numériquement fausse et rougit à bon droit. */
+function rfRedOk(raw, q){
+  if(!rfValEq(raw, rfCibleFn(q))) return false;
+  const t=rfClean(raw).replace(/\^\((x\+1)\)/g,'^$1');
+  const K=String(q.k), P=String(q.a)+'^x+1';
+  const oks=q.c>0? [K+'+'+P, P+'+'+K] : [K+'-'+P, '-'+P+'+'+K];
+  return oks.indexOf(t)>=0;
+}
+function rfOkCase(q,x,raw){
+  if(x.type==='sel') return raw===x.good;
+  if(x.type==='sym') return x.goods.indexOf(rcSym(raw))>=0;
+  if(x.type==='exp') return rfValEq(raw, x.fn==='hyp'?rfHypFn(q):rfCibleFn(q));
+  if(x.type==='red') return rfRedOk(raw,q);
+  const v=rcNum(raw); return numOkTol(v,x.good,0.001);
+}
+/* ---- affichage ---- */
+function rfMf(id,cls){ return '<math-field class="dexp-mf rf-mf'+(cls?' '+cls:'')+'" id="'+id+'"></math-field>'; }
+function rfPowCase(q,id){ return numFmt(q.a)+rfMf(id,'rf-exp'); }
+function rfFormCase(q,id){ return numFmt(q.k)+' '+(q.c>0?'+':'−')+' '+rfPowCase(q,id); }
+function rfFormTxt(q,sub){ return numFmt(q.k)+' '+(q.c>0?'+':'−')+' '+numFmt(q.a)+'<sup>'+sub+'</sup>'; }
+function rfTexForm(q,sub){ return mlTexN(numFmt(q.k))+(q.c>0?'+':'-')+mlTexN(numFmt(q.a))+'^{'+sub+'}'; }
+function rfPlainForm(q,sub){ return numFmt(q.k)+' '+(q.c>0?'+':'−')+' '+numFmt(q.a)+'^('+sub+')'; }
+let rfLastMF=null;
+function rfActiveMF(){
+  const a=document.activeElement;
+  if(a && a.tagName==='MATH-FIELD' && a.classList.contains('rf-mf')) return a;
+  if(rfLastMF && document.contains(rfLastMF) && !rfLastMF.readOnly) return rfLastMF;
+  return document.querySelector('#scr-rf math-field.rf-mf:not([readonly])');
+}
+function rfKB(){
+  const vk=window.mathVirtualKeyboard; if(!vk) return;
+  if(vk.visible){ vk.hide(); const ae=document.activeElement; if(ae && ae.tagName==='MATH-FIELD') ae.blur(); return; }
+  const t=rfActiveMF(); if(t){ try{ t.focus(); }catch(e){} }
+  try{ vk.show(); }catch(e){}
+}
+function rfMenu(){
+  if(window.mlDexp && window.mlDexp.showShortcuts && window.mlDexp.showShortcuts()) return;
+  const t=rfActiveMF(); if(!t) return;
+  try{ t.focus(); }catch(e){}
+  try{ if(typeof t.showMenu==='function'){ t.showMenu(); return; } }catch(e){}
+}
+function rfJetonsHTML(){
+  return '<div class="rc-jetons"><span class="rc-jlbl">Outils :</span>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rfKB()" title="Clavier mathématique à l’écran" aria-label="Afficher ou masquer le clavier mathématique">⌨️</button>'
+    +'<button type="button" class="sa-jeton sa-jeton-ic" onmousedown="event.preventDefault()" onclick="rfMenu()" title="Raccourcis clavier" aria-label="Afficher les raccourcis clavier">☰</button></div>';
+}
+function rfFicheHTML(q){
+  const selVF='<select class="tvi-sel" id="rf-i4"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select>';
+  const selC='<select class="tvi-sel" id="rf-ccl" style="width:auto"><option value="">…</option><option value="tout">tout entier n ≥ 0</option><option value="n0">n = 0 seulement</option><option value="aucun">aucun entier n</option></select>';
+  const eq='<span class="rf-eq">=</span>';
+  return '<div class="rf-ligne"><b>Initialisation</b> — vrai pour <i>n</i> = '+rfMf('rf-n0')
+    +' :  <span class="rc-uwrap"><i>U</i>'+rfMf('rf-i1','rc-mf-idx')+'</span> '+eq+' '+rfFormCase(q,'rf-i2')+' '+eq+' '+rfMf('rf-i3')
+    +'  — c’est '+selVF+'</div>'
+  +'<div class="rf-ligne"><b>Hérédité</b> — on suppose que pour <i>n</i> : '+rcUn('n')+' '+eq+' '+rfFormCase(q,'rf-h1')+'</div>'
+  +'<div class="rf-ligne">Montrons que pour <i>n</i> + 1 : '+rcUn('n+1')+' '+eq+' '+rfFormCase(q,'rf-m1')+'</div>'
+  +'<div class="rf-ligne">'+rcUn('n+1')+' '+eq+' '+numFmt(q.a)+' '+rcUn('n')+' + '+numFmt(q.b)
+    +' '+eq+' '+numFmt(q.a)+' × ( '+rfMf('rf-s1','rf-wide')+' ) + '+numFmt(q.b)+'</div>'
+  +'<div class="rf-ligne" style="padding-left:38px">'+eq+' '+rfMf('rf-d1','rf-wide')+'</div>'
+  +'<div class="rf-ligne" style="padding-left:38px">'+eq+' '+rfMf('rf-d2','rf-wide')+'</div>'
+  +'<div class="s1-res rc-ccl"><div class="s1-line"><b>Conclusion</b> : '+rcUn('n')+' = '+rfFormTxt(q,'<i>n</i>')+' est vrai pour '+selC+'.</div></div>';
+}
+async function startRF(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='recurrence-formule'; test.kind='rf';
+  ficheLive['rf']=rfLiveMf;   /* inscription ICI (jamais au chargement : const ficheLive est declaree plus bas) */
+  test.questions=rfBuildQuestions();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;
+  show('rf'); renderRF();
+}
+function renderRF(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('rfQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('rfModeTag').innerHTML=modeTagHTML();
+  $('rfLiveScore').textContent=test.score;
+  $('rfFeedback').textContent=''; $('rfFeedback').className='mp-feedback';
+  $('rfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRF()">Vérifier</button>';
+  $('rfPrompt').innerHTML='Soit la suite ('+rcUn('n')+') telle que : '+rcUn('0')+' = <b>'+numFmt(q.u0)+'</b>  et  '
+    +mlTex('U_{n+1}='+mlTexN(numFmt(q.a))+'U_{n}+'+numFmt(q.b), rcUn('n+1')+' = '+esc(numFmt(q.a))+' '+rcUn('n')+' + '+esc(numFmt(q.b)))+'.'
+    +'<br><b>Démontrer que : '+rcUn('n')+' = '+rfFormTxt(q,'<i>n</i>')+'  pour tout entier <i>n</i> ≥ 0.</b>';
+  $('rfBody').innerHTML=rfJetonsHTML()+rfFicheHTML(q)
+    +'<p class="dexp-hint">Dans une case de calcul, <b>^</b> donne un exposant (0,5^n). Les petites cases levées attendent l’EXPOSANT seul. <span class="hint-souris"><b>Clic droit</b> sur un champ : clavier à l’écran.</span></p>';
+  if(window.mlDexp) window.mlDexp.upgrade($('rfBody'));
+  $('rfBody').addEventListener('focusin',e=>{ if(e.target && e.target.tagName==='MATH-FIELD' && e.target.classList.contains('rf-mf')) rfLastMF=e.target; });
+  if(isSoutien()){
+    ['rf-i4','rf-ccl'].forEach(id=>{ const sel=$(id); if(sel) sel.addEventListener('change',()=>checkRF(true)); });
+  }
+  setTimeout(()=>{ const el=$('rf-n0'); if(el) el.focus(); },30);
+}
+function rfLiveMf(id){
+  if(!isSoutien() || test.locked) return;
+  setTimeout(()=>{
+    if(test.locked) return;
+    const el=$(id); if(!el || el.classList.contains('sol')) return;
+    if(document.activeElement===el) return;
+    const q=test.questions[test.idx]; if(!q) return;
+    const x=rfCases(q).find(k=>k.id===id); if(!x) return;
+    const raw=dexpCellValue(id);
+    el.classList.remove('ok','bad');
+    if(String(raw).trim()!=='') el.classList.add(rfOkCase(q,x,raw)?'ok':'bad');   /* la case vidée redevient neutre */
+  },0);
+}
+/* Révélation d'une case math : la convention commune — le rouge GARDE la saisie
+   et la bonne réponse s'affiche à côté ; la case vide est remplie en sol. */
+function rfReveal(id, latex, plain, ok, vide){
+  const el=$(id); if(!el) return;
+  el.classList.remove('ok','bad','sol');
+  if(ok){ el.classList.add('ok'); }
+  else if(vide){ try{ el.setValue(latex); }catch(e){} el.classList.add('sol'); }
+  else {
+    el.classList.add('bad');
+    if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+esc(plain)+'</span>');
+  }
+  el.readOnly=true;
+}
+function rfSolutions(q){
+  const n0=numFmt(q.n0);
+  return {
+    'rf-n0':[mlTexN(n0), n0], 'rf-i1':[mlTexN(n0), n0], 'rf-i2':[mlTexN(n0), n0],
+    'rf-i3':[mlTexN(numFmt(q.u0)), numFmt(q.u0)],
+    'rf-h1':['n','n'], 'rf-m1':['n+1','n + 1'],
+    'rf-s1':[rfTexForm(q,'n'), rfPlainForm(q,'n')],
+    'rf-d1':[mlTexN(numFmt(q.a*q.k))+(q.c>0?'+':'-')+mlTexN(numFmt(q.a))+'^{n+1}'+'+'+mlTexN(numFmt(q.b)),
+             numFmt(q.a*q.k)+' '+(q.c>0?'+':'−')+' '+numFmt(q.a)+'^(n+1) + '+numFmt(q.b)],
+    'rf-d2':[rfTexForm(q,'n+1'), rfPlainForm(q,'n+1')]
+  };
+}
+function checkRF(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=rfCases(q);
+  let allOk=true, vides=0, anyFilled=false;
+  const etats={};
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    const raw=(x.type==='sel')?String(el.value||''):dexpCellValue(x.id);
+    const vide=String(raw).trim()==='';
+    const ok=!vide && rfOkCase(q,x,raw);
+    etats[x.id]={ok:ok,vide:vide};
+    if(!vide) anyFilled=true;
+    if(vide){ vides++; allOk=false; } else if(!ok) allOk=false;
+    if(x.type!=='sel' && live) return;   /* en direct, les champs math sont jugés à la sortie de case */
+    el.classList.remove('ok','bad');
+    if(!vide) el.classList.add(ok?'ok':'bad');   /* une case VIDE ne reçoit jamais de couleur */
+  });
+  if(live) return;
+  if(!anyFilled){ $('rfFeedback').textContent='Complète au moins une case avant de vérifier.'; $('rfFeedback').className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    $('rfFeedback').textContent=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.');
+    $('rfFeedback').className='mp-feedback bad';
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+      const fige=etats[x.id] && etats[x.id].ok;
+      if(x.type==='sel'){ el.disabled=!!fige; } else { el.readOnly=!!fige; } });
+    $('rfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRF()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('rfLiveScore').textContent=test.score;
+    $('rfFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, récurrence complète !']);
+    $('rfFeedback').className='mp-feedback good';
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return; if(x.type==='sel'){ el.disabled=true; } else { el.readOnly=true; } });
+  } else {
+    $('rfFeedback').innerHTML=(vides>0?'Il manquait '+vides+' case(s) — la correction les a remplies en vert.<br>':'Quelques erreurs — la bonne réponse est à côté de chaque case rouge.<br>')
+      +'Retiens le schéma : <b>initialisation</b> — on CALCULE la formule au rang 0 et on compare à '+rcUn('0')+' ; <b>hérédité</b> — on SUBSTITUE l’hypothèse dans '+numFmt(q.a)+' '+rcUn('n')+' + '+numFmt(q.b)+', puis '+numFmt(q.a)+' × '+numFmt(q.a)+'<sup><i>n</i></sup> = '+numFmt(q.a)+'<sup><i>n</i>+1</sup> et on réduit vers '+rfFormTxt(q,'<i>n</i>+1')+'.';
+    $('rfFeedback').className='mp-feedback bad';
+    const sol=rfSolutions(q);
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+      const e=etats[x.id]||{ok:false,vide:true};
+      if(x.type==='sel'){ corrCase(x.id, x.good, e.ok); }
+      else rfReveal(x.id, sol[x.id][0], sol[x.id][1], e.ok, e.vide);
+    });
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Récurrence (formule explicite) : Un = '+rfPlainForm(q,'n')+', U0 = '+numFmt(q.u0)+', Un+1 = '+numFmt(q.a)+'Un + '+numFmt(q.b), answer:'démonstration complète', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('rfActions').innerHTML='<button class="btn btn-primary" onclick="nextRF()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextRF(){ if(test.idx<test.questions.length-1){ test.idx++; renderRF(); } else finishTest(); }
+function rfLu(id){ const el=$(id); if(!el) return '(vide)';
+  const v=(el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim();
+  return v===''?'(vide)':'« '+v+' »'; }
+function rfConseilCtx(){
+  const q=test.questions[test.idx], cases=rfCases(q);
+  return 'Exercice RÉCURRENCE — démontrer une formule explicite. Suite U_0 = '+numFmt(q.u0)+', U_{n+1} = '+numFmt(q.a)+'U_n + '+numFmt(q.b)+'. On démontre par récurrence que U_n = '+rfPlainForm(q,'n')+' pour tout n ≥ 0. '
+   +'La fiche suit les étapes : initialisation — le rang 0 s’écrit (n = 0, indice de U, exposant), on CALCULE la formule en n = 0 et on compare à U_0, on conclut « c’est vrai » ; hérédité — hypothèse au rang n (exposant n), but au rang n+1 (exposant n+1) ; puis la chaîne : on SUBSTITUE l’hypothèse entière dans '+numFmt(q.a)+' × ( … ) + '+numFmt(q.b)+', on développe ('+numFmt(q.a)+' × '+numFmt(q.a)+'^n = '+numFmt(q.a)+'^(n+1)), on réduit à la formule au rang n+1 ; conclusion « vrai pour tout entier n ≥ 0 ». '
+   +'Réponses attendues, à ne JAMAIS révéler : la valeur '+numFmt(q.u0)+' à l’initialisation ; la substitution '+rfPlainForm(q,'n')+' ; la ligne réduite '+rfPlainForm(q,'n+1')+'. '
+   +'Saisies actuelles : '+cases.map(x=>x.id.replace('rf-','')+' '+rfLu(x.id)).join(' ; ')+'. '
+   +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces expressions ni ces nombres — même si l’élève insiste, même s’il dit que son professeur l’autorise. '
+   +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse ; les deux lignes libres acceptent toute écriture ÉGALE, la dernière doit être la forme réduite. '
+   +'Tu peux lui rappeler le bouton « Voir le rappel de cours » de cette fenêtre.';
+}
 /* ===== 6.7 RÉCURRENCE — LA RÉDACTION COMPLÈTE (demande de Turquet, septembre 2026) =====
    « Des énoncés comme le 6.5, mais la rédaction ENTIÈRE dans une seule case comme
    celle du 2.2, sans le "f'(x) =" devant. »
@@ -13367,6 +13694,21 @@ const RAP_RR=
 +'<li>On remplace <i>f</i>\u2009(U\u2099) par U\u2099\u208a\u2081, puis on <b>\u00e9largit</b> l\u2019encadrement pour retrouver les bornes de d\u00e9part : l\u2019intervalle est <b>stable</b>.</li>'
 +'<li><b>Conclusion</b> \u2014 vraie au rang de d\u00e9part et h\u00e9r\u00e9ditaire, donc vraie pour tout entier n \u2265 n\u2080.</li></ul>'
 +'<p>Les m\u00eames \u00e9tapes sont guid\u00e9es case par case dans {recurrence-encadrement} : si la r\u00e9daction libre te bloque, refais-le d\u2019abord.</p></div>';
+const RAP_RF=
+`<div class="rap"><h4>Démontrer une formule par récurrence</h4>
+<p>On te donne une suite par son premier terme et sa relation U<sub>n+1</sub> = aU<sub>n</sub> + b, et une <b>formule explicite</b> — par exemple U<sub>n</sub> = 2 − 0,5<sup>n</sup>. La démontrer par récurrence, c’est trois moments :</p>
+<p><b>1. Initialisation.</b> On CALCULE la formule au rang de départ : 2 − 0,5<sup>0</sup> = 2 − 1 = 1. Si c’est bien la valeur de U<sub>0</sub> donnée par l’énoncé, la propriété est vraie au départ.</p>
+<p><b>2. Hérédité.</b> On SUPPOSE la formule vraie pour n (U<sub>n</sub> = 2 − 0,5<sup>n</sup>) et on MONTRE qu’elle est vraie pour n + 1. Le geste clé : dans U<sub>n+1</sub> = 0,5 U<sub>n</sub> + 1, on REMPLACE U<sub>n</sub> par la formule supposée — U<sub>n+1</sub> = 0,5 × (2 − 0,5<sup>n</sup>) + 1. Puis on développe : 0,5 × 0,5<sup>n</sup> = 0,5<sup>n+1</sup> (multiplier par 0,5, c’est monter l’exposant de 1), donc U<sub>n+1</sub> = 1 − 0,5<sup>n+1</sup> + 1 = 2 − 0,5<sup>n+1</sup> : c’est la formule au rang n + 1.</p>
+<p><b>3. Conclusion.</b> Vraie au rang 0 et héréditaire : la formule est vraie pour tout entier n ≥ 0.</p></div>`;
+const RAP_RFR=
+ '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9montrer une formule explicite par r\u00e9currence</h4>'
++'<p>Deux fa\u00e7ons de d\u00e9finir la m\u00eame suite : la <b>formule de r\u00e9currence</b> (<i>U</i><sub><i>n</i>+1</sub> en fonction de <i>U</i><sub><i>n</i></sub>) et la <b>formule explicite</b> (<i>U</i><sub><i>n</i></sub> en fonction de <i>n</i>). On <b>v\u00e9rifie</b> d\u2019abord qu\u2019elles donnent les m\u00eames premiers termes, puis on <b>d\u00e9montre</b> la formule explicite par r\u00e9currence.</p>'
++'<ul><li><b>Initialisation</b> : au rang 0, on calcule la formule explicite avec <i>n</i> = 0 et on retrouve <i>U</i><sub>0</sub>.</li>'
++'<li><b>H\u00e9r\u00e9dit\u00e9</b> : on <b>suppose</b> la formule vraie au rang <i>n</i> (on l\u2019\u00e9crit), et on <b>montre</b> qu\u2019elle est vraie au rang <i>n</i> + 1 (on \u00e9crit ce qu\u2019on doit trouver : la formule o\u00f9 <i>n</i> est remplac\u00e9 par <i>n</i> + 1).</li>'
++'<li>On part de la <b>formule de r\u00e9currence</b> et on y <b>place la formule de <i>U</i><sub><i>n</i></sub></b>. Avec des fractions, on \u00e9crit les nombres seuls sur le <b>m\u00eame d\u00e9nominateur</b> \u2014 \\(1 = \\frac{n+1}{n+1}\\) \u2014, on regroupe en haut et en bas, le d\u00e9nominateur commun se <b>simplifie</b>, et on simplifie encore par le facteur commun qui reste.</li>'
++'<li>On doit <b>retrouver</b> exactement la formule annonc\u00e9e au rang <i>n</i> + 1 : c\u2019est ce qui prouve l\u2019h\u00e9r\u00e9dit\u00e9.</li>'
++'<li><b>Conclusion</b> : vraie au d\u00e9part et h\u00e9r\u00e9ditaire \u2192 vraie pour tout <i>n</i> (principe de r\u00e9currence).</li></ul>'
++'<p>Le m\u00eame sch\u00e9ma, avec un encadrement au lieu d\u2019une formule, est dans {recurrence-encadrement}.</p></div>';
 const RAP_RC=
  '<div class="rap"><h4>\ud83d\udcd8 Rappel de cours \u2014 d\u00e9montrer un encadrement par r\u00e9currence</h4>'
 +'<ul><li><b>Initialisation</b> : on v\u00e9rifie la propri\u00e9t\u00e9 au rang de d\u00e9part (0 ou 1) en rempla\u00e7ant U par sa <b>valeur</b>.</li>'
@@ -13394,7 +13736,7 @@ const RAP_AFP=`<b>Associer une fonction f à sa dérivée f\u2009\u2032</b><br>
 \u2022 <b>Le signe de f\u2009\u2032 se lit sur les VARIATIONS de f</b> : f croît \u21d4 f\u2009\u2032 &gt; 0, f décroît \u21d4 f\u2009\u2032 &lt; 0. Et f\u2009\u2032 s'annule (0 dans le tableau) aux <b>sommets et creux</b> de f — là où la tangente est horizontale.<br>
 \u2022 <b>Les variations de f se lisent sur le SIGNE de f\u2009\u2032</b> : quand la courbe de f\u2009\u2032 est AU-DESSUS de l'axe des abscisses, f croît ; au-dessous, f décroît ; f\u2009\u2032 coupe l'axe exactement là où f change de sens.<br>
 \u2022 <b>Deux courbes sont COMPATIBLES</b> quand leurs deux tableaux coïncident : les zéros de f\u2009\u2032 tombent sous les sommets de f, et f\u2009\u2032 est positive là où f croît. Un seul désaccord — un zéro décalé, un signe inversé — et f\u2009\u2032 dessinée ne peut pas être la dérivée de f dessinée.`;
-const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
+const RAPPELS={ su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rfr:RAP_RFR, rr:RAP_RR, sar:RAP_SA, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -15863,6 +16205,286 @@ function sa2ConseilCtx(){
     +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
 /* \u00c9tat des cases, en clair, pour le conseil de l'IA */
+/* ================= 6.10 RÉCURRENCE — LA FORMULE EXPLICITE EN FRACTION =================
+   Demande de Turquet (septembre 2026), repris de la fiche « récurrence et
+   fractions » : une suite Uₙ₊₁ = (3Uₙ − 1)/(Uₙ + 1) avec U₀ = 3, et la formule
+   explicite Uₙ = (n+3)/(n+1) — a) on VÉRIFIE la formule sur U₀, U₁, U₂ par les
+   deux voies (la récurrence, puis la formule), b) on la DÉMONTRE par
+   récurrence : initialisation, hypothèse, but, puis la chaîne de calcul de la
+   fiche, UNE étape par ligne — on place la formule de Uₙ dans la formule de
+   récurrence, on écrit le 1 et le δ en fractions sur (n+b), on met au même
+   dénominateur, on simplifie par (n+b), puis par d — et on doit RETROUVER la
+   formule Uₙ₊₁ annoncée. Les six repères de la fiche ((1) à (6)) sont posés à
+   l'écran, tels quels.
+
+   LA FAMILLE, ET POURQUOI ELLE EST HONNÊTE. Toute suite Uₙ = (n+a)/(n+b)
+   vérifie Uₙ₊₁ = ((d+1)Uₙ − 1)/(Uₙ + d − 1) avec d = a − b : c'est l'identité
+   ((d+1)(n+a) − (n+b)) / ((n+a) + (d−1)(n+b)) = d(n+a+1) / d(n+b+1), et le
+   contrôle la REFAIT en entiers sur chaque couple plutôt que de la supposer —
+   sans elle, la chaîne de l'énoncé serait fausse avant que l'élève ne
+   commence, le pire défaut du projet (la leçon du 6.3, b = k(a−1)). La fiche
+   est le cas d = 2, b = 1. On tire d dans {2, 3, 4} — trois visages du
+   dénominateur « Uₙ + 1 », « Uₙ + 2 », « Uₙ + 3 » — et b dans {1, 2, 3} avec a
+   et b premiers entre eux, pour que U₀ = a/b s'écrive tel quel ; les deux
+   questions d'une séance ont des d DISTINCTS.
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : elle ne porte
+   que a et b, et rfrAttendu() recalcule tout — le contrôle refuse tout autre
+   champ.
+
+   CE QUE L'ÉLÈVE TAPE : des NOMBRES (U₁ = 2, U₂ = 5/3 — toute écriture ÉGALE
+   est acceptée, « 8/4 » comme « 2 » ; une décimale qui n'est pas exacte ne
+   l'est pas) et des EXPRESSIONS en n (« n+3 », « 3n+9 », « 3(n+3) »,
+   « n+1+3 ») — jugées comme des FONCTIONS de n, jamais comme des chaînes : on
+   évalue l'écriture en trois points, on exige qu'elle soit affine, et on
+   compare la pente et l'ordonnée. Une écriture non linéaire, une division, un
+   exposant : la case est fausse, jamais « illisible ».
+   LA RÈGLE DES PAIRES vaut sur l'avant-dernière étape : « (2n+8)/(2n+4) » et
+   « (n+4)/(n+2) » sont la MÊME fraction, et l'élève qui simplifie par 2 un
+   cran plus tôt a raison. Chaque case s'y juge sur sa PROMESSE (être
+   proportionnelle à l'attendu) et les deux doivent partager le facteur — « n+4 »
+   sur « 2n+4 » sont chacun défendables et faux ensemble. La DERNIÈRE étape,
+   elle, est exigée réduite : c'est la formule qu'on doit retrouver.
+
+   TOUT EST REPRIS DU 6.3 : les cases étroites qui grandissent (sa2In,
+   sa2Ajuster), les fractions empilées (sa2Frac), la colonne des « = »
+   (.sa2-eq), la correction commune (corrCase, msgCorrCouleurs). Un second
+   moteur de cases aurait fini par diverger. */
+const RFR_D=[2,3,4], RFR_B=[1,2,3];
+function rfrPgcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a; }
+/* Les couples (a, b) possibles : b dans RFR_B, a = b + d, a et b premiers entre eux. */
+function rfrCouples(d){
+  const out=[];
+  RFR_B.forEach(function(b){ const a=b+d; if(rfrPgcd(a,b)===1) out.push({a:a,b:b}); });
+  return out;
+}
+function rfrSession(){
+  /* deux d distincts, en ordre mélangé, puis un couple pour chacun */
+  const ds=RFR_D.slice();
+  const i=rand(0,ds.length-1); const d1=ds.splice(i,1)[0];
+  const d2=ds[rand(0,ds.length-1)];
+  return [d1,d2].map(function(d){ const c=pick(rfrCouples(d)); return {a:c.a, b:c.b}; });
+}
+/* Lecture d'un NOMBRE : entier, décimal (virgule ou point), ou fraction p/q. */
+function rfrNb(raw){
+  const t=String(raw==null?'':raw).replace(/[\s  ]/g,'').replace(/[−–—]/g,'-').replace(',','.');
+  if(t==='') return NaN;
+  const m=t.match(/^([-+]?\d+)\/([-+]?\d+)$/);
+  if(m){ const q=parseInt(m[2],10); if(q===0) return NaN; return parseInt(m[1],10)/q; }
+  if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(t)) return NaN;
+  return parseFloat(t);
+}
+/* Lecture d'une EXPRESSION en n, jugée comme une fonction : on évalue en
+   n = 0, 1, 2, on exige une affine, et on rend {p, c} pour p·n + c. Les
+   caractères sont bornés à des chiffres, n, + − × · ( ) : rien d'autre ne
+   s'évalue, et « n*n » ou « n^2 » ne passent pas — le premier n'est pas
+   affine, le second n'est pas lu. */
+function rfrLin(raw){
+  let t=String(raw==null?'':raw).replace(/[\s  ]/g,'').replace(/[−–—]/g,'-')
+    .replace(/[×·⋅*]/g,'*').replace(/,/g,'.').replace(/N/g,'n');
+  if(t==='' || !/^[0-9n+\-*().]+$/.test(t) || /\*\*|n\d|\)\d|\)n|n\(|nn|\.\.|\(\)/.test(t)) return null;
+  t=t.replace(/(\d|\))(?=n|\()/g,'$1*');
+  let f; try{ f=new Function('n','return ('+t+');'); }catch(e){ return null; }
+  const v=[0,1,2].map(function(k){ try{ return f(k); }catch(e){ return NaN; } });
+  if(!v.every(function(x){ return typeof x==='number' && isFinite(x); })) return null;
+  const p=v[1]-v[0]; if(Math.abs((v[2]-v[1])-p)>1e-9) return null;
+  return {p:Math.round(p*1e9)/1e9, c:Math.round(v[0]*1e9)/1e9};
+}
+function rfrLinStr(p,c){
+  const n=(p===1?'':(p===-1?'−':numFmt(p)))+'n';
+  if(c===0) return n;
+  return n+(c>0?'+':'−')+numFmt(Math.abs(c));
+}
+function rfrFrStr(p,q){
+  const g=rfrPgcd(p,q)||1; p=p/g; q=q/g;
+  return q===1 ? String(p) : p+'/'+q;
+}
+/* Les réponses attendues, calculées depuis la question et elle seule.
+   ['nb', valeur, p, q] — un nombre, écrit p/q dans la correction ;
+   ['lin', p, c]       — l'expression p·n + c ;
+   ['prop', c0, t, autre] — une case de la paire à facteur libre : t(n + c0),
+                             jugée sur sa promesse puis d'accord avec « autre ». */
+function rfrAttendu(q){
+  const a=q.a, b=q.b, d=a-b, al=d+1, de=d-1;
+  const N=function(p,qq){ return ['nb', p/qq, p, qq]; };
+  const L=function(p,c){ return ['lin', p, c]; };
+  return {
+    'rfr-r0':N(a,b), 'rfr-r1':N(a+1,b+1), 'rfr-r2':N(a+2,b+2),
+    'rfr-e0':N(a,b), 'rfr-e1':N(a+1,b+1), 'rfr-e2':N(a+2,b+2),
+    'rfr-n0':N(0,1), 'rfr-i1':N(a,b), 'rfr-i2':N(0,1), 'rfr-i3':N(0,1), 'rfr-i4':N(a,b),
+    'rfr-h1':L(1,a), 'rfr-h2':L(1,b),
+    'rfr-m1':L(1,a+1), 'rfr-m2':L(1,b+1),
+    'rfr-c1':L(1,a), 'rfr-c2':L(1,b), 'rfr-c3':L(1,a), 'rfr-c4':L(1,b),
+    'rfr-c5':L(1,a), 'rfr-c6':L(1,b), 'rfr-c7':L(1,b), 'rfr-c8':L(1,b),
+    'rfr-c9':L(1,a), 'rfr-c10':L(1,b), 'rfr-c11':L(1,b), 'rfr-c12':L(1,b),
+    'rfr-c13':L(al,al*a), 'rfr-c14':L(-1,-b), 'rfr-c15':L(1,b),
+    'rfr-c16':L(1,a), 'rfr-c17':L(de,de*b), 'rfr-c18':L(1,b),
+    'rfr-c19':['prop', a+1, d, 'rfr-c20'], 'rfr-c20':['prop', b+1, d, 'rfr-c19'],
+    'rfr-c21':L(1,a+1), 'rfr-c22':L(1,b+1)
+  };
+}
+const RFR_IDS=['rfr-r0','rfr-r1','rfr-r2','rfr-e0','rfr-e1','rfr-e2',
+  'rfr-n0','rfr-i1','rfr-i2','rfr-i3','rfr-i4','rfr-h1','rfr-h2','rfr-m1','rfr-m2',
+  'rfr-c1','rfr-c2','rfr-c3','rfr-c4','rfr-c5','rfr-c6','rfr-c7','rfr-c8','rfr-c9','rfr-c10','rfr-c11','rfr-c12',
+  'rfr-c13','rfr-c14','rfr-c15','rfr-c16','rfr-c17','rfr-c18','rfr-c19','rfr-c20','rfr-c21','rfr-c22'];
+function rfrPromesse(lin, c0){ return !!lin && lin.p>1e-9 && Math.abs(lin.c-lin.p*c0)<1e-9; }
+function rfrJuste(id, att, lire){
+  const raw=lire(id), x=att[id];
+  if(x[0]==='nb'){ const v=rfrNb(raw); return isFinite(v) && Math.abs(v-x[1])<1e-9; }
+  if(x[0]==='lin'){ const l=rfrLin(raw); return !!l && Math.abs(l.p-x[1])<1e-9 && Math.abs(l.c-x[2])<1e-9; }
+  /* la paire à facteur libre : chaque case sur sa promesse, puis l'accord des
+     deux — « n+4 » sur « 2n+4 » sont chacun défendables et faux ensemble */
+  const l=rfrLin(raw); if(!rfrPromesse(l, x[1])) return false;
+  const autre=att[x[3]], lo=rfrLin(lire(x[3]));
+  if(rfrPromesse(lo, autre[1]) && Math.abs(lo.p-l.p)>1e-9) return false;
+  return true;
+}
+/* Le libellé d'une correction : un nombre s'écrit en fraction réduite, une
+   expression avec son n, la paire à facteur libre avec le facteur d de la fiche. */
+function rfrLibelle(x){
+  if(x[0]==='nb') return rfrFrStr(x[2],x[3]);
+  if(x[0]==='lin') return rfrLinStr(x[1],x[2]);
+  return rfrLinStr(x[2], x[2]*x[1]);
+}
+function rfrIn(id, texte){
+  /* les expressions en n prennent le clavier du système (il faut la lettre n) ;
+     les nombres, le pavé numérique — sa2Ajuster règle la largeur, comme au 6.3 */
+  return '<input class="sa2-in rfr-in" id="'+id+'" type="text" autocomplete="off"'
+    + (texte?'':' inputmode="numeric"') + ' oninput="sa2Ajuster(this)" aria-label="case à compléter">';
+}
+function rfrAjusterTout(){ RFR_IDS.forEach(function(id){ const e=$(id); if(e&&e.tagName==='INPUT') sa2Ajuster(e); }); }
+function rfrFrHTML(q){ return q.b===1 ? String(q.a) : sa2Frac(String(q.a), String(q.b)); }
+async function startRFR(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='recurrence-fractions'; test.kind='rfr';
+  test.questions=rfrSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('rfr'); renderRFR();
+}
+function renderRFR(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const a=q.a, b=q.b, d=a-b, al=d+1, de=d-1;
+  $('rfrQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('rfrModeTag').innerHTML=modeTagHTML();
+  $('rfrLiveScore').textContent=test.score;
+  $('rfrFeedback').textContent=''; $('rfrFeedback').className='mp-feedback';
+  $('rfrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRFR()">Vérifier</button>';
+  const U='<i>U</i>', n='<i>n</i>';
+  const Un=U+'<sub>'+n+'</sub>', Un1=U+'<sub>'+n+'+1</sub>';
+  const T=function(s){ return '<span class="sa2-t">'+s+'</span>'; };
+  /* la formule de récurrence, empilée comme sur la fiche : (αUₙ − 1)/(Uₙ + δ) */
+  const recur=sa2Frac(al+' '+Un+' − 1', Un+' + '+de);
+  const expl=sa2Frac(n+' + '+a, n+' + '+b);
+  $('rfrPrompt').innerHTML='Soit la suite ('+Un+')<sub>'+n+' ≥ 0</sub> telle que&nbsp;: <b>'+U+'<sub>0</sub> = '+rfrFrHTML(q)
+    +'</b> &nbsp;et&nbsp; <b>'+Un1+' = '+recur+'</b> <span class="rfr-note">(formule de récurrence&nbsp;!)</span>'
+    +'<br>On veut montrer que&nbsp;: <b>'+Un+' = '+expl+'</b> pour tout '+n+' <span class="rfr-note">(formule explicite&nbsp;!)</span>.';
+  /* a) la vérification, par les deux voies — les mêmes trois valeurs */
+  const trois=function(pre){ return T(U+'<sub>0</sub> =')+rfrIn(pre+'0')+T(';&nbsp; '+U+'<sub>1</sub> =')+rfrIn(pre+'1')+T(';&nbsp; '+U+'<sub>2</sub> =')+rfrIn(pre+'2'); };
+  $('rfrPartA').innerHTML=
+     '<div class="sa2-row rfr-row"><span class="rfr-puce">●</span>'+T('Avec '+U+'<sub>0</sub> = '+rfrFrHTML(q)+' et '+Un1+' = ')+recur+T('&nbsp;on a&nbsp;:')+trois('rfr-r')+'</div>'
+    +'<div class="sa2-row rfr-row"><span class="rfr-puce">●</span>'+T('Avec '+Un+' = ')+expl+T('&nbsp;on a&nbsp;:')+trois('rfr-e')+'</div>';
+  /* b) la démonstration */
+  $('rfrTitreB').innerHTML='Démontrer que&nbsp;: <b>'+Un+' = '+expl+'</b> pour tout '+n+', par récurrence. Compléter&nbsp;:';
+  $('rfrLegende').innerHTML=['On vérifie la formule au départ.','On écrit la formule explicite de '+Un+'.','On écrit la formule explicite de '+Un1+'.',
+    'On écrit TOUTES les étapes !','On place la formule de '+Un+' à l’intérieur de la formule de récurrence.','On doit retrouver la formule de '+Un1+'.']
+    .map(function(s){ return '<li>'+s+'</li>'; }).join('');
+  const F=function(h,bas){ return sa2Frac(h,bas); };
+  const inF=function(i1,i2){ return F(rfrIn(i1,true), rfrIn(i2,true)); };   /* fraction à deux cases */
+  $('rfrPartB').innerHTML=
+     '<div class="sa2-row rfr-row"><b>Initialisation</b>'+T('(vrai pour '+n+' =')+rfrIn('rfr-n0')+T(')&nbsp;: '+U+'<sub>0</sub> =')+rfrIn('rfr-i1')
+      +T('et')+F(rfrIn('rfr-i2')+T('+ '+a), rfrIn('rfr-i3')+T('+ '+b))+T('=')+rfrIn('rfr-i4')+'</div>'
+    +'<div class="sa2-row rfr-row"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+'&nbsp;: '+Un+' =')+inF('rfr-h1','rfr-h2')+'</div>'
+    +'<div class="sa2-row rfr-row"><b>Montrons</b>'+T('que c’est vrai pour '+n+' + 1&nbsp;: '+Un1+' =')+inF('rfr-m1','rfr-m2')+'</div>'
+    +'<div class="sa2-ladder rfr-chaine">'
+    +'<div class="sa2-row"><span class="sa2-eq">'+Un1+' =</span>'+recur+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(T(al+' ×')+inF('rfr-c1','rfr-c2')+T('− 1'), inF('rfr-c3','rfr-c4')+T('+ '+de))+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(T(al+' ×')+inF('rfr-c5','rfr-c6')+T('− <b>1</b> ×')+inF('rfr-c7','rfr-c8'), inF('rfr-c9','rfr-c10')+T('+ <b>'+de+'</b> ×')+inF('rfr-c11','rfr-c12'))+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+F(F(rfrIn('rfr-c13',true)+T('+')+rfrIn('rfr-c14',true), rfrIn('rfr-c15',true)), F(rfrIn('rfr-c16',true)+T('+')+rfrIn('rfr-c17',true), rfrIn('rfr-c18',true)))+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+inF('rfr-c19','rfr-c20')+'</div>'
+    +'<div class="sa2-row"><span class="sa2-eq">=</span>'+inF('rfr-c21','rfr-c22')+'</div>'
+    +'</div>'
+    +'<p class="dexp-hint">Dans les cases, écris les nombres en fraction (5/3) ou en entier, et les expressions avec la lettre n : « n+3 », « 3n+9 » ou « 3(n+3) » — toute écriture égale est acceptée. Le − 1 × (…) se distribue dans la parenthèse : on écrit « + » puis « −n−1 ».</p>';
+  rfrAjusterTout();
+  setTimeout(rfrAjusterTout,0);   /* après une reprise de pause, les cases restaurées reprennent leur largeur */
+  if(isSoutien()){
+    RFR_IDS.forEach(function(id){ const el=$(id); if(el) el.addEventListener('input', function(){ checkRFR(true); }); });
+  }
+}
+function checkRFR(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx];
+  const att=rfrAttendu(q);
+  const lire=function(id){ const el=$(id); return el ? String(el.value==null?'':el.value) : ''; };
+  let allOk=true, anyFilled=false; const verd={};
+  RFR_IDS.forEach(function(id){
+    const el=$(id); if(!el) return;
+    const raw=lire(id);
+    const ok=rfrJuste(id, att, lire);
+    if(raw.trim()!=='') anyFilled=true;
+    el.classList.remove('ok','bad','sol');
+    if(live){
+      /* une case VIDE ne reçoit aucune couleur : rouge veut dire FAUX, jamais « pas fini » */
+      if(raw.trim()!=='') el.classList.add(ok?'ok':'bad');
+      if(!ok) allOk=false;
+      return;
+    }
+    if(!ok) allOk=false;
+    verd[id]=ok;
+    if(raw.trim()!=='') el.classList.add(ok?'ok':'bad');
+    el.disabled=ok||!isSoutien();
+  });
+  if(live) return;
+  if(!anyFilled){
+    $('rfrFeedback').textContent='Complète au moins une case avant de vérifier.';
+    $('rfrFeedback').className='mp-feedback';
+    RFR_IDS.forEach(function(id){ const el=$(id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    return;
+  }
+  if(!allOk && isSoutien()){
+    $('rfrFeedback').textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
+    $('rfrFeedback').className='mp-feedback bad';
+    $('rfrActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkRFR()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('rfrLiveScore').textContent=test.score;
+    $('rfrFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, la récurrence est complète !']);
+    $('rfrFeedback').className='mp-feedback good';
+  } else {
+    $('rfrFeedback').innerHTML=msgCorrCouleurs(false)
+      +'<br>La clé : on remplace '+'<i>U</i><sub><i>n</i></sub>'+' par sa formule dans la récurrence, on écrit '+(q.a-q.b-1===1?'le 1':'le 1 et le '+numFmt(q.a-q.b-1))+' sur le dénominateur ('+'<i>n</i> + '+numFmt(q.b)+'), on distribue le − dans la parenthèse, on regroupe, puis on simplifie par ('+'<i>n</i> + '+numFmt(q.b)+') et par '+numFmt(q.a-q.b)+' pour retrouver la formule au rang <i>n</i> + 1.';
+    $('rfrFeedback').className='mp-feedback bad';
+    RFR_IDS.forEach(function(id){ corrCase(id, rfrLibelle(att[id]), verd[id]===true); });
+    rfrAjusterTout();          /* la réponse écrite en vert ne doit pas être coupée */
+  }
+  test.answers.push({...(ptsExo()||{}),
+    q:'Récurrence : U(n) = (n+'+q.a+')/(n+'+q.b+'), U(n+1) = ('+(q.a-q.b+1)+'U(n) − 1)/(U(n) + '+(q.a-q.b-1)+')',
+    answer:'démonstration complétée', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('rfrActions').innerHTML='<button class="btn btn-primary" onclick="nextRFR()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextRFR(){ if(test.idx<test.questions.length-1){ test.idx++; renderRFR(); } else finishTest(); }
+/* Le contexte envoyé au modèle : l'écran de l'élève, et la clause de secret
+   posée par le tronc commun. Les réponses attendues y sont déclarées
+   STRICTEMENT SECRÈTES — la fenêtre d'aide est offerte dès l'entraînement. */
+function rfrConseilCtx(){
+  const q=test.questions[test.idx], a=q.a, b=q.b, d=a-b;
+  const att=rfrAttendu(q);
+  const etat=RFR_IDS.map(function(id){ const el=$(id); return id.replace('rfr-','')+'='+((el&&el.value)||'(vide)'); }).join(', ');
+  return 'Exercice de Terminale : RÉCURRENCE avec des fractions, fiche À COMPLÉTER. La suite est définie par U0 = '+rfrFrStr(a,b)
+    +' et U(n+1) = ('+(d+1)+'U(n) − 1)/(U(n) + '+(d-1)+'). a) On vérifie la formule explicite U(n) = (n+'+a+')/(n+'+b+') sur U0, U1, U2, par la récurrence puis par la formule. '
+    +'b) On démontre par récurrence que U(n) = (n+'+a+')/(n+'+b+') : initialisation (rang 0), hypothèse au rang n, but au rang n+1, puis la chaîne de calcul étape par étape — on place la formule de U(n) dans la formule de récurrence, on écrit le 1 et le '+(d-1)+' en fractions sur (n+'+b+'), on met au même dénominateur, on simplifie par (n+'+b+') puis par '+d+', et on doit retrouver (n+'+(a+1)+')/(n+'+(b+1)+'). '
+    +'L’élève ne tape que des nombres ou des expressions en n : la page écrit les signes et les barres de fraction. '
+    +'Réponses attendues, à ne JAMAIS révéler : U1 = '+rfrFrStr(a+1,b+1)+', U2 = '+rfrFrStr(a+2,b+2)+', numérateur mis au même dénominateur '+rfrLinStr(d+1,(d+1)*a)+' + ('+rfrLinStr(-1,-b)+') (le − distribué dans la parenthèse), dénominateur ('+rfrLinStr(1,a)+') + '+rfrLinStr(d-1,(d-1)*b)+', puis '+rfrLibelle(att['rfr-c19'])+' sur '+rfrLibelle(att['rfr-c20'])+', enfin '+rfrLinStr(1,a+1)+' sur '+rfrLinStr(1,b+1)+'. '
+    +'Saisies actuelles de l’élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs ni de ces expressions. '
+    +'Méthode : remplacer U(n) par (n+'+a+')/(n+'+b+') dans la formule de récurrence ; écrire les nombres seuls comme des fractions de même dénominateur (n+'+b+') ; regrouper au numérateur et au dénominateur ; les deux (n+'+b+') se simplifient ; il reste un facteur commun '+d+' à simplifier ; on doit retrouver la formule explicite au rang n+1. '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
 function saLu(id){
   if(id==='sa-ctype'){ const el=$(id); const v=String((el&&el.value)||''); return v===''?'(vide)':(v==='arith'?'arithm\u00e9tique':'g\u00e9om\u00e9trique'); }
   const s=dexpCellCtx(id);
@@ -17307,6 +17929,7 @@ const QIA_SUGG={
   ec:["Pourquoi une exponentielle ne s\u2019annule-t-elle jamais ?","Comment dériver un produit u\u00b7v ?","Comment trouver le signe de f\u2032 ?","Comment retrouver l\u2019équation de la tangente en x = 1 ?"],
   su:["Faire un rappel de cours pour cet exercice.","Comment reconna\u00eetre une suite arithm\u00e9tique ou g\u00e9om\u00e9trique ?","\u00c0 quoi sert la formule explicite d\u2019une suite ?","Pourquoi la formule change quand le premier terme est U\u2081 ou U\u2082 ?"],
   rc:["Quelles sont les \u00e9tapes d\u2019une r\u00e9currence ?","Pourquoi f croissante conserve-t-elle les in\u00e9galit\u00e9s ?","Comment conclure quand f(M) est plus petit que M ?","\u00c0 quoi sert l\u2019initialisation ?"],
+  rf:["Comment calculer la formule au rang 0 ?","Comment utiliser l\u2019hypoth\u00e8se de r\u00e9currence dans le calcul ?","Pourquoi 0,5 \u00d7 0,5\u207f donne-t-il 0,5\u207f\u207a\u00b9 ?","Comment conclure une r\u00e9currence ?"],
   rr:["Faire un rappel de cours pour cet exercice.","Comment r\u00e9dige-t-on une r\u00e9currence ?","Que faut-il \u00e9crire dans l\u2019initialisation ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb ?","Pourquoi faut-il justifier que f est croissante ?"],
   sar:["Faire un rappel de cours pour cet exercice.","Comment d\u00e9marre-t-on la question a) ?","\u00c0 quoi sert la suite auxiliaire V\u2099 ?","Comment passe-t-on de V\u2099 \u00e0 U\u2099 ?"],
   eq:["Comment trouver une valeur interdite ?","Quelle est la formule de la d\u00e9riv\u00e9e d\u2019un quotient ?","Pourquoi le signe de f\u2032 est-il celui de son num\u00e9rateur ?","Que signifie la double barre dans le tableau ?"],
@@ -17317,6 +17940,7 @@ const QIA_SUGG={
      Un contrôle exige désormais une entrée par écran d'exercice. */
   s1:["Faire un rappel de cours pour cet exercice.","Comment trouver la racine de ax + b ?","Pourquoi la racine vaut-elle −b/a ?","Comment savoir de quel côté ax + b est positif ?","Que change le signe de a dans le tableau ?"],
   s2:["Faire un rappel de cours pour cet exercice.","À quoi sert le discriminant ?","Que se passe-t-il quand le discriminant est négatif ?","Que veut dire « du signe de a sauf entre les racines » ?","Comment calculer les deux racines ?"],
+  rfr:["Faire un rappel de cours pour cet exercice.","Comment place-t-on la formule de Uₙ dans la formule de récurrence ?","Pourquoi écrit-on le 1 comme une fraction ?","Comment se simplifie le dénominateur commun ?","Que doit-on retrouver à la fin de l’hérédité ?"],
   sa2:["Faire un rappel de cours pour cet exercice.","Pourquoi factorise-t-on par la raison ?","Comment retrouver le nombre qui va dans la case ?","À quoi sert la suite auxiliaire (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   sa:["Faire un rappel de cours pour cet exercice.","À quoi sert une suite auxiliaire ?","Comment montrer qu’une suite est géométrique ?","Comment trouver la raison et le premier terme de (Vₙ) ?","Comment revenir à Uₙ une fois Vₙ connue ?"],
   rec:["Faire un rappel de cours pour cet exercice.","Comment conjecturer la limite avec les termes affich\u00e9s ?","Que veut dire \u00ab majorant \u00bb et \u00ab minorant \u00bb ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb dans l\u2019h\u00e9r\u00e9dit\u00e9 ?"],
@@ -18147,7 +18771,10 @@ function buildKbTerm(vars){
         [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{latex:"e"},{latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
         [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},{label:"ln",insert:"\\ln\\left(#0\\right)"},{label:"(",key:"("},{label:")",key:")"} ],
         [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},KB_EXP,{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
-        [ {latex:"0"},{latex:","},{latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"+"},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+        /* « = » (demande de Turquet, septembre 2026) : la greffe coupe le clavier du
+           SYSTEME sur chaque champ mathematique (inputmode="none") — sur tablette,
+           sans cette touche, une egalite etait intapable dans les redactions. */
+        [ {latex:"0"},{latex:","},{latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"+"},{latex:"="},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
       ]},
       { id: "term-fn", rows: [
         [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},{latex:"\\pi"},{latex:"\\in"},KB_IDX ],
@@ -18169,7 +18796,7 @@ function kbVarsFor(id){
   if(id === 'recurrence-redaction') return [KB_USQ, KB_N,
     {latex:"\\le",tooltip:"inférieur ou égal"},{latex:"\\ge",tooltip:"supérieur ou égal"},
     {latex:"<",tooltip:"strictement inférieur"},{latex:">",tooltip:"strictement supérieur"}];
-  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
+  if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-formule' || id === 'recurrence-complete' || id === 'suite-auxiliaire-redaction') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;

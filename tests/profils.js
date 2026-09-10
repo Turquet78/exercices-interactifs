@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
    d'ensembles, qui partagent le kind 'ens'. */
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
-               'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','construire-fonction':'cfx','pourcentage':'pct',
+               'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','choisir-tableau-variation':'vtq','maximum-minimum':'mmx','maximum-minimum-tableau':'mmt','tableau-equations':'tve','tableau-vrai-faux':'tvf','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','construire-fonction':'cfx','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
@@ -505,10 +505,36 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'construire-fonction'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'construire-fonction'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
+    /* {signes-variations-grand} : trois graphiques, un par forme du tableau de
+       variation (2, 3 et 4 segments — demande de Turquet, septembre 2026), et
+       le tableau à quatre segments (617 px) doit TENIR dans sa carte : dans
+       celle de 600 px il se cachait derrière le défilement du .lv-tblwrap, la
+       borne et la dernière case coupées. Seul un navigateur mesure un tableau
+       rendu contre son cadre. */
+    grandsTableaux: { exercice: 'signes-variations-grand', corps: 'gsvBody', rendu: 'renderGSV', formes: [2, 3, 4] },
+    /* {maximum-minimum} : le grand dessin doit rester LISIBLE et
+       « … ≤ f (x) ≤ … » tenir d'un seul tenant — un repli entre les deux
+       cases se lirait comme deux morceaux de phrase. Seul un navigateur
+       mesure une largeur rendue et un repli. */
+    maxMin: { exercice: 'maximum-minimum' },
+    /* {maximum-minimum-tableau} : le tableau se lit — il doit tenir dans sa
+       carte, et ses valeurs RENDUES monter avec leurs flèches. jsdom lit un
+       « top » écrit ; seul un navigateur voit où la valeur tombe. */
+    maxMinTableau: { exercice: 'maximum-minimum-tableau' },
+    /* {tableau-equations} : l'union « S = [ ; ] ∪ [ ; ] » à huit cases doit
+       se lire d'un seul tenant — coupée en deux, elle se lit comme deux
+       solutions — et sans défilement à la largeur d'un écran d'ordinateur.
+       Seul un navigateur sait où une rangée se replie. */
+    tableauEquations: { exercice: 'tableau-equations' },
+    /* {tableau-vrai-faux} : chaque affirmation — texte, Vrai/Faux, sens,
+       intervalle — se lit d'un seul tenant sur SA rangée ; coupée en deux,
+       la justification se lirait sans son affirmation. Seul un navigateur
+       sait où une rangée se replie. */
+    tableauVraiFaux: { exercice: 'tableau-vrai-faux' },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
@@ -596,6 +622,12 @@ module.exports = {
        d'espace qui doit SORTIR d'un indice, et l'encre RÉSOLUE du bilan. */
     recurrenceRedigee: { exercice: 'recurrence-redaction' },
     suiteAuxRedigee: { exercice: 'suite-auxiliaire-redaction' },
+    /* La RÉCURRENCE EN FRACTIONS (6.10) : des fractions IMBRIQUÉES à cases,
+       que seul un navigateur sait dessiner — la barre extérieure doit
+       envelopper les barres intérieures, aucune rangée ne doit défiler, et
+       les cases doivent grandir sous « 3n+9 ». Le banc TAPE la copie de la
+       fiche pour de vrai avant de relire la note. */
+    recurrenceFractions: { exercice: 'recurrence-fractions' },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même
