@@ -2336,7 +2336,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=291;
+const APP_VERSION=292;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -10997,6 +10997,38 @@ function rcConseilCtx(){
    +'Tu peux lui rappeler qu\u2019il trouve le cours complet avec le bouton \u00ab Voir le rappel de cours \u00bb de cette fen\u00eatre. '
    +'Aide-le sur la PREMI\u00c8RE case fausse ou vide, sans donner la r\u00e9ponse.';
 }
+/* ===== LA TOUCHE MORTE « ^ » DU CLAVIER AZERTY (signalé par Turquet sur le 6.6,
+   septembre 2026 : « quand je tape ^n il rajoute le signe intersection ») =====
+   Sur un clavier AZERTY, « ^ » est une touche MORTE : le navigateur ne livre
+   pas une frappe, il livre du TEXTE composé (« ^ », « ^n », ou « ˆ » U+02C6
+   selon le système). MathLive ne passe alors jamais par son raccourci
+   exposant : il AVALE le « ^ » — la suite s'écrit sur la ligne, faux sans rien
+   montrer — ou GARDE le « ˆ » tel quel, le chapeau que l'élève lit comme un
+   signe ∩. Sondé sur du vrai MathLive : seul `beforeinput` (annulable) porte
+   ce texte AVANT traitement. On remplace donc le geste : le texte avant le
+   chapeau s'insère tel quel, puis un vrai exposant (insert('^{#?}') — le
+   curseur tombe dedans), puis la suite. ON NE TOUCHE QU'AU TEXTE TAPÉ NU :
+   les dispatchs internes de MathLive portent « #@^{#?} » et des accolades —
+   les intercepter doublerait l'exposant de la frappe directe QWERTY, qui
+   marche déjà (sondé aussi). Une case verrouillée reste figée. Le geste vaut
+   pour TOUT champ mathématique de la page — les dérivées tapent x^2 avec la
+   même touche morte — et le gestionnaire est NOMMÉ : le banc jsdom l'éprouve
+   sur un champ factice, le banc navigateur tape pour de vrai. */
+function chapeauMorte(e){
+  const t=e.target;
+  if(!t || t.tagName!=='MATH-FIELD' || t.readOnly) return;
+  if(e.inputType!=='insertText' && e.inputType!=='insertCompositionText') return;
+  const d=String(e.data==null?'':e.data);
+  if(!/[\^ˆ]/.test(d) || /[#{}\\]/.test(d)) return;   /* du texte tapé nu, jamais un dispatch interne */
+  e.preventDefault(); e.stopImmediatePropagation();
+  const parts=d.split(/[\^ˆ]+/);
+  try {
+    if(parts[0]) t.insert(parts[0]);
+    t.insert('^{#?}');                                 /* le curseur tombe dans l'exposant */
+    for(let i=1;i<parts.length;i++) if(parts[i]) t.insert(parts[i]);
+  } catch(err){}
+}
+document.addEventListener('beforeinput', chapeauMorte, true);
 /* ===== 6.6 RÉCURRENCE — DÉMONTRER UNE FORMULE EXPLICITE (fiche « Exercice 4 »,
    demande de Turquet, septembre 2026) =====
    On donne U0 et U_{n+1} = aU_n + b, et la FORMULE U_n = k ± a^n : l'élève la
@@ -11174,6 +11206,13 @@ function rfLiveMf(id){
     if(String(raw).trim()!=='') el.classList.add(rfOkCase(q,x,raw)?'ok':'bad');   /* la case vidée redevient neutre */
   },0);
 }
+/* Le badge de correction écrit l'exposant RENDU, jamais « ^(n+1) » en toutes
+   lettres : la correction d'un exercice sur les puissances se lit en écriture
+   mathématique (signalé par Turquet, septembre 2026). Pas de LaTeX — un
+   exposant n'empile rien, un <sup> suffit. */
+function rfCorHTML(plain){
+  return esc(plain).replace(/\^\(([^)]+)\)/g,'<sup>$1</sup>');
+}
 /* Révélation d'une case math : la convention commune — le rouge GARDE la saisie
    et la bonne réponse s'affiche à côté ; la case vide est remplie en sol. */
 function rfReveal(id, latex, plain, ok, vide){
@@ -11184,7 +11223,7 @@ function rfReveal(id, latex, plain, ok, vide){
   else {
     el.classList.add('bad');
     if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
-      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+esc(plain)+'</span>');
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+rfCorHTML(plain)+'</span>');
   }
   el.readOnly=true;
 }

@@ -622,6 +622,10 @@ module.exports = {
        d'espace qui doit SORTIR d'un indice, et l'encre RÉSOLUE du bilan. */
     recurrenceRedigee: { exercice: 'recurrence-redaction' },
     suiteAuxRedigee: { exercice: 'suite-auxiliaire-redaction' },
+    /* La touche morte « ^ » d'AZERTY (signalée par Turquet sur le 6.6) : le
+       gestionnaire chapeauMorte vit en Terminale — seul niveau où l'élève
+       TAPE des exposants — et seul un vrai MathLive voit le texte composé. */
+    chapeauMorte: { exercice: 'recurrence-formule' },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même
