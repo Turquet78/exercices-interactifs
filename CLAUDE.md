@@ -4527,6 +4527,50 @@ on vise le TITRE de la partie d), et la dérivée cherchée dans tout l'attendu
 non plus (la moitié « autre ordre » la portait encore — on exige chaque
 moitié).
 
+**L'étude de la fiche, menée au TVI : la solution α et le signe.**
+{tvi-alpha-signe} (Terminale, demande de Turquet, septembre 2026, repris de
+la fiche « Exercice 2 : Étude de f(x) = (x + 2)e⁻ˣ ») ferme le thème TVI :
+c'est la fiche MÊME du 5.5 (a = 1, b = 2), menée cette fois jusqu'au TVI —
+a) conjecturer les limites en ±∞ et l'asymptote sur la COURBE, b) démontrer
+f′(x) = (−x − 1)e⁻ˣ (la cible est révélée, la route est notée — la forme de
+{tangente-exp}), c) le tableau de signes et de variations du 5.3, d) le
+maximum M = e, e) f(x) = 0 admet une UNIQUE solution α sur la branche
+monotone — les mots du 4.1 (« continue », « strictement croissante »,
+« TVI », « unique ») —, α à la calculatrice, f) en déduire le tableau de
+SIGNE de f, α en tête.
+**Tout est repris, rien n'est recopié** : le tirage est `genECCase()` — le
+générateur MÊME du 5.5 —, l'arithmétique `ecAns()`, le tableau
+`ecTab()`/`efTableHTML`/`efArrowChange`, la courbe `ecGraphSVG()`, la lecture
+des limites `lgLimOK()` du 3.2 (« inf » accepté), l'expression de la dérivée
+`checkExprFn()` (toute écriture égale — « −(x+1) » vaut « −x−1 »), la
+correction `corrCase()` et la phrase `msgCorrCouleurs()`. La séance montre
+les DEUX visages, a = 1 et a = −1, chacun UNE fois en ordre mélangé, b jamais
+le même — sans quoi l'élève apprendrait que le signe de f est toujours
+« − puis + ». La bonne réponse n'est jamais rangée à côté de la question :
+elle ne porte que (a, b), et le contrôle REFAIT l'arithmétique par ses
+propres moyens — f numérique, dérivée par différence finie, e de Math :
+f(−b) = 0 exactement, la stricte monotonie de la branche, M = a·e^(b−1), les
+limites et les signes attendus comparés à la fonction même.
+**La fiche se contredit — « f(x) = 0 » dans le titre de son e), « f(x) = 1 »
+au milieu — et c'est f(x) = 0 qui est tenu** : le f) ne se déduit de α que si
+f(α) = 0, et α = −b tombe alors sur un entier, que la calculatrice confirme
+au lieu de le contredire.
+**Un QUATRIÈME écran partage les ids ef-*, et jsdom a montré le piège avant
+le navigateur** : dans un vrai navigateur l'ordre du document protégeait les
+trois écrans amont du nouveau venu (posé en dernier), mais le cache d'id de
+jsdom rend l'élément créé en PREMIER — le contrôle du 5.4 s'est mis à peindre
+les cases du 4.6 restées dans leur hôte. Les hôtes se vident désormais
+SYMÉTRIQUEMENT : chacun des quatre rendus vide les trois autres, et le
+contrôle sème un fantôme pour l'exiger. Onze sabotages jsdom, chacun
+rougissant en nommant son défaut — dont un d'abord à l'ancre NON UNIQUE (la
+ligne de la case vide vit aussi dans `checkRF` : un sabotage se pose sur une
+ancre PROPRE à sa cible, la leçon retombée telle quelle). Le banc NAVIGATEUR
+(« 6 vicies ter », déclaré par `alphaSigne`) tient ce que jsdom ne voit pas :
+les flèches du tableau DESSINÉES à une taille lisible, la page qui ne déborde
+pas, et le bouton ∞ réellement CLIQUÉ — il écrit dans la case et lève
+`input`, la doctrine du bouton mort — avec deux sabotages à lui, jsdom
+restant vert à bon droit sur chacun.
+
 **Un exercice de devoir montre d'abord son énoncé — et le papier est un choix.**
 En Terminale, un exercice lancé depuis un devoir affiche D'ABORD l'énoncé
 complet, toutes les questions, puis demande : sur papier, ou sur l'ordinateur

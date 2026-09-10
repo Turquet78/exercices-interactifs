@@ -3974,6 +3974,64 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies ter. LE 4.6 : LE TABLEAU RENDU, LES FLÈCHES ET LE BOUTON ∞ ===== */
+    /* L'étude menée au TVI réutilise le tableau du 5.3 (ids ef-*) : jsdom lit
+       les classes, seul un navigateur voit les flèches DESSINÉES à une taille
+       lisible et une page qui déborde. Et le bouton ∞ se juge à la doctrine du
+       bouton mort : on le CLIQUE pour de vrai — il doit écrire ∞ dans la case
+       ET lever l'événement input, sans quoi la correction en direct du soutien
+       ne verrait jamais la frappe. */
+    titre('6 vicies ter. LE 4.6 : LE TABLEAU RENDU, LES FLÈCHES ET LE BOUTON ∞');
+    if(!P.alphaSigne){
+      ignorer('le 4.6 : le tableau du 5.3 se dessine, la page ne déborde pas',
+        'ce niveau n\'a pas l\'étude menée au TVI');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.alphaSigne.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(700);
+      /* la question est ÉPINGLÉE sur la fiche même (a = 1, b = 2) */
+      await s.page.evaluate(() => { test.questions = [{ a: 1, b: 2 }, { a: -1, b: 3 }]; test.idx = 0; test.score = 0; test.answers = []; renderASG(); });
+      await s.page.waitForTimeout(400);
+      /* le bouton ∞, cliqué pour de vrai */
+      await s.page.evaluate(() => { window.__asgInput = 0; document.getElementById('asg-lb').addEventListener('input', () => { window.__asgInput++; }); });
+      await s.page.click('#asg-lb + button.lg-inf');
+      await s.page.waitForTimeout(150);
+      const inf = await s.page.evaluate(() => ({ v: document.getElementById('asg-lb').value, ev: window.__asgInput }));
+      verifier('le 4.6 : le bouton ∞ écrit dans la case et lève input',
+        inf.v.indexOf('∞') >= 0 && inf.ev > 0,
+        'valeur ' + JSON.stringify(inf.v) + ', ' + inf.ev + ' événement(s) input');
+      /* la copie de la fiche, remplie depuis l'attendu de la page, puis le CLIC */
+      await s.page.evaluate(() => {
+        const q = test.questions[0];
+        asgCases(q).forEach(x => { const el = document.getElementById(x.id); if (el) el.value = String(asgVal(q, x)); });
+        efArrowChange();   /* poser une valeur par script ne lève pas onchange */
+      });
+      await s.page.click('#asgActions .btn-primary');
+      await s.page.waitForTimeout(400);
+      const vu = await s.page.evaluate(() => {
+        const oks = document.querySelectorAll('#asgForm .ok').length, bads = document.querySelectorAll('#asgForm .bad').length;
+        const ov = document.getElementById('ef-var-ov');
+        const fleches = ov ? [...ov.querySelectorAll('path,line,polygon')].filter(e => { try { const r = e.getBBox(); return r.width > 4 || r.height > 4; } catch (err) { return false; } }).length : 0;
+        const ovr = ov ? ov.getBoundingClientRect() : { width: 0, height: 0 };
+        const page = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+        return { oks, bads, score: test.score, locked: test.locked, fleches, ovW: Math.round(ovr.width), ovH: Math.round(ovr.height), page };
+      });
+      verifier('le 4.6 : la copie de la fiche remplie vaut le point — 35 cases au vert',
+        vu.oks === 35 && vu.bads === 0 && vu.score === 1 && vu.locked,
+        vu.oks + ' ok, ' + vu.bads + ' bad, note ' + vu.score + (vu.locked ? '' : ', écran non verrouillé'));
+      verifier('le 4.6 : les flèches du tableau sont DESSINÉES à une taille lisible',
+        vu.fleches >= 2 && vu.ovW > 200 && vu.ovH > 60,
+        vu.fleches + ' flèche(s) dessinée(s), bande ' + vu.ovW + '×' + vu.ovH + ' px');
+      verifier('le 4.6 : la page ne déborde pas',
+        !vu.page, 'la page défile horizontalement');
+      verifier('l\'étude menée au TVI ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
     /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
        l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui
