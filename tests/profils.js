@@ -622,6 +622,12 @@ module.exports = {
        d'espace qui doit SORTIR d'un indice, et l'encre RÉSOLUE du bilan. */
     recurrenceRedigee: { exercice: 'recurrence-redaction' },
     suiteAuxRedigee: { exercice: 'suite-auxiliaire-redaction' },
+    /* La RÉCURRENCE EN FRACTIONS (6.10) : des fractions IMBRIQUÉES à cases,
+       que seul un navigateur sait dessiner — la barre extérieure doit
+       envelopper les barres intérieures, aucune rangée ne doit défiler, et
+       les cases doivent grandir sous « 3n+9 ». Le banc TAPE la copie de la
+       fiche pour de vrai avant de relire la note. */
+    recurrenceFractions: { exercice: 'recurrence-fractions' },
     coursPdf: { table: 'parametres' },
     /* Les deux exercices d'origine, retirés du menu mais gardés dans TESTS :
        des notes portent encore leur identifiant, et testIdOf() y renvoie même

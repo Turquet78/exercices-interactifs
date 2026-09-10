@@ -5114,6 +5114,84 @@ défaut — l'acceptation forcée malgré l'invérifiable, les puissances
 débranchées (la copie de la fiche même retombe en abstention : un contrôle
 qui n'a rien à mesurer le dit), les mots qui ne coupent plus.
 
+**La récurrence en FRACTIONS : la fiche à compléter, et une famille dont
+l'identité se prouve en entiers.** {recurrence-fractions} (Terminale, 6.10,
+demande de Turquet, septembre 2026 — « un exercice comme le pdf ») est
+repris de la fiche « récurrence et fractions », Exemple 2 : U₀ = 3,
+Uₙ₊₁ = (3Uₙ − 1)/(Uₙ + 1), et il faut montrer Uₙ = (n+3)/(n+1). a) On
+VÉRIFIE la formule sur U₀, U₁, U₂ par les deux voies — la récurrence, puis
+la formule explicite : les mêmes trois valeurs, deux fois. b) On DÉMONTRE
+par récurrence en complétant la fiche : le rang du départ, l'initialisation
+avec sa vérification chiffrée, l'hypothèse, le but, puis la CHAÎNE de la
+fiche — six étapes, une par ligne, les « = » alignés dans la colonne du 6.3
+(`.sa2-eq`) — avec ses six repères (1) à (6) en légende. L'élève ne tape que
+des nombres et des expressions en n ; la page écrit les signes, les barres
+de fraction et les coefficients de la récurrence. Trente-sept cases par
+question, deux questions par séance. Son préfixe est `rfr` (kind `rfr`,
+`#scr-rfr`, `startRFR`…) et non `rf` : {recurrence-formule}, arrivé sur
+`main` le même jour par une autre branche, porte déjà `rf` — deux exercices
+sous un même préfixe se seraient marché dessus (kind, écran, rappel,
+questions), sans qu'aucune erreur ne le dise.
+**La famille est CHOISIE pour que la fiche reste vraie, et l'identité se
+prouve** : Uₙ = (n+a)/(n+b), avec d = a − b dans {2, 3, 4}, b dans {1, 2, 3}
+et a, b premiers entre eux — six couples, dont celui de la fiche. La
+récurrence est alors Uₙ₊₁ = ((d+1)Uₙ − 1)/(Uₙ + d − 1), et elle CONSERVE la
+formule explicite : ((d+1)(n+a) − (n+b)) / ((n+a) + (d−1)(n+b)) =
+(dn + d(a+1)) / (dn + d(b+1)) = (n+a+1)/(n+b+1). Sans cette identité, la
+chaîne de l'énoncé serait fausse avant que l'élève ne commence — la leçon
+du 6.3 — et le contrôle la REFAIT en produits croisés d'entiers, pour n de 0
+à 6, sur chaque tirage, plutôt que de faire confiance au générateur. Le
+tirage impose deux d DISTINCTS par séance : à d égal, la chaîne serait la
+même à un nombre près. La question ne porte que a et b ; `rfrAttendu`
+recalcule tout, et le contrôle refuse tout autre champ. Et l'énoncé AFFICHÉ
+est comparé à celui que la correction suppose — un δ faux à l'écran ferait
+mentir l'énoncé sans qu'aucune correction ne bronche.
+**Deux juges, et une règle des paires.** Un NOMBRE (`rfrNb`) se lit entier,
+décimal ou fraction, et se compare EXACTEMENT — « 1,67 » n'est pas 5/3,
+« 10/6 » l'est. Une EXPRESSION en n (`rfrLin`) se juge comme une FONCTION :
+évaluée en n = 0, 1, 2, elle doit être affine, et « 3(n+3) », « n + 1 + 3 »,
+« 3+n » valent leurs jumelles — toute écriture égale est acceptée, comme
+partout — quand « n^2 » n'est pas lu et « n·n + 3 » n'est pas affine. Les
+caractères sont BORNÉS (chiffres, n, + − × ( )) : rien d'autre ne s'évalue.
+L'avant-dernière étape est une PAIRE À FACTEUR LIBRE — (2n+8)/(2n+4) sur la
+fiche, mais un élève qui simplifie par 2 un cran plus tôt écrit
+(n+4)/(n+2), et il a raison : chaque case se juge sur sa PROMESSE (être
+proportionnelle à l'expression attendue), puis les deux doivent partager
+leur facteur — « n+4 » sur « 2n+4 » sont chacune défendables et fausses
+ensemble, la règle des paires de {somme-fractions}. Une case seule qui
+promet est juste, sa jumelle vide reçoit la correction.
+**Tout le reste est celui du 6.3, repris et non recopié** : les cases
+`sa2-in` qui grandissent sous la frappe (`sa2Ajuster`), les fractions
+`sa2Frac` — IMBRIQUÉES ici, une fraction dont le haut et le bas sont des
+fractions à cases —, la correction `corrCase` avec la bonne réponse en vert
+à côté de la case fausse (et la case vide en `sol`, jamais rouge, en
+soutien comme à la vérification), la phrase des couleurs `msgCorrCouleurs`,
+la note par `ptsExo` (un point par question, les cases justes comptées
+dans la note affichée). Le contexte du modèle nomme la méthode et déclare
+les réponses STRICTEMENT SECRÈTES.
+**Deux bancs.** Le PRINCIPAL tient le tirage, la fiche épinglée (U₀ = 3 :
+U₂ = 5/3, « 3n+9 », « 2n+8 » sur « 2n+4 »…), la structure, la copie vide,
+la copie juste, les écritures égales, les refus, la paire, le soutien, la
+case qui grandit et les branchements. Le NAVIGATEUR (« 6 vicies bis »,
+déclaré par `recurrenceFractions` dans `tests/profils.js`) tient ce que
+jsdom ne voit pas : la barre EXTÉRIEURE d'une fraction imbriquée doit
+envelopper les barres intérieures — trop courte, elle se lirait comme deux
+fractions côte à côte —, aucune rangée de la chaîne ne défile, la case
+grandit sous « 3n+9 » tapé pour de vrai, et la copie de la fiche TAPÉE case
+par case, puis « Vérifier » cliqué, vaut le point. Vingt sabotages au banc
+principal, chacun rougissant en nommant son défaut — et l'un d'eux a d'abord
+frappé le VOISIN : la ligne « if(!ok) allOk=false; verd[id]=ok » est la
+même, au caractère près, dans `checkSA2` du 6.3, et le remplacement de la
+première occurrence a saboté le 6.3 pendant que le contrôle du 6.10 restait
+vert à bon droit — un sabotage se pose sur une ancre PROPRE à sa cible, la
+leçon d'{antecedents-droite}, retombée telle quelle. Un autre n'a d'abord
+rien trouvé à saboter : la légende de la fiche s'écrit avec une espace
+INSÉCABLE devant son « ! », et une ancre tapée à l'espace ordinaire ne la
+désigne pas. Deux sabotages de plus ne rougissent QU'AU NAVIGATEUR — la
+case qui ne grandit plus sous la frappe (« 57 px → 57 px, texte coupé »),
+et la barre extérieure raccourcie (« 6 barres trop courtes, de 56 px ») —
+jsdom restant vert à bon droit sur l'un comme sur l'autre.
+
 **Huit écrans de la Terminale n'offraient aucun bouton pour le clavier
 mathématique.** Les cinq dérivées, le 3.5, le 5.3 et le 6.1 — signalé par
 Turquet en août 2026 : chaque famille d'exercices posait sa rangée de jetons

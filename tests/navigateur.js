@@ -3746,6 +3746,93 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies bis. {recurrence-fractions} : des fractions IMBRIQUÉES à cases ===== */
+    /* Le 6.10 pose la chaîne de la fiche « récurrence et fractions » — une
+       fraction dont le numérateur et le dénominateur sont eux-mêmes des
+       fractions à cases. Le banc jsdom tient le tirage, la fiche et les deux
+       juges ; ce qu'il ne voit pas : la barre EXTÉRIEURE qui doit envelopper
+       les barres intérieures (une barre trop courte se lit comme deux
+       fractions côte à côte), une rangée de la chaîne qui DÉFILERAIT, et la
+       case qui doit grandir sous « 3n+9 ». Puis le banc TAPE la copie de la
+       fiche pour de vrai, case par case, et clique « Vérifier » : la note se
+       lit sur ce que le bouton enregistre. */
+    titre('6 vicies bis. LA RÉCURRENCE EN FRACTIONS : LES BARRES IMBRIQUÉES ET LA COPIE TAPÉE');
+    if(!P.recurrenceFractions){
+      ignorer('le 6.10 : la barre extérieure enveloppe les barres intérieures, rien ne défile',
+        'ce niveau n\'a pas l\'exercice de récurrence en fractions');
+      ignorer('le 6.10 : la copie de la fiche tapée pour de vrai vaut le point',
+        'ce niveau n\'a pas l\'exercice de récurrence en fractions');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.recurrenceFractions.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* la question est ÉPINGLÉE sur le cas de la fiche (a = 3, b = 1) : la
+         copie tapée doit coller à l'énoncé tiré */
+      await s.page.evaluate(() => { test.questions = [{ a: 3, b: 1 }, { a: 5, b: 2 }]; test.idx = 0; test.score = 0; test.answers = []; renderRFR(); });
+      await s.page.waitForTimeout(500);
+      const mesurer = () => s.page.evaluate(() => {
+        const cases = [...document.querySelectorAll('#scr-rfr input.rfr-in')];
+        const visibles = cases.filter(e => { const r = e.getBoundingClientRect(); return r.width > 10 && r.height > 10; }).length;
+        const rows = [...document.querySelectorAll('#rfrPartA .sa2-row, #rfrPartB .sa2-row')];
+        const defile = rows.filter(r => r.scrollWidth > r.clientWidth + 1).length;
+        /* chaque fraction IMBRIQUÉE : la barre du dehors doit couvrir, à
+           gauche comme à droite, chaque barre du dedans */
+        const imbriquees = [...document.querySelectorAll('.rfr-chaine .sa2-frac')].filter(f => f.querySelector('.sa2-frac'));
+        const ecarts = imbriquees.map(f => {
+          const barre = f.querySelector(':scope > .bar'), B = barre.getBoundingClientRect();
+          return [...f.querySelectorAll('.sa2-frac .bar')].filter(b => b !== barre).map(b => { const r = b.getBoundingClientRect(); return Math.round(Math.max(B.left - r.left, r.right - B.right)); });
+        }).flat();
+        return { n: cases.length, visibles, rows: rows.length, defile, imbriquees: imbriquees.length,
+                 barreCourte: ecarts.filter(x => x > 1).length, pire: ecarts.length ? Math.max(...ecarts) : null,
+                 page: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 };
+      });
+      const vu = await mesurer();
+      verifier('le 6.10 : les trente-sept cases sont rendues et visibles, la chaîne a ses six rangées',
+        vu.n === 37 && vu.visibles === 37 && vu.rows >= 8, vu.n + ' case(s), ' + vu.visibles + ' visible(s), ' + vu.rows + ' rangée(s)');
+      verifier('le 6.10 : la barre extérieure enveloppe les barres intérieures, rien ne défile',
+        vu.imbriquees >= 2 && vu.barreCourte === 0 && vu.defile === 0 && !vu.page,
+        vu.imbriquees + ' fraction(s) imbriquée(s), ' + vu.barreCourte + ' barre(s) trop courte(s)' + (vu.pire !== null && vu.pire > 1 ? ' (de ' + vu.pire + ' px)' : '') + ', ' + vu.defile + ' rangée(s) qui défile(nt)' + (vu.page ? ', la page déborde' : ''));
+      /* la case GRANDIT : « 3n+9 » tapé pour de vrai dans la case du
+         numérateur regroupé, mesurée avant et après */
+      const avant = await s.page.$eval('#rfr-c13', e => e.getBoundingClientRect().width);
+      await s.page.click('#rfr-c13');
+      await s.page.keyboard.type('3n+9', { delay: 20 });
+      await s.page.waitForTimeout(200);
+      const apres = await s.page.$eval('#rfr-c13', e => ({ l: e.getBoundingClientRect().width, coupe: e.scrollWidth > e.clientWidth + 1 }));
+      verifier('le 6.10 : la case grandit sous « 3n+9 » et rien n\'est coupé',
+        apres.l > avant + 8 && !apres.coupe, Math.round(avant) + ' px → ' + Math.round(apres.l) + ' px' + (apres.coupe ? ', texte coupé' : ''));
+      /* LA COPIE DE LA FICHE, tapée case par case, puis le CLIC */
+      const copie = await s.page.evaluate(() => {
+        const att = rfrAttendu(test.questions[0]);
+        return RFR_IDS.map(id => { const x = att[id];
+          return [id, x[0] === 'nb' ? rfrFrStr(x[2], x[3]) : x[0] === 'lin' ? rfrLinStr(x[1], x[2]) : rfrLinStr(x[2], x[2] * x[1])]; });
+      });
+      for(const [id, val] of copie){
+        await s.page.fill('#' + id, '');
+        await s.page.click('#' + id);
+        await s.page.keyboard.type(val, { delay: 10 });
+      }
+      await s.page.click('#rfrActions .btn-primary');
+      await s.page.waitForTimeout(500);
+      const bilan = await s.page.evaluate(() => ({
+        ok: document.querySelectorAll('#scr-rfr input.rfr-in.ok').length,
+        bad: document.querySelectorAll('#scr-rfr input.rfr-in.bad').length,
+        score: test.score, locked: test.locked,
+        suivant: (document.querySelector('#rfrActions .btn-primary') || {}).textContent || '' }));
+      const vuC = await mesurer();
+      verifier('le 6.10 : la copie de la fiche tapée pour de vrai vaut le point',
+        bilan.ok === 37 && bilan.bad === 0 && bilan.score === 1 && bilan.locked,
+        bilan.ok + ' ok, ' + bilan.bad + ' bad, note ' + bilan.score + (bilan.locked ? '' : ', écran non verrouillé'));
+      verifier('le 6.10 : une fois vérifiée, la chaîne ne défile toujours pas',
+        vuC.defile === 0 && !vuC.page && vuC.barreCourte === 0, vuC.defile + ' rangée(s) qui défile(nt), ' + vuC.barreCourte + ' barre(s) trop courte(s)');
+      verifier('la récurrence en fractions ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
     /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
        l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui

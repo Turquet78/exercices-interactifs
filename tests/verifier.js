@@ -2687,6 +2687,7 @@ function exercices(suite){
     recurrenceFormule(w, P);
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
+    recurrenceFractions(w, P);
     phraseCouleurs(w);
     antecedentNombre(w, P);
     antecedentsDroite(w, P);
@@ -6971,6 +6972,203 @@ function suiteAuxiliaireCompleter(w, P){
       if(!/suite auxiliaire/i.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
       if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
     }
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* La RÉCURRENCE EN FRACTIONS (Terminale 6.10) : la fiche « récurrence et
+   fractions », case par case. Le risque propre est l'ÉNONCÉ QUI CONTREDIT SA
+   CORRECTION : la chaîne de l'hérédité ne tient que si la récurrence tirée
+   admet bien la formule explicite affichée — le contrôle refait l'identité en
+   ENTIERS sur chaque couple, plutôt que de la supposer (la leçon du 6.3). Puis
+   la fiche est épinglée, la copie juste jouée dans ses écritures ÉGALES, et
+   chaque bord du juge tenu : la paire à facteur libre, l'écriture non affine
+   refusée, la case vide qui ne rougit jamais, en soutien comme à la frappe. */
+function recurrenceFractions(w, P){
+  const present = evaluer(w, "typeof startRFR==='function' && typeof rfrAttendu==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la récurrence en fractions : la fiche, case par case',
+      'ce niveau n\'a pas l\'exercice de la récurrence en fractions');
+    return;
+  }
+  verifierEval(w, 'la récurrence en fractions : la fiche, case par case', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='recurrence-fractions'; test.kind='rfr';
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a; };
+
+    /* ---- 1. LE TIRAGE : deux d distincts, a et b premiers entre eux, la question
+            ne porte que a et b, et l’IDENTITÉ refaite en entiers ---------- */
+    const couples={}; let fiche=0;
+    for(let t=0;t<200;t++){
+      const qs=rfrSession();
+      if(qs.length!==2){ vus.push('tirage : '+qs.length+' question(s) au lieu de 2'); break; }
+      qs.forEach(function(q){
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='a,b') vus.push('la question porte autre chose que a et b : '+cles);
+        const d=q.a-q.b;
+        if(RFR_D.indexOf(d)<0) vus.push('tirage : d = '+d+' hors de {'+RFR_D.join(',')+'}');
+        if(RFR_B.indexOf(q.b)<0) vus.push('tirage : b = '+q.b+' hors de {'+RFR_B.join(',')+'}');
+        if(pgcd(q.a,q.b)!==1) vus.push('tirage : U0 = '+q.a+'/'+q.b+' n’est pas irréductible');
+        couples[q.a+'/'+q.b]=1;
+        if(q.a===3 && q.b===1) fiche++;
+        /* la SECONDE arithmétique : pour n = 0..6, ((d+1)U − 1)/(U + d − 1) avec
+           U = (n+a)/(n+b) vaut (n+1+a)/(n+1+b) — en produits croisés d’entiers */
+        const al=d+1, de=d-1;
+        for(let n=0;n<=6;n++){
+          const A=n+q.a, B=n+q.b;
+          if((al*A-B)*(n+1+q.b)!==(A+de*B)*(n+1+q.a))
+            vus.push('tirage : la récurrence ('+al+'U−1)/(U+'+de+') ne conserve pas U(n) = (n+'+q.a+')/(n+'+q.b+') en n = '+n+' — l’énoncé contredit sa correction');
+        }
+      });
+      if(qs[0].a-qs[0].b===qs[1].a-qs[1].b) vus.push('tirage : les deux questions ont le même d = '+(qs[0].a-qs[0].b));
+    }
+    const nc=Object.keys(couples).length;
+    if(nc<6) vus.push('tirage : '+nc+' couple(s) (a, b) sur 200 séances au lieu de 6 : '+Object.keys(couples).join(' '));
+    if(!fiche) vus.push('tirage : le cas de la fiche (U0 = 3, d = 2) ne sort jamais');
+
+    /* ---- 2. LA FICHE, épinglée : U0 = 3, U(n+1) = (3U−1)/(U+1), U(n) = (n+3)/(n+1) --- */
+    const q={a:3,b:1};
+    const att=rfrAttendu(q);
+    const lib=function(id){ return rfrLibelle(att[id]); };
+    const attendus={'rfr-r1':'2','rfr-r2':'5/3','rfr-i1':'3','rfr-i4':'3','rfr-n0':'0','rfr-h1':'n+3','rfr-h2':'n+1',
+      'rfr-m1':'n+4','rfr-m2':'n+2','rfr-c13':'3n+9','rfr-c14':'n+1','rfr-c16':'n+3','rfr-c17':'n+1',
+      'rfr-c19':'2n+8','rfr-c20':'2n+4','rfr-c21':'n+4','rfr-c22':'n+2'};
+    Object.keys(attendus).forEach(function(id){ if(lib(id)!==attendus[id]) vus.push('la fiche : '+id+' attend « '+lib(id)+' » au lieu de « '+attendus[id]+' »'); });
+    if(Math.abs(att['rfr-r2'][1]-5/3)>1e-9) vus.push('la fiche : U2 vaut '+att['rfr-r2'][1]+' au lieu de 5/3');
+
+    /* ---- 3. LA STRUCTURE de l’écran : 37 cases, la chaîne de la fiche, la légende --- */
+    test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false;
+    show('rfr'); renderRFR();
+    const inputs=document.querySelectorAll('#scr-rfr input.rfr-in');
+    if(inputs.length!==RFR_IDS.length) vus.push('l’écran pose '+inputs.length+' case(s) au lieu de '+RFR_IDS.length);
+    RFR_IDS.forEach(function(id){ if(!document.getElementById(id)) vus.push('case absente : '+id); });
+    const rangs=[...document.querySelectorAll('#rfrPartB .rfr-chaine .sa2-row')];
+    if(rangs.length!==6) vus.push('la chaîne fait '+rangs.length+' rangée(s) au lieu de 6 — une étape par ligne');
+    rangs.forEach(function(r,i){
+      const contenu=[...r.childNodes].filter(function(e){ return !(e.classList&&e.classList.contains('sa2-eq')); })
+        .map(function(e){ return e.textContent||''; }).join('');
+      if(contenu.indexOf('=')>=0) vus.push('rangée '+(i+1)+' de la chaîne : un « = » traîne hors de la colonne des « = »');
+    });
+    if(document.querySelectorAll('#rfrLegende li').length!==6) vus.push('la légende de la fiche n’a pas ses six repères');
+    const tB=(document.getElementById('rfrPartB')||{}).textContent||'';
+    ['Initialisation','suppose','Montrons'].forEach(function(m){ if(tB.indexOf(m)<0) vus.push('la partie b) ne dit pas « '+m+' »'); });
+    const tP=(document.getElementById('rfrPrompt')||{}).textContent||'';
+    if(tP.indexOf('3')<0 || tP.indexOf('U')<0) vus.push('l’énoncé n’écrit pas la suite');
+    /* la récurrence AFFICHÉE est celle que la correction suppose : (3U − 1)/(U + 1)
+       pour la fiche — un δ faux à l’écran ferait mentir l’énoncé avant que
+       l’élève ne commence, et la correction lui donnerait tort sur un calcul juste */
+    { const fr=document.querySelector('#rfrPrompt .sa2-frac');
+      const num=fr?String((fr.querySelector('.num')||{}).textContent||'').replace(/\\s/g,''):'';
+      const den=fr?String((fr.querySelector('.den')||{}).textContent||'').replace(/\\s/g,''):'';
+      if(num!=='3Un−1' || den!=='Un+1') vus.push('l’énoncé affiche la récurrence « '+num+' » sur « '+den+' » au lieu de « 3Un−1 » sur « Un+1 » — l’énoncé contredit sa correction');
+      const rang1=document.querySelector('#rfrPartB .rfr-chaine .sa2-row .sa2-frac');
+      const den1=rang1?String((rang1.querySelector('.den')||{}).textContent||'').replace(/\\s/g,''):'';
+      if(den1!=='Un+1') vus.push('la première rangée de la chaîne n’écrit pas la récurrence de l’énoncé (« '+den1+' »)'); }
+    const hint=(document.querySelector('#rfrPartB .dexp-hint')||{}).textContent||'';
+    if(hint.indexOf('3(n+3)')<0 || hint.indexOf('5/3')<0) vus.push('la consigne ne dit pas comment écrire les cases (fraction, expression en n)');
+
+    /* ---- 4. UNE CASE VIDE NE ROUGIT JAMAIS ------------------------------- */
+    checkRFR();
+    const rougesVide=RFR_IDS.filter(function(id){ return document.getElementById(id).classList.contains('bad'); });
+    if(rougesVide.length) vus.push('copie vide : '+rougesVide.length+' case(s) rougissent — '+rougesVide.slice(0,3).join(', '));
+    if(!/Complète au moins une case/.test((document.getElementById('rfrFeedback')||{}).textContent||''))
+      vus.push('copie vide : le message ne demande pas de compléter');
+    const poser=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
+    const rouges=function(){ return RFR_IDS.filter(function(id){ return document.getElementById(id).classList.contains('bad'); }); };
+    const rejouer=function(){ test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; renderRFR(); };
+
+    /* ---- 5. LA COPIE JUSTE vaut toutes ses cases ------------------------- */
+    rejouer();
+    RFR_IDS.forEach(function(id){ poser(id, lib(id)); });
+    checkRFR();
+    if(rouges().length) vus.push('copie juste : '+rouges().length+' case(s) rougissent — '+rouges().slice(0,4).join(', '));
+    if(test.score!==1) vus.push('copie juste : le point n’est pas accordé (score '+test.score+')');
+    const note=ptsEcran();
+    if(!note || note.justes!==RFR_IDS.length || note.cases!==RFR_IDS.length)
+      vus.push('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de '+RFR_IDS.length+'/'+RFR_IDS.length);
+
+    /* ---- 6. TOUTE ÉCRITURE ÉGALE est acceptée : « 3(n+3) », « n+1+3 », « 8/4 »,
+            « 2(n+4) », les espaces, et la paire écrite RÉDUITE un cran plus tôt --- */
+    rejouer();
+    RFR_IDS.forEach(function(id){ poser(id, lib(id)); });
+    poser('rfr-c13','3(n+3)'); poser('rfr-c21','n + 1 + 3'); poser('rfr-r1','8/4'); poser('rfr-r2','10/6'); poser('rfr-e1','2,0');
+    poser('rfr-c19','2(n+4)'); poser('rfr-c20','2 (n + 2)'); poser('rfr-h1','3+n'); poser('rfr-c17','1(n+1)');
+    checkRFR();
+    if(rouges().length) vus.push('écritures égales refusées : '+rouges().join(', '));
+    if(test.score!==1) vus.push('les écritures égales ne valent pas le point');
+    rejouer();
+    RFR_IDS.forEach(function(id){ poser(id, lib(id)); });
+    poser('rfr-c19','n+4'); poser('rfr-c20','n+2');          /* simplifié par 2 dès l’avant-dernière étape */
+    checkRFR();
+    if(rouges().length) vus.push('la paire déjà réduite (n+4)/(n+2) est refusée : '+rouges().join(', '));
+
+    /* ---- 7. CE QUI EST REFUSÉ : la décimale inexacte, l’écriture non affine,
+            la mauvaise expression, la paire qui ne partage pas son facteur --- */
+    rejouer();
+    RFR_IDS.forEach(function(id){ poser(id, lib(id)); });
+    poser('rfr-r2','1,67'); poser('rfr-h2','n^2'); poser('rfr-h1','n*n+3'); poser('rfr-c13','3n+3');
+    poser('rfr-c19','n+4'); poser('rfr-c20','2n+4');
+    checkRFR();
+    const r7=rouges();
+    ['rfr-r2','rfr-h2','rfr-h1','rfr-c13','rfr-c19','rfr-c20'].forEach(function(id){ if(r7.indexOf(id)<0) vus.push('la case fausse '+id+' n’est pas refusée'); });
+    if(r7.length!==6) vus.push('sur cette copie, '+r7.length+' case(s) rougissent au lieu de 6 : '+r7.join(', '));
+    if(test.score!==0) vus.push('une copie fautive vaut le point');
+    /* la case fausse garde sa saisie, la bonne réponse s’écrit à côté */
+    const el=document.getElementById('rfr-c13');
+    if(String(el.value)!=='3n+3') vus.push('la case fausse a été écrasée : l’élève ne voit plus son erreur');
+    const cor=el.nextElementSibling;
+    if(!cor || !cor.classList || !cor.classList.contains('mf-cor') || cor.textContent!=='3n+9')
+      vus.push('la bonne réponse « 3n+9 » ne s’affiche pas à côté de la case fausse ('+(cor?cor.textContent:'rien')+')');
+    /* la paire à facteur libre : seule, une case qui promet est juste */
+    rejouer();
+    poser('rfr-c19','n+4');
+    checkRFR();
+    if(!document.getElementById('rfr-c19').classList.contains('ok')) vus.push('« n+4 » seul, sans sa jumelle, rougit : la promesse de la paire n’est pas jugée');
+    if(document.getElementById('rfr-c20').classList.contains('bad')) vus.push('la jumelle VIDE de la paire rougit');
+    if(!document.getElementById('rfr-c20').classList.contains('sol') || document.getElementById('rfr-c20').value!=='2n+4')
+      vus.push('la jumelle vide ne reçoit pas la correction « 2n+4 » ('+document.getElementById('rfr-c20').value+')');
+
+    /* ---- 8. EN SOUTIEN : la case vide ne rougit pas, à « Vérifier » comme à la frappe --- */
+    currentMode='soutien';
+    rejouer();
+    poser('rfr-h1','n+3');
+    checkRFR();
+    const videsSoutien=RFR_IDS.filter(function(id){ const e=document.getElementById(id); return String(e.value||'').trim()==='' && e.classList.contains('bad'); });
+    if(videsSoutien.length) vus.push('en soutien, '+videsSoutien.length+' case(s) VIDES rougissent — '+videsSoutien.slice(0,3).join(', '));
+    if(!document.getElementById('rfr-h1').classList.contains('ok')) vus.push('en soutien, la case juste ne verdit pas');
+    if(test.locked) vus.push('en soutien, une copie incomplète verrouille l’écran');
+    rejouer();
+    const cible=document.getElementById('rfr-c21');
+    cible.value='n+4'; cible.dispatchEvent(new Event('input',{bubbles:true}));
+    const videsDirect=RFR_IDS.filter(function(id){ const e=document.getElementById(id); return String(e.value||'').trim()==='' && (e.classList.contains('bad')||e.classList.contains('ok')); });
+    if(videsDirect.length) vus.push('en direct, '+videsDirect.length+' case(s) VIDES se colorent');
+    if(!cible.classList.contains('ok')) vus.push('en direct, la case juste ne verdit pas : la correction du soutien ne suit pas la frappe');
+    currentMode='train';
+
+    /* ---- 9. LA CASE GRANDIT sous « 3n+9 », et la correction réajuste ------ */
+    rejouer();
+    const c1=document.getElementById('rfr-c13');
+    c1.value=''; sa2Ajuster(c1); const vide=parseFloat(c1.style.width)||0;
+    c1.value='3n+9'; sa2Ajuster(c1); const plein=parseFloat(c1.style.width)||0;
+    if(!(plein>vide)) vus.push('la case ne grandit pas sous « 3n+9 » : '+vide+' puis '+plein);
+    rejouer(); poser('rfr-h1','n+3'); checkRFR();
+    const rempli=document.getElementById('rfr-c13');
+    { const l=parseFloat(rempli.style.width)||0, n=String(rempli.value||'').length;
+      if(n>0 && l<n) vus.push('après la correction, « '+rempli.value+' » tient dans '+l+'ch : la réponse est coupée'); }
+
+    /* ---- 10. L’identité de l’exercice, et ses branchements ---------------- */
+    if(!TESTS['recurrence-fractions']) vus.push('l’exercice n’est pas dans TESTS');
+    if(!THEMES.some(function(t){ return t.ids.indexOf('recurrence-fractions')>=0; })) vus.push('l’exercice n’est dans aucun thème');
+    if(typeof RAPPELS==='undefined' || !RAPPELS.rfr) vus.push('aucun rappel de cours pour rf');
+    if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.rfr) vus.push('aucune question proposée pour rf');
+    if(!afficherEcranDe('rfr')) vus.push('la reprise après pause ne connaît pas l’écran rf');
+    { const srcPage=document.documentElement.outerHTML;
+      const m=srcPage.match(/const testScreens=\\[([^\\]]*)\\]/);
+      if(!m || m[1].indexOf("'rfr'")<0) vus.push('l’écran rf n’est pas dans testScreens'); }
+    test.questions=[q]; test.idx=0; test.kind='rfr'; renderRFR();
+    const c=String(conseilCtxCourant()||'');
+    if(!/RÉCURRENCE/i.test(c) || c.indexOf('(n+3)/(n+1)')<0) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
+    if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
