@@ -4003,10 +4003,25 @@ async function parcours(page, N){
       verifier('le 4.6 : le bouton ∞ écrit dans la case et lève input',
         inf.v.indexOf('∞') >= 0 && inf.ev > 0,
         'valeur ' + JSON.stringify(inf.v) + ', ' + inf.ev + ' événement(s) input');
+      /* le b) est présenté comme au 2.1 : des cases MathLive. La première
+         (u =) est TAPÉE pour de vrai — jsdom n'a pas la sérialisation réelle
+         que le juge doit lire — puis relue par dexpCellValue. */
+      await s.page.click('#asg-bu');
+      await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide si la case n'a pas fini de prendre le focus */
+      await s.page.evaluate(() => document.getElementById('asg-bu').focus());
+      await s.page.waitForTimeout(300);
+      await s.page.keyboard.type('x+2', { delay: 60 });
+      await s.page.waitForTimeout(300);
+      const tape = await s.page.evaluate(() => dexpCellValue('asg-bu'));
+      verifier('le 4.6 : « x+2 » tapé dans la case u se relit tel quel',
+        tape === 'x+2', 'lu : ' + JSON.stringify(tape));
       /* la copie de la fiche, remplie depuis l'attendu de la page, puis le CLIC */
       await s.page.evaluate(() => {
         const q = test.questions[0];
-        asgCases(q).forEach(x => { const el = document.getElementById(x.id); if (el) el.value = String(asgVal(q, x)); });
+        const sol = asgDerVerdicts(q).sol;   /* u déjà posé en polynôme : l'ordre 1, le canonique */
+        asgCases(q).forEach(x => { const el = document.getElementById(x.id); if (!el) return;
+          if (el.tagName === 'MATH-FIELD') el.setValue(asgML(x.type === 'der' ? sol[x.id] : String(asgVal(q, x))));
+          else el.value = String(asgVal(q, x)); });
         efArrowChange();   /* poser une valeur par script ne lève pas onchange */
       });
       await s.page.click('#asgActions .btn-primary');
@@ -4019,8 +4034,8 @@ async function parcours(page, N){
         const page = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
         return { oks, bads, score: test.score, locked: test.locked, fleches, ovW: Math.round(ovr.width), ovH: Math.round(ovr.height), page };
       });
-      verifier('le 4.6 : la copie de la fiche remplie vaut le point — 35 cases au vert',
-        vu.oks === 35 && vu.bads === 0 && vu.score === 1 && vu.locked,
+      verifier('le 4.6 : la copie de la fiche remplie vaut le point — 44 cases au vert',
+        vu.oks === 44 && vu.bads === 0 && vu.score === 1 && vu.locked,
         vu.oks + ' ok, ' + vu.bads + ' bad, note ' + vu.score + (vu.locked ? '' : ', écran non verrouillé'));
       verifier('le 4.6 : les flèches du tableau sont DESSINÉES à une taille lisible',
         vu.fleches >= 2 && vu.ovW > 200 && vu.ovH > 60,
