@@ -1945,6 +1945,70 @@ quelle ligne était une graduation. La grille reçoit donc le cadre de
 `.lv-graph` — fond `--surface`, bordure, coins arrondis. Ça ne se voit que sur
 une capture : aucun banc ne mesure la lisibilité de deux trames superposées.
 
+**Le 4.5 de la Terminale est descendu en Seconde — même tirage, autre juge.**
+{solutions-graphique} (Seconde, Fonctions, juste avant {construire-fonction},
+demande de Turquet, septembre 2026 : « mettre l'exercice 4.5 de terminale en
+seconde avec les fonctions ») est {tvi-lecture-graphique} sans le mot TVI : une
+courbe, une hauteur k, et trois gestes — cliquer sur la courbe le ou les points
+vérifiant f(x) = k (ronds), cliquer sur l'axe les solutions (carrés), écrire les
+solutions séparées par des points-virgules, ou ∅ quand la droite y = k ne
+rencontre pas la courbe. Son kind est `tvg`, comme là-haut.
+**Le tirage est celui de la Terminale, au caractère près, et un contrôle
+l'exige** — dix fonctions (le tirage des cinq familles, la spline, la
+densification, le dessin, la lecture de l'écriture) comparées entre les deux
+fichiers par `corpsFonctions`, la leçon du moteur de courbes du 5.4 : un second
+moteur aurait fini par diverger, et deux niveaux se seraient contredits sur la
+même courbe. Le premier passage l'a montré pour une APOSTROPHE : deux
+commentaires recopiés au tiret droit là où la Terminale écrit ’, et le contrôle
+a nommé les deux fonctions. Cinq familles, chacune une fois par séance en ordre
+mélangé — droite, parabole (deux solutions, ou une seule quand k est la valeur
+du sommet), parabole que y = k ne rencontre pas, courbe à deux extremums (trois
+solutions, ou deux quand k est la valeur d'un extremum). Toutes les solutions
+tombent sur des abscisses ENTIÈRES, les cibles, et aucun autre point entier ne
+frôle k ; le contrôle RECOMPTE les solutions sur la fonction reconstruite et
+balaie la courbe au dixième pour refuser toute traversée de k hors d'une
+solution — un `sols` qui ne serait plus celui de la courbe ferait mentir la
+correction sans qu'aucune correction ne bronche.
+**Ce qui change est le JUGE.** La Terminale confie le verdict au modèle
+(action `verif`) et ne note pas sans lui ; ici tout se calcule — l'ensemble des
+points cliqués, l'ensemble des abscisses cliquées, l'écriture — et **un verdict
+qu'on peut prouver ne se confie pas à un modèle** (la leçon de `libreJuge`,
+appliquée au portage) : la page juge seule, sans appel réseau, et l'aide du
+modèle reste là où elle est partout ailleurs. TROIS réponses par question,
+chacune jugée SEULE — les lignes a) et b) sont des `pts-case`, l'écriture une
+case —, quinze pour la séance ; `tvgCases` les nomme pour la coupe d'un
+devoir. Juste en bleu, en trop en rouge, oublié en VERT sur le dessin même
+(`okc`, `badc`, `missc`), et l'écriture fausse reçoit la bonne à côté (badge
+`mf-cor`) — en entraînement seulement. **Le soutien colore sans révéler** : à
+la vérification, les cibles justes se verrouillent en bleu, les fausses
+rougissent à retirer, et rien ne dit ce qui manque ; l'élève revérifie. Aucune
+correction au fil des clics, et c'est déclaré (`soutienEnDirect.sans`) :
+colorer une cible au moment où on la pose dirait laquelle est juste avant même
+de vérifier. Une copie sans écriture, ou sans sélection alors qu'elle n'écrit
+pas ∅, n'est pas vérifiée : rien n'est peint, une case vide ne rougit jamais.
+Écrire ∅ SANS rien sélectionner est une RÉPONSE — « il n'y a pas de point » —
+et se juge comme telle. Le bouton des tables n'y est pas : on ne multiplie
+rien, on lit.
+**Le banc navigateur CLIQUE les cibles pour de vrai** (« 6 vicies ter »,
+déclaré par `solutionsGraphique` dans `tests/profils.js`) — ronds et carrés à
+zone de saisie invisible, d'au moins 20 px chacune — et lit le verdict à
+l'encre RENDUE : la cible juste bleue, le point en trop rouge, l'abscisse
+oubliée verte, la droite y = k dessinée après la vérification, le bouton ∅ qui
+écrit l'ensemble vide. Un piège de banc s'y est montré : un point de la courbe
+posé SUR l'axe (f(n) = 0, jamais une solution puisque k ≠ 0) est recouvert par
+le carré de l'axe, dessiné après lui, et Playwright refusait le clic — le banc
+choisit sa cible « en trop » loin de l'axe, là où un élève aurait à cliquer.
+Et un second piège de banc, du même banc : pour oublier une abscisse sur
+l'axe tout en gardant une sélection, il faut une question à DEUX solutions au
+moins — sur une seule, la vérification refuse la copie (« sélectionne… ») et
+le banc mesurait un écran jamais jugé, en accusant la page. Vingt sabotages
+au banc principal, chacun rougissant en nommant son défaut — dont un qui est
+d'abord resté VERT à bon droit : peindre la copie APRÈS les gardes ne touche
+jamais une copie vide, le sabotage était impossible ; posé AVANT le garde, il
+rougit. Deux sabotages de plus ne rougissent QU'AU NAVIGATEUR — la cible
+juste peinte en rouge sous sa classe `okc`, les zones de saisie réduites à
+8 px —, jsdom restant vert à bon droit sur l'un comme sur l'autre.
+
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
 deux fois. Méthode 1 : deux barres de même longueur, la première partagée en

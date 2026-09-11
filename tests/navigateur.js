@@ -4099,6 +4099,155 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies ter. solutions de f(x) = k : les cibles se CLIQUENT ===== */
+    /* {solutions-graphique}, porté du 4.5 de la Terminale : les points de la
+       courbe et les abscisses de l'axe se cliquent sur le dessin — ronds et
+       carrés à zone de saisie invisible —, et les couleurs du verdict se
+       lisent à l'encre RENDUE (bleu juste, rouge en trop, vert oublié). jsdom
+       n'a pas de mise en page : le clic et l'encre ne se voient qu'ici. Le
+       banc principal, lui, appelle les bascules à la main. */
+    titre('6 vicies ter. SOLUTIONS DE f(x) = k : LES CIBLES SE CLIQUENT');
+    if(!P.solutionsGraphique){
+      ignorer('les cibles se cliquent sur le dessin, le verdict se lit à l\'encre',
+        'ce niveau n\'a pas l\'exercice des solutions sur le graphique');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.solutionsGraphique.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      const dominante = c => { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(c || ''); if(!m) return '?';
+        const r = +m[1], v = +m[2], b = +m[3], max = Math.max(r, v, b);
+        return b >= max && b > r + 20 ? 'bleu' : (v >= max && v > r + 20 ? 'vert' : (r >= max && r > v + 20 ? 'rouge' : 'autre')); };
+      /* la première question à solutions — on l'épingle en tête plutôt que
+         de traverser la séance : le tirage mélange les familles */
+      const q0 = await s.page.evaluate(() => {
+        const i = test.questions.findIndex(q => q.sols.length > 0);
+        test.idx = i; renderTVG();
+        const q = test.questions[i];
+        return { sols: q.sols.slice(), k: q.kL, fam: q.family, idx: i };
+      });
+      /* le dessin est rendu à une taille lisible, et chaque cible se laisse
+         viser au doigt : sa zone de saisie fait au moins 20 px */
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#tvgGraph svg'); if(!svg) return { absent: true };
+        svg.scrollIntoView({ block: 'center' });
+        const r = svg.getBoundingClientRect();
+        const cibles = [...svg.querySelectorAll('.tvg-t')].map(g => g.getBoundingClientRect());
+        return { absent: false, largeur: Math.round(r.width), n: cibles.length,
+                 petites: cibles.filter(c => c.width < 20 || c.height < 20).length };
+      });
+      if(mes.absent) dits.push('aucun dessin sur l\'écran');
+      else {
+        if(mes.largeur < 380) dits.push('le dessin ne fait que ' + mes.largeur + ' px de large');
+        if(!mes.n) dits.push('aucune cible cliquable sur le dessin');
+        if(mes.petites) dits.push(mes.petites + ' cible(s) de moins de 20 px : introuvables au doigt');
+      }
+      /* la copie JUSTE, cliquée pour de vrai : chaque solution sur la courbe
+         puis sur l'axe, l'écriture tapée, la vérification */
+      for(const sol of q0.sols){
+        await s.page.click('#tvgp' + (sol + 5));
+        await s.page.click('#tvgx' + (sol + 5));
+        await s.page.waitForTimeout(80);
+      }
+      const pose = await s.page.evaluate(() => {
+        const q = test.questions[test.idx];
+        return { pts: q.selPts.slice().sort((a, b) => a - b).join(','), xs: q.selXs.slice().sort((a, b) => a - b).join(',') };
+      });
+      const attendu = q0.sols.slice().sort((a, b) => a - b).join(',');
+      if(pose.pts !== attendu) dits.push('les clics sur la courbe ne posent pas les cibles visées : ' + pose.pts + ' au lieu de ' + attendu);
+      if(pose.xs !== attendu) dits.push('les clics sur l\'axe ne posent pas les cibles visées : ' + pose.xs + ' au lieu de ' + attendu);
+      await s.page.fill('#tvgSol', q0.sols.map(v => String(v)).join(' ; '));
+      await s.page.click('#tvgValidate');
+      await s.page.waitForTimeout(300);
+      const fin = await s.page.evaluate(() => {
+        const dot = document.querySelector('#tvgGraph .tvg-t.okc .dot');
+        const cons = document.getElementById('tvg-ca');
+        const inp = document.getElementById('tvgSol');
+        const kg = document.getElementById('tvgKgrp');
+        const kr = kg ? kg.getBoundingClientRect() : null;
+        return { score: test.score,
+                 dot: dot ? getComputedStyle(dot).fill : null,
+                 cons: cons ? getComputedStyle(cons).borderTopColor : null,
+                 inp: inp ? getComputedStyle(inp).borderTopColor : null,
+                 droite: !!(kr && kr.width > 100),
+                 vertRouge: !!document.querySelector('#tvgGraph .missc, #tvgGraph .badc') };
+      });
+      if(fin.score !== 3) dits.push('la copie juste cliquée vaut ' + fin.score + ' au lieu de 3');
+      if(dominante(fin.dot) !== 'bleu') dits.push('la cible juste n\'est pas peinte en bleu : ' + fin.dot);
+      if(dominante(fin.cons) !== 'bleu') dits.push('la ligne a) juste n\'est pas bordée de bleu : ' + fin.cons);
+      if(dominante(fin.inp) !== 'bleu') dits.push('l\'écriture juste n\'est pas bordée de bleu : ' + fin.inp);
+      if(!fin.droite) dits.push('la droite y = k ne se dessine pas après la vérification');
+      if(fin.vertRouge) dits.push('une cible est verte ou rouge sur une copie toute juste');
+      /* la question SUIVANTE à solutions, faussée : un point en trop sur la
+         courbe (rouge), une abscisse oubliée sur l'axe (verte) */
+      /* il faut AU MOINS DEUX solutions pour en oublier une sur l'axe tout en
+         gardant une sélection — sur une seule, la vérification refuserait la
+         copie (« sélectionne… ») et le banc mesurerait un écran jamais jugé */
+      const q1 = await s.page.evaluate(i0 => {
+        const i = test.questions.findIndex((q, k) => k !== i0 && q.sols.length >= 2);
+        if(i < 0) return null;
+        test.idx = i; test.locked = false; renderTVG();
+        const q = test.questions[i], f = tvgFn(q);
+        /* une cible EN TROP qui se laisse cliquer : loin de l'axe, sans quoi
+           le carré de l'axe, dessiné par-dessus, prendrait le clic — un point
+           posé sur l'axe n'est jamais une solution (k ≠ 0), personne n'a à
+           le viser */
+        let trop = null;
+        for(let n = -5; n <= 5 && trop === null; n++){
+          if(q.sols.indexOf(n) < 0 && Math.abs(f(n)) > 0.6 && document.getElementById('tvgp' + (n + 5))) trop = n;
+        }
+        return { sols: q.sols.slice(), trop };
+      }, q0.idx);
+      if(!q1) dits.push('aucune seconde question à deux solutions dans la séance');
+      else {
+        for(const sol of q1.sols) await s.page.click('#tvgp' + (sol + 5));
+        if(q1.trop !== null) await s.page.click('#tvgp' + (q1.trop + 5));
+        for(const sol of q1.sols.slice(0, -1)) await s.page.click('#tvgx' + (sol + 5));
+        await s.page.fill('#tvgSol', q1.sols.map(v => String(v)).join(' ; '));
+        await s.page.click('#tvgValidate');
+        await s.page.waitForTimeout(300);
+        const faux = await s.page.evaluate(([trop, oublie]) => {
+          const rouge = document.querySelector('#tvgp' + (trop + 5) + ' .dot');
+          const vert = document.querySelector('#tvgx' + (oublie + 5) + ' .dot');
+          const cons = document.getElementById('tvg-cb');
+          return { score: test.score,
+                   rouge: rouge ? getComputedStyle(rouge).fill : null,
+                   vert: vert ? getComputedStyle(vert).stroke : null,
+                   cons: cons ? getComputedStyle(cons).borderTopColor : null };
+        }, [q1.trop, q1.sols[q1.sols.length - 1]]);
+        const attenduF = 3 + (q1.trop === null ? 2 : 1);   /* sans cible en trop disponible, a) reste juste */
+        if(faux.score !== attenduF) dits.push('la copie faussée porte le score à ' + faux.score + ' au lieu de ' + attenduF);
+        if(q1.trop !== null && dominante(faux.rouge) !== 'rouge') dits.push('le point en trop n\'est pas peint en rouge : ' + faux.rouge);
+        if(dominante(faux.vert) !== 'vert') dits.push('l\'abscisse oubliée n\'est pas montrée en vert : ' + faux.vert);
+        if(dominante(faux.cons) !== 'rouge') dits.push('la ligne b) fausse n\'est pas bordée de rouge : ' + faux.cons);
+      }
+      /* la question SANS solution : le bouton ∅ écrit l'ensemble vide, et la
+         copie vaut 3/3 sans rien cliquer */
+      const q2 = await s.page.evaluate(() => {
+        const i = test.questions.findIndex(q => !q.sols.length);
+        if(i < 0) return false;
+        test.idx = i; test.locked = false; renderTVG(); return true;
+      });
+      if(!q2) dits.push('aucune question sans solution dans la séance');
+      else {
+        await s.page.click('#tvgBody .tvg-vide');
+        const ecrit = await s.page.evaluate(() => document.getElementById('tvgSol').value);
+        if(ecrit !== '∅') dits.push('le bouton ∅ écrit « ' + ecrit + ' »');
+        const avant = await s.page.evaluate(() => test.score);
+        await s.page.click('#tvgValidate');
+        await s.page.waitForTimeout(300);
+        const apres = await s.page.evaluate(() => test.score);
+        if(apres - avant !== 3) dits.push('∅ sur une équation sans solution vaut ' + (apres - avant) + ' au lieu de 3');
+      }
+      verifier('les cibles se cliquent sur le dessin, le verdict se lit à l\'encre', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran des solutions sur le graphique ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 octodecies. placer le point, lire l'image : le graphe se CLIQUE ===== */
     /* Le calcul clic → nœud est calibré sur les GRADUATIONS du SVG rendu —
        la seule façon de le voir est de cliquer pour de vrai (la leçon de

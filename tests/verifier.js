@@ -2703,6 +2703,7 @@ function exercices(suite){
     lectureDeuxCourbes(w, P);
     courbesFGSeDistinguent(w, P);
     construireFonction(w, P);
+    solutionsGraphique(w, P);
     exercicesBonus(w, P);
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
@@ -10134,6 +10135,202 @@ function exercicesBonus(w, P){
    qui ne se recouvrent pas, le témoin qui respecte SES consignes par le juge
    même, la copie ALTERNATIVE acceptée, chaque consigne qui rougit seule, la
    copie incomplète sans couleur, le témoin vert en entraînement seulement. */
+/* ---------- Solutions de f(x) = k sur le graphique (Seconde, porté du 4.5 de la
+   Terminale) -------------------------------------------------------------------
+   Une courbe, une hauteur k, et trois gestes : cliquer sur la courbe les points
+   vérifiant f(x) = k, cliquer sur l'axe les solutions, écrire les solutions (ou
+   ∅). Le tirage est CELUI DE LA TERMINALE, et un contrôle l'exige au caractère
+   près : un second moteur aurait fini par diverger, et deux niveaux se seraient
+   contredits sur la même courbe. Ce qui change est le JUGE — la Terminale
+   confie le verdict au modèle, la Seconde juge seule (un verdict qu'on peut
+   prouver ne se confie pas à un modèle) —, et c'est ce juge que le contrôle
+   exerce : la copie juste, chaque refus au prix d'exactement son point, la
+   case vide qui ne rougit jamais, le soutien qui colore sans révéler.
+   Les solutions rangées dans la question sont RECOMPTÉES sur la fonction
+   reconstruite (tvgFn) : un « sols » qui ne serait plus celui de la courbe
+   ferait mentir la correction sans qu'aucune correction ne bronche. */
+function solutionsGraphique(w, P){
+  const present = evaluer(w, "typeof startTVG==='function' && typeof genTVG==='function' && typeof tvgJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('solutions de f(x) = k sur le graphique : le tirage de la Terminale, un juge dans la page',
+      'ce niveau n\'a pas l\'exercice des solutions sur le graphique');
+    return;
+  }
+  /* le tirage et le dessin portés de la Terminale, au caractère près */
+  const TVG_PORT=['tvgHermite','tvgFn','tvgDensifie','genTVGDroite','genTVGParabole','genTVGPar0','genTVGCubique','genTVG','tvgSVG','tvgParseSol'];
+  const corpsDe=(texte,nom)=>{
+    const f=corpsFonctions(texte, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o=>o.nom===nom);
+    return f ? f.texte : null;
+  };
+  let srcSec, srcTer;
+  try{ srcSec = fs.readFileSync(path.join(__dirname, '..', 'secondes.html'), 'utf8'); }catch(e){ srcSec = undefined; }
+  try{ srcTer = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }catch(e){ srcTer = undefined; }
+  if(!srcSec || !srcTer){
+    verifier('le tirage des solutions sur le graphique est celui de la Terminale, au caractère près', false, 'un des deux fichiers est introuvable');
+  } else {
+    const abs=TVG_PORT.filter(n=>corpsDe(srcSec,n)===null || corpsDe(srcTer,n)===null);
+    const diff=TVG_PORT.filter(n=>corpsDe(srcSec,n)!==corpsDe(srcTer,n));
+    verifier('le tirage des solutions sur le graphique est celui de la Terminale, au caractère près',
+      abs.length===0 && diff.length===0,
+      abs.length ? 'introuvable : '+abs.join(', ') : 'diverge sur : '+diff.join(', '));
+  }
+  verifierEval(w, 'solutions de f(x) = k sur le graphique : le tirage de la Terminale, un juge dans la page', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='solutions-graphique';
+    /* ---- 1. le tirage : cinq familles chacune une fois, en ordre mélangé ;
+       les solutions RECOMPTÉES sur la fonction reconstruite ; aucun autre
+       point entier ne frôle k ; aucune traversée de k hors des solutions ---- */
+    const CLES={droite:['p','s0'], par1:['s','a','m','v'], par2:['s','a','m','v'], par0:['s','a','m','v'], cub3:['xs','ys'], cub2:['xs','ys']};
+    const COMMUN=['type','family','familleTxt','fname','k','kL','sols','selPts','selXs','yMin','yMax','desc'];
+    const ATTENDU={droite:1, par2:2, par1:1, par0:0, cub3:3, cub2:2};
+    const rangs={}, familles={};
+    const gardes=function(q,nom){
+      const perm=COMMUN.concat(CLES[q.family]||[]);
+      const etr=Object.keys(q).filter(function(k){ return perm.indexOf(k)<0; });
+      if(etr.length) vus.push(nom+' : la question range autre chose que la courbe et la hauteur : '+etr.join(','));
+      if(q.k===0) vus.push(nom+' : k = 0, la droite y = k serait posée sur l’axe');
+      if(!Number.isInteger(q.k)) vus.push(nom+' : k n’est pas entier');
+      if(!(q.type==='tvg')) vus.push(nom+' : la question ne porte pas le type tvg');
+      const f=tvgFn(q);
+      const rec=[]; for(let n=-5;n<=5;n++){ if(Math.abs(f(n)-q.k)<1e-9) rec.push(n); }
+      if(rec.join(',')!==q.sols.slice().sort(function(a,b){ return a-b; }).join(','))
+        vus.push(nom+' : les solutions rangées ['+q.sols+'] ne sont pas celles de la courbe ['+rec+']');
+      if(q.sols.length!==ATTENDU[q.family]) vus.push(nom+' : '+q.sols.length+' solution(s) pour la famille '+q.family+' au lieu de '+ATTENDU[q.family]);
+      for(let n=-5;n<=5;n++){ if(rec.indexOf(n)>=0) continue;
+        if(Math.abs(f(n)-q.k)<0.45) vus.push(nom+' : la courbe frôle k au point entier '+n+' ('+(f(n)-q.k).toFixed(2)+')'); }
+      for(let i=0;i<100;i++){ const x=-5+i*0.1, y1=f(x)-q.k, y2=f(x+0.1)-q.k;
+        if(y1*y2<0){ const xi=Math.round(x), xj=Math.round(x+0.1);
+          if(rec.indexOf(xi)<0 && rec.indexOf(xj)<0) vus.push(nom+' : la courbe traverse la hauteur k entre '+x.toFixed(1)+' et '+(x+0.1).toFixed(1)+', loin de toute solution entière'); } }
+      if(q.family==='par0' && q.s*(q.k-q.v)>=0) vus.push(nom+' : la parabole rencontre la droite y = k, il devrait n’y avoir aucune solution');
+      if(q.sols.length && !(q.k>=q.yMin+0.2 && q.k<=q.yMax-0.2)) vus.push(nom+' : la hauteur k est hors du cadre, les cibles des solutions ne se dessinent pas');
+      if((q.selPts||[]).length||(q.selXs||[]).length) vus.push(nom+' : la question naît avec des sélections');
+    };
+    for(let t=0;t<300 && vus.length<4;t++){
+      const plan=tvgPlan();
+      if(plan.length!==5) vus.push('séance '+t+' : '+plan.length+' questions au lieu de 5');
+      const fam=plan.slice().sort().join(',');
+      if(!/^cub2,cub3,droite,par0,par[12]$/.test(fam)) vus.push('séance '+t+' : familles '+fam+' au lieu des cinq, chacune une fois');
+      (rangs.par0=rangs.par0||{})[plan.indexOf('par0')]=true;
+      plan.forEach(function(fm){ familles[fm]=true; gardes(genTVG(fm),'tirage '+t+' ('+fm+')'); });
+    }
+    if(!vus.length && Object.keys(rangs.par0||{}).length<2) vus.push('« aucune solution » tombe toujours au même rang : l’élève apprendrait le rang');
+    if(!vus.length && !(familles.par1&&familles.par2)) vus.push('une des deux paraboles à solutions ne sort jamais sur 300 séances');
+    if(vus.length) return vus.join(' | ');
+
+    /* ---- 2. la séance réelle : cinq questions, trois réponses chacune, le
+       barème que la coupe d'un devoir sait lire, les cibles dessinées ---- */
+    startTVG();
+    if(test.kind!=='tvg' || test.questions.length!==5) vus.push('startTVG ne tire pas 5 questions de kind tvg');
+    if(!document.getElementById('scr-tvg').classList.contains('on')) vus.push('l’écran scr-tvg ne s’ouvre pas');
+    if(test.maxScore!==15) vus.push('le barème vaut '+test.maxScore+' au lieu de 15 (3 réponses × 5 questions)');
+    if(dmPoidsQuestion('tvg', test.questions[0])!==3) vus.push('la coupe d’un devoir ne lit pas 3 réponses par question');
+    if(document.querySelectorAll('#tvgBody .pts-case').length!==2) vus.push('les lignes a) et b) ne sont pas deux pts-case');
+    if(!document.getElementById('tvgSol')) vus.push('la case de l’écriture manque');
+    { const q0=test.questions[0];
+      q0.sols.forEach(function(s){ if(!document.getElementById('tvgp'+(s+5))) vus.push('la solution '+s+' n’a pas de cible sur la courbe');
+                                    if(!document.getElementById('tvgx'+(s+5))) vus.push('la solution '+s+' n’a pas de cible sur l’axe'); });
+      const kg=document.getElementById('tvgKgrp'); if(!kg || kg.style.display!=='none') vus.push('la droite y = k est visible avant la vérification');
+      /* la reprise après pause : la question survit au JSON et se redessine */
+      const snap=JSON.parse(JSON.stringify(q0));
+      if(Math.abs(tvgFn(snap)(q0.sols.length?q0.sols[0]:0)-tvgFn(q0)(q0.sols.length?q0.sols[0]:0))>1e-9) vus.push('la fonction ne se reconstruit pas depuis la question sérialisée');
+      if(!afficherEcranDe('tvg')) vus.push('la reprise après pause ne connaît pas l’écran tvg'); }
+    /* la copie VIDE ne se vérifie pas : rien n’est peint, rien n’est verrouillé */
+    checkTVG();
+    if(test.locked) vus.push('une copie vide verrouille la question');
+    if(document.querySelector('#tvgBody .ok, #tvgBody .bad')) vus.push('une copie vide reçoit une couleur');
+
+    /* ---- 3. le juge, sur des questions ÉPINGLÉES ---- */
+    const QPAR={type:'tvg',family:'par2',familleTxt:'parabole',fname:'f',k:1,kL:'1',s:1,a:1,m:0,v:-3,sols:[-2,2],selPts:[],selXs:[],yMin:-5,yMax:5,desc:'la courbe est une parabole de sommet (0 ; −3), tournée vers le haut, d’équation y = x² − 3.'};
+    const QVIDE={type:'tvg',family:'par0',familleTxt:'parabole — aucune solution',fname:'g',k:-1,kL:'−1',s:1,a:1,m:0,v:1,sols:[],selPts:[],selXs:[],yMin:-3,yMax:5,desc:'la courbe est une parabole de sommet (0 ; 1), tournée vers le haut, d’équation y = x² + 1.'};
+    gardes(QPAR,'la question épinglée'); gardes(QVIDE,'la question épinglée sans solution');
+    const monte=function(mode,q){
+      currentMode=mode;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'tvg', questions:[JSON.parse(JSON.stringify(q))], idx:0, score:0, maxScore:3, answers:[], startTime:Date.now(), locked:false});
+      renderTVG();
+    };
+    const cl=function(id,c){ const e=document.getElementById(id); return !!(e&&e.classList.contains(c)); };
+    const ecrire=function(t){ document.getElementById('tvgSol').value=t; };
+    const p=function(n){ return 'tvgp'+(n+5); }, x=function(n){ return 'tvgx'+(n+5); };
+    /* les écritures : toute écriture ÉGALE, dans l’ordre qu’on veut ; le
+       doublon, le manque, l’ensemble vide sur une équation qui a des solutions
+       sont refusés */
+    [['2 ; -2',true],['−2;2,0',true],[' -2 ;  2 ',true],['-2 ; 2 ; 2',false],['2',false],['∅',false],['vide',false],['',false],['-2 ; 3',false],['2 ; 2',false]]
+      .forEach(function(c){ if(tvgSolOK(QPAR,c[0])!==c[1]) vus.push('l’écriture « '+c[0]+' » est '+(c[1]?'refusée':'acceptée')+' pour les solutions −2 et 2'); });
+    [['∅',true],['vide',true],['VIDE',true],['',false],['0',false]]
+      .forEach(function(c){ if(tvgSolOK(QVIDE,c[0])!==c[1]) vus.push('l’écriture « '+c[0]+' » est '+(c[1]?'refusée':'acceptée')+' quand il n’y a aucune solution'); });
+    /* la copie JUSTE : 3/3, tout bleu, rien de vert, la droite révélée */
+    monte('train',QPAR);
+    tvgTogglePt(2); tvgTogglePt(-2); tvgTogglePt(2); tvgTogglePt(2);   /* poser, retirer, reposer */
+    if(test.questions[0].selPts.slice().sort().join(',')!=='-2,2') vus.push('poser/retirer une cible ne tient pas la liste : '+test.questions[0].selPts);
+    tvgToggleX(2); tvgToggleX(-2); ecrire('2 ; -2');
+    checkTVG();
+    if(!test.locked) vus.push('la copie juste ne verrouille pas');
+    if(test.score!==3) vus.push('la copie juste vaut '+test.score+' au lieu de 3');
+    ['tvg-ca','tvg-cb','tvgSol'].forEach(function(id){ if(!cl(id,'ok')) vus.push('copie juste : '+id+' n’est pas bleu'); });
+    if(document.querySelector('#tvgGraph .missc, #tvgGraph .badc')) vus.push('copie juste : une cible est verte ou rouge');
+    if(!cl(p(2),'okc')||!cl(x(-2),'okc')) vus.push('copie juste : les cibles justes ne sont pas bleues');
+    if(document.getElementById('tvgKgrp').style.display==='none') vus.push('la droite y = k n’est pas révélée après la vérification');
+    if(document.querySelector('#tvgBody .mf-cor')) vus.push('copie juste : un badge de correction apparaît');
+    if(!document.getElementById('tvgNext')) vus.push('pas de bouton pour continuer après la vérification');
+    { const a=test.answers[0]||{}; if(a.cases!==3||a.justes!==3||!a.correct) vus.push('la note affichée compte '+a.justes+' sur '+a.cases+' au lieu de 3 sur 3'); }
+    tvgTogglePt(-2); if(test.questions[0].selPts.indexOf(-2)<0) vus.push('une cible se retire après le verrouillage');
+    /* chaque refus coûte EXACTEMENT son point */
+    monte('train',QPAR); tvgTogglePt(-2); tvgTogglePt(2); tvgTogglePt(0); tvgToggleX(-2); tvgToggleX(2); ecrire('-2 ; 2'); checkTVG();
+    if(test.score!==2||!cl('tvg-ca','bad')||!cl('tvg-cb','ok')||!cl('tvgSol','ok')) vus.push('un point en trop ne coûte pas exactement le point de a) (score '+test.score+')');
+    if(!cl(p(0),'badc')) vus.push('le point en trop ne rougit pas sur le dessin');
+    if(document.getElementById('tvgFeedback').textContent.indexOf('en trop')<0) vus.push('le message ne dit pas le point en trop');
+    monte('train',QPAR); tvgTogglePt(-2); tvgTogglePt(2); tvgToggleX(-2); ecrire('-2 ; 2'); checkTVG();
+    if(test.score!==2||!cl('tvg-cb','bad')||!cl('tvg-ca','ok')) vus.push('une abscisse oubliée ne coûte pas exactement le point de b) (score '+test.score+')');
+    if(!cl(x(2),'missc')) vus.push('l’abscisse oubliée ne se montre pas en vert');
+    if(!cl(x(-2),'okc')) vus.push('l’abscisse juste n’est pas bleue à côté de l’oubliée');
+    monte('train',QPAR); tvgTogglePt(-2); tvgTogglePt(2); tvgToggleX(-2); tvgToggleX(2); ecrire('2 ; 3'); checkTVG();
+    if(test.score!==2||!cl('tvgSol','bad')) vus.push('une écriture fausse ne coûte pas exactement le point de c) (score '+test.score+')');
+    { const b=document.querySelector('#tvgBody .mf-cor'); if(!b) vus.push('l’écriture fausse ne reçoit pas la bonne en vert à côté');
+      else if(b.textContent!=='−2 ; 2') vus.push('le badge écrit « '+b.textContent+' » au lieu de « −2 ; 2 »'); }
+    monte('train',QPAR); ecrire('∅'); checkTVG();
+    if(!test.locked) vus.push('écrire ∅ sans rien sélectionner n’est pas jugé comme une réponse');
+    if(test.score!==0) vus.push('« ∅ » sur une équation à deux solutions vaut '+test.score+' au lieu de 0');
+    if(!cl(p(-2),'missc')||!cl(x(2),'missc')) vus.push('après « ∅ » à tort, les solutions oubliées ne se montrent pas en vert');
+    monte('train',QVIDE); ecrire('vide'); checkTVG();
+    if(test.score!==3) vus.push('la bonne réponse ∅ (« vide ») vaut '+test.score+' au lieu de 3');
+    monte('train',QVIDE); tvgTogglePt(0); ecrire('∅'); checkTVG();
+    if(test.score!==2||!cl('tvg-ca','bad')||!cl(p(0),'badc')) vus.push('un point posé sur une courbe sans solution ne coûte pas exactement le point de a) (score '+test.score+')');
+    /* ---- 4. le soutien : colorer ce qui est posé, ne rien révéler, revérifier ---- */
+    monte('soutien',QPAR); tvgTogglePt(-2); tvgTogglePt(0); tvgToggleX(-2); ecrire('2 ; -2'); checkTVG();
+    if(test.locked) vus.push('soutien : une copie fausse verrouille');
+    if(!cl(p(-2),'okc')||!cl(p(-2),'off')) vus.push('soutien : la cible juste n’est pas bleue et verrouillée');
+    if(!cl(p(0),'badc')) vus.push('soutien : la cible fausse n’est pas rouge');
+    if(document.querySelector('#tvgGraph .missc')) vus.push('soutien : une cible manquante est révélée en vert');
+    if(!cl('tvg-ca','bad')||!cl('tvg-cb','bad')||!cl('tvgSol','ok')) vus.push('soutien : les trois réponses ne sont pas colorées comme elles le doivent');
+    if(!document.getElementById('tvgSol').disabled) vus.push('soutien : l’écriture juste ne se verrouille pas');
+    if(document.querySelector('#tvgBody .mf-cor')) vus.push('soutien : le badge de correction fuit');
+    if(!/Revérifier/.test(document.getElementById('tvgActions').textContent)) vus.push('soutien : pas de bouton « Revérifier »');
+    tvgTogglePt(-2); if(test.questions[0].selPts.indexOf(-2)<0) vus.push('soutien : une cible juste verrouillée se retire encore');
+    tvgTogglePt(0); tvgTogglePt(2); tvgToggleX(2); checkTVG();
+    if(!test.locked||test.score!==3) vus.push('soutien : la copie corrigée ne vaut pas 3 (score '+test.score+', verrouillé '+test.locked+')');
+    monte('soutien',QPAR); tvgTogglePt(-2); tvgTogglePt(2); tvgToggleX(-2); tvgToggleX(2); checkTVG();
+    if(test.locked||document.querySelector('#tvgBody .bad, #tvgGraph .badc')) vus.push('soutien : une écriture laissée vide rougit ou verrouille');
+
+    /* ---- 5. l’identité de l’exercice, et ses branchements ---- */
+    if(!TESTS['solutions-graphique']) vus.push('l’exercice n’est pas dans TESTS');
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('solutions-graphique')>=0; })[0];
+      if(!th) vus.push('l’exercice n’est dans aucun thème');
+      else if(th.ids[th.ids.indexOf('solutions-graphique')+1]!=='construire-fonction') vus.push('l’exercice ne vient pas juste avant {construire-fonction}'); }
+    if(typeof RAPPELS==='undefined' || !RAPPELS.tvg) vus.push('aucun rappel de cours pour tvg');
+    if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tvg) vus.push('aucune question proposée pour tvg');
+    if(TABLES_SANS.indexOf('solutions-graphique')<0) vus.push('le bouton des tables est proposé alors qu’il n’y a rien à multiplier');
+    { const srcPage=document.documentElement.outerHTML;
+      const m=srcPage.match(/const testScreens=\\[([^\\]]*)\\]/);
+      if(!m || m[1].indexOf("'tvg'")<0) vus.push('l’écran tvg n’est pas dans testScreens'); }
+    monte('soutien',QPAR); tvgTogglePt(0);
+    const c=String(conseilCtxCourant()||'');
+    if(c.indexOf('x² − 3')<0 || !/f\\(x\\) = 1/.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas la courbe et l’équation');
+    if(!/STRICTEMENT|JAMAIS révéler/.test(c)) vus.push('le contexte part sans clause de secret');
+    if(!/d’abscisses \\[0\\]/.test(c)) vus.push('le contexte ne dit pas ce que l’élève a sélectionné');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
 function construireFonction(w, P){
   const present = evaluer(w, "typeof startCfx==='function' && typeof cfxGen==='function' && typeof cfxJuge==='function'");
   if(!present.ok || !present.valeur){
