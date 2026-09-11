@@ -981,6 +981,40 @@ function branchements(w){
      délibérément pour son gestionnaire de mots de passe. Ce qui compte, c'est
      la frontière, l'identifiant offert dedans, et le fait qu'aucun champ
      d'exercice ne partage ce formulaire. */
+  /* ---- UN ÉCHEC D'ÉCRITURE DU PROFESSEUR DIT SA RAISON, ET LA CAUSE ORDINAIRE
+     SE NOMME (signalé par Turquet, septembre 2026, sur la première fiche de la
+     Terminale). « Enregistrement impossible » nu couvrait tout ; la ligne brute
+     de PostgREST (42501, « new row violates row-level security policy ») ne
+     disait pas quoi faire. Sa cause ordinaire est une session remplacée : un
+     élève connecté dans un autre onglet chasse celle du professeur. Deux bords :
+     le 42501 nomme la session et le chemin du retour (la page du professeur,
+     jamais son nom de fichier entre guillemets — un autre contrôle l'interdit
+     hors de quitToHome) en gardant le détail brut ; une autre erreur reste brute, sans accuser la session. Et
+     l'enregistrement DIT si les élèves verront ce qu'on vient d'enregistrer —
+     une fiche naît masquée, et « enregistrée ✓ » seul envoyait le professeur
+     la chercher chez l'élève en vain. */
+  if(evaluer(w, "typeof dmRaison==='function'").valeur===true){
+    verifierEval(w, 'un refus de la base nomme la session remplacée, une autre erreur reste brute', `(function(){
+      const vus=[];
+      const r1=dmRaison({code:'42501',message:'new row violates row-level security policy for table "parametres"'});
+      if(!/professeur/.test(r1)) vus.push('le 42501 ne parle pas de la session du professeur : « '+r1+' »');
+      if(!/page du professeur|favori/.test(r1)) vus.push('le 42501 ne dit pas par où se reconnecter');
+      if(r1.indexOf('row-level security')<0 || r1.indexOf('42501')<0) vus.push('le détail brut (message et code) a disparu du 42501');
+      const r2=dmRaison({code:'PGRST301',message:'JWT expired'});
+      if(/session|page du professeur/.test(r2)) vus.push('une erreur qui n\\'est pas un refus de politique accuse quand même la session : « '+r2+' »');
+      if(r2.indexOf('JWT expired')<0 || r2.indexOf('PGRST301')<0) vus.push('une erreur ordinaire perd son message ou son code : « '+r2+' »');
+      if(dmRaison(null)==='' ) vus.push('une erreur vide rend une chaîne vide');
+      return vus.join(' | ');
+    })()`, v => v === '');
+    /* le bord « l'écran dit si c'est affiché » se lit dans le TEXTE de saveDevoir :
+       la fonction écrit en base, et le double n'a pas le formulaire sous la main */
+    const corps = String(evaluer(w, 'String(saveDevoir)').valeur || '');
+    verifier('« Enregistrer » dit si le devoir ou la fiche est affiché aux élèves ou masqué',
+      /Afficher aux élèves/.test(corps) && /MASQU/.test(corps) && /\.actif/.test(corps),
+      'saveDevoir() ne relit pas « actif » pour le dire dans son message');
+  } else {
+    ignorer('un refus de la base nomme la session remplacée, une autre erreur reste brute', 'ce niveau n\'a pas dmRaison()');
+  }
   verifierEval(w, 'le gestionnaire de mots de passe ne peut pas déborder sur un exercice', `(function(){
     const vus=[];
     const mdp=Array.from(document.querySelectorAll('input[type=password]'));

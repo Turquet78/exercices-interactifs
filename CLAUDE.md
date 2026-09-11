@@ -3236,6 +3236,31 @@ pouvait que rougir sur la Terminale ou être tu. Le mot de la famille au carnet
 (`dmMoyFamille`) reste « fiche » : les travaux facultatifs SONT des fiches, et
 la fonction est le même texte dans les trois fichiers.
 
+**Un élève connecté dans un autre onglet CHASSE la session du professeur, et
+la base répond 42501.** Signalé par Turquet (septembre 2026) sur la première
+fiche des travaux facultatifs : « Enregistrer » dit « fait », il va voir en
+tant qu'élève, ne voit pas la fiche, revient, ré-enregistre — « new row
+violates row-level security policy for table "parametres" ». Deux choses,
+et aucune n'était un défaut des fiches. La session Supabase vit dans le
+stockage du navigateur, UNE par projet et par origine : se connecter comme
+élève — dans cet onglet ou un autre, c'est le même stockage — remplace celle
+du professeur, et le tableau de bord resté ouvert écrit désormais sous le
+compte de l'élève : `est_prof()` dit non, PostgREST répond 42501. Et la
+fiche ne se voyait pas parce qu'une fiche naît MASQUÉE — le professeur
+n'avait pas coché « Afficher aux élèves », et « Fiche enregistrée ✓ » ne le
+disait pas. **La page dit désormais les deux** : un refus de politique
+d'accès nomme la session remplacée et le chemin du retour (la page du
+professeur — jamais son nom de fichier entre guillemets, un contrôle
+l'interdit hors de `quitToHome()`), en gardant le message et le code bruts ;
+toute autre erreur reste brute, sans accuser la session ; et « Enregistrer »
+dit si le devoir ou la fiche est AFFICHÉ aux élèves ou MASQUÉ, avec la case
+à cocher. La première version (v297) avait seulement fait parler la page —
+« Enregistrement impossible » nu couvrait la session, le réseau et la base
+d'un même mot —, et c'est ce message qui a nommé la cause : le diagnostic
+d'abord, le remède ensuite. Deux sabotages, chacun rougissant en nommant son
+défaut ; un troisième essai a rougi sur le CONTRÔLE voisin, celui des
+adresses vers la page d'aiguillage, et il avait raison.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
