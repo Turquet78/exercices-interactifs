@@ -297,6 +297,16 @@ module.exports = {
        mais sans devoir affiché, et devoir affiché. */
     devoirsEleve: { table: 'parametres_1ere', exercice: 'pourcentage',
                     aveu: 'ne voit aucun réglage' },
+    /* LA SECONDE FAMILLE DE DEVOIRS — ce que la page doit en dire, déclaré
+       ICI pour que le contrôle compare DEUX sources (le profil et la page) au
+       lieu de lire la page et de la comparer à elle-même : le titre de la
+       carte de l'accueil et de la page, le badge des cartes, le libellé de la
+       note, et les deux différences qui ne valent pas partout — l'ordre
+       imposé (ordre) et la note ramenée sur 20 (sur20). « compacte » dit si
+       la liste de l'élève est la liste compacte (numéro, titre, note) ou la
+       liste historique qui recopie les exercices. */
+    fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
+              ordre: true, sur20: true, compacte: true },
     lacunes: [],
   },
 
@@ -535,6 +545,9 @@ module.exports = {
        la justification se lirait sans son affirmation. Seul un navigateur
        sait où une rangée se replie. */
     tableauVraiFaux: { exercice: 'tableau-vrai-faux' },
+    /* la seconde famille de devoirs : voir la Première */
+    fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
+              ordre: true, sur20: true, compacte: true },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
@@ -696,6 +709,15 @@ module.exports = {
     relance: { testId: 'derivee-exp', kind: 'dexp', fonction: 'startDexp' },
     rappels: RAPPELS_TERMINALE,
     specifique: null,
+    /* LES TRAVAUX FACULTATIFS (demande de Turquet, septembre 2026) : la seconde
+       famille de devoirs de la Terminale. Gérés « de la même manière que les
+       DM » : tous les exercices ouverts (pas d'ordre imposé) et la note en
+       points bruts — les deux différences que les fiches de la Seconde et de
+       la Première portent ne valent PAS ici, et le dire est ce qui empêche
+       le banc de les exiger à tort. La liste de l'élève est la liste
+       historique de la Terminale, qui recopie les exercices. */
+    fiches: { titre: 'Travaux facultatifs', badge: 'Fiche', note: 'Note de la fiche',
+              ordre: false, sur20: false, compacte: false },
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",

@@ -3118,8 +3118,8 @@ l'entonnoir.
 **L'ordre des exercices d'un DEVOIR se règle en Terminale — l'affichage,
 jamais un verrou.** Demande de Turquet (septembre 2026) : « en Terminale je
 n'arrive pas à changer l'ordre des exercices dans les devoirs maison comme en
-1ère ». La Terminale n'a pas de fiches : ses devoirs sont sa seule famille, et
-son éditeur ne réglait pas l'ordre — pire, sa relecture du formulaire
+1ère ». La Terminale n'avait alors pas de fiches : ses devoirs étaient sa seule
+famille, et son éditeur ne réglait pas l'ordre — pire, sa relecture du formulaire
 (`readEditorIntoDevoir`) réécrivait `exercices` dans l'ordre du MENU
 (`TEST_ORDER`) : le piège payé par la Seconde sur ses fiches, au même
 endroit — un ordre réglé aurait été écrasé à chaque enregistrement et à
@@ -3140,6 +3140,37 @@ coché en dernier, les flèches rendues (un ruban vidé garderait son `#dmOrdre`
 et resterait vert sans ce compte), le déplacement que l'enregistrement
 emporte tel quel, et l'écran de l'élève qui suit l'ordre du tableau — éprouvé
 par quatre sabotages, chacun rougissant en nommant son défaut.
+
+**Les TRAVAUX FACULTATIFS sont la seconde famille de devoirs de la Terminale —
+gérés comme les devoirs, rangés à part.** Demande de Turquet (septembre
+2026) : « une case "travaux facultatifs" dans la page où l'on a les cases
+"choisir un exercice", "faire un devoir maison" — je peux donner une fiche de
+travail comme les DM mais avec un titre ; les fiches sont gérées de la même
+manière que les DM ». C'est le motif de la Seconde et de la Première
+(`GENRE_DEVOIRS`), porté tel quel : même écran élève, même éditeur, mêmes
+notes, même carnet — et deux CLÉS de stockage, parce que le portail lit
+`valeurs.devoirs` et publierait une fiche rangée dedans ; les fiches vivent
+sous `valeurs.fiches`, et `persistDevoirs()` n'écrit que la clé de SA famille.
+Le préfixe de l'identifiant dit la famille (`fc_`), la carte de l'accueil mène
+à `openDevoirsEleve('fiche')`, le professeur bascule par un sélecteur en tête
+de l'onglet « Devoirs & travaux », et une famille vide reçoit une fiche de
+départ MASQUÉE — rien ne doit paraître aux élèves avant qu'il ne l'ait voulu.
+**Ce qui NE vient PAS avec : l'ordre imposé et la note sur 20.** Les deux
+différences que les fiches de la Seconde et de la Première portent
+(`ordre:true`, `sur20:true`) ne valent pas ici — « gérées de la même manière
+que les DM » : tous les exercices ouverts, la note en points bruts. C'est le
+seul endroit où les deux moitiés du projet divergent sur la même famille, et
+c'est pourquoi le contrôle compare désormais DEUX sources : `tests/profils.js`
+déclare, pour chaque niveau, le titre de la famille, son badge, le libellé de
+la note, `ordre`, `sur20` et `compacte` (la Terminale garde sa liste
+historique qui recopie les exercices), et le banc exige de la page ce que le
+profil dit — une famille que la page porte sans que le profil la déclare, ou
+l'inverse, rougit ; un `ordre:true` sans `dmVerrouille()`, ou un
+`dmVerrouille()` sur une famille déclarée sans ordre, rougit aussi. Avant, ce
+contrôle citait « Fiches de travail » et « 16 / 20 » en toutes lettres et ne
+pouvait que rougir sur la Terminale ou être tu. Le mot de la famille au carnet
+(`dmMoyFamille`) reste « fiche » : les travaux facultatifs SONT des fiches, et
+la fonction est le même texte dans les trois fichiers.
 
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
@@ -5490,6 +5521,16 @@ revient à l'identique, cesser de la reproduire et changer de couche — remonte
 la chaîne jusqu'au maillon capable d'expliquer, au lieu d'interroger celui qui
 ne sait que constater. C'est la règle 3 appliquée au diagnostic : une
 vérification qui ne prouve rien ne prouve pas davantage en la répétant.
+
+**Deux bancs jsdom ne se lancent pas EN MÊME TEMPS.** `verifier.js` écrit ses
+contrôles dans `ctrl<i>.js` sous le dossier temporaire du système, et deux
+exécutions parallèles — `test:secondes` et `test:premiere` lancés côte à côte
+pour gagner du temps, septembre 2026 — se prennent ces fichiers l'une à
+l'autre : la seconde s'arrête sur « ENOENT … unlink /tmp/ctrl1.js », un échec
+qui ressemble à un défaut de la page et n'en est pas un. `npm test` les
+enchaîne, exprès. Une campagne de sabotage, qui relance le banc en boucle, se
+joue seule sur la machine, sans banc à côté — sans quoi un banc interrompu
+fait rougir un sabotage qui ne mesurait rien.
 
 **Un bug trouvé devient un contrôle.** Sinon il reviendra. Les trois pannes qui
 ont motivé ce banc de test y sont chacune couvertes par une ligne.

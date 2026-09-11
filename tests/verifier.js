@@ -9580,11 +9580,26 @@ function archiverDevoir(w, apres){
    double de la base, et un contrôle qui courrait à côté lui reprendrait la
    main en plein vol (« panne simulée » au milieu d'une lecture). Il vit donc
    entre coursEnPdf et longueurContexteIA, jamais dans la liste synchrone. */
+/* DEUX SOURCES : le profil (tests/profils.js, « fiches ») dit ce que la famille
+   doit s'appeler et ce qu'elle fait — la Terminale l'appelle « Travaux
+   facultatifs » et la gère comme ses devoirs (demande de Turquet, septembre
+   2026), la Seconde et la Première « Fiches de travail en classe » avec
+   l'ordre imposé et la note sur 20. Lire la page et la comparer à elle-même
+   ne prouverait rien ; et une page qui porterait la famille sans que le
+   profil la déclare, ou l'inverse, rougit en le disant. */
 function fichesDeTravail(w, apres){
+  const NOM='les fiches de travail vivent à côté des devoirs, jamais dedans';
+  const F=P.fiches;
   const present = evaluer(w, "typeof GENRE_DEVOIRS!=='undefined' && typeof openDevoirsEleve==='function'");
-  if(!present.ok || !present.valeur){
-    ignorer('les fiches de travail vivent à côté des devoirs, jamais dedans',
-      'ce niveau n\'a pas les fiches de travail en classe');
+  const aPage = !!(present.ok && present.valeur);
+  if(!aPage && !F){
+    ignorer(NOM, 'ce niveau n\'a pas de seconde famille de devoirs');
+    return ordreDesFiches(w, apres);
+  }
+  if(aPage !== !!F){
+    verifier(NOM, false, F
+      ? 'le profil déclare une seconde famille (« '+F.titre+' ») que la page n\'a pas (GENRE_DEVOIRS ou openDevoirsEleve manque)'
+      : 'la page porte GENRE_DEVOIRS mais tests/profils.js ne déclare aucune « fiches » : le contrôle ne saurait pas quoi exiger');
     return ordreDesFiches(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
@@ -9599,29 +9614,51 @@ function fichesDeTravail(w, apres){
       fiches:[{id:'fc_temoin',num:2,actif:true,titre:'Fiche témoin',cours:'',exercices:[{id:exId,modes:['train']}]}]
     }}]);
 
+    /* 0. LA CARTE DE L'ACCUEIL mène à la famille, et la nomme : une famille
+       sans porte serait une aide écrite où rien ne mène (la leçon du bouton
+       qui mène à l'aide). Le titre vient du PROFIL, jamais de la page. */
+    const carte=[].slice.call(document.querySelectorAll('#scr-space .choice')).find(function(b){
+      return /openDevoirsEleve\\(\\s*['"]fiche['"]\\s*\\)/.test(b.getAttribute('onclick')||''); });
+    if(!carte) vus.push('aucune carte de l\\'accueil n\\'appelle openDevoirsEleve(\\'fiche\\')');
+    else if(carte.textContent.indexOf('${F.titre}')<0) vus.push('la carte de l\\'accueil ne s\\'appelle pas « ${F.titre} » : « '+carte.textContent.trim().slice(0,60)+' »');
+    /* 0 bis. le professeur a un SÉLECTEUR de famille, qui nomme les deux */
+    if(typeof renderDmGenres!=='function') vus.push('le tableau de bord n\\'a pas de sélecteur de famille (renderDmGenres)');
+    else {
+      dmGenre='dm'; renderDmGenres();
+      const onglets=[].slice.call(document.querySelectorAll('#dmGenres .dm-tab')).map(function(b){ return b.textContent.trim(); });
+      if(onglets.length!==2) vus.push('le sélecteur de famille montre '+onglets.length+' onglet(s) au lieu de 2');
+      if(onglets.indexOf('${F.titre}')<0) vus.push('le sélecteur du professeur ne nomme pas « ${F.titre} » : '+onglets.join(' / '));
+    }
+
     /* 1. chaque page montre SA famille */
     await openDevoirsEleve('fiche');
     let corps=document.getElementById('devoirsBody').textContent;
     let titre=document.getElementById('devoirsTitle').textContent;
-    if(titre.indexOf('Fiches de travail')<0) vus.push('la page des fiches se titre « '+titre+' »');
+    if(titre.indexOf('${F.titre}')<0) vus.push('la page des fiches se titre « '+titre+' » au lieu de « ${F.titre} »');
     if(corps.indexOf('Fiche témoin')<0) vus.push('la fiche affichée n\\'arrive pas jusqu\\'à l\\'élève');
-    if(corps.indexOf('Fiche n°2')<0) vus.push('la carte ne dit pas « Fiche n°2 » : '+corps.slice(0,80));
+    if(corps.indexOf('${F.badge} n°2')<0) vus.push('la carte ne dit pas « ${F.badge} n°2 » : '+corps.slice(0,80));
     if(corps.indexOf('Devoir témoin')>=0) vus.push('un DEVOIR s\\'affiche dans la page des fiches');
-    /* 1 bis. LA LISTE EST COMPACTE (demande de Turquet, août 2026) : le numéro,
-       le titre, la note s'il y en a une — jamais le contenu, qui ne vit que sur
-       la page du devoir. Trois bords : le contenu absent de la liste, « À
-       faire » quand rien n'est fait, la note quand elle existe — et le
-       contenu, lui, doit être SUR la page du devoir. */
     const exLbl=testLabel(exId);
-    if(corps.indexOf(exLbl)>=0) vus.push('la liste recopie le contenu : « '+exLbl+' » s\\'affiche avant d\\'ouvrir la fiche');
-    if(corps.indexOf('À faire')<0) vus.push('une fiche jamais travaillée ne dit pas « À faire » : '+corps.slice(0,90));
+    if(${F.compacte?'true':'false'}){
+      /* 1 bis. LA LISTE EST COMPACTE (demande de Turquet, août 2026) : le numéro,
+         le titre, la note s'il y en a une — jamais le contenu, qui ne vit que sur
+         la page du devoir. Trois bords : le contenu absent de la liste, « À
+         faire » quand rien n'est fait, la note quand elle existe — et le
+         contenu, lui, doit être SUR la page du devoir. La Terminale garde sa
+         liste historique, qui recopie les exercices : le profil le dit. */
+      if(corps.indexOf(exLbl)>=0) vus.push('la liste recopie le contenu : « '+exLbl+' » s\\'affiche avant d\\'ouvrir la fiche');
+      if(corps.indexOf('À faire')<0) vus.push('une fiche jamais travaillée ne dit pas « À faire » : '+corps.slice(0,90));
+    }
     window.__faux.semer('${P.tableResultats||'resultats'}',[{id:1,eleve_id:'e-controle',score:8,total:10,percent:80,
       details:{test:exId,mode:'train',dm:'fc_temoin'}}]);
     await openDevoirsEleve('fiche');
     corps=document.getElementById('devoirsBody').textContent;
-    /* 8/10 en points bruts, RAMENÉS SUR 20 pour une fiche (demande de
-       Turquet, septembre 2026) : la carte dit « 16 / 20 », jamais « 8 / 10 » */
-    if(corps.indexOf('Note : 16 / 20')<0) vus.push('la note obtenue ne s\\'affiche pas sur 20 sur la liste : '+corps.slice(0,110));
+    /* 8/10 en points bruts — RAMENÉS SUR 20 là où le profil le déclare (les
+       fiches de la Seconde et de la Première, demande de Turquet, septembre
+       2026) : la carte dit « 16 / 20 », jamais « 8 / 10 » ; en points bruts
+       ailleurs (les travaux facultatifs de la Terminale, « comme les DM »). */
+    const attenduNote=${F.sur20?"'Note : 16 / 20'":"'Note : 8 / 10'"};
+    if(corps.indexOf(attenduNote)<0) vus.push('la note obtenue ne s\\'affiche pas « '+attenduNote+' » sur la liste : '+corps.slice(0,110));
     window.__faux.semer('${P.tableResultats||'resultats'}',[]);
     await openDevoirsEleve();
     corps=document.getElementById('devoirsBody').textContent;
@@ -9634,8 +9671,8 @@ function fichesDeTravail(w, apres){
     await ouvrirDevoirDetail('fc_temoin');
     titre=document.getElementById('devoirsTitle').textContent;
     corps=document.getElementById('devoirsBody').textContent;
-    if(titre.indexOf('Fiches de travail')<0) vus.push('le détail d\\'une fiche se titre « '+titre+' »');
-    if(corps.indexOf('Note de la fiche')<0) vus.push('le détail d\\'une fiche parle de « Note du devoir »');
+    if(titre.indexOf('${F.titre}')<0) vus.push('le détail d\\'une fiche se titre « '+titre+' » au lieu de « ${F.titre} »');
+    if(corps.indexOf('${F.note}')<0) vus.push('le détail d\\'une fiche ne dit pas « ${F.note} »');
     if(corps.indexOf(exLbl)<0) vus.push('le contenu de la fiche n\\'est plus sur sa page : « '+exLbl+' » manque');
 
     /* 3. une note lancée depuis une fiche porte SON identifiant */
@@ -9643,6 +9680,9 @@ function fichesDeTravail(w, apres){
       await openTestDevoir('fc_temoin', exId);
       if(currentDM!=='fc_temoin') vus.push('un exercice lancé depuis la fiche est étiqueté « '+currentDM+' »');
       currentDM=null;
+      /* la Terminale passe par l'écran d'énoncé (papier ou ordinateur) : on le
+         referme, sans quoi son hôte garderait la photo d'un exercice */
+      if(typeof dmeViderCorps==='function'){ dmeCtx=null; dmeViderCorps(); }
     }
 
     /* 4. l'enregistrement d'une famille NE TOUCHE PAS l'autre */
@@ -9681,8 +9721,8 @@ function fichesDeTravail(w, apres){
     }
     return vus.join(' | ');
   })()`, function(r){
-    if(!r.ok) verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', false, 'erreur JavaScript : '+r.erreur);
-    else verifier('les fiches de travail vivent à côté des devoirs, jamais dedans', r.valeur==='', r.valeur);
+    if(!r.ok) verifier(NOM, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(NOM, r.valeur==='', r.valeur);
     ordreDesFiches(w, apres);
   });
 }
@@ -9703,12 +9743,20 @@ function fichesDeTravail(w, apres){
        déplacent, l'enregistrement l'emporte tel quel — et un devoir garde
        l'ordre du menu, sans ruban. */
 function ordreDesFiches(w, apres){
+  const NOM='les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur';
+  const F=P.fiches;
   const present = evaluer(w, "typeof GENRE_DEVOIRS!=='undefined' && typeof dmVerrouille==='function' && typeof openTestDevoir==='function'");
   if(!present.ok || !present.valeur){
-    ignorer('les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur',
-      'ce niveau n\'a pas les fiches de travail en classe');
+    /* DEUX SOURCES : une famille déclarée « ordre:true » dont le verrou
+       manquerait rougit ; une famille déclarée sans ordre — les travaux
+       facultatifs de la Terminale, gérés comme les devoirs — se dit. */
+    if(F && F.ordre) verifier(NOM, false, 'le profil déclare l\'ordre imposé sur « '+F.titre+' », et la page n\'a pas dmVerrouille()');
+    else ignorer(NOM, F
+      ? 'les « '+F.titre+' » de ce niveau se font comme les devoirs, tous ouverts (décision de Turquet, septembre 2026)'
+      : 'ce niveau n\'a pas de seconde famille de devoirs');
     return ordreDesDevoirs(w, apres);
   }
+  if(F && !F.ordre){ verifier(NOM, false, 'la page verrouille les « '+F.titre+' » (dmVerrouille) alors que le profil les déclare sans ordre imposé'); return ordreDesDevoirs(w, apres); }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -9848,11 +9896,19 @@ function ordreDesFiches(w, apres){
        phrase — la demande nomme les fiches, pas les devoirs. */
 function noteFicheSur20(w, apres){
   const nom='la note d\'une fiche se lit sur 20, celle d\'un devoir reste en points bruts';
+  const F=P.fiches;
   const present = evaluer(w, "typeof GENRE_DEVOIRS!=='undefined' && typeof dmNoteAff==='function' && typeof openDevoirsEleve==='function'");
   if(!present.ok || !present.valeur){
-    ignorer(nom, 'ce niveau n\'a pas les fiches de travail en classe');
+    /* DEUX SOURCES, comme pour l'ordre : « sur20 » déclaré sans conversion
+       dans la page rougit ; déclaré faux — les travaux facultatifs de la
+       Terminale, notés en points bruts comme les devoirs — se dit. */
+    if(F && F.sur20) verifier(nom, false, 'le profil déclare la note sur 20 pour « '+F.titre+' », et la page n\'a pas dmNoteAff()');
+    else ignorer(nom, F
+      ? 'les « '+F.titre+' » de ce niveau se notent comme les devoirs, en points bruts (décision de Turquet, septembre 2026)'
+      : 'ce niveau n\'a pas de seconde famille de devoirs');
     return reglagesDevoirs(w, apres);
   }
+  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return reglagesDevoirs(w, apres); }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
