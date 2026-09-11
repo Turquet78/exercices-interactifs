@@ -79,7 +79,7 @@ const RAPPELS_TERMINALE = `(function(){
    d'ensembles, qui partagent le kind 'ens'. */
 const RAPPELS_SECONDE = `(function(){
   const cles={ 'ensembles-nombres':'ens','ensembles-nombres-2':'ens','definitions-ensembles':'def',
-               'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','choisir-tableau-variation':'vtq','maximum-minimum':'mmx','maximum-minimum-tableau':'mmt','tableau-equations':'tve','tableau-vrai-faux':'tvf','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','construire-fonction':'cfx','pourcentage':'pct',
+               'plus-petit-ensemble':'pge','lecture-variations':'lv','tableau-variation':'tvd','lecture-signes':'ls','signes-variations':'lsv','signes-variations-grand':'gsv','choisir-tableau-variation':'vtq','maximum-minimum':'mmx','maximum-minimum-tableau':'mmt','tableau-equations':'tve','tableau-vrai-faux':'tvf','image-nombre':'img','placer-image':'pim','antecedent-nombre':'ant','antecedents-droite':'adr','inequation-droite':'iqd','inequation-graphique':'ing','equation-graphique':'eqg','lecture-deux-courbes':'ifg','resolutions-graphiques':'eig','tableau-signes-graphique':'tsg','solutions-graphique':'tvg','construire-fonction':'cfx','pourcentage':'pct',
                'augmenter-pourcentage':'aug','diminuer-pourcentage':'dim','intervalles':'itv','intervalles-inegalite':'itq',
                'appartient-intervalle':'app','appartient-intervalle-2':'app','somme-fractions':'sf',
                'placer-intervalle':'plc','croiser-denominateurs':'sf','simplifier-fractions':'sf',
@@ -366,6 +366,11 @@ module.exports = {
        cela ne se voit hors d'un vrai navigateur. */
     barresSimplifier: { exercice: 'simplifier-barres' },
     construireFonction: { exercice: 'construire-fonction' },
+    /* {solutions-graphique} (porté du 4.5 de la Terminale) : les cibles se
+       CLIQUENT sur le dessin — ronds sur la courbe, carrés sur l'axe — et
+       les couleurs du verdict se lisent à l'encre rendue. jsdom n'a pas de
+       mise en page : le clic et l'encre ne se voient que dans un navigateur. */
+    solutionsGraphique: { exercice: 'solutions-graphique' },
     /* {placer-image} : le point se POSE au clic sur le graphe du 2.2 — le
        calcul clic → nœud ne se voit que dans un vrai navigateur. */
     placerImage: { exercice: 'placer-image' },
@@ -428,7 +433,11 @@ module.exports = {
        lit le calcul. Il n'y a rien à colorer pendant la frappe, et un appel
        au modèle à chaque touche serait absurde. Déclaré plutôt que le
        contrôle affaibli pour tout le monde. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll'] },
+    /* « tvg » — {solutions-graphique}, porté du 4.5 de la Terminale — ne
+       colore rien au fil des clics, et c'est voulu : peindre chaque cible au
+       moment où on la pose dirait laquelle est juste avant même de vérifier.
+       Le soutien y colore à la vérification, sans révéler ce qui manque. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -515,7 +524,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'construire-fonction'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'construire-fonction'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
