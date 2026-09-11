@@ -2408,7 +2408,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=296;
+const APP_VERSION=297;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2462,7 +2462,8 @@ function fmtDur(s){s=Math.round(s||0);const m=Math.floor(s/60),sec=s%60;return m
 function fmtDurLong(s){s=Math.round(s||0);const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(h>0)return `${h} h ${String(m).padStart(2,'0')} min`;if(m>0)return `${m} min ${String(sec).padStart(2,'0')}`;return `${sec} s`;}
 function fmtDate(ts){return new Date(ts).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});}
 function pctClass(p){return p>=70?'hi':p>=50?'mid':'lo';}
-function toast(msg,type){const t=$('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',2600);}
+/* Un message long reste plus longtemps : une raison d'échec qu'on n'a pas le temps de lire n'en est pas une. */
+function toast(msg,type){const t=$('toast');t.textContent=msg;t.className='show'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',String(msg).length>70?8000:2600);}
 
 /* ---------- État ---------- */
 const DEFAULT_DEVOIR={
@@ -17394,9 +17395,24 @@ async function addDevoir(){
   const maxNum=dmList.reduce((m,d)=>Math.max(m,d.num||0),0);
   const d=ensureDevoir({id:newDevoirId(dmGenre), num:maxNum+1, actif:true, titre:G.defTitre, cours:'', exercices:[]}, dmList.length);
   dmList.push(d); dmSelId=d.id;
-  try{ await persistDevoirs(); }catch(e){}
+  /* L'échec s'écrit AVEC sa raison — le refus muet, encore : « Fiche n°1
+     ajoutée » sur une fiche que la base a refusée laissait le professeur
+     la garnir pour rien, et « Enregistrement impossible » sans motif ne
+     disait pas si c'était la session, le réseau ou la base (signalé par
+     Turquet, septembre 2026, sur la première fiche de la Terminale). */
+  let echec=null;
+  try{ await persistDevoirs(); }catch(e){ echec=e; }
   renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
-  toast(G.badge+' n°'+d.num+' ajouté'+(dmGenre==='fiche'?'e':''),'ok');
+  if(echec) toast(G.badge+' n°'+d.num+' créée à l\u2019écran mais PAS enregistrée : '+dmRaison(echec),'err');
+  else toast(G.badge+' n°'+d.num+' ajouté'+(dmGenre==='fiche'?'e':''),'ok');
+}
+/* La raison d'un échec d'écriture, telle que Supabase la donne : le code
+   PostgREST (42501 = refus de la politique d'accès, PGRST301 = session
+   expirée…) et le message, sans quoi le professeur ne peut rien nous dire. */
+function dmRaison(e){
+  if(!e) return 'raison inconnue';
+  const m=(e.message||String(e)), c=e.code?(' ['+e.code+']'):'';
+  return (m.length>160?m.slice(0,160)+'…':m)+c;
 }
 function renderDevoirEditor(){
   const dev=selectedDevoir(); if(!dev){ $('dmEditor').style.display='none'; return; }
@@ -17500,7 +17516,7 @@ async function saveDevoir(){
     const m=$('dmSaved'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1800);
     toast((dmGenre==='fiche'?'Fiche enregistrée':'Devoir enregistré')+' ✓','ok');
     renderDevoirSelector(); renderDevoirResultats();
-  }catch(e){ toast('Enregistrement impossible','err'); }
+  }catch(e){ toast('Enregistrement impossible : '+dmRaison(e),'err'); }
 }
 async function deleteDevoir(){
   const dev=selectedDevoir(); if(!dev) return;
@@ -17516,7 +17532,7 @@ async function deleteDevoir(){
     ? ensureDevoir({ id:newDevoirId('fiche'), num:1, actif:false, titre:GENRE_DEVOIRS.fiche.defTitre, cours:'', exercices:[] },0)
     : ensureDevoir(Object.assign({},DEFAULT_DEVOIR),0) ];
   dmSelId=dmList[0].id;
-  try{ await persistDevoirs(); toast(dmGenre==='fiche'?'Fiche supprimée':'Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible','err'); }
+  try{ await persistDevoirs(); toast(dmGenre==='fiche'?'Fiche supprimée':'Devoir supprimé','ok'); }catch(e){ toast('Suppression impossible : '+dmRaison(e),'err'); }
   renderDevoirSelector(); renderDevoirEditor(); renderDevoirResultats();
 }
 /* ══ ARCHIVER PLUTÔT QUE DÉTRUIRE ══════════════════════════════════════════
