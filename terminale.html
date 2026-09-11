@@ -2408,7 +2408,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=297;
+const APP_VERSION=298;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -17533,7 +17533,22 @@ async function addDevoir(){
 function dmRaison(e){
   if(!e) return 'raison inconnue';
   const m=(e.message||String(e)), c=e.code?(' ['+e.code+']'):'';
-  return (m.length>160?m.slice(0,160)+'…':m)+c;
+  const brut=(m.length>160?m.slice(0,160)+'…':m)+c;
+  /* LE REFUS DE LA BASE A UNE CAUSE ORDINAIRE, et elle se nomme : la session
+     Supabase vit dans le stockage du navigateur, UNE par projet — un élève
+     qui se connecte dans un autre onglet (ou dans celui-ci, pour « voir en
+     tant qu'élève ») remplace celle du professeur, et le tableau de bord
+     resté ouvert écrit désormais sous le compte de l'élève : est_prof() dit
+     non, PostgREST répond 42501. Vu par Turquet (septembre 2026) sur la
+     première fiche de la Terminale — la ligne brute ne disait pas quoi
+     faire. Le message ne NOMME pas le fichier de la page d'aiguillage : un
+     contrôle interdit son nom entre guillemets hors de quitToHome(), et il a
+     raison — une adresse écrite ici serait une adresse qu'on suit. */
+  if(e.code==='42501' || /row-level security/i.test(m))
+    return 'la base refuse d\u2019écrire, parce que la session ouverte dans ce navigateur n\u2019est plus celle du professeur '
+      +'(un élève s\u2019est connecté entre-temps, dans cet onglet ou un autre ?). Reconnecte-toi par la page du professeur (ton favori), puis réessaie. '
+      +'Détail : '+brut;
+  return brut;
 }
 function renderDevoirEditor(){
   const dev=selectedDevoir(); if(!dev){ $('dmEditor').style.display='none'; return; }
@@ -17635,7 +17650,16 @@ async function saveDevoir(){
   try{
     await persistDevoirs();
     const m=$('dmSaved'); m.classList.add('show'); setTimeout(()=>m.classList.remove('show'),1800);
-    toast((dmGenre==='fiche'?'Fiche enregistrée':'Devoir enregistré')+' ✓','ok');
+    /* L'écran DIT si les élèves verront ce qu'on vient d'enregistrer : une
+       fiche naît MASQUÉE, et « enregistrée ✓ » seul laissait croire qu'elle
+       était donnée — le professeur allait la chercher chez l'élève, en vain
+       (signalé par Turquet, septembre 2026). */
+    const dev=selectedDevoir(), fiche=(dmGenre==='fiche');
+    const visible=!!(dev&&dev.actif);
+    toast((fiche?'Fiche enregistrée':'Devoir enregistré')+' ✓'
+      +(visible?' — '+(fiche?'affichée':'affiché')+' aux élèves'
+               :' — '+(fiche?'MASQUÉE':'MASQUÉ')+' : coche « Afficher aux élèves » pour '+(fiche?'la':'le')+' donner'),
+      visible?'ok':'');
     renderDevoirSelector(); renderDevoirResultats();
   }catch(e){ toast('Enregistrement impossible : '+dmRaison(e),'err'); }
 }
