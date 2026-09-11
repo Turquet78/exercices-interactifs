@@ -7562,12 +7562,19 @@ function alphaSigne(w, P){
 
     /* ---- montage : la question de la fiche même — f(x) = (x + 2)e^(−x) ---- */
     const Q={a:1,b:2}, Q2={a:-1,b:3};
-    const IDS=['asg-la','asg-lat','asg-lae','asg-lb','asg-lbt','asg-b1','asg-b2','asg-b3','asg-c1','asg-c2',
+    /* le b) est PRÉSENTÉ COMME AU 2.1 (demande de Turquet, septembre 2026) :
+       douze cases MathLive — u/v/u′/v′, la substitution, le développement,
+       la factorisation — jugées en groupe par asgDerVerdicts */
+    const IDS=['asg-la','asg-lat','asg-lae','asg-lb','asg-lbt',
+      'asg-bu','asg-bv','asg-bdu','asg-bdv','asg-bs2a','asg-bs2b','asg-bs2c','asg-bs2d',
+      'asg-bs3a','asg-bs3b','asg-bs3c','asg-bfac','asg-c1','asg-c2',
       'ef-r0','ef-l0s0','ef-l0s1','ef-l1s0','ef-l1s1','ef-l2s0','ef-l2s1','ef-a0','ef-a1','ef-e0t','ef-e0x',
       'asg-d1','asg-d2','asg-d3','asg-d4','asg-d5','asg-e1','asg-e2','asg-e3','asg-e4','asg-e5','asg-e6',
       'asg-f0','asg-f1','asg-f2'];
     const BON={'asg-la':'0','asg-lat':'ah','asg-lae':'0','asg-lb':'-∞','asg-lbt':'rien',
-      'asg-b1':'1','asg-b2':'-1','asg-b3':'-x-1','asg-c1':'1','asg-c2':'-1',
+      'asg-bu':'x+2','asg-bv':'e^(-x)','asg-bdu':'1','asg-bdv':'-e^(-x)',
+      'asg-bs2a':'1','asg-bs2b':'e^(-x)','asg-bs2c':'-e^(-x)','asg-bs2d':'x+2',
+      'asg-bs3a':'1','asg-bs3b':'-x','asg-bs3c':'-2','asg-bfac':'-x-1','asg-c1':'1','asg-c2':'-1',
       'ef-r0':'-1','ef-l0s0':'+','ef-l0s1':'−','ef-l1s0':'+','ef-l1s1':'+','ef-l2s0':'+','ef-l2s1':'−',
       'ef-a0':'up','ef-a1':'down','ef-e0t':'max','ef-e0x':'-1',
       'asg-d1':'-1','asg-d2':'-1','asg-d3':'-1','asg-d4':'1','asg-d5':'1',
@@ -7577,7 +7584,15 @@ function alphaSigne(w, P){
       Object.assign(test,{kind:'asg', questions:[JSON.parse(JSON.stringify(Q)),JSON.parse(JSON.stringify(Q2))], idx:0, score:0, answers:[], locked:false, startTime:Date.now(), maxScore:2});
       renderASG();
       IDS.forEach(function(id){ const el=document.getElementById(id);
-        if(el){ const v=vals[id]; el.value=(v===undefined||v===null)?'':String(v); } });
+        if(!el) return;
+        const v=vals[id]; const s=(v===undefined||v===null)?'':String(v);
+        if(el.tagName==='MATH-FIELD'){
+          /* jsdom n'a pas MathLive : la case s'anime par getValue/setValue,
+             que dexpCellValue et rfReveal lisent à travers le passe-plat */
+          el.getValue=function(){ return s; };
+          el.setValue=function(nv){ const t=String(nv); el.getValue=function(){ return t; }; };
+        } else el.value=s;
+      });
     };
     const peint=function(id){ const el=document.getElementById(id); const c=el?el.className:'';
       return /\\bok\\b/.test(c)?'vert':(/\\bbad\\b/.test(c)?'rouge':(/\\bsol\\b/.test(c)?'sol':'rien')); };
@@ -7601,23 +7616,61 @@ function alphaSigne(w, P){
 
     /* ---- 5. toute écriture ÉGALE est acceptée : la dérivée comme fonction,
        les limites au mot « inf », α en écriture décimale ---- */
-    [['asg-b3','-(x+1)'],['asg-b3','-1x-1'],['asg-lb','-inf'],['asg-la','0,0'],['asg-e6','-2,00'],['asg-b2','-']].forEach(function(p){
+    [['asg-bfac','-(x+1)'],['asg-bfac','-1x-1'],['asg-lb','-inf'],['asg-la','0,0'],['asg-e6','-2,00'],['asg-bdu','+']].forEach(function(p){
       const v=Object.assign({},BON); v[p[0]]=p[1];
       poser(v); checkASG();
       if(test.score!==1) vus.push('l\\'écriture égale « '+p[1]+' » est refusée en '+p[0]); });
 
+    /* ---- 5 bis. la doctrine du 2.1, transposée au b) : l\\'ordre u/v
+       INVERSÉ est accepté, la paire de la substitution est libre, une case
+       vide dans une ligne juste est le facteur 1 omis — elle compte juste
+       et ne manque pas ---- */
+    { const v=Object.assign({},BON,{'asg-bu':'e^(-x)','asg-bv':'x+2','asg-bdu':'-e^(-x)','asg-bdv':'1',
+        'asg-bs2a':'-e^(-x)','asg-bs2b':'x+2','asg-bs2c':'e^(-x)','asg-bs2d':'1'});
+      poser(v); checkASG();
+      if(test.score!==1) vus.push('l\\'ordre u = e^(−x), v = x+2 est refusé : les deux ordres du 2.1 ne sont plus acceptés'); }
+    { const v=Object.assign({},BON,{'asg-bs2a':'e^(-x)','asg-bs2b':'1'});
+      poser(v); checkASG();
+      if(test.score!==1) vus.push('la paire (e^(−x))×(1) est refusée : l\\'ordre DANS la paire n\\'est plus libre'); }
+    { const v=Object.assign({},BON); delete v['asg-bs2a'];
+      poser(v); checkASG();
+      if(test.score!==1) vus.push('le facteur 1 omis (case vide dans une ligne juste) est compté faux ou manquant');
+      if(test.score===1 && peint('asg-bs2a')==='rouge') vus.push('le facteur 1 omis rougit'); }
+
     /* ---- 6. une case fausse rougit, elle seule, avec la bonne réponse en
        badge — le libellé pour un select (« TVI », jamais une valeur interne) ---- */
-    { const v=Object.assign({},BON); v['asg-b3']='x+1'; v['asg-e4']='continue';
+    { const v=Object.assign({},BON); v['asg-bfac']='x+1'; v['asg-e4']='continue';
       poser(v); checkASG();
-      if(peint('asg-b3')!=='rouge') vus.push('la dérivée fausse (x+1) ne rougit pas');
+      if(peint('asg-bfac')!=='rouge') vus.push('la dérivée fausse (x+1) ne rougit pas');
       if(peint('asg-e4')!=='rouge') vus.push('le théorème faux ne rougit pas');
       if(test.score!==0) vus.push('une copie fausse vaut quand même le point');
-      const autres=IDS.filter(function(id){ return id!=='asg-b3'&&id!=='asg-e4'&&peint(id)!=='vert'; });
+      const autres=IDS.filter(function(id){ return id!=='asg-bfac'&&id!=='asg-e4'&&peint(id)!=='vert'; });
       if(autres.length) vus.push('une case fausse fait payer ses voisines : '+autres.join(','));
       const el=document.getElementById('asg-e4'), badge=el&&el.nextElementSibling;
       const txt=(badge&&/mf-cor/.test(badge.className||''))?badge.textContent:'(pas de badge)';
       if(txt!=='TVI') vus.push('le badge du select ne porte pas le libellé TVI : '+txt); }
+
+    /* ---- 6 bis. dans la substitution, la case fausse rougit SEULE — et son
+       badge se pose APRÈS la parenthèse fermante, jamais entre la case et
+       elle ; le terme ENTIER recopié dans une case de coefficient se NOMME
+       (le signalement de Julien sur le 2.1, porté avec la présentation) ---- */
+    { const v=Object.assign({},BON); v['asg-bs2d']='x+3';
+      poser(v); checkASG();
+      if(peint('asg-bs2d')!=='rouge') vus.push('la case fausse de la substitution (x+3) ne rougit pas');
+      ['asg-bs2a','asg-bs2b','asg-bs2c'].forEach(function(id){
+        if(peint(id)!=='vert') vus.push('la case fausse de la substitution fait payer '+id+' : '+peint(id)); });
+      const el=document.getElementById('asg-bs2d'), w=el&&el.closest('.dexp-pwrap');
+      const suiv=w&&w.nextElementSibling;
+      if(!(suiv&&/mf-cor/.test(suiv.className||''))) vus.push('le badge de la case entre parenthèses n\\'est pas posé APRÈS la parenthèse');
+      if(el&&el.nextElementSibling&&/mf-cor/.test(el.nextElementSibling.className||'')) vus.push('le badge est posé DANS les parenthèses, entre la case et la fermante'); }
+    { const v=Object.assign({},BON); v['asg-bs3b']='-xe^(-x)';
+      poser(v); checkASG();
+      if(peint('asg-bs3b')!=='rouge') vus.push('le terme entier recopié dans la case de coefficient ne rougit pas');
+      const fb=document.getElementById('asgFeedback').innerHTML;
+      if(fb.indexOf('COEFFICIENT')<0) vus.push('le terme entier recopié n\\'est pas NOMMÉ dans le message'); }
+    { const v=Object.assign({},BON); delete v['asg-bs3c'];
+      poser(v); checkASG();
+      if(peint('asg-bs3c')!=='sol') vus.push('la case vide du développement (ligne fausse) n\\'est pas remplie en sol : '+peint('asg-bs3c')); }
 
     /* ---- 7. la case vide : en SOUTIEN aucune couleur et rien ne se
        verrouille ; en ENTRAÎNEMENT la correction la remplit en sol ---- */

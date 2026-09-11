@@ -8289,7 +8289,7 @@ function dexpNeedParens(s, first){
   const neg=/^[\-\u2212]/.test(t);
   return inner || (neg && !first);
 }
-const DEXP_FIRSTS=['dexp-s2a','dq-s2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
+const DEXP_FIRSTS=['dexp-s2a','dq-s2a','asg-bs2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
 function dexpRender(ce){
   const st=dexpState(ce);
   let html=dexpEsc(st.base);
@@ -8688,6 +8688,10 @@ function dexpLiveCheck(id){
   if(test && test.kind==='rec') return recLiveCheck(id);
   if(test && test.kind==='sp') return spLiveCheck(id);
   if(test && test.kind==='dexpq') return dqLiveCheck(id);
+  if(test && test.kind==='asg'){   /* le b) du 4.6 : la couleur se pose à la SORTIE de la case, par la correction en direct de l'écran */
+    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkASG(true); },0);
+    return;
+  }
   if(test && test.kind==='dexp' && test.dexpLevel===3) return d3LiveCheck(id);
   if(!(test && test.kind==='dexp')) return;   /* garde-fou : seule la fiche derivees utilise la logique ci-dessous ; sans elle, tout exercice a champs math non liste ci-dessus serait juge avec les verdicts des derivees (case rouge a tort) */
   if(!isSoutien() || test.locked) return;
@@ -11342,8 +11346,11 @@ function rfReveal(id, latex, plain, ok, vide){
   else if(vide){ try{ el.setValue(latex); }catch(e){} el.classList.add('sol'); }
   else {
     el.classList.add('bad');
-    if(!(el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('mf-cor')))
-      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+rfCorHTML(plain)+'</span>');
+    /* une case entre parenthèses (dexp-pwrap) : le badge se pose APRÈS la
+       parenthèse fermante, jamais entre la case et elle */
+    const anc=(el.closest && el.closest('.dexp-pwrap')) || el;
+    if(!(anc.nextElementSibling && anc.nextElementSibling.classList && anc.nextElementSibling.classList.contains('mf-cor')))
+      anc.insertAdjacentHTML('afterend','<span class="mf-cor">'+rfCorHTML(plain)+'</span>');
   }
   el.readOnly=true;
 }
@@ -13156,7 +13163,12 @@ function ecConseilCtx(){
 /* Repris de la fiche « Exercice 2 : Étude de f(x) = (x + 2)e^(−x) » (demande
    de Turquet, septembre 2026) — la fiche MÊME du 5.5 (a = 1, b = 2), menée
    cette fois jusqu'au TVI : a) conjecturer les limites en ±∞ et l'asymptote
-   sur la COURBE, b) démontrer f′(x) = (−x − 1)e^(−x), c) le tableau de signes
+   sur la COURBE, b) démontrer f′(x) = (−x − 1)e^(−x) — PRÉSENTÉ COMME AU 2.1
+   depuis septembre 2026 (demande de Turquet) : on pose u/v/u′/v′ en cases
+   MathLive, la formule u′×v + u×v′, la substitution, le développement, la
+   factorisation, jugés par asgDerVerdicts (la doctrine de dexpVerdicts :
+   les deux ordres u/v, les paires libres, la case vide = facteur 1 omis
+   dans une ligne juste, le terme entier NOMMÉ) —, c) le tableau de signes
    et de variations du 5.3, d) le maximum M = e, e) f(x) = 0 admet une UNIQUE
    solution α sur la branche monotone — les mots du 4.1 (« continue »,
    « strictement croissante », « TVI », « unique ») —, α à la calculatrice,
@@ -13202,10 +13214,13 @@ function asgCases(q){
   N('asg-lae',0);
   out.push({id:'asg-lb',  type:'lim', lim:(q.a===1?'−∞':'+∞')});
   out.push({id:'asg-lbt', type:'sel', good:'rien'});
-  /* b) la dérivée — la cible est RÉVÉLÉE (« Démontre que »), la route est notée */
-  out.push({id:'asg-b1', type:'coef', good:q.a});
-  out.push({id:'asg-b2', type:'coef', good:-1});
-  out.push({id:'asg-b3', type:'aff', p:A.dp, c:A.dq});
+  /* b) la dérivée — la cible est RÉVÉLÉE (« Démontre que »), la route est
+     notée, et la PRÉSENTATION est celle du 2.1 (demande de Turquet,
+     septembre 2026) : on pose u/v/u′/v′, la formule u′×v + u×v′, la
+     substitution, le développement, la factorisation. Ces cases se jugent
+     en GROUPE par asgDerVerdicts — les deux ordres u/v, les paires libres —
+     jamais case à case. */
+  ASG_DER.forEach(id=>out.push({id:id, type:'der'}));
   /* c) la résolution de f′(x) = 0, puis le tableau du 5.3 */
   N('asg-c1',-A.dq); N('asg-c2',A.r);
   efCases(ecTab(q)).forEach(x=>out.push({id:x.id, type:(x.type==='sel'?'sel':'tabnum'), good:x.good}));
@@ -13230,18 +13245,87 @@ function asgOkCase(q,x,raw){
   if(t==='') return false;
   if(x.type==='sel') return t===x.good;
   if(x.type==='lim') return lgLimOK({lim:x.lim}, t);
-  if(x.type==='aff') return checkExprFn(t, xx=>x.p*xx+x.c);
   if(x.type==='coef'){ const v=tgParseCoef(t); return v!=null && v===x.good; }
   if(x.type==='tabnum'){ const v=efParse(t); return v!=null && numOkTol(v,x.good); }
   const v=tgParse(t); return v!=null && v===x.good;
 }
 /* La valeur que la correction écrit — pour un select, la VALUE de l'option
-   (corrCase retrouve le libellé lui-même). */
+   (corrCase retrouve le libellé lui-même). Les cases du b) (type 'der') ne
+   passent pas ici : leur valeur vient d'asgDerVerdicts, selon l'ordre u/v
+   RETENU sur la copie. */
 function asgVal(q,x){
   if(x.type==='sel') return x.good;
   if(x.type==='lim') return (typeof x.lim==='number')?numFmt(x.lim):x.lim;
-  if(x.type==='aff') return asgAffStr(ecAns(q));
   return numFmt(x.good);
+}
+/* ---- le b) : la présentation du 2.1, et son juge ---- */
+const ASG_S2=['asg-bs2a','asg-bs2b','asg-bs2c','asg-bs2d'];
+const ASG_S3=['asg-bs3a','asg-bs3b','asg-bs3c'];
+const ASG_DER=['asg-bu','asg-bv','asg-bdu','asg-bdv'].concat(ASG_S2,ASG_S3,['asg-bfac']);
+/* plain → LaTeX pour setValue et rfReveal : « e^(−x) » devient « e^{-x} » */
+function asgML(plain){ return mlTexN(plain).replace(/\^\(([^)]+)\)/g,'^{$1}'); }
+/* Le juge du b) : dexpVerdicts — le juge du 2.1 — transposé à u = p·x + q,
+   v = e^(−x) (k = −1). Les DEUX ordres u/v sont acceptés et l'ordre retenu
+   est celui qui colle le mieux à la copie ; la substitution se juge d'abord
+   en LIGNE entière (produit + produit = f′), sinon par paires LIBRES contre
+   u′·v et v′·u ; le développement apparie chaque coefficient aux termes
+   attendus (p, −p·x, −q) sans ordre imposé, une case vide valant le
+   coefficient 1 omis ; et le terme ENTIER recopié dans une case de
+   coefficient est détecté pour être NOMMÉ (le signalement de Julien sur le
+   2.1 : la case est suivie de e^(−x), y réécrire e^(−x) fait un terme faux
+   qui ressemble trait pour trait à la bonne démarche). */
+function asgDerVerdicts(q){
+  const A=ecAns(q);
+  const poly=x=>A.p*x+A.q, dpoly=x=>A.p, expf=x=>Math.exp(-x), dexpf=x=>-Math.exp(-x);
+  const fprime=x=>(A.dp*x+A.dq)*Math.exp(-x);
+  const U=dexpCellValue('asg-bu'), DU=dexpCellValue('asg-bdu'), V=dexpCellValue('asg-bv'), DV=dexpCellValue('asg-bdv');
+  const o1={'asg-bu':checkExprFn(U,poly),'asg-bdu':checkExprFn(DU,dpoly),'asg-bv':checkExprFn(V,expf),'asg-bdv':checkExprFn(DV,dexpf)};
+  const o2={'asg-bu':checkExprFn(U,expf),'asg-bdu':checkExprFn(DU,dexpf),'asg-bv':checkExprFn(V,poly),'asg-bdv':checkExprFn(DV,dpoly)};
+  const n1=Object.values(o1).filter(Boolean).length, n2=Object.values(o2).filter(Boolean).length;
+  const order = n2>n1 ? 2 : (n1>n2 ? 1 : (o2['asg-bu']&&!o1['asg-bu'] ? 2 : 1));   /* égalité : la définition posée en u départage */
+  const verdicts = order===2 ? o2 : o1;
+  const f1=dexpCompile1('asg-bs2a'),f2=dexpCompile1('asg-bs2b'),f3=dexpCompile1('asg-bs2c'),f4=dexpCompile1('asg-bs2d');
+  const s2ok=!!(f1&&f2&&f3&&f4)&&cmpFns(x=>f1(x)*f2(x)+f3(x)*f4(x), fprime);
+  const eqF=(f,g)=>!!f&&!!g&&cmpFns(f,g);
+  const bestPair=(Fa,Fb,fa,fb)=>{ const d1=(eqF(Fa,fa)?1:0)+(eqF(Fb,fb)?1:0), d2=(eqF(Fa,fb)?1:0)+(eqF(Fb,fa)?1:0);
+    return d2>d1 ? {v:[eqF(Fa,fb),eqF(Fb,fa)],n:d2} : {v:[eqF(Fa,fa),eqF(Fb,fb)],n:d1}; };
+  if(s2ok){ verdicts['asg-bs2a']=verdicts['asg-bs2b']=verdicts['asg-bs2c']=verdicts['asg-bs2d']=true; }
+  else{
+    /* ligne fausse : chaque case est jugée contre les facteurs attendus (u′·v + v′·u, paires et ordres libres) */
+    const RA1=bestPair(f1,f2,dpoly,expf), RB1=bestPair(f3,f4,dexpf,poly);
+    const RA2=bestPair(f1,f2,dexpf,poly), RB2=bestPair(f3,f4,dpoly,expf);
+    const un=(RA1.n+RB1.n)>=(RA2.n+RB2.n);
+    const va=un?RA1.v:RA2.v, vb=un?RB1.v:RB2.v;
+    verdicts['asg-bs2a']=va[0]; verdicts['asg-bs2b']=va[1]; verdicts['asg-bs2c']=vb[0]; verdicts['asg-bs2d']=vb[1];
+  }
+  const g1=dexpCompile0('asg-bs3a'),g2=dexpCompile0('asg-bs3b'),g3=dexpCompile0('asg-bs3c');
+  const s3ok=!!(g1&&g2&&g3)&&cmpFns(x=>(g1(x)+g2(x)+g3(x))*Math.exp(-x), fprime);
+  let s3TermeEntier=false;
+  if(s3ok){ verdicts['asg-bs3a']=verdicts['asg-bs3b']=verdicts['asg-bs3c']=true; }
+  else{
+    /* ligne fausse : chaque coefficient est apparié aux termes attendus (p, −p·x, −q) */
+    const terms=[dpoly, x=>-A.p*x, x=>-A.q];
+    const used=terms.map(()=>false);
+    const pass=lst=>lst.forEach(id=>{ const f=dexpCompile0(id); let ok=false;
+      for(let i=0;i<terms.length;i++){ if(!used[i]&&eqF(f,terms[i])){ used[i]=true; ok=true; break; } }
+      verdicts[id]=ok; });
+    pass(ASG_S3.filter(id=>dexpCellValue(id)!==''));   /* les cases saisies choisissent leur terme d'abord */
+    pass(ASG_S3.filter(id=>dexpCellValue(id)===''));
+    s3TermeEntier=ASG_S3.some(id=>{ if(verdicts[id]) return false;
+      const f=dexpCompile1(id); if(!f) return false;
+      return terms.some(t=>eqF(f, x=>t(x)*Math.exp(-x))); });
+  }
+  verdicts['asg-bfac']=checkExprFn(dexpCellValue('asg-bfac'), x=>A.dp*x+A.dq);
+  /* les valeurs que la correction écrit, dans l'ordre u/v RETENU */
+  const polyT=dexpPoly1(A.p,A.q), dpolyT=numFmt(A.p), expT='e^(−x)', dexpT='−e^(−x)';
+  const sol = order===2
+    ? {'asg-bu':expT,'asg-bdu':dexpT,'asg-bv':polyT,'asg-bdv':dpolyT,
+       'asg-bs2a':dexpT,'asg-bs2b':polyT,'asg-bs2c':expT,'asg-bs2d':dpolyT}
+    : {'asg-bu':polyT,'asg-bdu':dpolyT,'asg-bv':expT,'asg-bdv':dexpT,
+       'asg-bs2a':dpolyT,'asg-bs2b':expT,'asg-bs2c':polyT,'asg-bs2d':dexpT};
+  sol['asg-bs3a']=numFmt(A.p); sol['asg-bs3b']=polyFr([0,-A.p]); sol['asg-bs3c']=numFmt(-A.q);
+  sol['asg-bfac']=asgAffStr(A);
+  return {verdicts, order, groups:{s2:s2ok, s3:s3ok, s3TermeEntier}, sol};
 }
 /* ---- affichage ---- */
 function asgSelTyp(id){ return '<select class="tvi-sel" id="'+id+'" style="width:auto"><option value="">…</option><option value="ah">une asymptote horizontale</option><option value="av">une asymptote verticale</option><option value="rien">pas d’asymptote horizontale ou verticale</option></select>'; }
@@ -13266,9 +13350,20 @@ function asgFormHTML(q){
     +' <span>— il y a donc</span> '+asgSelTyp('asg-lat')+'<span>, d’équation <i>y</i> =</span> '+txInp('asg-lae')+'<span>.</span></div>'
     +'<div class="tg-line asg-line">Quand <i>x</i> → −∞ : '+f+' → '+asgLim('asg-lb')
     +' <span>— il y a donc</span> '+asgSelTyp('asg-lbt')+'<span>.</span></div>';
-  h+='<p class="tx-part">b. Démontre que <i>f</i> ′(<i>x</i>) = ('+aff+') e<sup>−<i>x</i></sup> — avec u(<i>x</i>) = '+txAX(A.p)+txB(A.q)+' et v(<i>x</i>) = e<sup>−<i>x</i></sup> :</p>'
-    +'<div class="tg-line asg-line">u′(<i>x</i>) = '+txInp('asg-b1')+' <span>&nbsp;;&nbsp;</span> v′(<i>x</i>) = '+txInp('asg-b2')+' e<sup>−<i>x</i></sup></div>'
-    +'<div class="tg-line asg-line"><i>f</i> ′(<i>x</i>) = u′v + uv′ = ( <input type="text" class="tg-in asg-aff" id="asg-b3" autocomplete="off" autocapitalize="off" spellcheck="false"> ) e<sup>−<i>x</i></sup></div>';
+  /* le b), présenté comme au 2.1 : la chaîne u/v/u′/v′ → formule →
+     substitution → développement → factorisation, en cases MathLive */
+  const bm=(id,cls)=>'<math-field class="dexp-mf'+(cls?' '+cls:'')+'" id="'+id+'"></math-field>';
+  const bp=id=>'<span class="dexp-pwrap"><span class="par">(</span>'+bm(id)+'<span class="par">)</span></span>';
+  const eML=mlTex('e^{-x}','<span class="dexp-ek">e<sup>−x</sup></span>');
+  const bs3=id=>bm(id,'dexp-mf-slim')+eML;
+  h+='<p class="tx-part">b. Démontre que <i>f</i> ′(<i>x</i>) = ('+aff+') e<sup>−<i>x</i></sup> :</p>'
+    +'<div class="dexp-pose">On pose <span class="dexp-hint">(u et v dans l’ordre que tu veux)</span> :</div>'
+    +'<div class="dexp-row"><span>'+mlTex('u=','<i>u</i> = ')+bm('asg-bu')+'</span><span>'+mlTex('v=','<i>v</i> = ')+bm('asg-bv')+'</span></div>'
+    +'<div class="dexp-row"><span>'+mlTex("u'=",'<i>u′</i> = ')+bm('asg-bdu')+'</span><span>'+mlTex("v'=",'<i>v′</i> = ')+bm('asg-bdv')+'</span></div>'
+    +'<div class="dexp-formula">'+mlTex("f\\;{}'(x)=u'\\times v+u\\times v'",'<i>f</i> ′(x) = <i>u′</i>×<i>v</i> + <i>u</i>×<i>v′</i>')+'</div>'
+    +'<div class="dexp-steprow"><span class="eq">=</span>'+bp('asg-bs2a')+'<span class="op">×</span>'+bp('asg-bs2b')+'<span class="op">+</span>'+bp('asg-bs2c')+'<span class="op">×</span>'+bp('asg-bs2d')+'</div>'
+    +'<div class="dexp-steprow"><span class="eq">=</span>'+bs3('asg-bs3a')+'<span class="op">+</span>'+bs3('asg-bs3b')+'<span class="op">+</span>'+bs3('asg-bs3c')+'</div>'
+    +'<div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>'+eML+' ( '+bm('asg-bfac','dexp-mf-wide')+' )</div>';
   h+='<p class="tx-part">c. Étudie les variations de '+f+' — résous, puis complète le tableau :</p>'
     +'<div class="tg-line asg-line">'+aff+' = 0 <span class="tg-eq">⟺</span> '+s1ExprHTML(A.dp,0)+' = '+txInp('asg-c1')+' <span class="tg-eq">⟺</span> <i>x</i> = '+txInp('asg-c2')+'</div>'
     +efTableHTML(ecTab(q))+efSyntHTML(ecTab(q));
@@ -13316,22 +13411,34 @@ function renderASG(){
      FANTÔME de l'écran quitté — le piège documenté */
   ['efTable','ecForm','afpHost'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
   $('asgForm').innerHTML=asgFormHTML(q);
+  if(window.mlDexp) window.mlDexp.upgrade($('asgForm'));   /* les cases du b) sont des math-field, comme au 2.1 */
   setTimeout(efArrowChange,0);
   if(isSoutien()){
     $('asgForm').querySelectorAll('input,select').forEach(el=>{
       el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkASG(true)); });
+    /* les math-field, eux, ne se colorent qu'à la SORTIE de la case : la
+       greffe appelle dexpLiveCheck sur focusout, qui route vers checkASG(true) */
   }
 }
 function checkASG(live){
   if(test.locked && !live) return;
   const q=test.questions[test.idx], cases=asgCases(q);
+  const derV=asgDerVerdicts(q);
+  const asgDis=(el,on)=>{ if(el.tagName==='MATH-FIELD') el.readOnly=on; else el.disabled=on; };
   let allOk=true, vides=0, anyFilled=false;
   const etats={};
   cases.forEach(x=>{
     const el=$(x.id); if(!el) return;
-    const raw=String(el.value==null?'':el.value);
-    const vide=raw.trim()==='';
-    const ok=!vide && asgOkCase(q,x,raw);
+    const raw=(el.tagName==='MATH-FIELD')?dexpCellValue(x.id):String(el.value==null?'':el.value);
+    let vide=raw.trim()==='', ok;
+    if(x.type==='der'){
+      ok=!vide && !!derV.verdicts[x.id];
+      /* la convention du 2.1 : une case vide dans une LIGNE juste est le
+         facteur 1 omis — elle compte juste et ne manque pas */
+      if(vide && ((ASG_S2.indexOf(x.id)>=0 && derV.groups.s2) || (ASG_S3.indexOf(x.id)>=0 && derV.groups.s3))){ vide=false; ok=true; }
+    } else {
+      ok=!vide && asgOkCase(q,x,raw);
+    }
     etats[x.id]={ok:ok,vide:vide};
     if(!vide) anyFilled=true;
     if(vide){ vides++; allOk=false; } else if(!ok) allOk=false;
@@ -13339,15 +13446,20 @@ function checkASG(live){
     if(!vide) el.classList.add(ok?'ok':'bad');   /* une case VIDE ne reçoit jamais de couleur */
   });
   if(live) return;
+  /* l'erreur du terme entier recopié dans une case de coefficient (le
+     signalement de Julien sur le 2.1), NOMMÉE ici aussi */
+  const avertTerme=derV.groups.s3TermeEntier
+    ? '<br>⚠ Dans la ligne développée du b., e<sup>−x</sup> est déjà écrit APRÈS chaque case : écris seulement le COEFFICIENT dans la case.'
+    : '';
   if(!anyFilled){
     $('asgFeedback').textContent='Complète au moins une case avant de vérifier.';
     $('asgFeedback').className='mp-feedback';
     return;
   }
   if(!allOk && isSoutien()){
-    $('asgFeedback').textContent=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.');
+    $('asgFeedback').innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme;
     $('asgFeedback').className='mp-feedback bad';
-    cases.forEach(x=>{ const el=$(x.id); if(!el) return; el.disabled=!!(etats[x.id] && etats[x.id].ok); });
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return; asgDis(el, !!(etats[x.id] && etats[x.id].ok)); });
     $('asgActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkASG()">Revérifier</button>';
     return;
   }
@@ -13356,11 +13468,20 @@ function checkASG(live){
     test.score++; $('asgLiveScore').textContent=test.score;
     $('asgFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, étude complète !']);
     $('asgFeedback').className='mp-feedback good';
-    cases.forEach(x=>{ const el=$(x.id); if(el) el.disabled=true; });
+    cases.forEach(x=>{ const el=$(x.id); if(el) asgDis(el,true); });
   } else {
-    $('asgFeedback').innerHTML=msgCorrCouleurs(vides>0);
+    $('asgFeedback').innerHTML=msgCorrCouleurs(vides>0)+avertTerme;
     $('asgFeedback').className='mp-feedback bad';
-    cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true}; corrCase(x.id, asgVal(q,x), e.ok); });
+    cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
+      const el=$(x.id); if(!el) return;
+      const val=(x.type==='der')?derV.sol[x.id]:asgVal(q,x);
+      if(el.tagName==='MATH-FIELD') rfReveal(x.id, asgML(val), val, e.ok, e.vide);
+      else corrCase(x.id, val, e.ok);
+    });
+    /* les parenthèses de la substitution suivent le contenu — une correction
+       posée par setValue ne lève pas input, on les rajuste ici */
+    ASG_S2.forEach(id=>{ const el=$(id), w=el&&el.closest&&el.closest('.dexp-pwrap');
+      if(w) w.classList.toggle('show-paren', dexpNeedParens(dexpCellValue(id), DEXP_FIRSTS.indexOf(id)>=0)); });
     efArrowChange();   /* les flèches complétées en vert se redessinent */
   }
   const A=ecAns(q);
@@ -13371,9 +13492,9 @@ function checkASG(live){
 function nextASG(){ if(test.idx<test.questions.length-1){ test.idx++; renderASG(); } else finishTest(); }
 function asgConseilCtx(){
   const q=test.questions[test.idx], A=ecAns(q);
-  const lu=id=>{ const el=$(id); const v=el?String(el.value||'').trim():''; return v===''?'(vide)':'« '+v+' »'; };
+  const lu=id=>{ const el=$(id); const v=el?((el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim()):''; return v===''?'(vide)':'« '+v+' »'; };
   return 'Exercice TVI — étude de f(x) = ('+s1ExprText(A.p,A.q)+')e^(−x) : a) limites en ±∞ et asymptote (en +∞ la limite est 0), b) démontrer f′(x) = ('+asgAffStr(A)+')e^(−x), c) tableau de signes de f′ et variations, d) '+(A.ext==='max'?'maximum':'minimum')+' en x = '+numFmt(A.r)+', e) f(x) = 0 admet une unique solution α sur ]−∞ ; '+numFmt(A.r)+'] (continuité + stricte monotonie + 0 compris entre les valeurs aux bords : TVI), f) tableau de signe de f. '
-   +'Saisies de l’élève : limite en +∞ '+lu('asg-la')+', limite en −∞ '+lu('asg-lb')+', dérivée '+lu('asg-b3')+', racine de f′ '+lu('asg-c2')+', α '+lu('asg-e6')+'. '
+   +'Saisies de l’élève : limite en +∞ '+lu('asg-la')+', limite en −∞ '+lu('asg-lb')+', dérivée '+lu('asg-bfac')+', racine de f′ '+lu('asg-c2')+', α '+lu('asg-e6')+'. '
    +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement.';
 }
 
@@ -19029,7 +19150,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

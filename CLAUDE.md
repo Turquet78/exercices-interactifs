@@ -4602,6 +4602,38 @@ pas, et le bouton ∞ réellement CLIQUÉ — il écrit dans la case et lève
 `input`, la doctrine du bouton mort — avec deux sabotages à lui, jsdom
 restant vert à bon droit sur chacun.
 
+**Puis la dérivée du 4.6 s'est présentée COMME AU 2.1** (demande de Turquet,
+septembre 2026 : « je veux que le calcul de la dérivée soit présenté comme
+dans l'exercice 2.1 ») : le b) n'est plus trois cases en texte — c'est la
+chaîne du 2.1, en cases MathLive : « On pose u/v/u′/v′ », la formule
+u′×v + u×v′, la substitution ( )×( )+( )×( ), le développement en
+coefficients devant e⁻ˣ, la factorisation e⁻ˣ( … ). Douze cases au lieu de
+trois (44 sur l'écran), et la cible reste RÉVÉLÉE dans l'énoncé — la forme
+de la fiche, « Démontre que ».
+**Le juge est TRANSPOSÉ de dexpVerdicts, pas recopié à moitié** :
+`asgDerVerdicts` porte la doctrine entière du 2.1 — les DEUX ordres u/v
+acceptés (l'ordre retenu est celui qui colle le mieux à la copie, et la
+correction le suit), la substitution jugée d'abord en LIGNE entière puis par
+paires LIBRES, le développement apparié aux termes attendus sans ordre
+imposé, la case vide d'une ligne juste = le facteur 1 OMIS — elle compte
+juste et ne manque pas, sans quoi une copie mathématiquement complète serait
+comptée fausse —, et le terme ENTIER recopié dans une case de coefficient
+NOMMÉ dans le message (le signalement de Julien, porté avec la
+présentation). La CORRECTION reste la convention commune de l'écran :
+`rfReveal` — l'entonnoir du 6.6 — pour les cases math (badge `mf-cor` à
+l'exposant rendu, posé APRÈS la parenthèse fermante d'une case `dexp-pwrap`,
+jamais dedans), `corrCase` pour le reste ; jamais la « bonne démarche » du
+2.1, qui n'écrit pas dans les cases. Les cases math ne se colorent qu'à la
+SORTIE (le répartiteur `dexpLiveCheck` route le focusout vers
+`checkASG(true)`), la rangée « Clavier mathématique » naît avec l'écran
+(`renderASG` enveloppé), et le banc navigateur TAPE « x+2 » dans la case u
+pour de vrai — jsdom n'a pas la sérialisation réelle que le juge doit lire,
+et le piège documenté du 6.8 a mordu à la première exécution : les
+premières frappes tombaient dans le vide, la case n'avait pas fini de
+prendre le focus. Huit sabotages, chacun rougissant en nommant son défaut —
+celui de la case vide remplie en `sol` rougit chez le 6.6, la preuve que
+`rfReveal` est bien l'entonnoir partagé et non une copie.
+
 **Un exercice de devoir montre d'abord son énoncé — et le papier est un choix.**
 En Terminale, un exercice lancé depuis un devoir affiche D'ABORD l'énoncé
 complet, toutes les questions, puis demande : sur papier, ou sur l'ordinateur
