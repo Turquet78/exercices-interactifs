@@ -12566,7 +12566,9 @@ function dmMoyennes(devoirs, eleves, rows){
   return { colonnes:colonnes, lignes:lignes, moyClasse:moyClasse, moyGenerale:moyGenerale };
 }
 
-/* Le mot de la famille. Les FICHES n'existent qu'en Seconde et en Première :
+/* Le mot de la famille. La seconde famille de devoirs s'appelle « fiches »
+   dans les trois niveaux (fiches de travail en classe en Seconde et en
+   Première, travaux facultatifs en Terminale — ce sont des fiches aussi) :
    « typeof » plutôt qu'une liste par niveau, pour que ce texte reste le même
    dans les trois fichiers. */
 function dmMoyFamille(){
