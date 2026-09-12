@@ -2856,6 +2856,7 @@ function exercices(suite){
     manifesteAppli(w, P);
     toucheEgalClavier(w, P);
     couchesClavierNommees(w, P);
+    policeTablette(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -8573,6 +8574,31 @@ function couchesClavierNommees(w, P){
       if(anciens.length) pbs.push('des touches disent encore « ' + anciens.join(' », « ') + ' »');
     }
   }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Sur tablette, la police de la page est réduite — par une seule règle ---------- */
+/* Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
+   tablette ». Toutes les tailles étant en rem, UNE règle sur la racine suffit,
+   et c'est ce que le contrôle exige : la requête média d'une tablette (écran
+   tactile, au moins 600 px) portant html{font-size:NN%}, NN lu dans
+   tests/profils.js (deux sources). Le bord opposé compte autant : une seconde
+   règle html{font-size} hors de cette requête réduirait aussi l'ordinateur —
+   ou annulerait la tablette — sans qu'aucune erreur ne se lève. jsdom ne sait
+   pas évaluer une requête média : la racine RENDUE se mesure au banc
+   navigateur (« 11 quater »), sur tablette, sur ordinateur et sur téléphone. */
+function policeTablette(w, P){
+  const nom = 'sur tablette, la police de la page est réduite par une seule règle sur la racine';
+  if(!P.policeTablette){ ignorer(nom, 'ce fichier ne déclare pas de police de tablette'); return; }
+  const src = lire(CIBLE), pbs = [];
+  const regles = src.match(/html\{font-size:[^}]*\}/g) || [];
+  const m = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)\{\s*html\{font-size:(\d+)%\}\s*\}/.exec(src);
+  if(!m) pbs.push('aucune règle « @media (pointer:coarse) and (min-width:…px){ html{font-size:…%} } » dans la source');
+  else{
+    if(+m[2] !== P.policeTablette) pbs.push('la page réduit à ' + m[2] + ' % quand le profil déclare ' + P.policeTablette + ' %');
+    if(+m[1] < 500 || +m[1] > 800) pbs.push('la borne de largeur (' + m[1] + ' px) ne distingue plus une tablette d\'un téléphone');
+  }
+  if(regles.length !== 1) pbs.push(regles.length + ' règle(s) html{font-size} dans la source au lieu d\'une seule : ' + regles.join(' ; '));
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 

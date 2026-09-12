@@ -52,6 +52,14 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0}
+  /* Sur TABLETTE, la police de toute la page est réduite à 90 % (décision de Turquet,
+     septembre 2026 : « dans la page, règle fixe sur tablette »). Toutes les tailles
+     de la page sont en rem : une seule règle sur la racine réduit tout d'un coup —
+     énoncés, cases, boutons — sans toucher au clavier mathématique ni au pavé
+     numérique, réglés en pixels. Une tablette, pas un téléphone : écran tactile
+     (pointer:coarse) d'au moins 600 px de large. Le pourcentage est déclaré dans
+     tests/profils.js (policeTablette), deux sources. */
+  @media (pointer:coarse) and (min-width:600px){ html{font-size:90%} }
   body{
     font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     color:var(--ink); background-color:var(--paper);
@@ -2557,7 +2565,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=149;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=150;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
