@@ -1,0 +1,31 @@
+{
+  "id": "premiere",
+  "name": "Maths Première",
+  "short_name": "Maths 1re",
+  "lang": "fr",
+  "description": "Exercices de mathématiques interactifs — Première.",
+  "start_url": "./premiere-specifique.html",
+  "scope": "./premiere-specifique.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2B50C8",
+  "icons": [
+    {
+      "src": "icones/premiere-specifique-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icones/premiere-specifique-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icones/premiere-specifique-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

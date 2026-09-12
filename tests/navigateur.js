@@ -5755,6 +5755,60 @@ async function parcours(page, N){
       }
     }
 
+    /* ---- 11 bis. Le manifeste d'application, tablettes seulement ---------
+       Ce que jsdom ne voit pas : l'ADRESSE réelle du manifeste, dérivée de
+       celle de la page ouverte (jsdom n'en a aucune), le fichier que cette
+       adresse désigne, et les icônes telles que Chromium les DÉCODE — un PNG
+       tronqué ou une taille fausse rendrait le site non installable sans
+       qu'aucune erreur ne se lève. On ouvre la page au pointeur fin (aucun
+       manifeste ne doit paraître), on force le tactile, et on relit tout
+       depuis ce que la page a posé. */
+    titre('11 bis. LE MANIFESTE D\'APPLICATION (TABLETTES SEULEMENT)');
+    s = await ouvrir(chromium, ml, {});
+    const avantM = await s.page.evaluate(() => ({
+      lien: !!document.querySelector('link[rel="manifest"]'),
+      tactile: typeof tabletteActive === 'function' ? tabletteActive() : null,
+    }));
+    verifier('sur ordinateur, aucun manifeste n\'est déclaré',
+      !avantM.lien && avantM.tactile === false,
+      avantM.lien ? 'un <link rel="manifest"> est déjà posé au pointeur fin'
+                  : 'tabletteActive() rend ' + avantM.tactile + ' au pointeur fin');
+    const apresM = await s.page.evaluate(() => {
+      window.__tabletteForce = true; manifesteTablette();
+      const l = document.querySelector('link[rel="manifest"]');
+      return { href: l ? l.href : null, page: location.pathname };
+    });
+    let manif = null, cheminM = null;
+    try{ cheminM = decodeURIComponent(new URL(apresM.href).pathname); manif = JSON.parse(fs.readFileSync(cheminM, 'utf8')); }
+    catch(e){ manif = null; }
+    verifier('en tactile, le lien posé désigne un manifeste du dépôt, lisible',
+      !!manif, apresM.href ? 'lien ' + apresM.href + ' : fichier absent ou illisible' : 'aucun lien posé');
+    const departM = manif && manif.start_url ? new URL(manif.start_url, apresM.href).pathname : null;
+    verifier('le manifeste ouvre CETTE page en mode application',
+      !!manif && departM === apresM.page && /^(standalone|fullscreen)$/.test(String(manif.display)),
+      !manif ? 'pas de manifeste' : 'start_url mène à ' + departM + ' (page : ' + apresM.page + '), display ' + JSON.stringify(manif.display));
+    const iconesM = manif && Array.isArray(manif.icons) ? manif.icons.map(i => ({
+      src: new URL(i.src, apresM.href).href, sizes: String(i.sizes || '') })) : [];
+    const decodees = await s.page.evaluate(async (liste) => {
+      const out = [];
+      for(const ic of liste){
+        await new Promise(r => {
+          const im = new Image();
+          im.onload = () => { out.push({ src: ic.src, sizes: ic.sizes, w: im.naturalWidth, h: im.naturalHeight }); r(); };
+          im.onerror = () => { out.push({ src: ic.src, sizes: ic.sizes, w: 0, h: 0 }); r(); };
+          im.src = ic.src;
+        });
+      }
+      return out;
+    }, iconesM);
+    const fautives = decodees.filter(d => d.w + 'x' + d.h !== d.sizes);
+    verifier('chaque icône du manifeste se décode dans Chromium à la taille annoncée',
+      decodees.length > 0 && fautives.length === 0,
+      decodees.length === 0 ? 'aucune icône' : fautives.map(d => d.src.split('/').pop() + ' : ' + d.w + '×' + d.h + ' pour ' + d.sizes).join(' ; '));
+    verifier('déclarer le manifeste ne lève aucune erreur JavaScript',
+      s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+    await s.nav.close(); s = null;
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

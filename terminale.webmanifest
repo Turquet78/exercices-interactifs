@@ -1,0 +1,31 @@
+{
+  "id": "terminale",
+  "name": "Maths Terminale",
+  "short_name": "Maths Tle",
+  "lang": "fr",
+  "description": "Exercices de mathématiques interactifs — Terminale.",
+  "start_url": "./terminale.html",
+  "scope": "./terminale.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2B50C8",
+  "icons": [
+    {
+      "src": "icones/terminale-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icones/terminale-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icones/terminale-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
