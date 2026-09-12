@@ -5752,6 +5752,32 @@ piloté — c'est le fichier joint et la tablette qui tranchent. Et `prof.html`
 n'a pas de manifeste : le professeur travaille sur ordinateur, et un tableau
 de bord installé sur la tablette d'un élève n'aurait rien à y faire.
 
+**Sur tablette, la police de TOUTE la page est réduite à 90 % — par une seule
+règle.** Décision de Turquet (septembre 2026), après la question « sur une
+tablette peut-on diminuer la taille des polices sur une page ? » : « dans la
+page, règle fixe sur tablette ». Les trois pages écrivent leurs tailles en
+`rem` (plus de deux cents par fichier) et ne posaient aucune taille sur la
+racine : `@media (pointer:coarse) and (min-width:600px){ html{font-size:90%} }`
+réduit donc énoncés, cases, boutons et titres d'un coup, dans les mêmes
+proportions — la règle « une case a la taille des nombres qui l'entourent »
+tient d'elle-même. Le clavier mathématique et le pavé numérique sont réglés
+en PIXELS : ils ne bougent pas, et c'est voulu — une touche doit rester
+touchable. **Une tablette, pas un téléphone** : la borne de 600 px est celle
+du clavier réduit du téléphone, prise dans l'autre sens ; un téléphone a
+déjà peu de place, et sa police reste entière.
+**Le pourcentage vit dans `tests/profils.js`** (`policeTablette`), deux
+sources : le contrôle jsdom exige la règle avec CE pourcentage, une borne qui
+distingue encore une tablette d'un téléphone (500 à 800 px), et **une seule**
+règle `html{font-size}` dans tout le fichier — une seconde, hors de la
+requête média, réduirait aussi l'ordinateur ou annulerait la tablette, sans
+qu'aucune erreur ne se lève. jsdom n'évalue pas une requête média : le banc
+NAVIGATEUR (« 11 quater ») mesure la racine RENDUE sur trois écrans —
+tablette (tactile, 820 px : 90 %), ordinateur (100 %) et téléphone (tactile,
+390 px : 100 %) — parce qu'une règle qui réduirait partout ne serait pas la
+règle demandée. Playwright pose `pointer:coarse` avec `hasTouch`, ce qui
+rend la requête mesurable pour de vrai. Six sabotages, chacun rougissant en
+nommant son défaut.
+
 **Puis la tablette a proposé un RACCOURCI, pas une installation — et le
 manifeste n'y était pour rien.** Signalé par Turquet le jour de la mise en
 ligne (septembre 2026) : « chrome propose seulement un raccourci, pas
