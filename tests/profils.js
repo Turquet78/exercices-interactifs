@@ -200,10 +200,15 @@ module.exports = {
        complet ne s'ouvre pas. Sa FORME ne change PAS avec l'orientation : une
        rangée en bas, en portrait comme en paysage — le rectangle 4 × 3 du
        paysage a été retiré à la demande de Turquet (septembre 2026), et le
-       banc navigateur mesure la rangée dans les deux orientations. */
+       banc navigateur mesure la rangée dans les deux orientations.
+       commandes : sur tablette, les commandes du bas descendent au ras de
+       l'écran et le pavé avec elles (portrait), et en paysage elles sont
+       resserrées avec le pavé sur la MÊME ligne (demande de Turquet,
+       septembre 2026) — la Terminale ne le déclare pas et garde sa mise en
+       page. */
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
-            champsMaths: 'math-field.pm-mf',
+            champsMaths: 'math-field.pm-mf', commandes: true,
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
        questions) : un exercice au tirage homogène, présent dans la table du
@@ -465,10 +470,12 @@ module.exports = {
     /* Comme en Première : le pavé sert aussi les cases MathLive (toutes les
        pm-mf n'attendent qu'un nombre), tapées au banc navigateur dans un
        contexte tactile, et une seule rangée dans les deux orientations
-       (demande de Turquet, septembre 2026). */
+       (demande de Turquet, septembre 2026). commandes : comme en Première,
+       les commandes du bas au ras de l'écran en portrait, resserrées sur la
+       ligne du pavé en paysage. */
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
-            champsMaths: 'math-field.pm-mf',
+            champsMaths: 'math-field.pm-mf', commandes: true,
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
