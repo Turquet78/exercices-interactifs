@@ -5617,6 +5617,57 @@ en premier, parce que cliqué après « > » un raccourci pourrait les fondre en
 ≥ et la mesure parlerait d'autre chose. Trois sabotages, un par fichier,
 chacun rougissant en nommant son défaut.
 
+**Sur un TÉLÉPHONE en portrait, les touches du clavier mathématique sont
+RÉDUITES — et ses deux couches se nomment « clavier A » et « clavier B ».**
+Demande de Turquet (septembre 2026) : « sur les portables, pour tous les
+exercices qui utilisent le même clavier que celui de l'exercice 6.2, au
+format portrait, réduire la taille des touches ; écrire "clavier B" pour la
+touche "fn" et "clavier A" pour la touche "123" ». Le clavier du 6.2 est
+celui de TOUS les champs mathématiques de la Terminale (`buildKbTerm` — seule
+sa première rangée varie avec l'exercice) : la règle vaut donc partout d'un
+coup, et la Seconde comme la Première, dont le clavier n'a qu'une couche, ne
+sont pas concernées.
+**Un téléphone, pas une tablette** : la règle est une requête média
+`(orientation:portrait) and (max-width:600px)` — un iPad mini en portrait
+fait 768 px — posée sur le clavier ANCRÉ (`body > .ML__keyboard`), jamais
+sur la fenêtre flottante de l'ordinateur, le périmètre de la règle du
+paysage. Mesuré sur 390 × 844 : la touche passe de 55 à 34 px de haut, sa
+police de 21,5 à 17 px, le clavier de 35 % à 22 % de l'écran ; sur une
+tablette (820 px) rien ne change, 58 px et 30 px.
+**Un piège de MathLive s'y est montré, et il vaut pour la règle du paysage
+aussi** : `--keycap-max-width` n'est lu QUE lorsque `--keycap-width` n'est
+pas posée — or la page la pose sur `:root`. La règle du paysage écrit donc
+un `--keycap-max-width:46px` qui ne fait rien ; celle du portrait règle
+`--keycap-width` directement (`min(48px, …)`).
+**Et le libellé était COUPÉ, ce qui ne s'est vu qu'au banc** : MathLive
+rembourre chaque touche de 12 px de chaque côté, si bien que « clavier B »
+(49 px de texte à 11 px) n'avait que 45 px de place dans une touche d'une
+unité et demie sur le téléphone, et 70 px pour 72 de texte à 16 px dans la
+fenêtre de l'ordinateur — jsdom, qui lit la disposition, n'y voyait rien.
+Les deux touches font DEUX unités (le banc jsdom l'exige, deux sources : les
+mots vivent dans `tests/profils.js`, `clavierEcran`) et le rembourrage
+horizontal de leur classe `kb-couche` est ramené à 4 px — celui-ci n'est
+qu'une MARGE : sans lui, la rangée la plus chargée (le 6.7, dix unités que
+le navigateur RÉTRÉCIT pour tenir dans les 390 px) laisse encore 52 px pour
+49 de texte, et le sabotage qui le retire reste vert à bon droit.
+**Deux bancs, la répartition habituelle.** jsdom ÉVALUE `buildKbTerm`
+depuis la source (comme pour la touche « = ») : la touche qui MÈNE à la
+seconde couche dit « clavier B », celle qui en REVIENT dit « clavier A » —
+deux libellés échangés enverraient l'élève au clavier qu'il quitte sans
+qu'aucune touche ne manque —, aucune ne dit plus « fn » ni « 123 », et la
+largeur est de deux unités. Le NAVIGATEUR (« 11 ter », déclaré par
+`clavierEcran.portrait`) ouvre le 6.2 à la taille d'un téléphone, déploie
+le clavier, mesure la touche « 5 » RENDUE contre les plafonds du profil
+(36 px, 18 px), vérifie que « clavier B » tient dans sa touche
+(`scrollWidth`), la CLIQUE — les chiffres disparaissent —, clique
+« clavier A » — ils reviennent —, puis élargit la fenêtre à la taille d'une
+tablette et exige que les touches REGRANDISSENT : une règle qui réduirait
+partout ne serait pas la règle demandée. Le contrôle du 6.7 à 1280 px mesure
+en plus le libellé dans la fenêtre flottante. Un piège de mesure : le
+clavier ancré occupe TOUTE la fenêtre (son fond), sa hauteur utile est celle
+de la plaque des touches (`.MLK__plate`). Huit sabotages : sept rougissent
+en nommant leur défaut, le huitième (le rembourrage) reste vert et dit vrai.
+
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
 barre d'adresse et les onglets de Chrome prennent sur l'écran d'une tablette,

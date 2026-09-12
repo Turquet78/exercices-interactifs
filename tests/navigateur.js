@@ -3566,6 +3566,19 @@ async function parcours(page, N){
           return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
         return { ouvert: !!(vk && vk.visible), le: de('≤'), ge: de('≥'), lt: de('<'), gt: de('>'), eq: de('=') };
       });
+      /* et la touche « clavier B » (les mots vivent dans le profil), dans la
+         fenêtre FLOTTANTE de l'ordinateur : un libellé de neuf lettres dans
+         une touche rembourrée de 12 px de chaque côté — à 1,5 unité il y
+         était coupé, mesuré ici ; le téléphone a sa propre mesure (11 ter) */
+      const basculeBureau = P.clavierEcran ? await s.page.evaluate(t => {
+        const els = [...document.querySelectorAll('#kbwin .MLK__rows > .MLK__row > *, body > .ML__keyboard .MLK__rows > .MLK__row > *')];
+        const el = els.find(c => c.textContent.trim() === t); if(!el) return { absent: true };
+        const r = el.getBoundingClientRect();
+        return { absent: false, w: Math.round(r.width), coupe: el.scrollWidth > el.clientWidth + 1, visible: r.width > 4 && r.height > 4 };
+      }, P.clavierEcran.versB) : null;
+      if(basculeBureau) verifier('dans la fenêtre flottante de l\'ordinateur, « ' + P.clavierEcran.versB + ' » tient dans sa touche',
+        !basculeBureau.absent && basculeBureau.visible && !basculeBureau.coupe,
+        basculeBureau.absent ? 'aucune touche « ' + P.clavierEcran.versB + ' »' : basculeBureau.coupe ? 'libellé coupé (touche de ' + basculeBureau.w + ' px)' : 'touche sans surface');
       /* « = » d'abord : cliqué après « > », un raccourci « >= » pourrait les
          fondre en ≥ et la mesure parlerait d'autre chose */
       for(const t of ['eq', 'le', 'ge', 'lt', 'gt']){
@@ -5808,6 +5821,117 @@ async function parcours(page, N){
     verifier('déclarer le manifeste ne lève aucune erreur JavaScript',
       s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
     await s.nav.close(); s = null;
+
+    /* ---- 11 ter. Le clavier mathématique à l'écran sur un TÉLÉPHONE en portrait --
+       Demande de Turquet (septembre 2026) : « sur les portables, au format
+       portrait, réduire la taille des touches », et nommer les deux couches
+       « clavier A » / « clavier B ». jsdom lit la DISPOSITION (les libellés,
+       la largeur déclarée) ; seul un navigateur sait quelle hauteur une touche
+       PREND, si son libellé y tient sans être coupé, et si la couche change
+       au clic. On ouvre la page à la taille d'un téléphone (390 × 844,
+       tactile), l'exercice déclaré, on déploie le clavier ANCRÉ, on mesure
+       les touches RENDUES contre les plafonds du profil, on clique
+       « clavier B » puis « clavier A », puis on élargit la fenêtre à la
+       taille d'une tablette : les touches doivent y REGRANDIR — une règle
+       qui réduirait partout ne serait pas la règle demandée. */
+    titre('11 ter. LE CLAVIER MATHÉMATIQUE SUR UN TÉLÉPHONE EN PORTRAIT');
+    if(!(P.clavierEcran && P.clavierEcran.portrait)){
+      ignorer('sur un téléphone en portrait, les touches du clavier mathématique sont réduites',
+        'ce fichier ne déclare pas de clavier à mesurer');
+    } else {
+      const K = P.clavierEcran, KP = K.portrait;
+      s = await ouvrir(chromium, ml, { viewport: { width: 390, height: 844 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('sur un téléphone en portrait, les touches du clavier mathématique sont réduites', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), KP.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        /* le clavier se déploie par la case (politique « auto » en tactile),
+           sinon par le vrai bouton ⌨️ — jamais les deux : le bouton BASCULE */
+        await s.page.click(KP.champ);
+        await s.page.waitForTimeout(700);
+        const deploye = await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible));
+        if(!deploye){ await s.page.click(KP.bouton); await s.page.waitForTimeout(900); }
+        /* la géométrie du clavier ANCRÉ, au RECTANGLE : la touche « 5 » de la
+           couche visible, la plus grande police qui s'y rend, les deux touches
+           de bascule et leur libellé coupé ou non, le débord à droite */
+        const mesurerKb = ({ versA, versB }) => {
+          const kb = document.querySelector('body > .ML__keyboard');
+          const vk = window.mathVirtualKeyboard;
+          if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
+          const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
+          const caps = [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis);
+          const de = t => caps.find(c => c.textContent.trim() === t) || null;
+          const info = el => { if(!el) return null; const q = el.getBoundingClientRect();
+            return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2),
+                     w: Math.round(q.width), h: Math.round(q.height), coupe: el.scrollWidth > el.clientWidth + 1 }; };
+          const police = el => { if(!el) return 0; let m = parseFloat(getComputedStyle(el).fontSize) || 0;
+            el.querySelectorAll('*').forEach(x => { m = Math.max(m, parseFloat(getComputedStyle(x).fontSize) || 0); }); return Math.round(m * 10) / 10; };
+          /* le clavier ANCRÉ occupe toute la fenêtre (son fond) : sa hauteur
+             utile est celle de la plaque des touches */
+          const cinq = de('5'), kr = (kb.querySelector('.MLK__plate') || kb).getBoundingClientRect();
+          const hauteurs = []; caps.forEach(c => { const h = Math.round(c.getBoundingClientRect().height); if(hauteurs.indexOf(h) < 0) hauteurs.push(h); });
+          return { visible: !!(vk && vk.visible), fenetre: { w: window.innerWidth, h: window.innerHeight },
+                   clavier: { h: Math.round(kr.height), part: Math.round(100 * kr.height / window.innerHeight) },
+                   touche: info(cinq), police: police(cinq), hauteurs: hauteurs.sort((a, b) => a - b),
+                   debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
+                   versA: info(de(versA)), versB: info(de(versB)), fn: !!de('fn'), n123: !!de('123') };
+        };
+        const tel = await s.page.evaluate(mesurerKb, { versA: K.versA, versB: K.versB });
+        verifier('sur un téléphone en portrait, les touches du clavier mathématique sont réduites',
+          !tel.absent && tel.visible && tel.touche && tel.touche.h <= KP.hauteurMax && tel.police <= KP.policeMax
+            && tel.debord <= 1,
+          tel.absent ? 'aucun clavier ancré dans la page' + (tel.visible ? '' : ' (le clavier ne se déploie pas)')
+            : !tel.visible ? 'le clavier ne se déploie pas'
+            : !tel.touche ? 'la touche « 5 » est introuvable sur la couche visible'
+            : 'touche « 5 » : ' + tel.touche.w + '×' + tel.touche.h + ' px (plafond ' + KP.hauteurMax + '), police ' + tel.police + ' px (plafond ' + KP.policeMax + ')'
+              + ', hauteurs ' + tel.hauteurs.join('/') + ', clavier ' + tel.clavier.h + ' px = ' + tel.clavier.part + ' % de l\'écran'
+              + (tel.debord > 1 ? ', DÉBORDE de ' + tel.debord + ' px à droite' : ''));
+        /* la bascule : « clavier B » mène à la seconde couche (les chiffres
+           disparaissent), « clavier A » en revient — cliquées pour de vrai */
+        let apresB = null, apresA = null;
+        if(tel.versB){
+          await s.page.mouse.click(tel.versB.x, tel.versB.y); await s.page.waitForTimeout(350);
+          apresB = await s.page.evaluate(mesurerKb, { versA: K.versA, versB: K.versB });
+          if(apresB.versA){
+            await s.page.mouse.click(apresB.versA.x, apresB.versA.y); await s.page.waitForTimeout(350);
+            apresA = await s.page.evaluate(mesurerKb, { versA: K.versA, versB: K.versB });
+          }
+        }
+        verifier('« clavier B » mène à la seconde couche, « clavier A » en revient, et leurs libellés tiennent dans leur touche',
+          !!tel.versB && !tel.versB.coupe && !tel.fn && !tel.n123
+            && !!apresB && !!apresB.versA && !apresB.versA.coupe && !apresB.touche && !apresB.fn && !apresB.n123
+            && !!apresA && !!apresA.touche && !!apresA.versB,
+          !tel.versB ? 'aucune touche « ' + K.versB + ' » sur la première couche' + (tel.fn ? ' (une touche dit encore « fn »)' : '')
+            : tel.versB.coupe ? 'le libellé « ' + K.versB + ' » est coupé dans sa touche (' + tel.versB.w + ' px de large)'
+            : (tel.fn || tel.n123) ? 'une touche dit encore « fn » ou « 123 »'
+            : !apresB.versA ? 'après « ' + K.versB + ' », aucune touche « ' + K.versA + ' »' + (apresB.n123 ? ' (une touche dit encore « 123 »)' : '')
+            : apresB.versA.coupe ? 'le libellé « ' + K.versA + ' » est coupé dans sa touche (' + apresB.versA.w + ' px de large)'
+            : apresB.touche ? 'après « ' + K.versB + ' », les chiffres sont toujours là : la couche n\'a pas changé'
+            : !(apresA && apresA.touche) ? 'après « ' + K.versA + ' », les chiffres ne reviennent pas'
+            : 'une touche dit encore « fn » ou « 123 » sur la seconde couche');
+        /* et sur une tablette, la même page, le même clavier : les touches
+           reprennent leur taille — la règle vise le téléphone, pas le tactile */
+        await s.page.setViewportSize({ width: 820, height: 1180 });
+        await s.page.waitForTimeout(700);
+        const tab = await s.page.evaluate(mesurerKb, { versA: K.versA, versB: K.versB });
+        verifier('sur une tablette en portrait, les touches reprennent leur taille',
+          !!(tab.touche && tel.touche) && tab.visible && tab.touche.h >= tel.touche.h + 8 && tab.police >= tel.police + 3,
+          !tab.visible ? 'le clavier s\'est refermé au changement de taille'
+            : !tab.touche ? 'la touche « 5 » est introuvable'
+            : 'touche « 5 » : ' + tab.touche.h + ' px sur tablette contre ' + (tel.touche ? tel.touche.h : '?') + ' sur téléphone, police '
+              + tab.police + ' contre ' + tel.police);
+        verifier('le clavier du téléphone ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
 
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
