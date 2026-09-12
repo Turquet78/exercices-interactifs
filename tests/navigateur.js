@@ -6157,6 +6157,38 @@ async function parcours(page, N){
           !por.visible ? 'le clavier s\'est refermé à la rotation'
             : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage)' + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
               + (por.debord > 1 ? ', DÉBORDE de ' + por.debord + ' px' : ''));
+        /* la feuille écrit plus PETIT sur la tablette (feuilleTablette) : police
+           rendue de la case au plus pxMax — et, sur un ordinateur ouvert au même
+           exercice, plus grande : une règle qui réduirait partout ne serait pas
+           la règle demandée */
+        if(P.feuilleTablette){
+          const policeDe = sel => { const el = document.querySelector(sel); if(!el) return null;
+            return { px: Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10, h: Math.round(el.getBoundingClientRect().height) }; };
+          const tab = await s.page.evaluate(policeDe, KL.champ);
+          let bur = null;
+          const s2 = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 800 } });
+          try{
+            if(await connecter(s2.page) === 'scr-space'){
+              await s2.page.evaluate(i => openTest(i), KL.exercice);
+              await s2.page.waitForTimeout(300);
+              await s2.page.evaluate(() => {
+                const b = [...document.querySelectorAll('#modeChoices button')]
+                  .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+                if(b) b.click();
+              });
+              await s2.page.waitForTimeout(800);
+              bur = await s2.page.evaluate(policeDe, KL.champ);
+            }
+          } finally { await s2.nav.close(); }
+          verifier('sur la tablette, la feuille de calcul écrit plus petit que sur l\'ordinateur (au plus ' + P.feuilleTablette.pxMax + ' px)',
+            !!tab && !!bur && tab.px <= P.feuilleTablette.pxMax && tab.px < bur.px - 3,
+            !tab ? 'la feuille est introuvable sur la tablette (' + KL.champ + ')'
+              : !bur ? 'la feuille est introuvable sur l\'ordinateur'
+              : 'police ' + tab.px + ' px sur la tablette (plafond ' + P.feuilleTablette.pxMax + ') contre ' + bur.px + ' px sur l\'ordinateur'
+                + ' — ligne de ' + tab.h + ' px contre ' + bur.h);
+        } else {
+          ignorer('sur la tablette, la feuille de calcul écrit plus petit que sur l\'ordinateur', 'ce fichier ne déclare pas de feuille de tablette');
+        }
         verifier('le clavier de la tablette en paysage ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }

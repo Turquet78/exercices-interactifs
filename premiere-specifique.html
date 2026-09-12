@@ -647,6 +647,16 @@ body.pave-actif #paveNum{bottom:54px}
 .dexp2-prefix{flex:none;display:flex;align-items:center;justify-content:flex-end;white-space:nowrap;font-weight:700;font-size:2rem;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf{border:none;outline:none;box-shadow:none;background:transparent;flex:1 0 auto;min-width:6ch;min-height:1.9em;font-size:2rem;padding:2px 0;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf:focus-within{border:none;background:transparent;box-shadow:none;}
+/* Sur TABLETTE, la feuille écrit plus petit (demande de Turquet, septembre 2026,
+   sur le 2.2.9 : « la case d'édition du calcul peut-elle avoir une police plus
+   petite ») : à 2 rem, une ligne de calcul prenait 55 px de haut sur un écran
+   déjà réduit par le clavier. Le préfixe suit la même taille — une case a la
+   taille des nombres qui l'entourent, sur tablette aussi. La valeur vit dans
+   tests/profils.js (feuilleTablette), deux sources ; même requête média que la
+   police de la page (écran tactile d'au moins 600 px). */
+@media (pointer:coarse) and (min-width:600px){
+  .dexp2-sheet math-field.dexp-mf,.dexp2-prefix{font-size:1.4rem;}
+}
 /* Le préfixe porte la somme de l'énoncé, et il est écrit à la MÊME taille que
    le calcul de l'élève : « .f-frac » impose 1,45 rem partout ailleurs, ce qui
    donnait ici un énoncé deux fois plus petit que la ligne qu'il annonce. Un
@@ -1827,7 +1837,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=204;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=205;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
