@@ -5584,7 +5584,12 @@ la page est juste, ⌨️ l'ouvre encore et le pavé se tait puis revient, ⏎ l
 `change`. **Un piège de banc s'y est montré : MathLive lève `input` APRÈS
 coup**, jamais dans le tour de la commande — lu tout de suite, le compteur
 accusait la page d'un événement manquant (sondé : 0 tout de suite, 3 après
-150 ms). On attend avant de compter.
+150 ms). On attend avant de compter. Neuf sabotages, chacun rougissant en
+nommant son défaut — six au banc jsdom, trois que seul le navigateur voit :
+la grille paysage retirée (« 1 rangée × 12 colonnes »), la politique
+« manual » retirée des deux greffes (le clavier complet se déploie sur la
+tablette et le pavé reste caché), et le pavé qui ignore le clavier complet
+(« deux claviers à la fois »).
 
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
