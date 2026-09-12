@@ -5531,6 +5531,66 @@ toute sa raison d'être —, ses touches font 40 px, il ne recouvre ni la case
 qu'on remplit ni les commandes du bas, et une touche cliquée écrit dans la
 case sans lui voler le focus. Éprouvé en le cassant sept fois.
 
+**Le pavé compact de la Première sert aussi ses cases MathLive — et change de
+forme avec l'orientation.** Demande de Turquet (septembre 2026) : « en Première,
+pour les exercices où il n'y a que des cases à remplir avec des nombres, sur
+une tablette uniquement, un clavier avec les 10 chiffres, la virgule, le
+signe − ; en portrait sur une ligne en bas de l'écran, en paysage un pavé
+rectangulaire de 4 × 3 à droite et en bas ». Le pavé existait — mais il ne
+servait que les `input` déclarés numériques (quatre exercices), quand les
+cases de la Première sont presque toutes des `math-field` : sur tablette,
+c'était le clavier MathLive COMPLET — quatre rangées sur toute la largeur —
+qui se déployait pour écrire trois chiffres, et c'est lui que la demande vise.
+**Le moteur reste le même texte dans les trois fichiers** (huit fonctions
+comparées désormais) ; ce qui diffère vit À CÔTÉ, comme `PAVE_TOUCHES` :
+`PAVE_MF`, le sélecteur des cases MathLive confiées au pavé — `math-field.pm-mf`
+en Première, où TOUTES ces cases n'attendent qu'un nombre (numérateur,
+dénominateur, écriture décimale), et la feuille de calcul libre (`dexp2-mf`),
+qui attend des expressions, n'en fait pas partie ; vide en Seconde et en
+Terminale, qui ne changent pas. Le contrôle compare `PAVE_MF` à
+`tests/profils.js` (`pave.champsMaths`) — deux sources — et tient les deux
+bords : la case confiée marquée, la feuille libre jamais, et un niveau qui ne
+confie rien qui ne marque aucune case mathématique.
+**Une case confiée reçoit la politique « manual »** : MathLive ne déploie plus
+son clavier au focus ; elle est posée par le moteur ET par `configureField()`,
+parce que les deux greffes ne s'exécutent pas dans un ordre garanti et qu'une
+politique posée APRÈS le premier focus arrive trop tard. Le pavé écrit par
+`executeCommand` — `insert`, `deleteBackward`, et `commit` pour ⏎, l'événement
+`change` que `pmAdapter` traduit en « case suivante » : un ⏎ qui ne ferait
+rien sur une case MathLive serait un bouton mort. **Le bouton ⌨️ ouvre toujours
+le clavier complet** — la règle « atteignable sur tout écran à champ
+mathématique » tient — et tant qu'il est déployé le pavé se tait (deux
+claviers à la fois ne s'écrivent pas), puis revient dès qu'on le referme
+(`virtual-keyboard-toggle`).
+**La FORME est affaire de feuille de styles, propre à la Première** : en
+portrait la rangée d'avant, en bas, au-dessus des commandes Pause/Abandonner
+(elles vivent en bas À DROITE, `#testCtrls`, ce qui interdit de descendre le
+pavé plus bas) ; en paysage (`@media (orientation:landscape)`) une grille de
+4 rangées × 3 colonnes — 1 2 3 / 4 5 6 / 7 8 9 / 0 , − — posée à droite,
+au-dessus des commandes, ⌫ et ⏎ en quatrième colonne sur deux rangées
+chacune : les douze touches que la demande nomme font le rectangle, les deux
+commandes restent parce que sans ⏎ un élève sur tablette ne validerait plus
+et sans ⌫ n'effacerait plus. **La réserve du bas se MESURE sur le pavé rendu**
+(`paveCale`) au lieu des 180 px supposés : un rectangle de quatre rangées est
+deux fois plus haut qu'une rangée, et la dernière ligne de l'exercice doit
+pouvoir remonter au-dessus de lui.
+Le banc navigateur mesure les deux orientations au RECTANGLE (une rangée en
+portrait ; en paysage douze touches nommées sur quatre rangées et trois
+colonnes, à droite, en bas, les commandes à côté, sans recouvrir la case ni
+Pause/Abandonner, et une touche qui écrit) et tape la case MathLive dans un
+contexte TACTILE (`hasTouch`) — le seul où la politique « auto » ouvrirait le
+clavier complet : le pavé s'ouvre, le clavier complet non, la valeur lue par
+la page est juste, ⌨️ l'ouvre encore et le pavé se tait puis revient, ⏎ lève
+`change`. **Un piège de banc s'y est montré : MathLive lève `input` APRÈS
+coup**, jamais dans le tour de la commande — lu tout de suite, le compteur
+accusait la page d'un événement manquant (sondé : 0 tout de suite, 3 après
+150 ms). On attend avant de compter. Neuf sabotages, chacun rougissant en
+nommant son défaut — six au banc jsdom, trois que seul le navigateur voit :
+la grille paysage retirée (« 1 rangée × 12 colonnes »), la politique
+« manual » retirée des deux greffes (le clavier complet se déploie sur la
+tablette et le pavé reste caché), et le pavé qui ignore le clavier complet
+(« deux claviers à la fois »).
+
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
 manque le = »). Aucun des trois claviers virtuels (`buildKbTerm`) ne la

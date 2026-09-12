@@ -2523,7 +2523,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=145;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=146;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17267,13 +17267,18 @@ $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault
    niveaux ont le même pavé, la Terminale a une touche de plus. */
 const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎'];
 
+/* Les cases MATHÉMATIQUES que le pavé sert aussi (voir la Première) : aucune
+   ici — les cases pm-mf de la Seconde gardent le clavier MathLive. */
+const PAVE_MF='';
 /* ================= Pavé numérique compact (écrans tactiles) =================
    Sur tablette, le clavier du système recouvre la moitié de l'écran alors que
    les cases d'exercice ne demandent que des chiffres. Sur les écrans tactiles
    — et sur eux seulement — les cases numériques n'ouvrent plus le clavier du
-   système : un pavé d'une seule rangée, dessiné par la page, apparaît au bas
-   de l'écran avec les touches qui servent (PAVE_TOUCHES, une constante par
-   niveau à CÔTÉ du moteur : la Terminale y ajoute « / » pour ses fractions).
+   système : un pavé dessiné par la page apparaît au bas de l'écran avec les
+   touches qui servent (PAVE_TOUCHES, une constante par niveau à CÔTÉ du
+   moteur : la Terminale y ajoute « / » pour ses fractions). Sa FORME est
+   affaire de feuille de styles, pas de moteur : une rangée en portrait, et —
+   là où le niveau le règle — un rectangle 4 × 3 posé à droite en paysage.
    Le pavé ne s'attache qu'aux cases DÉCLARÉES numériques (inputmode="numeric")
    — une liste en POSITIF, contrairement au bouton des tables, parce que le
    mauvais bord n'est pas le même : un pavé sans lettres attaché à un champ de
@@ -17287,13 +17292,27 @@ const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎
    tablette n'aurait plus aucun moyen de valider.
    Le signe moins INSÈRE le tiret du clavier (« - »), jamais le signe
    typographique « − » : les lecteurs des exercices comprennent les deux, mais
-   lvReadInt() passe par parseFloat, qui ne connaît que le tiret. */
+   lvReadInt() passe par parseFloat, qui ne connaît que le tiret.
+   Il sert AUSSI les cases MATHÉMATIQUES que le niveau lui confie (PAVE_MF, un
+   sélecteur à côté du moteur, vide quand le niveau n'en confie aucune) : là
+   où une case MathLive n'attend qu'un NOMBRE, le clavier MathLive complet —
+   quatre rangées sur toute la largeur — recouvrait l'écran pour trois
+   chiffres. La case reçoit la politique « manual » (MathLive ne déploie plus
+   son clavier tout seul au focus), le pavé écrit par executeCommand — insert,
+   deleteBackward, et « commit » pour ⏎, l'événement change qui fait passer à
+   la case suivante — et le bouton ⌨️ ouvre toujours le clavier complet : tant
+   qu'il est déployé, le pavé se tait (deux claviers à la fois ne s'écrivent
+   pas), et il revient dès qu'on le referme. */
 function paveActif(){ return window.__paveForce===true || window.__paveManuel===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
 function paveHTML(){
   return '<div id="paveNum" hidden>'+PAVE_TOUCHES.map(function(t){
     return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'</div>';
 }
 function paveInserer(el,t){
+  if(el.tagName==='MATH-FIELD'){
+    try{ el.executeCommand(t==='⌫' ? 'deleteBackward' : ['insert', t]); }catch(e){}
+    return;
+  }
   const deb=el.selectionStart==null?el.value.length:el.selectionStart;
   const fin=el.selectionEnd==null?el.value.length:el.selectionEnd;
   let v=el.value, pos=deb;
@@ -17305,8 +17324,32 @@ function paveInserer(el,t){
   el.dispatchEvent(new Event('change',{bubbles:true}));
 }
 /* La réserve du bas : le pavé ouvert, l'écran gagne de quoi faire remonter la
-   dernière ligne au-dessus de lui — retirée dès qu'il se referme. */
-function paveCale(on){ document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? '180px' : ''; }); }
+   dernière ligne au-dessus de lui — retirée dès qu'il se referme. Elle est
+   MESURÉE sur le pavé rendu plutôt que supposée : une rangée et un rectangle
+   de quatre rangées n'ont pas la même hauteur. */
+function paveCale(on){
+  let h=0;
+  if(on){ const p=document.getElementById('paveNum');
+    if(p){ const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
+  document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? h+'px' : ''; });
+}
+/* une case que le pavé sert : une case numérique convertie, ou une case
+   mathématique confiée par PAVE_MF */
+function paveEstCible(el){
+  return !!(el && el.hasAttribute && el.hasAttribute('data-pave') && (el.tagName==='INPUT' || el.tagName==='MATH-FIELD'));
+}
+/* Ouvre ou referme le pavé selon QUI a le focus : une case qu'il sert — sauf
+   si le clavier MathLive complet est déployé, l'élève l'ayant demandé par ⌨️ —,
+   le pavé lui-même (une touche enfoncée), ou autre chose. */
+function paveMontrer(){
+  const pave=document.getElementById('paveNum'); if(!pave) return;
+  const a=document.activeElement;
+  const vk=window.mathVirtualKeyboard, plein=!!(vk && vk.visible);
+  if(paveEstCible(a) && !plein){
+    if(a.tagName==='MATH-FIELD'){ try{ a.mathVirtualKeyboardPolicy='manual'; }catch(e){} }
+    pave.hidden=false; paveCale(true);
+  } else if(!(a && pave.contains(a))){ pave.hidden=true; paveCale(false); }
+}
 function paveBrancher(){
   if(!paveActif()) return;
   let pave=document.getElementById('paveNum');
@@ -17320,26 +17363,32 @@ function paveBrancher(){
     pave.addEventListener('click', function(e){
       const b=e.target && e.target.closest ? e.target.closest('button[data-t]') : null; if(!b) return;
       const el=document.activeElement;
-      if(!el || el.tagName!=='INPUT' || !el.hasAttribute('data-pave')) return;
+      if(!paveEstCible(el)) return;
       const t=b.getAttribute('data-t');
-      if(t==='⏎'){ el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true})); return; }
+      if(t==='⏎'){
+        if(el.tagName==='MATH-FIELD'){ try{ el.executeCommand('commit'); }catch(er){} }
+        else el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+        return;
+      }
       paveInserer(el, t==='−' ? '-' : t);
     });
     document.addEventListener('focusin', function(e){
-      const el=e.target;
-      if(el && el.tagName==='INPUT' && el.hasAttribute('data-pave')){
-        pave.hidden=false; paveCale(true);
-        try{ el.scrollIntoView({block:'center'}); }catch(er){}
-      } else if(!pave.contains(el)){ pave.hidden=true; paveCale(false); }
+      paveMontrer();
+      if(paveEstCible(e.target)){ try{ e.target.scrollIntoView({block:'center'}); }catch(er){} }
     });
-    document.addEventListener('focusout', function(){
-      setTimeout(function(){ const a=document.activeElement;
-        if(!(a && ((a.tagName==='INPUT' && a.hasAttribute('data-pave')) || pave.contains(a)))){ pave.hidden=true; paveCale(false); } },0);
-    });
+    document.addEventListener('focusout', function(){ setTimeout(paveMontrer,0); });
   }
+  /* le clavier MathLive complet, déployé ou replié par ⌨️ : le pavé suit */
+  const vk=window.mathVirtualKeyboard;
+  if(vk && !vk.__paveLie){ vk.__paveLie=true;
+    try{ vk.addEventListener('virtual-keyboard-toggle', function(){ setTimeout(paveMontrer,0); }); }catch(e){} }
   document.querySelectorAll('input[inputmode="numeric"]').forEach(function(el){
     el.setAttribute('data-pave','1'); el.setAttribute('inputmode','none');
   });
+  if(PAVE_MF){ document.querySelectorAll(PAVE_MF).forEach(function(el){
+    el.setAttribute('data-pave','1');
+    try{ el.mathVirtualKeyboardPolicy='manual'; }catch(e){}
+  }); }
 }
 /* Les cases naissent et renaissent à chaque rendu : l'observateur les
    convertit au fil de l'eau, sans rien demander aux exercices. Il n'observe

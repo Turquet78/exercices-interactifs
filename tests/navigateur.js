@@ -99,7 +99,12 @@ async function ouvrir(chromium, ml, options){
     proxy: (process.env.HTTPS_PROXY || process.env.https_proxy)
       ? { server: process.env.HTTPS_PROXY || process.env.https_proxy } : undefined,
   });
-  const ctx = await nav.newContext({ ignoreHTTPSErrors: true, viewport: options.viewport || { width: 1280, height: 900 } });
+  /* hasTouch : un contexte TACTILE — MathLive y déploie son clavier complet au
+     focus (politique « auto »), exactement ce que le pavé compact doit empêcher
+     sur les cases qu'on lui confie ; la requête média pointer:coarse, elle,
+     reste au navigateur (le banc force le pavé par window.__paveForce). */
+  const ctx = await nav.newContext({ ignoreHTTPSErrors: true, viewport: options.viewport || { width: 1280, height: 900 },
+                                     hasTouch: options.hasTouch === true });
   const page = await ctx.newPage();
   const erreurs = [];
   page.on('pageerror', e => erreurs.push(String(e.message)));
@@ -5545,42 +5550,67 @@ async function parcours(page, N){
     if(!P.pave){
       ignorer('le pavé numérique est petit, touchable, et il écrit', 'ce fichier ne déclare pas de pavé');
     } else {
-      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 } });
-      if(await connecter(s.page) !== 'scr-space'){
-        ignorer('le pavé numérique est petit, touchable, et il écrit', 'connexion impossible');
-      } else {
-        await s.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
-        await s.page.evaluate(i => openTest(i), P.pave.exercice);
-        await s.page.waitForTimeout(300);
-        await s.page.evaluate(() => {
+      /* ouvre l'exercice par le vrai chemin, en entraînement, et franchit son
+         écran de départ s'il en a un */
+      const ouvrirExoPave = async (page, exercice) => {
+        await page.evaluate(() => { window.__paveForce = true; paveObserver(); });
+        await page.evaluate(i => openTest(i), exercice);
+        await page.waitForTimeout(300);
+        await page.evaluate(() => {
           const b = [...document.querySelectorAll('#modeChoices button')]
             .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
           if(b) b.click();
         });
-        await s.page.waitForTimeout(700);
-        /* certains exercices ont un écran de départ à franchir */
-        await s.page.evaluate(() => {
+        await page.waitForTimeout(700);
+        await page.evaluate(() => {
           const vis = e => { const q = e.getBoundingClientRect(); return q.width > 0 && q.height > 0; };
           const b = [...document.querySelectorAll('button')].filter(vis)
             .find(x => /^(Commencer|Démarrer|C'est parti|Niveau 1)/.test(x.textContent.trim()));
           if(b) b.click();
         });
-        await s.page.waitForTimeout(700);
+        await page.waitForTimeout(700);
+      };
+      /* la géométrie du pavé, mesurée au RECTANGLE : position, rangées et
+         colonnes des douze touches nommées (chiffres, virgule, moins),
+         recouvrements avec la case remplie et les commandes du bas */
+      const mesurerPave = (champ) => {
+        const el = document.querySelector(champ), pave = document.getElementById('paveNum');
+        if(!pave) return { absent: true };
+        const r = pave.getBoundingClientRect(), c = el.getBoundingClientRect();
+        const touches = [...pave.querySelectorAll('.pave-t')];
+        const rects = touches.map(b => b.getBoundingClientRect());
+        const nommees = touches.filter(b => /^[0-9,−]$/.test(b.getAttribute('data-t'))).map(b => b.getBoundingClientRect());
+        const distinct = (xs) => { const v = []; xs.forEach(x => { if(!v.some(y => Math.abs(y - x) < 4)) v.push(x); }); return v.length; };
+        const ctrls = document.getElementById('testCtrls');
+        const k = ctrls ? ctrls.getBoundingClientRect() : null;
+        const chev = (a1, b2) => !!(a1 && b2 && b2.width > 0 && a1.left < b2.right && b2.left < a1.right && a1.top < b2.bottom && b2.top < a1.bottom);
+        const cmd = touches.filter(b => /^[⌫⏎]$/.test(b.getAttribute('data-t'))).map(b => b.getBoundingClientRect());
+        const blocDroit = nommees.length ? Math.max(...nommees.map(q => q.right)) : 0;
+        return { visible: !pave.hidden && r.height > 0, hauteur: Math.round(r.height), largeur: Math.round(r.width),
+                 gauche: Math.round(r.left), droite: Math.round(r.right), haut: Math.round(r.top), bas: Math.round(r.bottom),
+                 fenetre: { w: window.innerWidth, h: window.innerHeight },
+                 petites: rects.filter(t => t.width < 40 || t.height < 40).length,
+                 surCase: chev(r, c), surCommandes: chev(r, k),
+                 nommees: nommees.length, rangees: distinct(nommees.map(q => q.top)), colonnes: distinct(nommees.map(q => q.left)),
+                 commandesACote: cmd.length > 0 && cmd.every(q => q.left >= blocDroit - 1),
+                 mode: el.getAttribute('inputmode') };
+      };
+      const frapper = async (page, champ, frappe) => {
+        for(const touche of frappe) await page.click('#paveNum button[data-t="' + touche + '"]');
+        return page.evaluate(ch => ({
+          valeur: document.querySelector(ch).value,
+          focus: document.activeElement === document.querySelector(ch),
+        }), champ);
+      };
+
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 } });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('le pavé numérique est petit, touchable, et il écrit', 'connexion impossible');
+      } else {
+        await ouvrirExoPave(s.page, P.pave.exercice);
         await s.page.focus(P.pave.champ);
         await s.page.waitForTimeout(400);
-        const m = await s.page.evaluate(champ => {
-          const el = document.querySelector(champ), pave = document.getElementById('paveNum');
-          if(!pave) return { absent: true };
-          const r = pave.getBoundingClientRect(), c = el.getBoundingClientRect();
-          const touches = [...pave.querySelectorAll('.pave-t')].map(b => b.getBoundingClientRect());
-          const ctrls = document.getElementById('testCtrls');
-          const k = ctrls ? ctrls.getBoundingClientRect() : null;
-          const chev = (a1, b2) => !!(a1 && b2 && b2.width > 0 && a1.left < b2.right && b2.left < a1.right && a1.top < b2.bottom && b2.top < a1.bottom);
-          return { visible: !pave.hidden && r.height > 0, hauteur: Math.round(r.height),
-                   petites: touches.filter(t => t.width < 40 || t.height < 40).length,
-                   surCase: chev(r, c), surCommandes: chev(r, k),
-                   mode: el.getAttribute('inputmode') };
-        }, P.pave.champ);
+        const m = await s.page.evaluate(mesurerPave, P.pave.champ);
         if(m.absent){
           verifier('le pavé numérique est petit, touchable, et il écrit', false, 'aucun pavé dans la page');
         } else {
@@ -5588,6 +5618,9 @@ async function parcours(page, N){
             'le pavé reste caché après le focus');
           verifier('le pavé est PETIT — c\'est toute sa raison d\'être', m.hauteur > 0 && m.hauteur <= 100,
             m.hauteur + 'px de haut : le clavier de la tablette en fait autant');
+          verifier('en PORTRAIT, le pavé est une seule rangée en bas de l\'écran',
+            m.rangees === 1 && m.bas > m.fenetre.h * 0.7,
+            m.rangees + ' rangée(s), bas du pavé à ' + m.bas + 'px sur ' + m.fenetre.h);
           verifier('chaque touche du pavé fait au moins 40 px — un doigt, pas une souris', m.petites === 0,
             m.petites + ' touche(s) trop petites');
           verifier('le pavé ne recouvre ni la case remplie ni les commandes du bas',
@@ -5597,19 +5630,129 @@ async function parcours(page, N){
             'inputmode=' + m.mode);
           /* la frappe vit dans le profil : les cases de la multiplication
              posée n'acceptent qu'UN chiffre, celles des courbes une décimale */
-          for(const touche of P.pave.frappe){
-            await s.page.click('#paveNum button[data-t="' + touche + '"]');
-          }
-          const t = await s.page.evaluate(champ => ({
-            valeur: document.querySelector(champ).value,
-            focus: document.activeElement === document.querySelector(champ),
-          }), P.pave.champ);
+          const t = await frapper(s.page, P.pave.champ, P.pave.frappe);
           verifier('les touches écrivent dans la case sans lui voler le focus',
             t.valeur === P.pave.attendu && t.focus === true,
             '« ' + t.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t.focus ? 'gardé' : 'perdu'));
+
+          /* ---- en PAYSAGE : le rectangle 4 × 3, à droite, au-dessus des commandes ---- */
+          if(!P.pave.paysage){
+            ignorer('en PAYSAGE, le pavé est un rectangle 4 × 3 posé à droite, en bas', 'ce fichier garde une rangée dans les deux orientations');
+          } else {
+            await s.page.setViewportSize({ width: 1180, height: 820 });
+            await s.page.waitForTimeout(300);
+            /* on quitte la case puis on y revient : la réserve du bas se
+               remesure sur le pavé rendu dans sa nouvelle forme */
+            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+            await s.page.waitForTimeout(100);
+            await s.page.focus(P.pave.champ);
+            await s.page.waitForTimeout(400);
+            const p = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('en PAYSAGE, le pavé est un rectangle 4 × 3 posé à droite, en bas',
+              p.visible && p.nommees === 12 && p.rangees === 4 && p.colonnes === 3
+                && p.gauche > p.fenetre.w * 0.6 && p.haut > p.fenetre.h * 0.4,
+              !p.visible ? 'le pavé reste caché' : p.nommees !== 12 ? p.nommees + ' touches nommées au lieu de 12'
+                : (p.rangees + ' rangée(s) × ' + p.colonnes + ' colonne(s), bord gauche à ' + p.gauche + 'px sur ' + p.fenetre.w
+                   + ', haut à ' + p.haut + 'px sur ' + p.fenetre.h));
+            verifier('en paysage, ⌫ et ⏎ font une colonne À CÔTÉ du bloc des chiffres', p.commandesACote === true,
+              'une commande est posée dans le bloc des chiffres ou dessous');
+            verifier('en paysage, le pavé ne recouvre ni la case remplie ni les commandes du bas, et ses touches restent touchables',
+              !p.surCase && !p.surCommandes && p.petites === 0,
+              p.surCase ? 'il recouvre la case qu\'on remplit' : p.surCommandes ? 'il recouvre Pause/Abandonner' : p.petites + ' touche(s) trop petites');
+            /* on efface ce que la frappe portrait a écrit, puis on retape */
+            const eff = []; for(let i = 0; i < P.pave.attendu.length; i++) eff.push('⌫');
+            const t2 = await frapper(s.page, P.pave.champ, eff.concat(P.pave.frappe));
+            verifier('en paysage, les touches écrivent dans la case sans lui voler le focus',
+              t2.valeur === P.pave.attendu && t2.focus === true,
+              '« ' + t2.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t2.focus ? 'gardé' : 'perdu'));
+          }
         }
       }
       await s.nav.close(); s = null;
+
+      /* ---- les cases MATHÉMATIQUES confiées au pavé, sur un contexte TACTILE ----
+         Là où le niveau confie ses cases MathLive au pavé (PAVE_MF), le clavier
+         MathLive complet ne doit PAS se déployer au focus — c'est un contexte
+         à hasTouch, où sa politique « auto » l'ouvrirait —, le pavé s'ouvre à
+         sa place, ses touches écrivent DANS la case (la valeur lue par la
+         page, et l'événement input que la correction en direct écoute), le
+         bouton ⌨️ ouvre toujours le clavier complet — et le pavé se tait tant
+         qu'il est déployé, puis revient. */
+      if(!P.pave.maths){
+        ignorer('sur une case MathLive confiée au pavé, c\'est le pavé qui s\'ouvre, pas le clavier complet',
+          'ce fichier ne confie aucune case mathématique au pavé');
+      } else {
+        s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+        if(await connecter(s.page) !== 'scr-space'){
+          ignorer('sur une case MathLive confiée au pavé, c\'est le pavé qui s\'ouvre, pas le clavier complet', 'connexion impossible');
+        } else {
+          await ouvrirExoPave(s.page, P.pave.maths.exercice);
+          const pret = await s.page.evaluate(ch => {
+            const el = document.querySelector(ch);
+            if(!el || el.tagName !== 'MATH-FIELD') return { absent: true };
+            window.__pvInputs = 0; window.__pvChanges = 0;
+            el.addEventListener('input', () => { window.__pvInputs++; });
+            el.addEventListener('change', () => { window.__pvChanges++; });
+            return { absent: false, marquee: el.hasAttribute('data-pave'), politique: el.mathVirtualKeyboardPolicy };
+          }, P.pave.maths.champ);
+          if(pret.absent){
+            verifier('sur une case MathLive confiée au pavé, c\'est le pavé qui s\'ouvre, pas le clavier complet', false,
+              'la case ' + P.pave.maths.champ + ' n\'est pas un <math-field> de cet écran');
+          } else {
+            await s.page.focus(P.pave.maths.champ);
+            await s.page.waitForTimeout(600);
+            const k = await s.page.evaluate(ch => {
+              const el = document.querySelector(ch), pave = document.getElementById('paveNum');
+              const vk = window.mathVirtualKeyboard;
+              const kb = document.querySelector('body > .ML__keyboard');
+              const kr = kb ? kb.getBoundingClientRect() : null;
+              const pr = pave ? pave.getBoundingClientRect() : null;
+              return { paveVisible: !!(pave && !pave.hidden && pr.height > 0),
+                       complet: !!(vk && vk.visible) || !!(kr && kr.height > 0 && kr.bottom > 0 && kr.top < window.innerHeight),
+                       focus: document.activeElement === el, politique: el.mathVirtualKeyboardPolicy };
+            }, P.pave.maths.champ);
+            verifier('sur une case MathLive confiée au pavé, c\'est le pavé qui s\'ouvre, pas le clavier complet',
+              pret.marquee && k.paveVisible && !k.complet,
+              !pret.marquee ? 'la case n\'est pas marquée data-pave' : !k.paveVisible ? 'le pavé reste caché'
+                : 'le clavier MathLive complet est déployé (politique « ' + k.politique + ' »)');
+            const t3 = await frapper(s.page, P.pave.maths.champ, P.pave.maths.frappe);
+            /* MathLive lève « input » APRÈS coup, jamais dans le tour de la
+               commande : lu tout de suite, le compteur accusait la page d'un
+               événement manquant (sondé : 0 tout de suite, 3 après 150 ms) */
+            await s.page.waitForTimeout(300);
+            const ev = await s.page.evaluate(() => ({ inputs: window.__pvInputs, changes: window.__pvChanges }));
+            verifier('les touches écrivent dans la case MathLive — valeur lue par la page, événement input, focus gardé',
+              t3.valeur === P.pave.maths.attendu && t3.focus === true && ev.inputs >= P.pave.maths.frappe.length,
+              '« ' + t3.valeur + ' » au lieu de « ' + P.pave.maths.attendu + ' », focus ' + (t3.focus ? 'gardé' : 'perdu')
+              + ', ' + ev.inputs + ' événement(s) input sur ' + P.pave.maths.frappe.length);
+            /* ⌨️ : le clavier complet reste atteignable, le pavé se tait, puis revient */
+            await s.page.evaluate(() => { pmKB(); });
+            await s.page.waitForTimeout(500);
+            const o = await s.page.evaluate(() => {
+              const pave = document.getElementById('paveNum'), vk = window.mathVirtualKeyboard;
+              const pr = pave.getBoundingClientRect();
+              return { complet: !!(vk && vk.visible), paveVisible: !pave.hidden && pr.height > 0 };
+            });
+            await s.page.evaluate(ch => { window.mathVirtualKeyboard.hide(); document.querySelector(ch).focus(); }, P.pave.maths.champ);
+            await s.page.waitForTimeout(500);
+            const o2 = await s.page.evaluate(() => {
+              const pave = document.getElementById('paveNum'), vk = window.mathVirtualKeyboard;
+              const pr = pave.getBoundingClientRect();
+              return { complet: !!(vk && vk.visible), paveVisible: !pave.hidden && pr.height > 0 };
+            });
+            verifier('⌨️ ouvre encore le clavier MathLive complet ; le pavé se tait tant qu\'il est déployé, et revient ensuite',
+              o.complet && !o.paveVisible && !o2.complet && o2.paveVisible,
+              !o.complet ? '⌨️ n\'ouvre plus le clavier complet' : o.paveVisible ? 'deux claviers à la fois : le pavé reste ouvert sous le clavier complet'
+                : o2.complet ? 'le clavier complet ne se referme pas' : 'le pavé ne revient pas une fois le clavier complet refermé');
+            /* ⏎ sur une case MathLive : l'événement change, celui qui fait passer à la case suivante */
+            await s.page.click('#paveNum button[data-t="⏎"]');
+            await s.page.waitForTimeout(200);
+            const ev2 = await s.page.evaluate(() => window.__pvChanges);
+            verifier('⏎ sur une case MathLive lève l\'événement change — la case suivante', ev2 >= 1, 'aucun événement change');
+          }
+        }
+        await s.nav.close(); s = null;
+      }
     }
 
   } catch(e){
