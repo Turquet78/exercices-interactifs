@@ -5692,8 +5692,13 @@ qu'on ferme attend les connexions que le navigateur garde ouvertes — on les
 détruit. Le banc jsdom tient la garde (jamais enregistré sur ordinateur, une
 fois en tactile, `sw.js`) et lit le fichier : les trois écouteurs, la page
 hors connexion, et aucune API de cache dans le CODE — le commentaire a le
-droit de nommer ce qu'il refuse. La limite ci-dessus tient toujours : le
-geste d'installation lui-même reste hors de portée de tout banc.
+droit de nommer ce qu'il refuse. Dix sabotages, chacun rougissant en
+nommant son défaut — six en jsdom, quatre que seul le navigateur voit : le
+service worker jamais actif, l'erreur brute hors connexion, la page
+elle-même servie hors connexion (« un cache ? »), et le manifeste en
+`display: browser`, que Chromium nomme lui-même
+(`manifest-display-not-supported`). La limite ci-dessus tient toujours :
+le geste d'installation lui-même reste hors de portée de tout banc.
 
 ## Fiches imprimées (`.docx`)
 
