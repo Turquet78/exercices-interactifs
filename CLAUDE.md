@@ -5546,8 +5546,8 @@ comparées désormais) ; ce qui diffère vit À CÔTÉ, comme `PAVE_TOUCHES` :
 `PAVE_MF`, le sélecteur des cases MathLive confiées au pavé — `math-field.pm-mf`
 en Première, où TOUTES ces cases n'attendent qu'un nombre (numérateur,
 dénominateur, écriture décimale), et la feuille de calcul libre (`dexp2-mf`),
-qui attend des expressions, n'en fait pas partie ; vide en Seconde et en
-Terminale, qui ne changent pas. Le contrôle compare `PAVE_MF` à
+qui attend des expressions, n'en fait pas partie ; vide en Terminale, qui ne
+change pas (la Seconde a suivi la Première, voir ci-dessous). Le contrôle compare `PAVE_MF` à
 `tests/profils.js` (`pave.champsMaths`) — deux sources — et tient les deux
 bords : la case confiée marquée, la feuille libre jamais, et un niveau qui ne
 confie rien qui ne marque aucune case mathématique.
@@ -5562,7 +5562,16 @@ le clavier complet** — la règle « atteignable sur tout écran à champ
 mathématique » tient — et tant qu'il est déployé le pavé se tait (deux
 claviers à la fois ne s'écrivent pas), puis revient dès qu'on le referme
 (`virtual-keyboard-toggle`).
-**La FORME est affaire de feuille de styles, propre à la Première** : en
+**Puis la Seconde a suivi** (« fais la même chose pour la Seconde »,
+septembre 2026) : ses cases `pm-mf` sont toutes des numérateurs, des
+dénominateurs ou des écritures décimales — pourcentages, évolutions, les
+quatre exercices de fractions guidés —, le même sélecteur les confie au pavé,
+sa `configureField()` pose la même politique, sa feuille de styles porte les
+mêmes deux formes, et son profil déclare `champsMaths`, `paysage` et `maths`
+(la case `#p3` du pourcentage, tapée en contexte tactile). Seule la Terminale
+garde `PAVE_MF` vide : ses cases attendent des expressions.
+**La FORME est affaire de feuille de styles, propre à la Première et à la
+Seconde** : en
 portrait la rangée d'avant, en bas, au-dessus des commandes Pause/Abandonner
 (elles vivent en bas À DROITE, `#testCtrls`, ce qui interdit de descendre le
 pavé plus bas) ; en paysage (`@media (orientation:landscape)`) une grille de
