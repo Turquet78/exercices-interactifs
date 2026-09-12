@@ -1827,7 +1827,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=203;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=204;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -13241,23 +13241,52 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
 const KB_IDX = {tooltip:"indice",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="2" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="16.5" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSubscript"]};
-function buildKbTerm(vars){
+function buildKbTerm(vars, compact){
   /* Clavier adapte aux exercices de calcul : chiffres, virgule, fraction, operations,
      pourcentage (pas de variables f/x, inutiles ici). La touche « = » (demande de
      Turquet, septembre 2026) : sur tablette la greffe coupe le clavier du SYSTEME
      sur chaque champ mathematique (inputmode="none") — sans elle, une egalite
-     etait intapable. */
+     etait intapable.
+     La touche « ⏎ » VALIDE (commit — l'evenement « change » : une ligne de plus
+     dans la feuille du 2.2.9, la case suivante dans un exercice guide). Elle
+     remplace un « ✓ » qui ne faisait que CACHER le clavier : sur tablette
+     l'eleve croyait valider et rien ne se passait (signale par Turquet,
+     septembre 2026). Le clavier se referme en quittant la case, ou par ⌨️.
+     « compact » (paysage, clavier ancre) : les MEMES touches sur DEUX rangees
+     au lieu de quatre — un clavier deux fois moins haut, la place rendue a
+     l'exercice (demande de Turquet, septembre 2026). Aucune touche ne manque
+     d'un cote : un controle compare les deux jeux. */
+  const K = {
+    n: d => ({latex: d}),
+    frac: {label:"/",insert:"\\frac{#@}{#?}"},
+    eff:  {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]},
+    fois: {label:"×",latex:"\\times"},
+    po: {label:"(",key:"("}, pf: {label:")",key:")"},
+    moins: {label:"−",latex:"-"}, plus: {label:"+",latex:"+"},
+    gauche: {label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
+    droite: {label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},
+    virg: {label:",",key:","}, egal: {latex:"="}, pct: {label:"%",latex:"\\%"},
+    entree: {label:"⏎",class:"action",command:["performWithFeedback","commit"]}
+  };
+  if(compact){
+    return {
+      label: "Calcul",
+      layers: [
+        { id: "prem-paysage", rows: [
+          [ K.n("1"),K.n("2"),K.n("3"),K.n("4"),K.n("5"),K.n("6"),K.n("7"),K.n("8"),K.n("9"),K.n("0"),K.virg,K.eff ],
+          [ K.plus,K.moins,K.fois,K.frac,K.po,K.pf,K.egal,K.pct,K.gauche,K.droite,K.entree ]
+        ] }
+      ]
+    };
+  }
   return {
     label: "Calcul",
     layers: [
       { id: "prem-base", rows: [
-        [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{label:"\u232b",class:"action",command:["performWithFeedback","deleteBackward"]} ],
-        [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"\u00d7",latex:"\\times"},{label:"(",key:"("},{label:")",key:")"} ],
-        [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"\u2212",latex:"-"},{label:"+",latex:"+"},
-          {label:"\u2190",class:"action",command:["performWithFeedback","moveToPreviousChar"]},
-          {label:"\u2192",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
-        [ {latex:"0"},{label:",",key:","},{latex:"="},{label:"%",latex:"\\%"},
-          {label:"\u2713",class:"action",command:["hideVirtualKeyboard"]} ]
+        [ K.n("7"),K.n("8"),K.n("9"),K.frac,K.eff ],
+        [ K.n("4"),K.n("5"),K.n("6"),K.fois,K.po,K.pf ],
+        [ K.n("1"),K.n("2"),K.n("3"),K.moins,K.plus,K.gauche,K.droite ],
+        [ K.n("0"),K.virg,K.egal,K.pct,K.entree ]
       ] }
     ]
   };
@@ -13269,14 +13298,22 @@ function kbVarsFor(id){
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
+/* Le clavier ANCRE (tablette) en PAYSAGE prend la forme compacte a deux rangees ;
+   la fenetre flottante de l'ordinateur et le portrait gardent les quatre rangees.
+   La cle memorise l'orientation : une rotation, un changement d'exercice ou un
+   rendu (upgrade) reappliquent la bonne forme. */
+function kbCompact(){
+  try{ return !window.__kbFloating && !!(window.matchMedia && matchMedia("(orientation: landscape)").matches); }catch(e){ return false; }
+}
 function applyKbLayout(){
   const vk = window.mathVirtualKeyboard; if(!vk) return;
   let id = null; try { id = currentTestId; } catch(e) {}   /* variable globale du script principal */
   const vars = kbVarsFor(id);
-  const key = JSON.stringify(vars.map(v => v.insert || v.latex || v.label));
+  const compact = kbCompact();
+  const key = JSON.stringify([compact, vars.map(v => v.insert || v.latex || v.label)]);
   if(key === __kbVarsKey) return;   /* déjà appliqué pour ce contexte */
   __kbVarsKey = key;
-  try { vk.layouts = [ buildKbTerm(vars) ]; } catch(e) {}
+  try { vk.layouts = [ buildKbTerm(vars, compact) ]; } catch(e) {}
 }
 
 const FIELD_FIX_CSS =
@@ -13554,6 +13591,7 @@ function kbOnRotate(){
   clearTimeout(kbRotTimer);
   kbRotTimer = setTimeout(()=>{
     pinKbToViewport();
+    applyKbLayout();   /* paysage <-> portrait : la forme du clavier suit (compact ou non) */
     const vk = window.mathVirtualKeyboard;
     if(!vk || !vk.visible || window.__kbFloating) return;
     const ae = document.activeElement;
@@ -13570,7 +13608,6 @@ function setupKeyboard(){
   if(window.__mlKbSetup) return; window.__mlKbSetup = true;
   const vk = window.mathVirtualKeyboard;
   if(!vk) return;
-  applyKbLayout();   /* couche selon l'exercice courant */
   try{ vk.addEventListener("virtual-keyboard-toggle", ()=>{ requestAnimationFrame(pinKbToViewport); setTimeout(pinKbToViewport, 120); }); }catch(e){}
   try{ vk.addEventListener("geometrychange", ()=>requestAnimationFrame(pinKbToViewport)); }catch(e){}
   if(window.visualViewport){
@@ -13654,6 +13691,7 @@ function setupKeyboard(){
       helpWin.style.left = Math.min(parseFloat(helpWin.style.left) || 0, mx) + "px";
     });
   }
+  applyKbLayout();   /* couche selon l'exercice courant — APRES le choix flottant/ancre, dont la forme depend */
   function pin(){
     if(window.__kbFloating) return;
     const el = document.querySelector(".ML__keyboard");

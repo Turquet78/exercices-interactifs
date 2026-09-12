@@ -6078,6 +6078,91 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 quinquies. Sur une tablette en PAYSAGE, le clavier mathématique tient sur deux rangées, et ⏎ valide ----
+       Signalé et demandé par Turquet (septembre 2026) sur le 2.2.9 : « la touche
+       valider ne fonctionne pas et ne permet pas de passer à la ligne », et
+       « en paysage, le clavier doit prendre moins de place en hauteur ». jsdom
+       évalue les dispositions ; seul un navigateur sait combien de rangées se
+       RENDENT, et ce que fait la touche cliquée. Tablette tactile en paysage :
+       on ouvre l'exercice déclaré, on touche sa feuille (le clavier se déploie
+       de lui-même, politique « auto »), on compte les rangées rendues, on
+       exige des touches encore touchables et aucun débord, on CLIQUE la vraie
+       touche ⏎ — une ligne de plus, le curseur dedans, le clavier toujours
+       là — puis on tourne en portrait, où les rangées de la forme normale
+       reviennent. */
+    titre('11 quinquies. LE CLAVIER MATHÉMATIQUE SUR UNE TABLETTE EN PAYSAGE');
+    if(!(P.clavierEcran && P.clavierEcran.paysage)){
+      ignorer('sur une tablette en paysage, le clavier mathématique tient sur moins de rangées', 'ce fichier ne déclare pas de clavier de paysage');
+    } else {
+      const K = P.clavierEcran, KL = K.paysage;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1024, height: 768 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('sur une tablette en paysage, le clavier mathématique tient sur moins de rangées', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), KL.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        await s.page.click(KL.champ);
+        await s.page.waitForTimeout(900);
+        const mesurerRangees = ({ entree, lignes }) => {
+          const kb = document.querySelector('body > .ML__keyboard');
+          const vk = window.mathVirtualKeyboard;
+          if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
+          const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
+          const rangees = [...kb.querySelectorAll('.MLK__rows > .MLK__row')].filter(vis);
+          const caps = [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis);
+          const plaque = (kb.querySelector('.MLK__plate') || kb).getBoundingClientRect();
+          const ent = caps.find(c => c.textContent.trim() === entree) || null;
+          const q = ent && ent.getBoundingClientRect();
+          const ls = [...document.querySelectorAll(lignes)];
+          return { visible: !!(vk && vk.visible), rangees: rangees.length, touches: caps.length,
+                   plaque: Math.round(plaque.height), part: Math.round(100 * plaque.height / window.innerHeight),
+                   hMin: Math.round(Math.min(...caps.map(c => c.getBoundingClientRect().height))),
+                   debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
+                   entree: ent ? { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) } : null,
+                   lignes: ls.length,
+                   focus: ls.findIndex(l => l.contains(document.activeElement)) };
+        };
+        const arg = { entree: K.entree, lignes: KL.lignes };
+        const pay = await s.page.evaluate(mesurerRangees, arg);
+        verifier('sur une tablette en paysage, le clavier mathématique tient sur ' + KL.rangees + ' rangées, touches touchables, sans débord',
+          !pay.absent && pay.visible && pay.rangees === KL.rangees && pay.hMin >= 36 && pay.debord <= 1,
+          pay.absent ? 'aucun clavier ancré dans la page' + (pay.visible ? '' : ' (le clavier ne se déploie pas)')
+            : !pay.visible ? 'le clavier ne se déploie pas'
+            : pay.rangees + ' rangée(s) rendue(s) (' + pay.touches + ' touches, plaque ' + pay.plaque + ' px = ' + pay.part + ' % de l\'écran)'
+              + ', touche la plus basse ' + pay.hMin + ' px' + (pay.debord > 1 ? ', DÉBORDE de ' + pay.debord + ' px à droite' : ''));
+        let apres = null;
+        if(pay.entree && pay.lignes >= 1){
+          await s.page.mouse.click(pay.entree.x, pay.entree.y); await s.page.waitForTimeout(600);
+          apres = await s.page.evaluate(mesurerRangees, arg);
+        }
+        verifier('la touche « ' + K.entree + ' » cliquée ajoute une ligne à la feuille, le curseur dedans, le clavier toujours déployé',
+          !!apres && apres.lignes === pay.lignes + 1 && apres.focus === pay.lignes && apres.visible,
+          !pay.entree ? 'aucune touche « ' + K.entree + ' » sur le clavier rendu'
+            : !apres ? 'la feuille n\'a aucune ligne (' + KL.lignes + ')'
+            : apres.lignes !== pay.lignes + 1 ? pay.lignes + ' ligne(s) avant, ' + apres.lignes + ' après : la touche ne passe pas à la ligne'
+            : apres.focus !== pay.lignes ? 'la nouvelle ligne n\'a pas le curseur (ligne active : ' + apres.focus + ')'
+            : 'le clavier s\'est refermé');
+        /* et en portrait, la forme normale revient : plus de rangées */
+        await s.page.setViewportSize({ width: 768, height: 1024 });
+        await s.page.waitForTimeout(1200);
+        const por = await s.page.evaluate(mesurerRangees, arg);
+        verifier('tournée en portrait, la tablette retrouve les rangées de la forme normale du clavier',
+          por.visible && por.rangees > KL.rangees && !!por.entree && por.debord <= 1,
+          !por.visible ? 'le clavier s\'est refermé à la rotation'
+            : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage)' + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
+              + (por.debord > 1 ? ', DÉBORDE de ' + por.debord + ' px' : ''));
+        verifier('le clavier de la tablette en paysage ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 11 quater. Sur tablette, la police de la page est réduite ----------
        Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
        tablette ». jsdom lit la règle ; seul un navigateur sait ce que la racine

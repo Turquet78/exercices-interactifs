@@ -212,6 +212,22 @@ module.exports = {
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
     policeTablette: 90,
+    /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
+       — commit, l'événement « change » : une ligne de plus dans la feuille du
+       2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne
+       faisait que CACHER le clavier (signalé par Turquet, septembre 2026 :
+       « la touche valider ne fonctionne pas et ne permet pas de passer à la
+       ligne »). Et sur une tablette en PAYSAGE, le clavier ancré tient sur
+       DEUX rangées — les mêmes touches, moitié moins de hauteur (demande de
+       Turquet, même jour). Le banc jsdom évalue les deux formes depuis la
+       source et la table de routage (kbCompact/applyKbLayout) ; le banc
+       navigateur ouvre l'exercice déclaré sur une tablette tactile en
+       paysage, compte les rangées RENDUES, clique la vraie touche ⏎ et exige
+       la ligne de plus, puis tourne l'écran en portrait où les quatre
+       rangées reviennent. */
+    clavierEcran: { entree: '\u23ce',
+                    paysage: { rangees: 2, exercice: 'synthese-augmentations-libre',
+                               champ: '#salSheet math-field', lignes: '#salSheet .dexp2-line' } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
@@ -644,7 +660,7 @@ module.exports = {
        réglage général étant 40 px et 20 px — puis clique « clavier B » et
        « clavier A », et regrandit la fenêtre à la taille d'une tablette, où
        les touches doivent reprendre leur taille. */
-    clavierEcran: { versB: 'clavier B', versA: 'clavier A',
+    clavierEcran: { versB: 'clavier B', versA: 'clavier A', entree: '\u23ce',   /* ⏎ valide (commit) sur ses deux couches */
                     portrait: { exercice: 'suite-auxiliaire', champ: '#scr-sa math-field.sa-mf',
                                 bouton: '#scr-sa button[aria-label^="Afficher ou masquer le clavier"]',
                                 hauteurMax: 36, policeMax: 18 } },
