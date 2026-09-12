@@ -5736,6 +5736,15 @@ son expression régulière coupait le bloc `@media` à la première accolade
 fermante, et cherchait ensuite une accolade qui n'y était plus. Un essai
 faux se reconnaît à ce qu'il rougit sur du code juste ; c'est le contrôle
 qui a été corrigé.
+**Puis la Seconde a suivi** (« même chose en Seconde », Turquet, septembre
+2026) : elle portait le même clavier avec le même « ✓ » qui cache, et la
+même feuille (4.5, 4.7, 4.9 et la synthèse). `buildKbTerm`, `kbCompact` et
+`applyKbLayout` y sont recopiés au caractère près depuis la Première (le
+portage l'a vérifié), la règle de la feuille aussi, et le profil déclare
+`clavierEcran` et `feuilleTablette` — le banc navigateur y mesure le 4.5,
+dont la première ligne porte la somme de l'énoncé en préfixe : c'est
+précisément là que « le préfixe suit la même taille » se voit. Seule la
+Terminale garde son clavier à deux couches et sa feuille à 2 rem.
 
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
