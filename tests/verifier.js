@@ -914,6 +914,33 @@ function structure(){
     /^try\{ manifesteTablette\(\); \}catch\(e\)\{\}$/m.test(s),
     'manifesteTablette() n’est pas appelée au démarrage');
 
+  /* Le service worker qui va avec — voir sw.js. La tablette de Turquet a
+     proposé un RACCOURCI au lieu d'une installation, avec un manifeste que
+     Chromium déclarait sans défaut : jusqu'à Chrome 108 sur Android, la
+     page doit aussi avoir un service worker qui répond à fetch, hors
+     connexion compris. Trois bords : la page l'ENREGISTRE depuis
+     manifesteTablette(), donc sous la garde du tactile ; le fichier répond
+     à une navigation coupée par une page HTML plutôt que par l'erreur
+     brute ; et il ne met RIEN en cache — main publie immédiatement, un
+     cache servirait une vieille page après une mise en ligne, sans que
+     rien ne le dise. Le code seul est lu pour ce dernier bord : le
+     commentaire du fichier a le droit de nommer ce qu'il refuse. */
+  verifier('manifesteTablette() enregistre le service worker sw.js — tablettes seulement',
+    /'serviceWorker' in navigator/.test(mt) && /navigator\.serviceWorker\.register\(\s*'sw\.js'\s*\)/.test(mt),
+    'pas de navigator.serviceWorker.register(\'sw.js\') gardé par « \'serviceWorker\' in navigator » dans manifesteTablette');
+  let sw = '';
+  try{ sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8'); } catch(e){ sw = ''; }
+  const swEcoutes = ['install', 'activate', 'fetch'].filter(ev => !new RegExp("addEventListener\\(\\s*'" + ev + "'").test(sw));
+  verifier('sw.js existe et écoute install, activate et fetch',
+    !!sw && swEcoutes.length === 0, !sw ? 'sw.js est introuvable' : 'n’écoute pas : ' + swEcoutes.join(', '));
+  verifier('hors connexion, sw.js répond à une navigation par une page HTML — jamais par l’erreur brute',
+    /respondWith\(/.test(sw) && /\.catch\(/.test(sw) && /new Response\(/.test(sw) && /text\/html/.test(sw)
+      && /mode\s*!==\s*'navigate'/.test(sw),
+    'il faut respondWith, un catch qui rend new Response(…, text/html), et ne relayer que les navigations');
+  const swCode = sw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  verifier('sw.js ne met RIEN en cache — main publie immédiatement',
+    !!sw && !/\bcaches\b|CacheStorage|\.put\(|addAll\(/.test(swCode), 'une API de cache y est apparue');
+
   /* Le fichier lui-même, tel que Chrome le lira. */
   const nomManif = CIBLE.replace(/\.html?$/i, '') + '.webmanifest';
   let manif = null, erreurManif = '';
@@ -8502,7 +8529,9 @@ function toucheEgalClavier(w, P){
    lien est posé, UNE fois seulement même si l'on redemande, avec la balise
    d'écran d'accueil de Safari — et son adresse est dérivée de la page
    (« .webmanifest » : la vraie adresse, avec le vrai nom, se lit au banc
-   navigateur, jsdom ouvrant la page sans adresse). */
+   navigateur, jsdom ouvrant la page sans adresse). Le service worker suit
+   la même garde : jamais enregistré sur ordinateur, une fois en tactile —
+   jsdom n'en a pas, on en pose un qui compte les appels. */
 function manifesteAppli(w, P){
   const present = evaluer(w, "typeof manifesteTablette==='function' && typeof tabletteActive==='function'");
   if(!present.ok || !present.valeur){
@@ -8510,22 +8539,27 @@ function manifesteAppli(w, P){
     return;
   }
   verifierEval(w, 'le manifeste d’application n’est déclaré qu’en tactile', `(function(){
-    const vus=[];
+    const vus=[], appels=[];
+    /* jsdom n'a pas de navigator.serviceWorker : on en pose un qui COMPTE. */
+    Object.defineProperty(navigator,'serviceWorker',{configurable:true,value:{register:function(u){ appels.push(String(u)); return Promise.resolve({}); }}});
     document.querySelectorAll('link[rel="manifest"],meta[name="apple-mobile-web-app-capable"]').forEach(function(e){ e.remove(); });
     delete window.__tabletteForce;
     if(tabletteActive()) vus.push('tabletteActive() est vrai hors écran tactile');
     if(manifesteTablette()!==false) vus.push('manifesteTablette() dit avoir déclaré le manifeste sur ordinateur');
     if(document.querySelector('link[rel="manifest"]')) vus.push('le manifeste est déclaré hors écran tactile — Chrome proposerait l\\'installation sur ordinateur');
+    if(appels.length) vus.push('le service worker est enregistré hors écran tactile ('+appels.join(', ')+')');
     window.__tabletteForce=true;
     if(manifesteTablette()!==true) vus.push('manifesteTablette() ne déclare rien en tactile');
+    if(appels.length!==1 || !/(^|\\/)sw\\.js$/.test(appels[0])) vus.push('en tactile, le service worker sw.js devrait être enregistré une fois — appels : '+JSON.stringify(appels));
     const l=document.querySelector('link[rel="manifest"]');
-    if(!l){ delete window.__tabletteForce; return 'aucun <link rel="manifest"> posé en tactile'; }
+    if(!l){ delete window.__tabletteForce; delete navigator.serviceWorker; return 'aucun <link rel="manifest"> posé en tactile'; }
     if(!String(l.getAttribute('href')||'').endsWith('.webmanifest')) vus.push('le lien vise « '+l.getAttribute('href')+' » au lieu d\\'un .webmanifest dérivé de la page');
     manifesteTablette();
     if(document.querySelectorAll('link[rel="manifest"]').length!==1) vus.push('redemander pose un second lien');
+    if(appels.length!==1) vus.push('redemander enregistre le service worker une seconde fois');
     const m=document.querySelector('meta[name="apple-mobile-web-app-capable"]');
     if(!m || m.content!=='yes') vus.push('la balise d\\'écran d\\'accueil de Safari manque');
-    delete window.__tabletteForce;
+    delete window.__tabletteForce; delete navigator.serviceWorker;
     document.querySelectorAll('link[rel="manifest"],meta[name="apple-mobile-web-app-capable"]').forEach(function(e){ e.remove(); });
     return vus.length ? vus.join(' ; ') : true;
   })()`);

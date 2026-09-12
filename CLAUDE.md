@@ -5655,6 +5655,46 @@ piloté — c'est le fichier joint et la tablette qui tranchent. Et `prof.html`
 n'a pas de manifeste : le professeur travaille sur ordinateur, et un tableau
 de bord installé sur la tablette d'un élève n'aurait rien à y faire.
 
+**Puis la tablette a proposé un RACCOURCI, pas une installation — et le
+manifeste n'y était pour rien.** Signalé par Turquet le jour de la mise en
+ligne (septembre 2026) : « chrome propose seulement un raccourci, pas
+d'installation ». Avant de toucher au manifeste, on a demandé son avis à
+Chromium LUI-MÊME (`Page.getInstallabilityErrors`, le protocole DevTools) :
+zéro défaut — manifeste, page de départ, icônes, tout lui convenait. Le
+critère manquant est propre à Chrome sur Android : jusqu'à la version 108,
+une page ne s'INSTALLE que si un **service worker** répond à `fetch`, y
+compris hors connexion ; sans lui, « Ajouter à l'écran d'accueil » ne pose
+qu'un raccourci, et rien à l'écran ne dit lequel des critères manque. Les
+versions plus récentes s'en passent, mais la tablette d'un élève n'est pas
+forcément à jour.
+**`sw.js` existe donc pour cette seule raison, et il ne met RIEN en cache.**
+C'est le premier réflexe d'un service worker, et ce serait ici une faute :
+`main` publie immédiatement (règle 1), un cache servirait une vieille page
+après une mise en ligne, sans que rien ne le dise. Toute requête ordinaire
+passe au navigateur sans intermédiaire ; seule une NAVIGATION est relayée,
+et si le réseau la refuse, l'élève lit « Pas de connexion » au lieu de
+l'erreur brute du navigateur — c'est exactement le critère d'avant la 108.
+Il est enregistré par `manifesteTablette()`, au même moment que le lien et
+sous la même garde : sur ordinateur il n'existe pas, et un refus (`file://`,
+navigateur ancien) est sans conséquence.
+**Le banc navigateur sert la page en HTTP local pour le mesurer** : un
+service worker ne s'enregistre pas depuis `file://`, où le banc ouvre toutes
+ses pages. Trois mesures de plus en « 11 bis » : le service worker ACTIF sur
+le dossier de la page, le verdict d'installabilité de Chromium (le pipeline
+entier ; « in-incognito » est écarté — un contexte Playwright l'est toujours),
+puis le serveur FERMÉ et la page redemandée, qui doit rendre « Pas de
+connexion » et jamais la page elle-même (ce qui trahirait un cache). Fermer
+le serveur coupe le réseau pour de vrai, là où une émulation pourrait ne pas
+atteindre un service worker qui vit hors de la page. Deux pièges de banc s'y
+sont montrés : avec un mandataire réglé sur Chromium, `127.0.0.1` y passait
+AUSSI et la page arrivait vide sans une erreur (`bypass`) ; et un serveur
+qu'on ferme attend les connexions que le navigateur garde ouvertes — on les
+détruit. Le banc jsdom tient la garde (jamais enregistré sur ordinateur, une
+fois en tactile, `sw.js`) et lit le fichier : les trois écouteurs, la page
+hors connexion, et aucune API de cache dans le CODE — le commentaire a le
+droit de nommer ce qu'il refuse. La limite ci-dessus tient toujours : le
+geste d'installation lui-même reste hors de portée de tout banc.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du

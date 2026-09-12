@@ -1782,7 +1782,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=200;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=201;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -11694,7 +11694,8 @@ function paveObserver(){
    tenir par niveau. Le bloc est le même texte dans les trois fichiers, et
    un contrôle le compare. window.__tabletteForce joue le rôle de
    window.__paveForce : le banc force l'écran tactile, la requête média
-   reste au navigateur. */
+   reste au navigateur. Le service worker sw.js est enregistré au même
+   moment, pour la même raison et sous la même garde. */
 function tabletteActive(){ return window.__tabletteForce===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
 function manifesteNom(){ const p=(location.pathname.split('/').pop()||'').replace(/\.html?$/i,''); return p ? p+'.webmanifest' : ''; }
 function manifesteTablette(){
@@ -11705,6 +11706,13 @@ function manifesteTablette(){
   /* Safari sur iPad lit aussi le manifeste, mais cette balise reste ce qui
      fait qu'un site posé sur l'écran d'accueil s'y ouvre sans barre. */
   const m=document.createElement('meta'); m.name='apple-mobile-web-app-capable'; m.content='yes'; document.head.appendChild(m);
+  /* Le service worker va avec, sous la même garde. Sans lui, Chrome sur
+     Android (jusqu'à la version 108 — et la tablette d'un élève n'est pas
+     forcément à jour) ne propose qu'un RACCOURCI au lieu d'une installation,
+     avec un manifeste pourtant sans défaut : c'est ce que la tablette de
+     Turquet a fait (septembre 2026). sw.js ne met rien en cache — voir le
+     fichier. Un refus (file://, navigateur ancien) est sans conséquence. */
+  if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('sw.js').catch(function(){}); }catch(e){} }
   return true;
 }
 
