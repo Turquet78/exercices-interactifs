@@ -5636,7 +5636,16 @@ async function parcours(page, N){
         return { visible: !pave.hidden && r.height > 0, hauteur: Math.round(r.height), largeur: Math.round(r.width),
                  gauche: Math.round(r.left), droite: Math.round(r.right), haut: Math.round(r.top), bas: Math.round(r.bottom),
                  fenetre: { w: window.innerWidth, h: window.innerHeight },
+                 /* les commandes du bas (Pause, Abandonner, Signaler), au RECTANGLE :
+                    leur écart au bas de l'écran, leur largeur, et si le pavé
+                    partage leur ligne (recouvrement vertical, pavé à gauche) */
+                 cmd: k && k.width > 0 ? { bas: Math.round(window.innerHeight - k.bottom), haut: Math.round(k.top),
+                                            largeur: Math.round(k.width), gauche: Math.round(k.left),
+                                            hauteur: Math.round(k.height),
+                                            memeLigne: r.top < k.bottom && k.top < r.bottom && r.right <= k.left } : null,
                  petites: rects.filter(t => t.width < 40 || t.height < 40).length,
+                 /* un pavé qui DÉFILE cache ses dernières touches (−, ⌫, ⏎) */
+                 deborde: pave.scrollWidth > pave.clientWidth + 1,
                  surCase: chev(r, c), surCommandes: chev(r, k),
                  nommees: nommees.length, rangees: distinct(nommees.map(q => q.top)), colonnes: distinct(nommees.map(q => q.left)),
                  mode: el.getAttribute('inputmode') };
@@ -5681,6 +5690,22 @@ async function parcours(page, N){
             t.valeur === P.pave.attendu && t.focus === true,
             '« ' + t.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t.focus ? 'gardé' : 'perdu'));
 
+          /* ---- les commandes du bas, sur tablette (demande de Turquet, septembre 2026) ----
+             Déclaré par niveau (pave.commandes) : la Première et la Seconde
+             descendent « Signaler », « Abandonner », « Mettre en pause » au
+             ras du bas en portrait, le pavé juste au-dessus ; en paysage les
+             trois commandes sont resserrées et le pavé tient sur LEUR ligne.
+             Tout se mesure au RECTANGLE — jamais à une classe : une règle CSS
+             perdue laisserait la classe en place et l'écran d'avant. */
+          if(!P.pave.commandes){
+            ignorer('en portrait, les commandes du bas sont au ras de l\'écran et le pavé juste au-dessus', 'ce niveau garde ses commandes à leur place');
+            ignorer('en paysage, les commandes sont resserrées et le pavé tient sur leur ligne', 'ce niveau garde ses commandes à leur place');
+          } else {
+            verifier('en portrait, les commandes du bas sont au ras de l\'écran et le pavé juste au-dessus',
+              !!m.cmd && m.cmd.bas <= 12 && m.bas <= m.cmd.haut && m.bas >= m.cmd.haut - 16,
+              !m.cmd ? 'aucune commande visible' : ('commandes à ' + m.cmd.bas + 'px du bas, pavé fini à ' + m.bas + 'px pour des commandes qui commencent à ' + m.cmd.haut + 'px'));
+          }
+
           /* ---- en PAYSAGE aussi : une seule rangée, en bas — universel ----
              Le paysage de la Première et de la Seconde a porté un temps un
              rectangle 4 × 3 posé à droite ; Turquet l'a retiré (septembre
@@ -5711,6 +5736,32 @@ async function parcours(page, N){
           verifier('en paysage, les touches écrivent dans la case sans lui voler le focus',
             t2.valeur === P.pave.attendu && t2.focus === true,
             '« ' + t2.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t2.focus ? 'gardé' : 'perdu'));
+          if(P.pave.commandes){
+            /* la MÊME ligne : le pavé et les commandes se recouvrent
+               verticalement, le pavé à gauche des commandes ; et les
+               commandes sont plus ÉTROITES qu'en portrait — le seul bord
+               qui distingue « resserrées » de « déplacées » */
+            verifier('en paysage, les commandes sont resserrées et le pavé tient sur leur ligne',
+              !!p.cmd && !!m.cmd && p.cmd.memeLigne === true && p.cmd.largeur < m.cmd.largeur - 20 && p.cmd.bas <= 24,
+              !p.cmd ? 'aucune commande visible'
+                : !p.cmd.memeLigne ? ('pavé ' + p.haut + '→' + p.bas + 'px, commandes ' + p.cmd.haut + '→' + (p.fenetre.h - p.cmd.bas) + 'px, pavé fini à ' + p.droite + 'px pour des commandes qui commencent à ' + p.cmd.gauche + 'px')
+                : ('commandes larges de ' + p.cmd.largeur + 'px en paysage contre ' + m.cmd.largeur + ' en portrait, à ' + p.cmd.bas + 'px du bas'));
+            /* le bord ÉTROIT : un iPad classique en paysage fait 1024 px, et
+               c'est là que les libellés entiers laissaient le pavé DÉFILER —
+               « − », « ⌫ » et « ⏎ » cachés derrière le bord droit. Mesuré à
+               1180 seulement, le banc restait vert : on remesure à 1024. */
+            await s.page.setViewportSize({ width: 1024, height: 768 });
+            await s.page.waitForTimeout(300);
+            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+            await s.page.waitForTimeout(100);
+            await s.page.focus(P.pave.champ);
+            await s.page.waitForTimeout(400);
+            const q = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('en paysage sur un iPad classique (1024 px), le pavé tient en entier à côté des commandes, sans défiler',
+              q.visible && !q.deborde && !q.surCommandes && !!q.cmd && q.cmd.memeLigne === true && q.petites === 0,
+              !q.visible ? 'le pavé reste caché' : q.deborde ? ('le pavé défile : ' + q.largeur + 'px de large, commandes dès ' + (q.cmd ? q.cmd.gauche : '?') + 'px')
+                : q.surCommandes ? 'il recouvre les commandes' : q.petites ? (q.petites + ' touche(s) trop petites') : 'le pavé et les commandes ne sont plus sur la même ligne');
+          }
         }
       }
       await s.nav.close(); s = null;

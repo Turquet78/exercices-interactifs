@@ -5618,6 +5618,34 @@ sur les trois fichiers. Les paragraphes ci-dessus racontent la grille avec
 les mots de leur époque ; le sabotage « la grille paysage retirée » a changé
 de sens en même temps que la règle — c'est la grille REMISE qui rougit.
 
+**Puis les commandes du bas ont rejoint le pavé** (demande de Turquet,
+septembre 2026, Première et Seconde, tablettes : « en mode portrait baisser
+les boutons "signaler un problème", "abandonner", "mettre en pause" plus bas
+au maximum et baisser aussi le clavier ; en mode paysage, ces boutons moins
+larges avec le clavier en ligne sur la même ligne »). Sur un écran tactile
+le moteur pose `body.pave-actif` — une classe, pas une requête média, pour
+que le banc puisse la forcer comme il force le pavé — et la feuille de
+styles du niveau range alors « Signaler », « Abandonner », « Mettre en
+pause » au ras du bas (6 px) avec le pavé juste au-dessus en portrait ; en
+paysage les trois commandes passent en libellés COURTS (« Signaler »,
+« Pause » — deux spans, `.tc-long`/`.tc-court`, rien ne lit le texte de ces
+boutons, seuls leurs ids servent), en police et rembourrage réduits, et le
+pavé tient sur LEUR ligne, à gauche : sa largeur s'arrête à la leur —
+`--ctrls-w`, MESURÉE par `paveCale` et posée sur le pavé, jamais supposée,
+les libellés changeant de largeur avec la police — et il défile plutôt que
+de les recouvrir si l'écran est trop étroit. La Terminale ne déclare rien
+(`pave.commandes` dans `tests/profils.js`) et garde sa mise en page ; le
+moteur, lui, reste le même texte dans les trois fichiers.
+**Le bord étroit ne s'est vu que sur une capture, à 1024 px** — l'iPad
+classique en paysage : avec les libellés entiers resserrés, il ne restait au
+pavé que 567 px sur les 703 qu'il demandait, et « − », « ⌫ », « ⏎ »
+disparaissaient derrière un défilement que rien ne signalait ; à 1180 px
+tout tenait et le banc était vert. D'où les libellés courts, les touches à
+40 px et l'espacement réduit en paysage (634 px), et une mesure de plus au
+banc navigateur, à 1024 × 768 : le pavé ne défile pas, ne recouvre pas les
+commandes, et partage leur ligne. Tout se mesure au RECTANGLE — la classe
+`pave-actif` en place et une règle CSS perdue laisseraient l'écran d'avant.
+
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
 manque le = »). Aucun des trois claviers virtuels (`buildKbTerm`) ne la
