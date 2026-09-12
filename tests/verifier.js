@@ -2855,6 +2855,8 @@ function exercices(suite){
     paveNumerique(w, P);
     manifesteAppli(w, P);
     toucheEgalClavier(w, P);
+    toucheEntreeClavier(w, P);
+    clavierPaysageCompact(w, P);
     couchesClavierNommees(w, P);
     policeTablette(w, P);
     etudeExponentielle(w, P);
@@ -8521,6 +8523,124 @@ function toucheEgalClavier(w, P){
   }
   verifier('le clavier mathématique à l\'écran porte la touche « = »',
     pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- La touche « ⏎ » du clavier à l'écran VALIDE ---------- */
+/* Signalé par Turquet (septembre 2026) sur le 2.2.9 de la Première : « la
+   touche valider ne fonctionne pas et ne permet pas de passer à la ligne ».
+   La touche « ✓ » ne faisait que CACHER le clavier (hideVirtualKeyboard) :
+   sur tablette, l'élève croyait valider et rien ne se passait — un bouton
+   mort, sans erreur. La touche de validation exécute « commit », qui lève
+   l'événement « change » : une ligne de plus dans la feuille, la case
+   suivante dans un exercice guidé. Deux bords : la touche déclarée dans
+   tests/profils.js (clavierEcran.entree — deux sources) existe sur CHAQUE
+   couche de CHAQUE forme du clavier et commit ; et aucune touche ne se
+   contente de cacher le clavier — sur tablette il se referme en quittant la
+   case, un « ✓ » qui cache est le défaut même. Comme pour « = », on ÉVALUE
+   buildKbTerm depuis la SOURCE ; le clic de la touche RENDUE est au banc
+   navigateur (« 11 quinquies »). */
+function evaluerClavier(pbs){
+  const src = lire(CIBLE);
+  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'buildKbTerm');
+  if(!fKb){ pbs.push('buildKbTerm est introuvable dans la source'); return null; }
+  try{ return new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({}, {}, {}, {}); }
+  catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); return null; }
+}
+function touchesDe(dispo){
+  const t = [];
+  ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => (r || []).forEach(k => { if(k) t.push(k); })));
+  return t;
+}
+function toucheEntreeClavier(w, P){
+  const nom = 'la touche « ⏎ » du clavier à l\'écran valide (commit), et aucune touche ne se contente de cacher le clavier';
+  const C = P.clavierEcran;
+  if(!C || !C.entree){ ignorer(nom, 'ce fichier ne déclare pas de touche de validation'); return; }
+  const pbs = [];
+  const bk = evaluerClavier(pbs);
+  if(bk){
+    const formes = [['normale', [[]]]];
+    if(C.paysage) formes.push(['paysage', [[], true]]);
+    formes.forEach(([quelle, args]) => {
+      let dispo = null;
+      try{ dispo = bk.apply(null, args); }catch(e){ pbs.push('buildKbTerm (forme ' + quelle + ') échoue : ' + e.message); return; }
+      const couches = (dispo && dispo.layers) || [];
+      if(!couches.length){ pbs.push('la forme ' + quelle + ' n\'a aucune couche : le contrôle n\'a rien à mesurer'); return; }
+      couches.forEach(l => {
+        const t = touchesDe({ layers: [l] });
+        if(t.length < 6){ pbs.push('la couche ' + l.id + ' (forme ' + quelle + ') n\'a presque pas de touches (' + t.length + ')'); return; }
+        const entree = t.filter(k => String(k.label || '').trim() === C.entree);
+        if(!entree.length) pbs.push('la couche ' + l.id + ' (forme ' + quelle + ') n\'a pas de touche « ' + C.entree + ' »');
+        entree.forEach(k => { const cmd = Array.isArray(k.command) ? k.command : [k.command];
+          if(cmd.indexOf('commit') === -1) pbs.push('sur la couche ' + l.id + ' (forme ' + quelle + '), « ' + C.entree + ' » ne valide pas (commande ' + JSON.stringify(k.command || null) + ')'); });
+        t.forEach(k => { const cmd = JSON.stringify(k.command || '');
+          if(cmd.indexOf('hideVirtualKeyboard') >= 0) pbs.push('sur la couche ' + l.id + ' (forme ' + quelle + '), la touche « ' + (k.label || '') + ' » ne fait que cacher le clavier — l\'élève croit valider'); });
+      });
+    });
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- En paysage, le clavier ancré tient sur DEUX rangées — les mêmes touches ---------- */
+/* Demande de Turquet (septembre 2026) : « en mode paysage je veux que le
+   clavier prenne moins de place en hauteur en mettant plus de touches sur une
+   même ligne ». buildKbTerm(vars, true) rend la forme COMPACTE : chaque couche
+   a exactement le nombre de rangées déclaré (clavierEcran.paysage.rangees), et
+   le JEU de touches — latex, key, insert, command — est le MÊME que celui de
+   la forme normale : une touche perdue d'un côté serait intapable dans une
+   orientation, sans qu'aucune erreur ne se lève. Le bord opposé : la forme
+   normale a PLUS de rangées, sinon rien n'est compacté. Et la TABLE DE
+   ROUTAGE est évaluée depuis la source (kbCompact + applyKbLayout) sur un
+   faux clavier : ancré en paysage → compact ; en portrait → normal ; la
+   fenêtre flottante de l'ordinateur → normale, même en paysage (un écran
+   d'ordinateur est toujours en paysage). Le rendu se mesure au banc
+   navigateur (« 11 quinquies »). */
+function clavierPaysageCompact(w, P){
+  const nom = 'en paysage, le clavier ancré tient sur moins de rangées avec les mêmes touches, et la fenêtre flottante garde les siennes';
+  const C = P.clavierEcran;
+  if(!C || !C.paysage){ ignorer(nom, 'ce fichier ne déclare pas de clavier de paysage'); return; }
+  const pbs = [];
+  const bk = evaluerClavier(pbs);
+  const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.command || '']);
+  let normale = null, compact = null;
+  if(bk){
+    try{ normale = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); }
+    try{ compact = bk([], true); }catch(e){ pbs.push('buildKbTerm([], true) échoue : ' + e.message); }
+  }
+  if(normale && compact){
+    const cn = normale.layers || [], cc = compact.layers || [];
+    if(!cc.length) pbs.push('la forme compacte n\'a aucune couche');
+    cc.forEach(l => { const n = (l.rows || []).length;
+      if(n !== C.paysage.rangees) pbs.push('la couche ' + l.id + ' de la forme compacte a ' + n + ' rangée(s) au lieu de ' + C.paysage.rangees); });
+    cn.forEach(l => { const n = (l.rows || []).length;
+      if(n <= C.paysage.rangees) pbs.push('la forme normale (' + l.id + ') n\'a que ' + n + ' rangée(s) : rien n\'est compacté'); });
+    const sn = touchesDe(normale).map(sig), sc = touchesDe(compact).map(sig);
+    const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
+    if(perdues.length) pbs.push('touche(s) absente(s) de la forme compacte : ' + perdues.join(', '));
+    if(ajoutees.length) pbs.push('touche(s) de la forme compacte absente(s) de la forme normale : ' + ajoutees.join(', '));
+    /* la table de routage, évaluée depuis la source sur un faux clavier */
+    const src = lire(CIBLE);
+    const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+    const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact');
+    if(!fA || !fC) pbs.push('applyKbLayout ou kbCompact est introuvable dans la source');
+    else{
+      const rangees = (flottant, paysage) => {
+        const vk = { layouts: null };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: q => ({ matches: /landscape/.test(q) && paysage }) };
+        try{
+          const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
+            'let __kbVarsKey = null;\n' + fC.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
+          apply();
+          return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
+        }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
+      };
+      const ancrePaysage = rangees(false, true), ancrePortrait = rangees(false, false), flottant = rangees(true, true);
+      if(ancrePaysage !== C.paysage.rangees) pbs.push('clavier ancré en paysage : ' + ancrePaysage + ' rangée(s) au lieu de ' + C.paysage.rangees);
+      if(ancrePortrait <= C.paysage.rangees) pbs.push('clavier ancré en portrait : ' + ancrePortrait + ' rangée(s), la forme compacte fuit sur le portrait');
+      if(flottant <= C.paysage.rangees) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s), la forme compacte fuit sur l\'ordinateur');
+    }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
 /* ---------- Les deux couches du clavier à l'écran se nomment « clavier A » et « clavier B » ---------- */

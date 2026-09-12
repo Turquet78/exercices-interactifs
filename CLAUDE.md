@@ -5671,6 +5671,51 @@ du sabotage impossible : le banc mesure aussi à 853 px (une tablette Android
 quelle que soit la police, et là le palier retiré rougit en nommant le
 recouvrement.
 
+**La touche « ⏎ » du clavier à l'écran VALIDE — et en paysage, le clavier
+tient sur DEUX rangées.** Signalé par Turquet (septembre 2026) sur le 2.2.9
+de la Première : « la touche valider ne fonctionne pas et ne permet pas de
+passer à la ligne ». La touche « ✓ » du clavier de la Première ne faisait
+que CACHER le clavier (`hideVirtualKeyboard`) : sur tablette, l'élève
+croyait valider et rien ne se passait — un bouton mort, sans erreur, sur la
+seule touche qui ressemblait à « Entrée ». Elle est devenue « ⏎ » et exécute
+`commit`, la commande qui lève l'événement `change` : `mlFeuille` y ajoute
+une ligne (c'est ainsi qu'Entrée au clavier physique passait déjà à la
+ligne), `pmAdapter` y passe à la case suivante — la même touche que porte
+le clavier de la Terminale depuis toujours. Il n'y a plus de touche qui
+cache : sur tablette le clavier se referme en quittant la case (politique
+« auto »), et ⌨️ le bascule.
+**Puis « en mode paysage, le clavier doit prendre moins de place en hauteur,
+plus de touches sur une même ligne »** (même message) : `buildKbTerm(vars,
+compact)` rend une forme COMPACTE à deux rangées — les chiffres de 1 à 0
+avec la virgule et ⌫ sur la première, les opérations, les parenthèses, =, %,
+les flèches et ⏎ sur la seconde — soit 132 px de plaque contre 232 pour les
+quatre rangées, mesuré à 1024 × 768. La forme se DÉCIDE dans une seule
+fonction (`kbCompact` : clavier ANCRÉ et orientation paysage), et
+`applyKbLayout` la mémorise dans sa clé : une rotation (`kbOnRotate`
+réapplique avant de reconstruire), un changement d'exercice ou un rendu
+reprennent la bonne forme. La fenêtre flottante de l'ordinateur — toujours
+« en paysage » — garde ses quatre rangées : c'est pourquoi `setupKeyboard`
+choisit flottant ou ancré AVANT d'appliquer la première forme. Deux bancs :
+jsdom ÉVALUE les deux formes depuis la source — la touche ⏎ qui commit sur
+chaque couche de chaque forme, aucune touche qui ne fait que cacher, le
+nombre de rangées déclaré (`clavierEcran.paysage.rangees` dans
+`tests/profils.js`, deux sources), le MÊME jeu de touches d'une forme à
+l'autre (une touche perdue serait intapable dans une orientation, sans
+erreur) — et la table de routage elle-même, `kbCompact` + `applyKbLayout`
+évaluées sur un faux clavier dans les trois cas (ancré paysage, ancré
+portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre le 2.2.9 sur
+une tablette tactile en paysage, compte les rangées RENDUES, exige des
+touches d'au moins 36 px sans débord, CLIQUE la vraie touche ⏎ — une ligne
+de plus, le curseur dedans, le clavier toujours là — puis tourne en portrait
+où les quatre rangées reviennent. Huit sabotages, chacun rougissant en
+nommant son défaut — sept en jsdom (⏎ redevenu « cacher », ⏎ ou % absent
+de la forme compacte, trois rangées, `kbCompact` toujours faux, la fenêtre
+flottante oubliée, le portrait visé), et un que seul le navigateur voit :
+`kbOnRotate` qui ne réapplique plus la forme — « 2 rangée(s) rendue(s) en
+portrait », jsdom restant vert à bon droit. La Seconde porte le même
+clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
+touchée — le dire vaut mieux que le taire.
+
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
 manque le = »). Aucun des trois claviers virtuels (`buildKbTerm`) ne la
