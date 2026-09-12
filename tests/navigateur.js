@@ -5584,15 +5584,12 @@ async function parcours(page, N){
         const ctrls = document.getElementById('testCtrls');
         const k = ctrls ? ctrls.getBoundingClientRect() : null;
         const chev = (a1, b2) => !!(a1 && b2 && b2.width > 0 && a1.left < b2.right && b2.left < a1.right && a1.top < b2.bottom && b2.top < a1.bottom);
-        const cmd = touches.filter(b => /^[⌫⏎]$/.test(b.getAttribute('data-t'))).map(b => b.getBoundingClientRect());
-        const blocDroit = nommees.length ? Math.max(...nommees.map(q => q.right)) : 0;
         return { visible: !pave.hidden && r.height > 0, hauteur: Math.round(r.height), largeur: Math.round(r.width),
                  gauche: Math.round(r.left), droite: Math.round(r.right), haut: Math.round(r.top), bas: Math.round(r.bottom),
                  fenetre: { w: window.innerWidth, h: window.innerHeight },
                  petites: rects.filter(t => t.width < 40 || t.height < 40).length,
                  surCase: chev(r, c), surCommandes: chev(r, k),
                  nommees: nommees.length, rangees: distinct(nommees.map(q => q.top)), colonnes: distinct(nommees.map(q => q.left)),
-                 commandesACote: cmd.length > 0 && cmd.every(q => q.left >= blocDroit - 1),
                  mode: el.getAttribute('inputmode') };
       };
       const frapper = async (page, champ, frappe) => {
@@ -5635,37 +5632,36 @@ async function parcours(page, N){
             t.valeur === P.pave.attendu && t.focus === true,
             '« ' + t.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t.focus ? 'gardé' : 'perdu'));
 
-          /* ---- en PAYSAGE : le rectangle 4 × 3, à droite, au-dessus des commandes ---- */
-          if(!P.pave.paysage){
-            ignorer('en PAYSAGE, le pavé est un rectangle 4 × 3 posé à droite, en bas', 'ce fichier garde une rangée dans les deux orientations');
-          } else {
-            await s.page.setViewportSize({ width: 1180, height: 820 });
-            await s.page.waitForTimeout(300);
-            /* on quitte la case puis on y revient : la réserve du bas se
-               remesure sur le pavé rendu dans sa nouvelle forme */
-            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
-            await s.page.waitForTimeout(100);
-            await s.page.focus(P.pave.champ);
-            await s.page.waitForTimeout(400);
-            const p = await s.page.evaluate(mesurerPave, P.pave.champ);
-            verifier('en PAYSAGE, le pavé est un rectangle 4 × 3 posé à droite, en bas',
-              p.visible && p.nommees === 12 && p.rangees === 4 && p.colonnes === 3
-                && p.gauche > p.fenetre.w * 0.6 && p.haut > p.fenetre.h * 0.4,
-              !p.visible ? 'le pavé reste caché' : p.nommees !== 12 ? p.nommees + ' touches nommées au lieu de 12'
-                : (p.rangees + ' rangée(s) × ' + p.colonnes + ' colonne(s), bord gauche à ' + p.gauche + 'px sur ' + p.fenetre.w
-                   + ', haut à ' + p.haut + 'px sur ' + p.fenetre.h));
-            verifier('en paysage, ⌫ et ⏎ font une colonne À CÔTÉ du bloc des chiffres', p.commandesACote === true,
-              'une commande est posée dans le bloc des chiffres ou dessous');
-            verifier('en paysage, le pavé ne recouvre ni la case remplie ni les commandes du bas, et ses touches restent touchables',
-              !p.surCase && !p.surCommandes && p.petites === 0,
-              p.surCase ? 'il recouvre la case qu\'on remplit' : p.surCommandes ? 'il recouvre Pause/Abandonner' : p.petites + ' touche(s) trop petites');
-            /* on efface ce que la frappe portrait a écrit, puis on retape */
-            const eff = []; for(let i = 0; i < P.pave.attendu.length; i++) eff.push('⌫');
-            const t2 = await frapper(s.page, P.pave.champ, eff.concat(P.pave.frappe));
-            verifier('en paysage, les touches écrivent dans la case sans lui voler le focus',
-              t2.valeur === P.pave.attendu && t2.focus === true,
-              '« ' + t2.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t2.focus ? 'gardé' : 'perdu'));
-          }
+          /* ---- en PAYSAGE aussi : une seule rangée, en bas — universel ----
+             Le paysage de la Première et de la Seconde a porté un temps un
+             rectangle 4 × 3 posé à droite ; Turquet l'a retiré (septembre
+             2026 : « en format paysage, mettre le clavier sur une ligne
+             aussi »). Le bord qui compte est la GRILLE qui reviendrait : une
+             règle @media oubliée ou remise redonnerait quatre rangées à
+             droite sans qu'aucune classe ne change — seul un navigateur le
+             voit, et il le mesure sur les trois niveaux. */
+          await s.page.setViewportSize({ width: 1180, height: 820 });
+          await s.page.waitForTimeout(300);
+          /* on quitte la case puis on y revient : la réserve du bas se
+             remesure sur le pavé rendu dans la nouvelle orientation */
+          await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+          await s.page.waitForTimeout(100);
+          await s.page.focus(P.pave.champ);
+          await s.page.waitForTimeout(400);
+          const p = await s.page.evaluate(mesurerPave, P.pave.champ);
+          verifier('en PAYSAGE aussi, le pavé est une seule rangée en bas de l\'écran',
+            p.visible && p.nommees === 12 && p.rangees === 1 && p.bas > p.fenetre.h * 0.7,
+            !p.visible ? 'le pavé reste caché' : p.nommees !== 12 ? p.nommees + ' touches nommées au lieu de 12'
+              : (p.rangees + ' rangée(s) × ' + p.colonnes + ' colonne(s), bas du pavé à ' + p.bas + 'px sur ' + p.fenetre.h));
+          verifier('en paysage, le pavé ne recouvre ni la case remplie ni les commandes du bas, et ses touches restent touchables',
+            !p.surCase && !p.surCommandes && p.petites === 0,
+            p.surCase ? 'il recouvre la case qu\'on remplit' : p.surCommandes ? 'il recouvre Pause/Abandonner' : p.petites + ' touche(s) trop petites');
+          /* on efface ce que la frappe portrait a écrit, puis on retape */
+          const eff = []; for(let i = 0; i < P.pave.attendu.length; i++) eff.push('⌫');
+          const t2 = await frapper(s.page, P.pave.champ, eff.concat(P.pave.frappe));
+          verifier('en paysage, les touches écrivent dans la case sans lui voler le focus',
+            t2.valeur === P.pave.attendu && t2.focus === true,
+            '« ' + t2.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t2.focus ? 'gardé' : 'perdu'));
         }
       }
       await s.nav.close(); s = null;
