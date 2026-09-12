@@ -2432,7 +2432,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=302;
+const APP_VERSION=303;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -19291,16 +19291,7 @@ function paveInserer(el,t){
 function paveCale(on){
   let h=0;
   if(on){ const p=document.getElementById('paveNum');
-    if(p){
-      /* la LARGEUR des commandes du bas (Pause, Abandonner, Signaler), posée
-         en variable sur le pavé : un niveau qui pose le pavé À CÔTÉ d'elles
-         (le paysage tablette de la Première et de la Seconde) la lit dans sa
-         feuille de styles — mesurée, jamais supposée : les libellés changent
-         de largeur avec la police, et le pavé ne doit pas les recouvrir.
-         Posée AVANT de mesurer le pavé : sa hauteur peut en dépendre. */
-      const c=document.getElementById('testCtrls');
-      if(c && !c.hidden){ p.style.setProperty('--ctrls-w', Math.ceil(c.getBoundingClientRect().width)+'px'); }
-      const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
+    if(p){ const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
   document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? h+'px' : ''; });
 }
 /* une case que le pavé sert : une case numérique convertie, ou une case
