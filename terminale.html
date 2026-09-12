@@ -59,6 +59,14 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0}
+  /* Sur TABLETTE, la police de toute la page est réduite à 90 % (décision de Turquet,
+     septembre 2026 : « dans la page, règle fixe sur tablette »). Toutes les tailles
+     de la page sont en rem : une seule règle sur la racine réduit tout d'un coup —
+     énoncés, cases, boutons — sans toucher au clavier mathématique ni au pavé
+     numérique, réglés en pixels. Une tablette, pas un téléphone : écran tactile
+     (pointer:coarse) d'au moins 600 px de large. Le pourcentage est déclaré dans
+     tests/profils.js (policeTablette), deux sources. */
+  @media (pointer:coarse) and (min-width:600px){ html{font-size:90%} }
   body{
     font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     color:var(--ink); background-color:var(--paper);
@@ -2432,7 +2440,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=302;
+const APP_VERSION=303;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */

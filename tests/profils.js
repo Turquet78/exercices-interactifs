@@ -206,6 +206,12 @@ module.exports = {
        resserrées avec le pavé sur la MÊME ligne (demande de Turquet,
        septembre 2026) — la Terminale ne le déclare pas et garde sa mise en
        page. */
+    /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
+       page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
+       La page doit porter exactement cette règle, et le banc navigateur mesure
+       la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
+       téléphone. */
+    policeTablette: 90,
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
@@ -473,6 +479,12 @@ module.exports = {
        (demande de Turquet, septembre 2026). commandes : comme en Première,
        les commandes du bas au ras de l'écran en portrait, resserrées sur la
        ligne du pavé en paysage. */
+    /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
+       page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
+       La page doit porter exactement cette règle, et le banc navigateur mesure
+       la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
+       téléphone. */
+    policeTablette: 90,
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
@@ -613,6 +625,12 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'equation-tangente', champ: '#tg-fa', valeur: '9' },
+    /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
+       page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
+       La page doit porter exactement cette règle, et le banc navigateur mesure
+       la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
+       téléphone. */
+    policeTablette: 90,
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
     /* LE CLAVIER MATHÉMATIQUE À L'ÉCRAN (demande de Turquet, septembre 2026) :

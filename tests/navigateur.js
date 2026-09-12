@@ -6058,6 +6058,45 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 quater. Sur tablette, la police de la page est réduite ----------
+       Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
+       tablette ». jsdom lit la règle ; seul un navigateur sait ce que la racine
+       MESURE une fois la requête média évaluée. Trois écrans, et il les faut
+       tous : la tablette (tactile, 820 px) où la racine vaut le pourcentage du
+       profil, l'ordinateur (pointeur fin) et le téléphone (tactile, 390 px) où
+       elle reste entière — une règle qui réduirait partout ne serait pas la
+       règle demandée. Et une touche du pavé, réglée en pixels, garde sa taille. */
+    titre('11 quater. SUR TABLETTE, LA POLICE DE LA PAGE EST RÉDUITE');
+    if(!P.policeTablette){
+      ignorer('sur tablette, la racine de la page est réduite au pourcentage déclaré', 'ce fichier ne déclare pas de police de tablette');
+    } else {
+      const racine = () => ({
+        px: parseFloat(getComputedStyle(document.documentElement).fontSize),
+        texte: (function(){ const e = document.querySelector('#nameChips .chip, h1, .brand'); return e ? parseFloat(getComputedStyle(e).fontSize) : 0; })(),
+      });
+      s = await ouvrir(chromium, ml, {});
+      const bureau = await s.page.evaluate(racine);
+      await s.nav.close(); s = null;
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      const tablette = await s.page.evaluate(racine);
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const telephone = await s.page.evaluate(racine);
+      const attendu = P.policeTablette / 100;
+      const ratio = (a, b) => (a && b) ? Math.round(100 * a / b) / 100 : 0;
+      verifier('sur tablette, la racine de la page est réduite au pourcentage déclaré',
+        bureau.px > 0 && Math.abs(ratio(tablette.px, bureau.px) - attendu) < 0.02
+          && Math.abs(ratio(tablette.texte, bureau.texte) - attendu) < 0.03,
+        'racine ' + tablette.px + ' px sur tablette contre ' + bureau.px + ' sur ordinateur (rapport ' + ratio(tablette.px, bureau.px)
+          + ', attendu ' + attendu + ') ; texte ' + tablette.texte + ' contre ' + bureau.texte);
+      verifier('sur ordinateur et sur téléphone, la police de la page reste entière',
+        bureau.px >= 15.5 && Math.abs(telephone.px - bureau.px) < 0.1,
+        'ordinateur ' + bureau.px + ' px, téléphone ' + telephone.px + ' px');
+      verifier('la règle de la tablette ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {
