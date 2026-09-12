@@ -193,8 +193,17 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'multiplication-posee', champ: '.mp-box', valeur: '9' },
+    /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
+       (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
+       pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
+       vrai (maths), avec un contexte TACTILE, et exige que le clavier MathLive
+       complet ne s'ouvre pas. Et sa FORME change avec l'orientation (paysage) :
+       une rangée en portrait, un rectangle 4 × 3 à droite en paysage
+       (demande de Turquet, septembre 2026). */
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
-            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
+            champsMaths: 'math-field.pm-mf', paysage: true,
+            maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
        questions) : un exercice au tirage homogène, présent dans la table du
        rejeu. */

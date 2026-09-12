@@ -1615,10 +1615,14 @@ function branchements(w){
   }
 
   /* ---- LE PAVÉ NUMÉRIQUE EST LE MÊME TEXTE DANS LES TROIS FICHIERS -------
-     Cinq fonctions comparées au caractère près à terminale.html. UNE constante
-     diverge VOLONTAIREMENT et elle est nommée ici plutôt que tue :
-     PAVE_TOUCHES — la Terminale a la touche « / » pour ses fractions p/q. */
-  const MOTEUR_PAVE = ['paveActif','paveHTML','paveInserer','paveCale','paveBrancher','paveObserver'];
+     Huit fonctions comparées au caractère près à terminale.html. DEUX constantes
+     divergent VOLONTAIREMENT et elles sont nommées ici plutôt que tues :
+     PAVE_TOUCHES — la Terminale a la touche « / » pour ses fractions p/q — et
+     PAVE_MF, les cases MathLive confiées au pavé (la Première seule en confie :
+     toutes ses cases pm-mf n'attendent qu'un nombre). La FORME du pavé (une
+     rangée en portrait, un rectangle 4 × 3 à droite en paysage) est affaire de
+     feuille de styles, propre à la Première, et se mesure au banc navigateur. */
+  const MOTEUR_PAVE = ['paveActif','paveHTML','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
   if(src.indexOf('function paveBrancher') >= 0){
     let refPave;
     try{ refPave = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
@@ -8405,7 +8409,15 @@ function toucheEgalClavier(w, P){
    case et préviennent la page (événement input — sans lui, la correction en
    direct du soutien ne verrait jamais la frappe). Le signe moins insère le
    TIRET du clavier : lvReadInt passe par parseFloat, qui ne connaît pas « − ».
-   Et la liste des touches est comparée à tests/profils.js — deux sources. */
+   Et la liste des touches est comparée à tests/profils.js — deux sources.
+   Les cases MATHÉMATIQUES confiées au pavé (PAVE_MF, comparé lui aussi au
+   profil — champsMaths) : la case confiée est marquée et reçoit la politique
+   « manual » (MathLive ne déploie plus son clavier complet au focus), le pavé
+   s'ouvre sur elle et lui écrit par executeCommand — insert, deleteBackward,
+   commit pour ⏎ — ; une case NON confiée (la feuille de calcul libre) n'est
+   pas marquée, et un niveau qui ne confie rien ne marque aucune case
+   mathématique : les deux bords. Le vrai MathLive, lui, se mesure au banc
+   navigateur (le clavier complet qui ne s'ouvre pas sur une tablette). */
 function paveNumerique(w, P){
   const present = evaluer(w, "typeof paveBrancher==='function' && typeof PAVE_TOUCHES!=='undefined'");
   if(!present.ok || !present.valeur){
@@ -8414,6 +8426,7 @@ function paveNumerique(w, P){
     return;
   }
   const attendues = JSON.stringify((P.pave && P.pave.touches) || []);
+  const champsMaths = String((P.pave && P.pave.champsMaths) || '');
   verifierEval(w, 'le pavé numérique compact : tactile seulement, et il écrit vraiment', `(function(){
     const vus=[];
     const gaine=document.createElement('div');
@@ -8460,6 +8473,31 @@ function paveNumerique(w, P){
     if(essai.value!=='-') vus.push('le signe moins insère « '+essai.value+' » au lieu du tiret du clavier — parseFloat ne le lirait pas');
     appuyer('⏎');
     if(entrees!==1) vus.push('la touche ⏎ n\\'envoie pas la touche Entrée — sur tablette, le calcul mental ne pourrait plus valider');
+
+    /* ---- 3 bis. les cases MATHÉMATIQUES confiées au pavé (PAVE_MF) ---- */
+    if(typeof PAVE_MF!=='string') vus.push('PAVE_MF manque : le moteur ne sait pas quelles cases mathématiques servir');
+    else if(PAVE_MF!=='${champsMaths}') vus.push('PAVE_MF ne dit pas ce que tests/profils.js attend (« '+PAVE_MF+' » contre « ${champsMaths} »)');
+    const gaineMF=document.createElement('div');
+    gaineMF.innerHTML='<math-field class="dexp-mf pm-mf" id="pv-mf" tabindex="0"></math-field><math-field class="dexp-mf dexp2-mf" id="pv-feuille" tabindex="0"></math-field>';
+    document.body.appendChild(gaineMF);
+    const mf=document.getElementById('pv-mf'), feuille=document.getElementById('pv-feuille');
+    const ordres=[]; mf.executeCommand=function(c){ ordres.push(JSON.stringify(c)); }; mf.mathVirtualKeyboardPolicy='auto';
+    let changes=0; mf.addEventListener('change',function(){ changes++; });
+    paveBrancher();
+    if(PAVE_MF){
+      if(!mf.hasAttribute('data-pave')) vus.push('la case mathématique confiée (pm-mf) n\\'est pas marquée data-pave');
+      if(mf.mathVirtualKeyboardPolicy!=='manual') vus.push('la case confiée garde la politique « '+mf.mathVirtualKeyboardPolicy+' » : MathLive déploierait son clavier complet au focus');
+      if(feuille.hasAttribute('data-pave')) vus.push('la feuille de calcul libre (dexp2-mf) reçoit le pavé — elle attend des expressions');
+      mf.focus(); mf.dispatchEvent(new FocusEvent('focusin',{bubbles:true}));
+      if(pave.hidden) vus.push('le pavé ne s\\'ouvre pas sur une case mathématique confiée');
+      appuyer('7'); appuyer(','); appuyer('−'); appuyer('⌫'); appuyer('⏎');
+      const attenduOrdres=JSON.stringify([JSON.stringify(['insert','7']),JSON.stringify(['insert',',']),JSON.stringify(['insert','-']),JSON.stringify('deleteBackward'),JSON.stringify('commit')]);
+      if(JSON.stringify(ordres)!==attenduOrdres) vus.push('le pavé n\\'écrit pas dans la case mathématique par executeCommand : '+JSON.stringify(ordres));
+    } else {
+      if(mf.hasAttribute('data-pave')) vus.push('ce niveau ne confie aucune case mathématique au pavé, et une case pm-mf est marquée quand même');
+      if(mf.mathVirtualKeyboardPolicy!=='auto') vus.push('la politique du clavier MathLive a changé sur une case que le pavé ne sert pas');
+    }
+    document.body.removeChild(gaineMF);
 
     /* ---- 4. le focus ailleurs referme le pavé ---- */
     const bouton=document.getElementById('pv-bouton');
