@@ -993,6 +993,10 @@ math-field.dexp-mf.sol{border-color:var(--green);background:var(--green-soft);}
 }
 .ML__keyboard{will-change:transform;}
 .ML__keyboard .MLK__toolbar{display:none !important;}
+/* Les deux touches de bascule (« clavier A » / « clavier B ») : un libellé de neuf lettres
+   dans une touche dont MathLive rembourre 12 px de chaque côté — sur un téléphone il était
+   COUPÉ, mesuré au banc. Deux unités de large, et le rembourrage horizontal ramené à 4 px. */
+.ML__keyboard .MLK__rows > .MLK__row > .kb-couche{padding-left:4px;padding-right:4px;}
 @media (hover:hover) and (pointer:fine){
   :root{--keycap-width:56px;--keycap-height:48px;--keycap-gap:6px;--keycap-font-size:22px;--keycap-glyph-size:22px;--keyboard-padding-horizontal:8px;}
   .ML__keyboard .MLK__row{justify-content:center;}
@@ -1262,6 +1266,26 @@ math-field.rc-mf{min-width:64px;max-width:120px;}
     --keycap-font-size:15px;
     --keycap-small-font-size:10px;
     --keycap-extra-small-font-size:8px;
+  }
+  body > .ML__keyboard .MLK__rows > .MLK__row > div > small{font-size:10px;}
+}
+/* ---- Clavier ancré du téléphone en PORTRAIT : touches réduites (demande de Turquet,
+   septembre 2026 — « sur les portables, au format portrait, réduire la taille des touches »).
+   Un téléphone, pas une tablette : la largeur borne à 600 px (un iPad mini en portrait fait
+   768). La hauteur de touche passe SOUS le plancher du réglage général (40 px), et la largeur
+   se règle par --keycap-width et non --keycap-max-width : MathLive ne lit ce dernier que
+   lorsque --keycap-width n'est pas posé, or la page la pose sur :root — dans ce cas-là,
+   --keycap-max-width est lettre morte. Même périmètre que la règle du paysage : le clavier
+   ANCRÉ (enfant direct du body), jamais la fenêtre flottante de l'ordinateur (#kbwin). ---- */
+@media (orientation:portrait) and (max-width:600px){
+  body > .ML__keyboard{
+    --keycap-height:34px;
+    --keycap-width:min(48px,calc((100cqw - 28px) / 7));
+    --keycap-gap:3px;
+    --keycap-font-size:17px;
+    --keycap-glyph-size:17px;
+    --keycap-small-font-size:11px;
+    --keycap-extra-small-font-size:9px;
   }
   body > .ML__keyboard .MLK__rows > .MLK__row > div > small{font-size:10px;}
 }
@@ -19393,7 +19417,9 @@ try { MathfieldElement.fontsDirectory = "https://cdn.jsdelivr.net/npm/mathlive@0
 /* ---- clavier Terminale : / (fraction) e ln x π ---- */
 /* ---- Clavier « Terminale » : construit dynamiquement selon l'exercice ----
    1re ligne : touches variables contextuelles (fonctions -> f, x ; suites -> n, Uₙ, Vₙ)
-   puis ∞, → (tend vers) et « fn ». Opérateurs +, −, ×, / alignés en colonne.
+   puis ∞, → (tend vers) et « clavier B » (la 2e couche ; elle rend la main par « clavier A »
+   — demande de Turquet, septembre 2026 : « fn » et « 123 » ne disaient rien à un élève).
+   Opérateurs +, −, ×, / alignés en colonne.
    π est sur la 2e couche. Plus de touche « sortir » : la barre d'espace sort
    d'une fraction / racine / exposant / indice. ∫ en \smallint pour ne pas être rogné. */
 const KB_EXP = {tooltip:"exposant",label:'<svg viewBox="0 0 26 26" style="width:1.5em;height:1.5em;vertical-align:middle;overflow:visible"><rect x="2.5" y="12" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/><rect x="16" y="2" width="7.5" height="7.5" style="fill:none;stroke:currentColor;stroke-width:1.5;stroke-dasharray:2 1.6"/></svg>',command:["performWithFeedback","moveToSuperscript"]};
@@ -19404,7 +19430,7 @@ function buildKbTerm(vars){
     label: "Terminale",
     layers: [
       { id: "term-base", rows: [
-        V.concat([ {latex:"\\infty"},{latex:"\\longrightarrow"},{label:"fn",class:"action",command:["switchKeyboardLayer","term-fn"]} ]),
+        V.concat([ {latex:"\\infty"},{latex:"\\longrightarrow"},{label:"clavier B",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-fn"]} ]),
         [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{latex:"e"},{latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
         [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},{label:"ln",insert:"\\ln\\left(#0\\right)"},{label:"(",key:"("},{label:")",key:")"} ],
         [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},KB_EXP,{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
@@ -19416,7 +19442,7 @@ function buildKbTerm(vars){
       { id: "term-fn", rows: [
         [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},{latex:"\\pi"},{latex:"\\in"},KB_IDX ],
         [ {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},{label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},{label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
-        [ {label:"123",class:"action",width:1.5,command:["switchKeyboardLayer","term-base"]},{label:"espace",width:2,key:" "},{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+        [ {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]},{label:"espace",width:2,key:" "},{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
       ]}
     ]
   };

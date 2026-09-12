@@ -608,6 +608,21 @@ module.exports = {
     gardeSaisie: { exercice: 'equation-tangente', champ: '#tg-fa', valeur: '9' },
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
+    /* LE CLAVIER MATHÉMATIQUE À L'ÉCRAN (demande de Turquet, septembre 2026) :
+       ses deux couches se nomment « clavier A » (chiffres, opérations) et
+       « clavier B » (sin, cos, π…) — « fn » et « 123 » ne disaient rien à un
+       élève. Les mots vivent ICI, et la page doit les porter (deux sources).
+       Et sur un TÉLÉPHONE en portrait, ses touches sont RÉDUITES : le banc
+       navigateur ouvre l'exercice déclaré à la taille d'un téléphone, déploie
+       le clavier par son vrai bouton ⌨️ et mesure la touche RENDUE — hauteur
+       et police au plus égales aux plafonds déclarés ici, le plancher du
+       réglage général étant 40 px et 20 px — puis clique « clavier B » et
+       « clavier A », et regrandit la fenêtre à la taille d'une tablette, où
+       les touches doivent reprendre leur taille. */
+    clavierEcran: { versB: 'clavier B', versA: 'clavier A',
+                    portrait: { exercice: 'suite-auxiliaire', champ: '#scr-sa math-field.sa-mf',
+                                bouton: '#scr-sa button[aria-label^="Afficher ou masquer le clavier"]',
+                                hauteurMax: 36, policeMax: 18 } },
     /* Le signe du premier degré : 5 questions par séance (demande de Turquet,
        août 2026), et non plus 15 — les trois niveaux tous représentés. */
     nbQuestionsSignePremier: 5,

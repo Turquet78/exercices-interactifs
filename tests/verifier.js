@@ -2855,6 +2855,7 @@ function exercices(suite){
     paveNumerique(w, P);
     manifesteAppli(w, P);
     toucheEgalClavier(w, P);
+    couchesClavierNommees(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -8519,6 +8520,60 @@ function toucheEgalClavier(w, P){
   }
   verifier('le clavier mathématique à l\'écran porte la touche « = »',
     pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Les deux couches du clavier à l'écran se nomment « clavier A » et « clavier B » ---------- */
+/* Demande de Turquet (septembre 2026) : « écrire pour la touche "fn" "clavier B"
+   et pour la touche "123" "clavier A" ». Deux bords, et chacun a son défaut :
+   la touche qui MÈNE à la seconde couche dit « clavier B », celle qui en
+   REVIENT dit « clavier A » — deux libellés échangés enverraient l'élève au
+   clavier qu'il quitte, sans qu'aucune touche ne manque —, et aucune touche
+   ne dit plus « fn » ni « 123 ». Les mots sont LUS dans tests/profils.js
+   (deux sources : lire la page et la comparer à elle-même ne prouverait
+   rien). La touche est LARGE (2 unités) : à 1,5, « clavier B » était coupé
+   dans la fenêtre flottante de l'ordinateur, et à 1 sur un téléphone — les
+   deux mesurés au navigateur. Comme pour la touche
+   « = », on ÉVALUE buildKbTerm depuis la SOURCE ; le rendu — le libellé qui
+   tient dans sa touche, la couche qui change au clic, la touche réduite sur
+   un téléphone en portrait — se mesure au banc navigateur (« 11 ter »). */
+function couchesClavierNommees(w, P){
+  const nom = 'les deux couches du clavier à l\'écran se nomment « clavier A » et « clavier B »';
+  const C = P.clavierEcran;
+  if(!C || !C.versA || !C.versB){ ignorer(nom, 'ce fichier ne déclare pas de couches nommées'); return; }
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'buildKbTerm');
+  if(!fKb) pbs.push('buildKbTerm est introuvable dans la source');
+  else{
+    let bk = null;
+    try{ bk = new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({}, {}, {}, {}); }
+    catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
+    let dispo = null;
+    if(bk){ try{ dispo = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); } }
+    const couches = (dispo && dispo.layers) || [];
+    if(couches.length < 2) pbs.push('le clavier n\'a que ' + couches.length + ' couche(s) : le contrôle n\'a rien à mesurer');
+    else{
+      const premiere = couches[0].id, touches = [];
+      couches.forEach(l => (l.rows || []).forEach(r => (r || []).forEach(k => { if(k) touches.push(k); })));
+      const bascules = touches.filter(k => Array.isArray(k.command) && k.command[0] === 'switchKeyboardLayer');
+      const versB = bascules.filter(k => k.command[1] !== premiere);
+      const versA = bascules.filter(k => k.command[1] === premiere);
+      if(!versB.length) pbs.push('aucune touche ne mène à la seconde couche');
+      if(!versA.length) pbs.push('aucune touche ne revient à la première couche');
+      versB.forEach(k => { if(String(k.label || '').trim() !== C.versB)
+        pbs.push('la touche qui mène à la seconde couche dit « ' + (k.label || '') + ' » au lieu de « ' + C.versB + ' »'); });
+      versA.forEach(k => { if(String(k.label || '').trim() !== C.versA)
+        pbs.push('la touche qui revient à la première couche dit « ' + (k.label || '') + ' » au lieu de « ' + C.versA + ' »'); });
+      /* deux unités : à 1,5, « clavier B » (72 px de texte à 16 px) n'a que
+         70 px de place dans la fenêtre flottante de l'ordinateur — mesuré */
+      bascules.forEach(k => { if(!(k.width >= 2))
+        pbs.push('la touche « ' + (k.label || '') + ' » fait ' + (k.width || 1) + ' unité(s) au lieu de 2 : son libellé y serait coupé'); });
+      const anciens = touches.filter(k => /^(fn|123)$/.test(String(k.label || '').trim())).map(k => k.label);
+      if(anciens.length) pbs.push('des touches disent encore « ' + anciens.join(' », « ') + ' »');
+    }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
 /* ---------- Le manifeste d'application : déclaré en tactile, jamais ailleurs ---------- */
