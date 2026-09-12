@@ -5608,6 +5608,44 @@ en premier, parce que cliqué après « > » un raccourci pourrait les fondre en
 ≥ et la mesure parlerait d'autre chose. Trois sabotages, un par fichier,
 chacun rougissant en nommant son défaut.
 
+**Sur tablette, la page s'installe comme une application — et sur tablette
+seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
+barre d'adresse et les onglets de Chrome prennent sur l'écran d'une tablette,
+« uniquement pour les tablettes ». Un site posé sur l'écran d'accueil s'ouvre
+sans aucune barre de navigateur à une condition : qu'il déclare un
+MANIFESTE d'application. Chaque page a le sien, à côté d'elle
+(`secondes.webmanifest`, `premiere-specifique.webmanifest`,
+`terminale.webmanifest`), avec ses icônes dans `icones/` — rendues par
+Chromium depuis un dessin, jamais retouchées à la main.
+**Le manifeste n'est DÉCLARÉ qu'aux écrans tactiles**, et c'est ce qui tient
+« uniquement » : écrit en dur dans le `<head>`, Chrome sur ordinateur
+proposerait lui aussi d'installer la page. `manifesteTablette()` pose donc le
+`<link rel="manifest">` au démarrage, sous la garde de `pointer: coarse` —
+Chrome lit le lien au moment où l'on demande l'installation, le poser après le
+chargement suffit. Le nom du fichier est DÉRIVÉ de l'adresse de la page :
+trois niveaux, trois manifestes, une seule règle, aucune constante à tenir par
+niveau, et le bloc est le même texte dans les trois fichiers.
+`window.__tabletteForce` joue le rôle de `window.__paveForce` : le banc force
+l'écran tactile, la requête média reste au navigateur.
+**Ce qu'un manifeste faux fait de pire est de ne rien dire** : une icône
+absente, un PNG dont la taille n'est pas celle annoncée, une `start_url` qui
+ouvre une autre page, et Chrome pose un simple raccourci qui rouvre le
+navigateur avec sa barre — l'élève a « installé », et rien n'a changé. Le
+banc jsdom tient les deux bords de la garde (rien sur ordinateur, le lien une
+fois en tactile, la balise d'écran d'accueil de Safari avec) et LIT les
+fichiers : le JSON, la page de départ, les dimensions des PNG dans leur
+en-tête, l'icône « maskable », et trois identités distinctes — deux niveaux
+sous le même `id` seraient pour Android la même application, installer l'un
+remplacerait l'autre. Le banc navigateur (« 11 bis ») fait ce que jsdom ne
+peut pas : il ouvre la page à son adresse RÉELLE, relit le lien que la page
+a posé, ouvre le fichier qu'il désigne et fait DÉCODER chaque icône par
+Chromium à la taille annoncée.
+**Deux limites, à dire plutôt qu'à taire.** Aucun banc n'installe vraiment la
+page : l'installation est un geste du système, hors de portée d'un navigateur
+piloté — c'est le fichier joint et la tablette qui tranchent. Et `prof.html`
+n'a pas de manifeste : le professeur travaille sur ordinateur, et un tableau
+de bord installé sur la tablette d'un élève n'aurait rien à y faire.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du

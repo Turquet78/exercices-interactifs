@@ -2523,7 +2523,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=146;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=147;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17400,8 +17400,38 @@ function paveObserver(){
   try{ new MutationObserver(function(){ paveBrancher(); }).observe(document.body,{childList:true,subtree:true}); }catch(e){}
 }
 
+/* ============ MANIFESTE D'APPLICATION : TABLETTES SEULEMENT ============
+   Sur tablette, la page s'installe comme une application (« Ajouter à
+   l'écran d'accueil ») et s'ouvre alors SANS la barre d'adresse ni les
+   onglets du navigateur : c'est toute la place que l'exercice regagne
+   (demande de Turquet, septembre 2026 — « fais-le uniquement pour les
+   tablettes »). Le manifeste vit dans un fichier à côté de la page,
+   <page>.webmanifest, avec ses icônes dans icones/, et il n'est DÉCLARÉ
+   qu'aux écrans TACTILES : écrit en dur dans le <head>, Chrome proposerait
+   aussi l'installation sur ordinateur, ce que la demande écarte. Chrome lit
+   le lien au moment où l'on demande l'installation, donc le poser après le
+   chargement suffit. Le nom du fichier est DÉRIVÉ de l'adresse de la page —
+   trois niveaux, trois manifestes, une seule règle, aucune constante à
+   tenir par niveau. Le bloc est le même texte dans les trois fichiers, et
+   un contrôle le compare. window.__tabletteForce joue le rôle de
+   window.__paveForce : le banc force l'écran tactile, la requête média
+   reste au navigateur. */
+function tabletteActive(){ return window.__tabletteForce===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
+function manifesteNom(){ const p=(location.pathname.split('/').pop()||'').replace(/\.html?$/i,''); return p ? p+'.webmanifest' : ''; }
+function manifesteTablette(){
+  if(!tabletteActive()) return false;
+  if(document.querySelector('link[rel="manifest"]')) return true;
+  const nom=manifesteNom(); if(!nom) return false;
+  const l=document.createElement('link'); l.rel='manifest'; l.href=nom; document.head.appendChild(l);
+  /* Safari sur iPad lit aussi le manifeste, mais cette balise reste ce qui
+     fait qu'un site posé sur l'écran d'accueil s'y ouvre sans barre. */
+  const m=document.createElement('meta'); m.name='apple-mobile-web-app-capable'; m.content='yes'; document.head.appendChild(m);
+  return true;
+}
+
 /* démarrage */
 try{ paveObserver(); }catch(e){}
+try{ manifesteTablette(); }catch(e){}
 if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
 

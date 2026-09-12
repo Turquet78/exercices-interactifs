@@ -867,6 +867,98 @@ function structure(){
     .map(m => ligneDe(m.index));
   verifier('le code de l’élève ne part jamais brut vers Supabase',
     brut.length === 0, 'ligne(s) ' + brut.join(', ') + ' — Supabase exige 6 caractères');
+
+  /* ---- Le manifeste d'application : tablettes seulement -----------------
+     Sur tablette, la page s'installe comme une application et s'ouvre sans
+     la barre d'adresse (demande de Turquet, septembre 2026 — « uniquement
+     pour les tablettes »). Le manifeste est un fichier à côté de la page,
+     <page>.webmanifest, déclaré par manifesteTablette() aux seuls écrans
+     tactiles. Quatre bords, chacun silencieux :
+       · un <link rel="manifest"> écrit EN DUR dans le <head> serait lu sur
+         ordinateur aussi, et Chrome y proposerait l'installation — ce que la
+         demande écarte ;
+       · le bloc est le même texte dans les trois fichiers, et sa garde est la
+         requête média « pointer: coarse » (ou le forçage du banc) ;
+       · le fichier doit exister, être du JSON valable, ouvrir CETTE page en
+         mode application, et ses icônes doivent être des PNG aux dimensions
+         annoncées — une icône absente ou fausse rend le site NON installable,
+         et Chrome ne dit rien : « Ajouter à l'écran d'accueil » pose alors
+         un simple raccourci qui rouvre le navigateur avec sa barre ;
+       · les trois manifestes portent trois identités distinctes — deux
+         niveaux sous le même « id » seraient, pour Android, la même
+         application, et installer l'un remplacerait l'autre. */
+  const liensDur = [...s.matchAll(/<link[^>]*rel=["']manifest["']/gi)].map(m => ligneDe(m.index));
+  verifier('aucun manifeste n’est écrit en dur dans la page — il ne se déclare qu’en tactile',
+    liensDur.length === 0, 'ligne(s) ' + liensDur.join(', '));
+
+  const MOTEUR_MANIF = ['tabletteActive', 'manifesteNom', 'manifesteTablette'];
+  const corpsManif = (texte, nom) => {
+    const f = corpsFonctions(texte, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm).find(o => o.nom === nom);
+    return f ? f.texte : null;
+  };
+  const manqueManif = MOTEUR_MANIF.filter(n => corpsManif(s, n) === null);
+  verifier('le bloc du manifeste est au complet', manqueManif.length === 0, 'manque : ' + manqueManif.join(', '));
+  let refManif;
+  try{ refManif = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
+  catch(e){ refManif = undefined; }
+  const diffManif = refManif ? MOTEUR_MANIF.filter(n => corpsManif(s, n) !== corpsManif(refManif, n)) : MOTEUR_MANIF;
+  verifier('le bloc du manifeste est identique à celui de la Terminale',
+    !!refManif && diffManif.length === 0,
+    !refManif ? 'terminale.html est introuvable' : 'diverge sur : ' + diffManif.join(', '));
+  const ta = corpsManif(s, 'tabletteActive') || '', mt = corpsManif(s, 'manifesteTablette') || '';
+  verifier('le manifeste n’est déclaré qu’aux écrans tactiles (pointer: coarse, ou le forçage du banc)',
+    /pointer:\s*coarse/.test(ta) && /__tabletteForce/.test(ta) && /tabletteActive\(\)/.test(mt)
+      && /rel\s*=\s*'manifest'/.test(mt),
+    'tabletteActive doit lire « pointer: coarse » et __tabletteForce, manifesteTablette doit passer par elle');
+  verifier('la page déclare son manifeste au démarrage',
+    /^try\{ manifesteTablette\(\); \}catch\(e\)\{\}$/m.test(s),
+    'manifesteTablette() n’est pas appelée au démarrage');
+
+  /* Le fichier lui-même, tel que Chrome le lira. */
+  const nomManif = CIBLE.replace(/\.html?$/i, '') + '.webmanifest';
+  let manif = null, erreurManif = '';
+  try{ manif = JSON.parse(fs.readFileSync(path.join(__dirname, '..', nomManif), 'utf8')); }
+  catch(e){ erreurManif = e.message; }
+  verifier('le manifeste ' + nomManif + ' existe et est du JSON valable', !!manif, erreurManif);
+  const cibleNue = './' + CIBLE;
+  verifier('le manifeste ouvre CETTE page, en mode application',
+    !!manif && manif.start_url === cibleNue && typeof manif.scope === 'string' && manif.scope.startsWith(cibleNue)
+      && /^(standalone|fullscreen)$/.test(String(manif.display)) && !!manif.name && manif.lang === 'fr' && !!manif.id,
+    !manif ? 'pas de manifeste' : 'start_url ' + JSON.stringify(manif.start_url) + ', scope ' + JSON.stringify(manif.scope)
+      + ', display ' + JSON.stringify(manif.display) + ', name ' + JSON.stringify(manif.name) + ', lang ' + JSON.stringify(manif.lang) + ', id ' + JSON.stringify(manif.id));
+  /* Les icônes : chaque fichier existe, est un PNG, et fait la taille qu'il
+     annonce — on lit les dimensions dans l'en-tête IHDR, jamais dans le nom. */
+  const dimPng = (chemin) => {
+    try{
+      const b = fs.readFileSync(chemin);
+      if(b.length < 24 || b.readUInt32BE(0) !== 0x89504E47) return null;
+      return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+    } catch(e){ return null; }
+  };
+  const icones = (manif && Array.isArray(manif.icons)) ? manif.icons : [];
+  const defauts = [];
+  icones.forEach(ic => {
+    const attendu = String(ic.sizes || '').match(/^(\d+)x(\d+)$/);
+    const d = dimPng(path.join(__dirname, '..', String(ic.src || '')));
+    if(!attendu) defauts.push(ic.src + ' : sizes ' + JSON.stringify(ic.sizes));
+    else if(!d) defauts.push(ic.src + ' : absent ou pas un PNG');
+    else if(d.w !== +attendu[1] || d.h !== +attendu[2]) defauts.push(ic.src + ' : ' + d.w + '×' + d.h + ' au lieu de ' + ic.sizes);
+  });
+  const tailles = icones.map(ic => +String(ic.sizes || '').split('x')[0]);
+  verifier('les icônes du manifeste existent, en PNG, aux tailles annoncées (192 et 512 au moins, une « maskable »)',
+    icones.length > 0 && defauts.length === 0 && tailles.includes(192) && tailles.includes(512)
+      && icones.some(ic => /maskable/.test(String(ic.purpose || ''))),
+    icones.length === 0 ? 'aucune icône' : (defauts.length ? defauts.join(' ; ') : 'il manque une taille (192 ou 512) ou l’icône maskable'));
+
+  /* Les trois manifestes : trois identités. */
+  const tousManif = ['secondes', 'premiere-specifique', 'terminale'].map(b => {
+    try{ return JSON.parse(fs.readFileSync(path.join(__dirname, '..', b + '.webmanifest'), 'utf8')); }
+    catch(e){ return null; }
+  });
+  const ids = tousManif.map(m => m && m.id), starts = tousManif.map(m => m && m.start_url);
+  verifier('les trois manifestes portent trois identités et trois pages de départ distinctes',
+    tousManif.every(Boolean) && new Set(ids).size === 3 && new Set(starts).size === 3 && ids.every(Boolean),
+    'ids ' + JSON.stringify(ids) + ', start_url ' + JSON.stringify(starts));
 }
 
 /* ---------- 2. Démarrage ---------- */
@@ -2734,6 +2826,7 @@ function exercices(suite){
     boutonSuivantCourbes(w, P);
     inequationGraphique(w, P);
     paveNumerique(w, P);
+    manifesteAppli(w, P);
     toucheEgalClavier(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
@@ -8399,6 +8492,43 @@ function toucheEgalClavier(w, P){
   }
   verifier('le clavier mathématique à l\'écran porte la touche « = »',
     pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Le manifeste d'application : déclaré en tactile, jamais ailleurs ---------- */
+/* Deux bords, et chacun a son défaut. Sur ordinateur RIEN ne change : aucun
+   <link rel="manifest"> ne doit paraître, sans quoi Chrome proposerait
+   d'installer la page là où la demande ne le veut pas. En tactile (forcé par
+   window.__tabletteForce, la requête média appartenant au navigateur), le
+   lien est posé, UNE fois seulement même si l'on redemande, avec la balise
+   d'écran d'accueil de Safari — et son adresse est dérivée de la page
+   (« .webmanifest » : la vraie adresse, avec le vrai nom, se lit au banc
+   navigateur, jsdom ouvrant la page sans adresse). */
+function manifesteAppli(w, P){
+  const present = evaluer(w, "typeof manifesteTablette==='function' && typeof tabletteActive==='function'");
+  if(!present.ok || !present.valeur){
+    verifier('le manifeste d’application n’est déclaré qu’en tactile', false, 'manifesteTablette est introuvable');
+    return;
+  }
+  verifierEval(w, 'le manifeste d’application n’est déclaré qu’en tactile', `(function(){
+    const vus=[];
+    document.querySelectorAll('link[rel="manifest"],meta[name="apple-mobile-web-app-capable"]').forEach(function(e){ e.remove(); });
+    delete window.__tabletteForce;
+    if(tabletteActive()) vus.push('tabletteActive() est vrai hors écran tactile');
+    if(manifesteTablette()!==false) vus.push('manifesteTablette() dit avoir déclaré le manifeste sur ordinateur');
+    if(document.querySelector('link[rel="manifest"]')) vus.push('le manifeste est déclaré hors écran tactile — Chrome proposerait l\\'installation sur ordinateur');
+    window.__tabletteForce=true;
+    if(manifesteTablette()!==true) vus.push('manifesteTablette() ne déclare rien en tactile');
+    const l=document.querySelector('link[rel="manifest"]');
+    if(!l){ delete window.__tabletteForce; return 'aucun <link rel="manifest"> posé en tactile'; }
+    if(!String(l.getAttribute('href')||'').endsWith('.webmanifest')) vus.push('le lien vise « '+l.getAttribute('href')+' » au lieu d\\'un .webmanifest dérivé de la page');
+    manifesteTablette();
+    if(document.querySelectorAll('link[rel="manifest"]').length!==1) vus.push('redemander pose un second lien');
+    const m=document.querySelector('meta[name="apple-mobile-web-app-capable"]');
+    if(!m || m.content!=='yes') vus.push('la balise d\\'écran d\\'accueil de Safari manque');
+    delete window.__tabletteForce;
+    document.querySelectorAll('link[rel="manifest"],meta[name="apple-mobile-web-app-capable"]').forEach(function(e){ e.remove(); });
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
 }
 
 /* ---------- Le pavé numérique compact : tactile seulement, et il écrit vraiment ---------- */

@@ -76,7 +76,10 @@ chaque bloc `<style>`, existence de tous les écrans visés par `show()`,
 définition de toutes les fonctions appelées depuis un attribut `onclick`,
 **examen de `error` sur chaque appel Supabase** (y compris les appels dont le
 retour n'est même pas recueilli — ceux-là échappaient au contrôle précédent),
-et **arrondi des durées** avant envoi vers une colonne `integer`.
+et **arrondi des durées** avant envoi vers une colonne `integer`. Le
+**manifeste d'application** de la page aussi — le fichier `<page>.webmanifest`,
+sa page de départ, ses icônes PNG aux tailles annoncées, trois identités
+distinctes — et le bloc qui ne le déclare qu'aux écrans tactiles.
 
 **2. Démarrage** — la page se charge sans erreur JavaScript, le numéro de
 version est lisible, et chaque exercice de `TESTS` a bien une fonction de
