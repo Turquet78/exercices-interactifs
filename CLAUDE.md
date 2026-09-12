@@ -5797,6 +5797,35 @@ elle-même servie hors connexion (« un cache ? »), et le manifeste en
 (`manifest-display-not-supported`). La limite ci-dessus tient toujours :
 le geste d'installation lui-même reste hors de portée de tout banc.
 
+**Puis « ne marche toujours pas » — et la tablette a fini par dire le
+contraire, à condition de lui demander à ELLE.** Après le service worker,
+Turquet a signalé (septembre 2026) que Chrome 140 proposait encore le seul
+raccourci, quand Squoosh s'installait sur la même tablette : la page était
+donc en cause, et aucun banc d'ici ne pouvait dire pourquoi — Chromium
+sur ordinateur trouvait zéro défaut. Ce qui a tranché, ce sont TROIS PAGES
+DE MESURE (`tests/diagnostic/`), servies par la prévisualisation Netlify
+d'une pull request de brouillon et ouvertes SUR la tablette : chacune
+affiche ce que Chrome en pense — `pointer: coarse`, le lien manifeste, le
+manifeste et ses icônes tels que la tablette les charge, les service
+workers, et surtout l'événement `beforeinstallprompt`, le verdict de Chrome
+lui-même, avant tout menu. A pose le lien en dur, B le pose par le code
+MÊME de la vraie page (copié tel quel), C élargit la portée au dossier.
+Les trois ont reçu l'événement ; la vraie page, mesurée de la même façon
+sur la même prévisualisation, aussi ; et « Ajouter à l'écran d'accueil »
+sur l'adresse des élèves a proposé **Installer** — la page B installée
+s'ouvre sans barre d'adresse. Le code, le manifeste, la portée et la garde
+étaient hors de cause ; le refus antérieur venait de la tablette — page
+mise en cache (GitHub Pages sert `max-age=600`) ou raccourci des essais
+précédents —, et aucune relecture du code n'aurait pu le voir. La règle du
+diagnostic vaut ici encore : quand une erreur revient à l'identique, on
+change de couche — on demande son avis à Chrome SUR l'appareil, au lieu de
+reproduire depuis ici ce qu'il ne fait pas. Deux traces restent dans le
+dépôt : les pages de mesure, pour la prochaine tablette qui refusera, et
+la règle d'en-tête de `netlify.toml` qui sert `.webmanifest` avec son type
+sur les prévisualisations — Netlify le servait en `octet-stream`, GitHub
+Pages en `application/manifest+json`, et mesurer sur un hébergement qui
+diffère du vrai sur ce point aurait parlé d'autre chose.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du

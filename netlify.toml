@@ -45,3 +45,12 @@
 # se regardent pas dans un navigateur, et les exclure raccourcit le déploiement.
 [build.processing]
   skip_processing = true
+
+# Un manifeste d'application se sert avec SON type — GitHub Pages le fait
+# tout seul, Netlify le servait en « application/octet-stream ». Chrome le
+# lit sans doute quand même, mais une mesure faite sur la prévisualisation
+# ne doit pas différer de la page réelle par ce détail-là.
+[[headers]]
+  for = "/*.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
