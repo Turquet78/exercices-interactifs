@@ -5716,6 +5716,27 @@ portrait », jsdom restant vert à bon droit. La Seconde porte le même
 clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
 touchée — le dire vaut mieux que le taire.
 
+**Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
+Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
+calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
+partagée par le 2.1.7, le 2.2.9 et le 2.3.8) écrit à 2 rem : une ligne
+faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
+requête média de la tablette — la même que la police de la page, écran
+tactile d'au moins 600 px — elle passe à 1,4 rem (20 px rendus, une ligne
+de 40 px), et le PRÉFIXE suit : une case a la taille des nombres qui
+l'entourent, sur tablette aussi. La valeur vit dans `tests/profils.js`
+(`feuilleTablette`, deux sources). jsdom exige la règle sous cette requête,
+à cette valeur, plus PETITE que la taille normale — une règle qui ne réduit
+rien passerait sinon ; le navigateur (« 11 quinquies ») mesure la police
+RENDUE de la feuille du 2.2.9 sur la tablette et l'exige plus petite que sur
+un ordinateur ouvert au même exercice — une règle qui réduirait partout ne
+serait pas la règle demandée. Cinq sabotages, chacun rougissant en nommant
+son défaut — et le premier essai du contrôle a rougi sur une page JUSTE :
+son expression régulière coupait le bloc `@media` à la première accolade
+fermante, et cherchait ensuite une accolade qui n'y était plus. Un essai
+faux se reconnaît à ce qu'il rougit sur du code juste ; c'est le contrôle
+qui a été corrigé.
+
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
 manque le = »). Aucun des trois claviers virtuels (`buildKbTerm`) ne la

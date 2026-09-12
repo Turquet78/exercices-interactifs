@@ -2859,6 +2859,7 @@ function exercices(suite){
     clavierPaysageCompact(w, P);
     couchesClavierNommees(w, P);
     policeTablette(w, P);
+    feuilleTablette(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -8693,6 +8694,37 @@ function couchesClavierNommees(w, P){
       const anciens = touches.filter(k => /^(fn|123)$/.test(String(k.label || '').trim())).map(k => k.label);
       if(anciens.length) pbs.push('des touches disent encore « ' + anciens.join(' », « ') + ' »');
     }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Sur tablette, la feuille de calcul écrit plus petit ---------- */
+/* Demande de Turquet (septembre 2026) sur le 2.2.9 : « la case d'édition du
+   calcul peut-elle avoir une police plus petite ». La feuille (.dexp2-sheet)
+   écrit à 2 rem ; sous la requête média de la tablette (écran tactile d'au
+   moins 600 px — la même que la police de la page), une règle la ramène à la
+   valeur déclarée dans tests/profils.js (feuilleTablette.rem, deux sources),
+   et le PRÉFIXE suit — une case a la taille des nombres qui l'entourent. Le
+   bord opposé : la valeur est plus PETITE que la taille normale, sinon la
+   règle ne réduit rien. jsdom n'évalue pas une requête média : la police
+   RENDUE se mesure au banc navigateur (« 11 quinquies »). */
+function feuilleTablette(w, P){
+  const nom = 'sur tablette, la feuille de calcul libre et son préfixe écrivent plus petit';
+  if(!P.feuilleTablette){ ignorer(nom, 'ce fichier ne déclare pas de feuille de tablette'); return; }
+  const src = lire(CIBLE), pbs = [];
+  const normale = /\.dexp2-sheet math-field\.dexp-mf\{[^}]*font-size:([\d.]+)rem/.exec(src);
+  if(!normale) pbs.push('la taille normale de la feuille (.dexp2-sheet math-field.dexp-mf{…font-size:…rem}) est introuvable');
+  const blocs = [];
+  const re = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)\{([^@]*?)\}\s*(?=\n|$)/g; let m;
+  while((m = re.exec(src))) blocs.push({ borne: +m[1], corps: m[2] });
+  /* le corps capturé s'arrête à la première accolade fermante : la règle s'y lit sans la sienne */
+  const regle = blocs.map(b => ({ b, r: /\.dexp2-sheet math-field\.dexp-mf\s*,\s*\.dexp2-prefix\{font-size:([\d.]+)rem/.exec(b.corps) })).find(x => x.r);
+  if(!regle) pbs.push('aucune règle « .dexp2-sheet math-field.dexp-mf,.dexp2-prefix{font-size:…rem} » sous la requête média de la tablette');
+  else{
+    const v = parseFloat(regle.r[1]);
+    if(v !== P.feuilleTablette.rem) pbs.push('la feuille passe à ' + v + ' rem quand le profil déclare ' + P.feuilleTablette.rem);
+    if(normale && !(v < parseFloat(normale[1]))) pbs.push('la règle de tablette (' + v + ' rem) ne réduit pas la taille normale (' + normale[1] + ' rem)');
+    if(regle.b.borne < 500 || regle.b.borne > 800) pbs.push('la borne de largeur (' + regle.b.borne + ' px) ne distingue plus une tablette d\'un téléphone');
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }

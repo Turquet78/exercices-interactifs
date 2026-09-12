@@ -212,6 +212,14 @@ module.exports = {
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
     policeTablette: 90,
+    /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.9,
+       2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
+       septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
+       plus petite »). Le banc jsdom exige la règle sous la requête média de la
+       tablette, avec cette valeur, plus petite que la taille normale ; le banc
+       navigateur mesure la police RENDUE de la feuille du 2.2.9 sur la tablette
+       (au plus pxMax) et exige qu'elle soit plus petite que sur l'ordinateur. */
+    feuilleTablette: { rem: 1.4, pxMax: 21 },
     /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
        — commit, l'événement « change » : une ligne de plus dans la feuille du
        2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne
