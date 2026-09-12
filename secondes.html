@@ -1399,7 +1399,15 @@
        pourtant les listes vides en sol depuis toujours (2.1 partie b) : la
        leçon de .itv-sel.sol, encore. La règle sert le 2.1 ET {lecture-signes}. */
     .lv-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
-/* ---- Pavé numérique compact des écrans tactiles ---- */
+/* ---- Pavé numérique compact des écrans tactiles ----
+   En PORTRAIT : une seule rangée, en bas de l'écran, au-dessus des commandes
+   Pause / Abandonner (elles vivent à bottom:16px, à droite).
+   En PAYSAGE (tablette couchée) : un rectangle de 4 rangées × 3 colonnes —
+   1 2 3 / 4 5 6 / 7 8 9 / 0 , − — posé à DROITE, au-dessus des commandes du
+   bas ; ⌫ et ⏎ font une quatrième colonne, chacune sur deux rangées
+   (demande de Turquet, septembre 2026 — la Première, puis la Seconde). La
+   forme est affaire de feuille de styles : le moteur, lui, est le même texte
+   dans les trois fichiers. */
 #paveNum{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9500;display:flex;gap:6px;
   background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:8px;
   box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:calc(100vw - 12px);overflow-x:auto}
@@ -1408,6 +1416,13 @@
   color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer}
 .pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .pave-eff{min-width:54px}
+@media (orientation:landscape){
+  #paveNum{left:auto;right:12px;transform:none;display:grid;grid-template-columns:repeat(3,52px) 58px;grid-auto-rows:46px;
+    grid-auto-flow:row dense;max-width:none;overflow:visible}
+  #paveNum .pave-t{min-width:0;width:100%;height:100%}
+  #paveNum .pave-eff{grid-column:4;grid-row:1/3}
+  #paveNum [data-t="\23CE"]{grid-column:4;grid-row:3/5}
+}
     /* ---- Tableau de variation (format escalier) ---- */
     .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
     .lv-vartbl2 td{border:none;text-align:center;padding:0}
@@ -2523,7 +2538,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=146;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=147;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17267,9 +17282,12 @@ $('newPin2').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault
    niveaux ont le même pavé, la Terminale a une touche de plus. */
 const PAVE_TOUCHES=['1','2','3','4','5','6','7','8','9','0',',','−','⌫','⏎'];
 
-/* Les cases MATHÉMATIQUES que le pavé sert aussi (voir la Première) : aucune
-   ici — les cases pm-mf de la Seconde gardent le clavier MathLive. */
-const PAVE_MF='';
+/* Les cases MATHÉMATIQUES que le pavé sert aussi — un sélecteur, à côté du
+   moteur comme PAVE_TOUCHES. En Seconde comme en Première, TOUTES les cases
+   pm-mf n'attendent qu'un nombre (numérateur, dénominateur, écriture
+   décimale) ; la feuille de calcul libre (dexp2-mf) n'en fait pas partie,
+   elle attend des expressions (demande de Turquet, septembre 2026). */
+const PAVE_MF='math-field.pm-mf';
 /* ================= Pavé numérique compact (écrans tactiles) =================
    Sur tablette, le clavier du système recouvre la moitié de l'écran alors que
    les cases d'exercice ne demandent que des chiffres. Sur les écrans tactiles
@@ -17494,7 +17512,12 @@ const FIELD_FIX_CSS =
 let lastMf = null;
 function configureField(mf){
   if(mf._mlInit) return; mf._mlInit = true;
-  mf.mathVirtualKeyboardPolicy = "auto";
+  /* Une case confiée au pavé numérique compact (data-pave, voir PAVE_MF) garde
+     la politique « manual » : MathLive ne déploie pas son clavier complet au
+     focus, c'est le pavé qui s'ouvre — ⌨️ reste le chemin vers le clavier
+     complet. Le moteur du pavé la pose aussi ; ici elle est posée AVANT le
+     premier focus quel que soit l'ordre des deux greffes. */
+  mf.mathVirtualKeyboardPolicy = mf.hasAttribute("data-pave") ? "manual" : "auto";
   try { mf.smartMode = false; } catch(e) {}
   try { mf.smartFence = true; } catch(e) {}
   try { mf.smartSuperscript = false; } catch(e) {}

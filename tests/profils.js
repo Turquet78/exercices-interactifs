@@ -461,8 +461,14 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'image-nombre', champ: '#img-c', valeur: '9' },
+    /* Comme en Première : le pavé sert aussi les cases MathLive (toutes les
+       pm-mf n'attendent qu'un nombre), tapées au banc navigateur dans un
+       contexte tactile, et sa forme suit l'orientation (demande de Turquet,
+       septembre 2026). */
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
-            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'] },
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
+            champsMaths: 'math-field.pm-mf', paysage: true,
+            maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
