@@ -5642,9 +5642,34 @@ pavé que 567 px sur les 703 qu'il demandait, et « − », « ⌫ », « ⏎ »
 disparaissaient derrière un défilement que rien ne signalait ; à 1180 px
 tout tenait et le banc était vert. D'où les libellés courts, les touches à
 40 px et l'espacement réduit en paysage (634 px), et une mesure de plus au
-banc navigateur, à 1024 × 768 : le pavé ne défile pas, ne recouvre pas les
-commandes, et partage leur ligne. Tout se mesure au RECTANGLE — la classe
+banc navigateur, à 1024 × 768. Tout se mesure au RECTANGLE — la classe
 `pave-actif` en place et une règle CSS perdue laisseraient l'écran d'avant.
+**Puis Turquet l'a vu défiler quand même, sur SA tablette** (« le clavier
+numérique doit être plus large pour afficher toutes les touches »). La mesure
+à 1024 px tenait de JUSTESSE, et deux choses la faisaient basculer hors du
+banc : les tablettes Android font souvent 960 px de large en paysage (1280
+pixels à 1,33), et la police réelle des boutons — que le banc n'attend pas —
+les élargit. Le premier jet bornait la largeur du pavé à celle qui restait à
+côté des commandes (`--ctrls-w`, mesurée par le moteur) et le laissait
+DÉFILER : c'était choisir le mauvais côté. **Le pavé ne défile plus jamais**
+— toutes ses touches se voient, c'est ce qui fait qu'un élève peut écrire —,
+il garde sa largeur entière (634 px), et ce sont les COMMANDES qui cèdent,
+par paliers de requête média : sous 1024 px elles ne gardent que leur icône
+(⚑ ✕ ⏸, avec `aria-label` et `title`), un peu plus grande ; sous 820 px la
+ligne ne peut plus porter les deux et le pavé repasse AU-DESSUS des
+commandes, comme en portrait. La mesure `--ctrls-w` du moteur n'avait plus
+de lecteur : retirée — un garde-fou sans lecteur fait croire qu'on tient
+quelque chose. Le banc navigateur mesure désormais QUATRE largeurs de
+paysage — 1180, 1024, 960 et 853 (pavé entier, sans défilement, sur la
+ligne des commandes) et 800 (pavé entier au-dessus). **Et le premier
+sabotage est resté VERT** : le palier des icônes retiré, à 960 px les
+libellés courts tenaient encore à côté du pavé — avec la police de REPLI du
+banc, qui coupe les polices distantes ; c'est la police réelle qui les
+élargit chez Turquet. Le sabotage n'atteignait pas ce qu'il visait, la leçon
+du sabotage impossible : le banc mesure aussi à 853 px (une tablette Android
+8 pouces, 1280 pixels à 1,5), où les libellés courts ne peuvent plus tenir
+quelle que soit la police, et là le palier retiré rougit en nommant le
+recouvrement.
 
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il

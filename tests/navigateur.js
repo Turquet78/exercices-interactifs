@@ -5746,21 +5746,41 @@ async function parcours(page, N){
               !p.cmd ? 'aucune commande visible'
                 : !p.cmd.memeLigne ? ('pavé ' + p.haut + '→' + p.bas + 'px, commandes ' + p.cmd.haut + '→' + (p.fenetre.h - p.cmd.bas) + 'px, pavé fini à ' + p.droite + 'px pour des commandes qui commencent à ' + p.cmd.gauche + 'px')
                 : ('commandes larges de ' + p.cmd.largeur + 'px en paysage contre ' + m.cmd.largeur + ' en portrait, à ' + p.cmd.bas + 'px du bas'));
-            /* le bord ÉTROIT : un iPad classique en paysage fait 1024 px, et
-               c'est là que les libellés entiers laissaient le pavé DÉFILER —
-               « − », « ⌫ » et « ⏎ » cachés derrière le bord droit. Mesuré à
-               1180 seulement, le banc restait vert : on remesure à 1024. */
-            await s.page.setViewportSize({ width: 1024, height: 768 });
+            /* les bords ÉTROITS. Le pavé ne doit JAMAIS défiler — ses
+               dernières touches (−, ⌫, ⏎) seraient cachées — et c'est ce
+               que Turquet a vu sur sa tablette : à 1024 px la mesure tenait
+               de justesse, la sienne défilait. On mesure donc à 1024 (iPad
+               classique), à 960 (tablette Android à 1,33) et à 853 (tablette
+               Android 8 pouces à 1,5 — là où les libellés courts ne tiennent
+               plus et où seules les ICÔNES laissent le pavé entier : à 960,
+               avec la police de repli du banc, le palier des icônes retiré
+               restait vert, le sabotage n'atteignait rien) : pavé entier, à
+               côté des commandes ; et à 800 (téléphone couché) : le pavé
+               repasse AU-DESSUS des commandes, entier lui aussi. */
+            for(const [w, h] of [[1024, 768], [960, 600], [853, 533]]){
+              await s.page.setViewportSize({ width: w, height: h });
+              await s.page.waitForTimeout(300);
+              await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+              await s.page.waitForTimeout(100);
+              await s.page.focus(P.pave.champ);
+              await s.page.waitForTimeout(400);
+              const q = await s.page.evaluate(mesurerPave, P.pave.champ);
+              verifier('en paysage à ' + w + ' px, le pavé tient en entier à côté des commandes, sans défiler',
+                q.visible && !q.deborde && !q.surCommandes && !!q.cmd && q.cmd.memeLigne === true && q.petites === 0,
+                !q.visible ? 'le pavé reste caché' : q.deborde ? ('le pavé défile : ' + q.largeur + 'px de large, commandes dès ' + (q.cmd ? q.cmd.gauche : '?') + 'px')
+                  : q.surCommandes ? 'il recouvre les commandes' : q.petites ? (q.petites + ' touche(s) trop petites') : 'le pavé et les commandes ne sont plus sur la même ligne');
+            }
+            await s.page.setViewportSize({ width: 800, height: 600 });
             await s.page.waitForTimeout(300);
             await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
             await s.page.waitForTimeout(100);
             await s.page.focus(P.pave.champ);
             await s.page.waitForTimeout(400);
-            const q = await s.page.evaluate(mesurerPave, P.pave.champ);
-            verifier('en paysage sur un iPad classique (1024 px), le pavé tient en entier à côté des commandes, sans défiler',
-              q.visible && !q.deborde && !q.surCommandes && !!q.cmd && q.cmd.memeLigne === true && q.petites === 0,
-              !q.visible ? 'le pavé reste caché' : q.deborde ? ('le pavé défile : ' + q.largeur + 'px de large, commandes dès ' + (q.cmd ? q.cmd.gauche : '?') + 'px')
-                : q.surCommandes ? 'il recouvre les commandes' : q.petites ? (q.petites + ' touche(s) trop petites') : 'le pavé et les commandes ne sont plus sur la même ligne');
+            const q8 = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('en paysage à 800 px, le pavé repasse entier au-dessus des commandes',
+              q8.visible && !q8.deborde && !q8.surCommandes && !!q8.cmd && q8.bas <= q8.cmd.haut && q8.rangees === 1,
+              !q8.visible ? 'le pavé reste caché' : q8.deborde ? 'le pavé défile' : q8.surCommandes ? 'il recouvre les commandes'
+                : ('pavé fini à ' + q8.bas + 'px, commandes dès ' + (q8.cmd ? q8.cmd.haut : '?') + 'px, ' + q8.rangees + ' rangée(s)'));
           }
         }
       }

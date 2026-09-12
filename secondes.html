@@ -1429,26 +1429,43 @@
    tactiles seulement : body.pave-actif est posé par le moteur du pavé).
    En PORTRAIT : « Signaler », « Abandonner », « Mettre en pause » descendent
    au ras du bas, et le pavé descend avec elles, juste au-dessus.
-   En PAYSAGE : les trois commandes sont RESSERRÉES (police et rembourrage
-   réduits) et le pavé tient sur la MÊME ligne qu'elles, à gauche — sa largeur
-   s'arrête à la leur (--ctrls-w, mesurée par paveCale), et il défile plutôt
-   que de les recouvrir si l'écran est trop étroit. */
+   En PAYSAGE : les trois commandes sont RESSERRÉES (libellés courts, police
+   et rembourrage réduits) et le pavé tient sur la MÊME ligne qu'elles, à
+   gauche. LE PAVÉ NE DÉFILE JAMAIS — toutes ses touches se voient, c'est ce
+   qui fait qu'un élève peut écrire — : il garde sa largeur entière, et ce
+   sont les commandes qui cèdent quand l'écran se resserre (les paliers
+   ci-dessous). */
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
 @media (orientation:landscape){
   body.pave-actif #testCtrls{bottom:12px;gap:6px}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
-  /* les libellés COURTS (« Signaler », « Pause ») : sur un iPad classique
-     (1024 px), les libellés entiers ne laissaient au pavé que 567 px sur les
-     703 qu'il demande — « − », « ⌫ » et « ⏎ » disparaissaient derrière un
-     défilement. Mesuré, pas supposé. */
   body.pave-actif #testCtrls .tc-long{display:none}
   body.pave-actif #testCtrls .tc-court{display:inline}
   body.pave-actif #paveNum{bottom:6px;left:8px;transform:none;padding:6px;gap:4px;
-    width:max-content;max-width:calc(100vw - var(--ctrls-w, 400px) - 36px)}
+    width:max-content;max-width:none;overflow:visible}
   body.pave-actif #paveNum .pave-t{height:40px;min-width:40px}
   body.pave-actif #paveNum .pave-eff{min-width:50px}
+}
+/* Palier 1 — sous 1024 px (tablette Android à 960 px de large en paysage,
+   la police réelle élargissant en plus les libellés) : les commandes ne
+   gardent que leur ICÔNE (⚑ ✕ ⏸), un peu plus grande — le pavé entier
+   (634 px) et trois icônes tiennent dès 810 px. Signalé par Turquet sur sa
+   tablette : à 1024 px la mesure tenait de justesse, la sienne défilait. */
+@media (orientation:landscape) and (max-width:1023px){
+  body.pave-actif #testCtrls .tc-court{display:none}
+  body.pave-actif #testCtrls button{padding:6px 11px;font-size:1.05rem}
+}
+/* Palier 2 — sous 820 px (un téléphone couché) : la ligne ne peut plus
+   porter les deux, le pavé repasse AU-DESSUS des commandes, comme en
+   portrait, et les libellés courts reviennent. */
+@media (orientation:landscape) and (max-width:819px){
+  body.pave-actif #testCtrls{bottom:6px}
+  body.pave-actif #testCtrls .tc-court{display:inline}
+  body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
+  body.pave-actif #paveNum{bottom:54px;left:50%;transform:translateX(-50%);width:auto;
+    max-width:calc(100vw - 12px);overflow-x:auto}
 }
     /* ---- Tableau de variation (format escalier) ---- */
     .lv-vartbl2{border-collapse:collapse;margin:0 auto;font-family:'Nunito',sans-serif;border:1.6px solid var(--grid);table-layout:fixed}
@@ -2509,7 +2526,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     <div class="tables-corps" id="tablesCorps"></div>
   </div>
 </div>
-<div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()">✕ Abandonner</button><button id="pauseBtn" onclick="pauseTest()">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
+<div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()" title="Abandonner" aria-label="Abandonner">✕ <span class="tc-court">Abandonner</span><span class="tc-long">Abandonner</span></button><button id="pauseBtn" onclick="pauseTest()" title="Mettre en pause" aria-label="Mettre en pause">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
 <div id="sigModal" class="notes-modal" hidden onclick="if(event.target===this)fermerSignalement()">
@@ -17377,16 +17394,7 @@ function paveInserer(el,t){
 function paveCale(on){
   let h=0;
   if(on){ const p=document.getElementById('paveNum');
-    if(p){
-      /* la LARGEUR des commandes du bas (Pause, Abandonner, Signaler), posée
-         en variable sur le pavé : un niveau qui pose le pavé À CÔTÉ d'elles
-         (le paysage tablette de la Première et de la Seconde) la lit dans sa
-         feuille de styles — mesurée, jamais supposée : les libellés changent
-         de largeur avec la police, et le pavé ne doit pas les recouvrir.
-         Posée AVANT de mesurer le pavé : sa hauteur peut en dépendre. */
-      const c=document.getElementById('testCtrls');
-      if(c && !c.hidden){ p.style.setProperty('--ctrls-w', Math.ceil(c.getBoundingClientRect().width)+'px'); }
-      const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
+    if(p){ const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
   document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? h+'px' : ''; });
 }
 /* une case que le pavé sert : une case numérique convertie, ou une case

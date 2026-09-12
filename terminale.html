@@ -19299,16 +19299,7 @@ function paveInserer(el,t){
 function paveCale(on){
   let h=0;
   if(on){ const p=document.getElementById('paveNum');
-    if(p){
-      /* la LARGEUR des commandes du bas (Pause, Abandonner, Signaler), posée
-         en variable sur le pavé : un niveau qui pose le pavé À CÔTÉ d'elles
-         (le paysage tablette de la Première et de la Seconde) la lit dans sa
-         feuille de styles — mesurée, jamais supposée : les libellés changent
-         de largeur avec la police, et le pavé ne doit pas les recouvrir.
-         Posée AVANT de mesurer le pavé : sa hauteur peut en dépendre. */
-      const c=document.getElementById('testCtrls');
-      if(c && !c.hidden){ p.style.setProperty('--ctrls-w', Math.ceil(c.getBoundingClientRect().width)+'px'); }
-      const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
+    if(p){ const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
   document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? h+'px' : ''; });
 }
 /* une case que le pavé sert : une case numérique convertie, ou une case
