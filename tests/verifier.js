@@ -1711,9 +1711,9 @@ function branchements(w){
      divergent VOLONTAIREMENT et elles sont nommées ici plutôt que tues :
      PAVE_TOUCHES — la Terminale a la touche « / » pour ses fractions p/q — et
      PAVE_MF, les cases MathLive confiées au pavé (la Première seule en confie :
-     toutes ses cases pm-mf n'attendent qu'un nombre). La FORME du pavé (une
-     rangée en portrait, un rectangle 4 × 3 à droite en paysage) est affaire de
-     feuille de styles, propre à la Première, et se mesure au banc navigateur. */
+     toutes ses cases pm-mf n'attendent qu'un nombre — la Seconde a suivi). La
+     FORME du pavé (une rangée en bas, dans les deux orientations) est affaire
+     de feuille de styles et se mesure au banc navigateur. */
   const MOTEUR_PAVE = ['paveActif','paveHTML','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
   if(src.indexOf('function paveBrancher') >= 0){
     let refPave;

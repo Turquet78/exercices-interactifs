@@ -5600,6 +5600,24 @@ la grille paysage retirée (« 1 rangée × 12 colonnes »), la politique
 tablette et le pavé reste caché), et le pavé qui ignore le clavier complet
 (« deux claviers à la fois »).
 
+**Puis le paysage est revenu à UNE rangée** (demande de Turquet, septembre
+2026, le même mois : « en Première et Seconde, pour les tablettes, avec les
+exercices ayant uniquement des cases avec des nombres à placer, en format
+paysage mettre le clavier sur une ligne aussi »). Le rectangle 4 × 3 posé à
+droite est RETIRÉ des deux feuilles de styles — plus aucune règle
+`@media (orientation:landscape)` sur `#paveNum` — et le pavé est une seule
+rangée en bas de l'écran dans les deux orientations, sur les trois niveaux.
+Le moteur n'a pas bougé d'un caractère (la forme était affaire de feuille de
+styles, et c'est ce qui rend le retour sûr) ; `paveCale` continue de mesurer
+la réserve du bas sur le pavé rendu. Le bord qui compte est la GRILLE qui
+reviendrait — une règle remise ou oubliée redonnerait quatre rangées à droite
+sans qu'aucune classe ne change —, et seul un navigateur le voit : le contrôle
+paysage du banc navigateur n'est plus déclaré niveau par niveau (`paysage`
+a quitté `tests/profils.js`), il est UNIVERSEL et mesure la rangée en paysage
+sur les trois fichiers. Les paragraphes ci-dessus racontent la grille avec
+les mots de leur époque ; le sabotage « la grille paysage retirée » a changé
+de sens en même temps que la règle — c'est la grille REMISE qui rougit.
+
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
 manque le = »). Aucun des trois claviers virtuels (`buildKbTerm`) ne la
