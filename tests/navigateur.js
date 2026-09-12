@@ -91,13 +91,47 @@ function mathlive(){
   }
 }
 
+/* ---------- un serveur HTTP local, pour ce que file:// ne sait pas ----------
+   Un service worker ne s'enregistre pas depuis file:// (origine « null ») :
+   la section 11 bis sert donc la racine du dépôt en HTTP sur 127.0.0.1, le
+   temps de la mesure. FERMER ce serveur coupe le réseau pour de vrai — c'est
+   ainsi qu'on mesure « hors connexion », plutôt que par une émulation que le
+   service worker, qui vit hors de la page, pourrait ne pas voir. Les
+   connexions gardées ouvertes par le navigateur sont détruites avec lui,
+   sans quoi « fermer » attendrait qu'elles expirent. */
+function servirRacine(){
+  const http = require('http');
+  const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+                  '.webmanifest': 'application/manifest+json', '.json': 'application/json',
+                  '.png': 'image/png', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+  const prises = new Set();
+  const serveur = http.createServer((req, res) => {
+    let fichier;
+    try{ fichier = path.join(RACINE, path.normalize(decodeURIComponent(new URL(req.url, 'http://127.0.0.1').pathname))); }
+    catch(e){ fichier = ''; }
+    if(!fichier.startsWith(RACINE + path.sep) || !fs.existsSync(fichier) || fs.statSync(fichier).isDirectory()){
+      res.writeHead(404); res.end(); return;
+    }
+    res.writeHead(200, { 'Content-Type': types[path.extname(fichier)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+    res.end(fs.readFileSync(fichier));
+  });
+  serveur.on('connection', p => { prises.add(p); p.on('close', () => prises.delete(p)); });
+  return new Promise(resolve => serveur.listen(0, '127.0.0.1', () => resolve({
+    url: 'http://127.0.0.1:' + serveur.address().port,
+    fermer: () => new Promise(r => { prises.forEach(p => p.destroy()); serveur.close(() => r()); }),
+  })));
+}
+
 /* ---------- ouverture d'une page ---------- */
 async function ouvrir(chromium, ml, options){
   options = options || {};
   const nav = await chromium.launch({
     executablePath: chercherChromium(),
+    /* bypass : sans lui, Chromium envoie AUSSI 127.0.0.1 au mandataire, qui
+       répond 405 — la page servie en HTTP local (section 11 bis) arrivait
+       vide, sans une erreur qui le dise. */
     proxy: (process.env.HTTPS_PROXY || process.env.https_proxy)
-      ? { server: process.env.HTTPS_PROXY || process.env.https_proxy } : undefined,
+      ? { server: process.env.HTTPS_PROXY || process.env.https_proxy, bypass: '127.0.0.1,localhost' } : undefined,
   });
   /* hasTouch : un contexte TACTILE — MathLive y déploie son clavier complet au
      focus (politique « auto »), exactement ce que le pavé compact doit empêcher
@@ -186,7 +220,9 @@ async function ouvrir(chromium, ml, options){
 
   /* options.fragment ouvre la page comme le ferait un favori : « #prof » est la
      seule porte du professeur depuis qu'elle n'a plus de bouton. */
-  await page.goto('file://' + path.join(RACINE, CIBLE) + (options.fragment || ''),
+  /* options.adresse ouvre la page ailleurs qu'en file:// — servie en HTTP
+     local par servirRacine(), pour ce que file:// ne sait pas faire. */
+  await page.goto(options.adresse || ('file://' + path.join(RACINE, CIBLE) + (options.fragment || '')),
     { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(ml ? 3500 : 1500);
 
@@ -5758,9 +5794,22 @@ async function parcours(page, N){
        tronqué ou une taille fausse rendrait le site non installable sans
        qu'aucune erreur ne se lève. On ouvre la page au pointeur fin (aucun
        manifeste ne doit paraître), on force le tactile, et on relit tout
-       depuis ce que la page a posé. */
+       depuis ce que la page a posé.
+       La page est servie en HTTP local, pas en file:// : un service worker
+       ne s'enregistre pas depuis file://, et c'est lui que la tablette de
+       Turquet réclamait — Chrome y proposait un RACCOURCI au lieu d'une
+       installation, avec un manifeste que Chromium déclarait sans défaut
+       (septembre 2026). Trois mesures de plus, dans l'ordre : le service
+       worker actif, le verdict d'installabilité de CHROMIUM LUI-MÊME
+       (protocole DevTools — le pipeline entier, manifeste, page de départ,
+       icônes ; « in-incognito » est écarté, un contexte Playwright l'est
+       toujours et l'installation n'y est pas le sujet), puis le serveur
+       FERMÉ et la page redemandée : le service worker doit répondre « Pas de
+       connexion », jamais l'erreur brute du navigateur. */
     titre('11 bis. LE MANIFESTE D\'APPLICATION (TABLETTES SEULEMENT)');
-    s = await ouvrir(chromium, ml, {});
+    const serveurM = await servirRacine();
+    const adresseM = serveurM.url + '/' + CIBLE;
+    s = await ouvrir(chromium, ml, { adresse: adresseM });
     const avantM = await s.page.evaluate(() => ({
       lien: !!document.querySelector('link[rel="manifest"]'),
       tactile: typeof tabletteActive === 'function' ? tabletteActive() : null,
@@ -5775,7 +5824,7 @@ async function parcours(page, N){
       return { href: l ? l.href : null, page: location.pathname };
     });
     let manif = null, cheminM = null;
-    try{ cheminM = decodeURIComponent(new URL(apresM.href).pathname); manif = JSON.parse(fs.readFileSync(cheminM, 'utf8')); }
+    try{ cheminM = path.join(RACINE, decodeURIComponent(new URL(apresM.href).pathname)); manif = JSON.parse(fs.readFileSync(cheminM, 'utf8')); }
     catch(e){ manif = null; }
     verifier('en tactile, le lien posé désigne un manifeste du dépôt, lisible',
       !!manif, apresM.href ? 'lien ' + apresM.href + ' : fichier absent ou illisible' : 'aucun lien posé');
@@ -5801,8 +5850,37 @@ async function parcours(page, N){
     verifier('chaque icône du manifeste se décode dans Chromium à la taille annoncée',
       decodees.length > 0 && fautives.length === 0,
       decodees.length === 0 ? 'aucune icône' : fautives.map(d => d.src.split('/').pop() + ' : ' + d.w + '×' + d.h + ' pour ' + d.sizes).join(' ; '));
+    const swM = await s.page.evaluate(() => Promise.race([
+      navigator.serviceWorker.ready.then(r => ({ script: r.active ? r.active.scriptURL : null, scope: r.scope })),
+      new Promise(res => setTimeout(() => res(null), 10000)),
+    ]));
+    const porteeM = new URL('./', adresseM).href;
+    verifier('en tactile, le service worker sw.js est enregistré et actif sur le dossier de la page',
+      !!swM && /\/sw\.js$/.test(String(swM.script || '')) && swM.scope === porteeM,
+      !swM ? 'aucun service worker actif après 10 s' : 'script ' + swM.script + ', portée ' + swM.scope + ' (attendue : ' + porteeM + ')');
+    let installM;
+    try{
+      const cdp = await s.page.context().newCDPSession(s.page);
+      const r = await cdp.send('Page.getInstallabilityErrors');
+      installM = (r.installabilityErrors || []).map(e => e.errorId).filter(id => id !== 'in-incognito');
+      await cdp.detach();
+    } catch(e){ installM = ['protocole DevTools indisponible : ' + e.message]; }
+    verifier('Chromium lui-même ne trouve aucun défaut d\'installabilité (manifeste, page de départ, icônes)',
+      installM.length === 0, installM.join(', '));
     verifier('déclarer le manifeste ne lève aucune erreur JavaScript',
       s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+    await serveurM.fermer();
+    let horsM;
+    try{
+      const rep = await s.page.goto(adresseM, { waitUntil: 'domcontentloaded', timeout: 20000 });
+      horsM = { status: rep ? rep.status() : null,
+                texte: await s.page.evaluate(() => document.body ? document.body.textContent : ''),
+                page: await s.page.evaluate(() => typeof APP_VERSION) };
+    } catch(e){ horsM = { status: null, texte: '', page: 'undefined', erreur: e.message }; }
+    verifier('hors connexion, la page installée montre « Pas de connexion » au lieu de l\'erreur du navigateur',
+      horsM.status === 200 && /Pas de connexion/.test(horsM.texte) && horsM.page === 'undefined',
+      horsM.erreur ? 'la navigation échoue : ' + horsM.erreur
+                   : 'statut ' + horsM.status + (horsM.page !== 'undefined' ? ', la page ELLE-MÊME est servie hors connexion (un cache ?)' : ', texte : ' + String(horsM.texte).trim().slice(0, 80)));
     await s.nav.close(); s = null;
 
   } catch(e){
