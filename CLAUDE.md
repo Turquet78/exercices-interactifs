@@ -4315,6 +4315,26 @@ corrections en bleu se sont mises à les recouvrir. La place se réserve donc au
 niveau du GROUPE (`.sf-prod`, `.sf-somme`), pas de la case : posée sur la case,
 la marge élargirait le trait de fraction au lieu d'écarter le voisin.
 
+**Et le CADRE lui-même prenait la colonne, pas l'écran.** Signalé par Turquet
+(septembre 2026) : « en Seconde le cadre des exercices doit utiliser la largeur
+maximale sur l'écran comme en Première ». L'écran était bien passé en pleine
+largeur — `body.plein-ecran .wrap{max-width:none}` — mais la CARTE qui vit
+dedans restait bridée à 600 px par `.lv-card` sur les quinze exercices à
+dessin, quand la fenêtre en offrait 1360. Mesuré dans un vrai navigateur :
+Première 0 cadre bridé sur 31 exercices, Terminale 0 sur 38, Seconde 15 sur 43.
+**CE PLAFOND AVAIT DÉJÀ COÛTÉ TROIS CORRECTIFS, chacun sur une capture** — le
+tableau à quatre segments du 2.15 caché derrière son défilement, l'union à huit
+cases du 2.18, la rangée corrigée du 2.19 — et les élargissements successifs
+(700, 920, 1300 px) ne faisaient que remonter vers la largeur que la fenêtre
+offrait déjà. Les retirer tous les couvre a fortiori. Le dessin, lui, garde sa
+propre largeur et reste centré : c'est le CADRE qui s'élargit, pas la courbe.
+**Le contrôle d'à côté ne pouvait pas le voir** : il mesure le `.wrap`, qui
+était large, et restait donc vert sur un cadre étroit — le défaut vivait
+exactement dans l'angle mort. Un contrôle UNIVERSEL le tient désormais, greffé
+sur la visite qui ouvre tous les exercices (« 9 ») : il mesure le CADRE contre
+le `.wrap`, sur les trois fichiers, et un exercice ajouté demain est couvert
+sans rien déclarer.
+
 **Le contrôle tient les deux bords, et n'en tenir qu'un ne tient rien** : la
 carte doit être LARGE, et les rangées ne doivent PAS se replier. Une carte large
 dont les rangées se replient quand même n'a rien gagné ; des rangées qui ne se
