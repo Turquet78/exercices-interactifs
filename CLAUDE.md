@@ -649,11 +649,30 @@ bord du banc jsdom l'y retient désormais, où il coûte une ligne.
 aucune mise en page, mais un rectangle POSÉ À LA MAIN se juge exactement comme
 un vrai, et l'obstacle de chaque tour est placé pour écarter UN SEUL candidat,
 sans quoi le contrôle passerait sans dire lequel il mesure ; le NAVIGATEUR
-mesure le RENDU — la flèche dessinée à deux encres, sa pointe à moins de 8 px
-de la case et DANS son étendue, et aucune autre case recouverte, l'objection du
-coin fixe tenue par la mesure. La sonde a relevé les côtés réellement employés
+mesure le RENDU — la flèche dessinée à deux encres, sa pointe LUE sur le
+pseudo-élément à moins de 8 px de la case et sur son CENTRE, et aucune autre
+case recouverte, l'objection du coin fixe tenue par la mesure. La sonde a relevé les côtés réellement employés
 sur les 45 exercices de la Seconde : gauche 9, droite 10, dessus 7 — jamais le
 dessous, et jamais le COIN.
+**Dix-huit sabotages, seize rougissant en nommant leur défaut** — treize au
+banc jsdom, cinq au navigateur —, et les deux verts ont chacun appris quelque
+chose. Le premier a nommé un TROU DU CONTRÔLE : la pointe était recalculée
+depuis `--bexp-fx` et le rectangle de la bulle, c'est-à-dire sa propre
+arithmétique, si bien que le « - 10px » retiré de la feuille de styles
+déplaçait la flèche sans rien faire rougir ; elle se lit désormais sur le
+décalage EN USAGE du pseudo-élément, et le bord « dans l'étendue de la case »
+— trop lâche, une pointe déplacée de 10 px tombe encore sur une case de
+40 px — est devenu le CENTRE à 3 px près, sauf quand fx a été borné pour
+rester hors des coins arrondis. Le second, lui, disait vrai : retirer l'appel
+à `bexpPlacer` au moment où la bulle paraît ne change rien parce que
+l'observateur de TAILLE couvre le même instant — mesuré en le débranchant à
+son tour, et la bulle retombe alors au coin. L'appel reste : il est le chemin
+lisible, et le seul là où `ResizeObserver` manque.
+**Et le garde de l'ancre a perdu une moitié REDONDANTE** : `Node.contains` est
+vrai pour l'élément lui-même, donc `e===anc ||` ne filtrait rien — le sabotage
+l'a montré en restant vert, quand retirer le garde ENTIER rougit (« obstacles
+comptés : 4 sans l'ancre, 4 avec »). Ce n'est pas un garde-fou mort de plus :
+la propriété est tenue, par l'autre moitié, une opérande plus loin.
 
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
