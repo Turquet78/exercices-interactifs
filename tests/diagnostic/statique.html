@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostic installation — A · lien écrit en dur, portée = la page</title>
+<link rel="manifest" href="statique.webmanifest">
+<style>body{font-family:system-ui,sans-serif;margin:16px;font-size:18px}h1{font-size:1.3rem}.l{margin:6px 0;word-break:break-all}.ok{color:#15803d;font-weight:700}.ko{color:#b91c1c;font-weight:700}p{background:#eef2ff;padding:10px;border-radius:8px}</style></head>
+<body>
+<h1>Diagnostic d'installation — A · lien écrit en dur, portée = la page</h1>
+<p>Page A : le manifeste est écrit en dur dans le HTML, sa portée est le fichier lui-même (comme la vraie page), pas de service worker.<br>Puis menu ⋮ de Chrome → « Ajouter à l'écran d'accueil » : note s'il propose <b>Installer</b> ou seulement <b>Créer un raccourci</b>, et photographie cet écran.</p>
+<div id="out"></div>
+
+<script>
+(function(){
+  const out=document.getElementById('out');
+  const ligne=(k,v)=>{ const d=document.createElement('div'); d.className='l'; d.innerHTML='<b>'+k+'</b> : '+v; out.appendChild(d); return d; };
+  ligne('page', location.href);
+  ligne('pointer: coarse', matchMedia('(pointer: coarse)').matches);
+  ligne('any-pointer: coarse', matchMedia('(any-pointer: coarse)').matches);
+  ligne('hover: none', matchMedia('(hover: none)').matches);
+  ligne('userAgentData.mobile', navigator.userAgentData ? navigator.userAgentData.mobile : 'n/a');
+  ligne('userAgent', navigator.userAgent);
+  ligne('display-mode: standalone', matchMedia('(display-mode: standalone)').matches);
+  const l=document.querySelector('link[rel="manifest"]');
+  ligne('lien manifeste dans la page', l ? l.href : '<span class="ko">AUCUN</span>');
+  const bip=ligne('événement beforeinstallprompt', 'en attente…');
+  window.addEventListener('beforeinstallprompt', function(e){ window.__bip=true; bip.innerHTML='<b>événement beforeinstallprompt</b> : <span class="ok">REÇU — Chrome juge cette page installable</span>'; });
+  setTimeout(function(){ if(!window.__bip) bip.innerHTML='<b>événement beforeinstallprompt</b> : <span class="ko">pas reçu après 10 s</span>'; }, 10000);
+  if(l){
+    fetch(l.href, {cache:'no-store'}).then(async r=>{
+      ligne('manifeste : statut HTTP', r.status+' ('+(r.headers.get('content-type')||'?')+')');
+      const j=await r.json();
+      ligne('manifeste : id / start_url / scope / display', [j.id, j.start_url, j.scope, j.display].join(' · '));
+      (j.icons||[]).forEach(ic=>{
+        const im=new Image(); const u=new URL(ic.src, l.href).href;
+        im.onload=()=>ligne('icône '+ic.sizes+(ic.purpose?' ('+ic.purpose+')':''), '<span class="ok">'+im.naturalWidth+'×'+im.naturalHeight+'</span>');
+        im.onerror=()=>ligne('icône '+ic.sizes, '<span class="ko">NE SE CHARGE PAS</span> '+u);
+        im.src=u;
+      });
+    }).catch(e=>ligne('manifeste', '<span class="ko">échec : '+e.message+'</span>'));
+  }
+  if('serviceWorker' in navigator){
+    setTimeout(()=>navigator.serviceWorker.getRegistrations().then(rs=>ligne('service workers enregistrés', rs.length ? rs.map(r=>r.scope+' ('+(r.active?'actif':'pas actif')+')').join(' ; ') : 'aucun')), 3000);
+  } else ligne('service worker', 'API absente');
+})();
+</script>
+</body></html>

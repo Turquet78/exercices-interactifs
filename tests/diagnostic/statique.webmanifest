@@ -1,0 +1,31 @@
+{
+  "id": "diag-statique",
+  "name": "Diagnostic statique",
+  "short_name": "Diag statique",
+  "lang": "fr",
+  "description": "Exercices de mathématiques interactifs — Seconde.",
+  "start_url": "./statique.html",
+  "scope": "./statique.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2B50C8",
+  "icons": [
+    {
+      "src": "../../icones/secondes-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../../icones/secondes-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "../../icones/secondes-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -3144,6 +3144,7 @@ const TESTS={
   'inequation-droite': { name:'Inéquation : place la droite', icon:'📐', desc:'Place toi-même la droite horizontale, dis ce que SIGNIFIE l\u2019inégalité — au-dessus ou en dessous, peut toucher ou non —, regarde le dessin se colorier selon ta réponse, puis conclus S = … avec les bons crochets. Un premier pas vers {inequation-graphique}.', start:()=>startIqd() },
   'equation-graphique': { name:'Équations graphiques', icon:'\ud83d\udcc8', desc:'La courbe de f et la droite de g : lis des images, retrouve des antécédents par f ET par g, puis résous f\u2009(x)\u2009=\u2009k, g\u2009(x)\u2009=\u2009k, f\u2009(x)\u2009=\u2009g\u2009(x) et trois inéquations — pour chaque équation ou inéquation, choisis d\u2019abord le bon dessin parmi quatre, comme dans {resolutions-graphiques}.', start:()=>startEqg() },
   'lecture-deux-courbes': { name:'Lecture de deux courbes', icon:'\ud83d\udcc9', desc:'Les courbes de f et de g, chacune sur son domaine : donne les domaines, lis des images, retrouve des antécédents, puis résous équations et inéquations — comme dans {equation-graphique}, mais g est une vraie courbe.', start:()=>startIfg() },
+  'construire-max-min': { name:'Construire une fonction : maximum et minimum', icon:'⛰️', desc:'Le chemin INVERSE de {maximum-minimum} : on te donne un maximum, un minimum, un intervalle où la fonction monte et un encadrement — et c\u2019est toi qui traces une courbe qui respecte tout, point par point.', start:()=>startCfm() },
   'construire-fonction': { name:'Construire une fonction', icon:'✏️', desc:'Le chemin INVERSE de toute la lecture graphique : on te donne les consignes — une valeur, une image, un antécédent, f\u2009(x)\u2009=\u20090 et une inéquation — et c\u2019est toi qui traces une courbe qui les respecte, point par point.', start:()=>startCfx() },
   'resolutions-graphiques': { name:'Résolutions graphiques', icon:'🧭', desc:'Une courbe, une droite horizontale, quatre dessins proposés : pour chaque équation ou inéquation, choisis le dessin qui la montre, puis écris la solution — S = { … } avec des accolades, ou un intervalle comme dans {inequation-graphique}.', start:()=>startEig() },
   'solutions-graphique': { name:'Solutions de f (x) = k sur le graphique', icon:'📍', desc:'Une courbe et une hauteur k : clique sur la courbe le ou les points vérifiant f (x) = k, puis sur l’axe des abscisses les solutions, et écris-les — ou ∅ quand la droite y = k ne rencontre pas la courbe.', start:()=>startTVG() },
@@ -3207,7 +3208,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','construire-fonction','synthese-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min','synthese-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -4116,6 +4117,7 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'construire-max-min':["Comment faire pour qu\u2019un maximum soit atteint\u00a0?","Pourquoi le maximum de gauche est-il plus petit que le maximum total\u00a0?","Que veut dire «\u00a0f est croissante sur [ a ; b ]\u00a0» pour mon trac\u00e9\u00a0?","Dois-je toucher les deux bornes de l\u2019encadrement\u00a0?"],
   'diviser-fractions':["Pourquoi diviser revient-il \u00e0 multiplier\u00a0?","Quelle fraction faut-il retourner\u00a0?","Comment trouver l\u2019inverse d\u2019une fraction\u00a0?","Faut-il mettre au m\u00eame d\u00e9nominateur pour diviser\u00a0?"],
   'diviser-fractions-libre':["Par quoi je commence quand j\u2019\u00e9cris tout moi-m\u00eame\u00a0?","Quelle \u00e9tape dois-je \u00e9crire pour que mon calcul soit complet\u00a0?","Quelle fraction faut-il retourner\u00a0?","Puis-je tout \u00e9crire sur une seule ligne\u00a0?"],
   'simplifier-fractions':["Comment savoir par quel nombre je peux diviser\u00a0?","Pourquoi faut-il diviser en haut ET en bas\u00a0?","Comment savoir qu\u2019une fraction ne se simplifie plus\u00a0?","Si je prends un autre d\u00e9nominateur commun, est-ce que je trouve la m\u00eame chose\u00a0?"],
@@ -4516,6 +4518,17 @@ C’est la lecture graphique à L’ENVERS : chaque consigne se traduit par un g
 • <b>f (x) = 0 avec S = { … }</b> : la courbe coupe l’axe des abscisses exactement en ces points — pas un de moins, pas un de plus.<br>
 • <b>f (x) ≤ k avec S = [ … ]</b> : la courbe est au-dessous de la hauteur k exactement sur ces intervalles, et elle TOUCHE la hauteur k à chaque bord.<br><br>
 Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
+/* Le rappel de la seconde famille de {construire-fonction} : même geste, autres
+   consignes. Sans LaTeX — rien à empiler, et une formule sans fraction laisse
+   le contrôle des fractions empilées sans rien à mesurer. */
+const RAP_CFM=`<b>Construire une courbe dont le maximum et le minimum sont imposés</b><br>
+C’est {maximum-minimum} à L’ENVERS : au lieu de LIRE un maximum sur un dessin, tu DESSINES une courbe dont le maximum est imposé.<br><br>
+• <b>« M est le maximum de f sur [ a ; b ] »</b> : sur cet intervalle, le point le plus haut de ta courbe est à la hauteur M. Aucun point ne monte plus haut, et un point au moins atteint M.<br>
+• <b>« m est le minimum de f sur [ a ; b ] »</b> : même chose vers le bas — aucun point ne descend sous m, et un point au moins atteint m.<br>
+• <b>« f est croissante sur [ a ; b ] »</b> : d’une colonne à la suivante, la courbe MONTE, sur tout l’intervalle.<br>
+• <b>« m ≤ f (x) ≤ M sur [ a ; b ] »</b> : c’est un encadrement — la courbe reste dans la bande entre les deux hauteurs. Elle n’est pas obligée de les toucher.<br><br>
+<b>Les consignes se répondent.</b> Si le maximum sur la moitié gauche est plus petit que le maximum du domaine entier, c’est que le sommet est à DROITE : le dessin s’en déduit.<br><br>
+Plusieurs courbes différentes peuvent respecter les mêmes consignes : la correction en montre UNE, la tienne peut être une autre.`;
 const RAP_PIM=`<b>Placer un point, lire une image</b><br>
 Le <b>point de la courbe d'abscisse <i>a</i></b> est le point de la courbe situé juste au-dessus (ou en dessous) de <i>a</i>.<br>
 Pour le placer : repère <i>a</i> sur l'axe des <b>abscisses</b> (l'axe horizontal), pose la <b>droite verticale</b> sur <i>a</i>, puis pose le point là où cette droite coupe la courbe.<br>
@@ -4538,7 +4551,7 @@ const RAP_SYN=`<b>Tout lire sur un seul graphique</b><br>
 • <b>f (x) &gt; g (x)</b> se lit là où la courbe de f est AU-DESSUS de la droite de g : les bornes sont les abscisses des deux croisements, et les crochets sont ouverts parce que l’inégalité est stricte.<br>
 • Le <b>maximum</b> et le <b>minimum</b> se répondent en deux temps : la valeur (la hauteur), et l’abscisse où elle est atteinte.`;
 const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
-const RAPPELS_ID={ 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
+const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -4646,7 +4659,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','construire-fonction','synthese-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min','synthese-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -8801,7 +8814,129 @@ function cfxGen(){
 /* Le repli — un tirage RÉEL, relevé sur le générateur puis figé, éprouvé par
    les mêmes contrôles que le tirage. */
 const CFX_REPLI={w:[-2,-1,-2,0,3,4,3,2,0,3,0], a1:-1, a2:2, ya:4, k:3, op:'le'};
+
+/* ---- LA SECONDE FAMILLE DE CONSIGNES : MAXIMUM ET MINIMUM ----------------
+   Repris de la fiche « Exercice 10 » (demande de Turquet, septembre 2026) :
+   MÊME grille, MÊME geste, MÊME juge — seules les consignes changent. C'est
+   {maximum-minimum} et {maximum-minimum-tableau} pris à l'envers : là on LIT
+   un maximum sur un dessin, ici on DESSINE une courbe dont le maximum est
+   imposé. Les six conditions de la fiche :
+     · f est croissante sur [a ; b]
+     · m ≤ f (x) ≤ M sur ce même [a ; b]
+     · un maximum imposé sur [−5 ; s]
+     · un minimum imposé sur [s ; 5]
+     · le maximum sur le domaine entier
+     · le minimum sur le domaine entier
+   LE CŒUR EST L'INTERACTION DES QUATRE DERNIÈRES : le maximum de gauche est
+   STRICTEMENT plus petit que le maximum du domaine, donc le sommet ne peut pas
+   être à gauche ; le minimum de droite est STRICTEMENT plus grand que le
+   minimum du domaine, donc le creux ne peut pas être à droite. Sans ces deux
+   inégalités les consignes se répéteraient et l'exercice n'apprendrait rien —
+   le tirage les EXIGE.
+   TOUT SE JUGE AUX GRADUATIONS, et c'est exact : entre deux colonnes la spline
+   de lvTangents est monotone, donc elle ne dépasse ni ne redescend — le
+   maximum, le minimum et la croissance de la courbe DESSINÉE sont ceux des
+   points posés.
+   LE JUGE NE COMPARE JAMAIS AU TÉMOIN, comme dans l'autre famille : le tirage
+   construit une courbe, en DÉRIVE les six consignes, et le juge ne relit que
+   les consignes. Beaucoup de courbes différentes sont justes. */
+function cfmMax(P,a,b){ let v=-Infinity; for(let x=a;x<=b;x++){ const y=P[x-CFX_X0]; if(typeof y!=='number') return null; if(y>v) v=y; } return v; }
+function cfmMin(P,a,b){ let v=Infinity; for(let x=a;x<=b;x++){ const y=P[x-CFX_X0]; if(typeof y!=='number') return null; if(y<v) v=y; } return v; }
+/* « croissante » au sens STRICT : deux colonnes voisines à la même hauteur
+   dessinent un palier, qui est constant et non croissant — et le témoin n'en
+   produit jamais. */
+function cfmCroit(P,a,b){
+  for(let x=a;x<b;x++){ const u=P[x-CFX_X0], v=P[x+1-CFX_X0];
+    if(typeof u!=='number'||typeof v!=='number'||!(v>u)) return false; }
+  return true;
+}
+function cfmGen(){
+  const XF=CFX_X0+CFX_NX-1;
+  for(let att=0;att<4000;att++){
+    /* le témoin : la marche de l'autre famille — pas de palier, pas de saut de
+       plus de 3 — pour que la courbe reste lisible et sans segment plat */
+    const w=[pick([-3,-2,-1,1,2,3])];
+    for(let i=1;i<CFX_NX;i++){
+      const cands=[];
+      for(let v=CFX_YMIN;v<=CFX_YMAX;v++){ if(v!==w[i-1]&&Math.abs(v-w[i-1])<=3) cands.push(v); }
+      w.push(pick(cands));
+    }
+    /* les montées maximales du témoin ; on en garde une d'au moins 3 colonnes
+       — sur deux colonnes « croissante » ne serait qu'un seul pas */
+    const runs=[];
+    for(let i=0;i<CFX_NX-1;i++){
+      if(w[i+1]>w[i]){
+        const d=runs[runs.length-1];
+        if(d&&d[1]===i) d[1]=i+1; else runs.push([i,i+1]);
+      }
+    }
+    const bons=runs.filter(function(r){ return r[1]-r[0]>=2; });
+    if(!bons.length) continue;
+    const r=pick(bons), ca=CFX_X0+r[0], cb=CFX_X0+r[1];
+    /* l'encadrement porte sur CE MÊME intervalle, comme sur la fiche : la
+       courbe y montant, ses bornes sont ses deux bouts. */
+    const em=w[r[0]], eM=w[r[1]];
+    const s=pick([-1,0,1]);                  /* le partage, toujours intérieur */
+    const maxG=cfmMax(w,CFX_X0,s), minD=cfmMin(w,s,XF);
+    const maxT=cfmMax(w,CFX_X0,XF), minT=cfmMin(w,CFX_X0,XF);
+    if(!(maxG<maxT&&minD>minT)) continue;    /* le cœur : les quatre consignes se répondent */
+    return {fam:'mmx', w:w, ca:ca, cb:cb, em:em, eM:eM, s:s,
+            maxG:maxG, minD:minD, maxT:maxT, minT:minT};
+  }
+  return Object.assign({}, CFM_REPLI);
+}
+/* Le repli — un tirage RÉEL, relevé sur le générateur puis figé, et il passe
+   par les mêmes contrôles que le tirage (la leçon d'IFG_FB). */
+const CFM_REPLI={fam:'mmx', w:[-1,-4,-2,-3,-1,2,3,4,1,-2,0], ca:-2, cb:2, em:-3, eM:4,
+                 s:0, maxG:2, minD:-2, maxT:4, minT:-4};
+function cfmConsignes(q){
+  const XF=CFX_X0+CFX_NX-1;
+  const iv=function(a,b){ return '[ '+itvNum(a)+' ; '+itvNum(b)+' ]'; };
+  return [
+    {id:'cfx-c0', txt:'f est croissante sur '+iv(q.ca,q.cb)+'.'},
+    {id:'cfx-c1', txt:itvNum(q.em)+' ≤ f (x) ≤ '+itvNum(q.eM)+' sur '+iv(q.ca,q.cb)+'.'},
+    {id:'cfx-c2', txt:itvNum(q.maxG)+' est le maximum de f sur '+iv(CFX_X0,q.s)+'.'},
+    {id:'cfx-c3', txt:itvNum(q.minD)+' est le minimum de f sur '+iv(q.s,XF)+'.'},
+    {id:'cfx-c4', txt:itvNum(q.maxT)+' est le maximum de f sur '+iv(CFX_X0,XF)+'.'},
+    {id:'cfx-c5', txt:itvNum(q.minT)+' est le minimum de f sur '+iv(CFX_X0,XF)+'.'}
+  ];
+}
+function cfmJuge(q){
+  const XF=CFX_X0+CFX_NX-1, P=q.rep||[];
+  let poses=0; for(let i=0;i<CFX_NX;i++){ if(typeof P[i]==='number') poses++; }
+  if(poses<CFX_NX) return {complet:false, manque:CFX_NX-poses, subs:[], nCorrect:0, nTotal:6, allOk:false};
+  const subs=[
+    {id:'cfx-c0', ok:cfmCroit(P,q.ca,q.cb)},
+    {id:'cfx-c1', ok:cfmMin(P,q.ca,q.cb)>=q.em && cfmMax(P,q.ca,q.cb)<=q.eM},
+    {id:'cfx-c2', ok:cfmMax(P,CFX_X0,q.s)===q.maxG},
+    {id:'cfx-c3', ok:cfmMin(P,q.s,XF)===q.minD},
+    {id:'cfx-c4', ok:cfmMax(P,CFX_X0,XF)===q.maxT},
+    {id:'cfx-c5', ok:cfmMin(P,CFX_X0,XF)===q.minT}
+  ];
+  const n=subs.filter(function(x){ return x.ok; }).length;
+  return {complet:true, subs:subs, nCorrect:n, nTotal:6, allOk:n===6};
+}
+function cfmWhy(q,res){
+  const XF=CFX_X0+CFX_NX-1;
+  const iv=function(a,b){ return '[ '+itvNum(a)+' ; '+itvNum(b)+' ]'; };
+  const dic={
+    'cfx-c0':'croissante sur '+iv(q.ca,q.cb)+' : d’une colonne à la suivante, ta courbe doit MONTER sur tout cet intervalle.',
+    'cfx-c1':itvNum(q.em)+' ≤ f (x) ≤ '+itvNum(q.eM)+' sur '+iv(q.ca,q.cb)+' : sur cet intervalle, aucun point ne descend sous '+itvNum(q.em)+' ni ne monte au-dessus de '+itvNum(q.eM)+'.',
+    'cfx-c2':'le maximum sur '+iv(CFX_X0,q.s)+' vaut '+itvNum(q.maxG)+' : le point le plus haut de cette moitié doit être à la hauteur '+itvNum(q.maxG)+' — ni plus haut, ni plus bas.',
+    'cfx-c3':'le minimum sur '+iv(q.s,XF)+' vaut '+itvNum(q.minD)+' : le point le plus bas de cette moitié doit être à la hauteur '+itvNum(q.minD)+' — ni plus bas, ni plus haut.',
+    'cfx-c4':'le maximum sur '+iv(CFX_X0,XF)+' vaut '+itvNum(q.maxT)+' : le point le plus haut de toute ta courbe doit être à la hauteur '+itvNum(q.maxT)+'.',
+    'cfx-c5':'le minimum sur '+iv(CFX_X0,XF)+' vaut '+itvNum(q.minT)+' : le point le plus bas de toute ta courbe doit être à la hauteur '+itvNum(q.minT)+'.'
+  };
+  const faux=res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return dic[x.id]; });
+  return 'Ta courbe ne respecte pas '+(faux.length===1?'une consigne':faux.length+' consignes')+' : '+faux.join(' ');
+}
+/* L'AIGUILLAGE DES DEUX FAMILLES. Deux exercices partagent ce moteur — le
+   dessin, le clic, l'écran, la note — mais pas leur identité ni leurs
+   consignes : la famille voyage dans la QUESTION (q.fam), donc la reprise
+   après une pause la retrouve sans rien de plus, et ces trois fonctions
+   restent pures (le contrôle leur passe une question qu'il écrit lui-même). */
 function cfxConsignes(q){
+  if(q&&q.fam==='mmx') return cfmConsignes(q);
   const S0=cfxAnt(q.w,0), S5=cfxEnsemble(q.w,q.k,q.op);
   const fx='f (x)';
   return [
@@ -8817,6 +8952,7 @@ function cfxConsignes(q){
    entre deux graduations la spline est monotone, donc tout bord d'ensemble
    vit sur une graduation. */
 function cfxJuge(q){
+  if(q&&q.fam==='mmx') return cfmJuge(q);
   const P=q.rep||[];
   let poses=0; for(let i=0;i<CFX_NX;i++){ if(typeof P[i]==='number') poses++; }
   if(poses<CFX_NX) return {complet:false, manque:CFX_NX-poses, subs:[], nCorrect:0, nTotal:5, allOk:false};
@@ -8878,6 +9014,12 @@ function renderCfx(){
   $('cfxLiveScore').textContent=test.score;
   $('cfxFeedback').textContent=''; $('cfxFeedback').className='mp-feedback';
   $('cfxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkCfxAnswer()">Vérifier</button>';
+  /* L'ÉNONCÉ SUIT LA FAMILLE : une consigne de maximum ne se lit pas comme une
+     consigne d'image, et l'écran ne doit pas dire autre chose que ce qu'on
+     demande. */
+  $('cfxInstr').textContent=(q.fam==='mmx')
+    ? 'Trace une courbe sur le domaine [−5 ; 5] qui respecte TOUTES les conditions ci-dessous. Pose un point par colonne : clique une case pour poser le point, reclique dessus pour l’enlever.'
+    : 'Trace une courbe sur le domaine [−5 ; 5] en respectant TOUTES les consignes. Pose un point par colonne : clique une case pour poser le point, reclique dessus pour l’enlever.';
   const cons=cfxConsignes(q).map(function(c){ return '<span class="cfx-consigne pts-case" id="'+c.id+'">● '+c.txt+'</span>'; }).join('');
   $('cfxHost').innerHTML='<div class="cfx-consignes">'+cons+'</div>'+cfxSVG(q,false);
   cfxBrancher();
@@ -8917,6 +9059,7 @@ function cfxLive(){
   });
 }
 function cfxWhy(q,res){
+  if(q&&q.fam==='mmx') return cfmWhy(q,res);
   const b=cfxB(q), S0=cfxAnt(q.w,0);
   const dic={
     'cfx-c0':'f ( '+itvNum(q.a1)+' ) = '+itvNum(q.w[q.a1-CFX_X0])+' : le point de la colonne '+itvNum(q.a1)+' doit être à la hauteur '+itvNum(q.w[q.a1-CFX_X0])+'.',
@@ -8951,7 +9094,9 @@ function checkCfxAnswer(){
   }
   const answer=cfxConsignes(q).map(function(c){ return c.txt; }).join(' | ');
   const given=(q.rep||[]).join(',');
-  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Construire une fonction — '+res.nCorrect+'/'+res.nTotal+' consignes', answer:answer, given:given});
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk,
+    q:(q.fam==='mmx'?'Construire une fonction (maximum et minimum) — ':'Construire une fonction — ')+res.nCorrect+'/'+res.nTotal+' consignes',
+    answer:answer, given:given});
   const last=test.idx===test.questions.length-1;
   $('cfxActions').innerHTML='<button class="btn btn-primary" id="cfxNext" onclick="nextCfxQuestion()">'+(last?'Voir mes résultats':'Tracé suivant')+'</button>';
   const nb=$('cfxNext'); if(nb) nb.focus();
@@ -8969,9 +9114,27 @@ async function startCfx(){
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('cfx'); renderCfx();
 }
+/* Le démarreur de la SECONDE famille. Même kind, même écran : seule l'identité
+   change — la note part sous « currentTestId » (le menu), le rappel par
+   RAPPELS_ID, les questions à l'IA par QIA_SUGG_ID. Le barème suit le nombre
+   de consignes, qui n'est pas le même dans les deux familles. */
+async function startCfm(){
+  if(!currentEleve){ accueil(); return; }
+  const n=(currentMode==='soutien')?1:2;
+  const qs=[]; for(let i=0;i<n;i++){ const q=cfmGen(); q.rep=new Array(CFX_NX).fill(null); qs.push(q); }
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'cfx', questions:qs, idx:0, score:0,
+    maxScore:6*qs.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('cfx'); renderCfx();
+}
 function ctxCfx(q){
   const res=cfxJuge(q);
-  let c='L’élève doit TRACER une courbe sur [−5 ; 5] (un point entier par colonne) qui respecte cinq consignes : '
+  const n=cfxConsignes(q).length;
+  let c='L’élève doit TRACER une courbe sur [−5 ; 5] (un point entier par colonne) qui respecte '
+    +(n===6?'six conditions de maximum, de minimum, de croissance et d’encadrement':'cinq consignes')+' : '
     +cfxConsignes(q).map(function(x){ return x.txt; }).join(' · ');
   if(!res.complet) c+=' Il n’a pas encore posé toutes les colonnes (il en manque '+res.manque+').';
   else if(!res.allOk) c+=' Sa courbe ne respecte pas : '+res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return cfxConsignes(q).find(function(cc){ return cc.id===x.id; }).txt; }).join(' · ');

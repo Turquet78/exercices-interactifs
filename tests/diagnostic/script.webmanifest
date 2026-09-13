@@ -1,0 +1,31 @@
+{
+  "id": "diag-script",
+  "name": "Diagnostic script",
+  "short_name": "Diag script",
+  "lang": "fr",
+  "description": "Exercices de mathématiques interactifs — Seconde.",
+  "start_url": "./script.html",
+  "scope": "./script.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2B50C8",
+  "icons": [
+    {
+      "src": "../../icones/secondes-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../../icones/secondes-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "../../icones/secondes-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

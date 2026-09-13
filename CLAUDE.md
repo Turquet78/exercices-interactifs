@@ -2058,6 +2058,63 @@ quelle ligne était une graduation. La grille reçoit donc le cadre de
 `.lv-graph` — fond `--surface`, bordure, coins arrondis. Ça ne se voit que sur
 une capture : aucun banc ne mesure la lisibilité de deux trames superposées.
 
+**Et le MÊME geste avec les consignes de la fiche du maximum : {construire-max-min}.**
+(Seconde, Fonctions, demande de Turquet, septembre 2026, repris de la fiche
+« Exercice 10 » — « créer une fonction max et min ») suit {construire-fonction}
+au menu. C'est {maximum-minimum} et {maximum-minimum-tableau} pris à L'ENVERS :
+là on LIT un maximum sur un dessin, ici on DESSINE une courbe dont le maximum
+est imposé. Six conditions, celles de la fiche : f croissante sur un
+intervalle, un encadrement sur ce même intervalle, un maximum sur la moitié
+gauche, un minimum sur la moitié droite, le maximum et le minimum du domaine
+entier.
+**LE MOTEUR EST PARTAGÉ, PAS RECOPIÉ** : même grille [−5 ; 5] × [−4 ; 4], même
+geste (un point par colonne, posé et retiré au clic), même écran, même dessin,
+même écouteur délégué, même note. Seules les CONSIGNES changent, et la famille
+voyage dans la QUESTION (`q.fam`) — donc la reprise après une pause la retrouve
+sans rien de plus, et les trois fonctions aiguillées (consignes, juge,
+explication) restent PURES : le contrôle leur passe une question qu'il écrit
+lui-même. Même moteur, pas même identité : la note part sous `currentTestId`,
+le rappel par `RAPPELS_ID`, les questions par `QIA_SUGG_ID`.
+**LE CŒUR EST L'INTERACTION DES QUATRE CONSIGNES DE MAXIMUM ET DE MINIMUM** :
+le maximum de la moitié gauche est STRICTEMENT plus petit que celui du domaine,
+donc le sommet ne peut pas être à gauche ; le minimum de la moitié droite est
+STRICTEMENT plus grand que celui du domaine, donc le creux ne peut pas être à
+droite. Sans ces deux inégalités les consignes se répéteraient et l'exercice
+n'apprendrait rien — le tirage les EXIGE, et le contrôle les recompte.
+**TOUT SE JUGE AUX GRADUATIONS, et c'est exact** : entre deux colonnes la
+spline de `lvTangents` est monotone, donc elle ne dépasse ni ne redescend — le
+maximum, le minimum et la croissance de la courbe DESSINÉE sont ceux des points
+posés. La croissance est STRICTE : un palier est constant, pas croissant.
+L'encadrement, lui, n'exige PAS d'atteindre ses bornes — c'est un encadrement,
+pas une égalité ; le maximum, si : une courbe qui plafonne plus bas est fausse,
+et c'est le bord opposé de « ne pas dépasser ».
+**LE JUGE NE COMPARE JAMAIS AU TÉMOIN**, comme dans l'autre famille : le tirage
+construit une courbe, en DÉRIVE les six consignes, et le juge ne relit que les
+consignes. La sonde l'a mesuré plutôt que supposé — 6 courbes au moins ne
+diffèrent du témoin que d'une colonne et valent 6/6, 12 en médiane — et le
+contrôle épingle l'une d'elles : c'est le bord qui attraperait un juge
+paresseux.
+**LE REPLI EST LA FICHE ELLE-MÊME** : ses six conditions au mot près
+(« f est croissante sur [−2 ; 2] », « −3 ≤ f (x) ≤ 4 sur [−2 ; 2] », « 2 est le
+maximum sur [−5 ; 0] », « −2 est le minimum sur [0 ; 5] », « 4 est le maximum
+sur [−5 ; 5] », « −4 est le minimum sur [−5 ; 5] »), et il passe par les gardes
+MÊMES du tirage — il en est un tirage possible, vérifié garde par garde plutôt
+que supposé. Le contrôle compare la page à LA FICHE, condition par condition.
+Sonde : 0 recours au repli sur 400 séances.
+**Et le premier jet du contrôle a rougi sur du code JUSTE** : trois de ses
+motifs épinglés étaient faux — abaisser une colonne DANS l'intervalle de
+croissance casse aussi la montée, et j'avais compté une seule consigne fausse
+là où il y en avait deux. Un essai faux se reconnaît à ce qu'il rougit sur une
+page juste ; les cas ont été choisis pour n'en casser QU'UNE, ce qui prouve
+bien mieux que chaque consigne se juge seule.
+**Dix-huit sabotages, dix-sept rougissant en nommant leur défaut**, et le
+dernier reste VERT à bon droit : ouvrir le partage jusqu'au bord du domaine ne
+produit aucun tirage: à s = −5 la moitié droite EST le domaine, donc son
+minimum égale celui du domaine et la garde du cœur écarte le tirage. La
+propriété « le partage est intérieur » est donc TENUE par les deux inégalités
+du cœur, et la liste `[-1, 0, 1]` n'est pas un garde-fou mais un choix de
+présentation — le partage reste près du milieu, comme sur la fiche.
+
 **Le 4.5 de la Terminale est descendu en Seconde — même tirage, autre juge.**
 {solutions-graphique} (Seconde, Fonctions, juste avant {construire-fonction},
 demande de Turquet, septembre 2026 : « mettre l'exercice 4.5 de terminale en
@@ -3388,6 +3445,83 @@ d'un même mot —, et c'est ce message qui a nommé la cause : le diagnostic
 d'abord, le remède ensuite. Deux sabotages, chacun rougissant en nommant son
 défaut ; un troisième essai a rougi sur le CONTRÔLE voisin, celui des
 adresses vers la page d'aiguillage, et il avait raison.
+
+**L'écran du bilan ne bouge plus quand le professeur pose une note.** Demande
+de Turquet (septembre 2026) : « quand je modifie une note je souhaite que la
+page réapparaisse exactement au même endroit ». Poser une note redessine le
+bilan, et le bilan commençait par se réduire à « Chargement… » : mesuré en
+Chromium, la page tombait de 8986 à 4346 px et le défilement était ramené de
+8086 à 3446 — le professeur qui notait au bas de sa liste voyait tout partir.
+Le navigateur finissait par le ramener à peu près, et c'est ce « à peu près »
+qui trompait : la position revenait par l'ANCRAGE de Chrome, une heuristique
+qui lâche dès que l'ancre disparaît avec le contenu — jamais par la page.
+**ON NE VIDE PLUS UN ÉCRAN QU'ON VA REMPLIR AVEC LA MÊME CHOSE**
+(`dmAttente`) : la boîte garde son contenu pendant la lecture et ne le
+remplace qu'une fois le nouveau prêt. La hauteur ne bouge pas, donc rien ne
+bouge — et c'est plus sûr que de rattraper le défilement APRÈS coup, qui
+suppose de savoir où l'on était alors que le navigateur l'a déjà oublié.
+**Le bord OPPOSÉ compte autant** : quand l'écran va dire AUTRE CHOSE — un
+autre devoir, une autre famille —, garder l'ancien contenu ferait lire les
+notes du devoir 1 sous le titre du devoir 2, et l'écran dirait autre chose
+que la note. C'est une CLÉ posée sur la boîte qui départage les deux cas, et
+une lecture ratée l'efface — sans quoi la tentative suivante repartirait sur
+son propre échec au lieu d'attendre. Les DEUX boîtes la portent, le bilan et
+le carnet des moyennes juste au-dessus : n'en réparer qu'une laisserait
+l'autre coincée, et le sabotage l'a montré.
+**Et le champ qui a le focus le garde** : le bilan est reconstruit à chaque
+note posée, et le professeur qui passe d'une note à la suivante par Tab
+voyait le clavier retomber sur la page. Le champ se repère par la CLÉ sous
+laquelle sa note est rangée (`data-cle`) — jamais par son rang, que le rendu
+recrée — et le focus n'est rendu que s'il était DANS cette boîte : ailleurs,
+il appartient à ce que le professeur vient de cliquer, et le lui reprendre
+serait pire que de l'avoir perdu.
+**`poserNoteDevoir` ATTEND désormais son rendu.** Sans cela elle rend la main
+pendant que le bilan se redessine encore, et qui l'attend mesure l'écran
+d'AVANT — le premier contrôle s'y est pris, et il accusait la page de ne pas
+relire la note qu'elle venait d'enregistrer.
+**Deux bancs, la répartition habituelle.** jsdom mesure SANS minuteur :
+`renderDevoirResultats` s'exécute jusqu'à sa PREMIÈRE attente avant de rendre
+la main, et c'est là que la boîte se vidait — on l'appelle donc sans
+attendre, on regarde ce qu'elle affiche, puis on attend ; aucune course. Le
+NAVIGATEUR mesure ce que jsdom n'a pas, la hauteur et le défilement : un
+observateur relève la hauteur de la page à CHAQUE changement de la boîte, si
+bien que l'affaissement se voit même quand il ne dure qu'un tour de boucle —
+retarder le double pour le rendre visible aurait fait mesurer l'attente au
+lieu de la page. Il lui faut une page HAUTE (douze élèves, trois exercices) :
+un devoir d'un seul exercice tient dans l'écran, et il n'y a alors rien à
+déplacer — le contrôle le dit plutôt que de passer au vert.
+**Deux pièges de SONDE s'y sont montrés, tous deux du banc**, et c'est la
+règle « une mesure qui accuse la page se mesure elle-même d'abord » : sans
+éditeur rendu, `readEditorIntoDevoir` relit du VIDE et efface les exercices
+du devoir ; et un identifiant pris hors de `TEST_ORDER` n'a pas de case à
+cocher, donc quitte le devoir au premier enregistrement. Dans les deux cas la
+sonde accusait la page d'un défaut qui n'était que le sien.
+**ET LE CONTRÔLE DE LA POSITION EST VIVANT, ce qui ne se devinait pas** :
+l'écran vidé quand même ne le fait PAS rougir — l'ancrage de Chrome rattrape
+la position finale, et c'est l'AFFAISSEMENT qui nomme alors le défaut. Ce
+qu'il garde est le risque que le correctif introduit : `focus()` sur une case
+hors de l'écran FAIT DÉFILER la page. Le focus envoyé sur le premier champ au
+lieu du bon le montre — « la ligne notée est passée de 753 à 3107 px du haut
+de l'écran » — et c'est le seul sabotage qui l'atteint.
+Dix sabotages en tout, chacun rougissant en nommant son défaut : sept au
+banc jsdom, trois que seul le navigateur voit. Et l'un d'eux a d'abord
+frappé le VOISIN : le bloc d'erreur des MOYENNES n'est pas celui du BILAN,
+et le sabotage restait vert à bon droit tant que l'ancre n'était pas propre
+à sa cible — la leçon d'{antecedents-droite}, retombée telle quelle.
+
+**Et la note du DEVOIR ENTIER est une note, elle aussi.** Elle est arrivée
+par une autre branche le même jour, dans le même bilan et SANS clé : le
+professeur qui la tapait perdait le focus à chaque note posée — exactement le
+défaut signalé un étage plus bas, sur une famille de champs qui n'existait pas
+encore quand le correctif a été écrit. Elle porte donc sa clé (`@dev|<élève>`,
+qui ne peut pas se confondre avec le `<élève>|<exercice>` d'un exercice) et
+`poserNoteDevoirEleve` ATTEND son rendu, comme `poserNoteDevoir`. Le contrôle
+s'y est pris en défaut au passage : les deux familles partagent la classe
+`dm-noteinput`, et la note du devoir vient AVANT dans le bilan — le contrôle
+des exercices prenait donc SA clé pour celle d'un exercice, posait une note
+dans le vide et accusait la page de ne pas la relire. Il vise
+`.dm-noteinput:not(.dm-notedev)` désormais, et un onzième sabotage (la clé
+retirée) rougit en nommant son défaut.
 
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
@@ -6129,6 +6263,35 @@ elle-même servie hors connexion (« un cache ? »), et le manifeste en
 `display: browser`, que Chromium nomme lui-même
 (`manifest-display-not-supported`). La limite ci-dessus tient toujours :
 le geste d'installation lui-même reste hors de portée de tout banc.
+
+**Puis « ne marche toujours pas » — et la tablette a fini par dire le
+contraire, à condition de lui demander à ELLE.** Après le service worker,
+Turquet a signalé (septembre 2026) que Chrome 140 proposait encore le seul
+raccourci, quand Squoosh s'installait sur la même tablette : la page était
+donc en cause, et aucun banc d'ici ne pouvait dire pourquoi — Chromium
+sur ordinateur trouvait zéro défaut. Ce qui a tranché, ce sont TROIS PAGES
+DE MESURE (`tests/diagnostic/`), servies par la prévisualisation Netlify
+d'une pull request de brouillon et ouvertes SUR la tablette : chacune
+affiche ce que Chrome en pense — `pointer: coarse`, le lien manifeste, le
+manifeste et ses icônes tels que la tablette les charge, les service
+workers, et surtout l'événement `beforeinstallprompt`, le verdict de Chrome
+lui-même, avant tout menu. A pose le lien en dur, B le pose par le code
+MÊME de la vraie page (copié tel quel), C élargit la portée au dossier.
+Les trois ont reçu l'événement ; la vraie page, mesurée de la même façon
+sur la même prévisualisation, aussi ; et « Ajouter à l'écran d'accueil »
+sur l'adresse des élèves a proposé **Installer** — la page B installée
+s'ouvre sans barre d'adresse. Le code, le manifeste, la portée et la garde
+étaient hors de cause ; le refus antérieur venait de la tablette — page
+mise en cache (GitHub Pages sert `max-age=600`) ou raccourci des essais
+précédents —, et aucune relecture du code n'aurait pu le voir. La règle du
+diagnostic vaut ici encore : quand une erreur revient à l'identique, on
+change de couche — on demande son avis à Chrome SUR l'appareil, au lieu de
+reproduire depuis ici ce qu'il ne fait pas. Deux traces restent dans le
+dépôt : les pages de mesure, pour la prochaine tablette qui refusera, et
+la règle d'en-tête de `netlify.toml` qui sert `.webmanifest` avec son type
+sur les prévisualisations — Netlify le servait en `octet-stream`, GitHub
+Pages en `application/manifest+json`, et mesurer sur un hébergement qui
+diffère du vrai sur ce point aurait parlé d'autre chose.
 
 ## Fiches imprimées (`.docx`)
 
