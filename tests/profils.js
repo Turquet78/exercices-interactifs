@@ -664,6 +664,16 @@ module.exports = {
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
+
+  /* L'ORDRE DES EXERCICES D'UN DEVOIR SE RÈGLE dans l'éditeur de ce niveau
+     (ruban ▲▼) : la relecture du formulaire PRÉSERVE l'ordre rangé au lieu de
+     le rabattre sur celui du menu, et l'écran de l'élève le suit — sans
+     verrouiller quoi que ce soit, un devoir reste tout ouvert. Le niveau qui
+     ne le déclare pas doit faire l'inverse : aucun ruban sur un devoir, et
+     l'ordre du menu. Deux sources : lire la page et la comparer à elle-même ne
+     prouverait rien. */
+    ordreDevoirs: true,
+
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
@@ -887,6 +897,9 @@ module.exports = {
        historique de la Terminale, qui recopie les exercices. */
     fiches: { titre: 'Travaux facultatifs', badge: 'Fiche', note: 'Note de la fiche',
               ordre: false, sur20: false, compacte: false },
+
+    ordreDevoirs: true,
+
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",

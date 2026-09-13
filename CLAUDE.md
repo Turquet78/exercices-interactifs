@@ -3464,6 +3464,46 @@ et resterait vert sans ce compte), le déplacement que l'enregistrement
 emporte tel quel, et l'écran de l'élève qui suit l'ordre du tableau — éprouvé
 par quatre sabotages, chacun rougissant en nommant son défaut.
 
+**Et la Seconde a suivi — le ruban vaut pour les DEUX familles, le verrou pour
+une seule.** Demande de Turquet (septembre 2026) : « en seconde je souhaite
+pouvoir choisir l'ordre des exercices pour les devoirs maison comme en
+terminale ». Le ruban ▲▼ existait déjà dans son éditeur depuis août 2026,
+mais derrière un `if(dmGenre==='fiche')` : les devoirs n'y avaient pas droit,
+et leur relecture du formulaire les rabattait sur l'ordre du MENU — le piège
+que les fiches avaient déjà payé, au même endroit. Les trois gardes de genre
+tombent ensemble (le ruban, la relecture, `dmExoCoche`) : n'en retirer qu'une
+ne tient rien — un ruban sans relecture préservante affiche un ordre que le
+premier enregistrement écrase, une relecture sans re-rendu laisse l'exercice
+tout juste coché hors du ruban jusqu'au prochain changement de devoir.
+**CE QUI NE CHANGE PAS EST LE VERROU, et c'est tout l'arbitrage** : il vit où
+il a toujours vécu, `dmOrdreImpose()` — donc `GENRE_DEVOIRS` — et ne dit oui
+que sur les fiches. L'ordre réglé sur un devoir est celui de l'AFFICHAGE, et
+un devoir reste tout ouvert (la décision d'août 2026 tient). **La PHRASE du
+ruban suit donc `dmOrdreImpose`, jamais `dmGenre` recopié** : celle des fiches
+(« un exercice ne se débloque que lorsque le précédent est fait ») posée sur
+un devoir ferait croire au professeur qu'il impose un ordre aux élèves —
+l'écran dirait autre chose que la règle. Les deux bords ont leur contrôle.
+**Le contrôle existait et n'était ATTEINT qu'en Terminale** : `ordreDesDevoirs`
+n'était appelé que par les chemins d'ABANDON d'`ordreDesFiches`, si bien que la
+Seconde et la Première, où celui des fiches réussit, ne le jouaient jamais —
+un contrôle écrit, vert, et jamais joué. Il est chaîné dans TOUS les chemins,
+et il se déclare : `ordreDevoirs` dans `tests/profils.js` (Seconde et
+Terminale), deux sources — un profil qui le déclare devant une page sans cet
+éditeur rougit, un niveau qui ne le déclare pas s'affiche « non applicable »
+et son bord OPPOSÉ (aucun ruban sur un devoir, l'ordre du menu) reste tenu par
+le contrôle des fiches, juste au-dessus. **La Première n'est pas dans la
+demande et ne change pas** — le dire vaut mieux que le taire.
+**Et le contrôle CLIQUE au lieu d'appeler** : il déclenche l'événement `change`
+de la case, c'est-à-dire l'attribut `onchange` que le professeur déclenche,
+puis compte les rangs RENDUS dans le ruban. Le premier jet appelait
+`readEditorIntoDevoir()` à la main : la garde de `dmExoCoche` ne se voyait
+alors nulle part, et le sabotage qui la remet serait resté vert. Sept
+sabotages, chacun rougissant en nommant son défaut — et l'un d'eux a d'abord
+échoué à se poser : la lacune « le cadre de pose inséré… » est écrite au mot
+près dans le profil de la Seconde ET dans celui de la Terminale, donc l'ancre
+désignait deux endroits. Un sabotage se pose sur une ancre PROPRE à sa cible,
+la leçon d'{antecedents-droite}, retombée dans un fichier de profils.
+
 **Les TRAVAUX FACULTATIFS sont la seconde famille de devoirs de la Terminale —
 gérés comme les devoirs, rangés à part.** Demande de Turquet (septembre
 2026) : « une case "travaux facultatifs" dans la page où l'on a les cases
