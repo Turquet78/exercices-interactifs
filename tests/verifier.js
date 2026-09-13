@@ -1480,6 +1480,79 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
+  /* ---- {lire-coefficient} (2.4.1) : la chaîne s'arrête à l'écriture décimale ----
+     Décision de Turquet (septembre 2026) : la vérification redemandait, après
+     0,96, la forme FRACTIONNAIRE du coefficient (96/100). Ce maillon sert en
+     2.2.1 et 2.3.1 — c'est cette fraction-là qu'on multiplie ensuite par la
+     valeur de départ — mais le 2.4.1 n'a pas d'étape suivante : il ne
+     demandait qu'une réécriture pour rien.
+     TROIS BORDS, et n'en tenir qu'un ne tient rien. Le maillon RETIRÉ : plus
+     aucune case de fraction du coefficient, ni à l'écran, ni dans le message
+     de correction, ni dans le contexte envoyé au modèle — une chaîne
+     raccourcie d'un côté et pas de l'autre ferait mentir l'écran. Les
+     maillons GARDÉS : la fraction P/100 et l'écriture décimale du
+     pourcentage sont toujours là, sans quoi « on a tout retiré » passerait
+     aussi. Et la NOTE : une copie juste des cinq cases vaut le point, une
+     case vide n'en vaut pas. */
+  if(evaluer(w,"typeof startLireCoef").valeur==='function'){
+    verifierEval(w, 'le 2.4.1 vérifie jusqu\'à l\'écriture décimale, et pas au-delà', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      const poser=function(q,vals){ test.questions[0]=q; test.idx=0; test.locked=false; renderLCTest();
+        Object.keys(vals||{}).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(vals[id]); }); };
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      const fb=function(){ return document.getElementById('lcFeedback').textContent; };
+      /* une question ÉPINGLÉE : une copie fixe posée sur un tirage au hasard
+         mesurerait autre chose que ce qu'elle croit mesurer. */
+      const Q=function(){ return {sens:-1,P:4,coef:96,coefStr:'0,96',tete:'0,',ci:0,v:0,choisi:-1}; };
+      startLireCoef();
+
+      /* ---- 1. le maillon retiré ---- */
+      poser(Q(),{});
+      const cases=[].slice.call(document.querySelectorAll('#lcHost math-field')).map(function(e){ return e.id; });
+      const attendues=['lcP','lc1n','lc1d','lc1p','lc1dec'];
+      if(cases.join(' ')!==attendues.join(' ')) vus.push('cases de l\\'écran : '+cases.join(' ')+' au lieu de '+attendues.join(' '));
+      const ligne=(document.querySelectorAll('#lcHost .pt-step')[2]||{}).innerHTML||'';
+      if((ligne.match(/f-eq/g)||[]).length!==2) vus.push('la chaîne ne porte pas exactement deux « = » ('+((ligne.match(/f-eq/g)||[]).length)+')');
+      if((ligne.match(/f-frac-input/g)||[]).length!==1) vus.push('la chaîne porte '+((ligne.match(/f-frac-input/g)||[]).length)+' fraction(s) : celle du coefficient est revenue');
+
+      /* ---- 2. les maillons gardés ---- */
+      ['lc1n','lc1d'].forEach(function(id){ if(!document.getElementById(id)) vus.push('la fraction P/100 a disparu ('+id+')'); });
+      if(!document.getElementById('lc1p')) vus.push('l\\'écriture décimale du pourcentage a disparu');
+      if(!document.getElementById('lc1dec')) vus.push('l\\'écriture décimale du coefficient a disparu — la chaîne n\\'arrive plus nulle part');
+
+      /* ---- 3. la note ---- */
+      poser(Q(),{lcP:'4',lc1n:'4',lc1d:'100',lc1p:'04',lc1dec:'96'});
+      test.score=0; checkLCAnswer();
+      if(test.score!==1) vus.push('la copie juste des cinq cases ne vaut pas le point ('+test.score+')');
+      attendues.forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('la case juste '+id+' ne se marque pas ok ('+cls(id)+')'); });
+      poser(Q(),{lcP:'4',lc1n:'4',lc1d:'100',lc1p:'04'});
+      test.score=0; checkLCAnswer();
+      if(test.score!==0) vus.push('une copie dont la dernière case est vide vaut quand même le point');
+
+      /* ---- 4. le message de correction s'arrête au même endroit ---- */
+      poser(Q(),{lcP:'96',lc1n:'96',lc1d:'100',lc1p:'96',lc1dec:'04'});
+      checkLCAnswer();
+      if(fb().indexOf('0,96')<0) vus.push('le message ne montre pas le coefficient en écriture décimale : '+fb().slice(0,80));
+      if(/96\\s*\\/\\s*100|\\b96\\/100\\b/.test(fb().replace('4/100',''))) vus.push('le message redemande la forme fractionnaire du coefficient : '+fb().slice(0,100));
+      if(fb().indexOf('4/100')<0) vus.push('le message ne montre plus la fraction P/100 : '+fb().slice(0,80));
+
+      /* ---- 5. le contexte envoyé au modèle dit la même chaîne ---- */
+      test.kind='lc'; test.qId='lire-coefficient'; poser(Q(),{});
+      const ctx=String(conseilCtxCourant()||'');
+      if(ctx.indexOf('0,96')<0) vus.push('le contexte ne donne pas la vérification');
+      if(ctx.indexOf('= 96/100')>=0) vus.push('le contexte redemande encore la forme fractionnaire du coefficient');
+
+      /* ---- 6. l'identité ---- */
+      test.kind='lc'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='lire-coefficient') vus.push('« Recommencer » relance « '+test.qId+' »');
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('le 2.4.1 vérifie jusqu\'à l\'écriture décimale, et pas au-delà',
+      'ce niveau n\'a pas l\'exercice de lecture d\'un coefficient');
+  }
+
   /* ---- {reconnaitre-coefficient} (2.5.2) : le QCM des coefficients ------
      Cinq bords, et n'en tenir qu'un ne tient rien : le tirage (les trois
      familles chacune une fois à ordre variable, quatre propositions
