@@ -1741,7 +1741,7 @@ function branchements(w){
      toutes ses cases pm-mf n'attendent qu'un nombre — la Seconde a suivi). La
      FORME du pavé (une rangée en bas, dans les deux orientations) est affaire
      de feuille de styles et se mesure au banc navigateur. */
-  const MOTEUR_PAVE = ['paveActif','paveHTML','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
+  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
   if(src.indexOf('function paveBrancher') >= 0){
     let refPave;
     try{ refPave = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
@@ -2951,6 +2951,7 @@ function exercices(suite){
     construireFonction(w, P);
     construireMaxMin(w, P);
     solutionsGraphique(w, P);
+    ecrireSolutions(w, P);
     exercicesBonus(w, P);
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
@@ -11991,7 +11992,7 @@ function solutionsGraphique(w, P){
     if(!TESTS['solutions-graphique']) vus.push('l’exercice n’est pas dans TESTS');
     { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('solutions-graphique')>=0; })[0];
       if(!th) vus.push('l’exercice n’est dans aucun thème');
-      else if(th.ids[th.ids.indexOf('solutions-graphique')+1]!=='construire-fonction') vus.push('l’exercice ne vient pas juste avant {construire-fonction}'); }
+      else if(th.ids[th.ids.indexOf('solutions-graphique')+1]!=='ecrire-solutions') vus.push('l’exercice ne vient pas juste avant {ecrire-solutions}'); }
     if(typeof RAPPELS==='undefined' || !RAPPELS.tvg) vus.push('aucun rappel de cours pour tvg');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.tvg) vus.push('aucune question proposée pour tvg');
     if(TABLES_SANS.indexOf('solutions-graphique')<0) vus.push('le bouton des tables est proposé alors qu’il n’y a rien à multiplier');
@@ -12003,6 +12004,278 @@ function solutionsGraphique(w, P){
     if(c.indexOf('x² − 3')<0 || !/f\\(x\\) = 1/.test(c)) vus.push('le contexte envoyé au modèle ne décrit pas la courbe et l’équation');
     if(!/STRICTEMENT|JAMAIS révéler/.test(c)) vus.push('le contexte part sans clause de secret');
     if(!/d’abscisses \\[0\\]/.test(c)) vus.push('le contexte ne dit pas ce que l’élève a sélectionné');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ==== {ecrire-solutions} : la réponse se TAPE en entier à côté de « S = » ====
+   Demande de Turquet (septembre 2026). Cinq bords, et n'en tenir qu'un ne
+   tient rien :
+   · le TIRAGE — la hauteur k atteinte, jamais traversée entre deux
+     graduations, chaque racine un vrai croisement INTÉRIEUR : sans quoi une
+     borne de S ne se lirait pas sur le dessin, ou S ne serait plus une
+     réunion d'intervalles. Le contrôle le recompte par sa PROPRE arithmétique ;
+   · l'ENSEMBLE lui-même, refait par une SECONDE méthode qui n'a rien en commun
+     avec la page : la spline est ÉCHANTILLONNÉE au centième et les morceaux
+     relevés là où l'inégalité tient. La page, elle, ne regarde que les
+     graduations ;
+   · le JUGE — large sur l'écriture (espaces, « - » ou « − », « u » ou « U »
+     ou « ∪ », intervalles dans l'ordre qu'on veut, doublon compté une fois),
+     EXACT sur l'ensemble (la borne, le crochet, le nombre d'intervalles).
+     Refuser une écriture juste serait le pire défaut du projet ;
+   · les CLAVIERS — les six touches que la demande nomme vivent à UN seul
+     endroit (ECS_TOUCHES), lu par la rangée au-dessus du champ ET par le pavé
+     des tablettes (data-pave-plus). Le banc compare cette liste à
+     tests/profils.js : deux sources ;
+   · la MÉTHODE dessinée à la VALIDATION seulement — affichée pendant la
+     recherche, elle donnerait la réponse. */
+function ecrireSolutions(w, P){
+  const present = evaluer(w, "typeof startECS==='function' && typeof ecsTirage==='function' && typeof ecsAns==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('écrire l\'ensemble des solutions : le tirage, le juge et les six touches',
+      'ce niveau n\'a pas l\'exercice d\'écriture des solutions');
+    return;
+  }
+  const D = P.ecrireSolutions || {};
+  const TOUCHES = JSON.stringify(D.touches || []);
+  verifierEval(w, 'écrire l\'ensemble des solutions : le tirage, le juge et les six touches', `(function(){
+    const vus=[];
+    const R=6, ATTENDUES=${TOUCHES};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId='ecrire-solutions';
+
+    /* ---- 1. LES GARDES DU TIRAGE, refaites par l'arithmétique du contrôle ---- */
+    const racines=function(pts,k){ const r=[]; for(let i=0;i<pts.length;i++) if(pts[i]===k) r.push(i-R); return r; };
+    const gardes=function(q,nom){
+      const etr=Object.keys(q).filter(function(c){ return ['pts','k','rel'].indexOf(c)<0; });
+      if(etr.length) vus.push(nom+' : la question range autre chose que la courbe, la hauteur et le signe : '+etr.join(','));
+      const pts=q.pts;
+      if(!Array.isArray(pts)||pts.length!==13||pts.some(function(v){ return !Number.isInteger(v)||v<-R||v>R; })){
+        vus.push(nom+' : la courbe n\\'est pas faite de 13 hauteurs entières de −6 à 6'); return; }
+      for(let i=0;i<12;i++) if(pts[i]===pts[i+1]) vus.push(nom+' : la courbe a un PALIER entre '+(i-R)+' et '+(i+1-R));
+      if(!Number.isInteger(q.k)||q.k<-R||q.k>R) vus.push(nom+' : la hauteur k n\\'est pas une graduation');
+      const rac=racines(pts,q.k);
+      if(!rac.length) vus.push(nom+' : la hauteur k n\\'est jamais atteinte');
+      if(rac.length>3) vus.push(nom+' : '+rac.length+' racines — la réponse ne tiendrait plus sur une ligne');
+      for(let i=0;i<12;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]);
+        if(q.k>lo && q.k<hi) vus.push(nom+' : k est traversée ENTRE les graduations '+(i-R)+' et '+(i+1-R)+' — la borne serait illisible'); }
+      rac.forEach(function(x){ const i=x+R;
+        if(i===0||i===12){ vus.push(nom+' : une racine est posée au BORD du domaine ('+x+') — un intervalle s\\'y réduirait à un point'); return; }
+        if((pts[i-1]-q.k)*(pts[i+1]-q.k)>=0) vus.push(nom+' : la racine '+x+' TOUCHE la hauteur sans la traverser — S ne serait plus une réunion d\\'intervalles'); });
+      if(['=','>','>=','<','<='].indexOf(q.rel)<0) vus.push(nom+' : signe inconnu « '+q.rel+' »');
+      const sol=ecsAns(q);
+      if(!sol){ vus.push(nom+' : ecsAns ne sait pas répondre'); return; }
+      if(q.rel==='='){
+        if(!sol.pts) vus.push(nom+' : une équation devrait donner des NOMBRES');
+        else if(sol.pts.join(',')!==rac.join(',')) vus.push(nom+' : S = {'+sol.pts+'} au lieu des racines {'+rac+'}');
+        return;
+      }
+      if(!sol.its||!sol.its.length){ vus.push(nom+' : S est vide alors que la courbe traverse la hauteur'); return; }
+      const strict=(q.rel==='>'||q.rel==='<');
+      sol.its.forEach(function(it,j){
+        if(!(it.a<it.b)) vus.push(nom+' : l\\'intervalle '+j+' est vide ou renversé');
+        if(it.oa!==((it.a!==-R)&&strict)) vus.push(nom+' : le crochet de gauche de l\\'intervalle '+j+' ne suit pas la strictesse');
+        if(it.ob!==((it.b!==R)&&strict)) vus.push(nom+' : le crochet de droite de l\\'intervalle '+j+' ne suit pas la strictesse');
+        if(j && sol.its[j-1].b>=it.a) vus.push(nom+' : deux intervalles de S se touchent ou se recouvrent');
+      });
+    };
+    /* La SECONDE méthode : la spline ÉCHANTILLONNÉE au centième. La page ne
+       regarde que les graduations ; si les deux ne tombent pas d'accord sur
+       les morceaux, c'est que le signe ou une borne est faux. */
+    const morceauxMesures=function(q){
+      const m=lvTangents(q.pts), sup=(q.rel==='>'||q.rel==='>=');
+      const f=function(x){ let i=Math.floor(x+R); if(i<0)i=0; if(i>11)i=11;
+        const t=(x+R)-i, t2=t*t, t3=t2*t;
+        return (2*t3-3*t2+1)*q.pts[i]+(t3-2*t2+t)*m[i]+(-2*t3+3*t2)*q.pts[i+1]+(t3-t2)*m[i+1]; };
+      const out=[]; let deb=null;
+      for(let j=0;j<=1200;j++){ const x=-R+j/100;
+        const dedans = sup ? f(x)>q.k+1e-6 : f(x)<q.k-1e-6;
+        if(dedans){ if(deb===null) deb=x; }
+        else if(deb!==null){ out.push([deb,-R+(j-1)/100]); deb=null; }
+      }
+      if(deb!==null) out.push([deb,R]);
+      return out;
+    };
+    const confronter=function(q,nom){
+      if(q.rel==='=') return;
+      const sol=ecsAns(q); if(!sol||!sol.its) return;
+      const mes=morceauxMesures(q);
+      if(mes.length!==sol.its.length){ vus.push(nom+' : la page annonce '+sol.its.length+' intervalle(s), la courbe échantillonnée en montre '+mes.length); return; }
+      sol.its.forEach(function(it,j){
+        if(Math.abs(mes[j][0]-it.a)>0.02) vus.push(nom+' : la borne gauche '+it.a+' ne colle pas à la courbe ('+mes[j][0].toFixed(2)+')');
+        if(Math.abs(mes[j][1]-it.b)>0.02) vus.push(nom+' : la borne droite '+it.b+' ne colle pas à la courbe ('+mes[j][1].toFixed(2)+')');
+      });
+    };
+    const rangsEq={}, formes={};
+    for(let t=0;t<300 && vus.length<4;t++){
+      const qs=ecsTirage();
+      if(qs.length!==5){ vus.push('séance '+t+' : '+qs.length+' questions au lieu de 5'); break; }
+      const rels=qs.map(function(q){ return q.rel; });
+      if(rels.slice().sort().join(',')!=='<,<=,=,>,>=') vus.push('séance '+t+' : les cinq formes ne sortent pas chacune une fois ('+rels.join(',')+')');
+      rangsEq[rels.indexOf('=')]=true;
+      qs.forEach(function(q,i){ gardes(q,'tirage '+t+' (q'+i+' '+q.rel+')'); });
+      const ineq=qs.filter(function(q){ return q.rel!=='='; }).map(function(q){ return ecsAns(q).its.length; });
+      if(ineq.indexOf(1)<0) vus.push('séance '+t+' : aucune inéquation dont S est UN seul intervalle');
+      if(!ineq.some(function(n){ return n>=2; })) vus.push('séance '+t+' : aucune réunion de deux intervalles — le U ne servirait jamais');
+      ineq.forEach(function(n){ formes[n]=true; });
+      if(t<60) qs.forEach(function(q,i){ confronter(q,'tirage '+t+' (q'+i+' '+q.rel+')'); });
+    }
+    if(!vus.length && Object.keys(rangsEq).length<2) vus.push('l\\'équation tombe toujours au même rang : l\\'élève apprendrait le rang');
+    if(!vus.length && !(formes[1]&&formes[2])) vus.push('les deux visages (un intervalle, une réunion) ne sortent pas tous les deux');
+    /* le REPLI est RÉEL : il passe par les gardes MÊMES du tirage */
+    if(typeof ECS_REPLI==='undefined') vus.push('aucun repli figé');
+    else {
+      ECS_REPLI.forEach(function(q,i){ gardes({pts:q.pts.slice(),k:q.k,rel:q.rel},'le REPLI (q'+i+' '+q.rel+')');
+                                       confronter({pts:q.pts.slice(),k:q.k,rel:q.rel},'le REPLI (q'+i+' '+q.rel+')'); });
+      const rr=ECS_REPLI.map(function(q){ return q.rel; }).sort().join(',');
+      if(rr!=='<,<=,=,>,>=') vus.push('le REPLI ne montre pas les cinq formes');
+      const ri=ECS_REPLI.filter(function(q){ return q.rel!=='='; }).map(function(q){ return ecsAns({pts:q.pts,k:q.k,rel:q.rel}).its.length; });
+      if(ri.indexOf(1)<0 || !ri.some(function(n){ return n>=2; })) vus.push('le REPLI perd un des deux visages');
+    }
+    if(vus.length) return vus.slice(0,5).join(' | ');
+
+    /* ---- 2. LE JUGE, sur une question ÉPINGLÉE ----
+       la courbe monte de −6 à 6 puis redescend : à la hauteur 0 elle croise
+       en −3 et en 3. */
+    const QP={pts:[-6,-5,-4,-3,-2,-1,0,1,2,3,2,1,0], k:0, rel:'>'};
+    /* la courbe épinglée doit bien passer les gardes — sinon le contrôle
+       mesurerait autre chose que ce qu'il croit mesurer */
+    const QE={pts:[-3,-2,-1,0,1,2,3,2,1,0,-1,-2,-3], k:0, rel:'='};
+    gardes(QE,'la question épinglée (équation)');
+    { const s=ecsAns(QE);
+      if(!s.pts || s.pts.join(',')!=='-3,3') vus.push('la question épinglée ne donne pas les solutions −3 et 3 mais {'+(s.pts||[])+'}'); }
+    { const q={pts:QE.pts.slice(),k:0,rel:'>'}; gardes(q,'la question épinglée (>)');
+      const s=ecsAns(q);
+      if(!s.its||s.its.length!==1||s.its[0].a!==-3||s.its[0].b!==3||!s.its[0].oa||!s.its[0].ob)
+        vus.push('f (x) > 0 devrait donner ] −3 ; 3 [ et donne '+ecsEcrire(s)); }
+    { const q={pts:QE.pts.slice(),k:0,rel:'>='}; const s=ecsAns(q);
+      if(ecsEcrire(s)!=='[ \\u22123 ; 3 ]') vus.push('f (x) ≥ 0 devrait donner [ −3 ; 3 ] et donne '+ecsEcrire(s)); }
+    { const q={pts:QE.pts.slice(),k:0,rel:'<'}; const s=ecsAns(q);
+      if(!s.its||s.its.length!==2) vus.push('f (x) < 0 devrait donner DEUX intervalles et donne '+ecsEcrire(s));
+      else if(ecsEcrire(s)!=='[ \\u22126 ; \\u22123 [ U ] 3 ; 6 ]') vus.push('f (x) < 0 devrait donner [ −6 ; −3 [ U ] 3 ; 6 ] et donne '+ecsEcrire(s)); }
+    { const q={pts:QE.pts.slice(),k:0,rel:'<='}; const s=ecsAns(q);
+      if(ecsEcrire(s)!=='[ \\u22126 ; \\u22123 ] U [ 3 ; 6 ]') vus.push('f (x) ≤ 0 devrait donner [ −6 ; −3 ] U [ 3 ; 6 ] et donne '+ecsEcrire(s)); }
+    if(vus.length) return vus.slice(0,5).join(' | ');
+
+    /* L'ÉCRITURE : large sur la forme, exacte sur l'ensemble */
+    const SU={pts:QE.pts.slice(),k:0,rel:'<'};   /* [ −6 ; −3 [ U ] 3 ; 6 ] */
+    const solU=ecsAns(SU), solEq=ecsAns(QE), solF=ecsAns({pts:QE.pts.slice(),k:0,rel:'>='});
+    [['[-6;-3[U]3;6]',true],
+     ['[ -6 ; -3 [ U ] 3 ; 6 ]',true],
+     ['[\\u22126 ; \\u22123[ \\u222a ]3 ; 6]',true],
+     ['] 3 ; 6 ] u [ -6 ; -3 [',true],
+     ['[+6;+3[U]3;6]',false],
+     ['[-6;-3]U]3;6]',false],
+     ['[-6;-3[U[3;6]',false],
+     ['[-6;-3[',false],
+     ['[-6;6]',false],
+     ['{-6;-3;3;6}',false],
+     ['[-6;-3[U]3;6',false],
+     ['n\\'importe quoi',false],
+     ['',false]]
+      .forEach(function(c){ if(ecsJuste(solU,c[0])!==c[1]) vus.push('l\\'écriture « '+c[0]+' » est '+(c[1]?'refusée':'acceptée')+' pour [ −6 ; −3 [ U ] 3 ; 6 ]'); });
+    [['{-3;3}',true],['{ 3 ; -3 }',true],['{\\u22123;3;3}',true],['{3}',false],['{-3;3;0}',false],['[-3;3]',false],['-3;3',false]]
+      .forEach(function(c){ if(ecsJuste(solEq,c[0])!==c[1]) vus.push('l\\'écriture « '+c[0]+' » est '+(c[1]?'refusée':'acceptée')+' pour { −3 ; 3 }'); });
+    [['[-3;3]',true],['[ \\u22123 ; 3 ]',true],[']-3;3[',false],['[-3;3[',false]]
+      .forEach(function(c){ if(ecsJuste(solF,c[0])!==c[1]) vus.push('l\\'écriture « '+c[0]+' » est '+(c[1]?'refusée':'acceptée')+' pour [ −3 ; 3 ]'); });
+    if(ecsLire('n\\'importe quoi')!==null) vus.push('une phrase qui ne se lit pas devrait rendre null');
+    if(vus.length) return vus.slice(0,5).join(' | ');
+
+    /* ---- 3. LA SÉANCE RÉELLE ---- */
+    startECS();
+    if(test.kind!=='ecs' || test.questions.length!==5) vus.push('startECS ne tire pas 5 questions de kind ecs');
+    if(!document.getElementById('scr-ecs').classList.contains('on')) vus.push('l\\'écran scr-ecs ne s\\'ouvre pas');
+    if(test.maxScore!==5) vus.push('le barème vaut '+test.maxScore+' au lieu de 5 (une réponse par question)');
+    if(dmPoidsQuestion('ecs', test.questions[0])!==1) vus.push('la coupe d\\'un devoir ne lit pas une réponse par question');
+    if(!document.getElementById('ecsSol')) vus.push('la case de l\\'écriture manque');
+    if(document.querySelector('#ecsGraph .ecs-k')) vus.push('la droite y = k est tracée AVANT la vérification');
+    if(!afficherEcranDe('ecs')) vus.push('la reprise après pause ne connaît pas l\\'écran ecs');
+
+    /* les six touches : une seule liste, lue par la rangée ET par le pavé */
+    if(ECS_TOUCHES.join(' ')!==ATTENDUES.join(' ')) vus.push('les touches de la page ['+ECS_TOUCHES.join(' ')+'] ne sont pas celles du profil ['+ATTENDUES.join(' ')+']');
+    { const bt=Array.prototype.map.call(document.querySelectorAll('.ecs-jetons .ecs-jt'), function(b){ return b.getAttribute('data-t'); });
+      if(bt.join(' ')!==ATTENDUES.join(' ')) vus.push('la rangée au-dessus du champ porte ['+bt.join(' ')+'] au lieu de ['+ATTENDUES.join(' ')+']');
+      const pp=document.getElementById('ecsSol').getAttribute('data-pave-plus');
+      if(pp!==ATTENDUES.join(' ')) vus.push('le pavé des tablettes ne reçoit pas les six touches (data-pave-plus = « '+pp+' »)');
+      if(document.getElementById('ecsSol').getAttribute('inputmode')!=='numeric' && document.getElementById('ecsSol').getAttribute('inputmode')!=='none')
+        vus.push('la case n\\'est pas confiée au pavé des tablettes'); }
+    /* chaque touche ÉCRIT dans la case, et lève « input » — un bouton mort
+       n\\'écrirait rien sans qu\\'une erreur ne se lève */
+    { const el=document.getElementById('ecsSol'); el.value=''; let n=0;
+      el.addEventListener('input', function(){ n++; });
+      ECS_TOUCHES.forEach(function(t){ ecsInserer(t); });
+      if(el.value!==ECS_TOUCHES.join('')) vus.push('les touches n\\'écrivent pas dans la case (« '+el.value+' »)');
+      if(n!==ECS_TOUCHES.length) vus.push('une touche n\\'a pas levé « input » : la correction en direct ne la verrait pas');
+      el.value=''; }
+
+    /* la copie VIDE ne se vérifie pas : rien n\\'est peint, rien n\\'est verrouillé */
+    checkECS();
+    if(test.locked) vus.push('une copie vide verrouille la question');
+    if(document.querySelector('#ecsBody .ok, #ecsBody .bad')) vus.push('une copie vide reçoit une couleur');
+    if(vus.length) return vus.slice(0,5).join(' | ');
+
+    /* ---- 4. LES GESTES, sur la question épinglée ---- */
+    const monte=function(mode,q){
+      currentMode=mode;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'ecs', questions:[{pts:q.pts.slice(),k:q.k,rel:q.rel}], idx:0, score:0, maxScore:1, answers:[], startTime:Date.now(), locked:false});
+      renderECS();
+    };
+    const ecrire=function(t){ document.getElementById('ecsSol').value=t; };
+    /* entraînement, copie JUSTE : la case bleuit, la note compte, la méthode
+       se dessine */
+    monte('train',SU); ecrire('[-6;-3[U]3;6]'); checkECS();
+    if(!document.getElementById('ecsSol').classList.contains('ok')) vus.push('une écriture juste ne se marque pas « ok »');
+    if(test.score!==1) vus.push('une écriture juste ne vaut pas son point (score '+test.score+')');
+    if(!document.querySelector('#ecsGraph .ecs-k')) vus.push('la droite y = k n\\'est pas tracée à la vérification');
+    if(!document.querySelector('#ecsGraph .ecs-part')) vus.push('les morceaux de courbe qui vérifient l\\'inéquation ne sont pas tracés');
+    if(document.querySelectorAll('#ecsGraph .ecs-cro').length!==4) vus.push('les quatre crochets de S ne sont pas posés sur l\\'axe');
+    if(document.querySelector('.ecs-solzone .mf-cor')) vus.push('une écriture juste reçoit quand même la correction en vert');
+    { const pe=ptsEcran();
+      if(!pe || pe.cases!==1 || pe.justes!==1) vus.push('la note affichée ne compte pas la case juste : '+JSON.stringify(pe)); }
+    /* entraînement, copie FAUSSE : la case rougit et la bonne réponse s\\'écrit
+       à côté */
+    monte('train',SU); ecrire('[-6;-3]U]3;6]'); checkECS();
+    if(!document.getElementById('ecsSol').classList.contains('bad')) vus.push('une écriture fausse ne rougit pas');
+    { const cor=document.querySelector('.ecs-solzone .mf-cor');
+      if(!cor) vus.push('la bonne réponse ne s\\'écrit pas à côté de la case fausse');
+      else if(cor.textContent!==ecsEcrire(ecsAns(test.questions[0]))) vus.push('la correction affichée n\\'est pas l\\'écriture attendue'); }
+    if(test.score!==0) vus.push('une écriture fausse rapporte un point');
+    /* l\\'équation : les accolades sont exigées, et le message le DIT */
+    monte('train',QE); ecrire('[-3;3]'); checkECS();
+    if(document.getElementById('ecsSol').classList.contains('ok')) vus.push('un intervalle est accepté pour une ÉQUATION');
+    if(!/ACCOLADES|accolades/.test(String(document.getElementById('ecsFeedback').textContent||''))) vus.push('le message ne dit pas qu\\'une équation s\\'écrit entre accolades');
+    /* et l\\'inverse : les accolades sur une inéquation */
+    monte('train',SU); ecrire('{-6;-3;3;6}'); checkECS();
+    if(!/INTERVALLES|intervalles/.test(String(document.getElementById('ecsFeedback').textContent||''))) vus.push('le message ne dit pas qu\\'une inéquation s\\'écrit en intervalles');
+    /* SOUTIEN : la case rougit, rien n\\'est révélé, rien n\\'est verrouillé */
+    monte('soutien',SU); ecrire('[-6;-3]U]3;6]'); checkECS();
+    if(!document.getElementById('ecsSol').classList.contains('bad')) vus.push('soutien : l\\'écriture fausse ne rougit pas');
+    if(test.locked) vus.push('soutien : la question se verrouille au premier essai');
+    if(document.querySelector('.ecs-solzone .mf-cor')) vus.push('soutien : la bonne réponse est révélée à l\\'élève');
+    if(document.querySelector('#ecsGraph .ecs-part')) vus.push('soutien : la méthode est dessinée avant que l\\'élève ait trouvé');
+    /* SOUTIEN, copie VIDE : aucune couleur */
+    monte('soutien',SU); checkECS();
+    if(document.querySelector('#ecsBody .bad')) vus.push('soutien : une case laissée vide rougit');
+    if(vus.length) return vus.slice(0,5).join(' | ');
+
+    /* ---- 5. l\\'identité de l\\'exercice, et ses branchements ---- */
+    if(!TESTS['ecrire-solutions']) vus.push('l\\'exercice n\\'est pas dans TESTS');
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('ecrire-solutions')>=0; })[0];
+      if(!th) vus.push('l\\'exercice n\\'est dans aucun thème');
+      else {
+        if(th.ids[th.ids.indexOf('ecrire-solutions')-1]!=='solutions-graphique') vus.push('l\\'exercice ne suit pas {solutions-graphique}');
+        if(th.ids[th.ids.indexOf('ecrire-solutions')+1]!=='construire-fonction') vus.push('l\\'exercice ne vient pas juste avant {construire-fonction}');
+      } }
+    if(typeof RAPPELS==='undefined' || !RAPPELS.ecs) vus.push('aucun rappel de cours pour ecs');
+    if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.ecs) vus.push('aucune question proposée pour ecs');
+    if(TABLES_SANS.indexOf('ecrire-solutions')<0) vus.push('le bouton des tables est proposé alors qu\\'il n\\'y a rien à multiplier');
+    { const srcPage=document.documentElement.outerHTML;
+      const m=/const testScreens=\\[([^\\]]*)\\]/.exec(srcPage);
+      if(!m || m[1].indexOf("'ecs'")<0) vus.push('l\\'écran ecs n\\'est pas dans testScreens'); }
+    monte('soutien',SU); ecrire('[-6;-3[');
+    { const c=String(conseilCtxCourant()||'');
+      if(c.indexOf('f (x) >')<0 && c.indexOf('f (x) <')<0) vus.push('le contexte envoyé au modèle ne dit pas la relation');
+      if(!/STRICTEMENT|JAMAIS révéler/.test(c)) vus.push('le contexte part sans clause de secret');
+      if(c.indexOf('[-6;-3[')<0) vus.push('le contexte ne dit pas ce que l\\'élève a écrit'); }
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
