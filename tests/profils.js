@@ -712,7 +712,26 @@ module.exports = {
     clavierEcran: { versB: 'clavier B', versA: 'clavier A', entree: '\u23ce',   /* ⏎ valide (commit) sur ses deux couches */
                     portrait: { exercice: 'suite-auxiliaire', champ: '#scr-sa math-field.sa-mf',
                                 bouton: '#scr-sa button[aria-label^="Afficher ou masquer le clavier"]',
-                                hauteurMax: 36, policeMax: 18 } },
+                                hauteurMax: 36, policeMax: 18 },
+                    /* LE PARTAGE DES DEUX COUCHES (demande de Turquet, septembre
+                       2026, sur le clavier du 6.9) : « faire passer les touches
+                       U.., n, inf, --> et l'intégrale sur le clavier B ; une
+                       ligne en moins dans le clavier A ». Le clavier A garde les
+                       nombres et les opérations — QUATRE rangées — et le clavier
+                       B porte les variables de l'exercice et les symboles. Les
+                       touches nommées ici doivent vivre sur B et NULLE PART sur
+                       A : la page et le profil sont deux sources. */
+                    couches: { rangeesA: 4, rangeesB: 4, unitesMax: 8,
+                               surB: ['\\infty', '\\longrightarrow', '\\smallint'],
+                               surA: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', ','] },
+                    /* Et sur une TABLETTE, les touches sont légèrement réduites :
+                       le banc navigateur ouvre l'exercice déclaré à la taille
+                       d'une tablette et mesure la touche RENDUE contre ces
+                       plafonds (58 px et 30 px avant la règle). */
+                    tablette: { exercice: 'suite-auxiliaire-redaction',
+                                champ: '#sarSheetA math-field',
+                                bouton: '#sarOutils button[aria-label^="Afficher ou masquer le clavier"]',
+                                hauteurMax: 48, policeMax: 24 } },
     /* Le signe du premier degré : 5 questions par séance (demande de Turquet,
        août 2026), et non plus 15 — les trois niveaux tous représentés. */
     nbQuestionsSignePremier: 5,

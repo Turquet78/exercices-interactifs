@@ -2937,6 +2937,8 @@ function exercices(suite){
     toucheEntreeClavier(w, P);
     clavierPaysageCompact(w, P);
     couchesClavierNommees(w, P);
+  clavierCouches(w, P);
+  clavierTablette(w, P);
     policeTablette(w, P);
     feuilleTablette(w, P);
     etudeExponentielle(w, P);
@@ -8772,6 +8774,106 @@ function couchesClavierNommees(w, P){
         pbs.push('la touche « ' + (k.label || '') + ' » fait ' + (k.width || 1) + ' unité(s) au lieu de 2 : son libellé y serait coupé'); });
       const anciens = touches.filter(k => /^(fn|123)$/.test(String(k.label || '').trim())).map(k => k.label);
       if(anciens.length) pbs.push('des touches disent encore « ' + anciens.join(' », « ') + ' »');
+    }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Le partage des deux couches du clavier à l'écran ---------- */
+/* Demande de Turquet (septembre 2026), sur le clavier du 6.9 : « faire passer
+   les touches U.., n, inf, --> et l'intégrale sur le clavier B ; je veux qu'il
+   y ait une ligne en moins dans le clavier A ». Le clavier A garde les nombres
+   et les opérations — quatre rangées — et le clavier B porte les variables de
+   l'exercice (Uₙ et n pour les suites, f et x pour les fonctions, ≤ ≥ < > au
+   6.7), ∞, ⟶ et l'intégrale.
+   Le clavier vit dans la greffe module, invisible à jsdom : on ÉVALUE
+   buildKbTerm depuis la SOURCE, avec des variables RECONNAISSABLES, et on
+   regarde où chaque touche tombe. Deux sources : les comptes de rangées, les
+   touches qui doivent être sur B, celles qui doivent RESTER sur A et la
+   largeur maximale d'une rangée vivent dans tests/profils.js.
+   Le bord opposé compte autant : sans « surA », déménager les chiffres eux
+   aussi passerait au vert. Et la largeur : une rangée plus large que le
+   maximum se rétrécit SEULE dans le navigateur — le clavier aurait deux
+   tailles de touches sur le même écran, ce que la règle de la tablette ne
+   peut pas rattraper. La taille RENDUE, elle, se mesure au banc navigateur. */
+function clavierCouches(w, P){
+  const nom = 'le clavier A garde les nombres, le clavier B porte les variables et les symboles';
+  const C = P.clavierEcran && P.clavierEcran.couches;
+  if(!C){ ignorer(nom, 'ce fichier ne déclare pas de partage des couches'); return; }
+  const pbs = [];
+  const src = lire(CIBLE);
+  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'buildKbTerm');
+  if(!fKb) pbs.push('buildKbTerm est introuvable dans la source');
+  else{
+    let bk = null;
+    try{ bk = new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')(
+      {latex:'EXP'}, {latex:'IDX'}, {latex:'USQ'}, {latex:'N'}); }
+    catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); }
+    let dispo = null;
+    /* des variables RECONNAISSABLES : c'est leur place qu'on mesure */
+    if(bk){ try{ dispo = bk([{latex:'VAR-UN'}, {latex:'VAR-DEUX'}]); }catch(e){ pbs.push('buildKbTerm échoue : ' + e.message); } }
+    const couches = (dispo && dispo.layers) || [];
+    if(couches.length < 2) pbs.push('le clavier n\'a que ' + couches.length + ' couche(s) : le contrôle n\'a rien à mesurer');
+    else{
+      const cle = k => String((k && (k.latex || k.key || k.insert || k.label)) || '');
+      const dedans = (l) => [].concat.apply([], (l.rows || []).map(r => (r || []).map(cle)));
+      const A = dedans(couches[0]), B = dedans(couches[1]);
+      if((couches[0].rows || []).length !== C.rangeesA)
+        pbs.push('le clavier A a ' + (couches[0].rows || []).length + ' rangée(s) au lieu de ' + C.rangeesA);
+      if((couches[1].rows || []).length !== C.rangeesB)
+        pbs.push('le clavier B a ' + (couches[1].rows || []).length + ' rangée(s) au lieu de ' + C.rangeesB);
+      (C.surB || []).forEach(t => {
+        if(A.indexOf(t) >= 0) pbs.push('la touche « ' + t + ' » est restée sur le clavier A');
+        else if(B.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » n\'est sur aucune des deux couches');
+      });
+      (C.surA || []).forEach(t => {
+        if(A.indexOf(t) < 0) pbs.push('la touche « ' + t + ' » a quitté le clavier A');
+      });
+      ['VAR-UN', 'VAR-DEUX'].forEach(v => {
+        if(A.indexOf(v) >= 0) pbs.push('les variables de l\'exercice sont restées sur le clavier A');
+        else if(B.indexOf(v) < 0) pbs.push('les variables de l\'exercice ne sont sur aucune des deux couches');
+      });
+      if(C.unitesMax) couches.forEach((l, i) => (l.rows || []).forEach((r, j) => {
+        const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
+        if(u > C.unitesMax) pbs.push('la rangée ' + (j + 1) + ' du clavier ' + (i ? 'B' : 'A') + ' fait '
+          + u + ' unités (' + C.unitesMax + ' au plus) : elle se rétrécirait seule');
+      }));
+    }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Sur tablette, les touches du clavier sont réduites ---------- */
+/* Même demande : « réduire légèrement la taille des touches ». La règle vise le
+   clavier ANCRÉ (enfant direct du body), sous la borne de la tablette — jamais
+   la fenêtre flottante de l'ordinateur. Deux bords : les valeurs déclarées dans
+   tests/profils.js (deux sources), et le fait qu'elles RÉDUISENT — une règle
+   qui reprendrait la taille du réglage général ne réduirait rien. La taille
+   RENDUE se mesure au banc navigateur : jsdom n'évalue pas de requête média. */
+function clavierTablette(w, P){
+  const nom = 'sur tablette, les touches du clavier mathématique sont réduites';
+  const T = P.clavierEcran && P.clavierEcran.tablette;
+  if(!T){ ignorer(nom, 'ce fichier ne déclare pas de clavier de tablette'); return; }
+  const src = lire(CIBLE), pbs = [];
+  const gen = /:root\{[^}]*--keycap-height:clamp\([\d.]+px,[^,]+,(\d+)px\)[^}]*\}/.exec(src);
+  const genF = /:root\{[^}]*--keycap-font-size:clamp\([\d.]+px,[^,]+,(\d+)px\)[^}]*\}/.exec(src);
+  if(!gen || !genF) pbs.push('le réglage général du clavier (:root, --keycap-height / --keycap-font-size) est introuvable');
+  const bloc = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)\{\s*body > \.ML__keyboard\{([\s\S]*?)\}\s*\}/.exec(src);
+  if(!bloc) pbs.push('aucune règle « @media (pointer:coarse) and (min-width:…px) { body > .ML__keyboard { … } } » — les touches gardent leur taille sur tablette');
+  else{
+    const borne = +bloc[1], corps = bloc[2];
+    if(!(borne >= 500 && borne <= 800)) pbs.push('la borne de ' + borne + 'px ne distingue plus une tablette d\'un téléphone');
+    const h = /--keycap-height:(\d+)px/.exec(corps), f = /--keycap-font-size:(\d+)px/.exec(corps);
+    if(!h) pbs.push('la règle ne pose pas --keycap-height');
+    else{
+      if(+h[1] > T.hauteurMax) pbs.push('les touches font ' + h[1] + 'px de haut, plus que les ' + T.hauteurMax + ' déclarés');
+      if(gen && +h[1] >= +gen[1]) pbs.push('la hauteur de la tablette (' + h[1] + 'px) ne réduit rien : le réglage général en donne ' + gen[1]);
+    }
+    if(!f) pbs.push('la règle ne pose pas --keycap-font-size');
+    else{
+      if(+f[1] > T.policeMax) pbs.push('la police des touches fait ' + f[1] + 'px, plus que les ' + T.policeMax + ' déclarés');
+      if(genF && +f[1] >= +genF[1]) pbs.push('la police de la tablette (' + f[1] + 'px) ne réduit rien : le réglage général en donne ' + genF[1]);
     }
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
