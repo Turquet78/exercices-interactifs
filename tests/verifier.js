@@ -10883,9 +10883,9 @@ function noteFicheSur20(w, apres){
     else ignorer(nom, F
       ? 'les « '+F.titre+' » de ce niveau se notent comme les devoirs, en points bruts (décision de Turquet, septembre 2026)'
       : 'ce niveau n\'a pas de seconde famille de devoirs');
-    return reglagesDevoirs(w, apres);
+    return ecranQuiNeBougePas(w, apres);
   }
-  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return reglagesDevoirs(w, apres); }
+  if(F && !F.sur20){ verifier(nom, false, 'la page ramène les « '+F.titre+' » sur 20 (dmNoteAff) alors que le profil les déclare en points bruts'); return ecranQuiNeBougePas(w, apres); }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
   evalPromis(w, `(async function(){
     ${lire('tests/faux-supabase.js')}
@@ -10955,7 +10955,7 @@ function noteFicheSur20(w, apres){
   })()`, function(r){
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    reglagesDevoirs(w, apres);
+    ecranQuiNeBougePas(w, apres);
   });
 }
 /* L'ORDRE DES EXERCICES D'UN DEVOIR SE RÈGLE EN TERMINALE (demande de
@@ -14793,6 +14793,146 @@ function baremeSuitLaCoupe(w, apres){
       if((d.menus||[]).length) console.log('   · démarreur(s) qui ouvrent un menu sans tirer : '+d.menus.join(', '));
     }
     if(apres) apres();
+  });
+}
+/* L'ÉCRAN NE BOUGE PAS QUAND ON POSE UNE NOTE (demande de Turquet, septembre
+   2026 : « quand je modifie une note je souhaite que la page réapparaisse
+   exactement au même endroit »). Poser une note redessine le bilan, et le
+   bilan commençait par se réduire à « Chargement… » : mesuré en Chromium, la
+   page tombait de 8986 à 4346 px et le défilement était ramené de 8086 à
+   3446 — le professeur qui notait au bas de sa liste voyait tout partir, puis
+   revenir à peu près. « À peu près » parce que c'est une heuristique du
+   navigateur qui le ramenait, pas la page.
+   LA MESURE EST SYNCHRONE, et c'est ce qui la rend sûre : renderDevoirResultats
+   s'exécute jusqu'à sa PREMIÈRE attente avant de rendre la main, et c'est là
+   que la boîte se vidait. On l'appelle donc SANS attendre, on regarde ce
+   qu'elle affiche, puis on attend — aucun minuteur, aucune course.
+   QUATRE BORDS, et n'en tenir qu'un ne tient rien :
+     · le MÊME devoir garde son écran pendant la lecture ;
+     · un AUTRE devoir le remplace par « Chargement… » — sans ce bord, on
+       lirait les notes du devoir 1 sous le titre du devoir 2 ;
+     · le CHAMP qui a le focus le garde — sinon le professeur qui passe d'une
+       note à la suivante par Tab voit le clavier retomber sur la page ;
+     · une lecture RATÉE efface la clé, pour que la tentative suivante reparte
+       sur « Chargement… » plutôt que sur son échec.
+   Le défilement lui-même se mesure dans un navigateur (« 6 septies quater ») :
+   jsdom n'a pas de mise en page, donc aucune position à lire. */
+function ecranQuiNeBougePas(w, apres){
+  const nom='poser une note ne vide pas l\'écran : la page ne bouge pas, et le champ garde le focus';
+  const present = evaluer(w, "typeof poserNoteDevoir==='function' && typeof renderDevoirResultats==='function' && typeof dmAttente==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau ne pose pas de note à la main dans le bilan du devoir');
+    return reglagesDevoirs(w, apres);
+  }
+  const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const vus=[];
+    const boite=function(){ return document.getElementById('dmResults'); };
+    const texte=function(){ return (boite().textContent||'').trim(); };
+    /* TEST_ORDER et non Object.keys(TESTS) : poserNoteDevoir relit le
+       formulaire (readEditorIntoDevoir), qui ne garde que les exercices que
+       l'ÉDITEUR liste — un identifiant hors menu serait retiré du devoir par
+       le contrôle lui-même, et la mesure accuserait la page d'un défaut qui
+       n'est que le sien. La sonde s'y est prise deux fois. */
+    const ids=TEST_ORDER.slice(0,2);
+    const exos=ids.map(function(id){ return {id:id,modes:['train']}; });
+    const deux=[{id:'dm_a',num:1,actif:true,titre:'Devoir A',cours:'',exercices:JSON.parse(JSON.stringify(exos))},
+                {id:'dm_b',num:2,actif:true,titre:'Devoir B',cours:'',exercices:JSON.parse(JSON.stringify(exos))}];
+    window.__faux.semer('${TABLE}',[{id:1,valeurs:{devoirs:JSON.parse(JSON.stringify(deux))}}]);
+    window.__faux.semer('${P.tableEleves||'eleves'}',[{id:'e1',prenom:'Alice'},{id:'e2',prenom:'Bob'}]);
+    window.__faux.semer('${P.tableResultats||'resultats'}',[
+      {id:'r1',eleve_id:'e1',score:8,total:10,percent:80,details:{test:ids[0],mode:'train',dm:'dm_a'}}]);
+
+    dmGenre='dm'; dmList=JSON.parse(JSON.stringify(deux)); dmSelId='dm_a';
+    renderDevoirSelector(); renderDevoirEditor();
+    await renderDevoirResultats();
+    if(texte().indexOf('Bilan de la classe')<0){ return 'le bilan ne s\\'affiche pas du tout : '+texte().slice(0,80); }
+
+    /* 1. LE MÊME DEVOIR GARDE SON ÉCRAN pendant la lecture */
+    let p=renderDevoirResultats();
+    const pendant=texte();
+    await p;
+    if(pendant.indexOf('Chargement')>=0)
+      vus.push('l\\'écran se vide pendant le rechargement du MÊME devoir : « '+pendant.slice(0,60)+' »');
+    if(pendant.indexOf('Bilan de la classe')<0)
+      vus.push('l\\'écran ne garde pas son bilan pendant le rechargement : « '+pendant.slice(0,60)+' »');
+
+    /* 2. LE BORD OPPOSÉ : un AUTRE devoir attend « Chargement… » */
+    dmSelId='dm_b';
+    p=renderDevoirResultats();
+    const autre=texte();
+    await p;
+    if(autre.indexOf('Chargement')<0)
+      vus.push('changer de devoir garde l\\'écran de l\\'ancien : « '+autre.slice(0,60)+' »');
+    dmSelId='dm_a'; await renderDevoirResultats();
+
+    /* 3. LE CHAMP QUI A LE FOCUS LE GARDE.
+       « :not(.dm-notedev) » : la note du DEVOIR ENTIER porte la même classe et
+       vient AVANT dans le bilan — sans ce filtre le contrôle prenait sa clé
+       (« @dev|e1 ») pour celle d'un exercice et posait une note dans le vide,
+       en accusant la page de ne pas la relire. */
+    const champs=boite().querySelectorAll('.dm-noteinput:not(.dm-notedev)');
+    if(!champs.length) vus.push('aucun champ de note à l\\'écran : le contrôle ne mesure rien');
+    else {
+      const cle=champs[0].getAttribute('data-cle');
+      if(!cle) vus.push('les champs de note ne portent pas la clé qui permet de leur rendre le focus');
+      champs[0].focus();
+      const parts=String(cle||'|').split('|');
+      await poserNoteDevoir(parts[0], parts.slice(1).join('|'), '7,5');
+      const actif=document.activeElement;
+      const cleApres=actif && actif.getAttribute ? actif.getAttribute('data-cle') : null;
+      if(cleApres!==cle)
+        vus.push('le champ perd le focus après la note posée (il est passé à « '+String(cleApres)+' »)');
+      const champ=[].slice.call(boite().querySelectorAll('.dm-noteinput')).filter(function(c){ return c.getAttribute('data-cle')===cle; })[0];
+      if(!champ || champ.value!=='7,5')
+        vus.push('la note posée ne se relit pas dans son champ : « '+(champ?champ.value:'(champ disparu)')+' »');
+    }
+
+    /* 3 bis. LA NOTE DU DEVOIR ENTIER EST UNE NOTE, ELLE AUSSI. Elle est
+       arrivée par une autre branche, dans le même bilan et sans clé : le
+       professeur qui la tape perdait le focus à chaque note posée, exactement
+       le défaut signalé un étage plus bas. */
+    if(typeof poserNoteDevoirEleve==='function'){
+      const dev0=boite().querySelector('.dm-notedev');
+      if(!dev0) vus.push('aucun champ de note du devoir entier : le contr\\'ôle ne mesure rien');
+      else {
+        const cd=dev0.getAttribute('data-cle');
+        if(!cd) vus.push('le champ de la note du devoir entier ne porte pas de clé : il perd le focus à chaque note posée');
+        dev0.focus();
+        await poserNoteDevoirEleve('e1','9');
+        const ad=document.activeElement;
+        const cdApres=ad && ad.getAttribute ? ad.getAttribute('data-cle') : null;
+        if(cdApres!==cd)
+          vus.push('le champ de la note du devoir entier perd le focus (il est passé à « '+String(cdApres)+' »)');
+      }
+    }
+
+    /* 4. UNE LECTURE RATÉE EFFACE LA CLÉ : la fois suivante repart sur
+       « Chargement… » plutôt que sur son propre échec. LES DEUX BOÎTES sont
+       mesurées — le bilan ET le carnet des moyennes juste au-dessus : chacune
+       porte sa clé, et une seule des deux réparée laisserait l'autre coincée
+       sur son échec sans que rien ne le dise. */
+    const vraiFrom=sb.from;
+    sb.from=function(){ throw new Error('panne simulée'); };
+    await renderDevoirResultats();
+    sb.from=vraiFrom;
+    p=renderDevoirResultats();
+    const apresPanne=texte();
+    const moyPanne=(document.getElementById('dmMoyennes').textContent||'').trim();
+    await p;
+    if(apresPanne.indexOf('Chargement')<0)
+      vus.push('après une lecture ratée, le bilan garde son échec au lieu d\\'attendre : « '+apresPanne.slice(0,60)+' »');
+    if(moyPanne.indexOf('Chargement')<0)
+      vus.push('après une lecture ratée, le carnet des moyennes garde son échec au lieu d\\'attendre : « '+moyPanne.slice(0,60)+' »');
+
+    dmGenre='dm'; currentDM=null;
+    return vus.join(' | ');
+  })()`, function(r){
+    if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
+    else verifier(nom, r.valeur==='', r.valeur);
+    reglagesDevoirs(w, apres);
   });
 }
 function reglagesDevoirs(w, apres){
