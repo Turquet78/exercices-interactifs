@@ -231,6 +231,31 @@ module.exports = {
        navigateur mesure la police RENDUE de la feuille du 2.2.9 sur la tablette
        (au plus pxMax) et exige qu'elle soit plus petite que sur l'ordinateur. */
     feuilleTablette: { rem: 1.4, pxMax: 21 },
+    /* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
+       septembre 2026) : « pour les exercices avec des cases à remplir avec des
+       nombres, sur les tablettes, après l'énoncé, les écritures avant et après
+       une case à remplir ont une police légèrement plus petite, ainsi que la
+       police des cases ». Un SEUL facteur, porté par les règles mêmes qui
+       donnent les tailles (calc(… * var(--tab-nb,1))) et posé sur le stage —
+       ce qui vient APRÈS l'énoncé — par la requête média de la tablette : case
+       et écritures rétrécissent donc du même facteur, et « une case a la taille
+       des nombres qui l'entourent » tient par construction.
+       Le banc jsdom exige que CHAQUE règle de taille d'une case à nombres passe
+       par le facteur, que les écritures nommées ici le portent aussi, et que le
+       facteur ne soit déclaré qu'à UN endroit, jamais sur la racine — posé là,
+       il emporterait l'énoncé et toute la page. Le banc navigateur mesure les
+       polices RENDUES sur une tablette et sur un ordinateur : la chaîne réduite
+       du facteur, l'énoncé réduit de la seule police de la page. */
+    chaineTablette: { facteur: 0.85,
+                      ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
+                                  '.fr .fd', '.fpm-const', '.mf-cor'],
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8) est hors
+                         de cette demande : elle n'a pas de case à nombres, et elle a
+                         déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
+                         les fractions de l'énoncé — il est donc nommé ici plutôt que
+                         tu, sans quoi le contrôle rougirait sur un écran voulu. */
+                      hors: ['.dexp2-prefix'],
+                      exercice: 'pourcentage', champ: '#p3', ecriture: '.f-whole', enonce: '#pPrompt' },
     /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
        — commit, l'événement « change » : une ligne de plus dans la feuille du
        2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne

@@ -6361,6 +6361,69 @@ règle demandée. Playwright pose `pointer:coarse` avec `hasTouch`, ce qui
 rend la requête mesurable pour de vrai. Six sabotages, chacun rougissant en
 nommant son défaut.
 
+**Puis, sur tablette, la CHAÎNE À NOMBRES a écrit plus petit que le reste —
+la case et ce qui l'entoure, du même facteur.** Demande de Turquet (septembre
+2026, Première) : « pour les exercices avec des cases à remplir avec des
+nombres, sur les tablettes, après l'énoncé, les écritures avant et après une
+case à remplir ont une police légèrement plus petite, ainsi que la police des
+cases ». Les 90 % de la page ne suffisaient pas : sur une tablette, le clavier
+mange déjà la moitié de l'écran, et une chaîne d'égalités à 2 rem se replie —
+or une égalité coupée en deux se lit comme deux calculs.
+**UN SEUL FACTEUR, ET IL VIT À UN SEUL ENDROIT.** Les tailles de la page sont
+toutes en `rem`, donc ancrées à la racine : aucune règle posée sur un
+conteneur ne les réduit, et la solution naïve — recopier chaque taille dans un
+second bloc de tablette — aurait donné DEUX listes à tenir. Le jour où l'une
+des deux aurait dérivé, c'est la case OU son voisin qui aurait rétréci seul,
+c'est-à-dire exactement le défaut que « une case a la taille des nombres qui
+l'entourent » interdit. Le facteur voyage donc dans une variable que les règles
+MÊMES portent (`calc(… * var(--tab-nb,1))`), et la requête média de la tablette
+le pose à un seul endroit. Case et écritures rétrécissent alors du même
+facteur, par construction et non par vigilance.
+**POSÉ SUR LE STAGE, PAS SUR LA PAGE, et c'est ce qui dit « après l'énoncé »** :
+`.mp-stage` est ce qui vient après le `p.mp-instr` de l'énoncé, qui vit
+au-dessus et garde donc sa taille sans qu'on ait rien à lui retirer. Et
+`:has(math-field.pm-mf)` restreint aux stages qui portent VRAIMENT une case à
+nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8) a déjà sa règle
+de tablette et n'est pas touchée ; elle est NOMMÉE dans le profil plutôt que
+tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
+connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran
+cassé.
+**Ce qui NE bouge pas est un choix, pas un oubli** : la case générique à
+1,05 rem (le 2.5.2, les colonnes du 3.1.4) est déjà la plus petite du niveau
+et reste une cible qu'on touche du doigt ; les étiquettes d'étape et les
+boutons de propositions ne sont pas des écritures de la chaîne. Sur un
+TÉLÉPHONE rien ne change non plus — la demande dit les tablettes, et le
+facteur vaut 1 sous 600 px.
+**Le contrôle jsdom tient la mécanique, pas l'apparence** : CHAQUE règle qui
+donne sa taille à une case à nombres doit passer par le facteur — un écran
+ajouté demain avec sa propre taille de case garderait sinon des cases grandes
+au milieu d'écritures rétrécies, et aucun écran ne le dirait —, les écritures
+nommées dans `tests/profils.js` (`chaineTablette`, deux sources) aussi, le
+facteur n'est déclaré qu'à UN endroit et jamais sur `:root`, `html` ou `body`
+— posé là, il emporterait l'énoncé et toute la page —, et l'énoncé ne le porte
+pas. Le banc NAVIGATEUR (« 11 septies ») mesure ce que jsdom ne sait pas :
+les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
+et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
+page. Un défaut d'à côté s'est vu en mesurant, et il est ANTÉRIEUR : au 2.5.2,
+les cases sont à 1,05 rem devant des écritures à 2 rem — le contrôle universel
+ne l'attrape pas, ses voisins n'étant pas des nombres NUS (« 1 + », « 1, »).
+Le dire vaut mieux que le taire.
+**Et le contrôle s'est pris en défaut avant la page, deux fois.** Le premier
+jet cherchait le bloc média d'un seul coup de regex, en exigeant qu'il ne
+contienne QUE la règle du facteur : trois de ses bords devenaient alors
+inatteignables — le facteur posé sur la racine, l'énoncé rétréci et le facteur
+déclaré deux fois rougissaient tous les trois en disant « aucune règle », donc
+en parlant d'autre chose que de leur défaut. Il lit maintenant la feuille règle
+par règle, en retenant la requête média qui entoure chacune. Et son filtre des
+écritures ne regardait que le début ou la fin d'un sélecteur : le calcul écrit
+en TÊTE de rangée (`#sfHost .pt-row>.f-frac`) lui échappait, et aurait pu
+perdre le facteur sans que rien ne rougisse — il vise le JETON de classe
+désormais, sans attraper `.f-frac-input`, qui n'est pas la même classe. Onze
+sabotages, chacun rougissant en nommant son défaut : dix au banc jsdom, et un
+que seul le NAVIGATEUR voit — le `.mp-stage` retiré de l'écran, où le facteur
+n'a plus rien où se poser pendant que la feuille de styles, elle, reste
+parfaite.
+
 **Puis la tablette a proposé un RACCOURCI, pas une installation — et le
 manifeste n'y était pour rien.** Signalé par Turquet le jour de la mise en
 ligne (septembre 2026) : « chrome propose seulement un raccourci, pas

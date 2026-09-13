@@ -2941,6 +2941,7 @@ function exercices(suite){
   clavierTablette(w, P);
     policeTablette(w, P);
     feuilleTablette(w, P);
+    chaineTablette(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -8911,6 +8912,115 @@ function feuilleTablette(w, P){
     if(regle.b.borne < 500 || regle.b.borne > 800) pbs.push('la borne de largeur (' + regle.b.borne + ' px) ne distingue plus une tablette d\'un téléphone');
   }
   verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Sur tablette, la chaîne à nombres écrit plus petit ---------- */
+/* Demande de Turquet (septembre 2026) : « pour les exercices avec des cases à
+   remplir avec des nombres, sur les tablettes, après l'énoncé, les écritures
+   avant et après une case ainsi que les cases elles-mêmes ont une police
+   légèrement plus petite ».
+   UN SEUL FACTEUR, ET C'EST CE QUE LE CONTRÔLE TIENT. Les tailles sont en rem,
+   donc ancrées à la racine : aucune règle posée sur un conteneur ne les réduit.
+   Le facteur voyage dans une variable que les règles MÊMES portent
+   (calc(… * var(--tab-nb,1))), et la requête média de la tablette le pose sur
+   le stage — ce qui vient APRÈS l'énoncé. Ce qui doit donc se vérifier ici :
+   · CHAQUE règle qui donne sa taille à une case à nombres passe par le facteur.
+     Un écran ajouté demain avec sa propre taille de case, sans le facteur,
+     garderait des cases grandes au milieu d'écritures rétrécies — c'est
+     exactement le défaut que « une case a la taille des nombres qui l'entourent »
+     interdit, et aucun écran ne le dirait ;
+   · les écritures nommées dans tests/profils.js le portent aussi (deux sources) ;
+   · le facteur n'est déclaré qu'à UN endroit, jamais sur la racine, html ou body :
+     posé là, il emporterait l'énoncé, les boutons et toute la page — la demande
+     dit « après l'énoncé » ;
+   · et l'énoncé, précisément, ne le porte pas.
+   jsdom n'évalue pas une requête média : les polices RENDUES se mesurent au banc
+   navigateur (« 11 septies »), sur une tablette et sur un ordinateur. */
+function chaineTablette(w, P){
+  const nom = 'sur tablette, les cases à nombres et les écritures qui les entourent réduisent du même facteur';
+  if(!P.chaineTablette){ ignorer(nom, 'ce fichier ne déclare pas de chaîne de tablette'); return; }
+  const T = P.chaineTablette, src = lire(CIBLE), pbs = [];
+  const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+  /* Les règles, lues une par une, avec la requête média qui les entoure : une
+     accolade ouverte après un sélecteur qui ne commence pas par « @ » ouvre un
+     corps, qu'on avale d'un bloc ; un « @media » n'est pas une règle, on entre
+     dedans en le retenant. Compter les accolades naïvement ne marche pas
+     ailleurs dans ce dépôt (les regex en sont pleines), mais ici on ne lit QUE
+     la feuille de styles, où il n'y en a pas.
+     Une lecture plus paresseuse — chercher le bloc média d'un seul coup de
+     regex — a d'abord rendu TROIS bords de ce contrôle inatteignables : le
+     facteur posé sur la racine, l'énoncé rétréci et le facteur déclaré deux
+     fois rougissaient tous les trois en disant « aucune règle », c'est-à-dire
+     en parlant d'autre chose que de leur défaut. */
+  const regles = []; let tampon = '', i = 0; const pile = [];
+  while(i < style.length){
+    const c = style[i];
+    if(c === '{'){
+      const sel = tampon.trim(); tampon = '';
+      if(sel.charAt(0) === '@'){ pile.push(sel); i++; continue; }
+      let prof = 1, j = i + 1;
+      while(j < style.length && prof > 0){ if(style[j] === '{') prof++; else if(style[j] === '}') prof--; j++; }
+      regles.push({ sel, corps: style.slice(i + 1, j - 1), media: pile.join(' ') });
+      i = j; continue;
+    }
+    if(c === '}'){ tampon = ''; pile.pop(); i++; continue; }
+    tampon += c; i++;
+  }
+  const porte = r => /var\(--tab-nb/.test(r.corps);
+  const taille = r => /font-size:/.test(r.corps);
+  /* 1. le facteur : déclaré à UN seul endroit, sur ce qui vient APRÈS l'énoncé,
+     sous la requête média d'une tablette, et à la valeur que le profil déclare. */
+  const poses = regles.filter(r => /--tab-nb\s*:/.test(r.corps));
+  if(!poses.length) pbs.push('aucune règle ne pose --tab-nb : rien ne réduit la chaîne sur tablette');
+  else if(poses.length > 1) pbs.push(poses.length + ' déclarations de --tab-nb au lieu d\'une seule (' + poses.map(r => r.sel).join(' ; ')
+    + ') : la plus profonde l\'emporterait sans que rien ne le dise');
+  else{
+    const pose = poses[0];
+    if(/^(:root|html|body|\*)$/.test(pose.sel.trim()))
+      pbs.push('le facteur est posé sur « ' + pose.sel.trim() + ' » : il emporterait l\'énoncé, les boutons et toute la page');
+    else if(pose.sel.indexOf('.mp-stage') < 0)
+      pbs.push('le facteur est posé sur « ' + pose.sel.trim() + ' » et non sur le stage : ce n\'est plus « après l\'énoncé »');
+    else if(pose.sel.indexOf(':has(math-field.pm-mf)') < 0)
+      pbs.push('le facteur est posé sur tous les stages (« ' + pose.sel.trim() + ' ») : il réduirait aussi les écrans sans case à nombres');
+    const media = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)/.exec(pose.media || '');
+    if(!media) pbs.push('le facteur n\'est pas posé sous la requête média d\'une tablette (« ' + (pose.media || 'aucune') + ' ») : il réduirait aussi l\'ordinateur');
+    else if(+media[1] < 500 || +media[1] > 800) pbs.push('la borne de largeur (' + media[1] + ' px) ne distingue plus une tablette d\'un téléphone');
+    const val = /--tab-nb\s*:\s*([\d.]+)/.exec(pose.corps);
+    if(!val) pbs.push('--tab-nb est posé sans valeur lisible');
+    else{
+      const f = parseFloat(val[1]);
+      if(Math.abs(f - T.facteur) > 1e-9) pbs.push('la page réduit d\'un facteur ' + val[1] + ' quand le profil déclare ' + T.facteur);
+      if(!(f > 0.7 && f < 1)) pbs.push('le facteur ' + val[1] + ' ne réduit pas « légèrement » (attendu entre 0,7 et 1)');
+    }
+  }
+  /* 2. toute règle qui donne sa taille à une case à nombres passe par le facteur */
+  const cases = regles.filter(r => /math-field\.pm-mf/.test(r.sel) && taille(r));
+  if(!cases.length) pbs.push('aucune règle ne donne sa taille à une case à nombres : le contrôle n\'a rien à mesurer');
+  const sansFacteur = cases.filter(r => !porte(r));
+  if(sansFacteur.length) pbs.push(sansFacteur.length + ' règle(s) de taille de case sans le facteur : ' + sansFacteur.map(r => r.sel.slice(0, 60)).join(' ; '));
+  /* 3. les écritures déclarées le portent aussi — sans quoi la case rétrécirait seule */
+  for(const cl of T.ecritures){
+    /* On vise le JETON de classe, pas la chaîne : « .f-frac » doit attraper
+       « #sfHost .pt-row>.f-frac » — le calcul écrit en tête de rangée, qui
+       n'est ni le premier ni le dernier mot d'un sélecteur — sans attraper
+       « .f-frac-input », qui n'est pas la même classe. Un filtre qui ne
+       regardait que le début ou la fin laissait cette règle-là dériver seule. */
+    const parts = cl.split(/\s+/), dernier = parts[parts.length - 1];
+    const jeton = new RegExp(dernier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\w-])');
+    const vise = r => r.sel.split(',').some(x => jeton.test(x) && parts.slice(0, -1).every(p => x.indexOf(p) >= 0));
+    const siennes = regles.filter(r => taille(r) && vise(r) && !(T.hors || []).some(h => r.sel.indexOf(h) >= 0));
+    if(!siennes.length){ pbs.push('aucune règle de taille pour « ' + cl + ' » : le profil nomme une écriture que la page n\'écrit plus'); continue; }
+    const muettes = siennes.filter(r => !porte(r));
+    if(muettes.length) pbs.push('« ' + cl + ' » garde sa taille sur tablette (' + muettes.map(r => r.sel.slice(0, 40)).join(' ; ') + ') : la case rétrécirait seule');
+  }
+  /* 4. le bord opposé : l'énoncé ne rétrécit pas avec la chaîne */
+  const enonce = regles.filter(r => /\.mp-instr|\.enonce\b/.test(r.sel) && porte(r));
+  if(enonce.length) pbs.push('l\'énoncé porte le facteur (' + enonce.map(r => r.sel.slice(0, 40)).join(' ; ') + ') : la demande dit « après l\'énoncé »');
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+  /* Ce qui est DÉCLARÉ hors du contrôle est nommé à l'écran, jamais tu. */
+  if(!pbs.length && (T.hors || []).length)
+    console.log('   · écritures déclarées hors de ce contrôle : ' + T.hors.join(', ')
+      + ' — la feuille de rédaction libre a sa propre règle de tablette');
 }
 
 /* ---------- Sur tablette, la police de la page est réduite — par une seule règle ---------- */
