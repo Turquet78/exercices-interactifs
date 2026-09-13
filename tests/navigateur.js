@@ -5720,6 +5720,13 @@ async function parcours(page, N){
                                             hauteur: Math.round(k.height),
                                             memeLigne: r.top < k.bottom && k.top < r.bottom && r.right <= k.left } : null,
                  petites: rects.filter(t => t.width < 40 || t.height < 40).length,
+                 /* la LARGEUR des touches et l'étendue de la rangée RENDUE :
+                    une boîte étirée dont les touches restent à 40 px laisse le
+                    vide DANS le pavé, et la boîte, elle, s'étire toujours */
+                 toucheEtroite: rects.length ? Math.round(Math.min(...rects.map(t => t.width))) : 0,
+                 toucheLarge: rects.length ? Math.round(Math.max(...rects.map(t => t.width))) : 0,
+                 rangeeG: rects.length ? Math.round(Math.min(...rects.map(t => t.left))) : 0,
+                 rangeeD: rects.length ? Math.round(Math.max(...rects.map(t => t.right))) : 0,
                  /* un pavé qui DÉFILE cache ses dernières touches (−, ⌫, ⏎) */
                  deborde: pave.scrollWidth > pave.clientWidth + 1,
                  surCase: chev(r, c), surCommandes: chev(r, k),
@@ -5812,6 +5819,24 @@ async function parcours(page, N){
           verifier('en paysage, les touches écrivent dans la case sans lui voler le focus',
             t2.valeur === P.pave.attendu && t2.focus === true,
             '« ' + t2.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t2.focus ? 'gardé' : 'perdu'));
+
+          /* ---- LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET ----
+             Demande de Turquet (septembre 2026) : « en mode paysage, faire en
+             sorte que le clavier soit le plus large possible en fonction de la
+             définition de l'écran ». Il faisait 634 px sur toutes les
+             tablettes. Deux mesures, et n'en tenir qu'une ne tient rien : la
+             RANGÉE va jusqu'au bord libre (les commandes quand elles partagent
+             sa ligne, sinon l'écran), et les TOUCHES ont grandi avec elle —
+             une boîte étirée dont les touches restent à 40 px laisserait le
+             vide dans le pavé, et la boîte s'étire de toute façon. */
+          const bordLibre = (q) => (q.cmd && q.cmd.memeLigne) ? q.cmd.gauche : q.fenetre.w;
+          const LP = P.pave.largeurPaysage;
+          verifier('en paysage à 1180 px, la rangée de touches occupe toute la largeur libre',
+            p.rangeeG <= 20 && p.rangeeD >= bordLibre(p) - 28,
+            'la rangée va de ' + p.rangeeG + 'px à ' + p.rangeeD + 'px pour un bord libre à ' + bordLibre(p) + 'px');
+          verifier('en paysage à 1180 px, les touches ont grandi (au moins ' + LP.plancher + 'px, au plus ' + LP.toucheMax + ')',
+            p.toucheEtroite >= LP.plancher && p.toucheLarge <= LP.toucheMax + 1,
+            'touches de ' + p.toucheEtroite + ' à ' + p.toucheLarge + 'px');
           if(P.pave.commandes){
             /* la MÊME ligne : le pavé et les commandes se recouvrent
                verticalement, le pavé à gauche des commandes ; et les
@@ -5822,21 +5847,81 @@ async function parcours(page, N){
               !p.cmd ? 'aucune commande visible'
                 : !p.cmd.memeLigne ? ('pavé ' + p.haut + '→' + p.bas + 'px, commandes ' + p.cmd.haut + '→' + (p.fenetre.h - p.cmd.bas) + 'px, pavé fini à ' + p.droite + 'px pour des commandes qui commencent à ' + p.cmd.gauche + 'px')
                 : ('commandes larges de ' + p.cmd.largeur + 'px en paysage contre ' + m.cmd.largeur + ' en portrait, à ' + p.cmd.bas + 'px du bas'));
-            /* le bord ÉTROIT : un iPad classique en paysage fait 1024 px, et
-               c'est là que les libellés entiers laissaient le pavé DÉFILER —
-               « − », « ⌫ » et « ⏎ » cachés derrière le bord droit. Mesuré à
-               1180 seulement, le banc restait vert : on remesure à 1024. */
-            await s.page.setViewportSize({ width: 1024, height: 768 });
+            /* les bords ÉTROITS. Le pavé ne doit JAMAIS défiler — ses
+               dernières touches (−, ⌫, ⏎) seraient cachées — et c'est ce
+               que Turquet a vu sur sa tablette : à 1024 px la mesure tenait
+               de justesse, la sienne défilait. On mesure donc à 1024 (iPad
+               classique), à 960 (tablette Android à 1,33) et à 853 (tablette
+               Android 8 pouces à 1,5 — là où les libellés courts ne tiennent
+               plus et où seules les ICÔNES laissent le pavé entier : à 960,
+               avec la police de repli du banc, le palier des icônes retiré
+               restait vert, le sabotage n'atteignait rien) : pavé entier, à
+               côté des commandes ; et à 800 (téléphone couché) : le pavé
+               repasse AU-DESSUS des commandes, entier lui aussi. */
+            const etroits = {};
+            for(const [w, h] of [[1024, 768], [960, 600], [853, 533]]){
+              await s.page.setViewportSize({ width: w, height: h });
+              await s.page.waitForTimeout(300);
+              await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+              await s.page.waitForTimeout(100);
+              await s.page.focus(P.pave.champ);
+              await s.page.waitForTimeout(400);
+              const q = await s.page.evaluate(mesurerPave, P.pave.champ);
+              etroits[w] = q;
+              verifier('en paysage à ' + w + ' px, la rangée de touches occupe toute la largeur libre',
+                q.rangeeG <= 20 && q.rangeeD >= bordLibre(q) - 28,
+                'la rangée va de ' + q.rangeeG + 'px à ' + q.rangeeD + 'px pour un bord libre à ' + bordLibre(q) + 'px');
+              verifier('en paysage à ' + w + ' px, le pavé tient en entier à côté des commandes, sans défiler',
+                q.visible && !q.deborde && !q.surCommandes && !!q.cmd && q.cmd.memeLigne === true && q.petites === 0,
+                !q.visible ? 'le pavé reste caché' : q.deborde ? ('le pavé défile : ' + q.largeur + 'px de large, commandes dès ' + (q.cmd ? q.cmd.gauche : '?') + 'px')
+                  : q.surCommandes ? 'il recouvre les commandes' : q.petites ? (q.petites + ' touche(s) trop petites') : 'le pavé et les commandes ne sont plus sur la même ligne');
+            }
+            /* une ROTATION sans quitter la case : le pavé reste ouvert et la
+               place disponible a changé — ici les commandes repassent des
+               ICÔNES aux libellés courts, donc elles s'élargissent. Sans
+               remesure, le pavé garderait la largeur d'avant et s'étendrait
+               PAR-DESSUS elles. On ne refocalise donc pas : c'est l'écouteur
+               du moteur qui doit agir. */
+            await s.page.setViewportSize({ width: 1366, height: 1024 });
+            await s.page.waitForTimeout(500);
+            const qr = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('après une rotation, le pavé se remesure sans qu’on quitte la case',
+              qr.visible && !qr.surCommandes && qr.rangeeG <= 20 && qr.rangeeD <= bordLibre(qr) - 4 && qr.rangeeD >= bordLibre(qr) - 40,
+              !qr.visible ? 'le pavé s’est refermé' : qr.surCommandes ? 'il recouvre les commandes'
+                : 'la rangée va de ' + qr.rangeeG + 'px à ' + qr.rangeeD + 'px pour un bord libre à ' + bordLibre(qr) + 'px');
+            /* les touches SUIVENT la définition de l'écran : plus larges à
+               1180 qu'à 853 — c'est le bord qui attrape un pavé revenu à sa
+               largeur fixe, où elles mesurent 40 px partout. */
+            verifier('les touches du pavé suivent la définition de l’écran',
+              p.toucheEtroite > etroits[853].toucheEtroite + 4,
+              'touches de ' + etroits[853].toucheEtroite + 'px à 853 px et de ' + p.toucheEtroite + 'px à 1180 px');
+            /* Le bord OPPOSÉ : sur un écran très large, une touche ne devient
+               pas une BARRE — elle s'arrête au plafond et la rangée se centre. */
+            await s.page.setViewportSize({ width: 1600, height: 900 });
             await s.page.waitForTimeout(300);
             await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
             await s.page.waitForTimeout(100);
             await s.page.focus(P.pave.champ);
             await s.page.waitForTimeout(400);
-            const q = await s.page.evaluate(mesurerPave, P.pave.champ);
-            verifier('en paysage sur un iPad classique (1024 px), le pavé tient en entier à côté des commandes, sans défiler',
-              q.visible && !q.deborde && !q.surCommandes && !!q.cmd && q.cmd.memeLigne === true && q.petites === 0,
-              !q.visible ? 'le pavé reste caché' : q.deborde ? ('le pavé défile : ' + q.largeur + 'px de large, commandes dès ' + (q.cmd ? q.cmd.gauche : '?') + 'px')
-                : q.surCommandes ? 'il recouvre les commandes' : q.petites ? (q.petites + ' touche(s) trop petites') : 'le pavé et les commandes ne sont plus sur la même ligne');
+            const q16 = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('sur un très grand écran, les touches s’arrêtent à ' + LP.toucheMax + 'px et la rangée se centre',
+              q16.toucheLarge <= LP.toucheMax + 1 && Math.abs((q16.rangeeG - q16.gauche) - (q16.droite - q16.rangeeD)) <= 12,
+              'touches de ' + q16.toucheLarge + 'px, rangée à ' + (q16.rangeeG - q16.gauche) + 'px du bord gauche du pavé et '
+                + (q16.droite - q16.rangeeD) + 'px du droit');
+            await s.page.setViewportSize({ width: 800, height: 600 });
+            await s.page.waitForTimeout(300);
+            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+            await s.page.waitForTimeout(100);
+            await s.page.focus(P.pave.champ);
+            await s.page.waitForTimeout(400);
+            const q8 = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('en paysage à 800 px, la rangée de touches occupe toute la largeur de l’écran',
+              q8.rangeeG <= 20 && q8.rangeeD >= q8.fenetre.w - 28,
+              'la rangée va de ' + q8.rangeeG + 'px à ' + q8.rangeeD + 'px sur ' + q8.fenetre.w + 'px');
+            verifier('en paysage à 800 px, le pavé repasse entier au-dessus des commandes',
+              q8.visible && !q8.deborde && !q8.surCommandes && !!q8.cmd && q8.bas <= q8.cmd.haut && q8.rangees === 1,
+              !q8.visible ? 'le pavé reste caché' : q8.deborde ? 'le pavé défile' : q8.surCommandes ? 'il recouvre les commandes'
+                : ('pavé fini à ' + q8.bas + 'px, commandes dès ' + (q8.cmd ? q8.cmd.haut : '?') + 'px, ' + q8.rangees + ' rangée(s)'));
           }
         }
       }
@@ -6131,6 +6216,162 @@ async function parcours(page, N){
         verifier('le clavier du téléphone ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 quinquies. Sur une tablette en PAYSAGE, le clavier mathématique tient sur deux rangées, et ⏎ valide ----
+       Signalé et demandé par Turquet (septembre 2026) sur le 2.2.9 : « la touche
+       valider ne fonctionne pas et ne permet pas de passer à la ligne », et
+       « en paysage, le clavier doit prendre moins de place en hauteur ». jsdom
+       évalue les dispositions ; seul un navigateur sait combien de rangées se
+       RENDENT, et ce que fait la touche cliquée. Tablette tactile en paysage :
+       on ouvre l'exercice déclaré, on touche sa feuille (le clavier se déploie
+       de lui-même, politique « auto »), on compte les rangées rendues, on
+       exige des touches encore touchables et aucun débord, on CLIQUE la vraie
+       touche ⏎ — une ligne de plus, le curseur dedans, le clavier toujours
+       là — puis on tourne en portrait, où les rangées de la forme normale
+       reviennent. */
+    titre('11 quinquies. LE CLAVIER MATHÉMATIQUE SUR UNE TABLETTE EN PAYSAGE');
+    if(!(P.clavierEcran && P.clavierEcran.paysage)){
+      ignorer('sur une tablette en paysage, le clavier mathématique tient sur moins de rangées', 'ce fichier ne déclare pas de clavier de paysage');
+    } else {
+      const K = P.clavierEcran, KL = K.paysage;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1024, height: 768 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('sur une tablette en paysage, le clavier mathématique tient sur moins de rangées', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), KL.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        await s.page.click(KL.champ);
+        await s.page.waitForTimeout(900);
+        const mesurerRangees = ({ entree, lignes }) => {
+          const kb = document.querySelector('body > .ML__keyboard');
+          const vk = window.mathVirtualKeyboard;
+          if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
+          const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
+          const rangees = [...kb.querySelectorAll('.MLK__rows > .MLK__row')].filter(vis);
+          const caps = [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis);
+          const plaque = (kb.querySelector('.MLK__plate') || kb).getBoundingClientRect();
+          const ent = caps.find(c => c.textContent.trim() === entree) || null;
+          const q = ent && ent.getBoundingClientRect();
+          const ls = [...document.querySelectorAll(lignes)];
+          return { visible: !!(vk && vk.visible), rangees: rangees.length, touches: caps.length,
+                   plaque: Math.round(plaque.height), part: Math.round(100 * plaque.height / window.innerHeight),
+                   hMin: Math.round(Math.min(...caps.map(c => c.getBoundingClientRect().height))),
+                   debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
+                   entree: ent ? { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) } : null,
+                   lignes: ls.length,
+                   focus: ls.findIndex(l => l.contains(document.activeElement)) };
+        };
+        const arg = { entree: K.entree, lignes: KL.lignes };
+        const pay = await s.page.evaluate(mesurerRangees, arg);
+        verifier('sur une tablette en paysage, le clavier mathématique tient sur ' + KL.rangees + ' rangées, touches touchables, sans débord',
+          !pay.absent && pay.visible && pay.rangees === KL.rangees && pay.hMin >= 36 && pay.debord <= 1,
+          pay.absent ? 'aucun clavier ancré dans la page' + (pay.visible ? '' : ' (le clavier ne se déploie pas)')
+            : !pay.visible ? 'le clavier ne se déploie pas'
+            : pay.rangees + ' rangée(s) rendue(s) (' + pay.touches + ' touches, plaque ' + pay.plaque + ' px = ' + pay.part + ' % de l\'écran)'
+              + ', touche la plus basse ' + pay.hMin + ' px' + (pay.debord > 1 ? ', DÉBORDE de ' + pay.debord + ' px à droite' : ''));
+        let apres = null;
+        if(pay.entree && pay.lignes >= 1){
+          await s.page.mouse.click(pay.entree.x, pay.entree.y); await s.page.waitForTimeout(600);
+          apres = await s.page.evaluate(mesurerRangees, arg);
+        }
+        verifier('la touche « ' + K.entree + ' » cliquée ajoute une ligne à la feuille, le curseur dedans, le clavier toujours déployé',
+          !!apres && apres.lignes === pay.lignes + 1 && apres.focus === pay.lignes && apres.visible,
+          !pay.entree ? 'aucune touche « ' + K.entree + ' » sur le clavier rendu'
+            : !apres ? 'la feuille n\'a aucune ligne (' + KL.lignes + ')'
+            : apres.lignes !== pay.lignes + 1 ? pay.lignes + ' ligne(s) avant, ' + apres.lignes + ' après : la touche ne passe pas à la ligne'
+            : apres.focus !== pay.lignes ? 'la nouvelle ligne n\'a pas le curseur (ligne active : ' + apres.focus + ')'
+            : 'le clavier s\'est refermé');
+        /* et en portrait, la forme normale revient : plus de rangées */
+        await s.page.setViewportSize({ width: 768, height: 1024 });
+        await s.page.waitForTimeout(1200);
+        const por = await s.page.evaluate(mesurerRangees, arg);
+        verifier('tournée en portrait, la tablette retrouve les rangées de la forme normale du clavier',
+          por.visible && por.rangees > KL.rangees && !!por.entree && por.debord <= 1,
+          !por.visible ? 'le clavier s\'est refermé à la rotation'
+            : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage)' + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
+              + (por.debord > 1 ? ', DÉBORDE de ' + por.debord + ' px' : ''));
+        /* la feuille écrit plus PETIT sur la tablette (feuilleTablette) : police
+           rendue de la case au plus pxMax — et, sur un ordinateur ouvert au même
+           exercice, plus grande : une règle qui réduirait partout ne serait pas
+           la règle demandée */
+        if(P.feuilleTablette){
+          const policeDe = sel => { const el = document.querySelector(sel); if(!el) return null;
+            return { px: Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10, h: Math.round(el.getBoundingClientRect().height) }; };
+          const tab = await s.page.evaluate(policeDe, KL.champ);
+          let bur = null;
+          const s2 = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 800 } });
+          try{
+            if(await connecter(s2.page) === 'scr-space'){
+              await s2.page.evaluate(i => openTest(i), KL.exercice);
+              await s2.page.waitForTimeout(300);
+              await s2.page.evaluate(() => {
+                const b = [...document.querySelectorAll('#modeChoices button')]
+                  .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+                if(b) b.click();
+              });
+              await s2.page.waitForTimeout(800);
+              bur = await s2.page.evaluate(policeDe, KL.champ);
+            }
+          } finally { await s2.nav.close(); }
+          verifier('sur la tablette, la feuille de calcul écrit plus petit que sur l\'ordinateur (au plus ' + P.feuilleTablette.pxMax + ' px)',
+            !!tab && !!bur && tab.px <= P.feuilleTablette.pxMax && tab.px < bur.px - 3,
+            !tab ? 'la feuille est introuvable sur la tablette (' + KL.champ + ')'
+              : !bur ? 'la feuille est introuvable sur l\'ordinateur'
+              : 'police ' + tab.px + ' px sur la tablette (plafond ' + P.feuilleTablette.pxMax + ') contre ' + bur.px + ' px sur l\'ordinateur'
+                + ' — ligne de ' + tab.h + ' px contre ' + bur.h);
+        } else {
+          ignorer('sur la tablette, la feuille de calcul écrit plus petit que sur l\'ordinateur', 'ce fichier ne déclare pas de feuille de tablette');
+        }
+        verifier('le clavier de la tablette en paysage ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 quater. Sur tablette, la police de la page est réduite ----------
+       Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
+       tablette ». jsdom lit la règle ; seul un navigateur sait ce que la racine
+       MESURE une fois la requête média évaluée. Trois écrans, et il les faut
+       tous : la tablette (tactile, 820 px) où la racine vaut le pourcentage du
+       profil, l'ordinateur (pointeur fin) et le téléphone (tactile, 390 px) où
+       elle reste entière — une règle qui réduirait partout ne serait pas la
+       règle demandée. Et une touche du pavé, réglée en pixels, garde sa taille. */
+    titre('11 quater. SUR TABLETTE, LA POLICE DE LA PAGE EST RÉDUITE');
+    if(!P.policeTablette){
+      ignorer('sur tablette, la racine de la page est réduite au pourcentage déclaré', 'ce fichier ne déclare pas de police de tablette');
+    } else {
+      const racine = () => ({
+        px: parseFloat(getComputedStyle(document.documentElement).fontSize),
+        texte: (function(){ const e = document.querySelector('#nameChips .chip, h1, .brand'); return e ? parseFloat(getComputedStyle(e).fontSize) : 0; })(),
+      });
+      s = await ouvrir(chromium, ml, {});
+      const bureau = await s.page.evaluate(racine);
+      await s.nav.close(); s = null;
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      const tablette = await s.page.evaluate(racine);
+      await s.page.setViewportSize({ width: 390, height: 844 });
+      await s.page.waitForTimeout(300);
+      const telephone = await s.page.evaluate(racine);
+      const attendu = P.policeTablette / 100;
+      const ratio = (a, b) => (a && b) ? Math.round(100 * a / b) / 100 : 0;
+      verifier('sur tablette, la racine de la page est réduite au pourcentage déclaré',
+        bureau.px > 0 && Math.abs(ratio(tablette.px, bureau.px) - attendu) < 0.02
+          && Math.abs(ratio(tablette.texte, bureau.texte) - attendu) < 0.03,
+        'racine ' + tablette.px + ' px sur tablette contre ' + bureau.px + ' sur ordinateur (rapport ' + ratio(tablette.px, bureau.px)
+          + ', attendu ' + attendu + ') ; texte ' + tablette.texte + ' contre ' + bureau.texte);
+      verifier('sur ordinateur et sur téléphone, la police de la page reste entière',
+        bureau.px >= 15.5 && Math.abs(telephone.px - bureau.px) < 0.1,
+        'ordinateur ' + bureau.px + ' px, téléphone ' + telephone.px + ' px');
+      verifier('la règle de la tablette ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
 

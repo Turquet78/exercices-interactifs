@@ -5705,9 +5705,151 @@ pavé que 567 px sur les 703 qu'il demandait, et « − », « ⌫ », « ⏎ »
 disparaissaient derrière un défilement que rien ne signalait ; à 1180 px
 tout tenait et le banc était vert. D'où les libellés courts, les touches à
 40 px et l'espacement réduit en paysage (634 px), et une mesure de plus au
-banc navigateur, à 1024 × 768 : le pavé ne défile pas, ne recouvre pas les
-commandes, et partage leur ligne. Tout se mesure au RECTANGLE — la classe
+banc navigateur, à 1024 × 768. Tout se mesure au RECTANGLE — la classe
 `pave-actif` en place et une règle CSS perdue laisseraient l'écran d'avant.
+**Puis Turquet l'a vu défiler quand même, sur SA tablette** (« le clavier
+numérique doit être plus large pour afficher toutes les touches »). La mesure
+à 1024 px tenait de JUSTESSE, et deux choses la faisaient basculer hors du
+banc : les tablettes Android font souvent 960 px de large en paysage (1280
+pixels à 1,33), et la police réelle des boutons — que le banc n'attend pas —
+les élargit. Le premier jet bornait la largeur du pavé à celle qui restait à
+côté des commandes (`--ctrls-w`, mesurée par le moteur) et le laissait
+DÉFILER : c'était choisir le mauvais côté. **Le pavé ne défile plus jamais**
+— toutes ses touches se voient, c'est ce qui fait qu'un élève peut écrire —,
+il garde sa largeur entière (634 px), et ce sont les COMMANDES qui cèdent,
+par paliers de requête média : sous 1024 px elles ne gardent que leur icône
+(⚑ ✕ ⏸, avec `aria-label` et `title`), un peu plus grande ; sous 820 px la
+ligne ne peut plus porter les deux et le pavé repasse AU-DESSUS des
+commandes, comme en portrait. La mesure `--ctrls-w` du moteur n'avait plus
+de lecteur : retirée — un garde-fou sans lecteur fait croire qu'on tient
+quelque chose. Le banc navigateur mesure désormais QUATRE largeurs de
+paysage — 1180, 1024, 960 et 853 (pavé entier, sans défilement, sur la
+ligne des commandes) et 800 (pavé entier au-dessus). **Et le premier
+sabotage est resté VERT** : le palier des icônes retiré, à 960 px les
+libellés courts tenaient encore à côté du pavé — avec la police de REPLI du
+banc, qui coupe les polices distantes ; c'est la police réelle qui les
+élargit chez Turquet. Le sabotage n'atteignait pas ce qu'il visait, la leçon
+du sabotage impossible : le banc mesure aussi à 853 px (une tablette Android
+8 pouces, 1280 pixels à 1,5), où les libellés courts ne peuvent plus tenir
+quelle que soit la police, et là le palier retiré rougit en nommant le
+recouvrement.
+
+**Puis le pavé est devenu AUSSI LARGE QUE L'ÉCRAN LE PERMET.** La demande
+d'origine (Turquet, septembre 2026) disait « en mode paysage, faire en sorte
+que le clavier soit le plus large possible en fonction de la définition de
+l'écran » ; elle n'avait été servie qu'à MOITIÉ — « toutes les touches se
+voient » (le pavé ne défile plus, les commandes cèdent) — et le pavé gardait
+une largeur FIXE de 634 px sur toutes les tablettes, la moitié de l'écran
+restant vide à 1180 px. Deux choses, et n'en tenir qu'une ne tient rien : la
+BOÎTE s'étire (ses deux bords posés, `left` ET `right`, au lieu d'une largeur
+de contenu) et les TOUCHES grandissent avec elle (`flex`) — une boîte étirée
+dont les touches restent à 40 px laisse le vide DANS le pavé, et la boîte,
+elle, s'étire de toute façon : c'est la touche RENDUE qu'il faut mesurer, pas
+le rectangle du pavé.
+**Le bord droit est celui des commandes, et il est MESURÉ** : là où elles
+partagent la ligne du pavé (Première et Seconde), `paveCale` écrit leur
+largeur dans `--ctrls-w` et la feuille de styles la lit — leurs libellés
+changent de largeur avec la police, et la supposer était précisément ce qui
+avait fait défiler le pavé sur la tablette de Turquet. La mesure avait été
+retirée un mois plus tôt faute de lecteur ; elle revient AVEC son lecteur, et
+le contrôle exige les deux — un lecteur sans mesure étirerait le pavé
+par-dessus les commandes, une mesure sans lecteur serait un garde-fou mort de
+plus. La Terminale, qui ne range pas ses commandes avec le pavé, prend toute
+la largeur de l'écran.
+**Le plafond est l'autre bord** : les touches s'arrêtent à 80 px et la rangée
+se CENTRE au-delà — sans lui, un très grand écran ferait des barres et non des
+touches. Il vit dans `tests/profils.js` (`pave.largeurPaysage`), deux sources.
+**Et la ROTATION remesure**, sans qu'on quitte la case : l'écouteur du moteur
+(le même texte dans les trois fichiers) rappelle `paveCale` tant que le pavé
+est ouvert. Ce garde-là est né MORT et le sabotage l'a montré : le premier
+contrôle tournait de 1600 à 1024 px, où l'écart de largeur des commandes
+passait sous la tolérance — il restait vert. Refait d'un écran à ICÔNES vers
+un écran à libellés (853 → 1366 px), c'est-à-dire dans le sens où les
+commandes S'ÉLARGISSENT, il nomme le défaut : « il recouvre les commandes ».
+Deux bancs, la répartition habituelle : jsdom lit les règles `@media` du
+fichier (la boîte étirée, le `flex` des touches, le plafond comparé au profil,
+la mesure et son lecteur — la MESURE, pas le commentaire qui la nomme : un
+premier sabotage retirait l'écriture en gardant le commentaire, et le contrôle
+restait vert en parlant d'autre chose), et le NAVIGATEUR mesure la rangée
+RENDUE à 1180, 1024, 960, 853 et 800 px (elle va jusqu'au bord libre, les
+touches ont grandi), la croissance elle-même (plus larges à 1180 qu'à 853 —
+le bord qui attrape un pavé revenu à sa largeur fixe), le plafond à 1600 px
+et la rotation. Huit sabotages, chacun rougissant en nommant son défaut.
+
+**La touche « ⏎ » du clavier à l'écran VALIDE — et en paysage, le clavier
+tient sur DEUX rangées.** Signalé par Turquet (septembre 2026) sur le 2.2.9
+de la Première : « la touche valider ne fonctionne pas et ne permet pas de
+passer à la ligne ». La touche « ✓ » du clavier de la Première ne faisait
+que CACHER le clavier (`hideVirtualKeyboard`) : sur tablette, l'élève
+croyait valider et rien ne se passait — un bouton mort, sans erreur, sur la
+seule touche qui ressemblait à « Entrée ». Elle est devenue « ⏎ » et exécute
+`commit`, la commande qui lève l'événement `change` : `mlFeuille` y ajoute
+une ligne (c'est ainsi qu'Entrée au clavier physique passait déjà à la
+ligne), `pmAdapter` y passe à la case suivante — la même touche que porte
+le clavier de la Terminale depuis toujours. Il n'y a plus de touche qui
+cache : sur tablette le clavier se referme en quittant la case (politique
+« auto »), et ⌨️ le bascule.
+**Puis « en mode paysage, le clavier doit prendre moins de place en hauteur,
+plus de touches sur une même ligne »** (même message) : `buildKbTerm(vars,
+compact)` rend une forme COMPACTE à deux rangées — les chiffres de 1 à 0
+avec la virgule et ⌫ sur la première, les opérations, les parenthèses, =, %,
+les flèches et ⏎ sur la seconde — soit 132 px de plaque contre 232 pour les
+quatre rangées, mesuré à 1024 × 768. La forme se DÉCIDE dans une seule
+fonction (`kbCompact` : clavier ANCRÉ et orientation paysage), et
+`applyKbLayout` la mémorise dans sa clé : une rotation (`kbOnRotate`
+réapplique avant de reconstruire), un changement d'exercice ou un rendu
+reprennent la bonne forme. La fenêtre flottante de l'ordinateur — toujours
+« en paysage » — garde ses quatre rangées : c'est pourquoi `setupKeyboard`
+choisit flottant ou ancré AVANT d'appliquer la première forme. Deux bancs :
+jsdom ÉVALUE les deux formes depuis la source — la touche ⏎ qui commit sur
+chaque couche de chaque forme, aucune touche qui ne fait que cacher, le
+nombre de rangées déclaré (`clavierEcran.paysage.rangees` dans
+`tests/profils.js`, deux sources), le MÊME jeu de touches d'une forme à
+l'autre (une touche perdue serait intapable dans une orientation, sans
+erreur) — et la table de routage elle-même, `kbCompact` + `applyKbLayout`
+évaluées sur un faux clavier dans les trois cas (ancré paysage, ancré
+portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre le 2.2.9 sur
+une tablette tactile en paysage, compte les rangées RENDUES, exige des
+touches d'au moins 36 px sans débord, CLIQUE la vraie touche ⏎ — une ligne
+de plus, le curseur dedans, le clavier toujours là — puis tourne en portrait
+où les quatre rangées reviennent. Huit sabotages, chacun rougissant en
+nommant son défaut — sept en jsdom (⏎ redevenu « cacher », ⏎ ou % absent
+de la forme compacte, trois rangées, `kbCompact` toujours faux, la fenêtre
+flottante oubliée, le portrait visé), et un que seul le navigateur voit :
+`kbOnRotate` qui ne réapplique plus la forme — « 2 rangée(s) rendue(s) en
+portrait », jsdom restant vert à bon droit. La Seconde porte le même
+clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
+touchée — le dire vaut mieux que le taire.
+
+**Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
+Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
+calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
+partagée par le 2.1.7, le 2.2.9 et le 2.3.8) écrit à 2 rem : une ligne
+faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
+requête média de la tablette — la même que la police de la page, écran
+tactile d'au moins 600 px — elle passe à 1,4 rem (20 px rendus, une ligne
+de 40 px), et le PRÉFIXE suit : une case a la taille des nombres qui
+l'entourent, sur tablette aussi. La valeur vit dans `tests/profils.js`
+(`feuilleTablette`, deux sources). jsdom exige la règle sous cette requête,
+à cette valeur, plus PETITE que la taille normale — une règle qui ne réduit
+rien passerait sinon ; le navigateur (« 11 quinquies ») mesure la police
+RENDUE de la feuille du 2.2.9 sur la tablette et l'exige plus petite que sur
+un ordinateur ouvert au même exercice — une règle qui réduirait partout ne
+serait pas la règle demandée. Cinq sabotages, chacun rougissant en nommant
+son défaut — et le premier essai du contrôle a rougi sur une page JUSTE :
+son expression régulière coupait le bloc `@media` à la première accolade
+fermante, et cherchait ensuite une accolade qui n'y était plus. Un essai
+faux se reconnaît à ce qu'il rougit sur du code juste ; c'est le contrôle
+qui a été corrigé.
+**Puis la Seconde a suivi** (« même chose en Seconde », Turquet, septembre
+2026) : elle portait le même clavier avec le même « ✓ » qui cache, et la
+même feuille (4.5, 4.7, 4.9 et la synthèse). `buildKbTerm`, `kbCompact` et
+`applyKbLayout` y sont recopiés au caractère près depuis la Première (le
+portage l'a vérifié), la règle de la feuille aussi, et le profil déclare
+`clavierEcran` et `feuilleTablette` — le banc navigateur y mesure le 4.5,
+dont la première ligne porte la somme de l'énoncé en préfixe : c'est
+précisément là que « le préfixe suit la même taille » se voit. Seule la
+Terminale garde son clavier à deux couches et sa feuille à 2 rem.
 
 **La touche « = » est sur le clavier mathématique à l'écran** (demande de
 Turquet, septembre 2026 : « dans le clavier qui apparaît sur les tablettes il
@@ -5814,6 +5956,32 @@ page : l'installation est un geste du système, hors de portée d'un navigateur
 piloté — c'est le fichier joint et la tablette qui tranchent. Et `prof.html`
 n'a pas de manifeste : le professeur travaille sur ordinateur, et un tableau
 de bord installé sur la tablette d'un élève n'aurait rien à y faire.
+
+**Sur tablette, la police de TOUTE la page est réduite à 90 % — par une seule
+règle.** Décision de Turquet (septembre 2026), après la question « sur une
+tablette peut-on diminuer la taille des polices sur une page ? » : « dans la
+page, règle fixe sur tablette ». Les trois pages écrivent leurs tailles en
+`rem` (plus de deux cents par fichier) et ne posaient aucune taille sur la
+racine : `@media (pointer:coarse) and (min-width:600px){ html{font-size:90%} }`
+réduit donc énoncés, cases, boutons et titres d'un coup, dans les mêmes
+proportions — la règle « une case a la taille des nombres qui l'entourent »
+tient d'elle-même. Le clavier mathématique et le pavé numérique sont réglés
+en PIXELS : ils ne bougent pas, et c'est voulu — une touche doit rester
+touchable. **Une tablette, pas un téléphone** : la borne de 600 px est celle
+du clavier réduit du téléphone, prise dans l'autre sens ; un téléphone a
+déjà peu de place, et sa police reste entière.
+**Le pourcentage vit dans `tests/profils.js`** (`policeTablette`), deux
+sources : le contrôle jsdom exige la règle avec CE pourcentage, une borne qui
+distingue encore une tablette d'un téléphone (500 à 800 px), et **une seule**
+règle `html{font-size}` dans tout le fichier — une seconde, hors de la
+requête média, réduirait aussi l'ordinateur ou annulerait la tablette, sans
+qu'aucune erreur ne se lève. jsdom n'évalue pas une requête média : le banc
+NAVIGATEUR (« 11 quater ») mesure la racine RENDUE sur trois écrans —
+tablette (tactile, 820 px : 90 %), ordinateur (100 %) et téléphone (tactile,
+390 px : 100 %) — parce qu'une règle qui réduirait partout ne serait pas la
+règle demandée. Playwright pose `pointer:coarse` avec `hasTouch`, ce qui
+rend la requête mesurable pour de vrai. Six sabotages, chacun rougissant en
+nommant son défaut.
 
 **Puis la tablette a proposé un RACCOURCI, pas une installation — et le
 manifeste n'y était pour rien.** Signalé par Turquet le jour de la mise en

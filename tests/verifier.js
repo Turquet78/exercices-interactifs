@@ -1761,6 +1761,85 @@ function branchements(w){
       'paveBrancher est introuvable dans ce fichier');
   }
 
+  /* ---- EN PAYSAGE, LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET ---------
+     Demande de Turquet (septembre 2026) : « pour tous les exercices où le
+     clavier est représenté sur une ligne, en mode paysage, faire en sorte que
+     le clavier soit le plus large possible en fonction de la définition de
+     l'écran ». Il faisait 634 px sur toutes les tablettes — largeur FIXE,
+     touches à flex:none — et le reste de l'écran restait vide.
+     Trois bords ici ; la LARGEUR RENDUE, elle, se mesure au banc navigateur,
+     seul à savoir où tombe une touche.
+     · la boîte s'ÉTIRE : la règle de paysage pose ses deux bords (left ET
+       right) au lieu d'une largeur de contenu ;
+     · les TOUCHES grandissent avec elle (flex), plafonnées au chiffre déclaré
+       dans tests/profils.js — deux sources : une boîte étirée dont les
+       touches restent à 40 px laisserait le vide DANS le pavé ;
+     · là où les commandes du bas partagent la ligne du pavé, la largeur
+       LUE (--ctrls-w) est celle que le moteur MESURE : un lecteur sans mesure
+       étirerait le pavé par-dessus les commandes, une mesure sans lecteur
+       serait un garde-fou mort de plus. */
+  const largeurP = P.pave && P.pave.largeurPaysage;
+  if(!largeurP){
+    ignorer('en paysage, le pavé s’élargit avec l’écran', 'ce fichier ne déclare pas de pavé');
+  } else {
+    /* les blocs @media (orientation:landscape) du fichier, accolades comptées */
+    const blocs = [];
+    let d = 0;
+    while(true){
+      d = src.indexOf('@media (orientation:landscape)', d);
+      if(d < 0) break;
+      let i = src.indexOf('{', d), n = 0, j = i;
+      for(; j < src.length; j++){
+        if(src[j] === '{') n++;
+        else if(src[j] === '}'){ n--; if(!n) break; }
+      }
+      blocs.push(src.slice(d, j + 1));
+      d = j + 1;
+    }
+    const paysage = blocs.join('\n');
+    const regleP = /#paveNum\{([^}]*)\}/g;
+    const boites = [];
+    let mb;
+    while((mb = regleP.exec(paysage))) boites.push(mb[1].replace(/\s+/g, ''));
+    const etirees = boites.filter(t => /left:/.test(t) && /right:/.test(t) && !/width:max-content/.test(t));
+    const figees = boites.filter(t => /width:max-content/.test(t));
+    const mt = /#paveNum \.pave-t\{([^}]*)\}/.exec(paysage);
+    const touche = mt ? mt[1].replace(/\s+/g, '') : '';
+    const plafond = /max-width:(\d+)px/.exec(touche);
+    const lit = /var\(--ctrls-w/.test(paysage);
+    /* la MESURE, pas le commentaire qui la nomme : le premier sabotage a
+       retiré l'écriture en gardant le commentaire, et le contrôle restait
+       vert en parlant d'autre chose. */
+    const mesure = /setProperty\(\s*['\"]--ctrls-w/.test(corpsDe(src, 'paveCale') || '');
+
+    if(!blocs.length || !boites.length){
+      verifier('en paysage, le pavé s’élargit avec l’écran', false,
+        !blocs.length ? 'aucune règle @media (orientation:landscape) dans ce fichier'
+                      : 'aucune règle #paveNum en paysage — le contrôle n’a rien à mesurer');
+    } else {
+      verifier('en paysage, la boîte du pavé s’étire d’un bord à l’autre',
+        etirees.length > 0 && figees.length === 0,
+        figees.length ? 'une règle garde width:max-content — le pavé reste à sa largeur de contenu'
+                      : 'aucune règle de paysage ne pose left ET right sur #paveNum');
+      verifier('en paysage, les touches du pavé grandissent avec la boîte, plafonnées à '
+                 + largeurP.toucheMax + 'px',
+        /flex:1/.test(touche) && !!plafond && Number(plafond[1]) === largeurP.toucheMax,
+        !mt ? 'aucune règle .pave-t en paysage'
+            : !/flex:1/.test(touche) ? 'les touches ne grandissent pas (flex absent) : « ' + touche + ' »'
+            : !plafond ? 'aucun plafond de largeur : une touche deviendrait une barre'
+            : 'plafond de ' + plafond[1] + 'px dans la page contre ' + largeurP.toucheMax + ' déclarés');
+      if(P.pave.commandes){
+        verifier('en paysage, le pavé s’arrête à la largeur MESURÉE des commandes du bas',
+          lit && mesure,
+          !lit ? 'la feuille de styles ne lit pas --ctrls-w : le pavé s’étirerait par-dessus les commandes'
+               : 'paveCale ne mesure plus --ctrls-w : la feuille lit une largeur que personne n’écrit');
+      } else {
+        ignorer('en paysage, le pavé s’arrête à la largeur MESURÉE des commandes du bas',
+          'ce niveau ne range pas ses commandes du bas avec le pavé');
+      }
+    }
+  }
+
   const MOTEUR_SF = ['sfPgcd','sfPpcm','sfGen','sfBuildQuestions','sfTermeHTML','sfCases',
                      'renderSFTest','sfLu','sfJuge','sfLive','checkSFAnswer','sfPourquoi',
                      'nextSFQuestion','sfFracInner'];
@@ -2855,7 +2934,11 @@ function exercices(suite){
     paveNumerique(w, P);
     manifesteAppli(w, P);
     toucheEgalClavier(w, P);
+    toucheEntreeClavier(w, P);
+    clavierPaysageCompact(w, P);
     couchesClavierNommees(w, P);
+    policeTablette(w, P);
+    feuilleTablette(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -8522,6 +8605,124 @@ function toucheEgalClavier(w, P){
     pbs.length === 0, pbs.join(' | '));
 }
 
+/* ---------- La touche « ⏎ » du clavier à l'écran VALIDE ---------- */
+/* Signalé par Turquet (septembre 2026) sur le 2.2.9 de la Première : « la
+   touche valider ne fonctionne pas et ne permet pas de passer à la ligne ».
+   La touche « ✓ » ne faisait que CACHER le clavier (hideVirtualKeyboard) :
+   sur tablette, l'élève croyait valider et rien ne se passait — un bouton
+   mort, sans erreur. La touche de validation exécute « commit », qui lève
+   l'événement « change » : une ligne de plus dans la feuille, la case
+   suivante dans un exercice guidé. Deux bords : la touche déclarée dans
+   tests/profils.js (clavierEcran.entree — deux sources) existe sur CHAQUE
+   couche de CHAQUE forme du clavier et commit ; et aucune touche ne se
+   contente de cacher le clavier — sur tablette il se referme en quittant la
+   case, un « ✓ » qui cache est le défaut même. Comme pour « = », on ÉVALUE
+   buildKbTerm depuis la SOURCE ; le clic de la touche RENDUE est au banc
+   navigateur (« 11 quinquies »). */
+function evaluerClavier(pbs){
+  const src = lire(CIBLE);
+  const fKb = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === 'buildKbTerm');
+  if(!fKb){ pbs.push('buildKbTerm est introuvable dans la source'); return null; }
+  try{ return new Function('KB_EXP', 'KB_IDX', 'KB_USQ', 'KB_N', 'return (' + fKb.texte + ')')({}, {}, {}, {}); }
+  catch(e){ pbs.push('buildKbTerm ne s\'évalue pas : ' + e.message); return null; }
+}
+function touchesDe(dispo){
+  const t = [];
+  ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => (r || []).forEach(k => { if(k) t.push(k); })));
+  return t;
+}
+function toucheEntreeClavier(w, P){
+  const nom = 'la touche « ⏎ » du clavier à l\'écran valide (commit), et aucune touche ne se contente de cacher le clavier';
+  const C = P.clavierEcran;
+  if(!C || !C.entree){ ignorer(nom, 'ce fichier ne déclare pas de touche de validation'); return; }
+  const pbs = [];
+  const bk = evaluerClavier(pbs);
+  if(bk){
+    const formes = [['normale', [[]]]];
+    if(C.paysage) formes.push(['paysage', [[], true]]);
+    formes.forEach(([quelle, args]) => {
+      let dispo = null;
+      try{ dispo = bk.apply(null, args); }catch(e){ pbs.push('buildKbTerm (forme ' + quelle + ') échoue : ' + e.message); return; }
+      const couches = (dispo && dispo.layers) || [];
+      if(!couches.length){ pbs.push('la forme ' + quelle + ' n\'a aucune couche : le contrôle n\'a rien à mesurer'); return; }
+      couches.forEach(l => {
+        const t = touchesDe({ layers: [l] });
+        if(t.length < 6){ pbs.push('la couche ' + l.id + ' (forme ' + quelle + ') n\'a presque pas de touches (' + t.length + ')'); return; }
+        const entree = t.filter(k => String(k.label || '').trim() === C.entree);
+        if(!entree.length) pbs.push('la couche ' + l.id + ' (forme ' + quelle + ') n\'a pas de touche « ' + C.entree + ' »');
+        entree.forEach(k => { const cmd = Array.isArray(k.command) ? k.command : [k.command];
+          if(cmd.indexOf('commit') === -1) pbs.push('sur la couche ' + l.id + ' (forme ' + quelle + '), « ' + C.entree + ' » ne valide pas (commande ' + JSON.stringify(k.command || null) + ')'); });
+        t.forEach(k => { const cmd = JSON.stringify(k.command || '');
+          if(cmd.indexOf('hideVirtualKeyboard') >= 0) pbs.push('sur la couche ' + l.id + ' (forme ' + quelle + '), la touche « ' + (k.label || '') + ' » ne fait que cacher le clavier — l\'élève croit valider'); });
+      });
+    });
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- En paysage, le clavier ancré tient sur DEUX rangées — les mêmes touches ---------- */
+/* Demande de Turquet (septembre 2026) : « en mode paysage je veux que le
+   clavier prenne moins de place en hauteur en mettant plus de touches sur une
+   même ligne ». buildKbTerm(vars, true) rend la forme COMPACTE : chaque couche
+   a exactement le nombre de rangées déclaré (clavierEcran.paysage.rangees), et
+   le JEU de touches — latex, key, insert, command — est le MÊME que celui de
+   la forme normale : une touche perdue d'un côté serait intapable dans une
+   orientation, sans qu'aucune erreur ne se lève. Le bord opposé : la forme
+   normale a PLUS de rangées, sinon rien n'est compacté. Et la TABLE DE
+   ROUTAGE est évaluée depuis la source (kbCompact + applyKbLayout) sur un
+   faux clavier : ancré en paysage → compact ; en portrait → normal ; la
+   fenêtre flottante de l'ordinateur → normale, même en paysage (un écran
+   d'ordinateur est toujours en paysage). Le rendu se mesure au banc
+   navigateur (« 11 quinquies »). */
+function clavierPaysageCompact(w, P){
+  const nom = 'en paysage, le clavier ancré tient sur moins de rangées avec les mêmes touches, et la fenêtre flottante garde les siennes';
+  const C = P.clavierEcran;
+  if(!C || !C.paysage){ ignorer(nom, 'ce fichier ne déclare pas de clavier de paysage'); return; }
+  const pbs = [];
+  const bk = evaluerClavier(pbs);
+  const sig = k => JSON.stringify([k.latex || '', k.key || '', k.insert || '', k.command || '']);
+  let normale = null, compact = null;
+  if(bk){
+    try{ normale = bk([]); }catch(e){ pbs.push('buildKbTerm([]) échoue : ' + e.message); }
+    try{ compact = bk([], true); }catch(e){ pbs.push('buildKbTerm([], true) échoue : ' + e.message); }
+  }
+  if(normale && compact){
+    const cn = normale.layers || [], cc = compact.layers || [];
+    if(!cc.length) pbs.push('la forme compacte n\'a aucune couche');
+    cc.forEach(l => { const n = (l.rows || []).length;
+      if(n !== C.paysage.rangees) pbs.push('la couche ' + l.id + ' de la forme compacte a ' + n + ' rangée(s) au lieu de ' + C.paysage.rangees); });
+    cn.forEach(l => { const n = (l.rows || []).length;
+      if(n <= C.paysage.rangees) pbs.push('la forme normale (' + l.id + ') n\'a que ' + n + ' rangée(s) : rien n\'est compacté'); });
+    const sn = touchesDe(normale).map(sig), sc = touchesDe(compact).map(sig);
+    const perdues = sn.filter(x => sc.indexOf(x) === -1), ajoutees = sc.filter(x => sn.indexOf(x) === -1);
+    if(perdues.length) pbs.push('touche(s) absente(s) de la forme compacte : ' + perdues.join(', '));
+    if(ajoutees.length) pbs.push('touche(s) de la forme compacte absente(s) de la forme normale : ' + ajoutees.join(', '));
+    /* la table de routage, évaluée depuis la source sur un faux clavier */
+    const src = lire(CIBLE);
+    const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+    const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact');
+    if(!fA || !fC) pbs.push('applyKbLayout ou kbCompact est introuvable dans la source');
+    else{
+      const rangees = (flottant, paysage) => {
+        const vk = { layouts: null };
+        const win = { __kbFloating: flottant, mathVirtualKeyboard: vk, matchMedia: q => ({ matches: /landscape/.test(q) && paysage }) };
+        try{
+          const apply = new Function('window', 'matchMedia', 'currentTestId', 'kbVarsFor', 'buildKbTerm', 'JSON',
+            'let __kbVarsKey = null;\n' + fC.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(win, win.matchMedia, null, () => [], bk, JSON);
+          apply();
+          return vk.layouts && vk.layouts[0] && vk.layouts[0].layers[0] ? vk.layouts[0].layers[0].rows.length : -1;
+        }catch(e){ pbs.push('la table de routage ne s\'évalue pas : ' + e.message); return -1; }
+      };
+      const ancrePaysage = rangees(false, true), ancrePortrait = rangees(false, false), flottant = rangees(true, true);
+      if(ancrePaysage !== C.paysage.rangees) pbs.push('clavier ancré en paysage : ' + ancrePaysage + ' rangée(s) au lieu de ' + C.paysage.rangees);
+      if(ancrePortrait <= C.paysage.rangees) pbs.push('clavier ancré en portrait : ' + ancrePortrait + ' rangée(s), la forme compacte fuit sur le portrait');
+      if(flottant <= C.paysage.rangees) pbs.push('fenêtre flottante de l\'ordinateur : ' + flottant + ' rangée(s), la forme compacte fuit sur l\'ordinateur');
+    }
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
 /* ---------- Les deux couches du clavier à l'écran se nomment « clavier A » et « clavier B » ---------- */
 /* Demande de Turquet (septembre 2026) : « écrire pour la touche "fn" "clavier B"
    et pour la touche "123" "clavier A" ». Deux bords, et chacun a son défaut :
@@ -8573,6 +8774,62 @@ function couchesClavierNommees(w, P){
       if(anciens.length) pbs.push('des touches disent encore « ' + anciens.join(' », « ') + ' »');
     }
   }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Sur tablette, la feuille de calcul écrit plus petit ---------- */
+/* Demande de Turquet (septembre 2026) sur le 2.2.9 : « la case d'édition du
+   calcul peut-elle avoir une police plus petite ». La feuille (.dexp2-sheet)
+   écrit à 2 rem ; sous la requête média de la tablette (écran tactile d'au
+   moins 600 px — la même que la police de la page), une règle la ramène à la
+   valeur déclarée dans tests/profils.js (feuilleTablette.rem, deux sources),
+   et le PRÉFIXE suit — une case a la taille des nombres qui l'entourent. Le
+   bord opposé : la valeur est plus PETITE que la taille normale, sinon la
+   règle ne réduit rien. jsdom n'évalue pas une requête média : la police
+   RENDUE se mesure au banc navigateur (« 11 quinquies »). */
+function feuilleTablette(w, P){
+  const nom = 'sur tablette, la feuille de calcul libre et son préfixe écrivent plus petit';
+  if(!P.feuilleTablette){ ignorer(nom, 'ce fichier ne déclare pas de feuille de tablette'); return; }
+  const src = lire(CIBLE), pbs = [];
+  const normale = /\.dexp2-sheet math-field\.dexp-mf\{[^}]*font-size:([\d.]+)rem/.exec(src);
+  if(!normale) pbs.push('la taille normale de la feuille (.dexp2-sheet math-field.dexp-mf{…font-size:…rem}) est introuvable');
+  const blocs = [];
+  const re = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)\{([^@]*?)\}\s*(?=\n|$)/g; let m;
+  while((m = re.exec(src))) blocs.push({ borne: +m[1], corps: m[2] });
+  /* le corps capturé s'arrête à la première accolade fermante : la règle s'y lit sans la sienne */
+  const regle = blocs.map(b => ({ b, r: /\.dexp2-sheet math-field\.dexp-mf\s*,\s*\.dexp2-prefix\{font-size:([\d.]+)rem/.exec(b.corps) })).find(x => x.r);
+  if(!regle) pbs.push('aucune règle « .dexp2-sheet math-field.dexp-mf,.dexp2-prefix{font-size:…rem} » sous la requête média de la tablette');
+  else{
+    const v = parseFloat(regle.r[1]);
+    if(v !== P.feuilleTablette.rem) pbs.push('la feuille passe à ' + v + ' rem quand le profil déclare ' + P.feuilleTablette.rem);
+    if(normale && !(v < parseFloat(normale[1]))) pbs.push('la règle de tablette (' + v + ' rem) ne réduit pas la taille normale (' + normale[1] + ' rem)');
+    if(regle.b.borne < 500 || regle.b.borne > 800) pbs.push('la borne de largeur (' + regle.b.borne + ' px) ne distingue plus une tablette d\'un téléphone');
+  }
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- Sur tablette, la police de la page est réduite — par une seule règle ---------- */
+/* Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
+   tablette ». Toutes les tailles étant en rem, UNE règle sur la racine suffit,
+   et c'est ce que le contrôle exige : la requête média d'une tablette (écran
+   tactile, au moins 600 px) portant html{font-size:NN%}, NN lu dans
+   tests/profils.js (deux sources). Le bord opposé compte autant : une seconde
+   règle html{font-size} hors de cette requête réduirait aussi l'ordinateur —
+   ou annulerait la tablette — sans qu'aucune erreur ne se lève. jsdom ne sait
+   pas évaluer une requête média : la racine RENDUE se mesure au banc
+   navigateur (« 11 quater »), sur tablette, sur ordinateur et sur téléphone. */
+function policeTablette(w, P){
+  const nom = 'sur tablette, la police de la page est réduite par une seule règle sur la racine';
+  if(!P.policeTablette){ ignorer(nom, 'ce fichier ne déclare pas de police de tablette'); return; }
+  const src = lire(CIBLE), pbs = [];
+  const regles = src.match(/html\{font-size:[^}]*\}/g) || [];
+  const m = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)\{\s*html\{font-size:(\d+)%\}\s*\}/.exec(src);
+  if(!m) pbs.push('aucune règle « @media (pointer:coarse) and (min-width:…px){ html{font-size:…%} } » dans la source');
+  else{
+    if(+m[2] !== P.policeTablette) pbs.push('la page réduit à ' + m[2] + ' % quand le profil déclare ' + P.policeTablette + ' %');
+    if(+m[1] < 500 || +m[1] > 800) pbs.push('la borne de largeur (' + m[1] + ' px) ne distingue plus une tablette d\'un téléphone');
+  }
+  if(regles.length !== 1) pbs.push(regles.length + ' règle(s) html{font-size} dans la source au lieu d\'une seule : ' + regles.join(' ; '));
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 

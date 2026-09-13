@@ -206,9 +206,48 @@ module.exports = {
        resserrées avec le pavé sur la MÊME ligne (demande de Turquet,
        septembre 2026) — la Terminale ne le déclare pas et garde sa mise en
        page. */
+    /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
+       page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
+       La page doit porter exactement cette règle, et le banc navigateur mesure
+       la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
+       téléphone. */
+    policeTablette: 90,
+    /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.9,
+       2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
+       septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
+       plus petite »). Le banc jsdom exige la règle sous la requête média de la
+       tablette, avec cette valeur, plus petite que la taille normale ; le banc
+       navigateur mesure la police RENDUE de la feuille du 2.2.9 sur la tablette
+       (au plus pxMax) et exige qu'elle soit plus petite que sur l'ordinateur. */
+    feuilleTablette: { rem: 1.4, pxMax: 21 },
+    /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
+       — commit, l'événement « change » : une ligne de plus dans la feuille du
+       2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne
+       faisait que CACHER le clavier (signalé par Turquet, septembre 2026 :
+       « la touche valider ne fonctionne pas et ne permet pas de passer à la
+       ligne »). Et sur une tablette en PAYSAGE, le clavier ancré tient sur
+       DEUX rangées — les mêmes touches, moitié moins de hauteur (demande de
+       Turquet, même jour). Le banc jsdom évalue les deux formes depuis la
+       source et la table de routage (kbCompact/applyKbLayout) ; le banc
+       navigateur ouvre l'exercice déclaré sur une tablette tactile en
+       paysage, compte les rangées RENDUES, clique la vraie touche ⏎ et exige
+       la ligne de plus, puis tourne l'écran en portrait où les quatre
+       rangées reviennent. */
+    clavierEcran: { entree: '\u23ce',
+                    paysage: { rangees: 2, exercice: 'synthese-augmentations-libre',
+                               champ: '#salSheet math-field', lignes: '#salSheet .dexp2-line' } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
+            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
+               (demande de Turquet, septembre 2026) : ses touches grandissent
+               pour occuper la largeur libre — jusqu'au plafond, au-delà
+               duquel la rangée se centre plutôt que de devenir des barres.
+               Le plafond vit ICI et la page doit porter le même (deux
+               sources) ; le plancher est ce que le banc navigateur exige
+               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
+               faisait 634 px et ses touches 40. */
+            largeurPaysage: { toucheMax: 80, plancher: 52 },
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
        questions) : un exercice au tirage homogène, présent dans la table du
@@ -473,9 +512,34 @@ module.exports = {
        (demande de Turquet, septembre 2026). commandes : comme en Première,
        les commandes du bas au ras de l'écran en portrait, resserrées sur la
        ligne du pavé en paysage. */
+    /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
+       page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
+       La page doit porter exactement cette règle, et le banc navigateur mesure
+       la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
+       téléphone. */
+    policeTablette: 90,
+    /* Même feuille de calcul libre qu'en Première (4.5, 4.7, 4.9 et la
+       synthèse) : sur tablette elle écrit à cette taille au lieu de 2 rem
+       (« même chose en Seconde », Turquet, septembre 2026). */
+    feuilleTablette: { rem: 1.4, pxMax: 21 },
+    /* Le même clavier mathématique qu'en Première : « ⏎ » valide (commit) et,
+       sur une tablette en paysage, deux rangées — mesuré au banc navigateur
+       sur la feuille du 4.5. */
+    clavierEcran: { entree: '\u23ce',
+                    paysage: { rangees: 2, exercice: 'somme-fractions-libre',
+                               champ: '#sflSheet math-field', lignes: '#sflSheet .dexp2-line' } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
+            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
+               (demande de Turquet, septembre 2026) : ses touches grandissent
+               pour occuper la largeur libre — jusqu'au plafond, au-delà
+               duquel la rangée se centre plutôt que de devenir des barres.
+               Le plafond vit ICI et la page doit porter le même (deux
+               sources) ; le plancher est ce que le banc navigateur exige
+               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
+               faisait 634 px et ses touches 40. */
+            largeurPaysage: { toucheMax: 80, plancher: 52 },
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
@@ -613,8 +677,23 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'equation-tangente', champ: '#tg-fa', valeur: '9' },
+    /* Sur TABLETTE (écran tactile d'au moins 600 px), la police de toute la
+       page est réduite à ce pourcentage (décision de Turquet, septembre 2026).
+       La page doit porter exactement cette règle, et le banc navigateur mesure
+       la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
+       téléphone. */
+    policeTablette: 90,
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
-            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'],
+            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
+               (demande de Turquet, septembre 2026) : ses touches grandissent
+               pour occuper la largeur libre — jusqu'au plafond, au-delà
+               duquel la rangée se centre plutôt que de devenir des barres.
+               Le plafond vit ICI et la page doit porter le même (deux
+               sources) ; le plancher est ce que le banc navigateur exige
+               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
+               faisait 634 px et ses touches 40. */
+            largeurPaysage: { toucheMax: 80, plancher: 52 } },
     /* LE CLAVIER MATHÉMATIQUE À L'ÉCRAN (demande de Turquet, septembre 2026) :
        ses deux couches se nomment « clavier A » (chiffres, opérations) et
        « clavier B » (sin, cos, π…) — « fn » et « 123 » ne disaient rien à un
@@ -626,7 +705,7 @@ module.exports = {
        réglage général étant 40 px et 20 px — puis clique « clavier B » et
        « clavier A », et regrandit la fenêtre à la taille d'une tablette, où
        les touches doivent reprendre leur taille. */
-    clavierEcran: { versB: 'clavier B', versA: 'clavier A',
+    clavierEcran: { versB: 'clavier B', versA: 'clavier A', entree: '\u23ce',   /* ⏎ valide (commit) sur ses deux couches */
                     portrait: { exercice: 'suite-auxiliaire', champ: '#scr-sa math-field.sa-mf',
                                 bouton: '#scr-sa button[aria-label^="Afficher ou masquer le clavier"]',
                                 hauteurMax: 36, policeMax: 18 } },
