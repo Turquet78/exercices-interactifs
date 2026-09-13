@@ -3464,6 +3464,46 @@ et resterait vert sans ce compte), le déplacement que l'enregistrement
 emporte tel quel, et l'écran de l'élève qui suit l'ordre du tableau — éprouvé
 par quatre sabotages, chacun rougissant en nommant son défaut.
 
+**Et la Seconde a suivi — le ruban vaut pour les DEUX familles, le verrou pour
+une seule.** Demande de Turquet (septembre 2026) : « en seconde je souhaite
+pouvoir choisir l'ordre des exercices pour les devoirs maison comme en
+terminale ». Le ruban ▲▼ existait déjà dans son éditeur depuis août 2026,
+mais derrière un `if(dmGenre==='fiche')` : les devoirs n'y avaient pas droit,
+et leur relecture du formulaire les rabattait sur l'ordre du MENU — le piège
+que les fiches avaient déjà payé, au même endroit. Les trois gardes de genre
+tombent ensemble (le ruban, la relecture, `dmExoCoche`) : n'en retirer qu'une
+ne tient rien — un ruban sans relecture préservante affiche un ordre que le
+premier enregistrement écrase, une relecture sans re-rendu laisse l'exercice
+tout juste coché hors du ruban jusqu'au prochain changement de devoir.
+**CE QUI NE CHANGE PAS EST LE VERROU, et c'est tout l'arbitrage** : il vit où
+il a toujours vécu, `dmOrdreImpose()` — donc `GENRE_DEVOIRS` — et ne dit oui
+que sur les fiches. L'ordre réglé sur un devoir est celui de l'AFFICHAGE, et
+un devoir reste tout ouvert (la décision d'août 2026 tient). **La PHRASE du
+ruban suit donc `dmOrdreImpose`, jamais `dmGenre` recopié** : celle des fiches
+(« un exercice ne se débloque que lorsque le précédent est fait ») posée sur
+un devoir ferait croire au professeur qu'il impose un ordre aux élèves —
+l'écran dirait autre chose que la règle. Les deux bords ont leur contrôle.
+**Le contrôle existait et n'était ATTEINT qu'en Terminale** : `ordreDesDevoirs`
+n'était appelé que par les chemins d'ABANDON d'`ordreDesFiches`, si bien que la
+Seconde et la Première, où celui des fiches réussit, ne le jouaient jamais —
+un contrôle écrit, vert, et jamais joué. Il est chaîné dans TOUS les chemins,
+et il se déclare : `ordreDevoirs` dans `tests/profils.js` (Seconde et
+Terminale), deux sources — un profil qui le déclare devant une page sans cet
+éditeur rougit, un niveau qui ne le déclare pas s'affiche « non applicable »
+et son bord OPPOSÉ (aucun ruban sur un devoir, l'ordre du menu) reste tenu par
+le contrôle des fiches, juste au-dessus. **La Première n'est pas dans la
+demande et ne change pas** — le dire vaut mieux que le taire.
+**Et le contrôle CLIQUE au lieu d'appeler** : il déclenche l'événement `change`
+de la case, c'est-à-dire l'attribut `onchange` que le professeur déclenche,
+puis compte les rangs RENDUS dans le ruban. Le premier jet appelait
+`readEditorIntoDevoir()` à la main : la garde de `dmExoCoche` ne se voyait
+alors nulle part, et le sabotage qui la remet serait resté vert. Sept
+sabotages, chacun rougissant en nommant son défaut — et l'un d'eux a d'abord
+échoué à se poser : la lacune « le cadre de pose inséré… » est écrite au mot
+près dans le profil de la Seconde ET dans celui de la Terminale, donc l'ancre
+désignait deux endroits. Un sabotage se pose sur une ancre PROPRE à sa cible,
+la leçon d'{antecedents-droite}, retombée dans un fichier de profils.
+
 **Les TRAVAUX FACULTATIFS sont la seconde famille de devoirs de la Terminale —
 gérés comme les devoirs, rangés à part.** Demande de Turquet (septembre
 2026) : « une case "travaux facultatifs" dans la page où l'on a les cases
@@ -4044,6 +4084,25 @@ Changer de sens redessine l'étape : les cases déjà écrites ne veulent plus r
 dire sous l'autre signe. Le pourcentage garde un seul chiffre non nul, si bien
 que le coefficient n'a jamais plus de deux chiffres différents de zéro —
 36 valeurs en tout, de 0,1 à 1,9.
+**Et la chaîne S'ARRÊTE à l'écriture décimale du coefficient** (décision de
+Turquet, septembre 2026) : elle redemandait ensuite sa forme FRACTIONNAIRE —
+1 − 4/100 = 1 − 0,04 = 0,96 = 96/100 — et ce dernier maillon ne sert à rien
+ICI. En 2.2.1 et 2.3.1 il sert, et c'est ce qui départage les deux cas : la
+fraction du coefficient y est celle qu'on multiplie ensuite par la valeur de
+départ, à l'étape ②. Le 2.4.1 n'a pas d'étape suivante — la vérification est
+finie dès qu'on retombe sur le coefficient DONNÉ, écrit en décimal dans
+l'énoncé. Le rappel de cours le montrait déjà ainsi
+(\(1-\frac{4}{100}=1-0{,}04=0{,}96\)) : l'écran dit enfin la même chose que
+lui. **Trois choses s'arrêtent ensemble, et n'en arrêter qu'une ne tient
+rien** : la chaîne, le message de correction et le contexte envoyé au modèle —
+raccourcie d'un côté et pas de l'autre, la question dirait autre chose que
+l'écran. La question passe de 7 cases à 5, et la note affichée le dit
+(« 5 cases justes sur 5 ») ; la note enregistrée, elle, vaut 1 point par
+question et ne bouge pas. Le contrôle tient les trois bords — le maillon
+retiré (aucune fraction du coefficient nulle part), les maillons GARDÉS (P/100
+et l'écriture décimale du pourcentage, sans quoi « on a tout retiré »
+passerait aussi) et la note. Sept sabotages, chacun rougissant en nommant son
+défaut.
 
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,

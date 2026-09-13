@@ -450,12 +450,28 @@ body.pave-actif #paveNum{bottom:54px}
   .mode-tag.train{color:var(--blue-dark);background:#EAF1FF;border:1.5px solid #c9d8fb}
   .mode-tag.eval{color:#a8631c;background:#FCEFD8;border:1.5px solid #f1d199}
   .mode-tag.soutien{color:#1f7a6b;background:#E3F6F1;border:1.5px solid #a9e3d6}
-  /* bulle « Comprendre mon erreur » (soutien) : FIXE en bas à droite, au-dessus
-     des commandes — ancrée à la case, elle recouvrirait la case d'en dessous */
+  /* bulle « Comprendre mon erreur » (soutien) : ANCRÉE À CÔTÉ de la case, une
+     flèche pointée sur elle (demande de Turquet, septembre 2026). La place est
+     CHOISIE par bexpPlacer — le premier côté qui ne recouvre aucune case ; le
+     coin d'avant reste le repli, et alors sans flèche. */
   #bexpBulle{position:fixed;right:16px;bottom:92px;z-index:59;max-width:360px;
     background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
     padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   #bexpBulle[hidden]{display:none!important}
+  /* la flèche : DEUX triangles — l'un à l'encre du cadre, l'autre au fond posé
+     2 px en dedans pour couvrir le trait du cadre, sans quoi la base de la
+     flèche montrerait une couture. --bexp-fx est la distance du bord de la
+     bulle à la POINTE, calculée sur le CENTRE de la case. */
+  #bexpBulle[data-bexp-cote]::before,#bexpBulle[data-bexp-cote]::after{
+    content:'';position:absolute;width:0;height:0;border:10px solid transparent}
+  #bexpBulle[data-bexp-cote="droite"]::before{left:-20px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--red)}
+  #bexpBulle[data-bexp-cote="droite"]::after{left:-18px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--surface)}
+  #bexpBulle[data-bexp-cote="gauche"]::before{right:-20px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--red)}
+  #bexpBulle[data-bexp-cote="gauche"]::after{right:-18px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--surface)}
+  #bexpBulle[data-bexp-cote="haut"]::before{bottom:-20px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--red)}
+  #bexpBulle[data-bexp-cote="haut"]::after{bottom:-18px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--surface)}
+  #bexpBulle[data-bexp-cote="bas"]::before{top:-20px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--red)}
+  #bexpBulle[data-bexp-cote="bas"]::after{top:-18px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--surface)}
   #bexpBulle [data-bexp-x]{position:absolute;top:6px;right:8px;border:none;background:none;
     cursor:pointer;font-size:14px;color:inherit;padding:2px}
   #bexpBulle [data-bexp-r]{margin:0 0 6px;max-height:40vh;overflow:auto}
@@ -1008,6 +1024,37 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#ckHost .f-dec{min-width:96px;max-width:200px;}
   .pt-choix-btn .valeur{font-size:1.2rem}
   #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:66px;}
+}
+/* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
+   septembre 2026) : « pour les exercices avec des cases à remplir avec des
+   nombres, sur les tablettes, après l'énoncé, les écritures avant et après une
+   case à remplir ont une police légèrement plus petite, ainsi que la police des
+   cases ». Sur une tablette, le clavier mange déjà la moitié de l'écran : une
+   chaîne d'égalités à 2 rem se replie, et une égalité coupée en deux se lit
+   comme deux calculs.
+   UN SEUL FACTEUR, ET IL VIT À UN SEUL ENDROIT. Les tailles de cette page sont
+   toutes en rem, c'est-à-dire ancrées à la racine : aucune règle posée sur un
+   conteneur ne les réduit. Plutôt que de recopier chaque taille dans un second
+   bloc — deux listes qui auraient fini par diverger, et c'est alors la case OU
+   son voisin qui aurait rétréci seul —, le facteur voyage dans une variable que
+   les règles MÊMES portent (calc(… * var(--tab-nb,1))). Case et écritures
+   rétrécissent donc exactement du même facteur, et « une case a la taille des
+   nombres qui l'entourent » tient par construction, pas par vigilance.
+   POSÉ SUR LE STAGE, PAS SUR LA PAGE : « .mp-stage » est ce qui vient APRÈS
+   l'énoncé — celui-ci (p.mp-instr) vit au-dessus, hors du stage, et garde donc
+   sa taille sans qu'on ait rien à lui retirer. Et « :has(math-field.pm-mf) »
+   restreint aux stages qui portent VRAIMENT une case à nombres : la feuille de
+   rédaction libre du 2.1.7 (dexp2-mf), qui a sa propre règle de tablette, n'est
+   pas touchée. Un navigateur qui ne connaîtrait pas « :has » retombe sur la
+   taille d'avant — jamais sur un écran cassé.
+   Ce qui NE bouge pas : la case générique à 1,05 rem (le 2.5.2, les colonnes du
+   3.1.4) — c'est déjà la plus petite du niveau, et elle reste une cible qu'on
+   touche du doigt —, les étiquettes d'étape et les boutons de propositions, qui
+   ne sont pas des écritures de la chaîne. Le facteur est déclaré dans
+   tests/profils.js (chaineTablette), deux sources ; même requête média que la
+   police de la page (écran tactile d'au moins 600 px). */
+@media (pointer:coarse) and (min-width:600px){
+  .mp-stage:has(math-field.pm-mf){--tab-nb:.85;}
 }
 /* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
    septembre 2026) : « pour les exercices avec des cases à remplir avec des
@@ -1876,7 +1923,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=208;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=209;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9525,7 +9572,19 @@ async function finishBaisses(){
    Le signe et le début du coefficient affichés à la vérification suivent le
    sens CHOISI, pas le bon : un élève qui a répondu « augmentation » devant
    0,96 doit écrire « 1,… » et buter dessus. C'est là que la vérification sert
-   à quelque chose. */
+   à quelque chose.
+   LA CHAÎNE S'ARRÊTE À L'ÉCRITURE DÉCIMALE DU COEFFICIENT (décision de
+   Turquet, septembre 2026) : elle redemandait ensuite sa forme
+   FRACTIONNAIRE — 1 − 4/100 = 1 − 0,04 = 0,96 = 96/100 — et ce dernier
+   maillon ne servait à rien ICI. En 2.2.1 et 2.3.1 il sert : la fraction du
+   coefficient est celle qu'on multiplie ensuite par la valeur de départ, à
+   l'étape ②. Cet exercice-là n'a pas d'étape suivante — la vérification est
+   finie dès qu'on retombe sur le coefficient donné, qui est écrit en
+   DÉCIMAL dans l'énoncé. C'est aussi ce que le rappel de cours montre
+   depuis toujours (\(1-\frac{4}{100}=1-0{,}04=0{,}96\)) : l'écran dit
+   enfin la même chose que lui. Le message de correction et le contexte
+   envoyé au modèle s'arrêtent au même endroit — une chaîne raccourcie d'un
+   côté et pas de l'autre ferait mentir l'écran. */
 const LC_CTX=[
   {s:'Un prix',                          g:'m'},
   {s:'Un salaire',                       g:'m'},
@@ -9598,11 +9657,11 @@ function renderLCTest(){
     `<div class="pt-step${cache}"><div class="pt-lab">① De quel pourcentage ?</div>
        <div class="pt-row"><span class="f-whole">${c===-1?'une baisse de':'une augmentation de'}</span>${dec('lcP','le pourcentage de l’évolution')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">② Vérifie ta réponse en calculant SON coefficient, comme dans {augmenter-pourcentage} et {diminuer-pourcentage} : tu dois retrouver ${q.coefStr}</div>
-       <div class="pt-row"><span class="f-whole">1 ${signe}</span>${frac('lc1n','lc1d')}<span class="f-eq">=</span><span class="f-whole">1 ${signe} 0,</span>${dec('lc1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${tete}</span>${dec('lc1dec','le coefficient en écriture décimale')}<span class="f-eq">=</span>${frac('lc2n','lc2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 ${signe}</span>${frac('lc1n','lc1d')}<span class="f-eq">=</span><span class="f-whole">1 ${signe} 0,</span>${dec('lc1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${tete}</span>${dec('lc1dec','le coefficient en écriture décimale')}</div></div>`+
     `<p class="pt-aide">${c===null
         ? 'Commence par dire si le coefficient fait monter ou descendre la valeur.'
         : 'Si tu retrouves '+q.coefStr+', ta réponse est la bonne.'}</p>`);
-  const order=[$('lcP'),$('lc1n'),$('lc1d'),$('lc1p'),$('lc1dec'),$('lc2n'),$('lc2d')].filter(Boolean);
+  const order=[$('lcP'),$('lc1n'),$('lc1d'),$('lc1p'),$('lc1dec')].filter(Boolean);
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   order.forEach((el,i)=>{
@@ -9630,7 +9689,6 @@ function checkLCAnswer(live){
     ['lc1dec'].forEach(id=>{ const el=$(id); if(!el||el.disabled) return;
       el.classList.remove('ok','bad'); if(v(id)==='') return;
       el.classList.add(decOk(id,tete,q.coef,100)?'ok':'bad'); });
-    liveColorFrac('lc2n','lc2d',q.coef,100);
     return;
   }
   const iv=id=>parseInt(v(id),10);
@@ -9640,25 +9698,24 @@ function checkLCAnswer(live){
   const ok1    = v('lc1n')!=='' && fracEqual(iv('lc1n'),den('lc1d'),q.P,100);
   const ok1p   = decOk('lc1p','0,',q.P,100);
   const ok1d   = decOk('lc1dec',tete,q.coef,100);
-  const ok2    = v('lc2n')!=='' && fracEqual(iv('lc2n'),den('lc2d'),q.coef,100);
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('lcP',okP); mark('lc1n',ok1); mark('lc1d',ok1); mark('lc1p',ok1p); mark('lc1dec',ok1d); mark('lc2n',ok2); mark('lc2d',ok2);
+  mark('lcP',okP); mark('lc1n',ok1); mark('lc1d',ok1); mark('lc1p',ok1p); mark('lc1dec',ok1d);
   [...document.querySelectorAll('#lcChoix .pt-choix-btn')].forEach((b,i)=>{
     b.classList.remove('ok','bad');
     if(q.choisi===(i===0?1:-1)) b.classList.add(okSens?'ok':'bad');
   });
-  const allOk=okSens&&okP&&ok1&&ok1p&&ok1d&&ok2;
+  const allOk=okSens&&okP&&ok1&&ok1p&&ok1d;
   if(!allOk && soutien){ soutienAgain('lcFeedback','lcActions','checkLCAnswer','lcHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('lcLiveScore').textContent=test.score;
     $('lcFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('lcFeedback').className='mp-feedback good';
   } else {
     const mot=q.sens>0?'augmentation':'baisse', sg=q.sens>0?'+':'−';
-    $('lcFeedback').textContent=`${q.coefStr} est plus ${q.sens>0?'grand':'petit'} que 1 : c’est une ${mot}. Méthode : 1 ${sg} ${q.P}/100 = 1 ${sg} ${pDecStr(q.P)} = ${q.coefStr} = ${q.coef}/100. L’évolution est donc une ${mot} de ${q.P} %.`;
+    $('lcFeedback').textContent=`${q.coefStr} est plus ${q.sens>0?'grand':'petit'} que 1 : c’est une ${mot}. Méthode : 1 ${sg} ${q.P}/100 = 1 ${sg} ${pDecStr(q.P)} = ${q.coefStr}. L’évolution est donc une ${mot} de ${q.P} %.`;
     $('lcFeedback').className='mp-feedback bad';
     corTrainDec('lcP',q.P);
     corTrainFrac('lc1n','lc1d',q.P,100); corTrainDec('lc1p',String(q.P).padStart(2,'0'));
-    corTrainDec('lc1dec',q.coefStr.slice(2)); corTrainFrac('lc2n','lc2d',q.coef,100);
+    corTrainDec('lc1dec',q.coefStr.slice(2));
   }
   const donne=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('lcP')||'?')+' %');
   test.answers.push({...(ptsExo()||{}),q:`coefficient ${q.coefStr}`,
@@ -11396,11 +11453,18 @@ function bexpLancer(contexte, fb){ return lancerConseil(contexte, fb); }
    qu'APRÈS la sortie — la Première juge des cases par un minuteur posé sur
    focusout — : on regarde donc une seconde fois, un instant plus tard.
 
-   La bulle est FIXE en bas à droite, au-dessus des commandes. Ancrée à la
-   case, elle aurait recouvert la case d'EN DESSOUS — le dénominateur d'une
-   fraction, la rangée suivante d'un tableau — et le clic de l'élève serait
-   parti dans la bulle : la leçon du pavé numérique, qui ne recouvre ni la
-   case qu'on remplit ni les commandes du bas. Elle s'efface quand l'élève
+   LA BULLE EST À CÔTÉ DE LA CASE, UNE FLÈCHE POINTÉE SUR ELLE (demande de
+   Turquet, septembre 2026). Elle fut d'abord FIXE en bas à droite, et
+   l'objection qui l'y avait mise reste VRAIE : ancrée n'importe comment, elle
+   recouvre la case d'EN DESSOUS — le dénominateur d'une fraction, la rangée
+   suivante d'un tableau — et le clic de l'élève part dans la bulle, la leçon
+   du pavé numérique. Elle est donc tenue AUTREMENT, pas abandonnée :
+   bexpPlacer essaie les quatre côtés dans l'ordre (droite, gauche, au-dessus,
+   en dessous) et garde le PREMIER qui ne chevauche AUCUNE case, ni les
+   commandes du bas, ni le bord de la fenêtre — la zone de la FLÈCHE comprise,
+   sans quoi la pointe se poserait sur la case du voisin. Faute de place, le
+   coin d'avant, et alors SANS flèche : une flèche qui ne désigne rien
+   mentirait. Elle s'efface quand l'élève
    REPREND sa case (il corrige — elle reviendra s'il ressort en faux), quand
    la case cesse d'être fausse ou disparaît (au premier clic hors de la
    bulle), à Échap et à la croix ; elle ne s'efface PAS quand il passe
@@ -11437,12 +11501,18 @@ function bexpElt(){
   btn.addEventListener('click', bexpExpliquer);
   b.appendChild(x); b.appendChild(fb); b.appendChild(btn);
   document.body.appendChild(b);
+  /* la bulle GRANDIT quand la réponse du modèle arrive : sans ce regard, elle
+     s'étendrait par le bas et sa flèche cesserait de désigner la case */
+  if(typeof ResizeObserver==='function'){
+    try{ new ResizeObserver(function(){ bexpPlacer(); }).observe(b); }catch(e){}
+  }
   return b;
 }
 function bexpMasquer(){
   const b=document.getElementById('bexpBulle');
   if(b){
     b.hidden=true;
+    bexpCoin(b);
     const fb=b.querySelector('[data-bexp-r]');
     if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
     const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
@@ -11468,6 +11538,98 @@ function bexpValeur(el){
     return String(el.value||'');
   }catch(e){ return ''; }
 }
+/* ----- LA PLACE DE LA BULLE : à côté de la case, la flèche sur elle -----
+   Le choix est de la GÉOMÉTRIE pure — quatre côtés essayés dans l'ordre, le
+   premier qui ne recouvre rien l'emporte —, donc il se mesure au banc jsdom
+   sur des rectangles posés à la main, et au banc navigateur sur la page
+   RENDUE : jsdom n'a pas de mise en page, et seul un navigateur sait où une
+   flèche tombe vraiment. */
+const BEXP_ECART=14;   /* la pointe s'arrête à 14 px de la case : la flèche en
+                          occupe 10, il reste 4 px de blanc */
+const BEXP_MARGE=8;    /* on ne colle jamais la bulle au bord de la fenêtre */
+/* 'auto' et non '' : vider une propriété en ligne rend la main à la FEUILLE DE
+   STYLES, qui repose right:16px et bottom:92px. Les deux bords posés, le
+   navigateur ÉTIRE la boîte — la bulle mesurait 360x488 au lieu de 288x69 —,
+   l'observateur de taille rappelait le placement, aucun côté ne tenait plus à
+   cette taille, retour au coin, où elle redevenait petite : la boucle tournait
+   sans fin. Aucun banc hors navigateur ne pouvait le voir ; Playwright l'a
+   nommé (« element is not stable ») et la sonde l'a chiffré. */
+function bexpCoin(b){
+  if(!b) return;
+  b.removeAttribute('data-bexp-cote');
+  b.style.removeProperty('--bexp-fx');
+  b.style.left='auto'; b.style.top='auto';
+  b.style.right='16px'; b.style.bottom='92px';
+}
+/* Tout ce que la bulle ne doit pas recouvrir : les cases où l'élève écrit ou
+   clique — la case ANCRE exceptée, c'est la sienne — et les commandes du bas.
+   On lit l'écran actif, donc un exercice ajouté demain est couvert sans rien
+   déclarer : c'est le motif du garde de la saisie. */
+function bexpObstacles(anc){
+  const out=[], vus=[];
+  const ecr=document.querySelector('.screen.on');
+  if(ecr) vus.push.apply(vus, ecr.querySelectorAll('input,select,textarea,math-field,.pts-case'));
+  const cmd=document.getElementById('testCtrls');
+  if(cmd && !cmd.hidden) vus.push(cmd);
+  for(let i=0;i<vus.length;i++){
+    const e=vus[i];
+    if(e===anc || (anc && e.contains && e.contains(anc))) continue;
+    const r=e.getBoundingClientRect();
+    if(r.width>0 && r.height>0) out.push(r);
+  }
+  return out;
+}
+function bexpChevauche(x,y,l,h,obs){
+  for(let i=0;i<obs.length;i++){
+    const o=obs[i];
+    if(!(x+l<=o.left || x>=o.right || y+h<=o.top || y>=o.bottom)) return true;
+  }
+  return false;
+}
+function bexpPlacer(){
+  const b=document.getElementById('bexpBulle');
+  if(!b || b.hidden) return;
+  const el=bexpCase;
+  /* on mesure la bulle là où elle est : un seul bord est posé par axe (les
+     autres à 'auto'), donc sa taille ne dépend PAS de sa place — c'est ce qui
+     empêche l'observateur de taille de boucler, et le contrôle l'exige */
+  const rb=b.getBoundingClientRect(), L=rb.width, H=rb.height;
+  const W=window.innerWidth, Hv=window.innerHeight;
+  if(!el || !el.isConnected || !L || !H){ bexpCoin(b); return; }
+  const c=el.getBoundingClientRect();
+  if(!c.width && !c.height){ bexpCoin(b); return; }
+  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
+  const borne=function(v,mn,mx){ return Math.max(mn, Math.min(mx, v)); };
+  const yc=borne(cy-H/2, BEXP_MARGE, Hv-H-BEXP_MARGE);
+  const xc=borne(cx-L/2, BEXP_MARGE, W-L-BEXP_MARGE);
+  const essais=[
+    { cote:'droite', x:c.right+BEXP_ECART,  y:yc },
+    { cote:'gauche', x:c.left-BEXP_ECART-L, y:yc },
+    { cote:'haut',   x:xc, y:c.top-BEXP_ECART-H },
+    { cote:'bas',    x:xc, y:c.bottom+BEXP_ECART },
+  ];
+  const obs=bexpObstacles(el);
+  for(let i=0;i<essais.length;i++){
+    const e=essais[i];
+    if(e.x<BEXP_MARGE || e.y<BEXP_MARGE || e.x+L>W-BEXP_MARGE || e.y+H>Hv-BEXP_MARGE) continue;
+    /* la zone testée comprend la FLÈCHE, qui dépasse du côté de la case */
+    const zx=(e.cote==='droite') ? e.x-BEXP_ECART : e.x;
+    const zy=(e.cote==='bas')    ? e.y-BEXP_ECART : e.y;
+    const zl=(e.cote==='droite'||e.cote==='gauche') ? L+BEXP_ECART : L;
+    const zh=(e.cote==='haut'  ||e.cote==='bas')    ? H+BEXP_ECART : H;
+    if(bexpChevauche(zx,zy,zl,zh,obs)) continue;
+    b.style.right='auto'; b.style.bottom='auto';
+    b.style.left=Math.round(e.x)+'px'; b.style.top=Math.round(e.y)+'px';
+    b.dataset.bexpCote=e.cote;
+    /* la flèche suit le CENTRE de la case, bornée pour ne pas sortir des coins
+       arrondis de la bulle */
+    const f=(e.cote==='droite'||e.cote==='gauche') ? borne(cy-e.y, 18, H-18)
+                                                   : borne(cx-e.x, 18, L-18);
+    b.style.setProperty('--bexp-fx', Math.round(f)+'px');
+    return;
+  }
+  bexpCoin(b);
+}
 function bexpMontrer(el){
   if(!el || !el.isConnected) return;
   const b=bexpElt();
@@ -11477,6 +11639,7 @@ function bexpMontrer(el){
   if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
   const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
   b.hidden=false;
+  bexpPlacer();
 }
 function bexpContexte(){
   let c=''; try{ c=String(conseilCtxCourant()||''); }catch(e){ c=''; }
@@ -11494,6 +11657,7 @@ function bexpExpliquer(){
      est déjà en cours (conseilBusy) : il rend alors la main sans rien écrire
      — on rend le bouton plutôt que de laisser une zone vide. */
   if(!fb.textContent){ btn.hidden=false; fb.hidden=true; }
+  bexpPlacer();
 }
 document.addEventListener('focusout', function(e){
   const el=e.target;
@@ -11522,6 +11686,12 @@ document.addEventListener('click', function(e){
      || !bexpCase.classList.contains('bad')) bexpMasquer();
 });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') bexpMasquer(); });
+/* « fixe » au sens de CSS veut dire « immobile dans la FENÊTRE », pas « collée
+   à la case » : un défilement — de la page ou d'un conteneur, d'où la phase de
+   CAPTURE — et un changement de taille de fenêtre laisseraient la bulle loin
+   de sa case, flèche pointée sur du vide. On replace. */
+window.addEventListener('resize', function(){ bexpPlacer(); });
+document.addEventListener('scroll', function(){ bexpPlacer(); }, true);
 /* ============ FIN DE LA BULLE « COMPRENDRE MON ERREUR » ============ */
 
 /* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============
@@ -12915,7 +13085,7 @@ function conseilCtxCourant(){
   } else if(k==='lc' && q){
     const mot=q.sens>0?'augmentation':'baisse';
     att='Réponses attendues, STRICTEMENT SECRÈTES : le coefficient '+q.coefStr+' correspond à une '+mot+' de '+q.P+' %. '
-      +'Vérification : 1 '+(q.sens>0?'+':'−')+' '+q.P+'/100 = 1 '+(q.sens>0?'+':'−')+' '+pDecStr(q.P)+' = '+q.coefStr+' = '+q.coef+'/100 (toute fraction égale convient). '
+      +'Vérification : 1 '+(q.sens>0?'+':'−')+' '+q.P+'/100 = 1 '+(q.sens>0?'+':'−')+' '+pDecStr(q.P)+' = '+q.coefStr+' — la chaîne s’arrête à l’écriture décimale, on ne redemande pas la forme fractionnaire du coefficient. '
       +'Sens actuellement choisi par l’élève : '+(q.choisi==null?'aucun':(q.choisi>0?'augmentation':'baisse'))+'. '
       +'Méthode enseignée : un coefficient plus grand que 1 fait monter, plus petit que 1 fait descendre, et le pourcentage se lit sur l’ÉCART À 1. '
       +'L’erreur classique est de lire 0,96 comme « −96 % » au lieu de « −4 % » : multiplier par 0,96, c’est garder 96 %, donc en perdre 4. '
