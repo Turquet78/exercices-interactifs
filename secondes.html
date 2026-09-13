@@ -470,12 +470,28 @@
   .mode-tag.train{color:var(--blue-dark);background:#EAF1FF;border:1.5px solid #c9d8fb}
   .mode-tag.eval{color:#a8631c;background:#FCEFD8;border:1.5px solid #f1d199}
   .mode-tag.soutien{color:#1f7a6b;background:#E3F6F1;border:1.5px solid #a9e3d6}
-  /* bulle « Comprendre mon erreur » (soutien) : FIXE en bas à droite, au-dessus
-     des commandes — ancrée à la case, elle recouvrirait la case d'en dessous */
+  /* bulle « Comprendre mon erreur » (soutien) : ANCRÉE À CÔTÉ de la case, une
+     flèche pointée sur elle (demande de Turquet, septembre 2026). La place est
+     CHOISIE par bexpPlacer — le premier côté qui ne recouvre aucune case ; le
+     coin d'avant reste le repli, et alors sans flèche. */
   #bexpBulle{position:fixed;right:16px;bottom:92px;z-index:59;max-width:360px;
     background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
     padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   #bexpBulle[hidden]{display:none!important}
+  /* la flèche : DEUX triangles — l'un à l'encre du cadre, l'autre au fond posé
+     2 px en dedans pour couvrir le trait du cadre, sans quoi la base de la
+     flèche montrerait une couture. --bexp-fx est la distance du bord de la
+     bulle à la POINTE, calculée sur le CENTRE de la case. */
+  #bexpBulle[data-bexp-cote]::before,#bexpBulle[data-bexp-cote]::after{
+    content:'';position:absolute;width:0;height:0;border:10px solid transparent}
+  #bexpBulle[data-bexp-cote="droite"]::before{left:-20px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--red)}
+  #bexpBulle[data-bexp-cote="droite"]::after{left:-18px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--surface)}
+  #bexpBulle[data-bexp-cote="gauche"]::before{right:-20px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--red)}
+  #bexpBulle[data-bexp-cote="gauche"]::after{right:-18px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--surface)}
+  #bexpBulle[data-bexp-cote="haut"]::before{bottom:-20px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--red)}
+  #bexpBulle[data-bexp-cote="haut"]::after{bottom:-18px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--surface)}
+  #bexpBulle[data-bexp-cote="bas"]::before{top:-20px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--red)}
+  #bexpBulle[data-bexp-cote="bas"]::after{top:-18px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--surface)}
   #bexpBulle [data-bexp-x]{position:absolute;top:6px;right:8px;border:none;background:none;
     cursor:pointer;font-size:14px;color:inherit;padding:2px}
   #bexpBulle [data-bexp-r]{margin:0 0 6px;max-height:40vh;overflow:auto}
@@ -2601,7 +2617,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=154;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=155;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -17321,11 +17337,18 @@ function bexpLancer(contexte, fb){ return lancerConseil('', contexte, fb); }
    qu'APRÈS la sortie — la Première juge des cases par un minuteur posé sur
    focusout — : on regarde donc une seconde fois, un instant plus tard.
 
-   La bulle est FIXE en bas à droite, au-dessus des commandes. Ancrée à la
-   case, elle aurait recouvert la case d'EN DESSOUS — le dénominateur d'une
-   fraction, la rangée suivante d'un tableau — et le clic de l'élève serait
-   parti dans la bulle : la leçon du pavé numérique, qui ne recouvre ni la
-   case qu'on remplit ni les commandes du bas. Elle s'efface quand l'élève
+   LA BULLE EST À CÔTÉ DE LA CASE, UNE FLÈCHE POINTÉE SUR ELLE (demande de
+   Turquet, septembre 2026). Elle fut d'abord FIXE en bas à droite, et
+   l'objection qui l'y avait mise reste VRAIE : ancrée n'importe comment, elle
+   recouvre la case d'EN DESSOUS — le dénominateur d'une fraction, la rangée
+   suivante d'un tableau — et le clic de l'élève part dans la bulle, la leçon
+   du pavé numérique. Elle est donc tenue AUTREMENT, pas abandonnée :
+   bexpPlacer essaie les quatre côtés dans l'ordre (droite, gauche, au-dessus,
+   en dessous) et garde le PREMIER qui ne chevauche AUCUNE case, ni les
+   commandes du bas, ni le bord de la fenêtre — la zone de la FLÈCHE comprise,
+   sans quoi la pointe se poserait sur la case du voisin. Faute de place, le
+   coin d'avant, et alors SANS flèche : une flèche qui ne désigne rien
+   mentirait. Elle s'efface quand l'élève
    REPREND sa case (il corrige — elle reviendra s'il ressort en faux), quand
    la case cesse d'être fausse ou disparaît (au premier clic hors de la
    bulle), à Échap et à la croix ; elle ne s'efface PAS quand il passe
@@ -17362,12 +17385,18 @@ function bexpElt(){
   btn.addEventListener('click', bexpExpliquer);
   b.appendChild(x); b.appendChild(fb); b.appendChild(btn);
   document.body.appendChild(b);
+  /* la bulle GRANDIT quand la réponse du modèle arrive : sans ce regard, elle
+     s'étendrait par le bas et sa flèche cesserait de désigner la case */
+  if(typeof ResizeObserver==='function'){
+    try{ new ResizeObserver(function(){ bexpPlacer(); }).observe(b); }catch(e){}
+  }
   return b;
 }
 function bexpMasquer(){
   const b=document.getElementById('bexpBulle');
   if(b){
     b.hidden=true;
+    bexpCoin(b);
     const fb=b.querySelector('[data-bexp-r]');
     if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
     const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
@@ -17393,6 +17422,98 @@ function bexpValeur(el){
     return String(el.value||'');
   }catch(e){ return ''; }
 }
+/* ----- LA PLACE DE LA BULLE : à côté de la case, la flèche sur elle -----
+   Le choix est de la GÉOMÉTRIE pure — quatre côtés essayés dans l'ordre, le
+   premier qui ne recouvre rien l'emporte —, donc il se mesure au banc jsdom
+   sur des rectangles posés à la main, et au banc navigateur sur la page
+   RENDUE : jsdom n'a pas de mise en page, et seul un navigateur sait où une
+   flèche tombe vraiment. */
+const BEXP_ECART=14;   /* la pointe s'arrête à 14 px de la case : la flèche en
+                          occupe 10, il reste 4 px de blanc */
+const BEXP_MARGE=8;    /* on ne colle jamais la bulle au bord de la fenêtre */
+/* 'auto' et non '' : vider une propriété en ligne rend la main à la FEUILLE DE
+   STYLES, qui repose right:16px et bottom:92px. Les deux bords posés, le
+   navigateur ÉTIRE la boîte — la bulle mesurait 360x488 au lieu de 288x69 —,
+   l'observateur de taille rappelait le placement, aucun côté ne tenait plus à
+   cette taille, retour au coin, où elle redevenait petite : la boucle tournait
+   sans fin. Aucun banc hors navigateur ne pouvait le voir ; Playwright l'a
+   nommé (« element is not stable ») et la sonde l'a chiffré. */
+function bexpCoin(b){
+  if(!b) return;
+  b.removeAttribute('data-bexp-cote');
+  b.style.removeProperty('--bexp-fx');
+  b.style.left='auto'; b.style.top='auto';
+  b.style.right='16px'; b.style.bottom='92px';
+}
+/* Tout ce que la bulle ne doit pas recouvrir : les cases où l'élève écrit ou
+   clique — la case ANCRE exceptée, c'est la sienne — et les commandes du bas.
+   On lit l'écran actif, donc un exercice ajouté demain est couvert sans rien
+   déclarer : c'est le motif du garde de la saisie. */
+function bexpObstacles(anc){
+  const out=[], vus=[];
+  const ecr=document.querySelector('.screen.on');
+  if(ecr) vus.push.apply(vus, ecr.querySelectorAll('input,select,textarea,math-field,.pts-case'));
+  const cmd=document.getElementById('testCtrls');
+  if(cmd && !cmd.hidden) vus.push(cmd);
+  for(let i=0;i<vus.length;i++){
+    const e=vus[i];
+    if(e===anc || (anc && e.contains && e.contains(anc))) continue;
+    const r=e.getBoundingClientRect();
+    if(r.width>0 && r.height>0) out.push(r);
+  }
+  return out;
+}
+function bexpChevauche(x,y,l,h,obs){
+  for(let i=0;i<obs.length;i++){
+    const o=obs[i];
+    if(!(x+l<=o.left || x>=o.right || y+h<=o.top || y>=o.bottom)) return true;
+  }
+  return false;
+}
+function bexpPlacer(){
+  const b=document.getElementById('bexpBulle');
+  if(!b || b.hidden) return;
+  const el=bexpCase;
+  /* on mesure la bulle là où elle est : un seul bord est posé par axe (les
+     autres à 'auto'), donc sa taille ne dépend PAS de sa place — c'est ce qui
+     empêche l'observateur de taille de boucler, et le contrôle l'exige */
+  const rb=b.getBoundingClientRect(), L=rb.width, H=rb.height;
+  const W=window.innerWidth, Hv=window.innerHeight;
+  if(!el || !el.isConnected || !L || !H){ bexpCoin(b); return; }
+  const c=el.getBoundingClientRect();
+  if(!c.width && !c.height){ bexpCoin(b); return; }
+  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
+  const borne=function(v,mn,mx){ return Math.max(mn, Math.min(mx, v)); };
+  const yc=borne(cy-H/2, BEXP_MARGE, Hv-H-BEXP_MARGE);
+  const xc=borne(cx-L/2, BEXP_MARGE, W-L-BEXP_MARGE);
+  const essais=[
+    { cote:'droite', x:c.right+BEXP_ECART,  y:yc },
+    { cote:'gauche', x:c.left-BEXP_ECART-L, y:yc },
+    { cote:'haut',   x:xc, y:c.top-BEXP_ECART-H },
+    { cote:'bas',    x:xc, y:c.bottom+BEXP_ECART },
+  ];
+  const obs=bexpObstacles(el);
+  for(let i=0;i<essais.length;i++){
+    const e=essais[i];
+    if(e.x<BEXP_MARGE || e.y<BEXP_MARGE || e.x+L>W-BEXP_MARGE || e.y+H>Hv-BEXP_MARGE) continue;
+    /* la zone testée comprend la FLÈCHE, qui dépasse du côté de la case */
+    const zx=(e.cote==='droite') ? e.x-BEXP_ECART : e.x;
+    const zy=(e.cote==='bas')    ? e.y-BEXP_ECART : e.y;
+    const zl=(e.cote==='droite'||e.cote==='gauche') ? L+BEXP_ECART : L;
+    const zh=(e.cote==='haut'  ||e.cote==='bas')    ? H+BEXP_ECART : H;
+    if(bexpChevauche(zx,zy,zl,zh,obs)) continue;
+    b.style.right='auto'; b.style.bottom='auto';
+    b.style.left=Math.round(e.x)+'px'; b.style.top=Math.round(e.y)+'px';
+    b.dataset.bexpCote=e.cote;
+    /* la flèche suit le CENTRE de la case, bornée pour ne pas sortir des coins
+       arrondis de la bulle */
+    const f=(e.cote==='droite'||e.cote==='gauche') ? borne(cy-e.y, 18, H-18)
+                                                   : borne(cx-e.x, 18, L-18);
+    b.style.setProperty('--bexp-fx', Math.round(f)+'px');
+    return;
+  }
+  bexpCoin(b);
+}
 function bexpMontrer(el){
   if(!el || !el.isConnected) return;
   const b=bexpElt();
@@ -17402,6 +17523,7 @@ function bexpMontrer(el){
   if(fb){ fb.hidden=true; fb.innerHTML=''; fb.className=''; }
   const btn=b.querySelector('[data-bexp-btn]'); if(btn) btn.hidden=false;
   b.hidden=false;
+  bexpPlacer();
 }
 function bexpContexte(){
   let c=''; try{ c=String(conseilCtxCourant()||''); }catch(e){ c=''; }
@@ -17419,6 +17541,7 @@ function bexpExpliquer(){
      est déjà en cours (conseilBusy) : il rend alors la main sans rien écrire
      — on rend le bouton plutôt que de laisser une zone vide. */
   if(!fb.textContent){ btn.hidden=false; fb.hidden=true; }
+  bexpPlacer();
 }
 document.addEventListener('focusout', function(e){
   const el=e.target;
@@ -17447,6 +17570,12 @@ document.addEventListener('click', function(e){
      || !bexpCase.classList.contains('bad')) bexpMasquer();
 });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') bexpMasquer(); });
+/* « fixe » au sens de CSS veut dire « immobile dans la FENÊTRE », pas « collée
+   à la case » : un défilement — de la page ou d'un conteneur, d'où la phase de
+   CAPTURE — et un changement de taille de fenêtre laisseraient la bulle loin
+   de sa case, flèche pointée sur du vide. On replace. */
+window.addEventListener('resize', function(){ bexpPlacer(); });
+document.addEventListener('scroll', function(){ bexpPlacer(); }, true);
 /* ============ FIN DE LA BULLE « COMPRENDRE MON ERREUR » ============ */
 
 /* ============ LA CASE OÙ L'ÉLÈVE ÉCRIT NE SE COLORE PAS ============

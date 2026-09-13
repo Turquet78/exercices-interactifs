@@ -2277,20 +2277,55 @@ async function parcours(page, N){
             if(c.classes === 'bad'){ rouge = true; break; }
           }
           if(rouge){
-            bulle = await s.page.evaluate(() => {
+            bulle = await s.page.evaluate(sel => {
               const b = document.getElementById('bexpBulle');
               if(!b) return { la: false };
               const r = b.getBoundingClientRect();
               const t = b.querySelector('[data-bexp-btn]');
               const cmd = document.getElementById('testCtrls');
               const rc = cmd ? cmd.getBoundingClientRect() : null;
+              const chev = (a, o) => !(a.right <= o.left || a.left >= o.right ||
+                                       a.bottom <= o.top || a.top >= o.bottom);
+              const cas = document.querySelector(sel);
+              const rk = cas ? cas.getBoundingClientRect() : null;
+              const cote = b.dataset.bexpCote || '';
+              /* AUCUNE case recouverte : c'est l'objection qui avait imposé le
+                 coin fixe, et elle est tenue autrement — pas abandonnée. */
+              const couvertes = [...document.querySelectorAll(
+                  '.screen.on input,.screen.on select,.screen.on textarea,' +
+                  '.screen.on math-field,.screen.on .pts-case')]
+                .filter(e => e !== cas && !e.contains(cas))
+                .map(e => e.getBoundingClientRect())
+                .filter(o => o.width > 0 && o.height > 0 && chev(r, o)).length;
+              /* la flèche est-elle DESSINÉE ? on lit le pseudo-élément : un CSS
+                 perdu la ferait disparaître sans qu'une erreur ne se lève, et la
+                 bulle serait « à côté » sans rien désigner. */
+              const bord = { droite:'Right', gauche:'Left', haut:'Top', bas:'Bottom' }[cote] || '';
+              const ps = cote ? getComputedStyle(b, '::before') : null;
+              const pa = cote ? getComputedStyle(b, '::after') : null;
+              const fx = parseFloat(getComputedStyle(b).getPropertyValue('--bexp-fx')) || 0;
+              /* la POINTE : à 10 px du bord de la bulle, du côté de la case */
+              let ecart = null, surLaCase = null;
+              if(cote && rk){
+                let px, py, d, bas, haut;
+                if(cote === 'droite'){ px = r.left - 10;  py = r.top + fx; d = px - rk.right; bas = rk.top; haut = rk.bottom; }
+                if(cote === 'gauche'){ px = r.right + 10; py = r.top + fx; d = rk.left - px; bas = rk.top; haut = rk.bottom; }
+                if(cote === 'haut'){   py = r.bottom + 10; px = r.left + fx; d = rk.top - py; bas = rk.left; haut = rk.right; }
+                if(cote === 'bas'){    py = r.top - 10;    px = r.left + fx; d = py - rk.bottom; bas = rk.left; haut = rk.right; }
+                ecart = Math.round(d);
+                const long = (cote === 'droite' || cote === 'gauche') ? py : px;
+                surLaCase = long >= bas - 2 && long <= haut + 2;
+              }
               return {
                 la: true, l: Math.round(r.width), h: Math.round(r.height),
-                bouton: !!t && !t.hidden,
-                surCommandes: rc ? !(r.bottom <= rc.top || r.top >= rc.bottom ||
-                                     r.right <= rc.left || r.left >= rc.right) : false,
+                bouton: !!t && !t.hidden, cote: cote, couvertes: couvertes,
+                ecart: ecart, surLaCase: surLaCase,
+                fleche: ps ? Math.round(parseFloat(ps['border' + bord + 'Width']) || 0) : 0,
+                encre: ps ? ps['border' + bord + 'Color'] : '',
+                fond: pa ? pa['border' + bord + 'Color'] : '',
+                surCommandes: rc ? chev(r, rc) : false,
               };
-            });
+            }, G.champ);
             await s.page.click('#bexpBulle [data-bexp-btn]');
             await s.page.waitForTimeout(400);
             bulleClic = await s.page.evaluate(() => {
@@ -2314,6 +2349,27 @@ async function parcours(page, N){
           !!bulle && bulle.surCommandes === false,
           (bulle && bulle.surCommandes) ? 'la bulle chevauche #testCtrls — la leçon du pavé numérique, et le clic d\'à côté part dans la bulle'
                                         : (bulleSouci || 'la bulle n\'a pas été mesurée'));
+        /* ----- la bulle est À CÔTÉ de la case, une flèche pointée sur elle
+           (demande de Turquet, septembre 2026). jsdom mesure le CHOIX sur des
+           rectangles posés à la main ; ici c'est le RENDU — la flèche vraiment
+           dessinée, sa pointe sur la case, et aucune case recouverte. ----- */
+        verifier('la bulle s\'ancre à CÔTÉ de la case, jamais au coin quand la place existe',
+          !!bulle && ['droite', 'gauche', 'haut', 'bas'].indexOf(bulle.cote) >= 0,
+          bulleSouci || 'côté retenu : « ' + ((bulle && bulle.cote) || '') +
+            ' » (vide = repli au coin : aucun des quatre côtés n\'était libre sur cet écran)');
+        verifier('sa flèche est DESSINÉE, à l\'encre du cadre doublée du fond',
+          !!bulle && bulle.fleche >= 8 && /\d/.test(bulle.encre) && /\d/.test(bulle.fond) &&
+            bulle.encre !== bulle.fond,
+          bulleSouci || 'flèche mesurée : ' + (bulle && bulle.fleche) + ' px, encre « ' +
+            (bulle && bulle.encre) + ' », fond « ' + (bulle && bulle.fond) + ' »');
+        verifier('sa pointe touche la case, et tombe DANS son étendue',
+          !!bulle && bulle.ecart !== null && bulle.ecart >= 0 && bulle.ecart <= 8 &&
+            bulle.surLaCase === true,
+          bulleSouci || 'pointe à ' + (bulle && bulle.ecart) + ' px de la case, dans son étendue : ' +
+            (bulle && bulle.surLaCase));
+        verifier('elle ne recouvre AUCUNE autre case — l\'objection du coin fixe, tenue',
+          !!bulle && bulle.couvertes === 0,
+          bulleSouci || (bulle && bulle.couvertes) + ' case(s) recouverte(s) : le clic de l\'élève partirait dans la bulle');
         verifier('le bouton de la bulle obtient une explication du modèle, affichée dedans',
           !!bulleClic && bulleClic.visible && bulleClic.texte.indexOf('Indice de contrôle') >= 0,
           bulleSouci || 'réponse affichée : « ' + ((bulleClic && bulleClic.texte) || '') + ' »');
