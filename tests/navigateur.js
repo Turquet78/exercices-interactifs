@@ -1549,10 +1549,15 @@ async function parcours(page, N){
         ignorer('la note du devoir entier part dans sa propre case',
           'ce niveau ne pose pas la note d\'un devoir entier');
       } else {
-        await s.page.evaluate(() => {
+        /* LE CHAMP EST NOMMÉ S'IL MANQUE. Sans ce garde, un champ disparu lève
+           une erreur JavaScript dans la page et le contrôle parle d'autre chose
+           au lieu de dire ce qui manque. */
+        const trouve = await s.page.evaluate(() => {
           const c = document.querySelector('.dm-notedev');
+          if(!c) return false;
           c.value = '7';
           c.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
         });
         await s.page.waitForTimeout(900);
         const dev = await s.page.evaluate(o => {
@@ -1562,10 +1567,11 @@ async function parcours(page, N){
         }, { params:N.tableParametres });
         const pd = dev.notesDevoir && dev.notesDevoir[eleveId];
         verifier('la note du devoir entier part dans sa propre case',
-          !!pd && pd.note === 7 && pd.sur === 10
+          trouve && !!pd && pd.note === 7 && pd.sur === 10
             && !(dev.notes && Object.keys(dev.notes).length),
-          'notesDevoir : ' + JSON.stringify(dev.notesDevoir || null)
-            + ' — notes des exercices : ' + JSON.stringify(dev.notes || null));
+          !trouve ? 'aucun champ « .dm-notedev » dans le bilan de la classe'
+            : 'notesDevoir : ' + JSON.stringify(dev.notesDevoir || null)
+              + ' — notes des exercices : ' + JSON.stringify(dev.notes || null));
         verifier('le total du devoir suit la note du devoir, la note obtenue restant lisible',
           /7\s*\/\s*10/.test(dev.texte.replace(/ /g, ' '))
             && /obtenu\s*4\s*\/\s*10/.test(dev.texte.replace(/ /g, ' ')),
