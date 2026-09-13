@@ -928,9 +928,16 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .pcol-part{display:flex;align-items:center;justify-content:center;height:100%;pointer-events:none;
   font-family:"Fredoka";font-weight:700;font-size:1.1rem;color:var(--blue-dark)}
 .pcol-phrase{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
-  margin-top:22px;font-family:"Fredoka";font-weight:600;font-size:1.35rem;color:var(--ink)}
-.pcol-phrase math-field{min-width:110px;max-width:170px}
-@media(max-width:520px){ .pcol-phrase{font-size:1.15rem} }
+  margin-top:22px;font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+/* LA CASE A LA TAILLE DE LA PHRASE QUI L'ENTOURE (la règle de partout, que
+   cet écran n'avait jamais reçue) : elle écrivait à 1,05 rem — la taille
+   générique — au milieu d'une phrase à 1,35 rem, et le nombre posé juste
+   avant elle la dépassait d'un tiers. Le contrôle universel ne le voyait pas
+   tant qu'il n'acceptait que des nombres NUS pour voisins ; élargi, il l'a
+   nommé — par intermittence, selon que le tirage posait ou non un nombre sur
+   sa ligne, ce qui est la pire façon pour un contrôle de dire vrai. */
+.pcol-phrase math-field.pm-mf{min-width:110px;max-width:170px;font-size:calc(1.35rem * var(--tab-nb,1));line-height:1.15}
+@media(max-width:520px){ .pcol-phrase,.pcol-phrase math-field.pm-mf{font-size:calc(1.15rem * var(--tab-nb,1))} }
 @media(max-width:520px){ .fp-zone{gap:34px;} .fp-col{width:84px;height:260px;} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
@@ -1047,41 +1054,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    rédaction libre du 2.1.7 (dexp2-mf), qui a sa propre règle de tablette, n'est
    pas touchée. Un navigateur qui ne connaîtrait pas « :has » retombe sur la
    taille d'avant — jamais sur un écran cassé.
-   Ce qui NE bouge pas : la case générique à 1,05 rem (le 2.5.2, les colonnes du
-   3.1.4) — c'est déjà la plus petite du niveau, et elle reste une cible qu'on
-   touche du doigt —, les étiquettes d'étape et les boutons de propositions, qui
-   ne sont pas des écritures de la chaîne. Le facteur est déclaré dans
-   tests/profils.js (chaineTablette), deux sources ; même requête média que la
-   police de la page (écran tactile d'au moins 600 px). */
-@media (pointer:coarse) and (min-width:600px){
-  .mp-stage:has(math-field.pm-mf){--tab-nb:.85;}
-}
-/* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
-   septembre 2026) : « pour les exercices avec des cases à remplir avec des
-   nombres, sur les tablettes, après l'énoncé, les écritures avant et après une
-   case à remplir ont une police légèrement plus petite, ainsi que la police des
-   cases ». Sur une tablette, le clavier mange déjà la moitié de l'écran : une
-   chaîne d'égalités à 2 rem se replie, et une égalité coupée en deux se lit
-   comme deux calculs.
-   UN SEUL FACTEUR, ET IL VIT À UN SEUL ENDROIT. Les tailles de cette page sont
-   toutes en rem, c'est-à-dire ancrées à la racine : aucune règle posée sur un
-   conteneur ne les réduit. Plutôt que de recopier chaque taille dans un second
-   bloc — deux listes qui auraient fini par diverger, et c'est alors la case OU
-   son voisin qui aurait rétréci seul —, le facteur voyage dans une variable que
-   les règles MÊMES portent (calc(… * var(--tab-nb,1))). Case et écritures
-   rétrécissent donc exactement du même facteur, et « une case a la taille des
-   nombres qui l'entourent » tient par construction, pas par vigilance.
-   POSÉ SUR LE STAGE, PAS SUR LA PAGE : « .mp-stage » est ce qui vient APRÈS
-   l'énoncé — celui-ci (p.mp-instr) vit au-dessus, hors du stage, et garde donc
-   sa taille sans qu'on ait rien à lui retirer. Et « :has(math-field.pm-mf) »
-   restreint aux stages qui portent VRAIMENT une case à nombres : la feuille de
-   rédaction libre du 2.1.7 (dexp2-mf), qui a sa propre règle de tablette, n'est
-   pas touchée. Un navigateur qui ne connaîtrait pas « :has » retombe sur la
-   taille d'avant — jamais sur un écran cassé.
-   Ce qui NE bouge pas : la case générique à 1,05 rem (le 2.5.2, les colonnes du
-   3.1.4) — c'est déjà la plus petite du niveau, et elle reste une cible qu'on
-   touche du doigt —, les étiquettes d'étape et les boutons de propositions, qui
-   ne sont pas des écritures de la chaîne. Le facteur est déclaré dans
+   Ce qui NE bouge pas : la case générique à 1,05 rem (les colonnes du 3.1.4) —
+   c'est déjà la plus petite du niveau, et elle reste une cible qu'on touche du
+   doigt —, les étiquettes d'étape et les boutons de propositions, qui ne sont
+   pas des écritures de la chaîne. Le facteur est déclaré dans
    tests/profils.js (chaineTablette), deux sources ; même requête média que la
    police de la page (écran tactile d'au moins 600 px). */
 @media (pointer:coarse) and (min-width:600px){
