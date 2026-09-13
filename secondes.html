@@ -2644,7 +2644,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=156;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=157;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -13549,18 +13549,30 @@ function renderDevoirEditor(){
       <label class="dm-mode" title="Un exercice bonus vaut 1 point : il remonte la note sans la faire dépasser le maximum."><input type="checkbox" data-bonus="${id}" ${byBonus[id]?'checked':''}> Bonus (+1 pt)</label>
     </div>`;
   }).join('') : '<div class="empty">Ajoute d\u2019abord des exercices à l\u2019application pour pouvoir les mettre dans un devoir.</div>';
-  if(dmGenre==='fiche'){
-    const exOrd=(dev.exercices||[]).filter(e=>TESTS[e.id]);
-    $('dmExos').insertAdjacentHTML('beforeend', `
-      <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices de la fiche</div>
-      <p class="muted" style="font-size:.85rem;margin:0 0 12px">Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.</p>
-      <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo">
-        <span class="dm-exo-name"><b>${i+1}.</b> ${esc(testLabel(ex.id))}</span>
-        <span style="margin-left:auto;display:flex;gap:6px">
-          <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
-          <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
-        </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices de la fiche : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`);
-  }
+  /* L'ORDRE DES EXERCICES SE RÈGLE DANS LES DEUX FAMILLES (demande de Turquet,
+     septembre 2026 : « en seconde je souhaite pouvoir choisir l'ordre des
+     exercices pour les devoirs maison comme en terminale »). L'ordre rangé est
+     celui du tableau dev.exercices, celui-là même que la liste de l'élève, la
+     page du devoir, le total et le carnet lisent — l'AFFICHAGE suit, rien
+     d'autre. Ce qui diffère d'une famille à l'autre est le VERROU, et il vit
+     où il a toujours vécu : dmOrdreImpose(), donc GENRE_DEVOIRS. Sur une
+     fiche, l'ordre est IMPOSÉ aux élèves ; sur un devoir il n'ordonne que
+     l'écran — un devoir reste tout ouvert (décision de Turquet, août 2026),
+     et la phrase le dit, sans quoi l'écran promettrait un verrou qui n'existe
+     pas. */
+  const exOrd=(dev.exercices||[]).filter(e=>TESTS[e.id]);
+  const impose=dmOrdreImpose({genre:dmGenre});
+  $('dmExos').insertAdjacentHTML('beforeend', `
+    <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices ${fiche?'de la fiche':'du devoir'}</div>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">${impose
+      ? 'Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.'
+      : 'Les exercices s\u2019affichent aux élèves dans cet ordre — chacun reste libre de les faire comme il veut. Déplace un exercice avec ▲ et ▼.'}</p>
+    <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo">
+      <span class="dm-exo-name"><b>${i+1}.</b> ${esc(testLabel(ex.id))}</span>
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
+        <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
+      </span></div>`).join('') : `<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices ${fiche?'de la fiche':'du devoir'} : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>`}</div>`);
 }
 /* Lit le formulaire dans le devoir sélectionné (en mémoire), sans écrire en base. */
 function readEditorIntoDevoir(){
@@ -13575,22 +13587,22 @@ function readEditorIntoDevoir(){
   document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=10) nbqs[s.dataset.nbq]=n; });
   document.querySelectorAll('#dmExos select[data-smax]').forEach(s=>{ const n=parseInt(s.value,10); if(n>=6&&n<=10) smaxs[s.dataset.smax]=n; });   /* 5 = le défaut, ne s'écrit pas */
   document.querySelectorAll('#dmExos input[data-bonus]').forEach(cb=>{ if(cb.checked) bonus[cb.dataset.bonus]=true; });   /* le défaut (pas bonus) ne s'écrit pas */
-  /* L'ORDRE RANGÉ EST CELUI DE LA FICHE (demande de Turquet, août 2026) : une
-     fiche se fait dans l'ordre, donc relire le formulaire PRÉSERVE l'ordre
-     déjà rangé et ajoute les nouveaux cochés à la fin — l'ordre du menu
-     (TEST_ORDER) écraserait celui que le professeur vient de régler. Les
-     devoirs, tous ouverts, gardent l'ordre du menu, comme avant. */
+  /* L'ORDRE RANGÉ EST CELUI DU DEVOIR OU DE LA FICHE, dans les deux familles
+     (demande de Turquet : août 2026 pour les fiches, septembre 2026 pour les
+     devoirs — « comme en terminale »). Relire le formulaire PRÉSERVE l'ordre
+     déjà rangé et ajoute les nouveaux cochés à la FIN : l'ordre du menu
+     (TEST_ORDER) écraserait celui que le professeur vient de régler, à chaque
+     enregistrement et à chaque changement de devoir, sans erreur nulle part.
+     C'est le piège que les fiches ont déjà payé, au même endroit. */
   const coches=TEST_ORDER.filter(id=>map[id]&&map[id].length);
-  const ordre=(dmGenre==='fiche')
-    ? (dev.exercices||[]).map(e=>e.id).filter(id=>coches.includes(id))
-        .concat(coches.filter(id=>!(dev.exercices||[]).some(e=>e.id===id)))
-    : coches;
+  const ordre=(dev.exercices||[]).map(e=>e.id).filter(id=>coches.includes(id))
+    .concat(coches.filter(id=>!(dev.exercices||[]).some(e=>e.id===id)));
   dev.exercices=ordre.map(id=>Object.assign({id,modes:map[id]},
     nbqs[id]?{nbQ:nbqs[id]}:{}, smaxs[id]?{smax:smaxs[id]}:{}, bonus[id]?{bonus:true}:{}));
 }
-/* Le ruban d'ordre des fiches : l'ordre se voit et se règle. Les flèches
-   relisent d'abord le formulaire (cases cochées, entête) — un re-rendu sans
-   cette lecture effacerait ce qui vient d'être coché. */
+/* Le ruban d'ordre : l'ordre se voit et se règle, sur un devoir comme sur une
+   fiche. Les flèches relisent d'abord le formulaire (cases cochées, entête)
+   — un re-rendu sans cette lecture effacerait ce qui vient d'être coché. */
 function dmOrdreBouge(id,delta){
   readEditorIntoDevoir();
   const dev=selectedDevoir(); if(!dev) return;
@@ -13599,7 +13611,11 @@ function dmOrdreBouge(id,delta){
   const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
   renderDevoirEditor();
 }
-function dmExoCoche(){ if(dmGenre!=='fiche') return; readEditorIntoDevoir(); renderDevoirEditor(); }
+/* Cocher ou décocher un mode met le ruban d'ordre à jour : sans ce re-rendu,
+   l'exercice tout juste coché n'apparaîtrait dans le ruban qu'au prochain
+   changement de devoir. Les deux familles portent le ruban depuis septembre
+   2026, donc plus aucune garde de genre ici. */
+function dmExoCoche(){ readEditorIntoDevoir(); renderDevoirEditor(); }
 async function persistDevoirs(){
   const cur=await loadConfig();
   /* N'ÉCRIT QUE SA FAMILLE. La configuration vient d'être relue : l'autre
