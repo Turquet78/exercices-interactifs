@@ -6785,6 +6785,89 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 septies. Sur tablette, la chaîne à nombres écrit plus petit ----
+       Demande de Turquet (septembre 2026) : « pour les exercices avec des cases
+       à remplir avec des nombres, sur les tablettes, après l'énoncé, les
+       écritures avant et après une case ainsi que les cases elles-mêmes ont une
+       police légèrement plus petite ». jsdom lit les règles ; seul un navigateur
+       sait ce que la page MESURE une fois la requête média évaluée. Deux écrans,
+       et il les faut tous les deux : la tablette, où la chaîne réduit de la
+       police de la page ET du facteur, et l'ordinateur, où elle n'a pas bougé —
+       une règle qui réduirait partout ne serait pas la règle demandée.
+       Et TROIS bords, parce qu'en tenir un seul ne tient rien : la CASE réduit,
+       les ÉCRITURES qui l'entourent réduisent d'AUTANT — sans quoi la case
+       rétrécirait seule au milieu de nombres restés grands, exactement ce que la
+       règle « une case a la taille des nombres qui l'entourent » interdit —, et
+       l'ÉNONCÉ, lui, ne suit QUE la police de la page : la demande dit « après
+       l'énoncé ». */
+    titre('11 septies. SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT');
+    if(!P.chaineTablette || !P.policeTablette){
+      ignorer('sur tablette, la chaîne à nombres écrit plus petit que sur l\'ordinateur', 'ce fichier ne déclare pas de chaîne de tablette');
+    } else {
+      const T = P.chaineTablette;
+      const mesurer = ({ champ, ecriture, enonce }) => {
+        const on = document.querySelector('section.screen.on');
+        if(!on) return null;
+        const px = e => e ? Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10 : 0;
+        const vis = e => { if(!e) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+        const c = on.querySelector(champ);
+        /* Les écritures se relèvent sur l'ÉCRAN, hors de l'énoncé — pas dans le
+           stage : cherchées dans le stage, un stage disparu rendrait « aucune
+           écriture » et le contrôle rougirait en disant « mesure impossible »
+           au lieu de nommer le défaut, c'est-à-dire une chaîne qui n'a pas
+           rétréci. On retient donc à part si le stage à cases est là. */
+        const st = [...on.querySelectorAll('.mp-stage')].find(x => x.querySelector('math-field.pm-mf'));
+        const ecr = [...on.querySelectorAll(ecriture)].filter(e => vis(e) && !e.closest('.mp-instr'));
+        return { ecran: on.id, racine: parseFloat(getComputedStyle(document.documentElement).fontSize), stage: !!st,
+                 casePx: vis(c) ? px(c) : 0, ecrPx: ecr.length ? Math.max(...ecr.map(px)) : 0, nEcr: ecr.length,
+                 enoncePx: px(on.querySelector(enonce)) };
+      };
+      const ouvrirExo = async (page) => {
+        await page.evaluate(i => openTest(i), T.exercice);
+        await page.waitForTimeout(300);
+        await page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='train'") >= 0);
+          if(b) b.click();
+        });
+        await page.waitForTimeout(800);
+      };
+      const arg = { champ: T.champ, ecriture: T.ecriture, enonce: T.enonce };
+      let bureau = null, tablette = null;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      if(await connecter(s.page) === 'scr-space'){ await ouvrirExo(s.page); bureau = await s.page.evaluate(mesurer, arg); }
+      await s.nav.close(); s = null;
+      /* une tablette en PAYSAGE (1180 px) : au-dessus de la borne de 900 px, où
+         deux écrans resserrent déjà leurs cases — on mesure le facteur, pas le
+         réglage d'écran étroit. */
+      s = await ouvrir(chromium, ml, { viewport: { width: 1180, height: 820 }, hasTouch: true });
+      if(await connecter(s.page) === 'scr-space'){ await ouvrirExo(s.page); tablette = await s.page.evaluate(mesurer, arg); }
+      const attendu = (P.policeTablette / 100) * T.facteur;
+      const rap = (a, b) => (a && b) ? Math.round(1000 * a / b) / 1000 : 0;
+      const complet = bureau && tablette && bureau.casePx && bureau.ecrPx && bureau.enoncePx && tablette.nEcr;
+      verifier('sur tablette, la case à nombres écrit plus petit que sur l\'ordinateur (facteur ' + attendu.toFixed(3) + ')',
+        !!complet && Math.abs(rap(tablette.casePx, bureau.casePx) - attendu) < 0.02,
+        !complet ? 'mesure impossible (' + (bureau ? 'case ' + bureau.casePx + ' px, ' + (tablette ? tablette.nEcr : 0) + ' écriture(s)' : 'ordinateur injoignable') + ')'
+          : 'case ' + tablette.casePx + ' px sur tablette contre ' + bureau.casePx + ' sur ordinateur (rapport '
+            + rap(tablette.casePx, bureau.casePx) + ', attendu ' + Math.round(attendu * 1000) / 1000 + ')'
+            + (tablette.stage ? '' : ' — et aucun .mp-stage à cases sur cet écran : le facteur n\'a rien où se poser'));
+      verifier('les écritures qui l\'entourent réduisent d\'autant — la case ne rétrécit pas seule',
+        !!complet && Math.abs(rap(tablette.ecrPx, bureau.ecrPx) - attendu) < 0.02
+          && tablette.casePx >= tablette.ecrPx * 0.9,
+        !complet ? 'mesure impossible'
+          : 'écritures ' + tablette.ecrPx + ' px contre ' + bureau.ecrPx + ' (rapport ' + rap(tablette.ecrPx, bureau.ecrPx)
+            + ', attendu ' + Math.round(attendu * 1000) / 1000 + ') ; sur la tablette la case fait ' + tablette.casePx
+            + ' px pour des nombres à ' + tablette.ecrPx);
+      verifier('l\'énoncé, lui, ne suit que la police de la page — la demande dit « après l\'énoncé »',
+        !!complet && Math.abs(rap(tablette.enoncePx, bureau.enoncePx) - P.policeTablette / 100) < 0.02,
+        !complet ? 'mesure impossible'
+          : 'énoncé ' + tablette.enoncePx + ' px contre ' + bureau.enoncePx + ' (rapport ' + rap(tablette.enoncePx, bureau.enoncePx)
+            + ', attendu ' + P.policeTablette / 100 + ')');
+      verifier('la chaîne réduite ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ---- 11 quater. Sur tablette, la police de la page est réduite ----------
        Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
        tablette ». jsdom lit la règle ; seul un navigateur sait ce que la racine
