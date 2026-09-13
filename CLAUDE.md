@@ -3310,10 +3310,16 @@ règle « une mesure qui accuse la page se mesure elle-même d'abord » : sans
 éditeur rendu, `readEditorIntoDevoir` relit du VIDE et efface les exercices
 du devoir ; et un identifiant pris hors de `TEST_ORDER` n'a pas de case à
 cocher, donc quitte le devoir au premier enregistrement. Dans les deux cas la
-sonde accusait la page d'un défaut qui n'était que le sien. Neuf sabotages, chacun
-rougissant en nommant son défaut — sept au banc jsdom, deux que seul le
-navigateur voit : l'écran vidé quand même (« la page est tombée à 4346 px,
-elle en faisait 8680 ») et le focus non rendu. Et l'un d'eux a d'abord
+sonde accusait la page d'un défaut qui n'était que le sien.
+**ET LE CONTRÔLE DE LA POSITION EST VIVANT, ce qui ne se devinait pas** :
+l'écran vidé quand même ne le fait PAS rougir — l'ancrage de Chrome rattrape
+la position finale, et c'est l'AFFAISSEMENT qui nomme alors le défaut. Ce
+qu'il garde est le risque que le correctif introduit : `focus()` sur une case
+hors de l'écran FAIT DÉFILER la page. Le focus envoyé sur le premier champ au
+lieu du bon le montre — « la ligne notée est passée de 753 à 3107 px du haut
+de l'écran » — et c'est le seul sabotage qui l'atteint.
+Dix sabotages en tout, chacun rougissant en nommant son défaut : sept au
+banc jsdom, trois que seul le navigateur voit. Et l'un d'eux a d'abord
 frappé le VOISIN : le bloc d'erreur des MOYENNES n'est pas celui du BILAN,
 et le sabotage restait vert à bon droit tant que l'ancre n'était pas propre
 à sa cible — la leçon d'{antecedents-droite}, retombée telle quelle.
