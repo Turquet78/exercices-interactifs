@@ -2432,7 +2432,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=302;
+const APP_VERSION=303;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -18028,9 +18028,34 @@ function dmNoteDevoir(dev, eleveId, rows){
   return { somme:t.somme, totMax:t.totMax, nbFait:nbFait, nbExos:liste.length,
            fait:nbFait>0, exd:exd };
 }
+/* ON NE VIDE PAS UN ÉCRAN QU'ON VA REMPLIR AVEC LA MÊME CHOSE.
+   Poser une note redessine le bilan, et le bilan commençait par se réduire à
+   « Chargement… » : la page perdait d'un coup plusieurs milliers de pixels, le
+   navigateur ramenait le défilement dans ce qu'il en restait, et le professeur
+   qui notait au bas de sa liste se retrouvait ailleurs — sa note enregistrée,
+   sa place perdue (demande de Turquet, septembre 2026).
+   La boîte GARDE donc son contenu pendant la lecture et ne le remplace qu'une
+   fois le nouveau prêt : la hauteur ne bouge pas, donc rien ne bouge — et
+   c'est plus sûr que de rattraper le défilement après coup, qui suppose de
+   savoir où l'on était alors que le navigateur l'a déjà oublié.
+   LE BORD OPPOSÉ COMPTE AUTANT, et n'en tenir qu'un ne tient rien : quand
+   l'écran va dire AUTRE CHOSE — un autre devoir, une autre famille —, garder
+   l'ancien contenu ferait lire les notes du devoir 1 sous le titre du devoir 2,
+   et l'écran dirait autre chose que la note. C'est la CLÉ posée sur la boîte
+   qui départage les deux cas ; une lecture ratée l'efface, pour que la
+   tentative suivante reparte sur « Chargement… » plutôt que sur son échec. */
+function dmAttente(box, cle){
+  if(!box) return;
+  if(box.dataset.dmCle !== cle || !box.innerHTML.trim())
+    box.innerHTML='<p class="muted">Chargement…</p>';
+  box.dataset.dmCle = cle;
+}
+
 async function renderDmMoyennes(){
   const box=$('dmMoyennes'); if(!box) return;
-  box.innerHTML='<p class="muted">Chargement…</p>';
+  /* Le carnet couvre TOUS les devoirs de la famille : c'est elle, et elle
+     seule, qui change ce que cet écran raconte. */
+  dmAttente(box, 'moy:'+dmGenre);
   try{
     const [{data:eleves,error:e1},{data:rows,error:e2}]=await Promise.all([
       sb.from('eleves').select('id,prenom'),
@@ -18039,7 +18064,7 @@ async function renderDmMoyennes(){
     if(e1)throw e1; if(e2)throw e2;
     dmMoyDernier=dmMoyennes(dmList, eleves||[], rows||[]);
     box.innerHTML=dmMoyennesHTML(dmMoyDernier);
-  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+  }catch(e){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; box.dataset.dmCle=''; }
 }
 
 async function renderDevoirResultats(){
@@ -18048,10 +18073,12 @@ async function renderDevoirResultats(){
   renderDmMoyennes();
   const box=$('dmResults'); const dev=selectedDevoir();
   if($('dmResTitle')) $('dmResTitle').textContent = dev? ((dmGenre==='fiche'?'de la Fiche n°':'du Devoir n°')+dev.num) : '';
-  if(!dev){ box.innerHTML=''; return; }
+  if(!dev){ box.innerHTML=''; box.dataset.dmCle=''; return; }
   const exos=dev.exercices||[];
-  if(!exos.length){ box.innerHTML='<div class="empty">Ajoute au moins un exercice à ce devoir (et enregistre) pour suivre les résultats.</div>'; return; }
-  box.innerHTML='<p class="muted">Chargement…</p>';
+  if(!exos.length){ box.innerHTML='<div class="empty">Ajoute au moins un exercice à ce devoir (et enregistre) pour suivre les résultats.</div>'; box.dataset.dmCle=''; return; }
+  /* La clé est le devoir MONTRÉ : le même devoir garde son écran, un autre le
+     remplace par « Chargement… » — voir dmAttente(). */
+  dmAttente(box, 'res:'+dmGenre+':'+dev.id);
   try{
     const [{data:eleves,error:e1},{data:res,error:e2}]=await Promise.all([
       sb.from('eleves').select('id,prenom').order('prenom'),
@@ -18101,6 +18128,7 @@ async function renderDevoirResultats(){
         const champ = `<span class="dm-poser">`
           + `<input class="dm-noteinput" type="text" inputmode="decimal" value="${nd.posee?esc(fmtNote(nd.note)):''}"`
           + ` placeholder="${nd.fait?esc(fmtNote(nd.auto)):'—'}" aria-label="Note posée pour ${esc(x.e.prenom)} sur ${esc(testNum(ex.id))}"`
+          + ` data-cle="${esc(x.e.id+'|'+ex.id)}"`
           + ` onchange="poserNoteDevoir('${escJS(x.e.id)}','${escJS(ex.id)}',this.value)">`
           + `<span class="dm-sur">/10</span></span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${obtenu}${nb}${champ}</span></div>`;
@@ -18108,8 +18136,29 @@ async function renderDevoirResultats(){
       const totLbl=x.fait?`Note : ${fmtNote(x.somme)} / ${totMax}`:`Note : — / ${totMax}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
+    /* ET LE CHAMP QUI A LE FOCUS LE GARDE. Le bilan est reconstruit à chaque
+       note posée : sans cela, le professeur qui passe d'une note à la suivante
+       par Tab voit le clavier retomber sur la page à chaque fois. Le champ se
+       repère par la CLÉ sous laquelle sa note est rangée — jamais par son
+       rang, que le rendu recrée. Et on ne rend le focus que s'il était DANS
+       cette boîte : ailleurs, il appartient à ce que le professeur vient de
+       cliquer, et le lui reprendre serait pire que de l'avoir perdu. */
+    const actif=document.activeElement;
+    const focusCle=(actif && box.contains(actif) && actif.getAttribute)
+      ? actif.getAttribute('data-cle') : null;
     box.innerHTML=bilan+'<div class="set-h">Détail par élève</div>'+cards;
-  }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; }
+    if(focusCle){
+      const champs=box.querySelectorAll('.dm-noteinput');
+      for(let i=0;i<champs.length;i++){
+        if(champs[i].getAttribute('data-cle')!==focusCle) continue;
+        champs[i].focus();
+        /* le curseur AU BOUT de ce qui est écrit : setValue le remettrait au
+           début, et le professeur taperait au milieu de sa propre note */
+        try{ champs[i].setSelectionRange(champs[i].value.length, champs[i].value.length); }catch(e){}
+        break;
+      }
+    }
+  }catch(err){ box.innerHTML='<div class="empty">Connexion impossible.</div>'; box.dataset.dmCle=''; }
 }
 
 
@@ -18130,7 +18179,7 @@ async function poserNoteDevoir(eleveId, exoId, brut){
   if(t===''){ delete dev.notes[cle]; annonce='Note rendue à ce que l’élève a obtenu'; }
   else {
     const v=Number(t);
-    if(!isFinite(v) || t.match(/[^0-9.\-]/)){ toast('Note illisible — écris un nombre entre 0 et 10','err'); renderDevoirResultats(); return; }
+    if(!isFinite(v) || t.match(/[^0-9.\-]/)){ toast('Note illisible — écris un nombre entre 0 et 10','err'); await renderDevoirResultats(); return; }
     const borne=Math.max(0, Math.min(10, v));
     dev.notes[cle]=borne;
     annonce='Note posée : '+fmtNote(borne)+' / 10';
@@ -18138,7 +18187,11 @@ async function poserNoteDevoir(eleveId, exoId, brut){
   }
   try{ await persistDevoirs(); toast(annonce+' ✓','ok'); }
   catch(e){ toast('Enregistrement impossible — la note n’est pas gardée','err'); }
-  renderDevoirResultats();
+  /* ATTENDU, et pas seulement lancé : sans cela poserNoteDevoir rend la main
+     pendant que le bilan se redessine encore, et qui l'attend mesure l'écran
+     d'AVANT — le premier contrôle s'y est pris, et il accusait la page de ne
+     pas relire la note qu'elle venait d'enregistrer. */
+  await renderDevoirResultats();
 }
 
 /* export CSV */

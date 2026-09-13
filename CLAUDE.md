@@ -3261,6 +3261,63 @@ d'abord, le remède ensuite. Deux sabotages, chacun rougissant en nommant son
 défaut ; un troisième essai a rougi sur le CONTRÔLE voisin, celui des
 adresses vers la page d'aiguillage, et il avait raison.
 
+**L'écran du bilan ne bouge plus quand le professeur pose une note.** Demande
+de Turquet (septembre 2026) : « quand je modifie une note je souhaite que la
+page réapparaisse exactement au même endroit ». Poser une note redessine le
+bilan, et le bilan commençait par se réduire à « Chargement… » : mesuré en
+Chromium, la page tombait de 8986 à 4346 px et le défilement était ramené de
+8086 à 3446 — le professeur qui notait au bas de sa liste voyait tout partir.
+Le navigateur finissait par le ramener à peu près, et c'est ce « à peu près »
+qui trompait : la position revenait par l'ANCRAGE de Chrome, une heuristique
+qui lâche dès que l'ancre disparaît avec le contenu — jamais par la page.
+**ON NE VIDE PLUS UN ÉCRAN QU'ON VA REMPLIR AVEC LA MÊME CHOSE**
+(`dmAttente`) : la boîte garde son contenu pendant la lecture et ne le
+remplace qu'une fois le nouveau prêt. La hauteur ne bouge pas, donc rien ne
+bouge — et c'est plus sûr que de rattraper le défilement APRÈS coup, qui
+suppose de savoir où l'on était alors que le navigateur l'a déjà oublié.
+**Le bord OPPOSÉ compte autant** : quand l'écran va dire AUTRE CHOSE — un
+autre devoir, une autre famille —, garder l'ancien contenu ferait lire les
+notes du devoir 1 sous le titre du devoir 2, et l'écran dirait autre chose
+que la note. C'est une CLÉ posée sur la boîte qui départage les deux cas, et
+une lecture ratée l'efface — sans quoi la tentative suivante repartirait sur
+son propre échec au lieu d'attendre. Les DEUX boîtes la portent, le bilan et
+le carnet des moyennes juste au-dessus : n'en réparer qu'une laisserait
+l'autre coincée, et le sabotage l'a montré.
+**Et le champ qui a le focus le garde** : le bilan est reconstruit à chaque
+note posée, et le professeur qui passe d'une note à la suivante par Tab
+voyait le clavier retomber sur la page. Le champ se repère par la CLÉ sous
+laquelle sa note est rangée (`data-cle`) — jamais par son rang, que le rendu
+recrée — et le focus n'est rendu que s'il était DANS cette boîte : ailleurs,
+il appartient à ce que le professeur vient de cliquer, et le lui reprendre
+serait pire que de l'avoir perdu.
+**`poserNoteDevoir` ATTEND désormais son rendu.** Sans cela elle rend la main
+pendant que le bilan se redessine encore, et qui l'attend mesure l'écran
+d'AVANT — le premier contrôle s'y est pris, et il accusait la page de ne pas
+relire la note qu'elle venait d'enregistrer.
+**Deux bancs, la répartition habituelle.** jsdom mesure SANS minuteur :
+`renderDevoirResultats` s'exécute jusqu'à sa PREMIÈRE attente avant de rendre
+la main, et c'est là que la boîte se vidait — on l'appelle donc sans
+attendre, on regarde ce qu'elle affiche, puis on attend ; aucune course. Le
+NAVIGATEUR mesure ce que jsdom n'a pas, la hauteur et le défilement : un
+observateur relève la hauteur de la page à CHAQUE changement de la boîte, si
+bien que l'affaissement se voit même quand il ne dure qu'un tour de boucle —
+retarder le double pour le rendre visible aurait fait mesurer l'attente au
+lieu de la page. Il lui faut une page HAUTE (douze élèves, trois exercices) :
+un devoir d'un seul exercice tient dans l'écran, et il n'y a alors rien à
+déplacer — le contrôle le dit plutôt que de passer au vert.
+**Deux pièges de SONDE s'y sont montrés, tous deux du banc**, et c'est la
+règle « une mesure qui accuse la page se mesure elle-même d'abord » : sans
+éditeur rendu, `readEditorIntoDevoir` relit du VIDE et efface les exercices
+du devoir ; et un identifiant pris hors de `TEST_ORDER` n'a pas de case à
+cocher, donc quitte le devoir au premier enregistrement. Dans les deux cas la
+sonde accusait la page d'un défaut qui n'était que le sien. Neuf sabotages, chacun
+rougissant en nommant son défaut — sept au banc jsdom, deux que seul le
+navigateur voit : l'écran vidé quand même (« la page est tombée à 4346 px,
+elle en faisait 8680 ») et le focus non rendu. Et l'un d'eux a d'abord
+frappé le VOISIN : le bloc d'erreur des MOYENNES n'est pas celui du BILAN,
+et le sabotage restait vert à bon droit tant que l'ancre n'était pas propre
+à sa cible — la leçon d'{antecedents-droite}, retombée telle quelle.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une

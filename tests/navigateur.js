@@ -1533,6 +1533,82 @@ async function parcours(page, N){
         /4\s*\/\s*10/.test(rendu.texte.replace(/ /g, ' '))
           && !(rendu.notes && rendu.notes[eleveId + '|' + N.exercice] !== undefined),
         'affiché : ' + rendu.texte.slice(0, 160) + ' — notes : ' + JSON.stringify(rendu.notes || null));
+      /* ---- ET L'ÉCRAN NE BOUGE PAS (demande de Turquet, septembre 2026) ----
+         « quand je modifie une note je souhaite que la page réapparaisse
+         exactement au même endroit ». Le bilan commençait par se réduire à
+         « Chargement… » : la page tombait de 8986 à 4346 px et le défilement
+         était ramené de 8086 à 3446 — mesuré ici même. Le navigateur finissait
+         par rattraper la position, mais c'est une heuristique d'ancrage, pas la
+         page : elle lâche dès que l'ancre disparaît avec le contenu.
+         LA MESURE NE DÉPEND D'AUCUN MINUTEUR : un observateur relève la HAUTEUR
+         de la page à chaque changement de la boîte, si bien que l'affaissement
+         se voit même quand il ne dure qu'un tour de boucle — retarder le double
+         pour le rendre visible aurait fait mesurer l'attente au lieu de la
+         page. Et il faut une page HAUTE : un devoir d'un exercice et d'un seul
+         élève tient dans l'écran, et il n'y a alors rien à déplacer. */
+      await s.page.evaluate(o => {
+        const eleves = (window.__faux.tables[o.tEleves] || []).slice(0, 1);
+        for(let i = 0; i < 12; i++)
+          eleves.push({ id:'b'+i, prenom:'Banc '+i, cle:'cb'+i, user_id:'ub'+i });
+        window.__faux.tables[o.tEleves] = eleves;
+        window.__faux.tables[o.params] = [{ id:1, valeurs:{ devoirs:[
+          { id:'dm-banc', num:7, actif:true, titre:'Devoir du banc',
+            exercices:o.exos.map(function(id){ return { id:id, modes:['train'] }; }) }] } }];
+        teacherTab('devoir');
+      }, { tEleves:P.tableEleves, params:N.tableParametres,
+           exos:[N.exercice].concat(await s.page.evaluate(x => TEST_ORDER.filter(i => i !== x).slice(0, 2), N.exercice)) });
+      await s.page.waitForTimeout(1400);
+
+      const haut = await s.page.evaluate(() => {
+        const champs = document.querySelectorAll('#dmResults .dm-noteinput');
+        if(champs.length < 12) return { assez:false, n:champs.length };
+        const c = champs[champs.length - 1];
+        c.scrollIntoView({ block:'center' });
+        window.__etapes = [];
+        const o = new MutationObserver(() => window.__etapes.push({
+          h: Math.round(document.documentElement.scrollHeight),
+          y: Math.round(window.scrollY) }));
+        o.observe(document.getElementById('dmResults'), { childList:true });
+        return { assez:true, n:champs.length, cle:c.getAttribute('data-cle'),
+                 hauteur: Math.round(document.documentElement.scrollHeight),
+                 y: Math.round(window.scrollY), top: Math.round(c.getBoundingClientRect().top) };
+      });
+      if(!haut.assez){
+        verifier('poser une note ne déplace pas la page', false,
+          'le bilan ne pose que ' + haut.n + ' champ(s) : rien à faire défiler, le contrôle ne mesure rien');
+      } else {
+        await s.page.evaluate(cle => {
+          const c = [].slice.call(document.querySelectorAll('#dmResults .dm-noteinput'))
+            .filter(x => x.getAttribute('data-cle') === cle)[0];
+          c.focus(); c.value = '6'; c.dispatchEvent(new Event('change', { bubbles:true }));
+        }, haut.cle);
+        await s.page.waitForTimeout(1200);
+        const bas = await s.page.evaluate(cle => {
+          const c = [].slice.call(document.querySelectorAll('#dmResults .dm-noteinput'))
+            .filter(x => x.getAttribute('data-cle') === cle)[0];
+          const a = document.activeElement;
+          return { etapes: window.__etapes || [], y: Math.round(window.scrollY),
+                   top: c ? Math.round(c.getBoundingClientRect().top) : null,
+                   valeur: c ? c.value : null,
+                   focus: a && a.getAttribute ? a.getAttribute('data-cle') : null };
+        }, haut.cle);
+        const creux = bas.etapes.length ? Math.min.apply(null, bas.etapes.map(e => e.h)) : haut.hauteur;
+        verifier('l\'écran ne s\'affaisse pas pendant que la note s\'enregistre',
+          bas.etapes.length > 0 && creux >= haut.hauteur - 200,
+          !bas.etapes.length ? 'la boîte n\'a pas été redessinée : le contrôle ne mesure rien'
+            : 'la page est tombée à ' + creux + ' px (elle en faisait ' + haut.hauteur + ') — '
+              + JSON.stringify(bas.etapes));
+        verifier('la page réapparaît exactement au même endroit',
+          bas.top !== null && Math.abs(bas.top - haut.top) <= 8 && Math.abs(bas.y - haut.y) <= 8,
+          bas.top === null ? 'le champ a disparu du bilan'
+            : 'la ligne notée est passée de ' + haut.top + ' à ' + bas.top + ' px du haut de l\'écran'
+              + ' (défilement ' + haut.y + ' → ' + bas.y + ')');
+        verifier('le champ noté garde le focus, avec sa note',
+          bas.focus === haut.cle && bas.valeur === '6',
+          'focus sur « ' + String(bas.focus) + ' » (attendu « ' + haut.cle + ' ») — le champ dit « '
+            + String(bas.valeur) + ' »');
+      }
+
       verifier('poser une note ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
