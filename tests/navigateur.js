@@ -5426,9 +5426,20 @@ async function parcours(page, N){
                est À CÔTÉ : au-delà de 120 px de vide horizontal, c'est un autre
                bloc, pas un voisin. */
             const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+            /* UN NOMBRE ÉCRIT PAR LA PAGE N'EST PAS TOUJOURS UN NOMBRE NU.
+               Le premier relevé n'acceptait que « 90 » ou « 1,5 » : au 2.5.2 de
+               la Première, les voisins d'une case s'écrivent « 1 + », « 1 + 0, »
+               et « 1, » — la page y posait des cases à 1,05 rem devant des
+               nombres à 2 rem, et le contrôle passait au vert en regardant
+               ailleurs (signalé en mesurant la chaîne de tablette, septembre
+               2026). On accepte donc un morceau COURT qui porte un chiffre et
+               aucune lettre : le signe et la virgule qui l'accompagnent font
+               partie du calcul écrit, pas d'un autre bloc. Les étiquettes
+               (« Question 1 / 4 ») portent des lettres, et ce qui vit ailleurs
+               à l'écran est déjà écarté par la ligne partagée et les 120 px. */
             const chiffres = [...on.querySelectorAll('*')].filter(x => x.children.length === 0
               && !x.closest('math-field')
-              && /^[0-9]+([.,][0-9]+)?$/.test((x.textContent || '').trim())
+              && (function(t){ return t.length <= 12 && /\d/.test(t) && !/\p{L}/u.test(t); })((x.textContent || '').trim())
               && x.getBoundingClientRect().width > 0);
             const cases = [];
             for(const mf of [...on.querySelectorAll('math-field')].filter(visible)){
