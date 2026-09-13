@@ -9797,6 +9797,110 @@ function bulleErreur(w, apres){
     /lancerConseil\(/.test(adapt),
     'bexpLancer n’appelle plus lancerConseil : l’explication partirait sans les garde-fous du Conseil');
 
+  /* ----- LA PLACE de la bulle : à côté de la case, la flèche sur elle -----
+     Demande de Turquet (septembre 2026) : « il faudrait que la bulle qui
+     apparaît "comprendre mon erreur" quand une case est rouge soit à côté de
+     la case avec une flèche vers cette case. » C'est un RENVERSEMENT du coin
+     fixe, et l'objection qui l'avait imposé — une bulle ancrée recouvre la
+     case d'en dessous, et le clic de l'élève part dedans — est TENUE ici :
+     le contrôle exige qu'aucun côté retenu ne chevauche une case.
+     Le choix étant de la GÉOMÉTRIE pure, il se mesure au banc jsdom bien que
+     jsdom n'ait aucune mise en page : un rectangle POSÉ À LA MAIN se juge
+     exactement comme un vrai. On éprouve les quatre côtés ET le repli, en
+     posant à chaque tour l'obstacle juste là où il faut pour écarter le
+     candidat précédent — et rien d'autre : un obstacle qui en bloquerait deux
+     ferait passer le contrôle sans qu'on sache lequel il mesure. Le RENDU —
+     la flèche DESSINÉE, sa pointe sur la case — est au banc navigateur. */
+  const COTES_B = { droite:'right', gauche:'left', haut:'top', bas:'bottom' };
+  const sansFleche = Object.keys(COTES_B).filter(function(c){
+    /* deux triangles par côté : le cadre (--red) et le fond (--surface) ; et
+       c'est le BORD nommé qui donne le SENS — un border-left là où il faut un
+       border-right retourne la flèche, le défaut de la retenue de la
+       soustraction : bonne place, mauvais sens. */
+    const re = new RegExp('#bexpBulle\\[data-bexp-cote="' + c +
+      '"\\]::(?:before|after)\\{[^}]*border-' + COTES_B[c] + '-color:var\\(--(?:red|surface)\\)', 'g');
+    return (srcIci.match(re) || []).length !== 2;
+  });
+  verifier('la flèche est dessinée pour les quatre côtés, au bon bord et en deux encres',
+    sansFleche.length === 0,
+    'côté(s) sans leurs deux triangles au bord attendu : ' + sansFleche.join(', '));
+
+  const geo = evaluer(w, [
+    "(function(){",
+    "  const ecr=document.querySelector('.screen.on')||document.body;",
+    "  const rect=function(x,y,l,h){ return {left:x,top:y,right:x+l,bottom:y+h,width:l,height:h,x:x,y:y}; };",
+    "  const b=bexpElt(); b.hidden=false;",
+    "  b.getBoundingClientRect=function(){ return rect(0,0,300,120); };",
+    "  const cas=document.createElement('input'); ecr.appendChild(cas);",
+    "  cas.getBoundingClientRect=function(){ return rect(400,500,40,30); };",
+    "  const obs=[];",
+    "  const poser=function(x,y,l,h){ const e=document.createElement('input');",
+    "    e.getBoundingClientRect=function(){ return rect(x,y,l,h); };",
+    "    ecr.appendChild(e); obs.push(e); return e; };",
+    "  const jouer=function(){ bexpCase=cas; bexpPlacer();",
+    "    return { cote:b.dataset.bexpCote||'', x:b.style.left, y:b.style.top,",
+    "             droite:b.style.right, bas:b.style.bottom,",
+    "             fx:b.style.getPropertyValue('--bexp-fx') }; };",
+    "  const out={ fenetre:window.innerWidth+'x'+window.innerHeight };",
+    "  out.aDroite=jouer();",
+    "  poser(600,535,20,25); out.aGauche=jouer();",
+    "  poser(150,535,20,25); out.enHaut=jouer();",
+    "  poser(400,400,20,20); out.enBas=jouer();",
+    "  /* l'ancre n'est PAS un obstacle : c'est SA case. Sans ce bord, la bulle",
+    "     ne pourrait jamais se poser à côté de la case qu'elle explique. */",
+    "  out.sansAncre=bexpObstacles(cas).length; out.avecAncre=bexpObstacles(null).length;",
+    "  poser(400,600,20,20); out.leCoin=jouer();",
+    "  /* le chevauchement lui-même, aux deux bords : deux rectangles qui se",
+    "     TOUCHENT ne se chevauchent pas, un pixel commun suffit à chevaucher */",
+    "  out.colle=bexpChevauche(0,0,10,10,[rect(10,0,10,10)]);",
+    "  out.dedans=bexpChevauche(0,0,10,10,[rect(9,0,10,10)]);",
+    "  obs.forEach(function(e){ e.remove(); }); cas.remove(); bexpMasquer();",
+    "  return out;",
+    "})()"
+  ].join('\n'));
+
+  if(!geo.ok){
+    verifier('la bulle se place à côté de sa case', false, 'erreur JavaScript : ' + geo.erreur);
+  } else {
+    const g = geo.valeur;
+    const dit = k => JSON.stringify(g[k]);
+    /* à droite : la bulle commence 14 px après la case (454 = 440 + 14) et sa
+       flèche tombe au MILIEU de sa hauteur, c'est-à-dire sur le centre de la
+       case (60 = 120 / 2) — une flèche posée au hasard désignerait le vide */
+    verifier('rien ne gêne : la bulle se pose À DROITE de la case, flèche sur son centre',
+      g.aDroite.cote === 'droite' && g.aDroite.x === '454px' && g.aDroite.fx === '60px',
+      'mesuré ' + dit('aDroite') + ' (fenêtre ' + g.fenetre + ')');
+    verifier('une case à droite la renvoie À GAUCHE, jamais par-dessus',
+      g.aGauche.cote === 'gauche' && g.aGauche.x === '86px' && g.aGauche.fx === '60px',
+      'mesuré ' + dit('aGauche'));
+    verifier('les deux côtés pris, elle monte AU-DESSUS, flèche sur son milieu',
+      g.enHaut.cote === 'haut' && g.enHaut.y === '366px' && g.enHaut.fx === '150px',
+      'mesuré ' + dit('enHaut'));
+    verifier('le dessus pris aussi, elle descend EN DESSOUS',
+      g.enBas.cote === 'bas' && g.enBas.y === '544px' && g.enBas.fx === '150px',
+      'mesuré ' + dit('enBas'));
+    /* le repli : quatre côtés pris, la bulle retourne au coin — et SANS
+       flèche, parce qu'une flèche qui ne désigne rien mentirait */
+    verifier('les quatre côtés pris, elle retombe au coin et perd sa flèche',
+      g.leCoin.cote === '' && g.leCoin.droite === '16px' && g.leCoin.fx === '',
+      'mesuré ' + dit('leCoin'));
+    /* UN SEUL bord posé par axe : vider une propriété en ligne rend la main à
+       la FEUILLE DE STYLES, qui repose right:16px et bottom:92px — les deux
+       bords posés, le navigateur ÉTIRE la boîte, sa taille change avec sa
+       place, et l'observateur de taille boucle sans fin. Le navigateur l'a
+       nommé ; ce bord-là le retient ici, où il coûte une ligne. */
+    verifier('ancrée, elle ne garde AUCUN bord de la feuille de styles',
+      ['aDroite','aGauche','enHaut','enBas'].every(k => g[k].droite === 'auto' && g[k].bas === 'auto'),
+      'bords restants : ' + ['aDroite','aGauche','enHaut','enBas']
+        .map(k => k + ' right=' + g[k].droite + ' bottom=' + g[k].bas).join(' | '));
+    verifier('la case ancre n’est pas son propre obstacle',
+      g.avecAncre === g.sansAncre + 1,
+      'obstacles comptés : ' + g.sansAncre + ' sans l’ancre, ' + g.avecAncre + ' avec');
+    verifier('deux cases qui se touchent ne se chevauchent pas, un pixel commun oui',
+      g.colle === false && g.dedans === true,
+      'collées : ' + g.colle + ', d’un pixel dedans : ' + g.dedans);
+  }
+
   evalPromis(w, `(async function(){
     const bilan={};
     const attendre=async()=>{ await Promise.resolve(); await Promise.resolve(); };
