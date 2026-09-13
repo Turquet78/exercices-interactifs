@@ -2014,6 +2014,71 @@ que ce soit. Un sabotage qui casse la page ne dit rien du contrôle visé ; le
 bord de l'indécidable est tenu par le repli inventé à la main (une
 affirmation sur une flèche qui traverse 0), que le contrôle nomme.
 
+**La SYNTHÈSE : dix questions sur un seul dessin.** {synthese-fonction}
+(Seconde, demande de Turquet, septembre 2026, repris de la fiche « Synthèse
+fonction ») ferme le thème Fonctions : la courbe de f sur son ensemble de
+définition et la droite de g sur le MÊME graphique conservé, et les dix
+questions de la fiche dans son ordre, sur quatre écrans — a) le domaine et
+quatre images, b) les antécédents d'une hauteur, l'équation f(x) = c et
+l'inéquation, c) le tableau de variation et le tableau de signes, d) f contre
+g, le maximum et le minimum. Chaque question a son exercice au menu ; celui-ci
+les rassemble.
+**Tout est repris, rien n'est recopié** : le tirage est `gsvGen()` — le
+générateur du 2.15, deux racines intérieures, chacune un vrai croisement,
+jamais de palier ; le dessin est `adrSVG()`, la fonction même, à qui l'on donne
+le MORCEAU du domaine et la droite par son crochet « dessus » ; l'analyse des
+variations est `gsvAnalyze()`, REMISE À SA PLACE (la tranche repart de −6, on
+la décale) ; les deux tableaux sont ceux de {signes-variations-grand}
+(`varTableHTML` / `varTableSubs`, les fonctions mêmes du 2.1) ; le maximum et
+le minimum viennent de `mmxAns()`, la fonction qui corrige le 2.16 ; les listes
+d'intervalle sont la famille `.itv-sel` et la légende f/g est `fgLegende()`.
+**Trois généralisations d'un TOKEN chacune, et leur bord opposé est tenu par
+les exercices voisins** : `adrCibles` boucle sur la longueur du tableau (pour
+lire les hauteurs sur la TRANCHE du domaine), `adrPath` et `adrSVG` acceptent
+un morceau (ia, ib) et marquent ses deux bouts — la convention de `lvPath` au
+2.6. Appelées sans eux, les trois exercices d'avant ne changent pas d'un pixel,
+et leurs contrôles le disent.
+**LE SENS DE CHAQUE INÉQUATION SUIT LA COURBE, la strictesse est tirée.** La
+première version exigeait f EN DESSOUS entre les deux croisements (et f
+au-dessus de g) : le tirage coûtait 1187 essais et échouait 15 fois sur 300 —
+le repli serait sorti une séance sur vingt. En laissant le SENS suivre le côté
+où f se trouve (`f(x) < c` ou `f(x) > c`, `f(x) > g(x)` ou `f(x) < g(x)`), S
+reste UN SEUL intervalle — la forme que la ligne de réponse demande — et le
+tirage tombe à 202 essais, 300 séances sur 300 (sonde, septembre 2026). Le
+crochet, lui, suit la strictesse, tirée : sans quoi l'élève apprendrait que le
+crochet est toujours le même (la leçon du 2.18).
+**Les risques propres sont ceux de la famille, réunis** : une hauteur traversée
+entre deux graduations (illisible), un croisement de f et g hors graduation, un
+extremum atteint deux fois, une racine hors du domaine — le tableau de signes
+n'aurait pas ses deux racines et l'énoncé mentirait. Le tirage les écarte et le
+contrôle les RECOMPTE par sa propre arithmétique, tirage après tirage, en
+relisant la spline que le dessin trace pour compter les traversées.
+**La bonne réponse n'est jamais rangée à côté de la question** : elle ne porte
+que la courbe, le domaine, la droite, les deux hauteurs, les sens, la
+strictesse et les quatre abscisses — le contrôle refuse tout autre champ — et
+tout le reste est recalculé par les fonctions qui corrigent. Le MÊME graphique
+sert les quatre parties, et le contrôle l'exige : un dessin qui changerait en
+route ferait de la synthèse quatre exercices sans rapport.
+**Deux défauts ne se sont vus que sur la capture** : le dessin restait au
+réglage général (460 px) alors qu'il porte DIX questions — ses graduations
+n'étaient plus lisibles —, et la droite de g, tracée d'un bord à l'autre du
+cadre, SORTAIT du quadrillage par le haut, son étiquette posée sur les
+graduations. Elle est coupée au cadre, et le dessin passe à 760 px.
+Le banc NAVIGATEUR (« 6 vicies quater », déclaré par `syntheseFonction`) tient
+ce que jsdom ne voit pas : la courbe qui s'arrête à son domaine — mesurée
+contre les GRADUATIONS RENDUES, aucune coordonnée recopiée —, ses deux bouts
+marqués, la droite et la légende, la copie juste CLIQUÉE sur les quatre
+parties, et la ligne de solution qui ne se replie pas.
+Treize sabotages, chacun rougissant en nommant son défaut — et **le
+treizième est d'abord resté VERT, en montrant un contrôle INTERMITTENT** :
+la règle des paires se mesure en reposant les antécédents dans l'autre
+ordre, or 85 % des tirages n'en donnent qu'UN (sonde : 170 sur 200), et
+renverser une liste d'un élément ne renverse rien — l'ordre imposé passait
+donc, à bon droit, quatre fois sur cinq. Le contrôle CHERCHE désormais une
+séance au pluriel et le DIT s'il n'en trouve pas : un contrôle qui n'a rien
+à mesurer ne mesure rien. Rejoué sur une séance à deux antécédents, le
+sabotage rougit (« les antécédents dans l'autre ordre ne valent que 0/3 »).
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :

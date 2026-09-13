@@ -2958,6 +2958,7 @@ function exercices(suite){
     tableauVariationDirect(w, P);
     grandsTableaux(w, P);
     qcmTableauVariation(w, P);
+    syntheseFonction(w, P);
     maximumMinimum(w, P);
     maximumMinimumTableau(w, P);
     tableauEquations(w, P);
@@ -13955,6 +13956,171 @@ function tableauVraiFaux(w, P){
     { const c=ctxTvf(Q).contexte; if(c.indexOf('f (5) est positif')<0||c.indexOf('VRAI, sur [4 ; 6] f est comprise entre 0 et 3')<0||c.indexOf('VRAI, croissante sur [\\u22121 ; 4]')<0) vus.push('le contexte du modèle ne porte pas les affirmations et leurs justifications attendues : '+c.slice(-260)); }
     currentMode='train';
 
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- La synthèse : tout lire sur un seul graphique ---------- */
+/* Demande de Turquet (septembre 2026), fiche « Synthèse fonction » : les dix
+   questions de la fiche sur UN dessin conservé — le domaine, quatre images,
+   les antécédents, une équation, une inéquation, les deux tableaux,
+   f (x) contre g (x), le maximum et le minimum.
+   Le contrôle REFAIT par sa propre arithmétique ce que le tirage promet — un
+   tirage qui mentirait donnerait tort à une lecture juste, le pire défaut du
+   projet — puis il joue une copie JUSTE sur les quatre parties, une copie
+   VIDE, et les bords de la règle des paires. */
+function syntheseFonction(w, P){
+  const nom='la synthèse : le tirage se relit, et la copie juste vaut le barème entier';
+  const present = evaluer(w, "typeof startSYN==='function' && typeof synGen==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n’a pas l’exercice de synthèse'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='synthese-fonction';
+    const F=function(q,x){ return q.pts[x+6]; }, G=function(q,x){ return q.ga*x+q.gb; };
+
+    /* ---- 0. le PARTAGE : rien n'est recopié — le tirage est celui du 2.15,
+       le dessin celui d'{antecedents-droite}, les tableaux ceux du 2.1, le
+       maximum celui du 2.16. Un second moteur aurait fini par diverger. ---- */
+    /* renderSYN est ENVELOPPÉE par la greffe des jetons : sa chaîne parle
+       d autre chose — on lit la SOURCE de la page (le piège du 2.14). */
+    { const H=document.documentElement.outerHTML;
+      const i0=H.indexOf('function renderSYN('), i1=(i0<0?-1:H.indexOf('function synArrowChange', i0));
+      const src=String(synGen)+String(synAnalyse)+String(synCheckPart)+((i0>=0&&i1>i0)?H.slice(i0,i1):'');
+      [['gsvGen','le tirage du 2.15'],['gsvAnalyze','l analyse du 2.15'],['adrCibles','les hauteurs lisibles'],
+       ['mmxUnique','l unicité des extremums du 2.16'],['mmxAns','le maximum du 2.16'],
+       ['varTableHTML','le tableau du 2.1'],['varTableSubs','le jugement du tableau du 2.1'],
+       ['adrSVG','le dessin d {antecedents-droite}'],['fgLegende','la légende f/g']].forEach(function(p){
+        if(src.indexOf(p[0])<0) vus.push('la synthèse n utilise plus '+p[1]+' ('+p[0]+')');
+      }); }
+
+    /* ---- 1. LE TIRAGE, relu par sa propre arithmétique ---- */
+    const champs=['pts','ia','ib','ga','gb','c','k','op','sensG','img','part'];
+    let nRepli=0;
+    for(let n=0;n<120;n++){
+      const q=synGen();
+      if(!q){ vus.push('le tirage rend null'); break; }
+      Object.keys(q).forEach(function(cl){ if(champs.indexOf(cl)<0) vus.push('la question porte un champ de plus : '+cl); });
+      const a=q.ia-6, b=q.ib-6;
+      if(b-a<8) vus.push('le domaine ne fait que '+(b-a)+' graduations');
+      /* les deux racines du tableau de signes, strictement dans le domaine */
+      const rac=[]; for(let x=-6;x<=6;x++){ if(F(q,x)===0) rac.push(x); }
+      if(rac.length!==2||rac[0]<=a||rac[1]>=b) vus.push('les racines ne sont pas strictement dans le domaine : '+rac.join(','));
+      /* le maximum et le minimum se LISENT : un seul x pour chacun */
+      let M=-99,m=99,nM=0,nm=0;
+      for(let x=a;x<=b;x++){ if(F(q,x)>M) M=F(q,x); if(F(q,x)<m) m=F(q,x); }
+      for(let x=a;x<=b;x++){ if(F(q,x)===M) nM++; if(F(q,x)===m) nm++; }
+      if(nM!==1||nm!==1) vus.push('un extremum est atteint deux fois ('+nM+' / '+nm+')');
+      /* la hauteur de l équation : jamais 0, deux croisements intérieurs,
+         jamais traversée entre deux graduations, f du MÊME côté au milieu —
+         et le SENS de l inéquation suit ce côté */
+      if(q.c===0) vus.push('la hauteur de l équation est 0 : ce serait la question des racines');
+      const xc=[]; for(let x=a;x<=b;x++){ if(F(q,x)===q.c) xc.push(x); }
+      if(xc.length!==2||xc[0]<=a||xc[1]>=b) vus.push('la hauteur c a '+xc.length+' croisement(s)');
+      else{
+        const haut=(q.op.charAt(0)==='g');
+        for(let x=xc[0]+1;x<xc[1];x++){ if(haut ? F(q,x)<=q.c : F(q,x)>=q.c) vus.push('le sens de l inéquation ne suit pas la courbe'); }
+      }
+      for(let x=a;x<b;x++){ const lo=Math.min(F(q,x),F(q,x+1)), hi=Math.max(F(q,x),F(q,x+1));
+        if(q.c>lo&&q.c<hi) vus.push('la hauteur c est traversée entre deux graduations');
+        if(q.k>lo&&q.k<hi) vus.push('la hauteur des antécédents est traversée entre deux graduations'); }
+      /* la hauteur des antécédents : 1 à 3, jamais 0 ni c */
+      const ant=[]; for(let x=a;x<=b;x++){ if(F(q,x)===q.k) ant.push(x); }
+      if(!ant.length||ant.length>3) vus.push('la hauteur des antécédents en donne '+ant.length);
+      if(q.k===0||q.k===q.c) vus.push('la hauteur des antécédents refait une autre question');
+      /* la droite : dans le cadre, deux croisements intérieurs, la MARGE de 1
+         partout ailleurs, f du même côté au milieu, et AUCUNE retraversée
+         entre deux graduations — relue sur la spline que le dessin trace */
+      for(let x=a;x<=b;x++){ if(Math.abs(G(q,x))>6) vus.push('la droite sort du cadre'); }
+      const xg=[]; for(let x=a;x<=b;x++){ if(F(q,x)===G(q,x)) xg.push(x); }
+      if(xg.length!==2||xg[0]<=a||xg[1]>=b) vus.push('la droite croise f '+xg.length+' fois');
+      else{
+        const hautG=(q.sensG==='gt');
+        for(let x=xg[0]+1;x<xg[1];x++){ if(hautG ? F(q,x)<=G(q,x) : F(q,x)>=G(q,x)) vus.push('le sens de f contre g ne suit pas la courbe'); }
+        for(let x=a;x<=b;x++){ if(xg.indexOf(x)<0 && Math.abs(F(q,x)-G(q,x))<1) vus.push('f frôle la droite sans la croiser'); }
+        let chg=0, prev=0;
+        for(let t=0;t<=(b-a)*40;t++){ const x=a+t/40, e=synVal(q.pts,x)-G(q,x);
+          if(Math.abs(e)<1e-9) continue;
+          const sg=e>0?1:-1; if(prev!==0&&sg!==prev) chg++; prev=sg; }
+        if(chg!==2) vus.push('la courbe retraverse la droite entre deux graduations ('+chg+' changements)');
+        if(xg[0]===xc[0]&&xg[1]===xc[1]) vus.push('f contre g et l équation ont la même réponse');
+      }
+      /* les quatre abscisses des images : distinctes, dans le domaine */
+      const vus4={}; q.img.forEach(function(x){ vus4[x]=1; if(x<a||x>b) vus.push('une image est demandée hors du domaine'); });
+      if(Object.keys(vus4).length!==4) vus.push('deux images sont demandées sur la même abscisse');
+      if(JSON.stringify(q.pts)===JSON.stringify(SYN_REPLI.pts)) nRepli++;
+      if(vus.length) break;
+    }
+
+    /* ---- 2. LE REPLI passe par les gardes MÊMES du tirage ---- */
+    { const r=SYN_REPLI, q={pts:r.pts, ia:r.ia, ib:r.ib, ga:r.ga, gb:r.gb, c:r.c, k:r.k, op:r.op, sensG:r.sensG, img:r.img};
+      const a=q.ia-6, b=q.ib-6, pb=[];
+      if(b-a<8) pb.push('domaine court');
+      const rac=[]; for(let x=-6;x<=6;x++){ if(F(q,x)===0) rac.push(x); }
+      if(rac.length!==2||rac[0]<=a||rac[1]>=b) pb.push('racines');
+      if(!mmxUnique(q.pts,a,b)) pb.push('extremums');
+      for(let x=a;x<=b;x++){ if(Math.abs(G(q,x))>6) pb.push('droite hors cadre'); }
+      const xg=[]; for(let x=a;x<=b;x++){ if(F(q,x)===G(q,x)) xg.push(x); }
+      if(xg.length!==2||xg[0]<=a||xg[1]>=b) pb.push('croisements de g');
+      const xc=[]; for(let x=a;x<=b;x++){ if(F(q,x)===q.c) xc.push(x); }
+      if(xc.length!==2) pb.push('croisements de c');
+      if(pb.length) vus.push('le repli ne passe pas les gardes du tirage : '+pb.join(', '));
+    }
+
+    /* ---- 3. UNE SÉANCE : les quatre parties, la copie juste vaut tout ---- */
+    startSYN();
+    if(test.questions.length!==4) vus.push('la séance ne pose pas les quatre parties');
+    /* LE MÊME GRAPHIQUE, conservé d une partie à l autre : un dessin qui
+       changerait sous les yeux de l élève ferait de la synthèse quatre
+       exercices sans rapport (le motif du 2.1 et du 2.5) */
+    { const r=test.questions[0], diff=test.questions.filter(function(q){
+        return JSON.stringify(q.pts)!==JSON.stringify(r.pts) || q.ia!==r.ia || q.ib!==r.ib
+            || q.ga!==r.ga || q.gb!==r.gb || q.c!==r.c || q.k!==r.k; }).length;
+      if(diff) vus.push(diff+' partie(s) portent un autre graphique que la première'); }
+    let total=0, note=0;
+    for(let p=0;p<4;p++){
+      const q=test.questions[test.idx];
+      if(synSubCount(q)!==synCheckPart(q).nTotal)
+        vus.push('la partie '+q.part+' annonce '+synSubCount(q)+' cases et en juge '+synCheckPart(q).nTotal);
+      /* une copie VIDE ne reçoit aucune couleur, et rien ne se verrouille */
+      currentMode='soutien'; synLive();
+      const peintes=synCheckPart(q).subs.filter(function(s){ const el=document.getElementById(s.id);
+        return el && (el.className||'').indexOf('bad')>=0; }).length;
+      if(peintes) vus.push('la partie '+q.part+' peint '+peintes+' case(s) vides en soutien');
+      currentMode='train';
+      /* la copie JUSTE */
+      synCheckPart(q).subs.forEach(function(s){ const el=document.getElementById(s.id); if(el&&s.val!=null) el.value=String(s.val); });
+      const res=synCheckPart(q);
+      total+=res.nTotal; note+=res.nCorrect;
+      if(!res.allOk) vus.push('la partie '+q.part+' refuse une copie juste ('+res.nCorrect+'/'+res.nTotal+') : '
+        +res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return x.id; }).slice(0,4).join(', '));
+      if(p<3){ test.idx++; renderSYN(); }
+    }
+    if(note!==total) vus.push('la copie juste vaut '+note+'/'+total);
+    if(test.maxScore!==total) vus.push('le barème ('+test.maxScore+') ne suit pas le nombre de cases ('+total+')');
+
+    /* ---- 4. LA RÈGLE DES PAIRES : l ordre des antécédents est LIBRE, et le
+       même nombre posé deux fois est défendable une fois ---- */
+    /* la hauteur des antécédents en donne 1 à 3, et 85 % des tirages n en
+       donnent qu UN : renverser une liste d un élément ne renverse rien, et
+       le contrôle mesurait alors autre chose (le sabotage de l ordre imposé
+       restait vert, à bon droit). On CHERCHE une séance au pluriel, et on le
+       DIT si on n en trouve pas. */
+    let essais=0;
+    do { startSYN(); essais++; } while(synAnt(test.questions[1]).length<2 && essais<200);
+    if(synAnt(test.questions[1]).length<2) vus.push('aucune séance à plusieurs antécédents en '+essais+' tirages : la règle des paires n est pas mesurée');
+    test.idx=1; renderSYN();
+    { const q=test.questions[1], ant=synAnt(q), ids=['syn-ant-0','syn-ant-1','syn-ant-2'];
+      const poser=function(vals){ ids.forEach(function(id,i){ const el=document.getElementById(id); if(el) el.value=(vals[i]==null?'':String(vals[i])); }); };
+      const compte=function(){ return synCheckPart(q).subs.filter(function(s){ return ids.indexOf(s.id)>=0 && s.ok; }).length; };
+      poser(ant.slice().reverse().concat([null,null,null]).slice(0,3));
+      if(compte()!==3) vus.push('les antécédents dans l autre ordre ne valent que '+compte()+'/3');
+      if(ant.length>=2){ poser([ant[0],ant[0],null]);
+        const c2=compte();
+        if(c2!==1) vus.push('le même antécédent posé deux fois vaut '+c2+' au lieu de 1'); }
+      poser([null,null,null]);
+    }
+    currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
