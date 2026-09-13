@@ -1487,8 +1487,13 @@ async function parcours(page, N){
       await s.page.evaluate(() => teacherTab('devoir'));
       await s.page.waitForTimeout(1200);
 
+      /* « .dm-exrow .dm-noteinput » et non « .dm-noteinput » : le bilan de la
+         classe porte, plus haut dans la même page, le champ de la note du
+         DEVOIR ENTIER — il partage la même classe, et prendre le premier venu
+         revenait à taper là en croyant poser la note d'un exercice. Le contrôle
+         accusait alors la page de ne rien enregistrer. */
       const avant = await s.page.evaluate(() => ({
-        champs: document.querySelectorAll('.dm-noteinput').length,
+        champs: document.querySelectorAll('.dm-exrow .dm-noteinput').length,
         texte: (document.getElementById('dmResults') || {}).textContent || '',
       }));
       verifier('le champ pour poser une note est là', avant.champs > 0,
@@ -1499,7 +1504,7 @@ async function parcours(page, N){
 
       /* on TAPE 9, comme le professeur */
       await s.page.evaluate(() => {
-        const c = document.querySelector('.dm-noteinput');
+        const c = document.querySelector('.dm-exrow .dm-noteinput');
         c.value = '9';
         c.dispatchEvent(new Event('change', { bubbles: true }));
       });
@@ -1520,7 +1525,7 @@ async function parcours(page, N){
 
       /* et vider le champ REND la note obtenue */
       await s.page.evaluate(() => {
-        const c = document.querySelector('.dm-noteinput');
+        const c = document.querySelector('.dm-exrow .dm-noteinput');
         c.value = '';
         c.dispatchEvent(new Event('change', { bubbles: true }));
       });
@@ -1533,6 +1538,45 @@ async function parcours(page, N){
         /4\s*\/\s*10/.test(rendu.texte.replace(/ /g, ' '))
           && !(rendu.notes && rendu.notes[eleveId + '|' + N.exercice] !== undefined),
         'affiché : ' + rendu.texte.slice(0, 160) + ' — notes : ' + JSON.stringify(rendu.notes || null));
+      /* ET LA NOTE DU DEVOIR ENTIER, tapée dans SON champ. Le banc jsdom éprouve
+         le juge, l'échelle et la base ; il ne peut pas éprouver le GESTE — un
+         « onchange » posé dans un innerHTML traverse deux analyseurs, et un
+         identifiant mal échappé y ferait un bouton mort sans la moindre erreur.
+         Le bord qui compte : la note du devoir part dans SA case (notesDevoir)
+         et non dans celle des exercices, et le total la suit pendant que
+         l'exercice garde la note obtenue. */
+      if(!N.devoirEntier){
+        ignorer('la note du devoir entier part dans sa propre case',
+          'ce niveau ne pose pas la note d\'un devoir entier');
+      } else {
+        /* LE CHAMP EST NOMMÉ S'IL MANQUE. Sans ce garde, un champ disparu lève
+           une erreur JavaScript dans la page et le contrôle parle d'autre chose
+           au lieu de dire ce qui manque. */
+        const trouve = await s.page.evaluate(() => {
+          const c = document.querySelector('.dm-notedev');
+          if(!c) return false;
+          c.value = '7';
+          c.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
+        });
+        await s.page.waitForTimeout(900);
+        const dev = await s.page.evaluate(o => {
+          const d = ((((window.__faux.tables[o.params] || [])[0] || {}).valeurs || {}).devoirs || [{}])[0];
+          return { texte: (document.getElementById('dmResults') || {}).textContent || '',
+                   notesDevoir: d.notesDevoir, notes: d.notes };
+        }, { params:N.tableParametres });
+        const pd = dev.notesDevoir && dev.notesDevoir[eleveId];
+        verifier('la note du devoir entier part dans sa propre case',
+          trouve && !!pd && pd.note === 7 && pd.sur === 10
+            && !(dev.notes && Object.keys(dev.notes).length),
+          !trouve ? 'aucun champ « .dm-notedev » dans le bilan de la classe'
+            : 'notesDevoir : ' + JSON.stringify(dev.notesDevoir || null)
+              + ' — notes des exercices : ' + JSON.stringify(dev.notes || null));
+        verifier('le total du devoir suit la note du devoir, la note obtenue restant lisible',
+          /7\s*\/\s*10/.test(dev.texte.replace(/ /g, ' '))
+            && /obtenu\s*4\s*\/\s*10/.test(dev.texte.replace(/ /g, ' ')),
+          'affiché : ' + dev.texte.replace(/\s+/g, ' ').slice(0, 200));
+      }
       /* ---- ET L'ÉCRAN NE BOUGE PAS (demande de Turquet, septembre 2026) ----
          « quand je modifie une note je souhaite que la page réapparaisse
          exactement au même endroit ». Le bilan commençait par se réduire à

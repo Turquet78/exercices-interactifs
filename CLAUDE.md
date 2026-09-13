@@ -2941,6 +2941,69 @@ base : copie parfaite réparée, copie fautive laissée ET nommée, note partiel
 et brouillon de pause épargnés, note hors devoir intacte, Première intacte,
 aucune note baissée, idempotence, retour arrière au caractère près.
 
+**La note d'un DEVOIR ENTIER se pose à la main — en Terminale.** Demande de
+Turquet (septembre 2026) : « je souhaite pouvoir fixer la note d'un DM sans
+passer par les notes de chaque exercice ». Un devoir rendu sur papier, un oral,
+un travail fait ailleurs : le professeur écrit UNE note dans la colonne
+« Poser la note » du bilan de la classe, et elle PRIME sur tout le reste — le
+total des exercices comme les notes posées exercice par exercice, qui restent
+affichées et reprennent la main dès qu'on vide le champ. C'est la doctrine de
+`noteForcee()` portée à l'étage du devoir : rien n'est réécrit, le travail de
+l'élève reste dans `resultats`, intact, et la note vit à côté dans la
+configuration du devoir (`notesDevoir`, « <id élève> » → `{note, sur}`).
+**ELLE PORTE SON ÉCHELLE AVEC ELLE, et c'est le bord qui ne se devine pas** :
+le maximum d'un devoir est 10 × son nombre d'exercices normaux, donc ajouter un
+exercice à un devoir DÉJÀ noté ferait lire 24/40 une note écrite 24/30 — la note
+de l'élève baisserait d'un quart, dans son bilan comme dans la moyenne de la
+classe, sans que rien ne le dise. On garde donc le maximum du jour où elle a été
+posée ; l'écran l'affiche, et le carnet ramène sur 20 avec lui. **La moyenne de
+la classe se fait alors sur les RAPPORTS** et non sur les points bruts :
+additionner un 24/30 avec un 18/20 ne voudrait rien dire — quand toutes les
+échelles se valent, c'est exactement la moyenne d'avant.
+**UN SEUL ENTONNOIR, `dmTotalEleve()`** : la liste des devoirs de l'élève, la
+page du devoir, le bilan du professeur et le carnet des moyennes l'appellent
+tous les quatre — c'est la leçon d'`exercicesDevoir()` et de `dmTotal()`, deux
+lectures auraient donné deux notes, et le professeur aurait lu l'une dans le
+tableau et l'autre dans le bilan juste en dessous.
+**Elle déclare le devoir FAIT** — sans quoi le carnet continuerait de compter 0
+pour un devoir que le professeur vient de noter — mais le compte des exercices
+COMMENCÉS ne bouge pas : il dit ce que l'élève a fait en ligne, et le faire
+mentir cacherait au professeur qui n'a rien rendu.
+**Et l'ÉLÈVE la voit, en sachant qu'elle a été posée** : « 24 / 30 » au-dessus
+d'exercices qui font 14 ferait dire à l'écran autre chose que la note. La carte
+ajoute « posée par le professeur », la page du devoir dit la phrase entière avec
+ce qu'il avait obtenu.
+Elle est BORNÉE à 0..sur et une valeur illisible est IGNORÉE plutôt que
+transformée en NaN (c'est un JSON qu'on peut éditer à la main) ; un nombre nu s'y
+lit sur le maximum courant ; `ensureDevoir()` la RECOPIE, sans quoi elle
+disparaîtrait au premier rechargement — le piège qui avait déjà emporté le
+drapeau « bonus ».
+**Et SUPPRIMER un tel devoir l'ARCHIVE, ce qui n'allait pas de soi** : la
+décision se prenait sur le seul compte des lignes de `resultats`, or un devoir
+de papier n'en a AUCUNE — ses notes vivent dans sa DÉFINITION, donc le supprimer
+les emportait, et il serait parti sans un mot. `dmNotesPosees()` les compte
+désormais, celles du devoir entier comme celles des exercices : les deux se
+perdraient de la même façon. Un devoir vraiment vierge part toujours vraiment.
+**Un piège de banc s'y est montré, et il visait le VOISIN** : le champ du devoir
+partage la classe `dm-noteinput` avec celui d'un exercice et vit PLUS HAUT dans
+la même page ; le banc navigateur prenait `document.querySelector('.dm-noteinput')`
+— le premier venu — et tapait donc la note du DEVOIR en croyant poser celle d'un
+exercice, puis accusait la page de ne rien enregistrer. Chacun se désigne
+sans ambiguïté depuis (`dm-notedev`, `.dm-exrow .dm-noteinput`), et le banc
+navigateur tape maintenant dans les DEUX champs — jsdom éprouve le juge,
+l'échelle et la base, lui seul éprouve le GESTE : un `onchange` posé dans un
+`innerHTML` traverse deux analyseurs.
+**Vingt-quatre sabotages en tout**, vingt-et-un rougissant en nommant leur
+défaut. Deux ont d'abord été IMPOSSIBLES, posés sur une ancre que la note par
+exercice partage — un sabotage se pose sur une ancre PROPRE à sa cible, et
+rejoués sur la leur ils rougissent. Et un est resté VERT au banc jsdom **à bon
+droit** : la classe `dm-notedev` retirée ne change rien à ce que jsdom mesure —
+c'est le banc NAVIGATEUR qui la nomme (« aucun champ dm-notedev dans le bilan de
+la classe »), et il l'a fait.
+**Rien de cela n'existe en Seconde ni en Première** : la demande nomme la
+Terminale, `dmTotalEleve()` n'y est pas, et le contrôle s'y affiche « non
+applicable » plutôt que d'être tu.
+
 **Un exercice BONUS vaut 1 point, et ne fait jamais dépasser le maximum.**
 Demande de Turquet (août 2026), devoirs ET fiches, les trois niveaux : une case
 « Bonus (+1 pt) » sur la ligne de l'exercice dans l'éditeur. Un bonus vaut sa
@@ -3323,6 +3386,20 @@ banc jsdom, trois que seul le navigateur voit. Et l'un d'eux a d'abord
 frappé le VOISIN : le bloc d'erreur des MOYENNES n'est pas celui du BILAN,
 et le sabotage restait vert à bon droit tant que l'ancre n'était pas propre
 à sa cible — la leçon d'{antecedents-droite}, retombée telle quelle.
+
+**Et la note du DEVOIR ENTIER est une note, elle aussi.** Elle est arrivée
+par une autre branche le même jour, dans le même bilan et SANS clé : le
+professeur qui la tapait perdait le focus à chaque note posée — exactement le
+défaut signalé un étage plus bas, sur une famille de champs qui n'existait pas
+encore quand le correctif a été écrit. Elle porte donc sa clé (`@dev|<élève>`,
+qui ne peut pas se confondre avec le `<élève>|<exercice>` d'un exercice) et
+`poserNoteDevoirEleve` ATTEND son rendu, comme `poserNoteDevoir`. Le contrôle
+s'y est pris en défaut au passage : les deux familles partagent la classe
+`dm-noteinput`, et la note du devoir vient AVANT dans le bilan — le contrôle
+des exercices prenait donc SA clé pour celle d'un exercice, posait une note
+dans le vide et accusait la page de ne pas la relire. Il vise
+`.dm-noteinput:not(.dm-notedev)` désormais, et un onzième sabotage (la clé
+retirée) rougit en nommant son défaut.
 
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et

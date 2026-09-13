@@ -9992,6 +9992,279 @@ function moyennesDevoirs(w, apres){
     verifier('l’export brut sépare au point-virgule, comme le carnet de notes',
       r.ok && /^﻿"Eleve";/.test(brut) && !/^﻿"Eleve",/.test(brut),
       souci || 'première ligne : ' + brut.split('\r\n')[0].slice(0, 70));
+    noteDevoirEntier(w, apres);
+  });
+}
+
+/* ---------- Poser la note d'un devoir ENTIER ------------------------------
+   « En Terminale je souhaite pouvoir fixer la note d'un DM sans passer par les
+   notes de chaque exercice » (demande de Turquet, septembre 2026). Un devoir
+   rendu sur papier, un oral, un travail fait ailleurs : le professeur écrit UNE
+   note pour le devoir. Elle se pose PAR-DESSUS, comme la note d'un exercice :
+   le travail de l'élève reste dans « resultats », intact.
+
+   LES BORDS, et n'en tenir qu'un ne tient rien.
+   · Elle REMPLACE le total des exercices — et les notes posées exercice par
+     exercice avec. Un total qui ne bougerait pas ferait deux vérités sur le
+     même écran.
+   · Elle PORTE SON ÉCHELLE : le maximum d'un devoir est 10 × son nombre
+     d'exercices, donc ajouter un exercice à un devoir déjà noté ferait lire
+     24/40 une note écrite 24/30 — la note de l'élève baisserait d'un quart,
+     dans son bilan comme dans la moyenne de la classe, sans que rien ne le
+     dise.
+   · Elle déclare le devoir FAIT : sans quoi le carnet continuerait de compter
+     0 pour un devoir que le professeur vient de noter. Le compte des exercices
+     COMMENCÉS, lui, ne bouge pas — il dit ce que l'élève a fait en ligne.
+   · Elle SURVIT au rechargement : ensureDevoir() efface tout champ qu'elle ne
+     nomme pas, et c'est ainsi que le drapeau « bonus » s'était déjà perdu.
+   · Elle est BORNÉE à 0..sur, et une valeur illisible est IGNORÉE plutôt que
+     transformée en NaN : c'est un JSON qu'on peut éditer à la main dans la
+     base.
+   · La VIDER rend le total des exercices. C'est la seule façon d'annuler.
+   · Et l'ÉLÈVE la voit, en sachant qu'elle a été posée : « 24 / 30 » au-dessus
+     d'exercices qui font 14 ferait dire à l'écran autre chose que la note. */
+function noteDevoirEntier(w, apres){
+  const present = evaluer(w, "typeof dmTotalEleve==='function' && typeof noteForceeDevoir==='function' && typeof poserNoteDevoirEleve==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la note d’un devoir entier se pose à la main',
+      'ce niveau ne sait pas poser la note d’un devoir entier');
+    return archiverDevoir(w, apres);
+  }
+
+  /* --- LE JUGE, sans toucher à la base : dmTotalEleve() est l'entonnoir --- */
+  verifierEval(w, 'la note posée sur un devoir entier remplace le total, et garde son échelle', `(function(){
+    const vus=[];
+    const N=function(n,f){ return {note:n, fait:(f!==false), bonus:false}; };
+    const P3=[N(8),N(6),N(0,false)];                 /* 14 sur 30 */
+    const dev={id:'dmE', num:7, actif:true, titre:'Papier',
+               exercices:[{id:'a',modes:['train']},{id:'b',modes:['train']},{id:'c',modes:['train']}],
+               notes:{}, notesDevoir:{}};
+    let t=dmTotalEleve(dev,'e1',P3);
+    if(t.posee) vus.push('un devoir sans note posée se croit forcé');
+    if(t.somme!==14 || t.totMax!==30) vus.push('le total calculé vaut '+t.somme+' / '+t.totMax+' au lieu de 14 / 30');
+    dev.notesDevoir.e1={note:24, sur:30};
+    t=dmTotalEleve(dev,'e1',P3);
+    if(!t.posee) vus.push('la note posée n’est pas signalée comme telle');
+    if(t.somme!==24 || t.totMax!==30) vus.push('la note posée vaut '+t.somme+' / '+t.totMax+' au lieu de 24 / 30');
+    if(t.auto!==14) vus.push('le total OBTENU n’est plus lisible à côté ('+t.auto+' au lieu de 14)');
+    t=dmTotalEleve(dev,'e1',[N(0,false),N(0,false),N(0,false)]);
+    if(!t.fait) vus.push('une note posée sur un devoir non fait ne compte pas : il resterait à 0 dans la moyenne');
+    if(t.somme!==24) vus.push('une note posée sur un devoir non fait vaut '+t.somme);
+    dev.notesDevoir.e1={note:47, sur:30};
+    if(dmTotalEleve(dev,'e1',P3).somme!==30) vus.push('47 n’est pas ramené à 30');
+    dev.notesDevoir.e1={note:-3, sur:30};
+    if(dmTotalEleve(dev,'e1',P3).somme!==0) vus.push('moins 3 n’est pas ramené à 0');
+    /* L'ÉCHELLE STOCKÉE FAIT FOI : un exercice de plus ne rabaisse pas la note */
+    dev.notesDevoir.e1={note:24, sur:30};
+    t=dmTotalEleve(dev,'e1',P3.concat([N(0,false)]));
+    if(t.somme!==24 || t.totMax!==30)
+      vus.push('ajouter un exercice change la note posée : '+t.somme+' / '+t.totMax+' au lieu de 24 / 30');
+    /* un nombre nu — une valeur écrite à la main — est lu sur le maximum du jour */
+    dev.notesDevoir.e1=24;
+    t=dmTotalEleve(dev,'e1',P3);
+    if(!t.posee || t.somme!==24 || t.totMax!==30) vus.push('un nombre nu dans le JSON n’est pas lu ('+t.somme+' / '+t.totMax+')');
+    dev.notesDevoir.e1='vingt-quatre';
+    t=dmTotalEleve(dev,'e1',P3);
+    if(t.posee || t.somme!==14) vus.push('une note écrite en toutes lettres efface le total ('+t.somme+')');
+    dev.notesDevoir.e1={note:null, sur:30};
+    if(dmTotalEleve(dev,'e1',P3).posee) vus.push('une note vide dans le JSON est prise pour une note');
+    dev.notesDevoir.e1={note:24, sur:30};
+    if(dmTotalEleve(dev,'e2',P3).posee) vus.push('la note posée sur un élève déborde sur ses camarades');
+    delete dev.notesDevoir.e1;
+    t=dmTotalEleve(dev,'e1',P3);
+    if(t.posee || t.somme!==14) vus.push('retirer la note posée ne rend pas le total obtenu ('+t.somme+')');
+    /* ELLE SURVIT AU RECHARGEMENT */
+    dev.notesDevoir.e1={note:24, sur:30};
+    if(typeof ensureDevoir==='function'){
+      const relu=ensureDevoir(JSON.parse(JSON.stringify(dev)),0);
+      const f=noteForceeDevoir(relu,'e1');
+      if(!f || f.note!==24 || f.sur!==30)
+        vus.push('la note posée ne survit pas au rechargement : ensureDevoir ne la recopie pas');
+    } else vus.push('ensureDevoir() est introuvable');
+    return vus.join(' | ');
+  })()`, v => v === '', undefined);
+
+  const src = lire(CIBLE);
+  const LISTE = (src.match(/dmMoyDernier\s*=\s*dmMoyennes\(\s*([A-Za-z_$][\w$]*)\s*,/) || [])[1];
+  if(!LISTE){
+    verifier('la note du devoir posée se lit partout : bilan, carnet, écran de l’élève', false,
+      'impossible de lire le nom de la liste des devoirs dans renderDmMoyennes()');
+    return archiverDevoir(w, apres);
+  }
+  const TE = P.tableEleves, TR = P.tableResultats;
+  const TP = (P.coursPdf && P.coursPdf.table) || 'parametres';
+
+  evalPromis(w, `(async function(){
+    ${lire('tests/faux-supabase.js')}
+    initSupabase();
+    const sbDouble=sb;
+    const R={};
+    const dits=[]; const vraiToast=toast; toast=function(m){ dits.push(String(m)); };
+    try{
+      /* DES EXERCICES DU MENU, et non les trois premiers de TESTS : poser une
+         note relit le formulaire, qui filtre sur TEST_ORDER — la Terminale
+         garde deux exercices dans TESTS hors du menu, et le devoir en perdait
+         deux sur trois. Le contrôle mesurait alors un devoir sur 10 en
+         accusant la page. */
+      const ids=(typeof TEST_ORDER!=='undefined'?TEST_ORDER:Object.keys(TESTS)).slice(0,3);
+      const ex=function(i){ return {id:ids[i], modes:['train']}; };
+      ${LISTE}=[{id:'dmE', num:7, actif:true, titre:'Devoir sur papier',
+                 exercices:[ex(0),ex(1),ex(2)], notes:{}, notesDevoir:{}}];
+      dmSelId='dmE'; if(typeof dmGenre!=='undefined') dmGenre='dm';
+      window.__faux.semer('${TE}',[{id:'e1', prenom:'Alice', cle:'c-1', user_id:'u-1'},
+                                   {id:'e2', prenom:'Bob',   cle:'c-2', user_id:'u-2'}]);
+      const note=function(eid,tid,pct){ return {id:eid+tid, eleve_id:eid, percent:pct, score:pct,
+        total:100, created_at:'2026-09-01T10:00:00Z', details:{test:tid, mode:'train', dm:'dmE'}}; };
+      const lignes=[note('e1',ids[0],80), note('e1',ids[1],60)];   /* Alice : 8 + 6 = 14 / 30 */
+      window.__faux.semer('${TR}', lignes);
+      window.__faux.semer('${TP}',[{id:1, valeurs:{}}]);
+      /* L'ÉDITEUR EST RENDU D'ABORD : poser une note relit le formulaire — sans
+         ses cases cochées, le devoir perdrait ses exercices, et le contrôle
+         mesurerait un devoir vide en accusant la page. */
+      if(typeof renderDevoirEditor==='function') renderDevoirEditor();
+
+      const lireBilan=async function(){
+        sb=sbDouble;                       /* un minuteur d'à côté a pu nous le prendre */
+        await renderDevoirResultats();
+        await new Promise(function(r){ setTimeout(r,60); });
+        return (document.getElementById('dmResults')||{}).textContent||'';
+      };
+      const cellule=function(prenom){
+        const b=(typeof dmMoyDernier!=='undefined'&&dmMoyDernier)?dmMoyDernier:{lignes:[]};
+        const l=(b.lignes||[]).filter(function(x){ return x.eleve.prenom===prenom; })[0];
+        return (l&&l.cases[0])?fmtNote(l.cases[0].sur20):'(absente)';
+      };
+
+      /* 1. AVANT : le total des exercices, et la colonne pour poser la note */
+      R.avant=await lireBilan();
+      R.avantCarnet=cellule('Alice');
+      const tbl=document.querySelector('#dmResults table');
+      R.entetes=tbl?[].slice.call(tbl.querySelectorAll('thead th')).map(function(t){ return t.textContent.trim(); }).join('|'):'(aucun tableau)';
+      R.champs=document.querySelectorAll('#dmResults input.dm-noteinput').length;
+
+      /* 2. LE PROFESSEUR POSE 24 — par la fonction que l'attribut onchange appelle */
+      sb=sbDouble;
+      await poserNoteDevoirEleve('e1','24');
+      R.dite=dits.slice(-1)[0]||'';
+      R.stocke=JSON.stringify((${LISTE}[0].notesDevoir||{}).e1||null);
+      /* RELUE PAR LA PAGE ELLE-MÊME : loadConfig() est ce que l'onglet appelle à
+         chaque ouverture, et il repasse par ensureDevoir — c'est donc le
+         rechargement complet qu'on mesure ici, pas une lecture à nous. */
+      sb=sbDouble;
+      const gardee=await loadConfig();
+      R.enBase=JSON.stringify(((((gardee.devoirs||[])[0])||{}).notesDevoir||{}).e1||null);
+      R.apres=await lireBilan();
+      R.apresCarnet=cellule('Alice');
+      R.bobCarnet=cellule('Bob');
+
+      /* 3. ELLE PRIME SUR UNE NOTE POSÉE PAR EXERCICE */
+      ${LISTE}[0].notes[('e1|'+ids[0])]=10;
+      R.avecExo=(typeof dmNoteDevoir==='function')
+        ? (function(n){ return fmtNote(n.somme)+' / '+n.totMax+(n.posee?' posée':'')+' · '+n.nbFait+' exos'; })(dmNoteDevoir(${LISTE}[0],'e1',lignes))
+        : '(dmNoteDevoir absent)';
+      delete ${LISTE}[0].notes[('e1|'+ids[0])];
+
+      /* 4. L'ÉCRAN DE L'ÉLÈVE */
+      mesDevoirs=(typeof famillesDevoirs==='function')?famillesDevoirs({devoirs:${LISTE}, fiches:[]}):${LISTE};
+      mesResultats=lignes;
+      currentEleve={id:'e1', prenom:'Alice'};
+      if(typeof genreEleve!=='undefined') genreEleve='dm';
+      renderDevoirsList();
+      R.listeEleve=(document.getElementById('devoirsBody')||{}).textContent||'';
+      renderDevoirDetail('dmE');
+      R.pageEleve=(document.getElementById('devoirsBody')||{}).textContent||'';
+      currentEleve={id:'e2', prenom:'Bob'};
+      renderDevoirsList();
+      R.listeBob=(document.getElementById('devoirsBody')||{}).textContent||'';
+
+      /* 5. UNE SAISIE ILLISIBLE N'ÉCRASE RIEN */
+      sb=sbDouble;
+      await poserNoteDevoirEleve('e1','vingt-quatre');
+      R.illisible=JSON.stringify((${LISTE}[0].notesDevoir||{}).e1||null);
+      R.diteIllisible=dits.slice(-1)[0]||'';
+
+      /* 6. LA VIDER REND LE TOTAL DES EXERCICES */
+      sb=sbDouble;
+      await poserNoteDevoirEleve('e1','');
+      R.vide=JSON.stringify((${LISTE}[0].notesDevoir||{}).e1||null);
+      R.apresVide=await lireBilan();
+      R.videCarnet=cellule('Alice');
+
+      /* 7. UNE ÉCHELLE PÉRIMÉE — la note a été posée quand le devoir n'avait
+         que deux exercices — n'est pas additionnée avec les autres : la
+         moyenne de la classe se fait sur les RAPPORTS. 15 sur 20 font 75 %,
+         donc 22,5 sur 30 ; additionner les points bruts dirait 15 sur 30. */
+      ${LISTE}[0].notesDevoir.e1={note:15, sur:20};
+      R.moyEchelle=(await lireBilan()).replace(/\s+/g,' ');
+
+      /* 8. SUPPRIMER UN DEVOIR NOTÉ À LA MAIN L'ARCHIVE. Les notes posées
+         vivent dans la DÉFINITION du devoir : la supprimer les emporte. Un
+         devoir de papier n'a AUCUNE ligne dans « resultats » — la décision se
+         prenait sur ce seul compte, et il serait parti sans un mot. */
+      if(typeof dmDecisionSuppression==='function'){
+        sb=sbDouble;
+        const papier={id:'dmP', num:8, actif:true, titre:'Que du papier',
+                      exercices:[ex(0)], notes:{}, notesDevoir:{e2:{note:12, sur:10}}};
+        const dP=await dmDecisionSuppression(papier);
+        R.papier=(dP.archiver?'archive':'supprime')+' ('+dP.n+')';
+        const vierge={id:'dmV', num:9, actif:true, titre:'Vierge',
+                      exercices:[ex(0)], notes:{}, notesDevoir:{}};
+        const dV=await dmDecisionSuppression(vierge);
+        R.vierge=(dV.archiver?'archive':'supprime')+' ('+dV.n+')';
+      } else { R.papier='(dmDecisionSuppression absent)'; R.vierge=''; }
+    } finally { toast=vraiToast; }
+    return R;
+  })()`, function(r){
+    const b = r.ok ? (r.valeur || {}) : {};
+    const souci = r.ok ? '' : 'erreur JavaScript : ' + r.erreur;
+    const T = function(k){ return String(b[k] || ''); };
+
+    verifier('le bilan du professeur offre une colonne pour poser la note du devoir',
+      r.ok && /Poser la note/.test(T('entetes')) && b.champs >= 2,
+      souci || 'en-têtes : ' + T('entetes') + ' — champs de saisie : ' + b.champs);
+    /* Alice a 8 + 6 = 14 sur 30 avant qu'on pose quoi que ce soit. */
+    verifier('sans note posée, le bilan et le carnet donnent le total des exercices',
+      r.ok && /14 \/ 30/.test(T('avant')) && T('avantCarnet') === '9,3',
+      souci || 'bilan : ' + (/14 \/ 30/.test(T('avant')) ? 'ok' : 'pas de « 14 / 30 »')
+             + ' — carnet : ' + T('avantCarnet') + ' au lieu de 9,3');
+    verifier('la note posée sur le devoir part en base avec son échelle',
+      r.ok && b.stocke === '{"note":24,"sur":30}' && b.enBase === '{"note":24,"sur":30}'
+           && /24 \/ 30/.test(T('dite')),
+      souci || 'en mémoire : ' + b.stocke + ' — en base : ' + b.enBase + ' — dit : ' + T('dite'));
+    verifier('elle remplace le total dans le bilan, le total obtenu restant lisible à côté',
+      r.ok && /24 \/ 30/.test(T('apres')) && /obtenu/.test(T('apres')) && /14/.test(T('apres')),
+      souci || 'bilan après : ' + T('apres').replace(/\s+/g, ' ').slice(0, 220));
+    /* 24 sur 30 fait 16 sur 20 ; le total des exercices en aurait fait 9,3. */
+    verifier('le carnet des moyennes la lit, et elle seule',
+      r.ok && T('apresCarnet') === '16' && T('bobCarnet') === '0',
+      souci || 'Alice : ' + T('apresCarnet') + ' au lieu de 16 — Bob : ' + T('bobCarnet') + ' au lieu de 0');
+    /* une note posée PAR EXERCICE monterait le total à 16 sur 30 : la note du
+       devoir la recouvre, et le compte des exercices commencés ne bouge pas. */
+    verifier('elle prime sur une note posée exercice par exercice',
+      r.ok && T('avecExo') === '24 / 30 posée · 2 exos',
+      souci || 'dmNoteDevoir rend : ' + T('avecExo') + ' — attendu 24 / 30 posée · 2 exos');
+    verifier('l’élève voit la note posée, et sait qu’elle a été posée',
+      r.ok && /24 \/ 30/.test(T('listeEleve')) && /pos/.test(T('listeEleve'))
+           && /24 \/ 30/.test(T('pageEleve')) && /ton professeur/i.test(T('pageEleve'))
+           && !/24 \/ 30/.test(T('listeBob')),
+      souci || 'liste : ' + T('listeEleve').replace(/\s+/g, ' ').slice(0, 150)
+             + ' — page : ' + (/ton professeur/i.test(T('pageEleve')) ? 'dit qui a posé' : 'ne dit pas qui a posé')
+             + ' — Bob : ' + (/24 \/ 30/.test(T('listeBob')) ? 'voit la note d’Alice' : 'ok'));
+    verifier('une saisie illisible n’écrase pas la note posée, et le dit',
+      r.ok && b.illisible === '{"note":24,"sur":30}' && /illisible/i.test(T('diteIllisible')),
+      souci || 'après « vingt-quatre » : ' + b.illisible + ' — dit : ' + T('diteIllisible'));
+    verifier('vider le champ rend le total des exercices, partout',
+      r.ok && b.vide === 'null' && /14 \/ 30/.test(T('apresVide')) && T('videCarnet') === '9,3',
+      souci || 'stocké : ' + b.vide + ' — bilan : ' + (/14 \/ 30/.test(T('apresVide')) ? 'ok' : 'pas de « 14 / 30 »')
+             + ' — carnet : ' + T('videCarnet'));
+    verifier('supprimer un devoir noté à la main l’ARCHIVE, un devoir vierge part vraiment',
+      r.ok && T('papier') === 'archive (1)' && T('vierge') === 'supprime (0)',
+      souci || 'devoir de papier : ' + T('papier') + ' — devoir vierge : ' + T('vierge')
+             + ' — attendu archive (1) et supprime (0)');
+    verifier('la moyenne de la classe ne mélange pas deux échelles',
+      r.ok && /Moyenne : 22,5 \/ 30/.test(T('moyEchelle')),
+      souci || 'moyenne lue : ' + (T('moyEchelle').match(/Moyenne : [^N]*/) || ['(absente)'])[0].slice(0, 60)
+             + ' — attendu 22,5 / 30 (les points bruts diraient 15 / 30)');
     archiverDevoir(w, apres);
   });
 }
@@ -14493,8 +14766,12 @@ function ecranQuiNeBougePas(w, apres){
       vus.push('changer de devoir garde l\\'écran de l\\'ancien : « '+autre.slice(0,60)+' »');
     dmSelId='dm_a'; await renderDevoirResultats();
 
-    /* 3. LE CHAMP QUI A LE FOCUS LE GARDE */
-    const champs=boite().querySelectorAll('.dm-noteinput');
+    /* 3. LE CHAMP QUI A LE FOCUS LE GARDE.
+       « :not(.dm-notedev) » : la note du DEVOIR ENTIER porte la même classe et
+       vient AVANT dans le bilan — sans ce filtre le contrôle prenait sa clé
+       (« @dev|e1 ») pour celle d'un exercice et posait une note dans le vide,
+       en accusant la page de ne pas la relire. */
+    const champs=boite().querySelectorAll('.dm-noteinput:not(.dm-notedev)');
     if(!champs.length) vus.push('aucun champ de note à l\\'écran : le contrôle ne mesure rien');
     else {
       const cle=champs[0].getAttribute('data-cle');
@@ -14509,6 +14786,25 @@ function ecranQuiNeBougePas(w, apres){
       const champ=[].slice.call(boite().querySelectorAll('.dm-noteinput')).filter(function(c){ return c.getAttribute('data-cle')===cle; })[0];
       if(!champ || champ.value!=='7,5')
         vus.push('la note posée ne se relit pas dans son champ : « '+(champ?champ.value:'(champ disparu)')+' »');
+    }
+
+    /* 3 bis. LA NOTE DU DEVOIR ENTIER EST UNE NOTE, ELLE AUSSI. Elle est
+       arrivée par une autre branche, dans le même bilan et sans clé : le
+       professeur qui la tape perdait le focus à chaque note posée, exactement
+       le défaut signalé un étage plus bas. */
+    if(typeof poserNoteDevoirEleve==='function'){
+      const dev0=boite().querySelector('.dm-notedev');
+      if(!dev0) vus.push('aucun champ de note du devoir entier : le contr\\'ôle ne mesure rien');
+      else {
+        const cd=dev0.getAttribute('data-cle');
+        if(!cd) vus.push('le champ de la note du devoir entier ne porte pas de clé : il perd le focus à chaque note posée');
+        dev0.focus();
+        await poserNoteDevoirEleve('e1','9');
+        const ad=document.activeElement;
+        const cdApres=ad && ad.getAttribute ? ad.getAttribute('data-cle') : null;
+        if(cdApres!==cd)
+          vus.push('le champ de la note du devoir entier perd le focus (il est passé à « '+String(cdApres)+' »)');
+      }
     }
 
     /* 4. UNE LECTURE RATÉE EFFACE LA CLÉ : la fois suivante repart sur

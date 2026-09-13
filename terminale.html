@@ -2453,7 +2453,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=305;
+const APP_VERSION=306;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -2577,7 +2577,12 @@ function ensureDevoir(d,i){
        sur 10. Sans cette ligne, ensureDevoir les effacerait au premier
        rechargement : la configuration est relue à chaque ouverture de l'onglet,
        et tout champ qu'elle ne recopie pas disparaît SANS erreur. */
-    notes: (d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {}
+    notes: (d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {},
+    /* La note posée sur le DEVOIR ENTIER, « <id élève> » -> { note, sur }.
+       Même piège, même remède : sans cette ligne, ensureDevoir l'effacerait au
+       premier rechargement, et le professeur retrouverait le total des
+       exercices sans comprendre pourquoi. */
+    notesDevoir: (d.notesDevoir && typeof d.notesDevoir==='object' && !Array.isArray(d.notesDevoir)) ? d.notesDevoir : {}
   }, d.archive ? {archive:true} : {});
 }
 /* Garantit une LISTE de devoirs et migre l'ancien format « devoir » unique le cas échéant. */
@@ -4978,6 +4983,53 @@ function dmTotal(parts){
   return { somme: Math.min(totMax, brute), totMax: totMax,
            fait: parts.some(function(p){ return p.fait; }) };
 }
+/* LA NOTE D'UN DEVOIR ENTIER SE POSE À LA MAIN (demande de Turquet, septembre
+   2026 : « en Terminale je souhaite pouvoir fixer la note d'un DM sans passer
+   par les notes de chaque exercice »). Un devoir rendu sur papier, un oral, un
+   travail fait ailleurs : le professeur écrit UNE note pour le devoir, et elle
+   PRIME sur tout le reste — le total des exercices comme les notes posées
+   exercice par exercice, qui restent affichées et reprennent la main dès qu'on
+   vide le champ. Rien n'est réécrit : le travail de l'élève reste dans
+   « resultats », intact, et la note vit à côté, dans la configuration du
+   devoir — la doctrine de noteForcee(), à l'étage du devoir.
+   ELLE PORTE SON ÉCHELLE AVEC ELLE (« sur »), et c'est le bord qui ne se
+   devine pas : le maximum d'un devoir est 10 × son nombre d'exercices normaux,
+   donc ajouter un exercice à un devoir DÉJÀ noté ferait lire 24/40 une note
+   écrite 24/30 — la note de l'élève baisserait d'un quart sans que rien ne le
+   dise, et dans la moyenne de la classe avec. On garde donc le maximum du jour
+   où elle a été posée : l'écran l'affiche, et le carnet ramène sur 20 avec lui.
+   Un NOMBRE NU — une valeur bricolée à la main dans le JSON — est lu sur le
+   maximum courant, et la note est BORNÉE à 0..sur : la leçon de la note posée
+   par exercice, ramenée dans 0–10.
+   UN SEUL ENDROIT LA LIT : dmTotalEleve(), l'entonnoir que la liste des
+   devoirs de l'élève, la page du devoir, le bilan du professeur et le carnet
+   des moyennes appellent tous les quatre. Deux lectures auraient donné deux
+   notes — la leçon d'exercicesDevoir() et de dmTotal(). */
+function noteForceeDevoir(dev, eleveId){
+  const m = dev && dev.notesDevoir;
+  if(!m || typeof m!=='object' || Array.isArray(m) || !eleveId) return undefined;
+  const v = m[eleveId];
+  if(typeof v==='number' && isFinite(v)) return { note:v, sur:null };
+  if(v && typeof v==='object' && typeof v.note==='number' && isFinite(v.note)){
+    const s = Number(v.sur);
+    return { note:v.note, sur:(isFinite(s) && s>=1) ? s : null };
+  }
+  return undefined;
+}
+function dmTotalEleve(dev, eleveId, parts){
+  const t = dmTotal(parts);
+  const f = noteForceeDevoir(dev, eleveId);
+  if(!f) return { somme:t.somme, totMax:t.totMax, fait:t.fait,
+                  posee:false, auto:t.somme, autoMax:t.totMax, autoFait:t.fait };
+  const sur = (f.sur!=null) ? f.sur : t.totMax;
+  /* Une note posée déclare le devoir FAIT : c'est tout son objet — sans quoi le
+     carnet continuerait de compter 0 pour un devoir que le professeur vient de
+     noter. Le compte des exercices commencés, lui, ne bouge pas : il dit ce que
+     l'élève a réellement fait en ligne, et le faire mentir cacherait au
+     professeur qui n'a rien rendu. */
+  return { somme:Math.max(0, Math.min(sur, f.note)), totMax:sur, fait:true,
+           posee:true, auto:t.somme, autoMax:t.totMax, autoFait:t.fait };
+}
 function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
 /* Un plafond bricolé à la main dans la base retombe sur 5 : le réglage est un
    simple champ JSON (la leçon de TM_NB_CHOIX en Première). */
@@ -5072,8 +5124,11 @@ function renderDevoirsList(){
       const nb=nd.fait?`<span class="dm-note">${bonus?fmtNote(nd.note/10)+' / 1':fmtNote(nd.note)+' / 10'}</span>`:`<span class="dm-note none">— / ${bonus?'1':'10'}</span>`;
       return `<div class="dl-ex"><span class="dl-ex-name">${bonus?'\u2b50 ':''}${esc(testLabel(ex.id))}</span><span class="dl-ex-cells">${cells}</span>${nb}</div>`;
     }).join('');
-    const tot=dmTotal(parts), somme=tot.somme, totMax=tot.totMax, faitQqch=tot.fait;
-    const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}`:`Note : — / ${totMax}`;
+    const tot=dmTotalEleve(dev, currentEleve&&currentEleve.id, parts), somme=tot.somme, totMax=tot.totMax, faitQqch=tot.fait;
+    /* Une note posée sur le devoir entier le DIT sur la carte : sans ce mot,
+       l'élève lirait « 24 / 30 » au-dessus d'exercices qui font 18,5, et
+       l'écran dirait autre chose que la note. */
+    const totLbl=faitQqch?`Note : ${fmtNote(somme)} / ${totMax}${tot.posee?' · posée par le professeur':''}`:`Note : — / ${totMax}`;
     return `<button class="dl-card ${isLast?'last':''}" onclick="ouvrirDevoirDetail('${escJS(dev.id)}')">
       <div class="dl-head"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}${isLast?G.recent:''}</span><span class="dl-prog">${totLbl}</span></div>
       <div class="dl-title">${esc(dev.titre||'')}</div>
@@ -5115,12 +5170,16 @@ function renderDevoirDetail(devoirId){
     return cardHTML(t.icon, (bonus?'\u2b50 ':'')+testLabel(ex.id), desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
   }).join('');
   const G=GENRE_DEVOIRS[dev.genre||'dm'];
-  const tot=dmTotal(parts), somme=tot.somme, totMax=tot.totMax, faitQqch=tot.fait;
+  const tot=dmTotalEleve(dev, currentEleve&&currentEleve.id, parts), somme=tot.somme, totMax=tot.totMax, faitQqch=tot.fait;
   const totLbl=faitQqch?`${G.note} : ${fmtNote(somme)} / ${totMax}`:`${G.note} : — / ${totMax}`;
+  const poseeTxt=tot.posee
+    ? `<p class="note" style="margin:6px 0 0">Cette note a été posée par ton professeur : elle remplace le total des exercices ci-dessous${tot.autoFait?' (tu avais obtenu '+fmtNote(tot.auto)+' / '+tot.autoMax+')':''}.</p>`
+    : '';
   $('devoirsBody').innerHTML=`
     <button class="btn-link" onclick="renderDevoirsList()">← ${G.tous}</button>
     <div class="dm-head" style="margin-top:8px"><span class="dm-badge">${G.badge} n°${esc(String(dev.num))}</span><h3 class="dm-title">${esc(dev.titre||'')}</h3></div>
     <div class="dl-prog" style="margin:6px 0 2px;display:inline-block">${totLbl}</div>
+    ${poseeTxt}
     ${cours}
     <p class="lead" style="margin-top:14px">Choisis un exercice pour le faire ou le refaire. En soutien tu peux obtenir jusqu'à 5/10 (parfois plus : c'est écrit sur l'exercice) ; pour tout obtenir, fais l'entraînement. Ton résultat se met à jour à chaque essai.</p>
     <div class="choices">${cards}</div>`;
@@ -17760,6 +17819,17 @@ function dmNotesDe(devId, rows){
     return dt && !Array.isArray(dt) && dt.dm===devId && !isPaused(r);
   }).length;
 }
+/* LES NOTES POSÉES À LA MAIN COMPTENT AUSSI — et c'est ce qui rend la
+   suppression sûre depuis qu'on peut noter un devoir de papier. Elles vivent
+   dans la DÉFINITION du devoir, pas dans « resultats » : la supprimer les
+   emporterait, et un devoir entièrement noté à la main n'a AUCUNE ligne dans
+   « resultats » — il serait donc parti sans un mot, avec toutes ses notes.
+   Compter celles du devoir entier ET celles des exercices : les deux se
+   perdraient de la même façon. */
+function dmNotesPosees(dev){
+  const cnt=function(o){ return (o && typeof o==='object' && !Array.isArray(o)) ? Object.keys(o).length : 0; };
+  return cnt(dev && dev.notes) + cnt(dev && dev.notesDevoir);
+}
 
 /* LA DÉCISION, et elle se prend sur un compte VRAI, jamais supposé. Si la base
    ne répond pas, on ARCHIVE : un doute se tranche du côté où rien n'est
@@ -17769,7 +17839,7 @@ async function dmDecisionSuppression(dev){
   try{
     const {data,error}=await sb.from(dmTableResultats()).select('*');
     if(error) throw error;
-    const n=dmNotesDe(dev.id, data||[]);
+    const n=dmNotesDe(dev.id, data||[])+dmNotesPosees(dev);
     return { archiver:n>0, n:n, lecture:true };
   }catch(e){
     return { archiver:true, n:null, lecture:false };
@@ -18044,10 +18114,14 @@ function dmNoteDevoir(dev, eleveId, rows){
     if(nd.fait) nbFait++;
     return { ex:ex, nd:nd, bs:bs, be:be };
   });
-  const t=dmTotal(exd.map(function(x){
+  /* dmTotalEleve et non dmTotal : la note posée sur le DEVOIR ENTIER prime, et
+     elle doit primer ici aussi — c'est cette fonction que lisent le bilan par
+     devoir ET le carnet des moyennes. Deux lectures auraient donné deux notes. */
+  const t=dmTotalEleve(dev, eleveId, exd.map(function(x){
     return { note:x.nd.note, fait:x.nd.fait, bonus:dmEstBonus(x.ex) }; }));
   return { somme:t.somme, totMax:t.totMax, nbFait:nbFait, nbExos:liste.length,
-           fait:nbFait>0, exd:exd };
+           fait:t.fait, posee:t.posee, auto:t.auto, autoMax:t.autoMax,
+           autoFait:t.autoFait, exd:exd };
 }
 /* ON NE VIDE PAS UN ÉCRAN QU'ON VA REMPLIR AVEC LA MÊME CHOSE.
    Poser une note redessine le bilan, et le bilan commençait par se réduire à
@@ -18114,21 +18188,49 @@ async function renderDevoirResultats(){
        l'autre là, sans que rien ne rougisse. */
     const synth=eleves.map(function(e){
       const n=dmNoteDevoir(dev, e.id, res||[]);
-      return { e:e, somme:n.somme, nbFait:n.nbFait, exd:n.exd, fait:n.fait };
+      return { e:e, somme:n.somme, totMax:n.totMax, nbFait:n.nbFait, exd:n.exd,
+               fait:n.fait, posee:n.posee, auto:n.auto, autoMax:n.autoMax,
+               autoFait:n.autoFait };
     });
     const actifs=synth.filter(x=>x.fait);
-    const moy=actifs.length? actifs.reduce((a,x)=>a+x.somme,0)/actifs.length : null;
+    /* La moyenne se fait sur les RAPPORTS puis revient sur le maximum du
+       devoir : une note posée porte l'échelle du jour où elle a été posée, et
+       additionner un 24/30 avec un 18/20 ne voudrait rien dire. Quand toutes
+       les échelles se valent — le cas ordinaire — c'est exactement la moyenne
+       d'avant. */
+    const moy=actifs.length? actifs.reduce((a,x)=>a+(x.totMax>0?x.somme/x.totMax:0),0)/actifs.length*totMax : null;
     // 1) Bilan de la classe (tableau récapitulatif par élève)
     const bilanRows=synth.map(x=>{
-      const nb=x.fait?`<span class="dm-note">${fmtNote(x.somme)} / ${totMax}</span>`:`<span class="dm-note none">— / ${totMax}</span>`;
+      /* La note POSÉE se voit à côté de celle qui a été OBTENUE, jamais à sa
+         place : le professeur doit pouvoir revenir en arrière en sachant d'où
+         il part. Le champ vaut la note affichée ; le vider rend le total des
+         exercices. escJS() et non esc() : l'identifiant part dans un attribut
+         onchange, où une chaîne échappée en HTML serait décodée AVANT que
+         JavaScript ne la lise. */
+      const nb=x.posee
+        ? `<span class="dm-note posee" title="Note du devoir posée par le professeur">${fmtNote(x.somme)} / ${x.totMax}</span>`
+        : (x.fait?`<span class="dm-note">${fmtNote(x.somme)} / ${x.totMax}</span>`:`<span class="dm-note none">— / ${x.totMax}</span>`);
+      const obtenu=x.posee?` <span class="dm-obtenu">obtenu&nbsp;${x.autoFait?fmtNote(x.auto)+'&nbsp;/&nbsp;'+x.autoMax:'—'}</span>`:'';
+      /* UNE CLASSE À ELLE : « dm-noteinput » désigne aussi le champ d'un
+         EXERCICE, plus bas dans la même page, et le banc navigateur prenait le
+         premier venu — il tapait donc la note du devoir en croyant poser celle
+         d'un exercice, et accusait la page de ne rien enregistrer. Chacun se
+         désigne sans ambiguïté depuis ce jour-là. */
+      const champ=`<span class="dm-poser">`
+        + `<input class="dm-noteinput dm-notedev" type="text" inputmode="decimal" value="${x.posee?esc(fmtNote(x.somme)):''}"`
+        + ` placeholder="${x.autoFait?esc(fmtNote(x.auto)):'—'}" aria-label="Note du devoir posée pour ${esc(x.e.prenom)}"`
+        + ` data-cle="${esc('@dev|'+x.e.id)}"`
+        + ` onchange="poserNoteDevoirEleve('${escJS(x.e.id)}',this.value)">`
+        + `<span class="dm-sur">/ ${totMax}</span></span>`;
       const prog=x.nbFait===exos.length?`<b>${x.nbFait} / ${exos.length}</b>`:`<span class="muted">${x.nbFait} / ${exos.length}</span>`;
-      return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}</td><td>${prog}</td></tr>`;
+      return `<tr><td class="name">${esc(x.e.prenom)}</td><td>${nb}${obtenu}</td><td>${champ}</td><td>${prog}</td></tr>`;
     }).join('');
     const bilan=`<div class="panel">
       <div class="topbar" style="margin-bottom:4px"><h3 style="margin:0">Bilan de la classe</h3>
         <span class="badge ${moy===null?'':pctClass(Math.round(moy/totMax*100))}">${moy===null?'Moyenne : —':('Moyenne : '+fmtNote(moy)+' / '+totMax)}</span></div>
       <p class="note" style="margin:0 0 10px">Note du devoir par élève (chaque exercice sur 10, soutien plafonné à 5${exos.some(ex=>dmEstBonus(ex))?' ; un exercice bonus ajoute jusqu\u2019à 1 point sans dépasser le maximum':''}). « Exercices faits » = nombre d'exercices commencés sur ${exos.length}.</p>
-      <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
+      <p class="note" style="margin:0 0 10px">Tu peux aussi <b>poser la note du devoir entier</b> — un devoir rendu sur papier, par exemple : écris-la dans la colonne « Poser la note ». Elle remplace le total des exercices, et vider le champ le rend. « Exercices faits » continue de dire ce que l’élève a fait en ligne.</p>
+      <table class="tbl"><thead><tr><th>Élève</th><th>Note du devoir</th><th>Poser la note</th><th>Exercices faits</th></tr></thead><tbody>${bilanRows}</tbody></table>
     </div>`;
     // 2) Détail par élève
     const cards=synth.map(x=>{
@@ -18154,7 +18256,9 @@ async function renderDevoirResultats(){
           + `<span class="dm-sur">/10</span></span>`;
         return `<div class="dm-exrow"><span class="dm-exname">${esc(testNum(ex.id))} · ${esc(testName(ex.id))}</span><span class="dm-exdetail">${cells}${obtenu}${nb}${champ}</span></div>`;
       }).join('');
-      const totLbl=x.fait?`Note : ${fmtNote(x.somme)} / ${totMax}`:`Note : — / ${totMax}`;
+      const totLbl=x.fait
+        ? `Note : ${fmtNote(x.somme)} / ${x.totMax}${x.posee?' · posée':''}`
+        : `Note : — / ${x.totMax}`;
       return `<div class="dm-rescard"><div class="dm-resname">${esc(x.e.prenom)} <span class="dm-prog">${totLbl}</span></div><div>${rows}</div></div>`;
     }).join('');
     /* ET LE CHAMP QUI A LE FOCUS LE GARDE. Le bilan est reconstruit à chaque
@@ -18212,6 +18316,39 @@ async function poserNoteDevoir(eleveId, exoId, brut){
      pendant que le bilan se redessine encore, et qui l'attend mesure l'écran
      d'AVANT — le premier contrôle s'y est pris, et il accusait la page de ne
      pas relire la note qu'elle venait d'enregistrer. */
+  await renderDevoirResultats();
+}
+
+/* POSER LA NOTE DU DEVOIR ENTIER. Le champ vide REND le total des exercices :
+   c'est la seule façon d'annuler, et elle doit être évidente — un professeur
+   qui s'est trompé ne doit pas avoir à chercher un bouton. Une saisie illisible
+   n'écrase rien et le dit ; la virgule est acceptée, c'est ainsi qu'on écrit
+   une note en France.
+   LE MAXIMUM PART AVEC LA NOTE : celui du devoir TEL QU'IL EST aujourd'hui,
+   calculé par dmTotal — l'entonnoir qui connaît les bonus — et non recopié.
+   Ajouter un exercice plus tard ne changera donc pas la note déjà posée. */
+async function poserNoteDevoirEleve(eleveId, brut){
+  const dev=selectedDevoir(); if(!dev) return;
+  readEditorIntoDevoir();
+  if(!dev.notesDevoir || typeof dev.notesDevoir!=='object' || Array.isArray(dev.notesDevoir)) dev.notesDevoir={};
+  const sur=dmTotal((dev.exercices||[]).map(function(ex){
+    return {note:0, fait:false, bonus:dmEstBonus(ex)}; })).totMax;
+  const t=String(brut==null?'':brut).trim().replace(',', '.');
+  let annonce;
+  if(t===''){ delete dev.notesDevoir[eleveId]; annonce='Note du devoir rendue au total des exercices'; }
+  else {
+    const v=Number(t);
+    if(!isFinite(v) || t.match(/[^0-9.\-]/)){ toast('Note illisible — écris un nombre entre 0 et '+sur,'err'); await renderDevoirResultats(); return; }
+    const borne=Math.max(0, Math.min(sur, v));
+    dev.notesDevoir[eleveId]={note:borne, sur:sur};
+    annonce='Note du devoir posée : '+fmtNote(borne)+' / '+sur;
+    if(borne!==v) annonce+=' (ramenée dans 0–'+sur+')';
+  }
+  try{ await persistDevoirs(); toast(annonce+' ✓','ok'); }
+  catch(e){ toast('Enregistrement impossible — la note n’est pas gardée','err'); }
+  /* ATTENDU, comme dans poserNoteDevoir : sans cela la fonction rend la main
+     pendant que le bilan se redessine encore, et qui l'attend mesure l'écran
+     d'AVANT. */
   await renderDevoirResultats();
 }
 
