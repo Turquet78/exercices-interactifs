@@ -862,15 +862,15 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den{
+#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#bsHost .f-dec,#lcHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#bsHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
-#a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec{min-width:82px;}
+#a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:82px;}
 /* Retenues de soustraction (méthode par compensation) : un petit « 1 » devant le
    chiffre du haut (il fait 10), un petit « 1 » en bas de la colonne suivante
    (ajouté au chiffre du bas). Petites cases en coin, facultatives. */
@@ -928,9 +928,16 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .pcol-part{display:flex;align-items:center;justify-content:center;height:100%;pointer-events:none;
   font-family:"Fredoka";font-weight:700;font-size:1.1rem;color:var(--blue-dark)}
 .pcol-phrase{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
-  margin-top:22px;font-family:"Fredoka";font-weight:600;font-size:1.35rem;color:var(--ink)}
-.pcol-phrase math-field{min-width:110px;max-width:170px}
-@media(max-width:520px){ .pcol-phrase{font-size:1.15rem} }
+  margin-top:22px;font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+/* LA CASE A LA TAILLE DE LA PHRASE QUI L'ENTOURE (la règle de partout, que
+   cet écran n'avait jamais reçue) : elle écrivait à 1,05 rem — la taille
+   générique — au milieu d'une phrase à 1,35 rem, et le nombre posé juste
+   avant elle la dépassait d'un tiers. Le contrôle universel ne le voyait pas
+   tant qu'il n'acceptait que des nombres NUS pour voisins ; élargi, il l'a
+   nommé — par intermittence, selon que le tirage posait ou non un nombre sur
+   sa ligne, ce qui est la pire façon pour un contrôle de dire vrai. */
+.pcol-phrase math-field.pm-mf{min-width:110px;max-width:170px;font-size:calc(1.35rem * var(--tab-nb,1));line-height:1.15}
+@media(max-width:520px){ .pcol-phrase,.pcol-phrase math-field.pm-mf{font-size:calc(1.15rem * var(--tab-nb,1))} }
 @media(max-width:520px){ .fp-zone{gap:34px;} .fp-col{width:84px;height:260px;} }
 /* Méthode 2 de 3.1.4 : agrandir la fraction pour un dénominateur de 100.
    « a × ▢ » et « b × ▢ » vivent DANS la fraction. */
@@ -1019,11 +1026,11 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 .fpm-const{font-family:"Fredoka";font-weight:600;font-size:calc(1.5rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
 @media(max-width:520px){
-  #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));}
-  #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den{min-width:78px;max-width:200px;}
-  #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec{min-width:96px;max-width:200px;}
+  #pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1));}
+  #pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#ckHost .f-num,#ckHost .f-den{min-width:78px;max-width:200px;}
+  #pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#ckHost .f-dec{min-width:96px;max-width:200px;}
   .pt-choix-btn .valeur{font-size:1.2rem}
-  #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec{min-width:66px;}
+  #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:66px;}
 }
 /* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
    septembre 2026) : « pour les exercices avec des cases à remplir avec des
@@ -1047,10 +1054,10 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    rédaction libre du 2.1.7 (dexp2-mf), qui a sa propre règle de tablette, n'est
    pas touchée. Un navigateur qui ne connaîtrait pas « :has » retombe sur la
    taille d'avant — jamais sur un écran cassé.
-   Ce qui NE bouge pas : la case générique à 1,05 rem (le 2.5.2, les colonnes du
-   3.1.4) — c'est déjà la plus petite du niveau, et elle reste une cible qu'on
-   touche du doigt —, les étiquettes d'étape et les boutons de propositions, qui
-   ne sont pas des écritures de la chaîne. Le facteur est déclaré dans
+   Ce qui NE bouge pas : la case générique à 1,05 rem (les colonnes du 3.1.4) —
+   c'est déjà la plus petite du niveau, et elle reste une cible qu'on touche du
+   doigt —, les étiquettes d'étape et les boutons de propositions, qui ne sont
+   pas des écritures de la chaîne. Le facteur est déclaré dans
    tests/profils.js (chaineTablette), deux sources ; même requête média que la
    police de la page (écran tactile d'au moins 600 px). */
 @media (pointer:coarse) and (min-width:600px){
