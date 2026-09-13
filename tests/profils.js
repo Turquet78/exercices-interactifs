@@ -509,6 +509,16 @@ module.exports = {
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
     policeTablette: 90,
+    /* Même feuille de calcul libre qu'en Première (4.5, 4.7, 4.9 et la
+       synthèse) : sur tablette elle écrit à cette taille au lieu de 2 rem
+       (« même chose en Seconde », Turquet, septembre 2026). */
+    feuilleTablette: { rem: 1.4, pxMax: 21 },
+    /* Le même clavier mathématique qu'en Première : « ⏎ » valide (commit) et,
+       sur une tablette en paysage, deux rangées — mesuré au banc navigateur
+       sur la feuille du 4.5. */
+    clavierEcran: { entree: '\u23ce',
+                    paysage: { rangees: 2, exercice: 'somme-fractions-libre',
+                               champ: '#sflSheet math-field', lignes: '#sflSheet .dexp2-line' } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
