@@ -5297,17 +5297,22 @@ async function parcours(page, N){
                        mesure le CADRE, et sur tous les exercices : celui qu'on
                        ajoutera demain est couvert sans rien déclarer. */
                     cadre: (function(){ const c=on.querySelector('.card'), w=document.querySelector('.wrap');
-                      return (c&&w)?{c:Math.round(c.getBoundingClientRect().width),
-                                     w:Math.round(w.getBoundingClientRect().width)}:null; })(),
+                      if(!c||!w) return null;
+                      /* la largeur DISPONIBLE, rembourrage déduit : comparer à
+                         la boîte extérieure accusait la Terminale, dont le
+                         conteneur porte une gouttière voulue. */
+                      const cs=getComputedStyle(w);
+                      return { c:Math.round(c.getBoundingClientRect().width),
+                               w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
-          /* 80 px de marge : le .wrap porte 20 px de rembourrage de chaque
-             côté, donc un cadre plein vaut wrap − 40. */
-          if(mode === 'train' && vu.cadre && vu.cadre.c < vu.cadre.w - 80)
+          /* 8 px de marge : on compare à la largeur DISPONIBLE, donc un cadre
+             plein vaut exactement celle-ci, aux arrondis près. */
+          if(mode === 'train' && vu.cadre && vu.cadre.c < vu.cadre.w - 8)
             etroits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cadre.c + ' px dans ' + vu.cadre.w);
           if(mode === 'train' && vu.cases && vu.cases.length)
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
@@ -5410,8 +5415,16 @@ async function parcours(page, N){
          accolades restées visibles. */
       verifier('aucune référence {identifiant} ne reste affichée à l\'élève',
         accolades.length === 0, accolades.join(' | '));
-      verifier('le cadre d\'un exercice prend toute la largeur de l\'écran',
-        etroits.length === 0, 'cadre(s) bridé(s) : ' + etroits.join(' | '));
+      /* La Terminale donne à ses cartes une largeur propre (--card-max, avec
+         ses paliers) : elle ne déclare pas ce contrôle, et le banc le dit au
+         lieu de le taire — un contrôle qui ne s'applique pas se déclare. */
+      if(P.cadrePleineLargeur){
+        verifier('le cadre d\'un exercice prend toute la largeur offerte',
+          etroits.length === 0, 'cadre(s) bridé(s) : ' + etroits.join(' | '));
+      } else {
+        ignorer('le cadre d\'un exercice prend toute la largeur offerte',
+          'ce niveau donne à ses cartes une largeur propre (--card-max)');
+      }
       /* Un identifiant exempté qui n'existe plus est une exemption qui ne
          protège plus rien — et qui masquerait le jour où on le réutilise. */
       verifier('chaque exercice déclaré sans aide IA existe encore',

@@ -4332,8 +4332,18 @@ propre largeur et reste centré : c'est le CADRE qui s'élargit, pas la courbe.
 était large, et restait donc vert sur un cadre étroit — le défaut vivait
 exactement dans l'angle mort. Un contrôle UNIVERSEL le tient désormais, greffé
 sur la visite qui ouvre tous les exercices (« 9 ») : il mesure le CADRE contre
-le `.wrap`, sur les trois fichiers, et un exercice ajouté demain est couvert
-sans rien déclarer.
+la largeur DISPONIBLE du conteneur — rembourrage déduit — et un exercice ajouté
+demain est couvert sans rien déclarer.
+**Mais il ne vaut PAS pour la Terminale, et le premier jet l'a appris en
+l'accusant** : elle donne à ses cartes une largeur propre par une variable
+unique (`--card-max`, paliers 560 / 780 / 1040 / 1200 px), avec une gouttière
+voulue que son fichier écrit en toutes lettres et interdit de redéclarer. Le
+contrôle, posé universel, a donc rougi sur ses trente-six exercices — sur un
+DESSIN, pas sur un défaut. Il se DÉCLARE désormais (`cadrePleineLargeur` dans
+`tests/profils.js`, Seconde et Première), et la Terminale l'affiche « non
+applicable » plutôt que de le taire : un contrôle qui ne s'applique pas se
+déclare, il ne se retire pas. Et sa mesure a changé du même coup — comparer à
+la boîte EXTÉRIEURE du conteneur comptait son rembourrage comme un bridage.
 
 **Le contrôle tient les deux bords, et n'en tenir qu'un ne tient rien** : la
 carte doit être LARGE, et les rangées ne doivent PAS se replier. Une carte large

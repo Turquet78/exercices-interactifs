@@ -116,6 +116,16 @@ module.exports = {
     pleineLargeur: { exercices: ['pourcentage', 'mult-decimaux', 'somme-fractions'],
                      chaine: [['pourcentage', 1], ['somme-fractions', 1]] },
 
+    /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE
+       (demande de Turquet, septembre 2026, pour la Seconde, « comme en
+       Première »). La Terminale ne le déclare PAS, et ce n'est pas un oubli :
+       elle donne à ses cartes une largeur propre par une variable unique
+       (--card-max, paliers 560 / 780 / 1040 / 1200), avec une gouttière
+       voulue — son fichier l'écrit en toutes lettres et interdit de la
+       redéclarer. Le banc l'affiche « non applicable » plutôt que de le taire. */
+    cadrePleineLargeur: true,
+
+
     /* Un résidu MathLive INVISIBLE en fin de case ne doit pas rendre fausse une
        réponse juste. Un élève tape « 2 », effleure la touche exposant, et la case
        contient « 2^{} » : elle affiche toujours « 2 », mais l'évaluateur la refuse.
@@ -390,6 +400,7 @@ module.exports = {
        multiplication, puis le produit, puis le résultat. C'est la chaîne la
        plus chargée après {simplifier-fractions}, et c'est là qu'un repli se
        produirait. */
+    cadrePleineLargeur: true,
     pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
                               ['diminuer-pourcentage', 2], ['somme-fractions', 1],
