@@ -1702,16 +1702,23 @@ propriété, elle, est bien tenue — le contrôle rougit dès que la carte des
 images ne mute plus rien (« deux propositions identiques »).
 **Et le banc NAVIGATEUR a trouvé un défaut qui vivait en ligne depuis le
 premier jour** (« 6 quater octies », déclaré par `qcmTableauVariation` dans
-`tests/profils.js`) : l'écran n'avait jamais reçu son réglage de carte propre
-et valait donc les 600 px de `.lv-card`, si bien que chaque carte de la
-grille à deux colonnes n'offrait que 280 px à un tableau qui en fait jusqu'à
-617 — tout se cachait derrière le défilement de son conteneur, sans que rien
-ne le signale. C'est la leçon du 2.15, au même endroit, et jsdom ne pouvait
-pas la voir. Les IMAGES rendent ce défaut coûteux : la dernière colonne
-cachée emporte justement la réponse qu'on fait comparer. La carte passe donc
-à 1360 px (deux tableaux de 617 et leurs rembourrages font 1288) et la grille
-passe à UNE colonne en dessous — un tableau qu'on ne peut pas lire n'est pas
-une proposition. Le maximum de 617 n'est pas supposé : à quatre segments, le
+`tests/profils.js`) : la carte de l'écran valait les 600 px de `.lv-card`, si
+bien que chacune des cartes de la grille à deux colonnes n'offrait que 280 px
+à un tableau qui en fait jusqu'à 617 — tout se cachait derrière le défilement
+de son conteneur, sans que rien ne le signale. C'est la leçon du 2.15, au même
+endroit, et jsdom ne pouvait pas la voir. Les IMAGES rendent ce défaut
+coûteux : la dernière colonne cachée emporte justement la réponse qu'on fait
+comparer.
+**Et la cause en était le PLAFOND de 600 px, que `main` a retiré le même
+jour** — « le cadre d'un exercice prend toute la largeur, comme en Première » :
+les deux branches se sont donc rejointes sur la même ligne, et la résolution
+est allée du côté de `main`. Aucun réglage de carte propre au 2.20 n'a
+survécu : lui en donner un aurait REBRIDÉ ce que `main` venait de libérer, et
+le contrôle universel du cadre l'aurait nommé. Ce qui reste de ce côté-ci est
+le point de BASCULE de la grille : deux tableaux de 617 et leurs rembourrages
+réclament 1288 px, donc en dessous de 1360 la grille passe à UNE colonne — un
+tableau qu'on ne peut pas lire n'est pas une proposition. Le maximum de 617
+n'est pas supposé : à quatre segments, le
 tirage ne sait que RETIRER une variation (`nseg===4?'del'`), donc jamais plus
 de cinq valeurs. Le contrôle mesure les DEUX largeurs, 1400 et 1280 px —
 mesurer la seule largeur confortable laisserait le point de bascule libre de
@@ -4381,6 +4388,36 @@ une case n'est plus du vide mais le « + » ou le « = » suivant, et les
 corrections en bleu se sont mises à les recouvrir. La place se réserve donc au
 niveau du GROUPE (`.sf-prod`, `.sf-somme`), pas de la case : posée sur la case,
 la marge élargirait le trait de fraction au lieu d'écarter le voisin.
+
+**Et le CADRE lui-même prenait la colonne, pas l'écran.** Signalé par Turquet
+(septembre 2026) : « en Seconde le cadre des exercices doit utiliser la largeur
+maximale sur l'écran comme en Première ». L'écran était bien passé en pleine
+largeur — `body.plein-ecran .wrap{max-width:none}` — mais la CARTE qui vit
+dedans restait bridée à 600 px par `.lv-card` sur les quinze exercices à
+dessin, quand la fenêtre en offrait 1360. Mesuré dans un vrai navigateur :
+Première 0 cadre bridé sur 31 exercices, Terminale 0 sur 38, Seconde 15 sur 43.
+**CE PLAFOND AVAIT DÉJÀ COÛTÉ TROIS CORRECTIFS, chacun sur une capture** — le
+tableau à quatre segments du 2.15 caché derrière son défilement, l'union à huit
+cases du 2.18, la rangée corrigée du 2.19 — et les élargissements successifs
+(700, 920, 1300 px) ne faisaient que remonter vers la largeur que la fenêtre
+offrait déjà. Les retirer tous les couvre a fortiori. Le dessin, lui, garde sa
+propre largeur et reste centré : c'est le CADRE qui s'élargit, pas la courbe.
+**Le contrôle d'à côté ne pouvait pas le voir** : il mesure le `.wrap`, qui
+était large, et restait donc vert sur un cadre étroit — le défaut vivait
+exactement dans l'angle mort. Un contrôle UNIVERSEL le tient désormais, greffé
+sur la visite qui ouvre tous les exercices (« 9 ») : il mesure le CADRE contre
+la largeur DISPONIBLE du conteneur — rembourrage déduit — et un exercice ajouté
+demain est couvert sans rien déclarer.
+**Mais il ne vaut PAS pour la Terminale, et le premier jet l'a appris en
+l'accusant** : elle donne à ses cartes une largeur propre par une variable
+unique (`--card-max`, paliers 560 / 780 / 1040 / 1200 px), avec une gouttière
+voulue que son fichier écrit en toutes lettres et interdit de redéclarer. Le
+contrôle, posé universel, a donc rougi sur ses trente-six exercices — sur un
+DESSIN, pas sur un défaut. Il se DÉCLARE désormais (`cadrePleineLargeur` dans
+`tests/profils.js`, Seconde et Première), et la Terminale l'affiche « non
+applicable » plutôt que de le taire : un contrôle qui ne s'applique pas se
+déclare, il ne se retire pas. Et sa mesure a changé du même coup — comparer à
+la boîte EXTÉRIEURE du conteneur comptait son rembourrage comme un bridage.
 
 **Le contrôle tient les deux bords, et n'en tenir qu'un ne tient rien** : la
 carte doit être LARGE, et les rangées ne doivent PAS se replier. Une carte large

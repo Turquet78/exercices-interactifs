@@ -953,10 +953,11 @@
   /* ---- {choisir-tableau-variation} : cinq tableaux à choisir ---- */
   #vtqGraph .lv-svg{max-width:640px}
   /* Le tableau le plus large de l'exercice fait 617 px (4 segments : 5 valeurs
-     et 4 flèches ; le tirage plafonne à là — à 4 segments la mutation du
+     et 4 flèches ; le tirage plafonne là — à 4 segments la mutation du
      NOMBRE ne sait que retirer). Une carte doit donc offrir 617 + 20 px de
-     rembourrage et de bordure : DEUX colonnes réclament 1288 px, et la carte
-     de l'écran les lui donne. En dessous on passe à UNE colonne plutôt que de
+     rembourrage et de bordure : DEUX colonnes réclament 1288 px, et le cadre
+     d'un exercice prend désormais toute la largeur de la fenêtre, qui les lui
+     donne à partir de 1360 px. En dessous on passe à UNE colonne plutôt que de
      laisser le tableau se cacher derrière le défilement de sa carte — c'est la
      leçon du 2.15, et depuis que les IMAGES sont écrites au bout des flèches
      une dernière colonne cachée emporte la réponse même qu'on fait comparer. */
@@ -1351,33 +1352,23 @@
     /* ---- Exercice Lecture graphique — variations ---- */
     /* La réserve du bas est tenue avec celle des autres écrans d'exercice, plus
        haut : deux endroits auraient divergé. */
-    .lv-card{max-width:600px;margin:0 auto}
-    /* {signes-variations-grand} : un tableau de variation à QUATRE segments
-       (5 valeurs, 4 flèches) fait 617 px — dans la carte de 600 px il se
-       cachait derrière le défilement du .lv-tblwrap, la borne 6 et la
-       dernière case coupées (vu sur capture, septembre 2026, le jour où cette
-       forme a cessé d'être rare). La carte s'élargit à sa mesure ; le banc
-       navigateur la MESURE, tableau rendu contre son cadre. */
-    #scr-gsv .lv-card{max-width:700px}
-    /* les cinq propositions côte à côte : 2 × 637 px + 14 de goutière */
-    #scr-vtq .lv-card{max-width:1360px}
-    /* {maximum-minimum} : le même GRAND dessin, et des phrases plus longues
-       que le tableau — la carte du 2.15 leur va. */
-    #scr-mmx .lv-card{max-width:700px}
-    /* {maximum-minimum-tableau} : le tableau à quatre segments fait 617 px,
-       comme au 2.15 — la même carte. */
-    #scr-mmt .lv-card{max-width:700px}
-    /* {tableau-equations} : la solution d'une inéquation est une UNION à huit
-       cases — « S = [ −6 ; −5 ] ∪ [ 2 ; 6 ] » — qui doit se lire d'un seul
-       tenant : coupée en deux, elle se lit comme deux solutions (la leçon du
-       2.11). La carte prend la largeur de cette ligne ; sur un écran plus
-       étroit, la ligne DÉFILE au lieu de se replier (.tve-solwrap). */
-    #scr-tve .lv-card{max-width:920px}
-    /* {tableau-vrai-faux} : la rangée d'une affirmation — texte, Vrai/Faux,
-       sens, intervalle — fait 830 px à vide, et les badges verts de la
-       correction l'élargissent : à 920 px (la carte du 2.18) la rangée
-       corrigée DÉFILAIT et cachait la bonne borne — vu sur capture. */
-    #scr-tvf .lv-card{max-width:1300px}
+    /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR, comme en Première
+       (demande de Turquet, septembre 2026 : « en Seconde le cadre des
+       exercices doit utiliser la largeur maximale sur l'écran comme en
+       Première »). Il était BRIDÉ à 600 px sur les quinze écrans à dessin,
+       quand la fenêtre en offrait 1360 — mesuré dans un vrai navigateur, et
+       la Première comme la Terminale n'ont AUCUN cadre bridé.
+       CE PLAFOND AVAIT COÛTÉ TROIS CORRECTIFS, chacun sur une capture : le
+       tableau à quatre segments du 2.15 (617 px) se cachait derrière le
+       défilement de son .lv-tblwrap, l'union à huit cases du 2.18 défilait à
+       920 px, et la rangée corrigée du 2.19 cachait sa dernière borne à
+       1300 px. Les élargissements successifs — 700, 920, 1300 — ne faisaient
+       que remonter vers la largeur que la fenêtre offrait déjà : les retirer
+       tous les couvre a fortiori, et les contrôles du banc navigateur qui
+       mesurent chaque tableau CONTRE SON CADRE continuent de le dire.
+       Le dessin, lui, garde sa propre largeur et reste centré : c'est le
+       CADRE qui s'élargit, pas la courbe. */
+    .lv-card{margin:0 auto}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
     /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
@@ -2610,7 +2601,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=153;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=154;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
