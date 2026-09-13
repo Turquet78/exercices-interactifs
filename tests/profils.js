@@ -668,7 +668,11 @@ module.exports = {
     /* Le professeur pose une note sur un exercice d'un devoir : le banc
        principal éprouve le calcul, celui-ci éprouve le GESTE — taper la note,
        la voir tenir, et le total du devoir la suivre. */
-    notesDevoir: { exercice: 'derivee-exp', tableParametres: 'parametres', tableResultats: 'resultats' },
+    /* « devoirEntier » : ce niveau sait aussi poser la note du DEVOIR ENTIER,
+       sans passer par les notes de chaque exercice (demande de Turquet,
+       septembre 2026). Le banc navigateur tape alors dans les DEUX champs. */
+    notesDevoir: { exercice: 'derivee-exp', tableParametres: 'parametres', tableResultats: 'resultats',
+                   devoirEntier: true },
     /* La Terminale a la touche « / » de plus : ses tangentes acceptent p/q. */
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
