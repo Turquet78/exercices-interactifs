@@ -5235,7 +5235,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [];
+      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -5391,12 +5391,31 @@ async function parcours(page, N){
                        sienne. Deux sources, donc un vrai contrôle : si elles
                        divergent, ça rougit. */
                     tables: [...on.querySelectorAll('.tables-btn')].filter(visible).length > 0,
+                    /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR. La
+                       Seconde bridait quinze écrans à 600 px quand la fenêtre
+                       en offrait 1360 (signalé par Turquet, septembre 2026) ;
+                       le contrôle d'à côté ne mesurait que le .wrap, qui était
+                       large — il restait donc vert sur un cadre étroit. On
+                       mesure le CADRE, et sur tous les exercices : celui qu'on
+                       ajoutera demain est couvert sans rien déclarer. */
+                    cadre: (function(){ const c=on.querySelector('.card'), w=document.querySelector('.wrap');
+                      if(!c||!w) return null;
+                      /* la largeur DISPONIBLE, rembourrage déduit : comparer à
+                         la boîte extérieure accusait la Terminale, dont le
+                         conteneur porte une gouttière voulue. */
+                      const cs=getComputedStyle(w);
+                      return { c:Math.round(c.getBoundingClientRect().width),
+                               w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
                     accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
+          /* 8 px de marge : on compare à la largeur DISPONIBLE, donc un cadre
+             plein vaut exactement celle-ci, aux arrondis près. */
+          if(mode === 'train' && vu.cadre && vu.cadre.c < vu.cadre.w - 8)
+            etroits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cadre.c + ' px dans ' + vu.cadre.w);
           if(mode === 'train' && vu.cases && vu.cases.length)
             petites.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.cases[0]);
           if(mode === 'train' && vu.signes && vu.signes.length)
@@ -5498,6 +5517,16 @@ async function parcours(page, N){
          accolades restées visibles. */
       verifier('aucune référence {identifiant} ne reste affichée à l\'élève',
         accolades.length === 0, accolades.join(' | '));
+      /* La Terminale donne à ses cartes une largeur propre (--card-max, avec
+         ses paliers) : elle ne déclare pas ce contrôle, et le banc le dit au
+         lieu de le taire — un contrôle qui ne s'applique pas se déclare. */
+      if(P.cadrePleineLargeur){
+        verifier('le cadre d\'un exercice prend toute la largeur offerte',
+          etroits.length === 0, 'cadre(s) bridé(s) : ' + etroits.join(' | '));
+      } else {
+        ignorer('le cadre d\'un exercice prend toute la largeur offerte',
+          'ce niveau donne à ses cartes une largeur propre (--card-max)');
+      }
       /* Un identifiant exempté qui n'existe plus est une exemption qui ne
          protège plus rien — et qui masquerait le jour où on le réutilise. */
       verifier('chaque exercice déclaré sans aide IA existe encore',
