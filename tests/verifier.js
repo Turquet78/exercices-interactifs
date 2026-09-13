@@ -2948,6 +2948,7 @@ function exercices(suite){
     lectureDeuxCourbes(w, P);
     courbesFGSeDistinguent(w, P);
     construireFonction(w, P);
+    construireMaxMin(w, P);
     solutionsGraphique(w, P);
     exercicesBonus(w, P);
     resolutionsGraphiques(w, P);
@@ -11860,6 +11861,197 @@ function construireFonction(w, P){
     currentMode='soutien'; startCfx();
     if(test.questions.length!==1) vus.push('le soutien ne fait pas un seul tracé');
     return vus.join(' | ');
+  })()`, function(v){ return v===''; });
+}
+/* ---------- Construire une fonction : maximum et minimum ------------------
+   Repris de la fiche « Exercice 10 » (demande de Turquet, septembre 2026) :
+   DESSINER une courbe qui respecte six conditions — croissance, encadrement,
+   un maximum et un minimum sur une moitié, le maximum et le minimum du domaine
+   entier. C'est {maximum-minimum} à l'envers : on y LIT un maximum, ici on
+   DESSINE une courbe dont le maximum est imposé.
+
+   LE MÊME MOTEUR QUE {construire-fonction}, et c'est ce qui rend le portage
+   sûr : même grille, même geste, même écran, même note. Seules les CONSIGNES
+   changent, et la famille voyage dans la question (q.fam).
+
+   LES BORDS, et n'en tenir qu'un ne tient rien.
+   · LE TÉMOIN RESPECTE SES PROPRES CONSIGNES — le juge même de la page le dit,
+     sur 400 tirages et sur le repli. Sans quoi l'énoncé contredirait sa
+     correction : le pire défaut du projet.
+   · LE CŒUR : le maximum de la moitié gauche est STRICTEMENT plus petit que
+     celui du domaine, et le minimum de la moitié droite STRICTEMENT plus grand
+     que celui du domaine. Sans ces deux inégalités les quatre consignes de
+     maximum et de minimum se répéteraient et n'apprendraient rien.
+   · LE JUGE NE COMPARE JAMAIS AU TÉMOIN : une courbe DIFFÉRENTE qui respecte
+     tout vaut 6/6. C'est le bord qui attraperait un juge paresseux, et la
+     sonde a mesuré qu'il y a toujours de quoi le poser (6 courbes au moins ne
+     diffèrent du témoin que d'une colonne, 12 en médiane).
+   · CHAQUE CONSIGNE SE JUGE SEULE : une copie qui en casse une exactement perd
+     exactement un point.
+   · LA CROISSANCE EST STRICTE : un palier est constant, pas croissant.
+   · L'ENCADREMENT N'EXIGE PAS D'ATTEINDRE SES BORNES — c'est un encadrement,
+     pas une égalité ; mais le MAXIMUM, lui, doit être ATTEINT : une courbe qui
+     reste au-dessous est fausse, et c'est le bord opposé de « ne pas
+     dépasser ».
+   · ET L'AUTRE FAMILLE N'A PAS BOUGÉ : cinq consignes, son juge à elle. */
+function construireMaxMin(w, P){
+  const present = evaluer(w, "typeof startCfm==='function' && typeof cfmGen==='function' && typeof cfmJuge==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('construire une fonction : un maximum et un minimum imposés',
+      'ce niveau n\'a pas l\'exercice de construction sur le maximum et le minimum');
+    return;
+  }
+  verifierEval(w, 'construire une fonction : un maximum et un minimum imposés', `(function(){
+    const vus=[];
+    const X0=-5, NX=11, XF=5;
+    const mx=function(P,a,b){ let v=-Infinity; for(let x=a;x<=b;x++) if(P[x-X0]>v) v=P[x-X0]; return v; };
+    const mn=function(P,a,b){ let v=Infinity; for(let x=a;x<=b;x++) if(P[x-X0]<v) v=P[x-X0]; return v; };
+    /* Les gardes d'UN tirage — jouées sur 400 tirages ET sur le repli figé.
+       Elles refont l'arithmétique par leurs propres moyens plutôt que de
+       demander à la page ce qu'elle pense avoir produit. */
+    const gardes=function(q,nom){
+      const cles=Object.keys(q).filter(function(k){
+        return ['fam','w','ca','cb','em','eM','s','maxG','minD','maxT','minT','rep'].indexOf(k)<0; });
+      if(cles.length) vus.push(nom+' : la question range autre chose que le témoin et les six conditions : '+cles.join(','));
+      if(q.fam!=='mmx') vus.push(nom+' : la question ne dit pas sa famille');
+      if(!Array.isArray(q.w)||q.w.length!==NX||q.w.some(function(v){ return !Number.isInteger(v)||v<-4||v>4; })){
+        vus.push(nom+' : le témoin n\\'est pas fait de 11 hauteurs entières de −4 à 4'); return; }
+      for(let i=0;i<NX-1;i++){
+        if(q.w[i]===q.w[i+1]) vus.push(nom+' : le témoin a un PALIER (colonnes '+(i+X0)+' et '+(i+X0+1)+') — « croissante » y perdrait son sens');
+        if(Math.abs(q.w[i+1]-q.w[i])>3) vus.push(nom+' : le témoin fait un saut de plus de 3 — la courbe devient illisible');
+      }
+      if(!(q.cb-q.ca>=2)) vus.push(nom+' : l\\'intervalle de croissance ne fait que '+(q.cb-q.ca+1)+' colonne(s) — il en faut 3');
+      for(let x=q.ca;x<q.cb;x++){ if(!(q.w[x+1-X0]>q.w[x-X0])) vus.push(nom+' : le témoin ne monte pas sur tout son intervalle de croissance'); }
+      if(q.em!==q.w[q.ca-X0]||q.eM!==q.w[q.cb-X0]) vus.push(nom+' : l\\'encadrement n\\'est pas celui du témoin sur son intervalle');
+      if(!(q.s>X0&&q.s<XF)) vus.push(nom+' : le partage tombe au bord du domaine — une moitié serait vide');
+      if(q.maxG!==mx(q.w,X0,q.s)||q.minD!==mn(q.w,q.s,XF)) vus.push(nom+' : le maximum de gauche ou le minimum de droite ne sont pas ceux du témoin');
+      if(q.maxT!==mx(q.w,X0,XF)||q.minT!==mn(q.w,X0,XF)) vus.push(nom+' : le maximum ou le minimum du domaine ne sont pas ceux du témoin');
+      if(!(q.maxG<q.maxT)) vus.push(nom+' : le maximum de gauche ÉGALE celui du domaine — la consigne ne dit plus rien');
+      if(!(q.minD>q.minT)) vus.push(nom+' : le minimum de droite ÉGALE celui du domaine — la consigne ne dit plus rien');
+      /* et le témoin respecte SES six consignes, par le juge même de la page */
+      const qq=Object.assign({},q); qq.rep=q.w.slice();
+      const j=cfxJuge(qq);
+      if(!j.allOk) vus.push(nom+' : le témoin ne respecte pas ses propres consignes ('+j.nCorrect+'/6)');
+      if(j.nTotal!==6) vus.push(nom+' : la question ne vaut pas six consignes ('+j.nTotal+')');
+    };
+    const sV=new Set(), longV=new Set();
+    for(let t=0;t<400 && vus.length<3;t++){ const q=cfmGen(); gardes(q,'tirage '+t); sV.add(q.s); longV.add(q.cb-q.ca); }
+    if(!vus.length && sV.size<2) vus.push('le partage ne varie jamais sur 400 séances');
+    if(!vus.length && longV.size<2) vus.push('l\\'intervalle de croissance a toujours la même longueur sur 400 séances');
+    gardes(Object.assign({},CFM_REPLI),'le REPLI');
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* ---- LA FICHE, ÉPINGLÉE. Le repli EST l'exercice 10 de la fiche : ses
+       six conditions au mot près. Si la page ne les écrit plus ainsi, c'est
+       qu'elle a cessé de poser l'exercice demandé. ---- */
+    const dits=cfxConsignes(Object.assign({},CFM_REPLI)).map(function(c){ return c.txt; });
+    const fiche=[
+      'f est croissante sur [ −2 ; 2 ].',
+      '−3 ≤ f (x) ≤ 4 sur [ −2 ; 2 ].',
+      '2 est le maximum de f sur [ −5 ; 0 ].',
+      '−2 est le minimum de f sur [ 0 ; 5 ].',
+      '4 est le maximum de f sur [ −5 ; 5 ].',
+      '−4 est le minimum de f sur [ −5 ; 5 ].'
+    ];
+    for(let i=0;i<6;i++){ if(dits[i]!==fiche[i]) vus.push('la consigne '+(i+1)+' ne dit pas celle de la fiche : « '+dits[i]+' » au lieu de « '+fiche[i]+' »'); }
+    if(vus.length) return vus.slice(0,3).join(' | ');
+
+    /* ---- les gestes, sur le repli — la correction est la fonction qui juge ---- */
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentDM=null; currentTestId='construire-max-min';
+    const monte=function(mode,rep){
+      currentMode=mode;
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'cfx', questions:[Object.assign({},CFM_REPLI,{rep:rep})], idx:0, score:0, maxScore:6, answers:[], startTime:Date.now(), locked:false});
+      renderCfx();
+    };
+    const etats=function(){ return [].map.call(document.querySelectorAll('#cfxHost .cfx-consigne'),
+      function(c){ return c.classList.contains('ok')?'+':(c.classList.contains('bad')?'-':'.'); }).join(''); };
+    /* 1. SIX consignes, toutes des RÉPONSES, rien de peint au rendu */
+    monte('train', CFM_REPLI.w.slice());
+    if(document.querySelectorAll('#cfxHost .cfx-consigne.pts-case').length!==6)
+      vus.push('les six consignes ne portent pas toutes la classe pts-case : la note affichée ne les compterait pas');
+    if(etats()!=='......') vus.push('une consigne est peinte avant la vérification ('+etats()+')');
+    /* 2. une copie INCOMPLÈTE ne reçoit aucune couleur */
+    const trous=CFM_REPLI.w.slice(); trous[2]=null; trous[6]=null;
+    monte('train', trous);
+    checkCfxAnswer();
+    if(etats()!=='......') vus.push('une copie incomplète peint des consignes ('+etats()+') : une courbe à moitié tracée n\\'est pas fausse');
+    if(document.getElementById('cfxFeedback').textContent.indexOf('il en manque 2')<0)
+      vus.push('le message de la copie incomplète ne compte pas les colonnes manquantes');
+    if(test.locked) vus.push('une copie incomplète verrouille la question');
+    /* 3. le témoin recopié : 6/6, et pas de courbe verte */
+    monte('train', CFM_REPLI.w.slice());
+    checkCfxAnswer();
+    if(test.score!==6||etats()!=='++++++') vus.push('le témoin recopié ne fait pas 6/6 ('+test.score+', '+etats()+')');
+    if(document.querySelector('#cfxHost .cfx-sol')) vus.push('la courbe verte s\\'affiche sur une copie toute juste');
+    /* 4. LE POINT CLÉ : une courbe DIFFÉRENTE du témoin qui respecte tout vaut
+       6/6 — le juge lit les consignes, jamais le témoin. −1 devient −4 en
+       colonne −5 : le minimum du domaine y est atteint une seconde fois, et
+       rien d'autre ne bouge. */
+    const alt=CFM_REPLI.w.slice(); alt[0]=-4;
+    monte('train', alt);
+    checkCfxAnswer();
+    if(test.score!==6) vus.push('une courbe différente du témoin mais qui respecte TOUT est refusée ('+test.score+'/6) : le juge compare au témoin');
+    /* 5. CHAQUE CONSIGNE SE JUGE SEULE. Les cinq premiers cas n'en cassent
+       qu'UNE, et c'est ce qui le prouve : une copie qui rate une condition
+       perd exactement un point. Les motifs ont été relevés sur la page après
+       avoir été calculés à la main — le premier jet en avait faussé trois, et
+       c'est le contrôle qui a eu tort, pas la page : abaisser une colonne
+       DANS l'intervalle de croissance casse aussi la montée. */
+    const cas=[
+      [[[6,4],[7,3]], '-+++++', 'les colonnes 1 et 2 échangées : la courbe ne monte plus sur [−2 ; 2]'],
+      [[[3,-4]],      '+-++++', 'la colonne −2 descendue à −4 : elle sort de l\\'encadrement par le bas'],
+      [[[0,3]],       '++-+++', 'la colonne −5 montée à 3 : le maximum de la moitié gauche n\\'est plus 2'],
+      [[[10,-3]],     '+++-++', 'la colonne 5 descendue à −3 : le minimum de la moitié droite n\\'est plus −2'],
+      [[[1,-1]],      '+++++-', 'le creux remonté à −1 : le minimum du domaine n\\'est plus atteint'],
+      [[[7,3]],       '-+++-+', 'le sommet abaissé à 3 : la montée ET le maximum du domaine tombent ensemble']
+    ];
+    cas.forEach(function(c){
+      const Pm=CFM_REPLI.w.slice(); c[0].forEach(function(ch){ Pm[ch[0]]=ch[1]; });
+      monte('train', Pm);
+      checkCfxAnswer();
+      if(etats()!==c[1]) vus.push(c[2]+' : consignes '+etats()+' au lieu de '+c[1]);
+    });
+    /* 6. LA CROISSANCE EST STRICTE : un palier n'est pas croissant */
+    const plat=CFM_REPLI.w.slice(); plat[5]=plat[4];
+    monte('train', plat);
+    checkCfxAnswer();
+    if(etats()[0]!=='-') vus.push('un palier passe pour une montée : « croissante » accepte deux colonnes à la même hauteur');
+    /* 7. L'ENCADREMENT N'EXIGE PAS SES BORNES, le MAXIMUM si. Une courbe qui
+       reste strictement dans la bande respecte l'encadrement ; un maximum non
+       ATTEINT est faux. */
+    const dedans=[-1,-4,-2,-2,-1,2,3,4,1,-2,0];
+    monte('train', dedans);
+    checkCfxAnswer();
+    if(etats()[1]!=='+') vus.push('l\\'encadrement exige d\\'atteindre ses bornes : une courbe qui reste dans la bande est refusée');
+    const bas=CFM_REPLI.w.slice(); bas[7]=3;
+    monte('train', bas);
+    checkCfxAnswer();
+    if(etats()[4]!=='-') vus.push('un maximum jamais atteint passe pour juste : « 4 est le maximum » accepte une courbe qui plafonne à 3');
+    /* 8. en SOUTIEN : pas de témoin vert, pas de verrou */
+    const Pm=CFM_REPLI.w.slice(); Pm[7]=3;
+    monte('soutien', Pm);
+    checkCfxAnswer();
+    if(document.querySelector('#cfxHost .cfx-sol')) vus.push('le témoin vert fuit en soutien : il souffle la réponse que le barème fait payer');
+    if(test.locked) vus.push('le soutien verrouille au lieu de laisser corriger');
+    /* 9. deux tracés en entraînement sur 12, un seul en soutien */
+    currentMode='train'; startCfm();
+    if(test.questions.length!==2||test.maxScore!==12) vus.push('l\\'entraînement ne fait pas deux tracés sur 12 ('+test.questions.length+', '+test.maxScore+')');
+    if(test.questions.some(function(q){ return q.fam!=='mmx'; })) vus.push('le démarreur ne pose pas la famille « maximum et minimum »');
+    currentMode='soutien'; startCfm();
+    if(test.questions.length!==1) vus.push('le soutien ne fait pas un seul tracé');
+    /* 10. L'IDENTITÉ : même moteur, pas la même identité */
+    currentTestId='construire-max-min';
+    if(!rappelDispo()||String(rappelHTML()||'').indexOf('maximum')<0) vus.push('l\\'exercice n\\'a pas SON rappel de cours');
+    const sug=qiaSuggestions().join(' | ');
+    if(sug.indexOf('maximum')<0) vus.push('la fenêtre d\\'aide ne propose aucune question sur le maximum');
+    const c=String(conseilCtxCourant()||'');
+    if(c.indexOf('maximum')<0||c.indexOf('six conditions')<0) vus.push('le contexte envoyé au modèle ne décrit pas les six conditions');
+    /* 11. ET L'AUTRE FAMILLE N'A PAS BOUGÉ : cinq consignes, son juge à elle */
+    const autre=Object.assign({},CFX_REPLI,{rep:CFX_REPLI.w.slice()});
+    const ja=cfxJuge(autre);
+    if(ja.nTotal!==5||!ja.allOk) vus.push('l\\'autre famille de construction a changé de barème ou de juge ('+ja.nCorrect+'/'+ja.nTotal+')');
+    return vus.slice(0,5).join(' | ');
   })()`, function(v){ return v===''; });
 }
 /* Les courbes de f et de g se DISTINGUENT (signalé par Turquet, août 2026 :

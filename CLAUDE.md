@@ -1993,6 +1993,63 @@ quelle ligne était une graduation. La grille reçoit donc le cadre de
 `.lv-graph` — fond `--surface`, bordure, coins arrondis. Ça ne se voit que sur
 une capture : aucun banc ne mesure la lisibilité de deux trames superposées.
 
+**Et le MÊME geste avec les consignes de la fiche du maximum : {construire-max-min}.**
+(Seconde, Fonctions, demande de Turquet, septembre 2026, repris de la fiche
+« Exercice 10 » — « créer une fonction max et min ») suit {construire-fonction}
+au menu. C'est {maximum-minimum} et {maximum-minimum-tableau} pris à L'ENVERS :
+là on LIT un maximum sur un dessin, ici on DESSINE une courbe dont le maximum
+est imposé. Six conditions, celles de la fiche : f croissante sur un
+intervalle, un encadrement sur ce même intervalle, un maximum sur la moitié
+gauche, un minimum sur la moitié droite, le maximum et le minimum du domaine
+entier.
+**LE MOTEUR EST PARTAGÉ, PAS RECOPIÉ** : même grille [−5 ; 5] × [−4 ; 4], même
+geste (un point par colonne, posé et retiré au clic), même écran, même dessin,
+même écouteur délégué, même note. Seules les CONSIGNES changent, et la famille
+voyage dans la QUESTION (`q.fam`) — donc la reprise après une pause la retrouve
+sans rien de plus, et les trois fonctions aiguillées (consignes, juge,
+explication) restent PURES : le contrôle leur passe une question qu'il écrit
+lui-même. Même moteur, pas même identité : la note part sous `currentTestId`,
+le rappel par `RAPPELS_ID`, les questions par `QIA_SUGG_ID`.
+**LE CŒUR EST L'INTERACTION DES QUATRE CONSIGNES DE MAXIMUM ET DE MINIMUM** :
+le maximum de la moitié gauche est STRICTEMENT plus petit que celui du domaine,
+donc le sommet ne peut pas être à gauche ; le minimum de la moitié droite est
+STRICTEMENT plus grand que celui du domaine, donc le creux ne peut pas être à
+droite. Sans ces deux inégalités les consignes se répéteraient et l'exercice
+n'apprendrait rien — le tirage les EXIGE, et le contrôle les recompte.
+**TOUT SE JUGE AUX GRADUATIONS, et c'est exact** : entre deux colonnes la
+spline de `lvTangents` est monotone, donc elle ne dépasse ni ne redescend — le
+maximum, le minimum et la croissance de la courbe DESSINÉE sont ceux des points
+posés. La croissance est STRICTE : un palier est constant, pas croissant.
+L'encadrement, lui, n'exige PAS d'atteindre ses bornes — c'est un encadrement,
+pas une égalité ; le maximum, si : une courbe qui plafonne plus bas est fausse,
+et c'est le bord opposé de « ne pas dépasser ».
+**LE JUGE NE COMPARE JAMAIS AU TÉMOIN**, comme dans l'autre famille : le tirage
+construit une courbe, en DÉRIVE les six consignes, et le juge ne relit que les
+consignes. La sonde l'a mesuré plutôt que supposé — 6 courbes au moins ne
+diffèrent du témoin que d'une colonne et valent 6/6, 12 en médiane — et le
+contrôle épingle l'une d'elles : c'est le bord qui attraperait un juge
+paresseux.
+**LE REPLI EST LA FICHE ELLE-MÊME** : ses six conditions au mot près
+(« f est croissante sur [−2 ; 2] », « −3 ≤ f (x) ≤ 4 sur [−2 ; 2] », « 2 est le
+maximum sur [−5 ; 0] », « −2 est le minimum sur [0 ; 5] », « 4 est le maximum
+sur [−5 ; 5] », « −4 est le minimum sur [−5 ; 5] »), et il passe par les gardes
+MÊMES du tirage — il en est un tirage possible, vérifié garde par garde plutôt
+que supposé. Le contrôle compare la page à LA FICHE, condition par condition.
+Sonde : 0 recours au repli sur 400 séances.
+**Et le premier jet du contrôle a rougi sur du code JUSTE** : trois de ses
+motifs épinglés étaient faux — abaisser une colonne DANS l'intervalle de
+croissance casse aussi la montée, et j'avais compté une seule consigne fausse
+là où il y en avait deux. Un essai faux se reconnaît à ce qu'il rougit sur une
+page juste ; les cas ont été choisis pour n'en casser QU'UNE, ce qui prouve
+bien mieux que chaque consigne se juge seule.
+**Dix-huit sabotages, dix-sept rougissant en nommant leur défaut**, et le
+dernier reste VERT à bon droit : ouvrir le partage jusqu'au bord du domaine ne
+produit aucun tirage: à s = −5 la moitié droite EST le domaine, donc son
+minimum égale celui du domaine et la garde du cœur écarte le tirage. La
+propriété « le partage est intérieur » est donc TENUE par les deux inégalités
+du cœur, et la liste `[-1, 0, 1]` n'est pas un garde-fou mais un choix de
+présentation — le partage reste près du milieu, comme sur la fiche.
+
 **Le 4.5 de la Terminale est descendu en Seconde — même tirage, autre juge.**
 {solutions-graphique} (Seconde, Fonctions, juste avant {construire-fonction},
 demande de Turquet, septembre 2026 : « mettre l'exercice 4.5 de terminale en
