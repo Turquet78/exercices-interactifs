@@ -1614,7 +1614,8 @@ tableau déborde — la règle retirée, il rougit en nommant l'écart
 (« graphique 1, tableau 2 : 617 px dans 546 ») pendant que le banc jsdom
 reste vert à bon droit.
 
-**Choisir le BON tableau parmi quatre — le QCM de la grande courbe.**
+**Choisir le BON tableau parmi quatre, puis parmi cinq — le QCM de la
+grande courbe.**
 {choisir-tableau-variation} (Seconde, demande de Turquet, septembre 2026 —
 « une courbe entre −6 à 6 avec 2 ; 3 ; 4 variations possibles, proposer 4
 tableaux de variations différents et l'élève doit choisir le bon tableau »)
@@ -1629,17 +1630,20 @@ cas 18 essais — le repli, RÉEL et relevé sur le générateur, un par visage,
 ne sert jamais et repasse par les gardes du contrôle) ; la table vraie est
 lue par `gsvAnalyze()`, la fonction qui corrige le 2.15 — un énoncé ne peut
 pas contredire sa correction ; le dessin est `adrSVG()` appelée nue ; les
-flèches des quatre tableaux sont dessinées par `lvArrowSVG()` sur la
+flèches des tableaux sont dessinées par `lvArrowSVG()` sur la
 géométrie `VT_*` du 2.1 — les propositions ont le visage du tableau que
 l'élève connaît.
-**Les quatre tableaux ne diffèrent que par ce qui fait l'erreur** — la leçon
+**Les tableaux ne diffèrent que par ce qui fait l'erreur** — la leçon
 d'{intervalles-inegalite} : le vrai ; les sens INVERSÉS ; un changement de
 sens DÉCALÉ d'une graduation ; le mauvais NOMBRE de variations (un
-changement en plus ou en moins — le cœur de la demande : compter). Ils ne
-portent PAS de valeurs, comme les tableaux du QCM de la Terminale : des
+changement en plus ou en moins — le cœur de la demande : compter). Ils n'ont
+d'abord porté AUCUNE valeur, comme les tableaux du QCM de la Terminale : des
 valeurs auraient rendu l'inversion éliminable en lisant UN nombre, ou
 incohérente avec ses propres flèches — sans lire les variations, qui sont ce
-qu'on évalue. Les mutations mutent TOUJOURS (quatre signatures deux à deux
+qu'on évalue. **Cette règle-là a été RENVERSÉE le mois suivant** (paragraphe
+ci-dessous) : les valeurs s'écrivent, une cinquième carte en dépend, et
+l'objection est tenue autrement — par la cohérence de chaque carte avec ses
+propres flèches. Les mutations mutent TOUJOURS (quatre signatures deux à deux
 distinctes par construction) et l'espacement ≥ 2 des tournants rend le
 décalage toujours lisible : ces gardes seraient MORTS dans le tirage (sonde
 0 sur 3000), c'est le CONTRÔLE qui exige les propriétés.
@@ -1653,6 +1657,69 @@ LIBELLÉ (« B », jamais « 1 »), la bonne carte choisie est bleue, la bonne
 MONTRÉE est verte — jamais en soutien, où l'élève corrige lui-même — et la
 case vide ne rougit jamais. Quinze sabotages, chacun rougissant en nommant
 son défaut.
+
+**Puis les IMAGES se sont écrites au bout des flèches, et une CINQUIÈME carte
+est née.** Demande de Turquet (septembre 2026) : « il faudrait que la valeur
+des images sur les extrémités des flèches soient affichées. Ce qui permet de
+différencier deux tableaux qui ont les mêmes variations aux mêmes abscisses
+mais pas les mêmes images. Il faudrait que ce cas apparaisse aussi dans les
+exemples donnés. » La demande porte sa propre raison : tant que les quatre
+cartes se départageaient sur les seules VARIATIONS, une valeur ne servait à
+rien et pouvait trahir ; dès qu'un tableau se distingue par une IMAGE, elle
+devient la question. La carte `images` — les BONNES variations aux BONNES
+abscisses, UNE image fausse — est le cinquième piège, et son message le
+nomme : « lis la hauteur de chaque bout de flèche sur la courbe ».
+**L'objection de l'ancienne règle est TENUE, pas abandonnée** : aucune carte
+ne doit pouvoir s'éliminer en lisant UN nombre, donc chacune est COHÉRENTE
+avec ses propres flèches — une flèche qui monte va toujours d'une valeur plus
+petite à une plus grande, sur les cinq. L'INVERSE écrit les valeurs opposées
+(tout a tourné, et le tableau redit exactement ses flèches à lui) ; la
+DÉCALÉE garde les VRAIES valeurs — elle ne s'écarte que sur son abscisse, le
+défaut même qu'elle enseigne ; celle du mauvais NOMBRE reçoit un zigzag entre
+le minimum et le maximum de la courbe, dont chaque nœud est placé par
+`varTopPour` — la fonction MÊME qui décide où une valeur se pose dans la
+bande des flèches, si bien qu'un tableau ne peut pas écrire une valeur
+ailleurs que là où son rôle la met ; et l'image fausse est tirée parmi les
+valeurs qui ne contredisent NI la flèche de gauche NI celle de droite
+(`vtqValsPossibles` — sonde : 21 possibilités au minimum, 32 en moyenne sur
+3000 tirages, donc un garde ici n'écarterait jamais rien et c'est le contrôle
+qui exige la propriété). Les trois replis ont été REPRIS sur le générateur,
+chacun avec l'image qu'il fait varier, et le contrôle exige ce champ : un
+repli muet là-dessus rendrait une carte `images` identique au vrai.
+**Les cinq tableaux sont rendus par `varTableHTML` en mode LECTURE** — la
+fonction MÊME qui rend le tableau qu'on remplit au 2.1 et celui qu'on lit au
+2.17 : une proposition ne peut pas se dessiner autrement que le tableau que
+l'élève connaît, valeurs comprises. Les lettres, elles, sont LOCALES
+(`VTQ_LETTRES`, A à E) : `ITQ_LETTRES` sert les QCM à QUATRE cartes — le 2.4,
+le 2.5, le 2.7 — et l'étendre leur aurait offert une cinquième option qui ne
+désigne rien.
+**Un garde-fou MORT y a été écrit, puis retiré** — le NEUVIÈME du projet :
+`vtqSignature`, qui devait empêcher deux propositions identiques, n'avait
+aucun appelant, et le contrôle calcule la signature LUI-MÊME (il le doit :
+lire la fonction de la page et la comparer à elle-même ne prouverait rien).
+Le sabotage l'a montré en restant vert, et son vert disait vrai ; la
+propriété, elle, est bien tenue — le contrôle rougit dès que la carte des
+images ne mute plus rien (« deux propositions identiques »).
+**Et le banc NAVIGATEUR a trouvé un défaut qui vivait en ligne depuis le
+premier jour** (« 6 quater octies », déclaré par `qcmTableauVariation` dans
+`tests/profils.js`) : l'écran n'avait jamais reçu son réglage de carte propre
+et valait donc les 600 px de `.lv-card`, si bien que chaque carte de la
+grille à deux colonnes n'offrait que 280 px à un tableau qui en fait jusqu'à
+617 — tout se cachait derrière le défilement de son conteneur, sans que rien
+ne le signale. C'est la leçon du 2.15, au même endroit, et jsdom ne pouvait
+pas la voir. Les IMAGES rendent ce défaut coûteux : la dernière colonne
+cachée emporte justement la réponse qu'on fait comparer. La carte passe donc
+à 1360 px (deux tableaux de 617 et leurs rembourrages font 1288) et la grille
+passe à UNE colonne en dessous — un tableau qu'on ne peut pas lire n'est pas
+une proposition. Le maximum de 617 n'est pas supposé : à quatre segments, le
+tirage ne sait que RETIRER une variation (`nseg===4?'del'`), donc jamais plus
+de cinq valeurs. Le contrôle mesure les DEUX largeurs, 1400 et 1280 px —
+mesurer la seule largeur confortable laisserait le point de bascule libre de
+dériver — et exige que chaque image ait une BOÎTE non nulle, jamais seulement
+une balise : un CSS perdu sur `.vt-lect` les rendrait invisibles sans qu'une
+erreur ne se lève, et l'exercice reviendrait à celui d'avant la demande.
+Douze sabotages au banc principal et trois au navigateur, chacun rougissant
+en nommant son défaut.
 
 **Le maximum et le minimum se lisent sur un MORCEAU de courbe — et le risque
 est l'extremum PARTAGÉ.** {maximum-minimum} (Seconde, demande de Turquet,
