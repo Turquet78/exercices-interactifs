@@ -1310,6 +1310,23 @@ math-field.rc-mf{min-width:64px;max-width:120px;}
   }
   body > .ML__keyboard .MLK__rows > .MLK__row > div > small{font-size:10px;}
 }
+/* ---- Clavier ancré de la TABLETTE : touches légèrement réduites (demande de
+   Turquet, septembre 2026 — « réduire légèrement la taille des touches »). Même
+   périmètre que les deux règles ci-dessus : le clavier ANCRÉ, jamais la fenêtre
+   flottante de l'ordinateur, et la même borne que la police de la page (un écran
+   tactile d'au moins 600 px est une tablette, pas un téléphone).
+   La largeur se règle sur HUIT unités et non sept : la rangée la plus chargée du
+   clavier en compte huit, et sans cela elle se rétrécirait SEULE — le clavier
+   aurait deux tailles de touches sur le même écran. ---- */
+@media (pointer:coarse) and (min-width:600px){
+  body > .ML__keyboard{
+    --keycap-height:48px;
+    --keycap-width:min(96px,calc((100cqw - 32px) / 8));
+    --keycap-gap:4px;
+    --keycap-font-size:24px;
+    --keycap-glyph-size:24px;
+  }
+}
 .rc-jetons{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 14px;}
 .sar-q{font-weight:800;margin:18px 0 6px;font-size:1.02rem}
 .rc-jlbl{font-weight:700;color:var(--ink-soft);margin-right:2px;}
@@ -2453,7 +2470,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=304;
+const APP_VERSION=305;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -19467,18 +19484,29 @@ function buildKbTerm(vars){
   return {
     label: "Terminale",
     layers: [
+      /* CLAVIER A — les nombres et les opérations, QUATRE rangées (demande de
+         Turquet, septembre 2026 : « faire passer les touches U.., n, inf, -->
+         et l'intégrale sur le clavier B ; une ligne en moins dans le clavier
+         A »). La rangée des variables a donc quitté cette couche : elle vit
+         maintenant en tête du clavier B, avec ∞, ⟶ et l'intégrale. Huit unités
+         au plus par rangée — c'est la largeur que la règle de la tablette
+         donne aux touches, et une rangée plus large se rétrécirait seule. */
       { id: "term-base", rows: [
-        V.concat([ {latex:"\\infty"},{latex:"\\longrightarrow"},{label:"clavier B",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-fn"]} ]),
         [ {latex:"7"},{latex:"8"},{latex:"9"},{label:"/",insert:"\\frac{#@}{#?}"},{latex:"e"},{latex:"\\sqrt{\\phantom{0}}",insert:"\\sqrt{#0}"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
         [ {latex:"4"},{latex:"5"},{latex:"6"},{label:"×",latex:"\\times"},{label:"ln",insert:"\\ln\\left(#0\\right)"},{label:"(",key:"("},{label:")",key:")"} ],
-        [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},KB_EXP,{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
         /* « = » (demande de Turquet, septembre 2026) : la greffe coupe le clavier du
            SYSTEME sur chaque champ mathematique (inputmode="none") — sur tablette,
            sans cette touche, une egalite etait intapable dans les redactions. */
-        [ {latex:"0"},{latex:","},{latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"+"},{latex:"="},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
+        [ {latex:"1"},{latex:"2"},{latex:"3"},{label:"−",latex:"-"},{latex:"="},KB_EXP,{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]} ],
+        [ {latex:"0"},{latex:","},{latex:"+"},{label:"espace",width:2,key:" "},{label:"⏎",class:"action",command:["performWithFeedback","commit"]},{label:"clavier B",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-fn"]} ]
       ]},
+      /* CLAVIER B — les lettres, les fonctions et les symboles. Sa PREMIÈRE
+         rangée est celle qui vivait sur le clavier A : les variables de
+         l'exercice (Uₙ et n pour les suites, f et x pour les fonctions, plus
+         ≤ ≥ < > au 6.7), ∞ et ⟶ ; l'intégrale suit à la rangée d'après. */
       { id: "term-fn", rows: [
-        [ {label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"},{latex:"\\pi"},{latex:"\\in"},KB_IDX ],
+        V.concat([ {latex:"\\infty"},{latex:"\\longrightarrow"} ]),
+        [ {latex:"\\smallint",insert:"\\int_{#?}^{#?}#?\\,dx"},{latex:"\\pi"},{latex:"\\in"},KB_IDX,{label:"sin",insert:"\\sin\\left(#0\\right)"},{label:"cos",insert:"\\cos\\left(#0\\right)"},{label:"tan",insert:"\\tan\\left(#0\\right)"} ],
         [ {label:"arcsin",width:1.5,insert:"\\arcsin\\left(#0\\right)"},{label:"arccos",width:1.5,insert:"\\arccos\\left(#0\\right)"},{label:"arctan",width:1.5,insert:"\\arctan\\left(#0\\right)"},{label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ],
         [ {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]},{label:"espace",width:2,key:" "},{label:"←",class:"action",command:["performWithFeedback","moveToPreviousChar"]},{label:"→",class:"action",command:["performWithFeedback","moveToNextChar"]},{label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]
       ]}

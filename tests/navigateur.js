@@ -3594,14 +3594,18 @@ async function parcours(page, N){
       });
       await s.page.click('#rrOutils button[aria-label^="Afficher ou masquer le clavier"]');
       await s.page.waitForTimeout(800);
-      const kbRects = await s.page.evaluate(() => {
-        const vk = window.mathVirtualKeyboard;
-        const caps = Array.from(document.querySelectorAll('#kbwin [class*="keycap"], body > .ML__keyboard [class*="keycap"]'));
-        const de = t => { const c = caps.find(k => k.textContent.trim() === t);
-          if(!c) return null; const r = c.getBoundingClientRect();
-          return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null; };
-        return { ouvert: !!(vk && vk.visible), le: de('≤'), ge: de('≥'), lt: de('<'), gt: de('>'), eq: de('=') };
-      });
+      /* les touches se cherchent parmi les ENFANTS DIRECTS des rangées : la
+         touche de bascule ne porte pas la classe « keycap » de MathLive, et un
+         sélecteur qui la manque ferait échouer la mesure sur la page juste. */
+      const trouverCap = async (txt) => s.page.evaluate(t => {
+        const caps = Array.from(document.querySelectorAll('#kbwin .MLK__rows > .MLK__row > *, body > .ML__keyboard .MLK__rows > .MLK__row > *'));
+        const c = caps.find(k => k.textContent.trim() === t);
+        if(!c) return null; const r = c.getBoundingClientRect();
+        return (r.width > 4 && r.height > 4) ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
+      }, txt);
+      const cliquerCap = async (txt) => { const p = await trouverCap(txt);
+        if(p){ await s.page.mouse.click(p.x, p.y); await s.page.waitForTimeout(140); } return !!p; };
+      const kbRects = { ouvert: await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible)) };
       /* et la touche « clavier B » (les mots vivent dans le profil), dans la
          fenêtre FLOTTANTE de l'ordinateur : un libellé de neuf lettres dans
          une touche rembourrée de 12 px de chaque côté — à 1,5 unité il y
@@ -3616,10 +3620,17 @@ async function parcours(page, N){
         !basculeBureau.absent && basculeBureau.visible && !basculeBureau.coupe,
         basculeBureau.absent ? 'aucune touche « ' + P.clavierEcran.versB + ' »' : basculeBureau.coupe ? 'libellé coupé (touche de ' + basculeBureau.w + ' px)' : 'touche sans surface');
       /* « = » d'abord : cliqué après « > », un raccourci « >= » pourrait les
-         fondre en ≥ et la mesure parlerait d'autre chose */
-      for(const t of ['eq', 'le', 'ge', 'lt', 'gt']){
-        if(kbRects[t]){ await s.page.mouse.click(kbRects[t].x, kbRects[t].y); await s.page.waitForTimeout(120); }
-      }
+         fondre en ≥ et la mesure parlerait d'autre chose. Et les touches vivent
+         désormais sur les DEUX couches (demande de Turquet, septembre 2026) :
+         « = » sur le clavier A, ≤ ≥ < > avec les variables sur le clavier B —
+         on bascule au milieu, par la touche même, et on revient. */
+      kbRects.eq = await cliquerCap('=');
+      kbRects.versB = await cliquerCap(P.clavierEcran ? P.clavierEcran.versB : 'clavier B');
+      await s.page.waitForTimeout(200);
+      kbRects.le = await cliquerCap('≤'); kbRects.ge = await cliquerCap('≥');
+      kbRects.lt = await cliquerCap('<'); kbRects.gt = await cliquerCap('>');
+      await cliquerCap(P.clavierEcran ? P.clavierEcran.versA : 'clavier A');
+      await s.page.waitForTimeout(200);
       const kbTape = await s.page.evaluate(() => {
         const lignes = rrTexte().split('\n');
         return lignes[lignes.length - 1];
@@ -3649,6 +3660,7 @@ async function parcours(page, N){
           && kbTape.indexOf('<') >= 0 && kbTape.indexOf('>') >= 0
           && kbTape.indexOf('=') >= 0 && kbFerme,
         (kbRects.ouvert ? '' : 'le clavier ne s\'ouvre pas au ⌨️ ; ')
+          + (kbRects.versB ? '' : 'la touche de bascule est introuvable ; ')
           + 'touches trouvées : ' + ['le', 'ge', 'lt', 'gt', 'eq'].filter(t => kbRects[t]).join(' ')
           + ', ligne lue : ' + JSON.stringify(kbTape.slice(0, 60))
           + (kbFerme ? '' : ' — ET LE CLAVIER RESTE OUVERT'));
@@ -6138,6 +6150,94 @@ async function parcours(page, N){
             : 'touche « 5 » : ' + tab.touche.h + ' px sur tablette contre ' + (tel.touche ? tel.touche.h : '?') + ' sur téléphone, police '
               + tab.police + ' contre ' + tel.police);
         verifier('le clavier du téléphone ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 sexies. Le clavier de la TABLETTE : deux couches, touches réduites ----
+       Demande de Turquet (septembre 2026), sur le clavier du 6.9 : « faire
+       passer les touches U.., n, inf, --> et l'intégrale sur le clavier B ; une
+       ligne en moins dans le clavier A ; et réduire légèrement la taille des
+       touches ». jsdom lit la DISPOSITION déclarée ; seul un navigateur sait
+       combien de rangées se RENDENT, quelle hauteur une touche prend sur une
+       tablette, et ce qui apparaît vraiment quand on change de couche. On ouvre
+       l'exercice déclaré sur une tablette tactile, on déploie le clavier ANCRÉ,
+       on compte les rangées du clavier A et on y CHERCHE les touches parties —
+       puis on clique « clavier B » et on exige de les y trouver. */
+    titre('11 sexies. LE CLAVIER DE LA TABLETTE : DEUX COUCHES, TOUCHES RÉDUITES');
+    if(!(P.clavierEcran && P.clavierEcran.tablette)){
+      ignorer('sur une tablette, le clavier A tient sur moins de rangées et ses touches sont réduites',
+        'ce fichier ne déclare pas de clavier de tablette');
+    } else {
+      const K = P.clavierEcran, KT = K.tablette, KC = K.couches || {};
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('sur une tablette, le clavier A tient sur moins de rangées et ses touches sont réduites', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), KT.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(900);
+        await s.page.click(KT.champ);
+        await s.page.waitForTimeout(700);
+        const deploye = await s.page.evaluate(() => !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible));
+        if(!deploye){ await s.page.click(KT.bouton); await s.page.waitForTimeout(900); }
+        /* la couche RENDUE : ses rangées, sa touche témoin, et qui s'y trouve */
+        const mesurerCouche = ({ versA, versB }) => {
+          const kb = document.querySelector('body > .ML__keyboard');
+          const vk = window.mathVirtualKeyboard;
+          if(!kb) return { absent: true, visible: !!(vk && vk.visible) };
+          const vis = el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2; };
+          const caps = [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis);
+          const de = t => caps.find(c => c.textContent.trim() === t) || null;
+          const info = el => { if(!el) return null; const q = el.getBoundingClientRect();
+            return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2),
+                     w: Math.round(q.width), h: Math.round(q.height) }; };
+          const police = el => { if(!el) return 0; let m = parseFloat(getComputedStyle(el).fontSize) || 0;
+            el.querySelectorAll('*').forEach(x => { m = Math.max(m, parseFloat(getComputedStyle(x).fontSize) || 0); }); return Math.round(m * 10) / 10; };
+          const tops = []; caps.forEach(c => { const t = Math.round(c.getBoundingClientRect().top);
+            if(!tops.some(v => Math.abs(v - t) < 6)) tops.push(t); });
+          const cinq = de('5');
+          return { visible: !!(vk && vk.visible), rangees: tops.length,
+                   touche: info(cinq), police: police(cinq),
+                   debord: Math.round(Math.max(0, ...caps.map(c => c.getBoundingClientRect().right)) - window.innerWidth),
+                   inf: !!de('∞'), integ: !!de('∫'), n: !!de('n'), cinqLa: !!cinq,
+                   versA: info(de(versA)), versB: info(de(versB)) };
+        };
+        const cA = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB });
+        verifier('sur une tablette, le clavier A tient sur ' + (KC.rangeesA || 4) + ' rangées et ses touches sont réduites',
+          !cA.absent && cA.visible && cA.rangees === (KC.rangeesA || 4)
+            && !!cA.touche && cA.touche.h <= KT.hauteurMax && cA.police <= KT.policeMax && cA.debord <= 1,
+          cA.absent ? 'aucun clavier ancré dans la page'
+            : !cA.visible ? 'le clavier ne se déploie pas'
+            : cA.rangees !== (KC.rangeesA || 4) ? cA.rangees + ' rangée(s) rendue(s) au lieu de ' + (KC.rangeesA || 4)
+            : !cA.touche ? 'la touche « 5 » est introuvable sur le clavier A'
+            : 'touche « 5 » : ' + cA.touche.w + '×' + cA.touche.h + ' px (plafond ' + KT.hauteurMax + '), police '
+              + cA.police + ' px (plafond ' + KT.policeMax + ')'
+              + (cA.debord > 1 ? ', DÉBORDE de ' + cA.debord + ' px à droite' : ''));
+        verifier('les touches ∞, ∫ et la variable n ont quitté le clavier A',
+          !cA.inf && !cA.integ && !cA.n && cA.cinqLa,
+          !cA.cinqLa ? 'le clavier A n\'a même plus ses chiffres'
+            : 'encore sur le clavier A : ' + [cA.inf ? '∞' : '', cA.integ ? '∫' : '', cA.n ? 'n' : ''].filter(Boolean).join(' '));
+        /* et on les trouve sur le clavier B, cliqué pour de vrai */
+        let cB = null;
+        if(cA.versB){ await s.page.mouse.click(cA.versB.x, cA.versB.y); await s.page.waitForTimeout(400);
+          cB = await s.page.evaluate(mesurerCouche, { versA: K.versA, versB: K.versB }); }
+        verifier('elles sont sur le clavier B, qui tient sur ' + (KC.rangeesB || 4) + ' rangées',
+          !!cB && cB.inf && cB.integ && cB.n && !cB.cinqLa && cB.rangees === (KC.rangeesB || 4) && cB.debord <= 1,
+          !cA.versB ? 'aucune touche « ' + K.versB +' » sur le clavier A'
+            : !cB ? 'la seconde couche ne se rend pas'
+            : cB.cinqLa ? 'les chiffres sont toujours là : la couche n\'a pas changé'
+            : (!cB.inf || !cB.integ || !cB.n) ? 'manque sur le clavier B : '
+                + [cB.inf ? '' : '∞', cB.integ ? '' : '∫', cB.n ? '' : 'n'].filter(Boolean).join(' ')
+            : cB.rangees + ' rangée(s) rendue(s) au lieu de ' + (KC.rangeesB || 4)
+              + (cB.debord > 1 ? ', et il DÉBORDE de ' + cB.debord + ' px' : ''));
+        verifier('le clavier de la tablette ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;

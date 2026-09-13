@@ -5856,6 +5856,43 @@ clavier ancré occupe TOUTE la fenêtre (son fond), sa hauteur utile est celle
 de la plaque des touches (`.MLK__plate`). Huit sabotages : sept rougissent
 en nommant leur défaut, le huitième (le rembourrage) reste vert et dit vrai.
 
+**Puis le clavier de la Terminale s'est partagé en deux couches lisibles, et
+ses touches ont maigri sur tablette.** Demande de Turquet (septembre 2026), sur
+le clavier du 6.9 : « faire passer les touches U.., n, inf, --> et l'intégrale
+sur le clavier B ; je veux qu'il y ait une ligne en moins dans le clavier A ; et
+réduire légèrement la taille des touches ». Le clavier A garde les NOMBRES et les
+OPÉRATIONS — quatre rangées au lieu de cinq — et le clavier B porte les
+VARIABLES de l'exercice, ∞, ⟶ et l'intégrale, à côté des fonctions qu'il avait
+déjà. Le « = » descend d'une rangée pour faire place à la bascule.
+**La rangée des variables est la même pour tous les exercices de la Terminale**
+(`buildKbTerm` — seule cette rangée varie, par `kbVarsFor`) : la déplacer déplace
+donc aussi les ≤ ≥ < > du 6.7, qui restent sur le clavier à l'écran mais une
+touche plus loin. C'est la conséquence assumée d'« une ligne en moins », et le
+banc navigateur du 6.7 bascule désormais au milieu de sa mesure — il clique
+« = » sur A, « clavier B », puis les quatre inégalités.
+**Huit unités par rangée au plus, et ce n'est pas une coquetterie** : la règle de
+la tablette donne aux touches la largeur de l'écran divisée par HUIT, et une
+rangée plus large se rétrécirait SEULE — le clavier aurait deux tailles de
+touches sur le même écran. Le maximum vit dans `tests/profils.js`
+(`clavierEcran.couches`), avec les comptes de rangées, les touches qui doivent
+être sur B et celles qui doivent RESTER sur A : sans ce dernier bord, déménager
+les chiffres eux aussi passerait au vert.
+**Les touches réduites sont une règle de plus, au même périmètre que les deux
+précédentes** : le clavier ANCRÉ (`body > .ML__keyboard`), jamais la fenêtre
+flottante de l'ordinateur, sous la borne de la tablette (600 px, celle de la
+police de la page). 58 px de haut et 30 px de police deviennent 48 et 24 — et le
+contrôle jsdom exige que ces valeurs RÉDUISENT vraiment, comparées au réglage
+général : une règle qui reprendrait la taille d'origine ne réduirait rien.
+Deux bancs, la répartition habituelle : jsdom ÉVALUE `buildKbTerm` depuis la
+source avec des variables RECONNAISSABLES et regarde où chaque touche tombe ; le
+NAVIGATEUR (« 11 sexies », déclaré par `clavierEcran.tablette`) ouvre le 6.9 sur
+une tablette tactile, compte les rangées RENDUES, mesure la touche « 5 », exige
+que ∞, ∫ et n aient quitté le clavier A — puis CLIQUE « clavier B » et exige de
+les y trouver. Un piège de banc s'y est montré : la touche de bascule ne porte
+pas la classe « keycap » de MathLive, et le sélecteur qui la manquait faisait
+échouer la mesure du 6.7 sur une page juste — on cherche parmi les enfants
+DIRECTS des rangées. Huit sabotages, chacun rougissant en nommant son défaut.
+
 **Sur tablette, la page s'installe comme une application — et sur tablette
 seulement.** Demande de Turquet (septembre 2026) : gagner la place que la
 barre d'adresse et les onglets de Chrome prennent sur l'écran d'une tablette,
