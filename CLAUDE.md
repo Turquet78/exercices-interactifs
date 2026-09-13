@@ -2992,10 +2992,14 @@ exercice, puis accusait la page de ne rien enregistrer. Chacun se désigne
 sans ambiguïté depuis (`dm-notedev`, `.dm-exrow .dm-noteinput`), et le banc
 navigateur tape maintenant dans les DEUX champs — jsdom éprouve le juge,
 l'échelle et la base, lui seul éprouve le GESTE : un `onchange` posé dans un
-`innerHTML` traverse deux analyseurs. Dix-huit sabotages, chacun rougissant en
-nommant son défaut — et deux ont d'abord été IMPOSSIBLES, posés sur une ancre
-que la note par exercice partage : un sabotage se pose sur une ancre PROPRE à sa
-cible.
+`innerHTML` traverse deux analyseurs.
+**Vingt-quatre sabotages en tout**, vingt-et-un rougissant en nommant leur
+défaut. Deux ont d'abord été IMPOSSIBLES, posés sur une ancre que la note par
+exercice partage — un sabotage se pose sur une ancre PROPRE à sa cible, et
+rejoués sur la leur ils rougissent. Et un est resté VERT au banc jsdom **à bon
+droit** : la classe `dm-notedev` retirée ne change rien à ce que jsdom mesure —
+c'est le banc NAVIGATEUR qui la nomme (« aucun champ dm-notedev dans le bilan de
+la classe »), et il l'a fait.
 **Rien de cela n'existe en Seconde ni en Première** : la demande nomme la
 Terminale, `dmTotalEleve()` n'y est pas, et le contrôle s'y affiche « non
 applicable » plutôt que d'être tu.
