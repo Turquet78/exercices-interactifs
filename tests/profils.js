@@ -639,6 +639,9 @@ module.exports = {
        borne et la dernière case coupées. Seul un navigateur mesure un tableau
        rendu contre son cadre. */
     grandsTableaux: { exercice: 'signes-variations-grand', corps: 'gsvBody', rendu: 'renderGSV', formes: [2, 3, 4] },
+    /* le QCM du 2.20 : cinq cartes depuis que le tableau aux IMAGES fausses
+       existe (demande de Turquet, septembre 2026) */
+    qcmTableauVariation: { exercice: 'choisir-tableau-variation', cartes: 5 },
     /* {maximum-minimum} : le grand dessin doit rester LISIBLE et
        « … ≤ f (x) ≤ … » tenir d'un seul tenant — un repli entre les deux
        cases se lirait comme deux morceaux de phrase. Seul un navigateur

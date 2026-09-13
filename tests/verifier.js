@@ -14126,7 +14126,7 @@ function syntheseFonction(w, P){
 }
 
 function qcmTableauVariation(w, P){
-  const nom='le QCM du tableau de variation : quatre tableaux, un seul est celui de la courbe';
+  const nom='le QCM du tableau de variation : cinq tableaux avec leurs images, un seul est celui de la courbe';
   const present = evaluer(w, "typeof startVtq==='function' && typeof vtqBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n’a pas le QCM du tableau de variation');
@@ -14155,8 +14155,10 @@ function qcmTableauVariation(w, P){
         vus.push('la table vraie n’est plus lue par gsvAnalyze, la fonction qui corrige {signes-variations-grand}');
       if(String(vtqGen).indexOf('adrGenPts')<0)
         vus.push('le tirage ne passe plus par adrGenPts, le générateur du grand graphique');
-      if(String(vtqTableHTML).indexOf('lvArrowSVG')<0 || String(vtqTableHTML).indexOf('VT_WN')<0)
-        vus.push('les tableaux proposés ne sont plus dessinés par lvArrowSVG sur la géométrie VT_* du 2.1'); }
+      if(String(vtqTableHTML).indexOf('varTableHTML(')<0)
+        vus.push('les tableaux proposés ne passent plus par varTableHTML, la fonction même qui rend le tableau du 2.1');
+      if(String(vtqValsZig).indexOf('varTopPour')<0)
+        vus.push('le zigzag du tableau au mauvais NOMBRE de variations ne lit plus varTopPour : ses valeurs tomberaient ailleurs que là où leur rôle les met'); }
 
     /* ---- 1. le tirage : 60 séances, tout refait par sa propre
        arithmétique — 13 entiers dans [−6,6], jamais de palier, amplitude,
@@ -14183,15 +14185,34 @@ function qcmTableauVariation(w, P){
     }
     function fautesTables(q){
       const f=[], a=analyse(q.pts), T=vtqTables(q), k=a.turns.length;
+      const NAT=['vrai','inverse','decale','nombre','images'];
+      /* les images VRAIES, lues par la propre arithmétique du contrôle : la
+         courbe est monotone entre deux tournants, donc f aux nœuds est la
+         valeur du point de la grille à cette abscisse */
+      const vraiVals=[-6].concat(a.turns,[6]).map(function(x){ return q.pts[x+6]; });
       if(T.vrai.roots.join(',')!==a.turns.join(',')||T.vrai.fleches.join(',')!==a.fl.join(','))
         f.push('le tableau VRAI ne dit pas la courbe ('+T.vrai.roots.join(';')+' | '+T.vrai.fleches.join(';')+' contre '+a.turns.join(';')+' | '+a.fl.join(';')+')');
-      const sigs=['vrai','inverse','decale','nombre'].map(function(x){ const t=T[x]; return t.roots.join(',')+'|'+t.fleches.join(','); });
-      if(new Set(sigs).size!==4) f.push('deux propositions identiques : deux bonnes réponses, une seule comptée');
-      ['vrai','inverse','decale','nombre'].forEach(function(x){
+      if(T.vrai.vals.join(',')!==vraiVals.join(','))
+        f.push('le tableau VRAI n’écrit pas les images de la courbe ('+T.vrai.vals.join(';')+' contre '+vraiVals.join(';')+')');
+      const sigs=NAT.map(function(x){ const t=T[x]; return t.roots.join(',')+'|'+t.fleches.join(',')+'|'+t.vals.join(','); });
+      if(new Set(sigs).size!==5) f.push('deux propositions identiques : deux bonnes réponses, une seule comptée');
+      NAT.forEach(function(x){
         const t=T[x];
         if(t.fleches.length!==t.roots.length+1) f.push('le tableau '+x+' n’a pas une flèche par morceau');
         for(let j=0;j<t.roots.length;j++){ if(t.roots[j]<=-6||t.roots[j]>=6||(j>0&&t.roots[j]<=t.roots[j-1])) f.push('le tableau '+x+' a une abscisse hors de ]−6;6[ ou mal rangée ('+t.roots.join(';')+')'); }
         for(let j=1;j<t.fleches.length;j++){ if(t.fleches[j]===t.fleches[j-1]) f.push('le tableau '+x+' porte deux flèches de même sens côte à côte'); }
+        /* CHAQUE carte est cohérente avec SES PROPRES flèches : une carte
+           qui se contredirait s’écarterait sans regarder la courbe, pour un
+           défaut qui n’est pas celui qu’elle enseigne */
+        if(!t.vals || t.vals.length!==t.roots.length+2) f.push('le tableau '+x+' n’écrit pas une image par abscisse ('+(t.vals||[]).join(';')+')');
+        else{
+          t.vals.forEach(function(v){ if(v!==Math.round(v)||v<-6||v>6) f.push('le tableau '+x+' écrit une image hors de la grande grille ('+t.vals.join(';')+')'); });
+          for(let j=0;j<t.fleches.length;j++){
+            const monte=t.vals[j+1]>t.vals[j];
+            if((t.fleches[j]==='up')!==monte)
+              f.push('le tableau '+x+' se contredit : sa flèche '+t.fleches[j]+' va de '+t.vals[j]+' à '+t.vals[j+1]);
+          }
+        }
       });
       if(T.inverse.roots.join(',')!==T.vrai.roots.join(',')||T.inverse.fleches.some(function(d,j){ return d===T.vrai.fleches[j]; }))
         f.push('le tableau INVERSE ne renverse pas exactement les sens');
@@ -14200,6 +14221,21 @@ function qcmTableauVariation(w, P){
           if(diff!==1) f.push('le tableau DÉCALÉ change '+diff+' abscisse(s) au lieu d’une'); } }
       if(Math.abs(T.nombre.roots.length-k)!==1)
         f.push('le tableau du NOMBRE n’a pas un changement de sens en plus ou en moins ('+T.nombre.roots.length+' contre '+k+')');
+      /* le tableau des IMAGES : les MÊMES variations aux MÊMES abscisses, et
+         exactement UNE image différente — c’est ce qui rend les valeurs
+         nécessaires, et la seule chose qui le distingue du vrai */
+      if(T.images.roots.join(',')!==T.vrai.roots.join(',')||T.images.fleches.join(',')!==T.vrai.fleches.join(','))
+        f.push('le tableau des IMAGES ne garde pas les variations et les abscisses du vrai');
+      { let d=0; for(let j=0;j<T.vrai.vals.length;j++) if(T.images.vals[j]!==T.vrai.vals[j]) d++;
+        if(d!==1) f.push('le tableau des IMAGES change '+d+' image(s) au lieu d’une'); }
+      /* le DÉCALÉ garde les images vraies : sa carte ne s’écarte que sur
+         l’abscisse, jamais sur un nombre */
+      if(T.decale.vals.join(',')!==T.vrai.vals.join(','))
+        f.push('le tableau DÉCALÉ n’écrit plus les images vraies : il s’écarterait sur autre chose que son abscisse');
+      /* l’INVERSÉ prend les images opposées — la seule suite cohérente avec
+         des flèches toutes retournées */
+      if(T.inverse.vals.join(',')!==T.vrai.vals.map(function(v){ return -v; }).join(','))
+        f.push('le tableau INVERSÉ n’écrit pas les images opposées');
       return f;
     }
     const rangParFace={2:{},3:{},4:{}}, ordres={};
@@ -14210,10 +14246,10 @@ function qcmTableauVariation(w, P){
       qs.forEach(function(q){
         const cles=Object.keys(q).filter(function(kk){ return ['pts','perm','mut'].indexOf(kk)<0; });
         if(cles.length) vus.push('la question range autre chose que la courbe et les indices : '+cles.join(','));
-        const cm=Object.keys(q.mut||{}).filter(function(kk){ return ['ti','dec','mode','ax','ri'].indexOf(kk)<0; });
+        const cm=Object.keys(q.mut||{}).filter(function(kk){ return ['ti','dec','mode','ax','ri','vi','vv'].indexOf(kk)<0; });
         if(cm.length) vus.push('la mutation range un champ étranger : '+cm.join(','));
-        if((q.perm||[]).slice().sort().join(',')!=='decale,inverse,nombre,vrai')
-          vus.push('perm n’est pas une permutation des quatre natures ('+(q.perm||[]).join(',')+')');
+        if((q.perm||[]).slice().sort().join(',')!=='decale,images,inverse,nombre,vrai')
+          vus.push('perm n’est pas une permutation des cinq natures ('+(q.perm||[]).join(',')+')');
         fautesTirage(q.pts).forEach(function(x){ vus.push(x); });
         if(!vus.length) fautesTables(q).forEach(function(x){ vus.push(x); });
         const nseg=analyse(q.pts).fl.length;
@@ -14247,17 +14283,20 @@ function qcmTableauVariation(w, P){
           if(String(a.fl.length)!==fc) vus.push('le repli du visage '+fc+' a '+a.fl.length+' segments');
           if(q.mut.ti<0||q.mut.ti>=a.turns.length||(q.mut.mode==='del'&&q.mut.ri>=a.turns.length)||(q.mut.mode==='add'&&(a.turns.indexOf(q.mut.ax)>=0||q.mut.ax<-4||q.mut.ax>4)))
             vus.push('le repli du visage '+fc+' porte une mutation invalide');
+          if(q.mut.vi==null||q.mut.vv==null||q.mut.vi<0||q.mut.vi>a.turns.length+1)
+            vus.push('le repli du visage '+fc+' ne dit pas quelle image change');
           if(!vus.length) fautesTables(q).forEach(function(x){ vus.push('le repli : '+x); });
         });
       } }
 
     /* ---- 2. le jugement, vérifié pour de vrai — courbe épinglée (relevée
-       sur le générateur) : 2 variations, tournant x=2, ↗ puis ↘ ---- */
+       sur le générateur) : 2 variations, tournant x=2, ↗ puis ↘, images
+       −5 puis 6 puis −4. La carte des IMAGES y écrit 5 au sommet. ---- */
     const PTS=[-5,-4,-3,0,1,2,4,5,6,1,0,-3,-4];
     function pose(choix, mode){
       currentMode=mode||'train';
       Object.keys(test).forEach(function(k){ delete test[k]; });
-      const q={pts:PTS.slice(), perm:['decale','vrai','nombre','inverse'], mut:{ti:0,dec:1,mode:'add',ax:-2,ri:0}};
+      const q={pts:PTS.slice(), perm:['decale','vrai','nombre','inverse','images'], mut:{ti:0,dec:1,mode:'add',ax:-2,ri:0,vi:1,vv:5}};
       Object.assign(test,{kind:'vtq', questions:[q], idx:0, score:0, maxScore:1, answers:[], startTime:Date.now(), locked:false});
       renderVtq();
       const sel=document.getElementById('vtq-sch'); if(sel) sel.value=choix;
@@ -14282,12 +14321,39 @@ function qcmTableauVariation(w, P){
       if(vx!==13||hy!==13) vus.push('le dessin n’a pas la grande grille 13×13 ('+vx+' / '+hy+')');
       if(svg && (svg.querySelector('.adr-niv')||svg.querySelector('.pim-pt')))
         vus.push('le dessin porte la droite ou les points du grand graphique : il doit être NU'); }
-    /* quatre cartes, chacune un tableau, lettres A à D */
+    /* cinq cartes, chacune un tableau, lettres A à E */
     { const cartes=document.querySelectorAll('#vtqHost .vtq-carte');
-      if(cartes.length!==4) vus.push(cartes.length+' cartes au lieu de 4');
+      if(cartes.length!==5) vus.push(cartes.length+' cartes au lieu de 5');
       let lettres=''; cartes.forEach(function(c){ const l=c.querySelector('.itq-lettre'); lettres+=l?l.textContent:'?';
         if(!c.querySelector('table.lv-vartbl2')) vus.push('une carte sans tableau de variations'); });
-      if(lettres!=='ABCD') vus.push('les cartes ne sont pas étiquetées A à D ('+lettres+')'); }
+      if(lettres!=='ABCDE') vus.push('les cartes ne sont pas étiquetées A à E ('+lettres+')');
+      /* la liste propose exactement ces cinq lettres — une option de plus ne
+         désignerait aucune carte, une de moins rendrait une carte inchoisissable */
+      { const sel=document.getElementById('vtq-sch');
+        const opts=sel?[].slice.call(sel.options).map(function(o){ return o.value; }).filter(function(v){ return v!==''; }):[];
+        if(opts.join(',')!=='0,1,2,3,4') vus.push('la liste ne propose pas exactement les cinq cartes ('+opts.join(',')+')'); } }
+
+    /* ---- 2 bis. LES IMAGES SONT ÉCRITES, et ce sont elles qui séparent la
+       carte du vrai de celle des images : mêmes abscisses, mêmes flèches, une
+       valeur qui change. C'est la demande de Turquet, mesurée sur le RENDU. ---- */
+    { const cartes=document.querySelectorAll('#vtqHost .vtq-carte');
+      const lu=function(i){ const c=cartes[i]; if(!c) return null;
+        return {x:[].slice.call(c.querySelectorAll('td.vnx')).map(function(e){ return e.textContent.trim(); }),
+                v:[].slice.call(c.querySelectorAll('.vt-lect')).map(function(e){ return e.textContent.trim(); })}; };
+      const vrai=lu(1), img=lu(4), dec=lu(0);
+      if(!vrai||!vrai.v.length) vus.push('les tableaux proposés n’écrivent aucune image aux extrémités des flèches');
+      else{
+        if(vrai.v.length!==vrai.x.length) vus.push('il n’y a pas une image par abscisse ('+vrai.v.join(';')+' pour '+vrai.x.join(';')+')');
+        if(vrai.v.join(',')!=='−5,6,−4') vus.push('la carte du vrai n’écrit pas les images de la courbe ('+vrai.v.join(';')+')');
+        if(!img) vus.push('la carte des images est absente');
+        else{
+          if(img.x.join(',')!==vrai.x.join(',')) vus.push('la carte des images n’a pas les mêmes abscisses que le vrai');
+          let d=0; for(let j=0;j<vrai.v.length;j++) if(img.v[j]!==vrai.v[j]) d++;
+          if(d!==1) vus.push('la carte des images ne se distingue pas du vrai par exactement UNE image affichée ('+img.v.join(';')+' contre '+vrai.v.join(';')+')');
+        }
+        if(dec && dec.v.join(',')!==vrai.v.join(','))
+          vus.push('la carte décalée n’écrit pas les mêmes images que le vrai : elle s’écarterait sur autre chose que son abscisse');
+      } }
 
     /* chaque piège choisi se NOMME, la bonne se montre en vert, la lettre
        du badge est le LIBELLÉ (B), jamais la valeur interne (1) */
@@ -14304,6 +14370,9 @@ function qcmTableauVariation(w, P){
     if(fb().indexOf('DÉCALE')<0) vus.push('le piège du changement décalé n’est pas nommé');
     r=pose('2');
     if(fb().indexOf('NOMBRE')<0) vus.push('le piège du nombre de variations n’est pas nommé');
+    r=pose('4');
+    if(r.score!==0) vus.push('le tableau aux images fausses devrait être faux ('+r.score+')');
+    if(fb().indexOf('IMAGE')<0) vus.push('le piège des images fausses n’est pas nommé');
 
     /* la case vide : correction sol en entraînement, RIEN en soutien */
     r=pose('');
