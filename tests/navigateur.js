@@ -959,6 +959,108 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies quater. LA SYNTHÈSE : un seul dessin, dix questions =====
+       Demande de Turquet (septembre 2026, fiche « Synthèse fonction »). jsdom
+       tient le tirage et le juge ; seul un navigateur sait ce que le dessin
+       MONTRE — la courbe tracée sur son seul domaine, ses deux bouts marqués,
+       la droite de g par-dessus — et où une ligne se replie : une solution
+       coupée en deux se lirait comme deux solutions (la leçon du 2.18). Les
+       mesures se font contre les GRADUATIONS RENDUES, jamais sur une
+       coordonnée recopiée (la leçon du schéma des intervalles). */
+    if(!P.syntheseFonction){
+      ignorer('la synthèse : la courbe s\'arrête à son domaine, et la ligne de solution ne se replie pas',
+        'ce niveau n\'a pas l\'exercice de synthèse');
+    } else {
+      const SY = P.syntheseFonction;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), SY.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* le DESSIN : la courbe part de la borne gauche et s'arrête à la borne
+         droite, les deux bouts sont marqués, et la droite de g est là */
+      const vu = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], svg = document.querySelector('#synGraph svg');
+        if(!svg) return { absent: true };
+        const vx = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+        });
+        vx.sort((a, b) => a - b);
+        const path = svg.querySelector('path.lv-curve');
+        const d = path ? path.getAttribute('d') : '';
+        const nb = d.replace(/[A-Za-z]/g, ' ').trim().split(/\s+/).map(Number).filter(v => !isNaN(v));
+        const xs = nb.filter((v, i) => i % 2 === 0);
+        const gx = (x) => vx[x + 6];                     /* la graduation RENDUE */
+        return { absent: false,
+                 a: q.ia - 6, b: q.ib - 6, grads: vx.length,
+                 debut: Math.min.apply(null, xs), fin: Math.max.apply(null, xs),
+                 attDebut: gx(q.ia - 6), attFin: gx(q.ib - 6),
+                 bouts: svg.querySelectorAll('circle.ifg-bout').length,
+                 droite: svg.querySelectorAll('line.eqg-g').length,
+                 legende: !!document.querySelector('#synLeg .fg-leg'),
+                 largeur: Math.round(svg.getBoundingClientRect().width) };
+      });
+      verifier('la courbe de la synthèse est tracée sur son SEUL ensemble de définition, ses deux bouts marqués',
+        !vu.absent && vu.grads === 13 && vu.bouts === 2 && vu.droite === 1 && vu.legende
+          && Math.abs(vu.debut - vu.attDebut) <= 2 && Math.abs(vu.fin - vu.attFin) <= 2,
+        vu.absent ? 'aucun dessin' : (vu.grads !== 13 ? vu.grads + ' graduations' :
+          vu.bouts !== 2 ? vu.bouts + ' bout(s) marqué(s)' :
+          vu.droite !== 1 ? 'la droite de g n\'est pas dessinée' :
+          !vu.legende ? 'la légende f/g manque' :
+          'la courbe va de ' + vu.debut + ' à ' + vu.fin + ' px pour un domaine [' + vu.a + ' ; ' + vu.b
+            + '] qui tombe à ' + vu.attDebut + ' et ' + vu.attFin + ' px'));
+      /* les QUATRE parties : on remplit la copie juste, on CLIQUE « Valider »,
+         et on relit ce que la page a peint — la leçon des sommes : les
+         contrôles lisaient le verdict, l'élève regarde la couleur. */
+      const parties = [];
+      for(let p = 0; p < 4; p++){
+        const r = await s.page.evaluate(async () => {
+          const q = test.questions[test.idx];
+          synCheckPart(q).subs.forEach(s2 => { const el = document.getElementById(s2.id); if(el && s2.val != null) el.value = String(s2.val); });
+          document.getElementById('synValidate').click();
+          await new Promise(r2 => setTimeout(r2, 250));
+          const subs = synCheckPart(q).subs;
+          const peintes = subs.filter(s2 => { const el = document.getElementById(s2.id); return el && (el.className || '').indexOf('ok') >= 0; }).length;
+          /* la ligne de solution ne se REPLIE pas : une seule rangée de boîtes */
+          const lignes = [...document.querySelectorAll('#synBody .img-line')].map(l => ({
+            boites: l.getClientRects().length,
+            defile: l.scrollWidth > l.clientWidth + 1
+          }));
+          const corps = document.getElementById('synBody'), card = corps.closest('.card');
+          const tbl = [...corps.querySelectorAll('.lv-tblwrap')].map(wr => ({
+            cache: wr.scrollWidth > wr.clientWidth + 1,
+            sort: wr.getBoundingClientRect().right > card.getBoundingClientRect().right + 1
+          }));
+          const mark = (document.getElementById('synMark').textContent || '').trim();
+          return { part: q.part, n: subs.length, peintes, mark, lignes, tbl,
+                   page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+        });
+        parties.push(r);
+        if(p < 3){
+          await s.page.evaluate(() => document.getElementById('synValidate').click());
+          await s.page.waitForTimeout(400);
+        }
+      }
+      const rates = parties.filter(r => r.mark !== '✓' || r.peintes !== r.n);
+      verifier('la copie juste passe au vert sur les quatre parties de la synthèse',
+        rates.length === 0,
+        rates.map(r => 'partie ' + r.part + ' : ' + r.peintes + '/' + r.n + ' peintes, marque « ' + r.mark + ' »').join(' | '));
+      const replis = [];
+      parties.forEach(r => {
+        r.lignes.forEach((l, i) => { if(l.boites > 1) replis.push('partie ' + r.part + ', ligne ' + (i + 1) + ' repliée en ' + l.boites + ' morceaux');
+                                     if(l.defile) replis.push('partie ' + r.part + ', ligne ' + (i + 1) + ' défile'); });
+        r.tbl.forEach((t, i) => { if(t.cache || t.sort) replis.push('partie ' + r.part + ', tableau ' + (i + 1) + ' hors de sa carte'); });
+        if(r.page) replis.push('partie ' + r.part + ' : la page défile en largeur');
+      });
+      verifier('aucune ligne de solution ne se replie, aucun tableau ne sort de sa carte',
+        replis.length === 0, replis.slice(0, 3).join(' | '));
+      verifier('la synthèse ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater quater. le maximum et le minimum : le dessin lisible, et
        l'encadrement d'un seul tenant =====
        Le banc jsdom tient le tirage, le jugement et la méthode dessinée — il

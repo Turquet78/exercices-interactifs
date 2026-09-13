@@ -86,7 +86,8 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord' };
+               'ordre-croissant':'ord',
+               'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -541,6 +542,11 @@ module.exports = {
                faisait 634 px et ses touches 40. */
             largeurPaysage: { toucheMax: 80, plancher: 52 },
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
+    /* LA SYNTHÈSE (fiche « Synthèse fonction », septembre 2026) : le banc
+       navigateur ouvre l'exercice, mesure le dessin contre ses graduations
+       RENDUES — la courbe s'arrête à son domaine — et joue la copie juste
+       sur les quatre parties en relisant les couleurs. */
+    syntheseFonction: { exercice: 'synthese-fonction' },
     reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
@@ -611,7 +617,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'construire-fonction'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'construire-fonction', 'synthese-fonction'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
