@@ -1242,6 +1242,78 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quater octies. les cinq tableaux du QCM écrivent leurs images,
+       et chacun tient dans sa carte =====
+       Demande de Turquet (septembre 2026) : « il faudrait que la valeur des
+       images sur les extrémités des flèches soient affichées ». Le banc jsdom
+       tient le tirage, les cinq natures et le jugement — il lit le rendu
+       comme une chaîne. Ce qu'il ne voit pas, c'est la LEÇON DU 2.15 : un
+       tableau de l'exercice va jusqu'à 617 px, et une carte de la grille à
+       deux colonnes n'en offre autant que si la fenêtre est large — sinon il
+       se cache derrière le défilement de son conteneur à overflow-x:auto, sans
+       que rien ne le signale. C'est ainsi qu'il a trouvé, le jour où il a été
+       écrit, 617 px de tableau dans 280 px de carte sur les CINQ cartes des
+       trois questions — un défaut qui vivait en ligne depuis le premier jour.
+       On mesure donc chaque tableau contre sa carte, sur les trois questions, et
+       on exige que chaque image soit RENDUE : un CSS perdu sur .vt-lect les
+       rendrait invisibles sans qu'aucune erreur ne se lève, et l'exercice
+       reviendrait à celui d'avant la demande. */
+    titre('6 quater octies. LES CINQ TABLEAUX ÉCRIVENT LEURS IMAGES, ET TIENNENT DANS LEUR CARTE');
+    if(!P.qcmTableauVariation){
+      ignorer('les cinq tableaux écrivent leurs images et tiennent dans leur carte',
+        'ce niveau n\'a pas le QCM du tableau de variation');
+    } else {
+      const Q = P.qcmTableauVariation;
+      /* DEUX largeurs, et c'est la seconde qui tient le bord : à 1400 px les
+         cinq cartes tiennent côte à côte, à 1280 — l'écran d'un ordinateur
+         portable ordinaire — deux colonnes ne peuvent plus porter un tableau
+         de 617 px, et la grille doit passer à UNE colonne. Mesurer la seule
+         largeur confortable laisserait le point de bascule libre de dériver. */
+      for(const L of [1400, 1280]){
+        s = await ouvrir(chromium, ml, { viewport: { width: L, height: 900 } });
+        await connecter(s.page);
+        await s.page.evaluate(id => openTest(id), Q.exercice);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(900);
+        const n = await s.page.evaluate(() => test.questions.length);
+        const muets = [], manquantes = [], etroits = [];
+        for(let i = 0; i < n; i++){
+          const vu = await s.page.evaluate(async i => {
+            test.idx = i; renderVtq();
+            await new Promise(r => setTimeout(r, 300));
+            return [...document.querySelectorAll('#vtqHost .vtq-carte')].map(c => {
+              const cr = c.getBoundingClientRect();
+              const wrap = c.querySelector('div[style*="overflow-x"]');
+              const t = c.querySelector('table.lv-vartbl2');
+              const tr = t ? t.getBoundingClientRect() : { width: 0, right: 0 };
+              /* une image RENDUE : une boîte non nulle, pas seulement une balise */
+              const vals = [...c.querySelectorAll('.vt-lect')].filter(e => {
+                const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && e.textContent.trim() !== '';
+              }).length;
+              return { lettre: (c.querySelector('.itq-lettre') || {}).textContent || '?',
+                       x: c.querySelectorAll('td.vnx').length, vals,
+                       table: Math.round(tr.width), cadre: wrap ? wrap.clientWidth : Math.round(cr.width),
+                       cache: !!wrap && wrap.scrollWidth > wrap.clientWidth + 1,
+                       sort: tr.right > cr.right + 1 };
+            });
+          }, i);
+          if(vu.length !== Q.cartes) manquantes.push('question ' + (i + 1) + ' : ' + vu.length + ' carte(s) au lieu de ' + Q.cartes);
+          vu.forEach(c => {
+            if(c.vals !== c.x) muets.push('question ' + (i + 1) + ', carte ' + c.lettre + ' : ' + c.vals + ' image(s) rendue(s) pour ' + c.x + ' abscisse(s)');
+            if(c.cache || c.sort) etroits.push('question ' + (i + 1) + ', carte ' + c.lettre + ' : ' + c.table + ' px dans ' + c.cadre);
+          });
+        }
+        const page = await s.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+        verifier('à ' + L + ' px, les ' + Q.cartes + ' cartes sont rendues sur chaque question', manquantes.length === 0, manquantes.join(' | '));
+        verifier('à ' + L + ' px, chaque tableau écrit une image à chaque extrémité de flèche', muets.length === 0, muets.join(' | '));
+        verifier('à ' + L + ' px, aucun tableau ne déborde de sa carte ni ne se cache derrière un défilement', etroits.length === 0, etroits.join(' | '));
+        verifier('à ' + L + ' px, la page ne défile pas en largeur', !page, 'la page déborde');
+        verifier('à ' + L + ' px, le QCM du tableau de variation ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+        await s.nav.close(); s = null;
+      }
+    }
+
     /* ===== 6 quater bis. les cases d'une fraction grandissent avec la saisie =====
        Demande de Turquet (août 2026, sur une capture du 1.7) : une case à
        largeur figée coupait « 100000 » et n'en montrait qu'un morceau —

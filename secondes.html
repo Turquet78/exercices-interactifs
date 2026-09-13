@@ -950,15 +950,24 @@
   #scr-adr{padding-bottom:84px}
   #adrGraph .lv-svg{cursor:pointer;touch-action:none;max-width:640px}
   #gsvGraph .lv-svg{max-width:640px}
-  /* ---- {choisir-tableau-variation} : quatre tableaux à choisir ---- */
+  /* ---- {choisir-tableau-variation} : cinq tableaux à choisir ---- */
   #vtqGraph .lv-svg{max-width:640px}
+  /* Le tableau le plus large de l'exercice fait 617 px (4 segments : 5 valeurs
+     et 4 flèches ; le tirage plafonne là — à 4 segments la mutation du
+     NOMBRE ne sait que retirer). Une carte doit donc offrir 617 + 20 px de
+     rembourrage et de bordure : DEUX colonnes réclament 1288 px, et le cadre
+     d'un exercice prend désormais toute la largeur de la fenêtre, qui les lui
+     donne à partir de 1360 px. En dessous on passe à UNE colonne plutôt que de
+     laisser le tableau se cacher derrière le défilement de sa carte — c'est la
+     leçon du 2.15, et depuis que les IMAGES sont écrites au bout des flèches
+     une dernière colonne cachée emporte la réponse même qu'on fait comparer. */
   .vtq-cartes{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));gap:14px;width:100%;max-width:1340px;margin:10px auto}
-  @media(max-width:940px){ .vtq-cartes{grid-template-columns:1fr} }
+  @media(max-width:1360px){ .vtq-cartes{grid-template-columns:minmax(0,660px);justify-content:center} }
   .vtq-carte{position:relative;background:#fff;border:2px solid #DCE7FB;border-radius:14px;padding:26px 8px 10px;cursor:pointer}
   .vtq-carte.ok{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.18)}
   .vtq-carte.sol{border-color:var(--green);border-style:dashed;box-shadow:0 0 0 3px rgba(31,169,113,.18)}
   .vtq-carte.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
-  .vtq-carte .vt-node{fill:var(--blue)}
+  .vtq-carte table.lv-vartbl2{margin:0 auto}
   #mmxGraph .lv-svg{max-width:640px}
   /* {maximum-minimum} : les phrases de la fiche. Les deux nombres d'un
      encadrement ne se séparent JAMAIS de leur « ≤ f (x) ≤ » — une solution
@@ -1865,7 +1874,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Bonnes réponses</span>&nbsp;<b id="vtqLiveScore">0</b></span>
     </div>
     <div class="card lv-card">
-      <p class="lv-instr">Voici la courbe d’une fonction <i>f</i>, tracée de −6 à 6. Quatre tableaux de variations sont proposés (A, B, C, D) : un seul correspond à la courbe. Choisis-le — en cliquant sa carte, ou dans la liste — puis vérifie.</p>
+      <p class="lv-instr">Voici la courbe d’une fonction <i>f</i>, tracée de −6 à 6. Cinq tableaux de variations sont proposés (A, B, C, D, E) : un seul correspond à la courbe. Regarde les flèches, les abscisses <b>et les images écrites au bout des flèches</b> — deux tableaux peuvent avoir les mêmes variations sans avoir les mêmes images. Choisis-le — en cliquant sa carte, ou dans la liste — puis vérifie.</p>
       <div class="lv-graph" id="vtqGraph"></div>
       <div id="vtqHost"></div>
       <div class="mp-feedback" id="vtqFeedback"></div>
@@ -2592,7 +2601,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=153;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=154;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3117,7 +3126,7 @@ const TESTS={
   'tableau-signes-graphique': { name:'Tableau de signes', icon:'±', desc:'Une courbe du style de {resolutions-graphiques}, coloriée : la partie au-dessus de l’axe en ROUGE (f (x) > 0), en dessous en BLEU (f (x) < 0). Complète les phrases couleur/signe, place les signes dans le tableau — les racines et les zéros sont donnés, comme en Terminale — puis résous f (x) = 0, f (x) > 0 et f (x) < 0.', start:()=>startTsg() },
   'signes-variations': { name:'Tableaux de signes et de variation', icon:'\ud83d\udcca', desc:'Le dessin de {lecture-variations}, les deux tableaux d\u2019un coup : compl\u00e8te DIRECTEMENT le tableau de signes (racines et z\u00e9ros compris) et le tableau de variation de la m\u00eame courbe.', start:()=>startLSV() },
   'signes-variations-grand': { name:'Tableaux de signes et de variation en grand', icon:'\ud83d\uddfa\ufe0f', desc:'Comme {signes-variations}, sur le GRAND dessin d\u2019{antecedents-droite} : 13 graduations, de \u22126 \u00e0 6 en abscisse ET en ordonn\u00e9e \u2014 les deux tableaux d\u2019un coup, \u00e0 compl\u00e9ter directement.', start:()=>startGSV() },
-  'choisir-tableau-variation': { name:'Choisir le tableau de variation', icon:'\ud83e\udded', desc:'Une courbe tracée de −6 à 6 — 2, 3 ou 4 variations — et QUATRE tableaux de variations proposés : un seul correspond à la courbe, à toi de le trouver.', start:()=>startVtq() },
+  'choisir-tableau-variation': { name:'Choisir le tableau de variation', icon:'\ud83e\udded', desc:'Une courbe tracée de −6 à 6 — 2, 3 ou 4 variations — et CINQ tableaux de variations proposés, avec leurs images : un seul correspond à la courbe, à toi de le trouver.', start:()=>startVtq() },
   'maximum-minimum': { name:'Maximum et minimum', icon:'\ud83d\udd3a', desc:'Sur le GRAND dessin d\u2019{antecedents-droite} : la m\u00eame courbe et cinq intervalles \u2014 donne \u00e0 chaque fois le maximum et le minimum de la fonction, l\u2019abscisse o\u00f9 chacun est atteint, puis l\u2019encadrement \u2026 \u2264 f\u2009(x)\u2009\u2264 \u2026', start:()=>startMMX() },
   'maximum-minimum-tableau': { name:'Maximum et minimum sur un tableau', icon:'📋', desc:'Les mêmes questions que {maximum-minimum}, mais sans dessin : on te donne le TABLEAU DE VARIATION de f, et c’est lui qu’il faut lire pour trouver le maximum, le minimum et l’encadrement sur chaque intervalle.', start:()=>startMMT() },
   'tableau-equations': { name:'Équations et inéquations dans un tableau', icon:'🔢', desc:'Un tableau de variation, et rien d’autre : combien de solutions a l’équation f (x) = k ? Puis résoudre f (x) ≥ k ou f (x) < k en écrivant S avec les bonnes bornes et les bons crochets. Les flèches disent tout — il faut raisonner, comme dans {maximum-minimum-tableau}.', start:()=>startTVE() },
@@ -11045,7 +11054,7 @@ function nextGsvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
    tableaux de variations différents et l élève doit choisir le bon tableau en
    seconde. » C'est le motif de {variations-depuis-derivee} de la Terminale
    (kind afq), transposé à la lecture DIRECTE de la courbe : une courbe sur le
-   grand dessin −6..6 d'{antecedents-droite}, quatre tableaux de variations
+   grand dessin −6..6 d'{antecedents-droite}, cinq tableaux de variations
    proposés, un seul est le bon.
    Tout est repris, rien n'est recopié : le tirage est adrGenPts() — le
    générateur même du grand dessin, qui produit DÉJÀ 2, 3 ou 4 segments
@@ -11055,28 +11064,88 @@ function nextGsvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
    correction ; le dessin est adrSVG(), appelée nue ; les flèches des tableaux
    proposés sont dessinées par lvArrowSVG() sur la géométrie VT_* du 2.1 — les
    propositions ont le visage du tableau que l'élève connaît.
-   Les QUATRE tableaux ne diffèrent que par ce qui fait l'erreur — la leçon
+   Les CINQ tableaux ne diffèrent que par ce qui fait l'erreur — la leçon
    d'{intervalles-inegalite} : le VRAI ; celui qui INVERSE les sens ; celui
    dont un changement de sens est DÉCALÉ d'une graduation ; celui qui n'a pas
    le BON NOMBRE de variations (un changement en plus ou en moins — le cœur de
-   la demande : compter les variations). Ils ne portent PAS de valeurs, comme
-   les tableaux du QCM de la Terminale : des valeurs auraient rendu
-   l'inversion éliminable en lisant UN nombre (ou incohérente avec ses
-   flèches) — sans lire les variations, qui sont ce qu'on évalue.
+   la demande : compter les variations) ; et celui qui a les BONNES variations
+   aux BONNES abscisses mais PAS les bonnes IMAGES.
+   LES TABLEAUX PORTENT LEURS VALEURS AUX EXTRÉMITÉS DES FLÈCHES (demande de
+   Turquet, septembre 2026 : « il faudrait que la valeur des images sur les
+   extrémités des flèches soient affichées ») — c'est un RENVERSEMENT de la
+   règle d'origine, qui les refusait pour que l'inversion ne se repère pas
+   en lisant UN nombre. Ce que la règle d'origine ne voyait pas : sans
+   valeurs, deux tableaux aux mêmes variations aux mêmes abscisses sont
+   INDISCERNABLES, et la lecture des hauteurs — le cœur du 2.16 et du 2.17 —
+   ne s'évalue nulle part. Le cinquième tableau EXISTE pour cette raison : il
+   rend les valeurs nécessaires au lieu de décoratives, et une carte qu'on
+   peut écarter sur un nombre reste une carte qu'il a fallu LIRE sur la
+   courbe.
+   CHAQUE tableau proposé est COHÉRENT AVEC SES PROPRES FLÈCHES — sinon il
+   s'écarterait sans regarder la courbe, pour un défaut qui n'est pas celui
+   qu'il enseigne : le décalé garde les valeurs VRAIES (ses flèches n'ont pas
+   bougé), l'inversé prend leurs OPPOSÉES (toutes ses flèches ont tourné),
+   celui du nombre bâtit un zigzag entre le minimum et le maximum de la
+   courbe (vtqValsZig — l'amplitude ≥ 8 que le contrôle exige du tirage
+   garantit que les creux restent sous les sommets), et celui des images
+   change UNE valeur, la plus dure à voir.
+   Le rendu est celui du 2.1 en mode LECTURE — varTableHTML(a, p, null, true),
+   la fonction MÊME qui rend le tableau qu'on remplit au 2.1, au 2.13, au
+   2.14 et au 2.15 et celui qu'on lit au 2.17 : les propositions ont trait
+   pour trait le visage du tableau que l'élève connaît, valeurs comprises, et
+   les deux ne peuvent pas diverger puisque c'est le même.
    Les trois visages — 2, 3 et 4 variations — sortent chacun UNE fois par
    séance, en ordre mélangé, et à visage égal le rang de la bonne varie.
    La bonne réponse n'est jamais rangée à côté de la question : la question ne
    porte que la courbe (pts), l'ordre (perm) et les indices des mutations
    (mut — on range l'indice, jamais l'objet) ; vtqTables() reconstruit les
-   quatre tableaux depuis la courbe même, au rendu comme à la correction. */
-const VTQ_KINDS=['vrai','inverse','decale','nombre'];
+   cinq tableaux depuis la courbe même, au rendu comme à la correction. */
+const VTQ_KINDS=['vrai','inverse','decale','nombre','images'];
+/* Cinq cartes : ITQ_LETTRES sert les QCM à QUATRE cartes (le 2.4, le 2.5, le
+   2.7), et l'étendre leur offrirait une cinquième option qui ne désigne
+   rien — celle-ci est à cet exercice. */
+const VTQ_LETTRES=['A','B','C','D','E'];
 function vtqMelange(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=rand(0,i); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 /* La table VRAIE : abscisses des changements de sens + sens des flèches,
    lues par gsvAnalyze — la fonction qui corrige {signes-variations-grand}. */
 function vtqTable(pts){
   const a=gsvAnalyze(pts);
   return {roots:a.nodes.slice(1,-1).map(function(n){ return n.x; }),
-          fleches:a.segments.map(function(s){ return s.dir==='croissante'?'up':'down'; })};
+          fleches:a.segments.map(function(s){ return s.dir==='croissante'?'up':'down'; }),
+          vals:a.nodes.map(function(n){ return n.y; })};
+}
+/* Les valeurs d'un tableau dont les flèches ne sont plus celles de la courbe :
+   un zigzag entre le MINIMUM et le MAXIMUM de la courbe, qui rentre d'un cran
+   à chaque creux et à chaque sommet supplémentaire. Le rôle de chaque nœud est
+   lu par varTopPour — la fonction MÊME qui pose la hauteur d'une valeur dans
+   la bande des flèches : le tableau ne peut pas écrire une valeur ailleurs que
+   là où son rôle la met. Cinq nœuds au plus, donc trois creux au plus et trois
+   sommets au plus : m+2 < M−2 suffit, et l'amplitude ≥ 8 que le contrôle exige
+   du tirage le garantit largement (sonde : minimum 8 sur 3000 tirages). */
+function vtqValsZig(fleches, V){
+  const m=Math.min.apply(null,V), M=Math.max.apply(null,V);
+  const out=[]; let nb=0, nh=0;
+  for(let j=0;j<=fleches.length;j++){
+    const bas = varTopPour(fleches[j]||'', (j>0?fleches[j-1]:'')||'')===VT_B;
+    out.push(bas ? m+(nb++) : M-(nh++));
+  }
+  return out;
+}
+/* Les valeurs qu'une case peut prendre sans contredire les flèches voisines :
+   au-dessus du nœud de gauche si la flèche monte, en dessous si elle descend,
+   et de même à droite. C'est ce qui rend le tableau des IMAGES honnête — il
+   doit être faux sur la courbe, jamais faux sur lui-même. */
+function vtqValsPossibles(F, V, j){
+  const g=(j>0)?F[j-1]:null, d=(j<F.length)?F[j]:null, out=[];
+  for(let v=-ADR_R; v<=ADR_R; v++){
+    if(v===V[j]) continue;
+    if(g==='up'   && !(v>V[j-1])) continue;
+    if(g==='down' && !(v<V[j-1])) continue;
+    if(d==='up'   && !(v<V[j+1])) continue;
+    if(d==='down' && !(v>V[j+1])) continue;
+    out.push(v);
+  }
+  return out;
 }
 /* Les quatre tableaux, par nature, reconstruits depuis la courbe. Une
    mutation mute TOUJOURS ici (les quatre signatures sont deux à deux
@@ -11087,23 +11156,29 @@ function vtqTable(pts){
 function vtqTables(q){
   const vrai=vtqTable(q.pts);
   const T={};
-  T.vrai={roots:vrai.roots.slice(), fleches:vrai.fleches.slice()};
-  T.inverse={roots:vrai.roots.slice(), fleches:vrai.fleches.map(function(d){ return d==='up'?'down':'up'; })};
+  T.vrai={roots:vrai.roots.slice(), fleches:vrai.fleches.slice(), vals:vrai.vals.slice()};
+  /* tout a tourné : les valeurs opposées redisent exactement ces flèches-là */
+  T.inverse={roots:vrai.roots.slice(), fleches:vrai.fleches.map(function(d){ return d==='up'?'down':'up'; }),
+             vals:vrai.vals.map(function(v){ return -v; })};
+  /* une abscisse a bougé, les flèches non : les valeurs restent les VRAIES,
+     donc la carte ne s'écarte que sur l'abscisse — le défaut qu'elle enseigne */
   const dr=vrai.roots.slice(); dr[q.mut.ti]+=q.mut.dec;
-  T.decale={roots:dr, fleches:vrai.fleches.slice()};
+  T.decale={roots:dr, fleches:vrai.fleches.slice(), vals:vrai.vals.slice()};
   let nr;
   if(q.mut.mode==='add'){ nr=vrai.roots.concat([q.mut.ax]); nr.sort(function(a,b){ return a-b; }); }
   else { nr=vrai.roots.slice(); nr.splice(q.mut.ri,1); }
   const nf=[]; for(let i=0;i<=nr.length;i++) nf.push((i%2===0)?vrai.fleches[0]:(vrai.fleches[0]==='up'?'down':'up'));
-  T.nombre={roots:nr, fleches:nf};
+  T.nombre={roots:nr, fleches:nf, vals:vtqValsZig(nf, vrai.vals)};
+  /* les BONNES variations aux BONNES abscisses, UNE image fausse */
+  const iv=vrai.vals.slice(); iv[q.mut.vi]=q.mut.vv;
+  T.images={roots:vrai.roots.slice(), fleches:vrai.fleches.slice(), vals:iv};
   return T;
 }
-function vtqSignature(t){ return t.roots.join(',')+'|'+t.fleches.join(','); }
 /* Le repli est RÉEL, relevé sur le générateur (sonde, septembre 2026 : sur
    20000 tirages bruts, 24 % à 2 segments, 51 % à 3, 25 % à 4 — pire cas
    mesuré 18 essais pour un visage : à 4000 essais le repli ne sert jamais).
    Il passe par les gardes mêmes du tirage, et le contrôle le rejoue. */
-const VTQ_REPLI={"2":{"pts":[-4,-3,-2,-1,0,1,2,3,4,3,-2,-5,-6],"perm":["vrai","inverse","decale","nombre"],"mut":{"ti":0,"dec":1,"mode":"add","ax":4,"ri":0}},"3":{"pts":[-5,-4,-3,0,1,2,3,1,-3,-2,0,1,3],"perm":["vrai","inverse","decale","nombre"],"mut":{"ti":0,"dec":1,"mode":"add","ax":4,"ri":0}},"4":{"pts":[-5,-4,-2,-1,1,6,0,-6,0,3,4,1,0],"perm":["vrai","inverse","decale","nombre"],"mut":{"ti":1,"dec":-1,"mode":"del","ax":0,"ri":1}}};
+const VTQ_REPLI={"2":{"pts":[4,3,-1,-4,-3,-2,-1,0,1,2,3,4,5],"perm":["vrai","inverse","decale","nombre","images"],"mut":{"ti":0,"dec":1,"mode":"add","ax":3,"ri":0,"vi":1,"vv":1}},"3":{"pts":[5,2,-3,-6,-5,-3,0,1,2,0,-1,-2,-4],"perm":["vrai","inverse","decale","nombre","images"],"mut":{"ti":1,"dec":1,"mode":"add","ax":3,"ri":0,"vi":1,"vv":-1}},"4":{"pts":[-3,-2,-1,-2,-3,-6,-5,-3,0,2,1,0,-1],"perm":["vrai","inverse","decale","nombre","images"],"mut":{"ti":1,"dec":1,"mode":"del","ax":0,"ri":2,"vi":2,"vv":-5}}};
 function vtqGen(nseg){
   for(let att=0; att<4000; att++){
     const pts=adrGenPts();
@@ -11125,7 +11200,14 @@ function vtqGen(nseg){
       const cands=[]; for(let x=-4;x<=4;x++){ if(turns.indexOf(x)<0) cands.push(x); }
       ax=pick(cands);   /* jamais vide : au plus 3 tournants sur 9 positions (sonde : 0 cas sur 3000) */
     } else ri=rand(0,turns.length-1);
-    return {pts:pts, perm:vtqMelange(VTQ_KINDS.slice()), mut:{ti:ti, dec:dec, mode:mode, ax:ax, ri:ri}};
+    /* images : un nœud et une AUTRE valeur qui ne contredit pas ses flèches.
+       La liste n'est jamais vide — sonde : 21 possibilités au minimum,
+       32 en moyenne sur 3000 tirages — et c'est le CONTRÔLE qui exige la
+       propriété, un garde ici n'écarterait jamais rien. */
+    const V=v.vals, cand=[];
+    for(let j=0;j<V.length;j++) vtqValsPossibles(v.fleches, V, j).forEach(function(x){ cand.push([j,x]); });
+    const vc=pick(cand);
+    return {pts:pts, perm:vtqMelange(VTQ_KINDS.slice()), mut:{ti:ti, dec:dec, mode:mode, ax:ax, ri:ri, vi:vc[0], vv:vc[1]}};
   }
   const r=JSON.parse(JSON.stringify(VTQ_REPLI[String(nseg)]));
   r.perm=vtqMelange(r.perm);
@@ -11138,38 +11220,19 @@ function vtqBuildQuestions(){
      visages d'{antecedents-droite}) */
   return vtqMelange([2,3,4]).map(function(f){ return vtqGen(f); });
 }
-/* Un tableau de variations STATIQUE : la géométrie VT_* et les flèches
-   lvArrowSVG du tableau du 2.1 — une proposition à lire, pas à remplir,
-   sans valeurs (voir l'en-tête du bloc). */
-function vtqTableHTML(t){
-  const LVWL=44, WN=VT_WN, WS=VT_WS, H=VT_H, vT=VT_T, vB=VT_B;
+/* Le tableau d'une proposition est l'objet d'analyse que varTableHTML sait
+   déjà lire — abscisses, valeurs, sens des flèches : on le lui donne, et le
+   mode LECTURE dessine le tableau du 2.1 tel quel. */
+function vtqAnalyse(t){
   const xs=[-ADR_R].concat(t.roots,[ADR_R]);
-  const N=xs.length, K=t.fleches.length;
-  const innerW=N*WN+K*WS;
-  let xrow='<td class="vlab" style="width:'+LVWL+'px"><i>x</i></td>';
-  xs.forEach(function(x,j){
-    const isEnd=(j===0||j===N-1);
-    xrow+='<td class="vnx" style="width:'+WN+'px">'+(isEnd?numFmt(x):'<b>'+numFmt(x)+'</b>')+'</td>';
-    if(j<N-1) xrow+='<td class="vax" style="width:'+WS+'px"></td>';
-  });
-  const ncx=function(j){ return j*(WN+WS)+WN/2; };
-  let g='';
-  for(let i=0;i<K;i++){
-    const y0=(t.fleches[i]==='up')?vB:vT, y1=(t.fleches[i]==='up')?vT:vB;
-    g+=lvArrowSVG(ncx(i),y0,ncx(i+1),y1);
-  }
-  for(let j=0;j<N;j++){
-    const right=t.fleches[j]||'', left=(j>0?t.fleches[j-1]:'')||'';
-    let y=(vT+vB)/2;
-    if(right==='up') y=vB; else if(right==='down') y=vT;
-    else if(left==='up') y=vT; else if(left==='down') y=vB;
-    g+='<circle class="vt-node" cx="'+ncx(j)+'" cy="'+y+'" r="4"/>';
-  }
-  return '<div style="overflow-x:auto"><table class="lv-vartbl2" style="width:'+(LVWL+innerW)+'px;margin:0 auto"><tbody>'
-    +'<tr class="vt-xr">'+xrow+'</tr>'
-    +'<tr class="vt-fr"><td class="vlab" style="width:'+LVWL+'px"><i>f</i>(<i>x</i>)</td><td class="vfcell" colspan="'+(N+K)+'" style="height:'+H+'px">'
-    +'<svg class="vt-overlay" viewBox="0 0 '+innerW+' '+H+'" preserveAspectRatio="none">'+g+'</svg></td></tr>'
-    +'</tbody></table></div>';
+  return {nodes: xs.map(function(x,j){ return {x:x, y:t.vals[j]}; }),
+          segments: t.fleches.map(function(d){ return {dir: d==='up'?'croissante':'décroissante'}; })};
+}
+/* Une proposition à LIRE : varTableHTML en mode lecture — la fonction même
+   qui rend le tableau qu'on remplit au 2.1 et celui qu'on lit au 2.17,
+   valeurs comprises (voir l'en-tête du bloc). */
+function vtqTableHTML(t, p){
+  return '<div style="overflow-x:auto">'+varTableHTML(vtqAnalyse(t), p, null, true)+'</div>';
 }
 async function startVtq(){
   if(!currentEleve){ accueil(); return; }
@@ -11193,11 +11256,11 @@ function renderVtq(){
   $('vtqGraph').innerHTML=adrSVG({pts:q.pts, dr:null, rep:[]}, null);
   const T=vtqTables(q);
   const cartes=q.perm.map(function(k,i){
-    return '<div class="vtq-carte" data-carte="'+i+'"><span class="itq-lettre">'+ITQ_LETTRES[i]+'</span>'+vtqTableHTML(T[k])+'</div>';
+    return '<div class="vtq-carte" data-carte="'+i+'"><span class="itq-lettre">'+VTQ_LETTRES[i]+'</span>'+vtqTableHTML(T[k], 'vtq-c'+i)+'</div>';
   }).join('');
   $('vtqHost').innerHTML='<div class="vtq-cartes">'+cartes+'</div>'
     +'<div class="itv-ligne" style="justify-content:center"><span class="itv-corps"><span class="itv-fixe">C’est le tableau</span>'
-    +itvSelHTML('vtq-sch', ITQ_LETTRES.map(function(l,i){ return [String(i),l]; }), 'Tableau correspondant')
+    +itvSelHTML('vtq-sch', VTQ_LETTRES.map(function(l,i){ return [String(i),l]; }), 'Tableau correspondant')
     +'</span></div>';
   /* cliquer une carte la choisit : sur tablette, viser le petit menu est
      pénible, et la fiche se répond en montrant le tableau du doigt — le
@@ -11232,6 +11295,7 @@ function vtqPourquoi(kind){
   if(kind==='inverse') return 'Ce tableau INVERSE les sens : sa flèche monte là où la courbe descend. Suis la courbe de gauche à droite — le tableau doit dire la même chose qu'+'elle, morceau par morceau.';
   if(kind==='decale') return 'Ce tableau DÉCALE un changement de sens : l’abscisse d’un changement de sens se lit PILE sous le sommet ou le creux de la courbe, sur l’axe des abscisses.';
   if(kind==='nombre') return 'Ce tableau n’a pas le BON NOMBRE de variations : compte les flèches — la courbe change de sens à chaque sommet et à chaque creux, ni plus, ni moins.';
+  if(kind==='images') return 'Ce tableau a les BONNES variations aux BONNES abscisses, mais une IMAGE fausse : lis la hauteur de chaque bout de flèche sur la courbe — les deux bords, chaque sommet, chaque creux.';
   return '';
 }
 function checkVtqAnswer(live){
@@ -11265,13 +11329,13 @@ function checkVtqAnswer(live){
   } else {
     const choisi=(raw==='')?'':q.perm[parseInt(raw,10)];
     const why=(choisi?vtqPourquoi(choisi)+' ':'')+'Retiens : une flèche par morceau où la courbe monte ou descend, et l’abscisse de chaque changement de sens se lit sur l’axe des abscisses.';
-    $('vtqFeedback').innerHTML='C’était le tableau <b>'+ITQ_LETTRES[bon]+'</b>. '+msgAvecVides(subs, why);
+    $('vtqFeedback').innerHTML='C’était le tableau <b>'+VTQ_LETTRES[bon]+'</b>. '+msgAvecVides(subs, why);
     $('vtqFeedback').className='mp-feedback bad';
   }
   const v=vtqTable(q.pts);
   test.answers.push({...(ptsExo()||{}), correct:allOk,
-    q:'Courbe −6..6 à '+v.fleches.length+' variations — bonne réponse '+ITQ_LETTRES[bon],
-    answer:ITQ_LETTRES[bon], given:raw===''?'(vide)':ITQ_LETTRES[parseInt(raw,10)]});
+    q:'Courbe −6..6 à '+v.fleches.length+' variations — bonne réponse '+VTQ_LETTRES[bon],
+    answer:VTQ_LETTRES[bon], given:raw===''?'(vide)':VTQ_LETTRES[parseInt(raw,10)]});
   const last=test.idx===test.questions.length-1;
   $('vtqActions').innerHTML='<button class="btn btn-primary" id="vtqNext" onclick="nextVtqQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('vtqNext'); if(nb) nb.focus();
@@ -11280,12 +11344,12 @@ function nextVtqQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; re
 function ctxVtq(q){
   const T=vtqTables(q), bon=vtqBon(q);
   const sel=$('vtq-sch'), v=sel?String(sel.value):'';
-  const dit=function(t){ return 'changements de sens en '+(t.roots.map(numFmt).join(' et ')||'aucun')+', flèches '+t.fleches.map(function(d){ return d==='up'?'↗':'↘'; }).join(' puis '); };
-  return {nombre:'', contexte:'Exercice « Choisir le tableau de variation » : une courbe tracée de −6 à 6, et quatre tableaux de variations proposés (A à D) — l’élève choisit celui qui correspond à la courbe. '
-   +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : le tableau '+ITQ_LETTRES[bon]+'. '
-   +'Contenu des propositions : '+q.perm.map(function(k,i){ return ITQ_LETTRES[i]+' ('+dit(T[k])+')'; }).join(' ; ')+'. '
-   +'Choix actuel de l’élève : '+(v===''?'(aucun)':ITQ_LETTRES[parseInt(v,10)])+'. '
-   +'Méthode à faire appliquer, sans donner la lettre : suivre la courbe de gauche à droite, repérer chaque sommet et chaque creux, compter les morceaux où elle monte ou descend, et lire sur l’axe des abscisses où le sens change.'};
+  const dit=function(t){ return 'changements de sens en '+(t.roots.map(numFmt).join(' et ')||'aucun')+', flèches '+t.fleches.map(function(d){ return d==='up'?'↗':'↘'; }).join(' puis ')+', images écrites '+t.vals.map(numFmt).join(' puis '); };
+  return {nombre:'', contexte:'Exercice « Choisir le tableau de variation » : une courbe tracée de −6 à 6, et cinq tableaux de variations proposés (A à E), chacun avec ses images écrites aux extrémités des flèches — l’élève choisit celui qui correspond à la courbe. '
+   +'Réponse attendue, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : le tableau '+VTQ_LETTRES[bon]+'. '
+   +'Contenu des propositions : '+q.perm.map(function(k,i){ return VTQ_LETTRES[i]+' ('+dit(T[k])+')'; }).join(' ; ')+'. '
+   +'Choix actuel de l’élève : '+(v===''?'(aucun)':VTQ_LETTRES[parseInt(v,10)])+'. '
+   +'Méthode à faire appliquer, sans donner la lettre : suivre la courbe de gauche à droite, repérer chaque sommet et chaque creux, compter les morceaux où elle monte ou descend, lire sur l’axe des abscisses où le sens change, et lire la HAUTEUR de chaque bout de flèche — deux tableaux peuvent avoir les mêmes variations aux mêmes abscisses sans avoir les mêmes images.'};
 }
 /* ================= Exercice Seconde : Maximum et minimum (kind 'mmx') =================
    Repris de la fiche papier « LE MAXIMUM ET LE MINIMUM » (demande de Turquet,
