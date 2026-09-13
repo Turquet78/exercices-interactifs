@@ -2041,8 +2041,14 @@ motifs épinglés étaient faux — abaisser une colonne DANS l'intervalle de
 croissance casse aussi la montée, et j'avais compté une seule consigne fausse
 là où il y en avait deux. Un essai faux se reconnaît à ce qu'il rougit sur une
 page juste ; les cas ont été choisis pour n'en casser QU'UNE, ce qui prouve
-bien mieux que chaque consigne se juge seule. Quinze sabotages, chacun
-rougissant en nommant son défaut.
+bien mieux que chaque consigne se juge seule.
+**Dix-huit sabotages, dix-sept rougissant en nommant leur défaut**, et le
+dernier reste VERT à bon droit : ouvrir le partage jusqu'au bord du domaine ne
+produit aucun tirage: à s = −5 la moitié droite EST le domaine, donc son
+minimum égale celui du domaine et la garde du cœur écarte le tirage. La
+propriété « le partage est intérieur » est donc TENUE par les deux inégalités
+du cœur, et la liste `[-1, 0, 1]` n'est pas un garde-fou mais un choix de
+présentation — le partage reste près du milieu, comme sur la fiche.
 
 **Le 4.5 de la Terminale est descendu en Seconde — même tirage, autre juge.**
 {solutions-graphique} (Seconde, Fonctions, juste avant {construire-fonction},
