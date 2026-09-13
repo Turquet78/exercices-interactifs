@@ -9870,6 +9870,110 @@ function bulleErreur(w, apres){
     /lancerConseil\(/.test(adapt),
     'bexpLancer n’appelle plus lancerConseil : l’explication partirait sans les garde-fous du Conseil');
 
+  /* ----- LA PLACE de la bulle : à côté de la case, la flèche sur elle -----
+     Demande de Turquet (septembre 2026) : « il faudrait que la bulle qui
+     apparaît "comprendre mon erreur" quand une case est rouge soit à côté de
+     la case avec une flèche vers cette case. » C'est un RENVERSEMENT du coin
+     fixe, et l'objection qui l'avait imposé — une bulle ancrée recouvre la
+     case d'en dessous, et le clic de l'élève part dedans — est TENUE ici :
+     le contrôle exige qu'aucun côté retenu ne chevauche une case.
+     Le choix étant de la GÉOMÉTRIE pure, il se mesure au banc jsdom bien que
+     jsdom n'ait aucune mise en page : un rectangle POSÉ À LA MAIN se juge
+     exactement comme un vrai. On éprouve les quatre côtés ET le repli, en
+     posant à chaque tour l'obstacle juste là où il faut pour écarter le
+     candidat précédent — et rien d'autre : un obstacle qui en bloquerait deux
+     ferait passer le contrôle sans qu'on sache lequel il mesure. Le RENDU —
+     la flèche DESSINÉE, sa pointe sur la case — est au banc navigateur. */
+  const COTES_B = { droite:'right', gauche:'left', haut:'top', bas:'bottom' };
+  const sansFleche = Object.keys(COTES_B).filter(function(c){
+    /* deux triangles par côté : le cadre (--red) et le fond (--surface) ; et
+       c'est le BORD nommé qui donne le SENS — un border-left là où il faut un
+       border-right retourne la flèche, le défaut de la retenue de la
+       soustraction : bonne place, mauvais sens. */
+    const re = new RegExp('#bexpBulle\\[data-bexp-cote="' + c +
+      '"\\]::(?:before|after)\\{[^}]*border-' + COTES_B[c] + '-color:var\\(--(?:red|surface)\\)', 'g');
+    return (srcIci.match(re) || []).length !== 2;
+  });
+  verifier('la flèche est dessinée pour les quatre côtés, au bon bord et en deux encres',
+    sansFleche.length === 0,
+    'côté(s) sans leurs deux triangles au bord attendu : ' + sansFleche.join(', '));
+
+  const geo = evaluer(w, [
+    "(function(){",
+    "  const ecr=document.querySelector('.screen.on')||document.body;",
+    "  const rect=function(x,y,l,h){ return {left:x,top:y,right:x+l,bottom:y+h,width:l,height:h,x:x,y:y}; };",
+    "  const b=bexpElt(); b.hidden=false;",
+    "  b.getBoundingClientRect=function(){ return rect(0,0,300,120); };",
+    "  const cas=document.createElement('input'); ecr.appendChild(cas);",
+    "  cas.getBoundingClientRect=function(){ return rect(400,500,40,30); };",
+    "  const obs=[];",
+    "  const poser=function(x,y,l,h){ const e=document.createElement('input');",
+    "    e.getBoundingClientRect=function(){ return rect(x,y,l,h); };",
+    "    ecr.appendChild(e); obs.push(e); return e; };",
+    "  const jouer=function(){ bexpCase=cas; bexpPlacer();",
+    "    return { cote:b.dataset.bexpCote||'', x:b.style.left, y:b.style.top,",
+    "             droite:b.style.right, bas:b.style.bottom,",
+    "             fx:b.style.getPropertyValue('--bexp-fx') }; };",
+    "  const out={ fenetre:window.innerWidth+'x'+window.innerHeight };",
+    "  out.aDroite=jouer();",
+    "  poser(600,535,20,25); out.aGauche=jouer();",
+    "  poser(150,535,20,25); out.enHaut=jouer();",
+    "  poser(400,400,20,20); out.enBas=jouer();",
+    "  /* l'ancre n'est PAS un obstacle : c'est SA case. Sans ce bord, la bulle",
+    "     ne pourrait jamais se poser à côté de la case qu'elle explique. */",
+    "  out.sansAncre=bexpObstacles(cas).length; out.avecAncre=bexpObstacles(null).length;",
+    "  poser(400,600,20,20); out.leCoin=jouer();",
+    "  /* le chevauchement lui-même, aux deux bords : deux rectangles qui se",
+    "     TOUCHENT ne se chevauchent pas, un pixel commun suffit à chevaucher */",
+    "  out.colle=bexpChevauche(0,0,10,10,[rect(10,0,10,10)]);",
+    "  out.dedans=bexpChevauche(0,0,10,10,[rect(9,0,10,10)]);",
+    "  obs.forEach(function(e){ e.remove(); }); cas.remove(); bexpMasquer();",
+    "  return out;",
+    "})()"
+  ].join('\n'));
+
+  if(!geo.ok){
+    verifier('la bulle se place à côté de sa case', false, 'erreur JavaScript : ' + geo.erreur);
+  } else {
+    const g = geo.valeur;
+    const dit = k => JSON.stringify(g[k]);
+    /* à droite : la bulle commence 14 px après la case (454 = 440 + 14) et sa
+       flèche tombe au MILIEU de sa hauteur, c'est-à-dire sur le centre de la
+       case (60 = 120 / 2) — une flèche posée au hasard désignerait le vide */
+    verifier('rien ne gêne : la bulle se pose À DROITE de la case, flèche sur son centre',
+      g.aDroite.cote === 'droite' && g.aDroite.x === '454px' && g.aDroite.fx === '60px',
+      'mesuré ' + dit('aDroite') + ' (fenêtre ' + g.fenetre + ')');
+    verifier('une case à droite la renvoie À GAUCHE, jamais par-dessus',
+      g.aGauche.cote === 'gauche' && g.aGauche.x === '86px' && g.aGauche.fx === '60px',
+      'mesuré ' + dit('aGauche'));
+    verifier('les deux côtés pris, elle monte AU-DESSUS, flèche sur son milieu',
+      g.enHaut.cote === 'haut' && g.enHaut.y === '366px' && g.enHaut.fx === '150px',
+      'mesuré ' + dit('enHaut'));
+    verifier('le dessus pris aussi, elle descend EN DESSOUS',
+      g.enBas.cote === 'bas' && g.enBas.y === '544px' && g.enBas.fx === '150px',
+      'mesuré ' + dit('enBas'));
+    /* le repli : quatre côtés pris, la bulle retourne au coin — et SANS
+       flèche, parce qu'une flèche qui ne désigne rien mentirait */
+    verifier('les quatre côtés pris, elle retombe au coin et perd sa flèche',
+      g.leCoin.cote === '' && g.leCoin.droite === '16px' && g.leCoin.fx === '',
+      'mesuré ' + dit('leCoin'));
+    /* UN SEUL bord posé par axe : vider une propriété en ligne rend la main à
+       la FEUILLE DE STYLES, qui repose right:16px et bottom:92px — les deux
+       bords posés, le navigateur ÉTIRE la boîte, sa taille change avec sa
+       place, et l'observateur de taille boucle sans fin. Le navigateur l'a
+       nommé ; ce bord-là le retient ici, où il coûte une ligne. */
+    verifier('ancrée, elle ne garde AUCUN bord de la feuille de styles',
+      ['aDroite','aGauche','enHaut','enBas'].every(k => g[k].droite === 'auto' && g[k].bas === 'auto'),
+      'bords restants : ' + ['aDroite','aGauche','enHaut','enBas']
+        .map(k => k + ' right=' + g[k].droite + ' bottom=' + g[k].bas).join(' | '));
+    verifier('la case ancre n’est pas son propre obstacle',
+      g.avecAncre === g.sansAncre + 1,
+      'obstacles comptés : ' + g.sansAncre + ' sans l’ancre, ' + g.avecAncre + ' avec');
+    verifier('deux cases qui se touchent ne se chevauchent pas, un pixel commun oui',
+      g.colle === false && g.dedans === true,
+      'collées : ' + g.colle + ', d’un pixel dedans : ' + g.dedans);
+  }
+
   evalPromis(w, `(async function(){
     const bilan={};
     const attendre=async()=>{ await Promise.resolve(); await Promise.resolve(); };
@@ -10825,6 +10929,12 @@ function ordreDesFiches(w, apres){
     }}]);
     window.__faux.semer('${P.tableResultats||'resultats'}',[]);
     const ecran=function(){ return ([].slice.call(document.querySelectorAll('section.screen')).find(function(s){ return s.classList.contains('on'); })||{}).id; };
+    /* DEUX SOURCES pour le bord OPPOSÉ : le profil dit si les DEVOIRS de ce
+       niveau portent eux aussi le réglage d'ordre. Là où il le déclare, le
+       ruban doit s'afficher sur un devoir et la relecture PRÉSERVER l'ordre
+       rangé ; là où il ne le déclare pas, ni ruban ni préservation — l'ordre
+       du menu, comme avant. */
+    const ORDRE_DM=${P.ordreDevoirs?'true':'false'};
 
     /* 1. la définition : rien de fait, seul le premier est ouvert */
     await ouvrirDevoirDetail('fc_o');
@@ -10877,6 +10987,10 @@ function ordreDesFiches(w, apres){
       dmSelId='fc_o';
       renderDevoirEditor();
       if(!document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des fiches');
+      /* et la phrase du ruban DIT l'ordre imposé : sur une fiche il l'est
+         vraiment, et le professeur doit le savoir en rangeant les exercices */
+      if(document.getElementById('dmExos').textContent.indexOf('débloque')<0)
+        vus.push('la phrase du ruban ne dit pas que la fiche se fait dans l\\'ordre');
       const cb=document.querySelector('#dmExos input[data-ex="'+C+'"][data-mode="train"]');
       if(!cb){ vus.push('la case de l\\'exercice témoin est introuvable dans l\\'éditeur'); }
       else {
@@ -10891,15 +11005,22 @@ function ordreDesFiches(w, apres){
         if(idsDe((v.fiches||[{}])[0].exercices)!==A+'>'+C+'>'+B)
           vus.push('l\\'enregistrement perd l\\'ordre : '+idsDe((v.fiches||[{}])[0].exercices));
       }
-      /* un devoir, lui, garde l'ordre du menu, sans ruban */
+      /* et le DEVOIR, selon ce que le profil déclare */
       dmGenre='dm';
       dmList=[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:[{id:A,modes:['train']},{id:B,modes:['train']}]}];
       dmSelId='dm_o';
       renderDevoirEditor();
-      if(document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      const rubanDM=!!document.getElementById('dmOrdre');
+      if(ORDRE_DM && !rubanDM) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des devoirs');
+      if(!ORDRE_DM && rubanDM) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
       readEditorIntoDevoir();
       const menu=TEST_ORDER.filter(function(id){ return id===A||id===B; }).join('>');
-      if(idsDe(dmList[0].exercices)!==menu) vus.push('un devoir ne suit plus l\\'ordre du menu : '+idsDe(dmList[0].exercices));
+      if(ORDRE_DM){
+        if(idsDe(dmList[0].exercices)!==A+'>'+B)
+          vus.push('la relecture rabat le devoir sur l\\'ordre du menu : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B);
+      } else if(idsDe(dmList[0].exercices)!==menu){
+        vus.push('un devoir ne suit plus l\\'ordre du menu : '+idsDe(dmList[0].exercices));
+      }
     } else if(typeof renderDmEditor==='function'){
       /* Première : les flèches déplacent, l'enregistrement emporte l'ordre */
       dmGenre='fiche';
@@ -10919,7 +11040,9 @@ function ordreDesFiches(w, apres){
       dmAdminList=[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:JSON.parse(JSON.stringify(trois))}];
       dmSelId='dm_o';
       renderDmEditor();
-      if(document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      const rubanDM=!!document.getElementById('dmOrdre');
+      if(ORDRE_DM && !rubanDM) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des devoirs');
+      if(!ORDRE_DM && rubanDM) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
     } else {
       vus.push('aucun éditeur à exercer');
     }
@@ -10929,7 +11052,7 @@ function ordreDesFiches(w, apres){
     const nom='les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    noteFicheSur20(w, apres);
+    ordreDesDevoirs(w, apres);
   });
 }
 /* LA NOTE D'UNE FICHE SE LIT SUR 20 (demande de Turquet, septembre 2026) :
@@ -11053,8 +11176,18 @@ function noteFicheSur20(w, apres){
 function ordreDesDevoirs(w, apres){
   const nom='l\'ordre des exercices d\'un devoir se règle, s\'affiche chez l\'élève, et ne verrouille rien';
   const present = evaluer(w, "typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function' && typeof renderDevoirDetail==='function'");
+  /* DEUX SOURCES : tests/profils.js dit quels niveaux règlent l'ordre des
+     DEVOIRS (Seconde et Terminale). Un niveau qui ne le déclare pas se dit
+     plutôt que d'être tu — son bord OPPOSÉ (aucun ruban sur un devoir,
+     l'ordre du menu) est tenu par le contrôle des fiches, juste au-dessus.
+     Et un profil qui le déclare devant une page qui n'a pas cet éditeur
+     ROUGIT : les deux sources doivent tomber d'accord. */
+  if(!P.ordreDevoirs){
+    ignorer(nom, 'ce niveau ne règle pas l\'ordre des exercices d\'un devoir (le bord opposé est tenu par le contrôle des fiches)');
+    return noteFicheSur20(w, apres);
+  }
   if(!present.ok || !present.valeur){
-    ignorer(nom, 'ce niveau n\'a pas cet éditeur de devoirs');
+    verifier(nom, false, 'le profil déclare le réglage de l\'ordre des devoirs, et la page n\'a pas cet éditeur (readEditorIntoDevoir, renderDevoirEditor ou renderDevoirDetail manque)');
     return noteFicheSur20(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
@@ -11080,6 +11213,15 @@ function ordreDesDevoirs(w, apres){
     else {
       const fleches=document.querySelectorAll('#dmOrdre .dm-fleche').length;
       if(fleches!==4) vus.push('le ruban devrait porter 4 flèches pour 2 exercices, il en montre '+fleches);
+      /* L'ÉCRAN NE PROMET PAS UN VERROU QUI N'EXISTE PAS : un devoir reste
+         tout ouvert, et la phrase du ruban doit le dire — celle des fiches
+         (« un exercice ne se débloque que lorsque le précédent est fait »)
+         ferait croire au professeur qu'il impose un ordre aux élèves. */
+      const dit=document.getElementById('dmExos').textContent;
+      if(dit.indexOf('débloque')>=0)
+        vus.push('la phrase du ruban promet un verrou sur un devoir : un devoir reste tout ouvert');
+      if(dit.indexOf('libre de les faire')<0)
+        vus.push('la phrase du ruban ne dit pas que l\\'élève reste libre de l\\'ordre');
     }
     readEditorIntoDevoir();
     if(idsDe(dmList[0].exercices)!==A+'>'+B)
@@ -11087,9 +11229,16 @@ function ordreDesDevoirs(w, apres){
     const cb=document.querySelector('#dmExos input[data-ex="'+C+'"][data-mode="train"]');
     if(!cb){ vus.push('la case de l\\'exercice témoin est introuvable dans l\\'éditeur'); }
     else {
-      cb.checked=true; readEditorIntoDevoir();
+      /* LE GESTE RÉEL : l'attribut onchange de la case appelle dmExoCoche(),
+         qui relit le formulaire ET redessine le ruban. Sans ce re-rendu,
+         l'exercice tout juste coché n'apparaîtrait dans le ruban qu'au
+         prochain changement de devoir — et un contrôle qui appellerait
+         readEditorIntoDevoir() à la main ne le verrait jamais. */
+      cb.checked=true; cb.dispatchEvent(new Event('change'));
       if(idsDe(dmList[0].exercices)!==A+'>'+B+'>'+C)
         vus.push('le nouveau coché n\\'arrive pas à la fin : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B+'>'+C);
+      const rangs=document.querySelectorAll('#dmOrdre .dm-exo').length;
+      if(rangs!==3) vus.push('après le cochage, le ruban montre '+rangs+' exercice(s) au lieu de 3 : il ne s\\'est pas redessiné');
 
       /* 2. la flèche déplace, et l'enregistrement emporte l'ordre tel quel */
       dmOrdreBouge(C,-1);
