@@ -324,9 +324,16 @@
    En PAYSAGE : les trois commandes sont RESSERRÉES (libellés courts, police
    et rembourrage réduits) et le pavé tient sur la MÊME ligne qu'elles, à
    gauche. LE PAVÉ NE DÉFILE JAMAIS — toutes ses touches se voient, c'est ce
-   qui fait qu'un élève peut écrire — : il garde sa largeur entière, et ce
-   sont les commandes qui cèdent quand l'écran se resserre (les paliers
-   ci-dessous). */
+   qui fait qu'un élève peut écrire — : ce sont les commandes qui cèdent
+   quand l'écran se resserre (les paliers ci-dessous).
+   ET IL EST AUSSI LARGE QUE L'ÉCRAN LE PERMET (demande de Turquet,
+   septembre 2026 : « en mode paysage, faire en sorte que le clavier soit le
+   plus large possible en fonction de la définition de l'écran ») : il
+   s'étend jusqu'aux commandes — leur largeur est MESURÉE par le moteur
+   (--ctrls-w), jamais supposée, les libellés changeant de largeur avec la
+   police — et ses touches GRANDISSENT pour occuper cette largeur (flex),
+   plafonnées à 80 px pour rester des touches et non des barres ; au-delà,
+   la rangée se centre. Il faisait 634 px sur toutes les tablettes. */
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
@@ -335,9 +342,10 @@ body.pave-actif #paveNum{bottom:54px}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
   body.pave-actif #testCtrls .tc-long{display:none}
   body.pave-actif #testCtrls .tc-court{display:inline}
-  body.pave-actif #paveNum{bottom:6px;left:8px;transform:none;padding:6px;gap:4px;
-    width:max-content;max-width:none;overflow:visible}
-  body.pave-actif #paveNum .pave-t{height:40px;min-width:40px}
+  body.pave-actif #paveNum{bottom:6px;left:8px;right:calc(var(--ctrls-w, 200px) + 16px);
+    transform:none;padding:6px;gap:4px;width:auto;max-width:none;overflow:visible;
+    justify-content:center}
+  body.pave-actif #paveNum .pave-t{height:40px;min-width:40px;flex:1 1 0;max-width:80px}
   body.pave-actif #paveNum .pave-eff{min-width:50px}
 }
 /* Palier 1 — sous 1024 px (tablette Android à 960 px de large en paysage,
@@ -356,8 +364,8 @@ body.pave-actif #paveNum{bottom:54px}
   body.pave-actif #testCtrls{bottom:6px}
   body.pave-actif #testCtrls .tc-court{display:inline}
   body.pave-actif #testCtrls button{padding:7px 10px;font-size:.8rem}
-  body.pave-actif #paveNum{bottom:54px;left:50%;transform:translateX(-50%);width:auto;
-    max-width:calc(100vw - 12px);overflow-x:auto}
+  body.pave-actif #paveNum{bottom:54px;left:8px;right:8px;transform:none;width:auto;
+    max-width:none;overflow:visible}
 }
 .mp-box{width:44px;height:44px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--blue-dark);
     background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none;padding:0;-moz-appearance:textfield}
@@ -1837,7 +1845,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=205;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=206;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -11664,7 +11672,15 @@ function paveInserer(el,t){
    MESURÉE sur le pavé rendu plutôt que supposée : une rangée et un rectangle
    de quatre rangées n'ont pas la même hauteur. */
 function paveCale(on){
+  /* la largeur des commandes du bas, MESURÉE et jamais supposée : en paysage
+     le pavé s'étend jusqu'à elles, et leurs libellés changent de largeur avec
+     la police. La feuille de styles du niveau la LIT (--ctrls-w) ; celle qui
+     ne range pas ses commandes avec le pavé l'ignore. */
   let h=0;
+  try{ const c=document.getElementById('testCtrls');
+    const w=(on && c) ? Math.ceil(c.getBoundingClientRect().width) : 0;
+    document.documentElement.style.setProperty('--ctrls-w', w+'px');
+  }catch(e){}
   if(on){ const p=document.getElementById('paveNum');
     if(p){ const r=p.getBoundingClientRect(); h=Math.max(0, Math.ceil(window.innerHeight - r.top))+24; } }
   document.querySelectorAll('section.screen.on').forEach(function(s){ s.style.paddingBottom = on ? h+'px' : ''; });
@@ -11701,6 +11717,10 @@ function paveBrancher(){
     /* enfoncer une touche ne doit PAS voler le focus de la case */
     pave.addEventListener('pointerdown', function(e){ e.preventDefault(); });
     pave.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    /* une rotation change la place disponible : on remesure tant que le pavé
+       est ouvert (la largeur des commandes, la réserve du bas) */
+    window.addEventListener('resize', function(){
+      const q=document.getElementById('paveNum'); if(q && !q.hidden) paveCale(true); });
     pave.addEventListener('click', function(e){
       const b=e.target && e.target.closest ? e.target.closest('button[data-t]') : null; if(!b) return;
       const el=document.activeElement;

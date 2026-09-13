@@ -5644,6 +5644,13 @@ async function parcours(page, N){
                                             hauteur: Math.round(k.height),
                                             memeLigne: r.top < k.bottom && k.top < r.bottom && r.right <= k.left } : null,
                  petites: rects.filter(t => t.width < 40 || t.height < 40).length,
+                 /* la LARGEUR des touches et l'étendue de la rangée RENDUE :
+                    une boîte étirée dont les touches restent à 40 px laisse le
+                    vide DANS le pavé, et la boîte, elle, s'étire toujours */
+                 toucheEtroite: rects.length ? Math.round(Math.min(...rects.map(t => t.width))) : 0,
+                 toucheLarge: rects.length ? Math.round(Math.max(...rects.map(t => t.width))) : 0,
+                 rangeeG: rects.length ? Math.round(Math.min(...rects.map(t => t.left))) : 0,
+                 rangeeD: rects.length ? Math.round(Math.max(...rects.map(t => t.right))) : 0,
                  /* un pavé qui DÉFILE cache ses dernières touches (−, ⌫, ⏎) */
                  deborde: pave.scrollWidth > pave.clientWidth + 1,
                  surCase: chev(r, c), surCommandes: chev(r, k),
@@ -5736,6 +5743,24 @@ async function parcours(page, N){
           verifier('en paysage, les touches écrivent dans la case sans lui voler le focus',
             t2.valeur === P.pave.attendu && t2.focus === true,
             '« ' + t2.valeur + ' » au lieu de « ' + P.pave.attendu + ' », focus ' + (t2.focus ? 'gardé' : 'perdu'));
+
+          /* ---- LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET ----
+             Demande de Turquet (septembre 2026) : « en mode paysage, faire en
+             sorte que le clavier soit le plus large possible en fonction de la
+             définition de l'écran ». Il faisait 634 px sur toutes les
+             tablettes. Deux mesures, et n'en tenir qu'une ne tient rien : la
+             RANGÉE va jusqu'au bord libre (les commandes quand elles partagent
+             sa ligne, sinon l'écran), et les TOUCHES ont grandi avec elle —
+             une boîte étirée dont les touches restent à 40 px laisserait le
+             vide dans le pavé, et la boîte s'étire de toute façon. */
+          const bordLibre = (q) => (q.cmd && q.cmd.memeLigne) ? q.cmd.gauche : q.fenetre.w;
+          const LP = P.pave.largeurPaysage;
+          verifier('en paysage à 1180 px, la rangée de touches occupe toute la largeur libre',
+            p.rangeeG <= 20 && p.rangeeD >= bordLibre(p) - 28,
+            'la rangée va de ' + p.rangeeG + 'px à ' + p.rangeeD + 'px pour un bord libre à ' + bordLibre(p) + 'px');
+          verifier('en paysage à 1180 px, les touches ont grandi (au moins ' + LP.plancher + 'px, au plus ' + LP.toucheMax + ')',
+            p.toucheEtroite >= LP.plancher && p.toucheLarge <= LP.toucheMax + 1,
+            'touches de ' + p.toucheEtroite + ' à ' + p.toucheLarge + 'px');
           if(P.pave.commandes){
             /* la MÊME ligne : le pavé et les commandes se recouvrent
                verticalement, le pavé à gauche des commandes ; et les
@@ -5757,6 +5782,7 @@ async function parcours(page, N){
                restait vert, le sabotage n'atteignait rien) : pavé entier, à
                côté des commandes ; et à 800 (téléphone couché) : le pavé
                repasse AU-DESSUS des commandes, entier lui aussi. */
+            const etroits = {};
             for(const [w, h] of [[1024, 768], [960, 600], [853, 533]]){
               await s.page.setViewportSize({ width: w, height: h });
               await s.page.waitForTimeout(300);
@@ -5765,11 +5791,47 @@ async function parcours(page, N){
               await s.page.focus(P.pave.champ);
               await s.page.waitForTimeout(400);
               const q = await s.page.evaluate(mesurerPave, P.pave.champ);
+              etroits[w] = q;
+              verifier('en paysage à ' + w + ' px, la rangée de touches occupe toute la largeur libre',
+                q.rangeeG <= 20 && q.rangeeD >= bordLibre(q) - 28,
+                'la rangée va de ' + q.rangeeG + 'px à ' + q.rangeeD + 'px pour un bord libre à ' + bordLibre(q) + 'px');
               verifier('en paysage à ' + w + ' px, le pavé tient en entier à côté des commandes, sans défiler',
                 q.visible && !q.deborde && !q.surCommandes && !!q.cmd && q.cmd.memeLigne === true && q.petites === 0,
                 !q.visible ? 'le pavé reste caché' : q.deborde ? ('le pavé défile : ' + q.largeur + 'px de large, commandes dès ' + (q.cmd ? q.cmd.gauche : '?') + 'px')
                   : q.surCommandes ? 'il recouvre les commandes' : q.petites ? (q.petites + ' touche(s) trop petites') : 'le pavé et les commandes ne sont plus sur la même ligne');
             }
+            /* une ROTATION sans quitter la case : le pavé reste ouvert et la
+               place disponible a changé — ici les commandes repassent des
+               ICÔNES aux libellés courts, donc elles s'élargissent. Sans
+               remesure, le pavé garderait la largeur d'avant et s'étendrait
+               PAR-DESSUS elles. On ne refocalise donc pas : c'est l'écouteur
+               du moteur qui doit agir. */
+            await s.page.setViewportSize({ width: 1366, height: 1024 });
+            await s.page.waitForTimeout(500);
+            const qr = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('après une rotation, le pavé se remesure sans qu’on quitte la case',
+              qr.visible && !qr.surCommandes && qr.rangeeG <= 20 && qr.rangeeD <= bordLibre(qr) - 4 && qr.rangeeD >= bordLibre(qr) - 40,
+              !qr.visible ? 'le pavé s’est refermé' : qr.surCommandes ? 'il recouvre les commandes'
+                : 'la rangée va de ' + qr.rangeeG + 'px à ' + qr.rangeeD + 'px pour un bord libre à ' + bordLibre(qr) + 'px');
+            /* les touches SUIVENT la définition de l'écran : plus larges à
+               1180 qu'à 853 — c'est le bord qui attrape un pavé revenu à sa
+               largeur fixe, où elles mesurent 40 px partout. */
+            verifier('les touches du pavé suivent la définition de l’écran',
+              p.toucheEtroite > etroits[853].toucheEtroite + 4,
+              'touches de ' + etroits[853].toucheEtroite + 'px à 853 px et de ' + p.toucheEtroite + 'px à 1180 px');
+            /* Le bord OPPOSÉ : sur un écran très large, une touche ne devient
+               pas une BARRE — elle s'arrête au plafond et la rangée se centre. */
+            await s.page.setViewportSize({ width: 1600, height: 900 });
+            await s.page.waitForTimeout(300);
+            await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
+            await s.page.waitForTimeout(100);
+            await s.page.focus(P.pave.champ);
+            await s.page.waitForTimeout(400);
+            const q16 = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('sur un très grand écran, les touches s’arrêtent à ' + LP.toucheMax + 'px et la rangée se centre',
+              q16.toucheLarge <= LP.toucheMax + 1 && Math.abs((q16.rangeeG - q16.gauche) - (q16.droite - q16.rangeeD)) <= 12,
+              'touches de ' + q16.toucheLarge + 'px, rangée à ' + (q16.rangeeG - q16.gauche) + 'px du bord gauche du pavé et '
+                + (q16.droite - q16.rangeeD) + 'px du droit');
             await s.page.setViewportSize({ width: 800, height: 600 });
             await s.page.waitForTimeout(300);
             await s.page.evaluate(() => { document.activeElement && document.activeElement.blur(); });
@@ -5777,6 +5839,9 @@ async function parcours(page, N){
             await s.page.focus(P.pave.champ);
             await s.page.waitForTimeout(400);
             const q8 = await s.page.evaluate(mesurerPave, P.pave.champ);
+            verifier('en paysage à 800 px, la rangée de touches occupe toute la largeur de l’écran',
+              q8.rangeeG <= 20 && q8.rangeeD >= q8.fenetre.w - 28,
+              'la rangée va de ' + q8.rangeeG + 'px à ' + q8.rangeeD + 'px sur ' + q8.fenetre.w + 'px');
             verifier('en paysage à 800 px, le pavé repasse entier au-dessus des commandes',
               q8.visible && !q8.deborde && !q8.surCommandes && !!q8.cmd && q8.bas <= q8.cmd.haut && q8.rangees === 1,
               !q8.visible ? 'le pavé reste caché' : q8.deborde ? 'le pavé défile' : q8.surCommandes ? 'il recouvre les commandes'

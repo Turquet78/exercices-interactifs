@@ -5671,6 +5671,48 @@ du sabotage impossible : le banc mesure aussi à 853 px (une tablette Android
 quelle que soit la police, et là le palier retiré rougit en nommant le
 recouvrement.
 
+**Puis le pavé est devenu AUSSI LARGE QUE L'ÉCRAN LE PERMET.** La demande
+d'origine (Turquet, septembre 2026) disait « en mode paysage, faire en sorte
+que le clavier soit le plus large possible en fonction de la définition de
+l'écran » ; elle n'avait été servie qu'à MOITIÉ — « toutes les touches se
+voient » (le pavé ne défile plus, les commandes cèdent) — et le pavé gardait
+une largeur FIXE de 634 px sur toutes les tablettes, la moitié de l'écran
+restant vide à 1180 px. Deux choses, et n'en tenir qu'une ne tient rien : la
+BOÎTE s'étire (ses deux bords posés, `left` ET `right`, au lieu d'une largeur
+de contenu) et les TOUCHES grandissent avec elle (`flex`) — une boîte étirée
+dont les touches restent à 40 px laisse le vide DANS le pavé, et la boîte,
+elle, s'étire de toute façon : c'est la touche RENDUE qu'il faut mesurer, pas
+le rectangle du pavé.
+**Le bord droit est celui des commandes, et il est MESURÉ** : là où elles
+partagent la ligne du pavé (Première et Seconde), `paveCale` écrit leur
+largeur dans `--ctrls-w` et la feuille de styles la lit — leurs libellés
+changent de largeur avec la police, et la supposer était précisément ce qui
+avait fait défiler le pavé sur la tablette de Turquet. La mesure avait été
+retirée un mois plus tôt faute de lecteur ; elle revient AVEC son lecteur, et
+le contrôle exige les deux — un lecteur sans mesure étirerait le pavé
+par-dessus les commandes, une mesure sans lecteur serait un garde-fou mort de
+plus. La Terminale, qui ne range pas ses commandes avec le pavé, prend toute
+la largeur de l'écran.
+**Le plafond est l'autre bord** : les touches s'arrêtent à 80 px et la rangée
+se CENTRE au-delà — sans lui, un très grand écran ferait des barres et non des
+touches. Il vit dans `tests/profils.js` (`pave.largeurPaysage`), deux sources.
+**Et la ROTATION remesure**, sans qu'on quitte la case : l'écouteur du moteur
+(le même texte dans les trois fichiers) rappelle `paveCale` tant que le pavé
+est ouvert. Ce garde-là est né MORT et le sabotage l'a montré : le premier
+contrôle tournait de 1600 à 1024 px, où l'écart de largeur des commandes
+passait sous la tolérance — il restait vert. Refait d'un écran à ICÔNES vers
+un écran à libellés (853 → 1366 px), c'est-à-dire dans le sens où les
+commandes S'ÉLARGISSENT, il nomme le défaut : « il recouvre les commandes ».
+Deux bancs, la répartition habituelle : jsdom lit les règles `@media` du
+fichier (la boîte étirée, le `flex` des touches, le plafond comparé au profil,
+la mesure et son lecteur — la MESURE, pas le commentaire qui la nomme : un
+premier sabotage retirait l'écriture en gardant le commentaire, et le contrôle
+restait vert en parlant d'autre chose), et le NAVIGATEUR mesure la rangée
+RENDUE à 1180, 1024, 960, 853 et 800 px (elle va jusqu'au bord libre, les
+touches ont grandi), la croissance elle-même (plus larges à 1180 qu'à 853 —
+le bord qui attrape un pavé revenu à sa largeur fixe), le plafond à 1600 px
+et la rotation. Huit sabotages, chacun rougissant en nommant son défaut.
+
 **La touche « ⏎ » du clavier à l'écran VALIDE — et en paysage, le clavier
 tient sur DEUX rangées.** Signalé par Turquet (septembre 2026) sur le 2.2.9
 de la Première : « la touche valider ne fonctionne pas et ne permet pas de
