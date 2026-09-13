@@ -86,7 +86,8 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord' };
+               'ordre-croissant':'ord',
+               'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -230,6 +231,31 @@ module.exports = {
        navigateur mesure la police RENDUE de la feuille du 2.2.9 sur la tablette
        (au plus pxMax) et exige qu'elle soit plus petite que sur l'ordinateur. */
     feuilleTablette: { rem: 1.4, pxMax: 21 },
+    /* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
+       septembre 2026) : « pour les exercices avec des cases à remplir avec des
+       nombres, sur les tablettes, après l'énoncé, les écritures avant et après
+       une case à remplir ont une police légèrement plus petite, ainsi que la
+       police des cases ». Un SEUL facteur, porté par les règles mêmes qui
+       donnent les tailles (calc(… * var(--tab-nb,1))) et posé sur le stage —
+       ce qui vient APRÈS l'énoncé — par la requête média de la tablette : case
+       et écritures rétrécissent donc du même facteur, et « une case a la taille
+       des nombres qui l'entourent » tient par construction.
+       Le banc jsdom exige que CHAQUE règle de taille d'une case à nombres passe
+       par le facteur, que les écritures nommées ici le portent aussi, et que le
+       facteur ne soit déclaré qu'à UN endroit, jamais sur la racine — posé là,
+       il emporterait l'énoncé et toute la page. Le banc navigateur mesure les
+       polices RENDUES sur une tablette et sur un ordinateur : la chaîne réduite
+       du facteur, l'énoncé réduit de la seule police de la page. */
+    chaineTablette: { facteur: 0.85,
+                      ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
+                                  '.fr .fd', '.fpm-const', '.mf-cor'],
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8) est hors
+                         de cette demande : elle n'a pas de case à nombres, et elle a
+                         déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
+                         les fractions de l'énoncé — il est donc nommé ici plutôt que
+                         tu, sans quoi le contrôle rougirait sur un écran voulu. */
+                      hors: ['.dexp2-prefix'],
+                      exercice: 'pourcentage', champ: '#p3', ecriture: '.f-whole', enonce: '#pPrompt' },
     /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
        — commit, l'événement « change » : une ligne de plus dans la feuille du
        2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne
@@ -471,7 +497,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','login','space','rattrapage','choose','devoirs','mode',
+    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','devoirs','mode',
                         'results','teacher-login','teacher'],
     niveau: 'Seconde',
     /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
@@ -552,6 +578,11 @@ module.exports = {
                faisait 634 px et ses touches 40. */
             largeurPaysage: { toucheMax: 80, plancher: 52 },
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
+    /* LA SYNTHÈSE (fiche « Synthèse fonction », septembre 2026) : le banc
+       navigateur ouvre l'exercice, mesure le dessin contre ses graduations
+       RENDUES — la courbe s'arrête à son domaine — et joue la copie juste
+       sur les quatre parties en relisant les couleurs. */
+    syntheseFonction: { exercice: 'synthese-fonction' },
     reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
     tableEleves: 'eleves_2nde',
@@ -622,7 +653,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'construire-fonction', 'construire-max-min'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'construire-fonction', 'construire-max-min', 'synthese-fonction'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
@@ -658,6 +689,16 @@ module.exports = {
     /* la seconde famille de devoirs : voir la Première */
     fiches: { titre: 'Fiches de travail en classe', badge: 'Fiche', note: 'Note de la fiche',
               ordre: true, sur20: true, compacte: true },
+
+  /* L'ORDRE DES EXERCICES D'UN DEVOIR SE RÈGLE dans l'éditeur de ce niveau
+     (ruban ▲▼) : la relecture du formulaire PRÉSERVE l'ordre rangé au lieu de
+     le rabattre sur celui du menu, et l'écran de l'élève le suit — sans
+     verrouiller quoi que ce soit, un devoir reste tout ouvert. Le niveau qui
+     ne le déclare pas doit faire l'inverse : aucun ruban sur un devoir, et
+     l'ordre du menu. Deux sources : lire la page et la comparer à elle-même ne
+     prouverait rien. */
+    ordreDevoirs: true,
+
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication n'a pas d'exercice de rapidité où se refermer (la Seconde n'en a aucun, c'est un niveau sans chronomètre) : ce seul bord du contrôle du navigateur s'affiche « non applicable »",
@@ -881,6 +922,9 @@ module.exports = {
        historique de la Terminale, qui recopie les exercices. */
     fiches: { titre: 'Travaux facultatifs', badge: 'Fiche', note: 'Note de la fiche',
               ordre: false, sur20: false, compacte: false },
+
+    ordreDevoirs: true,
+
     lacunes: [
       "le cadre de pose inséré (multiplication des numérateurs) n'existe qu'en Première : le contrôle de largeur du navigateur s'affiche « non applicable »",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",

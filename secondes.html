@@ -126,6 +126,11 @@
   .choice.prof{border-color:#cfe6db}.choice.prof:hover{border-color:var(--green)}
   .choice.rattrapage{border-color:#f1d199}.choice.rattrapage:hover{border-color:#d98f2a}
   .choice.fiche{border-color:#dccdf0}.choice.fiche:hover{border-color:#8d5fb8}
+  /* La CARTE d'un thème sur la page « Exercices par thème » : sa pastille
+     porte le NUMÉRO du thème, comme en Première et en Terminale — le même
+     dessin des trois côtés, sans quoi le même écran se lirait autrement
+     d'un niveau à l'autre. */
+  .choice.themecard .ic.theme-ic{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--blue);background:#EAF0FF;border-radius:12px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;}
   /* Regroupement par thèmes (menu élève) */
   .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
   .theme-block{display:flex;flex-direction:column;gap:14px}
@@ -543,8 +548,8 @@
      testScreens EXACTEMENT. Celle-ci ne le suivait pas du tout : elle nommait
      huit écrans de la Terminale, dont AUCUN n'existe ici, et ne couvrait donc
      aucun exercice de la Seconde. Un contrôle les compare désormais. */
-  #scr-lsv .lsv-titre,#scr-gsv .lsv-titre{margin-top:20px;font-weight:700}
-  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg{padding-bottom:84px}
+  #scr-lsv .lsv-titre,#scr-gsv .lsv-titre,#scr-syn .lsv-titre{margin-top:20px;font-weight:700}
+  #scr-lv,#scr-ls,#scr-lsv,#scr-tvd,#scr-gsv,#scr-vtq,#scr-mmx,#scr-mmt,#scr-tve,#scr-tvf,#scr-img,#scr-ant,#scr-ptest,#scr-atest,#scr-dtest,#scr-ens,#scr-def,#scr-pge,#scr-itv,#scr-itq,#scr-app,#scr-sf,#scr-sfl,#scr-plc,#scr-smp,#scr-mlt,#scr-mll,#scr-ord,#scr-ing,#scr-eqg,#scr-ifg,#scr-eig,#scr-tsg,#scr-syn{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   /* ---- Ensembles de nombres (∈ / ∉) ---- */
@@ -985,6 +990,12 @@
   .vtq-carte.bad{border-color:var(--red);box-shadow:0 0 0 3px rgba(214,69,80,.15)}
   .vtq-carte table.lv-vartbl2{margin:0 auto}
   #mmxGraph .lv-svg{max-width:640px}
+  /* La synthèse porte DIX questions sur un seul dessin : il est le support
+     de tout l'exercice, donc plus grand que sur les écrans d'à côté — à 460 px
+     (le réglage général) ses graduations ne se lisaient plus. Et ses deux
+     tableaux se centrent comme le reste de la carte, qui est plus large. */
+  #synGraph .lv-svg{max-width:760px}
+  #scr-syn .tsg-tbl{margin:6px auto 0}
   /* {maximum-minimum} : les phrases de la fiche. Les deux nombres d'un
      encadrement ne se séparent JAMAIS de leur « ≤ f (x) ≤ » — une solution
      coupée en deux se lit comme deux solutions (la leçon des unions du 2.11) —
@@ -1385,6 +1396,12 @@
        Le dessin, lui, garde sa propre largeur et reste centré : c'est le
        CADRE qui s'élargit, pas la courbe. */
     .lv-card{margin:0 auto}
+    /* La synthèse porte une ligne d'images à quatre listes : elle DÉFILE
+       plutôt que de se replier — une solution coupée en deux se lirait comme
+       deux solutions (la leçon du 2.18). Le CADRE, lui, prend toute la
+       largeur comme partout ailleurs. */
+    #scr-syn .img-line{display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:8px;overflow-x:auto;font-size:1.15rem;font-weight:700;color:var(--blue-dark);margin:10px 0}
+    #scr-syn .img-line .lv-in{flex:0 0 auto}
     .q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 6px}
     .lv-sub{font-size:.82rem;color:var(--ink-soft);font-weight:700;text-align:center;margin:0 0 8px}
     /* .lv-instr prend l'encadré « Énoncé » défini plus haut ; ne reste ici
@@ -1756,7 +1773,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <div class="stat green"><div class="k">Note moyenne</div><div class="v" id="sAvg">—</div></div>
         <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
       </div>
-      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <p class="lead">Choisis un thème pour ouvrir la page de ses exercices interactifs.</p>
       <div class="theme-list" id="testChoices"></div>
       <div class="panel" style="margin-top:20px">
         <h3>Ma progression</h3>
@@ -1766,6 +1783,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <h3>Mes derniers tests</h3>
         <ul class="histlist" id="spaceHist"></ul>
       </div>
+    </div>
+  </section>
+
+  <!-- EXERCICES D'UN THÈME -->
+  <section class="screen" id="scr-theme">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="themeTitle">Thème</h2>
+        <button class="btn-link" onclick="show('choose')">← Thèmes</button>
+      </div>
+      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="theme-list" id="themeChoices"></div>
     </div>
   </section>
 
@@ -1881,6 +1910,20 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="gsvBody"></div>
       <div class="lv-feedback"><span id="gsvMark" class="mark"></span> <span id="gsvCorr" class="correction"></span></div>
       <div class="row" style="justify-content:center;margin-top:16px"><button id="gsvRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="gsvConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="gsvQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="gsvValidate" onclick="submitGSV()">Valider</button></div>
+    </div>
+  </section>
+
+
+  <section class="screen" id="scr-syn">
+    <div class="card lv-card">
+      <div class="q-head"><span id="synIdx" class="q-idx">Question 1 / 4</span><span id="synModeTag"></span></div>
+      <p class="lv-sub" id="synSub"></p>
+      <div id="synLeg"></div>
+      <p class="lv-instr" id="synInstr"></p>
+      <div class="lv-graph" id="synGraph"></div>
+      <div id="synBody"></div>
+      <div class="lv-feedback"><span id="synMark" class="mark"></span> <span id="synCorr" class="correction"></span></div>
+      <div class="row" style="justify-content:center;margin-top:16px"><button id="synRappelBtn" class="btn btn-ghost" type="button" onclick="ouvrirRappelSeul()" hidden>📘 Rappel de cours</button><button id="synConseilBtn" class="btn btn-ghost" type="button" onclick="conseilCourant()" hidden>💡 Conseil</button><button id="synQiaBtn" class="btn btn-ghost" type="button" onclick="ouvrirQIA()" hidden>💬 Poser une question à l’IA</button><button class="btn btn-primary" id="synValidate" onclick="submitSYN()">Valider</button></div>
     </div>
   </section>
 
@@ -2617,7 +2660,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=156;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=158;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3143,6 +3186,7 @@ const TESTS={
   'signes-variations': { name:'Tableaux de signes et de variation', icon:'\ud83d\udcca', desc:'Le dessin de {lecture-variations}, les deux tableaux d\u2019un coup : compl\u00e8te DIRECTEMENT le tableau de signes (racines et z\u00e9ros compris) et le tableau de variation de la m\u00eame courbe.', start:()=>startLSV() },
   'signes-variations-grand': { name:'Tableaux de signes et de variation en grand', icon:'\ud83d\uddfa\ufe0f', desc:'Comme {signes-variations}, sur le GRAND dessin d\u2019{antecedents-droite} : 13 graduations, de \u22126 \u00e0 6 en abscisse ET en ordonn\u00e9e \u2014 les deux tableaux d\u2019un coup, \u00e0 compl\u00e9ter directement.', start:()=>startGSV() },
   'choisir-tableau-variation': { name:'Choisir le tableau de variation', icon:'\ud83e\udded', desc:'Une courbe tracée de −6 à 6 — 2, 3 ou 4 variations — et CINQ tableaux de variations proposés, avec leurs images : un seul correspond à la courbe, à toi de le trouver.', start:()=>startVtq() },
+  'synthese-fonction': { name:'Synth\u00e8se \u2014 tout lire sur un graphique', icon:'\ud83c\udfaf', desc:'La fiche de synth\u00e8se sur UN seul dessin : la courbe de f sur son ensemble de d\u00e9finition et la droite de g. Quatre \u00e9crans et dix questions \u2014 le domaine, des images, des ant\u00e9c\u00e9dents, une \u00e9quation, une in\u00e9quation, les deux tableaux, f\u2009(x)\u2009>\u2009g\u2009(x), le maximum et le minimum.', start:()=>startSYN() },
   'maximum-minimum': { name:'Maximum et minimum', icon:'\ud83d\udd3a', desc:'Sur le GRAND dessin d\u2019{antecedents-droite} : la m\u00eame courbe et cinq intervalles \u2014 donne \u00e0 chaque fois le maximum et le minimum de la fonction, l\u2019abscisse o\u00f9 chacun est atteint, puis l\u2019encadrement \u2026 \u2264 f\u2009(x)\u2009\u2264 \u2026', start:()=>startMMX() },
   'maximum-minimum-tableau': { name:'Maximum et minimum sur un tableau', icon:'📋', desc:'Les mêmes questions que {maximum-minimum}, mais sans dessin : on te donne le TABLEAU DE VARIATION de f, et c’est lui qu’il faut lire pour trouver le maximum, le minimum et l’encadrement sur chaque intervalle.', start:()=>startMMT() },
   'tableau-equations': { name:'Équations et inéquations dans un tableau', icon:'🔢', desc:'Un tableau de variation, et rien d’autre : combien de solutions a l’équation f (x) = k ? Puis résoudre f (x) ≥ k ou f (x) < k en écrivant S avec les bonnes bornes et les bons crochets. Les flèches disent tout — il faut raisonner, comme dans {maximum-minimum-tableau}.', start:()=>startTVE() },
@@ -3197,7 +3241,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min','synthese-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3262,6 +3306,7 @@ function liveCheckCurrent(){
   else if(k==='tvd') tvdLive();
   else if(k==='gsv') gsvLive();
   else if(k==='vtq') vtqLive();
+  else if(k==='syn') synLive();
   else if(k==='mmx') mmxLive();
   else if(k==='mmt') mmtLive();
   else if(k==='tve') tveLive();
@@ -4068,6 +4113,7 @@ const QIA_SUGG={
   ls:["Comment trouver o\u00f9 f (x) = 0 sur le graphique ?","Comment lire le signe de f sur un intervalle ?","Pourquoi \u00e9crit-on 0 sous une racine ?"],
   lsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Quelles valeurs \u00e9crit-on aux bouts des fl\u00e8ches ?"],
   gsv:["Comment remplir le tableau de signes \u00e0 partir du dessin ?","Comment trouver les changements de sens pour le tableau de variation ?","Comment lire une valeur sur le grand quadrillage, de \u22126 \u00e0 6 ?"],
+  syn:["Comment lit-on l’ensemble de définition sur le dessin ?","Quelle différence entre une image et un antécédent ?","Comment résoudre f (x) > g (x) sur un dessin ?","Où lit-on le maximum et l’abscisse où il est atteint ?"],
   vtq:["Comment trouver où la courbe change de sens ?","Comment compter le nombre de flèches d’un tableau de variations ?","Deux tableaux se ressemblent : qu’est-ce qui les distingue ?"],
   mmt:["Comment lire le maximum dans un tableau de variation ?","Pourquoi les extremums sont-ils toujours des valeurs \u00e9crites dans le tableau ?","Comment savoir o\u00f9 le maximum est atteint quand la fl\u00e8che monte ?"],
   tve:["Comment savoir combien de fois une fl\u00e8che passe par une hauteur ?","Pourquoi une valeur \u00e9crite dans le tableau ne compte-t-elle qu\u2019une seule fois ?","Comment choisir le crochet \u00e0 une borne donn\u00e9e par l\u2019\u00e9nonc\u00e9 ?"],
@@ -4530,7 +4576,14 @@ const RAP_TVG=
 +'<li>le <b>nombre</b> de solutions = le nombre de points d’intersection ;</li>'
 +'<li>si la droite ne rencontre jamais la courbe, l’équation n’a <b>aucune</b> solution : on écrit <b>∅</b>.</li></ul>'
 +'<p>On lit toujours les solutions sur l’axe des abscisses, jamais sur l’axe des ordonnées.</p></div>';
-const RAPPELS={ tvg:RAP_TVG, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAP_SYN=`<b>Tout lire sur un seul graphique</b><br>
+• L’<b>ensemble de définition</b> est l’intervalle des x pour lesquels la courbe existe : on lit l’abscisse de son bout GAUCHE et celle de son bout DROIT (les deux bouts sont marqués d’un point).<br>
+• Une <b>image</b> se lit de bas en haut : on part de x sur l’axe horizontal, on monte jusqu’à la courbe, on lit la hauteur. Un <b>antécédent</b> se lit dans l’autre sens : on part de la hauteur, on rejoint la courbe à l’horizontale, on descend lire l’abscisse — il peut y en avoir plusieurs, ou un seul.<br>
+• Une <b>équation</b> f (x) = c se résout comme les antécédents, et la réponse s’écrit entre ACCOLADES : S = { … ; … } — quelques nombres isolés. Une <b>inéquation</b> f (x) &lt; c se lit sur la partie de la courbe qui est SOUS la droite horizontale, et la réponse est un INTERVALLE : le crochet est ouvert pour &lt; et fermé pour ≤.<br>
+• Le <b>tableau de variation</b> dit où la courbe monte et où elle descend : on écrit les abscisses des changements de sens, la valeur de f à chaque étape, et une flèche ↗ ou ↘ entre deux valeurs. Le <b>tableau de signes</b> dit où la courbe est au-dessus de l’axe (+) et où elle est en dessous (−) : les racines sont les abscisses où elle COUPE l’axe, et on écrit 0 sous chacune.<br>
+• <b>f (x) &gt; g (x)</b> se lit là où la courbe de f est AU-DESSUS de la droite de g : les bornes sont les abscisses des deux croisements, et les crochets sont ouverts parce que l’inégalité est stricte.<br>
+• Le <b>maximum</b> et le <b>minimum</b> se répondent en deux temps : la valeur (la hauteur), et l’abscisse où elle est atteinte.`;
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4639,7 +4692,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min','synthese-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -4716,23 +4769,51 @@ function progBarHTML(){
     <div class="prog-sub">Points obtenus sur l'ensemble des ${p.nbTests} tests (chacun sur 10, meilleure note conservée).</div>
   </div>`;
 }
+/* LA PAGE « EXERCICES PAR THÈME » NE MONTRE QUE LES THÈMES (demande de
+   Turquet, septembre 2026 : « en seconde il faudrait une page pour afficher
+   les thèmes des exercices dans des cases avant d'afficher les exercices
+   comme en première »). Une carte par thème, avec le nombre d'exercices et le
+   nombre déjà travaillés ; le détail vit sur sa propre page (scr-theme),
+   ouverte par openTheme(). Les quarante-six exercices tenaient sinon sur une
+   seule page à faire défiler.
+   C'est le motif de la Première et de la Terminale, porté tel quel — SANS
+   l'étage des parties (sous-thèmes) : aucun thème de la Seconde n'en déclare,
+   et une branche qui n'a jamais rien à rendre ferait croire qu'on tient
+   quelque chose. Le jour où un thème en aura, elle se portera avec lui. */
 function renderChooser(results){
   results=results||mesResultats||[];
-  if(!THEMES.length){ $('testChoices').innerHTML='<div class="empty">Aucun exercice pour le moment. Reviens bientôt !</div>'; return; }
-  $('testChoices').innerHTML=THEMES.map(th=>{
-    const cards=th.ids.map((id,i)=>{
-      const t=TESTS[id]; if(!t) return '';
-      const num=th.num+'.'+(i+1);
-      const nd=derniereNoteExo(id);
-      const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
-    }).join('');
-    if(!cards) return '';
-    return `<div class="theme-block">
-      <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
-      <div class="choices">${cards}</div>
-    </div>`;
+  const cards=THEMES.map(th=>{
+    const ids=th.ids.filter(id=>TESTS[id]);
+    if(!ids.length) return '';
+    const faits=ids.filter(id=>derniereNoteExo(id).fait).length;
+    const badge=faits>0?`<span class="ex-bilan done">${faits} / ${ids.length} travaillé${faits>1?'s':''}</span>`:`<span class="ex-bilan todo">À découvrir</span>`;
+    return `<button class="choice eleve themecard" onclick="openTheme(${th.num})">
+      <span class="ic theme-ic">${th.num}</span><span class="ttl">Thème ${th.num} · ${esc(th.nom)}</span><span class="ds">${ids.length} exercice${ids.length>1?'s':''} interactif${ids.length>1?'s':''}</span>${badge}</button>`;
   }).join('');
+  $('testChoices').innerHTML = cards
+    ? '<div class="choices">'+cards+'</div>'
+    : '<div class="empty">Aucun exercice pour le moment. Reviens bientôt !</div>';
+}
+let currentThemeNum=null;
+function themeOfTest(id){ const th=THEMES.find(t=>t.ids.indexOf(id)>=0); return th?th.num:null; }
+/* Ouvre la page des exercices interactifs du thème choisi. Le numéro de chaque
+   exercice se déduit de sa POSITION, comme partout : une réorganisation le
+   suit toute seule. */
+function openTheme(num){
+  const th=THEMES.find(t=>t.num===num); if(!th) return;
+  currentThemeNum=num;
+  $('themeTitle').textContent='Thème '+th.num+' · '+th.nom;
+  const cards=th.ids.map((id,i)=>{
+    const t=TESTS[id]; if(!t) return '';
+    const num2=th.num+'.'+(i+1);
+    const nd=derniereNoteExo(id);
+    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+    return cardHTML(t.icon, num2+' · '+t.name, t.desc, `openTest('${escJS(id)}')`, '', '', badge);
+  }).join('');
+  $('themeChoices').innerHTML = cards
+    ? '<div class="choices">'+cards+'</div>'
+    : '<p class="muted">Exercices à venir.</p>';
+  show('theme');
 }
 /* ---------- Devoir à la maison (élève) ---------- */
 function lancerDevoir(devoirId, id, mode){
@@ -4894,6 +4975,7 @@ async function clearRecovery(){
 }
 async function openTest(testId){
   currentTestId=testId;
+  currentThemeNum=themeOfTest(testId)||currentThemeNum;
   currentDM=null;            // lancement normal (hors devoir)
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
@@ -4997,7 +5079,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5121,11 +5203,11 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
-  document.body.classList.toggle('menu-large', ['choose'].indexOf(name)>=0);
+  document.body.classList.toggle('menu-large', ['choose','theme'].indexOf(name)>=0);
   /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
      partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
      résultats, dans le signalement —, mais PAS là où l'élève passe son temps.
@@ -5893,7 +5975,10 @@ function renderBilan(results){
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
-function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes(); } }
+/* Retour depuis un exercice : la page de SON thème, pas la liste des thèmes —
+   sinon l'élève qui enchaîne deux exercices d'un même thème redescendrait
+   d'un étage à chaque fois. */
+function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes().then(()=>{ if(currentThemeNum!=null) openTheme(currentThemeNum); }); } }
 
 /* ---------- Devoirs à la maison (élève) ---------- */
 async function openDevoirsEleve(genre){
@@ -7142,7 +7227,7 @@ function adrCibles(pts){
   for(let y=-ADR_R;y<=ADR_R;y++){
     if(pts.indexOf(y)<0) continue;
     let traverse=false;
-    for(let i=0;i<12;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(y>lo && y<hi) traverse=true; }
+    for(let i=0;i<pts.length-1;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(y>lo && y<hi) traverse=true; }
     if(traverse) continue;
     const n=pts.filter(v=>v===y).length;
     if(n>=1 && n<=3) ok.push(y);
@@ -7184,10 +7269,16 @@ function adrTirage(){
 /* La spline de lvPath — les MÊMES tangentes (lvTangents) — généralisée à 13
    points ; lvPath lui-même est figé sur 7 graduations et comparé au caractère
    près avec la Terminale. */
-function adrPath(pts, sx, sy){
+/* ia, ib (facultatifs) : les indices du MORCEAU à tracer — la convention de
+   lvPath, portée au grand dessin pour que {synthese-fonction} montre une
+   fonction définie sur un intervalle. Appelée sans eux, rien ne change : les
+   tangentes restent calculées sur la courbe ENTIÈRE, de sorte qu'un morceau se
+   superpose exactement au tracé complet. */
+function adrPath(pts, sx, sy, ia, ib){
   const m=lvTangents(pts);
-  let d='M '+sx(-ADR_R).toFixed(1)+' '+sy(pts[0]).toFixed(1);
-  for(let i=0;i<pts.length-1;i++){
+  const a=(ia==null?0:ia), b=(ib==null?pts.length-1:ib);
+  let d='M '+sx(a-ADR_R).toFixed(1)+' '+sy(pts[a]).toFixed(1);
+  for(let i=a;i<b;i++){
     const x0=i-ADR_R, x1=i+1-ADR_R, y0=pts[i], y1=pts[i+1];
     d+=' C '+sx(x0+1/3).toFixed(1)+' '+sy(y0+m[i]/3).toFixed(1)+' '+sx(x1-1/3).toFixed(1)+' '+sy(y1-m[i+1]/3).toFixed(1)+' '+sx(x1).toFixed(1)+' '+sy(y1).toFixed(1);
   }
@@ -7219,7 +7310,8 @@ function adrSVG(q, verdict, dessus){
   let labels='';
   for(let x=-R;x<=R;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
   for(let y=-R;y<=R;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
-  const cf='<text x="'+sx(-R+0.3).toFixed(1)+'" y="'+(sy(q.pts[1])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  const _ia=(q.ia==null?0:q.ia);
+  const cf='<text x="'+sx(_ia-R+0.3).toFixed(1)+'" y="'+(sy(q.pts[Math.min(_ia+1,q.pts.length-1)])-9).toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
   let extra='';
   if(verdict && verdict.solDr)
     extra+='<line class="adr-sol" x1="'+sx(XA).toFixed(1)+'" y1="'+sy(q.y0).toFixed(1)+'" x2="'+sx(XB).toFixed(1)+'" y2="'+sy(q.y0).toFixed(1)+'"/>';
@@ -7233,7 +7325,15 @@ function adrSVG(q, verdict, dessus){
   if(verdict && verdict.sols) verdict.sols.forEach(function(x){
     extra+='<circle class="pim-sol" cx="'+sx(x).toFixed(1)+'" cy="'+sy(q.y0).toFixed(1)+'" r="7"/>';
   });
-  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy)+'"/>'+cf+extra+(dessus?dessus(sx,sy):'')+'</svg>';
+  /* le MORCEAU, quand la question en déclare un : les bouts sont marqués d'un
+     point, comme au 2.6 — sans quoi l'ensemble de définition ne se lirait pas */
+  const mia=(q.ia==null?0:q.ia), mib=(q.ib==null?q.pts.length-1:q.ib);
+  let bouts='';
+  if(q.ia!=null || q.ib!=null){
+    bouts='<circle class="ifg-bout" cx="'+sx(mia-R).toFixed(1)+'" cy="'+sy(q.pts[mia]).toFixed(1)+'" r="4.5"/>'
+         +'<circle class="ifg-bout" cx="'+sx(mib-R).toFixed(1)+'" cy="'+sy(q.pts[mib]).toFixed(1)+'" r="4.5"/>';
+  }
+  return '<svg viewBox="0 0 690 432" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+adrPath(q.pts,sx,sy,mia,mib)+'"/>'+bouts+cf+extra+(dessus?dessus(sx,sy):'')+'</svg>';
 }
 function adrDessiner(verdict){
   const q=test.questions[test.idx]; if(!q) return;
@@ -11064,6 +11164,407 @@ function submitGSV(){
 function nextGsvQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderGSV(); autoSave(); } else finishTest(); }
 
 
+/* ================= Exercice Seconde : Synthèse — tout lire sur un graphique (kind 'syn') =================
+   Demande de Turquet (septembre 2026), fiche « Synthèse fonction » : un seul
+   dessin — la courbe de f sur son domaine et la droite de g — et les DIX
+   questions de la fiche, dans son ordre, sur le MÊME graphique conservé :
+   1) l'ensemble de définition, 2) et 3) quatre images, 4) les antécédents
+   d'une hauteur, 5) l'équation f(x) = c, 6) l'inéquation f(x) < c, 7) le
+   tableau de variation, 8) le tableau de signes, 9) f(x) > g(x), 10) le
+   maximum et le minimum avec les abscisses où ils sont atteints.
+   C'est la SYNTHÈSE du thème : chaque question a son exercice dans le menu, et
+   celui-ci les rassemble sur un seul dessin — quatre écrans (a : lire, b :
+   résoudre, c : les tableaux, d : les deux courbes et les extremums).
+
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ. Le tirage est gsvGen() — le générateur
+   du 2.15, deux racines intérieures, chacune un vrai croisement, jamais de
+   palier ; le dessin est adrSVG(), la fonction même, à qui l'on donne le
+   MORCEAU du domaine (la convention de lvPath au 2.6) et la droite de g par
+   son crochet « dessus » ; l'analyse des variations est gsvAnalyze(), remise à
+   sa place ; les deux tableaux sont ceux de {signes-variations-grand}
+   (varTableHTML / varTableSubs, les fonctions mêmes du 2.1) ; le maximum et le
+   minimum viennent de mmxAns(), la fonction qui corrige le 2.16 ; les listes
+   d'intervalle sont la famille .itv-sel, et la légende f/g est fgLegende().
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : la question ne
+   porte que la courbe, le domaine, la droite, les deux hauteurs, les quatre
+   abscisses et la strictesse — tout le reste est RECALCULÉ par les fonctions
+   qui corrigent, et le contrôle refuse tout autre champ.
+
+   LES RISQUES PROPRES sont ceux de la famille, réunis : une hauteur illisible
+   (traversée entre deux graduations), un croisement de f et g hors graduation,
+   un extremum atteint deux fois. Le tirage les écarte, et le contrôle les
+   recompte par sa propre arithmétique, tirage après tirage. */
+const SYN_R=6;
+function synA(q){ return q.ia-SYN_R; }
+function synB(q){ return q.ib-SYN_R; }
+function synY(q,x){ return q.pts[x+SYN_R]; }
+function synG(q,x){ return q.ga*x+q.gb; }
+/* la tranche du domaine : c'est elle qu'on analyse, et elle seule qu'on dessine */
+function synPtsDom(q){ return q.pts.slice(q.ia,q.ib+1); }
+/* L'analyse du domaine : gsvAnalyze — la fonction MÊME du 2.15 — sur la
+   tranche, puis REMISE À SA PLACE : la tranche repart de −6, on la décale de
+   ia. Une seconde analyse aurait fini par diverger de celle des tableaux. */
+function synAnalyse(q){
+  const a=gsvAnalyze(synPtsDom(q)), dec=q.ia;
+  a.xs=a.xs.map(function(x){ return x+dec; });
+  a.nodes.forEach(function(nd){ nd.x+=dec; });
+  a.segments.forEach(function(sg){ sg.fromX+=dec; sg.toX+=dec; });
+  return a;
+}
+/* La spline qu'adrPath DESSINE, évaluée en un x réel : entre deux graduations
+   f n'est pas une droite, et une courbe qui retraverserait la droite de g hors
+   graduation rendrait S illisible — c'est le garde-fou du 2.5, mesuré. */
+function synVal(pts,x){
+  const m=lvTangents(pts);
+  let i=Math.floor(x+SYN_R); if(i<0) i=0; if(i>pts.length-2) i=pts.length-2;
+  const t=(x+SYN_R)-i, t2=t*t, t3=t2*t;
+  return (2*t3-3*t2+1)*pts[i] + (t3-2*t2+t)*m[i] + (-2*t3+3*t2)*pts[i+1] + (t3-t2)*m[i+1];
+}
+function synCroixC(q,c){ const out=[]; for(let x=synA(q);x<=synB(q);x++){ if(synY(q,x)===c) out.push(x); } return out; }
+function synCroixG(q){ const out=[]; for(let x=synA(q);x<=synB(q);x++){ if(synY(q,x)===synG(q,x)) out.push(x); } return out; }
+/* Les antécédents d'une hauteur sur le domaine — la fonction qui corrige */
+function synAnt(q){ return synCroixC(q,q.k); }
+/* Le repli RÉEL, relevé sur le générateur (sonde, septembre 2026) : il repasse
+   par les gardes MÊMES du tirage, que le contrôle rejoue sur lui. */
+const SYN_REPLI={pts:[2,1,0,-1,-2,-3,-4,-3,0,3,6,4,3], ia:1, ib:10, ga:1, gb:0, c:-3, k:-4, op:'lt', sensG:'lt', img:[-5,-3,0,3]};
+/* g est une DROITE : entière aux entiers, dans le cadre, deux croisements sur
+   des graduations intérieures, f au-dessus ENTRE les deux — S est alors un seul
+   intervalle, la forme que la ligne de réponse demande. */
+function synDroitesOk(q){
+  const a=synA(q), b=synB(q), out=[];
+  for(let ga=-2; ga<=2; ga++){
+    if(ga===0) continue;
+    for(let gb=-SYN_R; gb<=SYN_R; gb++){
+      const d={pts:q.pts, ia:q.ia, ib:q.ib, ga:ga, gb:gb};
+      let ok=true;
+      for(let x=a;x<=b && ok;x++){ const y=ga*x+gb; if(y<-SYN_R||y>SYN_R) ok=false; }
+      if(!ok) continue;
+      const xs=synCroixG(d);
+      if(xs.length!==2 || xs[0]<=a || xs[1]>=b) continue;
+      /* f est du MÊME côté de g sur tout le milieu : le sens de la question
+         suit ce côté, si bien que S est TOUJOURS un seul intervalle — la forme
+         que la ligne de réponse demande, quelle que soit la courbe tirée. */
+      let dessus=null;
+      for(let x=xs[0]+1;x<xs[1] && ok;x++){
+        const cote=(synY(d,x)>ga*x+gb)?1:((synY(d,x)<ga*x+gb)?-1:0);
+        if(cote===0){ ok=false; break; }
+        if(dessus===null) dessus=cote; else if(cote!==dessus) ok=false;
+      }
+      if(dessus===null) ok=false;
+      /* la MARGE : à toute graduation qui n'est pas un croisement, f est à au
+         moins 1 de la droite — les deux étant entières, c'est automatique, et
+         c'est le CONTRÔLE qui l'exige plutôt que le tirage qui la suppose */
+      if(!ok) continue;
+      /* aucune retraversée entre deux graduations : on échantillonne l'écart */
+      let chg=0, prev=0;
+      for(let t=0;t<=(b-a)*20;t++){
+        const x=a+t/20, e=synVal(q.pts,x)-(ga*x+gb);
+        if(Math.abs(e)<1e-9) continue;
+        const sg=e>0?1:-1; if(prev!==0 && sg!==prev) chg++; prev=sg;
+      }
+      if(chg!==2) continue;
+      out.push({ga:ga, gb:gb, dessus:dessus});
+    }
+  }
+  return out;
+}
+function synGen(){
+  for(let att=0; att<4000; att++){
+    const pts=gsvGen().pts, so=gsvSols(pts);
+    /* LE DOMAINE : une tranche d'au moins 8 graduations qui contient les deux
+       racines STRICTEMENT à l'intérieur — sans quoi le tableau de signes du
+       domaine n'aurait pas ses deux racines, et l'énoncé mentirait. */
+    const iaMax=Math.min(so[0]+SYN_R-1, 12), ibMin=Math.max(so[1]+SYN_R+1, 0);
+    if(iaMax<0 || ibMin>12) continue;
+    const ia=rand(0,iaMax), ib=rand(ibMin,12);
+    if(ib-ia<8) continue;
+    const q={pts:pts, ia:ia, ib:ib};
+    const a=synA(q), b=synB(q);
+    /* le maximum et le minimum se LISENT : un seul x pour chacun (mmxUnique,
+       la fonction même du 2.16) — deux abscisses de même hauteur donneraient
+       deux bonnes réponses dont une seule serait comptée */
+    if(!mmxUnique(pts,a,b)) continue;
+    const dom=synPtsDom(q), cibles=adrCibles(dom);
+    /* la hauteur de l'ÉQUATION et de l'INÉQUATION : lisible, exactement DEUX
+       croisements, et f EN DESSOUS entre les deux — S est alors un seul
+       intervalle et la ligne de réponse garde toujours la même forme */
+    const cote=function(c){
+      const xs=synCroixC(q,c);
+      if(xs.length!==2 || xs[0]<=a || xs[1]>=b) return 0;
+      let d=null;
+      for(let x=xs[0]+1;x<xs[1];x++){
+        const t=(synY(q,x)>c)?1:((synY(q,x)<c)?-1:0);
+        if(t===0) return 0;
+        if(d===null) d=t; else if(t!==d) return 0;
+      }
+      return d||0;
+    };
+    /* la hauteur de l'ÉQUATION et de l'INÉQUATION : lisible, exactement DEUX
+       croisements, et f du MÊME côté entre les deux — le sens de l'inéquation
+       suit ce côté, si bien que S est toujours un seul intervalle */
+    const eqs=cibles.filter(function(c){ return c!==0 && cote(c)!==0; });
+    if(!eqs.length) continue;
+    const c=pick(eqs);
+    /* la hauteur des ANTÉCÉDENTS : une autre hauteur lisible, jamais 0 (ce
+       serait la question des racines du tableau de signes) ni c (ce serait la
+       question d'à côté) — de 1 à 3 antécédents, trois cases toujours */
+    const ks=cibles.filter(function(y){ return y!==0 && y!==c; });
+    if(!ks.length) continue;
+    const k=pick(ks);
+    q.c=c; q.k=k;
+    const drs=synDroitesOk(q);
+    if(!drs.length) continue;
+    const dr=pick(drs);
+    q.ga=dr.ga; q.gb=dr.gb; q.sensG=(dr.dessus>0)?'gt':'lt';
+    const xg=synCroixG(q), xc=synCroixC(q,c);
+    if(xg[0]===xc[0] && xg[1]===xc[1]) continue;   /* deux questions, deux réponses */
+    /* les QUATRE abscisses des images : distinctes, dans le domaine */
+    const xs=[]; for(let x=a;x<=b;x++) xs.push(x);
+    if(xs.length<4) continue;
+    const img=lvPickSubset(xs,4).sort(function(u,v){ return u-v; });
+    q.img=img;
+    /* le SENS suit le côté où f se trouve, la STRICTESSE est tirée : sans quoi
+       l'élève apprendrait que le crochet est toujours le même (la leçon du 2.18) */
+    q.op=(cote(c)>0?'g':'l')+pick(['t','e']);
+    return q;
+  }
+  const r=SYN_REPLI;
+  return {pts:r.pts.slice(), ia:r.ia, ib:r.ib, ga:r.ga, gb:r.gb, c:r.c, k:r.k, op:r.op, sensG:r.sensG, img:r.img.slice()};
+}
+/* Les quatre sens possibles d'une inéquation : le SENS suit le côté où f se
+   trouve entre les deux croisements, la STRICTESSE est tirée. */
+const SYN_SIGNE={lt:'<', le:'≤', gt:'>', ge:'≥'};
+const SYN_PARTS=['a','b','c','d'];
+function synSubCount(q){
+  if(q.part==='a') return 6;
+  if(q.part==='b') return 9;
+  if(q.part==='c'){ const a=synAnalyse(q); return 7 + (a.nodes.length-2) + a.nodes.length + a.segments.length; }
+  return 8;
+}
+function synBuildQuestions(){
+  const g=synGen();
+  return SYN_PARTS.map(function(p){ return Object.assign({}, g, {part:p}); });
+}
+function startSYN(){
+  const qs=synBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'syn', questions:qs, idx:0, score:0, maxScore:qs.reduce(function(n,q){ return n+synSubCount(q); },0), answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('syn'); renderSYN();
+}
+/* La droite de g, dessinée PAR-DESSUS le dessin d'{antecedents-droite} par son
+   crochet « dessus » : les classes sont celles du 2.5 et du 2.6 (.eqg-g en
+   pointillés orange, .eqg-cg pour l'étiquette) — une couleur propre à cet
+   écran pourrait contredire les autres le jour où l'une des deux change. */
+function synDessus(q){
+  return function(sx,sy){
+    /* La droite est COUPÉE au cadre : tracée d'un bord à l'autre, elle sortait
+       du quadrillage par le haut et son étiquette se posait sur les
+       graduations — vu sur une capture, pas au banc. On ne garde que le
+       morceau où elle reste dans la fenêtre du dessin. */
+    const L=SYN_R+0.5, xh=[(L-q.gb)/q.ga, (-L-q.gb)/q.ga];
+    let x1=Math.max(-L, Math.min(xh[0],xh[1])), x2=Math.min(L, Math.max(xh[0],xh[1]));
+    if(!(x2>x1)){ x1=-L; x2=L; }
+    const xe=Math.max(x1, Math.min(x2-0.9, synB(q)));
+    return '<line class="eqg-g" x1="'+sx(x1).toFixed(1)+'" y1="'+sy(synG(q,x1)).toFixed(1)
+      +'" x2="'+sx(x2).toFixed(1)+'" y2="'+sy(synG(q,x2)).toFixed(1)+'"/>'
+      +'<text x="'+sx(xe).toFixed(1)+'" y="'+(sy(synG(q,xe))-8).toFixed(1)
+      +'" class="eqg-cg">C<tspan dy="3" font-size="10" font-style="normal">g</tspan></text>';
+  };
+}
+function synOpt(vals){ return '<option value="">—</option>'+vals.map(function(v){ return '<option value="'+esc(v[0])+'">'+esc(v[1])+'</option>'; }).join(''); }
+function synNombres(q){ const out=[]; for(let x=synA(q);x<=synB(q);x++) out.push([String(x), numFmt(x)]); return out; }
+function synIntervalHTML(q, p){
+  const nbs=synNombres(q);
+  return '<select id="'+p+'-c0" class="itv-sel" aria-label="Crochet de gauche">'+synOpt([['[','['],[']',']']])+'</select> '
+    +'<select id="'+p+'-b0" class="itv-sel" aria-label="Borne de gauche">'+synOpt(nbs)+'</select> ; '
+    +'<select id="'+p+'-b1" class="itv-sel" aria-label="Borne de droite">'+synOpt(nbs)+'</select> '
+    +'<select id="'+p+'-c1" class="itv-sel" aria-label="Crochet de droite">'+synOpt([[']',']'],['[','[']])+'</select>';
+}
+const SYN_TITRES={a:'a) Lire la courbe', b:'b) Résoudre', c:'c) Les deux tableaux', d:'d) Les deux courbes, le maximum et le minimum'};
+function renderSYN(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  const a=synA(q), b=synB(q), F=function(x){ return numFmt(synY(q,x)); };
+  $('synIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('synModeTag').innerHTML=modeTagHTML();
+  { const cb=$('synConseilBtn'); if(cb) cb.hidden=!isSoutien();
+    const rb=$('synRappelBtn'); if(rb) rb.hidden=!(currentMode!=='eval' && rappelDispo());
+    const qb=$('synQiaBtn');    if(qb) qb.hidden=(currentMode==='eval'); }
+  $('synSub').textContent=SYN_TITRES[q.part];
+  $('synLeg').innerHTML=fgLegende('droite de <i>g</i>');
+  $('synGraph').innerHTML=adrSVG({pts:q.pts, ia:q.ia, ib:q.ib, dr:null, rep:[]}, null, synDessus(q));
+  const nbs=synNombres(q);
+  let corps='';
+  if(q.part==='a'){
+    $('synInstr').textContent='La courbe de f est tracée ci-dessous (ses deux bouts sont marqués d’un point). Donne son ensemble de définition, puis lis quatre images.';
+    corps='<p class="lv-sub lsv-titre">① Ensemble de définition</p>'
+      +'<div class="img-line">D = [ <input id="syn-d-a" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Borne gauche du domaine"> ; '
+      +'<input id="syn-d-b" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Borne droite du domaine"> ]</div>'
+      +'<p class="lv-sub lsv-titre">② Les images par f de '+numFmt(q.img[0])+' et de '+numFmt(q.img[1])+'</p>'
+      +'<div class="img-line">f('+numFmt(q.img[0])+') = <input id="syn-i-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Image de '+numFmt(q.img[0])+'">'
+      +' &nbsp;&nbsp; f('+numFmt(q.img[1])+') = <input id="syn-i-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Image de '+numFmt(q.img[1])+'"></div>'
+      +'<p class="lv-sub lsv-titre">③ f('+numFmt(q.img[2])+') et f('+numFmt(q.img[3])+')</p>'
+      +'<div class="img-line">f('+numFmt(q.img[2])+') = <input id="syn-i-2" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Image de '+numFmt(q.img[2])+'">'
+      +' &nbsp;&nbsp; f('+numFmt(q.img[3])+') = <input id="syn-i-3" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Image de '+numFmt(q.img[3])+'"></div>';
+  } else if(q.part==='b'){
+    const SG=SYN_SIGNE[q.op];
+    $('synInstr').textContent='Toujours sur la même courbe : les antécédents d’une hauteur, puis une équation et une inéquation. Écris les antécédents dans l’ordre que tu veux — s’il y en a moins de trois, laisse les cases en trop vides.';
+    corps='<p class="lv-sub lsv-titre">④ Les antécédents de '+numFmt(q.k)+' par f</p>'
+      +'<div class="img-line">x = <input id="syn-ant-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Premier antécédent"> ; '
+      +'<input id="syn-ant-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Deuxième antécédent"> ; '
+      +'<input id="syn-ant-2" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Troisième antécédent"></div>'
+      +'<p class="lv-sub lsv-titre">⑤ Résoudre f(x) = '+numFmt(q.c)+'</p>'
+      +'<div class="img-line">S = { <input id="syn-eq-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première solution"> ; '
+      +'<input id="syn-eq-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde solution"> }</div>'
+      +'<p class="lv-sub lsv-titre">⑥ Résoudre f(x) '+SG+' '+numFmt(q.c)+'</p>'
+      +'<div class="img-line">S = '+synIntervalHTML(q,'syn-in')+'</div>';
+  } else if(q.part==='c'){
+    const an=synAnalyse(q);
+    $('synInstr').textContent='Complète les DEUX tableaux de f sur son ensemble de définition : le tableau de variation, puis le tableau de signes.';
+    const selS=function(id,aria){ return '<select id="'+id+'" class="lv-sel arr" aria-label="'+aria+'"><option value="">—</option><option value="+">+</option><option value="-">−</option><option value="0">0</option></select>'; };
+    const tVar=varTableHTML(an,'syn-v','synArrowChange');
+    const tSig='<table class="tsg-tbl"><tbody>'
+      +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+numFmt(a)+'</td><td class="tsg-root"><input id="syn-s-x-0" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Première racine"></td><td></td><td class="tsg-root"><input id="syn-s-x-1" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Seconde racine"></td><td class="bnd tsg-br">'+numFmt(b)+'</td></tr>'
+      +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('syn-s-s-0','Signe avant la première racine')+'</td><td>'+selS('syn-s-s-1','Sous la première racine')+'</td><td>'+selS('syn-s-s-2','Signe entre les deux racines')+'</td><td>'+selS('syn-s-s-3','Sous la seconde racine')+'</td><td>'+selS('syn-s-s-4','Signe après la seconde racine')+'</td></tr>'
+      +'</tbody></table>';
+    corps='<p class="lv-sub lsv-titre">⑦ Tableau de variation — les abscisses des changements de sens, la valeur de f à chaque étape, et ↗ ou ↘</p><div class="lv-tblwrap">'+tVar+'</div>'
+      +'<p class="lv-sub lsv-titre">⑧ Tableau de signes — les racines et les zéros compris</p><div class="lv-tblwrap">'+tSig+'</div>';
+  } else {
+    const SGG=SYN_SIGNE[q.sensG];
+    $('synInstr').textContent='La droite de g est en pointillés. Résous f(x) '+SGG+' g(x), puis donne le maximum et le minimum de f sur son ensemble de définition.';
+    corps='<p class="lv-sub lsv-titre">⑨ Résoudre f(x) '+esc(SGG)+' g(x)</p>'
+      +'<div class="img-line">S = '+synIntervalHTML(q,'syn-fg')+'</div>'
+      +'<p class="lv-sub lsv-titre">⑩ Le maximum et le minimum de f</p>'
+      +'<div class="img-line">M = <input id="syn-M" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Maximum"> atteint pour x = '
+      +'<input id="syn-xM" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Abscisse du maximum"></div>'
+      +'<div class="img-line">m = <input id="syn-m" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Minimum"> atteint pour x = '
+      +'<input id="syn-xm" class="lv-in xv-in" inputmode="numeric" autocomplete="off" aria-label="Abscisse du minimum"></div>';
+  }
+  $('synBody').innerHTML=corps;
+  $('synBody').querySelectorAll('input,select').forEach(function(el){ el.addEventListener('input',synLive); el.addEventListener('change',synLive); });
+  $('synMark').className='mark'; $('synMark').textContent=''; $('synCorr').innerHTML='';
+  const bt=$('synValidate'); bt.disabled=false; bt.textContent='Valider'; bt.onclick=submitSYN;
+  if(q.part==='c') setTimeout(synArrowChange,0);
+  setTimeout(synLive,0);
+}
+function synArrowChange(){
+  if(test.kind!=='syn') return;
+  const q=test.questions[test.idx]; if(!q || q.part!=='c') return;
+  varArrowsCore(synAnalyse(q), 'syn-v');
+}
+/* La règle des paires : les antécédents et les solutions s'écrivent DANS
+   L'ORDRE QU'ON VEUT — rien à l'écran ne dit quelle case porte lequel —, et la
+   liste les prend une fois chacun ; le même nombre posé deux fois est
+   défendable une fois, faux la seconde. Les cases en trop restent vides. */
+function synPaires(ids, attendus){
+  const reste=attendus.slice(), subs=[];
+  const lus=ids.map(function(id){ return lvReadInt(id); });
+  lus.forEach(function(v,i){
+    const j=(v==null)?-1:reste.indexOf(v);
+    if(j>=0){ reste.splice(j,1); subs.push({id:ids[i], val:null, ok:true, pris:true}); }
+    else subs.push({id:ids[i], val:null, ok:false, pris:false});
+  });
+  /* une case vide alors qu'il ne reste rien à écrire est JUSTE : trois cases
+     sont toujours affichées, des cases au nombre exact révéleraient la réponse */
+  subs.forEach(function(s,i){
+    if(!s.pris && lus[i]==null && reste.length===0) s.ok=true;
+  });
+  /* ce qui reste va, en partage, dans les cases encore libres — c'est la
+     valeur que la correction écrira dedans */
+  subs.forEach(function(s){ if(!s.ok && reste.length) s.val=reste.shift(); });
+  subs.forEach(function(s){ if(s.val==null && !s.ok && reste.length) s.val=reste.shift(); });
+  return subs.map(function(s){ return {id:s.id, val:s.val, ok:s.ok}; });
+}
+function synCheckPart(q){
+  const subs=[], a=synA(q), b=synB(q);
+  if(q.part==='a'){
+    subs.push({id:'syn-d-a', val:a, ok: lvReadInt('syn-d-a')===a});
+    subs.push({id:'syn-d-b', val:b, ok: lvReadInt('syn-d-b')===b});
+    q.img.forEach(function(x,i){ const v=synY(q,x); subs.push({id:'syn-i-'+i, val:v, ok: lvReadInt('syn-i-'+i)===v}); });
+  } else if(q.part==='b'){
+    synPaires(['syn-ant-0','syn-ant-1','syn-ant-2'], synAnt(q)).forEach(function(s){ subs.push(s); });
+    synPaires(['syn-eq-0','syn-eq-1'], synCroixC(q,q.c)).forEach(function(s){ subs.push(s); });
+    const xs=synCroixC(q,q.c), large=(q.op.charAt(1)==='e'), co=large?'[':']', cf=large?']':'[';
+    [['syn-in-c0',co],['syn-in-b0',String(xs[0])],['syn-in-b1',String(xs[1])],['syn-in-c1',cf]].forEach(function(p){
+      const el=$(p[0]); subs.push({id:p[0], val:p[1], ok: !!el && el.value===p[1]});
+    });
+  } else if(q.part==='c'){
+    varTableSubs(synAnalyse(q),'syn-v').forEach(function(s){ subs.push(s); });
+    const so=gsvSols(q.pts);
+    subs.push({id:'syn-s-x-0', val:so[0], ok: lvReadInt('syn-s-x-0')===so[0]});
+    subs.push({id:'syn-s-x-1', val:so[1], ok: lvReadInt('syn-s-x-1')===so[1]});
+    const s=gsvSide({pts:q.pts}), mid=s>0?'+':'-', dehors=s>0?'-':'+';
+    [dehors,'0',mid,'0',dehors].forEach(function(v,i){ const el=$('syn-s-s-'+i); subs.push({id:'syn-s-s-'+i, val:v, ok: !!el && el.value===v}); });
+  } else {
+    const xg=synCroixG(q);
+    /* l'inégalité est STRICTE : les deux crochets sont ouverts */
+    [['syn-fg-c0',']'],['syn-fg-b0',String(xg[0])],['syn-fg-b1',String(xg[1])],['syn-fg-c1','[']].forEach(function(p){
+      const el=$(p[0]); subs.push({id:p[0], val:p[1], ok: !!el && el.value===p[1]});
+    });
+    const r=mmxAns({pts:q.pts, a:a, b:b});
+    subs.push({id:'syn-M', val:r.M, ok: lvReadInt('syn-M')===r.M});
+    subs.push({id:'syn-xM', val:r.xM, ok: lvReadInt('syn-xM')===r.xM});
+    subs.push({id:'syn-m', val:r.m, ok: lvReadInt('syn-m')===r.m});
+    subs.push({id:'syn-xm', val:r.xm, ok: lvReadInt('syn-xm')===r.xm});
+  }
+  const nCorrect=subs.filter(function(x){ return x.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+/* Mode soutien : chaque case au fil de la frappe — une case VIDE ne reçoit
+   jamais de couleur (le jugement passe par synCheckPart, jamais une
+   réimplémentation). */
+function synLive(){
+  if(test.kind!=='syn' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  synCheckPart(q).subs.forEach(function(x){ const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad');
+    const rempli=String(el.value==null?'':el.value).trim()!=='';
+    if(rempli) el.classList.add(x.ok?'ok':'bad');
+  });
+}
+function synCorrectionHTML(q){
+  const a=synA(q), b=synB(q);
+  if(q.part==='a') return 'D = [ '+numFmt(a)+' ; '+numFmt(b)+' ]. '+q.img.map(function(x){ return 'f('+numFmt(x)+') = '+numFmt(synY(q,x)); }).join(' ');
+  if(q.part==='b'){
+    const xs=synCroixC(q,q.c), large=(q.op.charAt(1)==='e'), co=large?'[':']', cf=large?']':'[';
+    return 'Antécédents de '+numFmt(q.k)+' : '+synAnt(q).map(numFmt).join(' ; ')
+      +'. S = { '+xs.map(numFmt).join(' ; ')+' }. f(x) '+SYN_SIGNE[q.op]+' '+numFmt(q.c)+' : S = '+co+' '+numFmt(xs[0])+' ; '+numFmt(xs[1])+' '+cf;
+  }
+  if(q.part==='c'){
+    const an=synAnalyse(q), so=gsvSols(q.pts), s=gsvSide({pts:q.pts}), mid=s>0?'+':'−', dehors=s>0?'−':'+';
+    return 'Variations : '+an.nodes.map(function(nd){ return 'f('+numFmt(nd.x)+') = '+numFmt(nd.y); }).join(' ')
+      +' Sens : '+an.segments.map(function(sg){ return sg.dir==='croissante'?'↗':'↘'; }).join(' ')
+      +' Signes : racines x = '+numFmt(so[0])+' et x = '+numFmt(so[1])+', ligne '+[dehors,'0',mid,'0',dehors].join(' | ');
+  }
+  const xg=synCroixG(q), r=mmxAns({pts:q.pts, a:a, b:b});
+  return 'f(x) '+SYN_SIGNE[q.sensG]+' g(x) : S = ] '+numFmt(xg[0])+' ; '+numFmt(xg[1])+' [. M = '+numFmt(r.M)+' atteint pour x = '+numFmt(r.xM)
+    +', m = '+numFmt(r.m)+' atteint pour x = '+numFmt(r.xm)+'.';
+}
+function submitSYN(){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  const res=synCheckPart(q);
+  if(isSoutien() && !res.allOk){
+    lvMarkFields(res, false);
+    const mk=$('synMark'); mk.textContent='✗'; mk.className='mark bad show';
+    $('synCorr').textContent='Pas tout à fait — corrige les cases en rouge, puis revérifie.';
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  lvMarkFields(res, true);
+  const mk=$('synMark'); mk.textContent=res.allOk?'✓':'✗'; mk.className='mark '+(res.allOk?'good':'bad')+' show';
+  test.score += res.nCorrect;
+  $('synValidate').disabled=true;
+  if(!res.allOk) $('synCorr').innerHTML=synCorrectionHTML(q);
+  else $('synCorr').innerHTML='<span class="lv-ok">Parfait, tout est juste !</span>';
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Synthèse — '+SYN_TITRES[q.part]+' — '+res.nCorrect+'/'+res.nTotal+' correct', answer:'', given:'', type:'syn'});
+  lvBoutonSuivant('synValidate', nextSynQuestion);
+}
+function nextSynQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSYN(); autoSave(); } else finishTest(); }
+
 /* ================= Exercice Seconde : Choisir le tableau de variation (kind 'vtq') =================
    Demande de Turquet (septembre 2026) : « Créer un exercice qui donne une
    courbe entre -6 à 6 avec 2; 3; 4 variations possibles. De proposer 4
@@ -13064,18 +13565,30 @@ function renderDevoirEditor(){
       <label class="dm-mode" title="Un exercice bonus vaut 1 point : il remonte la note sans la faire dépasser le maximum."><input type="checkbox" data-bonus="${id}" ${byBonus[id]?'checked':''}> Bonus (+1 pt)</label>
     </div>`;
   }).join('') : '<div class="empty">Ajoute d\u2019abord des exercices à l\u2019application pour pouvoir les mettre dans un devoir.</div>';
-  if(dmGenre==='fiche'){
-    const exOrd=(dev.exercices||[]).filter(e=>TESTS[e.id]);
-    $('dmExos').insertAdjacentHTML('beforeend', `
-      <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices de la fiche</div>
-      <p class="muted" style="font-size:.85rem;margin:0 0 12px">Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.</p>
-      <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo">
-        <span class="dm-exo-name"><b>${i+1}.</b> ${esc(testLabel(ex.id))}</span>
-        <span style="margin-left:auto;display:flex;gap:6px">
-          <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
-          <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
-        </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices de la fiche : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`);
-  }
+  /* L'ORDRE DES EXERCICES SE RÈGLE DANS LES DEUX FAMILLES (demande de Turquet,
+     septembre 2026 : « en seconde je souhaite pouvoir choisir l'ordre des
+     exercices pour les devoirs maison comme en terminale »). L'ordre rangé est
+     celui du tableau dev.exercices, celui-là même que la liste de l'élève, la
+     page du devoir, le total et le carnet lisent — l'AFFICHAGE suit, rien
+     d'autre. Ce qui diffère d'une famille à l'autre est le VERROU, et il vit
+     où il a toujours vécu : dmOrdreImpose(), donc GENRE_DEVOIRS. Sur une
+     fiche, l'ordre est IMPOSÉ aux élèves ; sur un devoir il n'ordonne que
+     l'écran — un devoir reste tout ouvert (décision de Turquet, août 2026),
+     et la phrase le dit, sans quoi l'écran promettrait un verrou qui n'existe
+     pas. */
+  const exOrd=(dev.exercices||[]).filter(e=>TESTS[e.id]);
+  const impose=dmOrdreImpose({genre:dmGenre});
+  $('dmExos').insertAdjacentHTML('beforeend', `
+    <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices ${fiche?'de la fiche':'du devoir'}</div>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">${impose
+      ? 'Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.'
+      : 'Les exercices s\u2019affichent aux élèves dans cet ordre — chacun reste libre de les faire comme il veut. Déplace un exercice avec ▲ et ▼.'}</p>
+    <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo">
+      <span class="dm-exo-name"><b>${i+1}.</b> ${esc(testLabel(ex.id))}</span>
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
+        <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
+      </span></div>`).join('') : `<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices ${fiche?'de la fiche':'du devoir'} : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>`}</div>`);
 }
 /* Lit le formulaire dans le devoir sélectionné (en mémoire), sans écrire en base. */
 function readEditorIntoDevoir(){
@@ -13090,22 +13603,22 @@ function readEditorIntoDevoir(){
   document.querySelectorAll('#dmExos select[data-nbq]').forEach(s=>{ const n=parseInt(s.value,10); if(Number.isFinite(n)&&n>=1&&n<=10) nbqs[s.dataset.nbq]=n; });
   document.querySelectorAll('#dmExos select[data-smax]').forEach(s=>{ const n=parseInt(s.value,10); if(n>=6&&n<=10) smaxs[s.dataset.smax]=n; });   /* 5 = le défaut, ne s'écrit pas */
   document.querySelectorAll('#dmExos input[data-bonus]').forEach(cb=>{ if(cb.checked) bonus[cb.dataset.bonus]=true; });   /* le défaut (pas bonus) ne s'écrit pas */
-  /* L'ORDRE RANGÉ EST CELUI DE LA FICHE (demande de Turquet, août 2026) : une
-     fiche se fait dans l'ordre, donc relire le formulaire PRÉSERVE l'ordre
-     déjà rangé et ajoute les nouveaux cochés à la fin — l'ordre du menu
-     (TEST_ORDER) écraserait celui que le professeur vient de régler. Les
-     devoirs, tous ouverts, gardent l'ordre du menu, comme avant. */
+  /* L'ORDRE RANGÉ EST CELUI DU DEVOIR OU DE LA FICHE, dans les deux familles
+     (demande de Turquet : août 2026 pour les fiches, septembre 2026 pour les
+     devoirs — « comme en terminale »). Relire le formulaire PRÉSERVE l'ordre
+     déjà rangé et ajoute les nouveaux cochés à la FIN : l'ordre du menu
+     (TEST_ORDER) écraserait celui que le professeur vient de régler, à chaque
+     enregistrement et à chaque changement de devoir, sans erreur nulle part.
+     C'est le piège que les fiches ont déjà payé, au même endroit. */
   const coches=TEST_ORDER.filter(id=>map[id]&&map[id].length);
-  const ordre=(dmGenre==='fiche')
-    ? (dev.exercices||[]).map(e=>e.id).filter(id=>coches.includes(id))
-        .concat(coches.filter(id=>!(dev.exercices||[]).some(e=>e.id===id)))
-    : coches;
+  const ordre=(dev.exercices||[]).map(e=>e.id).filter(id=>coches.includes(id))
+    .concat(coches.filter(id=>!(dev.exercices||[]).some(e=>e.id===id)));
   dev.exercices=ordre.map(id=>Object.assign({id,modes:map[id]},
     nbqs[id]?{nbQ:nbqs[id]}:{}, smaxs[id]?{smax:smaxs[id]}:{}, bonus[id]?{bonus:true}:{}));
 }
-/* Le ruban d'ordre des fiches : l'ordre se voit et se règle. Les flèches
-   relisent d'abord le formulaire (cases cochées, entête) — un re-rendu sans
-   cette lecture effacerait ce qui vient d'être coché. */
+/* Le ruban d'ordre : l'ordre se voit et se règle, sur un devoir comme sur une
+   fiche. Les flèches relisent d'abord le formulaire (cases cochées, entête)
+   — un re-rendu sans cette lecture effacerait ce qui vient d'être coché. */
 function dmOrdreBouge(id,delta){
   readEditorIntoDevoir();
   const dev=selectedDevoir(); if(!dev) return;
@@ -13114,7 +13627,11 @@ function dmOrdreBouge(id,delta){
   const t=arr[i]; arr[i]=arr[j]; arr[j]=t;
   renderDevoirEditor();
 }
-function dmExoCoche(){ if(dmGenre!=='fiche') return; readEditorIntoDevoir(); renderDevoirEditor(); }
+/* Cocher ou décocher un mode met le ruban d'ordre à jour : sans ce re-rendu,
+   l'exercice tout juste coché n'apparaîtrait dans le ruban qu'au prochain
+   changement de devoir. Les deux familles portent le ruban depuis septembre
+   2026, donc plus aucune garde de genre ici. */
+function dmExoCoche(){ readEditorIntoDevoir(); renderDevoirEditor(); }
 async function persistDevoirs(){
   const cur=await loadConfig();
   /* N'ÉCRIT QUE SA FAMILLE. La configuration vient d'être relue : l'autre
@@ -17903,7 +18420,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

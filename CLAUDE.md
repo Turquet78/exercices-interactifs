@@ -2071,6 +2071,71 @@ que ce soit. Un sabotage qui casse la page ne dit rien du contrôle visé ; le
 bord de l'indécidable est tenu par le repli inventé à la main (une
 affirmation sur une flèche qui traverse 0), que le contrôle nomme.
 
+**La SYNTHÈSE : dix questions sur un seul dessin.** {synthese-fonction}
+(Seconde, demande de Turquet, septembre 2026, repris de la fiche « Synthèse
+fonction ») ferme le thème Fonctions : la courbe de f sur son ensemble de
+définition et la droite de g sur le MÊME graphique conservé, et les dix
+questions de la fiche dans son ordre, sur quatre écrans — a) le domaine et
+quatre images, b) les antécédents d'une hauteur, l'équation f(x) = c et
+l'inéquation, c) le tableau de variation et le tableau de signes, d) f contre
+g, le maximum et le minimum. Chaque question a son exercice au menu ; celui-ci
+les rassemble.
+**Tout est repris, rien n'est recopié** : le tirage est `gsvGen()` — le
+générateur du 2.15, deux racines intérieures, chacune un vrai croisement,
+jamais de palier ; le dessin est `adrSVG()`, la fonction même, à qui l'on donne
+le MORCEAU du domaine et la droite par son crochet « dessus » ; l'analyse des
+variations est `gsvAnalyze()`, REMISE À SA PLACE (la tranche repart de −6, on
+la décale) ; les deux tableaux sont ceux de {signes-variations-grand}
+(`varTableHTML` / `varTableSubs`, les fonctions mêmes du 2.1) ; le maximum et
+le minimum viennent de `mmxAns()`, la fonction qui corrige le 2.16 ; les listes
+d'intervalle sont la famille `.itv-sel` et la légende f/g est `fgLegende()`.
+**Trois généralisations d'un TOKEN chacune, et leur bord opposé est tenu par
+les exercices voisins** : `adrCibles` boucle sur la longueur du tableau (pour
+lire les hauteurs sur la TRANCHE du domaine), `adrPath` et `adrSVG` acceptent
+un morceau (ia, ib) et marquent ses deux bouts — la convention de `lvPath` au
+2.6. Appelées sans eux, les trois exercices d'avant ne changent pas d'un pixel,
+et leurs contrôles le disent.
+**LE SENS DE CHAQUE INÉQUATION SUIT LA COURBE, la strictesse est tirée.** La
+première version exigeait f EN DESSOUS entre les deux croisements (et f
+au-dessus de g) : le tirage coûtait 1187 essais et échouait 15 fois sur 300 —
+le repli serait sorti une séance sur vingt. En laissant le SENS suivre le côté
+où f se trouve (`f(x) < c` ou `f(x) > c`, `f(x) > g(x)` ou `f(x) < g(x)`), S
+reste UN SEUL intervalle — la forme que la ligne de réponse demande — et le
+tirage tombe à 202 essais, 300 séances sur 300 (sonde, septembre 2026). Le
+crochet, lui, suit la strictesse, tirée : sans quoi l'élève apprendrait que le
+crochet est toujours le même (la leçon du 2.18).
+**Les risques propres sont ceux de la famille, réunis** : une hauteur traversée
+entre deux graduations (illisible), un croisement de f et g hors graduation, un
+extremum atteint deux fois, une racine hors du domaine — le tableau de signes
+n'aurait pas ses deux racines et l'énoncé mentirait. Le tirage les écarte et le
+contrôle les RECOMPTE par sa propre arithmétique, tirage après tirage, en
+relisant la spline que le dessin trace pour compter les traversées.
+**La bonne réponse n'est jamais rangée à côté de la question** : elle ne porte
+que la courbe, le domaine, la droite, les deux hauteurs, les sens, la
+strictesse et les quatre abscisses — le contrôle refuse tout autre champ — et
+tout le reste est recalculé par les fonctions qui corrigent. Le MÊME graphique
+sert les quatre parties, et le contrôle l'exige : un dessin qui changerait en
+route ferait de la synthèse quatre exercices sans rapport.
+**Deux défauts ne se sont vus que sur la capture** : le dessin restait au
+réglage général (460 px) alors qu'il porte DIX questions — ses graduations
+n'étaient plus lisibles —, et la droite de g, tracée d'un bord à l'autre du
+cadre, SORTAIT du quadrillage par le haut, son étiquette posée sur les
+graduations. Elle est coupée au cadre, et le dessin passe à 760 px.
+Le banc NAVIGATEUR (« 6 vicies quater », déclaré par `syntheseFonction`) tient
+ce que jsdom ne voit pas : la courbe qui s'arrête à son domaine — mesurée
+contre les GRADUATIONS RENDUES, aucune coordonnée recopiée —, ses deux bouts
+marqués, la droite et la légende, la copie juste CLIQUÉE sur les quatre
+parties, et la ligne de solution qui ne se replie pas.
+Treize sabotages, chacun rougissant en nommant son défaut — et **le
+treizième est d'abord resté VERT, en montrant un contrôle INTERMITTENT** :
+la règle des paires se mesure en reposant les antécédents dans l'autre
+ordre, or 85 % des tirages n'en donnent qu'UN (sonde : 170 sur 200), et
+renverser une liste d'un élément ne renverse rien — l'ordre imposé passait
+donc, à bon droit, quatre fois sur cinq. Le contrôle CHERCHE désormais une
+séance au pluriel et le DIT s'il n'en trouve pas : un contrôle qui n'a rien
+à mesurer ne mesure rien. Rejoué sur une séance à deux antécédents, le
+sabotage rougit (« les antécédents dans l'autre ordre ne valent que 0/3 »).
+
 **Construire une fonction, c'est toute la lecture graphique à l'ENVERS — et
 le juge ne compare jamais au témoin.** {construire-fonction} (Seconde,
 Fonctions, demande de Turquet, août 2026, repris de la fiche « BONUS ») :
@@ -3456,6 +3521,46 @@ et resterait vert sans ce compte), le déplacement que l'enregistrement
 emporte tel quel, et l'écran de l'élève qui suit l'ordre du tableau — éprouvé
 par quatre sabotages, chacun rougissant en nommant son défaut.
 
+**Et la Seconde a suivi — le ruban vaut pour les DEUX familles, le verrou pour
+une seule.** Demande de Turquet (septembre 2026) : « en seconde je souhaite
+pouvoir choisir l'ordre des exercices pour les devoirs maison comme en
+terminale ». Le ruban ▲▼ existait déjà dans son éditeur depuis août 2026,
+mais derrière un `if(dmGenre==='fiche')` : les devoirs n'y avaient pas droit,
+et leur relecture du formulaire les rabattait sur l'ordre du MENU — le piège
+que les fiches avaient déjà payé, au même endroit. Les trois gardes de genre
+tombent ensemble (le ruban, la relecture, `dmExoCoche`) : n'en retirer qu'une
+ne tient rien — un ruban sans relecture préservante affiche un ordre que le
+premier enregistrement écrase, une relecture sans re-rendu laisse l'exercice
+tout juste coché hors du ruban jusqu'au prochain changement de devoir.
+**CE QUI NE CHANGE PAS EST LE VERROU, et c'est tout l'arbitrage** : il vit où
+il a toujours vécu, `dmOrdreImpose()` — donc `GENRE_DEVOIRS` — et ne dit oui
+que sur les fiches. L'ordre réglé sur un devoir est celui de l'AFFICHAGE, et
+un devoir reste tout ouvert (la décision d'août 2026 tient). **La PHRASE du
+ruban suit donc `dmOrdreImpose`, jamais `dmGenre` recopié** : celle des fiches
+(« un exercice ne se débloque que lorsque le précédent est fait ») posée sur
+un devoir ferait croire au professeur qu'il impose un ordre aux élèves —
+l'écran dirait autre chose que la règle. Les deux bords ont leur contrôle.
+**Le contrôle existait et n'était ATTEINT qu'en Terminale** : `ordreDesDevoirs`
+n'était appelé que par les chemins d'ABANDON d'`ordreDesFiches`, si bien que la
+Seconde et la Première, où celui des fiches réussit, ne le jouaient jamais —
+un contrôle écrit, vert, et jamais joué. Il est chaîné dans TOUS les chemins,
+et il se déclare : `ordreDevoirs` dans `tests/profils.js` (Seconde et
+Terminale), deux sources — un profil qui le déclare devant une page sans cet
+éditeur rougit, un niveau qui ne le déclare pas s'affiche « non applicable »
+et son bord OPPOSÉ (aucun ruban sur un devoir, l'ordre du menu) reste tenu par
+le contrôle des fiches, juste au-dessus. **La Première n'est pas dans la
+demande et ne change pas** — le dire vaut mieux que le taire.
+**Et le contrôle CLIQUE au lieu d'appeler** : il déclenche l'événement `change`
+de la case, c'est-à-dire l'attribut `onchange` que le professeur déclenche,
+puis compte les rangs RENDUS dans le ruban. Le premier jet appelait
+`readEditorIntoDevoir()` à la main : la garde de `dmExoCoche` ne se voyait
+alors nulle part, et le sabotage qui la remet serait resté vert. Sept
+sabotages, chacun rougissant en nommant son défaut — et l'un d'eux a d'abord
+échoué à se poser : la lacune « le cadre de pose inséré… » est écrite au mot
+près dans le profil de la Seconde ET dans celui de la Terminale, donc l'ancre
+désignait deux endroits. Un sabotage se pose sur une ancre PROPRE à sa cible,
+la leçon d'{antecedents-droite}, retombée dans un fichier de profils.
+
 **Les TRAVAUX FACULTATIFS sont la seconde famille de devoirs de la Terminale —
 gérés comme les devoirs, rangés à part.** Demande de Turquet (septembre
 2026) : « une case "travaux facultatifs" dans la page où l'on a les cases
@@ -4036,6 +4141,25 @@ Changer de sens redessine l'étape : les cases déjà écrites ne veulent plus r
 dire sous l'autre signe. Le pourcentage garde un seul chiffre non nul, si bien
 que le coefficient n'a jamais plus de deux chiffres différents de zéro —
 36 valeurs en tout, de 0,1 à 1,9.
+**Et la chaîne S'ARRÊTE à l'écriture décimale du coefficient** (décision de
+Turquet, septembre 2026) : elle redemandait ensuite sa forme FRACTIONNAIRE —
+1 − 4/100 = 1 − 0,04 = 0,96 = 96/100 — et ce dernier maillon ne sert à rien
+ICI. En 2.2.1 et 2.3.1 il sert, et c'est ce qui départage les deux cas : la
+fraction du coefficient y est celle qu'on multiplie ensuite par la valeur de
+départ, à l'étape ②. Le 2.4.1 n'a pas d'étape suivante — la vérification est
+finie dès qu'on retombe sur le coefficient DONNÉ, écrit en décimal dans
+l'énoncé. Le rappel de cours le montrait déjà ainsi
+(\(1-\frac{4}{100}=1-0{,}04=0{,}96\)) : l'écran dit enfin la même chose que
+lui. **Trois choses s'arrêtent ensemble, et n'en arrêter qu'une ne tient
+rien** : la chaîne, le message de correction et le contexte envoyé au modèle —
+raccourcie d'un côté et pas de l'autre, la question dirait autre chose que
+l'écran. La question passe de 7 cases à 5, et la note affichée le dit
+(« 5 cases justes sur 5 ») ; la note enregistrée, elle, vaut 1 point par
+question et ne bouge pas. Le contrôle tient les trois bords — le maillon
+retiré (aucune fraction du coefficient nulle part), les maillons GARDÉS (P/100
+et l'écriture décimale du pourcentage, sans quoi « on a tout retiré »
+passerait aussi) et la note. Sept sabotages, chacun rougissant en nommant son
+défaut.
 
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,
@@ -4424,6 +4548,44 @@ doit être large, chaque écran qui liste au moins 4 exercices doit les poser su
 4 colonnes, et un écran plus court ne doit pas empiler (autant de colonnes que
 de cartes). Éprouvé sur les écrans profonds : retirer `soustheme` de la
 bascule, ou ramener la grille à 3 colonnes, rougit en nommant l'écran fautif.
+**Et la page des thèmes vient AVANT les exercices, en Seconde aussi.** Demande
+de Turquet (septembre 2026) : « en seconde il faudrait une page pour afficher
+les thèmes des exercices dans des cases avant d'afficher les exercices comme
+en première ». La Seconde posait ses quarante-six exercices sur un seul écran,
+thème par thème, à faire défiler ; « Exercices par thème » ne montre plus que
+QUATRE cartes — une par thème, avec le nombre d'exercices et le nombre déjà
+travaillés — et le détail vit sur sa propre page (`scr-theme`), ouverte par
+`openTheme()`. C'est le motif de la Première et de la Terminale, porté tel
+quel.
+**SANS l'étage des parties, et c'est un arbitrage nommé** : la Première découpe
+ses thèmes chargés en sous-thèmes (3.1, 3.2…), aucun thème de la Seconde n'en
+déclare, et une branche qui n'a jamais rien à rendre ferait croire qu'on tient
+quelque chose — le garde-fou mort, une fois de plus. Le jour où un thème en
+aura, elle se portera avec lui. Le thème des Fonctions en compte vingt-quatre :
+sur quatre colonnes, six rangées, et le dire vaut mieux que de le taire.
+**« Retour » revient sur la page D'OÙ L'ON VIENT** — celle du thème, ou celle
+de la partie là où le niveau en déclare : `openTest()` retient le thème de
+l'exercice (`currentThemeNum`), et `retourChoix()` le relit. Sans lui, l'élève
+qui enchaîne deux exercices d'un même thème redescendrait d'un étage à chaque
+fois.
+**Le contrôle qui manquait est celui de la NAVIGATION, et il est UNIVERSEL** :
+le banc navigateur parcourait déjà cet arbre — il a couvert la Seconde sans
+rien déclarer — mais il mesure la LARGEUR et les COLONNES, et une liste plate a
+elle aussi quatre colonnes : il serait resté vert sur le retour en arrière. Le
+contrôle jsdom exige donc que l'écran des thèmes ne porte QUE des cartes de
+thème, une par thème, chacune ouvrant sa page, et que la page d'un thème liste
+SES exercices (ou ses parties). Il passe sur les trois fichiers, la règle y
+valant partout. Neuf sabotages, chacun rougissant en nommant son défaut — sept
+au banc jsdom (la liste plate revenue, la carte qui n'ouvre rien, l'exercice
+oublié, la page d'un autre thème, l'écran qui ne s'ouvre pas, le titre muet,
+`themeOfTest` qui se trompe) et deux que seul le NAVIGATEUR voit : le retour
+qui redescend à la liste des thèmes, et l'écran du thème redevenu étroit —
+jsdom restant vert à bon droit sur l'un comme sur l'autre.
+Le piège documenté de l'antislash a mordu à la première exécution : `\(` écrit
+dans une expression régulière du contrôle ne survit pas au template littéral de
+`verifier.js` — « Invalid regular expression: /openTheme(/ », sur les trois
+niveaux d'un coup. Le contrôle compare des CHAÎNES, jamais une regex.
+
 *Et les étapes étaient écrites en blocs séparés.* Le pourcentage passe de trois
 `pt-step` à un seul ; augmenter et diminuer de cinq à deux — le coefficient est
 une AUTRE égalité, elle garde son bloc — plus la pose facultative, renvoyée à la
@@ -6314,6 +6476,69 @@ tablette (tactile, 820 px : 90 %), ordinateur (100 %) et téléphone (tactile,
 règle demandée. Playwright pose `pointer:coarse` avec `hasTouch`, ce qui
 rend la requête mesurable pour de vrai. Six sabotages, chacun rougissant en
 nommant son défaut.
+
+**Puis, sur tablette, la CHAÎNE À NOMBRES a écrit plus petit que le reste —
+la case et ce qui l'entoure, du même facteur.** Demande de Turquet (septembre
+2026, Première) : « pour les exercices avec des cases à remplir avec des
+nombres, sur les tablettes, après l'énoncé, les écritures avant et après une
+case à remplir ont une police légèrement plus petite, ainsi que la police des
+cases ». Les 90 % de la page ne suffisaient pas : sur une tablette, le clavier
+mange déjà la moitié de l'écran, et une chaîne d'égalités à 2 rem se replie —
+or une égalité coupée en deux se lit comme deux calculs.
+**UN SEUL FACTEUR, ET IL VIT À UN SEUL ENDROIT.** Les tailles de la page sont
+toutes en `rem`, donc ancrées à la racine : aucune règle posée sur un
+conteneur ne les réduit, et la solution naïve — recopier chaque taille dans un
+second bloc de tablette — aurait donné DEUX listes à tenir. Le jour où l'une
+des deux aurait dérivé, c'est la case OU son voisin qui aurait rétréci seul,
+c'est-à-dire exactement le défaut que « une case a la taille des nombres qui
+l'entourent » interdit. Le facteur voyage donc dans une variable que les règles
+MÊMES portent (`calc(… * var(--tab-nb,1))`), et la requête média de la tablette
+le pose à un seul endroit. Case et écritures rétrécissent alors du même
+facteur, par construction et non par vigilance.
+**POSÉ SUR LE STAGE, PAS SUR LA PAGE, et c'est ce qui dit « après l'énoncé »** :
+`.mp-stage` est ce qui vient après le `p.mp-instr` de l'énoncé, qui vit
+au-dessus et garde donc sa taille sans qu'on ait rien à lui retirer. Et
+`:has(math-field.pm-mf)` restreint aux stages qui portent VRAIMENT une case à
+nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8) a déjà sa règle
+de tablette et n'est pas touchée ; elle est NOMMÉE dans le profil plutôt que
+tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
+connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran
+cassé.
+**Ce qui NE bouge pas est un choix, pas un oubli** : la case générique à
+1,05 rem (le 2.5.2, les colonnes du 3.1.4) est déjà la plus petite du niveau
+et reste une cible qu'on touche du doigt ; les étiquettes d'étape et les
+boutons de propositions ne sont pas des écritures de la chaîne. Sur un
+TÉLÉPHONE rien ne change non plus — la demande dit les tablettes, et le
+facteur vaut 1 sous 600 px.
+**Le contrôle jsdom tient la mécanique, pas l'apparence** : CHAQUE règle qui
+donne sa taille à une case à nombres doit passer par le facteur — un écran
+ajouté demain avec sa propre taille de case garderait sinon des cases grandes
+au milieu d'écritures rétrécies, et aucun écran ne le dirait —, les écritures
+nommées dans `tests/profils.js` (`chaineTablette`, deux sources) aussi, le
+facteur n'est déclaré qu'à UN endroit et jamais sur `:root`, `html` ou `body`
+— posé là, il emporterait l'énoncé et toute la page —, et l'énoncé ne le porte
+pas. Le banc NAVIGATEUR (« 11 septies ») mesure ce que jsdom ne sait pas :
+les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
+et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
+page. Un défaut d'à côté s'est vu en mesurant, et il est ANTÉRIEUR : au 2.5.2,
+les cases sont à 1,05 rem devant des écritures à 2 rem — le contrôle universel
+ne l'attrape pas, ses voisins n'étant pas des nombres NUS (« 1 + », « 1, »).
+Le dire vaut mieux que le taire.
+**Et le contrôle s'est pris en défaut avant la page, deux fois.** Le premier
+jet cherchait le bloc média d'un seul coup de regex, en exigeant qu'il ne
+contienne QUE la règle du facteur : trois de ses bords devenaient alors
+inatteignables — le facteur posé sur la racine, l'énoncé rétréci et le facteur
+déclaré deux fois rougissaient tous les trois en disant « aucune règle », donc
+en parlant d'autre chose que de leur défaut. Il lit maintenant la feuille règle
+par règle, en retenant la requête média qui entoure chacune. Et son filtre des
+écritures ne regardait que le début ou la fin d'un sélecteur : le calcul écrit
+en TÊTE de rangée (`#sfHost .pt-row>.f-frac`) lui échappait, et aurait pu
+perdre le facteur sans que rien ne rougisse — il vise le JETON de classe
+désormais, sans attraper `.f-frac-input`, qui n'est pas la même classe. Onze
+sabotages, chacun rougissant en nommant son défaut : dix au banc jsdom, et un
+que seul le NAVIGATEUR voit — le `.mp-stage` retiré de l'écran, où le facteur
+n'a plus rien où se poser pendant que la feuille de styles, elle, reste
+parfaite.
 
 **Puis la tablette a proposé un RACCOURCI, pas une installation — et le
 manifeste n'y était pour rien.** Signalé par Turquet le jour de la mise en

@@ -959,6 +959,108 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies quater. LA SYNTHÈSE : un seul dessin, dix questions =====
+       Demande de Turquet (septembre 2026, fiche « Synthèse fonction »). jsdom
+       tient le tirage et le juge ; seul un navigateur sait ce que le dessin
+       MONTRE — la courbe tracée sur son seul domaine, ses deux bouts marqués,
+       la droite de g par-dessus — et où une ligne se replie : une solution
+       coupée en deux se lirait comme deux solutions (la leçon du 2.18). Les
+       mesures se font contre les GRADUATIONS RENDUES, jamais sur une
+       coordonnée recopiée (la leçon du schéma des intervalles). */
+    if(!P.syntheseFonction){
+      ignorer('la synthèse : la courbe s\'arrête à son domaine, et la ligne de solution ne se replie pas',
+        'ce niveau n\'a pas l\'exercice de synthèse');
+    } else {
+      const SY = P.syntheseFonction;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), SY.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* le DESSIN : la courbe part de la borne gauche et s'arrête à la borne
+         droite, les deux bouts sont marqués, et la droite de g est là */
+      const vu = await s.page.evaluate(() => {
+        const q = test.questions[test.idx], svg = document.querySelector('#synGraph svg');
+        if(!svg) return { absent: true };
+        const vx = [];
+        svg.querySelectorAll('line.lv-grid').forEach(l => {
+          if(l.getAttribute('x1') === l.getAttribute('x2')) vx.push(parseFloat(l.getAttribute('x1')));
+        });
+        vx.sort((a, b) => a - b);
+        const path = svg.querySelector('path.lv-curve');
+        const d = path ? path.getAttribute('d') : '';
+        const nb = d.replace(/[A-Za-z]/g, ' ').trim().split(/\s+/).map(Number).filter(v => !isNaN(v));
+        const xs = nb.filter((v, i) => i % 2 === 0);
+        const gx = (x) => vx[x + 6];                     /* la graduation RENDUE */
+        return { absent: false,
+                 a: q.ia - 6, b: q.ib - 6, grads: vx.length,
+                 debut: Math.min.apply(null, xs), fin: Math.max.apply(null, xs),
+                 attDebut: gx(q.ia - 6), attFin: gx(q.ib - 6),
+                 bouts: svg.querySelectorAll('circle.ifg-bout').length,
+                 droite: svg.querySelectorAll('line.eqg-g').length,
+                 legende: !!document.querySelector('#synLeg .fg-leg'),
+                 largeur: Math.round(svg.getBoundingClientRect().width) };
+      });
+      verifier('la courbe de la synthèse est tracée sur son SEUL ensemble de définition, ses deux bouts marqués',
+        !vu.absent && vu.grads === 13 && vu.bouts === 2 && vu.droite === 1 && vu.legende
+          && Math.abs(vu.debut - vu.attDebut) <= 2 && Math.abs(vu.fin - vu.attFin) <= 2,
+        vu.absent ? 'aucun dessin' : (vu.grads !== 13 ? vu.grads + ' graduations' :
+          vu.bouts !== 2 ? vu.bouts + ' bout(s) marqué(s)' :
+          vu.droite !== 1 ? 'la droite de g n\'est pas dessinée' :
+          !vu.legende ? 'la légende f/g manque' :
+          'la courbe va de ' + vu.debut + ' à ' + vu.fin + ' px pour un domaine [' + vu.a + ' ; ' + vu.b
+            + '] qui tombe à ' + vu.attDebut + ' et ' + vu.attFin + ' px'));
+      /* les QUATRE parties : on remplit la copie juste, on CLIQUE « Valider »,
+         et on relit ce que la page a peint — la leçon des sommes : les
+         contrôles lisaient le verdict, l'élève regarde la couleur. */
+      const parties = [];
+      for(let p = 0; p < 4; p++){
+        const r = await s.page.evaluate(async () => {
+          const q = test.questions[test.idx];
+          synCheckPart(q).subs.forEach(s2 => { const el = document.getElementById(s2.id); if(el && s2.val != null) el.value = String(s2.val); });
+          document.getElementById('synValidate').click();
+          await new Promise(r2 => setTimeout(r2, 250));
+          const subs = synCheckPart(q).subs;
+          const peintes = subs.filter(s2 => { const el = document.getElementById(s2.id); return el && (el.className || '').indexOf('ok') >= 0; }).length;
+          /* la ligne de solution ne se REPLIE pas : une seule rangée de boîtes */
+          const lignes = [...document.querySelectorAll('#synBody .img-line')].map(l => ({
+            boites: l.getClientRects().length,
+            defile: l.scrollWidth > l.clientWidth + 1
+          }));
+          const corps = document.getElementById('synBody'), card = corps.closest('.card');
+          const tbl = [...corps.querySelectorAll('.lv-tblwrap')].map(wr => ({
+            cache: wr.scrollWidth > wr.clientWidth + 1,
+            sort: wr.getBoundingClientRect().right > card.getBoundingClientRect().right + 1
+          }));
+          const mark = (document.getElementById('synMark').textContent || '').trim();
+          return { part: q.part, n: subs.length, peintes, mark, lignes, tbl,
+                   page: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+        });
+        parties.push(r);
+        if(p < 3){
+          await s.page.evaluate(() => document.getElementById('synValidate').click());
+          await s.page.waitForTimeout(400);
+        }
+      }
+      const rates = parties.filter(r => r.mark !== '✓' || r.peintes !== r.n);
+      verifier('la copie juste passe au vert sur les quatre parties de la synthèse',
+        rates.length === 0,
+        rates.map(r => 'partie ' + r.part + ' : ' + r.peintes + '/' + r.n + ' peintes, marque « ' + r.mark + ' »').join(' | '));
+      const replis = [];
+      parties.forEach(r => {
+        r.lignes.forEach((l, i) => { if(l.boites > 1) replis.push('partie ' + r.part + ', ligne ' + (i + 1) + ' repliée en ' + l.boites + ' morceaux');
+                                     if(l.defile) replis.push('partie ' + r.part + ', ligne ' + (i + 1) + ' défile'); });
+        r.tbl.forEach((t, i) => { if(t.cache || t.sort) replis.push('partie ' + r.part + ', tableau ' + (i + 1) + ' hors de sa carte'); });
+        if(r.page) replis.push('partie ' + r.part + ' : la page défile en largeur');
+      });
+      verifier('aucune ligne de solution ne se replie, aucun tableau ne sort de sa carte',
+        replis.length === 0, replis.slice(0, 3).join(' | '));
+      verifier('la synthèse ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 quater quater. le maximum et le minimum : le dessin lisible, et
        l'encadrement d'un seul tenant =====
        Le banc jsdom tient le tirage, le jugement et la méthode dessinée — il
@@ -2866,6 +2968,52 @@ async function parcours(page, N){
       verifier('revenir à l\'accueil rend la colonne de lecture',
         !retour.menuLarge && retour.large < 900,
         'wrap ' + retour.large + ' px, menu-large:' + retour.menuLarge);
+      /* ET « RETOUR » DEPUIS UN EXERCICE REVIENT SUR LA PAGE D'OÙ IL VIENT —
+         la page de son thème, ou celle de sa partie là où le niveau en
+         déclare : l'élève qui enchaîne deux exercices du même thème
+         redescendrait sinon d'un étage à chaque fois. C'est un GESTE, donc il
+         se mesure ici, en cliquant le vrai bouton. La sonde DESCEND l'arbre
+         tant qu'elle rencontre des cartes de thème — la Première ouvre des
+         parties avant ses exercices, et viser le premier étage n'y aurait
+         rien trouvé à ouvrir. */
+      const depart = await s.page.evaluate(async () => {
+        const titre = () => { const h = document.querySelector('.screen.on .topbar .title');
+                              return h ? h.textContent : ''; };
+        const cartes = () => [...document.querySelectorAll('.screen.on .choice')];
+        await openThemes();
+        for(let garde = 0; garde < 6; garde++){
+          const c = cartes()[0];
+          if(!c) return null;
+          if(!c.classList.contains('themecard')){
+            const o = c.getAttribute('onclick') || '';
+            const i = o.indexOf("openTest('"), j = i < 0 ? -1 : o.indexOf("'", i + 10);
+            if(j < 0) return null;
+            return { ecran: (document.querySelector('.screen.on')||{}).id, titre: titre(),
+                     exo: o.slice(i + 10, j) };
+          }
+          await new Function('return (async()=>{ await ' + (c.getAttribute('onclick')||'') + '; })()')();
+          await new Promise(r => setTimeout(r, 200));
+        }
+        return null;
+      });
+      if(!depart || !depart.exo){
+        verifier('« Retour » depuis un exercice revient sur la page d\'où il vient', false,
+          'aucun exercice atteignable en descendant depuis les cartes de thème');
+      } else {
+        await s.page.evaluate(id => openTest(id), depart.exo);
+        await s.page.waitForTimeout(500);
+        await s.page.click('#scr-mode .topbar .btn-link');
+        await s.page.waitForTimeout(900);
+        const apres = await s.page.evaluate(() => {
+          const h = document.querySelector('.screen.on .topbar .title');
+          return { ecran: (document.querySelector('.screen.on')||{}).id || '(aucun)',
+                   titre: h ? h.textContent : '' };
+        });
+        verifier('« Retour » depuis un exercice revient sur la page d\'où il vient',
+          apres.ecran === depart.ecran && apres.titre === depart.titre,
+          'écran ' + apres.ecran + ' « ' + apres.titre + ' » au lieu de '
+            + depart.ecran + ' « ' + depart.titre + ' »');
+      }
       for(const exo of P.pleineLargeur.exercices){
         await s.page.evaluate(id => openTest(id), exo);
         await s.page.waitForTimeout(400);
@@ -6664,6 +6812,89 @@ async function parcours(page, N){
         verifier('le clavier de la tablette en paysage ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 septies. Sur tablette, la chaîne à nombres écrit plus petit ----
+       Demande de Turquet (septembre 2026) : « pour les exercices avec des cases
+       à remplir avec des nombres, sur les tablettes, après l'énoncé, les
+       écritures avant et après une case ainsi que les cases elles-mêmes ont une
+       police légèrement plus petite ». jsdom lit les règles ; seul un navigateur
+       sait ce que la page MESURE une fois la requête média évaluée. Deux écrans,
+       et il les faut tous les deux : la tablette, où la chaîne réduit de la
+       police de la page ET du facteur, et l'ordinateur, où elle n'a pas bougé —
+       une règle qui réduirait partout ne serait pas la règle demandée.
+       Et TROIS bords, parce qu'en tenir un seul ne tient rien : la CASE réduit,
+       les ÉCRITURES qui l'entourent réduisent d'AUTANT — sans quoi la case
+       rétrécirait seule au milieu de nombres restés grands, exactement ce que la
+       règle « une case a la taille des nombres qui l'entourent » interdit —, et
+       l'ÉNONCÉ, lui, ne suit QUE la police de la page : la demande dit « après
+       l'énoncé ». */
+    titre('11 septies. SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT');
+    if(!P.chaineTablette || !P.policeTablette){
+      ignorer('sur tablette, la chaîne à nombres écrit plus petit que sur l\'ordinateur', 'ce fichier ne déclare pas de chaîne de tablette');
+    } else {
+      const T = P.chaineTablette;
+      const mesurer = ({ champ, ecriture, enonce }) => {
+        const on = document.querySelector('section.screen.on');
+        if(!on) return null;
+        const px = e => e ? Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10 : 0;
+        const vis = e => { if(!e) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+        const c = on.querySelector(champ);
+        /* Les écritures se relèvent sur l'ÉCRAN, hors de l'énoncé — pas dans le
+           stage : cherchées dans le stage, un stage disparu rendrait « aucune
+           écriture » et le contrôle rougirait en disant « mesure impossible »
+           au lieu de nommer le défaut, c'est-à-dire une chaîne qui n'a pas
+           rétréci. On retient donc à part si le stage à cases est là. */
+        const st = [...on.querySelectorAll('.mp-stage')].find(x => x.querySelector('math-field.pm-mf'));
+        const ecr = [...on.querySelectorAll(ecriture)].filter(e => vis(e) && !e.closest('.mp-instr'));
+        return { ecran: on.id, racine: parseFloat(getComputedStyle(document.documentElement).fontSize), stage: !!st,
+                 casePx: vis(c) ? px(c) : 0, ecrPx: ecr.length ? Math.max(...ecr.map(px)) : 0, nEcr: ecr.length,
+                 enoncePx: px(on.querySelector(enonce)) };
+      };
+      const ouvrirExo = async (page) => {
+        await page.evaluate(i => openTest(i), T.exercice);
+        await page.waitForTimeout(300);
+        await page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='train'") >= 0);
+          if(b) b.click();
+        });
+        await page.waitForTimeout(800);
+      };
+      const arg = { champ: T.champ, ecriture: T.ecriture, enonce: T.enonce };
+      let bureau = null, tablette = null;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      if(await connecter(s.page) === 'scr-space'){ await ouvrirExo(s.page); bureau = await s.page.evaluate(mesurer, arg); }
+      await s.nav.close(); s = null;
+      /* une tablette en PAYSAGE (1180 px) : au-dessus de la borne de 900 px, où
+         deux écrans resserrent déjà leurs cases — on mesure le facteur, pas le
+         réglage d'écran étroit. */
+      s = await ouvrir(chromium, ml, { viewport: { width: 1180, height: 820 }, hasTouch: true });
+      if(await connecter(s.page) === 'scr-space'){ await ouvrirExo(s.page); tablette = await s.page.evaluate(mesurer, arg); }
+      const attendu = (P.policeTablette / 100) * T.facteur;
+      const rap = (a, b) => (a && b) ? Math.round(1000 * a / b) / 1000 : 0;
+      const complet = bureau && tablette && bureau.casePx && bureau.ecrPx && bureau.enoncePx && tablette.nEcr;
+      verifier('sur tablette, la case à nombres écrit plus petit que sur l\'ordinateur (facteur ' + attendu.toFixed(3) + ')',
+        !!complet && Math.abs(rap(tablette.casePx, bureau.casePx) - attendu) < 0.02,
+        !complet ? 'mesure impossible (' + (bureau ? 'case ' + bureau.casePx + ' px, ' + (tablette ? tablette.nEcr : 0) + ' écriture(s)' : 'ordinateur injoignable') + ')'
+          : 'case ' + tablette.casePx + ' px sur tablette contre ' + bureau.casePx + ' sur ordinateur (rapport '
+            + rap(tablette.casePx, bureau.casePx) + ', attendu ' + Math.round(attendu * 1000) / 1000 + ')'
+            + (tablette.stage ? '' : ' — et aucun .mp-stage à cases sur cet écran : le facteur n\'a rien où se poser'));
+      verifier('les écritures qui l\'entourent réduisent d\'autant — la case ne rétrécit pas seule',
+        !!complet && Math.abs(rap(tablette.ecrPx, bureau.ecrPx) - attendu) < 0.02
+          && tablette.casePx >= tablette.ecrPx * 0.9,
+        !complet ? 'mesure impossible'
+          : 'écritures ' + tablette.ecrPx + ' px contre ' + bureau.ecrPx + ' (rapport ' + rap(tablette.ecrPx, bureau.ecrPx)
+            + ', attendu ' + Math.round(attendu * 1000) / 1000 + ') ; sur la tablette la case fait ' + tablette.casePx
+            + ' px pour des nombres à ' + tablette.ecrPx);
+      verifier('l\'énoncé, lui, ne suit que la police de la page — la demande dit « après l\'énoncé »',
+        !!complet && Math.abs(rap(tablette.enoncePx, bureau.enoncePx) - P.policeTablette / 100) < 0.02,
+        !complet ? 'mesure impossible'
+          : 'énoncé ' + tablette.enoncePx + ' px contre ' + bureau.enoncePx + ' (rapport ' + rap(tablette.enoncePx, bureau.enoncePx)
+            + ', attendu ' + P.policeTablette / 100 + ')');
+      verifier('la chaîne réduite ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
 

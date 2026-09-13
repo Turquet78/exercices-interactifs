@@ -1480,6 +1480,79 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
+  /* ---- {lire-coefficient} (2.4.1) : la chaîne s'arrête à l'écriture décimale ----
+     Décision de Turquet (septembre 2026) : la vérification redemandait, après
+     0,96, la forme FRACTIONNAIRE du coefficient (96/100). Ce maillon sert en
+     2.2.1 et 2.3.1 — c'est cette fraction-là qu'on multiplie ensuite par la
+     valeur de départ — mais le 2.4.1 n'a pas d'étape suivante : il ne
+     demandait qu'une réécriture pour rien.
+     TROIS BORDS, et n'en tenir qu'un ne tient rien. Le maillon RETIRÉ : plus
+     aucune case de fraction du coefficient, ni à l'écran, ni dans le message
+     de correction, ni dans le contexte envoyé au modèle — une chaîne
+     raccourcie d'un côté et pas de l'autre ferait mentir l'écran. Les
+     maillons GARDÉS : la fraction P/100 et l'écriture décimale du
+     pourcentage sont toujours là, sans quoi « on a tout retiré » passerait
+     aussi. Et la NOTE : une copie juste des cinq cases vaut le point, une
+     case vide n'en vaut pas. */
+  if(evaluer(w,"typeof startLireCoef").valeur==='function'){
+    verifierEval(w, 'le 2.4.1 vérifie jusqu\'à l\'écriture décimale, et pas au-delà', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      const poser=function(q,vals){ test.questions[0]=q; test.idx=0; test.locked=false; renderLCTest();
+        Object.keys(vals||{}).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(vals[id]); }); };
+      const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+      const fb=function(){ return document.getElementById('lcFeedback').textContent; };
+      /* une question ÉPINGLÉE : une copie fixe posée sur un tirage au hasard
+         mesurerait autre chose que ce qu'elle croit mesurer. */
+      const Q=function(){ return {sens:-1,P:4,coef:96,coefStr:'0,96',tete:'0,',ci:0,v:0,choisi:-1}; };
+      startLireCoef();
+
+      /* ---- 1. le maillon retiré ---- */
+      poser(Q(),{});
+      const cases=[].slice.call(document.querySelectorAll('#lcHost math-field')).map(function(e){ return e.id; });
+      const attendues=['lcP','lc1n','lc1d','lc1p','lc1dec'];
+      if(cases.join(' ')!==attendues.join(' ')) vus.push('cases de l\\'écran : '+cases.join(' ')+' au lieu de '+attendues.join(' '));
+      const ligne=(document.querySelectorAll('#lcHost .pt-step')[2]||{}).innerHTML||'';
+      if((ligne.match(/f-eq/g)||[]).length!==2) vus.push('la chaîne ne porte pas exactement deux « = » ('+((ligne.match(/f-eq/g)||[]).length)+')');
+      if((ligne.match(/f-frac-input/g)||[]).length!==1) vus.push('la chaîne porte '+((ligne.match(/f-frac-input/g)||[]).length)+' fraction(s) : celle du coefficient est revenue');
+
+      /* ---- 2. les maillons gardés ---- */
+      ['lc1n','lc1d'].forEach(function(id){ if(!document.getElementById(id)) vus.push('la fraction P/100 a disparu ('+id+')'); });
+      if(!document.getElementById('lc1p')) vus.push('l\\'écriture décimale du pourcentage a disparu');
+      if(!document.getElementById('lc1dec')) vus.push('l\\'écriture décimale du coefficient a disparu — la chaîne n\\'arrive plus nulle part');
+
+      /* ---- 3. la note ---- */
+      poser(Q(),{lcP:'4',lc1n:'4',lc1d:'100',lc1p:'04',lc1dec:'96'});
+      test.score=0; checkLCAnswer();
+      if(test.score!==1) vus.push('la copie juste des cinq cases ne vaut pas le point ('+test.score+')');
+      attendues.forEach(function(id){ if(!/\\bok\\b/.test(cls(id))) vus.push('la case juste '+id+' ne se marque pas ok ('+cls(id)+')'); });
+      poser(Q(),{lcP:'4',lc1n:'4',lc1d:'100',lc1p:'04'});
+      test.score=0; checkLCAnswer();
+      if(test.score!==0) vus.push('une copie dont la dernière case est vide vaut quand même le point');
+
+      /* ---- 4. le message de correction s'arrête au même endroit ---- */
+      poser(Q(),{lcP:'96',lc1n:'96',lc1d:'100',lc1p:'96',lc1dec:'04'});
+      checkLCAnswer();
+      if(fb().indexOf('0,96')<0) vus.push('le message ne montre pas le coefficient en écriture décimale : '+fb().slice(0,80));
+      if(/96\\s*\\/\\s*100|\\b96\\/100\\b/.test(fb().replace('4/100',''))) vus.push('le message redemande la forme fractionnaire du coefficient : '+fb().slice(0,100));
+      if(fb().indexOf('4/100')<0) vus.push('le message ne montre plus la fraction P/100 : '+fb().slice(0,80));
+
+      /* ---- 5. le contexte envoyé au modèle dit la même chaîne ---- */
+      test.kind='lc'; test.qId='lire-coefficient'; poser(Q(),{});
+      const ctx=String(conseilCtxCourant()||'');
+      if(ctx.indexOf('0,96')<0) vus.push('le contexte ne donne pas la vérification');
+      if(ctx.indexOf('= 96/100')>=0) vus.push('le contexte redemande encore la forme fractionnaire du coefficient');
+
+      /* ---- 6. l'identité ---- */
+      test.kind='lc'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='lire-coefficient') vus.push('« Recommencer » relance « '+test.qId+' »');
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('le 2.4.1 vérifie jusqu\'à l\'écriture décimale, et pas au-delà',
+      'ce niveau n\'a pas l\'exercice de lecture d\'un coefficient');
+  }
+
   /* ---- {reconnaitre-coefficient} (2.5.2) : le QCM des coefficients ------
      Cinq bords, et n'en tenir qu'un ne tient rien : le tirage (les trois
      familles chacune une fois à ordre variable, quatre propositions
@@ -2941,6 +3014,7 @@ function exercices(suite){
   clavierTablette(w, P);
     policeTablette(w, P);
     feuilleTablette(w, P);
+    chaineTablette(w, P);
     etudeExponentielle(w, P);
     correctionBleueListes(w, P);
     jugeArithmetique(w, P);
@@ -2958,6 +3032,8 @@ function exercices(suite){
     tableauVariationDirect(w, P);
     grandsTableaux(w, P);
     qcmTableauVariation(w, P);
+    syntheseFonction(w, P);
+    pageDesThemes(w, P);
     maximumMinimum(w, P);
     maximumMinimumTableau(w, P);
     tableauEquations(w, P);
@@ -8911,6 +8987,115 @@ function feuilleTablette(w, P){
   verifier(nom, pbs.length === 0, pbs.join(' | '));
 }
 
+/* ---------- Sur tablette, la chaîne à nombres écrit plus petit ---------- */
+/* Demande de Turquet (septembre 2026) : « pour les exercices avec des cases à
+   remplir avec des nombres, sur les tablettes, après l'énoncé, les écritures
+   avant et après une case ainsi que les cases elles-mêmes ont une police
+   légèrement plus petite ».
+   UN SEUL FACTEUR, ET C'EST CE QUE LE CONTRÔLE TIENT. Les tailles sont en rem,
+   donc ancrées à la racine : aucune règle posée sur un conteneur ne les réduit.
+   Le facteur voyage dans une variable que les règles MÊMES portent
+   (calc(… * var(--tab-nb,1))), et la requête média de la tablette le pose sur
+   le stage — ce qui vient APRÈS l'énoncé. Ce qui doit donc se vérifier ici :
+   · CHAQUE règle qui donne sa taille à une case à nombres passe par le facteur.
+     Un écran ajouté demain avec sa propre taille de case, sans le facteur,
+     garderait des cases grandes au milieu d'écritures rétrécies — c'est
+     exactement le défaut que « une case a la taille des nombres qui l'entourent »
+     interdit, et aucun écran ne le dirait ;
+   · les écritures nommées dans tests/profils.js le portent aussi (deux sources) ;
+   · le facteur n'est déclaré qu'à UN endroit, jamais sur la racine, html ou body :
+     posé là, il emporterait l'énoncé, les boutons et toute la page — la demande
+     dit « après l'énoncé » ;
+   · et l'énoncé, précisément, ne le porte pas.
+   jsdom n'évalue pas une requête média : les polices RENDUES se mesurent au banc
+   navigateur (« 11 septies »), sur une tablette et sur un ordinateur. */
+function chaineTablette(w, P){
+  const nom = 'sur tablette, les cases à nombres et les écritures qui les entourent réduisent du même facteur';
+  if(!P.chaineTablette){ ignorer(nom, 'ce fichier ne déclare pas de chaîne de tablette'); return; }
+  const T = P.chaineTablette, src = lire(CIBLE), pbs = [];
+  const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+  /* Les règles, lues une par une, avec la requête média qui les entoure : une
+     accolade ouverte après un sélecteur qui ne commence pas par « @ » ouvre un
+     corps, qu'on avale d'un bloc ; un « @media » n'est pas une règle, on entre
+     dedans en le retenant. Compter les accolades naïvement ne marche pas
+     ailleurs dans ce dépôt (les regex en sont pleines), mais ici on ne lit QUE
+     la feuille de styles, où il n'y en a pas.
+     Une lecture plus paresseuse — chercher le bloc média d'un seul coup de
+     regex — a d'abord rendu TROIS bords de ce contrôle inatteignables : le
+     facteur posé sur la racine, l'énoncé rétréci et le facteur déclaré deux
+     fois rougissaient tous les trois en disant « aucune règle », c'est-à-dire
+     en parlant d'autre chose que de leur défaut. */
+  const regles = []; let tampon = '', i = 0; const pile = [];
+  while(i < style.length){
+    const c = style[i];
+    if(c === '{'){
+      const sel = tampon.trim(); tampon = '';
+      if(sel.charAt(0) === '@'){ pile.push(sel); i++; continue; }
+      let prof = 1, j = i + 1;
+      while(j < style.length && prof > 0){ if(style[j] === '{') prof++; else if(style[j] === '}') prof--; j++; }
+      regles.push({ sel, corps: style.slice(i + 1, j - 1), media: pile.join(' ') });
+      i = j; continue;
+    }
+    if(c === '}'){ tampon = ''; pile.pop(); i++; continue; }
+    tampon += c; i++;
+  }
+  const porte = r => /var\(--tab-nb/.test(r.corps);
+  const taille = r => /font-size:/.test(r.corps);
+  /* 1. le facteur : déclaré à UN seul endroit, sur ce qui vient APRÈS l'énoncé,
+     sous la requête média d'une tablette, et à la valeur que le profil déclare. */
+  const poses = regles.filter(r => /--tab-nb\s*:/.test(r.corps));
+  if(!poses.length) pbs.push('aucune règle ne pose --tab-nb : rien ne réduit la chaîne sur tablette');
+  else if(poses.length > 1) pbs.push(poses.length + ' déclarations de --tab-nb au lieu d\'une seule (' + poses.map(r => r.sel).join(' ; ')
+    + ') : la plus profonde l\'emporterait sans que rien ne le dise');
+  else{
+    const pose = poses[0];
+    if(/^(:root|html|body|\*)$/.test(pose.sel.trim()))
+      pbs.push('le facteur est posé sur « ' + pose.sel.trim() + ' » : il emporterait l\'énoncé, les boutons et toute la page');
+    else if(pose.sel.indexOf('.mp-stage') < 0)
+      pbs.push('le facteur est posé sur « ' + pose.sel.trim() + ' » et non sur le stage : ce n\'est plus « après l\'énoncé »');
+    else if(pose.sel.indexOf(':has(math-field.pm-mf)') < 0)
+      pbs.push('le facteur est posé sur tous les stages (« ' + pose.sel.trim() + ' ») : il réduirait aussi les écrans sans case à nombres');
+    const media = /@media \(pointer:coarse\) and \(min-width:(\d+)px\)/.exec(pose.media || '');
+    if(!media) pbs.push('le facteur n\'est pas posé sous la requête média d\'une tablette (« ' + (pose.media || 'aucune') + ' ») : il réduirait aussi l\'ordinateur');
+    else if(+media[1] < 500 || +media[1] > 800) pbs.push('la borne de largeur (' + media[1] + ' px) ne distingue plus une tablette d\'un téléphone');
+    const val = /--tab-nb\s*:\s*([\d.]+)/.exec(pose.corps);
+    if(!val) pbs.push('--tab-nb est posé sans valeur lisible');
+    else{
+      const f = parseFloat(val[1]);
+      if(Math.abs(f - T.facteur) > 1e-9) pbs.push('la page réduit d\'un facteur ' + val[1] + ' quand le profil déclare ' + T.facteur);
+      if(!(f > 0.7 && f < 1)) pbs.push('le facteur ' + val[1] + ' ne réduit pas « légèrement » (attendu entre 0,7 et 1)');
+    }
+  }
+  /* 2. toute règle qui donne sa taille à une case à nombres passe par le facteur */
+  const cases = regles.filter(r => /math-field\.pm-mf/.test(r.sel) && taille(r));
+  if(!cases.length) pbs.push('aucune règle ne donne sa taille à une case à nombres : le contrôle n\'a rien à mesurer');
+  const sansFacteur = cases.filter(r => !porte(r));
+  if(sansFacteur.length) pbs.push(sansFacteur.length + ' règle(s) de taille de case sans le facteur : ' + sansFacteur.map(r => r.sel.slice(0, 60)).join(' ; '));
+  /* 3. les écritures déclarées le portent aussi — sans quoi la case rétrécirait seule */
+  for(const cl of T.ecritures){
+    /* On vise le JETON de classe, pas la chaîne : « .f-frac » doit attraper
+       « #sfHost .pt-row>.f-frac » — le calcul écrit en tête de rangée, qui
+       n'est ni le premier ni le dernier mot d'un sélecteur — sans attraper
+       « .f-frac-input », qui n'est pas la même classe. Un filtre qui ne
+       regardait que le début ou la fin laissait cette règle-là dériver seule. */
+    const parts = cl.split(/\s+/), dernier = parts[parts.length - 1];
+    const jeton = new RegExp(dernier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\w-])');
+    const vise = r => r.sel.split(',').some(x => jeton.test(x) && parts.slice(0, -1).every(p => x.indexOf(p) >= 0));
+    const siennes = regles.filter(r => taille(r) && vise(r) && !(T.hors || []).some(h => r.sel.indexOf(h) >= 0));
+    if(!siennes.length){ pbs.push('aucune règle de taille pour « ' + cl + ' » : le profil nomme une écriture que la page n\'écrit plus'); continue; }
+    const muettes = siennes.filter(r => !porte(r));
+    if(muettes.length) pbs.push('« ' + cl + ' » garde sa taille sur tablette (' + muettes.map(r => r.sel.slice(0, 40)).join(' ; ') + ') : la case rétrécirait seule');
+  }
+  /* 4. le bord opposé : l'énoncé ne rétrécit pas avec la chaîne */
+  const enonce = regles.filter(r => /\.mp-instr|\.enonce\b/.test(r.sel) && porte(r));
+  if(enonce.length) pbs.push('l\'énoncé porte le facteur (' + enonce.map(r => r.sel.slice(0, 40)).join(' ; ') + ') : la demande dit « après l\'énoncé »');
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+  /* Ce qui est DÉCLARÉ hors du contrôle est nommé à l'écran, jamais tu. */
+  if(!pbs.length && (T.hors || []).length)
+    console.log('   · écritures déclarées hors de ce contrôle : ' + T.hors.join(', ')
+      + ' — la feuille de rédaction libre a sa propre règle de tablette');
+}
+
 /* ---------- Sur tablette, la police de la page est réduite — par une seule règle ---------- */
 /* Décision de Turquet (septembre 2026) : « dans la page, règle fixe sur
    tablette ». Toutes les tailles étant en rem, UNE règle sur la racine suffit,
@@ -10854,6 +11039,12 @@ function ordreDesFiches(w, apres){
     }}]);
     window.__faux.semer('${P.tableResultats||'resultats'}',[]);
     const ecran=function(){ return ([].slice.call(document.querySelectorAll('section.screen')).find(function(s){ return s.classList.contains('on'); })||{}).id; };
+    /* DEUX SOURCES pour le bord OPPOSÉ : le profil dit si les DEVOIRS de ce
+       niveau portent eux aussi le réglage d'ordre. Là où il le déclare, le
+       ruban doit s'afficher sur un devoir et la relecture PRÉSERVER l'ordre
+       rangé ; là où il ne le déclare pas, ni ruban ni préservation — l'ordre
+       du menu, comme avant. */
+    const ORDRE_DM=${P.ordreDevoirs?'true':'false'};
 
     /* 1. la définition : rien de fait, seul le premier est ouvert */
     await ouvrirDevoirDetail('fc_o');
@@ -10906,6 +11097,10 @@ function ordreDesFiches(w, apres){
       dmSelId='fc_o';
       renderDevoirEditor();
       if(!document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des fiches');
+      /* et la phrase du ruban DIT l'ordre imposé : sur une fiche il l'est
+         vraiment, et le professeur doit le savoir en rangeant les exercices */
+      if(document.getElementById('dmExos').textContent.indexOf('débloque')<0)
+        vus.push('la phrase du ruban ne dit pas que la fiche se fait dans l\\'ordre');
       const cb=document.querySelector('#dmExos input[data-ex="'+C+'"][data-mode="train"]');
       if(!cb){ vus.push('la case de l\\'exercice témoin est introuvable dans l\\'éditeur'); }
       else {
@@ -10920,15 +11115,22 @@ function ordreDesFiches(w, apres){
         if(idsDe((v.fiches||[{}])[0].exercices)!==A+'>'+C+'>'+B)
           vus.push('l\\'enregistrement perd l\\'ordre : '+idsDe((v.fiches||[{}])[0].exercices));
       }
-      /* un devoir, lui, garde l'ordre du menu, sans ruban */
+      /* et le DEVOIR, selon ce que le profil déclare */
       dmGenre='dm';
       dmList=[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:[{id:A,modes:['train']},{id:B,modes:['train']}]}];
       dmSelId='dm_o';
       renderDevoirEditor();
-      if(document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      const rubanDM=!!document.getElementById('dmOrdre');
+      if(ORDRE_DM && !rubanDM) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des devoirs');
+      if(!ORDRE_DM && rubanDM) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
       readEditorIntoDevoir();
       const menu=TEST_ORDER.filter(function(id){ return id===A||id===B; }).join('>');
-      if(idsDe(dmList[0].exercices)!==menu) vus.push('un devoir ne suit plus l\\'ordre du menu : '+idsDe(dmList[0].exercices));
+      if(ORDRE_DM){
+        if(idsDe(dmList[0].exercices)!==A+'>'+B)
+          vus.push('la relecture rabat le devoir sur l\\'ordre du menu : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B);
+      } else if(idsDe(dmList[0].exercices)!==menu){
+        vus.push('un devoir ne suit plus l\\'ordre du menu : '+idsDe(dmList[0].exercices));
+      }
     } else if(typeof renderDmEditor==='function'){
       /* Première : les flèches déplacent, l'enregistrement emporte l'ordre */
       dmGenre='fiche';
@@ -10948,7 +11150,9 @@ function ordreDesFiches(w, apres){
       dmAdminList=[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:JSON.parse(JSON.stringify(trois))}];
       dmSelId='dm_o';
       renderDmEditor();
-      if(document.getElementById('dmOrdre')) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      const rubanDM=!!document.getElementById('dmOrdre');
+      if(ORDRE_DM && !rubanDM) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des devoirs');
+      if(!ORDRE_DM && rubanDM) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
     } else {
       vus.push('aucun éditeur à exercer');
     }
@@ -10958,7 +11162,7 @@ function ordreDesFiches(w, apres){
     const nom='les fiches se font dans l\'ordre : la définition, l\'écran, la porte et l\'éditeur';
     if(!r.ok) verifier(nom, false, 'erreur JavaScript : '+r.erreur);
     else verifier(nom, r.valeur==='', r.valeur);
-    noteFicheSur20(w, apres);
+    ordreDesDevoirs(w, apres);
   });
 }
 /* LA NOTE D'UNE FICHE SE LIT SUR 20 (demande de Turquet, septembre 2026) :
@@ -11082,8 +11286,18 @@ function noteFicheSur20(w, apres){
 function ordreDesDevoirs(w, apres){
   const nom='l\'ordre des exercices d\'un devoir se règle, s\'affiche chez l\'élève, et ne verrouille rien';
   const present = evaluer(w, "typeof readEditorIntoDevoir==='function' && typeof renderDevoirEditor==='function' && typeof renderDevoirDetail==='function'");
+  /* DEUX SOURCES : tests/profils.js dit quels niveaux règlent l'ordre des
+     DEVOIRS (Seconde et Terminale). Un niveau qui ne le déclare pas se dit
+     plutôt que d'être tu — son bord OPPOSÉ (aucun ruban sur un devoir,
+     l'ordre du menu) est tenu par le contrôle des fiches, juste au-dessus.
+     Et un profil qui le déclare devant une page qui n'a pas cet éditeur
+     ROUGIT : les deux sources doivent tomber d'accord. */
+  if(!P.ordreDevoirs){
+    ignorer(nom, 'ce niveau ne règle pas l\'ordre des exercices d\'un devoir (le bord opposé est tenu par le contrôle des fiches)');
+    return noteFicheSur20(w, apres);
+  }
   if(!present.ok || !present.valeur){
-    ignorer(nom, 'ce niveau n\'a pas cet éditeur de devoirs');
+    verifier(nom, false, 'le profil déclare le réglage de l\'ordre des devoirs, et la page n\'a pas cet éditeur (readEditorIntoDevoir, renderDevoirEditor ou renderDevoirDetail manque)');
     return noteFicheSur20(w, apres);
   }
   const TABLE=(P.coursPdf&&P.coursPdf.table)||'parametres';
@@ -11109,6 +11323,15 @@ function ordreDesDevoirs(w, apres){
     else {
       const fleches=document.querySelectorAll('#dmOrdre .dm-fleche').length;
       if(fleches!==4) vus.push('le ruban devrait porter 4 flèches pour 2 exercices, il en montre '+fleches);
+      /* L'ÉCRAN NE PROMET PAS UN VERROU QUI N'EXISTE PAS : un devoir reste
+         tout ouvert, et la phrase du ruban doit le dire — celle des fiches
+         (« un exercice ne se débloque que lorsque le précédent est fait »)
+         ferait croire au professeur qu'il impose un ordre aux élèves. */
+      const dit=document.getElementById('dmExos').textContent;
+      if(dit.indexOf('débloque')>=0)
+        vus.push('la phrase du ruban promet un verrou sur un devoir : un devoir reste tout ouvert');
+      if(dit.indexOf('libre de les faire')<0)
+        vus.push('la phrase du ruban ne dit pas que l\\'élève reste libre de l\\'ordre');
     }
     readEditorIntoDevoir();
     if(idsDe(dmList[0].exercices)!==A+'>'+B)
@@ -11116,9 +11339,16 @@ function ordreDesDevoirs(w, apres){
     const cb=document.querySelector('#dmExos input[data-ex="'+C+'"][data-mode="train"]');
     if(!cb){ vus.push('la case de l\\'exercice témoin est introuvable dans l\\'éditeur'); }
     else {
-      cb.checked=true; readEditorIntoDevoir();
+      /* LE GESTE RÉEL : l'attribut onchange de la case appelle dmExoCoche(),
+         qui relit le formulaire ET redessine le ruban. Sans ce re-rendu,
+         l'exercice tout juste coché n'apparaîtrait dans le ruban qu'au
+         prochain changement de devoir — et un contrôle qui appellerait
+         readEditorIntoDevoir() à la main ne le verrait jamais. */
+      cb.checked=true; cb.dispatchEvent(new Event('change'));
       if(idsDe(dmList[0].exercices)!==A+'>'+B+'>'+C)
         vus.push('le nouveau coché n\\'arrive pas à la fin : '+idsDe(dmList[0].exercices)+' au lieu de '+A+'>'+B+'>'+C);
+      const rangs=document.querySelectorAll('#dmOrdre .dm-exo').length;
+      if(rangs!==3) vus.push('après le cochage, le ruban montre '+rangs+' exercice(s) au lieu de 3 : il ne s\\'est pas redessiné');
 
       /* 2. la flèche déplace, et l'enregistrement emporte l'ordre tel quel */
       dmOrdreBouge(C,-1);
@@ -14059,6 +14289,248 @@ function tableauVraiFaux(w, P){
     { const c=ctxTvf(Q).contexte; if(c.indexOf('f (5) est positif')<0||c.indexOf('VRAI, sur [4 ; 6] f est comprise entre 0 et 3')<0||c.indexOf('VRAI, croissante sur [\\u22121 ; 4]')<0) vus.push('le contexte du modèle ne porte pas les affirmations et leurs justifications attendues : '+c.slice(-260)); }
     currentMode='train';
 
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* ---------- La synthèse : tout lire sur un seul graphique ---------- */
+/* Demande de Turquet (septembre 2026), fiche « Synthèse fonction » : les dix
+   questions de la fiche sur UN dessin conservé — le domaine, quatre images,
+   les antécédents, une équation, une inéquation, les deux tableaux,
+   f (x) contre g (x), le maximum et le minimum.
+   Le contrôle REFAIT par sa propre arithmétique ce que le tirage promet — un
+   tirage qui mentirait donnerait tort à une lecture juste, le pire défaut du
+   projet — puis il joue une copie JUSTE sur les quatre parties, une copie
+   VIDE, et les bords de la règle des paires. */
+/* LA PAGE DES THÈMES NE MONTRE QUE DES THÈMES — les trois niveaux.
+   La Seconde listait ses quarante-six exercices sur un seul écran, thème par
+   thème, à faire défiler ; la Première et la Terminale ouvraient depuis
+   longtemps une page par thème (demande de Turquet, septembre 2026 : « en
+   seconde il faudrait une page pour afficher les thèmes des exercices dans
+   des cases avant d'afficher les exercices comme en première »).
+   Le contrôle est UNIVERSEL : la règle vaut sur les trois fichiers, et un
+   niveau qui reviendrait à la liste plate rougirait. Le banc NAVIGATEUR,
+   lui, parcourt déjà cet arbre pour mesurer la largeur et les colonnes — il
+   resterait vert sur une liste plate, qui a elle aussi quatre colonnes : ce
+   qu'il mesure est la mise en page, pas la NAVIGATION. */
+function pageDesThemes(w, P){
+  const nom='la page des thèmes ne montre que des thèmes, et chacune ouvre ses exercices';
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    mesResultats=[];
+
+    /* ---- 1. L'ÉCRAN « Exercices par thème » : une carte par thème, et RIEN
+       d'autre — un exercice posé là serait un retour à la liste plate ---- */
+    renderChooser([]);
+    const hote=document.getElementById('testChoices');
+    const cartes=[...hote.querySelectorAll('.choice')];
+    const attendus=THEMES.filter(function(t){ return t.ids.filter(function(id){ return TESTS[id]; }).length; });
+    if(cartes.length!==attendus.length)
+      vus.push(cartes.length+' carte(s) sur l écran des thèmes pour '+attendus.length+' thème(s)');
+    const pasThemes=cartes.filter(function(c){ return !c.classList.contains('themecard'); });
+    if(pasThemes.length)
+      vus.push(pasThemes.length+' carte(s) qui ne sont pas des thèmes : la page liste encore des exercices');
+    /* AUCUN antislash littéral dans ce contrôle : ses chaînes traversent le
+       template littéral de verifier.js PUIS l'évaluation dans la page, et un
+       « \( » y perd son antislash — le piège documenté des deux analyseurs.
+       On compare donc des chaînes, jamais une expression régulière. */
+    const porte=function(c){ return String(c.getAttribute('onclick')||''); };
+    const sansPorte=cartes.filter(function(c){ return porte(c).indexOf('openTheme(')<0; });
+    if(sansPorte.length) vus.push(sansPorte.length+' carte(s) de thème qui n ouvrent pas leur page');
+
+    /* ---- 2. LA PAGE D'UN THÈME : ses exercices (ou ses parties là où le
+       niveau en déclare), et l'écran qui s'affiche est bien celui-là ---- */
+    attendus.forEach(function(th){
+      openTheme(th.num);
+      const on=document.querySelector('.screen.on');
+      if(!on || on.id!=='scr-theme'){ vus.push('thème '+th.num+' : openTheme n ouvre pas la page du thème'); return; }
+      const titre=(document.getElementById('themeTitle')||{}).textContent||'';
+      if(titre.indexOf(th.nom)<0) vus.push('thème '+th.num+' : le titre de la page ne dit pas « '+th.nom+' »');
+      const c=[...document.getElementById('themeChoices').querySelectorAll('.choice')];
+      if(!c.length){ vus.push('thème '+th.num+' : sa page ne liste rien'); return; }
+      const parties=c.filter(function(x){ return x.classList.contains('themecard'); }).length;
+      if(parties && parties!==c.length)
+        vus.push('thème '+th.num+' : sa page mêle des parties et des exercices');
+      if(!parties){
+        const ids=th.ids.filter(function(id){ return TESTS[id]; });
+        if(c.length!==ids.length)
+          vus.push('thème '+th.num+' : '+c.length+' carte(s) pour '+ids.length+' exercice(s)');
+        const etrangers=c.filter(function(x){
+          const o=porte(x), i=o.indexOf("openTest('");
+          if(i<0) return true;
+          const j=o.indexOf("'", i+10);
+          return j<0 || ids.indexOf(o.slice(i+10, j))<0; });
+        if(etrangers.length)
+          vus.push('thème '+th.num+' : '+etrangers.length+' carte(s) qui n ouvrent pas un exercice du thème');
+      }
+    });
+
+    /* ---- 3. LE RETOUR : après un exercice, on revient sur la page de SON
+       thème. C'est currentThemeNum que la page relit, et openTest doit le
+       poser — sans quoi l'élève qui enchaîne deux exercices d'un même thème
+       redescend d'un étage à chaque fois. ---- */
+    if(typeof themeOfTest!=='function') vus.push('themeOfTest est introuvable : le retour ne sait plus de quel thème on vient');
+    else attendus.forEach(function(th){
+      const id=th.ids.filter(function(x){ return TESTS[x]; })[0];
+      if(themeOfTest(id)!==th.num) vus.push('themeOfTest se trompe de thème sur '+id);
+    });
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+function syntheseFonction(w, P){
+  const nom='la synthèse : le tirage se relit, et la copie juste vaut le barème entier';
+  const present = evaluer(w, "typeof startSYN==='function' && typeof synGen==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n’a pas l’exercice de synthèse'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='synthese-fonction';
+    const F=function(q,x){ return q.pts[x+6]; }, G=function(q,x){ return q.ga*x+q.gb; };
+
+    /* ---- 0. le PARTAGE : rien n'est recopié — le tirage est celui du 2.15,
+       le dessin celui d'{antecedents-droite}, les tableaux ceux du 2.1, le
+       maximum celui du 2.16. Un second moteur aurait fini par diverger. ---- */
+    /* renderSYN est ENVELOPPÉE par la greffe des jetons : sa chaîne parle
+       d autre chose — on lit la SOURCE de la page (le piège du 2.14). */
+    { const H=document.documentElement.outerHTML;
+      const i0=H.indexOf('function renderSYN('), i1=(i0<0?-1:H.indexOf('function synArrowChange', i0));
+      const src=String(synGen)+String(synAnalyse)+String(synCheckPart)+((i0>=0&&i1>i0)?H.slice(i0,i1):'');
+      [['gsvGen','le tirage du 2.15'],['gsvAnalyze','l analyse du 2.15'],['adrCibles','les hauteurs lisibles'],
+       ['mmxUnique','l unicité des extremums du 2.16'],['mmxAns','le maximum du 2.16'],
+       ['varTableHTML','le tableau du 2.1'],['varTableSubs','le jugement du tableau du 2.1'],
+       ['adrSVG','le dessin d {antecedents-droite}'],['fgLegende','la légende f/g']].forEach(function(p){
+        if(src.indexOf(p[0])<0) vus.push('la synthèse n utilise plus '+p[1]+' ('+p[0]+')');
+      }); }
+
+    /* ---- 1. LE TIRAGE, relu par sa propre arithmétique ---- */
+    const champs=['pts','ia','ib','ga','gb','c','k','op','sensG','img','part'];
+    let nRepli=0;
+    for(let n=0;n<120;n++){
+      const q=synGen();
+      if(!q){ vus.push('le tirage rend null'); break; }
+      Object.keys(q).forEach(function(cl){ if(champs.indexOf(cl)<0) vus.push('la question porte un champ de plus : '+cl); });
+      const a=q.ia-6, b=q.ib-6;
+      if(b-a<8) vus.push('le domaine ne fait que '+(b-a)+' graduations');
+      /* les deux racines du tableau de signes, strictement dans le domaine */
+      const rac=[]; for(let x=-6;x<=6;x++){ if(F(q,x)===0) rac.push(x); }
+      if(rac.length!==2||rac[0]<=a||rac[1]>=b) vus.push('les racines ne sont pas strictement dans le domaine : '+rac.join(','));
+      /* le maximum et le minimum se LISENT : un seul x pour chacun */
+      let M=-99,m=99,nM=0,nm=0;
+      for(let x=a;x<=b;x++){ if(F(q,x)>M) M=F(q,x); if(F(q,x)<m) m=F(q,x); }
+      for(let x=a;x<=b;x++){ if(F(q,x)===M) nM++; if(F(q,x)===m) nm++; }
+      if(nM!==1||nm!==1) vus.push('un extremum est atteint deux fois ('+nM+' / '+nm+')');
+      /* la hauteur de l équation : jamais 0, deux croisements intérieurs,
+         jamais traversée entre deux graduations, f du MÊME côté au milieu —
+         et le SENS de l inéquation suit ce côté */
+      if(q.c===0) vus.push('la hauteur de l équation est 0 : ce serait la question des racines');
+      const xc=[]; for(let x=a;x<=b;x++){ if(F(q,x)===q.c) xc.push(x); }
+      if(xc.length!==2||xc[0]<=a||xc[1]>=b) vus.push('la hauteur c a '+xc.length+' croisement(s)');
+      else{
+        const haut=(q.op.charAt(0)==='g');
+        for(let x=xc[0]+1;x<xc[1];x++){ if(haut ? F(q,x)<=q.c : F(q,x)>=q.c) vus.push('le sens de l inéquation ne suit pas la courbe'); }
+      }
+      for(let x=a;x<b;x++){ const lo=Math.min(F(q,x),F(q,x+1)), hi=Math.max(F(q,x),F(q,x+1));
+        if(q.c>lo&&q.c<hi) vus.push('la hauteur c est traversée entre deux graduations');
+        if(q.k>lo&&q.k<hi) vus.push('la hauteur des antécédents est traversée entre deux graduations'); }
+      /* la hauteur des antécédents : 1 à 3, jamais 0 ni c */
+      const ant=[]; for(let x=a;x<=b;x++){ if(F(q,x)===q.k) ant.push(x); }
+      if(!ant.length||ant.length>3) vus.push('la hauteur des antécédents en donne '+ant.length);
+      if(q.k===0||q.k===q.c) vus.push('la hauteur des antécédents refait une autre question');
+      /* la droite : dans le cadre, deux croisements intérieurs, la MARGE de 1
+         partout ailleurs, f du même côté au milieu, et AUCUNE retraversée
+         entre deux graduations — relue sur la spline que le dessin trace */
+      for(let x=a;x<=b;x++){ if(Math.abs(G(q,x))>6) vus.push('la droite sort du cadre'); }
+      const xg=[]; for(let x=a;x<=b;x++){ if(F(q,x)===G(q,x)) xg.push(x); }
+      if(xg.length!==2||xg[0]<=a||xg[1]>=b) vus.push('la droite croise f '+xg.length+' fois');
+      else{
+        const hautG=(q.sensG==='gt');
+        for(let x=xg[0]+1;x<xg[1];x++){ if(hautG ? F(q,x)<=G(q,x) : F(q,x)>=G(q,x)) vus.push('le sens de f contre g ne suit pas la courbe'); }
+        for(let x=a;x<=b;x++){ if(xg.indexOf(x)<0 && Math.abs(F(q,x)-G(q,x))<1) vus.push('f frôle la droite sans la croiser'); }
+        let chg=0, prev=0;
+        for(let t=0;t<=(b-a)*40;t++){ const x=a+t/40, e=synVal(q.pts,x)-G(q,x);
+          if(Math.abs(e)<1e-9) continue;
+          const sg=e>0?1:-1; if(prev!==0&&sg!==prev) chg++; prev=sg; }
+        if(chg!==2) vus.push('la courbe retraverse la droite entre deux graduations ('+chg+' changements)');
+        if(xg[0]===xc[0]&&xg[1]===xc[1]) vus.push('f contre g et l équation ont la même réponse');
+      }
+      /* les quatre abscisses des images : distinctes, dans le domaine */
+      const vus4={}; q.img.forEach(function(x){ vus4[x]=1; if(x<a||x>b) vus.push('une image est demandée hors du domaine'); });
+      if(Object.keys(vus4).length!==4) vus.push('deux images sont demandées sur la même abscisse');
+      if(JSON.stringify(q.pts)===JSON.stringify(SYN_REPLI.pts)) nRepli++;
+      if(vus.length) break;
+    }
+
+    /* ---- 2. LE REPLI passe par les gardes MÊMES du tirage ---- */
+    { const r=SYN_REPLI, q={pts:r.pts, ia:r.ia, ib:r.ib, ga:r.ga, gb:r.gb, c:r.c, k:r.k, op:r.op, sensG:r.sensG, img:r.img};
+      const a=q.ia-6, b=q.ib-6, pb=[];
+      if(b-a<8) pb.push('domaine court');
+      const rac=[]; for(let x=-6;x<=6;x++){ if(F(q,x)===0) rac.push(x); }
+      if(rac.length!==2||rac[0]<=a||rac[1]>=b) pb.push('racines');
+      if(!mmxUnique(q.pts,a,b)) pb.push('extremums');
+      for(let x=a;x<=b;x++){ if(Math.abs(G(q,x))>6) pb.push('droite hors cadre'); }
+      const xg=[]; for(let x=a;x<=b;x++){ if(F(q,x)===G(q,x)) xg.push(x); }
+      if(xg.length!==2||xg[0]<=a||xg[1]>=b) pb.push('croisements de g');
+      const xc=[]; for(let x=a;x<=b;x++){ if(F(q,x)===q.c) xc.push(x); }
+      if(xc.length!==2) pb.push('croisements de c');
+      if(pb.length) vus.push('le repli ne passe pas les gardes du tirage : '+pb.join(', '));
+    }
+
+    /* ---- 3. UNE SÉANCE : les quatre parties, la copie juste vaut tout ---- */
+    startSYN();
+    if(test.questions.length!==4) vus.push('la séance ne pose pas les quatre parties');
+    /* LE MÊME GRAPHIQUE, conservé d une partie à l autre : un dessin qui
+       changerait sous les yeux de l élève ferait de la synthèse quatre
+       exercices sans rapport (le motif du 2.1 et du 2.5) */
+    { const r=test.questions[0], diff=test.questions.filter(function(q){
+        return JSON.stringify(q.pts)!==JSON.stringify(r.pts) || q.ia!==r.ia || q.ib!==r.ib
+            || q.ga!==r.ga || q.gb!==r.gb || q.c!==r.c || q.k!==r.k; }).length;
+      if(diff) vus.push(diff+' partie(s) portent un autre graphique que la première'); }
+    let total=0, note=0;
+    for(let p=0;p<4;p++){
+      const q=test.questions[test.idx];
+      if(synSubCount(q)!==synCheckPart(q).nTotal)
+        vus.push('la partie '+q.part+' annonce '+synSubCount(q)+' cases et en juge '+synCheckPart(q).nTotal);
+      /* une copie VIDE ne reçoit aucune couleur, et rien ne se verrouille */
+      currentMode='soutien'; synLive();
+      const peintes=synCheckPart(q).subs.filter(function(s){ const el=document.getElementById(s.id);
+        return el && (el.className||'').indexOf('bad')>=0; }).length;
+      if(peintes) vus.push('la partie '+q.part+' peint '+peintes+' case(s) vides en soutien');
+      currentMode='train';
+      /* la copie JUSTE */
+      synCheckPart(q).subs.forEach(function(s){ const el=document.getElementById(s.id); if(el&&s.val!=null) el.value=String(s.val); });
+      const res=synCheckPart(q);
+      total+=res.nTotal; note+=res.nCorrect;
+      if(!res.allOk) vus.push('la partie '+q.part+' refuse une copie juste ('+res.nCorrect+'/'+res.nTotal+') : '
+        +res.subs.filter(function(x){ return !x.ok; }).map(function(x){ return x.id; }).slice(0,4).join(', '));
+      if(p<3){ test.idx++; renderSYN(); }
+    }
+    if(note!==total) vus.push('la copie juste vaut '+note+'/'+total);
+    if(test.maxScore!==total) vus.push('le barème ('+test.maxScore+') ne suit pas le nombre de cases ('+total+')');
+
+    /* ---- 4. LA RÈGLE DES PAIRES : l ordre des antécédents est LIBRE, et le
+       même nombre posé deux fois est défendable une fois ---- */
+    /* la hauteur des antécédents en donne 1 à 3, et 85 % des tirages n en
+       donnent qu UN : renverser une liste d un élément ne renverse rien, et
+       le contrôle mesurait alors autre chose (le sabotage de l ordre imposé
+       restait vert, à bon droit). On CHERCHE une séance au pluriel, et on le
+       DIT si on n en trouve pas. */
+    let essais=0;
+    do { startSYN(); essais++; } while(synAnt(test.questions[1]).length<2 && essais<200);
+    if(synAnt(test.questions[1]).length<2) vus.push('aucune séance à plusieurs antécédents en '+essais+' tirages : la règle des paires n est pas mesurée');
+    test.idx=1; renderSYN();
+    { const q=test.questions[1], ant=synAnt(q), ids=['syn-ant-0','syn-ant-1','syn-ant-2'];
+      const poser=function(vals){ ids.forEach(function(id,i){ const el=document.getElementById(id); if(el) el.value=(vals[i]==null?'':String(vals[i])); }); };
+      const compte=function(){ return synCheckPart(q).subs.filter(function(s){ return ids.indexOf(s.id)>=0 && s.ok; }).length; };
+      poser(ant.slice().reverse().concat([null,null,null]).slice(0,3));
+      if(compte()!==3) vus.push('les antécédents dans l autre ordre ne valent que '+compte()+'/3');
+      if(ant.length>=2){ poser([ant[0],ant[0],null]);
+        const c2=compte();
+        if(c2!==1) vus.push('le même antécédent posé deux fois vaut '+c2+' au lieu de 1'); }
+      poser([null,null,null]);
+    }
+    currentMode='train';
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
