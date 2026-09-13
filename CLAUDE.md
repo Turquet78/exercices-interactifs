@@ -4084,6 +4084,25 @@ Changer de sens redessine l'étape : les cases déjà écrites ne veulent plus r
 dire sous l'autre signe. Le pourcentage garde un seul chiffre non nul, si bien
 que le coefficient n'a jamais plus de deux chiffres différents de zéro —
 36 valeurs en tout, de 0,1 à 1,9.
+**Et la chaîne S'ARRÊTE à l'écriture décimale du coefficient** (décision de
+Turquet, septembre 2026) : elle redemandait ensuite sa forme FRACTIONNAIRE —
+1 − 4/100 = 1 − 0,04 = 0,96 = 96/100 — et ce dernier maillon ne sert à rien
+ICI. En 2.2.1 et 2.3.1 il sert, et c'est ce qui départage les deux cas : la
+fraction du coefficient y est celle qu'on multiplie ensuite par la valeur de
+départ, à l'étape ②. Le 2.4.1 n'a pas d'étape suivante — la vérification est
+finie dès qu'on retombe sur le coefficient DONNÉ, écrit en décimal dans
+l'énoncé. Le rappel de cours le montrait déjà ainsi
+(\(1-\frac{4}{100}=1-0{,}04=0{,}96\)) : l'écran dit enfin la même chose que
+lui. **Trois choses s'arrêtent ensemble, et n'en arrêter qu'une ne tient
+rien** : la chaîne, le message de correction et le contexte envoyé au modèle —
+raccourcie d'un côté et pas de l'autre, la question dirait autre chose que
+l'écran. La question passe de 7 cases à 5, et la note affichée le dit
+(« 5 cases justes sur 5 ») ; la note enregistrée, elle, vaut 1 point par
+question et ne bouge pas. Le contrôle tient les trois bords — le maillon
+retiré (aucune fraction du coefficient nulle part), les maillons GARDÉS (P/100
+et l'écriture décimale du pourcentage, sans quoi « on a tout retiré »
+passerait aussi) et la note. Sept sabotages, chacun rougissant en nommant son
+défaut.
 
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,

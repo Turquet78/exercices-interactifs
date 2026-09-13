@@ -9541,7 +9541,19 @@ async function finishBaisses(){
    Le signe et le début du coefficient affichés à la vérification suivent le
    sens CHOISI, pas le bon : un élève qui a répondu « augmentation » devant
    0,96 doit écrire « 1,… » et buter dessus. C'est là que la vérification sert
-   à quelque chose. */
+   à quelque chose.
+   LA CHAÎNE S'ARRÊTE À L'ÉCRITURE DÉCIMALE DU COEFFICIENT (décision de
+   Turquet, septembre 2026) : elle redemandait ensuite sa forme
+   FRACTIONNAIRE — 1 − 4/100 = 1 − 0,04 = 0,96 = 96/100 — et ce dernier
+   maillon ne servait à rien ICI. En 2.2.1 et 2.3.1 il sert : la fraction du
+   coefficient est celle qu'on multiplie ensuite par la valeur de départ, à
+   l'étape ②. Cet exercice-là n'a pas d'étape suivante — la vérification est
+   finie dès qu'on retombe sur le coefficient donné, qui est écrit en
+   DÉCIMAL dans l'énoncé. C'est aussi ce que le rappel de cours montre
+   depuis toujours (\(1-\frac{4}{100}=1-0{,}04=0{,}96\)) : l'écran dit
+   enfin la même chose que lui. Le message de correction et le contexte
+   envoyé au modèle s'arrêtent au même endroit — une chaîne raccourcie d'un
+   côté et pas de l'autre ferait mentir l'écran. */
 const LC_CTX=[
   {s:'Un prix',                          g:'m'},
   {s:'Un salaire',                       g:'m'},
@@ -9614,11 +9626,11 @@ function renderLCTest(){
     `<div class="pt-step${cache}"><div class="pt-lab">① De quel pourcentage ?</div>
        <div class="pt-row"><span class="f-whole">${c===-1?'une baisse de':'une augmentation de'}</span>${dec('lcP','le pourcentage de l’évolution')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">② Vérifie ta réponse en calculant SON coefficient, comme dans {augmenter-pourcentage} et {diminuer-pourcentage} : tu dois retrouver ${q.coefStr}</div>
-       <div class="pt-row"><span class="f-whole">1 ${signe}</span>${frac('lc1n','lc1d')}<span class="f-eq">=</span><span class="f-whole">1 ${signe} 0,</span>${dec('lc1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${tete}</span>${dec('lc1dec','le coefficient en écriture décimale')}<span class="f-eq">=</span>${frac('lc2n','lc2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 ${signe}</span>${frac('lc1n','lc1d')}<span class="f-eq">=</span><span class="f-whole">1 ${signe} 0,</span>${dec('lc1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${tete}</span>${dec('lc1dec','le coefficient en écriture décimale')}</div></div>`+
     `<p class="pt-aide">${c===null
         ? 'Commence par dire si le coefficient fait monter ou descendre la valeur.'
         : 'Si tu retrouves '+q.coefStr+', ta réponse est la bonne.'}</p>`);
-  const order=[$('lcP'),$('lc1n'),$('lc1d'),$('lc1p'),$('lc1dec'),$('lc2n'),$('lc2d')].filter(Boolean);
+  const order=[$('lcP'),$('lc1n'),$('lc1d'),$('lc1p'),$('lc1dec')].filter(Boolean);
   const usable=el=>el && el.offsetParent!==null && !el.disabled;
   const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
   order.forEach((el,i)=>{
@@ -9646,7 +9658,6 @@ function checkLCAnswer(live){
     ['lc1dec'].forEach(id=>{ const el=$(id); if(!el||el.disabled) return;
       el.classList.remove('ok','bad'); if(v(id)==='') return;
       el.classList.add(decOk(id,tete,q.coef,100)?'ok':'bad'); });
-    liveColorFrac('lc2n','lc2d',q.coef,100);
     return;
   }
   const iv=id=>parseInt(v(id),10);
@@ -9656,25 +9667,24 @@ function checkLCAnswer(live){
   const ok1    = v('lc1n')!=='' && fracEqual(iv('lc1n'),den('lc1d'),q.P,100);
   const ok1p   = decOk('lc1p','0,',q.P,100);
   const ok1d   = decOk('lc1dec',tete,q.coef,100);
-  const ok2    = v('lc2n')!=='' && fracEqual(iv('lc2n'),den('lc2d'),q.coef,100);
   const mark=(id,ok)=>{const el=$(id); if(!el)return; el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.disabled=ok||!soutien;};
-  mark('lcP',okP); mark('lc1n',ok1); mark('lc1d',ok1); mark('lc1p',ok1p); mark('lc1dec',ok1d); mark('lc2n',ok2); mark('lc2d',ok2);
+  mark('lcP',okP); mark('lc1n',ok1); mark('lc1d',ok1); mark('lc1p',ok1p); mark('lc1dec',ok1d);
   [...document.querySelectorAll('#lcChoix .pt-choix-btn')].forEach((b,i)=>{
     b.classList.remove('ok','bad');
     if(q.choisi===(i===0?1:-1)) b.classList.add(okSens?'ok':'bad');
   });
-  const allOk=okSens&&okP&&ok1&&ok1p&&ok1d&&ok2;
+  const allOk=okSens&&okP&&ok1&&ok1p&&ok1d;
   if(!allOk && soutien){ soutienAgain('lcFeedback','lcActions','checkLCAnswer','lcHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('lcLiveScore').textContent=test.score;
     $('lcFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('lcFeedback').className='mp-feedback good';
   } else {
     const mot=q.sens>0?'augmentation':'baisse', sg=q.sens>0?'+':'−';
-    $('lcFeedback').textContent=`${q.coefStr} est plus ${q.sens>0?'grand':'petit'} que 1 : c’est une ${mot}. Méthode : 1 ${sg} ${q.P}/100 = 1 ${sg} ${pDecStr(q.P)} = ${q.coefStr} = ${q.coef}/100. L’évolution est donc une ${mot} de ${q.P} %.`;
+    $('lcFeedback').textContent=`${q.coefStr} est plus ${q.sens>0?'grand':'petit'} que 1 : c’est une ${mot}. Méthode : 1 ${sg} ${q.P}/100 = 1 ${sg} ${pDecStr(q.P)} = ${q.coefStr}. L’évolution est donc une ${mot} de ${q.P} %.`;
     $('lcFeedback').className='mp-feedback bad';
     corTrainDec('lcP',q.P);
     corTrainFrac('lc1n','lc1d',q.P,100); corTrainDec('lc1p',String(q.P).padStart(2,'0'));
-    corTrainDec('lc1dec',q.coefStr.slice(2)); corTrainFrac('lc2n','lc2d',q.coef,100);
+    corTrainDec('lc1dec',q.coefStr.slice(2));
   }
   const donne=(q.choisi==null)?null:((q.choisi>0?'+':'−')+(v('lcP')||'?')+' %');
   test.answers.push({...(ptsExo()||{}),q:`coefficient ${q.coefStr}`,
@@ -13044,7 +13054,7 @@ function conseilCtxCourant(){
   } else if(k==='lc' && q){
     const mot=q.sens>0?'augmentation':'baisse';
     att='Réponses attendues, STRICTEMENT SECRÈTES : le coefficient '+q.coefStr+' correspond à une '+mot+' de '+q.P+' %. '
-      +'Vérification : 1 '+(q.sens>0?'+':'−')+' '+q.P+'/100 = 1 '+(q.sens>0?'+':'−')+' '+pDecStr(q.P)+' = '+q.coefStr+' = '+q.coef+'/100 (toute fraction égale convient). '
+      +'Vérification : 1 '+(q.sens>0?'+':'−')+' '+q.P+'/100 = 1 '+(q.sens>0?'+':'−')+' '+pDecStr(q.P)+' = '+q.coefStr+' — la chaîne s’arrête à l’écriture décimale, on ne redemande pas la forme fractionnaire du coefficient. '
       +'Sens actuellement choisi par l’élève : '+(q.choisi==null?'aucun':(q.choisi>0?'augmentation':'baisse'))+'. '
       +'Méthode enseignée : un coefficient plus grand que 1 fait monter, plus petit que 1 fait descendre, et le pourcentage se lit sur l’ÉCART À 1. '
       +'L’erreur classique est de lire 0,96 comme « −96 % » au lieu de « −4 % » : multiplier par 0,96, c’est garder 96 %, donc en perdre 4. '
