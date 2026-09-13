@@ -239,6 +239,15 @@ module.exports = {
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
+            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
+               (demande de Turquet, septembre 2026) : ses touches grandissent
+               pour occuper la largeur libre — jusqu'au plafond, au-delà
+               duquel la rangée se centre plutôt que de devenir des barres.
+               Le plafond vit ICI et la page doit porter le même (deux
+               sources) ; le plancher est ce que le banc navigateur exige
+               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
+               faisait 634 px et ses touches 40. */
+            largeurPaysage: { toucheMax: 80, plancher: 52 },
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     /* le témoin des réglages par exercice d'un devoir (coupe du nombre de
        questions) : un exercice au tirage homogène, présent dans la table du
@@ -522,6 +531,15 @@ module.exports = {
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
+            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
+               (demande de Turquet, septembre 2026) : ses touches grandissent
+               pour occuper la largeur libre — jusqu'au plafond, au-delà
+               duquel la rangée se centre plutôt que de devenir des barres.
+               Le plafond vit ICI et la page doit porter le même (deux
+               sources) ; le plancher est ce que le banc navigateur exige
+               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
+               faisait 634 px et ses touches 40. */
+            largeurPaysage: { toucheMax: 80, plancher: 52 },
             maths: { exercice: 'pourcentage', champ: '#p3', frappe: ['5', ',', '5'], attendu: '5,5' } },
     reglagesDevoirs: { exercice: 'pourcentage' },
     tableResultats: 'resultats_2nde',
@@ -666,7 +684,16 @@ module.exports = {
        téléphone. */
     policeTablette: 90,
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
-            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'] },
+            touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'],
+            /* LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET en paysage
+               (demande de Turquet, septembre 2026) : ses touches grandissent
+               pour occuper la largeur libre — jusqu'au plafond, au-delà
+               duquel la rangée se centre plutôt que de devenir des barres.
+               Le plafond vit ICI et la page doit porter le même (deux
+               sources) ; le plancher est ce que le banc navigateur exige
+               d'une touche RENDUE sur une tablette de 1180 px, où le pavé
+               faisait 634 px et ses touches 40. */
+            largeurPaysage: { toucheMax: 80, plancher: 52 } },
     /* LE CLAVIER MATHÉMATIQUE À L'ÉCRAN (demande de Turquet, septembre 2026) :
        ses deux couches se nomment « clavier A » (chiffres, opérations) et
        « clavier B » (sin, cos, π…) — « fn » et « 123 » ne disaient rien à un

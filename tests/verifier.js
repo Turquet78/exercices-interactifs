@@ -1761,6 +1761,85 @@ function branchements(w){
       'paveBrancher est introuvable dans ce fichier');
   }
 
+  /* ---- EN PAYSAGE, LE PAVÉ EST AUSSI LARGE QUE L'ÉCRAN LE PERMET ---------
+     Demande de Turquet (septembre 2026) : « pour tous les exercices où le
+     clavier est représenté sur une ligne, en mode paysage, faire en sorte que
+     le clavier soit le plus large possible en fonction de la définition de
+     l'écran ». Il faisait 634 px sur toutes les tablettes — largeur FIXE,
+     touches à flex:none — et le reste de l'écran restait vide.
+     Trois bords ici ; la LARGEUR RENDUE, elle, se mesure au banc navigateur,
+     seul à savoir où tombe une touche.
+     · la boîte s'ÉTIRE : la règle de paysage pose ses deux bords (left ET
+       right) au lieu d'une largeur de contenu ;
+     · les TOUCHES grandissent avec elle (flex), plafonnées au chiffre déclaré
+       dans tests/profils.js — deux sources : une boîte étirée dont les
+       touches restent à 40 px laisserait le vide DANS le pavé ;
+     · là où les commandes du bas partagent la ligne du pavé, la largeur
+       LUE (--ctrls-w) est celle que le moteur MESURE : un lecteur sans mesure
+       étirerait le pavé par-dessus les commandes, une mesure sans lecteur
+       serait un garde-fou mort de plus. */
+  const largeurP = P.pave && P.pave.largeurPaysage;
+  if(!largeurP){
+    ignorer('en paysage, le pavé s’élargit avec l’écran', 'ce fichier ne déclare pas de pavé');
+  } else {
+    /* les blocs @media (orientation:landscape) du fichier, accolades comptées */
+    const blocs = [];
+    let d = 0;
+    while(true){
+      d = src.indexOf('@media (orientation:landscape)', d);
+      if(d < 0) break;
+      let i = src.indexOf('{', d), n = 0, j = i;
+      for(; j < src.length; j++){
+        if(src[j] === '{') n++;
+        else if(src[j] === '}'){ n--; if(!n) break; }
+      }
+      blocs.push(src.slice(d, j + 1));
+      d = j + 1;
+    }
+    const paysage = blocs.join('\n');
+    const regleP = /#paveNum\{([^}]*)\}/g;
+    const boites = [];
+    let mb;
+    while((mb = regleP.exec(paysage))) boites.push(mb[1].replace(/\s+/g, ''));
+    const etirees = boites.filter(t => /left:/.test(t) && /right:/.test(t) && !/width:max-content/.test(t));
+    const figees = boites.filter(t => /width:max-content/.test(t));
+    const mt = /#paveNum \.pave-t\{([^}]*)\}/.exec(paysage);
+    const touche = mt ? mt[1].replace(/\s+/g, '') : '';
+    const plafond = /max-width:(\d+)px/.exec(touche);
+    const lit = /var\(--ctrls-w/.test(paysage);
+    /* la MESURE, pas le commentaire qui la nomme : le premier sabotage a
+       retiré l'écriture en gardant le commentaire, et le contrôle restait
+       vert en parlant d'autre chose. */
+    const mesure = /setProperty\(\s*['\"]--ctrls-w/.test(corpsDe(src, 'paveCale') || '');
+
+    if(!blocs.length || !boites.length){
+      verifier('en paysage, le pavé s’élargit avec l’écran', false,
+        !blocs.length ? 'aucune règle @media (orientation:landscape) dans ce fichier'
+                      : 'aucune règle #paveNum en paysage — le contrôle n’a rien à mesurer');
+    } else {
+      verifier('en paysage, la boîte du pavé s’étire d’un bord à l’autre',
+        etirees.length > 0 && figees.length === 0,
+        figees.length ? 'une règle garde width:max-content — le pavé reste à sa largeur de contenu'
+                      : 'aucune règle de paysage ne pose left ET right sur #paveNum');
+      verifier('en paysage, les touches du pavé grandissent avec la boîte, plafonnées à '
+                 + largeurP.toucheMax + 'px',
+        /flex:1/.test(touche) && !!plafond && Number(plafond[1]) === largeurP.toucheMax,
+        !mt ? 'aucune règle .pave-t en paysage'
+            : !/flex:1/.test(touche) ? 'les touches ne grandissent pas (flex absent) : « ' + touche + ' »'
+            : !plafond ? 'aucun plafond de largeur : une touche deviendrait une barre'
+            : 'plafond de ' + plafond[1] + 'px dans la page contre ' + largeurP.toucheMax + ' déclarés');
+      if(P.pave.commandes){
+        verifier('en paysage, le pavé s’arrête à la largeur MESURÉE des commandes du bas',
+          lit && mesure,
+          !lit ? 'la feuille de styles ne lit pas --ctrls-w : le pavé s’étirerait par-dessus les commandes'
+               : 'paveCale ne mesure plus --ctrls-w : la feuille lit une largeur que personne n’écrit');
+      } else {
+        ignorer('en paysage, le pavé s’arrête à la largeur MESURÉE des commandes du bas',
+          'ce niveau ne range pas ses commandes du bas avec le pavé');
+      }
+    }
+  }
+
   const MOTEUR_SF = ['sfPgcd','sfPpcm','sfGen','sfBuildQuestions','sfTermeHTML','sfCases',
                      'renderSFTest','sfLu','sfJuge','sfLive','checkSFAnswer','sfPourquoi',
                      'nextSFQuestion','sfFracInner'];
