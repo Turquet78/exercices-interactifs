@@ -248,7 +248,7 @@ module.exports = {
        du facteur, l'énoncé réduit de la seule police de la page. */
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
-                                  '.fr .fd', '.fpm-const', '.mf-cor'],
+                                  '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
                       /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit

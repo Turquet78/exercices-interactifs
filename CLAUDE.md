@@ -4183,6 +4183,25 @@ Changer de sens redessine l'étape : les cases déjà écrites ne veulent plus r
 dire sous l'autre signe. Le pourcentage garde un seul chiffre non nul, si bien
 que le coefficient n'a jamais plus de deux chiffres différents de zéro —
 36 valeurs en tout, de 0,1 à 1,9.
+**Et la chaîne S'ARRÊTE à l'écriture décimale du coefficient** (décision de
+Turquet, septembre 2026) : elle redemandait ensuite sa forme FRACTIONNAIRE —
+1 − 4/100 = 1 − 0,04 = 0,96 = 96/100 — et ce dernier maillon ne sert à rien
+ICI. En 2.2.1 et 2.3.1 il sert, et c'est ce qui départage les deux cas : la
+fraction du coefficient y est celle qu'on multiplie ensuite par la valeur de
+départ, à l'étape ②. Le 2.4.1 n'a pas d'étape suivante — la vérification est
+finie dès qu'on retombe sur le coefficient DONNÉ, écrit en décimal dans
+l'énoncé. Le rappel de cours le montrait déjà ainsi
+(\(1-\frac{4}{100}=1-0{,}04=0{,}96\)) : l'écran dit enfin la même chose que
+lui. **Trois choses s'arrêtent ensemble, et n'en arrêter qu'une ne tient
+rien** : la chaîne, le message de correction et le contexte envoyé au modèle —
+raccourcie d'un côté et pas de l'autre, la question dirait autre chose que
+l'écran. La question passe de 7 cases à 5, et la note affichée le dit
+(« 5 cases justes sur 5 ») ; la note enregistrée, elle, vaut 1 point par
+question et ne bouge pas. Le contrôle tient les trois bords — le maillon
+retiré (aucune fraction du coefficient nulle part), les maillons GARDÉS (P/100
+et l'écriture décimale du pourcentage, sans quoi « on a tout retiré »
+passerait aussi) et la note. Sept sabotages, chacun rougissant en nommant son
+défaut.
 
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,
@@ -6528,8 +6547,8 @@ tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran
 cassé.
 **Ce qui NE bouge pas est un choix, pas un oubli** : la case générique à
-1,05 rem (le 2.5.2, les colonnes du 3.1.4) est déjà la plus petite du niveau
-et reste une cible qu'on touche du doigt ; les étiquettes d'étape et les
+1,05 rem (les colonnes du 3.1.4) est déjà la plus petite du niveau et reste une
+cible qu'on touche du doigt ; les étiquettes d'étape et les
 boutons de propositions ne sont pas des écritures de la chaîne. Sur un
 TÉLÉPHONE rien ne change non plus — la demande dit les tablettes, et le
 facteur vaut 1 sous 600 px.
@@ -6543,10 +6562,44 @@ facteur n'est déclaré qu'à UN endroit et jamais sur `:root`, `html` ou `body`
 pas. Le banc NAVIGATEUR (« 11 septies ») mesure ce que jsdom ne sait pas :
 les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
 et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
-page. Un défaut d'à côté s'est vu en mesurant, et il est ANTÉRIEUR : au 2.5.2,
-les cases sont à 1,05 rem devant des écritures à 2 rem — le contrôle universel
-ne l'attrape pas, ses voisins n'étant pas des nombres NUS (« 1 + », « 1, »).
-Le dire vaut mieux que le taire.
+page.
+
+**Et un défaut d'à côté s'est vu en mesurant : le 2.5.2 écrivait ses cases
+trois fois plus petites que ses nombres.** Ses cases étaient restées à la
+taille générique (1,05 rem) devant des écritures à 2 rem — « 1 − ▢/▢ = 1 − 0,▢
+= 0,▢ » — alors que son jumeau le 2.2.1, dont il reprend la chaîne au caractère
+près, les écrit à 1,9 rem : la réponse de l'élève passait pour une note en bas
+de page au milieu du calcul, c'est-à-dire exactement ce que la règle « une case
+a la taille des nombres qui l'entourent » interdit. Corrigé sur demande de
+Turquet (septembre 2026) : `#ckHost` rejoint le groupe des pourcentages dans
+les cinq listes qui vont ensemble — la taille, les deux largeurs, le trait de
+fraction et le repli du téléphone — plutôt que de recevoir un réglage à lui,
+qui aurait fini par diverger de celui du 2.2.1.
+**MAIS LE VRAI DÉFAUT ÉTAIT DANS LE CONTRÔLE, et c'est lui qui a été
+réparé** : le contrôle universel ne comptait comme « nombre autour » qu'un
+morceau de texte ENTIÈREMENT numérique (« 90 », « 1,5 »). Or la page n'écrit
+presque jamais un nombre tout nu dans une chaîne : elle écrit « 1 − »,
+« 1 − 0, », « 0, ». Le 2.5.2 n'avait donc AUCUN voisin aux yeux du banc, qui
+passait au vert en regardant ailleurs — un contrôle qui ne mesure rien ne
+mesure rien, et celui-là a vécu des mois. Est désormais un voisin tout morceau
+COURT (12 caractères au plus) qui porte un chiffre et aucune lettre : le signe
+et la virgule font partie du calcul écrit. Les étiquettes (« Question 1 / 4 »)
+portent des lettres, et ce qui vit ailleurs à l'écran reste écarté par la ligne
+partagée et les 120 px — les trois niveaux passent sans une seule exemption, ce
+qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.2
+en défaut : le banc le NOMME (« 2.5.2 — ck1p : 16.8px contre 32px »), là où il
+restait vert avant.
+**Et il en a trouvé un SECOND en naissant, par intermittence — ce qui est la
+pire façon pour un contrôle de dire vrai.** Le 2.1.2 écrivait lui aussi sa case
+à 1,05 rem au milieu d'une phrase à 1,35 rem (« 20 % de 100 km est ▢ »), et le
+banc ne le nommait que lorsque le tirage posait un nombre sur la ligne de la
+case : vert un tirage sur deux. La case prend la taille de sa phrase, et la
+SONDE — le contrôle rejoué sur quatre tirages, les trois niveaux — remplace la
+chance par une mesure : zéro case plus petite que ses voisins. Un piège de
+cascade s'y est montré, le même qu'ailleurs : `.pcol-phrase math-field` (une
+classe, un type) PERD contre `body math-field.dexp-mf` (une classe, deux
+types), et la règle ne faisait rien — mesurée, pas relue : la case restait à
+16,8 px pendant que la feuille de styles disait 1,35 rem.
 **Et le contrôle s'est pris en défaut avant la page, deux fois.** Le premier
 jet cherchait le bloc média d'un seul coup de regex, en exigeant qu'il ne
 contienne QUE la règle du facteur : trois de ses bords devenaient alors
