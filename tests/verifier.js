@@ -2959,6 +2959,7 @@ function exercices(suite){
     grandsTableaux(w, P);
     qcmTableauVariation(w, P);
     syntheseFonction(w, P);
+    pageDesThemes(w, P);
     maximumMinimum(w, P);
     maximumMinimumTableau(w, P);
     tableauEquations(w, P);
@@ -13969,6 +13970,83 @@ function tableauVraiFaux(w, P){
    tirage qui mentirait donnerait tort à une lecture juste, le pire défaut du
    projet — puis il joue une copie JUSTE sur les quatre parties, une copie
    VIDE, et les bords de la règle des paires. */
+/* LA PAGE DES THÈMES NE MONTRE QUE DES THÈMES — les trois niveaux.
+   La Seconde listait ses quarante-six exercices sur un seul écran, thème par
+   thème, à faire défiler ; la Première et la Terminale ouvraient depuis
+   longtemps une page par thème (demande de Turquet, septembre 2026 : « en
+   seconde il faudrait une page pour afficher les thèmes des exercices dans
+   des cases avant d'afficher les exercices comme en première »).
+   Le contrôle est UNIVERSEL : la règle vaut sur les trois fichiers, et un
+   niveau qui reviendrait à la liste plate rougirait. Le banc NAVIGATEUR,
+   lui, parcourt déjà cet arbre pour mesurer la largeur et les colonnes — il
+   resterait vert sur une liste plate, qui a elle aussi quatre colonnes : ce
+   qu'il mesure est la mise en page, pas la NAVIGATION. */
+function pageDesThemes(w, P){
+  const nom='la page des thèmes ne montre que des thèmes, et chacune ouvre ses exercices';
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    mesResultats=[];
+
+    /* ---- 1. L'ÉCRAN « Exercices par thème » : une carte par thème, et RIEN
+       d'autre — un exercice posé là serait un retour à la liste plate ---- */
+    renderChooser([]);
+    const hote=document.getElementById('testChoices');
+    const cartes=[...hote.querySelectorAll('.choice')];
+    const attendus=THEMES.filter(function(t){ return t.ids.filter(function(id){ return TESTS[id]; }).length; });
+    if(cartes.length!==attendus.length)
+      vus.push(cartes.length+' carte(s) sur l écran des thèmes pour '+attendus.length+' thème(s)');
+    const pasThemes=cartes.filter(function(c){ return !c.classList.contains('themecard'); });
+    if(pasThemes.length)
+      vus.push(pasThemes.length+' carte(s) qui ne sont pas des thèmes : la page liste encore des exercices');
+    /* AUCUN antislash littéral dans ce contrôle : ses chaînes traversent le
+       template littéral de verifier.js PUIS l'évaluation dans la page, et un
+       « \( » y perd son antislash — le piège documenté des deux analyseurs.
+       On compare donc des chaînes, jamais une expression régulière. */
+    const porte=function(c){ return String(c.getAttribute('onclick')||''); };
+    const sansPorte=cartes.filter(function(c){ return porte(c).indexOf('openTheme(')<0; });
+    if(sansPorte.length) vus.push(sansPorte.length+' carte(s) de thème qui n ouvrent pas leur page');
+
+    /* ---- 2. LA PAGE D'UN THÈME : ses exercices (ou ses parties là où le
+       niveau en déclare), et l'écran qui s'affiche est bien celui-là ---- */
+    attendus.forEach(function(th){
+      openTheme(th.num);
+      const on=document.querySelector('.screen.on');
+      if(!on || on.id!=='scr-theme'){ vus.push('thème '+th.num+' : openTheme n ouvre pas la page du thème'); return; }
+      const titre=(document.getElementById('themeTitle')||{}).textContent||'';
+      if(titre.indexOf(th.nom)<0) vus.push('thème '+th.num+' : le titre de la page ne dit pas « '+th.nom+' »');
+      const c=[...document.getElementById('themeChoices').querySelectorAll('.choice')];
+      if(!c.length){ vus.push('thème '+th.num+' : sa page ne liste rien'); return; }
+      const parties=c.filter(function(x){ return x.classList.contains('themecard'); }).length;
+      if(parties && parties!==c.length)
+        vus.push('thème '+th.num+' : sa page mêle des parties et des exercices');
+      if(!parties){
+        const ids=th.ids.filter(function(id){ return TESTS[id]; });
+        if(c.length!==ids.length)
+          vus.push('thème '+th.num+' : '+c.length+' carte(s) pour '+ids.length+' exercice(s)');
+        const etrangers=c.filter(function(x){
+          const o=porte(x), i=o.indexOf("openTest('");
+          if(i<0) return true;
+          const j=o.indexOf("'", i+10);
+          return j<0 || ids.indexOf(o.slice(i+10, j))<0; });
+        if(etrangers.length)
+          vus.push('thème '+th.num+' : '+etrangers.length+' carte(s) qui n ouvrent pas un exercice du thème');
+      }
+    });
+
+    /* ---- 3. LE RETOUR : après un exercice, on revient sur la page de SON
+       thème. C'est currentThemeNum que la page relit, et openTest doit le
+       poser — sans quoi l'élève qui enchaîne deux exercices d'un même thème
+       redescend d'un étage à chaque fois. ---- */
+    if(typeof themeOfTest!=='function') vus.push('themeOfTest est introuvable : le retour ne sait plus de quel thème on vient');
+    else attendus.forEach(function(th){
+      const id=th.ids.filter(function(x){ return TESTS[x]; })[0];
+      if(themeOfTest(id)!==th.num) vus.push('themeOfTest se trompe de thème sur '+id);
+    });
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 function syntheseFonction(w, P){
   const nom='la synthèse : le tirage se relit, et la copie juste vaut le barème entier';
   const present = evaluer(w, "typeof startSYN==='function' && typeof synGen==='function'");

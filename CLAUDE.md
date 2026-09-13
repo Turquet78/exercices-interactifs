@@ -4432,6 +4432,44 @@ doit être large, chaque écran qui liste au moins 4 exercices doit les poser su
 4 colonnes, et un écran plus court ne doit pas empiler (autant de colonnes que
 de cartes). Éprouvé sur les écrans profonds : retirer `soustheme` de la
 bascule, ou ramener la grille à 3 colonnes, rougit en nommant l'écran fautif.
+**Et la page des thèmes vient AVANT les exercices, en Seconde aussi.** Demande
+de Turquet (septembre 2026) : « en seconde il faudrait une page pour afficher
+les thèmes des exercices dans des cases avant d'afficher les exercices comme
+en première ». La Seconde posait ses quarante-six exercices sur un seul écran,
+thème par thème, à faire défiler ; « Exercices par thème » ne montre plus que
+QUATRE cartes — une par thème, avec le nombre d'exercices et le nombre déjà
+travaillés — et le détail vit sur sa propre page (`scr-theme`), ouverte par
+`openTheme()`. C'est le motif de la Première et de la Terminale, porté tel
+quel.
+**SANS l'étage des parties, et c'est un arbitrage nommé** : la Première découpe
+ses thèmes chargés en sous-thèmes (3.1, 3.2…), aucun thème de la Seconde n'en
+déclare, et une branche qui n'a jamais rien à rendre ferait croire qu'on tient
+quelque chose — le garde-fou mort, une fois de plus. Le jour où un thème en
+aura, elle se portera avec lui. Le thème des Fonctions en compte vingt-quatre :
+sur quatre colonnes, six rangées, et le dire vaut mieux que de le taire.
+**« Retour » revient sur la page D'OÙ L'ON VIENT** — celle du thème, ou celle
+de la partie là où le niveau en déclare : `openTest()` retient le thème de
+l'exercice (`currentThemeNum`), et `retourChoix()` le relit. Sans lui, l'élève
+qui enchaîne deux exercices d'un même thème redescendrait d'un étage à chaque
+fois.
+**Le contrôle qui manquait est celui de la NAVIGATION, et il est UNIVERSEL** :
+le banc navigateur parcourait déjà cet arbre — il a couvert la Seconde sans
+rien déclarer — mais il mesure la LARGEUR et les COLONNES, et une liste plate a
+elle aussi quatre colonnes : il serait resté vert sur le retour en arrière. Le
+contrôle jsdom exige donc que l'écran des thèmes ne porte QUE des cartes de
+thème, une par thème, chacune ouvrant sa page, et que la page d'un thème liste
+SES exercices (ou ses parties). Il passe sur les trois fichiers, la règle y
+valant partout. Neuf sabotages, chacun rougissant en nommant son défaut — sept
+au banc jsdom (la liste plate revenue, la carte qui n'ouvre rien, l'exercice
+oublié, la page d'un autre thème, l'écran qui ne s'ouvre pas, le titre muet,
+`themeOfTest` qui se trompe) et deux que seul le NAVIGATEUR voit : le retour
+qui redescend à la liste des thèmes, et l'écran du thème redevenu étroit —
+jsdom restant vert à bon droit sur l'un comme sur l'autre.
+Le piège documenté de l'antislash a mordu à la première exécution : `\(` écrit
+dans une expression régulière du contrôle ne survit pas au template littéral de
+`verifier.js` — « Invalid regular expression: /openTheme(/ », sur les trois
+niveaux d'un coup. Le contrôle compare des CHAÎNES, jamais une regex.
+
 *Et les étapes étaient écrites en blocs séparés.* Le pourcentage passe de trois
 `pt-step` à un seul ; augmenter et diminuer de cinq à deux — le coefficient est
 une AUTRE égalité, elle garde son bloc — plus la pose facultative, renvoyée à la

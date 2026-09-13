@@ -2882,6 +2882,52 @@ async function parcours(page, N){
       verifier('revenir à l\'accueil rend la colonne de lecture',
         !retour.menuLarge && retour.large < 900,
         'wrap ' + retour.large + ' px, menu-large:' + retour.menuLarge);
+      /* ET « RETOUR » DEPUIS UN EXERCICE REVIENT SUR LA PAGE D'OÙ IL VIENT —
+         la page de son thème, ou celle de sa partie là où le niveau en
+         déclare : l'élève qui enchaîne deux exercices du même thème
+         redescendrait sinon d'un étage à chaque fois. C'est un GESTE, donc il
+         se mesure ici, en cliquant le vrai bouton. La sonde DESCEND l'arbre
+         tant qu'elle rencontre des cartes de thème — la Première ouvre des
+         parties avant ses exercices, et viser le premier étage n'y aurait
+         rien trouvé à ouvrir. */
+      const depart = await s.page.evaluate(async () => {
+        const titre = () => { const h = document.querySelector('.screen.on .topbar .title');
+                              return h ? h.textContent : ''; };
+        const cartes = () => [...document.querySelectorAll('.screen.on .choice')];
+        await openThemes();
+        for(let garde = 0; garde < 6; garde++){
+          const c = cartes()[0];
+          if(!c) return null;
+          if(!c.classList.contains('themecard')){
+            const o = c.getAttribute('onclick') || '';
+            const i = o.indexOf("openTest('"), j = i < 0 ? -1 : o.indexOf("'", i + 10);
+            if(j < 0) return null;
+            return { ecran: (document.querySelector('.screen.on')||{}).id, titre: titre(),
+                     exo: o.slice(i + 10, j) };
+          }
+          await new Function('return (async()=>{ await ' + (c.getAttribute('onclick')||'') + '; })()')();
+          await new Promise(r => setTimeout(r, 200));
+        }
+        return null;
+      });
+      if(!depart || !depart.exo){
+        verifier('« Retour » depuis un exercice revient sur la page d\'où il vient', false,
+          'aucun exercice atteignable en descendant depuis les cartes de thème');
+      } else {
+        await s.page.evaluate(id => openTest(id), depart.exo);
+        await s.page.waitForTimeout(500);
+        await s.page.click('#scr-mode .topbar .btn-link');
+        await s.page.waitForTimeout(900);
+        const apres = await s.page.evaluate(() => {
+          const h = document.querySelector('.screen.on .topbar .title');
+          return { ecran: (document.querySelector('.screen.on')||{}).id || '(aucun)',
+                   titre: h ? h.textContent : '' };
+        });
+        verifier('« Retour » depuis un exercice revient sur la page d\'où il vient',
+          apres.ecran === depart.ecran && apres.titre === depart.titre,
+          'écran ' + apres.ecran + ' « ' + apres.titre + ' » au lieu de '
+            + depart.ecran + ' « ' + depart.titre + ' »');
+      }
       for(const exo of P.pleineLargeur.exercices){
         await s.page.evaluate(id => openTest(id), exo);
         await s.page.waitForTimeout(400);

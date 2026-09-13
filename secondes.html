@@ -126,6 +126,11 @@
   .choice.prof{border-color:#cfe6db}.choice.prof:hover{border-color:var(--green)}
   .choice.rattrapage{border-color:#f1d199}.choice.rattrapage:hover{border-color:#d98f2a}
   .choice.fiche{border-color:#dccdf0}.choice.fiche:hover{border-color:#8d5fb8}
+  /* La CARTE d'un thème sur la page « Exercices par thème » : sa pastille
+     porte le NUMÉRO du thème, comme en Première et en Terminale — le même
+     dessin des trois côtés, sans quoi le même écran se lirait autrement
+     d'un niveau à l'autre. */
+  .choice.themecard .ic.theme-ic{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--blue);background:#EAF0FF;border-radius:12px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;}
   /* Regroupement par thèmes (menu élève) */
   .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
   .theme-block{display:flex;flex-direction:column;gap:14px}
@@ -1752,7 +1757,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <div class="stat green"><div class="k">Note moyenne</div><div class="v" id="sAvg">—</div></div>
         <div class="stat gold"><div class="k">Meilleure note</div><div class="v" id="sBest">—</div></div>
       </div>
-      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <p class="lead">Choisis un thème pour ouvrir la page de ses exercices interactifs.</p>
       <div class="theme-list" id="testChoices"></div>
       <div class="panel" style="margin-top:20px">
         <h3>Ma progression</h3>
@@ -1762,6 +1767,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <h3>Mes derniers tests</h3>
         <ul class="histlist" id="spaceHist"></ul>
       </div>
+    </div>
+  </section>
+
+  <!-- EXERCICES D'UN THÈME -->
+  <section class="screen" id="scr-theme">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="themeTitle">Thème</h2>
+        <button class="btn-link" onclick="show('choose')">← Thèmes</button>
+      </div>
+      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="theme-list" id="themeChoices"></div>
     </div>
   </section>
 
@@ -2627,7 +2644,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=155;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=156;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -4736,23 +4753,51 @@ function progBarHTML(){
     <div class="prog-sub">Points obtenus sur l'ensemble des ${p.nbTests} tests (chacun sur 10, meilleure note conservée).</div>
   </div>`;
 }
+/* LA PAGE « EXERCICES PAR THÈME » NE MONTRE QUE LES THÈMES (demande de
+   Turquet, septembre 2026 : « en seconde il faudrait une page pour afficher
+   les thèmes des exercices dans des cases avant d'afficher les exercices
+   comme en première »). Une carte par thème, avec le nombre d'exercices et le
+   nombre déjà travaillés ; le détail vit sur sa propre page (scr-theme),
+   ouverte par openTheme(). Les quarante-six exercices tenaient sinon sur une
+   seule page à faire défiler.
+   C'est le motif de la Première et de la Terminale, porté tel quel — SANS
+   l'étage des parties (sous-thèmes) : aucun thème de la Seconde n'en déclare,
+   et une branche qui n'a jamais rien à rendre ferait croire qu'on tient
+   quelque chose. Le jour où un thème en aura, elle se portera avec lui. */
 function renderChooser(results){
   results=results||mesResultats||[];
-  if(!THEMES.length){ $('testChoices').innerHTML='<div class="empty">Aucun exercice pour le moment. Reviens bientôt !</div>'; return; }
-  $('testChoices').innerHTML=THEMES.map(th=>{
-    const cards=th.ids.map((id,i)=>{
-      const t=TESTS[id]; if(!t) return '';
-      const num=th.num+'.'+(i+1);
-      const nd=derniereNoteExo(id);
-      const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-      return cardHTML(t.icon, num+' · '+t.name, t.desc, `openTest('${id}')`, '', '', badge);
-    }).join('');
-    if(!cards) return '';
-    return `<div class="theme-block">
-      <div class="theme-head"><span class="theme-num">Thème ${th.num}</span><span class="theme-name">${esc(th.nom)}</span></div>
-      <div class="choices">${cards}</div>
-    </div>`;
+  const cards=THEMES.map(th=>{
+    const ids=th.ids.filter(id=>TESTS[id]);
+    if(!ids.length) return '';
+    const faits=ids.filter(id=>derniereNoteExo(id).fait).length;
+    const badge=faits>0?`<span class="ex-bilan done">${faits} / ${ids.length} travaillé${faits>1?'s':''}</span>`:`<span class="ex-bilan todo">À découvrir</span>`;
+    return `<button class="choice eleve themecard" onclick="openTheme(${th.num})">
+      <span class="ic theme-ic">${th.num}</span><span class="ttl">Thème ${th.num} · ${esc(th.nom)}</span><span class="ds">${ids.length} exercice${ids.length>1?'s':''} interactif${ids.length>1?'s':''}</span>${badge}</button>`;
   }).join('');
+  $('testChoices').innerHTML = cards
+    ? '<div class="choices">'+cards+'</div>'
+    : '<div class="empty">Aucun exercice pour le moment. Reviens bientôt !</div>';
+}
+let currentThemeNum=null;
+function themeOfTest(id){ const th=THEMES.find(t=>t.ids.indexOf(id)>=0); return th?th.num:null; }
+/* Ouvre la page des exercices interactifs du thème choisi. Le numéro de chaque
+   exercice se déduit de sa POSITION, comme partout : une réorganisation le
+   suit toute seule. */
+function openTheme(num){
+  const th=THEMES.find(t=>t.num===num); if(!th) return;
+  currentThemeNum=num;
+  $('themeTitle').textContent='Thème '+th.num+' · '+th.nom;
+  const cards=th.ids.map((id,i)=>{
+    const t=TESTS[id]; if(!t) return '';
+    const num2=th.num+'.'+(i+1);
+    const nd=derniereNoteExo(id);
+    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+    return cardHTML(t.icon, num2+' · '+t.name, t.desc, `openTest('${escJS(id)}')`, '', '', badge);
+  }).join('');
+  $('themeChoices').innerHTML = cards
+    ? '<div class="choices">'+cards+'</div>'
+    : '<p class="muted">Exercices à venir.</p>';
+  show('theme');
 }
 /* ---------- Devoir à la maison (élève) ---------- */
 function lancerDevoir(devoirId, id, mode){
@@ -4914,6 +4959,7 @@ async function clearRecovery(){
 }
 async function openTest(testId){
   currentTestId=testId;
+  currentThemeNum=themeOfTest(testId)||currentThemeNum;
   currentDM=null;            // lancement normal (hors devoir)
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
@@ -5145,7 +5191,7 @@ function show(name){
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
-  document.body.classList.toggle('menu-large', ['choose'].indexOf(name)>=0);
+  document.body.classList.toggle('menu-large', ['choose','theme'].indexOf(name)>=0);
   /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
      partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
      résultats, dans le signalement —, mais PAS là où l'élève passe son temps.
@@ -5913,7 +5959,10 @@ function renderBilan(results){
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
-function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes(); } }
+/* Retour depuis un exercice : la page de SON thème, pas la liste des thèmes —
+   sinon l'élève qui enchaîne deux exercices d'un même thème redescendrait
+   d'un étage à chaque fois. */
+function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes().then(()=>{ if(currentThemeNum!=null) openTheme(currentThemeNum); }); } }
 
 /* ---------- Devoirs à la maison (élève) ---------- */
 async function openDevoirsEleve(genre){

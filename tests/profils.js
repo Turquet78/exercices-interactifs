@@ -472,7 +472,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','login','space','rattrapage','choose','devoirs','mode',
+    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','devoirs','mode',
                         'results','teacher-login','teacher'],
     niveau: 'Seconde',
     /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
