@@ -30,7 +30,7 @@ const KINDS_PREMIERE = [
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
-  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'],
+  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'], ['hsc','genHaussesCent()'],
   ['psl','genPctRes()'], ['ac','genAC()'],
 ];
 
@@ -42,7 +42,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -138,7 +138,7 @@ module.exports = {
     teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
                   minimum: 6,
                   exercices: ['diminuer-pourcentage', 'augmenter-pourcentage',
-                              'baisses-successives', 'hausses-successives',
+                              'baisses-successives', 'hausses-successives', 'hausses-successives-cent',
                               'somme-fractions', 'mult-decimaux', 'fraction-pourcentage',
                               'augmenter-addition', 'pourcentage'],
                   largeurs: [[820, 1180], [600, 900], [390, 844]] },
@@ -223,7 +223,7 @@ module.exports = {
        DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
     nbQuestionsPourcentages: 4,
     /* 3 questions pour tous les exercices sur les ÉVOLUTIONS — hausses 2.2.1
-       à 2.2.8, baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de
+       à 2.2.9, baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de
        Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
        le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
@@ -274,12 +274,12 @@ module.exports = {
        qu'il refuse rend la page non installable, et il le NOMME. */
     manifeste: { display: 'fullscreen' },
     policeTablette: 90,
-    /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.9,
+    /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
        2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
        septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
        plus petite »). Le banc jsdom exige la règle sous la requête média de la
        tablette, avec cette valeur, plus petite que la taille normale ; le banc
-       navigateur mesure la police RENDUE de la feuille du 2.2.9 sur la tablette
+       navigateur mesure la police RENDUE de la feuille du 2.2.10 sur la tablette
        (au plus pxMax) et exige qu'elle soit plus petite que sur l'ordinateur. */
     feuilleTablette: { rem: 1.4, pxMax: 21 },
     /* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
@@ -300,7 +300,7 @@ module.exports = {
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
                                   '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
-                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8) est hors
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.10, 2.3.8) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
                          les fractions de l'énoncé — il est donc nommé ici plutôt que
@@ -309,7 +309,7 @@ module.exports = {
                       exercice: 'pourcentage', champ: '#p3', ecriture: '.f-whole', enonce: '#pPrompt' },
     /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
        — commit, l'événement « change » : une ligne de plus dans la feuille du
-       2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne
+       2.2.10, la case suivante dans un exercice guidé — là où un « ✓ » ne
        faisait que CACHER le clavier (signalé par Turquet, septembre 2026 :
        « la touche valider ne fonctionne pas et ne permet pas de passer à la
        ligne »). Et sur une tablette en PAYSAGE, le clavier ancré tient sur
