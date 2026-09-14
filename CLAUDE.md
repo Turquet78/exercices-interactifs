@@ -7327,6 +7327,84 @@ Paramètres → Affichage → Barre de navigation → Gestes de balayage, puis
 applications. Le dire vaut mieux que le taire — c'est le seul chemin si le
 plein écran de l'application ne suffit pas.
 
+**Et la bande du bas appartient au SYSTÈME : la Première y descendait.**
+Signalé par Turquet (septembre 2026), tablette Samsung, la page ouverte depuis
+l'écran d'accueil : « pour les exercices de Première où il faut rédiger une
+justification avec les pourcentages, par exemple le 2.3.9, la ligne la plus
+basse du clavier virtuel ne fonctionne pas — les caractères ne s'affichent
+pas, que ce soit en portrait ou en paysage ».
+**La sonde a mesuré avant qu'on ne touche à quoi que ce soit** : cette
+rangée-là vit à 7..49 px du bord BAS de l'écran en paysage (7..67 en
+portrait), et le CENTRE de ses touches à 28 px et 37 px du bord — les rangées
+du dessus, elles, sont à 78 et 97 px, et personne ne s'en est jamais plaint.
+Or Android se réserve les 48 dp du bas pour le geste de retour à l'accueil,
+que l'indicateur de geste de Samsung occupe en plus : le système y prend les
+touches, et rien n'arrive à la page. Aucune erreur nulle part — la touche ne
+répond simplement pas.
+**POURQUOI LA PREMIÈRE, ET POURQUOI EN APPLICATION SEULEMENT** : c'est le seul
+niveau dont le manifeste demande « fullscreen » (la demande du paragraphe
+ci-dessus), donc le seul qui dessine jusqu'au bord PHYSIQUE de l'écran. Dans
+un onglet, et dans les deux autres niveaux restés en « standalone », le
+navigateur ou la barre du système occupent cette bande et la page ne
+l'atteint jamais. Les trois conditions du signalement — Samsung, mode
+application, Première — sont chacune une moitié de la cause, et c'est la
+demande d'hier qui a produit le défaut d'aujourd'hui.
+**ON REND DONC LA BANDE, en mode application seulement** : rien de ce qui se
+touche n'y descend plus — le clavier mathématique ancré, les commandes du bas
+(Signaler / Abandonner / Pause) et le pavé numérique, qui vivait lui aussi à
+6 px du bord en paysage et serait devenu le signalement suivant. La réserve
+vit à UN SEUL endroit (`--bas-systeme`, 48 px, déclarée aussi dans
+`tests/profils.js` — deux sources) et la classe est posée par le script comme
+`pave-actif` : la requête média reste au navigateur, le banc force par
+`window.__appForce`, et la classe se RETIRE à la sortie du plein écran — sans
+quoi un onglet mis puis sorti du plein écran garderait la mise en page de
+l'application.
+**Le clavier remonte en BLOC, et c'est la mesure qui l'a décidé** : une
+bordure ou un rembourrage posés sur son fond n'ont RIEN donné — sa hauteur est
+ÉCRITE par MathLive et sa plaque de touches est accrochée au HAUT du fond, si
+bien que les touches n'avaient pas bougé d'un pixel et débordaient simplement
+de leur boîte. C'est une marge qui le remonte, et on l'a su en mesurant, pas
+en relisant.
+**Le bord OPPOSÉ compte autant, et il a son contrôle** : un niveau en
+« standalone » ne doit RIEN porter de tout cela — 48 px coûtés pour rien —, et
+un niveau qui passerait en plein écran sans réserve rougit aussitôt : le
+contrôle lit `manifeste.display` et `basSysteme` dans le MÊME profil et exige
+qu'ils aillent ensemble.
+**Deux bancs, la répartition habituelle.** jsdom tient les règles et la classe
+(la valeur comparée au profil, une seule déclaration non nulle et portée par
+la classe, chacun des trois meubles qui la LIT, la classe posée et retirée
+dans les deux sens, l'écouteur de la requête média). Le NAVIGATEUR
+(« 11 octies ») mesure ce que jsdom ne peut pas : il ouvre l'exercice SIGNALÉ,
+déploie le clavier et regarde ce qui reste dans la bande, en paysage puis en
+portrait, touche par touche et au RECTANGLE — plus `elementFromPoint` sur
+chaque centre, sans quoi une touche remontée mais RECOUVERTE passerait au
+vert. Et il mesure d'abord le bord opposé, dans un onglet : la rangée du bas y
+descend toujours à 7 px du bord — sans cette mesure, une réserve posée pour
+tout le monde passerait au vert.
+**CE QU'AUCUN BANC D'ICI NE PEUT DIRE, C'EST LA HAUTEUR DE LA BANDE.** 48 px
+est la valeur d'Android, pas une mesure prise sur la tablette de Turquet —
+aucun navigateur piloté ne reproduit ce que le système intercepte.
+`tests/diagnostic/bande-basse.html` existe pour cela, comme les trois pages de
+l'installation avant elle : son manifeste demande « fullscreen » comme la
+Première, elle empile sept barres à des hauteurs connues du bord et affiche le
+point le plus bas qu'une touche ait atteint. Si la première barre qui répond
+est plus haut que 48 px, c'est la réserve qu'il faut relever ; si tout répond
+dès le bord, la cause est ailleurs. C'est la règle du diagnostic, déjà payée
+sur l'installation : quand l'appareil dit le contraire du banc, on change de
+couche et on demande son avis à l'appareil.
+**Et une gêne d'à côté, plus ancienne, reste entière** : le clavier ancré
+RECOUVRE les commandes du bas tant qu'il est déployé — en paysage elles vivent
+exactement sous lui. Le dire vaut mieux que le taire ; ce n'est pas ce
+signalement-ci.
+Quatorze sabotages, chacun rougissant en nommant son défaut — dix au banc
+jsdom (la réserve à zéro, à 24 px, chacun des trois meubles débranché, la
+classe posée partout, la classe qui ne se retire plus, `__appForce` ignoré,
+l'écouteur retiré, le profil qui ne déclare plus rien, la réserve qui fuit sur
+la Seconde) et quatre au navigateur, qui nomment la touche ET sa distance au
+bord (« la touche « + » à 7 px du bord »). Le sabotage du seul clavier laisse
+le contrôle du pavé VERT, et c'est la preuve que les trois meubles se mesurent
+séparément.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du

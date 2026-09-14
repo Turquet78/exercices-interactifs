@@ -343,6 +343,38 @@
    police — et ses touches GRANDISSENT pour occuper cette largeur (flex),
    plafonnées à 80 px pour rester des touches et non des barres ; au-delà,
    la rangée se centre. Il faisait 634 px sur toutes les tablettes. */
+/* ---- MODE APPLICATION : LE BAS DE L'ÉCRAN APPARTIENT AU SYSTÈME ----
+   Signalé par Turquet (septembre 2026) sur une tablette Samsung, la page
+   posée sur l'écran d'accueil : « la ligne la plus basse du clavier virtuel
+   ne fonctionne pas, les caractères ne s'affichent pas — en portrait comme
+   en paysage ». Mesuré : cette rangée-là vit à 7..49 px du bord BAS de
+   l'écran en paysage (7..67 en portrait), et ses touches ont leur centre à
+   28 px et 37 px du bord. Or Android se réserve cette bande — 48 dp, la
+   zone du geste « retour à l'accueil », qu'un indicateur de geste occupe en
+   plus chez Samsung : le système y prend les touches, et rien n'arrive à la
+   page. Aucune erreur nulle part, la touche ne répond simplement pas.
+   POURQUOI LA PREMIÈRE, ET POURQUOI EN APPLICATION SEULEMENT : c'est le seul
+   niveau dont le manifeste demande « fullscreen » (demande de Turquet,
+   septembre 2026 : supprimer la bande du bas d'Android) — la page dessine
+   donc jusqu'au bord physique. Dans un onglet, et dans les deux autres
+   niveaux (« standalone »), le navigateur ou la barre système occupent cette
+   bande et la page ne l'atteint jamais.
+   ON REND DONC LA BANDE AU SYSTÈME, en mode application seulement : rien de
+   ce qui se touche — le clavier mathématique ancré, les commandes du bas, le
+   pavé numérique — n'y descend plus. La réserve vit à UN SEUL endroit
+   (--bas-systeme, déclarée dans tests/profils.js — deux sources) et la
+   classe est posée par le script (modeApp), comme pave-actif : la requête
+   média reste au navigateur, le banc force par window.__appForce.
+   Le clavier ANCRÉ remonte en bloc, par une marge posée sur son fond
+   (.MLK__backdrop). Une bordure ou un rembourrage n'auraient rien donné : sa
+   hauteur est ÉCRITE par MathLive et sa plaque de touches est accrochée au
+   HAUT du fond — mesuré, pas supposé : bordure posée, les touches n'avaient
+   pas bougé d'un pixel et débordaient simplement de leur boîte. */
+:root{--bas-systeme:0px}
+body.mode-app{--bas-systeme:48px}
+#testCtrls{margin-bottom:var(--bas-systeme)}
+#paveNum{margin-bottom:var(--bas-systeme)}
+body > .ML__keyboard .MLK__backdrop{margin-bottom:var(--bas-systeme)}
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
@@ -1983,7 +2015,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=220;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=221;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -12682,9 +12714,33 @@ function manifesteTablette(){
   return true;
 }
 
+/* ============ MODE APPLICATION : LA BANDE DU BAS EST AU SYSTÈME ============
+   Voir le bloc « MODE APPLICATION » de la feuille de styles. La page posée
+   sur l'écran d'accueil s'ouvre en « fullscreen » : elle dessine jusqu'au
+   bord physique de l'écran, et les 48 dp du bas y sont la zone de geste
+   d'Android — le système y prend les touches. La classe dit à la feuille de
+   styles de rendre cette bande, et RIEN d'autre ne change.
+   Elle est posée par le script et non par une requête média dans la feuille,
+   pour la raison de pave-actif : le banc peut alors la forcer
+   (window.__appForce), la requête média restant au navigateur. Le
+   navigateur signale l'entrée et la sortie du plein écran : on suit, sans
+   quoi une page ouverte en onglet puis mise en plein écran garderait la
+   mise en page de l'onglet. */
+function modeApp(){ return window.__appForce===true || (typeof matchMedia==='function' && matchMedia('(display-mode: fullscreen)').matches); }
+function modeAppSuivre(){
+  const poser=function(){ try{ document.body.classList.toggle('mode-app', modeApp()); }catch(e){} };
+  poser();
+  /* l'écouteur ne se pose qu'une fois : le banc rappelle cette fonction, et
+     dix écouteurs qui font le même geste ne valent pas mieux qu'un. */
+  if(!window.__modeAppLie){ window.__modeAppLie=true;
+    try{ matchMedia('(display-mode: fullscreen)').addEventListener('change', poser); }catch(e){ window.__modeAppLie=false; } }
+  return true;
+}
+
 /* démarrage */
 try{ paveObserver(); }catch(e){}
 try{ manifesteTablette(); }catch(e){}
+try{ modeAppSuivre(); }catch(e){}
 if(configReady()){ initSupabase(); demarrer(); }
 else { show('setup'); }
 
