@@ -4260,6 +4260,86 @@ et l'écriture décimale du pourcentage, sans quoi « on a tout retiré »
 passerait aussi) et la note. Sept sabotages, chacun rougissant en nommant son
 défaut.
 
+**Et le chemin direct, en SIX propositions : associer chaque transformation à
+son coefficient.** {associer-coefficient} (Première, demande de Turquet,
+septembre 2026 — « dans lire un coefficient, créer un exercice qui permet
+d'associer à prendre un %, ou augmenter d'un % ou diminuer d'un % le bon
+coefficient multiplicateur parmi 6 coefficients ») suit {lire-coefficient} dans
+le même sous-thème : celui-ci LIT un coefficient donné, l'autre le FABRIQUE.
+Une question = un seul pourcentage et les TROIS phrases à la fois, chacune avec
+sa liste des six.
+**LES SIX NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR, et c'est tout
+l'exercice** : ce sont les trois familles pour P, puis les trois familles pour
+P la VIRGULE DÉCALÉE d'un rang — pour P = 30 : 0,30 / 1,30 / 0,70, puis
+0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.2 (la
+famille confondue, la virgule déplacée) sont présents SUR CHAQUE LIGNE à la
+fois : aucune proposition ne s'élimine sans raisonner. Des propositions qui
+différeraient par autre chose se laisseraient écarter sans lire la phrase — la
+leçon d'{intervalles-inegalite}, transposée.
+**TOUT EST REPRIS DU 2.5.2, RIEN N'EST RECOPIÉ** : `ckCoef` (le coefficient
+d'une transformation), `ckStr` (son écriture), `ckMots` (le verbe et le signe)
+et `ckPiege` (le NOM de l'erreur) sont les fonctions MÊMES du QCM des
+coefficients — un second jeu aurait fini par diverger, et deux exercices
+voisins se seraient contredits sous les yeux de l'élève. Les six propositions
+sont exactement celles que `ckPiege` sait nommer, si bien que chacune des cinq
+erreurs possibles d'une ligne reçoit son explication sans qu'on ait rien à
+écrire de plus. Même moteur de nombres, pas la même identité : la note part
+sous `test.qId`, le rappel vit dans `RAPPELS_ID`, les questions dans
+`QIA_SUGG`.
+**P = 5 EST LE SEUL TIRAGE ÉCARTÉ, et c'est le seul garde du générateur** : sa
+virgule décalée vaut 50, et « prendre 50 % » comme « diminuer de 50 % » donnent
+0,50 — deux propositions identiques seraient deux bonnes réponses dont une
+seule comptée. Le garde est donc VIVANT, et le contrôle le démontre plutôt que
+de le supposer : il vérifie que P = 5 produit bien une collision, et qu'aucun
+tirage ne le rend. Les bornes, elles, n'ont AUCUN garde — un coefficient hors
+de ]0 ; 2[ est impossible par construction, et un garde qui n'écarte jamais
+rien fait croire qu'on vérifie quelque chose : c'est le CONTRÔLE qui exige la
+propriété sur chaque tirage.
+**La bonne réponse n'est jamais rangée à côté de la question** : celle-ci ne
+porte que P, l'ORDRE des six et les choix de l'élève — le contrôle refuse tout
+autre champ — et `ckCoef()` recalcule chaque ligne. L'ordre des six est tiré
+par question et le MÊME dans les trois listes et dans le banc affiché : à ligne
+égale, le rang de la bonne varie.
+**CHAQUE LIGNE SE JUGE SEULE** : une association fausse coûte exactement son
+point et ne fait pas rougir ses voisines, la note de l'écran le dit (« 2 cases
+justes sur 3 » — `ptsEcran` voit les listes sans qu'on ait rien à lui ajouter),
+et le point de la question reste l'exercice PARFAIT, la convention que la barre
+du haut annonce en toutes lettres. Une ligne laissée VIDE n'est pas une faute :
+la vérification la redemande, sans rien peindre ni verrouiller — rouge veut
+dire faux, jamais « pas fini ».
+**AUCUNE CORRECTION AU FIL DES CLICS, et c'est déclaré**
+(`soutienEnDirect.sans`) : colorer une ligne au moment où l'élève la choisit lui
+dirait si elle est juste avant même qu'il vérifie, et il n'aurait plus qu'à
+essayer les six — la règle de {solutions-graphique} en Seconde. En soutien, la
+ligne juste se verrouille en bleu, la fausse rougit et reste à reprendre, et
+RIEN ne révèle la bonne réponse ; en entraînement, `corrCase` — l'entonnoir de
+la convention commune, qui savait déjà traiter une liste — pose le bleu, le
+rouge et le badge VERT portant le LIBELLÉ de l'option, jamais son rang.
+**LA LISTE A UNE LARGEUR EXPLICITE, et il la faut** : la feuille pose
+`select{width:100%}`, si bien qu'une liste sans largeur propre s'étire sur
+toute la ligne et les trois phrases se lisent l'une sous l'autre — le piège
+déjà payé sur les quatre cases des intervalles, en Seconde. Et ses trois
+verdicts doivent EXISTER dans la feuille de styles : c'est le premier écran de
+ce niveau qui réponde par une liste, donc sans ces règles la vérification
+serait parfaitement enregistrée et parfaitement invisible.
+**Deux bancs, la répartition habituelle.** Le PRINCIPAL tient le tirage, les
+champs de la question, le rendu, la correction cliquée, le soutien et
+l'identité ; le NAVIGATEUR (« 6 quater nonies », déclaré par
+`associerCoefficient` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — les six sur UNE bande, aucune des trois phrases repliée à 1400 px, la
+liste qui ne s'étire pas (la règle peut être écrite et perdue dans la cascade,
+le piège du 2.1.2), sa police à la taille de sa phrase (le contrôle universel
+ne mesure que les `math-field`), puis il CHOISIT dans les vraies listes et lit
+l'encre RENDUE, badge compris, mesuré au RECTANGLE.
+**Dix-sept sabotages, seize rougissant d'emblée en nommant leur défaut** — et
+le dix-septième a montré un TROU DU CONTRÔLE : son témoin portait les six
+DÉJÀ RANGÉS par ordre croissant, si bien que trier le banc ne changeait rien et
+que le sabotage passait au vert en parlant d'autre chose. Le témoin est
+mélangé désormais, et il rougit. Un dix-huitième n'a pas pu se poser : son
+ancre citait une apostrophe typographique là où le commentaire de la page en
+porte une droite — un sabotage se pose sur une ancre PROPRE à sa cible, au
+caractère près.
+
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,
 parce que la seconde hausse porte sur la valeur déjà augmentée ; à la baisse on

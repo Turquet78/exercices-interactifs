@@ -1656,6 +1656,183 @@ function branchements(w){
       'ce niveau n\'a pas le QCM des coefficients');
   }
 
+  /* ---- {associer-coefficient} (2.4.2) : associer parmi SIX ---------------
+     Demande de Turquet (septembre 2026) : associer à « prendre un % », à
+     « augmenter d'un % » et à « diminuer d'un % » le bon coefficient parmi
+     SIX. Les six sont les trois familles pour P, puis les trois familles pour
+     P la VIRGULE DÉCALÉE — deux axes, six cases, et les deux pièges du 2.5.2
+     présents SUR CHAQUE LIGNE. Sept bords, et n'en tenir qu'un ne tient rien :
+       · le TIRAGE — les six DISTINCTS (le seul garde du générateur), tous
+         entre 0 et 2 (ce qu'aucun garde ne surveille : c'est le contrôle qui
+         l'exige, un garde qui n'écarte jamais rien fait croire qu'on vérifie
+         quelque chose), les six EXACTEMENT ceux des deux axes, et l'ordre qui
+         change — à ligne égale, le rang de la bonne varie ;
+       · la BONNE RÉPONSE jamais rangée à côté : la question ne porte que P,
+         l'ordre et les choix de l'élève ;
+       · le RENDU — trois listes portant le MÊME ordre que le banc affiché, et
+         choisir qui ne redessine pas l'écran ;
+       · la LARGEUR EXPLICITE de la liste dans la feuille de styles : sans
+         elle, « select{width:100%} » étire chaque liste sur toute la ligne et
+         les trois phrases se lisent l'une sous l'autre (le piège payé sur les
+         quatre cases des intervalles, en Seconde) ;
+       · la CORRECTION cliquée — chaque ligne jugée SEULE (une fausse ne fait
+         pas payer les deux autres, et la note de l'écran le dit), la bonne
+         réponse en VERT à côté avec le LIBELLÉ et jamais le rang, le piège
+         choisi NOMMÉ ;
+       · la LIGNE VIDE — un message, aucun verrou, aucune couleur ;
+       · le SOUTIEN — la fausse rougit, la juste se verrouille, et RIEN ne
+         révèle la bonne réponse. */
+  if(evaluer(w,'typeof startAssocierCoef').valeur==='function'){
+    verifierEval(w, 'associer le coefficient : six propositions, chaque ligne jugée seule', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      const FAMS=['pre','aug','dim'];
+
+      /* ---- 1. le tirage ---- */
+      const ordres={}, rangs={pre:{},aug:{},dim:{}}, vusP={};
+      for(let t=0;t<30 && !vus.length;t++){
+        startAssocierCoef();
+        if(test.questions.length!==AC_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+AC_NB);
+        test.questions.forEach(function(q){
+          const cles=Object.keys(q).filter(function(k){ return ['P','ordre','rep'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question porte d’autres champs que P, l’ordre et les choix : '+cles.join(','));
+          vusP[q.P]=1;
+          if(q.ordre.length!==6) vus.push('tirage '+t+' (P='+q.P+') : '+q.ordre.length+' propositions au lieu de 6');
+          if(new Set(q.ordre).size!==6) vus.push('tirage '+t+' (P='+q.P+') : propositions non distinctes '+q.ordre.join('/'));
+          q.ordre.forEach(function(c){ if(!(c>0 && c<200)) vus.push('tirage '+t+' : le coefficient '+c+' centièmes sort de ]0 ; 2['); });
+          /* les six sont EXACTEMENT les deux axes : les trois familles pour P,
+             puis pour P la virgule décalée. Une proposition qui viendrait
+             d’ailleurs se laisserait écarter sans raisonner. */
+          const Ps=(q.P%10===0)?q.P/10:q.P*10;
+          const attendus=FAMS.map(function(f){ return ckCoef({fam:f,P:q.P}); })
+                     .concat(FAMS.map(function(f){ return ckCoef({fam:f,P:Ps}); }));
+          attendus.forEach(function(c){ if(q.ordre.indexOf(c)<0) vus.push('tirage '+t+' (P='+q.P+') : la proposition '+c+' manque'); });
+          q.ordre.forEach(function(c){ if(attendus.indexOf(c)<0) vus.push('tirage '+t+' (P='+q.P+') : la proposition '+c+' n’est ni une famille de P ni une famille de sa virgule décalée'); });
+          FAMS.forEach(function(f){
+            if(q.ordre.indexOf(ckCoef({fam:f,P:q.P}))<0) vus.push('tirage '+t+' : la bonne réponse de « '+f+' » manque aux propositions');
+            rangs[f][acBon(q,f)]=1;
+          });
+          if(q.rep.pre!==null||q.rep.aug!==null||q.rep.dim!==null) vus.push('le tirage arrive avec des lignes déjà associées');
+          ordres[q.ordre.join(',')]=1;
+        });
+      }
+      if(!vus.length && Object.keys(ordres).length<2) vus.push('l’ordre des six propositions ne change jamais');
+      FAMS.forEach(function(f){ if(!vus.length && Object.keys(rangs[f]).length<2) vus.push('ligne '+f+' : la bonne tombe toujours au même rang'); });
+      /* LE GARDE DU TIRAGE A QUELQUE CHOSE À ÉCARTER, et c’est P = 5 : sa
+         virgule décalée vaut 50, et « prendre 50 % » comme « diminuer de
+         50 % » donnent 0,50. Sans ce bord, un garde mort passerait pour vivant. */
+      if(new Set(FAMS.map(function(f){ return ckCoef({fam:f,P:5}); })
+          .concat(FAMS.map(function(f){ return ckCoef({fam:f,P:50}); }))).size===6)
+        vus.push('P = 5 ne produit plus de collision : le garde des six distincts n’écarte plus rien');
+      if(vusP[5]) vus.push('P = 5 est tiré, alors que ses six propositions ne sont pas distinctes');
+
+      /* ---- 2. le rendu, et choisir qui ne redessine pas ---- */
+      const Q=function(){ return {P:30, ordre:[130,3,97,30,103,70], rep:{pre:null,aug:null,dim:null}}; };
+      const poser=function(rep){ test.questions=[Q()]; test.idx=0; test.locked=false;
+        if(rep) FAMS.forEach(function(f){ test.questions[0].rep[f]=rep[f]; });
+        renderACTest(); };
+      poser(null);
+      const sel=function(f){ return document.getElementById('ac-'+f); };
+      FAMS.forEach(function(f){
+        const e=sel(f);
+        if(!e) { vus.push('la liste de la ligne « '+f+' » est absente'); return; }
+        if(e.options.length!==7) vus.push('la ligne « '+f+' » propose '+(e.options.length-1)+' coefficients au lieu de 6');
+        const vals=[].slice.call(e.options,1).map(function(o){ return o.textContent.trim(); });
+        if(vals.join('|')!==[130,3,97,30,103,70].map(function(c){ return '× '+acStr(c); }).join('|'))
+          vus.push('la ligne « '+f+' » ne propose pas les six dans l’ordre du banc : '+vals.join(' '));
+      });
+      const banc=[].slice.call(document.querySelectorAll('#acHost .ac-c')).map(function(n){ return n.textContent.trim(); });
+      if(banc.join('|')!==[130,3,97,30,103,70].map(function(c){ return '× '+acStr(c); }).join('|'))
+        vus.push('le banc n’affiche pas les six coefficients dans l’ordre de la question : '+banc.join(' '));
+      const avant=sel('aug');
+      choisirAC('aug','4');
+      if(sel('aug')!==avant) vus.push('choisir redessine l’écran — les deux autres lignes seraient remises à zéro');
+      if(test.questions[0].rep.aug!==4) vus.push('choisirAC ne retient pas le choix');
+      choisirAC('aug','');
+      if(test.questions[0].rep.aug!==null) vus.push('revenir au « … » ne vide pas le choix');
+
+      /* ---- 3. la correction, CLIQUÉE ---- */
+      const cls=function(f){ return (sel(f)||{}).className||''; };
+      const fb=function(){ return document.getElementById('acFeedback').textContent; };
+      const bons={pre:3,aug:0,dim:5};                 /* 30 -> rang 3, 130 -> rang 0, 70 -> rang 5 */
+      /* copie juste : le point, les trois lignes bleues, la note 3 sur 3 */
+      poser(bons); test.score=0; test.answers=[]; checkACAnswer();
+      if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
+      FAMS.forEach(function(f){ if(!/\\bok\\b/.test(cls(f))) vus.push('ligne « '+f+' » juste non marquée ok ('+cls(f)+')'); });
+      const n1=test.answers[test.answers.length-1]||{};
+      if(n1.cases!==3 || n1.justes!==3) vus.push('la copie juste compte '+n1.justes+' case(s) juste(s) sur '+n1.cases+', au lieu de 3 sur 3');
+      /* UNE SEULE ligne fausse : elle seule rougit, les deux autres restent
+         justes et la note le dit — chaque ligne se juge seule. */
+      poser({pre:3,aug:4,dim:5}); test.score=0; test.answers=[]; checkACAnswer();
+      if(test.score!==0) vus.push('une ligne fausse vaut quand même le point');
+      if(!/\\bbad\\b/.test(cls('aug'))) vus.push('la ligne fausse ne rougit pas');
+      FAMS.filter(function(f){ return f!=='aug'; }).forEach(function(f){
+        if(!/\\bok\\b/.test(cls(f))) vus.push('la ligne « '+f+' » juste est punie par la faute de sa voisine ('+cls(f)+')'); });
+      const n2=test.answers[test.answers.length-1]||{};
+      if(n2.cases!==3 || n2.justes!==2) vus.push('une seule ligne fausse : '+n2.justes+' case(s) juste(s) sur '+n2.cases+', au lieu de 2 sur 3');
+      /* la bonne réponse en VERT à côté, et elle porte le LIBELLÉ */
+      const bd=sel('aug').nextElementSibling;
+      if(!bd || !/mf-cor/.test(bd.className||'')) vus.push('la ligne fausse ne reçoit pas la bonne réponse à côté');
+      else if(bd.textContent.trim()!=='× '+acStr(130)) vus.push('le badge écrit « '+bd.textContent.trim()+' » au lieu du libellé « × '+acStr(130)+' »');
+      if(fb().indexOf('VIRGULE')<0) vus.push('le retour ne nomme pas le piège de la virgule : '+fb().slice(0,70));
+      /* l’autre piège : la famille confondue */
+      poser({pre:5,aug:0,dim:5}); test.answers=[]; checkACAnswer();
+      if(fb().indexOf('DIMINUTION')<0) vus.push('le retour ne nomme pas le piège de la famille : '+fb().slice(0,70));
+      /* ---- 4. une ligne vide : un message, aucun verrou, aucune couleur ---- */
+      poser({pre:3,aug:null,dim:5}); test.answers=[]; checkACAnswer();
+      if(fb().indexOf('Choisis un coefficient')!==0) vus.push('vérifier avec une ligne vide ne demande pas de la compléter : '+fb().slice(0,60));
+      if(test.locked) vus.push('vérifier avec une ligne vide verrouille l’exercice');
+      FAMS.forEach(function(f){ if(/\\b(ok|bad|sol)\\b/.test(cls(f))) vus.push('une ligne laissée vide fait peindre la ligne « '+f+' » ('+cls(f)+')'); });
+      /* ---- 5. le soutien : rien ne révèle ---- */
+      currentMode='soutien';
+      poser({pre:3,aug:4,dim:5}); test.answers=[]; checkACAnswer();
+      if(test.locked) vus.push('en soutien, une copie fausse verrouille l’exercice');
+      if(!/\\bbad\\b/.test(cls('aug'))) vus.push('en soutien, la ligne fausse ne rougit pas');
+      if(!/\\bok\\b/.test(cls('pre'))) vus.push('en soutien, la ligne juste ne se verrouille pas en bleu');
+      if(sel('aug').nextElementSibling && /mf-cor/.test(sel('aug').nextElementSibling.className||''))
+        vus.push('en soutien, la bonne réponse est révélée à côté de la ligne fausse');
+      if(sel('aug').disabled) vus.push('en soutien, la ligne fausse ne peut plus être reprise');
+      currentMode='train';
+
+      /* ---- 6. l’identité ---- */
+      test.kind='ac'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='associer-coefficient') vus.push('« Recommencer » relance « '+test.qId+' »');
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+
+    /* LA LISTE A UNE LARGEUR EXPLICITE. La feuille pose « select{width:100%} » :
+       sans largeur propre, chaque liste s’étire sur toute la ligne et les trois
+       phrases se posent l’une sous l’autre. Un `min-width` n’y peut rien —
+       c’est la largeur qu’il faut reprendre (la leçon des intervalles). */
+    const regleAcSel=(src.match(/\.ac-sel\{[^}]*\}/)||[''])[0];
+    verifier('la liste des six a une largeur explicite (select{width:100%} l’étirerait)',
+      /(?:^|[;{])\s*width:\s*\d/.test(regleAcSel),
+      regleAcSel ? 'la règle .ac-sel ne pose pas de width : ' + regleAcSel.slice(0, 90) : 'aucune règle .ac-sel dans la feuille de styles');
+    /* Les trois verdicts doivent EXISTER dans la feuille : aucun autre écran de
+       ce niveau ne répond par une liste, donc sans ces règles la vérification
+       ne se verrait pas du tout. */
+    const manquants=['ok','bad','sol'].filter(c => src.indexOf('.ac-sel.'+c+'{')<0);
+    verifier('la liste porte les trois verdicts de la convention (bleu, rouge, vert)',
+      manquants.length===0, 'sans règle CSS : ' + manquants.map(c => '.ac-sel.'+c).join(', '));
+  } else {
+    ignorer('associer le coefficient : six propositions, chaque ligne jugée seule',
+      'ce niveau n’a pas l’exercice d’association des coefficients');
+  }
+
+  if(P.nbQuestionsAssocier){
+    /* DEUX SOURCES : la page a AC_NB, le profil a le nombre attendu. Lire la
+       page et la comparer à elle-même ne prouverait rien. */
+    verifierEval(w, 'l’association des coefficients pose ' + P.nbQuestionsAssocier + ' questions', `(function(){
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      startAssocierCoef();
+      return (AC_NB===${P.nbQuestionsAssocier} && test.questions.length===${P.nbQuestionsAssocier})
+        ? '' : 'AC_NB='+AC_NB+', tirage de '+test.questions.length+' question(s)';
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('l’association des coefficients pose le bon nombre de questions',
+      'ce niveau ne déclare pas ce nombre (voir tests/profils.js)');
+  }
+
   if(P.nbQuestionsFractions){
     verifierEval(w, 'les exercices de fractions posent le bon nombre de questions', `(function(){
       const attendus=${JSON.stringify(P.nbQuestionsFractions)}, vus=[];

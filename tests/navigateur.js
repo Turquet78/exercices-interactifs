@@ -1485,6 +1485,147 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 quater nonies. associer le coefficient : trois phrases d'un seul tenant =====
+       {associer-coefficient} (2.4.2) répond par une LISTE, et c'est le seul
+       écran de ce niveau qui le fasse : trois choses ne se voient donc nulle
+       part ailleurs, et aucune ne se voit hors d'un navigateur.
+       · LA FEUILLE POSE « select{width:100%} ». Sans largeur propre, chaque
+         liste s'étire sur toute la ligne et les trois phrases se posent l'une
+         sous l'autre — la solution se lirait en trois morceaux. Le banc
+         principal exige la règle CSS ; ici on mesure la liste RENDUE, parce
+         qu'une règle peut être écrite et perdue dans la cascade (le piège du
+         2.1.2, où « .pcol-phrase math-field » perdait contre un sélecteur plus
+         spécifique et ne faisait rien du tout).
+       · UNE CASE A LA TAILLE DES NOMBRES QUI L'ENTOURENT. Le contrôle
+         universel ne mesure que les « math-field » : une liste écrite plus
+         petit que sa phrase lui échappe entièrement.
+       · LES TROIS VERDICTS DOIVENT SE VOIR. Une règle perdue sur « .ac-sel.ok »
+         laisserait la vérification muette sans qu'aucune erreur ne se lève, et
+         jsdom, qui lit la classe, resterait vert en parlant d'autre chose.
+       On CHOISIT donc dans les vraies listes — jsdom pose une valeur, seul un
+       navigateur voit qu'une liste écrit — puis on lit l'encre RENDUE. */
+    titre('6 quater nonies. ASSOCIER LE COEFFICIENT : TROIS PHRASES D\'UN SEUL TENANT');
+    if(!P.associerCoefficient){
+      ignorer('les trois phrases tiennent chacune sur une ligne',
+        'ce niveau n\'a pas l\'exercice d\'association des coefficients');
+    } else {
+      const A = P.associerCoefficient;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(i => openTest(i), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+
+      const vu = await s.page.evaluate(() => {
+        const bloc = document.getElementById('acHost');
+        if(!bloc) return null;
+        const r = e => e.getBoundingClientRect();
+        const six = [...bloc.querySelectorAll('.ac-c')];
+        const lignes = [...bloc.querySelectorAll('.ac-ligne')].map(L => {
+          const enfants = [...L.children].filter(c => r(c).width > 0);
+          const haut = Math.max(...enfants.map(c => r(c).height));
+          const sel = L.querySelector('.ac-sel'), ph = L.querySelector('.ac-phrase');
+          return { h: Math.round(r(L).height), enfant: Math.round(haut), l: Math.round(r(L).width),
+                   sel: sel ? Math.round(r(sel).width) : 0,
+                   police: sel ? parseFloat(getComputedStyle(sel).fontSize) : 0,
+                   phrase: ph ? parseFloat(getComputedStyle(ph).fontSize) : 0 };
+        });
+        return { six: six.length,
+                 /* une seule ligne : les six se comparent d'un coup d'œil */
+                 bandes: new Set(six.map(e => Math.round(r(e).top))).size,
+                 lignes: lignes };
+      });
+      verifier('l\'écran s\'ouvre, le banc des six et les trois phrases sont là',
+        !!vu && vu.six === 6 && vu.lignes.length === 3,
+        vu ? (vu.six + ' coefficient(s) affiché(s), ' + vu.lignes.length + ' phrase(s)') : 'pas de #acHost');
+      if(vu && vu.six === 6 && vu.lignes.length === 3){
+        verifier('les six coefficients se lisent sur UNE seule bande',
+          vu.bandes === 1, vu.bandes + ' bande(s) : le banc se replie, les six ne se comparent plus d\'un coup d\'œil');
+        /* une rangée n'a pas replié parce que ses enfants ont des hauteurs
+           différentes : on compare la hauteur de la RANGÉE à celle de son plus
+           haut enfant (la méthode du contrôle de pleine largeur). */
+        const replies = vu.lignes.filter(L => L.h > L.enfant + 6);
+        verifier('aucune des trois phrases ne se replie à 1400 px',
+          replies.length === 0,
+          replies.map(L => 'rangée de ' + L.h + ' px pour un enfant de ' + L.enfant).join(' | '));
+        const etirees = vu.lignes.filter(L => L.sel > L.l * 0.5);
+        verifier('la liste ne s\'étire pas sur toute la ligne (select{width:100%})',
+          etirees.length === 0,
+          etirees.map(L => 'liste de ' + L.sel + ' px dans une rangée de ' + L.l).join(' | '));
+        const petites = vu.lignes.filter(L => L.police < L.phrase - 0.5);
+        verifier('la liste a la taille de la phrase qui l\'entoure',
+          petites.length === 0,
+          petites.map(L => 'liste à ' + L.police + 'px contre une phrase à ' + L.phrase + 'px').join(' | '));
+      }
+
+      /* la copie JUSTE, choisie dans les vraies listes, puis l'encre rendue */
+      const FAMS = ['pre', 'aug', 'dim'];
+      const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return ['pre','aug','dim'].map(f => String(q.ordre.indexOf(ckCoef({fam:f, P:q.P})))); });
+      for(let i = 0; i < FAMS.length; i++) await s.page.selectOption('#ac-' + FAMS[i], bons[i]);
+      const retenus = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return ['pre','aug','dim'].map(f => q.rep[f]); });
+      verifier('choisir dans la liste arrive bien jusqu\'à la page',
+        retenus.every((v, i) => String(v) === bons[i]),
+        'la page a retenu ' + JSON.stringify(retenus) + ' au lieu de ' + JSON.stringify(bons));
+      await s.page.click('#acActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      const juste = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const parVar = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const ref = { bleu: parVar('--blue'), rouge: parVar('--red'), vert: parVar('--green') };
+        t.remove();
+        return { encres: ['pre','aug','dim'].map(f => getComputedStyle(document.getElementById('ac-' + f)).color),
+                 ref: ref, note: (document.querySelector('#acFeedback .note-exo') || {}).textContent || '' };
+      });
+      verifier('une copie juste peint les trois listes en BLEU',
+        juste.encres.every(c => c === juste.ref.bleu),
+        'encres rendues : ' + juste.encres.join(' | ') + ' — le bleu de la convention est ' + juste.ref.bleu);
+      verifier('la note de l\'écran compte les trois lignes',
+        /3 cases justes sur 3/.test(juste.note), 'note affichée : « ' + juste.note.trim() + ' »');
+
+      /* UNE SEULE ligne fausse : elle rougit, la bonne réponse se montre en
+         VERT à côté — et le badge doit avoir une BOÎTE, jamais seulement une
+         balise : un CSS perdu le rendrait invisible sans qu'une erreur ne se
+         lève (la leçon de « [hidden] », par la porte d'à côté). */
+      const faux = await s.page.evaluate(() => {
+        test.locked = false; test.answers = []; renderACTest();
+        const q = test.questions[test.idx];
+        return String(q.ordre.findIndex(c => c !== ckCoef({fam:'aug', P:q.P})));
+      });
+      /* les trois réponses passent par les VRAIES listes, celle qui est fausse
+         comme les deux autres : poser un choix dans l'objet de la question
+         laisserait la liste affichée vide, et le banc mesurerait la couleur
+         d'un état qu'aucun élève ne peut produire. */
+      for(let i = 0; i < FAMS.length; i++)
+        await s.page.selectOption('#ac-' + FAMS[i], FAMS[i] === 'aug' ? faux : bons[i]);
+      await s.page.click('#acActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const parVar = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const ref = { bleu: parVar('--blue'), rouge: parVar('--red'), vert: parVar('--green') };
+        t.remove();
+        const sel = document.getElementById('ac-aug');
+        const bd = sel && sel.nextElementSibling;
+        const r = bd ? bd.getBoundingClientRect() : { width: 0, height: 0 };
+        return { fausse: getComputedStyle(sel).color,
+                 justes: ['pre','dim'].map(f => getComputedStyle(document.getElementById('ac-' + f)).color),
+                 badge: bd ? { l: Math.round(r.width), h: Math.round(r.height),
+                               encre: getComputedStyle(bd).color, texte: bd.textContent.trim() } : null,
+                 ref: ref };
+      });
+      verifier('la ligne fausse rougit, ses voisines restent bleues',
+        apres.fausse === apres.ref.rouge && apres.justes.every(c => c === apres.ref.bleu),
+        'fausse ' + apres.fausse + ', voisines ' + apres.justes.join(' | '));
+      verifier('la bonne réponse se montre en VERT à côté, avec une vraie boîte',
+        !!apres.badge && apres.badge.l > 0 && apres.badge.h > 0 && apres.badge.encre === apres.ref.vert,
+        apres.badge ? ('badge « ' + apres.badge.texte + ' » de ' + apres.badge.l + '×' + apres.badge.h
+                       + ' px, encre ' + apres.badge.encre) : 'aucun badge à côté de la liste fausse');
+      await s.nav.close(); s = null;
+    }
     /* ===== 6 quinquies. l'étiquette de la colonne de gauche ===== */
     /* Elle doit nommer le dénominateur de la fraction étudiée : « pour 5 »
        devant 2/5. C'est ce qui met les deux colonnes en regard — « 2 pour 5 »
