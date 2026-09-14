@@ -305,6 +305,82 @@ async function parcours(page, N){
   console.log('Navigateur réel — ' + CIBLE + '  (' + P.niveau + ')');
   const N = P.navigateur;
 
+  /* ===== 0. la numérotation du banc =====
+     Les numéros de section (« 6 vicies ter », « 11 quater ») ne pilotent rien :
+     ils servent à RETROUVER une section, dans cette sortie et dans les
+     paragraphes de CLAUDE.md qui la citent. Deux d'entre eux désignaient donc
+     deux sections à la fois — « 6 octodecies » et « 6 vicies ter » —, et un
+     TROISIÈME, « 6 vicies quater », vivait dans l'en-tête de la synthèse sans
+     qu'aucun titre() ne l'imprime : ses quatre contrôles se rangeaient sous le
+     titre de la section d'AVANT. Rien ne cassait, et c'est précisément pour ça
+     que personne ne l'avait vu — un contrôle qui s'affiche sous le nom d'un
+     autre est pire qu'un contrôle sans nom : on va corriger l'exercice qu'il ne
+     mesure pas.
+     Le banc lit donc sa PROPRE source, dans les DEUX SENS — et il a fallu
+     les deux, chacun laissant passer ce que l'autre attrape. Un titre est
+     ANNONCÉ par l'en-tête juste au-dessus de lui : ce sens nomme la moitié
+     renommée seule, et l'ambiguïté d'origine (le titre d'une section annoncé
+     par l'en-tête de la précédente). Et tout en-tête IMPRIME son titre : ce
+     sens-là seul voit un titre retiré — pris dans l'autre sens, un en-tête
+     devenu muet ne se distingue plus d'un sous-bloc et le sabotage reste vert.
+     Les SOUS-BLOCS sont donc NOMMÉS ici plutôt que de faire taire le bord :
+     « 1 bis » vit dans la section 1 et « 12 » dans la section 11, leurs
+     contrôles appartiennent à bon droit à la section qui les entoure. Un
+     sous-bloc ajouté demain rougit et se déclare ici — et le second contrôle
+     de la liste exige que chaque nom désigne encore un en-tête, sans quoi une
+     exemption survivrait à ce qu'elle protégeait.
+     Un contrôle qui n'a rien à mesurer le DIT plutôt que de passer. */
+  titre('0. LA NUMÉROTATION DU BANC');
+  {
+    const src = fs.readFileSync(__filename, 'utf8');
+    /* les en-têtes ANNONCÉS et les titres IMPRIMÉS, dans l'ordre de la source ;
+       le filet d'un en-tête s'écrit « ===== » ou « ---- » selon l'endroit. */
+    const ev = [];
+    let m;
+    const reC = /\/\*[ \t]*(?:=+|-+)[ \t]*([0-9]+(?: [a-z]+)*)\. /g;
+    while((m = reC.exec(src))) ev.push({ p: m.index, t: 'a', n: m[1] });
+    const reT = /titre\(.([0-9]+(?: [a-z]+)*)\. /g;
+    while((m = reT.exec(src))) ev.push({ p: m.index, t: 'T', n: m[1] });
+    ev.sort((a, b) => a.p - b.p);
+    const imprimes = ev.filter(e => e.t === 'T').map(e => e.n);
+    const annonces = ev.filter(e => e.t === 'a').length;
+    const doubles = imprimes.filter((v, i) => imprimes.indexOf(v) !== i);
+    const orphelins = [];
+    for(let i = 0; i < ev.length; i++){
+      if(ev[i].t !== 'T') continue;
+      let j = i - 1; while(j >= 0 && ev[j].t !== 'a') j--;
+      const an = j >= 0 ? ev[j].n : '(aucun)';
+      if(an !== ev[i].n) orphelins.push('« ' + ev[i].n + ' » annoncé par « ' + an + ' »');
+    }
+    verifier('le banc a des numéros de section à mesurer',
+      imprimes.length >= 40 && annonces >= 40,
+      annonces + ' en-tête(s), ' + imprimes.length + ' titre(s)');
+    verifier('aucun numéro ne désigne deux sections',
+      doubles.length === 0,
+      'numéro(s) imprimé(s) deux fois : ' + doubles.map(v => '« ' + v + ' »').join(', '));
+    verifier('chaque titre est annoncé par l\'en-tête juste au-dessus de lui',
+      orphelins.length === 0,
+      orphelins.join(' | '));
+    /* les sous-blocs : un en-tête numéroté qui vit DANS une section et dont les
+       contrôles s'affichent, à bon droit, sous le titre de celle-ci. */
+    const SOUS_BLOCS = ['1 bis', '12'];
+    const muets = [];
+    for(let i = 0; i < ev.length; i++){
+      if(ev[i].t !== 'a') continue;
+      let j = i + 1; while(j < ev.length && ev[j].t !== 'T') j++;
+      if(j >= ev.length || ev[j].n !== ev[i].n) muets.push(ev[i].n);
+    }
+    const inattendus = muets.filter(v => SOUS_BLOCS.indexOf(v) < 0);
+    const perimes = SOUS_BLOCS.filter(v => !ev.some(e => e.t === 'a' && e.n === v));
+    verifier('chaque en-tête de section imprime bien son titre',
+      inattendus.length === 0,
+      'en-tête(s) sans titre : ' + inattendus.map(v => '« ' + v + ' »').join(', ')
+      + ' — un sous-bloc se déclare dans SOUS_BLOCS');
+    verifier('chaque sous-bloc déclaré désigne encore un en-tête',
+      perimes.length === 0,
+      'nom(s) périmé(s) dans SOUS_BLOCS : ' + perimes.map(v => '« ' + v + ' »').join(', '));
+  }
+
   /* ===== 1. la page s'ouvre ===== */
   titre('1. OUVERTURE DE LA PAGE');
   let s = null;
@@ -959,7 +1035,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies quater. LA SYNTHÈSE : un seul dessin, dix questions =====
+    /* ===== 6 vicies quinquies. LA SYNTHÈSE : un seul dessin, dix questions =====
        Demande de Turquet (septembre 2026, fiche « Synthèse fonction »). jsdom
        tient le tirage et le juge ; seul un navigateur sait ce que le dessin
        MONTRE — la courbe tracée sur son seul domaine, ses deux bouts marqués,
@@ -967,6 +1043,7 @@ async function parcours(page, N){
        coupée en deux se lirait comme deux solutions (la leçon du 2.18). Les
        mesures se font contre les GRADUATIONS RENDUES, jamais sur une
        coordonnée recopiée (la leçon du schéma des intervalles). */
+    titre('6 vicies quinquies. LA SYNTHÈSE : UN SEUL DESSIN, DIX QUESTIONS');
     if(!P.syntheseFonction){
       ignorer('la synthèse : la courbe s\'arrête à son domaine, et la ligne de solution ne se replie pas',
         'ce niveau n\'a pas l\'exercice de synthèse');
@@ -1485,6 +1562,147 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+
+    /* ===== 6 quater nonies. associer le coefficient : trois phrases d'un seul tenant =====
+       {associer-coefficient} (2.4.2) répond par une LISTE, et c'est le seul
+       écran de ce niveau qui le fasse : trois choses ne se voient donc nulle
+       part ailleurs, et aucune ne se voit hors d'un navigateur.
+       · LA FEUILLE POSE « select{width:100%} ». Sans largeur propre, chaque
+         liste s'étire sur toute la ligne et les trois phrases se posent l'une
+         sous l'autre — la solution se lirait en trois morceaux. Le banc
+         principal exige la règle CSS ; ici on mesure la liste RENDUE, parce
+         qu'une règle peut être écrite et perdue dans la cascade (le piège du
+         2.1.2, où « .pcol-phrase math-field » perdait contre un sélecteur plus
+         spécifique et ne faisait rien du tout).
+       · UNE CASE A LA TAILLE DES NOMBRES QUI L'ENTOURENT. Le contrôle
+         universel ne mesure que les « math-field » : une liste écrite plus
+         petit que sa phrase lui échappe entièrement.
+       · LES TROIS VERDICTS DOIVENT SE VOIR. Une règle perdue sur « .ac-sel.ok »
+         laisserait la vérification muette sans qu'aucune erreur ne se lève, et
+         jsdom, qui lit la classe, resterait vert en parlant d'autre chose.
+       On CHOISIT donc dans les vraies listes — jsdom pose une valeur, seul un
+       navigateur voit qu'une liste écrit — puis on lit l'encre RENDUE. */
+    titre('6 quater nonies. ASSOCIER LE COEFFICIENT : TROIS PHRASES D\'UN SEUL TENANT');
+    if(!P.associerCoefficient){
+      ignorer('les trois phrases tiennent chacune sur une ligne',
+        'ce niveau n\'a pas l\'exercice d\'association des coefficients');
+    } else {
+      const A = P.associerCoefficient;
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(i => openTest(i), A.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+
+      const vu = await s.page.evaluate(() => {
+        const bloc = document.getElementById('acHost');
+        if(!bloc) return null;
+        const r = e => e.getBoundingClientRect();
+        const six = [...bloc.querySelectorAll('.ac-c')];
+        const lignes = [...bloc.querySelectorAll('.ac-ligne')].map(L => {
+          const enfants = [...L.children].filter(c => r(c).width > 0);
+          const haut = Math.max(...enfants.map(c => r(c).height));
+          const sel = L.querySelector('.ac-sel'), ph = L.querySelector('.ac-phrase');
+          return { h: Math.round(r(L).height), enfant: Math.round(haut), l: Math.round(r(L).width),
+                   sel: sel ? Math.round(r(sel).width) : 0,
+                   police: sel ? parseFloat(getComputedStyle(sel).fontSize) : 0,
+                   phrase: ph ? parseFloat(getComputedStyle(ph).fontSize) : 0 };
+        });
+        return { six: six.length,
+                 /* une seule ligne : les six se comparent d'un coup d'œil */
+                 bandes: new Set(six.map(e => Math.round(r(e).top))).size,
+                 lignes: lignes };
+      });
+      verifier('l\'écran s\'ouvre, le banc des six et les trois phrases sont là',
+        !!vu && vu.six === 6 && vu.lignes.length === 3,
+        vu ? (vu.six + ' coefficient(s) affiché(s), ' + vu.lignes.length + ' phrase(s)') : 'pas de #acHost');
+      if(vu && vu.six === 6 && vu.lignes.length === 3){
+        verifier('les six coefficients se lisent sur UNE seule bande',
+          vu.bandes === 1, vu.bandes + ' bande(s) : le banc se replie, les six ne se comparent plus d\'un coup d\'œil');
+        /* une rangée n'a pas replié parce que ses enfants ont des hauteurs
+           différentes : on compare la hauteur de la RANGÉE à celle de son plus
+           haut enfant (la méthode du contrôle de pleine largeur). */
+        const replies = vu.lignes.filter(L => L.h > L.enfant + 6);
+        verifier('aucune des trois phrases ne se replie à 1400 px',
+          replies.length === 0,
+          replies.map(L => 'rangée de ' + L.h + ' px pour un enfant de ' + L.enfant).join(' | '));
+        const etirees = vu.lignes.filter(L => L.sel > L.l * 0.5);
+        verifier('la liste ne s\'étire pas sur toute la ligne (select{width:100%})',
+          etirees.length === 0,
+          etirees.map(L => 'liste de ' + L.sel + ' px dans une rangée de ' + L.l).join(' | '));
+        const petites = vu.lignes.filter(L => L.police < L.phrase - 0.5);
+        verifier('la liste a la taille de la phrase qui l\'entoure',
+          petites.length === 0,
+          petites.map(L => 'liste à ' + L.police + 'px contre une phrase à ' + L.phrase + 'px').join(' | '));
+      }
+
+      /* la copie JUSTE, choisie dans les vraies listes, puis l'encre rendue */
+      const FAMS = ['pre', 'aug', 'dim'];
+      const bons = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return ['pre','aug','dim'].map(f => String(q.ordre.indexOf(ckCoef({fam:f, P:q.P})))); });
+      for(let i = 0; i < FAMS.length; i++) await s.page.selectOption('#ac-' + FAMS[i], bons[i]);
+      const retenus = await s.page.evaluate(() => { const q = test.questions[test.idx];
+        return ['pre','aug','dim'].map(f => q.rep[f]); });
+      verifier('choisir dans la liste arrive bien jusqu\'à la page',
+        retenus.every((v, i) => String(v) === bons[i]),
+        'la page a retenu ' + JSON.stringify(retenus) + ' au lieu de ' + JSON.stringify(bons));
+      await s.page.click('#acActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      const juste = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const parVar = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const ref = { bleu: parVar('--blue'), rouge: parVar('--red'), vert: parVar('--green') };
+        t.remove();
+        return { encres: ['pre','aug','dim'].map(f => getComputedStyle(document.getElementById('ac-' + f)).color),
+                 ref: ref, note: (document.querySelector('#acFeedback .note-exo') || {}).textContent || '' };
+      });
+      verifier('une copie juste peint les trois listes en BLEU',
+        juste.encres.every(c => c === juste.ref.bleu),
+        'encres rendues : ' + juste.encres.join(' | ') + ' — le bleu de la convention est ' + juste.ref.bleu);
+      verifier('la note de l\'écran compte les trois lignes',
+        /3 cases justes sur 3/.test(juste.note), 'note affichée : « ' + juste.note.trim() + ' »');
+
+      /* UNE SEULE ligne fausse : elle rougit, la bonne réponse se montre en
+         VERT à côté — et le badge doit avoir une BOÎTE, jamais seulement une
+         balise : un CSS perdu le rendrait invisible sans qu'une erreur ne se
+         lève (la leçon de « [hidden] », par la porte d'à côté). */
+      const faux = await s.page.evaluate(() => {
+        test.locked = false; test.answers = []; renderACTest();
+        const q = test.questions[test.idx];
+        return String(q.ordre.findIndex(c => c !== ckCoef({fam:'aug', P:q.P})));
+      });
+      /* les trois réponses passent par les VRAIES listes, celle qui est fausse
+         comme les deux autres : poser un choix dans l'objet de la question
+         laisserait la liste affichée vide, et le banc mesurerait la couleur
+         d'un état qu'aucun élève ne peut produire. */
+      for(let i = 0; i < FAMS.length; i++)
+        await s.page.selectOption('#ac-' + FAMS[i], FAMS[i] === 'aug' ? faux : bons[i]);
+      await s.page.click('#acActions button.btn-primary');
+      await s.page.waitForTimeout(400);
+      const apres = await s.page.evaluate(() => {
+        const t = document.createElement('span'); document.body.appendChild(t);
+        const parVar = v => { t.style.color = 'var(' + v + ')'; return getComputedStyle(t).color; };
+        const ref = { bleu: parVar('--blue'), rouge: parVar('--red'), vert: parVar('--green') };
+        t.remove();
+        const sel = document.getElementById('ac-aug');
+        const bd = sel && sel.nextElementSibling;
+        const r = bd ? bd.getBoundingClientRect() : { width: 0, height: 0 };
+        return { fausse: getComputedStyle(sel).color,
+                 justes: ['pre','dim'].map(f => getComputedStyle(document.getElementById('ac-' + f)).color),
+                 badge: bd ? { l: Math.round(r.width), h: Math.round(r.height),
+                               encre: getComputedStyle(bd).color, texte: bd.textContent.trim() } : null,
+                 ref: ref };
+      });
+      verifier('la ligne fausse rougit, ses voisines restent bleues',
+        apres.fausse === apres.ref.rouge && apres.justes.every(c => c === apres.ref.bleu),
+        'fausse ' + apres.fausse + ', voisines ' + apres.justes.join(' | '));
+      verifier('la bonne réponse se montre en VERT à côté, avec une vraie boîte',
+        !!apres.badge && apres.badge.l > 0 && apres.badge.h > 0 && apres.badge.encre === apres.ref.vert,
+        apres.badge ? ('badge « ' + apres.badge.texte + ' » de ' + apres.badge.l + '×' + apres.badge.h
+                       + ' px, encre ' + apres.badge.encre) : 'aucun badge à côté de la liste fausse');
+      await s.nav.close(); s = null;
+    }
     /* ===== 6 quinquies. l'étiquette de la colonne de gauche ===== */
     /* Elle doit nommer le dénominateur de la fraction étudiée : « pour 5 »
        devant 2/5. C'est ce qui met les deux colonnes en regard — « 2 pour 5 »
@@ -3064,6 +3282,103 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 decies bis. le « = » passe à la ligne avec sa case ===== */
+    /* Demande de Turquet (septembre 2026) : « en première quand on affiche
+       "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
+       "= 0" passe aussi à la ligne. »
+       La rangée d'un exercice guidé se replie — c'est ce qui l'empêche de
+       déborder — et le repli tombait ENTRE le « 0, » écrit par la page et la
+       case où l'élève répond : mesuré à 600 px, « 0, » restait en fin de ligne
+       et sa case tombait 111 px plus bas. Une virgule décimale coupée de ses
+       décimales n'est plus un nombre.
+       CE BANC EST LE SEUL QUI PUISSE LE VOIR : jsdom n'a pas de mise en page,
+       donc aucune ligne où tomber. On ouvre donc à une largeur où la rangée se
+       replie POUR DE VRAI — et on exige qu'elle s'y replie, sans quoi le
+       contrôle ne mesurerait rien en parlant d'autre chose. */
+    titre('6 decies bis. LE « = » PASSE À LA LIGNE AVEC SA CASE');
+    if(!P.teteCollee){
+      ignorer('un « = » et la case qu’il annonce restent sur la même ligne',
+        'ce niveau ne déclare pas de « = » collé à sa case');
+    } else {
+      const TC = P.teteCollee;
+      s = await ouvrir(chromium, ml, { viewport: { width: TC.largeur, height: TC.hauteur }, hasTouch: true });
+      await connecter(s.page);
+      const separes = [], vides = [];
+      let repliees = 0, groupes = 0;
+      for(const exo of TC.exercices){
+        await s.page.evaluate(id => openTest(id), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        const m = await s.page.evaluate(cl => {
+          const vu = e => e.getBoundingClientRect().height > 0;   /* une étape encore cachée ne se mesure pas */
+          const grs = [...document.querySelectorAll('.screen.on .' + cl)].filter(vu);
+          const casse = [];
+          /* ON NE MESURE PAS LES GROUPES, ON MESURE LES « = ». Un contrôle qui
+             ne regarderait que « .f-grp » resterait vert sur le « = » qu'on
+             aurait oublié d'y mettre — c'est-à-dire exactement sur le défaut.
+             On part donc de CHAQUE « = » visible de l'écran, groupé ou non, et
+             on exige qu'il partage la ligne de la case qui le suit. */
+          const estCase = e => !!e && (e.tagName === 'MATH-FIELD'
+            || (e.classList && (e.classList.contains('f-frac-input') || e.classList.contains('f-frac')))
+            || (e.querySelector && !!e.querySelector('math-field')));
+          for(const eq of document.querySelectorAll('.screen.on .f-eq')){
+            if(!vu(eq)) continue;
+            const suite = eq.nextElementSibling;
+            if(!estCase(suite) || !vu(suite)) continue;
+            const a = eq.getBoundingClientRect(), b = suite.getBoundingClientRect();
+            if(!(b.top < a.bottom - 2 && a.top < b.bottom - 2))
+              casse.push('« = » et « ' + (suite.id || suite.className.split(' ')[0]) + ' » sur deux lignes ('
+                + Math.round(b.top - a.top) + ' px d\'écart)');
+          }
+          for(const g of grs){
+            /* la tête est l'enfant DIRECT du groupe — la case d'une somme de
+               fractions contient elle-même des « f-whole », et le premier venu
+               n'est pas une tête ; elle reste facultative */
+            const enf = [...g.children];
+            const t = (enf[1] && enf[1].classList && enf[1].classList.contains('f-whole')) ? enf[1] : null;
+            const c = g.querySelector('math-field');
+            if(!c || !vu(c)){ casse.push('un groupe sans case visible'); continue; }
+            if(!t || !vu(t)) continue;            /* la tête est facultative */
+            const a = t.getBoundingClientRect(), b = c.getBoundingClientRect();
+            /* MÊME LIGNE se mesure par le RECOUVREMENT vertical, jamais par
+               l'égalité des « top » : une case et le texte qui la précède sont
+               centrés l'un sur l'autre, donc leurs hauts diffèrent toujours de
+               quelques pixels — un compteur qui lirait « top » crierait au
+               repli sur des lignes parfaitement droites. */
+            if(!(b.top < a.bottom - 2 && a.top < b.bottom - 2))
+              casse.push('« ' + (t.textContent || '').trim() + ' » et sa case sur deux lignes ('
+                + Math.round(b.top - a.top) + ' px d\'écart)');
+          }
+          /* combien de rangées PORTANT un groupe se replient vraiment ici */
+          const rows = [...document.querySelectorAll('.screen.on .pt-row')].filter(r => r.querySelector('.' + cl));
+          const replis = rows.filter(r => {
+            const k = [...r.children].filter(x => x.getBoundingClientRect().height > 0);
+            if(k.length < 2) return false;
+            const hmax = Math.max(...k.map(x => x.getBoundingClientRect().height));
+            return r.getBoundingClientRect().height > hmax + 8;
+          }).length;
+          return { casse, grs: grs.length, replis };
+        }, TC.classe);
+        groupes += m.grs; repliees += m.replis;
+        if(!m.grs) vides.push(exo);
+        m.casse.forEach(d => separes.push(exo + ' : ' + d));
+      }
+      verifier('un « = » et la case qu’il annonce restent sur la même ligne',
+        separes.length === 0, separes.slice(0, 3).join(' | '));
+      verifier('le contrôle a bien des groupes à mesurer',
+        groupes >= TC.minimum && vides.length === 0,
+        groupes + ' groupe(s) rendus' + (vides.length ? ', aucun sur : ' + vides.join(', ') : ''));
+      /* Et la mesure doit avoir lieu là où le défaut existait : sans repli,
+         aucune rangée ne peut couper quoi que ce soit, et le vert ne dirait
+         rien. Le dire plutôt que de le taire. */
+      verifier('à ' + TC.largeur + ' px, les rangées se replient pour de vrai',
+        repliees > 0, 'aucune rangée repliée : le contrôle ne mesure rien à cette largeur');
+      verifier('mesurer la tête et sa case ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
     /* Le bouton d'aide de « Placer des nombres sur une droite graduée » réécrit
        les cinq nombres à la même longueur — mais SEULEMENT tant qu'on le garde
@@ -4539,7 +4854,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies quinquies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
+    /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
        Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.9. Deux choses ne
        se voient QUE dans un vrai navigateur, et elles portent l'exercice.
        · LA SÉRIALISATION RÉELLE DE MATHLIVE. La voie que Turquet a nommée —
@@ -4555,7 +4870,7 @@ async function parcours(page, N){
        On tape donc pour de vrai les deux voies — le quotient sur « prendre
        P % », le coefficient puis l'addition sur une hausse — et on relit le
        verdict, la note et la couleur des lignes. */
-    titre('6 vicies quinquies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE : LA FEUILLE LUE PAR LE JUGE');
+    titre('6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE : LA FEUILLE LUE PAR LE JUGE');
     if(!P.syntheseRedigee){
       ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle',
         'ce niveau n\'a pas la synthèse des pourcentages rédigée');
@@ -4572,7 +4887,7 @@ async function parcours(page, N){
       await s.page.click('#modeChoices [onclick*="train"]');
       await s.page.waitForTimeout(1300);
 
-      /* ---- 1. « prendre P % », retrouver le pourcentage : le QUOTIENT ----
+      /* ÉTAPE 1 : « prendre P % », retrouver le pourcentage — le QUOTIENT.
          La question est un VRAI tirage (genSyn), pas une question inventée :
          une copie qui ne collerait pas à la question tirée serait refusée à
          bon droit, et le banc mesurerait autre chose. On cherche seulement un
@@ -4622,7 +4937,7 @@ async function parcours(page, N){
       verifier('la fraction tapée est lue par le juge, et le juge prime sur le modèle',
         dits1.length === 0, dits1.slice(0, 3).join(' | '));
 
-      /* ---- 2. une HAUSSE : le coefficient, puis l'addition sur deux lignes --- */
+      /* ÉTAPE 2 : une HAUSSE — le coefficient, puis l'addition sur deux lignes. */
       let dits2 = [];
       const q2 = await s.page.evaluate(() => {
         const q = genSyn('aug', 'fin');
@@ -4926,14 +5241,14 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies ter. solutions de f(x) = k : les cibles se CLIQUENT ===== */
+    /* ===== 6 vicies sexies. solutions de f(x) = k : les cibles se CLIQUENT ===== */
     /* {solutions-graphique}, porté du 4.5 de la Terminale : les points de la
        courbe et les abscisses de l'axe se cliquent sur le dessin — ronds et
        carrés à zone de saisie invisible —, et les couleurs du verdict se
        lisent à l'encre RENDUE (bleu juste, rouge en trop, vert oublié). jsdom
        n'a pas de mise en page : le clic et l'encre ne se voient qu'ici. Le
        banc principal, lui, appelle les bascules à la main. */
-    titre('6 vicies ter. SOLUTIONS DE f(x) = k : LES CIBLES SE CLIQUENT');
+    titre('6 vicies sexies. SOLUTIONS DE f(x) = k : LES CIBLES SE CLIQUENT');
     if(!P.solutionsGraphique){
       ignorer('les cibles se cliquent sur le dessin, le verdict se lit à l\'encre',
         'ce niveau n\'a pas l\'exercice des solutions sur le graphique');
@@ -5289,7 +5604,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 octodecies. placer le point, lire l'image : le graphe se CLIQUE ===== */
+    /* ===== 6 vicies septies. placer le point, lire l'image : le graphe se CLIQUE ===== */
     /* Le calcul clic → nœud est calibré sur les GRADUATIONS du SVG rendu —
        la seule façon de le voir est de cliquer pour de vrai (la leçon de
        {construire-fonction} : jsdom n'a pas de mise en page). D'abord la
@@ -5299,7 +5614,7 @@ async function parcours(page, N){
        BON nœud, un point décalé d'un tiers de maille (il s'accroche au plus
        proche), on vérifie 4/4 ; puis un point FAUX pour voir le bon point en
        vert ; et le retrait, qui redésactive les cases sans les vider. */
-    titre('6 octodecies. PLACER LE POINT, LIRE L\'IMAGE : LE GRAPHE SE CLIQUE');
+    titre('6 vicies septies. PLACER LE POINT, LIRE L\'IMAGE : LE GRAPHE SE CLIQUE');
     if(!P.placerImage){
       ignorer('le point se pose au clic, les cases attendent le point',
         'ce niveau n\'a pas l\'exercice du point à placer');
@@ -5915,7 +6230,13 @@ async function parcours(page, N){
                les cases de cette rangée. */
             const debuts = [];
             for(const row of on.querySelectorAll('.pt-row')){
-              const fracs = [...row.children].filter(c => c.classList && c.classList.contains('f-frac')).filter(visible);
+              /* Depuis que le « = » et sa case forment un groupe (.f-grp), une
+                 fraction du calcul peut vivre un cran plus bas : ne regarder
+                 que les enfants DIRECTS de la rangée en laisserait passer la
+                 moitié, et le contrôle mesurerait moins en restant vert. */
+              const enfants = [...row.children].flatMap(c =>
+                (c.classList && c.classList.contains('f-grp')) ? [...c.children] : [c]);
+              const fracs = enfants.filter(c => c.classList && c.classList.contains('f-frac')).filter(visible);
               const mfs = [...row.querySelectorAll('math-field')].filter(visible);
               if(!fracs.length || !mfs.length) continue;
               const boxPx = Math.max(...mfs.map(px));
@@ -6086,7 +6407,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ---- Les couleurs de la vérification : JUSTE en bleu, FAUX en rouge, la
+    /* ---- 9 bis. Les couleurs de la vérification : JUSTE en bleu, FAUX en rouge, la
        CORRECTION en vert (décision de Turquet, août 2026). Les classes ne
        suffisent pas : « ok » peut rester posé pendant qu'une feuille de styles
        le peint encore en vert — c'est un défaut de PEINTURE, et seul un
@@ -6164,7 +6485,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ---- Les retours à la ligne du modèle arrivent-ils à l'écran ? --------
+    /* ---- 10. Les retours à la ligne du modèle arrivent-ils à l'écran ? ----
        Le modèle a pour consigne d'aller à la ligne souvent — une étape par
        ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,
        et la seconde est muette : le modèle peut obéir parfaitement pendant que
@@ -6791,9 +7112,15 @@ async function parcours(page, N){
     verifier('en tactile, le lien posé désigne un manifeste du dépôt, lisible',
       !!manif, apresM.href ? 'lien ' + apresM.href + ' : fichier absent ou illisible' : 'aucun lien posé');
     const departM = manif && manif.start_url ? new URL(manif.start_url, apresM.href).pathname : null;
-    verifier('le manifeste ouvre CETTE page en mode application',
-      !!manif && departM === apresM.page && /^(standalone|fullscreen)$/.test(String(manif.display)),
-      !manif ? 'pas de manifeste' : 'start_url mène à ' + departM + ' (page : ' + apresM.page + '), display ' + JSON.stringify(manif.display));
+    /* Le mode d'affichage vit dans tests/profils.js — deux sources. La
+       Première demande « fullscreen » : Chrome cache alors la barre de
+       navigation d'Android, celle que Turquet voulait retirer. */
+    const displayM = P.manifeste && P.manifeste.display;
+    verifier('le manifeste ouvre CETTE page en mode application ' + JSON.stringify(displayM),
+      !!manif && departM === apresM.page && !!displayM && manif.display === displayM,
+      !manif ? 'pas de manifeste' : !displayM ? 'ce niveau ne déclare pas « manifeste » dans tests/profils.js'
+        : 'start_url mène à ' + departM + ' (page : ' + apresM.page + '), display ' + JSON.stringify(manif.display)
+          + ' (attendu : ' + JSON.stringify(displayM) + ')');
     const iconesM = manif && Array.isArray(manif.icons) ? manif.icons.map(i => ({
       src: new URL(i.src, apresM.href).href, sizes: String(i.sizes || '') })) : [];
     const decodees = await s.page.evaluate(async (liste) => {

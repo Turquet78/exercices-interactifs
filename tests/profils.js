@@ -31,7 +31,7 @@ const KINDS_PREMIERE = [
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
   ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'],
-  ['psl','genPctRes()'],
+  ['psl','genPctRes()'], ['ac','genAC()'],
 ];
 
 /* Identifiant d'exercice -> clé de la table RAPPELS, pour la Première. */
@@ -117,6 +117,35 @@ module.exports = {
     pleineLargeur: { exercices: ['pourcentage', 'mult-decimaux', 'somme-fractions'],
                      chaine: [['pourcentage', 1], ['somme-fractions', 1]] },
 
+    /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de
+       Turquet, septembre 2026, en deux temps : « quand on affiche "= 0 ," avec
+       une case à côté, si la case passe à la ligne je veux que le "= 0" passe
+       aussi à la ligne », puis « en fait dès qu'une case passe à la ligne et
+       qu'il y a un "=" devant, mettre le "=" aussi à la ligne »). La rangée est
+       un flex qui se replie, et le repli tombait entre le signe et la case où
+       l'élève répond — une égalité qui se lit comme deux, une virgule décimale
+       coupée de ses décimales. Un seul endroit assemble le groupe
+       (« fabrique », dont « raccourci » est la forme sans tête), et « classe »
+       est le flex qui le tient d'un seul tenant, du même écart que « rangee ».
+       Le banc jsdom exige que plus aucun groupe ne soit écrit à la main, que la
+       classe soit vraiment un flex, et que le rendu en pose au moins « minimum » ;
+       le banc navigateur ouvre les exercices déclarés à une largeur où la rangée
+       SE REPLIE pour de vrai, et mesure que la tête et sa case restent sur la
+       même ligne.
+       La Seconde ne déclare pas ce contrôle : seul le moteur PARTAGÉ de
+       {somme-fractions} y a reçu le groupe — il est le même texte dans les deux
+       fichiers, et le corriger d'un seul côté l'aurait fait diverger. Ses
+       rangées propres (2.2.1, 2.3.1…) restent à grouper : le contrôle s'y
+       affiche « non applicable » plutôt que de rougir, et c'est une décision à
+       prendre, pas un oubli. */
+    teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
+                  minimum: 6,
+                  exercices: ['diminuer-pourcentage', 'augmenter-pourcentage',
+                              'baisses-successives', 'hausses-successives',
+                              'somme-fractions', 'mult-decimaux', 'fraction-pourcentage',
+                              'augmenter-addition', 'pourcentage'],
+                  largeur: 600, hauteur: 900 },
+
     /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE
        (demande de Turquet, septembre 2026, pour la Seconde, « comme en
        Première »). La Terminale ne le déclare PAS, et ce n'est pas un oubli :
@@ -176,8 +205,12 @@ module.exports = {
        quatorze écrans y sont. « sans » existe pour les niveaux où un exercice
        corrige autrement — le déclarer vaut mieux que d'affaiblir le contrôle. */
     /* {pourcentage-synthese-libre} : la correction est le verdict de l'IA,
-       il n'y a rien à colorer pendant la saisie. */
-    soutienEnDirect: { sans: ['psl', 'sal'] },
+       il n'y a rien à colorer pendant la saisie.
+       {associer-coefficient} : l'élève ne tape rien, il CHOISIT dans trois
+       listes — colorer une ligne au moment où il la choisit lui dirait si elle
+       est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
+       six. C'est la règle de {solutions-graphique} en Seconde. */
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
@@ -197,6 +230,10 @@ module.exports = {
        Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
        le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
+    /* 3 questions pour {associer-coefficient} — une par pourcentage, et
+       chacune porte TROIS associations. DEUX sources : la page a AC_NB, le
+       banc compare à ceci. */
+    nbQuestionsAssocier: 3,
     /* Le témoin du GARDE DE LA SAISIE : en soutien, une case ne se colore pas
        tant que l'élève y écrit (décision de Turquet, août 2026). Il faut une
        case qui soit un vrai « input » ET que la correction en direct JUGE à
@@ -230,6 +267,23 @@ module.exports = {
        La page doit porter exactement cette règle, et le banc navigateur mesure
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
+    /* LE MODE D'AFFICHAGE DE L'APPLICATION INSTALLÉE (demande de Turquet,
+       septembre 2026, sur sa tablette Samsung : « peut-on supprimer la bande
+       en bas de l'écran qui permet de réduire la fenêtre »). Cette bande est
+       la barre de navigation d'ANDROID, et aucune page web ne peut la cacher :
+       seul le MANIFESTE le peut, en demandant « fullscreen » au lieu de
+       « standalone » — Chrome lance alors l'application en plein écran, sans
+       barre système ni en bas ni en haut. Le geste, lui, RESTE : un balayage
+       depuis le bas fait revenir la barre, puis l'accueil — l'élève peut
+       toujours sortir, ce n'est pas un verrou. Le prix est assumé : l'heure et
+       la batterie disparaissent avec la barre du bas, on ne peut pas cacher
+       l'une sans l'autre.
+       Deux bords, et n'en tenir qu'un ne tient rien : ce niveau doit demander
+       « fullscreen », et les DEUX AUTRES — hors de la demande — doivent rester
+       en « standalone », sans quoi la règle fuirait sans que rien ne le dise.
+       Chromium le vérifie lui-même au banc navigateur : un mode d'affichage
+       qu'il refuse rend la page non installable, et il le NOMME. */
+    manifeste: { display: 'fullscreen' },
     policeTablette: 90,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.9,
        2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
@@ -385,6 +439,19 @@ module.exports = {
        s'affiche. L'exercice voisin étiquette déjà sa colonne de la même
        façon. */
     colonneFraction: { exercice: 'fraction-pourcentage', hote: 'fpHost', droite: 'pour 100' },
+
+    /* {associer-coefficient} (2.4.2) répond par une LISTE, et c'est le seul
+       écran de ce niveau qui le fasse. Trois bords ne se voient donc nulle
+       part ailleurs, et aucun hors d'un navigateur : la feuille pose
+       « select{width:100%} », donc une liste sans largeur propre s'étire sur
+       toute la ligne et les trois phrases se posent l'une sous l'autre ; le
+       contrôle universel de la taille des cases ne mesure que les
+       « math-field », donc une liste écrite plus petit que sa phrase lui
+       échappe ; et une règle perdue sur « .ac-sel.ok » laisserait la
+       vérification muette pendant que jsdom, qui lit la classe, resterait
+       vert. Le banc CHOISIT dans les vraies listes avant de lire l'encre
+       rendue. */
+    associerCoefficient: { exercice: 'associer-coefficient' },
 
     /* Le devoir à la maison va du professeur à l'élève par la table des
        réglages. Si la base ne la rend pas lisible à l'élève, PostgREST répond
@@ -573,6 +640,12 @@ module.exports = {
        La page doit porter exactement cette règle, et le banc navigateur mesure
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
+    /* Le mode d'affichage de l'application installée. Seule la PREMIÈRE est
+       passée en plein écran (demande de Turquet, septembre 2026) ; ce niveau
+       garde « standalone », donc la barre de navigation d'Android. C'est le
+       bord OPPOSÉ de cette demande, et il empêche la règle de fuir sur un
+       niveau qui ne l'a pas demandée. */
+    manifeste: { display: 'standalone' },
     policeTablette: 90,
     /* Même feuille de calcul libre qu'en Première (4.5, 4.7, 4.9 et la
        synthèse) : sur tablette elle écrit à cette taille au lieu de 2 rem
@@ -760,6 +833,12 @@ module.exports = {
        La page doit porter exactement cette règle, et le banc navigateur mesure
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
+    /* Le mode d'affichage de l'application installée. Seule la PREMIÈRE est
+       passée en plein écran (demande de Turquet, septembre 2026) ; ce niveau
+       garde « standalone », donc la barre de navigation d'Android. C'est le
+       bord OPPOSÉ de cette demande, et il empêche la règle de fuir sur un
+       niveau qui ne l'a pas demandée. */
+    manifeste: { display: 'standalone' },
     policeTablette: 90,
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'],

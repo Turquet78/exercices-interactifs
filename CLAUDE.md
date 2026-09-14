@@ -2121,7 +2121,7 @@ réglage général (460 px) alors qu'il porte DIX questions — ses graduations
 n'étaient plus lisibles —, et la droite de g, tracée d'un bord à l'autre du
 cadre, SORTAIT du quadrillage par le haut, son étiquette posée sur les
 graduations. Elle est coupée au cadre, et le dessin passe à 760 px.
-Le banc NAVIGATEUR (« 6 vicies quater », déclaré par `syntheseFonction`) tient
+Le banc NAVIGATEUR (« 6 vicies quinquies », déclaré par `syntheseFonction`) tient
 ce que jsdom ne voit pas : la courbe qui s'arrête à son domaine — mesurée
 contre les GRADUATIONS RENDUES, aucune coordonnée recopiée —, ses deux bouts
 marqués, la droite et la légende, la copie juste CLIQUÉE sur les quatre
@@ -2290,7 +2290,7 @@ pas ∅, n'est pas vérifiée : rien n'est peint, une case vide ne rougit jamais
 Écrire ∅ SANS rien sélectionner est une RÉPONSE — « il n'y a pas de point » —
 et se juge comme telle. Le bouton des tables n'y est pas : on ne multiplie
 rien, on lit.
-**Le banc navigateur CLIQUE les cibles pour de vrai** (« 6 vicies ter »,
+**Le banc navigateur CLIQUE les cibles pour de vrai** (« 6 vicies sexies »,
 déclaré par `solutionsGraphique` dans `tests/profils.js`) — ronds et carrés à
 zone de saisie invisible, d'au moins 20 px chacune — et lit le verdict à
 l'encre RENDUE : la cible juste bleue, le point en trop rouge, l'abscisse
@@ -4320,6 +4320,86 @@ et l'écriture décimale du pourcentage, sans quoi « on a tout retiré »
 passerait aussi) et la note. Sept sabotages, chacun rougissant en nommant son
 défaut.
 
+**Et le chemin direct, en SIX propositions : associer chaque transformation à
+son coefficient.** {associer-coefficient} (Première, demande de Turquet,
+septembre 2026 — « dans lire un coefficient, créer un exercice qui permet
+d'associer à prendre un %, ou augmenter d'un % ou diminuer d'un % le bon
+coefficient multiplicateur parmi 6 coefficients ») suit {lire-coefficient} dans
+le même sous-thème : celui-ci LIT un coefficient donné, l'autre le FABRIQUE.
+Une question = un seul pourcentage et les TROIS phrases à la fois, chacune avec
+sa liste des six.
+**LES SIX NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR, et c'est tout
+l'exercice** : ce sont les trois familles pour P, puis les trois familles pour
+P la VIRGULE DÉCALÉE d'un rang — pour P = 30 : 0,30 / 1,30 / 0,70, puis
+0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.2 (la
+famille confondue, la virgule déplacée) sont présents SUR CHAQUE LIGNE à la
+fois : aucune proposition ne s'élimine sans raisonner. Des propositions qui
+différeraient par autre chose se laisseraient écarter sans lire la phrase — la
+leçon d'{intervalles-inegalite}, transposée.
+**TOUT EST REPRIS DU 2.5.2, RIEN N'EST RECOPIÉ** : `ckCoef` (le coefficient
+d'une transformation), `ckStr` (son écriture), `ckMots` (le verbe et le signe)
+et `ckPiege` (le NOM de l'erreur) sont les fonctions MÊMES du QCM des
+coefficients — un second jeu aurait fini par diverger, et deux exercices
+voisins se seraient contredits sous les yeux de l'élève. Les six propositions
+sont exactement celles que `ckPiege` sait nommer, si bien que chacune des cinq
+erreurs possibles d'une ligne reçoit son explication sans qu'on ait rien à
+écrire de plus. Même moteur de nombres, pas la même identité : la note part
+sous `test.qId`, le rappel vit dans `RAPPELS_ID`, les questions dans
+`QIA_SUGG`.
+**P = 5 EST LE SEUL TIRAGE ÉCARTÉ, et c'est le seul garde du générateur** : sa
+virgule décalée vaut 50, et « prendre 50 % » comme « diminuer de 50 % » donnent
+0,50 — deux propositions identiques seraient deux bonnes réponses dont une
+seule comptée. Le garde est donc VIVANT, et le contrôle le démontre plutôt que
+de le supposer : il vérifie que P = 5 produit bien une collision, et qu'aucun
+tirage ne le rend. Les bornes, elles, n'ont AUCUN garde — un coefficient hors
+de ]0 ; 2[ est impossible par construction, et un garde qui n'écarte jamais
+rien fait croire qu'on vérifie quelque chose : c'est le CONTRÔLE qui exige la
+propriété sur chaque tirage.
+**La bonne réponse n'est jamais rangée à côté de la question** : celle-ci ne
+porte que P, l'ORDRE des six et les choix de l'élève — le contrôle refuse tout
+autre champ — et `ckCoef()` recalcule chaque ligne. L'ordre des six est tiré
+par question et le MÊME dans les trois listes et dans le banc affiché : à ligne
+égale, le rang de la bonne varie.
+**CHAQUE LIGNE SE JUGE SEULE** : une association fausse coûte exactement son
+point et ne fait pas rougir ses voisines, la note de l'écran le dit (« 2 cases
+justes sur 3 » — `ptsEcran` voit les listes sans qu'on ait rien à lui ajouter),
+et le point de la question reste l'exercice PARFAIT, la convention que la barre
+du haut annonce en toutes lettres. Une ligne laissée VIDE n'est pas une faute :
+la vérification la redemande, sans rien peindre ni verrouiller — rouge veut
+dire faux, jamais « pas fini ».
+**AUCUNE CORRECTION AU FIL DES CLICS, et c'est déclaré**
+(`soutienEnDirect.sans`) : colorer une ligne au moment où l'élève la choisit lui
+dirait si elle est juste avant même qu'il vérifie, et il n'aurait plus qu'à
+essayer les six — la règle de {solutions-graphique} en Seconde. En soutien, la
+ligne juste se verrouille en bleu, la fausse rougit et reste à reprendre, et
+RIEN ne révèle la bonne réponse ; en entraînement, `corrCase` — l'entonnoir de
+la convention commune, qui savait déjà traiter une liste — pose le bleu, le
+rouge et le badge VERT portant le LIBELLÉ de l'option, jamais son rang.
+**LA LISTE A UNE LARGEUR EXPLICITE, et il la faut** : la feuille pose
+`select{width:100%}`, si bien qu'une liste sans largeur propre s'étire sur
+toute la ligne et les trois phrases se lisent l'une sous l'autre — le piège
+déjà payé sur les quatre cases des intervalles, en Seconde. Et ses trois
+verdicts doivent EXISTER dans la feuille de styles : c'est le premier écran de
+ce niveau qui réponde par une liste, donc sans ces règles la vérification
+serait parfaitement enregistrée et parfaitement invisible.
+**Deux bancs, la répartition habituelle.** Le PRINCIPAL tient le tirage, les
+champs de la question, le rendu, la correction cliquée, le soutien et
+l'identité ; le NAVIGATEUR (« 6 quater nonies », déclaré par
+`associerCoefficient` dans `tests/profils.js`) mesure ce que jsdom ne voit
+pas — les six sur UNE bande, aucune des trois phrases repliée à 1400 px, la
+liste qui ne s'étire pas (la règle peut être écrite et perdue dans la cascade,
+le piège du 2.1.2), sa police à la taille de sa phrase (le contrôle universel
+ne mesure que les `math-field`), puis il CHOISIT dans les vraies listes et lit
+l'encre RENDUE, badge compris, mesuré au RECTANGLE.
+**Dix-sept sabotages, seize rougissant d'emblée en nommant leur défaut** — et
+le dix-septième a montré un TROU DU CONTRÔLE : son témoin portait les six
+DÉJÀ RANGÉS par ordre croissant, si bien que trier le banc ne changeait rien et
+que le sabotage passait au vert en parlant d'autre chose. Le témoin est
+mélangé désormais, et il rougit. Un dix-huitième n'a pas pu se poser : son
+ancre citait une apostrophe typographique là où le commentaire de la page en
+porte une droite — un sabotage se pose sur une ancre PROPRE à sa cible, au
+caractère près.
+
 **Deux hausses non plus — mais l'écart part dans l'autre sens.** L'exercice
 2.2.7 est le miroir de 2.3.7 : +40 % puis +4 % fait +45,6 %, soit PLUS que 44,
 parce que la seconde hausse porte sur la valeur déjà augmentée ; à la baisse on
@@ -4751,6 +4831,78 @@ une AUTRE égalité, elle garde son bloc — plus la pose facultative, renvoyée
 fin : elle coupait la chaîne en son milieu, entre le « × valeur » et son
 résultat. Les libellés fusionnent avec le point médian de la Première :
 « ② coefficient × valeur de départ · ③ multiplier les fractions · ④ le résultat ».
+
+**UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE.** Demande de Turquet
+(septembre 2026, Première), en deux temps. D'abord : « quand on affiche "= 0 ,"
+avec une case à côté, si la case passe à la ligne je veux que le "= 0" passe
+aussi à la ligne. » Puis, le même jour : « en fait dès qu'une case passe à la
+ligne et qu'il y a un "=" devant, mettre le "=" aussi à la ligne. » La règle
+vaut donc pour TOUT « = » posé devant une case, avec ou sans tête.
+La rangée est un flex qui SE REPLIE — c'est ce qui l'empêche de déborder de
+l'écran —, et le repli tombait ENTRE le signe et la case où l'élève répond :
+mesuré à 600 px de fenêtre sur le 2.3.1, « 0, » restait en fin de ligne et sa
+case tombait 111 px plus bas. Une virgule décimale coupée de ses décimales n'est
+plus un nombre, et une égalité coupée en deux se lit comme deux calculs.
+**LA SONDE A FAIT LA CARTE AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT**, et elle a
+renversé l'ordre des priorités : sur les six largeurs et les trente exercices du
+niveau, le premier à céder n'est pas un écran de pourcentages mais
+{somme-fractions}, dès **820 px** — un iPad en portrait. Suivent les QCM et les
+évolutions à 768 et 600, puis tout le reste à 390. Sans cette mesure, on aurait
+groupé les rangées qu'on avait sous les yeux et manqué celle qui casse en
+premier.
+**UN SEUL ENDROIT ASSEMBLE LE GROUPE** (`fEqTete`, dont `fEq` est la forme sans
+tête) : les trente-neuf groupes des dix-sept écrans y passent, et la rangée
+qu'on écrira demain y passera sans rien avoir à déclarer. Le groupe est un flex
+à lui (`.f-grp`), du MÊME écart que la rangée — un groupe plus serré ou plus
+large se verrait tout de suite —, si bien que rien ne bouge tant que la ligne
+tient et que tout passe à la ligne ensemble quand elle ne tient plus. La tête est
+ce qui finit par la virgule : « 0, », « 1, », « 1 − 0, » ; le « = » vient avec
+elle, parce qu'une chaîne qui se replie met son signe en tête de la nouvelle
+ligne, jamais en fin de l'ancienne.
+**Il n'y avait pas de solution en CSS seul** : dans un conteneur en flex, rien
+ne défend à un repli de tomber entre deux éléments — `break-inside` ne parle
+qu'à la pagination. C'est la STRUCTURE qui devait changer, et c'est pourquoi le
+groupe est écrit au rendu plutôt qu'ajouté après coup : déplacer un
+`<math-field>` déjà monté le débranche et le remonte, et MathLive n'en sort pas
+toujours avec sa valeur.
+**LA SECONDE A ÉTÉ TOUCHÉE, ET C'EST LE MOTEUR QUI L'EXIGE** : {somme-fractions}
+tourne sur `renderSFTest`, le même TEXTE dans les deux fichiers, comparé au
+caractère près. Le corriger pour la Première et pas pour la Seconde l'aurait
+fait diverger — le contrôle des quatorze fonctions rougit au premier caractère
+d'écart. La Seconde reçoit donc la fabrique, la règle `.f-grp` et la chaîne
+groupée, et rien d'autre : ses rangées propres (2.2.1, 2.3.1…) restent à
+grouper, le contrôle s'y affiche « non applicable », et c'est une décision à
+prendre — pas un oubli.
+**Un voisin a failli céder en silence** : `#sfHost .pt-row>.f-frac` vise l'enfant
+DIRECT de la rangée, et le calcul écrit en tête d'une chaîne vit désormais un
+cran plus bas, sous le groupe. Sans le sélecteur élargi, la fraction du maillon
+« 3 = 3/1 » serait repassée à 1,45 rem devant des cases à 2 rem — le défaut
+d'août 2026, au même endroit. Le contrôle du navigateur qui le tient regardait
+lui aussi les seuls enfants directs : il descend maintenant d'un cran, sans quoi
+il aurait mesuré moitié moins en restant vert.
+**Deux bancs, la répartition habituelle.** jsdom tient ce que le texte dit : plus
+AUCUN « = » écrit à la main devant une case dans la source — ni avec tête ni
+sans —, la classe posée par la fabrique, la tête restée FACULTATIVE (sans quoi
+le « = » nu n'aurait aucun chemin vers le groupe), la classe qui est bien un
+flex (posée sans sa règle, elle ne tient rien ensemble et rien ne rougirait), le
+même écart que la rangée, et le rendu qui pose vraiment ses groupes — un
+contrôle qui n'a rien à mesurer ne mesure rien. Le NAVIGATEUR mesure ce que
+jsdom ne peut pas, et il part des « = » ET NON DES GROUPES : un contrôle qui ne
+regarderait que `.f-grp` resterait vert sur le « = » qu'on aurait oublié d'y
+mettre, c'est-à-dire exactement sur le défaut. Chaque « = » visible suivi d'une
+case doit partager sa ligne, jugé au RECOUVREMENT vertical et jamais à l'égalité
+des « top » (une case et le texte qui la précède sont centrés l'un sur l'autre,
+donc leurs hauts diffèrent toujours de quelques pixels — un compteur qui lirait
+« top » crierait au repli sur des lignes parfaitement droites), à une largeur où
+la rangée SE REPLIE pour de vrai, ce qu'il exige aussi.
+**Et le contrôle s'est pris en défaut deux fois avant la page.** Il lisait le
+PREMIER `.f-whole` du groupe comme sa tête — or la case d'une somme de fractions
+en contient elle-même, le numérateur écrit devant son multiplicateur, et il
+accusait « la tête "1" ne finit pas par la virgule » sur une page juste : la tête
+est l'enfant DIRECT du groupe, jamais le premier venu. Et une APOSTROPHE écrite
+dans son message traversait deux analyseurs — le gabarit de `verifier.js` puis
+l'évaluation dans la page — et refermait la chaîne : « missing ) after argument
+list », le piège documenté de l'antislash sous un autre habit.
 
 **Une somme de fractions s'écrit en une seule ligne, et l'entier est un maillon.**
 {somme-fractions} passe de trois blocs à la chaîne du cahier :
@@ -6807,6 +6959,43 @@ sur les prévisualisations — Netlify le servait en `octet-stream`, GitHub
 Pages en `application/manifest+json`, et mesurer sur un hébergement qui
 diffère du vrai sur ce point aurait parlé d'autre chose.
 
+**Puis la barre du bas a disparu — en PREMIÈRE seulement, et le prix est
+nommé.** Demande de Turquet (septembre 2026, sur sa tablette Samsung) :
+« peut-on supprimer la bande en bas de l'écran qui permet de réduire la
+fenêtre et voir toutes les applications ouvertes ». Cette bande est la barre
+de navigation d'ANDROID, pas un morceau de la page : **aucune ligne de HTML,
+de CSS ni de JavaScript ne peut la cacher** — seul le MANIFESTE le peut, en
+demandant `display: fullscreen` au lieu de `standalone`. Chrome lance alors
+l'application installée en plein écran, sans barre système.
+**Le geste RESTE, et c'est voulu** : un balayage depuis le bas fait revenir
+la barre, puis l'accueil — l'élève peut toujours sortir, ce n'est pas un
+verrou de classe, et prétendre le contraire serait mentir sur ce que le
+manifeste sait faire.
+**Le prix est assumé et se DIT** : l'heure, la batterie et le wifi
+disparaissent avec la barre du bas — Android cache les deux barres ensemble
+ou aucune, on ne choisit pas. C'est un arbitrage, pas un oubli.
+**Et il ne prend effet qu'à la RÉINSTALLATION** : Chrome relit le manifeste
+d'une application déjà posée à son rythme, et le mode d'affichage est
+précisément ce qu'il garde le plus longtemps. On retire l'icône de l'écran
+d'accueil et on réinstalle — sinon rien ne change, sans que rien ne le dise.
+**Seule la Première est concernée** : la demande la nomme, la Seconde et la
+Terminale gardent `standalone` — et ce bord OPPOSÉ est TENU, non supposé. Le
+mode d'affichage vit dans `tests/profils.js` (`manifeste.display`, deux
+sources), et le contrôle compare les TROIS manifestes à leur profil à chaque
+exécution, quel que soit le niveau contrôlé : le plein écran ne peut pas
+fuir sur un niveau qui ne l'a pas demandé. Le banc navigateur, lui, garde le
+seul juge qui compte — `Page.getInstallabilityErrors` : un mode d'affichage
+que Chromium refuserait rendrait la page non installable, et il le NOMME
+(c'est ainsi que `display: browser` avait été attrapé). Trois sabotages,
+chacun rougissant en nommant son défaut : la Première revenue à
+`standalone`, le plein écran qui fuit sur la Seconde, le profil qui ne
+déclare plus rien.
+**Et la tablette a son propre réglage, qui ne passe pas par le dépôt** :
+Paramètres → Affichage → Barre de navigation → Gestes de balayage, puis
+« Indicateur de geste » décoché, cache la barre pour TOUTES les
+applications. Le dire vaut mieux que le taire — c'est le seul chemin si le
+plein écran de l'application ne suffit pas.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du
@@ -6925,6 +7114,63 @@ sélecteur « suivant » ne désigne rien, et un contrôle lit le SOURCE du prof
 en suivant la profondeur des accolades pour nommer la clé en double. Trouvé en
 nettoyant : `main` en portait déjà deux, arrivées par un script de restauration
 qui réinsérait des entrées déjà présentes.
+
+**Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui
+n'imprime pas son titre est pire qu'un titre absent.** Les numéros
+(« 6 vicies ter », « 11 quater ») ne pilotent rien : ils servent à RETROUVER
+une section, dans la sortie du banc et dans les paragraphes de ce fichier qui
+la citent. Trois étaient ambigus, et aucun ne cassait quoi que ce soit —
+c'est pour cela qu'ils ont vécu des mois. « 6 octodecies » désignait la
+récurrence rédigée ET {placer-image} ; « 6 vicies ter » le 4.6 ET
+{solutions-graphique} ; et « 6 vicies quater » vivait dans l'en-tête de
+{synthese-fonction} sans qu'aucun `titre()` ne l'imprime — ses quatre
+contrôles se rangeaient donc sous le titre de la section d'AVANT (« 6 quater
+ter. LES TROIS FORMES DU TABLEAU DE VARIATION »), pendant que ce même numéro
+était imprimé, lui, par {ecrire-solutions}. **Un contrôle qui s'affiche sous
+le nom d'un autre est pire qu'un contrôle sans nom** : le jour où il rougit,
+on va corriger l'exercice qu'il ne mesure pas.
+Les numéros GARDÉS sont ceux que ce fichier citait déjà (le 4.6 garde
+« 6 vicies ter », {ecrire-solutions} « 6 vicies quater ») ; les trois autres
+sections ont pris le numéro libre suivant — {synthese-fonction}
+« 6 vicies quinquies », {solutions-graphique} « 6 vicies sexies »,
+{placer-image} « 6 vicies septies » —, et les deux citations concernées ont
+suivi le jour même.
+**La famille des « 6 … » n'est PAS remise dans l'ordre d'exécution, et le dire
+vaut mieux que de le taire** : ses quarante-cinq numéros ont été attribués au
+fil des demandes, si bien que « 6 quindecies » tourne entre « 6 sexies » et
+« 6 septies ». Les remettre en ordre aurait réécrit vingt-et-une citations de
+ce fichier — sa mémoire — pour zéro gain de lecture : la sortie se lit de haut
+en bas, pas par numéro. Ce qui est réparé est l'AMBIGUÏTÉ, qui trompe ; pas le
+désordre, qui ne trompe personne.
+**Et c'est un contrôle qui tient les bords, parce que la vigilance ne les
+tiendra pas** : le banc navigateur lit sa PROPRE source au démarrage (section
+« 0 ») et relève les numéros IMPRIMÉS par `titre()` comme ceux ANNONCÉS par un
+en-tête de commentaire. **Il lit dans les DEUX SENS, et il a fallu les deux —
+chacun laisse passer ce que l'autre attrape.** Un titre doit être annoncé par
+l'en-tête JUSTE AU-DESSUS de lui : ce sens nomme la moitié renommée seule, et
+l'ambiguïté d'origine (le titre d'une section annoncé par l'en-tête de la
+précédente). Et tout en-tête doit IMPRIMER son titre : ce sens-là seul voit un
+titre retiré — le sabotage l'a montré en restant VERT dans l'autre sens, à bon
+droit, un en-tête devenu muet ne se distinguant plus d'un sous-bloc.
+**Le premier jet ne tenait que ce second sens, et il a rougi sur du code
+JUSTE** — « 1 bis » (dans la section 1) et « 12 » (dans la section 11) sont des
+SOUS-BLOCS : leurs contrôles appartiennent à bon droit à la section qui les
+entoure, et elle imprime son titre. Un essai faux se reconnaît à ce qu'il
+rougit sur une page juste. Ils sont donc NOMMÉS dans le contrôle plutôt que de
+faire taire le bord — la règle des exemptions du projet —, et un cinquième
+contrôle exige que chaque nom désigne encore un en-tête, sans quoi une
+exemption survivrait à ce qu'elle protégeait.
+**Deux en-têtes ont dû gagner leur numéro pour que la mesure existe** : « 9
+bis » et « 10 » portaient leur doctrine en commentaire mais pas leur numéro sur
+la première ligne, et leur titre était donc rattaché à l'en-tête de la section
+d'avant. Le filet d'un en-tête s'écrit « ===== » ici et « ---- » là : le
+contrôle accepte les deux plutôt que d'imposer une convention de plus.
+Un dernier bord le garde honnête — il compte ce qu'il a trouvé et le DIT s'il
+n'a rien à mesurer : une expression régulière qui cesserait de reconnaître les
+titres le rendrait vert sur un banc entièrement dupliqué. Cinq sabotages,
+chacun rougissant en nommant son défaut (un numéro imprimé deux fois, un
+en-tête privé de son titre, une moitié renommée seule, la lecture des titres
+débranchée, un sous-bloc déclaré qui n'existe plus).
 
 **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.** Les trois
 fichiers ne savent pas faire les mêmes choses : `tests/profils.js` dit pour

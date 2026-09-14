@@ -6,7 +6,7 @@
   "description": "Exercices de mathématiques interactifs — Première.",
   "start_url": "./premiere-specifique.html",
   "scope": "./premiere-specifique.html",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "any",
   "background_color": "#FFFFFF",
   "theme_color": "#2B50C8",

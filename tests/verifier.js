@@ -948,11 +948,17 @@ function structure(){
   catch(e){ erreurManif = e.message; }
   verifier('le manifeste ' + nomManif + ' existe et est du JSON valable', !!manif, erreurManif);
   const cibleNue = './' + CIBLE;
-  verifier('le manifeste ouvre CETTE page, en mode application',
+  /* Le MODE D'AFFICHAGE vit dans tests/profils.js — deux sources : lire la
+     valeur du fichier et la comparer à elle-même ne prouverait rien. La
+     Première demande « fullscreen » (la barre de navigation d'Android
+     disparaît, demande de Turquet, septembre 2026), les deux autres
+     « standalone ». */
+  const displayAttendu = P.manifeste && P.manifeste.display;
+  verifier('le manifeste ouvre CETTE page, en mode application ' + JSON.stringify(displayAttendu),
     !!manif && manif.start_url === cibleNue && typeof manif.scope === 'string' && manif.scope.startsWith(cibleNue)
-      && /^(standalone|fullscreen)$/.test(String(manif.display)) && !!manif.name && manif.lang === 'fr' && !!manif.id,
+      && manif.display === displayAttendu && !!manif.name && manif.lang === 'fr' && !!manif.id,
     !manif ? 'pas de manifeste' : 'start_url ' + JSON.stringify(manif.start_url) + ', scope ' + JSON.stringify(manif.scope)
-      + ', display ' + JSON.stringify(manif.display) + ', name ' + JSON.stringify(manif.name) + ', lang ' + JSON.stringify(manif.lang) + ', id ' + JSON.stringify(manif.id));
+      + ', display ' + JSON.stringify(manif.display) + ' (attendu : ' + JSON.stringify(displayAttendu) + '), name ' + JSON.stringify(manif.name) + ', lang ' + JSON.stringify(manif.lang) + ', id ' + JSON.stringify(manif.id));
   /* Les icônes : chaque fichier existe, est un PNG, et fait la taille qu'il
      annonce — on lit les dimensions dans l'en-tête IHDR, jamais dans le nom. */
   const dimPng = (chemin) => {
@@ -986,6 +992,19 @@ function structure(){
   verifier('les trois manifestes portent trois identités et trois pages de départ distinctes',
     tousManif.every(Boolean) && new Set(ids).size === 3 && new Set(starts).size === 3 && ids.every(Boolean),
     'ids ' + JSON.stringify(ids) + ', start_url ' + JSON.stringify(starts));
+  /* Et chacun demande le mode d'affichage que SON profil déclare — le bord
+     opposé de la demande : le plein écran de la Première ne doit pas fuir
+     sur un niveau qui ne l'a pas demandé. Mesuré dans CHAQUE exécution,
+     quel que soit le niveau contrôlé. */
+  const nomsManif = ['secondes', 'premiere-specifique', 'terminale'];
+  const dispAttendus = nomsManif.map(b => (PROFILS[b + '.html'] || {}).manifeste
+    && (PROFILS[b + '.html'] || {}).manifeste.display);
+  const dispFaux = tousManif.map((m, i) => (m && m.display) === dispAttendus[i] ? null
+    : nomsManif[i] + ' : ' + JSON.stringify(m && m.display) + ' au lieu de ' + JSON.stringify(dispAttendus[i])).filter(Boolean);
+  verifier('chaque manifeste demande le mode d\u2019affichage d\u00e9clar\u00e9 dans tests/profils.js',
+    dispAttendus.every(Boolean) && dispFaux.length === 0,
+    !dispAttendus.every(Boolean) ? 'un niveau ne d\u00e9clare pas « manifeste » dans tests/profils.js'
+      : dispFaux.join(' ; '));
 }
 
 /* ---------- 2. Démarrage ---------- */
@@ -1654,6 +1673,183 @@ function branchements(w){
   } else {
     ignorer('reconnaître le coefficient : trois familles, pièges nommés, vérification honnête',
       'ce niveau n\'a pas le QCM des coefficients');
+  }
+
+  /* ---- {associer-coefficient} (2.4.2) : associer parmi SIX ---------------
+     Demande de Turquet (septembre 2026) : associer à « prendre un % », à
+     « augmenter d'un % » et à « diminuer d'un % » le bon coefficient parmi
+     SIX. Les six sont les trois familles pour P, puis les trois familles pour
+     P la VIRGULE DÉCALÉE — deux axes, six cases, et les deux pièges du 2.5.2
+     présents SUR CHAQUE LIGNE. Sept bords, et n'en tenir qu'un ne tient rien :
+       · le TIRAGE — les six DISTINCTS (le seul garde du générateur), tous
+         entre 0 et 2 (ce qu'aucun garde ne surveille : c'est le contrôle qui
+         l'exige, un garde qui n'écarte jamais rien fait croire qu'on vérifie
+         quelque chose), les six EXACTEMENT ceux des deux axes, et l'ordre qui
+         change — à ligne égale, le rang de la bonne varie ;
+       · la BONNE RÉPONSE jamais rangée à côté : la question ne porte que P,
+         l'ordre et les choix de l'élève ;
+       · le RENDU — trois listes portant le MÊME ordre que le banc affiché, et
+         choisir qui ne redessine pas l'écran ;
+       · la LARGEUR EXPLICITE de la liste dans la feuille de styles : sans
+         elle, « select{width:100%} » étire chaque liste sur toute la ligne et
+         les trois phrases se lisent l'une sous l'autre (le piège payé sur les
+         quatre cases des intervalles, en Seconde) ;
+       · la CORRECTION cliquée — chaque ligne jugée SEULE (une fausse ne fait
+         pas payer les deux autres, et la note de l'écran le dit), la bonne
+         réponse en VERT à côté avec le LIBELLÉ et jamais le rang, le piège
+         choisi NOMMÉ ;
+       · la LIGNE VIDE — un message, aucun verrou, aucune couleur ;
+       · le SOUTIEN — la fausse rougit, la juste se verrouille, et RIEN ne
+         révèle la bonne réponse. */
+  if(evaluer(w,'typeof startAssocierCoef').valeur==='function'){
+    verifierEval(w, 'associer le coefficient : six propositions, chaque ligne jugée seule', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      const FAMS=['pre','aug','dim'];
+
+      /* ---- 1. le tirage ---- */
+      const ordres={}, rangs={pre:{},aug:{},dim:{}}, vusP={};
+      for(let t=0;t<30 && !vus.length;t++){
+        startAssocierCoef();
+        if(test.questions.length!==AC_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+AC_NB);
+        test.questions.forEach(function(q){
+          const cles=Object.keys(q).filter(function(k){ return ['P','ordre','rep'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question porte d’autres champs que P, l’ordre et les choix : '+cles.join(','));
+          vusP[q.P]=1;
+          if(q.ordre.length!==6) vus.push('tirage '+t+' (P='+q.P+') : '+q.ordre.length+' propositions au lieu de 6');
+          if(new Set(q.ordre).size!==6) vus.push('tirage '+t+' (P='+q.P+') : propositions non distinctes '+q.ordre.join('/'));
+          q.ordre.forEach(function(c){ if(!(c>0 && c<200)) vus.push('tirage '+t+' : le coefficient '+c+' centièmes sort de ]0 ; 2['); });
+          /* les six sont EXACTEMENT les deux axes : les trois familles pour P,
+             puis pour P la virgule décalée. Une proposition qui viendrait
+             d’ailleurs se laisserait écarter sans raisonner. */
+          const Ps=(q.P%10===0)?q.P/10:q.P*10;
+          const attendus=FAMS.map(function(f){ return ckCoef({fam:f,P:q.P}); })
+                     .concat(FAMS.map(function(f){ return ckCoef({fam:f,P:Ps}); }));
+          attendus.forEach(function(c){ if(q.ordre.indexOf(c)<0) vus.push('tirage '+t+' (P='+q.P+') : la proposition '+c+' manque'); });
+          q.ordre.forEach(function(c){ if(attendus.indexOf(c)<0) vus.push('tirage '+t+' (P='+q.P+') : la proposition '+c+' n’est ni une famille de P ni une famille de sa virgule décalée'); });
+          FAMS.forEach(function(f){
+            if(q.ordre.indexOf(ckCoef({fam:f,P:q.P}))<0) vus.push('tirage '+t+' : la bonne réponse de « '+f+' » manque aux propositions');
+            rangs[f][acBon(q,f)]=1;
+          });
+          if(q.rep.pre!==null||q.rep.aug!==null||q.rep.dim!==null) vus.push('le tirage arrive avec des lignes déjà associées');
+          ordres[q.ordre.join(',')]=1;
+        });
+      }
+      if(!vus.length && Object.keys(ordres).length<2) vus.push('l’ordre des six propositions ne change jamais');
+      FAMS.forEach(function(f){ if(!vus.length && Object.keys(rangs[f]).length<2) vus.push('ligne '+f+' : la bonne tombe toujours au même rang'); });
+      /* LE GARDE DU TIRAGE A QUELQUE CHOSE À ÉCARTER, et c’est P = 5 : sa
+         virgule décalée vaut 50, et « prendre 50 % » comme « diminuer de
+         50 % » donnent 0,50. Sans ce bord, un garde mort passerait pour vivant. */
+      if(new Set(FAMS.map(function(f){ return ckCoef({fam:f,P:5}); })
+          .concat(FAMS.map(function(f){ return ckCoef({fam:f,P:50}); }))).size===6)
+        vus.push('P = 5 ne produit plus de collision : le garde des six distincts n’écarte plus rien');
+      if(vusP[5]) vus.push('P = 5 est tiré, alors que ses six propositions ne sont pas distinctes');
+
+      /* ---- 2. le rendu, et choisir qui ne redessine pas ---- */
+      const Q=function(){ return {P:30, ordre:[130,3,97,30,103,70], rep:{pre:null,aug:null,dim:null}}; };
+      const poser=function(rep){ test.questions=[Q()]; test.idx=0; test.locked=false;
+        if(rep) FAMS.forEach(function(f){ test.questions[0].rep[f]=rep[f]; });
+        renderACTest(); };
+      poser(null);
+      const sel=function(f){ return document.getElementById('ac-'+f); };
+      FAMS.forEach(function(f){
+        const e=sel(f);
+        if(!e) { vus.push('la liste de la ligne « '+f+' » est absente'); return; }
+        if(e.options.length!==7) vus.push('la ligne « '+f+' » propose '+(e.options.length-1)+' coefficients au lieu de 6');
+        const vals=[].slice.call(e.options,1).map(function(o){ return o.textContent.trim(); });
+        if(vals.join('|')!==[130,3,97,30,103,70].map(function(c){ return '× '+acStr(c); }).join('|'))
+          vus.push('la ligne « '+f+' » ne propose pas les six dans l’ordre du banc : '+vals.join(' '));
+      });
+      const banc=[].slice.call(document.querySelectorAll('#acHost .ac-c')).map(function(n){ return n.textContent.trim(); });
+      if(banc.join('|')!==[130,3,97,30,103,70].map(function(c){ return '× '+acStr(c); }).join('|'))
+        vus.push('le banc n’affiche pas les six coefficients dans l’ordre de la question : '+banc.join(' '));
+      const avant=sel('aug');
+      choisirAC('aug','4');
+      if(sel('aug')!==avant) vus.push('choisir redessine l’écran — les deux autres lignes seraient remises à zéro');
+      if(test.questions[0].rep.aug!==4) vus.push('choisirAC ne retient pas le choix');
+      choisirAC('aug','');
+      if(test.questions[0].rep.aug!==null) vus.push('revenir au « … » ne vide pas le choix');
+
+      /* ---- 3. la correction, CLIQUÉE ---- */
+      const cls=function(f){ return (sel(f)||{}).className||''; };
+      const fb=function(){ return document.getElementById('acFeedback').textContent; };
+      const bons={pre:3,aug:0,dim:5};                 /* 30 -> rang 3, 130 -> rang 0, 70 -> rang 5 */
+      /* copie juste : le point, les trois lignes bleues, la note 3 sur 3 */
+      poser(bons); test.score=0; test.answers=[]; checkACAnswer();
+      if(test.score!==1) vus.push('la copie juste ne vaut pas le point ('+test.score+')');
+      FAMS.forEach(function(f){ if(!/\\bok\\b/.test(cls(f))) vus.push('ligne « '+f+' » juste non marquée ok ('+cls(f)+')'); });
+      const n1=test.answers[test.answers.length-1]||{};
+      if(n1.cases!==3 || n1.justes!==3) vus.push('la copie juste compte '+n1.justes+' case(s) juste(s) sur '+n1.cases+', au lieu de 3 sur 3');
+      /* UNE SEULE ligne fausse : elle seule rougit, les deux autres restent
+         justes et la note le dit — chaque ligne se juge seule. */
+      poser({pre:3,aug:4,dim:5}); test.score=0; test.answers=[]; checkACAnswer();
+      if(test.score!==0) vus.push('une ligne fausse vaut quand même le point');
+      if(!/\\bbad\\b/.test(cls('aug'))) vus.push('la ligne fausse ne rougit pas');
+      FAMS.filter(function(f){ return f!=='aug'; }).forEach(function(f){
+        if(!/\\bok\\b/.test(cls(f))) vus.push('la ligne « '+f+' » juste est punie par la faute de sa voisine ('+cls(f)+')'); });
+      const n2=test.answers[test.answers.length-1]||{};
+      if(n2.cases!==3 || n2.justes!==2) vus.push('une seule ligne fausse : '+n2.justes+' case(s) juste(s) sur '+n2.cases+', au lieu de 2 sur 3');
+      /* la bonne réponse en VERT à côté, et elle porte le LIBELLÉ */
+      const bd=sel('aug').nextElementSibling;
+      if(!bd || !/mf-cor/.test(bd.className||'')) vus.push('la ligne fausse ne reçoit pas la bonne réponse à côté');
+      else if(bd.textContent.trim()!=='× '+acStr(130)) vus.push('le badge écrit « '+bd.textContent.trim()+' » au lieu du libellé « × '+acStr(130)+' »');
+      if(fb().indexOf('VIRGULE')<0) vus.push('le retour ne nomme pas le piège de la virgule : '+fb().slice(0,70));
+      /* l’autre piège : la famille confondue */
+      poser({pre:5,aug:0,dim:5}); test.answers=[]; checkACAnswer();
+      if(fb().indexOf('DIMINUTION')<0) vus.push('le retour ne nomme pas le piège de la famille : '+fb().slice(0,70));
+      /* ---- 4. une ligne vide : un message, aucun verrou, aucune couleur ---- */
+      poser({pre:3,aug:null,dim:5}); test.answers=[]; checkACAnswer();
+      if(fb().indexOf('Choisis un coefficient')!==0) vus.push('vérifier avec une ligne vide ne demande pas de la compléter : '+fb().slice(0,60));
+      if(test.locked) vus.push('vérifier avec une ligne vide verrouille l’exercice');
+      FAMS.forEach(function(f){ if(/\\b(ok|bad|sol)\\b/.test(cls(f))) vus.push('une ligne laissée vide fait peindre la ligne « '+f+' » ('+cls(f)+')'); });
+      /* ---- 5. le soutien : rien ne révèle ---- */
+      currentMode='soutien';
+      poser({pre:3,aug:4,dim:5}); test.answers=[]; checkACAnswer();
+      if(test.locked) vus.push('en soutien, une copie fausse verrouille l’exercice');
+      if(!/\\bbad\\b/.test(cls('aug'))) vus.push('en soutien, la ligne fausse ne rougit pas');
+      if(!/\\bok\\b/.test(cls('pre'))) vus.push('en soutien, la ligne juste ne se verrouille pas en bleu');
+      if(sel('aug').nextElementSibling && /mf-cor/.test(sel('aug').nextElementSibling.className||''))
+        vus.push('en soutien, la bonne réponse est révélée à côté de la ligne fausse');
+      if(sel('aug').disabled) vus.push('en soutien, la ligne fausse ne peut plus être reprise');
+      currentMode='train';
+
+      /* ---- 6. l’identité ---- */
+      test.kind='ac'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='associer-coefficient') vus.push('« Recommencer » relance « '+test.qId+' »');
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+
+    /* LA LISTE A UNE LARGEUR EXPLICITE. La feuille pose « select{width:100%} » :
+       sans largeur propre, chaque liste s’étire sur toute la ligne et les trois
+       phrases se posent l’une sous l’autre. Un `min-width` n’y peut rien —
+       c’est la largeur qu’il faut reprendre (la leçon des intervalles). */
+    const regleAcSel=(src.match(/\.ac-sel\{[^}]*\}/)||[''])[0];
+    verifier('la liste des six a une largeur explicite (select{width:100%} l’étirerait)',
+      /(?:^|[;{])\s*width:\s*\d/.test(regleAcSel),
+      regleAcSel ? 'la règle .ac-sel ne pose pas de width : ' + regleAcSel.slice(0, 90) : 'aucune règle .ac-sel dans la feuille de styles');
+    /* Les trois verdicts doivent EXISTER dans la feuille : aucun autre écran de
+       ce niveau ne répond par une liste, donc sans ces règles la vérification
+       ne se verrait pas du tout. */
+    const manquants=['ok','bad','sol'].filter(c => src.indexOf('.ac-sel.'+c+'{')<0);
+    verifier('la liste porte les trois verdicts de la convention (bleu, rouge, vert)',
+      manquants.length===0, 'sans règle CSS : ' + manquants.map(c => '.ac-sel.'+c).join(', '));
+  } else {
+    ignorer('associer le coefficient : six propositions, chaque ligne jugée seule',
+      'ce niveau n’a pas l’exercice d’association des coefficients');
+  }
+
+  if(P.nbQuestionsAssocier){
+    /* DEUX SOURCES : la page a AC_NB, le profil a le nombre attendu. Lire la
+       page et la comparer à elle-même ne prouverait rien. */
+    verifierEval(w, 'l’association des coefficients pose ' + P.nbQuestionsAssocier + ' questions', `(function(){
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      startAssocierCoef();
+      return (AC_NB===${P.nbQuestionsAssocier} && test.questions.length===${P.nbQuestionsAssocier})
+        ? '' : 'AC_NB='+AC_NB+', tirage de '+test.questions.length+' question(s)';
+    })()`, v => v === '', undefined);
+  } else {
+    ignorer('l’association des coefficients pose le bon nombre de questions',
+      'ce niveau ne déclare pas ce nombre (voir tests/profils.js)');
   }
 
   if(P.nbQuestionsFractions){
@@ -3064,6 +3260,7 @@ function exercices(suite){
     syntheseAugLibreRedigee(w, P);
     syntheseToutesFamillesRedigee(w, P);
     verificationAvecPropositions(w, P);
+    teteCollee(w, P);
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
     correctionSignesVariations(w, P);
@@ -5671,6 +5868,123 @@ function synthesePourcentage(w, P){
    (un fait de table ne se pose pas), les zéros finaux sont retirés, et elle
    ne se reconstruit que si les facteurs changent — reconstruire à chaque
    frappe effacerait ce que l'élève y écrit. */
+/* ---------- un « = » ne se sépare jamais de la case qu'il annonce --------
+   Demande de Turquet (septembre 2026), en deux temps : « quand on affiche
+   "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
+   "= 0" passe aussi à la ligne », puis « en fait dès qu'une case passe à la
+   ligne et qu'il y a un "=" devant, mettre le "=" aussi à la ligne ». La
+   règle vaut donc pour TOUT « = » posé devant une case, avec ou sans tête.
+   La rangée d'un exercice guidé est un flex qui SE REPLIE — c'est ce qui
+   l'empêche de déborder de l'écran — et le repli tombait ENTRE le « 0, »
+   écrit par la page et la case où l'élève répond : mesuré à 600 px de
+   fenêtre sur le 2.3.1, « 0, » restait en fin de ligne et sa case tombait
+   111 px plus bas. Une virgule décimale coupée de ses décimales n'est plus
+   un nombre, et l'égalité se lit comme deux calculs.
+   UN SEUL ENDROIT assemble le groupe (fEqTete), et le contrôle tient les
+   bords que la page ne dit pas d'elle-même :
+   · plus AUCUN groupe écrit à la main dans la source — ni « = » + tête +
+     case, ni « = » nu devant une case : la rangée qu'on écrira demain passe
+     par la fabrique, donc elle est tenue sans rien déclarer ; c'est ce bord
+     qui empêche la liste de dériver ;
+   · fEqTete pose bien la classe, ET la classe est bien un flex : une
+     classe posée sans sa règle ne tient rien ensemble, et rien ne
+     rougirait ;
+   · le MÊME écart que la rangée — un groupe plus serré ou plus large se
+     verrait tout de suite sur l'écran de l'élève ;
+   · le rendu produit vraiment des groupes, chacun avec son « = », sa tête
+     et sa case : un contrôle qui n'a rien à mesurer ne mesure rien, et il
+     doit le dire.
+   Où tombe la ligne, en revanche, ne se voit que dans un navigateur : c'est
+   le banc navigateur qui mesure le repli, à une largeur où il a lieu. */
+function teteCollee(w, P){
+  const nom = 'aucun « = » ne se sépare de la case qu’il annonce';
+  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de tête collée à sa case'); return; }
+  const T = P.teteCollee, src = lire(CIBLE), pbs = [];
+
+  /* 1. le seul endroit qui assemble, et ce qu'il pose */
+  const aide = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === T.fabrique);
+  if(!aide) pbs.push('« ' + T.fabrique + ' » est introuvable : plus rien n\'assemble le groupe');
+  else{
+    if(aide.texte.indexOf('class="' + T.classe + '"') < 0)
+      pbs.push('« ' + T.fabrique + ' » ne pose plus la classe « ' + T.classe + ' » : le groupe n\'est plus un groupe');
+    if(aide.texte.indexOf('class="f-eq"') < 0 || aide.texte.indexOf('class="f-whole"') < 0)
+      pbs.push('« ' + T.fabrique + ' » n\'écrit plus le « = » et sa tête');
+    /* La tête doit rester FACULTATIVE : sans cela, le « = » nu devant une
+       case n'aurait aucun chemin vers le groupe, et les rangées qui n'ont
+       pas de « 0, » resteraient coupées comme avant. */
+    if(!/tete\s*\?/.test(aide.texte))
+      pbs.push('« ' + T.fabrique + ' » impose une tête : le « = » nu devant une case n\'a plus de groupe');
+  }
+  const court = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === T.raccourci);
+  if(!court) pbs.push('« ' + T.raccourci +' » est introuvable : le « = » nu n\'a plus de fabrique');
+  else if(court.texte.indexOf(T.fabrique) < 0)
+    pbs.push('« ' + T.raccourci + ' » n\'appelle plus « ' + T.fabrique + ' » : deux fabriques finiraient par diverger');
+
+  /* 2. plus aucun groupe écrit à la main. Une CASE, ici, est ce qui porte la
+     réponse de l'élève : un <math-field>, ou une fraction faite de cases —
+     que la page écrit par ses fabriques locales (frac, dec, fracIn, mf…). On
+     lit donc le « = » et ce qui le suit IMMÉDIATEMENT, dans les deux formes
+     d'écriture du fichier : le gabarit (${…}) et la concaténation ('…'+…). */
+  const sansAide = aide ? src.split(aide.texte).join('') : src;
+  const SUIT = '(?:<math-field|<span class="f-frac-input"|\\$\\{(?:frac|dec|fracIn|pmMF)\\b|\'\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b|`\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b)';
+  const brut = [...sansAide.matchAll(new RegExp(
+    '<span class="f-eq">=</span>(?:<span class="f-whole">[^<>]{0,120}</span>)?\\s*' + SUIT, 'g'))];
+  if(brut.length)
+    pbs.push(brut.length + ' « = » écrit(s) à la main devant une case : ' +
+      brut.slice(0, 3).map(m => '« ' + m[0].slice(26, 70).replace(/\s+/g, ' ') + '… »').join(' ; ') +
+      ' — hors de ' + T.fabrique + ', rien ne les garde ensemble');
+
+  /* 3. la classe est un flex, du même écart que la rangée */
+  const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+  const regle = t => (new RegExp('(?:^|[,}])\\s*' + t.replace('.', '\\.') + '\\s*\\{([^}]*)\\}', 'm').exec(style) || [, null])[1];
+  const grp = regle('.' + T.classe), rang = regle('.' + T.rangee);
+  if(grp === null) pbs.push('aucune règle « .' + T.classe + ' » : la classe est posée sans rien tenir');
+  else if(!/display:\s*(inline-)?flex/.test(grp))
+    pbs.push('« .' + T.classe + ' » n\'est pas un flex : ses éléments se replient comme avant');
+  if(rang === null) pbs.push('aucune règle « .' + T.rangee + ' » : le contrôle ne peut pas comparer les écarts');
+  else if(grp !== null){
+    const ecart = c => (/gap:\s*([\d.]+)px/.exec(c) || [, null])[1];
+    if(ecart(grp) !== ecart(rang))
+      pbs.push('le groupe a un écart de ' + ecart(grp) + ' px quand la rangée en a ' + ecart(rang) + ' px : l\'espacement change à l\'œil');
+  }
+
+  /* 4. et le rendu en pose vraiment — sinon le contrôle parle d'autre chose */
+  const vus = evaluer(w, `(function(){
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const pbs=[]; let total=0;
+    ${JSON.stringify(T.exercices)}.forEach(function(id){
+      try{ TESTS[id].start(); }catch(e){ pbs.push(id+' : le démarrage échoue ('+e.message+')'); return; }
+      const ec=document.querySelector('.screen.on');
+      const grs=ec?[...ec.querySelectorAll('.${T.classe}')]:[];
+      if(!grs.length){ pbs.push(id+' : aucun groupe rendu'); return; }
+      total+=grs.length;
+      grs.forEach(function(g){
+        /* LA TÊTE EST L'ENFANT DIRECT DU GROUPE, jamais le premier « f-whole »
+           venu : la case d'une somme de fractions en contient elle-même
+           (le numérateur écrit devant son multiplicateur), et le contrôle
+           lisait « 1 » comme une tête — il s'est pris en défaut avant la page.
+           Elle est FACULTATIVE ; le « = » et la case, eux, sont exigés. */
+        const enf=[].slice.call(g.children);
+        const e=enf[0]&&enf[0].classList.contains('f-eq')?enf[0]:null;
+        const t=enf[1]&&enf[1].classList&&enf[1].classList.contains('f-whole')?enf[1]:null;
+        /* Ce que le « = » annonce est une CASE (math-field) ou une FRACTION —
+           le maillon « 3 = 3/1 » d'une somme est écrit par la page, et son
+           « = » ne doit pas rester seul en fin de ligne pour autant. */
+        const c=g.querySelector('math-field, .f-frac-input, .f-frac');
+        if(!e||!c){ pbs.push(id+' : un groupe sans « = » en tête, ou qui n annonce rien'); return; }
+        if(t && !/,$/.test((t.textContent||'').trim()))
+          pbs.push(id+' : la tête « '+(t.textContent||'').trim()+' » ne finit pas par la virgule');
+      });
+    });
+    return pbs.length ? pbs.slice(0,3).join(' | ') : (total<${T.minimum} ? 'seulement '+total+' groupe(s) rendus, '+${T.minimum}+' attendus au moins' : '');
+  })()`);
+  if(!vus.ok) pbs.push('le rendu ne se mesure pas : ' + vus.erreur);
+  else if(vus.valeur) pbs.push(vus.valeur);
+
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
 function poseSuitLEleve(w, P){
   const present = evaluer(w, "typeof poseEleveMAJ==='function' && typeof startAug==='function'");
   if(!present.ok || !present.valeur){
