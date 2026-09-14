@@ -4141,6 +4141,29 @@ lisait l'écran ENTIER, où l'indication sous la feuille parle elle aussi
 d'addition, si bien qu'une étiquette qui aurait cessé de nommer les voies
 serait passée inaperçue. Il lit l'ÉTIQUETTE désormais, et garde l'écran
 entier pour son bord à lui — rien n'y promet d'addition sur « prendre P % ».
+**Et l'intégration continue a nommé un contrôle INTERMITTENT, venu d'une
+autre branche le même jour.** « Un « = » et la case qu'il annonce restent sur
+la même ligne » exigeait que CHAQUE groupe `.f-grp` porte un `math-field` —
+or la somme de fractions pose le maillon « 3 = 3/1 » dès qu'un terme est un
+ENTIER, et la page l'ÉCRIT : ce groupe-là n'a aucune case à saisir. Le banc
+rougissait donc **une exécution sur trois**, sur une page parfaitement juste,
+et trois exécutions locales étaient passées avant que l'action GitHub ne le
+montre — la leçon du barème de la coupe, retombée telle quelle.
+**La mesure qui accuse la page a été mesurée elle-même avant qu'on corrige
+quoi que ce soit** : le défaut se reproduit sur `main` SEUL, sans une ligne
+de la branche. Le contrôle prend désormais la case saisie, ou à défaut ce
+que la page a écrit — son « = » est de toute façon déjà mesuré par la boucle
+du dessus, qui accepte une fraction écrite —, et un groupe qui n'annonce
+RIEN reste un défaut, qui se nomme. **Et le bord ne dépend plus de la
+chance** : le banc redemande une séance jusqu'à ce qu'un terme soit entier
+(`entierEcrit` dans `tests/profils.js`), puis mesure la question qui porte le
+maillon. Le maillon VIDÉ le fait rougir deux fois — à la visite et au
+tirage forcé —, et c'est le sabotage qui compte. Le second, le groupe qui
+cesse d'être une boîte flex, a d'abord frappé un VOISIN : « un signe posé à
+côté d'une fraction tombe sur son trait » rougit avant lui, un cran plus
+haut. La propriété est tenue, par un autre contrôle, une mesure plus tôt —
+la leçon du sabotage impossible, retombée telle quelle.
+
 **Et {reconnaitre-coefficient} est passé de 2.5.2 à 2.5.3**, la numérotation
 se déduisant de la position : les notes déjà obtenues ne bougent pas — elles
 portent l'IDENTIFIANT — et les renvois suivent, écrits `{identifiant}`. Les

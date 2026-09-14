@@ -144,6 +144,13 @@ module.exports = {
                               'baisses-successives', 'hausses-successives',
                               'somme-fractions', 'mult-decimaux', 'fraction-pourcentage',
                               'augmenter-addition', 'pourcentage'],
+                  /* Le maillon « 3 = 3/1 » de la somme de fractions : la page
+                     l'ÉCRIT, il ne porte aucune case, et il n'est posé que
+                     lorsqu'un terme est un ENTIER. Le déclarer ici fait
+                     mesurer ce bord à chaque exécution, au lieu d'un tirage
+                     sur deux — l'intermittence qui a fait rougir le banc en
+                     intégration continue sur une page parfaitement juste. */
+                  entierEcrit: 'somme-fractions',
                   largeur: 600, hauteur: 900 },
 
     /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE

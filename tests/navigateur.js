@@ -3305,12 +3305,7 @@ async function parcours(page, N){
       await connecter(s.page);
       const separes = [], vides = [];
       let repliees = 0, groupes = 0;
-      for(const exo of TC.exercices){
-        await s.page.evaluate(id => openTest(id), exo);
-        await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
-        await s.page.waitForTimeout(1200);
-        const m = await s.page.evaluate(cl => {
+      const mesurerCorps = cl => {
           const vu = e => e.getBoundingClientRect().height > 0;   /* une étape encore cachée ne se mesure pas */
           const grs = [...document.querySelectorAll('.screen.on .' + cl)].filter(vu);
           const casse = [];
@@ -3337,8 +3332,19 @@ async function parcours(page, N){
                n'est pas une tête ; elle reste facultative */
             const enf = [...g.children];
             const t = (enf[1] && enf[1].classList && enf[1].classList.contains('f-whole')) ? enf[1] : null;
-            const c = g.querySelector('math-field');
-            if(!c || !vu(c)){ casse.push('un groupe sans case visible'); continue; }
+            /* CE QUE LE « = » ANNONCE PEUT ÊTRE ÉCRIT PAR LA PAGE, pas
+               seulement saisi : le maillon « 3 = 3/1 » de la somme de
+               fractions, posé dès qu'un terme est un ENTIER, ne porte aucun
+               math-field. L'exiger faisait rougir le banc sur une page
+               parfaitement juste, au hasard du tirage — un contrôle
+               intermittent parle d'autre chose, et celui-ci a rougi en
+               intégration continue là où trois exécutions locales étaient
+               passées. On prend donc la case saisie, ou à défaut ce que la
+               page a écrit ; un groupe qui n'annonce RIEN reste un défaut,
+               et son « = » est de toute façon mesuré par la boucle du
+               dessus, qui accepte déjà une fraction écrite. */
+            const c = g.querySelector('math-field') || g.querySelector('.f-frac, .f-frac-input');
+            if(!c || !vu(c)){ casse.push('un groupe qui n\'annonce rien après son « = »'); continue; }
             if(!t || !vu(t)) continue;            /* la tête est facultative */
             const a = t.getBoundingClientRect(), b = c.getBoundingClientRect();
             /* MÊME LIGNE se mesure par le RECOUVREMENT vertical, jamais par
@@ -3359,10 +3365,41 @@ async function parcours(page, N){
             return r.getBoundingClientRect().height > hmax + 8;
           }).length;
           return { casse, grs: grs.length, replis };
-        }, TC.classe);
+      };
+      const mesurer = cl => s.page.evaluate('(' + String(mesurerCorps) + ')(' + JSON.stringify(cl) + ')');
+      for(const exo of TC.exercices){
+        await s.page.evaluate(id => openTest(id), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        const m = await mesurer(TC.classe);
         groupes += m.grs; repliees += m.replis;
         if(!m.grs) vides.push(exo);
         m.casse.forEach(d => separes.push(exo + ' : ' + d));
+      }
+      /* LE MAILLON « 3 = 3/1 » EST MESURÉ POUR DE BON, pas au hasard du
+         tirage : on redemande une séance jusqu'à ce qu'un terme soit un
+         ENTIER, et on regarde la question qui le porte. Sans cela, le bord
+         ne se visite qu'un tirage sur deux — et c'est ainsi qu'un défaut du
+         contrôle a traversé trois exécutions locales avant de rougir en
+         intégration continue. */
+      if(TC.entierEcrit){
+        const force = await s.page.evaluate(id => {
+          if(typeof startSF !== 'function' || typeof renderSFTest !== 'function') return { ok: false, raison: 'le moteur des sommes de fractions est absent' };
+          for(let i = 0; i < 200; i++){
+            startSF();
+            const j = test.questions.findIndex(q => q.d1 === 1 || q.d2 === 1);
+            if(j >= 0){ test.idx = j; renderSFTest(); return { ok: true }; }
+          }
+          return { ok: false, raison: 'aucune séance à terme entier en 200 tirages' };
+        }, TC.entierEcrit);
+        await s.page.waitForTimeout(900);
+        if(!force.ok) separes.push(TC.entierEcrit + ' : ' + force.raison);
+        else {
+          const me = await mesurer(TC.classe);
+          groupes += me.grs;
+          me.casse.forEach(d => separes.push(TC.entierEcrit + ' (terme entier) : ' + d));
+        }
       }
       verifier('un « = » et la case qu’il annonce restent sur la même ligne',
         separes.length === 0, separes.slice(0, 3).join(' | '));
