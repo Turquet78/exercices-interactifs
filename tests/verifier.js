@@ -1695,24 +1695,42 @@ function branchements(w){
      La même question qu'au 2.2.7, par l'autre chemin — la « méthode 2 » de la
      fiche (demande de Turquet, septembre 2026). On choisit une valeur de
      départ, on prend 100, et ce qu'on a gagné « pour 100 » EST le pourcentage.
+     LES POURCENTAGES SONT CEUX DU 2.2.7 — demande de Turquet (septembre 2026) :
+     « pour le 2.2.8 il faut les mêmes règles pour le choix des pourcentages que
+     dans le 2.2.7 ». Le vivier est donc PARTAGÉ (HS_PAIRES), et non recopié :
+     deux listes auraient fini par diverger, et les deux exercices auraient tiré
+     des pourcentages différents — ce que la demande interdit précisément.
      Les bords, et n'en tenir qu'un ne tient rien :
-       · le TIRAGE, refait par une SECONDE arithmétique qui n'a rien en commun
-         avec celle de la page : elle COMPTE les chiffres après la virgule du
-         coefficient global (quatre, moins les zéros de fin du produit), là où
-         la page décide par deux divisibilités. Toute la chaîne doit tomber sur
-         des ENTIERS — c'est ce que la contrainte de Turquet fait vraiment — et
-         la hausse globale doit DÉPASSER la somme des deux taux, sans quoi la
-         leçon de l'exercice tombe ;
-       · les deux GARDES sont vivants : le couple de la fiche (90 % puis 4 %,
-         trois décimales) et 25 % puis 60 % (deux tout rond, zéro décimale)
-         sont refusés — un garde qui n'écarte jamais rien fait croire qu'on
-         vérifie quelque chose. L'exemple de Turquet, lui, passe, et son calcul
-         est ÉPINGLÉ : 100 → 102 → 153, soit +53 % ;
+       · le VIVIER, refait par une SECONDE arithmétique qui travaille sur les
+         pourcentages BRUTS là où la page passe par les fractions réduites du
+         2.2.7 : un seul chiffre non nul par taux, P1 × P2 multiple de 100, et
+         une hausse globale STRICTEMENT sous 100 %. On mesure ce que la page
+         TIRE, jamais une constante qu'elle nommerait — hscSeance tirant SANS
+         REMISE, une séance de la taille du vivier le rend en entier, si bien
+         qu'un filtre resserré en douce se voit comme une paire manquante, et
+         une règle relâchée comme une paire de trop ;
+       · le TIRAGE tombe sur des ENTIERS, dans les DEUX ordres : la chaîne
+         entière de la méthode 2 (la hausse pour 100, la nouvelle valeur, la
+         seconde hausse, la valeur finale, la hausse globale) — c'est ce que la
+         contrainte de Turquet fait vraiment, et le contrôle COMPTE les
+         chiffres après la virgule du coefficient (quatre, moins les zéros de
+         fin du produit) là où la page ne décide plus rien elle-même. La hausse
+         globale doit DÉPASSER la somme des deux taux, sans quoi la leçon de
+         l'exercice tombe ;
+       · les règles ÉCARTENT vraiment quelque chose : quatre couples épinglés,
+         un par règle — 90 % puis 4 % (le couple de la fiche, trois décimales),
+         25 % puis 4 % (deux chiffres non nuls, et le seul des quatre que
+         l'ANCIEN vivier de 114 acceptait), 25 % puis 60 % (coefficient 2 tout
+         rond) et 50 % puis 50 % (hausse globale de 125 %). L'exemple de
+         Turquet, lui, passe, et son calcul est ÉPINGLÉ : 100 → 102 → 153, soit
+         +53 % ;
        · la BONNE RÉPONSE jamais rangée à côté : la question ne porte que P1,
          P2, le contexte et la variante ;
-       · les ÉNONCÉS PARTAGÉS avec le 2.2.7 — deux listes auraient fini par
-         diverger, et deux exercices voisins auraient posé la même question
-         dans des mots différents ;
+       · l'ORDRE de la paire est TIRÉ : figé, la première hausse serait toujours
+         la plus petite des deux — le vivier ne range que des paires ;
+       · les ÉNONCÉS PARTAGÉS avec le 2.2.7, comme le vivier — deux listes
+         auraient fini par diverger, et deux exercices voisins auraient posé la
+         même question dans des mots différents ;
        · la COPIE JUSTE cliquée, ses 21 cases comptées, et l'ordre de
          l'addition LIBRE (elle est commutative) avec le doublon défendable une
          FOIS ;
@@ -1725,68 +1743,88 @@ function branchements(w){
     verifierEval(w, 'deux hausses en partant de 100 : le tirage tombe sur des entiers, chaque case se juge seule', `(function(){
       const vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      /* ---- 1. LE VIVIER : celui du 2.2.7, refait par une SECONDE arithmétique.
+         Elle travaille sur les pourcentages BRUTS là où la page passe par les
+         fractions réduites du 2.2.7 — deux écritures qui n'ont rien en commun
+         doivent tomber d'accord. Et on mesure le vivier que la page TIRE, jamais
+         une constante qu'elle nommerait : hscSeance tirant SANS REMISE, une
+         séance de la taille du vivier le rend en entier, si bien qu'un filtre
+         resserré en douce se voit comme une paire manquante. ---- */
+      const unSeulChiffre=function(x){ return x<10 || x%10===0; };
+      const attendues=[];
+      for(let a=1;a<=99;a++) for(let b=a;b<=99;b++){
+        if(!unSeulChiffre(a)||!unSeulChiffre(b)) continue;   /* un seul chiffre non nul par taux */
+        if((a*b)%100!==0) continue;                          /* trois décimales ou plus */
+        if((100+a)*(100+b)>=20000) continue;                 /* hausse globale de 100 % ou plus */
+        attendues.push(a+'-'+b);
+      }
+      if(attendues.length<12) vus.push('le vivier attendu ne compte que '+attendues.length+' paires : le contrôle n’a rien à mesurer');
+      const paire=function(q){ return Math.min(q.P1,q.P2)+'-'+Math.max(q.P1,q.P2); };
+      const tirees=hscSeance(attendues.length+50).map(paire), dedans={};
+      tirees.forEach(function(c){
+        if(dedans[c]) vus.push('la paire '+c+' sort deux fois : le tirage n’est pas SANS REMISE');
+        dedans[c]=1; });
+      attendues.forEach(function(c){ if(!dedans[c]) vus.push('la paire '+c+' manque au vivier du 2.2.8'); });
+      Object.keys(dedans).forEach(function(c){ if(attendues.indexOf(c)<0) vus.push('la paire '+c+' est tirable alors que les règles du 2.2.7 la refusent'); });
 
-      /* ---- 1. le tirage, par une SECONDE arithmétique ---- */
+      /* ---- 2. toute la chaîne tombe sur des ENTIERS, dans les DEUX ordres ---- */
       const decimales=function(P1,P2){ let p=(100+P1)*(100+P2), z=0;
         while(z<4 && p%10===0){ p/=10; z++; } return 4-z; };
-      if(!HSC_COUPLES.length) vus.push('le vivier des couples est VIDE : le contrôle n’a rien à mesurer');
-      HSC_COUPLES.forEach(function(c){
-        const P1=c[0], P2=c[1], nd=decimales(P1,P2);
-        if(nd<1 || nd>2) vus.push(P1+'/'+P2+' : le coefficient global a '+nd+' chiffre(s) après la virgule');
-        const a=hscAns({P1:P1,P2:P2});
-        [['la hausse pour 100',a.aug1],['la nouvelle valeur',a.v1],['la seconde hausse',a.aug2],
-         ['la valeur finale',a.v2],['la hausse globale',a.h]].forEach(function(p){
-          if(!Number.isInteger(p[1])) vus.push(P1+'/'+P2+' : '+p[0]+' vaut '+p[1]+', qui n’est pas entier'); });
-        if(a.v1!==100+P1) vus.push(P1+'/'+P2+' : la nouvelle valeur n’est pas 100 + P1');
-        if(a.v2!==a.v1+a.aug2) vus.push(P1+'/'+P2+' : la valeur finale ne suit pas l’addition');
-        if(a.h!==a.v2-100) vus.push(P1+'/'+P2+' : la hausse globale n’est pas ce qu’on a gagné pour 100');
-        if(a.h<=P1+P2) vus.push(P1+'/'+P2+' : la hausse globale ('+a.h+') n’excède pas la somme des taux — la leçon de l’exercice tombe');
-        if(a.h>HSC_HMAX) vus.push(P1+'/'+P2+' : la hausse globale ('+a.h+') dépasse le plafond');
+      attendues.forEach(function(c){
+        const t=c.split('-').map(Number);
+        [[t[0],t[1]],[t[1],t[0]]].forEach(function(o){
+          const P1=o[0], P2=o[1], nd=decimales(P1,P2);
+          if(nd<1 || nd>2) vus.push(P1+'/'+P2+' : le coefficient global a '+nd+' chiffre(s) après la virgule');
+          const a=hscAns({P1:P1,P2:P2});
+          [['la hausse pour 100',a.aug1],['la nouvelle valeur',a.v1],['la seconde hausse',a.aug2],
+           ['la valeur finale',a.v2],['la hausse globale',a.h]].forEach(function(pr){
+            if(!Number.isInteger(pr[1])) vus.push(P1+'/'+P2+' : '+pr[0]+' vaut '+pr[1]+', qui n’est pas entier'); });
+          if(a.v1!==100+P1) vus.push(P1+'/'+P2+' : la nouvelle valeur n’est pas 100 + P1');
+          if(a.v2!==a.v1+a.aug2) vus.push(P1+'/'+P2+' : la valeur finale ne suit pas l’addition');
+          if(a.h!==a.v2-100) vus.push(P1+'/'+P2+' : la hausse globale n’est pas ce qu’on a gagné pour 100');
+          if(a.h<=P1+P2) vus.push(P1+'/'+P2+' : la hausse globale ('+a.h+') n’excède pas la somme des taux — la leçon de l’exercice tombe');
+          if(a.h>=100) vus.push(P1+'/'+P2+' : la hausse globale atteint '+a.h+' %');
+        });
       });
 
-      /* ---- 2. les deux gardes écartent vraiment quelque chose ---- */
-      if(hscOk(90,4)) vus.push('le couple de la fiche (90 % puis 4 %) est accepté : son coefficient a 3 chiffres après la virgule');
-      if(hscOk(25,60)) vus.push('25 % puis 60 % est accepté : son coefficient vaut 2 tout rond, sans décimale');
-      if(!hscOk(2,50)) vus.push('l’exemple de Turquet (2 % puis 50 %) est refusé par le tirage');
+      /* ---- 3. les règles du 2.2.7 écartent vraiment quelque chose : quatre
+         couples épinglés, un par règle, et l'exemple de Turquet qui passe ---- */
+      const tirable=function(x,y){ return !!dedans[Math.min(x,y)+'-'+Math.max(x,y)]; };
+      if(tirable(90,4)) vus.push('le couple de la fiche (90 % puis 4 %) est tirable : son coefficient a trois chiffres après la virgule');
+      if(tirable(25,4)) vus.push('25 % puis 4 % est tirable : 25 porte deux chiffres non nuls, le 2.2.7 le refuse');
+      if(tirable(25,60)) vus.push('25 % puis 60 % est tirable : son coefficient vaut 2 tout rond, sans décimale');
+      if(tirable(50,50)) vus.push('50 % puis 50 % est tirable : la hausse globale atteint 125 %');
+      if(!tirable(2,50)) vus.push('l’exemple de Turquet (2 % puis 50 %) n’est pas tirable');
       const ex=hscAns({P1:2,P2:50});
       if(ex.v1!==102 || ex.v2!==153 || ex.h!==53)
         vus.push('2 % puis 50 % : 100 → '+ex.v1+' → '+ex.v2+' (+'+ex.h+' %) au lieu de 102, 153, +53');
 
-      /* ---- 3. la séance : la question ne range pas sa réponse ---- */
+      /* ---- 4. la séance : la question ne range pas sa réponse, et l'ORDRE de
+         la paire est TIRÉ — figé, la première hausse serait toujours la plus
+         petite des deux ---- */
       const plat=[]; THEMES.forEach(function(t){ (t.sous||[{ids:t.ids}]).forEach(function(s){ (s.ids||[]).forEach(function(i){ plat.push(i); }); }); });
       if(plat[plat.indexOf('hausses-successives')+1]!=='hausses-successives-cent')
         vus.push('l’exercice ne suit plus {hausses-successives} au menu : la méthode 2 doit venir juste après la méthode 1');
-      /* LE TIRAGE SANS REMISE SE MESURE SUR LE VIVIER ENTIER, pas sur une
-         séance de trois. Le premier sabotage — la séance qui tire AVEC
-         remise — est resté VERT à bon droit : sur 114 couples, trois tirages
-         se heurtent 2,6 fois sur 100, et un contrôle qui ne rougit qu’une fois
-         sur trois parle d’autre chose. On demande donc le vivier ENTIER : il
-         doit sortir en entier, chaque couple UNE fois. Avec remise, c’est
-         impossible ; sans remise, c’est certain. */
-      const tout=hscSeance(HSC_COUPLES.length);
-      if(tout.length!==HSC_COUPLES.length)
-        vus.push('le tirage rend '+tout.length+' questions sur un vivier de '+HSC_COUPLES.length);
-      else{
-        const vu={}; let doubles=0;
-        tout.forEach(function(q){ const c=q.P1+'x'+q.P2; if(vu[c]) doubles++; vu[c]=1; });
-        if(doubles) vus.push('le tirage n’est pas SANS REMISE : '+doubles+' couple(s) redonné(s) sur le vivier entier');
-      }
-      for(let t=0;t<40 && !vus.length;t++){
+      const sens={};
+      for(let t=0;t<60 && !vus.length;t++){
         startHaussesCent();
         if(test.questions.length!==EVOL_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+EVOL_NB);
         const sig={};
         test.questions.forEach(function(q){
           const cles=Object.keys(q).filter(function(k){ return ['P1','P2','ci','v'].indexOf(k)<0; });
           if(cles.length) vus.push('la question porte d’autres champs que P1, P2, le contexte et la variante : '+cles.join(','));
-          if(!hscOk(q.P1,q.P2)) vus.push('le tirage rend le couple '+q.P1+'/'+q.P2+', que ses propres gardes refusent');
-          const c=q.P1+'x'+q.P2;
-          if(sig[c]) vus.push('tirage '+t+' : le couple '+c+' sort deux fois dans la même séance');
+          if(!tirable(q.P1,q.P2)) vus.push('le tirage rend le couple '+q.P1+'/'+q.P2+', que les règles du 2.2.7 refusent');
+          if(q.P1<q.P2) sens.croissant=1; if(q.P1>q.P2) sens.decroissant=1;
+          const c=paire(q);
+          if(sig[c]) vus.push('tirage '+t+' : la paire '+c+' sort deux fois dans la même séance');
           sig[c]=1;
         });
       }
+      if(!vus.length && (!sens.croissant || !sens.decroissant))
+        vus.push('l’ordre de la paire n’est pas tiré : la première hausse est toujours la '+(sens.croissant?'plus petite':'plus grande')+' des deux');
       if(vus.length) return vus.slice(0,4).join(' | ');
 
-      /* ---- 4. le rendu ---- */
+      /* ---- 5. le rendu ---- */
       startHaussesCent();
       const q=test.questions[0], a=hscAns(q);
       const absentes=HSC_CASES.filter(function(id){ return !document.getElementById(id); });
@@ -1801,7 +1839,7 @@ function branchements(w){
       if(acc) vus.push('une référence {identifiant} reste affichée à l’élève : '+acc[0]);
       if(vus.length) return vus.slice(0,4).join(' | ');
 
-      /* ---- 5. la copie juste, et l’ordre libre de l’addition ---- */
+      /* ---- 6. la copie juste, et l’ordre libre de l’addition ---- */
       const cl=function(id){ const e=document.getElementById(id); return (e&&e.className)||''; };
       const poser=function(o){
         HSC_CASES.forEach(function(id){ const e=document.getElementById(id); if(!e) return;
@@ -1833,7 +1871,7 @@ function branchements(w){
       if(!/\\bbad\\b/.test(cl('hsc1sb'))) vus.push('« 100 + 100 » : le même nombre posé deux fois passe deux fois');
       if(test.score===1) vus.push('« 100 + 100 » vaut quand même le point');
 
-      /* ---- 6. chaque case se juge SEULE ---- */
+      /* ---- 7. chaque case se juge SEULE ---- */
       const jum=copie(); jum.hsc1sb=a.aug1+3;
       poser(jum); checkHSCAnswer();
       if(/\\bbad\\b/.test(cl('hsc1sa'))) vus.push('une case juste rougit parce que sa jumelle d’addition est fausse');
@@ -1843,18 +1881,18 @@ function branchements(w){
       poser(une); checkHSCAnswer();
       if(rouges().join(',')!=='hsc2a') vus.push('une seule case fausse en fait rougir d’autres : '+rouges().join(','));
 
-      /* ---- 7. la leçon : la seconde hausse ne se recalcule pas sur 100 ---- */
+      /* ---- 8. la leçon : la seconde hausse ne se recalcule pas sur 100 ---- */
       const cent=copie(); cent.hsc2m=100; cent.hsc2pn=100*q.P2; cent.hsc2a=q.P2;
       poser(cent); checkHSCAnswer();
       if(!/\\bbad\\b/.test(cl('hsc2m'))) vus.push('la seconde hausse recalculée sur 100 est acceptée : la leçon de l’exercice tombe');
       if(test.score===1) vus.push('une copie qui refait la seconde hausse sur 100 vaut le point');
 
-      /* ---- 8. toute fraction ÉGALE est acceptée ---- */
+      /* ---- 9. toute fraction ÉGALE est acceptée ---- */
       const eq=copie(); eq.hsc1n=q.P1*2; eq.hsc1d=200;
       poser(eq); checkHSCAnswer();
       if(test.score!==1) vus.push('une fraction ÉGALE est comptée fausse');
 
-      /* ---- 9. l’entraînement révèle ---- */
+      /* ---- 10. l’entraînement révèle ---- */
       const troue=copie(); delete troue.hsc2a; troue.hsc1sr=0;
       poser(troue); checkHSCAnswer();
       if(document.getElementById('hsc2a').value!==String(a.aug2) || !/\\bsol\\b/.test(cl('hsc2a')))
@@ -1863,7 +1901,7 @@ function branchements(w){
       if(!badge || !/mf-cor/.test(badge.className||''))
         vus.push('en entraînement, la case fausse ne reçoit pas la bonne réponse à côté');
 
-      /* ---- 10. le soutien : la case vide ne rougit jamais, rien n’est révélé ---- */
+      /* ---- 11. le soutien : la case vide ne rougit jamais, rien n’est révélé ---- */
       currentMode='soutien';
       poser({}); checkHSCAnswer();
       if(test.locked) vus.push('en soutien, une copie vide verrouille l’exercice');
@@ -1876,7 +1914,7 @@ function branchements(w){
       if(document.getElementById('hsc2a').value!=='') vus.push('en soutien, la case vide reçoit la réponse');
       currentMode='train';
 
-      /* ---- 11. l’identité ---- */
+      /* ---- 12. l’identité ---- */
       test.kind='hsc'; test.qId='(sentinelle)'; restartCurrentTest();
       if(test.qId!=='hausses-successives-cent') vus.push('« Recommencer » relance « '+test.qId+' »');
       return vus.slice(0,4).join(' | ');
@@ -1893,6 +1931,58 @@ function branchements(w){
       sansEnonce.length === 0 && texteHsc('hscQuestion').indexOf('BS_CTX') >= 0,
       sansEnonce.length ? 'n’écrit plus HS_ENONCES : ' + sansEnonce.join(', ')
                         : 'hscQuestion ne tire plus son contexte dans BS_CTX');
+
+    /* ET LE VIVIER DES POURCENTAGES AUSSI (demande de Turquet, septembre 2026).
+       Le contrôle du tirage, ci-dessus, mesure ce que la page SORT : une seconde
+       liste construite avec les mêmes règles y passerait, et divergerait le jour
+       où l'une des deux change. Celui-ci mesure donc le PARTAGE lui-même — les
+       deux portes du tirage lisent HS_PAIRES —, et refuse qu'un vivier propre
+       revienne sous son ancien nom. */
+    const sansVivier = ['genHaussesCent', 'hscSeance'].filter(n => texteHsc(n).indexOf('HS_PAIRES') < 0);
+    /* on cherche une DÉFINITION, jamais le nom nu : le commentaire de la page a
+       le droit de nommer les deux gardes morts qu'il vient de retirer, et un
+       contrôle qui rougirait là-dessus rougirait sur du code juste. */
+    const revenu = [['HSC_COUPLES', /\bconst\s+HSC_COUPLES\s*=/], ['hscOk', /\bfunction\s+hscOk\s*\(/],
+                    ['HSC_HMAX', /\bconst\s+HSC_HMAX\s*=/]].filter(d => d[1].test(src)).map(d => d[0]);
+    verifier('le vivier des pourcentages du 2.2.8 est celui du 2.2.7, partagé et non recopié',
+      sansVivier.length === 0 && revenu.length === 0,
+      sansVivier.length ? 'ne lit plus HS_PAIRES : ' + sansVivier.join(', ')
+                        : 'le 2.2.8 s’est redonné un vivier à lui : ' + revenu.join(', '));
+
+    /* ET LE RAPPEL MONTRE UN TIRAGE POSSIBLE. Un rappel qui enseigne la méthode
+       sur un couple que le tirage ne rend jamais apprend le geste sur un cas que
+       l'élève ne rencontrera pas — la leçon du 2.3.7, retombée ici le jour où le
+       vivier a rétréci : « gagner 20 % puis 25 % » est devenu impossible, et
+       AUCUN contrôle ne le disait. Les DEUX rappels sont mesurés, celui du 2.2.7
+       comme celui du 2.2.8 : ils puisent désormais dans le même vivier. Et pour
+       le 2.2.8 on exige en plus que la CHAÎNE écrite soit celle que hscAns
+       calcule — un rappel dont les pourcentages changent sans que son
+       arithmétique suive ferait mentir l'écran. */
+    verifierEval(w, 'les rappels du 2.2.7 et du 2.2.8 montrent un tirage possible', `(function(){
+      const vus=[];
+      const tirable=function(a,b){ return HS_PAIRES.some(function(p){ return (p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a); }); };
+      let mesures=0;
+      [['2.2.7','hs'],['2.2.8','hsc']].forEach(function(d){
+        const t=RAPPELS[d[1]]||'', re=/(\\d+) % puis (?:de )?(\\d+) %/g;
+        let m, n=0;
+        while((m=re.exec(t))){ n++; mesures++;
+          if(!tirable(+m[1],+m[2])) vus.push(d[0]+' : le rappel montre '+m[1]+' % puis '+m[2]+' %, que le tirage ne rend jamais');
+        }
+        if(!n) vus.push(d[0]+' : aucun exemple « X % puis Y % » dans le rappel — le contrôle n’a rien à mesurer');
+      });
+      if(!mesures) return 'aucun exemple mesuré dans les deux rappels';
+      /* la chaîne du rappel du 2.2.8, nombre par nombre */
+      const t=RAPPELS.hsc||'', m=/(\\d+) % puis (?:de )?(\\d+) %/.exec(t);
+      if(m){
+        const a=hscAns({P1:+m[1],P2:+m[2]});
+        [['le produit de la première hausse',a.prod1],['la première hausse',a.aug1],
+         ['la nouvelle valeur',a.v1],['le produit de la seconde hausse',a.prod2],
+         ['la seconde hausse',a.aug2],['la valeur finale',a.v2],['la hausse globale',a.h],
+         ['la somme des deux taux',(+m[1])+(+m[2])]].forEach(function(p){
+          if(t.indexOf(String(p[1]))<0) vus.push('2.2.8 : le rappel n’écrit pas '+p[0]+' ('+p[1]+')'); });
+      }
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
   }
 
   /* ---- {associer-coefficient} (2.4.2) : associer parmi SIX ---------------

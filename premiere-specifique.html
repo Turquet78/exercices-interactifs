@@ -8958,27 +8958,48 @@ function nextHSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
    FOIS, la seconde sur la valeur déjà augmentée — et c'est précisément ce que
    la fiche veut faire voir.
 
-   LE TIRAGE, ET CE QUE LA CONTRAINTE DE TURQUET FAIT VRAIMENT. Il ne veut que
-   des pourcentages dont le coefficient global n'a que 1 ou 2 chiffres après la
-   virgule (« exemple : 1,02 × 1,50 »). Cette contrainte ÉQUIVAUT à
+   LE TIRAGE EST CELUI DU 2.2.7, PARTAGÉ ET NON RECOPIÉ — demande de Turquet
+   (septembre 2026) : « pour le 2.2.8 il faut les mêmes règles pour le choix des
+   pourcentages que dans le 2.2.7 ». C'est l'argument des énoncés, mot pour
+   mot : deux viviers auraient fini par diverger, et les deux exercices — qui
+   posent LA MÊME question par deux chemins — auraient alors tiré des
+   pourcentages différents, ce que la demande interdit précisément. On lit donc
+   HS_PAIRES, la liste du 2.2.7, sans en écrire une seconde.
+   CE QUE CES RÈGLES DISENT : un seul chiffre non nul par taux (1 à 9, puis les
+   dizaines), P1 × P2 multiple de 100, et une hausse globale STRICTEMENT sous
+   100 %. Vingt-cinq paires, soit 50 couples ordonnés là où il y en avait 114 :
+   le vivier rétrécit, et c'est le prix assumé de l'accord entre les deux
+   exercices — trois questions par séance y puisent largement.
+   LA RESTRICTION DES TAUX VIENT DE LA POSE DU 2.2.7, qui n'existe pas ici : son
+   numérateur doit garder la forme 1X ou 10X, la seule que poseUDonnees sache
+   écrire en bas. Elle est donc SUBIE et non nécessaire — mais les deux
+   exercices doivent tirer les mêmes nombres, et c'est la règle du 2.2.7 qui
+   fait foi.
+   ET LA CONTRAINTE SUR LE COEFFICIENT EST TENUE PAR CES RÈGLES, et non plus par
+   un garde à nous. Turquet ne veut que des coefficients globaux à 1 ou 2 chiffres
+   après la virgule (« exemple : 1,02 × 1,50 »), et cette contrainte ÉQUIVAUT à
    « P1 × P2 divisible par 100 » : (100+P1)(100+P2) = 10000 + 100(P1+P2) +
-   P1×P2, donc le produit est divisible par 100 si et seulement si P1×P2 l'est.
-   Vérifié sur les 99 × 99 couples : aucun désaccord entre les deux écritures.
-   Et elle ne fait pas que raccourcir un affichage — c'est elle qui fait tomber
-   TOUTE la chaîne de la méthode 2 sur des ENTIERS. La hausse pour 100 vaut P1,
-   la nouvelle valeur 100 + P1 ; la seconde hausse vaut (100+P1) × P2 / 100,
-   entière exactement quand P1 × P2 l'est ; la valeur finale et la hausse
-   globale suivent. Un élève qui suit la fiche n'écrit jamais une décimale.
-   Deux gardes, et chacun écarte vraiment quelque chose :
-     · le coefficient global ne doit avoir NI 0 ni plus de 2 décimales. Le
-       « pas plus de 2 » est le P1 × P2 ci-dessus ; le « pas 0 » écarte 25/60
-       et 60/25, les deux seuls couples qui donnent 2 tout rond — Turquet a
-       écrit « 1 ou 2 chiffres après la virgule », on le prend au mot ;
-     · la hausse globale reste sous HSC_HMAX, pour que les nombres restent
-       lisibles et la multiplication de l'étape ③ faisable de tête.
-   Il reste 114 couples. La hausse globale DÉPASSE toujours la somme des deux
-   taux (l'écart vaut P1 × P2 / 100, donc au moins 1) : la leçon du 2.2.7 tient
-   ici aussi, et le message la nomme.
+   P1×P2, donc le produit est divisible par 100 si et seulement si P1×P2 l'est
+   (vérifié sur les 99 × 99 couples). Elle ne fait pas que raccourcir un
+   affichage — c'est elle qui fait tomber TOUTE la chaîne de la méthode 2 sur
+   des ENTIERS. La hausse pour 100 vaut P1, la nouvelle valeur 100 + P1 ; la
+   seconde hausse vaut (100+P1) × P2 / 100, entière exactement quand P1 × P2
+   l'est ; la valeur finale et la hausse globale suivent. Un élève qui suit la
+   fiche n'écrit jamais une décimale.
+   DEUX GARDES À NOUS SONT DEVENUS INERTES, ET RETIRÉS AVEC LEUR RAISON. Ils
+   écartaient vraiment quelque chose sur l'ancien vivier de 114 couples, et c'est
+   le vivier rétréci qui les prive de tout emploi. La hausse globale de HS_PAIRES
+   est STRICTEMENT sous 100 %, donc le coefficient global est strictement entre 1
+   et 2 : il n'est jamais entier, et le garde « pas 0 décimale » — qui écartait
+   25/60 et 60/25, les deux seuls couples donnant 2 tout rond — n'a plus rien à
+   écarter ; le plafond HSC_HMAX non plus.
+   Un garde-fou qui n'écarte jamais rien fait croire qu'on vérifie quelque
+   chose : c'est le CONTRÔLE qui exige les deux propriétés sur le tirage, et il
+   refait les règles par sa propre arithmétique plutôt que de lire la liste et
+   de la comparer à elle-même.
+   LA HAUSSE GLOBALE DÉPASSE TOUJOURS la somme des deux taux (l'écart vaut
+   P1 × P2 / 100, donc au moins 1) : la leçon du 2.2.7 tient ici aussi, et le
+   message la nomme.
 
    LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : celle-ci ne
    porte que P1, P2, le contexte et la variante. hscAns() — que l'énoncé, le
@@ -8999,16 +9020,6 @@ function nextHSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
    avec le tirage ci-dessus les deux additions tombent sur des entiers à trois
    chiffres. L'écran porte déjà vingt et une cases ; le bouton « Tables de
    multiplication » est là, comme sur tous les écrans. */
-const HSC_HMAX=100;                 /* la hausse globale reste lisible */
-function hscOk(P1,P2){
-  if((P1*P2)%100!==0) return false;                  /* au plus 2 décimales */
-  const v2=(100+P1)*(100+P2)/100;                    /* la valeur finale, en partant de 100 */
-  if(v2%100===0) return false;                       /* 0 décimale : « 1 ou 2 », au mot */
-  return v2-100<=HSC_HMAX;
-}
-const HSC_COUPLES=(function(){ const L=[];
-  for(let a=1;a<=99;a++) for(let b=1;b<=99;b++) if(hscOk(a,b)) L.push([a,b]);
-  return L; })();
 /* Tout se recalcule ici, à partir des deux seuls nombres que porte la question. */
 function hscAns(q){
   const aug1=q.P1, v1=100+q.P1;
@@ -9020,14 +9031,20 @@ function hscQuestion(P1,P2){
   q.v=tirerVariante(HS_ENONCES,q);                   /* les énoncés du 2.2.7, partagés */
   return q;
 }
-function genHaussesCent(){ const c=pick(HSC_COUPLES); return hscQuestion(c[0],c[1]); }
-/* Les questions d'une séance ne portent jamais le même couple : on tire SANS
-   REMISE dans le vivier (114 couples pour 3 questions) plutôt que de rejouer un
-   tirage jusqu'à tomber sur du neuf — il n'y a alors aucun repli à écrire, donc
-   aucun repli mort. */
+/* L'ORDRE DE LA PAIRE EST TIRÉ, comme au 2.2.7 : rien ne dit lequel des deux
+   taux vient d'abord, et ici l'ordre change le CHEMIN sans changer la réponse
+   (100 → 102 → 153 d'un côté, 100 → 150 → 153 de l'autre). Figé, la première
+   hausse serait toujours la plus petite des deux. */
+function hscCouple(p){ const ordre=pick([true,false]); return hscQuestion(ordre?p[0]:p[1], ordre?p[1]:p[0]); }
+function genHaussesCent(){ return hscCouple(pick(HS_PAIRES)); }
+/* Les questions d'une séance ne portent jamais la même PAIRE — l'ordre ne fait
+   pas une question de plus, c'est le même calcul : on tire SANS REMISE dans le
+   vivier du 2.2.7 (25 paires pour 3 questions) plutôt que de rejouer un tirage
+   jusqu'à tomber sur du neuf — il n'y a alors aucun repli à écrire, donc aucun
+   repli mort. */
 function hscSeance(n){
-  const vivier=HSC_COUPLES.slice(), out=[];
-  while(out.length<n && vivier.length){ const c=vivier.splice(rand(0,vivier.length-1),1)[0]; out.push(hscQuestion(c[0],c[1])); }
+  const vivier=HS_PAIRES.slice(), out=[];
+  while(out.length<n && vivier.length){ const p=vivier.splice(rand(0,vivier.length-1),1)[0]; out.push(hscCouple(p)); }
   return out;
 }
 async function startHaussesCent(){
@@ -13534,11 +13551,11 @@ Piège classique : additionner les dénominateurs. \\(\\frac{1}{2}+\\frac{1}{3}\
 const RAP_HSC=`<b>Deux hausses de suite, en partant de 100</b><br>
 Deux hausses <b>ne s’additionnent pas</b> : la seconde ne porte pas sur la valeur de départ, mais sur la valeur <b>déjà augmentée</b>. Il existe une seconde méthode pour le voir, sans aucun coefficient.<br>
 La hausse globale ne dépend <b>pas</b> de la valeur de départ : on a donc le droit d’en <b>choisir</b> une, et on prend <b>100</b> — parce que « ce qu’on a gagné pour 100 » EST le pourcentage.<br>
-Exemple : gagner 20 % puis 25 %.<br>
+Exemple : gagner 20 % puis 30 %.<br>
 · la hausse pour 100 : \\(\\frac{20}{100}\\times 100=\\frac{2000}{100}=20\\), donc 100 + 20 = <b>120</b> ;<br>
-· la hausse pour <b>120</b> : \\(\\frac{25}{100}\\times 120=\\frac{3000}{100}=30\\), donc 120 + 30 = <b>150</b>.<br>
-On est parti de 100 et on arrive à 150 : l’augmentation est de <b>50 pour 100</b>, c’est-à-dire <b>50 %</b> — et non 20 + 25 = 45 %.<br>
-Chaque hausse se calcule comme dans {augmenter-addition} : l’augmentation d’abord, l’addition ensuite. C’est le même résultat qu’en {hausses-successives}, par l’autre chemin — là on multiplie deux coefficients, ici on suit une valeur.<br>
+· la hausse pour <b>120</b> : \\(\\frac{30}{100}\\times 120=\\frac{3600}{100}=36\\), donc 120 + 36 = <b>156</b>.<br>
+On est parti de 100 et on arrive à 156 : l’augmentation est de <b>56 pour 100</b>, c’est-à-dire <b>56 %</b> — et non 20 + 30 = 50 %.<br>
+Chaque hausse se calcule comme dans {augmenter-addition} : l’augmentation d’abord, l’addition ensuite. C’est le même résultat qu’en {hausses-successives}, par l’autre chemin — là on multiplie deux coefficients, ici on suit une valeur : ce sont les mêmes pourcentages, et son rappel trouve 56 % lui aussi.<br>
 Piège classique : refaire la seconde hausse sur 100. Elle porte sur 120, sinon les deux hausses s’additionneraient.`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF };

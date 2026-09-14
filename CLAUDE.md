@@ -4523,6 +4523,68 @@ nomment ces deux exercices — ne se recalculent pas, et ont été repris à la 
 le jour même. Un contrôle qui s'affiche sous le nom d'un autre est pire qu'un
 contrôle sans nom.
 
+**Puis le VIVIER est devenu celui du 2.2.7, partagé et non recopié.** Demande de
+Turquet (septembre 2026) : « pour le 2.2.8 il faut les mêmes règles pour le choix
+des pourcentages que dans le 2.2.7 ». Les deux exercices posent LA MÊME question
+par deux chemins, et ils tiraient dans deux listes différentes : le 2.2.7 dans
+ses paires (un seul chiffre non nul par taux), le 2.2.8 dans les 114 couples
+que ses propres gardes laissaient passer. Le paragraphe ci-dessus raconte
+l'exercice avec les nombres de son époque — 25 % puis 4 % était un tirage
+possible, il ne l'est plus.
+**C'est l'argument des énoncés, mot pour mot** : deux listes auraient fini par
+diverger, et c'est exactement ce que la demande interdit. Le 2.2.8 lit donc
+`HS_PAIRES` — la liste du 2.2.7 — sans en écrire une seconde, comme il lit déjà
+`HS_ENONCES` et `BS_CTX`, et l'ORDRE de la paire est tiré comme là-bas : rien ne
+dit lequel des deux taux vient d'abord, et ici l'ordre change le CHEMIN sans
+changer la réponse (100 → 102 → 153 d'un côté, 100 → 150 → 153 de l'autre). La
+séance tire sans remise sur la PAIRE et non sur le couple ordonné : l'ordre ne
+fait pas une question de plus, c'est le même calcul.
+**Le vivier rétrécit, et c'est le prix assumé de l'accord** : 25 paires au lieu
+de 59, soit 50 couples au lieu de 114 — 34 paires perdues, toutes celles dont
+un taux porte deux chiffres non nuls (4 % puis 25 %, 15 % puis 20 %…). Trois
+questions par séance y puisent largement ; la sonde relève 17 paires de deux
+multiples de dix et 8 mixtes, 23 hausses globales différentes de 21 % à 98 %, et
+198 pour plus grand nombre que l'élève ait à écrire.
+**LA RESTRICTION DES TAUX VIENT DE LA POSE DU 2.2.7, qui n'existe pas ici** :
+son numérateur doit garder la forme 1X ou 10X, la seule que `poseUDonnees` sache
+écrire en bas. Elle est donc SUBIE et non nécessaire — mais les deux exercices
+doivent tirer les mêmes nombres, et c'est la règle du 2.2.7 qui fait foi. Le
+dire vaut mieux que de le taire.
+**DEUX GARDES SONT DEVENUS INERTES, ET RETIRÉS AVEC LEUR RAISON** — les
+douzième et treizième du projet. Ils ne sont pas nés morts : ils écartaient
+vraiment quelque chose sur l'ancien vivier de 114 couples, et c'est le vivier
+rétréci qui les prive de tout emploi. La hausse globale de `HS_PAIRES` est
+STRICTEMENT sous 100 %, donc le coefficient global est strictement entre 1 et 2 :
+il n'est JAMAIS entier, et le garde « pas 0 décimale » — celui qui écartait
+25/60 et 60/25, et que le paragraphe ci-dessus déclarait vivant — n'a plus rien
+à écarter ; le plafond `HSC_HMAX` non plus. Un garde-fou qui n'écarte jamais rien
+fait croire qu'on vérifie quelque chose : c'est le CONTRÔLE qui exige les deux
+propriétés sur le tirage.
+**Et le contrôle mesure le vivier que la page TIRE, jamais une constante qu'elle
+nommerait** : `hscSeance` tirant sans remise, une séance de la taille du vivier
+le rend en entier — un filtre resserré en douce se voit alors comme une paire
+manquante, une règle relâchée comme une paire de trop, et la seconde
+arithmétique du 2.2.7 (les pourcentages bruts là où la page passe par les
+fractions réduites) dit laquelle. Quatre couples sont épinglés, un par règle :
+90 % puis 4 % (le couple de la fiche, trois décimales), 25 % puis 4 % (deux
+chiffres non nuls — le seul des quatre que l'ancien vivier acceptait), 25 % puis
+60 % (coefficient 2 tout rond) et 50 % puis 50 % (hausse globale de 125 %). Un
+second contrôle tient le PARTAGE lui-même : les deux portes du tirage lisent
+`HS_PAIRES`, et aucun vivier propre ne revient sous son ancien nom — cherché
+comme une DÉFINITION et jamais comme un nom nu, le commentaire de la page ayant
+le droit de nommer les deux gardes qu'il vient de retirer.
+**ET LE RAPPEL DE COURS MONTRAIT UN TIRAGE DEVENU IMPOSSIBLE** : « gagner 20 %
+puis 25 % », que le nouveau vivier ne rend jamais — un rappel qui enseigne la
+méthode sur un cas que l'élève ne rencontrera pas, la leçon du 2.3.7 retombée
+telle quelle. Il montre maintenant 20 % puis 30 %, c'est-à-dire l'exemple MÊME
+du rappel du 2.2.7 : les deux méthodes trouvent 56 % sur les mêmes nombres, ce
+qui est précisément ce que l'exercice veut faire voir. **Aucun contrôle ne le
+disait, et c'est le contrôle qui manquait** : il lit les DEUX rappels, exige que
+chaque « X % puis Y % » soit tirable, et pour le 2.2.8 que la chaîne écrite soit
+celle que `hscAns` calcule — un rappel dont les pourcentages changent sans que
+son arithmétique suive ferait mentir l'écran. Sept sabotages, chacun rougissant
+en nommant son défaut.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
