@@ -1426,9 +1426,9 @@ function branchements(w){
   }
 
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.9,
-     baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps), plus les synthèses rédigées 2.2.10 et 2.3.8 et le
-     QCM des coefficients 2.5.2. On appelle les DIX-NEUF vrais démarreurs :
+     baisses 2.3.1 à 2.3.8, et la synthèse 2.5.1 (demande de Turquet, août
+     2026, en trois temps), plus les synthèses rédigées 2.2.10 et 2.3.9 et le
+     QCM des coefficients 2.5.2. On appelle les VINGT vrais démarreurs :
      un nombre changé dans un démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
@@ -1439,7 +1439,8 @@ function branchements(w){
        ['2.2.8','startHaussesCent'],['2.2.9','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
-       ['2.2.10','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn'],
+       ['2.3.8','startSynDim'],
+       ['2.2.10','startSynAugLibre'],['2.3.9','startSynDimLibre'],['2.5.1','startSyn'],
        ['2.5.2','startReconnaitreCoef']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
@@ -1450,14 +1451,18 @@ function branchements(w){
       return vus.join(' | ');
     })()`, v => v === '', undefined);
 
-    /* ---- {synthese-augmentations} : la synthèse du 2.5.1, HAUSSES seules —
-       même moteur, pas même identité. Trois bords : uniquement des hausses,
-       les trois inconnues chacune une fois à ordre variable, et
-       « Recommencer » qui relance la bonne identité des DEUX synthèses. */
-    verifierEval(w, 'les deux synthèses tirent toutes les inconnues, les hausses seules pour 2.2.9, et gardent leur identité', `(function(){
+    /* ---- {synthese-augmentations} (2.2.9) et son MIROIR {synthese-diminutions}
+       (2.3.8) : la synthèse du 2.5.1 restreinte à UN sens — même moteur, pas
+       même identité. Trois bords par exercice : une seule famille (hausses
+       d'un côté, baisses de l'autre), les trois inconnues chacune une fois à
+       ordre variable, et « Recommencer » qui relance la bonne identité des
+       TROIS synthèses à cases. Le sens de chacune est un bord RÉEL : un
+       genSyn('aug') recopié dans le démarreur des baisses poserait des
+       hausses sous un titre de baisses, et rien à l'écran ne le dirait. */
+    verifierEval(w, 'les trois synthèses tirent toutes les inconnues, 2.2.9 les hausses seules, 2.3.8 les baisses seules, et gardent leur identité', `(function(){
       const vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
-      const ordres={}, famsSyn={};
+      const ordres={}, ordresDim={}, famsSyn={};
       for(let t=0;t<30 && !vus.length;t++){
         /* le 2.5.1 suit la même règle des inconnues depuis son passage à 3
            questions — et ses familles restent MÉLANGÉES : une synthèse qui ne
@@ -1476,10 +1481,17 @@ function branchements(w){
         }
         if(typeof startSynDimLibre==='function'){
           startSynDimLibre();
-          test.questions.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.8 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
+          test.questions.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.9 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
           const incs4=test.questions.map(function(q){ return q.inc; });
-          ['fin','ini','pct'].forEach(function(inc){ if(incs4.indexOf(inc)<0) vus.push('2.3.8 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+          ['fin','ini','pct'].forEach(function(inc){ if(incs4.indexOf(inc)<0) vus.push('2.3.9 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
         }
+        startSynDim();
+        const qsd=test.questions;
+        qsd.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.8 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
+        const incsd=qsd.map(function(q){ return q.inc; });
+        ['fin','ini','pct'].forEach(function(inc){ if(incsd.indexOf(inc)<0) vus.push('2.3.8 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        ordresDim[incsd.join(',')]=1;
+        if(test.qId!=='synthese-diminutions') vus.push('startSynDim n\\'épingle pas son identité ('+test.qId+')');
         startSynAug();
         const qs=test.questions;
         qs.forEach(function(q,i){ if(q.fam!=='aug') vus.push('tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
@@ -1488,11 +1500,14 @@ function branchements(w){
         ordres[incs.join(',')]=1;
       }
       if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des inconnues ne change jamais d\\'un tirage à l\\'autre');
+      if(!vus.length && Object.keys(ordresDim).length<2) vus.push('2.3.8 : l\\'ordre des inconnues ne change jamais d\\'un tirage à l\\'autre');
       if(!vus.length && Object.keys(famsSyn).length<3) vus.push('sur 30 tirages du 2.5.1, les familles vues sont : '+Object.keys(famsSyn).join(',')+' — la synthèse ne mélange plus');
       if(!vus.length){
         if(test.qId!=='synthese-augmentations') vus.push('startSynAug n\\'épingle pas son identité ('+test.qId+')');
         test.kind='syn'; test.qId='synthese-augmentations'; restartCurrentTest();
         if(test.qId!=='synthese-augmentations') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des augmentations');
+        test.kind='syn'; test.qId='synthese-diminutions'; restartCurrentTest();
+        if(test.qId!=='synthese-diminutions') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des diminutions');
         test.kind='syn'; test.qId='synthese-pourcentages'; restartCurrentTest();
         if(test.qId!=='synthese-pourcentages') vus.push('« Recommencer » sur le 2.5.1 relance « '+test.qId+' »');
       }
@@ -6762,7 +6777,7 @@ function syntheseAugLibreRedigee(w, P){
     if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des augmentations');
     if(typeof startSynDimLibre==='function'){
       test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
-      if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.8 relance « '+test.qId+' »');
+      if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.9 relance « '+test.qId+' »');
     }
 
     return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
@@ -17038,14 +17053,14 @@ function verdictColore(w, apres){
       { const fbTxt=document.getElementById('salFeedback').textContent;
         if(fbTxt.indexOf('égalité fausse')<0 || fbTxt.indexOf('Enfin')>=0)
           vus.push('2.2.10 : sur un refus, la prose du modèle s\\'affiche au lieu de la phrase du juge : « '+fbTxt.slice(0,60)+' »'); }
-      /* et sur une BAISSE (2.3.8), même moteur, même primauté */
+      /* et sur une BAISSE (2.3.9), même moteur, même primauté */
       const q38={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
       test.locked=false; test.salBusy=false; test.score=0;
       test.questions=[JSON.parse(JSON.stringify(q38))]; test.qId='synthese-diminutions-libre';
       salFeuille=feuille('0,95 × 600 = 570');
       verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
-      if(couleur('salFeedback')!=='vert') vus.push('2.3.8 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
-      if(test.score!==1) vus.push('2.3.8 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
+      if(couleur('salFeedback')!=='vert') vus.push('2.3.9 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==1) vus.push('2.3.9 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
 
       /* Et la copie SE VOIT (signalé par Turquet, août 2026) : à la
          vérification, chaque ligne de la feuille est peinte — toute égalité

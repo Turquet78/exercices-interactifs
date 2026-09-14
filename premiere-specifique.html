@@ -693,7 +693,7 @@ body.pave-actif #paveNum{bottom:54px}
 .dexp2-sheet math-field.dexp-mf{border:none;outline:none;box-shadow:none;background:transparent;flex:1 0 auto;min-width:6ch;min-height:1.9em;font-size:2rem;padding:2px 0;color:var(--ink);}
 .dexp2-sheet math-field.dexp-mf:focus-within{border:none;background:transparent;box-shadow:none;}
 /* Sur TABLETTE, la feuille écrit plus petit (demande de Turquet, septembre 2026,
-   sur le 2.2.9 : « la case d'édition du calcul peut-elle avoir une police plus
+   sur le 2.2.10 : « la case d'édition du calcul peut-elle avoir une police plus
    petite ») : à 2 rem, une ligne de calcul prenait 55 px de haut sur un écran
    déjà réduit par le clavier. Le préfixe suit la même taille — une case a la
    taille des nombres qui l'entourent, sur tablette aussi. La valeur vit dans
@@ -1983,7 +1983,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=218;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=219;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2391,6 +2391,7 @@ const TESTS={
   'associer-coefficient':{ name:'Associer le bon coefficient', icon:'🔗', desc:'Prendre 30 %, augmenter de 30 %, diminuer de 30 % : trois phrases, six coefficients proposés, et à toi d’associer à chacune le sien. Les six ne diffèrent que par les deux erreurs classiques — la famille et la place de la virgule.', start:()=>startAssocierCoef() },
   'reconnaitre-coefficient':{ name:'Reconnaître le coefficient', icon:'🎯', desc:'Augmenter de 30 %, diminuer de 3 %, prendre 30 % : quel coefficient multiplicateur ? Choisis parmi quatre — les pièges classiques y sont — puis VÉRIFIE ta réponse en calculant le coefficient, comme dans {augmenter-pourcentage}.', start:()=>startReconnaitreCoef() },
   'synthese-augmentations':{ name:'Synthèse sur les augmentations', icon:'📈', desc:'La synth\u00e8se de {synthese-pourcentages}, mais uniquement sur les HAUSSES : le r\u00e9sultat, la valeur initiale ou le pourcentage d\u2019une augmentation \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la avec la m\u00e9thode de ton choix.', start:()=>startSynAug() },
+  'synthese-diminutions':{ name:'Synthèse sur les diminutions', icon:'📉', desc:'Le miroir de {synthese-augmentations} sur les BAISSES : le r\u00e9sultat, la valeur initiale ou le pourcentage d\u2019une diminution \u2014 choisis la bonne r\u00e9ponse parmi quatre, puis v\u00e9rifie-la avec la m\u00e9thode de ton choix.', start:()=>startSynDim() },
   'pourcentage-colonnes': { name:'Prendre un pourcentage en coloriant deux colonnes de m\u00eame hauteur', icon:'\ud83d\udcd0', desc:'M\u00eame \u00e9nonc\u00e9 qu\u2019en {pourcentage}, mais sans \u00e9crire une seule fraction : colorie le pourcentage \u00e0 gauche, reporte la m\u00eame hauteur sur la colonne du nombre, puis \u00e9cris ce qu\u2019elle repr\u00e9sente.', start:()=>startPctCol() },
   'fraction-pourcentage': { name:'Fraction et pourcentage', icon:'🎨', desc:'Colorie la fraction dans la colonne de gauche, puis choisis le pourcentage égal dans la colonne de droite.', start:()=>startFP() },
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
@@ -2424,7 +2425,7 @@ const THEMES=[
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre'] },
       { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre'] },
-      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions-libre'] },
+      { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions','synthese-diminutions-libre'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
@@ -2513,7 +2514,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -6763,6 +6764,31 @@ async function startSynAug(){
   test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
+/* {synthese-diminutions} (2.3.8, demande de Turquet, septembre 2026) : le
+   MIROIR de {synthese-augmentations} sur les BAISSES. Le sous-thème des
+   diminutions avait sa synthèse RÉDIGÉE et pas sa synthèse à cases, quand
+   celui des hausses avait les deux : l'asymétrie était le manque.
+   MÊME MOTEUR, PAS MÊME IDENTITÉ (le motif du calcul mental) : genSyn('dim')
+   est le générateur MÊME du 2.2.9 — un second aurait fini par diverger, et
+   deux exercices voisins se seraient contredits sous les yeux de l'élève —,
+   la note part sous test.qId, « Recommencer » route par l'identité, et la
+   clé du rappel vit dans tests/profils.js comme celle du 2.2.9.
+   Les trois inconnues — le résultat, la valeur initiale, le pourcentage —
+   sortent chacune UNE fois sur les trois questions, en ordre mélangé : sans
+   quoi l'élève apprendrait que la question est toujours du même genre.
+   L'écran, la correction et le contexte envoyé au modèle sont déjà
+   génériques sur q.fam (« une baisse ») : rien n'a eu à y changer. */
+async function startSynDim(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='syn'; test.qId='synthese-diminutions';
+  const incs=qdMelanger(['fin','ini','pct']);
+  test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn('dim', incs[i%incs.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;
+  show('syntest'); renderSynTest();
+}
 function choisirSy(i){
   if(test.locked) return;
   const q=test.questions[test.idx];
@@ -7503,7 +7529,7 @@ async function finishPsl(){
   showResults({score,total,percent:pct,durationSec});
 }
 
-/* ---------- Synthèse des augmentations, RÉDIGÉE (2.2.9) ----------------------
+/* ---------- Synthèse des augmentations, RÉDIGÉE (2.2.10) ---------------------
    {synthese-augmentations-libre} (demande de Turquet, août 2026) : le tirage de
    {synthese-augmentations} — hausses seules, les trois inconnues chacune UNE
    fois en ordre mélangé — et la feuille libre du 2.1.7 à la place de la chaîne
@@ -7541,7 +7567,7 @@ async function startSynAugLibre(){
   test.maxScore=test.questions.length;test.salBusy=false;
   show('sal'); renderSal();
 }
-/* {synthese-diminutions-libre} (2.3.8, demande de Turquet, août 2026) : le
+/* {synthese-diminutions-libre} (2.3.9, demande de Turquet, août 2026) : le
    MÊME moteur, sur les BAISSES — coefficient 0,xx, et la seconde voie s'achève
    par une SOUSTRACTION. Même moteur, pas même identité : la note part sous
    test.qId, « Recommencer » route par l'identité. */
@@ -7571,7 +7597,7 @@ function salCouple(q){
   if(q.choisi==null) return null;
   const v=q.opts[q.choisi];
   const P=(q.inc==='pct')?v:q.P, N=(q.inc==='ini')?v:q.N;
-  const s=(q.sens===-1)?-1:1;                 /* le MÊME moteur sert 2.2.9 (hausses) et 2.3.8 (baisses) */
+  const s=(q.sens===-1)?-1:1;                 /* le MÊME moteur sert 2.2.10 (hausses) et 2.3.9 (baisses) */
   return { P, N, sens:s, coef:100+s*P, aug:P*N/100, fin:N+s*P*N/100,
     coefStr:String((100+s*P)/100).replace('.',','),
     augStr:String(P*N/100).replace('.',','),
@@ -14079,7 +14105,7 @@ function buildKbTerm(vars, compact){
      sur chaque champ mathematique (inputmode="none") — sans elle, une egalite
      etait intapable.
      La touche « ⏎ » VALIDE (commit — l'evenement « change » : une ligne de plus
-     dans la feuille du 2.2.9, la case suivante dans un exercice guide). Elle
+     dans la feuille du 2.2.10, la case suivante dans un exercice guide). Elle
      remplace un « ✓ » qui ne faisait que CACHER le clavier : sur tablette
      l'eleve croyait valider et rien ne se passait (signale par Turquet,
      septembre 2026). Le clavier se referme en quittant la case, ou par ⌨️.
