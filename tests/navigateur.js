@@ -6670,9 +6670,15 @@ async function parcours(page, N){
     verifier('en tactile, le lien posé désigne un manifeste du dépôt, lisible',
       !!manif, apresM.href ? 'lien ' + apresM.href + ' : fichier absent ou illisible' : 'aucun lien posé');
     const departM = manif && manif.start_url ? new URL(manif.start_url, apresM.href).pathname : null;
-    verifier('le manifeste ouvre CETTE page en mode application',
-      !!manif && departM === apresM.page && /^(standalone|fullscreen)$/.test(String(manif.display)),
-      !manif ? 'pas de manifeste' : 'start_url mène à ' + departM + ' (page : ' + apresM.page + '), display ' + JSON.stringify(manif.display));
+    /* Le mode d'affichage vit dans tests/profils.js — deux sources. La
+       Première demande « fullscreen » : Chrome cache alors la barre de
+       navigation d'Android, celle que Turquet voulait retirer. */
+    const displayM = P.manifeste && P.manifeste.display;
+    verifier('le manifeste ouvre CETTE page en mode application ' + JSON.stringify(displayM),
+      !!manif && departM === apresM.page && !!displayM && manif.display === displayM,
+      !manif ? 'pas de manifeste' : !displayM ? 'ce niveau ne déclare pas « manifeste » dans tests/profils.js'
+        : 'start_url mène à ' + departM + ' (page : ' + apresM.page + '), display ' + JSON.stringify(manif.display)
+          + ' (attendu : ' + JSON.stringify(displayM) + ')');
     const iconesM = manif && Array.isArray(manif.icons) ? manif.icons.map(i => ({
       src: new URL(i.src, apresM.href).href, sizes: String(i.sizes || '') })) : [];
     const decodees = await s.page.evaluate(async (liste) => {
