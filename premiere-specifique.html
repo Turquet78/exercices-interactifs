@@ -567,7 +567,11 @@ body.pave-actif #paveNum{bottom:54px}
      comme deux, et une virgule décimale coupée de ses décimales. Le groupe est
      un flex à lui, du MÊME écart que la rangée : rien ne bouge tant que la ligne
      tient, et tout passe à la ligne ensemble quand elle ne tient plus. */
-  .f-grp{display:flex;align-items:center;gap:12px}
+  /* L'ÉCART EST CELUI DE LA RANGÉE, HÉRITÉ ET NON RECOPIÉ : les rangées de ce
+     fichier n'ont pas toutes le même (12 px pour .pt-row, 14 pour .f-wrap,
+     10 pour la conclusion du 4.4), et un 12 figé aurait écarté le groupe
+     autrement que ce qui l'entoure — visible à l'œil, et invisible au code. */
+  .f-grp{display:flex;align-items:center;gap:inherit}
   .pt-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:2px}
   .pt-choix-btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font:inherit;color:inherit;
     background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 16px;

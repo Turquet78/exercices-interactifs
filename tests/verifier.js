@@ -5744,20 +5744,19 @@ function teteCollee(w, P){
   else if(court.texte.indexOf(T.fabrique) < 0)
     pbs.push('« ' + T.raccourci + ' » n\'appelle plus « ' + T.fabrique + ' » : deux fabriques finiraient par diverger');
 
-  /* 2. plus aucun groupe écrit à la main. Une CASE, ici, est ce qui porte la
-     réponse de l'élève : un <math-field>, ou une fraction faite de cases —
-     que la page écrit par ses fabriques locales (frac, dec, fracIn, mf…). On
-     lit donc le « = » et ce qui le suit IMMÉDIATEMENT, dans les deux formes
-     d'écriture du fichier : le gabarit (${…}) et la concaténation ('…'+…). */
+  /* 2. PLUS AUCUN « = » ÉCRIT À LA MAIN, quoi qu'il suive. La règle a
+     commencé par viser le « = » devant une CASE, et la reconnaître demandait
+     d'énumérer les fabriques locales qui rendent une case (frac, dec, mf,
+     produit…) : une liste, donc une dérive. Elle est devenue simple — TOUT
+     « = » passe par la fabrique — parce qu'un « = » groupé avec ce qui le
+     suit n'est jamais pire, et qu'une règle sans liste ne peut pas oublier
+     la rangée qu'on écrira demain. */
   const sansAide = aide ? src.split(aide.texte).join('') : src;
-  const SUIT = '(?:<math-field|<span class="f-frac-input"|\\$\\{(?:frac|dec|fracIn|pmMF)\\b|\'\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b|`\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b)';
-  const brut = [...sansAide.matchAll(new RegExp(
-    '<span class="f-eq">=</span>(?:<span class="f-whole">[^<>]{0,120}</span>)?\\s*' + SUIT, 'g'))];
+  const brut = [...sansAide.matchAll(/<span class="f-eq">=<\/span>/g)];
   if(brut.length)
-    pbs.push(brut.length + ' « = » écrit(s) à la main devant une case : ' +
-      brut.slice(0, 3).map(m => '« ' + m[0].slice(26, 70).replace(/\s+/g, ' ') + '… »').join(' ; ') +
-      ' — hors de ' + T.fabrique + ', rien ne les garde ensemble');
-
+    pbs.push(brut.length + ' « = » écrit(s) à la main : ligne(s) ' +
+      brut.slice(0, 4).map(m => sansAide.slice(0, m.index).split('\n').length).join(', ') +
+      ' — hors de ' + T.fabrique + ', rien ne les garde avec ce qu\'ils annoncent');
   /* 3. la classe est un flex, du même écart que la rangée */
   const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
   const regle = t => (new RegExp('(?:^|[,}])\\s*' + t.replace('.', '\\.') + '\\s*\\{([^}]*)\\}', 'm').exec(style) || [, null])[1];
@@ -5766,7 +5765,11 @@ function teteCollee(w, P){
   else if(!/display:\s*(inline-)?flex/.test(grp))
     pbs.push('« .' + T.classe + ' » n\'est pas un flex : ses éléments se replient comme avant');
   if(rang === null) pbs.push('aucune règle « .' + T.rangee + ' » : le contrôle ne peut pas comparer les écarts');
-  else if(grp !== null){
+  else if(grp !== null && !/gap:\s*inherit/.test(grp)){
+    /* « gap:inherit » est la bonne réponse : les rangées de ces fichiers n'ont
+       pas toutes le même écart (12 px, 14, 10), et un écart RECOPIÉ finit par
+       diverger de l'une d'elles. Un écart figé reste accepté s'il est celui de
+       la rangée de référence — mais il ne protège que celle-là. */
     const ecart = c => (/gap:\s*([\d.]+)px/.exec(c) || [, null])[1];
     if(ecart(grp) !== ecart(rang))
       pbs.push('le groupe a un écart de ' + ecart(grp) + ' px quand la rangée en a ' + ecart(rang) + ' px : l\'espacement change à l\'œil');

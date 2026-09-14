@@ -132,12 +132,9 @@ module.exports = {
        le banc navigateur ouvre les exercices déclarés à une largeur où la rangée
        SE REPLIE pour de vrai, et mesure que la tête et sa case restent sur la
        même ligne.
-       La Seconde ne déclare pas ce contrôle : seul le moteur PARTAGÉ de
-       {somme-fractions} y a reçu le groupe — il est le même texte dans les deux
-       fichiers, et le corriger d'un seul côté l'aurait fait diverger. Ses
-       rangées propres (2.2.1, 2.3.1…) restent à grouper : le contrôle s'y
-       affiche « non applicable » plutôt que de rougir, et c'est une décision à
-       prendre, pas un oubli. */
+       La Seconde le déclare aussi (demande de Turquet, septembre 2026 : « fais
+       la même chose en seconde ») ; la Terminale, qui n'a pas ces rangées, s'y
+       affiche « non applicable » plutôt que d'être tue. */
     teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
                   minimum: 6,
                   exercices: ['diminuer-pourcentage', 'augmenter-pourcentage',
@@ -473,6 +470,18 @@ module.exports = {
        plus chargée après {simplifier-fractions}, et c'est là qu'un repli se
        produirait. */
     cadrePleineLargeur: true,
+    /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de
+       Turquet, septembre 2026 : « fais la même chose en seconde »). Même
+       fabrique, même classe, même contrôle qu'en Première — voir le profil de
+       la Première pour la doctrine. Les quatre exercices déclarés sont ceux
+       que la SONDE a vus céder : 2.2.1 et 2.3.1 à 600 px, la division de
+       fractions à 600, les deux barres à 390 ; {somme-fractions} n'y est plus,
+       son moteur partagé ayant déjà reçu le groupe. */
+    teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
+                  minimum: 4,
+                  exercices: ['augmenter-pourcentage', 'diminuer-pourcentage',
+                              'diviser-fractions', 'simplifier-barres', 'somme-fractions'],
+                  largeur: 600, hauteur: 900 },
     pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
                               ['diminuer-pourcentage', 2], ['somme-fractions', 1],
