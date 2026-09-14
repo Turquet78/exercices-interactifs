@@ -3443,6 +3443,7 @@ function exercices(suite){
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
     coefficientGlobalCourt(w, P);
+    coefficientGlobalCourtBaisses(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -16001,6 +16002,102 @@ function paireFausseCaseFautive(w, P){
       if(paires.length) vus.push(fn+' peint encore une paire par un verdict unique : '+paires.join(','));
     });
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.3.7 : LA MÊME RÈGLE SUR LES DEUX BAISSES ---------------------------
+   « fais la même chose pour le 2.3.7 » (Turquet, septembre 2026), après la
+   règle posée sur le 2.2.7 : le coefficient global ne doit s'écrire qu'avec
+   une ou deux décimales.
+   ICI LA PROPRIÉTÉ ÉTAIT DÉJÀ VRAIE, et la sonde l'a mesurée avant qu'on ne
+   touche à quoi que ce soit : depuis la décision d'août 2026 (un seul chiffre
+   non nul par baisse, et c'est un dixième), les deux numérateurs sont des
+   chiffres seuls, leur produit est un entier de deux chiffres, et il se lit
+   sur 100 — 0,8 × 0,6 = 0,48. Sur 50 000 tirages, jamais plus de deux
+   décimales et jamais une baisse globale non entière.
+   MAIS RIEN NE LA TENAIT. Un taux à un chiffre remis dans le tirage — ce que
+   l'exercice faisait avant août 2026 — rendrait 0,96 × 0,6 = 0,576 sans
+   qu'aucun contrôle ne rougisse, et c'est précisément le défaut que la
+   demande vise. Le contrôle refait donc la propriété par une SECONDE
+   arithmétique, sur les pourcentages bruts là où la page passe par les
+   numérateurs réduits : (100−P1)(100−P2) doit être divisible par 100.
+   Il tient les bords voisins, qui ne se devinent pas : la baisse globale est
+   ENTIÈRE (c'est elle que l'élève écrit à l'étape ③, jugée sur 1), elle
+   DIFFÈRE toujours de P1+P2 — sans quoi le piège de l'exercice aurait disparu
+   —, le coefficient n'est jamais un entier (« 1 ou 2 chiffres », au mot), et
+   les taux restent les multiples de dix que la décision d'août 2026 a fixés.
+   Le second contrôle CLIQUE « Vérifier » sur une copie juste et relit les
+   couleurs ET la note : les contrôles lisent le verdict, l'élève regarde la
+   couleur. */
+function coefficientGlobalCourtBaisses(w, P){
+  const present = evaluer(w, "typeof genBaisses==='function' && typeof checkBSAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.3.7 : le coefficient global des deux baisses s\'écrit avec au plus deux décimales',
+      'ce niveau n\'a pas l\'exercice des baisses successives');
+    ignorer('2.3.7 : 0,8 × 0,6 donne 0,48 et 52 %, et la copie juste vaut le point',
+      'ce niveau n\'a pas l\'exercice des baisses successives');
+    return;
+  }
+  verifierEval(w, '2.3.7 : le coefficient global des deux baisses s\'écrit avec au plus deux décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const taux={}, baisses={}, decs={};
+    for(let t=0;t<400 && vus.length===0;t++){
+      const q=genBaisses();
+      const brut=(100-q.P1)*(100-q.P2);                 /* le coefficient global, par les TAUX */
+      if(brut%100!==0) vus.push("tirage "+t+" : "+q.P1+" % puis "+q.P2+" % donne "+(brut/10000)+", plus de deux decimales");
+      if(brut%10000===0) vus.push("tirage "+t+" : le coefficient "+(brut/10000)+" n a aucune decimale");
+      if(brut*q.prodDen!==q.prodNum*10000) vus.push("tirage "+t+" : "+q.prodNum+"/"+q.prodDen+" ne vaut pas le produit des coefficients");
+      if((q.coefStr.split(",")[1]||"").length>2) vus.push("tirage "+t+" : le coefficient s ecrit "+q.coefStr);
+      /* la baisse globale : ENTIÈRE, et jugée telle quelle à l etape 3 */
+      const b=100-brut/100;
+      if(b!==Math.round(b)) vus.push("tirage "+t+" : la baisse globale "+b+" % n est pas entière");
+      if(q.baisseNum!==b) vus.push("tirage "+t+" : baisseNum vaut "+q.baisseNum+" au lieu de "+b);
+      if(q.baisseStr.indexOf(",")>=0) vus.push("tirage "+t+" : la baisse s ecrit "+q.baisseStr+" %");
+      /* le piège de l exercice : deux baisses ne s additionnent pas */
+      if(b>=q.P1+q.P2) vus.push("tirage "+t+" : la baisse globale "+b+" % n est pas inférieure à "+(q.P1+q.P2)+" %");
+      /* et elle reste LISIBLE : sans la garde du produit à deux chiffres,
+         0,2 × 0,3 = 0,06 ferait une baisse de 94 %, un prix divisé par seize.
+         Ce bord-là ne se voit pas sur les décimales — 0,06 en a deux — et le
+         sabotage l a montré en restant vert à bon droit. */
+      if(b>90) vus.push("tirage "+t+" : la baisse globale atteint "+b+" %, le coefficient tombe à "+(brut/10000));
+      /* les taux, tels que la décision d août 2026 les a fixés */
+      [q.P1,q.P2].forEach(function(Pp){
+        if(Pp%10!==0 || Pp<10 || Pp>80) vus.push("tirage "+t+" : le taux "+Pp+" % n est pas un multiple de dix de 10 à 80");
+        taux[Pp]=1; });
+      baisses[b]=1; decs[(q.coefStr.split(",")[1]||"").length]=1;
+    }
+    if(vus.length===0){
+      if(Object.keys(baisses).length<10) vus.push("seulement "+Object.keys(baisses).length+" baisses globales differentes sur 400 tirages");
+      if(Object.keys(taux).length<6) vus.push("seulement "+Object.keys(taux).length+" taux differents sur 400 tirages");
+      if(!decs["2"]) vus.push("aucun coefficient à deux decimales sur 400 tirages");
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.3.7 : 0,8 × 0,6 donne 0,48 et 52 %, et la copie juste vaut le point', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* la question de l EXEMPLE du rappel de cours, prise au VRAI générateur */
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genBaisses(); if(q.P1===20 && q.P2===40) Q=q; }
+    if(!Q) return "le tirage ne produit jamais 20 % puis 40 %, l exemple du rappel de cours";
+    if(Q.coefStr!=="0,48") vus.push("0,8 × 0,6 donne "+Q.coefStr+" au lieu de 0,48");
+    if(Q.baisseStr!=="52") vus.push("la baisse globale vaut "+Q.baisseStr+" % au lieu de 52 %");
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"bs", qId:"baisses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("bstest"); renderBSTest();
+    const copie={bs1n:""+Q.P1, bs1d:"100", bs1p:""+Q.P1, bs1dec:""+Q.c1,
+                 bs2n:""+Q.P2, bs2d:"100", bs2p:""+Q.P2, bs2dec:""+Q.c2,
+                 bsAn:""+Q.fA.num, bsAd:""+Q.fA.den, bsBn:""+Q.fB.num, bsBd:""+Q.fB.den,
+                 bsPn:""+Q.prodNum, bsPd:""+Q.prodDen, bsDec:Q.coefStr, bsP:Q.baisseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkBSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
