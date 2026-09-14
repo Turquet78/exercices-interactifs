@@ -3082,6 +3082,7 @@ function exercices(suite){
     syntheseLibrePourcentage(w, P);
     syntheseAugLibreRedigee(w, P);
     verificationAvecPropositions(w, P);
+    teteCollee(w, P);
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
     correctionSignesVariations(w, P);
@@ -5689,6 +5690,123 @@ function synthesePourcentage(w, P){
    (un fait de table ne se pose pas), les zéros finaux sont retirés, et elle
    ne se reconstruit que si les facteurs changent — reconstruire à chaque
    frappe effacerait ce que l'élève y écrit. */
+/* ---------- un « = » ne se sépare jamais de la case qu'il annonce --------
+   Demande de Turquet (septembre 2026), en deux temps : « quand on affiche
+   "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
+   "= 0" passe aussi à la ligne », puis « en fait dès qu'une case passe à la
+   ligne et qu'il y a un "=" devant, mettre le "=" aussi à la ligne ». La
+   règle vaut donc pour TOUT « = » posé devant une case, avec ou sans tête.
+   La rangée d'un exercice guidé est un flex qui SE REPLIE — c'est ce qui
+   l'empêche de déborder de l'écran — et le repli tombait ENTRE le « 0, »
+   écrit par la page et la case où l'élève répond : mesuré à 600 px de
+   fenêtre sur le 2.3.1, « 0, » restait en fin de ligne et sa case tombait
+   111 px plus bas. Une virgule décimale coupée de ses décimales n'est plus
+   un nombre, et l'égalité se lit comme deux calculs.
+   UN SEUL ENDROIT assemble le groupe (fEqTete), et le contrôle tient les
+   bords que la page ne dit pas d'elle-même :
+   · plus AUCUN groupe écrit à la main dans la source — ni « = » + tête +
+     case, ni « = » nu devant une case : la rangée qu'on écrira demain passe
+     par la fabrique, donc elle est tenue sans rien déclarer ; c'est ce bord
+     qui empêche la liste de dériver ;
+   · fEqTete pose bien la classe, ET la classe est bien un flex : une
+     classe posée sans sa règle ne tient rien ensemble, et rien ne
+     rougirait ;
+   · le MÊME écart que la rangée — un groupe plus serré ou plus large se
+     verrait tout de suite sur l'écran de l'élève ;
+   · le rendu produit vraiment des groupes, chacun avec son « = », sa tête
+     et sa case : un contrôle qui n'a rien à mesurer ne mesure rien, et il
+     doit le dire.
+   Où tombe la ligne, en revanche, ne se voit que dans un navigateur : c'est
+   le banc navigateur qui mesure le repli, à une largeur où il a lieu. */
+function teteCollee(w, P){
+  const nom = 'aucun « = » ne se sépare de la case qu’il annonce';
+  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de tête collée à sa case'); return; }
+  const T = P.teteCollee, src = lire(CIBLE), pbs = [];
+
+  /* 1. le seul endroit qui assemble, et ce qu'il pose */
+  const aide = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === T.fabrique);
+  if(!aide) pbs.push('« ' + T.fabrique + ' » est introuvable : plus rien n\'assemble le groupe');
+  else{
+    if(aide.texte.indexOf('class="' + T.classe + '"') < 0)
+      pbs.push('« ' + T.fabrique + ' » ne pose plus la classe « ' + T.classe + ' » : le groupe n\'est plus un groupe');
+    if(aide.texte.indexOf('class="f-eq"') < 0 || aide.texte.indexOf('class="f-whole"') < 0)
+      pbs.push('« ' + T.fabrique + ' » n\'écrit plus le « = » et sa tête');
+    /* La tête doit rester FACULTATIVE : sans cela, le « = » nu devant une
+       case n'aurait aucun chemin vers le groupe, et les rangées qui n'ont
+       pas de « 0, » resteraient coupées comme avant. */
+    if(!/tete\s*\?/.test(aide.texte))
+      pbs.push('« ' + T.fabrique + ' » impose une tête : le « = » nu devant une case n\'a plus de groupe');
+  }
+  const court = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === T.raccourci);
+  if(!court) pbs.push('« ' + T.raccourci +' » est introuvable : le « = » nu n\'a plus de fabrique');
+  else if(court.texte.indexOf(T.fabrique) < 0)
+    pbs.push('« ' + T.raccourci + ' » n\'appelle plus « ' + T.fabrique + ' » : deux fabriques finiraient par diverger');
+
+  /* 2. plus aucun groupe écrit à la main. Une CASE, ici, est ce qui porte la
+     réponse de l'élève : un <math-field>, ou une fraction faite de cases —
+     que la page écrit par ses fabriques locales (frac, dec, fracIn, mf…). On
+     lit donc le « = » et ce qui le suit IMMÉDIATEMENT, dans les deux formes
+     d'écriture du fichier : le gabarit (${…}) et la concaténation ('…'+…). */
+  const sansAide = aide ? src.split(aide.texte).join('') : src;
+  const SUIT = '(?:<math-field|<span class="f-frac-input"|\\$\\{(?:frac|dec|fracIn|pmMF)\\b|\'\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b|`\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b)';
+  const brut = [...sansAide.matchAll(new RegExp(
+    '<span class="f-eq">=</span>(?:<span class="f-whole">[^<>]{0,120}</span>)?\\s*' + SUIT, 'g'))];
+  if(brut.length)
+    pbs.push(brut.length + ' « = » écrit(s) à la main devant une case : ' +
+      brut.slice(0, 3).map(m => '« ' + m[0].slice(26, 70).replace(/\s+/g, ' ') + '… »').join(' ; ') +
+      ' — hors de ' + T.fabrique + ', rien ne les garde ensemble');
+
+  /* 3. la classe est un flex, du même écart que la rangée */
+  const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+  const regle = t => (new RegExp('(?:^|[,}])\\s*' + t.replace('.', '\\.') + '\\s*\\{([^}]*)\\}', 'm').exec(style) || [, null])[1];
+  const grp = regle('.' + T.classe), rang = regle('.' + T.rangee);
+  if(grp === null) pbs.push('aucune règle « .' + T.classe + ' » : la classe est posée sans rien tenir');
+  else if(!/display:\s*(inline-)?flex/.test(grp))
+    pbs.push('« .' + T.classe + ' » n\'est pas un flex : ses éléments se replient comme avant');
+  if(rang === null) pbs.push('aucune règle « .' + T.rangee + ' » : le contrôle ne peut pas comparer les écarts');
+  else if(grp !== null){
+    const ecart = c => (/gap:\s*([\d.]+)px/.exec(c) || [, null])[1];
+    if(ecart(grp) !== ecart(rang))
+      pbs.push('le groupe a un écart de ' + ecart(grp) + ' px quand la rangée en a ' + ecart(rang) + ' px : l\'espacement change à l\'œil');
+  }
+
+  /* 4. et le rendu en pose vraiment — sinon le contrôle parle d'autre chose */
+  const vus = evaluer(w, `(function(){
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const pbs=[]; let total=0;
+    ${JSON.stringify(T.exercices)}.forEach(function(id){
+      try{ TESTS[id].start(); }catch(e){ pbs.push(id+' : le démarrage échoue ('+e.message+')'); return; }
+      const ec=document.querySelector('.screen.on');
+      const grs=ec?[...ec.querySelectorAll('.${T.classe}')]:[];
+      if(!grs.length){ pbs.push(id+' : aucun groupe rendu'); return; }
+      total+=grs.length;
+      grs.forEach(function(g){
+        /* LA TÊTE EST L'ENFANT DIRECT DU GROUPE, jamais le premier « f-whole »
+           venu : la case d'une somme de fractions en contient elle-même
+           (le numérateur écrit devant son multiplicateur), et le contrôle
+           lisait « 1 » comme une tête — il s'est pris en défaut avant la page.
+           Elle est FACULTATIVE ; le « = » et la case, eux, sont exigés. */
+        const enf=[].slice.call(g.children);
+        const e=enf[0]&&enf[0].classList.contains('f-eq')?enf[0]:null;
+        const t=enf[1]&&enf[1].classList&&enf[1].classList.contains('f-whole')?enf[1]:null;
+        /* Ce que le « = » annonce est une CASE (math-field) ou une FRACTION —
+           le maillon « 3 = 3/1 » d'une somme est écrit par la page, et son
+           « = » ne doit pas rester seul en fin de ligne pour autant. */
+        const c=g.querySelector('math-field, .f-frac-input, .f-frac');
+        if(!e||!c){ pbs.push(id+' : un groupe sans « = » en tête, ou qui n annonce rien'); return; }
+        if(t && !/,$/.test((t.textContent||'').trim()))
+          pbs.push(id+' : la tête « '+(t.textContent||'').trim()+' » ne finit pas par la virgule');
+      });
+    });
+    return pbs.length ? pbs.slice(0,3).join(' | ') : (total<${T.minimum} ? 'seulement '+total+' groupe(s) rendus, '+${T.minimum}+' attendus au moins' : '');
+  })()`);
+  if(!vus.ok) pbs.push('le rendu ne se mesure pas : ' + vus.erreur);
+  else if(vus.valeur) pbs.push(vus.valeur);
+
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
 function poseSuitLEleve(w, P){
   const present = evaluer(w, "typeof poseEleveMAJ==='function' && typeof startAug==='function'");
   if(!present.ok || !present.valeur){

@@ -117,6 +117,35 @@ module.exports = {
     pleineLargeur: { exercices: ['pourcentage', 'mult-decimaux', 'somme-fractions'],
                      chaine: [['pourcentage', 1], ['somme-fractions', 1]] },
 
+    /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de
+       Turquet, septembre 2026, en deux temps : « quand on affiche "= 0 ," avec
+       une case à côté, si la case passe à la ligne je veux que le "= 0" passe
+       aussi à la ligne », puis « en fait dès qu'une case passe à la ligne et
+       qu'il y a un "=" devant, mettre le "=" aussi à la ligne »). La rangée est
+       un flex qui se replie, et le repli tombait entre le signe et la case où
+       l'élève répond — une égalité qui se lit comme deux, une virgule décimale
+       coupée de ses décimales. Un seul endroit assemble le groupe
+       (« fabrique », dont « raccourci » est la forme sans tête), et « classe »
+       est le flex qui le tient d'un seul tenant, du même écart que « rangee ».
+       Le banc jsdom exige que plus aucun groupe ne soit écrit à la main, que la
+       classe soit vraiment un flex, et que le rendu en pose au moins « minimum » ;
+       le banc navigateur ouvre les exercices déclarés à une largeur où la rangée
+       SE REPLIE pour de vrai, et mesure que la tête et sa case restent sur la
+       même ligne.
+       La Seconde ne déclare pas ce contrôle : seul le moteur PARTAGÉ de
+       {somme-fractions} y a reçu le groupe — il est le même texte dans les deux
+       fichiers, et le corriger d'un seul côté l'aurait fait diverger. Ses
+       rangées propres (2.2.1, 2.3.1…) restent à grouper : le contrôle s'y
+       affiche « non applicable » plutôt que de rougir, et c'est une décision à
+       prendre, pas un oubli. */
+    teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
+                  minimum: 6,
+                  exercices: ['diminuer-pourcentage', 'augmenter-pourcentage',
+                              'baisses-successives', 'hausses-successives',
+                              'somme-fractions', 'mult-decimaux', 'fraction-pourcentage',
+                              'augmenter-addition', 'pourcentage'],
+                  largeur: 600, hauteur: 900 },
+
     /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE
        (demande de Turquet, septembre 2026, pour la Seconde, « comme en
        Première »). La Terminale ne le déclare PAS, et ce n'est pas un oubli :
