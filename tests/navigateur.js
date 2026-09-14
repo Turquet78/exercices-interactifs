@@ -7274,7 +7274,7 @@ async function parcours(page, N){
     }
 
     /* ---- 11 quinquies. Sur une tablette en PAYSAGE, le clavier mathématique tient sur deux rangées, et ⏎ valide ----
-       Signalé et demandé par Turquet (septembre 2026) sur le 2.2.9 : « la touche
+       Signalé et demandé par Turquet (septembre 2026) sur le 2.2.10 : « la touche
        valider ne fonctionne pas et ne permet pas de passer à la ligne », et
        « en paysage, le clavier doit prendre moins de place en hauteur ». jsdom
        évalue les dispositions ; seul un navigateur sait combien de rangées se

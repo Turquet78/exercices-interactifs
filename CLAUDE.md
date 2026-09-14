@@ -4356,6 +4356,82 @@ caractère près sur 4000 tirages et sur les trois formes (2×2, 3×2, 3×3), et
 l'arithmétique sur les 324 couples que produit `uFactor()`. Une pose se juge à
 l'œil, donc on ne la déplace pas sans preuve.
 
+**Deux hausses de suite, en PARTANT DE 100 : la même question, l'autre chemin.**
+{hausses-successives-cent} (Première, 2.2.8, demande de Turquet, septembre 2026,
+repris de la fiche « 2 augmentations — méthode 2 ») suit {hausses-successives}
+au menu. Au lieu de multiplier deux coefficients, on CHOISIT une valeur de
+départ — et on prend **100**, parce que « ce qu'on a gagné pour 100 » EST le
+pourcentage : il n'y a plus rien à relire à la fin, le nombre cherché est écrit
+sur l'écran.
+**Tout est repris, rien n'est recopié** : les énoncés sont ceux du 2.2.7
+(`HS_ENONCES` et `BS_CTX`, PARTAGÉS — deux listes auraient fini par diverger, et
+deux exercices voisins auraient posé la même question dans des mots
+différents), et chaque hausse se calcule comme dans {augmenter-addition} — la
+fraction, le produit, l'écriture décimale, puis l'addition « départ +
+augmentation ». Ce n'est donc pas une méthode de plus : c'est le 2.2.2 fait DEUX
+FOIS, la seconde sur la valeur déjà augmentée, et c'est exactement ce que la
+fiche veut faire voir.
+**LA CONTRAINTE DE TURQUET N'EST PAS COSMÉTIQUE — c'est elle qui fait tomber
+toute la chaîne sur des ENTIERS.** Il ne veut que des pourcentages dont le
+coefficient global a 1 ou 2 chiffres après la virgule (« exemple :
+1,02 × 1,50 »). Cette contrainte ÉQUIVAUT à « P1 × P2 divisible par 100 » —
+(100+P1)(100+P2) = 10000 + 100(P1+P2) + P1×P2, donc le produit est divisible par
+100 si et seulement si P1×P2 l'est — et la sonde l'a vérifié sur les 99 × 99
+couples : aucun désaccord entre les deux écritures. Or la seconde hausse vaut
+(100+P1)×P2/100, entière exactement quand P1 × P2 l'est : un élève qui suit la
+fiche n'écrit jamais une décimale, ni à la hausse, ni à l'addition, ni au bilan.
+Le contrôle refait la propriété par une SECONDE arithmétique, qui n'a rien en
+commun avec celle de la page : il COMPTE les chiffres après la virgule (quatre,
+moins les zéros de fin du produit) là où la page décide par deux divisibilités.
+**Les deux gardes du tirage sont VIVANTS, et le contrôle le démontre plutôt que
+de le supposer** : le couple de la fiche ELLE-MÊME (90 % puis 4 %) est REFUSÉ —
+son coefficient a trois décimales —, et 25 % puis 60 % aussi, le seul couple qui
+donne 2 tout rond quand Turquet a écrit « 1 ou 2 chiffres après la virgule ». Il
+reste 114 couples, et la hausse globale DÉPASSE toujours la somme des deux taux
+(l'écart vaut P1 × P2 / 100, donc au moins 1) : la leçon du 2.2.7 tient ici
+aussi, et le message la nomme.
+**Le multiplicande de l'étape ③ est une CASE, et c'est le seul écart avec la
+fiche.** Sur le papier, le professeur écrit « on calcule la hausse pour 190
+Watts » : le nombre est donné, parce que la feuille est un exemple traité. Ici
+l'élève vient de le trouver à l'étape ②, et l'écrire reviendrait à ranger la
+réponse d'une étape à côté de la suivante — dire soi-même que la seconde hausse
+porte sur la valeur DÉJÀ augmentée EST la leçon de l'exercice. C'est ce que fait
+déjà le 2.2.7, dont l'étape ② redemande les deux coefficients de l'étape ①, et
+le contrôle tient le bord : une copie qui refait la seconde hausse sur 100 est
+refusée en le nommant.
+**L'ORDRE DE L'ADDITION EST LIBRE**, et la règle des paires d'{antecedent-nombre}
+le tient : elle est commutative, et refuser « 90 + 100 » apprendrait l'inverse de
+ce qu'on enseigne. Chaque case se juge donc sur ce qu'elle PROMET, et la liste
+des deux valeurs attendues les prend UNE FOIS CHACUNE — « 100 + 100 » est
+défendable une fois, faux la seconde. Sans cela une case juste rougirait parce
+que sa jumelle est fausse, le défaut signalé trois fois sur {somme-fractions}.
+Le MÊME juge sert la frappe et la vérification : deux verdicts auraient fini par
+se contredire sous les yeux de l'élève. Et « reste » porte ce qu'aucune case n'a
+pris, si bien que la correction en vert respecte l'ordre déjà choisi.
+**Pas de pose en colonnes, contrairement au 2.2.2** : la fiche n'en a pas, et
+avec ce tirage les deux additions tombent sur des entiers à trois chiffres.
+L'écran porte déjà vingt et une cases, et le bouton « Tables de multiplication »
+y est comme partout — le dire vaut mieux que de le taire, c'est un arbitrage, pas
+un oubli.
+La bonne réponse n'est jamais rangée à côté de la question : elle ne porte que
+P1, P2, le contexte et la variante — le contrôle refuse tout autre champ — et
+`hscAns()`, que l'énoncé, le rendu, la correction, le message et le contexte
+envoyé au modèle lisent tous, recalcule le reste. Dix-sept sabotages, chacun
+rougissant en nommant son défaut — et deux ont d'abord raté leur cible : celui
+de la séance qui tire AVEC remise est resté VERT à bon droit (sur 114 couples,
+trois tirages ne se heurtent que 2,6 fois sur 100, et un contrôle qui ne rougit
+qu'une fois sur trois parle d'autre chose — il demande donc le vivier ENTIER,
+qui doit sortir en entier, chaque couple une fois), et celui de l'ordre imposé
+visait une fonction qui n'existe pas : il cassait le code au lieu de mesurer, et
+un sabotage qui casse la syntaxe ne dit rien du contrôle visé.
+**Et la NUMÉROTATION a bougé avec lui**, comme toujours : {synthese-augmentations}
+passe en 2.2.9 et {synthese-augmentations-libre} en 2.2.10. Les références
+écrites `{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS du banc — la
+liste des démarreurs du contrôle d'EVOL_NB, les libellés et les messages qui
+nomment ces deux exercices — ne se recalculent pas, et ont été repris à la main
+le jour même. Un contrôle qui s'affiche sous le nom d'un autre est pire qu'un
+contrôle sans nom.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
