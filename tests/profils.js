@@ -251,6 +251,23 @@ module.exports = {
        La page doit porter exactement cette règle, et le banc navigateur mesure
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
+    /* LE MODE D'AFFICHAGE DE L'APPLICATION INSTALLÉE (demande de Turquet,
+       septembre 2026, sur sa tablette Samsung : « peut-on supprimer la bande
+       en bas de l'écran qui permet de réduire la fenêtre »). Cette bande est
+       la barre de navigation d'ANDROID, et aucune page web ne peut la cacher :
+       seul le MANIFESTE le peut, en demandant « fullscreen » au lieu de
+       « standalone » — Chrome lance alors l'application en plein écran, sans
+       barre système ni en bas ni en haut. Le geste, lui, RESTE : un balayage
+       depuis le bas fait revenir la barre, puis l'accueil — l'élève peut
+       toujours sortir, ce n'est pas un verrou. Le prix est assumé : l'heure et
+       la batterie disparaissent avec la barre du bas, on ne peut pas cacher
+       l'une sans l'autre.
+       Deux bords, et n'en tenir qu'un ne tient rien : ce niveau doit demander
+       « fullscreen », et les DEUX AUTRES — hors de la demande — doivent rester
+       en « standalone », sans quoi la règle fuirait sans que rien ne le dise.
+       Chromium le vérifie lui-même au banc navigateur : un mode d'affichage
+       qu'il refuse rend la page non installable, et il le NOMME. */
+    manifeste: { display: 'fullscreen' },
     policeTablette: 90,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.9,
        2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
@@ -594,6 +611,12 @@ module.exports = {
        La page doit porter exactement cette règle, et le banc navigateur mesure
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
+    /* Le mode d'affichage de l'application installée. Seule la PREMIÈRE est
+       passée en plein écran (demande de Turquet, septembre 2026) ; ce niveau
+       garde « standalone », donc la barre de navigation d'Android. C'est le
+       bord OPPOSÉ de cette demande, et il empêche la règle de fuir sur un
+       niveau qui ne l'a pas demandée. */
+    manifeste: { display: 'standalone' },
     policeTablette: 90,
     /* Même feuille de calcul libre qu'en Première (4.5, 4.7, 4.9 et la
        synthèse) : sur tablette elle écrit à cette taille au lieu de 2 rem
@@ -781,6 +804,12 @@ module.exports = {
        La page doit porter exactement cette règle, et le banc navigateur mesure
        la racine rendue : réduite sur tablette, intacte sur ordinateur et sur
        téléphone. */
+    /* Le mode d'affichage de l'application installée. Seule la PREMIÈRE est
+       passée en plein écran (demande de Turquet, septembre 2026) ; ce niveau
+       garde « standalone », donc la barre de navigation d'Android. C'est le
+       bord OPPOSÉ de cette demande, et il empêche la règle de fuir sur un
+       niveau qui ne l'a pas demandée. */
+    manifeste: { display: 'standalone' },
     policeTablette: 90,
     pave: { exercice: 'equation-tangente', champ: '#tg-fa', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','/','\u232b','\u23ce'],
