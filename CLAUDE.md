@@ -4087,6 +4087,66 @@ corrections, toutes deux copies épinglées au contrôle :
   retirée, le commentaire qui re-force l'abstention, la prose du modèle
   reprise sur un refus, la tautologie acceptée).
 
+**Et la TROISIÈME famille est entrée dans le moteur rédigé : la synthèse
+entière.** {synthese-pourcentages-libre} (Première, 2.5.2, demande de Turquet,
+septembre 2026 : « un exercice comme le 2.5.1 mais où il faut rédiger la
+justification dans une case comme dans le 2.2.9 ») suit {synthese-pourcentages}
+au menu : le tirage du 2.5.1 — `genSyn` SANS famille imposée, donc prendre,
+augmenter et diminuer, et les trois inconnues chacune UNE fois en ordre
+mélangé — posé sur l'écran, la feuille et le juge du 2.2.9. Même moteur de
+tirage, même moteur de rédaction, pas même identité : la note part sous
+`test.qId`, le rappel vit dans `RAPPELS_ID`, les questions dans `QIA_SUGG`,
+et « Recommencer » route par l'identifiant — le repli d'un `qId` inconnu
+reste le 2.2.9.
+**CE QUI ARRIVE VRAIMENT ICI, C'EST « PRENDRE P % » : le juge ne connaissait
+que les évolutions.** `salSens` lui donne le sens 0, son « coefficient » est
+P/100 et sa valeur finale EST la part — si bien que les deux voies de
+l'évolution se confondent, ce qui est exact : il n'y a qu'une multiplication
+à montrer. Les justifications acceptées sont celles que Turquet a nommées :
+la multiplication par le bon coefficient qui arrive au résultat, la hausse ou
+la baisse calculée d'abord puis l'addition ou la soustraction, et **la
+simplification de fraction qui retrouve un pourcentage** — la voie du
+quotient, déjà là depuis le signalement d'août 2026, qui sur cette famille
+s'écrit 180/600 = 3/10 = 30/100.
+**AUCUN GARDE N'EST POSÉ SUR `voieOk`, ET C'EST DÉLIBÉRÉ : il serait MORT.**
+Le premier jet y écrivait `!part && augProd && addOk` pour interdire
+l'addition sur « prendre P % » — mais pour cette famille `augProd` et
+`coefOk` testent exactement la même chose, donc une copie qui montre l'une
+est déjà acceptée par l'autre, et retirer le garde ne change rien. La
+propriété est tenue autrement, et elle l'est : une addition SEULE ne passe
+par aucune des deux voies. Le garde VIT en revanche dans le MESSAGE — une
+soustraction seule rend `addOk` vrai, et nommer « la diminution » devant un
+élève à qui on ne demande aucune évolution serait un message qui ment ; le
+sabotage le montre en toutes lettres.
+**L'ÉCRAN DIT CE QUE LE JUGE ACCEPTE, et un seul endroit l'écrit.**
+`salVoiesTexte` nomme les voies ; l'étiquette de la feuille, le message de la
+feuille vide et le refus du juge la lisent tous — trois phrases écrites
+séparément auraient fini par promettre à l'écran autre chose que ce que le
+juge accepte. La table d'énoncés est partagée de la même façon
+(`synTab`) : le rédigé pose exactement la question du guidé.
+**Deux bancs, la répartition habituelle.** jsdom tient le tirage (les trois
+inconnues, les trois familles — une synthèse qui n'en tirerait qu'une aurait
+perdu son sujet), le juge cas par cas sur des questions ÉPINGLÉES, le bord
+OPPOSÉ dans le même exercice (une hausse et une baisse gardent leur voie par
+l'addition et la soustraction), la règle envoyée au modèle et sa borne de
+troncature (3244 caractères pour 4000). Le NAVIGATEUR tient ce que jsdom ne
+peut pas voir : il TAPE la fraction dans la vraie feuille MathLive — la voie
+du quotient n'existe que si la sérialisation réelle repasse par le juge, et
+jsdom pose des chaînes qu'il écrit lui-même — puis relit le verdict, la note
+et la couleur des lignes ; le double du banc répondant toujours
+« correct:false », c'est aussi le bord du JUGE QUI PRIME.
+Dix-sept sabotages au banc jsdom, chacun rougissant en nommant son défaut —
+et l'un d'eux est d'abord resté VERT en montrant un TROU DU CONTRÔLE : il
+lisait l'écran ENTIER, où l'indication sous la feuille parle elle aussi
+d'addition, si bien qu'une étiquette qui aurait cessé de nommer les voies
+serait passée inaperçue. Il lit l'ÉTIQUETTE désormais, et garde l'écran
+entier pour son bord à lui — rien n'y promet d'addition sur « prendre P % ».
+**Et {reconnaitre-coefficient} est passé de 2.5.2 à 2.5.3**, la numérotation
+se déduisant de la position : les notes déjà obtenues ne bougent pas — elles
+portent l'IDENTIFIANT — et les renvois suivent, écrits `{identifiant}`. Les
+paragraphes plus anciens de ce fichier qui l'appellent « 2.5.2 » racontent
+l'histoire avec le numéro de leur époque.
+
 **Le dénominateur vide ne condamne personne.** Signalé par Turquet sur une
 capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
 numérateur ROUGISSAIT pendant que l'élève écrivait son dénominateur. Quatre
@@ -6598,7 +6658,7 @@ facteur, par construction et non par vigilance.
 `.mp-stage` est ce qui vient après le `p.mp-instr` de l'énoncé, qui vit
 au-dessus et garde donc sa taille sans qu'on ait rien à lui retirer. Et
 `:has(math-field.pm-mf)` restreint aux stages qui portent VRAIMENT une case à
-nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8) a déjà sa règle
+nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8, 2.5.2) a déjà sa règle
 de tablette et n'est pas touchée ; elle est NOMMÉE dans le profil plutôt que
 tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran

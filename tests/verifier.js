@@ -1408,8 +1408,8 @@ function branchements(w){
 
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
      baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps), plus les synthèses rédigées 2.2.9 et 2.3.8 et le
-     QCM des coefficients 2.5.2. On appelle les DIX-NEUF vrais démarreurs :
+     2026, en trois temps), plus les synthèses rédigées 2.2.9, 2.3.8 et 2.5.2
+     et le QCM des coefficients 2.5.3. On appelle les VINGT vrais démarreurs :
      un nombre changé dans un démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
@@ -1420,7 +1420,7 @@ function branchements(w){
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
        ['2.2.9','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn'],
-       ['2.5.2','startReconnaitreCoef']]
+       ['2.5.2','startSynLibre'],['2.5.3','startReconnaitreCoef']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -3062,6 +3062,7 @@ function exercices(suite){
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
     syntheseAugLibreRedigee(w, P);
+    syntheseToutesFamillesRedigee(w, P);
     verificationAvecPropositions(w, P);
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
@@ -6238,6 +6239,194 @@ function syntheseAugLibreRedigee(w, P){
   if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
     const p=mesure.split('|');
     console.log('   · la plus longue règle du 2.2.9 : '+p[1]+' caractères pour '+bornes.attendu
+      +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
+  }
+}
+/* {synthese-pourcentages-libre} (2.5.2) — la synthèse des TROIS familles,
+   rédigée. C'est le 2.5.1 posé sur le moteur du 2.2.9 : le tirage vient de
+   genSyn SANS famille imposée, la justification s'écrit dans la feuille, et
+   la troisième famille — « prendre P % » — arrive ainsi dans un juge qui ne
+   connaissait que les évolutions. Cinq bords, et n'en tenir qu'un ne tient
+   rien :
+     · le TIRAGE : les trois inconnues chacune une fois, et les trois
+       familles qui sortent — une synthèse qui n'en tirerait qu'une aurait
+       perdu son sujet ;
+     · le JUGE sur « prendre P % » : la multiplication par le coefficient,
+       le quotient SIMPLIFIÉ qui retrouve le pourcentage, et le refus de ce
+       qui ne montre rien — une recopie, une tautologie, une addition ;
+     · le bord OPPOSÉ, dans le même exercice : une hausse ou une baisse
+       garde sa voie par l'addition ou la soustraction ;
+     · l'ÉCRAN dit ce que le juge accepte — l'étiquette de la feuille ne
+       promet pas d'addition là où le juge la refuse, et la promet là où il
+       l'accepte ;
+     · la RÈGLE envoyée au modèle, sa borne de troncature, et l'identité. */
+function syntheseToutesFamillesRedigee(w, P){
+  const present = evaluer(w, "typeof startSynLibre==='function' && typeof salJuge==='function' && typeof salVoiesTexte==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la synthèse des pourcentages rédigée : les trois familles, le juge et l\'écran',
+      'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+    return;
+  }
+  let bornes;
+  try{
+    const srcF = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = srcF.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = srcF.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a) bornes = { question:+q[1], attendu:+a[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier('la synthèse des pourcentages rédigée : les trois familles, le juge et l\'écran',
+      false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, 'la synthèse des pourcentages rédigée : les trois familles, le juge et l\'écran', `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='synthese-pourcentages-libre';
+
+    /* ---- 1. le TIRAGE : les trois inconnues, et les trois familles ---- */
+    const fams={};
+    for(let t=0;t<40 && !vus.length;t++){
+      startSynLibre();
+      if(test.qId!=='synthese-pourcentages-libre'){ vus.push('le démarreur ne pose pas son identité : « '+test.qId+' »'); break; }
+      if(test.kind!=='sal'){ vus.push('le démarreur ne passe pas par le moteur rédigé : kind « '+test.kind+' »'); break; }
+      const incs=test.questions.map(function(q){ return q.inc; });
+      ['fin','ini','pct'].forEach(function(inc){
+        if(incs.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas');
+      });
+      test.questions.forEach(function(q){ fams[q.fam]=1; });
+    }
+    ['pct','aug','dim'].forEach(function(f){
+      if(!fams[f]) vus.push('la famille « '+f+' » ne sort jamais : la synthèse a perdu une de ses trois familles');
+    });
+
+    /* ---- 2. le JUGE, cas par cas, sur des questions ÉPINGLÉES ----
+       « prendre 30 % de 600 = 180 », vue par ses trois inconnues. */
+    const qRes={fam:'pct',inc:'fin',sens:0,P:30,N:600,res:180,result:180,unit:'€',opts:[120,180,200,240],bon:1,choisi:1,ci:0,v:0};
+    const qVal={fam:'pct',inc:'ini',sens:0,P:30,N:600,res:180,result:180,unit:'€',opts:[400,500,600,700],bon:2,choisi:2,ci:0,v:0};
+    const qTx ={fam:'pct',inc:'pct',sens:0,P:30,N:600,res:180,result:180,unit:'€',opts:[20,25,30,35],bon:2,choisi:2,ci:0,v:0};
+    /* le bord OPPOSÉ : les évolutions gardent leurs voies dans CE moteur */
+    const qAug={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0};
+    const qDim={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
+    const cas=[
+      ['prendre : la multiplication',              qRes, 1, '0,3 × 600 = 180',            true, true ],
+      ['prendre : l\\'ordre des facteurs est libre',qRes, 1, '600 × 0,3 = 180',            true, true ],
+      ['prendre : le coefficient en fraction',     qRes, 1, '30/100 × 600 = 180',         true, true ],
+      ['prendre : la fraction simplifiée en chemin',qRes,1, '30/100 × 600 = 3/10 × 600 = 180', true, true ],
+      ['prendre : recopier le résultat ne justifie rien', qRes, 1, '180',                 true, false],
+      ['prendre : une égalité fausse',             qRes, 1, '0,3 × 600 = 200',            true, false],
+      ['prendre : une addition ne vérifie rien',   qRes, 1, '600 + 180 = 780',            true, false],
+      ['prendre : une soustraction ne vérifie rien',qRes,1, '780 − 600 = 180',            true, false],
+      ['prendre : le quotient simplifié donne le pourcentage', qTx, 2, '180/600 = 3/10 = 30/100', true, true ],
+      ['prendre : le quotient égalé au décimal',   qTx,  2, '180/600 = 0,3',              true, true ],
+      ['prendre : la tautologie ne nomme rien',    qTx,  2, '180/600 = 180/600',          true, false],
+      ['prendre : le quotient sur une mauvaise proposition', qTx, 3, '180/600 = 30/100',  true, false],
+      ['prendre : retrouver la valeur',            qVal, 2, '0,3 × 600 = 180',            true, true ],
+      ['prendre : la valeur choisie ne convient pas', qVal, 1, '0,3 × 500 = 150',         true, false],
+      ['prendre : une écriture inconnue laisse décider le modèle', qRes, 1, 'j\\'ai fait le calcul', false, null ],
+      ['hausse : la voie de l\\'augmentation vit toujours', qAug, 1, '0,05 × 600 = 30\\n600 + 30 = 630', true, true ],
+      ['hausse : le coefficient',                  qAug, 1, '1,05 × 600 = 630',           true, true ],
+      ['baisse : la voie de la diminution vit toujours', qDim, 1, '0,05 × 600 = 30\\n600 − 30 = 570', true, true ],
+      ['baisse : le quotient',                     qDim, 1, '570/600 = 95/100',           true, true ],
+    ];
+    cas.forEach(function(c){
+      const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
+      const j=salJuge(q, c[3]);
+      if(j.sait!==c[4]) vus.push('juge « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[4]);
+      else if(c[4] && j.correct!==c[5]) vus.push('juge « '+c[0]+' » : correct='+j.correct+' au lieu de '+c[5]);
+    });
+    /* le refus d'une soustraction sur « prendre P % » ne doit pas parler de
+       diminution : l'élève chercherait une baisse que personne ne lui demande */
+    if(!vus.length){
+      const q=JSON.parse(JSON.stringify(qRes)); q.choisi=1;
+      const j=salJuge(q,'780 − 600 = 180');
+      if(/diminution|augmentation|soustraction|addition/.test(j.phrase||''))
+        vus.push('le refus sur « prendre P % » parle d\\'évolution : « '+j.phrase+' »');
+      if((j.phrase||'').indexOf('multiplication')<0 || (j.phrase||'').indexOf('quotient')<0)
+        vus.push('le refus sur « prendre P % » ne nomme pas les deux voies : « '+j.phrase+' »');
+      const j2=salJuge(JSON.parse(JSON.stringify(qRes)),'0,3 × 600 = 200');
+      if(!j2.phrase || j2.phrase.indexOf('200')<0) vus.push('le refus d\\'une égalité fausse ne la nomme pas');
+    }
+
+    /* ---- 3. l'ÉCRAN dit ce que le juge accepte ---- */
+    if(!vus.length){
+      startSynLibre();
+      /* on lit l'ÉTIQUETTE de la feuille, pas l'écran entier : l'indication
+         qui la suit parle elle aussi d'addition, et masquerait une étiquette
+         qui aurait cessé de nommer les voies — le contrôle serait resté vert
+         en parlant d'autre chose (vu au sabotage). L'écran entier garde un
+         bord à lui : rien n'y promet d'addition sur « prendre P % ». */
+      const lire=function(fam){
+        test.questions=[genSyn(fam,'fin')]; test.idx=0; test.locked=false;
+        renderSal();
+        const labs=[].slice.call($('salHost').querySelectorAll('.pt-lab'))
+          .map(function(e){ return String(e.textContent||''); })
+          .filter(function(t){ return t.indexOf('justifie')>=0; });
+        return { lab: labs.join(' '), tout: String($('salHost').textContent||'') };
+      };
+      const tPct=lire('pct');
+      if(!tPct.lab) vus.push('sur « prendre P % », la feuille n\\'a plus d\\'étiquette : le contrôle n\\'a rien à mesurer');
+      if(tPct.lab.indexOf('multiplication')<0 || tPct.lab.indexOf('quotient')<0)
+        vus.push('sur « prendre P % », l\\'étiquette ne nomme pas les voies que le juge accepte : « '+tPct.lab+' »');
+      if(/addition|soustraction/.test(tPct.tout))
+        vus.push('sur « prendre P % », l\\'écran promet une addition ou une soustraction que le juge refuse');
+      const tAug=lire('aug');
+      if(!tAug.lab || tAug.lab.indexOf('coefficient')<0 || tAug.lab.indexOf('addition')<0)
+        vus.push('sur une hausse, l\\'étiquette ne propose plus le coefficient et l\\'addition : « '+tAug.lab+' »');
+      const tDim=lire('dim');
+      if(!tDim.lab || tDim.lab.indexOf('coefficient')<0 || tDim.lab.indexOf('soustraction')<0)
+        vus.push('sur une baisse, l\\'étiquette ne propose plus le coefficient et la soustraction : « '+tDim.lab+' »');
+      if(!salFeuille || !salFeuille.lignes.length)
+        vus.push('la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
+    }
+
+    /* ---- 4. la règle envoyée au modèle, famille par famille ---- */
+    let pireQ=0, pireA=0, pireEti='';
+    const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul : « 0,3 × 600 = 200 ». Reprends cette ligne.'};
+    for(let i=0;i<120 && !vus.length;i++){
+      const fam=['pct','aug','dim'][i%3];
+      const q=genSyn(fam, ['fin','ini','pct'][(i/3|0)%3]); q.choisi=(i%2===0)?q.bon:((q.bon+1)%4);
+      const e=salEnonceIA(q), a=salAttenduIA(q, (i%4===0)?jugeMesure:null), c=salCouple(q);
+      if(e.length>pireQ) pireQ=e.length;
+      if(a.length>pireA){ pireA=a.length; pireEti=fam+' '+q.inc+' '+c.P+'% de '+c.N; }
+      const eti='('+fam+', '+q.inc+') ';
+      const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
+      if(regle.indexOf(c.coefStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la multiplication '+c.coefStr+' × '+c.N); break; }
+      if(regle.indexOf(c.finStr+'/'+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie du quotient '+c.finStr+'/'+c.N); break; }
+      if(fam==='pct'){
+        if(/ET au moins une (addition|soustraction)/.test(regle)){ vus.push(eti+'la règle réclame une addition sur « prendre P % »'); break; }
+        if(regle.indexOf('PAS de voie par l’addition')<0){ vus.push(eti+'la règle ne dit pas qu\\'il n\\'y a pas de voie par l\\'addition'); break; }
+      } else {
+        if(regle.indexOf(c.pDecStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit plus la voie de l\\'évolution '+c.pDecStr+' × '+c.N); break; }
+        if(regle.indexOf(fam==='aug'?'addition':'soustraction')<0){ vus.push(eti+'la règle n\\'exige plus l\\'opération de la seconde voie'); break; }
+      }
+      if(!/sans aucun calcul, est REFUSÉ/.test(regle)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
+      if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
+      if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
+      if((i%4===0) && (a.indexOf('VERDICT DE LA PAGE')<0 || a.indexOf('PRIORITAIRE')<0)){ vus.push(eti+'le verdict du juge ne part plus avec la règle'); break; }
+      if(e.indexOf(QLET[q.choisi]+')')<0){ vus.push(eti+'l\\'énoncé envoyé ne dit pas ce que l\\'élève a choisi'); break; }
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');
+    if(!vus.length && pireQ>B.question-300)
+      vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
+
+    /* ---- 5. l'identité : « Recommencer » relance CETTE synthèse, et les
+       deux voisines gardent la leur — trois exercices sur UN moteur, la
+       note, le rappel et les questions à l'IA suivent l'identifiant. Le
+       repli d'un qId inconnu reste le 2.2.9, comme avant. ---- */
+    test.kind='sal'; test.qId='synthese-pourcentages-libre'; restartCurrentTest();
+    if(test.qId!=='synthese-pourcentages-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des pourcentages');
+    test.kind='sal'; test.qId='synthese-augmentations-libre'; restartCurrentTest();
+    if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » sur le 2.2.9 relance « '+test.qId+' »');
+    test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
+    if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.8 relance « '+test.qId+' »');
+
+    return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
+  })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
+  if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
+    const p=mesure.split('|');
+    console.log('   · la plus longue règle du 2.5.2 : '+p[1]+' caractères pour '+bornes.attendu
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
 }

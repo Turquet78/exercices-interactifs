@@ -204,6 +204,14 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'multiplication-posee', champ: '.mp-box', valeur: '9' },
+    /* {synthese-pourcentages-libre} (2.5.2) — la synthèse des TROIS familles,
+       rédigée. Le banc navigateur TAPE la justification dans la vraie feuille
+       MathLive : la voie de la fraction simplifiée (« 180/600 = 30/100 »)
+       n'existe que si la sérialisation réelle repasse par le juge, et jsdom,
+       qui pose des chaînes qu'il écrit lui-même, ne mesure pas cela. Il tient
+       aussi le bord du VERDICT : le double répond toujours « correct:false »,
+       et le juge de la page doit primer. */
+    syntheseRedigee: { exercice: 'synthese-pourcentages-libre' },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
@@ -249,7 +257,7 @@ module.exports = {
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
                                   '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
-                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8) est hors
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8, 2.5.2) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
                          les fractions de l'énoncé — il est donc nommé ici plutôt que
