@@ -2121,7 +2121,7 @@ réglage général (460 px) alors qu'il porte DIX questions — ses graduations
 n'étaient plus lisibles —, et la droite de g, tracée d'un bord à l'autre du
 cadre, SORTAIT du quadrillage par le haut, son étiquette posée sur les
 graduations. Elle est coupée au cadre, et le dessin passe à 760 px.
-Le banc NAVIGATEUR (« 6 vicies quater », déclaré par `syntheseFonction`) tient
+Le banc NAVIGATEUR (« 6 vicies quinquies », déclaré par `syntheseFonction`) tient
 ce que jsdom ne voit pas : la courbe qui s'arrête à son domaine — mesurée
 contre les GRADUATIONS RENDUES, aucune coordonnée recopiée —, ses deux bouts
 marqués, la droite et la légende, la copie juste CLIQUÉE sur les quatre
@@ -2290,7 +2290,7 @@ pas ∅, n'est pas vérifiée : rien n'est peint, une case vide ne rougit jamais
 Écrire ∅ SANS rien sélectionner est une RÉPONSE — « il n'y a pas de point » —
 et se juge comme telle. Le bouton des tables n'y est pas : on ne multiplie
 rien, on lit.
-**Le banc navigateur CLIQUE les cibles pour de vrai** (« 6 vicies ter »,
+**Le banc navigateur CLIQUE les cibles pour de vrai** (« 6 vicies sexies »,
 déclaré par `solutionsGraphique` dans `tests/profils.js`) — ronds et carrés à
 zone de saisie invisible, d'au moins 20 px chacune — et lit le verdict à
 l'encre RENDUE : la cible juste bleue, le point en trop rouge, l'abscisse
@@ -6865,6 +6865,63 @@ sélecteur « suivant » ne désigne rien, et un contrôle lit le SOURCE du prof
 en suivant la profondeur des accolades pour nommer la clé en double. Trouvé en
 nettoyant : `main` en portait déjà deux, arrivées par un script de restauration
 qui réinsérait des entrées déjà présentes.
+
+**Un NUMÉRO de section du banc ne désigne qu'une section — et un en-tête qui
+n'imprime pas son titre est pire qu'un titre absent.** Les numéros
+(« 6 vicies ter », « 11 quater ») ne pilotent rien : ils servent à RETROUVER
+une section, dans la sortie du banc et dans les paragraphes de ce fichier qui
+la citent. Trois étaient ambigus, et aucun ne cassait quoi que ce soit —
+c'est pour cela qu'ils ont vécu des mois. « 6 octodecies » désignait la
+récurrence rédigée ET {placer-image} ; « 6 vicies ter » le 4.6 ET
+{solutions-graphique} ; et « 6 vicies quater » vivait dans l'en-tête de
+{synthese-fonction} sans qu'aucun `titre()` ne l'imprime — ses quatre
+contrôles se rangeaient donc sous le titre de la section d'AVANT (« 6 quater
+ter. LES TROIS FORMES DU TABLEAU DE VARIATION »), pendant que ce même numéro
+était imprimé, lui, par {ecrire-solutions}. **Un contrôle qui s'affiche sous
+le nom d'un autre est pire qu'un contrôle sans nom** : le jour où il rougit,
+on va corriger l'exercice qu'il ne mesure pas.
+Les numéros GARDÉS sont ceux que ce fichier citait déjà (le 4.6 garde
+« 6 vicies ter », {ecrire-solutions} « 6 vicies quater ») ; les trois autres
+sections ont pris le numéro libre suivant — {synthese-fonction}
+« 6 vicies quinquies », {solutions-graphique} « 6 vicies sexies »,
+{placer-image} « 6 vicies septies » —, et les deux citations concernées ont
+suivi le jour même.
+**La famille des « 6 … » n'est PAS remise dans l'ordre d'exécution, et le dire
+vaut mieux que de le taire** : ses quarante-cinq numéros ont été attribués au
+fil des demandes, si bien que « 6 quindecies » tourne entre « 6 sexies » et
+« 6 septies ». Les remettre en ordre aurait réécrit vingt-et-une citations de
+ce fichier — sa mémoire — pour zéro gain de lecture : la sortie se lit de haut
+en bas, pas par numéro. Ce qui est réparé est l'AMBIGUÏTÉ, qui trompe ; pas le
+désordre, qui ne trompe personne.
+**Et c'est un contrôle qui tient les bords, parce que la vigilance ne les
+tiendra pas** : le banc navigateur lit sa PROPRE source au démarrage (section
+« 0 ») et relève les numéros IMPRIMÉS par `titre()` comme ceux ANNONCÉS par un
+en-tête de commentaire. **Il lit dans les DEUX SENS, et il a fallu les deux —
+chacun laisse passer ce que l'autre attrape.** Un titre doit être annoncé par
+l'en-tête JUSTE AU-DESSUS de lui : ce sens nomme la moitié renommée seule, et
+l'ambiguïté d'origine (le titre d'une section annoncé par l'en-tête de la
+précédente). Et tout en-tête doit IMPRIMER son titre : ce sens-là seul voit un
+titre retiré — le sabotage l'a montré en restant VERT dans l'autre sens, à bon
+droit, un en-tête devenu muet ne se distinguant plus d'un sous-bloc.
+**Le premier jet ne tenait que ce second sens, et il a rougi sur du code
+JUSTE** — « 1 bis » (dans la section 1) et « 12 » (dans la section 11) sont des
+SOUS-BLOCS : leurs contrôles appartiennent à bon droit à la section qui les
+entoure, et elle imprime son titre. Un essai faux se reconnaît à ce qu'il
+rougit sur une page juste. Ils sont donc NOMMÉS dans le contrôle plutôt que de
+faire taire le bord — la règle des exemptions du projet —, et un cinquième
+contrôle exige que chaque nom désigne encore un en-tête, sans quoi une
+exemption survivrait à ce qu'elle protégeait.
+**Deux en-têtes ont dû gagner leur numéro pour que la mesure existe** : « 9
+bis » et « 10 » portaient leur doctrine en commentaire mais pas leur numéro sur
+la première ligne, et leur titre était donc rattaché à l'en-tête de la section
+d'avant. Le filet d'un en-tête s'écrit « ===== » ici et « ---- » là : le
+contrôle accepte les deux plutôt que d'imposer une convention de plus.
+Un dernier bord le garde honnête — il compte ce qu'il a trouvé et le DIT s'il
+n'a rien à mesurer : une expression régulière qui cesserait de reconnaître les
+titres le rendrait vert sur un banc entièrement dupliqué. Cinq sabotages,
+chacun rougissant en nommant son défaut (un numéro imprimé deux fois, un
+en-tête privé de son titre, une moitié renommée seule, la lecture des titres
+débranchée, un sous-bloc déclaré qui n'existe plus).
 
 **Un contrôle qui ne s'applique pas se déclare, il ne se retire pas.** Les trois
 fichiers ne savent pas faire les mêmes choses : `tests/profils.js` dit pour
