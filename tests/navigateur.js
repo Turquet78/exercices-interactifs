@@ -5827,7 +5827,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -5888,6 +5888,19 @@ async function parcours(page, N){
                contexte du modèle — un innerHTML posé par un rendu y échappe. */
             const brut = (on.textContent || '').match(/\{[a-z0-9-]+\}/g) || [];
             const connus = brut.filter(m => TESTS[m.slice(1, -1)]);
+            /* ET AUCUN GABARIT NON INTERPRÉTÉ NE DOIT ATTEINDRE L'ÉLÈVE.
+               Une expression « ${…} » écrite dans une chaîne à guillemets
+               SIMPLES n'est pas interpolée : elle s'affiche en toutes lettres.
+               Payé comptant — le 1.6 a servi « ${fEq(` » autour de sa case
+               pendant une mise en ligne, et aucun contrôle ne l'a vu : la case
+               existait (innerHTML l'avait bien construite), le verdict était
+               juste, seul le TEXTE autour était du code. Le contrôle des
+               accolades d'à côté ne visait que les {identifiant} connus.
+               On mesure ICI, sur tous les exercices visités, dans les deux
+               modes : celui qu'on écrira demain est couvert sans rien
+               déclarer. */
+            const gabarits = [...new Set(((on.textContent || '')
+              .match(/\$\{[^}]{0,40}\}?|`\)\}/g) || []).map(x => x.slice(0, 30)))];
             /* Une case où l'élève écrit s'écrit à la MÊME TAILLE que les nombres
                qui l'entourent (décision de Turquet, août 2026, valable pour tout
                exercice à saisie) : une case plus petite fait passer la réponse de
@@ -6015,12 +6028,13 @@ async function parcours(page, N){
                       const cs=getComputedStyle(w);
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
-                    accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)],
+                    accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
+          if(vu.gabarits && vu.gabarits.length) gabarits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') : ' + vu.gabarits.join(' '));
           /* 8 px de marge : on compare à la largeur DISPONIBLE, donc un cadre
              plein vaut exactement celle-ci, aux arrondis près. */
           if(mode === 'train' && vu.cadre && vu.cadre.c < vu.cadre.w - 8)
@@ -6126,6 +6140,9 @@ async function parcours(page, N){
          accolades restées visibles. */
       verifier('aucune référence {identifiant} ne reste affichée à l\'élève',
         accolades.length === 0, accolades.join(' | '));
+      /* Le même défaut par l'autre porte : du CODE affiché à l'élève. */
+      verifier('aucun gabarit « ${…} » non interprété ne reste affiché à l\'élève',
+        gabarits.length === 0, gabarits.join(' | '));
       /* La Terminale donne à ses cartes une largeur propre (--card-max, avec
          ses paliers) : elle ne déclare pas ce contrôle, et le banc le dit au
          lieu de le taire — un contrôle qui ne s'applique pas se déclare. */

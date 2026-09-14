@@ -4755,6 +4755,24 @@ des « top » (une case et le texte qui la précède sont centrés l'un sur l'au
 donc leurs hauts diffèrent toujours de quelques pixels — un compteur qui lirait
 « top » crierait au repli sur des lignes parfaitement droites), à une largeur où
 la rangée SE REPLIE pour de vrai, ce qu'il exige aussi.
+**ET UN DÉFAUT EST PARTI EN LIGNE AVEC CE CORRECTIF — du CODE affiché à
+l'élève.** La transformation qui a posé les groupes supposait que chaque rangée
+était écrite dans un GABARIT (`` ` ``), et une seule ne l'était pas : le premier
+niveau du 1.6 assemble sa ligne à guillemets SIMPLES. Le `${fEq(…)}` inséré là
+n'est pas interpolé — il s'affiche en toutes lettres, et l'élève lisait
+« ${fEq(` » autour de sa case pendant une mise en ligne entière.
+**Aucun banc ne pouvait le voir, et c'est ce qui compte** : la case existait
+quand même (l'`innerHTML` avait bien construit le `<math-field>` qui vivait
+DANS le texte littéral), donc le rendu, la correction et la note étaient
+justes ; seul le TEXTE autour était du code. Le contrôle voisin des accolades
+ne vise que les `{identifiant}` CONNUS, et le banc jsdom ne lit pas ce qui
+s'affiche. Un contrôle universel le tient désormais, greffé sur la visite qui
+ouvre tous les exercices dans les deux modes : **aucun gabarit « ${…} » non
+interprété ne reste affiché à l'élève** — l'exercice qu'on écrira demain est
+couvert sans rien déclarer. La leçon est celle de la règle 3, une fois de
+plus : une transformation mécanique se relit sur ce qu'elle PRODUIT, pas sur
+ce qu'elle suppose de son entrée.
+
 **Et le contrôle s'est pris en défaut deux fois avant la page.** Il lisait le
 PREMIER `.f-whole` du groupe comme sa tête — or la case d'une somme de fractions
 en contient elle-même, le numérateur écrit devant son multiplicateur, et il
