@@ -305,6 +305,82 @@ async function parcours(page, N){
   console.log('Navigateur réel — ' + CIBLE + '  (' + P.niveau + ')');
   const N = P.navigateur;
 
+  /* ===== 0. la numérotation du banc =====
+     Les numéros de section (« 6 vicies ter », « 11 quater ») ne pilotent rien :
+     ils servent à RETROUVER une section, dans cette sortie et dans les
+     paragraphes de CLAUDE.md qui la citent. Deux d'entre eux désignaient donc
+     deux sections à la fois — « 6 octodecies » et « 6 vicies ter » —, et un
+     TROISIÈME, « 6 vicies quater », vivait dans l'en-tête de la synthèse sans
+     qu'aucun titre() ne l'imprime : ses quatre contrôles se rangeaient sous le
+     titre de la section d'AVANT. Rien ne cassait, et c'est précisément pour ça
+     que personne ne l'avait vu — un contrôle qui s'affiche sous le nom d'un
+     autre est pire qu'un contrôle sans nom : on va corriger l'exercice qu'il ne
+     mesure pas.
+     Le banc lit donc sa PROPRE source, dans les DEUX SENS — et il a fallu
+     les deux, chacun laissant passer ce que l'autre attrape. Un titre est
+     ANNONCÉ par l'en-tête juste au-dessus de lui : ce sens nomme la moitié
+     renommée seule, et l'ambiguïté d'origine (le titre d'une section annoncé
+     par l'en-tête de la précédente). Et tout en-tête IMPRIME son titre : ce
+     sens-là seul voit un titre retiré — pris dans l'autre sens, un en-tête
+     devenu muet ne se distingue plus d'un sous-bloc et le sabotage reste vert.
+     Les SOUS-BLOCS sont donc NOMMÉS ici plutôt que de faire taire le bord :
+     « 1 bis » vit dans la section 1 et « 12 » dans la section 11, leurs
+     contrôles appartiennent à bon droit à la section qui les entoure. Un
+     sous-bloc ajouté demain rougit et se déclare ici — et le second contrôle
+     de la liste exige que chaque nom désigne encore un en-tête, sans quoi une
+     exemption survivrait à ce qu'elle protégeait.
+     Un contrôle qui n'a rien à mesurer le DIT plutôt que de passer. */
+  titre('0. LA NUMÉROTATION DU BANC');
+  {
+    const src = fs.readFileSync(__filename, 'utf8');
+    /* les en-têtes ANNONCÉS et les titres IMPRIMÉS, dans l'ordre de la source ;
+       le filet d'un en-tête s'écrit « ===== » ou « ---- » selon l'endroit. */
+    const ev = [];
+    let m;
+    const reC = /\/\*[ \t]*(?:=+|-+)[ \t]*([0-9]+(?: [a-z]+)*)\. /g;
+    while((m = reC.exec(src))) ev.push({ p: m.index, t: 'a', n: m[1] });
+    const reT = /titre\(.([0-9]+(?: [a-z]+)*)\. /g;
+    while((m = reT.exec(src))) ev.push({ p: m.index, t: 'T', n: m[1] });
+    ev.sort((a, b) => a.p - b.p);
+    const imprimes = ev.filter(e => e.t === 'T').map(e => e.n);
+    const annonces = ev.filter(e => e.t === 'a').length;
+    const doubles = imprimes.filter((v, i) => imprimes.indexOf(v) !== i);
+    const orphelins = [];
+    for(let i = 0; i < ev.length; i++){
+      if(ev[i].t !== 'T') continue;
+      let j = i - 1; while(j >= 0 && ev[j].t !== 'a') j--;
+      const an = j >= 0 ? ev[j].n : '(aucun)';
+      if(an !== ev[i].n) orphelins.push('« ' + ev[i].n + ' » annoncé par « ' + an + ' »');
+    }
+    verifier('le banc a des numéros de section à mesurer',
+      imprimes.length >= 40 && annonces >= 40,
+      annonces + ' en-tête(s), ' + imprimes.length + ' titre(s)');
+    verifier('aucun numéro ne désigne deux sections',
+      doubles.length === 0,
+      'numéro(s) imprimé(s) deux fois : ' + doubles.map(v => '« ' + v + ' »').join(', '));
+    verifier('chaque titre est annoncé par l\'en-tête juste au-dessus de lui',
+      orphelins.length === 0,
+      orphelins.join(' | '));
+    /* les sous-blocs : un en-tête numéroté qui vit DANS une section et dont les
+       contrôles s'affichent, à bon droit, sous le titre de celle-ci. */
+    const SOUS_BLOCS = ['1 bis', '12'];
+    const muets = [];
+    for(let i = 0; i < ev.length; i++){
+      if(ev[i].t !== 'a') continue;
+      let j = i + 1; while(j < ev.length && ev[j].t !== 'T') j++;
+      if(j >= ev.length || ev[j].n !== ev[i].n) muets.push(ev[i].n);
+    }
+    const inattendus = muets.filter(v => SOUS_BLOCS.indexOf(v) < 0);
+    const perimes = SOUS_BLOCS.filter(v => !ev.some(e => e.t === 'a' && e.n === v));
+    verifier('chaque en-tête de section imprime bien son titre',
+      inattendus.length === 0,
+      'en-tête(s) sans titre : ' + inattendus.map(v => '« ' + v + ' »').join(', ')
+      + ' — un sous-bloc se déclare dans SOUS_BLOCS');
+    verifier('chaque sous-bloc déclaré désigne encore un en-tête',
+      perimes.length === 0,
+      'nom(s) périmé(s) dans SOUS_BLOCS : ' + perimes.map(v => '« ' + v + ' »').join(', '));
+  }
+
   /* ===== 1. la page s'ouvre ===== */
   titre('1. OUVERTURE DE LA PAGE');
   let s = null;
@@ -959,7 +1035,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies quater. LA SYNTHÈSE : un seul dessin, dix questions =====
+    /* ===== 6 vicies quinquies. LA SYNTHÈSE : un seul dessin, dix questions =====
        Demande de Turquet (septembre 2026, fiche « Synthèse fonction »). jsdom
        tient le tirage et le juge ; seul un navigateur sait ce que le dessin
        MONTRE — la courbe tracée sur son seul domaine, ses deux bouts marqués,
@@ -967,6 +1043,7 @@ async function parcours(page, N){
        coupée en deux se lirait comme deux solutions (la leçon du 2.18). Les
        mesures se font contre les GRADUATIONS RENDUES, jamais sur une
        coordonnée recopiée (la leçon du schéma des intervalles). */
+    titre('6 vicies quinquies. LA SYNTHÈSE : UN SEUL DESSIN, DIX QUESTIONS');
     if(!P.syntheseFonction){
       ignorer('la synthèse : la courbe s\'arrête à son domaine, et la ligne de solution ne se replie pas',
         'ce niveau n\'a pas l\'exercice de synthèse');
@@ -4805,14 +4882,14 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 vicies ter. solutions de f(x) = k : les cibles se CLIQUENT ===== */
+    /* ===== 6 vicies sexies. solutions de f(x) = k : les cibles se CLIQUENT ===== */
     /* {solutions-graphique}, porté du 4.5 de la Terminale : les points de la
        courbe et les abscisses de l'axe se cliquent sur le dessin — ronds et
        carrés à zone de saisie invisible —, et les couleurs du verdict se
        lisent à l'encre RENDUE (bleu juste, rouge en trop, vert oublié). jsdom
        n'a pas de mise en page : le clic et l'encre ne se voient qu'ici. Le
        banc principal, lui, appelle les bascules à la main. */
-    titre('6 vicies ter. SOLUTIONS DE f(x) = k : LES CIBLES SE CLIQUENT');
+    titre('6 vicies sexies. SOLUTIONS DE f(x) = k : LES CIBLES SE CLIQUENT');
     if(!P.solutionsGraphique){
       ignorer('les cibles se cliquent sur le dessin, le verdict se lit à l\'encre',
         'ce niveau n\'a pas l\'exercice des solutions sur le graphique');
@@ -5168,7 +5245,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 octodecies. placer le point, lire l'image : le graphe se CLIQUE ===== */
+    /* ===== 6 vicies septies. placer le point, lire l'image : le graphe se CLIQUE ===== */
     /* Le calcul clic → nœud est calibré sur les GRADUATIONS du SVG rendu —
        la seule façon de le voir est de cliquer pour de vrai (la leçon de
        {construire-fonction} : jsdom n'a pas de mise en page). D'abord la
@@ -5178,7 +5255,7 @@ async function parcours(page, N){
        BON nœud, un point décalé d'un tiers de maille (il s'accroche au plus
        proche), on vérifie 4/4 ; puis un point FAUX pour voir le bon point en
        vert ; et le retrait, qui redésactive les cases sans les vider. */
-    titre('6 octodecies. PLACER LE POINT, LIRE L\'IMAGE : LE GRAPHE SE CLIQUE');
+    titre('6 vicies septies. PLACER LE POINT, LIRE L\'IMAGE : LE GRAPHE SE CLIQUE');
     if(!P.placerImage){
       ignorer('le point se pose au clic, les cases attendent le point',
         'ce niveau n\'a pas l\'exercice du point à placer');
@@ -5965,7 +6042,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ---- Les couleurs de la vérification : JUSTE en bleu, FAUX en rouge, la
+    /* ---- 9 bis. Les couleurs de la vérification : JUSTE en bleu, FAUX en rouge, la
        CORRECTION en vert (décision de Turquet, août 2026). Les classes ne
        suffisent pas : « ok » peut rester posé pendant qu'une feuille de styles
        le peint encore en vert — c'est un défaut de PEINTURE, et seul un
@@ -6043,7 +6120,7 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ---- Les retours à la ligne du modèle arrivent-ils à l'écran ? --------
+    /* ---- 10. Les retours à la ligne du modèle arrivent-ils à l'écran ? ----
        Le modèle a pour consigne d'aller à la ligne souvent — une étape par
        ligne, une ligne vide entre deux parties. Cette consigne a DEUX moitiés,
        et la seconde est muette : le modèle peut obéir parfaitement pendant que
