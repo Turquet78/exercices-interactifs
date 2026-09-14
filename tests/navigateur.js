@@ -3196,8 +3196,14 @@ async function parcours(page, N){
                n'est pas une tête ; elle reste facultative */
             const enf = [...g.children];
             const t = (enf[1] && enf[1].classList && enf[1].classList.contains('f-whole')) ? enf[1] : null;
-            const c = g.querySelector('math-field');
-            if(!c || !vu(c)){ casse.push('un groupe sans case visible'); continue; }
+            /* CE QUE LE « = » ANNONCE est une CASE ou une FRACTION : le maillon
+               « 3 = 3/1 » d'une somme est écrit par la page, sans case, et son
+               « = » ne doit pas rester seul en fin de ligne pour autant. Exiger
+               une case ici accusait une page juste — et seulement quand le
+               tirage donnait un terme ENTIER, donc par intermittence : un
+               contrôle intermittent est un contrôle qui parle d'autre chose. */
+            const c = g.querySelector('math-field, .f-frac-input, .f-frac');
+            if(!c || !vu(c)){ casse.push('un groupe qui n annonce rien de visible'); continue; }
             if(!t || !vu(t)) continue;            /* la tête est facultative */
             const a = t.getBoundingClientRect(), b = c.getBoundingClientRect();
             /* MÊME LIGNE se mesure par le RECOUVREMENT vertical, jamais par
