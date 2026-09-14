@@ -1983,7 +1983,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=216;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=217;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -8667,15 +8667,16 @@ async function finishDim(){
 
 /* ---------- 2.2.7 : une hausse suivie d'une autre hausse ----------
    Le miroir de 2.3.7, et le même piège : deux hausses ne s'additionnent pas.
-   +40 % puis +4 % fait +45,6 %, pas +44 % — la seconde hausse porte sur la
+   +20 % puis +30 % fait +56 %, pas +50 % — la seconde hausse porte sur la
    valeur DÉJÀ augmentée, elle est donc plus grosse. À la baisse l'écart va
-   dans l'autre sens (42,4 < 44) ; c'est ce qui rend la paire d'exercices
-   intéressante.
-   LA POSE N'EST PAS CELLE DE 2.3.7. Les coefficients de hausse valent 1,4 et
-   1,04 : leurs numérateurs sont 14 et 104, soit trois chiffres × deux, quand
-   {mult-decimaux} ne sait poser que deux chiffres × un. C'est {mult-dec-un}
-   qui sait faire cette pose-là — produits partiels et décalage —, et
-   buildPoseU() la partage désormais entre les deux exercices. */
+   dans l'autre sens (−20 % puis −40 % fait −52 %, et non −60 %) ; c'est ce qui
+   rend la paire d'exercices intéressante.
+   LA POSE N'EST PAS CELLE DE 2.3.7. Les coefficients de hausse valent 1,5 et
+   1,02, ou 1,2 et 1,3 : leurs numérateurs sont 15 et 102, ou 12 et 13 — trois
+   chiffres × deux, ou deux × deux —, quand {mult-decimaux} ne sait poser que
+   deux chiffres × un. C'est {mult-dec-un} qui sait faire ces poses-là —
+   produits partiels et décalage —, et buildPoseU() les partage désormais
+   entre les deux exercices. */
 const HS_ENONCES=[
   q=>`${BS_CTX[q.ci].sujet} augmente de <b>${q.P1} %</b>, puis de <b>${q.P2} %</b>. Quelle est la hausse globale, en pourcentage ?`,
   q=>`${BS_CTX[q.ci].sujet} monte de <b>${q.P1} %</b>, puis subit une nouvelle hausse de <b>${q.P2} %</b>. Quelle est la hausse globale, en pourcentage ?`,
@@ -8684,27 +8685,71 @@ const HS_ENONCES=[
   q=>`${BS_CTX[q.ci].sujet} est augmenté${BS_CTX[q.ci].g==='f'?'e':''} de <b>${q.P1} %</b>, puis de <b>${q.P2} %</b>. Quelle est la hausse globale, en pourcentage ?`,
   q=>`${BS_CTX[q.ci].sujet} augmente une première fois de <b>${q.P1} %</b>, puis une seconde fois de <b>${q.P2} %</b>. Quelle est la hausse globale, en pourcentage ?`
 ];
-/* Même règle qu'en 2.3.7 : un seul chiffre non nul par hausse, et la paire mêle
-   un multiple de dix et un chiffre. Les numérateurs sont alors 1X (deux
-   chiffres, zéro final retiré) et 10X (trois chiffres) — exactement la forme
-   « trois chiffres × deux » que dessine buildPoseU(). */
-function genHausses(){
-  let Pd,Pu,nDix,nUn,d;
-  do{
-    Pd=pick([10,20,30,40,50,60,70,80,90]);
-    Pu=rand(1,9);
-    nDix=10+Pd/10;                              /* 1,40 -> 140/100 -> 14/10 */
-    nUn=100+Pu;                                 /* 1,04 -> 104/100          */
-    d=poseUDonnees(nUn,nDix,nUn*nDix);          /* le plus long en haut     */
-  }while(Object.keys(d.ppCarry).length+Object.keys(d.sumCarry).length===0);   /* au moins une retenue */
-  const dixDabord=pick([true,false]);
-  const P1=dixDabord?Pd:Pu, P2=dixDabord?Pu:Pd;
-  const fDix={num:nDix,den:10}, fUn={num:nUn,den:100};
-  const fA=dixDabord?fDix:fUn, fB=dixDabord?fUn:fDix;
-  const prodNum=nUn*nDix, prodDen=1000;
-  const hausseNum=prodNum-1000;                 /* 1456 - 1000 = 456 -> 45,6 % */
-  const q={P1,P2,Pd,Pu,nDix,nUn,fA,fB,prodNum,prodDen,hausseNum,
-    top:nUn, bot:nDix, ...d,
+/* LE COEFFICIENT GLOBAL S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES — demande de
+   Turquet (septembre 2026) : « je ne veux que des pourcentages qui ne donnent
+   comme coefficient global uniquement 2 ou 1 chiffres après la virgule »,
+   son exemple étant 1,02 × 1,50 = 1,53. Avant, +40 % puis +4 % donnait 1,456
+   et la hausse globale se lisait « 45,6 % ».
+   LA CONDITION SE DÉMONTRE, elle ne se tâtonne pas :
+   (100+P1)(100+P2) = 10000 + 100(P1+P2) + P1·P2, donc le produit des deux
+   coefficients a au plus deux décimales SI ET SEULEMENT SI P1·P2 est un
+   multiple de 100 — et la hausse globale est alors un nombre ENTIER de
+   pourcent. C'est très restrictif : avec la règle de 2.3.7 (un seul chiffre
+   non nul par taux), il faut un 5 et un multiple pair de dix, ou bien DEUX
+   multiples de dix. D'où une LISTE construite une fois pour toutes plutôt
+   qu'un do/while : un rejet en boucle sur un vivier aussi maigre ne dit
+   jamais combien de paires il reste, et le contrôle EXIGE que les deux
+   formes y soient — sans la mixte, plus aucune pose « trois chiffres × deux » ;
+   sans les dizaines, l'un des deux taux serait TOUJOURS 5 % ou 50 %.
+   LA GARDE « AU MOINS UNE RETENUE » EST RETIRÉE AVEC SA RAISON : sur ce
+   vivier-là elle écartait exactement les paires les plus parlantes — 10 %
+   puis 10 % fait 21 %, et non 20 % — et ne laissait des deux multiples de dix
+   que ceux dont la hausse globale dépasse 100 %. {mult-dec-un}, d'où
+   buildPoseU est extraite, n'a jamais eu cette garde ; le décalage, l'autre
+   enjeu de la pose, reste partout.
+   LA HAUSSE GLOBALE RESTE SOUS 100 %, comme avant : le tirage d'alors
+   plafonnait à +107,1 % (90 % puis 9 %), et sans cette borne deux multiples
+   de dix monteraient à +261 % (90 % puis 90 %) — aucune scène de BS_CTX ne
+   porte une hausse pareille. */
+const HS_TAUX=[1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90];
+/* Le coefficient d'une hausse, zéro final retiré comme la pose le demande :
+   1,40 → 14/10 ; 1,04 → 104/100. Le numérateur est donc toujours 1X ou 10X —
+   un 1 en tête, des zéros au milieu —, la seule forme que poseUDonnees sache
+   écrire EN BAS : elle ne pose que deux produits partiels. */
+function hsCoef(P){ return P%10===0 ? {num:10+P/10,den:10} : {num:100+P,den:100}; }
+const HS_PAIRES=(function(){
+  const l=[];
+  for(let i=0;i<HS_TAUX.length;i++) for(let j=i;j<HS_TAUX.length;j++){
+    const Pa=HS_TAUX[i], Pb=HS_TAUX[j];
+    if((Pa*Pb)%100!==0) continue;                        /* trois décimales ou plus */
+    const fa=hsCoef(Pa), fb=hsCoef(Pb);
+    if(fa.num*fb.num>=2*fa.den*fb.den) continue;         /* hausse globale ≥ 100 % */
+    l.push([Pa,Pb]);
+  }
+  return l;
+})();
+/* Les questions d'une séance portent des paires DISTINCTES : le vivier est
+   fini, et deux fois le même calcul dans la même séance se verrait. */
+function genHausses(dejaVues){
+  const prises=dejaVues||[];
+  const libres=HS_PAIRES.filter(p=>prises.indexOf(p.join('-'))<0);
+  const paire=pick(libres.length?libres:HS_PAIRES);
+  const ordre=pick([true,false]);                 /* rien ne dit lequel vient d'abord */
+  const P1=ordre?paire[0]:paire[1], P2=ordre?paire[1]:paire[0];
+  const fA=hsCoef(P1), fB=hsCoef(P2);
+  const dA=String(fA.num).length, dB=String(fB.num).length;
+  /* le plus long en haut, le plus grand à longueur égale — la règle de genU :
+     le bas garde ainsi la forme 1X / 10X, la seule que la pose sache écrire */
+  let top,bot;
+  if(dA>dB||(dA===dB&&fA.num>=fB.num)){ top=fA.num; bot=fB.num; } else { top=fB.num; bot=fA.num; }
+  const prodNum=fA.num*fB.num, prodDen=fA.den*fB.den;
+  const d=poseUDonnees(top,bot,prodNum);
+  /* la hausse en MILLIÈMES, l'unité d'avant : la correction la relit sur 10
+     pour le pourcentage et sur 1000 pour l'écriture décimale, et un brouillon
+     de pause d'avant ce changement se reprend sans rien savoir de la liste */
+  const hausseNum=(prodNum-prodDen)*(1000/prodDen);
+  const q={P1,P2,paire:paire.join('-'),fA,fB,prodNum,prodDen,hausseNum,
+    top,bot, ...d,
     c1:100+P1, c2:100+P2,
     coefStr:String(prodNum/prodDen).replace('.', ','),
     hausseStr:String(hausseNum/10).replace('.', ','),
@@ -8716,7 +8761,8 @@ async function startHausses(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
   test.kind='hs'; test.qId='hausses-successives';
-  test.questions=Array.from({length:EVOL_NB},genHausses);
+  test.questions=[]; const vues=[];
+  for(let i=0;i<EVOL_NB;i++){ const q=genHausses(vues); vues.push(q.paire); test.questions.push(q); }
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
   test.maxScore=test.questions.length;
@@ -13429,14 +13475,14 @@ Pour vérifier, on refait le calcul dans l’autre sens, exactement comme dans
 {augmenter-pourcentage} et {diminuer-pourcentage} : \\(1-\\frac{4}{100}=1-0{,}04=0{,}96\\).
 Si l’on retombe sur le coefficient donné, la réponse est la bonne.`;
 const RAP_HS=`<b>Une hausse suivie d’une autre hausse</b><br>
-Deux hausses <b>ne s’additionnent pas</b> : augmenter de 40 % puis de 4 %, ce n’est PAS augmenter de 44 %. La seconde hausse ne porte pas sur la valeur de départ, mais sur la valeur <b>déjà augmentée</b> — elle est donc plus grosse.<br>
+Deux hausses <b>ne s’additionnent pas</b> : augmenter de 20 % puis de 30 %, ce n’est PAS augmenter de 50 %. La seconde hausse ne porte pas sur la valeur de départ, mais sur la valeur <b>déjà augmentée</b> — elle est donc plus grosse.<br>
 On passe par les <b>coefficients multiplicateurs</b>, comme dans {augmenter-pourcentage} :<br>
-· augmenter de 40 %, c’est multiplier par 1 + 0,40 = <b>1,4</b> ;<br>
-· augmenter de 4 %, c’est multiplier par 1 + 0,04 = <b>1,04</b>.<br>
+· augmenter de 20 %, c’est multiplier par 1 + 0,20 = <b>1,2</b> ;<br>
+· augmenter de 30 %, c’est multiplier par 1 + 0,30 = <b>1,3</b>.<br>
 Enchaîner les deux, c’est multiplier par l’un <b>puis</b> par l’autre : le coefficient global est le <b>produit</b> des deux, et il se pose comme dans {mult-dec-un} — deux nombres qui commencent par 1, donc une multiplication en colonnes avec ses deux produits partiels et son décalage.<br>
-\\(1{,}4\\times 1{,}04=\\frac{14}{10}\\times \\frac{104}{100}=\\frac{1456}{1000}\\) = <b>1,456</b>.<br>
-Le coefficient global se relit en pourcentage : multiplier par 1,456, c’est <b>ajouter 45,6 %</b>. La hausse globale est <b>45,6 %</b> — plus que 44, alors qu’à la baisse on trouve <i>moins</i> que la somme.<br>
-Pour vérifier, refais le chemin dans l’autre sens : 1 + 0,456 = 1,456, le coefficient trouvé à l’étape ②.`;
+\\(1{,}2\\times 1{,}3=\\frac{12}{10}\\times \\frac{13}{10}=\\frac{156}{100}\\) = <b>1,56</b>.<br>
+Le coefficient global se relit en pourcentage : multiplier par 1,56, c’est <b>ajouter 56 %</b>. La hausse globale est <b>56 %</b> — plus que 50, alors qu’à la baisse on trouve <i>moins</i> que la somme.<br>
+Pour vérifier, refais le chemin dans l’autre sens : 1 + 0,56 = 1,56, le coefficient trouvé à l’étape ②.`;
 const RAP_SF=`<b>Additionner ou soustraire deux fractions</b><br>
 On ne peut additionner que des parts de MÊME taille : il faut donc le même dénominateur.<br>
 <b>① Mettre au même dénominateur.</b> On multiplie le haut ET le bas par le même nombre — la fraction ne change pas de valeur. Pour \\(\\frac{1}{2}\\) et \\(\\frac{1}{3}\\), le plus petit dénominateur commun est 6 : \\(\\frac{1}{2}=\\frac{1\\times 3}{2\\times 3}=\\frac{3}{6}\\), et \\(\\frac{1}{3}=\\frac{1\\times 2}{3\\times 2}=\\frac{2}{6}\\).<br>
