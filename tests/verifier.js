@@ -948,11 +948,17 @@ function structure(){
   catch(e){ erreurManif = e.message; }
   verifier('le manifeste ' + nomManif + ' existe et est du JSON valable', !!manif, erreurManif);
   const cibleNue = './' + CIBLE;
-  verifier('le manifeste ouvre CETTE page, en mode application',
+  /* Le MODE D'AFFICHAGE vit dans tests/profils.js — deux sources : lire la
+     valeur du fichier et la comparer à elle-même ne prouverait rien. La
+     Première demande « fullscreen » (la barre de navigation d'Android
+     disparaît, demande de Turquet, septembre 2026), les deux autres
+     « standalone ». */
+  const displayAttendu = P.manifeste && P.manifeste.display;
+  verifier('le manifeste ouvre CETTE page, en mode application ' + JSON.stringify(displayAttendu),
     !!manif && manif.start_url === cibleNue && typeof manif.scope === 'string' && manif.scope.startsWith(cibleNue)
-      && /^(standalone|fullscreen)$/.test(String(manif.display)) && !!manif.name && manif.lang === 'fr' && !!manif.id,
+      && manif.display === displayAttendu && !!manif.name && manif.lang === 'fr' && !!manif.id,
     !manif ? 'pas de manifeste' : 'start_url ' + JSON.stringify(manif.start_url) + ', scope ' + JSON.stringify(manif.scope)
-      + ', display ' + JSON.stringify(manif.display) + ', name ' + JSON.stringify(manif.name) + ', lang ' + JSON.stringify(manif.lang) + ', id ' + JSON.stringify(manif.id));
+      + ', display ' + JSON.stringify(manif.display) + ' (attendu : ' + JSON.stringify(displayAttendu) + '), name ' + JSON.stringify(manif.name) + ', lang ' + JSON.stringify(manif.lang) + ', id ' + JSON.stringify(manif.id));
   /* Les icônes : chaque fichier existe, est un PNG, et fait la taille qu'il
      annonce — on lit les dimensions dans l'en-tête IHDR, jamais dans le nom. */
   const dimPng = (chemin) => {
@@ -986,6 +992,19 @@ function structure(){
   verifier('les trois manifestes portent trois identités et trois pages de départ distinctes',
     tousManif.every(Boolean) && new Set(ids).size === 3 && new Set(starts).size === 3 && ids.every(Boolean),
     'ids ' + JSON.stringify(ids) + ', start_url ' + JSON.stringify(starts));
+  /* Et chacun demande le mode d'affichage que SON profil déclare — le bord
+     opposé de la demande : le plein écran de la Première ne doit pas fuir
+     sur un niveau qui ne l'a pas demandé. Mesuré dans CHAQUE exécution,
+     quel que soit le niveau contrôlé. */
+  const nomsManif = ['secondes', 'premiere-specifique', 'terminale'];
+  const dispAttendus = nomsManif.map(b => (PROFILS[b + '.html'] || {}).manifeste
+    && (PROFILS[b + '.html'] || {}).manifeste.display);
+  const dispFaux = tousManif.map((m, i) => (m && m.display) === dispAttendus[i] ? null
+    : nomsManif[i] + ' : ' + JSON.stringify(m && m.display) + ' au lieu de ' + JSON.stringify(dispAttendus[i])).filter(Boolean);
+  verifier('chaque manifeste demande le mode d\u2019affichage d\u00e9clar\u00e9 dans tests/profils.js',
+    dispAttendus.every(Boolean) && dispFaux.length === 0,
+    !dispAttendus.every(Boolean) ? 'un niveau ne d\u00e9clare pas « manifeste » dans tests/profils.js'
+      : dispFaux.join(' ; '));
 }
 
 /* ---------- 2. Démarrage ---------- */
