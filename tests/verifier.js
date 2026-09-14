@@ -3237,6 +3237,7 @@ function exercices(suite){
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
+    coefficientGlobalCourt(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -15604,6 +15605,122 @@ function fractionsDecimalesVides(w, P){
     });
     currentMode='train';
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.2.7 : LE COEFFICIENT GLOBAL S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES ----
+   Demande de Turquet (septembre 2026) : « je ne veux que des pourcentages qui
+   ne donnent comme coefficient global uniquement 2 ou 1 chiffres après la
+   virgule », son exemple étant 1,02 × 1,50 = 1,53. Avant, +40 % puis +4 %
+   donnait 1,456, et la hausse globale se lisait « 45,6 % ».
+   LA CONDITION EST ARITHMÉTIQUE : (100+P1)(100+P2) = 10000 + 100(P1+P2) +
+   P1·P2, donc le coefficient global a au plus deux décimales SI ET SEULEMENT
+   SI P1·P2 est un multiple de 100 — et la hausse globale est alors un nombre
+   ENTIER de pourcent. Le contrôle REFAIT la liste des paires par sa propre
+   arithmétique, sur les pourcentages bruts là où la page passe par les
+   fractions réduites : deux écritures qui n'ont rien en commun doivent tomber
+   d'accord, et un filtre resserré en douce se voit aussitôt.
+   Il tient les bords qui ne se devinent pas : la hausse rangée en MILLIÈMES,
+   l'unité que la correction relit sur 10 pour le pourcentage et sur 1000 pour
+   l'étape ④ — un brouillon de pause d'avant ce changement se reprend ainsi
+   sans rien savoir de la liste ; le bas de la pose, qui doit rester un 1 suivi
+   de zéros et d'un chiffre, la seule forme que poseUDonnees sache écrire
+   (elle ne pose que deux produits partiels) ; et les DEUX familles de paires,
+   sans quoi l'un des deux taux serait TOUJOURS 5 % ou 50 % (sans les
+   dizaines), ou plus aucune pose ne ferait trois chiffres par deux (sans la
+   mixte). Le second contrôle CLIQUE « Vérifier » sur une copie juste et relit
+   les couleurs ET la note : les contrôles lisent le verdict, l'élève regarde
+   la couleur. */
+function coefficientGlobalCourt(w, P){
+  const present = evaluer(w, "typeof genHausses==='function' && typeof HS_PAIRES!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.2.7 : le coefficient global s\'écrit avec au plus deux décimales',
+      'ce niveau n\'a pas l\'exercice des hausses successives');
+    ignorer('2.2.7 : 1,50 × 1,02 donne 1,53 et 53 %, et la copie juste vaut le point',
+      'ce niveau n\'a pas l\'exercice des hausses successives');
+    return;
+  }
+  verifierEval(w, '2.2.7 : le coefficient global s\'écrit avec au plus deux décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* 1. LE VIVIER, refait par une seconde arithmétique */
+    const unSeulChiffre=function(x){ return x<10 || x%10===0; };
+    const attendues=[];
+    for(let a=1;a<=99;a++) for(let b=a;b<=99;b++){
+      if(!unSeulChiffre(a)||!unSeulChiffre(b)) continue;
+      if((a*b)%100!==0) continue;                       /* trois décimales ou plus */
+      if((100+a)*(100+b)>=20000) continue;              /* hausse globale de 100 % ou plus */
+      attendues.push(a+"-"+b);
+    }
+    const liste=HS_PAIRES.map(function(p){ return p[0]+"-"+p[1]; });
+    attendues.forEach(function(c){ if(liste.indexOf(c)<0) vus.push("la paire "+c+" manque au vivier"); });
+    liste.forEach(function(c){ if(attendues.indexOf(c)<0) vus.push("la paire "+c+" ne devrait pas y etre"); });
+    if(liste.length<12) vus.push("le vivier ne compte que "+liste.length+" paires : rien a mesurer");
+    const mixtes=HS_PAIRES.filter(function(p){ return !(p[0]%10===0 && p[1]%10===0); });
+    if(!mixtes.length) vus.push("plus une seule paire mixte : la pose trois chiffres par deux a disparu");
+    if(mixtes.length===HS_PAIRES.length) vus.push("plus une seule paire de deux multiples de dix : un des deux taux serait toujours 5 % ou 50 %");
+    /* 2. LE TIRAGE, question par question */
+    const formes={}, hausses={};
+    for(let t=0;t<400 && vus.length===0;t++){
+      const q=genHausses([]);
+      const brut=(100+q.P1)*(100+q.P2);                 /* le coefficient global, par les taux */
+      if(!unSeulChiffre(q.P1)||!unSeulChiffre(q.P2)) vus.push("tirage "+t+" : "+q.P1+" % et "+q.P2+" % ne sont pas des taux a un seul chiffre non nul");
+      if(brut%100!==0) vus.push("tirage "+t+" : "+q.P1+" % puis "+q.P2+" % donne "+(brut/10000)+", plus de deux decimales");
+      if(brut%10000===0) vus.push("tirage "+t+" : le coefficient "+(brut/10000)+" n a aucune decimale");
+      if(brut>=20000) vus.push("tirage "+t+" : la hausse globale atteint "+(brut/100-100)+" %");
+      if(brut*q.prodDen!==q.prodNum*10000) vus.push("tirage "+t+" : "+q.prodNum+"/"+q.prodDen+" ne vaut pas le produit des coefficients");
+      if((q.coefStr.split(",")[1]||"").length>2) vus.push("tirage "+t+" : le coefficient s ecrit "+q.coefStr);
+      if(q.hausseNum*10!==brut-10000) vus.push("tirage "+t+" : hausseNum vaut "+q.hausseNum+" au lieu de "+((brut-10000)/10)+" millièmes");
+      if(q.hausseNum%10!==0) vus.push("tirage "+t+" : la hausse globale "+(q.hausseNum/10)+" % n est pas entière");
+      if(q.hausseStr.indexOf(",")>=0) vus.push("tirage "+t+" : la hausse s ecrit "+q.hausseStr+" %");
+      const bas=String(q.bot), hautL=String(q.top).length;
+      let forme=(bas.charAt(0)==="1");
+      for(let k=1;k<bas.length-1;k++) if(bas.charAt(k)!=="0") forme=false;
+      if(!forme) vus.push("tirage "+t+" : "+q.bot+" en bas, la pose ne sait pas l ecrire");
+      if(bas.length>hautL) vus.push("tirage "+t+" : le plus long ("+q.bot+") n est pas en haut");
+      if(q.top*q.bot!==q.prodNum) vus.push("tirage "+t+" : la pose multiplie "+q.top+" par "+q.bot+" au lieu de faire "+q.prodNum);
+      if(q.v1+q.v2*Math.pow(10,q.s)!==q.prodNum) vus.push("tirage "+t+" : les deux produits partiels ne font pas "+q.prodNum);
+      formes[hautL+"x"+bas.length]=1; hausses[q.hausseNum]=1;
+    }
+    if(vus.length===0){
+      if(!formes["3x2"]) vus.push("aucune pose trois chiffres par deux sur 400 tirages");
+      if(!formes["2x2"]) vus.push("aucune pose deux chiffres par deux sur 400 tirages");
+      if(Object.keys(hausses).length<10) vus.push("seulement "+Object.keys(hausses).length+" hausses globales differentes sur 400 tirages");
+    }
+    /* 3. LA SÉANCE : des paires DISTINCTES — le vivier est fini, et deux fois
+       le même calcul dans la même séance se verrait */
+    for(let t=0;t<60 && vus.length===0;t++){
+      startHausses();
+      const vues=test.questions.map(function(q){ return q.paire; });
+      vues.forEach(function(c,i){ if(vues.indexOf(c)!==i) vus.push("séance "+t+" : la paire "+c+" sort deux fois"); });
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.2.7 : 1,50 × 1,02 donne 1,53 et 53 %, et la copie juste vaut le point', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* la question de l EXEMPLE de la demande, prise au VRAI générateur */
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genHausses([]); if(q.paire==="2-50") Q=q; }
+    if(!Q) return "le tirage ne produit jamais 2 % puis 50 %, l exemple de la demande";
+    if(Q.coefStr!=="1,53") vus.push("1,02 × 1,50 donne "+Q.coefStr+" au lieu de 1,53");
+    if(Q.hausseStr!=="53") vus.push("la hausse globale vaut "+Q.hausseStr+" % au lieu de 53 %");
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"hs", qId:"hausses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("hstest"); renderHSTest();
+    const deux=function(P){ return P<10 ? "0"+P : ""+P; };
+    const copie={hs1n:""+Q.P1, hs1d:"100", hs1p:deux(Q.P1), hs1dec:deux(Q.P1),
+                 hs2n:""+Q.P2, hs2d:"100", hs2p:deux(Q.P2), hs2dec:deux(Q.P2),
+                 hsAn:""+Q.fA.num, hsAd:""+Q.fA.den, hsBn:""+Q.fB.num, hsBd:""+Q.fB.den,
+                 hsPn:""+Q.prodNum, hsPd:""+Q.prodDen, hsDec:Q.coefStr, hsP:Q.hausseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkHSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
 /* ---- La paire fausse ne rougit que sa case fautive ------------------------

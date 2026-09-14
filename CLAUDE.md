@@ -4356,6 +4356,57 @@ caractère près sur 4000 tirages et sur les trois formes (2×2, 3×2, 3×3), et
 l'arithmétique sur les 324 couples que produit `uFactor()`. Une pose se juge à
 l'œil, donc on ne la déplace pas sans preuve.
 
+**Et le coefficient global s'écrit avec au plus DEUX décimales.** Demande de
+Turquet (septembre 2026) : « je ne veux que des pourcentages qui ne donnent
+comme coefficient global uniquement 2 ou 1 chiffres après la virgule », son
+exemple étant 1,02 × 1,50 = 1,53. Le paragraphe ci-dessus raconte l'exercice
+avec les nombres de son époque : +40 % puis +4 % donnait 1,456 et la hausse
+globale se lisait « 45,6 % » — ce tirage-là n'existe plus, et la hausse globale
+est désormais un nombre ENTIER de pourcent.
+**LA CONDITION SE DÉMONTRE, elle ne se tâtonne pas** :
+(100+P1)(100+P2) = 10000 + 100(P1+P2) + P1·P2, donc le coefficient global a au
+plus deux décimales SI ET SEULEMENT SI P1·P2 est un multiple de 100. C'est très
+restrictif : le produit doit apporter le 4 et le 25 de 100, donc — avec la
+règle de 2.3.7, un seul chiffre non nul par taux — soit 50 % avec un chiffre
+PAIR (50 et 2, 4, 6, 8), soit 5 % avec un multiple PAIR de dix (5 et 20, 40,
+60, 80), soit DEUX multiples de dix, qui conviennent toujours. 25 paires en
+tout, comptées et non devinées. D'où une LISTE construite une fois pour toutes
+plutôt qu'un do/while : un rejet en boucle sur un vivier aussi maigre ne dit
+jamais combien de paires il reste. Et les questions d'une séance portent des
+paires DISTINCTES — sur un vivier fini, deux fois le même calcul dans la même
+séance se verrait.
+**LES DEUX FAMILLES SONT NÉCESSAIRES, et le contrôle les exige** : sans la
+mixte (50 % puis 2 %), plus aucune pose « trois chiffres × deux » ; sans les
+deux multiples de dix (20 % puis 30 %), l'un des deux taux serait TOUJOURS 5 %
+ou 50 %, et l'élève apprendrait le motif au lieu du calcul.
+**UN GARDE-FOU A ÉTÉ RETIRÉ AVEC SA RAISON** : « au moins une retenue dans la
+pose » écartait, sur ce vivier-là, exactement les paires les plus parlantes —
+10 % puis 10 % fait 21 %, et non 20 % — et ne laissait des deux multiples de
+dix que ceux dont la hausse globale dépasse 100 %. {mult-dec-un}, d'où
+`buildPoseU()` est extraite, n'a jamais eu cette garde ; le décalage, l'autre
+enjeu de la pose, reste partout. Sonde sur 20 000 tirages : 68 % de poses
+2×2, 32 % de 3×2, 48 % sans aucune retenue, 23 hausses globales différentes
+de 21 % à 98 %.
+**LA HAUSSE GLOBALE RESTE SOUS 100 %**, comme avant : le tirage d'alors
+plafonnait à +107,1 % (90 % puis 9 %), et sans cette borne deux multiples de
+dix monteraient à +261 % (90 % puis 90 %) — aucune scène de `BS_CTX` ne porte
+une hausse pareille.
+**ET LA HAUSSE EST RANGÉE EN MILLIÈMES, l'unité d'avant** : c'est ce qui rend
+la bascule sûre. La correction la relit sur 10 pour le pourcentage et sur 1000
+pour l'écriture décimale de l'étape ④, si bien qu'aucune ligne de
+`checkHSAnswer` ne bouge — et un brouillon de pause d'avant la bascule se
+reprend sans rien savoir de la nouvelle liste.
+**Le rappel de cours a suivi**, parce qu'un rappel qui montre un tirage
+impossible apprend la méthode sur un cas que l'élève ne rencontrera jamais :
+il montre maintenant +20 % puis +30 % = +56 %, un cas réellement tiré, et dont
+l'écart avec 50 saute aux yeux mieux que celui de 45,6 avec 44.
+Le contrôle REFAIT la liste par sa propre arithmétique — sur les pourcentages
+bruts là où la page passe par les fractions réduites —, exige les deux
+familles, relit la hausse en millièmes, vérifie que le bas de la pose reste un
+1 suivi de zéros et d'un chiffre (la seule forme que `poseUDonnees` sache
+écrire), puis CLIQUE « Vérifier » sur une copie juste. Neuf sabotages, chacun
+rougissant en nommant son défaut.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
