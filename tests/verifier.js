@@ -1428,8 +1428,9 @@ function branchements(w){
   /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.9,
      baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
      2026, en trois temps), plus les synthèses rédigées 2.2.10 et 2.3.8 et le
-     QCM des coefficients 2.5.2. On appelle les DIX-NEUF vrais démarreurs :
-     un nombre changé dans un démarreur partagé ne dit rien des autres. */
+     QCM des coefficients 2.5.3 et la synthèse RÉDIGÉE 2.5.2. On appelle les
+     VINGT vrais démarreurs : un nombre changé dans un démarreur partagé ne dit
+     rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
@@ -1440,7 +1441,7 @@ function branchements(w){
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
        ['2.2.10','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn'],
-       ['2.5.2','startReconnaitreCoef']]
+       ['2.5.2','startSynLibre'],['2.5.3','startReconnaitreCoef']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
         window[e[1]]();
@@ -1573,7 +1574,7 @@ function branchements(w){
       'ce niveau n\'a pas l\'exercice de lecture d\'un coefficient');
   }
 
-  /* ---- {reconnaitre-coefficient} (2.5.2) : le QCM des coefficients ------
+  /* ---- {reconnaitre-coefficient} (2.5.3) : le QCM des coefficients ------
      Cinq bords, et n'en tenir qu'un ne tient rien : le tirage (les trois
      familles chacune une fois à ordre variable, quatre propositions
      DISTINCTES qui contiennent les pièges, et à famille égale le rang de la
@@ -1884,7 +1885,7 @@ function branchements(w){
      Demande de Turquet (septembre 2026) : associer à « prendre un % », à
      « augmenter d'un % » et à « diminuer d'un % » le bon coefficient parmi
      SIX. Les six sont les trois familles pour P, puis les trois familles pour
-     P la VIRGULE DÉCALÉE — deux axes, six cases, et les deux pièges du 2.5.2
+     P la VIRGULE DÉCALÉE — deux axes, six cases, et les deux pièges du 2.5.3
      présents SUR CHAQUE LIGNE. Sept bords, et n'en tenir qu'un ne tient rien :
        · le TIRAGE — les six DISTINCTS (le seul garde du générateur), tous
          entre 0 et 2 (ce qu'aucun garde ne surveille : c'est le contrôle qui
@@ -3465,6 +3466,7 @@ function exercices(suite){
     synthesePourcentage(w, P);
     syntheseLibrePourcentage(w, P);
     syntheseAugLibreRedigee(w, P);
+    syntheseTroisFamillesRedigee(w, P);
     verificationAvecPropositions(w, P);
     teteCollee(w, P);
     poseSuitLEleve(w, P);
@@ -6770,6 +6772,194 @@ function syntheseAugLibreRedigee(w, P){
   if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
     const p=mesure.split('|');
     console.log('   · la plus longue règle du 2.2.10 : '+p[1]+' caractères pour '+bornes.attendu
+      +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
+  }
+}
+/* {synthese-pourcentages-libre} (2.5.2) — la synthèse des TROIS familles,
+   rédigée. Elle ne réécrit rien : le tirage est celui du 2.5.1 (genSyn), les
+   voies d'une évolution sont jugées par salJuge — le juge MÊME du 2.2.10 et du
+   2.3.8 — et « prendre un pourcentage » par sylJugePct, bâti sur le LECTEUR de
+   salJuge (salExpr, salMontre, salQuot) et les deux voies du 2.1.7. On exige
+   donc l'APPEL, lu dans la source : des verdicts identiques ne prouveraient
+   rien aujourd'hui d'une copie qui divergerait demain.
+   Puis le juge cas par cas sur des questions ÉPINGLÉES (la leçon documentée :
+   une copie qui ne colle pas à la question tirée mesurerait autre chose), la
+   RÈGLE envoyée au modèle famille par famille — après « RÈGLE DE DÉCISION »,
+   chercher dans tout le texte ne prouve rien —, la borne de troncature de la
+   fonction Edge, le tirage, la feuille avant le choix, et l'identité. */
+function syntheseTroisFamillesRedigee(w, P){
+  const nom = 'la synthèse des trois familles rédigée : le juge de chaque famille, la règle, la feuille';
+  const present = evaluer(w, "typeof startSynLibre==='function' && typeof sylJuge==='function' && typeof sylAttenduIA==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+    return;
+  }
+  /* ---- 0. le PARTAGE, lu dans la SOURCE ---- */
+  const src = lire(CIBLE);
+  const fns = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+  const corps = n => (fns.find(o => o.nom === n) || {}).texte || null;
+  const partage = [];
+  [['sylJuge', 'salJuge'], ['sylEnonceIA', 'salEnonceIA'], ['sylAttenduIA', 'salAttenduIA'],
+   ['sylJugePct', 'salExpr'], ['sylJugePct', 'salMontre'], ['sylJugePct', 'salQuot'],
+   ['sylJugePct', 'synCouple'], ['startSynLibre', 'genSyn'], ['renderSyl', 'synEnonceTab'],
+   ['salJuge', 'salMontre'], ['salJuge', 'salQuot']].forEach(function(c){
+    const t = corps(c[0]);
+    if(t === null){ partage.push('« ' + c[0] + ' » est introuvable'); return; }
+    if(t.indexOf(c[1]) < 0)
+      partage.push('« ' + c[0] + ' » n\'appelle plus « ' + c[1] + ' » : deux moteurs finiraient par diverger');
+  });
+  verifier('la synthèse rédigée des trois familles reprend les juges du 2.1.7, du 2.2.10 et le tirage du 2.5.1',
+    partage.length === 0, partage.slice(0, 3).join(' | '));
+
+  let bornes;
+  try{
+    const srcF = fs.readFileSync(path.join(__dirname, '..', 'supabase/functions/corriger-definition/index.ts'), 'utf8');
+    const q = srcF.match(/payload\.question\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    const a = srcF.match(/payload\.attendu\s*\|\|\s*""\)\.toString\(\)\.slice\(0,\s*(\d+)\)/);
+    if(q && a) bornes = { question:+q[1], attendu:+a[1] };
+  }catch(e){ bornes = undefined; }
+  if(!bornes){
+    verifier(nom, false, 'les bornes de troncature sont introuvables dans supabase/functions/corriger-definition/index.ts');
+    return;
+  }
+  const mesure = verifierEval(w, nom, `(function(){
+    const vus=[]; const B=${JSON.stringify(bornes)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='synthese-pourcentages-libre';
+
+    /* ---- 1. le juge de « prendre un pourcentage », cas par cas ---- */
+    const qRes={fam:'pct',inc:'fin',sens:0,P:30,N:200,res:60,result:60,unit:'€',ci:0,v:0,opts:[50,60,70,80],bon:1,choisi:1,meth:'pct'};
+    const qVal={fam:'pct',inc:'ini',sens:0,P:30,N:200,res:60,result:60,unit:'€',ci:0,v:0,opts:[100,200,300,400],bon:1,choisi:1,meth:'pct'};
+    const qTx ={fam:'pct',inc:'pct',sens:0,P:30,N:200,res:60,result:60,unit:'€',ci:0,v:0,opts:[20,30,40,50],bon:1,choisi:1,meth:'pct'};
+    const casPct=[
+      ['le produit',                 qRes, 1, '30/100 × 200 = 60',              true,  true ],
+      ['le produit, ordre libre',    qRes, 1, '200 × 30/100 = 60',              true,  true ],
+      ['le produit en décimal',      qRes, 1, '0,3 × 200 = 60',                 true,  true ],
+      ['le produit en deux temps',   qRes, 1, '30/100 × 200 = 6000/100 = 60',   true,  true ],
+      ['la part sur le tout',        qTx,  1, '60/200 = 30/100',                true,  true ],
+      ['la part sur le tout, par étapes', qTx, 1, '60/200 = 3/10 = 30/100',     true,  true ],
+      ['la part sur le tout en tautologie ne nomme rien', qTx, 1, '60/200 = 60/200', false, null ],
+      ['la valeur initiale retrouvée', qVal, 1, '30/100 × 200 = 60',            true,  true ],
+      ['égalité fausse',             qRes, 1, '30/100 × 200 = 70',              true,  false],
+      ['recopie sans calcul',        qRes, 1, '60',                             false, null ],
+      ['écriture inconnue',          qRes, 1, 'j\\'ai trouvé 60',               false, null ],
+      ['mauvaise proposition, calcul cohérent', qRes, 0, '30/100 × 200 = 60',   true,  false],
+      ['mauvaise proposition, sans calcul lisible', qRes, 0, '60',              true,  false],
+      ['mauvaise proposition sur le pourcentage', qTx, 2, '60/200 = 30/100',    true,  false],
+      ['un commentaire n\\'annule pas une voie montrée', qRes, 1, '30/100 × 200 = 60\\ndonc ça marche', true, true ]
+    ];
+    casPct.forEach(function(c){
+      const q=JSON.parse(JSON.stringify(c[1])); q.choisi=c[2];
+      const j=sylJuge(q, c[3]);
+      if(j.sait!==c[4]) vus.push('juge pct « '+c[0]+' » : sait='+j.sait+' au lieu de '+c[4]);
+      else if(c[4] && j.correct!==c[5]) vus.push('juge pct « '+c[0]+' » : correct='+j.correct+' au lieu de '+c[5]);
+    });
+    if(!vus.length){
+      const q=JSON.parse(JSON.stringify(qRes)); q.choisi=1;
+      const j=sylJuge(q,'30/100 × 200 = 70');
+      if(!j.phrase || j.phrase.indexOf('70')<0) vus.push('le refus d\\'une égalité fausse ne la nomme pas');
+    }
+
+    /* ---- 2. une ÉVOLUTION est jugée par le juge du 2.2.10, au verdict près ---- */
+    const qAug={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0,meth:null};
+    const qDim={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0,meth:null};
+    const copies=['1,05 × 600 = 630','600 × 1,05 = 630','0,05 × 600 = 30\\n600 + 30 = 630',
+                  '0,95 × 600 = 570','570/600 = 95/100','1,05 × 600 = 640','630','0,05 × 600 = 30'];
+    [qAug,qDim].forEach(function(base){
+      copies.forEach(function(t){
+        [1,0].forEach(function(ch){
+          const q1=JSON.parse(JSON.stringify(base)); q1.choisi=ch;
+          const q2=JSON.parse(JSON.stringify(base)); q2.choisi=ch;
+          const a=sylJuge(q1,t), b=salJuge(q2,t);
+          if(a.sait!==b.sait || a.correct!==b.correct || a.phrase!==b.phrase)
+            vus.push('une évolution n\\'est plus jugée par salJuge (« '+t.split('\\n')[0]+' », choix '+ch+') : '+JSON.stringify(a)+' au lieu de '+JSON.stringify(b));
+        });
+      });
+    });
+
+    /* ---- 3. la règle envoyée au modèle, famille par famille ---- */
+    let pireQ=0, pireA=0, pireEti='';
+    const jugeMesure={sait:true, correct:false, phrase:'Il y a une égalité fausse dans ton calcul.'};
+    const fams=['pct','aug','dim'], incs=['fin','ini','pct'];
+    for(let i=0;i<120 && !vus.length;i++){
+      const fam=fams[i%3];
+      const q=genSyn(fam, incs[(i/3|0)%3]); q.choisi=(i%4<2)?q.bon:((q.bon+1)%4);
+      const e=sylEnonceIA(q), a=sylAttenduIA(q, (i%4===0)?jugeMesure:null);
+      /* chaque famille lit SON couple : synCouple pour un pourcentage pris,
+         salCouple pour une évolution — celui du 2.2.10, qui porte coefStr */
+      const c=(q.fam==='pct')?synCouple(q):salCouple(q);
+      if(e.length>pireQ) pireQ=e.length;
+      if(a.length>pireA){ pireA=a.length; pireEti=q.fam+' '+q.inc; }
+      const eti='('+q.fam+', '+q.inc+', choix '+(q.choisi===q.bon?'juste':'faux')+') ';
+      const regle=a.slice(Math.max(0,a.indexOf('RÈGLE DE DÉCISION')));
+      if(q.fam==='pct'){
+        if(regle.indexOf(c.P+'/100 × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie du produit '+c.P+'/100 × '+c.N); break; }
+        if(regle.indexOf(c.resStr+'/'+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie de la part sur le tout '+c.resStr+'/'+c.N); break; }
+        if(!/TOUT autre calcul/.test(regle)){ vus.push(eti+'la règle n\\'accepte plus toute méthode qui fonctionne'); break; }
+      } else {
+        if(regle.indexOf(c.coefStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie du coefficient '+c.coefStr+' × '+c.N); break; }
+        if(regle.indexOf(c.pDecStr+' × '+c.N)<0){ vus.push(eti+'la règle n\\'écrit pas la voie de '+(q.fam==='aug'?'l\\'augmentation':'la diminution')); break; }
+      }
+      if(!/sans aucun calcul, est REFUSÉ/.test(regle)){ vus.push(eti+'la règle ne refuse plus la copie sans étape'); break; }
+      if(regle.indexOf('AUCUNE ÉGALITÉ FAUSSE')<0){ vus.push(eti+'la règle n\\'interdit plus les égalités fausses'); break; }
+      if(a.indexOf('STRICTEMENT SECRÈTE')<0){ vus.push(eti+'la bonne proposition n\\'est plus déclarée secrète'); break; }
+      if(q.choisi===q.bon && a.indexOf('c\\u2019est la bonne')<0){ vus.push(eti+'le point 1 ne valide pas le bon choix'); break; }
+      if(q.choisi!==q.bon && a.indexOf('N\\u2019EST PAS la bonne')<0){ vus.push(eti+'le point 1 ne condamne pas le mauvais choix'); break; }
+      if((i%4===0) && (a.indexOf('VERDICT DE LA PAGE')<0 || a.indexOf('PRIORITAIRE')<0)){ vus.push(eti+'le verdict du juge ne part plus avec la règle'); break; }
+      if(e.indexOf(QLET[q.choisi]+')')<0){ vus.push(eti+'l\\'énoncé envoyé ne dit pas ce que l\\'élève a choisi'); break; }
+    }
+    if(!vus.length && pireA>B.attendu-300)
+      vus.push('la règle frôle ou dépasse la borne de la fonction Edge : '+pireA+' caractères pour '+B.attendu+' ('+pireEti+')');
+    if(!vus.length && pireQ>B.question-300)
+      vus.push('l\\'énoncé frôle ou dépasse sa borne : '+pireQ+' caractères pour '+B.question);
+
+    /* ---- 4. le tirage : les trois inconnues chacune une fois, les trois
+       familles mélangées — une synthèse qui ne tirerait plus qu'une famille
+       aurait perdu tout son sujet (la règle du 2.5.1). ---- */
+    const famsVues={};
+    for(let t=0;t<40 && !vus.length;t++){
+      startSynLibre();
+      if(test.qId!=='synthese-pourcentages-libre') vus.push('le démarreur ne pose pas l\\'identifiant de l\\'exercice');
+      const vusInc=test.questions.map(function(q){ return q.inc; });
+      ['fin','ini','pct'].forEach(function(inc){
+        if(vusInc.indexOf(inc)<0) vus.push('tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas');
+      });
+      test.questions.forEach(function(q){ famsVues[q.fam]=1; });
+    }
+    if(!vus.length && Object.keys(famsVues).length<3)
+      vus.push('sur 40 tirages, les familles vues sont : '+Object.keys(famsVues).join(',')+' — la synthèse ne mélange plus');
+
+    /* ---- 5. la feuille avant le choix, le choix qui ne l'efface pas ---- */
+    startSynLibre();
+    if(!sylFeuille || !sylFeuille.lignes.length){
+      vus.push('au démarrage, la feuille de justification n\\'existe pas avant le choix d\\'une proposition');
+    } else {
+      const f0=sylFeuille, ligne0=sylFeuille.lignes[0].line;
+      choisirSyl(2);
+      if(test.questions[0].choisi!==2) vus.push('choisirSyl ne retient pas la proposition');
+      if(sylFeuille!==f0) vus.push('choisir une proposition recrée la feuille — la justification écrite serait effacée');
+      else if(!ligne0.isConnected) vus.push('choisir une proposition redessine l\\'écran — la ligne écrite a disparu du document');
+      const b2=$('sylc2');
+      if(!b2 || b2.className.indexOf('sel')<0) vus.push('la proposition choisie ne se marque pas');
+      choisirSyl(1);
+      if((b2 && b2.className.indexOf('sel')>=0) || !$('sylc1') || $('sylc1').className.indexOf('sel')<0)
+        vus.push('changer de proposition ne déplace pas la marque');
+      test.questions[0].choisi=null;
+      checkSyl();
+      const fb=$('sylFeedback');
+      if(!fb || fb.textContent.indexOf('Choisis d')!==0) vus.push('vérifier sans proposition ne demande pas de choisir');
+      if(test.locked) vus.push('vérifier sans proposition verrouille l\\'exercice');
+    }
+
+    /* ---- 6. l'identité : « Recommencer » relance la bonne synthèse ---- */
+    test.kind='syl'; test.qId='(sentinelle)'; restartCurrentTest();
+    if(test.qId!=='synthese-pourcentages-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des trois familles');
+
+    return vus.slice(0,4).join(' | ') || ('OK|'+pireA+'|'+pireQ);
+  })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
+  if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
+    const p=mesure.split('|');
+    console.log('   · la plus longue règle du 2.5.2 : '+p[1]+' caractères pour '+bornes.attendu
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
 }
@@ -17068,6 +17258,58 @@ function verdictColore(w, apres){
       /* la repeinture retire l'encre d'avant : la ligne corrigée passe de bad à ok */
       salFeuille.lignes[1].mf.value='2 × 315 = 630'; salPeindreLignes();
       if(cl(1)!=='ok') vus.push('peinture : la ligne corrigée reste « '+cl(1)+' » au lieu de repasser ok');
+    }
+
+    /* 2.5.2 (Première) — la synthèse des TROIS familles rédigée (checkSyl) :
+       le juge de la page prime là aussi, et sur les DEUX familles — un
+       « prendre un pourcentage » jugé par sylJugePct, une hausse jugée par
+       salJuge. Le modèle stubbé SE TROMPE dans les deux sens : le contrôle lit
+       la COULEUR et la NOTE, pas le verdict (la leçon des sommes de
+       fractions). */
+    if(typeof checkSyl==='function'){
+      const qP={fam:'pct',inc:'fin',sens:0,P:30,N:200,res:60,result:60,unit:'€',ci:0,v:0,opts:[50,60,70,80],bon:1,choisi:1,meth:'pct'};
+      const qA={fam:'aug',inc:'fin',sens:1,P:5,N:600,aug:30,fin:630,decStr:'630',unit:'€',opts:[615,630,660,690],bon:1,choisi:1,ci:0,v:0,meth:null};
+      const jouer=async function(q, copie, modele){
+        Object.keys(test).forEach(function(k){ delete test[k]; });
+        Object.assign(test,{kind:'syl', questions:[JSON.parse(JSON.stringify(q))],
+          idx:0, score:0, answers:[], startTime:Date.now(), locked:false, sylBusy:false});
+        test.qId='synthese-pourcentages-libre';
+        sylFeuille=feuille(copie);
+        verdict(modele); await checkSyl();
+        return { couleur:couleur('sylFeedback'), score:test.score };
+      };
+      let r=await jouer(qP,'30/100 × 200 = 60',false);   /* le modèle MENT : la copie est juste */
+      if(r.couleur!=='vert') vus.push('2.5.2 (prendre) : copie juste sous modèle qui refuse, peinte « '+r.couleur+' » — le juge ne prime pas');
+      if(r.score!==1) vus.push('2.5.2 (prendre) : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+r.score+')');
+      r=await jouer(qP,'30/100 × 200 = 70',true);        /* le modèle MENT : l\\'égalité est fausse */
+      if(r.couleur!=='rouge') vus.push('2.5.2 (prendre) : égalité fausse sous modèle qui accepte, peinte « '+r.couleur+' »');
+      if(r.score!==0) vus.push('2.5.2 (prendre) : égalité fausse sous modèle qui accepte — le point est donné quand même');
+      r=await jouer(qA,'1,05 × 600 = 630',false);        /* une évolution : le juge du 2.2.10 */
+      if(r.couleur!=='vert') vus.push('2.5.2 (hausse) : copie juste sous modèle qui refuse, peinte « '+r.couleur+' » — le juge ne prime pas');
+      if(r.score!==1) vus.push('2.5.2 (hausse) : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+r.score+')');
+      /* et l\\'ABSTENTION : une copie que le juge ne sait pas lire revient au
+         modèle, comme au 2.1.7 — c\\'est ce qui fait que « toutes les
+         vérifications » sont acceptées. */
+      r=await jouer(qP,'10 % de 200 = 20 donc 3 fois 20 = 60',true);
+      if(r.couleur!=='vert') vus.push('2.5.2 : une méthode que le juge ne sait pas lire n\\'est plus confiée au modèle (peinte « '+r.couleur+' »)');
+      if(r.score!==1) vus.push('2.5.2 : le modèle accepte une méthode juste, mais le point n\\'est pas donné');
+      /* Et la copie SE VOIT, comme au 2.2.10 : chaque ligne est peinte — toute
+         égalité vraie en bleu (ok), une égalité fausse en rouge (bad), une
+         ligne que le juge ne sait pas lire ne reçoit rien. */
+      const feuilleSyl=function(lignes){ const ls=lignes.map(function(t){
+          const el=document.createElement('math-field'); el.value=t; return {mf:el, line:el}; });
+        return { lire:function(){ return lignes.join('\\n'); }, lignes:ls, verrouiller:function(){} }; };
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'syl', questions:[JSON.parse(JSON.stringify(qP))],
+        idx:0, score:0, answers:[], startTime:Date.now(), locked:false, sylBusy:false});
+      test.qId='synthese-pourcentages-libre';
+      sylFeuille=feuilleSyl(['30/100 × 200 = 60','30/100 × 200 = 70','du texte sans egalite']);
+      verdict(true); await checkSyl();
+      const clS=function(i){ const c=sylFeuille.lignes[i].mf.classList;
+        return c.contains('ok')?(c.contains('bad')?'ok et bad':'ok'):(c.contains('bad')?'bad':'rien'); };
+      if(clS(0)!=='ok') vus.push('2.5.2 peinture : la ligne juste est « '+clS(0)+' » au lieu de ok (bleu)');
+      if(clS(1)!=='bad') vus.push('2.5.2 peinture : la ligne fausse est « '+clS(1)+' » au lieu de bad (rouge)');
+      if(clS(2)!=='rien') vus.push('2.5.2 peinture : une ligne illisible reçoit « '+clS(2)+' » au lieu de rien');
     }
 
     /* 4.7 — multiplier en rédigeant (checkMLL) ; 4.9 passe par la même ligne */

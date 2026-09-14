@@ -4087,6 +4087,60 @@ corrections, toutes deux copies épinglées au contrôle :
   retirée, le commentaire qui re-force l'abstention, la prose du modèle
   reprise sur un refus, la tautologie acceptée).
 
+**Et la synthèse ENTIÈRE se rédige : les trois familles, un juge par famille.**
+{synthese-pourcentages-libre} (Première, 2.5.2, demande de Turquet, septembre
+2026 : « fait un exercice comme le 2.5.1 en première mais où l'élève doit
+rédiger une vérification, on acceptera toutes les vérifications comme dans le
+2.3.8 et le 2.2.10 et le 2.1.7 ») suit {synthese-pourcentages} au menu : c'est
+le 2.5.1 — les TROIS familles (prendre, augmenter, diminuer), les trois
+inconnues chacune UNE fois en ordre mélangé — avec la feuille libre à la place
+de la chaîne de cases.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : le tirage est `genSyn()`, le
+générateur MÊME du 2.5.1 appelé sans famille ; l'énoncé passe par
+`synEnonceTab()`, extraite ce jour-là — la table des formulations vivait en
+TROIS copies (le rendu du 2.5.1, celui du 2.2.10 et son contexte), et une
+quatrième aurait fini par poser la même question dans d'autres mots ; la
+feuille est celle du 2.1.7, en lignes INDÉPENDANTES comme au 2.2.10 — la voie
+de l'augmentation demande DEUX égalités séparées, qu'un préfixe « = »
+automatique aurait soudées en une égalité fausse.
+**ET LE JUGE EST CELUI DE CHAQUE FAMILLE — la demande, prise au mot** : une
+évolution passe par `salJuge`, le juge MÊME du 2.2.10 et du 2.3.8 avec ses
+trois voies (le coefficient, le quotient, l'évolution suivie de son addition ou
+de sa soustraction) ; « prendre un pourcentage » passe par `sylJugePct`, bâti
+sur le LECTEUR de salJuge — `salExpr`, plus `salMontre` et `salQuot`, extraites
+ce jour-là de son corps — et sur les deux voies du 2.1.7 : le pourcentage en
+fraction × le nombre, et la part sur le tout amenée à /100. Le contrôle exige
+l'APPEL, lu dans la SOURCE : des verdicts identiques ne prouveraient rien
+aujourd'hui d'une copie qui divergerait demain.
+**« TOUTES LES VÉRIFICATIONS » EST TENU PAR LES TROIS POSITIONS, pas par une
+liste de voies plus longue** : on ne REFUSE que sur un fait prouvable (une
+égalité fausse, qu'on NOMME ; une proposition qui n'est pas la bonne), on
+n'ACCEPTE que sur une voie positivement montrée, et on S'ABSTIENT partout
+ailleurs — le modèle décide alors seul, avec une règle qui nomme les voies ET
+accepte tout calcul qui fonctionne. Une méthode que le lecteur ne sait pas lire
+(« 10 % de 200 = 20, donc 3 × 20 = 60 ») n'est donc JAMAIS refusée par la
+page : refuser une écriture juste serait le pire défaut du projet, et « le juge
+ne sait pas la lire » n'est pas un fait prouvable. Quand il sait, son verdict
+PRIME, et sur un refus c'est SA phrase qui s'affiche — la leçon payée en
+production sur le 2.2.10, où le modèle avait rédigé un refus qui se
+contredisait.
+**Le contrôle du verdict CLIQUE** (la leçon des sommes : les contrôles lisaient
+le verdict, l'élève regarde la couleur) : le modèle stubbé se trompe dans les
+DEUX sens, sur les DEUX familles, la copie se peint ligne à ligne (juste en
+bleu, fausse en rouge, illisible sans encre), et la méthode que le juge ne sait
+pas lire doit bien revenir au modèle — sans ce dernier bord, un juge devenu
+bavard refuserait à tort sans que rien ne rougisse.
+**Et la numérotation a bougé avec lui, comme toujours** :
+{reconnaitre-coefficient} passe de 2.5.2 à 2.5.3. Les références écrites
+`{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS — les commentaires
+de la page, la liste des démarreurs du contrôle d'EVOL_NB, les paragraphes de
+ce fichier — ne se recalculent pas, et ont été repris à la main le jour même.
+Quinze sabotages, chacun rougissant en nommant son défaut — et DEUX n'ont
+d'abord pas pu se poser : leurs ancres (le tirage des inconnues, la primauté du
+juge) sont écrites au caractère près dans `startSyn` et dans `checkSal`, et le
+remplacement en trouvait deux. Un sabotage se pose sur une ancre PROPRE à sa
+cible, la leçon d'{antecedents-droite}, retombée telle quelle.
+
 **Le dénominateur vide ne condamne personne.** Signalé par Turquet sur une
 capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
 numérateur ROUGISSAIT pendant que l'élève écrivait son dénominateur. Quatre
@@ -4199,7 +4253,7 @@ démarreurs, et ses sabotages rougissent en nommant l'exercice (« 2.3.7 : 6
 questions au lieu de 3 », puis « 2.5.1 » à son tour).
 
 **Reconnaître un coefficient, c'est d'abord déjouer trois pièges.**
-{reconnaitre-coefficient} (2.5.2, demande de Turquet, août 2026) : une
+{reconnaitre-coefficient} (2.5.3, demande de Turquet, août 2026) : une
 transformation donnée — augmenter de P %, diminuer de P %, prendre P % — et
 QUATRE coefficients proposés, dont les pièges qui font l'exercice : le
 coefficient de l'AUTRE sens, « prendre P % » à la place d'une évolution, et
@@ -4271,12 +4325,12 @@ sa liste des six.
 **LES SIX NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR, et c'est tout
 l'exercice** : ce sont les trois familles pour P, puis les trois familles pour
 P la VIRGULE DÉCALÉE d'un rang — pour P = 30 : 0,30 / 1,30 / 0,70, puis
-0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.2 (la
+0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.3 (la
 famille confondue, la virgule déplacée) sont présents SUR CHAQUE LIGNE à la
 fois : aucune proposition ne s'élimine sans raisonner. Des propositions qui
 différeraient par autre chose se laisseraient écarter sans lire la phrase — la
 leçon d'{intervalles-inegalite}, transposée.
-**TOUT EST REPRIS DU 2.5.2, RIEN N'EST RECOPIÉ** : `ckCoef` (le coefficient
+**TOUT EST REPRIS DU 2.5.3, RIEN N'EST RECOPIÉ** : `ckCoef` (le coefficient
 d'une transformation), `ckStr` (son écriture), `ckMots` (le verbe et le signe)
 et `ckPiege` (le NOM de l'erreur) sont les fonctions MÊMES du QCM des
 coefficients — un second jeu aurait fini par diverger, et deux exercices
@@ -6978,7 +7032,7 @@ les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
 et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
 page.
 
-**Et un défaut d'à côté s'est vu en mesurant : le 2.5.2 écrivait ses cases
+**Et un défaut d'à côté s'est vu en mesurant : le 2.5.3 écrivait ses cases
 trois fois plus petites que ses nombres.** Ses cases étaient restées à la
 taille générique (1,05 rem) devant des écritures à 2 rem — « 1 − ▢/▢ = 1 − 0,▢
 = 0,▢ » — alors que son jumeau le 2.2.1, dont il reprend la chaîne au caractère
@@ -6993,15 +7047,15 @@ qui aurait fini par diverger de celui du 2.2.1.
 réparé** : le contrôle universel ne comptait comme « nombre autour » qu'un
 morceau de texte ENTIÈREMENT numérique (« 90 », « 1,5 »). Or la page n'écrit
 presque jamais un nombre tout nu dans une chaîne : elle écrit « 1 − »,
-« 1 − 0, », « 0, ». Le 2.5.2 n'avait donc AUCUN voisin aux yeux du banc, qui
+« 1 − 0, », « 0, ». Le 2.5.3 n'avait donc AUCUN voisin aux yeux du banc, qui
 passait au vert en regardant ailleurs — un contrôle qui ne mesure rien ne
 mesure rien, et celui-là a vécu des mois. Est désormais un voisin tout morceau
 COURT (12 caractères au plus) qui porte un chiffre et aucune lettre : le signe
 et la virgule font partie du calcul écrit. Les étiquettes (« Question 1 / 4 »)
 portent des lettres, et ce qui vit ailleurs à l'écran reste écarté par la ligne
 partagée et les 120 px — les trois niveaux passent sans une seule exemption, ce
-qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.2
-en défaut : le banc le NOMME (« 2.5.2 — ck1p : 16.8px contre 32px »), là où il
+qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.3
+en défaut : le banc le NOMME (« 2.5.3 — ck1p : 16.8px contre 32px »), là où il
 restait vert avant.
 **Et il en a trouvé un SECOND en naissant, par intermittence — ce qui est la
 pire façon pour un contrôle de dire vrai.** Le 2.1.2 écrivait lui aussi sa case

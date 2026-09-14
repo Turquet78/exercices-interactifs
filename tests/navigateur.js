@@ -6050,7 +6050,7 @@ async function parcours(page, N){
                bloc, pas un voisin. */
             const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
             /* UN NOMBRE ÉCRIT PAR LA PAGE N'EST PAS TOUJOURS UN NOMBRE NU.
-               Le premier relevé n'acceptait que « 90 » ou « 1,5 » : au 2.5.2 de
+               Le premier relevé n'acceptait que « 90 » ou « 1,5 » : au 2.5.3 de
                la Première, les voisins d'une case s'écrivent « 1 + », « 1 + 0, »
                et « 1, » — la page y posait des cases à 1,05 rem devant des
                nombres à 2 rem, et le contrôle passait au vert en regardant

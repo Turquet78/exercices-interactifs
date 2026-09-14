@@ -535,7 +535,7 @@ body.pave-actif #paveNum{bottom:54px}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal,#scr-syl{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
@@ -1427,6 +1427,22 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <!-- TEST : SYNTHÈSE SUR LES POURCENTAGES, RÉDIGÉE (2.5.2) -->
+  <section class="screen" id="scr-syl">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagSyl"></span><span class="q-idx" id="sylIdx">Question 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sylLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="sylPrompt">Retrouve la bonne réponse, puis justifie-la.</p>
+      <div class="mp-stage"><div style="width:100%" id="sylHost"></div></div>
+      <div class="mp-feedback" id="sylFeedback"></div>
+      <div class="row" style="justify-content:center" id="sylActions">
+        <button class="btn btn-primary" onclick="checkSyl()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : MULTIPLICATION POSÉE -->
   <section class="screen" id="scr-asptest">
     <div class="test-top">
@@ -1704,7 +1720,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- TEST : RECONNAÎTRE LE COEFFICIENT (2.5.2) -->
+  <!-- TEST : RECONNAÎTRE LE COEFFICIENT (2.5.3) -->
   <section class="screen" id="scr-cktest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagCk"></span><span class="q-idx" id="ckIdx">Question 1 / 3</span></span>
@@ -1983,7 +1999,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=218;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=219;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2386,6 +2402,7 @@ const TESTS={
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
+  'synthese-pourcentages-libre':{ name:'Synthèse sur les pourcentages — rédigée', icon:'✒️', desc:'Les mêmes questions que {synthese-pourcentages} — prendre, augmenter ou diminuer —, mais plus une seule case : tu JUSTIFIES en écrivant ta vérification toi-même, par la méthode de ton choix, et la page la lit.', start:()=>startSynLibre() },
   'synthese-diminutions-libre':{ name:'Synthèse sur les diminutions — rédigée', icon:'📝', desc:'Comme {synthese-augmentations-libre}, mais sur les BAISSES : tu JUSTIFIES en écrivant ta vérification toi-même — avec le coefficient (0,… × valeur initiale) ou avec la diminution (0,… × valeur initiale, puis la soustraction) — et la page la lit.', start:()=>startSynDimLibre() },
   'synthese-augmentations-libre':{ name:'Synthèse sur les augmentations — rédigée', icon:'🖋️', desc:'Les mêmes questions que {synthese-augmentations}, mais plus une seule case : tu JUSTIFIES en écrivant ta vérification toi-même — avec le coefficient (1,… × valeur initiale) ou avec l’augmentation (0,… × valeur initiale, puis l’addition) — et la page la lit.', start:()=>startSynAugLibre() },
   'associer-coefficient':{ name:'Associer le bon coefficient', icon:'🔗', desc:'Prendre 30 %, augmenter de 30 %, diminuer de 30 % : trois phrases, six coefficients proposés, et à toi d’associer à chacune le sien. Les six ne diffèrent que par les deux erreurs classiques — la famille et la place de la virgule.', start:()=>startAssocierCoef() },
@@ -2428,7 +2445,7 @@ const THEMES=[
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
       { num:4, nom:'Lire un coefficient multiplicateur', ids:['lire-coefficient','associer-coefficient'] },
-      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','reconnaitre-coefficient'] }
+      { num:5, nom:'Synth\u00e8se sur les pourcentages', ids:['synthese-pourcentages','synthese-pourcentages-libre','reconnaitre-coefficient'] }
   ] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
@@ -2513,7 +2530,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='syl') startSynLibre(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -3345,7 +3362,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest],
+    syn:['syntest',renderSynTest], syl:['syl',renderSyl], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -3518,7 +3535,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal','syl'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -6735,6 +6752,15 @@ function synQuoi(q){
   return (q.fam==='dim')?'le pourcentage de baisse':(q.fam==='aug'?'le pourcentage d\u2019augmentation':'le pourcentage');
 }
 function synLabel(q,v){ return (q.inc==='pct') ? (v+'\u00a0%') : (v+' '+q.unit); }
+/* La table des formulations d'une question de synthèse — la famille et
+   l'inconnue la désignent. UN SEUL endroit la choisit : l'écran guidé, l'écran
+   rédigé et les contextes envoyés au modèle la lisent tous. Deux tables
+   auraient fini par poser la même question dans des mots différents. */
+function synEnonceTab(q){
+  const neg=(q.sens<0);
+  if(q.fam==='pct') return (q.inc==='fin')?PCT_ENONCES:(q.inc==='ini'?QD_ENONCES_VAL:QD_ENONCES_PCT);
+  return (q.inc==='fin')?(neg?DIM_ENONCES:AUG_ENONCES):(q.inc==='ini'?(neg?DIMQ_EN_VAL:AUGQ_EN_VAL):(neg?DIMQ_EN_PCT:AUGQ_EN_PCT));
+}
 async function startSyn(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -6793,10 +6819,7 @@ function renderSynTest(){
   $('syFeedback').textContent=''; $('syFeedback').className='mp-feedback';
   $('syActions').innerHTML='<button class="btn btn-primary" onclick="checkSynAnswer()">Vérifier</button>';
   const neg=q.sens<0, evol=(q.fam!=='pct');
-  const tab=(q.fam==='pct')
-    ? (q.inc==='fin'?PCT_ENONCES:(q.inc==='ini'?QD_ENONCES_VAL:QD_ENONCES_PCT))
-    : (q.inc==='fin'?(neg?DIM_ENONCES:AUG_ENONCES):(q.inc==='ini'?(neg?DIMQ_EN_VAL:AUGQ_EN_VAL):(neg?DIMQ_EN_PCT:AUGQ_EN_PCT)));
-  $('syPrompt').innerHTML=(tab[q.v]||tab[0])(q)+` Choisis ${synQuoi(q)}, puis vérifie ta réponse en écrivant les étapes des calculs.`;
+  $('syPrompt').innerHTML=variante(synEnonceTab(q),q)+` Choisis ${synQuoi(q)}, puis vérifie ta réponse en écrivant les étapes des calculs.`;
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="sc${i}" onclick="choisirSy(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(synLabel(q,v))}</span></button>`).join('');
   const c=synCouple(q);
@@ -7586,8 +7609,7 @@ function renderSal(){
   $('salFeedback').textContent=''; $('salFeedback').className='mp-feedback';
   $('salActions').innerHTML='<button class="btn btn-primary" onclick="checkSal()">Vérifier</button>';
   const neg=(q.sens===-1);
-  const tab=(q.inc==='fin')?(neg?DIM_ENONCES:AUG_ENONCES):(q.inc==='ini'?(neg?DIMQ_EN_VAL:AUGQ_EN_VAL):(neg?DIMQ_EN_PCT:AUGQ_EN_PCT));
-  $('salPrompt').innerHTML=(tab[q.v]||tab[0])(q)
+  $('salPrompt').innerHTML=variante(synEnonceTab(q),q)
     +` Choisis ${synQuoi(q)}, puis JUSTIFIE ta réponse en écrivant ta vérification — dans l’ordre que tu veux.`;
   const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="salc${i}" onclick="choisirSal(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(synLabel(q,v))}</span></button>`).join('');
   $('salHost').innerHTML=
@@ -7653,6 +7675,39 @@ function salExpr(txt){
   const v=expr(); if(!v||i!==toks.length) return null;
   return { v, termes, plusHaut:expr.plusHaut===true, moinsHaut:expr.moinsHaut===true };
 }
+/* Un terme montre « base × cible » si l'un de ses facteurs vaut la base et que
+   le PRODUIT DE TOUS LES AUTRES vaut la cible — quel que soit l'ordre, et quelle
+   que soit l'écriture de la cible (1,4 ou 140/100). Extrait de salJuge : la
+   synthèse rédigée des TROIS familles (2.5.2) lit ses voies avec le même
+   outil — deux lectures auraient fini par diverger. */
+function salMontre(termes, rBase, cible){
+  return termes.some(function(t){
+    const iN=t.findIndex(function(f){ return salEgal(f,rBase); });
+    if(iN<0) return false;
+    let p={n:1,d:1};
+    t.forEach(function(f,j){ if(j!==iN) p={n:p.n*f.n,d:p.d*f.d}; });
+    return salEgal(p,cible); });
+}
+/* LA VOIE DU QUOTIENT (demande de Turquet, août 2026) : « 936/900 = 104/100 »
+   suffit — la valeur finale divisée par la valeur initiale EST le coefficient,
+   c'est la leçon du 2.1.7 (« la part sur le tout »), revenue ici. Il faut un
+   morceau qui ÉCRIT le quotient (un facteur 1/valeur-initiale, produit = la
+   cible) et un AUTRE morceau qui vaut la cible sans être la même écriture —
+   « 936/900 = 936/900 » ne nomme rien (sauf quand la valeur initiale est 100,
+   où l'écriture du quotient EST le coefficient sur 100). */
+function salQuot(lus, rN, cible){
+  const rInvN={n:rN.d, d:rN.n};
+  const iQuot=lus.findIndex(function(x){ return x.termes.some(function(t){
+    if(!t.some(function(f){ return salEgal(f,rInvN); })) return false;
+    let p={n:1,d:1}; t.forEach(function(f){ p={n:p.n*f.n,d:p.d*f.d}; });
+    return salEgal(p,cible); }); });
+  if(iQuot<0) return false;
+  return lus.some(function(x,j){
+    if(j===iQuot || !salEgal(x.v,cible)) return false;
+    if(salEgal(rN,{n:100,d:1})) return true;
+    return !x.termes.some(function(t){ return t.some(function(f){ return salEgal(f,rInvN); }); });
+  });
+}
 /* salJuge : { sait, correct, phrase }. Refuse sur un fait prouvable, accepte
    quand tout est vérifié, s'abstient sinon. */
 function salJuge(q, texte){
@@ -7661,7 +7716,6 @@ function salJuge(q, texte){
   const rAug=salRatDe(c.aug), rFin=salRatDe(c.fin);
   const lignes=String(texte).split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; });
   if(!lignes.length) return { sait:false };
-  const rInvN={n:rN.d, d:rN.n};
   let coefOk=false, augProd=false, addOk=false, quotOk=false, commentaire=false;
   for(const ligne of lignes){
     const morceaux=ligne.split('=').map(function(m){ return m.trim(); });
@@ -7683,37 +7737,10 @@ function salJuge(q, texte){
     }
     const val=lus[0].v, aDeuxMorceaux=lus.length>=2;
     const termes=[]; lus.forEach(function(x){ x.termes.forEach(function(t){ termes.push(t); }); });
-    /* Un terme montre « Vi × cible » si l'un de ses facteurs vaut Vi et que
-       le PRODUIT DE TOUS LES AUTRES vaut la cible — quel que soit l'ordre,
-       et quelle que soit l'écriture de la cible (1,4 ou 140/100). */
-    const montre=function(cible){ return termes.some(function(t){
-      const iN=t.findIndex(function(f){ return salEgal(f,rN); });
-      if(iN<0) return false;
-      let p={n:1,d:1};
-      t.forEach(function(f,j){ if(j!==iN) p={n:p.n*f.n,d:p.d*f.d}; });
-      return salEgal(p,cible); }); };
-    if(aDeuxMorceaux && montre(rCoef) && salEgal(val,rFin)) coefOk=true;
-    if(aDeuxMorceaux && montre(rPct) && (salEgal(val,rAug)||salEgal(val,rFin))) augProd=true;
+    if(aDeuxMorceaux && salMontre(termes,rN,rCoef) && salEgal(val,rFin)) coefOk=true;
+    if(aDeuxMorceaux && salMontre(termes,rN,rPct) && (salEgal(val,rAug)||salEgal(val,rFin))) augProd=true;
     if(aDeuxMorceaux && lus.some(function(x){ return c.sens>0?x.plusHaut:x.moinsHaut; }) && salEgal(val,rFin)) addOk=true;
-    /* LA VOIE DU QUOTIENT (demande de Turquet, août 2026) : « 936/900 =
-       104/100 » suffit — la valeur finale divisée par la valeur initiale EST
-       le coefficient, c'est la leçon du 2.1.7 (« la part sur le tout »),
-       revenue ici. Il faut un morceau qui ÉCRIT le quotient (un facteur
-       1/valeur-initiale, produit = coefficient) et un AUTRE morceau qui vaut
-       le coefficient sans être la même écriture — « 936/900 = 936/900 » ne
-       nomme rien (sauf quand la valeur initiale est 100, où l'écriture du
-       quotient EST le coefficient sur 100). */
-    if(aDeuxMorceaux){
-      const iQuot=lus.findIndex(function(x){ return x.termes.some(function(t){
-        if(!t.some(function(f){ return salEgal(f,rInvN); })) return false;
-        let p={n:1,d:1}; t.forEach(function(f){ p={n:p.n*f.n,d:p.d*f.d}; });
-        return salEgal(p,rCoef); }); });
-      if(iQuot>=0 && lus.some(function(x,j){
-        if(j===iQuot || !salEgal(x.v,rCoef)) return false;
-        if(salEgal(rN,{n:100,d:1})) return true;
-        return !x.termes.some(function(t){ return t.some(function(f){ return salEgal(f,rInvN); }); });
-      })) quotOk=true;
-    }
+    if(aDeuxMorceaux && salQuot(lus,rN,rCoef)) quotOk=true;
   }
   const voieOk=coefOk || quotOk || (augProd && addOk);
   if(!voieOk && commentaire) return { sait:false };   /* la voie est peut-être dans le commentaire */
@@ -7732,9 +7759,8 @@ function salJuge(q, texte){
 function salEnonceIA(q){
   const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
   const neg=(q.sens===-1);
-  const tab=(q.inc==='fin')?(neg?DIM_ENONCES:AUG_ENONCES):(q.inc==='ini'?(neg?DIMQ_EN_VAL:AUGQ_EN_VAL):(neg?DIMQ_EN_PCT:AUGQ_EN_PCT));
   const props=q.opts.map((v,i)=>QLET[i]+') '+synLabel(q,v)).join(' ; ');
-  return 'Exercice de mathématiques de Première (France), sur une '+(neg?'DIMINUTION':'AUGMENTATION')+' en pourcentage. '+strip((tab[q.v]||tab[0])(q))
+  return 'Exercice de mathématiques de Première (France), sur une '+(neg?'DIMINUTION':'AUGMENTATION')+' en pourcentage. '+strip(variante(synEnonceTab(q),q))
    +' L’élève doit retrouver '+synQuoi(q)+' parmi quatre propositions : '+props+'.'
    +' Il a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+', et JUSTIFIE ce choix en écrivant sa vérification LUI-MÊME dans une feuille, ligne par ligne.'
    +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Ne refuse JAMAIS une copie pour sa mise en page.';
@@ -7770,9 +7796,10 @@ function salAttenduIA(q, juge){
    ne reçoit rien. On lit chaque ligne par la même voie que la feuille (toPlain
    sur la vraie MathLive), et par la propriété value de la greffe quand
    MathLive n'est pas là — c'est ce qui rend la peinture mesurable au banc. */
-function salPeindreLignes(){
-  if(!salFeuille || !Array.isArray(salFeuille.lignes)) return;
-  salFeuille.lignes.forEach(function(L){
+function salPeindreLignes(f){
+  const F=f||salFeuille;                    /* la synthèse rédigée du 2.5.2 passe la sienne */
+  if(!F || !Array.isArray(F.lignes)) return;
+  F.lignes.forEach(function(L){
     const mf=L&&L.mf; if(!mf||!mf.classList) return;
     mf.classList.remove('ok','bad');
     let t='';
@@ -7857,6 +7884,241 @@ async function finishSal(){
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
     details:{test:(test.qId||'synthese-augmentations-libre'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
+
+/* ---------- Synthèse sur les pourcentages, RÉDIGÉE (2.5.2) -------------------
+   {synthese-pourcentages-libre} (demande de Turquet, septembre 2026 : « fait un
+   exercice comme le 2.5.1 en première mais où l'élève doit rédiger une
+   vérification, on acceptera toutes les vérifications comme dans le 2.3.8 et le
+   2.2.10 et le 2.1.7 »). C'est le 2.5.1 — les TROIS familles (prendre,
+   augmenter, diminuer), les trois inconnues chacune UNE fois en ordre mélangé —
+   avec la feuille libre à la place de la chaîne de cases : l'élève choisit sa
+   proposition, puis JUSTIFIE en écrivant sa vérification lui-même.
+
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ. Le tirage est genSyn(), le générateur
+   MÊME du 2.5.1, appelé sans famille — un second tirage aurait fini par
+   diverger, et deux exercices voisins auraient posé la même question dans des
+   mots différents ; l'énoncé passe par synEnonceTab(), la table que les deux
+   écrans partagent. La feuille est celle du 2.1.7, en lignes INDÉPENDANTES
+   comme au 2.2.10 : la voie de l'augmentation demande DEUX égalités séparées,
+   qu'un préfixe « = » automatique aurait soudées en une égalité fausse.
+
+   ET LE JUGE EST CELUI DE CHAQUE FAMILLE, c'est-à-dire celui de l'exercice
+   rédigé dont elle vient :
+   · une évolution passe par salJuge — le juge MÊME du 2.2.10 et du 2.3.8, avec
+     ses trois voies : le coefficient, le quotient, ou l'évolution suivie de son
+     addition (de sa soustraction pour une baisse) ;
+   · « prendre un pourcentage » passe par sylJugePct — le LECTEUR de salJuge
+     (salExpr, salMontre, salQuot) et les DEUX voies du 2.1.7 : le pourcentage
+     en fraction × le nombre, et la part sur le tout amenée à /100.
+   TOUTES LES VÉRIFICATIONS SONT ACCEPTÉES, et c'est la doctrine des TROIS
+   POSITIONS qui le tient : on ne REFUSE que sur un fait prouvable (une égalité
+   fausse, une proposition qui n'est pas la bonne), on n'ACCEPTE que sur une voie
+   positivement montrée, et on S'ABSTIENT partout ailleurs — le modèle décide
+   alors seul, avec une règle qui nomme les voies ET accepte tout calcul qui
+   fonctionne. Quand le juge sait, son verdict PRIME : un verdict arithmétique
+   ne se confie pas à un modèle (la leçon payée en production, août 2026).
+   Même moteur de tirage que le 2.5.1, pas la même identité : la note part sous
+   test.qId, le rappel vit dans RAPPELS_ID, les questions dans QIA_SUGG. */
+let sylFeuille=null;
+async function startSynLibre(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='syl'; test.qId='synthese-pourcentages-libre';
+  const incs=qdMelanger(['fin','ini','pct']);
+  test.questions=Array.from({length:EVOL_NB},(_,i)=>genSyn(undefined, incs[i%incs.length]));
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent — la note n'en dépend pas ici, la coupe d'un devoir si (voir dmAppliquerNbQ) */
+  test.maxScore=test.questions.length;test.sylBusy=false;
+  show('syl'); renderSyl();
+}
+/* Choisir ne redessine JAMAIS l'écran (la leçon du 2.1.7) : un redessin
+   recréerait la feuille et effacerait la justification déjà écrite. */
+function choisirSyl(i){
+  if(test.locked||test.sylBusy) return;
+  const q=test.questions[test.idx];
+  if(q.choisi===i) return;
+  q.choisi=i;
+  q.opts.forEach((_,j)=>{ const b=$('sylc'+j); if(b) b.classList.toggle('sel', j===i); });
+  autoSave();
+}
+/* Les voies de vérification, DITES à l'élève avant qu'il n'écrive — et ce sont
+   celles que le juge sait reconnaître : un critère qu'on mesure sans l'avoir
+   demandé donnerait tort à une copie honnête. La phrase change avec la
+   famille, parce que les voies ne sont pas les mêmes. */
+function sylVoiesTexte(q){
+  if(q.fam==='pct') return 'écris le pourcentage en fraction × le nombre (…/100 × … = …), ou la part sur le tout amenée à /100 (…/… = …/100)';
+  const neg=(q.sens===-1);
+  return 'avec le coefficient ('+(neg?'0':'1')+',… × valeur initiale = …), avec le quotient (valeur finale/valeur initiale = coefficient), ou avec '
+    +(neg?'la diminution':'l’augmentation')+' (0,… × valeur initiale = …, puis '+(neg?'la soustraction':'l’addition')+' qui donne la valeur finale)';
+}
+function renderSyl(){
+  const q=test.questions[test.idx]; test.locked=false; test.sylBusy=false;
+  $('sylIdx').textContent=`Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagSyl').innerHTML=modeTagHTML();
+  $('sylLiveScore').textContent=test.score;
+  $('sylFeedback').textContent=''; $('sylFeedback').className='mp-feedback';
+  $('sylActions').innerHTML='<button class="btn btn-primary" onclick="checkSyl()">Vérifier</button>';
+  $('sylPrompt').innerHTML=variante(synEnonceTab(q),q)
+    +` Choisis ${synQuoi(q)}, puis JUSTIFIE ta réponse en écrivant ta vérification — dans l’ordre que tu veux.`;
+  const choix=q.opts.map((v,i)=>`<button type="button" class="pt-choix-btn${q.choisi===i?' sel':''}" id="sylc${i}" onclick="choisirSyl(${i})"><span class="lettre">${QLET[i]}</span><span class="valeur">${esc(synLabel(q,v))}</span></button>`).join('');
+  $('sylHost').innerHTML=
+    `<div class="pt-step"><div class="pt-lab">Choisis ${synQuoi(q)}</div>
+       <div class="pt-choix" id="sylChoix">${choix}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">justifie ta réponse — ${sylVoiesTexte(q)}</div>
+       <div class="dexp2-sheet" id="sylSheet"></div>
+       <p class="dexp-hint">Écris UN calcul par ligne. Tu peux justifier d’abord et choisir ta proposition ensuite. <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime. Toute méthode juste est acceptée, même différente de celle du cours.</p></div>`;
+  /* Les lignes sont INDÉPENDANTES : pas de préfixe « = » qui les enchaîne. La
+     feuille naît toujours VISIBLE (la leçon de mlFeuille), et reste intouchée. */
+  sylFeuille=mlFeuille({ conteneur:'sylSheet', mode:'calcul', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+}
+/* ---- Le juge de « prendre un pourcentage » : les deux voies du 2.1.7 ----
+   Le couple testé est celui de la proposition CHOISIE (synCouple, la fonction
+   même du 2.5.1) : pour le RÉSULTAT, l'énoncé donne les deux autres nombres et
+   c'est le résultat du calcul qui départage les propositions. */
+function sylJugePct(q, texte){
+  const c=synCouple(q); if(!c) return { sait:false };
+  const rN=salRatDe(c.N), rPct={n:c.P,d:100}, rRes=salRatDe(c.res);
+  const lignes=String(texte).split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l!==''; });
+  if(!lignes.length) return { sait:false };
+  let voie=false;
+  for(const ligne of lignes){
+    const morceaux=ligne.split('=').map(function(m){ return m.trim(); });
+    /* Une ligne SANS « = » que le juge ne sait pas lire est un COMMENTAIRE :
+       elle n'affirme aucune égalité et ne dit rien contre la copie. */
+    if(morceaux.length===1){ if(!salExpr(morceaux[0])) continue; }
+    if(morceaux.some(function(m){ return m===''; })) return { sait:false };
+    const lus=morceaux.map(salExpr);
+    if(lus.some(function(x){ return !x; })) return { sait:false };   /* écriture inconnue : le modèle décide */
+    for(let k=1;k<lus.length;k++){
+      if(!salEgal(lus[k-1].v, lus[k].v))
+        return { sait:true, correct:false,
+          phrase:'Il y a une égalité fausse dans ton calcul : « '+morceaux[k-1]+' = '+morceaux[k]+' ». Reprends cette ligne.' };
+    }
+    const val=lus[0].v, aDeuxMorceaux=lus.length>=2;
+    const termes=[]; lus.forEach(function(x){ x.termes.forEach(function(t){ termes.push(t); }); });
+    if(aDeuxMorceaux && salMontre(termes,rN,rPct) && salEgal(val,rRes)) voie=true;   /* P/100 × N = le résultat */
+    if(aDeuxMorceaux && salQuot(lus,rN,rPct)) voie=true;                             /* la part sur le tout */
+  }
+  if(voie && q.choisi===q.bon)
+    return { sait:true, correct:true, phrase:'Bravo ! Ta vérification montre le calcul, et tout est juste.' };
+  if(voie)
+    return { sait:true, correct:false, phrase:'Ton calcul est cohérent — compare son résultat aux nombres de l’énoncé : ta proposition ne s’accorde pas avec eux. Change de proposition, puis revérifie.' };
+  /* La proposition fausse est un fait prouvable, quelle que soit la
+     justification ; une voie qu'on ne sait pas lire n'en est pas un. */
+  if(q.choisi!==q.bon)
+    return { sait:true, correct:false, phrase:'Ta proposition ne s’accorde pas avec les nombres de l’énoncé : mène ta vérification jusqu’au bout, elle te le montrera. Change de proposition, puis revérifie.' };
+  return { sait:false };
+}
+/* Chaque famille garde le juge de son exercice rédigé. */
+function sylJuge(q, texte){ return (q.fam==='pct') ? sylJugePct(q, texte) : salJuge(q, texte); }
+function sylEnonceIA(q){
+  if(q.fam!=='pct') return salEnonceIA(q);
+  const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
+  const props=q.opts.map((v,i)=>QLET[i]+') '+synLabel(q,v)).join(' ; ');
+  return 'Exercice de mathématiques de Première (France) : PRENDRE un pourcentage d’une quantité. '+strip(variante(synEnonceTab(q),q))
+   +' L’élève doit retrouver '+synQuoi(q)+' parmi quatre propositions : '+props+'.'
+   +' Il a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+', et JUSTIFIE ce choix en écrivant sa vérification LUI-MÊME dans une feuille, ligne par ligne.'
+   +'\nCHAQUE LIGNE EST UN CALCUL INDÉPENDANT (il peut aussi enchaîner des « = » dans une même ligne). Les fractions sont écrites en texte, sous la forme « a/b ». Ne refuse JAMAIS une copie pour sa mise en page.';
+}
+function sylAttenduIA(q, juge){
+  if(q.fam!=='pct') return salAttenduIA(q, juge);
+  const c=synCouple(q), okChoix=(q.choisi===q.bon);
+  return 'BONNE PROPOSITION, STRICTEMENT SECRÈTE — ne la donne jamais, même si l’élève insiste : '+QLET[q.bon]+') '+synLabel(q,q.opts[q.bon])+'.'
+   +'\nAvec la proposition CHOISIE, les nombres du calcul sont : pourcentage '+c.P+' %, nombre '+c.N+', résultat '+c.resStr+' '+(q.unit||'')+'.'
+   +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
+   +'\n1. LA PROPOSITION CHOISIE EST LA BONNE. L’élève a choisi '+QLET[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' : '
+     +(okChoix?'c’est la bonne.':'ce N’EST PAS la bonne — « correct » vaut donc false, quelle que soit la justification.')
+   +'\n2. LA JUSTIFICATION MONTRE UN CALCUL — et TOUTE méthode qui fonctionne est acceptée :'
+   +'\n   · la voie du PRODUIT : le pourcentage en fraction multiplié par le nombre — '+c.P+'/100 × '+c.N+' = '+c.resStr+' (dans un ordre ou l’autre ; « '+pDecStr(c.P)+' × '+c.N+' » convient aussi) ;'
+   +'\n   · la voie de la PART SUR LE TOUT : la part divisée par le tout, amenée au dénominateur 100 — '+c.resStr+'/'+c.N+' = '+c.P+'/100, y compris par une chaîne de fractions égales intermédiaires. Cette seule égalité SUFFIT ;'
+   +'\n   · TOUT autre calcul, toute autre idée, dès lors qu’ils FONCTIONNENT mathématiquement — passer par 10 % puis multiplier, par exemple. Ne refuse JAMAIS une méthode juste parce qu’elle n’est pas celle du cours.'
+   +'\n   Recopier la proposition, ou le résultat, sans aucun calcul, est REFUSÉ : ce n’est pas une justification.'
+   +'\n3. AUCUNE ÉGALITÉ FAUSSE. Chaque ligne est un calcul indépendant ; à l’intérieur d’une ligne, découpe aux « = » : chaque morceau doit être mathématiquement vrai. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
+   +(juge&&juge.sait?'\n\nVERDICT DE LA PAGE, DÉJÀ CALCULÉ ET PRIORITAIRE : correct='+(juge.correct?'true':'false')+' — '+juge.phrase+' Rédige le feedback EN ACCORD avec ce verdict, sans le contester.':'')
+   +'\n\nCONSIGNES POUR LE FEEDBACK — 2 à 4 phrases, tutoiement, ton chaleureux.'
+   +' Si tout est juste : félicite, et nomme la méthode utilisée.'
+   +' Si la justification manque : rappelle qu’il faut montrer le calcul, sans l’écrire à sa place.'
+   +' Ne te contredis JAMAIS : n’écris jamais qu’un calcul est faux puis qu’il est juste.'
+   +' Si la proposition choisie n’est pas la bonne : dis que sa vérification, menée honnêtement, le montrera — sans JAMAIS donner la bonne proposition ni le résultat.'
+   +' Si une égalité est fausse : dis laquelle et ce qui cloche.'
+   + LANGUE_SIMPLE;
+}
+/* Le résumé qui part dans la note (misses) : la question en une ligne. */
+function sylResume(q){
+  if(q.fam==='pct')
+    return (q.inc==='fin') ? `${q.P} % de ${q.N} ${q.unit}`
+         : (q.inc==='ini') ? `${q.P} % d’un nombre ${q.result>1?'valent':'vaut'} ${q.result} ${q.unit}`
+         : `${q.result} ${q.unit} sur ${q.N} ${q.unit}`;
+  const sgn=(q.sens===-1)?'−':'+', evoM=(q.sens===-1)?'diminué':'augmenté', evoN=(q.sens===-1)?'baisse':'hausse';
+  return (q.inc==='fin') ? `${q.N} ${q.unit} ${evoM} de ${q.P} %`
+       : (q.inc==='ini') ? `quelle valeur donne ${q.decStr} ${q.unit} après ${sgn}${q.P} % ?`
+       : `de ${q.N} à ${q.decStr} ${q.unit} : quel pourcentage de ${evoN} ?`;
+}
+async function checkSyl(){
+  if(test.locked || test.sylBusy) return;
+  const q=test.questions[test.idx], fb=$('sylFeedback');
+  if(q.choisi===null){ fb.textContent='Choisis d’abord une proposition (a, b, c ou d).'; fb.className='mp-feedback bad'; return; }
+  const rep=(sylFeuille?sylFeuille.lire():'').trim();
+  if(!rep){ fb.textContent='Écris d’abord ta vérification : '+sylVoiesTexte(q)+'.'; fb.className='mp-feedback bad';
+    if(sylFeuille && sylFeuille.lignes[0]) sylFeuille.lignes[0].mf.focus(); return; }
+  const juge=sylJuge(q, rep);
+  test.sylBusy=true;
+  $('sylActions').innerHTML='<button class="btn btn-primary" disabled>Vérification…</button>';
+  fb.textContent='Je lis ta vérification…'; fb.className='mp-feedback muted';
+  let res=null;
+  try{
+    const r=await sb.functions.invoke('corriger-definition', { body:{ eleve_id: currentEleve.id,
+      action:'verif', question:sylEnonceIA(q), attendu:sylAttenduIA(q, juge), reponse:rep, balises:true } });
+    if(r.error) throw r.error; res=r.data;
+  }catch(e){ res=null; }
+  test.sylBusy=false;
+  /* le juge PRIME : sans lui le modèle décide ; en panne, le juge répond seul */
+  let correct, feedback;
+  if(juge.sait){
+    correct=juge.correct;
+    /* Sur un REFUS, la phrase du juge s'affiche TOUJOURS (la leçon du 2.2.10 :
+       le modèle a rédigé en production un refus qui se contredisait). */
+    feedback=(correct && res && !res.error && res.correct===true && res.feedback) ? res.feedback : juge.phrase;
+  } else {
+    if(!res || res.error){
+      fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
+      fb.className='mp-feedback bad';
+      $('sylActions').innerHTML='<button class="btn btn-primary" onclick="checkSyl()">Vérifier</button>';
+      return;
+    }
+    correct=res.correct===true; feedback=res.feedback||'';
+  }
+  fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
+  salPeindreLignes(sylFeuille);              /* la copie se voit : lignes justes en bleu, fausses en rouge */
+  const okChoix=(q.choisi===q.bon);
+  if(isSoutien() && !correct){
+    $('sylActions').innerHTML='<button class="btn btn-primary" onclick="checkSyl()">Revérifier</button>';
+    if(sylFeuille && sylFeuille.lignes.length) sylFeuille.lignes[sylFeuille.lignes.length-1].mf.focus();
+    return;
+  }
+  test.locked=true; if(sylFeuille) sylFeuille.verrouiller();
+  const cx=$('sylChoix'); if(cx) cx.classList.add('locked');
+  const btn=$('sylc'+q.choisi); if(btn){ btn.classList.remove('sel'); btn.classList.add(okChoix?'ok':'bad'); }
+  if(!okChoix){ const b2=$('sylc'+q.bon); if(b2) b2.classList.add('sol'); }
+  if(correct){ test.score++; $('sylLiveScore').textContent=test.score; }
+  test.answers.push({...(ptsExo()||{}), q:sylResume(q),
+    answer:synLabel(q,q.opts[q.bon]), given:synLabel(q,q.opts[q.choisi])+' — '+rep, correct:correct});
+  const last=test.idx===test.questions.length-1;
+  $('sylActions').innerHTML=`<button class="btn btn-primary" id="sylNext" onclick="nextSyl()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  const nb=$('sylNext'); if(nb) nb.focus();
+}
+function nextSyl(){ if(test.idx<test.questions.length-1){ test.idx++; renderSyl(); autoSave(); } else finishSyl(); }
+async function finishSyl(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,
+    details:{test:(test.qId||'synthese-pourcentages-libre'),mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,total,percent:pct,durationSec});
 }
@@ -10099,7 +10361,7 @@ async function finishLireCoef(){
   showResults({score,total,percent:pct,durationSec});
 }
 
-/* ---------- Reconnaître le coefficient (2.5.2) --------------------------------
+/* ---------- Reconnaître le coefficient (2.5.3) --------------------------------
    {reconnaitre-coefficient} (demande de Turquet, août 2026) : une
    transformation donnée — augmenter de P %, diminuer de P %, prendre P % —
    et QUATRE coefficients proposés, dont les pièges classiques : le
@@ -10274,12 +10536,12 @@ async function finishCK(){
    ce sont les trois familles pour P, puis les trois familles pour P la VIRGULE
    DÉCALÉE d'un rang (Ps) — pour P = 30 : 0,30 / 1,30 / 0,70, puis 0,03 / 1,03 /
    0,97. Deux axes, donc six cases, et aucune ne s'élimine sans raisonner : les
-   deux pièges du 2.5.2 (la famille et la virgule) sont présents SUR CHAQUE
+   deux pièges du 2.5.3 (la famille et la virgule) sont présents SUR CHAQUE
    LIGNE à la fois. Des propositions qui différeraient par autre chose se
    laisseraient écarter sans lire la phrase — la leçon d'{intervalles-inegalite}.
-   TOUT EST REPRIS DU 2.5.2, RIEN N'EST RECOPIÉ : ckCoef (le coefficient d'une
+   TOUT EST REPRIS DU 2.5.3, RIEN N'EST RECOPIÉ : ckCoef (le coefficient d'une
    transformation), ckStr (son écriture), ckMots (le verbe et le signe) et
-   ckPiege (le nom de l'erreur) sont les fonctions MÊMES du 2.5.2 — un second
+   ckPiege (le nom de l'erreur) sont les fonctions MÊMES du 2.5.3 — un second
    jeu aurait fini par diverger, et deux exercices voisins se seraient
    contredits sous les yeux de l'élève. Même moteur de nombres, pas la même
    identité : la note part sous test.qId, le rappel vit dans RAPPELS_ID, les
@@ -10301,10 +10563,10 @@ const AC_NB=3;                       /* questions par séance — une par pource
 const AC_FAMS=['pre','aug','dim'];   /* l'ordre des trois lignes : celui du menu (2.1, 2.2, 2.3) */
 /* Le même pourcentage, la virgule décalée d'un rang : 30 -> 3, 3 -> 30. */
 function acDecale(P){ return (P%10===0) ? P/10 : P*10; }
-/* Écriture d'un coefficient donné en centièmes — celle du 2.5.2. */
+/* Écriture d'un coefficient donné en centièmes — celle du 2.5.3. */
 function acStr(c){ return ckStr(c); }
 /* Le coefficient attendu pour une ligne, et son rang dans les propositions.
-   ckCoef est la fonction qui corrige le 2.5.2 : les deux exercices ne peuvent
+   ckCoef est la fonction qui corrige le 2.5.3 : les deux exercices ne peuvent
    donc pas se contredire. */
 function acCoef(q,fam){ return ckCoef({fam:fam,P:q.P}); }
 function acBon(q,fam){ return q.ordre.indexOf(acCoef(q,fam)); }
@@ -10371,7 +10633,7 @@ function renderACTest(){
 }
 /* Le message nomme, LIGNE PAR LIGNE, le piège choisi puis la méthode. « Faux »
    tout court ne dit pas où reprendre, et une copie fausse sur une seule ligne
-   n'a pas à faire relire les deux autres. ckPiege est celui du 2.5.2 : il ne
+   n'a pas à faire relire les deux autres. ckPiege est celui du 2.5.3 : il ne
    lit que q.P, et les six propositions sont exactement celles qu'il nomme. */
 function acExplication(q, fam){
   const M=ckMots(fam), bon=acCoef(q,fam);
@@ -13367,6 +13629,13 @@ Exemple, 600 diminué de 5 % : <b>0,95 × 600 = 570</b>.<br>
 Même exemple : <b>0,05 × 600 = 30</b>, puis <b>600 − 30 = 570</b>.<br>
 Quelle que soit la question — valeur finale, valeur initiale ou pourcentage — on vérifie sa proposition en refaisant le calcul À PARTIR de la valeur initiale : si tout s’accorde avec l’énoncé, la proposition tient.<br>
 Recopier la proposition n’est pas une justification : il faut montrer le calcul.`;
+const RAP_SYL=`<b>Vérifier, quelle que soit la question</b><br>
+Trois familles, une seule habitude : on <b>refait le calcul</b> à partir des nombres de l’énoncé et de la proposition choisie, puis on regarde si tout se raccorde.<br>
+<b>Prendre P %</b> d’un nombre : \\(\\frac{P}{100}\\) × nombre, comme dans l’exercice {pourcentage} — ou la part sur le tout amenée à /100, par exemple \\(\\frac{60}{200}=\\frac{30}{100}\\).<br>
+<b>Augmenter de P %</b> : multiplier par \\(1+\\frac{P}{100}\\) — ou calculer la hausse (\\(\\frac{P}{100}\\) × valeur) puis l’ajouter.<br>
+<b>Diminuer de P %</b> : multiplier par \\(1-\\frac{P}{100}\\) — ou calculer la baisse puis la retirer.<br>
+Dans les deux derniers cas, le <b>quotient</b> valeur finale / valeur initiale donne aussi le coefficient : \\(\\frac{936}{900}=\\frac{104}{100}\\), donc +4 %.<br>
+Recopier la proposition n’est pas une justification : il faut montrer le calcul. Toute méthode juste est acceptée, même différente de celle du cours.`;
 const RAP_AUG=`<b>Augmenter d’un pourcentage</b><br>
 Augmenter de <b>P %</b>, c’est garder le tout (100 %) et y ajouter P % : on multiplie par le <b>coefficient multiplicateur</b><br>
 <b>\\(1+\\frac{P}{100}=\\frac{100+P}{100}\\)</b>.<br>
@@ -13542,7 +13811,7 @@ Trois phrases, trois coefficients, et le même pourcentage P dans les trois :<br
 Un coefficient <b>plus grand que 1</b> fait monter, <b>plus petit que 1</b> fait descendre, et le pourcentage se lit sur l’<b>écart à 1</b> — c’est le chemin inverse, celui de {lire-coefficient}.<br>
 <b>Premier piège : confondre les trois.</b> Prendre 30 %, c’est n’en garder que 30 % (× 0,30) ; diminuer de 30 %, c’est en garder 70 % (× 0,70). Les deux font descendre, mais pas de la même chose.<br>
 <b>Second piège : la place de la virgule.</b> 30 % s’écrit 0,<b>30</b> et 3 % s’écrit 0,<b>03</b> : un pourcentage à un seul chiffre garde un zéro après la virgule. Multiplier par 1,03, c’est donc augmenter de 3 % et non de 30 %.`;
-const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC };
+const RAPPELS_ID={ 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SYL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -13579,6 +13848,7 @@ const QIA_SUGG={
   sal:["Comment vérifier avec le coefficient multiplicateur ?","Comment savoir ce que la question me demande de retrouver ?","Comment justifier ma réponse ?","C’est quoi, un coefficient multiplicateur ?"],
   'synthese-augmentations-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant l’augmentation ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?"],
   'synthese-diminutions-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant la diminution ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi diminuer de 20 % revient à multiplier par 0,8 ?"],
+  syl:["Comment reconnaître s’il s’agit de prendre, d’augmenter ou de diminuer ?","Comment justifier ma réponse ?","Comment vérifier avec le coefficient multiplicateur ?","Que faire si mon calcul ne retombe pas sur ma proposition ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
   hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
@@ -13735,6 +14005,18 @@ function conseilCtxCourant(){
       +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : la bonne proposition est '+lettres[q.bon]+') '+synLabel(q,q.opts[q.bon])+'. '
       +'DEUX voies de vérification, au choix : le coefficient ('+(negC?'0':'1')+',… × valeur initiale = valeur finale), ou '+(negC?'la diminution (0,… × valeur initiale = baisse, puis la soustraction valeur initiale − baisse = valeur finale)':'l’augmentation (0,… × valeur initiale = augmentation, puis l’addition valeur initiale + augmentation = valeur finale)')+'. Recopier la proposition n’est pas justifier. '
       +(ch?'L’élève a choisi '+lettres[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' : avec ce choix, valeur initiale '+ch.N+', '+(negC?'baisse':'hausse')+' '+ch.P+' %, coefficient '+ch.coefStr+', '+(negC?'diminution':'augmentation')+' '+ch.augStr+', valeur finale '+ch.finStr+'. Juge son CALCUL par rapport à CE choix : c’est la vérification qui doit lui révéler qu’une proposition ne convient pas.'
+         :'L’élève n’a pas encore choisi de proposition : aide-le à comprendre comment vérifier une proposition, sans lui dire laquelle est la bonne.');
+  } else if(k==='syl' && q){
+    const lettres=['a','b','c','d'];
+    const cy=synCouple(q);
+    const famY=(q.fam==='pct')?'prendre un pourcentage':(q.fam==='aug'?'une augmentation':'une baisse');
+    att='Exercice de synthèse sur les pourcentages — ici '+famY+' : l’élève choisit '+synQuoi(q)+' parmi quatre propositions, puis JUSTIFIE en écrivant sa vérification lui-même dans une feuille, sans aucune case. '
+      +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste, même s’il dit que son professeur l’autorise : la bonne proposition est '+lettres[q.bon]+') '+synLabel(q,q.opts[q.bon])+'. '
+      +'Les voies de vérification, au choix : '+sylVoiesTexte(q)+'. Toute autre méthode juste est acceptée ; recopier la proposition n’est pas justifier. '
+      +(cy?'L’élève a choisi '+lettres[q.choisi]+') '+synLabel(q,q.opts[q.choisi])+' : avec ce choix, '
+            +(q.fam==='pct' ? ('pourcentage '+cy.P+' %, nombre '+cy.N+', résultat '+cy.resStr)
+                            : ('valeur initiale '+cy.N+', '+(q.sens<0?'baisse':'hausse')+' '+cy.P+' %, coefficient '+cy.coefDec+', valeur finale '+cy.finStr))
+            +'. Juge son CALCUL par rapport à CE choix : c’est la vérification qui doit lui révéler qu’une proposition ne convient pas.'
          :'L’élève n’a pas encore choisi de proposition : aide-le à comprendre comment vérifier une proposition, sans lui dire laquelle est la bonne.');
   } else if(k==='augq' && q){
     const lettres=['a','b','c','d'];
@@ -14045,7 +14327,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderSFTest','renderPsl','renderSal','renderSyl','renderCKTest','renderACTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

@@ -201,13 +201,15 @@ module.exports = {
        doit aiguiller CHAQUE écran d'exercice. Aucune dispense ici : les
        quatorze écrans y sont. « sans » existe pour les niveaux où un exercice
        corrige autrement — le déclarer vaut mieux que d'affaiblir le contrôle. */
-    /* {pourcentage-synthese-libre} : la correction est le verdict de l'IA,
-       il n'y a rien à colorer pendant la saisie.
+    /* {pourcentage-synthese-libre}, {synthese-augmentations-libre},
+       {synthese-diminutions-libre} et {synthese-pourcentages-libre} : la copie
+       s'écrit dans une feuille libre, et la correction est le verdict de la
+       page (ou de l'IA) — il n'y a aucune case à colorer pendant la saisie.
        {associer-coefficient} : l'élève ne tape rien, il CHOISIT dans trois
        listes — colorer une ligne au moment où il la choisit lui dirait si elle
        est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
        six. C'est la règle de {solutions-graphique} en Seconde. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'syl', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
