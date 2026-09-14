@@ -4018,8 +4018,8 @@ sa règle et ne la RENDAIT pas — un `return` oublié ne casse rien, la règle
 partait simplement vide.
 
 **Et le miroir sur les BAISSES : même moteur, troisième identité.**
-{synthese-diminutions-libre} (2.3.8, demande de Turquet, août 2026) est le
-2.2.9 sur les diminutions : le MÊME moteur `sal` — écran, feuille, juge,
+{synthese-diminutions-libre} (2.3.9, demande de Turquet, août 2026) est la
+synthèse rédigée des hausses portée aux diminutions : le MÊME moteur `sal` — écran, feuille, juge,
 règle — a appris le SENS (`q.sens`, déjà porté par `genSyn`). Le coefficient
 d'une baisse s'écrit `0,xx` (1 − P/100), et la seconde voie s'achève par une
 SOUSTRACTION : le juge distingue l'addition de la soustraction au niveau haut
@@ -4031,6 +4031,47 @@ partagées épinglent `test.qId` (le motif maison), « Recommencer » route par
 l'identité, et chaque identité a son rappel et ses questions à l'IA —
 `qiaSuggestions()` fait primer l'identifiant sur le `kind`. Éprouvé par six
 sabotages, chacun nommé.
+
+**Et la synthèse À CASES des baisses est arrivée la dernière — l'asymétrie
+était le manque.** {synthese-diminutions} (Première, 2.3.8, demande de
+Turquet, septembre 2026 : « faire un exercice de synthèse sur les diminutions
+rédigé comme le 2.2.9 ») est le MIROIR de {synthese-augmentations} sur les
+baisses. Le sous-thème des hausses avait ses DEUX synthèses — celle à cases
+(2.2.9) et la rédigée (2.2.10) — quand celui des baisses n'avait que la
+rédigée : c'est cette moitié manquante que la demande nomme, la synthèse
+rédigée des baisses existant depuis août.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et c'est ce qui rend l'ajout court** :
+`genSyn('dim', …)` est le générateur MÊME du 2.2.9 et du 2.5.1 — un second
+aurait fini par diverger, et deux exercices voisins se seraient contredits
+sous les yeux de l'élève —, l'écran (`scr-syntest`), la correction
+(`checkSynAnswer`), la pose facultative et le contexte envoyé au modèle sont
+déjà GÉNÉRIQUES sur `q.fam` (« une baisse ») et sur `q.sens` : pas une ligne
+n'a eu à y changer. Le démarreur et deux entrées de table sont tout l'ajout.
+**Même moteur, pas même identité** (le motif du calcul mental) : la note part
+sous `test.qId`, « Recommencer » route par l'identité — la route est devenue
+une TABLE, un `if` de plus aurait fini par en oublier une —, et la clé du
+rappel vit dans `tests/profils.js` comme celle du 2.2.9, sur `RAPPELS.syn`
+qui couvre les deux sens. Lui donner un rappel dédié aurait créé une
+asymétrie avec son miroir, qui n'en a pas.
+Les trois inconnues — le résultat, la valeur initiale, le pourcentage —
+sortent chacune UNE fois sur les trois questions, en ordre mélangé : sans
+quoi l'élève apprendrait que la question est toujours du même genre.
+**Le contrôle des synthèses a été ÉTENDU, pas doublé** : il tient désormais
+les TROIS à cases, et le sens de chacune est un bord RÉEL — un `genSyn('aug')`
+recopié dans le démarreur des baisses poserait des hausses sous un titre de
+baisses, et rien à l'écran ne le dirait. L'ordre d'appel compte : le nouveau
+démarreur passe AVANT `startSynAug` dans la boucle, le contrôle d'identité qui
+la suit lisant l'état du DERNIER appelé. Huit sabotages, chacun rougissant en
+nommant son défaut — le sens inversé, l'identité non épinglée, « Recommencer »
+mal routé, les inconnues au hasard, leur ordre figé, l'exercice hors de
+THEMES, le rappel non déclaré, la séance allongée.
+**Et la numérotation a bougé avec lui**, comme toujours :
+{synthese-diminutions-libre} passe en 2.3.9. Les références écrites
+`{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS — la liste des
+démarreurs du contrôle d'EVOL_NB, les messages qui nomment ces exercices, et
+les commentaires que l'insertion du 2.2.8 avait déjà laissés en arrière — ont
+été repris à la main le jour même. Un contrôle qui s'affiche sous le nom d'un
+autre est pire qu'un contrôle sans nom.
 
 **Une multiplication n'est pas une paire : c'est une liste de facteurs.**
 Signalé par Turquet en production sur une capture (août 2026) : sur le 2.2.9,
@@ -4067,7 +4108,7 @@ retrouve le pourcentage » — refusée, avec une prose qui se contredisait
 corrections, toutes deux copies épinglées au contrôle :
 · **La voie du QUOTIENT suffit** (demande de Turquet) : la valeur finale
   divisée par la valeur initiale EST le coefficient — la leçon du 2.1.7
-  (« la part sur le tout »), revenue au 2.2.9/2.3.8. Il faut un morceau qui
+  (« la part sur le tout »), revenue au 2.2.10/2.3.9. Il faut un morceau qui
   ÉCRIT le quotient (un facteur 1/valeur-initiale, produit = coefficient) et
   un AUTRE morceau qui vaut le coefficient sans être la même écriture —
   « 936/900 = 936/900 » ne nomme rien, sauf quand la valeur initiale est
@@ -6721,7 +6762,8 @@ nombre de rangées déclaré (`clavierEcran.paysage.rangees` dans
 l'autre (une touche perdue serait intapable dans une orientation, sans
 erreur) — et la table de routage elle-même, `kbCompact` + `applyKbLayout`
 évaluées sur un faux clavier dans les trois cas (ancré paysage, ancré
-portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre le 2.2.9 sur
+portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre la synthèse
+rédigée des hausses sur
 une tablette tactile en paysage, compte les rangées RENDUES, exige des
 touches d'au moins 36 px sans débord, CLIQUE la vraie touche ⏎ — une ligne
 de plus, le curseur dedans, le clavier toujours là — puis tourne en portrait
@@ -6737,7 +6779,7 @@ touchée — le dire vaut mieux que le taire.
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
-partagée par le 2.1.7, le 2.2.9 et le 2.3.8) écrit à 2 rem : une ligne
+partagée par le 2.1.7, le 2.2.10 et le 2.3.9) écrit à 2 rem : une ligne
 faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
 requête média de la tablette — la même que la police de la page, écran
 tactile d'au moins 600 px — elle passe à 1,4 rem (20 px rendus, une ligne
@@ -6746,7 +6788,7 @@ l'entourent, sur tablette aussi. La valeur vit dans `tests/profils.js`
 (`feuilleTablette`, deux sources). jsdom exige la règle sous cette requête,
 à cette valeur, plus PETITE que la taille normale — une règle qui ne réduit
 rien passerait sinon ; le navigateur (« 11 quinquies ») mesure la police
-RENDUE de la feuille du 2.2.9 sur la tablette et l'exige plus petite que sur
+RENDUE de cette feuille sur la tablette et l'exige plus petite que sur
 un ordinateur ouvert au même exercice — une règle qui réduirait partout ne
 serait pas la règle demandée. Cinq sabotages, chacun rougissant en nommant
 son défaut — et le premier essai du contrôle a rougi sur une page JUSTE :
@@ -6955,7 +6997,7 @@ facteur, par construction et non par vigilance.
 `.mp-stage` est ce qui vient après le `p.mp-instr` de l'énoncé, qui vit
 au-dessus et garde donc sa taille sans qu'on ait rien à lui retirer. Et
 `:has(math-field.pm-mf)` restreint aux stages qui portent VRAIMENT une case à
-nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8) a déjà sa règle
+nombres — la feuille de rédaction libre (2.1.7, 2.2.10, 2.3.9) a déjà sa règle
 de tablette et n'est pas touchée ; elle est NOMMÉE dans le profil plutôt que
 tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran

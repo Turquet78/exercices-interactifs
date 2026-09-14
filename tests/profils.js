@@ -42,7 +42,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -275,7 +275,7 @@ module.exports = {
     manifeste: { display: 'fullscreen' },
     policeTablette: 90,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
-       2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
+       2.3.9) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
        septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
        plus petite »). Le banc jsdom exige la règle sous la requête média de la
        tablette, avec cette valeur, plus petite que la taille normale ; le banc
@@ -300,7 +300,7 @@ module.exports = {
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
                                   '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
-                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.10, 2.3.8) est hors
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.10, 2.3.9) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
                          les fractions de l'énoncé — il est donc nommé ici plutôt que
