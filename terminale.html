@@ -517,6 +517,12 @@
     background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
     padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   #bexpBulle[hidden]{display:none!important}
+  /* Faute de place à sa taille normale, la bulle se RESSERRE plutôt que de
+     retourner au coin : même texte, plus petit. Une chaîne de cases n'offre
+     nulle part 288 px de libre, et une bulle au coin ne désigne rien. */
+  #bexpBulle.bexp-mini{max-width:200px;padding:6px 22px 6px 8px}
+  #bexpBulle.bexp-mini [data-bexp-btn]{font-size:.74rem;padding:3px 5px;line-height:1.15}
+  #bexpBulle.bexp-mini [data-bexp-x]{top:2px;right:4px;font-size:12px}
   /* la flèche : DEUX triangles — l'un à l'encre du cadre, l'autre au fond posé
      2 px en dedans pour couvrir le trait du cadre, sans quoi la base de la
      flèche montrerait une couture. --bexp-fx est la distance du bord de la
@@ -2503,7 +2509,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=311;
+const APP_VERSION=312;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -18551,6 +18557,9 @@ function bexpValeur(el){
 const BEXP_ECART=14;   /* la pointe s'arrête à 14 px de la case : la flèche en
                           occupe 10, il reste 4 px de blanc */
 const BEXP_MARGE=8;    /* on ne colle jamais la bulle au bord de la fenêtre */
+const BEXP_PAS=6;      /* le pas du GLISSEMENT le long du côté : la bulle n'est
+                          pas forcée d'être centrée sur la case, elle se décale
+                          tant que la flèche atteint encore son centre */
 /* 'auto' et non '' : vider une propriété en ligne rend la main à la FEUILLE DE
    STYLES, qui repose right:16px et bottom:92px. Les deux bords posés, le
    navigateur ÉTIRE la boîte — la bulle mesurait 360x488 au lieu de 288x69 —,
@@ -18560,6 +18569,7 @@ const BEXP_MARGE=8;    /* on ne colle jamais la bulle au bord de la fenêtre */
    nommé (« element is not stable ») et la sonde l'a chiffré. */
 function bexpCoin(b){
   if(!b) return;
+  b.classList.remove('bexp-mini');
   b.removeAttribute('data-bexp-cote');
   b.style.removeProperty('--bexp-fx');
   b.style.left='auto'; b.style.top='auto';
@@ -18594,48 +18604,87 @@ function bexpChevauche(x,y,l,h,obs){
   }
   return false;
 }
+/* Les valeurs essayées le long d'un côté : la CENTRÉE d'abord, puis de part
+   et d'autre, et les deux extrêmes. La bulle n'est donc plus obligée d'être
+   centrée sur sa case — elle glisse tant que la flèche atteint encore le centre
+   de la case, c'est-à-dire tant que son décalage reste à 18 px des coins
+   arrondis. Sans ce glissement, un obstacle qui mordait de deux pixels
+   renvoyait la bulle au coin (mesuré : 11 replis sur 29 disparaissent). */
+function bexpGlissades(centre, mn, mx){
+  const out=[];
+  if(mn>mx) return out;
+  const pousser=function(v){
+    v=Math.max(mn, Math.min(mx, v));
+    if(out.indexOf(v)<0) out.push(v);
+  };
+  pousser(centre);
+  for(let d=BEXP_PAS; d<=(mx-mn); d+=BEXP_PAS){ pousser(centre-d); pousser(centre+d); }
+  pousser(mn); pousser(mx);
+  return out;
+}
+/* Pose la bulle de taille L×H à côté de la case, et rend true si elle a trouvé
+   sa place : les quatre côtés dans l'ordre (droite, gauche, dessus, dessous),
+   chacun glissé. La zone testée comprend la FLÈCHE, qui dépasse du côté de la
+   case — sans quoi la pointe se poserait sur la case du voisin. */
+function bexpPoser(b, c, L, H, obs){
+  const W=window.innerWidth, Hv=window.innerHeight;
+  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
+  const cotes=[
+    { cote:'droite', vert:true,  fixe:c.right+BEXP_ECART  },
+    { cote:'gauche', vert:true,  fixe:c.left-BEXP_ECART-L },
+    { cote:'haut',   vert:false, fixe:c.top-BEXP_ECART-H  },
+    { cote:'bas',    vert:false, fixe:c.bottom+BEXP_ECART },
+  ];
+  for(let i=0;i<cotes.length;i++){
+    const e=cotes[i], D=e.vert?H:L, ancre=e.vert?cy:cx;
+    const vals=bexpGlissades(ancre-D/2, ancre-D+18, ancre-18);
+    for(let k=0;k<vals.length;k++){
+      const x = e.vert ? e.fixe : vals[k];
+      const y = e.vert ? vals[k] : e.fixe;
+      if(x<BEXP_MARGE || y<BEXP_MARGE || x+L>W-BEXP_MARGE || y+H>Hv-BEXP_MARGE) continue;
+      const zx=(e.cote==='droite') ? x-BEXP_ECART : x;
+      const zy=(e.cote==='bas')    ? y-BEXP_ECART : y;
+      const zl=e.vert ? L+BEXP_ECART : L;
+      const zh=e.vert ? H : H+BEXP_ECART;
+      if(bexpChevauche(zx,zy,zl,zh,obs)) continue;
+      b.style.right='auto'; b.style.bottom='auto';
+      b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+      b.dataset.bexpCote=e.cote;
+      /* La flèche suit le CENTRE de la case, EXACTEMENT : le glissement ne
+         propose que des places d'où elle l'atteint sans sortir des coins
+         arrondis (18 px), donc il n'y a plus rien à borner ici — un
+         Math.min/max y serait le quatorzième garde-fou mort du projet. */
+      const f=e.vert ? cy-y : cx-x;
+      b.style.setProperty('--bexp-fx', Math.round(f)+'px');
+      return true;
+    }
+  }
+  return false;
+}
 function bexpPlacer(){
   const b=document.getElementById('bexpBulle');
   if(!b || b.hidden) return;
   const el=bexpCase;
+  /* on repart TOUJOURS de la taille normale : le choix ne dépend alors que de
+     la case et des obstacles, jamais de l'état où la bulle se trouvait — c'est
+     ce qui fait converger l'observateur de taille au lieu de le faire boucler */
+  b.classList.remove('bexp-mini');
   /* on mesure la bulle là où elle est : un seul bord est posé par axe (les
      autres à 'auto'), donc sa taille ne dépend PAS de sa place — c'est ce qui
      empêche l'observateur de taille de boucler, et le contrôle l'exige */
   const rb=b.getBoundingClientRect(), L=rb.width, H=rb.height;
-  const W=window.innerWidth, Hv=window.innerHeight;
   if(!el || !el.isConnected || !L || !H){ bexpCoin(b); return; }
   const c=el.getBoundingClientRect();
   if(!c.width && !c.height){ bexpCoin(b); return; }
-  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
-  const borne=function(v,mn,mx){ return Math.max(mn, Math.min(mx, v)); };
-  const yc=borne(cy-H/2, BEXP_MARGE, Hv-H-BEXP_MARGE);
-  const xc=borne(cx-L/2, BEXP_MARGE, W-L-BEXP_MARGE);
-  const essais=[
-    { cote:'droite', x:c.right+BEXP_ECART,  y:yc },
-    { cote:'gauche', x:c.left-BEXP_ECART-L, y:yc },
-    { cote:'haut',   x:xc, y:c.top-BEXP_ECART-H },
-    { cote:'bas',    x:xc, y:c.bottom+BEXP_ECART },
-  ];
   const obs=bexpObstacles(el);
-  for(let i=0;i<essais.length;i++){
-    const e=essais[i];
-    if(e.x<BEXP_MARGE || e.y<BEXP_MARGE || e.x+L>W-BEXP_MARGE || e.y+H>Hv-BEXP_MARGE) continue;
-    /* la zone testée comprend la FLÈCHE, qui dépasse du côté de la case */
-    const zx=(e.cote==='droite') ? e.x-BEXP_ECART : e.x;
-    const zy=(e.cote==='bas')    ? e.y-BEXP_ECART : e.y;
-    const zl=(e.cote==='droite'||e.cote==='gauche') ? L+BEXP_ECART : L;
-    const zh=(e.cote==='haut'  ||e.cote==='bas')    ? H+BEXP_ECART : H;
-    if(bexpChevauche(zx,zy,zl,zh,obs)) continue;
-    b.style.right='auto'; b.style.bottom='auto';
-    b.style.left=Math.round(e.x)+'px'; b.style.top=Math.round(e.y)+'px';
-    b.dataset.bexpCote=e.cote;
-    /* la flèche suit le CENTRE de la case, bornée pour ne pas sortir des coins
-       arrondis de la bulle */
-    const f=(e.cote==='droite'||e.cote==='gauche') ? borne(cy-e.y, 18, H-18)
-                                                   : borne(cx-e.x, 18, L-18);
-    b.style.setProperty('--bexp-fx', Math.round(f)+'px');
-    return;
-  }
+  if(bexpPoser(b, c, L, H, obs)) return;
+  /* Faute de place à sa taille normale, la bulle se RESSERRE — même texte, plus
+     petit — avant de renoncer : une chaîne de cases n'offre nulle part 288 px
+     de libre, et le coin ne désigne rien (mesuré : 9 replis de plus
+     disparaissent). */
+  b.classList.add('bexp-mini');
+  const rm=b.getBoundingClientRect();
+  if(rm.width && rm.height && bexpPoser(b, c, rm.width, rm.height, obs)) return;
   bexpCoin(b);
 }
 function bexpMontrer(el){

@@ -10841,7 +10841,11 @@ function bulleErreur(w, apres){
     "  const ecr=document.querySelector('.screen.on')||document.body;",
     "  const rect=function(x,y,l,h){ return {left:x,top:y,right:x+l,bottom:y+h,width:l,height:h,x:x,y:y}; };",
     "  const b=bexpElt(); b.hidden=false;",
-    "  b.getBoundingClientRect=function(){ return rect(0,0,300,120); };",
+    "  /* la bulle RESSERRÉE est plus petite : jsdom n'a pas de mise en page, on",
+    "     lui donne donc les deux tailles, la classe faisant foi comme dans un",
+    "     vrai navigateur */",
+    "  b.getBoundingClientRect=function(){",
+    "    return b.classList.contains('bexp-mini') ? rect(0,0,150,60) : rect(0,0,300,120); };",
     "  const cas=document.createElement('input'); ecr.appendChild(cas);",
     "  cas.getBoundingClientRect=function(){ return rect(400,500,40,30); };",
     "  const obs=[];",
@@ -10851,16 +10855,29 @@ function bulleErreur(w, apres){
     "  const jouer=function(){ bexpCase=cas; bexpPlacer();",
     "    return { cote:b.dataset.bexpCote||'', x:b.style.left, y:b.style.top,",
     "             droite:b.style.right, bas:b.style.bottom,",
+    "             mini:b.classList.contains('bexp-mini'),",
     "             fx:b.style.getPropertyValue('--bexp-fx') }; };",
     "  const out={ fenetre:window.innerWidth+'x'+window.innerHeight };",
     "  out.aDroite=jouer();",
-    "  poser(600,535,20,25); out.aGauche=jouer();",
-    "  poser(150,535,20,25); out.enHaut=jouer();",
-    "  poser(400,400,20,20); out.enBas=jouer();",
+    "  /* un obstacle qui ne mord que la position CENTRÉE : la bulle GLISSE le",
+    "     long du même côté au lieu de changer de côté — sans le glissement,",
+    "     elle passait à gauche, et de proche en proche jusqu'au coin */",
+    "  const mordu=poser(600,540,20,40); out.glisse=jouer();",
+    "  mordu.remove(); obs.pop();",
+    /* l'obstacle couvre EXACTEMENT ce que la flèche permet de glisser : le
+       côté est pris en entier, et la bulle passe au côté suivant au lieu de
+       se poser hors de portée de sa propre flèche */
+    "  poser(600,470,20,60); out.aGauche=jouer();",
+    "  poser(150,470,20,60); out.enHaut=jouer();",
+    "  poser(130,400,580,60); out.enBas=jouer();",
     "  /* l'ancre n'est PAS un obstacle : c'est SA case. Sans ce bord, la bulle",
     "     ne pourrait jamais se poser à côté de la case qu'elle explique. */",
     "  out.sansAncre=bexpObstacles(cas).length; out.avecAncre=bexpObstacles(null).length;",
-    "  poser(400,600,20,20); out.leCoin=jouer();",
+    "  /* plus de place pour la bulle ENTIÈRE : elle se RESSERRE et reste à côté",
+    "     de la case, flèche comprise — le coin ne désigne rien */",
+    "  poser(130,560,580,20); out.resserree=jouer();",
+    "  /* et quand même la bulle resserrée ne tient nulle part, alors le coin */",
+    "  poser(300,460,20,120); out.leCoin=jouer();",
     "  /* le chevauchement lui-même, aux deux bords : deux rectangles qui se",
     "     TOUCHENT ne se chevauchent pas, un pixel commun suffit à chevaucher */",
     "  out.colle=bexpChevauche(0,0,10,10,[rect(10,0,10,10)]);",
@@ -10881,6 +10898,15 @@ function bulleErreur(w, apres){
     verifier('rien ne gêne : la bulle se pose À DROITE de la case, flèche sur son centre',
       g.aDroite.cote === 'droite' && g.aDroite.x === '454px' && g.aDroite.fx === '60px',
       'mesuré ' + dit('aDroite') + ' (fenêtre ' + g.fenetre + ')');
+    /* LE GLISSEMENT : la bulle n'est plus obligée d'être CENTRÉE sur sa case.
+       Un obstacle qui ne mord que la position centrée la fait glisser le long
+       du même côté — la flèche pointe toujours le centre de la case, son
+       décalage restant à 18 px des coins arrondis (96 = 515 − 419). Sans lui,
+       la bulle changeait de côté, puis de côté, puis tombait au coin : 11 des
+       29 replis mesurés en Seconde n'avaient pas d'autre cause. */
+    verifier('un obstacle qui ne mord que le centre la fait GLISSER, pas changer de côté',
+      g.glisse.cote === 'droite' && g.glisse.y === '419px' && g.glisse.fx === '96px',
+      'mesuré ' + dit('glisse'));
     verifier('une case à droite la renvoie À GAUCHE, jamais par-dessus',
       g.aGauche.cote === 'gauche' && g.aGauche.x === '86px' && g.aGauche.fx === '60px',
       'mesuré ' + dit('aGauche'));
@@ -10890,10 +10916,18 @@ function bulleErreur(w, apres){
     verifier('le dessus pris aussi, elle descend EN DESSOUS',
       g.enBas.cote === 'bas' && g.enBas.y === '544px' && g.enBas.fx === '150px',
       'mesuré ' + dit('enBas'));
-    /* le repli : quatre côtés pris, la bulle retourne au coin — et SANS
-       flèche, parce qu'une flèche qui ne désigne rien mentirait */
-    verifier('les quatre côtés pris, elle retombe au coin et perd sa flèche',
-      g.leCoin.cote === '' && g.leCoin.droite === '16px' && g.leCoin.fx === '',
+    /* LE FORMAT RESSERRÉ : faute de place à sa taille normale, la bulle se
+       RESSERRE — même texte, plus petit — et reste À CÔTÉ de la case. Une
+       chaîne de cases (le 2.2.1, le 2.3.1) n'offre nulle part 288 px de libre,
+       et le coin ne désigne rien : 9 replis de plus disparaissent ainsi. */
+    verifier('plus de place pour la bulle entière : elle se RESSERRE au lieu de renoncer',
+      g.resserree.mini === true && ['droite','gauche','haut','bas'].indexOf(g.resserree.cote) >= 0,
+      'mesuré ' + dit('resserree'));
+    /* le repli : les quatre côtés pris aux DEUX tailles, la bulle retourne au
+       coin — et SANS flèche, parce qu'une flèche qui ne désigne rien mentirait,
+       ni format resserré, qui ne dirait plus rien de sa taille */
+    verifier('les quatre côtés pris aux deux tailles, elle retombe au coin et perd sa flèche',
+      g.leCoin.cote === '' && g.leCoin.droite === '16px' && g.leCoin.fx === '' && g.leCoin.mini === false,
       'mesuré ' + dit('leCoin'));
     /* UN SEUL bord posé par axe : vider une propriété en ligne rend la main à
        la FEUILLE DE STYLES, qui repose right:16px et bottom:92px — les deux
@@ -10901,8 +10935,8 @@ function bulleErreur(w, apres){
        place, et l'observateur de taille boucle sans fin. Le navigateur l'a
        nommé ; ce bord-là le retient ici, où il coûte une ligne. */
     verifier('ancrée, elle ne garde AUCUN bord de la feuille de styles',
-      ['aDroite','aGauche','enHaut','enBas'].every(k => g[k].droite === 'auto' && g[k].bas === 'auto'),
-      'bords restants : ' + ['aDroite','aGauche','enHaut','enBas']
+      ['aDroite','glisse','aGauche','enHaut','enBas','resserree'].every(k => g[k].droite === 'auto' && g[k].bas === 'auto'),
+      'bords restants : ' + ['aDroite','glisse','aGauche','enHaut','enBas','resserree']
         .map(k => k + ' right=' + g[k].droite + ' bottom=' + g[k].bas).join(' | '));
     verifier('la case ancre n’est pas son propre obstacle',
       g.avecAncre === g.sansAncre + 1,

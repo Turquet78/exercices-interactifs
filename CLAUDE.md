@@ -674,6 +674,57 @@ l'a montré en restant vert, quand retirer le garde ENTIER rougit (« obstacles
 comptés : 4 sans l'ancre, 4 avec »). Ce n'est pas un garde-fou mort de plus :
 la propriété est tenue, par l'autre moitié, une opérande plus loin.
 
+**Puis la bulle GLISSE, et se RESSERRE plutôt que de retourner au coin.**
+Signalé par Turquet (septembre 2026) : « quand une case est rouge, le premier
+"comprendre mon erreur" s'affiche en bas à droite et pas à côté de la case
+rouge ». Le coin est le REPLI documenté du paragraphe ci-dessus, et il tombait
+bien trop souvent : la sonde a compté **25 à 29 replis sur 207 bulles** en
+Seconde (1366 × 768), dont les quatre dernières cases du 2.2.1 et du 2.3.1 —
+deux des exercices les plus faits.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a
+corrigé le diagnostic** : le repli n'est PAS lié au « premier ». Une page
+NEUVE par exercice donne exactement les mêmes côtés qu'une séance déjà
+commencée, la bulle recréée à chaque fois aussi — ce n'est donc pas la
+création de l'élément, ni l'observateur de taille, ni un état qui traîne :
+c'est de la GÉOMÉTRIE, et le repli tombe sur les cases serrées, où qu'elles
+soient dans la séance. Le dire vaut mieux que de le taire : « le premier »
+reste inexpliqué, et c'est le repli lui-même qui a été corrigé.
+**DEUX CAUSES, ET N'EN TENIR QU'UNE NE TIENT RIEN.**
+· La bulle était forcée d'être CENTRÉE sur sa case : un obstacle qui mordait
+  de deux pixels suffisait à perdre le côté entier. Elle GLISSE désormais le
+  long du côté (`bexpGlissades`, pas de 6 px, la centrée d'abord puis de part
+  et d'autre), tant que la flèche atteint encore le centre de la case — la
+  plage est exactement la portée de la flèche, `[centre − D + 18, centre −
+  18]`. Onze replis sur vingt-neuf n'avaient pas d'autre cause.
+· Une chaîne de cases n'offre NULLE PART 288 px de libre — mesuré case par
+  case : à côté du `a4n` du 2.2.1, seul un rectangle de 96 × 44 tient. Faute
+  de place à sa taille normale, la bulle se RESSERRE donc (`bexp-mini`, même
+  texte, 187 × 39 mesurés) et reste à côté de la case, flèche comprise, avant
+  de renoncer. Neuf replis de plus disparaissent.
+**Le coin reste, et c'est honnête** : sur les tableaux les plus denses il n'y
+a de place pour rien, même resserré. Après correction : **7 replis sur 198 à
+1366 × 768, 2 sur 211 à 1920 × 1080** — contre 25 à 29 avant.
+**Et le format resserré ne fait pas boucler l'observateur de taille** — le
+piège payé sur `right`/`bottom` : `bexpPlacer` repart TOUJOURS de la taille
+normale (la classe retirée d'entrée), si bien que le choix ne dépend que de la
+case et des obstacles, jamais de l'état où la bulle se trouvait. Le placement
+est donc déterministe, l'observateur retombe sur la même conclusion, et la
+taille finale ne change plus.
+**UN QUATORZIÈME GARDE-FOU MORT y a été écrit, puis retiré** : le
+`Math.min/max` qui bornait le décalage de la flèche à 18 px des coins
+n'écartait plus rien — la plage du glissement EST cette borne, donc
+`f = centre − y` y tombe par construction. Le retirer a rendu le sabotage
+« le glissement dépasse la portée » VISIBLE (la flèche sort de la bulle,
+`fx: -18px`) là où le garde le masquait.
+Cinq sabotages au banc jsdom, chacun rougissant en nommant son défaut — le
+glissement débranché (« elle change de côté au lieu de glisser »), le format
+resserré débranché, le coin qui garde le format resserré, la flèche qui ne
+suit plus le centre, et le glissement hors portée. Ce dernier n'est devenu
+atteignable qu'en resserrant l'obstacle du banc : posé trop grand, il bloquait
+aussi les places hors portée, et le sabotage restait vert en parlant d'autre
+chose.
+
+
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
 rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de
