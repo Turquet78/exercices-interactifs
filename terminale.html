@@ -914,6 +914,14 @@ body .sp-eqcol math-field.dexp-mf.sp-mfq{min-height:2.35em;}
 .dhv-lab{font-size:13px;font-weight:700;fill:#111827;}
 .dhv-svg{max-width:380px;}
 .dhv-eqgrp{white-space:nowrap;}
+/* UN « = » NE SE SÉPARE JAMAIS DE CE QU'IL ANNONCE (demande de Turquet,
+   septembre 2026). C'est l'idiome de « .dhv-eqgrp » ci-dessus, généralisé :
+   un seul élément de la rangée, donc un repli qui ne peut pas tomber entre le
+   signe et la case. L'écart est celui de la RANGÉE, hérité et non recopié —
+   les rangées de ce fichier n'ont pas toutes le même (6 px pour .sa2-row et
+   .tg-line, 7 pour .s1-line, 10 pour .sa-lrow), et un écart figé se serait vu
+   à l'œil sur deux d'entre elles. */
+.t-eqgrp{display:inline-flex;align-items:center;gap:inherit;white-space:nowrap}
 .tvg-solzone .tvg-fix{color:#137a52;background:var(--green-soft);border:1px solid #b6e6d2;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.92rem;}
 
 
@@ -2495,7 +2503,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=310;
+const APP_VERSION=311;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -5692,7 +5700,7 @@ function tviSentence(c){
   const fn=`<i>${c.fname}</i>(${c.v})`;
   return `Sur <span class="tvi-int"><b>${c.leftBrk}</b> ${selV('tvi-bg')} ; ${selV('tvi-bd')} <b>${c.rightBrk}</b></span> , ${fn} est ${selW('tvi-cont')} et elle est strictement ${selW('tvi-sens')}, elle varie de ${selV('tvi-vg')} à ${selV('tvi-vd')}.<br>
   De plus, ${selV('tvi-enc-k')} est compris entre ${selV('tvi-enc-lo')} et ${selV('tvi-enc-hi')}.<br>
-  D\u2019apr\u00e8s le ${selW('tvi-tvi')}, ${fn} = ${selV('tvi-k')} admet une ${selW('tvi-uniq')} solution.`;
+  D\u2019apr\u00e8s le ${selW('tvi-tvi')}, ${fn} ${tEq('=', selV('tvi-k'))} admet une ${selW('tvi-uniq')} solution.`;
 }
 
 const TVI_IDS=['tvi-bg','tvi-bd','tvi-cont','tvi-sens','tvi-vg','tvi-vd','tvi-tvi','tvi-k','tvi-uniq','tvi-enc-k','tvi-enc-lo','tvi-enc-hi'];
@@ -10019,7 +10027,7 @@ function efTableHTML(c){
 function efSyntHTML(c){
   const typeSel='<select class="tvi-sel" id="ef-e0t"><option value="">\u2026</option><option value="min">minimum</option><option value="max">maximum</option></select>';
   if(c.synth.mode==='sel')
-    return '<div class="s1-res ef-synt"><div class="s1-line">Sur cet intervalle, <i>f</i> admet un '+typeSel+' atteint en <i>x</i> = '+s1Box('ef-e0x',1)+'.</div></div>';
+    return '<div class="s1-res ef-synt"><div class="s1-line">Sur cet intervalle, <i>f</i> admet un '+typeSel+' atteint en <i>x</i> '+tEq('=', s1Box('ef-e0x',1))+'.</div></div>';
   const nom=t=>t==='min'?'minimum':'maximum';
   return '<div class="s1-res ef-synt"><div class="s1-line"><i>f</i> admet '
     +c.synth.xs.map(function(e,i){ return 'un <b>'+nom(e.t)+'</b> atteint en <i>x</i> = '+s1Box('ef-e'+i+'x',1); }).join(',&nbsp; puis ')
@@ -13512,7 +13520,7 @@ function asgFormHTML(q){
     +'<div class="dexp-steprow"><span class="eq">=</span>'+bs3('asg-bs3a')+'<span class="op">+</span>'+bs3('asg-bs3b')+'<span class="op">+</span>'+bs3('asg-bs3c')+'</div>'
     +'<div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>'+eML+' ( '+bm('asg-bfac','dexp-mf-wide')+' )</div>';
   h+='<p class="tx-part">c. Étudie les variations de '+f+' — résous, puis complète le tableau :</p>'
-    +'<div class="tg-line asg-line">'+aff+' = 0 <span class="tg-eq">⟺</span> '+s1ExprHTML(A.dp,0)+' = '+txInp('asg-c1')+' <span class="tg-eq">⟺</span> <i>x</i> = '+txInp('asg-c2')+'</div>'
+    +'<div class="tg-line asg-line">'+aff+' = 0 <span class="tg-eq">⟺</span> '+s1ExprHTML(A.dp,0)+' = '+txInp('asg-c1')+' <span class="tg-eq">⟺</span> <i>x</i> '+tEq('=', txInp('asg-c2'))+'</div>'
     +efTableHTML(ecTab(q))+efSyntHTML(ecTab(q));
   h+='<p class="tx-part">d. Démontre que ce '+(A.ext==='max'?'maximum':'minimum')+' vaut M = '+ecMHtml(q.a,A.mE)+' :</p>'
     +'<div class="tg-line"><span class="tg-eq">M =</span> <i>f</i>( '+txInp('asg-d1')+' ) <span class="tg-eq">=</span> '
@@ -15630,6 +15638,16 @@ const FICHE_SA=creerFicheCases({
   kind:'sa', ordre:()=>SA_ORDER, ok:id=>saOk(id), brut:id=>saRawId(id),
   actions:'#saActions', suivreFocus:el=>{ saLastMF=el; }
 });
+/* « = » ET CE QU'IL ANNONCE : DEUX FABRIQUES, UN SEUL GROUPE.
+   Ce niveau écrit ses rangées de deux façons — des chaînes HTML et des nœuds
+   construits un par un —, d'où deux portes vers la même classe. Les assembler
+   ici plutôt qu'à chaque site, c'est la garantie que la rangée qu'on écrira
+   demain le fera sans y penser (voir .t-eqgrp). */
+function tEq(tete, boite){ return '<span class="t-eqgrp">'+tete+boite+'</span>'; }
+function tEqN(tete, boite){
+  const g=document.createElement('span'); g.className='t-eqgrp';
+  g.appendChild(tete); g.appendChild(boite); return g;
+}
 function saStat(html,cls){ const s=document.createElement('span'); s.className='sa-lstat'+(cls?' '+cls:''); s.innerHTML=html; return s; }
 function saNote(txt){ const s=document.createElement('span'); s.className='sa-lnote'; s.innerHTML=txt; return s; }
 function saRow(){ const d=document.createElement('div'); d.className='sa-lrow'; return d; }
@@ -16222,7 +16240,7 @@ function renderREC(){
     +'<div class="rec-ligne">Un majorant semble \u00eatre '+recMF('rec-maj')
     +' et un minorant semble \u00eatre '+recMF('rec-min')+'.</div>'
   $('recC').innerHTML='<p class="tvi-instr"><span class="su-lab">c)</span> D\u00e9montre par r\u00e9currence que <b>'+encTex(String(q.m)+' \\le U_n \\le '+String(q.M), q.m+' \u2264 U\u2099 \u2264 '+q.M)+'</b> pour tout entier <i>n</i> \u2265 '+q.n0+'.</p>'
-    +'<div class="rec-ligne"><b>Initialisation</b> (au d\u00e9part <i>n</i> = '+recMF('rec-n0')+')&nbsp;: '
+    +'<div class="rec-ligne"><b>Initialisation</b> (au d\u00e9part <i>n</i> '+tEq('=', recMF('rec-n0'))+')&nbsp;: '
     +recMF('rec-i-m')+' \u2264 '+recMFidx('rec-i-i')+' \u2264 '+recMF('rec-i-M')
     +', vrai car '+recMFidx('rec-i-i2')+' = '+recMF('rec-i-v')+'.</div>'
     +'<div class="rec-her">'
@@ -16400,22 +16418,18 @@ function renderSA(){
   const G=$('saGoalA'); G.innerHTML='';
   const gt=document.createElement('span'); gt.className='sa-gtxt';
   gt.innerHTML='On doit montrer que&nbsp;:'; G.appendChild(gt);
-  G.appendChild(saStat(SA_VN1+' ='));
-  G.appendChild(saMF('sa-r0','sm'));
+  G.appendChild(tEqN(saStat(SA_VN1+' ='), saMF('sa-r0','sm')));
   G.appendChild(saStat('\u00d7 '+SA_VN));
   G.appendChild(saNote('la raison attendue'));
   /* a) l'\u00e9chelle de calcul \u2014 tous les \u00ab = \u00bb align\u00e9s (colonne sa-leq) */
   const L=$('saLadderA'); L.innerHTML='';
-  const r1=saRow(); r1.appendChild(saStat(SA_VN1+' =','sa-leq'));
-  r1.appendChild(saMF('sa-f1','w'));
+  const r1=saRow(); r1.appendChild(tEqN(saStat(SA_VN1+' =','sa-leq'), saMF('sa-f1','w')));
   r1.appendChild(saNote('exprimer en fonction de '+SA_UN1));
   L.appendChild(r1);
-  const r2=saRow(); r2.appendChild(saStat('=','sa-leq'));
-  r2.appendChild(saMF('sa-f2','w'));
+  const r2=saRow(); r2.appendChild(tEqN(saStat('=','sa-leq'), saMF('sa-f2','w')));
   r2.appendChild(saNote('exprimer en fonction de '+SA_UN+' (relation de r\u00e9currence)'));
   L.appendChild(r2);
-  const r3=saRow(); r3.appendChild(saStat('=','sa-leq'));
-  r3.appendChild(saMF('sa-f3','w'));
+  const r3=saRow(); r3.appendChild(tEqN(saStat('=','sa-leq'), saMF('sa-f3','w')));
   r3.appendChild(saNote('r\u00e9duire l\u2019expression'));
   L.appendChild(r3);
   const r4=saRow(); r4.appendChild(saStat('=','sa-leq'));
@@ -16448,12 +16462,10 @@ function renderSA(){
   L.appendChild(r6);
   /* b) deux \u00e9tapes : expression avec U\u2080, puis calcul effectif */
   const B=$('saLadderB'); B.innerHTML='';
-  const rb1=saRow(); rb1.appendChild(saStat(SA_V0+' =','sa-leq'));
-  rb1.appendChild(saMF('sa-b1a','w'));
+  const rb1=saRow(); rb1.appendChild(tEqN(saStat(SA_V0+' =','sa-leq'), saMF('sa-b1a','w')));
   rb1.appendChild(saNote('exprimer en fonction de '+saUH('0')));
   B.appendChild(rb1);
-  const rb2=saRow(); rb2.appendChild(saStat('=','sa-leq'));
-  rb2.appendChild(saMF('sa-b1b','sm'));
+  const rb2=saRow(); rb2.appendChild(tEqN(saStat('=','sa-leq'), saMF('sa-b1b','sm')));
   rb2.appendChild(saNote('calculer la valeur de '+SA_V0));
   B.appendChild(rb2);
   /* c) */
@@ -16473,18 +16485,15 @@ function renderSA(){
   C1.appendChild(saMF('sa-c1','sm'));
   const t3=document.createElement('span'); t3.className='sa-txt'; t3.innerHTML='&nbsp;:'; C1.appendChild(t3);
   const C2=$('saRowC2'); C2.innerHTML='';
-  C2.appendChild(saStat(SA_VN+' = '+SA_V0+' \u00d7 <i>q</i><sup><i>n</i></sup> ='));
-  C2.appendChild(saMF('sa-c2','w'));
+  C2.appendChild(tEqN(saStat(SA_VN+' = '+SA_V0+' \u00d7 <i>q</i><sup><i>n</i></sup> ='), saMF('sa-c2','w')));
   C2.appendChild(saNote('remplacer '+SA_V0+' et q par leurs valeurs'));
   /* d) */
   $('saGoalD').innerHTML='Comme <span class="sa-m">'+SA_VN+' = '+SA_UN+SA.sgnH(q.k)+'</span>, on a&nbsp;:';
   const D=$('saLadderD'); D.innerHTML='';
-  const d1=saRow(); d1.appendChild(saStat(SA_UN+' =','sa-leq'));
-  d1.appendChild(saMF('sa-d1','w'));
+  const d1=saRow(); d1.appendChild(tEqN(saStat(SA_UN+' =','sa-leq'), saMF('sa-d1','w')));
   d1.appendChild(saNote('exprimer en fonction de '+SA_VN));
   D.appendChild(d1);
-  const d2=saRow(); d2.appendChild(saStat('=','sa-leq'));
-  d2.appendChild(saMF('sa-d2','w'));
+  const d2=saRow(); d2.appendChild(tEqN(saStat('=','sa-leq'), saMF('sa-d2','w')));
   d2.appendChild(saNote('exprimer en fonction de <i>n</i>'));
   D.appendChild(d2);
   if(window.mlDexp) window.mlDexp.upgrade($('scr-sa'));   /* clavier Terminale + correctifs, comme en 2.1 et 3.5 */
@@ -17000,7 +17009,7 @@ function renderRFR(){
     +'</b> &nbsp;et&nbsp; <b>'+Un1+' = '+recur+'</b> <span class="rfr-note">(formule de récurrence&nbsp;!)</span>'
     +'<br>On veut montrer que&nbsp;: <b>'+Un+' = '+expl+'</b> pour tout '+n+' <span class="rfr-note">(formule explicite&nbsp;!)</span>.';
   /* a) la vérification, par les deux voies — les mêmes trois valeurs */
-  const trois=function(pre){ return T(U+'<sub>0</sub> =')+rfrIn(pre+'0')+T(';&nbsp; '+U+'<sub>1</sub> =')+rfrIn(pre+'1')+T(';&nbsp; '+U+'<sub>2</sub> =')+rfrIn(pre+'2'); };
+  const trois=function(pre){ return tEq(T(U+'<sub>0</sub> ='), rfrIn(pre+'0'))+T(';&nbsp;')+tEq(T(U+'<sub>1</sub> ='), rfrIn(pre+'1'))+T(';&nbsp;')+tEq(T(U+'<sub>2</sub> ='), rfrIn(pre+'2')); };
   $('rfrPartA').innerHTML=
      '<div class="sa2-row rfr-row"><span class="rfr-puce">●</span>'+T('Avec '+U+'<sub>0</sub> = '+rfrFrHTML(q)+' et '+Un1+' = ')+recur+T('&nbsp;on a&nbsp;:')+trois('rfr-r')+'</div>'
     +'<div class="sa2-row rfr-row"><span class="rfr-puce">●</span>'+T('Avec '+Un+' = ')+expl+T('&nbsp;on a&nbsp;:')+trois('rfr-e')+'</div>';
@@ -17012,7 +17021,7 @@ function renderRFR(){
   const F=function(h,bas){ return sa2Frac(h,bas); };
   const inF=function(i1,i2){ return F(rfrIn(i1,true), rfrIn(i2,true)); };   /* fraction à deux cases */
   $('rfrPartB').innerHTML=
-     '<div class="sa2-row rfr-row"><b>Initialisation</b>'+T('(vrai pour '+n+' =')+rfrIn('rfr-n0')+T(')&nbsp;: '+U+'<sub>0</sub> =')+rfrIn('rfr-i1')
+     '<div class="sa2-row rfr-row"><b>Initialisation</b>'+T('(vrai pour '+n)+tEq(T('='), rfrIn('rfr-n0'))+T(')&nbsp;: '+U+'<sub>0</sub> =')+rfrIn('rfr-i1')
       +T('et')+F(rfrIn('rfr-i2')+T('+ '+a), rfrIn('rfr-i3')+T('+ '+b))+T('=')+rfrIn('rfr-i4')+'</div>'
     +'<div class="sa2-row rfr-row"><b>Hérédité</b>'+T('— on <b>suppose</b> que c’est vrai pour '+n+'&nbsp;: '+Un+' =')+inF('rfr-h1','rfr-h2')+'</div>'
     +'<div class="sa2-row rfr-row"><b>Montrons</b>'+T('que c’est vrai pour '+n+' + 1&nbsp;: '+Un1+' =')+inF('rfr-m1','rfr-m2')+'</div>'
