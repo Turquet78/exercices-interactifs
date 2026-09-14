@@ -4508,6 +4508,40 @@ que la coloration en direct la touchait dans sa zone morte et que le mode
 soutien plantait à la première frappe. Une déclaration de commodité se met en
 tête de fonction, pas au milieu.
 
+**Et la règle du coefficient global y était DÉJÀ vraie — mais tenue par rien.**
+« fais la même chose pour le 2.3.7 » (Turquet, septembre 2026), après la règle
+posée sur le 2.2.7. La sonde a MESURÉ avant qu'on ne touche à quoi que ce soit :
+sur 50 000 tirages, jamais plus de deux décimales au coefficient global, jamais
+une baisse globale non entière. C'est une conséquence de la décision d'août 2026
+— un seul chiffre non nul par baisse, et c'est un dixième : les deux numérateurs
+sont des chiffres seuls, leur produit est un entier de deux chiffres, et il se
+lit sur 100.
+**UNE PROPRIÉTÉ HEUREUSE N'EST PAS UNE PROPRIÉTÉ TENUE.** Rien ne l'exigeait :
+un taux à un chiffre remis dans le tirage — ce que l'exercice faisait AVANT août
+2026 — rendrait 0,96 × 0,6 = 0,576 sans qu'aucun contrôle ne rougisse. Le
+contrôle refait donc la propriété par une SECONDE arithmétique, sur les
+pourcentages bruts là où la page passe par les numérateurs réduits :
+(100−P1)(100−P2) doit être divisible par 100. Il tient aussi la baisse ENTIÈRE
+(c'est elle que l'élève écrit à l'étape ③), le piège de l'exercice (la baisse
+globale reste INFÉRIEURE à la somme des deux taux), les taux multiples de dix,
+et il CLIQUE « Vérifier » sur une copie juste.
+**Le rappel de cours n'a rien eu à changer** — il montrait déjà 20 % puis 40 %,
+un tirage réellement possible —, mais DEUX commentaires du code racontaient
+encore l'exercice d'avant : l'en-tête (« −40 % puis −4 % fait −42,4 % », un
+tirage devenu impossible) et celui de `fracDec`, qui justifiait sa tolérance par
+une baisse décimale. La tolérance, elle, RESTE utile : la baisse est entière,
+mais l'élève garde le droit d'écrire 5,2/10 pour 52/100, et `fracEqual` lirait
+« 5,2 » comme 5.
+**UN SABOTAGE EST RESTÉ VERT EN DISANT VRAI, et il a montré un garde non
+tenu** : retirer « un produit d'au moins deux chiffres » ne change RIEN aux
+décimales — 0,06 en a deux — et le contrôle passait à bon droit. Ce que ce
+garde protège n'est pas l'écriture mais la TAILLE : sans lui, 0,2 × 0,3 = 0,06
+ferait une baisse globale de 94 %, un prix divisé par seize qu'aucune scène de
+`BS_CTX` ne porte. Le contrôle exige donc aussi que la baisse globale reste au
+plus 90 %, et la justification écrite dans la page — qui parlait de décimales —
+a été corrigée avec lui. Six sabotages, chacun rougissant en nommant son
+défaut ; le sixième seulement après que le contrôle a gagné ce bord.
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet

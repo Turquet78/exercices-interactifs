@@ -1983,7 +1983,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=217;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=218;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9695,8 +9695,8 @@ async function finishHausses(){
 }
 
 /* ---------- 2.3.7 : une baisse suivie d'une autre baisse ----------
-   Deux baisses de suite ne s'additionnent pas : −40 % puis −4 % ne fait pas
-   −44 %, mais −42,4 %. C'est tout l'objet de l'exercice, et c'est pourquoi
+   Deux baisses de suite ne s'additionnent pas : −20 % puis −40 % ne fait pas
+   −60 %, mais −52 %. C'est tout l'objet de l'exercice, et c'est pourquoi
    l'énoncé ne donne AUCUNE valeur de départ (décision de Turquet, août 2026) :
    le résultat n'en dépend pas, et un nombre inutile posé là inviterait à le
    faire entrer dans le calcul.
@@ -9733,10 +9733,23 @@ const BS_ENONCES=[
    au-dessus d'un chiffre seul ne voudrait rien dire. Le bouton « Tables de
    multiplication » est sur l'écran, il suffit.
    On écarte 90 % (coefficient 0,1) : multiplier par 1 n'est pas un calcul. Et on
-   exige un produit d'au moins deux chiffres, pour que le coefficient global reste
-   un vrai nombre à deux décimales.
-   Conséquence heureuse : la baisse globale tombe toujours sur un nombre ENTIER
-   de pourcent — 0,8 × 0,6 = 0,48, soit 52 %. */
+   exige un produit d'au moins deux chiffres — ce que ce garde protège n'est PAS
+   le nombre de décimales (0,06 en a deux lui aussi) : c'est la taille de la
+   baisse. Sans lui, 0,2 × 0,3 = 0,06 ferait une baisse globale de 94 %, un
+   prix divisé par seize qu'aucune des scènes de BS_CTX ne porte. La baisse
+   globale reste donc au plus 90 %, et le contrôle l'exige — le sabotage a
+   montré qu'un contrôle des seules décimales laissait ce garde tomber sans
+   rien dire.
+   LE COEFFICIENT GLOBAL S'ÉCRIT DONC AVEC AU PLUS DEUX DÉCIMALES, et la baisse
+   globale tombe toujours sur un nombre ENTIER de pourcent — 0,8 × 0,6 = 0,48,
+   soit 52 %. C'est ce que Turquet a demandé pour le 2.2.7 (septembre 2026), et
+   ici la propriété est ACQUISE depuis la décision d'août 2026 : les deux
+   numérateurs sont des chiffres seuls, leur produit est un entier de deux
+   chiffres, et il se lit sur 100. Elle n'était pourtant TENUE par rien —
+   un taux à un chiffre remis dans le tirage rendrait 0,96 × 0,6 = 0,576 sans
+   que rien ne rougisse. Un contrôle l'exige désormais, sur le tirage comme sur
+   l'écran : c'est la seule chose qui empêche une propriété heureuse de se
+   perdre le jour où l'on touche au tirage. */
 function genBaisses(){
   let n1,n2;
   do{
@@ -9825,9 +9838,10 @@ function checkBSAnswer(live){
      ou l'autre. */
   const decOk=(id,pre,n,d)=>{ const t=$(id).value.trim(); if(t==='') return false;
     const fr=parseDecToFrac((pre||'')+t); return !!fr && fr.n*d===n*fr.d; };
-  /* Fraction dont le numérateur PEUT être décimal : la baisse globale vaut
-     42,4 %, et l'élève a le droit d'écrire 42,4/100 aussi bien que 424/1000.
-     fracEqual() passe par parseInt et lirait « 42,4 » comme 42. */
+  /* Fraction dont le numérateur PEUT être décimal. La baisse globale est
+     ENTIÈRE depuis que les deux taux sont des multiples de dix (52 %), mais
+     l'élève garde le droit d'écrire 5,2/10 aussi bien que 52/100 :
+     fracEqual() passe par parseInt et lirait « 5,2 » comme 5. */
   const fracDec=(idN,idD,n,d)=>{ const tn=$(idN).value.trim(); if(tn==='') return false;
     const a=parseDecToFrac(tn), b=parseDecToFrac($(idD).value.trim()||'1');
     return !!a && !!b && b.n!==0 && a.n*b.d*d===n*a.d*b.n; };
@@ -9842,8 +9856,8 @@ function checkBSAnswer(live){
     ['bsVp','bsVc'].forEach((id,k)=>{ const el=$(id); if(!el||el.disabled) return;
       const t=el.value.trim(); el.classList.remove('ok','bad'); if(t==='') return;
       el.classList.add(decOk(id,'0,',k?q.prodNum:q.baisseNum,100)?'ok':'bad'); });
-    /* La baisse s'écrit 42,4/100 comme 424/1000 : la comparaison lit les deux
-       cases en décimal, sans quoi « 42,4 » au numérateur se réduirait à 42. */
+    /* La baisse s'écrit 52/100 comme 5,2/10 : la comparaison lit les deux
+       cases en décimal, sans quoi « 5,2 » au numérateur se réduirait à 5. */
     [$('bsVn'),$('bsVd')].forEach(el=>{ if(!el||el.disabled) return;
       el.classList.remove('ok','bad');
       if(v('bsVn')==='' && v('bsVd')==='') return;
