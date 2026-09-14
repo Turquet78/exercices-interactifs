@@ -6747,6 +6747,43 @@ sur les prévisualisations — Netlify le servait en `octet-stream`, GitHub
 Pages en `application/manifest+json`, et mesurer sur un hébergement qui
 diffère du vrai sur ce point aurait parlé d'autre chose.
 
+**Puis la barre du bas a disparu — en PREMIÈRE seulement, et le prix est
+nommé.** Demande de Turquet (septembre 2026, sur sa tablette Samsung) :
+« peut-on supprimer la bande en bas de l'écran qui permet de réduire la
+fenêtre et voir toutes les applications ouvertes ». Cette bande est la barre
+de navigation d'ANDROID, pas un morceau de la page : **aucune ligne de HTML,
+de CSS ni de JavaScript ne peut la cacher** — seul le MANIFESTE le peut, en
+demandant `display: fullscreen` au lieu de `standalone`. Chrome lance alors
+l'application installée en plein écran, sans barre système.
+**Le geste RESTE, et c'est voulu** : un balayage depuis le bas fait revenir
+la barre, puis l'accueil — l'élève peut toujours sortir, ce n'est pas un
+verrou de classe, et prétendre le contraire serait mentir sur ce que le
+manifeste sait faire.
+**Le prix est assumé et se DIT** : l'heure, la batterie et le wifi
+disparaissent avec la barre du bas — Android cache les deux barres ensemble
+ou aucune, on ne choisit pas. C'est un arbitrage, pas un oubli.
+**Et il ne prend effet qu'à la RÉINSTALLATION** : Chrome relit le manifeste
+d'une application déjà posée à son rythme, et le mode d'affichage est
+précisément ce qu'il garde le plus longtemps. On retire l'icône de l'écran
+d'accueil et on réinstalle — sinon rien ne change, sans que rien ne le dise.
+**Seule la Première est concernée** : la demande la nomme, la Seconde et la
+Terminale gardent `standalone` — et ce bord OPPOSÉ est TENU, non supposé. Le
+mode d'affichage vit dans `tests/profils.js` (`manifeste.display`, deux
+sources), et le contrôle compare les TROIS manifestes à leur profil à chaque
+exécution, quel que soit le niveau contrôlé : le plein écran ne peut pas
+fuir sur un niveau qui ne l'a pas demandé. Le banc navigateur, lui, garde le
+seul juge qui compte — `Page.getInstallabilityErrors` : un mode d'affichage
+que Chromium refuserait rendrait la page non installable, et il le NOMME
+(c'est ainsi que `display: browser` avait été attrapé). Trois sabotages,
+chacun rougissant en nommant son défaut : la Première revenue à
+`standalone`, le plein écran qui fuit sur la Seconde, le profil qui ne
+déclare plus rien.
+**Et la tablette a son propre réglage, qui ne passe pas par le dépôt** :
+Paramètres → Affichage → Barre de navigation → Gestes de balayage, puis
+« Indicateur de geste » décoché, cache la barre pour TOUTES les
+applications. Le dire vaut mieux que le taire — c'est le seul chemin si le
+plein écran de l'application ne suffit pas.
+
 ## Fiches imprimées (`.docx`)
 
 Les fiches d'exercices sur papier ne vivent pas dans le dépôt et aucun script du
