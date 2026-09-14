@@ -117,6 +117,26 @@ module.exports = {
     pleineLargeur: { exercices: ['pourcentage', 'mult-decimaux', 'somme-fractions'],
                      chaine: [['pourcentage', 1], ['somme-fractions', 1]] },
 
+    /* « = 0, » NE SE SÉPARE JAMAIS DE SA CASE (demande de Turquet, septembre
+       2026 : « quand on affiche "= 0 ," avec une case à côté, si la case passe
+       à la ligne je veux que le "= 0" passe aussi à la ligne »). La rangée est
+       un flex qui se replie, et le repli tombait entre le « 0, » écrit par la
+       page et la case où l'élève répond — une virgule décimale coupée de ses
+       décimales. Un seul endroit assemble le groupe (« fabrique »), et « classe »
+       est le flex qui le tient d'un seul tenant, du même écart que « rangee ».
+       Le banc jsdom exige que plus aucun groupe ne soit écrit à la main, que la
+       classe soit vraiment un flex, et que le rendu en pose au moins « minimum » ;
+       le banc navigateur ouvre les exercices déclarés à une largeur où la rangée
+       SE REPLIE pour de vrai, et mesure que la tête et sa case restent sur la
+       même ligne.
+       La Seconde porte les deux mêmes rangées (2.2.1 et 2.3.1) sans le groupe :
+       elle ne déclare donc rien, et le contrôle s'y affiche « non applicable »
+       plutôt que de rougir — c'est une décision à prendre, pas un oubli. */
+    teteCollee: { fabrique: 'fEqTete', classe: 'f-grp', rangee: 'pt-row', minimum: 6,
+                  exercices: ['diminuer-pourcentage', 'augmenter-pourcentage',
+                              'baisses-successives', 'hausses-successives'],
+                  largeur: 600, hauteur: 900 },
+
     /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE
        (demande de Turquet, septembre 2026, pour la Seconde, « comme en
        Première »). La Terminale ne le déclare PAS, et ce n'est pas un oubli :

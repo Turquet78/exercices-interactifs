@@ -4692,6 +4692,45 @@ fin : elle coupait la chaîne en son milieu, entre le « × valeur » et son
 résultat. Les libellés fusionnent avec le point médian de la Première :
 « ② coefficient × valeur de départ · ③ multiplier les fractions · ④ le résultat ».
 
+**« = 0, » NE SE SÉPARE JAMAIS DE SA CASE.** Demande de Turquet (septembre
+2026, Première) : « quand on affiche "= 0 ," avec une case à côté, si la case
+passe à la ligne je veux que le "= 0" passe aussi à la ligne. » La rangée est un
+flex qui SE REPLIE — c'est ce qui l'empêche de déborder de l'écran —, et le repli
+tombait ENTRE le « 0, » écrit par la page et la case où l'élève répond : mesuré
+à 600 px de fenêtre sur le 2.3.1, « 0, » restait en fin de ligne et sa case
+tombait 111 px plus bas. Une virgule décimale coupée de ses décimales n'est plus
+un nombre, et l'égalité se lit comme deux calculs.
+**UN SEUL ENDROIT ASSEMBLE LE GROUPE** (`fEqTete`), et c'est ce qui empêche la
+liste de dériver : les vingt-cinq groupes des huit écrans de pourcentages y
+passent, et la rangée qu'on écrira demain y passera sans rien avoir à déclarer.
+Le groupe est un flex à lui (`.f-grp`), du MÊME écart que la rangée — un groupe
+plus serré ou plus large se verrait tout de suite —, si bien que rien ne bouge
+tant que la ligne tient et que tout passe à la ligne ensemble quand elle ne
+tient plus. La tête est ce qui finit par la virgule : « 0, », « 1, »,
+« 1 − 0, » ; le « = » vient avec elle, parce qu'une chaîne qui se replie met son
+signe en tête de la nouvelle ligne, jamais en fin de l'ancienne.
+**Il n'y avait pas de solution en CSS seul** : dans un conteneur en flex, rien
+ne défend à un repli de tomber entre deux éléments — `break-inside` ne parle
+qu'à la pagination. C'est la STRUCTURE qui devait changer, et c'est pourquoi le
+groupe est écrit au rendu plutôt qu'ajouté après coup : déplacer un
+`<math-field>` déjà monté le débranche et le remonte, et MathLive n'en sort pas
+toujours avec sa valeur.
+**Deux bancs, la répartition habituelle.** jsdom tient ce que le texte dit :
+plus AUCUN groupe écrit à la main dans la source, la classe posée par la
+fabrique, la classe qui est bien un flex (posée sans sa règle, elle ne tient
+rien ensemble et rien ne rougirait), le même écart que la rangée, et le rendu
+qui pose vraiment ses groupes — un contrôle qui n'a rien à mesurer ne mesure
+rien. Le NAVIGATEUR mesure ce que jsdom ne peut pas : la tête et sa case sur la
+MÊME ligne, jugée au RECOUVREMENT vertical et jamais à l'égalité des « top »
+(une case et le texte qui la précède sont centrés l'un sur l'autre, donc leurs
+hauts diffèrent toujours de quelques pixels — un compteur qui lirait « top »
+crierait au repli sur des lignes parfaitement droites), à une largeur où la
+rangée SE REPLIE pour de vrai, ce qu'il exige aussi.
+**La Seconde porte les deux mêmes rangées** (2.2.1 et 2.3.1, sans l'étape
+intermédiaire) et ne les groupe pas : la demande nomme la Première, le contrôle
+s'y déclare « non applicable » plutôt que de rougir, et c'est une décision à
+prendre — pas un oubli.
+
 **Une somme de fractions s'écrit en une seule ligne, et l'entier est un maillon.**
 {somme-fractions} passe de trois blocs à la chaîne du cahier :
 `5/3 + 1/2 = (5×□)/(3×□) + (1×□)/(2×□) = (□ + □)/□ = □/□`. Quand un terme est un

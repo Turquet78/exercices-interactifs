@@ -3064,6 +3064,80 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 decies bis. « = 0, » passe à la ligne avec sa case ===== */
+    /* Demande de Turquet (septembre 2026) : « en première quand on affiche
+       "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
+       "= 0" passe aussi à la ligne. »
+       La rangée d'un exercice guidé se replie — c'est ce qui l'empêche de
+       déborder — et le repli tombait ENTRE le « 0, » écrit par la page et la
+       case où l'élève répond : mesuré à 600 px, « 0, » restait en fin de ligne
+       et sa case tombait 111 px plus bas. Une virgule décimale coupée de ses
+       décimales n'est plus un nombre.
+       CE BANC EST LE SEUL QUI PUISSE LE VOIR : jsdom n'a pas de mise en page,
+       donc aucune ligne où tomber. On ouvre donc à une largeur où la rangée se
+       replie POUR DE VRAI — et on exige qu'elle s'y replie, sans quoi le
+       contrôle ne mesurerait rien en parlant d'autre chose. */
+    titre('6 decies bis. LE « = 0, » PASSE À LA LIGNE AVEC SA CASE');
+    if(!P.teteCollee){
+      ignorer('« = 0, » et sa case restent sur la même ligne',
+        'ce niveau ne déclare pas de tête collée à sa case');
+    } else {
+      const TC = P.teteCollee;
+      s = await ouvrir(chromium, ml, { viewport: { width: TC.largeur, height: TC.hauteur }, hasTouch: true });
+      await connecter(s.page);
+      const separes = [], vides = [];
+      let repliees = 0, groupes = 0;
+      for(const exo of TC.exercices){
+        await s.page.evaluate(id => openTest(id), exo);
+        await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.waitForTimeout(1200);
+        const m = await s.page.evaluate(cl => {
+          const vu = e => e.getBoundingClientRect().height > 0;   /* une étape encore cachée ne se mesure pas */
+          const grs = [...document.querySelectorAll('.screen.on .' + cl)].filter(vu);
+          const casse = [];
+          for(const g of grs){
+            const t = g.querySelector('.f-whole'), c = g.querySelector('math-field');
+            if(!t || !c || !vu(t) || !vu(c)){ casse.push('un groupe sans tête ou sans case visible'); continue; }
+            const a = t.getBoundingClientRect(), b = c.getBoundingClientRect();
+            /* MÊME LIGNE se mesure par le RECOUVREMENT vertical, jamais par
+               l'égalité des « top » : une case et le texte qui la précède sont
+               centrés l'un sur l'autre, donc leurs hauts diffèrent toujours de
+               quelques pixels — un compteur qui lirait « top » crierait au
+               repli sur des lignes parfaitement droites. */
+            if(!(b.top < a.bottom - 2 && a.top < b.bottom - 2))
+              casse.push('« ' + (t.textContent || '').trim() + ' » et sa case sur deux lignes ('
+                + Math.round(b.top - a.top) + ' px d\'écart)');
+          }
+          /* combien de rangées PORTANT un groupe se replient vraiment ici */
+          const rows = [...document.querySelectorAll('.screen.on .pt-row')].filter(r => r.querySelector('.' + cl));
+          const replis = rows.filter(r => {
+            const k = [...r.children].filter(x => x.getBoundingClientRect().height > 0);
+            if(k.length < 2) return false;
+            const hmax = Math.max(...k.map(x => x.getBoundingClientRect().height));
+            return r.getBoundingClientRect().height > hmax + 8;
+          }).length;
+          return { casse, grs: grs.length, replis };
+        }, TC.classe);
+        groupes += m.grs; repliees += m.replis;
+        if(!m.grs) vides.push(exo);
+        m.casse.forEach(d => separes.push(exo + ' : ' + d));
+      }
+      verifier('« = 0, » et sa case restent sur la même ligne',
+        separes.length === 0, separes.slice(0, 3).join(' | '));
+      verifier('le contrôle a bien des groupes à mesurer',
+        groupes >= TC.minimum && vides.length === 0,
+        groupes + ' groupe(s) rendus' + (vides.length ? ', aucun sur : ' + vides.join(', ') : ''));
+      /* Et la mesure doit avoir lieu là où le défaut existait : sans repli,
+         aucune rangée ne peut couper quoi que ce soit, et le vert ne dirait
+         rien. Le dire plutôt que de le taire. */
+      verifier('à ' + TC.largeur + ' px, les rangées se replient pour de vrai',
+        repliees > 0, 'aucune rangée repliée : le contrôle ne mesure rien à cette largeur');
+      verifier('mesurer la tête et sa case ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
     /* Le bouton d'aide de « Placer des nombres sur une droite graduée » réécrit
        les cinq nombres à la même longueur — mais SEULEMENT tant qu'on le garde

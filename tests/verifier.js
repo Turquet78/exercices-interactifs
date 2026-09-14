@@ -3063,6 +3063,7 @@ function exercices(suite){
     syntheseLibrePourcentage(w, P);
     syntheseAugLibreRedigee(w, P);
     verificationAvecPropositions(w, P);
+    teteCollee(w, P);
     poseSuitLEleve(w, P);
     poseOperationSuitLEleve(w, P);
     correctionSignesVariations(w, P);
@@ -5670,6 +5671,94 @@ function synthesePourcentage(w, P){
    (un fait de table ne se pose pas), les zéros finaux sont retirés, et elle
    ne se reconstruit que si les facteurs changent — reconstruire à chaque
    frappe effacerait ce que l'élève y écrit. */
+/* ---------- « = 0, » ne se sépare jamais de sa case ----------------------
+   Demande de Turquet (septembre 2026) : « en première quand on affiche
+   "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
+   "= 0" passe aussi à la ligne. »
+   La rangée d'un exercice guidé est un flex qui SE REPLIE — c'est ce qui
+   l'empêche de déborder de l'écran — et le repli tombait ENTRE le « 0, »
+   écrit par la page et la case où l'élève répond : mesuré à 600 px de
+   fenêtre sur le 2.3.1, « 0, » restait en fin de ligne et sa case tombait
+   111 px plus bas. Une virgule décimale coupée de ses décimales n'est plus
+   un nombre, et l'égalité se lit comme deux calculs.
+   UN SEUL ENDROIT assemble le groupe (fEqTete), et le contrôle tient les
+   bords que la page ne dit pas d'elle-même :
+   · plus AUCUN groupe écrit à la main dans la source — la rangée qu'on
+     écrira demain passe par fEqTete, donc elle est tenue sans rien
+     déclarer ; c'est ce bord qui empêche la liste de dériver ;
+   · fEqTete pose bien la classe, ET la classe est bien un flex : une
+     classe posée sans sa règle ne tient rien ensemble, et rien ne
+     rougirait ;
+   · le MÊME écart que la rangée — un groupe plus serré ou plus large se
+     verrait tout de suite sur l'écran de l'élève ;
+   · le rendu produit vraiment des groupes, chacun avec son « = », sa tête
+     et sa case : un contrôle qui n'a rien à mesurer ne mesure rien, et il
+     doit le dire.
+   Où tombe la ligne, en revanche, ne se voit que dans un navigateur : c'est
+   le banc navigateur qui mesure le repli, à une largeur où il a lieu. */
+function teteCollee(w, P){
+  const nom = 'le « = 0, » ne se sépare jamais de sa case';
+  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de tête collée à sa case'); return; }
+  const T = P.teteCollee, src = lire(CIBLE), pbs = [];
+
+  /* 1. le seul endroit qui assemble, et ce qu'il pose */
+  const aide = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === T.fabrique);
+  if(!aide) pbs.push('« ' + T.fabrique + ' » est introuvable : plus rien n\'assemble le groupe');
+  else{
+    if(aide.texte.indexOf('class="' + T.classe + '"') < 0)
+      pbs.push('« ' + T.fabrique + ' » ne pose plus la classe « ' + T.classe + ' » : le groupe n\'est plus un groupe');
+    if(aide.texte.indexOf('class="f-eq"') < 0 || aide.texte.indexOf('class="f-whole"') < 0)
+      pbs.push('« ' + T.fabrique + ' » n\'écrit plus le « = » et sa tête');
+  }
+
+  /* 2. plus aucun groupe écrit à la main : « = » puis une tête puis une case */
+  const sansAide = aide ? src.split(aide.texte).join('') : src;
+  const brut = [...sansAide.matchAll(
+    /<span class="f-eq">=<\/span><span class="f-whole">[^<>]{0,120}<\/span>\s*(?:<math-field|\$\{dec\(|\$\{pmMF\()/g)];
+  if(brut.length)
+    pbs.push(brut.length + ' groupe(s) « = tête + case » écrits à la main : ' +
+      brut.slice(0, 3).map(m => '« ' + (/<span class="f-whole">([^<>]*)<\/span>/.exec(m[0]) || [, '?'])[1] + ' »').join(' ; ') +
+      ' — hors de ' + T.fabrique + ', rien ne les garde ensemble');
+
+  /* 3. la classe est un flex, du même écart que la rangée */
+  const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+  const regle = t => (new RegExp('(?:^|[,}])\\s*' + t.replace('.', '\\.') + '\\s*\\{([^}]*)\\}', 'm').exec(style) || [, null])[1];
+  const grp = regle('.' + T.classe), rang = regle('.' + T.rangee);
+  if(grp === null) pbs.push('aucune règle « .' + T.classe + ' » : la classe est posée sans rien tenir');
+  else if(!/display:\s*(inline-)?flex/.test(grp))
+    pbs.push('« .' + T.classe + ' » n\'est pas un flex : ses éléments se replient comme avant');
+  if(rang === null) pbs.push('aucune règle « .' + T.rangee + ' » : le contrôle ne peut pas comparer les écarts');
+  else if(grp !== null){
+    const ecart = c => (/gap:\s*([\d.]+)px/.exec(c) || [, null])[1];
+    if(ecart(grp) !== ecart(rang))
+      pbs.push('le groupe a un écart de ' + ecart(grp) + ' px quand la rangée en a ' + ecart(rang) + ' px : l\'espacement change à l\'œil');
+  }
+
+  /* 4. et le rendu en pose vraiment — sinon le contrôle parle d'autre chose */
+  const vus = evaluer(w, `(function(){
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const pbs=[]; let total=0;
+    ${JSON.stringify(T.exercices)}.forEach(function(id){
+      try{ TESTS[id].start(); }catch(e){ pbs.push(id+' : le démarrage échoue ('+e.message+')'); return; }
+      const ec=document.querySelector('.screen.on');
+      const grs=ec?[...ec.querySelectorAll('.${T.classe}')]:[];
+      if(!grs.length){ pbs.push(id+' : aucun groupe rendu'); return; }
+      total+=grs.length;
+      grs.forEach(function(g){
+        const t=g.querySelector('.f-whole'), c=g.querySelector('math-field'), e=g.querySelector('.f-eq');
+        if(!e||!t||!c){ pbs.push(id+' : un groupe sans « = », sans tête ou sans case'); return; }
+        if(!/,$/.test((t.textContent||'').trim()))
+          pbs.push(id+' : la tête « '+(t.textContent||'').trim()+' » ne finit pas par la virgule');
+      });
+    });
+    return pbs.length ? pbs.slice(0,3).join(' | ') : (total<${T.minimum} ? 'seulement '+total+' groupe(s) rendus, '+${T.minimum}+' attendus au moins' : '');
+  })()`);
+  if(!vus.ok) pbs.push('le rendu ne se mesure pas : ' + vus.erreur);
+  else if(vus.valeur) pbs.push(vus.valeur);
+
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
 function poseSuitLEleve(w, P){
   const present = evaluer(w, "typeof poseEleveMAJ==='function' && typeof startAug==='function'");
   if(!present.ok || !present.valeur){
