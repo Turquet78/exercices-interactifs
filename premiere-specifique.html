@@ -1983,7 +1983,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=220;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=221;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -9097,6 +9097,16 @@ function nextHSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
    déjà augmentée EST la leçon de l'exercice. C'est ce que fait déjà le 2.2.7,
    dont l'étape ② redemande les deux coefficients de l'étape ①.
 
+   LES LIBELLÉS ① ET ③ DISENT SUR QUOI ON CALCULE (demande de Turquet,
+   septembre 2026) : « on calcule d'abord …% de 100 », puis « on calcule …% du
+   résultat précédent ». Ce n'est pas un habillage — c'est LA leçon de
+   l'exercice, celle que le message de correction nomme déjà : la seconde
+   hausse ne porte pas sur 100. Les deux pourcentages SUIVENT la question, et
+   le bord qui compte est le libellé FIGÉ, qui nommerait un taux que la
+   question ne porte pas (la leçon du numéro d'exercice de show()) : le
+   contrôle rend deux questions aux taux ÉCHANGÉS et exige que les libellés
+   suivent.
+
    PAS DE POSE EN COLONNES, contrairement au 2.2.2 : la fiche n'en a pas, et
    avec le tirage ci-dessus les deux additions tombent sur des entiers à trois
    chiffres. L'écran porte déjà vingt et une cases ; le bouton « Tables de
@@ -9155,11 +9165,11 @@ function renderHSCTest(){
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
   const ligneAdd=(a,b,r,lblR)=>`<div class="pt-row">${dec(a,'premier terme')}<span class="f-whole">+</span>${dec(b,'deuxième terme')}${fEq(dec(r,lblR))}</div>`;
   $('hscHost').innerHTML=numeros(
-    `<div class="pt-step"><div class="pt-lab">① La hausse pour <b>100</b>, et le résultat pour une hausse de ${q.P1} % — comme dans {augmenter-addition}</div>
+    `<div class="pt-step"><div class="pt-lab">① On calcule d’abord ${q.P1} % de <b>100</b> — comme dans {augmenter-addition}</div>
        <div class="pt-row">${frac('hsc1n','hsc1d')}<span class="f-times">×</span>${dec('hsc1m','la valeur de départ')}${fEq(frac('hsc1pn','hsc1pd'))}${fEq(dec('hsc1a','la hausse pour 100'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l’addition : valeur de départ + augmentation = nouvelle valeur</div>
        ${ligneAdd('hsc1sa','hsc1sb','hsc1sr','la nouvelle valeur')}</div>`+
-    `<div class="pt-step"><div class="pt-lab">③ La hausse pour <b>la valeur que tu viens de trouver</b>, et le résultat pour une hausse de ${q.P2} %</div>
+    `<div class="pt-step"><div class="pt-lab">③ On calcule ${q.P2} % du <b>résultat précédent</b></div>
        <div class="pt-row">${frac('hsc2n','hsc2d')}<span class="f-times">×</span>${dec('hsc2m','la nouvelle valeur de départ')}${fEq(frac('hsc2pn','hsc2pd'))}${fEq(dec('hsc2a','la seconde hausse'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">④ Écris l’addition : valeur de départ + augmentation = nouvelle valeur</div>
        ${ligneAdd('hsc2sa','hsc2sb','hsc2sr','la valeur finale')}</div>`+

@@ -4667,6 +4667,32 @@ celle que `hscAns` calcule — un rappel dont les pourcentages changent sans que
 son arithmétique suive ferait mentir l'écran. Sept sabotages, chacun rougissant
 en nommant son défaut.
 
+**Puis les libellés ① et ③ ont dit SUR QUOI on calcule.** Demande de Turquet
+(septembre 2026) : « le n°1 en dessous de l'énoncé doit afficher : on calcule
+d'abord …% de 100 ; le n°3 doit afficher : on calcule …% du résultat
+précédent. » Ils disaient jusque-là « La hausse pour 100, et le résultat pour
+une hausse de 20 % » et « La hausse pour la valeur que tu viens de trouver,
+et le résultat pour une hausse de 30 % » — une phrase qui nomme d'abord ce
+qu'on cherche et seulement ensuite le taux, quand l'élève, lui, lit sa ligne
+de gauche à droite : le pourcentage, puis ce sur quoi il porte.
+**CE N'EST PAS UN HABILLAGE — c'est LA leçon de l'exercice**, celle que le
+message de correction nomme déjà en toutes lettres : la seconde hausse ne
+porte PAS sur 100, et un libellé qui le laisserait croire enseignerait
+l'erreur même que l'exercice combat. Le gras est resté sur la BASE du calcul
+(**100**, puis le **résultat précédent**) : c'est le seul mot qui change d'une
+étape à l'autre. Le renvoi à {augmenter-addition} est GARDÉ sur le ① — il dit
+d'où vient la méthode, et il est écrit `{identifiant}`, donc il suit une
+renumérotation.
+**Le bord qui compte est le libellé FIGÉ**, et c'est le plus sournois : un
+pourcentage écrit en dur nommerait un taux que la question ne porte pas, sans
+qu'aucune correction ne bronche — la leçon du numéro d'exercice de `show()`,
+transposée. Le contrôle rend donc DEUX questions ÉPINGLÉES aux taux ÉCHANGÉS
+(2 % puis 50 %, puis l'inverse) et exige que les deux libellés suivent ; il
+refuse en plus que le ③ écrive « % de 100 ». Cinq sabotages, chacun rougissant
+en nommant son défaut — le taux de ① figé, le ③ ramené sur 100, le ③ qui
+nomme le taux de la PREMIÈRE hausse, le mot « d'abord » retiré, et le ① qui ne
+dit plus sur quoi on calcule.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
