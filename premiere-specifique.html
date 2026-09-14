@@ -560,6 +560,14 @@ body.pave-actif #paveNum{bottom:54px}
   .pt-step{width:100%;margin:4px 0 16px}
   .pt-lab{font-family:"Nunito";font-weight:800;font-size:.9rem;color:var(--ink-soft);margin-bottom:9px;text-align:center}
   .pt-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+  /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de Turquet,
+     septembre 2026). La rangée est un flex qui se replie, et le repli tombait
+     ENTRE le « = » (ou son « 0, ») et la case : l'élève lisait le signe à la fin
+     d'une ligne et sa réponse au début de la suivante — une égalité qui se lit
+     comme deux, et une virgule décimale coupée de ses décimales. Le groupe est
+     un flex à lui, du MÊME écart que la rangée : rien ne bouge tant que la ligne
+     tient, et tout passe à la ligne ensemble quand elle ne tient plus. */
+  .f-grp{display:flex;align-items:center;gap:12px}
   .pt-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:2px}
   .pt-choix-btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font:inherit;color:inherit;
     background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 16px;
@@ -1056,7 +1064,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
 /* Le calcul écrit en TÊTE de rangée a la taille de la rangée (demande de
    Turquet, août 2026, née en Seconde — l'écran des sommes est le MÊME) :
    « .f-frac » vaut 1,45 rem partout ailleurs. */
-#sfHost .pt-row>.f-frac{font-size:calc(2rem * var(--tab-nb,1))}
+#sfHost .pt-row>.f-frac,#sfHost .pt-row>.f-grp>.f-frac{font-size:calc(2rem * var(--tab-nb,1))}
 #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:900px){ #sfHost math-field.pm-mf{font-size:calc(1.5rem * var(--tab-nb,1))}
@@ -2060,6 +2068,20 @@ function pmUpgrade(scope){
 function pmMF(cls,id,extra){
   return '<math-field class="dexp-mf pm-mf '+(cls||'')+'" id="'+id+'"'+(extra||'')+'></math-field>';
 }
+/* « = tête, » ET SA CASE : UN SEUL ENDROIT LES ASSEMBLE.
+   La tête est ce que la page écrit entre le « = » et la case, et qui finit par
+   la virgule décimale — « 0, », « 1, », « 1 − 0, » ; elle peut être vide, et
+   c'est alors le « = » nu devant sa case. Séparé d'elle par un repli, le signe
+   ment : une égalité coupée en deux se lit comme deux calculs, et « 0, » seul
+   en fin de ligne n'est plus un nombre. Les assembler ici plutôt qu'à chaque
+   rangée, c'est la garantie que la rangée qu'on écrira demain le fera sans y
+   penser (voir .f-grp). */
+function fEqTete(tete, boite){
+  return '<span class="f-grp"><span class="f-eq">=</span>'
+       + (tete ? '<span class="f-whole">'+tete+'</span>' : '') + boite + '</span>';
+}
+/* Le « = » nu devant une case : même groupe, sans tête. */
+function fEq(boite){ return fEqTete('', boite); }
 /* ---- rangee de jetons + clavier a l'ecran (convention terminale) ---- */
 let pmLastMF=null;
 document.addEventListener('focusin',e=>{
@@ -5256,15 +5278,15 @@ function renderFTest(){
   let instr='', html='';
   if(q.level==='frac-n1'){
     instr='Écris cette fraction sous forme <b>décimale</b>.';
-    html=fracBox(q.num,q.d)+'<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="fDec" aria-label="réponse décimale"></math-field>';
+    html=fracBox(q.num,q.d)+'${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="fDec" aria-label="réponse décimale"></math-field>`)}';
   } else if(q.level==='frac-n2'){
     instr='Écris ce nombre sous forme de <b>fraction décimale</b>.';
-    html=`<span class="f-dec-q">${esc(q.decString)}</span><span class="f-eq">=</span>`+fracIn;
+    html=`<span class="f-dec-q">${esc(q.decString)}</span>`+fEq(fracIn);
   } else if(q.level==='frac-n3'){
     instr='Calcule ce <b>produit</b> (pas besoin de simplifier).';
     const fa=q.facA.whole!==undefined?`<span class="f-whole">${q.facA.whole}</span>`:fracBox(q.facA.n,q.facA.d);
     const fb=q.facB.whole!==undefined?`<span class="f-whole">${q.facB.whole}</span>`:fracBox(q.facB.n,q.facB.d);
-    html=fa+'<span class="f-times">×</span>'+fb+'<span class="f-eq">=</span>'+fracIn;
+    html=fa+'<span class="f-times">×</span>'+fb+fEq(fracIn);
   } else if(q.level==='frac-n4'){
     // frac-n4 : produit de fractions en 2 étapes (produit en fraction, puis décimal)
     instr='Multiplie ces fractions décimales en 2 étapes.';
@@ -5725,7 +5747,7 @@ function renderPTest(){
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   $('pHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① le % en fraction décimale&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('p2n','p2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span>${fEq(frac('p2n','p2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -5845,9 +5867,8 @@ function renderFPTest(){
     `<div class="pt-step"><div class="pt-lab">Méthode 2 : rends le dénominateur égal à 100</div>
        <div class="pt-row">`+
          `<span class="f-frac-input"><span class="fpm-ligne"><span class="fpm-const">${q.a} ×</span><math-field class="dexp-mf pm-mf f-num" id="fm1n" aria-label="multiplicateur du numérateur"></math-field></span><span class="f-fbar"></span><span class="fpm-ligne"><span class="fpm-const">${q.b} ×</span><math-field class="dexp-mf pm-mf f-den" id="fm1d" aria-label="multiplicateur du dénominateur"></math-field></span></span>`+
-         `<span class="f-eq">=</span>`+
-         `<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="fm2n" aria-label="numérateur sur 100"></math-field><span class="f-fbar"></span><span class="fpm-ligne"><span class="fpm-const">100</span></span></span>`+
-         `<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="fm3" aria-label="le pourcentage"></math-field><span class="f-whole">%</span>`+
+         fEq(`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="fm2n" aria-label="numérateur sur 100"></math-field><span class="f-fbar"></span><span class="fpm-ligne"><span class="fpm-const">100</span></span></span>`)+
+         `${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="fm3" aria-label="le pourcentage"></math-field>`)}<span class="f-whole">%</span>`+
        `</div></div>`;
   const ordre=['fm1n','fm1d','fm2n','fm3'].map(id=>$(id));
   ordre.forEach((el,i)=>{ if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<ordre.length-1)ordre[i+1].focus(); else checkFPAnswer();} }); });
@@ -6218,9 +6239,9 @@ function renderAG2Test(){
   const pose='<div class="mp-op" id="ag2Mul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseOpEleveMAJ) */
   $('ag2Host').innerHTML=
     `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : ${q.P} % de ${q.N}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
-       <div class="pt-row">${frac('g1n','g1d')}<span class="f-times">\u00d7</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('g2n','g2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="g3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('g1n','g1d')}<span class="f-times">\u00d7</span><span class="f-whole">${q.N}</span>${fEq(frac('g2n','g2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="g3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
-       <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="g4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="g4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="g4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="g4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="g4b" aria-label="deuxième terme"></math-field>${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="g4r" aria-label="nouvelle valeur"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="ag2Step5"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
        <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
   const posedIns=[...$('ag2Mul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
@@ -6457,9 +6478,9 @@ function renderWTest(){
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="wChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
-       <div class="pt-row">${frac('w1n','w1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="w1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('w2n','w2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="w3" aria-label="en écriture décimale"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('w1n','w1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="w1v" aria-label="valeur de départ testée"></math-field>${fEq(frac('w2n','w2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="w3" aria-label="en écriture décimale"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
-       <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="w4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="w4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="w4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="w4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="w4b" aria-label="deuxième terme"></math-field>${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="w4r" aria-label="nouvelle valeur"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="wPose"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
        <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
     `<p class="pt-aide">${c===null
@@ -6778,14 +6799,14 @@ function renderSynTest(){
   } else if(q.fam==='pct'){
     etapes=
       `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction décimale : ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le résultat en écriture décimale</div>
-         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><span class="f-whole">${nAff}</span><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><span class="f-whole">${nAff}</span>${fEq(frac('y2n','y2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`;
   } else if(q.meth==='coef'){
     const pose='<div class="mp-op" id="syMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseEleveMAJ) */
     etapes=
       `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${pAff} %, c'est multiplier par 1 ${neg?'\u2212':'+'} ${pAff}/100</div>
-         <div class="pt-row"><span class="f-whole">1 ${neg?'\u2212':'+'}</span>${frac('y1n','y1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'\u2212':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="y1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="y1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}</div></div>`+
+         <div class="pt-row"><span class="f-whole">1 ${neg?'\u2212':'+'}</span>${frac('y1n','y1d')}${fEqTete(`1 ${neg?'\u2212':'+'} 0,`, `<math-field class="dexp-mf pm-mf f-dec" id="y1p" aria-label="le pourcentage en écriture décimale"></math-field>`)}${fEqTete(`${neg?'0,':'1,'}`, `<math-field class="dexp-mf pm-mf f-dec" id="y1dec" aria-label="coefficient en écriture décimale"></math-field>`)}${fEq(frac('y2n','y2d'))}</div></div>`+
       `<div class="pt-step"><div class="pt-lab">\u2461 coefficient \u00d7 valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
-         <div class="pt-row">${frac('y3n','y3d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y3v" aria-label="valeur de départ"></math-field><span class="f-eq">=</span>${frac('y4n','y4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+         <div class="pt-row">${frac('y3n','y3d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y3v" aria-label="valeur de départ"></math-field>${fEq(frac('y4n','y4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="y5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
       `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
          <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
   } else {
@@ -6794,9 +6815,9 @@ function renderSynTest(){
     const pose='<div class="mp-op" id="syMul"></div>';
     etapes=
       `<div class="pt-step"><div class="pt-lab">\u2460 ${neg?'La baisse':'L\u2019augmentation'} : calcule ${pAff} % de ${nAff}&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 en écriture décimale</div>
-         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y1v" aria-label="valeur de départ testée"></math-field><span class="f-eq">=</span>${frac('y2n','y2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+         <div class="pt-row">${frac('y1n','y1d')}<span class="f-times">\u00d7</span><math-field class="dexp-mf pm-mf f-dec" id="y1v" aria-label="valeur de départ testée"></math-field>${fEq(frac('y2n','y2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="y3" aria-label="${neg?'la baisse':'l\u2019augmentation'}"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
       `<div class="pt-step"><div class="pt-lab">\u2463 ${neg?'Écris la soustraction : valeur de départ \u2212 baisse = nouvelle valeur':'Écris l\u2019addition : valeur de départ + augmentation = nouvelle valeur'}</div>
-         <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="y4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="y4b" aria-label="deuxième terme"></math-field><span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="y4r" aria-label="nouvelle valeur"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+         <div class="pt-row"><math-field class="dexp-mf pm-mf f-dec" id="y4a" aria-label="premier terme"></math-field><span class="f-whole">${neg?'\u2212':'+'}</span><math-field class="dexp-mf pm-mf f-dec" id="y4b" aria-label="deuxième terme"></math-field>${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="y4r" aria-label="nouvelle valeur"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
       `<div class="pt-step pt-opt step-hidden" id="syPose"><div class="pt-lab">\u2464 ${neg?'Pose la soustraction en colonnes':'Pose l\u2019addition en colonnes'}</div>
          <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`;
   }
@@ -7204,7 +7225,7 @@ function renderQTest(){
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${qdQuoi(q)}</div>
        <div class="pt-choix" id="qChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">\u2460 le % en fraction d\u00e9cimale&nbsp;· \u2461 multiplier les fractions&nbsp;· \u2462 le r\u00e9sultat en \u00e9criture d\u00e9cimale</div>
-       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span>${caseN}<span class="f-eq">=</span>${frac('q2n','q2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('q1n','q1d')}<span class="f-times">\u00d7</span>${caseN}${fEq(frac('q2n','q2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="q3" aria-label="r\u00e9sultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<p class="pt-aide">${c===null
         ? '\u00c9cris les \u00e9tapes du calcul et choisis ta proposition \u2014 dans l\u2019ordre que tu veux.'
         : 'V\u00e9rifie ta proposition\u00a0: calcule '+c.P+'\u00a0% de '+c.N+'. Tu dois retrouver '+(q.type==='res'?'la proposition que tu as choisie\u00a0: '+esc(qdLabel(q,q.opts[q.choisi])):q.result+'\u00a0'+esc(q.unit))+'.'}</p>`;
@@ -7924,9 +7945,9 @@ function renderATest(){
   const aPosed='<div class="mp-op" id="aMul"></div>';
   $('aHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span><math-field class="dexp-mf pm-mf f-dec" id="a1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}${fEqTete(`1 + 0,`, `<math-field class="dexp-mf pm-mf f-dec" id="a1p" aria-label="le pourcentage en écriture décimale"></math-field>`)}${fEqTete(`1,`, `<math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field>`)}${fEq(frac('a2n','a2d'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('a4n','a4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field>${fEq(frac('a4n','a4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`;
   const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
@@ -8343,9 +8364,9 @@ function renderVTest(){
     `<div class="pt-step"><div class="pt-lab">\u24ea Choisis ${augqQuoi(q)}</div>
        <div class="pt-choix" id="vChoix">${choix}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">\u2460 Le coefficient : ${neg?'diminuer':'augmenter'} de ${pAff} %, c'est multiplier par 1 ${neg?'−':'+'} ${pAff}/100</div>
-       <div class="pt-row"><span class="f-whole">1 ${neg?'−':'+'}</span>${frac('v1n','v1d')}<span class="f-eq">=</span><span class="f-whole">1 ${neg?'−':'+'} 0,</span><math-field class="dexp-mf pm-mf f-dec" id="v1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">${neg?'0,':'1,'}</span><math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('v2n','v2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 ${neg?'−':'+'}</span>${frac('v1n','v1d')}${fEqTete(`1 ${neg?'−':'+'} 0,`, `<math-field class="dexp-mf pm-mf f-dec" id="v1p" aria-label="le pourcentage en écriture décimale"></math-field>`)}${fEqTete(`${neg?'0,':'1,'}`, `<math-field class="dexp-mf pm-mf f-dec" id="v1dec" aria-label="coefficient en écriture décimale"></math-field>`)}${fEq(frac('v2n','v2d'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">\u2461 coefficient × valeur de départ&nbsp;· \u2462 multiplier les fractions&nbsp;· \u2463 le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${nAff}"></math-field><span class="f-eq">=</span>${frac('v4n','v4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('v3n','v3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="v3v" aria-label="valeur de départ" data-exp="${nAff}"></math-field>${fEq(frac('v4n','v4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="v5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="vStep3"><div class="pt-lab">\u2464 Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${pose}</div></div>`+
     `<p class="pt-aide">${c===null
@@ -8511,9 +8532,9 @@ function renderDTest(){
   const dPosed='<div class="mp-op" id="dMul"></div>';   /* la pose suit les nombres de l'ÉLÈVE (poseEleveMAJ) */
   $('dHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1p" aria-label="le pourcentage en écriture décimale"></math-field><span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}${fEqTete(`1 − 0,`, `<math-field class="dexp-mf pm-mf f-dec" id="d1p" aria-label="le pourcentage en écriture décimale"></math-field>`)}${fEqTete(`0,`, `<math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field>`)}${fEq(frac('d2n','d2d'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('d4n','d4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field>${fEq(frac('d4n','d4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`;
   const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
@@ -8692,17 +8713,17 @@ function renderHSTest(){
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
   $('hsHost').innerHTML=numeros(
     `<div class="pt-step"><div class="pt-lab">① Le coefficient de chaque hausse, comme dans {augmenter-pourcentage}</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('hs1n','hs1d')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span>${dec('hs1p','la première hausse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">1,</span>${dec('hs1dec','premier coefficient')}</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('hs2n','hs2d')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span>${dec('hs2p','la seconde hausse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">1,</span>${dec('hs2dec','second coefficient')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('hs1n','hs1d')}${fEqTete(`1 + 0,`, dec('hs1p','la première hausse en écriture décimale'))}${fEqTete(`1,`, dec('hs1dec','premier coefficient'))}</div>
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('hs2n','hs2d')}${fEqTete(`1 + 0,`, dec('hs2p','la seconde hausse en écriture décimale'))}${fEqTete(`1,`, dec('hs2dec','second coefficient'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients, comme dans {mult-dec-un}</div>
-       <div class="pt-row">${frac('hsAn','hsAd')}<span class="f-times">×</span>${frac('hsBn','hsBd')}<span class="f-eq">=</span>${frac('hsPn','hsPd')}<span class="f-eq">=</span>${dec('hsDec','coefficient global')}</div></div>`+
+       <div class="pt-row">${frac('hsAn','hsAd')}<span class="f-times">×</span>${frac('hsBn','hsBd')}${fEq(frac('hsPn','hsPd'))}${fEq(dec('hsDec','coefficient global'))}</div></div>`+
     `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, zéros finaux retirés, le plus court en bas <span style="font-weight:600;color:var(--red)">(retenues facultatives)</span></div>
        <div class="pt-row" style="padding:6px 0 6px">${buildPoseU(q,'hsMul','hs')}</div>
        <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`+
     `<div class="pt-step"><div class="pt-lab">③ La hausse globale, en pourcentage</div>
        <div class="pt-row"><span class="f-whole">hausse globale :</span>${dec('hsP','la hausse globale en pourcentage')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="hsStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l'étape ②</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('hsVn','hsVd')}<span class="f-eq">=</span><span class="f-whole">1 + 0,</span>${dec('hsVp','ta hausse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">1,</span>${dec('hsVc','le coefficient retrouvé')}</div></div>`);
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('hsVn','hsVd')}${fEqTete(`1 + 0,`, dec('hsVp','ta hausse en écriture décimale'))}${fEqTete(`1,`, dec('hsVc','le coefficient retrouvé'))}</div></div>`);
   const posedIns=[...$('hsMul').querySelectorAll('input')];
   const order=[$('hs1n'),$('hs1d'),$('hs1p'),$('hs1dec'),$('hs2n'),$('hs2d'),$('hs2p'),$('hs2dec'),
                $('hsAn'),$('hsAd'),$('hsBn'),$('hsBd'),...posedIns,$('hsPn'),$('hsPd'),$('hsDec'),
@@ -8995,7 +9016,6 @@ function renderSFTest(){
   const terme=(n,d)=> sfTermeHTML(n,d);
   const surUn=(n,d)=> '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
   const op='<span class="f-times">'+q.op+'</span>';
-  const eq='<span class="f-eq">=</span>';
   /* Le terme de départ, puis la même fraction dont le numérateur et le
      dénominateur sont chacun multipliés par une case. */
   const produit=(n,d,a,b)=>
@@ -9034,17 +9054,16 @@ function renderSFTest(){
                   : '③ la fraction finale')+'</div>'
      +'<div class="pt-row">'
        +terme(q.n1,q.d1)+op+terme(q.n2,q.d2)
-       +(versFraction ? (eq+surUn(q.n1,q.d1)+op+surUn(q.n2,q.d2)) : '')
-       +eq+produit(q.n1,q.d1,'sf-a1','sf-b1')+op+produit(q.n2,q.d2,'sf-a2','sf-b2')
-       +eq
-       +'<span class="f-frac-input sf-somme">'
+       +(versFraction ? (fEq(surUn(q.n1,q.d1))+op+surUn(q.n2,q.d2)) : '')
+       +fEq(produit(q.n1,q.d1,'sf-a1','sf-b1'))+op+produit(q.n2,q.d2,'sf-a2','sf-b2')
+       +fEq('<span class="f-frac-input sf-somme">'
        +'<span class="sf-haut">'+mf('sf-num1','f-num','premier numérateur')
        +'<span class="f-times">'+q.op+'</span>'
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
-       +mf('sf-den','f-den','dénominateur commun')+'</span>'
-       +(test.simp ? (eq+quotient()) : '')
-       +eq+frac('sf-fn','sf-fd')
+       +mf('sf-den','f-den','dénominateur commun')+'</span>')
+       +(test.simp ? fEq(quotient()) : '')
+       +fEq(frac('sf-fn','sf-fd'))
      +'</div></div>';
   /* La décoration du croisement — couleurs et flèches — n'existe qu'en Seconde,
      et ne s'applique qu'à l'exercice qui la demande. La ligne est la même dans
@@ -9465,14 +9484,14 @@ function renderBSTest(){
      l'accolade au lieu du numéro. Vu sur la capture, pas dans le code. */
   $('bsHost').innerHTML=numeros(
     `<div class="pt-step"><div class="pt-lab">① Le coefficient de chaque baisse, comme dans {diminuer-pourcentage}</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs1n','bs1d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bs1p','la première baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs1dec','premier coefficient')}</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs2n','bs2d')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bs2p','la seconde baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bs2dec','second coefficient')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs1n','bs1d')}${fEqTete(`1 − 0,`, dec('bs1p','la première baisse en écriture décimale'))}${fEqTete(`0,`, dec('bs1dec','premier coefficient'))}</div>
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bs2n','bs2d')}${fEqTete(`1 − 0,`, dec('bs2p','la seconde baisse en écriture décimale'))}${fEqTete(`0,`, dec('bs2dec','second coefficient'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Multiplier les deux coefficients : multiplie les numérateurs, comme dans {mult-decimaux}</div>
-       <div class="pt-row">${frac('bsAn','bsAd')}<span class="f-times">×</span>${frac('bsBn','bsBd')}<span class="f-eq">=</span>${frac('bsPn','bsPd')}<span class="f-eq">=</span>${dec('bsDec','coefficient global')}</div></div>`+
+       <div class="pt-row">${frac('bsAn','bsAd')}<span class="f-times">×</span>${frac('bsBn','bsBd')}${fEq(frac('bsPn','bsPd'))}${fEq(dec('bsDec','coefficient global'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">③ La baisse globale, en pourcentage</div>
        <div class="pt-row"><span class="f-whole">baisse globale :</span>${dec('bsP','la baisse globale en pourcentage')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="bsStep4"><div class="pt-lab">④ Facultatif — vérifie ta réponse en calculant SON coefficient : tu dois retomber sur celui de l'étape ②</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bsVn','bsVd')}<span class="f-eq">=</span><span class="f-whole">1 − 0,</span>${dec('bsVp','ta baisse en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('bsVc','le coefficient retrouvé')}</div></div>`);
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('bsVn','bsVd')}${fEqTete(`1 − 0,`, dec('bsVp','ta baisse en écriture décimale'))}${fEqTete(`0,`, dec('bsVc','le coefficient retrouvé'))}</div></div>`);
   const order=[$('bs1n'),$('bs1d'),$('bs1p'),$('bs1dec'),$('bs2n'),$('bs2d'),$('bs2p'),$('bs2dec'),
                $('bsAn'),$('bsAd'),$('bsBn'),$('bsBd'),$('bsPn'),$('bsPd'),$('bsDec'),
                $('bsP'),$('bsVn'),$('bsVd'),$('bsVp'),$('bsVc')];
@@ -9691,7 +9710,7 @@ function renderLCTest(){
     `<div class="pt-step${cache}"><div class="pt-lab">① De quel pourcentage ?</div>
        <div class="pt-row"><span class="f-whole">${c===-1?'une baisse de':'une augmentation de'}</span>${dec('lcP','le pourcentage de l’évolution')}<span class="f-whole">%</span></div></div>`+
     `<div class="pt-step${cache}"><div class="pt-lab">② Vérifie ta réponse en calculant SON coefficient, comme dans {augmenter-pourcentage} et {diminuer-pourcentage} : tu dois retrouver ${q.coefStr}</div>
-       <div class="pt-row"><span class="f-whole">1 ${signe}</span>${frac('lc1n','lc1d')}<span class="f-eq">=</span><span class="f-whole">1 ${signe} 0,</span>${dec('lc1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${tete}</span>${dec('lc1dec','le coefficient en écriture décimale')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 ${signe}</span>${frac('lc1n','lc1d')}${fEqTete(`1 ${signe} 0,`, dec('lc1p','le pourcentage en écriture décimale'))}${fEqTete(tete, dec('lc1dec','le coefficient en écriture décimale'))}</div></div>`+
     `<p class="pt-aide">${c===null
         ? 'Commence par dire si le coefficient fait monter ou descendre la valeur.'
         : 'Si tu retrouves '+q.coefStr+', ta réponse est la bonne.'}</p>`);
@@ -9841,8 +9860,8 @@ function renderCKTest(){
   /* la chaîne se calcule depuis l'ÉNONCÉ : elle est visible dès le rendu,
      sans « … », et « prendre » n'a pas le maillon « 1 ± » */
   const chaine=(q.fam==='pre')
-    ? `<div class="pt-row">${frac('ck1n','ck1d')}<span class="f-eq">=</span><span class="f-whole">0,</span>${dec('ck1p','le pourcentage en écriture décimale')}</div>`
-    : `<div class="pt-row"><span class="f-whole">1 ${M.signe}</span>${frac('ck1n','ck1d')}<span class="f-eq">=</span><span class="f-whole">1 ${M.signe} 0,</span>${dec('ck1p','le pourcentage en écriture décimale')}<span class="f-eq">=</span><span class="f-whole">${M.tete}</span>${dec('ckC','le coefficient en écriture décimale')}</div>`;
+    ? `<div class="pt-row">${frac('ck1n','ck1d')}${fEqTete(`0,`, dec('ck1p','le pourcentage en écriture décimale'))}</div>`
+    : `<div class="pt-row"><span class="f-whole">1 ${M.signe}</span>${frac('ck1n','ck1d')}${fEqTete(`1 ${M.signe} 0,`, dec('ck1p','le pourcentage en écriture décimale'))}${fEqTete(M.tete, dec('ckC','le coefficient en écriture décimale'))}</div>`;
   $('ckHost').innerHTML=numeros(
     `<div class="pt-step"><div class="pt-lab">① Choisis le coefficient</div>
        <div class="pt-choix" id="ckChoix">${choix}</div></div>`+
@@ -10159,7 +10178,7 @@ function renderMDTest(){
   const posed   =`<div class="mp-op" id="mdMul">${rowCarry+rowTop+rowMul+rowLine+rowRes}</div>`;
   $('mdHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}<span class="f-eq">=</span>${frac('md3n','md3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field></div></div>`+
+       <div class="pt-row">${frac('md1n','md1d')}<span class="f-times">×</span>${frac('md2n','md2d')}${fEq(frac('md3n','md3d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="mdDec" aria-label="résultat décimal"></math-field>`)}</div></div>`+
     `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs <span style="font-weight:600;color:var(--red)">(retenue facultative)</span></div>
        <div class="pt-row" style="padding:8px 0 6px">${posed}</div>
        <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;
@@ -10339,7 +10358,7 @@ function renderUTest(){
   const posed=buildPoseU(q,'uMul','u');
   $('uHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① les fractions décimales&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}<span class="f-eq">=</span>${frac('u3n','u3d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field></div></div>`+
+       <div class="pt-row">${frac('u1n','u1d')}<span class="f-times">×</span>${frac('u2n','u2d')}${fEq(frac('u3n','u3d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="uDec" aria-label="résultat décimal"></math-field>`)}</div></div>`+
     `<div class="pt-step pt-outil"><div class="pt-lab">✎ Pour remplir le <b>numérateur du produit</b> (étape ②) : pose la multiplication des numérateurs, le plus court en bas <span style="font-weight:600;color:var(--red)">(retenues facultatives)</span></div>
        <div class="pt-row" style="padding:6px 0 6px">${posed}</div>
        <div class="pt-pose-note">↑ recopie ce résultat dans le numérateur de l'étape ②</div></div>`;

@@ -4772,6 +4772,78 @@ fin : elle coupait la chaîne en son milieu, entre le « × valeur » et son
 résultat. Les libellés fusionnent avec le point médian de la Première :
 « ② coefficient × valeur de départ · ③ multiplier les fractions · ④ le résultat ».
 
+**UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE.** Demande de Turquet
+(septembre 2026, Première), en deux temps. D'abord : « quand on affiche "= 0 ,"
+avec une case à côté, si la case passe à la ligne je veux que le "= 0" passe
+aussi à la ligne. » Puis, le même jour : « en fait dès qu'une case passe à la
+ligne et qu'il y a un "=" devant, mettre le "=" aussi à la ligne. » La règle
+vaut donc pour TOUT « = » posé devant une case, avec ou sans tête.
+La rangée est un flex qui SE REPLIE — c'est ce qui l'empêche de déborder de
+l'écran —, et le repli tombait ENTRE le signe et la case où l'élève répond :
+mesuré à 600 px de fenêtre sur le 2.3.1, « 0, » restait en fin de ligne et sa
+case tombait 111 px plus bas. Une virgule décimale coupée de ses décimales n'est
+plus un nombre, et une égalité coupée en deux se lit comme deux calculs.
+**LA SONDE A FAIT LA CARTE AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT**, et elle a
+renversé l'ordre des priorités : sur les six largeurs et les trente exercices du
+niveau, le premier à céder n'est pas un écran de pourcentages mais
+{somme-fractions}, dès **820 px** — un iPad en portrait. Suivent les QCM et les
+évolutions à 768 et 600, puis tout le reste à 390. Sans cette mesure, on aurait
+groupé les rangées qu'on avait sous les yeux et manqué celle qui casse en
+premier.
+**UN SEUL ENDROIT ASSEMBLE LE GROUPE** (`fEqTete`, dont `fEq` est la forme sans
+tête) : les trente-neuf groupes des dix-sept écrans y passent, et la rangée
+qu'on écrira demain y passera sans rien avoir à déclarer. Le groupe est un flex
+à lui (`.f-grp`), du MÊME écart que la rangée — un groupe plus serré ou plus
+large se verrait tout de suite —, si bien que rien ne bouge tant que la ligne
+tient et que tout passe à la ligne ensemble quand elle ne tient plus. La tête est
+ce qui finit par la virgule : « 0, », « 1, », « 1 − 0, » ; le « = » vient avec
+elle, parce qu'une chaîne qui se replie met son signe en tête de la nouvelle
+ligne, jamais en fin de l'ancienne.
+**Il n'y avait pas de solution en CSS seul** : dans un conteneur en flex, rien
+ne défend à un repli de tomber entre deux éléments — `break-inside` ne parle
+qu'à la pagination. C'est la STRUCTURE qui devait changer, et c'est pourquoi le
+groupe est écrit au rendu plutôt qu'ajouté après coup : déplacer un
+`<math-field>` déjà monté le débranche et le remonte, et MathLive n'en sort pas
+toujours avec sa valeur.
+**LA SECONDE A ÉTÉ TOUCHÉE, ET C'EST LE MOTEUR QUI L'EXIGE** : {somme-fractions}
+tourne sur `renderSFTest`, le même TEXTE dans les deux fichiers, comparé au
+caractère près. Le corriger pour la Première et pas pour la Seconde l'aurait
+fait diverger — le contrôle des quatorze fonctions rougit au premier caractère
+d'écart. La Seconde reçoit donc la fabrique, la règle `.f-grp` et la chaîne
+groupée, et rien d'autre : ses rangées propres (2.2.1, 2.3.1…) restent à
+grouper, le contrôle s'y affiche « non applicable », et c'est une décision à
+prendre — pas un oubli.
+**Un voisin a failli céder en silence** : `#sfHost .pt-row>.f-frac` vise l'enfant
+DIRECT de la rangée, et le calcul écrit en tête d'une chaîne vit désormais un
+cran plus bas, sous le groupe. Sans le sélecteur élargi, la fraction du maillon
+« 3 = 3/1 » serait repassée à 1,45 rem devant des cases à 2 rem — le défaut
+d'août 2026, au même endroit. Le contrôle du navigateur qui le tient regardait
+lui aussi les seuls enfants directs : il descend maintenant d'un cran, sans quoi
+il aurait mesuré moitié moins en restant vert.
+**Deux bancs, la répartition habituelle.** jsdom tient ce que le texte dit : plus
+AUCUN « = » écrit à la main devant une case dans la source — ni avec tête ni
+sans —, la classe posée par la fabrique, la tête restée FACULTATIVE (sans quoi
+le « = » nu n'aurait aucun chemin vers le groupe), la classe qui est bien un
+flex (posée sans sa règle, elle ne tient rien ensemble et rien ne rougirait), le
+même écart que la rangée, et le rendu qui pose vraiment ses groupes — un
+contrôle qui n'a rien à mesurer ne mesure rien. Le NAVIGATEUR mesure ce que
+jsdom ne peut pas, et il part des « = » ET NON DES GROUPES : un contrôle qui ne
+regarderait que `.f-grp` resterait vert sur le « = » qu'on aurait oublié d'y
+mettre, c'est-à-dire exactement sur le défaut. Chaque « = » visible suivi d'une
+case doit partager sa ligne, jugé au RECOUVREMENT vertical et jamais à l'égalité
+des « top » (une case et le texte qui la précède sont centrés l'un sur l'autre,
+donc leurs hauts diffèrent toujours de quelques pixels — un compteur qui lirait
+« top » crierait au repli sur des lignes parfaitement droites), à une largeur où
+la rangée SE REPLIE pour de vrai, ce qu'il exige aussi.
+**Et le contrôle s'est pris en défaut deux fois avant la page.** Il lisait le
+PREMIER `.f-whole` du groupe comme sa tête — or la case d'une somme de fractions
+en contient elle-même, le numérateur écrit devant son multiplicateur, et il
+accusait « la tête "1" ne finit pas par la virgule » sur une page juste : la tête
+est l'enfant DIRECT du groupe, jamais le premier venu. Et une APOSTROPHE écrite
+dans son message traversait deux analyseurs — le gabarit de `verifier.js` puis
+l'évaluation dans la page — et refermait la chaîne : « missing ) after argument
+list », le piège documenté de l'antislash sous un autre habit.
+
 **Une somme de fractions s'écrit en une seule ligne, et l'entier est un maillon.**
 {somme-fractions} passe de trois blocs à la chaîne du cahier :
 `5/3 + 1/2 = (5×□)/(3×□) + (1×□)/(2×□) = (□ + □)/□ = □/□`. Quand un terme est un
