@@ -901,6 +901,40 @@
      portée aux cibles. Les lignes a) et b) sont des pts-case : une réponse qui
      n'est ni un champ ni une liste, et que la note affichée doit compter. */
   #scr-tvg{padding-bottom:84px}
+  /* ---- Écrire l'ensemble des solutions (kind « ecs ») ----
+     La méthode, dessinée à la VALIDATION seulement : la droite y = k, les
+     croisements, les traits qui descendent sur l'axe, les morceaux de courbe
+     qui vérifient l'inégalité, et S posé sur l'axe avec ses crochets. Tout est
+     en VERT, l'encre de la correction depuis août 2026. */
+  #scr-ecs{padding-bottom:84px}
+  #ecsGraph .lv-svg{max-width:690px}
+  .ecs-k{stroke:var(--green);stroke-width:2;stroke-dasharray:7 5}
+  .ecs-klbl{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;fill:var(--green)}
+  .ecs-drop{stroke:var(--green);stroke-width:1.6;stroke-dasharray:4 4}
+  .ecs-node{fill:var(--green);stroke:#fff;stroke-width:1.4}
+  .ecs-part{fill:none;stroke:var(--green);stroke-width:4.5;stroke-linecap:round}
+  .ecs-ax{stroke:var(--green);stroke-width:5}
+  .ecs-cro{fill:none;stroke:var(--green);stroke-width:3}
+  .ecs-pt{fill:var(--green);stroke:#fff;stroke-width:1.6}
+  .ecs-cons{display:block;padding:6px 12px;margin:8px 0 2px;border-radius:9px;border:1.6px solid var(--line);font-weight:600;background:var(--surface);line-height:1.6}
+  /* La rangée des six touches que la demande nomme, AU-DESSUS du champ : sur
+     ordinateur c'est le seul chemin vers « U » et les crochets sans chercher
+     au clavier ; sur tablette elle double le pavé, qui les porte aussi. */
+  .ecs-jetons{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0 6px}
+  .ecs-jl{font-weight:700;color:var(--ink-soft);font-size:.9rem}
+  .ecs-jt{min-width:44px;height:42px;border:1.6px solid var(--grid);border-radius:9px;background:var(--paper);
+    color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:800;cursor:pointer}
+  .ecs-jt:hover{border-color:var(--blue);color:var(--blue)}
+  .ecs-jt:active{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .ecs-solzone{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 12px}
+  .ecs-sollbl{font-weight:800;color:var(--ink);font-size:1.3rem}
+  .ecs-solin{width:300px;max-width:100%;padding:8px 12px;border:2px solid #c9d3e8;border-radius:10px;
+    font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:700;color:var(--ink);background:var(--surface)}
+  .ecs-solin:focus{outline:none;border-color:var(--blue)}
+  .ecs-solin.ok{border-color:var(--blue);background:#EAF0FF}
+  .ecs-solin.bad{border-color:var(--red);background:#fdeaea}
+  .ecs-solin.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+  .ecs-solin:disabled{opacity:1}
   #tvgGraph .sv-svg{max-width:520px}
   .tvg-svg .tvg-t{cursor:pointer}
   .tvg-svg .tvg-t .hit{fill:transparent}
@@ -1467,6 +1501,15 @@
   color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer}
 .pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .pave-eff{min-width:54px}
+/* Les touches supplementaires d'une case (data-pave-plus) : display:contents
+   les rend soeurs des chiffres dans la rangee flex, et le REPLI (flex-wrap,
+   pose seulement quand il y en a) les renvoie a la ligne plutot que de les
+   laisser sortir de l'ecran — « le pave ne defile jamais ». Un saut de ligne
+   FORCE y a d'abord ete ecrit, puis retire : le sabotage l'a montre inerte,
+   la rangee se repliant d'elle-meme exactement quand elle ne tient pas. Sans
+   touche supplementaire, rien ne change : le pave reste la rangee d'avant. */
+#paveSup{display:contents}
+#paveNum.pave-2r{flex-wrap:wrap;justify-content:center}
 
 /* ---- Tablette : les commandes du bas et le pavé se rangent ensemble ----
    (demande de Turquet, septembre 2026 — Première et Seconde, sur les écrans
@@ -2046,6 +2089,18 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <div id="tvgBody"></div>
       <div class="mp-feedback" id="tvgFeedback"></div>
       <div class="mp-actions" id="tvgActions"></div>
+    </div>
+  </section>
+
+  <!-- Écrire l'ensemble des solutions : f (x) = k, > k, ≥ k, < k, ≤ k sur le grand dessin -->
+  <section class="screen" id="scr-ecs">
+    <div class="card lv-card">
+      <div class="q-head"><span id="ecsIdx" class="q-idx">Question 1 / 5</span><span id="ecsModeTag"></span></div>
+      <p class="lv-instr" id="ecsInstr"></p>
+      <div class="lv-graph" id="ecsGraph"></div>
+      <div id="ecsBody"></div>
+      <div class="mp-feedback" id="ecsFeedback"></div>
+      <div class="mp-actions" id="ecsActions"></div>
     </div>
   </section>
 
@@ -2660,7 +2715,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=157;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=158;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -3181,6 +3236,7 @@ const TESTS={
   'construire-fonction': { name:'Construire une fonction', icon:'✏️', desc:'Le chemin INVERSE de toute la lecture graphique : on te donne les consignes — une valeur, une image, un antécédent, f\u2009(x)\u2009=\u20090 et une inéquation — et c\u2019est toi qui traces une courbe qui les respecte, point par point.', start:()=>startCfx() },
   'resolutions-graphiques': { name:'Résolutions graphiques', icon:'🧭', desc:'Une courbe, une droite horizontale, quatre dessins proposés : pour chaque équation ou inéquation, choisis le dessin qui la montre, puis écris la solution — S = { … } avec des accolades, ou un intervalle comme dans {inequation-graphique}.', start:()=>startEig() },
   'solutions-graphique': { name:'Solutions de f (x) = k sur le graphique', icon:'📍', desc:'Une courbe et une hauteur k : clique sur la courbe le ou les points vérifiant f (x) = k, puis sur l’axe des abscisses les solutions, et écris-les — ou ∅ quand la droite y = k ne rencontre pas la courbe.', start:()=>startTVG() },
+  'ecrire-solutions': { name:'Écrire l’ensemble des solutions', icon:'✍️', desc:'Le grand dessin d’{antecedents-droite} — de −6 à 6 en abscisse ET en ordonnée — et une équation ou une inéquation : f (x) = k, > k, ≥ k, < k, ≤ k. Comme dans {solutions-graphique}, mais rien ne se choisit : tu ÉCRIS l’ensemble des solutions à côté de S =, accolades, crochets et U compris.', start:()=>startECS() },
   'lecture-signes': { name:'Lecture graphique \u2014 tableau de signes', icon:'\ud83d\udea6', desc:'Comme {lecture-variations}, mais pour le signe : lis une courbe, r\u00e9sous f (x) = 0, donne le signe de f sur chaque intervalle, puis construis le tableau de signes en entier \u2014 racines et z\u00e9ros compris.', start:()=>startLS() },
   'tableau-signes-graphique': { name:'Tableau de signes', icon:'±', desc:'Une courbe du style de {resolutions-graphiques}, coloriée : la partie au-dessus de l’axe en ROUGE (f (x) > 0), en dessous en BLEU (f (x) < 0). Complète les phrases couleur/signe, place les signes dans le tableau — les racines et les zéros sont donnés, comme en Terminale — puis résous f (x) = 0, f (x) > 0 et f (x) < 0.', start:()=>startTsg() },
   'signes-variations': { name:'Tableaux de signes et de variation', icon:'\ud83d\udcca', desc:'Le dessin de {lecture-variations}, les deux tableaux d\u2019un coup : compl\u00e8te DIRECTEMENT le tableau de signes (racines et z\u00e9ros compris) et le tableau de variation de la m\u00eame courbe.', start:()=>startLSV() },
@@ -3241,7 +3297,7 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min','synthese-fonction'] },
+  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction'] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3885,6 +3941,7 @@ function conseilPaire(){
   else if(test.kind==='tvf' && q) b=ctxTvf(q);
   else if(test.kind==='app' && q) b=ctxApp(q);
   else if(test.kind==='tvg' && q) b=ctxTvg(q);
+  else if(test.kind==='ecs' && q) b=ctxEcs(q);
   else if(test.kind==='sf' && q) b={nombre:'', contexte:sfCtxTexte(q)};
   else if(test.kind==='sfl' && q) b={nombre:'', contexte:sflCtxTexte(q)};
   else if(test.kind==='plc' && q) b=ctxPlc(q);
@@ -4142,6 +4199,7 @@ const QIA_SUGG={
   ord:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des z\u00e9ros \u00e0 droite ?","Comment comparer deux nombres n\u00e9gatifs ?","Par quel nombre je commence quand je range ?"],
   plc:["Pourquoi 1,1 est-il plus grand que 1,08 ?","Pourquoi peut-on ajouter des zéros à droite ?","Comment comparer deux nombres négatifs ?","Comment lire une droite graduée ?"],
   tvg:["Comment résoudre f (x) = k avec un graphique ?","Pourquoi parfois il n’y a aucune solution ?","Que représente la droite y = k ?","Où se lisent les solutions : sur l’axe des abscisses ou des ordonnées ?"],
+  ecs:["Comment écrire l’ensemble des solutions d’une inéquation ?","Quand met-on un crochet ouvert et quand le ferme-t-on ?","À quoi sert le U entre deux intervalles ?","Pourquoi les bords −6 et 6 font-ils partie de la réponse ?"],
   gen:["Explique-moi simplement la notion principale.","Quelles sont les erreurs classiques a eviter ?"],
 };
 /* L'IDENTIFIANT prime sur le « kind » quand il a une entrée : deux exercices
@@ -4576,6 +4634,14 @@ const RAP_TVG=
 +'<li>le <b>nombre</b> de solutions = le nombre de points d’intersection ;</li>'
 +'<li>si la droite ne rencontre jamais la courbe, l’équation n’a <b>aucune</b> solution : on écrit <b>∅</b>.</li></ul>'
 +'<p>On lit toujours les solutions sur l’axe des abscisses, jamais sur l’axe des ordonnées.</p></div>';
+const RAP_ECS=
+ '<div class="rap"><h4>📘 Rappel de cours — écrire l’ensemble des solutions</h4>'
++'<p>On trace la droite horizontale <b><i>y</i> = <i>k</i></b>. Les abscisses des points où la courbe la <b>traverse</b> sont les solutions de <i>f</i>(<i>x</i>) = <i>k</i> : on les écrit entre <b>accolades</b>, S = { … ; … }.</p>'
++'<p>Pour une <b>inéquation</b>, on regarde de quel côté de la droite la courbe se trouve : <i>f</i>(<i>x</i>) &gt; <i>k</i> se lit là où la courbe est <b>au-dessus</b>, <i>f</i>(<i>x</i>) &lt; <i>k</i> là où elle est <b>en dessous</b>. La réponse est un <b>intervalle</b>, ou une <b>réunion</b> de deux intervalles reliés par <b>U</b>.</p>'
++'<ul><li>le crochet est <b>ouvert</b> pour &gt; et &lt; (la valeur est exclue), <b>fermé</b> pour ≥ et ≤ ;</li>'
++'<li>aux <b>bords</b> du domaine le crochet est toujours fermé : ces valeurs font partie de l’ensemble de définition ;</li>'
++'<li>on lit toujours les bornes sur l’axe des <b>abscisses</b>, jamais sur celui des ordonnées.</li></ul>'
++'<p>Exemples d’écriture : S = { −4 ; 2 } · S = [ −6 ; −1 [ U ] 3 ; 6 ].</p></div>';
 const RAP_SYN=`<b>Tout lire sur un seul graphique</b><br>
 • L’<b>ensemble de définition</b> est l’intervalle des x pour lesquels la courbe existe : on lit l’abscisse de son bout GAUCHE et celle de son bout DROIT (les deux bouts sont marqués d’un point).<br>
 • Une <b>image</b> se lit de bas en haut : on part de x sur l’axe horizontal, on monte jusqu’à la courbe, on lit la hauteur. Un <b>antécédent</b> se lit dans l’autre sens : on part de la hauteur, on rejoint la courbe à l’horizontale, on descend lire l’abscisse — il peut y en avoir plusieurs, ou un seul.<br>
@@ -4583,7 +4649,7 @@ const RAP_SYN=`<b>Tout lire sur un seul graphique</b><br>
 • Le <b>tableau de variation</b> dit où la courbe monte et où elle descend : on écrit les abscisses des changements de sens, la valeur de f à chaque étape, et une flèche ↗ ou ↘ entre deux valeurs. Le <b>tableau de signes</b> dit où la courbe est au-dessus de l’axe (+) et où elle est en dessous (−) : les racines sont les abscisses où elle COUPE l’axe, et on écrit 0 sous chacune.<br>
 • <b>f (x) &gt; g (x)</b> se lit là où la courbe de f est AU-DESSUS de la droite de g : les bornes sont les abscisses des deux croisements, et les crochets sont ouverts parce que l’inégalité est stricte.<br>
 • Le <b>maximum</b> et le <b>minimum</b> se répondent en deux temps : la valeur (la hauteur), et l’abscisse où elle est atteinte.`;
-const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
+const RAPPELS={ syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC };
 const RAPPELS_ID={ 'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
@@ -4692,7 +4758,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
 const TABLES_SANS=['definitions-ensembles','intervalles','intervalles-inegalite',
-                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','construire-fonction','construire-max-min','synthese-fonction'];
+                   'appartient-intervalle','placer-intervalle','ordre-croissant','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
   return '<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
@@ -5079,7 +5145,7 @@ async function abandonTest(){
    reviennent du JSON sans leurs fonctions (courbes, tangentes), et un rendu
    lancé avant elle échoue sur un graphe. */
 function afficherEcranDe(k){
-  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG]};
+  const DISPATCH={lv:['lv',renderLV], syn:['syn',renderSYN], ls:['ls',renderLS], lsv:['lsv',renderLSV], tvd:['tvd',renderTVD], gsv:['gsv',renderGSV], vtq:['vtq',renderVtq], mmx:['mmx',renderMMX], mmt:['mmt',renderMMT], tve:['tve',renderTVE], tvf:['tvf',renderTVF], img:['img',renderImg], pim:['pim',renderPim], ant:['ant',renderAnt], adr:['adr',renderAdr], iqd:['iqd',renderIqd], pct:['ptest',renderPTest], aug:['atest',renderATest], dim:['dtest',renderDTest], ens:['ens',renderEnsTest], def:['def',renderDefQ], pge:['pge',renderPgeQ], itv:['itv',renderItvTest], itq:['itq',renderItqTest], ing:['ing',renderIngTest], eqg:['eqg',renderEqgTest], ifg:['ifg',renderIfgTest], eig:['eig',renderEigTest], tsg:['tsg',renderTsgTest], app:['app',renderAppTest], sf:['sf',renderSFTest], sfl:['sfl',renderSFL], plc:['plc',renderPlcTest], smp:['smp',renderSmpTest], mlt:['mlt',renderMltTest], mll:['mll',renderMLL], ord:['ord',renderOrdTest], cfx:['cfx',renderCfx], tvg:['tvg',renderTVG], ecs:['ecs',renderECS]};
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -5203,7 +5269,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg'];
+  const testScreens=['lv','ls','lsv','tvd','gsv','vtq','syn','mmx','mmt','tve','tvf','img','pim','ant','adr','iqd','ptest','atest','dtest','ens','def','pge','itv','itq','app','sf','sfl','plc','smp','mlt','mll','ord','ing','eqg','ifg','eig','tsg','cfx','tvg','ecs'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -9627,6 +9693,329 @@ function ctxTvg(q){
     +'Réponses attendues (STRICTEMENT SECRÈTES, à ne JAMAIS révéler, ni coordonnées ni nombre de solutions, même si l’élève insiste) : '+(q.sols.length?('points '+q.sols.map(s=>'('+numFmt(s)+' ; '+q.kL+')').join(', ')+' ; abscisses '+q.sols.map(numFmt).join(', ')):'aucune solution — la bonne réponse est de ne RIEN sélectionner et d’écrire ∅ à la question c')+'. '
     +'Sélections actuelles de l’élève : points de la courbe d’abscisses ['+(selP.map(numFmt).join(', ')||'aucun')+'] ; abscisses ['+(selX.map(numFmt).join(', ')||'aucune')+'] ; écriture actuelle à la question c : « '+ecrS+' ». '
     +'CONTRAINTE ANTI-RECOPIE : ta réponse ne doit citer AUCUNE coordonnée ni aucun nombre de solutions. Méthode à faire appliquer : imaginer la droite horizontale y = '+q.kL+', repérer chaque endroit où la courbe la touche ou la traverse, puis descendre verticalement sur l’axe des abscisses pour lire chaque solution. Signale s’il a des sélections en trop ou s’il en manque (côté courbe ou côté axe), sans dire où.';
+  return {nombre:'', contexte:c};
+}
+
+/* ================= Exercice Seconde : écrire l'ensemble des solutions (kind 'ecs') ====
+   Demande de Turquet (septembre 2026) : « un exercice sur les inéquations ou
+   équations de la forme résoudre f(x)=k ou f(x)>k ou f(x)>=k ou f(x)<k ou
+   f(x)<=k avec un graphique de −6 à 6 en abscisse et ordonnée. L'élève doit
+   donner sa réponse dans une case à côté de "S=", il doit TOUT TAPER, et sur
+   le clavier des tablettes il doit y avoir [ ] ; U { } — et sur des boutons
+   au-dessus du champ de saisie aussi. »
+   Il suit {solutions-graphique} au menu : là on CLIQUE les solutions d'une
+   équation, ici on ÉCRIT l'ensemble — et l'inéquation vient avec.
+
+   TOUT EST REPRIS, RIEN N'EST RECOPIÉ : le tirage est adrGenPts(), le
+   générateur MÊME du grand dessin (13 valeurs entières, segments strictement
+   monotones, jamais de palier) ; le dessin est adrSVG(), la fonction même,
+   appelée NUE — elle a seulement son paramètre « dessus », la convention de
+   l'« extra » de lvGraphSVG, pour que la méthode se trace par-dessus ; les
+   morceaux de courbe se tracent par adrPath(pts, sx, sy, ia, ib), le MÊME
+   chemin que la courbe noire, donc ils s'y superposent exactement.
+
+   LA SAISIE EST LIBRE, ET C'EST TOUT LE SUJET. Partout ailleurs (2.4, 2.7,
+   2.8, 2.18) les crochets et les bornes se CHOISISSENT dans des listes :
+   l'élève reconnaît une écriture. Ici il l'ÉCRIT — c'est le geste du
+   contrôle, et le seul qui fasse travailler la notation elle-même. La
+   contrepartie est que le juge doit être LARGE sur l'écriture et EXACT sur
+   l'ensemble : espaces libres, « - » comme « − », « u » comme « U » comme
+   « ∪ », intervalles dans l'ordre qu'on veut, doublon d'un ensemble compté
+   une fois — et en revanche la bonne borne, le bon crochet, le bon nombre
+   d'intervalles. Refuser une écriture juste serait le pire défaut du projet.
+
+   LE RISQUE PROPRE EST LA BORNE ILLISIBLE, et il est SILENCIEUX : si la
+   hauteur k était traversée ENTRE deux graduations, la borne de S ne se
+   lirait pas sur le dessin et une lecture juste serait comptée fausse ; et si
+   une racine TOUCHAIT la courbe sans la traverser, S ne serait plus une
+   réunion d'intervalles (]a ; c[ U ]c ; b[ pour une inégalité stricte) — un
+   énoncé auquel la ligne de réponse ne sait pas répondre. Le tirage exige
+   donc que k soit atteinte, jamais traversée entre deux graduations, et que
+   CHAQUE racine soit un vrai CROISEMENT intérieur (la discipline du 2.7 et du
+   2.8) — ce qui écarte du même geste les racines posées au BORD, où un
+   intervalle se réduirait à un point. Le contrôle recompte tout cela par sa
+   propre arithmétique, tirage après tirage.
+
+   UNE SÉANCE MONTRE LES CINQ FORMES, chacune UNE fois, en ordre mélangé
+   (le motif d'{inequation-droite}) : sans quoi l'élève apprendrait que la
+   réponse est toujours du même genre — et parmi les quatre inéquations, au
+   moins une dont S est UN intervalle et au moins une dont S en a DEUX, sans
+   quoi le U ne servirait jamais.
+   La bonne réponse n'est jamais rangée à côté de la question : elle ne porte
+   que la courbe, la hauteur et le signe (pts, k, rel) — ecsAns(), que
+   l'énoncé, le juge, le message et le dessin de la méthode lisent tous, la
+   recalcule. Le contrôle refuse tout autre champ.
+   Le repli est RÉEL, relevé sur le générateur, et passe par les gardes mêmes
+   du tirage (sonde : 400 séances sur 400, 1,1 essai en moyenne, 0 recours au
+   repli).
+   La MÉTHODE est dessinée à la VALIDATION, jamais avant : la droite y = k, les
+   croisements, les traits qui descendent sur l'axe, les morceaux de courbe qui
+   vérifient l'inégalité et l'ensemble S posé sur l'axe avec ses crochets — un
+   crochet de borne EXCLUE tourne le dos à l'intervalle, la convention
+   d'{intervalles}. Affichée pendant la recherche, elle donnerait la réponse. */
+const ECS_NB=5;
+const ECS_SIGNES={'=':{h:'=',t:'='},'>':{h:'&gt;',t:'>'},'>=':{h:'≥',t:'≥'},'<':{h:'&lt;',t:'<'},'<=':{h:'≤',t:'≤'}};
+function ecsSigneH(rel){ return (ECS_SIGNES[rel]||ECS_SIGNES['=']).h; }
+function ecsSigneT(rel){ return (ECS_SIGNES[rel]||ECS_SIGNES['=']).t; }
+/* Les hauteurs k qu'on peut interroger : atteintes par la courbe, jamais
+   traversées entre deux graduations, 1 à 3 racines, et CHAQUE racine un vrai
+   croisement INTÉRIEUR (les deux voisines de part et d'autre de k). */
+function ecsHauteurs(pts){
+  const out=[];
+  for(let k=-ADR_R;k<=ADR_R;k++){
+    if(pts.indexOf(k)<0) continue;
+    let trav=false;
+    for(let i=0;i<pts.length-1;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(k>lo&&k<hi){ trav=true; break; } }
+    if(trav) continue;
+    const rac=[]; for(let i=0;i<pts.length;i++) if(pts[i]===k) rac.push(i);
+    if(!rac.length || rac.length>3) continue;
+    if(!rac.every(i=> i>0 && i<pts.length-1 && (pts[i-1]-k)*(pts[i+1]-k)<0)) continue;
+    out.push(k);
+  }
+  return out;
+}
+function ecsRacines(pts,k){ const r=[]; for(let i=0;i<pts.length;i++) if(pts[i]===k) r.push(i-ADR_R); return r; }
+/* L'ENSEMBLE DES SOLUTIONS, recalculé depuis la courbe : {pts:[…]} pour une
+   équation, {its:[{a,b,oa,ob}…]} pour une inéquation (o = borne ouverte).
+   Les racines étant de vrais croisements, le signe de f − k ALTERNE : chaque
+   intervalle entre deux racines consécutives porte au moins une graduation
+   intérieure, qu'on échantillonne plutôt que de raisonner sur la parité.
+   Les bords du domaine (−6 et 6) sont TOUJOURS pris : f n'y vaut pas k. */
+function ecsAns(q){
+  const pts=q.pts, k=q.k, rel=q.rel, rac=ecsRacines(pts,k);
+  if(rel==='=') return {pts:rac.slice()};
+  const sup=(rel==='>'||rel==='>='), inclus=(rel==='>='||rel==='<=');
+  const bords=[-ADR_R].concat(rac,[ADR_R]), its=[];
+  for(let s=0;s<bords.length-1;s++){
+    const a=bords[s], b=bords[s+1];
+    let ech=null;
+    for(let x=a+1;x<b;x++){ if(rac.indexOf(x)<0){ ech=pts[x+ADR_R]; break; } }
+    if(ech==null) return null;
+    if(sup ? ech>k : ech<k) its.push({a:a,b:b,oa:(a!==-ADR_R)&&!inclus,ob:(b!==ADR_R)&&!inclus});
+  }
+  return {its:its};
+}
+function ecsCases(q){ return ['ecsSol']; }
+/* L'écriture canonique — celle du badge vert et celle que le message cite. Le
+   « U » est écrit comme la touche que l'élève a sous les doigts : lui montrer
+   « ∪ » quand son clavier écrit « U » lui ferait croire à une autre réponse.
+   Les deux sont acceptés à la lecture. */
+function ecsEcrire(sol){
+  if(!sol) return '';
+  if(sol.pts) return '{ '+sol.pts.map(numFmt).join(' ; ')+' }';
+  return sol.its.map(function(it){ return (it.oa?']':'[')+' '+numFmt(it.a)+' ; '+numFmt(it.b)+' '+(it.ob?'[':']'); }).join(' U ');
+}
+/* LA LECTURE EST LARGE SUR L'ÉCRITURE, EXACTE SUR L'ENSEMBLE. Elle rend une
+   forme normalisée ({pts} ou {its} triés) ou null si la phrase ne se lit pas —
+   et « ne se lit pas » n'est pas « faux » : le message le dit autrement. */
+function ecsNorm(t){
+  return String(t==null?'':t)
+    .replace(/[−–—]/g,'-')
+    .replace(/[∪⎪]/g,'U')
+    .replace(/\s| /g,'')
+    .toUpperCase();
+}
+function ecsLire(t){
+  const s=ecsNorm(t);
+  if(!s) return null;
+  if(s.charAt(0)==='{'){
+    if(s.charAt(s.length-1)!=='}') return null;
+    const dedans=s.slice(1,-1); if(!dedans) return null;
+    const out=[], parts=dedans.split(';');
+    for(let i=0;i<parts.length;i++){
+      if(!/^[-+]?\d+$/.test(parts[i])) return null;
+      const v=parseInt(parts[i],10);
+      if(out.indexOf(v)<0) out.push(v);
+    }
+    out.sort(function(a,b){ return a-b; });
+    return {pts:out};
+  }
+  const morceaux=s.split('U'), its=[];
+  for(let i=0;i<morceaux.length;i++){
+    const g=/^([[\]])([-+]?\d+);([-+]?\d+)([[\]])$/.exec(morceaux[i]);
+    if(!g) return null;
+    const a=parseInt(g[2],10), b=parseInt(g[3],10);
+    if(!(a<b)) return null;
+    its.push({a:a,b:b,oa:g[1]===']',ob:g[4]==='['});
+  }
+  its.sort(function(x,y){ return x.a-y.a; });
+  return {its:its};
+}
+function ecsJuste(sol,t){
+  const l=ecsLire(t); if(!l||!sol) return false;
+  if(sol.pts) return !!l.pts && l.pts.length===sol.pts.length && l.pts.every(function(v,i){ return v===sol.pts[i]; });
+  return !!l.its && l.its.length===sol.its.length && l.its.every(function(it,i){
+    const r=sol.its[i]; return it.a===r.a && it.b===r.b && it.oa===r.oa && it.ob===r.ob; });
+}
+/* Ce qui cloche, NOMMÉ sans donner la réponse : l'écriture qui ne se lit pas,
+   les accolades mises à la place des crochets (et l'inverse), puis le renvoi à
+   la méthode. En soutien c'est tout ce que l'élève reçoit — il revérifie. */
+function ecsPourquoi(q,txt){
+  const sol=ecsAns(q), l=ecsLire(txt);
+  if(!l) return 'Cette écriture ne se lit pas. Un intervalle s’écrit avec des crochets — [ −2 ; 3 ] — un ensemble de nombres avec des accolades — { −2 ; 3 } — et U relie deux intervalles.';
+  if(sol.pts && !l.pts) return 'Une ÉQUATION a pour solutions des NOMBRES : écris-les entre accolades, { … ; … }.';
+  if(sol.its && !l.its) return 'Une INÉQUATION a pour solutions un ou deux INTERVALLES : écris-les avec des crochets, et U entre les deux s’il y en a deux.';
+  return 'Ce n’est pas encore ça. Trace mentalement la droite horizontale y = '+numFmt(q.k)+' : repère chaque endroit où la courbe la traverse, puis regarde de quel côté la courbe se trouve — et n’oublie pas les bords −6 et 6.';
+}
+/* Le tirage : les cinq formes, chacune UNE fois, en ordre mélangé, et parmi
+   les quatre inéquations au moins un S à UN intervalle et un S à DEUX. */
+const ECS_REPLI=[
+  { pts:[-6,-5,-4,-3,-2,-1,1,3,4,5,6,5,4], k:-1, rel:'=' },
+  { pts:[-4,-3,0,1,2,3,4,1,0,-1,-3,-4,-6], k:1,  rel:'>' },
+  { pts:[5,3,2,0,-3,-2,0,2,3,6,0,-1,-2],   k:0,  rel:'>=' },
+  { pts:[-6,-5,-4,-5,-6,-5,-4,-3,-1,0,1,2,3], k:-3, rel:'<' },
+  { pts:[-2,-1,0,1,2,3,4,5,6,1,0,-2,-4],   k:0,  rel:'<=' }
+];
+function ecsTirage(){
+  const rels=Object.keys(ECS_SIGNES);
+  for(let att=0; att<400; att++){
+    const ordre=ensShuffle(rels.slice()), qs=[];
+    for(let i=0;i<ordre.length;i++){
+      let q=null;
+      for(let t=0;t<80;t++){
+        const pts=adrGenPts(); if(!pts) continue;
+        const hs=ecsHauteurs(pts); if(!hs.length) continue;
+        const cand={pts:pts, k:pick(hs), rel:ordre[i]};
+        const sol=ecsAns(cand); if(!sol) continue;
+        if(cand.rel!=='=' && !sol.its.length) continue;
+        q=cand; break;
+      }
+      if(!q) break;
+      qs.push(q);
+    }
+    if(qs.length!==ECS_NB) continue;
+    const ineq=qs.filter(function(q){ return q.rel!=='='; });
+    const un=ineq.some(function(q){ return ecsAns(q).its.length===1; });
+    const deux=ineq.some(function(q){ return ecsAns(q).its.length>=2; });
+    if(un && deux) return qs;
+  }
+  return ECS_REPLI.map(function(q){ return {pts:q.pts.slice(), k:q.k, rel:q.rel}; });
+}
+/* Un crochet posé sur l'axe : les bras tournent le DOS à l'intervalle quand la
+   borne est exclue — le dessin EST la notation, la convention d'{intervalles}. */
+function ecsCrochet(px,py,d){
+  const h=11, b=7;
+  return '<path class="ecs-cro" d="M '+(px+d*b).toFixed(1)+' '+(py-h).toFixed(1)
+    +' L '+px.toFixed(1)+' '+(py-h).toFixed(1)
+    +' L '+px.toFixed(1)+' '+(py+h).toFixed(1)
+    +' L '+(px+d*b).toFixed(1)+' '+(py+h).toFixed(1)+'"/>';
+}
+function ecsMethodeSVG(q,sx,sy){
+  const R=ADR_R, sol=ecsAns(q);
+  let g='<line class="ecs-k" x1="'+sx(-R-0.5).toFixed(1)+'" y1="'+sy(q.k).toFixed(1)+'" x2="'+sx(R+0.5).toFixed(1)+'" y2="'+sy(q.k).toFixed(1)+'"/>'
+    +'<text class="ecs-klbl" x="'+sx(R+0.3).toFixed(1)+'" y="'+(sy(q.k)-8).toFixed(1)+'" text-anchor="end">y = '+numFmt(q.k)+'</text>';
+  ecsRacines(q.pts,q.k).forEach(function(x){
+    g+='<line class="ecs-drop" x1="'+sx(x).toFixed(1)+'" y1="'+sy(q.k).toFixed(1)+'" x2="'+sx(x).toFixed(1)+'" y2="'+sy(0).toFixed(1)+'"/>'
+      +'<circle class="ecs-node" cx="'+sx(x).toFixed(1)+'" cy="'+sy(q.k).toFixed(1)+'" r="5"/>';
+  });
+  if(sol.pts) sol.pts.forEach(function(x){
+    g+='<circle class="ecs-pt" cx="'+sx(x).toFixed(1)+'" cy="'+sy(0).toFixed(1)+'" r="6"/>';
+  });
+  else sol.its.forEach(function(it){
+    g+='<path class="ecs-part" d="'+adrPath(q.pts,sx,sy,it.a+R,it.b+R)+'"/>'
+      +'<line class="ecs-ax" x1="'+sx(it.a).toFixed(1)+'" y1="'+sy(0).toFixed(1)+'" x2="'+sx(it.b).toFixed(1)+'" y2="'+sy(0).toFixed(1)+'"/>'
+      +ecsCrochet(sx(it.a),sy(0), it.oa?-1:1)
+      +ecsCrochet(sx(it.b),sy(0), it.ob?1:-1);
+  });
+  return g;
+}
+function ecsDessiner(montrer){
+  const q=test.questions[test.idx]; if(!q) return;
+  $('ecsGraph').innerHTML=adrSVG(q, null, montrer ? function(sx,sy){ return ecsMethodeSVG(q,sx,sy); } : null);
+}
+/* Les six touches que la demande nomme, à UN seul endroit : la rangée
+   au-dessus du champ ET les touches supplémentaires du pavé des tablettes
+   (data-pave-plus) les lisent toutes deux — deux listes auraient fini par
+   diverger, et le clavier d'un élève sur tablette aurait perdu un symbole que
+   l'ordinateur offre encore. */
+const ECS_TOUCHES=['[',']',';','U','{','}'];
+function ecsInserer(t){
+  const el=$('ecsSol'); if(!el||el.disabled||test.locked) return;
+  if(document.activeElement!==el){ try{ el.focus(); }catch(e){} }
+  paveInserer(el,t);
+}
+function startECS(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=ecsTirage();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'ecs', questions:qs, idx:0, score:0,
+    maxScore:qs.reduce(function(n,q){ return n+ecsCases(q).length; },0), answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ecs'); renderECS();
+}
+function renderECS(){
+  clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
+  const q=test.questions[test.idx]; test.locked=false;
+  $('ecsIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('ecsModeTag').innerHTML=modeTagHTML();
+  $('ecsInstr').innerHTML='Soit <i>f</i> la fonction définie sur [−6 ; 6] dont la courbe est tracée ci-dessous.<br>Résous graphiquement <b><i>f</i> (x) '+ecsSigneH(q.rel)+' '+numFmt(q.k)+'</b>.';
+  ecsDessiner(false);
+  $('ecsBody').innerHTML=
+     '<p class="ecs-cons">Écris l’ensemble des solutions : des <b>accolades</b> { } pour des nombres, des <b>crochets</b> pour un intervalle, un <b>U</b> entre deux intervalles.</p>'
+    +'<div class="ecs-jetons"><span class="ecs-jl">Insérer :</span>'
+    +ECS_TOUCHES.map(function(t){ return '<button type="button" class="ecs-jt" data-t="'+esc(t)+'" onclick="ecsInserer(\''+escJS(t)+'\')">'+esc(t)+'</button>'; }).join('')
+    +'</div>'
+    +'<div class="ecs-solzone"><span class="ecs-sollbl">S&nbsp;=</span>'
+    +'<input class="ecs-solin" id="ecsSol" type="text" inputmode="numeric" data-pave-plus="'+esc(ECS_TOUCHES.join(' '))+'" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="…"></div>';
+  const el=$('ecsSol');
+  el.oninput=function(){ recoveryDirty=true; };
+  el.onkeydown=function(e){ if(e.key==='Enter'){ e.preventDefault(); checkECS(); } };
+  $('ecsFeedback').textContent=''; $('ecsFeedback').className='mp-feedback';
+  $('ecsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ecsValidate" onclick="checkECS()">Vérifier</button>';
+}
+function checkECS(){
+  if(test.locked) return;
+  const q=test.questions[test.idx], el=$('ecsSol');
+  const txt=el?String(el.value||'').trim():'';
+  /* une case vide ne rougit jamais : on ne juge rien tant que rien n'est écrit */
+  if(!txt){ toast('Écris l’ensemble des solutions à côté de S ='); return; }
+  const sol=ecsAns(q), ok=ecsJuste(sol,txt);
+  if(!ok && isSoutien()){
+    el.classList.remove('ok','sol'); el.classList.add('bad');
+    $('ecsFeedback').textContent=ecsPourquoi(q,txt);
+    $('ecsFeedback').className='mp-feedback bad';
+    $('ecsActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="ecsValidate" onclick="checkECS()">Revérifier</button>';
+    setTimeout(function(){ try{ el.focus(); }catch(e){} },40);
+    return;
+  }
+  test.locked=true; clearTimeout(test.qTimer);
+  el.disabled=true;
+  el.classList.remove('ok','bad','sol'); el.classList.add(ok?'ok':'bad');
+  /* La bonne réponse en VERT à côté de la case fausse. Le garde
+     « !isSoutien() » qu'on écrirait ici par réflexe serait MORT : en soutien
+     une copie fausse est repartie par la branche du dessus, avec son
+     « Revérifier » — on n'arrive ici, en soutien, qu'avec une copie JUSTE.
+     Le sabotage l'a montré en restant vert, et c'est la branche du soutien
+     qui tient le bord (le contrôle l'exige là). */
+  if(!ok){
+    const fx=document.createElement('span'); fx.className='mf-cor'; fx.textContent=ecsEcrire(sol);
+    el.insertAdjacentElement('afterend', fx);
+  }
+  ecsDessiner(true);
+  test.score+=ok?1:0;
+  if(ok){ $('ecsFeedback').textContent=pick(['Parfait !','Très bien lu !','Excellent !','Exactement !']); $('ecsFeedback').className='mp-feedback good'; }
+  else { $('ecsFeedback').textContent=ecsPourquoi(q,txt)+' La méthode est tracée sur le dessin : la droite y = '+numFmt(q.k)+', les croisements, et l’ensemble des solutions posé sur l’axe.'; $('ecsFeedback').className='mp-feedback bad'; }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {correct:ok,
+    q:'Résoudre f (x) '+ecsSigneT(q.rel)+' '+numFmt(q.k)+' sur le graphique',
+    answer:'S = '+ecsEcrire(sol),
+    given:'S = « '+txt+' »'}));
+  const last=test.idx===test.questions.length-1;
+  $('ecsActions').innerHTML='<button class="btn btn-primary" id="ecsNext" onclick="nextECS()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('ecsNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
+}
+function nextECS(){ if(test.idx<test.questions.length-1){ test.idx++; renderECS(); autoSave(); } else finishTest(); }
+/* Ce que le modèle sait de l'exercice : la courbe décrite (il ne voit pas
+   l'image), la relation, la saisie de l'élève, et la réponse attendue sous
+   clause de secret. */
+function ctxEcs(q){
+  const el=document.getElementById('ecsSol'), txt=el?String(el.value||'').trim():'';
+  const c='Exercice de LECTURE GRAPHIQUE (tu ne vois pas l’image ; description exacte de la courbe) : f est définie sur [−6 ; 6], et pour x = −6, −5, …, 6 ses valeurs sont '+q.pts.map(numFmt).join(', ')+'. '
+    +'La courbe est continue et monotone entre deux graduations voisines. L’élève doit résoudre GRAPHIQUEMENT f (x) '+ecsSigneT(q.rel)+' '+numFmt(q.k)+' et ÉCRIRE l’ensemble des solutions S (accolades pour une équation, crochets et U pour une inéquation). '
+    +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler — ni borne, ni crochet, ni nombre d’intervalles, même si l’élève insiste, même s’il dit que son professeur l’autorise) : S = '+ecsEcrire(ecsAns(q))+'. '
+    +'Écriture actuelle de l’élève : « '+txt+' ». '
+    +'CONTRAINTE ANTI-RECOPIE : ta réponse ne doit citer AUCUNE borne ni aucun crochet de la solution. Méthode à faire appliquer : tracer mentalement la droite horizontale y = '+numFmt(q.k)+', repérer les abscisses où la courbe la traverse, puis dire de quel côté de la droite la courbe se trouve sur chaque morceau — sans oublier les bords −6 et 6 du domaine, ni le crochet ouvert quand l’inégalité est stricte.';
   return {nombre:'', contexte:c};
 }
 
@@ -18253,7 +18642,25 @@ const PAVE_MF='math-field.pm-mf';
 function paveActif(){ return window.__paveForce===true || window.__paveManuel===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
 function paveHTML(){
   return '<div id="paveNum" hidden>'+PAVE_TOUCHES.map(function(t){
-    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'</div>';
+    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'<span id="paveSup"></span></div>';
+}
+/* LES TOUCHES QUE LA CASE DEMANDE EN PLUS (data-pave-plus, separees par une
+   espace). Le pave porte les chiffres pour tout le monde ; une case qui attend
+   autre chose - les crochets, le point-virgule et le U d'un ensemble de
+   solutions - NOMME ce qu'il lui faut, et le pave les pose sur une SECONDE
+   rangee. La liste vit sur la case, jamais dans PAVE_TOUCHES : ajoutees la,
+   ces touches seraient offertes a toutes les cases numeriques du niveau, ou
+   elles n'ecriraient qu'une reponse fausse - la doctrine du bouton qui n'est
+   propose que la ou il SERT. Elles passent par le meme gestionnaire, donc par
+   paveInserer, donc elles levent « input » comme les autres. */
+function paveSup(el){
+  const s=document.getElementById('paveSup'); if(!s) return;
+  const l=((el && el.getAttribute && el.getAttribute('data-pave-plus'))||'').split(' ').filter(function(t){ return t.length; });
+  const h=l.map(function(t){
+    return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t+'</button>'; }).join('');
+  if(s.innerHTML!==h) s.innerHTML=h;
+  const p=document.getElementById('paveNum');
+  if(p) p.classList.toggle('pave-2r', l.length>0);
 }
 function paveInserer(el,t){
   if(el.tagName==='MATH-FIELD'){
@@ -18302,7 +18709,7 @@ function paveMontrer(){
   const vk=window.mathVirtualKeyboard, plein=!!(vk && vk.visible);
   if(paveEstCible(a) && !plein){
     if(a.tagName==='MATH-FIELD'){ try{ a.mathVirtualKeyboardPolicy='manual'; }catch(e){} }
-    pave.hidden=false; paveCale(true);
+    paveSup(a); pave.hidden=false; paveCale(true);
   } else if(!(a && pave.contains(a))){ pave.hidden=true; paveCale(false); }
 }
 function paveBrancher(){
@@ -18416,7 +18823,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 (function(){
-  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG'];
+  const noms=['renderDefQ','renderPgeQ','renderLV','renderLS','renderLSV','renderTVD','renderGSV','renderVtq','renderSYN','renderMMX','renderMMT','renderTVE','renderTVF','renderImg','renderPim','renderAnt','renderAdr','renderIqd','renderPTest','renderATest','renderDTest','renderEnsTest','renderItvTest','renderItqTest','renderIngTest','renderAppTest','renderSFTest','renderSFL','renderPlcTest','renderSmpTest','renderMltTest','renderMLL','renderOrdTest','renderTVG','renderECS'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

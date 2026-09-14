@@ -315,6 +315,15 @@
   color:var(--ink);font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;cursor:pointer}
 .pave-t:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .pave-eff{min-width:54px}
+/* Les touches supplementaires d'une case (data-pave-plus) : display:contents
+   les rend soeurs des chiffres dans la rangee flex, et le REPLI (flex-wrap,
+   pose seulement quand il y en a) les renvoie a la ligne plutot que de les
+   laisser sortir de l'ecran — « le pave ne defile jamais ». Un saut de ligne
+   FORCE y a d'abord ete ecrit, puis retire : le sabotage l'a montre inerte,
+   la rangee se repliant d'elle-meme exactement quand elle ne tient pas. Sans
+   touche supplementaire, rien ne change : le pave reste la rangee d'avant. */
+#paveSup{display:contents}
+#paveNum.pave-2r{flex-wrap:wrap;justify-content:center}
 
 /* ---- Tablette : les commandes du bas et le pavé se rangent ensemble ----
    (demande de Turquet, septembre 2026 — Première et Seconde, sur les écrans
@@ -1899,7 +1908,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=209;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=210;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -11827,7 +11836,25 @@ const PAVE_MF='math-field.pm-mf';
 function paveActif(){ return window.__paveForce===true || window.__paveManuel===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
 function paveHTML(){
   return '<div id="paveNum" hidden>'+PAVE_TOUCHES.map(function(t){
-    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'</div>';
+    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'<span id="paveSup"></span></div>';
+}
+/* LES TOUCHES QUE LA CASE DEMANDE EN PLUS (data-pave-plus, separees par une
+   espace). Le pave porte les chiffres pour tout le monde ; une case qui attend
+   autre chose - les crochets, le point-virgule et le U d'un ensemble de
+   solutions - NOMME ce qu'il lui faut, et le pave les pose sur une SECONDE
+   rangee. La liste vit sur la case, jamais dans PAVE_TOUCHES : ajoutees la,
+   ces touches seraient offertes a toutes les cases numeriques du niveau, ou
+   elles n'ecriraient qu'une reponse fausse - la doctrine du bouton qui n'est
+   propose que la ou il SERT. Elles passent par le meme gestionnaire, donc par
+   paveInserer, donc elles levent « input » comme les autres. */
+function paveSup(el){
+  const s=document.getElementById('paveSup'); if(!s) return;
+  const l=((el && el.getAttribute && el.getAttribute('data-pave-plus'))||'').split(' ').filter(function(t){ return t.length; });
+  const h=l.map(function(t){
+    return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t+'</button>'; }).join('');
+  if(s.innerHTML!==h) s.innerHTML=h;
+  const p=document.getElementById('paveNum');
+  if(p) p.classList.toggle('pave-2r', l.length>0);
 }
 function paveInserer(el,t){
   if(el.tagName==='MATH-FIELD'){
@@ -11876,7 +11903,7 @@ function paveMontrer(){
   const vk=window.mathVirtualKeyboard, plein=!!(vk && vk.visible);
   if(paveEstCible(a) && !plein){
     if(a.tagName==='MATH-FIELD'){ try{ a.mathVirtualKeyboardPolicy='manual'; }catch(e){} }
-    pave.hidden=false; paveCale(true);
+    paveSup(a); pave.hidden=false; paveCale(true);
   } else if(!(a && pave.contains(a))){ pave.hidden=true; paveCale(false); }
 }
 function paveBrancher(){
