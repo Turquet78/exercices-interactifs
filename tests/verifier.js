@@ -1425,20 +1425,23 @@ function branchements(w){
     })()`, v => v === '', undefined);
   }
 
-  /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.8,
-     baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de Turquet, août
-     2026, en trois temps), plus les synthèses rédigées 2.2.9, 2.3.8 et 2.5.2
-     et le QCM des coefficients 2.5.3. On appelle les VINGT vrais démarreurs :
+  /* ---- 3 questions pour toutes les ÉVOLUTIONS — hausses 2.2.1 à 2.2.9,
+     baisses 2.3.1 à 2.3.8, et la synthèse 2.5.1 (demande de Turquet, août
+     2026, en trois temps), plus les synthèses rédigées 2.2.10, 2.3.9 et 2.5.2
+     et le QCM des coefficients 2.5.3. On appelle les VINGT-DEUX vrais
+     démarreurs :
      un nombre changé dans un démarreur partagé ne dit rien des autres. */
   if(P.nbQuestionsEvolutions){
     verifierEval(w, 'les exercices sur les évolutions posent 3 questions, hausses et baisses', `(function(){
       const attendu=${JSON.stringify(P.nbQuestionsEvolutions)}, vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
       [['2.2.1','startAug'],['2.2.2','startAugAdd'],['2.2.3','startAugDepart'],['2.2.4','startAugDepAdd'],
-       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],['2.2.8','startSynAug'],
+       ['2.2.5','startAugTaux'],['2.2.6','startAugTauxAdd'],['2.2.7','startHausses'],
+       ['2.2.8','startHaussesCent'],['2.2.9','startSynAug'],
        ['2.3.1','startDim'],['2.3.2','startDimSub'],['2.3.3','startDimDepart'],['2.3.4','startDimDepSub'],
        ['2.3.5','startDimTaux'],['2.3.6','startDimTauxSub'],['2.3.7','startBaisses'],
-       ['2.2.9','startSynAugLibre'],['2.3.8','startSynDimLibre'],['2.5.1','startSyn'],
+       ['2.3.8','startSynDim'],
+       ['2.2.10','startSynAugLibre'],['2.3.9','startSynDimLibre'],['2.5.1','startSyn'],
        ['2.5.2','startSynLibre'],['2.5.3','startReconnaitreCoef']]
       .forEach(function(e){
         if(typeof window[e[1]]!=='function'){ vus.push(e[0]+' : '+e[1]+' absente'); return; }
@@ -1449,14 +1452,18 @@ function branchements(w){
       return vus.join(' | ');
     })()`, v => v === '', undefined);
 
-    /* ---- {synthese-augmentations} : la synthèse du 2.5.1, HAUSSES seules —
-       même moteur, pas même identité. Trois bords : uniquement des hausses,
-       les trois inconnues chacune une fois à ordre variable, et
-       « Recommencer » qui relance la bonne identité des DEUX synthèses. */
-    verifierEval(w, 'les deux synthèses tirent toutes les inconnues, les hausses seules pour 2.2.8, et gardent leur identité', `(function(){
+    /* ---- {synthese-augmentations} (2.2.9) et son MIROIR {synthese-diminutions}
+       (2.3.8) : la synthèse du 2.5.1 restreinte à UN sens — même moteur, pas
+       même identité. Trois bords par exercice : une seule famille (hausses
+       d'un côté, baisses de l'autre), les trois inconnues chacune une fois à
+       ordre variable, et « Recommencer » qui relance la bonne identité des
+       TROIS synthèses à cases. Le sens de chacune est un bord RÉEL : un
+       genSyn('aug') recopié dans le démarreur des baisses poserait des
+       hausses sous un titre de baisses, et rien à l'écran ne le dirait. */
+    verifierEval(w, 'les trois synthèses tirent toutes les inconnues, 2.2.9 les hausses seules, 2.3.8 les baisses seules, et gardent leur identité', `(function(){
       const vus=[];
       currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
-      const ordres={}, famsSyn={};
+      const ordres={}, ordresDim={}, famsSyn={};
       for(let t=0;t<30 && !vus.length;t++){
         /* le 2.5.1 suit la même règle des inconnues depuis son passage à 3
            questions — et ses familles restent MÉLANGÉES : une synthèse qui ne
@@ -1469,16 +1476,23 @@ function branchements(w){
         test.questions.forEach(function(q){ famsSyn[q.fam]=1; });
         if(typeof startSynAugLibre==='function'){
           startSynAugLibre();
-          test.questions.forEach(function(q,i){ if(q.fam!=='aug') vus.push('2.2.9 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
+          test.questions.forEach(function(q,i){ if(q.fam!=='aug') vus.push('2.2.10 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
           const incs3=test.questions.map(function(q){ return q.inc; });
-          ['fin','ini','pct'].forEach(function(inc){ if(incs3.indexOf(inc)<0) vus.push('2.2.9 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+          ['fin','ini','pct'].forEach(function(inc){ if(incs3.indexOf(inc)<0) vus.push('2.2.10 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
         }
         if(typeof startSynDimLibre==='function'){
           startSynDimLibre();
-          test.questions.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.8 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
+          test.questions.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.9 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
           const incs4=test.questions.map(function(q){ return q.inc; });
-          ['fin','ini','pct'].forEach(function(inc){ if(incs4.indexOf(inc)<0) vus.push('2.3.8 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+          ['fin','ini','pct'].forEach(function(inc){ if(incs4.indexOf(inc)<0) vus.push('2.3.9 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
         }
+        startSynDim();
+        const qsd=test.questions;
+        qsd.forEach(function(q,i){ if(q.fam!=='dim') vus.push('2.3.8 tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une baisse'); });
+        const incsd=qsd.map(function(q){ return q.inc; });
+        ['fin','ini','pct'].forEach(function(inc){ if(incsd.indexOf(inc)<0) vus.push('2.3.8 tirage '+t+' : l\\'inconnue « '+inc+' » ne sort pas'); });
+        ordresDim[incsd.join(',')]=1;
+        if(test.qId!=='synthese-diminutions') vus.push('startSynDim n\\'épingle pas son identité ('+test.qId+')');
         startSynAug();
         const qs=test.questions;
         qs.forEach(function(q,i){ if(q.fam!=='aug') vus.push('tirage '+t+' q'+i+' : famille « '+q.fam+' » au lieu d\\'une hausse'); });
@@ -1487,11 +1501,14 @@ function branchements(w){
         ordres[incs.join(',')]=1;
       }
       if(!vus.length && Object.keys(ordres).length<2) vus.push('l\\'ordre des inconnues ne change jamais d\\'un tirage à l\\'autre');
+      if(!vus.length && Object.keys(ordresDim).length<2) vus.push('2.3.8 : l\\'ordre des inconnues ne change jamais d\\'un tirage à l\\'autre');
       if(!vus.length && Object.keys(famsSyn).length<3) vus.push('sur 30 tirages du 2.5.1, les familles vues sont : '+Object.keys(famsSyn).join(',')+' — la synthèse ne mélange plus');
       if(!vus.length){
         if(test.qId!=='synthese-augmentations') vus.push('startSynAug n\\'épingle pas son identité ('+test.qId+')');
         test.kind='syn'; test.qId='synthese-augmentations'; restartCurrentTest();
         if(test.qId!=='synthese-augmentations') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des augmentations');
+        test.kind='syn'; test.qId='synthese-diminutions'; restartCurrentTest();
+        if(test.qId!=='synthese-diminutions') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse des diminutions');
         test.kind='syn'; test.qId='synthese-pourcentages'; restartCurrentTest();
         if(test.qId!=='synthese-pourcentages') vus.push('« Recommencer » sur le 2.5.1 relance « '+test.qId+' »');
       }
@@ -1673,6 +1690,300 @@ function branchements(w){
   } else {
     ignorer('reconnaître le coefficient : trois familles, pièges nommés, vérification honnête',
       'ce niveau n\'a pas le QCM des coefficients');
+  }
+
+  /* ---- {hausses-successives-cent} (2.2.8) : deux hausses EN PARTANT DE 100 --
+     La même question qu'au 2.2.7, par l'autre chemin — la « méthode 2 » de la
+     fiche (demande de Turquet, septembre 2026). On choisit une valeur de
+     départ, on prend 100, et ce qu'on a gagné « pour 100 » EST le pourcentage.
+     LES POURCENTAGES SONT CEUX DU 2.2.7 — demande de Turquet (septembre 2026) :
+     « pour le 2.2.8 il faut les mêmes règles pour le choix des pourcentages que
+     dans le 2.2.7 ». Le vivier est donc PARTAGÉ (HS_PAIRES), et non recopié :
+     deux listes auraient fini par diverger, et les deux exercices auraient tiré
+     des pourcentages différents — ce que la demande interdit précisément.
+     Les bords, et n'en tenir qu'un ne tient rien :
+       · le VIVIER, refait par une SECONDE arithmétique qui travaille sur les
+         pourcentages BRUTS là où la page passe par les fractions réduites du
+         2.2.7 : un seul chiffre non nul par taux, P1 × P2 multiple de 100, et
+         une hausse globale STRICTEMENT sous 100 %. On mesure ce que la page
+         TIRE, jamais une constante qu'elle nommerait — hscSeance tirant SANS
+         REMISE, une séance de la taille du vivier le rend en entier, si bien
+         qu'un filtre resserré en douce se voit comme une paire manquante, et
+         une règle relâchée comme une paire de trop ;
+       · le TIRAGE tombe sur des ENTIERS, dans les DEUX ordres : la chaîne
+         entière de la méthode 2 (la hausse pour 100, la nouvelle valeur, la
+         seconde hausse, la valeur finale, la hausse globale) — c'est ce que la
+         contrainte de Turquet fait vraiment, et le contrôle COMPTE les
+         chiffres après la virgule du coefficient (quatre, moins les zéros de
+         fin du produit) là où la page ne décide plus rien elle-même. La hausse
+         globale doit DÉPASSER la somme des deux taux, sans quoi la leçon de
+         l'exercice tombe ;
+       · les règles ÉCARTENT vraiment quelque chose : quatre couples épinglés,
+         un par règle — 90 % puis 4 % (le couple de la fiche, trois décimales),
+         25 % puis 4 % (deux chiffres non nuls, et le seul des quatre que
+         l'ANCIEN vivier de 114 acceptait), 25 % puis 60 % (coefficient 2 tout
+         rond) et 50 % puis 50 % (hausse globale de 125 %). L'exemple de
+         Turquet, lui, passe, et son calcul est ÉPINGLÉ : 100 → 102 → 153, soit
+         +53 % ;
+       · la BONNE RÉPONSE jamais rangée à côté : la question ne porte que P1,
+         P2, le contexte et la variante ;
+       · l'ORDRE de la paire est TIRÉ : figé, la première hausse serait toujours
+         la plus petite des deux — le vivier ne range que des paires ;
+       · les ÉNONCÉS PARTAGÉS avec le 2.2.7, comme le vivier — deux listes
+         auraient fini par diverger, et deux exercices voisins auraient posé la
+         même question dans des mots différents ;
+       · la COPIE JUSTE cliquée, ses 21 cases comptées, et l'ordre de
+         l'addition LIBRE (elle est commutative) avec le doublon défendable une
+         FOIS ;
+       · chaque case jugée SEULE : une case juste ne rougit jamais parce que sa
+         jumelle est fausse, et une case vide ne rougit jamais ;
+       · la LEÇON elle-même : la seconde hausse recalculée sur 100 est refusée ;
+       · le SOUTIEN qui ne révèle rien, l'ENTRAÎNEMENT qui révèle, et
+         l'IDENTITÉ de « Recommencer ». */
+  if(evaluer(w,'typeof startHaussesCent').valeur==='function'){
+    verifierEval(w, 'deux hausses en partant de 100 : le tirage tombe sur des entiers, chaque case se juge seule', `(function(){
+      const vus=[];
+      currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+      /* ---- 1. LE VIVIER : celui du 2.2.7, refait par une SECONDE arithmétique.
+         Elle travaille sur les pourcentages BRUTS là où la page passe par les
+         fractions réduites du 2.2.7 — deux écritures qui n'ont rien en commun
+         doivent tomber d'accord. Et on mesure le vivier que la page TIRE, jamais
+         une constante qu'elle nommerait : hscSeance tirant SANS REMISE, une
+         séance de la taille du vivier le rend en entier, si bien qu'un filtre
+         resserré en douce se voit comme une paire manquante. ---- */
+      const unSeulChiffre=function(x){ return x<10 || x%10===0; };
+      const attendues=[];
+      for(let a=1;a<=99;a++) for(let b=a;b<=99;b++){
+        if(!unSeulChiffre(a)||!unSeulChiffre(b)) continue;   /* un seul chiffre non nul par taux */
+        if((a*b)%100!==0) continue;                          /* trois décimales ou plus */
+        if((100+a)*(100+b)>=20000) continue;                 /* hausse globale de 100 % ou plus */
+        attendues.push(a+'-'+b);
+      }
+      if(attendues.length<12) vus.push('le vivier attendu ne compte que '+attendues.length+' paires : le contrôle n’a rien à mesurer');
+      const paire=function(q){ return Math.min(q.P1,q.P2)+'-'+Math.max(q.P1,q.P2); };
+      const tirees=hscSeance(attendues.length+50).map(paire), dedans={};
+      tirees.forEach(function(c){
+        if(dedans[c]) vus.push('la paire '+c+' sort deux fois : le tirage n’est pas SANS REMISE');
+        dedans[c]=1; });
+      attendues.forEach(function(c){ if(!dedans[c]) vus.push('la paire '+c+' manque au vivier du 2.2.8'); });
+      Object.keys(dedans).forEach(function(c){ if(attendues.indexOf(c)<0) vus.push('la paire '+c+' est tirable alors que les règles du 2.2.7 la refusent'); });
+
+      /* ---- 2. toute la chaîne tombe sur des ENTIERS, dans les DEUX ordres ---- */
+      const decimales=function(P1,P2){ let p=(100+P1)*(100+P2), z=0;
+        while(z<4 && p%10===0){ p/=10; z++; } return 4-z; };
+      attendues.forEach(function(c){
+        const t=c.split('-').map(Number);
+        [[t[0],t[1]],[t[1],t[0]]].forEach(function(o){
+          const P1=o[0], P2=o[1], nd=decimales(P1,P2);
+          if(nd<1 || nd>2) vus.push(P1+'/'+P2+' : le coefficient global a '+nd+' chiffre(s) après la virgule');
+          const a=hscAns({P1:P1,P2:P2});
+          [['la hausse pour 100',a.aug1],['la nouvelle valeur',a.v1],['la seconde hausse',a.aug2],
+           ['la valeur finale',a.v2],['la hausse globale',a.h]].forEach(function(pr){
+            if(!Number.isInteger(pr[1])) vus.push(P1+'/'+P2+' : '+pr[0]+' vaut '+pr[1]+', qui n’est pas entier'); });
+          if(a.v1!==100+P1) vus.push(P1+'/'+P2+' : la nouvelle valeur n’est pas 100 + P1');
+          if(a.v2!==a.v1+a.aug2) vus.push(P1+'/'+P2+' : la valeur finale ne suit pas l’addition');
+          if(a.h!==a.v2-100) vus.push(P1+'/'+P2+' : la hausse globale n’est pas ce qu’on a gagné pour 100');
+          if(a.h<=P1+P2) vus.push(P1+'/'+P2+' : la hausse globale ('+a.h+') n’excède pas la somme des taux — la leçon de l’exercice tombe');
+          if(a.h>=100) vus.push(P1+'/'+P2+' : la hausse globale atteint '+a.h+' %');
+        });
+      });
+
+      /* ---- 3. les règles du 2.2.7 écartent vraiment quelque chose : quatre
+         couples épinglés, un par règle, et l'exemple de Turquet qui passe ---- */
+      const tirable=function(x,y){ return !!dedans[Math.min(x,y)+'-'+Math.max(x,y)]; };
+      if(tirable(90,4)) vus.push('le couple de la fiche (90 % puis 4 %) est tirable : son coefficient a trois chiffres après la virgule');
+      if(tirable(25,4)) vus.push('25 % puis 4 % est tirable : 25 porte deux chiffres non nuls, le 2.2.7 le refuse');
+      if(tirable(25,60)) vus.push('25 % puis 60 % est tirable : son coefficient vaut 2 tout rond, sans décimale');
+      if(tirable(50,50)) vus.push('50 % puis 50 % est tirable : la hausse globale atteint 125 %');
+      if(!tirable(2,50)) vus.push('l’exemple de Turquet (2 % puis 50 %) n’est pas tirable');
+      const ex=hscAns({P1:2,P2:50});
+      if(ex.v1!==102 || ex.v2!==153 || ex.h!==53)
+        vus.push('2 % puis 50 % : 100 → '+ex.v1+' → '+ex.v2+' (+'+ex.h+' %) au lieu de 102, 153, +53');
+
+      /* ---- 4. la séance : la question ne range pas sa réponse, et l'ORDRE de
+         la paire est TIRÉ — figé, la première hausse serait toujours la plus
+         petite des deux ---- */
+      const plat=[]; THEMES.forEach(function(t){ (t.sous||[{ids:t.ids}]).forEach(function(s){ (s.ids||[]).forEach(function(i){ plat.push(i); }); }); });
+      if(plat[plat.indexOf('hausses-successives')+1]!=='hausses-successives-cent')
+        vus.push('l’exercice ne suit plus {hausses-successives} au menu : la méthode 2 doit venir juste après la méthode 1');
+      const sens={};
+      for(let t=0;t<60 && !vus.length;t++){
+        startHaussesCent();
+        if(test.questions.length!==EVOL_NB) vus.push('tirage '+t+' : '+test.questions.length+' questions au lieu de '+EVOL_NB);
+        const sig={};
+        test.questions.forEach(function(q){
+          const cles=Object.keys(q).filter(function(k){ return ['P1','P2','ci','v'].indexOf(k)<0; });
+          if(cles.length) vus.push('la question porte d’autres champs que P1, P2, le contexte et la variante : '+cles.join(','));
+          if(!tirable(q.P1,q.P2)) vus.push('le tirage rend le couple '+q.P1+'/'+q.P2+', que les règles du 2.2.7 refusent');
+          if(q.P1<q.P2) sens.croissant=1; if(q.P1>q.P2) sens.decroissant=1;
+          const c=paire(q);
+          if(sig[c]) vus.push('tirage '+t+' : la paire '+c+' sort deux fois dans la même séance');
+          sig[c]=1;
+        });
+      }
+      if(!vus.length && (!sens.croissant || !sens.decroissant))
+        vus.push('l’ordre de la paire n’est pas tiré : la première hausse est toujours la '+(sens.croissant?'plus petite':'plus grande')+' des deux');
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 5. le rendu ---- */
+      startHaussesCent();
+      const q=test.questions[0], a=hscAns(q);
+      const absentes=HSC_CASES.filter(function(id){ return !document.getElementById(id); });
+      if(absentes.length) vus.push('cases absentes de l’écran : '+absentes.join(','));
+      const hote=document.getElementById('hscHost');
+      const champs=[].slice.call(hote.querySelectorAll('math-field')).map(function(e){ return e.id; });
+      const hors=champs.filter(function(id){ return HSC_CASES.indexOf(id)<0; });
+      if(hors.length) vus.push('des cases de l’écran sont hors de HSC_CASES, donc hors de la navigation au clavier : '+hors.join(','));
+      if(champs.length!==HSC_CASES.length) vus.push('l’écran porte '+champs.length+' cases au lieu de '+HSC_CASES.length);
+      const texte=hote.textContent+' '+document.getElementById('hscPrompt').textContent;
+      const acc=texte.match(/\\{[a-z-]+\\}/);
+      if(acc) vus.push('une référence {identifiant} reste affichée à l’élève : '+acc[0]);
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
+      /* ---- 6. la copie juste, et l’ordre libre de l’addition ---- */
+      const cl=function(id){ const e=document.getElementById(id); return (e&&e.className)||''; };
+      const poser=function(o){
+        HSC_CASES.forEach(function(id){ const e=document.getElementById(id); if(!e) return;
+          e.value=''; e.className=e.className.replace(/\\b(ok|bad|sol)\\b/g,'').trim(); e.disabled=false;
+          const s=e.nextElementSibling; if(s && /mf-cor/.test(s.className||'')) s.parentNode.removeChild(s); });
+        Object.keys(o).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(o[id]); });
+        test.answers=[]; test.score=0; test.locked=false; };
+      const copie=function(){ return {hsc1n:q.P1,hsc1d:100,hsc1m:100,hsc1pn:a.prod1,hsc1pd:100,hsc1a:a.aug1,
+        hsc1sa:100,hsc1sb:a.aug1,hsc1sr:a.v1,
+        hsc2n:q.P2,hsc2d:100,hsc2m:a.v1,hsc2pn:a.prod2,hsc2pd:100,hsc2a:a.aug2,
+        hsc2sa:a.v1,hsc2sb:a.aug2,hsc2sr:a.v2,
+        hscFin:a.v2,hscPour:a.h,hscPct:a.h}; };
+      const rouges=function(){ return HSC_CASES.filter(function(id){ return /\\bbad\\b/.test(cl(id)); }); };
+
+      poser(copie()); checkHSCAnswer();
+      if(test.score!==1) vus.push('la copie juste ne vaut pas le point');
+      if(rouges().length) vus.push('la copie juste rougit : '+rouges().join(','));
+      const m=ptsEcran();
+      if(!m || m.justes!==HSC_CASES.length || m.cases!==HSC_CASES.length)
+        vus.push('la note de l’écran compte '+(m?m.justes+'/'+m.cases:'rien')+' au lieu de '+HSC_CASES.length+'/'+HSC_CASES.length);
+
+      const inv=copie(); inv.hsc1sa=a.aug1; inv.hsc1sb=100; inv.hsc2sa=a.aug2; inv.hsc2sb=a.v1;
+      poser(inv); checkHSCAnswer();
+      if(test.score!==1) vus.push('l’addition écrite dans l’autre sens est comptée fausse : elle est commutative');
+
+      const deux=copie(); deux.hsc1sb=100;
+      poser(deux); checkHSCAnswer();
+      if(!/\\bok\\b/.test(cl('hsc1sa'))) vus.push('« 100 + 100 » : la première case n’est pas comptée une fois');
+      if(!/\\bbad\\b/.test(cl('hsc1sb'))) vus.push('« 100 + 100 » : le même nombre posé deux fois passe deux fois');
+      if(test.score===1) vus.push('« 100 + 100 » vaut quand même le point');
+
+      /* ---- 7. chaque case se juge SEULE ---- */
+      const jum=copie(); jum.hsc1sb=a.aug1+3;
+      poser(jum); checkHSCAnswer();
+      if(/\\bbad\\b/.test(cl('hsc1sa'))) vus.push('une case juste rougit parce que sa jumelle d’addition est fausse');
+      if(!/\\bbad\\b/.test(cl('hsc1sb'))) vus.push('la case fausse de l’addition ne rougit pas');
+
+      const une=copie(); une.hsc2a=a.aug2+1;
+      poser(une); checkHSCAnswer();
+      if(rouges().join(',')!=='hsc2a') vus.push('une seule case fausse en fait rougir d’autres : '+rouges().join(','));
+
+      /* ---- 8. la leçon : la seconde hausse ne se recalcule pas sur 100 ---- */
+      const cent=copie(); cent.hsc2m=100; cent.hsc2pn=100*q.P2; cent.hsc2a=q.P2;
+      poser(cent); checkHSCAnswer();
+      if(!/\\bbad\\b/.test(cl('hsc2m'))) vus.push('la seconde hausse recalculée sur 100 est acceptée : la leçon de l’exercice tombe');
+      if(test.score===1) vus.push('une copie qui refait la seconde hausse sur 100 vaut le point');
+
+      /* ---- 9. toute fraction ÉGALE est acceptée ---- */
+      const eq=copie(); eq.hsc1n=q.P1*2; eq.hsc1d=200;
+      poser(eq); checkHSCAnswer();
+      if(test.score!==1) vus.push('une fraction ÉGALE est comptée fausse');
+
+      /* ---- 10. l’entraînement révèle ---- */
+      const troue=copie(); delete troue.hsc2a; troue.hsc1sr=0;
+      poser(troue); checkHSCAnswer();
+      if(document.getElementById('hsc2a').value!==String(a.aug2) || !/\\bsol\\b/.test(cl('hsc2a')))
+        vus.push('en entraînement, la case laissée vide n’est pas complétée en vert');
+      const badge=document.getElementById('hsc1sr').nextElementSibling;
+      if(!badge || !/mf-cor/.test(badge.className||''))
+        vus.push('en entraînement, la case fausse ne reçoit pas la bonne réponse à côté');
+
+      /* ---- 11. le soutien : la case vide ne rougit jamais, rien n’est révélé ---- */
+      currentMode='soutien';
+      poser({}); checkHSCAnswer();
+      if(test.locked) vus.push('en soutien, une copie vide verrouille l’exercice');
+      if(rouges().length) vus.push('en soutien, des cases laissées vides rougissent : '+rouges().join(','));
+      const demi=copie(); delete demi.hsc2a; demi.hsc1a=a.aug1+1;
+      poser(demi); checkHSCAnswer();
+      if(test.locked) vus.push('en soutien, une copie fausse verrouille l’exercice');
+      if(!/\\bbad\\b/.test(cl('hsc1a'))) vus.push('en soutien, la case fausse ne rougit pas');
+      if(/\\bbad\\b/.test(cl('hsc2a'))) vus.push('en soutien, une case laissée vide rougit');
+      if(document.getElementById('hsc2a').value!=='') vus.push('en soutien, la case vide reçoit la réponse');
+      currentMode='train';
+
+      /* ---- 12. l’identité ---- */
+      test.kind='hsc'; test.qId='(sentinelle)'; restartCurrentTest();
+      if(test.qId!=='hausses-successives-cent') vus.push('« Recommencer » relance « '+test.qId+' »');
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
+
+    /* LES ÉNONCÉS SONT CEUX DU 2.2.7, PARTAGÉS ET NON RECOPIÉS. On lit la
+       SOURCE, jamais String(renderHSCTest) : les rendus sont ENVELOPPÉS par la
+       greffe des jetons, et la chaîne d'une enveloppe parle d'autre chose — le
+       piège documenté du 2.14, qui retomberait tel quel ici. */
+    const corpsHsc = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm);
+    const texteHsc = n => (corpsHsc.find(o => o.nom === n) || { texte:'' }).texte;
+    const sansEnonce = ['hscQuestion', 'renderHSCTest'].filter(n => texteHsc(n).indexOf('HS_ENONCES') < 0);
+    verifier('les énoncés du 2.2.8 sont ceux du 2.2.7, partagés et non recopiés',
+      sansEnonce.length === 0 && texteHsc('hscQuestion').indexOf('BS_CTX') >= 0,
+      sansEnonce.length ? 'n’écrit plus HS_ENONCES : ' + sansEnonce.join(', ')
+                        : 'hscQuestion ne tire plus son contexte dans BS_CTX');
+
+    /* ET LE VIVIER DES POURCENTAGES AUSSI (demande de Turquet, septembre 2026).
+       Le contrôle du tirage, ci-dessus, mesure ce que la page SORT : une seconde
+       liste construite avec les mêmes règles y passerait, et divergerait le jour
+       où l'une des deux change. Celui-ci mesure donc le PARTAGE lui-même — les
+       deux portes du tirage lisent HS_PAIRES —, et refuse qu'un vivier propre
+       revienne sous son ancien nom. */
+    const sansVivier = ['genHaussesCent', 'hscSeance'].filter(n => texteHsc(n).indexOf('HS_PAIRES') < 0);
+    /* on cherche une DÉFINITION, jamais le nom nu : le commentaire de la page a
+       le droit de nommer les deux gardes morts qu'il vient de retirer, et un
+       contrôle qui rougirait là-dessus rougirait sur du code juste. */
+    const revenu = [['HSC_COUPLES', /\bconst\s+HSC_COUPLES\s*=/], ['hscOk', /\bfunction\s+hscOk\s*\(/],
+                    ['HSC_HMAX', /\bconst\s+HSC_HMAX\s*=/]].filter(d => d[1].test(src)).map(d => d[0]);
+    verifier('le vivier des pourcentages du 2.2.8 est celui du 2.2.7, partagé et non recopié',
+      sansVivier.length === 0 && revenu.length === 0,
+      sansVivier.length ? 'ne lit plus HS_PAIRES : ' + sansVivier.join(', ')
+                        : 'le 2.2.8 s’est redonné un vivier à lui : ' + revenu.join(', '));
+
+    /* ET LE RAPPEL MONTRE UN TIRAGE POSSIBLE. Un rappel qui enseigne la méthode
+       sur un couple que le tirage ne rend jamais apprend le geste sur un cas que
+       l'élève ne rencontrera pas — la leçon du 2.3.7, retombée ici le jour où le
+       vivier a rétréci : « gagner 20 % puis 25 % » est devenu impossible, et
+       AUCUN contrôle ne le disait. Les DEUX rappels sont mesurés, celui du 2.2.7
+       comme celui du 2.2.8 : ils puisent désormais dans le même vivier. Et pour
+       le 2.2.8 on exige en plus que la CHAÎNE écrite soit celle que hscAns
+       calcule — un rappel dont les pourcentages changent sans que son
+       arithmétique suive ferait mentir l'écran. */
+    verifierEval(w, 'les rappels du 2.2.7 et du 2.2.8 montrent un tirage possible', `(function(){
+      const vus=[];
+      const tirable=function(a,b){ return HS_PAIRES.some(function(p){ return (p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a); }); };
+      let mesures=0;
+      [['2.2.7','hs'],['2.2.8','hsc']].forEach(function(d){
+        const t=RAPPELS[d[1]]||'', re=/(\\d+) % puis (?:de )?(\\d+) %/g;
+        let m, n=0;
+        while((m=re.exec(t))){ n++; mesures++;
+          if(!tirable(+m[1],+m[2])) vus.push(d[0]+' : le rappel montre '+m[1]+' % puis '+m[2]+' %, que le tirage ne rend jamais');
+        }
+        if(!n) vus.push(d[0]+' : aucun exemple « X % puis Y % » dans le rappel — le contrôle n’a rien à mesurer');
+      });
+      if(!mesures) return 'aucun exemple mesuré dans les deux rappels';
+      /* la chaîne du rappel du 2.2.8, nombre par nombre */
+      const t=RAPPELS.hsc||'', m=/(\\d+) % puis (?:de )?(\\d+) %/.exec(t);
+      if(m){
+        const a=hscAns({P1:+m[1],P2:+m[2]});
+        [['le produit de la première hausse',a.prod1],['la première hausse',a.aug1],
+         ['la nouvelle valeur',a.v1],['le produit de la seconde hausse',a.prod2],
+         ['la seconde hausse',a.aug2],['la valeur finale',a.v2],['la hausse globale',a.h],
+         ['la somme des deux taux',(+m[1])+(+m[2])]].forEach(function(p){
+          if(t.indexOf(String(p[1]))<0) vus.push('2.2.8 : le rappel n’écrit pas '+p[0]+' ('+p[1]+')'); });
+      }
+      return vus.slice(0,4).join(' | ');
+    })()`, v => v === '', undefined);
   }
 
   /* ---- {associer-coefficient} (2.4.2) : associer parmi SIX ---------------
@@ -3237,6 +3548,8 @@ function exercices(suite){
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
+    coefficientGlobalCourt(w, P);
+    coefficientGlobalCourtBaisses(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -5898,7 +6211,15 @@ function synthesePourcentage(w, P){
    le banc navigateur qui mesure le repli, à une largeur où il a lieu. */
 function teteCollee(w, P){
   const nom = 'aucun « = » ne se sépare de la case qu’il annonce';
-  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de tête collée à sa case'); return; }
+  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de « = » collé à sa case'); return; }
+  /* Un niveau peut tenir la règle SANS fabrique partagée : la Terminale a son
+     propre idiome et six classes d'égalité. Elle déclare donc le contrôle du
+     NAVIGATEUR — qui ne connaît aucune fabrique — et pas celui-ci, plutôt que
+     de recevoir une quinzième fonction portée pour la forme. */
+  if(!P.teteCollee.fabrique){
+    ignorer(nom, 'ce niveau tient la règle par son propre idiome, sans fabrique partagée — le banc navigateur la mesure');
+    return;
+  }
   const T = P.teteCollee, src = lire(CIBLE), pbs = [];
 
   /* 1. le seul endroit qui assemble, et ce qu'il pose */
@@ -5922,20 +6243,19 @@ function teteCollee(w, P){
   else if(court.texte.indexOf(T.fabrique) < 0)
     pbs.push('« ' + T.raccourci + ' » n\'appelle plus « ' + T.fabrique + ' » : deux fabriques finiraient par diverger');
 
-  /* 2. plus aucun groupe écrit à la main. Une CASE, ici, est ce qui porte la
-     réponse de l'élève : un <math-field>, ou une fraction faite de cases —
-     que la page écrit par ses fabriques locales (frac, dec, fracIn, mf…). On
-     lit donc le « = » et ce qui le suit IMMÉDIATEMENT, dans les deux formes
-     d'écriture du fichier : le gabarit (${…}) et la concaténation ('…'+…). */
+  /* 2. PLUS AUCUN « = » ÉCRIT À LA MAIN, quoi qu'il suive. La règle a
+     commencé par viser le « = » devant une CASE, et la reconnaître demandait
+     d'énumérer les fabriques locales qui rendent une case (frac, dec, mf,
+     produit…) : une liste, donc une dérive. Elle est devenue simple — TOUT
+     « = » passe par la fabrique — parce qu'un « = » groupé avec ce qui le
+     suit n'est jamais pire, et qu'une règle sans liste ne peut pas oublier
+     la rangée qu'on écrira demain. */
   const sansAide = aide ? src.split(aide.texte).join('') : src;
-  const SUIT = '(?:<math-field|<span class="f-frac-input"|\\$\\{(?:frac|dec|fracIn|pmMF)\\b|\'\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b|`\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b)';
-  const brut = [...sansAide.matchAll(new RegExp(
-    '<span class="f-eq">=</span>(?:<span class="f-whole">[^<>]{0,120}</span>)?\\s*' + SUIT, 'g'))];
+  const brut = [...sansAide.matchAll(/<span class="f-eq">=<\/span>/g)];
   if(brut.length)
-    pbs.push(brut.length + ' « = » écrit(s) à la main devant une case : ' +
-      brut.slice(0, 3).map(m => '« ' + m[0].slice(26, 70).replace(/\s+/g, ' ') + '… »').join(' ; ') +
-      ' — hors de ' + T.fabrique + ', rien ne les garde ensemble');
-
+    pbs.push(brut.length + ' « = » écrit(s) à la main : ligne(s) ' +
+      brut.slice(0, 4).map(m => sansAide.slice(0, m.index).split('\n').length).join(', ') +
+      ' — hors de ' + T.fabrique + ', rien ne les garde avec ce qu\'ils annoncent');
   /* 3. la classe est un flex, du même écart que la rangée */
   const style = (src.match(/<style[^>]*>[\s\S]*?<\/style>/g) || []).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
   const regle = t => (new RegExp('(?:^|[,}])\\s*' + t.replace('.', '\\.') + '\\s*\\{([^}]*)\\}', 'm').exec(style) || [, null])[1];
@@ -5944,7 +6264,11 @@ function teteCollee(w, P){
   else if(!/display:\s*(inline-)?flex/.test(grp))
     pbs.push('« .' + T.classe + ' » n\'est pas un flex : ses éléments se replient comme avant');
   if(rang === null) pbs.push('aucune règle « .' + T.rangee + ' » : le contrôle ne peut pas comparer les écarts');
-  else if(grp !== null){
+  else if(grp !== null && !/gap:\s*inherit/.test(grp)){
+    /* « gap:inherit » est la bonne réponse : les rangées de ces fichiers n'ont
+       pas toutes le même écart (12 px, 14, 10), et un écart RECOPIÉ finit par
+       diverger de l'une d'elles. Un écart figé reste accepté s'il est celui de
+       la rangée de référence — mais il ne protège que celle-là. */
     const ecart = c => (/gap:\s*([\d.]+)px/.exec(c) || [, null])[1];
     if(ecart(grp) !== ecart(rang))
       pbs.push('le groupe a un écart de ' + ecart(grp) + ' px quand la rangée en a ' + ecart(rang) + ' px : l\'espacement change à l\'œil');
@@ -6402,7 +6726,7 @@ function syntheseLibrePourcentage(w, P){
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
 }
-/* {synthese-augmentations-libre} (2.2.9) — la synthèse des hausses, rédigée.
+/* {synthese-augmentations-libre} (2.2.10) — la synthèse des hausses, rédigée.
    La page porte son JUGE (salJuge) : on l'éprouve cas par cas sur des
    questions ÉPINGLÉES (la leçon documentée : une copie qui ne colle pas à la
    question tirée mesurerait autre chose), puis on tient la RÈGLE envoyée au
@@ -6545,19 +6869,19 @@ function syntheseAugLibreRedigee(w, P){
     if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des augmentations');
     if(typeof startSynDimLibre==='function'){
       test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
-      if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.8 relance « '+test.qId+' »');
+      if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.9 relance « '+test.qId+' »');
     }
 
     return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
   })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
   if(typeof mesure==='string' && mesure.indexOf('OK|')===0){
     const p=mesure.split('|');
-    console.log('   · la plus longue règle du 2.2.9 : '+p[1]+' caractères pour '+bornes.attendu
+    console.log('   · la plus longue règle du 2.2.10 : '+p[1]+' caractères pour '+bornes.attendu
       +' ('+(bornes.attendu-p[1])+' de marge) ; le plus long énoncé : '+p[2]+' pour '+bornes.question);
   }
 }
 /* {synthese-pourcentages-libre} (2.5.2) — la synthèse des TROIS familles,
-   rédigée. C'est le 2.5.1 posé sur le moteur du 2.2.9 : le tirage vient de
+   rédigée. C'est le 2.5.1 posé sur le moteur du 2.2.10 : le tirage vient de
    genSyn SANS famille imposée, la justification s'écrit dans la feuille, et
    la troisième famille — « prendre P % » — arrive ainsi dans un juge qui ne
    connaissait que les évolutions. Cinq bords, et n'en tenir qu'un ne tient
@@ -6728,13 +7052,13 @@ function syntheseToutesFamillesRedigee(w, P){
     /* ---- 5. l'identité : « Recommencer » relance CETTE synthèse, et les
        deux voisines gardent la leur — trois exercices sur UN moteur, la
        note, le rappel et les questions à l'IA suivent l'identifiant. Le
-       repli d'un qId inconnu reste le 2.2.9, comme avant. ---- */
+       repli d'un qId inconnu reste le 2.2.10, comme avant. ---- */
     test.kind='sal'; test.qId='synthese-pourcentages-libre'; restartCurrentTest();
     if(test.qId!=='synthese-pourcentages-libre') vus.push('« Recommencer » relance « '+test.qId+' » au lieu de la synthèse rédigée des pourcentages');
     test.kind='sal'; test.qId='synthese-augmentations-libre'; restartCurrentTest();
-    if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » sur le 2.2.9 relance « '+test.qId+' »');
+    if(test.qId!=='synthese-augmentations-libre') vus.push('« Recommencer » sur le 2.2.10 relance « '+test.qId+' »');
     test.kind='sal'; test.qId='synthese-diminutions-libre'; restartCurrentTest();
-    if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.8 relance « '+test.qId+' »');
+    if(test.qId!=='synthese-diminutions-libre') vus.push('« Recommencer » sur le 2.3.9 relance « '+test.qId+' »');
 
     return vus.join(' | ') || ('OK|'+pireA+'|'+pireQ);
   })()`, v => typeof v==='string' && v.indexOf('OK|')===0, undefined);
@@ -9189,7 +9513,7 @@ function toucheEgalClavier(w, P){
 }
 
 /* ---------- La touche « ⏎ » du clavier à l'écran VALIDE ---------- */
-/* Signalé par Turquet (septembre 2026) sur le 2.2.9 de la Première : « la
+/* Signalé par Turquet (septembre 2026) sur le 2.2.10 de la Première : « la
    touche valider ne fonctionne pas et ne permet pas de passer à la ligne ».
    La touche « ✓ » ne faisait que CACHER le clavier (hideVirtualKeyboard) :
    sur tablette, l'élève croyait valider et rien ne se passait — un bouton
@@ -9461,7 +9785,7 @@ function clavierTablette(w, P){
 }
 
 /* ---------- Sur tablette, la feuille de calcul écrit plus petit ---------- */
-/* Demande de Turquet (septembre 2026) sur le 2.2.9 : « la case d'édition du
+/* Demande de Turquet (septembre 2026) sur le 2.2.10 : « la case d'édition du
    calcul peut-elle avoir une police plus petite ». La feuille (.dexp2-sheet)
    écrit à 2 rem ; sous la requête média de la tablette (écran tactile d'au
    moins 600 px — la même que la police de la page), une règle la ramène à la
@@ -15792,6 +16116,122 @@ function fractionsDecimalesVides(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---- 2.2.7 : LE COEFFICIENT GLOBAL S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES ----
+   Demande de Turquet (septembre 2026) : « je ne veux que des pourcentages qui
+   ne donnent comme coefficient global uniquement 2 ou 1 chiffres après la
+   virgule », son exemple étant 1,02 × 1,50 = 1,53. Avant, +40 % puis +4 %
+   donnait 1,456, et la hausse globale se lisait « 45,6 % ».
+   LA CONDITION EST ARITHMÉTIQUE : (100+P1)(100+P2) = 10000 + 100(P1+P2) +
+   P1·P2, donc le coefficient global a au plus deux décimales SI ET SEULEMENT
+   SI P1·P2 est un multiple de 100 — et la hausse globale est alors un nombre
+   ENTIER de pourcent. Le contrôle REFAIT la liste des paires par sa propre
+   arithmétique, sur les pourcentages bruts là où la page passe par les
+   fractions réduites : deux écritures qui n'ont rien en commun doivent tomber
+   d'accord, et un filtre resserré en douce se voit aussitôt.
+   Il tient les bords qui ne se devinent pas : la hausse rangée en MILLIÈMES,
+   l'unité que la correction relit sur 10 pour le pourcentage et sur 1000 pour
+   l'étape ④ — un brouillon de pause d'avant ce changement se reprend ainsi
+   sans rien savoir de la liste ; le bas de la pose, qui doit rester un 1 suivi
+   de zéros et d'un chiffre, la seule forme que poseUDonnees sache écrire
+   (elle ne pose que deux produits partiels) ; et les DEUX familles de paires,
+   sans quoi l'un des deux taux serait TOUJOURS 5 % ou 50 % (sans les
+   dizaines), ou plus aucune pose ne ferait trois chiffres par deux (sans la
+   mixte). Le second contrôle CLIQUE « Vérifier » sur une copie juste et relit
+   les couleurs ET la note : les contrôles lisent le verdict, l'élève regarde
+   la couleur. */
+function coefficientGlobalCourt(w, P){
+  const present = evaluer(w, "typeof genHausses==='function' && typeof HS_PAIRES!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.2.7 : le coefficient global s\'écrit avec au plus deux décimales',
+      'ce niveau n\'a pas l\'exercice des hausses successives');
+    ignorer('2.2.7 : 1,50 × 1,02 donne 1,53 et 53 %, et la copie juste vaut le point',
+      'ce niveau n\'a pas l\'exercice des hausses successives');
+    return;
+  }
+  verifierEval(w, '2.2.7 : le coefficient global s\'écrit avec au plus deux décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* 1. LE VIVIER, refait par une seconde arithmétique */
+    const unSeulChiffre=function(x){ return x<10 || x%10===0; };
+    const attendues=[];
+    for(let a=1;a<=99;a++) for(let b=a;b<=99;b++){
+      if(!unSeulChiffre(a)||!unSeulChiffre(b)) continue;
+      if((a*b)%100!==0) continue;                       /* trois décimales ou plus */
+      if((100+a)*(100+b)>=20000) continue;              /* hausse globale de 100 % ou plus */
+      attendues.push(a+"-"+b);
+    }
+    const liste=HS_PAIRES.map(function(p){ return p[0]+"-"+p[1]; });
+    attendues.forEach(function(c){ if(liste.indexOf(c)<0) vus.push("la paire "+c+" manque au vivier"); });
+    liste.forEach(function(c){ if(attendues.indexOf(c)<0) vus.push("la paire "+c+" ne devrait pas y etre"); });
+    if(liste.length<12) vus.push("le vivier ne compte que "+liste.length+" paires : rien a mesurer");
+    const mixtes=HS_PAIRES.filter(function(p){ return !(p[0]%10===0 && p[1]%10===0); });
+    if(!mixtes.length) vus.push("plus une seule paire mixte : la pose trois chiffres par deux a disparu");
+    if(mixtes.length===HS_PAIRES.length) vus.push("plus une seule paire de deux multiples de dix : un des deux taux serait toujours 5 % ou 50 %");
+    /* 2. LE TIRAGE, question par question */
+    const formes={}, hausses={};
+    for(let t=0;t<400 && vus.length===0;t++){
+      const q=genHausses([]);
+      const brut=(100+q.P1)*(100+q.P2);                 /* le coefficient global, par les taux */
+      if(!unSeulChiffre(q.P1)||!unSeulChiffre(q.P2)) vus.push("tirage "+t+" : "+q.P1+" % et "+q.P2+" % ne sont pas des taux a un seul chiffre non nul");
+      if(brut%100!==0) vus.push("tirage "+t+" : "+q.P1+" % puis "+q.P2+" % donne "+(brut/10000)+", plus de deux decimales");
+      if(brut%10000===0) vus.push("tirage "+t+" : le coefficient "+(brut/10000)+" n a aucune decimale");
+      if(brut>=20000) vus.push("tirage "+t+" : la hausse globale atteint "+(brut/100-100)+" %");
+      if(brut*q.prodDen!==q.prodNum*10000) vus.push("tirage "+t+" : "+q.prodNum+"/"+q.prodDen+" ne vaut pas le produit des coefficients");
+      if((q.coefStr.split(",")[1]||"").length>2) vus.push("tirage "+t+" : le coefficient s ecrit "+q.coefStr);
+      if(q.hausseNum*10!==brut-10000) vus.push("tirage "+t+" : hausseNum vaut "+q.hausseNum+" au lieu de "+((brut-10000)/10)+" millièmes");
+      if(q.hausseNum%10!==0) vus.push("tirage "+t+" : la hausse globale "+(q.hausseNum/10)+" % n est pas entière");
+      if(q.hausseStr.indexOf(",")>=0) vus.push("tirage "+t+" : la hausse s ecrit "+q.hausseStr+" %");
+      const bas=String(q.bot), hautL=String(q.top).length;
+      let forme=(bas.charAt(0)==="1");
+      for(let k=1;k<bas.length-1;k++) if(bas.charAt(k)!=="0") forme=false;
+      if(!forme) vus.push("tirage "+t+" : "+q.bot+" en bas, la pose ne sait pas l ecrire");
+      if(bas.length>hautL) vus.push("tirage "+t+" : le plus long ("+q.bot+") n est pas en haut");
+      if(q.top*q.bot!==q.prodNum) vus.push("tirage "+t+" : la pose multiplie "+q.top+" par "+q.bot+" au lieu de faire "+q.prodNum);
+      if(q.v1+q.v2*Math.pow(10,q.s)!==q.prodNum) vus.push("tirage "+t+" : les deux produits partiels ne font pas "+q.prodNum);
+      formes[hautL+"x"+bas.length]=1; hausses[q.hausseNum]=1;
+    }
+    if(vus.length===0){
+      if(!formes["3x2"]) vus.push("aucune pose trois chiffres par deux sur 400 tirages");
+      if(!formes["2x2"]) vus.push("aucune pose deux chiffres par deux sur 400 tirages");
+      if(Object.keys(hausses).length<10) vus.push("seulement "+Object.keys(hausses).length+" hausses globales differentes sur 400 tirages");
+    }
+    /* 3. LA SÉANCE : des paires DISTINCTES — le vivier est fini, et deux fois
+       le même calcul dans la même séance se verrait */
+    for(let t=0;t<60 && vus.length===0;t++){
+      startHausses();
+      const vues=test.questions.map(function(q){ return q.paire; });
+      vues.forEach(function(c,i){ if(vues.indexOf(c)!==i) vus.push("séance "+t+" : la paire "+c+" sort deux fois"); });
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.2.7 : 1,50 × 1,02 donne 1,53 et 53 %, et la copie juste vaut le point', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* la question de l EXEMPLE de la demande, prise au VRAI générateur */
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genHausses([]); if(q.paire==="2-50") Q=q; }
+    if(!Q) return "le tirage ne produit jamais 2 % puis 50 %, l exemple de la demande";
+    if(Q.coefStr!=="1,53") vus.push("1,02 × 1,50 donne "+Q.coefStr+" au lieu de 1,53");
+    if(Q.hausseStr!=="53") vus.push("la hausse globale vaut "+Q.hausseStr+" % au lieu de 53 %");
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"hs", qId:"hausses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("hstest"); renderHSTest();
+    const deux=function(P){ return P<10 ? "0"+P : ""+P; };
+    const copie={hs1n:""+Q.P1, hs1d:"100", hs1p:deux(Q.P1), hs1dec:deux(Q.P1),
+                 hs2n:""+Q.P2, hs2d:"100", hs2p:deux(Q.P2), hs2dec:deux(Q.P2),
+                 hsAn:""+Q.fA.num, hsAd:""+Q.fA.den, hsBn:""+Q.fB.num, hsBd:""+Q.fB.den,
+                 hsPn:""+Q.prodNum, hsPd:""+Q.prodDen, hsDec:Q.coefStr, hsP:Q.hausseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkHSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+}
 /* ---- La paire fausse ne rougit que sa case fautive ------------------------
    Signalé par Turquet sur une capture (août 2026, le 1.7) : sur 0,08 × 0,77,
    le produit écrit 616/100000 rougissait ses DEUX cases — « la case 616 ne
@@ -15857,6 +16297,102 @@ function paireFausseCaseFautive(w, P){
       if(paires.length) vus.push(fn+' peint encore une paire par un verdict unique : '+paires.join(','));
     });
     return vus.join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.3.7 : LA MÊME RÈGLE SUR LES DEUX BAISSES ---------------------------
+   « fais la même chose pour le 2.3.7 » (Turquet, septembre 2026), après la
+   règle posée sur le 2.2.7 : le coefficient global ne doit s'écrire qu'avec
+   une ou deux décimales.
+   ICI LA PROPRIÉTÉ ÉTAIT DÉJÀ VRAIE, et la sonde l'a mesurée avant qu'on ne
+   touche à quoi que ce soit : depuis la décision d'août 2026 (un seul chiffre
+   non nul par baisse, et c'est un dixième), les deux numérateurs sont des
+   chiffres seuls, leur produit est un entier de deux chiffres, et il se lit
+   sur 100 — 0,8 × 0,6 = 0,48. Sur 50 000 tirages, jamais plus de deux
+   décimales et jamais une baisse globale non entière.
+   MAIS RIEN NE LA TENAIT. Un taux à un chiffre remis dans le tirage — ce que
+   l'exercice faisait avant août 2026 — rendrait 0,96 × 0,6 = 0,576 sans
+   qu'aucun contrôle ne rougisse, et c'est précisément le défaut que la
+   demande vise. Le contrôle refait donc la propriété par une SECONDE
+   arithmétique, sur les pourcentages bruts là où la page passe par les
+   numérateurs réduits : (100−P1)(100−P2) doit être divisible par 100.
+   Il tient les bords voisins, qui ne se devinent pas : la baisse globale est
+   ENTIÈRE (c'est elle que l'élève écrit à l'étape ③, jugée sur 1), elle
+   DIFFÈRE toujours de P1+P2 — sans quoi le piège de l'exercice aurait disparu
+   —, le coefficient n'est jamais un entier (« 1 ou 2 chiffres », au mot), et
+   les taux restent les multiples de dix que la décision d'août 2026 a fixés.
+   Le second contrôle CLIQUE « Vérifier » sur une copie juste et relit les
+   couleurs ET la note : les contrôles lisent le verdict, l'élève regarde la
+   couleur. */
+function coefficientGlobalCourtBaisses(w, P){
+  const present = evaluer(w, "typeof genBaisses==='function' && typeof checkBSAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.3.7 : le coefficient global des deux baisses s\'écrit avec au plus deux décimales',
+      'ce niveau n\'a pas l\'exercice des baisses successives');
+    ignorer('2.3.7 : 0,8 × 0,6 donne 0,48 et 52 %, et la copie juste vaut le point',
+      'ce niveau n\'a pas l\'exercice des baisses successives');
+    return;
+  }
+  verifierEval(w, '2.3.7 : le coefficient global des deux baisses s\'écrit avec au plus deux décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const taux={}, baisses={}, decs={};
+    for(let t=0;t<400 && vus.length===0;t++){
+      const q=genBaisses();
+      const brut=(100-q.P1)*(100-q.P2);                 /* le coefficient global, par les TAUX */
+      if(brut%100!==0) vus.push("tirage "+t+" : "+q.P1+" % puis "+q.P2+" % donne "+(brut/10000)+", plus de deux decimales");
+      if(brut%10000===0) vus.push("tirage "+t+" : le coefficient "+(brut/10000)+" n a aucune decimale");
+      if(brut*q.prodDen!==q.prodNum*10000) vus.push("tirage "+t+" : "+q.prodNum+"/"+q.prodDen+" ne vaut pas le produit des coefficients");
+      if((q.coefStr.split(",")[1]||"").length>2) vus.push("tirage "+t+" : le coefficient s ecrit "+q.coefStr);
+      /* la baisse globale : ENTIÈRE, et jugée telle quelle à l etape 3 */
+      const b=100-brut/100;
+      if(b!==Math.round(b)) vus.push("tirage "+t+" : la baisse globale "+b+" % n est pas entière");
+      if(q.baisseNum!==b) vus.push("tirage "+t+" : baisseNum vaut "+q.baisseNum+" au lieu de "+b);
+      if(q.baisseStr.indexOf(",")>=0) vus.push("tirage "+t+" : la baisse s ecrit "+q.baisseStr+" %");
+      /* le piège de l exercice : deux baisses ne s additionnent pas */
+      if(b>=q.P1+q.P2) vus.push("tirage "+t+" : la baisse globale "+b+" % n est pas inférieure à "+(q.P1+q.P2)+" %");
+      /* et elle reste LISIBLE : sans la garde du produit à deux chiffres,
+         0,2 × 0,3 = 0,06 ferait une baisse de 94 %, un prix divisé par seize.
+         Ce bord-là ne se voit pas sur les décimales — 0,06 en a deux — et le
+         sabotage l a montré en restant vert à bon droit. */
+      if(b>90) vus.push("tirage "+t+" : la baisse globale atteint "+b+" %, le coefficient tombe à "+(brut/10000));
+      /* les taux, tels que la décision d août 2026 les a fixés */
+      [q.P1,q.P2].forEach(function(Pp){
+        if(Pp%10!==0 || Pp<10 || Pp>80) vus.push("tirage "+t+" : le taux "+Pp+" % n est pas un multiple de dix de 10 à 80");
+        taux[Pp]=1; });
+      baisses[b]=1; decs[(q.coefStr.split(",")[1]||"").length]=1;
+    }
+    if(vus.length===0){
+      if(Object.keys(baisses).length<10) vus.push("seulement "+Object.keys(baisses).length+" baisses globales differentes sur 400 tirages");
+      if(Object.keys(taux).length<6) vus.push("seulement "+Object.keys(taux).length+" taux differents sur 400 tirages");
+      if(!decs["2"]) vus.push("aucun coefficient à deux decimales sur 400 tirages");
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.3.7 : 0,8 × 0,6 donne 0,48 et 52 %, et la copie juste vaut le point', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* la question de l EXEMPLE du rappel de cours, prise au VRAI générateur */
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genBaisses(); if(q.P1===20 && q.P2===40) Q=q; }
+    if(!Q) return "le tirage ne produit jamais 20 % puis 40 %, l exemple du rappel de cours";
+    if(Q.coefStr!=="0,48") vus.push("0,8 × 0,6 donne "+Q.coefStr+" au lieu de 0,48");
+    if(Q.baisseStr!=="52") vus.push("la baisse globale vaut "+Q.baisseStr+" % au lieu de 52 %");
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test,{kind:"bs", qId:"baisses-successives", questions:[Q], idx:0, score:0,
+                        answers:[], startTime:Date.now(), locked:false, maxScore:1});
+    show("bstest"); renderBSTest();
+    const copie={bs1n:""+Q.P1, bs1d:"100", bs1p:""+Q.P1, bs1dec:""+Q.c1,
+                 bs2n:""+Q.P2, bs2d:"100", bs2p:""+Q.P2, bs2dec:""+Q.c2,
+                 bsAn:""+Q.fA.num, bsAd:""+Q.fA.den, bsBn:""+Q.fB.num, bsBd:""+Q.fB.den,
+                 bsPn:""+Q.prodNum, bsPd:""+Q.prodDen, bsDec:Q.coefStr, bsP:Q.baisseStr};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkBSAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
@@ -16764,7 +17300,7 @@ function verdictColore(w, apres){
       if(couleur('pslFeedback')!=='rouge') vus.push('2.1.7 : verdict faux peint « '+couleur('pslFeedback')+' » au lieu de rouge');
     }
 
-    /* 2.2.9 (Première) — la synthèse des augmentations rédigée (checkSal) :
+    /* 2.2.10 (Première) — la synthèse des augmentations rédigée (checkSal) :
        ici la page porte son JUGE, et c'est lui qu'on éprouve — le modèle
        stubbé SE TROMPE dans les deux sens, le verdict peint doit être celui
        du juge (la leçon de la Seconde : un verdict arithmétique ne se confie
@@ -16777,14 +17313,14 @@ function verdictColore(w, apres){
       test.qId='synthese-augmentations-libre';
       salFeuille=feuille('1,05 × 600 = 630');
       verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
-      if(couleur('salFeedback')!=='vert') vus.push('2.2.9 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
-      if(test.score!==1) vus.push('2.2.9 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
+      if(couleur('salFeedback')!=='vert') vus.push('2.2.10 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==1) vus.push('2.2.10 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
       test.locked=false; test.salBusy=false; test.score=0;
       test.questions=[JSON.parse(JSON.stringify(q29))];
       salFeuille=feuille('1,05 × 600 = 640');
       verdict(true); await checkSal();    /* le modèle MENT : l'égalité est fausse */
-      if(couleur('salFeedback')!=='rouge') vus.push('2.2.9 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
-      if(test.score!==0) vus.push('2.2.9 : égalité fausse sous modèle qui accepte — le point est donné quand même');
+      if(couleur('salFeedback')!=='rouge') vus.push('2.2.10 : égalité fausse sous modèle qui accepte, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==0) vus.push('2.2.10 : égalité fausse sous modèle qui accepte — le point est donné quand même');
       /* Sur un REFUS, la phrase du JUGE s'affiche toujours : le modèle avait
          rédigé en production un refus qui se contredisait (« c'est faux…
          donc c'est vrai ! », signalé par Turquet, août 2026) — même
@@ -16796,15 +17332,15 @@ function verdictColore(w, apres){
       await checkSal();
       { const fbTxt=document.getElementById('salFeedback').textContent;
         if(fbTxt.indexOf('égalité fausse')<0 || fbTxt.indexOf('Enfin')>=0)
-          vus.push('2.2.9 : sur un refus, la prose du modèle s\\'affiche au lieu de la phrase du juge : « '+fbTxt.slice(0,60)+' »'); }
-      /* et sur une BAISSE (2.3.8), même moteur, même primauté */
+          vus.push('2.2.10 : sur un refus, la prose du modèle s\\'affiche au lieu de la phrase du juge : « '+fbTxt.slice(0,60)+' »'); }
+      /* et sur une BAISSE (2.3.9), même moteur, même primauté */
       const q38={fam:'dim',inc:'fin',sens:-1,P:5,N:600,aug:30,fin:570,decStr:'570',unit:'€',opts:[555,570,600,630],bon:1,choisi:1,ci:0,v:0};
       test.locked=false; test.salBusy=false; test.score=0;
       test.questions=[JSON.parse(JSON.stringify(q38))]; test.qId='synthese-diminutions-libre';
       salFeuille=feuille('0,95 × 600 = 570');
       verdict(false); await checkSal();   /* le modèle MENT : la copie est juste */
-      if(couleur('salFeedback')!=='vert') vus.push('2.3.8 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
-      if(test.score!==1) vus.push('2.3.8 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
+      if(couleur('salFeedback')!=='vert') vus.push('2.3.9 : copie juste sous modèle qui refuse, peinte « '+couleur('salFeedback')+' » — le juge ne prime pas');
+      if(test.score!==1) vus.push('2.3.9 : copie juste sous modèle qui refuse — le point n\\'est pas donné ('+test.score+')');
 
       /* Et la copie SE VOIT (signalé par Turquet, août 2026) : à la
          vérification, chaque ligne de la feuille est peinte — toute égalité

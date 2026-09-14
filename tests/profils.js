@@ -30,7 +30,7 @@ const KINDS_PREMIERE = [
   ['augq','genAugTaux()'], ['dim','genDim()'], ['mp','genMultPosee()'],
   ['md','genMultDec()'], ['u','genU()'], ['fp','genFP()'],
   ['ag2','genAugAdd()'], ['ag2q','genDimTauxSub()'], ['syn','genSyn()'],
-  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'],
+  ['pcol','genPctCol()'], ['bs','genBaisses()'], ['lc','genLireCoef()'], ['hs','genHausses()'], ['hsc','genHaussesCent()'],
   ['psl','genPctRes()'], ['ac','genAC()'],
 ];
 
@@ -42,7 +42,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -132,26 +132,16 @@ module.exports = {
        le banc navigateur ouvre les exercices déclarés à une largeur où la rangée
        SE REPLIE pour de vrai, et mesure que la tête et sa case restent sur la
        même ligne.
-       La Seconde ne déclare pas ce contrôle : seul le moteur PARTAGÉ de
-       {somme-fractions} y a reçu le groupe — il est le même texte dans les deux
-       fichiers, et le corriger d'un seul côté l'aurait fait diverger. Ses
-       rangées propres (2.2.1, 2.3.1…) restent à grouper : le contrôle s'y
-       affiche « non applicable » plutôt que de rougir, et c'est une décision à
-       prendre, pas un oubli. */
+       La Seconde le déclare aussi (demande de Turquet, septembre 2026 : « fais
+       la même chose en seconde ») ; la Terminale, qui n'a pas ces rangées, s'y
+       affiche « non applicable » plutôt que d'être tue. */
     teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
                   minimum: 6,
                   exercices: ['diminuer-pourcentage', 'augmenter-pourcentage',
-                              'baisses-successives', 'hausses-successives',
+                              'baisses-successives', 'hausses-successives', 'hausses-successives-cent',
                               'somme-fractions', 'mult-decimaux', 'fraction-pourcentage',
                               'augmenter-addition', 'pourcentage'],
-                  /* Le maillon « 3 = 3/1 » de la somme de fractions : la page
-                     l'ÉCRIT, il ne porte aucune case, et il n'est posé que
-                     lorsqu'un terme est un ENTIER. Le déclarer ici fait
-                     mesurer ce bord à chaque exécution, au lieu d'un tirage
-                     sur deux — l'intermittence qui a fait rougir le banc en
-                     intégration continue sur une page parfaitement juste. */
-                  entierEcrit: 'somme-fractions',
-                  largeur: 600, hauteur: 900 },
+                  largeurs: [[820, 1180], [600, 900], [390, 844]] },
 
     /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE
        (demande de Turquet, septembre 2026, pour la Seconde, « comme en
@@ -233,7 +223,7 @@ module.exports = {
        DEUX sources : la page a PCT_NB et QD_NB, le banc compare à ceci. */
     nbQuestionsPourcentages: 4,
     /* 3 questions pour tous les exercices sur les ÉVOLUTIONS — hausses 2.2.1
-       à 2.2.8, baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de
+       à 2.2.9, baisses 2.3.1 à 2.3.7, et la synthèse 2.5.1 (demande de
        Turquet, août 2026, en trois temps). DEUX sources : la page a EVOL_NB,
        le banc compare à ceci. */
     nbQuestionsEvolutions: 3,
@@ -292,12 +282,12 @@ module.exports = {
        qu'il refuse rend la page non installable, et il le NOMME. */
     manifeste: { display: 'fullscreen' },
     policeTablette: 90,
-    /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.9,
-       2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
+    /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
+       2.3.9) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
        septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
        plus petite »). Le banc jsdom exige la règle sous la requête média de la
        tablette, avec cette valeur, plus petite que la taille normale ; le banc
-       navigateur mesure la police RENDUE de la feuille du 2.2.9 sur la tablette
+       navigateur mesure la police RENDUE de la feuille du 2.2.10 sur la tablette
        (au plus pxMax) et exige qu'elle soit plus petite que sur l'ordinateur. */
     feuilleTablette: { rem: 1.4, pxMax: 21 },
     /* SUR TABLETTE, LA CHAÎNE À NOMBRES ÉCRIT PLUS PETIT (demande de Turquet,
@@ -318,7 +308,7 @@ module.exports = {
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
                                   '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
-                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8, 2.5.2) est hors
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.10, 2.3.9, 2.5.2) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
                          les fractions de l'énoncé — il est donc nommé ici plutôt que
@@ -327,7 +317,7 @@ module.exports = {
                       exercice: 'pourcentage', champ: '#p3', ecriture: '.f-whole', enonce: '#pPrompt' },
     /* Le clavier mathématique à l'écran (buildKbTerm) : sa touche « ⏎ » VALIDE
        — commit, l'événement « change » : une ligne de plus dans la feuille du
-       2.2.9, la case suivante dans un exercice guidé — là où un « ✓ » ne
+       2.2.10, la case suivante dans un exercice guidé — là où un « ✓ » ne
        faisait que CACHER le clavier (signalé par Turquet, septembre 2026 :
        « la touche valider ne fonctionne pas et ne permet pas de passer à la
        ligne »). Et sur une tablette en PAYSAGE, le clavier ancré tient sur
@@ -509,6 +499,18 @@ module.exports = {
        plus chargée après {simplifier-fractions}, et c'est là qu'un repli se
        produirait. */
     cadrePleineLargeur: true,
+    /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de
+       Turquet, septembre 2026 : « fais la même chose en seconde »). Même
+       fabrique, même classe, même contrôle qu'en Première — voir le profil de
+       la Première pour la doctrine. Les quatre exercices déclarés sont ceux
+       que la SONDE a vus céder : 2.2.1 et 2.3.1 à 600 px, la division de
+       fractions à 600, les deux barres à 390 ; {somme-fractions} n'y est plus,
+       son moteur partagé ayant déjà reçu le groupe. */
+    teteCollee: { fabrique: 'fEqTete', raccourci: 'fEq', classe: 'f-grp', rangee: 'pt-row',
+                  minimum: 4,
+                  exercices: ['augmenter-pourcentage', 'diminuer-pourcentage',
+                              'diviser-fractions', 'simplifier-barres', 'somme-fractions'],
+                  largeurs: [[820, 1180], [600, 900], [390, 844]] },
     pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
                               ['diminuer-pourcentage', 2], ['somme-fractions', 1],
@@ -807,6 +809,21 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'terminale.html': {
+
+    /* UN « = » NE SE SÉPARE JAMAIS DE CE QU'IL ANNONCE (demande de Turquet,
+       septembre 2026 : « fais la même chose en terminale »). Ce niveau n'a NI
+       la fabrique NI la classe des deux autres — il écrit ses égalités avec
+       six classes différentes (eq, sa2-eq, tg-eq, su-eq, rf-eq…) et parfois en
+       texte nu au milieu d'une phrase, et il a déjà son propre idiome pour
+       les tenir ensemble (« .dhv-eqgrp{white-space:nowrap} »). Il ne déclare
+       donc pas de fabrique : le contrôle jsdom s'y affiche « non applicable »,
+       et c'est le banc NAVIGATEUR qui tient la règle — sa mesure ne connaît
+       aucune fabrique, elle part de chaque case et lit ce qui la précède.
+       Les exercices déclarés sont ceux que la SONDE a vus céder. */
+    teteCollee: { minimum: 8,
+                  exercices: ['etude-fonction', 'tvi-alpha-signe', 'recurrence-fractions',
+                              'tvi', 'suite-auxiliaire', 'recurrence-complete'],
+                  largeurs: [[820, 1180], [600, 900], [390, 844]] },
 
     /* UNE CASE VIDE QUI ROUGIT — six exercices de ce niveau le font encore, et
        ce n'est PAS un oubli qu'on peut corriger d'office. La Terminale a une

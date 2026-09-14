@@ -3282,138 +3282,96 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
-    /* ===== 6 decies bis. le « = » passe à la ligne avec sa case ===== */
-    /* Demande de Turquet (septembre 2026) : « en première quand on affiche
-       "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
-       "= 0" passe aussi à la ligne. »
-       La rangée d'un exercice guidé se replie — c'est ce qui l'empêche de
-       déborder — et le repli tombait ENTRE le « 0, » écrit par la page et la
-       case où l'élève répond : mesuré à 600 px, « 0, » restait en fin de ligne
-       et sa case tombait 111 px plus bas. Une virgule décimale coupée de ses
-       décimales n'est plus un nombre.
-       CE BANC EST LE SEUL QUI PUISSE LE VOIR : jsdom n'a pas de mise en page,
-       donc aucune ligne où tomber. On ouvre donc à une largeur où la rangée se
-       replie POUR DE VRAI — et on exige qu'elle s'y replie, sans quoi le
-       contrôle ne mesurerait rien en parlant d'autre chose. */
-    titre('6 decies bis. LE « = » PASSE À LA LIGNE AVEC SA CASE');
+    /* ===== 6 decies bis. « = » passe à la ligne avec ce qu'il annonce ===== */
+    /* Demande de Turquet (septembre 2026), en deux temps puis étendue aux trois
+       niveaux : « quand on affiche "= 0 ," avec une case à côté, si la case
+       passe à la ligne je veux que le "= 0" passe aussi à la ligne », puis
+       « dès qu'une case passe à la ligne et qu'il y a un "=" devant, mettre le
+       "=" aussi à la ligne ».
+       LA MESURE NE CONNAÎT AUCUNE FABRIQUE, ET C'EST CE QUI LA REND
+       UNIVERSELLE. Le premier jet partait des groupes « .f-grp » : il serait
+       resté vert sur le « = » qu'on aurait oublié d'y mettre — c'est-à-dire
+       sur le défaut — et il ne voyait RIEN de la Terminale, qui n'a pas cette
+       classe : elle écrit ses égalités avec six classes différentes (eq,
+       sa2-eq, tg-eq, su-eq, rf-eq…) et parfois en texte nu au milieu d'une
+       phrase. On part donc de CHAQUE case rendue et on lit ce qui la précède
+       IMMÉDIATEMENT, élément ou nœud de texte ; si cela finit par « = » ou par
+       la virgule décimale, les deux doivent partager leur ligne.
+       MÊME LIGNE se juge au RECOUVREMENT vertical, jamais à l'égalité des
+       « top » : une case et le texte qui la précède sont centrés l'un sur
+       l'autre, donc leurs hauts diffèrent toujours de quelques pixels — un
+       compteur qui lirait « top » crierait au repli sur des lignes
+       parfaitement droites.
+       Et la mesure doit avoir lieu là où le défaut existe : sans repli, aucune
+       rangée ne peut couper quoi que ce soit, et le vert ne dirait rien. */
+    titre('6 decies bis. LE « = » PASSE À LA LIGNE AVEC CE QU\'IL ANNONCE');
     if(!P.teteCollee){
-      ignorer('un « = » et la case qu’il annonce restent sur la même ligne',
+      ignorer('un « = » et ce qu\'il annonce restent sur la même ligne',
         'ce niveau ne déclare pas de « = » collé à sa case');
     } else {
       const TC = P.teteCollee;
-      s = await ouvrir(chromium, ml, { viewport: { width: TC.largeur, height: TC.hauteur }, hasTouch: true });
-      await connecter(s.page);
-      const separes = [], vides = [];
-      let repliees = 0, groupes = 0;
-      const mesurerCorps = cl => {
-          const vu = e => e.getBoundingClientRect().height > 0;   /* une étape encore cachée ne se mesure pas */
-          const grs = [...document.querySelectorAll('.screen.on .' + cl)].filter(vu);
-          const casse = [];
-          /* ON NE MESURE PAS LES GROUPES, ON MESURE LES « = ». Un contrôle qui
-             ne regarderait que « .f-grp » resterait vert sur le « = » qu'on
-             aurait oublié d'y mettre — c'est-à-dire exactement sur le défaut.
-             On part donc de CHAQUE « = » visible de l'écran, groupé ou non, et
-             on exige qu'il partage la ligne de la case qui le suit. */
-          const estCase = e => !!e && (e.tagName === 'MATH-FIELD'
-            || (e.classList && (e.classList.contains('f-frac-input') || e.classList.contains('f-frac')))
-            || (e.querySelector && !!e.querySelector('math-field')));
-          for(const eq of document.querySelectorAll('.screen.on .f-eq')){
-            if(!vu(eq)) continue;
-            const suite = eq.nextElementSibling;
-            if(!estCase(suite) || !vu(suite)) continue;
-            const a = eq.getBoundingClientRect(), b = suite.getBoundingClientRect();
-            if(!(b.top < a.bottom - 2 && a.top < b.bottom - 2))
-              casse.push('« = » et « ' + (suite.id || suite.className.split(' ')[0]) + ' » sur deux lignes ('
-                + Math.round(b.top - a.top) + ' px d\'écart)');
-          }
-          for(const g of grs){
-            /* la tête est l'enfant DIRECT du groupe — la case d'une somme de
-               fractions contient elle-même des « f-whole », et le premier venu
-               n'est pas une tête ; elle reste facultative */
-            const enf = [...g.children];
-            const t = (enf[1] && enf[1].classList && enf[1].classList.contains('f-whole')) ? enf[1] : null;
-            /* CE QUE LE « = » ANNONCE PEUT ÊTRE ÉCRIT PAR LA PAGE, pas
-               seulement saisi : le maillon « 3 = 3/1 » de la somme de
-               fractions, posé dès qu'un terme est un ENTIER, ne porte aucun
-               math-field. L'exiger faisait rougir le banc sur une page
-               parfaitement juste, au hasard du tirage — un contrôle
-               intermittent parle d'autre chose, et celui-ci a rougi en
-               intégration continue là où trois exécutions locales étaient
-               passées. On prend donc la case saisie, ou à défaut ce que la
-               page a écrit ; un groupe qui n'annonce RIEN reste un défaut,
-               et son « = » est de toute façon mesuré par la boucle du
-               dessus, qui accepte déjà une fraction écrite. */
-            const c = g.querySelector('math-field') || g.querySelector('.f-frac, .f-frac-input');
-            if(!c || !vu(c)){ casse.push('un groupe qui n\'annonce rien après son « = »'); continue; }
-            if(!t || !vu(t)) continue;            /* la tête est facultative */
-            const a = t.getBoundingClientRect(), b = c.getBoundingClientRect();
-            /* MÊME LIGNE se mesure par le RECOUVREMENT vertical, jamais par
-               l'égalité des « top » : une case et le texte qui la précède sont
-               centrés l'un sur l'autre, donc leurs hauts diffèrent toujours de
-               quelques pixels — un compteur qui lirait « top » crierait au
-               repli sur des lignes parfaitement droites. */
-            if(!(b.top < a.bottom - 2 && a.top < b.bottom - 2))
-              casse.push('« ' + (t.textContent || '').trim() + ' » et sa case sur deux lignes ('
-                + Math.round(b.top - a.top) + ' px d\'écart)');
-          }
-          /* combien de rangées PORTANT un groupe se replient vraiment ici */
-          const rows = [...document.querySelectorAll('.screen.on .pt-row')].filter(r => r.querySelector('.' + cl));
-          const replis = rows.filter(r => {
-            const k = [...r.children].filter(x => x.getBoundingClientRect().height > 0);
-            if(k.length < 2) return false;
-            const hmax = Math.max(...k.map(x => x.getBoundingClientRect().height));
-            return r.getBoundingClientRect().height > hmax + 8;
-          }).length;
-          return { casse, grs: grs.length, replis };
-      };
-      const mesurer = cl => s.page.evaluate('(' + String(mesurerCorps) + ')(' + JSON.stringify(cl) + ')');
-      for(const exo of TC.exercices){
-        await s.page.evaluate(id => openTest(id), exo);
-        await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
-        await s.page.waitForTimeout(1200);
-        const m = await mesurer(TC.classe);
-        groupes += m.grs; repliees += m.replis;
-        if(!m.grs) vides.push(exo);
-        m.casse.forEach(d => separes.push(exo + ' : ' + d));
-      }
-      /* LE MAILLON « 3 = 3/1 » EST MESURÉ POUR DE BON, pas au hasard du
-         tirage : on redemande une séance jusqu'à ce qu'un terme soit un
-         ENTIER, et on regarde la question qui le porte. Sans cela, le bord
-         ne se visite qu'un tirage sur deux — et c'est ainsi qu'un défaut du
-         contrôle a traversé trois exécutions locales avant de rougir en
-         intégration continue. */
-      if(TC.entierEcrit){
-        const force = await s.page.evaluate(id => {
-          if(typeof startSF !== 'function' || typeof renderSFTest !== 'function') return { ok: false, raison: 'le moteur des sommes de fractions est absent' };
-          for(let i = 0; i < 200; i++){
-            startSF();
-            const j = test.questions.findIndex(q => q.d1 === 1 || q.d2 === 1);
-            if(j >= 0){ test.idx = j; renderSFTest(); return { ok: true }; }
-          }
-          return { ok: false, raison: 'aucune séance à terme entier en 200 tirages' };
-        }, TC.entierEcrit);
-        await s.page.waitForTimeout(900);
-        if(!force.ok) separes.push(TC.entierEcrit + ' : ' + force.raison);
-        else {
-          const me = await mesurer(TC.classe);
-          groupes += me.grs;
-          me.casse.forEach(d => separes.push(TC.entierEcrit + ' (terme entier) : ' + d));
+      const largeurs = TC.largeurs || [[TC.largeur, TC.hauteur]];
+      const separes = [];
+      let repliees = 0, mesures = 0;
+      for(const [lw, lh] of largeurs){
+        s = await ouvrir(chromium, ml, { viewport: { width: lw, height: lh }, hasTouch: true });
+        await connecter(s.page);
+        for(const exo of TC.exercices){
+          await s.page.evaluate(id => openTest(id), exo);
+          await s.page.waitForTimeout(400);
+          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.waitForTimeout(1200);
+          const m = await s.page.evaluate(() => {
+            /* le rectangle d'un nœud, élément OU texte */
+            const rectDe = n => {
+              if(n.nodeType === 1) return n.getBoundingClientRect();
+              const r = document.createRange(); r.selectNodeContents(n);
+              const rs = r.getClientRects(); return rs.length ? rs[rs.length - 1] : null;
+            };
+            const texteDe = n => (n.nodeType === 1 ? n.textContent : n.nodeValue || '').trim();
+            const casse = [];
+            let vues = 0, replis = 0;
+            const cases = [...document.querySelectorAll('.screen.on math-field, .screen.on input, .screen.on select')];
+            for(const c of cases){
+              const rc = c.getBoundingClientRect();
+              if(rc.height === 0 || c.type === 'hidden') continue;
+              let p = c.previousSibling;
+              while(p && p.nodeType === 3 && !(p.nodeValue || '').trim()) p = p.previousSibling;
+              if(!p) continue;
+              const t = texteDe(p);
+              /* ce qui ANNONCE une case : un « = », ou une tête finissant par
+                 la virgule décimale (« 0, », « 1 − 0, »). Court, sinon c'est
+                 une phrase entière qui a le droit de se replier en elle-même. */
+              if(!/[=,]$/.test(t) || t.length > 24) continue;
+              const rp = rectDe(p);
+              if(!rp || rp.height === 0) continue;
+              vues++;
+              if(!(rc.top < rp.bottom - 2 && rp.top < rc.bottom - 2))
+                casse.push('« ' + t + ' » → ' + (c.id || (c.className || '').split(' ')[0])
+                  + ' (' + Math.round(rc.top - rp.top) + ' px plus bas)');
+            }
+            /* et combien de rangées se replient vraiment à cette largeur */
+            for(const r of document.querySelectorAll('.screen.on .pt-row, .screen.on .s1-line, .screen.on .tg-line, .screen.on .rec-ligne, .screen.on .sa-lrow, .screen.on .sa2-row, .screen.on .f-wrap')){
+              const k = [...r.children].filter(x => x.getBoundingClientRect().height > 0);
+              if(k.length < 2) continue;
+              const hmax = Math.max(...k.map(x => x.getBoundingClientRect().height));
+              if(r.getBoundingClientRect().height > hmax + 8) replis++;
+            }
+            return { casse, vues, replis };
+          });
+          mesures += m.vues; repliees += m.replis;
+          m.casse.forEach(d => separes.push(lw + ' px, ' + exo + ' : ' + d));
         }
+        verifier('mesurer à ' + lw + ' px ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+        await s.nav.close(); s = null;
       }
-      verifier('un « = » et la case qu’il annonce restent sur la même ligne',
-        separes.length === 0, separes.slice(0, 3).join(' | '));
-      verifier('le contrôle a bien des groupes à mesurer',
-        groupes >= TC.minimum && vides.length === 0,
-        groupes + ' groupe(s) rendus' + (vides.length ? ', aucun sur : ' + vides.join(', ') : ''));
-      /* Et la mesure doit avoir lieu là où le défaut existait : sans repli,
-         aucune rangée ne peut couper quoi que ce soit, et le vert ne dirait
-         rien. Le dire plutôt que de le taire. */
-      verifier('à ' + TC.largeur + ' px, les rangées se replient pour de vrai',
-        repliees > 0, 'aucune rangée repliée : le contrôle ne mesure rien à cette largeur');
-      verifier('mesurer la tête et sa case ne lève aucune erreur JavaScript',
-        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
-      await s.nav.close(); s = null;
+      verifier('un « = » et ce qu\'il annonce restent sur la même ligne',
+        separes.length === 0, separes.slice(0, 4).join(' | '));
+      verifier('le contrôle a bien des « = » à mesurer',
+        mesures >= TC.minimum, mesures + ' « = » suivis d\'une case, ' + TC.minimum + ' attendus au moins');
+      verifier('aux largeurs mesurées, les rangées se replient pour de vrai',
+        repliees > 0, 'aucune rangée repliée : le contrôle ne mesure rien à ces largeurs');
     }
 
     /* ===== 6 nonies. les zéros ne durent que le temps de l'appui ===== */
@@ -4892,7 +4850,7 @@ async function parcours(page, N){
     }
 
     /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
-       Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.9. Deux choses ne
+       Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.10. Deux choses ne
        se voient QUE dans un vrai navigateur, et elles portent l'exercice.
        · LA SÉRIALISATION RÉELLE DE MATHLIVE. La voie que Turquet a nommée —
          « une simplification de fraction pour trouver un % suffit » — passe
@@ -6126,7 +6084,7 @@ async function parcours(page, N){
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], etroits = [];
       const avecTables = new Set(), sansTables = new Set();
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -6187,6 +6145,19 @@ async function parcours(page, N){
                contexte du modèle — un innerHTML posé par un rendu y échappe. */
             const brut = (on.textContent || '').match(/\{[a-z0-9-]+\}/g) || [];
             const connus = brut.filter(m => TESTS[m.slice(1, -1)]);
+            /* ET AUCUN GABARIT NON INTERPRÉTÉ NE DOIT ATTEINDRE L'ÉLÈVE.
+               Une expression « ${…} » écrite dans une chaîne à guillemets
+               SIMPLES n'est pas interpolée : elle s'affiche en toutes lettres.
+               Payé comptant — le 1.6 a servi « ${fEq(` » autour de sa case
+               pendant une mise en ligne, et aucun contrôle ne l'a vu : la case
+               existait (innerHTML l'avait bien construite), le verdict était
+               juste, seul le TEXTE autour était du code. Le contrôle des
+               accolades d'à côté ne visait que les {identifiant} connus.
+               On mesure ICI, sur tous les exercices visités, dans les deux
+               modes : celui qu'on écrira demain est couvert sans rien
+               déclarer. */
+            const gabarits = [...new Set(((on.textContent || '')
+              .match(/\$\{[^}]{0,40}\}?|`\)\}/g) || []).map(x => x.slice(0, 30)))];
             /* Une case où l'élève écrit s'écrit à la MÊME TAILLE que les nombres
                qui l'entourent (décision de Turquet, août 2026, valable pour tout
                exercice à saisie) : une case plus petite fait passer la réponse de
@@ -6314,12 +6285,13 @@ async function parcours(page, N){
                       const cs=getComputedStyle(w);
                       return { c:Math.round(c.getBoundingClientRect().width),
                                w:Math.round(w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) }; })(),
-                    accolades: [...new Set(connus)], cases: cases, signes: [...new Set(signes)],
+                    accolades: [...new Set(connus)], gabarits: gabarits, cases: cases, signes: [...new Set(signes)],
                     debuts: [...new Set(debuts)]};
           });
           if(!vu.ia) sans.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ')');
           (vu.tables ? avecTables : sansTables).add(id);
           if(vu.accolades.length) accolades.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' : ' + vu.accolades.join(' '));
+          if(vu.gabarits && vu.gabarits.length) gabarits.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') : ' + vu.gabarits.join(' '));
           /* 8 px de marge : on compare à la largeur DISPONIBLE, donc un cadre
              plein vaut exactement celle-ci, aux arrondis près. */
           if(mode === 'train' && vu.cadre && vu.cadre.c < vu.cadre.w - 8)
@@ -6425,6 +6397,9 @@ async function parcours(page, N){
          accolades restées visibles. */
       verifier('aucune référence {identifiant} ne reste affichée à l\'élève',
         accolades.length === 0, accolades.join(' | '));
+      /* Le même défaut par l'autre porte : du CODE affiché à l'élève. */
+      verifier('aucun gabarit « ${…} » non interprété ne reste affiché à l\'élève',
+        gabarits.length === 0, gabarits.join(' | '));
       /* La Terminale donne à ses cartes une largeur propre (--card-max, avec
          ses paliers) : elle ne déclare pas ce contrôle, et le banc le dit au
          lieu de le taire — un contrôle qui ne s'applique pas se déclare. */
@@ -7409,7 +7384,7 @@ async function parcours(page, N){
     }
 
     /* ---- 11 quinquies. Sur une tablette en PAYSAGE, le clavier mathématique tient sur deux rangées, et ⏎ valide ----
-       Signalé et demandé par Turquet (septembre 2026) sur le 2.2.9 : « la touche
+       Signalé et demandé par Turquet (septembre 2026) sur le 2.2.10 : « la touche
        valider ne fonctionne pas et ne permet pas de passer à la ligne », et
        « en paysage, le clavier doit prendre moins de place en hauteur ». jsdom
        évalue les dispositions ; seul un navigateur sait combien de rangées se

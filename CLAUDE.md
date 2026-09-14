@@ -4018,8 +4018,8 @@ sa règle et ne la RENDAIT pas — un `return` oublié ne casse rien, la règle
 partait simplement vide.
 
 **Et le miroir sur les BAISSES : même moteur, troisième identité.**
-{synthese-diminutions-libre} (2.3.8, demande de Turquet, août 2026) est le
-2.2.9 sur les diminutions : le MÊME moteur `sal` — écran, feuille, juge,
+{synthese-diminutions-libre} (2.3.9, demande de Turquet, août 2026) est la
+synthèse rédigée des hausses portée aux diminutions : le MÊME moteur `sal` — écran, feuille, juge,
 règle — a appris le SENS (`q.sens`, déjà porté par `genSyn`). Le coefficient
 d'une baisse s'écrit `0,xx` (1 − P/100), et la seconde voie s'achève par une
 SOUSTRACTION : le juge distingue l'addition de la soustraction au niveau haut
@@ -4031,6 +4031,47 @@ partagées épinglent `test.qId` (le motif maison), « Recommencer » route par
 l'identité, et chaque identité a son rappel et ses questions à l'IA —
 `qiaSuggestions()` fait primer l'identifiant sur le `kind`. Éprouvé par six
 sabotages, chacun nommé.
+
+**Et la synthèse À CASES des baisses est arrivée la dernière — l'asymétrie
+était le manque.** {synthese-diminutions} (Première, 2.3.8, demande de
+Turquet, septembre 2026 : « faire un exercice de synthèse sur les diminutions
+rédigé comme le 2.2.9 ») est le MIROIR de {synthese-augmentations} sur les
+baisses. Le sous-thème des hausses avait ses DEUX synthèses — celle à cases
+(2.2.9) et la rédigée (2.2.10) — quand celui des baisses n'avait que la
+rédigée : c'est cette moitié manquante que la demande nomme, la synthèse
+rédigée des baisses existant depuis août.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et c'est ce qui rend l'ajout court** :
+`genSyn('dim', …)` est le générateur MÊME du 2.2.9 et du 2.5.1 — un second
+aurait fini par diverger, et deux exercices voisins se seraient contredits
+sous les yeux de l'élève —, l'écran (`scr-syntest`), la correction
+(`checkSynAnswer`), la pose facultative et le contexte envoyé au modèle sont
+déjà GÉNÉRIQUES sur `q.fam` (« une baisse ») et sur `q.sens` : pas une ligne
+n'a eu à y changer. Le démarreur et deux entrées de table sont tout l'ajout.
+**Même moteur, pas même identité** (le motif du calcul mental) : la note part
+sous `test.qId`, « Recommencer » route par l'identité — la route est devenue
+une TABLE, un `if` de plus aurait fini par en oublier une —, et la clé du
+rappel vit dans `tests/profils.js` comme celle du 2.2.9, sur `RAPPELS.syn`
+qui couvre les deux sens. Lui donner un rappel dédié aurait créé une
+asymétrie avec son miroir, qui n'en a pas.
+Les trois inconnues — le résultat, la valeur initiale, le pourcentage —
+sortent chacune UNE fois sur les trois questions, en ordre mélangé : sans
+quoi l'élève apprendrait que la question est toujours du même genre.
+**Le contrôle des synthèses a été ÉTENDU, pas doublé** : il tient désormais
+les TROIS à cases, et le sens de chacune est un bord RÉEL — un `genSyn('aug')`
+recopié dans le démarreur des baisses poserait des hausses sous un titre de
+baisses, et rien à l'écran ne le dirait. L'ordre d'appel compte : le nouveau
+démarreur passe AVANT `startSynAug` dans la boucle, le contrôle d'identité qui
+la suit lisant l'état du DERNIER appelé. Huit sabotages, chacun rougissant en
+nommant son défaut — le sens inversé, l'identité non épinglée, « Recommencer »
+mal routé, les inconnues au hasard, leur ordre figé, l'exercice hors de
+THEMES, le rappel non déclaré, la séance allongée.
+**Et la numérotation a bougé avec lui**, comme toujours :
+{synthese-diminutions-libre} passe en 2.3.9. Les références écrites
+`{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS — la liste des
+démarreurs du contrôle d'EVOL_NB, les messages qui nomment ces exercices, et
+les commentaires que l'insertion du 2.2.8 avait déjà laissés en arrière — ont
+été repris à la main le jour même. Un contrôle qui s'affiche sous le nom d'un
+autre est pire qu'un contrôle sans nom.
 
 **Une multiplication n'est pas une paire : c'est une liste de facteurs.**
 Signalé par Turquet en production sur une capture (août 2026) : sur le 2.2.9,
@@ -4067,7 +4108,7 @@ retrouve le pourcentage » — refusée, avec une prose qui se contredisait
 corrections, toutes deux copies épinglées au contrôle :
 · **La voie du QUOTIENT suffit** (demande de Turquet) : la valeur finale
   divisée par la valeur initiale EST le coefficient — la leçon du 2.1.7
-  (« la part sur le tout »), revenue au 2.2.9/2.3.8. Il faut un morceau qui
+  (« la part sur le tout »), revenue au 2.2.10/2.3.9. Il faut un morceau qui
   ÉCRIT le quotient (un facteur 1/valeur-initiale, produit = coefficient) et
   un AUTRE morceau qui vaut le coefficient sans être la même écriture —
   « 936/900 = 936/900 » ne nomme rien, sauf quand la valeur initiale est
@@ -4093,7 +4134,7 @@ septembre 2026 : « un exercice comme le 2.5.1 mais où il faut rédiger la
 justification dans une case comme dans le 2.2.9 ») suit {synthese-pourcentages}
 au menu : le tirage du 2.5.1 — `genSyn` SANS famille imposée, donc prendre,
 augmenter et diminuer, et les trois inconnues chacune UNE fois en ordre
-mélangé — posé sur l'écran, la feuille et le juge du 2.2.9. Même moteur de
+mélangé — posé sur l'écran, la feuille et le juge du 2.2.10. Même moteur de
 tirage, même moteur de rédaction, pas même identité : la note part sous
 `test.qId`, le rappel vit dans `RAPPELS_ID`, les questions dans `QIA_SUGG`,
 et « Recommencer » route par l'identifiant — le repli d'un `qId` inconnu
@@ -4151,18 +4192,17 @@ et trois exécutions locales étaient passées avant que l'action GitHub ne le
 montre — la leçon du barème de la coupe, retombée telle quelle.
 **La mesure qui accuse la page a été mesurée elle-même avant qu'on corrige
 quoi que ce soit** : le défaut se reproduit sur `main` SEUL, sans une ligne
-de la branche. Le contrôle prend désormais la case saisie, ou à défaut ce
-que la page a écrit — son « = » est de toute façon déjà mesuré par la boucle
-du dessus, qui accepte une fraction écrite —, et un groupe qui n'annonce
-RIEN reste un défaut, qui se nomme. **Et le bord ne dépend plus de la
-chance** : le banc redemande une séance jusqu'à ce qu'un terme soit entier
-(`entierEcrit` dans `tests/profils.js`), puis mesure la question qui porte le
-maillon. Le maillon VIDÉ le fait rougir deux fois — à la visite et au
-tirage forcé —, et c'est le sabotage qui compte. Le second, le groupe qui
-cesse d'être une boîte flex, a d'abord frappé un VOISIN : « un signe posé à
-côté d'une fraction tombe sur son trait » rougit avant lui, un cran plus
-haut. La propriété est tenue, par un autre contrôle, une mesure plus tôt —
-la leçon du sabotage impossible, retombée telle quelle.
+de la branche.
+**Et la correction est venue de l'autre côté, la meilleure des deux.** Cette
+branche avait fait prendre au contrôle la case saisie, ou à défaut ce que la
+page a écrit ; `main` a fait mieux pendant ce temps — « la mesure du « = » ne
+connaît plus aucune fabrique » : elle ne part plus des groupes mais de CHAQUE
+case visible, remonte au texte qui la précède, et exige qu'un « = » ou une
+tête finissant par la virgule partage sa ligne, à trois largeurs. Le maillon
+écrit n'a alors plus rien à mesurer, et l'intermittence disparaît avec la
+question. La fusion a donc gardé la version de `main` entière, et le
+`entierEcrit` qui rendait l'ancienne mesure déterministe est parti avec elle :
+un réglage sans lecteur ferait croire qu'on tient quelque chose.
 
 **Et {reconnaitre-coefficient} est passé de 2.5.2 à 2.5.3**, la numérotation
 se déduisant de la position : les notes déjà obtenues ne bougent pas — elles
@@ -4439,6 +4479,194 @@ caractère près sur 4000 tirages et sur les trois formes (2×2, 3×2, 3×3), et
 l'arithmétique sur les 324 couples que produit `uFactor()`. Une pose se juge à
 l'œil, donc on ne la déplace pas sans preuve.
 
+**Et le coefficient global s'écrit avec au plus DEUX décimales.** Demande de
+Turquet (septembre 2026) : « je ne veux que des pourcentages qui ne donnent
+comme coefficient global uniquement 2 ou 1 chiffres après la virgule », son
+exemple étant 1,02 × 1,50 = 1,53. Le paragraphe ci-dessus raconte l'exercice
+avec les nombres de son époque : +40 % puis +4 % donnait 1,456 et la hausse
+globale se lisait « 45,6 % » — ce tirage-là n'existe plus, et la hausse globale
+est désormais un nombre ENTIER de pourcent.
+**LA CONDITION SE DÉMONTRE, elle ne se tâtonne pas** :
+(100+P1)(100+P2) = 10000 + 100(P1+P2) + P1·P2, donc le coefficient global a au
+plus deux décimales SI ET SEULEMENT SI P1·P2 est un multiple de 100. C'est très
+restrictif : le produit doit apporter le 4 et le 25 de 100, donc — avec la
+règle de 2.3.7, un seul chiffre non nul par taux — soit 50 % avec un chiffre
+PAIR (50 et 2, 4, 6, 8), soit 5 % avec un multiple PAIR de dix (5 et 20, 40,
+60, 80), soit DEUX multiples de dix, qui conviennent toujours. 25 paires en
+tout, comptées et non devinées. D'où une LISTE construite une fois pour toutes
+plutôt qu'un do/while : un rejet en boucle sur un vivier aussi maigre ne dit
+jamais combien de paires il reste. Et les questions d'une séance portent des
+paires DISTINCTES — sur un vivier fini, deux fois le même calcul dans la même
+séance se verrait.
+**LES DEUX FAMILLES SONT NÉCESSAIRES, et le contrôle les exige** : sans la
+mixte (50 % puis 2 %), plus aucune pose « trois chiffres × deux » ; sans les
+deux multiples de dix (20 % puis 30 %), l'un des deux taux serait TOUJOURS 5 %
+ou 50 %, et l'élève apprendrait le motif au lieu du calcul.
+**UN GARDE-FOU A ÉTÉ RETIRÉ AVEC SA RAISON** : « au moins une retenue dans la
+pose » écartait, sur ce vivier-là, exactement les paires les plus parlantes —
+10 % puis 10 % fait 21 %, et non 20 % — et ne laissait des deux multiples de
+dix que ceux dont la hausse globale dépasse 100 %. {mult-dec-un}, d'où
+`buildPoseU()` est extraite, n'a jamais eu cette garde ; le décalage, l'autre
+enjeu de la pose, reste partout. Sonde sur 20 000 tirages : 68 % de poses
+2×2, 32 % de 3×2, 48 % sans aucune retenue, 23 hausses globales différentes
+de 21 % à 98 %.
+**LA HAUSSE GLOBALE RESTE SOUS 100 %**, comme avant : le tirage d'alors
+plafonnait à +107,1 % (90 % puis 9 %), et sans cette borne deux multiples de
+dix monteraient à +261 % (90 % puis 90 %) — aucune scène de `BS_CTX` ne porte
+une hausse pareille.
+**ET LA HAUSSE EST RANGÉE EN MILLIÈMES, l'unité d'avant** : c'est ce qui rend
+la bascule sûre. La correction la relit sur 10 pour le pourcentage et sur 1000
+pour l'écriture décimale de l'étape ④, si bien qu'aucune ligne de
+`checkHSAnswer` ne bouge — et un brouillon de pause d'avant la bascule se
+reprend sans rien savoir de la nouvelle liste.
+**Le rappel de cours a suivi**, parce qu'un rappel qui montre un tirage
+impossible apprend la méthode sur un cas que l'élève ne rencontrera jamais :
+il montre maintenant +20 % puis +30 % = +56 %, un cas réellement tiré, et dont
+l'écart avec 50 saute aux yeux mieux que celui de 45,6 avec 44.
+Le contrôle REFAIT la liste par sa propre arithmétique — sur les pourcentages
+bruts là où la page passe par les fractions réduites —, exige les deux
+familles, relit la hausse en millièmes, vérifie que le bas de la pose reste un
+1 suivi de zéros et d'un chiffre (la seule forme que `poseUDonnees` sache
+écrire), puis CLIQUE « Vérifier » sur une copie juste. Neuf sabotages, chacun
+rougissant en nommant son défaut.
+**Deux hausses de suite, en PARTANT DE 100 : la même question, l'autre chemin.**
+{hausses-successives-cent} (Première, 2.2.8, demande de Turquet, septembre 2026,
+repris de la fiche « 2 augmentations — méthode 2 ») suit {hausses-successives}
+au menu. Au lieu de multiplier deux coefficients, on CHOISIT une valeur de
+départ — et on prend **100**, parce que « ce qu'on a gagné pour 100 » EST le
+pourcentage : il n'y a plus rien à relire à la fin, le nombre cherché est écrit
+sur l'écran.
+**Tout est repris, rien n'est recopié** : les énoncés sont ceux du 2.2.7
+(`HS_ENONCES` et `BS_CTX`, PARTAGÉS — deux listes auraient fini par diverger, et
+deux exercices voisins auraient posé la même question dans des mots
+différents), et chaque hausse se calcule comme dans {augmenter-addition} — la
+fraction, le produit, l'écriture décimale, puis l'addition « départ +
+augmentation ». Ce n'est donc pas une méthode de plus : c'est le 2.2.2 fait DEUX
+FOIS, la seconde sur la valeur déjà augmentée, et c'est exactement ce que la
+fiche veut faire voir.
+**LA CONTRAINTE DE TURQUET N'EST PAS COSMÉTIQUE — c'est elle qui fait tomber
+toute la chaîne sur des ENTIERS.** Il ne veut que des pourcentages dont le
+coefficient global a 1 ou 2 chiffres après la virgule (« exemple :
+1,02 × 1,50 »). Cette contrainte ÉQUIVAUT à « P1 × P2 divisible par 100 » —
+(100+P1)(100+P2) = 10000 + 100(P1+P2) + P1×P2, donc le produit est divisible par
+100 si et seulement si P1×P2 l'est — et la sonde l'a vérifié sur les 99 × 99
+couples : aucun désaccord entre les deux écritures. Or la seconde hausse vaut
+(100+P1)×P2/100, entière exactement quand P1 × P2 l'est : un élève qui suit la
+fiche n'écrit jamais une décimale, ni à la hausse, ni à l'addition, ni au bilan.
+Le contrôle refait la propriété par une SECONDE arithmétique, qui n'a rien en
+commun avec celle de la page : il COMPTE les chiffres après la virgule (quatre,
+moins les zéros de fin du produit) là où la page décide par deux divisibilités.
+**Les deux gardes du tirage sont VIVANTS, et le contrôle le démontre plutôt que
+de le supposer** : le couple de la fiche ELLE-MÊME (90 % puis 4 %) est REFUSÉ —
+son coefficient a trois décimales —, et 25 % puis 60 % aussi, le seul couple qui
+donne 2 tout rond quand Turquet a écrit « 1 ou 2 chiffres après la virgule ». Il
+reste 114 couples, et la hausse globale DÉPASSE toujours la somme des deux taux
+(l'écart vaut P1 × P2 / 100, donc au moins 1) : la leçon du 2.2.7 tient ici
+aussi, et le message la nomme.
+**Le multiplicande de l'étape ③ est une CASE, et c'est le seul écart avec la
+fiche.** Sur le papier, le professeur écrit « on calcule la hausse pour 190
+Watts » : le nombre est donné, parce que la feuille est un exemple traité. Ici
+l'élève vient de le trouver à l'étape ②, et l'écrire reviendrait à ranger la
+réponse d'une étape à côté de la suivante — dire soi-même que la seconde hausse
+porte sur la valeur DÉJÀ augmentée EST la leçon de l'exercice. C'est ce que fait
+déjà le 2.2.7, dont l'étape ② redemande les deux coefficients de l'étape ①, et
+le contrôle tient le bord : une copie qui refait la seconde hausse sur 100 est
+refusée en le nommant.
+**L'ORDRE DE L'ADDITION EST LIBRE**, et la règle des paires d'{antecedent-nombre}
+le tient : elle est commutative, et refuser « 90 + 100 » apprendrait l'inverse de
+ce qu'on enseigne. Chaque case se juge donc sur ce qu'elle PROMET, et la liste
+des deux valeurs attendues les prend UNE FOIS CHACUNE — « 100 + 100 » est
+défendable une fois, faux la seconde. Sans cela une case juste rougirait parce
+que sa jumelle est fausse, le défaut signalé trois fois sur {somme-fractions}.
+Le MÊME juge sert la frappe et la vérification : deux verdicts auraient fini par
+se contredire sous les yeux de l'élève. Et « reste » porte ce qu'aucune case n'a
+pris, si bien que la correction en vert respecte l'ordre déjà choisi.
+**Pas de pose en colonnes, contrairement au 2.2.2** : la fiche n'en a pas, et
+avec ce tirage les deux additions tombent sur des entiers à trois chiffres.
+L'écran porte déjà vingt et une cases, et le bouton « Tables de multiplication »
+y est comme partout — le dire vaut mieux que de le taire, c'est un arbitrage, pas
+un oubli.
+La bonne réponse n'est jamais rangée à côté de la question : elle ne porte que
+P1, P2, le contexte et la variante — le contrôle refuse tout autre champ — et
+`hscAns()`, que l'énoncé, le rendu, la correction, le message et le contexte
+envoyé au modèle lisent tous, recalcule le reste. Dix-sept sabotages, chacun
+rougissant en nommant son défaut — et deux ont d'abord raté leur cible : celui
+de la séance qui tire AVEC remise est resté VERT à bon droit (sur 114 couples,
+trois tirages ne se heurtent que 2,6 fois sur 100, et un contrôle qui ne rougit
+qu'une fois sur trois parle d'autre chose — il demande donc le vivier ENTIER,
+qui doit sortir en entier, chaque couple une fois), et celui de l'ordre imposé
+visait une fonction qui n'existe pas : il cassait le code au lieu de mesurer, et
+un sabotage qui casse la syntaxe ne dit rien du contrôle visé.
+**Et la NUMÉROTATION a bougé avec lui**, comme toujours : {synthese-augmentations}
+passe en 2.2.9 et {synthese-augmentations-libre} en 2.2.10. Les références
+écrites `{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS du banc — la
+liste des démarreurs du contrôle d'EVOL_NB, les libellés et les messages qui
+nomment ces deux exercices — ne se recalculent pas, et ont été repris à la main
+le jour même. Un contrôle qui s'affiche sous le nom d'un autre est pire qu'un
+contrôle sans nom.
+
+**Puis le VIVIER est devenu celui du 2.2.7, partagé et non recopié.** Demande de
+Turquet (septembre 2026) : « pour le 2.2.8 il faut les mêmes règles pour le choix
+des pourcentages que dans le 2.2.7 ». Les deux exercices posent LA MÊME question
+par deux chemins, et ils tiraient dans deux listes différentes : le 2.2.7 dans
+ses paires (un seul chiffre non nul par taux), le 2.2.8 dans les 114 couples
+que ses propres gardes laissaient passer. Le paragraphe ci-dessus raconte
+l'exercice avec les nombres de son époque — 25 % puis 4 % était un tirage
+possible, il ne l'est plus.
+**C'est l'argument des énoncés, mot pour mot** : deux listes auraient fini par
+diverger, et c'est exactement ce que la demande interdit. Le 2.2.8 lit donc
+`HS_PAIRES` — la liste du 2.2.7 — sans en écrire une seconde, comme il lit déjà
+`HS_ENONCES` et `BS_CTX`, et l'ORDRE de la paire est tiré comme là-bas : rien ne
+dit lequel des deux taux vient d'abord, et ici l'ordre change le CHEMIN sans
+changer la réponse (100 → 102 → 153 d'un côté, 100 → 150 → 153 de l'autre). La
+séance tire sans remise sur la PAIRE et non sur le couple ordonné : l'ordre ne
+fait pas une question de plus, c'est le même calcul.
+**Le vivier rétrécit, et c'est le prix assumé de l'accord** : 25 paires au lieu
+de 59, soit 50 couples au lieu de 114 — 34 paires perdues, toutes celles dont
+un taux porte deux chiffres non nuls (4 % puis 25 %, 15 % puis 20 %…). Trois
+questions par séance y puisent largement ; la sonde relève 17 paires de deux
+multiples de dix et 8 mixtes, 23 hausses globales différentes de 21 % à 98 %, et
+198 pour plus grand nombre que l'élève ait à écrire.
+**LA RESTRICTION DES TAUX VIENT DE LA POSE DU 2.2.7, qui n'existe pas ici** :
+son numérateur doit garder la forme 1X ou 10X, la seule que `poseUDonnees` sache
+écrire en bas. Elle est donc SUBIE et non nécessaire — mais les deux exercices
+doivent tirer les mêmes nombres, et c'est la règle du 2.2.7 qui fait foi. Le
+dire vaut mieux que de le taire.
+**DEUX GARDES SONT DEVENUS INERTES, ET RETIRÉS AVEC LEUR RAISON** — les
+douzième et treizième du projet. Ils ne sont pas nés morts : ils écartaient
+vraiment quelque chose sur l'ancien vivier de 114 couples, et c'est le vivier
+rétréci qui les prive de tout emploi. La hausse globale de `HS_PAIRES` est
+STRICTEMENT sous 100 %, donc le coefficient global est strictement entre 1 et 2 :
+il n'est JAMAIS entier, et le garde « pas 0 décimale » — celui qui écartait
+25/60 et 60/25, et que le paragraphe ci-dessus déclarait vivant — n'a plus rien
+à écarter ; le plafond `HSC_HMAX` non plus. Un garde-fou qui n'écarte jamais rien
+fait croire qu'on vérifie quelque chose : c'est le CONTRÔLE qui exige les deux
+propriétés sur le tirage.
+**Et le contrôle mesure le vivier que la page TIRE, jamais une constante qu'elle
+nommerait** : `hscSeance` tirant sans remise, une séance de la taille du vivier
+le rend en entier — un filtre resserré en douce se voit alors comme une paire
+manquante, une règle relâchée comme une paire de trop, et la seconde
+arithmétique du 2.2.7 (les pourcentages bruts là où la page passe par les
+fractions réduites) dit laquelle. Quatre couples sont épinglés, un par règle :
+90 % puis 4 % (le couple de la fiche, trois décimales), 25 % puis 4 % (deux
+chiffres non nuls — le seul des quatre que l'ancien vivier acceptait), 25 % puis
+60 % (coefficient 2 tout rond) et 50 % puis 50 % (hausse globale de 125 %). Un
+second contrôle tient le PARTAGE lui-même : les deux portes du tirage lisent
+`HS_PAIRES`, et aucun vivier propre ne revient sous son ancien nom — cherché
+comme une DÉFINITION et jamais comme un nom nu, le commentaire de la page ayant
+le droit de nommer les deux gardes qu'il vient de retirer.
+**ET LE RAPPEL DE COURS MONTRAIT UN TIRAGE DEVENU IMPOSSIBLE** : « gagner 20 %
+puis 25 % », que le nouveau vivier ne rend jamais — un rappel qui enseigne la
+méthode sur un cas que l'élève ne rencontrera pas, la leçon du 2.3.7 retombée
+telle quelle. Il montre maintenant 20 % puis 30 %, c'est-à-dire l'exemple MÊME
+du rappel du 2.2.7 : les deux méthodes trouvent 56 % sur les mêmes nombres, ce
+qui est précisément ce que l'exercice veut faire voir. **Aucun contrôle ne le
+disait, et c'est le contrôle qui manquait** : il lit les DEUX rappels, exige que
+chaque « X % puis Y % » soit tirable, et pour le 2.2.8 que la chaîne écrite soit
+celle que `hscAns` calcule — un rappel dont les pourcentages changent sans que
+son arithmétique suive ferait mentir l'écran. Sept sabotages, chacun rougissant
+en nommant son défaut.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
@@ -4464,6 +4692,40 @@ Le piège d'à côté a mordu : `v()` était déclarée APRÈS le bloc « live �
 que la coloration en direct la touchait dans sa zone morte et que le mode
 soutien plantait à la première frappe. Une déclaration de commodité se met en
 tête de fonction, pas au milieu.
+
+**Et la règle du coefficient global y était DÉJÀ vraie — mais tenue par rien.**
+« fais la même chose pour le 2.3.7 » (Turquet, septembre 2026), après la règle
+posée sur le 2.2.7. La sonde a MESURÉ avant qu'on ne touche à quoi que ce soit :
+sur 50 000 tirages, jamais plus de deux décimales au coefficient global, jamais
+une baisse globale non entière. C'est une conséquence de la décision d'août 2026
+— un seul chiffre non nul par baisse, et c'est un dixième : les deux numérateurs
+sont des chiffres seuls, leur produit est un entier de deux chiffres, et il se
+lit sur 100.
+**UNE PROPRIÉTÉ HEUREUSE N'EST PAS UNE PROPRIÉTÉ TENUE.** Rien ne l'exigeait :
+un taux à un chiffre remis dans le tirage — ce que l'exercice faisait AVANT août
+2026 — rendrait 0,96 × 0,6 = 0,576 sans qu'aucun contrôle ne rougisse. Le
+contrôle refait donc la propriété par une SECONDE arithmétique, sur les
+pourcentages bruts là où la page passe par les numérateurs réduits :
+(100−P1)(100−P2) doit être divisible par 100. Il tient aussi la baisse ENTIÈRE
+(c'est elle que l'élève écrit à l'étape ③), le piège de l'exercice (la baisse
+globale reste INFÉRIEURE à la somme des deux taux), les taux multiples de dix,
+et il CLIQUE « Vérifier » sur une copie juste.
+**Le rappel de cours n'a rien eu à changer** — il montrait déjà 20 % puis 40 %,
+un tirage réellement possible —, mais DEUX commentaires du code racontaient
+encore l'exercice d'avant : l'en-tête (« −40 % puis −4 % fait −42,4 % », un
+tirage devenu impossible) et celui de `fracDec`, qui justifiait sa tolérance par
+une baisse décimale. La tolérance, elle, RESTE utile : la baisse est entière,
+mais l'élève garde le droit d'écrire 5,2/10 pour 52/100, et `fracEqual` lirait
+« 5,2 » comme 5.
+**UN SABOTAGE EST RESTÉ VERT EN DISANT VRAI, et il a montré un garde non
+tenu** : retirer « un produit d'au moins deux chiffres » ne change RIEN aux
+décimales — 0,06 en a deux — et le contrôle passait à bon droit. Ce que ce
+garde protège n'est pas l'écriture mais la TAILLE : sans lui, 0,2 × 0,3 = 0,06
+ferait une baisse globale de 94 %, un prix divisé par seize qu'aucune scène de
+`BS_CTX` ne porte. Le contrôle exige donc aussi que la baisse globale reste au
+plus 90 %, et la justification écrite dans la page — qui parlait de décimales —
+a été corrigée avec lui. Six sabotages, chacun rougissant en nommant son
+défaut ; le sixième seulement après que le contrôle a gagné ce bord.
 
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
@@ -4918,6 +5180,51 @@ des « top » (une case et le texte qui la précède sont centrés l'un sur l'au
 donc leurs hauts diffèrent toujours de quelques pixels — un compteur qui lirait
 « top » crierait au repli sur des lignes parfaitement droites), à une largeur où
 la rangée SE REPLIE pour de vrai, ce qu'il exige aussi.
+**PUIS LA SECONDE A SUIVI, SUR SES PROPRES RANGÉES.** Demande de Turquet
+(septembre 2026) : « fais la même chose en seconde ». La sonde a refait la carte
+avant qu'on ne touche à quoi que ce soit, et elle a nommé QUATRE écrans :
+{augmenter-pourcentage} et {diminuer-pourcentage} à 600 px, {diviser-fractions}
+à 600, {simplifier-barres} à 390. {somme-fractions} n'y était plus — son moteur
+partagé avait déjà reçu le groupe la veille, et c'est la preuve que le partage a
+fonctionné dans les deux sens.
+**LA RÈGLE S'EST SIMPLIFIÉE EN S'ÉLARGISSANT, et c'est le contrôle qui l'a
+demandé** : reconnaître « un "=" devant une CASE » obligeait à énumérer les
+fabriques locales qui rendent une case (frac, dec, mf, produit, quotient…) —
+une liste, donc une dérive. Elle est devenue « TOUT "=" passe par la fabrique »,
+parce qu'un « = » groupé avec ce qui le suit n'est jamais pire, et qu'une règle
+sans liste ne peut pas oublier la rangée qu'on écrira demain. Il n'en reste
+qu'UN seul écrit à la main dans chaque fichier : celui de la fabrique.
+**ET L'ÉCART EST HÉRITÉ, PLUS RECOPIÉ** (`gap:inherit`). Les rangées de ces
+fichiers n'ont pas toutes le même : 12 px pour `.pt-row`, 14 pour `.f-wrap` —
+la fraction décimale du 1.6 —, 10 pour la conclusion de {simplifier-barres}. Un
+12 figé écartait donc le groupe autrement que ce qui l'entoure sur deux d'entre
+elles, visible à l'œil et invisible au code ; hérité, il ne peut plus diverger.
+Le contrôle accepte `inherit` d'emblée et ne compare des pixels que s'ils sont
+écrits — un écart figé ne protège que la rangée de référence, et il le dit.
+**Un piège d'ancre s'y est montré, le même qu'ailleurs** : la conclusion de
+{simplifier-barres} porte une espace INSÉCABLE que mon ancre écrivait en espace
+ordinaire — le remplacement ne trouvait rien, et l'assertion l'a dit au lieu de
+laisser passer un fichier à moitié transformé. La leçon du 6.10, retombée telle
+quelle : un remplacement se pose sur les octets, pas sur ce qu'on croit lire.
+
+**ET UN DÉFAUT EST PARTI EN LIGNE AVEC CE CORRECTIF — du CODE affiché à
+l'élève.** La transformation qui a posé les groupes supposait que chaque rangée
+était écrite dans un GABARIT (`` ` ``), et une seule ne l'était pas : le premier
+niveau du 1.6 assemble sa ligne à guillemets SIMPLES. Le `${fEq(…)}` inséré là
+n'est pas interpolé — il s'affiche en toutes lettres, et l'élève lisait
+« ${fEq(` » autour de sa case pendant une mise en ligne entière.
+**Aucun banc ne pouvait le voir, et c'est ce qui compte** : la case existait
+quand même (l'`innerHTML` avait bien construit le `<math-field>` qui vivait
+DANS le texte littéral), donc le rendu, la correction et la note étaient
+justes ; seul le TEXTE autour était du code. Le contrôle voisin des accolades
+ne vise que les `{identifiant}` CONNUS, et le banc jsdom ne lit pas ce qui
+s'affiche. Un contrôle universel le tient désormais, greffé sur la visite qui
+ouvre tous les exercices dans les deux modes : **aucun gabarit « ${…} » non
+interprété ne reste affiché à l'élève** — l'exercice qu'on écrira demain est
+couvert sans rien déclarer. La leçon est celle de la règle 3, une fois de
+plus : une transformation mécanique se relit sur ce qu'elle PRODUIT, pas sur
+ce qu'elle suppose de son entrée.
+
 **Et le contrôle s'est pris en défaut deux fois avant la page.** Il lisait le
 PREMIER `.f-whole` du groupe comme sa tête — or la case d'une somme de fractions
 en contient elle-même, le numérateur écrit devant son multiplicateur, et il
@@ -6599,7 +6906,8 @@ nombre de rangées déclaré (`clavierEcran.paysage.rangees` dans
 l'autre (une touche perdue serait intapable dans une orientation, sans
 erreur) — et la table de routage elle-même, `kbCompact` + `applyKbLayout`
 évaluées sur un faux clavier dans les trois cas (ancré paysage, ancré
-portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre le 2.2.9 sur
+portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre la synthèse
+rédigée des hausses sur
 une tablette tactile en paysage, compte les rangées RENDUES, exige des
 touches d'au moins 36 px sans débord, CLIQUE la vraie touche ⏎ — une ligne
 de plus, le curseur dedans, le clavier toujours là — puis tourne en portrait
@@ -6615,7 +6923,7 @@ touchée — le dire vaut mieux que le taire.
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
-partagée par le 2.1.7, le 2.2.9 et le 2.3.8) écrit à 2 rem : une ligne
+partagée par le 2.1.7, le 2.2.10 et le 2.3.9) écrit à 2 rem : une ligne
 faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
 requête média de la tablette — la même que la police de la page, écran
 tactile d'au moins 600 px — elle passe à 1,4 rem (20 px rendus, une ligne
@@ -6624,7 +6932,7 @@ l'entourent, sur tablette aussi. La valeur vit dans `tests/profils.js`
 (`feuilleTablette`, deux sources). jsdom exige la règle sous cette requête,
 à cette valeur, plus PETITE que la taille normale — une règle qui ne réduit
 rien passerait sinon ; le navigateur (« 11 quinquies ») mesure la police
-RENDUE de la feuille du 2.2.9 sur la tablette et l'exige plus petite que sur
+RENDUE de cette feuille sur la tablette et l'exige plus petite que sur
 un ordinateur ouvert au même exercice — une règle qui réduirait partout ne
 serait pas la règle demandée. Cinq sabotages, chacun rougissant en nommant
 son défaut — et le premier essai du contrôle a rougi sur une page JUSTE :
@@ -6833,7 +7141,7 @@ facteur, par construction et non par vigilance.
 `.mp-stage` est ce qui vient après le `p.mp-instr` de l'énoncé, qui vit
 au-dessus et garde donc sa taille sans qu'on ait rien à lui retirer. Et
 `:has(math-field.pm-mf)` restreint aux stages qui portent VRAIMENT une case à
-nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8, 2.5.2) a déjà sa règle
+nombres — la feuille de rédaction libre (2.1.7, 2.2.10, 2.3.9, 2.5.2) a déjà sa règle
 de tablette et n'est pas touchée ; elle est NOMMÉE dans le profil plutôt que
 tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran

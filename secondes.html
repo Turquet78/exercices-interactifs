@@ -747,7 +747,7 @@
 #mltHost .pt-row{flex-wrap:wrap}
 /* même règle qu'en #sfHost : le calcul en tête de rangée a la taille de la
    rangée — et en 4.8, la fraction RÉÉCRITE au milieu de la ligne aussi */
-#mltHost .pt-row>.f-frac{font-size:2rem}
+#mltHost .pt-row>.f-frac,#mltHost .pt-row>.f-grp>.f-frac{font-size:2rem}
 #mltPrompt,#mllPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 #mllPrompt .sfl-suite{flex-basis:100%;text-align:center;margin-top:4px}
 @media(max-width:900px){ #mltHost math-field.pm-mf{font-size:1.5rem}
@@ -763,7 +763,7 @@
 #smpHost math-field.pm-mf{font-size:1.9rem;line-height:1.15}
 #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:92px}
 #smpHost .pt-row{flex-wrap:wrap}
-#smpHost .pt-row>.f-frac{font-size:2rem}
+#smpHost .pt-row>.f-frac,#smpHost .pt-row>.f-grp>.f-frac{font-size:2rem}
 @media(max-width:900px){ #smpHost math-field.pm-mf{font-size:1.5rem}
   #smpHost .sf-l .f-num,#smpHost .sf-l .f-den{width:76px} }
 @media(max-width:520px){ #smpHost math-field.pm-mf{font-size:1.25rem}
@@ -1218,7 +1218,11 @@
      groupe est un flex à lui, du MÊME écart que la rangée : rien ne bouge tant
      que la ligne tient, et tout passe à la ligne ensemble quand elle ne tient
      plus. */
-  .f-grp{display:flex;align-items:center;gap:12px}
+  /* L'ÉCART EST CELUI DE LA RANGÉE, HÉRITÉ ET NON RECOPIÉ : les rangées de ce
+     fichier n'ont pas toutes le même (12 px pour .pt-row, 14 pour .f-wrap,
+     10 pour la conclusion du 4.4), et un 12 figé aurait écarté le groupe
+     autrement que ce qui l'entoure — visible à l'œil, et invisible au code. */
+  .f-grp{display:flex;align-items:center;gap:inherit}
   .pt-opt{position:relative;border:2px dashed #c2cdf2;background:#fafbff;border-radius:16px;padding:30px 14px 14px;margin:6px 0 18px}
   .pt-opt .pt-lab{margin-top:2px}
   .pt-opt::before{content:"✦ Facultatif";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Fredoka";font-weight:600;font-size:.74rem;color:var(--blue-dark);background:#fff;border:1.5px solid #c2cdf2;border-radius:999px;padding:3px 13px;white-space:nowrap}
@@ -2723,7 +2727,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=160;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=162;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -14599,7 +14603,7 @@ function renderPTest(){
      empilés se lit comme trois calculs séparés, alors que c'est le même. */
   $('pHost').innerHTML=
     `<div class="pt-step"><div class="pt-lab">① le % en fraction décimale&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span><span class="f-eq">=</span>${frac('p2n','p2d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`;
+       <div class="pt-row">${frac('p1n','p1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span>${fEq(frac('p2n','p2d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="p3" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`;
   const order=['p1n','p1d','p2n','p2d','p3'].map(id=>$(id));
   order.forEach((el,i)=>{ el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); if(i<order.length-1)order[i+1].focus(); else checkPAnswer();} }); });
   setTimeout(()=>order[0]&&order[0].focus(),70);
@@ -14735,9 +14739,9 @@ function renderATest(){
        La pose facultative passe EN DERNIER et devient ⑤ : elle interrompait la
        chaîne au milieu, entre le « × valeur » et son résultat. */
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : augmenter de ${q.P} %, c'est multiplier par 1 + ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}<span class="f-eq">=</span><span class="f-whole">1,</span><math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('a2n','a2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 +</span>${frac('a1n','a1d')}${fEqTete(`1,`, `<math-field class="dexp-mf pm-mf f-dec" id="a1dec" aria-label="coefficient en écriture décimale"></math-field>`)}${fEq(frac('a2n','a2d'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('a4n','a4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('a3n','a3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="a3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field>${fEq(frac('a4n','a4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="a5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="aStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${aPosed}</div></div>`;
   const posedIns=[...$('aMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
@@ -14916,9 +14920,9 @@ function renderDTest(){
        La pose facultative passe EN DERNIER et devient ⑤ : elle interrompait la
        chaîne au milieu, entre le « × valeur » et son résultat. */
     `<div class="pt-step"><div class="pt-lab">① Le coefficient : diminuer de ${q.P} %, c'est multiplier par 1 − ${q.P}/100</div>
-       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}<span class="f-eq">=</span><span class="f-whole">0,</span><math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field><span class="f-eq">=</span>${frac('d2n','d2d')}</div></div>`+
+       <div class="pt-row"><span class="f-whole">1 −</span>${frac('d1n','d1d')}${fEqTete(`0,`, `<math-field class="dexp-mf pm-mf f-dec" id="d1dec" aria-label="coefficient en écriture décimale"></math-field>`)}${fEq(frac('d2n','d2d'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② coefficient × valeur de départ&nbsp;· ③ multiplier les fractions&nbsp;· ④ le résultat en écriture décimale</div>
-       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field><span class="f-eq">=</span>${frac('d4n','d4d')}<span class="f-eq">=</span><math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field><span class="f-whole">${esc(q.unit)}</span></div></div>`+
+       <div class="pt-row">${frac('d3n','d3d')}<span class="f-times">×</span><math-field class="dexp-mf pm-mf f-dec" id="d3v" aria-label="valeur de départ" data-exp="${q.N}"></math-field>${fEq(frac('d4n','d4d'))}${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="d5" aria-label="résultat"></math-field>`)}<span class="f-whole">${esc(q.unit)}</span></div></div>`+
     `<div class="pt-step pt-opt step-hidden" id="dStep3"><div class="pt-lab">⑤ Pose la multiplication des numérateurs en retirant les zéros finaux</div>
        <div class="pt-row" style="padding:8px 0 14px">${dPosed}</div></div>`;
   const posedIns=[...$('dMul').querySelectorAll('input')].sort((a,b)=>(+a.dataset.mtab)-(+b.dataset.mtab));
@@ -16420,7 +16424,6 @@ function renderMltTest(){
   const inv=!!(test && test.inv);
   $('mltPrompt').innerHTML='Calcule '+sfTermeHTML(q.n1,q.d1)+' <b>'+(inv?'÷':'×')+'</b> '+sfTermeHTML(q.n2,q.d2)+'.';
   const mf=(id,cls,lab)=>'<span class="sf-case"><math-field class="dexp-mf pm-mf '+cls+'" id="'+id+'" aria-label="'+lab+'"></math-field></span>';
-  const eq='<span class="f-eq">=</span>';
   const fois='<span class="f-times">×</span>';
   $('mltHost').innerHTML=
     '<div class="pt-step"><div class="pt-lab">'
@@ -16428,19 +16431,17 @@ function renderMltTest(){
            : '① les numérateurs ensemble, les dénominateurs ensemble&nbsp;· ② le résultat')+'</div>'
      +'<div class="pt-row">'
        +sfTermeHTML(q.n1,q.d1)+(inv?'<span class="f-times">÷</span>':fois)+sfTermeHTML(q.n2,q.d2)
-       +(inv ? (eq+sfTermeHTML(q.n1,q.d1)+fois
+       +(inv ? (fEq(sfTermeHTML(q.n1,q.d1))+fois
                  +'<span class="f-frac-input">'+mf('mlt-i1','f-num','numérateur de l’inverse')
                  +'<span class="f-fbar"></span>'+mf('mlt-i2','f-den','dénominateur de l’inverse')+'</span>')
             : '')
-       +eq
-       +'<span class="f-frac-input sf-prod">'
+       +fEq('<span class="f-frac-input sf-prod">'
          +'<span class="sf-l">'+mf('mlt-h1','f-num','premier numérateur')+fois+mf('mlt-h2','f-num','second numérateur')+'</span>'
          +'<span class="f-fbar"></span>'
          +'<span class="sf-l">'+mf('mlt-b1','f-den','premier dénominateur')+fois+mf('mlt-b2','f-den','second dénominateur')+'</span>'
-       +'</span>'
-       +eq
-       +'<span class="f-frac-input">'+mf('mlt-fn','f-num','numérateur du résultat')
-       +'<span class="f-fbar"></span>'+mf('mlt-fd','f-den','dénominateur du résultat')+'</span>'
+       +'</span>')
+       +fEq('<span class="f-frac-input">'+mf('mlt-fn','f-num','numérateur du résultat')
+       +'<span class="f-fbar"></span>'+mf('mlt-fd','f-den','dénominateur du résultat')+'</span>')
      +'</div></div>';
   const order=mltCases().map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
@@ -17030,20 +17031,18 @@ function renderSmpTest(){
     +'<div class="pt-step"><div class="pt-lab">Méthode 2 : divise en haut ET en bas par le même nombre</div>'
      +'<div class="pt-row">'
        +smpFracHTML(q.a,q.b)
-       +'<span class="f-eq">=</span>'
-       +'<span class="f-frac-input sf-prod">'
+       +fEq('<span class="f-frac-input sf-prod">'
          +'<span class="sf-l"><span class="f-whole">'+q.a+'</span><span class="f-times">÷</span>'
          +mf('smp-q1','f-num','diviseur du numérateur')+'</span>'
          +'<span class="f-fbar"></span>'
          +'<span class="sf-l"><span class="f-whole">'+q.b+'</span><span class="f-times">÷</span>'
          +mf('smp-q2','f-den','diviseur du dénominateur')+'</span>'
-       +'</span>'
-       +'<span class="f-eq">=</span>'
-       +'<span class="f-frac-input sf-prod">'
+       +'</span>')
+       +fEq('<span class="f-frac-input sf-prod">'
          +'<span class="sf-l">'+mf('smp-fn','f-num','numérateur simplifié')+'</span>'
          +'<span class="f-fbar"></span>'
          +'<span class="sf-l"><span class="f-whole">'+q.d+'</span></span>'
-       +'</span>'
+       +'</span>')
      +'</div></div>';
   const order=SMP_CASES.map(id=>$(id));
   order.forEach((el,i)=>{ if(!el) return;
@@ -17151,7 +17150,7 @@ function checkSmpAnswer(live){
   /* La conclusion, écrite quand c'est vérifié (demande de Turquet, août 2026) :
      l'égalité que les deux colonnes viennent de montrer. */
   $('smpDonc').innerHTML='donc'+' '+smpFracHTML(q.a,q.b)
-    +'<span class="f-eq">=</span>'+smpFracHTML(q.n,q.d);
+    +fEq(smpFracHTML(q.n,q.d));
   test.answers.push({...(ptsExo()||{}), correct:allOk,
     q:q.a+'/'+q.b+' à simplifier — '+justes+'/5 justes',
     answer:q.a+'/'+q.b+' = '+q.n+'/'+q.d+' (on divise par '+q.k+')',
