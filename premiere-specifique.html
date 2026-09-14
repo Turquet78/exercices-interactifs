@@ -535,12 +535,12 @@ body.pave-actif #paveNum{bottom:54px}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-sf,#scr-psl,#scr-sal{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   #bsHost .f-num,#bsHost .f-den{width:94px} #bsHost .f-dec{width:130px}
   #lcHost .f-num,#lcHost .f-den{width:94px} #lcHost .f-dec{width:130px}
-  #hsHost .f-num,#hsHost .f-den{width:94px} #hsHost .f-dec{width:130px}
+  #hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den{width:94px} #hsHost .f-dec,#hscHost .f-dec{width:130px}
   .step-hidden{display:none}
   .resume-flag{display:block;margin-top:6px;color:#1f7a6b;font-weight:700;font-size:.82rem}
   .choice.resume{border-color:#5cc4ad;background:linear-gradient(180deg,#F0FBF8,#fff)}
@@ -883,12 +883,12 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
    3) Dans une fraction, les deux cases et la barre prennent la largeur de la plus
       large (flex column + align-items:stretch), sinon numerateur et denominateur
       ne seraient plus alignes des que l'un des deux s'allonge. --- */
-#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
-#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
-#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
+#pHost math-field.pm-mf,#qHost math-field.pm-mf,#aHost math-field.pm-mf,#dHost math-field.pm-mf,#vHost math-field.pm-mf,#ag2Host math-field.pm-mf,#a2qHost math-field.pm-mf,#synHost math-field.pm-mf,#mdHost math-field.pm-mf,#uHost math-field.pm-mf,#hsHost math-field.pm-mf,#hscHost math-field.pm-mf,#bsHost math-field.pm-mf,#lcHost math-field.pm-mf,#ckHost math-field.pm-mf{font-size:calc(1.9rem * var(--tab-nb,1));line-height:1.15;}
+#pHost .f-frac-input,#qHost .f-frac-input,#aHost .f-frac-input,#dHost .f-frac-input,#vHost .f-frac-input,#ag2Host .f-frac-input,#a2qHost .f-frac-input,#synHost .f-frac-input,#mdHost .f-frac-input,#uHost .f-frac-input,#hsHost .f-frac-input,#hscHost .f-frac-input,#bsHost .f-frac-input,#lcHost .f-frac-input,#ckHost .f-frac-input{align-items:stretch;}
+#pHost .f-num,#pHost .f-den,#qHost .f-num,#qHost .f-den,#aHost .f-num,#aHost .f-den,#dHost .f-num,#dHost .f-den,#vHost .f-num,#vHost .f-den,#ag2Host .f-num,#ag2Host .f-den,#a2qHost .f-num,#a2qHost .f-den,#synHost .f-num,#synHost .f-den,#mdHost .f-num,#mdHost .f-den,#uHost .f-num,#uHost .f-den,#hsHost .f-num,#hsHost .f-den,#hscHost .f-num,#hscHost .f-den,#bsHost .f-num,#bsHost .f-den,#lcHost .f-num,#lcHost .f-den,#ckHost .f-num,#ckHost .f-den{
   width:auto;min-width:96px;max-width:320px;}
-#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#bsHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
-#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
+#pHost .f-dec,#qHost .f-dec,#aHost .f-dec,#dHost .f-dec,#vHost .f-dec,#ag2Host .f-dec,#a2qHost .f-dec,#synHost .f-dec,#mdHost .f-dec,#uHost .f-dec,#hsHost .f-dec,#hscHost .f-dec,#bsHost .f-dec,#lcHost .f-dec,#ckHost .f-dec{width:auto;min-width:120px;max-width:320px;}
+#pHost .f-fbar,#qHost .f-fbar,#aHost .f-fbar,#dHost .f-fbar,#vHost .f-fbar,#ag2Host .f-fbar,#a2qHost .f-fbar,#synHost .f-fbar,#mdHost .f-fbar,#uHost .f-fbar,#hsHost .f-fbar,#hscHost .f-fbar,#bsHost .f-fbar,#lcHost .f-fbar,#ckHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 /* Les cases decimales du coefficient et du pourcentage ne recoivent que des decimales
    (apres « 1, », « 0, ») : plus courtes. */
 #a1dec,#d1dec,#v1dec,#a1p,#d1p,#v1p,#y1p,#y1dec,#ck1p,#ckC{min-width:82px;}
@@ -1674,6 +1674,21 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
+  <section class="screen" id="scr-hsctest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagHsc"></span><span class="q-idx" id="hscqIdx">Calcul 1 / 3</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="hscLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="hscPrompt">Une hausse suivie d’une autre hausse, en partant de 100.</p>
+      <div class="mp-stage"><div style="width:100%" id="hscHost"></div></div>
+      <div class="mp-feedback" id="hscFeedback"></div>
+      <div class="row" style="justify-content:center" id="hscActions">
+        <button class="btn btn-primary" onclick="checkHSCAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-lctest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagLc"></span><span class="q-idx" id="lcqIdx">Calcul 1 / 6</span></span>
@@ -1968,7 +1983,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=216;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=217;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2367,6 +2382,7 @@ const TESTS={
   'diminuer-taux-soustraction':{ name:'Retrouver le pourcentage d\u2019une baisse en calculant de combien la valeur diminue puis en effectuant une soustraction.', icon:'📊', desc:'On donne la valeur initiale et la valeur finale : choisis le bon pourcentage de baisse parmi quatre, puis vérifie-le en calculant la baisse et en la retirant de la valeur de départ.', start:()=>startDimTauxSub() },
   'augmenter-addition':  { name:'Augmenter d\u2019un pourcentage en calculant de combien la valeur augmente puis en effectuant une addition.', icon:'➕', desc:'Calcule d\u2019abord l\u2019augmentation (le pourcentage de la valeur, comme en {pourcentage}), puis ajoute-la à la valeur de départ — sans coefficient multiplicateur.', start:()=>startAugAdd() },
   'hausses-successives': { name:'Hausse suivie d\u2019une hausse', icon:'\u2197\ufe0f', desc:'Deux hausses de suite : calcule les deux coefficients comme dans {augmenter-pourcentage}, multiplie-les comme dans {mult-dec-un}, et donne la hausse globale en pourcentage.', start:()=>startHausses() },
+  'hausses-successives-cent': { name:'Hausse suivie d\u2019une hausse, en partant de 100', icon:'\ud83d\udcaf', desc:'La m\u00eame question qu\u2019en {hausses-successives}, par l\u2019autre chemin : on part de 100, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu\u2019on a gagn\u00e9 pour 100 est le pourcentage global.', start:()=>startHaussesCent() },
   'baisses-successives': { name:'Baisse suivie d\u2019une baisse', icon:'\u2198\ufe0f', desc:'Deux baisses de suite : calcule les deux coefficients comme dans {diminuer-pourcentage}, multiplie-les comme dans {mult-decimaux}, et donne la baisse globale en pourcentage.', start:()=>startBaisses() },
   'lire-coefficient':    { name:'Lire un coefficient multiplicateur', icon:'🔎', desc:'On donne un coefficient : dis si c\u2019est une hausse ou une baisse, donne le pourcentage, puis vérifie-le avec les étapes de {augmenter-pourcentage} et {diminuer-pourcentage}.', start:()=>startLireCoef() },
   'synthese-pourcentages':{ name:'Synthèse sur les pourcentages', icon:'🧩', desc:'Prendre, augmenter ou diminuer : retrouve la valeur finale, la valeur initiale ou le pourcentage parmi quatre propositions, puis vérifie avec la méthode de ton choix — coefficient multiplicateur ou calcul direct.', start:()=>startSyn() },
@@ -2407,7 +2423,7 @@ const THEMES=[
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
   { num:2, nom:'Pourcentages', sous:[
       { num:1, nom:'Prendre un pourcentage',           ids:['fraction-pourcentage','pourcentage-colonnes','pourcentage','pourcentage-depart','pourcentage-taux','pourcentage-synthese','pourcentage-synthese-libre'] },
-      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','synthese-augmentations','synthese-augmentations-libre'] },
+      { num:2, nom:'Augmenter d\u2019un pourcentage',    ids:['augmenter-pourcentage','augmenter-addition','augmenter-depart','augmenter-depart-addition','augmenter-taux','augmenter-taux-addition','hausses-successives','hausses-successives-cent','synthese-augmentations','synthese-augmentations-libre'] },
       { num:3, nom:'Diminuer d\u2019un pourcentage',     ids:['diminuer-pourcentage','diminuer-soustraction','diminuer-depart','diminuer-depart-soustraction','diminuer-taux','diminuer-taux-soustraction','baisses-successives','synthese-diminutions-libre'] },
       /* Il couvre les DEUX sens : il ne relève donc ni de 2.2 ni de 2.3, et il
          arrive juste avant la synthèse (décision de Turquet, août 2026). */
@@ -2497,7 +2513,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (test.qId==='synthese-diminutions-libre'?startSynDimLibre:startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (test.qId==='synthese-augmentations'?startSynAug:startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='sf') startSF(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   $(fbId).textContent='Presque ! Corrige les cases en rouge, puis revérifie.';
@@ -2677,6 +2693,7 @@ function liveCheckCurrent(){
   if(!isSoutien()||test.locked) return;
   const k=test.kind;
   if(k==='hs') checkHSAnswer(true);
+  else if(k==='hsc') checkHSCAnswer(true);
   else if(k==='lc') checkLCAnswer(true);
   else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
@@ -3328,7 +3345,7 @@ function afficherEcranDe(k){
     pctq:['qtest',renderQTest], psl:['psl',renderPsl], sal:['sal',renderSal], md:['mdtest',renderMDTest], u:['utest',renderUTest],
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
-    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest],
+    syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest],
     sf:['sf',renderSFTest]
   };
   const e=table[k];
@@ -3501,7 +3518,7 @@ function show(name){
   try{ fermerFenetresIA(true); }catch(e){}   /* changer d'écran fait disparaître les fenêtres d'aide */
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','sf','psl','sal'];
+  const testScreens=['test','tm','asptest','mtest','ftest','ptest','pcol','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','sf','psl','sal'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
@@ -8899,6 +8916,235 @@ function checkHSAnswer(live){
   $('hsNext').focus();
 }
 function nextHSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderHSTest(); autoSave(); } else finishHausses(); }
+
+/* ---------- 2.2.8 : deux hausses de suite, en PARTANT DE 100 ----------
+   La MÊME question qu'en {hausses-successives}, par l'autre chemin — la
+   « méthode 2 » de la fiche papier (demande de Turquet, septembre 2026, PDF
+   « 2 augmentation methode 2 ») : au lieu de multiplier deux coefficients, on
+   CHOISIT une valeur de départ, et on prend 100. Ce qu'on a gagné « pour
+   100 » EST alors le pourcentage global — il n'y a plus rien à relire.
+   Les énoncés sont ceux du 2.2.7 (HS_ENONCES et BS_CTX, PARTAGÉS et non
+   recopiés — deux listes auraient fini par diverger, et deux exercices
+   voisins auraient posé la même question dans des mots différents).
+   Chaque hausse se calcule comme dans {augmenter-addition} : la fraction, le
+   produit, l'écriture décimale, puis l'addition « départ + augmentation ».
+   L'exercice n'est donc pas une méthode de plus : c'est le 2.2.2 fait DEUX
+   FOIS, la seconde sur la valeur déjà augmentée — et c'est précisément ce que
+   la fiche veut faire voir.
+
+   LE TIRAGE, ET CE QUE LA CONTRAINTE DE TURQUET FAIT VRAIMENT. Il ne veut que
+   des pourcentages dont le coefficient global n'a que 1 ou 2 chiffres après la
+   virgule (« exemple : 1,02 × 1,50 »). Cette contrainte ÉQUIVAUT à
+   « P1 × P2 divisible par 100 » : (100+P1)(100+P2) = 10000 + 100(P1+P2) +
+   P1×P2, donc le produit est divisible par 100 si et seulement si P1×P2 l'est.
+   Vérifié sur les 99 × 99 couples : aucun désaccord entre les deux écritures.
+   Et elle ne fait pas que raccourcir un affichage — c'est elle qui fait tomber
+   TOUTE la chaîne de la méthode 2 sur des ENTIERS. La hausse pour 100 vaut P1,
+   la nouvelle valeur 100 + P1 ; la seconde hausse vaut (100+P1) × P2 / 100,
+   entière exactement quand P1 × P2 l'est ; la valeur finale et la hausse
+   globale suivent. Un élève qui suit la fiche n'écrit jamais une décimale.
+   Deux gardes, et chacun écarte vraiment quelque chose :
+     · le coefficient global ne doit avoir NI 0 ni plus de 2 décimales. Le
+       « pas plus de 2 » est le P1 × P2 ci-dessus ; le « pas 0 » écarte 25/60
+       et 60/25, les deux seuls couples qui donnent 2 tout rond — Turquet a
+       écrit « 1 ou 2 chiffres après la virgule », on le prend au mot ;
+     · la hausse globale reste sous HSC_HMAX, pour que les nombres restent
+       lisibles et la multiplication de l'étape ③ faisable de tête.
+   Il reste 114 couples. La hausse globale DÉPASSE toujours la somme des deux
+   taux (l'écart vaut P1 × P2 / 100, donc au moins 1) : la leçon du 2.2.7 tient
+   ici aussi, et le message la nomme.
+
+   LA BONNE RÉPONSE N'EST JAMAIS RANGÉE À CÔTÉ DE LA QUESTION : celle-ci ne
+   porte que P1, P2, le contexte et la variante. hscAns() — que l'énoncé, le
+   rendu, la correction, le message et le contexte envoyé au modèle lisent tous
+   — recalcule le reste, si bien qu'un énoncé ne peut pas contredire sa
+   correction. Le contrôle refuse tout autre champ.
+
+   LE MULTIPLICANDE DE L'ÉTAPE ③ EST UNE CASE, et c'est le seul endroit où l'on
+   s'écarte de la fiche. Sur le papier, le professeur écrit « on calcule la
+   hausse pour 190 Watts » : le nombre est donné, parce que la feuille est un
+   exemple traité. Ici l'élève vient de le trouver à l'étape ②, et l'écrire
+   reviendrait à ranger la réponse d'une étape à côté de la suivante. Il la
+   RECOPIE donc — et dire soi-même que la seconde hausse porte sur la valeur
+   déjà augmentée EST la leçon de l'exercice. C'est ce que fait déjà le 2.2.7,
+   dont l'étape ② redemande les deux coefficients de l'étape ①.
+
+   PAS DE POSE EN COLONNES, contrairement au 2.2.2 : la fiche n'en a pas, et
+   avec le tirage ci-dessus les deux additions tombent sur des entiers à trois
+   chiffres. L'écran porte déjà vingt et une cases ; le bouton « Tables de
+   multiplication » est là, comme sur tous les écrans. */
+const HSC_HMAX=100;                 /* la hausse globale reste lisible */
+function hscOk(P1,P2){
+  if((P1*P2)%100!==0) return false;                  /* au plus 2 décimales */
+  const v2=(100+P1)*(100+P2)/100;                    /* la valeur finale, en partant de 100 */
+  if(v2%100===0) return false;                       /* 0 décimale : « 1 ou 2 », au mot */
+  return v2-100<=HSC_HMAX;
+}
+const HSC_COUPLES=(function(){ const L=[];
+  for(let a=1;a<=99;a++) for(let b=1;b<=99;b++) if(hscOk(a,b)) L.push([a,b]);
+  return L; })();
+/* Tout se recalcule ici, à partir des deux seuls nombres que porte la question. */
+function hscAns(q){
+  const aug1=q.P1, v1=100+q.P1;
+  const aug2=v1*q.P2/100, v2=v1+aug2;
+  return {aug1, prod1:100*q.P1, v1, aug2, prod2:v1*q.P2, v2, h:v2-100};
+}
+function hscQuestion(P1,P2){
+  const q={P1,P2,ci:tirerContexte(BS_CTX,0)};
+  q.v=tirerVariante(HS_ENONCES,q);                   /* les énoncés du 2.2.7, partagés */
+  return q;
+}
+function genHaussesCent(){ const c=pick(HSC_COUPLES); return hscQuestion(c[0],c[1]); }
+/* Les questions d'une séance ne portent jamais le même couple : on tire SANS
+   REMISE dans le vivier (114 couples pour 3 questions) plutôt que de rejouer un
+   tirage jusqu'à tomber sur du neuf — il n'y a alors aucun repli à écrire, donc
+   aucun repli mort. */
+function hscSeance(n){
+  const vivier=HSC_COUPLES.slice(), out=[];
+  while(out.length<n && vivier.length){ const c=vivier.splice(rand(0,vivier.length-1),1)[0]; out.push(hscQuestion(c[0],c[1])); }
+  return out;
+}
+async function startHaussesCent(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='hsc'; test.qId='hausses-successives-cent';
+  test.questions=hscSeance(EVOL_NB);
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;
+  show('hsctest'); renderHSCTest();
+}
+/* L'ordre de saisie, et la liste que le contrôle relit : une case ajoutée
+   demain au rendu sans l'être ici sortirait de la navigation au clavier. */
+const HSC_CASES=['hsc1n','hsc1d','hsc1m','hsc1pn','hsc1pd','hsc1a','hsc1sa','hsc1sb','hsc1sr',
+                 'hsc2n','hsc2d','hsc2m','hsc2pn','hsc2pd','hsc2a','hsc2sa','hsc2sb','hsc2sr',
+                 'hscFin','hscPour','hscPct'];
+function renderHSCTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('hscqIdx').textContent=`Calcul ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagHsc').innerHTML=modeTagHTML();
+  $('hscLiveScore').textContent=test.score;
+  $('hscFeedback').textContent=''; $('hscFeedback').className='mp-feedback';
+  $('hscActions').innerHTML='<button class="btn btn-primary" onclick="checkHSCAnswer()">Vérifier</button>';
+  $('hscPrompt').innerHTML=variante(HS_ENONCES,q)+' Pour le savoir, prends <b>100</b> comme valeur de départ.';
+  const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
+  const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
+  const ligneAdd=(a,b,r,lblR)=>`<div class="pt-row">${dec(a,'premier terme')}<span class="f-whole">+</span>${dec(b,'deuxième terme')}${fEq(dec(r,lblR))}</div>`;
+  $('hscHost').innerHTML=numeros(
+    `<div class="pt-step"><div class="pt-lab">① La hausse pour <b>100</b>, et le résultat pour une hausse de ${q.P1} % — comme dans {augmenter-addition}</div>
+       <div class="pt-row">${frac('hsc1n','hsc1d')}<span class="f-times">×</span>${dec('hsc1m','la valeur de départ')}${fEq(frac('hsc1pn','hsc1pd'))}${fEq(dec('hsc1a','la hausse pour 100'))}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">② Écris l’addition : valeur de départ + augmentation = nouvelle valeur</div>
+       ${ligneAdd('hsc1sa','hsc1sb','hsc1sr','la nouvelle valeur')}</div>`+
+    `<div class="pt-step"><div class="pt-lab">③ La hausse pour <b>la valeur que tu viens de trouver</b>, et le résultat pour une hausse de ${q.P2} %</div>
+       <div class="pt-row">${frac('hsc2n','hsc2d')}<span class="f-times">×</span>${dec('hsc2m','la nouvelle valeur de départ')}${fEq(frac('hsc2pn','hsc2pd'))}${fEq(dec('hsc2a','la seconde hausse'))}</div></div>`+
+    `<div class="pt-step"><div class="pt-lab">④ Écris l’addition : valeur de départ + augmentation = nouvelle valeur</div>
+       ${ligneAdd('hsc2sa','hsc2sb','hsc2sr','la valeur finale')}</div>`+
+    `<div class="pt-step"><div class="pt-lab">⑤ Bilan — ce qu’on a gagné « pour 100 », c’est le pourcentage : il n’y a plus rien à calculer</div>
+       <div class="pt-row"><span class="f-whole">la valeur est passée de 100 à</span>${dec('hscFin','la valeur finale')}</div>
+       <div class="pt-row"><span class="f-whole">soit une augmentation de</span>${dec('hscPour','l’augmentation pour 100')}<span class="f-whole">pour 100, c’est-à-dire</span>${dec('hscPct','la hausse globale en pourcentage')}<span class="f-whole">%</span></div></div>`);
+  const order=HSC_CASES.map(id=>$(id)).filter(Boolean);
+  const usable=el=>el && el.offsetParent!==null && !el.disabled;
+  const nextVis=i=>{ let j=i+1; while(j<order.length && !usable(order[j])) j++; return j; };
+  order.forEach((el,i)=>{
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); const j=nextVis(i); if(j<order.length)order[j].focus(); else checkHSCAnswer();} });
+  });
+  setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* LA RÈGLE DES PAIRES, transposée à l'addition. Son ordre est LIBRE — elle est
+   commutative, et la consigne guide sans contraindre ; refuser « 90 + 100 »
+   apprendrait l'inverse de ce qu'on enseigne. Chaque case se juge donc sur ce
+   qu'elle PROMET (être l'une des deux valeurs attendues) et la liste les prend
+   UNE FOIS CHACUNE : le même nombre posé deux fois est défendable une fois,
+   faux la seconde — la règle d'{antecedent-nombre}. Sans cela, une case juste
+   rougirait parce que sa jumelle est fausse, le défaut signalé trois fois sur
+   {somme-fractions}. « reste » porte ce qu'aucune case n'a pris : c'est ce que
+   la correction en vert écrira, donc elle respecte l'ordre déjà choisi. */
+function hscPaire(ids,attendus){
+  const reste=attendus.slice(), ok=[];
+  ids.forEach(id=>{
+    const e=$(id), t=e?String(e.value==null?'':e.value).trim():'';
+    const fr=t===''?null:parseDecToFrac(t);
+    const j=fr?reste.findIndex(x=>fr.n===x*fr.d):-1;
+    if(j>=0){ reste.splice(j,1); ok.push(true); } else ok.push(false);
+  });
+  return {ok,reste};
+}
+function checkHSCAnswer(live){
+  if(test.locked)return;
+  const q=test.questions[test.idx], a=hscAns(q);
+  const soutien=isSoutien();
+  const v=id=>{const e=$(id);return e?String(e.value==null?'':e.value).trim():'';};
+  const iv=id=>parseInt(v(id),10);
+  const den=id=>{const t=v(id);return t===''?1:parseInt(t,10);};
+  const fracOk=(idn,idd,n,d)=>v(idn)!=='' && fracEqual(iv(idn),den(idd),n,d);
+  const decEst=(id,n)=>{ const t=v(id); if(t==='') return false; const fr=parseDecToFrac(t); return !!fr && fr.n===n*fr.d; };
+  const s1=hscPaire(['hsc1sa','hsc1sb'],[100,a.aug1]);
+  const s2=hscPaire(['hsc2sa','hsc2sb'],[a.v1,a.aug2]);
+  if(live){
+    liveColorFrac('hsc1n','hsc1d',q.P1,100);     liveColorDec('hsc1m',100,1);
+    liveColorFrac('hsc1pn','hsc1pd',a.prod1,100); liveColorDec('hsc1a',a.aug1,1);
+    liveColorFrac('hsc2n','hsc2d',q.P2,100);     liveColorDec('hsc2m',a.v1,1);
+    liveColorFrac('hsc2pn','hsc2pd',a.prod2,100); liveColorDec('hsc2a',a.aug2,1);
+    liveColorDec('hsc1sr',a.v1,1); liveColorDec('hsc2sr',a.v2,1);
+    liveColorDec('hscFin',a.v2,1); liveColorDec('hscPour',a.h,1); liveColorDec('hscPct',a.h,1);
+    /* les deux paires passent par le MÊME juge que la vérification : deux
+       verdicts auraient fini par se contredire sous les yeux de l'élève */
+    [['hsc1sa','hsc1sb'],['hsc2sa','hsc2sb']].forEach((p,k)=>{ const r=k?s2:s1;
+      p.forEach((id,i)=>{ const el=$(id); if(!el||el.disabled) return;
+        el.classList.remove('ok','bad'); if(v(id)==='') return;
+        el.classList.add(r.ok[i]?'ok':'bad'); }); });
+    return;
+  }
+  const ok1f=fracOk('hsc1n','hsc1d',q.P1,100),  ok1m=decEst('hsc1m',100);
+  const ok1p=fracOk('hsc1pn','hsc1pd',a.prod1,100), ok1a=decEst('hsc1a',a.aug1), ok1r=decEst('hsc1sr',a.v1);
+  const ok2f=fracOk('hsc2n','hsc2d',q.P2,100),  ok2m=decEst('hsc2m',a.v1);
+  const ok2p=fracOk('hsc2pn','hsc2pd',a.prod2,100), ok2a=decEst('hsc2a',a.aug2), ok2r=decEst('hsc2sr',a.v2);
+  const okFin=decEst('hscFin',a.v2), okPour=decEst('hscPour',a.h), okPct=decEst('hscPct',a.h);
+  marqueFracSaufVide('hsc1n','hsc1d',q.P1,100,soutien);   marqueSaufVide('hsc1m',ok1m,soutien);
+  marqueFracSaufVide('hsc1pn','hsc1pd',a.prod1,100,soutien); marqueSaufVide('hsc1a',ok1a,soutien);
+  marqueSaufVide('hsc1sa',s1.ok[0],soutien); marqueSaufVide('hsc1sb',s1.ok[1],soutien); marqueSaufVide('hsc1sr',ok1r,soutien);
+  marqueFracSaufVide('hsc2n','hsc2d',q.P2,100,soutien);   marqueSaufVide('hsc2m',ok2m,soutien);
+  marqueFracSaufVide('hsc2pn','hsc2pd',a.prod2,100,soutien); marqueSaufVide('hsc2a',ok2a,soutien);
+  marqueSaufVide('hsc2sa',s2.ok[0],soutien); marqueSaufVide('hsc2sb',s2.ok[1],soutien); marqueSaufVide('hsc2sr',ok2r,soutien);
+  marqueSaufVide('hscFin',okFin,soutien); marqueSaufVide('hscPour',okPour,soutien); marqueSaufVide('hscPct',okPct,soutien);
+  const allOk=ok1f&&ok1m&&ok1p&&ok1a&&s1.ok[0]&&s1.ok[1]&&ok1r
+            &&ok2f&&ok2m&&ok2p&&ok2a&&s2.ok[0]&&s2.ok[1]&&ok2r
+            &&okFin&&okPour&&okPct;
+  if(!allOk && soutien){ soutienAgain('hscFeedback','hscActions','checkHSCAnswer','hscHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; $('hscLiveScore').textContent=test.score;
+    $('hscFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('hscFeedback').className='mp-feedback good';
+  } else {
+    $('hscFeedback').textContent=`Méthode : on part de 100. ${q.P1}/100 × 100 = ${a.prod1}/100 = ${a.aug1}, donc 100 + ${a.aug1} = ${a.v1} ; puis ${q.P2}/100 × ${a.v1} = ${a.prod2}/100 = ${a.aug2}, donc ${a.v1} + ${a.aug2} = ${a.v2}. On est passé de 100 à ${a.v2} : l’augmentation est de ${a.h} pour 100, c’est-à-dire ${a.h} %, et non ${q.P1}+${q.P2} = ${q.P1+q.P2} %.`;
+    $('hscFeedback').className='mp-feedback bad';
+    corTrainFrac('hsc1n','hsc1d',q.P1,100); corTrainDec('hsc1m',100);
+    corTrainFrac('hsc1pn','hsc1pd',a.prod1,100); corTrainDec('hsc1a',a.aug1);
+    ['hsc1sa','hsc1sb'].forEach((id,i)=>{ if(!s1.ok[i]) corTrainDec(id,s1.reste.shift()); });
+    corTrainDec('hsc1sr',a.v1);
+    corTrainFrac('hsc2n','hsc2d',q.P2,100); corTrainDec('hsc2m',a.v1);
+    corTrainFrac('hsc2pn','hsc2pd',a.prod2,100); corTrainDec('hsc2a',a.aug2);
+    ['hsc2sa','hsc2sb'].forEach((id,i)=>{ if(!s2.ok[i]) corTrainDec(id,s2.reste.shift()); });
+    corTrainDec('hsc2sr',a.v2);
+    corTrainDec('hscFin',a.v2); corTrainDec('hscPour',a.h); corTrainDec('hscPct',a.h);
+  }
+  const given=v('hscPct')===''?null:(v('hscPct').replace('.', ',')+' %');
+  test.answers.push({...(ptsExo()||{}),q:`une hausse de ${q.P1} % suivie d'une hausse de ${q.P2} %, en partant de 100`,
+    answer:`${a.h} %`, given, correct:allOk});
+  const last=test.idx===test.questions.length-1;
+  $('hscActions').innerHTML=`<button class="btn btn-primary" id="hscNext" onclick="nextHSCQuestion()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
+  $('hscNext').focus();
+}
+function nextHSCQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderHSCTest(); autoSave(); } else finishHaussesCent(); }
+async function finishHaussesCent(){
+  if(!debutFin()) return;
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,pct=Math.round(score/total*100);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'hausses-successives-cent',mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,total,percent:pct,durationSec});
+}
 /* La rangée d'aide, propre au niveau : la Première la fait poser par
    iaBoutons(), qui l'insère après l'élément « …Actions ». Le moteur ne
    choisit pas — c'est le seul endroit où les deux fichiers diffèrent. */
@@ -13245,8 +13491,17 @@ On ne peut additionner que des parts de MÊME taille : il faut donc le même dé
 <b>Un entier est une fraction</b> : \\(3=\\frac{3}{1}\\). On le met au même dénominateur comme les autres — \\(3=\\frac{3\\times 5}{1\\times 5}=\\frac{15}{5}\\).<br>
 Piège classique : additionner les dénominateurs. \\(\\frac{1}{2}+\\frac{1}{3}\\) ne fait pas \\(\\frac{2}{5}\\) — ce serait moins que \\(\\frac{1}{2}\\), alors qu'on a ajouté quelque chose.`;
 
+const RAP_HSC=`<b>Deux hausses de suite, en partant de 100</b><br>
+Deux hausses <b>ne s’additionnent pas</b> : la seconde ne porte pas sur la valeur de départ, mais sur la valeur <b>déjà augmentée</b>. Il existe une seconde méthode pour le voir, sans aucun coefficient.<br>
+La hausse globale ne dépend <b>pas</b> de la valeur de départ : on a donc le droit d’en <b>choisir</b> une, et on prend <b>100</b> — parce que « ce qu’on a gagné pour 100 » EST le pourcentage.<br>
+Exemple : gagner 20 % puis 25 %.<br>
+· la hausse pour 100 : \\(\\frac{20}{100}\\times 100=\\frac{2000}{100}=20\\), donc 100 + 20 = <b>120</b> ;<br>
+· la hausse pour <b>120</b> : \\(\\frac{25}{100}\\times 120=\\frac{3000}{100}=30\\), donc 120 + 30 = <b>150</b>.<br>
+On est parti de 100 et on arrive à 150 : l’augmentation est de <b>50 pour 100</b>, c’est-à-dire <b>50 %</b> — et non 20 + 25 = 45 %.<br>
+Chaque hausse se calcule comme dans {augmenter-addition} : l’augmentation d’abord, l’addition ensuite. C’est le même résultat qu’en {hausses-successives}, par l’autre chemin — là on multiplie deux coefficients, ici on suit une valeur.<br>
+Piège classique : refaire la seconde hausse sur 100. Elle porte sur 120, sinon les deux hausses s’additionneraient.`;
 const RAPPELS={ cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, sf:RAP_SF };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -13312,6 +13567,7 @@ const QIA_SUGG={
   'synthese-diminutions-libre':["Comment vérifier avec le coefficient multiplicateur ?","Comment vérifier en calculant la diminution ?","Comment savoir ce que la question me demande de retrouver ?","Pourquoi diminuer de 20 % revient à multiplier par 0,8 ?"],
   aug:["C’est quoi, un coefficient multiplicateur ?","Pourquoi augmenter de 20 % revient à multiplier par 1,2 ?","Pourquoi n’ajoute-t-on pas simplement 20 ?","Comment passer d’un pourcentage à un coefficient ?"],
   hs:["Pourquoi deux hausses de suite ne s’additionnent-elles pas ?","Pourquoi multiplie-t-on les coefficients au lieu de les additionner ?","Sur quoi porte la deuxième hausse ?","Pourquoi la hausse globale dépasse-t-elle la somme des deux taux ?"],
+  hsc:["Pourquoi a-t-on le droit de partir de 100 ?","Sur quelle valeur porte la deuxième hausse ?","Pourquoi « augmentation pour 100 » veut-il dire « pourcentage » ?","Pourquoi deux hausses de suite ne s’additionnent-elles pas ?"],
   lc:["Comment savoir si un coefficient fait monter ou descendre ?","Pourquoi 0,96 est-il une baisse de 4 % et non de 96 % ?","Comment retrouver le pourcentage à partir du coefficient ?","Que signifie multiplier par 1,4 ?"],
   ac:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment reconnaître le coefficient d’une diminution ?","Comment passer d’un pourcentage à un coefficient ?"],
   ck:["Quelle différence entre « augmenter de 30 % » et « prendre 30 % » ?","Pourquoi 3 % s’écrit-il 0,03 et pas 0,30 ?","Comment calculer le coefficient d’une augmentation ?","Comment calculer le coefficient d’une diminution ?"],
@@ -13390,6 +13646,16 @@ function conseilCtxCourant(){
       +'Méthode enseignée : un coefficient par hausse comme dans {augmenter-pourcentage}, puis le PRODUIT des deux, posé comme dans {mult-dec-un}. '
       +'Les hausses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. La seconde hausse porte sur la valeur déjà augmentée, donc la hausse globale DÉPASSE la somme — à la baisse c’est l’inverse. '
       +'Aucune valeur de départ n’est donnée : le résultat n’en dépend pas.';
+  } else if(k==='hsc' && q){
+    const a=hscAns(q);
+    att='Réponses attendues, STRICTEMENT SECRÈTES : on part de 100. Étape ① '+q.P1+'/100 × 100 = '+a.prod1+'/100 = '+a.aug1+' (toute fraction égale convient) ; '
+      +'étape ② 100 + '+a.aug1+' = '+a.v1+' ; '
+      +'étape ③ '+q.P2+'/100 × '+a.v1+' = '+a.prod2+'/100 = '+a.aug2+' ; '
+      +'étape ④ '+a.v1+' + '+a.aug2+' = '+a.v2+' ; '
+      +'étape ⑤ on est passé de 100 à '+a.v2+', soit une augmentation de '+a.h+' pour 100, c’est-à-dire '+a.h+' %. '
+      +'Méthode enseignée : on CHOISIT 100 comme valeur de départ — la hausse globale n’en dépend pas —, on calcule chaque hausse comme dans {augmenter-addition}, et ce qu’on a gagné « pour 100 » EST le pourcentage global. '
+      +'La seconde hausse porte sur la valeur DÉJÀ augmentée ('+a.v1+'), jamais sur 100 : c’est pourquoi les hausses ne s’additionnent pas, l’erreur classique étant de répondre '+(q.P1+q.P2)+' %. '
+      +'C’est le même calcul qu’en {hausses-successives}, par l’autre chemin : là on multiplie deux coefficients, ici on suit une valeur.';
   } else if(k==='lc' && q){
     const mot=q.sens>0?'augmentation':'baisse';
     att='Réponses attendues, STRICTEMENT SECRÈTES : le coefficient '+q.coefStr+' correspond à une '+mot+' de '+q.P+' %. '
@@ -13765,7 +14031,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderHSTest','renderHSCTest','renderSFTest','renderPsl','renderSal','renderCKTest','renderACTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
