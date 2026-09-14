@@ -4849,6 +4849,127 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
+       Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.10. Deux choses ne
+       se voient QUE dans un vrai navigateur, et elles portent l'exercice.
+       · LA SÉRIALISATION RÉELLE DE MATHLIVE. La voie que Turquet a nommée —
+         « une simplification de fraction pour trouver un % suffit » — passe
+         par une FRACTION tapée au clavier, que la page relit par toPlain
+         avant de la donner à son juge. Une barre de fraction qui ressortirait
+         autrement, et le juge s'ABSTIENDRAIT : le modèle déciderait seul,
+         sans que rien ne rougisse. jsdom n'a pas MathLive : il pose des
+         chaînes qu'il a écrites lui-même, donc il ne mesure pas cela.
+       · LE JUGE DE LA PAGE PRIME. Le double du banc répond toujours
+         « correct:false » : une copie juste doit valoir son point quand même,
+         et c'est la phrase du juge qui s'affiche, jamais la prose du modèle.
+       On tape donc pour de vrai les deux voies — le quotient sur « prendre
+       P % », le coefficient puis l'addition sur une hausse — et on relit le
+       verdict, la note et la couleur des lignes. */
+    titre('6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE : LA FEUILLE LUE PAR LE JUGE');
+    if(!P.syntheseRedigee){
+      ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+      ignorer('la voie du coefficient puis de l\'addition vaut aussi son point',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+    } else if(!ml){
+      ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
+      ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.syntheseRedigee.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1300);
+
+      /* ÉTAPE 1 : « prendre P % », retrouver le pourcentage — le QUOTIENT.
+         La question est un VRAI tirage (genSyn), pas une question inventée :
+         une copie qui ne collerait pas à la question tirée serait refusée à
+         bon droit, et le banc mesurerait autre chose. On cherche seulement un
+         résultat ENTIER, pour que le banc tape ce qu'un élève tape. */
+      const q1 = await s.page.evaluate(() => {
+        let q = null;
+        for(let i = 0; i < 400; i++){ const c = genSyn('pct', 'pct'); if(Number.isInteger(c.result)){ q = c; break; } }
+        if(!q) return { manque: 'aucun tirage « prendre P % » à résultat entier en 400 essais' };
+        test.questions[test.idx] = q; test.locked = false; renderSal();
+        return { N: q.N, P: q.P, res: q.result, bon: q.bon };
+      });
+      await s.page.waitForTimeout(800);
+      let dits1 = [];
+      if(q1.manque){ dits1.push(q1.manque); }
+      else {
+        await s.page.click('#salc' + q1.bon);
+        await s.page.waitForTimeout(150);
+        await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+          try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+        await s.page.waitForTimeout(150);
+        /* L'ESPACE SORT DE LA FRACTION — la convention de MathLive, déjà payée
+           sur la feuille du 4.5 : sans elle, tout ce qui suit tombe dans le
+           dénominateur et le banc écrit du charabia en accusant la page. */
+        await s.page.keyboard.type(q1.res + '/' + q1.N + ' =' + q1.P + '/100 ', { delay: 40 });
+        await s.page.waitForTimeout(350);
+        const lu = await s.page.evaluate(() => {
+          const t = salFeuille.lire();
+          return { texte: t, lisible: !!salExpr(String(t).split('=')[0] || '') };
+        });
+        if(!lu.lisible) dits1.push('la fraction tapée ressort illisible pour le juge : « ' + lu.texte + ' »');
+        await s.page.click('#salActions .btn-primary');
+        await s.page.waitForTimeout(1200);
+        const v1 = await s.page.evaluate(() => {
+          const fb = document.getElementById('salFeedback');
+          const l0 = salFeuille.lignes[0].mf;
+          return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '',
+                   score: test.score, ligne: l0 ? l0.className : '' };
+        });
+        if(v1.classe.indexOf('good') < 0)
+          dits1.push('le quotient tapé n\'est pas accepté : « ' + v1.texte.slice(0, 120) + ' »');
+        if(v1.score !== 1) dits1.push('la note ne compte pas la question : score ' + v1.score);
+        if(/Réponse de contrôle/.test(v1.texte))
+          dits1.push('c\'est la prose du modèle qui s\'affiche, alors qu\'il conteste le verdict de la page');
+        if(v1.ligne.indexOf('ok') < 0)
+          dits1.push('la ligne juste ne se peint pas en bleu : classes « ' + v1.ligne + ' »');
+      }
+      verifier('la fraction tapée est lue par le juge, et le juge prime sur le modèle',
+        dits1.length === 0, dits1.slice(0, 3).join(' | '));
+
+      /* ÉTAPE 2 : une HAUSSE — le coefficient, puis l'addition sur deux lignes. */
+      let dits2 = [];
+      const q2 = await s.page.evaluate(() => {
+        const q = genSyn('aug', 'fin');
+        test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
+        q.choisi = q.bon;
+        const c = salCouple(q);
+        return { bon: q.bon, N: c.N, pDec: c.pDecStr, aug: c.augStr, fin: c.finStr };
+      });
+      await s.page.waitForTimeout(800);
+      await s.page.click('#salc' + q2.bon);
+      await s.page.waitForTimeout(150);
+      await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+        try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+      await s.page.waitForTimeout(150);
+      await s.page.keyboard.type(q2.pDec + '*' + q2.N + '=' + q2.aug, { delay: 30 });
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(350);
+      await s.page.keyboard.type(q2.N + '+' + q2.aug + '=' + q2.fin, { delay: 30 });
+      await s.page.waitForTimeout(300);
+      const lu2 = await s.page.evaluate(() => salFeuille.lire());
+      if(String(lu2).split('\n').filter(function(l){ return l.trim() !== ''; }).length < 2)
+        dits2.push('Entrée n\'a pas ajouté de seconde ligne : « ' + String(lu2).replace(/\n/g, ' ⏎ ') + ' »');
+      await s.page.click('#salActions .btn-primary');
+      await s.page.waitForTimeout(1200);
+      const v2 = await s.page.evaluate(() => {
+        const fb = document.getElementById('salFeedback');
+        return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score };
+      });
+      if(v2.classe.indexOf('good') < 0)
+        dits2.push('la voie du coefficient puis de l\'addition n\'est pas acceptée : « ' + v2.texte.slice(0, 120) + ' »');
+      verifier('la voie du coefficient puis de l\'addition vaut aussi son point',
+        dits2.length === 0, dits2.slice(0, 3).join(' | '));
+      verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
     /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
        l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui
