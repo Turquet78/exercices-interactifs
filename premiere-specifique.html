@@ -567,7 +567,11 @@ body.pave-actif #paveNum{bottom:54px}
      comme deux, et une virgule décimale coupée de ses décimales. Le groupe est
      un flex à lui, du MÊME écart que la rangée : rien ne bouge tant que la ligne
      tient, et tout passe à la ligne ensemble quand elle ne tient plus. */
-  .f-grp{display:flex;align-items:center;gap:12px}
+  /* L'ÉCART EST CELUI DE LA RANGÉE, HÉRITÉ ET NON RECOPIÉ : les rangées de ce
+     fichier n'ont pas toutes le même (12 px pour .pt-row, 14 pour .f-wrap,
+     10 pour la conclusion du 4.4), et un 12 figé aurait écarté le groupe
+     autrement que ce qui l'entoure — visible à l'œil, et invisible au code. */
+  .f-grp{display:flex;align-items:center;gap:inherit}
   .pt-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:2px}
   .pt-choix-btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font:inherit;color:inherit;
     background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 16px;
@@ -1964,7 +1968,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=214;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=215;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -5278,7 +5282,7 @@ function renderFTest(){
   let instr='', html='';
   if(q.level==='frac-n1'){
     instr='Écris cette fraction sous forme <b>décimale</b>.';
-    html=fracBox(q.num,q.d)+'${fEq(`<math-field class="dexp-mf pm-mf f-dec" id="fDec" aria-label="réponse décimale"></math-field>`)}';
+    html=fracBox(q.num,q.d)+fEq('<math-field class="dexp-mf pm-mf f-dec" id="fDec" aria-label="réponse décimale"></math-field>');
   } else if(q.level==='frac-n2'){
     instr='Écris ce nombre sous forme de <b>fraction décimale</b>.';
     html=`<span class="f-dec-q">${esc(q.decString)}</span>`+fEq(fracIn);

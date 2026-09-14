@@ -4835,6 +4835,51 @@ des « top » (une case et le texte qui la précède sont centrés l'un sur l'au
 donc leurs hauts diffèrent toujours de quelques pixels — un compteur qui lirait
 « top » crierait au repli sur des lignes parfaitement droites), à une largeur où
 la rangée SE REPLIE pour de vrai, ce qu'il exige aussi.
+**PUIS LA SECONDE A SUIVI, SUR SES PROPRES RANGÉES.** Demande de Turquet
+(septembre 2026) : « fais la même chose en seconde ». La sonde a refait la carte
+avant qu'on ne touche à quoi que ce soit, et elle a nommé QUATRE écrans :
+{augmenter-pourcentage} et {diminuer-pourcentage} à 600 px, {diviser-fractions}
+à 600, {simplifier-barres} à 390. {somme-fractions} n'y était plus — son moteur
+partagé avait déjà reçu le groupe la veille, et c'est la preuve que le partage a
+fonctionné dans les deux sens.
+**LA RÈGLE S'EST SIMPLIFIÉE EN S'ÉLARGISSANT, et c'est le contrôle qui l'a
+demandé** : reconnaître « un "=" devant une CASE » obligeait à énumérer les
+fabriques locales qui rendent une case (frac, dec, mf, produit, quotient…) —
+une liste, donc une dérive. Elle est devenue « TOUT "=" passe par la fabrique »,
+parce qu'un « = » groupé avec ce qui le suit n'est jamais pire, et qu'une règle
+sans liste ne peut pas oublier la rangée qu'on écrira demain. Il n'en reste
+qu'UN seul écrit à la main dans chaque fichier : celui de la fabrique.
+**ET L'ÉCART EST HÉRITÉ, PLUS RECOPIÉ** (`gap:inherit`). Les rangées de ces
+fichiers n'ont pas toutes le même : 12 px pour `.pt-row`, 14 pour `.f-wrap` —
+la fraction décimale du 1.6 —, 10 pour la conclusion de {simplifier-barres}. Un
+12 figé écartait donc le groupe autrement que ce qui l'entoure sur deux d'entre
+elles, visible à l'œil et invisible au code ; hérité, il ne peut plus diverger.
+Le contrôle accepte `inherit` d'emblée et ne compare des pixels que s'ils sont
+écrits — un écart figé ne protège que la rangée de référence, et il le dit.
+**Un piège d'ancre s'y est montré, le même qu'ailleurs** : la conclusion de
+{simplifier-barres} porte une espace INSÉCABLE que mon ancre écrivait en espace
+ordinaire — le remplacement ne trouvait rien, et l'assertion l'a dit au lieu de
+laisser passer un fichier à moitié transformé. La leçon du 6.10, retombée telle
+quelle : un remplacement se pose sur les octets, pas sur ce qu'on croit lire.
+
+**ET UN DÉFAUT EST PARTI EN LIGNE AVEC CE CORRECTIF — du CODE affiché à
+l'élève.** La transformation qui a posé les groupes supposait que chaque rangée
+était écrite dans un GABARIT (`` ` ``), et une seule ne l'était pas : le premier
+niveau du 1.6 assemble sa ligne à guillemets SIMPLES. Le `${fEq(…)}` inséré là
+n'est pas interpolé — il s'affiche en toutes lettres, et l'élève lisait
+« ${fEq(` » autour de sa case pendant une mise en ligne entière.
+**Aucun banc ne pouvait le voir, et c'est ce qui compte** : la case existait
+quand même (l'`innerHTML` avait bien construit le `<math-field>` qui vivait
+DANS le texte littéral), donc le rendu, la correction et la note étaient
+justes ; seul le TEXTE autour était du code. Le contrôle voisin des accolades
+ne vise que les `{identifiant}` CONNUS, et le banc jsdom ne lit pas ce qui
+s'affiche. Un contrôle universel le tient désormais, greffé sur la visite qui
+ouvre tous les exercices dans les deux modes : **aucun gabarit « ${…} » non
+interprété ne reste affiché à l'élève** — l'exercice qu'on écrira demain est
+couvert sans rien déclarer. La leçon est celle de la règle 3, une fois de
+plus : une transformation mécanique se relit sur ce qu'elle PRODUIT, pas sur
+ce qu'elle suppose de son entrée.
+
 **Et le contrôle s'est pris en défaut deux fois avant la page.** Il lisait le
 PREMIER `.f-whole` du groupe comme sa tête — or la case d'une somme de fractions
 en contient elle-même, le numérateur écrit devant son multiplicateur, et il
