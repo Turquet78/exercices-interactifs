@@ -141,7 +141,7 @@ module.exports = {
                               'baisses-successives', 'hausses-successives', 'hausses-successives-cent',
                               'somme-fractions', 'mult-decimaux', 'fraction-pourcentage',
                               'augmenter-addition', 'pourcentage'],
-                  largeur: 600, hauteur: 900 },
+                  largeurs: [[820, 1180], [600, 900], [390, 844]] },
 
     /* LE CADRE D'UN EXERCICE PREND TOUTE LA LARGEUR QUE LE CONTENEUR OFFRE
        (demande de Turquet, septembre 2026, pour la Seconde, « comme en
@@ -502,7 +502,7 @@ module.exports = {
                   minimum: 4,
                   exercices: ['augmenter-pourcentage', 'diminuer-pourcentage',
                               'diviser-fractions', 'simplifier-barres', 'somme-fractions'],
-                  largeur: 600, hauteur: 900 },
+                  largeurs: [[820, 1180], [600, 900], [390, 844]] },
     pleineLargeur: { exercices: ['pourcentage', 'augmenter-pourcentage', 'somme-fractions', 'simplifier-fractions', 'diviser-fractions'],
                      chaine: [['pourcentage', 1], ['augmenter-pourcentage', 2],
                               ['diminuer-pourcentage', 2], ['somme-fractions', 1],
@@ -801,6 +801,21 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'terminale.html': {
+
+    /* UN « = » NE SE SÉPARE JAMAIS DE CE QU'IL ANNONCE (demande de Turquet,
+       septembre 2026 : « fais la même chose en terminale »). Ce niveau n'a NI
+       la fabrique NI la classe des deux autres — il écrit ses égalités avec
+       six classes différentes (eq, sa2-eq, tg-eq, su-eq, rf-eq…) et parfois en
+       texte nu au milieu d'une phrase, et il a déjà son propre idiome pour
+       les tenir ensemble (« .dhv-eqgrp{white-space:nowrap} »). Il ne déclare
+       donc pas de fabrique : le contrôle jsdom s'y affiche « non applicable »,
+       et c'est le banc NAVIGATEUR qui tient la règle — sa mesure ne connaît
+       aucune fabrique, elle part de chaque case et lit ce qui la précède.
+       Les exercices déclarés sont ceux que la SONDE a vus céder. */
+    teteCollee: { minimum: 8,
+                  exercices: ['etude-fonction', 'tvi-alpha-signe', 'recurrence-fractions',
+                              'tvi', 'suite-auxiliaire', 'recurrence-complete'],
+                  largeurs: [[820, 1180], [600, 900], [390, 844]] },
 
     /* UNE CASE VIDE QUI ROUGIT — six exercices de ce niveau le font encore, et
        ce n'est PAS un oubli qu'on peut corriger d'office. La Terminale a une

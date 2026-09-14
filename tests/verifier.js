@@ -6102,7 +6102,15 @@ function synthesePourcentage(w, P){
    le banc navigateur qui mesure le repli, à une largeur où il a lieu. */
 function teteCollee(w, P){
   const nom = 'aucun « = » ne se sépare de la case qu’il annonce';
-  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de tête collée à sa case'); return; }
+  if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de « = » collé à sa case'); return; }
+  /* Un niveau peut tenir la règle SANS fabrique partagée : la Terminale a son
+     propre idiome et six classes d'égalité. Elle déclare donc le contrôle du
+     NAVIGATEUR — qui ne connaît aucune fabrique — et pas celui-ci, plutôt que
+     de recevoir une quinzième fonction portée pour la forme. */
+  if(!P.teteCollee.fabrique){
+    ignorer(nom, 'ce niveau tient la règle par son propre idiome, sans fabrique partagée — le banc navigateur la mesure');
+    return;
+  }
   const T = P.teteCollee, src = lire(CIBLE), pbs = [];
 
   /* 1. le seul endroit qui assemble, et ce qu'il pose */
