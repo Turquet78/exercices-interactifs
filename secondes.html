@@ -662,7 +662,7 @@
    cases à 1,9 rem et des chiffres à 2 rem. Le 4.1 portait déjà ce réglage ;
    une règle valable partout est tenue par un contrôle du banc navigateur qui
    va partout. */
-#sfHost .pt-row>.f-frac{font-size:2rem}
+#sfHost .pt-row>.f-frac,#sfHost .pt-row>.f-grp>.f-frac{font-size:2rem}
 #sfHost .sf-l .f-num,#sfHost .sf-l .f-den{width:92px}
 #sfHost .pt-row{flex-wrap:wrap}
 @media(max-width:900px){ #sfHost math-field.pm-mf{font-size:1.5rem}
@@ -1211,6 +1211,14 @@
   .pt-step{width:100%;margin:4px 0 16px}
   .pt-lab{font-family:"Nunito";font-weight:800;font-size:.9rem;color:var(--ink-soft);margin-bottom:9px;text-align:center}
   .pt-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+  /* UN « = » NE SE SÉPARE JAMAIS DE LA CASE QU'IL ANNONCE (demande de Turquet,
+     septembre 2026). La rangée est un flex qui se replie, et le repli tombait
+     ENTRE le « = » et sa case : l'élève lisait « = » à la fin d'une ligne et sa
+     réponse au début de la suivante — une égalité qui se lit comme deux. Le
+     groupe est un flex à lui, du MÊME écart que la rangée : rien ne bouge tant
+     que la ligne tient, et tout passe à la ligne ensemble quand elle ne tient
+     plus. */
+  .f-grp{display:flex;align-items:center;gap:12px}
   .pt-opt{position:relative;border:2px dashed #c2cdf2;background:#fafbff;border-radius:16px;padding:30px 14px 14px;margin:6px 0 18px}
   .pt-opt .pt-lab{margin-top:2px}
   .pt-opt::before{content:"✦ Facultatif";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-family:"Fredoka";font-weight:600;font-size:.74rem;color:var(--blue-dark);background:#fff;border:1.5px solid #c2cdf2;border-radius:999px;padding:3px 13px;white-space:nowrap}
@@ -2715,7 +2723,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=159;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=160;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -2819,6 +2827,20 @@ function pmUpgrade(scope){
 function pmMF(cls,id,extra){
   return '<math-field class="dexp-mf pm-mf '+(cls||'')+'" id="'+id+'"'+(extra||'')+'></math-field>';
 }
+/* « = tête, » ET SA CASE : UN SEUL ENDROIT LES ASSEMBLE.
+   La tête est ce que la page écrit entre le « = » et la case, et qui finit par
+   la virgule décimale — « 0, », « 1, », « 1 − 0, » ; elle peut être vide, et
+   c'est alors le « = » nu devant sa case. Séparé d'elle par un repli, le signe
+   ment : une égalité coupée en deux se lit comme deux calculs, et « 0, » seul
+   en fin de ligne n'est plus un nombre. Les assembler ici plutôt qu'à chaque
+   rangée, c'est la garantie que la rangée qu'on écrira demain le fera sans y
+   penser (voir .f-grp). */
+function fEqTete(tete, boite){
+  return '<span class="f-grp"><span class="f-eq">=</span>'
+       + (tete ? '<span class="f-whole">'+tete+'</span>' : '') + boite + '</span>';
+}
+/* Le « = » nu devant une case : même groupe, sans tête. */
+function fEq(boite){ return fEqTete('', boite); }
 /* ---- rangee de jetons + clavier a l'ecran (convention terminale) ---- */
 let pmLastMF=null;
 document.addEventListener('focusin',e=>{
@@ -15571,7 +15593,6 @@ function renderSFTest(){
   const terme=(n,d)=> sfTermeHTML(n,d);
   const surUn=(n,d)=> '<span class="f-frac">'+sfFracInner(String(n),String(d))+'</span>';
   const op='<span class="f-times">'+q.op+'</span>';
-  const eq='<span class="f-eq">=</span>';
   /* Le terme de départ, puis la même fraction dont le numérateur et le
      dénominateur sont chacun multipliés par une case. */
   const produit=(n,d,a,b)=>
@@ -15610,17 +15631,16 @@ function renderSFTest(){
                   : '③ la fraction finale')+'</div>'
      +'<div class="pt-row">'
        +terme(q.n1,q.d1)+op+terme(q.n2,q.d2)
-       +(versFraction ? (eq+surUn(q.n1,q.d1)+op+surUn(q.n2,q.d2)) : '')
-       +eq+produit(q.n1,q.d1,'sf-a1','sf-b1')+op+produit(q.n2,q.d2,'sf-a2','sf-b2')
-       +eq
-       +'<span class="f-frac-input sf-somme">'
+       +(versFraction ? (fEq(surUn(q.n1,q.d1))+op+surUn(q.n2,q.d2)) : '')
+       +fEq(produit(q.n1,q.d1,'sf-a1','sf-b1'))+op+produit(q.n2,q.d2,'sf-a2','sf-b2')
+       +fEq('<span class="f-frac-input sf-somme">'
        +'<span class="sf-haut">'+mf('sf-num1','f-num','premier numérateur')
        +'<span class="f-times">'+q.op+'</span>'
        +mf('sf-num2','f-num','second numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
-       +mf('sf-den','f-den','dénominateur commun')+'</span>'
-       +(test.simp ? (eq+quotient()) : '')
-       +eq+frac('sf-fn','sf-fd')
+       +mf('sf-den','f-den','dénominateur commun')+'</span>')
+       +(test.simp ? fEq(quotient()) : '')
+       +fEq(frac('sf-fn','sf-fd'))
      +'</div></div>';
   /* La décoration du croisement — couleurs et flèches — n'existe qu'en Seconde,
      et ne s'applique qu'à l'exercice qui la demande. La ligne est la même dans

@@ -5671,10 +5671,12 @@ function synthesePourcentage(w, P){
    (un fait de table ne se pose pas), les zéros finaux sont retirés, et elle
    ne se reconstruit que si les facteurs changent — reconstruire à chaque
    frappe effacerait ce que l'élève y écrit. */
-/* ---------- « = 0, » ne se sépare jamais de sa case ----------------------
-   Demande de Turquet (septembre 2026) : « en première quand on affiche
+/* ---------- un « = » ne se sépare jamais de la case qu'il annonce --------
+   Demande de Turquet (septembre 2026), en deux temps : « quand on affiche
    "= 0 ," avec une case à côté, si la case passe à la ligne je veux que le
-   "= 0" passe aussi à la ligne. »
+   "= 0" passe aussi à la ligne », puis « en fait dès qu'une case passe à la
+   ligne et qu'il y a un "=" devant, mettre le "=" aussi à la ligne ». La
+   règle vaut donc pour TOUT « = » posé devant une case, avec ou sans tête.
    La rangée d'un exercice guidé est un flex qui SE REPLIE — c'est ce qui
    l'empêche de déborder de l'écran — et le repli tombait ENTRE le « 0, »
    écrit par la page et la case où l'élève répond : mesuré à 600 px de
@@ -5683,9 +5685,10 @@ function synthesePourcentage(w, P){
    un nombre, et l'égalité se lit comme deux calculs.
    UN SEUL ENDROIT assemble le groupe (fEqTete), et le contrôle tient les
    bords que la page ne dit pas d'elle-même :
-   · plus AUCUN groupe écrit à la main dans la source — la rangée qu'on
-     écrira demain passe par fEqTete, donc elle est tenue sans rien
-     déclarer ; c'est ce bord qui empêche la liste de dériver ;
+   · plus AUCUN groupe écrit à la main dans la source — ni « = » + tête +
+     case, ni « = » nu devant une case : la rangée qu'on écrira demain passe
+     par la fabrique, donc elle est tenue sans rien déclarer ; c'est ce bord
+     qui empêche la liste de dériver ;
    · fEqTete pose bien la classe, ET la classe est bien un flex : une
      classe posée sans sa règle ne tient rien ensemble, et rien ne
      rougirait ;
@@ -5697,7 +5700,7 @@ function synthesePourcentage(w, P){
    Où tombe la ligne, en revanche, ne se voit que dans un navigateur : c'est
    le banc navigateur qui mesure le repli, à une largeur où il a lieu. */
 function teteCollee(w, P){
-  const nom = 'le « = 0, » ne se sépare jamais de sa case';
+  const nom = 'aucun « = » ne se sépare de la case qu’il annonce';
   if(!P.teteCollee){ ignorer(nom, 'ce fichier ne déclare pas de tête collée à sa case'); return; }
   const T = P.teteCollee, src = lire(CIBLE), pbs = [];
 
@@ -5710,15 +5713,30 @@ function teteCollee(w, P){
       pbs.push('« ' + T.fabrique + ' » ne pose plus la classe « ' + T.classe + ' » : le groupe n\'est plus un groupe');
     if(aide.texte.indexOf('class="f-eq"') < 0 || aide.texte.indexOf('class="f-whole"') < 0)
       pbs.push('« ' + T.fabrique + ' » n\'écrit plus le « = » et sa tête');
+    /* La tête doit rester FACULTATIVE : sans cela, le « = » nu devant une
+       case n'aurait aucun chemin vers le groupe, et les rangées qui n'ont
+       pas de « 0, » resteraient coupées comme avant. */
+    if(!/tete\s*\?/.test(aide.texte))
+      pbs.push('« ' + T.fabrique + ' » impose une tête : le « = » nu devant une case n\'a plus de groupe');
   }
+  const court = corpsFonctions(src, /^(?:async )?function ([A-Za-z_$][\w$]*)\s*\(/gm)
+    .find(o => o.nom === T.raccourci);
+  if(!court) pbs.push('« ' + T.raccourci +' » est introuvable : le « = » nu n\'a plus de fabrique');
+  else if(court.texte.indexOf(T.fabrique) < 0)
+    pbs.push('« ' + T.raccourci + ' » n\'appelle plus « ' + T.fabrique + ' » : deux fabriques finiraient par diverger');
 
-  /* 2. plus aucun groupe écrit à la main : « = » puis une tête puis une case */
+  /* 2. plus aucun groupe écrit à la main. Une CASE, ici, est ce qui porte la
+     réponse de l'élève : un <math-field>, ou une fraction faite de cases —
+     que la page écrit par ses fabriques locales (frac, dec, fracIn, mf…). On
+     lit donc le « = » et ce qui le suit IMMÉDIATEMENT, dans les deux formes
+     d'écriture du fichier : le gabarit (${…}) et la concaténation ('…'+…). */
   const sansAide = aide ? src.split(aide.texte).join('') : src;
-  const brut = [...sansAide.matchAll(
-    /<span class="f-eq">=<\/span><span class="f-whole">[^<>]{0,120}<\/span>\s*(?:<math-field|\$\{dec\(|\$\{pmMF\()/g)];
+  const SUIT = '(?:<math-field|<span class="f-frac-input"|\\$\\{(?:frac|dec|fracIn|pmMF)\\b|\'\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b|`\\s*\\+\\s*(?:frac|dec|fracIn|produit|quotient|surUn|mf)\\b)';
+  const brut = [...sansAide.matchAll(new RegExp(
+    '<span class="f-eq">=</span>(?:<span class="f-whole">[^<>]{0,120}</span>)?\\s*' + SUIT, 'g'))];
   if(brut.length)
-    pbs.push(brut.length + ' groupe(s) « = tête + case » écrits à la main : ' +
-      brut.slice(0, 3).map(m => '« ' + (/<span class="f-whole">([^<>]*)<\/span>/.exec(m[0]) || [, '?'])[1] + ' »').join(' ; ') +
+    pbs.push(brut.length + ' « = » écrit(s) à la main devant une case : ' +
+      brut.slice(0, 3).map(m => '« ' + m[0].slice(26, 70).replace(/\s+/g, ' ') + '… »').join(' ; ') +
       ' — hors de ' + T.fabrique + ', rien ne les garde ensemble');
 
   /* 3. la classe est un flex, du même écart que la rangée */
@@ -5746,9 +5764,20 @@ function teteCollee(w, P){
       if(!grs.length){ pbs.push(id+' : aucun groupe rendu'); return; }
       total+=grs.length;
       grs.forEach(function(g){
-        const t=g.querySelector('.f-whole'), c=g.querySelector('math-field'), e=g.querySelector('.f-eq');
-        if(!e||!t||!c){ pbs.push(id+' : un groupe sans « = », sans tête ou sans case'); return; }
-        if(!/,$/.test((t.textContent||'').trim()))
+        /* LA TÊTE EST L'ENFANT DIRECT DU GROUPE, jamais le premier « f-whole »
+           venu : la case d'une somme de fractions en contient elle-même
+           (le numérateur écrit devant son multiplicateur), et le contrôle
+           lisait « 1 » comme une tête — il s'est pris en défaut avant la page.
+           Elle est FACULTATIVE ; le « = » et la case, eux, sont exigés. */
+        const enf=[].slice.call(g.children);
+        const e=enf[0]&&enf[0].classList.contains('f-eq')?enf[0]:null;
+        const t=enf[1]&&enf[1].classList&&enf[1].classList.contains('f-whole')?enf[1]:null;
+        /* Ce que le « = » annonce est une CASE (math-field) ou une FRACTION —
+           le maillon « 3 = 3/1 » d'une somme est écrit par la page, et son
+           « = » ne doit pas rester seul en fin de ligne pour autant. */
+        const c=g.querySelector('math-field, .f-frac-input, .f-frac');
+        if(!e||!c){ pbs.push(id+' : un groupe sans « = » en tête, ou qui n annonce rien'); return; }
+        if(t && !/,$/.test((t.textContent||'').trim()))
           pbs.push(id+' : la tête « '+(t.textContent||'').trim()+' » ne finit pas par la virgule');
       });
     });

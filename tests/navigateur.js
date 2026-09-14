@@ -3077,10 +3077,10 @@ async function parcours(page, N){
        donc aucune ligne où tomber. On ouvre donc à une largeur où la rangée se
        replie POUR DE VRAI — et on exige qu'elle s'y replie, sans quoi le
        contrôle ne mesurerait rien en parlant d'autre chose. */
-    titre('6 decies bis. LE « = 0, » PASSE À LA LIGNE AVEC SA CASE');
+    titre('6 decies bis. LE « = » PASSE À LA LIGNE AVEC SA CASE');
     if(!P.teteCollee){
-      ignorer('« = 0, » et sa case restent sur la même ligne',
-        'ce niveau ne déclare pas de tête collée à sa case');
+      ignorer('un « = » et la case qu’il annonce restent sur la même ligne',
+        'ce niveau ne déclare pas de « = » collé à sa case');
     } else {
       const TC = P.teteCollee;
       s = await ouvrir(chromium, ml, { viewport: { width: TC.largeur, height: TC.hauteur }, hasTouch: true });
@@ -3096,9 +3096,32 @@ async function parcours(page, N){
           const vu = e => e.getBoundingClientRect().height > 0;   /* une étape encore cachée ne se mesure pas */
           const grs = [...document.querySelectorAll('.screen.on .' + cl)].filter(vu);
           const casse = [];
+          /* ON NE MESURE PAS LES GROUPES, ON MESURE LES « = ». Un contrôle qui
+             ne regarderait que « .f-grp » resterait vert sur le « = » qu'on
+             aurait oublié d'y mettre — c'est-à-dire exactement sur le défaut.
+             On part donc de CHAQUE « = » visible de l'écran, groupé ou non, et
+             on exige qu'il partage la ligne de la case qui le suit. */
+          const estCase = e => !!e && (e.tagName === 'MATH-FIELD'
+            || (e.classList && (e.classList.contains('f-frac-input') || e.classList.contains('f-frac')))
+            || (e.querySelector && !!e.querySelector('math-field')));
+          for(const eq of document.querySelectorAll('.screen.on .f-eq')){
+            if(!vu(eq)) continue;
+            const suite = eq.nextElementSibling;
+            if(!estCase(suite) || !vu(suite)) continue;
+            const a = eq.getBoundingClientRect(), b = suite.getBoundingClientRect();
+            if(!(b.top < a.bottom - 2 && a.top < b.bottom - 2))
+              casse.push('« = » et « ' + (suite.id || suite.className.split(' ')[0]) + ' » sur deux lignes ('
+                + Math.round(b.top - a.top) + ' px d\'écart)');
+          }
           for(const g of grs){
-            const t = g.querySelector('.f-whole'), c = g.querySelector('math-field');
-            if(!t || !c || !vu(t) || !vu(c)){ casse.push('un groupe sans tête ou sans case visible'); continue; }
+            /* la tête est l'enfant DIRECT du groupe — la case d'une somme de
+               fractions contient elle-même des « f-whole », et le premier venu
+               n'est pas une tête ; elle reste facultative */
+            const enf = [...g.children];
+            const t = (enf[1] && enf[1].classList && enf[1].classList.contains('f-whole')) ? enf[1] : null;
+            const c = g.querySelector('math-field');
+            if(!c || !vu(c)){ casse.push('un groupe sans case visible'); continue; }
+            if(!t || !vu(t)) continue;            /* la tête est facultative */
             const a = t.getBoundingClientRect(), b = c.getBoundingClientRect();
             /* MÊME LIGNE se mesure par le RECOUVREMENT vertical, jamais par
                l'égalité des « top » : une case et le texte qui la précède sont
@@ -3123,7 +3146,7 @@ async function parcours(page, N){
         if(!m.grs) vides.push(exo);
         m.casse.forEach(d => separes.push(exo + ' : ' + d));
       }
-      verifier('« = 0, » et sa case restent sur la même ligne',
+      verifier('un « = » et la case qu’il annonce restent sur la même ligne',
         separes.length === 0, separes.slice(0, 3).join(' | '));
       verifier('le contrôle a bien des groupes à mesurer',
         groupes >= TC.minimum && vides.length === 0,
@@ -5868,7 +5891,13 @@ async function parcours(page, N){
                les cases de cette rangée. */
             const debuts = [];
             for(const row of on.querySelectorAll('.pt-row')){
-              const fracs = [...row.children].filter(c => c.classList && c.classList.contains('f-frac')).filter(visible);
+              /* Depuis que le « = » et sa case forment un groupe (.f-grp), une
+                 fraction du calcul peut vivre un cran plus bas : ne regarder
+                 que les enfants DIRECTS de la rangée en laisserait passer la
+                 moitié, et le contrôle mesurerait moins en restant vert. */
+              const enfants = [...row.children].flatMap(c =>
+                (c.classList && c.classList.contains('f-grp')) ? [...c.children] : [c]);
+              const fracs = enfants.filter(c => c.classList && c.classList.contains('f-frac')).filter(visible);
               const mfs = [...row.querySelectorAll('math-field')].filter(visible);
               if(!fracs.length || !mfs.length) continue;
               const boxPx = Math.max(...mfs.map(px));
