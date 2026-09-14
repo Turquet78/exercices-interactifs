@@ -2495,7 +2495,7 @@ math-field.sa-mf-sm{min-width:88px;max-width:150px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=309;
+const APP_VERSION=310;
 (function(){ const e=document.getElementById('appVer'); if(e) e.textContent='\u00b7 v'+APP_VERSION; })();
 try{ console.log('Maths Terminale \u2014 version', APP_VERSION); }catch(e){}
 /* ---------- Raccourcis ---------- */
@@ -18568,7 +18568,11 @@ function bexpObstacles(anc){
   if(cmd && !cmd.hidden) vus.push(cmd);
   for(let i=0;i<vus.length;i++){
     const e=vus[i];
-    if(e===anc || (anc && e.contains && e.contains(anc))) continue;
+    /* l'ancre n'est PAS un obstacle : c'est SA case, et la bulle doit pouvoir
+       se poser à côté d'elle. `contains` est vrai pour l'élément LUI-MÊME, donc
+       il couvre l'ancre autant que le conteneur qui la porte — un `e===anc`
+       en plus ne filtrerait rien (le sabotage l'a montré en restant vert). */
+    if(anc && e.contains && e.contains(anc)) continue;
     const r=e.getBoundingClientRect();
     if(r.width>0 && r.height>0) out.push(r);
   }

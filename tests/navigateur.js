@@ -2406,22 +2406,49 @@ async function parcours(page, N){
               const ps = cote ? getComputedStyle(b, '::before') : null;
               const pa = cote ? getComputedStyle(b, '::after') : null;
               const fx = parseFloat(getComputedStyle(b).getPropertyValue('--bexp-fx')) || 0;
-              /* la POINTE : à 10 px du bord de la bulle, du côté de la case */
-              let ecart = null, surLaCase = null;
-              if(cote && rk){
-                let px, py, d, bas, haut;
-                if(cote === 'droite'){ px = r.left - 10;  py = r.top + fx; d = px - rk.right; bas = rk.top; haut = rk.bottom; }
-                if(cote === 'gauche'){ px = r.right + 10; py = r.top + fx; d = rk.left - px; bas = rk.top; haut = rk.bottom; }
-                if(cote === 'haut'){   py = r.bottom + 10; px = r.left + fx; d = rk.top - py; bas = rk.left; haut = rk.right; }
-                if(cote === 'bas'){    py = r.top - 10;    px = r.left + fx; d = py - rk.bottom; bas = rk.left; haut = rk.right; }
-                ecart = Math.round(d);
-                const long = (cote === 'droite' || cote === 'gauche') ? py : px;
-                surLaCase = long >= bas - 2 && long <= haut + 2;
+              /* la POINTE est LUE SUR LE PSEUDO-ÉLÉMENT, jamais recalculée depuis
+                 --bexp-fx : la recalculer, c'est mesurer sa propre arithmétique et
+                 rester vert sur une feuille de styles qui dessine la flèche
+                 ailleurs — le sabotage du « - 10px » l'a montré. Le triangle est
+                 une boîte de 20 px dont la pointe tombe 10 px dedans, du côté de
+                 la case ; getComputedStyle rend les décalages EN USAGE, donc top
+                 et left valent l'offset réel même là où la règle pose bottom ou
+                 right. */
+              let ecart = null, surLaCase = null, pointe = null;
+              let ecartCentre = null, fxBorne = null;
+              if(cote && rk && ps){
+                const nb = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
+                let bx = nb(ps.left), by = nb(ps.top);
+                if(bx === null){ const rr = nb(ps.right); if(rr !== null) bx = r.width - rr - 20; }
+                if(by === null){ const bb = nb(ps.bottom); if(bb !== null) by = r.height - bb - 20; }
+                if(bx !== null && by !== null){
+                  const gx = r.left + bx, gy = r.top + by;   /* coin de la boîte du triangle */
+                  let px, py, d, bas, haut;
+                  if(cote === 'droite'){ px = gx + 10; py = gy + 10; d = px - rk.right;  bas = rk.top;  haut = rk.bottom; }
+                  if(cote === 'gauche'){ px = gx + 10; py = gy + 10; d = rk.left - px;   bas = rk.top;  haut = rk.bottom; }
+                  if(cote === 'haut'){   px = gx + 10; py = gy + 10; d = rk.top - py;    bas = rk.left; haut = rk.right; }
+                  if(cote === 'bas'){    px = gx + 10; py = gy + 10; d = py - rk.bottom; bas = rk.left; haut = rk.right; }
+                  ecart = Math.round(d);
+                  const long = (cote === 'droite' || cote === 'gauche') ? py : px;
+                  surLaCase = long >= bas - 2 && long <= haut + 2;
+                  pointe = Math.round(px) + ',' + Math.round(py);
+                  /* « dans l'étendue » est un bord TROP LÂCHE : sur une case de
+                     40 px, une pointe déplacée de 10 px y tombe encore, et le
+                     sabotage du « - 10px » restait vert. La promesse est plus
+                     étroite — la pointe suit le CENTRE de la case —, sauf quand
+                     la bulle a dû BORNER fx pour ne pas sortir de ses coins
+                     arrondis : là elle vise d'aussi près que la borne permet, et
+                     c'est l'étendue qui redevient le seul bord mesurable. */
+                  ecartCentre = Math.round(Math.abs(long - (bas + haut) / 2));
+                  const lim = (cote === 'droite' || cote === 'gauche') ? r.height : r.width;
+                  fxBorne = Math.abs(fx - 18) < 0.5 || Math.abs(fx - (lim - 18)) < 0.5;
+                }
               }
               return {
                 la: true, l: Math.round(r.width), h: Math.round(r.height),
                 bouton: !!t && !t.hidden, cote: cote, couvertes: couvertes,
-                ecart: ecart, surLaCase: surLaCase,
+                ecart: ecart, surLaCase: surLaCase, pointe: pointe,
+                ecartCentre: ecartCentre, fxBorne: fxBorne,
                 fleche: ps ? Math.round(parseFloat(ps['border' + bord + 'Width']) || 0) : 0,
                 encre: ps ? ps['border' + bord + 'Color'] : '',
                 fond: pa ? pa['border' + bord + 'Color'] : '',
@@ -2464,11 +2491,14 @@ async function parcours(page, N){
             bulle.encre !== bulle.fond,
           bulleSouci || 'flèche mesurée : ' + (bulle && bulle.fleche) + ' px, encre « ' +
             (bulle && bulle.encre) + ' », fond « ' + (bulle && bulle.fond) + ' »');
-        verifier('sa pointe touche la case, et tombe DANS son étendue',
+        verifier('sa pointe touche la case, et tombe sur son CENTRE',
           !!bulle && bulle.ecart !== null && bulle.ecart >= 0 && bulle.ecart <= 8 &&
-            bulle.surLaCase === true,
-          bulleSouci || 'pointe à ' + (bulle && bulle.ecart) + ' px de la case, dans son étendue : ' +
-            (bulle && bulle.surLaCase));
+            bulle.surLaCase === true &&
+            (bulle.fxBorne === true || bulle.ecartCentre <= 3),
+          bulleSouci || 'pointe RENDUE en ' + (bulle && bulle.pointe) + ', à ' +
+            (bulle && bulle.ecart) + ' px de la case, dans son étendue : ' +
+            (bulle && bulle.surLaCase) + ', à ' + (bulle && bulle.ecartCentre) +
+            ' px de son centre' + ((bulle && bulle.fxBorne) ? ' (fx borné)' : ''));
         verifier('elle ne recouvre AUCUNE autre case — l\'objection du coin fixe, tenue',
           !!bulle && bulle.couvertes === 0,
           bulleSouci || (bulle && bulle.couvertes) + ' case(s) recouverte(s) : le clic de l\'élève partirait dans la bulle');

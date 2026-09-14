@@ -583,15 +583,17 @@ couleur en phase de capture) et après les corrections attachées au champ ; un
 exercice ajouté demain est couvert sans rien déclarer. Les corrections qui
 peignent APRÈS la sortie — le minuteur que la Première pose sur `focusout` —
 sont rattrapées par un second regard, un instant plus tard.
-**La bulle est FIXE en bas à droite, au-dessus des commandes.** Ancrée à la
-case, elle aurait recouvert la case d'EN DESSOUS — le dénominateur d'une
-fraction, la rangée suivante d'un tableau — et le clic de l'élève serait parti
-dans la bulle : la leçon du pavé numérique, qui ne recouvre ni la case qu'on
-remplit ni les commandes du bas. Elle s'efface quand l'élève REPREND sa case —
-il corrige, elle reviendra s'il ressort en faux — et jamais quand il passe
-simplement à la case suivante : quitter une case, c'est presque toujours en
-prendre une autre, et la bulle s'éteindrait au moment précis où elle vient de
-naître.
+**La bulle fut FIXE en bas à droite, au-dessus des commandes** — jusqu'à ce
+que Turquet la demande à CÔTÉ de la case (paragraphe ci-dessous) ; l'objection
+qui l'avait mise au coin, elle, n'a pas été abandonnée mais tenue autrement.
+Ancrée n'importe où, elle aurait recouvert la case d'EN DESSOUS — le
+dénominateur d'une fraction, la rangée suivante d'un tableau — et le clic de
+l'élève serait parti dans la bulle : la leçon du pavé numérique, qui ne
+recouvre ni la case qu'on remplit ni les commandes du bas. Elle s'efface quand
+l'élève REPREND sa case — il corrige, elle reviendra s'il ressort en faux — et
+jamais quand il passe simplement à la case suivante : quitter une case, c'est
+presque toujours en prendre une autre, et la bulle s'éteindrait au moment
+précis où elle vient de naître.
 **Le verdict reste celui de la PAGE, le modèle ne fait qu'EXPLIQUER** — la
 doctrine du juge, prise du bon côté : la case est rouge parce que la correction
 locale l'a jugée, et rien de ce que dit le modèle ne change une couleur ni une
@@ -616,6 +618,61 @@ et vérifie qu'elle ne recouvre pas les commandes du bas. Sept sabotages,
 chacun rougissant en nommant son défaut — dont un que seul le navigateur
 voit : la bulle descendue sur les commandes, où le clic d'à côté part dans la
 bulle et le bouton devient incliquable.
+
+**Puis la bulle est venue À CÔTÉ de la case, une flèche pointée sur elle.**
+Demande de Turquet (septembre 2026) : « en mode soutien, il faudrait que la
+bulle qui apparaît "comprendre mon erreur" quand une case est rouge soit à
+côté de la case avec une flèche vers cette case. » C'est un RENVERSEMENT du
+coin fixe, et l'objection qui l'y avait mise reste VRAIE — ancrée n'importe
+où, la bulle recouvre la case d'EN DESSOUS et le clic de l'élève part
+dedans, la leçon du pavé numérique. **Elle est donc tenue AUTREMENT, pas
+abandonnée** : `bexpPlacer` essaie les quatre côtés dans l'ordre — droite,
+gauche, dessus, dessous —, la zone testée COMPRENANT la flèche, et ne retient
+que le premier qui ne chevauche AUCUNE autre case de l'écran ni les commandes
+du bas. Faute de place, le coin d'avant, et alors SANS flèche : une flèche qui
+ne désigne rien mentirait. La flèche est DEUX triangles — le cadre, puis le
+fond posé 2 px en dedans pour couvrir la couture — et sa pointe suit le CENTRE
+de la case, bornée à 18 px des coins arrondis. La bulle se replace au
+défilement (écouté en CAPTURE : un conteneur qui défile ne lève rien sur la
+fenêtre), au redimensionnement, et quand la réponse du modèle la fait GRANDIR
+(`ResizeObserver`).
+**UN SEUL BORD PAR AXE, et c'est la leçon que seul le navigateur a pu
+donner** : vider une propriété en ligne (`b.style.right=''`) ne la retire
+pas — elle rend la main à la FEUILLE DE STYLES, qui repose `right:16px` et
+`bottom:92px`. Les deux bords posés, le navigateur ÉTIRE la boîte — 360×488 au
+lieu de 288×69 —, sa taille change donc avec sa place, l'observateur de taille
+rappelle le placement, aucun côté ne tient plus à cette taille, retour au coin
+où elle redevient petite : la boucle tournait sans fin. Playwright l'a nommée
+(« element is not stable ») et la sonde l'a chiffrée ; on écrit `'auto'`, et un
+bord du banc jsdom l'y retient désormais, où il coûte une ligne.
+**Deux bancs, la répartition habituelle** : jsdom mesure le CHOIX — il n'a
+aucune mise en page, mais un rectangle POSÉ À LA MAIN se juge exactement comme
+un vrai, et l'obstacle de chaque tour est placé pour écarter UN SEUL candidat,
+sans quoi le contrôle passerait sans dire lequel il mesure ; le NAVIGATEUR
+mesure le RENDU — la flèche dessinée à deux encres, sa pointe LUE sur le
+pseudo-élément à moins de 8 px de la case et sur son CENTRE, et aucune autre
+case recouverte, l'objection du coin fixe tenue par la mesure. La sonde a relevé les côtés réellement employés
+sur les 45 exercices de la Seconde : gauche 9, droite 10, dessus 7 — jamais le
+dessous, et jamais le COIN.
+**Dix-huit sabotages, seize rougissant en nommant leur défaut** — treize au
+banc jsdom, cinq au navigateur —, et les deux verts ont chacun appris quelque
+chose. Le premier a nommé un TROU DU CONTRÔLE : la pointe était recalculée
+depuis `--bexp-fx` et le rectangle de la bulle, c'est-à-dire sa propre
+arithmétique, si bien que le « - 10px » retiré de la feuille de styles
+déplaçait la flèche sans rien faire rougir ; elle se lit désormais sur le
+décalage EN USAGE du pseudo-élément, et le bord « dans l'étendue de la case »
+— trop lâche, une pointe déplacée de 10 px tombe encore sur une case de
+40 px — est devenu le CENTRE à 3 px près, sauf quand fx a été borné pour
+rester hors des coins arrondis. Le second, lui, disait vrai : retirer l'appel
+à `bexpPlacer` au moment où la bulle paraît ne change rien parce que
+l'observateur de TAILLE couvre le même instant — mesuré en le débranchant à
+son tour, et la bulle retombe alors au coin. L'appel reste : il est le chemin
+lisible, et le seul là où `ResizeObserver` manque.
+**Et le garde de l'ancre a perdu une moitié REDONDANTE** : `Node.contains` est
+vrai pour l'élément lui-même, donc `e===anc ||` ne filtrait rien — le sabotage
+l'a montré en restant vert, quand retirer le garde ENTIER rougit (« obstacles
+comptés : 4 sans l'ancre, 4 avec »). Ce n'est pas un garde-fou mort de plus :
+la propriété est tenue, par l'autre moitié, une opérande plus loin.
 
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les

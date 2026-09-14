@@ -1908,7 +1908,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=210;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=211;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -11558,7 +11558,11 @@ function bexpObstacles(anc){
   if(cmd && !cmd.hidden) vus.push(cmd);
   for(let i=0;i<vus.length;i++){
     const e=vus[i];
-    if(e===anc || (anc && e.contains && e.contains(anc))) continue;
+    /* l'ancre n'est PAS un obstacle : c'est SA case, et la bulle doit pouvoir
+       se poser à côté d'elle. `contains` est vrai pour l'élément LUI-MÊME, donc
+       il couvre l'ancre autant que le conteneur qui la porte — un `e===anc`
+       en plus ne filtrerait rien (le sabotage l'a montré en restant vert). */
+    if(anc && e.contains && e.contains(anc)) continue;
     const r=e.getBoundingClientRect();
     if(r.width>0 && r.height>0) out.push(r);
   }
