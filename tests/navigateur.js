@@ -4954,6 +4954,220 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies quater. ÉCRIRE L'ENSEMBLE DES SOLUTIONS ===============
+       {ecrire-solutions} : la réponse se TAPE en entier à côté de « S = ».
+       Deux choses ne se voient pas hors d'un vrai navigateur, et ce sont
+       exactement les deux que la demande de Turquet nomme :
+       · la rangée de touches AU-DESSUS du champ, CLIQUÉE pour de vrai — un
+         bouton mort n'écrirait rien sans qu'aucune erreur ne se lève ;
+       · le PAVÉ des tablettes, qui doit porter les six mêmes symboles sur une
+         SECONDE rangée (data-pave-plus) : jsdom lit l'attribut, seul un
+         navigateur voit la touche rendue et le rectangle qu'elle occupe.
+       Et la MÉTHODE dessinée à la validation se mesure ici aussi : un CSS
+       perdu rendrait les morceaux verts invisibles sans qu'une erreur ne se
+       lève, et l'exercice ne montrerait plus rien. */
+    titre('6 vicies quater. ÉCRIRE L\'ENSEMBLE DES SOLUTIONS');
+    if(!P.ecrireSolutions){
+      ignorer('les six touches écrivent dans la case, et la méthode se dessine',
+        'ce niveau n\'a pas l\'exercice d\'écriture des solutions');
+    } else {
+      const T = P.ecrireSolutions.touches;
+      const dits = [];
+      const dominante = c => { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(c || ''); if(!m) return '?';
+        const r = +m[1], v = +m[2], b = +m[3], max = Math.max(r, v, b);
+        return b >= max && b > r + 20 ? 'bleu' : (v >= max && v > r + 20 ? 'vert' : (r >= max && r > v + 20 ? 'rouge' : 'autre')); };
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.ecrireSolutions.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      /* on épingle une inéquation dont S est une RÉUNION : c'est elle qui
+         demande le U, les quatre crochets et deux morceaux de courbe */
+      const q0 = await s.page.evaluate(() => {
+        const i = test.questions.findIndex(q => q.rel !== '=' && ecsAns(q).its.length >= 2);
+        if(i < 0) return null;
+        test.idx = i; test.locked = false; renderECS();
+        return { att: ecsEcrire(ecsAns(test.questions[i])), rel: test.questions[i].rel };
+      });
+      if(!q0) dits.push('aucune inéquation à deux intervalles dans la séance');
+      else {
+        /* le dessin est rendu à une taille lisible */
+        const mes = await s.page.evaluate(() => {
+          const svg = document.querySelector('#ecsGraph svg'); if(!svg) return { absent: true };
+          svg.scrollIntoView({ block: 'center' });
+          const r = svg.getBoundingClientRect();
+          const bt = [...document.querySelectorAll('.ecs-jetons .ecs-jt')].map(b => {
+            const q = b.getBoundingClientRect();
+            return { t: b.getAttribute('data-t'), w: Math.round(q.width), h: Math.round(q.height) };
+          });
+          const inp = document.getElementById('ecsSol').getBoundingClientRect();
+          return { absent: false, largeur: Math.round(r.width), bt,
+                   champ: { w: Math.round(inp.width), h: Math.round(inp.height) },
+                   methode: !!document.querySelector('#ecsGraph .ecs-k') };
+        });
+        if(mes.absent) dits.push('aucun dessin sur l\'écran');
+        else {
+          if(mes.largeur < 500) dits.push('le dessin ne fait que ' + mes.largeur + ' px de large');
+          if(mes.methode) dits.push('la droite y = k est tracée AVANT la vérification');
+          if(mes.bt.map(b => b.t).join(' ') !== T.join(' ')) dits.push('la rangée au-dessus du champ porte [' + mes.bt.map(b => b.t).join(' ') + ']');
+          const petites = mes.bt.filter(b => b.w < 36 || b.h < 34);
+          if(petites.length) dits.push(petites.length + ' touche(s) de moins de 36 px : introuvables au doigt');
+          if(mes.champ.w < 200) dits.push('la case de réponse ne fait que ' + mes.champ.w + ' px');
+        }
+        /* LES BOUTONS, CLIQUÉS POUR DE VRAI : chacun écrit son symbole */
+        await s.page.evaluate(() => { document.getElementById('ecsSol').value = ''; });
+        for(const t of T) await s.page.click('.ecs-jetons .ecs-jt[data-t="' + t + '"]');
+        const ecrit = await s.page.evaluate(() => document.getElementById('ecsSol').value);
+        if(ecrit !== T.join('')) dits.push('les boutons au-dessus du champ écrivent « ' + ecrit +' » au lieu de « ' + T.join('') + ' »');
+        /* la copie JUSTE, tapée : la case bleuit et la méthode se dessine */
+        await s.page.fill('#ecsSol', q0.att);
+        await s.page.click('#ecsValidate');
+        await s.page.waitForTimeout(300);
+        const fin = await s.page.evaluate(() => {
+          const inp = document.getElementById('ecsSol');
+          const k = document.querySelector('#ecsGraph .ecs-k');
+          const parts = [...document.querySelectorAll('#ecsGraph .ecs-part')].map(p => p.getBoundingClientRect());
+          const cros = [...document.querySelectorAll('#ecsGraph .ecs-cro')].map(p => p.getBoundingClientRect());
+          const ax = [...document.querySelectorAll('#ecsGraph .ecs-ax')].map(p => p.getBoundingClientRect());
+          return { score: test.score, inp: getComputedStyle(inp).borderTopColor,
+                   droite: k ? Math.round(k.getBoundingClientRect().width) : 0,
+                   parts: parts.length, partsVides: parts.filter(r => r.width < 4).length,
+                   partCouleur: parts.length ? getComputedStyle(document.querySelector('#ecsGraph .ecs-part')).stroke : null,
+                   cros: cros.length, crosVides: cros.filter(r => r.width < 3 || r.height < 8).length,
+                   ax: ax.length, axVides: ax.filter(r => r.width < 4).length,
+                   cor: !!document.querySelector('.ecs-solzone .mf-cor') };
+        });
+        if(fin.score !== 1) dits.push('la copie juste tapée vaut ' + fin.score + ' au lieu de 1');
+        if(dominante(fin.inp) !== 'bleu') dits.push('l\'écriture juste n\'est pas bordée de bleu : ' + fin.inp);
+        if(fin.droite < 300) dits.push('la droite y = k ne se dessine pas après la vérification (' + fin.droite + ' px)');
+        if(fin.parts !== 2) dits.push(fin.parts + ' morceau(x) de courbe tracé(s) au lieu de 2');
+        if(fin.partsVides) dits.push(fin.partsVides + ' morceau(x) de courbe d\'étendue nulle');
+        if(dominante(fin.partCouleur) !== 'vert') dits.push('les morceaux de la solution ne sont pas verts : ' + fin.partCouleur);
+        if(fin.cros !== 4) dits.push(fin.cros + ' crochet(s) sur l\'axe au lieu de 4');
+        if(fin.crosVides) dits.push(fin.crosVides + ' crochet(s) d\'étendue nulle : le dessin ne dit plus la notation');
+        if(fin.ax !== 2 || fin.axVides) dits.push('l\'ensemble S n\'est pas posé sur l\'axe en deux segments visibles');
+        if(fin.cor) dits.push('une écriture juste reçoit quand même la correction en vert');
+        /* une copie FAUSSE : la case rougit et la bonne réponse s'écrit à côté */
+        const q1 = await s.page.evaluate(() => {
+          const i = test.questions.findIndex((q, j) => j !== test.idx && q.rel !== '=');
+          if(i < 0) return false;
+          test.idx = i; test.locked = false; renderECS(); return true;
+        });
+        if(!q1) dits.push('aucune seconde inéquation dans la séance');
+        else {
+          await s.page.fill('#ecsSol', '[ -6 ; 6 ]');
+          await s.page.click('#ecsValidate');
+          await s.page.waitForTimeout(300);
+          const faux = await s.page.evaluate(() => {
+            const inp = document.getElementById('ecsSol'), c = document.querySelector('.ecs-solzone .mf-cor');
+            const r = c ? c.getBoundingClientRect() : null;
+            return { inp: getComputedStyle(inp).borderTopColor,
+                     cor: c ? c.textContent : null, vu: !!(r && r.width > 10 && r.height > 6),
+                     couleur: c ? getComputedStyle(c).color : null };
+          });
+          if(dominante(faux.inp) !== 'rouge') dits.push('l\'écriture fausse n\'est pas bordée de rouge : ' + faux.inp);
+          if(!faux.vu) dits.push('la bonne réponse ne s\'affiche pas à côté de la case fausse');
+          else if(dominante(faux.couleur) !== 'vert') dits.push('la correction n\'est pas écrite en vert : ' + faux.couleur);
+        }
+      }
+      verifier('les six touches écrivent dans la case, et la méthode se dessine', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran d\'écriture des solutions ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+
+      /* ---- et le PAVÉ des tablettes porte les six mêmes symboles ---------- */
+      const ditsP = [];
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      await connecter(s.page);
+      await s.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
+      await s.page.evaluate(id => openTest(id), P.ecrireSolutions.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      await s.page.evaluate(() => { const e = document.getElementById('ecsSol'); e.scrollIntoView({ block: 'center' }); e.focus(); });
+      await s.page.waitForTimeout(300);
+      const pav = await s.page.evaluate(() => {
+        const p = document.getElementById('paveNum');
+        if(!p) return { absent: true };
+        const r = p.getBoundingClientRect();
+        const plus = [...p.querySelectorAll('.pave-plus')].map(b => ({ t: b.getAttribute('data-t'),
+          w: Math.round(b.getBoundingClientRect().width), h: Math.round(b.getBoundingClientRect().height),
+          top: Math.round(b.getBoundingClientRect().top) }));
+        const base = [...p.querySelectorAll('.pave-t')].filter(b => !b.classList.contains('pave-plus'))
+          .map(b => Math.round(b.getBoundingClientRect().top));
+        const c = document.getElementById('ecsSol').getBoundingClientRect();
+        const ctrls = document.getElementById('testCtrls');
+        const k = ctrls ? ctrls.getBoundingClientRect() : null;
+        const chev = (a, b) => !!(a && b && b.width > 0 && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom);
+        return { absent: false, visible: !p.hidden && r.height > 0, plus, base,
+                 deborde: p.scrollWidth > p.clientWidth + 2,
+                 couvreCase: chev(r, c), couvreCmd: chev(r, k) };
+      });
+      if(pav.absent) ditsP.push('aucun pavé sur la page');
+      else {
+        if(!pav.visible) ditsP.push('le pavé ne s\'ouvre pas quand la case reçoit le focus');
+        if(pav.plus.map(b => b.t).join(' ') !== T.join(' ')) ditsP.push('le pavé porte [' + pav.plus.map(b => b.t).join(' ') + '] au lieu de [' + T.join(' ') + ']');
+        if(pav.plus.some(b => b.w < 30 || b.h < 30)) ditsP.push('une touche supplémentaire du pavé est trop petite pour le doigt');
+        if(pav.deborde) ditsP.push('le pavé DÉFILE : des touches se cachent au lieu de passer à la ligne');
+        if(pav.couvreCase) ditsP.push('le pavé recouvre la case qu\'on remplit');
+        if(pav.couvreCmd) ditsP.push('le pavé recouvre les commandes du bas');
+        /* une touche du pavé, CLIQUÉE : elle écrit sans voler le focus */
+        await s.page.evaluate(() => { document.getElementById('ecsSol').value = ''; });
+        await s.page.click('#paveNum .pave-plus[data-t="' + T[0] + '"]');
+        await s.page.click('#paveNum .pave-t[data-t="3"]');
+        await s.page.waitForTimeout(120);
+        const apres = await s.page.evaluate(() => ({
+          v: document.getElementById('ecsSol').value,
+          focus: document.activeElement === document.getElementById('ecsSol') }));
+        if(apres.v !== T[0] + '3') ditsP.push('les touches du pavé écrivent « ' + apres.v + ' »');
+        if(!apres.focus) ditsP.push('une touche du pavé vole le focus de la case');
+      }
+      verifier('le pavé des tablettes porte les six mêmes symboles, et elles écrivent', !ditsP.length, ditsP.slice(0, 3).join(' | '));
+      await s.nav.close(); s = null;
+
+      /* ---- et en PAYSAGE, où tout tiendrait sur une seule ligne ----------
+         C'est là que le saut de ligne compte : en portrait la rangée déborde
+         de l'écran et se replie d'elle-même, en paysage les vingt touches
+         tiendraient côte à côte — et le pavé, qui NE DÉFILE JAMAIS, sortirait
+         par la droite ou recouvrirait les commandes du bas. */
+      const ditsL = [];
+      s = await ouvrir(chromium, ml, { viewport: { width: 1180, height: 820 }, hasTouch: true });
+      await connecter(s.page);
+      await s.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
+      await s.page.evaluate(id => openTest(id), P.ecrireSolutions.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(900);
+      await s.page.evaluate(() => { const e = document.getElementById('ecsSol'); e.scrollIntoView({ block: 'center' }); e.focus(); });
+      await s.page.waitForTimeout(300);
+      const pay = await s.page.evaluate(() => {
+        const p = document.getElementById('paveNum');
+        if(!p) return { absent: true };
+        const r = p.getBoundingClientRect();
+        const tops = t => { const v = []; t.forEach(x => { if(!v.some(y => Math.abs(y - x) < 6)) v.push(x); }); return v.length; };
+        const plus = [...p.querySelectorAll('.pave-plus')].map(b => b.getBoundingClientRect());
+        const base = [...p.querySelectorAll('.pave-t')].filter(b => !b.classList.contains('pave-plus')).map(b => b.getBoundingClientRect());
+        const ctrls = document.getElementById('testCtrls');
+        const k = ctrls ? ctrls.getBoundingClientRect() : null;
+        const chev = (a, b) => !!(a && b && b.width > 0 && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom);
+        return { absent: false, rangees: tops([...base, ...plus].map(q => Math.round(q.top))),
+                 deborde: p.scrollWidth > p.clientWidth + 2,
+                 sort: r.right > window.innerWidth + 1 || r.left < -1,
+                 couvreCmd: chev(r, k),
+                 petites: [...base, ...plus].filter(q => q.width < 28 || q.height < 28).length };
+      });
+      if(pay.absent) ditsL.push('aucun pavé en paysage');
+      else {
+        if(pay.deborde) ditsL.push('en paysage le pavé DÉFILE : des touches se cachent');
+        if(pay.sort) ditsL.push('en paysage le pavé sort de l\'écran');
+        if(pay.couvreCmd) ditsL.push('en paysage le pavé recouvre les commandes du bas');
+        if(pay.petites) ditsL.push(pay.petites + ' touche(s) de moins de 28 px en paysage');
+      }
+      verifier('en paysage, le pavé porte ses vingt touches sans déborder ni recouvrir les commandes', !ditsL.length, ditsL.slice(0, 3).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 octodecies. placer le point, lire l'image : le graphe se CLIQUE ===== */
     /* Le calcul clic → nœud est calibré sur les GRADUATIONS du SVG rendu —
        la seule façon de le voir est de cliquer pour de vrai (la leçon de
@@ -5512,9 +5726,20 @@ async function parcours(page, N){
                est À CÔTÉ : au-delà de 120 px de vide horizontal, c'est un autre
                bloc, pas un voisin. */
             const px = e => Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+            /* UN NOMBRE ÉCRIT PAR LA PAGE N'EST PAS TOUJOURS UN NOMBRE NU.
+               Le premier relevé n'acceptait que « 90 » ou « 1,5 » : au 2.5.2 de
+               la Première, les voisins d'une case s'écrivent « 1 + », « 1 + 0, »
+               et « 1, » — la page y posait des cases à 1,05 rem devant des
+               nombres à 2 rem, et le contrôle passait au vert en regardant
+               ailleurs (signalé en mesurant la chaîne de tablette, septembre
+               2026). On accepte donc un morceau COURT qui porte un chiffre et
+               aucune lettre : le signe et la virgule qui l'accompagnent font
+               partie du calcul écrit, pas d'un autre bloc. Les étiquettes
+               (« Question 1 / 4 ») portent des lettres, et ce qui vit ailleurs
+               à l'écran est déjà écarté par la ligne partagée et les 120 px. */
             const chiffres = [...on.querySelectorAll('*')].filter(x => x.children.length === 0
               && !x.closest('math-field')
-              && /^[0-9]+([.,][0-9]+)?$/.test((x.textContent || '').trim())
+              && (function(t){ return t.length <= 12 && /\d/.test(t) && !/\p{L}/u.test(t); })((x.textContent || '').trim())
               && x.getBoundingClientRect().width > 0);
             const cases = [];
             for(const mf of [...on.querySelectorAll('math-field')].filter(visible)){

@@ -2247,7 +2247,7 @@ du cœur, et la liste `[-1, 0, 1]` n'est pas un garde-fou mais un choix de
 présentation — le partage reste près du milieu, comme sur la fiche.
 
 **Le 4.5 de la Terminale est descendu en Seconde — même tirage, autre juge.**
-{solutions-graphique} (Seconde, Fonctions, juste avant {construire-fonction},
+{solutions-graphique} (Seconde, Fonctions, juste avant {ecrire-solutions},
 demande de Turquet, septembre 2026 : « mettre l'exercice 4.5 de terminale en
 seconde avec les fonctions ») est {tvi-lecture-graphique} sans le mot TVI : une
 courbe, une hauteur k, et trois gestes — cliquer sur la courbe le ou les points
@@ -2309,6 +2309,105 @@ jamais une copie vide, le sabotage était impossible ; posé AVANT le garde, il
 rougit. Deux sabotages de plus ne rougissent QU'AU NAVIGATEUR — la cible
 juste peinte en rouge sous sa classe `okc`, les zones de saisie réduites à
 8 px —, jsdom restant vert à bon droit sur l'un comme sur l'autre.
+
+**Et l'ensemble des solutions s'ÉCRIT, en entier, dans une seule case.**
+{ecrire-solutions} (Seconde, Fonctions, demande de Turquet, septembre 2026 :
+« un exercice sur les inéquations ou équations de la forme résoudre f(x)=k ou
+f(x)>k ou f(x)>=k ou f(x)<k ou f(x)<=k avec un graphique de −6 à 6 en
+abscisse et ordonnée. L'élève doit donner sa réponse dans une case à côté de
+"S=", il doit tout taper, et sur le clavier des tablettes il doit y avoir
+[ ] ; U { } — et sur des boutons au-dessus du champ de saisie aussi ») suit
+{solutions-graphique} au menu : là on CLIQUE les solutions d'une équation,
+ici on ÉCRIT l'ensemble — et l'inéquation vient avec.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : le tirage est `adrGenPts()`, le
+générateur MÊME du grand dessin (13 valeurs entières, segments strictement
+monotones, jamais de palier) ; le dessin est `adrSVG()`, la fonction même,
+appelée NUE — elle a seulement son paramètre « dessus », la convention de
+l'`extra` de `lvGraphSVG`, pour que la méthode se trace par-dessus ; et les
+morceaux de courbe de la solution passent par `adrPath(pts, sx, sy, ia, ib)`,
+le MÊME chemin que la courbe noire, donc ils s'y superposent exactement.
+**LA SAISIE LIBRE EST TOUT LE SUJET.** Partout ailleurs (le 2.4, le 2.7, le
+2.8, le 2.18) les crochets et les bornes se CHOISISSENT dans des listes :
+l'élève RECONNAÎT une écriture. Ici il l'ÉCRIT — c'est le geste du contrôle,
+et le seul qui fasse travailler la notation elle-même. La contrepartie est
+que le juge doit être LARGE sur l'écriture et EXACT sur l'ensemble : espaces
+libres, « - » comme « − », « u » comme « U » comme « ∪ », intervalles dans
+l'ordre qu'on veut, doublon d'un ensemble compté une fois — et en revanche la
+bonne borne, le bon crochet, le bon nombre d'intervalles. Refuser une
+écriture juste serait le pire défaut du projet ; accepter une réunion pour
+une équation en serait un autre, et la consigne DIT donc le geste (accolades
+pour des nombres, crochets pour un intervalle, U entre deux) sans dire lequel
+s'applique ici — c'est encore à l'élève de choisir.
+**LE RISQUE PROPRE EST LA BORNE ILLISIBLE, et il est SILENCIEUX** : une
+hauteur k traversée ENTRE deux graduations donnerait à S une borne qui ne se
+lit pas sur le dessin, et une lecture juste serait comptée fausse ; et une
+racine qui TOUCHE la courbe sans la traverser ferait de S autre chose qu'une
+réunion d'intervalles (] a ; c [ U ] c ; b [ pour une inégalité stricte) — un
+énoncé auquel la ligne de réponse ne sait pas répondre. Le tirage exige donc
+que k soit atteinte, jamais traversée entre deux graduations, et que CHAQUE
+racine soit un vrai CROISEMENT INTÉRIEUR (la discipline du 2.7 et du 2.8) —
+ce qui écarte du même geste les racines posées au BORD, où un intervalle se
+réduirait à un point. Les bords du domaine, eux, sont TOUJOURS pris : f n'y
+vaut pas k.
+**Le contrôle refait l'ensemble par une SECONDE méthode qui n'a rien en
+commun avec la page** : la spline est ÉCHANTILLONNÉE au centième et les
+morceaux relevés là où l'inégalité tient, quand la page ne regarde que les
+graduations — un côté inversé ou une borne fausse se voient alors tout de
+suite ; les crochets, eux, se vérifient par la propriété (ouverts aux racines
+si et seulement si l'inégalité est stricte, fermés aux bords du domaine).
+**Une séance montre les CINQ formes, chacune UNE fois, en ordre mélangé** (le
+motif d'{inequation-droite}) — sans quoi l'élève apprendrait que la réponse
+est toujours du même genre — et parmi les quatre inéquations, au moins une
+dont S est UN intervalle et au moins une dont S en a DEUX : sans ce second
+visage le U ne servirait jamais. Sonde : 400 séances sur 400, 1,1 essai en
+moyenne, 0 recours au repli — lequel est RÉEL, relevé sur le générateur, et
+repasse par les gardes MÊMES du tirage.
+La bonne réponse n'est jamais rangée à côté de la question : elle ne porte que
+la courbe, la hauteur et le signe (`pts`, `k`, `rel`) — `ecsAns()`, que
+l'énoncé, le juge, le message et le dessin de la méthode lisent tous, la
+recalcule — et le contrôle refuse tout autre champ.
+**LES SIX TOUCHES VIVENT À UN SEUL ENDROIT** (`ECS_TOUCHES`), lu par la
+rangée au-dessus du champ ET par le pavé des tablettes : deux listes auraient
+fini par diverger, et le clavier d'un élève sur tablette aurait perdu un
+symbole que l'ordinateur offre encore. Le banc compare cette liste à
+`tests/profils.js` — deux sources. Les boutons passent par `paveInserer`, le
+moteur d'insertion déjà éprouvé : ils posent la sélection ET lèvent
+« input », sans quoi ils seraient des boutons MORTS pour la correction en
+direct.
+**Le pavé apprend les touches que la CASE demande, pas le niveau.** Ajouter
+`[ ] ; U { }` à `PAVE_TOUCHES` les aurait offertes à toutes les cases
+numériques de la Seconde, où elles n'écriraient qu'une réponse fausse — la
+doctrine du bouton qui n'est proposé que là où il SERT. La case les NOMME
+(`data-pave-plus`), et `paveSup()` — une neuvième fonction du moteur, donc le
+même texte dans les TROIS fichiers, et le contrôle d'identité la compare — les
+pose au bout de la rangée ; la rangée se replie alors (`pave-2r`) plutôt que
+de laisser des touches sortir de l'écran : **le pavé ne défile jamais.** Les
+niveaux qui ne déclarent aucune touche supplémentaire ne changent pas d'un
+pixel.
+**La MÉTHODE est dessinée à la VALIDATION, jamais avant** : la droite y = k,
+les croisements, les traits qui descendent sur l'axe, les morceaux de courbe
+qui vérifient l'inégalité, et S posé sur l'axe avec ses crochets — un crochet
+de borne EXCLUE tourne le dos à l'intervalle, la convention d'{intervalles} :
+le dessin EST la notation. Affichée pendant la recherche, elle donnerait la
+réponse.
+**Deux garde-fous MORTS y ont été écrits, puis retirés** — les dixième et
+onzième du projet, tous deux montrés par le sabotage, qui est resté vert en
+disant vrai. Le `!isSoutien()` posé par réflexe sur la révélation de la bonne
+réponse n'écartait jamais rien : en soutien une copie fausse repart par la
+branche du dessus, avec son « Revérifier » — on n'arrive à la révélation, en
+soutien, qu'avec une copie JUSTE, et c'est la branche du soutien qui tient le
+bord. Et le saut de ligne FORCÉ du pavé (`.pave-br`) n'écartait rien non
+plus : la rangée se replie d'elle-même exactement quand elle ne tient pas —
+c'est le CONTRÔLE qui exige la propriété (le pavé ne défile pas, ne recouvre
+ni la case ni les commandes, ses touches restent touchables).
+**Vingt sabotages au banc principal et trois au navigateur**, chacun
+rougissant en nommant son défaut. Le banc NAVIGATEUR (« 6 vicies quater »,
+déclaré par `ecrireSolutions` dans `tests/profils.js`) tient ce que jsdom ne
+voit pas : les six boutons CLIQUÉS pour de vrai — jsdom lit un attribut, seul
+un navigateur voit qu'un bouton écrit —, leur taille au doigt, les morceaux
+verts et les quatre crochets RENDUS avec une étendue non nulle (un CSS perdu
+les rendrait invisibles sans qu'une erreur ne se lève), et le pavé des
+tablettes en portrait comme en paysage.
 
 **Simplifier, ça se VOIT : deux barres qui vont aussi loin.**
 {simplifier-barres} (Seconde) donne une fraction à simplifier et la fait dire
@@ -6505,8 +6604,8 @@ tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran
 cassé.
 **Ce qui NE bouge pas est un choix, pas un oubli** : la case générique à
-1,05 rem (le 2.5.2, les colonnes du 3.1.4) est déjà la plus petite du niveau
-et reste une cible qu'on touche du doigt ; les étiquettes d'étape et les
+1,05 rem (les colonnes du 3.1.4) est déjà la plus petite du niveau et reste une
+cible qu'on touche du doigt ; les étiquettes d'étape et les
 boutons de propositions ne sont pas des écritures de la chaîne. Sur un
 TÉLÉPHONE rien ne change non plus — la demande dit les tablettes, et le
 facteur vaut 1 sous 600 px.
@@ -6520,10 +6619,44 @@ facteur n'est déclaré qu'à UN endroit et jamais sur `:root`, `html` ou `body`
 pas. Le banc NAVIGATEUR (« 11 septies ») mesure ce que jsdom ne sait pas :
 les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
 et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
-page. Un défaut d'à côté s'est vu en mesurant, et il est ANTÉRIEUR : au 2.5.2,
-les cases sont à 1,05 rem devant des écritures à 2 rem — le contrôle universel
-ne l'attrape pas, ses voisins n'étant pas des nombres NUS (« 1 + », « 1, »).
-Le dire vaut mieux que le taire.
+page.
+
+**Et un défaut d'à côté s'est vu en mesurant : le 2.5.2 écrivait ses cases
+trois fois plus petites que ses nombres.** Ses cases étaient restées à la
+taille générique (1,05 rem) devant des écritures à 2 rem — « 1 − ▢/▢ = 1 − 0,▢
+= 0,▢ » — alors que son jumeau le 2.2.1, dont il reprend la chaîne au caractère
+près, les écrit à 1,9 rem : la réponse de l'élève passait pour une note en bas
+de page au milieu du calcul, c'est-à-dire exactement ce que la règle « une case
+a la taille des nombres qui l'entourent » interdit. Corrigé sur demande de
+Turquet (septembre 2026) : `#ckHost` rejoint le groupe des pourcentages dans
+les cinq listes qui vont ensemble — la taille, les deux largeurs, le trait de
+fraction et le repli du téléphone — plutôt que de recevoir un réglage à lui,
+qui aurait fini par diverger de celui du 2.2.1.
+**MAIS LE VRAI DÉFAUT ÉTAIT DANS LE CONTRÔLE, et c'est lui qui a été
+réparé** : le contrôle universel ne comptait comme « nombre autour » qu'un
+morceau de texte ENTIÈREMENT numérique (« 90 », « 1,5 »). Or la page n'écrit
+presque jamais un nombre tout nu dans une chaîne : elle écrit « 1 − »,
+« 1 − 0, », « 0, ». Le 2.5.2 n'avait donc AUCUN voisin aux yeux du banc, qui
+passait au vert en regardant ailleurs — un contrôle qui ne mesure rien ne
+mesure rien, et celui-là a vécu des mois. Est désormais un voisin tout morceau
+COURT (12 caractères au plus) qui porte un chiffre et aucune lettre : le signe
+et la virgule font partie du calcul écrit. Les étiquettes (« Question 1 / 4 »)
+portent des lettres, et ce qui vit ailleurs à l'écran reste écarté par la ligne
+partagée et les 120 px — les trois niveaux passent sans une seule exemption, ce
+qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.2
+en défaut : le banc le NOMME (« 2.5.2 — ck1p : 16.8px contre 32px »), là où il
+restait vert avant.
+**Et il en a trouvé un SECOND en naissant, par intermittence — ce qui est la
+pire façon pour un contrôle de dire vrai.** Le 2.1.2 écrivait lui aussi sa case
+à 1,05 rem au milieu d'une phrase à 1,35 rem (« 20 % de 100 km est ▢ »), et le
+banc ne le nommait que lorsque le tirage posait un nombre sur la ligne de la
+case : vert un tirage sur deux. La case prend la taille de sa phrase, et la
+SONDE — le contrôle rejoué sur quatre tirages, les trois niveaux — remplace la
+chance par une mesure : zéro case plus petite que ses voisins. Un piège de
+cascade s'y est montré, le même qu'ailleurs : `.pcol-phrase math-field` (une
+classe, un type) PERD contre `body math-field.dexp-mf` (une classe, deux
+types), et la règle ne faisait rien — mesurée, pas relue : la case restait à
+16,8 px pendant que la feuille de styles disait 1,35 rem.
 **Et le contrôle s'est pris en défaut avant la page, deux fois.** Le premier
 jet cherchait le bloc média d'un seul coup de regex, en exigeant qu'il ne
 contienne QUE la règle du facteur : trois de ses bords devenaient alors

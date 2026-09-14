@@ -86,7 +86,7 @@ const RAPPELS_SECONDE = `(function(){
                'somme-fractions-libre':'sfl','simplifier-barres':'smp',
                'multiplier-fractions':'mlt','multiplier-fractions-libre':'mll',
                'diviser-fractions':'mlt','diviser-fractions-libre':'mll',
-               'ordre-croissant':'ord',
+               'ordre-croissant':'ord','ecrire-solutions':'ecs',
                'synthese-fonction':'syn' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -248,7 +248,7 @@ module.exports = {
        du facteur, l'énoncé réduit de la seule police de la page. */
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
-                                  '.fr .fd', '.fpm-const', '.mf-cor'],
+                                  '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
                       /* La feuille de RÉDACTION libre (2.1.7, 2.2.9, 2.3.8) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
@@ -462,6 +462,13 @@ module.exports = {
        les couleurs du verdict se lisent à l'encre rendue. jsdom n'a pas de
        mise en page : le clic et l'encre ne se voient que dans un navigateur. */
     solutionsGraphique: { exercice: 'solutions-graphique' },
+    /* {ecrire-solutions} : la réponse se TAPE en entier à côté de « S = » —
+       crochets, point-virgule, U, accolades. Deux choses ne se voient pas hors
+       d'un vrai navigateur : la rangée de touches AU-DESSUS du champ, cliquée
+       pour de vrai (un bouton mort n'écrirait rien sans qu'une erreur ne se
+       lève), et le PAVÉ des tablettes, qui doit porter les six mêmes symboles
+       sur une seconde rangée — data-pave-plus. */
+    ecrireSolutions: { exercice: 'ecrire-solutions', touches: ['[', ']', ';', 'U', '{', '}'] },
     /* {placer-image} : le point se POSE au clic sur le graphe du 2.2 — le
        calcul clic → nœud ne se voit que dans un vrai navigateur. */
     placerImage: { exercice: 'placer-image' },
@@ -528,7 +535,11 @@ module.exports = {
        colore rien au fil des clics, et c'est voulu : peindre chaque cible au
        moment où on la pose dirait laquelle est juste avant même de vérifier.
        Le soutien y colore à la vérification, sans révéler ce qui manque. */
-    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg'] },
+    /* « ecs » — {ecrire-solutions} — n'a qu'une case, et elle porte la
+       réponse ENTIÈRE : la colorer au fil de la frappe dirait à l'élève qu'il
+       a juste avant même qu'il ne vérifie. Le soutien y colore à la
+       vérification, sans jamais révéler l'écriture attendue. */
+    soutienEnDirect: { sans: ['lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'tvg', 'ecs'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -653,7 +664,7 @@ module.exports = {
                          'appartient-intervalle', 'placer-intervalle', 'ordre-croissant', 'lecture-variations',
                          'tableau-variation', 'lecture-signes', 'image-nombre', 'placer-image', 'antecedent-nombre', 'antecedents-droite', 'inequation-droite', 'inequation-graphique',
                          'equation-graphique', 'lecture-deux-courbes', 'resolutions-graphiques',
-                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'construire-fonction', 'construire-max-min', 'synthese-fonction'] },
+                         'tableau-signes-graphique', 'signes-variations', 'signes-variations-grand', 'choisir-tableau-variation', 'maximum-minimum', 'maximum-minimum-tableau', 'tableau-equations', 'tableau-vrai-faux', 'solutions-graphique', 'ecrire-solutions', 'construire-fonction', 'construire-max-min', 'synthese-fonction'] },
     /* {tableau-signes-graphique} : 5 questions — la seconde source du compte,
        la page a la sienne (TSG_NB). */
     nbQuestionsTableauSignes: 5,
