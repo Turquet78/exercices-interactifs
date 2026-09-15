@@ -531,6 +531,12 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
     background:var(--surface);border:1.5px solid var(--red);border-radius:14px;
     padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
   #bexpBulle[hidden]{display:none!important}
+  /* Faute de place à sa taille normale, la bulle se RESSERRE plutôt que de
+     retourner au coin : même texte, plus petit. Une chaîne de cases n'offre
+     nulle part 288 px de libre, et une bulle au coin ne désigne rien. */
+  #bexpBulle.bexp-mini{max-width:200px;padding:6px 22px 6px 8px}
+  #bexpBulle.bexp-mini [data-bexp-btn]{font-size:.74rem;padding:3px 5px;line-height:1.15}
+  #bexpBulle.bexp-mini [data-bexp-x]{top:2px;right:4px;font-size:12px}
   /* la flèche : DEUX triangles — l'un à l'encre du cadre, l'autre au fond posé
      2 px en dedans pour couvrir le trait du cadre, sans quoi la base de la
      flèche montrerait une couture. --bexp-fx est la distance du bord de la
@@ -734,7 +740,14 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   /* Retour IA phrase par phrase : le juste en vert, le faux/oubli en rouge (balises [OK]/[KO]) */
   .mp-feedback .fb-ok{color:var(--green);font-weight:600}
   .mp-feedback .fb-ko{color:var(--red);font-weight:600}
-  .mp-feedback.iafb{color:var(--ink);text-align:left}
+  /* « iafb » NE POSE PLUS D'ENCRE, et c'est tout le correctif. Un verdict
+     écrit « mp-feedback iafb good » perdait sa couleur : les deux sélecteurs
+     ont la même spécificité et « iafb », déclaré plus bas, gagnait — la phrase
+     qui commente la vérification s'écrivait en NOIR, le correct et le faux se
+     lisant pareil (la demande d'août 2026, tenue en Seconde et perdue ici).
+     Sans encre, le bloc hérite de l'encre ordinaire quand aucun verdict n'est
+     posé, exactement comme avant — le banc navigateur le mesure. */
+  .mp-feedback.iafb{text-align:left}
   .conseil-card{max-width:min(520px,94vw);width:100%}
 
 .dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
@@ -2047,7 +2060,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=224;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=226;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
@@ -7188,12 +7201,32 @@ const QLET=['a','b','c','d'];
      - le produit reste sous PCT_MAXPROD ;
      - le résultat est toujours entier.
    Élargir la plage se fait ici : ajouter des pourcentages à PCT_PCTS, ouvrir
-   PCT_VALEURS, relever PCT_MAXPROD. Les trois générateurs de 3.1 suivent. */
+   PCT_VALEURS, relever PCT_MAXPROD. Les trois générateurs de 3.1 suivent.
+   ET LE COEFFICIENT S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES (demande de Turquet,
+   septembre 2026, après le 2.2.7, le 2.3.7, le 2.2.8 et le 2.5.1) : « prendre
+   P % », c'est multiplier par P/100, et ce qui tient la règle est que P est un
+   ENTIER de pourcent. Sur les viviers d'aujourd'hui le coefficient n'a même
+   qu'UNE décimale — les taux sont des multiples de dix — et tout le reste de la
+   chaîne est entier.
+   AUCUN GARDE N'EST POSÉ : il n'écarterait jamais rien, P étant entier par
+   construction, et ferait croire qu'on vérifie quelque chose. La raison est
+   écrite ICI parce que c'est ici qu'on élargit : 12,5 % — un taux d'école,
+   1/8 — donnerait 0,125, et passerait TOUS les gardes de la page (12,5 × 80
+   fait 1000, donc un résultat parfaitement entier). C'est le banc qui exige la
+   propriété, sur le vivier comme sur chaque tirage. */
 const PCT_MAXPROD=9999;                        /* étape ② : 4 chiffres au maximum */
 const PCT_PCTS=[10,20,30,40,50,60,70,80,90];
 const PCT_VALEURS=(()=>{ const t=[]; for(let k=1;k<=2;k++) for(let d=1;d<=9;d++) t.push(d*Math.pow(10,k)); return t; })();  /* 10 … 90, 100 … 900 */
 /* Un couple n'est retenu que s'il tient dans la plage ET donne un résultat entier :
-   l'étape ③ ne doit pas basculer en décimal, ce serait un autre exercice. */
+   l'étape ③ ne doit pas basculer en décimal, ce serait un autre exercice.
+   La divisibilité par 100 n'écarte RIEN sur les viviers d'aujourd'hui — mesuré
+   exhaustivement : 162 couples, 104 retenus, 58 écartés par PCT_MAXPROD et zéro
+   par elle, les deux viviers n'ayant que des multiples de dix. Elle reste parce
+   qu'elle est exactement le filtre qui tiendrait l'intégralité le jour où
+   PCT_VALEURS s'ouvrirait (15 y ferait écarter 30 % mais pas 20 %), et parce que
+   la propriété, elle, est exigée par le banc. Le sabotage le dit : la retirer
+   laisse le contrôle vert, à bon droit ; la retirer ET ouvrir PCT_VALEURS le
+   fait rougir. */
 function pctCoupleOk(P,N){ const pr=P*N; return pr<=PCT_MAXPROD && pr%100===0; }
 const QD_PCTS=PCT_PCTS;
 /* L'euro apparaît deux fois : c'est de loin le contexte le plus courant des
@@ -9177,6 +9210,16 @@ function nextHSQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; ren
    déjà augmentée EST la leçon de l'exercice. C'est ce que fait déjà le 2.2.7,
    dont l'étape ② redemande les deux coefficients de l'étape ①.
 
+   LES LIBELLÉS ① ET ③ DISENT SUR QUOI ON CALCULE (demande de Turquet,
+   septembre 2026) : « on calcule d'abord …% de 100 », puis « on calcule …% du
+   résultat précédent ». Ce n'est pas un habillage — c'est LA leçon de
+   l'exercice, celle que le message de correction nomme déjà : la seconde
+   hausse ne porte pas sur 100. Les deux pourcentages SUIVENT la question, et
+   le bord qui compte est le libellé FIGÉ, qui nommerait un taux que la
+   question ne porte pas (la leçon du numéro d'exercice de show()) : le
+   contrôle rend deux questions aux taux ÉCHANGÉS et exige que les libellés
+   suivent.
+
    PAS DE POSE EN COLONNES, contrairement au 2.2.2 : la fiche n'en a pas, et
    avec le tirage ci-dessus les deux additions tombent sur des entiers à trois
    chiffres. L'écran porte déjà vingt et une cases ; le bouton « Tables de
@@ -9235,11 +9278,11 @@ function renderHSCTest(){
   const dec=(id,lbl)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lbl}"></math-field>`;
   const ligneAdd=(a,b,r,lblR)=>`<div class="pt-row">${dec(a,'premier terme')}<span class="f-whole">+</span>${dec(b,'deuxième terme')}${fEq(dec(r,lblR))}</div>`;
   $('hscHost').innerHTML=numeros(
-    `<div class="pt-step"><div class="pt-lab">① La hausse pour <b>100</b>, et le résultat pour une hausse de ${q.P1} % — comme dans {augmenter-addition}</div>
+    `<div class="pt-step"><div class="pt-lab">① On calcule d’abord ${q.P1} % de <b>100</b> — comme dans {augmenter-addition}</div>
        <div class="pt-row">${frac('hsc1n','hsc1d')}<span class="f-times">×</span>${dec('hsc1m','la valeur de départ')}${fEq(frac('hsc1pn','hsc1pd'))}${fEq(dec('hsc1a','la hausse pour 100'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">② Écris l’addition : valeur de départ + augmentation = nouvelle valeur</div>
        ${ligneAdd('hsc1sa','hsc1sb','hsc1sr','la nouvelle valeur')}</div>`+
-    `<div class="pt-step"><div class="pt-lab">③ La hausse pour <b>la valeur que tu viens de trouver</b>, et le résultat pour une hausse de ${q.P2} %</div>
+    `<div class="pt-step"><div class="pt-lab">③ On calcule ${q.P2} % du <b>résultat précédent</b></div>
        <div class="pt-row">${frac('hsc2n','hsc2d')}<span class="f-times">×</span>${dec('hsc2m','la nouvelle valeur de départ')}${fEq(frac('hsc2pn','hsc2pd'))}${fEq(dec('hsc2a','la seconde hausse'))}</div></div>`+
     `<div class="pt-step"><div class="pt-lab">④ Écris l’addition : valeur de départ + augmentation = nouvelle valeur</div>
        ${ligneAdd('hsc2sa','hsc2sb','hsc2sr','la valeur finale')}</div>`+
@@ -12328,6 +12371,9 @@ function bexpValeur(el){
 const BEXP_ECART=14;   /* la pointe s'arrête à 14 px de la case : la flèche en
                           occupe 10, il reste 4 px de blanc */
 const BEXP_MARGE=8;    /* on ne colle jamais la bulle au bord de la fenêtre */
+const BEXP_PAS=6;      /* le pas du GLISSEMENT le long du côté : la bulle n'est
+                          pas forcée d'être centrée sur la case, elle se décale
+                          tant que la flèche atteint encore son centre */
 /* 'auto' et non '' : vider une propriété en ligne rend la main à la FEUILLE DE
    STYLES, qui repose right:16px et bottom:92px. Les deux bords posés, le
    navigateur ÉTIRE la boîte — la bulle mesurait 360x488 au lieu de 288x69 —,
@@ -12337,6 +12383,7 @@ const BEXP_MARGE=8;    /* on ne colle jamais la bulle au bord de la fenêtre */
    nommé (« element is not stable ») et la sonde l'a chiffré. */
 function bexpCoin(b){
   if(!b) return;
+  b.classList.remove('bexp-mini');
   b.removeAttribute('data-bexp-cote');
   b.style.removeProperty('--bexp-fx');
   b.style.left='auto'; b.style.top='auto';
@@ -12371,48 +12418,87 @@ function bexpChevauche(x,y,l,h,obs){
   }
   return false;
 }
+/* Les valeurs essayées le long d'un côté : la CENTRÉE d'abord, puis de part
+   et d'autre, et les deux extrêmes. La bulle n'est donc plus obligée d'être
+   centrée sur sa case — elle glisse tant que la flèche atteint encore le centre
+   de la case, c'est-à-dire tant que son décalage reste à 18 px des coins
+   arrondis. Sans ce glissement, un obstacle qui mordait de deux pixels
+   renvoyait la bulle au coin (mesuré : 11 replis sur 29 disparaissent). */
+function bexpGlissades(centre, mn, mx){
+  const out=[];
+  if(mn>mx) return out;
+  const pousser=function(v){
+    v=Math.max(mn, Math.min(mx, v));
+    if(out.indexOf(v)<0) out.push(v);
+  };
+  pousser(centre);
+  for(let d=BEXP_PAS; d<=(mx-mn); d+=BEXP_PAS){ pousser(centre-d); pousser(centre+d); }
+  pousser(mn); pousser(mx);
+  return out;
+}
+/* Pose la bulle de taille L×H à côté de la case, et rend true si elle a trouvé
+   sa place : les quatre côtés dans l'ordre (droite, gauche, dessus, dessous),
+   chacun glissé. La zone testée comprend la FLÈCHE, qui dépasse du côté de la
+   case — sans quoi la pointe se poserait sur la case du voisin. */
+function bexpPoser(b, c, L, H, obs){
+  const W=window.innerWidth, Hv=window.innerHeight;
+  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
+  const cotes=[
+    { cote:'droite', vert:true,  fixe:c.right+BEXP_ECART  },
+    { cote:'gauche', vert:true,  fixe:c.left-BEXP_ECART-L },
+    { cote:'haut',   vert:false, fixe:c.top-BEXP_ECART-H  },
+    { cote:'bas',    vert:false, fixe:c.bottom+BEXP_ECART },
+  ];
+  for(let i=0;i<cotes.length;i++){
+    const e=cotes[i], D=e.vert?H:L, ancre=e.vert?cy:cx;
+    const vals=bexpGlissades(ancre-D/2, ancre-D+18, ancre-18);
+    for(let k=0;k<vals.length;k++){
+      const x = e.vert ? e.fixe : vals[k];
+      const y = e.vert ? vals[k] : e.fixe;
+      if(x<BEXP_MARGE || y<BEXP_MARGE || x+L>W-BEXP_MARGE || y+H>Hv-BEXP_MARGE) continue;
+      const zx=(e.cote==='droite') ? x-BEXP_ECART : x;
+      const zy=(e.cote==='bas')    ? y-BEXP_ECART : y;
+      const zl=e.vert ? L+BEXP_ECART : L;
+      const zh=e.vert ? H : H+BEXP_ECART;
+      if(bexpChevauche(zx,zy,zl,zh,obs)) continue;
+      b.style.right='auto'; b.style.bottom='auto';
+      b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+      b.dataset.bexpCote=e.cote;
+      /* La flèche suit le CENTRE de la case, EXACTEMENT : le glissement ne
+         propose que des places d'où elle l'atteint sans sortir des coins
+         arrondis (18 px), donc il n'y a plus rien à borner ici — un
+         Math.min/max y serait le quatorzième garde-fou mort du projet. */
+      const f=e.vert ? cy-y : cx-x;
+      b.style.setProperty('--bexp-fx', Math.round(f)+'px');
+      return true;
+    }
+  }
+  return false;
+}
 function bexpPlacer(){
   const b=document.getElementById('bexpBulle');
   if(!b || b.hidden) return;
   const el=bexpCase;
+  /* on repart TOUJOURS de la taille normale : le choix ne dépend alors que de
+     la case et des obstacles, jamais de l'état où la bulle se trouvait — c'est
+     ce qui fait converger l'observateur de taille au lieu de le faire boucler */
+  b.classList.remove('bexp-mini');
   /* on mesure la bulle là où elle est : un seul bord est posé par axe (les
      autres à 'auto'), donc sa taille ne dépend PAS de sa place — c'est ce qui
      empêche l'observateur de taille de boucler, et le contrôle l'exige */
   const rb=b.getBoundingClientRect(), L=rb.width, H=rb.height;
-  const W=window.innerWidth, Hv=window.innerHeight;
   if(!el || !el.isConnected || !L || !H){ bexpCoin(b); return; }
   const c=el.getBoundingClientRect();
   if(!c.width && !c.height){ bexpCoin(b); return; }
-  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
-  const borne=function(v,mn,mx){ return Math.max(mn, Math.min(mx, v)); };
-  const yc=borne(cy-H/2, BEXP_MARGE, Hv-H-BEXP_MARGE);
-  const xc=borne(cx-L/2, BEXP_MARGE, W-L-BEXP_MARGE);
-  const essais=[
-    { cote:'droite', x:c.right+BEXP_ECART,  y:yc },
-    { cote:'gauche', x:c.left-BEXP_ECART-L, y:yc },
-    { cote:'haut',   x:xc, y:c.top-BEXP_ECART-H },
-    { cote:'bas',    x:xc, y:c.bottom+BEXP_ECART },
-  ];
   const obs=bexpObstacles(el);
-  for(let i=0;i<essais.length;i++){
-    const e=essais[i];
-    if(e.x<BEXP_MARGE || e.y<BEXP_MARGE || e.x+L>W-BEXP_MARGE || e.y+H>Hv-BEXP_MARGE) continue;
-    /* la zone testée comprend la FLÈCHE, qui dépasse du côté de la case */
-    const zx=(e.cote==='droite') ? e.x-BEXP_ECART : e.x;
-    const zy=(e.cote==='bas')    ? e.y-BEXP_ECART : e.y;
-    const zl=(e.cote==='droite'||e.cote==='gauche') ? L+BEXP_ECART : L;
-    const zh=(e.cote==='haut'  ||e.cote==='bas')    ? H+BEXP_ECART : H;
-    if(bexpChevauche(zx,zy,zl,zh,obs)) continue;
-    b.style.right='auto'; b.style.bottom='auto';
-    b.style.left=Math.round(e.x)+'px'; b.style.top=Math.round(e.y)+'px';
-    b.dataset.bexpCote=e.cote;
-    /* la flèche suit le CENTRE de la case, bornée pour ne pas sortir des coins
-       arrondis de la bulle */
-    const f=(e.cote==='droite'||e.cote==='gauche') ? borne(cy-e.y, 18, H-18)
-                                                   : borne(cx-e.x, 18, L-18);
-    b.style.setProperty('--bexp-fx', Math.round(f)+'px');
-    return;
-  }
+  if(bexpPoser(b, c, L, H, obs)) return;
+  /* Faute de place à sa taille normale, la bulle se RESSERRE — même texte, plus
+     petit — avant de renoncer : une chaîne de cases n'offre nulle part 288 px
+     de libre, et le coin ne désigne rien (mesuré : 9 replis de plus
+     disparaissent). */
+  b.classList.add('bexp-mini');
+  const rm=b.getBoundingClientRect();
+  if(rm.width && rm.height && bexpPoser(b, c, rm.width, rm.height, obs)) return;
   bexpCoin(b);
 }
 function bexpMontrer(el){

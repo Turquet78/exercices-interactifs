@@ -1840,6 +1840,33 @@ function branchements(w){
       if(acc) vus.push('une référence {identifiant} reste affichée à l’élève : '+acc[0]);
       if(vus.length) return vus.slice(0,4).join(' | ');
 
+      /* ---- 5 bis. les libellés ① et ③ disent SUR QUOI on calcule ----------
+         Demande de Turquet (septembre 2026) : « le n°1 en dessous de l’énoncé
+         doit afficher : on calcule d’abord …% de 100 ; le n°3 : on calcule …%
+         du résultat précédent ». Ce n’est pas un habillage : c’est LA leçon de
+         l’exercice — la seconde hausse ne porte PAS sur 100, et un libellé qui
+         le laisserait croire enseignerait l’erreur même que l’exercice combat
+         (le message de correction la nomme déjà en toutes lettres).
+         Le second bord est le plus sournois : un libellé FIGÉ nommerait un
+         pourcentage que la question ne porte pas — la leçon du numéro
+         d’exercice de show(), transposée. On rend donc DEUX questions
+         épinglées, aux taux ÉCHANGÉS, et on exige que les libellés suivent. */
+      const seance=test.questions;
+      const lab=function(i){ const l=document.getElementById('hscHost').querySelectorAll('.pt-lab');
+        return l[i]?l[i].textContent.replace(/\\s+/g,' ').trim():''; };
+      [[2,50],[50,2]].forEach(function(p){
+        test.questions=[hscQuestion(p[0],p[1])]; test.idx=0; renderHSCTest();
+        const l1=lab(0), l3=lab(2);
+        if(l1.indexOf(p[0]+' %')<0) vus.push('l’étape ① ne dit pas « '+p[0]+' % » : « '+l1+' »');
+        if(l1.indexOf('100')<0) vus.push('l’étape ① ne dit pas qu’on calcule sur 100 : « '+l1+' »');
+        if(l1.indexOf('d’abord')<0) vus.push('l’étape ① ne dit pas que c’est le PREMIER calcul : « '+l1+' »');
+        if(l3.indexOf(p[1]+' %')<0) vus.push('l’étape ③ ne dit pas « '+p[1]+' % » : « '+l3+' »');
+        if(l3.indexOf('résultat précédent')<0) vus.push('l’étape ③ ne dit pas qu’on calcule sur le résultat précédent : « '+l3+' »');
+        if(/%\\s*de\\s*100/.test(l3)) vus.push('l’étape ③ fait porter la seconde hausse sur 100 : « '+l3+' »');
+      });
+      test.questions=seance; test.idx=0; renderHSCTest();
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
       /* ---- 6. la copie juste, et l’ordre libre de l’addition ---- */
       const cl=function(id){ const e=document.getElementById(id); return (e&&e.className)||''; };
       const poser=function(o){
@@ -3506,6 +3533,7 @@ function exercices(suite){
     suiteAuxiliaireCompleter(w, P);
     recurrenceFractions(w, P);
     phraseCouleurs(w);
+    verdictSansCouleur(w, P);
     antecedentNombre(w, P);
     antecedentsDroite(w, P);
     inequationDroite(w, P);
@@ -3553,6 +3581,7 @@ function exercices(suite){
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
     coefficientDeuxDecimalesSynthese(w, P);
+    coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -7841,6 +7870,46 @@ function imageNombre(w, P){
    couleurs, ET n'être écrite qu'à UN endroit. Elle était recopiée six fois mot
    pour mot ; six copies, ce sont six chances de n'en corriger que cinq le jour
    où la convention change — et elle a déjà changé une fois dans ce projet. */
+/* ---------- Le verdict d'une vérification par l'IA porte SA couleur ---------- */
+/* « Les phrases qui commentent une vérification par l'IA sont VERTES quand
+   c'est bon, ROUGES quand c'est faux » (demande de Turquet, août 2026). Elle
+   était tenue en Seconde et PERDUE dans les deux autres fichiers, par deux
+   portes différentes — d'où les deux bords ci-dessous, et n'en tenir qu'un ne
+   tient rien :
+   · la CASCADE. « .mp-feedback.iafb » posait une encre neutre ; il a la même
+     spécificité que « .mp-feedback.good » et se déclare plus bas, donc il
+     gagnait : la Première posait bien la classe du verdict et la phrase
+     s'écrivait quand même en NOIR. « .iafb » ne pose plus d'encre — le bloc
+     hérite de l'encre ordinaire, comme avant — et une encre qui y reviendrait
+     rougit ici. Le banc NAVIGATEUR mesure l'encre RÉSOLUE, seul juge d'une
+     cascade ; celui-ci nomme la CAUSE, une règle plus haut. La règle peut ne
+     pas exister du tout — c'est le cas de la Seconde, et c'est précisément
+     pourquoi le défaut ne l'a jamais touchée : ce qui est interdit est
+     l'ENCRE, pas la règle.
+   · les POSES. La Terminale ne demandait simplement pas la couleur : elle
+     posait « iafb » seul dès que le modèle répondait, si bien que le même
+     écran se peignait en vert sans prose et en noir avec. On compte donc les
+     poses de « iafb » qui ne portent ni good ni bad, et le profil dit combien
+     il en reste — quatre en Terminale, et elles sont légitimes : le verdict
+     n'est PAS encore connu (« L'IA relit ton calcul… ») ou la relecture est
+     indisponible, rien n'est décidé donc rien n'est peint. Une pose qui
+     perdrait sa couleur fait monter ce compte et se NOMME. */
+function verdictSansCouleur(w, P){
+  const nom = 'le verdict d’une vérification par l’IA porte sa couleur';
+  const src = lire(CIBLE), pbs = [];
+  const regle = /\.mp-feedback\.iafb\{([^}]*)\}/.exec(src);
+  if(regle && /(^|;)\s*color\s*:/.test(regle[1]))
+    pbs.push('.mp-feedback.iafb pose une encre (« ' + regle[1].trim() + ' ») : elle bat .good et .bad, déclarés plus haut');
+  const poses = src.match(/className\s*=\s*'mp-feedback[^;]*;/g) || [];
+  const avecIafb = poses.filter(x => x.indexOf('iafb') >= 0);
+  const nues = avecIafb.filter(x => !/good|bad/.test(x));
+  if(!avecIafb.length) pbs.push('aucune pose de « mp-feedback … iafb » dans la source : le contrôle n’a rien à mesurer');
+  if(nues.length !== P.verdictSansCouleur)
+    pbs.push(nues.length + ' pose(s) de « iafb » sans couleur de verdict quand le profil en déclare ' + P.verdictSansCouleur
+      + (nues.length ? ' — ' + nues.slice(0, 3).map(x => x.trim()).join(' ; ') : ''));
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
 function phraseCouleurs(w){
   const src = lire(CIBLE);
   const present = evaluer(w, "typeof msgCorrCouleurs==='function'");
@@ -11030,7 +11099,11 @@ function bulleErreur(w, apres){
     "  const ecr=document.querySelector('.screen.on')||document.body;",
     "  const rect=function(x,y,l,h){ return {left:x,top:y,right:x+l,bottom:y+h,width:l,height:h,x:x,y:y}; };",
     "  const b=bexpElt(); b.hidden=false;",
-    "  b.getBoundingClientRect=function(){ return rect(0,0,300,120); };",
+    "  /* la bulle RESSERRÉE est plus petite : jsdom n'a pas de mise en page, on",
+    "     lui donne donc les deux tailles, la classe faisant foi comme dans un",
+    "     vrai navigateur */",
+    "  b.getBoundingClientRect=function(){",
+    "    return b.classList.contains('bexp-mini') ? rect(0,0,150,60) : rect(0,0,300,120); };",
     "  const cas=document.createElement('input'); ecr.appendChild(cas);",
     "  cas.getBoundingClientRect=function(){ return rect(400,500,40,30); };",
     "  const obs=[];",
@@ -11040,16 +11113,29 @@ function bulleErreur(w, apres){
     "  const jouer=function(){ bexpCase=cas; bexpPlacer();",
     "    return { cote:b.dataset.bexpCote||'', x:b.style.left, y:b.style.top,",
     "             droite:b.style.right, bas:b.style.bottom,",
+    "             mini:b.classList.contains('bexp-mini'),",
     "             fx:b.style.getPropertyValue('--bexp-fx') }; };",
     "  const out={ fenetre:window.innerWidth+'x'+window.innerHeight };",
     "  out.aDroite=jouer();",
-    "  poser(600,535,20,25); out.aGauche=jouer();",
-    "  poser(150,535,20,25); out.enHaut=jouer();",
-    "  poser(400,400,20,20); out.enBas=jouer();",
+    "  /* un obstacle qui ne mord que la position CENTRÉE : la bulle GLISSE le",
+    "     long du même côté au lieu de changer de côté — sans le glissement,",
+    "     elle passait à gauche, et de proche en proche jusqu'au coin */",
+    "  const mordu=poser(600,540,20,40); out.glisse=jouer();",
+    "  mordu.remove(); obs.pop();",
+    /* l'obstacle couvre EXACTEMENT ce que la flèche permet de glisser : le
+       côté est pris en entier, et la bulle passe au côté suivant au lieu de
+       se poser hors de portée de sa propre flèche */
+    "  poser(600,470,20,60); out.aGauche=jouer();",
+    "  poser(150,470,20,60); out.enHaut=jouer();",
+    "  poser(130,400,580,60); out.enBas=jouer();",
     "  /* l'ancre n'est PAS un obstacle : c'est SA case. Sans ce bord, la bulle",
     "     ne pourrait jamais se poser à côté de la case qu'elle explique. */",
     "  out.sansAncre=bexpObstacles(cas).length; out.avecAncre=bexpObstacles(null).length;",
-    "  poser(400,600,20,20); out.leCoin=jouer();",
+    "  /* plus de place pour la bulle ENTIÈRE : elle se RESSERRE et reste à côté",
+    "     de la case, flèche comprise — le coin ne désigne rien */",
+    "  poser(130,560,580,20); out.resserree=jouer();",
+    "  /* et quand même la bulle resserrée ne tient nulle part, alors le coin */",
+    "  poser(300,460,20,120); out.leCoin=jouer();",
     "  /* le chevauchement lui-même, aux deux bords : deux rectangles qui se",
     "     TOUCHENT ne se chevauchent pas, un pixel commun suffit à chevaucher */",
     "  out.colle=bexpChevauche(0,0,10,10,[rect(10,0,10,10)]);",
@@ -11070,6 +11156,15 @@ function bulleErreur(w, apres){
     verifier('rien ne gêne : la bulle se pose À DROITE de la case, flèche sur son centre',
       g.aDroite.cote === 'droite' && g.aDroite.x === '454px' && g.aDroite.fx === '60px',
       'mesuré ' + dit('aDroite') + ' (fenêtre ' + g.fenetre + ')');
+    /* LE GLISSEMENT : la bulle n'est plus obligée d'être CENTRÉE sur sa case.
+       Un obstacle qui ne mord que la position centrée la fait glisser le long
+       du même côté — la flèche pointe toujours le centre de la case, son
+       décalage restant à 18 px des coins arrondis (96 = 515 − 419). Sans lui,
+       la bulle changeait de côté, puis de côté, puis tombait au coin : 11 des
+       29 replis mesurés en Seconde n'avaient pas d'autre cause. */
+    verifier('un obstacle qui ne mord que le centre la fait GLISSER, pas changer de côté',
+      g.glisse.cote === 'droite' && g.glisse.y === '419px' && g.glisse.fx === '96px',
+      'mesuré ' + dit('glisse'));
     verifier('une case à droite la renvoie À GAUCHE, jamais par-dessus',
       g.aGauche.cote === 'gauche' && g.aGauche.x === '86px' && g.aGauche.fx === '60px',
       'mesuré ' + dit('aGauche'));
@@ -11079,10 +11174,18 @@ function bulleErreur(w, apres){
     verifier('le dessus pris aussi, elle descend EN DESSOUS',
       g.enBas.cote === 'bas' && g.enBas.y === '544px' && g.enBas.fx === '150px',
       'mesuré ' + dit('enBas'));
-    /* le repli : quatre côtés pris, la bulle retourne au coin — et SANS
-       flèche, parce qu'une flèche qui ne désigne rien mentirait */
-    verifier('les quatre côtés pris, elle retombe au coin et perd sa flèche',
-      g.leCoin.cote === '' && g.leCoin.droite === '16px' && g.leCoin.fx === '',
+    /* LE FORMAT RESSERRÉ : faute de place à sa taille normale, la bulle se
+       RESSERRE — même texte, plus petit — et reste À CÔTÉ de la case. Une
+       chaîne de cases (le 2.2.1, le 2.3.1) n'offre nulle part 288 px de libre,
+       et le coin ne désigne rien : 9 replis de plus disparaissent ainsi. */
+    verifier('plus de place pour la bulle entière : elle se RESSERRE au lieu de renoncer',
+      g.resserree.mini === true && ['droite','gauche','haut','bas'].indexOf(g.resserree.cote) >= 0,
+      'mesuré ' + dit('resserree'));
+    /* le repli : les quatre côtés pris aux DEUX tailles, la bulle retourne au
+       coin — et SANS flèche, parce qu'une flèche qui ne désigne rien mentirait,
+       ni format resserré, qui ne dirait plus rien de sa taille */
+    verifier('les quatre côtés pris aux deux tailles, elle retombe au coin et perd sa flèche',
+      g.leCoin.cote === '' && g.leCoin.droite === '16px' && g.leCoin.fx === '' && g.leCoin.mini === false,
       'mesuré ' + dit('leCoin'));
     /* UN SEUL bord posé par axe : vider une propriété en ligne rend la main à
        la FEUILLE DE STYLES, qui repose right:16px et bottom:92px — les deux
@@ -11090,8 +11193,8 @@ function bulleErreur(w, apres){
        place, et l'observateur de taille boucle sans fin. Le navigateur l'a
        nommé ; ce bord-là le retient ici, où il coûte une ligne. */
     verifier('ancrée, elle ne garde AUCUN bord de la feuille de styles',
-      ['aDroite','aGauche','enHaut','enBas'].every(k => g[k].droite === 'auto' && g[k].bas === 'auto'),
-      'bords restants : ' + ['aDroite','aGauche','enHaut','enBas']
+      ['aDroite','glisse','aGauche','enHaut','enBas','resserree'].every(k => g[k].droite === 'auto' && g[k].bas === 'auto'),
+      'bords restants : ' + ['aDroite','glisse','aGauche','enHaut','enBas','resserree']
         .map(k => k + ' right=' + g[k].droite + ' bottom=' + g[k].bas).join(' | '));
     verifier('la case ancre n’est pas son propre obstacle',
       g.avecAncre === g.sansAncre + 1,
@@ -16777,6 +16880,142 @@ function coefficientDeuxDecimalesSynthese(w, P){
     if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
     return vus.join(" | ");
     function decVirgule(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; }
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.1.3 : le coefficient s'écrit court, et la chaîne tombe sur des entiers
+   « fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après la
+   règle posée sur le 2.2.7, le 2.3.7, le 2.2.8 puis le 2.5.1 : un coefficient
+   qui s'écrit avec au plus DEUX décimales.
+   LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT : sur 20 000
+   tirages de genPercent, le coefficient P/100 a TOUJOURS une seule décimale,
+   et tout ce qui vient après lui — le produit, le résultat de l'étape ③ —
+   est ENTIER. La règle y était donc déjà vraie, et tenue plus largement
+   qu'elle ne demande : le 2.1.3 n'écrit jamais son coefficient en décimal
+   (l'étape ① l'écrit en FRACTION), et ce que l'élève écrit en décimal est le
+   résultat, qui n'a aucune décimale.
+   CE QUI LA TIENT EST QUE LE TAUX EST UN ENTIER DE POURCENT, et c'est la
+   seule chose qui puisse la rompre : 12,5 % — un taux d'école, 1/8 — donne
+   0,125, trois décimales, et PASSE tous les gardes de la page (12,5 × 80 fait
+   1000, donc un résultat parfaitement entier). Le contrôle voisin
+   (« générateur genPercent : 5000 questions conformes ») n'exige que
+   l'ENTIER : il serait resté vert. C'est la leçon du 2.3.7 et du 2.5.1,
+   retombée telle quelle — une propriété heureuse n'est pas une propriété
+   tenue.
+   AUCUN GARDE N'EST POSÉ DANS LA PAGE : il n'écarterait jamais rien, P étant
+   entier par construction. La raison est ÉCRITE là où le tirage la tient —
+   à côté de PCT_PCTS, dans le bloc même qui invite à élargir la plage.
+   Et la moitié « p×N divisible par 100 » de pctCoupleOk n'écarte RIEN sur les
+   viviers d'aujourd'hui : mesuré exhaustivement, 162 couples possibles, 104
+   retenus, 58 écartés par PCT_MAXPROD et ZERO par cette divisibilité — les
+   deux viviers n'ayant que des multiples de dix, le produit est toujours un
+   multiple de 100. Elle reste parce qu'elle est exactement le filtre qui
+   tiendrait l'intégralité le jour où PCT_VALEURS s'ouvrirait (15 y ferait
+   écarter 30 % mais pas 20 %), et parce que la propriété, elle, est
+   désormais EXIGÉE ici. Le sabotage le dit : la retirer laisse le contrôle
+   vert, à bon droit ; la retirer ET ouvrir PCT_VALEURS le fait rougir.
+   La règle est écrite LITTÉRALEMENT à côté de ce qui la tient : un taux
+   entier ne peut pas donner plus de deux décimales, et c'est le TAUX que le
+   sabotage atteint — les deux lignes rougissent ensemble, la seconde dit la
+   règle, la première dit pourquoi elle est vraie.
+   Le vivier étant partagé (le 2.1.2, le 2.1.4, le 2.1.5 et les deux
+   évolutions y puisent aussi), l'exiger sur le VIVIER les tient a fortiori. */
+function coefficientDeuxDecimalesPourcentage(w, P){
+  const present = evaluer(w, "typeof genPercent==='function' && typeof checkPAnswer==='function' && typeof PCT_PCTS!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.1.3 : le coefficient s\'écrit avec au plus deux décimales, et la chaîne tombe sur des entiers',
+      'ce niveau n\'a pas l\'exercice du pourcentage d\'un nombre');
+    ignorer('2.1.3 : la copie juste vaut le point, et le rappel de cours montre un tirage possible',
+      'ce niveau n\'a pas l\'exercice du pourcentage d\'un nombre');
+    return;
+  }
+  verifierEval(w, '2.1.3 : le coefficient s\'écrit avec au plus deux décimales, et la chaîne tombe sur des entiers', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const dec=function(x){ const s=String(x); const i=s.indexOf("."); return i<0?0:s.length-i-1; };
+    /* LE VIVIER : c est lui qui tient la regle aujourd hui, et un taux non
+       entier de pourcent la romprait — 12,5 % passe tous les gardes */
+    if(!Array.isArray(PCT_PCTS) || PCT_PCTS.length<5) return "le vivier des pourcentages est vide, le controle ne mesure rien";
+    if(!Array.isArray(PCT_VALEURS) || PCT_VALEURS.length<10) return "le vivier des valeurs est vide, le controle ne mesure rien";
+    PCT_PCTS.forEach(function(Pp){
+      if(Pp!==Math.round(Pp)) vus.push("le vivier porte le taux "+Pp+" %, qui n est pas un entier de pourcent : le coefficient s ecrirait "+(Pp/100));
+      else if(!(Pp>0 && Pp<100)) vus.push("le vivier porte le taux "+Pp+" %, hors de 1..99");
+    });
+    PCT_VALEURS.forEach(function(Nn){ if(Nn!==Math.round(Nn)) vus.push("le vivier porte la valeur "+Nn+", qui n est pas entiere"); });
+    const taux={}, vals={}, nbDec={};
+    for(let t=0;t<600 && vus.length===0;t++){
+      const q=genPercent();
+      const eti="tirage "+t+" ("+q.P+" % de "+q.N+")";
+      /* ce qui tient la regle : le taux est un ENTIER de pourcent */
+      if(q.P!==Math.round(q.P)) vus.push(eti+" : le taux "+q.P+" % n est pas un entier de pourcent");
+      /* et la regle elle-meme, ecrite telle que Turquet la dit */
+      const dcoef=dec(q.P/100);
+      if(dcoef>2) vus.push(eti+" : le coefficient "+(q.P/100)+" s ecrit avec "+dcoef+" decimales");
+      nbDec[dcoef]=1; taux[q.P]=1; vals[q.N]=1;
+      /* SECONDE ARITHMETIQUE : la chaine recomptee en ENTIERS, la ou la page
+         divise par 100 — c est le resultat que l eleve ecrit en decimal */
+      if(q.P*q.N%100!==0) vus.push(eti+" : "+q.P+" % de "+q.N+" ne tombe pas sur un entier");
+      if(q.prod!==q.P*q.N) vus.push(eti+" : le produit range vaut "+q.prod+" au lieu de "+(q.P*q.N));
+      if(q.result*100!==q.P*q.N) vus.push(eti+" : le resultat range vaut "+q.result+" au lieu de "+(q.P*q.N/100));
+      if(dec(q.result)!==0) vus.push(eti+" : le resultat "+q.result+" s ecrit avec une decimale, l etape 3 a bascule en decimal");
+      if(q.prod>PCT_MAXPROD) vus.push(eti+" : le produit "+q.prod+" depasse "+PCT_MAXPROD);
+    }
+    /* un controle qui n a rien a mesurer ne mesure rien, et doit le dire */
+    if(vus.length===0){
+      if(Object.keys(taux).length<8) vus.push("seulement "+Object.keys(taux).length+" taux differents sur 600 tirages");
+      if(Object.keys(vals).length<15) vus.push("seulement "+Object.keys(vals).length+" valeurs differentes sur 600 tirages");
+      if(Object.keys(nbDec).length===0) vus.push("aucun coefficient mesure : le controle ne mesure rien");
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.1.3 : la copie juste vaut le point, et le rappel de cours montre un tirage possible', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* L EXEMPLE DU RAPPEL DE COURS est un tirage REELLEMENT possible : un
+       rappel qui enseigne la methode sur un cas que l eleve ne rencontrera
+       jamais, c est la lecon du 2.2.8. On cherche le couple que le rappel
+       ecrit, et on exige que le produit et le resultat qu il annonce soient
+       ceux que la chaine donne. */
+    const nums=(String(RAP_PCT).match(/[0-9]+/g)||[]).map(Number);
+    let ex=null;
+    for(let i=0;i<PCT_PCTS.length && !ex;i++) for(let j=0;j<PCT_VALEURS.length && !ex;j++){
+      const Pp=PCT_PCTS[i], Nn=PCT_VALEURS[j];
+      if(!pctCoupleOk(Pp,Nn)) continue;
+      if(nums.indexOf(Pp)>=0 && nums.indexOf(Nn)>=0 && nums.indexOf(Pp*Nn)>=0 && nums.indexOf(Pp*Nn/100)>=0) ex={P:Pp,N:Nn};
+    }
+    if(!ex) vus.push("le rappel de cours ne montre aucun exemple qui soit un tirage possible, produit et resultat compris : "+nums.join(" "));
+    /* la copie JUSTE, cliquee, sur la question du rappel prise au VRAI generateur */
+    let Q=null;
+    if(ex){ for(let i=0;i<2000 && !Q;i++){ const q=genPercent(); if(q.P===ex.P && q.N===ex.N) Q=q; }
+            if(!Q) vus.push("le tirage ne produit jamais "+ex.P+" % de "+ex.N+", l exemple du rappel de cours"); }
+    if(!Q) Q=genPercent();
+    const poser=function(){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:"pct", qId:"pourcentage", questions:[Q], idx:0, score:0,
+                          answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show("ptest"); renderPTest();
+    };
+    poser();
+    const copie={p1n:""+Q.P, p1d:"100", p2n:""+Q.prod, p2d:"100", p3:String(Q.result).replace(".",",")};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkPAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    /* LA CORRECTION ECRITE : c est le seul endroit ou l eleve LIT le resultat
+       en decimal — le 2.1.3 n ecrit jamais son coefficient autrement qu en
+       fraction, donc c est la que la regle se voit */
+    poser();
+    document.getElementById("p3").value="0";
+    checkPAnswer();
+    const fb=document.getElementById("pFeedback"), txt=fb?fb.textContent:"";
+    if(txt.indexOf("100")<0) vus.push("la correction ne donne pas la reponse : « "+txt.slice(0,60)+" »");
+    const trop=txt.match(/[0-9]+[,.][0-9]{3,}/);
+    if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
+    const virg=txt.match(/[0-9]+[,.][0-9]+/);
+    if(virg) vus.push("la correction ecrit "+virg[0]+" : l etape 3 a bascule en decimal");
+    return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------

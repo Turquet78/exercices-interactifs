@@ -674,6 +674,57 @@ l'a montré en restant vert, quand retirer le garde ENTIER rougit (« obstacles
 comptés : 4 sans l'ancre, 4 avec »). Ce n'est pas un garde-fou mort de plus :
 la propriété est tenue, par l'autre moitié, une opérande plus loin.
 
+**Puis la bulle GLISSE, et se RESSERRE plutôt que de retourner au coin.**
+Signalé par Turquet (septembre 2026) : « quand une case est rouge, le premier
+"comprendre mon erreur" s'affiche en bas à droite et pas à côté de la case
+rouge ». Le coin est le REPLI documenté du paragraphe ci-dessus, et il tombait
+bien trop souvent : la sonde a compté **25 à 29 replis sur 207 bulles** en
+Seconde (1366 × 768), dont les quatre dernières cases du 2.2.1 et du 2.3.1 —
+deux des exercices les plus faits.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a
+corrigé le diagnostic** : le repli n'est PAS lié au « premier ». Une page
+NEUVE par exercice donne exactement les mêmes côtés qu'une séance déjà
+commencée, la bulle recréée à chaque fois aussi — ce n'est donc pas la
+création de l'élément, ni l'observateur de taille, ni un état qui traîne :
+c'est de la GÉOMÉTRIE, et le repli tombe sur les cases serrées, où qu'elles
+soient dans la séance. Le dire vaut mieux que de le taire : « le premier »
+reste inexpliqué, et c'est le repli lui-même qui a été corrigé.
+**DEUX CAUSES, ET N'EN TENIR QU'UNE NE TIENT RIEN.**
+· La bulle était forcée d'être CENTRÉE sur sa case : un obstacle qui mordait
+  de deux pixels suffisait à perdre le côté entier. Elle GLISSE désormais le
+  long du côté (`bexpGlissades`, pas de 6 px, la centrée d'abord puis de part
+  et d'autre), tant que la flèche atteint encore le centre de la case — la
+  plage est exactement la portée de la flèche, `[centre − D + 18, centre −
+  18]`. Onze replis sur vingt-neuf n'avaient pas d'autre cause.
+· Une chaîne de cases n'offre NULLE PART 288 px de libre — mesuré case par
+  case : à côté du `a4n` du 2.2.1, seul un rectangle de 96 × 44 tient. Faute
+  de place à sa taille normale, la bulle se RESSERRE donc (`bexp-mini`, même
+  texte, 187 × 39 mesurés) et reste à côté de la case, flèche comprise, avant
+  de renoncer. Neuf replis de plus disparaissent.
+**Le coin reste, et c'est honnête** : sur les tableaux les plus denses il n'y
+a de place pour rien, même resserré. Après correction : **7 replis sur 198 à
+1366 × 768, 2 sur 211 à 1920 × 1080** — contre 25 à 29 avant.
+**Et le format resserré ne fait pas boucler l'observateur de taille** — le
+piège payé sur `right`/`bottom` : `bexpPlacer` repart TOUJOURS de la taille
+normale (la classe retirée d'entrée), si bien que le choix ne dépend que de la
+case et des obstacles, jamais de l'état où la bulle se trouvait. Le placement
+est donc déterministe, l'observateur retombe sur la même conclusion, et la
+taille finale ne change plus.
+**UN QUATORZIÈME GARDE-FOU MORT y a été écrit, puis retiré** : le
+`Math.min/max` qui bornait le décalage de la flèche à 18 px des coins
+n'écartait plus rien — la plage du glissement EST cette borne, donc
+`f = centre − y` y tombe par construction. Le retirer a rendu le sabotage
+« le glissement dépasse la portée » VISIBLE (la flèche sort de la bulle,
+`fx: -18px`) là où le garde le masquait.
+Cinq sabotages au banc jsdom, chacun rougissant en nommant son défaut — le
+glissement débranché (« elle change de côté au lieu de glisser »), le format
+resserré débranché, le coin qui garde le format resserré, la flèche qui ne
+suit plus le centre, et le glissement hors portée. Ce dernier n'est devenu
+atteignable qu'en resserrant l'obstacle du banc : posé trop grand, il bloquait
+aussi les places hors portée, et le sabotage restait vert en parlant d'autre
+chose.
+
+
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
 rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de
@@ -2624,6 +2675,47 @@ n'aurait corrigé que la moitié des exercices. Le contrôle vit dans la chaîne
 séquentielle des contrôles asynchrones (il remplace `sb` — le piège documenté),
 stubbe le verdict du modèle ET la feuille (jsdom n'a pas MathLive), mais exerce
 la vraie fonction qui peint et relit la COULEUR.
+
+**Et la même règle était PERDUE en Première et en Terminale — par deux portes
+différentes.** Demande de Turquet (septembre 2026) : « répare la couleur des
+verdicts en première et terminale ». Le paragraphe ci-dessus raconte la Seconde
+d'août 2026 ; les deux autres fichiers écrivaient toujours leur verdict en
+NOIR, et il a fallu les deux correctifs — n'en tenir qu'un ne tient rien.
+· **La CASCADE, en Première.** La page posait bien la classe
+  (`'mp-feedback iafb '+(correct?'good':'bad')`), et la phrase s'écrivait quand
+  même en noir : `.mp-feedback.iafb{color:var(--ink)}` a la MÊME spécificité
+  que `.mp-feedback.good` et se déclare plus bas, donc il gagnait. La cascade
+  trompait, pas le balisage — la leçon de la phrase des couleurs du 6.3,
+  retombée telle quelle, et aucun banc jsdom ne pouvait la voir : le contrôle
+  qui existait lit des CLASSES et restait vert. `.iafb` ne pose plus d'encre
+  du tout ; sans elle le bloc hérite de l'encre ordinaire, exactement comme
+  avant. Le 2.1.7, le 2.2.10, le 2.3.8 et le 2.5.2 retrouvent leur couleur
+  d'un coup, et le 5.5 de la Terminale avec eux.
+· **Les POSES, en Terminale.** Elle ne demandait simplement pas la couleur :
+  vingt-trois écrans écrivaient `'mp-feedback '+(fbHTML?'iafb':'bad')` — donc
+  VERT ou ROUGE quand le modèle se tait, NOIR dès qu'il répond, sur le même
+  écran et pour le même verdict —, et les dérivées rédigées (2.2, 2.3) comme
+  les bilans du 6.7 et du 6.8 posaient `iafb` seul. Ils portent tous leur
+  verdict désormais. **Quatre poses restent neutres, et c'est voulu** : le
+  bilan affiché AVANT de savoir (« L'IA relit ton calcul… ») et celui d'une
+  relecture indisponible — rien n'est décidé, donc rien n'est peint, et les
+  lignes ✓/✗ du bilan portent déjà leur propre couleur.
+**Deux bancs, et chacun tient le bord que l'autre ne voit pas.** jsdom nomme la
+CAUSE — aucune encre sur `.iafb` — et COMPTE les poses de `iafb` sans verdict,
+comparées au profil (`verdictSansCouleur`, deux sources) : une pose qui
+perdrait sa couleur fait monter ce compte et se NOMME. Le NAVIGATEUR
+(« 9 ter ») mesure l'ENCRE RÉSOLUE de quatre témoins : `iafb good` vaut
+`--green`, `iafb bad` vaut `--red`, un `iafb` SEUL reste l'encre ordinaire — le
+bord opposé, sans lequel une règle qui peindrait tout en vert passerait — et à
+l'intérieur d'un verdict coloré les phrases balisées par le modèle gardent LEUR
+encre (`fb-ok` vert, `fb-ko` rouge), que remettre les règles dans un autre ordre
+casserait. Il vaut pour les TROIS fichiers sans rien déclarer.
+**Et l'encre neutre n'est PAS redéclarée sur `.mp-feedback`** : le bloc en
+hérite, donc l'écrire serait un garde-fou de plus qui n'écarte jamais rien — et
+le contrôle jsdom accepte que la règle `.iafb` n'existe pas du tout, ce qui est
+le cas de la Seconde et explique qu'elle n'ait jamais eu ce défaut. Dix
+sabotages, chacun rougissant en nommant son défaut — sept au banc jsdom, trois
+que seul le navigateur voit.
 
 **Un garde-fou MORT y a été écrit, puis retiré** — le troisième du projet, et
 toujours pour la même raison. « ne pas diviser par 1 » (`n2 !== d2`) n'écartait
@@ -4667,6 +4759,32 @@ celle que `hscAns` calcule — un rappel dont les pourcentages changent sans que
 son arithmétique suive ferait mentir l'écran. Sept sabotages, chacun rougissant
 en nommant son défaut.
 
+**Puis les libellés ① et ③ ont dit SUR QUOI on calcule.** Demande de Turquet
+(septembre 2026) : « le n°1 en dessous de l'énoncé doit afficher : on calcule
+d'abord …% de 100 ; le n°3 doit afficher : on calcule …% du résultat
+précédent. » Ils disaient jusque-là « La hausse pour 100, et le résultat pour
+une hausse de 20 % » et « La hausse pour la valeur que tu viens de trouver,
+et le résultat pour une hausse de 30 % » — une phrase qui nomme d'abord ce
+qu'on cherche et seulement ensuite le taux, quand l'élève, lui, lit sa ligne
+de gauche à droite : le pourcentage, puis ce sur quoi il porte.
+**CE N'EST PAS UN HABILLAGE — c'est LA leçon de l'exercice**, celle que le
+message de correction nomme déjà en toutes lettres : la seconde hausse ne
+porte PAS sur 100, et un libellé qui le laisserait croire enseignerait
+l'erreur même que l'exercice combat. Le gras est resté sur la BASE du calcul
+(**100**, puis le **résultat précédent**) : c'est le seul mot qui change d'une
+étape à l'autre. Le renvoi à {augmenter-addition} est GARDÉ sur le ① — il dit
+d'où vient la méthode, et il est écrit `{identifiant}`, donc il suit une
+renumérotation.
+**Le bord qui compte est le libellé FIGÉ**, et c'est le plus sournois : un
+pourcentage écrit en dur nommerait un taux que la question ne porte pas, sans
+qu'aucune correction ne bronche — la leçon du numéro d'exercice de `show()`,
+transposée. Le contrôle rend donc DEUX questions ÉPINGLÉES aux taux ÉCHANGÉS
+(2 % puis 50 %, puis l'inverse) et exige que les deux libellés suivent ; il
+refuse en plus que le ③ écrive « % de 100 ». Cinq sabotages, chacun rougissant
+en nommant son défaut — le taux de ① figé, le ③ ramené sur 100, le ③ qui
+nomme le taux de la PREMIÈRE hausse, le mot « d'abord » retiré, et le ① qui ne
+dit plus sur quoi on calcule.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
@@ -4832,6 +4950,54 @@ l'élève vérifie la proposition qu'il a choisie, donc un coefficient à deux
 décimales lui reste sous les yeux. Retirés des deux côtés, le bord « le
 contrôle ne mesure qu'une seule forme » rougit. Dix sabotages en tout, neuf
 rougissant en nommant leur défaut.
+
+**Et au 2.1.3, la règle est vraie plus largement qu'elle ne demande.**
+« fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après le
+2.2.7, le 2.3.7, le 2.2.8 et le 2.5.1. « Prendre P % », c'est multiplier par
+P/100 : voilà le coefficient de cet exercice-là.
+**LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT** : sur 20 000
+tirages de `genPercent`, le coefficient a TOUJOURS une seule décimale, et tout
+ce qui vient après lui — le produit de l'étape ②, le résultat de l'étape ③ —
+est ENTIER. **Rien à changer au tirage, donc**, et le 2.1.3 n'écrit d'ailleurs
+jamais son coefficient en décimal : l'étape ① l'écrit en FRACTION, et ce que
+l'élève écrit en décimal est le résultat, qui n'a aucune décimale.
+**CE QUI LA TIENT EST QUE LE TAUX EST UN ENTIER DE POURCENT**, et c'est la
+seule chose qui puisse la rompre. 12,5 % — un taux d'école, 1/8 — donnerait
+0,125, trois décimales, et **passerait tous les gardes de la page** : 12,5 × 80
+fait 1000, donc un résultat parfaitement entier, et le contrôle voisin
+(« générateur genPercent : 5000 questions conformes ») n'exige que l'ENTIER —
+il serait resté vert. Une propriété heureuse n'est pas une propriété tenue, la
+leçon du 2.3.7 et du 2.5.1 retombée telle quelle.
+**AUCUN GARDE N'EST POSÉ DANS LA PAGE** : P est entier par construction, un
+garde n'écarterait jamais rien. La raison est ÉCRITE là où le tirage la tient —
+à côté de `PCT_PCTS`, dans le bloc même qui invite à élargir la plage — et
+c'est le contrôle qui EXIGE la propriété, sur le VIVIER (tout taux est un
+entier de pourcent, toute valeur est entière) comme sur chaque tirage, par une
+seconde arithmétique en entiers là où la page divise par 100. Le vivier étant
+partagé — le 2.1.2, le 2.1.4, le 2.1.5 et les deux évolutions y puisent
+aussi —, l'exiger sur le vivier les tient a fortiori.
+**ET LA MOITIÉ « P × N divisible par 100 » DE `pctCoupleOk` N'ÉCARTE RIEN** :
+mesuré exhaustivement, 162 couples possibles, 104 retenus, 58 écartés par
+`PCT_MAXPROD` et ZÉRO par cette divisibilité — les deux viviers n'ayant que des
+multiples de dix, le produit est toujours un multiple de 100. Elle RESTE, et le
+dire vaut mieux que de le taire : elle est exactement le filtre qui tiendrait
+l'intégralité le jour où `PCT_VALEURS` s'ouvrirait (15 y ferait écarter 30 %
+mais pas 20 %), et la propriété, elle, est désormais exigée par le banc. Le
+sabotage le démontre plutôt que de le supposer : la retirer laisse le contrôle
+vert, à bon droit ; la retirer ET ouvrir `PCT_VALEURS` le fait rougir.
+**Et le contrôle lit une TROISIÈME fois, sur ce que la PAGE écrit** : la copie
+juste est cliquée sur la question du RAPPEL de cours — prise au vrai générateur,
+parce qu'un rappel qui enseigne la méthode sur un cas impossible est la leçon du
+2.2.8 — puis une copie fausse, et la phrase de correction (« Réponse : 30/100 ×
+40 = 1200/100 = 12 ») ne doit porter aucun nombre à virgule : c'est le seul
+endroit où l'élève LIT le résultat en décimal.
+Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième est celui de
+la moitié inerte ci-dessus, vert à bon droit. **Et un onzième n'a rien pu dire** :
+réduire `PCT_PCTS` à un seul taux FIGE la page — deux générateurs voisins bouclent
+sur « au moins quatre pourcentages admissibles » — et un sabotage qui fige la page
+ne dit rien du contrôle visé, comme celui qui en casse la syntaxe. Rejoué à quatre
+taux, sous le seuil du garde, il rougit (« le vivier des pourcentages est vide, le
+contrôle ne mesure rien »).
 
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
