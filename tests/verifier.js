@@ -3532,6 +3532,7 @@ function exercices(suite){
     signeProduitPlusZero(w, P);
     suiteAuxiliaireCompleter(w, P);
     recurrenceFractions(w, P);
+    suiteVariationRecurrence(w, P);
     phraseCouleurs(w);
     antecedentNombre(w, P);
     antecedentsDroite(w, P);
@@ -8357,6 +8358,243 @@ function recurrenceFractions(w, P){
     const c=String(conseilCtxCourant()||'');
     if(!/RÉCURRENCE/i.test(c) || c.indexOf('(n+3)/(n+1)')<0) vus.push('le contexte envoyé au modèle ne décrit pas cet exercice');
     if(!/JAMAIS révéler|STRICTEMENT/i.test(c)) vus.push('le contexte part sans clause de secret');
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* LA SUITE MONOTONE (Terminale 6.11) : la fiche « Exercice 2 » — le tracé en
+   escalier, la conjecture, l’étude de f, puis la récurrence qui démontre d’un
+   seul coup que la suite est monotone ET bornée.
+   LE RISQUE PROPRE EST L’ÉNONCÉ QUI CONTREDIT SA CORRECTION : toute la fiche ne
+   tient que si la suite tirée se comporte vraiment comme on l’annonce. Le
+   contrôle ne le suppose pas — il SIMULE la suite sur trente rangs et vérifie
+   l’encadrement rang par rang, puis il REDÉRIVE la dernière ligne en appliquant
+   f aux quatre termes de l’hypothèse, par sa propre table. Deux arithmétiques
+   qui n’ont rien en commun doivent tomber d’accord (la leçon du 6.3).
+   Puis la fiche est épinglée, la copie juste jouée, et chaque bord tenu : le
+   rail qui compte, la tolérance, la case vide qui ne rougit jamais, les
+   écritures égales de f ′(x) et des rangs, et les deux visages de la séance. */
+function suiteVariationRecurrence(w, P){
+  const present = evaluer(w, "typeof startSVR==='function' && typeof svrAns==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la suite monotone : le tracé en escalier, l\'étude de f et la récurrence',
+      'ce niveau n\'a pas l\'exercice du sens de variation par récurrence');
+    return;
+  }
+  verifierEval(w, 'la suite monotone : le tracé en escalier, l\'étude de f et la récurrence', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='suite-variation-recurrence'; test.kind='svr';
+    const dit=function(m){ if(vus.indexOf(m)<0) vus.push(m); };
+
+    /* ---- 1. LE VIVIER ET SES GARDES, refaits par notre propre arithmétique.
+            On SIMULE la suite : c’est la seule façon de savoir que l’encadrement
+            annoncé est vrai, plutôt que de faire confiance au générateur. ---- */
+    const viviers={};
+    ['dec','cro'].forEach(function(sens){
+      const v=svrVivier(sens); viviers[sens]=v.length;
+      if(!v.length){ dit('le vivier « '+sens+' » est VIDE : le contrôle ne mesure rien'); return; }
+      v.forEach(function(c){
+        const p=c.l*c.L, s=c.l+c.L, nom='f(x)='+p+'/('+s+'−x), U0='+c.U0;
+        if(c.sens!==sens) dit(nom+' : le vivier « '+sens+' » rend un tirage « '+c.sens+' »');
+        /* ℓ et L sont bien les points fixes de f : x(s − x) = p */
+        if(c.l*(s-c.l)!==p || c.L*(s-c.L)!==p) dit(nom+' : ℓ et L ne sont pas les points fixes de f');
+        if(sens==='dec' ? !(c.l<c.U0 && c.U0<c.L) : !(0<=c.U0 && c.U0<c.l))
+          dit(nom+' : U0 est du mauvais côté du point fixe ℓ = '+c.l);
+        /* la simulation : trente rangs, et l’encadrement à chaque rang */
+        const U=[c.U0]; for(let k=0;k<30;k++) U.push(p/(s-U[k]));
+        for(let k=0;k<30;k++){
+          const ok = (sens==='dec') ? (c.l<=U[k+1]+1e-12 && U[k+1]<=U[k]+1e-12 && U[k]<=c.U0+1e-12)
+                                    : (c.U0<=U[k]+1e-12 && U[k]<=U[k+1]+1e-12 && U[k+1]<=c.l+1e-12);
+          if(!ok){ dit(nom+' : l’encadrement annoncé est FAUX au rang '+k+' (U='+U[k]+', U+1='+U[k+1]+') — l’énoncé contredirait sa correction'); break; }
+        }
+        if(Math.abs(U[30]-c.l)>1e-3) dit(nom+' : la suite ne tend pas vers ℓ = '+c.l+' (U30 = '+U[30]+')');
+        /* f est croissante sur [0 ; Dmax] : c’est elle qui conserve les inégalités */
+        const Dmax=Math.max(c.l,c.U0), f=function(x){ return p/(s-x); };
+        for(let i=0;i<40;i++){ const x=Dmax*i/40;
+          if(!(f(x+Dmax/80)>f(x))) { dit(nom+' : f n’est pas croissante sur [0 ; '+Dmax+']'); break; } }
+        /* les gardes du tirage, recomptés */
+        const U1=p/(s-c.U0), U2=p/(s-U1), W=Dmax+0.5, u=SVR_PLOT/W;
+        if(Math.abs(U1*100-Math.round(U1*100))>1e-9) dit(nom+' : U1 = '+U1+' ne s’écrit pas avec deux décimales');
+        if(W>SVR_WMAX+1e-9) dit(nom+' : la fenêtre fait '+W+' unités');
+        if(Math.abs(U1-c.U0)*u<SVR_GAP-1e-9) dit(nom+' : les deux rails se touchent à l’abscisse U0');
+        if(Math.abs(U2-U1)*u<SVR_GAP-1e-9) dit(nom+' : les deux rails se touchent à l’abscisse U1');
+        if(2*SVR_TOL>Math.min(Math.abs(U1-c.U0),Math.abs(U2-U1))*u) dit(nom+' : la tolérance de lecture dépasse la moitié de l’écart des rails');
+      });
+    });
+
+    /* ---- 2. LA SÉANCE : les deux visages, chacun une fois, en ordre mélangé,
+            et la question ne range rien d’autre que son tirage ------------- */
+    let ordres=0, formes={}, rangsBons={};
+    for(let t=0;t<120;t++){
+      const qs=svrSession();
+      if(qs.length!==2){ dit('séance : '+qs.length+' question(s) au lieu de 2'); break; }
+      const sens=qs.map(function(q){ return q.sens; }).sort().join('+');
+      if(sens!=='cro+dec') dit('séance : les deux visages ne sortent pas (' + sens + ')');
+      if(qs[0].sens==='cro') ordres++;
+      qs.forEach(function(q){
+        formes[q.sens]=1;
+        const cles=Object.keys(q).sort().join(',');
+        if(cles!=='L,l,ordre,ordreLim,pts,sens,U0'.split(',').sort().join(','))
+          dit('la question porte autre chose que son tirage : '+cles);
+        const a=svrAns(q);
+        /* à visage égal, le rang de la bonne réponse varie */
+        rangsBons[q.sens+':'+a.ordre.indexOf(a.prop[1])]=1;
+        /* la dernière ligne REDÉRIVÉE : f(ℓ)=ℓ, f(Un)=Un+1, f(Un+1)=Un+2, f(U0)=U1 */
+        const fmap={l:'l',u0:'u1',un:'un1',un1:'un2'};
+        const img=a.prop.map(function(k){ if(!fmap[k]) { dit('terme inattendu dans la propriété : '+k); return k; } return fmap[k]; });
+        const att=(q.sens==='dec') ? img.concat([a.prop[3]]) : [a.prop[0]].concat(img);
+        if(att.join(',')!==a.fin.join(','))
+          dit('la dernière ligne vaut « '+a.fin.join(' ≤ ')+' » au lieu de « '+att.join(' ≤ ')+' »');
+      });
+    }
+    if(!formes.dec || !formes.cro) dit('les deux visages ne sortent pas sur 120 séances');
+    if(ordres===0 || ordres===120) dit('l’ordre des deux visages est FIGÉ (' + ordres + ' séances sur 120 commencent par la croissante)');
+    if(Object.keys(rangsBons).length<4) dit('à visage égal, le rang de la bonne réponse ne varie pas');
+
+    /* ---- 3. LA FICHE, épinglée : U0 = 2, U(n+1) = 3/(4 − U(n)) ---------- */
+    const q={l:1,L:3,U0:2,sens:'dec',ordre:['l','un1','u1','un','u0','un2'],ordreLim:['u0','l','zero','L'],pts:[]};
+    const a=svrAns(q);
+    if(a.p!==3 || a.s!==4) dit('la fiche : f(x) = '+a.p+'/('+a.s+' − x) au lieu de 3/(4 − x)');
+    if(a.U1!==1.5) dit('la fiche : U1 = '+a.U1+' au lieu de 1,5');
+    if(Math.abs(a.U2-1.2)>1e-9) dit('la fiche : U2 = '+a.U2+' au lieu de 1,2');
+    if(a.Dmax!==2 || a.Dmin!==1) dit('la fiche : l’intervalle d’étude est [0 ; '+a.Dmax+']');
+    if(a.prop.join(',')!=='l,un1,un,u0') dit('la fiche : la propriété est « '+a.prop.join(' ≤ ')+' »');
+    if(a.fin.join(',')!=='l,un2,un1,u1,u0') dit('la fiche : la dernière ligne est « '+a.fin.join(' ≤ ')+' »');
+    if(svrDerStr(a)!=='3/(4 − x)²') dit('la fiche : f ′(x) s’écrit « '+svrDerStr(a)+' »');
+
+    /* ---- 4. L’ÉCRAN : les cases, les deux rails cliquables, l’énoncé ----- */
+    const rejouer=function(){ test.questions=[q]; test.idx=0; test.score=0; test.answers=[]; test.locked=false; q.pts=[]; show('svr'); renderSVR(); };
+    rejouer();
+    SVR_IDS.forEach(function(id){ if(!document.getElementById(id)) dit('case absente : '+id); });
+    if(svrCases(q).length!==SVR_IDS.length) dit('svrCases rend '+svrCases(q).length+' case(s) pour '+SVR_IDS.length+' identifiants');
+    const rails=[...document.querySelectorAll('#svrGraph .svr-hit')].map(function(h){ return h.getAttribute('data-rail'); }).sort().join(',');
+    if(rails!=='c,d') dit('le repère n’offre pas ses deux rails cliquables (« '+rails+' »)');
+    { const fr=document.querySelectorAll('#svrPrompt .sa2-frac');
+      const den=fr.length?String((fr[0].querySelector('.den')||{}).textContent||'').replace(/\\s/g,''):'';
+      if(fr.length<2 || den!=='4−Un') dit('l’énoncé affiche « '+den+' » au lieu de « 4−Un » — l’énoncé contredirait sa correction'); }
+    { const ccl=String((document.querySelector('#svrPartE .svr-ccl')||{}).textContent||'');
+      if(ccl.indexOf('décroissante')<0 || ccl.indexOf('minorée')<0) dit('la conclusion ne dit pas que la suite est décroissante et minorée'); }
+
+    /* ---- 5. LE TRACÉ : le rail compte, la tolérance aussi, et le quatrième
+            point est refusé ------------------------------------------------ */
+    const E=svrPtsAttendus(a);
+    if(E.map(function(e){ return e.r+'@'+e.x; }).join(' ')!=='c@2 d@1.5 c@1.5')
+      dit('les trois points attendus sont « '+E.map(function(e){ return e.r+'@'+e.x; }).join(' ')+' »');
+    rejouer();
+    E.forEach(function(e){ svrPoser(e.r,e.x); });
+    if(q.pts.length!==3) dit('svrPoser ne pose pas les trois points');
+    if(svrPoser('c',a.U0)) dit('un quatrième point se pose');
+    if(![0,1,2].every(function(i){ return svrPtJuste(a,i,q.pts[i]); })) dit('les trois points attendus ne sont pas jugés justes');
+    svrEffacer(); if(q.pts.length) dit('« Effacer le tracé » ne vide pas le tracé');
+    rejouer(); svrPoser('d',a.U0);
+    if(svrPtJuste(a,0,q.pts[0])) dit('le RAIL ne compte pas : un point posé sur la droite vaut le point de la courbe');
+    const marge=SVR_TOL*a.W/SVR_PLOT;
+    rejouer(); svrPoser('c',a.U0-marge*0.5);
+    if(!svrPtJuste(a,0,q.pts[0])) dit('une lecture à un demi-cran de tolérance est refusée');
+    rejouer(); svrPoser('c',a.U0-marge*2);
+    if(svrPtJuste(a,0,q.pts[0])) dit('un point posé à deux fois la tolérance est accepté');
+
+    /* ---- 6. LA COPIE VIDE ne rougit jamais ------------------------------- */
+    rejouer(); checkSVR();
+    const rougesVide=SVR_IDS.filter(function(id){ return document.getElementById(id).classList.contains('bad'); });
+    if(rougesVide.length) dit('copie vide : '+rougesVide.length+' case(s) rougissent — '+rougesVide.slice(0,3).join(', '));
+    if(!/Complète au moins une case/.test(String((document.getElementById('svrFeedback')||{}).textContent||'')))
+      dit('copie vide : le message ne demande pas de compléter');
+    if(test.locked) dit('copie vide : l’écran se verrouille');
+
+    /* ---- 7. LA COPIE JUSTE vaut toutes ses cases, points du tracé compris - */
+    const poser=function(id,v){ const e=document.getElementById(id); if(e) e.value=v; };
+    const remplir=function(){ svrCases(q).forEach(function(x){ poser(x.id, svrCorrVal(a,x)); }); };
+    const rouges=function(){ return SVR_IDS.filter(function(id){ return document.getElementById(id).classList.contains('bad'); }); };
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); checkSVR();
+    if(rouges().length) dit('copie juste : '+rouges().length+' case(s) rougissent — '+rouges().slice(0,4).join(', '));
+    if(test.score!==1) dit('copie juste : le point n’est pas accordé (score '+test.score+')');
+    { const note=ptsEcran(), tot=SVR_IDS.length+3;
+      if(!note || note.justes!==tot || note.cases!==tot)
+        dit('copie juste : la note affichée compte '+(note?note.justes+'/'+note.cases:'rien')+' au lieu de '+tot+'/'+tot+' — les trois points du tracé sont des réponses');
+      if([...document.querySelectorAll('#scr-svr .svr-pt.ok')].length!==3) dit('copie juste : les trois points ne sont pas peints en bleu'); }
+
+    /* ---- 8. TOUTE ÉCRITURE ÉGALE est acceptée : f ′(x) et les rangs ------- */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    poser('svr-d1','3/((4-x)*(4-x))'); poser('svr-h1','0+n'); poser('svr-m1','1+n'); poser('svr-m3','n + 2'); poser('svr-b2','3/2');
+    poser('svr-b3','1');                                   /* [1 ; 2] est aussi vrai que [0 ; 2] */
+    checkSVR();
+    if(rouges().length) dit('écritures égales refusées : '+rouges().join(', '));
+    if(test.score!==1) dit('les écritures égales ne valent pas le point');
+
+    /* ---- 9. LES REFUS : une borne qui ne contient pas les termes, un rang
+            faux, une dérivée fausse ---------------------------------------- */
+    const refuse=function(id,v,quoi){
+      rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); }); poser(id,v); checkSVR();
+      if(!document.getElementById(id).classList.contains('bad')) dit('accepté à tort : '+quoi);
+    };
+    refuse('svr-b4','1','la borne droite 1, qui ne contient pas U0 = 2');
+    refuse('svr-b4','4','la borne droite 4, où f n’est pas définie');
+    refuse('svr-b3','2','la borne gauche 2, qui ne contient pas ℓ = 1');
+    refuse('svr-m1','n','le rang n là où on montre au rang n + 1');
+    refuse('svr-d1','3/(4-x)','la dérivée confondue avec la fonction');
+    refuse('svr-g4','un1','un terme de la dernière ligne mis à la place d’un autre');
+
+    /* ---- 10. LA CORRECTION : le rouge garde la saisie, la bonne réponse
+             s’affiche en vert, la case vide est complétée ------------------ */
+    rejouer(); remplir(); E.forEach(function(e){ svrPoser(e.r,e.x); });
+    poser('svr-b2','42'); poser('svr-v1','');
+    checkSVR();
+    if(String(document.getElementById('svr-b2').value)!=='42') dit('la correction écrase la réponse fausse de l’élève');
+    if(!document.querySelector('#svrPartB .mf-cor')) dit('la bonne réponse ne s’affiche pas à côté de la case fausse');
+    { const v1=document.getElementById('svr-v1');
+      if(!v1.classList.contains('sol')) dit('la case laissée vide n’est pas complétée en vert'); }
+    if(!document.querySelector('#svrGraph .svr-esc-sol')) dit('l’escalier juste n’est pas tracé à la vérification');
+
+    /* ---- 11. LA MÉTHODE n’est PAS montrée avant la vérification ---------- */
+    rejouer();
+    if(document.querySelector('#svrGraph .svr-esc-sol')) dit('l’escalier juste est montré AVANT la vérification');
+    if(document.querySelector('#svrGraph .svr-pt.sol')) dit('les points attendus sont montrés AVANT la vérification');
+
+    /* ---- 12. LE SOUTIEN : rien n’est révélé, et la case vide ne rougit pas - */
+    currentMode='soutien'; rejouer();
+    poser('svr-n0','0'); poser('svr-b2','42'); svrPoser(E[0].r,E[0].x);
+    checkSVR();
+    const videsSoutien=SVR_IDS.filter(function(id){ const e=document.getElementById(id);
+      return String(e.value||'').trim()==='' && (e.classList.contains('bad')||e.classList.contains('sol')); });
+    if(videsSoutien.length) dit('en soutien, '+videsSoutien.length+' case(s) VIDES se colorent — '+videsSoutien.slice(0,3).join(', '));
+    if(!document.getElementById('svr-n0').classList.contains('ok')) dit('en soutien, la case juste ne bleuit pas');
+    if(test.locked) dit('en soutien, une copie incomplète verrouille l’écran');
+    if(document.querySelector('#svrGraph .svr-esc-sol')) dit('en soutien, l’escalier juste est révélé');
+    if(document.querySelector('#svrGraph .svr-pt.sol')) dit('en soutien, les points oubliés sont révélés');
+    /* et la correction SOUS LA FRAPPE : une case vide ne prend aucune couleur,
+       une case juste bleuit. Sans ce bord, le contrôle ne touchait jamais la
+       branche « live » et restait vert sur une case vide colorée en direct. */
+    rejouer();
+    { const cible=document.getElementById('svr-n0');
+      cible.value='0'; cible.dispatchEvent(new Event('input',{bubbles:true}));
+      const videsDirect=SVR_IDS.filter(function(id){ const e=document.getElementById(id);
+        return String(e.value||'').trim()==='' && (e.classList.contains('bad')||e.classList.contains('ok')||e.classList.contains('sol')); });
+      if(videsDirect.length) dit('en direct, '+videsDirect.length+' case(s) VIDES se colorent — '+videsDirect.slice(0,3).join(', '));
+      if(!cible.classList.contains('ok')) dit('en direct, la case juste ne bleuit pas : la correction du soutien ne suit pas la frappe');
+      const faux=document.getElementById('svr-b2');
+      faux.value='42'; faux.dispatchEvent(new Event('input',{bubbles:true}));
+      if(!faux.classList.contains('bad')) dit('en direct, la case fausse ne rougit pas');
+      if(test.locked) dit('en direct, l’écran se verrouille'); }
+    currentMode='train';
+
+    /* ---- 13. L’identité de l’exercice, et ses branchements ---------------- */
+    if(!TESTS['suite-variation-recurrence']) dit('l’exercice n’est pas dans TESTS');
+    if(!THEMES.some(function(t){ return t.ids.indexOf('suite-variation-recurrence')>=0; })) dit('l’exercice n’est dans aucun thème');
+    if(typeof RAPPELS==='undefined' || !RAPPELS.svr) dit('aucun rappel de cours pour svr');
+    if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.svr) dit('aucune question proposée pour svr');
+    if(!afficherEcranDe('svr')) dit('la reprise après pause ne connaît pas l’écran svr');
+    { const srcPage=document.documentElement.outerHTML;
+      const m=srcPage.match(/const testScreens=\\[([^\\]]*)\\]/);
+      if(!m || m[1].indexOf("'svr'")<0) dit('l’écran svr n’est pas dans testScreens'); }
+    test.questions=[q]; test.idx=0; test.kind='svr'; renderSVR();
+    const c=String(conseilCtxCourant()||'');
+    if(!/SUITES/i.test(c) || c.indexOf('escalier')<0) dit('le contexte envoyé au modèle ne décrit pas cet exercice');
+    /* « /STRICTEMENT/i » attrapait « strictement positive », que l’exercice écrit
+       lui-même : le bord restait vert sous le sabotage, en parlant d’autre chose.
+       On vise la clause, et l’anti-recopie que CET exercice ajoute. */
+    if(!/JAMAIS révéler|STRICTEMENT SECR/.test(c)) dit('le contexte part sans clause de secret');
+    if(c.indexOf('ANTI-RECOPIE')<0) dit('le contexte part sans sa clause anti-recopie');
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }

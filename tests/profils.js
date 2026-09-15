@@ -1001,6 +1001,11 @@ module.exports = {
        les cases doivent grandir sous « 3n+9 ». Le banc TAPE la copie de la
        fiche pour de vrai avant de relire la note. */
     recurrenceFractions: { exercice: 'recurrence-fractions' },
+    /* LA SUITE MONOTONE (6.11) : le tracé en escalier se pose au CLIC, et c'est
+       le NAVIGATEUR qui dit sur quel rail — chaque courbe est doublée d'un
+       chemin transparent épais. jsdom n'a ni mise en page ni getScreenCTM :
+       le banc principal éprouve svrPoser(), seul celui-ci clique. */
+    suiteVariation: { exercice: 'suite-variation-recurrence' },
     /* Le 4.6 (l'étude menée au TVI) : ce que jsdom ne voit pas — le tableau
        du 5.3 RENDU (flèches dessinées à taille non nulle), la page qui ne
        déborde pas, et le bouton ∞ réellement CLIQUÉ, qui écrit dans la case
