@@ -3513,6 +3513,7 @@ function exercices(suite){
     inequationGraphique(w, P);
     paveNumerique(w, P);
     manifesteAppli(w, P);
+    basSysteme(w, P);
     toucheEgalClavier(w, P);
     toucheEntreeClavier(w, P);
     clavierPaysageCompact(w, P);
@@ -9947,6 +9948,95 @@ function policeTablette(w, P){
   }
   if(regles.length !== 1) pbs.push(regles.length + ' règle(s) html{font-size} dans la source au lieu d\'une seule : ' + regles.join(' ; '));
   verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
+/* ---------- La bande du bas appartient au système, en mode application ---------- */
+/* Signalé par Turquet (septembre 2026) sur une tablette Samsung, la page posée
+   sur l'écran d'accueil : « la ligne la plus basse du clavier virtuel ne
+   fonctionne pas, les caractères ne s'affichent pas — en portrait comme en
+   paysage ». La Première demande « fullscreen » : elle dessine jusqu'au bord
+   physique de l'écran, et les 48 dp du bas y sont la zone du geste d'Android,
+   où le système prend les touches. Rien n'arrive à la page, et rien ne rougit
+   nulle part.
+   DEUX BORDS, et n'en tenir qu'un ne tient rien. Un niveau en « fullscreen »
+   DOIT porter la réserve — la valeur vit ici et dans la page, deux sources —
+   et chacun des trois meubles fixes du bas doit la LIRE : le clavier ancré,
+   les commandes, le pavé. Un niveau en « standalone », lui, ne doit rien en
+   porter : la barre du système y occupe déjà la bande, et une réserve y
+   coûterait 48 px pour rien. La classe est posée par le script, comme
+   pave-actif : le banc la force (window.__appForce), la requête média reste
+   au navigateur — et elle se RETIRE quand on quitte le plein écran, sans quoi
+   un onglet mis puis sorti du plein écran garderait la mise en page de
+   l'application. Le RENDU, lui, se mesure au banc navigateur (« 11 octies »),
+   qui déploie le clavier sur l'exercice signalé et regarde ce qui reste dans
+   la bande. */
+function basSysteme(w, P){
+  const nom = 'en mode application, rien de ce qui se touche ne descend dans la bande du système';
+  const plein = !!(P.manifeste && P.manifeste.display === 'fullscreen');
+  const src = lire(CIBLE);
+  if(!P.basSysteme){
+    /* le bord opposé se MESURE au lieu d'être tu : pas de réserve ici, et pas
+       une ligne qui la ferait fuir */
+    const fuites = [];
+    if(plein) fuites.push('le manifeste demande « fullscreen » mais le profil ne déclare aucune réserve : la page descend jusqu\'au bord de l\'écran');
+    if(/--bas-systeme/.test(src)) fuites.push('la page porte « --bas-systeme » alors que le profil n\'en déclare pas');
+    if(/mode-app/.test(src)) fuites.push('la page porte la classe « mode-app » alors que le profil n\'en déclare pas');
+    verifier(nom + ' — et ce niveau, en « ' + ((P.manifeste && P.manifeste.display) || '?') + ' », n\'en a pas besoin',
+      fuites.length === 0, fuites.join(' | '));
+    return;
+  }
+  const B = P.basSysteme, pbs = [];
+  if(!plein) pbs.push('le profil déclare une réserve alors que le manifeste demande « ' + ((P.manifeste && P.manifeste.display) || '?') + ' » : elle ne servirait à rien');
+  /* la valeur : un défaut de 0 partout, et UNE seule déclaration non nulle,
+     portée par la classe du mode application */
+  const decls = src.match(/--bas-systeme:\s*[^;}]+/g) || [];
+  const nonNuls = decls.filter(d => !/:\s*0(px)?\s*$/.test(d));
+  if(!/:root\{--bas-systeme:0px\}/.test(src)) pbs.push('aucun défaut « :root{--bas-systeme:0px} » : hors mode application la réserve serait indéfinie');
+  if(nonNuls.length !== 1) pbs.push(nonNuls.length + ' déclaration(s) non nulle(s) de --bas-systeme au lieu d\'une seule : ' + nonNuls.join(' ; '));
+  else {
+    const m = /body\.mode-app\{--bas-systeme:(\d+)px\}/.exec(src);
+    if(!m) pbs.push('la réserve n\'est pas portée par « body.mode-app » : ' + nonNuls[0]);
+    else if(+m[1] !== B.px) pbs.push('la page réserve ' + m[1] + ' px quand le profil déclare ' + B.px + ' px');
+  }
+  /* chaque meuble fixe du bas LIT la réserve */
+  const blocs = src.match(/[^{}<>;]+\{[^{}]*\}/g) || [];
+  (B.regles || []).forEach(sel => {
+    const lu = blocs.some(b => b.slice(0, b.indexOf('{')).indexOf(sel) >= 0 && /var\(--bas-systeme\)/.test(b));
+    if(!lu) pbs.push('« ' + sel +' » ne lit pas var(--bas-systeme) : ce meuble reste dans la bande du système');
+  });
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+
+  /* et la classe suit le mode, dans les deux sens */
+  verifierEval(w, 'la classe du mode application est posée en plein écran, retirée sinon, et le banc peut la forcer', `(function(){
+    const vus=[], ecoutes=[];
+    const ancien = window.matchMedia;
+    const faux = function(v){ window.matchMedia = function(q){
+      return { matches: !!v && /fullscreen/.test(q),
+               addEventListener: function(t,f){ ecoutes.push(t); },
+               addListener: function(){} }; }; };
+    const rendre = function(){ if(ancien) window.matchMedia = ancien; else { try{ delete window.matchMedia; }catch(e){ window.matchMedia = undefined; } }
+                               document.body.classList.remove('mode-app'); };
+    try{
+      delete window.__appForce;
+      /* la page pose son écouteur UNE fois : on rouvre la porte pour que le
+         nôtre soit posé sur le faux matchMedia, sans quoi ce contrôle
+         rougirait sur une page juste. */
+      try{ delete window.__modeAppLie; }catch(e){ window.__modeAppLie=false; }
+      faux(false); document.body.classList.remove('mode-app'); modeAppSuivre();
+      if(document.body.classList.contains('mode-app')) vus.push("la classe est posée hors du mode application");
+      faux(true); modeAppSuivre();
+      if(!document.body.classList.contains('mode-app')) vus.push("la classe manque quand le navigateur dit « display-mode: fullscreen »");
+      faux(false); modeAppSuivre();
+      if(document.body.classList.contains('mode-app')) vus.push("la classe reste posée après la sortie du plein écran");
+      window.__appForce = true; modeAppSuivre();
+      if(!document.body.classList.contains('mode-app')) vus.push("window.__appForce ne force rien : le banc navigateur ne pourrait rien mesurer");
+      delete window.__appForce;
+      if(!ecoutes.length) vus.push("aucun écouteur sur la requête média : un onglet mis en plein écran garderait la mise en page de l’onglet");
+    } catch(e){ vus.push('erreur : ' + e.message); }
+    window.__modeAppLie = true;   /* plus aucun écouteur après le contrôle */
+    rendre();
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
 }
 
 /* ---------- Le manifeste d'application : déclaré en tactile, jamais ailleurs ---------- */

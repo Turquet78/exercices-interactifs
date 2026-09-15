@@ -281,6 +281,24 @@ module.exports = {
        Chromium le vérifie lui-même au banc navigateur : un mode d'affichage
        qu'il refuse rend la page non installable, et il le NOMME. */
     manifeste: { display: 'fullscreen' },
+    /* LA BANDE DU BAS APPARTIENT AU SYSTÈME, EN MODE APPLICATION (signalé par
+       Turquet, septembre 2026, sur une tablette Samsung : « la ligne la plus
+       basse du clavier virtuel ne fonctionne pas, les caractères ne
+       s'affichent pas — en portrait comme en paysage »). La page demandant
+       « fullscreen », elle dessine jusqu'au bord physique de l'écran, et les
+       48 dp du bas sont la zone du geste d'Android : le système y prend les
+       touches. Rien de ce qui se touche ne doit donc y descendre — le clavier
+       mathématique ancré, les commandes du bas, le pavé numérique.
+       px : la réserve, écrite ICI et dans la page (deux sources). Elle ne vaut
+       QUE pour un niveau dont le manifeste demande « fullscreen » : les deux
+       autres, en « standalone », gardent la barre du système et la page ne
+       descend jamais jusque-là — le contrôle exige les deux bords, et un
+       niveau qui passerait en fullscreen sans réserve rougirait aussitôt.
+       Le banc navigateur ouvre l'exercice SIGNALÉ, déploie le clavier et
+       mesure ce qui reste dans la bande, dans les deux orientations. */
+    basSysteme: { px: 48, exercice: 'synthese-diminutions-libre',
+                  champ: '#salSheet math-field',
+                  regles: ['#testCtrls', '#paveNum', '.MLK__backdrop'] },
     policeTablette: 90,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
        2.3.9) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
