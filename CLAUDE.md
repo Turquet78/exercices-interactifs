@@ -378,9 +378,9 @@ second est le plus sournois, parce qu'un numéro capturé une fois pour toutes
 enverrait l'élève au mauvais exercice le jour d'une réorganisation, sans erreur
 nulle part.
 
-**Les numéros d'exercice n'existent nulle part.** `3.1.1` se déduit de la
+**Les numéros d'exercice n'existent nulle part.** `2.1.3` se déduit de la
 POSITION dans `THEMES` : réordonner un thème les décale tous. Vingt-cinq phrases
-en citaient un en toutes lettres — « les 3 étapes de l'exercice 3.1.1 » — dans
+en citaient un en toutes lettres — « les 3 étapes de l'exercice 2.1.3 » — dans
 les descriptions, les rappels de cours et le contexte envoyé au modèle. Aucune
 ne se recalculait : le jour d'une réorganisation, elles renvoyaient l'élève au
 mauvais exercice, sans erreur nulle part. Elles s'écrivent maintenant
@@ -803,15 +803,15 @@ famille corrigée à moitié ne serait pas corrigée. Éprouvé en le cassant si
 fois.
 
 **Et une case ROUGE porte la bonne réponse en VERT à côté.** Demande de
-Turquet (août 2026, sur le 2.7) : la case fausse gardait le choix de l'élève
+Turquet (août 2026, sur le 2.11) : la case fausse gardait le choix de l'élève
 en rouge et rien ne disait la bonne réponse — elle ne vivait que dans le
 texte du message. `corrChoix` pose maintenant le badge `mf-cor` de la
 convention commune après chaque case fausse, ce qui la porte d'un coup à
 TOUTE la famille des listes de la Seconde (intervalles, inéquations et
-équations graphiques, appartenance, 2.7…) : la fonction partagée est
+équations graphiques, appartenance, 2.11…) : la fonction partagée est
 précisément ce qui empêche deux exercices voisins de se contredire. Le
 badge écrit le LIBELLÉ de l'option, jamais sa valeur interne — la bonne
-carte du 2.7 s'écrit « B », pas « 1 » ; le « oui » des inéquations s'écrit
+carte du 2.11 s'écrit « B », pas « 1 » ; le « oui » des inéquations s'écrit
 « le prendre » ; ∈ garde son symbole. En ENTRAÎNEMENT seulement : en
 soutien l'élève corrige lui-même, un badge lui soufflerait la réponse que
 le barème fait payer. Trois sabotages nommés (le badge retiré, la valeur
@@ -940,8 +940,8 @@ sous le signe. Éprouvé en le cassant sept fois.
 
 **Une question vérifiée ATTEND l'élève — plus aucun écran ne s'enfuit.**
 Signalé par Turquet (août 2026) : « quand on a vérifié une question, il n'y a
-pas de bouton suivant » sur le 2.2. Les trois exercices de courbes (2.1, 2.2,
-2.3) avançaient TOUT SEULS — 0,9 s après une copie juste, 2,4 s après une
+pas de bouton suivant » sur le 2.3. Les trois exercices de courbes (2.1, 2.3,
+2.5) avançaient TOUT SEULS — 0,9 s après une copie juste, 2,4 s après une
 fausse — un héritage de leur premier portage : le temps de rien, la
 correction, le badge et le trait de la méthode s'effaçaient sous les yeux de
 l'élève, précisément quand il en avait besoin. Le bouton « Valider » devient
@@ -1128,7 +1128,7 @@ incomplet passe avant), donc il n'écartait jamais rien — le sabotage l'a
 montré en restant vert, et le contrôle tient ce bord par la branche du
 soutien. **Et un sabotage a d'abord frappé le VOISIN** : les trois lignes du
 filtre de lisibilité d'adrCibles sont identiques à celles d'antCibles, et le
-remplacement de la « première occurrence » a saboté le 2.3 pendant que le
+remplacement de la « première occurrence » a saboté le 2.5 pendant que le
 contrôle du nouvel exercice restait vert à bon droit — un sabotage se pose
 sur une ancre PROPRE à sa cible, sans quoi il mesure autre chose. Neuf
 sabotages en tout, chacun rougissant en nommant son défaut. Le banc
@@ -1152,9 +1152,9 @@ l'élève qui confond avec une équation, et elle doit pouvoir se commettre.
 **La signification ne dépend que du SIGNE**, et c'est pourquoi les quatre
 signes sortent chacun UNE fois par séance, en ordre mélangé — sans quoi
 « au-dessus » tomberait toujours juste. **S est toujours UN SEUL intervalle,
-et c'est le tirage qui le garantit** : la courbe est la cloche du 2.4 (ingGen,
+et c'est le tirage qui le garantit** : la courbe est la cloche du 2.8 (ingGen,
 réutilisé tel quel) pour ≥ et >, son MIROIR en vallée (valeurs et hauteur
-passées à l'opposé — les garanties du 2.4 se conservent par symétrie) pour
+passées à l'opposé — les garanties du 2.8 se conservent par symétrie) pour
 ≤ et < : le morceau demandé est toujours celui du milieu, [x1 ; x2], la forme
 même que la conclusion à quatre cases demande. Les portes s'enchaînent : la
 phrase attend la droite, la conclusion attend la phrase ; chaque réponse se
@@ -1271,12 +1271,12 @@ imposé, le doublon compté deux fois, la méthode montrée avant la
 vérification, g(b) hors du dessin, le signe figé, le bord 3 lâché — chacun
 rougit en nommant son défaut.
 
-**Puis le 2.5 a gagné g(x) = k et ses quatre dessins par question** (demande
+**Puis le 2.9 a gagné g(x) = k et ses quatre dessins par question** (demande
 de Turquet, août 2026) : CINQ questions désormais — lire f(a) et g(b),
 f(x) = k, g(x) = k, f(x) = g(x), f(x) signe g(x) — et chaque question
 d'équation ou d'inéquation fait d'abord CHOISIR le bon dessin parmi quatre,
-comme au 2.7 et au 2.4 ; seule la lecture d'images garde le dessin nu et son
-trait de méthode. Les formes d'équation sont celles du 2.7 (bon, un point
+comme au 2.11 et au 2.8 ; seule la lecture d'images garde le dessin nu et son
+trait de méthode. Les formes d'équation sont celles du 2.11 (bon, un point
 OUBLIÉ, un point EN TROP) plus le piège propre à DEUX courbes : la
 CONFUSION — pour f(x) = k, les points posés aux croisements de f et g ; pour
 g(x) = k, le point lu sur la COURBE au lieu de la droite ; pour f(x) = g(x),
@@ -1288,7 +1288,7 @@ est PRISE SUR LA DROITE (g(xg) pour un xg entier intérieur hors croisements,
 donc la solution se lit, et « lu sur f » reste à au moins 1 de la ligne par
 la marge du tirage) et aucun croisement de f et g ne tombe à la hauteur k,
 sans quoi le piège « croisements » se confondrait avec le bon dessin.
-L'inéquation propose les quatre coloriages du 2.4 (permI), les trois
+L'inéquation propose les quatre coloriages du 2.8 (permI), les trois
 équations partagent permE — tirés une fois par séance, conservés, à forme
 égale le rang varie. g(x) = k n'a qu'UNE solution — une droite ne croise la
 ligne qu'une fois, et l'énoncé le dit — d'où sa forme « oubli » : la ligne
@@ -1300,11 +1300,11 @@ le piège rendu invisible, les dessins non mélangés, la carte qui ne compte
 plus, la bonne carte qui ne se montre plus, le tirage re-tiré, la ligne
 horizontale sur toutes les cartes — chacun rougit en nommant son défaut.
 
-**Puis les antécédents et les inéquations à k, et le 2.5 est devenu la fiche
+**Puis les antécédents et les inéquations à k, et le 2.9 est devenu la fiche
 entière : HUIT questions** (demande de Turquet, août 2026) — images,
 antécédents de ka par f ET par g, f(x) = k puis f(x) signe k, g(x) = kg puis
 g(x) signe kg, f(x) = g(x), f(x) signe g(x) : chaque équation est SUIVIE de
-son inéquation à la même hauteur (la progression du 2.7), et chacune fait
+son inéquation à la même hauteur (la progression du 2.11), et chacune fait
 choisir le bon dessin parmi quatre. Les antécédents ont leurs quatre cartes
 sur permE (l'oubli est le point de G — l'élève qui ne regarde que f) ;
 f(x) signe k partage permI avec f(x) signe g(x) (les mêmes quatre
@@ -1327,7 +1327,7 @@ repli au pluriel, un second au singulier — passent par les mêmes gardes que
 le tirage. Éprouvé par les sabotages nommés du contrôle réécrit.
 
 **Deux courbes, chacune sur SON domaine — et le garde-fou d'échantillonnage
-est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.6, demande de
+est VIVANT cette fois.** {lecture-deux-courbes} (Seconde, 2.10, demande de
 Turquet, août 2026) est repris de la fiche « images et antécédents avec f et
 g » : f en trait plein et g en POINTILLÉS — une vraie courbe, plus une
 droite —, chacune sur son propre domaine (les bouts sont marqués d'un point :
@@ -1338,15 +1338,15 @@ g(x) = k, f(x) signe k, f(x) = g(x), f(x) signe g(x). `lvGraphSVG` a
 seulement appris le morceau (ia, ib), comme `lvPath` l'avait appris — et
 l'étiquette Cf suit le début du morceau.
 **Le risque propre a changé de nature : spline contre SPLINE.** La garantie
-de la droite penchée du 2.5 ne tient plus — deux splines monotones entre deux
+de la droite penchée du 2.9 ne tient plus — deux splines monotones entre deux
 graduations peuvent se refrôler même écartées de 1 aux deux bouts. Le tirage
 échantillonne donc l'écart des deux cubiques de Hermite (`ifgSpline`, les
 mêmes que `lvPath` écrit en Bézier) et rejette la séance qui frôle : mesuré à
 **16 rejets sur 316** — le garde-fou est VIVANT, contrairement à celui du
-2.5, mort à 0 sur 2000 et retiré. Le contrôle relit en plus les Bézier
+2.9, mort à 0 sur 2000 et retiré. Le contrôle relit en plus les Bézier
 réellement écrites, tirage après tirage.
 **Le palier est un piège de PLUS, aux antécédents comme aux équations.** La
-leçon des « solutions voisines » du 2.5 vaut pour TOUTE hauteur interrogée,
+leçon des « solutions voisines » du 2.9 vaut pour TOUTE hauteur interrogée,
 sur f comme sur g : deux antécédents voisins seraient un segment entier posé
 à cette hauteur, et l'énoncé mentirait. g n'a jamais de palier (ses pas sont
 non nuls) ; f, si — le tirage écarte la hauteur, et c'est le REPLI de secours
@@ -1371,7 +1371,7 @@ change rien, les valeurs étant entières — un écart nul EST un croisement, l
 marge aux graduations est tenue par le compte des croisements.
 
 **Deux bleus ne font pas deux courbes.** Signalé par Turquet (août 2026) sur
-le 2.5 et le 2.6 : « on a du mal quelquefois à savoir quelle est la courbe f
+le 2.9 et le 2.10 : « on a du mal quelquefois à savoir quelle est la courbe f
 et quelle est la courbe g ». f était en bleu vif et g en bleu ardoise
 (#4a5a80) — deux bleus, que seuls les pointillés et de petites étiquettes
 séparaient, illisibles surtout sur les petites cartes des propositions. g est
@@ -1388,7 +1388,7 @@ mots. Un contrôle tient les trois bords — dominantes OPPOSÉES des deux encre
 échantillons par les classes — éprouvé par cinq sabotages nommés.
 
 **Résoudre, c'est d'abord choisir le dessin — équations et inéquations sur
-les mêmes quatre cartes.** {resolutions-graphiques} (Seconde, 2.7, demande de
+les mêmes quatre cartes.** {resolutions-graphiques} (Seconde, 2.11, demande de
 Turquet, août 2026) est repris de la fiche « Exercice 2 » : UNE courbe, deux
 droites horizontales à tracer, et quatre questions sur le MÊME tirage
 conservé — équation puis inéquation à chaque hauteur, la plus basse d'abord
@@ -1396,7 +1396,7 @@ conservé — équation puis inéquation à chaque hauteur, la plus basse d'abor
 QUATRE dessins proposés (demande de Turquet). Une INÉQUATION propose les
 quatre coloriages d'{inequation-graphique} — milieu/extérieur × pris/exclu —
 généralisés au CÔTÉ réel de f entre les croisements (`eigSide`) : la courbe
-n'est plus la cloche du 2.4. Une ÉQUATION propose la ligne horizontale et ses
+n'est plus la cloche du 2.8. Une ÉQUATION propose la ligne horizontale et ses
 points, et les quatre dessins ne diffèrent que par ce qui fait l'erreur : le
 bon, la ligne à l'AUTRE hauteur avec SES points, un point OUBLIÉ, un point EN
 TROP posé sur la ligne là où la courbe ne passe pas — la règle
@@ -1404,7 +1404,7 @@ d'{intervalles-inegalite}, transposée. Puis les phrases : les abscisses des
 points (« dans l'ordre que tu veux » — la règle des paires, le doublon
 défendable une fois) et S = { … ; … } aux ACCOLADES écrites par la page —
 quelques nombres, pas un intervalle ; l'inéquation garde les phrases et
-l'intervalle du 2.4. k = 0 est AUTORISÉ, la fiche l'exige (f(x) = 0) : la
+l'intervalle du 2.8. k = 0 est AUTORISÉ, la fiche l'exige (f(x) = 0) : la
 droite bleue se pose SUR l'axe noir et doit s'y voir — jugé sur capture.
 **Le risque propre est la TANGENCE, et il a été trouvé en relisant le tirage
 AVANT le premier contrôle** : une hauteur qui TOUCHE la courbe en un
@@ -1414,7 +1414,7 @@ milieu, et l'énoncé mentirait. Le tirage exige donc que chaque solution soit
 un vrai CROISEMENT (les voisins de part et d'autre de la hauteur), en plus
 des bords déjà connus — jamais traversée entre deux graduations, jamais au
 bord. **Et ce filtre a tué un garde-fou en naissant** — le sixième du
-projet : « écart ≥ 2 entre les solutions » (le palier du 2.5) n'écartait
+projet : « écart ≥ 2 entre les solutions » (le palier du 2.9) n'écartait
 plus rien, un voisin ÉGAL à la hauteur donnant un produit NUL, jamais
 négatif — le sabotage l'a montré en restant vert, le garde-fou est retiré et
 c'est le contrôle qui exige la propriété sur le tirage. Les deux ordres des
@@ -1439,14 +1439,14 @@ comme le 2.1 mais pour les tableaux de signes ») vient juste AVANT
 questions qui montent — transposé au signe : a) résoudre f(x) = 0, b) dire le
 signe de f sur chaque intervalle, c) construire le tableau ENTIER, racines et
 zéros compris.
-**Tout est repris, rien n'est recopié** : le tirage est celui du 2.8
+**Tout est repris, rien n'est recopié** : le tirage est celui du 2.13
 (`tsgGen` — racines lisibles garanties, le contrôle les recompte par sa
 propre arithmétique), le dessin et les peintures ceux du 2.1 (`lvGraphSVG`,
-`lvMarkFields`), le tableau les classes du 2.8. La question ne porte que la
+`lvMarkFields`), le tableau les classes du 2.13. La question ne porte que la
 courbe et la partie (`pts, part, gnum, gtot`) : `tsgSols`/`tsgSide` — les
-fonctions mêmes qui corrigent le 2.8 — recalculent tout, et le contrôle
+fonctions mêmes qui corrigent le 2.13 — recalculent tout, et le contrôle
 refuse tout autre champ.
-**Deux différences avec le 2.8, chacune voulue** : la courbe est NUE — le 2.8
+**Deux différences avec le 2.13, chacune voulue** : la courbe est NUE — le 2.13
 peint le dessus en rouge et le dessous en bleu pour ENSEIGNER la
 correspondance, ici on la fait LIRE sans aide ; et le tableau ne donne RIEN —
 les racines s'écrivent, et les CINQ cases de la ligne du signe offrent toutes
@@ -1458,7 +1458,7 @@ défendable une fois) ; dans le tableau elles sont À LEUR PLACE, la plus
 petite à gauche — un tableau se lit de gauche à droite, l'ordre en fait
 partie, et les racines échangées sont fausses toutes les deux.
 **Les deux visages (+ − + et − + −) sortent dès que la séance a deux
-graphiques** ; le soutien n'en a qu'un, rien à équilibrer — le motif du 2.8.
+graphiques** ; le soutien n'en a qu'un, rien à équilibrer — le motif du 2.13.
 Et la famille `.lv-sel` a gagné sa règle `.sol` EN NAISSANT — la leçon des
 familles de listes, tenue avant le signalement cette fois : la règle posée
 répare du même coup la partie b du 2.1, dont `lvMarkFields` remplissait les
@@ -1466,7 +1466,7 @@ listes vides en bleu invisible depuis toujours. Dix sabotages, chacun
 rougissant en nommant son défaut.
 
 **Le tableau de signes se lit sur une courbe à deux encres.**
-{tableau-signes-graphique} (Seconde, 2.8, demande de Turquet, août 2026) : une
+{tableau-signes-graphique} (Seconde, 2.13, demande de Turquet, août 2026) : une
 courbe du style de {resolutions-graphiques}, la partie AU-DESSUS de l'axe en
 ROUGE (f(x) > 0), EN DESSOUS en BLEU (f(x) < 0). L'élève complète les deux
 phrases couleur/signe, place les signes dans un tableau « comme en
@@ -1476,7 +1476,7 @@ questions, chacune son tirage.
 **Tout est repris, rien n'est recopié** : la courbe est celle de
 {lecture-variations} (`lvGraphSVG`, `lvPath` par morceaux — les deux encres
 sont deux morceaux posés par-dessus, à la même épaisseur, découpés aux
-racines) ; le filtre du tirage est celui du 2.7 posé à la hauteur zéro
+racines) ; le filtre du tirage est celui du 2.11 posé à la hauteur zéro
 (exactement deux racines intérieures, chacune un vrai CROISEMENT — la
 tangence et les racines voisines mentiraient —, zéro jamais traversé entre
 deux graduations) ; les cases sont les sélecteurs de la famille `.itv-sel`
@@ -1499,7 +1499,7 @@ rouge, dans l'exercice même qui enseigne la correspondance couleur↔signe.
 Les QUATRE mots portent LEUR encre (`.tsg-mot-rouge`, `.tsg-mot-bleu` — la
 leçon de la phrase des couleurs du 6.3), aucun `<b>` ne subsiste dans cet
 énoncé, et le contrôle exige les trois choses : les mots présents, les
-dominantes opposées lues dans la feuille de styles (le motif du 2.6), et
+dominantes opposées lues dans la feuille de styles (le motif du 2.10), et
 aucun gras restant — sans quoi le prochain mot ajouté repasserait en rouge
 sans que rien ne le dise. Douze sabotages, chacun rougissant en nommant son
 défaut — dont la copie juste qui ne vaut plus 21, le doublon compté deux
@@ -1518,7 +1518,7 @@ deux hérités d'un conteneur emprunté :
   lecture, jamais dans la grille des cartes) ;
 · l'union à huit cases se REPLIAIT dans la colonne de 560 px des
   intervalles, et une solution coupée en deux se lit comme deux solutions
-  (`#scr-tsg .itv-ligne{max-width:1160px}`, comme le 2.4, le 2.5 et le 2.7).
+  (`#scr-tsg .itv-ligne{max-width:1160px}`, comme le 2.8, le 2.9 et le 2.11).
   **Le contrôle universel « aucune rangée ne se replie » ne l'a pas vu** : il
   ne mesure que les rangées `.pt-row` des exercices déclarés dans
   `pleineLargeur`, jamais la famille `.itv-ligne` — la règle est universelle,
@@ -1528,11 +1528,12 @@ deux hérités d'un conteneur emprunté :
 {signes-variations} (Seconde, demande de Turquet, septembre 2026 — « un
 exercice avec un dessin comme le 2.11 ou le 2.1 qui demande directement de
 compléter un tableau de signes et un tableau de variation sur la même
-page ») suit {tableau-signes-graphique} au menu : la synthèse, quand les
+page » — le 2.11 d'alors est {tableau-signes-graphique}, aujourd'hui 2.13)
+suit {tableau-signes-graphique} au menu : la synthèse, quand les
 deux tableaux ont été appris — plus de marches, une courbe nue, et les DEUX
 tableaux d'un coup sur le même écran.
 **Une seule courbe sert les deux tableaux, et c'est le tirage qui le
-permet** : `tsgGen()` garantit les racines lisibles (le filtre du 2.8), et
+permet** : `tsgGen()` garantit les racines lisibles (le filtre du 2.13), et
 `lvGenPts` ne produit JAMAIS de palier — ses segments sont strictement
 monotones par construction —, donc le tableau de variation a toujours un
 sens à dire. Le contrôle refait les DEUX propriétés par sa propre
@@ -1550,7 +1551,7 @@ signes comme les changements de sens du tableau de variation : un tableau
 se lit de gauche à droite, l'ordre en fait partie, et les racines échangées
 sont fausses toutes les deux. Chaque case se juge SEULE : une flèche fausse
 coûte exactement son point. Les deux visages du signe sortent dès que la
-séance a deux graphiques (le motif du 2.11) ; le soutien n'en a qu'un. Une
+séance a deux graphiques (le motif du 2.12) ; le soutien n'en a qu'un. Une
 séance = deux pages (13 à 16 cases chacune). Dix sabotages, chacun
 rougissant en nommant son défaut — et le premier essai du contrôle a rougi
 sur du code JUSTE (la valeur du départ d'une flèche ↘ monte en HAUT de la
@@ -1563,7 +1564,7 @@ des dessins de l'exercice 2.1 et en présentant le tableau de variation comme
 dans le 2.1 ») suit {lecture-variations} au menu : son c) sans les marches.
 **« Présenté comme dans le 2.1 » est tenu par une FONCTION, pas par une
 promesse** : le tableau est rendu par `varTableHTML(a, préfixe, onchange)` et
-jugé par `varTableSubs(a, préfixe)`, extraites du c) du 2.1 — le 2.1, le 2.13
+jugé par `varTableSubs(a, préfixe)`, extraites du c) du 2.1 — le 2.1, le 2.14
 {signes-variations} et l'exercice neuf passent tous trois par elles (le
 contrôle lit le SOURCE de la page pour l'exiger, jamais `String(renderLV)` :
 les rendus sont ENVELOPPÉS par la greffe des jetons, et la chaîne d'une
@@ -1598,7 +1599,7 @@ le grand dessin d'{antecedents-droite} — 13 graduations dans les deux sens.
 **Tout est repris, rien n'est recopié, et chaque moitié vient de son
 exercice** : le tirage est `adrGenPts()` — le générateur MÊME
 d'{antecedents-droite}, segments strictement monotones, jamais de palier —
-FILTRÉ à la discipline du 2.8 portée à l'échelle 13 (`gsvOkPts` : exactement
+FILTRÉ à la discipline du 2.13 portée à l'échelle 13 (`gsvOkPts` : exactement
 deux racines intérieures, chacune un vrai croisement, zéro jamais traversé
 entre deux graduations — sonde relevée : 9,1 % des tirages bruts passent,
 pire cas 53 essais, le repli RÉEL relevé sur le générateur ne sert à peu
@@ -1747,8 +1748,8 @@ repli muet là-dessus rendrait une carte `images` identique au vrai.
 fonction MÊME qui rend le tableau qu'on remplit au 2.1 et celui qu'on lit au
 2.17 : une proposition ne peut pas se dessiner autrement que le tableau que
 l'élève connaît, valeurs comprises. Les lettres, elles, sont LOCALES
-(`VTQ_LETTRES`, A à E) : `ITQ_LETTRES` sert les QCM à QUATRE cartes — le 2.4,
-le 2.5, le 2.7 — et l'étendre leur aurait offert une cinquième option qui ne
+(`VTQ_LETTRES`, A à E) : `ITQ_LETTRES` sert les QCM à QUATRE cartes — le 2.8,
+le 2.9, le 2.11 — et l'étendre leur aurait offert une cinquième option qui ne
 désigne rien.
 **Un garde-fou MORT y a été écrit, puis retiré** — le NEUVIÈME du projet :
 `vtqSignature`, qui devait empêcher deux propositions identiques, n'avait
@@ -1876,7 +1877,7 @@ séances, 0 recours au repli — lequel est RÉEL, relevé sur le générateur, 
 passe par les gardes mêmes (le premier, inventé à la main, plaçait une borne
 hors du tableau : le contrôle l'a nommé, comme au 2.16).
 **Le tableau est rendu par `varTableHTML` en mode LECTURE** — la fonction
-MÊME qui rend le tableau qu'on REMPLIT au 2.1, au 2.13, au 2.14 et au
+MÊME qui rend le tableau qu'on REMPLIT au 2.1, au 2.2, au 2.14 et au
 2.15 : les deux ne peuvent donc pas se dessiner différemment. La hauteur
 d'une valeur dans la bande des flèches vit désormais à un seul endroit
 (`varTopPour`), lu par le tableau qui se remplit comme par celui qui se lit.
@@ -1969,7 +1970,7 @@ redevenu à remplir, la case vide peinte en soutien, le repli inventé, les
 abscisses écrites retirées des listes, les deux morceaux qui ne se recollent
 plus, le bord du tableau ouvert… **Et l'un d'eux a d'abord frappé le
 VOISIN** : la ligne « jugé au mieux » de l'union est la même, au caractère
-près, dans le 2.6 — `replace` a saboté {lecture-deux-courbes} pendant que
+près, dans le 2.10 — `replace` a saboté {lecture-deux-courbes} pendant que
 le contrôle du 2.18 restait vert à bon droit. Un sabotage se pose sur une
 ancre PROPRE à sa cible, sans quoi il mesure autre chose ; rejoué sur la
 ligne d'au-dessus, il rougit (« les deux morceaux dans l'autre ordre valent
@@ -2326,8 +2327,8 @@ appelée NUE — elle a seulement son paramètre « dessus », la convention de
 l'`extra` de `lvGraphSVG`, pour que la méthode se trace par-dessus ; et les
 morceaux de courbe de la solution passent par `adrPath(pts, sx, sy, ia, ib)`,
 le MÊME chemin que la courbe noire, donc ils s'y superposent exactement.
-**LA SAISIE LIBRE EST TOUT LE SUJET.** Partout ailleurs (le 2.4, le 2.7, le
-2.8, le 2.18) les crochets et les bornes se CHOISISSENT dans des listes :
+**LA SAISIE LIBRE EST TOUT LE SUJET.** Partout ailleurs (le 2.8, le 2.11, le
+2.13, le 2.18) les crochets et les bornes se CHOISISSENT dans des listes :
 l'élève RECONNAÎT une écriture. Ici il l'ÉCRIT — c'est le geste du contrôle,
 et le seul qui fasse travailler la notation elle-même. La contrepartie est
 que le juge doit être LARGE sur l'écriture et EXACT sur l'ensemble : espaces
@@ -2345,7 +2346,7 @@ racine qui TOUCHE la courbe sans la traverser ferait de S autre chose qu'une
 réunion d'intervalles (] a ; c [ U ] c ; b [ pour une inégalité stricte) — un
 énoncé auquel la ligne de réponse ne sait pas répondre. Le tirage exige donc
 que k soit atteinte, jamais traversée entre deux graduations, et que CHAQUE
-racine soit un vrai CROISEMENT INTÉRIEUR (la discipline du 2.7 et du 2.8) —
+racine soit un vrai CROISEMENT INTÉRIEUR (la discipline du 2.11 et du 2.13) —
 ce qui écarte du même geste les racines posées au BORD, où un intervalle se
 réduirait à un point. Les bords du domaine, eux, sont TOUJOURS pris : f n'y
 vaut pas k.
@@ -2561,7 +2562,7 @@ NE SUFFISENT PAS** — 2/3 × 3/2 a ses deux fractions irréductibles et donne 6
 C'est bien le PRODUIT qu'il faut tester, et un sabotage l'a montré en sortant
 35/15. Sans cette condition, l'élève qui simplifie — ce qui est juste — écrirait
 une fraction que la correction compterait fausse ; et l'exercice poserait la
-question « faut-il simplifier ? » que 4.3 et 4.5 traitent déjà. Deux leçons dans
+question « faut-il simplifier ? » que 4.4 et 4.5 traitent déjà. Deux leçons dans
 un même exercice rendent la faute illisible.
 
 **La correction en bleu recouvrait le signe ×.** Le badge se pose hors du flux à
@@ -2758,7 +2759,7 @@ numérateurs ET le dénominateur commun d'un seul `ok3`, la fraction recopiée d
 seul `okS`, la fraction finale d'un seul `ok4`. Un numérateur faux rougissait
 donc les deux autres cases, justes. **Ce qui est peint ensemble doit être ce qui
 se juge ensemble, et rien de plus** : les deux cases d'un multiplicateur sont une
-vraie paire — le même nombre en haut et en bas —, le diviseur du 4.3 aussi ; les
+vraie paire — le même nombre en haut et en bas —, le diviseur du 4.4 aussi ; les
 numérateurs, le dénominateur et la fraction finale sont des réponses distinctes.
 Deux règles sont CONSERVÉES, parce qu'elles ne sont pas ce défaut. Une étape ②
 ne peut pas contredire une étape ① **cohérente** — mais une étape ① qui dit deux
@@ -3219,7 +3220,7 @@ deux bords vivent dans une SEULE visite : les démarrages coûtent cher et se
 partagent.
 **Et l'EXACTITUDE ne s'exige que là où la bonne réponse se MESURE.** Le
 premier jet déduisait l'homogénéité de la DIVISIBILITÉ du barème par le
-nombre de questions — or le 2.7 pèse 5, 9, 5 et 17 cases, dont la somme (44)
+nombre de questions — or le 2.11 pèse 5, 9, 5 et 17 cases, dont la somme (44)
 se divise par 4 un tirage sur deux. Il accusait donc une page juste, un essai
 sur trois, et l'action GitHub l'a montré là où trois exécutions locales
 étaient passées : **un contrôle intermittent est un contrôle qui parle d'autre
@@ -3230,7 +3231,7 @@ le disant. C'est le bon réflexe et c'était le mauvais périmètre.
 Deux familles, donc, et aucune ne se devine : les poids se LISENT et leur
 somme retrouve le barème — l'attendu est la somme des n PREMIERS, même quand
 les questions pèsent différemment, et c'est ce qui DÉPARTAGE les deux voies de
-la page (le 2.7 rend 19 sur trois questions par la voie exacte, 27 par la voie
+la page (le 2.11 rend 19 sur trois questions par la voie exacte, 27 par la voie
 homogène) ; ou le barème ÉGALE le nombre de questions — un point par question,
 arithmétique sur les nombres OBSERVÉS, sans rien demander à la page, et c'est
 la famille de la Terminale et de la Première entières. Le reste (44 pour 4
@@ -4035,9 +4036,10 @@ sabotages, chacun nommé.
 **Et la synthèse À CASES des baisses est arrivée la dernière — l'asymétrie
 était le manque.** {synthese-diminutions} (Première, 2.3.8, demande de
 Turquet, septembre 2026 : « faire un exercice de synthèse sur les diminutions
-rédigé comme le 2.2.9 ») est le MIROIR de {synthese-augmentations} sur les
-baisses. Le sous-thème des hausses avait ses DEUX synthèses — celle à cases
-(2.2.9) et la rédigée (2.2.10) — quand celui des baisses n'avait que la
+rédigé comme le 2.2.9 » — le rédigé des hausses, aujourd'hui 2.2.10) est le
+MIROIR de {synthese-augmentations} sur les baisses. Le sous-thème des hausses
+avait ses DEUX synthèses — celle à cases (2.2.9) et la rédigée (2.2.10) —
+quand celui des baisses n'avait que la
 rédigée : c'est cette moitié manquante que la demande nomme, la synthèse
 rédigée des baisses existant depuis août.
 **TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et c'est ce qui rend l'ajout court** :
@@ -4131,7 +4133,8 @@ corrections, toutes deux copies épinglées au contrôle :
 **Et la TROISIÈME famille est entrée dans le moteur rédigé : la synthèse
 entière.** {synthese-pourcentages-libre} (Première, 2.5.2, demande de Turquet,
 septembre 2026 : « un exercice comme le 2.5.1 mais où il faut rédiger la
-justification dans une case comme dans le 2.2.9 ») suit {synthese-pourcentages}
+justification dans une case comme dans le 2.2.9 » — le rédigé des hausses,
+aujourd'hui 2.2.10) suit {synthese-pourcentages}
 au menu : le tirage du 2.5.1 — `genSyn` SANS famille imposée, donc prendre,
 augmenter et diminuer, et les trois inconnues chacune UNE fois en ordre
 mélangé — posé sur l'écran, la feuille et le juge du 2.2.10. Même moteur de
@@ -4206,9 +4209,28 @@ un réglage sans lecteur ferait croire qu'on tient quelque chose.
 
 **Et {reconnaitre-coefficient} est passé de 2.5.2 à 2.5.3**, la numérotation
 se déduisant de la position : les notes déjà obtenues ne bougent pas — elles
-portent l'IDENTIFIANT — et les renvois suivent, écrits `{identifiant}`. Les
-paragraphes plus anciens de ce fichier qui l'appellent « 2.5.2 » racontent
-l'histoire avec le numéro de leur époque.
+portent l'IDENTIFIANT — et les renvois suivent, écrits `{identifiant}`.
+
+**LES NUMÉROS DE CE FICHIER SONT CEUX D'AUJOURD'HUI** (décision de Turquet,
+septembre 2026 : « mets à jour le CLAUDE.md avec la nouvelle numérotation »).
+Ils racontaient jusque-là l'histoire avec le numéro de LEUR ÉPOQUE, et la
+dérive avait fini par retourner la mémoire du projet contre elle : « le
+tirage est celui du 2.8 » nommait {tableau-signes-graphique}, devenu 2.13 —
+et 2.8 est aujourd'hui {inequation-graphique}, si bien que la phrase envoyait
+le lecteur sur un exercice qu'elle ne voulait pas dire, sans rien casser
+nulle part. C'est le défaut que ce fichier connaît sous « un contrôle qui
+s'affiche sous le nom d'un autre est pire qu'un contrôle sans nom », appliqué
+à sa propre prose. Quatre-vingts renvois ont été repris d'un coup, chacun
+résolu par l'exercice qu'il NOMME — le préfixe de ses fonctions (`tsgGen`,
+`ingGen`, `mmxAns`) ou la propriété qu'il décrit —, jamais par l'époque
+supposée du paragraphe : deux paragraphes voisins pouvaient citer le même
+exercice sous deux numéros différents, et c'est arrivé.
+**Les CITATIONS, elles, gardent leur numéro**, parce qu'on ne réécrit pas les
+mots de quelqu'un : une demande de Turquet qui dit « comme le 2.2.9 » le dit
+encore, et la prose juste à côté nomme l'exercice quand le numéro a bougé
+depuis. Et le remède de fond n'a pas changé : un renvoi s'écrit
+`{identifiant}`, qui ne dérive jamais — le numéro ne reste que là où il se
+lit plus vite.
 
 **Le dénominateur vide ne condamne personne.** Signalé par Turquet sur une
 capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
@@ -4303,9 +4325,9 @@ accusait la page d'ignorer une copie qu'elle n'avait jamais reçue. Le banc,
 lui, sert le VRAI MathLive depuis son cache : ses mesures disaient vrai.
 
 **Les exercices sur les ÉVOLUTIONS posent 3 questions** — hausses 2.2.1 à
-2.2.8, baisses 2.3.1 à 2.3.7, ET la synthèse 2.5.1 (demande de Turquet, août
-2026, en trois temps : les hausses seules, « pour les diminutions aussi »,
-puis « pour la synthèse 2.5.1 aussi »). Le 2.5.1 a suivi le motif du 2.2.8 en
+2.2.10, baisses 2.3.1 à 2.3.9, ET les synthèses 2.5.1 à 2.5.3 (demande de
+Turquet, août 2026, en trois temps : les hausses seules, « pour les
+diminutions aussi », puis « pour la synthèse 2.5.1 aussi »). Le 2.5.1 a suivi le motif du 2.2.9 en
 y passant : ses trois inconnues sortent chacune UNE fois, en ordre mélangé —
 à trois questions, un tirage au hasard répéterait souvent le même genre — et
 ses FAMILLES restent mélangées, sous contrôle : une synthèse qui ne tirerait
@@ -4316,13 +4338,13 @@ le paramètre de comptage qu'avaient gagné les démarreurs partagés
 (`startEvolAdd`, `startA2Q`, `startAUGQ`) pour tenir les deux familles à
 des réglages différents a été RETIRÉ avec la différence qui le justifiait,
 et `AUGQ_NB` avec lui : un paramètre qui ne varie plus est une porte à
-divergence. Le contrôle compare les QUINZE démarreurs à `tests/profils.js`
-(`nbQuestionsEvolutions`) — deux sources, comme `SF_NB` — compte SEIZE
+divergence. Le contrôle compare les VINGT-DEUX démarreurs à `tests/profils.js`
+(`nbQuestionsEvolutions`) — deux sources, comme `SF_NB` — compte VINGT-DEUX
 démarreurs, et ses sabotages rougissent en nommant l'exercice (« 2.3.7 : 6
 questions au lieu de 3 », puis « 2.5.1 » à son tour).
 
 **Reconnaître un coefficient, c'est d'abord déjouer trois pièges.**
-{reconnaitre-coefficient} (2.5.2, demande de Turquet, août 2026) : une
+{reconnaitre-coefficient} (2.5.3, demande de Turquet, août 2026) : une
 transformation donnée — augmenter de P %, diminuer de P %, prendre P % — et
 QUATRE coefficients proposés, dont les pièges qui font l'exercice : le
 coefficient de l'AUTRE sens, « prendre P % » à la place d'une évolution, et
@@ -4394,7 +4416,7 @@ sa liste des six.
 **LES SIX NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR, et c'est tout
 l'exercice** : ce sont les trois familles pour P, puis les trois familles pour
 P la VIRGULE DÉCALÉE d'un rang — pour P = 30 : 0,30 / 1,30 / 0,70, puis
-0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.2 (la
+0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.3 (la
 famille confondue, la virgule déplacée) sont présents SUR CHAQUE LIGNE à la
 fois : aucune proposition ne s'élimine sans raisonner. Des propositions qui
 différeraient par autre chose se laisseraient écarter sans lire la phrase — la
@@ -4932,7 +4954,7 @@ qu'elle est la bonne : une règle qui demande une liste d'exceptions décrit mal
 qu'elle mesure.
 Le contrôle vit dans le banc navigateur, greffé sur la visite de TOUS les
 exercices : un exercice ajouté demain est donc couvert sans rien déclarer. Il
-donne le numéro de l'exercice et les deux tailles — « 4.1 — sf-a1 : 16.8px contre
+donne le numéro de l'exercice et les deux tailles — « 4.3 — sf-a1 : 16.8px contre
 32px ». Le mode math, lui, était déjà acquis partout : la Seconde et la Première
 posent les mêmes `math-field`, seule la TAILLE divergeait.
 
@@ -5930,7 +5952,7 @@ SORTIE (le répartiteur `dexpLiveCheck` route le focusout vers
 `checkASG(true)`), la rangée « Clavier mathématique » naît avec l'écran
 (`renderASG` enveloppé), et le banc navigateur TAPE « x+2 » dans la case u
 pour de vrai — jsdom n'a pas la sérialisation réelle que le juge doit lire,
-et le piège documenté du 6.8 a mordu à la première exécution : les
+et le piège documenté du 6.9 a mordu à la première exécution : les
 premières frappes tombaient dans le vide, la case n'avait pas fini de
 prendre le focus. Huit sabotages, chacun rougissant en nommant son défaut —
 celui de la case vide remplie en `sol` rougit chez le 6.6, la preuve que
@@ -6188,7 +6210,7 @@ nommant son défaut — dont l'écouteur DÉBRANCHÉ, la fonction restée juste 
 jsdom vert à bon droit, seul le navigateur voit le branchement.
 
 **Rédiger une récurrence, c'est l'écrire EN ENTIER — et deux juges s'en
-partagent la lecture.** {recurrence-redaction} (Terminale, 6.7, demande de
+partagent la lecture.** {recurrence-redaction} (Terminale, 6.8, demande de
 Turquet, septembre 2026) : « des énoncés comme le 6.5, mais la rédaction
 entière dans une seule case comme celle du 2.2, sans le "f'(x) =" devant ».
 Le tirage est celui du {recurrence-encadrement} — `genRCA` et `genRCH`,
@@ -6447,10 +6469,10 @@ ligne à part. Trois sabotages de plus, chacun rougissant en nommant son
 défaut.
 **Puis le clavier À L'ÉCRAN a gagné les quatre inégalités** (demande de
 Turquet, septembre 2026 : « les touches inférieur ou égale et supérieur ou
-égale… et strictement < et strictement > aussi ») : sur le 6.7, la première
+égale… et strictement < et strictement > aussi ») : sur le 6.8, la première
 rangée du clavier virtuel — celle que `kbVarsFor()` fait varier selon
 l'exercice, Uₓ et n pour les suites — porte aussi ≤, ≥, < et >. La demande
-nomme le 6.7, et la table de routage l'y tient : les touches ne fuient pas
+nomme le 6.8, et la table de routage l'y tient : les touches ne fuient pas
 sur les autres suites — le bord opposé a son contrôle. Les raccourcis
 « <= » et « >= », eux, existaient déjà — la liste blanche du mode rédaction
 les garde depuis le premier jour — : le contrôle les ÉPINGLE au lieu de les
@@ -6518,12 +6540,12 @@ b sur une même ligne), l'aboutissement (a et Vₙ), V₀ à la bonne valeur, le
 mot de la nature (racine `geometri` — jamais écrit dans un libellé, une
 suggestion d'aide ni le conseil : c'est LA réponse du c)), l'expression
 V₀ × aⁿ, la formule Uₙ/Vₙ/k, l'expression finale avec le « + k ». La
-lénience du 6.7 est reprise porte à porte — « geometrique » sans accent,
+lénience du 6.8 est reprise porte à porte — « geometrique » sans accent,
 l'écriture décimale au point, « V_(n)+1 » le + tapé hors de l'indice,
 l'ordre commuté Vₙ × 0,95 — plus une porte NEUVE : « 10 000 » à l'espace
 des MILLIERS est UN nombre (`sarNombres` le recolle) — les valeurs montent
 à 20000 ici, et l'écriture du cahier avec.
-**Le verdict a les trois positions du 6.7**, et l'abstention a un visage
+**Le verdict a les trois positions du 6.8**, et l'abstention a un visage
 précis : la factorisation directe a(Uₙ − k), parfaitement juste, n'écrit
 jamais le nombre intermédiaire k − b (le « −3800 » de la fiche) — la page
 accepte quand il y est, s'abstient quand il n'y est pas, et le modèle
@@ -6537,7 +6559,7 @@ ré-épinglage qui ne remet pas `test.score` mesurait le point du passage
 PRÉCÉDENT. Une mesure qui accuse la page se mesure elle-même d'abord. Cinq
 sabotages, chacun rougissant en nommant son défaut — et les quinze
 branchements de l'exercice neuf sont passés au premier coup : les contrôles
-universels des deux bancs couvraient le 6.8 sans rien déclarer, exactement
+universels des deux bancs couvraient le 6.9 sans rien déclarer, exactement
 ce pour quoi ils existent.
 **Puis la structure a béni une chaîne FAUSSE, et le juge a appris à lire les
 égalités** (capture de Turquet, septembre 2026 : « il y a un problème dans la
@@ -6582,7 +6604,7 @@ c'est la moitié qui change tout : **une égalité restée INVÉRIFIABLE interdi
 l'acceptation forcée**. Le bloc « VERDICT DE LA PAGE, PRIORITAIRE » ne part
 plus que si CHAQUE égalité écrite a été évaluée vraie ; un indice chiffré
 (U₁), une lettre étrangère, « ^(n)+1 » dont rien ne dit si le +1 est dans
-l'exposant (la leçon du 6.7 remontée à l'étage), la fraction élevée à une
+l'exposant (la leçon du 6.8 remontée à l'étage), la fraction élevée à une
 puissance « (95)/(100)^(n) » dont l'aplatissement perd la portée — tout cela
 retombe en ABSTENTION : le modèle juge seul, on n'accepte que ce qu'on a
 vérifié. **Les MOTS coupent la chaîne comme les lignes** : « Vₙ = Uₙ − k
@@ -6927,7 +6949,7 @@ le bord qui attrape un pavé revenu à sa largeur fixe), le plafond à 1600 px
 et la rotation. Huit sabotages, chacun rougissant en nommant son défaut.
 
 **La touche « ⏎ » du clavier à l'écran VALIDE — et en paysage, le clavier
-tient sur DEUX rangées.** Signalé par Turquet (septembre 2026) sur le 2.2.9
+tient sur DEUX rangées.** Signalé par Turquet (septembre 2026) sur le 2.2.10
 de la Première : « la touche valider ne fonctionne pas et ne permet pas de
 passer à la ligne ». La touche « ✓ » du clavier de la Première ne faisait
 que CACHER le clavier (`hideVirtualKeyboard`) : sur tablette, l'élève
@@ -7018,10 +7040,10 @@ plaque de portrait reste à 232 px — le banc l'imprime, à côté de celle de 
 Première.
 
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
-Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
+Turquet (septembre 2026), toujours sur le 2.2.10 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
-partagée par le 2.1.7, le 2.2.10 et le 2.3.9) écrit à 2 rem : une ligne
-faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
+partagée par le 2.1.7, le 2.2.10, le 2.3.9 et le 2.5.2) écrit à 2 rem : une
+ligne faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
 requête média de la tablette — la même que la police de la page, écran
 tactile d'au moins 600 px — elle passe à 1,4 rem (20 px rendus, une ligne
 de 40 px), et le PRÉFIXE suit : une case a la taille des nombres qui
@@ -7059,7 +7081,7 @@ la doctrine du bouton qui ne sert pas. Le contrôle ÉVALUE `buildKbTerm`
 depuis la SOURCE de chaque fichier (le clavier vit dans la greffe module,
 invisible à jsdom) et balaie TOUTES ses couches — un clavier presque vide se
 signale au lieu de passer : un contrôle qui n'a rien à mesurer le dit. Le
-banc navigateur CLIQUE la touche rendue sur le 6.7, avec ≤ ≥ < et > — « = »
+banc navigateur CLIQUE la touche rendue sur le 6.8, avec ≤ ≥ < et > — « = »
 en premier, parce que cliqué après « > » un raccourci pourrait les fondre en
 ≥ et la mesure parlerait d'autre chose. Trois sabotages, un par fichier,
 chacun rougissant en nommant son défaut.
@@ -7094,7 +7116,7 @@ fenêtre de l'ordinateur — jsdom, qui lit la disposition, n'y voyait rien.
 Les deux touches font DEUX unités (le banc jsdom l'exige, deux sources : les
 mots vivent dans `tests/profils.js`, `clavierEcran`) et le rembourrage
 horizontal de leur classe `kb-couche` est ramené à 4 px — celui-ci n'est
-qu'une MARGE : sans lui, la rangée la plus chargée (le 6.7, dix unités que
+qu'une MARGE : sans lui, la rangée la plus chargée (le 6.8, dix unités que
 le navigateur RÉTRÉCIT pour tenir dans les 390 px) laisse encore 52 px pour
 49 de texte, et le sabotage qui le retire reste vert à bon droit.
 **Deux bancs, la répartition habituelle.** jsdom ÉVALUE `buildKbTerm`
@@ -7109,7 +7131,7 @@ le clavier, mesure la touche « 5 » RENDUE contre les plafonds du profil
 (`scrollWidth`), la CLIQUE — les chiffres disparaissent —, clique
 « clavier A » — ils reviennent —, puis élargit la fenêtre à la taille d'une
 tablette et exige que les touches REGRANDISSENT : une règle qui réduirait
-partout ne serait pas la règle demandée. Le contrôle du 6.7 à 1280 px mesure
+partout ne serait pas la règle demandée. Le contrôle du 6.8 à 1280 px mesure
 en plus le libellé dans la fenêtre flottante. Un piège de mesure : le
 clavier ancré occupe TOUTE la fenêtre (son fond), sa hauteur utile est celle
 de la plaque des touches (`.MLK__plate`). Huit sabotages : sept rougissent
@@ -7125,9 +7147,9 @@ VARIABLES de l'exercice, ∞, ⟶ et l'intégrale, à côté des fonctions qu'il
 déjà. Le « = » descend d'une rangée pour faire place à la bascule.
 **La rangée des variables est la même pour tous les exercices de la Terminale**
 (`buildKbTerm` — seule cette rangée varie, par `kbVarsFor`) : la déplacer déplace
-donc aussi les ≤ ≥ < > du 6.7, qui restent sur le clavier à l'écran mais une
+donc aussi les ≤ ≥ < > du 6.8, qui restent sur le clavier à l'écran mais une
 touche plus loin. C'est la conséquence assumée d'« une ligne en moins », et le
-banc navigateur du 6.7 bascule désormais au milieu de sa mesure — il clique
+banc navigateur du 6.8 bascule désormais au milieu de sa mesure — il clique
 « = » sur A, « clavier B », puis les quatre inégalités.
 **Huit unités par rangée au plus, et ce n'est pas une coquetterie** : la règle de
 la tablette donne aux touches la largeur de l'écran divisée par HUIT, et une
@@ -7149,7 +7171,7 @@ une tablette tactile, compte les rangées RENDUES, mesure la touche « 5 », exi
 que ∞, ∫ et n aient quitté le clavier A — puis CLIQUE « clavier B » et exige de
 les y trouver. Un piège de banc s'y est montré : la touche de bascule ne porte
 pas la classe « keycap » de MathLive, et le sélecteur qui la manquait faisait
-échouer la mesure du 6.7 sur une page juste — on cherche parmi les enfants
+échouer la mesure du 6.8 sur une page juste — on cherche parmi les enfants
 DIRECTS des rangées. Huit sabotages, chacun rougissant en nommant son défaut.
 
 **Sur tablette, la page s'installe comme une application — et sur tablette
@@ -7244,7 +7266,7 @@ tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran
 cassé.
 **Ce qui NE bouge pas est un choix, pas un oubli** : la case générique à
-1,05 rem (les colonnes du 3.1.4) est déjà la plus petite du niveau et reste une
+1,05 rem (les colonnes du 2.1.1) est déjà la plus petite du niveau et reste une
 cible qu'on touche du doigt ; les étiquettes d'étape et les
 boutons de propositions ne sont pas des écritures de la chaîne. Sur un
 TÉLÉPHONE rien ne change non plus — la demande dit les tablettes, et le
@@ -7261,7 +7283,7 @@ les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
 et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
 page.
 
-**Et un défaut d'à côté s'est vu en mesurant : le 2.5.2 écrivait ses cases
+**Et un défaut d'à côté s'est vu en mesurant : le 2.5.3 écrivait ses cases
 trois fois plus petites que ses nombres.** Ses cases étaient restées à la
 taille générique (1,05 rem) devant des écritures à 2 rem — « 1 − ▢/▢ = 1 − 0,▢
 = 0,▢ » — alors que son jumeau le 2.2.1, dont il reprend la chaîne au caractère
@@ -7276,15 +7298,15 @@ qui aurait fini par diverger de celui du 2.2.1.
 réparé** : le contrôle universel ne comptait comme « nombre autour » qu'un
 morceau de texte ENTIÈREMENT numérique (« 90 », « 1,5 »). Or la page n'écrit
 presque jamais un nombre tout nu dans une chaîne : elle écrit « 1 − »,
-« 1 − 0, », « 0, ». Le 2.5.2 n'avait donc AUCUN voisin aux yeux du banc, qui
+« 1 − 0, », « 0, ». Le 2.5.3 n'avait donc AUCUN voisin aux yeux du banc, qui
 passait au vert en regardant ailleurs — un contrôle qui ne mesure rien ne
 mesure rien, et celui-là a vécu des mois. Est désormais un voisin tout morceau
 COURT (12 caractères au plus) qui porte un chiffre et aucune lettre : le signe
 et la virgule font partie du calcul écrit. Les étiquettes (« Question 1 / 4 »)
 portent des lettres, et ce qui vit ailleurs à l'écran reste écarté par la ligne
 partagée et les 120 px — les trois niveaux passent sans une seule exemption, ce
-qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.2
-en défaut : le banc le NOMME (« 2.5.2 — ck1p : 16.8px contre 32px »), là où il
+qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.3
+en défaut : le banc le NOMME (« 2.5.3 — ck1p : 16.8px contre 32px »), là où il
 restait vert avant.
 **Et il en a trouvé un SECOND en naissant, par intermittence — ce qui est la
 pire façon pour un contrôle de dire vrai.** Le 2.1.2 écrivait lui aussi sa case
