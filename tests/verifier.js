@@ -3553,6 +3553,7 @@ function exercices(suite){
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
     coefficientDeuxDecimalesSynthese(w, P);
+    coefficientDeuxDecimalesPourcentage(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -16710,6 +16711,142 @@ function coefficientDeuxDecimalesSynthese(w, P){
     if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
     return vus.join(" | ");
     function decVirgule(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; }
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.1.3 : le coefficient s'écrit court, et la chaîne tombe sur des entiers
+   « fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après la
+   règle posée sur le 2.2.7, le 2.3.7, le 2.2.8 puis le 2.5.1 : un coefficient
+   qui s'écrit avec au plus DEUX décimales.
+   LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT : sur 20 000
+   tirages de genPercent, le coefficient P/100 a TOUJOURS une seule décimale,
+   et tout ce qui vient après lui — le produit, le résultat de l'étape ③ —
+   est ENTIER. La règle y était donc déjà vraie, et tenue plus largement
+   qu'elle ne demande : le 2.1.3 n'écrit jamais son coefficient en décimal
+   (l'étape ① l'écrit en FRACTION), et ce que l'élève écrit en décimal est le
+   résultat, qui n'a aucune décimale.
+   CE QUI LA TIENT EST QUE LE TAUX EST UN ENTIER DE POURCENT, et c'est la
+   seule chose qui puisse la rompre : 12,5 % — un taux d'école, 1/8 — donne
+   0,125, trois décimales, et PASSE tous les gardes de la page (12,5 × 80 fait
+   1000, donc un résultat parfaitement entier). Le contrôle voisin
+   (« générateur genPercent : 5000 questions conformes ») n'exige que
+   l'ENTIER : il serait resté vert. C'est la leçon du 2.3.7 et du 2.5.1,
+   retombée telle quelle — une propriété heureuse n'est pas une propriété
+   tenue.
+   AUCUN GARDE N'EST POSÉ DANS LA PAGE : il n'écarterait jamais rien, P étant
+   entier par construction. La raison est ÉCRITE là où le tirage la tient —
+   à côté de PCT_PCTS, dans le bloc même qui invite à élargir la plage.
+   Et la moitié « p×N divisible par 100 » de pctCoupleOk n'écarte RIEN sur les
+   viviers d'aujourd'hui : mesuré exhaustivement, 162 couples possibles, 104
+   retenus, 58 écartés par PCT_MAXPROD et ZERO par cette divisibilité — les
+   deux viviers n'ayant que des multiples de dix, le produit est toujours un
+   multiple de 100. Elle reste parce qu'elle est exactement le filtre qui
+   tiendrait l'intégralité le jour où PCT_VALEURS s'ouvrirait (15 y ferait
+   écarter 30 % mais pas 20 %), et parce que la propriété, elle, est
+   désormais EXIGÉE ici. Le sabotage le dit : la retirer laisse le contrôle
+   vert, à bon droit ; la retirer ET ouvrir PCT_VALEURS le fait rougir.
+   La règle est écrite LITTÉRALEMENT à côté de ce qui la tient : un taux
+   entier ne peut pas donner plus de deux décimales, et c'est le TAUX que le
+   sabotage atteint — les deux lignes rougissent ensemble, la seconde dit la
+   règle, la première dit pourquoi elle est vraie.
+   Le vivier étant partagé (le 2.1.2, le 2.1.4, le 2.1.5 et les deux
+   évolutions y puisent aussi), l'exiger sur le VIVIER les tient a fortiori. */
+function coefficientDeuxDecimalesPourcentage(w, P){
+  const present = evaluer(w, "typeof genPercent==='function' && typeof checkPAnswer==='function' && typeof PCT_PCTS!=='undefined'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.1.3 : le coefficient s\'écrit avec au plus deux décimales, et la chaîne tombe sur des entiers',
+      'ce niveau n\'a pas l\'exercice du pourcentage d\'un nombre');
+    ignorer('2.1.3 : la copie juste vaut le point, et le rappel de cours montre un tirage possible',
+      'ce niveau n\'a pas l\'exercice du pourcentage d\'un nombre');
+    return;
+  }
+  verifierEval(w, '2.1.3 : le coefficient s\'écrit avec au plus deux décimales, et la chaîne tombe sur des entiers', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const dec=function(x){ const s=String(x); const i=s.indexOf("."); return i<0?0:s.length-i-1; };
+    /* LE VIVIER : c est lui qui tient la regle aujourd hui, et un taux non
+       entier de pourcent la romprait — 12,5 % passe tous les gardes */
+    if(!Array.isArray(PCT_PCTS) || PCT_PCTS.length<5) return "le vivier des pourcentages est vide, le controle ne mesure rien";
+    if(!Array.isArray(PCT_VALEURS) || PCT_VALEURS.length<10) return "le vivier des valeurs est vide, le controle ne mesure rien";
+    PCT_PCTS.forEach(function(Pp){
+      if(Pp!==Math.round(Pp)) vus.push("le vivier porte le taux "+Pp+" %, qui n est pas un entier de pourcent : le coefficient s ecrirait "+(Pp/100));
+      else if(!(Pp>0 && Pp<100)) vus.push("le vivier porte le taux "+Pp+" %, hors de 1..99");
+    });
+    PCT_VALEURS.forEach(function(Nn){ if(Nn!==Math.round(Nn)) vus.push("le vivier porte la valeur "+Nn+", qui n est pas entiere"); });
+    const taux={}, vals={}, nbDec={};
+    for(let t=0;t<600 && vus.length===0;t++){
+      const q=genPercent();
+      const eti="tirage "+t+" ("+q.P+" % de "+q.N+")";
+      /* ce qui tient la regle : le taux est un ENTIER de pourcent */
+      if(q.P!==Math.round(q.P)) vus.push(eti+" : le taux "+q.P+" % n est pas un entier de pourcent");
+      /* et la regle elle-meme, ecrite telle que Turquet la dit */
+      const dcoef=dec(q.P/100);
+      if(dcoef>2) vus.push(eti+" : le coefficient "+(q.P/100)+" s ecrit avec "+dcoef+" decimales");
+      nbDec[dcoef]=1; taux[q.P]=1; vals[q.N]=1;
+      /* SECONDE ARITHMETIQUE : la chaine recomptee en ENTIERS, la ou la page
+         divise par 100 — c est le resultat que l eleve ecrit en decimal */
+      if(q.P*q.N%100!==0) vus.push(eti+" : "+q.P+" % de "+q.N+" ne tombe pas sur un entier");
+      if(q.prod!==q.P*q.N) vus.push(eti+" : le produit range vaut "+q.prod+" au lieu de "+(q.P*q.N));
+      if(q.result*100!==q.P*q.N) vus.push(eti+" : le resultat range vaut "+q.result+" au lieu de "+(q.P*q.N/100));
+      if(dec(q.result)!==0) vus.push(eti+" : le resultat "+q.result+" s ecrit avec une decimale, l etape 3 a bascule en decimal");
+      if(q.prod>PCT_MAXPROD) vus.push(eti+" : le produit "+q.prod+" depasse "+PCT_MAXPROD);
+    }
+    /* un controle qui n a rien a mesurer ne mesure rien, et doit le dire */
+    if(vus.length===0){
+      if(Object.keys(taux).length<8) vus.push("seulement "+Object.keys(taux).length+" taux differents sur 600 tirages");
+      if(Object.keys(vals).length<15) vus.push("seulement "+Object.keys(vals).length+" valeurs differentes sur 600 tirages");
+      if(Object.keys(nbDec).length===0) vus.push("aucun coefficient mesure : le controle ne mesure rien");
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.1.3 : la copie juste vaut le point, et le rappel de cours montre un tirage possible', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* L EXEMPLE DU RAPPEL DE COURS est un tirage REELLEMENT possible : un
+       rappel qui enseigne la methode sur un cas que l eleve ne rencontrera
+       jamais, c est la lecon du 2.2.8. On cherche le couple que le rappel
+       ecrit, et on exige que le produit et le resultat qu il annonce soient
+       ceux que la chaine donne. */
+    const nums=(String(RAP_PCT).match(/[0-9]+/g)||[]).map(Number);
+    let ex=null;
+    for(let i=0;i<PCT_PCTS.length && !ex;i++) for(let j=0;j<PCT_VALEURS.length && !ex;j++){
+      const Pp=PCT_PCTS[i], Nn=PCT_VALEURS[j];
+      if(!pctCoupleOk(Pp,Nn)) continue;
+      if(nums.indexOf(Pp)>=0 && nums.indexOf(Nn)>=0 && nums.indexOf(Pp*Nn)>=0 && nums.indexOf(Pp*Nn/100)>=0) ex={P:Pp,N:Nn};
+    }
+    if(!ex) vus.push("le rappel de cours ne montre aucun exemple qui soit un tirage possible, produit et resultat compris : "+nums.join(" "));
+    /* la copie JUSTE, cliquee, sur la question du rappel prise au VRAI generateur */
+    let Q=null;
+    if(ex){ for(let i=0;i<2000 && !Q;i++){ const q=genPercent(); if(q.P===ex.P && q.N===ex.N) Q=q; }
+            if(!Q) vus.push("le tirage ne produit jamais "+ex.P+" % de "+ex.N+", l exemple du rappel de cours"); }
+    if(!Q) Q=genPercent();
+    const poser=function(){
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:"pct", qId:"pourcentage", questions:[Q], idx:0, score:0,
+                          answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show("ptest"); renderPTest();
+    };
+    poser();
+    const copie={p1n:""+Q.P, p1d:"100", p2n:""+Q.prod, p2d:"100", p3:String(Q.result).replace(".",",")};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkPAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    /* LA CORRECTION ECRITE : c est le seul endroit ou l eleve LIT le resultat
+       en decimal — le 2.1.3 n ecrit jamais son coefficient autrement qu en
+       fraction, donc c est la que la regle se voit */
+    poser();
+    document.getElementById("p3").value="0";
+    checkPAnswer();
+    const fb=document.getElementById("pFeedback"), txt=fb?fb.textContent:"";
+    if(txt.indexOf("100")<0) vus.push("la correction ne donne pas la reponse : « "+txt.slice(0,60)+" »");
+    const trop=txt.match(/[0-9]+[,.][0-9]{3,}/);
+    if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
+    const virg=txt.match(/[0-9]+[,.][0-9]+/);
+    if(virg) vus.push("la correction ecrit "+virg[0]+" : l etape 3 a bascule en decimal");
+    return vus.join(" | ");
   })()`, v => v === '', undefined);
 }
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------
