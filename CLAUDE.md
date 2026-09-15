@@ -4845,6 +4845,60 @@ plus 90 %, et la justification écrite dans la page — qui parlait de décimale
 a été corrigée avec lui. Six sabotages, chacun rougissant en nommant son
 défaut ; le sixième seulement après que le contrôle a gagné ce bord.
 
+**Puis la MÉCANIQUE du choix a rejoint celle du 2.2.7 — et le vivier n'a pas
+bougé d'une paire.** « fais la même chose pour le 2.3.7 » (Turquet, septembre
+2026), cette fois après le vivier PARTAGÉ du 2.2.8. La sonde a d'abord mesuré,
+et elle a tranché la question que la demande posait : **les critères du 2.2.7
+étaient déjà tenus ici** — un seul chiffre non nul, le produit des taux
+multiple de 100, la baisse globale entière, le plafond —, et ce qui manquait
+était la FAÇON de tirer. Le do/while est devenu une LISTE (`BS_TAUX`,
+`bsCoef`, `BS_PAIRES`, écrits comme au 2.2.7 pour que les deux exercices se
+lisent côte à côte) et la séance la tire SANS REMISE : rien n'empêchait deux
+fois le même calcul dans la même séance — **une séance sur dix, mesurée**.
+**LE VIVIER EST LE MÊME À LA PAIRE PRÈS** (32, taux de 10 à 80, baisses de 19
+à 90 %), vérifié avant/après : c'est ce qui rend la bascule sûre, et un
+brouillon de pause d'avant se reprend sans rien savoir de la liste.
+**ADOPTER LE VIVIER DU 2.2.7 AURAIT ÉTÉ AUTRE CHOSE, et le dire vaut mieux que
+de le taire** : `HS_TAUX` admet les taux à UN chiffre, dont le coefficient de
+baisse porte trois chiffres (5 % → 95/100). Les 8 paires que cela ajouterait
+(2/50, 4/50, 5/20, 5/40, 5/60, 5/80, 6/50, 8/50) réclament toutes une
+multiplication POSÉE — 95 × 8 n'est pas un fait de table — c'est-à-dire
+exactement ce que la décision d'août 2026 a retiré de cet exercice. Le 2.2.7,
+lui, a sa pose. La restriction des taux du 2.3.7 vient donc de son COEFFICIENT,
+celle du 2.2.7 de sa POSE : les deux règles ne sont pas la même, et le
+`for(a=10;a<=80;a+=10)` du contrôle est l'endroit qu'il faudrait rouvrir pour
+changer d'avis.
+**LE FILTRE (P1·P2) MULTIPLE DE 100 N'EST PAS ÉCRIT DANS LA PAGE** : les deux
+taux étant des multiples de dix, il n'écarterait jamais rien — un garde-fou qui
+n'écarte jamais rien fait croire qu'on vérifie quelque chose. C'est le CONTRÔLE
+qui exige la propriété, par une seconde arithmétique sur les pourcentages bruts
+là où la page passe par les numérateurs en dixièmes. Celui du produit à deux
+chiffres, lui, est VIVANT : il retire 4 paires des 36 (80/80, 80/70, 80/60,
+70/70), et le contrôle pin ces quatre-là dans sa PROPRE arithmétique, sans quoi
+son bord pourrait glisser en silence.
+**Le contrôle mesure le vivier que la page TIRE, jamais la constante qu'elle
+nomme** (le motif du 2.2.8) : `genBaisses` tirant sans remise, une séance de la
+taille du vivier le rend en entier — un filtre resserré en douce se voit comme
+une paire manquante, une règle relâchée comme une paire de trop. Et il mesure
+le DÉMARREUR en plus du tirage (la leçon du 2.15) — **en rendant le hasard
+MUET**, `pick` prenant toujours le premier : trois tirages indépendants ne se
+heurtent qu'une séance sur dix, et un contrôle qui ne rougit qu'une fois sur
+dix parle d'autre chose ; le vrai `pick` est rendu en sortant, le piège
+documenté du double volé au voisin.
+Neuf sabotages, sept rougissant en nommant leur défaut — et **les deux verts
+disaient vrai**. Le premier a montré que « 90 % n'est pas dans la liste » est
+REDONDANT : toute paire qui le porterait a un produit de numérateurs au plus
+égal à 9, donc le garde du plafond l'écarte déjà — la propriété est tenue une
+opérande plus loin, comme la moitié `e===anc ||` du garde de l'ancre. Le second
+visait `baisseNum`, dont l'écriture générique (`100 − prodNum × 100 / prodDen`)
+est identique à l'ancienne tant que `prodDen` vaut 100 ; elle est gardée parce
+qu'elle est la plus sûre de deux écritures équivalentes — sous le sabotage qui
+change `bsCoef`, c'est elle qui tient encore. Deux sabotages ont d'abord raté
+leur cible, sur une ancre que le 2.2.7 partage au caractère près (la ligne de
+l'ordre tiré, celle de la clef de la paire) : un sabotage se pose sur une ancre
+PROPRE à sa cible, la leçon d'{antecedents-droite}, retombée deux fois dans le
+même fichier.
+
 **Et au 2.5.1, la règle ne porte plus que sur UN coefficient — vraie elle
 aussi, tenue par rien elle aussi.** « fais la même chose pour le 2.5.1 »
 (Turquet, septembre 2026), après le 2.2.7, le 2.3.7 et le 2.2.8. La synthèse
