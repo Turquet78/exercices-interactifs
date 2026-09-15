@@ -5998,6 +5998,7 @@ async function parcours(page, N){
          le bloc facultatif u/v/u′/v′ et la feuille ligne par ligne. jsdom lit
          des classes ; seul un navigateur voit qu'elles ont une BOÎTE — un CSS
          perdu les rendrait invisibles sans qu'une erreur ne se lève. */
+      let feuilleVue = true;
       { const d = await s.page.evaluate(() => {
           const b = sel => { const e = document.querySelector(sel); if(!e) return null;
             const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
@@ -6009,20 +6010,26 @@ async function parcours(page, N){
         });
         if(!d.fac || d.fac.w < 100 || d.fac.h < 20) dits.push('le bloc facultatif u/v/u′/v′ de d) n\'a pas de boîte');
         if(d.mf !== 4) dits.push(d.mf + ' champ(s) facultatif(s) au lieu de 4');
-        if(!d.sheet || d.sheet.w < 100 || d.sheet.h < 20) dits.push('la feuille de d) n\'a pas de boîte');
+        if(!d.sheet || d.sheet.w < 100 || d.sheet.h < 20){ dits.push('la feuille de d) n\'a pas de boîte'); feuilleVue = false; }
         if(d.pfx.indexOf('′(x)=') < 0) dits.push('la feuille de d) ne porte pas le préfixe « f ′(x) = » (« ' + d.pfx + ' »)');
         if(!d.clavier) dits.push('l\'écran porte des champs mathématiques sans bouton « Clavier mathématique »'); }
       /* LA DÉRIVÉE EST TAPÉE POUR DE VRAI : jsdom n'a pas la sérialisation
          réelle que le juge doit lire — c'est le seul bord qui dise que ce que
          l'élève écrit à la main est bien relu comme une fonction. */
-      await s.page.click('#svrSheet math-field');
-      await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
-      await s.page.keyboard.type('3/(4-x)^2', { delay: 50 });
-      await s.page.waitForTimeout(300);
-      { const t = await s.page.evaluate(() => {
+      /* on ne TAPE que dans une feuille qui a une boîte : sans elle le clic
+         expire au bout de trente secondes et le banc rend une panne de
+         Playwright à la place du défaut qu'il venait de mesurer — un
+         contrôle qui s'affiche sous le nom d'un autre. */
+      if(feuilleVue){
+        await s.page.click('#svrSheet math-field');
+        await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
+        await s.page.keyboard.type('3/(4-x)^2', { delay: 50 });
+        await s.page.waitForTimeout(300);
+        const t = await s.page.evaluate(() => {
           const lg = svrDerLignes(), a = svrAns(test.questions[test.idx]);
           return { plain: lg.length ? lg[0].plain : '', ok: lg.length ? checkExprFn(lg[0].plain, svrDer(a)) : false }; });
-        if(!t.ok) dits.push('la dérivée TAPÉE dans la feuille n\'est pas relue comme juste (lu : « ' + t.plain + ' »)'); }
+        if(!t.ok) dits.push('la dérivée TAPÉE dans la feuille n\'est pas relue comme juste (lu : « ' + t.plain + ' »)');
+      }
       /* la copie juste, puis la vérification : la méthode se DESSINE, avec une
          étendue non nulle — un CSS perdu la rendrait invisible sans erreur */
       await s.page.evaluate(() => {
