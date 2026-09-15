@@ -3551,6 +3551,7 @@ function exercices(suite){
     paireFausseCaseFautive(w, P);
     coefficientGlobalCourt(w, P);
     coefficientGlobalCourtBaisses(w, P);
+    coefficientDeuxDecimalesSynthese(w, P);
     associerDerivee(w, P);
     signePremierDegre(w, P);
     jetonsSignePremier(w, P);
@@ -16483,6 +16484,134 @@ function coefficientGlobalCourtBaisses(w, P){
       if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
     if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
     return vus.join(" | ");
+  })()`, v => v === '', undefined);
+}
+/* ---- 2.5.1 : le coefficient de chaque transformation s'écrit court --------
+   « fais la même chose pour le 2.5.1 » (Turquet, septembre 2026), après la
+   règle posée sur le 2.2.7, puis sur le 2.3.7, puis sur le 2.2.8 : un seul
+   chiffre non nul par taux, et un coefficient qui s'écrit avec au plus DEUX
+   décimales.
+   LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT : sur 900 tirages
+   passés par les TROIS portes et sur CHACUNE de leurs propositions, aucun
+   coefficient à plus de deux décimales, aucune valeur de la chaîne qui ne soit
+   entière. La règle y était donc DÉJÀ vraie — et tenue par rien, comme au
+   2.3.7 : le contrôle voisin (« générateur genSyn : 8000 questions
+   conformes ») n'exige que l'ENTIER, or 12,5 % de 800 fait 100, un entier
+   parfait, avec un coefficient 1,125 à trois décimales. Il serait resté vert.
+   Le contrôle refait donc la propriété par une SECONDE arithmétique — en
+   CENTIÈMES entiers là où la page divise par 100 — et la relit une TROISIÈME
+   fois sur l'écriture que la page PRODUIT (synCouple().coefDec).
+   genSyn sert cinq exercices — le 2.5.1, le 2.2.9, le 2.3.8 et les rédigées
+   2.2.10, 2.3.9, 2.5.2 — et les trois portes du tirage sont éprouvées : la
+   libre et les deux imposées.
+   Un essai s'est pris en défaut AVANT la page : « la valeur de départ est un
+   multiple de 100 » est vrai du TIRAGE et faux des PROPOSITIONS — les leurres
+   de la valeur initiale valent 70, 50, 90… et la chaîne y tombe juste quand
+   même, le taux étant alors un multiple de dix. On mesure donc la propriété
+   qui compte (P × N tombe sur un entier de centièmes), pas celle qu'on
+   croyait. */
+function coefficientDeuxDecimalesSynthese(w, P){
+  const present = evaluer(w, "typeof genSyn==='function' && typeof synCouple==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('2.5.1 : le coefficient de chaque transformation s\'écrit avec au plus deux décimales',
+      'ce niveau n\'a pas la synthèse sur les pourcentages');
+    ignorer('2.5.1 : la copie juste vaut le point, et la correction n\'écrit aucun nombre à trois décimales',
+      'ce niveau n\'a pas la synthèse sur les pourcentages');
+    return;
+  }
+  verifierEval(w, '2.5.1 : le coefficient de chaque transformation s\'écrit avec au plus deux décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    const dec=function(x){ const s=String(x); const i=s.indexOf("."); return i<0?0:s.length-i-1; };
+    const decVir=function(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; };
+    const portes=[null,"aug","dim"], incs=["fin","ini","pct"];
+    const fams={}, incsVus={}, nbDec={}, taux={};
+    for(let t=0;t<450 && vus.length===0;t++){
+      const fam=portes[t%3], inc=incs[(t/3|0)%3];
+      const q=genSyn(fam||undefined, inc);
+      const eti="tirage "+t+" ("+q.fam+"/"+q.inc+")";
+      /* les portes imposées : le 2.2.9 et le 2.3.8 passent par elles */
+      if(fam && q.fam!==fam){ vus.push(eti+" : la porte "+fam+" rend la famille "+q.fam); break; }
+      if(q.inc!==inc){ vus.push(eti+" : l inconnue imposee "+inc+" rend "+q.inc); break; }
+      fams[q.fam]=1; incsVus[q.inc]=1;
+      /* le TIRAGE pose une valeur de depart qui fait tout tomber juste */
+      if(q.fam!=="pct" && q.N%100!==0) vus.push(eti+" : le tirage pose N="+q.N+", qui n est pas un multiple de 100");
+      /* chaque PROPOSITION : c est la sienne que l eleve verifie */
+      const opts=q.opts||[];
+      for(let i=0;i<opts.length && vus.length===0;i++){
+        q.choisi=i; const c=synCouple(q);
+        if(!c){ vus.push(eti+" : aucune paire sur la proposition "+i); break; }
+        /* le taux : un seul chiffre non nul, la regle du 2.2.7 */
+        if(c.P!==Math.round(c.P)) vus.push(eti+" : le taux "+c.P+" n est pas entier");
+        else if(!((c.P%10===0 && c.P>=10 && c.P<=90) || (c.P>=1 && c.P<=9)))
+          vus.push(eti+" : le taux "+c.P+" % porte deux chiffres non nuls");
+        /* SECONDE ARITHMETIQUE : le coefficient compte en CENTIEMES entiers */
+        const cent=(q.fam==="pct")?c.P:(100+q.sens*c.P);
+        if(cent!==Math.round(cent)){ vus.push(eti+" : le coefficient "+(cent/100)+" ne s ecrit pas en centiemes entiers"); break; }
+        const d=(cent%100===0)?0:((cent%10===0)?1:2);
+        if(dec(cent/100)!==d) vus.push(eti+" : le coefficient "+(cent/100)+" s ecrit avec "+dec(cent/100)+" decimales, les centiemes "+cent+" en annoncent "+d);
+        if(d>2) vus.push(eti+" : le coefficient "+(cent/100)+" s ecrit avec "+d+" decimales");
+        nbDec[d]=1; taux[c.P]=1;
+        /* TROISIEME lecture : l ecriture que la PAGE produit */
+        if(q.fam!=="pct"){
+          if(decVir(c.coefDec)>2) vus.push(eti+" : la page ecrit le coefficient "+c.coefDec);
+          if(c.coefDec!==String(cent/100).replace(".",",")) vus.push(eti+" : la page ecrit "+c.coefDec+" la ou les centiemes disent "+(cent/100));
+        }
+        /* et toute la chaine tombe sur des entiers, proposition par proposition */
+        if(c.N*c.P%100!==0) vus.push(eti+" : "+c.P+" % de "+c.N+" ne tombe pas sur un entier");
+        if(c.res!==Math.round(c.res)) vus.push(eti+" : le resultat "+c.res+" n est pas entier");
+        if(c.fin!==Math.round(c.fin)) vus.push(eti+" : la valeur finale "+c.fin+" n est pas entiere");
+        if(c.prodNum%100!==0) vus.push(eti+" : le produit "+c.prodNum+"/100 n est pas entier");
+      }
+      q.choisi=null;
+    }
+    /* un controle qui n a rien a mesurer ne mesure rien, et doit le dire */
+    if(vus.length===0){
+      if(Object.keys(fams).length<3) vus.push("les trois familles ne sortent pas : "+Object.keys(fams).join(", "));
+      if(Object.keys(incsVus).length<3) vus.push("les trois inconnues ne sortent pas : "+Object.keys(incsVus).join(", "));
+      if(!nbDec["1"] || !nbDec["2"]) vus.push("aucun coefficient a "+(nbDec["2"]?"une":"deux")+" decimale(s) : le controle ne mesure qu une seule forme");
+      if(Object.keys(taux).length<12) vus.push("seulement "+Object.keys(taux).length+" taux differents sur 450 tirages");
+    }
+    return vus.join(" | ");
+  })()`, v => v === '', undefined);
+
+  verifierEval(w, '2.5.1 : la copie juste vaut le point, et la correction n\'écrit aucun nombre à trois décimales', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null;
+    /* une HAUSSE a taux d un chiffre : le seul cas ou le coefficient prend ses
+       deux decimales, donc le plus exposé à la règle */
+    let Q=null;
+    for(let i=0;i<900 && !Q;i++){ const q=genSyn("aug","fin"); if(q.P<10) Q=q; }
+    if(!Q) return "le tirage ne produit jamais de hausse a taux d un chiffre";
+    const pin=function(choix){
+      const q=JSON.parse(JSON.stringify(Q)); q.choisi=choix; q.meth="coef";
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:"syn", qId:"synthese-pourcentages", questions:[q], idx:0, score:0,
+                          answers:[], startTime:Date.now(), locked:false, maxScore:1});
+      show("syntest"); renderSynTest();
+      return q;
+    };
+    /* 1. la copie JUSTE, cliquee */
+    const q=pin(Q.bon), c=synCouple(q);
+    if(decVirgule(c.coefDec)>2) vus.push("le coefficient de la question epinglee s ecrit "+c.coefDec);
+    const deuxCh=function(n){ const s=String(n); return s.length<2?("0"+s):s; };
+    const copie={y1n:""+c.P, y1d:"100", y1p:deuxCh(c.P), y1dec:String(c.coef).slice(1),
+                 y2n:""+c.coef, y2d:"100", y3n:""+c.coef, y3d:"100", y3v:""+c.N,
+                 y4n:""+c.prodNum, y4d:"100", y5:String(c.prodNum/100).replace(".",",")};
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id);
+      if(el) el.value=copie[id]; else vus.push("la case "+id+" manque a l ecran"); });
+    checkSynAnswer();
+    Object.keys(copie).forEach(function(id){ const el=document.getElementById(id); if(!el) return;
+      if(!el.classList.contains("ok")) vus.push("copie juste : "+id+" est "+(el.classList.contains("bad")?"rouge":"sans couleur")); });
+    if(test.score!==1) vus.push("la copie juste ne vaut pas le point : "+test.score);
+    /* 2. la correction ECRITE : c est la que l eleve lit le coefficient */
+    pin((Q.bon+1)%4); checkSynAnswer();
+    const fb=document.getElementById("syFeedback"), txt=fb?fb.textContent:"";
+    if(txt.indexOf("car")<0) vus.push("la correction ne donne pas la preuve : « "+txt.slice(0,60)+" »");
+    const trop=txt.match(/[0-9]+,[0-9]{3,}/);
+    if(trop) vus.push("la correction ecrit "+trop[0]+", un nombre a plus de deux decimales");
+    return vus.join(" | ");
+    function decVirgule(s){ const i=String(s).indexOf(","); return i<0?0:String(s).length-i-1; }
   })()`, v => v === '', undefined);
 }
 /* ---- Associer f à f' : la fiche 9, purement graphique ---------------------

@@ -6699,7 +6699,21 @@ async function finishA2Q(){
    je veux 3 questions ») ; les trois inconnues sortent chacune UNE fois, en
    ordre mélangé — à trois questions, un tirage au hasard répéterait souvent
    le même genre, et l'élève apprendrait que la question est toujours du même
-   genre. La famille (pct/aug/dim), elle, reste tirée au hasard. */
+   genre. La famille (pct/aug/dim), elle, reste tirée au hasard.
+   LE COEFFICIENT DE CHAQUE TRANSFORMATION S'ÉCRIT AVEC AU PLUS DEUX DÉCIMALES
+   (demande de Turquet, septembre 2026 : « fais la même chose pour le 2.5.1 »,
+   après la même règle posée sur le 2.2.7, le 2.3.7 puis le 2.2.8). Elle tient
+   par le CHOIX DES TAUX — un seul chiffre non nul : un multiple de dix, ou un
+   chiffre ; « prendre P % » les prend dans PCT_PCTS, qui n'a que des multiples
+   de dix — et par une valeur de départ multiple de 100, qui fait tomber toute
+   la chaîne sur des entiers.
+   AUCUN GARDE NE LA RÉPÈTE : il n'écarterait jamais rien, et ferait croire
+   qu'on vérifie quelque chose — c'est le CONTRÔLE qui exige la propriété, sur
+   chaque tirage ET sur chacune de ses propositions, par une arithmétique en
+   centièmes entiers. Le bord n'est pas théorique : un taux à deux chiffres
+   non nuls remis ici (12,5 %) donnerait le coefficient 1,125 sans qu'aucune
+   autre mesure ne bronche, celle d'à côté n'exigeant que l'ENTIER — et 12,5 %
+   de 800 font 100, un entier parfait. */
 function genSyn(famVoulu, incVoulu){
   const fam=famVoulu||pick(['pct','aug','dim']);
   const inc=incVoulu||pick(['fin','ini','pct']);
@@ -6726,7 +6740,7 @@ function genSyn(famVoulu, incVoulu){
     const sens=(fam==='aug')?1:-1;
     let P,N;
     if(inc==='ini'){ P=pick([10,20,30,40,50,60,70,80,90]); }   /* leurres fins : multiples de 10 */
-    else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }
+    else { P=Math.random()<0.5?pick([10,20,30,40,50,60,70,80,90]):rand(1,9); }   /* un seul chiffre non nul : le coefficient garde au plus deux décimales */
     N=rand(1,9)*Math.pow(10,pick([2,3]));                      /* multiple de 100 : tout tombe juste */
     const aug=P*N/100, fin=N+sens*aug;
     q={fam,inc,sens,P,N,aug,fin,decStr:String(fin).replace('.',',')};
@@ -6790,7 +6804,9 @@ async function startSyn(){
   test.maxScore=test.questions.length;
   show('syntest'); renderSynTest();
 }
-/* {synthese-augmentations} (2.2.8, demande de Turquet, août 2026) : la
+/* {synthese-augmentations} (2.2.9, demande de Turquet, août 2026 — elle
+   portait le numéro 2.2.8 avant que {hausses-successives-cent} ne le prenne,
+   et un commentaire qui s'affiche sous le nom d'un autre trompe) : la
    synthèse de {synthese-pourcentages} restreinte aux HAUSSES — même moteur,
    pas même identité (test.qId, le motif du calcul mental). Les trois
    inconnues — le résultat, la valeur initiale, le pourcentage — sortent
@@ -7593,7 +7609,7 @@ async function finishPsl(){
    et un préfixe « = » automatique les aurait soudées en une égalité fausse.
    Le calcul se juge sur la proposition CHOISIE (la règle des synthèses) :
    elle remplace l'inconnue, et c'est la vérification qui révèle qu'une
-   proposition ne convient pas. Même moteur de tirage que 2.2.8, pas même
+   proposition ne convient pas. Même moteur de tirage que 2.2.9, pas même
    identité : la note part sous test.qId, le rappel vit dans RAPPELS_ID, les
    questions dans QIA_SUGG. */
 let salFeuille=null;

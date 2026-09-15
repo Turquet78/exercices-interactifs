@@ -4727,6 +4727,58 @@ plus 90 %, et la justification écrite dans la page — qui parlait de décimale
 a été corrigée avec lui. Six sabotages, chacun rougissant en nommant son
 défaut ; le sixième seulement après que le contrôle a gagné ce bord.
 
+**Et au 2.5.1, la règle ne porte plus que sur UN coefficient — vraie elle
+aussi, tenue par rien elle aussi.** « fais la même chose pour le 2.5.1 »
+(Turquet, septembre 2026), après le 2.2.7, le 2.3.7 et le 2.2.8. La synthèse
+ne pose qu'UNE transformation par question : son « coefficient global » est le
+coefficient tout court, 1 ± P/100 pour une évolution, P/100 pour « prendre ».
+**LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT** : 900 tirages
+passés par les TROIS portes du générateur et par les trois inconnues, chacun
+relu sur ses QUATRE propositions — aucun coefficient à plus de deux décimales,
+aucune valeur de la chaîne qui ne soit entière. **Rien à changer au tirage,
+donc** : la propriété tient par le choix des taux (un seul chiffre non nul :
+un multiple de dix, ou un chiffre ; « prendre P % » puise dans `PCT_PCTS`, qui
+n'a que des multiples de dix) et par une valeur de départ multiple de 100. Ce
+qui manquait est le CONTRÔLE.
+**Le contrôle d'à côté serait resté vert**, et c'est ce qui rend celui-ci
+nécessaire : « générateur genSyn : 8000 questions conformes » n'exige que
+l'ENTIER — or 12,5 % de 800 font 100, un entier parfait, avec un coefficient
+1,125 à trois décimales. Une propriété heureuse n'est pas une propriété tenue,
+la leçon du 2.3.7 retombée telle quelle.
+**Il refait la propriété par une SECONDE arithmétique** — en centièmes ENTIERS
+là où la page divise par 100 — et la relit une TROISIÈME fois sur l'écriture
+que la page PRODUIT (`synCouple().coefDec`), puis une QUATRIÈME sur ce que la
+CORRECTION écrit à l'élève : après un vrai clic sur « Vérifier », la phrase
+« car 1 + 7/100 = 1,07 = 107/100, puis… » ne doit porter aucun nombre à plus
+de deux décimales. C'est là que l'élève LIT le coefficient.
+**Et il passe par les TROIS portes du tirage**, la libre et les deux
+imposées : `genSyn` sert six exercices — le 2.5.1, le 2.2.9, le 2.3.8 et les
+rédigées 2.2.10, 2.3.9 et 2.5.2 —, et un `famVoulu` ignoré poserait des
+hausses sous un titre de baisses.
+**AUCUN GARDE N'EST POSÉ DANS LA PAGE** : il n'écarterait jamais rien, et
+ferait croire qu'on vérifie quelque chose. La raison, elle, est ÉCRITE là où
+le tirage la tient — sans quoi le prochain taux ajouté la romprait sans que
+rien ne le dise.
+**Un essai s'est pris en défaut AVANT la page** : « la valeur de départ est un
+multiple de 100 » est vrai du TIRAGE et faux des PROPOSITIONS — les leurres de
+la valeur initiale valent 70, 50, 90…, et la chaîne y tombe juste quand même,
+le taux étant alors un multiple de dix. Le contrôle mesure donc la propriété
+qui compte (P × N tombe sur un entier de centièmes), pas celle qu'on croyait :
+un essai faux se reconnaît à ce qu'il rougit sur une page juste.
+**Et DEUX sabotages ont appris quelque chose de plus.** L'un s'est montré
+INTERMITTENT, ce qui ne se devinait pas : faire écrire à la correction le
+coefficient divisé par 300 ne produit une longue décimale que deux fois sur
+trois — 105/300 fait 0,35 tout rond, et le contrôle restait vert à bon droit.
+Un sabotage qui n'atteint sa cible qu'une fois sur deux ne dit rien du contrôle
+visé, exactement comme un sabotage posé sur une ancre partagée ; divisé par
+1000, il rougit à tous les coups. L'autre est resté VERT en disant vrai :
+retirer les taux à un chiffre du TIRAGE ne prive le contrôle de rien, parce que
+les LEURRES de « retrouve le pourcentage » en offrent encore — et c'est exact,
+l'élève vérifie la proposition qu'il a choisie, donc un coefficient à deux
+décimales lui reste sous les yeux. Retirés des deux côtés, le bord « le
+contrôle ne mesure qu'une seule forme » rougit. Dix sabotages en tout, neuf
+rougissant en nommant leur défaut.
+
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
 (`details.test`). Le renommer ferait disparaître toutes les notes passées de cet
