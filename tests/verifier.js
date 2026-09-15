@@ -1840,6 +1840,33 @@ function branchements(w){
       if(acc) vus.push('une référence {identifiant} reste affichée à l’élève : '+acc[0]);
       if(vus.length) return vus.slice(0,4).join(' | ');
 
+      /* ---- 5 bis. les libellés ① et ③ disent SUR QUOI on calcule ----------
+         Demande de Turquet (septembre 2026) : « le n°1 en dessous de l’énoncé
+         doit afficher : on calcule d’abord …% de 100 ; le n°3 : on calcule …%
+         du résultat précédent ». Ce n’est pas un habillage : c’est LA leçon de
+         l’exercice — la seconde hausse ne porte PAS sur 100, et un libellé qui
+         le laisserait croire enseignerait l’erreur même que l’exercice combat
+         (le message de correction la nomme déjà en toutes lettres).
+         Le second bord est le plus sournois : un libellé FIGÉ nommerait un
+         pourcentage que la question ne porte pas — la leçon du numéro
+         d’exercice de show(), transposée. On rend donc DEUX questions
+         épinglées, aux taux ÉCHANGÉS, et on exige que les libellés suivent. */
+      const seance=test.questions;
+      const lab=function(i){ const l=document.getElementById('hscHost').querySelectorAll('.pt-lab');
+        return l[i]?l[i].textContent.replace(/\\s+/g,' ').trim():''; };
+      [[2,50],[50,2]].forEach(function(p){
+        test.questions=[hscQuestion(p[0],p[1])]; test.idx=0; renderHSCTest();
+        const l1=lab(0), l3=lab(2);
+        if(l1.indexOf(p[0]+' %')<0) vus.push('l’étape ① ne dit pas « '+p[0]+' % » : « '+l1+' »');
+        if(l1.indexOf('100')<0) vus.push('l’étape ① ne dit pas qu’on calcule sur 100 : « '+l1+' »');
+        if(l1.indexOf('d’abord')<0) vus.push('l’étape ① ne dit pas que c’est le PREMIER calcul : « '+l1+' »');
+        if(l3.indexOf(p[1]+' %')<0) vus.push('l’étape ③ ne dit pas « '+p[1]+' % » : « '+l3+' »');
+        if(l3.indexOf('résultat précédent')<0) vus.push('l’étape ③ ne dit pas qu’on calcule sur le résultat précédent : « '+l3+' »');
+        if(/%\\s*de\\s*100/.test(l3)) vus.push('l’étape ③ fait porter la seconde hausse sur 100 : « '+l3+' »');
+      });
+      test.questions=seance; test.idx=0; renderHSCTest();
+      if(vus.length) return vus.slice(0,4).join(' | ');
+
       /* ---- 6. la copie juste, et l’ordre libre de l’addition ---- */
       const cl=function(id){ const e=document.getElementById(id); return (e&&e.className)||''; };
       const poser=function(o){
