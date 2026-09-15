@@ -690,12 +690,17 @@ module.exports = {
        synthèse) : sur tablette elle écrit à cette taille au lieu de 2 rem
        (« même chose en Seconde », Turquet, septembre 2026). */
     feuilleTablette: { rem: 1.4, pxMax: 21 },
-    /* Le même clavier mathématique qu'en Première : « ⏎ » valide (commit) et,
-       sur une tablette en paysage, deux rangées — mesuré au banc navigateur
-       sur la feuille du 4.5. */
+    /* Le même clavier mathématique qu'en Première : « ⏎ » valide (commit), et
+       sur une tablette deux rangées en paysage, trois en portrait — mesuré au
+       banc navigateur sur la feuille du 4.5. */
     clavierEcran: { entree: '\u23ce',
                     paysage: { rangees: 2, exercice: 'somme-fractions-libre',
-                               champ: '#sflSheet math-field', lignes: '#sflSheet .dexp2-line' } },
+                               champ: '#sflSheet math-field', lignes: '#sflSheet .dexp2-line' },
+                    /* Et sur une tablette DEBOUT, TROIS rangées, comme en Première
+                       (« fais pareil pour la Seconde », Turquet, septembre 2026).
+                       Un TÉLÉPHONE en portrait garde les quatre : c'est le bord
+                       opposé, et il est vérifié lui aussi. */
+                    portraitTablette: { rangees: 3, telephone: 4 } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,
