@@ -42,7 +42,7 @@ const RAPPELS_PREMIERE = `(function(){
     'mult-dec-un':'u','fractions-decimales':'fracp','fraction-pourcentage':'fp','pourcentage-colonnes':'pcol',
     'augmenter-addition':'ag2','diminuer-soustraction':'ag2','augmenter-depart-addition':'ag2q',
     'diminuer-taux-soustraction':'ag2q','augmenter-taux-addition':'ag2q',
-    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
+    'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
@@ -209,7 +209,7 @@ module.exports = {
        listes — colorer une ligne au moment où il la choisit lui dirait si elle
        est juste avant même qu'il vérifie, et il n'aurait plus qu'à essayer les
        six. C'est la règle de {solutions-graphique} en Seconde. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'syl', 'ac'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
@@ -240,6 +240,14 @@ module.exports = {
        qu'un verdict soit calculé (la couleur retenue), sans quoi il resterait
        vert sur une case que personne ne juge, en parlant d'autre chose. */
     gardeSaisie: { exercice: 'multiplication-posee', champ: '.mp-box', valeur: '9' },
+    /* {synthese-pourcentages-libre} (2.5.2) — la synthèse des TROIS familles,
+       rédigée. Le banc navigateur TAPE la justification dans la vraie feuille
+       MathLive : la voie de la fraction simplifiée (« 180/600 = 30/100 »)
+       n'existe que si la sérialisation réelle repasse par le juge, et jsdom,
+       qui pose des chaînes qu'il écrit lui-même, ne mesure pas cela. Il tient
+       aussi le bord du VERDICT : le double répond toujours « correct:false »,
+       et le juge de la page doit primer. */
+    syntheseRedigee: { exercice: 'synthese-pourcentages-libre' },
     /* Le pavé numérique compact de la Première sert AUSSI ses cases MathLive
        (champsMaths = PAVE_MF dans la page — deux sources) : toutes ses cases
        pm-mf n'attendent qu'un nombre. Le banc navigateur en tape une pour de
@@ -275,6 +283,27 @@ module.exports = {
        Chromium le vérifie lui-même au banc navigateur : un mode d'affichage
        qu'il refuse rend la page non installable, et il le NOMME. */
     manifeste: { display: 'fullscreen' },
+    /* LA BANDE DU BAS APPARTIENT AU SYSTÈME, EN MODE APPLICATION (signalé par
+       Turquet, septembre 2026, sur une tablette Samsung : « la ligne la plus
+       basse du clavier virtuel ne fonctionne pas, les caractères ne
+       s'affichent pas — en portrait comme en paysage »). La page demandant
+       « fullscreen », elle dessine jusqu'au bord physique de l'écran, et les
+       48 dp du bas sont la zone du geste d'Android : le système y prend les
+       touches. Rien de ce qui se touche ne doit donc y descendre — le clavier
+       mathématique ancré, les commandes du bas, le pavé numérique.
+       px : la réserve, écrite ICI et dans la page (deux sources). Elle ne vaut
+       QUE pour un niveau dont le manifeste demande « fullscreen » : les deux
+       autres, en « standalone », gardent la barre du système et la page ne
+       descend jamais jusque-là — le contrôle exige les deux bords, et un
+       niveau qui passerait en fullscreen sans réserve rougirait aussitôt.
+       Le banc navigateur ouvre l'exercice SIGNALÉ, déploie le clavier et
+       mesure ce qui reste dans la bande, dans les deux orientations. */
+    basSysteme: { px: 48, exercice: 'synthese-diminutions-libre',
+                  champ: '#salSheet math-field',
+                  regles: ['#testCtrls', '#paveNum', '.MLK__rows'] },
+    /* le fond du clavier, lui, reste collé au bord : c'est ce qui distingue
+       le rembourrage des rangées de la marge d'avant — pas de trou sous le
+       clavier, et pas une touche dans la bande. Mesuré au navigateur. */
     policeTablette: 90,
     /* Combien de poses de « mp-feedback … iafb » n'ont PAS de couleur de
        verdict (ni good ni bad). Zéro partout où un verdict connu se peint
@@ -284,7 +313,7 @@ module.exports = {
        perdrait sa couleur fait monter ce compte, et le banc le NOMME. */
     verdictSansCouleur: 0,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
-       2.3.8) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
+       2.3.9) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,
        septembre 2026 : « la case d'édition du calcul peut-elle avoir une police
        plus petite »). Le banc jsdom exige la règle sous la requête média de la
        tablette, avec cette valeur, plus petite que la taille normale ; le banc
@@ -309,7 +338,7 @@ module.exports = {
     chaineTablette: { facteur: 0.85,
                       ecritures: ['.f-whole', '.f-dec-q', '.f-eq', '.f-times', '.f-frac', '.fr .fn',
                                   '.fr .fd', '.fpm-const', '.mf-cor', '.pcol-phrase'],
-                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.10, 2.3.8) est hors
+                      /* La feuille de RÉDACTION libre (2.1.7, 2.2.10, 2.3.9, 2.5.2) est hors
                          de cette demande : elle n'a pas de case à nombres, et elle a
                          déjà sa règle de tablette (feuilleTablette). Son préfixe écrit
                          les fractions de l'énoncé — il est donc nommé ici plutôt que
@@ -331,7 +360,16 @@ module.exports = {
        rangées reviennent. */
     clavierEcran: { entree: '\u23ce',
                     paysage: { rangees: 2, exercice: 'synthese-augmentations-libre',
-                               champ: '#salSheet math-field', lignes: '#salSheet .dexp2-line' } },
+                               champ: '#salSheet math-field', lignes: '#salSheet .dexp2-line' },
+                    /* Et sur une tablette DEBOUT, le clavier ancré tient sur TROIS
+                       rangées — les mêmes touches, une rangée de moins (demande de
+                       Turquet, septembre 2026 : « en mode portrait, que le clavier
+                       tienne sur 3 lignes au lieu de 4 »). Un TÉLÉPHONE en portrait,
+                       trop étroit pour huit touches sur une rangée, garde les
+                       quatre : c'est le bord opposé, et il est aussi vérifié —
+                       une forme courte qui fuirait sur le téléphone rendrait ses
+                       touches intouchables. */
+                    portraitTablette: { rangees: 3, telephone: 4 } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce'],
             champsMaths: 'math-field.pm-mf', commandes: true,

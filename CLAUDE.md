@@ -674,6 +674,57 @@ l'a montré en restant vert, quand retirer le garde ENTIER rougit (« obstacles
 comptés : 4 sans l'ancre, 4 avec »). Ce n'est pas un garde-fou mort de plus :
 la propriété est tenue, par l'autre moitié, une opérande plus loin.
 
+**Puis la bulle GLISSE, et se RESSERRE plutôt que de retourner au coin.**
+Signalé par Turquet (septembre 2026) : « quand une case est rouge, le premier
+"comprendre mon erreur" s'affiche en bas à droite et pas à côté de la case
+rouge ». Le coin est le REPLI documenté du paragraphe ci-dessus, et il tombait
+bien trop souvent : la sonde a compté **25 à 29 replis sur 207 bulles** en
+Seconde (1366 × 768), dont les quatre dernières cases du 2.2.1 et du 2.3.1 —
+deux des exercices les plus faits.
+**LA MESURE A ÉTÉ FAITE AVANT DE TOUCHER À QUOI QUE CE SOIT, et elle a
+corrigé le diagnostic** : le repli n'est PAS lié au « premier ». Une page
+NEUVE par exercice donne exactement les mêmes côtés qu'une séance déjà
+commencée, la bulle recréée à chaque fois aussi — ce n'est donc pas la
+création de l'élément, ni l'observateur de taille, ni un état qui traîne :
+c'est de la GÉOMÉTRIE, et le repli tombe sur les cases serrées, où qu'elles
+soient dans la séance. Le dire vaut mieux que de le taire : « le premier »
+reste inexpliqué, et c'est le repli lui-même qui a été corrigé.
+**DEUX CAUSES, ET N'EN TENIR QU'UNE NE TIENT RIEN.**
+· La bulle était forcée d'être CENTRÉE sur sa case : un obstacle qui mordait
+  de deux pixels suffisait à perdre le côté entier. Elle GLISSE désormais le
+  long du côté (`bexpGlissades`, pas de 6 px, la centrée d'abord puis de part
+  et d'autre), tant que la flèche atteint encore le centre de la case — la
+  plage est exactement la portée de la flèche, `[centre − D + 18, centre −
+  18]`. Onze replis sur vingt-neuf n'avaient pas d'autre cause.
+· Une chaîne de cases n'offre NULLE PART 288 px de libre — mesuré case par
+  case : à côté du `a4n` du 2.2.1, seul un rectangle de 96 × 44 tient. Faute
+  de place à sa taille normale, la bulle se RESSERRE donc (`bexp-mini`, même
+  texte, 187 × 39 mesurés) et reste à côté de la case, flèche comprise, avant
+  de renoncer. Neuf replis de plus disparaissent.
+**Le coin reste, et c'est honnête** : sur les tableaux les plus denses il n'y
+a de place pour rien, même resserré. Après correction : **7 replis sur 198 à
+1366 × 768, 2 sur 211 à 1920 × 1080** — contre 25 à 29 avant.
+**Et le format resserré ne fait pas boucler l'observateur de taille** — le
+piège payé sur `right`/`bottom` : `bexpPlacer` repart TOUJOURS de la taille
+normale (la classe retirée d'entrée), si bien que le choix ne dépend que de la
+case et des obstacles, jamais de l'état où la bulle se trouvait. Le placement
+est donc déterministe, l'observateur retombe sur la même conclusion, et la
+taille finale ne change plus.
+**UN QUATORZIÈME GARDE-FOU MORT y a été écrit, puis retiré** : le
+`Math.min/max` qui bornait le décalage de la flèche à 18 px des coins
+n'écartait plus rien — la plage du glissement EST cette borne, donc
+`f = centre − y` y tombe par construction. Le retirer a rendu le sabotage
+« le glissement dépasse la portée » VISIBLE (la flèche sort de la bulle,
+`fx: -18px`) là où le garde le masquait.
+Cinq sabotages au banc jsdom, chacun rougissant en nommant son défaut — le
+glissement débranché (« elle change de côté au lieu de glisser »), le format
+resserré débranché, le coin qui garde le format resserré, la flèche qui ne
+suit plus le centre, et le glissement hors portée. Ce dernier n'est devenu
+atteignable qu'en resserrant l'obstacle du banc : posé trop grand, il bloquait
+aussi les places hors portée, et le sabotage restait vert en parlant d'autre
+chose.
+
+
 **Une opération posée se juge à l'œil, pas au compte.** La grille des
 opérations posées (`.mp-op`) est en flexbox à cellules de largeur fixe, et les
 rangées sont alignées à droite. Une rangée qui n'a pas le MÊME nombre de
@@ -2638,8 +2689,8 @@ NOIR, et il a fallu les deux correctifs — n'en tenir qu'un ne tient rien.
   retombée telle quelle, et aucun banc jsdom ne pouvait la voir : le contrôle
   qui existait lit des CLASSES et restait vert. `.iafb` ne pose plus d'encre
   du tout ; sans elle le bloc hérite de l'encre ordinaire, exactement comme
-  avant. Le 2.1.7, le 2.2.10, le 2.3.8, le 2.5.2 et le 5.5 de la Terminale
-  retrouvent leur couleur d'un coup.
+  avant. Le 2.1.7, le 2.2.10, le 2.3.8 et le 2.5.2 retrouvent leur couleur
+  d'un coup, et le 5.5 de la Terminale avec eux.
 · **Les POSES, en Terminale.** Elle ne demandait simplement pas la couleur :
   vingt-trois écrans écrivaient `'mp-feedback '+(fbHTML?'iafb':'bad')` — donc
   VERT ou ROUGE quand le modèle se tait, NOIR dès qu'il répond, sur le même
@@ -2650,8 +2701,8 @@ NOIR, et il a fallu les deux correctifs — n'en tenir qu'un ne tient rien.
   relecture indisponible — rien n'est décidé, donc rien n'est peint, et les
   lignes ✓/✗ du bilan portent déjà leur propre couleur.
 **Deux bancs, et chacun tient le bord que l'autre ne voit pas.** jsdom nomme la
-CAUSE — aucune encre sur `.iafb`, et le COMPTE des poses de `iafb` sans
-verdict, comparé au profil (`verdictSansCouleur`, deux sources) : une pose qui
+CAUSE — aucune encre sur `.iafb` — et COMPTE les poses de `iafb` sans verdict,
+comparées au profil (`verdictSansCouleur`, deux sources) : une pose qui
 perdrait sa couleur fait monter ce compte et se NOMME. Le NAVIGATEUR
 (« 9 ter ») mesure l'ENCRE RÉSOLUE de quatre témoins : `iafb good` vaut
 `--green`, `iafb bad` vaut `--red`, un `iafb` SEUL reste l'encre ordinaire — le
@@ -4059,8 +4110,8 @@ sa règle et ne la RENDAIT pas — un `return` oublié ne casse rien, la règle
 partait simplement vide.
 
 **Et le miroir sur les BAISSES : même moteur, troisième identité.**
-{synthese-diminutions-libre} (2.3.8, demande de Turquet, août 2026) est le
-2.2.9 sur les diminutions : le MÊME moteur `sal` — écran, feuille, juge,
+{synthese-diminutions-libre} (2.3.9, demande de Turquet, août 2026) est la
+synthèse rédigée des hausses portée aux diminutions : le MÊME moteur `sal` — écran, feuille, juge,
 règle — a appris le SENS (`q.sens`, déjà porté par `genSyn`). Le coefficient
 d'une baisse s'écrit `0,xx` (1 − P/100), et la seconde voie s'achève par une
 SOUSTRACTION : le juge distingue l'addition de la soustraction au niveau haut
@@ -4072,6 +4123,47 @@ partagées épinglent `test.qId` (le motif maison), « Recommencer » route par
 l'identité, et chaque identité a son rappel et ses questions à l'IA —
 `qiaSuggestions()` fait primer l'identifiant sur le `kind`. Éprouvé par six
 sabotages, chacun nommé.
+
+**Et la synthèse À CASES des baisses est arrivée la dernière — l'asymétrie
+était le manque.** {synthese-diminutions} (Première, 2.3.8, demande de
+Turquet, septembre 2026 : « faire un exercice de synthèse sur les diminutions
+rédigé comme le 2.2.9 ») est le MIROIR de {synthese-augmentations} sur les
+baisses. Le sous-thème des hausses avait ses DEUX synthèses — celle à cases
+(2.2.9) et la rédigée (2.2.10) — quand celui des baisses n'avait que la
+rédigée : c'est cette moitié manquante que la demande nomme, la synthèse
+rédigée des baisses existant depuis août.
+**TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et c'est ce qui rend l'ajout court** :
+`genSyn('dim', …)` est le générateur MÊME du 2.2.9 et du 2.5.1 — un second
+aurait fini par diverger, et deux exercices voisins se seraient contredits
+sous les yeux de l'élève —, l'écran (`scr-syntest`), la correction
+(`checkSynAnswer`), la pose facultative et le contexte envoyé au modèle sont
+déjà GÉNÉRIQUES sur `q.fam` (« une baisse ») et sur `q.sens` : pas une ligne
+n'a eu à y changer. Le démarreur et deux entrées de table sont tout l'ajout.
+**Même moteur, pas même identité** (le motif du calcul mental) : la note part
+sous `test.qId`, « Recommencer » route par l'identité — la route est devenue
+une TABLE, un `if` de plus aurait fini par en oublier une —, et la clé du
+rappel vit dans `tests/profils.js` comme celle du 2.2.9, sur `RAPPELS.syn`
+qui couvre les deux sens. Lui donner un rappel dédié aurait créé une
+asymétrie avec son miroir, qui n'en a pas.
+Les trois inconnues — le résultat, la valeur initiale, le pourcentage —
+sortent chacune UNE fois sur les trois questions, en ordre mélangé : sans
+quoi l'élève apprendrait que la question est toujours du même genre.
+**Le contrôle des synthèses a été ÉTENDU, pas doublé** : il tient désormais
+les TROIS à cases, et le sens de chacune est un bord RÉEL — un `genSyn('aug')`
+recopié dans le démarreur des baisses poserait des hausses sous un titre de
+baisses, et rien à l'écran ne le dirait. L'ordre d'appel compte : le nouveau
+démarreur passe AVANT `startSynAug` dans la boucle, le contrôle d'identité qui
+la suit lisant l'état du DERNIER appelé. Huit sabotages, chacun rougissant en
+nommant son défaut — le sens inversé, l'identité non épinglée, « Recommencer »
+mal routé, les inconnues au hasard, leur ordre figé, l'exercice hors de
+THEMES, le rappel non déclaré, la séance allongée.
+**Et la numérotation a bougé avec lui**, comme toujours :
+{synthese-diminutions-libre} passe en 2.3.9. Les références écrites
+`{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS — la liste des
+démarreurs du contrôle d'EVOL_NB, les messages qui nomment ces exercices, et
+les commentaires que l'insertion du 2.2.8 avait déjà laissés en arrière — ont
+été repris à la main le jour même. Un contrôle qui s'affiche sous le nom d'un
+autre est pire qu'un contrôle sans nom.
 
 **Une multiplication n'est pas une paire : c'est une liste de facteurs.**
 Signalé par Turquet en production sur une capture (août 2026) : sur le 2.2.9,
@@ -4108,7 +4200,7 @@ retrouve le pourcentage » — refusée, avec une prose qui se contredisait
 corrections, toutes deux copies épinglées au contrôle :
 · **La voie du QUOTIENT suffit** (demande de Turquet) : la valeur finale
   divisée par la valeur initiale EST le coefficient — la leçon du 2.1.7
-  (« la part sur le tout »), revenue au 2.2.9/2.3.8. Il faut un morceau qui
+  (« la part sur le tout »), revenue au 2.2.10/2.3.9. Il faut un morceau qui
   ÉCRIT le quotient (un facteur 1/valeur-initiale, produit = coefficient) et
   un AUTRE morceau qui vaut le coefficient sans être la même écriture —
   « 936/900 = 936/900 » ne nomme rien, sauf quand la valeur initiale est
@@ -4128,59 +4220,87 @@ corrections, toutes deux copies épinglées au contrôle :
   retirée, le commentaire qui re-force l'abstention, la prose du modèle
   reprise sur un refus, la tautologie acceptée).
 
-**Et la synthèse ENTIÈRE se rédige : les trois familles, un juge par famille.**
-{synthese-pourcentages-libre} (Première, 2.5.2, demande de Turquet, septembre
-2026 : « fait un exercice comme le 2.5.1 en première mais où l'élève doit
-rédiger une vérification, on acceptera toutes les vérifications comme dans le
-2.3.8 et le 2.2.10 et le 2.1.7 ») suit {synthese-pourcentages} au menu : c'est
-le 2.5.1 — les TROIS familles (prendre, augmenter, diminuer), les trois
-inconnues chacune UNE fois en ordre mélangé — avec la feuille libre à la place
-de la chaîne de cases.
-**TOUT EST REPRIS, RIEN N'EST RECOPIÉ** : le tirage est `genSyn()`, le
-générateur MÊME du 2.5.1 appelé sans famille ; l'énoncé passe par
-`synEnonceTab()`, extraite ce jour-là — la table des formulations vivait en
-TROIS copies (le rendu du 2.5.1, celui du 2.2.10 et son contexte), et une
-quatrième aurait fini par poser la même question dans d'autres mots ; la
-feuille est celle du 2.1.7, en lignes INDÉPENDANTES comme au 2.2.10 — la voie
-de l'augmentation demande DEUX égalités séparées, qu'un préfixe « = »
-automatique aurait soudées en une égalité fausse.
-**ET LE JUGE EST CELUI DE CHAQUE FAMILLE — la demande, prise au mot** : une
-évolution passe par `salJuge`, le juge MÊME du 2.2.10 et du 2.3.8 avec ses
-trois voies (le coefficient, le quotient, l'évolution suivie de son addition ou
-de sa soustraction) ; « prendre un pourcentage » passe par `sylJugePct`, bâti
-sur le LECTEUR de salJuge — `salExpr`, plus `salMontre` et `salQuot`, extraites
-ce jour-là de son corps — et sur les deux voies du 2.1.7 : le pourcentage en
-fraction × le nombre, et la part sur le tout amenée à /100. Le contrôle exige
-l'APPEL, lu dans la SOURCE : des verdicts identiques ne prouveraient rien
-aujourd'hui d'une copie qui divergerait demain.
-**« TOUTES LES VÉRIFICATIONS » EST TENU PAR LES TROIS POSITIONS, pas par une
-liste de voies plus longue** : on ne REFUSE que sur un fait prouvable (une
-égalité fausse, qu'on NOMME ; une proposition qui n'est pas la bonne), on
-n'ACCEPTE que sur une voie positivement montrée, et on S'ABSTIENT partout
-ailleurs — le modèle décide alors seul, avec une règle qui nomme les voies ET
-accepte tout calcul qui fonctionne. Une méthode que le lecteur ne sait pas lire
-(« 10 % de 200 = 20, donc 3 × 20 = 60 ») n'est donc JAMAIS refusée par la
-page : refuser une écriture juste serait le pire défaut du projet, et « le juge
-ne sait pas la lire » n'est pas un fait prouvable. Quand il sait, son verdict
-PRIME, et sur un refus c'est SA phrase qui s'affiche — la leçon payée en
-production sur le 2.2.10, où le modèle avait rédigé un refus qui se
-contredisait.
-**Le contrôle du verdict CLIQUE** (la leçon des sommes : les contrôles lisaient
-le verdict, l'élève regarde la couleur) : le modèle stubbé se trompe dans les
-DEUX sens, sur les DEUX familles, la copie se peint ligne à ligne (juste en
-bleu, fausse en rouge, illisible sans encre), et la méthode que le juge ne sait
-pas lire doit bien revenir au modèle — sans ce dernier bord, un juge devenu
-bavard refuserait à tort sans que rien ne rougisse.
-**Et la numérotation a bougé avec lui, comme toujours** :
-{reconnaitre-coefficient} passe de 2.5.2 à 2.5.3. Les références écrites
-`{identifiant}` ont suivi d'elles-mêmes ; les numéros ÉCRITS — les commentaires
-de la page, la liste des démarreurs du contrôle d'EVOL_NB, les paragraphes de
-ce fichier — ne se recalculent pas, et ont été repris à la main le jour même.
-Quinze sabotages, chacun rougissant en nommant son défaut — et DEUX n'ont
-d'abord pas pu se poser : leurs ancres (le tirage des inconnues, la primauté du
-juge) sont écrites au caractère près dans `startSyn` et dans `checkSal`, et le
-remplacement en trouvait deux. Un sabotage se pose sur une ancre PROPRE à sa
-cible, la leçon d'{antecedents-droite}, retombée telle quelle.
+**Et la TROISIÈME famille est entrée dans le moteur rédigé : la synthèse
+entière.** {synthese-pourcentages-libre} (Première, 2.5.2, demande de Turquet,
+septembre 2026 : « un exercice comme le 2.5.1 mais où il faut rédiger la
+justification dans une case comme dans le 2.2.9 ») suit {synthese-pourcentages}
+au menu : le tirage du 2.5.1 — `genSyn` SANS famille imposée, donc prendre,
+augmenter et diminuer, et les trois inconnues chacune UNE fois en ordre
+mélangé — posé sur l'écran, la feuille et le juge du 2.2.10. Même moteur de
+tirage, même moteur de rédaction, pas même identité : la note part sous
+`test.qId`, le rappel vit dans `RAPPELS_ID`, les questions dans `QIA_SUGG`,
+et « Recommencer » route par l'identifiant — le repli d'un `qId` inconnu
+reste le 2.2.9.
+**CE QUI ARRIVE VRAIMENT ICI, C'EST « PRENDRE P % » : le juge ne connaissait
+que les évolutions.** `salSens` lui donne le sens 0, son « coefficient » est
+P/100 et sa valeur finale EST la part — si bien que les deux voies de
+l'évolution se confondent, ce qui est exact : il n'y a qu'une multiplication
+à montrer. Les justifications acceptées sont celles que Turquet a nommées :
+la multiplication par le bon coefficient qui arrive au résultat, la hausse ou
+la baisse calculée d'abord puis l'addition ou la soustraction, et **la
+simplification de fraction qui retrouve un pourcentage** — la voie du
+quotient, déjà là depuis le signalement d'août 2026, qui sur cette famille
+s'écrit 180/600 = 3/10 = 30/100.
+**AUCUN GARDE N'EST POSÉ SUR `voieOk`, ET C'EST DÉLIBÉRÉ : il serait MORT.**
+Le premier jet y écrivait `!part && augProd && addOk` pour interdire
+l'addition sur « prendre P % » — mais pour cette famille `augProd` et
+`coefOk` testent exactement la même chose, donc une copie qui montre l'une
+est déjà acceptée par l'autre, et retirer le garde ne change rien. La
+propriété est tenue autrement, et elle l'est : une addition SEULE ne passe
+par aucune des deux voies. Le garde VIT en revanche dans le MESSAGE — une
+soustraction seule rend `addOk` vrai, et nommer « la diminution » devant un
+élève à qui on ne demande aucune évolution serait un message qui ment ; le
+sabotage le montre en toutes lettres.
+**L'ÉCRAN DIT CE QUE LE JUGE ACCEPTE, et un seul endroit l'écrit.**
+`salVoiesTexte` nomme les voies ; l'étiquette de la feuille, le message de la
+feuille vide et le refus du juge la lisent tous — trois phrases écrites
+séparément auraient fini par promettre à l'écran autre chose que ce que le
+juge accepte. La table d'énoncés est partagée de la même façon
+(`synTab`) : le rédigé pose exactement la question du guidé.
+**Deux bancs, la répartition habituelle.** jsdom tient le tirage (les trois
+inconnues, les trois familles — une synthèse qui n'en tirerait qu'une aurait
+perdu son sujet), le juge cas par cas sur des questions ÉPINGLÉES, le bord
+OPPOSÉ dans le même exercice (une hausse et une baisse gardent leur voie par
+l'addition et la soustraction), la règle envoyée au modèle et sa borne de
+troncature (3244 caractères pour 4000). Le NAVIGATEUR tient ce que jsdom ne
+peut pas voir : il TAPE la fraction dans la vraie feuille MathLive — la voie
+du quotient n'existe que si la sérialisation réelle repasse par le juge, et
+jsdom pose des chaînes qu'il écrit lui-même — puis relit le verdict, la note
+et la couleur des lignes ; le double du banc répondant toujours
+« correct:false », c'est aussi le bord du JUGE QUI PRIME.
+Dix-sept sabotages au banc jsdom, chacun rougissant en nommant son défaut —
+et l'un d'eux est d'abord resté VERT en montrant un TROU DU CONTRÔLE : il
+lisait l'écran ENTIER, où l'indication sous la feuille parle elle aussi
+d'addition, si bien qu'une étiquette qui aurait cessé de nommer les voies
+serait passée inaperçue. Il lit l'ÉTIQUETTE désormais, et garde l'écran
+entier pour son bord à lui — rien n'y promet d'addition sur « prendre P % ».
+**Et l'intégration continue a nommé un contrôle INTERMITTENT, venu d'une
+autre branche le même jour.** « Un « = » et la case qu'il annonce restent sur
+la même ligne » exigeait que CHAQUE groupe `.f-grp` porte un `math-field` —
+or la somme de fractions pose le maillon « 3 = 3/1 » dès qu'un terme est un
+ENTIER, et la page l'ÉCRIT : ce groupe-là n'a aucune case à saisir. Le banc
+rougissait donc **une exécution sur trois**, sur une page parfaitement juste,
+et trois exécutions locales étaient passées avant que l'action GitHub ne le
+montre — la leçon du barème de la coupe, retombée telle quelle.
+**La mesure qui accuse la page a été mesurée elle-même avant qu'on corrige
+quoi que ce soit** : le défaut se reproduit sur `main` SEUL, sans une ligne
+de la branche.
+**Et la correction est venue de l'autre côté, la meilleure des deux.** Cette
+branche avait fait prendre au contrôle la case saisie, ou à défaut ce que la
+page a écrit ; `main` a fait mieux pendant ce temps — « la mesure du « = » ne
+connaît plus aucune fabrique » : elle ne part plus des groupes mais de CHAQUE
+case visible, remonte au texte qui la précède, et exige qu'un « = » ou une
+tête finissant par la virgule partage sa ligne, à trois largeurs. Le maillon
+écrit n'a alors plus rien à mesurer, et l'intermittence disparaît avec la
+question. La fusion a donc gardé la version de `main` entière, et le
+`entierEcrit` qui rendait l'ancienne mesure déterministe est parti avec elle :
+un réglage sans lecteur ferait croire qu'on tient quelque chose.
+
+**Et {reconnaitre-coefficient} est passé de 2.5.2 à 2.5.3**, la numérotation
+se déduisant de la position : les notes déjà obtenues ne bougent pas — elles
+portent l'IDENTIFIANT — et les renvois suivent, écrits `{identifiant}`. Les
+paragraphes plus anciens de ce fichier qui l'appellent « 2.5.2 » racontent
+l'histoire avec le numéro de leur époque.
 
 **Le dénominateur vide ne condamne personne.** Signalé par Turquet sur une
 capture (août 2026, le 1.7 en soutien) : sur « 0,04 × 17 », le 4 tapé au
@@ -4294,7 +4414,7 @@ démarreurs, et ses sabotages rougissent en nommant l'exercice (« 2.3.7 : 6
 questions au lieu de 3 », puis « 2.5.1 » à son tour).
 
 **Reconnaître un coefficient, c'est d'abord déjouer trois pièges.**
-{reconnaitre-coefficient} (2.5.3, demande de Turquet, août 2026) : une
+{reconnaitre-coefficient} (2.5.2, demande de Turquet, août 2026) : une
 transformation donnée — augmenter de P %, diminuer de P %, prendre P % — et
 QUATRE coefficients proposés, dont les pièges qui font l'exercice : le
 coefficient de l'AUTRE sens, « prendre P % » à la place d'une évolution, et
@@ -4366,12 +4486,12 @@ sa liste des six.
 **LES SIX NE DIFFÈRENT QUE PAR CE QUI FAIT L'ERREUR, et c'est tout
 l'exercice** : ce sont les trois familles pour P, puis les trois familles pour
 P la VIRGULE DÉCALÉE d'un rang — pour P = 30 : 0,30 / 1,30 / 0,70, puis
-0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.3 (la
+0,03 / 1,03 / 0,97. Deux axes, donc six cases, et les deux pièges du 2.5.2 (la
 famille confondue, la virgule déplacée) sont présents SUR CHAQUE LIGNE à la
 fois : aucune proposition ne s'élimine sans raisonner. Des propositions qui
 différeraient par autre chose se laisseraient écarter sans lire la phrase — la
 leçon d'{intervalles-inegalite}, transposée.
-**TOUT EST REPRIS DU 2.5.3, RIEN N'EST RECOPIÉ** : `ckCoef` (le coefficient
+**TOUT EST REPRIS DU 2.5.2, RIEN N'EST RECOPIÉ** : `ckCoef` (le coefficient
 d'une transformation), `ckStr` (son écriture), `ckMots` (le verbe et le signe)
 et `ckPiege` (le NOM de l'erreur) sont les fonctions MÊMES du QCM des
 coefficients — un second jeu aurait fini par diverger, et deux exercices
@@ -4577,6 +4697,68 @@ nomment ces deux exercices — ne se recalculent pas, et ont été repris à la 
 le jour même. Un contrôle qui s'affiche sous le nom d'un autre est pire qu'un
 contrôle sans nom.
 
+**Puis le VIVIER est devenu celui du 2.2.7, partagé et non recopié.** Demande de
+Turquet (septembre 2026) : « pour le 2.2.8 il faut les mêmes règles pour le choix
+des pourcentages que dans le 2.2.7 ». Les deux exercices posent LA MÊME question
+par deux chemins, et ils tiraient dans deux listes différentes : le 2.2.7 dans
+ses paires (un seul chiffre non nul par taux), le 2.2.8 dans les 114 couples
+que ses propres gardes laissaient passer. Le paragraphe ci-dessus raconte
+l'exercice avec les nombres de son époque — 25 % puis 4 % était un tirage
+possible, il ne l'est plus.
+**C'est l'argument des énoncés, mot pour mot** : deux listes auraient fini par
+diverger, et c'est exactement ce que la demande interdit. Le 2.2.8 lit donc
+`HS_PAIRES` — la liste du 2.2.7 — sans en écrire une seconde, comme il lit déjà
+`HS_ENONCES` et `BS_CTX`, et l'ORDRE de la paire est tiré comme là-bas : rien ne
+dit lequel des deux taux vient d'abord, et ici l'ordre change le CHEMIN sans
+changer la réponse (100 → 102 → 153 d'un côté, 100 → 150 → 153 de l'autre). La
+séance tire sans remise sur la PAIRE et non sur le couple ordonné : l'ordre ne
+fait pas une question de plus, c'est le même calcul.
+**Le vivier rétrécit, et c'est le prix assumé de l'accord** : 25 paires au lieu
+de 59, soit 50 couples au lieu de 114 — 34 paires perdues, toutes celles dont
+un taux porte deux chiffres non nuls (4 % puis 25 %, 15 % puis 20 %…). Trois
+questions par séance y puisent largement ; la sonde relève 17 paires de deux
+multiples de dix et 8 mixtes, 23 hausses globales différentes de 21 % à 98 %, et
+198 pour plus grand nombre que l'élève ait à écrire.
+**LA RESTRICTION DES TAUX VIENT DE LA POSE DU 2.2.7, qui n'existe pas ici** :
+son numérateur doit garder la forme 1X ou 10X, la seule que `poseUDonnees` sache
+écrire en bas. Elle est donc SUBIE et non nécessaire — mais les deux exercices
+doivent tirer les mêmes nombres, et c'est la règle du 2.2.7 qui fait foi. Le
+dire vaut mieux que de le taire.
+**DEUX GARDES SONT DEVENUS INERTES, ET RETIRÉS AVEC LEUR RAISON** — les
+douzième et treizième du projet. Ils ne sont pas nés morts : ils écartaient
+vraiment quelque chose sur l'ancien vivier de 114 couples, et c'est le vivier
+rétréci qui les prive de tout emploi. La hausse globale de `HS_PAIRES` est
+STRICTEMENT sous 100 %, donc le coefficient global est strictement entre 1 et 2 :
+il n'est JAMAIS entier, et le garde « pas 0 décimale » — celui qui écartait
+25/60 et 60/25, et que le paragraphe ci-dessus déclarait vivant — n'a plus rien
+à écarter ; le plafond `HSC_HMAX` non plus. Un garde-fou qui n'écarte jamais rien
+fait croire qu'on vérifie quelque chose : c'est le CONTRÔLE qui exige les deux
+propriétés sur le tirage.
+**Et le contrôle mesure le vivier que la page TIRE, jamais une constante qu'elle
+nommerait** : `hscSeance` tirant sans remise, une séance de la taille du vivier
+le rend en entier — un filtre resserré en douce se voit alors comme une paire
+manquante, une règle relâchée comme une paire de trop, et la seconde
+arithmétique du 2.2.7 (les pourcentages bruts là où la page passe par les
+fractions réduites) dit laquelle. Quatre couples sont épinglés, un par règle :
+90 % puis 4 % (le couple de la fiche, trois décimales), 25 % puis 4 % (deux
+chiffres non nuls — le seul des quatre que l'ancien vivier acceptait), 25 % puis
+60 % (coefficient 2 tout rond) et 50 % puis 50 % (hausse globale de 125 %). Un
+second contrôle tient le PARTAGE lui-même : les deux portes du tirage lisent
+`HS_PAIRES`, et aucun vivier propre ne revient sous son ancien nom — cherché
+comme une DÉFINITION et jamais comme un nom nu, le commentaire de la page ayant
+le droit de nommer les deux gardes qu'il vient de retirer.
+**ET LE RAPPEL DE COURS MONTRAIT UN TIRAGE DEVENU IMPOSSIBLE** : « gagner 20 %
+puis 25 % », que le nouveau vivier ne rend jamais — un rappel qui enseigne la
+méthode sur un cas que l'élève ne rencontrera pas, la leçon du 2.3.7 retombée
+telle quelle. Il montre maintenant 20 % puis 30 %, c'est-à-dire l'exemple MÊME
+du rappel du 2.2.7 : les deux méthodes trouvent 56 % sur les mêmes nombres, ce
+qui est précisément ce que l'exercice veut faire voir. **Aucun contrôle ne le
+disait, et c'est le contrôle qui manquait** : il lit les DEUX rappels, exige que
+chaque « X % puis Y % » soit tirable, et pour le 2.2.8 que la chaîne écrite soit
+celle que `hscAns` calcule — un rappel dont les pourcentages changent sans que
+son arithmétique suive ferait mentir l'écran. Sept sabotages, chacun rougissant
+en nommant son défaut.
+
 **Deux baisses ne s'additionnent pas.** L'exercice 2.3.7 est là pour ça :
 −20 % puis −40 % fait −52 %, pas −60 %, parce que la seconde baisse porte sur
 la valeur DÉJÀ baissée. Son énoncé ne donne aucune valeur de départ (décision
@@ -4636,6 +4818,106 @@ ferait une baisse globale de 94 %, un prix divisé par seize qu'aucune scène de
 plus 90 %, et la justification écrite dans la page — qui parlait de décimales —
 a été corrigée avec lui. Six sabotages, chacun rougissant en nommant son
 défaut ; le sixième seulement après que le contrôle a gagné ce bord.
+
+**Et au 2.5.1, la règle ne porte plus que sur UN coefficient — vraie elle
+aussi, tenue par rien elle aussi.** « fais la même chose pour le 2.5.1 »
+(Turquet, septembre 2026), après le 2.2.7, le 2.3.7 et le 2.2.8. La synthèse
+ne pose qu'UNE transformation par question : son « coefficient global » est le
+coefficient tout court, 1 ± P/100 pour une évolution, P/100 pour « prendre ».
+**LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT** : 900 tirages
+passés par les TROIS portes du générateur et par les trois inconnues, chacun
+relu sur ses QUATRE propositions — aucun coefficient à plus de deux décimales,
+aucune valeur de la chaîne qui ne soit entière. **Rien à changer au tirage,
+donc** : la propriété tient par le choix des taux (un seul chiffre non nul :
+un multiple de dix, ou un chiffre ; « prendre P % » puise dans `PCT_PCTS`, qui
+n'a que des multiples de dix) et par une valeur de départ multiple de 100. Ce
+qui manquait est le CONTRÔLE.
+**Le contrôle d'à côté serait resté vert**, et c'est ce qui rend celui-ci
+nécessaire : « générateur genSyn : 8000 questions conformes » n'exige que
+l'ENTIER — or 12,5 % de 800 font 100, un entier parfait, avec un coefficient
+1,125 à trois décimales. Une propriété heureuse n'est pas une propriété tenue,
+la leçon du 2.3.7 retombée telle quelle.
+**Il refait la propriété par une SECONDE arithmétique** — en centièmes ENTIERS
+là où la page divise par 100 — et la relit une TROISIÈME fois sur l'écriture
+que la page PRODUIT (`synCouple().coefDec`), puis une QUATRIÈME sur ce que la
+CORRECTION écrit à l'élève : après un vrai clic sur « Vérifier », la phrase
+« car 1 + 7/100 = 1,07 = 107/100, puis… » ne doit porter aucun nombre à plus
+de deux décimales. C'est là que l'élève LIT le coefficient.
+**Et il passe par les TROIS portes du tirage**, la libre et les deux
+imposées : `genSyn` sert six exercices — le 2.5.1, le 2.2.9, le 2.3.8 et les
+rédigées 2.2.10, 2.3.9 et 2.5.2 —, et un `famVoulu` ignoré poserait des
+hausses sous un titre de baisses.
+**AUCUN GARDE N'EST POSÉ DANS LA PAGE** : il n'écarterait jamais rien, et
+ferait croire qu'on vérifie quelque chose. La raison, elle, est ÉCRITE là où
+le tirage la tient — sans quoi le prochain taux ajouté la romprait sans que
+rien ne le dise.
+**Un essai s'est pris en défaut AVANT la page** : « la valeur de départ est un
+multiple de 100 » est vrai du TIRAGE et faux des PROPOSITIONS — les leurres de
+la valeur initiale valent 70, 50, 90…, et la chaîne y tombe juste quand même,
+le taux étant alors un multiple de dix. Le contrôle mesure donc la propriété
+qui compte (P × N tombe sur un entier de centièmes), pas celle qu'on croyait :
+un essai faux se reconnaît à ce qu'il rougit sur une page juste.
+**Et DEUX sabotages ont appris quelque chose de plus.** L'un s'est montré
+INTERMITTENT, ce qui ne se devinait pas : faire écrire à la correction le
+coefficient divisé par 300 ne produit une longue décimale que deux fois sur
+trois — 105/300 fait 0,35 tout rond, et le contrôle restait vert à bon droit.
+Un sabotage qui n'atteint sa cible qu'une fois sur deux ne dit rien du contrôle
+visé, exactement comme un sabotage posé sur une ancre partagée ; divisé par
+1000, il rougit à tous les coups. L'autre est resté VERT en disant vrai :
+retirer les taux à un chiffre du TIRAGE ne prive le contrôle de rien, parce que
+les LEURRES de « retrouve le pourcentage » en offrent encore — et c'est exact,
+l'élève vérifie la proposition qu'il a choisie, donc un coefficient à deux
+décimales lui reste sous les yeux. Retirés des deux côtés, le bord « le
+contrôle ne mesure qu'une seule forme » rougit. Dix sabotages en tout, neuf
+rougissant en nommant leur défaut.
+
+**Et au 2.1.3, la règle est vraie plus largement qu'elle ne demande.**
+« fais la même chose pour le 2.1.3 » (Turquet, septembre 2026), après le
+2.2.7, le 2.3.7, le 2.2.8 et le 2.5.1. « Prendre P % », c'est multiplier par
+P/100 : voilà le coefficient de cet exercice-là.
+**LA SONDE A MESURÉ AVANT QU'ON NE TOUCHE À QUOI QUE CE SOIT** : sur 20 000
+tirages de `genPercent`, le coefficient a TOUJOURS une seule décimale, et tout
+ce qui vient après lui — le produit de l'étape ②, le résultat de l'étape ③ —
+est ENTIER. **Rien à changer au tirage, donc**, et le 2.1.3 n'écrit d'ailleurs
+jamais son coefficient en décimal : l'étape ① l'écrit en FRACTION, et ce que
+l'élève écrit en décimal est le résultat, qui n'a aucune décimale.
+**CE QUI LA TIENT EST QUE LE TAUX EST UN ENTIER DE POURCENT**, et c'est la
+seule chose qui puisse la rompre. 12,5 % — un taux d'école, 1/8 — donnerait
+0,125, trois décimales, et **passerait tous les gardes de la page** : 12,5 × 80
+fait 1000, donc un résultat parfaitement entier, et le contrôle voisin
+(« générateur genPercent : 5000 questions conformes ») n'exige que l'ENTIER —
+il serait resté vert. Une propriété heureuse n'est pas une propriété tenue, la
+leçon du 2.3.7 et du 2.5.1 retombée telle quelle.
+**AUCUN GARDE N'EST POSÉ DANS LA PAGE** : P est entier par construction, un
+garde n'écarterait jamais rien. La raison est ÉCRITE là où le tirage la tient —
+à côté de `PCT_PCTS`, dans le bloc même qui invite à élargir la plage — et
+c'est le contrôle qui EXIGE la propriété, sur le VIVIER (tout taux est un
+entier de pourcent, toute valeur est entière) comme sur chaque tirage, par une
+seconde arithmétique en entiers là où la page divise par 100. Le vivier étant
+partagé — le 2.1.2, le 2.1.4, le 2.1.5 et les deux évolutions y puisent
+aussi —, l'exiger sur le vivier les tient a fortiori.
+**ET LA MOITIÉ « P × N divisible par 100 » DE `pctCoupleOk` N'ÉCARTE RIEN** :
+mesuré exhaustivement, 162 couples possibles, 104 retenus, 58 écartés par
+`PCT_MAXPROD` et ZÉRO par cette divisibilité — les deux viviers n'ayant que des
+multiples de dix, le produit est toujours un multiple de 100. Elle RESTE, et le
+dire vaut mieux que de le taire : elle est exactement le filtre qui tiendrait
+l'intégralité le jour où `PCT_VALEURS` s'ouvrirait (15 y ferait écarter 30 %
+mais pas 20 %), et la propriété, elle, est désormais exigée par le banc. Le
+sabotage le démontre plutôt que de le supposer : la retirer laisse le contrôle
+vert, à bon droit ; la retirer ET ouvrir `PCT_VALEURS` le fait rougir.
+**Et le contrôle lit une TROISIÈME fois, sur ce que la PAGE écrit** : la copie
+juste est cliquée sur la question du RAPPEL de cours — prise au vrai générateur,
+parce qu'un rappel qui enseigne la méthode sur un cas impossible est la leçon du
+2.2.8 — puis une copie fausse, et la phrase de correction (« Réponse : 30/100 ×
+40 = 1200/100 = 12 ») ne doit porter aucun nombre à virgule : c'est le seul
+endroit où l'élève LIT le résultat en décimal.
+Dix sabotages, neuf rougissant en nommant leur défaut ; le dixième est celui de
+la moitié inerte ci-dessus, vert à bon droit. **Et un onzième n'a rien pu dire** :
+réduire `PCT_PCTS` à un seul taux FIGE la page — deux générateurs voisins bouclent
+sur « au moins quatre pourcentages admissibles » — et un sabotage qui fige la page
+ne dit rien du contrôle visé, comme celui qui en casse la syntaxe. Rejoué à quatre
+taux, sous le seuil du garde, il rougit (« le vivier des pourcentages est vide, le
+contrôle ne mesure rien »).
 
 **Les identifiants, eux, ne se renomment jamais.** `'pourcentage'` n'est pas un
 titre : c'est la clé sous laquelle les notes des élèves sont enregistrées
@@ -6816,7 +7098,8 @@ nombre de rangées déclaré (`clavierEcran.paysage.rangees` dans
 l'autre (une touche perdue serait intapable dans une orientation, sans
 erreur) — et la table de routage elle-même, `kbCompact` + `applyKbLayout`
 évaluées sur un faux clavier dans les trois cas (ancré paysage, ancré
-portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre le 2.2.9 sur
+portrait, flottant). Le NAVIGATEUR (« 11 quinquies ») ouvre la synthèse
+rédigée des hausses sur
 une tablette tactile en paysage, compte les rangées RENDUES, exige des
 touches d'au moins 36 px sans débord, CLIQUE la vraie touche ⏎ — une ligne
 de plus, le curseur dedans, le clavier toujours là — puis tourne en portrait
@@ -6829,10 +7112,55 @@ portrait », jsdom restant vert à bon droit. La Seconde porte le même
 clavier, avec le même « ✓ » : elle n'est pas dans la demande et n'est pas
 touchée — le dire vaut mieux que le taire.
 
+**Puis, en PORTRAIT sur une tablette, le clavier tient sur TROIS rangées.**
+Demande de Turquet (septembre 2026), sur les pourcentages de la Première :
+« sur les tablettes, pour le clavier virtuel en mode portrait, fais en sorte
+que le clavier tienne sur 3 lignes au lieu de 4 ». Le paysage avait sa forme
+compacte ; debout, la plaque reprenait ses quatre rangées et 232 px — 23 % de
+l'écran d'une tablette, avant même l'énoncé. `buildKbTerm(vars, compact,
+portrait)` rend une TROISIÈME forme, `prem-portrait` : 182 px, 18 % de
+l'écran, mesurés à 768 × 1024. Les chiffres y GARDENT leurs colonnes — 7 8 9,
+4 5 6, 1 2 3 : l'élève qui tourne sa tablette retrouve le même pavé, et c'est
+la seule chose qu'une rangée en moins pouvait lui coûter. Ce qui tenait sur la
+quatrième rangée remonte : les parenthèses à côté de la fraction, les flèches à
+côté des opérations, et le 0 rejoint le 1 2 3 avec la virgule, le `=`, le `%`
+et le `⏎`. La forme se décide dans `kbPortraitTablette`, à côté de `kbCompact`
+et sur le même patron : clavier ANCRÉ, hors paysage, et l'écran tactile d'au
+moins 600 px qui définit la tablette dans TOUTE la page (la police, la chaîne
+à nombres, la feuille de calcul). Un TÉLÉPHONE en portrait garde donc ses
+quatre rangées — huit touches sur une rangée de 390 px ne se toucheraient
+plus —, et la fenêtre flottante de l'ordinateur les garde aussi.
+Les deux bancs suivent. jsdom ÉVALUE la troisième forme depuis la source : le
+nombre de rangées déclaré (`clavierEcran.portraitTablette` dans
+`tests/profils.js`, deux sources), le MÊME jeu de touches que la forme normale,
+le `⏎` qui commit sur sa couche — et les QUATRE cases de la table de routage,
+là où il y en avait trois : paysage, portrait de TABLETTE, portrait de
+TÉLÉPHONE, fenêtre flottante. Son faux écran répond désormais à deux requêtes,
+l'orientation et la largeur minimale, et ne répond rien aux autres : un routage
+qui s'appuierait sur autre chose se verrait. Le NAVIGATEUR (« 11 quinquies »)
+tourne la tablette en portrait, compte les rangées RENDUES, exige des touches
+d'au moins 36 px sans débord, puis RÉTRÉCIT la fenêtre à la taille d'un
+téléphone où les quatre rangées reviennent — et lui REND sa largeur de tablette
+avant de continuer, sans quoi le contrôle suivant mesurait la feuille de calcul
+sur un téléphone et rougissait sur une page juste : c'est arrivé au premier
+essai, et c'est le genre de détour qui laisse une section verte mesurer autre
+chose que ce qu'elle nomme. Six sabotages, chacun rougissant en nommant son
+défaut — cinq en jsdom (une quatrième rangée dans la forme portrait, le `%`
+retiré, le `⏎` redevenu « cacher », la forme courte qui fuit sur le téléphone,
+la forme portrait jamais construite), et le dernier repris au navigateur
+(`kbPortraitTablette` toujours faux : « 4 rangée(s) rendue(s) en portrait »,
+plaque revenue à 232 px). Le contrôle jsdom a changé de nom avec sa portée —
+« le clavier ancré tient sur moins de rangées avec les mêmes touches » —, et la
+phrase du paragraphe précédent, « puis tourne en portrait où les quatre rangées
+reviennent », raconte le banc d'avant ce jour-là. La Seconde porte le même
+clavier et n'est toujours pas dans la demande : elle n'est pas touchée, et sa
+plaque de portrait reste à 232 px — le banc l'imprime, à côté de celle de la
+Première.
+
 **Sur tablette, la feuille de calcul libre écrit plus petit.** Demande de
 Turquet (septembre 2026), toujours sur le 2.2.9 : « la case d'édition du
 calcul peut-elle avoir une police plus petite ». La feuille (`.dexp2-sheet`,
-partagée par le 2.1.7, le 2.2.9 et le 2.3.8) écrit à 2 rem : une ligne
+partagée par le 2.1.7, le 2.2.10 et le 2.3.9) écrit à 2 rem : une ligne
 faisait 55 px de haut sur un écran que le clavier réduit déjà. Sous la
 requête média de la tablette — la même que la police de la page, écran
 tactile d'au moins 600 px — elle passe à 1,4 rem (20 px rendus, une ligne
@@ -6841,7 +7169,7 @@ l'entourent, sur tablette aussi. La valeur vit dans `tests/profils.js`
 (`feuilleTablette`, deux sources). jsdom exige la règle sous cette requête,
 à cette valeur, plus PETITE que la taille normale — une règle qui ne réduit
 rien passerait sinon ; le navigateur (« 11 quinquies ») mesure la police
-RENDUE de la feuille du 2.2.9 sur la tablette et l'exige plus petite que sur
+RENDUE de cette feuille sur la tablette et l'exige plus petite que sur
 un ordinateur ouvert au même exercice — une règle qui réduirait partout ne
 serait pas la règle demandée. Cinq sabotages, chacun rougissant en nommant
 son défaut — et le premier essai du contrôle a rougi sur une page JUSTE :
@@ -7050,7 +7378,7 @@ facteur, par construction et non par vigilance.
 `.mp-stage` est ce qui vient après le `p.mp-instr` de l'énoncé, qui vit
 au-dessus et garde donc sa taille sans qu'on ait rien à lui retirer. Et
 `:has(math-field.pm-mf)` restreint aux stages qui portent VRAIMENT une case à
-nombres — la feuille de rédaction libre (2.1.7, 2.2.9, 2.3.8) a déjà sa règle
+nombres — la feuille de rédaction libre (2.1.7, 2.2.10, 2.3.9, 2.5.2) a déjà sa règle
 de tablette et n'est pas touchée ; elle est NOMMÉE dans le profil plutôt que
 tue, sans quoi le contrôle rougirait sur un écran voulu. Un navigateur qui ne
 connaîtrait pas `:has` retombe sur la taille d'avant — jamais sur un écran
@@ -7073,7 +7401,7 @@ les polices RENDUES sur une tablette en paysage et sur un ordinateur — la case
 et ses voisins réduits du facteur, l'énoncé réduit de la seule police de la
 page.
 
-**Et un défaut d'à côté s'est vu en mesurant : le 2.5.3 écrivait ses cases
+**Et un défaut d'à côté s'est vu en mesurant : le 2.5.2 écrivait ses cases
 trois fois plus petites que ses nombres.** Ses cases étaient restées à la
 taille générique (1,05 rem) devant des écritures à 2 rem — « 1 − ▢/▢ = 1 − 0,▢
 = 0,▢ » — alors que son jumeau le 2.2.1, dont il reprend la chaîne au caractère
@@ -7088,15 +7416,15 @@ qui aurait fini par diverger de celui du 2.2.1.
 réparé** : le contrôle universel ne comptait comme « nombre autour » qu'un
 morceau de texte ENTIÈREMENT numérique (« 90 », « 1,5 »). Or la page n'écrit
 presque jamais un nombre tout nu dans une chaîne : elle écrit « 1 − »,
-« 1 − 0, », « 0, ». Le 2.5.3 n'avait donc AUCUN voisin aux yeux du banc, qui
+« 1 − 0, », « 0, ». Le 2.5.2 n'avait donc AUCUN voisin aux yeux du banc, qui
 passait au vert en regardant ailleurs — un contrôle qui ne mesure rien ne
 mesure rien, et celui-là a vécu des mois. Est désormais un voisin tout morceau
 COURT (12 caractères au plus) qui porte un chiffre et aucune lettre : le signe
 et la virgule font partie du calcul écrit. Les étiquettes (« Question 1 / 4 »)
 portent des lettres, et ce qui vit ailleurs à l'écran reste écarté par la ligne
 partagée et les 120 px — les trois niveaux passent sans une seule exemption, ce
-qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.3
-en défaut : le banc le NOMME (« 2.5.3 — ck1p : 16.8px contre 32px »), là où il
+qui est le signe que la définition est la bonne. Éprouvé en remettant le 2.5.2
+en défaut : le banc le NOMME (« 2.5.2 — ck1p : 16.8px contre 32px »), là où il
 restait vert avant.
 **Et il en a trouvé un SECOND en naissant, par intermittence — ce qui est la
 pire façon pour un contrôle de dire vrai.** Le 2.1.2 écrivait lui aussi sa case
@@ -7235,6 +7563,170 @@ Paramètres → Affichage → Barre de navigation → Gestes de balayage, puis
 « Indicateur de geste » décoché, cache la barre pour TOUTES les
 applications. Le dire vaut mieux que le taire — c'est le seul chemin si le
 plein écran de l'application ne suffit pas.
+
+**Et la bande du bas appartient au SYSTÈME : la Première y descendait.**
+Signalé par Turquet (septembre 2026), tablette Samsung, la page ouverte depuis
+l'écran d'accueil : « pour les exercices de Première où il faut rédiger une
+justification avec les pourcentages, par exemple le 2.3.9, la ligne la plus
+basse du clavier virtuel ne fonctionne pas — les caractères ne s'affichent
+pas, que ce soit en portrait ou en paysage ».
+**La sonde a mesuré avant qu'on ne touche à quoi que ce soit** : cette
+rangée-là vit à 7..49 px du bord BAS de l'écran en paysage (7..67 en
+portrait), et le CENTRE de ses touches à 28 px et 37 px du bord — les rangées
+du dessus, elles, sont à 78 et 97 px, et personne ne s'en est jamais plaint.
+Or Android se réserve les 48 dp du bas pour le geste de retour à l'accueil,
+que l'indicateur de geste de Samsung occupe en plus : le système y prend les
+touches, et rien n'arrive à la page. Aucune erreur nulle part — la touche ne
+répond simplement pas.
+**POURQUOI LA PREMIÈRE, ET POURQUOI EN APPLICATION SEULEMENT** : c'est le seul
+niveau dont le manifeste demande « fullscreen » (la demande du paragraphe
+ci-dessus), donc le seul qui dessine jusqu'au bord PHYSIQUE de l'écran. Dans
+un onglet, et dans les deux autres niveaux restés en « standalone », le
+navigateur ou la barre du système occupent cette bande et la page ne
+l'atteint jamais. Les trois conditions du signalement — Samsung, mode
+application, Première — sont chacune une moitié de la cause, et c'est la
+demande d'hier qui a produit le défaut d'aujourd'hui.
+**ON REND DONC LA BANDE, en mode application seulement** : rien de ce qui se
+touche n'y descend plus — le clavier mathématique ancré, les commandes du bas
+(Signaler / Abandonner / Pause) et le pavé numérique, qui vivait lui aussi à
+6 px du bord en paysage et serait devenu le signalement suivant. La réserve
+vit à UN SEUL endroit (`--bas-systeme`, 48 px, déclarée aussi dans
+`tests/profils.js` — deux sources) et la classe est posée par le script comme
+`pave-actif` : la requête média reste au navigateur, le banc force par
+`window.__appForce`, et la classe se RETIRE à la sortie du plein écran — sans
+quoi un onglet mis puis sorti du plein écran garderait la mise en page de
+l'application.
+**Le clavier a d'abord remonté EN BLOC (v221), et c'est la mesure qui l'a
+décidé** : une bordure ou un rembourrage posés sur son fond n'ont RIEN donné —
+sa hauteur est ÉCRITE par MathLive en BOÎTE DE BORDURE et sa plaque de touches
+est accrochée au HAUT du fond, si bien que les touches n'avaient pas bougé d'un
+pixel et débordaient simplement de leur boîte. C'est une marge qui l'a remonté,
+et on l'a su en mesurant, pas en relisant.
+**MAIS UNE MARGE LAISSE UN TROU, et Turquet l'a dit le lendemain** (« le trou
+sous le clavier me gêne ») : le fond opaque s'arrêtait 48 px au-dessus du bord,
+et une bande de page se voyait dessous. Il ne demandait pas de redescendre les
+touches — la question était « peut-on mettre le clavier tout en bas ? », et la
+réponse est NON tant qu'on veut des touches qui répondent : la bande appartient
+à Android. **Les deux se tiennent pourtant, en posant le rembourrage sur les
+RANGÉES et non sur le fond** (v222) : le fond GRANDIT d'autant, son décalage et
+sa translation suivent tout seuls, il reste collé au bord — et les touches
+montent avec lui. La sonde a départagé les quatre essais plutôt que de les
+supposer : le fond passe de 247 à 295 px et la rangée du bas de 7 à 55 px du
+bord (les 48 de la réserve plus les 8 de marge que les rangées avaient déjà),
+quand une MARGE sur ces mêmes rangées ne rendait que 47 px — elle REMPLACE la
+marge de 8 au lieu de s'y ajouter, et passait SOUS la réserve. Le pavé et les
+commandes gardent la leur : ce sont des cartes flottantes à coins arrondis,
+elles n'ont aucun bord à épouser, et aucun trou ne se voit sous elles.
+**Le contrôle du trou est au NAVIGATEUR, et lui seul peut le voir** : il mesure
+le bas du fond du clavier contre le bord de l'écran, dans les deux
+orientations. **Cinq sabotages de plus, et les deux du navigateur se
+répondent** — trois au banc jsdom (la marge revenue sur le fond, le
+rembourrage retiré, le profil resté sur `.MLK__backdrop`) ; et au navigateur,
+la marge revenue sur le fond ne fait rougir QUE le contrôle du trou (« trou
+sous le clavier : 48 px en paysage, 48 px en portrait ») pendant que les deux
+contrôles des touches restent verts — c'est exactement le défaut signalé —,
+quand le rembourrage retiré fait l'INVERSE (« 11 dans la bande : la touche
+« + » à 7 px du bord ») en laissant le contrôle du trou vert. Les deux
+propriétés se mesurent séparément, et aucune ne couvre l'autre.
+**Le bord OPPOSÉ compte autant, et il a son contrôle** : un niveau en
+« standalone » ne doit RIEN porter de tout cela — 48 px coûtés pour rien —, et
+un niveau qui passerait en plein écran sans réserve rougit aussitôt : le
+contrôle lit `manifeste.display` et `basSysteme` dans le MÊME profil et exige
+qu'ils aillent ensemble.
+**Deux bancs, la répartition habituelle.** jsdom tient les règles et la classe
+(la valeur comparée au profil, une seule déclaration non nulle et portée par
+la classe, chacun des trois meubles qui la LIT, la classe posée et retirée
+dans les deux sens, l'écouteur de la requête média). Le NAVIGATEUR
+(« 11 octies ») mesure ce que jsdom ne peut pas : il ouvre l'exercice SIGNALÉ,
+déploie le clavier et regarde ce qui reste dans la bande, en paysage puis en
+portrait, touche par touche et au RECTANGLE — plus `elementFromPoint` sur
+chaque centre, sans quoi une touche remontée mais RECOUVERTE passerait au
+vert. Et il mesure d'abord le bord opposé, dans un onglet : la rangée du bas y
+descend toujours à 7 px du bord — sans cette mesure, une réserve posée pour
+tout le monde passerait au vert.
+**CE QU'AUCUN BANC D'ICI NE PEUT DIRE, C'EST LA HAUTEUR DE LA BANDE.** 48 px
+est la valeur d'Android, pas une mesure prise sur la tablette de Turquet —
+aucun navigateur piloté ne reproduit ce que le système intercepte.
+`tests/diagnostic/bande-basse.html` existe pour cela, comme les trois pages de
+l'installation avant elle : son manifeste demande « fullscreen » comme la
+Première, elle empile sept barres à des hauteurs connues du bord et affiche le
+point le plus bas qu'une touche ait atteint. Si la première barre qui répond
+est plus haut que 48 px, c'est la réserve qu'il faut relever ; si tout répond
+dès le bord, la cause est ailleurs. C'est la règle du diagnostic, déjà payée
+sur l'installation : quand l'appareil dit le contraire du banc, on change de
+couche et on demande son avis à l'appareil.
+**Et la gêne d'à côté a été traitée le lendemain** (« occupe-toi du clavier
+qui recouvre les commandes ») — paragraphe ci-dessous.
+Quatorze sabotages, chacun rougissant en nommant son défaut — dix au banc
+jsdom (la réserve à zéro, à 24 px, chacun des trois meubles débranché, la
+classe posée partout, la classe qui ne se retire plus, `__appForce` ignoré,
+l'écouteur retiré, le profil qui ne déclare plus rien, la réserve qui fuit sur
+la Seconde) et quatre au navigateur, qui nomment la touche ET sa distance au
+bord (« la touche « + » à 7 px du bord »). Le sabotage du seul clavier laisse
+le contrôle du pavé VERT, et c'est la preuve que les trois meubles se mesurent
+séparément.
+
+**LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.** Demande de
+Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre les
+commandes ». La gêne était plus large que ce que j'en avais dit : la sonde l'a
+mesurée avant tout correctif, et « Signaler », « Abandonner » et « Mettre en
+pause » vivent ENTIÈREMENT sous le clavier ancré dès qu'il est déployé — sur
+les TROIS niveaux, dans les DEUX orientations, en mode application comme dans
+un onglet, et non « en paysage » seulement. Elles n'y sont pas seulement
+cachées : `elementFromPoint` rend une touche du clavier, donc elles sont
+INTOUCHABLES. Aucune erreur nulle part, le bouton ne répond simplement pas.
+**LA PLACE ÉVIDENTE A ÉTÉ ÉCARTÉE PAR LA MESURE** : posées juste AU-DESSUS du
+clavier, les commandes deviennent atteignables — mais elles recouvrent la
+ligne où l'élève écrit, 4 mesures sur 6. La case d'une rédaction est pleine
+largeur et MathLive l'amène au ras du clavier : il n'y a pas de place entre
+les deux. C'est l'objection de la bulle « Comprendre mon erreur », qui ne
+recouvre ni la case qu'on remplit ni les commandes du bas — ici elle écarte un
+correctif qui marchait.
+**LE COIN HAUT EST LE SEUL LIBRE, et c'est mesuré, pas supposé** : dix-huit
+configurations (trois niveaux × deux orientations × onglet et mode
+application), page défilée comme remontée, rien sous les commandes et jamais
+de chevauchement avec la case. Une seule CLASSE suffit donc
+(`body.clavier-ouvert`), sans mesurer la hauteur du clavier : le haut est
+libre quelle que soit sa forme, compacte ou non.
+**La fenêtre FLOTTANTE de l'ordinateur ne les déplace pas** : elle ne recouvre
+rien (`window.__kbFloating`). Et la classe est posée dans `pinKbToViewport`
+plutôt que sur un écouteur de plus — elle est déjà rappelée à chaque instant
+où la géométrie du clavier change (déploiement, repli, `geometrychange`,
+redimensionnement, rotation) : un écouteur de plus aurait été une seconde
+liste à tenir.
+**L'ORDRE de la règle CSS compte, et c'est le bord silencieux** : à
+spécificité égale (`body.pave-actif #testCtrls` et `body.clavier-ouvert
+#testCtrls` pèsent pareil), c'est la position dans la feuille qui tranche.
+Écrite plus haut, notre règle ne ferait RIEN — aucune erreur, aucune classe
+manquante, les commandes simplement restées sous le clavier. Le contrôle jsdom
+l'exige donc explicitement.
+**Deux bancs, la répartition habituelle.** jsdom tient la mécanique : la règle
+existe et pose `top` et `bottom:auto`, elle vient après celles de
+`pave-actif`, la classe suit le clavier dans les deux sens et jamais sur la
+fenêtre flottante (`clavierHaut` ÉVALUÉE depuis la source — le clavier vit
+dans la greffe module, que jsdom ne sait pas charger), et `pinKbToViewport`
+l'APPELLE : une fonction juste que personne n'appelle est la moitié morte du
+correctif. Le NAVIGATEUR (« 11 nonies ») mesure ce que jsdom ne peut pas
+voir — clavier déployé, aucune commande sous lui, toutes atteignables au
+centre, aucune sur la case — et le bord OPPOSÉ : clavier refermé, elles
+redescendent au bas de l'écran, sans quoi des commandes montées pour de bon
+passeraient au vert.
+**Neuf sabotages, chacun rougissant en nommant son défaut** — six au banc
+jsdom, trois au navigateur, dont celui de la place écartée, qui répond
+« recouvre la case où l'élève écrit », et celui de la règle retirée, qui
+chiffre la rechute (« signalBtn dépasse de 125 px sous le haut du clavier »,
+231 px en portrait). **Et l'un d'eux a renforcé le contrôle AVANT la page** :
+« la classe reste posée une fois le clavier refermé » passait au VERT parce
+que le double du banc repartait d'une mémoire de classes NEUVE à chaque tour —
+une fonction qui ne saurait qu'AJOUTER y était inatteignable. La séquence se
+joue sur un seul état désormais, et le faux `classList` connaît `add` et
+`remove` en plus de `toggle` : sans eux, le sabotage échouait sur une méthode
+absente du double et nommait un autre défaut que le sien. Un dernier a
+d'abord semblé ne frapper que le VOISIN — la classe posée en permanence
+déplace les commandes sur tous les écrans, et les contrôles du pavé rougissent
+les premiers : rejoué en lisant TOUTES les lignes rouges, le contrôle visé
+rougit bien lui aussi (« la plus haute est à 730 px du bas : elles ne sont pas
+redescendues »).
 
 ## Fiches imprimées (`.docx`)
 

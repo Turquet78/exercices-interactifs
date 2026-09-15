@@ -4849,6 +4849,127 @@ async function parcours(page, N){
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
+       Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.10. Deux choses ne
+       se voient QUE dans un vrai navigateur, et elles portent l'exercice.
+       · LA SÉRIALISATION RÉELLE DE MATHLIVE. La voie que Turquet a nommée —
+         « une simplification de fraction pour trouver un % suffit » — passe
+         par une FRACTION tapée au clavier, que la page relit par toPlain
+         avant de la donner à son juge. Une barre de fraction qui ressortirait
+         autrement, et le juge s'ABSTIENDRAIT : le modèle déciderait seul,
+         sans que rien ne rougisse. jsdom n'a pas MathLive : il pose des
+         chaînes qu'il a écrites lui-même, donc il ne mesure pas cela.
+       · LE JUGE DE LA PAGE PRIME. Le double du banc répond toujours
+         « correct:false » : une copie juste doit valoir son point quand même,
+         et c'est la phrase du juge qui s'affiche, jamais la prose du modèle.
+       On tape donc pour de vrai les deux voies — le quotient sur « prendre
+       P % », le coefficient puis l'addition sur une hausse — et on relit le
+       verdict, la note et la couleur des lignes. */
+    titre('6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE : LA FEUILLE LUE PAR LE JUGE');
+    if(!P.syntheseRedigee){
+      ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+      ignorer('la voie du coefficient puis de l\'addition vaut aussi son point',
+        'ce niveau n\'a pas la synthèse des pourcentages rédigée');
+    } else if(!ml){
+      ignorer('la fraction tapée est lue par le juge, et le juge prime sur le modèle', 'MathLive absent');
+      ignorer('la voie du coefficient puis de l\'addition vaut aussi son point', 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.syntheseRedigee.exercice);
+      await s.page.waitForTimeout(400);
+      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.waitForTimeout(1300);
+
+      /* ÉTAPE 1 : « prendre P % », retrouver le pourcentage — le QUOTIENT.
+         La question est un VRAI tirage (genSyn), pas une question inventée :
+         une copie qui ne collerait pas à la question tirée serait refusée à
+         bon droit, et le banc mesurerait autre chose. On cherche seulement un
+         résultat ENTIER, pour que le banc tape ce qu'un élève tape. */
+      const q1 = await s.page.evaluate(() => {
+        let q = null;
+        for(let i = 0; i < 400; i++){ const c = genSyn('pct', 'pct'); if(Number.isInteger(c.result)){ q = c; break; } }
+        if(!q) return { manque: 'aucun tirage « prendre P % » à résultat entier en 400 essais' };
+        test.questions[test.idx] = q; test.locked = false; renderSal();
+        return { N: q.N, P: q.P, res: q.result, bon: q.bon };
+      });
+      await s.page.waitForTimeout(800);
+      let dits1 = [];
+      if(q1.manque){ dits1.push(q1.manque); }
+      else {
+        await s.page.click('#salc' + q1.bon);
+        await s.page.waitForTimeout(150);
+        await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+          try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+        await s.page.waitForTimeout(150);
+        /* L'ESPACE SORT DE LA FRACTION — la convention de MathLive, déjà payée
+           sur la feuille du 4.5 : sans elle, tout ce qui suit tombe dans le
+           dénominateur et le banc écrit du charabia en accusant la page. */
+        await s.page.keyboard.type(q1.res + '/' + q1.N + ' =' + q1.P + '/100 ', { delay: 40 });
+        await s.page.waitForTimeout(350);
+        const lu = await s.page.evaluate(() => {
+          const t = salFeuille.lire();
+          return { texte: t, lisible: !!salExpr(String(t).split('=')[0] || '') };
+        });
+        if(!lu.lisible) dits1.push('la fraction tapée ressort illisible pour le juge : « ' + lu.texte + ' »');
+        await s.page.click('#salActions .btn-primary');
+        await s.page.waitForTimeout(1200);
+        const v1 = await s.page.evaluate(() => {
+          const fb = document.getElementById('salFeedback');
+          const l0 = salFeuille.lignes[0].mf;
+          return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '',
+                   score: test.score, ligne: l0 ? l0.className : '' };
+        });
+        if(v1.classe.indexOf('good') < 0)
+          dits1.push('le quotient tapé n\'est pas accepté : « ' + v1.texte.slice(0, 120) + ' »');
+        if(v1.score !== 1) dits1.push('la note ne compte pas la question : score ' + v1.score);
+        if(/Réponse de contrôle/.test(v1.texte))
+          dits1.push('c\'est la prose du modèle qui s\'affiche, alors qu\'il conteste le verdict de la page');
+        if(v1.ligne.indexOf('ok') < 0)
+          dits1.push('la ligne juste ne se peint pas en bleu : classes « ' + v1.ligne + ' »');
+      }
+      verifier('la fraction tapée est lue par le juge, et le juge prime sur le modèle',
+        dits1.length === 0, dits1.slice(0, 3).join(' | '));
+
+      /* ÉTAPE 2 : une HAUSSE — le coefficient, puis l'addition sur deux lignes. */
+      let dits2 = [];
+      const q2 = await s.page.evaluate(() => {
+        const q = genSyn('aug', 'fin');
+        test.questions[test.idx] = q; test.locked = false; test.salBusy = false; renderSal();
+        q.choisi = q.bon;
+        const c = salCouple(q);
+        return { bon: q.bon, N: c.N, pDec: c.pDecStr, aug: c.augStr, fin: c.finStr };
+      });
+      await s.page.waitForTimeout(800);
+      await s.page.click('#salc' + q2.bon);
+      await s.page.waitForTimeout(150);
+      await s.page.evaluate(() => { const m = salFeuille.lignes[0].mf; m.focus();
+        try{ m.executeCommand('moveToMathfieldEnd'); }catch(e){} });
+      await s.page.waitForTimeout(150);
+      await s.page.keyboard.type(q2.pDec + '*' + q2.N + '=' + q2.aug, { delay: 30 });
+      await s.page.keyboard.press('Enter');
+      await s.page.waitForTimeout(350);
+      await s.page.keyboard.type(q2.N + '+' + q2.aug + '=' + q2.fin, { delay: 30 });
+      await s.page.waitForTimeout(300);
+      const lu2 = await s.page.evaluate(() => salFeuille.lire());
+      if(String(lu2).split('\n').filter(function(l){ return l.trim() !== ''; }).length < 2)
+        dits2.push('Entrée n\'a pas ajouté de seconde ligne : « ' + String(lu2).replace(/\n/g, ' ⏎ ') + ' »');
+      await s.page.click('#salActions .btn-primary');
+      await s.page.waitForTimeout(1200);
+      const v2 = await s.page.evaluate(() => {
+        const fb = document.getElementById('salFeedback');
+        return { classe: fb ? fb.className : '', texte: fb ? String(fb.textContent || '') : '', score: test.score };
+      });
+      if(v2.classe.indexOf('good') < 0)
+        dits2.push('la voie du coefficient puis de l\'addition n\'est pas acceptée : « ' + v2.texte.slice(0, 120) + ' »');
+      verifier('la voie du coefficient puis de l\'addition vaut aussi son point',
+        dits2.length === 0, dits2.slice(0, 3).join(' | '));
+      verifier('l\'écran de la synthèse rédigée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
     /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
        l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui
@@ -7323,8 +7444,11 @@ async function parcours(page, N){
        de lui-même, politique « auto »), on compte les rangées rendues, on
        exige des touches encore touchables et aucun débord, on CLIQUE la vraie
        touche ⏎ — une ligne de plus, le curseur dedans, le clavier toujours
-       là — puis on tourne en portrait, où les rangées de la forme normale
-       reviennent. */
+       là — puis on tourne en PORTRAIT, où le clavier prend sa forme de portrait
+       (trois rangées sur une tablette, demande de Turquet, septembre 2026 :
+       « en mode portrait, que le clavier tienne sur 3 lignes au lieu de 4 »),
+       et enfin on rétrécit à la taille d'un TÉLÉPHONE, où les rangées
+       d'origine reviennent : la forme courte ne doit pas y fuir. */
     titre('11 quinquies. LE CLAVIER MATHÉMATIQUE SUR UNE TABLETTE EN PAYSAGE');
     if(!(P.clavierEcran && P.clavierEcran.paysage)){
       ignorer('sur une tablette en paysage, le clavier mathématique tient sur moins de rangées', 'ce fichier ne déclare pas de clavier de paysage');
@@ -7383,15 +7507,45 @@ async function parcours(page, N){
             : apres.lignes !== pay.lignes + 1 ? pay.lignes + ' ligne(s) avant, ' + apres.lignes + ' après : la touche ne passe pas à la ligne'
             : apres.focus !== pay.lignes ? 'la nouvelle ligne n\'a pas le curseur (ligne active : ' + apres.focus + ')'
             : 'le clavier s\'est refermé');
-        /* et en portrait, la forme normale revient : plus de rangées */
+        /* et tournée en PORTRAIT, la forme du portrait : trois rangées sur une
+           tablette (clavierEcran.portraitTablette, deux sources), les rangées
+           de la forme normale là où rien n'est déclaré */
         await s.page.setViewportSize({ width: 768, height: 1024 });
         await s.page.waitForTimeout(1200);
+        const KP = K.portraitTablette || null;
         const por = await s.page.evaluate(mesurerRangees, arg);
-        verifier('tournée en portrait, la tablette retrouve les rangées de la forme normale du clavier',
-          por.visible && por.rangees > KL.rangees && !!por.entree && por.debord <= 1,
+        verifier(KP ? 'tournée en portrait, la tablette tient sur ' + KP.rangees + ' rangées, touches touchables, sans débord'
+                    : 'tournée en portrait, la tablette retrouve les rangées de la forme normale du clavier',
+          por.visible && !!por.entree && por.debord <= 1
+            && (KP ? (por.rangees === KP.rangees && por.hMin >= 36) : por.rangees > KL.rangees),
           !por.visible ? 'le clavier s\'est refermé à la rotation'
-            : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage)' + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
+            : por.rangees + ' rangée(s) rendue(s) en portrait (' + KL.rangees + ' en paysage), '
+              + por.touches + ' touches, plaque ' + por.plaque + ' px = ' + por.part + ' % de l\'écran'
+              + ', touche la plus basse ' + por.hMin + ' px'
+              + (por.entree ? '' : ', et plus de touche « ' + K.entree + ' »')
               + (por.debord > 1 ? ', DÉBORDE de ' + por.debord + ' px' : ''));
+        console.log('   · la plaque du clavier : ' + pay.plaque + ' px en paysage (' + pay.rangees + ' rangées), '
+          + por.plaque + ' px en portrait (' + por.rangees + ' rangées), sur un écran de ' + por.part + ' %');
+        /* le bord opposé, et il compte autant : un TÉLÉPHONE en portrait garde
+           les rangées d'origine — huit touches sur une rangée de 390 px ne se
+           toucheraient plus. Une forme courte qui fuirait sur le téléphone
+           passerait inaperçue sans cette mesure. */
+        if(KP){
+          await s.page.setViewportSize({ width: 390, height: 844 });
+          await s.page.waitForTimeout(1200);
+          const tel = await s.page.evaluate(mesurerRangees, arg);
+          verifier('sur un téléphone en portrait, les ' + KP.telephone + ' rangées d\'origine reviennent : la forme courte ne fuit pas',
+            tel.visible && tel.rangees === KP.telephone && tel.debord <= 1,
+            !tel.visible ? 'le clavier s\'est refermé au changement de taille'
+              : tel.rangees + ' rangée(s) rendue(s) sur un téléphone en portrait (' + KP.telephone + ' attendues)'
+                + (tel.debord > 1 ? ', DÉBORDE de ' + tel.debord + ' px' : ''));
+          /* et on REND la tablette : ce qui suit mesure la tablette, et l'a
+             mesurée à 390 px de large tant que ce détour n'était pas défait —
+             une feuille restée grande parce que la page était devenue un
+             téléphone. */
+          await s.page.setViewportSize({ width: 768, height: 1024 });
+          await s.page.waitForTimeout(700);
+        }
         /* la feuille écrit plus PETIT sur la tablette (feuilleTablette) : police
            rendue de la case au plus pxMax — et, sur un ordinateur ouvert au même
            exercice, plus grande : une règle qui réduirait partout ne serait pas
@@ -7510,6 +7664,234 @@ async function parcours(page, N){
             + ', attendu ' + P.policeTablette / 100 + ')');
       verifier('la chaîne réduite ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 nonies. Le clavier ancré déployé ne recouvre plus les commandes ----
+       Signalé par Turquet (septembre 2026) : « occupe-toi du clavier qui
+       recouvre les commandes ». Mesuré avant tout correctif sur les TROIS
+       niveaux, dans les deux orientations : « Signaler », « Abandonner » et
+       « Mettre en pause » vivaient ENTIÈREMENT sous le clavier ancré et y
+       étaient INTOUCHABLES (elementFromPoint rend une touche du clavier) —
+       aucune erreur nulle part, le bouton ne répondait simplement pas.
+       jsdom lit la règle et la classe ; seul un navigateur sait OÙ tombe un
+       bouton. Trois bords, et il les faut tous les trois : clavier déployé,
+       aucune commande sous lui et toutes atteignables ; aucune ne recouvre la
+       CASE où l'élève écrit — c'est ce qui a écarté la place « juste au-dessus
+       du clavier », la leçon de la bulle « Comprendre mon erreur » ; et
+       clavier REFERMÉ, elles redescendent au bas de l'écran, sans quoi une
+       règle qui les monterait pour de bon passerait au vert. */
+    titre('11 nonies. LE CLAVIER ANCRÉ DÉPLOYÉ NE RECOUVRE PLUS LES COMMANDES');
+    {
+      const KE = P.clavierEcran || {};
+      const E = [KE.paysage, KE.tablette, KE.portrait].find(x => x && x.exercice && x.champ);
+      if(!E){
+        ignorer('le clavier ancré déployé ne recouvre plus les commandes du bas',
+                'ce fichier ne déclare aucun écran à clavier mathématique');
+      } else {
+        /* ce que chaque commande devient : sous le clavier ? atteignable ?
+           par-dessus la case où l'élève écrit ? */
+        const mesurer = () => {
+          const H = innerHeight;
+          const kb = document.querySelector('body > .ML__keyboard .MLK__backdrop');
+          const haut = kb ? kb.getBoundingClientRect().top : null;
+          const a = document.activeElement;
+          const c = (a && a.tagName === 'MATH-FIELD') ? a.getBoundingClientRect() : null;
+          const tc = document.getElementById('testCtrls');
+          const out = { deploye: !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible),
+                        haut: haut === null ? null : Math.round(haut), casePresente: !!c,
+                        sous: [], sourdes: [], surCase: [], bas: [] };
+          if(tc && !tc.hidden) [...tc.querySelectorAll('button')].forEach(b => {
+            const r = b.getBoundingClientRect();
+            if(r.width < 2 || r.height < 2) return;
+            out.bas.push(Math.round(H - r.bottom));
+            if(haut !== null && r.bottom > haut) out.sous.push('« ' + b.id + ' » dépasse de ' + Math.round(r.bottom - haut) + ' px sous le haut du clavier');
+            const e = document.elementFromPoint(Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2));
+            if(!(e === b || b.contains(e))) out.sourdes.push('« ' + b.id + ' » recouverte par ' + ((e && (e.className || e.tagName)) || '?').toString().trim().slice(0, 30));
+            if(c && !(r.right < c.left || r.left > c.right || r.bottom < c.top || r.top > c.bottom))
+              out.surCase.push('« ' + b.id + ' » recouvre la case où l\'élève écrit');
+          });
+          return out;
+        };
+        for(const vue of [{ n: 'paysage', w: 1024, h: 768 }, { n: 'portrait', w: 768, h: 1024 }]){
+          s = await ouvrir(chromium, ml, { viewport: { width: vue.w, height: vue.h }, hasTouch: true });
+          if(await connecter(s.page) !== 'scr-space'){
+            ignorer('le clavier ancré déployé ne recouvre plus les commandes du bas (' + vue.n + ')', 'connexion impossible');
+          } else {
+            await s.page.evaluate(i => openTest(i), E.exercice);
+            await s.page.waitForTimeout(300);
+            await s.page.evaluate(() => {
+              const b = [...document.querySelectorAll('#modeChoices button')]
+                .find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0);
+              if(b) b.click();
+            });
+            await s.page.waitForTimeout(800);
+            await s.page.click(E.champ);
+            await s.page.waitForTimeout(900);
+            const ouvert = await s.page.evaluate(mesurer);
+            verifier('clavier déployé (' + vue.n + ') : aucune commande sous le clavier, toutes atteignables, aucune sur la case',
+              ouvert.deploye && ouvert.haut !== null && ouvert.bas.length > 0
+                && ouvert.sous.length === 0 && ouvert.sourdes.length === 0 && ouvert.surCase.length === 0,
+              !ouvert.deploye ? 'le clavier ne se déploie pas' : ouvert.haut === null ? 'aucun clavier rendu'
+                : !ouvert.bas.length ? 'aucune commande affichée'
+                : [].concat(ouvert.sous, ouvert.sourdes, ouvert.surCase).slice(0, 3).join(' ; '));
+            /* LE BORD OPPOSÉ : refermé, le clavier leur rend le bas de l'écran.
+               Sans cette mesure, des commandes montées pour de bon passeraient. */
+            await s.page.evaluate(() => { try{ mathVirtualKeyboard.hide(); }catch(e){} document.activeElement.blur(); });
+            await s.page.waitForTimeout(600);
+            const ferme = await s.page.evaluate(mesurer);
+            verifier('clavier refermé (' + vue.n + ') : les commandes redescendent au bas de l\'écran',
+              !ferme.deploye && ferme.bas.length > 0 && Math.max.apply(null, ferme.bas) <= 120,
+              ferme.deploye ? 'le clavier ne se referme pas' : !ferme.bas.length ? 'aucune commande affichée'
+                : 'la plus haute est à ' + Math.max.apply(null, ferme.bas) + ' px du bas : elles ne sont pas redescendues');
+          }
+          await s.nav.close(); s = null;
+        }
+      }
+    }
+
+    /* ---- 11 octies. En mode application, la bande du bas est rendue au système ----
+       Signalé par Turquet (septembre 2026) sur une tablette Samsung, la page
+       posée sur l'écran d'accueil : « la ligne la plus basse du clavier virtuel
+       ne fonctionne pas, les caractères ne s'affichent pas — en portrait comme
+       en paysage ». Mesuré avant tout correctif : cette rangée-là vivait à
+       7..49 px du bord BAS de l'écran en paysage (7..67 en portrait), c'est-à-dire
+       dans les 48 dp qu'Android se réserve pour le geste de retour à l'accueil —
+       le système y prend les touches, et rien n'arrive à la page. La Première
+       est le seul niveau à demander « fullscreen » : elle dessine jusqu'au bord
+       physique, quand un onglet ou un niveau « standalone » s'arrête au-dessus
+       de la barre du système.
+       jsdom lit les règles et la classe ; seul un navigateur sait OÙ une touche
+       tombe une fois la page rendue. Trois mesures, et il les faut toutes : en
+       mode application, plus rien de ce qui se touche ne descend dans la bande
+       — ni le clavier ancré, ni les commandes, ni le pavé — et les touches
+       restent atteignables ; et SANS mode application, la rangée du bas y
+       descend toujours, sans quoi la règle coûterait 48 px à tout le monde et
+       ne serait pas la règle demandée. */
+    titre('11 octies. EN MODE APPLICATION, LA BANDE DU BAS EST RENDUE AU SYSTÈME');
+    if(!P.basSysteme){
+      ignorer('en mode application, rien de ce qui se touche ne descend dans la bande du système',
+              'ce niveau ne demande pas le plein écran');
+    } else {
+      const B = P.basSysteme;
+      /* ce qui descend dans les « px » derniers pixels de l'écran, et ce qui
+         n'est plus atteignable au doigt (elementFromPoint sur le centre) */
+      const mesurer = px => {
+        const H = window.innerHeight, dans = [], sourds = [];
+        const vis = e => { const r = e.getBoundingClientRect(); return r.width > 2 && r.height > 2; };
+        const regarde = (nom, el, doigt) => {
+          const r = el.getBoundingClientRect(), reste = Math.round(H - r.bottom);
+          if(reste < px) dans.push(nom + ' à ' + reste + ' px du bord');
+          if(doigt){
+            const e = document.elementFromPoint(Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2));
+            if(!(e === el || el.contains(e))) sourds.push(nom);
+          }
+        };
+        const kb = document.querySelector('body > .ML__keyboard');
+        let touches = 0;
+        if(kb) [...kb.querySelectorAll('.MLK__rows > .MLK__row > *')].filter(vis).forEach(c => {
+          touches++; regarde('la touche « ' + (c.textContent || '?').trim().slice(0, 3) + ' »', c, true); });
+        const tc = document.getElementById('testCtrls');
+        let commandes = 0;
+        if(tc && !tc.hidden) [...tc.querySelectorAll('button')].filter(vis).forEach(b => {
+          commandes++; regarde('la commande « ' + b.id + ' »', b, false); });
+        const pv = document.getElementById('paveNum');
+        let pave = 0;
+        if(pv && !pv.hidden) [...pv.querySelectorAll('.pave-t')].filter(vis).forEach(b => {
+          pave++; regarde('la touche « ' + b.textContent.trim() + ' » du pavé', b, true); });
+        /* le FOND du clavier : ce qui se voit. Il doit rester collé au bord
+           pendant que les touches remontent — sans quoi l'élève a une bande
+           de page sous son clavier (le « trou » signalé en septembre 2026). */
+        const fd = kb && kb.querySelector('.MLK__backdrop');
+        const fond = fd ? Math.round(H - fd.getBoundingClientRect().bottom) : null;
+        return { H, touches, commandes, pave, dans, sourds, fond,
+                 modeApp: document.body.classList.contains('mode-app'),
+                 clavier: !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible) };
+      };
+      s = await ouvrir(chromium, ml, { viewport: { width: 1024, height: 768 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('en mode application, rien de ce qui se touche ne descend dans la bande du système', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), B.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')]
+            .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(800);
+        await s.page.click(B.champ);
+        await s.page.waitForTimeout(900);
+        /* LE BORD OPPOSÉ D'ABORD, dans un onglet : la rangée du bas descend
+           bien dans la bande — la réserve ne coûte rien à qui n'est pas en
+           mode application. Sans cette mesure, une réserve posée pour tout le
+           monde passerait au vert. */
+        const onglet = await s.page.evaluate(mesurer, B.px);
+        verifier('hors mode application, la page descend jusqu\'au bord — la réserve ne coûte rien à un onglet',
+          onglet.clavier && !onglet.modeApp && onglet.touches > 0 && onglet.dans.length > 0,
+          !onglet.clavier ? 'le clavier ne se déploie pas' : onglet.modeApp ? 'la page se croit déjà en mode application'
+            : !onglet.touches ? 'aucune touche rendue' : 'rien ne descend dans les ' + B.px + ' derniers pixels : la réserve s\'applique partout');
+        await s.page.evaluate(() => { window.__appForce = true; modeAppSuivre(); });
+        await s.page.waitForTimeout(400);
+        const pay = await s.page.evaluate(mesurer, B.px);
+        verifier('en mode application, paysage : aucune touche du clavier ne descend dans les ' + B.px + ' px du système, et toutes restent atteignables',
+          pay.modeApp && pay.clavier && pay.touches > 0 && pay.dans.length === 0 && pay.sourds.length === 0,
+          !pay.modeApp ? 'la classe « mode-app » n\'est pas posée' : !pay.clavier ? 'le clavier s\'est refermé'
+            : !pay.touches ? 'aucune touche rendue'
+            : (pay.dans.length ? pay.dans.length + ' dans la bande : ' + pay.dans.slice(0, 3).join(', ') : '')
+              + (pay.sourds.length ? ' ; ' + pay.sourds.length + ' touche(s) recouverte(s) : ' + pay.sourds.slice(0, 3).join(', ') : ''));
+        /* et en portrait, où la rangée du bas est une autre (0 , = % ⏎) */
+        await s.page.setViewportSize({ width: 768, height: 1024 });
+        await s.page.waitForTimeout(1400);
+        const por = await s.page.evaluate(mesurer, B.px);
+        verifier('en mode application, portrait : la rangée du bas du clavier est hors de la bande du système',
+          por.modeApp && por.clavier && por.touches > 0 && por.dans.length === 0 && por.sourds.length === 0,
+          !por.clavier ? 'le clavier s\'est refermé à la rotation'
+            : (por.dans.length ? por.dans.length + ' dans la bande : ' + por.dans.slice(0, 3).join(', ') : '')
+              + (por.sourds.length ? ' ; ' + por.sourds.length + ' touche(s) recouverte(s) : ' + por.sourds.slice(0, 3).join(', ') : ''));
+        /* ET LE FOND DU CLAVIER RESTE AU RAS DU BORD, dans les deux
+           orientations. C'est ce qui sépare ce correctif de la v221, qui
+           remontait le clavier EN BLOC : les touches étaient déjà hors de la
+           bande, mais une bande de page se voyait dessous. Une marge revenue
+           sur le fond fait rougir ce contrôle-ci et passer les deux autres —
+           c'est exactement le défaut signalé. */
+        verifier('en mode application, le fond du clavier reste collé au bord de l\'écran : aucun trou sous le clavier',
+          pay.fond !== null && por.fond !== null && pay.fond <= 1 && por.fond <= 1,
+          pay.fond === null || por.fond === null ? 'aucun fond de clavier rendu'
+            : 'trou sous le clavier : ' + pay.fond + ' px en paysage, ' + por.fond + ' px en portrait');
+
+        /* LES DEUX AUTRES MEUBLES DU BAS : les commandes et le pavé numérique.
+           Le clavier ancré les recouvre tant qu'il est déployé — on ouvre donc
+           un exercice à cases, où c'est le pavé compact qui paraît, et en
+           PAYSAGE, la seule orientation où il descend au ras du bas. */
+        let pv = null;
+        if(P.pave && P.pave.maths){
+          await s.page.setViewportSize({ width: 1024, height: 768 });
+          await s.page.waitForTimeout(600);
+          await s.page.evaluate(() => { try{ mathVirtualKeyboard.hide(); }catch(e){} });
+          await s.page.evaluate(i => openTest(i), P.pave.maths.exercice);
+          await s.page.waitForTimeout(300);
+          await s.page.evaluate(() => {
+            const b = [...document.querySelectorAll('#modeChoices button')]
+              .find(x => (x.getAttribute('onclick') || '').indexOf("train") >= 0);
+            if(b) b.click();
+          });
+          await s.page.waitForTimeout(800);
+          await s.page.evaluate(() => { window.__paveForce = true; window.__appForce = true; paveObserver(); modeAppSuivre(); });
+          await s.page.click(P.pave.maths.champ);
+          await s.page.waitForTimeout(500);
+          pv = await s.page.evaluate(mesurer, B.px);
+        }
+        verifier('en mode application, le pavé numérique et les commandes du bas sortent eux aussi de la bande',
+          !!pv && pv.modeApp && pv.pave > 0 && pv.commandes > 0 && pv.dans.length === 0 && pv.sourds.length === 0,
+          !pv ? 'ce niveau ne confie aucune case mathématique au pavé'
+            : !pv.pave ? 'le pavé ne s\'ouvre pas sur la case déclarée'
+            : !pv.commandes ? 'aucune commande du bas affichée'
+            : (pv.dans.length ? pv.dans.length + ' dans la bande : ' + pv.dans.slice(0, 3).join(', ') : '')
+              + (pv.sourds.length ? ' ; ' + pv.sourds.length + ' touche(s) recouverte(s) : ' + pv.sourds.slice(0, 3).join(', ') : ''));
+        verifier('la réserve du mode application ne lève aucune erreur JavaScript',
+          s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
       await s.nav.close(); s = null;
     }
 
