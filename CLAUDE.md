@@ -5382,6 +5382,69 @@ dans une expression régulière du contrôle ne survit pas au template littéral
 `verifier.js` — « Invalid regular expression: /openTheme(/ », sur les trois
 niveaux d'un coup. Le contrôle compare des CHAÎNES, jamais une regex.
 
+**Puis l'étage des PARTIES est venu, et c'est le thème des Fonctions qui l'a
+réclamé.** Demande de Turquet (septembre 2026) : « dans le thème fonctions en
+seconde créer des sous-thèmes "images et antécédents" ; "équations et
+inéquations" ; "tableaux de signes et de variations" ; "maximum, minimum et
+encadrement" ; "exercices de synthèses" ». Le paragraphe ci-dessus racontait
+l'arbitrage avec les mots de son époque — « aucun thème de la Seconde n'en
+déclare », et « le jour où un thème en aura, elle se portera avec lui » : ce
+jour est arrivé, et la branche s'est portée telle quelle. Le thème avait
+vingt-cinq exercices sur une seule page à faire défiler.
+**RIEN N'EST RECOPIÉ : c'est le motif de la Première, porté** — `sous` dans
+`THEMES`, la liste PLATE reconstruite juste après (`t.ids`), la numérotation à
+deux ou trois niveaux selon que le thème déclare des parties, `scr-soustheme`,
+`openSousTheme()`, `retourTheme()`, `sousThemeOfTest()`, et `soustheme` ajouté à
+la bascule `menu-large`. **Tout le reste du fichier ne connaît que `t.ids`** —
+le tableau du professeur, les devoirs, la progression, « À retravailler »,
+`TEST_ORDER` — et n'a pas à savoir qu'il existe des parties : c'est ce qui rend
+le découpage court. La carte d'un exercice est sortie dans `carteExo()`, la
+MÊME sur la page d'un thème et sur celle d'une partie : deux fabriques auraient
+fini par diverger, et le même exercice se serait lu autrement d'une page à
+l'autre.
+**LE DÉCOUPAGE SUIT LE SUJET, JAMAIS LE MOTEUR**, et c'est ce qui départage les
+cas limites : {equation-graphique} et {lecture-deux-courbes} posent la même
+sorte de question sur deux courbes — le premier s'appelle « Équations
+graphiques » et va aux équations, le second « Lecture de deux courbes » et va
+aux images et antécédents ; {maximum-minimum-tableau} LIT un tableau de
+variation mais son sujet est le maximum, donc il quitte la partie des tableaux ;
+{construire-max-min} construit comme {construire-fonction} mais ses six
+consignes sont des maximums, des minimums et un encadrement, donc il les rejoint.
+L'élève lit le nom de la carte, pas le nom du générateur.
+**L'ORDRE À L'INTÉRIEUR DE CHAQUE PARTIE EST CELUI QU'ILS AVAIENT** : la
+progression pédagogique ne bouge pas d'une ligne, seul le découpage est neuf.
+Les notes déjà obtenues ne bougent pas non plus — elles portent l'IDENTIFIANT,
+jamais le numéro — et les renvois écrits `{identifiant}` suivent d'eux-mêmes.
+**CE QUE LE DÉCOUPAGE COÛTE SE NOMME** : trois contrôles exigeaient une
+ADJACENCE dans la liste plate, et deux d'entre elles traversaient une frontière
+de sujet — {construire-fonction} ne suit plus {ecrire-solutions}, et
+{tableau-equations} ne suit plus {maximum-minimum-tableau}. Les trois ont été
+RETOURNÉS vers la partie plutôt que retirés : {ecrire-solutions} suit
+{solutions-graphique} et FERME sa partie, {maximum-minimum} OUVRE la sienne avec
+{maximum-minimum-tableau} derrière lui, {tableau-equations} garde
+{tableau-vrai-faux} derrière lui. Un bord retiré ne dit plus rien ; un bord
+retourné dit la règle du jour.
+**Et le contrôle de la NAVIGATION a gagné l'étage qui manquait — il manquait
+aussi à la Première.** Il exigeait qu'une page de thème ne mêle pas parties et
+exercices ; il exige maintenant qu'un thème qui DÉCLARE des parties les MONTRE
+(sans ce bord, un `openTheme` revenu à la liste plate rend exactement le bon
+nombre de cartes et passe au vert en parlant d'autre chose), que CHAQUE partie
+ouvre sa page, qu'elle y liste SES exercices et rien d'autre, que « Retour »
+remonte à la page du thème, que `sousThemeOfTest` désigne la bonne partie et
+que `retourChoix` sache la rouvrir. Universel, donc la Première est couverte
+sans rien déclarer. Huit sabotages au banc jsdom, chacun rougissant en nommant
+son défaut, et un que seul le NAVIGATEUR voit : `soustheme` retiré de
+`menu-large` — il nomme les cinq parties une par une (« openSousTheme(2,1) :
+wrap 780 px »), jsdom restant vert à bon droit.
+**Et les numéros ÉCRITS du banc ont été repris — en identifiants, pas en
+numéros.** Vingt-cinq messages et noms de contrôle citaient un exercice du thème
+par son numéro (« le tableau du 2.1 », « le tirage du 2.15 ») et la moitié
+mentait déjà, figée sur une numérotation d'un autre mois. Ils s'écrivent
+`{identifiant}`, comme les contrôles voisins le faisaient déjà : un contrôle qui
+s'affiche sous le nom d'un autre est pire qu'un contrôle sans nom, et un numéro
+recopié ment tôt ou tard. Les COMMENTAIRES du banc, eux, gardent les numéros de
+leur époque — ils racontent l'histoire, comme les paragraphes de ce fichier.
+
 *Et les étapes étaient écrites en blocs séparés.* Le pourcentage passe de trois
 `pt-step` à un seul ; augmenter et diminuer de cinq à deux — le coefficient est
 une AUTRE égalité, elle garde son bloc — plus la pose facultative, renvoyée à la

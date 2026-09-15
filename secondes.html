@@ -131,6 +131,8 @@
      dessin des trois côtés, sans quoi le même écran se lirait autrement
      d'un niveau à l'autre. */
   .choice.themecard .ic.theme-ic{font-family:'Fredoka',sans-serif;font-weight:700;color:var(--blue);background:#EAF0FF;border-radius:12px;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;}
+  /* « 2.3 » tient trois caractères là où un numéro de thème n'en tient qu'un */
+  .choice.themecard .ic.theme-ic.sous-ic{font-size:1rem;letter-spacing:.01em}
   /* Regroupement par thèmes (menu élève) */
   .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
   .theme-block{display:flex;flex-direction:column;gap:14px}
@@ -1874,8 +1876,20 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
         <h2 class="title" style="margin:0" id="themeTitle">Thème</h2>
         <button class="btn-link" onclick="show('choose')">← Thèmes</button>
       </div>
-      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <p class="lead" id="themeLead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
       <div class="theme-list" id="themeChoices"></div>
+    </div>
+  </section>
+
+  <!-- EXERCICES D'UNE PARTIE DE THÈME (sous-thème) -->
+  <section class="screen" id="scr-soustheme">
+    <div class="card">
+      <div class="topbar">
+        <h2 class="title" style="margin:0" id="sousThemeTitle">Partie</h2>
+        <button class="btn-link" id="sousThemeRetour" onclick="retourTheme()">← Thème</button>
+      </div>
+      <p class="lead">Choisis un exercice. Ta dernière note /10 s'affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l'entraînement pour 10.</p>
+      <div class="theme-list" id="sousThemeChoices"></div>
     </div>
   </section>
 
@@ -3349,7 +3363,26 @@ const THEMES=[
      suivent la position ; les notes déjà obtenues portent l'IDENTIFIANT et ne
      bougent pas. */
   { num:1, nom:'Ensembles de nombres', ids:['ensembles-nombres','ensembles-nombres-2','definitions-ensembles','plus-petit-ensemble','intervalles-inegalite','intervalles','placer-intervalle','ordre-croissant','appartient-intervalle','appartient-intervalle-2'] },
-  { num:2, nom:'Fonctions', ids:['lecture-variations','tableau-variation','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','maximum-minimum','maximum-minimum-tableau','tableau-equations','tableau-vrai-faux','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction'] },
+  /* UN THÈME PEUT ÊTRE DÉCOUPÉ EN SOUS-THÈMES (demande de Turquet, septembre
+     2026, pour les Fonctions : « images et antécédents », « équations et
+     inéquations », « tableaux de signes et de variations », « maximum, minimum
+     et encadrement », « exercices de synthèse »). Ses exercices sont alors
+     numérotés sur TROIS niveaux — 2.3.1 = thème 2, partie 3, premier exercice —
+     et un thème sans sous-thème garde la numérotation à deux niveaux (1.4).
+     C'est le motif de la Première, porté tel quel : vingt-cinq exercices sur
+     une seule page à faire défiler, c'était tout le thème des Fonctions.
+     L'ordre des exercices À L'INTÉRIEUR de chaque partie est celui qu'ils
+     avaient : la progression pédagogique ne bouge pas, seul le découpage est
+     neuf. Les notes déjà obtenues ne bougent pas non plus — elles portent
+     l'IDENTIFIANT, jamais le numéro — et les renvois écrits {identifiant}
+     suivent d'eux-mêmes. */
+  { num:2, nom:'Fonctions', sous:[
+      { num:1, nom:'Images et antécédents',              ids:['image-nombre','placer-image','antecedent-nombre','antecedents-droite','lecture-deux-courbes'] },
+      { num:2, nom:'Équations et inéquations',            ids:['inequation-droite','inequation-graphique','equation-graphique','resolutions-graphiques','solutions-graphique','ecrire-solutions'] },
+      { num:3, nom:'Tableaux de signes et de variations', ids:['lecture-variations','tableau-variation','lecture-signes','tableau-signes-graphique','signes-variations','signes-variations-grand','tableau-equations','tableau-vrai-faux','choisir-tableau-variation'] },
+      { num:4, nom:'Maximum, minimum et encadrement',     ids:['maximum-minimum','maximum-minimum-tableau','construire-max-min'] },
+      { num:5, nom:'Exercices de synthèse',               ids:['construire-fonction','synthese-fonction'] }
+  ] },
   { num:3, nom:'Pourcentages', ids:['pourcentage','augmenter-pourcentage','diminuer-pourcentage'] },
   /* Le guid\u00e9 vient AVANT le libre : {croiser-denominateurs} montre d\u2019o\u00f9 vient
      chaque multiplicateur, {somme-fractions} laisse ensuite le choix du d\u00e9nominateur
@@ -3362,9 +3395,16 @@ const THEMES=[
      portent l'IDENTIFIANT, pas le numéro. */
   { num:4, nom:'Fractions', ids:['simplifier-barres','croiser-denominateurs','somme-fractions','simplifier-fractions','somme-fractions-libre','multiplier-fractions','multiplier-fractions-libre','diviser-fractions','diviser-fractions-libre'] }
 ];
-/* id du test -> numéro « thème.exercice » (ex. 'derivee-exp' -> '1.1') */
+/* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
+   reste du fichier — côté prof, comptages, devoirs, progression, rattrapage —
+   ne connaît que celle-là et n'a pas à savoir qu'il existe des sous-thèmes. */
+THEMES.forEach(t=>{ if(t.sous) t.ids=t.sous.reduce((a,st)=>a.concat(st.ids),[]); });
+/* id du test -> numéro « thème.exercice », ou « thème.partie.exercice » */
 const TEST_NUM={};
-THEMES.forEach(t=>{ t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); }); });
+THEMES.forEach(t=>{
+  if(t.sous) t.sous.forEach(st=>st.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+st.num+'.'+(i+1); }));
+  else t.ids.forEach((id,i)=>{ TEST_NUM[id]=t.num+'.'+(i+1); });
+});
 /* Ordre global des tests (suit l'ordre des thèmes) — utilisé côté prof */
 const TEST_ORDER=THEMES.reduce((a,t)=>a.concat(t.ids),[]);
 let teacherFilter='all';
@@ -4894,10 +4934,12 @@ function progBarHTML(){
    nombre déjà travaillés ; le détail vit sur sa propre page (scr-theme),
    ouverte par openTheme(). Les quarante-six exercices tenaient sinon sur une
    seule page à faire défiler.
-   C'est le motif de la Première et de la Terminale, porté tel quel — SANS
-   l'étage des parties (sous-thèmes) : aucun thème de la Seconde n'en déclare,
-   et une branche qui n'a jamais rien à rendre ferait croire qu'on tient
-   quelque chose. Le jour où un thème en aura, elle se portera avec lui. */
+   C'est le motif de la Première et de la Terminale, porté tel quel — et
+   l'étage des PARTIES est venu avec lui le jour où un thème en a eu besoin
+   (les Fonctions, septembre 2026) : scr-theme n'y montre que les parties,
+   et les exercices de la partie choisie s'ouvrent sur scr-soustheme, par
+   openSousTheme(). Un thème qui ne déclare pas de partie liste ses exercices
+   comme avant, et rien n'a bougé pour lui. */
 function renderChooser(results){
   results=results||mesResultats||[];
   const cards=THEMES.map(th=>{
@@ -4912,27 +4954,66 @@ function renderChooser(results){
     ? '<div class="choices">'+cards+'</div>'
     : '<div class="empty">Aucun exercice pour le moment. Reviens bientôt !</div>';
 }
-let currentThemeNum=null;
+let currentThemeNum=null, currentSousNum=null;
 function themeOfTest(id){ const th=THEMES.find(t=>t.ids.indexOf(id)>=0); return th?th.num:null; }
-/* Ouvre la page des exercices interactifs du thème choisi. Le numéro de chaque
-   exercice se déduit de sa POSITION, comme partout : une réorganisation le
-   suit toute seule. */
+/* La partie (sous-thème) qui contient l'exercice, ou null : sert à revenir sur
+   la bonne page après un exercice ouvert depuis « À retravailler » ou un devoir. */
+function sousThemeOfTest(id){
+  let trouve=null;
+  THEMES.forEach(t=>{ if(!t.sous) return; t.sous.forEach(st=>{ if(st.ids.indexOf(id)>=0) trouve={theme:t.num, sous:st.num}; }); });
+  return trouve;
+}
+/* Carte d'un exercice : le MÊME dessin sur la page d'un thème et sur celle d'une
+   partie. Deux fabriques auraient fini par diverger, et le même exercice se
+   serait lu autrement d'une page à l'autre. Le numéro vient de testNum(), donc
+   de la POSITION : une réorganisation le suit toute seule. */
+function carteExo(id){
+  const t=TESTS[id]; if(!t) return '';
+  const nd=derniereNoteExo(id);
+  const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
+  return cardHTML(t.icon, testNum(id)+' · '+t.name, t.desc, `openTest('${escJS(id)}')`, '', '', badge);
+}
+/* Ouvre la page du thème choisi : ses PARTIES s'il en a, ses exercices sinon. */
 function openTheme(num){
   const th=THEMES.find(t=>t.num===num); if(!th) return;
-  currentThemeNum=num;
+  currentThemeNum=num; currentSousNum=null;
   $('themeTitle').textContent='Thème '+th.num+' · '+th.nom;
-  const cards=th.ids.map((id,i)=>{
-    const t=TESTS[id]; if(!t) return '';
-    const num2=th.num+'.'+(i+1);
-    const nd=derniereNoteExo(id);
-    const badge=nd.fait?`<span class="ex-bilan done" onclick="event.stopPropagation();voirNotesExo('${escJS(id)}')" style="cursor:pointer" title="Voir toutes les notes">Dernière note : ${fmtNote(nd.note)} / 10</span>`:`<span class="ex-bilan todo">À faire</span>`;
-    return cardHTML(t.icon, num2+' · '+t.name, t.desc, `openTest('${escJS(id)}')`, '', '', badge);
-  }).join('');
+  $('themeLead').textContent = th.sous
+    ? 'Choisis la partie que tu veux travailler : ses exercices s’ouvrent ensuite sur leur propre page.'
+    : 'Choisis un exercice. Ta dernière note /10 s’affiche sur ceux déjà travaillés — comme pour les devoirs, le soutien compte pour 5 points au maximum, l’entraînement pour 10.';
+  const cards = th.sous
+    ? th.sous.map(st=>{
+        const ids=st.ids.filter(id=>TESTS[id]);
+        const faits=ids.filter(id=>derniereNoteExo(id).fait).length;
+        const badge=!ids.length
+          ? '<span class="ex-bilan todo">À venir</span>'
+          : (faits>0?`<span class="ex-bilan done">${faits} / ${ids.length} travaillé${faits>1?'s':''}</span>`:'<span class="ex-bilan todo">À découvrir</span>');
+        const numero=th.num+'.'+st.num;
+        const desc=ids.length?(ids.length+' exercice'+(ids.length>1?'s':'')+' interactif'+(ids.length>1?'s':'')):'Exercices à venir.';
+        return `<button class="choice eleve themecard" onclick="openSousTheme(${th.num},${st.num})">
+          <span class="ic theme-ic sous-ic">${esc(numero)}</span><span class="ttl">${esc(numero+' : '+st.nom)}</span><span class="ds">${esc(desc)}</span>${badge}</button>`;
+      }).join('')
+    : th.ids.map(carteExo).join('');
   $('themeChoices').innerHTML = cards
     ? '<div class="choices">'+cards+'</div>'
     : '<p class="muted">Exercices à venir.</p>';
   show('theme');
 }
+/* Ouvre la page des exercices d'une partie : 2.1, 2.2, … */
+function openSousTheme(num, snum){
+  const th=THEMES.find(t=>t.num===num); if(!th||!th.sous) return;
+  const st=th.sous.find(s=>s.num===snum); if(!st) return;
+  currentThemeNum=num; currentSousNum=snum;
+  $('sousThemeTitle').textContent=th.num+'.'+st.num+' : '+st.nom;
+  $('sousThemeRetour').textContent='← Thème '+th.num;
+  const ids=st.ids.filter(id=>TESTS[id]);
+  $('sousThemeChoices').innerHTML = ids.length
+    ? `<div class="choices">${ids.map(carteExo).join('')}</div>`
+    : '<p class="muted">Exercices à venir.</p>';
+  show('soustheme');
+}
+/* Retour depuis une partie : la page de son THÈME, pas la liste des thèmes. */
+function retourTheme(){ if(currentThemeNum!=null) openTheme(currentThemeNum); else show('choose'); }
 /* ---------- Devoir à la maison (élève) ---------- */
 function lancerDevoir(devoirId, id, mode){
   const t=TESTS[id]; if(!t||!t.start) return;
@@ -5093,7 +5174,8 @@ async function clearRecovery(){
 }
 async function openTest(testId){
   currentTestId=testId;
-  currentThemeNum=themeOfTest(testId)||currentThemeNum;
+  const stExo=sousThemeOfTest(testId), thExo=themeOfTest(testId);
+  if(thExo!=null){ currentThemeNum=thExo; currentSousNum=stExo?stExo.sous:null; }
   currentDM=null;            // lancement normal (hors devoir)
   const t=TESTS[testId];
   $('modeTitle').textContent=testLabel(testId);
@@ -5325,7 +5407,7 @@ function show(name){
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* la liste des écrans LARGES du menu est ici, à côté de celle du plein
      écran : un écran de menu ajouté demain se déclare au même endroit */
-  document.body.classList.toggle('menu-large', ['choose','theme'].indexOf(name)>=0);
+  document.body.classList.toggle('menu-large', ['choose','theme','soustheme'].indexOf(name)>=0);
   /* Numéro + nom de l'exercice en tête de son écran. Il apparaissait déjà
      partout ailleurs — sur la carte du menu, sur l'écran des modes, sur les
      résultats, dans le signalement —, mais PAS là où l'élève passe son temps.
@@ -6093,10 +6175,16 @@ function renderBilan(results){
       <span class="badge ${pctClass(r.percent)}">${r.percent} %</span></li>`; }).join('')
     :'<li class="muted" style="border:none">Aucun test pour l\'instant.</li>';
 }
-/* Retour depuis un exercice : la page de SON thème, pas la liste des thèmes —
-   sinon l'élève qui enchaîne deux exercices d'un même thème redescendrait
-   d'un étage à chaque fois. */
-function retourChoix(){ if(currentDM){ ouvrirDevoirDetail(currentDM); } else { openThemes().then(()=>{ if(currentThemeNum!=null) openTheme(currentThemeNum); }); } }
+/* Retour depuis un exercice : on revient là d'où l'on vient — la page de sa
+   PARTIE s'il en a une, celle de son thème sinon, jamais la liste des thèmes :
+   l'élève qui enchaîne deux exercices d'une même partie redescendrait sinon
+   d'un étage à chaque fois. Les deux numéros sont relevés AVANT openTheme(),
+   qui remet currentSousNum à zéro. */
+function retourChoix(){
+  if(currentDM){ ouvrirDevoirDetail(currentDM); return; }
+  const th=currentThemeNum, sous=currentSousNum;
+  openThemes().then(()=>{ if(th!=null){ openTheme(th); if(sous!=null) openSousTheme(th,sous); } });
+}
 
 /* ---------- Devoirs à la maison (élève) ---------- */
 async function openDevoirsEleve(genre){

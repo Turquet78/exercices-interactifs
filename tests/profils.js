@@ -592,7 +592,7 @@ module.exports = {
        lève), et le PAVÉ des tablettes, qui doit porter les six mêmes symboles
        sur une seconde rangée — data-pave-plus. */
     ecrireSolutions: { exercice: 'ecrire-solutions', touches: ['[', ']', ';', 'U', '{', '}'] },
-    /* {placer-image} : le point se POSE au clic sur le graphe du 2.2 — le
+    /* {placer-image} : le point se POSE au clic sur le graphe d’{image-nombre} — le
        calcul clic → nœud ne se voit que dans un vrai navigateur. */
     placerImage: { exercice: 'placer-image' },
     /* {antecedents-droite} : la droite se fait GLISSER à la hauteur demandée,
@@ -627,7 +627,7 @@ module.exports = {
        RETIRÉ — le banc restait vert sur un exercice qu'il ne regardait plus.
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
-    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','devoirs','mode',
+    ecransHorsExercice: ['setup','login','space','rattrapage','choose','theme','soustheme','devoirs','mode',
                         'results','teacher-login','teacher'],
     niveau: 'Seconde',
     /* .lv-instr est l'énoncé de la lecture graphique : une classe à part, née
@@ -811,7 +811,7 @@ module.exports = {
        borne et la dernière case coupées. Seul un navigateur mesure un tableau
        rendu contre son cadre. */
     grandsTableaux: { exercice: 'signes-variations-grand', corps: 'gsvBody', rendu: 'renderGSV', formes: [2, 3, 4] },
-    /* le QCM du 2.20 : cinq cartes depuis que le tableau aux IMAGES fausses
+    /* le QCM des tableaux de variation : cinq cartes depuis que le tableau aux IMAGES fausses
        existe (demande de Turquet, septembre 2026) */
     qcmTableauVariation: { exercice: 'choisir-tableau-variation', cartes: 5 },
     /* {maximum-minimum} : le grand dessin doit rester LISIBLE et
