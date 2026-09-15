@@ -1529,8 +1529,8 @@ deux hérités d'un conteneur emprunté :
 exercice avec un dessin comme le 2.11 ou le 2.1 qui demande directement de
 compléter un tableau de signes et un tableau de variation sur la même
 page » — le 2.11 d'alors est {tableau-signes-graphique}, aujourd'hui 2.13)
-suit {tableau-signes-graphique} au menu : la synthèse, quand les
-deux tableaux ont été appris — plus de marches, une courbe nue, et les DEUX
+suit {tableau-signes-graphique} au menu : la synthèse, quand les deux
+tableaux ont été appris — plus de marches, une courbe nue, et les DEUX
 tableaux d'un coup sur le même écran.
 **Une seule courbe sert les deux tableaux, et c'est le tirage qui le
 permet** : `tsgGen()` garantit les racines lisibles (le filtre du 2.13), et
@@ -4039,9 +4039,8 @@ Turquet, septembre 2026 : « faire un exercice de synthèse sur les diminutions
 rédigé comme le 2.2.9 » — le rédigé des hausses, aujourd'hui 2.2.10) est le
 MIROIR de {synthese-augmentations} sur les baisses. Le sous-thème des hausses
 avait ses DEUX synthèses — celle à cases (2.2.9) et la rédigée (2.2.10) —
-quand celui des baisses n'avait que la
-rédigée : c'est cette moitié manquante que la demande nomme, la synthèse
-rédigée des baisses existant depuis août.
+quand celui des baisses n'avait que la rédigée : c'est cette moitié manquante
+que la demande nomme, la synthèse rédigée des baisses existant depuis août.
 **TOUT EST REPRIS, RIEN N'EST RECOPIÉ, et c'est ce qui rend l'ajout court** :
 `genSyn('dim', …)` est le générateur MÊME du 2.2.9 et du 2.5.1 — un second
 aurait fini par diverger, et deux exercices voisins se seraient contredits
@@ -4134,8 +4133,8 @@ corrections, toutes deux copies épinglées au contrôle :
 entière.** {synthese-pourcentages-libre} (Première, 2.5.2, demande de Turquet,
 septembre 2026 : « un exercice comme le 2.5.1 mais où il faut rédiger la
 justification dans une case comme dans le 2.2.9 » — le rédigé des hausses,
-aujourd'hui 2.2.10) suit {synthese-pourcentages}
-au menu : le tirage du 2.5.1 — `genSyn` SANS famille imposée, donc prendre,
+aujourd'hui 2.2.10) suit {synthese-pourcentages} au menu : le tirage du
+2.5.1 — `genSyn` SANS famille imposée, donc prendre,
 augmenter et diminuer, et les trois inconnues chacune UNE fois en ordre
 mélangé — posé sur l'écran, la feuille et le juge du 2.2.10. Même moteur de
 tirage, même moteur de rédaction, pas même identité : la note part sous
