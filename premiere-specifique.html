@@ -740,7 +740,14 @@ body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   /* Retour IA phrase par phrase : le juste en vert, le faux/oubli en rouge (balises [OK]/[KO]) */
   .mp-feedback .fb-ok{color:var(--green);font-weight:600}
   .mp-feedback .fb-ko{color:var(--red);font-weight:600}
-  .mp-feedback.iafb{color:var(--ink);text-align:left}
+  /* « iafb » NE POSE PLUS D'ENCRE, et c'est tout le correctif. Un verdict
+     écrit « mp-feedback iafb good » perdait sa couleur : les deux sélecteurs
+     ont la même spécificité et « iafb », déclaré plus bas, gagnait — la phrase
+     qui commente la vérification s'écrivait en NOIR, le correct et le faux se
+     lisant pareil (la demande d'août 2026, tenue en Seconde et perdue ici).
+     Sans encre, le bloc hérite de l'encre ordinaire quand aucun verdict n'est
+     posé, exactement comme avant — le banc navigateur le mesure. */
+  .mp-feedback.iafb{text-align:left}
   .conseil-card{max-width:min(520px,94vw);width:100%}
 
 .dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
@@ -2053,7 +2060,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=224;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=225;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.

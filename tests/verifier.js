@@ -3533,6 +3533,7 @@ function exercices(suite){
     suiteAuxiliaireCompleter(w, P);
     recurrenceFractions(w, P);
     phraseCouleurs(w);
+    verdictSansCouleur(w, P);
     antecedentNombre(w, P);
     antecedentsDroite(w, P);
     inequationDroite(w, P);
@@ -7869,6 +7870,46 @@ function imageNombre(w, P){
    couleurs, ET n'être écrite qu'à UN endroit. Elle était recopiée six fois mot
    pour mot ; six copies, ce sont six chances de n'en corriger que cinq le jour
    où la convention change — et elle a déjà changé une fois dans ce projet. */
+/* ---------- Le verdict d'une vérification par l'IA porte SA couleur ---------- */
+/* « Les phrases qui commentent une vérification par l'IA sont VERTES quand
+   c'est bon, ROUGES quand c'est faux » (demande de Turquet, août 2026). Elle
+   était tenue en Seconde et PERDUE dans les deux autres fichiers, par deux
+   portes différentes — d'où les deux bords ci-dessous, et n'en tenir qu'un ne
+   tient rien :
+   · la CASCADE. « .mp-feedback.iafb » posait une encre neutre ; il a la même
+     spécificité que « .mp-feedback.good » et se déclare plus bas, donc il
+     gagnait : la Première posait bien la classe du verdict et la phrase
+     s'écrivait quand même en NOIR. « .iafb » ne pose plus d'encre — le bloc
+     hérite de l'encre ordinaire, comme avant — et une encre qui y reviendrait
+     rougit ici. Le banc NAVIGATEUR mesure l'encre RÉSOLUE, seul juge d'une
+     cascade ; celui-ci nomme la CAUSE, une règle plus haut. La règle peut ne
+     pas exister du tout — c'est le cas de la Seconde, et c'est précisément
+     pourquoi le défaut ne l'a jamais touchée : ce qui est interdit est
+     l'ENCRE, pas la règle.
+   · les POSES. La Terminale ne demandait simplement pas la couleur : elle
+     posait « iafb » seul dès que le modèle répondait, si bien que le même
+     écran se peignait en vert sans prose et en noir avec. On compte donc les
+     poses de « iafb » qui ne portent ni good ni bad, et le profil dit combien
+     il en reste — quatre en Terminale, et elles sont légitimes : le verdict
+     n'est PAS encore connu (« L'IA relit ton calcul… ») ou la relecture est
+     indisponible, rien n'est décidé donc rien n'est peint. Une pose qui
+     perdrait sa couleur fait monter ce compte et se NOMME. */
+function verdictSansCouleur(w, P){
+  const nom = 'le verdict d’une vérification par l’IA porte sa couleur';
+  const src = lire(CIBLE), pbs = [];
+  const regle = /\.mp-feedback\.iafb\{([^}]*)\}/.exec(src);
+  if(regle && /(^|;)\s*color\s*:/.test(regle[1]))
+    pbs.push('.mp-feedback.iafb pose une encre (« ' + regle[1].trim() + ' ») : elle bat .good et .bad, déclarés plus haut');
+  const poses = src.match(/className\s*=\s*'mp-feedback[^;]*;/g) || [];
+  const avecIafb = poses.filter(x => x.indexOf('iafb') >= 0);
+  const nues = avecIafb.filter(x => !/good|bad/.test(x));
+  if(!avecIafb.length) pbs.push('aucune pose de « mp-feedback … iafb » dans la source : le contrôle n’a rien à mesurer');
+  if(nues.length !== P.verdictSansCouleur)
+    pbs.push(nues.length + ' pose(s) de « iafb » sans couleur de verdict quand le profil en déclare ' + P.verdictSansCouleur
+      + (nues.length ? ' — ' + nues.slice(0, 3).map(x => x.trim()).join(' ; ') : ''));
+  verifier(nom, pbs.length === 0, pbs.join(' | '));
+}
+
 function phraseCouleurs(w){
   const src = lire(CIBLE);
   const present = evaluer(w, "typeof msgCorrCouleurs==='function'");
