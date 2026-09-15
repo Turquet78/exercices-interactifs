@@ -5917,7 +5917,22 @@ async function parcours(page, N){
           ordre:['l','un1','u1','un','u0','un2'], ordreLim:['u0','l','zero','L'], pts:[] };
         renderSVR();
       });
-      await s.page.waitForTimeout(300);
+      await s.page.waitForTimeout(600);
+      /* L'ÉCRAN S'OUVRE SUR LE TRACÉ, PAS SUR LA FEUILLE. mlFeuille donne le
+         focus à sa première ligne — c'est ce que veut le 2.5, dont la feuille
+         EST l'exercice ; ici l'écran commence par le graphique de a), et ce
+         focus faisait DESCENDRE la page de 485 px : l'élève arrivait sur d)
+         sans avoir vu le dessin. Sur TABLETTE la sonde a mesuré pire — 764 px
+         de défilement et le clavier mathématique déployé tout seul. jsdom n'a
+         ni mise en page ni défilement : seul ce banc peut le voir. */
+      { const arrivee = await s.page.evaluate(() => {
+          const g = document.getElementById('svrGraph').getBoundingClientRect();
+          const sh = document.getElementById('svrSheet'), a = document.activeElement;
+          return { y: Math.round(window.scrollY), top: Math.round(g.top),
+                   dansFeuille: !!(sh && a && sh.contains(a)) }; });
+        if(arrivee.y > 8) dits.push('l\'écran s\'ouvre en ayant défilé de ' + arrivee.y + ' px : la feuille de d) a pris le focus');
+        if(arrivee.top < 0) dits.push('le graphique de a) est déjà sorti par le haut (' + arrivee.top + ' px)');
+        if(arrivee.dansFeuille) dits.push('la feuille de d) garde le focus à l\'arrivée : la première touche frappée écrirait dedans'); }
       /* le repère est RENDU à une taille lisible — un CSS perdu le réduirait
          sans qu'aucune erreur ne se lève, et les graduations deviendraient
          illisibles */
@@ -5979,6 +5994,35 @@ async function parcours(page, N){
         await s.page.waitForTimeout(140);
         const n = await s.page.evaluate(() => test.questions[test.idx].pts.length);
         if(n) dits.push('un clic posé entre les deux rails pose quand même un point'); }
+      /* d) EST PRÉSENTÉE COMME LE 2.5 (demande de Turquet, septembre 2026) :
+         le bloc facultatif u/v/u′/v′ et la feuille ligne par ligne. jsdom lit
+         des classes ; seul un navigateur voit qu'elles ont une BOÎTE — un CSS
+         perdu les rendrait invisibles sans qu'une erreur ne se lève. */
+      { const d = await s.page.evaluate(() => {
+          const b = sel => { const e = document.querySelector(sel); if(!e) return null;
+            const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; };
+          return { fac: b('#svrPartD .dexp-facblock'), sheet: b('#svrSheet'),
+                   mf: [...document.querySelectorAll('#svrPartD .dexp-facblock math-field')].length,
+                   pfx: String((document.querySelector('#svrSheet .dexp2-prefix') || {}).textContent || '').replace(/\s/g, ''),
+                   clavier: [...document.querySelectorAll('#scr-svr .rc-jetons button')]
+                     .some(b2 => /clavier/i.test(b2.getAttribute('title') || '')) };
+        });
+        if(!d.fac || d.fac.w < 100 || d.fac.h < 20) dits.push('le bloc facultatif u/v/u′/v′ de d) n\'a pas de boîte');
+        if(d.mf !== 4) dits.push(d.mf + ' champ(s) facultatif(s) au lieu de 4');
+        if(!d.sheet || d.sheet.w < 100 || d.sheet.h < 20) dits.push('la feuille de d) n\'a pas de boîte');
+        if(d.pfx.indexOf('′(x)=') < 0) dits.push('la feuille de d) ne porte pas le préfixe « f ′(x) = » (« ' + d.pfx + ' »)');
+        if(!d.clavier) dits.push('l\'écran porte des champs mathématiques sans bouton « Clavier mathématique »'); }
+      /* LA DÉRIVÉE EST TAPÉE POUR DE VRAI : jsdom n'a pas la sérialisation
+         réelle que le juge doit lire — c'est le seul bord qui dise que ce que
+         l'élève écrit à la main est bien relu comme une fonction. */
+      await s.page.click('#svrSheet math-field');
+      await s.page.waitForTimeout(400);   /* le piège documenté du 6.8 : les premières frappes tombent dans le vide */
+      await s.page.keyboard.type('3/(4-x)^2', { delay: 50 });
+      await s.page.waitForTimeout(300);
+      { const t = await s.page.evaluate(() => {
+          const lg = svrDerLignes(), a = svrAns(test.questions[test.idx]);
+          return { plain: lg.length ? lg[0].plain : '', ok: lg.length ? checkExprFn(lg[0].plain, svrDer(a)) : false }; });
+        if(!t.ok) dits.push('la dérivée TAPÉE dans la feuille n\'est pas relue comme juste (lu : « ' + t.plain + ' »)'); }
       /* la copie juste, puis la vérification : la méthode se DESSINE, avec une
          étendue non nulle — un CSS perdu la rendrait invisible sans erreur */
       await s.page.evaluate(() => {
@@ -6003,6 +6047,22 @@ async function parcours(page, N){
       if(!fin.esc || fin.esc.w < 20 || fin.esc.h < 20) dits.push('l\'escalier vert de la méthode est dessiné mais d\'étendue presque nulle');
       if(fin.lect !== 2) dits.push(fin.lect + ' trait(s) de lecture au lieu de 2 (U1 sur l\'axe, U2 en hauteur)');
       if(fin.bleus !== 3) dits.push(fin.bleus + ' point(s) peint(s) en bleu au lieu de 3');
+      /* la feuille de d) porte le verdict de la réponse, et son encre se MESURE :
+         une classe posée pendant qu'une règle la peint autrement est un défaut
+         de PEINTURE, et seul un navigateur le voit. */
+      { const f = await s.page.evaluate(() => {
+          const sh = document.getElementById('svrSheet'), L = document.querySelector('#svrSheet .dexp2-line');
+          return { sh: sh ? sh.className : '', l: L ? L.className : '',
+                   bord: sh ? getComputedStyle(sh).borderTopColor : '',
+                   filet: L ? getComputedStyle(L).borderLeftColor : '' }; });
+        if(f.sh.indexOf('ok') < 0) dits.push('copie juste : la feuille de d) n\'est pas marquée juste (« ' + f.sh + ' »)');
+        if(f.l.indexOf('ok') < 0) dits.push('copie juste : la ligne de la feuille n\'est pas marquée juste (« ' + f.l + ' »)');
+        [['la bordure de la feuille', f.bord], ['le filet de la ligne juste', f.filet]].forEach(([quoi, enc]) => {
+          const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(enc || '');
+          if(!m) { dits.push(quoi + ' n\'a pas d\'encre lisible'); return; }
+          const c = [+m[1], +m[2], +m[3]];
+          if(!(c[2] >= Math.max(c[0], c[1]) && c[2] - Math.min(c[0], c[1]) >= 30))
+            dits.push(quoi + ' n\'est pas bleu : ' + enc); }); }
       { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(fin.encre || '');
         if(m){ const c = [+m[1], +m[2], +m[3]];
           if(!(c[2] >= Math.max(c[0], c[1]))) dits.push('le point juste n\'est pas peint en bleu : ' + fin.encre); } }
