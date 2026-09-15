@@ -7515,10 +7515,8 @@ est plus haut que 48 px, c'est la réserve qu'il faut relever ; si tout répond
 dès le bord, la cause est ailleurs. C'est la règle du diagnostic, déjà payée
 sur l'installation : quand l'appareil dit le contraire du banc, on change de
 couche et on demande son avis à l'appareil.
-**Et une gêne d'à côté, plus ancienne, reste entière** : le clavier ancré
-RECOUVRE les commandes du bas tant qu'il est déployé — en paysage elles vivent
-exactement sous lui. Le dire vaut mieux que le taire ; ce n'est pas ce
-signalement-ci.
+**Et la gêne d'à côté a été traitée le lendemain** (« occupe-toi du clavier
+qui recouvre les commandes ») — paragraphe ci-dessous.
 Quatorze sabotages, chacun rougissant en nommant son défaut — dix au banc
 jsdom (la réserve à zéro, à 24 px, chacun des trois meubles débranché, la
 classe posée partout, la classe qui ne se retire plus, `__appForce` ignoré,
@@ -7527,6 +7525,68 @@ la Seconde) et quatre au navigateur, qui nomment la touche ET sa distance au
 bord (« la touche « + » à 7 px du bord »). Le sabotage du seul clavier laisse
 le contrôle du pavé VERT, et c'est la preuve que les trois meubles se mesurent
 séparément.
+
+**LE CLAVIER ANCRÉ PREND LE BAS, LES COMMANDES MONTENT EN HAUT.** Demande de
+Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre les
+commandes ». La gêne était plus large que ce que j'en avais dit : la sonde l'a
+mesurée avant tout correctif, et « Signaler », « Abandonner » et « Mettre en
+pause » vivent ENTIÈREMENT sous le clavier ancré dès qu'il est déployé — sur
+les TROIS niveaux, dans les DEUX orientations, en mode application comme dans
+un onglet, et non « en paysage » seulement. Elles n'y sont pas seulement
+cachées : `elementFromPoint` rend une touche du clavier, donc elles sont
+INTOUCHABLES. Aucune erreur nulle part, le bouton ne répond simplement pas.
+**LA PLACE ÉVIDENTE A ÉTÉ ÉCARTÉE PAR LA MESURE** : posées juste AU-DESSUS du
+clavier, les commandes deviennent atteignables — mais elles recouvrent la
+ligne où l'élève écrit, 4 mesures sur 6. La case d'une rédaction est pleine
+largeur et MathLive l'amène au ras du clavier : il n'y a pas de place entre
+les deux. C'est l'objection de la bulle « Comprendre mon erreur », qui ne
+recouvre ni la case qu'on remplit ni les commandes du bas — ici elle écarte un
+correctif qui marchait.
+**LE COIN HAUT EST LE SEUL LIBRE, et c'est mesuré, pas supposé** : dix-huit
+configurations (trois niveaux × deux orientations × onglet et mode
+application), page défilée comme remontée, rien sous les commandes et jamais
+de chevauchement avec la case. Une seule CLASSE suffit donc
+(`body.clavier-ouvert`), sans mesurer la hauteur du clavier : le haut est
+libre quelle que soit sa forme, compacte ou non.
+**La fenêtre FLOTTANTE de l'ordinateur ne les déplace pas** : elle ne recouvre
+rien (`window.__kbFloating`). Et la classe est posée dans `pinKbToViewport`
+plutôt que sur un écouteur de plus — elle est déjà rappelée à chaque instant
+où la géométrie du clavier change (déploiement, repli, `geometrychange`,
+redimensionnement, rotation) : un écouteur de plus aurait été une seconde
+liste à tenir.
+**L'ORDRE de la règle CSS compte, et c'est le bord silencieux** : à
+spécificité égale (`body.pave-actif #testCtrls` et `body.clavier-ouvert
+#testCtrls` pèsent pareil), c'est la position dans la feuille qui tranche.
+Écrite plus haut, notre règle ne ferait RIEN — aucune erreur, aucune classe
+manquante, les commandes simplement restées sous le clavier. Le contrôle jsdom
+l'exige donc explicitement.
+**Deux bancs, la répartition habituelle.** jsdom tient la mécanique : la règle
+existe et pose `top` et `bottom:auto`, elle vient après celles de
+`pave-actif`, la classe suit le clavier dans les deux sens et jamais sur la
+fenêtre flottante (`clavierHaut` ÉVALUÉE depuis la source — le clavier vit
+dans la greffe module, que jsdom ne sait pas charger), et `pinKbToViewport`
+l'APPELLE : une fonction juste que personne n'appelle est la moitié morte du
+correctif. Le NAVIGATEUR (« 11 nonies ») mesure ce que jsdom ne peut pas
+voir — clavier déployé, aucune commande sous lui, toutes atteignables au
+centre, aucune sur la case — et le bord OPPOSÉ : clavier refermé, elles
+redescendent au bas de l'écran, sans quoi des commandes montées pour de bon
+passeraient au vert.
+**Neuf sabotages, chacun rougissant en nommant son défaut** — six au banc
+jsdom, trois au navigateur, dont celui de la place écartée, qui répond
+« recouvre la case où l'élève écrit », et celui de la règle retirée, qui
+chiffre la rechute (« signalBtn dépasse de 125 px sous le haut du clavier »,
+231 px en portrait). **Et l'un d'eux a renforcé le contrôle AVANT la page** :
+« la classe reste posée une fois le clavier refermé » passait au VERT parce
+que le double du banc repartait d'une mémoire de classes NEUVE à chaque tour —
+une fonction qui ne saurait qu'AJOUTER y était inatteignable. La séquence se
+joue sur un seul état désormais, et le faux `classList` connaît `add` et
+`remove` en plus de `toggle` : sans eux, le sabotage échouait sur une méthode
+absente du double et nommait un autre défaut que le sien. Un dernier a
+d'abord semblé ne frapper que le VOISIN — la classe posée en permanence
+déplace les commandes sur tous les écrans, et les contrôles du pavé rougissent
+les premiers : rejoué en lisant TOUTES les lignes rouges, le contrôle visé
+rougit bien lui aussi (« la plus haute est à 730 px du bas : elles ne sont pas
+redescendues »).
 
 ## Fiches imprimées (`.docx`)
 

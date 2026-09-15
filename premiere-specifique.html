@@ -420,6 +420,26 @@ body.pave-actif #paveNum{bottom:54px}
   body.pave-actif #paveNum{bottom:54px;left:8px;right:8px;transform:none;width:auto;
     max-width:none;overflow:visible}
 }
+/* ---- LE CLAVIER ANCRÉ PREND LE BAS : LES COMMANDES MONTENT EN HAUT ----
+   Signalé par Turquet (septembre 2026) : « occupe-toi du clavier qui recouvre
+   les commandes ». Mesuré avant tout correctif, sur les TROIS niveaux, dans
+   les deux orientations, en mode application comme dans un onglet :
+   « Signaler », « Abandonner » et « Mettre en pause » vivent ENTIÈREMENT sous
+   le clavier ancré dès qu'il est déployé — elles ne sont pas seulement
+   cachées, elles sont INTOUCHABLES (elementFromPoint rend une touche du
+   clavier). Aucune erreur nulle part : le bouton ne répond simplement pas.
+   ELLES MONTENT EN HAUT, et c'est la mesure qui a écarté l'autre place :
+   posées JUSTE AU-DESSUS du clavier, elles recouvrent la ligne où l'élève
+   écrit — la case est pleine largeur et MathLive l'amène au ras du clavier,
+   4 mesures sur 6 en chevauchement. C'est la leçon de la bulle « Comprendre
+   mon erreur », qui ne recouvre ni la case qu'on remplit ni les commandes du
+   bas. Le coin HAUT est le seul que ni le clavier ni la case n'occupent :
+   mesuré libre sur les dix-huit configurations, page défilée ou remontée.
+   La fenêtre FLOTTANTE de l'ordinateur ne recouvre rien et ne les déplace
+   donc pas (window.__kbFloating). La règle vient APRÈS celles de
+   « pave-actif », qui posent le même « bottom » : à spécificité égale, c'est
+   l'ORDRE qui tranche. */
+body.clavier-ouvert #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .mp-box{width:44px;height:44px;text-align:center;font-family:"Fredoka";font-weight:600;font-size:1.7rem;color:var(--blue-dark);
     background:#F3F7FF;border:2px solid #BBD0F7;border-radius:11px;outline:none;padding:0;-moz-appearance:textfield}
   .mp-box::-webkit-outer-spin-button,.mp-box::-webkit-inner-spin-button,.mp-carry::-webkit-outer-spin-button,.mp-carry::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -14643,7 +14663,21 @@ function keepVisible(el){
    epingle donc le clavier ancre a la FENETRE VISUELLE (visualViewport : largeur et decalage
    reellement affiches, zoom compris), a l'ouverture et a chaque variation. La fenetre
    flottante de l'ordinateur (kbwin) n'est pas concernee. */
+/* Le clavier ancré prend tout le bas de l'écran : les commandes du bas y
+   vivaient exactement dessous, recouvertes et intouchables. Elles montent en
+   haut tant qu'il est déployé — voir le bloc CSS « body.clavier-ouvert ». La
+   fenêtre FLOTTANTE de l'ordinateur ne recouvre rien : elle ne les déplace
+   pas. Posé ici plutôt que sur un écouteur de plus : pinKbToViewport est
+   déjà rappelée à chaque instant où la géométrie du clavier change
+   (déploiement, repli, geometrychange, redimensionnement, rotation). */
+function clavierHaut(){
+  try{
+    const vk = window.mathVirtualKeyboard;
+    document.body.classList.toggle("clavier-ouvert", !!(vk && vk.visible) && !window.__kbFloating);
+  }catch(e){}
+}
 function pinKbToViewport(){
+  clavierHaut();
   if(window.__kbFloating) return;
   const el = document.querySelector("body > .ML__keyboard");
   const vv = window.visualViewport;
