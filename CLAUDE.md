@@ -7382,9 +7382,15 @@ commandes gardent la leur : ce sont des cartes flottantes à coins arrondis,
 elles n'ont aucun bord à épouser, et aucun trou ne se voit sous elles.
 **Le contrôle du trou est au NAVIGATEUR, et lui seul peut le voir** : il mesure
 le bas du fond du clavier contre le bord de l'écran, dans les deux
-orientations. C'est ce qui sépare la v222 de la v221 — une marge revenue sur le
-fond le fait rougir en chiffrant le trou pendant que les deux contrôles des
-touches restent verts, c'est-à-dire exactement le défaut signalé.
+orientations. **Cinq sabotages de plus, et les deux du navigateur se
+répondent** — trois au banc jsdom (la marge revenue sur le fond, le
+rembourrage retiré, le profil resté sur `.MLK__backdrop`) ; et au navigateur,
+la marge revenue sur le fond ne fait rougir QUE le contrôle du trou (« trou
+sous le clavier : 48 px en paysage, 48 px en portrait ») pendant que les deux
+contrôles des touches restent verts — c'est exactement le défaut signalé —,
+quand le rembourrage retiré fait l'INVERSE (« 11 dans la bande : la touche
+« + » à 7 px du bord ») en laissant le contrôle du trou vert. Les deux
+propriétés se mesurent séparément, et aucune ne couvre l'autre.
 **Le bord OPPOSÉ compte autant, et il a son contrôle** : un niveau en
 « standalone » ne doit RIEN porter de tout cela — 48 px coûtés pour rien —, et
 un niveau qui passerait en plein écran sans réserve rougit aussitôt : le
