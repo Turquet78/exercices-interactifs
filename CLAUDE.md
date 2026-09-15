@@ -7474,6 +7474,22 @@ voir — clavier déployé, aucune commande sous lui, toutes atteignables au
 centre, aucune sur la case — et le bord OPPOSÉ : clavier refermé, elles
 redescendent au bas de l'écran, sans quoi des commandes montées pour de bon
 passeraient au vert.
+**Neuf sabotages, chacun rougissant en nommant son défaut** — six au banc
+jsdom, trois au navigateur, dont celui de la place écartée, qui répond
+« recouvre la case où l'élève écrit », et celui de la règle retirée, qui
+chiffre la rechute (« signalBtn dépasse de 125 px sous le haut du clavier »,
+231 px en portrait). **Et l'un d'eux a renforcé le contrôle AVANT la page** :
+« la classe reste posée une fois le clavier refermé » passait au VERT parce
+que le double du banc repartait d'une mémoire de classes NEUVE à chaque tour —
+une fonction qui ne saurait qu'AJOUTER y était inatteignable. La séquence se
+joue sur un seul état désormais, et le faux `classList` connaît `add` et
+`remove` en plus de `toggle` : sans eux, le sabotage échouait sur une méthode
+absente du double et nommait un autre défaut que le sien. Un dernier a
+d'abord semblé ne frapper que le VOISIN — la classe posée en permanence
+déplace les commandes sur tous les écrans, et les contrôles du pavé rougissent
+les premiers : rejoué en lisant TOUTES les lignes rouges, le contrôle visé
+rougit bien lui aussi (« la plus haute est à 730 px du bas : elles ne sont pas
+redescendues »).
 
 ## Fiches imprimées (`.docx`)
 
