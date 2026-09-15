@@ -67,9 +67,11 @@ page s'ouvre directement sur la connexion des élèves.
 https://turquet78.github.io/exercices-interactifs/prof.html
 ```
 
-Elle ne fait qu'aiguiller : trois boutons vers les trois tableaux de bord. Elle
-ne contient aucun secret, n'appelle pas Supabase, et n'est liée depuis aucune
-page d'élève — un contrôle du banc l'interdit sur les trois fichiers.
+Elle demande le mot de passe, puis aiguille : trois boutons vers les trois
+tableaux de bord. Elle ne contient aucun secret — c'est Supabase qui vérifie le
+mot de passe, comme sur les trois pages — et le seul lien qui y ramène est le
+« Quitter » d'un tableau de bord, jamais une page d'élève : un contrôle du banc
+l'exige sur les trois fichiers.
 
 Les adresses directes restent valables, si vous préférez un favori par niveau :
 
