@@ -365,16 +365,28 @@
    (--bas-systeme, déclarée dans tests/profils.js — deux sources) et la
    classe est posée par le script (modeApp), comme pave-actif : la requête
    média reste au navigateur, le banc force par window.__appForce.
-   Le clavier ANCRÉ remonte en bloc, par une marge posée sur son fond
-   (.MLK__backdrop). Une bordure ou un rembourrage n'auraient rien donné : sa
-   hauteur est ÉCRITE par MathLive et sa plaque de touches est accrochée au
-   HAUT du fond — mesuré, pas supposé : bordure posée, les touches n'avaient
-   pas bougé d'un pixel et débordaient simplement de leur boîte. */
+   LE CLAVIER GARDE SON FOND AU RAS DU BORD, ET SEULES SES TOUCHES REMONTENT
+   (demande de Turquet, septembre 2026 : « le trou sous le clavier me gêne »).
+   La v221 remontait le clavier EN BLOC, par une marge sur son fond : plus
+   aucune touche dans la bande, mais une bande de page visible sous le
+   clavier. Un rembourrage posé sur les RANGÉES fait les deux à la fois — le
+   fond GRANDIT d'autant et reste collé au bord, les touches montent avec
+   lui. Mesuré, pas supposé, et c'est la sonde qui a départagé les quatre
+   essais : la hauteur du fond est écrite par MathLive en BOÎTE DE BORDURE,
+   si bien qu'une bordure ou un rembourrage posés sur LUI n'ont pas déplacé
+   une seule touche (elles débordaient simplement de leur boîte) ; posé sur
+   les rangées, le fond passe de 247 à 295 px, son décalage et sa
+   translation suivent tout seuls, et la rangée du bas passe de 7 à 55 px du
+   bord — les 48 px de la réserve, plus les 8 px de marge que les rangées
+   avaient déjà. Une MARGE sur les rangées n'aurait rendu que 47 px : elle
+   remplace cette marge de 8 au lieu de s'y ajouter, et passait SOUS la
+   réserve. Le pavé et les commandes gardent leur marge : ce sont des cartes
+   flottantes à coins arrondis, elles n'ont aucun bord à épouser. */
 :root{--bas-systeme:0px}
 body.mode-app{--bas-systeme:48px}
 #testCtrls{margin-bottom:var(--bas-systeme)}
 #paveNum{margin-bottom:var(--bas-systeme)}
-body > .ML__keyboard .MLK__backdrop{margin-bottom:var(--bas-systeme)}
+body > .ML__keyboard .MLK__rows{padding-bottom:var(--bas-systeme)}
 body.pave-actif #testCtrls{bottom:6px;right:8px}
 body.pave-actif #paveNum{bottom:54px}
 .tc-court{display:none}
@@ -2015,7 +2027,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=221;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=222;                       /* numero de version affiche dans l'en-tete */
 /* Residus de fin de saisie MathLive : un exposant vide (« 2^{} »), un \placeholder{},
    un operateur isole. Ils sont INVISIBLES a l'ecran et rendraient fausse une reponse juste
    — defaut signale par un eleve sur la Terminale en aout 2026. Meme nettoyage que la-bas.
