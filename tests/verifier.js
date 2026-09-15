@@ -8949,9 +8949,9 @@ function boutonSuivantCourbes(w, P){
   verifierEval(w, 'la question vérifiée attend le bouton « Question suivante »', `(function(){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
-    [['2.1', startLV, submitLV, renderLV, 'lvValidate'],
-     ['2.2', startImg, submitImg, renderImg, 'imgValidate'],
-     ['2.3', startAnt, submitAnt, renderAnt, 'antValidate']].forEach(function(e){
+    [['{lecture-variations}', startLV, submitLV, renderLV, 'lvValidate'],
+     ['{image-nombre}', startImg, submitImg, renderImg, 'imgValidate'],
+     ['{antecedent-nombre}', startAnt, submitAnt, renderAnt, 'antValidate']].forEach(function(e){
       const nom=e[0], demarrer=e[1], soumettre=e[2], rendre=e[3], id=e[4];
       demarrer();
       const b=document.getElementById(id);
@@ -13278,11 +13278,17 @@ function ecrireSolutions(w, P){
 
     /* ---- 5. l\\'identité de l\\'exercice, et ses branchements ---- */
     if(!TESTS['ecrire-solutions']) vus.push('l\\'exercice n\\'est pas dans TESTS');
-    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('ecrire-solutions')>=0; })[0];
-      if(!th) vus.push('l\\'exercice n\\'est dans aucun thème');
+    /* DEPUIS LE DÉCOUPAGE DU THÈME DES FONCTIONS EN PARTIES (septembre 2026),
+       « la place au menu » se lit DANS la partie, et non plus dans la liste
+       plate : l exercice suit {solutions-graphique} et FERME la partie des
+       équations et inéquations — {construire-fonction}, qui le suivait, est
+       parti dans la partie de synthèse. */
+    { var pEcs=null; THEMES.forEach(function(t){ (t.sous||[{nom:t.nom,ids:t.ids}]).forEach(function(s){
+        if((s.ids||[]).indexOf('ecrire-solutions')>=0) pEcs={nom:s.nom,ids:s.ids,i:s.ids.indexOf('ecrire-solutions')}; }); });
+      if(!pEcs) vus.push('l\\'exercice n\\'est dans aucun thème');
       else {
-        if(th.ids[th.ids.indexOf('ecrire-solutions')-1]!=='solutions-graphique') vus.push('l\\'exercice ne suit pas {solutions-graphique}');
-        if(th.ids[th.ids.indexOf('ecrire-solutions')+1]!=='construire-fonction') vus.push('l\\'exercice ne vient pas juste avant {construire-fonction}');
+        if(pEcs.ids[pEcs.i-1]!=='solutions-graphique') vus.push('l\\'exercice ne suit pas {solutions-graphique}');
+        if(pEcs.i!==pEcs.ids.length-1) vus.push('l\\'exercice ne ferme plus la partie « '+pEcs.nom+' »');
       } }
     if(typeof RAPPELS==='undefined' || !RAPPELS.ecs) vus.push('aucun rappel de cours pour ecs');
     if(typeof QIA_SUGG==='undefined' || !QIA_SUGG.ecs) vus.push('aucune question proposée pour ecs');
@@ -13647,7 +13653,7 @@ function courbesFGSeDistinguent(w, P){
     if(!(g.r>g.b+40)) vus.push('g n\\'est pas à dominante chaude ('+g.brut+') : deux encres proches de f ne se distinguent pas');
     const cg=hex(regle('.eqg-cg','fill')), boutg=hex(regle('.ifg-boutg','fill'));
     if(!cg||cg.brut!==g.brut) vus.push('l\\'étiquette Cg ('+(cg?cg.brut:'introuvable')+') ne porte pas l\\'encre de g ('+g.brut+')');
-    if(!boutg||boutg.brut!==g.brut) vus.push('les bouts de g au 2.6 ('+(boutg?boutg.brut:'introuvable')+') ne portent pas l\\'encre de g ('+g.brut+')');
+    if(!boutg||boutg.brut!==g.brut) vus.push('les bouts de g au {lecture-deux-courbes} ('+(boutg?boutg.brut:'introuvable')+') ne portent pas l\\'encre de g ('+g.brut+')');
     /* ---- 2. la légende, sur les DEUX exercices — dessin nu ET cartes ---- */
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     const legOk=function(host,ou){
@@ -13662,11 +13668,11 @@ function courbesFGSeDistinguent(w, P){
       permE:['bon','oubli','trop','confu'], permI:['mo','mn','eo','en']};
     currentTestId='equation-graphique';
     Object.assign(test,{kind:'eqg', questions:['img','ineq'].map(function(tt){ return Object.assign({},Q0,{op:'ge',type:tt}); }), idx:0, score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
-    renderEqgTest(); legOk('eqgHost','le 2.5 (dessin nu)');
-    test.idx=1; renderEqgTest(); legOk('eqgHost','le 2.5 (question à cartes)');
+    renderEqgTest(); legOk('eqgHost','{equation-graphique} (dessin nu)');
+    test.idx=1; renderEqgTest(); legOk('eqgHost','{equation-graphique} (question à cartes)');
     currentTestId='lecture-deux-courbes';
     Object.assign(test,{kind:'ifg', questions:ifgBuildQuestions(), idx:0, score:0, maxScore:99, answers:[], startTime:Date.now(), locked:false});
-    renderIfgTest(); legOk('ifgHost','le 2.6');
+    renderIfgTest(); legOk('ifgHost','{lecture-deux-courbes}');
     return vus.join(' | ');
   })()`, function(v){ return v===''; });
 }
@@ -14026,7 +14032,7 @@ function tableauSignesGraphique(w, P){
    des paires), celles du tableau à LEUR place (un tableau se lit de gauche
    à droite). */
 function lectureSignes(w, P){
-  const nom='la lecture des signes : trois parties sur la même courbe, du 2.1 vers le tableau';
+  const nom='la lecture des signes : trois parties sur la même courbe, de {lecture-variations} vers le tableau';
   const present = evaluer(w, "typeof startLS==='function' && typeof lsBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas l\'exercice de lecture des signes');
@@ -14201,7 +14207,7 @@ function signesVariations(w, P){
           if(0>lo&&0<hi) vus.push('zéro est traversé ENTRE deux graduations : une racine illisible');
           if(pts[j]===pts[j+1]) vus.push('un PALIER ('+pts.join(',')+') : le tableau de variation ne saurait plus dire le sens'); }
         const nseg=lvAnalyze(pts).segments.length;
-        if(nseg<2||nseg>3) vus.push(nseg+' segment(s) de variation : le tableau sort du format du 2.1');
+        if(nseg<2||nseg>3) vus.push(nseg+' segment(s) de variation : le tableau sort du format de {lecture-variations}');
         let s=0; for(let x=so[0]+1;x<so[1]&&!s;x++){ if(pts[x+3]!==0) s=pts[x+3]>0?1:-1; }
         sides.push(s||1);
       });
@@ -14273,13 +14279,13 @@ function signesVariations(w, P){
       Object.assign(test,{kind:'lv', questions:[{pts:PTS.slice(), part:'c', gnum:1, gtot:1}], idx:0, score:0, maxScore:6, answers:[], startTime:Date.now(), locked:false});
       renderLV();
       const a0=document.getElementById('lv-c-arr-0');
-      if(!a0) vus.push('le tableau de variation du 2.1 ne se rend plus');
+      if(!a0) vus.push('le tableau de variation de {lecture-variations} ne se rend plus');
       else { a0.value='down'; lvArrowChange();
         const ov=document.getElementById('lv-c-ov');
-        if(!ov||ov.innerHTML.indexOf('vt-shaft')<0) vus.push('les flèches du 2.1 ne se dessinent plus (varArrowsCore)');
+        if(!ov||ov.innerHTML.indexOf('vt-shaft')<0) vus.push('les flèches de {lecture-variations} ne se dessinent plus (varArrowsCore)');
         const v0=document.getElementById('lv-c-val-0');
         /* flèche ↘ : le départ (nœud 0) monte en haut de la case (22px) */
-        if(!v0||v0.style.top!=='22px') vus.push('la valeur du 2.1 ne suit plus la flèche ('+(v0?v0.style.top:'absent')+')'); } }
+        if(!v0||v0.style.top!=='22px') vus.push('la valeur de {lecture-variations} ne suit plus la flèche ('+(v0?v0.style.top:'absent')+')'); } }
 
     /* le bouton attend l'élève : « Voir mes résultats » sur la dernière question */
     r=pose(JUSTE);
@@ -14291,7 +14297,7 @@ function signesVariations(w, P){
   })()`, v => v === '', undefined);
 }
 function tableauVariationDirect(w, P){
-  const nom='le tableau de variation direct : les dessins et le tableau du 2.1';
+  const nom='le tableau de variation direct : les dessins et le tableau de {lecture-variations}';
   const present = evaluer(w, "typeof startTVD==='function' && typeof tvdBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas l\'exercice du tableau de variation direct');
@@ -14318,7 +14324,7 @@ function tableauVariationDirect(w, P){
          rendrait l'enveloppe — on lit le SOURCE de la page */
       [["varTableHTML(a,'lv-c'",'le rendu du tableau lv-c'],["varTableHTML(a,'lsv-v'",'le rendu du tableau lsv-v'],["varTableHTML(a,'tvd-v'",'le rendu du tableau tvd-v'],
        ["varTableSubs(a,'lv-c')",'le jugement du tableau lv-c'],["varTableSubs(a,'lsv-v')",'le jugement du tableau lsv-v'],["varTableSubs(lvAnalyze(q.pts), 'tvd-v')",'le jugement du tableau tvd-v']
-      ].forEach(function(t2){ if(srcPage.indexOf(t2[0])<0) vus.push(t2[1]+' ne passe plus par la fonction partagée du 2.1'); });
+      ].forEach(function(t2){ if(srcPage.indexOf(t2[0])<0) vus.push(t2[1]+' ne passe plus par la fonction partagée de {lecture-variations}'); });
       if(srcPage.indexOf("$('tvdCorr').innerHTML=lvCorrectionHTML(q)")<0)
         vus.push('la correction écrite n\\'est plus celle du 2.1 (lvCorrectionHTML)'); }
 
@@ -14334,13 +14340,13 @@ function tableauVariationDirect(w, P){
         if(q.gnum!==g+1||q.gtot!==2) vus.push('le numéro de graphique ment ('+q.gnum+' / '+q.gtot+')');
         const pts=q.pts;
         if(!pts||pts.length!==7||pts.some(function(v){ return v!==Math.round(v)||v<-3||v>3; })){
-          vus.push('les valeurs sortent de la grille du 2.1 ('+(pts||[]).join(',')+')'); return; }
+          vus.push('les valeurs sortent de la grille de {lecture-variations} ('+(pts||[]).join(',')+')'); return; }
         for(let j=0;j<6;j++){ if(pts[j]===pts[j+1])
           vus.push('un PALIER ('+pts.join(',')+') : ce n\\'est plus un dessin du 2.1, et le tableau ne saurait plus dire le sens'); }
         if(Math.max.apply(null,pts)-Math.min.apply(null,pts)<4)
-          vus.push('une courbe trop plate pour un dessin du 2.1 ('+pts.join(',')+')');
+          vus.push('une courbe trop plate pour un dessin de {lecture-variations} ('+pts.join(',')+')');
         let n=1; for(let j=1;j<6;j++){ if((pts[j+1]-pts[j])*(pts[j]-pts[j-1])<0) n++; }
-        if(n<2||n>3) vus.push(n+' segment(s) de variation : hors du format du 2.1');
+        if(n<2||n>3) vus.push(n+' segment(s) de variation : hors du format de {lecture-variations}');
         formes.push(n);
       });
       if(!vus.length && !(formes.indexOf(2)>=0 && formes.indexOf(3)>=0))
@@ -14349,7 +14355,7 @@ function tableauVariationDirect(w, P){
     { const qs=tvdBuildQuestions(1);
       if(qs.length!==1) vus.push('le soutien (1 graphique) ne pose pas 1 question');
       else { const pts=qs[0].pts; let n=1; for(let j=1;j<6;j++){ if((pts[j+1]-pts[j])*(pts[j]-pts[j-1])<0) n++; }
-        if(n!==2) vus.push('le soutien ne garde pas la forme simple (k=2, comme au 2.1)'); } }
+        if(n!==2) vus.push('le soutien ne garde pas la forme simple (k=2, comme dans {lecture-variations})'); } }
 
     /* ---- 2. le jugement, vérifié pour de vrai — courbe à 3 segments :
        nœuds (−3;−3) (−1;2) (1;−2) (3;2) ---- */
@@ -14421,13 +14427,13 @@ function tableauVariationDirect(w, P){
       Object.assign(test,{kind:'lv', questions:[{pts:PTS.slice(), part:'c', gnum:1, gtot:1}], idx:0, score:0, maxScore:9, answers:[], startTime:Date.now(), locked:false});
       renderLV();
       const a0=document.getElementById('lv-c-arr-0');
-      if(!a0){ vus.push('le tableau de variation du 2.1 ne se rend plus'); }
+      if(!a0){ vus.push('le tableau de variation de {lecture-variations} ne se rend plus'); }
       else { const selTop=parseFloat(a0.style.top);
         a0.value='down'; lvArrowChange();
         const t0=parseFloat(document.getElementById('lv-c-val-0').style.top);
         const t1=parseFloat(document.getElementById('lv-c-val-1').style.top);
         if(Math.abs(selTop-(t0+t1)/2)>0.6)
-          vus.push('au 2.1 aussi, la case ↗/↘ doit être au milieu de la flèche ('+selTop+'px pour '+((t0+t1)/2)+'px)'); } }
+          vus.push('dans {lecture-variations} aussi, la case ↗/↘ doit être au milieu de la flèche ('+selTop+'px pour '+((t0+t1)/2)+'px)'); } }
 
     /* le bouton attend l'élève : « Voir mes résultats » sur la dernière question */
     r=pose(JUSTE);
@@ -14439,7 +14445,7 @@ function tableauVariationDirect(w, P){
   })()`, v => v === '', undefined);
 }
 function grandsTableaux(w, P){
-  const nom='les deux tableaux en grand : le dessin −6..6 et les tableaux du 2.14';
+  const nom='les deux tableaux en grand : le dessin −6..6 et les tableaux de {signes-variations}';
   const present = evaluer(w, "typeof startGSV==='function' && typeof gsvBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
     ignorer(nom, 'ce niveau n\'a pas l\'exercice des deux tableaux en grand');
@@ -14643,12 +14649,17 @@ function maximumMinimum(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='maximum-minimum';
 
-    /* ---- 0. la place au menu : le GRAND dessin, donc juste après
-       {signes-variations-grand}, qui l'introduit ---- */
-    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('maximum-minimum')>=0; })[0];
-      const i=th?th.ids.indexOf('maximum-minimum'):-1;
-      if(!th || th.ids[i-1]!=='signes-variations-grand')
-        vus.push('{maximum-minimum} ne suit pas {signes-variations-grand} au menu'); }
+    /* ---- 0. la place au menu : depuis le découpage du thème en parties
+       (septembre 2026), il OUVRE la partie « maximum, minimum et
+       encadrement » et {maximum-minimum-tableau} le suit — le grand dessin
+       d abord, le tableau ensuite. ---- */
+    { var pMmx=null; THEMES.forEach(function(t){ (t.sous||[{nom:t.nom,ids:t.ids}]).forEach(function(s){
+        if((s.ids||[]).indexOf('maximum-minimum')>=0) pMmx={nom:s.nom,ids:s.ids,i:s.ids.indexOf('maximum-minimum')}; }); });
+      if(!pMmx) vus.push('{maximum-minimum} n est dans aucun thème');
+      else {
+        if(pMmx.i!==0) vus.push('{maximum-minimum} n ouvre pas la partie « '+pMmx.nom+' »');
+        if(pMmx.ids[pMmx.i+1]!=='maximum-minimum-tableau') vus.push('{maximum-minimum-tableau} ne suit pas {maximum-minimum} au menu');
+      } }
 
     /* ---- 0 bis. le PARTAGE : le tirage est adrGenPts et le dessin adrSVG —
        les fonctions MÊMES du grand graphique. Les rendus sont ENVELOPPÉS : on
@@ -14867,7 +14878,7 @@ function maximumMinimumTableau(w, P){
       if(srcPage.indexOf("varTableHTML(gsvAnalyze(q.pts), 'mmt-v', '', true)")<0)
         vus.push('le tableau ne passe plus par varTableHTML en mode lecture');
       if(String(mmtCheckPart).indexOf('mmxAns')<0)
-        vus.push('le jugement ne passe plus par mmxAns, la fonction qui corrige le 2.16');
+        vus.push('le jugement ne passe plus par mmxAns, la fonction qui corrige {maximum-minimum}');
       if(String(mmtTirage).indexOf('adrGenPts')<0)
         vus.push('le tirage ne passe plus par adrGenPts'); }
 
@@ -14977,7 +14988,7 @@ function maximumMinimumTableau(w, P){
       const txt=(hote.textContent||'').replace(/\\s+/g,'');
       ns.forEach(function(x){ if(txt.indexOf(String(x).replace('-','\\u2212'))<0 && txt.indexOf(String(x))<0) vus.push('l abscisse '+x+' n est pas écrite dans le tableau'); });
       ns.forEach(function(x){ const v=PTS[x+6]; if(txt.indexOf(String(v).replace('-','\\u2212'))<0 && txt.indexOf(String(v))<0) vus.push('la valeur f('+x+') = '+v+' n est pas écrite dans le tableau'); });
-      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir : ce serait l exercice du 2.15');
+      if(hote.querySelector('input')||hote.querySelector('select')) vus.push('le tableau porte des cases à remplir : ce serait l exercice {signes-variations-grand}');
       const fleches=(hote.innerHTML.match(/vt-shaft/g)||[]).length;
       if(fleches!==ns.length-1) vus.push(fleches+' flèche(s) tracée(s) pour '+(ns.length-1)+' segment(s)');
       /* LA VARIATION SE VOIT : la valeur qui commence une flèche montante est
@@ -15061,12 +15072,16 @@ function tableauEquations(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='tableau-equations';
 
-    /* ---- 0. la place au menu : juste après {maximum-minimum-tableau}, le
-       tableau qui se lit ---- */
-    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tableau-equations')>=0; })[0];
-      const i=th?th.ids.indexOf('tableau-equations'):-1;
-      if(!th || th.ids[i-1]!=='maximum-minimum-tableau')
-        vus.push('{tableau-equations} ne suit pas {maximum-minimum-tableau} au menu'); }
+    /* ---- 0. la place au menu : depuis le découpage du thème en parties
+       (septembre 2026), il vit dans celle des tableaux — c est un tableau de
+       variation qui se lit — et {tableau-vrai-faux} le suit, comme avant.
+       {maximum-minimum-tableau}, qui le précédait, est parti dans la partie
+       du maximum et du minimum, dont il porte le sujet. ---- */
+    { var pTve=null; THEMES.forEach(function(t){ (t.sous||[{nom:t.nom,ids:t.ids}]).forEach(function(s){
+        if((s.ids||[]).indexOf('tableau-equations')>=0) pTve={nom:s.nom,ids:s.ids,i:s.ids.indexOf('tableau-equations')}; }); });
+      if(!pTve) vus.push('{tableau-equations} n est dans aucun thème');
+      else if(pTve.ids[pTve.i+1]!=='tableau-vrai-faux')
+        vus.push('{tableau-vrai-faux} ne suit pas {tableau-equations} au menu'); }
 
     /* ---- 0 bis. le PARTAGE : le tableau est varTableHTML en mode lecture, le
        tirage adrGenPts, le juge lit tveNbSol et tveSolve (les fonctions mêmes
@@ -15571,6 +15586,12 @@ function pageDesThemes(w, P){
       const parties=c.filter(function(x){ return x.classList.contains('themecard'); }).length;
       if(parties && parties!==c.length)
         vus.push('thème '+th.num+' : sa page mêle des parties et des exercices');
+      /* Un thème qui DÉCLARE des parties doit les MONTRER : sans ce bord, un
+         openTheme revenu à la liste plate rendrait exactement le bon nombre de
+         cartes d exercices, et le contrôle passerait au vert en parlant d
+         autre chose. */
+      if(th.sous && th.sous.length && parties!==th.sous.length)
+        vus.push('thème '+th.num+' : '+parties+' partie(s) affichée(s) pour '+th.sous.length+' déclarée(s)');
       if(!parties){
         const ids=th.ids.filter(function(id){ return TESTS[id]; });
         if(c.length!==ids.length)
@@ -15583,6 +15604,33 @@ function pageDesThemes(w, P){
         if(etrangers.length)
           vus.push('thème '+th.num+' : '+etrangers.length+' carte(s) qui n ouvrent pas un exercice du thème');
       }
+      /* ---- 2 bis. LA PAGE D UNE PARTIE, là où le niveau en déclare : ses
+         exercices, et rien d autre. Sans ce bord, un thème pourrait n afficher
+         que des parties dont aucune n ouvre quoi que ce soit — l élève verrait
+         des cases mortes, et l étage ci-dessus resterait vert. ---- */
+      if(parties){
+        (th.sous||[]).forEach(function(st){
+          openSousTheme(th.num, st.num);
+          const on2=document.querySelector('.screen.on');
+          if(!on2 || on2.id!=='scr-soustheme'){ vus.push('partie '+th.num+'.'+st.num+' : openSousTheme n ouvre pas sa page'); return; }
+          const t2=(document.getElementById('sousThemeTitle')||{}).textContent||'';
+          if(t2.indexOf(st.nom)<0) vus.push('partie '+th.num+'.'+st.num+' : le titre de la page ne dit pas « '+st.nom+' »');
+          const ids2=st.ids.filter(function(id){ return TESTS[id]; });
+          const c2=[...document.getElementById('sousThemeChoices').querySelectorAll('.choice')];
+          if(c2.length!==ids2.length){ vus.push('partie '+th.num+'.'+st.num+' : '+c2.length+' carte(s) pour '+ids2.length+' exercice(s)'); return; }
+          const etr=c2.filter(function(x){
+            const o=porte(x), i=o.indexOf("openTest('");
+            if(i<0) return true;
+            const j=o.indexOf("'", i+10);
+            return j<0 || ids2.indexOf(o.slice(i+10, j))<0; });
+          if(etr.length) vus.push('partie '+th.num+'.'+st.num+' : '+etr.length+' carte(s) qui n ouvrent pas un exercice de la partie');
+        });
+        /* et « Retour » depuis une partie remonte à la page de son THÈME,
+           jamais à la liste des thèmes */
+        retourTheme();
+        const onR=document.querySelector('.screen.on');
+        if(!onR || onR.id!=='scr-theme') vus.push('thème '+th.num+' : « Retour » depuis une partie ne remonte pas à la page du thème');
+      }
     });
 
     /* ---- 3. LE RETOUR : après un exercice, on revient sur la page de SON
@@ -15594,6 +15642,20 @@ function pageDesThemes(w, P){
       const id=th.ids.filter(function(x){ return TESTS[x]; })[0];
       if(themeOfTest(id)!==th.num) vus.push('themeOfTest se trompe de thème sur '+id);
     });
+    if(THEMES.some(function(t){ return !!t.sous; })){
+      if(typeof sousThemeOfTest!=='function') vus.push('sousThemeOfTest est introuvable : le retour ne sait plus de quelle partie on vient');
+      else THEMES.forEach(function(t){ (t.sous||[]).forEach(function(st){
+        const id=st.ids.filter(function(x){ return TESTS[x]; })[0];
+        if(!id) return;
+        const p=sousThemeOfTest(id);
+        if(!p || p.theme!==t.num || p.sous!==st.num) vus.push('sousThemeOfTest se trompe de partie sur '+id);
+      }); });
+      /* retourChoix est l entonnoir du « Retour » : il rouvre la page du thème,
+         puis celle de la PARTIE. Sans elle, l élève qui enchaîne deux exercices
+         d une même partie redescend d un étage à chaque fois. */
+      if(String(retourChoix).indexOf('openSousTheme')<0)
+        vus.push('« Retour » depuis un exercice ne sait pas rouvrir la page d une partie');
+    }
     return vus.slice(0,4).join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -15616,9 +15678,9 @@ function syntheseFonction(w, P){
     { const H=document.documentElement.outerHTML;
       const i0=H.indexOf('function renderSYN('), i1=(i0<0?-1:H.indexOf('function synArrowChange', i0));
       const src=String(synGen)+String(synAnalyse)+String(synCheckPart)+((i0>=0&&i1>i0)?H.slice(i0,i1):'');
-      [['gsvGen','le tirage du 2.15'],['gsvAnalyze','l analyse du 2.15'],['adrCibles','les hauteurs lisibles'],
-       ['mmxUnique','l unicité des extremums du 2.16'],['mmxAns','le maximum du 2.16'],
-       ['varTableHTML','le tableau du 2.1'],['varTableSubs','le jugement du tableau du 2.1'],
+      [['gsvGen','le tirage de {signes-variations-grand}'],['gsvAnalyze','l analyse de {signes-variations-grand}'],['adrCibles','les hauteurs lisibles'],
+       ['mmxUnique','l unicité des extremums de {maximum-minimum}'],['mmxAns','le maximum de {maximum-minimum}'],
+       ['varTableHTML','le tableau de {lecture-variations}'],['varTableSubs','le jugement du tableau de {lecture-variations}'],
        ['adrSVG','le dessin d {antecedents-droite}'],['fgLegende','la légende f/g']].forEach(function(p){
         if(src.indexOf(p[0])<0) vus.push('la synthèse n utilise plus '+p[1]+' ('+p[0]+')');
       }); }
@@ -15785,7 +15847,7 @@ function qcmTableauVariation(w, P){
       if(String(vtqGen).indexOf('adrGenPts')<0)
         vus.push('le tirage ne passe plus par adrGenPts, le générateur du grand graphique');
       if(String(vtqTableHTML).indexOf('varTableHTML(')<0)
-        vus.push('les tableaux proposés ne passent plus par varTableHTML, la fonction même qui rend le tableau du 2.1');
+        vus.push('les tableaux proposés ne passent plus par varTableHTML, la fonction même qui rend le tableau de {lecture-variations}');
       if(String(vtqValsZig).indexOf('varTopPour')<0)
         vus.push('le zigzag du tableau au mauvais NOMBRE de variations ne lit plus varTopPour : ses valeurs tomberaient ailleurs que là où leur rôle les met'); }
 
