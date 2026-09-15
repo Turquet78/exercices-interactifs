@@ -298,7 +298,10 @@ module.exports = {
        mesure ce qui reste dans la bande, dans les deux orientations. */
     basSysteme: { px: 48, exercice: 'synthese-diminutions-libre',
                   champ: '#salSheet math-field',
-                  regles: ['#testCtrls', '#paveNum', '.MLK__backdrop'] },
+                  regles: ['#testCtrls', '#paveNum', '.MLK__rows'] },
+    /* le fond du clavier, lui, reste collé au bord : c'est ce qui distingue
+       le rembourrage des rangées de la marge d'avant — pas de trou sous le
+       clavier, et pas une touche dans la bande. Mesuré au navigateur. */
     policeTablette: 90,
     /* Sur tablette, la feuille de calcul libre (.dexp2-sheet : 2.1.7, 2.2.10,
        2.3.9) écrit à cette taille en rem au lieu de 2 rem (demande de Turquet,

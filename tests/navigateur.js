@@ -7632,7 +7632,12 @@ async function parcours(page, N){
         let pave = 0;
         if(pv && !pv.hidden) [...pv.querySelectorAll('.pave-t')].filter(vis).forEach(b => {
           pave++; regarde('la touche « ' + b.textContent.trim() + ' » du pavé', b, true); });
-        return { H, touches, commandes, pave, dans, sourds,
+        /* le FOND du clavier : ce qui se voit. Il doit rester collé au bord
+           pendant que les touches remontent — sans quoi l'élève a une bande
+           de page sous son clavier (le « trou » signalé en septembre 2026). */
+        const fd = kb && kb.querySelector('.MLK__backdrop');
+        const fond = fd ? Math.round(H - fd.getBoundingClientRect().bottom) : null;
+        return { H, touches, commandes, pave, dans, sourds, fond,
                  modeApp: document.body.classList.contains('mode-app'),
                  clavier: !!(window.mathVirtualKeyboard && window.mathVirtualKeyboard.visible) };
       };
@@ -7677,6 +7682,17 @@ async function parcours(page, N){
           !por.clavier ? 'le clavier s\'est refermé à la rotation'
             : (por.dans.length ? por.dans.length + ' dans la bande : ' + por.dans.slice(0, 3).join(', ') : '')
               + (por.sourds.length ? ' ; ' + por.sourds.length + ' touche(s) recouverte(s) : ' + por.sourds.slice(0, 3).join(', ') : ''));
+        /* ET LE FOND DU CLAVIER RESTE AU RAS DU BORD, dans les deux
+           orientations. C'est ce qui sépare ce correctif de la v221, qui
+           remontait le clavier EN BLOC : les touches étaient déjà hors de la
+           bande, mais une bande de page se voyait dessous. Une marge revenue
+           sur le fond fait rougir ce contrôle-ci et passer les deux autres —
+           c'est exactement le défaut signalé. */
+        verifier('en mode application, le fond du clavier reste collé au bord de l\'écran : aucun trou sous le clavier',
+          pay.fond !== null && por.fond !== null && pay.fond <= 1 && por.fond <= 1,
+          pay.fond === null || por.fond === null ? 'aucun fond de clavier rendu'
+            : 'trou sous le clavier : ' + pay.fond + ' px en paysage, ' + por.fond + ' px en portrait');
+
         /* LES DEUX AUTRES MEUBLES DU BAS : les commandes et le pavé numérique.
            Le clavier ancré les recouvre tant qu'il est déployé — on ouvre donc
            un exercice à cases, où c'est le pavé compact qui paraît, et en

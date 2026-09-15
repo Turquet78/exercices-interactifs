@@ -7359,12 +7359,32 @@ vit à UN SEUL endroit (`--bas-systeme`, 48 px, déclarée aussi dans
 `window.__appForce`, et la classe se RETIRE à la sortie du plein écran — sans
 quoi un onglet mis puis sorti du plein écran garderait la mise en page de
 l'application.
-**Le clavier remonte en BLOC, et c'est la mesure qui l'a décidé** : une
-bordure ou un rembourrage posés sur son fond n'ont RIEN donné — sa hauteur est
-ÉCRITE par MathLive et sa plaque de touches est accrochée au HAUT du fond, si
-bien que les touches n'avaient pas bougé d'un pixel et débordaient simplement
-de leur boîte. C'est une marge qui le remonte, et on l'a su en mesurant, pas
-en relisant.
+**Le clavier a d'abord remonté EN BLOC (v221), et c'est la mesure qui l'a
+décidé** : une bordure ou un rembourrage posés sur son fond n'ont RIEN donné —
+sa hauteur est ÉCRITE par MathLive en BOÎTE DE BORDURE et sa plaque de touches
+est accrochée au HAUT du fond, si bien que les touches n'avaient pas bougé d'un
+pixel et débordaient simplement de leur boîte. C'est une marge qui l'a remonté,
+et on l'a su en mesurant, pas en relisant.
+**MAIS UNE MARGE LAISSE UN TROU, et Turquet l'a dit le lendemain** (« le trou
+sous le clavier me gêne ») : le fond opaque s'arrêtait 48 px au-dessus du bord,
+et une bande de page se voyait dessous. Il ne demandait pas de redescendre les
+touches — la question était « peut-on mettre le clavier tout en bas ? », et la
+réponse est NON tant qu'on veut des touches qui répondent : la bande appartient
+à Android. **Les deux se tiennent pourtant, en posant le rembourrage sur les
+RANGÉES et non sur le fond** (v222) : le fond GRANDIT d'autant, son décalage et
+sa translation suivent tout seuls, il reste collé au bord — et les touches
+montent avec lui. La sonde a départagé les quatre essais plutôt que de les
+supposer : le fond passe de 247 à 295 px et la rangée du bas de 7 à 55 px du
+bord (les 48 de la réserve plus les 8 de marge que les rangées avaient déjà),
+quand une MARGE sur ces mêmes rangées ne rendait que 47 px — elle REMPLACE la
+marge de 8 au lieu de s'y ajouter, et passait SOUS la réserve. Le pavé et les
+commandes gardent la leur : ce sont des cartes flottantes à coins arrondis,
+elles n'ont aucun bord à épouser, et aucun trou ne se voit sous elles.
+**Le contrôle du trou est au NAVIGATEUR, et lui seul peut le voir** : il mesure
+le bas du fond du clavier contre le bord de l'écran, dans les deux
+orientations. C'est ce qui sépare la v222 de la v221 — une marge revenue sur le
+fond le fait rougir en chiffrant le trou pendant que les deux contrôles des
+touches restent verts, c'est-à-dire exactement le défaut signalé.
 **Le bord OPPOSÉ compte autant, et il a son contrôle** : un niveau en
 « standalone » ne doit RIEN porter de tout cela — 48 px coûtés pour rien —, et
 un niveau qui passerait en plein écran sans réserve rougit aussitôt : le
